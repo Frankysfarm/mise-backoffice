@@ -1,0 +1,185 @@
+/* ============================================================
+ * Mise POS v5 — Mobile Overrides (erweitert v2)
+ * Aktiviert über Wrapper <div class="pos-root">
+ *
+ * Designed für iPhone 375-414px breit.
+ * Strategie: 3618 Zeilen Inline-Styles NICHT anfassen, sondern
+ * zentrale Tailwind-Klassen + Inline-Selektoren via @media überschreiben.
+ *
+ * Wichtigste Mobile-UX-Verbesserungen:
+ *   - Sidebar (Bon-Liste) wird zu Bottom-Sheet-ähnlicher Bottom-Area
+ *   - Item-Grid 4-spaltig → 2-spaltig
+ *   - Touch-Targets min 48px (Apple HIG: 44pt+)
+ *   - Padding deutlich entschlackt
+ *   - Floor-Plan kontrolliert scrollbar
+ *   - Modals full-bleed
+ * ============================================================ */
+
+/* ---------- Touch-Targets global ---------- */
+.pos-root button {
+  min-height: 44px;
+}
+
+/* ============================================================
+ * PHONE-Layout: ≤ 640px
+ * ============================================================ */
+@media (max-width: 640px) {
+
+  /* Main-Container: kein border-radius / margin */
+  .pos-root {
+    font-size: 14px;
+  }
+
+  /* Haupt-Flex (Item-Grid + Sidebar) → vertikal stack */
+  .pos-root .flex-1.flex.overflow-hidden {
+    flex-direction: column !important;
+  }
+
+  /* Bon-Sidebar (w-96 = 384px) → full-width unten */
+  .pos-root .w-96 {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+    max-height: 45vh; /* Bon-Liste max 45% screen-höhe */
+    flex-shrink: 0;
+  }
+
+  /* Andere fixed-width Sidebars (Reservierungen, etc) */
+  .pos-root .w-80,
+  .pos-root .w-72,
+  .pos-root .w-64 {
+    width: 100% !important;
+    max-height: 40vh;
+  }
+
+  /* Item-Grid 4 → 2 Spalten */
+  .pos-root .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+
+  /* 3-col grid bleibt 3-col (z.B. Numpad) — aber kleinerer gap */
+  .pos-root .grid-cols-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* Riesen-Paddings auf mobile entschlacken */
+  .pos-root .p-12 { padding: 0.75rem !important; }
+  .pos-root .p-10 { padding: 0.75rem !important; }
+  .pos-root .p-8  { padding: 0.75rem !important; }
+  .pos-root .p-6  { padding: 0.625rem !important; }
+
+  .pos-root .px-12, .pos-root .px-10, .pos-root .px-8 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  .pos-root .py-12, .pos-root .py-10, .pos-root .py-8 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  .pos-root .px-6 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Buttons: deutlich größere touch-targets auf mobile */
+  .pos-root button {
+    min-height: 48px;
+  }
+
+  /* Item-Card Buttons (im Item-Grid) — höher für daumen-friendly */
+  .pos-root .grid-cols-4 > button,
+  .pos-root .grid-cols-3 > button,
+  .pos-root .grid-cols-2 > button {
+    min-height: 72px;
+    font-size: 13px;
+  }
+
+  /* Header-Top-Bar: kompakter */
+  .pos-root [class*="py-4"] { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+  .pos-root [class*="py-3.5"] { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+
+  /* Modals / Overlays: full-bleed mit kleinen edges */
+  .pos-root .max-w-sm,
+  .pos-root .max-w-md,
+  .pos-root .max-w-lg,
+  .pos-root .max-w-xl,
+  .pos-root .max-w-2xl,
+  .pos-root .max-w-3xl,
+  .pos-root .max-w-4xl {
+    max-width: calc(100vw - 1rem) !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* Lange horizontale Tabs (z.B. Kategorien) — touch-scroll smooth */
+  .pos-root .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pos-root .overflow-x-auto::-webkit-scrollbar { display: none; }
+
+  /* Floor-Plan SVG / Tische — auf phone NICHT scaling, sondern scrollbar */
+  .pos-root svg[viewBox] {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Settings/Side-Panels mit grid-cols-2 inside (auf 1) */
+  .pos-root .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Text-Größen für lange Strings: nicht wrappen sondern truncaten */
+  .pos-root h1[class*="text-3xl"],
+  .pos-root h1[class*="text-4xl"] {
+    font-size: 1.75rem !important;
+    line-height: 1.1;
+  }
+  .pos-root h2[class*="text-2xl"],
+  .pos-root h2[class*="text-3xl"] {
+    font-size: 1.375rem !important;
+  }
+
+  /* Sticky-Header-Z-Index Schutz */
+  .pos-root .sticky { position: sticky; top: 0; z-index: 5; }
+
+  /* Bestätigungs-Buttons (Bezahlen, Bonieren etc.) — extra prominent */
+  .pos-root button[style*="action"] {
+    min-height: 56px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* Safe-Area für iPhone Notch */
+  .pos-root {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* ============================================================
+ * SMALL-TABLET: 641-768px
+ * ============================================================ */
+@media (min-width: 641px) and (max-width: 768px) {
+  .pos-root .grid-cols-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .pos-root .w-96 { width: 320px !important; }
+  .pos-root .p-12 { padding: 1.25rem !important; }
+  .pos-root .p-10 { padding: 1rem !important; }
+}
+
+/* ============================================================
+ * Landscape-Phone (Spezialfall — z.B. iPhone seitlich)
+ * ============================================================ */
+@media (max-width: 920px) and (orientation: landscape) and (max-height: 500px) {
+  .pos-root .w-96 {
+    max-height: 100vh;
+    width: 280px !important;
+    border-left: 1px solid rgba(255,255,255,0.08) !important;
+    border-top: none !important;
+  }
+  .pos-root .flex-1.flex.overflow-hidden {
+    flex-direction: row !important;
+  }
+}

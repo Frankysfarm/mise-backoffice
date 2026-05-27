@@ -1,0 +1,14 @@
+kategorie;name;beschreibung;preis;allergene
+Heißgetränke;Matcha Latte;Cremig, umami — der Klassiker mit Milchschaum-Krone;4,80;Milch
+Heißgetränke;Oat Matcha;Pflanzlich, cremig — mit Hafer-Barista-Milch;5,20;Hafer
+Heißgetränke;Matcha Espresso Fusion;Doppelter Kick — Matcha trifft Espresso. Geschichtet.;5,80;Milch
+Heißgetränke;Cappuccino;Klassischer Espresso mit samtiger Milch;4,20;Milch
+Heißgetränke;Filterkaffee;Slow-drip, mild und aromatisch;3,20;
+Heißgetränke;Chai Latte;Hausgemachter Chai-Sirup mit warmer Milch;4,50;Milch
+Kaltgetränke;Iced Matcha;Mit Eis, Hafer- oder Kuhmilch;5,20;Milch,Hafer
+Kaltgetränke;Cold Brew;12h kalt extrahiert, intensiv;4,50;
+Kaltgetränke;Stilles Wasser 0,33 l;Aus regionaler Quelle;2,50;
+Kaltgetränke;Sprudel 0,33 l;Stark prickelnd;2,50;
+Speisen;Avocado-Toast;Sauerteig, Avocado, Limette, Chili-Öl;9,50;Gluten
+Speisen;Käsekuchen;Hausgemacht, glutenfrei;4,80;Milch,Ei
+Speisen;Granola-Bowl;Joghurt, Beeren, Hafer-Granola, Honig;7,50;Milch,Hafer

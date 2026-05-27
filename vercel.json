@@ -1,0 +1,29 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/push/send",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/drivers/push/send",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/email/process-outbox",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/modules/expire-trials",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/pos/z-report/auto",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/pos/backup/worm",
+      "schedule": "0 5 1 * *"
+    }
+  ]
+}
