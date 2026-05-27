@@ -372,6 +372,36 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         logoUrl={logoUrl}
       />
 
+      {/* Quick-Jump: Kategorie-Buttons oben, damit Kunden nicht scrollen müssen */}
+      <div className="bg-surface border-b border-matcha-900/5">
+        <div className="mx-auto max-w-6xl px-4 py-3 md:px-8">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            {popular.length > 0 && (
+              <button
+                onClick={() => scrollToSection('beliebt')}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-matcha-900 px-4 py-2 text-xs font-bold text-matcha-50 shadow-sm transition active:scale-95"
+              >
+                <span>⭐</span> Beliebt
+              </button>
+            )}
+            {categories.map((cat) => {
+              const catItems = itemsByCategory.get(cat.id) ?? [];
+              if (catItems.length === 0) return null;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => scrollToSection(cat.id)}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-matcha-50 px-4 py-2 text-xs font-bold text-matcha-900 transition hover:bg-matcha-100 active:scale-95"
+                >
+                  {cat.icon && <span>{cat.icon}</span>}
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       <StickyCategoryBar
         categories={categories}
         hasPopular={popular.length > 0}
