@@ -54,7 +54,8 @@ export async function GET(
   }
 
   const batch = Array.isArray(o.batch) ? o.batch[0] : o.batch;
-  const driver = batch?.driver && Array.isArray(batch.driver) ? batch.driver[0] : batch?.driver;
+  const driver = (batch?.driver && Array.isArray(batch.driver) ? batch.driver[0] : batch?.driver) as
+    { last_lat: number | null; last_lng: number | null; vehicle: string | null } | null | undefined;
 
   const now = new Date();
   const ageMins = (now.getTime() - new Date(o.created_at as string).getTime()) / 60_000;
