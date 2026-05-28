@@ -526,11 +526,27 @@ function OrderRow({
   selected: boolean;
   onToggle: () => void;
 }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   const pay = payMeta(order.zahlungsart);
   const waitingMin = order.fertig_am
     ? Math.floor((Date.now() - new Date(order.fertig_am).getTime()) / 60_000)
     : null;
+  const waitingSec = order.fertig_am
+    ? Math.floor((Date.now() - new Date(order.fertig_am).getTime()) / 1_000)
+    : null;
   const urgent = waitingMin !== null && waitingMin >= 10;
+
+  // Live ETA countdown — how long until customer's expected delivery window
+  const etaSec = order.eta_earliest
+    ? Math.floor((new Date(order.eta_earliest).getTime() - Date.now()) / 1_000)
+    : null;
+  const etaOverdue = etaSec !== null && etaSec < 0;
+  const etaSoon = etaSec !== null && etaSec >= 0 && etaSec < 900; // <15 min
 
   return (
     <button
@@ -577,6 +593,16 @@ function OrderRow({
               wartet {waitingMin}m
             </span>
           )}
+          {etaOverdue && (
+            <span className="rounded-full bg-red-500 text-white px-2 py-0.5 text-[10px] font-bold animate-pulse">
+              ETA überzogen!
+            </span>
+          )}
+          {etaSoon && !etaOverdue && etaSec !== null && (
+            <span className="rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-[10px] font-bold tabular-nums">
+              ETA in {Math.floor(etaSec / 60)}:{String(etaSec % 60).padStart(2, '0')}
+            </span>
+          )}
         </div>
         <div className="mt-1 flex items-center gap-2">
           <span className="font-semibold">{order.kunde_name}</span>
@@ -591,9 +617,13 @@ function OrderRow({
 
       <div className="text-right">
         <div className="font-display text-sm font-bold">{euro(order.gesamtbetrag)}</div>
-        {waitingMin !== null && (
-          <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
-            <Clock className="h-3 w-3" /> {waitingMin}m
+        {waitingSec !== null && (
+          <div className={cn(
+            'mt-0.5 flex items-center justify-end gap-1 text-[10px] tabular-nums',
+            urgent ? 'text-red-600 font-bold' : 'text-muted-foreground',
+          )}>
+            <Clock className="h-3 w-3" />
+            {Math.floor(waitingSec / 60)}:{String(waitingSec % 60).padStart(2, '0')}
           </div>
         )}
       </div>
