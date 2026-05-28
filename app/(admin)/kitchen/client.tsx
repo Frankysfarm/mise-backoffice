@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
-  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Home as HomeIcon,
-  Inbox, Package, Utensils, X, Zap,
+  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
+  Inbox, Package, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { advanceOrder, cancelOrder } from './actions';
 
@@ -329,6 +329,9 @@ export function KitchenBoard({
 
   return (
     <div className="space-y-4">
+      {/* Cooking Load Summary */}
+      <CookingLoadPanel orders={filtered} />
+
       {/* Smart Timing Banner */}
       {timings.length > 0 && <KitchenTimingBanner timings={timings} orders={filtered} />}
 
@@ -408,6 +411,80 @@ export function KitchenBoard({
                 ))}
               </div>
             </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ CookingLoadPanel ------------------------------ */
+
+function CookingLoadPanel({ orders }: { orders: Order[] }) {
+  const now = Date.now();
+
+  // Bucket orders by wait time — only active kitchen orders
+  const active = orders.filter((o) => ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status));
+  if (active.length === 0) return null;
+
+  type Bucket = { label: string; color: string; bg: string; icon: React.ComponentType<{ className?: string }>; orders: Order[] };
+  const buckets: Bucket[] = [
+    { label: '0–10 Min',  color: 'text-matcha-700', bg: 'bg-matcha-100',  icon: Clock,     orders: [] },
+    { label: '10–20 Min', color: 'text-orange-700', bg: 'bg-orange-100',  icon: TrendingUp, orders: [] },
+    { label: '20+ Min',   color: 'text-red-700',    bg: 'bg-red-100',     icon: Flame,     orders: [] },
+  ];
+
+  for (const o of active) {
+    const waitMin = o.bestellt_am ? (now - new Date(o.bestellt_am).getTime()) / 60_000 : 0;
+    if (waitMin < 10) buckets[0].orders.push(o);
+    else if (waitMin < 20) buckets[1].orders.push(o);
+    else buckets[2].orders.push(o);
+  }
+
+  const maxCount = Math.max(...buckets.map((b) => b.orders.length), 1);
+  const hasCritical = buckets[2].orders.length > 0;
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      hasCritical ? 'border-red-200 bg-red-50' : 'border-border bg-card',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <Flame className={cn('h-4 w-4', hasCritical ? 'text-red-600' : 'text-matcha-600')} />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          Küchenauslastung · {active.length} aktiv
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {buckets.map((b) => {
+          const BIcon = b.icon;
+          const pct = (b.orders.length / maxCount) * 100;
+          return (
+            <div key={b.label} className={cn('rounded-lg p-2', b.bg, b.orders.length === 0 && 'opacity-40')}>
+              <div className={cn('flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide mb-1', b.color)}>
+                <BIcon className="h-3 w-3" />
+                {b.label}
+              </div>
+              <div className={cn('font-display text-xl font-black leading-none', b.color)}>
+                {b.orders.length}
+              </div>
+              {b.orders.length > 0 && (
+                <div className="mt-1 h-1 rounded-full bg-black/10 overflow-hidden">
+                  <div
+                    className={cn('h-full rounded-full transition-all duration-700',
+                      b.orders.length === buckets[2].orders.length ? 'bg-red-500' :
+                      b.orders.length === buckets[1].orders.length && buckets[2].orders.length === 0 ? 'bg-orange-400' :
+                      'bg-matcha-500',
+                    )}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              )}
+              <div className={cn('mt-0.5 text-[9px] truncate', b.color, 'opacity-70')}>
+                {b.orders.slice(0, 2).map((o) => `#${o.bestellnummer.replace('FF-', '')}`).join(' · ')}
+                {b.orders.length > 2 && ` +${b.orders.length - 2}`}
+              </div>
+            </div>
           );
         })}
       </div>
@@ -616,12 +693,20 @@ function DriverChip({
   stops: Stop[];
   orders: Order[];
 }) {
-  const batchId = driver.status?.aktueller_batch_id ?? batches.find((b) => b.driver_id === driver.id)?.id;
+  const batch = batches.find((b) => b.driver_id === driver.id);
+  const batchId = driver.status?.aktueller_batch_id ?? batch?.id;
   const myStops = batchId ? stops.filter((s) => s.batch_id === batchId) : [];
   const totalStops = myStops.length;
   const deliveredStops = myStops.filter((s) => s.geliefert_am).length;
   const nextStop = myStops.find((s) => !s.geliefert_am);
   const nextOrder = nextStop ? orders.find((o) => o.id === nextStop.order_id) : null;
+
+  // Estimate return time based on batch start + avg 8 min/stop
+  const onlineMinutes = driver.status?.online_seit
+    ? Math.floor((Date.now() - new Date(driver.status.online_seit).getTime()) / 60_000)
+    : null;
+  const remainingStops = totalStops - deliveredStops;
+  const estReturnMin = state === 'unterwegs' ? remainingStops * 8 : null;
 
   const cfg = STATE_CONFIG[state];
 
@@ -640,6 +725,9 @@ function DriverChip({
           </div>
           <div className={cn('text-[10px] font-bold uppercase tracking-wider', cfg.textColor)}>
             {cfg.label}
+            {onlineMinutes !== null && state !== 'offline' && (
+              <span className="ml-1 opacity-60">· {onlineMinutes} Min online</span>
+            )}
           </div>
         </div>
       </div>
@@ -649,7 +737,26 @@ function DriverChip({
         <div className="mt-2 pt-2 border-t border-current/10">
           <div className="flex items-center justify-between text-xs">
             <span>Stopp {deliveredStops + 1}/{totalStops}</span>
-            <span className="font-mono">{Math.round((deliveredStops / totalStops) * 100)}%</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono">{Math.round((deliveredStops / totalStops) * 100)}%</span>
+              {estReturnMin !== null && estReturnMin > 0 && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
+                  estReturnMin <= 10 ? 'bg-matcha-200 text-matcha-800' :
+                  estReturnMin <= 20 ? 'bg-orange-200 text-orange-800' :
+                  'bg-red-200 text-red-800',
+                )}>
+                  ~{estReturnMin}m
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Mini progress bar */}
+          <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
+            <div
+              className="h-full bg-orange-400 rounded-full transition-all"
+              style={{ width: `${(deliveredStops / totalStops) * 100}%` }}
+            />
           </div>
           {nextOrder && (
             <div className="mt-1 text-[11px] text-foreground/70 truncate">
