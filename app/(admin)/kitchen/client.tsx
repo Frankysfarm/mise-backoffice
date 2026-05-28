@@ -393,7 +393,26 @@ export function KitchenBoard({
                   <col.icon className="h-4 w-4" />
                   <h2 className="font-display text-sm font-bold uppercase tracking-wider">{col.label}</h2>
                 </div>
-                <Badge variant="muted">{colOrders.length}</Badge>
+                <div className="flex items-center gap-2">
+                  {colOrders.length > 0 && (() => {
+                    const oldest = colOrders.reduce((m, o) => {
+                      const ms = o.bestellt_am ? Date.now() - new Date(o.bestellt_am).getTime() : 0;
+                      return ms > m ? ms : m;
+                    }, 0);
+                    const om = Math.floor(oldest / 60_000);
+                    const os = Math.floor((oldest % 60_000) / 1_000);
+                    const isLate = om >= 15;
+                    return (
+                      <span className={cn(
+                        'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
+                        isLate ? 'bg-red-100 text-red-700' : 'text-muted-foreground',
+                      )}>
+                        ⏱ {om}:{String(os).padStart(2, '0')}
+                      </span>
+                    );
+                  })()}
+                  <Badge variant="muted">{colOrders.length}</Badge>
+                </div>
               </header>
               <div className="space-y-3 p-3">
                 {colOrders.length === 0 && (
@@ -741,16 +760,20 @@ function DriverChip({
             <span>Stopp {deliveredStops + 1}/{totalStops}</span>
             <div className="flex items-center gap-1.5">
               <span className="font-mono">{Math.round((deliveredStops / totalStops) * 100)}%</span>
-              {estReturnMin !== null && estReturnMin > 0 && (
-                <span className={cn(
-                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
-                  estReturnMin <= 10 ? 'bg-matcha-200 text-matcha-800' :
-                  estReturnMin <= 20 ? 'bg-orange-200 text-orange-800' :
-                  'bg-red-200 text-red-800',
-                )}>
-                  ~{estReturnMin}m
-                </span>
-              )}
+              {estReturnMin !== null && estReturnMin > 0 && (() => {
+                const returnAt = new Date(Date.now() + estReturnMin * 60_000);
+                const returnStr = returnAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <span className={cn(
+                    'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                    estReturnMin <= 10 ? 'bg-matcha-200 text-matcha-800' :
+                    estReturnMin <= 20 ? 'bg-orange-200 text-orange-800' :
+                    'bg-red-200 text-red-800',
+                  )}>
+                    ~{returnStr}
+                  </span>
+                );
+              })()}
             </div>
           </div>
           <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">

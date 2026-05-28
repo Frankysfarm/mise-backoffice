@@ -759,6 +759,13 @@ function BatchRow({ batch }: { batch: Batch }) {
             .map((s, idx, arr) => {
               const isDone = !!s.geliefert_am;
               const isNext = !isDone && arr.slice(0, idx).every((p) => !!p.geliefert_am);
+              // Estimate per-stop delivery time from start + proportional share of total ETA
+              const stopEtaStr = !isDone && batch.startzeit && batch.total_eta_min != null && total > 0
+                ? new Date(
+                    new Date(batch.startzeit).getTime() +
+                    ((idx + 1) / total) * batch.total_eta_min * 60_000,
+                  ).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                : null;
               return (
                 <div key={s.id} className="flex items-center gap-1 shrink-0">
                   <div className={cn(
@@ -775,6 +782,14 @@ function BatchRow({ batch }: { batch: Batch }) {
                     <div className="mt-1 w-16 text-center text-[9px] leading-tight truncate text-muted-foreground">
                       {s.order?.kunde_name ?? '—'}
                     </div>
+                    {stopEtaStr && (
+                      <div className={cn(
+                        'text-[8px] tabular-nums text-center',
+                        isNext ? 'text-orange-600 font-bold' : 'text-muted-foreground/60',
+                      )}>
+                        ~{stopEtaStr}
+                      </div>
+                    )}
                   </div>
                   {idx < arr.length - 1 && (
                     <div className={cn(
