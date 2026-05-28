@@ -381,9 +381,17 @@ export function FahrerApp({
         {/* Active Batch — Pick-Phase: groß + zentral, kein ablenkender Kram */}
         {activeBatch && activeBatch.status !== 'unterwegs' && (
           <section>
-            <div className="flex items-center gap-2 mb-3 text-accent">
-              <Navigation className="h-4 w-4" />
-              <h2 className="font-display text-sm font-bold uppercase tracking-wider">Tour #{activeBatch.stops[0]?.order.bestellnummer.slice(-4)}</h2>
+            <div className="flex items-center justify-between mb-3 text-accent">
+              <div className="flex items-center gap-2">
+                <Navigation className="h-4 w-4" />
+                <h2 className="font-display text-sm font-bold uppercase tracking-wider">Tour #{activeBatch.stops[0]?.order.bestellnummer.slice(-4)}</h2>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-matcha-300">{activeBatch.stops.length} {activeBatch.stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                <span className="font-display font-bold text-accent">
+                  {euro(activeBatch.stops.reduce((s, st) => s + st.order.gesamtbetrag, 0))}
+                </span>
+              </div>
             </div>
 
             {/* Übersicht Stops */}
@@ -395,7 +403,7 @@ export function FahrerApp({
                     <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
                     <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
                   </div>
-                  <div className="font-display font-bold text-accent">{euro(stop.order.gesamtbetrag)}</div>
+                  <div className="font-display font-bold text-accent shrink-0">{euro(stop.order.gesamtbetrag)}</div>
                 </div>
               ))}
             </div>

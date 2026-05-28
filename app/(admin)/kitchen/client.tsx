@@ -170,6 +170,7 @@ export function KitchenBoard({
   const [timings, setTimings] = useState<KitchenTiming[]>([]);
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [audio, setAudio] = useState(true);
+  const [completedToday, setCompletedToday] = useState<number | null>(null);
 
   // Für Vergleich zwischen Renders
   const prev = useRef({
@@ -177,6 +178,23 @@ export function KitchenBoard({
     driverStates: computeDriverStates(drivers, batches, stops),
     orderPickedIds: new Set(orders.filter((o) => o.status === 'unterwegs').map((o) => o.id)),
   });
+
+  /* --- Heute abgeschlossen --- */
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const fetch = async () => {
+      const { count } = await supabase
+        .from('customer_orders')
+        .select('id', { count: 'exact', head: true })
+        .in('status', ['geliefert', 'abgeholt', 'abgeschlossen'])
+        .gte('bestellt_am', today.toISOString());
+      if (count !== null) setCompletedToday(count);
+    };
+    fetch();
+    const iv = setInterval(fetch, 60_000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* --- Realtime --- */
   useEffect(() => {
@@ -369,8 +387,15 @@ export function KitchenBoard({
             </button>
           )}
         </div>
-        <div className="text-sm text-muted-foreground">
-          {filtered.filter((o) => o.status !== 'unterwegs').length} offene Bestellungen
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <span>{filtered.filter((o) => o.status !== 'unterwegs').length} offen</span>
+          {completedToday !== null && (
+            <span className="flex items-center gap-1">
+              <Check className="h-3.5 w-3.5 text-matcha-500" />
+              <span className="font-bold text-matcha-700">{completedToday}</span>
+              <span>heute fertig</span>
+            </span>
+          )}
         </div>
       </div>
 
