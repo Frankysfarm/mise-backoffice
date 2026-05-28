@@ -89,7 +89,8 @@
 - Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
 
 **TypeScript-Status:** 0 Fehler (CEO-Review #3: 22 Fehler behoben)
-**Build-Status:** Kompiliert sauber (next build ✅ — CEO-Review #3)
+**Build-Status:** Kompiliert sauber (npm run build ✅ — Backend-Architekt Phase 3.6)
+**Build-Achtung:** Nur `npm run build` verwenden! `npx next build` nutzt globales Next.js 16 (Turbopack-Fehler).
 
 ## CEO-Log
 Siehe DELIVERY_CEO_LOG.md
@@ -110,7 +111,28 @@ Siehe DELIVERY_CEO_LOG.md
 | `/api/delivery/admin/heatmap` | GET | Bestell-Heatmap-Daten |
 | `/api/delivery/admin/overview` | GET | Aggregierter Dashboard-Snapshot |
 
+## Phase 3.6: Bridge-Konsolidierung [DONE ✅]
+- [x] `scripts/migrations/005_open_batches_view.sql`
+  - `v_open_dispatch_batches` VIEW — union Legacy (status='pickup') + Mise (state='pending_acceptance')
+    für Fahrer-App Inbox (vorher fehlend, jetzt korrekt dokumentiert)
+  - `assign_to_driver()` RPC — atomischer Bridge-Write: manuelle Dispatch-Zuweisung
+    schreibt in BEIDE Systeme (delivery_batches + mise_delivery_batches via auth_user_id-Lookup)
+  - `claim_mise_delivery_batch()` RPC — Fahrer-App kann Mise-Batches annehmen
+- [x] `app/(admin)/dispatch/client.tsx` — assignToDriver() nutzt assign_to_driver RPC + Legacy-Fallback
+- [x] `app/fahrer/app/page.tsx` — lädt aktiven Batch aus Legacy + Mise (Mise als Fallback),
+    Mise-Driver-Lookup via employees.auth_user_id → mise_drivers.auth_user_id
+- [x] `app/fahrer/app/client.tsx` — Realtime + markDelivered() für beide Batch-Systeme
+- [x] Phantom-Pfad `app/Users/eule/...` entfernt (war accidental commit, build-blocking unter Turbopack)
+- **Build-Hinweis**: `npm run build` (Next.js 14.2.18 lokal) ✅ — NICHT `npx next build` (nutzt globales Next.js 16 → Turbopack-Fehler)
+
 ## Letzte Änderungen
+- 2026-05-28: Backend-Architekt — Phase 3.6: Bridge-Konsolidierung
+  - Migration 005: v_open_dispatch_batches VIEW + assign_to_driver RPC + claim_mise_delivery_batch RPC
+  - dispatch/client.tsx: Bridge-Write via RPC, Legacy-Fallback
+  - fahrer/app/page.tsx: Mise-Batch als Fallback für aktive Tour
+  - fahrer/app/client.tsx: Realtime + markDelivered für beide Systeme
+  - Phantom-Pfad app/Users/... entfernt (build-blocking)
+  - Build: npm run build ✓ (Next.js 14.2.18, 0 Fehler)
 - 2026-05-28: CEO-Review #3 — 22 TypeScript-Fehler behoben, Phases 4+5 als DONE markiert
   - Root Cause: Supabase `.select()` mit String-Konkatenation (`+`) → `GenericStringError`
   - Fix: Alle Multi-Part-Selects zu Single-Literal-Strings zusammengeführt (2 Dateien)
