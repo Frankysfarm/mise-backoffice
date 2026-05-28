@@ -15,6 +15,18 @@ type Props = {
 export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder }: Props) {
   const firstName = name?.split(' ')[0];
 
+  const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
+  React.useEffect(() => {
+    if (secsLeft <= 0) return;
+    const t = setTimeout(() => setSecsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secsLeft]);
+  const minsLeft = Math.floor(secsLeft / 60);
+  const secsPart = secsLeft % 60;
+  const countdownStr = secsLeft > 0
+    ? `${minsLeft}:${String(secsPart).padStart(2, '0')}`
+    : '0:00';
+
   return (
     <main
       className={cn(
@@ -45,6 +57,14 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             ? ` In etwa ${etaMinutes} Minuten klingeln wir.`
             : ` In etwa ${etaMinutes} Minuten kannst du abholen.`}
         </p>
+        {secsLeft > 0 && (
+          <div className="mt-3 inline-flex items-center gap-3 rounded-2xl bg-white/5 px-5 py-3 ring-1 ring-white/10">
+            <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">
+              {isDelivery ? 'Ankunft in' : 'Abholung in'}
+            </div>
+            <div className="font-mono text-2xl font-bold tabular-nums text-accent">{countdownStr}</div>
+          </div>
+        )}
 
         <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-matcha-800/60 px-4 py-2 ring-1 ring-white/5 backdrop-blur">
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">Bestellnr.</span>

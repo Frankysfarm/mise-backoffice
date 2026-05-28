@@ -55,6 +55,7 @@ type Batch = {
   id: string;
   status: string;
   fahrer_id: string | null;
+  startzeit?: string | null;
   fahrer: { vorname: string; nachname: string } | null;
   stops: {
     id: string;
@@ -482,6 +483,11 @@ function BatchRow({ batch }: { batch: Batch }) {
         </div>
         <Badge variant={batch.status === 'unterwegs' ? 'default' : 'secondary'}>{batch.status}</Badge>
       </div>
+      {batch.startzeit && (
+        <div className="mt-1 text-[10px] text-muted-foreground">
+          Tour läuft seit {Math.floor((Date.now() - new Date(batch.startzeit).getTime()) / 60_000)} Min
+        </div>
+      )}
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
         <div className="h-full bg-matcha-500 transition-all" style={{ width: `${progress}%` }} />
       </div>
@@ -500,6 +506,16 @@ function BatchRow({ batch }: { batch: Batch }) {
               <span>{s.order?.kunde_name ?? '—'}</span>
             </div>
           ))}
+      </div>
+      <div className="mt-2 flex items-center gap-2 text-xs">
+        <span className={cn(
+          'rounded-full px-2 py-0.5 font-bold',
+          progress === 100 ? 'bg-matcha-100 text-matcha-800' :
+          progress > 50 ? 'bg-orange-100 text-orange-800' :
+          'bg-blue-100 text-blue-800',
+        )}>
+          {done}/{total} Stops · {Math.round(progress)}%
+        </span>
       </div>
     </div>
   );
