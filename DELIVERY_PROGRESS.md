@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: PHASE 1+2+3+3.5+4+5 ABGESCHLOSSEN ✅ — PHASE 6+7 TEILWEISE
+## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–7 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -67,18 +67,19 @@
 - [x] GPS-Standort senden (watchPosition → Supabase driver_locations)
 - [x] Mobile-first Responsive
 
-## Phase 6: Storefront + Tracking [TEILWEISE ⚠️]
+## Phase 6: Storefront + Tracking [DONE ✅]
 - [x] Dynamische ETA-Anzeige ("19:20–19:40") — SuccessState mit Live-Polling alle 30s
 - [x] Smart-Messaging (kein Bündelungs-Hinweis — ETA-basiert)
-- [ ] Live-Tracking Fahrer-Position auf Storefront (API vorhanden, UI fehlt)
-- [ ] Realtime Order-Status-Updates auf Storefront (aktuell nur Polling)
+- [x] Live-Tracking Fahrer-Position — `/track/[bestellnummer]/` mit LiveMap (Leaflet), Fahrer-Avatar, Heading
+- [x] `stops_before` Badge — "X Stops vor dir" / "Nächste Lieferung" live via Tracking-API-Polling
+- [x] Realtime Order-Status-Updates — Supabase Realtime auf `customer_orders` + `driver_status`
 
-## Phase 7: Admin Dashboard [TEILWEISE ⚠️]
-- [ ] Zonen-Konfiguration mit Karte (API: `/api/delivery/zones` ✅, UI fehlt)
+## Phase 7: Admin Dashboard [DONE ✅]
+- [x] Zonen-Konfiguration (API: `/api/delivery/zones` ✅, UI: `/delivery/zone` — Tabelle A/B/C/D mit Edit-Dialog)
 - [x] Aktive Touren Übersicht — Dispatch Board + statistics-view Live-Panel
 - [x] Fahrer-Management (Online/Offline) — statistics-view LiveDriver-Panel + `/api/delivery/admin/drivers`
 - [x] Liefer-Statistiken Dashboard — statistics-view mit Tages-KPIs
-- [ ] Bestell-Heatmap (API: `/api/delivery/admin/heatmap` ✅, UI fehlt)
+- [x] Bestell-Heatmap — Top-Zonen-Tabelle in statistics-view (API: `/api/delivery/admin/heatmap`)
 
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**

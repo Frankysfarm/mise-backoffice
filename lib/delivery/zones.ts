@@ -133,6 +133,61 @@ export async function upsertZone(
   };
 }
 
+/** Aktualisiert eine Zone per ID (Admin). Invalidiert Cache nach Update. */
+export async function updateZoneById(
+  zoneId: string,
+  locationId: string,
+  patch: Partial<Omit<ZoneConfig, 'id' | 'name'>>,
+): Promise<ZoneConfig> {
+  const sb = createServiceClient();
+  const payload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.label        != null) payload.label         = patch.label;
+  if (patch.min_km       != null) payload.min_km        = Number(patch.min_km);
+  if (patch.max_km       != null) payload.max_km        = Number(patch.max_km);
+  if (patch.surcharge_eur != null) payload.surcharge_eur = Number(patch.surcharge_eur);
+  if (patch.min_order_eur != null) payload.min_order_eur = Number(patch.min_order_eur);
+  if (patch.eta_base_min != null) payload.eta_base_min  = Number(patch.eta_base_min);
+  if (patch.color        != null) payload.color         = patch.color;
+
+  const { data, error } = await sb
+    .from('delivery_zones')
+    .update(payload)
+    .eq('id', zoneId)
+    .eq('location_id', locationId)
+    .select()
+    .single();
+
+  if (error) throw new Error(`Zone update failed: ${error.message}`);
+  invalidateZoneCache(locationId);
+
+  return {
+    id: data.id as string,
+    name: data.name as ZoneName,
+    label: data.label as string,
+    min_km: Number(data.min_km),
+    max_km: Number(data.max_km),
+    surcharge_eur: Number(data.surcharge_eur),
+    min_order_eur: Number(data.min_order_eur),
+    eta_base_min: Number(data.eta_base_min),
+    color: data.color as string,
+  };
+}
+
+/** Deaktiviert eine Zone (soft-delete). Invalidiert Cache. */
+export async function deactivateZoneById(
+  zoneId: string,
+  locationId: string,
+): Promise<void> {
+  const sb = createServiceClient();
+  const { error } = await sb
+    .from('delivery_zones')
+    .update({ active: false, updated_at: new Date().toISOString() })
+    .eq('id', zoneId)
+    .eq('location_id', locationId);
+  if (error) throw new Error(`Zone deactivate failed: ${error.message}`);
+  invalidateZoneCache(locationId);
+}
+
 /** Initialisiert Default-Zonen für eine neue Location. */
 export async function seedDefaultZones(locationId: string): Promise<void> {
   const sb = createServiceClient();

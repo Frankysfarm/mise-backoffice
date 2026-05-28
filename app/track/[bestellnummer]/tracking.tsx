@@ -75,6 +75,7 @@ function stepIndex(status: string): number {
 export function TrackingView({ order: initial, items, tenant }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null }) {
   const supabase = createClient();
   const [order, setOrder] = useState(initial);
+  const [stopsBefore, setStopsBefore] = useState<number | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [text, setText] = useState('');
@@ -104,6 +105,7 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             fahrer_heading: d.driver?.heading ?? prev.fahrer_heading,
             fahrer_last_update: d.driver ? new Date().toISOString() : prev.fahrer_last_update,
           }));
+          if (d.stops_before != null) setStopsBefore(d.stops_before);
         })
         .catch(() => {});
     };
@@ -296,6 +298,23 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
                     ? `Zuletzt gesehen vor ${Math.max(0, Math.floor((Date.now() - new Date(order.fahrer_last_update).getTime()) / 60000))} Min.`
                     : 'Unterwegs'}
                 </div>
+                {stopsBefore != null && order.status === 'unterwegs' && (
+                  <div className={cn(
+                    'mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold',
+                    stopsBefore === 0
+                      ? 'bg-matcha-700 text-white'
+                      : stopsBefore === 1
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-stone-100 text-stone-700',
+                  )}>
+                    <Truck className="h-3 w-3" />
+                    {stopsBefore === 0
+                      ? 'Nächste Lieferung'
+                      : stopsBefore === 1
+                      ? '1 Stop vor dir'
+                      : `${stopsBefore} Stops vor dir`}
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => setChatOpen(true)}
