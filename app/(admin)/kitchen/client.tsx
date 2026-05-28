@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
-  Inbox, Package, TrendingUp, Utensils, X, Zap,
+  Inbox, MapPin, Package, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { advanceOrder, cancelOrder } from './actions';
 
@@ -37,6 +37,7 @@ type Order = {
   geschaetzte_zubereitung_min: number | null;
   external_source: string | null;
   location_id: string | null;
+  delivery_zone: string | null;
   tisch_id: string | null;
   tisch_nummer?: string | null;
   items: Item[];
@@ -350,6 +351,9 @@ export function KitchenBoard({
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
+      {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
+      <DispatchReadinessPanel orders={filtered} />
+
       {/* Smart Timing Banner */}
       {timings.length > 0 && <KitchenTimingBanner timings={timings} orders={filtered} />}
 
@@ -534,6 +538,90 @@ function CookingLoadPanel({ orders }: { orders: Order[] }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchReadinessPanel ------------------------------ */
+
+function DispatchReadinessPanel({ orders }: { orders: Order[] }) {
+  const now = Date.now();
+  const fertigDelivery = orders.filter(
+    (o) => o.status === 'fertig' && o.typ === 'lieferung',
+  );
+  if (fertigDelivery.length === 0) return null;
+
+  const ZONE_COLORS: Record<string, { badge: string; bar: string }> = {
+    A: { badge: 'bg-green-100 text-green-800',   bar: 'bg-green-400' },
+    B: { badge: 'bg-blue-100 text-blue-800',     bar: 'bg-blue-400' },
+    C: { badge: 'bg-orange-100 text-orange-800', bar: 'bg-orange-400' },
+    D: { badge: 'bg-red-100 text-red-800',       bar: 'bg-red-400' },
+  };
+  function zoneColors(z: string | null) {
+    return ZONE_COLORS[z ?? ''] ?? { badge: 'bg-muted text-muted-foreground', bar: 'bg-muted-foreground' };
+  }
+
+  const byZone: Record<string, { orders: Order[]; waitMax: number }> = {};
+  for (const o of fertigDelivery) {
+    const zone = o.delivery_zone ?? '?';
+    if (!byZone[zone]) byZone[zone] = { orders: [], waitMax: 0 };
+    const fertigMs = o.fertig_am
+      ? now - new Date(o.fertig_am).getTime()
+      : now - new Date(o.bestellt_am ?? now).getTime();
+    const waitMin = Math.floor(fertigMs / 60_000);
+    byZone[zone].orders.push(o);
+    byZone[zone].waitMax = Math.max(byZone[zone].waitMax, waitMin);
+  }
+
+  const urgent = fertigDelivery.some((o) => {
+    const ms = o.fertig_am ? now - new Date(o.fertig_am).getTime() : 0;
+    return ms > 10 * 60_000;
+  });
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      urgent ? 'border-red-200 bg-red-50' : 'border-matcha-200 bg-matcha-50',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <MapPin className={cn('h-4 w-4', urgent ? 'text-red-600' : 'text-matcha-700')} />
+        <span className={cn('font-display text-xs font-bold uppercase tracking-wider', urgent ? 'text-red-800' : 'text-matcha-800')}>
+          Dispatch-Bereit · {fertigDelivery.length} Lieferung{fertigDelivery.length !== 1 ? 'en' : ''} warten
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(byZone).sort((a, b) => a[0].localeCompare(b[0])).map(([zone, { orders: zOrders, waitMax }]) => {
+          const { badge } = zoneColors(zone);
+          const waitUrgent = waitMax >= 10;
+          return (
+            <div key={zone} className={cn(
+              'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs',
+              waitUrgent ? 'border-red-300 bg-red-50' : 'border-border bg-card',
+            )}>
+              <span className={cn('rounded px-1.5 py-0.5 text-[10px] font-black', badge)}>
+                {zone === '?' ? '—' : `Zone ${zone}`}
+              </span>
+              <span className="font-bold">{zOrders.length}×</span>
+              <span className="text-muted-foreground">
+                {euro(zOrders.reduce((s, o) => s + o.gesamtbetrag, 0))}
+              </span>
+              <span className={cn(
+                'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                waitUrgent ? 'bg-red-500 text-white animate-pulse' : 'bg-muted text-muted-foreground',
+              )}>
+                {waitMax} Min
+              </span>
+            </div>
+          );
+        })}
+        <a
+          href="/dispatch"
+          className="flex items-center gap-1.5 rounded-lg border border-matcha-300 bg-matcha-700 px-3 py-2 text-[11px] font-bold text-matcha-50 hover:bg-matcha-800 transition"
+        >
+          <Bike className="h-3 w-3" />
+          Zum Dispatch
+        </a>
       </div>
     </div>
   );

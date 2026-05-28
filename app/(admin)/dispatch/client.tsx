@@ -37,6 +37,7 @@ type Driver = {
   employee: { id: string; vorname: string; nachname: string; avatar_url: string | null; telefon: string | null } | null;
 };
 
+
 type ReadyOrder = {
   id: string;
   bestellnummer: string;
@@ -647,6 +648,17 @@ function DriverRow({
   const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗' };
   const lastSeen = driver.last_update ? Math.floor((Date.now() - new Date(driver.last_update).getTime()) / 60_000) : null;
 
+  // Online-Dauer berechnen
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!driver.ist_online) return;
+    const t = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, [driver.ist_online]);
+  const onlineSince = driver.online_seit
+    ? Math.floor((Date.now() - new Date(driver.online_seit).getTime()) / 60_000)
+    : null;
+
   return (
     <div className="flex items-center gap-3 px-5 py-3">
       <div className="relative">
@@ -676,13 +688,30 @@ function DriverRow({
               <span className="flex items-center gap-1">
                 <Radio className="h-3 w-3 text-matcha-500" /> online
               </span>
-              {lastSeen !== null && <span>· aktiv vor {lastSeen}m</span>}
+              {onlineSince !== null && <span>· {onlineSince} Min</span>}
+              {lastSeen !== null && lastSeen > 5 && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
+                  lastSeen > 15 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700',
+                )}>
+                  GPS vor {lastSeen}m
+                </span>
+              )}
             </>
           ) : (
             <span>offline</span>
           )}
         </div>
       </div>
+      {e?.telefon && driver.ist_online && (
+        <a
+          href={`tel:${e.telefon}`}
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground"
+          title="Anrufen"
+        >
+          <User className="h-3.5 w-3.5" />
+        </a>
+      )}
       {canAssign && (
         <Button size="sm" onClick={onAssign} disabled={busy}>
           Zuweisen

@@ -26,6 +26,13 @@ type DeliveryStats = {
   scoring: { avg_score: number | null; total_decisions: number };
 } | null;
 
+type TrendData = {
+  today: { orders: number; delivered: number; avg_score: number | null };
+  yesterday: { orders: number; delivered: number; avg_score: number | null };
+  delta_orders: number;
+  delta_delivered: number;
+} | null;
+
 type LiveDriver = {
   id: string;
   name: string;
@@ -48,6 +55,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [deliveryStats, setDeliveryStats] = useState<DeliveryStats>(null)
   const [liveDrivers, setLiveDrivers] = useState<LiveDriver[]>([])
   const [heatmapPoints, setHeatmapPoints] = useState<{ zone: string; count: number }[]>([])
+  const [trendData, setTrendData] = useState<TrendData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -89,6 +97,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             .map(([zone, count]) => ({ zone, count }))
         )
       })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/trends?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: TrendData) => d && !('_fallback' in (d as object)) && setTrendData(d))
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -185,6 +197,60 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         )
       })()}
+
+      {/* Trend: Heute vs. Gestern */}
+      {trendData && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-violet-600" />
+            <span className="text-sm font-bold text-char">Heute vs. Gestern</span>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              {
+                label: 'Bestellungen',
+                today: trendData.today.orders,
+                yesterday: trendData.yesterday.orders,
+                delta: trendData.delta_orders,
+                color: 'text-char',
+              },
+              {
+                label: 'Geliefert',
+                today: trendData.today.delivered,
+                yesterday: trendData.yesterday.delivered,
+                delta: trendData.delta_delivered,
+                color: 'text-emerald-600',
+              },
+              {
+                label: 'Ø Score',
+                today: trendData.today.avg_score != null ? Math.round(trendData.today.avg_score) : null,
+                yesterday: trendData.yesterday.avg_score != null ? Math.round(trendData.yesterday.avg_score) : null,
+                delta: trendData.today.avg_score != null && trendData.yesterday.avg_score != null
+                  ? Math.round(trendData.today.avg_score - trendData.yesterday.avg_score)
+                  : null,
+                color: 'text-violet-600',
+              },
+            ].map((row) => (
+              <div key={row.label} className="text-center">
+                <div className={`font-display text-2xl font-black ${row.color}`}>
+                  {row.today ?? '–'}
+                </div>
+                <div className="text-xs text-steel mt-0.5">{row.label}</div>
+                {row.delta != null && row.delta !== 0 && (
+                  <div className={`mt-1 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    row.delta > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                    {row.delta > 0 ? '▲' : '▼'} {Math.abs(row.delta)} vs gestern
+                  </div>
+                )}
+                {row.yesterday != null && (
+                  <div className="text-[9px] text-stone-400 mt-0.5">Gestern: {row.yesterday}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">

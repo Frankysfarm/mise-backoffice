@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type Stop = {
@@ -139,6 +139,38 @@ export function DeliveryView({
           <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
         </div>
       </div>
+
+      {/* Multi-Waypoint Navigation */}
+      {openStops.length > 0 && (() => {
+        const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);
+        if (stopsWithCoords.length === 0) return null;
+        const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+        let mapsUrl: string;
+        if (isIos && stopsWithCoords.length === 1) {
+          mapsUrl = `maps://maps.apple.com/?daddr=${stopsWithCoords[0].order.kunde_lat},${stopsWithCoords[0].order.kunde_lng}&dirflg=d`;
+        } else {
+          // Google Maps Waypoints (works on all platforms)
+          const coords = stopsWithCoords.map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
+          const dest = coords[coords.length - 1];
+          const waypoints = coords.slice(0, -1).join('|');
+          mapsUrl = waypoints
+            ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+            : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+        }
+        return (
+          <div className="mx-4 mt-2">
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-white transition"
+            >
+              <Map size={16} />
+              {stopsWithCoords.length === 1 ? 'Navigieren' : `Alle ${stopsWithCoords.length} Stops in Maps`}
+            </a>
+          </div>
+        );
+      })()}
 
       {/* Map */}
       <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-white/10" style={{ height: 240 }}>
