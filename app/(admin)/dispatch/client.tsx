@@ -20,6 +20,7 @@ import {
   Check,
   Wifi,
   WifiOff,
+  Zap,
 } from 'lucide-react';
 
 type Driver = {
@@ -49,6 +50,9 @@ type ReadyOrder = {
   fertig_am: string | null;
   external_source: string | null;
   location_id: string | null;
+  dispatch_score: number | null;
+  delivery_zone: string | null;
+  eta_earliest: string | null;
 };
 
 type Batch = {
@@ -56,6 +60,9 @@ type Batch = {
   status: string;
   fahrer_id: string | null;
   startzeit?: string | null;
+  total_distance_km: number | null;
+  total_eta_min: number | null;
+  zone: string | null;
   fahrer: { vorname: string; nachname: string } | null;
   stops: {
     id: string;
@@ -86,6 +93,17 @@ export function DispatchBoard({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [pending, startTransition] = useTransition();
+  const [dispatchPending, setDispatchPending] = useState(false);
+
+  async function smartDispatch() {
+    setDispatchPending(true);
+    try {
+      await fetch('/api/delivery/dispatch', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+      await refresh();
+    } finally {
+      setDispatchPending(false);
+    }
+  }
 
   useEffect(() => {
     const ch = supabase
@@ -105,7 +123,7 @@ export function DispatchBoard({
     const [{ data: o }, { data: d }, { data: b }] = await Promise.all([
       supabase
         .from('customer_orders')
-        .select('id, bestellnummer, status, typ, kunde_name, kunde_adresse, kunde_plz, kunde_lat, kunde_lng, gesamtbetrag, zahlungsart, fertig_am, external_source, location_id')
+        .select('id, bestellnummer, status, typ, kunde_name, kunde_adresse, kunde_plz, kunde_lat, kunde_lng, gesamtbetrag, zahlungsart, fertig_am, external_source, location_id, dispatch_score, delivery_zone, eta_earliest')
         .eq('typ', 'lieferung')
         .in('status', ['fertig', 'unterwegs'])
         .order('fertig_am', { ascending: true }),
@@ -115,7 +133,7 @@ export function DispatchBoard({
         .order('last_update', { ascending: false }),
       supabase
         .from('delivery_batches')
-        .select('*, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
+        .select('*, total_distance_km, total_eta_min, zone, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
         .in('status', ['pickup', 'unterwegs'])
         .order('created_at', { ascending: false }),
     ]);
@@ -208,6 +226,19 @@ export function DispatchBoard({
           <Metric icon={<Truck className="h-4 w-4" />} label="Unterwegs" value={enRouteOrders.length} />
           <Metric icon={<Bike className="h-4 w-4" />} label="Online" value={onlineDrivers.length} />
           <Metric icon={<RouteIcon className="h-4 w-4" />} label="Touren" value={batches.length} />
+          <button
+            onClick={smartDispatch}
+            disabled={dispatchPending || readyOrders.length === 0}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-bold transition',
+              readyOrders.length > 0
+                ? 'bg-matcha-700 text-white hover:bg-matcha-800 border-matcha-700'
+                : 'bg-muted text-muted-foreground cursor-default',
+            )}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            {dispatchPending ? 'Läuft…' : 'Auto-Dispatch'}
+          </button>
         </div>
       </div>
 
@@ -361,13 +392,23 @@ function OrderRow({
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono text-xs font-bold tracking-wide text-matcha-700">
             {order.bestellnummer.replace('FF-', '')}
           </span>
           <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide', pay.cls)}>
             {pay.icon} {pay.label}
           </span>
+          {order.delivery_zone && (
+            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide', zoneMeta(order.delivery_zone).cls)}>
+              {order.delivery_zone}
+            </span>
+          )}
+          {order.dispatch_score != null && (
+            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums', scoreMeta(order.dispatch_score).cls)}>
+              ⚡ {Math.round(order.dispatch_score)}
+            </span>
+          )}
           {order.external_source && (
             <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-matcha-900">
               {order.external_source}
@@ -481,15 +522,46 @@ function BatchRow({ batch }: { batch: Batch }) {
             <div className="text-xs text-muted-foreground">{total} Stops · {done} geliefert</div>
           </div>
         </div>
-        <Badge variant={batch.status === 'unterwegs' ? 'default' : 'secondary'}>{batch.status}</Badge>
-      </div>
-      {batch.startzeit && (
-        <div className="mt-1 text-[10px] text-muted-foreground">
-          Tour läuft seit {Math.floor((Date.now() - new Date(batch.startzeit).getTime()) / 60_000)} Min
+        <div className="flex items-center gap-2">
+          {batch.zone && (
+            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold uppercase', zoneMeta(batch.zone).cls)}>
+              {batch.zone}
+            </span>
+          )}
+          <Badge variant={batch.status === 'unterwegs' ? 'default' : 'secondary'}>{batch.status}</Badge>
         </div>
-      )}
+      </div>
+
+      {/* Tour-Metriken */}
+      <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+        {batch.startzeit && (
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            {Math.floor((Date.now() - new Date(batch.startzeit).getTime()) / 60_000)} Min unterwegs
+          </span>
+        )}
+        {batch.total_distance_km != null && (
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <RouteIcon className="h-3 w-3" />
+            {batch.total_distance_km.toFixed(1)} km
+          </span>
+        )}
+        {batch.total_eta_min != null && (
+          <span className="flex items-center gap-1 font-bold text-matcha-700">
+            <Clock className="h-3 w-3" />
+            ~{batch.total_eta_min} Min ETA
+          </span>
+        )}
+      </div>
+
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-matcha-500 transition-all" style={{ width: `${progress}%` }} />
+        <div
+          className={cn(
+            'h-full transition-all',
+            progress === 100 ? 'bg-matcha-500' : progress > 60 ? 'bg-orange-500' : 'bg-blue-500',
+          )}
+          style={{ width: `${progress}%` }}
+        />
       </div>
       <div className="mt-2.5 flex flex-wrap gap-1.5">
         {batch.stops
@@ -499,7 +571,7 @@ function BatchRow({ batch }: { batch: Batch }) {
               key={s.id}
               className={cn(
                 'flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px]',
-                s.geliefert_am ? 'border-matcha-200 bg-matcha-50 text-matcha-800 line-through' : 'bg-background',
+                s.geliefert_am ? 'border-matcha-200 bg-matcha-50 text-matcha-800 line-through opacity-60' : 'bg-background',
               )}
             >
               <span className="font-mono font-bold">{s.reihenfolge}</span>
@@ -514,7 +586,7 @@ function BatchRow({ batch }: { batch: Batch }) {
           progress > 50 ? 'bg-orange-100 text-orange-800' :
           'bg-blue-100 text-blue-800',
         )}>
-          {done}/{total} Stops · {Math.round(progress)}%
+          {done}/{total} · {Math.round(progress)}%
         </span>
       </div>
     </div>
@@ -533,4 +605,21 @@ function payMeta(z: string) {
     default:
       return { label: z, icon: null, cls: 'bg-muted text-muted-foreground' };
   }
+}
+
+function zoneMeta(zone: string | null): { cls: string } {
+  switch (zone) {
+    case 'A': return { cls: 'bg-green-100 text-green-800' };
+    case 'B': return { cls: 'bg-blue-100 text-blue-800' };
+    case 'C': return { cls: 'bg-orange-100 text-orange-800' };
+    case 'D': return { cls: 'bg-red-100 text-red-800' };
+    default:  return { cls: 'bg-muted text-muted-foreground' };
+  }
+}
+
+function scoreMeta(score: number): { cls: string } {
+  if (score >= 80) return { cls: 'bg-matcha-100 text-matcha-800' };
+  if (score >= 60) return { cls: 'bg-blue-100 text-blue-800' };
+  if (score >= 40) return { cls: 'bg-orange-100 text-orange-800' };
+  return { cls: 'bg-red-100 text-red-800' };
 }

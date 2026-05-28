@@ -74,6 +74,15 @@ type Stop = {
 
 type DriverState = 'offline' | 'frei' | 'unterwegs' | 'zurueck';
 
+type KitchenTiming = {
+  id: string;
+  order_id: string;
+  cook_start_at: string | null;
+  ready_target: string | null;
+  prep_min: number | null;
+  status: string; // scheduled | cooking | ready | picked_up
+};
+
 /* ------------------------------ Sounds ------------------------------ */
 
 type SoundType = 'new_order' | 'driver_back' | 'order_picked' | 'urgent';
@@ -157,6 +166,7 @@ export function KitchenBoard({
   const [drivers, setDrivers] = useState(initialDrivers);
   const [batches, setBatches] = useState(initialBatches);
   const [stops, setStops] = useState(initialStops);
+  const [timings, setTimings] = useState<KitchenTiming[]>([]);
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [audio, setAudio] = useState(true);
 
@@ -169,6 +179,7 @@ export function KitchenBoard({
 
   /* --- Realtime --- */
   useEffect(() => {
+    refreshTimings();
     const ch = supabase
       .channel('kitchen-combined')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_orders' }, refreshOrders)
@@ -176,6 +187,7 @@ export function KitchenBoard({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status' },   refreshDrivers)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' },refreshBatches)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refreshStops)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kitchen_timings' }, refreshTimings)
       .subscribe();
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,6 +217,13 @@ export function KitchenBoard({
       .select('id, batch_id, order_id, reihenfolge, angekommen_am, geliefert_am')
       .order('reihenfolge', { ascending: true });
     setStops((data as any[]) ?? []);
+  }
+  async function refreshTimings() {
+    const { data } = await supabase.from('kitchen_timings')
+      .select('id, order_id, cook_start_at, ready_target, prep_min, status')
+      .in('status', ['scheduled', 'cooking'])
+      .order('cook_start_at', { ascending: true });
+    setTimings((data as any[]) ?? []);
   }
 
   /* --- Sound-Trigger --- */
@@ -288,6 +307,9 @@ export function KitchenBoard({
 
   return (
     <div className="space-y-4">
+      {/* Smart Timing Banner */}
+      {timings.length > 0 && <KitchenTimingBanner timings={timings} orders={filtered} />}
+
       {/* Fahrer-Statusleiste oben */}
       <DriverPanel drivers={drivers} states={driverStates} batches={batches} stops={stops} orders={orders} />
 
@@ -357,6 +379,63 @@ export function KitchenBoard({
                 {colOrders.map((o) => <OrderTicket key={o.id} order={o} next={col.next} />)}
               </div>
             </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenTimingBanner ------------------------------ */
+
+function KitchenTimingBanner({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
+  const now = Date.now();
+
+  const items = timings
+    .map((t) => {
+      const order = orders.find((o) => o.id === t.order_id);
+      if (!order) return null;
+      const cookStartMs = t.cook_start_at ? new Date(t.cook_start_at).getTime() : null;
+      const readyMs     = t.ready_target  ? new Date(t.ready_target).getTime()  : null;
+      const secsUntilCook = cookStartMs ? Math.floor((cookStartMs - now) / 1000) : null;
+      const secsUntilReady = readyMs    ? Math.floor((readyMs - now) / 1000)    : null;
+      return { t, order, secsUntilCook, secsUntilReady };
+    })
+    .filter(Boolean) as { t: KitchenTiming; order: Order; secsUntilCook: number | null; secsUntilReady: number | null }[];
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <ChefHat className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">Smart Timing</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {items.map(({ t, order, secsUntilCook, secsUntilReady }) => {
+          const cookOverdue = secsUntilCook !== null && secsUntilCook < 0;
+          const cookSoon    = secsUntilCook !== null && secsUntilCook >= 0 && secsUntilCook < 300;
+          return (
+            <div
+              key={t.id}
+              className={cn(
+                'rounded-lg border px-3 py-2 text-[11px]',
+                cookOverdue ? 'border-red-300 bg-red-50 text-red-900' :
+                cookSoon    ? 'border-orange-300 bg-orange-50 text-orange-900 animate-pulse' :
+                              'border-matcha-200 bg-white text-matcha-900',
+              )}
+            >
+              <div className="font-bold">#{order.bestellnummer.replace('FF-', '')}</div>
+              {secsUntilCook !== null && secsUntilCook > 0 && (
+                <div>Kochen in {fmtCountdown(secsUntilCook)}</div>
+              )}
+              {cookOverdue && <div className="font-bold">⚠ Kochstart überfällig!</div>}
+              {t.status === 'cooking' && secsUntilReady !== null && (
+                <div className="mt-0.5 font-semibold text-matcha-700">
+                  {secsUntilReady > 0 ? `Fertig in ${fmtCountdown(secsUntilReady)}` : 'Sollte fertig sein'}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

@@ -1,10 +1,11 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
-import { 
-  TrendingUp, Clock, CheckCircle, XCircle, 
-  Users, Package, Truck, DollarSign, BarChart3
+import {
+  TrendingUp, Clock, CheckCircle, XCircle,
+  Package, Truck, DollarSign, BarChart3, Route, Zap
 } from 'lucide-react'
 import {
   BarChart,
@@ -19,6 +20,12 @@ import {
   Cell,
 } from 'recharts'
 
+type DeliveryStats = {
+  orders: { total: number; delivered: number; held: number; zone_breakdown: Record<string, number> };
+  tours: { total: number; bundled_count: number; avg_distance_km: number | null; avg_eta_min: number | null };
+  scoring: { avg_score: number | null; total_decisions: number };
+} | null;
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -27,6 +34,19 @@ interface StatisticsViewProps {
 export function StatisticsView({ orders, completedOrders }: StatisticsViewProps) {
   const allOrders = [...orders, ...completedOrders]
   const stats = calculateDailyStats(allOrders)
+
+  const [deliveryStats, setDeliveryStats] = useState<DeliveryStats>(null)
+  useEffect(() => {
+    // Fetch delivery stats from the delivery API (needs location_id, use first available)
+    const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
+    if (!locationId) return
+    const from = new Date(); from.setHours(0, 0, 0, 0);
+    fetch(`/api/delivery/stats?location_id=${locationId}&from=${from.toISOString()}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setDeliveryStats(d))
+      .catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const deliveredOrders = completedOrders.filter(o => o.status === 'done')
   const withEta = deliveredOrders.filter(o => o.estimatedTime != null && o.estimatedTime > 0)
@@ -263,6 +283,56 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Smart Dispatch Stats */}
+      {deliveryStats && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-matcha-600" />
+            Smart-Dispatch Statistiken (heute)
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100">
+              <div className="text-2xl font-bold text-char">{deliveryStats.tours.total}</div>
+              <div className="text-sm text-steel mt-0.5">Touren gesamt</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100">
+              <div className="text-2xl font-bold text-violet-600">{deliveryStats.tours.bundled_count}</div>
+              <div className="text-sm text-steel mt-0.5">Gebündelt</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100">
+              <div className="text-2xl font-bold text-blue-600">
+                {deliveryStats.tours.avg_distance_km != null ? `${deliveryStats.tours.avg_distance_km} km` : '–'}
+              </div>
+              <div className="text-sm text-steel mt-0.5">Ø Distanz</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100">
+              <div className="text-2xl font-bold text-emerald-600">
+                {deliveryStats.scoring.avg_score != null ? `${deliveryStats.scoring.avg_score}` : '–'}
+              </div>
+              <div className="text-sm text-steel mt-0.5">Ø Score</div>
+            </div>
+          </div>
+          {/* Zone-Breakdown */}
+          {Object.keys(deliveryStats.orders.zone_breakdown).length > 0 && (
+            <div>
+              <div className="text-sm font-semibold text-char mb-2 flex items-center gap-2">
+                <Route className="w-4 h-4" /> Lieferungen nach Zone
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(deliveryStats.orders.zone_breakdown).map(([zone, count]) => (
+                  <div key={zone} className="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm">
+                    <span className={`font-bold ${zone === 'A' ? 'text-emerald-600' : zone === 'B' ? 'text-blue-600' : zone === 'C' ? 'text-orange-600' : 'text-red-600'}`}>
+                      Zone {zone}
+                    </span>
+                    <span className="font-semibold text-char">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

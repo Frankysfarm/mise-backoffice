@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
@@ -404,54 +404,11 @@ export function FahrerApp({
 
         {/* Open Batches — Pickup Inbox */}
         {!activeBatch && isOnline && (
-          <section>
-            <div className="flex items-center gap-2 mb-3 text-accent">
-              <ShoppingBag className="h-4 w-4" />
-              <h2 className="font-display text-sm font-bold uppercase tracking-wider">Verfügbare Touren</h2>
-              {openBatches.length > 0 && (
-                <span className="ml-auto rounded-full bg-accent text-matcha-900 px-2 py-0.5 text-xs font-bold">{openBatches.length}</span>
-              )}
-            </div>
-
-            {openBatches.length === 0 ? (
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
-                <Clock className="h-8 w-8 text-matcha-300 mx-auto mb-2 opacity-60" />
-                <div className="text-matcha-200 text-sm">Gerade keine offenen Touren.</div>
-                <div className="text-matcha-300 text-xs mt-1">Bleib online — wir sagen dir Bescheid.</div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {openBatches.map((b) => (
-                  <div key={b.batch_id} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
-                        <Zap size={18} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-display font-bold truncate">{b.kunde_name}</div>
-                        <div className="text-sm text-matcha-200 truncate">
-                          → {b.kunde_adresse}{b.kunde_plz ? `, ${b.kunde_plz}` : ''}
-                        </div>
-                        <div className="mt-1 flex items-center gap-3 text-xs text-matcha-300">
-                          <span className="font-mono">#{b.bestellnummer.replace('FF-', '')}</span>
-                          <span className="font-bold text-accent">{euro(b.gesamtbetrag)}</span>
-                          {b.geschaetzte_lieferung_min && <span>~{b.geschaetzte_lieferung_min} Min</span>}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => claimBatch(b.batch_id)}
-                      disabled={pending}
-                      className="mt-3 w-full h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
-                    >
-                      {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                      Tour annehmen
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          <OpenBatchSection
+            openBatches={openBatches}
+            pending={pending}
+            onClaim={claimBatch}
+          />
         )}
 
         {/* Offline state */}
@@ -492,4 +449,99 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const out = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
   return out;
+}
+
+function OpenBatchSection({
+  openBatches,
+  pending,
+  onClaim,
+}: {
+  openBatches: OpenBatch[];
+  pending: boolean;
+  onClaim: (batchId: string) => void;
+}) {
+  // Group stops by batch_id for multi-stop display
+  const grouped = useMemo(() => {
+    const map = new Map<string, OpenBatch[]>();
+    for (const b of openBatches) {
+      if (!map.has(b.batch_id)) map.set(b.batch_id, []);
+      map.get(b.batch_id)!.push(b);
+    }
+    return Array.from(map.entries()).map(([batchId, stops]) => ({
+      batchId,
+      stops,
+      totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
+      locationName: stops[0].location_name,
+      locationLat: stops[0].location_lat,
+      locationLng: stops[0].location_lng,
+      maxEta: stops.reduce((m, x) => Math.max(m, x.geschaetzte_lieferung_min ?? 0), 0),
+    }));
+  }, [openBatches]);
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3 text-accent">
+        <ShoppingBag className="h-4 w-4" />
+        <h2 className="font-display text-sm font-bold uppercase tracking-wider">Verfügbare Touren</h2>
+        {grouped.length > 0 && (
+          <span className="ml-auto rounded-full bg-accent text-matcha-900 px-2 py-0.5 text-xs font-bold">{grouped.length}</span>
+        )}
+      </div>
+
+      {grouped.length === 0 ? (
+        <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+          <Clock className="h-8 w-8 text-matcha-300 mx-auto mb-2 opacity-60" />
+          <div className="text-matcha-200 text-sm">Gerade keine offenen Touren.</div>
+          <div className="text-matcha-300 text-xs mt-1">Bleib online — wir sagen dir Bescheid.</div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {grouped.map(({ batchId, stops, totalAmount, locationName, maxEta }) => (
+            <div key={batchId} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
+                  <Zap size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-display font-bold">
+                    {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
+                  </div>
+                  <div className="mt-1 flex items-center gap-3 text-xs text-matcha-300">
+                    <span className="font-bold text-accent">{euro(totalAmount)}</span>
+                    {maxEta > 0 && <span className="flex items-center gap-1"><Clock size={10} /> ~{maxEta} Min</span>}
+                    <span>{stops.length} {stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stop list */}
+              <div className="space-y-2 mb-3">
+                {stops.map((s, i) => (
+                  <div key={s.order_id} className="flex items-start gap-2 rounded-xl bg-white/5 px-3 py-2">
+                    <div className="h-6 w-6 rounded-lg bg-accent/20 text-accent grid place-items-center text-[11px] font-black shrink-0">{i + 1}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold truncate">{s.kunde_name}</div>
+                      <div className="text-[11px] text-matcha-300 truncate">
+                        {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
+                      </div>
+                    </div>
+                    <div className="text-sm font-bold text-accent shrink-0">{euro(s.gesamtbetrag)}</div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => onClaim(batchId)}
+                disabled={pending}
+                className="w-full h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+              >
+                {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
