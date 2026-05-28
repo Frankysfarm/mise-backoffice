@@ -60,10 +60,34 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
       </div>
 
       <div className="relative z-10 w-full max-w-md text-center">
-        {/* Check circle */}
-        <div className="mx-auto flex h-[120px] w-[120px] items-center justify-center rounded-full bg-accent/20">
-          <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-accent shadow-[0_0_40px_rgba(74,230,138,0.4)] motion-safe:animate-[scaleIn_400ms_ease-out]">
-            <Check className="h-10 w-10 text-matcha-900" strokeWidth={3} />
+        {/* Check circle with ETA ring */}
+        <div className="mx-auto relative flex h-[120px] w-[120px] items-center justify-center">
+          {/* SVG countdown ring — only shown while countdown is active */}
+          {secsLeft > 0 && (
+            <svg
+              className="absolute inset-0 -rotate-90"
+              width="120" height="120"
+              viewBox="0 0 120 120"
+            >
+              {/* Track */}
+              <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+              {/* Progress */}
+              <circle
+                cx="60" cy="60" r="54"
+                fill="none"
+                stroke="var(--accent, #4ae68a)"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 54}`}
+                strokeDashoffset={`${2 * Math.PI * 54 * (1 - Math.min(1, secsLeft / (etaMinutes * 60)))}`}
+                style={{ transition: 'stroke-dashoffset 1s linear' }}
+              />
+            </svg>
+          )}
+          <div className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-accent/20">
+            <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-accent shadow-[0_0_40px_rgba(74,230,138,0.4)] motion-safe:animate-[scaleIn_400ms_ease-out]">
+              <Check className="h-9 w-9 text-matcha-900" strokeWidth={3} />
+            </div>
           </div>
         </div>
 

@@ -324,26 +324,44 @@ export function DeliveryView({
           );
         })}
 
-        {allDone && (
-          <div className="rounded-2xl bg-matcha-700 border-2 border-accent p-5 text-center">
-            <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-2" />
-            <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
-            <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
+        {allDone && (() => {
+          const cashStops = stops.filter((s) => !s.order.bezahlt || s.order.zahlungsart === 'bar');
+          const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          const onlineTotal = stops.filter((s) => s.order.bezahlt && s.order.zahlungsart !== 'bar')
+            .reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          const elapsedMin = Math.floor(elapsed / 60);
+          const totalDistKm = stops.reduce((sum, s) => sum + ((s.distanz_zum_vorgaenger_m ?? 0) / 1000), 0);
+          return (
+            <div className="rounded-2xl bg-matcha-700 border-2 border-accent p-5 text-center space-y-4">
+              <div>
+                <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-2" />
+                <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
+                <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
+              </div>
 
-            {/* Cash collection summary */}
-            {(() => {
-              const cashStops = stops.filter(
-                (s) => !s.order.bezahlt || s.order.zahlungsart === 'bar',
-              );
-              const totalCash = cashStops.reduce(
-                (sum, s) => sum + s.order.gesamtbetrag, 0,
-              );
-              if (totalCash === 0) return null;
-              const onlineTotal = stops
-                .filter((s) => s.order.bezahlt && s.order.zahlungsart !== 'bar')
-                .reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
-              return (
-                <div className="mt-4 rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
+              {/* Tour-Zusammenfassung */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl bg-white/10 p-3">
+                  <div className="font-display text-xl font-black text-accent">{stops.length}</div>
+                  <div className="text-[10px] text-matcha-300 mt-0.5">Stopps</div>
+                </div>
+                <div className="rounded-xl bg-white/10 p-3">
+                  <div className="font-display text-xl font-black text-accent">{elapsedMin}m</div>
+                  <div className="text-[10px] text-matcha-300 mt-0.5">Unterwegs</div>
+                </div>
+                <div className="rounded-xl bg-white/10 p-3">
+                  <div className="font-display text-xl font-black text-accent">
+                    {totalDistKm > 0 ? `${totalDistKm.toFixed(1)}km` : `${stops.length}×`}
+                  </div>
+                  <div className="text-[10px] text-matcha-300 mt-0.5">
+                    {totalDistKm > 0 ? 'Distanz' : 'Lieferungen'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cash collection summary */}
+              {totalCash > 0 && (
+                <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-2">
                     Kassiertes Bargeld — bitte abgeben
                   </div>
@@ -364,10 +382,10 @@ export function DeliveryView({
                     </div>
                   )}
                 </div>
-              );
-            })()}
-          </div>
-        )}
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
