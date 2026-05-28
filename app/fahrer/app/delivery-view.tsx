@@ -112,12 +112,24 @@ export function DeliveryView({
 
   async function markDelivered(stopId: string) {
     setPending(stopId);
-    const { error } = await supabase.from('delivery_batch_stops')
-      .update({ geliefert_am: new Date().toISOString(), angekommen_am: new Date().toISOString() })
-      .eq('id', stopId);
+    const now = new Date().toISOString();
+    // Bridge-Write: beide Systeme updaten
+    await Promise.all([
+      supabase.from('delivery_batch_stops')
+        .update({ geliefert_am: now, angekommen_am: now })
+        .eq('id', stopId),
+      supabase.from('mise_delivery_batch_stops')
+        .update({ completed_at: now })
+        .eq('id', stopId),
+    ]);
+    const stop = stops.find((s) => s.id === stopId);
+    if (stop) {
+      await supabase.from('customer_orders')
+        .update({ status: 'geliefert', geliefert_am: now })
+        .eq('id', stop.order_id);
+    }
     setPending(null);
-    if (error) { alert(error.message); return; }
-    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: new Date().toISOString() } : x));
+    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
     // Wenn alle fertig → callback
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }

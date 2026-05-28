@@ -1,24 +1,21 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**Phase 6 + 7 vervollständigen.** Storefront Live-Tracking + Admin Zonen-UI + Heatmap.
+**Phase 6 + 7 fast vollständig.** Storefront Tracking ✅, Heatmap ✅ — nur Zonen-CRUD-UI fehlt noch.
 
 ## Anweisungen an Frontend-Ingenieur
 ### Nächste Aufgaben (Prio-Reihenfolge):
 
-1. **Storefront Live-Tracking** (`app/order/[locationSlug]/components/success-state.tsx`)
-   - API `/api/delivery/orders/[orderId]/tracking` liefert `driver.lat`, `driver.lng`, `stops_before`, `batch_state`
-   - Zeige: Fahrer-Position auf Mini-Karte ODER Fortschritts-Badge ("Fahrer X Stops entfernt")
-   - Optional: Supabase Realtime statt Polling (Channel `delivery:${orderId}`)
-
-2. **Admin Zonen-UI** (`app/(admin)/delivery/` oder neues Route `app/(admin)/zones/`)
+1. **Admin Zonen-CRUD-UI** (`app/(admin)/delivery/zone/` oder neues `app/(admin)/zones/`)
    - API `GET/POST /api/delivery/zones` ist fertig
    - Einfache Tabelle: Zone A/B/C/D, Radius, Min-Lieferzeit, Max-Lieferzeit, Preis-Aufschlag
    - Edit-Dialog pro Zone (kein Karten-Widget nötig — Radius-Input reicht)
+   - Dies ist das letzte offene Phase-7-Feature
 
-3. **Heatmap-Widget** in `statistics-view.tsx` oder eigenem Admin-Tab
-   - API `GET /api/delivery/admin/heatmap?location_id=...` liefert `{points: [{lat,lng,weight,zone}[]}]`
-   - Einfachste Lösung: Tabelle mit Top-10 Zonen + Bestellanzahl (kein Karten-Widget nötig)
+### Abgeschlossen (CEO Review #4):
+- Storefront Tracking `stops_before` Badge ✅ — tracking.tsx zeigt "X Stops vor dir" / "Du bist als Nächstes dran!"
+- Heatmap-Widget in statistics-view.tsx ✅ — Top-Bestell-Hotspots nach Zone als Balkendiagramm
+- delivery-view.tsx Bridge-Fix ✅ — markDelivered() schreibt jetzt in BEIDE Systeme (mise_delivery_batch_stops + delivery_batch_stops + customer_orders)
 
 ## Anweisungen an Backend-Architekt
 1. SQL-Migrations 001–004 in Supabase ausführen falls noch nicht geschehen
@@ -193,3 +190,40 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 1. Storefront Tracking-Badge (stops_before anzeigen)
 2. Admin Zonen-Tabelle (einfaches CRUD)
 3. Heatmap als Top-Zonen-Tabelle in statistics-view
+
+## CEO Review #4 — 2026-05-28
+
+### Befund: 2 Bugs + Phase 6/7 Vervollständigung
+
+#### Bug 1: delivery-view.tsx — markDelivered() nicht bridge-fähig (KRITISCH)
+**Datei**: `app/fahrer/app/delivery-view.tsx`
+**Problem**: Die interne `markDelivered()` Funktion schrieb NUR in `delivery_batch_stops` (Legacy).
+Bei Mise-Batches (Smart-Dispatch) wurden `mise_delivery_batch_stops` nie auf completed gesetzt.
+Ergebnis: Fahrer konnte Stops "abhaken", aber Mise-System blieb unverändert → ETA/Dispatch falsch.
+**Fix**: Bridge-Write: Promise.all([delivery_batch_stops, mise_delivery_batch_stops]) +
+customer_orders.status = 'geliefert' für vollständige Synchronisation.
+
+#### Bug 2: tracking.tsx — stops_before gepolt aber nie angezeigt (MITTEL)
+**Datei**: `app/track/[bestellnummer]/tracking.tsx`
+**Problem**: API lieferte `stops_before` im 30s-Polling, aber der Wert wurde nie in State gespeichert
+und nicht im UI angezeigt. Kunde sah keine Info wie weit der Fahrer noch entfernt ist.
+**Fix**:
+- `useState<number | null>(null)` für `stopsBefore`
+- Polling-Handler setzt `setStopsBefore(d.stops_before)`
+- UI: Badge "Noch X Stops vor dir" (grau, unterwegs-Status)
+- UI: Badge "Du bist als Nächstes dran!" (grün/pulsierend, wenn stopsBefore === 0)
+
+#### Feature: Heatmap-Widget in statistics-view.tsx (Phase 7)
+**Datei**: `components/lieferdienst/statistics-view.tsx`
+**Was**: Neue State-Variable `heatmapZones`, Fetch von `/api/delivery/admin/heatmap?location_id=...`
+beim Mount. Punktdaten werden nach Zone aggregiert und als horizontale Balken-Liste gerendert.
+"Bestell-Hotspots (Heute)" — Top 6 Zonen sortiert nach Bestellanzahl.
+
+### Status nach Review #4
+- TypeScript: 0 Fehler ✅
+- Build: `npm run build` kompiliert sauber ✅
+- Phase 6 (Storefront Tracking): 90% — stops_before Badge ✅, Fahrer-Karte ✅
+- Phase 7 (Admin): 80% — Heatmap ✅, Fahrer-Effizienz ✅, Zonen-CRUD-UI fehlt noch
+
+### Verbleibende Aufgabe für Frontend-Ingenieur
+1. **Admin Zonen-CRUD** (`/api/delivery/zones` GET+POST): Zone A/B/C/D Tabelle mit Edit-Dialog

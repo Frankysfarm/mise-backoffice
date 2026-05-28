@@ -67,18 +67,19 @@
 - [x] GPS-Standort senden (watchPosition → Supabase driver_locations)
 - [x] Mobile-first Responsive
 
-## Phase 6: Storefront + Tracking [TEILWEISE ⚠️]
+## Phase 6: Storefront + Tracking [90% ⚠️]
 - [x] Dynamische ETA-Anzeige ("19:20–19:40") — SuccessState mit Live-Polling alle 30s
 - [x] Smart-Messaging (kein Bündelungs-Hinweis — ETA-basiert)
-- [ ] Live-Tracking Fahrer-Position auf Storefront (API vorhanden, UI fehlt)
+- [x] Live-Tracking Fahrer-Position auf Tracking-Seite (LiveMap + stops_before Badge)
+- [x] "X Stops vor dir" / "Du bist als Nächstes dran!" Badge — tracking.tsx
 - [ ] Realtime Order-Status-Updates auf Storefront (aktuell nur Polling)
 
-## Phase 7: Admin Dashboard [TEILWEISE ⚠️]
-- [ ] Zonen-Konfiguration mit Karte (API: `/api/delivery/zones` ✅, UI fehlt)
+## Phase 7: Admin Dashboard [80% ⚠️]
+- [ ] Zonen-Konfiguration CRUD (API: `/api/delivery/zones` ✅, UI fehlt)
 - [x] Aktive Touren Übersicht — Dispatch Board + statistics-view Live-Panel
 - [x] Fahrer-Management (Online/Offline) — statistics-view LiveDriver-Panel + `/api/delivery/admin/drivers`
 - [x] Liefer-Statistiken Dashboard — statistics-view mit Tages-KPIs
-- [ ] Bestell-Heatmap (API: `/api/delivery/admin/heatmap` ✅, UI fehlt)
+- [x] Bestell-Heatmap — statistics-view Top-Zonen-Balkendiagramm (Phase 7 CEO #4)
 
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**
@@ -88,8 +89,8 @@
 - Driver-API `/api/driver/v1/` — Auth (OTP), Aktive Touren, Sessions
 - Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
 
-**TypeScript-Status:** 0 Fehler (CEO-Review #3: 22 Fehler behoben)
-**Build-Status:** Kompiliert sauber (npm run build ✅ — Backend-Architekt Phase 3.6)
+**TypeScript-Status:** 0 Fehler (CEO-Review #4: alle Fixes sauber)
+**Build-Status:** Kompiliert sauber (npm run build ✅ — CEO-Review #4)
 **Build-Achtung:** Nur `npm run build` verwenden! `npx next build` nutzt globales Next.js 16 (Turbopack-Fehler).
 
 ## CEO-Log
@@ -126,6 +127,11 @@ Siehe DELIVERY_CEO_LOG.md
 - **Build-Hinweis**: `npm run build` (Next.js 14.2.18 lokal) ✅ — NICHT `npx next build` (nutzt globales Next.js 16 → Turbopack-Fehler)
 
 ## Letzte Änderungen
+- 2026-05-28: CEO-Review #4 — 2 Bugs behoben, Phase 6+7 erweitert
+  - delivery-view.tsx: markDelivered() Bridge-Fix (mise_delivery_batch_stops + customer_orders)
+  - tracking.tsx: stops_before State + "X Stops vor dir" / "Du bist als Nächstes dran!" Badges
+  - statistics-view.tsx: Heatmap-Widget "Bestell-Hotspots" (Top-Zonen-Balken)
+  - Build: npm run build ✓, TypeScript 0 Fehler
 - 2026-05-28: Backend-Architekt — Phase 3.6: Bridge-Konsolidierung
   - Migration 005: v_open_dispatch_batches VIEW + assign_to_driver RPC + claim_mise_delivery_batch RPC
   - dispatch/client.tsx: Bridge-Write via RPC, Legacy-Fallback
