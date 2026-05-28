@@ -5,7 +5,7 @@ import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
 import {
   TrendingUp, Clock, CheckCircle, XCircle,
-  Package, Truck, DollarSign, BarChart3, Route, Zap
+  Package, Truck, DollarSign, BarChart3, Route, Zap, MapPin
 } from 'lucide-react'
 import {
   BarChart,
@@ -47,6 +47,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
   const [deliveryStats, setDeliveryStats] = useState<DeliveryStats>(null)
   const [liveDrivers, setLiveDrivers] = useState<LiveDriver[]>([])
+  const [heatmapPoints, setHeatmapPoints] = useState<{ zone: string; count: number }[]>([])
 
   useEffect(() => {
     const fetchDrivers = () => {
@@ -61,13 +62,26 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   }, [])
 
   useEffect(() => {
-    // Fetch delivery stats from the delivery API (needs location_id, use first available)
     const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
     if (!locationId) return
     const from = new Date(); from.setHours(0, 0, 0, 0);
     fetch(`/api/delivery/stats?location_id=${locationId}&from=${from.toISOString()}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => d && setDeliveryStats(d))
+      .catch(() => {})
+    fetch(`/api/delivery/admin/heatmap?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { points?: { zone: string; weight: number }[] } | null) => {
+        if (!d?.points) return
+        const byZone: Record<string, number> = {}
+        for (const p of d.points) byZone[p.zone ?? 'Unbekannt'] = (byZone[p.zone ?? 'Unbekannt'] ?? 0) + p.weight
+        setHeatmapPoints(
+          Object.entries(byZone)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([zone, count]) => ({ zone, count }))
+        )
+      })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -485,6 +499,38 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           {liveDrivers.length === 0 && (
             <p className="text-sm text-stone-400 text-center py-6">Keine Fahrer aktiv</p>
           )}
+        </div>
+      )}
+
+      {/* Liefer-Heatmap: Top-Zonen */}
+      {heatmapPoints.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-rose-500" />
+            Bestellungen nach Zone (heute)
+          </h3>
+          <div className="space-y-2">
+            {heatmapPoints.map(({ zone, count }, i) => {
+              const max = heatmapPoints[0]?.count ?? 1
+              const pct = Math.round((count / max) * 100)
+              const zoneColor =
+                zone === 'A' ? 'bg-emerald-400' :
+                zone === 'B' ? 'bg-blue-400' :
+                zone === 'C' ? 'bg-amber-400' :
+                zone === 'D' ? 'bg-red-400' : 'bg-stone-300'
+              return (
+                <div key={zone + i} className="flex items-center gap-3 text-sm">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${zoneColor}`}>
+                    {zone}
+                  </span>
+                  <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${zoneColor}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="w-8 text-right font-bold tabular-nums text-char">{count}</span>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
     </div>

@@ -1,30 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**Phase 6 + 7 vervollständigen.** Storefront Live-Tracking + Admin Zonen-UI + Heatmap.
+**MARKT-REIF.** Alle Phasen 1–7 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen.
 
 ## Anweisungen an Frontend-Ingenieur
-### Nächste Aufgaben (Prio-Reihenfolge):
-
-1. **Storefront Live-Tracking** (`app/order/[locationSlug]/components/success-state.tsx`)
-   - API `/api/delivery/orders/[orderId]/tracking` liefert `driver.lat`, `driver.lng`, `stops_before`, `batch_state`
-   - Zeige: Fahrer-Position auf Mini-Karte ODER Fortschritts-Badge ("Fahrer X Stops entfernt")
-   - Optional: Supabase Realtime statt Polling (Channel `delivery:${orderId}`)
-
-2. **Admin Zonen-UI** (`app/(admin)/delivery/` oder neues Route `app/(admin)/zones/`)
-   - API `GET/POST /api/delivery/zones` ist fertig
-   - Einfache Tabelle: Zone A/B/C/D, Radius, Min-Lieferzeit, Max-Lieferzeit, Preis-Aufschlag
-   - Edit-Dialog pro Zone (kein Karten-Widget nötig — Radius-Input reicht)
-
-3. **Heatmap-Widget** in `statistics-view.tsx` oder eigenem Admin-Tab
-   - API `GET /api/delivery/admin/heatmap?location_id=...` liefert `{points: [{lat,lng,weight,zone}[]}]`
-   - Einfachste Lösung: Tabelle mit Top-10 Zonen + Bestellanzahl (kein Karten-Widget nötig)
+**DONE** — Phase 6 + 7 vollständig implementiert (CEO Review #4).
 
 ## Anweisungen an Backend-Architekt
-1. SQL-Migrations 001–004 in Supabase ausführen falls noch nicht geschehen
-2. Cron-Job in Vercel aktivieren (vercel.json ist gesetzt, `CRON_SECRET` ENV-Var setzen)
+### Deployment-Checkliste (WICHTIG)
+1. SQL-Migrations 001–005 in Supabase ausführen (scripts/migrations/)
+2. Cron-Job in Vercel aktivieren (vercel.json gesetzt, ENV: `CRON_SECRET`)
 3. `BISS_INTERNAL_TOKEN` ENV-Var setzen für `/api/cron/smart-dispatch`
-4. Bridge-Trigger in Migration 004 aktivieren — sorgt für mise→legacy Sync
+4. Bridge-Trigger in Migration 004 aktivieren (mise→legacy Sync)
+
+## CEO Review #4 — 2026-05-28
+
+### Befund: Phase 6 + 7 vervollständigt, MARKT-REIF
+
+#### Implementierte Features
+
+**Tracking — stops_before Badge** (`app/track/[bestellnummer]/tracking.tsx`):
+- `stopsBefore` State aus Tracking-API-Polling (alle 30s)
+- Badge unter Fahrer-Name: "Nächste Lieferung" (0 Stops, matcha), "1 Stop vor dir" (amber), "X Stops vor dir" (stone)
+- Nur sichtbar wenn `status === 'unterwegs'` und `stopsBefore != null`
+
+**Admin Zonen A/B/C/D** (`app/(admin)/delivery/zone/client.tsx`):
+- `ZoneConfigRow` Komponente: read-only Tabellenzeile + Inline-Edit-Formular
+- Felder: Bezeichnung, Max-Radius, Aufpreis, Mindestbestellwert, Basis-ETA
+- "Standard-Zonen anlegen" Button (Seed) wenn keine Zonen vorhanden
+- Zonen-Tabelle lädt via `GET /api/delivery/zones?location_id=...`
+- Speichern via `POST /api/delivery/zones` (Upsert)
+
+**Heatmap Top-Zonen** (`components/lieferdienst/statistics-view.tsx`):
+- Fetch `GET /api/delivery/admin/heatmap?location_id=...`
+- Aggregiert nach Zone, sortiert nach Häufigkeit, Top-10
+- Balken-Visualisierung mit Zone-Farbcodierung (A=grün, B=blau, C=amber, D=rot)
+
+### Status nach Review #4
+- TypeScript: 0 Fehler ✅
+- Build: `npm run build` kompiliert sauber ✅
+- Phase 6: DONE ✅
+- Phase 7: DONE ✅
+- **SYSTEM MARKT-REIF** — alle 7 Phasen abgeschlossen
+
+### Nächste Schritte (Operations)
+1. DB-Migrations 001–005 in Supabase Production ausführen
+2. ENV-Vars setzen: `CRON_SECRET`, `BISS_INTERNAL_TOKEN`
+3. Vercel Deployment pushen
+4. Technische Schuld (niedrig): `delivery_batches` → `mise_delivery_batches` konsolidieren
 
 ## Architektur-Schuld (nächster Sprint)
 - `delivery_batches` + `mise_delivery_batches` konsolidieren → nur `mise_delivery_batches`
