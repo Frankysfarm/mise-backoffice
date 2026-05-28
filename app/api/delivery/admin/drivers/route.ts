@@ -21,11 +21,7 @@ export async function GET(req: NextRequest) {
   // Alle Fahrer mit aktueller Position + aktivem Batch
   const { data: drivers, error } = await sb
     .from('mise_drivers')
-    .select(
-      'id, name, telefon, vehicle, state, active, ' +
-      'max_radius_km, max_capacity, current_capacity, ' +
-      'total_deliveries, last_lat, last_lng, last_position_at',
-    )
+    .select('id, name, telefon, vehicle, state, active, max_radius_km, max_capacity, current_capacity, total_deliveries, last_lat, last_lng, last_position_at')
     .order('state', { ascending: true })
     .order('name', { ascending: true });
 

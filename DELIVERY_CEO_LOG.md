@@ -1,17 +1,36 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**Phase 1 zuerst!** Backend-Architekt soll mit dem Datenmodell beginnen.
-
-## Anweisungen an Backend-Architekt
-1. Starte mit `scripts/migrations/001_delivery_zones.sql`
-2. Danach `002_delivery_tours.sql` + `003_tour_stops.sql`
-3. Dann Dispatch Engine in `lib/delivery/`
+**Phase 6 + 7 vervollständigen.** Storefront Live-Tracking + Admin Zonen-UI + Heatmap.
 
 ## Anweisungen an Frontend-Ingenieur
-1. Warte bis Backend mindestens Phase 1 (Datenmodell) fertig hat
-2. Starte dann mit dem Küchen-Dashboard unter `app/(admin)/kitchen/`
-3. Wenn Backend-APIs noch fehlen: Mock-Daten verwenden, aber in DELIVERY_PROGRESS.md notieren
+### Nächste Aufgaben (Prio-Reihenfolge):
+
+1. **Storefront Live-Tracking** (`app/order/[locationSlug]/components/success-state.tsx`)
+   - API `/api/delivery/orders/[orderId]/tracking` liefert `driver.lat`, `driver.lng`, `stops_before`, `batch_state`
+   - Zeige: Fahrer-Position auf Mini-Karte ODER Fortschritts-Badge ("Fahrer X Stops entfernt")
+   - Optional: Supabase Realtime statt Polling (Channel `delivery:${orderId}`)
+
+2. **Admin Zonen-UI** (`app/(admin)/delivery/` oder neues Route `app/(admin)/zones/`)
+   - API `GET/POST /api/delivery/zones` ist fertig
+   - Einfache Tabelle: Zone A/B/C/D, Radius, Min-Lieferzeit, Max-Lieferzeit, Preis-Aufschlag
+   - Edit-Dialog pro Zone (kein Karten-Widget nötig — Radius-Input reicht)
+
+3. **Heatmap-Widget** in `statistics-view.tsx` oder eigenem Admin-Tab
+   - API `GET /api/delivery/admin/heatmap?location_id=...` liefert `{points: [{lat,lng,weight,zone}[]}]`
+   - Einfachste Lösung: Tabelle mit Top-10 Zonen + Bestellanzahl (kein Karten-Widget nötig)
+
+## Anweisungen an Backend-Architekt
+1. SQL-Migrations 001–004 in Supabase ausführen falls noch nicht geschehen
+2. Cron-Job in Vercel aktivieren (vercel.json ist gesetzt, `CRON_SECRET` ENV-Var setzen)
+3. `BISS_INTERNAL_TOKEN` ENV-Var setzen für `/api/cron/smart-dispatch`
+4. Bridge-Trigger in Migration 004 aktivieren — sorgt für mise→legacy Sync
+
+## Architektur-Schuld (nächster Sprint)
+- `delivery_batches` + `mise_delivery_batches` konsolidieren → nur `mise_delivery_batches`
+- `app/fahrer/app/client.tsx` liest noch `delivery_batch_stops` (alt) statt `mise_delivery_batch_stops`
+- `dispatch/client.tsx → assignToDriver()` schreibt nur in alte Tabelle
+- Priorität: NIEDRIG (Kunden sehen keinen Unterschied), aber technische Schuld wächst
 
 ## CEO Review #1 — 2026-05-28
 
@@ -115,3 +134,62 @@ Folgende Dateien müssen dann migriert werden:
 - Scoring als numerischer Wert 0-100
 - Kanonische Tabelle: `mise_delivery_batches` / `mise_delivery_batch_stops` (Frank-System)
 - Legacy-Kompatibilität: `delivery_batches` bleibt für Fahrer-PWA aktiv bis zur Migration
+
+## CEO Review #3 — 2026-05-28
+
+### Befund: 22 TypeScript-Fehler + Integrations-Vollprüfung
+
+#### Root Cause: Supabase String-Konkatenation → GenericStringError
+**Dateien**: `app/api/delivery/admin/drivers/route.ts`, `app/api/delivery/orders/[orderId]/tracking/route.ts`
+
+**Problem**: `@supabase/postgrest-js` v2.106.2 parst `.select()` Strings zur Compile-Zeit als TypeScript-Literale.
+Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Literal-Typ.
+`ParseQuery<string>` gibt `GenericStringError` zurück → alle `.data`-Properties werden zu Fehler.
+
+**Fix**: Multi-Part-Strings zu Single-Literal-Strings zusammengeführt (2 Dateien, 2 Queries).
+
+**Lernregel**: Supabase `.select()` IMMER als Single-Literal schreiben — KEINE String-Konkatenation!
+```typescript
+// ❌ FALSCH
+.select('id, name, ' + 'telefon, state')
+// ✅ RICHTIG
+.select('id, name, telefon, state')
+```
+
+#### Integrations-Prüfung der Frontend-Commits (letzter Commit + vorletzter)
+
+**Dispatch Countdown** (`dispatch/client.tsx`):
+- `batch.startzeit + batch.total_eta_min` → Live-Countdown in BatchRow ✅
+- Farbcodierung: Grün >5Min, Orange >1Min, Rot+Puls überzogen ✅
+
+**Kitchen "Warte-Badge"** (`kitchen/client.tsx`):
+- `fertig_am` korrekt im Type + Select(`*`) enthalten ✅
+- Graceful Fallback auf `bestellt_am + geschaetzte_zubereitung_min` wenn `fertig_am` null ✅
+
+**Driver Elapsed + Distance** (`delivery-view.tsx`):
+- `elapsed` via `setInterval(1000)` + `mountedAt.current` ✅
+- `distanz_zum_vorgaenger_m` — null-safe Guard vorhanden → graceful hide wenn Altdaten ✅
+- ETA-Berechnung: `distanz_m / 1000 / 15 * 60` = km / 15km/h = Minuten (Fahrrad-Tempo) ✅
+
+**Storefront Live-ETA** (`success-state.tsx`):
+- `orderId` von `storefront.tsx` line 343 korrekt übergeben ✅
+- Polling alle 30s via `/api/delivery/eta/[orderId]` ✅
+- `secsLeft` wird live aktualisiert wenn neue ETA eintrifft ✅
+
+**Statistics Live-Fahrer-Panel** (`statistics-view.tsx`):
+- `LiveDriver` Type korrekt definiert ✅
+- Polling alle 30s via `/api/delivery/admin/drivers` ✅
+- Requires Auth — API gibt 401 wenn nicht eingeloggt (normal im Admin) ✅
+
+### Status nach Review #3
+- TypeScript: 0 Fehler ✅
+- Build: `next build` kompiliert sauber ✅
+- Phase 4 (Kitchen): DONE ✅
+- Phase 5 (Fahrer-App): DONE ✅ (ohne eingebettetes Karten-Widget — Navigation-Link reicht)
+- Phase 6 (Storefront): 50% — ETA-Polling ✅, Live-Tracking-UI fehlt
+- Phase 7 (Admin): 60% — Fahrer-Panel + Stats ✅, Zonen-UI + Heatmap-UI fehlen
+
+### Nächste Priorität für Frontend-Ingenieur
+1. Storefront Tracking-Badge (stops_before anzeigen)
+2. Admin Zonen-Tabelle (einfaches CRUD)
+3. Heatmap als Top-Zonen-Tabelle in statistics-view

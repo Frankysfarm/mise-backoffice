@@ -27,11 +27,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   // Bestellung laden
   const { data: order, error: orderErr } = await sb
     .from('customer_orders')
-    .select(
-      'id, bestellnummer, status, typ, eta_earliest, eta_latest, ' +
-      'mise_batch_id, mise_driver_id, location_id, ' +
-      'kunde_lat, kunde_lng',
-    )
+    .select('id, bestellnummer, status, typ, eta_earliest, eta_latest, mise_batch_id, mise_driver_id, location_id, kunde_lat, kunde_lng')
     .eq('id', orderId)
     .eq('typ', 'lieferung')
     .maybeSingle();
