@@ -23,6 +23,7 @@ import { findBundleCandidates, appendToTour } from './bundling';
 import { optimizeTour } from './tour-optimizer';
 import { calculateEta, updateOrderEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
+import { logDeliveryEvent } from './events';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -320,6 +321,20 @@ export async function dispatchSingleOrder(o: OrderRow): Promise<DispatchResult> 
     decision:      outcome,
     reason:        bundleDecision.reason || `Score ${bestScore.total.toFixed(1)}, Zone ${zone}`,
   }).then(() => {});
+
+  // Audit-Event (fire-and-forget)
+  logDeliveryEvent({
+    event_type:  outcome === 'bundled' ? 'order_bundled' : 'order_dispatched',
+    location_id: o.location_id,
+    order_id:    o.id,
+    batch_id:    batchId,
+    driver_id:   best.driver.id,
+    payload: {
+      zone,
+      score:       bestScore.total,
+      distance_km: distanceKm,
+    },
+  });
 
   return {
     orderId: o.id,

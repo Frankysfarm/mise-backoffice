@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
   Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, MapPin,
-  Navigation, Phone, Power, Route, ShoppingBag, Zap,
+  Navigation, Phone, Power, ShoppingBag, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
 import { PickDialog } from './pick-dialog';
@@ -451,22 +451,6 @@ export function FahrerApp({
   );
 }
 
-/* ---------- Haversine ---------- */
-function haversineKm(
-  a: { lat: number; lng: number },
-  b: { lat: number; lng: number },
-): number {
-  const R = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((a.lat * Math.PI) / 180) *
-      Math.cos((b.lat * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -492,35 +476,15 @@ function OpenBatchSection({
       if (!map.has(b.batch_id)) map.set(b.batch_id, []);
       map.get(b.batch_id)!.push(b);
     }
-    return Array.from(map.entries()).map(([batchId, stops]) => {
-      const locLat = stops[0].location_lat;
-      const locLng = stops[0].location_lng;
-
-      // Compute route distance: location → stop1 → stop2 → ...
-      let totalDistanceKm = 0;
-      let prev = locLat != null && locLng != null ? { lat: locLat, lng: locLng } : null;
-      for (const s of stops) {
-        if (s.kunde_lat && s.kunde_lng && prev) {
-          totalDistanceKm += haversineKm(prev, { lat: s.kunde_lat, lng: s.kunde_lng });
-          prev = { lat: s.kunde_lat, lng: s.kunde_lng };
-        }
-      }
-
-      // Estimate ETA: 20 km/h avg + 3 min per stop overhead
-      const estEtaMin = Math.round((totalDistanceKm / 20) * 60 + stops.length * 3);
-
-      return {
-        batchId,
-        stops,
-        totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
-        locationName: stops[0].location_name,
-        locationLat: locLat,
-        locationLng: locLng,
-        maxEta: stops.reduce((m, x) => Math.max(m, x.geschaetzte_lieferung_min ?? 0), 0),
-        totalDistanceKm: totalDistanceKm > 0 ? totalDistanceKm : null,
-        estEtaMin: estEtaMin > 0 ? estEtaMin : null,
-      };
-    });
+    return Array.from(map.entries()).map(([batchId, stops]) => ({
+      batchId,
+      stops,
+      totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
+      locationName: stops[0].location_name,
+      locationLat: stops[0].location_lat,
+      locationLng: stops[0].location_lng,
+      maxEta: stops.reduce((m, x) => Math.max(m, x.geschaetzte_lieferung_min ?? 0), 0),
+    }));
   }, [openBatches]);
 
   return (
@@ -541,7 +505,7 @@ function OpenBatchSection({
         </div>
       ) : (
         <div className="space-y-3">
-          {grouped.map(({ batchId, stops, totalAmount, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
+          {grouped.map(({ batchId, stops, totalAmount, locationName, maxEta }) => (
             <div key={batchId} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
               <div className="flex items-start gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
@@ -553,42 +517,11 @@ function OpenBatchSection({
                   </div>
                   <div className="mt-1 flex items-center gap-3 text-xs text-matcha-300">
                     <span className="font-bold text-accent">{euro(totalAmount)}</span>
-                    {estEtaMin ? (
-                      <span className="flex items-center gap-1"><Clock size={10} /> ~{estEtaMin} Min</span>
-                    ) : maxEta > 0 ? (
-                      <span className="flex items-center gap-1"><Clock size={10} /> ~{maxEta} Min</span>
-                    ) : null}
-                    {totalDistanceKm != null && (
-                      <span className="flex items-center gap-1"><Route size={10} /> {totalDistanceKm.toFixed(1)} km</span>
-                    )}
+                    {maxEta > 0 && <span className="flex items-center gap-1"><Clock size={10} /> ~{maxEta} Min</span>}
                     <span>{stops.length} {stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
                   </div>
                 </div>
               </div>
-
-              {/* Route-Visualisierung für Multi-Stop Touren */}
-              {stops.length > 1 && totalDistanceKm != null && (
-                <div className="mb-3 rounded-xl bg-white/5 px-3 py-2">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Route</div>
-                  <div className="flex items-center gap-1 overflow-x-auto pb-1">
-                    <div className="flex items-center gap-1 shrink-0">
-                      <div className="h-5 w-5 rounded-full bg-matcha-700 text-accent flex items-center justify-center">
-                        <MapPin size={10} />
-                      </div>
-                      <div className="text-[9px] text-matcha-400 max-w-[60px] truncate">{locationName}</div>
-                    </div>
-                    {stops.map((s, i) => (
-                      <div key={s.order_id} className="flex items-center gap-1 shrink-0">
-                        <div className="w-4 h-0.5 bg-accent/40 rounded-full" />
-                        <div className="flex flex-col items-center">
-                          <div className="h-5 w-5 rounded-full bg-accent/20 border border-accent/40 text-accent flex items-center justify-center text-[9px] font-black">{i + 1}</div>
-                          <div className="text-[9px] text-matcha-400 max-w-[52px] truncate text-center">{s.kunde_name.split(' ')[0]}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Stop list */}
               <div className="space-y-2 mb-3">

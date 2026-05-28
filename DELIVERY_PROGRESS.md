@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: PHASE 1+2+3+3.5+4+5 ABGESCHLOSSEN ✅ — PHASE 6+7 TEILWEISE
+## STATUS: PHASE 1+2+3+3.5+3.6+4+5 ABGESCHLOSSEN ✅ — PHASE 6+7 TEILWEISE — PHASE 8 DONE ✅
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -67,19 +67,18 @@
 - [x] GPS-Standort senden (watchPosition → Supabase driver_locations)
 - [x] Mobile-first Responsive
 
-## Phase 6: Storefront + Tracking [90% ⚠️]
+## Phase 6: Storefront + Tracking [TEILWEISE ⚠️]
 - [x] Dynamische ETA-Anzeige ("19:20–19:40") — SuccessState mit Live-Polling alle 30s
 - [x] Smart-Messaging (kein Bündelungs-Hinweis — ETA-basiert)
-- [x] Live-Tracking Fahrer-Position auf Tracking-Seite (LiveMap + stops_before Badge)
-- [x] "X Stops vor dir" / "Du bist als Nächstes dran!" Badge — tracking.tsx
+- [ ] Live-Tracking Fahrer-Position auf Storefront (API vorhanden, UI fehlt)
 - [ ] Realtime Order-Status-Updates auf Storefront (aktuell nur Polling)
 
-## Phase 7: Admin Dashboard [80% ⚠️]
-- [ ] Zonen-Konfiguration CRUD (API: `/api/delivery/zones` ✅, UI fehlt)
+## Phase 7: Admin Dashboard [TEILWEISE ⚠️]
+- [ ] Zonen-Konfiguration mit Karte (API: `/api/delivery/zones` ✅, UI fehlt)
 - [x] Aktive Touren Übersicht — Dispatch Board + statistics-view Live-Panel
 - [x] Fahrer-Management (Online/Offline) — statistics-view LiveDriver-Panel + `/api/delivery/admin/drivers`
 - [x] Liefer-Statistiken Dashboard — statistics-view mit Tages-KPIs
-- [x] Bestell-Heatmap — statistics-view Top-Zonen-Balkendiagramm (Phase 7 CEO #4)
+- [ ] Bestell-Heatmap (API: `/api/delivery/admin/heatmap` ✅, UI fehlt)
 
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**
@@ -89,8 +88,8 @@
 - Driver-API `/api/driver/v1/` — Auth (OTP), Aktive Touren, Sessions
 - Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
 
-**TypeScript-Status:** 0 Fehler (CEO-Review #4: alle Fixes sauber)
-**Build-Status:** Kompiliert sauber (npm run build ✅ — CEO-Review #4)
+**TypeScript-Status:** 0 Fehler (CEO-Review #3: 22 Fehler behoben)
+**Build-Status:** Kompiliert sauber (npm run build ✅ — Backend-Architekt Phase 3.6)
 **Build-Achtung:** Nur `npm run build` verwenden! `npx next build` nutzt globales Next.js 16 (Turbopack-Fehler).
 
 ## CEO-Log
@@ -112,6 +111,42 @@ Siehe DELIVERY_CEO_LOG.md
 | `/api/delivery/admin/heatmap` | GET | Bestell-Heatmap-Daten |
 | `/api/delivery/admin/overview` | GET | Aggregierter Dashboard-Snapshot |
 
+## Phase 8: Backend-Support für Phase 6+7 [DONE ✅]
+
+### Neue API-Endpunkte
+| Endpoint | Methode | Zweck |
+|---|---|---|
+| `/api/delivery/zones/[id]` | GET | Einzelne Zone laden |
+| `/api/delivery/zones/[id]` | PATCH | Zone editieren (für Admin CRUD-UI) |
+| `/api/delivery/zones/[id]` | DELETE | Zone deaktivieren (soft-delete) |
+| `/api/delivery/admin/events` | GET | Audit-Trail aller Delivery-Events |
+| `/api/delivery/admin/trends` | GET | Heute vs. Gestern Trend-Vergleich |
+
+### Neue Lib-Module
+- [x] `lib/delivery/events.ts` — `logDeliveryEvent()` + `getRecentEvents()`, fire-and-forget logging
+- [x] `lib/delivery/zones.ts` — `updateZoneById()` + `deactivateZoneById()` ergänzt
+
+### Dispatch Engine
+- [x] Event-Logging nach Dispatch-Entscheidung (`order_dispatched` / `order_bundled`)
+
+### SQL Migration 006
+- [x] `scripts/migrations/006_delivery_events.sql`
+  - `delivery_events` Tabelle — Audit-Trail mit RLS
+  - Indizes auf location_id + occurred_at + order/batch FK
+  - `delivery_zones updated_at`-Trigger
+  - `v_delivery_today_stats` VIEW — aggregierte Tages-KPIs
+  - `get_delivery_trends(p_location_id)` Funktion — Heute vs. Gestern
+
+### Für Frontend-Ingenieur: Admin Zonen-CRUD
+Das PATCH/DELETE auf `/api/delivery/zones/[id]` ermöglicht jetzt vollständiges CRUD:
+```
+GET    /api/delivery/zones?location_id=...       — alle Zonen
+POST   /api/delivery/zones                       — Zone anlegen/upsert
+GET    /api/delivery/zones/[id]                  — einzelne Zone
+PATCH  /api/delivery/zones/[id]  { location_id, label, min_km, ... }
+DELETE /api/delivery/zones/[id]?location_id=...  — deaktivieren
+```
+
 ## Phase 3.6: Bridge-Konsolidierung [DONE ✅]
 - [x] `scripts/migrations/005_open_batches_view.sql`
   - `v_open_dispatch_batches` VIEW — union Legacy (status='pickup') + Mise (state='pending_acceptance')
@@ -127,11 +162,15 @@ Siehe DELIVERY_CEO_LOG.md
 - **Build-Hinweis**: `npm run build` (Next.js 14.2.18 lokal) ✅ — NICHT `npx next build` (nutzt globales Next.js 16 → Turbopack-Fehler)
 
 ## Letzte Änderungen
-- 2026-05-28: CEO-Review #4 — 2 Bugs behoben, Phase 6+7 erweitert
-  - delivery-view.tsx: markDelivered() Bridge-Fix (mise_delivery_batch_stops + customer_orders)
-  - tracking.tsx: stops_before State + "X Stops vor dir" / "Du bist als Nächstes dran!" Badges
-  - statistics-view.tsx: Heatmap-Widget "Bestell-Hotspots" (Top-Zonen-Balken)
-  - Build: npm run build ✓, TypeScript 0 Fehler
+- 2026-05-28: Backend-Architekt — Phase 8: Backend-Support für Phase 6+7
+  - `app/api/delivery/zones/[id]/route.ts` — GET/PATCH/DELETE für einzelne Zonen
+  - `lib/delivery/zones.ts` — updateZoneById() + deactivateZoneById()
+  - `lib/delivery/events.ts` — Audit-Trail Logging (logDeliveryEvent, getRecentEvents)
+  - `app/api/delivery/admin/events/route.ts` — GET Audit-Trail
+  - `app/api/delivery/admin/trends/route.ts` — Heute vs. Gestern Trend-API
+  - `scripts/migrations/006_delivery_events.sql` — delivery_events + Views + Funktion
+  - dispatch-engine.ts — Event-Logging nach Dispatch-Entscheidung
+  - Build: ✓ Compiled successfully, 0 TypeScript-Fehler
 - 2026-05-28: Backend-Architekt — Phase 3.6: Bridge-Konsolidierung
   - Migration 005: v_open_dispatch_batches VIEW + assign_to_driver RPC + claim_mise_delivery_batch RPC
   - dispatch/client.tsx: Bridge-Write via RPC, Legacy-Fallback

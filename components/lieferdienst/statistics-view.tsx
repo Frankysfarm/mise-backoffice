@@ -47,7 +47,6 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
   const [deliveryStats, setDeliveryStats] = useState<DeliveryStats>(null)
   const [liveDrivers, setLiveDrivers] = useState<LiveDriver[]>([])
-  const [heatmapZones, setHeatmapZones] = useState<{ zone: string; count: number }[]>([])
 
   useEffect(() => {
     const fetchDrivers = () => {
@@ -62,29 +61,13 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   }, [])
 
   useEffect(() => {
+    // Fetch delivery stats from the delivery API (needs location_id, use first available)
     const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
     if (!locationId) return
     const from = new Date(); from.setHours(0, 0, 0, 0);
     fetch(`/api/delivery/stats?location_id=${locationId}&from=${from.toISOString()}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => d && setDeliveryStats(d))
-      .catch(() => {})
-    // Heatmap: Zonen-Verteilung
-    fetch(`/api/delivery/admin/heatmap?location_id=${locationId}`)
-      .then(r => r.ok ? r.json() : null)
-      .then((d) => {
-        if (!d?.points) return;
-        const zoneMap: Record<string, number> = {};
-        for (const p of d.points as { zone?: string; weight?: number }[]) {
-          const z = p.zone ?? 'unbekannt';
-          zoneMap[z] = (zoneMap[z] ?? 0) + (p.weight ?? 1);
-        }
-        const sorted = Object.entries(zoneMap)
-          .map(([zone, count]) => ({ zone, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 6);
-        setHeatmapZones(sorted);
-      })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -502,35 +485,6 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           {liveDrivers.length === 0 && (
             <p className="text-sm text-stone-400 text-center py-6">Keine Fahrer aktiv</p>
           )}
-        </div>
-      )}
-
-      {/* Bestell-Heatmap: Top-Zonen */}
-      {heatmapZones.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
-            <Route className="w-5 h-5 text-rose-500" />
-            Bestell-Hotspots (Heute)
-          </h3>
-          <div className="space-y-2">
-            {heatmapZones.map(({ zone, count }, i) => {
-              const max = heatmapZones[0]?.count ?? 1;
-              const pct = Math.round((count / max) * 100);
-              return (
-                <div key={zone} className="flex items-center gap-3">
-                  <div className="w-6 text-xs font-bold text-stone-400 text-right">{i + 1}</div>
-                  <div className="w-16 text-sm font-semibold text-char truncate">{zone}</div>
-                  <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-rose-400 transition-all"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <div className="w-8 text-xs font-bold text-stone-600 text-right tabular-nums">{count}</div>
-                </div>
-              );
-            })}
-          </div>
         </div>
       )}
     </div>

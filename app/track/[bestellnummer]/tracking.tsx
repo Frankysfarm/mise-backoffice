@@ -80,7 +80,6 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
   const [text, setText] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   const [, setTick] = useState(0);
-  const [stopsBefore, setStopsBefore] = useState<number | null>(null);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -105,7 +104,6 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             fahrer_heading: d.driver?.heading ?? prev.fahrer_heading,
             fahrer_last_update: d.driver ? new Date().toISOString() : prev.fahrer_last_update,
           }));
-          if (d.stops_before != null) setStopsBefore(d.stops_before);
         })
         .catch(() => {});
     };
@@ -221,18 +219,6 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
                 <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/40 px-4 py-2 text-sm font-bold tabular-nums">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
                   {etaCountdown(order)}
-                </div>
-              )}
-              {stopsBefore != null && stopsBefore > 0 && order.status === 'unterwegs' && (
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm">
-                  <MapPin className="h-4 w-4 text-matcha-200" />
-                  {stopsBefore === 1 ? 'Noch 1 Stop vor dir' : `Noch ${stopsBefore} Stops vor dir`}
-                </div>
-              )}
-              {stopsBefore === 0 && order.status === 'unterwegs' && (
-                <div className="inline-flex items-center gap-2 rounded-full bg-accent/30 border border-accent/50 px-4 py-2 text-sm font-bold">
-                  <span className="h-2 w-2 animate-ping rounded-full bg-accent" />
-                  Du bist als Nächstes dran!
                 </div>
               )}
             </div>
