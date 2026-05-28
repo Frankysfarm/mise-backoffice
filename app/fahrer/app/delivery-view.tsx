@@ -125,19 +125,37 @@ export function DeliveryView({
   return (
     <div className="flex-1 flex flex-col bg-matcha-900">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Lieferung läuft</div>
-          <div className="font-display font-bold text-lg">
-            {doneCount} / {stops.length} zugestellt
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Lieferung läuft</div>
+            <div className="font-display font-bold text-lg">
+              {doneCount} / {stops.length} zugestellt
+            </div>
+            <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
+              Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min
+            </div>
           </div>
-          <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
-            Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min
+          <div className="flex-1 h-1.5 bg-white/10 rounded-full ml-4 overflow-hidden">
+            <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
           </div>
         </div>
-        <div className="flex-1 h-1.5 bg-white/10 rounded-full ml-4 overflow-hidden">
-          <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
-        </div>
+        {/* Tour-Kassen-Zusammenfassung */}
+        {(() => {
+          const cashStops = stops.filter((s) => !s.order.bezahlt || s.order.zahlungsart === 'bar');
+          const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          const totalAll = stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          if (totalCash === 0) return null;
+          return (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 px-3 py-1.5">
+                <Banknote size={12} className="text-amber-300" />
+                <span className="text-[11px] font-bold text-amber-200">Bar kassieren: {euro(totalCash)}</span>
+              </div>
+              <div className="text-[10px] text-matcha-400">Gesamt: {euro(totalAll)}</div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Multi-Waypoint Navigation */}
