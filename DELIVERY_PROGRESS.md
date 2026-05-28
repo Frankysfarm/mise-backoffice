@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: PHASE 1+2+3 ABGESCHLOSSEN ✅
+## STATUS: PHASE 1+2+3+3.5 ABGESCHLOSSEN ✅
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -36,6 +36,15 @@
 - [x] GET /api/delivery/kitchen/queue — Küchen-Queue mit Status
 - [x] PATCH /api/delivery/kitchen/[orderId]/status — Küchen-Status-Update
 - [x] GET /api/delivery/stats — Liefer-Statistiken
+
+## Phase 3.5: Backend-Erweiterungen [DONE ✅]
+- [x] `scripts/migrations/004_bridge_trigger.sql` — Bridge-Trigger mise→legacy, driver_live_positions View, Indizes
+- [x] `app/api/cron/smart-dispatch/route.ts` — Vercel Cron Endpoint (alle 2 Min), CRON_SECRET + BISS_INTERNAL_TOKEN Auth
+- [x] `vercel.json` — Cron `*/2 * * * *` für `/api/cron/smart-dispatch` eingetragen
+- [x] `app/api/delivery/orders/[orderId]/tracking/route.ts` — Kunden-Live-Tracking (ETA-Label, Fahrerstatus, Stops-Vorher)
+- [x] `app/api/delivery/admin/drivers/route.ts` — GET+PATCH Fahrer-Management (Live-Position, aktiver Batch, Status)
+- [x] `app/api/delivery/admin/heatmap/route.ts` — Liefer-Heatmap (0.01°-Gitter, Gewichte, Zonen)
+- [x] `app/api/delivery/admin/overview/route.ts` — Aggregiertes Admin-Dashboard (1 Request: Touren+Fahrer+Stats)
 
 ## Phase 4: Küchen-Dashboard [TODO]
 - [ ] Kanban-Board (6 Spalten)
@@ -91,7 +100,23 @@ Siehe DELIVERY_CEO_LOG.md
 - Realtime: Küchen-Dashboard kann `kitchen_timings` Tabelle via Supabase Realtime subscriben
 - Zonen-Farben aus `delivery_zones.color` für Dashboard-Farbcodierung nutzen
 
+## Neue API-Endpunkte (Phase 3.5)
+| Endpoint | Methode | Zweck |
+|---|---|---|
+| `/api/cron/smart-dispatch` | GET | Vercel Cron — alle 2 Min Smart-Dispatch |
+| `/api/delivery/orders/[id]/tracking` | GET | Kunden-Live-Tracking (öffentlich) |
+| `/api/delivery/admin/drivers` | GET+PATCH | Fahrer-Management im Admin |
+| `/api/delivery/admin/heatmap` | GET | Bestell-Heatmap-Daten |
+| `/api/delivery/admin/overview` | GET | Aggregierter Dashboard-Snapshot |
+
 ## Letzte Änderungen
+- 2026-05-28: Backend-Architekt — Phase 3.5: Cron, Tracking-API, Admin-APIs, Bridge-Migration
+  - `/api/cron/smart-dispatch` + vercel.json Cron alle 2 Min
+  - `/api/delivery/orders/[orderId]/tracking` für Kunden-Tracking
+  - `/api/delivery/admin/drivers` GET+PATCH
+  - `/api/delivery/admin/heatmap` + `/api/delivery/admin/overview`
+  - SQL Migration 004: Bridge-Trigger mise→legacy, driver_live_positions View
+  - Build: ✓ Compiled successfully, 0 TypeScript-Fehler
 - 2026-05-28: CEO-Review #2 — 3 kritische Integrations-Bugs behoben
   - Auto-Dispatch API Auth-Fix (403 → akzeptiert Sessions)
   - Dispatch Board zeigt Batches aus BEIDEN Tabellen (mise + legacy)
