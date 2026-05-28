@@ -196,12 +196,14 @@ export function FahrerApp({
     })();
   }, [isOnline]);
 
-  /* Realtime: refresh on any batch/status change */
+  /* Realtime: refresh bei Änderungen in Legacy- UND Mise-Tabellen */
   useEffect(() => {
     const ch = supabase
       .channel('fahrer-app')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -240,15 +242,22 @@ export function FahrerApp({
 
   async function markDelivered(stopId: string) {
     startTransition(async () => {
+      const now = new Date().toISOString();
+
+      // Legacy-Stop updaten
       await supabase.from('delivery_batch_stops')
-        .update({ geliefert_am: new Date().toISOString() })
+        .update({ geliefert_am: now })
         .eq('id', stopId);
 
-      // Order-Status auf geliefert updaten
+      // Mise-Stop updaten (falls dieser Stop aus dem Mise-System stammt)
+      await supabase.from('mise_delivery_batch_stops')
+        .update({ completed_at: now })
+        .eq('id', stopId);
+
       const stop = activeBatch?.stops.find((s) => s.id === stopId);
       if (stop) {
         await supabase.from('customer_orders')
-          .update({ status: 'geliefert', geliefert_am: new Date().toISOString() })
+          .update({ status: 'geliefert', geliefert_am: now })
           .eq('id', stop.order_id);
       }
 

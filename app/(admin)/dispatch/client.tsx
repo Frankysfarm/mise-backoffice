@@ -186,30 +186,40 @@ export function DispatchBoard({
     const orderIds = Array.from(selected);
 
     startTransition(async () => {
-      const { data: batch, error: e1 } = await supabase
-        .from('delivery_batches')
-        .insert({
-          location_id: locationId,
-          fahrer_id: fahrerId,
-          status: 'pickup',
-          startzeit: new Date().toISOString(),
-          erstellt_von: null,
-          auto_erstellt: false,
-        })
-        .select()
-        .single();
-      if (e1 || !batch) return;
+      // Bridge-Write: atomisch in Legacy + Mise-System schreiben (via DB-Funktion)
+      const { data, error } = await supabase.rpc('assign_to_driver', {
+        p_employee_id: fahrerId,
+        p_order_ids:   orderIds,
+        p_location_id: locationId,
+      });
 
-      const stops = orderIds.map((id, idx) => ({ batch_id: batch.id, order_id: id, reihenfolge: idx + 1 }));
-      await supabase.from('delivery_batch_stops').insert(stops);
-      await supabase
-        .from('customer_orders')
-        .update({ fahrer_id: fahrerId, batch_id: batch.id, status: 'unterwegs' })
-        .in('id', orderIds);
-      await supabase
-        .from('driver_status')
-        .update({ aktueller_batch_id: batch.id })
-        .eq('employee_id', fahrerId);
+      if (error || !(data as { ok: boolean })?.ok) {
+        // Fallback: Legacy-Only-Write wenn RPC nicht verfügbar
+        const { data: batch, error: e1 } = await supabase
+          .from('delivery_batches')
+          .insert({
+            location_id: locationId,
+            fahrer_id: fahrerId,
+            status: 'pickup',
+            startzeit: new Date().toISOString(),
+            erstellt_von: null,
+            auto_erstellt: false,
+          })
+          .select()
+          .single();
+        if (e1 || !batch) return;
+
+        const stops = orderIds.map((id, idx) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: idx + 1 }));
+        await supabase.from('delivery_batch_stops').insert(stops);
+        await supabase
+          .from('customer_orders')
+          .update({ fahrer_id: fahrerId, batch_id: (batch as { id: string }).id, status: 'unterwegs' })
+          .in('id', orderIds);
+        await supabase
+          .from('driver_status')
+          .update({ aktueller_batch_id: (batch as { id: string }).id })
+          .eq('employee_id', fahrerId);
+      }
 
       setSelected(new Set());
       await refresh();
