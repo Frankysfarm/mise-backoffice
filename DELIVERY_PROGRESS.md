@@ -15,6 +15,11 @@
 - [x] customer_orders erweitern (delivery_zone, dispatch_score, eta_earliest, eta_latest) — Migration 002
 - [x] mise_drivers erweitern (current_capacity, max_capacity) — Migration 002
 - [x] Performance-Indizes — `scripts/migrations/003_delivery_indexes.sql`
+- [x] Fehlende Spalten nachgerüstet — `scripts/migrations/008_missing_columns.sql`
+  - `mise_delivery_batches`: `polyline`, `total_distance_km`, `total_eta_min` (tour-optimizer schrieb diese, Spalten fehlten)
+  - `mise_drivers`: `max_radius_km`, `rating`, `avg_delivery_min`, `zone` (dispatch-engine las diese, Spalten fehlten → Dispatch schlug lautlos fehl)
+  - `customer_orders`: `mise_batch_id`, `mise_driver_id` IF NOT EXISTS (FK-Sicherheit)
+  - `update_driver_zone()` Trigger: setzt `mise_drivers.zone` automatisch via GPS → verbessert `scoreZone()`
 - **Hinweis**: delivery_tours/tour_stops sind als mise_delivery_batches/mise_delivery_batch_stops bereits vorhanden (Frank-System). Neue Spalten draufgelegt statt Duplikat.
 
 ## Phase 2: Dispatch Engine [DONE ✅]
@@ -142,6 +147,13 @@ Siehe DELIVERY_CEO_LOG.md
   - Fallback-Antwort wenn View noch nicht in DB (Migration noch nicht ausgeführt)
 
 ## Letzte Änderungen
+- 2026-05-28: Backend-Architekt — Phase 1 Nachbesserung: 3 kritische Bugs + Migration 008
+  - **Bug 1 (KRITISCH)**: `dispatch-engine.ts → loadActiveDrivers()` selektierte `max_radius_km` aus `mise_drivers`, Spalte existierte nicht → PostgREST-Fehler → Dispatch lieferte immer "Kein Fahrer". BEHOBEN via Migration 008.
+  - **Bug 2 (KRITISCH)**: `tour-optimizer.ts → optimizeTour()` schrieb `polyline`, `total_distance_km`, `total_eta_min` in `mise_delivery_batches`, Spalten fehlten → stille DB-Fehler. BEHOBEN via Migration 008.
+  - **Bug 3 (Logik)**: Bei Touren-Bündelung (`outcome='bundled'`) wurde `customer_orders.mise_driver_id` nicht gesetzt (nur `mise_batch_id`). Fahrer-Tracking per Order war broken. BEHOBEN in `dispatch-engine.ts`.
+  - **Performance**: N+1-Query in `loadActiveDrivers` → 1 Batch-Query für alle Fahrer (10 Fahrer = 11→2 Queries). BEHOBEN in `dispatch-engine.ts`.
+  - Migration 008: `update_driver_zone()` Trigger — `mise_drivers.zone` wird jetzt automatisch via GPS gesetzt → `scoreZone()` liefert echte Werte statt immer 5.
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-28: CEO Review #5 — StopEtaBar Logik-Bug behoben, 4 Frontend-Commits QA-geprüft
   - `delivery-view.tsx`: StopEtaBar trackt eigene mountedAt-Zeit statt Tour-Gesamt-Elapsed
   - Build: ✅ 0 TypeScript-Fehler, kompiliert sauber

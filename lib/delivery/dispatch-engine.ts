@@ -230,6 +230,10 @@ export async function dispatchSingleOrder(o: OrderRow): Promise<DispatchResult> 
     );
     batchId = bundleDecision.candidateBatchId;
     outcome = 'bundled';
+    // appendToTour setzt nur mise_batch_id — mise_driver_id muss separat gesetzt werden
+    await sb().from('customer_orders')
+      .update({ mise_driver_id: best.driver.id })
+      .eq('id', o.id);
   } else {
     // Neue Tour erstellen
     const { data: newBatch, error } = await sb()
@@ -364,19 +368,31 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
     .eq('tenant_id', tenantId);
   const locationIds = new Set((locations ?? []).map((l) => l.id as string));
 
-  // Aktive Batches pro Fahrer laden für current_capacity
+  // Aktive Batches für alle Fahrer in einer einzigen Query laden (kein N+1)
   const drivers = data as DriverRow[];
-  for (const d of drivers) {
-    const { data: batch } = await sb()
+  const driverIds = drivers.map((d) => d.id);
+  const batchMap = new Map<string, { id: string; stop_count: number }>();
+
+  if (driverIds.length > 0) {
+    const { data: activeBatches } = await sb()
       .from('mise_delivery_batches')
-      .select('id, stop_count')
-      .eq('driver_id', d.id)
+      .select('id, driver_id, stop_count')
+      .in('driver_id', driverIds)
       .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order('created_at', { ascending: false });
+
+    for (const b of activeBatches ?? []) {
+      const dId = b.driver_id as string;
+      if (!batchMap.has(dId)) {
+        batchMap.set(dId, { id: b.id as string, stop_count: b.stop_count as number });
+      }
+    }
+  }
+
+  for (const d of drivers) {
+    const batch = batchMap.get(d.id);
     (d as DriverRow & { mise_batch_id?: string | null }).mise_batch_id = batch?.id ?? null;
-    d.current_capacity = batch ? Math.floor((batch.stop_count as number) / 2) : 0;
+    d.current_capacity = batch ? Math.floor(batch.stop_count / 2) : 0;
   }
 
   // Da wir keinen direkten Tenant-Filter auf mise_drivers haben, alle aktiven zurückgeben
