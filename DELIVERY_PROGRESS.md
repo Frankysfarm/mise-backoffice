@@ -92,6 +92,12 @@ Siehe DELIVERY_CEO_LOG.md
 - Zonen-Farben aus `delivery_zones.color` für Dashboard-Farbcodierung nutzen
 
 ## Letzte Änderungen
+- 2026-05-28: CEO-Review #2 — 3 kritische Integrations-Bugs behoben
+  - Auto-Dispatch API Auth-Fix (403 → akzeptiert Sessions)
+  - Dispatch Board zeigt Batches aus BEIDEN Tabellen (mise + legacy)
+  - Kitchen Realtime + Status-Filter Fix
+  - Build: Compiled successfully, 0 TypeScript-Fehler
+- 2026-05-28: Frontend-Ingenieur — Smart-Timing, Score-Anzeige, Tour-Viz, Multi-Stop-Fahrer, Dispatch-Stats
 - 2026-05-28: CEO-Review #1 — 35 TypeScript-Fehler behoben, Build stabil
 - 2026-05-28: Backend-Architekt — Phase 1–3 vollständig implementiert
   - 3 SQL-Migrations (zones, extend, indexes)

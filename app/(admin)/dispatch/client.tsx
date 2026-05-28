@@ -112,6 +112,8 @@ export function DispatchBoard({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status' }, () => refresh())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, () => refresh())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, () => refresh())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -120,7 +122,7 @@ export function DispatchBoard({
   }, []);
 
   async function refresh() {
-    const [{ data: o }, { data: d }, { data: b }] = await Promise.all([
+    const [{ data: o }, { data: d }, { data: legacy }, { data: smart }] = await Promise.all([
       supabase
         .from('customer_orders')
         .select('id, bestellnummer, status, typ, kunde_name, kunde_adresse, kunde_plz, kunde_lat, kunde_lng, gesamtbetrag, zahlungsart, fertig_am, external_source, location_id, dispatch_score, delivery_zone, eta_earliest')
@@ -133,13 +135,26 @@ export function DispatchBoard({
         .order('last_update', { ascending: false }),
       supabase
         .from('delivery_batches')
-        .select('*, total_distance_km, total_eta_min, zone, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
+        .select('id, fahrer_id, status, startzeit, total_distance_km, total_eta_min, zone, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
         .in('status', ['pickup', 'unterwegs'])
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('mise_delivery_batches')
+        .select('id, state, driver_id, started_at, total_distance_km, total_eta_min, zone, driver:mise_drivers(id, name), stops:mise_delivery_batch_stops(id, order_id, sequence, completed_at, type, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
+        .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
         .order('created_at', { ascending: false }),
     ]);
     setOrders((o as any) ?? []);
     setDrivers((d as any) ?? []);
-    setBatches((b as any) ?? []);
+    const normalizedSmart = ((smart ?? []) as any[]).map((b: any) => ({
+      id: b.id, status: b.state, fahrer_id: b.driver_id, startzeit: b.started_at ?? null,
+      total_distance_km: b.total_distance_km ?? null, total_eta_min: b.total_eta_min ?? null, zone: b.zone ?? null,
+      fahrer: b.driver ? { vorname: b.driver.name, nachname: '' } : null,
+      stops: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff').map((s: any) => ({
+        id: s.id, order_id: s.order_id, reihenfolge: s.sequence, geliefert_am: s.completed_at ?? null, order: s.order ?? null,
+      })),
+    }));
+    setBatches([...((legacy ?? []) as any[]), ...normalizedSmart]);
   }
 
   const filteredOrders = useMemo(() => {

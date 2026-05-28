@@ -2,23 +2,29 @@
  * POST /api/delivery/dispatch
  *
  * Triggert den Smart-Dispatch-Tick manuell oder für eine spezifische Order.
- * Schutz: x-internal-token Header.
+ * Schutz: x-internal-token Header ODER authentifizierter User (für Frontend).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick, dispatchSingleOrder } from '@/lib/delivery/dispatch-engine';
-import { createServiceClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function checkToken(req: NextRequest): boolean {
+async function isAuthorized(req: NextRequest): Promise<boolean> {
+  // Interner Cron-Token
   const expected = process.env.BISS_INTERNAL_TOKEN;
-  if (!expected || expected.length < 16) return false;
-  return req.headers.get('x-internal-token') === expected;
+  if (expected && expected.length >= 16 && req.headers.get('x-internal-token') === expected) {
+    return true;
+  }
+  // Authentifizierter Admin-User
+  const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  return !!user;
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkToken(req)) {
+  if (!(await isAuthorized(req))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

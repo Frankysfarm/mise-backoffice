@@ -187,6 +187,8 @@ export function KitchenBoard({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status' },   refreshDrivers)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' },refreshBatches)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refreshStops)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refreshBatches)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refreshStops)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'kitchen_timings' }, refreshTimings)
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -208,15 +210,34 @@ export function KitchenBoard({
     setDrivers((data as any[]) ?? []);
   }
   async function refreshBatches() {
-    const { data } = await supabase.from('delivery_batches')
-      .select('id, driver_id, status, started_at').in('status', ['aktiv', 'unterwegs']);
-    setBatches((data as any[]) ?? []);
+    const [{ data: legacy }, { data: smart }] = await Promise.all([
+      supabase.from('delivery_batches')
+        .select('id, driver_id, status, started_at')
+        .in('status', ['pickup', 'aktiv', 'unterwegs', 'zugewiesen']),
+      supabase.from('mise_delivery_batches')
+        .select('id, driver_id, state, started_at')
+        .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route']),
+    ]);
+    const normalizedSmart = ((smart ?? []) as any[]).map((b: any) => ({
+      id: b.id, driver_id: b.driver_id, status: b.state, started_at: b.started_at,
+    }));
+    setBatches([...((legacy ?? []) as any[]), ...normalizedSmart]);
   }
   async function refreshStops() {
-    const { data } = await supabase.from('delivery_batch_stops')
-      .select('id, batch_id, order_id, reihenfolge, angekommen_am, geliefert_am')
-      .order('reihenfolge', { ascending: true });
-    setStops((data as any[]) ?? []);
+    const [{ data: legacy }, { data: smart }] = await Promise.all([
+      supabase.from('delivery_batch_stops')
+        .select('id, batch_id, order_id, reihenfolge, angekommen_am, geliefert_am')
+        .order('reihenfolge', { ascending: true }),
+      supabase.from('mise_delivery_batch_stops')
+        .select('id, batch_id, order_id, sequence, arrived_at, completed_at, type')
+        .eq('type', 'dropoff')
+        .order('sequence', { ascending: true }),
+    ]);
+    const normalizedSmart = ((smart ?? []) as any[]).map((s: any) => ({
+      id: s.id, batch_id: s.batch_id, order_id: s.order_id,
+      reihenfolge: s.sequence, angekommen_am: s.arrived_at, geliefert_am: s.completed_at,
+    }));
+    setStops([...((legacy ?? []) as any[]), ...normalizedSmart]);
   }
   async function refreshTimings() {
     const { data } = await supabase.from('kitchen_timings')
