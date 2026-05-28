@@ -50,6 +50,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [heatmapPoints, setHeatmapPoints] = useState<{ zone: string; count: number }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
+  const [nextRefreshSec, setNextRefreshSec] = useState(30)
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -60,8 +61,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
   useEffect(() => {
     fetchDrivers()
-    const iv = setInterval(fetchDrivers, 30_000)
-    return () => clearInterval(iv)
+    setNextRefreshSec(30)
+    const iv = setInterval(() => { fetchDrivers(); setNextRefreshSec(30); }, 30_000)
+    const countdownIv = setInterval(() => setNextRefreshSec((s) => Math.max(0, s - 1)), 1_000)
+    return () => { clearInterval(iv); clearInterval(countdownIv); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -122,14 +125,25 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
-        <button
-          onClick={() => { setRefreshing(true); fetchDrivers(); setTimeout(() => setRefreshing(false), 800); }}
-          className="flex items-center gap-2 text-xs font-medium text-steel hover:text-char transition px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-          Aktualisieren
-          <span className="text-stone-400">{lastRefresh.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={() => { setRefreshing(true); fetchDrivers(); setNextRefreshSec(30); setTimeout(() => setRefreshing(false), 800); }}
+            className="flex items-center gap-2 text-xs font-medium text-steel hover:text-char transition px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            Aktualisieren
+            <span className="text-stone-400">{lastRefresh.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+          </button>
+          <div className="flex items-center gap-1.5 w-full">
+            <div className="flex-1 h-0.5 rounded-full bg-stone-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-400 transition-all duration-1000"
+                style={{ width: `${(nextRefreshSec / 30) * 100}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-stone-400 tabular-nums">{nextRefreshSec}s</span>
+          </div>
+        </div>
       </div>
 
       {/* Jetzt-Status Banner */}

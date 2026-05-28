@@ -703,12 +703,17 @@ function BatchRow({ batch }: { batch: Batch }) {
 
       {/* Tour-Metriken */}
       <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-        {batch.startzeit && (
-          <span className="flex items-center gap-1 text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            {Math.floor((Date.now() - new Date(batch.startzeit).getTime()) / 60_000)} Min unterwegs
-          </span>
-        )}
+        {batch.startzeit && (() => {
+          const totalSec = Math.floor((Date.now() - new Date(batch.startzeit).getTime()) / 1000);
+          const m = Math.floor(totalSec / 60);
+          const s = totalSec % 60;
+          return (
+            <span className="flex items-center gap-1 text-muted-foreground tabular-nums">
+              <Clock className="h-3 w-3" />
+              {m}:{String(s).padStart(2, '0')} unterwegs
+            </span>
+          );
+        })()}
         {batch.total_distance_km != null && (
           <span className="flex items-center gap-1 text-muted-foreground">
             <RouteIcon className="h-3 w-3" />

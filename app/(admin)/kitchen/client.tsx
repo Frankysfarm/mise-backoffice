@@ -459,7 +459,22 @@ function CookingLoadPanel({ orders }: { orders: Order[] }) {
               <div className={cn('flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide mb-1', b.color)}>
                 <BIcon className="h-3 w-3" />{b.label}
               </div>
-              <div className={cn('font-display text-xl font-black leading-none', b.color)}>{b.orders.length}</div>
+              <div className="flex items-end gap-1.5">
+                <div className={cn('font-display text-xl font-black leading-none', b.color)}>{b.orders.length}</div>
+                {b.orders.length > 0 && (() => {
+                  const oldestMs = b.orders.reduce((m, o) => {
+                    const ms = o.bestellt_am ? now - new Date(o.bestellt_am).getTime() : 0;
+                    return ms > m ? ms : m;
+                  }, 0);
+                  const om = Math.floor(oldestMs / 60_000);
+                  const os = Math.floor((oldestMs % 60_000) / 1_000);
+                  return (
+                    <span className={cn('text-[10px] font-bold tabular-nums opacity-70 mb-0.5', b.color)}>
+                      max {om}:{String(os).padStart(2, '0')}
+                    </span>
+                  );
+                })()}
+              </div>
               {b.orders.length > 0 && (
                 <div className="mt-1 h-1 rounded-full bg-black/10 overflow-hidden">
                   <div
@@ -833,9 +848,14 @@ function OrderTicket({ order, next, timing }: { order: Order; next: string | nul
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">{typLabel}</div>
         </div>
-        <div className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold', urgent ? 'bg-orange-500 text-white' : 'bg-muted text-muted-foreground')}>
+        <div className={cn(
+          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums',
+          critical ? 'bg-red-500 text-white animate-pulse' :
+          urgent   ? 'bg-orange-500 text-white' :
+                     'bg-muted text-muted-foreground',
+        )}>
           <Clock className="h-2.5 w-2.5" />
-          {waitMin}′
+          {waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
         </div>
       </div>
 

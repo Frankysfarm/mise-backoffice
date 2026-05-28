@@ -279,6 +279,43 @@ export function DeliveryView({
             <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-2" />
             <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
             <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
+
+            {/* Cash collection summary */}
+            {(() => {
+              const cashStops = stops.filter(
+                (s) => !s.order.bezahlt || s.order.zahlungsart === 'bar',
+              );
+              const totalCash = cashStops.reduce(
+                (sum, s) => sum + s.order.gesamtbetrag, 0,
+              );
+              if (totalCash === 0) return null;
+              const onlineTotal = stops
+                .filter((s) => s.order.bezahlt && s.order.zahlungsart !== 'bar')
+                .reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+              return (
+                <div className="mt-4 rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-2">
+                    Kassiertes Bargeld — bitte abgeben
+                  </div>
+                  <div className="font-display text-3xl font-black text-amber-200">
+                    {euro(totalCash)}
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    {cashStops.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between text-xs text-amber-100">
+                        <span>#{s.order.bestellnummer.replace(/^[A-Z]+-/, '')} · {s.order.kunde_name}</span>
+                        <span className="font-bold tabular-nums">{euro(s.order.gesamtbetrag)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {onlineTotal > 0 && (
+                    <div className="mt-3 text-[10px] text-matcha-300">
+                      Online bezahlt: {euro(onlineTotal)} — kein Bargeld
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
