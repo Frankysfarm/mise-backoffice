@@ -398,7 +398,14 @@ export function KitchenBoard({
                     Nichts hier.
                   </div>
                 )}
-                {colOrders.map((o) => <OrderTicket key={o.id} order={o} next={col.next} />)}
+                {colOrders.map((o) => (
+                  <OrderTicket
+                    key={o.id}
+                    order={o}
+                    next={col.next}
+                    timing={timings.find((t) => t.order_id === o.id) ?? null}
+                  />
+                ))}
               </div>
             </section>
           );
@@ -682,7 +689,7 @@ function fmtCountdown(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-function OrderTicket({ order, next }: { order: Order; next: string | null }) {
+function OrderTicket({ order, next, timing }: { order: Order; next: string | null; timing: KitchenTiming | null }) {
   const [pending, startTransition] = useTransition();
 
   const waitMin = order.bestellt_am
@@ -696,6 +703,23 @@ function OrderTicket({ order, next }: { order: Order; next: string | null }) {
   const critical = waitMin >= est + 10;
   const progressPct = Math.min(100, Math.round((waitMin / est) * 100));
   const remainingSec = (est * 60) - waitSec;
+
+  // Smart-Timing-Chip: zeigt Kochstart oder Fertig-Ziel
+  const timingChip = (() => {
+    if (!timing) return null;
+    const now = Date.now();
+    if (timing.status === 'scheduled' && timing.cook_start_at) {
+      const secs = Math.floor((new Date(timing.cook_start_at).getTime() - now) / 1000);
+      if (secs > 0) return { label: `Kochstart in ${fmtCountdown(secs)}`, color: 'bg-blue-100 text-blue-800', pulse: secs < 120 };
+      return { label: 'Kochstart jetzt!', color: 'bg-orange-500 text-white', pulse: true };
+    }
+    if (timing.status === 'cooking' && timing.ready_target) {
+      const secs = Math.floor((new Date(timing.ready_target).getTime() - now) / 1000);
+      if (secs > 0) return { label: `Fertig in ${fmtCountdown(secs)}`, color: 'bg-matcha-100 text-matcha-800', pulse: secs < 120 };
+      return { label: 'Sollte fertig sein!', color: 'bg-red-500 text-white', pulse: true };
+    }
+    return null;
+  })();
 
   const isTable = Boolean(order.tisch_id);
   const typLabel = isTable ? `🍽 Tisch ${order.tisch_nummer ?? ''}` : order.typ === 'lieferung' ? '🛵 Liefern' : order.typ === 'abholung' ? '🥡 Abholung' : '🍽 Vor Ort';
@@ -721,6 +745,18 @@ function OrderTicket({ order, next }: { order: Order; next: string | null }) {
           {waitMin}′
         </div>
       </div>
+
+      {/* Smart-Timing Chip */}
+      {timingChip && (
+        <div className={cn(
+          'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+          timingChip.color,
+          timingChip.pulse && 'animate-pulse',
+        )}>
+          <Zap className="h-2.5 w-2.5" />
+          {timingChip.label}
+        </div>
+      )}
 
       {/* Progress bar + countdown — only for active cooking orders */}
       {(order.status === 'in_zubereitung' || order.status === 'bestätigt') && (

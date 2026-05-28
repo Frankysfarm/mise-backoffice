@@ -38,6 +38,8 @@ type Order = {
   geliefert_am: string | null;
   geschaetzte_zubereitung_min: number | null;
   geschaetzte_lieferung_min: number | null;
+  eta_earliest: string | null;
+  eta_latest: string | null;
   fahrer_id: string | null;
   fahrer_vorname: string | null;
   fahrer_avatar: string | null;
@@ -77,6 +79,42 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
   const [chatOpen, setChatOpen] = useState(false);
   const [text, setText] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
+  const [, setTick] = useState(0);
+
+  // Tick every second for live countdowns
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Poll tracking API every 30s to update driver position and ETA
+  useEffect(() => {
+    const pollTracking = () => {
+      fetch(`/api/delivery/orders/${order.order_id}/tracking`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          setOrder((prev) => ({
+            ...prev,
+            status: d.status ?? prev.status,
+            eta_earliest: d.eta_earliest ?? prev.eta_earliest,
+            eta_latest: d.eta_latest ?? prev.eta_latest,
+            fahrer_lat: d.driver?.lat ?? prev.fahrer_lat,
+            fahrer_lng: d.driver?.lng ?? prev.fahrer_lng,
+            fahrer_heading: d.driver?.heading ?? prev.fahrer_heading,
+            fahrer_last_update: d.driver ? new Date().toISOString() : prev.fahrer_last_update,
+          }));
+        })
+        .catch(() => {});
+    };
+    // Only poll for active deliveries
+    if (!['geliefert', 'abgeholt', 'storniert'].includes(order.status)) {
+      pollTracking();
+      const iv = setInterval(pollTracking, 30_000);
+      return () => clearInterval(iv);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order.order_id, order.status]);
 
   useEffect(() => {
     const ch = supabase
@@ -172,9 +210,17 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           <p className="mt-1 text-sm text-matcha-100">{heroSub(order)}</p>
 
           {order.status !== 'geliefert' && order.status !== 'abgeholt' && order.status !== 'storniert' && (
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
-              <Clock className="h-4 w-4" />
-              {eta(order)}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
+                <Clock className="h-4 w-4" />
+                {eta(order)}
+              </div>
+              {(order.eta_earliest || order.eta_latest) && etaCountdown(order) && (
+                <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/40 px-4 py-2 text-sm font-bold tabular-nums">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+                  {etaCountdown(order)}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -421,15 +467,36 @@ function heroSub(o: Order): string {
 }
 function eta(o: Order): string {
   if (o.status === 'unterwegs') {
+    if (o.eta_earliest && o.eta_latest) {
+      const fmt = (iso: string) =>
+        new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+      return `Ankunft ${fmt(o.eta_earliest)}–${fmt(o.eta_latest)}`;
+    }
     return `Ankunft in ca. ${o.geschaetzte_lieferung_min ?? 10} Min.`;
   }
   if (o.status === 'in_zubereitung' || o.status === 'bestätigt') {
+    if (o.eta_earliest) {
+      const fmt = (iso: string) =>
+        new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+      return `Bereit ab ca. ${fmt(o.eta_earliest)}`;
+    }
     return `Fertig in ca. ${o.geschaetzte_zubereitung_min ?? 15} Min.`;
   }
   if (o.status === 'fertig' && o.typ === 'lieferung') {
     return 'Wird gleich abgeholt';
   }
   return '';
+}
+
+function etaCountdown(o: Order): string | null {
+  const target = o.eta_latest ?? o.eta_earliest;
+  if (!target) return null;
+  const secs = Math.floor((new Date(target).getTime() - Date.now()) / 1000);
+  if (secs <= 0) return 'Jeden Moment';
+  if (secs > 90 * 60) return null; // don't show for far-future ETAs
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m > 0 ? `Noch ${m}:${String(s).padStart(2, '0')} Min` : `Noch ${s}s`;
 }
 function paymentLabel(z: string): string {
   switch (z) {

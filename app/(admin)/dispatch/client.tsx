@@ -613,23 +613,43 @@ function BatchRow({ batch }: { batch: Batch }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
-        {batch.stops
-          .sort((a, b) => a.reihenfolge - b.reihenfolge)
-          .map((s) => (
-            <div
-              key={s.id}
-              className={cn(
-                'flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px]',
-                s.geliefert_am ? 'border-matcha-200 bg-matcha-50 text-matcha-800 line-through opacity-60' : 'bg-background',
-              )}
-            >
-              <span className="font-mono font-bold">{s.reihenfolge}</span>
-              <span>{s.order?.kunde_name ?? '—'}</span>
-            </div>
-          ))}
+      {/* Visual stop timeline */}
+      <div className="mt-3">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1">
+          {batch.stops
+            .sort((a, b) => a.reihenfolge - b.reihenfolge)
+            .map((s, idx, arr) => {
+              const isDone = !!s.geliefert_am;
+              const isNext = !isDone && arr.slice(0, idx).every((p) => !!p.geliefert_am);
+              return (
+                <div key={s.id} className="flex items-center gap-1 shrink-0">
+                  <div className={cn(
+                    'flex flex-col items-center',
+                  )}>
+                    <div className={cn(
+                      'h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-bold border-2 transition',
+                      isDone ? 'border-matcha-400 bg-matcha-100 text-matcha-700' :
+                      isNext ? 'border-orange-400 bg-orange-50 text-orange-800 ring-2 ring-orange-200' :
+                      'border-border bg-card text-muted-foreground',
+                    )}>
+                      {isDone ? <Check className="h-3.5 w-3.5 text-matcha-600" /> : s.reihenfolge}
+                    </div>
+                    <div className="mt-1 w-16 text-center text-[9px] leading-tight truncate text-muted-foreground">
+                      {s.order?.kunde_name ?? '—'}
+                    </div>
+                  </div>
+                  {idx < arr.length - 1 && (
+                    <div className={cn(
+                      'h-0.5 w-5 rounded-full shrink-0 mb-4',
+                      isDone ? 'bg-matcha-400' : 'bg-border',
+                    )} />
+                  )}
+                </div>
+              );
+            })}
+        </div>
       </div>
-      <div className="mt-2 flex items-center gap-2 text-xs">
+      <div className="mt-1 flex items-center gap-2 text-xs">
         <span className={cn(
           'rounded-full px-2 py-0.5 font-bold',
           progress === 100 ? 'bg-matcha-100 text-matcha-800' :

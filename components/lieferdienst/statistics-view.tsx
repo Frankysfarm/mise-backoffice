@@ -415,6 +415,78 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         </div>
       )}
+
+      {/* Fahrer-Effizienz Schicht-Zusammenfassung */}
+      {liveDrivers.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-violet-600" />
+            Fahrer-Effizienz (Schicht)
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-stone-100">
+                  <th className="text-left py-2 text-stone-500 font-medium">Fahrer</th>
+                  <th className="text-right py-2 text-stone-500 font-medium">Lieferungen</th>
+                  <th className="text-right py-2 text-stone-500 font-medium">Status</th>
+                  <th className="text-right py-2 text-stone-500 font-medium">GPS</th>
+                  <th className="py-2 px-2 text-stone-500 font-medium">Auslastung</th>
+                </tr>
+              </thead>
+              <tbody>
+                {liveDrivers
+                  .sort((a, b) => b.total_deliveries - a.total_deliveries)
+                  .map((driver) => {
+                    const maxDeliveries = Math.max(...liveDrivers.map((d) => d.total_deliveries), 1);
+                    const pct = Math.round((driver.total_deliveries / maxDeliveries) * 100);
+                    const isDelivering = driver.active && driver.active_batch != null;
+                    const isFree = driver.active && driver.active_batch == null;
+                    const gpsFresh = driver.live_position && driver.live_position.seconds_stale < 60;
+                    return (
+                      <tr key={driver.id} className="border-b border-stone-50 hover:bg-stone-50 transition">
+                        <td className="py-2.5 font-semibold text-char">{driver.name}</td>
+                        <td className="py-2.5 text-right font-bold text-char tabular-nums">{driver.total_deliveries}</td>
+                        <td className="py-2.5 text-right">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                            isDelivering ? 'bg-orange-100 text-orange-700' :
+                            isFree ? 'bg-emerald-100 text-emerald-700' :
+                            'bg-stone-100 text-stone-500'
+                          }`}>
+                            {isDelivering ? `${driver.active_batch?.stop_count ?? 1} Stops` : isFree ? 'Frei' : 'Offline'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right">
+                          {driver.live_position ? (
+                            <span className={`text-xs font-medium ${gpsFresh ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {gpsFresh ? '● Live' : `${driver.live_position.seconds_stale}s alt`}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-stone-300">—</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-violet-400 transition-all"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-stone-500 w-8 text-right">{pct}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+          {liveDrivers.length === 0 && (
+            <p className="text-sm text-stone-400 text-center py-6">Keine Fahrer aktiv</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

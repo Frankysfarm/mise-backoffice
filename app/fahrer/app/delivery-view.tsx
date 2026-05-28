@@ -217,15 +217,9 @@ export function DeliveryView({
                 )}
               </div>
 
-              {/* Distance + ETA for next stop */}
+              {/* Distance + ETA countdown for next stop */}
               {isNext && nextStop && stop.id === nextStop.id && stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0 && (
-                <div className="mt-2 rounded-lg bg-white/10 px-3 py-2 flex items-center gap-3 text-xs">
-                  <span className="text-matcha-300">Distanz:</span>
-                  <span className="font-bold">{(stop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km</span>
-                  <span className="text-matcha-300">·</span>
-                  <span className="text-matcha-300">ca.</span>
-                  <span className="font-bold">{Math.ceil(stop.distanz_zum_vorgaenger_m / 1000 / 15 * 60)} Min</span>
-                </div>
+                <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} elapsedSec={elapsed} />
               )}
 
               {/* Actions nur für next stop */}
@@ -287,6 +281,41 @@ export function DeliveryView({
             <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function StopEtaBar({ distanzM, elapsedSec }: { distanzM: number; elapsedSec: number }) {
+  // Estimate 15 km/h average speed for delivery
+  const totalSec = Math.ceil((distanzM / 1000 / 15) * 3600);
+  const remaining = Math.max(0, totalSec - elapsedSec);
+  const progressPct = Math.min(100, (elapsedSec / totalSec) * 100);
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+
+  return (
+    <div className="mt-2 rounded-xl bg-white/10 px-3 py-2.5 space-y-2">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-matcha-300 flex items-center gap-1.5">
+          <ArrowRight size={12} />
+          {(distanzM / 1000).toFixed(1)} km
+        </span>
+        <span className={cn(
+          'font-bold tabular-nums',
+          remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-white',
+        )}>
+          {remaining === 0 ? 'Fast da!' : `~${m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s}s`}`}
+        </span>
+      </div>
+      <div className="h-1 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all',
+            progressPct >= 100 ? 'bg-accent' : progressPct > 70 ? 'bg-orange-400' : 'bg-matcha-400',
+          )}
+          style={{ width: `${progressPct}%` }}
+        />
       </div>
     </div>
   );
