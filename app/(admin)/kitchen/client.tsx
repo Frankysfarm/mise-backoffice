@@ -417,31 +417,50 @@ export function KitchenBoard({
           const colOrders = filtered.filter((o) => o.status === col.status);
           return (
             <section key={col.status} className={cn('rounded-xl border', col.color)}>
-              <header className="flex items-center justify-between border-b border-black/5 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <col.icon className="h-4 w-4" />
-                  <h2 className="font-display text-sm font-bold uppercase tracking-wider">{col.label}</h2>
+              <header className="border-b border-black/5">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <col.icon className="h-4 w-4" />
+                    <h2 className="font-display text-sm font-bold uppercase tracking-wider">{col.label}</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {colOrders.length > 0 && (() => {
+                      const oldest = colOrders.reduce((m, o) => {
+                        const ms = o.bestellt_am ? Date.now() - new Date(o.bestellt_am).getTime() : 0;
+                        return ms > m ? ms : m;
+                      }, 0);
+                      const om = Math.floor(oldest / 60_000);
+                      const os = Math.floor((oldest % 60_000) / 1_000);
+                      const isLate = om >= 15;
+                      return (
+                        <span className={cn(
+                          'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
+                          isLate ? 'bg-red-100 text-red-700' : 'text-muted-foreground',
+                        )}>
+                          ⏱ {om}:{String(os).padStart(2, '0')}
+                        </span>
+                      );
+                    })()}
+                    <Badge variant="muted">{colOrders.length}</Badge>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {colOrders.length > 0 && (() => {
-                    const oldest = colOrders.reduce((m, o) => {
-                      const ms = o.bestellt_am ? Date.now() - new Date(o.bestellt_am).getTime() : 0;
-                      return ms > m ? ms : m;
-                    }, 0);
-                    const om = Math.floor(oldest / 60_000);
-                    const os = Math.floor((oldest % 60_000) / 1_000);
-                    const isLate = om >= 15;
-                    return (
-                      <span className={cn(
-                        'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
-                        isLate ? 'bg-red-100 text-red-700' : 'text-muted-foreground',
-                      )}>
-                        ⏱ {om}:{String(os).padStart(2, '0')}
-                      </span>
-                    );
-                  })()}
-                  <Badge variant="muted">{colOrders.length}</Badge>
-                </div>
+                {/* Heat-Strip: roter Balken = älteste Karte vs. 30-Min-Ziel */}
+                {colOrders.length > 0 && (() => {
+                  const maxWaitMs = colOrders.reduce((m, o) => {
+                    const ms = o.bestellt_am ? Date.now() - new Date(o.bestellt_am).getTime() : 0;
+                    return ms > m ? ms : m;
+                  }, 0);
+                  const pct = Math.min(100, (maxWaitMs / (30 * 60_000)) * 100);
+                  const stripColor = pct >= 100 ? 'bg-red-500' : pct >= 60 ? 'bg-orange-400' : 'bg-matcha-400';
+                  return (
+                    <div className="h-1 bg-black/5 overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-r-full transition-all duration-1000', stripColor, pct >= 100 && 'animate-pulse')}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  );
+                })()}
               </header>
               <div className="space-y-3 p-3">
                 {colOrders.length === 0 && (
