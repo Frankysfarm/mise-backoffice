@@ -219,7 +219,7 @@ export function DeliveryView({
 
               {/* Distance + ETA countdown for next stop */}
               {isNext && nextStop && stop.id === nextStop.id && stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0 && (
-                <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} elapsedSec={elapsed} />
+                <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} />
               )}
 
               {/* Actions nur für next stop */}
@@ -323,7 +323,13 @@ export function DeliveryView({
   );
 }
 
-function StopEtaBar({ distanzM, elapsedSec }: { distanzM: number; elapsedSec: number }) {
+function StopEtaBar({ distanzM }: { distanzM: number }) {
+  const mountedAt = useRef(Date.now());
+  const [elapsedSec, setElapsedSec] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsedSec(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
   // Estimate 15 km/h average speed for delivery
   const totalSec = Math.ceil((distanzM / 1000 / 15) * 3600);
   const remaining = Math.max(0, totalSec - elapsedSec);

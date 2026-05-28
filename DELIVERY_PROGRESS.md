@@ -142,6 +142,10 @@ Siehe DELIVERY_CEO_LOG.md
   - Fallback-Antwort wenn View noch nicht in DB (Migration noch nicht ausgeführt)
 
 ## Letzte Änderungen
+- 2026-05-28: CEO Review #5 — StopEtaBar Logik-Bug behoben, 4 Frontend-Commits QA-geprüft
+  - `delivery-view.tsx`: StopEtaBar trackt eigene mountedAt-Zeit statt Tour-Gesamt-Elapsed
+  - Build: ✅ 0 TypeScript-Fehler, kompiliert sauber
+  - Alle neuen Features (Dispatch-Countdown, Kitchen-Counter, MM:SS-Timer, Refresh-Countdown) korrekt
 - 2026-05-28: Backend-Architekt — Phase 3.7: Batch-Claim-Bug-Fix + Performance-API
   - Migration 007: source_system in v_open_dispatch_batches, v_driver_performance_stats,
     increment_driver_deliveries Trigger, v_delivery_batch_unified

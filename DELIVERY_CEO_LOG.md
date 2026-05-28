@@ -5,6 +5,78 @@
 
 ## Anweisungen an Frontend-Ingenieur
 **DONE** — Phase 6 + 7 vollständig implementiert (CEO Review #4).
+**CEO Review #5 (2026-05-28)**: 1 Logik-Bug behoben (StopEtaBar). Keine weiteren Aufgaben.
+
+## CEO Review #5 — 2026-05-28
+
+### Geprüfte Commits (seit CEO Review #4)
+- `2846357` feat(delivery/frontend): today-completed counter, tour total in fahrer pick phase
+- `4b9dedd` feat(dispatch): live ETA countdown per order, MM:SS wait timer
+- `332ebac` feat(delivery/frontend): column header timing, stop ETAs, driver return clock
+- `48b266c` feat(delivery/frontend): mm:ss timing, cash summary, refresh countdown
+
+### Befund: MARKT-REIF — 1 Logik-Bug behoben
+
+#### Build + TypeScript
+- `npm run build` ✅ — Kompiliert sauber, 0 Fehler
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+
+#### Code-Review der neuen Features
+**Dispatch ETA-Countdown** (`dispatch/client.tsx` — `BatchRow`):
+- `etaEndMs = startzeit + total_eta_min * 60_000` → verbleibende Sekunden live ✅
+- Farbcodierung: Grün >5Min, Orange >1Min, Rot+Puls überzogen ✅
+- Stop-Timeline mit proportionalen ETAs pro Stop ✅
+
+**Kitchen Today-Counter** (`kitchen/client.tsx`):
+- `completedToday` via DB-Count (`status IN ['geliefert','abgeholt','abgeschlossen']`) ✅
+- Polling alle 60s, sauber cleanup ✅
+
+**Dispatch MM:SS Timers** (`dispatch/client.tsx`):
+- `OrderRow`: Warte-Timer seit `fertig_am` im Format `MM:SS` ✅
+- `BatchRow`: Tour-Dauer seit `startzeit` in `MM:SS` ✅
+
+**Fahrer Pick-Phase** (`fahrer/app/client.tsx`):
+- Tour-Total-Betrag (`stops.reduce(...)`) ✅
+- Stop-Count korrekt angezeigt ✅
+
+**Statistics Refresh-Countdown** (`statistics-view.tsx`):
+- `nextRefreshSec` Countdown von 30→0 live ✅
+- Fahrer-Polling alle 30s ✅
+
+#### Bug gefunden und behoben: `StopEtaBar` falscher `elapsedSec`
+**Datei**: `app/fahrer/app/delivery-view.tsx`
+
+**Problem**: `StopEtaBar` bekam `elapsedSec` von der `DeliveryView`-Elternkomponente — das ist die Gesamtzeit seit Tour-Start. Für Stop 2+ war der Wert bereits hoch (z.B. 10 Min), obwohl der Fahrer gerade erst vom Stop 1 losfuhr. Resultat: "Fast da!" wurde sofort angezeigt, bevor der Fahrer überhaupt startete.
+
+**Fix**: `StopEtaBar` trackt jetzt seine eigene `mountedAt` Referenz. Da die Komponente bei jedem neuen "nächsten Stop" via `key={stop.id}` neu gemountet wird, ist `elapsedSec` jetzt korrekt die Zeit seit Abfahrt vom letzten Stop.
+
+```tsx
+// VORHER (falsch)
+function StopEtaBar({ distanzM, elapsedSec }: { distanzM: number; elapsedSec: number }) { ... }
+
+// NACHHER (richtig)
+function StopEtaBar({ distanzM }: { distanzM: number }) {
+  const mountedAt = useRef(Date.now());
+  const [elapsedSec, setElapsedSec] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsedSec(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  ...
+}
+```
+
+### Status nach Review #5
+- TypeScript: 0 Fehler ✅
+- Build: `npm run build` kompiliert sauber ✅
+- StopEtaBar Bug: BEHOBEN ✅
+- **SYSTEM MARKT-REIF** — alle 7 Phasen abgeschlossen, neuste Features QA-geprüft
+
+### Bekannte Architektur-Schuld (niedrige Priorität, kein Kunden-Impact)
+1. `delivery-view.tsx → markDelivered()` schreibt nur in `delivery_batch_stops` (Legacy). Mise-Batches werden korrekt via `client.tsx → markDelivered()` abgehandelt, aber nur in der Pick-Phase. In der Delivery-Phase (Status `unterwegs`) könnte der Mise-Stop nicht als geliefert markiert werden, falls der Stop aus `mise_delivery_batch_stops` kommt. Da `page.tsx` aktuell `delivery_batch_stops` lädt, kein sofortiger Impact.
+2. `isCriticallyLate`-Sound-Trigger in `kitchen/client.tsx` (Zeile 284): `prevCritical = prev.current.newCount > 0` ist eine Annäherung. Nur Sound-Trigger betroffen, kein Daten-Bug.
+
+
 
 ## Anweisungen an Backend-Architekt
 ### Deployment-Checkliste (WICHTIG)
