@@ -26,6 +26,16 @@ type DeliveryStats = {
   scoring: { avg_score: number | null; total_decisions: number };
 } | null;
 
+type LiveDriver = {
+  id: string;
+  name: string;
+  state: string;
+  active: boolean;
+  total_deliveries: number;
+  live_position: { recorded_at: string; seconds_stale: number } | null;
+  active_batch: { stop_count: number; state: string; zone: string | null } | null;
+};
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -36,6 +46,20 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const stats = calculateDailyStats(allOrders)
 
   const [deliveryStats, setDeliveryStats] = useState<DeliveryStats>(null)
+  const [liveDrivers, setLiveDrivers] = useState<LiveDriver[]>([])
+
+  useEffect(() => {
+    const fetchDrivers = () => {
+      fetch('/api/delivery/admin/drivers')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => d?.drivers && setLiveDrivers(d.drivers))
+        .catch(() => {})
+    }
+    fetchDrivers()
+    const iv = setInterval(fetchDrivers, 30_000)
+    return () => clearInterval(iv)
+  }, [])
+
   useEffect(() => {
     // Fetch delivery stats from the delivery API (needs location_id, use first available)
     const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
@@ -333,6 +357,62 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Live Fahrer-Status */}
+      {liveDrivers.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-1 flex items-center gap-2">
+            <Truck className="w-5 h-5 text-orange-500" />
+            Live Fahrer-Status
+          </h3>
+          <p className="text-sm text-steel mb-4">
+            {liveDrivers.filter(d => d.active).length} online · {liveDrivers.filter(d => d.active && d.active_batch).length} im Einsatz
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {liveDrivers.map(driver => {
+              const isDelivering = driver.active && driver.active_batch != null;
+              const isFree = driver.active && driver.active_batch == null;
+              return (
+                <div
+                  key={driver.id}
+                  className={`rounded-xl border-2 p-4 ${
+                    isDelivering ? 'border-orange-200 bg-orange-50' :
+                    isFree ? 'border-emerald-200 bg-emerald-50' :
+                    'border-stone-200 bg-stone-50 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-char">{driver.name}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                      isDelivering ? 'bg-orange-500 text-white' :
+                      isFree ? 'bg-emerald-500 text-white' :
+                      'bg-stone-300 text-stone-700'
+                    }`}>
+                      {isDelivering ? 'Liefert' : isFree ? 'Frei' : 'Offline'}
+                    </span>
+                  </div>
+                  {driver.active_batch && (
+                    <div className="text-xs text-stone-600 space-y-0.5">
+                      <div>{driver.active_batch.stop_count} Stops</div>
+                      {driver.active_batch.zone && <div>Zone {driver.active_batch.zone}</div>}
+                    </div>
+                  )}
+                  {driver.live_position && (
+                    <div className={`mt-2 text-[10px] font-medium ${
+                      driver.live_position.seconds_stale > 120 ? 'text-red-500' :
+                      driver.live_position.seconds_stale > 60 ? 'text-orange-500' :
+                      'text-emerald-600'
+                    }`}>
+                      GPS vor {driver.live_position.seconds_stale}s
+                    </div>
+                  )}
+                  <div className="mt-1 text-[10px] text-stone-400">{driver.total_deliveries} Lieferungen gesamt</div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

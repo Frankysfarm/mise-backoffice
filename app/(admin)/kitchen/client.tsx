@@ -33,6 +33,7 @@ type Order = {
   bezahlt: boolean;
   gesamtbetrag: number;
   bestellt_am: string | null;
+  fertig_am: string | null;
   geschaetzte_zubereitung_min: number | null;
   external_source: string | null;
   location_id: string | null;
@@ -753,6 +754,25 @@ function OrderTicket({ order, next }: { order: Order; next: string | null }) {
             {order.kunde_adresse}{order.kunde_plz ? `, ${order.kunde_plz}` : ''}
           </div>
         )}
+        {order.status === 'fertig' && (() => {
+          const fertigMs = order.fertig_am
+            ? new Date(order.fertig_am).getTime()
+            : order.bestellt_am
+              ? new Date(order.bestellt_am).getTime() + (order.geschaetzte_zubereitung_min ?? 15) * 60_000
+              : null;
+          const fertigWaitMin = fertigMs ? Math.floor((Date.now() - fertigMs) / 60_000) : 0;
+          return (
+            <div className={cn(
+              'mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold',
+              fertigWaitMin < 5 ? 'bg-matcha-100 text-matcha-800' :
+              fertigWaitMin < 10 ? 'bg-orange-100 text-orange-800' :
+              'bg-red-100 text-red-800 animate-pulse',
+            )}>
+              <Clock className="h-2.5 w-2.5" />
+              Warte seit {fertigWaitMin} Min
+            </div>
+          );
+        })()}
       </div>
 
       <ul className="mt-3 space-y-1.5 border-t pt-3">

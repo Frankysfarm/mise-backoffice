@@ -10,9 +10,10 @@ type Props = {
   etaMinutes: number;
   isDelivery: boolean;
   onNewOrder: () => void;
+  orderId?: string;
 };
 
-export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder }: Props) {
+export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId }: Props) {
   const firstName = name?.split(' ')[0];
 
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
@@ -21,6 +22,25 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     const t = setTimeout(() => setSecsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [secsLeft]);
+
+  // Live ETA polling every 30s
+  React.useEffect(() => {
+    if (!orderId) return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/${orderId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.eta_earliest) {
+          const newSecsLeft = Math.max(0, Math.floor((new Date(data.eta_earliest).getTime() - Date.now()) / 1000));
+          setSecsLeft(newSecsLeft);
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    return () => clearInterval(iv);
+  }, [orderId]);
   const minsLeft = Math.floor(secsLeft / 60);
   const secsPart = secsLeft % 60;
   const countdownStr = secsLeft > 0

@@ -525,6 +525,17 @@ function BatchRow({ batch }: { batch: Batch }) {
   const done = batch.stops.filter((s) => s.geliefert_am).length;
   const progress = total > 0 ? (done / total) * 100 : 0;
 
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const etaEndMs = batch.startzeit
+    ? new Date(batch.startzeit).getTime() + (batch.total_eta_min ?? 0) * 60_000
+    : null;
+  const etaRemainingSec = etaEndMs ? Math.floor((etaEndMs - Date.now()) / 1000) : null;
+
   return (
     <div className="rounded-lg border bg-card p-3">
       <div className="flex items-center justify-between">
@@ -568,6 +579,20 @@ function BatchRow({ batch }: { batch: Batch }) {
           </span>
         )}
       </div>
+
+      {etaRemainingSec !== null && (
+        <div className={cn(
+          'mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold',
+          etaRemainingSec > 300 ? 'bg-matcha-100 text-matcha-800' :
+          etaRemainingSec > 60 ? 'bg-orange-100 text-orange-800' :
+          'bg-red-100 text-red-800 animate-pulse',
+        )}>
+          <Clock className="h-3 w-3" />
+          {etaRemainingSec > 0
+            ? `Fertig in ${Math.floor(etaRemainingSec / 60)}:${String(etaRemainingSec % 60).padStart(2, '0')}`
+            : `+${Math.floor(-etaRemainingSec / 60)}:${String((-etaRemainingSec) % 60).padStart(2, '0')} überzogen`}
+        </div>
+      )}
 
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
         <div

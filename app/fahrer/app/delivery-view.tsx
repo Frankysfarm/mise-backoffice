@@ -41,6 +41,12 @@ export function DeliveryView({
   const [pending, setPending] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
+  const mountedAt = useRef(Date.now());
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   // Sort: nicht-geliefert zuerst nach reihenfolge, dann geliefert
   const sorted = [...stops].sort((a, b) => {
@@ -125,6 +131,9 @@ export function DeliveryView({
           <div className="font-display font-bold text-lg">
             {doneCount} / {stops.length} zugestellt
           </div>
+          <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
+            Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min
+          </div>
         </div>
         <div className="flex-1 h-1.5 bg-white/10 rounded-full ml-4 overflow-hidden">
           <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
@@ -207,6 +216,17 @@ export function DeliveryView({
                   </>
                 )}
               </div>
+
+              {/* Distance + ETA for next stop */}
+              {isNext && nextStop && stop.id === nextStop.id && stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0 && (
+                <div className="mt-2 rounded-lg bg-white/10 px-3 py-2 flex items-center gap-3 text-xs">
+                  <span className="text-matcha-300">Distanz:</span>
+                  <span className="font-bold">{(stop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km</span>
+                  <span className="text-matcha-300">·</span>
+                  <span className="text-matcha-300">ca.</span>
+                  <span className="font-bold">{Math.ceil(stop.distanz_zum_vorgaenger_m / 1000 / 15 * 60)} Min</span>
+                </div>
+              )}
 
               {/* Actions nur für next stop */}
               {isNext && (
