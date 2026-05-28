@@ -12,6 +12,8 @@ import {
   MapPin,
   Package,
   Radio,
+  Target,
+  TrendingUp,
   Truck,
   Route as RouteIcon,
   User,
@@ -267,6 +269,9 @@ export function DispatchBoard({
         </div>
       </div>
 
+      {/* Score + Zone Summary */}
+      <DispatchScoreSummary orders={readyOrders} batches={batches} />
+
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         {/* Left Column: Ready + Active */}
         <div className="space-y-6">
@@ -368,6 +373,134 @@ export function DispatchBoard({
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchScoreSummary ------------------------------ */
+
+function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batches: Batch[] }) {
+  if (orders.length === 0 && batches.length === 0) return null;
+
+  const scored = orders.filter((o) => o.dispatch_score != null);
+  const avgScore = scored.length > 0
+    ? Math.round(scored.reduce((s, o) => s + (o.dispatch_score ?? 0), 0) / scored.length)
+    : null;
+
+  const zoneCounts: Record<string, number> = {};
+  for (const o of orders) {
+    if (o.delivery_zone) zoneCounts[o.delivery_zone] = (zoneCounts[o.delivery_zone] ?? 0) + 1;
+  }
+  const zones = Object.entries(zoneCounts).sort((a, b) => a[0].localeCompare(b[0]));
+
+  const totalStops = batches.reduce((s, b) => s + b.stops.length, 0);
+  const doneStops = batches.reduce((s, b) => s + b.stops.filter((st) => st.geliefert_am).length, 0);
+  const tourProgress = totalStops > 0 ? Math.round((doneStops / totalStops) * 100) : null;
+
+  const tiers = {
+    excellent: scored.filter((o) => (o.dispatch_score ?? 0) >= 80).length,
+    good:      scored.filter((o) => (o.dispatch_score ?? 0) >= 60 && (o.dispatch_score ?? 0) < 80).length,
+    fair:      scored.filter((o) => (o.dispatch_score ?? 0) >= 40 && (o.dispatch_score ?? 0) < 60).length,
+    low:       scored.filter((o) => (o.dispatch_score ?? 0) < 40).length,
+  };
+
+  const urgent = orders.filter((o) => o.fertig_am && (Date.now() - new Date(o.fertig_am).getTime()) > 10 * 60_000);
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Avg Score Gauge */}
+      {avgScore !== null && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Ø Dispatch-Score</div>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className={cn(
+              'font-display text-3xl font-black leading-none',
+              avgScore >= 80 ? 'text-matcha-700' : avgScore >= 60 ? 'text-blue-600' : avgScore >= 40 ? 'text-orange-600' : 'text-red-600',
+            )}>{avgScore}</div>
+            <div className="text-xs text-muted-foreground mb-0.5">/ 100</div>
+          </div>
+          <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all', avgScore >= 80 ? 'bg-matcha-500' : avgScore >= 60 ? 'bg-blue-400' : avgScore >= 40 ? 'bg-orange-400' : 'bg-red-400')}
+              style={{ width: `${avgScore}%` }}
+            />
+          </div>
+          {scored.length > 0 && (
+            <div className="mt-2 flex gap-0.5 h-1">
+              {tiers.excellent > 0 && <div className="rounded-full bg-matcha-500" style={{ width: `${(tiers.excellent / scored.length) * 100}%` }} />}
+              {tiers.good > 0 && <div className="rounded-full bg-blue-400" style={{ width: `${(tiers.good / scored.length) * 100}%` }} />}
+              {tiers.fair > 0 && <div className="rounded-full bg-orange-400" style={{ width: `${(tiers.fair / scored.length) * 100}%` }} />}
+              {tiers.low > 0 && <div className="rounded-full bg-red-400" style={{ width: `${(tiers.low / scored.length) * 100}%` }} />}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Zone Breakdown */}
+      {zones.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Zonen-Verteilung</div>
+          </div>
+          <div className="space-y-1.5">
+            {zones.map(([zone, count]) => {
+              const pct = Math.round((count / orders.length) * 100);
+              return (
+                <div key={zone} className="flex items-center gap-2">
+                  <span className={cn('w-5 text-center rounded text-[10px] font-black shrink-0', zoneMeta(zone).cls)}>{zone}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={cn('h-full rounded-full', zoneMeta(zone).barCls)} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="text-[10px] font-bold text-muted-foreground w-4 text-right">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Tour Progress */}
+      {tourProgress !== null && batches.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tour-Fortschritt</div>
+          </div>
+          <div className="flex items-end gap-2 mb-2">
+            <div className="font-display text-3xl font-black leading-none text-matcha-700">{tourProgress}%</div>
+            <div className="text-xs text-muted-foreground mb-0.5">{doneStops}/{totalStops} Stopps</div>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all', tourProgress === 100 ? 'bg-matcha-500' : tourProgress > 60 ? 'bg-orange-400' : 'bg-blue-400')}
+              style={{ width: `${tourProgress}%` }}
+            />
+          </div>
+          <div className="mt-2 text-[10px] text-muted-foreground">{batches.length} aktive Tour{batches.length !== 1 ? 'en' : ''}</div>
+        </Card>
+      )}
+
+      {/* Urgent orders */}
+      {urgent.length > 0 && (
+        <Card className="p-4 border-red-200 bg-red-50">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="h-4 w-4 text-red-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-red-700">Warten &gt;10 Min</div>
+          </div>
+          <div className="font-display text-3xl font-black leading-none text-red-700">{urgent.length}</div>
+          <div className="mt-2 space-y-1">
+            {urgent.slice(0, 3).map((o) => (
+              <div key={o.id} className="text-[10px] text-red-700 font-semibold truncate">
+                #{o.bestellnummer.replace('FF-', '')} · {o.kunde_name}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -677,13 +810,13 @@ function payMeta(z: string) {
   }
 }
 
-function zoneMeta(zone: string | null): { cls: string } {
+function zoneMeta(zone: string | null): { cls: string; barCls: string } {
   switch (zone) {
-    case 'A': return { cls: 'bg-green-100 text-green-800' };
-    case 'B': return { cls: 'bg-blue-100 text-blue-800' };
-    case 'C': return { cls: 'bg-orange-100 text-orange-800' };
-    case 'D': return { cls: 'bg-red-100 text-red-800' };
-    default:  return { cls: 'bg-muted text-muted-foreground' };
+    case 'A': return { cls: 'bg-green-100 text-green-800',   barCls: 'bg-green-400' };
+    case 'B': return { cls: 'bg-blue-100 text-blue-800',     barCls: 'bg-blue-400' };
+    case 'C': return { cls: 'bg-orange-100 text-orange-800', barCls: 'bg-orange-400' };
+    case 'D': return { cls: 'bg-red-100 text-red-800',       barCls: 'bg-red-400' };
+    default:  return { cls: 'bg-muted text-muted-foreground', barCls: 'bg-muted-foreground' };
   }
 }
 
