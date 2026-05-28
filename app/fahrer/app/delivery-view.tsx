@@ -216,15 +216,36 @@ export function DeliveryView({
                       <Phone size={16} />
                     </a>
                   )}
-                  {stop.order.kunde_lat && stop.order.kunde_lng && (
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`}
-                      target="_blank" rel="noreferrer"
-                      className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center gap-2 text-sm font-bold"
-                    >
-                      <Navigation size={16} /> Navigieren
-                    </a>
-                  )}
+                  {stop.order.kunde_lat && stop.order.kunde_lng && (() => {
+                    const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+                    const lat = stop.order.kunde_lat!;
+                    const lng = stop.order.kunde_lng!;
+                    const primaryHref = isIos
+                      ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+                    const secondaryHref = isIos
+                      ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
+                      : `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+                    const secondaryLabel = isIos ? 'Google' : 'Waze';
+                    return (
+                      <>
+                        <a
+                          href={primaryHref}
+                          target="_blank" rel="noreferrer"
+                          className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center gap-2 text-sm font-bold"
+                        >
+                          <Navigation size={16} /> Navigieren
+                        </a>
+                        <a
+                          href={secondaryHref}
+                          target="_blank" rel="noreferrer"
+                          className="h-11 px-3 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs font-bold text-matcha-300"
+                        >
+                          {secondaryLabel}
+                        </a>
+                      </>
+                    );
+                  })()}
                   <button
                     onClick={() => markDelivered(stop.id)}
                     disabled={pending === stop.id}

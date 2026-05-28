@@ -27,6 +27,14 @@ interface StatisticsViewProps {
 export function StatisticsView({ orders, completedOrders }: StatisticsViewProps) {
   const allOrders = [...orders, ...completedOrders]
   const stats = calculateDailyStats(allOrders)
+
+  const deliveredOrders = completedOrders.filter(o => o.status === 'done')
+  const withEta = deliveredOrders.filter(o => o.estimatedTime != null && o.estimatedTime > 0)
+  const avgEtaMin = withEta.length > 0
+    ? Math.round(withEta.reduce((s, o) => s + (o.estimatedTime ?? 0), 0) / withEta.length)
+    : 0
+  const fastOrders = withEta.filter(o => (o.estimatedTime ?? 0) <= 20).length
+  const fastPct = withEta.length > 0 ? Math.round((fastOrders / withEta.length) * 100) : 0
   
   const completionRate = stats.totalOrders > 0 
     ? Math.round((stats.completedOrders / stats.totalOrders) * 100) 
@@ -211,6 +219,52 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           )}
         </div>
       </div>
+
+      {/* Delivery Performance */}
+      {deliveredOrders.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <Truck className="w-5 h-5 text-violet-600" />
+            Lieferperformance
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <div className="text-2xl font-bold text-char">{deliveredOrders.length}</div>
+              <div className="text-sm text-steel mt-0.5">Abgeschlossen heute</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{avgEtaMin} <span className="text-base font-normal">Min</span></div>
+              <div className="text-sm text-steel mt-0.5">Ø ETA-Angabe</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-emerald-600">{fastPct}%</div>
+              <div className="text-sm text-steel mt-0.5">Unter 20 Min</div>
+            </div>
+          </div>
+          {/* Mini bar chart of prep times */}
+          <div className="mt-4 space-y-2">
+            {[
+              { label: '≤ 15 Min', count: withEta.filter(o => (o.estimatedTime ?? 0) <= 15).length, color: '#10b981' },
+              { label: '16–25 Min', count: withEta.filter(o => (o.estimatedTime ?? 0) > 15 && (o.estimatedTime ?? 0) <= 25).length, color: '#f59e0b' },
+              { label: '> 25 Min', count: withEta.filter(o => (o.estimatedTime ?? 0) > 25).length, color: '#ef4444' },
+            ].map(row => (
+              <div key={row.label} className="flex items-center gap-3">
+                <div className="w-20 text-xs text-steel shrink-0">{row.label}</div>
+                <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: withEta.length > 0 ? `${(row.count / withEta.length) * 100}%` : '0%',
+                      backgroundColor: row.color,
+                    }}
+                  />
+                </div>
+                <div className="w-6 text-xs font-semibold text-char text-right">{row.count}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
