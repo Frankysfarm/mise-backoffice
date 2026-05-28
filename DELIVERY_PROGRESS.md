@@ -69,6 +69,17 @@
 - [ ] Liefer-Statistiken Dashboard
 - [ ] Bestell-Heatmap
 
+## Vorhandene Basis (CEO-Review 2026-05-28)
+**Funktioniert bereits:**
+- Dispatch Board `/dispatch` — manuelle Auftragsverteilung, Live-Realtime
+- Liefer-Übersicht `/lieferdienst` — KPIs, Fahrer-Status, Plattform-Links
+- Fahrer-App `/fahrer/app` — Push-Notifications, Basis-Struktur vorhanden
+- Driver-API `/api/driver/v1/` — Auth (OTP), Aktive Touren, Sessions
+- Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
+
+**TypeScript-Status:** 0 Fehler (CEO-Review #1: 35 Fehler behoben)
+**Build-Status:** Kompiliert sauber (next build)
+
 ## CEO-Log
 Siehe DELIVERY_CEO_LOG.md
 
@@ -76,4 +87,5 @@ Siehe DELIVERY_CEO_LOG.md
 - (noch keine)
 
 ## Letzte Änderungen
+- 2026-05-28: CEO-Review #1 — 35 TypeScript-Fehler behoben, Build stabil, Basis-Integration dokumentiert
 - 2026-05-27: Projekt gestartet, Agenten eingerichtet

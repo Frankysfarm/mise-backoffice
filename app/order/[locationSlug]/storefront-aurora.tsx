@@ -75,7 +75,7 @@ export function StorefrontAurora({
   const [sheetItem, setSheetItem] = React.useState<AuroraItem | null>(null);
 
   // Brand-token override (per tenant — only --brand-primary, --brand-accent, --brand-on-primary)
-  const brandStyle: React.CSSProperties = {};
+  const brandStyle: React.CSSProperties & Record<string, string> = {};
   if (tenant.primary) {
     brandStyle['--brand-primary' as any] = tenant.primary;
     brandStyle['--brand-on-primary' as any] = autoForeground(tenant.primary);

@@ -125,7 +125,7 @@ export function ReservationsClient({ tag, locationName, reservations, tables }: 
     <div className="space-y-6">
       <PageHeader
         title="🪑 Tisch-Reservierungen"
-        subtitle={locationName}
+        description={locationName}
       />
 
       <div className="flex flex-wrap gap-2 items-center">

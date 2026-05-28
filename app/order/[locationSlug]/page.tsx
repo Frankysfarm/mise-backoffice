@@ -120,7 +120,8 @@ export default async function OrderPage({
   const NEW_DEFAULT_THEMES = ['aurora-v3', 'bento-pro', 'liquid', 'konkret', 'gazette', 'noir'];
 
   // 1) Explicit ?v= query param wins
-  let themedV: string | null = sp.v && VALID_V_THEMES.includes(sp.v) ? sp.v : null;
+  const _spV: string | null = sp.v ?? null;
+  let themedV: string | null = _spV !== null && VALID_V_THEMES.includes(_spV as string) ? _spV : null;
 
   // 2) Fall back to tenant's saved theme if it's one of the new themes
   if (!themedV && t?.storefront_theme_id && NEW_DEFAULT_THEMES.includes(t.storefront_theme_id)) {
@@ -128,17 +129,17 @@ export default async function OrderPage({
   }
 
   // 3) If theme override comes via ?theme= and matches a new theme, use it
-  if (!themedV && themeOverride && NEW_DEFAULT_THEMES.includes(themeOverride)) {
+  if (!themedV && themeOverride && NEW_DEFAULT_THEMES.includes(themeOverride as string)) {
     themedV = themeOverride;
   }
 
   if (themedV) {
     return (
       <StorefrontAurora
-        themeV={themedV}
-        location={location}
+        themeV={themedV ?? undefined}
+        location={location!}
         tenant={{
-          name: t?.name ?? location.name,
+          name: t?.name ?? location!.name,
           slug: t?.slug ?? slug,
           primary: t?.theme_primary ?? null,
           accent: t?.theme_accent ?? null,
@@ -158,9 +159,9 @@ export default async function OrderPage({
   if (useV2) {
     return (
       <StorefrontV2
-        location={location}
+        location={location!}
         tenant={{
-          name: t?.name ?? location.name,
+          name: t?.name ?? location!.name,
           slug: t?.slug ?? slug,
           primary: t?.theme_primary ?? null,
           hero_image_url: t?.hero_image_url ?? null,
@@ -178,7 +179,7 @@ export default async function OrderPage({
   // V1 (legacy)
   return (
     <Storefront
-      location={location}
+      location={location!}
       categories={categories ?? []}
       items={items ?? []}
       paymentMethods={(paymentMethods as any[]) ?? []}

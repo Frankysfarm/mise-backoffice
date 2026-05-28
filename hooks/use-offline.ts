@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Order } from '@/lib/orders'
+import { Order } from '@/lib/lieferdienst/orders'
 
 const ORDERS_STORAGE_KEY = 'mise_kds_orders'
 const COMPLETED_ORDERS_KEY = 'mise_kds_completed'

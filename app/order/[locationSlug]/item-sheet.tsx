@@ -113,6 +113,7 @@ export function ItemDetailSheet({
   const totalPrice = (item.basePrice + priceDelta) * qty;
 
   function handleAdd() {
+    if (!item) return;
     // Validate required groups
     for (const grp of item.optionGroups) {
       if (grp.required) {

@@ -345,7 +345,7 @@ export function MemberScannerFAB() {
 }
 
 function Stat({ icon: Icon, label, value }: {
-  icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }>;
   label: string; value: string;
 }) {
   return (

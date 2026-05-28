@@ -14,13 +14,11 @@ export async function GET(req: NextRequest) {
     .eq('driver_id', m.driver.id)
     .eq('status', 'active');
 
-  const tenants = (tenantLinks ?? []).map(
-    (row: { tenant_id: string; tenants: { name: string; slug: string } | null }) => ({
-      id: row.tenant_id,
-      name: row.tenants?.name ?? null,
-      slug: row.tenants?.slug ?? null,
-    }),
-  );
+  const tenants = (tenantLinks ?? []).map((row: any) => ({
+    id: row.tenant_id as string,
+    name: (row.tenants?.name ?? null) as string | null,
+    slug: (row.tenants?.slug ?? null) as string | null,
+  }));
 
   return NextResponse.json({ ok: true, driver: m.driver, tenants });
 }

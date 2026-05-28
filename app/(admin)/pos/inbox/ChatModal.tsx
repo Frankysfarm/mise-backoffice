@@ -54,8 +54,8 @@ export function ChatModal({ orderId, customerName, bestellnummer, onClose }: Pro
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` },
-        (payload) => {
-          const m = payload.new as Message;
+        (payload: { new: Message }) => {
+          const m = payload.new;
           setMessages((prev) => [...prev, m]);
           setTimeout(() => listRef.current?.scrollTo({ top: 99999, behavior: 'smooth' }), 50);
         },

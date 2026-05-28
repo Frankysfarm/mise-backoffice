@@ -43,7 +43,7 @@ const TYP_LABEL: Record<string, string> = {
   vor_ort: 'Vor Ort',
 };
 
-const TYP_ICON: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>> = {
+const TYP_ICON: Record<string, React.ComponentType<{ size?: number | string; style?: React.CSSProperties }>> = {
   lieferung: Bike,
   abholung: Package,
   vor_ort: User,

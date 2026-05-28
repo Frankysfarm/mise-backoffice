@@ -33,7 +33,6 @@ export const translations = {
     accept: 'Annehmen',
     reject: 'Ablehnen',
     cancel: 'Stornieren',
-    done: 'Fertig',
     viewOrder: 'Bestellung ansehen',
     customerResponded: 'Antwort erhalten',
     

@@ -38,7 +38,7 @@ export async function POST(
   await svc.from('mise_drivers').update({ state: 'idle' }).eq('id', driverId);
 
   // Frank-Dispatcher manuell auslösen damit der nächste Driver zugewiesen wird
-  await svc.rpc('fn_frank_assign_nearest_driver', { p_order_id: id }).catch(() => {});
+  try { await svc.rpc('fn_frank_assign_nearest_driver', { p_order_id: id }); } catch { /* ignore dispatch errors */ }
 
   return NextResponse.json({ ok: true });
 }

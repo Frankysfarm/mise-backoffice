@@ -11,7 +11,7 @@ type Item = {
   beliebt: boolean | null; tags: string[] | null;
   allergene: string[] | null; bild_url: string | null;
 };
-type Cat = { id: string; name: string; icon: string | null };
+type Cat = { id: string; name: string; icon: string | null; sort_order?: number };
 type Loc = { id: string; name: string; stadt: string | null; adresse: string | null };
 
 export function PreviewGallery({
@@ -117,7 +117,7 @@ function Style1({ location, grouped }: P) {
               {items.map((item) => (
                 <article key={item.id} className="relative overflow-hidden rounded-2xl bg-white ring-1 ring-black/5">
                   <div className="relative aspect-square bg-matcha-50">
-                    <ItemImage item={item as any} category={cat} className="h-full w-full" rounded="rounded-none" emojiClass="text-5xl" />
+                    <ItemImage item={item as any} category={cat as any} className="h-full w-full" rounded="rounded-none" emojiClass="text-5xl" />
                     {item.beliebt && <span className="absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[9px] font-bold uppercase text-matcha-900">⭐ Top</span>}
                     <button className="absolute bottom-2 right-2 h-9 w-9 rounded-full bg-matcha-900 text-white shadow-lg"><Plus className="mx-auto" size={18} /></button>
                   </div>
@@ -180,7 +180,7 @@ function Style2({ location, grouped }: P) {
                     </div>
                   </div>
                   <div className="relative shrink-0">
-                    <ItemImage item={item as any} category={cat} className="h-[92px] w-[92px]" emojiClass="text-4xl" />
+                    <ItemImage item={item as any} category={cat as any} className="h-[92px] w-[92px]" emojiClass="text-4xl" />
                     <button className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-amber-700 text-white shadow-lg ring-2 ring-white"><Plus className="mx-auto" size={16} /></button>
                   </div>
                 </article>
@@ -228,7 +228,7 @@ function Style3({ location, grouped }: P) {
                   </div>
                 </div>
                 <div className="relative shrink-0">
-                  <ItemImage item={item as any} category={cat} className="h-[72px] w-[72px]" emojiClass="text-3xl" rounded="rounded-lg" />
+                  <ItemImage item={item as any} category={cat as any} className="h-[72px] w-[72px]" emojiClass="text-3xl" rounded="rounded-lg" />
                   <button className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-white shadow-lg ring-2 ring-black/10"><Plus className="mx-auto" size={14} /></button>
                 </div>
               </article>
@@ -269,7 +269,7 @@ function Style4({ location, grouped }: P) {
                 {signature.map((item) => (
                   <article key={item.id} className="group overflow-hidden rounded-3xl bg-white ring-1 ring-matcha-900/10">
                     <div className="relative aspect-[16/10] bg-matcha-50">
-                      <ItemImage item={item as any} category={cat} className="h-full w-full" rounded="rounded-none" emojiClass="text-7xl" />
+                      <ItemImage item={item as any} category={cat as any} className="h-full w-full" rounded="rounded-none" emojiClass="text-7xl" />
                       <span className="absolute left-4 top-4 rounded-full bg-matcha-900 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-accent">Signature</span>
                     </div>
                     <div className="p-6">
@@ -292,7 +292,7 @@ function Style4({ location, grouped }: P) {
                 {rest.map((item) => (
                   <article key={item.id} className="overflow-hidden rounded-2xl bg-white ring-1 ring-matcha-900/10">
                     <div className="aspect-square bg-matcha-50">
-                      <ItemImage item={item as any} category={cat} className="h-full w-full" rounded="rounded-none" emojiClass="text-5xl" />
+                      <ItemImage item={item as any} category={cat as any} className="h-full w-full" rounded="rounded-none" emojiClass="text-5xl" />
                     </div>
                     <div className="p-3">
                       <h3 className="font-display text-sm font-bold text-matcha-900 line-clamp-2 min-h-[2.4em]">{item.name}</h3>

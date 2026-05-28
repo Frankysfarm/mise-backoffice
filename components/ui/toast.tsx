@@ -8,6 +8,9 @@ import { cn } from '@/lib/utils';
 
 export const ToastProvider = ToastPrimitive.Provider;
 
+export type ToastProps = React.ComponentPropsWithoutRef<typeof ToastPrimitive.Root> & VariantProps<typeof toastVariants>;
+export type ToastActionElement = React.ReactElement;
+
 export const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Viewport>

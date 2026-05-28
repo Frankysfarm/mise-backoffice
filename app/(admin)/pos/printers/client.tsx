@@ -89,7 +89,7 @@ export function PrintersClient({ tenantName, tenantAddress, tenantTaxId, locatio
     <div className="space-y-6">
       <PageHeader
         title="Bondrucker"
-        subtitle={`Verbinde deinen Bondrucker mit der Mise POS-App · ${locationName}`}
+        description={`Verbinde deinen Bondrucker mit der Mise POS-App · ${locationName}`}
       />
 
       {!native && (

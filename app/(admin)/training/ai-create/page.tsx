@@ -127,7 +127,7 @@ export default function AiCreateTraining() {
         const { data: employees } = await sb.from('employees')
           .select('id').eq('status', 'aktiv');
         if (employees && employees.length > 0) {
-          const rows = employees.map(e => ({
+          const rows = employees.map((e: { id: string }) => ({
             employee_id: e.id, module_id: data.id, fortschritt_prozent: 0,
           }));
           await sb.from('training_progress').insert(rows).select();

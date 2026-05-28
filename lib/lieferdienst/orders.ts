@@ -55,7 +55,14 @@ export const cancellationReasons = [
   'Sonstiges',
 ]
 
-export const prepTimes = [10, 15, 20, 30, 45, 60]
+export const prepTimes = [
+  { value: 10, label: '10 Min' },
+  { value: 15, label: '15 Min' },
+  { value: 20, label: '20 Min' },
+  { value: 30, label: '30 Min' },
+  { value: 45, label: '45 Min' },
+  { value: 60, label: '60 Min' },
+]
 
 // Zufällige Bestellungen generieren
 const menuItems: { name: string; category: OrderItem['category'] }[] = [

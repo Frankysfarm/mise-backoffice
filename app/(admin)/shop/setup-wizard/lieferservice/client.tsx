@@ -158,7 +158,7 @@ export function LieferserviceWizardClient({ tenantName, tenantSlug, stepStatus, 
     <div className="space-y-6">
       <PageHeader
         title="🚚 Lieferservice einrichten"
-        subtitle={`${tenantName} — schritt für Schritt zum Live-Betrieb`}
+        description={`${tenantName} — schritt für Schritt zum Live-Betrieb`}
       />
 
       <div className="rounded-3xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100 p-6">

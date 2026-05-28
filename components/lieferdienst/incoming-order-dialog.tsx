@@ -229,18 +229,18 @@ export function IncomingOrderDialog({ order, onAccept, onReject }: IncomingOrder
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {prepTimes.map(time => (
                   <button
-                    key={time}
+                    key={time.value}
                     onClick={() => {
-                      setSelectedTime(time)
+                      setSelectedTime(time.value)
                       setCustomTime('')
                     }}
                     className={`py-5 px-4 rounded-2xl font-bold text-xl transition-all border-2 ${
-                      selectedTime === time && !customTime
-                        ? 'bg-emerald-500 text-white border-emerald-500 scale-105 shadow-lg shadow-emerald-500/30' 
+                      selectedTime === time.value && !customTime
+                        ? 'bg-emerald-500 text-white border-emerald-500 scale-105 shadow-lg shadow-emerald-500/30'
                         : 'bg-white text-char border-stone-200 hover:border-emerald-300'
                     }`}
                   >
-                    {time} Min
+                    {time.label}
                   </button>
                 ))}
               </div>

@@ -185,7 +185,7 @@ export function FahrerApp({
         if (!vapid) return;
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapid),
+          applicationServerKey: urlBase64ToUint8Array(vapid).buffer as ArrayBuffer,
         });
         await fetch('/api/drivers/push/subscribe', {
           method: 'POST',

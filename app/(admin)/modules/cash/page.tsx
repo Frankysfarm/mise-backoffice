@@ -48,7 +48,7 @@ type Section = {
   desc: string;
   links: Array<{
     href: string;
-    icon: React.ComponentType<{ className?: string; size?: number }>;
+    icon: React.ComponentType<{ className?: string; size?: number | string }>;
     title: string;
     desc: string;
     badge?: string;

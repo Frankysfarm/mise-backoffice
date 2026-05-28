@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   let account: Stripe.Account;
   try {
     const stripe = new Stripe(sk, { apiVersion: '2024-12-18.acacia' as any });
-    account = await stripe.accounts.retrieve();
+    account = await (stripe.accounts.retrieve as (id?: string) => Promise<Stripe.Account>)();
   } catch (err: any) {
     const msg = err?.message || String(err);
     if (msg.includes('Invalid API Key')) {

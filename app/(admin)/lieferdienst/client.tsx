@@ -40,7 +40,8 @@ export function LieferdienstClient() {
     id: 'default',
     name: 'Küche',
     pin: '0000',
-    role: 'admin'
+    role: 'admin',
+    active: true,
   })
   
   // Core State

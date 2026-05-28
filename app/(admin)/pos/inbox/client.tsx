@@ -245,8 +245,8 @@ export function OrderInboxClient({ tenantName, locationId, locationName, stripeR
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'customer_orders', filter: `location_id=eq.${locationId}` },
-        (payload) => {
-          const o = payload.new as Order;
+        (payload: { new: Order }) => {
+          const o = payload.new;
           if (knownIdsRef.current.has(o.id)) return;
           knownIdsRef.current.add(o.id);
           setOrders((prev) => [o, ...prev]);
@@ -265,8 +265,8 @@ export function OrderInboxClient({ tenantName, locationId, locationName, stripeR
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `location_id=eq.${locationId}` },
-        (payload) => {
-          const o = payload.new as Order;
+        (payload: { new: Order }) => {
+          const o = payload.new;
           setOrders((prev) =>
             prev.map((p) => (p.id === o.id ? { ...p, ...o } : p))
               .filter((p) => !['geliefert', 'abgeholt', 'storniert'].includes(p.status)),
@@ -456,7 +456,7 @@ export function OrderInboxClient({ tenantName, locationId, locationName, stripeR
 
       <PageHeader
         title="🔔 Bestelleingang"
-        subtitle={`${tenantName} · ${locationName} — Live-Übersicht aller offenen Bestellungen`}
+        description={`${tenantName} · ${locationName} — Live-Übersicht aller offenen Bestellungen`}
       />
 
       {/* STRIPE-NOT-READY-BANNER */}

@@ -23,7 +23,7 @@ type Category = {
 
 type MenuItem = {
   id: string; name: string; beschreibung: string | null; preis: number;
-  bild_url: string | null; category_id: string | null; allergene: string[] | null;
+  bild_url: string | null; bestseller_bild_url: string | null; category_id: string | null; allergene: string[] | null;
   tags: string[] | null; beliebt: boolean; verfuegbar: boolean;
   mwst_satz: number | null; food_type: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

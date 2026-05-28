@@ -69,7 +69,7 @@ export function PermissionsGate({
         try {
           sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublic),
+            applicationServerKey: urlBase64ToUint8Array(vapidPublic).buffer as ArrayBuffer,
           });
         } catch (subErr: any) {
           // Fallback: mit String versuchen
