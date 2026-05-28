@@ -56,6 +56,7 @@ type OpenBatch = {
   location_name: string;
   location_lat: number | null;
   location_lng: number | null;
+  source_system: 'legacy' | 'mise' | null;
 };
 
 type ActiveBatch = {
@@ -228,10 +229,13 @@ export function FahrerApp({
   }
 
   async function claimBatch(batchId: string) {
+    const batch = openBatches.find((b) => b.batch_id === batchId);
+    const isMise = batch?.source_system === 'mise';
     startTransition(async () => {
-      const { data } = await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
+      const { data } = isMise
+        ? await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: driver.id })
+        : await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
       if ((data as any)?.ok) {
-        // Direkt Pick-Dialog öffnen nach Annahme
         setPickOpen(true);
         router.refresh();
       } else {

@@ -126,7 +126,28 @@ Siehe DELIVERY_CEO_LOG.md
 - [x] Phantom-Pfad `app/Users/eule/...` entfernt (war accidental commit, build-blocking unter Turbopack)
 - **Build-Hinweis**: `npm run build` (Next.js 14.2.18 lokal) ✅ — NICHT `npx next build` (nutzt globales Next.js 16 → Turbopack-Fehler)
 
+## Phase 3.7: Batch-Claim-Bug-Fix + Performance-API [DONE ✅]
+- [x] `scripts/migrations/007_consolidation_and_perf.sql`
+  - `v_open_dispatch_batches` — `source_system` Spalte ('legacy'|'mise') ergänzt
+    **BUG FIX**: Fahrer-App rief `claim_delivery_batch` für Mise-Batches auf → immer Fehler
+  - `v_driver_performance_stats` — Fahrer-KPIs (heute/gestern, aktiver Batch, letzter Standort)
+  - `increment_driver_deliveries()` Trigger — `mise_drivers.total_deliveries` automatisch hochzählen
+  - `v_delivery_batch_unified` — schreibgeschützte Admin-View: beide Systeme vereint
+- [x] `app/fahrer/app/client.tsx`
+  - `OpenBatch` Typ um `source_system` erweitert
+  - `claimBatch()` ruft jetzt `claim_mise_delivery_batch` für Mise-Batches auf,
+    `claim_delivery_batch` nur für Legacy-Batches
+- [x] `app/api/delivery/admin/performance/route.ts`
+  - `GET /api/delivery/admin/performance?location_id=...` — Fahrer-KPIs aus `v_driver_performance_stats`
+  - Fallback-Antwort wenn View noch nicht in DB (Migration noch nicht ausgeführt)
+
 ## Letzte Änderungen
+- 2026-05-28: Backend-Architekt — Phase 3.7: Batch-Claim-Bug-Fix + Performance-API
+  - Migration 007: source_system in v_open_dispatch_batches, v_driver_performance_stats,
+    increment_driver_deliveries Trigger, v_delivery_batch_unified
+  - fahrer/app/client.tsx: claimBatch() nutzt jetzt richtigen RPC je nach source_system
+  - /api/delivery/admin/performance: neue Route für Fahrer-KPIs
+  - Build: npm run build ✓ (0 Fehler)
 - 2026-05-28: Backend-Architekt — Phase 3.6: Bridge-Konsolidierung
   - Migration 005: v_open_dispatch_batches VIEW + assign_to_driver RPC + claim_mise_delivery_batch RPC
   - dispatch/client.tsx: Bridge-Write via RPC, Legacy-Fallback
