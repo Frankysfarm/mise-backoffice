@@ -575,15 +575,26 @@ const STATE_CONFIG: Record<DriverState, { label: string; bg: string; iconBg: str
 
 /* ------------------------------ OrderTicket ------------------------------ */
 
+function fmtCountdown(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 function OrderTicket({ order, next }: { order: Order; next: string | null }) {
   const [pending, startTransition] = useTransition();
 
   const waitMin = order.bestellt_am
     ? Math.floor((Date.now() - new Date(order.bestellt_am).getTime()) / 60_000)
     : 0;
+  const waitSec = order.bestellt_am
+    ? Math.floor((Date.now() - new Date(order.bestellt_am).getTime()) / 1_000)
+    : 0;
   const est = order.geschaetzte_zubereitung_min ?? 15;
   const urgent = order.status === 'in_zubereitung' && waitMin >= est;
   const critical = waitMin >= est + 10;
+  const progressPct = Math.min(100, Math.round((waitMin / est) * 100));
+  const remainingSec = (est * 60) - waitSec;
 
   const isTable = Boolean(order.tisch_id);
   const typLabel = isTable ? `🍽 Tisch ${order.tisch_nummer ?? ''}` : order.typ === 'lieferung' ? '🛵 Liefern' : order.typ === 'abholung' ? '🥡 Abholung' : '🍽 Vor Ort';
@@ -609,6 +620,31 @@ function OrderTicket({ order, next }: { order: Order; next: string | null }) {
           {waitMin}′
         </div>
       </div>
+
+      {/* Progress bar + countdown — only for active cooking orders */}
+      {(order.status === 'in_zubereitung' || order.status === 'bestätigt') && (
+        <div className="mt-2">
+          <div className="h-1 rounded-full bg-black/10 overflow-hidden">
+            <div
+              className={cn(
+                'h-full rounded-full transition-all duration-1000',
+                progressPct < 70 ? 'bg-matcha-500' :
+                progressPct < 100 ? 'bg-orange-400' :
+                'bg-red-500 animate-pulse',
+              )}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <div className={cn(
+            'mt-0.5 text-[10px] font-bold tabular-nums',
+            remainingSec > 0 ? 'text-muted-foreground' : 'text-red-600',
+          )}>
+            {remainingSec > 0
+              ? `Noch ${fmtCountdown(remainingSec)}`
+              : `+${fmtCountdown(-remainingSec)} überzogen`}
+          </div>
+        </div>
+      )}
 
       <div className="mt-3">
         <div className="text-sm font-semibold">{order.kunde_name}</div>
