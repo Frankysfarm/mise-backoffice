@@ -4,8 +4,71 @@
 **MARKT-REIF.** Alle Phasen 1–7 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — Phase 6 + 7 vollständig implementiert (CEO Review #4).
-**CEO Review #5 (2026-05-28)**: 1 Logik-Bug behoben (StopEtaBar). Keine weiteren Aufgaben.
+**DONE** — Alle Phasen abgeschlossen. CEO Review #6: 1 Bug behoben (bezahlt/zahlungsart im DB-Select).
+Keine weiteren Feature-Aufgaben. Fokus auf Deployment-Vorbereitung.
+
+## CEO Review #6 — 2026-05-28
+
+### Geprüfte Commits (seit CEO Review #5)
+- `0cabc49` feat(delivery/frontend): Kitchen Heat-Strip pro Kanban-Spalte
+- `ff61e10` feat(delivery/frontend): ETA-Ring auf Storefront, Fahrer Tour-Abschluss-Zusammenfassung
+- `ecdbc3e` feat(delivery/frontend): Fahrer Tour-Cash-Header mit Bargeld-Kassier-Übersicht
+- `34d7186` feat(delivery/frontend): Kitchen Dispatch-Panel, Fahrer Multi-Stop-Nav, Stats-Trends, Dispatch GPS-Badge
+
+### Build + TypeScript
+- `npm run build` ✅ — Kompiliert sauber, 0 Fehler
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+
+### Code-Review der neuen Features
+
+**Kitchen Heat-Strip** (`kitchen/client.tsx`):
+- Roter/oranger/grüner Balken unter jedem Spalten-Header: älteste Karte vs. 30-Min-Ziel ✅
+- Farblogik: <60% = matcha, <100% = orange, ≥100% = rot + animiert ✅
+- `DispatchReadinessPanel`: Fertige Lieferbestellungen nach Zone gruppiert, Direktlink zu `/dispatch` ✅
+- `delivery_zone` im `Order`-Typ ergänzt — `*`-Select deckt die Spalte ab ✅
+
+**ETA-Ring Storefront** (`success-state.tsx`):
+- SVG-Countdown-Ring um Check-Icon (r=54, circumference=339.3px) ✅
+- `strokeDashoffset = circumference * (1 - secsLeft/totalSecs)` — Logik korrekt: Ring füllt sich ab ✅
+- `secsLeft > 0` Guard verhindert leeren Ring wenn ETA abgelaufen ✅
+
+**Fahrer Cash-Header + AllDone-Zusammenfassung** (`delivery-view.tsx`):
+- Tour-Kassen-Zusammenfassung im Header (Bargeld-Betrag sichtbar während Fahrt) ✅
+- AllDone-Block: 3-Spalten Grid (Stopps, Unterwegs-Zeit, Distanz/Lieferungen) ✅
+- Multi-Waypoint Google Maps URL für alle offenen Stops ✅
+- iOS: Single-Stop nutzt `maps://` (Apple Maps), Multi-Stop immer Google Maps ✅
+
+**Stats Trends** (`statistics-view.tsx`):
+- `TrendData` Type, Fetch via `/api/delivery/admin/trends` ✅
+- Nur beim Mount geladen (trend-Daten ändern sich nicht sekündlich — korrekt) ✅
+- `_fallback` Guard: leere Trends von nicht-vorhandener DB-Funktion werden unterdrückt ✅
+
+**Dispatch GPS-Badge** (`dispatch/client.tsx`):
+- `onlineSince` ersetzt `lastSeen` in der Status-Zeile ✅
+- Warnung wenn GPS-Update > 5 Minuten alt (orange) oder > 15 Min (rot) ✅
+- Telefon-Link für online-Fahrer ✅
+
+### Bug behoben: `bezahlt` + `zahlungsart` fehlten im DB-Select
+**Datei**: `app/fahrer/app/page.tsx` (Zeilen 37 + 44)
+
+**Problem**: `delivery-view.tsx` verwendet `s.order.bezahlt` und `s.order.zahlungsart` zur Bar-Kassier-Berechnung. Beide Felder wurden in den `customer_orders`-Select-Queries NICHT abgefragt. Da `undefined` falsy ist: `!s.order.bezahlt → true` → ALLE Stopps wurden als Bar-Zahlung gezählt, auch Online-Bezahlte.
+
+**Symptom**: "Bar kassieren: 85,00 €" auch wenn alle Bestellungen mit Karte bezahlt waren.
+
+**Fix**: Beide Select-Queries (`delivery_batch_stops` und `mise_delivery_batch_stops`) um `bezahlt, zahlungsart, kunde_telefon` erweitert.
+
+```diff
+- order:customer_orders(id,bestellnummer,...,gesamtbetrag)
++ order:customer_orders(id,bestellnummer,...,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon)
+```
+
+### Status nach Review #6
+- TypeScript: 0 Fehler ✅
+- Build: `npm run build` kompiliert sauber ✅
+- Bar-Kassier-Bug: BEHOBEN ✅
+- **SYSTEM MARKT-REIF** — alle Features korrekt, kein bekannter Bug mehr
+
+---
 
 ## CEO Review #5 — 2026-05-28
 

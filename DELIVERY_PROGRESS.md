@@ -154,6 +154,10 @@ Siehe DELIVERY_CEO_LOG.md
   - **Performance**: N+1-Query in `loadActiveDrivers` → 1 Batch-Query für alle Fahrer (10 Fahrer = 11→2 Queries). BEHOBEN in `dispatch-engine.ts`.
   - Migration 008: `update_driver_zone()` Trigger — `mise_drivers.zone` wird jetzt automatisch via GPS gesetzt → `scoreZone()` liefert echte Werte statt immer 5.
   - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+- 2026-05-28: CEO Review #6 — Bar-Kassier-Bug behoben, 4 Frontend-Commits QA-geprüft
+  - `fahrer/app/page.tsx`: `bezahlt`+`zahlungsart`+`kunde_telefon` in customer_orders-Selects ergänzt
+  - Geprüft: Heat-Strip, ETA-Ring, Cash-Header, Multi-Stop-Nav, Trends-Widget ✅
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-28: CEO Review #5 — StopEtaBar Logik-Bug behoben, 4 Frontend-Commits QA-geprüft
   - `delivery-view.tsx`: StopEtaBar trackt eigene mountedAt-Zeit statt Tour-Gesamt-Elapsed
   - Build: ✅ 0 TypeScript-Fehler, kompiliert sauber
