@@ -4,7 +4,7 @@ import * as React from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toastError } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import { X } from 'lucide-react';
+import { Clock, Zap, X } from 'lucide-react';
 
 import { Hero } from './components/hero';
 import { LanguageSwitcher } from './components/language-switcher';
@@ -375,6 +375,11 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         logoUrl={logoUrl}
       />
 
+      {/* Live-Lieferzeit-Indikator */}
+      {orderType === 'lieferung' && (
+        <LiveEtaBar locationId={location.id} baseEtaMin={deliveryTimeMin} />
+      )}
+
       {/* Quick-Jump: Kategorie-Buttons oben, damit Kunden nicht scrollen müssen */}
       <div className="bg-surface border-b border-matcha-900/5">
         <div className="mx-auto max-w-6xl px-4 py-3 md:px-8">
@@ -722,4 +727,65 @@ function categoryDescription(name: string): string {
   if (/food/.test(n)) return 'Hausgemacht, ehrlich und mit den besten Zutaten.';
   if (/special/.test(n)) return 'Unsere Signatures — Limited Editions und Saisongäste.';
   return 'Unsere Auswahl, sorgfältig kuratiert.';
+}
+
+/* ------------------------------ LiveEtaBar ------------------------------ */
+
+type EtaLoad = 'quiet' | 'normal' | 'busy';
+
+function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin: number }) {
+  const [etaMin, setEtaMin] = React.useState<number>(baseEtaMin);
+  const [load, setLoad] = React.useState<EtaLoad>('normal');
+  const [loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
+        if (!res.ok || cancelled) return;
+        const d = await res.json();
+        if (cancelled) return;
+        setEtaMin(d.eta_min ?? baseEtaMin);
+        setLoad(d.load ?? 'normal');
+        setLoaded(true);
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [locationId, baseEtaMin]);
+
+  if (!loaded) return null;
+
+  const meta = {
+    quiet: { dot: 'bg-green-500', text: 'text-green-700', bg: 'bg-green-50 border-green-200', label: 'Küche frei' },
+    normal: { dot: 'bg-amber-400', text: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', label: 'Normale Auslastung' },
+    busy:   { dot: 'bg-red-500',   text: 'text-red-700',   bg: 'bg-red-50 border-red-200',     label: 'Hohe Auslastung' },
+  }[load];
+
+  return (
+    <div className={cn('mx-auto max-w-6xl px-4 md:px-8 mt-3')}>
+      <div className={cn(
+        'flex items-center gap-3 rounded-xl border px-4 py-2.5 text-sm',
+        meta.bg,
+      )}>
+        <span className="relative flex h-2.5 w-2.5 shrink-0">
+          <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full opacity-60', meta.dot)} />
+          <span className={cn('relative inline-flex rounded-full h-2.5 w-2.5', meta.dot)} />
+        </span>
+        <div className="flex items-center gap-2 flex-1 flex-wrap">
+          <span className={cn('font-bold', meta.text)}>{meta.label}</span>
+          <span className="text-muted-foreground text-xs">·</span>
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            Lieferzeit aktuell ca. <strong className={meta.text}>{etaMin} Min</strong>
+          </span>
+        </div>
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
+          <Zap className="h-2.5 w-2.5" /> Live
+        </span>
+      </div>
+    </div>
+  );
 }

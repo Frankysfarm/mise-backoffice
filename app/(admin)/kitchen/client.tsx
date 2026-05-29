@@ -751,34 +751,83 @@ function KitchenTimingBanner({ timings, orders }: { timings: KitchenTiming[]; or
 
   if (items.length === 0) return null;
 
+  // Sortiere: cooking-Bestellungen zuerst, dann scheduled nach cook_start_at
+  const sorted = [...items].sort((a, b) => {
+    if (a.t.status === 'cooking' && b.t.status !== 'cooking') return -1;
+    if (b.t.status === 'cooking' && a.t.status !== 'cooking') return 1;
+    const aMs = a.t.ready_target ? new Date(a.t.ready_target).getTime() : (a.t.cook_start_at ? new Date(a.t.cook_start_at).getTime() : 0);
+    const bMs = b.t.ready_target ? new Date(b.t.ready_target).getTime() : (b.t.cook_start_at ? new Date(b.t.cook_start_at).getTime() : 0);
+    return aMs - bMs;
+  });
+
+  const nextReady = sorted.find((x) => x.t.status === 'cooking' && x.secsUntilReady !== null);
+  const overdueCount = sorted.filter((x) => x.secsUntilCook !== null && x.secsUntilCook < 0).length;
+
   return (
-    <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <ChefHat className="h-4 w-4 text-matcha-700" />
-        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">Smart Timing</span>
+    <div className={cn('rounded-xl border p-3', overdueCount > 0 ? 'border-orange-300 bg-orange-50' : 'border-matcha-200 bg-matcha-50')}>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <ChefHat className={cn('h-4 w-4', overdueCount > 0 ? 'text-orange-700' : 'text-matcha-700')} />
+          <span className={cn('font-display text-xs font-bold uppercase tracking-wider', overdueCount > 0 ? 'text-orange-800' : 'text-matcha-800')}>
+            Smart Timing · {items.length} Bestellungen
+          </span>
+        </div>
+        {nextReady && nextReady.secsUntilReady !== null && (
+          <span className={cn(
+            'text-[10px] font-bold rounded-full px-2 py-0.5 tabular-nums',
+            nextReady.secsUntilReady <= 0 ? 'bg-matcha-600 text-white animate-pulse' :
+            nextReady.secsUntilReady < 120 ? 'bg-orange-500 text-white animate-pulse' :
+            'bg-matcha-200 text-matcha-800',
+          )}>
+            {nextReady.secsUntilReady <= 0
+              ? '✓ Fertig!'
+              : `Nächste fertig in ${fmtCountdown(nextReady.secsUntilReady)}`}
+          </span>
+        )}
       </div>
       <div className="flex flex-wrap gap-2">
-        {items.map(({ t, order, secsUntilCook, secsUntilReady }) => {
+        {sorted.map(({ t, order, secsUntilCook, secsUntilReady }) => {
           const cookOverdue = secsUntilCook !== null && secsUntilCook < 0;
           const cookSoon    = secsUntilCook !== null && secsUntilCook >= 0 && secsUntilCook < 300;
+          const isCooking   = t.status === 'cooking';
+          // Mini-Fortschrittsbalken für kochende Bestellungen
+          const cookPct = isCooking && t.cook_start_at && t.ready_target
+            ? Math.min(100, Math.round(
+                (now - new Date(t.cook_start_at).getTime()) /
+                (new Date(t.ready_target).getTime() - new Date(t.cook_start_at).getTime()) * 100,
+              ))
+            : null;
           return (
             <div
               key={t.id}
               className={cn(
-                'rounded-lg border px-3 py-2 text-[11px]',
+                'rounded-lg border px-3 py-2 text-[11px] min-w-[100px]',
                 cookOverdue ? 'border-red-300 bg-red-50 text-red-900' :
                 cookSoon    ? 'border-orange-300 bg-orange-50 text-orange-900 animate-pulse' :
+                isCooking   ? 'border-matcha-300 bg-matcha-50 text-matcha-900' :
                               'border-matcha-200 bg-white text-matcha-900',
               )}
             >
               <div className="font-bold">#{order.bestellnummer.replace('FF-', '')}</div>
               {secsUntilCook !== null && secsUntilCook > 0 && (
-                <div>Kochen in {fmtCountdown(secsUntilCook)}</div>
+                <div className="text-blue-700">Kochen in {fmtCountdown(secsUntilCook)}</div>
               )}
-              {cookOverdue && <div className="font-bold">⚠ Kochstart überfällig!</div>}
-              {t.status === 'cooking' && secsUntilReady !== null && (
+              {cookOverdue && <div className="font-bold text-red-700">⚠ Kochstart überfällig!</div>}
+              {isCooking && secsUntilReady !== null && (
                 <div className="mt-0.5 font-semibold text-matcha-700">
-                  {secsUntilReady > 0 ? `Fertig in ${fmtCountdown(secsUntilReady)}` : 'Sollte fertig sein'}
+                  {secsUntilReady > 0 ? `Fertig in ${fmtCountdown(secsUntilReady)}` : '✓ Sollte fertig sein'}
+                </div>
+              )}
+              {cookPct !== null && (
+                <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-full',
+                      cookPct >= 90 ? 'bg-matcha-500 animate-pulse' :
+                      cookPct >= 70 ? 'bg-orange-400' : 'bg-blue-400',
+                    )}
+                    style={{ width: `${cookPct}%`, transition: 'width 1s linear' }}
+                  />
                 </div>
               )}
             </div>
