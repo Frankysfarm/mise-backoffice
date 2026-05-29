@@ -18,6 +18,8 @@
 - [x] Fehlende Spalten nachgerüstet — `scripts/migrations/008_missing_columns.sql`
   - `mise_delivery_batches`: `polyline`, `total_distance_km`, `total_eta_min` (tour-optimizer schrieb diese, Spalten fehlten)
   - `mise_drivers`: `max_radius_km`, `rating`, `avg_delivery_min`, `zone` (dispatch-engine las diese, Spalten fehlten → Dispatch schlug lautlos fehl)
+- [x] `v_open_dispatch_batches` mit `zahlungsart` + `bezahlt` — `scripts/migrations/009_view_payment_columns.sql`
+  - View fehlte Zahlungsfelder → Fahrer-App Bargeld-Indikator zeigte immer €0 (CEO Review #7)
   - `customer_orders`: `mise_batch_id`, `mise_driver_id` IF NOT EXISTS (FK-Sicherheit)
   - `update_driver_zone()` Trigger: setzt `mise_drivers.zone` automatisch via GPS → verbessert `scoreZone()`
 - **Hinweis**: delivery_tours/tour_stops sind als mise_delivery_batches/mise_delivery_batch_stops bereits vorhanden (Frank-System). Neue Spalten draufgelegt statt Duplikat.

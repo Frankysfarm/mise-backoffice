@@ -1,11 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Alle Phasen 1–7 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen.
+**MARKT-REIF.** Alle Phasen 1–7 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen (inkl. Migration 009).
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — Alle Phasen abgeschlossen. CEO Review #6: 1 Bug behoben (bezahlt/zahlungsart im DB-Select).
+**DONE** — Alle Phasen abgeschlossen. CEO Review #7: Migration 009 ergänzt (View-Bug behoben).
 Keine weiteren Feature-Aufgaben. Fokus auf Deployment-Vorbereitung.
+
+## CEO Review #7 — 2026-05-29
+
+### Geprüfter Commit
+- `c4ae106` feat(delivery/frontend): Smart-Timing, Score-Anzeige, Tour-ETA, Zahlung-Indikator, Schichtdauer
+
+### Build + TypeScript
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+- `npx next build` ✅ — Compiled successfully, 169 static pages
+
+### Code-Review der neuen Features
+
+**Kitchen Annahme-Dringlichkeit** (`kitchen/client.tsx` Zeile 962–977):
+- `acceptUrgent` / `acceptCritical` für `status='neu'`: >1 Min orange, >3 Min rot + pulse ✅
+- Logik-Check: `cookCritical` jetzt `order.status !== 'neu' && waitMin >= est + 10` — verhindert, dass neu-Bestellungen zu früh in Critical fallen ✅
+- `AlertCircle` bereits importiert ✅
+
+**Dispatch Rückkehrzeitpunkt** (`dispatch/client.tsx` Zeile 742–744):
+- `etaReturnStr` via `toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })` ✅
+- Guard: nur anzeigen wenn `etaReturnStr && etaRemainingSec > 0` (kein Anzeigen im Überzug) ✅
+- Null-Safety: `etaReturnStr` ist `string | null`, innerhalb des `etaRemainingSec !== null` JSX-Blocks ✅
+
+**Fahrer-App Bargeld-Indikator** (`client.tsx` Zeile 514–519, 603–624):
+- `cashAmount` korrekt: filtert auf `zahlungsart === 'bar' || bezahlt === false` ✅
+- Amber-Highlight pro Stop + Tour-Summe im Header ✅
+- `Banknote` Icon importiert ✅
+
+**Lieferdienst Schichtdauer** (`lieferdienst/client.tsx` Zeile 130–134):
+- `schichtStart = useState<Date>(() => new Date())[0]` — korrekte Initialisierung ohne Re-Render bei Takt-Updates ✅
+- Zeigt "Xh Ym" / "Ym" im Header neben aktueller Uhrzeit ✅
+
+### Bug gefunden + behoben: `v_open_dispatch_batches` View ohne Zahlungsfelder
+
+**Datei**: `scripts/migrations/009_view_payment_columns.sql` (NEU)
+
+**Problem**: Die View `v_open_dispatch_batches` (Migration 007) joined `customer_orders`, selektiert aber nur einen Subset der Spalten — `zahlungsart` und `bezahlt` wurden nicht eingeschlossen. Obwohl `page.tsx` die View mit `select('*')` abfragt, sind die Felder nicht im Resultset. Im Client (`OpenBatch`-Typ) wurden sie als optional `?` hinzugefügt, was TypeScript-Fehler verhindert, aber `s.zahlungsart` und `s.bezahlt` sind immer `undefined`.
+
+**Symptom**: Im `OpenBatchSection` (Fahrer-Inbox, noch nicht angenommene Touren) wird kein Bar-Indikator angezeigt und `cashAmount` ist immer €0.00 — unabhängig von der echten Zahlungsart.
+
+**Fix**: Migration 009 recreiert die View mit `co.zahlungsart` und `co.bezahlt` in beiden UNION-Teilen (Legacy + Mise).
+
+### Status nach Review #7
+- TypeScript: 0 Fehler ✅
+- Build: kompiliert sauber ✅
+- View-Bug Zahlungsfelder: BEHOBEN (Migration 009 erstellt) ✅
+- **SYSTEM MARKT-REIF** — Migration 009 muss in Produktion ausgeführt werden
+
+---
 
 ## CEO Review #6 — 2026-05-28
 
