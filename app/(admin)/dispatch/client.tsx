@@ -840,7 +840,7 @@ function DriverRow({
 
       {/* Return countdown for active batch */}
       {returnInfo && (
-        <div className="mt-2 ml-13 pl-[52px]">
+        <div className="mt-2 pl-[52px]">
           <div className={cn(
             'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
             returnInfo.secLeft <= 0
