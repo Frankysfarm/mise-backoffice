@@ -65,6 +65,8 @@ type ActiveBatch = {
   id: string;
   status: string;
   started_at: string | null;
+  total_eta_min?: number | null;
+  total_distance_km?: number | null;
   stops: {
     id: string;
     batch_id: string;
@@ -72,6 +74,7 @@ type ActiveBatch = {
     reihenfolge: number;
     angekommen_am: string | null;
     geliefert_am: string | null;
+    distanz_zum_vorgaenger_m?: number | null;
     order: {
       id: string;
       bestellnummer: string;
@@ -376,6 +379,8 @@ export function FahrerApp({
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}
+            batchStartedAt={activeBatch.started_at}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
             onAllDone={() => router.refresh()}
           />
         )}

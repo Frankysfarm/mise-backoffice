@@ -30,10 +30,14 @@ type Stop = {
 export function DeliveryView({
   batchId,
   stops: initialStops,
+  batchStartedAt,
+  totalEtaMin,
   onAllDone,
 }: {
   batchId: string;
   stops: Stop[];
+  batchStartedAt?: string | null;
+  totalEtaMin?: number | null;
   onAllDone: () => void;
 }) {
   const supabase = createClient();
@@ -235,6 +239,24 @@ export function DeliveryView({
                     {stop.distanz_zum_vorgaenger_m && stop.distanz_zum_vorgaenger_m > 0 && (
                       <span>· {(stop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km</span>
                     )}
+                    {!done && batchStartedAt && totalEtaMin != null && (() => {
+                      const startMs = new Date(batchStartedAt).getTime();
+                      const total = stops.length;
+                      const etaMs = startMs + ((stop.reihenfolge / total) * totalEtaMin * 60_000);
+                      const etaStr = new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                      const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+                      if (secLeft < -300) return null;
+                      return (
+                        <span className={cn(
+                          'rounded-full px-1.5 py-0.5 font-bold',
+                          secLeft < 0 ? 'bg-red-500/30 text-red-300' :
+                          secLeft < 300 ? 'bg-amber-500/30 text-amber-200' :
+                          'bg-white/10',
+                        )}>
+                          ~{etaStr}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

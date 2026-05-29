@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,8 @@ import { cn, euro } from '@/lib/utils';
 import {
   Bike,
   Clock,
+  ChevronDown,
+  ChevronUp,
   MapPin,
   Package,
   Radio,
@@ -24,6 +27,11 @@ import {
   WifiOff,
   Zap,
 } from 'lucide-react';
+
+const DispatchDriverMap = dynamic(
+  () => import('./driver-map').then((m) => m.DispatchDriverMap),
+  { ssr: false },
+);
 
 type Driver = {
   employee_id: string;
@@ -273,6 +281,9 @@ export function DispatchBoard({
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
+      {/* Live Driver Map */}
+      <LiveDriverMapPanel drivers={drivers} batches={batches} orders={filteredOrders} />
+
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         {/* Left Column: Ready + Active */}
         <div className="space-y-6">
@@ -375,6 +386,92 @@ export function DispatchBoard({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ LiveDriverMapPanel ------------------------------ */
+
+function LiveDriverMapPanel({
+  drivers,
+  batches,
+  orders,
+}: {
+  drivers: Driver[];
+  batches: Batch[];
+  orders: ReadyOrder[];
+}) {
+  const [open, setOpen] = useState(false);
+
+  const onlineWithGps = drivers.filter((d) => d.ist_online && d.last_lat && d.last_lng);
+  if (onlineWithGps.length === 0) return null;
+
+  const driverMarkers = onlineWithGps.map((d) => {
+    const batch = batches.find((b) => b.fahrer_id === d.employee_id);
+    const total = batch?.stops.length ?? 0;
+    const done = batch?.stops.filter((s) => s.geliefert_am).length ?? 0;
+    const state: 'frei' | 'unterwegs' | 'zurueck' =
+      !batch ? 'frei' : total > 0 && done === total ? 'zurueck' : 'unterwegs';
+    return {
+      id: d.employee_id,
+      name: `${d.employee?.vorname ?? ''} ${d.employee?.nachname ?? ''}`.trim(),
+      lat: d.last_lat!,
+      lng: d.last_lng!,
+      state,
+      stopCount: total,
+      doneCount: done,
+    };
+  });
+
+  const orderMarkers = batches.flatMap((b) =>
+    b.stops.map((s) => {
+      const o = orders.find((x) => x.id === s.order_id);
+      if (!o?.kunde_lat || !o?.kunde_lng) return null;
+      return {
+        id: s.id,
+        name: o.kunde_name,
+        lat: o.kunde_lat,
+        lng: o.kunde_lng,
+        done: !!s.geliefert_am,
+        seq: s.reihenfolge,
+      };
+    }).filter(Boolean) as { id: string; name: string; lat: number; lng: number; done: boolean; seq: number }[],
+  );
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-3 text-left hover:bg-muted/30 transition"
+      >
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-matcha-600" />
+          <span className="font-display text-sm font-bold uppercase tracking-wider">Fahrer-Karte</span>
+          <Badge variant="secondary">{onlineWithGps.length} aktiv</Badge>
+          <div className="flex gap-1 ml-1">
+            {driverMarkers.map((d) => (
+              <span
+                key={d.id}
+                className={cn(
+                  'inline-block h-2 w-2 rounded-full',
+                  d.state === 'frei' ? 'bg-green-500' :
+                  d.state === 'zurueck' ? 'bg-blue-500' :
+                  'bg-orange-500',
+                )}
+              />
+            ))}
+          </div>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="h-[360px] border-t">
+          <DispatchDriverMap
+            drivers={driverMarkers}
+            orders={orderMarkers}
+          />
+        </div>
+      )}
+    </Card>
   );
 }
 
