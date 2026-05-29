@@ -427,6 +427,26 @@ export function KitchenBoard({
                     <h2 className="font-display text-sm font-bold uppercase tracking-wider">{col.label}</h2>
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* "Nächste fertig" — nur für in_zubereitung */}
+                    {col.status === 'in_zubereitung' && colOrders.length > 0 && (() => {
+                      const now = Date.now();
+                      const nextFinishMs = colOrders.reduce((best, o) => {
+                        if (!o.bestellt_am) return best;
+                        const target = new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000;
+                        return best === 0 || target < best ? target : best;
+                      }, 0);
+                      if (nextFinishMs === 0) return null;
+                      const sec = Math.floor((nextFinishMs - now) / 1000);
+                      const isReady = sec <= 0;
+                      return (
+                        <span className={cn(
+                          'text-[9px] font-bold rounded-full px-1.5 py-0.5 tabular-nums',
+                          isReady ? 'bg-matcha-200 text-matcha-800 animate-pulse' : sec < 120 ? 'bg-orange-100 text-orange-700' : 'bg-blue-50 text-blue-600',
+                        )}>
+                          {isReady ? '✓ Bereit!' : `🍳 ${fmtCountdown(sec)}`}
+                        </span>
+                      );
+                    })()}
                     {colOrders.length > 0 && (() => {
                       const oldest = colOrders.reduce((m, o) => {
                         const ms = o.bestellt_am ? Date.now() - new Date(o.bestellt_am).getTime() : 0;
