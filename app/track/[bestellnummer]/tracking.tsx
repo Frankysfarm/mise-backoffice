@@ -212,16 +212,25 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           <p className="mt-1 text-sm text-matcha-100">{heroSub(order)}</p>
 
           {order.status !== 'geliefert' && order.status !== 'abgeholt' && order.status !== 'storniert' && (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
-                <Clock className="h-4 w-4" />
-                {eta(order)}
-              </div>
-              {(order.eta_earliest || order.eta_latest) && etaCountdown(order) && (
-                <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/40 px-4 py-2 text-sm font-bold tabular-nums">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-                  {etaCountdown(order)}
+            <div className="mt-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
+                  <Clock className="h-4 w-4" />
+                  {eta(order)}
                 </div>
+                {(order.eta_earliest || order.eta_latest) && etaCountdown(order) && (
+                  <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/40 px-4 py-2 text-sm font-bold tabular-nums">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+                    {etaCountdown(order)}
+                  </div>
+                )}
+              </div>
+              {order.eta_earliest && order.eta_latest && order.bestellt_am && (
+                <EtaWindowBar
+                  startIso={order.bestellt_am}
+                  earliestIso={order.eta_earliest}
+                  latestIso={order.eta_latest}
+                />
               )}
             </div>
           )}
@@ -453,6 +462,78 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ETA-Zeitfenster-Balken — zeigt den Lieferkorridor visuell */
+function EtaWindowBar({
+  startIso,
+  earliestIso,
+  latestIso,
+}: {
+  startIso: string;
+  earliestIso: string;
+  latestIso: string;
+}) {
+  const now = Date.now();
+  const startMs = new Date(startIso).getTime();
+  const earliestMs = new Date(earliestIso).getTime();
+  const latestMs = new Date(latestIso).getTime();
+
+  // Zeige Balken von Bestellzeitpunkt bis ~30 Min nach latestMs
+  const windowStart = startMs;
+  const windowEnd = latestMs + 5 * 60_000;
+  const totalMs = windowEnd - windowStart;
+
+  const earliestPct = Math.max(0, Math.min(100, ((earliestMs - windowStart) / totalMs) * 100));
+  const latestPct = Math.max(0, Math.min(100, ((latestMs - windowStart) / totalMs) * 100));
+  const nowPct = Math.max(0, Math.min(100, ((now - windowStart) / totalMs) * 100));
+
+  const isOverdue = now > latestMs;
+  const isInWindow = now >= earliestMs && now <= latestMs;
+
+  const fmt = (ms: number) =>
+    new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+
+  return (
+    <div className="rounded-xl bg-white/10 px-4 py-3">
+      <div className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-matcha-200">
+        <span>Lieferfenster</span>
+        <span className={cn(
+          'rounded-full px-2 py-0.5',
+          isOverdue ? 'bg-red-500/40 text-red-200' :
+          isInWindow ? 'bg-accent/30 text-accent animate-pulse' :
+          'bg-white/10 text-matcha-300',
+        )}>
+          {isOverdue ? 'Überzogen' : isInWindow ? 'Jetzt erwartet' : `Ab ${fmt(earliestMs)}`}
+        </span>
+      </div>
+      {/* Bar */}
+      <div className="relative h-3 rounded-full bg-white/10">
+        {/* Lieferfenster (grün) */}
+        <div
+          className={cn(
+            'absolute top-0 h-full rounded-full',
+            isOverdue ? 'bg-red-400/60' : 'bg-accent/50',
+          )}
+          style={{ left: `${earliestPct}%`, width: `${Math.max(2, latestPct - earliestPct)}%` }}
+        />
+        {/* Jetzt-Marker */}
+        <div
+          className={cn(
+            'absolute top-1/2 -translate-y-1/2 h-4 w-1 rounded-full shadow-sm transition-all duration-1000',
+            isOverdue ? 'bg-red-300' : isInWindow ? 'bg-accent' : 'bg-white/70',
+          )}
+          style={{ left: `calc(${nowPct}% - 2px)` }}
+        />
+      </div>
+      <div className="mt-1.5 flex justify-between text-[10px] tabular-nums text-matcha-300">
+        <span>{fmt(startMs)}</span>
+        <span className={cn(isInWindow && 'text-accent font-bold')}>
+          {fmt(earliestMs)}–{fmt(latestMs)}
+        </span>
+      </div>
     </div>
   );
 }
