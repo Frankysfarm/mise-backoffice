@@ -88,6 +88,16 @@
 - [x] Liefer-Statistiken Dashboard — statistics-view mit Tages-KPIs
 - [x] Bestell-Heatmap — Top-Zonen-Tabelle in statistics-view (API: `/api/delivery/admin/heatmap`)
 
+## Phase 9: Frontend-Erweiterungen [DONE ✅] — 2026-05-29
+- [x] **Dispatch: Live Fahrer-Karte** — `DispatchDriverMap` (Leaflet, dynamisch geladen), zeigt GPS-Fahrer als farbcodierte Marker (grün=frei, orange=unterwegs, blau=zurück) + offene Order-Stops; einklappbares Panel
+- [x] **Fahrer-App: Stop-ETA pro Stop** — `DeliveryView` erhält `batchStartedAt` + `totalEtaMin`; zeigt proportionale Ankunftszeit pro Stop (z.B. ~14:35), farbcodiert nach Pünktlichkeit
+- [x] **Fahrer-App Pick-Phase** — Cash-to-collect Banner, Route-Vorschau via Google Maps Link, Cash-Indikator pro Stop
+- [x] **Kitchen: Überfällig-Alert** — `OverdueOrdersAlert`: pulsierender roter Banner wenn ≥2 Bestellungen >5 Min überfällig, zeigt schlimmste Überschreitung + Bestellnummer
+- [x] **Kitchen: „Nächste Fertig"-Countdown** — `in_zubereitung`-Spaltenheader zeigt Countdown bis frühestes Fertigwerden (🍳 2:15 oder ✓ Bereit!)
+- [x] **Storefront: ETA-Zeitfenster-Balken** — `EtaWindowBar` visualisiert Lieferfenster als Timeline (Jetzt-Marker + Fenster-Bereich), live-tickend
+- [x] **Statistik: Fahrer-Tagesranking** — Tabelle mit deliveries_today vs. gestern + Trend-Pfeile, via `/api/delivery/admin/performance`
+- Build: npm run build ✓ (0 Fehler), 5 Commits, git push origin main ✓
+
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**
 - Dispatch Board `/dispatch` — manuelle Auftragsverteilung, Live-Realtime
@@ -97,7 +107,7 @@
 - Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
 
 **TypeScript-Status:** 0 Fehler (CEO-Review #3: 22 Fehler behoben)
-**Build-Status:** Kompiliert sauber (npm run build ✅ — Backend-Architekt Phase 3.6)
+**Build-Status:** Kompiliert sauber (npm run build ✅ — Frontend-Ingenieur Phase 9, 2026-05-29)
 **Build-Achtung:** Nur `npm run build` verwenden! `npx next build` nutzt globales Next.js 16 (Turbopack-Fehler).
 
 ## CEO-Log
