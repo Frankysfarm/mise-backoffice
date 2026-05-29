@@ -358,6 +358,7 @@ export function DispatchBoard({
                 <DriverRow
                   key={d.employee_id}
                   driver={d}
+                  activeBatch={batches.find((b) => b.fahrer_id === d.employee_id) ?? null}
                   canAssign={selected.size > 0 && !d.aktueller_batch_id}
                   busy={pending}
                   onAssign={() => assignToDriver(d.employee_id)}
@@ -729,13 +730,17 @@ function OrderRow({
   );
 }
 
+type ActiveBatchRef = Pick<Batch, 'startzeit' | 'total_eta_min' | 'stops'>;
+
 function DriverRow({
   driver,
+  activeBatch,
   canAssign,
   busy,
   onAssign,
 }: {
   driver: Driver;
+  activeBatch?: ActiveBatchRef | null;
   canAssign: boolean;
   busy: boolean;
   onAssign: () => void;
@@ -745,74 +750,124 @@ function DriverRow({
   const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗' };
   const lastSeen = driver.last_update ? Math.floor((Date.now() - new Date(driver.last_update).getTime()) / 60_000) : null;
 
-  // Online-Dauer berechnen
+  // Live tick for countdown
   const [, setTick] = useState(0);
   useEffect(() => {
     if (!driver.ist_online) return;
-    const t = setInterval(() => setTick((n) => n + 1), 60_000);
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
   }, [driver.ist_online]);
   const onlineSince = driver.online_seit
     ? Math.floor((Date.now() - new Date(driver.online_seit).getTime()) / 60_000)
     : null;
 
+  // Return-time estimate from active batch
+  const returnInfo = (() => {
+    if (!activeBatch?.startzeit || activeBatch.total_eta_min == null) return null;
+    const etaMs = new Date(activeBatch.startzeit).getTime() + activeBatch.total_eta_min * 60_000;
+    const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+    if (secLeft < -600) return null;
+    const doneStops = activeBatch.stops.filter((s) => s.geliefert_am).length;
+    const totalStops = activeBatch.stops.length;
+    const remainingStops = totalStops - doneStops;
+    const returnStr = new Date(Math.max(etaMs, Date.now())).toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return { secLeft, returnStr, remainingStops, totalStops, doneStops };
+  })();
+
   return (
-    <div className="flex items-center gap-3 px-5 py-3">
-      <div className="relative">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-matcha-700 font-display text-sm font-bold text-white">
-          {initials}
+    <div className="px-5 py-3">
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-matcha-700 font-display text-sm font-bold text-white">
+            {initials}
+          </div>
+          <div
+            className={cn(
+              'absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background',
+              driver.ist_online ? 'bg-matcha-500' : 'bg-muted',
+            )}
+          >
+            {driver.ist_online ? <Wifi className="h-2 w-2 text-white" /> : <WifiOff className="h-2 w-2 text-white" />}
+          </div>
         </div>
-        <div
-          className={cn(
-            'absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background',
-            driver.ist_online ? 'bg-matcha-500' : 'bg-muted',
-          )}
-        >
-          {driver.ist_online ? <Wifi className="h-2 w-2 text-white" /> : <WifiOff className="h-2 w-2 text-white" />}
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">{e?.vorname} {e?.nachname}</span>
-          <span>{vehicleEmoji[driver.fahrzeug] ?? '🚲'}</span>
-          {driver.aktueller_batch_id && (
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">Unterwegs</Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {driver.ist_online ? (
-            <>
-              <span className="flex items-center gap-1">
-                <Radio className="h-3 w-3 text-matcha-500" /> online
-              </span>
-              {onlineSince !== null && <span>· {onlineSince} Min</span>}
-              {lastSeen !== null && lastSeen > 5 && (
-                <span className={cn(
-                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
-                  lastSeen > 15 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700',
-                )}>
-                  GPS vor {lastSeen}m
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{e?.vorname} {e?.nachname}</span>
+            <span>{vehicleEmoji[driver.fahrzeug] ?? '🚲'}</span>
+            {driver.aktueller_batch_id && (
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">Unterwegs</Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {driver.ist_online ? (
+              <>
+                <span className="flex items-center gap-1">
+                  <Radio className="h-3 w-3 text-matcha-500" /> online
                 </span>
-              )}
-            </>
-          ) : (
-            <span>offline</span>
+                {onlineSince !== null && <span>· {onlineSince} Min</span>}
+                {lastSeen !== null && lastSeen > 5 && (
+                  <span className={cn(
+                    'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
+                    lastSeen > 15 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700',
+                  )}>
+                    GPS vor {lastSeen}m
+                  </span>
+                )}
+              </>
+            ) : (
+              <span>offline</span>
+            )}
+          </div>
+        </div>
+        {e?.telefon && driver.ist_online && (
+          <a
+            href={`tel:${e.telefon}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground"
+            title="Anrufen"
+          >
+            <User className="h-3.5 w-3.5" />
+          </a>
+        )}
+        {canAssign && (
+          <Button size="sm" onClick={onAssign} disabled={busy}>
+            Zuweisen
+          </Button>
+        )}
+      </div>
+
+      {/* Return countdown for active batch */}
+      {returnInfo && (
+        <div className="mt-2 ml-13 pl-[52px]">
+          <div className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+            returnInfo.secLeft <= 0
+              ? 'bg-matcha-100 text-matcha-800 animate-pulse'
+              : returnInfo.secLeft < 300
+              ? 'bg-orange-100 text-orange-800'
+              : 'bg-blue-50 text-blue-700',
+          )}>
+            <Clock className="h-3 w-3" />
+            {returnInfo.secLeft <= 0
+              ? `Kommt zurück · ${returnInfo.doneStops}/${returnInfo.totalStops} Stopps`
+              : `Zurück ~${returnInfo.returnStr} · ${returnInfo.remainingStops} Stopp${returnInfo.remainingStops !== 1 ? 's' : ''} offen`}
+          </div>
+          {returnInfo.totalStops > 0 && (
+            <div className="mt-1.5 h-1 rounded-full bg-muted overflow-hidden" style={{ width: 180 }}>
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all',
+                  returnInfo.secLeft <= 0 ? 'bg-matcha-500' :
+                  returnInfo.secLeft < 300 ? 'bg-orange-400' :
+                  'bg-blue-400',
+                )}
+                style={{ width: `${(returnInfo.doneStops / returnInfo.totalStops) * 100}%` }}
+              />
+            </div>
           )}
         </div>
-      </div>
-      {e?.telefon && driver.ist_online && (
-        <a
-          href={`tel:${e.telefon}`}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground"
-          title="Anrufen"
-        >
-          <User className="h-3.5 w-3.5" />
-        </a>
-      )}
-      {canAssign && (
-        <Button size="sm" onClick={onAssign} disabled={busy}>
-          Zuweisen
-        </Button>
       )}
     </div>
   );

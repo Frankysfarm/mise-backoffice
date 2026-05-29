@@ -1098,15 +1098,40 @@ function OrderTicket({ order, next, timing }: { order: Order; next: string | nul
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">{typLabel}</div>
         </div>
-        <div className={cn(
-          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums',
-          critical ? 'bg-red-500 text-white animate-pulse' :
-          urgent   ? 'bg-orange-500 text-white' :
-                     'bg-muted text-muted-foreground',
-        )}>
-          <Clock className="h-2.5 w-2.5" />
-          {waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
-        </div>
+        {/* Cooking ring for in-progress orders, flat badge for everything else */}
+        {(order.status === 'in_zubereitung' || order.status === 'bestätigt') ? (
+          <div className="relative flex shrink-0 items-center justify-center h-12 w-12">
+            <svg className="absolute inset-0 -rotate-90" width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="3.5" />
+              <circle
+                cx="24" cy="24" r="19"
+                fill="none"
+                stroke={progressPct >= 100 ? '#ef4444' : progressPct >= 70 ? '#f97316' : '#22c55e'}
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 19}`}
+                strokeDashoffset={`${2 * Math.PI * 19 * (1 - Math.min(1, progressPct / 100))}`}
+                style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+              />
+            </svg>
+            <span className={cn(
+              'relative text-[9px] font-black tabular-nums leading-none text-center',
+              progressPct >= 100 ? 'text-red-600' : progressPct >= 70 ? 'text-orange-600' : 'text-matcha-700',
+            )}>
+              {waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
+            </span>
+          </div>
+        ) : (
+          <div className={cn(
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums',
+            critical ? 'bg-red-500 text-white animate-pulse' :
+            urgent   ? 'bg-orange-500 text-white' :
+                       'bg-muted text-muted-foreground',
+          )}>
+            <Clock className="h-2.5 w-2.5" />
+            {waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
+          </div>
+        )}
       </div>
 
       {/* Smart-Timing Chip */}

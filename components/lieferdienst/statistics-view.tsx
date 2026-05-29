@@ -694,6 +694,50 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Top-Artikel heute */}
+      {(() => {
+        const itemCounts: Record<string, number> = {};
+        for (const order of completedOrders) {
+          for (const item of (order.items ?? []) as { name: string; quantity?: number }[]) {
+            itemCounts[item.name] = (itemCounts[item.name] ?? 0) + (item.quantity ?? 1);
+          }
+        }
+        const topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+        if (topItems.length === 0) return null;
+        const maxCount = topItems[0][1];
+        return (
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-char flex items-center gap-2">
+                <Package className="w-5 h-5 text-amber-500" />
+                Top-Artikel heute
+              </h3>
+              <span className="text-xs text-stone-400">{completedOrders.length} abgeschlossen</span>
+            </div>
+            <div className="space-y-2.5">
+              {topItems.map(([name, count], i) => {
+                const pct = Math.round((count / maxCount) * 100);
+                return (
+                  <div key={name} className="flex items-center gap-3 text-sm">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${
+                      i === 0 ? 'bg-amber-400 text-white' :
+                      i === 1 ? 'bg-stone-300 text-white' :
+                      i === 2 ? 'bg-orange-200 text-orange-800' :
+                      'bg-stone-100 text-stone-500'
+                    }`}>{i + 1}</span>
+                    <span className="flex-1 min-w-0 truncate font-medium text-char">{name}</span>
+                    <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden shrink-0">
+                      <div className="h-full rounded-full bg-amber-400 transition-all" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="w-6 text-right font-bold tabular-nums text-char shrink-0">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Fahrer-Tagesranking */}
       {driverPerf.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">

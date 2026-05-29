@@ -139,6 +139,23 @@ export function DeliveryView({
             <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
               Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min
             </div>
+            {totalEtaMin != null && batchStartedAt && (() => {
+              const etaMs = new Date(batchStartedAt).getTime() + totalEtaMin * 60_000;
+              const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+              if (secLeft < -600 && doneCount < stops.length) return null;
+              const finishStr = new Date(Math.max(etaMs, Date.now())).toLocaleTimeString('de-DE', {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+              return (
+                <div className={cn(
+                  'text-[10px] font-bold tabular-nums mt-0.5',
+                  secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-matcha-500',
+                )}>
+                  {doneCount === stops.length ? '✓ Tour abgeschlossen' : `Tour fertig ~${finishStr}`}
+                </div>
+              );
+            })()}
           </div>
           <div className="flex-1 h-1.5 bg-white/10 rounded-full ml-4 overflow-hidden">
             <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
