@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
         order:customer_orders(id, bestellnummer, delivery_zone, eta_earliest, eta_latest, status)
       )
     `)
+    .eq('location_id', locationId)
     .in('state', stateFilter)
     .order('created_at', { ascending: false })
     .limit(50);

@@ -21,10 +21,11 @@ export async function GET(req: NextRequest) {
   const fromStr = searchParams.get('from') ?? new Date(now.getTime() - 7 * 86_400_000).toISOString();
   const toStr   = searchParams.get('to')   ?? now.toISOString();
 
-  // Touren in Zeitraum
+  // Touren in Zeitraum (location-gefiltert via Migration 010)
   const { data: tours } = await sb
     .from('mise_delivery_batches')
     .select('id, state, zone, dispatch_score, total_distance_km, total_eta_min, stop_count, created_at')
+    .eq('location_id', locationId)
     .gte('created_at', fromStr)
     .lte('created_at', toStr)
     .not('state', 'eq', 'cancelled');

@@ -9,6 +9,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick } from '@/lib/delivery/dispatch-engine';
+import { syncKitchenNotifications } from '@/lib/delivery/kitchen-sync';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,12 +39,21 @@ export async function GET(req: NextRequest) {
 
   const start = Date.now();
   try {
-    const result = await smartDispatchTick();
+    // Parallel: Dispatch neuer Bestellungen + Küchen-Benachrichtigungen für fällige Timings
+    const [dispatchResult, kitchenResult] = await Promise.all([
+      smartDispatchTick(),
+      syncKitchenNotifications(),
+    ]);
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
       duration_ms: durationMs,
-      ...result,
+      ...dispatchResult,
+      kitchen: {
+        notified: kitchenResult.notified,
+        locations: kitchenResult.locations,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

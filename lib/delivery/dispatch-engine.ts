@@ -240,6 +240,7 @@ export async function dispatchSingleOrder(o: OrderRow): Promise<DispatchResult> 
       .from('mise_delivery_batches')
       .insert({
         driver_id:    best.driver.id,
+        location_id:  o.location_id,
         state:        'pending_acceptance',
         zone,
         dispatch_score: bestScore.total,

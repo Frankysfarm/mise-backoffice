@@ -148,7 +148,32 @@ Siehe DELIVERY_CEO_LOG.md
   - `GET /api/delivery/admin/performance?location_id=...` — Fahrer-KPIs aus `v_driver_performance_stats`
   - Fallback-Antwort wenn View noch nicht in DB (Migration noch nicht ausgeführt)
 
+## Phase 8: Multi-Tenant-Härtung + Küchen-Cron [DONE ✅]
+- [x] `scripts/migrations/010_location_id_on_batches.sql`
+  - `mise_delivery_batches.location_id` hinzugefügt (FK → locations)
+  - Backfill bestehender Zeilen via stops → customer_orders → location_id
+  - Index `idx_mise_batches_location_state` für performante Admin-Abfragen
+  - Trigger `trg_batch_location_from_stop` als Sicherheitsnetz (auto-set beim ersten Stop-Insert)
+- [x] `lib/delivery/dispatch-engine.ts` — `location_id: o.location_id` beim Batch-Insert gesetzt
+- [x] `app/api/delivery/tours/route.ts` — `.eq('location_id', locationId)` Filter ergänzt
+  - **Bug fix**: Batches wurden ohne Location-Filter geladen → alle Touren aus allen Tenants sichtbar
+- [x] `app/api/delivery/stats/route.ts` — `.eq('location_id', locationId)` Filter für Touren-Query
+  - **Bug fix**: Stats-Touren waren ungefilterter Cross-Tenant-Dump
+- [x] `app/api/delivery/admin/overview/route.ts` — `.eq('location_id', locationId)` + String-Konkatenation entfernt
+  - **Bug fix**: Aktive Touren im Overview-Panel zeigten Touren aus fremden Locations
+  - **Fix**: `.select()` als Single-Literal (kein `+` mehr) — CEO-Regel aus Review #3
+- [x] `app/api/cron/smart-dispatch/route.ts` — `syncKitchenNotifications()` in Parallel-Aufruf ergänzt
+  - **Bug fix**: Geplante Küchen-Timings (`status='scheduled'`) transitierten nie automatisch zu 'cooking'
+    weil `syncKitchenNotifications()` nur im Kitchen-Queue-Endpoint aufgerufen wurde, nicht im Cron
+  - Ergebnis: `kitchen.notified` + `kitchen.locations` jetzt in Cron-Response
+
 ## Letzte Änderungen
+- 2026-05-29: Backend-Architekt — Phase 8: Multi-Tenant-Härtung + Küchen-Cron
+  - Migration 010: location_id auf mise_delivery_batches + Backfill + Trigger
+  - 3 API-Routes mit fehlendem location_id-Filter repariert (tours, stats, overview)
+  - overview/.select()-Konkatenation auf Single-Literal umgestellt
+  - Cron: syncKitchenNotifications() jetzt parallel zu smartDispatchTick()
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-28: Backend-Architekt — Phase 1 Nachbesserung: 3 kritische Bugs + Migration 008
   - **Bug 1 (KRITISCH)**: `dispatch-engine.ts → loadActiveDrivers()` selektierte `max_radius_km` aus `mise_drivers`, Spalte existierte nicht → PostgREST-Fehler → Dispatch lieferte immer "Kein Fahrer". BEHOBEN via Migration 008.
   - **Bug 2 (KRITISCH)**: `tour-optimizer.ts → optimizeTour()` schrieb `polyline`, `total_distance_km`, `total_eta_min` in `mise_delivery_batches`, Spalten fehlten → stille DB-Fehler. BEHOBEN via Migration 008.

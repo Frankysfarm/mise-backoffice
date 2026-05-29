@@ -35,10 +35,8 @@ export async function GET(req: NextRequest) {
   const [toursRes, driversRes, ordersRes] = await Promise.all([
     sb
       .from('mise_delivery_batches')
-      .select(
-        'id, state, zone, dispatch_score, stop_count, total_distance_km, total_eta_min, ' +
-        'created_at, driver:mise_drivers(id,name,vehicle,state)',
-      )
+      .select('id, state, zone, dispatch_score, stop_count, total_distance_km, total_eta_min, created_at, driver:mise_drivers(id,name,vehicle,state)')
+      .eq('location_id', locationId)
       .not('state', 'in', '("completed","cancelled")')
       .order('created_at', { ascending: false })
       .limit(30),
