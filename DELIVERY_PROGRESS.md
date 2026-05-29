@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–9 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–10 + POST-PHASE-9 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -97,6 +97,15 @@
 - [x] **Storefront: ETA-Zeitfenster-Balken** — `EtaWindowBar` visualisiert Lieferfenster als Timeline (Jetzt-Marker + Fenster-Bereich), live-tickend
 - [x] **Statistik: Fahrer-Tagesranking** — Tabelle mit deliveries_today vs. gestern + Trend-Pfeile, via `/api/delivery/admin/performance`
 - Build: npm run build ✓ (0 Fehler), 5 Commits, git push origin main ✓
+
+## Post-Phase-9: Visuelle Verfeinerungen [DONE ✅] — 2026-05-29 (CEO Review #9)
+- [x] **Dispatch: DriverRow Return-Countdown** — Zeigt verbleibende Zeit bis Fahrer zurückkommt (~HH:MM), Stop-Fortschrittsbalken; 1s-Tick für Live-Countdown; Farbcodierung blau→orange→grün-pulse
+- [x] **Kitchen: SmartTiming Banner verbessert** — Items sortiert (cooking zuerst), overdueCount triggert orange Rahmen, `nextReady`-Pill im Banner-Header, Mini-Fortschrittsbalken pro kochender Bestellung
+- [x] **Kitchen: OrderTicket SVG-Ring** — Animierter Ring-Timer für `in_zubereitung`/`bestätigt` Bestellungen; Fortschritts-Balken + Countdown-Text; flaches Badge für andere Stati
+- [x] **Fahrer-App: Tour-Fertigzeit im Header** — Zeigt `Tour fertig ~HH:MM` im Fahrer-Header, `✓ Tour abgeschlossen` bei 100% Stops
+- [x] **Statistik: Top-Artikel-Widget** — Top-8 meistbestellte Artikel aus heutigen Abschlüssen, Balken-Visualisierung, Medaillensystem (Gold/Silber/Bronze)
+- [x] **Storefront: Live-ETA-Indikator** — `LiveEtaBar`: pulsierender Auslastungsindikator (frei/normal/hoch) mit Live-Lieferzeit; neues GET `/api/delivery/eta/live` (öffentlich, polling 60s)
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓, 3 Commits, git push origin main ✓
 
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**

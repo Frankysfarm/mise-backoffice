@@ -1,11 +1,73 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Alle Phasen 1–9 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen (inkl. Migration 009). System ist produktionsbereit.
+**MARKT-REIF.** Phasen 1–10 + Frontend-Erweiterungen (Phase 9 + Post-Phase-9) abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — Alle Phasen 1–9 abgeschlossen. CEO Review #8 bestätigt: 0 TypeScript-Fehler, Build clean.
-Keine weiteren Feature-Aufgaben. Fokus auf Deployment-Vorbereitung und Monitoring.
+**DONE** — CEO Review #9 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben.
+
+## CEO Review #9 — 2026-05-29
+
+### Geprüfte Commits (seit CEO Review #8)
+- `df982b3` feat(delivery/frontend): visuelle Erweiterungen für Kitchen, Dispatch, Fahrer-App und Statistiken
+- `65e7bd9` feat(delivery/frontend): Live-ETA-Indikator für Storefront + verbessertes Kitchen Smart-Timing
+- `f0a73c1` fix(dispatch): entferne ungültige Tailwind-Klasse ml-13 in DriverRow
+
+### Build + TypeScript
+- `npm run build` ✅ — Compiled successfully, 0 Fehler
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+
+### Code-Review der neuen Features
+
+**DriverRow Return-Countdown** (`dispatch/client.tsx`):
+- `ActiveBatchRef = Pick<Batch, 'startzeit' | 'total_eta_min' | 'stops'>` korrekt typisiert ✅
+- `activeBatch={batches.find((b) => b.fahrer_id === d.employee_id) ?? null}` — Mapping stimmt (Batch.fahrer_id = employee_id für Legacy-Batches) ✅
+- Return-Zeit IIFE: `etaMs = startzeit + total_eta_min * 60_000`, secLeft-Guard bei `-600` (10 Min überzogen), `Date.now()` als Minimum für returnStr ✅
+- Tick-Interval: 1s statt 60s — notwendig für Live-Countdown im Return-Badge ✅
+- Stop-Fortschrittsbalken: `doneStops / totalStops` korrekt ✅
+- Farbcodierung: blau (>5 Min) → orange (<5 Min) → matcha + pulse (überzogen) ✅
+
+**Kitchen SmartTiming Banner** (`kitchen/client.tsx`):
+- Sortierung: cooking-Bestellungen zuerst, dann nach `ready_target` / `cook_start_at` ✅
+- `overdueCount` (Items mit `secsUntilCook < 0`) triggert orange Banner-Rahmen ✅
+- `nextReady` Pill: zeigt frühestes Fertigwerden als Countdown im Header ✅
+- Mini-Fortschrittsbalken in Timing-Karten: `cookPct = (now - cook_start_at) / (ready_target - cook_start_at)` ✅
+
+**OrderTicket SVG-Ring** (`kitchen/client.tsx`):
+- `progressPct = Math.min(100, Math.round((waitMin / est) * 100))` korrekt definiert ✅
+- SVG-Ring `r=19`, `circumference = 2π × 19 ≈ 119.4px` — strokeDashoffset-Formel korrekt ✅
+- Ring nur für `in_zubereitung` / `bestätigt` → flaches Badge für andere Stati ✅
+- `remainingSec = (est * 60) - waitSec` genutzt im Countdown-Text ✅
+
+**Fahrer-App Tour-Fertigzeit** (`delivery-view.tsx`):
+- IIFE-Guard: `secLeft < -600 && doneCount < stops.length → return null` — kein Anzeigen bei sehr überzogener Tour ✅
+- `doneCount === stops.length → '✓ Tour abgeschlossen'` ✅
+- `Math.max(etaMs, Date.now())` für returnStr — zeigt nie Vergangenheit ✅
+
+**Top-Artikel-Widget** (`statistics-view.tsx`):
+- `Package` Icon korrekt importiert ✅
+- Item-Counts via `completedOrders` — keine API-Dependency, nutzt vorhandene Daten ✅
+- Top-8, sortiert descending, Platz-1/2/3 Medals korrekt ✅
+
+**Live-ETA API** (`app/api/delivery/eta/live/route.ts`):
+- Service-Client (kein User-Auth) — korrekt für öffentliche Storefront ✅
+- Ratio-Berechnung: active_orders / online_drivers → Auslastungsstufen quiet/normal/busy ✅
+- `Cache-Control: no-store` — korrekt für Live-Daten ✅
+- **Hinweis**: `driver_status`-Query ohne `location_id`-Filter → globale Fahrerzahl. Akzeptabel für MVP (kleine Flotten, meist ein Tenant), aber für Multi-Tenant-Produktionsbetrieb sollte der Filter ergänzt werden.
+
+**LiveEtaBar Storefront** (`storefront.tsx`):
+- `cancelled` Flag + `clearInterval` — Memory-Leak-sicher ✅
+- Polling alle 60s — angemessen für Auslastungs-Heuristik ✅
+- `if (!loaded) return null` — kein FOUC beim ersten Load ✅
+- Nur für `orderType === 'lieferung'` angezeigt ✅
+
+### Befund
+- Alle 3 Commits: korrekt implementiert, keine Logik-Fehler
+- 1 Minor-Architektur-Hinweis: `/api/delivery/eta/live` → `driver_status` ohne `location_id`-Filter (low priority)
+- Build: ✅ sauber, TypeScript: ✅ 0 Fehler
+- **SYSTEM MARKT-REIF** — kein blocking Bug, Deployment kann erfolgen
+
+---
 
 ## CEO Review #8 — 2026-05-29
 
