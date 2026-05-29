@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, MapPin,
+  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, Map, MapPin,
   Navigation, Phone, Power, Route, ShoppingBag, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -401,19 +401,75 @@ export function FahrerApp({
               </div>
             </div>
 
+            {/* Cash-to-collect Banner */}
+            {(() => {
+              const cashStops = activeBatch.stops.filter((s) => {
+                const o = s.order as any;
+                return o.zahlungsart === 'bar' || o.bezahlt === false;
+              });
+              const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+              if (totalCash <= 0) return null;
+              return (
+                <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 px-4 py-3 mb-3 flex items-center gap-3">
+                  <Banknote className="h-5 w-5 text-amber-300 shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300">Bar kassieren</div>
+                    <div className="font-display font-black text-amber-200 text-xl">{euro(totalCash)}</div>
+                  </div>
+                  <div className="text-[10px] text-amber-400">{cashStops.length} {cashStops.length === 1 ? 'Zahlung' : 'Zahlungen'}</div>
+                </div>
+              );
+            })()}
+
             {/* Übersicht Stops */}
             <div className="space-y-2 mb-4">
-              {activeBatch.stops.map((stop) => (
-                <div key={stop.id} className="rounded-xl bg-white/5 border border-white/10 p-3 flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-accent/20 text-accent grid place-items-center font-display font-black">{stop.reihenfolge}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
-                    <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
+              {activeBatch.stops.map((stop) => {
+                const o = stop.order as any;
+                const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                return (
+                  <div key={stop.id} className={cn(
+                    'rounded-xl border p-3 flex items-center gap-3',
+                    isCash ? 'bg-amber-500/10 border-amber-400/30' : 'bg-white/5 border-white/10',
+                  )}>
+                    <div className="h-8 w-8 rounded-lg bg-accent/20 text-accent grid place-items-center font-display font-black">{stop.reihenfolge}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
+                      <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-0.5 shrink-0">
+                      <div className={cn('font-display font-bold', isCash ? 'text-amber-300' : 'text-accent')}>
+                        {euro(stop.order.gesamtbetrag)}
+                      </div>
+                      {isCash && <div className="text-[9px] font-bold text-amber-400 uppercase">Bar</div>}
+                    </div>
                   </div>
-                  <div className="font-display font-bold text-accent shrink-0">{euro(stop.order.gesamtbetrag)}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
+            {/* Route-Vorschau in Google Maps */}
+            {activeBatch.stops.length > 0 && (() => {
+              const withCoords = activeBatch.stops
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .filter((s) => s.order.kunde_lat && s.order.kunde_lng);
+              if (withCoords.length === 0) return null;
+              const dest = `${withCoords[withCoords.length - 1].order.kunde_lat},${withCoords[withCoords.length - 1].order.kunde_lng}`;
+              const waypoints = withCoords.slice(0, -1).map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`).join('|');
+              const mapsUrl = waypoints
+                ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+                : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+              return (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-matcha-200 inline-flex items-center justify-center gap-2 mb-3 transition"
+                >
+                  <Map className="h-4 w-4" />
+                  Route in Maps vorschauen ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
+                </a>
+              );
+            })()}
 
             {/* Großer Pick-Starten Button */}
             <button
