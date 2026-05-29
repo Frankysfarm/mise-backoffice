@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick } from '@/lib/delivery/dispatch-engine';
 import { syncKitchenNotifications } from '@/lib/delivery/kitchen-sync';
+import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,10 +40,15 @@ export async function GET(req: NextRequest) {
 
   const start = Date.now();
   try {
-    // Parallel: Dispatch neuer Bestellungen + Küchen-Benachrichtigungen für fällige Timings
-    const [dispatchResult, kitchenResult] = await Promise.all([
+    // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup
+    const serviceSb = createServiceClient();
+    const [dispatchResult, kitchenResult, staleResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
+      serviceSb.rpc('mark_stale_drivers_offline').then(
+        ({ data }) => ({ drivers_marked_offline: (data as number | null) ?? 0 }),
+        () => ({ drivers_marked_offline: 0 }),
+      ),
     ]);
 
     const durationMs = Date.now() - start;
@@ -54,6 +60,7 @@ export async function GET(req: NextRequest) {
         notified: kitchenResult.notified,
         locations: kitchenResult.locations,
       },
+      stale_drivers_cleaned: staleResult.drivers_marked_offline,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

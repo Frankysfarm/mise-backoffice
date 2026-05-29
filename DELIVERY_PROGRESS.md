@@ -177,7 +177,34 @@ Siehe DELIVERY_CEO_LOG.md
     weil `syncKitchenNotifications()` nur im Kitchen-Queue-Endpoint aufgerufen wurde, nicht im Cron
   - Ergebnis: `kitchen.notified` + `kitchen.locations` jetzt in Cron-Response
 
+## Phase 10: Produktions-Härtung [DONE ✅] — 2026-05-29
+- [x] `scripts/migrations/011_production_hardening.sql`
+  - `cancel_order_from_batch(p_order_id)` — atomisch: Stop löschen, Batch stornieren wenn leer, Order stornieren
+  - `mark_stale_drivers_offline()` — Fahrer offline stellen wenn kein GPS-Ping seit 30 Min; wird im Cron aufgerufen
+  - Index `idx_mise_drivers_state_updated` für Stale-Driver-Erkennung
+  - Index `idx_customer_orders_pending_dispatch` für Dispatch-Backlog-Health-Check
+  - Index `idx_mise_batch_stops_order` für schnelles Stop-Löschen bei Stornierung
+- [x] `app/api/delivery/orders/[orderId]/cancel/route.ts` — `PATCH` Stornierung
+  - Prüft: Lieferung, nicht bereits storniert/abgeschlossen/geliefert
+  - Nutzt `cancel_order_from_batch` RPC (atomisch), Fallback auf direktes Update
+  - Re-optimiert verbleibende Tour-Stops (best-effort)
+  - Loggt `batch_cancelled` Event
+- [x] `app/api/delivery/health/route.ts` — `GET` Health-Check (kein Auth)
+  - `status: 'ok' | 'degraded' | 'down'`
+  - Checks: DB-Konnektivität, Zonen konfiguriert, Online-Fahrer, Dispatch-Backlog (<20 Pending = ok)
+  - HTTP 503 bei DB-Ausfall, sonst 200
+- [x] `app/api/cron/smart-dispatch/route.ts` — Stale-Driver-Cleanup ergänzt
+  - `mark_stale_drivers_offline()` parallel zu Dispatch + Küchen-Sync
+  - Response enthält `stale_drivers_cleaned: number`
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-05-29: Backend-Architekt — Phase 10: Produktions-Härtung
+  - Migration 011: cancel_order_from_batch() + mark_stale_drivers_offline() + 3 Indizes
+  - PATCH /api/delivery/orders/[orderId]/cancel — Stornierung mit Batch-Cleanup + Tour-Re-Optimierung
+  - GET /api/delivery/health — Monitoring-Endpunkt (DB + Zonen + Fahrer + Backlog)
+  - Cron: mark_stale_drivers_offline() jetzt parallel in jedem 2-Min-Tick
+  - Build: npm run build ✓ (0 Fehler)
 - 2026-05-29: Backend-Architekt — Phase 8: Multi-Tenant-Härtung + Küchen-Cron
   - Migration 010: location_id auf mise_delivery_batches + Backfill + Trigger
   - 3 API-Routes mit fehlendem location_id-Filter repariert (tours, stats, overview)
