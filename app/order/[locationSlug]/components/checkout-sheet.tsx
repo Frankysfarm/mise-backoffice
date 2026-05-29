@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Banknote,
   Check,
+  Clock,
   CreditCard,
   Globe,
   Loader2,
@@ -69,6 +70,22 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [lieferhinweis, setLieferhinweis] = React.useState('');
   const [zahlungsart, setZahlungsart] = React.useState<PaymentMethod>('online');
   const [marketingOptin, setMarketingOptin] = React.useState(false);
+
+  // Live-ETA vom Server holen (Küchenauslastung-basiert)
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: string } | null>(null);
+  React.useEffect(() => {
+    if (orderType !== 'lieferung' || !locationId || !open) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
+        if (r.ok && !cancelled) setLiveEta(await r.json());
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [open, orderType, locationId]);
 
   // Lieferzone-Check: wenn Filial-Koordinaten + Adress-Koordinaten vorhanden
   const deliveryDistanceKm = React.useMemo(() => {
@@ -321,6 +338,25 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                       <strong>Im Liefergebiet.</strong> {deliveryDistanceKm.toFixed(1)} km von unserem Laden.
                     </span>
                   )}
+                </div>
+              )}
+
+              {/* Live-ETA Widget */}
+              {liveEta && (
+                <div className={cn(
+                  'rounded-xl border px-3 py-2.5 text-xs flex items-center gap-2',
+                  liveEta.load === 'quiet' ? 'border-matcha-300 bg-matcha-50 text-matcha-900' :
+                  liveEta.load === 'busy' ? 'border-orange-300 bg-orange-50 text-orange-900' :
+                  'border-blue-200 bg-blue-50 text-blue-900',
+                )}>
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  <span>
+                    <strong>Lieferzeit gerade:</strong>{' '}
+                    ca. {liveEta.eta_min} Min.{' '}
+                    {liveEta.load === 'quiet' ? '— Küche gerade entspannt 🟢' :
+                     liveEta.load === 'busy'  ? '— Wir sind busy, kurz mehr Zeit 🟡' :
+                     '— Normale Auslastung 🔵'}
+                  </span>
                 </div>
               )}
 
