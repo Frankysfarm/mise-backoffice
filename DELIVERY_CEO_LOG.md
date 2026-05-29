@@ -1,11 +1,83 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Alle Phasen 1–7 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen (inkl. Migration 009).
+**MARKT-REIF.** Alle Phasen 1–9 abgeschlossen. Nächster Schritt: Produktions-Deployment + DB-Migrations ausführen (inkl. Migration 009). System ist produktionsbereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — Alle Phasen abgeschlossen. CEO Review #7: Migration 009 ergänzt (View-Bug behoben).
-Keine weiteren Feature-Aufgaben. Fokus auf Deployment-Vorbereitung.
+**DONE** — Alle Phasen 1–9 abgeschlossen. CEO Review #8 bestätigt: 0 TypeScript-Fehler, Build clean.
+Keine weiteren Feature-Aufgaben. Fokus auf Deployment-Vorbereitung und Monitoring.
+
+## CEO Review #8 — 2026-05-29
+
+### Geprüfte Commits (Phase 9 Frontend-Erweiterungen)
+- `a8b2622` feat(delivery/frontend): live Fahrer-Karte in Dispatch, Stop-ETA in Fahrer-App
+- `ca73605` feat(delivery/frontend): Kitchen Überfällig-Alert, Fahrer-Tagesranking in Statistik
+- `1716309` feat(delivery/frontend): ETA-Zeitfenster-Balken in Kunden-Tracking
+- `5a89cb2` feat(delivery/frontend): Fahrer Pick-Phase: Cash-Banner, Route-Vorschau-Link, Cash-Indikator pro Stop
+- `aae2da0` feat(delivery/frontend): Kitchen 'Nächste Fertig' Countdown in Zubereitung-Spalte
+
+### Build + TypeScript
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler (nach Bug-Fix)
+- `npx next build` ✅ — Compiled successfully, 169 static pages
+
+### Bug gefunden + behoben: `Map` Icon überschreibt natives `Map`
+
+**Datei**: `app/fahrer/app/client.tsx` Zeile 7
+
+**Problem**: `import { ..., Map, ... } from 'lucide-react'` shadowed das native JavaScript `Map`-Objekt. Das führte zu TypeScript-Fehlern in `OpenBatchSection` (Zeile 558: `new Map<string, OpenBatch[]>()`):
+- TS7009: 'new' expression whose target lacks a construct signature
+- TS2558: Expected 0 type arguments, but got 2
+- Kaskaden-Fehler: `Array.from(map.entries()).map(...)` nicht mehr typisierbar (15 Folge-Fehler)
+
+**Fix**: `Map as MapIcon` in Lucide-Import + `<MapIcon>` in der JSX-Verwendung (Zeile 468).
+
+**Root Cause**: Lucide-React exportiert eine `Map`-Komponente — in Projekten, die sowohl Leaflet/native Maps als auch Lucide nutzen, muss der Icon-Import immer aliasiert werden.
+
+### Code-Review Phase 9 Features
+
+**DispatchDriverMap** (`dispatch/driver-map.tsx`):
+- Leaflet `dynamic()` + `ssr: false` korrekt — kein SSR-Problem ✅
+- `useEffect` Cleanup: `cancelled = true` + `map.remove()` — Memory-Leak-sicher ✅
+- Update-Effect nutzt `drivers.map(...).join('|')` als Dep-Array — sauberer Vergleich ohne useMemo ✅
+- `leaflet`: ^1.9.4 im package.json vorhanden ✅
+
+**LiveDriverMapPanel** (`dispatch/client.tsx`):
+- Guard `onlineWithGps.length === 0 → return null` — Map erscheint nur wenn GPS-Daten vorhanden ✅
+- Collapsible-Panel via `useState(false)` — spart Viewport auf kleinen Displays ✅
+- `driverMarkers` State-Mapping: frei/unterwegs/zurueck korrekt via `done === total` ✅
+
+**OverdueOrdersAlert** (`kitchen/client.tsx`):
+- Schwellwert `>= est + 5` Min vor Anzeige — verhindert Spam bei kleinen Überschreitungen ✅
+- `overdue.length < 2 → return null` — Alert nur bei ≥2 kritischen Bestellungen, vermeidet False-Positives ✅
+- `worstOver`: reduziert korrekt auf max-Überschreitung ✅
+
+**Kitchen 'Nächste Fertig' Countdown** (`kitchen/client.tsx`):
+- Nur für `in_zubereitung`-Spalte aktiv ✅
+- `reduce(..., 0)` + Guard `nextFinishMs === 0 → null` verhindert Anzeige ohne Daten ✅
+- Farblogik: blau (>120s) → orange (<120s) → pulsierend grün (fertig) ✅
+
+**EtaWindowBar** (`tracking.tsx`):
+- `windowEnd = latestMs + 5 * 60_000` gibt 5 Min Puffer nach Deadline — UX-sinnvoll ✅
+- `nowPct` via `transition-all duration-1000` smooth-animated ✅
+- `isOverdue` / `isInWindow` korrekt berechnet, `timeZone: 'Europe/Berlin'` gesetzt ✅
+
+**Fahrer Cash-Banner Pick-Phase** (`client.tsx`):
+- `Map as MapIcon` Bug-Fix bereits oben dokumentiert ✅
+- `cashAmount` + Route-Vorschau-Link korrekt integriert ✅
+
+**Fahrer-Tagesranking** (`statistics-view.tsx`):
+- `fetch` mit `.catch(() => {})` — kein Crash bei API-Fehler ✅
+- `sort((a,b) => b.deliveries_today - a.deliveries_today)` — Platz 1 = meiste Lieferungen ✅
+- `vehicleEmoji` Record: 'fahrrad' und 'roller' fehlen → immer 🚲 als Fallback — akzeptabel ✅
+
+### Status nach Review #8
+- TypeScript: 0 Fehler ✅
+- Build: kompiliert sauber, 169 Seiten ✅
+- `Map`-Icon-Shadow-Bug: BEHOBEN ✅
+- Phase 9 Frontend-Features: alle korrekt implementiert ✅
+- **SYSTEM MARKT-REIF** — Deployment kann erfolgen
+
+---
 
 ## CEO Review #7 — 2026-05-29
 

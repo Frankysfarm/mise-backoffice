@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, Map, MapPin,
+  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, Map as MapIcon, MapPin,
   Navigation, Phone, Power, Route, ShoppingBag, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -465,7 +465,7 @@ export function FahrerApp({
                   rel="noreferrer"
                   className="w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-matcha-200 inline-flex items-center justify-center gap-2 mb-3 transition"
                 >
-                  <Map className="h-4 w-4" />
+                  <MapIcon className="h-4 w-4" />
                   Route in Maps vorschauen ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
                 </a>
               );
