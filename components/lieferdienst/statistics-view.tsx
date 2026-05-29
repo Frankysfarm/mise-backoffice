@@ -56,6 +56,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [liveDrivers, setLiveDrivers] = useState<LiveDriver[]>([])
   const [heatmapPoints, setHeatmapPoints] = useState<{ zone: string; count: number }[]>([])
   const [trendData, setTrendData] = useState<TrendData>(null)
+  const [driverPerf, setDriverPerf] = useState<{
+    driver_id: string; employee_name: string | null; vehicle: string;
+    state: string; deliveries_today: number; deliveries_yesterday: number;
+    active_batch_id: string | null;
+  }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -101,6 +106,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/trends?location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then((d: TrendData) => d && !('_fallback' in (d as object)) && setTrendData(d))
+      .catch(() => {})
+    fetch(`/api/delivery/admin/performance?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.drivers && !d._fallback) setDriverPerf(d.drivers) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -681,6 +690,67 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                 </div>
               )
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Fahrer-Tagesranking */}
+      {driverPerf.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-emerald-600" />
+            Fahrer-Tagesranking
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-stone-100">
+                  <th className="text-left py-2 font-medium text-stone-500">Fahrer</th>
+                  <th className="text-right py-2 font-medium text-stone-500">Heute</th>
+                  <th className="text-right py-2 font-medium text-stone-500">Gestern</th>
+                  <th className="text-right py-2 font-medium text-stone-500">Trend</th>
+                  <th className="text-right py-2 font-medium text-stone-500">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {driverPerf
+                  .sort((a, b) => b.deliveries_today - a.deliveries_today)
+                  .map((d, i) => {
+                    const delta = d.deliveries_today - d.deliveries_yesterday
+                    const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗', car: '🚗' }
+                    const isActive = !!d.active_batch_id
+                    return (
+                      <tr key={d.driver_id} className="border-b border-stone-50 hover:bg-stone-50 transition">
+                        <td className="py-3">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black ${i === 0 ? 'bg-amber-400 text-white' : i === 1 ? 'bg-stone-300 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                              {i + 1}
+                            </span>
+                            <span className="font-semibold text-char">{d.employee_name ?? '—'}</span>
+                            <span className="text-base">{vehicleEmoji[d.vehicle] ?? '🚲'}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 text-right font-black text-char tabular-nums text-lg">{d.deliveries_today}</td>
+                        <td className="py-3 text-right text-stone-400 tabular-nums">{d.deliveries_yesterday}</td>
+                        <td className="py-3 text-right">
+                          {delta !== 0 ? (
+                            <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${delta > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                              {delta > 0 ? '▲' : '▼'} {Math.abs(delta)}
+                            </span>
+                          ) : (
+                            <span className="text-stone-300 text-xs">–</span>
+                          )}
+                        </td>
+                        <td className="py-3 text-right">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${isActive ? 'bg-orange-100 text-orange-700' : d.state === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'}`}>
+                            {isActive ? 'Liefert' : d.state === 'available' ? 'Frei' : 'Offline'}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

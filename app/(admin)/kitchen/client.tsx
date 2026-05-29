@@ -351,6 +351,9 @@ export function KitchenBoard({
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
+      {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
+      <OverdueOrdersAlert orders={filtered} />
+
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
 
@@ -480,6 +483,69 @@ export function KitchenBoard({
             </section>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ OverdueOrdersAlert ------------------------------ */
+
+function OverdueOrdersAlert({ orders }: { orders: Order[] }) {
+  const now = Date.now();
+  const overdue = orders.filter((o) => {
+    if (['fertig', 'unterwegs'].includes(o.status)) return false;
+    if (!o.bestellt_am) return false;
+    const waitMin = (now - new Date(o.bestellt_am).getTime()) / 60_000;
+    const est = o.geschaetzte_zubereitung_min ?? 15;
+    return waitMin >= est + 5;
+  });
+
+  if (overdue.length < 2) return null;
+
+  const worst = overdue.reduce((m, o) => {
+    const waitMin = o.bestellt_am ? (now - new Date(o.bestellt_am).getTime()) / 60_000 : 0;
+    const est = o.geschaetzte_zubereitung_min ?? 15;
+    const over = waitMin - est;
+    const mOver = m.bestellt_am ? (now - new Date(m.bestellt_am).getTime()) / 60_000 - (m.geschaetzte_zubereitung_min ?? 15) : 0;
+    return over > mOver ? o : m;
+  }, overdue[0]);
+  const worstOver = worst.bestellt_am
+    ? Math.floor((now - new Date(worst.bestellt_am).getTime()) / 60_000) - (worst.geschaetzte_zubereitung_min ?? 15)
+    : 0;
+
+  return (
+    <div className="rounded-xl border-2 border-red-400 bg-red-50 p-3 animate-pulse">
+      <div className="flex items-center gap-2">
+        <Flame className="h-5 w-5 text-red-600 shrink-0" />
+        <div className="flex-1">
+          <span className="font-display text-sm font-black text-red-800">
+            {overdue.length} Bestellungen überfällig!
+          </span>
+          <span className="ml-2 text-xs text-red-600">
+            Längste Überschreitung: +{worstOver} Min
+            {worst && <span className="ml-1 font-bold">(#{worst.bestellnummer.replace('FF-', '')} · {worst.kunde_name})</span>}
+          </span>
+        </div>
+        <div className="flex gap-1 shrink-0">
+          {overdue.slice(0, 4).map((o) => {
+            const ov = o.bestellt_am
+              ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000) - (o.geschaetzte_zubereitung_min ?? 15)
+              : 0;
+            return (
+              <span key={o.id} className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums',
+                ov >= 15 ? 'bg-red-600 text-white' : 'bg-red-200 text-red-800',
+              )}>
+                +{ov}m
+              </span>
+            );
+          })}
+          {overdue.length > 4 && (
+            <span className="rounded-full bg-red-200 text-red-800 px-2 py-0.5 text-[10px] font-bold">
+              +{overdue.length - 4}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
