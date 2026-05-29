@@ -798,6 +798,95 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         </div>
       )}
+
+      {/* 15-Minuten Tagesgang */}
+      <ShiftHeatmap15Min orders={orders} completedOrders={completedOrders} />
+    </div>
+  )
+}
+
+/* ------------------------------ ShiftHeatmap15Min ------------------------------ */
+
+function ShiftHeatmap15Min({ orders, completedOrders }: { orders: Order[]; completedOrders: Order[] }) {
+  const allOrders = [...orders, ...completedOrders]
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayMs = today.getTime()
+
+  const buckets: Record<number, number> = {}
+  for (const o of allOrders) {
+    const t = o.createdAt?.getTime?.()
+    if (!t || t < todayMs) continue
+    const key = Math.floor((t - todayMs) / (15 * 60_000))
+    buckets[key] = (buckets[key] ?? 0) + 1
+  }
+
+  if (Object.keys(buckets).length === 0) return null
+
+  const maxCount = Math.max(...Object.values(buckets), 1)
+  const nowKey = Math.floor((Date.now() - todayMs) / (15 * 60_000))
+  // Show last 16 buckets (= 4 hours)
+  const keys = Array.from({ length: 16 }, (_, i) => Math.max(0, nowKey - 15 + i))
+
+  const data = keys.map((k) => ({
+    key: k,
+    count: buckets[k] ?? 0,
+    label: new Date(todayMs + k * 15 * 60_000).toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    isCurrent: k === nowKey,
+  }))
+
+  const totalWindow = data.reduce((s, d) => s + d.count, 0)
+  const peakBucket = data.reduce((m, d) => (d.count > m.count ? d : m), data[0])
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-char flex items-center gap-2">
+          <Activity className="w-5 h-5 text-saffron" />
+          15-Min Tagesgang (letzte 4h)
+        </h3>
+        <div className="flex items-center gap-3 text-xs text-steel">
+          <span>{totalWindow} Bestellungen</span>
+          {peakBucket.count > 0 && (
+            <span className="font-semibold text-char">
+              Peak: {peakBucket.label} ({peakBucket.count}×)
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-end gap-0.5" style={{ height: 80 }}>
+        {data.map(({ key, count, label, isCurrent }) => {
+          const pct = count > 0 ? Math.max(8, Math.round((count / maxCount) * 100)) : 0
+          return (
+            <div key={key} className="flex-1 flex flex-col items-center justify-end gap-1 h-full" title={`${label}: ${count}`}>
+              <div className="w-full flex items-end justify-center" style={{ height: 64 }}>
+                <div
+                  style={{ height: pct > 0 ? `${pct}%` : '2px' }}
+                  className={[
+                    'w-full rounded-t-sm transition-all duration-300',
+                    isCurrent ? 'bg-saffron' :
+                    count > 0 ? 'bg-stone-300 hover:bg-stone-400' :
+                    'bg-stone-100',
+                  ].join(' ')}
+                />
+              </div>
+              {(isCurrent || key % 4 === 0) && (
+                <div className={['text-[9px] tabular-nums truncate', isCurrent ? 'font-bold text-saffron' : 'text-stone-400'].join(' ')}>
+                  {label}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <div className="mt-2 flex justify-between text-[10px] text-stone-400">
+        <span>{data[0]?.label}</span>
+        <span className="text-saffron font-bold">Jetzt</span>
+      </div>
     </div>
   )
 }

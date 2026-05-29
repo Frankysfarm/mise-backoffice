@@ -307,6 +307,32 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
                     ? `Zuletzt gesehen vor ${Math.max(0, Math.floor((Date.now() - new Date(order.fahrer_last_update).getTime()) / 60000))} Min.`
                     : 'Unterwegs'}
                 </div>
+                {/* Live-Entfernung Fahrer → Kunde */}
+                {order.status === 'unterwegs' &&
+                  order.fahrer_lat && order.fahrer_lng &&
+                  order.kunde_lat && order.kunde_lng && (() => {
+                    const distM = haversineM(
+                      { lat: Number(order.fahrer_lat), lng: Number(order.fahrer_lng) },
+                      { lat: Number(order.kunde_lat), lng: Number(order.kunde_lng) },
+                    );
+                    if (distM > 5000) return null;
+                    const label =
+                      distM < 80 ? '🎉 Vor deiner Tür!' :
+                      distM < 300 ? `~${Math.round(distM / 50) * 50} m entfernt` :
+                      distM < 1000 ? `~${Math.round(distM / 100) * 100} m entfernt` :
+                      `~${(distM / 1000).toFixed(1)} km entfernt`;
+                    return (
+                      <div className={cn(
+                        'mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold',
+                        distM < 200 ? 'bg-matcha-700 text-white animate-pulse' :
+                        distM < 600 ? 'bg-orange-100 text-orange-800' :
+                        'bg-blue-50 text-blue-700',
+                      )}>
+                        <MapPin className="h-3 w-3" />
+                        {label}
+                      </div>
+                    );
+                  })()}
                 {stopsBefore != null && order.status === 'unterwegs' && (
                   <div className={cn(
                     'mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold',
@@ -613,5 +639,15 @@ function vehicleEmoji(v: string | null): string {
     case 'auto': return '🚗';
     default: return '🚲';
   }
+}
+
+function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 

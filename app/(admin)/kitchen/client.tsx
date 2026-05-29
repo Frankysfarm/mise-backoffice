@@ -348,6 +348,9 @@ export function KitchenBoard({
 
   return (
     <div className="space-y-4">
+      {/* Schicht-Schnappschuss */}
+      <KitchenShiftStats orders={filtered} completedToday={completedToday} />
+
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
@@ -491,19 +494,82 @@ export function KitchenBoard({
                     Nichts hier.
                   </div>
                 )}
-                {colOrders.map((o) => (
-                  <OrderTicket
-                    key={o.id}
-                    order={o}
-                    next={col.next}
-                    timing={timings.find((t) => t.order_id === o.id) ?? null}
-                  />
-                ))}
+                {(() => {
+                  // Pre-compute zone counts for "fertig" delivery orders so each ticket can show a bundling chip
+                  const fertigZoneCounts: Record<string, number> =
+                    col.status === 'fertig'
+                      ? colOrders.reduce((acc: Record<string, number>, o: Order) => {
+                          if (o.delivery_zone && o.typ === 'lieferung') {
+                            acc[o.delivery_zone] = (acc[o.delivery_zone] ?? 0) + 1;
+                          }
+                          return acc;
+                        }, {})
+                      : {};
+                  return colOrders.map((o) => (
+                    <OrderTicket
+                      key={o.id}
+                      order={o}
+                      next={col.next}
+                      timing={timings.find((t) => t.order_id === o.id) ?? null}
+                      sameZoneCount={o.delivery_zone ? (fertigZoneCounts[o.delivery_zone] ?? 0) : 0}
+                    />
+                  ));
+                })()}
               </div>
             </section>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenShiftStats ------------------------------ */
+
+function KitchenShiftStats({ orders, completedToday }: { orders: Order[]; completedToday: number | null }) {
+  const now = Date.now();
+  // Orders in last 60 minutes
+  const ordersLastHour = orders.filter((o) =>
+    o.bestellt_am && now - new Date(o.bestellt_am).getTime() < 60 * 60_000,
+  ).length;
+  const cookingNow = orders.filter((o) => o.status === 'in_zubereitung').length;
+  const waitingForDriver = orders.filter((o) => o.status === 'fertig' && o.typ === 'lieferung').length;
+  const criticalLate = orders.filter((o) => isCriticallyLate(o)).length;
+
+  if (completedToday === null && ordersLastHour === 0 && waitingForDriver === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {completedToday !== null && (
+        <div className="flex items-center gap-1.5 rounded-full border border-matcha-200 bg-matcha-50 px-3 py-1 text-xs font-bold text-matcha-700">
+          <Check className="h-3 w-3" />
+          {completedToday} heute fertig
+        </div>
+      )}
+      {ordersLastHour > 0 && (
+        <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+          <TrendingUp className="h-3 w-3" />
+          {ordersLastHour}/Std gerade
+        </div>
+      )}
+      {cookingNow > 0 && (
+        <div className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+          <ChefHat className="h-3 w-3" />
+          {cookingNow} in Zubereitung
+        </div>
+      )}
+      {waitingForDriver > 0 && (
+        <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+          <Bike className="h-3 w-3" />
+          {waitingForDriver}× wartet auf Fahrer
+        </div>
+      )}
+      {criticalLate > 0 && (
+        <div className="flex items-center gap-1.5 rounded-full border border-red-300 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 animate-pulse">
+          <Flame className="h-3 w-3" />
+          {criticalLate} kritisch überzogen!
+        </div>
+      )}
     </div>
   );
 }
@@ -1087,7 +1153,7 @@ function fmtCountdown(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-function OrderTicket({ order, next, timing }: { order: Order; next: string | null; timing: KitchenTiming | null }) {
+function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order; next: string | null; timing: KitchenTiming | null; sameZoneCount?: number }) {
   const [pending, startTransition] = useTransition();
 
   const waitMin = order.bestellt_am
@@ -1193,6 +1259,21 @@ function OrderTicket({ order, next, timing }: { order: Order; next: string | nul
           <Zap className="h-2.5 w-2.5" />
           {timingChip.label}
         </div>
+      )}
+
+      {/* Bündelungs-Chip: mehrere fertige Lieferbestellungen in derselben Zone */}
+      {order.status === 'fertig' && order.typ === 'lieferung' && sameZoneCount >= 2 && order.delivery_zone && (
+        <a
+          href="/dispatch"
+          className={cn(
+            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+            'bg-matcha-100 text-matcha-800 hover:bg-matcha-200 transition',
+          )}
+          title="Im Dispatch bündeln"
+        >
+          <Bike className="h-2.5 w-2.5" />
+          {sameZoneCount}× Zone {order.delivery_zone} → bündeln!
+        </a>
       )}
 
       {/* Annahme-Urgency für 'neu'-Bestellungen */}
