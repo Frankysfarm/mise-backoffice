@@ -32,12 +32,14 @@ export function DeliveryView({
   stops: initialStops,
   batchStartedAt,
   totalEtaMin,
+  gpsSpeed,
   onAllDone,
 }: {
   batchId: string;
   stops: Stop[];
   batchStartedAt?: string | null;
   totalEtaMin?: number | null;
+  gpsSpeed?: number | null;
   onAllDone: () => void;
 }) {
   const supabase = createClient();
@@ -308,7 +310,7 @@ export function DeliveryView({
 
               {/* Distance + ETA countdown for next stop */}
               {isNext && nextStop && stop.id === nextStop.id && stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0 && (
-                <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} />
+                <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} gpsSpeed={gpsSpeed} />
               )}
 
               {/* Actions nur für next stop */}
@@ -430,15 +432,16 @@ export function DeliveryView({
   );
 }
 
-function StopEtaBar({ distanzM }: { distanzM: number }) {
+function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: number | null }) {
   const mountedAt = useRef(Date.now());
   const [elapsedSec, setElapsedSec] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setElapsedSec(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
   }, []);
-  // Estimate 15 km/h average speed for delivery
-  const totalSec = Math.ceil((distanzM / 1000 / 15) * 3600);
+  // Use GPS speed when available (min 3 km/h to avoid GPS jitter), otherwise fallback to 15 km/h
+  const speedKmh = gpsSpeed != null && gpsSpeed >= 3 ? gpsSpeed : 15;
+  const totalSec = Math.ceil((distanzM / 1000 / speedKmh) * 3600);
   const remaining = Math.max(0, totalSec - elapsedSec);
   const progressPct = Math.min(100, (elapsedSec / totalSec) * 100);
   const m = Math.floor(remaining / 60);
@@ -450,6 +453,11 @@ function StopEtaBar({ distanzM }: { distanzM: number }) {
         <span className="text-matcha-300 flex items-center gap-1.5">
           <ArrowRight size={12} />
           {(distanzM / 1000).toFixed(1)} km
+          {gpsSpeed != null && gpsSpeed >= 3 && (
+            <span className="ml-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-bold text-accent tabular-nums">
+              {gpsSpeed} km/h
+            </span>
+          )}
         </span>
         <span className={cn(
           'font-bold tabular-nums',

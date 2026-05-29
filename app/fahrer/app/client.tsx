@@ -107,6 +107,7 @@ export function FahrerApp({
   const isOnline = status?.ist_online ?? false;
   const gpsWatchRef = useRef<number | null>(null);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
+  const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
   const [pickItems, setPickItems] = useState<any[]>([]);
 
@@ -155,6 +156,7 @@ export function FahrerApp({
     gpsWatchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         setGpsOk(true);
+        if (pos.coords.speed != null) setGpsSpeed(Math.round(pos.coords.speed * 3.6));
         const now = Date.now();
         if (now - lastPush < 15000) return;   // max alle 15s
         lastPush = now;
@@ -381,6 +383,7 @@ export function FahrerApp({
             stops={activeBatch.stops as any}
             batchStartedAt={activeBatch.started_at}
             totalEtaMin={activeBatch.total_eta_min ?? null}
+            gpsSpeed={gpsSpeed}
             onAllDone={() => router.refresh()}
           />
         )}

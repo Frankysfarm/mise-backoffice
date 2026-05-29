@@ -583,6 +583,38 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
         </Card>
       )}
 
+      {/* Revenue on Route */}
+      {(() => {
+        const onRouteOrders = orders.filter((o) => o.status === 'unterwegs');
+        const readyTotal = orders.filter((o) => o.status === 'fertig').reduce((s, o) => s + o.gesamtbetrag, 0);
+        const onRouteTotal = onRouteOrders.reduce((s, o) => s + o.gesamtbetrag, 0);
+        const combined = readyTotal + onRouteTotal;
+        if (combined === 0) return null;
+        return (
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Banknote className="h-4 w-4 text-matcha-600" />
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Umsatz unterwegs</div>
+            </div>
+            <div className="font-display text-2xl font-black leading-none text-matcha-700">{euro(combined)}</div>
+            <div className="mt-2 space-y-1 text-[10px] text-muted-foreground">
+              {onRouteTotal > 0 && (
+                <div className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-orange-400 shrink-0" />
+                  {euro(onRouteTotal)} liefert gerade
+                </div>
+              )}
+              {readyTotal > 0 && (
+                <div className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-matcha-400 shrink-0" />
+                  {euro(readyTotal)} wartet auf Abholung
+                </div>
+              )}
+            </div>
+          </Card>
+        );
+      })()}
+
       {/* Urgent orders */}
       {urgent.length > 0 && (
         <Card className="p-4 border-red-200 bg-red-50">
