@@ -357,7 +357,7 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
     .from('mise_drivers')
     .select('id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
     .eq('active', true)
-    .in('state', ['online', 'auf_tour'])
+    .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])
     .order('last_position_at', { ascending: false });
 
   if (!data) return [];

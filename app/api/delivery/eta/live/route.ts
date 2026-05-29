@@ -28,9 +28,10 @@ export async function GET(req: NextRequest) {
         .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
         .eq('typ', 'lieferung'),
       sb
-        .from('driver_status')
-        .select('employee_id', { count: 'exact', head: true })
-        .eq('ist_online', true),
+        .from('mise_drivers')
+        .select('id', { count: 'exact', head: true })
+        .eq('active', true)
+        .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']),
     ]);
 
     const active = activeOrders ?? 0;

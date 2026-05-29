@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   }, {});
 
   const driversOnline = (driversRes.data ?? []).filter(
-    (d) => d.state === 'online' || d.state === 'auf_tour',
+    (d) => d.state !== 'offline',
   ).length;
 
   return NextResponse.json({

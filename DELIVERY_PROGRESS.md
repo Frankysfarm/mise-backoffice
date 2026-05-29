@@ -207,7 +207,31 @@ Siehe DELIVERY_CEO_LOG.md
   - Response enthält `stale_drivers_cleaned: number`
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 11: Driver-State-Bugfixes [DONE ✅] — 2026-05-29
+- [x] **KRITISCH: `dispatch-engine.ts` loadActiveDrivers()** — State-Filter `['online','auf_tour']` → `['idle','assigned','at_restaurant','en_route','returning']`
+  - Ursache: Reale States (gesetzt von driver-app/me/online) sind `idle|assigned|at_restaurant|en_route|returning`, NICHT `online|auf_tour`
+  - Symptom: Dispatch-Engine fand NIE Fahrer → jede Bestellung war "Kein aktiver Fahrer verfügbar" → alle Orders wurden gehalten
+- [x] **KRITISCH: `health/route.ts`** — `mise_drivers.location_id` entfernt (Spalte existiert nicht!) + States korrigiert
+  - Ursache: mise_drivers hat KEINE location_id-Spalte → PostgREST-Fehler bei jedem Health-Check mit location_id
+  - Symptom: drivers_online count immer 0 + potentieller 400-Fehler
+- [x] **`overview/route.ts`** — `state === 'online' || state === 'auf_tour'` → `state !== 'offline'`
+  - Symptom: driversOnline im Admin-Dashboard immer 0
+- [x] **`eta/live/route.ts`** — `driver_status` (Legacy-Tabelle) → `mise_drivers` mit korrekten States
+  - CEO-Review #9 hatte bereits den fehlenden location_id-Filter auf driver_status angemerkt
+  - Fix: benutzt jetzt mise_drivers (das echte Smart-Dispatch-System) konsistent
+- [x] **`scripts/migrations/012_fix_driver_states.sql`** — `mark_stale_drivers_offline()` korrigiert
+  - Migration 011 verwendete States `'available'` und `'on_delivery'` die nie vorkommen
+  - Symptom: Stale-Fahrer-Cleanup im Cron bereinigt nie irgendeinen Fahrer
+  - Index `idx_mise_drivers_state_updated` neu erstellt mit richtigen States
+  - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
+
 ## Letzte Änderungen
+- 2026-05-29: Backend-Architekt — Phase 11: Driver-State-Bugfixes (4 Routes + 1 Migration)
+  - dispatch-engine: loadActiveDrivers gibt jetzt echte Fahrer zurück (State-Bug war silent blocker!)
+  - health/route: mise_drivers.location_id-Phantom-Filter entfernt (Spalte existiert nicht)
+  - overview/route: driversOnline-Zählung korrekt (war immer 0)
+  - eta/live: driver_status → mise_drivers (korrekte Datenquelle)
+  - Migration 012: mark_stale_drivers_offline() + Indizes repariert
 - 2026-05-29: Backend-Architekt — Phase 10: Produktions-Härtung
   - Migration 011: cancel_order_from_batch() + mark_stale_drivers_offline() + 3 Indizes
   - PATCH /api/delivery/orders/[orderId]/cancel — Stornierung mit Batch-Cleanup + Tour-Re-Optimierung

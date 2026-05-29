@@ -65,13 +65,12 @@ export async function GET(req: NextRequest) {
 
     checks.zones_configured = { ok: (zoneCount ?? 0) > 0, count: zoneCount ?? 0 };
 
-    // 3. Online-Fahrer
+    // 3. Online-Fahrer (mise_drivers hat keine location_id — globale Zählung)
     const { count: driverCount } = await sb
       .from('mise_drivers')
       .select('id', { count: 'exact', head: true })
-      .eq('location_id', locationId)
       .eq('active', true)
-      .in('state', ['available', 'on_delivery']);
+      .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']);
 
     checks.drivers_online = { ok: true, count: driverCount ?? 0 };
 
