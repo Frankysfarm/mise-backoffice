@@ -962,8 +962,17 @@ function OrderTicket({ order, next, timing }: { order: Order; next: string | nul
     ? Math.floor((Date.now() - new Date(order.bestellt_am).getTime()) / 1_000)
     : 0;
   const est = order.geschaetzte_zubereitung_min ?? 15;
-  const urgent = order.status === 'in_zubereitung' && waitMin >= est;
-  const critical = waitMin >= est + 10;
+
+  // `neu`: Annahme-Dringlichkeit (>1 Min = orange, >3 Min = rot)
+  const acceptUrgent   = order.status === 'neu' && waitMin >= 1;
+  const acceptCritical = order.status === 'neu' && waitMin >= 3;
+  // Küchen-Dringlichkeit
+  const cookUrgent     = order.status === 'in_zubereitung' && waitMin >= est;
+  const cookCritical   = order.status !== 'neu' && waitMin >= est + 10;
+
+  const urgent   = acceptUrgent   || cookUrgent;
+  const critical = acceptCritical || cookCritical;
+
   const progressPct = Math.min(100, Math.round((waitMin / est) * 100));
   const remainingSec = (est * 60) - waitSec;
 
@@ -1023,6 +1032,19 @@ function OrderTicket({ order, next, timing }: { order: Order; next: string | nul
         )}>
           <Zap className="h-2.5 w-2.5" />
           {timingChip.label}
+        </div>
+      )}
+
+      {/* Annahme-Urgency für 'neu'-Bestellungen */}
+      {order.status === 'neu' && acceptUrgent && (
+        <div className={cn(
+          'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+          acceptCritical
+            ? 'bg-red-500 text-white animate-pulse'
+            : 'bg-orange-100 text-orange-800',
+        )}>
+          <AlertCircle className="h-2.5 w-2.5" />
+          {acceptCritical ? 'Noch nicht angenommen!' : 'Warte auf Annahme…'}
         </div>
       )}
 

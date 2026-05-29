@@ -127,6 +127,12 @@ export function LieferdienstClient() {
     return () => clearInterval(interval)
   }, [])
 
+  // Schichtstart: merke ersten Mount
+  const schichtStart = useState<Date>(() => new Date())[0]
+  const schichtMinutes = Math.floor((currentTime.getTime() - schichtStart.getTime()) / 60_000)
+  const schichtHours = Math.floor(schichtMinutes / 60)
+  const schichtRestMin = schichtMinutes % 60
+
   // Auto status transitions
   useEffect(() => {
     const interval = setInterval(() => {
@@ -511,6 +517,11 @@ export function LieferdienstClient() {
                 <span className="font-mono text-lg font-semibold text-char tracking-tight">
                   {currentTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                 </span>
+                {schichtMinutes > 0 && (
+                  <span className="text-xs text-stone-400 font-medium border-l border-stone-300 pl-2">
+                    Schicht {schichtHours > 0 ? `${schichtHours}h ` : ''}{schichtRestMin}m
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, MapPin,
+  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, MapPin,
   Navigation, Phone, Power, Route, ShoppingBag, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -57,6 +57,8 @@ type OpenBatch = {
   location_lat: number | null;
   location_lng: number | null;
   source_system: 'legacy' | 'mise' | null;
+  zahlungsart?: string | null;
+  bezahlt?: boolean | null;
 };
 
 type ActiveBatch = {
@@ -509,10 +511,14 @@ function OpenBatchSection({
         }
       }
       const estEtaMin = Math.round((totalDistanceKm / 20) * 60 + stops.length * 3);
+      const cashAmount = stops
+        .filter((s) => s.zahlungsart === 'bar' || s.bezahlt === false)
+        .reduce((sum, s) => sum + s.gesamtbetrag, 0);
       return {
         batchId,
         stops,
         totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
+        cashAmount,
         locationName: stops[0].location_name,
         locationLat: locLat,
         locationLng: locLng,
@@ -541,7 +547,7 @@ function OpenBatchSection({
         </div>
       ) : (
         <div className="space-y-3">
-          {grouped.map(({ batchId, stops, totalAmount, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
+          {grouped.map(({ batchId, stops, totalAmount, cashAmount, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
             <div key={batchId} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
               <div className="flex items-start gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
@@ -553,6 +559,11 @@ function OpenBatchSection({
                   </div>
                   <div className="mt-1 flex items-center gap-3 text-xs text-matcha-300">
                     <span className="font-bold text-accent">{euro(totalAmount)}</span>
+                    {cashAmount > 0 && (
+                      <span className="flex items-center gap-1 font-bold text-amber-300">
+                        <Banknote size={10} /> Bar: {euro(cashAmount)}
+                      </span>
+                    )}
                     {estEtaMin ? (
                       <span className="flex items-center gap-1"><Clock size={10} /> ~{estEtaMin} Min</span>
                     ) : maxEta > 0 ? (
@@ -592,18 +603,31 @@ function OpenBatchSection({
 
               {/* Stop list */}
               <div className="space-y-2 mb-3">
-                {stops.map((s, i) => (
-                  <div key={s.order_id} className="flex items-start gap-2 rounded-xl bg-white/5 px-3 py-2">
-                    <div className="h-6 w-6 rounded-lg bg-accent/20 text-accent grid place-items-center text-[11px] font-black shrink-0">{i + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-bold truncate">{s.kunde_name}</div>
-                      <div className="text-[11px] text-matcha-300 truncate">
-                        {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
+                {stops.map((s, i) => {
+                  const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
+                  return (
+                    <div key={s.order_id} className={cn(
+                      'flex items-start gap-2 rounded-xl px-3 py-2',
+                      isCash ? 'bg-amber-500/10 border border-amber-400/30' : 'bg-white/5',
+                    )}>
+                      <div className="h-6 w-6 rounded-lg bg-accent/20 text-accent grid place-items-center text-[11px] font-black shrink-0">{i + 1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{s.kunde_name}</div>
+                        <div className="text-[11px] text-matcha-300 truncate">
+                          {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <div className={cn('text-sm font-bold', isCash ? 'text-amber-300' : 'text-accent')}>{euro(s.gesamtbetrag)}</div>
+                        {isCash && (
+                          <div className="flex items-center gap-0.5 text-[9px] font-bold text-amber-300 uppercase tracking-wide">
+                            <Banknote size={9} /> Bar
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="text-sm font-bold text-accent shrink-0">{euro(s.gesamtbetrag)}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <button

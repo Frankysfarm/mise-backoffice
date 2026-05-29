@@ -737,6 +737,9 @@ function BatchRow({ batch }: { batch: Batch }) {
     ? new Date(batch.startzeit).getTime() + (batch.total_eta_min ?? 0) * 60_000
     : null;
   const etaRemainingSec = etaEndMs ? Math.floor((etaEndMs - Date.now()) / 1000) : null;
+  const etaReturnStr = etaEndMs
+    ? new Date(etaEndMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+    : null;
 
   return (
     <div className="rounded-lg border bg-card p-3">
@@ -798,6 +801,9 @@ function BatchRow({ batch }: { batch: Batch }) {
           {etaRemainingSec > 0
             ? `Fertig in ${Math.floor(etaRemainingSec / 60)}:${String(etaRemainingSec % 60).padStart(2, '0')}`
             : `+${Math.floor(-etaRemainingSec / 60)}:${String((-etaRemainingSec) % 60).padStart(2, '0')} überzogen`}
+          {etaReturnStr && etaRemainingSec > 0 && (
+            <span className="ml-1 opacity-70">· ~{etaReturnStr} Uhr</span>
+          )}
         </div>
       )}
 
