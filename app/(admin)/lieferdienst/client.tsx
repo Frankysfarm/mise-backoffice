@@ -604,7 +604,7 @@ export function LieferdienstClient() {
                       if (statusOrder[a.status] !== statusOrder[b.status]) {
                         return statusOrder[a.status] - statusOrder[b.status]
                       }
-                      return b.createdAt.getTime() - a.createdAt.getTime()
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                     })
                     .map(order => (
                       <OrderCard 

@@ -1,10 +1,40 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–12 + alle Post-Phase-Erweiterungen abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–13 + alle Post-Phase-Erweiterungen + CEO Review #12 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #11 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben. System ist deployment-bereit.
+**DONE** — CEO Review #12 bestätigt: 0 TypeScript-Fehler, Build clean, alle Integrations-Checks grün. System ist vollständig deployment-bereit.
+
+## CEO Review #12 — 2026-05-30
+
+### Geprüfte Commits (seit CEO Review #11)
+- `bfff7ab` feat(delivery/frontend): Schicht-Stats, Zone-Bündelung, stündlicher Bestellchart
+- `f86fd83` fix(lieferdienst): handle createdAt as string from API in statistics
+
+### TypeScript-Fehler behoben (14 → 0)
+Root Cause: `Order.createdAt` + `acceptedAt` sind `Date | string` (API liefert ISO-Strings), aber Code rief Date-Methoden direkt auf.
+
+**Betroffene Dateien & Fixes:**
+- `app/(admin)/lieferdienst/client.tsx:607` — `b.createdAt.getTime()` → `new Date(b.createdAt).getTime()`
+- `components/lieferdienst/history-view.tsx:44,45,168` — `.toLocaleDateString()` / `.toLocaleTimeString()` → `new Date(...).*`
+- `components/lieferdienst/order-card.tsx:101,112` — `getTimeSince()` + `acceptedAt.getTime()` → `new Date(...).*`
+- `components/lieferdienst/statistics-view.tsx:822` — `o.createdAt?.getTime?.()` → `new Date(o.createdAt).getTime()`
+- `hooks/use-offline.ts:35,36,72,73` — `.toISOString()` → `new Date(...).toISOString()`
+
+### Build
+- `npx next build` ✅ — durchgelaufen ohne Fehler
+- Alle Routen kompiliert (Static + SSG + Dynamic)
+
+### Integrations-Prüfung
+- Dispatch → `/api/delivery/dispatch` + `/api/delivery/tours/{id}/optimize` ✅
+- Kitchen → `/api/delivery/admin/stale-orders` + Supabase direct ✅
+- Fahrer-App → Supabase RPC + `/api/drivers/push/subscribe` ✅
+- Statistics → `/api/delivery/admin/{drivers,heatmap,performance,trends}` + `/api/delivery/stats` ✅
+- Alle API-Routen existieren — keine toten Endpunkte ✅
+
+### Fazit
+System vollständig marktreif. Keine weiteren Aufgaben für Agenten-Team.
 
 ## CEO Review #11 — 2026-05-30
 

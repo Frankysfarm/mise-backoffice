@@ -41,8 +41,8 @@ export function HistoryView({ completedOrders, onRecall }: HistoryViewProps) {
     const headers = ['Bestellnr', 'Datum', 'Uhrzeit', 'Typ', 'Status', 'Kunde', 'Artikel', 'Zubereitungszeit']
     const rows = filteredOrders.map(order => [
       order.orderNumber,
-      order.createdAt.toLocaleDateString('de-DE'),
-      order.createdAt.toLocaleTimeString('de-DE'),
+      new Date(order.createdAt).toLocaleDateString('de-DE'),
+      new Date(order.createdAt).toLocaleTimeString('de-DE'),
       order.type === 'dine_in' ? 'Vor Ort' : order.type === 'takeaway' ? 'Abholung' : 'Lieferung',
       order.status === 'done' ? 'Fertig' : 'Abgelehnt',
       order.customerName || '-',
@@ -165,7 +165,7 @@ export function HistoryView({ completedOrders, onRecall }: HistoryViewProps) {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2 text-sm text-stone-600">
                         <Clock className="w-4 h-4 text-stone-400" />
-                        <span>{order.createdAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>{new Date(order.createdAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </td>
                     <td className="px-5 py-4">

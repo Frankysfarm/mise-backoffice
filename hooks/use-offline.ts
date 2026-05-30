@@ -32,8 +32,8 @@ export function useOfflineStorage() {
     try {
       const serialized = JSON.stringify(orders.map(o => ({
         ...o,
-        createdAt: o.createdAt.toISOString(),
-        acceptedAt: o.acceptedAt?.toISOString(),
+        createdAt: new Date(o.createdAt).toISOString(),
+        acceptedAt: o.acceptedAt ? new Date(o.acceptedAt).toISOString() : undefined,
         waitingForCustomerSince: o.waitingForCustomerSince?.toISOString(),
       })))
       localStorage.setItem(ORDERS_STORAGE_KEY, serialized)
@@ -69,8 +69,8 @@ export function useOfflineStorage() {
     try {
       const serialized = JSON.stringify(orders.map(o => ({
         ...o,
-        createdAt: o.createdAt.toISOString(),
-        acceptedAt: o.acceptedAt?.toISOString(),
+        createdAt: new Date(o.createdAt).toISOString(),
+        acceptedAt: o.acceptedAt ? new Date(o.acceptedAt).toISOString() : undefined,
         waitingForCustomerSince: o.waitingForCustomerSince?.toISOString(),
       })))
       localStorage.setItem(COMPLETED_ORDERS_KEY, serialized)

@@ -98,7 +98,7 @@ export function OrderCard({
   const [selectedCancelReason, setSelectedCancelReason] = useState<string | null>(null)
   const [unavailableItems, setUnavailableItems] = useState<string[]>([])
   
-  const timeInfo = getTimeSince(order.createdAt, currentTime)
+  const timeInfo = getTimeSince(new Date(order.createdAt), currentTime)
   const typeConfig = getTypeConfig(order.type)
   const TypeIcon = typeConfig.icon
   
@@ -109,7 +109,7 @@ export function OrderCard({
   // Countdown Timer berechnen
   const getCountdown = () => {
     if (order.status !== 'accepted' || !order.acceptedAt || !order.estimatedTime) return null
-    const targetTime = new Date(order.acceptedAt.getTime() + order.estimatedTime * 60000)
+    const targetTime = new Date(new Date(order.acceptedAt).getTime() + order.estimatedTime * 60000)
     const remainingMs = targetTime.getTime() - currentTime.getTime()
     const remainingMins = Math.ceil(remainingMs / 60000)
     return {

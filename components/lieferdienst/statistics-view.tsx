@@ -819,7 +819,7 @@ function ShiftHeatmap15Min({ orders, completedOrders }: { orders: Order[]; compl
 
   const buckets: Record<number, number> = {}
   for (const o of allOrders) {
-    const t = o.createdAt?.getTime?.()
+    const t = o.createdAt ? new Date(o.createdAt).getTime() : undefined
     if (!t || t < todayMs) continue
     const key = Math.floor((t - todayMs) / (15 * 60_000))
     buckets[key] = (buckets[key] ?? 0) + 1
