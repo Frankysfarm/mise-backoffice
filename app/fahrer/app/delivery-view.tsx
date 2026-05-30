@@ -514,7 +514,6 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
     const t = setInterval(() => setElapsedSec(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
   }, []);
-  // Use GPS speed when available (min 3 km/h to avoid GPS jitter), otherwise fallback to 15 km/h
   const speedKmh = gpsSpeed != null && gpsSpeed >= 3 ? gpsSpeed : 15;
   const totalSec = Math.ceil((distanzM / 1000 / speedKmh) * 3600);
   const remaining = Math.max(0, totalSec - elapsedSec);
@@ -522,25 +521,57 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
   const m = Math.floor(remaining / 60);
   const s = remaining % 60;
 
+  // Speed arc gauge: 0-60 km/h range, semicircle
+  const liveSpeed = gpsSpeed != null && gpsSpeed >= 3 ? gpsSpeed : null;
+  const speedPct = liveSpeed != null ? Math.min(1, liveSpeed / 60) : null;
+  const arcR = 18;
+  const arcLen = Math.PI * arcR; // semicircle
+  const speedColor = liveSpeed == null ? '#4d7c5f' : liveSpeed > 50 ? '#f97316' : liveSpeed > 25 ? '#d4a843' : '#4ae68a';
+
   return (
     <div className="mt-2 rounded-xl bg-white/10 px-3 py-2.5 space-y-2">
       <div className="flex items-center justify-between text-xs">
         <span className="text-matcha-300 flex items-center gap-1.5">
           <ArrowRight size={12} />
           {(distanzM / 1000).toFixed(1)} km
-          {gpsSpeed != null && gpsSpeed >= 3 && (
-            <span className="ml-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-bold text-accent tabular-nums">
-              {gpsSpeed} km/h
-            </span>
+        </span>
+
+        {/* Live-Geschwindigkeit: Arc-Gauge */}
+        <div className="flex items-center gap-2">
+          {liveSpeed != null && (
+            <div className="flex flex-col items-center" title={`GPS: ${liveSpeed} km/h`}>
+              <svg width="44" height="26" viewBox="0 0 44 26" className="overflow-visible">
+                {/* Track */}
+                <path d={`M 4 22 A ${arcR} ${arcR} 0 0 1 40 22`} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="4" strokeLinecap="round" />
+                {/* Speed arc */}
+                <path
+                  d={`M 4 22 A ${arcR} ${arcR} 0 0 1 40 22`}
+                  fill="none"
+                  stroke={speedColor}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={arcLen}
+                  strokeDashoffset={arcLen * (1 - (speedPct ?? 0))}
+                  style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s' }}
+                />
+                <text x="22" y="21" textAnchor="middle" fontSize="9" fontWeight="800" fill={speedColor} fontFamily="monospace">
+                  {liveSpeed}
+                </text>
+              </svg>
+              <span className="text-[8px] text-matcha-400 -mt-1 font-bold">km/h</span>
+            </div>
           )}
-        </span>
-        <span className={cn(
-          'font-bold tabular-nums',
-          remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-white',
-        )}>
-          {remaining === 0 ? 'Fast da!' : `~${m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s}s`}`}
-        </span>
+
+          <span className={cn(
+            'font-bold tabular-nums',
+            remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-white',
+          )}>
+            {remaining === 0 ? 'Fast da!' : `~${m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s}s`}`}
+          </span>
+        </div>
       </div>
+
+      {/* Route progress bar */}
       <div className="h-1 rounded-full bg-white/10 overflow-hidden">
         <div
           className={cn(

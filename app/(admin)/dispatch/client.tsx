@@ -15,6 +15,7 @@ import {
   MapPin,
   Package,
   Radio,
+  RefreshCw,
   Target,
   TrendingUp,
   Truck,
@@ -909,6 +910,20 @@ function BatchRow({ batch }: { batch: Batch }) {
   const done = batch.stops.filter((s) => s.geliefert_am).length;
   const progress = total > 0 ? (done / total) * 100 : 0;
 
+  const [optimizing, setOptimizing] = useState(false);
+  const [optimizeResult, setOptimizeResult] = useState<{ total_eta_min?: number; total_distance_km?: number } | null>(null);
+
+  async function handleOptimize() {
+    setOptimizing(true);
+    try {
+      const res = await fetch(`/api/delivery/tours/${batch.id}/optimize`, { method: 'POST' });
+      const data = await res.json().catch(() => null);
+      if (data?.ok) setOptimizeResult(data);
+    } finally {
+      setOptimizing(false);
+    }
+  }
+
   const [, setTick] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 1000);
@@ -1058,6 +1073,28 @@ function BatchRow({ batch }: { batch: Batch }) {
         )}>
           {done}/{total} · {Math.round(progress)}%
         </span>
+
+        {/* Re-Optimieren: nur wenn Tour noch nicht abgeschlossen */}
+        {progress < 100 && (
+          <button
+            onClick={handleOptimize}
+            disabled={optimizing}
+            title="Route neu optimieren"
+            className={cn(
+              'ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold transition',
+              optimizeResult
+                ? 'bg-matcha-100 text-matcha-800'
+                : 'bg-muted text-muted-foreground hover:bg-matcha-100 hover:text-matcha-800',
+            )}
+          >
+            <RefreshCw className={cn('h-3 w-3', optimizing && 'animate-spin')} />
+            {optimizing
+              ? 'Optimiert…'
+              : optimizeResult
+                ? `✓ ${optimizeResult.total_eta_min ?? '?'} Min · ${optimizeResult.total_distance_km?.toFixed(1) ?? '?'} km`
+                : 'Route optimieren'}
+          </button>
+        )}
       </div>
     </div>
   );

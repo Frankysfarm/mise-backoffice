@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
-  Inbox, MapPin, Package, TrendingUp, Utensils, X, Zap,
+  Inbox, Loader2, MapPin, Package, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { advanceOrder, cancelOrder } from './actions';
 
@@ -359,6 +359,11 @@ export function KitchenBoard({
 
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
+
+      {/* Stale Orders Alert — Lieferungen ohne Fahrer >10 Min */}
+      <StaleOrdersWidget
+        locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
+      />
 
       {/* Smart Timing Banner */}
       {timings.length > 0 && <KitchenTimingBanner timings={timings} orders={filtered} />}
@@ -1485,6 +1490,99 @@ function CookingAlertBar({ timings, orders }: { timings: KitchenTiming[]; orders
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ StaleOrdersWidget ------------------------------ */
+
+function StaleOrdersWidget({ locationId }: { locationId: string | null }) {
+  const [data, setData] = useState<{
+    count: number;
+    needs_attention: boolean;
+    orders: { id: string; bestellnummer: string; age_min: number; escalation_status: string; delivery_zone: string | null }[];
+  } | null>(null);
+  const [forceDispatching, setForceDispatching] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/stale-orders?location_id=${locationId}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => d && setData(d))
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 90_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  if (!data || data.count === 0) return null;
+
+  async function forceDispatch(orderId: string) {
+    setForceDispatching(orderId);
+    try {
+      await fetch('/api/delivery/admin/stale-orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId }),
+      });
+    } finally {
+      setForceDispatching(null);
+    }
+  }
+
+  return (
+    <div className={cn(
+      'rounded-xl border-2 p-3',
+      data.needs_attention ? 'border-red-400 bg-red-50' : 'border-amber-300 bg-amber-50',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <AlertCircle className={cn('h-4 w-4', data.needs_attention ? 'text-red-600 animate-pulse' : 'text-amber-600')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          data.needs_attention ? 'text-red-800' : 'text-amber-800',
+        )}>
+          {data.count} Lieferung{data.count !== 1 ? 'en' : ''} &gt;10 Min ohne Fahrer
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {data.orders.slice(0, 5).map((o) => {
+          const isEscalated = o.escalation_status === 'needs_escalation' || o.escalation_status === 'escalated';
+          const isLoading = forceDispatching === o.id;
+          return (
+            <div key={o.id} className={cn(
+              'flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px] bg-white',
+              isEscalated ? 'border-red-300' : 'border-amber-200',
+            )}>
+              <span className="font-mono font-bold text-foreground">#{o.bestellnummer.replace('FF-', '')}</span>
+              {o.delivery_zone && (
+                <span className="rounded px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-[10px] uppercase">
+                  Zone {o.delivery_zone}
+                </span>
+              )}
+              <span className={cn('font-bold tabular-nums', isEscalated ? 'text-red-700' : 'text-amber-700')}>
+                {o.age_min} Min
+              </span>
+              <button
+                onClick={() => forceDispatch(o.id)}
+                disabled={isLoading}
+                className="rounded-md bg-matcha-700 text-white px-2 py-0.5 text-[10px] font-bold hover:bg-matcha-800 disabled:opacity-60 inline-flex items-center gap-1 transition"
+              >
+                {isLoading
+                  ? <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                  : <Zap className="h-2.5 w-2.5" />}
+                {isLoading ? 'Läuft…' : 'Sofort dispatchen'}
+              </button>
+            </div>
+          );
+        })}
+        {data.count > 5 && (
+          <div className="flex items-center text-[11px] text-amber-700 font-semibold px-2">
+            +{data.count - 5} weitere
+          </div>
+        )}
       </div>
     </div>
   );
