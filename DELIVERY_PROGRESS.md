@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–12 + POST-PHASE-9 + POST-PHASE-10 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–12 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #11 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -261,6 +261,10 @@ Siehe DELIVERY_CEO_LOG.md
   - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
 
 ## Letzte Änderungen
+- 2026-05-30: CEO Review #11 — Phase 12 + StaleOrders-Alert + Tour-Optimieren + Speed-Gauge QA
+  - Phase 12 Backend: Dispatch-Eskalation, `v_stale_unassigned_orders`, radius-Faktor 1.5× nach ≥3 Versuchen
+  - Frontend: StaleOrdersWidget in Kitchen (polling 90s, force-dispatch), Route-Optimieren-Button in Dispatch, Speed-Arc-Gauge in Fahrer-App
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-30: Backend-Architekt — Phase 12: Dispatch-Eskalation + Stale-Order-Retry
   - Migration 013: dispatch_attempts + last_dispatch_attempt_at + dispatch_escalated_at + v_stale_unassigned_orders + reset-Trigger
   - dispatch-engine: radiusFactor 1.5× nach ≥3 Versuchen; Versuch-Counter + Eskalations-Timestamps

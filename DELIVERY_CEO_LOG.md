@@ -1,10 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–10 + Post-Phase-9 + Post-Phase-10 visuelle Erweiterungen abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–12 + alle Post-Phase-Erweiterungen abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #10 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben.
+**DONE** — CEO Review #11 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben. System ist deployment-bereit.
+
+## CEO Review #11 — 2026-05-30
+
+### Geprüfte Commits (seit CEO Review #10)
+- `3e9e2a8` feat(delivery/backend): Phase 12 — Dispatch-Eskalation + Stale-Order-Retry
+- `7bdae2d` feat(delivery/frontend): StaleOrders-Alert in Kitchen, Tour-Optimieren in Dispatch, Speed-Gauge in Fahrer-App
+
+### Build + TypeScript
+- `npm run build` ✅ — Compiled successfully, 169 static pages
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+
+### Code-Review
+
+**Phase 12 Backend: Dispatch-Eskalation + Stale-Order-Retry** (`3e9e2a8`):
+- Migration 013: `dispatch_attempts` / `last_dispatch_attempt_at` / `dispatch_escalated_at` auf `customer_orders` ✅
+- `v_stale_unassigned_orders` VIEW mit `escalation_status`-Berechnung (first_hold/retry/needs_escalation/escalated) ✅
+- `reset_dispatch_attempts()` Trigger setzt Zähler zurück wenn `mise_batch_id` gesetzt wird ✅
+- `dispatch-engine.ts`: `radiusFactor = 1.5` nach ≥3 Versuchen korrekt ✅
+- `dispatchSingleOrder()` akzeptiert `radiusFactor`-Parameter mit Default 1.0 ✅
+- `GET /api/delivery/admin/stale-orders`: View-Fallback wenn Migration 013 fehlt — robuste Implementierung ✅
+- `POST /api/delivery/admin/stale-orders`: Re-Dispatch mit 1.5× Radius + Versuch-Counter-Inkrementierung ✅
+- Cron-Response enthält `escalated`-Zähler für Monitoring ✅
+
+**StaleOrdersWidget in Kitchen** (`7bdae2d`):
+- Polling alle 90s: sinnvoll (kein Overkill, stale orders ändern sich nicht sekündlich) ✅
+- Guard: `if (!locationId) return` + Early-Return bei `count === 0` — kein leeres Panel ✅
+- `locationId = locationFilter === 'all' ? locations[0]?.id ?? null : locationFilter` — korrekte Fallback-Logik ✅
+- Farbcodierung: rot wenn `needs_attention`, amber wenn nur Warnung ✅
+- `forceDispatch()` mit Loading-State pro Order (Loader2-Icon) — gute UX ✅
+- Slice auf max. 5 Bestellungen + "+N weitere"-Badge ✅
+
+**Route-Optimieren-Button in Dispatch BatchRow** (`7bdae2d`):
+- `handleOptimize()`: `data?.ok` korrekt geprüft (API gibt `{ ok: true, ...result }`) ✅
+- `optimizeResult`-Shape `{ total_eta_min?, total_distance_km? }` stimmt mit Tour-Optimizer-Return überein ✅
+- Button nur wenn `progress < 100` (laufende Touren) — sinnvoll ✅
+- `animate-spin` während Optimierung, dann Ergebnis `✓ X Min · Y km` ✅
+
+**Speed-Arc-Gauge in StopEtaBar** (`7bdae2d`):
+- SVG-Halbkreis `r=18`, Arc-Pfad `M 4 22 A 18 18 0 0 1 40 22` korrekt (diameter=36, width=44) ✅
+- `arcLen = Math.PI * arcR` ≈ 56.5px (Halbkreis-Umfang) — mathematisch korrekt ✅
+- `speedPct = Math.min(1, liveSpeed / 60)` — 0–60 km/h Range, korrekt geclampt ✅
+- Farbsystem: grün <25 / gelb 25–50 / orange >50 km/h — intuitive Abstufung ✅
+- Guard `gpsSpeed >= 3`: verhindert GPS-Jitter-Artefakte ✅
+- `style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s' }}` — smooth 1s-Animation ✅
+
+### Befund
+- Alle 2 Commits: korrekt implementiert, 0 kritische Fehler
+- Build ✅ sauber, TypeScript ✅ 0 Fehler
+- **SYSTEM MARKT-REIF** — vollständig deployment-bereit
 
 ## CEO Review #10 — 2026-05-30
 
