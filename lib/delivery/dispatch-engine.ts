@@ -34,6 +34,7 @@ export interface DispatchResult {
   zone: ZoneName | null;
   score: number | null;
   reason: string;
+  escalated?: boolean;
 }
 
 interface OrderRow {
@@ -48,6 +49,8 @@ interface OrderRow {
   priority: string | null;
   estimated_prep_min: number | null;
   created_at: string;
+  dispatch_attempts: number;
+  dispatch_escalated_at: string | null;
 }
 
 interface LocationRow {
@@ -95,11 +98,12 @@ export async function smartDispatchTick(): Promise<{
   dispatched: number;
   bundled: number;
   held: number;
+  escalated: number;
   results: DispatchResult[];
 }> {
   const { data: orders } = await sb()
     .from('customer_orders')
-    .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at')
+    .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at')
     .eq('typ', 'lieferung')
     .is('mise_batch_id', null)
     .in('status', ['neu', 'in_zubereitung', 'fertig'])
@@ -107,21 +111,48 @@ export async function smartDispatchTick(): Promise<{
     .limit(50);
 
   const results: DispatchResult[] = [];
+  const now = new Date().toISOString();
+
   for (const o of orders ?? []) {
-    const r = await dispatchSingleOrder(o as OrderRow);
+    const row = o as OrderRow;
+    // Eskalations-Radius: nach ≥3 Versuchen Radius um 50% erweitern
+    const radiusFactor = row.dispatch_attempts >= 3 ? 1.5 : 1.0;
+    const r = await dispatchSingleOrder(row, radiusFactor);
     results.push(r);
+
+    if (r.outcome === 'held') {
+      // Fehlversuch tracken + ggf. Eskalation markieren
+      const newAttempts = row.dispatch_attempts + 1;
+      const needsEscalation = newAttempts >= 3 && !row.dispatch_escalated_at;
+      const patch: Record<string, unknown> = {
+        dispatch_attempts:        newAttempts,
+        last_dispatch_attempt_at: now,
+      };
+      if (needsEscalation) {
+        patch.dispatch_escalated_at = now;
+        r.escalated = true;
+        logDeliveryEvent({
+          event_type:  'order_held',
+          location_id: row.location_id,
+          order_id:    row.id,
+          payload:     { attempts: newAttempts, reason: r.reason, escalated: true },
+        });
+      }
+      await sb().from('customer_orders').update(patch).eq('id', row.id);
+    }
   }
 
   return {
-    scanned: results.length,
+    scanned:   results.length,
     dispatched: results.filter((r) => r.outcome === 'dispatched').length,
     bundled:    results.filter((r) => r.outcome === 'bundled').length,
     held:       results.filter((r) => r.outcome === 'held').length,
+    escalated:  results.filter((r) => r.escalated).length,
     results,
   };
 }
 
-export async function dispatchSingleOrder(o: OrderRow): Promise<DispatchResult> {
+export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Promise<DispatchResult> {
   const held = (reason: string): DispatchResult => ({
     orderId: o.id, outcome: 'held', batchId: null, driverId: null, zone: null, score: null, reason,
   });
@@ -178,12 +209,12 @@ export async function dispatchSingleOrder(o: OrderRow): Promise<DispatchResult> 
     created_at: o.created_at,
   };
 
-  // Radius-Filter
+  // Radius-Filter (radiusFactor > 1 bei eskalierten Bestellungen)
   const nearby = drivers.filter((d) => {
     if (d.last_lat == null || d.last_lng == null) return true;
-    return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat!, lng: loc.lng! }) <= d.max_radius_km;
+    return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat!, lng: loc.lng! }) <= d.max_radius_km * radiusFactor;
   });
-  if (nearby.length === 0) return held('Kein Fahrer im Radius');
+  if (nearby.length === 0) return held(`Kein Fahrer im Radius (${radiusFactor > 1 ? `×${radiusFactor} eskaliert` : 'normal'})`);
 
   // 5) Scoring
   const driverInputs: DriverScoreInput[] = nearby.map((d) => ({

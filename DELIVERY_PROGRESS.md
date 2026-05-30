@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–10 + POST-PHASE-9 + POST-PHASE-10 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–12 + POST-PHASE-9 + POST-PHASE-10 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -106,6 +106,27 @@
 - [x] **Statistik: Top-Artikel-Widget** — Top-8 meistbestellte Artikel aus heutigen Abschlüssen, Balken-Visualisierung, Medaillensystem (Gold/Silber/Bronze)
 - [x] **Storefront: Live-ETA-Indikator** — `LiveEtaBar`: pulsierender Auslastungsindikator (frei/normal/hoch) mit Live-Lieferzeit; neues GET `/api/delivery/eta/live` (öffentlich, polling 60s)
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓, 3 Commits, git push origin main ✓
+
+## Phase 12: Dispatch-Eskalation + Stale-Order-Retry [DONE ✅] — 2026-05-30
+- [x] **`scripts/migrations/013_dispatch_escalation.sql`** — Eskalations-Tracking auf `customer_orders`
+  - `dispatch_attempts` (int, DEFAULT 0): zählt fehlgeschlagene Dispatch-Versuche
+  - `last_dispatch_attempt_at` (timestamptz): letzter Versuch-Zeitpunkt
+  - `dispatch_escalated_at` (timestamptz): Zeitpunkt der ersten Radius-Eskalation
+  - `v_stale_unassigned_orders` VIEW: alle Lieferbestellungen ohne Zuweisung >10 Min mit `escalation_status`
+  - `reset_dispatch_attempts()` Trigger: setzt Zähler zurück wenn `mise_batch_id` gesetzt wird
+  - 2 Performance-Indizes für Stale-Order- und Eskalations-Abfragen
+- [x] **`lib/delivery/dispatch-engine.ts`** — Eskalations-Logik in `smartDispatchTick()`
+  - `radiusFactor = 1.5` nach ≥3 fehlgeschlagenen Versuchen (50% weiterer Radius)
+  - Inkrementiert `dispatch_attempts` + setzt `last_dispatch_attempt_at` nach jedem "held"
+  - Setzt `dispatch_escalated_at` beim ersten Eskalierungs-Trigger + loggt Event
+  - Neues Return-Feld `escalated: number` im Tick-Ergebnis
+  - `dispatchSingleOrder()` akzeptiert `radiusFactor` Parameter (default 1.0)
+- [x] **`app/api/delivery/admin/stale-orders/route.ts`** — GET + POST
+  - `GET ?location_id=...` — Stale-Orders mit Eskalations-Status (Fallback wenn Migration fehlt)
+  - `POST { order_id }` — manueller Re-Dispatch mit erweitertem Radius (1.5×)
+- [x] **`app/api/delivery/dispatch/route.ts`** — Einzelorder-Dispatch nutzt auch `dispatch_attempts` für Radius-Faktor
+- [x] **`app/api/cron/smart-dispatch/route.ts`** — Response enthält `escalated` Zähler
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓
 
 ## Post-Phase-10: Visuelle Erweiterungen [DONE ✅] — 2026-05-30 (CEO Review #10)
 - [x] **Dispatch: ScoreArcGauge** — SVG-Halbkreis-Gauge mit Notensystem A–F (Excellent/Sehr gut/Gut/Befriedigend/Verbesserung nötig) + Tier-Aufschlüsselung
@@ -240,6 +261,12 @@ Siehe DELIVERY_CEO_LOG.md
   - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
 
 ## Letzte Änderungen
+- 2026-05-30: Backend-Architekt — Phase 12: Dispatch-Eskalation + Stale-Order-Retry
+  - Migration 013: dispatch_attempts + last_dispatch_attempt_at + dispatch_escalated_at + v_stale_unassigned_orders + reset-Trigger
+  - dispatch-engine: radiusFactor 1.5× nach ≥3 Versuchen; Versuch-Counter + Eskalations-Timestamps
+  - GET/POST /api/delivery/admin/stale-orders: Admin-Übersicht + manueller Re-Dispatch
+  - Cron-Response enthält jetzt `escalated`-Zähler
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-30: CEO Review #10 — Post-Phase-10 visuelle Erweiterungen QA + Bug-Fix
   - 4 Commits geprüft (ScoreArcGauge, CookingAlertBar, NextStopHero, GPS-Speed, Heatmap, ShiftRevenue, Checkout-ETA)
   - Bug behoben: CookingAlertBar Mini-Progress-Bar zeigte immer 100% → korrekte Zeitindikatoren (0%=5min vorher, 100%=Kochstart)

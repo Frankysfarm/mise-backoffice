@@ -35,13 +35,14 @@ export async function POST(req: NextRequest) {
     const sb = createServiceClient();
     const { data: o, error } = await sb
       .from('customer_orders')
-      .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at')
+      .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at')
       .eq('id', body.order_id)
       .single();
     if (error || !o) {
       return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
     }
-    const result = await dispatchSingleOrder(o as Parameters<typeof dispatchSingleOrder>[0]);
+    const radiusFactor = ((o as Record<string, unknown>).dispatch_attempts as number ?? 0) >= 3 ? 1.5 : 1.0;
+    const result = await dispatchSingleOrder(o as Parameters<typeof dispatchSingleOrder>[0], radiusFactor);
     return NextResponse.json({ ok: true, result });
   }
 

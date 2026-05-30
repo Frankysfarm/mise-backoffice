@@ -55,7 +55,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       duration_ms: durationMs,
-      ...dispatchResult,
+      scanned:    dispatchResult.scanned,
+      dispatched: dispatchResult.dispatched,
+      bundled:    dispatchResult.bundled,
+      held:       dispatchResult.held,
+      escalated:  dispatchResult.escalated,
       kitchen: {
         notified: kitchenResult.notified,
         locations: kitchenResult.locations,
