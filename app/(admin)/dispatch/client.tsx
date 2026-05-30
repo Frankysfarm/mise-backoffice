@@ -507,32 +507,30 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {/* Avg Score Gauge */}
+      {/* Avg Score Gauge — SVG Halbkreis-Anzeige mit Note */}
       {avgScore !== null && (
         <Card className="p-4">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <Target className="h-4 w-4 text-matcha-600" />
             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Ø Dispatch-Score</div>
           </div>
-          <div className="flex items-end gap-2">
-            <div className={cn(
-              'font-display text-3xl font-black leading-none',
-              avgScore >= 80 ? 'text-matcha-700' : avgScore >= 60 ? 'text-blue-600' : avgScore >= 40 ? 'text-orange-600' : 'text-red-600',
-            )}>{avgScore}</div>
-            <div className="text-xs text-muted-foreground mb-0.5">/ 100</div>
-          </div>
-          <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div
-              className={cn('h-full rounded-full transition-all', avgScore >= 80 ? 'bg-matcha-500' : avgScore >= 60 ? 'bg-blue-400' : avgScore >= 40 ? 'bg-orange-400' : 'bg-red-400')}
-              style={{ width: `${avgScore}%` }}
-            />
+          <div className="flex items-center justify-center">
+            <ScoreArcGauge score={avgScore} />
           </div>
           {scored.length > 0 && (
-            <div className="mt-2 flex gap-0.5 h-1">
-              {tiers.excellent > 0 && <div className="rounded-full bg-matcha-500" style={{ width: `${(tiers.excellent / scored.length) * 100}%` }} />}
-              {tiers.good > 0 && <div className="rounded-full bg-blue-400" style={{ width: `${(tiers.good / scored.length) * 100}%` }} />}
-              {tiers.fair > 0 && <div className="rounded-full bg-orange-400" style={{ width: `${(tiers.fair / scored.length) * 100}%` }} />}
-              {tiers.low > 0 && <div className="rounded-full bg-red-400" style={{ width: `${(tiers.low / scored.length) * 100}%` }} />}
+            <div className="mt-3">
+              <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden">
+                {tiers.excellent > 0 && <div className="bg-matcha-500" style={{ width: `${(tiers.excellent / scored.length) * 100}%` }} />}
+                {tiers.good > 0 && <div className="bg-blue-400" style={{ width: `${(tiers.good / scored.length) * 100}%` }} />}
+                {tiers.fair > 0 && <div className="bg-orange-400" style={{ width: `${(tiers.fair / scored.length) * 100}%` }} />}
+                {tiers.low > 0 && <div className="bg-red-400" style={{ width: `${(tiers.low / scored.length) * 100}%` }} />}
+              </div>
+              <div className="mt-1.5 flex justify-between text-[9px] text-muted-foreground">
+                <span className="text-matcha-700 font-bold">{tiers.excellent} A+</span>
+                <span className="text-blue-600 font-bold">{tiers.good} B</span>
+                <span className="text-orange-600 font-bold">{tiers.fair} C</span>
+                <span className="text-red-600 font-bold">{tiers.low} F</span>
+              </div>
             </div>
           )}
         </Card>
@@ -1087,6 +1085,59 @@ function zoneMeta(zone: string | null): { cls: string; barCls: string } {
     case 'D': return { cls: 'bg-red-100 text-red-800',       barCls: 'bg-red-400' };
     default:  return { cls: 'bg-muted text-muted-foreground', barCls: 'bg-muted-foreground' };
   }
+}
+
+function ScoreArcGauge({ score }: { score: number }) {
+  const pct = Math.min(100, Math.max(0, score)) / 100;
+  const r = 34;
+  const arc = Math.PI * r; // semicircle circumference
+  const color =
+    score >= 80 ? '#2d6b45' :
+    score >= 60 ? '#2563eb' :
+    score >= 40 ? '#f97316' :
+                  '#ef4444';
+  const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 65 ? 'C' : score >= 50 ? 'D' : 'F';
+  const gradeColor =
+    grade === 'A' || grade === 'B' ? 'text-matcha-700' :
+    grade === 'C' ? 'text-blue-600' :
+    grade === 'D' ? 'text-orange-600' :
+                    'text-red-600';
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <svg width="88" height="52" viewBox="0 0 88 52" className="overflow-visible">
+        {/* Track */}
+        <path
+          d={`M 10 44 A ${r} ${r} 0 0 1 78 44`}
+          fill="none"
+          stroke="rgba(0,0,0,0.08)"
+          strokeWidth="7"
+          strokeLinecap="round"
+        />
+        {/* Progress */}
+        <path
+          d={`M 10 44 A ${r} ${r} 0 0 1 78 44`}
+          fill="none"
+          stroke={color}
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={arc}
+          strokeDashoffset={arc * (1 - pct)}
+          style={{ transition: 'stroke-dashoffset 1.2s ease, stroke 0.5s' }}
+        />
+        {/* Score label */}
+        <text x="44" y="40" textAnchor="middle" fontSize="16" fontWeight="800" fill={color} fontFamily="sans-serif">
+          {Math.round(score)}
+        </text>
+      </svg>
+      <span className={cn('font-display text-3xl font-black leading-none -mt-2', gradeColor)}>
+        {grade}
+      </span>
+      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+        {grade === 'A' ? 'Exzellent' : grade === 'B' ? 'Sehr gut' : grade === 'C' ? 'Gut' : grade === 'D' ? 'Befriedigend' : 'Verbesserung nötig'}
+      </span>
+    </div>
+  );
 }
 
 function scoreMeta(score: number): { cls: string } {

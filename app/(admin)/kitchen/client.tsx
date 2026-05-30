@@ -409,6 +409,9 @@ export function KitchenBoard({
         </div>
       </div>
 
+      {/* Proaktiv: "Jetzt kochen!" — wenn Kochstart <5 Min oder überfällig */}
+      {timings.length > 0 && <CookingAlertBar timings={timings} orders={filtered} />}
+
       {/* Popup: ungenommene Order */}
       {unacceptedAlert && (
         <UnacceptedOrderPopup
@@ -1392,6 +1395,100 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
         </div>
       </div>
     </Card>
+  );
+}
+
+/* ------------------------------ CookingAlertBar ------------------------------ */
+
+function CookingAlertBar({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
+  const now = Date.now();
+
+  const alerts = timings
+    .filter((t) => t.status === 'scheduled' && t.cook_start_at)
+    .map((t) => {
+      const secs = Math.floor((new Date(t.cook_start_at!).getTime() - now) / 1000);
+      const order = orders.find((o) => o.id === t.order_id);
+      if (!order) return null;
+      return { t, order, secs };
+    })
+    .filter((x): x is { t: KitchenTiming; order: Order; secs: number } => x !== null)
+    .filter((x) => x.secs < 300) // nur innerhalb 5 Min anzeigen
+    .sort((a, b) => a.secs - b.secs);
+
+  if (alerts.length === 0) return null;
+
+  return (
+    <div className={cn(
+      'rounded-xl border-2 p-3',
+      alerts.some((a) => a.secs < 0) ? 'border-red-500 bg-red-50' : 'border-orange-400 bg-orange-50',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <Flame className={cn('h-4 w-4', alerts.some((a) => a.secs < 0) ? 'text-red-600' : 'text-orange-600')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          alerts.some((a) => a.secs < 0) ? 'text-red-800' : 'text-orange-800',
+        )}>
+          Jetzt kochen! — {alerts.length} Bestellung{alerts.length !== 1 ? 'en' : ''}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {alerts.map(({ t, order, secs }) => {
+          const overdue = secs < 0;
+          const imminent = !overdue && secs < 60;
+          return (
+            <div
+              key={t.id}
+              className={cn(
+                'rounded-lg border-2 px-3 py-2 min-w-[140px]',
+                overdue  ? 'border-red-500 bg-red-100 animate-pulse' :
+                imminent ? 'border-orange-500 bg-orange-100 animate-pulse' :
+                           'border-orange-300 bg-white',
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-foreground">
+                  #{order.bestellnummer.replace('FF-', '')}
+                </span>
+                <span className={cn(
+                  'rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums',
+                  overdue  ? 'bg-red-600 text-white' :
+                  imminent ? 'bg-orange-500 text-white' :
+                             'bg-orange-200 text-orange-900',
+                )}>
+                  {overdue ? `+${fmtCountdown(-secs)} überfällig!` : `in ${fmtCountdown(secs)}`}
+                </span>
+              </div>
+              <div className="mt-0.5 text-[10px] text-foreground/70 truncate">{order.kunde_name}</div>
+              {t.ready_target && (
+                <div className={cn(
+                  'mt-0.5 text-[10px] font-semibold',
+                  overdue ? 'text-red-700' : 'text-orange-700',
+                )}>
+                  Abholung {new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
+              {/* Cook-to-ready mini bar */}
+              {t.cook_start_at && t.ready_target && (() => {
+                const totalMs = new Date(t.ready_target).getTime() - new Date(t.cook_start_at).getTime();
+                const progressMs = totalMs + (secs < 0 ? Math.abs(secs) * 1000 : 0);
+                const pct = Math.min(100, (progressMs / totalMs) * 100);
+                return (
+                  <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full',
+                        overdue ? 'bg-red-500 animate-pulse' : 'bg-orange-400',
+                      )}
+                      style={{ width: `${pct}%`, transition: 'width 1s linear' }}
+                    />
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

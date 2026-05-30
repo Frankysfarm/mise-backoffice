@@ -181,6 +181,81 @@ export function DeliveryView({
         })()}
       </div>
 
+      {/* Next-Stop-Hero: prominente Anzeige des nächsten Stops */}
+      {nextStop && !allDone && (
+        <div className="mx-4 mt-3 rounded-2xl bg-accent/10 border-2 border-accent/30 p-4">
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[9px] font-black uppercase tracking-widest text-accent">Nächster Stopp</span>
+            <span className={cn(
+              'ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
+              !nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
+                ? 'bg-amber-400 text-matcha-900'
+                : 'bg-matcha-700 text-matcha-50',
+            )}>
+              {!nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
+                ? `BAR ${euro(nextStop.order.gesamtbetrag)}`
+                : `Online ✓`}
+            </span>
+          </div>
+          <div className="font-display text-xl font-black leading-tight">{nextStop.order.kunde_name}</div>
+          <div className="mt-0.5 text-sm text-matcha-200 leading-tight">
+            {nextStop.order.kunde_adresse}
+            {nextStop.order.kunde_plz && `, ${nextStop.order.kunde_plz}`}
+          </div>
+          <div className="mt-2 flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1 text-matcha-300">
+              <span className="h-5 w-5 rounded-full bg-accent text-matcha-900 flex items-center justify-center font-black text-[10px]">
+                {nextStop.reihenfolge}
+              </span>
+              Stopp {nextStop.reihenfolge} von {stops.length}
+            </span>
+            {nextStop.distanz_zum_vorgaenger_m != null && nextStop.distanz_zum_vorgaenger_m > 0 && (
+              <span className="text-matcha-300 font-mono">
+                {(nextStop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km
+              </span>
+            )}
+            {/* ETA für nächsten Stopp */}
+            {batchStartedAt && totalEtaMin != null && (() => {
+              const startMs = new Date(batchStartedAt).getTime();
+              const etaMs = startMs + ((nextStop.reihenfolge / stops.length) * totalEtaMin * 60_000);
+              const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+              const etaStr = new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+              if (secLeft < -300) return null;
+              return (
+                <span className={cn(
+                  'rounded-full px-2 py-0.5 font-bold',
+                  secLeft < 0 ? 'bg-red-500/30 text-red-300' :
+                  secLeft < 180 ? 'bg-amber-500/30 text-amber-200' :
+                  'bg-white/10 text-matcha-200',
+                )}>
+                  ~{etaStr} Uhr
+                </span>
+              );
+            })()}
+          </div>
+          {/* Direct navigation button for next stop */}
+          {nextStop.order.kunde_lat && nextStop.order.kunde_lng && (() => {
+            const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const lat = nextStop.order.kunde_lat!;
+            const lng = nextStop.order.kunde_lng!;
+            const href = isIos
+              ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
+              : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-accent text-matcha-900 font-bold text-sm transition active:scale-[0.98]"
+              >
+                <Navigation size={14} />
+                Navigieren zum nächsten Stopp
+              </a>
+            );
+          })()}
+        </div>
+      )}
+
       {/* Multi-Waypoint Navigation */}
       {openStops.length > 0 && (() => {
         const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);

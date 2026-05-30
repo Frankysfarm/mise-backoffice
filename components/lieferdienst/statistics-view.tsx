@@ -801,6 +801,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* 15-Minuten Tagesgang */}
       <ShiftHeatmap15Min orders={orders} completedOrders={completedOrders} />
+
+      {/* Live-Umsatz Schicht */}
+      <ShiftRevenuePanel orders={orders} completedOrders={completedOrders} deliveryStats={deliveryStats} />
     </div>
   )
 }
@@ -887,6 +890,141 @@ function ShiftHeatmap15Min({ orders, completedOrders }: { orders: Order[]; compl
         <span>{data[0]?.label}</span>
         <span className="text-saffron font-bold">Jetzt</span>
       </div>
+    </div>
+  )
+}
+
+/* ------------------------------ ShiftRevenuePanel ------------------------------ */
+
+function ShiftRevenuePanel({
+  orders,
+  completedOrders,
+  deliveryStats,
+}: {
+  orders: Order[];
+  completedOrders: Order[];
+  deliveryStats: DeliveryStats;
+}) {
+  const allOrders = [...orders, ...completedOrders]
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+
+  // Umsatz aus Bestellungen (Schätzwert aus lokalen Orders)
+  const revenueByType: Record<string, number> = { lieferung: 0, abholung: 0, vor_ort: 0 }
+  let totalRevenue = 0
+
+  for (const o of allOrders) {
+    if (['done', 'geliefert', 'abgeschlossen', 'abgeholt'].includes(o.status)) {
+      const amount = (o as any).gesamtbetrag ?? (o as any).totalAmount ?? 0
+      totalRevenue += amount
+      const typ = (o as any).typ ?? 'vor_ort'
+      revenueByType[typ] = (revenueByType[typ] ?? 0) + amount
+    }
+  }
+
+  // Zahlungsart-Aufschlüsselung
+  const byPayment: Record<string, number> = {}
+  for (const o of allOrders) {
+    const pay = (o as any).zahlungsart ?? 'unbekannt'
+    const amount = (o as any).gesamtbetrag ?? 0
+    byPayment[pay] = (byPayment[pay] ?? 0) + amount
+  }
+
+  // Delivery API Score ggf. anzeigen
+  const avgDeliveryScore = deliveryStats?.scoring?.avg_score
+
+  if (totalRevenue === 0 && !avgDeliveryScore) return null
+
+  const barData = Object.entries(revenueByType)
+    .filter(([, v]) => v > 0)
+    .map(([k, v]) => ({
+      name: k === 'lieferung' ? 'Lieferung' : k === 'abholung' ? 'Abholung' : 'Vor Ort',
+      value: Math.round(v * 100) / 100,
+      color: k === 'lieferung' ? '#8b5cf6' : k === 'abholung' ? '#f59e0b' : '#10b981',
+    }))
+
+  const maxBar = Math.max(...barData.map((b) => b.value), 1)
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-char flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-violet-600" />
+          Schicht-Umsatz
+        </h3>
+        <div className="text-2xl font-black text-char">
+          {formatCurrency(totalRevenue)}
+        </div>
+      </div>
+
+      {/* Umsatz nach Typ */}
+      {barData.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {barData.map(({ name, value, color }) => (
+            <div key={name} className="flex items-center gap-3 text-sm">
+              <span className="w-20 text-steel shrink-0">{name}</span>
+              <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${(value / maxBar) * 100}%`, backgroundColor: color }}
+                />
+              </div>
+              <span className="w-20 text-right font-semibold text-char tabular-nums">
+                {formatCurrency(value)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Zahlungsart */}
+      {Object.keys(byPayment).length > 0 && (
+        <div className="border-t border-stone-100 pt-4">
+          <div className="text-xs font-semibold text-steel mb-2 uppercase tracking-wide">Nach Zahlungsart</div>
+          <div className="grid grid-cols-3 gap-2">
+            {Object.entries(byPayment)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3)
+              .map(([pay, amount]) => (
+                <div key={pay} className="rounded-xl bg-stone-50 p-3 border border-stone-100 text-center">
+                  <div className="text-lg font-black text-char">{formatCurrency(amount)}</div>
+                  <div className="text-xs text-steel mt-0.5 capitalize">
+                    {pay === 'bar' ? '💵 Bar' : pay === 'karte' ? '💳 Karte' : pay === 'online' ? '🌐 Online' : pay}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Dispatch-Score Indikator */}
+      {avgDeliveryScore != null && (
+        <div className="border-t border-stone-100 mt-4 pt-4 flex items-center justify-between">
+          <div className="text-sm text-steel flex items-center gap-2">
+            <Target className="w-4 h-4 text-matcha-600" />
+            Ø Dispatch-Qualität
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-32 h-2 bg-stone-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  avgDeliveryScore >= 80 ? 'bg-emerald-400' :
+                  avgDeliveryScore >= 60 ? 'bg-blue-400' :
+                  avgDeliveryScore >= 40 ? 'bg-amber-400' :
+                  'bg-red-400'
+                }`}
+                style={{ width: `${avgDeliveryScore}%` }}
+              />
+            </div>
+            <span className={`font-black text-lg ${
+              avgDeliveryScore >= 80 ? 'text-emerald-600' :
+              avgDeliveryScore >= 60 ? 'text-blue-600' :
+              'text-amber-600'
+            }`}>
+              {Math.round(avgDeliveryScore)}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
