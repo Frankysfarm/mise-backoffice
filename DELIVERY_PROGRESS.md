@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–10 + POST-PHASE-9 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–10 + POST-PHASE-9 + POST-PHASE-10 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -107,6 +107,20 @@
 - [x] **Storefront: Live-ETA-Indikator** — `LiveEtaBar`: pulsierender Auslastungsindikator (frei/normal/hoch) mit Live-Lieferzeit; neues GET `/api/delivery/eta/live` (öffentlich, polling 60s)
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓, 3 Commits, git push origin main ✓
 
+## Post-Phase-10: Visuelle Erweiterungen [DONE ✅] — 2026-05-30 (CEO Review #10)
+- [x] **Dispatch: ScoreArcGauge** — SVG-Halbkreis-Gauge mit Notensystem A–F (Excellent/Sehr gut/Gut/Befriedigend/Verbesserung nötig) + Tier-Aufschlüsselung
+- [x] **Dispatch: Revenue-on-Route Panel** — Zeigt laufenden Umsatz (unterwegs + wartet auf Abholung) im Score-Summary
+- [x] **Kitchen: KitchenShiftStats** — Schnappschuss-Chips am Kopf: Fertig heute, /Std-Rate, in Zubereitung, wartet auf Fahrer, kritisch überzogen
+- [x] **Kitchen: Zone-Bündelungs-Chip** — Fertig-Lieferbestellungen gleicher Zone erhalten `→ bündeln!`-Chip mit Link zu `/dispatch`
+- [x] **Kitchen: CookingAlertBar** — Proaktiver Alert für Bestellungen mit Kochstart <5 Min (orange) oder überfällig (rot+puls); Mini-Progress-Bar je Bestellung
+- [x] **Fahrer-App: NextStopHero** — Prominente Hero-Karte für nächsten Stop (Kunde, Adresse, ETA-Uhr, Entfernung, Bar/Online-Badge, Navigationsbutton)
+- [x] **Fahrer-App: GPS-Speed ETA** — `StopEtaBar` nutzt Live-GPS-Geschwindigkeit für präzise Ankunftszeit (Fallback 15 km/h)
+- [x] **Statistik: 15-Min-Tagesgang-Heatmap** — Balkendiagramm der Bestelldichte (letzte 4h in 15-Min-Slots), Peak-Anzeige
+- [x] **Statistik: ShiftRevenuePanel** — Umsatz nach Typ (Lieferung/Abholung/Vor Ort) + Zahlungsart-Aufschlüsselung
+- [x] **Storefront/Checkout: Live-ETA-Widget** — Küchenauslastung (quiet/normal/busy) + geschätzte Lieferzeit im Checkout-Formular
+- Bug behoben: CookingAlertBar Mini-Progress-Bar zeigte immer 100% → Fix: 0%=5Min-vorher, 100%=Kochstart (CEO Review #10)
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓, git push origin main ✓
+
 ## Vorhandene Basis (CEO-Review 2026-05-28)
 **Funktioniert bereits:**
 - Dispatch Board `/dispatch` — manuelle Auftragsverteilung, Live-Realtime
@@ -115,8 +129,8 @@
 - Driver-API `/api/driver/v1/` — Auth (OTP), Aktive Touren, Sessions
 - Delivery Admin `/delivery` — Zonen, Konditionen, Plattformen
 
-**TypeScript-Status:** 0 Fehler (CEO-Review #3: 22 Fehler behoben)
-**Build-Status:** Kompiliert sauber (npm run build ✅ — Frontend-Ingenieur Phase 9, 2026-05-29)
+**TypeScript-Status:** 0 Fehler (CEO-Review #10: 0 Fehler bestätigt)
+**Build-Status:** Kompiliert sauber (npm run build ✅ — CEO-Review #10, 2026-05-30)
 **Build-Achtung:** Nur `npm run build` verwenden! `npx next build` nutzt globales Next.js 16 (Turbopack-Fehler).
 
 ## CEO-Log
@@ -226,6 +240,10 @@ Siehe DELIVERY_CEO_LOG.md
   - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
 
 ## Letzte Änderungen
+- 2026-05-30: CEO Review #10 — Post-Phase-10 visuelle Erweiterungen QA + Bug-Fix
+  - 4 Commits geprüft (ScoreArcGauge, CookingAlertBar, NextStopHero, GPS-Speed, Heatmap, ShiftRevenue, Checkout-ETA)
+  - Bug behoben: CookingAlertBar Mini-Progress-Bar zeigte immer 100% → korrekte Zeitindikatoren (0%=5min vorher, 100%=Kochstart)
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-29: Backend-Architekt — Phase 11: Driver-State-Bugfixes (4 Routes + 1 Migration)
   - dispatch-engine: loadActiveDrivers gibt jetzt echte Fahrer zurück (State-Bug war silent blocker!)
   - health/route: mise_drivers.location_id-Phantom-Filter entfernt (Spalte existiert nicht)

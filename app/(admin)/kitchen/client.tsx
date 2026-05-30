@@ -1467,11 +1467,9 @@ function CookingAlertBar({ timings, orders }: { timings: KitchenTiming[]; orders
                   Abholung {new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               )}
-              {/* Cook-to-ready mini bar */}
+              {/* Cook-to-ready mini bar: 0% = 5min vor Kochstart, 100% = Kochstart erreicht/überzogen */}
               {t.cook_start_at && t.ready_target && (() => {
-                const totalMs = new Date(t.ready_target).getTime() - new Date(t.cook_start_at).getTime();
-                const progressMs = totalMs + (secs < 0 ? Math.abs(secs) * 1000 : 0);
-                const pct = Math.min(100, (progressMs / totalMs) * 100);
+                const pct = overdue ? 100 : Math.min(100, Math.round(((300 - secs) / 300) * 100));
                 return (
                   <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
                     <div

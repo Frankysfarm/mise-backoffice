@@ -1,10 +1,103 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–10 + Frontend-Erweiterungen (Phase 9 + Post-Phase-9) abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–10 + Post-Phase-9 + Post-Phase-10 visuelle Erweiterungen abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #9 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben.
+**DONE** — CEO Review #10 bestätigt: 0 TypeScript-Fehler, Build clean. Keine weiteren Feature-Aufgaben.
+
+## CEO Review #10 — 2026-05-30
+
+### Geprüfte Commits (seit CEO Review #9)
+- `fe683ea` feat(delivery/frontend): Smart-Timing-Alert, Score-Gauge, Fahrer-Hero-Stop, Umsatz-Panel
+- `b2e0528` feat(delivery/frontend): Checkout Live-ETA-Widget, Dispatch Revenue-on-Route
+- `f4f3197` feat(delivery/frontend): Dispatch Revenue-Karte, Fahrer GPS-Speed ETA, Bau-Erweiterungen
+- `ced20ea` feat(delivery/frontend): Kitchen Schicht-Stats, Zone-Bündelungs-Chip, Tracking-Entfernung, 15-Min-Heatmap
+
+### Build + TypeScript
+- `npm run build` ✅ — Compiled successfully, 169 static pages
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+
+### Code-Review der neuen Features
+
+**ScoreArcGauge** (`dispatch/client.tsx`):
+- SVG-Halbkreis r=34, `arc = π × r ≈ 106.8px`, strokeDashoffset-Formel korrekt ✅
+- Notensystem A–F: Schwellen 90/80/65/50 — realistisch für Dispatch-Scoring ✅
+- `pct = Math.min(100, Math.max(0, score)) / 100` — kein Out-of-Range ✅
+- Tier-Aufschlüsselung Excellent/Good/Fair/Low mit Farbbalken darunter ✅
+
+**Revenue-on-Route Panel** (`dispatch/client.tsx`):
+- IIFE-Guard: `combined === 0 → return null` — kein leeres Panel ✅
+- Filterung: `status === 'unterwegs'` + `status === 'fertig'` (wartet auf Abholung) ✅
+- `euro()` Formatierung konsistent ✅
+
+**KitchenShiftStats** (`kitchen/client.tsx`):
+- Schnapschuss-Chips: Fertig heute / Bestellungen/Std / in Zubereitung / wartet auf Fahrer / kritisch überzogen ✅
+- Early-Return: `completedToday === null && ordersLastHour === 0 && waitingForDriver === 0 → return null` ✅
+- Korrekte Statusfilter für `cookingNow` und `waitingForDriver` ✅
+
+**Zone-Bündelungs-Chip** (`kitchen/client.tsx`):
+- Pre-compute `fertigZoneCounts` nur für `col.status === 'fertig'` — korrekte Scope-Begrenzung ✅
+- Link zu `/dispatch` mit `title="Im Dispatch bündeln"` — korrekte Navigation ✅
+- Threshold `sameZoneCount >= 2` — nur bei ≥2 Bestellungen in gleicher Zone ✅
+
+**CookingAlertBar** (`kitchen/client.tsx`):
+- Filter: `status === 'scheduled' && cook_start_at && secs < 300` (5-Min-Fenster) ✅
+- Sortierung nach `secs` aufsteigend (dringlichste zuerst) ✅
+- Bug gefunden + behoben: Mini-Fortschrittsbalken
+
+**NextStopHero** (`delivery-view.tsx`):
+- Inline in DeliveryView, zeigt Bar/Online-Badge, Adresse, ETA-Zeit ✅
+- iOS/Android Navigation deeplink korrekt (`maps://` vs. Google Maps) ✅
+- Guard: `secLeft < -300 → return null` für stark überzogene ETAs ✅
+
+**GPS-Speed in StopEtaBar** (`delivery-view.tsx`):
+- `gpsSpeed != null && gpsSpeed >= 3` Guard gegen GPS-Jitter ✅
+- Fallback auf 15 km/h wenn kein GPS-Signal ✅
+- Speed-Pill nur angezeigt wenn GPS-Speed valid ✅
+
+**ShiftHeatmap15Min** (`statistics-view.tsx`):
+- 15-Min-Buckets mit `Math.floor((t - todayMs) / (15 * 60_000))` — korrekte Bucket-Zuweisung ✅
+- Letzte 16 Buckets = 4h Fenster, `nowKey`-Bucket in Saffron hervorgehoben ✅
+- `o.createdAt?.getTime?.()` — korrekte optionale Verkettung für Date-Objekt ✅
+- Early-Return wenn keine Buckets ✅
+
+**ShiftRevenuePanel** (`statistics-view.tsx`):
+- Nutzt `(o as any).gesamtbetrag` — Typ-Brücke wegen `Order`-Typ aus lib/lieferdienst/orders ✅
+- Status-Filter: `['done','geliefert','abgeschlossen','abgeholt']` — vollständige Abdeckung ✅
+
+**Checkout Live-ETA-Widget** (`checkout-sheet.tsx`):
+- Polling nur wenn `orderType === 'lieferung' && locationId && open` — kein unnötiges Polling ✅
+- `cancelled = true` Memory-Leak-Schutz ✅
+- `/api/delivery/eta/live` Response-Felder `{eta_min, load}` stimmen mit UI überein ✅
+
+### Bug gefunden + behoben: CookingAlertBar Mini-Progress-Bar
+
+**Datei**: `app/(admin)/kitchen/client.tsx`
+
+**Problem**: Der Mini-Fortschrittsbalken in `CookingAlertBar` berechnete immer 100%:
+```
+const progressMs = totalMs + (secs < 0 ? Math.abs(secs) * 1000 : 0);
+const pct = Math.min(100, (progressMs / totalMs) * 100);
+```
+- Non-overdue: `progressMs = totalMs` → `pct = 100%`
+- Overdue: `progressMs > totalMs` → `pct = 100%` (geclampt)
+- Bar zeigte immer voll ausgefüllt, unabhängig von Dringlichkeit.
+
+**Fix**: Semantik geändert auf "Zeit bis Kochstart" (0% = 5 Min vorher, 100% = Kochstart/überfällig):
+```
+const pct = overdue ? 100 : Math.min(100, Math.round(((300 - secs) / 300) * 100));
+```
+- Bei 5 Min vor Kochstart: pct = 0% (kaum sichtbar)
+- Bei 1 Min vor: pct = 80%
+- Bei Kochstart genau: pct = 100%
+- Überfällig: pct = 100% + rote Pulsanimation
+
+### Befund
+- Alle 4 Commits: korrekt implementiert, keine kritischen Fehler
+- 1 Logik-Bug in CookingAlertBar Mini-Bar: BEHOBEN ✅
+- Build: ✅ sauber, TypeScript: ✅ 0 Fehler
+- **SYSTEM MARKT-REIF** — kein blocking Bug, Deployment kann erfolgen
 
 ## CEO Review #9 — 2026-05-29
 
