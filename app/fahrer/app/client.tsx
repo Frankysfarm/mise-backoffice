@@ -649,13 +649,40 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
         </div>
       )}
       {stats.deliveries > 0 && (
-        <div className="mt-2 flex items-center gap-1.5 text-[11px] text-matcha-300">
-          <TrendingUp className="h-3 w-3 text-accent" />
-          Ø {stats.tours > 0 ? Math.round(stats.deliveries / stats.tours * 10) / 10 : 0} Stopps/Tour
-          {stats.totalDistKm > 0 && stats.deliveries > 0 && (
-            <span className="ml-2 opacity-70">· Ø {(stats.totalDistKm / stats.deliveries).toFixed(1)} km/Lieferung</span>
-          )}
-        </div>
+        <>
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-matcha-300">
+            <TrendingUp className="h-3 w-3 text-accent" />
+            Ø {stats.tours > 0 ? Math.round(stats.deliveries / stats.tours * 10) / 10 : 0} Stopps/Tour
+            {stats.totalDistKm > 0 && stats.deliveries > 0 && (
+              <span className="ml-2 opacity-70">· Ø {(stats.totalDistKm / stats.deliveries).toFixed(1)} km/Lieferung</span>
+            )}
+          </div>
+          {/* Effizienz-Streifen */}
+          {onlineMin > 0 && (() => {
+            const delivPerHour = Math.round((stats.deliveries / Math.max(1, onlineMin)) * 60 * 10) / 10;
+            const effScore = Math.min(100, Math.round(delivPerHour * 20)); // ~5/h = 100%
+            const effLabel = effScore >= 80 ? 'Excellent' : effScore >= 60 ? 'Sehr gut' : effScore >= 40 ? 'Gut' : 'Aufwärmen';
+            const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : effScore >= 40 ? 'bg-amber-400' : 'bg-muted';
+            return (
+              <div className="mt-3 rounded-xl bg-white/5 px-3 py-2">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Schicht-Effizienz</span>
+                  <span className="text-[10px] font-black text-accent">{effLabel}</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${effColor}`}
+                    style={{ width: `${effScore}%` }}
+                  />
+                </div>
+                <div className="mt-1 flex justify-between text-[10px] text-matcha-400">
+                  <span>{delivPerHour}/h Lieferungen</span>
+                  <span>{effScore}%</span>
+                </div>
+              </div>
+            );
+          })()}
+        </>
       )}
     </section>
   );

@@ -381,6 +381,9 @@ export function KitchenBoard({
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
+      {/* Prioritäts-Queue: Welche 3 Bestellungen jetzt zubereiten? */}
+      <TopUrgentOrders orders={filtered} />
+
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
@@ -555,6 +558,118 @@ export function KitchenBoard({
                 })()}
               </div>
             </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ Priority Scoring ------------------------------ */
+
+function computeOrderPriority(order: Order): number {
+  if (['fertig', 'unterwegs'].includes(order.status)) return 0;
+  const now = Date.now();
+  let score = 0;
+
+  if (order.bestellt_am) {
+    const waitMin = (now - new Date(order.bestellt_am).getTime()) / 60_000;
+    const est = order.geschaetzte_zubereitung_min ?? 15;
+    const ratio = waitMin / est;
+    score += Math.min(50, Math.round(ratio * 35));
+    if (waitMin > est) score += Math.min(25, Math.round((waitMin - est) * 3));
+  }
+  if (order.status === 'neu') score += 22;
+  else if (order.status === 'bestätigt') score += 10;
+  if (order.typ === 'lieferung') score += 13;
+  if (order.external_source) score += 8;
+
+  return Math.min(100, score);
+}
+
+function TopUrgentOrders({ orders }: { orders: Order[] }) {
+  const active = orders.filter((o) => !['fertig', 'unterwegs'].includes(o.status));
+  if (active.length < 2) return null;
+
+  const scored = active
+    .map((o) => ({ order: o, score: computeOrderPriority(o) }))
+    .filter((x) => x.score >= 25)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  if (scored.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border-2 border-matcha-300 bg-matcha-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Zap className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Jetzt priorisieren · Top {scored.length}
+        </span>
+        <span className="ml-auto text-[10px] text-matcha-500">Prioritätsscore 0–100</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {scored.map(({ order, score }) => {
+          const now = Date.now();
+          const waitMin = order.bestellt_am
+            ? Math.floor((now - new Date(order.bestellt_am).getTime()) / 60_000)
+            : 0;
+          const est = order.geschaetzte_zubereitung_min ?? 15;
+          const overMin = Math.max(0, waitMin - est);
+          const isOverdue = overMin > 0;
+          const scoreBg =
+            score >= 75 ? 'bg-red-500 text-white' :
+            score >= 55 ? 'bg-orange-400 text-white' :
+            score >= 35 ? 'bg-amber-300 text-amber-900' :
+            'bg-matcha-200 text-matcha-800';
+          const cardBorder =
+            score >= 75 ? 'border-red-300 bg-red-50' :
+            score >= 55 ? 'border-orange-200 bg-orange-50' :
+            'border-matcha-200 bg-white';
+
+          return (
+            <div key={order.id} className={cn(
+              'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs',
+              cardBorder,
+            )}>
+              {/* Score badge */}
+              <div className={cn(
+                'h-8 w-8 rounded-full grid place-items-center text-[10px] font-black shrink-0',
+                scoreBg,
+              )}>
+                {Math.round(score)}
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-foreground">
+                  #{order.bestellnummer.replace('FF-', '')}
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <span className={cn(
+                    'font-semibold tabular-nums',
+                    isOverdue ? 'text-red-600 font-black' : 'text-muted-foreground',
+                  )}>
+                    {isOverdue ? `+${overMin}m over` : `${waitMin}/${est}m`}
+                  </span>
+                  {order.typ === 'lieferung' && (
+                    <Bike className="h-2.5 w-2.5 text-muted-foreground" />
+                  )}
+                </div>
+              </div>
+              {/* Mini bar showing urgency */}
+              <div className="ml-1 flex flex-col items-center gap-0.5">
+                {[75, 50, 25].map((threshold) => (
+                  <div
+                    key={threshold}
+                    className={cn(
+                      'h-1 w-1 rounded-full',
+                      score >= threshold
+                        ? (threshold === 75 ? 'bg-red-500' : threshold === 50 ? 'bg-orange-400' : 'bg-amber-400')
+                        : 'bg-muted',
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
           );
         })}
       </div>

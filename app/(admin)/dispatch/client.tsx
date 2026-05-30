@@ -282,6 +282,9 @@ export function DispatchBoard({
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
+      {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
+      {batches.length > 0 && <TourReturnTimeline batches={batches} />}
+
       {/* Zone Bundling Opportunities */}
       <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} />
 
@@ -1180,6 +1183,149 @@ function BatchRow({ batch }: { batch: Batch }) {
                 : 'Route optimieren'}
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ TourReturnTimeline ------------------------------ */
+
+function TourReturnTimeline({ batches }: { batches: Batch[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+
+  // Collect tours with return ETA
+  const tours = batches
+    .map((b) => {
+      const etaMs = b.startzeit && b.total_eta_min != null
+        ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
+        : null;
+      const doneStops = b.stops.filter((s) => s.geliefert_am).length;
+      const totalStops = b.stops.length;
+      const fahrer = b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Unbekannt';
+      const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+      const progress = totalStops > 0 ? Math.round((doneStops / totalStops) * 100) : 0;
+      return { id: b.id, fahrer, etaMs, secLeft, doneStops, totalStops, progress, zone: b.zone };
+    })
+    .sort((a, b) => {
+      if (a.etaMs && b.etaMs) return a.etaMs - b.etaMs;
+      if (a.etaMs) return -1;
+      if (b.etaMs) return 1;
+      return 0;
+    });
+
+  if (tours.length === 0) return null;
+
+  // Compute timeline window: now → max return ETA + 10 min
+  const maxEtaMs = tours.reduce((m, t) => (t.etaMs && t.etaMs > m ? t.etaMs : m), now + 30 * 60_000);
+  const windowStart = now;
+  const windowEnd = maxEtaMs + 10 * 60_000;
+  const windowMs = windowEnd - windowStart;
+
+  function toTimePct(ms: number | null): number {
+    if (ms == null) return 0;
+    return Math.max(0, Math.min(100, ((ms - windowStart) / windowMs) * 100));
+  }
+
+  const fmtTime = (ms: number) =>
+    new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+  return (
+    <div className="rounded-xl border bg-card p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Clock className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">Rückkehr-Timeline</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">Jetzt → {fmtTime(maxEtaMs)}</span>
+      </div>
+
+      {/* Time axis */}
+      <div className="relative mb-1">
+        {/* Now line */}
+        <div className="absolute top-0 bottom-0 w-0.5 bg-matcha-500" style={{ left: '0%' }} />
+        <div className="text-[9px] text-matcha-600 font-bold ml-1 mb-1">Jetzt</div>
+
+        {/* Tour rows */}
+        <div className="space-y-2 mt-2">
+          {tours.map((tour) => {
+            const etaPct = toTimePct(tour.etaMs);
+            const isOverdue = tour.secLeft != null && tour.secLeft < 0;
+            const isSoon = tour.secLeft != null && tour.secLeft >= 0 && tour.secLeft < 300;
+
+            return (
+              <div key={tour.id} className="relative flex items-center gap-2">
+                {/* Label */}
+                <div className="w-24 shrink-0 text-[10px] font-semibold text-right truncate pr-1">
+                  {tour.fahrer}
+                </div>
+
+                {/* Bar container */}
+                <div className="flex-1 relative h-5 rounded-full bg-muted overflow-hidden">
+                  {/* Progress fill */}
+                  <div
+                    className={cn(
+                      'absolute inset-y-0 left-0 rounded-full transition-all',
+                      tour.progress === 100 ? 'bg-matcha-400' :
+                      isOverdue ? 'bg-red-400' :
+                      isSoon ? 'bg-orange-400 animate-pulse' :
+                      'bg-blue-400',
+                    )}
+                    style={{ width: `${tour.progress}%` }}
+                  />
+
+                  {/* Return ETA marker */}
+                  {tour.etaMs && (
+                    <div
+                      className={cn(
+                        'absolute top-0.5 bottom-0.5 w-1 rounded-full',
+                        isOverdue ? 'bg-red-600' : isSoon ? 'bg-orange-600' : 'bg-matcha-700',
+                      )}
+                      style={{ left: `calc(${etaPct}% - 2px)` }}
+                      title={`ETA: ${fmtTime(tour.etaMs)}`}
+                    />
+                  )}
+
+                  {/* Stop counter */}
+                  <div className="absolute inset-0 flex items-center px-2 justify-between">
+                    <span className="text-[9px] font-bold text-white drop-shadow">
+                      {tour.doneStops}/{tour.totalStops}
+                    </span>
+                    {tour.zone && (
+                      <span className={cn(
+                        'text-[9px] font-black rounded px-1',
+                        zoneMeta(tour.zone).cls,
+                      )}>
+                        {tour.zone}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* ETA label */}
+                <div className={cn(
+                  'w-14 shrink-0 text-[10px] font-bold tabular-nums text-right',
+                  isOverdue ? 'text-red-600' : isSoon ? 'text-orange-600' : 'text-muted-foreground',
+                )}>
+                  {tour.etaMs
+                    ? (isOverdue
+                      ? `+${Math.floor(-tour.secLeft! / 60)}m`
+                      : `~${fmtTime(tour.etaMs)}`)
+                    : '—'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-4 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-400 shrink-0" /> Unterwegs</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-orange-400 shrink-0" /> Kommt bald</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-matcha-400 shrink-0" /> Abgeschlossen</span>
       </div>
     </div>
   );

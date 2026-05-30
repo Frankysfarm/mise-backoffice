@@ -136,6 +136,17 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     { name: 'Lieferung', value: stats.ordersByType.delivery, color: '#8b5cf6' },
   ].filter(d => d.value > 0)
 
+  // Bestellungen der letzten 60 Min und Rate
+  const ordersLastHour = allOrders.filter(o => {
+    const t = o.createdAt ? new Date(o.createdAt).getTime() : 0
+    return t > 0 && Date.now() - t < 60 * 60_000
+  }).length
+  const ordersLastHalfHour = allOrders.filter(o => {
+    const t = o.createdAt ? new Date(o.createdAt).getTime() : 0
+    return t > 0 && Date.now() - t < 30 * 60_000
+  }).length
+  const ratePerHour = ordersLastHalfHour * 2  // extrapoliert
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -145,6 +156,16 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           <p className="text-steel">
             {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
+          {/* Live-Rate Badge */}
+          {ratePerHour > 0 && (
+            <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              ~{ratePerHour}/h jetzt · {ordersLastHour} letzte Stunde
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-1">
           <button

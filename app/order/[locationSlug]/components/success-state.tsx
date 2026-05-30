@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, ChefHat, Package, Truck } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 type Props = {
   bestellnummer: string;
@@ -13,10 +14,27 @@ type Props = {
   orderId?: string;
 };
 
+const STATUS_STEPS = [
+  { status: 'bestätigt',      label: 'Angenommen',    icon: Check },
+  { status: 'in_zubereitung', label: 'Zubereitung',   icon: ChefHat },
+  { status: 'fertig',         label: 'Bereit',        icon: Package },
+  { status: 'unterwegs',      label: 'Unterwegs',     icon: Truck },
+  { status: 'geliefert',      label: 'Geliefert',     icon: Check },
+] as const;
+
+function liveStatusIndex(status: string): number {
+  const i = STATUS_STEPS.findIndex((s) => s.status === status);
+  return i >= 0 ? i : 0;
+}
+
 export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId }: Props) {
   const firstName = name?.split(' ')[0];
+  const supabase = React.useMemo(() => createClient(), []);
 
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
+  const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
+  const [statusFlash, setStatusFlash] = React.useState(false);
+
   React.useEffect(() => {
     if (secsLeft <= 0) return;
     const t = setTimeout(() => setSecsLeft((s) => s - 1), 1000);
@@ -41,11 +59,35 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     const iv = setInterval(poll, 30_000);
     return () => clearInterval(iv);
   }, [orderId]);
+
+  // Supabase realtime: live status updates
+  React.useEffect(() => {
+    if (!orderId) return;
+    const ch = supabase
+      .channel(`success-order-${orderId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
+        (payload: { new: { status?: string } }) => {
+          const newStatus = payload.new?.status;
+          if (newStatus && newStatus !== liveStatus) {
+            setLiveStatus(newStatus);
+            setStatusFlash(true);
+            setTimeout(() => setStatusFlash(false), 3000);
+          }
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
   const minsLeft = Math.floor(secsLeft / 60);
   const secsPart = secsLeft % 60;
   const countdownStr = secsLeft > 0
     ? `${minsLeft}:${String(secsPart).padStart(2, '0')}`
     : '0:00';
+  const activeStep = liveStatusIndex(liveStatus);
 
   return (
     <main
@@ -110,7 +152,56 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </div>
         )}
 
-        <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-matcha-800/60 px-4 py-2 ring-1 ring-white/5 backdrop-blur">
+        {/* Live-Status Mini-Timeline — aktualisiert sich in Echtzeit */}
+        {orderId && (
+          <div className={cn(
+            'mt-5 w-full rounded-2xl ring-1 ring-white/10 bg-white/5 px-4 py-3 transition-all',
+            statusFlash && 'ring-accent ring-2',
+          )}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">Status</span>
+              {statusFlash && (
+                <span className="text-[10px] font-bold text-accent animate-pulse">Aktualisiert!</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 relative">
+              {/* Track line */}
+              <div className="absolute left-3 right-3 top-3.5 h-0.5 bg-white/10 rounded-full" />
+              <div
+                className="absolute left-3 top-3.5 h-0.5 bg-accent rounded-full transition-all duration-700"
+                style={{ width: `calc(${(activeStep / (STATUS_STEPS.length - 1)) * 100}% - 1.5rem)` }}
+              />
+              {STATUS_STEPS.map((step, i) => {
+                const done = i < activeStep;
+                const current = i === activeStep;
+                const Icon = step.icon;
+                return (
+                  <div key={step.status} className="relative z-10 flex-1 flex flex-col items-center gap-1">
+                    <div className={cn(
+                      'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-all',
+                      done ? 'bg-accent border-accent' :
+                      current ? 'bg-matcha-800 border-accent ring-2 ring-accent/30' :
+                      'bg-matcha-800 border-white/20',
+                    )}>
+                      <Icon className={cn(
+                        'h-3 w-3',
+                        done || current ? 'text-accent' : 'text-matcha-400',
+                      )} />
+                    </div>
+                    <span className={cn(
+                      'text-[8px] font-bold leading-tight text-center',
+                      current ? 'text-accent' : done ? 'text-matcha-200' : 'text-matcha-500',
+                    )}>
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-matcha-800/60 px-4 py-2 ring-1 ring-white/5 backdrop-blur">
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">Bestellnr.</span>
           <span className="font-mono text-sm font-bold text-accent">{bestellnummer}</span>
         </div>
