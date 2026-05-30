@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick } from '@/lib/delivery/dispatch-engine';
 import { syncKitchenNotifications } from '@/lib/delivery/kitchen-sync';
+import { refreshEnRouteEtas } from '@/lib/delivery/eta';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -40,15 +41,18 @@ export async function GET(req: NextRequest) {
 
   const start = Date.now();
   try {
-    // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup
+    // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup + Live-ETA-Refresh
     const serviceSb = createServiceClient();
-    const [dispatchResult, kitchenResult, staleResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
         ({ data }) => ({ drivers_marked_offline: (data as number | null) ?? 0 }),
         () => ({ drivers_marked_offline: 0 }),
       ),
+      refreshEnRouteEtas().catch(() => ({
+        batches_processed: 0, orders_updated: 0, orders_skipped: 0, errors: 1,
+      })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -65,6 +69,10 @@ export async function GET(req: NextRequest) {
         locations: kitchenResult.locations,
       },
       stale_drivers_cleaned: staleResult.drivers_marked_offline,
+      eta_refresh: {
+        batches: etaResult.batches_processed,
+        updated: etaResult.orders_updated,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

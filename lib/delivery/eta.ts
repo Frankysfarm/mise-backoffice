@@ -13,6 +13,7 @@
  */
 import 'server-only';
 import { haversineKm } from '@/lib/google-maps';
+import { createServiceClient } from '@/lib/supabase/server';
 import { getZoneConfig } from './zones';
 import type { ZoneName } from './zones';
 
@@ -141,4 +142,142 @@ export async function updateOrderEta(
       eta_latest:   eta.latestUtc.toISOString(),
     })
     .eq('id', orderId);
+}
+
+const EN_ROUTE_BUFFER_MIN = 3;   // kleiner Puffer für bereits abgeholte Touren
+const DELIVERED_STATUSES = new Set(['geliefert', 'abgeschlossen', 'storniert']);
+
+/**
+ * Einfache ETA-Berechnung für en-route Lieferungen.
+ * Kein Zonen-Minimum — Fahrer hat Essen bereits, direkte Fahrzeit reicht.
+ */
+function computeEnRouteEta(
+  fromLat: number,
+  fromLng: number,
+  toLat: number,
+  toLng: number,
+  vehicle: 'bike' | 'car',
+  stopsBeforeMin: number,
+  nowUtc: Date = new Date(),
+): { earliest: Date; latest: Date } {
+  const speed = SPEED_KMH[vehicle];
+  const km = haversineKm({ lat: fromLat, lng: fromLng }, { lat: toLat, lng: toLng });
+  const driveMin = (km / speed) * 60;
+  const totalMin = driveMin + stopsBeforeMin + EN_ROUTE_BUFFER_MIN;
+  return {
+    earliest: new Date(nowUtc.getTime() + totalMin * 60_000),
+    latest:   new Date(nowUtc.getTime() + (totalMin + EN_ROUTE_BUFFER_MIN) * 60_000),
+  };
+}
+
+export interface EtaRefreshResult {
+  batches_processed: number;
+  orders_updated: number;
+  orders_skipped: number;
+  errors: number;
+}
+
+/**
+ * Aktualisiert ETAs für alle aktiven `on_route` Batches basierend auf
+ * dem aktuellen GPS-Standort des Fahrers. Wird im 2-Min-Cron aufgerufen.
+ *
+ * Logik pro Batch:
+ *  1. Fahrer-GPS laden — wenn fehlt, überspringen
+ *  2. Dropoff-Stops in Reihenfolge durchgehen
+ *  3. Bereits gelieferte Stops überspringen, virtuelle Position vorrücken
+ *  4. ETA = aktuelle Fahrzeit von virtueller Position zum nächsten Kunden
+ *  5. customer_orders.eta_earliest / eta_latest aktualisieren
+ */
+export async function refreshEnRouteEtas(): Promise<EtaRefreshResult> {
+  const sb = createServiceClient();
+
+  const { data: batches, error } = await sb
+    .from('mise_delivery_batches')
+    .select(`
+      id,
+      location_id,
+      driver:mise_drivers(id, vehicle, last_lat, last_lng),
+      stops:mise_delivery_batch_stops(
+        order_id, type, sequence, lat, lng,
+        order:customer_orders(id, status, delivery_zone)
+      )
+    `)
+    .eq('state', 'on_route')
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if (error || !batches?.length) {
+    return { batches_processed: 0, orders_updated: 0, orders_skipped: 0, errors: error ? 1 : 0 };
+  }
+
+  let ordersUpdated = 0;
+  let ordersSkipped = 0;
+  let errors = 0;
+  const now = new Date();
+
+  for (const batch of batches) {
+    // Supabase generic-client gibt FK-Joins manchmal als Array zurück → normalisieren
+    const driverRaw = batch.driver;
+    const driver = (Array.isArray(driverRaw)
+      ? (driverRaw[0] ?? null)
+      : driverRaw) as Record<string, unknown> | null;
+    if (!driver?.last_lat || !driver?.last_lng) { ordersSkipped++; continue; }
+
+    const vehicle = (driver.vehicle as 'bike' | 'car') ?? 'bike';
+    const allStops = (batch.stops as Record<string, unknown>[])
+      .sort((a, b) => (a.sequence as number) - (b.sequence as number));
+    const dropoffs = allStops.filter((s) => s.type === 'dropoff');
+
+    // Virtuelle Fahrposition: startet am aktuellen GPS-Standort des Fahrers
+    let curLat = driver.last_lat as number;
+    let curLng = driver.last_lng as number;
+    let stopsCompleted = 0;
+
+    for (const stop of dropoffs) {
+      const order = stop.order as Record<string, unknown> | null;
+      const stopLat = stop.lat as number | null;
+      const stopLng = stop.lng as number | null;
+
+      if (!order || !stopLat || !stopLng) { ordersSkipped++; continue; }
+
+      if (DELIVERED_STATUSES.has(order.status as string)) {
+        // Stop bereits erledigt — virtuelle Position vorrücken
+        curLat = stopLat;
+        curLng = stopLng;
+        stopsCompleted++;
+        continue;
+      }
+
+      try {
+        const stopOverheadMin = stopsCompleted * STOP_OVERHEAD_MIN;
+        const { earliest, latest } = computeEnRouteEta(
+          curLat, curLng, stopLat, stopLng, vehicle, stopOverheadMin, now,
+        );
+
+        await sb
+          .from('customer_orders')
+          .update({
+            eta_earliest: earliest.toISOString(),
+            eta_latest:   latest.toISOString(),
+          })
+          .eq('id', order.id as string);
+
+        ordersUpdated++;
+      } catch {
+        errors++;
+      }
+
+      // Virtuelle Position auf diesen Kunden setzen (für nächsten Stop)
+      curLat = stopLat;
+      curLng = stopLng;
+      stopsCompleted++;
+    }
+  }
+
+  return {
+    batches_processed: batches.length,
+    orders_updated: ordersUpdated,
+    orders_skipped: ordersSkipped,
+    errors,
+  };
 }

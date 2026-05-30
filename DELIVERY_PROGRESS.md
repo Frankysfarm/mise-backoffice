@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — ALLE PHASEN 1–12 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #11 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–13 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #11 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -106,6 +106,29 @@
 - [x] **Statistik: Top-Artikel-Widget** — Top-8 meistbestellte Artikel aus heutigen Abschlüssen, Balken-Visualisierung, Medaillensystem (Gold/Silber/Bronze)
 - [x] **Storefront: Live-ETA-Indikator** — `LiveEtaBar`: pulsierender Auslastungsindikator (frei/normal/hoch) mit Live-Lieferzeit; neues GET `/api/delivery/eta/live` (öffentlich, polling 60s)
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓, 3 Commits, git push origin main ✓
+
+## Phase 13: Live ETA Refresh für en-route Touren [DONE ✅] — 2026-05-30
+- [x] **`scripts/migrations/014_live_eta_refresh.sql`** — Performance-Indices + Admin-View
+  - `idx_mise_batches_state_driver` (Partial-Index): `on_route` Batches schnell finden
+  - `idx_mise_batch_stops_batch_seq`: Stops in Reihenfolge effizient laden
+  - `idx_customer_orders_eta_fields` (Covering-Index): ETA-Felder + status für Refresh
+  - `v_en_route_summary` VIEW: Echtzeit-Übersicht aller on_route Touren (GPS-Alter, Lieferstatus, nächste ETA)
+- [x] **`lib/delivery/eta.ts`** — `refreshEnRouteEtas()` + `computeEnRouteEta()`
+  - `computeEnRouteEta()`: direkte Fahrzeitberechnung ohne Zonen-Minimum (food already picked up)
+  - `refreshEnRouteEtas()`: verarbeitet bis zu 30 `on_route` Batches pro Tick
+  - Virtuelle Fahrposition: simuliert Route-Reihenfolge (Stop i → Stop i+1)
+  - Überspringt bereits gelieferte/stornierte Bestellungen, rückt Position vor
+  - Fahrer ohne GPS-Signal werden übersprungen (`last_lat/last_lng` null-Check)
+  - `EtaRefreshResult`: `batches_processed`, `orders_updated`, `orders_skipped`, `errors`
+- [x] **`app/api/cron/smart-dispatch/route.ts`** — ETA-Refresh in Cron-Tick
+  - `refreshEnRouteEtas()` parallel zu Dispatch, Küchen-Sync, Stale-Driver-Cleanup
+  - Response enthält `eta_refresh: { batches, updated }` für Monitoring
+  - Fehler-tolerant: Catch + Fallback-Objekt, blockiert Cron nicht
+- [x] **`app/api/delivery/admin/eta-refresh/route.ts`** — Manueller Trigger (POST)
+  - Auth: Authentifizierter Admin-User
+  - Gibt `batches_processed`, `orders_updated`, `orders_skipped`, `errors`, `duration_ms` zurück
+  - Nützlich nach GPS-Lücken oder bei Test
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Phase 12: Dispatch-Eskalation + Stale-Order-Retry [DONE ✅] — 2026-05-30
 - [x] **`scripts/migrations/013_dispatch_escalation.sql`** — Eskalations-Tracking auf `customer_orders`
@@ -261,6 +284,12 @@ Siehe DELIVERY_CEO_LOG.md
   - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
 
 ## Letzte Änderungen
+- 2026-05-30: Backend-Architekt — Phase 13: Live ETA Refresh für en-route Touren
+  - Migration 014: Partial-Index on_route + Covering-Index ETA-Felder + v_en_route_summary VIEW
+  - lib/delivery/eta.ts: computeEnRouteEta() + refreshEnRouteEtas() (kein Zonen-Minimum für bereits abgeholte Touren)
+  - Cron: refreshEnRouteEtas() jetzt parallel im 2-Min-Tick — ETAs aktualisieren sich live alle 2 Min
+  - POST /api/delivery/admin/eta-refresh: manueller Admin-Trigger (nach GPS-Lücken, Tests)
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-30: CEO Review #11 — Phase 12 + StaleOrders-Alert + Tour-Optimieren + Speed-Gauge QA
   - Phase 12 Backend: Dispatch-Eskalation, `v_stale_unassigned_orders`, radius-Faktor 1.5× nach ≥3 Versuchen
   - Frontend: StaleOrdersWidget in Kitchen (polling 90s, force-dispatch), Route-Optimieren-Button in Dispatch, Speed-Arc-Gauge in Fahrer-App
