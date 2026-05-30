@@ -16,30 +16,34 @@ export interface DailyStats {
   ordersByHour: number[]
 }
 
+function toDate(v: Date | string): Date {
+  return v instanceof Date ? v : new Date(v)
+}
+
 export function calculateDailyStats(orders: Order[]): DailyStats {
   const today = new Date().toISOString().split('T')[0]
-  const todayOrders = orders.filter(o => o.createdAt.toISOString().split('T')[0] === today)
-  
+  const todayOrders = orders.filter(o => toDate(o.createdAt).toISOString().split('T')[0] === today)
+
   const completed = todayOrders.filter(o => o.status === 'done')
   const rejected = todayOrders.filter(o => o.status === 'rejected')
-  
+
   // Calculate average prep time (from accepted orders with estimatedTime)
   const ordersWithTime = todayOrders.filter(o => o.estimatedTime)
-  const avgPrepTime = ordersWithTime.length > 0 
+  const avgPrepTime = ordersWithTime.length > 0
     ? Math.round(ordersWithTime.reduce((sum, o) => sum + (o.estimatedTime || 0), 0) / ordersWithTime.length)
     : 0
-  
+
   // Orders by type
   const ordersByType = {
     dine_in: todayOrders.filter(o => o.type === 'dine_in').length,
     takeaway: todayOrders.filter(o => o.type === 'takeaway').length,
     delivery: todayOrders.filter(o => o.type === 'delivery').length,
   }
-  
+
   // Orders by hour (0-23)
   const ordersByHour = Array(24).fill(0)
   todayOrders.forEach(o => {
-    const hour = o.createdAt.getHours()
+    const hour = toDate(o.createdAt).getHours()
     ordersByHour[hour]++
   })
   

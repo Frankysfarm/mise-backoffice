@@ -24,8 +24,8 @@ export interface Order {
   type: 'dine_in' | 'takeaway' | 'delivery'
   items: OrderItem[]
   status: OrderStatus
-  createdAt: Date
-  acceptedAt?: Date // Wann wurde die Bestellung angenommen
+  createdAt: Date | string
+  acceptedAt?: Date | string // Wann wurde die Bestellung angenommen
   customerName?: string
   customerPhone?: string
   priority?: 'normal' | 'rush' | 'vip' | 'express'
