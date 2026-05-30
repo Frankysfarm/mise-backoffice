@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–13 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #12 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–14 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #12 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -66,7 +66,7 @@
 
 ## Phase 5: Fahrer-App [DONE ✅]
 - [x] Tour-Übersicht mit Stops (delivery-view.tsx — Fortschrittsbalken, Reihenfolge)
-- [ ] Karten-Ansicht mit Route (Navigation-Link vorhanden; kein eingebettetes Karten-Widget)
+- [x] Karten-Ansicht mit Route — Leaflet-Map in delivery-view.tsx (Marker + Polyline); GET /api/delivery/tours/[id]/route liefert dekodierte Google-Straßenroute
 - [x] Stop-Details (Kunde, Adresse, Items via pick-dialog.tsx)
 - [x] Status-Buttons (Abgeholt → Zugestellt per Tap)
 - [x] Navigation-Link (Apple Maps / Google Maps deeplink)
@@ -283,7 +283,27 @@ Siehe DELIVERY_CEO_LOG.md
   - Index `idx_mise_drivers_state_updated` neu erstellt mit richtigen States
   - Neuer Index `idx_mise_drivers_active_state` für Dispatch-Pool-Abfragen
 
+## Phase 14: Route-Polyline API + Karten-Ansicht [DONE ✅] — 2026-05-30
+- [x] **`lib/delivery/polyline.ts`** — Google Encoded Polyline Decoder/Encoder
+  - `decodePolyline(encoded)`: Precision-5-Dekodierung → `LatLng[]`
+  - `encodePolyline(points)`: Encoder (für Static-Map-URLs + Tests)
+  - Null-safe: leerer Input → leeres Array, kein Crash
+- [x] **`app/api/delivery/tours/[id]/route/route.ts`** — `GET` Straßenroute für Fahrer-Map
+  - Auth: Supabase Session (Admin oder Fahrer-App via Cookie)
+  - Gibt `polyline_points` (dekodiert) + `stop_markers` + `has_google_route` zurück
+  - Fallback: wenn kein Google-Polyline → Stop-Koordinaten als gerade Linie
+  - `total_distance_km` + `total_eta_min` aus Batch
+- [x] **Phase 5 Karten-Ansicht** als erledigt markiert
+  - Leaflet-Map bereits in `delivery-view.tsx` implementiert (Marker + Polyline)
+  - Neue Route-API ermöglicht Upgrade auf tatsächliche Straßenroute statt gerader Linien
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-05-30: Backend-Architekt — Phase 14: Route-Polyline API + Karten-Ansicht abgeschlossen
+  - lib/delivery/polyline.ts: Google Encoded Polyline Decoder (Precision 5) + Encoder
+  - GET /api/delivery/tours/[id]/route: dekodierte Straßenroute für Fahrer-Map
+  - Phase 5 map checkbox: ✅ (Leaflet-Map war bereits implementiert, Route-API ergänzt)
+  - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-30: Backend-Architekt — Phase 13: Live ETA Refresh für en-route Touren
   - Migration 014: Partial-Index on_route + Covering-Index ETA-Felder + v_en_route_summary VIEW
   - lib/delivery/eta.ts: computeEnRouteEta() + refreshEnRouteEtas() (kein Zonen-Minimum für bereits abgeholte Touren)
