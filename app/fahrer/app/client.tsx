@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, Map as MapIcon, MapPin,
-  Navigation, Phone, Power, Route, ShoppingBag, Zap,
+  Navigation, Phone, Power, Route, ShoppingBag, TrendingUp, Trophy, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
 import { PickDialog } from './pick-dialog';
@@ -505,6 +505,9 @@ export function FahrerApp({
             <div className="text-matcha-200">Du bist offline. Geh online, um Touren anzunehmen.</div>
           </section>
         )}
+
+        {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
+        {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
       </main>
 
       <UpdateBanner />
@@ -526,6 +529,135 @@ export function FahrerApp({
       )}
     </div>
     </PermissionsGate>
+  );
+}
+
+/* ---------- SchichtStats ---------- */
+
+function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: boolean }) {
+  const supabase = createClient();
+  const [stats, setStats] = useState<{
+    deliveries: number;
+    tours: number;
+    totalBetrag: number;
+    totalDistKm: number;
+  } | null>(null);
+  const [onlineMin, setOnlineMin] = useState<number>(0);
+  const prevOnlineRef = React.useRef<number>(0);
+
+  // Tick für Online-Zeit
+  useEffect(() => {
+    const t = setInterval(() => setOnlineMin((m) => m + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    (async () => {
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km, startzeit')
+        .eq('fahrer_id', driverId)
+        .gte('created_at', today.toISOString());
+
+      if (!batches?.length) {
+        setStats({ deliveries: 0, tours: 0, totalBetrag: 0, totalDistKm: 0 });
+        return;
+      }
+      const batchIds = (batches as any[]).map((b) => b.id as string);
+      const totalDistKm = (batches as any[]).reduce((s, b) => s + (b.total_distance_km ?? 0), 0);
+
+      const { data: stops } = await supabase
+        .from('delivery_batch_stops')
+        .select('id, geliefert_am, order:customer_orders(gesamtbetrag)')
+        .in('batch_id', batchIds)
+        .not('geliefert_am', 'is', null);
+
+      const delivered = (stops as any[])?.length ?? 0;
+      const totalBetrag = ((stops as any[]) ?? []).reduce(
+        (s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0),
+        0,
+      );
+
+      setStats({ deliveries: delivered, tours: batches.length, totalBetrag, totalDistKm });
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  // Online-Zeit aus driver_status
+  useEffect(() => {
+    if (!isOnline) return;
+    (async () => {
+      const { data } = await supabase
+        .from('driver_status')
+        .select('online_seit')
+        .eq('employee_id', driverId)
+        .maybeSingle();
+      if (data?.online_seit) {
+        const min = Math.floor((Date.now() - new Date(data.online_seit as string).getTime()) / 60_000);
+        setOnlineMin(min);
+        prevOnlineRef.current = min;
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId, isOnline]);
+
+  if (!stats && !isOnline) return null;
+  if (!stats) return null;
+
+  const hasData = stats.deliveries > 0 || stats.tours > 0;
+
+  return (
+    <section className={cn(
+      'rounded-2xl border p-4',
+      hasData ? 'bg-white/5 border-white/10' : 'bg-white/3 border-white/5 opacity-60',
+    )}>
+      <div className="flex items-center gap-2 mb-3">
+        <Trophy className="h-4 w-4 text-accent" />
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">Heutige Schicht</div>
+        {onlineMin > 0 && (
+          <div className="ml-auto text-[10px] font-bold text-matcha-400 tabular-nums">
+            {Math.floor(onlineMin / 60) > 0 ? `${Math.floor(onlineMin / 60)}h ` : ''}{onlineMin % 60}m online
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-xl bg-white/5 p-3 text-center">
+          <div className="font-display text-2xl font-black text-accent leading-none">{stats.deliveries}</div>
+          <div className="text-[10px] text-matcha-300 mt-1">Lieferungen</div>
+        </div>
+        <div className="rounded-xl bg-white/5 p-3 text-center">
+          <div className="font-display text-2xl font-black text-accent leading-none">{stats.tours}</div>
+          <div className="text-[10px] text-matcha-300 mt-1">Touren</div>
+        </div>
+        <div className="rounded-xl bg-white/5 p-3 text-center">
+          <div className="font-display text-lg font-black text-accent leading-none">
+            {stats.totalDistKm > 0 ? `${stats.totalDistKm.toFixed(1)} km` : '—'}
+          </div>
+          <div className="text-[10px] text-matcha-300 mt-1">Strecke</div>
+        </div>
+        <div className="rounded-xl bg-white/5 p-3 text-center">
+          <div className="font-display text-lg font-black text-accent leading-none">
+            {euro(stats.totalBetrag)}
+          </div>
+          <div className="text-[10px] text-matcha-300 mt-1">Umsatz</div>
+        </div>
+      </div>
+      {!hasData && isOnline && (
+        <div className="mt-2 text-center text-[11px] text-matcha-400">
+          Noch keine Lieferungen heute — erste Tour annehmen!
+        </div>
+      )}
+      {stats.deliveries > 0 && (
+        <div className="mt-2 flex items-center gap-1.5 text-[11px] text-matcha-300">
+          <TrendingUp className="h-3 w-3 text-accent" />
+          Ø {stats.tours > 0 ? Math.round(stats.deliveries / stats.tours * 10) / 10 : 0} Stopps/Tour
+          {stats.totalDistKm > 0 && stats.deliveries > 0 && (
+            <span className="ml-2 opacity-70">· Ø {(stats.totalDistKm / stats.deliveries).toFixed(1)} km/Lieferung</span>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 

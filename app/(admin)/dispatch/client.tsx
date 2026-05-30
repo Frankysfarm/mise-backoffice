@@ -282,6 +282,9 @@ export function DispatchBoard({
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
+      {/* Zone Bundling Opportunities */}
+      <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} />
+
       {/* Live Driver Map */}
       <LiveDriverMapPanel drivers={drivers} batches={batches} orders={filteredOrders} />
 
@@ -386,6 +389,88 @@ export function DispatchBoard({
             </div>
           </Card>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ ZoneBundlingAlert ------------------------------ */
+
+function ZoneBundlingAlert({
+  orders,
+  onlineDrivers,
+}: {
+  orders: ReadyOrder[];
+  onlineDrivers: Driver[];
+}) {
+  if (orders.length === 0) return null;
+
+  // Gruppiere wartende Bestellungen nach Zone
+  const byZone = orders.reduce<Record<string, { orders: ReadyOrder[]; maxWaitMin: number }>>((acc, o) => {
+    const zone = o.delivery_zone ?? '?';
+    if (!acc[zone]) acc[zone] = { orders: [], maxWaitMin: 0 };
+    acc[zone].orders.push(o);
+    const waitMin = o.fertig_am ? Math.floor((Date.now() - new Date(o.fertig_am).getTime()) / 60_000) : 0;
+    acc[zone].maxWaitMin = Math.max(acc[zone].maxWaitMin, waitMin);
+    return acc;
+  }, {});
+
+  // Nur Zonen mit ≥2 Bestellungen → Bündeln lohnt sich
+  const bundlable = Object.entries(byZone)
+    .filter(([, { orders: zos }]) => zos.length >= 2)
+    .sort((a, b) => b[1].orders.length - a[1].orders.length);
+
+  if (bundlable.length === 0) return null;
+
+  const freeDrivers = onlineDrivers.filter((d) => !d.aktueller_batch_id);
+  const totalBundlable = bundlable.reduce((s, [, { orders: zos }]) => s + zos.length, 0);
+  const savingMin = Math.round(bundlable.reduce((s, [, { orders: zos }]) => s + (zos.length - 1) * 7, 0));
+
+  return (
+    <div className="rounded-xl border-2 border-matcha-300 bg-matcha-50 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <RouteIcon className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Bündelungs-Empfehlung · {totalBundlable} Bestellungen · ~{savingMin} Min gespart
+        </span>
+        {freeDrivers.length > 0 && (
+          <span className="ml-auto text-[10px] font-bold text-matcha-600">
+            {freeDrivers.length} freier Fahrer
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {bundlable.map(([zone, { orders: zos, maxWaitMin }]) => {
+          const zm = zoneMeta(zone);
+          const urgent = maxWaitMin >= 8;
+          const totalEur = zos.reduce((s, o) => s + o.gesamtbetrag, 0);
+          return (
+            <div
+              key={zone}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-xs',
+                urgent ? 'border-red-300 bg-red-50' : 'border-matcha-200 bg-white',
+              )}
+            >
+              <span className={cn('rounded px-2 py-0.5 text-[11px] font-black', zm.cls)}>
+                Zone {zone}
+              </span>
+              <span className="font-bold">{zos.length}×</span>
+              <span className="text-muted-foreground">{euro(totalEur)}</span>
+              {maxWaitMin > 0 && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                  urgent ? 'bg-red-500 text-white animate-pulse' : 'bg-muted text-muted-foreground',
+                )}>
+                  max {maxWaitMin}m
+                </span>
+              )}
+              <span className="rounded-full bg-matcha-100 text-matcha-800 px-1.5 py-0.5 text-[9px] font-bold">
+                → 1 Tour
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
   Inbox, Loader2, MapPin, Package, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
+import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder } from './actions';
 
 /* ------------------------------ Types ------------------------------ */
@@ -172,6 +173,7 @@ export function KitchenBoard({
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [audio, setAudio] = useState(true);
   const [completedToday, setCompletedToday] = useState<number | null>(null);
+  const [hourlyData, setHourlyData] = useState<{ h: number; label: string; orders: number }[]>([]);
 
   // Für Vergleich zwischen Renders
   const prev = useRef({
@@ -193,6 +195,34 @@ export function KitchenBoard({
     };
     fetch();
     const iv = setInterval(fetch, 60_000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* --- Stündliche Verteilung heute --- */
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const load = async () => {
+      const { data } = await supabase
+        .from('customer_orders')
+        .select('bestellt_am')
+        .gte('bestellt_am', today.toISOString())
+        .not('bestellt_am', 'is', null);
+      if (!data) return;
+      const counts: Record<number, number> = {};
+      for (const o of data as { bestellt_am: string }[]) {
+        const h = new Date(o.bestellt_am).getHours();
+        counts[h] = (counts[h] ?? 0) + 1;
+      }
+      const nowH = new Date().getHours();
+      const buckets = [];
+      for (let h = 10; h <= Math.max(nowH, 22); h++) {
+        buckets.push({ h, label: `${h}:00`, orders: counts[h] ?? 0 });
+      }
+      setHourlyData(buckets);
+    };
+    load();
+    const iv = setInterval(load, 5 * 60_000);
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -349,7 +379,7 @@ export function KitchenBoard({
   return (
     <div className="space-y-4">
       {/* Schicht-Schnappschuss */}
-      <KitchenShiftStats orders={filtered} completedToday={completedToday} />
+      <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
@@ -534,7 +564,7 @@ export function KitchenBoard({
 
 /* ------------------------------ KitchenShiftStats ------------------------------ */
 
-function KitchenShiftStats({ orders, completedToday }: { orders: Order[]; completedToday: number | null }) {
+function KitchenShiftStats({ orders, completedToday, hourlyData }: { orders: Order[]; completedToday: number | null; hourlyData: { h: number; label: string; orders: number }[] }) {
   const now = Date.now();
   // Orders in last 60 minutes
   const ordersLastHour = orders.filter((o) =>
@@ -578,6 +608,58 @@ function KitchenShiftStats({ orders, completedToday }: { orders: Order[]; comple
           {criticalLate} kritisch überzogen!
         </div>
       )}
+
+      {/* Stündliches Bestellvolumen — kompakte Sparkline */}
+      {hourlyData.length >= 3 && (() => {
+        const nowH = new Date().getHours();
+        const maxOrders = Math.max(...hourlyData.map((d) => d.orders), 1);
+        return (
+          <div className="w-full mt-1 rounded-xl border border-border bg-card p-2">
+            <div className="mb-1 flex items-center justify-between text-[10px] text-muted-foreground">
+              <span className="font-bold uppercase tracking-wider flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-matcha-600" /> Bestellvolumen heute
+              </span>
+              <span className="tabular-nums">Spitze: {maxOrders}</span>
+            </div>
+            <ResponsiveContainer width="100%" height={44}>
+              <BarChart data={hourlyData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }} barCategoryGap="20%">
+                <Tooltip
+                  cursor={false}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.[0]) return null;
+                    const d = payload[0].payload as { label: string; orders: number };
+                    return (
+                      <div className="rounded-lg bg-matcha-900 px-2 py-1 text-[10px] text-white shadow-lg">
+                        {d.label}: <span className="font-bold">{d.orders}</span>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="orders" radius={[2, 2, 0, 0]}>
+                  {hourlyData.map((d) => (
+                    <Cell
+                      key={d.h}
+                      fill={
+                        d.h === nowH ? '#2d6b45' :
+                        d.orders >= maxOrders * 0.8 ? '#f97316' :
+                        d.h > nowH ? '#e5e7eb' :
+                        '#94a3b8'
+                      }
+                    />
+                  ))}
+                </Bar>
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 8, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={1}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        );
+      })()}
     </div>
   );
 }
