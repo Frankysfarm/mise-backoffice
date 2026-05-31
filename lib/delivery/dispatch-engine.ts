@@ -303,10 +303,11 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   }
 
   // driver_status.aktueller_batch_id synchronisieren (Legacy-Board zeigt Mise-Fahrer als belegt)
-  if (best.driver.employee_id) {
+  const bestRow = nearby.find((d) => d.id === best.driver.id);
+  if (bestRow?.employee_id) {
     sb().from('driver_status')
       .update({ aktueller_batch_id: batchId })
-      .eq('employee_id', best.driver.employee_id)
+      .eq('employee_id', bestRow.employee_id)
       .then(() => {});
   }
 

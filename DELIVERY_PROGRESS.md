@@ -321,13 +321,17 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Letzte Änderungen
-- 2026-05-31: CEO Review #14 — 3 Frontend-Commits QA-geprüft, 1 kritischer Bug behoben
+- 2026-05-31: CEO Review #14 — 6 Frontend-Commits QA-geprüft, 2 Bugs behoben
   - Fahrer-App: Zustellung-Flow (markDelivered → beide Systeme + customer_orders) ✅
   - Fahrer-App: markArrived-Button + Angekommen-Badge ✅
   - Fahrer-App: TourCloseButton schließt Tour in beiden Systemen ✅
   - Fahrer-App: SchichtStats zählt Legacy + Mise Lieferungen korrekt ✅
+  - Fahrer-App: aktueller_batch_id wird nach Mise-Tour-Annahme in driver_status gesetzt ✅
   - Kitchen: Initialdaten laden beide Systeme (Legacy + Mise) parallel ✅
-  - Bug behoben: TourCloseButton setzte mise_drivers.state nicht zurück → Fahrer blieb 30 Min lang als en_route → Fix: state wird sofort auf returning gesetzt
+  - Kitchen: computeDriverStates erkennt Mise-Fahrer korrekt als unterwegs ✅
+  - Dispatch: aktueller_batch_id wird nach Dispatch-Zuweisung in driver_status gesetzt ✅
+  - Bug behoben: TourCloseButton setzte mise_drivers.state nicht zurück → Fix: state=returning sofort gesetzt
+  - Bug behoben: TS2339 employee_id auf DriverScoreInput in dispatch-engine.ts → Fix: nearby.find() Lookup
   - Build: npm run build ✓ (169 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-31: Backend-Architekt — Phase 15: Driver Push Notification bei Dispatch
   - lib/delivery/push-notify.ts: enqueueBatchPush() + enqueueTourStatusPush() → mise_push_outbox

@@ -69,9 +69,20 @@ Fahrer wird jetzt sofort auf `returning` gesetzt, sobald die Tour manuell abgesc
 - SchichtStats → Legacy + Mise Batches/Stops korrekt zusammengezählt ✅
 - Kitchen Initialdaten → beide Systeme parallel geladen und normalisiert ✅
 
+### Zusätzliche Commits geprüft (nach Rebase)
+- `ff9357b` fix(dispatch): Mise-Fahrer erscheinen jetzt korrekt als belegt im Dispatch-Board
+- `d2af106` fix(fahrer): aktueller_batch_id wird nach Mise-Tour-Annahme gesetzt
+- `bc78167` fix(kitchen): computeDriverStates erkennt Mise-Fahrer als unterwegs
+
+**TypeScript-Fehler in `ff9357b` gefunden + behoben**:
+- `dispatch-engine.ts:306` — `best.driver.employee_id` existiert nicht auf `DriverScoreInput`
+- `best.driver` kommt aus `rankDrivers()` und hat den Typ `DriverScoreInput` (kein `employee_id`)
+- Fix: `nearby.find((d) => d.id === best.driver.id)` für Lookup auf `DriverRow` (hat `employee_id`)
+
 ### Befund
-- 3 Commits geprüft: korrekt implementiert
+- 6 Commits geprüft: korrekt implementiert
 - 1 kritischer Bug (mise_drivers.state nach Tour-Abschluss): BEHOBEN ✅
+- 1 TypeScript-Fehler (TS2339 employee_id auf DriverScoreInput): BEHOBEN ✅
 - Build: `npm run build` ✅ sauber, 169 Seiten
 - TypeScript: `npx tsc --noEmit` ✅ 0 Fehler
 - **SYSTEM MARKT-REIF** — vollständig deployment-bereit
