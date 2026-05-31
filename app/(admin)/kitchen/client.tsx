@@ -16,7 +16,7 @@ import { advanceOrder, cancelOrder } from './actions';
 
 type Item = {
   id: string; name: string; menge: number;
-  einzelpreis: number; notiz: string | null; extras: unknown;
+  einzelpreis: number; notiz: string | null; extras: unknown; gang?: number | null;
 };
 
 type Order = {
@@ -386,6 +386,9 @@ export function KitchenBoard({
 
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
+
+      {/* Gang-Übersicht: Items nach Gängen für kochende Bestellungen */}
+      <GangTimerPanel orders={filtered} />
 
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
@@ -1007,6 +1010,104 @@ function CookingLoadPanel({ orders }: { orders: Order[] }) {
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+/* ------------------------------ GangTimerPanel ------------------------------ */
+
+function GangTimerPanel({ orders }: { orders: Order[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (cooking.length === 0) return null;
+
+  // Sammle alle Items von kochenden Bestellungen, gruppiert nach Gang
+  const byGang: Record<string, { items: (Item & { orderWaitMin: number })[]; orderCount: number }> = {};
+  for (const o of cooking) {
+    const waitMin = o.bestellt_am ? (Date.now() - new Date(o.bestellt_am).getTime()) / 60_000 : 0;
+    for (const item of (o.items ?? [])) {
+      const gang = item.gang != null ? String(item.gang) : '0';
+      if (!byGang[gang]) byGang[gang] = { items: [], orderCount: 0 };
+      for (let i = 0; i < item.menge; i++) byGang[gang].items.push({ ...item, orderWaitMin: waitMin });
+      byGang[gang].orderCount = Math.max(byGang[gang].orderCount, 1);
+    }
+  }
+
+  const gangs = Object.entries(byGang).sort((a, b) => Number(a[0]) - Number(b[0]));
+  if (gangs.length === 0) return null;
+
+  // Nur anzeigen wenn mehre Gänge oder > 10 Items gesamt
+  const totalItems = gangs.reduce((s, [, g]) => s + g.items.length, 0);
+  if (gangs.length < 2 && totalItems < 8) return null;
+
+  const gangLabel = (g: string) => {
+    switch (g) {
+      case '0': case '1': return 'Vorspeise';
+      case '2': return 'Hauptgang';
+      case '3': return 'Dessert';
+      default: return `Gang ${g}`;
+    }
+  };
+
+  const gangColor = (g: string) => {
+    switch (g) {
+      case '0': case '1': return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', bar: 'bg-blue-400' };
+      case '2': return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-800', bar: 'bg-orange-400' };
+      case '3': return { bg: 'bg-matcha-50', border: 'border-matcha-200', text: 'text-matcha-800', bar: 'bg-matcha-400' };
+      default: return { bg: 'bg-muted', border: 'border-border', text: 'text-muted-foreground', bar: 'bg-muted-foreground' };
+    }
+  };
+
+  return (
+    <div className="rounded-xl border bg-card p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Utensils className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          Gang-Übersicht · {cooking.length} Bestellungen · {totalItems} Positionen
+        </span>
+      </div>
+      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${gangs.length}, minmax(0, 1fr))` }}>
+        {gangs.map(([gang, { items }]) => {
+          const c = gangColor(gang);
+          const maxWait = items.reduce((m, i) => Math.max(m, i.orderWaitMin), 0);
+          const pct = Math.min(100, Math.round((maxWait / 20) * 100));
+          // Top items by count
+          const topItems = Object.entries(
+            items.reduce<Record<string, number>>((acc, it) => { acc[it.name] = (acc[it.name] ?? 0) + 1; return acc; }, {})
+          ).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          return (
+            <div key={gang} className={cn('rounded-lg border p-2', c.bg, c.border)}>
+              <div className={cn('text-[10px] font-black uppercase tracking-wide mb-1.5', c.text)}>
+                {gangLabel(gang)}
+              </div>
+              <div className={cn('font-display text-2xl font-black leading-none mb-1', c.text)}>
+                {items.length}
+              </div>
+              <div className="text-[9px] text-muted-foreground mb-1.5 space-y-0.5">
+                {topItems.map(([name, cnt]) => (
+                  <div key={name} className="truncate">
+                    {cnt > 1 && <span className="font-bold">{cnt}× </span>}{name}
+                  </div>
+                ))}
+              </div>
+              <div className="h-1 rounded-full bg-black/10 overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full', c.bar, pct >= 80 && 'animate-pulse')}
+                  style={{ width: `${pct}%`, transition: 'width 1s linear' }}
+                />
+              </div>
+              <div className={cn('mt-0.5 text-[9px] tabular-nums', c.text, 'opacity-70')}>
+                max {Math.floor(maxWait)}:{String(Math.floor((maxWait % 1) * 60)).padStart(2, '0')} Min
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

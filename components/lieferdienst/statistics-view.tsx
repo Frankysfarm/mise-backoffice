@@ -5,7 +5,7 @@ import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck
 } from 'lucide-react'
 import {
   BarChart,
@@ -24,6 +24,19 @@ type DeliveryStats = {
   orders: { total: number; delivered: number; held: number; zone_breakdown: Record<string, number> };
   tours: { total: number; bundled_count: number; avg_distance_km: number | null; avg_eta_min: number | null };
   scoring: { avg_score: number | null; total_decisions: number };
+} | null;
+
+type SlaData = {
+  summary: {
+    totalStops: number;
+    onTimeCount: number;
+    lateCount: number;
+    onTimePct: number;
+    avgDeviationMin: number;
+    avgDeliveryMin: number;
+  };
+  byZone: Record<string, { totalStops: number; onTimeCount: number; onTimePct: number; avgDeviationMin: number }>;
+  _fallback?: boolean;
 } | null;
 
 type TrendData = {
@@ -61,6 +74,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     state: string; deliveries_today: number; deliveries_yesterday: number;
     active_batch_id: string | null;
   }[]>([])
+  const [slaData, setSlaData] = useState<SlaData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -110,6 +124,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/performance?location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.drivers && !d._fallback) setDriverPerf(d.drivers) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/sla?location_id=${locationId}&days=1`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: SlaData) => { if (d && !d._fallback) setSlaData(d) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -632,6 +650,81 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                     <span className="font-semibold text-char">{count}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SLA-Panel: On-Time-Rate, Ø-Verzögerung, Zone-Aufschlüsselung */}
+      {slaData && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            SLA-Report · Heute
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            {/* On-Time Rate */}
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className={`text-3xl font-black ${slaData.summary.onTimePct >= 90 ? 'text-emerald-600' : slaData.summary.onTimePct >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
+                {Math.round(slaData.summary.onTimePct)}%
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Pünktlich geliefert</div>
+              <div className="mt-2 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${slaData.summary.onTimePct >= 90 ? 'bg-emerald-400' : slaData.summary.onTimePct >= 70 ? 'bg-amber-400' : 'bg-red-400'}`}
+                  style={{ width: `${Math.round(slaData.summary.onTimePct)}%` }}
+                />
+              </div>
+            </div>
+            {/* Avg Deviation */}
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className={`text-3xl font-black ${slaData.summary.avgDeviationMin <= 2 ? 'text-emerald-600' : slaData.summary.avgDeviationMin <= 8 ? 'text-amber-600' : 'text-red-600'}`}>
+                {slaData.summary.avgDeviationMin > 0 ? '+' : ''}{Math.round(slaData.summary.avgDeviationMin)} <span className="text-lg font-normal">Min</span>
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Ø Abweichung</div>
+            </div>
+            {/* Avg Delivery Time */}
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className="text-3xl font-black text-blue-600">
+                {Math.round(slaData.summary.avgDeliveryMin)} <span className="text-lg font-normal">Min</span>
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Ø Lieferzeit</div>
+            </div>
+            {/* Total Stops */}
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className="text-3xl font-black text-char">
+                {slaData.summary.onTimeCount}<span className="text-base font-normal text-stone-400">/{slaData.summary.totalStops}</span>
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Pünktliche Stopps</div>
+            </div>
+          </div>
+          {/* Per-Zone SLA */}
+          {Object.keys(slaData.byZone).length > 0 && (
+            <div>
+              <div className="text-sm font-semibold text-char mb-2 flex items-center gap-2">
+                <MapPin className="w-4 h-4" /> SLA nach Zone
+              </div>
+              <div className="space-y-2">
+                {Object.entries(slaData.byZone)
+                  .sort((a, b) => b[1].totalStops - a[1].totalStops)
+                  .map(([zone, zs]) => {
+                    const pct = Math.round(zs.onTimePct)
+                    const barColor = pct >= 90 ? 'bg-emerald-400' : pct >= 70 ? 'bg-amber-400' : 'bg-red-400'
+                    const zoneColor = zone === 'A' ? 'text-emerald-700 bg-emerald-100' : zone === 'B' ? 'text-blue-700 bg-blue-100' : zone === 'C' ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'
+                    return (
+                      <div key={zone} className="flex items-center gap-3 text-sm">
+                        <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ${zoneColor}`}>{zone}</span>
+                        <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className={`w-10 text-right font-bold tabular-nums shrink-0 ${pct >= 90 ? 'text-emerald-600' : pct >= 70 ? 'text-amber-600' : 'text-red-600'}`}>{pct}%</span>
+                        <span className="w-14 text-right text-xs text-stone-400 tabular-nums shrink-0">
+                          {zs.avgDeviationMin > 0 ? '+' : ''}{Math.round(zs.avgDeviationMin)}m Ø
+                        </span>
+                      </div>
+                    )
+                  })}
               </div>
             </div>
           )}

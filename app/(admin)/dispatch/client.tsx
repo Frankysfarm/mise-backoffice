@@ -300,7 +300,10 @@ export function DispatchBoard({
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
       {/* Zone Bundling Opportunities */}
-      <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} />
+      <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} onSelectZone={(zone) => {
+        const ids = readyOrders.filter((o) => o.delivery_zone === zone).map((o) => o.id);
+        setSelected(new Set(ids));
+      }} />
 
       {/* Live Driver Map */}
       <LiveDriverMapPanel drivers={drivers} batches={batches} orders={filteredOrders} />
@@ -427,9 +430,11 @@ export function DispatchBoard({
 function ZoneBundlingAlert({
   orders,
   onlineDrivers,
+  onSelectZone,
 }: {
   orders: ReadyOrder[];
   onlineDrivers: Driver[];
+  onSelectZone?: (zone: string) => void;
 }) {
   if (orders.length === 0) return null;
 
@@ -473,11 +478,15 @@ function ZoneBundlingAlert({
           const urgent = maxWaitMin >= 8;
           const totalEur = zos.reduce((s, o) => s + o.gesamtbetrag, 0);
           return (
-            <div
+            <button
               key={zone}
+              type="button"
+              onClick={() => onSelectZone?.(zone)}
+              title={onSelectZone ? `Alle ${zos.length} Bestellungen in Zone ${zone} auswählen` : undefined}
               className={cn(
-                'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-xs',
-                urgent ? 'border-red-300 bg-red-50' : 'border-matcha-200 bg-white',
+                'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-xs text-left transition',
+                urgent ? 'border-red-300 bg-red-50 hover:bg-red-100' : 'border-matcha-200 bg-white hover:bg-matcha-50',
+                onSelectZone && 'cursor-pointer active:scale-[0.97]',
               )}
             >
               <span className={cn('rounded px-2 py-0.5 text-[11px] font-black', zm.cls)}>
@@ -494,9 +503,9 @@ function ZoneBundlingAlert({
                 </span>
               )}
               <span className="rounded-full bg-matcha-100 text-matcha-800 px-1.5 py-0.5 text-[9px] font-bold">
-                → 1 Tour
+                {onSelectZone ? '→ Alle wählen' : '→ 1 Tour'}
               </span>
-            </div>
+            </button>
           );
         })}
       </div>
