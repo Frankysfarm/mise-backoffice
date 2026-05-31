@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type Stop = {
@@ -12,6 +12,7 @@ type Stop = {
   reihenfolge: number;
   distanz_zum_vorgaenger_m: number | null;
   geliefert_am: string | null;
+  angekommen_am: string | null;
   order: {
     id: string;
     bestellnummer: string;
@@ -45,6 +46,7 @@ export function DeliveryView({
   const supabase = createClient();
   const [stops, setStops] = useState(initialStops);
   const [pending, setPending] = useState<string | null>(null);
+  const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
   const mountedAt = useRef(Date.now());
@@ -116,15 +118,35 @@ export function DeliveryView({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function markArrived(stopId: string) {
+    const now = new Date().toISOString();
+    await Promise.all([
+      supabase.from('delivery_batch_stops').update({ angekommen_am: now }).eq('id', stopId),
+      supabase.from('mise_delivery_batch_stops').update({ arrived_at: now }).eq('id', stopId),
+    ]);
+    setArrivedIds((s) => new Set([...s, stopId]));
+    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, angekommen_am: now } : x));
+  }
+
   async function markDelivered(stopId: string) {
     setPending(stopId);
-    const { error } = await supabase.from('delivery_batch_stops')
-      .update({ geliefert_am: new Date().toISOString(), angekommen_am: new Date().toISOString() })
-      .eq('id', stopId);
+    const now = new Date().toISOString();
+    const stop = stops.find((s) => s.id === stopId);
+    await Promise.all([
+      supabase.from('delivery_batch_stops')
+        .update({ geliefert_am: now, angekommen_am: now })
+        .eq('id', stopId),
+      supabase.from('mise_delivery_batch_stops')
+        .update({ completed_at: now, arrived_at: now })
+        .eq('id', stopId),
+      stop?.order_id
+        ? supabase.from('customer_orders')
+            .update({ status: 'geliefert', geliefert_am: now })
+            .eq('id', stop.order_id)
+        : Promise.resolve(),
+    ]);
     setPending(null);
-    if (error) { alert(error.message); return; }
-    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: new Date().toISOString() } : x));
-    // Wenn alle fertig → callback
+    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }
 
@@ -413,6 +435,13 @@ export function DeliveryView({
                 <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} gpsSpeed={gpsSpeed} />
               )}
 
+              {/* Arrived-Badge wenn bereits angekommen, aber noch nicht zugestellt */}
+              {isNext && (stop.angekommen_am || arrivedIds.has(stop.id)) && !stop.geliefert_am && (
+                <div className="mt-2 flex items-center gap-1.5 rounded-full bg-accent/20 border border-accent/40 px-3 py-1 text-[11px] font-bold text-accent">
+                  <Flag size={11} /> Angekommen — bitte zustellen
+                </div>
+              )}
+
               {/* Actions nur für next stop */}
               {isNext && (
                 <div className="mt-3 flex gap-2">
@@ -420,6 +449,15 @@ export function DeliveryView({
                     <a href={`tel:${stop.order.kunde_telefon}`} className="h-11 w-11 rounded-xl bg-white/10 hover:bg-white/20 grid place-items-center">
                       <Phone size={16} />
                     </a>
+                  )}
+                  {/* Angekommen-Button — nur wenn noch nicht angekommen */}
+                  {!stop.angekommen_am && !arrivedIds.has(stop.id) && (
+                    <button
+                      onClick={() => markArrived(stop.id)}
+                      className="h-11 px-3 rounded-xl bg-accent/20 border border-accent/40 text-accent flex items-center gap-1.5 text-xs font-bold shrink-0"
+                    >
+                      <Flag size={13} /> Angekommen
+                    </button>
                   )}
                   {stop.order.kunde_lat && stop.order.kunde_lng && (() => {
                     const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -479,6 +517,8 @@ export function DeliveryView({
                 <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
                 <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
               </div>
+              {/* Explicit tour close button — prevents accidental early close, updates batch status */}
+              <TourCloseButton batchId={batchId} onDone={onAllDone} />
 
               {/* Tour-Zusammenfassung */}
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -529,6 +569,33 @@ export function DeliveryView({
         })()}
       </div>
     </div>
+  );
+}
+
+function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => void }) {
+  const supabase = createClient();
+  const [closing, setClosing] = useState(false);
+
+  async function close() {
+    setClosing(true);
+    await Promise.all([
+      supabase.from('delivery_batches').update({ status: 'abgeschlossen' }).eq('id', batchId),
+      supabase.from('mise_delivery_batches').update({ state: 'completed', completed_at: new Date().toISOString() }).eq('id', batchId),
+      supabase.from('driver_status').update({ aktueller_batch_id: null }).eq('aktueller_batch_id', batchId),
+    ]);
+    setClosing(false);
+    onDone();
+  }
+
+  return (
+    <button
+      onClick={close}
+      disabled={closing}
+      className="w-full h-14 rounded-2xl bg-accent text-matcha-900 font-display font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-accent/30"
+    >
+      {closing ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
+      {closing ? 'Wird abgeschlossen…' : 'Tour abschließen'}
+    </button>
   );
 }
 
