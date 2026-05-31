@@ -1018,7 +1018,7 @@ function DriverRow({
 }
 
 function BatchRow({ batch }: { batch: Batch }) {
-  const fahrer = batch.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}` : 'Unbekannt';
+  const fahrer = batch.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}`.trim() : 'Unbekannt';
   const total = batch.stops.length;
   const done = batch.stops.filter((s) => s.geliefert_am).length;
   const progress = total > 0 ? (done / total) * 100 : 0;
@@ -1309,7 +1309,7 @@ function TourReturnTimeline({ batches }: { batches: Batch[] }) {
         : null;
       const doneStops = b.stops.filter((s) => s.geliefert_am).length;
       const totalStops = b.stops.length;
-      const fahrer = b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Unbekannt';
+      const fahrer = b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}`.trim() : 'Unbekannt';
       const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
       const progress = totalStops > 0 ? Math.round((doneStops / totalStops) * 100) : 0;
       return { id: b.id, fahrer, etaMs, secLeft, doneStops, totalStops, progress, zone: b.zone };

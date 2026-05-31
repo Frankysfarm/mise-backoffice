@@ -6,6 +6,52 @@
 ## Anweisungen an Frontend-Ingenieur
 **DONE** — CEO Review #14 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig deployment-bereit.
 
+## CEO Review #15 — 2026-05-31
+
+### Geprüfte Commits (seit CEO Review #14)
+- `b0642d1` feat(delivery/backend): Phase 16 — Driver Auto-Rating + SLA Tracking
+- `e5b3b9c` feat(delivery/frontend): GPS-Karte, Quick-Advance, Dispatch-Kapazität
+
+### Code-Review der neuen Features
+
+**Driver Auto-Rating** (`lib/delivery/rating.ts`, `scripts/migrations/016_driver_rating.sql`):
+- `delivery_performance` Tabelle mit korrektem Schema: `driver_id, location_id, zone, on_time, eta_deviation_min, delivery_min, recorded_at` ✅
+- `recompute_driver_rating()` PL/pgSQL-Funktion lädt letzte 30 Lieferungen, berechnet on-time-Rate + Ø delivery_min ✅
+- SLA-API (`/api/delivery/admin/sla`): aggregiert korrekt nach driver_id + zone, `.not('eta_latest_at', 'is', null)` filtert incomplete rows ✅
+- Tour-Status-API triggert automatisch `recompute_driver_rating` nach Abschluss ✅
+
+**GPS-Karte in Dispatch** (`dispatch/driver-map.tsx`):
+- Lazy-loaded Leaflet-Karte, OpenStreetMap-Tiles, korrekte Cleanup bei Unmount ✅
+- Fahrer-Marker: farbcodiert (grün=frei, orange=unterwegs, blau=zurück) mit Popup ✅
+- Order-Marker: Sequenznummer als Icon, grau bei geliefert ✅
+- `fitBounds` bei Driver-Position-Änderung (separate useEffect) ✅
+
+**GPS blauer Punkt in Fahrer-App** (`delivery-view.tsx`):
+- `driverLat/driverLng` als Props von `client.tsx` GPS-State übergeben ✅
+- Live-Update: `setLatLng()` bei Positionsänderung oder Marker-Neuerstellung ✅
+- Leaflet-Ref-Pattern verhindert Map-Neuinitialisierung ✅
+
+**Quick-Advance-Buttons** (`kitchen/client.tsx`):
+- `nextStatusFor()` / `nextLabelFor()` Helper korrekt: neu→bestätigt→in_zubereitung→fertig ✅
+- `useTransition` im `TopUrgentOrders` Scope — verhindert Race-Conditions bei Mehrfach-Klick ✅
+- Farbkodierung nach Priority-Score (rot ≥75, orange ≥55, grün <55) ✅
+
+**CapacityForecastChip** (`dispatch/client.tsx`):
+- `busyDriverIds` aus aktiven Batches korrekt berechnet ✅
+- ETA-Rückkehrzeit: `startzeit + total_eta_min` — zuverlässig wenn beide Felder gesetzt ✅
+- 15s Auto-Refresh via `setInterval` ✅
+
+### Bugs behoben in CEO Review #15
+- `next.config.js`: Ungültiger `turbopack`-Key entfernt → Build-Warning eliminiert ✅
+- `dispatch/client.tsx`: `fahrer`-Name für Mise-Batches mit `.trim()` gesichert → kein Trailing-Space ✅
+
+### Status
+- TypeScript: 0 Fehler ✅
+- Build: 169 Seiten, 0 Errors, 0 Warnings ✅
+- Integration: GPS ↔ Fahrer-App ↔ Dispatch-Karte ↔ Kitchen-Quick-Advance vollständig verbunden ✅
+
+---
+
 ## CEO Review #14 — 2026-05-31
 
 ### Geprüfte Commits (seit CEO Review #13)
