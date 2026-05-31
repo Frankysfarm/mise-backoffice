@@ -1846,7 +1846,10 @@ function computeDriverStates(drivers: Driver[], batches: Batch[], stops: Stop[])
   const map = new Map<string, DriverState>();
   for (const d of drivers) {
     if (!d.status?.ist_online) { map.set(d.id, 'offline'); continue; }
-    const batch = batches.find((b) => b.driver_id === d.id);
+    const batchId = d.status?.aktueller_batch_id
+      ?? batches.find((b) => b.driver_id === d.id)?.id;
+    if (!batchId) { map.set(d.id, 'frei'); continue; }
+    const batch = batches.find((b) => b.id === batchId);
     if (!batch) { map.set(d.id, 'frei'); continue; }
     const myStops = stops.filter((s) => s.batch_id === batch.id);
     if (myStops.length === 0) { map.set(d.id, 'frei'); continue; }
