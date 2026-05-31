@@ -724,6 +724,34 @@ function KitchenShiftStats({ orders, completedToday, hourlyData }: { orders: Ord
         </div>
       )}
 
+      {/* Nächste Stunde Prognose */}
+      {hourlyData.length >= 2 && (() => {
+        const nowH = new Date().getHours();
+        const nowMinFrac = new Date().getMinutes() / 60;
+        const current = hourlyData.find((d) => d.h === nowH);
+        const prev = hourlyData.find((d) => d.h === nowH - 1);
+        if (!current || nowMinFrac < 0.2) return null;
+        // Extrapolate: current hour rate → next hour
+        const currentRate = current.orders / Math.max(0.1, nowMinFrac);
+        const prevRate = prev?.orders ?? currentRate;
+        const trend = currentRate - prevRate;
+        const nextHrPred = Math.round(Math.max(0, currentRate + trend * 0.5));
+        if (nextHrPred === 0) return null;
+        const isRising = trend > 1;
+        const isFalling = trend < -1;
+        return (
+          <div className={cn(
+            'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold',
+            isRising ? 'border-orange-300 bg-orange-50 text-orange-700' :
+            isFalling ? 'border-matcha-200 bg-matcha-50 text-matcha-700' :
+            'border-blue-200 bg-blue-50 text-blue-700',
+          )}>
+            {isRising ? <Flame className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+            {nowH + 1}:00 ≈ {nextHrPred} Best.
+          </div>
+        );
+      })()}
+
       {/* Stündliches Bestellvolumen — kompakte Sparkline */}
       {hourlyData.length >= 3 && (() => {
         const nowH = new Date().getHours();
