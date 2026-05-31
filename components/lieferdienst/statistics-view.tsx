@@ -5,7 +5,7 @@ import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock
 } from 'lucide-react'
 import {
   BarChart,
@@ -75,6 +75,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     active_batch_id: string | null;
   }[]>([])
   const [slaData, setSlaData] = useState<SlaData>(null)
+  const [upcomingShifts, setUpcomingShifts] = useState<{
+    id: string; driver_id: string; planned_start: string; planned_end: string;
+    status: string; driver?: { name: string; vehicle: string } | null;
+  }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -128,6 +132,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/sla?location_id=${locationId}&days=1`)
       .then(r => r.ok ? r.json() : null)
       .then((d: SlaData) => { if (d && !d._fallback) setSlaData(d) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/shifts?location_id=${locationId}&hours=8`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.shifts?.length) setUpcomingShifts(d.shifts) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -728,6 +736,64 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Schichtplan-Vorschau: nächste 8h */}
+      {upcomingShifts.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <CalendarClock className="w-5 h-5 text-blue-500" />
+            <h3 className="text-lg font-semibold text-char">Schichtplan (nächste 8h)</h3>
+            <span className="ml-auto text-xs text-stone-400">{upcomingShifts.length} {upcomingShifts.length === 1 ? 'Schicht' : 'Schichten'}</span>
+          </div>
+          <div className="space-y-2">
+            {upcomingShifts
+              .sort((a, b) => new Date(a.planned_start).getTime() - new Date(b.planned_start).getTime())
+              .map((shift) => {
+                const start = new Date(shift.planned_start);
+                const end = new Date(shift.planned_end);
+                const now = Date.now();
+                const isActive = shift.status === 'active' || (start.getTime() <= now && end.getTime() >= now && shift.status !== 'completed' && shift.status !== 'cancelled');
+                const isUpcoming = !isActive && start.getTime() > now;
+                const isMissed = shift.status === 'missed' || (start.getTime() < now && shift.status === 'scheduled');
+                const minutesToStart = Math.round((start.getTime() - now) / 60_000);
+                const durationH = Math.round((end.getTime() - start.getTime()) / 3_600_000 * 10) / 10;
+                const vehicle = shift.driver?.vehicle ?? '';
+                const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗', fuss: '🚶' };
+                const fmt = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <div key={shift.id} className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                    isActive ? 'border-emerald-200 bg-emerald-50' :
+                    isMissed ? 'border-red-100 bg-red-50 opacity-60' :
+                    'border-stone-100 bg-stone-50'
+                  }`}>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white border border-stone-200 text-base shrink-0">
+                      {vehicleEmoji[vehicle] ?? '🚲'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-char text-sm truncate">
+                        {shift.driver?.name ?? 'Fahrer'}
+                      </div>
+                      <div className="text-xs text-stone-500">
+                        {fmt(start)} – {fmt(end)} · {durationH}h
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {isActive ? (
+                        <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white uppercase">Aktiv</span>
+                      ) : isMissed ? (
+                        <span className="rounded-full bg-red-400 px-2 py-0.5 text-[10px] font-bold text-white uppercase">Fehlt</span>
+                      ) : isUpcoming && minutesToStart <= 60 ? (
+                        <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-matcha-900 uppercase">in {minutesToStart} Min</span>
+                      ) : (
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 uppercase">{fmt(start)}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       )}
 
