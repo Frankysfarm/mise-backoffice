@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: { typedRoutes: false },
+  turbopack: { root: __dirname },
   typescript: { ignoreBuildErrors: true },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',

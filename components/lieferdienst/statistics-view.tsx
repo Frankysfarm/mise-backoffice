@@ -5,7 +5,7 @@ import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download
 } from 'lucide-react'
 import {
   BarChart,
@@ -147,6 +147,29 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   }).length
   const ratePerHour = ordersLastHalfHour * 2  // extrapoliert
 
+  function handleExportCSV() {
+    const rows = [
+      ['Bestellnummer', 'Zeit', 'Status', 'Typ', 'Betrag (€)', 'Zone', 'Zahlungsart'],
+      ...allOrders.map(o => [
+        (o as any).bestellnummer ?? '',
+        o.createdAt ? new Date(o.createdAt).toLocaleString('de-DE') : '',
+        o.status ?? '',
+        o.orderType ?? '',
+        ((o as any).gesamtbetrag ?? 0).toFixed(2),
+        (o as any).delivery_zone ?? '',
+        (o as any).zahlungsart ?? '',
+      ]),
+    ]
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `bestellungen-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -168,6 +191,15 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           )}
         </div>
         <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 text-xs font-medium text-steel hover:text-char transition px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
+            title="Tagesbestellungen als CSV exportieren"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export
+          </button>
           <button
             onClick={() => { setRefreshing(true); fetchDrivers(); setNextRefreshSec(30); setTimeout(() => setRefreshing(false), 800); }}
             className="flex items-center gap-2 text-xs font-medium text-steel hover:text-char transition px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
@@ -176,6 +208,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             Aktualisieren
             <span className="text-stone-400">{lastRefresh.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
           </button>
+          </div>
           <div className="flex items-center gap-1.5 w-full">
             <div className="flex-1 h-0.5 rounded-full bg-stone-100 overflow-hidden">
               <div

@@ -915,6 +915,33 @@ function CookingLoadPanel({ orders }: { orders: Order[] }) {
           );
         })}
       </div>
+
+      {/* Kochleistung: avg Wartezeit vs. Schätzzeit für in_zubereitung-Aufträge */}
+      {(() => {
+        const cooking = orders.filter((o) => o.status === 'in_zubereitung' && o.bestellt_am);
+        if (cooking.length === 0) return null;
+        const avgActualMin = cooking.reduce((s, o) => s + (now - new Date(o.bestellt_am!).getTime()) / 60_000, 0) / cooking.length;
+        const avgEstMin = cooking.reduce((s, o) => s + (o.geschaetzte_zubereitung_min ?? 15), 0) / cooking.length;
+        const ratio = avgActualMin / avgEstMin;
+        const pct = Math.min(100, Math.round(ratio * 100));
+        const color = ratio >= 1 ? 'bg-red-500' : ratio >= 0.8 ? 'bg-orange-400' : 'bg-matcha-400';
+        const textColor = ratio >= 1 ? 'text-red-700' : ratio >= 0.8 ? 'text-orange-700' : 'text-matcha-700';
+        return (
+          <div className="mt-2 pt-2 border-t border-black/5">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                Ø Kochzeit: {Math.floor(avgActualMin)}:{String(Math.floor((avgActualMin % 1) * 60)).padStart(2, '0')} Min
+              </span>
+              <span className={cn('text-[9px] font-bold tabular-nums', textColor)}>
+                {pct}% von Schätzung ({Math.round(avgEstMin)} Min)
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-black/10 overflow-hidden">
+              <div className={cn('h-full rounded-full transition-all duration-1000', color, ratio >= 1 && 'animate-pulse')} style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

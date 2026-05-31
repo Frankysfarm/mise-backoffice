@@ -298,7 +298,32 @@ export function DeliveryView({
         )}
       </div>
 
-      {/* Stops */}
+      {/* Stops — Restdistanz-Streifen */}
+      {openStops.length > 0 && (() => {
+        const remainDistM = openStops.reduce((s, st) => s + (st.distanz_zum_vorgaenger_m ?? 0), 0);
+        const totalDistM = stops.reduce((s, st) => s + (st.distanz_zum_vorgaenger_m ?? 0), 0);
+        if (remainDistM === 0) return null;
+        return (
+          <div className="mx-4 mt-1 flex items-center gap-3 text-[10px] text-matcha-300">
+            <span className="font-bold text-matcha-100">{openStops.length} verbleibend</span>
+            <span className="text-matcha-400">·</span>
+            <span>~{(remainDistM / 1000).toFixed(1)} km</span>
+            {totalDistM > 0 && (
+              <>
+                <span className="text-matcha-400">·</span>
+                <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-accent transition-all"
+                    style={{ width: `${Math.max(0, ((totalDistM - remainDistM) / totalDistM) * 100)}%` }}
+                  />
+                </div>
+                <span className="tabular-nums">{Math.round(((totalDistM - remainDistM) / totalDistM) * 100)}%</span>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {sorted.map((stop) => {
           const done = !!stop.geliefert_am;

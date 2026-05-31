@@ -104,6 +104,7 @@ export function DispatchBoard({
   const [batches, setBatches] = useState(initialBatches);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [orderSort, setOrderSort] = useState<'wait' | 'zone' | 'score'>('wait');
   const [pending, startTransition] = useTransition();
   const [dispatchPending, setDispatchPending] = useState(false);
 
@@ -176,7 +177,17 @@ export function DispatchBoard({
     });
   }, [orders, locationFilter]);
 
-  const readyOrders = filteredOrders.filter((o) => o.status === 'fertig');
+  const readyOrders = useMemo(() => {
+    const base = filteredOrders.filter((o) => o.status === 'fertig');
+    return [...base].sort((a, b) => {
+      if (orderSort === 'zone') return (a.delivery_zone ?? 'Z').localeCompare(b.delivery_zone ?? 'Z');
+      if (orderSort === 'score') return (b.dispatch_score ?? 0) - (a.dispatch_score ?? 0);
+      // default: wait time (oldest first)
+      const aWait = a.fertig_am ? Date.now() - new Date(a.fertig_am).getTime() : 0;
+      const bWait = b.fertig_am ? Date.now() - new Date(b.fertig_am).getTime() : 0;
+      return bWait - aWait;
+    });
+  }, [filteredOrders, orderSort]);
   const enRouteOrders = filteredOrders.filter((o) => o.status === 'unterwegs');
 
   const onlineDrivers = drivers.filter((d) => d.ist_online);
@@ -301,11 +312,22 @@ export function DispatchBoard({
                 <h2 className="font-display text-sm font-bold uppercase tracking-wider">Bereit zur Abholung</h2>
                 <Badge variant="secondary">{readyOrders.length}</Badge>
               </div>
-              {selected.size > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  {selected.size} ausgewählt · wähle Fahrer rechts
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {selected.size > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    {selected.size} ausgewählt · wähle Fahrer rechts
+                  </div>
+                )}
+                <select
+                  value={orderSort}
+                  onChange={(e) => setOrderSort(e.target.value as 'wait' | 'zone' | 'score')}
+                  className="h-7 rounded border bg-background px-2 text-[11px] font-medium text-muted-foreground"
+                >
+                  <option value="wait">Älteste zuerst</option>
+                  <option value="zone">Nach Zone</option>
+                  <option value="score">Score ↓</option>
+                </select>
+              </div>
             </div>
             {readyOrders.length === 0 ? (
               <div className="p-10 text-center text-sm text-muted-foreground">
