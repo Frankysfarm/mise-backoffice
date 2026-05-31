@@ -24,6 +24,7 @@ import { optimizeTour } from './tour-optimizer';
 import { calculateEta, updateOrderEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
 import { logDeliveryEvent } from './events';
+import { enqueueBatchPush } from './push-notify';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -371,6 +372,17 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
       distance_km: distanceKm,
     },
   });
+
+  // Push-Benachrichtigung an Fahrer (fire-and-forget)
+  const restaurantName = [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name;
+  enqueueBatchPush({
+    driverId:       best.driver.id,
+    batchId,
+    orderCount:     1,
+    restaurantName,
+    distanceKm,
+    outcome,
+  }).catch(() => {});
 
   return {
     orderId: o.id,

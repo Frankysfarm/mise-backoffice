@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { logDeliveryEvent } from '@/lib/delivery/events';
 import { optimizeTour } from '@/lib/delivery/tour-optimizer';
+import { enqueueTourStatusPush } from '@/lib/delivery/push-notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,7 +40,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   // Bestellung prüfen
   const { data: order, error: orderErr } = await serviceSb
     .from('customer_orders')
-    .select('id, status, typ, location_id, mise_batch_id, bestellnummer')
+    .select('id, status, typ, location_id, mise_batch_id, mise_driver_id, bestellnummer')
     .eq('id', orderId)
     .maybeSingle();
 
@@ -112,6 +113,20 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       stops_remaining: result.stops_remaining,
     },
   });
+
+  // Fahrer benachrichtigen wenn Tour betroffen
+  if (result.batch_id && order.mise_driver_id) {
+    const driverId = order.mise_driver_id as string;
+    enqueueTourStatusPush({
+      driverId,
+      batchId:  result.batch_id,
+      type:     result.batch_cancelled ? 'tour_cancelled' : 'order_cancelled',
+      title:    result.batch_cancelled ? 'Tour storniert' : 'Bestellung entfernt',
+      body:     result.batch_cancelled
+        ? `Tour wurde storniert (Bestellung ${order.bestellnummer as string})`
+        : `Bestellung ${order.bestellnummer as string} aus deiner Tour entfernt · ${result.stops_remaining} Stop${result.stops_remaining !== 1 ? 's' : ''} verbleiben`,
+    }).catch(() => {});
+  }
 
   return NextResponse.json({
     ok:              true,

@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–14 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #13 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–15 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #13 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -298,7 +298,36 @@ Siehe DELIVERY_CEO_LOG.md
   - Neue Route-API ermöglicht Upgrade auf tatsächliche Straßenroute statt gerader Linien
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 15: Driver Push Notification bei Dispatch [DONE ✅] — 2026-05-31
+- [x] **`lib/delivery/push-notify.ts`** — Fahrer Push-Notification Modul
+  - `enqueueBatchPush()`: Schreibt in `mise_push_outbox` wenn Tour dispatched oder gebündelt wird
+  - `enqueueTourStatusPush()`: Allgemeiner Status-Push (Tour/Bestellung storniert, Tour geändert)
+  - Eigener Service-Client (kein N+1, fire-and-forget Pattern)
+- [x] **`lib/delivery/dispatch-engine.ts`** — Push nach Dispatch/Bundle
+  - `dispatchSingleOrder()`: ruft `enqueueBatchPush()` nach erfolgreicher Zuweisung auf
+  - Fire-and-forget (`.catch(() => {})`) — Push-Fehler blockieren nie den Dispatch
+- [x] **`app/api/delivery/orders/[orderId]/cancel/route.ts`** — Fahrer bei Stornierung benachrichtigen
+  - `enqueueTourStatusPush()` bei `tour_cancelled` (ganzer Batch) oder `order_cancelled` (ein Stop)
+  - Fahrer erhält Nachricht: "Tour storniert" oder "Bestellung X entfernt · N Stops verbleiben"
+- [x] **`scripts/migrations/015_push_notify_dispatch.sql`** — Performance-Indices + Monitoring-View
+  - `idx_mise_push_outbox_unsent`: push-flush-Cron Partial-Index (sent_at IS NULL)
+  - `idx_mise_push_outbox_batch`: JSON-Index für Batch-ID-Lookup im Outbox
+  - `idx_driver_push_outbox_unsent`: VAPID-Web-Push Partial-Index
+  - `v_push_delivery_stats` VIEW: Push-Durchsatz letzte 24h (mise + webpush Kanäle)
+- [x] **`app/api/delivery/admin/push-stats/route.ts`** — `GET` Monitoring-Endpoint
+  - Zeigt delivered/failed/pending für beide Push-Kanäle (mise + webpush)
+  - Type-Breakdown (order_assigned, tour_cancelled, order_cancelled etc.)
+  - Auth: Authentifizierter Admin-User
+- Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-05-31: Backend-Architekt — Phase 15: Driver Push Notification bei Dispatch
+  - lib/delivery/push-notify.ts: enqueueBatchPush() + enqueueTourStatusPush() → mise_push_outbox
+  - dispatch-engine.ts: Push nach Dispatch/Bundle (fire-and-forget)
+  - orders/[id]/cancel: Fahrer-Push bei Tour-/Bestellungs-Stornierung
+  - Migration 015: 3 Indices + v_push_delivery_stats VIEW
+  - GET /api/delivery/admin/push-stats: Push-Monitoring für Admin
+  - Build: npm run build ✓ (169 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-31: CEO Review #13 — 5 Frontend-Commits QA-geprüft, 2 Bugs behoben
   - Kitchen: TopUrgentOrders Priority-Queue (5-Faktor Scoring, Top-4 Chips) ✅
   - Kitchen: Kochleistungs-Gauge (avg Kochzeit vs. Schätzzeit, Balken mit Pulse) ✅
