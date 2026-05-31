@@ -49,6 +49,26 @@ function HeroClassic({ location, orderType, onOrderType, popularCount, itemCount
   const closeHour = 19;
   const isOpen = now.getHours() < closeHour;
 
+  // Live-Küchenlast: pollt /api/delivery/eta/live alle 60s
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: 'low' | 'medium' | 'high' } | null>(null);
+  React.useEffect(() => {
+    if (!location.id || orderType !== 'lieferung') return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${location.id}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.eta_min != null) {
+          const load: 'low' | 'medium' | 'high' = d.eta_min > 45 ? 'high' : d.eta_min > 30 ? 'medium' : 'low';
+          setLiveEta({ eta_min: d.eta_min, load });
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [location.id, orderType]);
+
   // Palette pro Theme — bestimmt Hintergrund, Akzent-Farbe, Text-Farben
   const p = themeId === 'farmhouse'
     ? {
@@ -146,29 +166,53 @@ function HeroClassic({ location, orderType, onOrderType, popularCount, itemCount
             </div>
           )}
 
-          <div className={cn('flex-1 inline-flex w-full items-center gap-1 rounded-full p-1 ring-1 backdrop-blur-md', p.toggleBg)}>
-            <button
-              type="button"
-              onClick={() => onOrderType('abholung')}
-              aria-pressed={orderType === 'abholung'}
-              className={cn(
-                'flex-1 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold transition',
-                orderType === 'abholung' ? p.toggleActive : p.toggleInactive,
-              )}
-            >
-              <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Abholung
-            </button>
-            <button
-              type="button"
-              onClick={() => onOrderType('lieferung')}
-              aria-pressed={orderType === 'lieferung'}
-              className={cn(
-                'flex-1 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold transition',
-                orderType === 'lieferung' ? p.toggleActive : p.toggleInactive,
-              )}
-            >
-              <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Lieferung
-            </button>
+          <div className="flex-1 flex flex-col gap-1.5">
+            <div className={cn('inline-flex w-full items-center gap-1 rounded-full p-1 ring-1 backdrop-blur-md', p.toggleBg)}>
+              <button
+                type="button"
+                onClick={() => onOrderType('abholung')}
+                aria-pressed={orderType === 'abholung'}
+                className={cn(
+                  'flex-1 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold transition',
+                  orderType === 'abholung' ? p.toggleActive : p.toggleInactive,
+                )}
+              >
+                <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Abholung
+              </button>
+              <button
+                type="button"
+                onClick={() => onOrderType('lieferung')}
+                aria-pressed={orderType === 'lieferung'}
+                className={cn(
+                  'flex-1 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold transition',
+                  orderType === 'lieferung' ? p.toggleActive : p.toggleInactive,
+                )}
+              >
+                <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Lieferung
+              </button>
+            </div>
+            {/* Live-ETA chip (nur bei Lieferung) */}
+            {orderType === 'lieferung' && liveEta && (
+              <div className={cn(
+                'self-start inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold',
+                liveEta.load === 'high' ? 'bg-red-500/20 text-red-300' :
+                liveEta.load === 'medium' ? 'bg-amber-500/20 text-amber-300' :
+                'bg-accent/20 text-accent',
+              )}>
+                <span className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  liveEta.load === 'high' ? 'bg-red-400 animate-pulse' :
+                  liveEta.load === 'medium' ? 'bg-amber-400' : 'bg-accent',
+                )} />
+                {liveEta.load === 'high' ? 'Sehr ausgelastet' : liveEta.load === 'medium' ? 'Etwas ausgelastet' : 'Küche bereit'}
+                {' · '}~{liveEta.eta_min} Min
+              </div>
+            )}
+            {orderType === 'lieferung' && !liveEta && deliveryTimeMin && (
+              <div className={cn('self-start inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold', p.accentBgLight, p.accentText)}>
+                <Clock className="h-3 w-3" /> ~{deliveryTimeMin} Min
+              </div>
+            )}
           </div>
         </div>
       </div>
