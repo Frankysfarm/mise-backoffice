@@ -20,6 +20,8 @@ export default async function KitchenPage() {
     { data: drivers },
     { data: batches },
     { data: batchStops },
+    { data: miseBatches },
+    { data: miseStops },
   ] = await Promise.all([
     svc.from('customer_orders')
       .select('*, items:order_items(id, name, menge, einzelpreis, notiz, extras), tisch:restaurant_tables(nummer)')
@@ -39,7 +41,23 @@ export default async function KitchenPage() {
     svc.from('delivery_batch_stops')
       .select('id, batch_id, order_id, reihenfolge, angekommen_am, geliefert_am')
       .order('reihenfolge', { ascending: true }),
+    svc.from('mise_delivery_batches')
+      .select('id, driver_id, state, started_at')
+      .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route']),
+    svc.from('mise_delivery_batch_stops')
+      .select('id, batch_id, order_id, sequence, arrived_at, completed_at, type')
+      .eq('type', 'dropoff')
+      .order('sequence', { ascending: true }),
   ]);
+
+  // Normalize mise batches/stops to match legacy schema
+  const normalizedMiseBatches = ((miseBatches ?? []) as any[]).map((b: any) => ({
+    id: b.id, driver_id: b.driver_id, status: b.state, started_at: b.started_at,
+  }));
+  const normalizedMiseStops = ((miseStops ?? []) as any[]).map((s: any) => ({
+    id: s.id, batch_id: s.batch_id, order_id: s.order_id,
+    reihenfolge: s.sequence, angekommen_am: s.arrived_at, geliefert_am: s.completed_at,
+  }));
 
   return (
     <>
@@ -51,8 +69,8 @@ export default async function KitchenPage() {
         initialOrders={(orders as any[]) ?? []}
         locations={(locations as any[]) ?? []}
         initialDrivers={(drivers as any[]) ?? []}
-        initialBatches={(batches as any[]) ?? []}
-        initialStops={(batchStops as any[]) ?? []}
+        initialBatches={[...((batches as any[]) ?? []), ...normalizedMiseBatches]}
+        initialStops={[...((batchStops as any[]) ?? []), ...normalizedMiseStops]}
       />
     </>
   );
