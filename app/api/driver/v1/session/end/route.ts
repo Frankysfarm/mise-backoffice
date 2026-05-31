@@ -24,10 +24,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await sb()
-    .from('mise_drivers')
-    .update({ active: false, state: 'offline' })
-    .eq('id', m.driver.id);
+  await Promise.all([
+    sb().from('mise_drivers')
+      .update({ active: false, state: 'offline' })
+      .eq('id', m.driver.id),
+    m.driver.employee_id
+      ? sb().from('driver_status')
+          .update({ ist_online: false, online_seit: null })
+          .eq('employee_id', m.driver.employee_id)
+      : Promise.resolve(),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

@@ -33,5 +33,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Konnte Schicht nicht starten' }, { status: 500 });
   }
 
+  if (m.driver.employee_id) {
+    const statusPatch: Record<string, unknown> = {
+      employee_id: m.driver.employee_id,
+      ist_online: true,
+      online_seit: new Date().toISOString(),
+    };
+    if (body.vehicle) statusPatch.fahrzeug = body.vehicle;
+    sb().from('driver_status').upsert(statusPatch).then(() => {});
+  }
+
   return NextResponse.json({ ok: true });
 }
