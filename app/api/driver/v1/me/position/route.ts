@@ -47,14 +47,17 @@ export async function POST(req: NextRequest) {
     recorded_at: now,
   });
 
-  await sb()
-    .from('mise_drivers')
-    .update({
-      last_lat: body.lat,
-      last_lng: body.lng,
-      last_position_at: now,
-    })
-    .eq('id', m.driver.id);
+  await Promise.all([
+    sb().from('mise_drivers')
+      .update({ last_lat: body.lat, last_lng: body.lng, last_position_at: now })
+      .eq('id', m.driver.id),
+    // Sync in driver_status damit Kitchen-Monitor + Dispatch-Board den Fahrer auf der Karte sehen
+    m.driver.employee_id
+      ? sb().from('driver_status')
+          .update({ last_lat: body.lat, last_lng: body.lng, last_update: now })
+          .eq('employee_id', m.driver.employee_id)
+      : Promise.resolve(),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

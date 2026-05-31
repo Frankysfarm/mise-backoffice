@@ -56,6 +56,7 @@ export function generateOtp(): string {
 
 export interface DriverPublic {
   id: string;
+  employee_id: string | null;
   phone: string | null;
   email: string | null;
   name: string;
@@ -69,7 +70,7 @@ export interface DriverPublic {
 }
 
 const DRIVER_SELECT =
-  'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings';
+  'id,employee_id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings';
 
 export async function createDriverSession(driverId: string, ua: string | null) {
   const token = randomBytes(TOKEN_BYTES).toString('base64url');
