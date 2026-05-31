@@ -243,6 +243,11 @@ export function FahrerApp({
         ? await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: driver.id })
         : await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
       if ((data as any)?.ok) {
+        if (isMise) {
+          await supabase.from('driver_status')
+            .update({ aktueller_batch_id: batchId })
+            .eq('employee_id', driver.id);
+        }
         setPickOpen(true);
         router.refresh();
       } else {
