@@ -349,12 +349,26 @@ export function DeliveryView({
       })()}
 
       {/* Map */}
-      <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-white/10" style={{ height: 240 }}>
+      <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-white/10 relative" style={{ height: 240 }}>
         <div ref={mapRef} className="w-full h-full" />
         {!mapReady && (
-          <div className="w-full h-full flex items-center justify-center text-matcha-300 text-sm">
+          <div className="absolute inset-0 flex items-center justify-center text-matcha-300 text-sm">
             <Loader2 className="animate-spin mr-2" size={14} /> Karte lädt…
           </div>
+        )}
+        {/* Re-center button */}
+        {mapReady && driverLat != null && driverLng != null && (
+          <button
+            onClick={() => {
+              if (leafletMapRef.current && driverLat != null && driverLng != null) {
+                leafletMapRef.current.setView([driverLat, driverLng], 15, { animate: true });
+              }
+            }}
+            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-matcha-900/80 border border-white/20 text-white flex items-center justify-center backdrop-blur hover:bg-matcha-800/90 active:scale-95 transition"
+            title="Zu meiner Position"
+          >
+            <Navigation size={16} className="text-accent" />
+          </button>
         )}
       </div>
 
