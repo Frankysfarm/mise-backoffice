@@ -290,6 +290,9 @@ export function DispatchBoard({
         </div>
       </div>
 
+      {/* Capacity Forecast — nächster freier Fahrer */}
+      <CapacityForecastChip batches={batches} onlineDrivers={onlineDrivers} />
+
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
@@ -1206,6 +1209,83 @@ function BatchRow({ batch }: { batch: Batch }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ CapacityForecastChip ------------------------------ */
+
+function CapacityForecastChip({
+  batches,
+  onlineDrivers,
+}: {
+  batches: Batch[];
+  onlineDrivers: Driver[];
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+
+  // Drivers currently on a tour
+  const busyDriverIds = new Set(batches.map((b) => b.fahrer_id).filter(Boolean));
+  const freeDrivers = onlineDrivers.filter((d) => !busyDriverIds.has(d.employee_id));
+
+  // Earliest return from active tours
+  const nextReturn = batches
+    .map((b) => {
+      if (!b.startzeit || b.total_eta_min == null) return null;
+      return new Date(b.startzeit).getTime() + b.total_eta_min * 60_000;
+    })
+    .filter((ms): ms is number => ms != null && ms > now)
+    .sort((a, b) => a - b)[0] ?? null;
+
+  const fmtTime = (ms: number) =>
+    new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+  const minLeft = nextReturn ? Math.ceil((nextReturn - now) / 60_000) : null;
+
+  if (freeDrivers.length === 0 && nextReturn == null && batches.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-4 py-2.5 text-sm">
+      <div className="flex items-center gap-1.5 font-medium text-muted-foreground">
+        <Bike className="h-4 w-4 text-matcha-500" />
+        <span>Kapazität</span>
+      </div>
+
+      {freeDrivers.length > 0 ? (
+        <span className="inline-flex items-center gap-1 rounded-full bg-matcha-100 px-2.5 py-0.5 text-xs font-semibold text-matcha-800">
+          <span className="h-1.5 w-1.5 rounded-full bg-matcha-500 inline-block" />
+          {freeDrivers.length} Fahrer sofort verfügbar
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
+          Alle Fahrer unterwegs
+        </span>
+      )}
+
+      {nextReturn != null && (
+        <span className="text-xs text-muted-foreground">
+          Nächster frei:{' '}
+          <span className="font-semibold text-foreground">
+            ~{fmtTime(nextReturn)}
+          </span>
+          {minLeft != null && minLeft > 0 && (
+            <span className="ml-1 text-muted-foreground">(in {minLeft} Min)</span>
+          )}
+        </span>
+      )}
+
+      {batches.length > 0 && (
+        <span className="ml-auto text-xs text-muted-foreground">
+          {batches.length} aktive Tour{batches.length !== 1 ? 'en' : ''}
+        </span>
+      )}
     </div>
   );
 }

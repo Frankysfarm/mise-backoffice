@@ -34,6 +34,8 @@ export function DeliveryView({
   batchStartedAt,
   totalEtaMin,
   gpsSpeed,
+  driverLat,
+  driverLng,
   onAllDone,
 }: {
   batchId: string;
@@ -41,6 +43,8 @@ export function DeliveryView({
   batchStartedAt?: string | null;
   totalEtaMin?: number | null;
   gpsSpeed?: number | null;
+  driverLat?: number | null;
+  driverLng?: number | null;
   onAllDone: () => void;
 }) {
   const supabase = createClient();
@@ -49,6 +53,8 @@ export function DeliveryView({
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
+  const driverMarkerRef = useRef<any>(null);
+  const leafletMapRef = useRef<any>(null);
   const mountedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -113,10 +119,42 @@ export function DeliveryView({
       }
 
       map.fitBounds(latLngs, { padding: [30, 30] });
+      leafletMapRef.current = map;
+
+      // Driver self-location marker (blauer Puls-Kreis)
+      if (driverLat && driverLng) {
+        const driverIcon = L.divIcon({
+          className: '',
+          html: `<div style="width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid white;box-shadow:0 0 0 4px rgba(59,130,246,0.3);"></div>`,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+        driverMarkerRef.current = L.marker([driverLat, driverLng], { icon: driverIcon }).addTo(map);
+      }
+
       setMapReady(true);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live GPS-Marker-Update wenn Fahrer sich bewegt
+  useEffect(() => {
+    if (!leafletMapRef.current || driverLat == null || driverLng == null) return;
+    (async () => {
+      const L = (await import('leaflet')).default;
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.setLatLng([driverLat, driverLng]);
+      } else {
+        const driverIcon = L.divIcon({
+          className: '',
+          html: `<div style="width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid white;box-shadow:0 0 0 4px rgba(59,130,246,0.3);"></div>`,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+        driverMarkerRef.current = L.marker([driverLat, driverLng], { icon: driverIcon }).addTo(leafletMapRef.current);
+      }
+    })();
+  }, [driverLat, driverLng]);
 
   async function markArrived(stopId: string) {
     const now = new Date().toISOString();

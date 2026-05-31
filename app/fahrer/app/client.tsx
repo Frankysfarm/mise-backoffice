@@ -108,6 +108,7 @@ export function FahrerApp({
   const gpsWatchRef = useRef<number | null>(null);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
+  const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
   const [pickItems, setPickItems] = useState<any[]>([]);
 
@@ -157,6 +158,7 @@ export function FahrerApp({
       (pos) => {
         setGpsOk(true);
         if (pos.coords.speed != null) setGpsSpeed(Math.round(pos.coords.speed * 3.6));
+        setDriverPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         const now = Date.now();
         if (now - lastPush < 15000) return;   // max alle 15s
         lastPush = now;
@@ -389,6 +391,8 @@ export function FahrerApp({
             batchStartedAt={activeBatch.started_at}
             totalEtaMin={activeBatch.total_eta_min ?? null}
             gpsSpeed={gpsSpeed}
+            driverLat={driverPos?.lat ?? null}
+            driverLng={driverPos?.lng ?? null}
             onAllDone={() => router.refresh()}
           />
         )}

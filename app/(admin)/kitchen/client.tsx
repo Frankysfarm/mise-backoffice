@@ -587,7 +587,26 @@ function computeOrderPriority(order: Order): number {
   return Math.min(100, score);
 }
 
+function nextStatusFor(status: string): string | null {
+  switch (status) {
+    case 'neu': return 'bestätigt';
+    case 'bestätigt': return 'in_zubereitung';
+    case 'in_zubereitung': return 'fertig';
+    default: return null;
+  }
+}
+
+function nextLabelFor(status: string): string {
+  switch (status) {
+    case 'neu': return 'Annehmen';
+    case 'bestätigt': return 'Starten';
+    case 'in_zubereitung': return 'Fertig';
+    default: return '→';
+  }
+}
+
 function TopUrgentOrders({ orders }: { orders: Order[] }) {
+  const [pending, startTransition] = useTransition();
   const active = orders.filter((o) => !['fertig', 'unterwegs'].includes(o.status));
   if (active.length < 2) return null;
 
@@ -626,6 +645,7 @@ function TopUrgentOrders({ orders }: { orders: Order[] }) {
             score >= 75 ? 'border-red-300 bg-red-50' :
             score >= 55 ? 'border-orange-200 bg-orange-50' :
             'border-matcha-200 bg-white';
+          const nextStatus = nextStatusFor(order.status);
 
           return (
             <div key={order.id} className={cn(
@@ -669,6 +689,23 @@ function TopUrgentOrders({ orders }: { orders: Order[] }) {
                   />
                 ))}
               </div>
+              {/* One-tap advance button */}
+              {nextStatus && (
+                <button
+                  onClick={() => startTransition(() => void advanceOrder(order.id, nextStatus))}
+                  disabled={pending}
+                  className={cn(
+                    'ml-1 h-7 rounded-md px-2 text-[10px] font-bold transition shrink-0',
+                    score >= 75
+                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      : score >= 55
+                      ? 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-matcha-700 text-white hover:bg-matcha-800',
+                  )}
+                >
+                  {nextLabelFor(order.status)} →
+                </button>
+              )}
             </div>
           );
         })}
