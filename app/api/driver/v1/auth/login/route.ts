@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const { data: driver } = await c
     .from('mise_drivers')
     .select(
-      'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings,initial_code_hash,initial_code_expires_at,initial_code_consumed_at',
+      'id,employee_id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings,initial_code_hash,initial_code_expires_at,initial_code_consumed_at',
     )
     .eq('phone', phone)
     .maybeSingle();
@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
   // Strip-out internal fields before returning
   const driverPublic: DriverPublic = {
     id: driver.id,
+    employee_id: driver.employee_id ?? null,
     phone: driver.phone,
     email: driver.email,
     name: driver.name,

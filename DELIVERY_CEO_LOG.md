@@ -79,10 +79,14 @@ Fahrer wird jetzt sofort auf `returning` gesetzt, sobald die Tour manuell abgesc
 - `best.driver` kommt aus `rankDrivers()` und hat den Typ `DriverScoreInput` (kein `employee_id`)
 - Fix: `nearby.find((d) => d.id === best.driver.id)` für Lookup auf `DriverRow` (hat `employee_id`)
 
+**TypeScript-Fehler in `ce7f2cb` gefunden + behoben**:
+- `auth/login/route.ts:119` — `DriverPublic` erwartet `employee_id`, aber die Login-Route selektiert es nicht
+- Fix: `employee_id` in den `.select()`-String der Login-Route ergänzt + `driverPublic` um `employee_id: driver.employee_id ?? null` erweitert
+
 ### Befund
-- 6 Commits geprüft: korrekt implementiert
+- 8 Commits geprüft: korrekt implementiert
 - 1 kritischer Bug (mise_drivers.state nach Tour-Abschluss): BEHOBEN ✅
-- 1 TypeScript-Fehler (TS2339 employee_id auf DriverScoreInput): BEHOBEN ✅
+- 2 TypeScript-Fehler (TS2339 employee_id auf DriverScoreInput; TS2741 employee_id in Login-Route): BEHOBEN ✅
 - Build: `npm run build` ✅ sauber, 169 Seiten
 - TypeScript: `npx tsc --noEmit` ✅ 0 Fehler
 - **SYSTEM MARKT-REIF** — vollständig deployment-bereit
