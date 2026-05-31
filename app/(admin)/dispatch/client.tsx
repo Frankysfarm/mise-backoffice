@@ -299,6 +299,9 @@ export function DispatchBoard({
       {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
+      {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
+      <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
+
       {/* Zone Bundling Opportunities */}
       <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} onSelectZone={(zone) => {
         const ids = readyOrders.filter((o) => o.delivery_zone === zone).map((o) => o.id);
@@ -1217,6 +1220,94 @@ function BatchRow({ batch }: { batch: Batch }) {
                 : 'Route optimieren'}
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DriverZoneMatchPanel ------------------------------ */
+
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+function DriverZoneMatchPanel({
+  orders,
+  drivers,
+  batches,
+}: {
+  orders: ReadyOrder[];
+  drivers: Driver[];
+  batches: Batch[];
+}) {
+  const busyDriverIds = new Set(batches.map((b) => b.fahrer_id).filter(Boolean));
+  const freeDriversWithGps = drivers.filter(
+    (d) => d.ist_online && !busyDriverIds.has(d.employee_id) && d.last_lat != null && d.last_lng != null,
+  );
+  const readyOrders = orders.filter((o) => o.status === 'fertig' && o.delivery_zone);
+
+  if (freeDriversWithGps.length === 0 || readyOrders.length === 0) return null;
+
+  // Zone centroids
+  const byZone = readyOrders.reduce<Record<string, { lats: number[]; lngs: number[]; count: number }>>((acc, o) => {
+    if (!o.delivery_zone || !o.kunde_lat || !o.kunde_lng) return acc;
+    if (!acc[o.delivery_zone]) acc[o.delivery_zone] = { lats: [], lngs: [], count: 0 };
+    acc[o.delivery_zone].lats.push(o.kunde_lat);
+    acc[o.delivery_zone].lngs.push(o.kunde_lng);
+    acc[o.delivery_zone].count++;
+    return acc;
+  }, {});
+
+  const zoneCentroids = Object.entries(byZone).map(([zone, { lats, lngs, count }]) => ({
+    zone,
+    count,
+    lat: lats.reduce((a, b) => a + b, 0) / lats.length,
+    lng: lngs.reduce((a, b) => a + b, 0) / lngs.length,
+  }));
+
+  if (zoneCentroids.length === 0) return null;
+
+  // For each zone, find closest free driver
+  const matches = zoneCentroids.map(({ zone, count, lat, lng }) => {
+    const closest = freeDriversWithGps
+      .map((d) => ({ d, km: haversineKm({ lat: d.last_lat!, lng: d.last_lng! }, { lat, lng }) }))
+      .sort((a, b) => a.km - b.km)[0];
+    return { zone, count, closest };
+  }).sort((a, b) => a.zone.localeCompare(b.zone));
+
+  return (
+    <div className="rounded-xl border border-matcha-200 bg-matcha-50/60 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Target className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Fahrer-Tipp · GPS-Nähe zu Zonen
+        </span>
+        <span className="ml-auto text-[10px] text-matcha-500">{freeDriversWithGps.length} freie Fahrer</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {matches.map(({ zone, count, closest }) => {
+          const zm = zoneMeta(zone);
+          const name = closest?.d.employee
+            ? `${closest.d.employee.vorname} ${closest.d.employee.nachname?.charAt(0)}.`
+            : '—';
+          const kmStr = closest ? `${closest.km.toFixed(1)} km` : '—';
+          const kmColor = closest && closest.km < 1 ? 'text-matcha-700' : closest && closest.km < 3 ? 'text-orange-700' : 'text-red-600';
+          return (
+            <div key={zone} className="flex items-center gap-2 rounded-lg border border-matcha-200 bg-white px-3 py-2 text-xs">
+              <span className={cn('rounded px-1.5 py-0.5 text-[11px] font-black', zm.cls)}>
+                {zone}
+              </span>
+              <span className="font-bold text-foreground">{count}×</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="font-semibold text-foreground">{name}</span>
+              <span className={cn('text-[10px] font-bold tabular-nums', kmColor)}>{kmStr}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
