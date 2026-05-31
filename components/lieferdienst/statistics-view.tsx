@@ -315,6 +315,56 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Schicht-Prognose */}
+      {ratePerHour > 0 && (() => {
+        const nowHour = new Date().getHours();
+        const shiftEndHour = 22;
+        const hoursLeft = Math.max(0, shiftEndHour - nowHour - new Date().getMinutes() / 60);
+        const projected = Math.round(stats.totalOrders + ratePerHour * hoursLeft);
+        const actualRevenue = allOrders.reduce((s, o) => s + ((o as any).gesamtbetrag ?? (o as any).total ?? 0), 0);
+        const avgValue = stats.totalOrders > 0 ? actualRevenue / stats.totalOrders : 0;
+        const projectedRevenue = projected * avgValue;
+        const yesterdayOrders = trendData?.yesterday.orders ?? null;
+        const aheadOfYesterday = yesterdayOrders != null ? projected - yesterdayOrders : null;
+        return (
+          <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 to-white p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-violet-600" />
+              <span className="text-sm font-bold text-char">Schicht-Prognose · bis {shiftEndHour}:00 Uhr</span>
+              {aheadOfYesterday != null && (
+                <span className={`ml-auto inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${aheadOfYesterday >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                  {aheadOfYesterday >= 0 ? '▲' : '▼'} {Math.abs(aheadOfYesterday)} vs. gestern
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="font-display text-3xl font-black text-violet-700">{projected}</div>
+                <div className="text-xs text-steel mt-0.5">Bestellungen (erwartet)</div>
+              </div>
+              <div className="text-center">
+                <div className="font-display text-2xl font-black text-char">{ratePerHour}/h</div>
+                <div className="text-xs text-steel mt-0.5">Aktuelle Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="font-display text-2xl font-black text-emerald-700">
+                  {avgValue > 0 ? formatCurrency(projectedRevenue) : '—'}
+                </div>
+                <div className="text-xs text-steel mt-0.5">Prognosierter Umsatz</div>
+              </div>
+            </div>
+            {hoursLeft > 0 && (
+              <div className="mt-3 flex items-center gap-2 text-[10px] text-stone-400">
+                <div className="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-violet-400 transition-all" style={{ width: `${Math.round(((shiftEndHour - hoursLeft - (nowHour < 8 ? 8 : nowHour)) / (shiftEndHour - 8)) * 100)}%` }} />
+                </div>
+                <span className="shrink-0">{hoursLeft.toFixed(1)}h verbleibend</span>
+              </div>
+            )}
+          </div>
+        )
+      })()}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
