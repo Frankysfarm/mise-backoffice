@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
-  Inbox, Loader2, MapPin, Package, TrendingUp, Utensils, X, Zap,
+  Inbox, Loader2, MapPin, Package, ShoppingBag, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder } from './actions';
@@ -398,6 +398,9 @@ export function KitchenBoard({
 
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
+
+      {/* Abholung-Warte-Panel: Kunden die auf ihre Abholung warten */}
+      <PickupWaitPanel orders={filtered} />
 
       {/* Stale Orders Alert — Lieferungen ohne Fahrer >10 Min */}
       <StaleOrdersWidget
@@ -1195,6 +1198,77 @@ function PickupForecastPanel({ orders }: { orders: Order[] }) {
                 {isNow ? '✓ Jetzt' : `~${readyStr}`}
               </span>
               <span className="text-muted-foreground truncate max-w-[80px]">{order.kunde_name}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ PickupWaitPanel ------------------------------ */
+
+function PickupWaitPanel({ orders }: { orders: Order[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const waiting = orders
+    .filter((o) => o.status === 'fertig' && o.typ === 'abholung')
+    .map((o) => {
+      const fertigMs = o.fertig_am
+        ? now - new Date(o.fertig_am).getTime()
+        : now - new Date(o.bestellt_am ?? now).getTime();
+      return { order: o, waitMin: Math.floor(fertigMs / 60_000) };
+    })
+    .sort((a, b) => b.waitMin - a.waitMin);
+
+  if (waiting.length === 0) return null;
+
+  const hasLong = waiting.some((w) => w.waitMin >= 10);
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      hasLong ? 'border-amber-300 bg-amber-50' : 'border-matcha-200 bg-matcha-50',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <ShoppingBag className={cn('h-4 w-4', hasLong ? 'text-amber-700' : 'text-matcha-700')} />
+        <span className={cn('font-display text-xs font-bold uppercase tracking-wider', hasLong ? 'text-amber-800' : 'text-matcha-800')}>
+          Abholung wartet · {waiting.length} {waiting.length === 1 ? 'Bestellung' : 'Bestellungen'}
+        </span>
+        {hasLong && (
+          <span className="ml-auto rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-bold text-white animate-pulse">
+            Kunde wartet lang!
+          </span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {waiting.map(({ order, waitMin }) => {
+          const isLong = waitMin >= 10;
+          const isMedium = waitMin >= 5 && waitMin < 10;
+          return (
+            <div key={order.id} className={cn(
+              'flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px]',
+              isLong   ? 'border-red-300 bg-red-50' :
+              isMedium ? 'border-amber-300 bg-amber-50' :
+                         'border-matcha-200 bg-white',
+            )}>
+              <span className="font-mono font-bold text-foreground">
+                #{order.bestellnummer.replace('FF-', '')}
+              </span>
+              <span className="text-muted-foreground truncate max-w-[80px]">{order.kunde_name}</span>
+              <span className={cn(
+                'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                isLong   ? 'bg-red-500 text-white animate-pulse' :
+                isMedium ? 'bg-amber-500 text-white' :
+                           'bg-matcha-100 text-matcha-800',
+              )}>
+                {waitMin} Min
+              </span>
             </div>
           );
         })}
