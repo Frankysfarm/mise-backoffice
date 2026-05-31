@@ -387,7 +387,7 @@ export function DispatchBoard({
                 <DriverRow
                   key={d.employee_id}
                   driver={d}
-                  activeBatch={batches.find((b) => b.fahrer_id === d.employee_id) ?? null}
+                  activeBatch={batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id) ?? null}
                   canAssign={selected.size > 0 && !d.aktueller_batch_id}
                   busy={pending}
                   onAssign={() => assignToDriver(d.employee_id)}
@@ -518,7 +518,7 @@ function LiveDriverMapPanel({
   if (onlineWithGps.length === 0) return null;
 
   const driverMarkers = onlineWithGps.map((d) => {
-    const batch = batches.find((b) => b.fahrer_id === d.employee_id);
+    const batch = batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id);
     const total = batch?.stops.length ?? 0;
     const done = batch?.stops.filter((s) => s.geliefert_am).length ?? 0;
     const state: 'frei' | 'unterwegs' | 'zurueck' =

@@ -67,6 +67,7 @@ interface LocationRow {
 
 interface DriverRow {
   id: string;
+  employee_id: string | null;
   vehicle: 'bike' | 'car';
   max_radius_km: number;
   last_lat: number | null;
@@ -301,6 +302,14 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     outcome = 'dispatched';
   }
 
+  // driver_status.aktueller_batch_id synchronisieren (Legacy-Board zeigt Mise-Fahrer als belegt)
+  if (best.driver.employee_id) {
+    sb().from('driver_status')
+      .update({ aktueller_batch_id: batchId })
+      .eq('employee_id', best.driver.employee_id)
+      .then(() => {});
+  }
+
   // 7) Tour optimieren
   try { await optimizeTour(batchId); } catch { /* Non-fatal */ }
 
@@ -398,7 +407,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
 async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
   const { data } = await sb()
     .from('mise_drivers')
-    .select('id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
+    .select('id, employee_id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
     .eq('active', true)
     .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])
     .order('last_position_at', { ascending: false });
