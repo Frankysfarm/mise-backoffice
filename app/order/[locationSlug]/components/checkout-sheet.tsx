@@ -72,7 +72,9 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [marketingOptin, setMarketingOptin] = React.useState(false);
 
   // Live-ETA vom Server holen (Küchenauslastung-basiert)
-  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: string } | null>(null);
+  const [liveEta, setLiveEta] = React.useState<{
+    eta_min: number; load: string; active_orders?: number; drivers_online?: number;
+  } | null>(null);
   React.useEffect(() => {
     if (orderType !== 'lieferung' || !locationId || !open) return;
     let cancelled = false;
@@ -341,24 +343,54 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                 </div>
               )}
 
-              {/* Live-ETA Widget */}
-              {liveEta && (
-                <div className={cn(
-                  'rounded-xl border px-3 py-2.5 text-xs flex items-center gap-2',
-                  liveEta.load === 'quiet' ? 'border-matcha-300 bg-matcha-50 text-matcha-900' :
-                  liveEta.load === 'busy' ? 'border-orange-300 bg-orange-50 text-orange-900' :
-                  'border-blue-200 bg-blue-50 text-blue-900',
-                )}>
-                  <Clock className="h-3.5 w-3.5 shrink-0" />
-                  <span>
-                    <strong>Lieferzeit gerade:</strong>{' '}
-                    ca. {liveEta.eta_min} Min.{' '}
-                    {liveEta.load === 'quiet' ? '— Küche gerade entspannt 🟢' :
-                     liveEta.load === 'busy'  ? '— Wir sind busy, kurz mehr Zeit 🟡' :
-                     '— Normale Auslastung 🔵'}
-                  </span>
-                </div>
-              )}
+              {/* Live-ETA Widget — visuelle Aufschlüsselung */}
+              {liveEta && (() => {
+                const prepMin = liveEta.load === 'busy' ? 20 : liveEta.load === 'quiet' ? 12 : 15;
+                const rideMin = Math.max(5, liveEta.eta_min - prepMin);
+                const arrivalMin = new Date(Date.now() + liveEta.eta_min * 60_000);
+                const arrivalStr = arrivalMin.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const loadColor = liveEta.load === 'quiet' ? { border: 'border-matcha-300', bg: 'bg-matcha-50', dot: 'bg-matcha-500', text: 'text-matcha-800' } :
+                                  liveEta.load === 'busy'  ? { border: 'border-orange-300', bg: 'bg-orange-50', dot: 'bg-orange-500', text: 'text-orange-800' } :
+                                                             { border: 'border-blue-200', bg: 'bg-blue-50', dot: 'bg-blue-500', text: 'text-blue-800' };
+                const loadLabel = liveEta.load === 'quiet' ? 'Wenig los' : liveEta.load === 'busy' ? 'Viel los' : 'Normal';
+                return (
+                  <div className={cn('rounded-xl border p-3', loadColor.border, loadColor.bg)}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className={cn('h-2 w-2 rounded-full', loadColor.dot)} />
+                        <span className={cn('text-[10px] font-bold uppercase tracking-wider', loadColor.text)}>{loadLabel}</span>
+                      </div>
+                      <div className={cn('font-display text-lg font-black leading-none', loadColor.text)}>
+                        ca. {liveEta.eta_min} Min.
+                      </div>
+                    </div>
+                    {/* Breakdown Bar */}
+                    <div className="flex rounded-lg overflow-hidden h-2 mb-1.5">
+                      <div
+                        className="bg-matcha-400"
+                        style={{ width: `${(prepMin / liveEta.eta_min) * 100}%` }}
+                        title={`Zubereitung: ~${prepMin} Min`}
+                      />
+                      <div
+                        className="bg-orange-400"
+                        style={{ width: `${(rideMin / liveEta.eta_min) * 100}%` }}
+                        title={`Fahrzeit: ~${rideMin} Min`}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-matcha-700/60">
+                      <span className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-matcha-400 inline-block" />
+                        Küche ~{prepMin} Min
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-orange-400 inline-block" />
+                        Fahrt ~{rideMin} Min
+                      </span>
+                      <span className="font-semibold text-matcha-900">≈ {arrivalStr} Uhr</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Etage (optional)" value={etage} onChange={setEtage} placeholder="3. OG" />
