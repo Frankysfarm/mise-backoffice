@@ -76,11 +76,14 @@ export async function POST(
     .is('completed_at', null);
 
   if (!openStops || openStops.length === 0) {
-    await c
-      .from('mise_delivery_batches')
-      .update({ state: 'completed', completed_at: now })
-      .eq('id', batch.id);
-    // Trigger updated driver counters automatisch
+    await Promise.all([
+      c.from('mise_delivery_batches')
+        .update({ state: 'completed', completed_at: now })
+        .eq('id', batch.id),
+      c.from('driver_status')
+        .update({ aktueller_batch_id: null })
+        .eq('aktueller_batch_id', batch.id),
+    ]);
   }
 
   return NextResponse.json({ ok: true, batch_completed: !openStops || openStops.length === 0 });
