@@ -1,10 +1,123 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–13 + alle Post-Phase-Erweiterungen + CEO Review #12 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–14 + alle Post-Phase-Erweiterungen + CEO Review #13 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #12 bestätigt: 0 TypeScript-Fehler, Build clean, alle Integrations-Checks grün. System ist vollständig deployment-bereit.
+**DONE** — CEO Review #13 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig deployment-bereit.
+
+## CEO Review #13 — 2026-05-31
+
+### Geprüfte Commits (seit CEO Review #12)
+- `e21ab35` feat(delivery/frontend): priority queue, tour timeline, live status updates
+- `b02b628` feat(delivery/frontend): cook-time gauge, CSV-export, route-dist strip, dispatch sort
+- `4380377` feat(storefront/hero): live Küchenlast-Indikator mit ETA-Anzeige in HeroClassic
+- `974b55b` feat(lieferdienst/stats): Schicht-Prognose Panel mit projizierter Bestellmenge und Umsatz
+- `b36240e` feat(kitchen): Nächste-Stunde-Prognose Chip in KitchenShiftStats
+
+### TypeScript-Fehler behoben (1 → 0)
+**Datei**: `components/lieferdienst/statistics-view.tsx:157`
+- `o.orderType` → `(o as any).orderType ?? (o as any).type ?? ''`
+- Root Cause: `Order`-Typ aus `lib/lieferdienst/orders.ts` hat kein `orderType`-Feld (heißt dort `type`). Die CSV-Export-Funktion griff direkt auf `o.orderType` zu.
+
+### Logik-Bug behoben: Schicht-Fortschrittsbalken immer ~0%
+**Datei**: `components/lieferdienst/statistics-view.tsx`
+- **Problem**: `width: ((shiftEndHour - hoursLeft - nowHour) / (shiftEndHour - 8)) * 100%`
+  - `shiftEndHour - hoursLeft` = aktuelle Stunde (Dezimal); `nowHour` = ganzzahlige Stunde → Differenz = nur Minuten-Bruchteil
+  - Beispiel 18:00 Uhr: `(22 - 4 - 18) / 14 = 0%` — trotz 71% vergangener Schichtzeit
+- **Fix**: `width: ((shiftEndHour - hoursLeft - 8) / (shiftEndHour - 8)) * 100%`
+  - 18:00 Uhr: `(22 - 4 - 8) / 14 = 71%` ✓
+
+### Build + TypeScript
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+- `npm run build` ✅ — Compiled successfully, 169 static pages
+
+### Code-Review der neuen Features
+
+**Priority-Queue: TopUrgentOrders** (`kitchen/client.tsx`):
+- `computeOrderPriority()`: 5-Faktor-Scoring (Wartezeit/Ratio, Status, Typ, External) — sinnvolle Gewichtung ✅
+- Guard: `active.length < 2 → null` + `score < 25 → gefiltert` — kein Spam bei wenig Betrieb ✅
+- Slice auf Top-4 — Viewport-schonend ✅
+- Score-Badge-Farbsystem (rot/orange/amber/matcha) + Mini-3-Punkt-Urgency-Indikator ✅
+- Icons: `Zap` + `Bike` korrekt importiert ✅
+
+**Kochleistungs-Gauge in CookingLoadPanel** (`kitchen/client.tsx`):
+- Filter `status === 'in_zubereitung' && o.bestellt_am` — korrekt ✅
+- `avgActualMin / avgEstMin` als Ratio → Balken-Prozent korrekt geclampt bei 100% ✅
+- `animate-pulse` nur wenn `ratio >= 1` (überfällig) — kein unnötiges Blinken ✅
+
+**Nächste-Stunde-Prognose Chip** (`kitchen/client.tsx` via `KitchenShiftStats`):
+- Guard `nowMinFrac < 0.2 → null`: verhindert Prognose in den ersten 12 Min der Stunde ✅
+- Trend-Extrapolation: `nextHrPred = currentRate + trend * 0.5` (gedämpfter Trend) — sinnvoll ✅
+- Flame-Icon für steigend, TrendingUp für fallend/stabil ✅
+
+**TourReturnTimeline** (`dispatch/client.tsx`):
+- Tick-Interval 10s (nicht 1s) — sinnvoll für Timeline, kein Overkill ✅
+- `windowEnd = maxEtaMs + 10 Min` — Puffer damit letzter ETA-Marker sichtbar ist ✅
+- `toTimePct()` geclampt 0–100 — kein Overflow ✅
+- `sort by etaMs ascending` — früheste Rückkehr zuerst ✅
+- Farbsystem: blau=unterwegs / orange=<5Min / matcha=abgeschlossen ✅
+
+**CSV-Export** (`statistics-view.tsx`):
+- BOM `'﻿'` präfixiert → Excel öffnet UTF-8 korrekt ✅
+- `URL.revokeObjectURL()` nach Click — Memory-Leak-sicher ✅
+- Felder mit `(o as any)` für Supabase-Extras — konsistente Typisierungsstrategie ✅
+
+**Schicht-Prognose Panel** (`statistics-view.tsx`):
+- Extrapolation: `ratePerHour = ordersLastHalfHour * 2` — einfach aber valide für kurze Fenster ✅
+- `shiftEndHour = 22` — hardcoded, akzeptabel für MVP ✅
+- `aheadOfYesterday` Badge: grün/rot abhängig vom Vorzeichen ✅
+- Guard `avgValue > 0 → formatCurrency(...)` sonst `'—'` — kein €0,00 bei fehlenden Daten ✅
+
+**Live-ETA Chip in HeroClassic** (`hero.tsx`):
+- Polling nur wenn `location.id && orderType === 'lieferung'` ✅
+- `clearInterval` in Cleanup ✅
+- Fallback-Chip wenn kein `liveEta` aber `deliveryTimeMin` vorhanden ✅
+- `load`-Berechnung: >45 Min = high, >30 = medium, ≤30 = low — sinnvolle Schwellen ✅
+
+**Restdistanz-Streifen in DeliveryView** (`delivery-view.tsx`):
+- `remainDistM = openStops.reduce(...)` — nur offene Stops ✅
+- Guard `remainDistM === 0 → null` — kein leerer Streifen ✅
+- Fortschrittsbalken: `(totalDistM - remainDistM) / totalDistM` korrekt ✅
+
+**Dispatch-Sortierung** (`dispatch/client.tsx`):
+- `useMemo` für `readyOrders` mit `orderSort`-Dependency — kein unnötiges Recompute ✅
+- Drei Optionen: Wartezeit (älteste zuerst), Zone (alphabetisch), Score (absteigend) ✅
+- Native `<select>` statt Custom-Dropdown — leichter, kein Extra-State ✅
+
+**Fahrer Schicht-Effizienz-Panel** (`client.tsx`):
+- `delivPerHour = deliveries / max(1, onlineMin) * 60` — Division-by-zero-sicher ✅
+- `effScore = min(100, delivPerHour * 20)` — 5 Lieferungen/h = 100% ✅
+- Nur wenn `onlineMin > 0 && stats.deliveries > 0` — kein Panel bei Schichtstart ✅
+
+**Supabase Realtime in SuccessState** (`success-state.tsx`):
+- `supabase` Client via `useMemo(() => createClient(), [])` — keine Re-Erstellung bei Render ✅
+- Channel-Name `success-order-${orderId}` — eindeutig pro Bestellung ✅
+- `supabase.removeChannel(ch)` in Cleanup ✅
+- `// eslint-disable-next-line react-hooks/exhaustive-deps` korrekt — `liveStatus` im Callback-Closure ist akzeptabel (wir wollen nur neue-Status-Events verarbeiten, nicht bei jedem Status-Wechsel neu subscriben) ✅
+- `statusFlash` mit 3s-Timeout für "Aktualisiert!"-Anzeige ✅
+
+### Integrations-Prüfung
+- Kitchen Priority-Queue → nutzt lokale `orders`-Prop, kein zusätzlicher API-Call ✅
+- Statistics CSV-Export → clientseitiger Browser-Download, kein API ✅
+- Hero Live-ETA → `/api/delivery/eta/live` (Polling 60s) — existiert seit Phase 9 ✅
+- Schicht-Prognose → nutzt vorhandene `trendData` + `allOrders` Props ✅
+- SuccessState Realtime → Supabase `customer_orders` Channel — auth-kompatibel ✅
+- Dispatch-Sort → rein clientseitiger Sort auf vorhandenen Daten ✅
+
+### next.config.js — `turbopack: { root: __dirname }`
+- Neue Zeile im letzten Commit ergänzt
+- Next.js 14 ignoriert unbekannte Config-Keys → kein Build-Impact ✅
+- Für zukünftige Next.js 15 Migration relevant (Turbopack-Config-API hat sich geändert)
+- **Empfehlung**: bis zur Migration in next.config.js belassen (kein Schaden)
+
+### Befund
+- 5 Commits geprüft: korrekt implementiert
+- 1 TypeScript-Fehler (TS2339): BEHOBEN ✅
+- 1 Logik-Bug (Schicht-Fortschrittsbalken): BEHOBEN ✅
+- Build: `npm run build` ✅ sauber, 169 Seiten
+- TypeScript: `npx tsc --noEmit` ✅ 0 Fehler
+- **SYSTEM MARKT-REIF** — vollständig deployment-bereit
 
 ## CEO Review #12 — 2026-05-30
 

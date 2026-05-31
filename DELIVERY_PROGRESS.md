@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–14 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #12 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–14 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #13 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -299,6 +299,21 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Letzte Änderungen
+- 2026-05-31: CEO Review #13 — 5 Frontend-Commits QA-geprüft, 2 Bugs behoben
+  - Kitchen: TopUrgentOrders Priority-Queue (5-Faktor Scoring, Top-4 Chips) ✅
+  - Kitchen: Kochleistungs-Gauge (avg Kochzeit vs. Schätzzeit, Balken mit Pulse) ✅
+  - Kitchen: Nächste-Stunde-Prognose Chip in KitchenShiftStats ✅
+  - Dispatch: TourReturnTimeline (10s-Tick, Zeitachse, Fahrer-ETA-Marker) ✅
+  - Dispatch: Bestellungs-Sortierung (Wartezeit / Zone / Score) ✅
+  - Statistics: CSV-Export (UTF-8 BOM, Memory-Leak-sicher) ✅
+  - Statistics: Schicht-Prognose Panel (projizierte Bestellmenge + Umsatz) ✅
+  - Storefront Hero: Live-ETA-Chip (Küchenlast-Indikator, 60s-Polling) ✅
+  - Fahrer-App: Restdistanz-Streifen (offene Stops, Fortschrittsbalken) ✅
+  - Fahrer-App: Schicht-Effizienz-Panel (Lieferungen/h, Score 0–100) ✅
+  - SuccessState: Supabase Realtime Status-Timeline (5 Schritte, Flash-Feedback) ✅
+  - Bug behoben: TS2339 `o.orderType` in statistics-view.tsx → `(o as any).orderType ?? (o as any).type`
+  - Bug behoben: Schicht-Fortschrittsbalken zeigte immer ~0% → korrekte `elapsed / total`-Formel
+  - Build: npm run build ✓ (169 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-30: Backend-Architekt — Phase 14: Route-Polyline API + Karten-Ansicht abgeschlossen
   - lib/delivery/polyline.ts: Google Encoded Polyline Decoder (Precision 5) + Encoder
   - GET /api/delivery/tours/[id]/route: dekodierte Straßenroute für Fahrer-Map

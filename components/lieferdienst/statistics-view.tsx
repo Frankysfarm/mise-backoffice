@@ -154,7 +154,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         (o as any).bestellnummer ?? '',
         o.createdAt ? new Date(o.createdAt).toLocaleString('de-DE') : '',
         o.status ?? '',
-        o.orderType ?? '',
+        (o as any).orderType ?? (o as any).type ?? '',
         ((o as any).gesamtbetrag ?? 0).toFixed(2),
         (o as any).delivery_zone ?? '',
         (o as any).zahlungsart ?? '',
@@ -356,7 +356,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             {hoursLeft > 0 && (
               <div className="mt-3 flex items-center gap-2 text-[10px] text-stone-400">
                 <div className="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-violet-400 transition-all" style={{ width: `${Math.round(((shiftEndHour - hoursLeft - (nowHour < 8 ? 8 : nowHour)) / (shiftEndHour - 8)) * 100)}%` }} />
+                  <div className="h-full rounded-full bg-violet-400 transition-all" style={{ width: `${Math.round(((shiftEndHour - hoursLeft - 8) / (shiftEndHour - 8)) * 100)}%` }} />
                 </div>
                 <span className="shrink-0">{hoursLeft.toFixed(1)}h verbleibend</span>
               </div>
