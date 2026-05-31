@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–16 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #15 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–17 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #15 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -342,7 +342,51 @@ Siehe DELIVERY_CEO_LOG.md
   - Fahrer-Rating aktualisiert sich sofort nach Tourende → nächste Dispatch-Entscheidung nutzt frischen Wert
 - Build: npm run build ✓ (169 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 17: Schicht-Management + Einsatzplanung [DONE ✅] — 2026-05-31
+- [x] **`scripts/migrations/017_shift_management.sql`** — Datenmodell + DB-Logik
+  - `driver_shifts` Tabelle: geplante/tatsächliche Schichten (scheduled→active→completed/missed/cancelled)
+  - `coverage_requirements` Tabelle: Mindest-/Ziel-Fahrerzahl pro Wochentag/Stunde
+  - `v_shift_coverage` VIEW: Abdeckungs-Analyse nächste 24h (slot_start, gap, covered)
+  - `auto_close_missed_shifts()` Funktion: markiert vergessene Schichten (>30 Min ohne Start → missed)
+  - 4 Performance-Indizes inkl. Partial-Index für aktive/geplante Schichten
+- [x] **`lib/delivery/shifts.ts`** — TypeScript-Modul
+  - `getActiveShifts()`: laufende Schichten einer Location
+  - `getUpcomingShifts()`: geplante Schichten der nächsten N Stunden
+  - `getShiftsByDate()`: Tages-Ansicht (Kalender)
+  - `startShift()` / `endShift()` / `cancelShift()`: Schicht-Aktionen
+  - `getCoverageGaps()`: Unterdeckungs-Analyse via v_shift_coverage
+  - `getCoverageRequirements()` / `upsertCoverageRequirement()`: Anforderungs-Verwaltung
+  - `autoCloseMissedShifts()`: Cron-Hilfsfunktion (fire-and-forget kompatibel)
+  - `getCurrentCoverageStatus()`: Schnapp­schuss für Health-Check
+- [x] **`app/api/delivery/admin/shifts/route.ts`** — GET + POST
+  - `GET ?location_id=...&date=YYYY-MM-DD` — Tages-Schichten (Kalender)
+  - `GET ?location_id=...&hours=N&status=...` — Kommende Schichten mit Filter
+  - `POST { driver_id, location_id, planned_start, planned_end, notes }` — Schicht erstellen
+- [x] **`app/api/delivery/admin/shifts/[id]/route.ts`** — PATCH + DELETE
+  - `PATCH { status?, actual_start?, actual_end?, planned_start?, planned_end?, notes? }` — Schicht updaten
+  - `DELETE` — Schicht stornieren (nur scheduled)
+- [x] **`app/api/delivery/admin/coverage/route.ts`** — GET + POST
+  - `GET ?location_id=...&hours=24&gaps_only=true` — Abdeckungs-Analyse (alle Slots oder nur Gaps)
+  - `POST { location_id, day_of_week, hour_of_day, min_drivers, target_drivers }` — Anforderung setzen
+  - Summary-Block: total_slots, covered_slots, uncovered_slots, worst_gap
+- [x] **Cron-Erweiterung** (`app/api/cron/smart-dispatch/route.ts`)
+  - `autoCloseMissedShifts()` parallel zu Dispatch + Küchen-Sync + ETA-Refresh
+  - Response enthält `shifts_closed` Zähler für Monitoring
+- [x] **Health-Check-Erweiterung** (`app/api/delivery/health/route.ts`)
+  - Neuer Check `shift_coverage`: `uncovered_slots` + `understaffed_slots` nächste Stunde
+  - `ok: false` wenn Coverage-Lücken bestehen → `status: 'degraded'`
+- Build: npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-05-31: Backend-Architekt — Phase 17: Schicht-Management + Einsatzplanung
+  - scripts/migrations/017_shift_management.sql: driver_shifts + coverage_requirements + v_shift_coverage + auto_close_missed_shifts()
+  - lib/delivery/shifts.ts: 10 Funktionen (getActive/Upcoming/ByDate, start/end/cancel, coverage gaps/reqs, cron)
+  - GET+POST /api/delivery/admin/shifts: Schichten auflisten + erstellen
+  - PATCH+DELETE /api/delivery/admin/shifts/[id]: Schicht updaten + stornieren
+  - GET+POST /api/delivery/admin/coverage: Abdeckungs-Analyse + Anforderungen setzen
+  - Cron: autoCloseMissedShifts() parallel → shifts_closed in Response
+  - Health: shift_coverage Check → degraded bei Lücken
+  - npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-31: Backend-Architekt — Phase 16: Driver Auto-Rating + SLA Tracking
   - scripts/migrations/016_driver_rating.sql: delivery_performance + recompute_driver_rating() + trigger + v_delivery_sla
   - lib/delivery/rating.ts: recordDeliveryPerformance() + recomputeDriverRating() + getSlaSummary()

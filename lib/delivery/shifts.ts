@@ -1,0 +1,317 @@
+/**
+ * lib/delivery/shifts.ts
+ *
+ * Fahrer-Schicht-Management + Einsatzplanung.
+ *
+ * Funktionen:
+ *  - getActiveShifts()      — laufende Schichten für eine Location
+ *  - getUpcomingShifts()    — geplante Schichten der nächsten N Stunden
+ *  - startShift()           — Fahrer checkt ein (actual_start setzen)
+ *  - endShift()             — Fahrer checkt aus (actual_end + completed)
+ *  - getCoverageGaps()      — Unterdeckungen in den nächsten N Stunden
+ *  - getCoverageRequirements() — aktuelle Anforderungen laden
+ *  - upsertCoverageRequirement() — Anforderung setzen/updaten
+ *  - autoCloseMissedShifts() — stale scheduled Schichten schließen (Cron)
+ */
+import 'server-only';
+import { createServiceClient } from '@/lib/supabase/server';
+
+// ============================================================
+// Typen
+// ============================================================
+
+export type ShiftStatus = 'scheduled' | 'active' | 'completed' | 'missed' | 'cancelled';
+
+export interface ShiftRow {
+  id: string;
+  driver_id: string;
+  location_id: string;
+  planned_start: string;  // ISO
+  planned_end: string;    // ISO
+  actual_start: string | null;
+  actual_end: string | null;
+  status: ShiftStatus;
+  notes: string | null;
+  created_at: string;
+  driver?: {
+    id: string;
+    name: string;
+    vehicle: string;
+    state: string;
+  };
+}
+
+export interface CoverageGap {
+  slot_start: string;     // ISO — UTC-Stunde
+  location_id: string;
+  scheduled_drivers: number;
+  min_drivers: number;
+  target_drivers: number;
+  gap: number;            // negativ = Unterdeckung
+  covered: boolean;
+}
+
+export interface CoverageRequirement {
+  id: string;
+  location_id: string;
+  day_of_week: number;   // 0=Sonntag … 6=Samstag
+  hour_of_day: number;   // 0–23
+  min_drivers: number;
+  target_drivers: number;
+}
+
+// ============================================================
+// Schicht-Abfragen
+// ============================================================
+
+/** Laufende Schichten (status=active) für eine Location. */
+export async function getActiveShifts(locationId: string): Promise<ShiftRow[]> {
+  const sb = createServiceClient();
+  const { data, error } = await sb
+    .from('driver_shifts')
+    .select('id, driver_id, location_id, planned_start, planned_end, actual_start, actual_end, status, notes, created_at, mise_drivers!driver_id(id, name, vehicle, state)')
+    .eq('location_id', locationId)
+    .eq('status', 'active')
+    .order('actual_start', { ascending: true });
+
+  if (error) throw new Error(`[shifts] getActiveShifts: ${error.message}`);
+  return normalizeShifts(data ?? []);
+}
+
+/** Geplante Schichten der nächsten N Stunden. */
+export async function getUpcomingShifts(
+  locationId: string,
+  hours = 24,
+): Promise<ShiftRow[]> {
+  const sb  = createServiceClient();
+  const now = new Date().toISOString();
+  const end = new Date(Date.now() + hours * 3_600_000).toISOString();
+
+  const { data, error } = await sb
+    .from('driver_shifts')
+    .select('id, driver_id, location_id, planned_start, planned_end, actual_start, actual_end, status, notes, created_at, mise_drivers!driver_id(id, name, vehicle, state)')
+    .eq('location_id', locationId)
+    .in('status', ['scheduled', 'active'])
+    .gte('planned_start', now)
+    .lte('planned_start', end)
+    .order('planned_start', { ascending: true });
+
+  if (error) throw new Error(`[shifts] getUpcomingShifts: ${error.message}`);
+  return normalizeShifts(data ?? []);
+}
+
+/** Alle Schichten eines Tages (für Kalender-Ansicht). */
+export async function getShiftsByDate(
+  locationId: string,
+  date: Date,
+): Promise<ShiftRow[]> {
+  const sb = createServiceClient();
+  const dayStart = new Date(date);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart.getTime() + 86_400_000);
+
+  const { data, error } = await sb
+    .from('driver_shifts')
+    .select('id, driver_id, location_id, planned_start, planned_end, actual_start, actual_end, status, notes, created_at, mise_drivers!driver_id(id, name, vehicle, state)')
+    .eq('location_id', locationId)
+    .not('status', 'eq', 'cancelled')
+    .gte('planned_start', dayStart.toISOString())
+    .lt('planned_start', dayEnd.toISOString())
+    .order('planned_start', { ascending: true });
+
+  if (error) throw new Error(`[shifts] getShiftsByDate: ${error.message}`);
+  return normalizeShifts(data ?? []);
+}
+
+// ============================================================
+// Schicht-Aktionen
+// ============================================================
+
+/** Fahrer checkt ein — setzt actual_start + status=active. */
+export async function startShift(shiftId: string, driverId: string): Promise<ShiftRow> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('driver_shifts')
+    .update({
+      actual_start: new Date().toISOString(),
+      status: 'active',
+    })
+    .eq('id', shiftId)
+    .eq('driver_id', driverId)
+    .in('status', ['scheduled'])
+    .select('id, driver_id, location_id, planned_start, planned_end, actual_start, actual_end, status, notes, created_at')
+    .maybeSingle();
+
+  if (error) throw new Error(`[shifts] startShift: ${error.message}`);
+  if (!data) throw new Error('[shifts] Schicht nicht gefunden oder nicht im Status scheduled');
+  return data as ShiftRow;
+}
+
+/** Fahrer checkt aus — setzt actual_end + status=completed. */
+export async function endShift(shiftId: string, driverId: string): Promise<void> {
+  const sb = createServiceClient();
+
+  const { error } = await sb
+    .from('driver_shifts')
+    .update({
+      actual_end: new Date().toISOString(),
+      status: 'completed',
+    })
+    .eq('id', shiftId)
+    .eq('driver_id', driverId)
+    .eq('status', 'active');
+
+  if (error) throw new Error(`[shifts] endShift: ${error.message}`);
+}
+
+/** Schicht stornieren. */
+export async function cancelShift(shiftId: string): Promise<void> {
+  const sb = createServiceClient();
+  const { error } = await sb
+    .from('driver_shifts')
+    .update({ status: 'cancelled' })
+    .eq('id', shiftId)
+    .in('status', ['scheduled']);
+
+  if (error) throw new Error(`[shifts] cancelShift: ${error.message}`);
+}
+
+// ============================================================
+// Coverage-Analyse
+// ============================================================
+
+/**
+ * Unterdeckungs-Analyse für die nächsten N Stunden.
+ * Nutzt v_shift_coverage VIEW (Migration 017).
+ * Gibt nur Slots zurück bei denen gap < 0 (Unterdeckung) ODER
+ * gap >= 0 aber scheduled_drivers < target (nicht optimal gedeckt).
+ */
+export async function getCoverageGaps(
+  locationId: string,
+  hours = 24,
+): Promise<CoverageGap[]> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('v_shift_coverage')
+    .select('slot_start, location_id, scheduled_drivers, min_drivers, target_drivers, gap, covered')
+    .eq('location_id', locationId)
+    .lte('slot_start', new Date(Date.now() + hours * 3_600_000).toISOString())
+    .order('slot_start', { ascending: true });
+
+  if (error) {
+    // View existiert noch nicht (Migration noch nicht ausgeführt) — leeres Array
+    if (error.message.includes('v_shift_coverage')) return [];
+    throw new Error(`[shifts] getCoverageGaps: ${error.message}`);
+  }
+
+  return (data ?? []) as CoverageGap[];
+}
+
+/** Coverage-Anforderungen einer Location laden. */
+export async function getCoverageRequirements(
+  locationId: string,
+): Promise<CoverageRequirement[]> {
+  const sb = createServiceClient();
+  const { data, error } = await sb
+    .from('coverage_requirements')
+    .select('id, location_id, day_of_week, hour_of_day, min_drivers, target_drivers')
+    .eq('location_id', locationId)
+    .order('day_of_week', { ascending: true })
+    .order('hour_of_day',  { ascending: true });
+
+  if (error) throw new Error(`[shifts] getCoverageRequirements: ${error.message}`);
+  return (data ?? []) as CoverageRequirement[];
+}
+
+/** Coverage-Anforderung erstellen oder updaten (upsert). */
+export async function upsertCoverageRequirement(req: {
+  locationId: string;
+  dayOfWeek: number;
+  hourOfDay: number;
+  minDrivers: number;
+  targetDrivers: number;
+}): Promise<CoverageRequirement> {
+  const sb = createServiceClient();
+  const { data, error } = await sb
+    .from('coverage_requirements')
+    .upsert({
+      location_id:    req.locationId,
+      day_of_week:    req.dayOfWeek,
+      hour_of_day:    req.hourOfDay,
+      min_drivers:    req.minDrivers,
+      target_drivers: req.targetDrivers,
+    }, { onConflict: 'location_id,day_of_week,hour_of_day' })
+    .select('id, location_id, day_of_week, hour_of_day, min_drivers, target_drivers')
+    .single();
+
+  if (error) throw new Error(`[shifts] upsertCoverageRequirement: ${error.message}`);
+  return data as CoverageRequirement;
+}
+
+// ============================================================
+// Cron-Hilfsfunktionen
+// ============================================================
+
+/**
+ * Ruft auto_close_missed_shifts() auf (DB-Funktion aus Migration 017).
+ * Markiert vergessene Schichten als missed / abgelaufene active als completed.
+ * Fire-and-forget kompatibel.
+ */
+export async function autoCloseMissedShifts(): Promise<{ missed: number }> {
+  const sb = createServiceClient();
+  const { data, error } = await sb.rpc('auto_close_missed_shifts');
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.warn('[shifts] autoCloseMissedShifts:', error.message);
+    return { missed: 0 };
+  }
+  return { missed: (data as number | null) ?? 0 };
+}
+
+/**
+ * Gibt die Anzahl unkritischer Coverage-Gaps für die nächste Stunde zurück.
+ * Nützlich für den Health-Check.
+ */
+export async function getCurrentCoverageStatus(
+  locationId: string,
+): Promise<{ uncovered_slots: number; understaffed_slots: number }> {
+  const sb = createServiceClient();
+  const hourEnd = new Date(Date.now() + 3_600_000).toISOString();
+
+  const { data, error } = await sb
+    .from('v_shift_coverage')
+    .select('covered, scheduled_drivers, target_drivers')
+    .eq('location_id', locationId)
+    .lte('slot_start', hourEnd)
+    .gte('slot_start', new Date().toISOString());
+
+  if (error || !data) return { uncovered_slots: 0, understaffed_slots: 0 };
+
+  return {
+    uncovered_slots:    data.filter((r) => !(r.covered as boolean)).length,
+    understaffed_slots: data.filter(
+      (r) => (r.covered as boolean) && (r.scheduled_drivers as number) < (r.target_drivers as number),
+    ).length,
+  };
+}
+
+// ============================================================
+// Intern
+// ============================================================
+
+// Supabase-Join liefert mise_drivers als verschachteltes Objekt
+function normalizeShifts(rows: unknown[]): ShiftRow[] {
+  return (rows as Record<string, unknown>[]).map((r) => {
+    const driver = r['mise_drivers'] as Record<string, unknown> | null;
+    const { mise_drivers: _drop, ...rest } = r;
+    void _drop;
+    return {
+      ...rest,
+      driver: driver
+        ? { id: driver['id'], name: driver['name'], vehicle: driver['vehicle'], state: driver['state'] }
+        : undefined,
+    } as ShiftRow;
+  });
+}

@@ -21,6 +21,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { getCurrentCoverageStatus } from '@/lib/delivery/shifts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest) {
     zones_configured: { ok: false, count: 0 },
     drivers_online:   { ok: true,  count: 0 },
     dispatch_backlog: { ok: true,  pending: 0 },
+    shift_coverage:   { ok: true,  uncovered_slots: 0 },
   };
 
   const sb = createServiceClient();
@@ -85,6 +87,16 @@ export async function GET(req: NextRequest) {
 
     const pending = pendingCount ?? 0;
     checks.dispatch_backlog = { ok: pending < 20, pending };
+
+    // 5. Schicht-Abdeckung (nächste Stunde)
+    const coverage = await getCurrentCoverageStatus(locationId).catch(() => ({
+      uncovered_slots: 0, understaffed_slots: 0,
+    }));
+    checks.shift_coverage = {
+      ok: coverage.uncovered_slots === 0,
+      uncovered_slots:    coverage.uncovered_slots,
+      understaffed_slots: coverage.understaffed_slots,
+    };
   }
 
   const allOk      = Object.values(checks).every((c) => c.ok);

@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick } from '@/lib/delivery/dispatch-engine';
 import { syncKitchenNotifications } from '@/lib/delivery/kitchen-sync';
 import { refreshEnRouteEtas } from '@/lib/delivery/eta';
+import { autoCloseMissedShifts } from '@/lib/delivery/shifts';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -41,9 +42,9 @@ export async function GET(req: NextRequest) {
 
   const start = Date.now();
   try {
-    // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup + Live-ETA-Refresh
+    // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup + Live-ETA-Refresh + Shift-Cleanup
     const serviceSb = createServiceClient();
-    const [dispatchResult, kitchenResult, staleResult, etaResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -53,6 +54,7 @@ export async function GET(req: NextRequest) {
       refreshEnRouteEtas().catch(() => ({
         batches_processed: 0, orders_updated: 0, orders_skipped: 0, errors: 1,
       })),
+      autoCloseMissedShifts().catch(() => ({ missed: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -73,6 +75,7 @@ export async function GET(req: NextRequest) {
         batches: etaResult.batches_processed,
         updated: etaResult.orders_updated,
       },
+      shifts_closed: shiftResult.missed,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
