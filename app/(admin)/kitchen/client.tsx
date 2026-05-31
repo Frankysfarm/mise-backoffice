@@ -393,6 +393,9 @@ export function KitchenBoard({
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
 
+      {/* Pickup-Forecast: kochende Lieferbestellungen die in <15 Min fertig sind */}
+      <PickupForecastPanel orders={filtered} />
+
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
 
@@ -1104,6 +1107,94 @@ function GangTimerPanel({ orders }: { orders: Order[] }) {
               <div className={cn('mt-0.5 text-[9px] tabular-nums', c.text, 'opacity-70')}>
                 max {Math.floor(maxWait)}:{String(Math.floor((maxWait % 1) * 60)).padStart(2, '0')} Min
               </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ PickupForecastPanel ------------------------------ */
+
+function PickupForecastPanel({ orders }: { orders: Order[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const WINDOW_MIN = 20; // zeige Bestellungen die in <20 Min fertig sein sollten
+
+  const upcoming = orders
+    .filter((o) => o.typ === 'lieferung' && ['bestätigt', 'in_zubereitung'].includes(o.status))
+    .map((o) => {
+      const startMs = o.bestellt_am ? new Date(o.bestellt_am).getTime() : now;
+      const estReadyMs = startMs + (o.geschaetzte_zubereitung_min ?? 15) * 60_000;
+      const minUntilReady = Math.floor((estReadyMs - now) / 60_000);
+      return { order: o, minUntilReady, estReadyMs };
+    })
+    .filter((x) => x.minUntilReady <= WINDOW_MIN)
+    .sort((a, b) => a.estReadyMs - b.estReadyMs);
+
+  if (upcoming.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Bike className="h-4 w-4 text-blue-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-blue-800">
+          Pickup-Forecast · {upcoming.length} Lieferung{upcoming.length !== 1 ? 'en' : ''} in &lt;{WINDOW_MIN} Min fertig
+        </span>
+        <a
+          href="/dispatch"
+          className="ml-auto text-[10px] font-bold text-blue-700 hover:text-blue-900 underline"
+        >
+          Zum Dispatch →
+        </a>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {upcoming.map(({ order, minUntilReady }) => {
+          const isNow = minUntilReady <= 0;
+          const isSoon = minUntilReady <= 5 && minUntilReady > 0;
+          const readyStr = new Date(
+            (order.bestellt_am ? new Date(order.bestellt_am).getTime() : now) +
+            (order.geschaetzte_zubereitung_min ?? 15) * 60_000,
+          ).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          return (
+            <div
+              key={order.id}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px]',
+                isNow  ? 'border-matcha-400 bg-matcha-100' :
+                isSoon ? 'border-blue-400 bg-blue-100 animate-pulse' :
+                         'border-blue-200 bg-white',
+              )}
+            >
+              <span className="font-mono font-bold text-foreground">
+                #{order.bestellnummer.replace('FF-', '')}
+              </span>
+              {order.delivery_zone && (
+                <span className={cn(
+                  'rounded px-1.5 py-0.5 text-[9px] font-black',
+                  order.delivery_zone === 'A' ? 'bg-green-100 text-green-800' :
+                  order.delivery_zone === 'B' ? 'bg-blue-100 text-blue-800' :
+                  order.delivery_zone === 'C' ? 'bg-orange-100 text-orange-800' :
+                  'bg-red-100 text-red-800',
+                )}>
+                  {order.delivery_zone}
+                </span>
+              )}
+              <span className={cn(
+                'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                isNow  ? 'bg-matcha-600 text-white' :
+                isSoon ? 'bg-blue-600 text-white' :
+                         'bg-blue-100 text-blue-800',
+              )}>
+                {isNow ? '✓ Jetzt' : `~${readyStr}`}
+              </span>
+              <span className="text-muted-foreground truncate max-w-[80px]">{order.kunde_name}</span>
             </div>
           );
         })}
