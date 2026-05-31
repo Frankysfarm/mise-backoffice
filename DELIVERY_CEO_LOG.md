@@ -1,10 +1,80 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–14 + alle Post-Phase-Erweiterungen + CEO Review #13 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–15 + alle Post-Phase-Erweiterungen + CEO Review #14 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #13 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig deployment-bereit.
+**DONE** — CEO Review #14 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig deployment-bereit.
+
+## CEO Review #14 — 2026-05-31
+
+### Geprüfte Commits (seit CEO Review #13)
+- `255ca1a` feat(fahrer): Fix Zustellung-Flow + Tour-Abschluss
+- `d27a674` fix(fahrer): SchichtStats zählt jetzt Legacy + Mise Lieferungen
+- `f6c7197` fix(kitchen): Initialdaten enthalten jetzt auch Mise Batches/Stops
+
+### Code-Review der neuen Features
+
+**Zustellung-Flow Fix** (`delivery-view.tsx`):
+- `markDelivered()`: schreibt jetzt in `delivery_batch_stops.geliefert_am`, `mise_delivery_batch_stops.completed_at` UND `customer_orders.status='geliefert'` — alle 3 Systeme konsistent ✅
+- `markArrived()`: neuer Button schreibt `angekommen_am` / `arrived_at` in beide Stop-Tabellen ✅
+- Angekommen-Badge: zeigt nur wenn `angekommen_am || arrivedIds.has(stop.id) && !geliefert_am` — korrekte Logik ✅
+- `TourCloseButton`: setzt `delivery_batches.status='abgeschlossen'` + `mise_delivery_batches.state='completed'` + `driver_status.aktueller_batch_id=null` ✅
+
+**SchichtStats Legacy + Mise** (`client.tsx`):
+- Zweistufige Abfrage: zuerst `mise_drivers.id` per `employee_id` lookup, dann parallel `legacy_batches` + `mise_batches` abfragen ✅
+- `mise_delivery_batch_stops` Filter: `type='dropoff'` + `completed_at IS NOT NULL` — korrekt ✅
+- Kombination: `legacyDelivered + miseDelivered` = echte Tageslieferungen ✅
+- N-Query-Schutz: `legacyBatches?.length` / `miseDriverId` Guards verhindern unnötige Queries ✅
+
+**Kitchen Initialdaten mit Mise** (`kitchen/page.tsx`):
+- Parallele Abfragen für beide Systeme: `delivery_batches` + `mise_delivery_batches` ✅
+- Normalisierung: Mise-Schema auf Legacy-Schema gemappt (`state→status`, `sequence→reihenfolge`, etc.) ✅
+- `mise_delivery_batch_stops` Filter: `type='dropoff'` — nur Kundenlieferungen, kein Pickup-Stopp ✅
+- `initialBatches` + `initialStops` korrekt zusammengeführt (spread-Operator) ✅
+
+### Bug gefunden + behoben: TourCloseButton setzt mise_drivers.state nicht zurück
+
+**Datei**: `app/fahrer/app/delivery-view.tsx`
+
+**Problem**: `TourCloseButton.close()` setzte `mise_delivery_batches.state='completed'` aber vergaß `mise_drivers.state` zu aktualisieren. Folge: Fahrer blieb dauerhaft im State `en_route` im Smart-Dispatch-Pool bis der Stale-Driver-Cleanup lief (30 Min). Während dieser Zeit:
+- Dispatch-Engine fand den Fahrer als besetzt → keine neuen Aufträge
+- Admin-Dashboard zeigte Fahrer als `en_route` statt `returning`/`idle`
+
+**Fix**:
+```typescript
+// Resolve mise_drivers.id before parallel updates
+const { data: miseBatch } = await supabase
+  .from('mise_delivery_batches')
+  .select('driver_id')
+  .eq('id', batchId)
+  .maybeSingle();
+
+if (miseBatch?.driver_id) {
+  updates.push(
+    supabase.from('mise_drivers').update({ state: 'returning' }).eq('id', miseBatch.driver_id)
+  );
+}
+```
+
+Fahrer wird jetzt sofort auf `returning` gesetzt, sobald die Tour manuell abgeschlossen wird. Dispatch-Engine kann ihn sofort für neue Aufträge berücksichtigen.
+
+### Build + TypeScript
+- `npx tsc --noEmit` ✅ — 0 TypeScript-Fehler
+- `npm run build` ✅ — Compiled successfully, 169 static pages
+
+### Integrations-Prüfung
+- Fahrer-App `markDelivered` → beide Stop-Tabellen + customer_orders ✅
+- Fahrer-App `TourCloseButton` → beide Batch-Tabellen + driver_status + mise_drivers ✅
+- SchichtStats → Legacy + Mise Batches/Stops korrekt zusammengezählt ✅
+- Kitchen Initialdaten → beide Systeme parallel geladen und normalisiert ✅
+
+### Befund
+- 3 Commits geprüft: korrekt implementiert
+- 1 kritischer Bug (mise_drivers.state nach Tour-Abschluss): BEHOBEN ✅
+- Build: `npm run build` ✅ sauber, 169 Seiten
+- TypeScript: `npx tsc --noEmit` ✅ 0 Fehler
+- **SYSTEM MARKT-REIF** — vollständig deployment-bereit
 
 ## CEO Review #13 — 2026-05-31
 

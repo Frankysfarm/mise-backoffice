@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–15 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #13 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–15 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #14 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -321,6 +321,14 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Letzte Änderungen
+- 2026-05-31: CEO Review #14 — 3 Frontend-Commits QA-geprüft, 1 kritischer Bug behoben
+  - Fahrer-App: Zustellung-Flow (markDelivered → beide Systeme + customer_orders) ✅
+  - Fahrer-App: markArrived-Button + Angekommen-Badge ✅
+  - Fahrer-App: TourCloseButton schließt Tour in beiden Systemen ✅
+  - Fahrer-App: SchichtStats zählt Legacy + Mise Lieferungen korrekt ✅
+  - Kitchen: Initialdaten laden beide Systeme (Legacy + Mise) parallel ✅
+  - Bug behoben: TourCloseButton setzte mise_drivers.state nicht zurück → Fahrer blieb 30 Min lang als en_route → Fix: state wird sofort auf returning gesetzt
+  - Build: npm run build ✓ (169 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-31: Backend-Architekt — Phase 15: Driver Push Notification bei Dispatch
   - lib/delivery/push-notify.ts: enqueueBatchPush() + enqueueTourStatusPush() → mise_push_outbox
   - dispatch-engine.ts: Push nach Dispatch/Bundle (fire-and-forget)

@@ -578,11 +578,24 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
 
   async function close() {
     setClosing(true);
-    await Promise.all([
+    // Resolve mise_drivers.id before parallel updates
+    const { data: miseBatch } = await supabase
+      .from('mise_delivery_batches')
+      .select('driver_id')
+      .eq('id', batchId)
+      .maybeSingle();
+
+    const updates: Promise<any>[] = [
       supabase.from('delivery_batches').update({ status: 'abgeschlossen' }).eq('id', batchId),
       supabase.from('mise_delivery_batches').update({ state: 'completed', completed_at: new Date().toISOString() }).eq('id', batchId),
       supabase.from('driver_status').update({ aktueller_batch_id: null }).eq('aktueller_batch_id', batchId),
-    ]);
+    ];
+    if (miseBatch?.driver_id) {
+      updates.push(
+        supabase.from('mise_drivers').update({ state: 'returning' }).eq('id', miseBatch.driver_id)
+      );
+    }
+    await Promise.all(updates);
     setClosing(false);
     onDone();
   }
