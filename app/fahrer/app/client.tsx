@@ -554,32 +554,64 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
   useEffect(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     (async () => {
-      const { data: batches } = await supabase
-        .from('delivery_batches')
-        .select('id, total_distance_km, startzeit')
-        .eq('fahrer_id', driverId)
-        .gte('created_at', today.toISOString());
+      // Legacy + Mise parallel abfragen
+      const [
+        { data: legacyBatches },
+        { data: miseDriver },
+      ] = await Promise.all([
+        supabase
+          .from('delivery_batches')
+          .select('id, total_distance_km')
+          .eq('fahrer_id', driverId)
+          .gte('created_at', today.toISOString()),
+        supabase
+          .from('mise_drivers')
+          .select('id')
+          .eq('employee_id', driverId)
+          .maybeSingle(),
+      ]);
 
-      if (!batches?.length) {
-        setStats({ deliveries: 0, tours: 0, totalBetrag: 0, totalDistKm: 0 });
-        return;
-      }
-      const batchIds = (batches as any[]).map((b) => b.id as string);
-      const totalDistKm = (batches as any[]).reduce((s, b) => s + (b.total_distance_km ?? 0), 0);
+      const miseDriverId = (miseDriver as any)?.id ?? null;
 
-      const { data: stops } = await supabase
-        .from('delivery_batch_stops')
-        .select('id, geliefert_am, order:customer_orders(gesamtbetrag)')
-        .in('batch_id', batchIds)
-        .not('geliefert_am', 'is', null);
+      const [{ data: legacyStops }, { data: miseBatches }] = await Promise.all([
+        legacyBatches?.length
+          ? supabase
+              .from('delivery_batch_stops')
+              .select('id, geliefert_am, order:customer_orders(gesamtbetrag)')
+              .in('batch_id', (legacyBatches as any[]).map((b) => b.id))
+              .not('geliefert_am', 'is', null)
+          : Promise.resolve({ data: [] }),
+        miseDriverId
+          ? supabase
+              .from('mise_delivery_batches')
+              .select('id, total_distance_km')
+              .eq('driver_id', miseDriverId)
+              .gte('created_at', today.toISOString())
+          : Promise.resolve({ data: [] }),
+      ]);
 
-      const delivered = (stops as any[])?.length ?? 0;
-      const totalBetrag = ((stops as any[]) ?? []).reduce(
-        (s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0),
-        0,
-      );
+      const { data: miseStops } = miseBatches?.length
+        ? await supabase
+            .from('mise_delivery_batch_stops')
+            .select('id, completed_at, type, order:customer_orders(gesamtbetrag)')
+            .in('batch_id', (miseBatches as any[]).map((b) => b.id))
+            .eq('type', 'dropoff')
+            .not('completed_at', 'is', null)
+        : { data: [] };
 
-      setStats({ deliveries: delivered, tours: batches.length, totalBetrag, totalDistKm });
+      const legacyDelivered = (legacyStops as any[])?.length ?? 0;
+      const miseDelivered = (miseStops as any[])?.length ?? 0;
+      const legacyBetrag = ((legacyStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+      const miseBetrag = ((miseStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+      const legacyDist = ((legacyBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+      const miseDist = ((miseBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+
+      setStats({
+        deliveries: legacyDelivered + miseDelivered,
+        tours: ((legacyBatches as any[])?.length ?? 0) + ((miseBatches as any[])?.length ?? 0),
+        totalBetrag: legacyBetrag + miseBetrag,
+        totalDistKm: legacyDist + miseDist,
+      });
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverId]);
