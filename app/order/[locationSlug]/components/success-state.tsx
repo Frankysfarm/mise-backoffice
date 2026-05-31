@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Check, ChefHat, Package, Truck } from 'lucide-react';
+import { ArrowRight, Check, ChefHat, Package, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 type Props = {
@@ -14,22 +14,33 @@ type Props = {
   orderId?: string;
 };
 
-const STATUS_STEPS = [
-  { status: 'bestätigt',      label: 'Angenommen',    icon: Check },
-  { status: 'in_zubereitung', label: 'Zubereitung',   icon: ChefHat },
-  { status: 'fertig',         label: 'Bereit',        icon: Package },
-  { status: 'unterwegs',      label: 'Unterwegs',     icon: Truck },
-  { status: 'geliefert',      label: 'Geliefert',     icon: Check },
+const DELIVERY_STEPS = [
+  { status: 'bestätigt',      label: 'Angenommen',  icon: Check },
+  { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
+  { status: 'fertig',         label: 'Bereit',      icon: Package },
+  { status: 'unterwegs',      label: 'Unterwegs',   icon: Truck },
+  { status: 'geliefert',      label: 'Geliefert',   icon: Check },
 ] as const;
 
-function liveStatusIndex(status: string): number {
-  const i = STATUS_STEPS.findIndex((s) => s.status === status);
+const PICKUP_STEPS = [
+  { status: 'bestätigt',      label: 'Angenommen',  icon: Check },
+  { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
+  { status: 'fertig',         label: 'Abholbereit', icon: Package },
+  { status: 'abgeholt',       label: 'Abgeholt',    icon: ShoppingBag },
+] as const;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type StatusStep = { status: string; label: string; icon: any };
+
+function liveStatusIndex(status: string, steps: readonly StatusStep[]): number {
+  const i = steps.findIndex((s) => s.status === status);
   return i >= 0 ? i : 0;
 }
 
 export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId }: Props) {
   const firstName = name?.split(' ')[0];
   const supabase = React.useMemo(() => createClient(), []);
+  const STATUS_STEPS: readonly StatusStep[] = isDelivery ? DELIVERY_STEPS : PICKUP_STEPS;
 
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
@@ -87,7 +98,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const countdownStr = secsLeft > 0
     ? `${minsLeft}:${String(secsPart).padStart(2, '0')}`
     : '0:00';
-  const activeStep = liveStatusIndex(liveStatus);
+  const activeStep = liveStatusIndex(liveStatus, STATUS_STEPS);
 
   return (
     <main
