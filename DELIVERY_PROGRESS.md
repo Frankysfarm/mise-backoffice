@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–15 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #14 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–16 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #14 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -320,7 +320,35 @@ Siehe DELIVERY_CEO_LOG.md
   - Auth: Authentifizierter Admin-User
 - Build: npm run build ✓ (0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 16: Driver Auto-Rating + SLA Tracking [DONE ✅] — 2026-05-31
+- [x] **`scripts/migrations/016_driver_rating.sql`** — Feedback-Loop für Dispatch-Scoring
+  - `delivery_performance` Tabelle: pro-Stop SLA-Audit (eta_earliest/latest, completed_at, deviation, on_time, delivery_min)
+  - `recompute_driver_rating(p_driver_id)` PL/pgSQL-Funktion: berechnet mise_drivers.rating (1–5) + avg_delivery_min aus letzten 30 Lieferungen
+  - `record_stop_performance()` Trigger-Funktion: auto-record nach `mise_delivery_batch_stops.completed_at`-Update
+  - `trg_perf_on_stop_complete` Trigger: AFTER UPDATE OF completed_at (nur dropoff-Stops)
+  - `v_delivery_sla` VIEW: On-Time-Rate, Abweichung, Lieferzeit aggregiert pro Fahrer/Zone/Tag
+  - 4 Performance-Indizes inkl. Partial-Index für SLA-Berechnungen
+  - mise_drivers.rating + avg_delivery_min Defaults gesichert (4.5 / 25 Min)
+- [x] **`lib/delivery/rating.ts`** — TypeScript-Wrappers
+  - `recordDeliveryPerformance()`: manueller Insert in delivery_performance (für Bulk-Nachholen)
+  - `recomputeDriverRating()`: ruft DB-Funktion auf — aktualisiert Rating nach min. 3 Datenpunkten
+  - `getSlaSummary()`: aggregierte SLA-Stats für eine Location (overall + byDriver + byZone)
+- [x] **`app/api/delivery/admin/sla/route.ts`** — `GET ?location_id=...&days=7`
+  - On-Time-Rate (%), avg Abweichung, avg Lieferzeit — overall + per Fahrer + per Zone
+  - Fallback-Antwort wenn delivery_performance noch leer (_hint Erklärung)
+  - Auth: eingeloggter Admin-User
+- [x] **`app/api/delivery/tours/[id]/status/route.ts`** — Enhanced: Rating nach Tour-Abschluss
+  - Bei Übergang → 'delivered': `recomputeDriverRating()` fire-and-forget nach dem Status-Update
+  - Fahrer-Rating aktualisiert sich sofort nach Tourende → nächste Dispatch-Entscheidung nutzt frischen Wert
+- Build: npm run build ✓ (169 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-05-31: Backend-Architekt — Phase 16: Driver Auto-Rating + SLA Tracking
+  - scripts/migrations/016_driver_rating.sql: delivery_performance + recompute_driver_rating() + trigger + v_delivery_sla
+  - lib/delivery/rating.ts: recordDeliveryPerformance() + recomputeDriverRating() + getSlaSummary()
+  - GET /api/delivery/admin/sla: SLA-Bericht (On-Time-Rate, Abweichung, Lieferzeit, byDriver, byZone)
+  - tours/[id]/status PATCH: rating recompute nach 'delivered' (fire-and-forget)
+  - Build: npm run build ✓ (169 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-05-31: CEO Review #14 — 6 Frontend-Commits QA-geprüft, 2 Bugs behoben
   - Fahrer-App: Zustellung-Flow (markDelivered → beide Systeme + customer_orders) ✅
   - Fahrer-App: markArrived-Button + Angekommen-Badge ✅

@@ -1,9 +1,11 @@
 /**
  * PATCH /api/delivery/tours/[id]/status
  * Setzt den Status einer Tour (z.B. assigned → at_restaurant → on_route → delivered).
+ * Bei Übergang → 'delivered': Driver-Rating wird neu berechnet (fire-and-forget).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { recomputeDriverRating } from '@/lib/delivery/rating';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -29,5 +31,19 @@ export async function PATCH(
     .eq('id', params.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Nach Tour-Abschluss: Driver-Rating neu berechnen (fire-and-forget)
+  if (body.state === 'delivered') {
+    const { data: batch } = await sb
+      .from('mise_delivery_batches')
+      .select('driver_id')
+      .eq('id', params.id)
+      .maybeSingle();
+
+    if (batch?.driver_id) {
+      recomputeDriverRating(batch.driver_id as string).catch(() => {});
+    }
+  }
+
   return NextResponse.json({ ok: true, state: body.state });
 }
