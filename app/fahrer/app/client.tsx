@@ -504,6 +504,7 @@ export function FahrerApp({
             openBatches={openBatches}
             pending={pending}
             onClaim={claimBatch}
+            driverPos={driverPos}
           />
         )}
 
@@ -704,22 +705,56 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
             const effScore = Math.min(100, Math.round(delivPerHour * 20)); // ~5/h = 100%
             const effLabel = effScore >= 80 ? 'Excellent' : effScore >= 60 ? 'Sehr gut' : effScore >= 40 ? 'Gut' : 'Aufwärmen';
             const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : effScore >= 40 ? 'bg-amber-400' : 'bg-muted';
+            // Stundenlohn-Schätzung: Annahme 3€ Basis-Provision/Lieferung + 0.15€/km
+            const estimatedEarnings = stats.deliveries * 3 + stats.totalDistKm * 0.15;
+            const earningsPerHour = onlineMin >= 5 ? (estimatedEarnings / Math.max(1, onlineMin)) * 60 : null;
             return (
-              <div className="mt-3 rounded-xl bg-white/5 px-3 py-2">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Schicht-Effizienz</span>
-                  <span className="text-[10px] font-black text-accent">{effLabel}</span>
+              <div className="mt-3 space-y-2">
+                <div className="rounded-xl bg-white/5 px-3 py-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Schicht-Effizienz</span>
+                    <span className="text-[10px] font-black text-accent">{effLabel}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${effColor}`}
+                      style={{ width: `${effScore}%` }}
+                    />
+                  </div>
+                  <div className="mt-1 flex justify-between text-[10px] text-matcha-400">
+                    <span>{delivPerHour}/h Lieferungen</span>
+                    {earningsPerHour != null && (
+                      <span className="text-accent font-bold">≈ {earningsPerHour.toFixed(2)}€/h</span>
+                    )}
+                  </div>
                 </div>
-                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${effColor}`}
-                    style={{ width: `${effScore}%` }}
-                  />
-                </div>
-                <div className="mt-1 flex justify-between text-[10px] text-matcha-400">
-                  <span>{delivPerHour}/h Lieferungen</span>
-                  <span>{effScore}%</span>
-                </div>
+                {/* Tages-Meilenstein */}
+                {(() => {
+                  const MILESTONES = [5, 10, 15, 20, 30, 50];
+                  const next = MILESTONES.find((m) => m > stats.deliveries);
+                  if (!next) return null;
+                  const pct = Math.round((stats.deliveries / next) * 100);
+                  const remaining = next - stats.deliveries;
+                  return (
+                    <div className="rounded-xl bg-white/5 px-3 py-2">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Nächstes Ziel</span>
+                        <span className="text-[10px] font-black text-matcha-200">
+                          {stats.deliveries}/{next} <span className="text-accent">🏆</span>
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gold transition-all duration-700"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 text-[10px] text-matcha-400">
+                        Noch {remaining} {remaining === 1 ? 'Lieferung' : 'Lieferungen'} bis zum Meilenstein
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
@@ -751,10 +786,12 @@ function OpenBatchSection({
   openBatches,
   pending,
   onClaim,
+  driverPos,
 }: {
   openBatches: OpenBatch[];
   pending: boolean;
   onClaim: (batchId: string) => void;
+  driverPos?: { lat: number; lng: number } | null;
 }) {
   // Group stops by batch_id for multi-stop display
   const grouped = useMemo(() => {
@@ -821,7 +858,7 @@ function OpenBatchSection({
                   <div className="font-display font-bold">
                     {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-matcha-300">
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-matcha-300">
                     <span className="font-bold text-accent">{euro(totalAmount)}</span>
                     {cashAmount > 0 && (
                       <span className="flex items-center gap-1 font-bold text-amber-300">
@@ -837,6 +874,19 @@ function OpenBatchSection({
                       <span className="flex items-center gap-1"><Route size={10} /> {totalDistanceKm.toFixed(1)} km</span>
                     )}
                     <span>{stops.length} {stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                    {/* Distance from driver to pickup location */}
+                    {driverPos && stops[0].location_lat && stops[0].location_lng && (() => {
+                      const d = haversineKm(driverPos, { lat: stops[0].location_lat!, lng: stops[0].location_lng! });
+                      const label = d < 0.1 ? '< 100m' : d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`;
+                      return (
+                        <span className={cn(
+                          'flex items-center gap-1 rounded-full px-2 py-0.5 font-bold',
+                          d < 0.3 ? 'bg-accent/20 text-accent' : d < 1 ? 'bg-amber-500/20 text-amber-300' : 'bg-white/10 text-matcha-300',
+                        )}>
+                          <Navigation size={9} /> {label} zur Abholung
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
