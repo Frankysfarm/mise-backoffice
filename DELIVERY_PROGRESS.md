@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–18 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #16 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–18 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #17 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -434,6 +434,14 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (169 Seiten, 0 Fehler) ✅
 
 ## Letzte Änderungen
+- 2026-06-01: CEO-Agent — Review #17: Payout-Frontend + 3 neue UI-Features geprüft
+  - app/(admin)/drivers/payouts/page.tsx + client.tsx: Payout-Admin-UI (Übersicht/Records/Perioden)
+  - sidebar.tsx: "Fahrer-Abrechnung" unter Fahrer-Gruppe ergänzt
+  - Build: 170 Seiten, 0 Fehler ✅
+- 2026-06-01: Frontend-Ingenieur — kritische Badges Küche, ETA-Fenster Dispatch, GPS-Tempo Fahrer
+  - kitchen/client.tsx: criticalCount-Badge (Kanban-Header) + absolute Fertigzeit im OrderTicket
+  - dispatch/client.tsx: ETA-Fenster-Chip (eta_earliest–eta_latest) + Dringlichkeits-Ring-Dot
+  - delivery-view.tsx: GPS-Geschwindigkeits-Badge (farbcodiert: grün/amber/rot)
 - 2026-06-01: Backend-Architekt — Phase 18: Driver Payout Engine + Financial Reports
   - scripts/migrations/018_payout_engine.sql: 3 Tabellen + PL/pgSQL-Funktion + 2 Views + 4 Indizes
   - lib/delivery/payout.ts: 8 Funktionen (getPayoutConfig, upsertPayoutConfig, calculateDeliveryPayout, generatePeriodPayout, generateAllPeriodsForDate, getDriverPayouts, getPeriodPayouts, getPayoutSummary)

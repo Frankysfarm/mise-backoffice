@@ -148,7 +148,8 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery',     icon: 'LayoutDashboard', label: 'Übersicht' },
       { group: 'Loslegen', href: '/dispatch',     icon: 'MapPin',          label: 'Touren & Live-Karte' },
 
-      { group: 'Fahrer', href: '/drivers',         icon: 'Users', label: 'Fahrer (Dispatch-Ansicht)' },
+      { group: 'Fahrer', href: '/drivers',              icon: 'Users',    label: 'Fahrer (Dispatch-Ansicht)' },
+      { group: 'Fahrer', href: '/drivers/payouts',    icon: 'Banknote', label: 'Fahrer-Abrechnung' },
       // /shop/drivers (Owner-Invite + Driver-App-Setup) wird im Online-Bestellsystem-Modul
       // verwaltet — hier kein Duplikat.
 
