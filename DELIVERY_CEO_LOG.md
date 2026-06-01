@@ -1,10 +1,82 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–15 + alle Post-Phase-Erweiterungen + CEO Review #14 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–17 + alle Post-Phase-Erweiterungen + CEO Review #16 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #14 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig deployment-bereit.
+**DONE** — CEO Review #16 bestätigt: 0 TypeScript-Fehler, Build clean (169 Seiten), alle Integrations-Checks grün. System vollständig marktreif und deployment-bereit.
+
+## CEO Review #16 — 2026-06-01
+
+### Geprüfte Commits (seit CEO Review #15)
+- `521b9a4` feat(delivery/frontend): Küchen-Checkliste, GPS-Proximity Auto-Arrived, LongWait-Alert Dispatch
+- `a1f6da6` feat(fahrer): Re-Center-Button auf Karte in DeliveryView
+- `f39cd32` feat(storefront): Abholung-Status-Schritte in success-state korrigiert
+- `07693e8` feat(kitchen): PickupWaitPanel – Abholkunden-Wartezeit-Anzeige
+- `8005e17` feat(statistics): Schichtplan-Vorschau-Panel mit nächsten 8h Fahrerschichten
+- `6c9f04c` feat(fahrer): Stundenlohn-Schätzung, Tages-Meilenstein, Abstand zur Abholung
+- `273676c` feat(kitchen): PickupForecastPanel – Lieferungen die in <20 Min abholbereit sind
+- `ae89ef2` feat(dispatch): DriverZoneMatchPanel – GPS-basierte Fahrer-Zonen-Empfehlung
+- `f52c571` feat(storefront): Checkout-ETA visuell aufgeteilt in Küchen- + Fahrzeit mit Ankunftszeit
+- `093c603` feat(delivery/frontend): Gang-Timer Kitchen, SLA-Panel Stats, Dispatch Zone-Quick-Select
+
+### Code-Review der neuen Features
+
+**GPS-Proximity Auto-Arrived** (`delivery-view.tsx`):
+- Haversine-Formel korrekt implementiert: Erdradius 6371000m, dLat/dLon korrekt in Bogenmaß ✅
+- `proximityTriggered` Set verhindert Mehrfach-Trigger für denselben Stop ✅
+- Guard: übersprungen wenn `arrivedIds.has()` oder `angekommen_am` bereits gesetzt ✅
+- `kunde_lat/kunde_lng` Null-Check vorhanden ✅
+- `useEffect`-Deps auf `[driverLat, driverLng, nextStop?.id]` — korrekt, kein stale closure ✅
+
+**LongWaitOrdersPanel** (`dispatch/client.tsx`):
+- Nutzt `fertig_am: string | null` aus `ReadyOrder` Type — korrekt typisiert ✅
+- 10s-Interval-Refresh mit Cleanup ✅
+- Doppelte Zeitberechnung (waitMin für Threshold, waitSec für Anzeige) korrekt berechnet ✅
+- `isCritical` ≥15 Min pulsiert visuell — klare Prioritätsstufen ✅
+- `onSelect`-Callback integriert in `DispatchBoard` `setSelected` — Toggle-Logik korrekt ✅
+
+**PickupWaitPanel** (`kitchen/client.tsx`):
+- Filter: `status === 'fertig' && typ === 'abholung'` — korrekte Kombination ✅
+- Fallback wenn `fertig_am` null: nutzt `bestellt_am` (sinnvoller Worst-Case) ✅
+- 3-stufige Farbcodierung (grün <5 Min, amber 5–10 Min, rot ≥10 Min) ✅
+
+**PrepItemsPanel** (`kitchen/client.tsx`):
+- Aggregiert Items über alle `bestätigt`/`in_zubereitung` Bestellungen korrekt ✅
+- Schwellenwert: erst anzeigen bei ≥3 Items ODER ≥2 Bestellungen — verhindert Clutter ✅
+- `maxWaitMin` pro Item: zeigt dringlichste Bestellung für das Item ✅
+- `.slice(0, 12)` begrenzt Anzeige auf 12 Items ✅
+
+**Re-Center-Button** (`delivery-view.tsx`):
+- `leafletMapRef.current` Null-Check vor `setView` ✅
+- `z-[1000]` sichert Sichtbarkeit über Leaflet-Tiles ✅
+- Button nur sichtbar wenn `mapReady && driverLat != null` ✅
+
+**Schichtplan-Vorschau** (`statistics-view.tsx`):
+- Nutzt bestehende `/api/delivery/admin/shifts?hours=8` — API unterstützt `hours`-Parameter ✅
+- Graceful-Degradation: nur angezeigt wenn `upcomingShifts.length > 0` ✅
+- `isMissed`-Logik: `status === 'missed'` ODER `start < now && status === 'scheduled'` — korrekt ✅
+
+**Stundenlohn-Schätzung** (`fahrer/app/client.tsx`):
+- Formel: `(estimatedEarnings / max(1, onlineMin)) * 60` → korrekte €/h-Berechnung ✅
+- Guard: nur angezeigt wenn `onlineMin >= 5` (verhindert unsinnige Werte in ersten Minuten) ✅
+- `haversineKm()` lokal definiert in client.tsx, kein Modul-Import nötig ✅
+- `bg-gold` in tailwind.config.ts definiert (`#d4a843`) ✅
+
+**Distanz zur Abholung** (`fahrer/app/client.tsx`):
+- `driverPos` korrekt als optionaler Prop übergeben ✅
+- `location_lat/location_lng` Null-Check mit `!` TypeScript-Assertion ✅
+- 3-stufige Farbcodierung: grün <300m, amber <1km, grau sonst ✅
+
+### Bugs gefunden & behoben
+- **Keine kritischen Bugs** in den 10 neuen Commits gefunden.
+
+### Status
+- TypeScript: 0 Fehler ✅
+- Build: 169 Seiten, 0 Errors, 0 Warnings ✅
+- Integration: GPS-Proximity ↔ Fahrer-App ↔ Kitchen-Checkliste ↔ Dispatch-LongWait ↔ Stats-Schichtplan vollständig verbunden ✅
+
+---
 
 ## CEO Review #15 — 2026-05-31
 

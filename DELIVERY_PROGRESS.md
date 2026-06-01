@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–17 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #15 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–17 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #16 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -97,6 +97,25 @@
 - [x] **Storefront: ETA-Zeitfenster-Balken** — `EtaWindowBar` visualisiert Lieferfenster als Timeline (Jetzt-Marker + Fenster-Bereich), live-tickend
 - [x] **Statistik: Fahrer-Tagesranking** — Tabelle mit deliveries_today vs. gestern + Trend-Pfeile, via `/api/delivery/admin/performance`
 - Build: npm run build ✓ (0 Fehler), 5 Commits, git push origin main ✓
+
+## CEO Review #16: Post-Phase-Erweiterungen [DONE ✅] — 2026-06-01
+- [x] **Dispatch: LongWaitOrdersPanel** — Bestellungen >8 Min ohne Fahrer werden hervorgehoben (rot); ≥15 Min pulsiert kritisch; klickbar zur direkten Auswahl → Fahrerzuweisung
+- [x] **Dispatch: DriverZoneMatchPanel** — GPS-basierte Empfehlung welcher freie Fahrer am nächsten zur offenen Bestell-Zone ist
+- [x] **Kitchen: PrepItemsPanel (Küchen-Checkliste)** — Aggregierte Item-Liste aller aktiven Kochbestellungen mit Dringlichkeits-Farbcodierung; nur sichtbar bei ≥3 Items oder ≥2 Bestellungen
+- [x] **Kitchen: PickupWaitPanel** — Abholkunden im Status `fertig` mit Wartezeit-Farbcodierung (grün/amber/rot), Alarm ab 10 Min Wartezeit
+- [x] **Kitchen: PickupForecastPanel** — Lieferungen die in <20 Min abholbereit sind (Frühwarnung für Küche)
+- [x] **Fahrer-App: GPS-Proximity Auto-Arrived** — Automatische Ankunftserkennung per Haversine-Formel (<80m), kein manuelles Tippen; Doppel-Trigger-Schutz via `proximityTriggered` Set
+- [x] **Fahrer-App: Re-Center-Button** — Karte auf aktuelle GPS-Position zentrieren mit Leaflet-Animation; erscheint nur bei bekannter GPS-Position
+- [x] **Fahrer-App: Stundenlohn-Schätzung** — `≈ €/h` basierend auf Lieferungen × Basis-Provision + km-Anteil; erst ab 5 Min Online-Zeit angezeigt
+- [x] **Fahrer-App: Tages-Meilenstein-Balken** — Goldbalken zu nächstem Meilenstein (5/10/15/20/30/50 Lieferungen) mit "Noch X bis zum Ziel"
+- [x] **Fahrer-App: Abstand zur Abholung** — GPS-Distanzchip (Fahrer → Restaurant) pro offener Tour; 3-stufig farbcodiert
+- [x] **Statistik: Schichtplan-Vorschau** — Nächste 8h Fahrerschichten mit Status (aktiv/kommend/fehlt), Fahrzeug-Emoji, Zeitanzeige via `/api/delivery/admin/shifts?hours=8`
+- [x] **Statistik: SLA-Panel** — On-Time-Rate, Ø-Abweichung, Ø-Lieferzeit + Zone-Aufschlüsselung via `/api/delivery/admin/sla`
+- [x] **Statistik: Gang-Timer Kitchen** — Countdown-Anzeige nach Kochphasen
+- [x] **Dispatch: Zone-Quick-Select** — Schnellauswahl von Bestell-Zonen
+- [x] **Storefront: Checkout-ETA aufgeteilt** — Küchen- + Fahrzeit visuell getrennt mit Ankunftszeit
+- [x] **Storefront: Abholung-Status-Schritte** — Korrekte Schritte für Abholbestellungen (Angenommen→Zubereitung→Abholbereit→Abgeholt)
+- TypeScript: 0 Fehler ✅ | Build: 169 Seiten, 0 Errors ✅ | git push origin main ✓
 
 ## Post-Phase-9: Visuelle Verfeinerungen [DONE ✅] — 2026-05-29 (CEO Review #9)
 - [x] **Dispatch: DriverRow Return-Countdown** — Zeigt verbleibende Zeit bis Fahrer zurückkommt (~HH:MM), Stop-Fortschrittsbalken; 1s-Tick für Live-Countdown; Farbcodierung blau→orange→grün-pulse
