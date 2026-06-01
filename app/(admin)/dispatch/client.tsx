@@ -12,6 +12,7 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  History,
   MapPin,
   Package,
   Radio,
@@ -461,9 +462,111 @@ export function DispatchBoard({
               )}
             </div>
           </Card>
+
+          {/* Lieferungs-Chronik */}
+          <DeliveryChronikPanel
+            locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? null)}
+          />
         </div>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ DeliveryChronikPanel ------------------------------ */
+
+type ChronikEvent = {
+  id: string;
+  event_type: string;
+  order_id: string | null;
+  batch_id: string | null;
+  driver_id: string | null;
+  payload: Record<string, unknown> | null;
+  occurred_at: string;
+};
+
+function DeliveryChronikPanel({ locationId }: { locationId: string | null }) {
+  const [events, setEvents] = useState<ChronikEvent[]>([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/events?location_id=${locationId}&limit=25`)
+        .then(r => r.ok ? r.json() : null)
+        .then((d: { events?: ChronikEvent[] } | null) => { if (d?.events) setEvents(d.events) })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  if (!events.length) return null;
+
+  const eventMeta = (type: string): { icon: string; label: string; cls: string } => {
+    switch (type) {
+      case 'order_received':     return { icon: '📦', label: 'Bestellung eingegangen', cls: 'text-blue-600' };
+      case 'order_dispatched':   return { icon: '🛵', label: 'Dispatcht', cls: 'text-matcha-700' };
+      case 'order_bundled':      return { icon: '📦📦', label: 'Gebündelt', cls: 'text-violet-600' };
+      case 'batch_created':      return { icon: '🗺️', label: 'Tour erstellt', cls: 'text-matcha-700' };
+      case 'batch_completed':    return { icon: '✅', label: 'Tour abgeschlossen', cls: 'text-emerald-700' };
+      case 'stop_delivered':     return { icon: '🏠', label: 'Zugestellt', cls: 'text-emerald-600' };
+      case 'driver_online':      return { icon: '🟢', label: 'Fahrer online', cls: 'text-emerald-600' };
+      case 'driver_offline':     return { icon: '🔴', label: 'Fahrer offline', cls: 'text-red-600' };
+      case 'eta_updated':        return { icon: '⏱', label: 'ETA aktualisiert', cls: 'text-amber-600' };
+      case 'kitchen_ready':      return { icon: '🍽', label: 'Küche: Fertig', cls: 'text-matcha-600' };
+      case 'kitchen_cooking':    return { icon: '🍳', label: 'Küche: Kochen', cls: 'text-orange-600' };
+      case 'batch_optimized':    return { icon: '🔀', label: 'Route optimiert', cls: 'text-blue-600' };
+      default:                   return { icon: '•', label: type.replace(/_/g, ' '), cls: 'text-muted-foreground' };
+    }
+  };
+
+  const relTime = (iso: string) => {
+    const sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (sec < 60) return `${sec}s`;
+    if (sec < 3600) return `${Math.floor(sec / 60)} Min`;
+    return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-2 px-5 py-3 border-b text-left hover:bg-muted/30 transition"
+      >
+        <History className="h-4 w-4 text-muted-foreground" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">Chronik</span>
+        <span className="ml-2 text-xs text-muted-foreground">{events.length} Ereignisse</span>
+        {open ? <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" /> : <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="max-h-64 overflow-y-auto">
+          {events.map(ev => {
+            const m = eventMeta(ev.event_type);
+            return (
+              <div key={ev.id} className="flex items-start gap-3 px-4 py-2 border-b last:border-0 hover:bg-muted/20">
+                <span className="text-base shrink-0 mt-0.5">{m.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className={cn('text-xs font-semibold', m.cls)}>{m.label}</div>
+                  {(ev.payload as any)?.driver_name && (
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      {(ev.payload as any).driver_name}
+                    </div>
+                  )}
+                  {(ev.payload as any)?.bestellnummer && (
+                    <div className="text-[10px] font-mono text-muted-foreground">
+                      #{String((ev.payload as any).bestellnummer).replace('FF-', '')}
+                    </div>
+                  )}
+                </div>
+                <span className="text-[10px] tabular-nums text-muted-foreground shrink-0">{relTime(ev.occurred_at)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }
 
