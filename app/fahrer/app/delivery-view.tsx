@@ -63,6 +63,30 @@ export function DeliveryView({
     return () => clearInterval(t);
   }, []);
 
+  // Realtime: sync stop state from other devices / tabs
+  useEffect(() => {
+    const channel = supabase
+      .channel(`delivery-view-${batchId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'delivery_batch_stops',
+        filter: `batch_id=eq.${batchId}`,
+      }, (payload) => {
+        const row = payload.new as any;
+        setStops((xs) =>
+          xs.map((x) =>
+            x.id === row.id
+              ? { ...x, geliefert_am: row.geliefert_am ?? x.geliefert_am, angekommen_am: row.angekommen_am ?? x.angekommen_am }
+              : x
+          )
+        );
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchId]);
+
   // Sort: nicht-geliefert zuerst nach reihenfolge, dann geliefert
   const sorted = [...stops].sort((a, b) => {
     const aDone = a.geliefert_am ? 1 : 0;
@@ -95,6 +119,9 @@ export function DeliveryView({
 
     if (distM < 80) {
       setProximityTriggered((s) => new Set([...s, nextStop.id]));
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([200, 50, 200]);
+      }
       markArrived(nextStop.id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -245,11 +272,23 @@ export function DeliveryView({
                 minute: '2-digit',
               });
               return (
-                <div className={cn(
-                  'text-[10px] font-bold tabular-nums mt-0.5',
-                  secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-matcha-500',
-                )}>
-                  {doneCount === stops.length ? '✓ Tour abgeschlossen' : `Tour fertig ~${finishStr}`}
+                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span className={cn(
+                    'text-[10px] font-bold tabular-nums',
+                    secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-matcha-500',
+                  )}>
+                    {doneCount === stops.length ? '✓ Tour abgeschlossen' : `Tour fertig ~${finishStr}`}
+                  </span>
+                  {doneCount < stops.length && secLeft > -600 && (
+                    <span className={cn(
+                      'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums',
+                      secLeft <= 0 ? 'bg-amber-500/30 text-amber-200' :
+                      secLeft < 300 ? 'bg-orange-500/30 text-orange-200' :
+                      'bg-matcha-700 text-matcha-100',
+                    )}>
+                      {secLeft <= 0 ? 'Überfällig' : `noch ${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`}
+                    </span>
+                  )}
                 </div>
               );
             })()}
