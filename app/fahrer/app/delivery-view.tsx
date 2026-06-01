@@ -223,8 +223,18 @@ export function DeliveryView({
             <div className="font-display font-bold text-lg">
               {doneCount} / {stops.length} zugestellt
             </div>
-            <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
-              Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min
+            <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5 flex items-center gap-2">
+              <span>Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min</span>
+              {gpsSpeed != null && gpsSpeed > 0 && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                  gpsSpeed > 50 ? 'bg-red-500/30 text-red-300' :
+                  gpsSpeed > 30 ? 'bg-amber-500/30 text-amber-200' :
+                  'bg-accent/20 text-accent',
+                )}>
+                  {gpsSpeed} km/h
+                </span>
+              )}
             </div>
             {totalEtaMin != null && batchStartedAt && (() => {
               const etaMs = new Date(batchStartedAt).getTime() + totalEtaMin * 60_000;

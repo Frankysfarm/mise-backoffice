@@ -474,6 +474,8 @@ export function KitchenBoard({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {COLUMNS.map((col) => {
           const colOrders = filtered.filter((o) => o.status === col.status);
+          const criticalCount = colOrders.filter((o) => isCriticallyLate(o)).length;
+          const totalItems = colOrders.reduce((s, o) => s + (o.items?.length ?? 0), 0);
           return (
             <section key={col.status} className={cn('rounded-xl border', col.color)}>
               <header className="border-b border-black/5">
@@ -481,6 +483,16 @@ export function KitchenBoard({
                   <div className="flex items-center gap-2">
                     <col.icon className="h-4 w-4" />
                     <h2 className="font-display text-sm font-bold uppercase tracking-wider">{col.label}</h2>
+                    {totalItems > 0 && (
+                      <span className="text-[9px] font-bold text-muted-foreground opacity-60">
+                        {totalItems} Pos.
+                      </span>
+                    )}
+                    {criticalCount > 0 && (
+                      <span className="rounded-full bg-red-600 text-white px-1.5 py-0.5 text-[9px] font-black animate-pulse">
+                        {criticalCount} krit.
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {/* "Nächste fertig" — nur für in_zubereitung */}
@@ -1869,13 +1881,26 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
               style={{ width: `${progressPct}%` }}
             />
           </div>
-          <div className={cn(
-            'mt-0.5 text-[10px] font-bold tabular-nums',
-            remainingSec > 0 ? 'text-muted-foreground' : 'text-red-600',
-          )}>
-            {remainingSec > 0
-              ? `Noch ${fmtCountdown(remainingSec)}`
-              : `+${fmtCountdown(-remainingSec)} überzogen`}
+          <div className="mt-0.5 flex items-center justify-between gap-1">
+            <span className={cn(
+              'text-[10px] font-bold tabular-nums',
+              remainingSec > 0 ? 'text-muted-foreground' : 'text-red-600',
+            )}>
+              {remainingSec > 0
+                ? `Noch ${fmtCountdown(remainingSec)}`
+                : `+${fmtCountdown(-remainingSec)} überzogen`}
+            </span>
+            {order.bestellt_am && (
+              <span className={cn(
+                'text-[9px] tabular-nums font-semibold',
+                remainingSec > 0 ? 'text-muted-foreground/70' : 'text-red-500',
+              )}>
+                {(() => {
+                  const readyAt = new Date(new Date(order.bestellt_am).getTime() + est * 60_000);
+                  return `~${readyAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
+                })()}
+              </span>
+            )}
           </div>
         </div>
       )}
