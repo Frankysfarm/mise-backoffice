@@ -1939,9 +1939,32 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-matcha-100 text-[10px] font-bold text-matcha-800">
               {it.menge}
             </span>
-            <div className="flex-1">
-              <div className="font-medium leading-tight">{it.name}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 leading-tight">
+                <span className="font-medium">{it.name}</span>
+                {it.gang != null && it.gang > 0 && (
+                  <span className="shrink-0 rounded px-1 py-0.5 text-[9px] font-bold bg-blue-50 border border-blue-200 text-blue-700">
+                    {it.gang === 1 ? 'VS' : it.gang === 2 ? 'HG' : it.gang === 3 ? 'NA' : `G${it.gang}`}
+                  </span>
+                )}
+              </div>
               {it.notiz && <div className="mt-0.5 text-[11px] italic text-orange-700">„{it.notiz}"</div>}
+              {Array.isArray(it.extras) && (it.extras as unknown[]).length > 0 && (
+                <div className="mt-0.5 flex flex-wrap gap-1">
+                  {(it.extras as unknown[]).slice(0, 5).map((e, ei) => {
+                    const label = typeof e === 'string' ? e : typeof (e as any)?.name === 'string' ? (e as any).name : null;
+                    if (!label) return null;
+                    return (
+                      <span key={ei} className="rounded px-1 py-0.5 bg-orange-50 border border-orange-200 text-[9px] font-medium text-orange-800">
+                        +{label}
+                      </span>
+                    );
+                  })}
+                  {(it.extras as unknown[]).length > 5 && (
+                    <span className="text-[9px] text-muted-foreground">+{(it.extras as unknown[]).length - 5}</span>
+                  )}
+                </div>
+              )}
             </div>
           </li>
         ))}
