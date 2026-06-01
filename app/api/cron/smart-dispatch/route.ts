@@ -12,6 +12,7 @@ import { smartDispatchTick } from '@/lib/delivery/dispatch-engine';
 import { syncKitchenNotifications } from '@/lib/delivery/kitchen-sync';
 import { refreshEnRouteEtas } from '@/lib/delivery/eta';
 import { autoCloseMissedShifts } from '@/lib/delivery/shifts';
+import { snapshotAllLocations } from '@/lib/delivery/forecast';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -44,7 +45,12 @@ export async function GET(req: NextRequest) {
   try {
     // Parallel: Dispatch + Küchen-Sync + Stale-Driver-Cleanup + Live-ETA-Refresh + Shift-Cleanup
     const serviceSb = createServiceClient();
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult] = await Promise.all([
+
+    // Demand-Snapshot alle 30 Min (Minute :00 oder :30)
+    const nowMin = new Date().getUTCMinutes();
+    const isDemandTick = nowMin < 2 || (nowMin >= 30 && nowMin < 32);
+
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -55,6 +61,9 @@ export async function GET(req: NextRequest) {
         batches_processed: 0, orders_updated: 0, orders_skipped: 0, errors: 1,
       })),
       autoCloseMissedShifts().catch(() => ({ missed: 0 })),
+      isDemandTick
+        ? snapshotAllLocations().catch(() => ({ locations: 0, snapshots: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -76,6 +85,7 @@ export async function GET(req: NextRequest) {
         updated: etaResult.orders_updated,
       },
       shifts_closed: shiftResult.missed,
+      ...(demandResult ? { demand_snapshot: demandResult } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

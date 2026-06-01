@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–18 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #17 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–19 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #17 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -433,7 +433,35 @@ Siehe DELIVERY_CEO_LOG.md
   - Parallel zu bereits vorhandenem Rating-Recompute
 - Build: npm run build ✓ (169 Seiten, 0 Fehler) ✅
 
+## Phase 19: Demand Forecasting Engine [DONE ✅] — 2026-06-01
+- [x] **`scripts/migrations/019_demand_forecast.sql`** — Datenmodell + Views
+  - `delivery_demand_snapshots` Tabelle: stündlicher Bedarfs-Snapshot pro Location (orders_count, delivered_count, avg_delivery_min, peak_zone)
+  - UNIQUE-Index (location_id, snapshot_hour): idempotente UPSERTs, kein Datenmüll
+  - `v_hourly_demand_pattern` VIEW: Wochentag+Stunden-Muster aus letzten 8 Wochen (avg, stddev, peak, data_points)
+  - `v_forecast_coverage_recs` VIEW: Fahrer-Empfehlung aus Muster (ceil(avg/3), ceil(peak/3), min data_points≥2)
+- [x] **`lib/delivery/forecast.ts`** — TypeScript Forecasting Engine
+  - `snapshotDemand(locationId)` — Stunden-Snapshot für eine Location (idempotent via UPSERT)
+  - `snapshotAllLocations()` — Alle aktiven Locations in einem Aufruf (Cron-Helfer, fire-and-forget)
+  - `getForecast(locationId, hours)` — Vorhersage für nächste N Stunden: expectedOrders, confidenceOrders (±1σ), peakOrders, recommendedDrivers
+  - `updateCoverageFromForecast(locationId)` — Auto-Update `coverage_requirements` aus Forecast-Muster (≥4 data_points → verlässlich)
+  - Berlin-UTC-Offset korrekt berechnet (CET/CEST via lastSunday-Algorithmus)
+- [x] **`GET+POST /api/delivery/admin/forecast`** — Forecast-API
+  - `GET ?location_id=...&hours=6` — Stündliche Vorhersage + Summary (peak, total, max recommended drivers)
+  - `POST { action: 'snapshot' }` — Snapshot manuell triggern (Admin, Testing)
+  - `POST { action: 'update_coverage' }` — Coverage-Requirements sofort aus Forecast aktualisieren
+- [x] **Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`)
+  - `snapshotAllLocations()` alle 30 Min (Minute :00–:01 oder :30–:31)
+  - Response enthält `demand_snapshot: { locations, snapshots }` wenn aktiv
+  - Fehler-tolerant: catch + null → kein Cron-Block
+- Build: npm run build ✓ (170 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
+
 ## Letzte Änderungen
+- 2026-06-01: Backend-Architekt — Phase 19: Demand Forecasting Engine
+  - scripts/migrations/019_demand_forecast.sql: delivery_demand_snapshots + v_hourly_demand_pattern + v_forecast_coverage_recs
+  - lib/delivery/forecast.ts: snapshotDemand() + snapshotAllLocations() + getForecast() + updateCoverageFromForecast()
+  - GET+POST /api/delivery/admin/forecast: Vorhersage abrufen + Snapshot/Coverage-Update triggern
+  - Cron: snapshotAllLocations() alle 30 Min (minute :00/:30) → demand_snapshot in Response
+  - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 - 2026-06-01: CEO-Agent — Review #17: Payout-Frontend + 3 neue UI-Features geprüft
   - app/(admin)/drivers/payouts/page.tsx + client.tsx: Payout-Admin-UI (Übersicht/Records/Perioden)
   - sidebar.tsx: "Fahrer-Abrechnung" unter Fahrer-Gruppe ergänzt
