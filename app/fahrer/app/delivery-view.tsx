@@ -72,7 +72,7 @@ export function DeliveryView({
         schema: 'public',
         table: 'delivery_batch_stops',
         filter: `batch_id=eq.${batchId}`,
-      }, (payload) => {
+      }, (payload: { new: Record<string, unknown> }) => {
         const row = payload.new as any;
         setStops((xs) =>
           xs.map((x) =>
