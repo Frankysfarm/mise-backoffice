@@ -83,7 +83,7 @@ type Batch = {
     order_id: string;
     reihenfolge: number;
     geliefert_am: string | null;
-    order: { bestellnummer: string; kunde_name: string; kunde_adresse: string | null } | null;
+    order: { bestellnummer: string; kunde_name: string; kunde_adresse: string | null; eta_earliest: string | null; eta_latest: string | null } | null;
   }[];
 };
 
@@ -167,12 +167,12 @@ export function DispatchBoard({
         .order('last_update', { ascending: false }),
       supabase
         .from('delivery_batches')
-        .select('id, fahrer_id, status, startzeit, total_distance_km, total_eta_min, zone, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
+        .select('id, fahrer_id, status, startzeit, total_distance_km, total_eta_min, zone, fahrer:employees(vorname, nachname), stops:delivery_batch_stops(id, order_id, reihenfolge, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse, eta_earliest, eta_latest))')
         .in('status', ['pickup', 'unterwegs'])
         .order('created_at', { ascending: false }),
       supabase
         .from('mise_delivery_batches')
-        .select('id, state, driver_id, started_at, total_distance_km, total_eta_min, zone, driver:mise_drivers(id, name), stops:mise_delivery_batch_stops(id, order_id, sequence, completed_at, type, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
+        .select('id, state, driver_id, started_at, total_distance_km, total_eta_min, zone, driver:mise_drivers(id, name), stops:mise_delivery_batch_stops(id, order_id, sequence, completed_at, type, order:customer_orders(bestellnummer, kunde_name, kunde_adresse, eta_earliest, eta_latest))')
         .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
         .order('created_at', { ascending: false }),
     ]);
@@ -1304,13 +1304,26 @@ function BatchRow({ batch }: { batch: Batch }) {
             .map((s, idx, arr) => {
               const isDone = !!s.geliefert_am;
               const isNext = !isDone && arr.slice(0, idx).every((p) => !!p.geliefert_am);
-              // Estimate per-stop delivery time from start + proportional share of total ETA
-              const stopEtaStr = !isDone && batch.startzeit && batch.total_eta_min != null && total > 0
-                ? new Date(
+              // ETA: echte `eta_earliest` aus der Bestellung, Fallback: proportionale Schätzung
+              const stopEtaStr = (() => {
+                if (isDone) return null;
+                if (s.order?.eta_earliest) {
+                  const etaMs = new Date(s.order.eta_earliest).getTime();
+                  const isOverdue = etaMs < Date.now();
+                  const str = new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                  return isOverdue ? `!${str}` : str;
+                }
+                if (batch.startzeit && batch.total_eta_min != null && total > 0) {
+                  return new Date(
                     new Date(batch.startzeit).getTime() +
                     ((idx + 1) / total) * batch.total_eta_min * 60_000,
-                  ).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-                : null;
+                  ).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                }
+                return null;
+              })();
+              const isEtaOverdue = s.order?.eta_earliest
+                ? new Date(s.order.eta_earliest).getTime() < Date.now()
+                : false;
               return (
                 <div key={s.id} className="flex items-center gap-1 shrink-0">
                   <div className={cn(
@@ -1329,10 +1342,12 @@ function BatchRow({ batch }: { batch: Batch }) {
                     </div>
                     {stopEtaStr && (
                       <div className={cn(
-                        'text-[8px] tabular-nums text-center',
-                        isNext ? 'text-orange-600 font-bold' : 'text-muted-foreground/60',
+                        'text-[8px] tabular-nums text-center font-bold',
+                        isEtaOverdue ? 'text-red-600 animate-pulse' :
+                        isNext ? 'text-orange-600' :
+                        'text-muted-foreground/60',
                       )}>
-                        ~{stopEtaStr}
+                        {isEtaOverdue ? stopEtaStr : `~${stopEtaStr}`}
                       </div>
                     )}
                   </div>

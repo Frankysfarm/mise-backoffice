@@ -570,6 +570,46 @@ export function LieferdienstClient() {
 
               {/* Orders Grid - Right Side */}
               <div className="flex-1">
+              {/* Live-Lieferungs-Statusbar */}
+              {(() => {
+                const activeDrivers = drivers.filter(d => d.status !== 'offline')
+                const delOrders = orders.filter(o => (o as any).typ === 'lieferung' || (o as any).type === 'delivery')
+                const unterwegs = orders.filter(o => ['delivering', 'on_the_way', 'unterwegs'].includes((o as any).status ?? ''))
+                if (activeDrivers.length === 0 && unterwegs.length === 0) return null
+                return (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {activeDrivers.length > 0 && (
+                      <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700">
+                        <Truck className="w-3.5 h-3.5" />
+                        {activeDrivers.length} Fahrer aktiv
+                        {activeDrivers.filter(d => d.status === 'delivering').length > 0 && (
+                          <span className="ml-1 rounded-full bg-emerald-200 px-1.5 py-0.5 text-[10px] font-bold">
+                            {activeDrivers.filter(d => d.status === 'delivering').length} unterwegs
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {delOrders.length > 0 && (
+                      <div className="flex items-center gap-2 rounded-xl bg-blue-50 border border-blue-200 px-3 py-2 text-xs font-semibold text-blue-700">
+                        <Package className="w-3.5 h-3.5" />
+                        {delOrders.length} Lieferbestellung{delOrders.length !== 1 ? 'en' : ''}
+                      </div>
+                    )}
+                    {unterwegs.length > 0 && (
+                      <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-700 animate-pulse">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        {unterwegs.length} gerade unterwegs
+                      </div>
+                    )}
+                    <a
+                      href="/dispatch"
+                      className="flex items-center gap-1.5 rounded-xl bg-stone-100 border border-stone-200 px-3 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-200 transition"
+                    >
+                      Dispatch-Board →
+                    </a>
+                  </div>
+                )
+              })()}
               {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[60vh]">
                   <div className="w-20 h-20 rounded-2xl bg-stone-100 flex items-center justify-center mb-5 border border-stone-200">

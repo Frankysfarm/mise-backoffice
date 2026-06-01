@@ -1752,8 +1752,21 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
   const urgent   = acceptUrgent   || cookUrgent;
   const critical = acceptCritical || cookCritical;
 
-  const progressPct = Math.min(100, Math.round((waitMin / est) * 100));
-  const remainingSec = (est * 60) - waitSec;
+  // Smart-Timing-Progress: wenn `kitchen_timings.cook_start_at` + `ready_target` vorhanden →
+  // echten Kochfortschritt (0 % → 100 %) anzeigen statt schätzungsbasierter Wartezeit.
+  const cookTimingPct = (() => {
+    if (!timing || timing.status !== 'cooking' || !timing.cook_start_at || !timing.ready_target) return null;
+    const start = new Date(timing.cook_start_at).getTime();
+    const end   = new Date(timing.ready_target).getTime();
+    if (end <= start) return null;
+    return Math.min(100, Math.max(0, Math.round((Date.now() - start) / (end - start) * 100)));
+  })();
+
+  const progressPct = cookTimingPct ?? Math.min(100, Math.round((waitMin / est) * 100));
+  // Verbleibende Sekunden: aus `ready_target` wenn vorhanden, sonst geschätzt
+  const remainingSec = (timing?.status === 'cooking' && timing.ready_target)
+    ? Math.floor((new Date(timing.ready_target).getTime() - Date.now()) / 1000)
+    : (est * 60) - waitSec;
 
   // Smart-Timing-Chip: zeigt Kochstart oder Fertig-Ziel
   const timingChip = (() => {
@@ -1799,7 +1812,13 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
               <circle
                 cx="24" cy="24" r="19"
                 fill="none"
-                stroke={progressPct >= 100 ? '#ef4444' : progressPct >= 70 ? '#f97316' : '#22c55e'}
+                stroke={
+                  progressPct >= 100 ? '#ef4444' :
+                  progressPct >= 85  ? '#f97316' :
+                  progressPct >= 60  ? '#eab308' :
+                  cookTimingPct !== null ? '#3b82f6' :
+                  '#22c55e'
+                }
                 strokeWidth="3.5"
                 strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 19}`}
@@ -1809,9 +1828,15 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
             </svg>
             <span className={cn(
               'relative text-[9px] font-black tabular-nums leading-none text-center',
-              progressPct >= 100 ? 'text-red-600' : progressPct >= 70 ? 'text-orange-600' : 'text-matcha-700',
+              progressPct >= 100 ? 'text-red-600' :
+              progressPct >= 85  ? 'text-orange-600' :
+              progressPct >= 60  ? 'text-yellow-600' :
+              cookTimingPct !== null ? 'text-blue-600' :
+              'text-matcha-700',
             )}>
-              {waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
+              {cookTimingPct !== null && remainingSec > 0
+                ? fmtCountdown(remainingSec)
+                : waitMin < 60 ? `${waitMin}:${String(waitSec % 60).padStart(2, '0')}` : `${waitMin}′`}
             </span>
           </div>
         ) : (
@@ -1884,23 +1909,25 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
           <div className="mt-0.5 flex items-center justify-between gap-1">
             <span className={cn(
               'text-[10px] font-bold tabular-nums',
-              remainingSec > 0 ? 'text-muted-foreground' : 'text-red-600',
+              remainingSec > 0 ? (cookTimingPct !== null ? 'text-blue-700' : 'text-muted-foreground') : 'text-red-600',
             )}>
               {remainingSec > 0
                 ? `Noch ${fmtCountdown(remainingSec)}`
                 : `+${fmtCountdown(-remainingSec)} überzogen`}
             </span>
-            {order.bestellt_am && (
-              <span className={cn(
-                'text-[9px] tabular-nums font-semibold',
-                remainingSec > 0 ? 'text-muted-foreground/70' : 'text-red-500',
-              )}>
-                {(() => {
-                  const readyAt = new Date(new Date(order.bestellt_am).getTime() + est * 60_000);
-                  return `~${readyAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
-                })()}
-              </span>
-            )}
+            <span className={cn(
+              'text-[9px] tabular-nums font-semibold',
+              remainingSec > 0 ? 'text-muted-foreground/70' : 'text-red-500',
+            )}>
+              {(() => {
+                const readyAt = timing?.ready_target
+                  ? new Date(timing.ready_target)
+                  : order.bestellt_am
+                    ? new Date(new Date(order.bestellt_am).getTime() + est * 60_000)
+                    : null;
+                return readyAt ? `~${readyAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}` : '';
+              })()}
+            </span>
           </div>
         </div>
       )}

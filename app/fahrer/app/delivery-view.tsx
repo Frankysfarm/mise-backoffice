@@ -25,6 +25,8 @@ type Stop = {
     gesamtbetrag: number;
     zahlungsart?: string | null;
     bezahlt?: boolean | null;
+    eta_earliest?: string | null;
+    eta_latest?: string | null;
   };
 };
 
@@ -367,24 +369,66 @@ export function DeliveryView({
               );
             })()}
           </div>
-          {/* Direct navigation button for next stop */}
+          {/* Live-ETA vom Server (eta_earliest aus DB) */}
+          {nextStop.order.eta_earliest && (() => {
+            const etaMs  = new Date(nextStop.order.eta_earliest).getTime();
+            const etaStr = new Date(nextStop.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const latestStr = nextStop.order.eta_latest
+              ? new Date(nextStop.order.eta_latest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : null;
+            const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+            const overdue = secLeft < 0;
+            return (
+              <div className={cn(
+                'mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold',
+                overdue
+                  ? 'bg-red-500/30 text-red-200 animate-pulse'
+                  : secLeft < 300
+                    ? 'bg-amber-500/30 text-amber-200'
+                    : 'bg-matcha-700/60 text-matcha-100',
+              )}>
+                <span>{overdue ? '⚠ ETA überzogen' : '🕐 ETA'}</span>
+                <span className="tabular-nums font-mono">
+                  {latestStr ? `${etaStr}–${latestStr}` : etaStr} Uhr
+                </span>
+                {!overdue && secLeft < 600 && (
+                  <span className="tabular-nums">
+                    (noch {Math.floor(secLeft / 60)}:{String(secLeft % 60).padStart(2, '0')})
+                  </span>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Direct navigation buttons for next stop */}
           {nextStop.order.kunde_lat && nextStop.order.kunde_lng && (() => {
-            const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
             const lat = nextStop.order.kunde_lat!;
             const lng = nextStop.order.kunde_lng!;
-            const href = isIos
-              ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
-              : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
+            const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
             return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-accent text-matcha-900 font-bold text-sm transition active:scale-[0.98]"
-              >
-                <Navigation size={14} />
-                Navigieren zum nächsten Stopp
-              </a>
+              <div className="mt-3 flex gap-2">
+                <a
+                  href={isIos ? appleUrl : googleUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-accent text-matcha-900 font-bold text-sm transition active:scale-[0.98]"
+                >
+                  <Navigation size={14} />
+                  {isIos ? 'Apple Maps' : 'Google Maps'}
+                </a>
+                <a
+                  href={wazeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-[#33ccff]/20 border border-[#33ccff]/40 text-[#33ccff] font-bold text-sm transition active:scale-[0.98]"
+                  title="In Waze öffnen"
+                >
+                  Waze
+                </a>
+              </div>
             );
           })()}
         </div>
@@ -506,21 +550,27 @@ export function DeliveryView({
                     {stop.distanz_zum_vorgaenger_m && stop.distanz_zum_vorgaenger_m > 0 && (
                       <span>· {(stop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km</span>
                     )}
-                    {!done && batchStartedAt && totalEtaMin != null && (() => {
-                      const startMs = new Date(batchStartedAt).getTime();
-                      const total = stops.length;
-                      const etaMs = startMs + ((stop.reihenfolge / total) * totalEtaMin * 60_000);
+                    {!done && (() => {
+                      // Echte ETA aus DB bevorzugen
+                      const etaMs = stop.order.eta_earliest
+                        ? new Date(stop.order.eta_earliest).getTime()
+                        : batchStartedAt && totalEtaMin != null
+                          ? new Date(batchStartedAt).getTime() + ((stop.reihenfolge / stops.length) * totalEtaMin * 60_000)
+                          : null;
+                      if (!etaMs) return null;
                       const etaStr = new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                       const secLeft = Math.floor((etaMs - Date.now()) / 1000);
-                      if (secLeft < -300) return null;
+                      if (secLeft < -600) return null;
+                      const isReal = !!stop.order.eta_earliest;
                       return (
                         <span className={cn(
                           'rounded-full px-1.5 py-0.5 font-bold',
                           secLeft < 0 ? 'bg-red-500/30 text-red-300' :
                           secLeft < 300 ? 'bg-amber-500/30 text-amber-200' :
+                          isReal ? 'bg-blue-500/20 text-blue-200' :
                           'bg-white/10',
                         )}>
-                          ~{etaStr}
+                          {isReal ? '' : '~'}{etaStr}
                         </span>
                       );
                     })()}
