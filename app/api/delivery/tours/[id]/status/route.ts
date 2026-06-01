@@ -1,11 +1,12 @@
 /**
  * PATCH /api/delivery/tours/[id]/status
  * Setzt den Status einer Tour (z.B. assigned → at_restaurant → on_route → delivered).
- * Bei Übergang → 'delivered': Driver-Rating wird neu berechnet (fire-and-forget).
+ * Bei Übergang → 'delivered': Driver-Rating + Payout-Records werden neu berechnet (fire-and-forget).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { recomputeDriverRating } from '@/lib/delivery/rating';
+import { calculateDeliveryPayout } from '@/lib/delivery/payout';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -32,16 +33,38 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Nach Tour-Abschluss: Driver-Rating neu berechnen (fire-and-forget)
+  // Nach Tour-Abschluss: Driver-Rating + Payout-Records berechnen (fire-and-forget)
   if (body.state === 'delivered') {
     const { data: batch } = await sb
       .from('mise_delivery_batches')
-      .select('driver_id')
+      .select('id, driver_id, location_id')
       .eq('id', params.id)
       .maybeSingle();
 
     if (batch?.driver_id) {
+      // Rating neu berechnen
       recomputeDriverRating(batch.driver_id as string).catch(() => {});
+
+      // Payout-Records für alle Dropoff-Stops dieser Tour erstellen
+      if (batch.location_id) {
+        const { data: stops } = await sb
+          .from('mise_delivery_batch_stops')
+          .select('id, order_id, lat, lng, completed_at')
+          .eq('batch_id', params.id)
+          .eq('type', 'dropoff')
+          .not('completed_at', 'is', null);
+
+        for (const stop of stops ?? []) {
+          calculateDeliveryPayout({
+            driverId: batch.driver_id as string,
+            locationId: batch.location_id as string,
+            orderId: (stop.order_id as string | null) ?? null,
+            batchId: batch.id as string,
+            batchStopId: stop.id as string,
+            completedAt: (stop.completed_at as string | null) ?? undefined,
+          }).catch(() => {});
+        }
+      }
     }
   }
 

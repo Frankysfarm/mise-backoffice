@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–17 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #16 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–18 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #16 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -396,7 +396,51 @@ Siehe DELIVERY_CEO_LOG.md
   - `ok: false` wenn Coverage-Lücken bestehen → `status: 'degraded'`
 - Build: npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 18: Driver Payout Engine + Financial Reports [DONE ✅] — 2026-06-01
+- [x] **`scripts/migrations/018_payout_engine.sql`** — Datenmodell + DB-Logik
+  - `driver_payout_configs` Tabelle: Location-spezifische Vergütungs-Konfiguration (Basis, km-Rate, Spitzenzeiten, Rating-Bonus, Meilenstein-Boni)
+  - `driver_payout_records` Tabelle: Einzelabrechnungen pro Lieferung (base + km + peak + rating + milestone Boni)
+  - `driver_payout_periods` Tabelle: Tages-/Wochen-Perioden-Zusammenfassung (draft → approved → paid Workflow)
+  - `generate_driver_period_payout(driver_id, location_id, start, end, type)` PL/pgSQL-Funktion: aggregiert Records zu Period, verknüpft Records mit Period-ID
+  - `v_pending_payouts` VIEW: Alle offenen (draft/approved) Perioden mit Fahrername
+  - `v_daily_payout_summary` VIEW: Tages-Aggregation pro Location (Fahrer, Lieferungen, Gesamt-Payout, Spitzenzeit-Anteil)
+  - 4 Performance-Indizes (Fahrer/Location/Zeitraum, Unpaid-Partial-Index)
+- [x] **`lib/delivery/payout.ts`** — TypeScript Payout Engine (400+ Zeilen)
+  - `getPayoutConfig()`: Lädt Konfiguration oder erstellt Default (inkl. 6 Default-Spitzenzeiten-Fenster)
+  - `upsertPayoutConfig()`: Konfiguration speichern (UPSERT via location_id)
+  - `calculateDeliveryPayout()`: Einzellieferung berechnen + DB-Record schreiben (fire-and-forget kompatibel)
+    - Automatische km-Berechnung via Haversine (Restaurant → Kunde) wenn nicht übergeben
+    - Fahrer-Rating aus DB geladen wenn nicht übergeben
+    - Tages-Lieferungen gezählt für Meilenstein-Prüfung
+    - Peak-Zeit-Erkennung via Wochentag + Zeitfenster-Vergleich
+    - Breakdown-String für Admin-Anzeige (z.B. "Basis: €3.00 | km-Bonus: €0.85 (3.4km × €0.25) | Spitzenzeit: +€0.60")
+  - `generatePeriodPayout()` / `generateAllPeriodsForDate()`: Periodenabschluss (täglich/wöchentlich)
+  - `getDriverPayouts()` / `getPeriodPayouts()`: Abrechnungen auflisten (filterbar nach Fahrer, Status, Datum)
+  - `approvePeriod()` / `markPeriodPaid()`: Approval-Workflow (draft → approved → paid)
+  - `getPayoutSummary()`: Heutiger Überblick (aktive Fahrer, Lieferungen, Gesamt-Payout, Top-5-Fahrer)
+- [x] **`GET+POST /api/delivery/admin/payout-config`** — Vergütungskonfiguration
+  - GET: Aktuelle Konfiguration laden (auto-erstellt Default wenn keine vorhanden)
+  - POST: Konfiguration speichern (Basis, km-Rate, Peak-Fenster, Meilensteine, ...)
+- [x] **`GET+POST /api/delivery/admin/payouts`** — Abrechnungs-Management
+  - GET `?view=summary`: Tages-Überblick (Fahrer, Lieferungen, Gesamt-Payout, Top-Fahrer)
+  - GET `?view=records`: Einzelabrechnungen (filterbar: driver_id, since, paid_out)
+  - GET `?view=periods`: Periodenübersicht (filterbar: driver_id, status)
+  - POST `{action: "generate_daily", location_id, date}`: Tages-Perioden für alle Fahrer generieren
+  - POST `{action: "approve_period", period_id}`: Periode freigeben
+  - POST `{action: "mark_paid", period_id}`: Periode als bezahlt markieren
+- [x] **`tours/[id]/status` PATCH** — Payout-Berechnung nach Tour-Abschluss
+  - Bei Übergang → 'delivered': Payout-Records für alle abgeschlossenen Dropoff-Stops erstellt (fire-and-forget)
+  - Parallel zu bereits vorhandenem Rating-Recompute
+- Build: npm run build ✓ (169 Seiten, 0 Fehler) ✅
+
 ## Letzte Änderungen
+- 2026-06-01: Backend-Architekt — Phase 18: Driver Payout Engine + Financial Reports
+  - scripts/migrations/018_payout_engine.sql: 3 Tabellen + PL/pgSQL-Funktion + 2 Views + 4 Indizes
+  - lib/delivery/payout.ts: 8 Funktionen (getPayoutConfig, upsertPayoutConfig, calculateDeliveryPayout, generatePeriodPayout, generateAllPeriodsForDate, getDriverPayouts, getPeriodPayouts, getPayoutSummary)
+  - GET+POST /api/delivery/admin/payout-config: Vergütungskonfiguration
+  - GET+POST /api/delivery/admin/payouts: Abrechnungs-Management (summary/records/periods + generate/approve/mark_paid)
+  - tours/[id]/status PATCH: Payout-Records bei Tour-Abschluss (fire-and-forget)
+  - Build: npm run build ✓ (169 Seiten, 0 Fehler)
 - 2026-05-31: Backend-Architekt — Phase 17: Schicht-Management + Einsatzplanung
   - scripts/migrations/017_shift_management.sql: driver_shifts + coverage_requirements + v_shift_coverage + auto_close_missed_shifts()
   - lib/delivery/shifts.ts: 10 Funktionen (getActive/Upcoming/ByDate, start/end/cancel, coverage gaps/reqs, cron)
