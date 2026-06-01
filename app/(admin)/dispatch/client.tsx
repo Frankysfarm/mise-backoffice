@@ -302,6 +302,9 @@ export function DispatchBoard({
       {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
       <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
 
+      {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
+      <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
+
       {/* Zone Bundling Opportunities */}
       <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} onSelectZone={(zone) => {
         const ids = readyOrders.filter((o) => o.delivery_zone === zone).map((o) => o.id);
@@ -1615,4 +1618,101 @@ function scoreMeta(score: number): { cls: string } {
   if (score >= 60) return { cls: 'bg-blue-100 text-blue-800' };
   if (score >= 40) return { cls: 'bg-orange-100 text-orange-800' };
   return { cls: 'bg-red-100 text-red-800' };
+}
+
+/* ------------------------------ LongWaitOrdersPanel ------------------------------ */
+
+function LongWaitOrdersPanel({
+  orders,
+  onSelect,
+  selected,
+}: {
+  orders: ReadyOrder[];
+  onSelect: (id: string) => void;
+  selected: Set<string>;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const THRESHOLD_MIN = 8;
+
+  const longWait = orders
+    .filter((o) => o.fertig_am && Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) >= THRESHOLD_MIN)
+    .sort((a, b) => {
+      const aWait = a.fertig_am ? now - new Date(a.fertig_am).getTime() : 0;
+      const bWait = b.fertig_am ? now - new Date(b.fertig_am).getTime() : 0;
+      return bWait - aWait;
+    });
+
+  if (longWait.length === 0) return null;
+
+  const totalValue = longWait.reduce((s, o) => s + o.gesamtbetrag, 0);
+
+  return (
+    <div className="rounded-xl border-2 border-red-400 bg-red-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Clock className="h-4 w-4 text-red-600 animate-pulse" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-red-800">
+          Wartet zu lang · {longWait.length}× &gt;{THRESHOLD_MIN} Min · {euro(totalValue)}
+        </span>
+        <span className="ml-auto text-[10px] font-bold text-red-600">
+          Sofort dispatchen!
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {longWait.map((o) => {
+          const waitMin = o.fertig_am
+            ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000)
+            : 0;
+          const waitSec = o.fertig_am
+            ? Math.floor((now - new Date(o.fertig_am).getTime()) / 1000)
+            : 0;
+          const isSel = selected.has(o.id);
+          const isCritical = waitMin >= 15;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => onSelect(o.id)}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-xs text-left transition active:scale-[0.97]',
+                isSel
+                  ? 'border-matcha-600 bg-matcha-100'
+                  : isCritical
+                  ? 'border-red-500 bg-white animate-pulse'
+                  : 'border-red-300 bg-white hover:border-red-500',
+              )}
+            >
+              {isSel && <Check className="h-3 w-3 text-matcha-700 shrink-0" />}
+              <span className="font-mono font-bold text-foreground">
+                #{o.bestellnummer.replace('FF-', '')}
+              </span>
+              {o.delivery_zone && (
+                <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black', zoneMeta(o.delivery_zone).cls)}>
+                  {o.delivery_zone}
+                </span>
+              )}
+              <span className="font-medium text-foreground truncate max-w-[80px]">{o.kunde_name}</span>
+              <span className={cn(
+                'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums shrink-0',
+                isCritical ? 'bg-red-600 text-white' : 'bg-red-200 text-red-800',
+              )}>
+                {Math.floor(waitSec / 60)}:{String(waitSec % 60).padStart(2, '0')}
+              </span>
+              <span className="text-muted-foreground font-medium shrink-0">{euro(o.gesamtbetrag)}</span>
+            </button>
+          );
+        })}
+      </div>
+      {longWait.length > 0 && (
+        <div className="mt-2 text-[10px] text-red-700 font-medium">
+          Klicke eine Bestellung um sie auszuwählen → dann Fahrer rechts zuweisen.
+        </div>
+      )}
+    </div>
+  );
 }

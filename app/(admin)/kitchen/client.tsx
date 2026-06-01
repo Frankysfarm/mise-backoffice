@@ -390,6 +390,9 @@ export function KitchenBoard({
       {/* Gang-Übersicht: Items nach Gängen für kochende Bestellungen */}
       <GangTimerPanel orders={filtered} />
 
+      {/* Küchen-Checkliste: konsolidierte Items aller aktiven Bestellungen */}
+      <PrepItemsPanel orders={filtered} />
+
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
 
@@ -2136,6 +2139,134 @@ function StaleOrdersWidget({ locationId }: { locationId: string | null }) {
         {data.count > 5 && (
           <div className="flex items-center text-[11px] text-amber-700 font-semibold px-2">
             +{data.count - 5} weitere
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ PrepItemsPanel ------------------------------ */
+
+function PrepItemsPanel({ orders }: { orders: Order[] }) {
+  const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (cooking.length === 0) return null;
+
+  type ItemEntry = {
+    name: string;
+    totalMenge: number;
+    orders: { bestellnummer: string; waitMin: number; urgent: boolean }[];
+    maxWaitMin: number;
+  };
+
+  const now = Date.now();
+  const byItem = new Map<string, ItemEntry>();
+
+  for (const o of cooking) {
+    const waitMin = o.bestellt_am
+      ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000)
+      : 0;
+    const est = o.geschaetzte_zubereitung_min ?? 15;
+    const urgent = waitMin >= est;
+
+    for (const it of o.items ?? []) {
+      const key = it.name;
+      if (!byItem.has(key)) {
+        byItem.set(key, { name: it.name, totalMenge: 0, orders: [], maxWaitMin: 0 });
+      }
+      const entry = byItem.get(key)!;
+      entry.totalMenge += it.menge;
+      entry.maxWaitMin = Math.max(entry.maxWaitMin, waitMin);
+      entry.orders.push({
+        bestellnummer: o.bestellnummer,
+        waitMin,
+        urgent,
+      });
+    }
+  }
+
+  const items = Array.from(byItem.values()).sort((a, b) => b.maxWaitMin - a.maxWaitMin);
+  if (items.length === 0) return null;
+
+  // Nur anzeigen wenn ≥3 verschiedene Items oder >1 Bestellung
+  if (items.length < 3 && cooking.length < 2) return null;
+
+  const urgentItems = items.filter((i) => i.orders.some((o) => o.urgent));
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      urgentItems.length > 0 ? 'border-red-200 bg-red-50' : 'border-border bg-card',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <ChefHat className={cn('h-4 w-4', urgentItems.length > 0 ? 'text-red-600' : 'text-matcha-600')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          urgentItems.length > 0 ? 'text-red-800' : 'text-foreground',
+        )}>
+          Küchen-Checkliste · {cooking.length} Bestellungen · {items.reduce((s, i) => s + i.totalMenge, 0)} Positionen
+        </span>
+      </div>
+      <div className="grid gap-1">
+        {items.slice(0, 12).map((item) => {
+          const isUrgent = item.orders.some((o) => o.urgent);
+          const urgentCount = item.orders.filter((o) => o.urgent).length;
+          const maxWait = item.maxWaitMin;
+          const bg = isUrgent
+            ? 'bg-red-100 border-red-300'
+            : maxWait >= 10 ? 'bg-orange-50 border-orange-200'
+            : 'bg-white border-border';
+          return (
+            <div key={item.name} className={cn('flex items-center gap-3 rounded-lg border px-3 py-2', bg)}>
+              <span className={cn(
+                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display font-black text-sm',
+                isUrgent ? 'bg-red-600 text-white' :
+                maxWait >= 10 ? 'bg-orange-500 text-white' :
+                'bg-matcha-700 text-white',
+              )}>
+                {item.totalMenge}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className={cn('font-medium text-sm truncate', isUrgent && 'font-bold text-red-900')}>
+                  {item.name}
+                </div>
+                <div className="flex items-center gap-1 flex-wrap mt-0.5">
+                  {item.orders.slice(0, 4).map((o, i) => (
+                    <span
+                      key={i}
+                      className={cn(
+                        'rounded px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                        o.urgent ? 'bg-red-200 text-red-800' : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      #{o.bestellnummer.replace('FF-', '')}
+                      {o.urgent && ` +${o.waitMin - (orders.find((x) => x.bestellnummer === o.bestellnummer)?.geschaetzte_zubereitung_min ?? 15)}m`}
+                    </span>
+                  ))}
+                  {item.orders.length > 4 && (
+                    <span className="text-[9px] text-muted-foreground">+{item.orders.length - 4}</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {urgentCount > 0 && (
+                  <span className="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[9px] font-black">
+                    {urgentCount} überfällig
+                  </span>
+                )}
+                <span className={cn(
+                  'text-[10px] font-bold tabular-nums',
+                  isUrgent ? 'text-red-700' : 'text-muted-foreground',
+                )}>
+                  max {maxWait}m
+                </span>
+              </div>
+            </div>
+          );
+        })}
+        {items.length > 12 && (
+          <div className="text-xs text-muted-foreground text-center py-1">
+            + {items.length - 12} weitere Positionen
           </div>
         )}
       </div>

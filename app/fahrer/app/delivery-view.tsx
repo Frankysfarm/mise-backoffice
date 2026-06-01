@@ -51,6 +51,7 @@ export function DeliveryView({
   const [stops, setStops] = useState(initialStops);
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
+  const [proximityTriggered, setProximityTriggered] = useState<Set<string>>(new Set());
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
   const driverMarkerRef = useRef<any>(null);
@@ -74,6 +75,30 @@ export function DeliveryView({
   const doneCount = sorted.length - openStops.length;
   const nextStop = openStops[0];
   const allDone = openStops.length === 0;
+
+  // GPS-Proximity: Auto-Arrived wenn Fahrer < 80m vom nächsten Stopp
+  useEffect(() => {
+    if (driverLat == null || driverLng == null || !nextStop) return;
+    const destLat = nextStop.order.kunde_lat;
+    const destLng = nextStop.order.kunde_lng;
+    if (!destLat || !destLng) return;
+    if (proximityTriggered.has(nextStop.id)) return;
+    if (arrivedIds.has(nextStop.id) || nextStop.angekommen_am) return;
+
+    const R = 6371000;
+    const dLat = ((destLat - driverLat) * Math.PI) / 180;
+    const dLon = ((destLng - driverLng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((driverLat * Math.PI) / 180) * Math.cos((destLat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+    const distM = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    if (distM < 80) {
+      setProximityTriggered((s) => new Set([...s, nextStop.id]));
+      markArrived(nextStop.id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverLat, driverLng, nextStop?.id]);
 
   // Leaflet-Map dynamisch laden
   useEffect(() => {
