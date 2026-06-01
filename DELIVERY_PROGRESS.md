@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–19 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #18 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–20 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #18 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -455,7 +455,48 @@ Siehe DELIVERY_CEO_LOG.md
   - Fehler-tolerant: catch + null → kein Cron-Block
 - Build: npm run build ✓ (170 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
+## Phase 20: Operational Alerts Engine [DONE ✅] — 2026-06-01
+- [x] **`scripts/migrations/020_operational_alerts.sql`** — Datenmodell + Views
+  - `delivery_alert_rules` Tabelle: konfigurierbare Schwellenwerte pro Location + Alert-Typ (UNIQUE constraint)
+  - `delivery_alerts` Tabelle: Alert-Verlauf mit resolved_at + resolved_by (auto oder User-ID)
+  - `v_active_alerts` VIEW: Aktive Alarme sortiert nach Severity + Alter
+  - `v_alert_summary` VIEW: Zusammenfassung pro Location (total, critical, warning, latest_alert_at)
+  - 4 Performance-Indizes: partial auf (resolved_at IS NULL) für schnelle aktive-Alarm-Abfragen
+- [x] **`lib/delivery/alerts.ts`** — TypeScript Alerts Engine (260+ Zeilen)
+  - 5 Alert-Typen: `dispatch_queue_high` | `no_drivers_online` | `kitchen_overload` | `stale_orders_critical` | `eta_accuracy_low`
+  - `getAlertRules(locationId)`: Regeln laden + Default-Seed beim ersten Aufruf (5 Defaults)
+  - `upsertAlertRule()`: Regel überschreiben (UPSERT via location_id+alert_type)
+  - `getActiveAlerts()` / `getAlertHistory()`: Alarm-Listen
+  - `resolveAlert(alertId, resolvedBy)`: manuelles Auflösen
+  - `fireAlert()`: Dedup-Guard — nur ein aktiver Alarm pro Typ gleichzeitig
+  - `autoResolve()`: Auto-Auflösung sobald Bedingung nicht mehr zutrifft
+  - `evaluateAlerts(locationId)`: prüft alle aktiven Regeln, gibt { created, resolved } zurück
+  - `evaluateAlertsAllLocations()`: Cron-Helfer für alle aktiven Locations
+- [x] **`GET+POST /api/delivery/admin/alerts`** — Alert-Management
+  - `GET ?view=active`: aktive Alarme + count nach Severity
+  - `GET ?view=history&limit=N`: letzten N Alarme
+  - `POST { action: 'evaluate' }`: Regeln manuell triggern (Tests)
+  - `POST { action: 'resolve_all' }`: alle aktiven Alarme auflösen
+- [x] **`PATCH+DELETE /api/delivery/admin/alerts/[id]`** — Einzel-Alarm
+  - `PATCH { action: 'resolve' }`: Alarm manuell auflösen (resolved_by = user_id)
+  - `DELETE`: Alarm löschen (Bereinigung)
+- [x] **`GET+POST /api/delivery/admin/alert-rules`** — Regel-Management
+  - `GET ?location_id=...`: Regeln laden (mit Default-Seed)
+  - `POST { alert_type, threshold_value, window_minutes, severity, enabled }`: Regel setzen/anpassen
+- [x] **Cron-Erweiterung** (`app/api/cron/smart-dispatch/route.ts`)
+  - `evaluateAlertsAllLocations()` parallel zu Dispatch + ETA-Refresh + Shifts
+  - Response enthält `alerts: { created, resolved }` für Monitoring
+- Build: npm run build ✓ (170 Seiten, 0 Fehler)
+
 ## Letzte Änderungen
+- 2026-06-01: Backend-Architekt — Phase 20: Operational Alerts Engine
+  - scripts/migrations/020_operational_alerts.sql: delivery_alert_rules + delivery_alerts + v_active_alerts + v_alert_summary
+  - lib/delivery/alerts.ts: 5 Alert-Typen, Default-Seed, Dedup-Guard, Auto-Resolve, evaluateAlertsAllLocations()
+  - GET+POST /api/delivery/admin/alerts: aktive Alarme + Verlauf + evaluate + resolve_all
+  - PATCH+DELETE /api/delivery/admin/alerts/[id]: Einzel-Alarm auflösen / löschen
+  - GET+POST /api/delivery/admin/alert-rules: Schwellenwerte konfigurieren
+  - Cron: evaluateAlertsAllLocations() parallel → alerts: { created, resolved } in Response
+  - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 - 2026-06-01: Backend-Architekt — Phase 19: Demand Forecasting Engine
   - scripts/migrations/019_demand_forecast.sql: delivery_demand_snapshots + v_hourly_demand_pattern + v_forecast_coverage_recs
   - lib/delivery/forecast.ts: snapshotDemand() + snapshotAllLocations() + getForecast() + updateCoverageFromForecast()
