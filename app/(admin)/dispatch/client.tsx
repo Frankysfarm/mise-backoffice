@@ -108,6 +108,23 @@ export function DispatchBoard({
   const [orderSort, setOrderSort] = useState<'wait' | 'zone' | 'score'>('wait');
   const [pending, startTransition] = useTransition();
   const [dispatchPending, setDispatchPending] = useState(false);
+  const [etaRefreshing, setEtaRefreshing] = useState(false);
+  const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
+
+  async function triggerEtaRefresh() {
+    setEtaRefreshing(true);
+    try {
+      const res = await fetch('/api/delivery/admin/eta-refresh', { method: 'POST' });
+      const data = await res.json().catch(() => null);
+      if (data?.ok) {
+        setEtaRefreshResult({ orders_updated: data.orders_updated ?? 0, duration_ms: data.duration_ms ?? 0 });
+        setTimeout(() => setEtaRefreshResult(null), 5000);
+      }
+      await refresh();
+    } finally {
+      setEtaRefreshing(false);
+    }
+  }
 
   async function smartDispatch() {
     setDispatchPending(true);
@@ -275,6 +292,24 @@ export function DispatchBoard({
           <Metric icon={<Truck className="h-4 w-4" />} label="Unterwegs" value={enRouteOrders.length} />
           <Metric icon={<Bike className="h-4 w-4" />} label="Online" value={onlineDrivers.length} />
           <Metric icon={<RouteIcon className="h-4 w-4" />} label="Touren" value={batches.length} />
+          <button
+            onClick={triggerEtaRefresh}
+            disabled={etaRefreshing || batches.length === 0}
+            title="Live-ETAs aller laufenden Touren neu berechnen"
+            className={cn(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
+              etaRefreshResult
+                ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
+                : batches.length > 0
+                  ? 'border-border bg-card text-muted-foreground hover:bg-muted'
+                  : 'border-border bg-muted text-muted-foreground cursor-default opacity-50',
+            )}
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5', etaRefreshing && 'animate-spin')} />
+            {etaRefreshResult
+              ? `✓ ${etaRefreshResult.orders_updated} ETAs aktualisiert`
+              : etaRefreshing ? 'ETAs…' : 'ETAs'}
+          </button>
           <button
             onClick={smartDispatch}
             disabled={dispatchPending || readyOrders.length === 0}
