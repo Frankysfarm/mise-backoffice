@@ -79,6 +79,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     id: string; driver_id: string; planned_start: string; planned_end: string;
     status: string; driver?: { name: string; vehicle: string } | null;
   }[]>([])
+  const [forecastSlots, setForecastSlots] = useState<{
+    hourLocal: string; expectedOrders: number; recommendedMinDrivers: number;
+  }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -136,6 +139,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/shifts?location_id=${locationId}&hours=8`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.shifts?.length) setUpcomingShifts(d.shifts) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/forecast?location_id=${locationId}&hours=6`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.slots?.length) setForecastSlots(d.slots) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1064,6 +1071,53 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* 15-Minuten Tagesgang */}
       <ShiftHeatmap15Min orders={orders} completedOrders={completedOrders} />
+
+      {/* Bedarfsvorhersage: nächste 6 Stunden */}
+      {forecastSlots.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-amber-500" />
+            <h3 className="text-lg font-semibold text-char">Bedarfsvorhersage (nächste 6h)</h3>
+            <span className="ml-auto text-xs text-stone-400">KI-basiert · letzte 8 Wochen</span>
+          </div>
+          <div className="space-y-2">
+            {forecastSlots.map((slot) => {
+              const maxExp = Math.max(...forecastSlots.map(s => s.expectedOrders), 1)
+              const pct = Math.round((slot.expectedOrders / maxExp) * 100)
+              const barColor = slot.expectedOrders >= 10 ? 'bg-red-400' : slot.expectedOrders >= 6 ? 'bg-amber-400' : 'bg-emerald-400'
+              const now = new Date()
+              const [hStr] = slot.hourLocal.split(':')
+              const slotH = parseInt(hStr, 10)
+              const isCurrentHour = now.getHours() === slotH
+              return (
+                <div key={slot.hourLocal} className={`flex items-center gap-3 rounded-xl px-3 py-2 transition ${isCurrentHour ? 'bg-amber-50 border border-amber-200' : 'bg-stone-50'}`}>
+                  <span className={`w-14 shrink-0 text-sm font-bold tabular-nums ${isCurrentHour ? 'text-amber-700' : 'text-steel'}`}>
+                    {slot.hourLocal} Uhr
+                  </span>
+                  <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="w-8 text-right text-sm font-black tabular-nums text-char shrink-0">
+                    {slot.expectedOrders}
+                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {Array.from({ length: slot.recommendedMinDrivers }).map((_, i) => (
+                      <Truck key={i} className="w-3 h-3 text-blue-500" />
+                    ))}
+                    {slot.recommendedMinDrivers === 0 && <span className="text-xs text-stone-300">—</span>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-xs text-stone-400">
+            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400" /> &lt;6 Bestellungen</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-amber-400" /> 6–9</span>
+            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-red-400" /> ≥10</span>
+            <span className="flex items-center gap-1 ml-auto"><Truck className="w-3 h-3 text-blue-500" /> = empf. Fahrer</span>
+          </div>
+        </div>
+      )}
 
       {/* Live-Umsatz Schicht */}
       <ShiftRevenuePanel orders={orders} completedOrders={completedOrders} deliveryStats={deliveryStats} />
