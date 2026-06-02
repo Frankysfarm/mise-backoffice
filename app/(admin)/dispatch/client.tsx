@@ -423,6 +423,17 @@ export function DispatchBoard({
 
         {/* Right Column: Drivers */}
         <div className="space-y-4">
+          {/* Smart Assign — beste Fahrer-Bestellungs-Kombination */}
+          <SmartAssignCard
+            orders={readyOrders}
+            drivers={onlineDrivers}
+            batches={batches}
+            onSelectOrders={(ids, driverId) => {
+              setSelected(new Set(ids));
+              assignToDriver(driverId);
+            }}
+          />
+
           <Card className="overflow-hidden">
             <div className="flex items-center justify-between border-b px-5 py-3">
               <div className="flex items-center gap-2">
@@ -1217,6 +1228,135 @@ function DriverRow({
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ SmartAssignCard ------------------------------ */
+
+function SmartAssignCard({
+  orders,
+  drivers,
+  batches,
+  onSelectOrders,
+}: {
+  orders: ReadyOrder[];
+  drivers: Driver[];
+  batches: Batch[];
+  onSelectOrders: (orderIds: string[], driverId: string) => void;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const busyIds = new Set(batches.map((b) => b.fahrer_id).filter(Boolean));
+  const freeDrivers = drivers.filter((d) => d.ist_online && !busyIds.has(d.employee_id));
+  const readyDelivery = orders.filter((o) => o.status === 'fertig' && o.delivery_zone);
+
+  if (freeDrivers.length === 0 || readyDelivery.length === 0) return null;
+
+  // Group orders by zone
+  const byZone = readyDelivery.reduce<Record<string, ReadyOrder[]>>((acc, o) => {
+    const z = o.delivery_zone!;
+    if (!acc[z]) acc[z] = [];
+    acc[z].push(o);
+    return acc;
+  }, {});
+
+  // For each zone, compute centroid
+  const zones = Object.entries(byZone).map(([zone, zOrders]) => {
+    const lats = zOrders.map((o) => o.kunde_lat).filter((x): x is number => x != null);
+    const lngs = zOrders.map((o) => o.kunde_lng).filter((x): x is number => x != null);
+    const lat = lats.length > 0 ? lats.reduce((a, b) => a + b, 0) / lats.length : 0;
+    const lng = lngs.length > 0 ? lngs.reduce((a, b) => a + b, 0) / lngs.length : 0;
+    const maxWaitMin = zOrders.reduce((m, o) => {
+      const w = o.fertig_am ? Math.floor((Date.now() - new Date(o.fertig_am).getTime()) / 60_000) : 0;
+      return Math.max(m, w);
+    }, 0);
+    return { zone, orders: zOrders, lat, lng, maxWaitMin };
+  });
+
+  // Score each driver-zone pair: lower km + more orders + urgency
+  type Rec = { driver: Driver; zone: string; orders: ReadyOrder[]; distKm: number; score: number; maxWaitMin: number };
+  const recommendations: Rec[] = [];
+  for (const freeDriver of freeDrivers) {
+    for (const z of zones) {
+      if (!freeDriver.last_lat || !freeDriver.last_lng || !z.lat || !z.lng) continue;
+      const distKm = haversineKm(
+        { lat: freeDriver.last_lat, lng: freeDriver.last_lng },
+        { lat: z.lat, lng: z.lng },
+      );
+      // Score: more orders → better, less dist → better, more wait → urgent
+      const score = z.orders.length * 20 - distKm * 5 + z.maxWaitMin * 3;
+      const ordersToAssign = z.orders.slice(0, 3); // max 3 per tour
+      recommendations.push({ driver: freeDriver, zone: z.zone, orders: ordersToAssign, distKm, score, maxWaitMin: z.maxWaitMin });
+    }
+  }
+  recommendations.sort((a, b) => b.score - a.score);
+
+  const top = recommendations.slice(0, 2);
+  if (top.length === 0) return null;
+
+  return (
+    <Card className="overflow-hidden border-matcha-300 bg-matcha-50">
+      <div className="flex items-center gap-2 border-b border-matcha-200 px-4 py-3">
+        <Zap className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Empfohlene Zuweisung
+        </span>
+        <span className="ml-auto text-[10px] text-matcha-500">AI-Score</span>
+      </div>
+      <div className="space-y-2 p-3">
+        {top.map((rec, i) => {
+          const driverName = rec.driver.employee
+            ? `${rec.driver.employee.vorname} ${rec.driver.employee.nachname?.charAt(0) ?? ''}.`
+            : `Fahrer ${i + 1}`;
+          const zm = zoneMeta(rec.zone);
+          const urgency = rec.maxWaitMin >= 10 ? 'animate-pulse border-red-400 bg-red-50' : 'border-matcha-200 bg-white';
+          return (
+            <div key={`${rec.driver.employee_id}-${rec.zone}`} className={`rounded-xl border-2 p-3 ${urgency}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={cn('rounded px-2 py-0.5 text-[11px] font-black', zm.cls)}>
+                  Zone {rec.zone}
+                </span>
+                <span className="text-xs font-bold text-foreground">{driverName}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
+                  {rec.distKm.toFixed(1)} km
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1 mb-2">
+                {rec.orders.map((o) => (
+                  <span key={o.id} className="inline-flex items-center gap-1 rounded-md border bg-white px-2 py-0.5 text-[10px] font-semibold">
+                    <span className="font-mono">#{o.bestellnummer.replace('FF-', '')}</span>
+                    <span className="text-muted-foreground">{o.kunde_name.split(' ')[0]}</span>
+                  </span>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                {rec.maxWaitMin > 0 && (
+                  <span className={cn(
+                    'text-[9px] font-bold rounded-full px-2 py-0.5',
+                    rec.maxWaitMin >= 10 ? 'bg-red-500 text-white' :
+                    rec.maxWaitMin >= 5  ? 'bg-amber-400 text-matcha-900' :
+                    'bg-muted text-muted-foreground',
+                  )}>
+                    max {rec.maxWaitMin}m Warte
+                  </span>
+                )}
+                <button
+                  className="ml-auto flex items-center gap-1.5 rounded-lg bg-matcha-700 px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-matcha-800 active:scale-95"
+                  onClick={() => onSelectOrders(rec.orders.map((o) => o.id), rec.driver.employee_id)}
+                >
+                  <Check className="h-3 w-3" />
+                  Zuweisen
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 
