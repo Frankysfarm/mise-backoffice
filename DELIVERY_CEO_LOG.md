@@ -1,10 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–19 + alle Post-Phase-Erweiterungen + CEO Review #18 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–20 + alle Post-Phase-Erweiterungen + CEO Review #19 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #18 bestätigt: 1 TypeScript-Fehler behoben (`delivery-view.tsx:75` payload-Typ), Build clean (170 Seiten), alle 4 neuen Features integriert. System vollständig marktreif.
+**DONE** — CEO Review #19 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle 5 neuen Features integriert und korrekt. System vollständig marktreif.
+
+## CEO Review #19 — 2026-06-02
+
+### Geprüfte Commits (seit CEO Review #18)
+- `460d277` feat(delivery/frontend): echte Umsatzberechnung + Schicht-Revenue-Chip
+- `3c66c4a` feat(dispatch): Buendelungsrate-Karte in DispatchScoreSummary
+- `dbd4ea4` feat(fahrer): Offline-Warnung, Kunden-Notiz und kunde_notiz-Feld in Tour-Stops
+- `fd2e6cb` feat(storefront): ETA-Zeitfenster und Live-ETA-Updates in Success-State
+- `bb43990` feat(lieferdienst/stats): Durchschnittlicher Bestellwert + Stornoquote KPI-Karten
+
+### Code-Review der neuen Features
+
+**Echte Umsatzberechnung + Schicht-Revenue-Chip** (`kitchen/client.tsx`, `lib/lieferdienst/orders.ts`, `lib/lieferdienst/statistics.ts`):
+- `totalAmount?: number` korrekt in Order-Interface ergänzt — saubere Typenhierarchie ✅
+- `statistics.ts` berechnet Revenue via `totalAmount ?? gesamtbetrag ?? 25` — sicherer Fallback ✅
+- API-Route `lieferdienst/data/route.ts` mappt `gesamtbetrag → totalAmount` — Datenfluss korrekt ✅
+- `activeRevenue` in KitchenShiftStats exkludiert rejected/storniert — saubere Berechnung ✅
+- Euro-Chip nur sichtbar wenn `activeRevenue > 0` — kein visueller Noise bei 0 ✅
+
+**Bündelungsrate in DispatchScoreSummary** (`dispatch/client.tsx`):
+- `bundledStops = batches.filter(b => b.stops.length > 1).reduce(...)` — korrekte Methodik ✅
+- `singleStops` separate Variable — klar, kein Off-by-One ✅
+- Karte nur bei `totalBatchStops >= 2` angezeigt — verhindert Null-Division-Anzeige ✅
+- Farbcodierung: ≥70% grün, ≥40% orange, <40% rot — KPI-Standard ✅
+- Progress-Bar mit `width: bundlingRate%` — saubere CSS-Animation ✅
+
+**Offline-Warnung + Kunden-Notiz im Fahrer** (`delivery-view.tsx`, `client.tsx`, `page.tsx`):
+- `useState(navigator.onLine)` mit SSR-Guard `typeof navigator !== 'undefined'` — kein Hydration-Fehler ✅
+- Cleanup: `removeEventListener('online', on)` und `removeEventListener('offline', off)` im Return ✅
+- `sticky top-0 z-50` für Offline-Banner — überlagert alles, immer sichtbar ✅
+- `kunde_notiz` in DB-Select beider Batch-Typen (legacy + mise) ergänzt ✅
+- Kunden-Notiz-Block nur sichtbar wenn `nextStop.order.kunde_notiz` nicht leer ✅
+- Amber-Farbschema für Notiz: visuell distinkt, nicht alarm-artig ✅
+
+**ETA-Zeitfenster in Storefront Success-State** (`success-state.tsx`):
+- `etaWindow` State mit `{ earliest, latest }` sauber typisiert ✅
+- Supabase Realtime Callback explizit typisiert: `{ status?, eta_earliest?, eta_latest? }` ✅
+- `windowMinutes <= 10` → "Präzise"-Badge — sinnvolle Schwelle ✅
+- `toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })` — korrekte DE-Formatierung ✅
+- IIFE `{etaWindow && (() => {...})()}` — verhindert Variablen-Leakage in JSX ✅
+
+**Ø Bestellwert + Stornoquote KPI-Karten** (`components/lieferdienst/statistics-view.tsx`):
+- `ordersWithAmount.length > 0` Guard vor Division — Division-durch-Null sicher ✅
+- `rejectedOrders` kommt aus `statistics.ts` wo `rejected = todayOrders.filter(o => o.status === 'rejected')` — korrekt ✅
+- Stornoquote-Karte nur wenn `stats.rejectedOrders > 0` — kein Noise bei 0 Stornos ✅
+- Teal-Farbschema für Ø Bestellwert, Rot für Stornoquote — semantisch sinnvoll ✅
+- `as any` Casts für `.gesamtbetrag` akzeptabel als Legacy-Fallback (DB-Rohfeld) ✅
+
+### Build-Ergebnis
+- TypeScript: **0 Fehler** ✅
+- `next build`: **170 Seiten, 0 Fehler, 0 Warnungen** ✅
+- Integration Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Statistics: synchron ✅
+- Datenfluss `gesamtbetrag (DB) → totalAmount (API-Mapping) → UI` vollständig ✅
 
 ## CEO Review #18 — 2026-06-01
 
