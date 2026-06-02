@@ -84,6 +84,7 @@ type ActiveBatch = {
       kunde_lat: number | null;
       kunde_lng: number | null;
       gesamtbetrag: number;
+      kunde_notiz?: string | null;
     };
   }[];
 };

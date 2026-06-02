@@ -27,6 +27,7 @@ type Stop = {
     bezahlt?: boolean | null;
     eta_earliest?: string | null;
     eta_latest?: string | null;
+    kunde_notiz?: string | null;
   };
 };
 
@@ -60,9 +61,17 @@ export function DeliveryView({
   const leafletMapRef = useRef<any>(null);
   const mountedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
   }, []);
 
   // Realtime: sync stop state from other devices / tabs
@@ -244,6 +253,13 @@ export function DeliveryView({
 
   return (
     <div className="flex-1 flex flex-col bg-matcha-900">
+      {/* Offline-Warnung */}
+      {!isOnline && (
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-red-600 px-4 py-2 text-sm font-bold text-white">
+          <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+          Kein Internet — Änderungen werden verzögert synchronisiert
+        </div>
+      )}
       {/* Header */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
@@ -338,6 +354,12 @@ export function DeliveryView({
             {nextStop.order.kunde_adresse}
             {nextStop.order.kunde_plz && `, ${nextStop.order.kunde_plz}`}
           </div>
+          {nextStop.order.kunde_notiz && (
+            <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-amber-500/15 border border-amber-400/30 px-2 py-1.5">
+              <span className="text-amber-300 text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Notiz:</span>
+              <span className="text-amber-200 text-[11px] leading-snug">{nextStop.order.kunde_notiz}</span>
+            </div>
+          )}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="flex items-center gap-1 text-matcha-300">
               <span className="h-5 w-5 rounded-full bg-accent text-matcha-900 flex items-center justify-center font-black text-[10px]">

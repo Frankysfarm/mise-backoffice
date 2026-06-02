@@ -34,14 +34,14 @@ export default async function FahrerAppPage() {
     svc.from('v_open_dispatch_batches').select('*').eq('tenant_id', driver.tenant_id),
     // Legacy-Batch (delivery_batches)
     svc.from('delivery_batches')
-      .select('*, stops:delivery_batch_stops(*, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,eta_earliest,eta_latest))')
+      .select('*, stops:delivery_batch_stops(*, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,eta_earliest,eta_latest,kunde_notiz))')
       .eq('fahrer_id', driver.id)
       .in('status', ['zugewiesen', 'pickup', 'unterwegs'])
       .maybeSingle(),
     // Mise-Batch (mise_delivery_batches) — nur wenn Mise-Driver-Account vorhanden
     miseDriver
       ? svc.from('mise_delivery_batches')
-          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,eta_earliest,eta_latest))')
+          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,eta_earliest,eta_latest,kunde_notiz))')
           .eq('driver_id', miseDriver.id)
           .in('state', ['assigned', 'at_restaurant', 'on_route'])
           .maybeSingle()
