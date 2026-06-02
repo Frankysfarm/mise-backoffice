@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
-  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Flame, Home as HomeIcon,
+  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Euro, Flame, Home as HomeIcon,
   Inbox, Loader2, MapPin, Package, ShoppingBag, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -749,6 +749,9 @@ function KitchenShiftStats({ orders, completedToday, hourlyData }: { orders: Ord
   const cookingNow = orders.filter((o) => o.status === 'in_zubereitung').length;
   const waitingForDriver = orders.filter((o) => o.status === 'fertig' && o.typ === 'lieferung').length;
   const criticalLate = orders.filter((o) => isCriticallyLate(o)).length;
+  const activeRevenue = orders
+    .filter((o) => !['rejected', 'storniert'].includes(o.status))
+    .reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
 
   if (completedToday === null && ordersLastHour === 0 && waitingForDriver === 0) return null;
 
@@ -758,6 +761,12 @@ function KitchenShiftStats({ orders, completedToday, hourlyData }: { orders: Ord
         <div className="flex items-center gap-1.5 rounded-full border border-matcha-200 bg-matcha-50 px-3 py-1 text-xs font-bold text-matcha-700">
           <Check className="h-3 w-3" />
           {completedToday} heute fertig
+        </div>
+      )}
+      {activeRevenue > 0 && (
+        <div className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
+          <Euro className="h-3 w-3" />
+          {euro(activeRevenue)} aktiv
         </div>
       )}
       {ordersLastHour > 0 && (

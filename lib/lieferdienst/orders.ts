@@ -34,6 +34,7 @@ export interface Order {
   unavailableItems?: string[]
   waitingForCustomerSince?: Date
   processedBy?: string // Mitarbeiter ID
+  totalAmount?: number // Gesamtbetrag in EUR (aus DB gesamtbetrag)
 }
 
 export const rejectionReasons = [

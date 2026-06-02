@@ -50,8 +50,13 @@ export function calculateDailyStats(orders: Order[]): DailyStats {
   // Peak hour
   const peakHour = ordersByHour.indexOf(Math.max(...ordersByHour))
   
-  // Estimated revenue (mock: avg 25 EUR per order)
-  const revenue = completed.length * 25
+  // Real revenue from order totals; fall back to 25 EUR estimate if not available
+  const revenue = completed.reduce((sum, o) => {
+    const amt = (o as Order & { totalAmount?: number; gesamtbetrag?: number }).totalAmount
+      ?? (o as Order & { totalAmount?: number; gesamtbetrag?: number }).gesamtbetrag
+      ?? 25
+    return sum + amt
+  }, 0)
   
   return {
     date: today,
