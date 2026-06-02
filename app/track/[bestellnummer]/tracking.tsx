@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 const LiveMap = dynamic(() => import('./live-map').then((m) => m.LiveMap), { ssr: false });
@@ -227,6 +227,22 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             {heroTitle(order)}
           </h1>
           <p className="mt-1 text-sm text-matcha-100">{heroSub(order)}</p>
+
+          {/* Zubereitung-Fortschrittsring */}
+          {order.status === 'in_zubereitung' && order.bestellt_am && order.geschaetzte_zubereitung_min && (
+            <div className="mt-4 flex items-center gap-4">
+              <CookingProgressRing
+                startIso={order.bestellt_am}
+                targetMin={order.geschaetzte_zubereitung_min}
+              />
+              <div>
+                <div className="text-sm font-bold text-matcha-100">Kochzeit</div>
+                <div className="text-[11px] text-matcha-300 mt-0.5">
+                  Fertig in ~{Math.max(0, order.geschaetzte_zubereitung_min - Math.floor((Date.now() - new Date(order.bestellt_am).getTime()) / 60_000))} Min
+                </div>
+              </div>
+            </div>
+          )}
 
           {order.status !== 'geliefert' && order.status !== 'abgeholt' && order.status !== 'storniert' && (
             <div className="mt-4 space-y-3">
@@ -551,6 +567,54 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
         </div>
       )}
     </div>
+  );
+}
+
+/* Kochfortschritt-Ring — animierter SVG-Ring für in_zubereitung Status */
+function CookingProgressRing({
+  startIso,
+  targetMin,
+}: {
+  startIso: string;
+  targetMin: number;
+}) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const startMs = new Date(startIso).getTime();
+  const targetMs = startMs + targetMin * 60_000;
+  const now = Date.now();
+  const pct = Math.min(1, Math.max(0, (now - startMs) / (targetMs - startMs)));
+  const r = 22;
+  const circ = 2 * Math.PI * r;
+  const overdue = now > targetMs;
+
+  return (
+    <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0">
+      <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4" />
+      <circle
+        cx="28" cy="28" r={r}
+        fill="none"
+        stroke={overdue ? '#f87171' : 'var(--accent, #4ae68a)'}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={circ * (1 - pct)}
+        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 5s linear' }}
+      />
+      <text
+        x="28" y="32"
+        textAnchor="middle"
+        fontSize="11"
+        fontWeight="bold"
+        fill={overdue ? '#fca5a5' : '#d1fae5'}
+      >
+        {Math.round(pct * 100)}%
+      </text>
+    </svg>
   );
 }
 
