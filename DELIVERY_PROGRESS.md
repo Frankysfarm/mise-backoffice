@@ -1,11 +1,43 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–21 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–22 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 22: Customer Satisfaction Tracking + Post-Delivery Rating [DONE ✅] — 2026-06-02
+- [x] `scripts/migrations/022_customer_satisfaction.sql`
+  - `customer_delivery_ratings` Tabelle: 1-5 Sterne + Kommentar pro Bestellung (UNIQUE per order_id)
+  - `rating_token` + `rating_sent_at` Spalten auf `customer_orders` (einmaliger Hash-Token für Rating-Link)
+  - `v_driver_satisfaction` VIEW: avg_rating, total/positive/negative/5-star/1-star pro Fahrer
+  - `v_location_satisfaction` VIEW: Tages-Aggregation pro Location (avg, positive, negative, with_comment)
+  - `recompute_driver_rating_with_satisfaction()` PL/pgSQL: kombiniert ETA-Performance (60%) + Kunden-Rating (40%) → mise_drivers.rating
+  - `trg_cdr_recompute` Trigger: auto-recompute nach jeder neuen Kunden-Bewertung
+- [x] `lib/delivery/satisfaction.ts` — Satisfaction Engine (6 Funktionen)
+  - `generateRatingToken(orderId)`: einmaliger SHA256-Hash-Token, idempotent (existierender Token wird zurückgegeben)
+  - `generateMissingRatingTokens(locationId)`: Cron-Helfer, generiert Tokens für alle gelieferten Orders ohne Token (bis 100)
+  - `submitCustomerRating({ token, rating, comment })`: Token-Lookup → Rating INSERT, UNIQUE-Guard, Fahrer-ID-Auflösung via Batch
+  - `getSatisfactionSummary(locationId, days)`: KPIs + Tages-Trend + Fahrer-Aufschlüsselung + Kommentare
+  - `getOrderForToken(token)`: gibt Mindest-Bestellinfo für Rating-Seite zurück (kein PII-Leak)
+  - `markRatingTokensSent(orderIds)`: setzt rating_sent_at für Bulk-Tracking
+- [x] `app/api/delivery/admin/satisfaction/route.ts` — Admin API
+  - `GET ?location_id=...&days=14` — Zufriedenheits-Zusammenfassung (KPIs, Fahrer, Trend, Kommentare)
+  - `POST { action: 'generate_tokens', location_id }` — Rating-Tokens manuell generieren
+  - Graceful-Fallback wenn Migration 022 noch nicht ausgeführt
+- [x] `app/api/delivery/orders/[orderId]/rate/route.ts` — Kunden-Rating API
+  - `POST { token, rating, comment? }` — öffentlich, token-geschützt; gibt `alreadyRated: true` bei Duplikat
+  - `GET` — Rating-Token generieren/abrufen (Admin-intern)
+- [x] `app/rate/[token]/page.tsx` + `client.tsx` — Öffentliche Rating-Seite
+  - Server-Component: Token-Lookup + alreadyRated-Check
+  - Client: 5-Stern-UI mit Hover-Animation, Farbkodierung (rot→grün), optionaler Kommentar, Submission-State
+  - Ungültiger Token: Fehler-Screen; bereits bewertet: Danke-Screen
+- [x] Integration in bestehende Pipeline:
+  - `tours/[id]/status PATCH`: Bei 'delivered' → `generateRatingToken()` für jeden Dropoff-Stop (fire-and-forget)
+  - `cron/smart-dispatch`: `generateMissingRatingTokens()` alle 10 Min für alle aktiven Locations
+  - Cron-Response: `rating_tokens_generated` Zähler wenn Rating-Tick aktiv
+- Build: npm run build ✓ (172 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Phase 21: Autonomous Recovery Engine [DONE ✅] — 2026-06-02
 - [x] `scripts/migrations/021_recovery_tracking.sql`
@@ -517,6 +549,14 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-02: Backend-Architekt — Phase 22: Customer Satisfaction Tracking + Post-Delivery Rating
+  - scripts/migrations/022_customer_satisfaction.sql: customer_delivery_ratings + v_driver_satisfaction + v_location_satisfaction + recompute_driver_rating_with_satisfaction() + Trigger
+  - lib/delivery/satisfaction.ts: 6 Funktionen (generateRatingToken, generateMissingRatingTokens, submitCustomerRating, getSatisfactionSummary, getOrderForToken, markRatingTokensSent)
+  - GET+POST /api/delivery/admin/satisfaction: Zufriedenheits-Zusammenfassung + Token-Generierung
+  - POST /api/delivery/orders/[orderId]/rate: Kunden-Bewertung einreichen (öffentlich, token-geschützt)
+  - app/rate/[token]: Öffentliche Rating-Seite mit 5-Stern-UI + Kommentar
+  - Integration: tours/status → Rating-Token nach Lieferung; Cron → generateMissingRatingTokens alle 10 Min
+  - Build: npm run build ✓ (172 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-06-01: Backend-Architekt — Phase 20: Operational Alerts Engine
   - scripts/migrations/020_operational_alerts.sql: delivery_alert_rules + delivery_alerts + v_active_alerts + v_alert_summary
   - lib/delivery/alerts.ts: 5 Alert-Typen, Default-Seed, Dedup-Guard, Auto-Resolve, evaluateAlertsAllLocations()

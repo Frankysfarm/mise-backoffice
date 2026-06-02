@@ -16,6 +16,7 @@ import { snapshotAllLocations } from '@/lib/delivery/forecast';
 import { evaluateAlertsAllLocations } from '@/lib/delivery/alerts';
 import { scanStaleBatches } from '@/lib/delivery/recovery';
 import { createServiceClient } from '@/lib/supabase/server';
+import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,10 @@ export async function GET(req: NextRequest) {
     const nowMin = new Date().getUTCMinutes();
     const isDemandTick = nowMin < 2 || (nowMin >= 30 && nowMin < 32);
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult] = await Promise.all([
+    // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
+    const isRatingTick = nowMin % 10 < 2;
+
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -68,6 +72,17 @@ export async function GET(req: NextRequest) {
         : Promise.resolve(null),
       evaluateAlertsAllLocations().catch(() => ({ locations: 0, created: 0, resolved: 0 })),
       scanStaleBatches(60).catch(() => ({ scanned: 0, recovered: [] as string[] })),
+      // Rating-Tokens für kürzlich gelieferte Orders generieren
+      isRatingTick ? (async () => {
+        try {
+          const { data: locs } = await serviceSb.from('locations').select('id').eq('active', true).limit(20);
+          let total = 0;
+          for (const loc of locs ?? []) {
+            total += await generateMissingRatingTokens(loc.id as string);
+          }
+          return total;
+        } catch { return 0; }
+      })() : Promise.resolve(0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -98,6 +113,7 @@ export async function GET(req: NextRequest) {
         batches_scanned: recoveryResult.scanned,
         batches_recovered: recoveryResult.recovered.length,
       },
+      ...(isRatingTick ? { rating_tokens_generated: ratingTokensGenerated } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

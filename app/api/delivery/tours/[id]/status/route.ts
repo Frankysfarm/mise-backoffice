@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { recomputeDriverRating } from '@/lib/delivery/rating';
 import { calculateDeliveryPayout } from '@/lib/delivery/payout';
 import { recoverCancelledBatch } from '@/lib/delivery/recovery';
+import { generateRatingToken } from '@/lib/delivery/satisfaction';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,7 @@ export async function PATCH(
       // Rating neu berechnen
       recomputeDriverRating(batch.driver_id as string).catch(() => {});
 
-      // Payout-Records für alle Dropoff-Stops dieser Tour erstellen
+      // Payout-Records + Rating-Tokens für alle Dropoff-Stops dieser Tour
       if (batch.location_id) {
         const { data: stops } = await sb
           .from('mise_delivery_batch_stops')
@@ -57,6 +58,7 @@ export async function PATCH(
           .not('completed_at', 'is', null);
 
         for (const stop of stops ?? []) {
+          // Payout berechnen
           calculateDeliveryPayout({
             driverId: batch.driver_id as string,
             locationId: batch.location_id as string,
@@ -65,6 +67,11 @@ export async function PATCH(
             batchStopId: stop.id as string,
             completedAt: (stop.completed_at as string | null) ?? undefined,
           }).catch(() => {});
+
+          // Kunden-Rating-Token generieren (fire-and-forget)
+          if (stop.order_id) {
+            generateRatingToken(stop.order_id as string).catch(() => {});
+          }
         }
       }
     }
