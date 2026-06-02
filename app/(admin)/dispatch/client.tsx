@@ -28,6 +28,8 @@ import {
   Wifi,
   WifiOff,
   Zap,
+  AlertTriangle,
+  Gift,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -344,6 +346,9 @@ export function DispatchBoard({
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
       <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
+
+      {/* Verspätungs-Monitor: verspätete Lieferungen + Kompensations-Gutscheine */}
+      <DelayMonitorPanel locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? locations[0]?.id)} />
 
       {/* Zone Bundling Opportunities */}
       <ZoneBundlingAlert orders={readyOrders} onlineDrivers={onlineDrivers} onSelectZone={(zone) => {
@@ -2340,6 +2345,159 @@ function LongWaitOrdersPanel({
       {longWait.length > 0 && (
         <div className="mt-2 text-[10px] text-red-700 font-medium">
           Klicke eine Bestellung um sie auszuwählen → dann Fahrer rechts zuweisen.
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ DelayMonitorPanel ------------------------------ */
+
+type DelayOrder = {
+  orderId: string;
+  bestellnummer: string;
+  kundeName: string;
+  delayMinutes: number;
+  firstNoticeSent: boolean;
+  criticalNoticeSent: boolean;
+  voucherCreated: boolean;
+};
+
+type DelayMonitorData = {
+  summary: {
+    total_delayed: number;
+    pending_first_notice: number;
+    pending_critical: number;
+    pending_voucher: number;
+    max_delay_minutes: number;
+  };
+  delayed_orders: DelayOrder[];
+} | null;
+
+function DelayMonitorPanel({ locationId }: { locationId?: string }) {
+  const [data, setData] = useState<DelayMonitorData>(null);
+  const [scanning, setScanning] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!locationId) return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/admin/delay-monitor?location_id=${locationId}&limit=20`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.summary) setData(d);
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  const triggerScan = async () => {
+    if (!locationId || scanning) return;
+    setScanning(true);
+    try {
+      await fetch('/api/delivery/admin/delay-monitor', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId }),
+      });
+      const res = await fetch(`/api/delivery/admin/delay-monitor?location_id=${locationId}&limit=20`);
+      if (res.ok) { const d = await res.json(); if (d?.summary) setData(d); }
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  if (!data || data.summary.total_delayed === 0) return null;
+
+  const { summary, delayed_orders } = data;
+  const hasCritical = summary.pending_critical > 0 || summary.max_delay_minutes >= 30;
+
+  return (
+    <div className={cn(
+      'rounded-xl border-2 p-4 transition-all',
+      hasCritical ? 'border-red-300 bg-red-50' : 'border-amber-200 bg-amber-50',
+    )}>
+      <div className="flex items-center gap-2">
+        <AlertTriangle className={cn('h-4 w-4 shrink-0', hasCritical ? 'text-red-600' : 'text-amber-600')} />
+        <span className={cn('font-display text-sm font-bold uppercase tracking-wider', hasCritical ? 'text-red-800' : 'text-amber-800')}>
+          Verspätungs-Monitor · {summary.total_delayed} betroffen
+        </span>
+        <div className="ml-auto flex items-center gap-2">
+          {summary.pending_voucher > 0 && (
+            <div className="flex items-center gap-1 rounded-full bg-purple-100 border border-purple-200 px-2 py-0.5 text-[10px] font-bold text-purple-700">
+              <Gift className="h-3 w-3" /> {summary.pending_voucher} Gutschein{summary.pending_voucher !== 1 ? 'e' : ''}
+            </div>
+          )}
+          {summary.max_delay_minutes > 0 && (
+            <div className={cn(
+              'rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums',
+              summary.max_delay_minutes >= 30 ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800',
+            )}>
+              max +{summary.max_delay_minutes}m
+            </div>
+          )}
+          <button
+            onClick={triggerScan}
+            disabled={scanning}
+            className="rounded-lg border border-current bg-white/60 px-2 py-1 text-[10px] font-bold transition hover:bg-white disabled:opacity-50"
+          >
+            {scanning ? 'Scanne…' : 'Jetzt scannen'}
+          </button>
+          <button
+            onClick={() => setExpanded((e) => !e)}
+            className="rounded-lg border border-current bg-white/60 px-2 py-1 text-[10px] font-bold transition hover:bg-white"
+          >
+            {expanded ? '▲ Weniger' : '▼ Details'}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+        {summary.pending_first_notice > 0 && (
+          <div className="rounded-full bg-amber-200 text-amber-800 px-2 py-0.5 text-[9px] font-bold">
+            {summary.pending_first_notice}× 1. Benachrichtigung ausstehend
+          </div>
+        )}
+        {summary.pending_critical > 0 && (
+          <div className="rounded-full bg-red-200 text-red-800 px-2 py-0.5 text-[9px] font-bold animate-pulse">
+            {summary.pending_critical}× Kritisch (≥30 Min)
+          </div>
+        )}
+        {summary.pending_voucher > 0 && (
+          <div className="rounded-full bg-purple-200 text-purple-800 px-2 py-0.5 text-[9px] font-bold">
+            {summary.pending_voucher}× Kompensations-Gutschein
+          </div>
+        )}
+      </div>
+
+      {expanded && delayed_orders.length > 0 && (
+        <div className="mt-3 grid gap-1.5 max-h-52 overflow-y-auto">
+          {delayed_orders.slice(0, 15).map((o) => (
+            <div
+              key={o.orderId}
+              className={cn(
+                'flex items-center gap-3 rounded-lg border px-3 py-2 text-xs',
+                o.delayMinutes >= 30 ? 'bg-red-100 border-red-200' : 'bg-amber-100 border-amber-200',
+              )}
+            >
+              <span className={cn(
+                'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums shrink-0',
+                o.delayMinutes >= 30 ? 'bg-red-600 text-white' : 'bg-amber-500 text-white',
+              )}>
+                +{o.delayMinutes}m
+              </span>
+              <span className="font-mono font-bold">#{o.bestellnummer.replace(/^[A-Z]+-/, '')}</span>
+              <span className="flex-1 truncate font-medium">{o.kundeName}</span>
+              <div className="flex items-center gap-1 shrink-0">
+                {o.voucherCreated && <Gift className="h-3 w-3 text-purple-600" title="Gutschein erstellt" />}
+                {o.criticalNoticeSent && <span className="text-[8px] bg-red-200 text-red-700 rounded px-1">Krit.</span>}
+                {o.firstNoticeSent && !o.criticalNoticeSent && <span className="text-[8px] bg-amber-200 text-amber-700 rounded px-1">Benach.</span>}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
