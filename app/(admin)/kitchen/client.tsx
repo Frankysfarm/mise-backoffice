@@ -2332,13 +2332,33 @@ function StaleOrdersWidget({ locationId }: { locationId: string | null }) {
 
 /* ------------------------------ PrepItemsPanel ------------------------------ */
 
+type PrepStation = 'Grill' | 'Warm' | 'Kalt' | 'Sonstiges';
+
+function classifyStation(name: string): PrepStation {
+  const n = name.toLowerCase();
+  if (/burger|steak|schnitzel|grill|bbq|wrap|panini|sandwich|kebab|döner/.test(n)) return 'Grill';
+  if (/suppe|pasta|nudel|curry|bowl|reis|wok|ramen|eintopf|couscous|ragout|frikadelle|braten/.test(n)) return 'Warm';
+  if (/salat|dessert|tiramisu|eis|pudding|getränk|drink|cola|wasser|juice|limo|bier|saft|smoothie|kaffee|tee/.test(n)) return 'Kalt';
+  return 'Sonstiges';
+}
+
+const STATION_META: Record<PrepStation, { label: string; color: string; bg: string; dot: string }> = {
+  Grill:     { label: 'Grill',     color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200',  dot: 'bg-orange-500' },
+  Warm:      { label: 'Warm',      color: 'text-red-700',    bg: 'bg-red-50 border-red-200',        dot: 'bg-red-500'    },
+  Kalt:      { label: 'Kalt',      color: 'text-sky-700',    bg: 'bg-sky-50 border-sky-200',        dot: 'bg-sky-400'    },
+  Sonstiges: { label: 'Sonstiges', color: 'text-matcha-700', bg: 'bg-muted border-border',          dot: 'bg-matcha-500' },
+};
+
 function PrepItemsPanel({ orders }: { orders: Order[] }) {
+  const [expandedStations, setExpandedStations] = useState<Set<PrepStation>>(new Set(['Grill', 'Warm', 'Kalt', 'Sonstiges']));
+
   const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
   if (cooking.length === 0) return null;
 
   type ItemEntry = {
     name: string;
     totalMenge: number;
+    station: PrepStation;
     orders: { bestellnummer: string; waitMin: number; urgent: boolean }[];
     maxWaitMin: number;
   };
@@ -2356,16 +2376,12 @@ function PrepItemsPanel({ orders }: { orders: Order[] }) {
     for (const it of o.items ?? []) {
       const key = it.name;
       if (!byItem.has(key)) {
-        byItem.set(key, { name: it.name, totalMenge: 0, orders: [], maxWaitMin: 0 });
+        byItem.set(key, { name: it.name, totalMenge: 0, station: classifyStation(it.name), orders: [], maxWaitMin: 0 });
       }
       const entry = byItem.get(key)!;
       entry.totalMenge += it.menge;
       entry.maxWaitMin = Math.max(entry.maxWaitMin, waitMin);
-      entry.orders.push({
-        bestellnummer: o.bestellnummer,
-        waitMin,
-        urgent,
-      });
+      entry.orders.push({ bestellnummer: o.bestellnummer, waitMin, urgent });
     }
   }
 
@@ -2377,12 +2393,27 @@ function PrepItemsPanel({ orders }: { orders: Order[] }) {
 
   const urgentItems = items.filter((i) => i.orders.some((o) => o.urgent));
 
+  // Group by station, only include stations that have items
+  const STATION_ORDER: PrepStation[] = ['Grill', 'Warm', 'Kalt', 'Sonstiges'];
+  const byStation = new Map<PrepStation, ItemEntry[]>();
+  for (const st of STATION_ORDER) byStation.set(st, []);
+  for (const item of items) byStation.get(item.station)!.push(item);
+  const activeStations = STATION_ORDER.filter((st) => (byStation.get(st)?.length ?? 0) > 0);
+
+  const toggleStation = (st: PrepStation) => {
+    setExpandedStations((prev) => {
+      const next = new Set(prev);
+      if (next.has(st)) next.delete(st); else next.add(st);
+      return next;
+    });
+  };
+
   return (
     <div className={cn(
       'rounded-xl border p-3',
       urgentItems.length > 0 ? 'border-red-200 bg-red-50' : 'border-border bg-card',
     )}>
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-3 flex items-center gap-2">
         <ChefHat className={cn('h-4 w-4', urgentItems.length > 0 ? 'text-red-600' : 'text-matcha-600')} />
         <span className={cn(
           'font-display text-xs font-bold uppercase tracking-wider',
@@ -2390,69 +2421,102 @@ function PrepItemsPanel({ orders }: { orders: Order[] }) {
         )}>
           Küchen-Checkliste · {cooking.length} Bestellungen · {items.reduce((s, i) => s + i.totalMenge, 0)} Positionen
         </span>
+        {/* Station badges summary */}
+        <div className="ml-auto flex items-center gap-1">
+          {activeStations.map((st) => {
+            const meta = STATION_META[st];
+            const stItems = byStation.get(st)!;
+            const hasUrgent = stItems.some((i) => i.orders.some((o) => o.urgent));
+            return (
+              <button
+                key={st}
+                onClick={() => toggleStation(st)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold border transition',
+                  meta.bg, meta.color,
+                  hasUrgent && 'ring-1 ring-red-400',
+                )}
+              >
+                <span className={cn('h-1.5 w-1.5 rounded-full', meta.dot)} />
+                {meta.label} {stItems.reduce((s, i) => s + i.totalMenge, 0)}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="grid gap-1">
-        {items.slice(0, 12).map((item) => {
-          const isUrgent = item.orders.some((o) => o.urgent);
-          const urgentCount = item.orders.filter((o) => o.urgent).length;
-          const maxWait = item.maxWaitMin;
-          const bg = isUrgent
-            ? 'bg-red-100 border-red-300'
-            : maxWait >= 10 ? 'bg-orange-50 border-orange-200'
-            : 'bg-white border-border';
+
+      <div className="space-y-2">
+        {activeStations.map((st) => {
+          const meta = STATION_META[st];
+          const stItems = byStation.get(st)!;
+          const isExpanded = expandedStations.has(st);
+          const stUrgent = stItems.filter((i) => i.orders.some((o) => o.urgent)).length;
           return (
-            <div key={item.name} className={cn('flex items-center gap-3 rounded-lg border px-3 py-2', bg)}>
-              <span className={cn(
-                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display font-black text-sm',
-                isUrgent ? 'bg-red-600 text-white' :
-                maxWait >= 10 ? 'bg-orange-500 text-white' :
-                'bg-matcha-700 text-white',
-              )}>
-                {item.totalMenge}
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className={cn('font-medium text-sm truncate', isUrgent && 'font-bold text-red-900')}>
-                  {item.name}
-                </div>
-                <div className="flex items-center gap-1 flex-wrap mt-0.5">
-                  {item.orders.slice(0, 4).map((o, i) => (
-                    <span
-                      key={i}
-                      className={cn(
-                        'rounded px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
-                        o.urgent ? 'bg-red-200 text-red-800' : 'bg-muted text-muted-foreground',
-                      )}
-                    >
-                      #{o.bestellnummer.replace('FF-', '')}
-                      {o.urgent && ` +${o.waitMin - (orders.find((x) => x.bestellnummer === o.bestellnummer)?.geschaetzte_zubereitung_min ?? 15)}m`}
-                    </span>
-                  ))}
-                  {item.orders.length > 4 && (
-                    <span className="text-[9px] text-muted-foreground">+{item.orders.length - 4}</span>
+            <div key={st} className={cn('rounded-lg border overflow-hidden', meta.bg)}>
+              <button
+                type="button"
+                onClick={() => toggleStation(st)}
+                className={cn('w-full flex items-center gap-2 px-3 py-1.5 text-left', meta.color)}
+              >
+                <span className={cn('h-2 w-2 rounded-full shrink-0', meta.dot)} />
+                <span className="text-[10px] font-black uppercase tracking-wider">{meta.label}</span>
+                <span className="text-[9px] opacity-70">{stItems.length} Artikel · {stItems.reduce((s, i) => s + i.totalMenge, 0)}× gesamt</span>
+                {stUrgent > 0 && (
+                  <span className="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[8px] font-black">{stUrgent} dringend</span>
+                )}
+                <span className="ml-auto text-[10px]">{isExpanded ? '▲' : '▼'}</span>
+              </button>
+              {isExpanded && (
+                <div className="grid gap-1 px-2 pb-2">
+                  {stItems.slice(0, 10).map((item) => {
+                    const isUrgent = item.orders.some((o) => o.urgent);
+                    const urgentCount = item.orders.filter((o) => o.urgent).length;
+                    const maxWait = item.maxWaitMin;
+                    const rowBg = isUrgent ? 'bg-red-100 border-red-300' : maxWait >= 10 ? 'bg-orange-50 border-orange-200' : 'bg-white border-border';
+                    return (
+                      <div key={item.name} className={cn('flex items-center gap-3 rounded-lg border px-3 py-2', rowBg)}>
+                        <span className={cn(
+                          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display font-black text-sm',
+                          isUrgent ? 'bg-red-600 text-white' : maxWait >= 10 ? 'bg-orange-500 text-white' : 'bg-matcha-700 text-white',
+                        )}>
+                          {item.totalMenge}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className={cn('font-medium text-sm truncate', isUrgent && 'font-bold text-red-900')}>
+                            {item.name}
+                          </div>
+                          <div className="flex items-center gap-1 flex-wrap mt-0.5">
+                            {item.orders.slice(0, 4).map((o, i) => (
+                              <span key={i} className={cn(
+                                'rounded px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                                o.urgent ? 'bg-red-200 text-red-800' : 'bg-muted text-muted-foreground',
+                              )}>
+                                #{o.bestellnummer.replace('FF-', '')}
+                                {o.urgent && ` +${o.waitMin - (orders.find((x) => x.bestellnummer === o.bestellnummer)?.geschaetzte_zubereitung_min ?? 15)}m`}
+                              </span>
+                            ))}
+                            {item.orders.length > 4 && <span className="text-[9px] text-muted-foreground">+{item.orders.length - 4}</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {urgentCount > 0 && (
+                            <span className="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[9px] font-black">{urgentCount} überfällig</span>
+                          )}
+                          <span className={cn('text-[10px] font-bold tabular-nums', isUrgent ? 'text-red-700' : 'text-muted-foreground')}>
+                            max {maxWait}m
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {stItems.length > 10 && (
+                    <div className="text-xs text-muted-foreground text-center py-1">+ {stItems.length - 10} weitere</div>
                   )}
                 </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {urgentCount > 0 && (
-                  <span className="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[9px] font-black">
-                    {urgentCount} überfällig
-                  </span>
-                )}
-                <span className={cn(
-                  'text-[10px] font-bold tabular-nums',
-                  isUrgent ? 'text-red-700' : 'text-muted-foreground',
-                )}>
-                  max {maxWait}m
-                </span>
-              </div>
+              )}
             </div>
           );
         })}
-        {items.length > 12 && (
-          <div className="text-xs text-muted-foreground text-center py-1">
-            + {items.length - 12} weitere Positionen
-          </div>
-        )}
       </div>
     </div>
   );

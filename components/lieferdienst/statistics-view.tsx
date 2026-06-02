@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
+import { createClient } from '@/lib/supabase/client'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio
 } from 'lucide-react'
 import {
   BarChart,
@@ -301,6 +302,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         )
       })()}
+
+      {/* Echtzeit-Bestellungseingang */}
+      <LiveOrderFeed locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id} />
 
       {/* Trend: Heute vs. Gestern */}
       {trendData && (
@@ -1512,4 +1516,113 @@ function ShiftRevenuePanel({
       )}
     </div>
   )
+}
+
+/* ===================================================================
+ * LiveOrderFeed — Echtzeit-Bestellungseingang via Supabase Realtime
+ * =================================================================== */
+type LiveEvent = {
+  id: string;
+  ts: number;
+  bestellnummer: string;
+  status: string;
+  gesamtbetrag: number;
+  typ?: string;
+  isNew?: boolean;
+};
+
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  neu:            { label: 'Neu',          color: 'bg-blue-100 text-blue-700' },
+  bestätigt:      { label: 'Angenommen',   color: 'bg-matcha-100 text-matcha-700' },
+  in_zubereitung: { label: 'Zubereitung',  color: 'bg-amber-100 text-amber-700' },
+  fertig:         { label: 'Bereit',       color: 'bg-purple-100 text-purple-700' },
+  unterwegs:      { label: 'Unterwegs',    color: 'bg-cyan-100 text-cyan-700' },
+  geliefert:      { label: 'Geliefert',    color: 'bg-emerald-100 text-emerald-700' },
+  abgeholt:       { label: 'Abgeholt',     color: 'bg-emerald-100 text-emerald-700' },
+  storniert:      { label: 'Storniert',    color: 'bg-red-100 text-red-700' },
+};
+
+export function LiveOrderFeed({ locationId }: { locationId?: string }) {
+  const supabase = useMemo(() => createClient(), []);
+  const [events, setEvents] = useState<LiveEvent[]>([]);
+  const [connected, setConnected] = useState(false);
+  const newIds = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const filter = locationId ? `location_id=eq.${locationId}` : undefined;
+    const ch = supabase
+      .channel('live-order-feed')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'customer_orders', ...(filter ? { filter } : {}) },
+        (payload: { new: Record<string, unknown>; eventType: string }) => {
+          if (!payload.new?.id) return;
+          const row = payload.new as any;
+          const ev: LiveEvent = {
+            id: `${row.id}-${row.status}-${Date.now()}`,
+            ts: Date.now(),
+            bestellnummer: row.bestellnummer ?? '?',
+            status: row.status ?? 'neu',
+            gesamtbetrag: Number(row.gesamtbetrag ?? 0),
+            typ: row.typ ?? row.order_type,
+            isNew: true,
+          };
+          newIds.current.add(ev.id);
+          setTimeout(() => {
+            newIds.current.delete(ev.id);
+            setEvents((xs) => xs.map((x) => x.id === ev.id ? { ...x, isNew: false } : x));
+          }, 3000);
+          setEvents((xs) => [ev, ...xs].slice(0, 12));
+        },
+      )
+      .subscribe((status) => {
+        setConnected(status === 'SUBSCRIBED');
+      });
+    return () => { supabase.removeChannel(ch); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationId]);
+
+  if (events.length === 0 && !connected) return null;
+
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Radio className="w-4 h-4 text-emerald-600" />
+        <span className="font-bold text-sm text-char uppercase tracking-wider">Live-Bestellungen</span>
+        <span className={`ml-1 inline-flex h-2 w-2 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-stone-300'}`} />
+        {connected && <span className="text-[10px] text-emerald-600 font-bold">LIVE</span>}
+        {events.length === 0 && connected && (
+          <span className="ml-auto text-xs text-stone-400">Warte auf Bestellungen…</span>
+        )}
+      </div>
+      {events.length > 0 && (
+        <div className="space-y-1.5 max-h-64 overflow-y-auto">
+          {events.map((ev) => {
+            const meta = STATUS_LABELS[ev.status] ?? { label: ev.status, color: 'bg-stone-100 text-stone-700' };
+            const age = Math.floor((Date.now() - ev.ts) / 1000);
+            const ageStr = age < 60 ? `${age}s` : `${Math.floor(age / 60)}m`;
+            return (
+              <div
+                key={ev.id}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${ev.isNew ? 'bg-emerald-50 ring-1 ring-emerald-300' : 'bg-stone-50'}`}
+              >
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${meta.color}`}>
+                  {meta.label}
+                </span>
+                <span className="font-mono text-xs font-bold text-char flex-1 truncate">
+                  #{ev.bestellnummer.replace(/^[A-Z]+-/, '')}
+                </span>
+                {ev.gesamtbetrag > 0 && (
+                  <span className="text-xs font-bold text-matcha-700 shrink-0">
+                    {ev.gesamtbetrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                )}
+                <span className="text-[10px] text-stone-400 shrink-0 tabular-nums">{ageStr}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
