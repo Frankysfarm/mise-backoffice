@@ -729,6 +729,30 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                     )}
                   </div>
                 </div>
+                {/* Schicht-Endprognose */}
+                {earningsPerHour != null && (() => {
+                  const nowH = new Date().getHours();
+                  const shiftEndH = 22;
+                  const hoursLeft = Math.max(0, shiftEndH - nowH - new Date().getMinutes() / 60);
+                  const currentEarnings = stats.deliveries * 3 + stats.totalDistKm * 0.15;
+                  const projectedEarnings = currentEarnings + earningsPerHour * hoursLeft;
+                  if (hoursLeft <= 0 || projectedEarnings <= 0) return null;
+                  return (
+                    <div className="rounded-xl bg-accent/10 border border-accent/20 px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-matcha-300 uppercase tracking-wider">
+                          Prognose bis {shiftEndH}:00 Uhr
+                        </span>
+                        <span className="font-display text-lg font-black text-accent tabular-nums">
+                          ~{projectedEarnings.toFixed(0)}€
+                        </span>
+                      </div>
+                      <div className="text-[9px] text-matcha-400 mt-0.5">
+                        {currentEarnings.toFixed(0)}€ bereits + {(earningsPerHour * hoursLeft).toFixed(0)}€ prognose
+                      </div>
+                    </div>
+                  );
+                })()}
                 {/* Tages-Meilenstein */}
                 {(() => {
                   const MILESTONES = [5, 10, 15, 20, 30, 50];
