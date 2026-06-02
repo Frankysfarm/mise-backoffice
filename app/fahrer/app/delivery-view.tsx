@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type Stop = {
@@ -251,6 +251,13 @@ export function DeliveryView({
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }
 
+  // Live earnings estimate: base €1.50/stop + €0.20/km from completed stops
+  const deliveredStops = sorted.filter((s) => s.geliefert_am);
+  const estimatedEarnings = deliveredStops.reduce((sum, s) => {
+    const kmBonus = s.distanz_zum_vorgaenger_m != null ? (s.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
+    return sum + 1.50 + kmBonus;
+  }, 0);
+
   return (
     <div className="flex-1 flex flex-col bg-matcha-900">
       {/* Offline-Warnung */}
@@ -311,8 +318,18 @@ export function DeliveryView({
               );
             })()}
           </div>
-          <div className="flex-1 h-1.5 bg-white/10 rounded-full ml-4 overflow-hidden">
-            <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
+          <div className="flex-1 flex flex-col items-end gap-1.5 ml-3">
+            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
+            </div>
+            {estimatedEarnings > 0 && (
+              <div className="inline-flex items-center gap-1 rounded-full bg-accent/15 border border-accent/30 px-2 py-1">
+                <TrendingUp size={10} className="text-accent" />
+                <span className="text-[10px] font-bold tabular-nums text-accent">
+                  ~{estimatedEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         {/* Tour-Kassen-Zusammenfassung */}

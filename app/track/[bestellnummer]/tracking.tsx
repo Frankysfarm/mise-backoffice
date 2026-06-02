@@ -181,11 +181,18 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
     setRating(stars);
     setRatingSubmitted(true);
     try {
-      // Versuche Rating zu speichern (Spalte muss ggf. existieren)
-      await supabase
-        .from('customer_orders')
-        .update({ delivery_rating: stars })
-        .eq('id', order.order_id);
+      // Token holen (wird generiert falls noch nicht vorhanden), dann Rating einreichen
+      const tokenRes = await fetch(`/api/delivery/orders/${order.order_id}/rate`);
+      if (tokenRes.ok) {
+        const { token } = await tokenRes.json() as { token?: string };
+        if (token) {
+          await fetch(`/api/delivery/orders/${order.order_id}/rate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, rating: stars }),
+          });
+        }
+      }
     } catch {}
     setTimeout(() => setRatingDismissed(true), 2500);
   }

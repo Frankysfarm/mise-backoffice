@@ -227,6 +227,25 @@ function HeroBold({ location, orderType, onOrderType, popularCount, itemCount, h
   const closeHour = 19;
   const isOpen = new Date().getHours() < closeHour;
 
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: 'low' | 'medium' | 'high' } | null>(null);
+  React.useEffect(() => {
+    if (!location.id || orderType !== 'lieferung') return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${location.id}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.eta_min != null) {
+          const load: 'low' | 'medium' | 'high' = d.eta_min > 45 ? 'high' : d.eta_min > 30 ? 'medium' : 'low';
+          setLiveEta({ eta_min: d.eta_min, load });
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [location.id, orderType]);
+
   return (
     <section className="relative isolate overflow-hidden min-h-[min(820px,92vh)] bg-black text-white">
       {/* Vollbild-Bild */}
@@ -280,6 +299,28 @@ function HeroBold({ location, orderType, onOrderType, popularCount, itemCount, h
             <Truck className="h-4 w-4" /> Lieferung · {MIN_ORDER}€ min.
           </button>
         </div>
+        {/* Live-ETA chip (nur bei Lieferung) */}
+        {orderType === 'lieferung' && liveEta && (
+          <div className={cn(
+            'mt-3 self-start inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold backdrop-blur',
+            liveEta.load === 'high' ? 'bg-red-500/25 text-red-300 border border-red-400/30' :
+            liveEta.load === 'medium' ? 'bg-amber-500/25 text-amber-300 border border-amber-400/30' :
+            'bg-white/15 text-white border border-white/20',
+          )}>
+            <span className={cn(
+              'h-1.5 w-1.5 rounded-full',
+              liveEta.load === 'high' ? 'bg-red-400 animate-pulse' :
+              liveEta.load === 'medium' ? 'bg-amber-400' : 'bg-green-400',
+            )} />
+            {liveEta.load === 'high' ? 'Sehr ausgelastet' : liveEta.load === 'medium' ? 'Etwas ausgelastet' : 'Küche bereit'}
+            {' · '}~{liveEta.eta_min} Min
+          </div>
+        )}
+        {orderType === 'lieferung' && !liveEta && deliveryTimeMin && (
+          <div className="mt-3 self-start inline-flex items-center gap-1.5 rounded-full bg-white/10 border border-white/20 px-3 py-1.5 text-[11px] font-semibold text-white/80 backdrop-blur">
+            <Clock className="h-3 w-3" /> ~{deliveryTimeMin} Min Lieferzeit
+          </div>
+        )}
       </div>
     </section>
   );
@@ -291,6 +332,26 @@ function HeroBold({ location, orderType, onOrderType, popularCount, itemCount, h
 function HeroMinimal({ location, orderType, onOrderType, popularCount, itemCount, heroImageUrl, logoUrl, themeId, deliveryTimeMin, minOrder, deliveryFee }: VariantProps & { themeId?: 'minimal' | 'urban' }) {
   const closeHour = 19;
   const isOpen = new Date().getHours() < closeHour;
+
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: 'low' | 'medium' | 'high' } | null>(null);
+  React.useEffect(() => {
+    if (!location.id || orderType !== 'lieferung') return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${location.id}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.eta_min != null) {
+          const load: 'low' | 'medium' | 'high' = d.eta_min > 45 ? 'high' : d.eta_min > 30 ? 'medium' : 'low';
+          setLiveEta({ eta_min: d.eta_min, load });
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [location.id, orderType]);
+
   const p = themeId === 'urban'
     ? {
         section: 'bg-[#0A0A0A] text-[#FAFAFA] border-b border-[#262626]',
@@ -358,6 +419,33 @@ function HeroMinimal({ location, orderType, onOrderType, popularCount, itemCount
                 Lieferung
               </button>
             </div>
+            {/* Live-ETA chip (nur bei Lieferung) */}
+            {orderType === 'lieferung' && liveEta && (
+              <div className={cn(
+                'mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold',
+                liveEta.load === 'high' ? 'bg-red-50 text-red-600 ring-1 ring-red-200' :
+                liveEta.load === 'medium' ? 'bg-amber-50 text-amber-600 ring-1 ring-amber-200' :
+                themeId === 'urban' ? 'bg-[#00D964]/15 text-[#00D964] ring-1 ring-[#00D964]/30' :
+                'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+              )}>
+                <span className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  liveEta.load === 'high' ? 'bg-red-500 animate-pulse' :
+                  liveEta.load === 'medium' ? 'bg-amber-500' :
+                  themeId === 'urban' ? 'bg-[#00D964]' : 'bg-emerald-500',
+                )} />
+                {liveEta.load === 'high' ? 'Sehr ausgelastet' : liveEta.load === 'medium' ? 'Etwas ausgelastet' : 'Küche bereit'}
+                {' · '}~{liveEta.eta_min} Min
+              </div>
+            )}
+            {orderType === 'lieferung' && !liveEta && deliveryTimeMin && (
+              <div className={cn(
+                'mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold',
+                themeId === 'urban' ? 'bg-white/10 text-[#A3A3A3] ring-1 ring-white/10' : 'bg-neutral-100 text-neutral-600 ring-1 ring-neutral-200',
+              )}>
+                <Clock className="h-3 w-3" /> ~{deliveryTimeMin} Min
+              </div>
+            )}
           </div>
 
           {/* Kleines quadratisches Bild rechts (wenn vorhanden) */}
