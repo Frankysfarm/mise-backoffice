@@ -43,6 +43,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const STATUS_STEPS: readonly StatusStep[] = isDelivery ? DELIVERY_STEPS : PICKUP_STEPS;
 
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
+  const [etaWindow, setEtaWindow] = React.useState<{ earliest: string; latest: string } | null>(null);
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
   const [statusFlash, setStatusFlash] = React.useState(false);
 
@@ -63,6 +64,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         if (data?.eta_earliest) {
           const newSecsLeft = Math.max(0, Math.floor((new Date(data.eta_earliest).getTime() - Date.now()) / 1000));
           setSecsLeft(newSecsLeft);
+          if (data.eta_latest) {
+            setEtaWindow({ earliest: data.eta_earliest, latest: data.eta_latest });
+          }
         }
       } catch {}
     };
@@ -79,12 +83,19 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload: { new: { status?: string } }) => {
+        (payload: { new: { status?: string; eta_earliest?: string; eta_latest?: string } }) => {
           const newStatus = payload.new?.status;
           if (newStatus && newStatus !== liveStatus) {
             setLiveStatus(newStatus);
             setStatusFlash(true);
             setTimeout(() => setStatusFlash(false), 3000);
+          }
+          if (payload.new?.eta_earliest) {
+            const newSecsLeft = Math.max(0, Math.floor((new Date(payload.new.eta_earliest).getTime() - Date.now()) / 1000));
+            setSecsLeft(newSecsLeft);
+            if (payload.new.eta_latest) {
+              setEtaWindow({ earliest: payload.new.eta_earliest, latest: payload.new.eta_latest });
+            }
           }
         },
       )
@@ -162,6 +173,21 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             <div className="font-mono text-2xl font-bold tabular-nums text-accent">{countdownStr}</div>
           </div>
         )}
+
+        {/* ETA-Fenster: zeigt früheste und späteste Ankunftszeit */}
+        {etaWindow && (() => {
+          const fmt = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          const windowMinutes = Math.round((new Date(etaWindow.latest).getTime() - new Date(etaWindow.earliest).getTime()) / 60_000);
+          return (
+            <div className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 text-[11px]">
+              <span className="text-matcha-400 font-bold uppercase tracking-wider">{isDelivery ? 'Zeitfenster' : 'Abholung'}</span>
+              <span className="font-mono font-bold text-matcha-100">{fmt(etaWindow.earliest)}–{fmt(etaWindow.latest)}</span>
+              {windowMinutes <= 10 && (
+                <span className="rounded-full bg-matcha-500/30 text-matcha-300 px-1.5 py-0.5 text-[9px] font-bold">Präzise</span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Live-Status Mini-Timeline — aktualisiert sich in Echtzeit */}
         {orderId && (
