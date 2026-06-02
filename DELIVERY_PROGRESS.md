@@ -1,11 +1,39 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–20 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–21 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 21: Autonomous Recovery Engine [DONE ✅] — 2026-06-02
+- [x] `scripts/migrations/021_recovery_tracking.sql`
+  - `delivery_recovery_events` Tabelle: jedes Recovery-Event (cancelled_batch, driver, reason, orders_recovered, new_batch_ids, duration)
+  - `customer_orders`: `recovery_count` + `last_recovery_at` Spalten (wie oft wurde diese Bestellung recovery-geführt)
+  - `v_recovery_summary` VIEW: Recovery-Events mit Fahrername + Fahrzeug für Admin-Anzeige
+  - Index `idx_customer_orders_recovery` für schnelles Re-Queue-Scan
+- [x] `lib/delivery/recovery.ts` — Autonomous Recovery Engine
+  - `recoverCancelledBatch(batchId, reason, triggerRedispatch)`:
+    - Lädt alle nicht-gelieferten Dropoff-Stops des gecancelten Batches
+    - Befreit Orders: `mise_batch_id=null`, `priority='high'`, `dispatch_attempts=0`
+    - Loggt Recovery-Event in `delivery_recovery_events`
+    - Triggert sofortigen Re-Dispatch für die betroffenen Orders (synchron, best-effort)
+    - Finalisiert Event-Record mit `orders_requeued` + `new_batch_ids`
+  - `getRecoveryEvents(locationId, limit)` — Recovery-History für Admin
+  - `scanStaleBatches(staleMinutes)` — findet Batches in `on_route`/`at_restaurant`/`assigned`
+    ohne GPS-Ping seit >60 Min, cancelt + recovert sie automatisch (Cron-Helfer)
+- [x] `app/api/delivery/admin/recovery/route.ts` — Admin API
+  - `GET ?location_id=...&limit=N` — Recovery-Event-History
+  - `POST { batch_id, reason? }` — manueller Recovery-Trigger für gecancelte/hängende Batches
+  - Graceful-Fallback wenn Migration 021 noch nicht ausgeführt
+- [x] `app/api/delivery/tours/[id]/status/route.ts` — Recovery-Integration
+  - Bei `state='cancelled'`: `recoverCancelledBatch()` fire-and-forget
+  - Orders werden automatisch befreit + mit `priority='high'` re-queued
+- [x] `app/api/cron/smart-dispatch/route.ts` — `scanStaleBatches(60)` in Parallel-Pool
+  - Prüft jede Minute ob Batches >60 Min ohne GPS-Update hängen → auto-cancel + recovery
+  - Response enthält `recovery: { batches_scanned, batches_recovered }`
+- Build: npm run build ✓ (0 Fehler, 170 Seiten), git push origin main ✓
 
 ## Phase 1: Datenmodell [DONE ✅]
 - [x] delivery_zones Tabelle — `scripts/migrations/001_delivery_zones.sql`

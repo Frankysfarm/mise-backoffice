@@ -2,11 +2,13 @@
  * PATCH /api/delivery/tours/[id]/status
  * Setzt den Status einer Tour (z.B. assigned → at_restaurant → on_route → delivered).
  * Bei Übergang → 'delivered': Driver-Rating + Payout-Records werden neu berechnet (fire-and-forget).
+ * Bei Übergang → 'cancelled':  Recovery Engine liberated undelivered orders + re-dispatches (fire-and-forget).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { recomputeDriverRating } from '@/lib/delivery/rating';
 import { calculateDeliveryPayout } from '@/lib/delivery/payout';
+import { recoverCancelledBatch } from '@/lib/delivery/recovery';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -66,6 +68,11 @@ export async function PATCH(
         }
       }
     }
+  }
+
+  // Bei Stornierung: Recovery Engine befreit nicht-gelieferte Stops (fire-and-forget)
+  if (body.state === 'cancelled') {
+    recoverCancelledBatch(params.id, 'admin_cancelled', true).catch(() => {});
   }
 
   return NextResponse.json({ ok: true, state: body.state });

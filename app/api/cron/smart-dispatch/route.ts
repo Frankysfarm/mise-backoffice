@@ -14,6 +14,7 @@ import { refreshEnRouteEtas } from '@/lib/delivery/eta';
 import { autoCloseMissedShifts } from '@/lib/delivery/shifts';
 import { snapshotAllLocations } from '@/lib/delivery/forecast';
 import { evaluateAlertsAllLocations } from '@/lib/delivery/alerts';
+import { scanStaleBatches } from '@/lib/delivery/recovery';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
     const nowMin = new Date().getUTCMinutes();
     const isDemandTick = nowMin < 2 || (nowMin >= 30 && nowMin < 32);
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -66,6 +67,7 @@ export async function GET(req: NextRequest) {
         ? snapshotAllLocations().catch(() => ({ locations: 0, snapshots: 0 }))
         : Promise.resolve(null),
       evaluateAlertsAllLocations().catch(() => ({ locations: 0, created: 0, resolved: 0 })),
+      scanStaleBatches(60).catch(() => ({ scanned: 0, recovered: [] as string[] })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -92,6 +94,10 @@ export async function GET(req: NextRequest) {
         resolved: alertResult.resolved,
       },
       ...(demandResult ? { demand_snapshot: demandResult } : {}),
+      recovery: {
+        batches_scanned: recoveryResult.scanned,
+        batches_recovered: recoveryResult.recovered.length,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
