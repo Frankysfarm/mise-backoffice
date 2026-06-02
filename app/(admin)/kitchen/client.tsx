@@ -402,6 +402,9 @@ export function KitchenBoard({
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
+      {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}
+      <KitchenEfficiencyPanel orders={filtered} />
+
       {/* Prioritäts-Queue: Welche 3 Bestellungen jetzt zubereiten? */}
       <TopUrgentOrders orders={filtered} />
 
@@ -754,6 +757,82 @@ function TopUrgentOrders({ orders }: { orders: Order[] }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenEfficiencyPanel ------------------------------ */
+
+function KitchenEfficiencyPanel({ orders }: { orders: Order[] }) {
+  // Berechne Ist-Zubereitungszeit für fertige Bestellungen
+  const fertig = orders.filter(
+    (o) => (o.status === 'fertig' || o.status === 'unterwegs') && o.bestellt_am && o.fertig_am,
+  );
+  if (fertig.length < 2) return null;
+
+  const prepTimes = fertig.map((o) => {
+    const actual = Math.floor((new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000);
+    const target = o.geschaetzte_zubereitung_min ?? 15;
+    return { actual, target, diff: actual - target };
+  });
+
+  const avgActual = Math.round(prepTimes.reduce((s, x) => s + x.actual, 0) / prepTimes.length);
+  const avgTarget = Math.round(prepTimes.reduce((s, x) => s + x.target, 0) / prepTimes.length);
+  const avgDiff = avgActual - avgTarget;
+  const onTimeCount = prepTimes.filter((x) => x.diff <= 0).length;
+  const onTimePct = Math.round((onTimeCount / prepTimes.length) * 100);
+  const efficiencyPct = Math.min(100, Math.round((avgTarget / Math.max(avgActual, 1)) * 100));
+
+  const statusColor =
+    onTimePct >= 80 ? 'text-matcha-700' :
+    onTimePct >= 60 ? 'text-amber-700' :
+    'text-red-700';
+  const barColor =
+    efficiencyPct >= 85 ? 'bg-matcha-500' :
+    efficiencyPct >= 65 ? 'bg-amber-400' :
+    'bg-red-400';
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <TrendingUp className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          Küchen-Effizienz · {fertig.length} fertige Bestellungen
+        </span>
+        <span className={cn('ml-auto text-[10px] font-black tabular-nums', statusColor)}>
+          {onTimePct}% rechtzeitig
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <div className="flex items-center justify-between text-[10px] mb-1">
+            <span className="text-muted-foreground">Effizienz</span>
+            <span className={cn('font-bold tabular-nums', statusColor)}>{efficiencyPct}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all', barColor)}
+              style={{ width: `${efficiencyPct}%` }}
+            />
+          </div>
+        </div>
+        <div className="flex gap-3 text-[11px] shrink-0">
+          <div className="text-center">
+            <div className="font-black text-base tabular-nums text-foreground">{avgActual}m</div>
+            <div className="text-[9px] text-muted-foreground">Ø Ist</div>
+          </div>
+          <div className="text-center">
+            <div className="font-black text-base tabular-nums text-muted-foreground">{avgTarget}m</div>
+            <div className="text-[9px] text-muted-foreground">Ø Soll</div>
+          </div>
+          <div className="text-center">
+            <div className={cn('font-black text-base tabular-nums', avgDiff > 0 ? 'text-red-600' : 'text-matcha-600')}>
+              {avgDiff > 0 ? `+${avgDiff}` : avgDiff}m
+            </div>
+            <div className="text-[9px] text-muted-foreground">Δ</div>
+          </div>
+        </div>
       </div>
     </div>
   );
