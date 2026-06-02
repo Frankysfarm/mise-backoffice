@@ -81,6 +81,10 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
   const [text, setText] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   const [, setTick] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [ratingDismissed, setRatingDismissed] = useState(false);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -171,6 +175,19 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
       sender: 'kunde',
       nachricht: msg,
     });
+  }
+
+  async function submitRating(stars: number) {
+    setRating(stars);
+    setRatingSubmitted(true);
+    try {
+      // Versuche Rating zu speichern (Spalte muss ggf. existieren)
+      await supabase
+        .from('customer_orders')
+        .update({ delivery_rating: stars })
+        .eq('id', order.order_id);
+    } catch {}
+    setTimeout(() => setRatingDismissed(true), 2500);
   }
 
   const active = stepIndex(order.status);
@@ -412,6 +429,51 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             <div className="font-display text-xl font-bold">{euro(order.gesamtbetrag)}</div>
           </div>
         </div>
+
+        {/* Bewertungs-Karte — erscheint nach Lieferung/Abholung */}
+        {['geliefert', 'abgeholt'].includes(order.status) && !ratingDismissed && (
+          <div className="rounded-2xl border-2 border-matcha-200 bg-gradient-to-br from-matcha-50 to-white p-5 shadow-subtle text-center">
+            {ratingSubmitted ? (
+              <div className="flex flex-col items-center gap-2 py-2">
+                <div className="text-3xl animate-bounce">🎉</div>
+                <p className="font-display text-lg font-bold text-matcha-800">Danke für dein Feedback!</p>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map((s) => (
+                    <span key={s} className={cn('text-2xl', s <= rating ? 'text-gold' : 'text-stone-200')}>★</span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl mb-2">{isDelivery ? '🛵' : '🛍️'}</div>
+                <p className="font-display text-base font-bold text-matcha-900 mb-1">Wie war deine Erfahrung?</p>
+                <p className="text-xs text-stone-500 mb-4">Dein Feedback hilft uns besser zu werden.</p>
+                <div className="flex justify-center gap-2 mb-1">
+                  {[1,2,3,4,5].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => void submitRating(s)}
+                      onMouseEnter={() => setRatingHover(s)}
+                      onMouseLeave={() => setRatingHover(0)}
+                      className="text-3xl transition-transform active:scale-90 hover:scale-110"
+                    >
+                      <span className={cn(
+                        'transition-colors',
+                        s <= (ratingHover || rating) ? 'text-gold' : 'text-stone-200',
+                      )}>★</span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setRatingDismissed(true)}
+                  className="text-[10px] text-stone-400 hover:text-stone-600 underline-offset-2 hover:underline mt-2"
+                >
+                  Überspringen
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         <p className="pt-2 text-center text-xs text-muted-foreground">
           Fragen? <a href="tel:+4924190008888" className="underline">Anrufen</a> · Antworten in Minuten
