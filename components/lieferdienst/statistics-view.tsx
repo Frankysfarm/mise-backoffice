@@ -155,8 +155,16 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const fastOrders = withEta.filter(o => (o.estimatedTime ?? 0) <= 20).length
   const fastPct = withEta.length > 0 ? Math.round((fastOrders / withEta.length) * 100) : 0
   
-  const completionRate = stats.totalOrders > 0 
-    ? Math.round((stats.completedOrders / stats.totalOrders) * 100) 
+  const completionRate = stats.totalOrders > 0
+    ? Math.round((stats.completedOrders / stats.totalOrders) * 100)
+    : 0
+
+  const ordersWithAmount = allOrders.filter(o => ((o as any).totalAmount ?? (o as any).gesamtbetrag ?? 0) > 0)
+  const avgOrderValue = ordersWithAmount.length > 0
+    ? ordersWithAmount.reduce((s, o) => s + ((o as any).totalAmount ?? (o as any).gesamtbetrag ?? 0), 0) / ordersWithAmount.length
+    : 0
+  const rejectedRate = stats.totalOrders > 0
+    ? Math.round((stats.rejectedOrders / stats.totalOrders) * 100)
     : 0
 
   const hourlyData = stats.ordersByHour
@@ -462,6 +470,34 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${completionRate}%` }} />
           </div>
         </div>
+
+        {/* Ø Bestellwert */}
+        {avgOrderValue > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-teal-600" />
+              </div>
+              <span className="text-sm font-medium text-steel">Ø Bestellwert</span>
+            </div>
+            <p className="text-3xl font-bold text-teal-600">{formatCurrency(avgOrderValue)}</p>
+            <p className="mt-1 text-xs text-steel">{ordersWithAmount.length} Bestellungen mit Betrag</p>
+          </div>
+        )}
+
+        {/* Stornoquote */}
+        {stats.totalOrders > 0 && stats.rejectedOrders > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-red-500" />
+              </div>
+              <span className="text-sm font-medium text-steel">Stornoquote</span>
+            </div>
+            <p className="text-3xl font-bold text-red-500">{rejectedRate}%</p>
+            <p className="mt-1 text-xs text-steel">{stats.rejectedOrders} von {stats.totalOrders} abgelehnt</p>
+          </div>
+        )}
 
         {/* Dispatch Score Card */}
         {deliveryStats?.scoring?.avg_score != null && (
