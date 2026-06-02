@@ -1155,8 +1155,140 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Schichtziele */}
+      <ShiftTargetPanel
+        orders={orders}
+        completedOrders={completedOrders}
+        slaData={slaData}
+        avgEtaMin={avgEtaMin}
+      />
+
       {/* Live-Umsatz Schicht */}
       <ShiftRevenuePanel orders={orders} completedOrders={completedOrders} deliveryStats={deliveryStats} />
+    </div>
+  )
+}
+
+/* ------------------------------ ShiftTargetPanel ------------------------------ */
+
+function ShiftTargetPanel({
+  orders,
+  completedOrders,
+  slaData,
+  avgEtaMin,
+}: {
+  orders: Order[];
+  completedOrders: Order[];
+  slaData: SlaData;
+  avgEtaMin: number;
+}) {
+  // Schichtziele (anpassbar — hier als sinnvolle Defaults)
+  const TARGETS = {
+    orders: 60,
+    completionRate: 95, // Prozent
+    avgPrepMin: 20,
+    onTimePct: 90,
+  }
+
+  const allOrders = [...orders, ...completedOrders]
+  const done = completedOrders.filter(o => o.status === 'done').length
+  const rejected = completedOrders.filter(o => o.status === 'rejected').length
+  const total = allOrders.length
+  const completionRate = total > 0 ? Math.round(((total - rejected) / total) * 100) : 0
+  const onTimePct = slaData?.summary.onTimePct ?? null
+
+  type TargetItem = {
+    label: string
+    current: number
+    target: number
+    unit: string
+    higherIsBetter: boolean
+    color: string
+  }
+
+  const targets: TargetItem[] = [
+    {
+      label: 'Bestellungen',
+      current: total,
+      target: TARGETS.orders,
+      unit: '',
+      higherIsBetter: true,
+      color: 'bg-violet-400',
+    },
+    {
+      label: 'Fertigstellungsrate',
+      current: completionRate,
+      target: TARGETS.completionRate,
+      unit: '%',
+      higherIsBetter: true,
+      color: 'bg-emerald-400',
+    },
+    {
+      label: 'Ø Zubereitungszeit',
+      current: avgEtaMin,
+      target: TARGETS.avgPrepMin,
+      unit: ' Min',
+      higherIsBetter: false,
+      color: 'bg-amber-400',
+    },
+    ...(onTimePct != null
+      ? [{
+          label: 'Pünktlichkeit',
+          current: Math.round(onTimePct),
+          target: TARGETS.onTimePct,
+          unit: '%',
+          higherIsBetter: true,
+          color: 'bg-blue-400',
+        }]
+      : []),
+  ]
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Target className="w-5 h-5 text-matcha-600" />
+        <h3 className="text-lg font-semibold text-char">Schichtziele</h3>
+        <span className="ml-auto text-xs text-stone-400">Tagesziele · aktueller Fortschritt</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {targets.map((t) => {
+          const pct = t.target > 0 ? Math.min(100, Math.round((t.current / t.target) * 100)) : 0
+          const achieved = t.higherIsBetter ? t.current >= t.target : t.current <= t.target
+          const nearMiss = !achieved && (t.higherIsBetter
+            ? t.current >= t.target * 0.9
+            : t.current <= t.target * 1.1)
+          const statusColor = achieved ? 'text-emerald-600' : nearMiss ? 'text-amber-600' : 'text-red-600'
+          const barColor = achieved ? 'bg-emerald-400' : nearMiss ? 'bg-amber-400' : t.color
+          const displayPct = t.higherIsBetter ? pct : Math.min(100, Math.round((t.target / Math.max(t.current, 1)) * 100))
+          return (
+            <div key={t.label} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-steel">{t.label}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`font-black text-base tabular-nums ${statusColor}`}>
+                    {t.current}{t.unit}
+                  </span>
+                  <span className="text-xs text-stone-400">/ {t.target}{t.unit}</span>
+                  {achieved && <span className="text-emerald-500 text-sm">✓</span>}
+                </div>
+              </div>
+              <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${barColor}`}
+                  style={{ width: `${displayPct}%` }}
+                />
+              </div>
+              <div className="text-[10px] text-stone-400 text-right tabular-nums">
+                {achieved
+                  ? 'Ziel erreicht!'
+                  : t.higherIsBetter
+                    ? `Noch ${t.target - t.current}${t.unit} zum Ziel`
+                    : `${t.current - t.target}${t.unit} über Ziel`}
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
