@@ -327,6 +327,9 @@ export function DispatchBoard({
         </div>
       </div>
 
+      {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
+      {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
+
       {/* Capacity Forecast — nächster freier Fahrer */}
       <CapacityForecastChip batches={batches} onlineDrivers={onlineDrivers} />
 
@@ -1227,6 +1230,102 @@ function DriverRow({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ EnRouteEtaStrip ------------------------------ */
+
+function EnRouteEtaStrip({ orders }: { orders: ReadyOrder[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const enriched = orders
+    .filter((o) => o.eta_earliest || o.eta_latest)
+    .map((o) => {
+      const etaMs = o.eta_earliest ? new Date(o.eta_earliest).getTime() : null;
+      const etaLatestMs = o.eta_latest ? new Date(o.eta_latest).getTime() : null;
+      const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+      const etaStr = etaMs ? new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : null;
+      const overdue = secLeft !== null && secLeft < 0;
+      const imminent = !overdue && secLeft !== null && secLeft < 300;
+      return { ...o, etaMs, etaLatestMs, secLeft, etaStr, overdue, imminent };
+    })
+    .sort((a, b) => (a.etaMs ?? 0) - (b.etaMs ?? 0));
+
+  if (enriched.length === 0) return null;
+
+  const overdueCount = enriched.filter((o) => o.overdue).length;
+  const imminentCount = enriched.filter((o) => o.imminent).length;
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      overdueCount > 0 ? 'border-red-300 bg-red-50' :
+      imminentCount > 0 ? 'border-orange-300 bg-orange-50' :
+      'border-matcha-200 bg-matcha-50',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <Truck className={cn('h-4 w-4', overdueCount > 0 ? 'text-red-600' : imminentCount > 0 ? 'text-orange-600' : 'text-matcha-700')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          overdueCount > 0 ? 'text-red-800' : imminentCount > 0 ? 'text-orange-800' : 'text-matcha-800',
+        )}>
+          {enriched.length} Unterwegs
+          {overdueCount > 0 && ` · ${overdueCount} überzogen`}
+          {imminentCount > 0 && !overdueCount && ` · ${imminentCount} gleich da`}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {enriched.map((o) => {
+          const zm = zoneMeta(o.delivery_zone ?? '');
+          return (
+            <div
+              key={o.id}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border-2 px-3 py-2 text-[11px] min-w-[160px]',
+                o.overdue ? 'border-red-400 bg-red-100 animate-pulse' :
+                o.imminent ? 'border-orange-400 bg-orange-100' :
+                'border-matcha-200 bg-white',
+              )}
+            >
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="font-mono font-bold text-foreground">#{o.bestellnummer.replace('FF-', '')}</span>
+                  {o.delivery_zone && (
+                    <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black', zm.cls)}>{o.delivery_zone}</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-muted-foreground truncate max-w-[100px]">{o.kunde_name}</div>
+              </div>
+              <div className="ml-auto text-right">
+                {o.etaStr && (
+                  <div className={cn(
+                    'font-mono font-black tabular-nums text-sm',
+                    o.overdue ? 'text-red-700' : o.imminent ? 'text-orange-700' : 'text-matcha-700',
+                  )}>
+                    {o.etaStr}
+                  </div>
+                )}
+                {o.secLeft !== null && (
+                  <div className={cn(
+                    'text-[9px] font-bold tabular-nums',
+                    o.overdue ? 'text-red-600' : o.imminent ? 'text-orange-600' : 'text-muted-foreground',
+                  )}>
+                    {o.overdue
+                      ? `+${Math.floor(-o.secLeft / 60)}:${String((-o.secLeft) % 60).padStart(2, '0')}`
+                      : `${Math.floor(o.secLeft / 60)}:${String(o.secLeft % 60).padStart(2, '0')} noch`}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
