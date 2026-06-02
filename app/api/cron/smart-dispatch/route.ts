@@ -17,6 +17,7 @@ import { evaluateAlertsAllLocations } from '@/lib/delivery/alerts';
 import { scanStaleBatches } from '@/lib/delivery/recovery';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
+import { runDelayMonitorAllLocations } from '@/lib/delivery/delay-monitor';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,7 +57,7 @@ export async function GET(req: NextRequest) {
     // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
     const isRatingTick = nowMin % 10 < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -83,6 +84,11 @@ export async function GET(req: NextRequest) {
           return total;
         } catch { return 0; }
       })() : Promise.resolve(0),
+      // Delay-Monitor: verspätete Lieferungen erkennen + Gutscheine erstellen
+      runDelayMonitorAllLocations().catch(() => ({
+        locations: 0, totalScanned: 0, totalFirstNotices: 0,
+        totalCriticalNotices: 0, totalVouchers: 0,
+      })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -114,6 +120,12 @@ export async function GET(req: NextRequest) {
         batches_recovered: recoveryResult.recovered.length,
       },
       ...(isRatingTick ? { rating_tokens_generated: ratingTokensGenerated } : {}),
+      delay_monitor: {
+        scanned:          delayResult.totalScanned,
+        first_notices:    delayResult.totalFirstNotices,
+        critical_notices: delayResult.totalCriticalNotices,
+        vouchers_created: delayResult.totalVouchers,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

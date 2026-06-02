@@ -26,7 +26,10 @@ export type DeliveryEventType =
   | 'eta_updated'
   | 'zone_classified'
   | 'kitchen_ready'
-  | 'kitchen_cooking';
+  | 'kitchen_cooking'
+  | 'delay_first_notice'
+  | 'delay_critical_notice'
+  | 'delay_compensation_created';
 
 export interface DeliveryEvent {
   event_type: DeliveryEventType;

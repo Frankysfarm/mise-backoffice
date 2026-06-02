@@ -1,11 +1,35 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–22 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–23 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #19 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 23: Proactive Delay Alert System + Auto-Compensation [DONE ✅] — 2026-06-02
+- [x] `scripts/migrations/023_delay_alerts.sql`
+  - `delivery_delay_alerts` Tabelle: protokolliert Alert-Typen pro Bestellung (UNIQUE per order_id + alert_type → Idempotenz)
+  - `delay_compensation_vouchers` Tabelle: auto-erstellte SORRY-XXXXX Gutscheincodes für >30-Min-Verspätungen (UNIQUE per order_id)
+  - `v_delayed_orders` VIEW: Lieferbestellungen mit überschrittenem eta_latest + denormalisierter Alert-Status
+  - `v_compensation_vouchers` VIEW: Gutscheine mit Bestelldetails für Admin-UI
+  - 4 Performance-Indizes für schnellen Delay-Scan + Voucher-Lookup
+- [x] `lib/delivery/delay-monitor.ts` — Delay-Monitor Engine (8 Funktionen)
+  - `scanDelayedOrders(locationId)`: liest v_delayed_orders, Graceful-Fallback wenn Migration fehlt
+  - `recordDelayAlert(orderId, locationId, alertType, delayMin, ...)`: UNIQUE-Guard gegen Duplikat-Alerts
+  - `createCompensationVoucher(orderId, locationId, delayMin)`: generiert SORRY-XXXXX Code, Betrag 5/7.50/10€ je Verspätung
+  - `processDelayedOrder(order)`: first_notice ab 15 Min, critical_notice + Gutschein ab 30 Min
+  - `runDelayMonitor(locationId)`: Scan → Prozess-Schleife mit Error-Isolation pro Order
+  - `runDelayMonitorAllLocations()`: Cron-Helfer, alle aktiven Locations parallel
+  - `getCompensationVouchers(locationId, limit)`: Liste der Gutscheine für Admin
+  - `DeliveryEventType` in events.ts: 3 neue Typen (`delay_first_notice`, `delay_critical_notice`, `delay_compensation_created`)
+- [x] `app/api/delivery/admin/delay-monitor/route.ts` — Admin API
+  - `GET ?location_id=...&limit=N` — verspätete Bestellungen + Gutscheine + Summary-KPIs
+  - `POST { location_id }` — manueller Delay-Scan-Trigger mit Duration-ms
+  - Auth-Guard + Graceful-Fehlerbehandlung
+- [x] Cron-Integration: `runDelayMonitorAllLocations()` in smart-dispatch/route.ts (parallel Pool)
+  - Response enthält `delay_monitor: { scanned, first_notices, critical_notices, vouchers_created }`
+- Build: npm run build ✓ (170 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 
 ## Phase 22: Customer Satisfaction Tracking + Post-Delivery Rating [DONE ✅] — 2026-06-02
 - [x] `scripts/migrations/022_customer_satisfaction.sql`
