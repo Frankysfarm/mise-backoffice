@@ -773,6 +773,12 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
 
   const urgent = orders.filter((o) => o.fertig_am && (Date.now() - new Date(o.fertig_am).getTime()) > 10 * 60_000);
 
+  // Bündelungsrate aus aktiven Touren
+  const bundledStops = batches.filter((b) => b.stops.length > 1).reduce((s, b) => s + b.stops.length, 0);
+  const singleStops = batches.filter((b) => b.stops.length === 1).length;
+  const totalBatchStops = bundledStops + singleStops;
+  const bundlingRate = totalBatchStops > 0 ? Math.round((bundledStops / totalBatchStops) * 100) : null;
+
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {/* Avg Score Gauge — SVG Halbkreis-Anzeige mit Note */}
@@ -896,6 +902,30 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
               </div>
             ))}
           </div>
+        </Card>
+      )}
+
+      {/* Bündelungsrate */}
+      {bundlingRate !== null && totalBatchStops >= 2 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <RouteIcon className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bündelungsrate</div>
+          </div>
+          <div className="flex items-end gap-2 mb-2">
+            <div className={cn(
+              'font-display text-3xl font-black leading-none',
+              bundlingRate >= 70 ? 'text-matcha-700' : bundlingRate >= 40 ? 'text-orange-600' : 'text-red-600',
+            )}>{bundlingRate}%</div>
+            <div className="text-xs text-muted-foreground mb-0.5">gebündelt</div>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all', bundlingRate >= 70 ? 'bg-matcha-500' : bundlingRate >= 40 ? 'bg-orange-400' : 'bg-red-400')}
+              style={{ width: `${bundlingRate}%` }}
+            />
+          </div>
+          <div className="mt-1.5 text-[9px] text-muted-foreground">{bundledStops} gebündelt · {singleStops} einzeln</div>
         </Card>
       )}
     </div>
