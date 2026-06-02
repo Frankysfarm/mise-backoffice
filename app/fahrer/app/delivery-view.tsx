@@ -456,6 +456,53 @@ export function DeliveryView({
         </div>
       )}
 
+      {/* Upcoming Stops Preview — kompakter Horizontalstreifen für Stops 2..n */}
+      {openStops.length > 1 && (
+        <div className="mx-4 mt-2">
+          <div className="text-[9px] font-black uppercase tracking-widest text-matcha-400 mb-1.5">
+            Nächste Stops
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {openStops.slice(1).map((s, idx) => {
+              const distKm = s.distanz_zum_vorgaenger_m != null && s.distanz_zum_vorgaenger_m > 0
+                ? (s.distanz_zum_vorgaenger_m / 1000).toFixed(1)
+                : null;
+              const isCash = !s.order.bezahlt || s.order.zahlungsart === 'bar';
+              return (
+                <div
+                  key={s.id}
+                  className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 min-w-[140px] max-w-[180px]"
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="h-5 w-5 rounded-full bg-matcha-700 text-matcha-100 flex items-center justify-center font-black text-[10px] shrink-0">
+                      {s.reihenfolge}
+                    </span>
+                    {isCash && (
+                      <span className="rounded-full bg-amber-500/30 text-amber-300 px-1.5 py-0.5 text-[9px] font-bold">
+                        BAR
+                      </span>
+                    )}
+                    {distKm && (
+                      <span className="text-[9px] text-matcha-400 ml-auto tabular-nums">{distKm} km</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] font-bold text-matcha-100 leading-tight truncate">
+                    {s.order.kunde_name}
+                  </div>
+                  <div className="text-[9px] text-matcha-400 leading-tight truncate mt-0.5">
+                    {s.order.kunde_adresse}
+                  </div>
+                  {s.order.eta_earliest && (() => {
+                    const etaStr = new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    return <div className="text-[9px] text-matcha-500 mt-0.5 tabular-nums">~{etaStr} Uhr</div>;
+                  })()}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Multi-Waypoint Navigation */}
       {openStops.length > 0 && (() => {
         const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);

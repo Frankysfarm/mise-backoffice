@@ -570,6 +570,53 @@ export function LieferdienstClient() {
 
               {/* Orders Grid - Right Side */}
               <div className="flex-1">
+              {/* Live-KPI-Strip */}
+              {(() => {
+                const allToday = [...orders, ...completedOrders]
+                const rejected = completedOrders.filter(o => o.status === 'rejected')
+                const done = completedOrders.filter(o => o.status === 'done')
+                const revenue = done.reduce((s, o) => s + ((o as any).total ?? (o as any).gesamtbetrag ?? 0), 0)
+                const rejRate = allToday.length > 0 ? Math.round((rejected.length / allToday.length) * 100) : 0
+                const prepTimes = done
+                  .filter(o => o.acceptedAt && (o as any).doneAt)
+                  .map(o => (new Date((o as any).doneAt).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000)
+                const avgPrep = prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null
+                if (allToday.length === 0) return null
+                return (
+                  <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="rounded-xl bg-white border border-stone-200 px-3 py-2.5">
+                      <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Heute gesamt</div>
+                      <div className="text-xl font-black text-char tabular-nums">{allToday.length}</div>
+                      <div className="text-[10px] text-stone-400 mt-0.5">{done.length} fertig</div>
+                    </div>
+                    {revenue > 0 && (
+                      <div className="rounded-xl bg-white border border-stone-200 px-3 py-2.5">
+                        <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Umsatz</div>
+                        <div className="text-xl font-black text-emerald-700 tabular-nums">
+                          {revenue.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
+                        </div>
+                        <div className="text-[10px] text-stone-400 mt-0.5">fertige Bestellungen</div>
+                      </div>
+                    )}
+                    {avgPrep !== null && (
+                      <div className="rounded-xl bg-white border border-stone-200 px-3 py-2.5">
+                        <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Ø Zubereitungszeit</div>
+                        <div className={`text-xl font-black tabular-nums ${avgPrep > 25 ? 'text-red-600' : avgPrep > 18 ? 'text-amber-600' : 'text-emerald-700'}`}>
+                          {avgPrep} Min
+                        </div>
+                        <div className="text-[10px] text-stone-400 mt-0.5">{prepTimes.length} Messwerte</div>
+                      </div>
+                    )}
+                    <div className={`rounded-xl border px-3 py-2.5 ${rejRate >= 10 ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-white border-stone-200'}`}>
+                      <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Ablehnungsrate</div>
+                      <div className={`text-xl font-black tabular-nums ${rejRate >= 10 ? 'text-red-700' : rejRate > 5 ? 'text-amber-600' : 'text-emerald-700'}`}>
+                        {rejRate}%
+                      </div>
+                      <div className="text-[10px] text-stone-400 mt-0.5">{rejected.length} abgelehnt</div>
+                    </div>
+                  </div>
+                )
+              })()}
               {/* Live-Lieferungs-Statusbar */}
               {(() => {
                 const activeDrivers = drivers.filter(d => d.status !== 'offline')

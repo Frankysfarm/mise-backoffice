@@ -174,6 +174,8 @@ export function KitchenBoard({
   const [audio, setAudio] = useState(true);
   const [completedToday, setCompletedToday] = useState<number | null>(null);
   const [hourlyData, setHourlyData] = useState<{ h: number; label: string; orders: number }[]>([]);
+  const [cookFlash, setCookFlash] = useState<{ orderId: string; orderNum: string; name: string } | null>(null);
+  const prevTimingStatuses = useRef<Map<string, string>>(new Map());
 
   // Für Vergleich zwischen Renders
   const prev = useRef({
@@ -376,8 +378,27 @@ export function KitchenBoard({
     return () => clearInterval(iv);
   }, [unacceptedAlert, audio]);
 
+  // CookNowFlash: Überwache scheduled→cooking Übergänge
+  useEffect(() => {
+    for (const t of timings) {
+      const prev = prevTimingStatuses.current.get(t.id);
+      if (prev === 'scheduled' && t.status === 'cooking') {
+        const order = orders.find((o) => o.id === t.order_id);
+        if (order) {
+          setCookFlash({ orderId: order.id, orderNum: order.bestellnummer, name: order.kunde_name });
+          if (audio) playSound('new_order');
+          setTimeout(() => setCookFlash(null), 9000);
+        }
+      }
+      prevTimingStatuses.current.set(t.id, t.status);
+    }
+  }, [timings, orders, audio]);
+
   return (
     <div className="space-y-4">
+      {/* Vollbild-Flash: scheduled→cooking Übergang */}
+      {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
+
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
@@ -2353,6 +2374,58 @@ function PrepItemsPanel({ orders }: { orders: Order[] }) {
             + {items.length - 12} weitere Positionen
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ CookNowFlash ------------------------------ */
+
+function CookNowFlash({
+  flash,
+  onDismiss,
+}: {
+  flash: { orderId: string; orderNum: string; name: string };
+  onDismiss: () => void;
+}) {
+  const [secs, setSecs] = useState(9);
+  useEffect(() => {
+    if (secs <= 0) { onDismiss(); return; }
+    const t = setTimeout(() => setSecs((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secs, onDismiss]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-orange-600/95 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
+      onClick={onDismiss}
+    >
+      <div className="text-center px-6 select-none">
+        <div className="mb-4 flex items-center justify-center">
+          <Flame className="h-20 w-20 text-white animate-bounce" />
+        </div>
+        <div className="font-display text-6xl font-black uppercase tracking-tight text-white drop-shadow-lg">
+          Jetzt kochen!
+        </div>
+        <div className="mt-3 text-2xl font-bold text-orange-100">
+          #{flash.orderNum.replace('FF-', '')} · {flash.name}
+        </div>
+        <div className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white/20 px-6 py-3 text-lg font-bold text-white">
+          <span className="font-mono tabular-nums">{secs}s</span>
+          <span className="text-orange-200">— tippen zum schließen</span>
+        </div>
+        {/* Countdown arc */}
+        <svg className="mx-auto mt-4" width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+          <circle
+            cx="32" cy="32" r="28"
+            fill="none" stroke="white" strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray={`${2 * Math.PI * 28}`}
+            strokeDashoffset={`${2 * Math.PI * 28 * (1 - secs / 9)}`}
+            style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 1s linear' }}
+          />
+        </svg>
       </div>
     </div>
   );

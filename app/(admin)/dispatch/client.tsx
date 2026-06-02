@@ -409,11 +409,14 @@ export function DispatchBoard({
                 Gerade ist niemand unterwegs.
               </div>
             ) : (
-              <div className="space-y-3 p-4">
-                {batches.map((b) => (
-                  <BatchRow key={b.id} batch={b} />
-                ))}
-              </div>
+              <>
+                <ActiveTourSummaryBar batches={batches} />
+                <div className="space-y-3 p-4">
+                  {batches.map((b) => (
+                    <BatchRow key={b.id} batch={b} />
+                  ))}
+                </div>
+              </>
             )}
           </Card>
         </div>
@@ -1213,6 +1216,110 @@ function DriverRow({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ ActiveTourSummaryBar ------------------------------ */
+
+function ActiveTourSummaryBar({ batches }: { batches: Batch[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const totalStops = batches.reduce((s, b) => s + b.stops.length, 0);
+  const doneStops  = batches.reduce((s, b) => s + b.stops.filter((st) => st.geliefert_am).length, 0);
+  const leftStops  = totalStops - doneStops;
+  const pct        = totalStops > 0 ? Math.round((doneStops / totalStops) * 100) : 0;
+
+  const lateBatches = batches.filter((b) => {
+    if (!b.startzeit || !b.total_eta_min) return false;
+    const etaMs = new Date(b.startzeit).getTime() + b.total_eta_min * 60_000;
+    return etaMs < Date.now() && b.stops.some((s) => !s.geliefert_am);
+  }).length;
+
+  return (
+    <div className="border-b px-4 py-3 bg-matcha-50/50">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-[11px] font-bold text-matcha-800 uppercase tracking-wider">
+            {batches.length} Tour{batches.length !== 1 ? 'en' : ''} aktiv
+          </span>
+          <span className="text-[11px] text-muted-foreground tabular-nums">
+            <span className="font-bold text-matcha-700">{doneStops}</span>/{totalStops} Stops geliefert
+          </span>
+          {leftStops > 0 && (
+            <span className="text-[11px] text-muted-foreground">
+              <span className="font-bold text-blue-700">{leftStops}</span> ausstehend
+            </span>
+          )}
+          {lateBatches > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700 animate-pulse">
+              ⚠ {lateBatches} überzogen
+            </span>
+          )}
+        </div>
+        <span className={cn(
+          'text-[11px] font-black tabular-nums rounded-full px-2 py-0.5',
+          pct === 100 ? 'bg-matcha-500 text-white' :
+          pct >= 60   ? 'bg-blue-100 text-blue-800' :
+                        'bg-stone-100 text-stone-700',
+        )}>
+          {pct}%
+        </span>
+      </div>
+      {/* Combined progress bar with per-tour segments */}
+      <div className="flex gap-0.5 h-2 rounded-full overflow-hidden bg-muted">
+        {batches.map((b) => {
+          const bTotal = b.stops.length;
+          const bDone  = b.stops.filter((s) => s.geliefert_am).length;
+          const bPct   = bTotal > 0 ? (bTotal / totalStops) * 100 : 0;
+          const donePct = bTotal > 0 ? (bDone / bTotal) * 100 : 0;
+          return (
+            <div
+              key={b.id}
+              className="relative rounded-sm overflow-hidden bg-muted"
+              style={{ width: `${bPct}%` }}
+              title={`${b.fahrer?.vorname ?? '?'}: ${bDone}/${bTotal}`}
+            >
+              <div
+                className={cn(
+                  'h-full transition-all',
+                  donePct === 100 ? 'bg-matcha-500' :
+                  donePct > 50   ? 'bg-blue-400' :
+                                   'bg-blue-300',
+                )}
+                style={{ width: `${donePct}%` }}
+              />
+            </div>
+          );
+        })}
+      </div>
+      {/* Per-driver mini badges */}
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {batches.map((b) => {
+          const bTotal = b.stops.length;
+          const bDone  = b.stops.filter((s) => s.geliefert_am).length;
+          const name   = b.fahrer ? `${b.fahrer.vorname[0]}. ${b.fahrer.nachname}` : '—';
+          return (
+            <div
+              key={b.id}
+              className="inline-flex items-center gap-1 rounded-md border bg-white px-2 py-0.5 text-[10px] font-semibold"
+              title={name}
+            >
+              <span className="text-muted-foreground truncate max-w-[60px]">{name}</span>
+              <span className={cn(
+                'rounded px-1 font-black',
+                bDone === bTotal ? 'bg-matcha-100 text-matcha-700' : 'bg-blue-50 text-blue-700',
+              )}>
+                {bDone}/{bTotal}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
