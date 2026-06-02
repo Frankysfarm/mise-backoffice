@@ -351,6 +351,9 @@ export function DispatchBoard({
         setSelected(new Set(ids));
       }} />
 
+      {/* Ausstehender Warenwert — Aufschlüsselung nach Zahlungsart + Wartezeit */}
+      <PendingValuePanel orders={readyOrders} />
+
       {/* Live Driver Map */}
       <LiveDriverMapPanel drivers={drivers} batches={batches} orders={filteredOrders} />
 
@@ -584,6 +587,86 @@ function DeliveryChronikPanel({ locationId }: { locationId: string | null }) {
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ PendingValuePanel ------------------------------ */
+
+function PendingValuePanel({ orders }: { orders: ReadyOrder[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (orders.length === 0) return null;
+
+  const now = Date.now();
+  const totalValue = orders.reduce((s, o) => s + o.gesamtbetrag, 0);
+
+  const byPay = {
+    bar:    orders.filter((o) => o.zahlungsart === 'bar'),
+    karte:  orders.filter((o) => o.zahlungsart === 'karte'),
+    online: orders.filter((o) => !['bar', 'karte'].includes(o.zahlungsart)),
+  };
+
+  const longWait  = orders.filter((o) => o.fertig_am && (now - new Date(o.fertig_am).getTime()) >= 10 * 60_000);
+  const medWait   = orders.filter((o) => o.fertig_am && (now - new Date(o.fertig_am).getTime()) >= 5 * 60_000 && (now - new Date(o.fertig_am).getTime()) < 10 * 60_000);
+  const freshWait = orders.filter((o) => !o.fertig_am || (now - new Date(o.fertig_am).getTime()) < 5 * 60_000);
+
+  const waitTimes = orders.map((o) => o.fertig_am ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0);
+  const avgWait = waitTimes.length > 0 ? Math.round(waitTimes.reduce((s, v) => s + v, 0) / waitTimes.length) : 0;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border bg-card px-4 py-2.5">
+      <div className="flex items-center gap-2">
+        <TrendingUp className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-base font-black text-matcha-800">{euro(totalValue)}</span>
+        <span className="text-xs text-muted-foreground">{orders.length} Bestellungen bereit</span>
+      </div>
+      <div className="h-4 w-px bg-border hidden sm:block" />
+      <div className="flex flex-wrap items-center gap-1.5">
+        {byPay.bar.length > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[10px] font-bold">
+            <Banknote className="h-3 w-3" />
+            {byPay.bar.length}× Bar · {euro(byPay.bar.reduce((s, o) => s + o.gesamtbetrag, 0))}
+          </span>
+        )}
+        {byPay.karte.length > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-800 px-2 py-0.5 text-[10px] font-bold">
+            <CreditCard className="h-3 w-3" />
+            {byPay.karte.length}× Karte · {euro(byPay.karte.reduce((s, o) => s + o.gesamtbetrag, 0))}
+          </span>
+        )}
+        {byPay.online.length > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-matcha-100 text-matcha-800 px-2 py-0.5 text-[10px] font-bold">
+            <Wifi className="h-3 w-3" />
+            {byPay.online.length}× Online
+          </span>
+        )}
+      </div>
+      <div className="h-4 w-px bg-border hidden sm:block" />
+      <div className="flex items-center gap-1.5">
+        {longWait.length > 0 && (
+          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700 animate-pulse">
+            {longWait.length} &gt;10m
+          </span>
+        )}
+        {medWait.length > 0 && (
+          <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700">
+            {medWait.length} 5–10m
+          </span>
+        )}
+        {freshWait.length > 0 && (
+          <span className="rounded-full bg-matcha-100 px-2 py-0.5 text-[10px] font-bold text-matcha-700">
+            {freshWait.length} frisch
+          </span>
+        )}
+        {avgWait > 0 && (
+          <span className="text-[10px] tabular-nums text-muted-foreground">⌀ {avgWait}m</span>
+        )}
+      </div>
+    </div>
   );
 }
 

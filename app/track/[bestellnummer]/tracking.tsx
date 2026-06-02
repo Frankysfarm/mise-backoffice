@@ -324,6 +324,25 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           </ol>
         </div>
 
+        {/* Fahrer zugewiesen — Essen wird gerade abgeholt */}
+        {isDelivery && order.fahrer_id && order.fahrer_vorname && order.status === 'fertig' && (
+          <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-subtle">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-matcha-100 font-display text-base font-bold text-matcha-700">
+              {order.fahrer_vorname[0].toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-display text-sm font-bold">{order.fahrer_vorname} ist auf dem Weg</div>
+              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span>{vehicleEmoji(order.fahrer_fahrzeug)}</span>
+                <span>Holt dein Essen gerade ab · startet gleich</span>
+              </div>
+            </div>
+            <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+              Abholung
+            </span>
+          </div>
+        )}
+
         {/* Fahrer + Map */}
         {isDelivery && order.fahrer_id && (order.status === 'unterwegs' || order.status === 'geliefert') && (
           <div className="overflow-hidden rounded-2xl border bg-card shadow-subtle">

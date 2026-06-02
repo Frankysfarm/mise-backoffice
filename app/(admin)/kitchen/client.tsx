@@ -175,6 +175,7 @@ export function KitchenBoard({
   const [completedToday, setCompletedToday] = useState<number | null>(null);
   const [hourlyData, setHourlyData] = useState<{ h: number; label: string; orders: number }[]>([]);
   const [cookFlash, setCookFlash] = useState<{ orderId: string; orderNum: string; name: string } | null>(null);
+  const [rushSnoozedUntil, setRushSnoozedUntil] = useState(0);
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
 
   // Für Vergleich zwischen Renders
@@ -419,6 +420,13 @@ export function KitchenBoard({
 
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
+
+      {/* Rush Mode Banner — wenn ≥3 Bestellungen gleichzeitig ≥10 Min überfällig */}
+      <RushModeBanner
+        orders={filtered}
+        snoozedUntil={rushSnoozedUntil}
+        onSnooze={() => setRushSnoozedUntil(Date.now() + 3 * 60_000)}
+      />
 
       {/* Pickup-Forecast: kochende Lieferbestellungen die in <15 Min fertig sind */}
       <PickupForecastPanel orders={filtered} />
@@ -1035,6 +1043,81 @@ function OverdueOrdersAlert({ orders }: { orders: Order[] }) {
             </span>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ RushModeBanner ------------------------------ */
+
+function RushModeBanner({
+  orders,
+  snoozedUntil,
+  onSnooze,
+}: {
+  orders: Order[];
+  snoozedUntil: number;
+  onSnooze: () => void;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  if (snoozedUntil > now) return null;
+
+  const critical = orders.filter((o) => {
+    if (['fertig', 'unterwegs'].includes(o.status)) return false;
+    if (!o.bestellt_am) return false;
+    const waitMin = (now - new Date(o.bestellt_am).getTime()) / 60_000;
+    return waitMin >= (o.geschaetzte_zubereitung_min ?? 15) + 10;
+  });
+  if (critical.length < 3) return null;
+
+  const sorted = [...critical].sort((a, b) => {
+    const aOver = a.bestellt_am ? (now - new Date(a.bestellt_am).getTime()) / 60_000 - (a.geschaetzte_zubereitung_min ?? 15) : 0;
+    const bOver = b.bestellt_am ? (now - new Date(b.bestellt_am).getTime()) / 60_000 - (b.geschaetzte_zubereitung_min ?? 15) : 0;
+    return bOver - aOver;
+  });
+
+  return (
+    <div className="relative overflow-hidden rounded-xl border-2 border-red-500 bg-red-600 px-4 py-3 text-white animate-in slide-in-from-top duration-300">
+      <div className="absolute inset-0 bg-red-700/40 animate-pulse pointer-events-none" />
+      <div className="relative flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+          <Flame className="h-6 w-6 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-lg font-black uppercase tracking-tight">
+            Rush Mode — {critical.length} kritisch überfällig!
+          </div>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {sorted.slice(0, 6).map((o) => {
+              const waitMin = o.bestellt_am ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000) : 0;
+              const overMin = waitMin - (o.geschaetzte_zubereitung_min ?? 15);
+              return (
+                <span key={o.id} className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold">
+                  #{o.bestellnummer.replace('FF-', '')}
+                  <span className="rounded-full bg-white px-1 text-[9px] font-black text-red-700">
+                    +{overMin}m
+                  </span>
+                </span>
+              );
+            })}
+            {critical.length > 6 && (
+              <span className="text-[11px] text-red-200">+{critical.length - 6} weitere</span>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={onSnooze}
+          className="shrink-0 rounded-full bg-white/20 p-1.5 hover:bg-white/30 transition"
+          title="3 Minuten schließen"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );

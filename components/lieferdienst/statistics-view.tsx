@@ -302,6 +302,36 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         )
       })()}
 
+      {/* Bestellgeschwindigkeit — Ampel-Indikator */}
+      {ratePerHour > 0 && (() => {
+        const level = ratePerHour >= 10 ? 'hoch' : ratePerHour >= 5 ? 'normal' : 'niedrig'
+        const levelColor = level === 'hoch' ? 'border-red-200 bg-red-50' : level === 'normal' ? 'border-amber-200 bg-amber-50' : 'border-stone-200 bg-stone-50'
+        const dotColor = level === 'hoch' ? 'bg-red-500' : level === 'normal' ? 'bg-amber-500' : 'bg-stone-400'
+        const textColor = level === 'hoch' ? 'text-red-700' : level === 'normal' ? 'text-amber-700' : 'text-stone-500'
+        const pct = Math.min(100, Math.round((ratePerHour / 15) * 100))
+        const label = level === 'hoch' ? 'Stoßzeit' : level === 'normal' ? 'Normal' : 'Ruhig'
+        return (
+          <div className={`rounded-2xl border p-4 flex items-center gap-4 ${levelColor}`}>
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white border border-current/10">
+              <span className={`absolute inline-flex h-full w-full rounded-full opacity-50 ${dotColor} ${level === 'hoch' ? 'animate-ping' : ''}`} />
+              <span className={`relative inline-flex h-5 w-5 rounded-full ${dotColor}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className={`text-sm font-bold ${textColor}`}>{label} · {ratePerHour} Bestellungen/h</span>
+                <span className="text-xs text-stone-400">{ordersLastHour} letzte Stunde</span>
+              </div>
+              <div className="h-2 rounded-full bg-white/60 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${level === 'hoch' ? 'bg-red-400' : level === 'normal' ? 'bg-amber-400' : 'bg-stone-300'}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Trend: Heute vs. Gestern */}
       {trendData && (
         <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
