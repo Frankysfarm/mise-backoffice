@@ -87,6 +87,7 @@ export default async function AnalyticsPage() {
         redemptions={(vouchersRedeemed.data as any[]) ?? []}
         campaigns={(campaignsStats.data as any[]) ?? []}
         today={today}
+        locationId={empT.location_id ?? null}
       />
     </>
   );

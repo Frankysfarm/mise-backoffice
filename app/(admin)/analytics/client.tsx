@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn, euro } from '@/lib/utils';
 import {
-  Banknote, Bike, CreditCard, Globe, MailOpen, Package, Ticket, TrendingDown, TrendingUp, Users,
+  Banknote, Bike, CreditCard, Download, FileText, Globe, MailOpen, Package, Ticket, TrendingDown, TrendingUp, Users,
 } from 'lucide-react';
 
 type Order = {
@@ -23,7 +23,7 @@ type Redemption = { rabatt_betrag: number; created_at: string };
 type CampaignStat = { versendet_count: number; geoeffnet_count: number; geklickt_count: number };
 
 export function AnalyticsDashboard({
-  orders, pos, posPrev, topItems, onlineDrivers, activeEmployees, redemptions, campaigns, today,
+  orders, pos, posPrev, topItems, onlineDrivers, activeEmployees, redemptions, campaigns, today, locationId,
 }: {
   orders: Order[]; pos: PosTx[]; posPrev: PosTx[];
   topItems: TopItem[];
@@ -31,6 +31,7 @@ export function AnalyticsDashboard({
   redemptions: Redemption[];
   campaigns: CampaignStat[];
   today: string;
+  locationId: string | null;
 }) {
   // =============== KPIs ===============
   const kpis = useMemo(() => {
@@ -307,7 +308,64 @@ export function AnalyticsDashboard({
           <div className="text-xs text-muted-foreground">davon {onlineDrivers} Fahrer online</div>
         </Card>
       </div>
+
+      {/* BI-Export */}
+      {locationId && <ExportPanel locationId={locationId} today={today} />}
     </div>
+  );
+}
+
+function ExportPanel({ locationId, today }: { locationId: string; today: string }) {
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const from30 = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10);
+
+  async function downloadCSV(format: 'orders' | 'drivers') {
+    setLoading(format);
+    try {
+      const params = new URLSearchParams({ format, location_id: locationId, from: from30, to: today });
+      const res = await fetch(`/api/delivery/admin/reporting/export?${params}`);
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = format === 'orders' ? `mise-bestellungen-${today}.csv` : `mise-fahrer-${today}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <FileText size={16} className="text-matcha-700" />
+        <h2 className="font-display font-bold">Daten-Export · letzte 30 Tage</h2>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={() => downloadCSV('orders')}
+          disabled={loading === 'orders'}
+          className="inline-flex items-center gap-2 rounded-lg border border-matcha-300 bg-matcha-50 px-4 py-2 text-sm font-semibold text-matcha-800 hover:bg-matcha-100 disabled:opacity-50 transition"
+        >
+          <Download size={14} />
+          {loading === 'orders' ? 'Wird erstellt…' : 'Bestellungen CSV'}
+        </button>
+        <button
+          onClick={() => downloadCSV('drivers')}
+          disabled={loading === 'drivers'}
+          className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 disabled:opacity-50 transition"
+        >
+          <Download size={14} />
+          {loading === 'drivers' ? 'Wird erstellt…' : 'Fahrer-Performance CSV'}
+        </button>
+      </div>
+      <div className="mt-3 text-[11px] text-muted-foreground">
+        Export-Zeitraum: {from30} — {today} · Max. 10 000 Zeilen · RFC-4180-CSV
+      </div>
+    </Card>
   );
 }
 

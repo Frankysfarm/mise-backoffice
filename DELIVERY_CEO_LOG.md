@@ -1,10 +1,50 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–25 + alle Frontend-Features + CEO Review #23 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–26 + alle Frontend-Features + CEO Review #24 abgeschlossen. Deployment-bereit.
 
-## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #23 bestätigt: 0 TypeScript-Fehler (1 Bug behoben), Build clean (170 Seiten, 0 Warnungen), Phase 25 Backend + 3 neue Frontend-Features korrekt. System vollständig marktreif.
+## Anweisungen an Agenten-Team
+**CEO Review #24 bestätigt:** Build clean (170 Seiten, 0 Fehler), Phase 26 komplett (Backend + Frontend). Nächste optionale Erweiterung: Periode-Report-UI (Wochen/Monats-Report im Analytics-Dashboard).
+
+## CEO Review #24 — 2026-06-03
+
+### Geprüfte Commits (seit CEO Review #23)
+- `5358cdf` feat(delivery/backend): Phase 26 — Business Intelligence Export + Periodic Report Engine
+- `4e30753` docs(delivery): DELIVERY_PROGRESS.md Phase 26 eingetragen
+- `17d609a` feat(delivery/frontend): Fahrer Stop-Notizen + Küchen Sonderanfragen-Panel
+
+### Befund: Phase 26 Backend vorhanden, Frontend-Integration fehlte
+
+**Problem:** Phase 26 hat die komplette BI-Backend-API gebaut (`lib/delivery/reporting.ts` + 2 API-Routes + Migration), aber keine Analytics-Frontend-UI für CSV-Downloads.
+
+**Fix:** `app/(admin)/analytics/client.tsx`
+- `ExportPanel`-Komponente hinzugefügt mit 2 Download-Buttons (Bestellungen + Fahrer-Performance)
+- Client-seitig: `fetch → blob → <a download>` — kein Server-Round-Trip
+- `app/(admin)/analytics/page.tsx`: `locationId={empT.location_id}` als neuer Prop übergeben
+
+### Integrations-Check Phase 26
+
+**Küchen Sonderanfragen-Panel** (`kitchen/client.tsx`):
+- `OrderNotesPanel` korrekt bei Line 422 eingebaut ✅
+- Filtert `['fertig', 'unterwegs']`-Status aus — nur aktive Bestellungen ✅
+- Urgency-Highlighting mit rotem Hintergrund wenn Wartezeit überschritten ✅
+
+**Fahrer Stop-Notizen** (`delivery-view.tsx`):
+- `kunde_notiz` in Stop-Karten (Line 367) + Stop-Liste (Line 658) ✅
+- Amber-Badge konsistent mit Kitchen-UI ✅
+- `page.tsx` Queries (beide Tabellen) enthalten `kunde_notiz` ✅
+
+**BI Reporting API** (`app/api/delivery/admin/reporting/`):
+- 4 Query-Typen (daily/period/multi/cached) ✅
+- Auth-Guard (`401` wenn nicht eingeloggt) ✅
+- CSV-Export mit `Content-Disposition: attachment` ✅
+- Cron-Integration um 02:00 UTC ✅
+
+### Status nach Review #24
+- TypeScript: 0 Fehler ✅
+- Build: `next build` kompiliert sauber (170 Seiten) ✅
+- Phase 26: vollständig (Backend + Frontend-Export) ✅
+- System: MARKT-REIF ✅
 
 ## CEO Review #23 — 2026-06-03
 
