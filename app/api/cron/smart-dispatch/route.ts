@@ -20,6 +20,7 @@ import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
 import { runDelayMonitorAllLocations } from '@/lib/delivery/delay-monitor';
 import { releaseScheduledOrders } from '@/lib/delivery/scheduled';
 import { processAllWebhooks } from '@/lib/delivery/webhooks';
+import { runDailyReportCache } from '@/lib/delivery/reporting';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -59,7 +60,11 @@ export async function GET(req: NextRequest) {
     // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
     const isRatingTick = nowMin % 10 < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult] = await Promise.all([
+    // Report-Cache täglich um 02:00 UTC (Tag-Report + Wochen-Report für alle Locations)
+    const nowHour       = new Date().getUTCHours();
+    const isReportTick  = nowHour === 2 && nowMin < 2;
+
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -95,6 +100,10 @@ export async function GET(req: NextRequest) {
       releaseScheduledOrders().catch(() => ({ released: 0, orders: [] as string[] })),
       // Webhook-Queue verarbeiten: Events an externe Systeme ausliefern
       processAllWebhooks().catch(() => ({ processed: 0, succeeded: 0, failed: 0, disabled: 0 })),
+      // Report-Cache täglich um 02:00 UTC: Tages- + Wochen-Snapshot für alle aktiven Locations
+      isReportTick
+        ? runDailyReportCache().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -138,6 +147,7 @@ export async function GET(req: NextRequest) {
         succeeded: webhookResult.succeeded,
         failed:    webhookResult.failed,
       },
+      ...(reportCacheResult ? { report_cache: reportCacheResult } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
