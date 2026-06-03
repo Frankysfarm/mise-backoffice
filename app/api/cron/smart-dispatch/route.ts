@@ -19,6 +19,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
 import { runDelayMonitorAllLocations } from '@/lib/delivery/delay-monitor';
 import { releaseScheduledOrders } from '@/lib/delivery/scheduled';
+import { processAllWebhooks } from '@/lib/delivery/webhooks';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
     // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
     const isRatingTick = nowMin % 10 < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -92,6 +93,8 @@ export async function GET(req: NextRequest) {
       })),
       // Geplante Vorbestellungen freigeben wenn Küchen-Startzeit erreicht
       releaseScheduledOrders().catch(() => ({ released: 0, orders: [] as string[] })),
+      // Webhook-Queue verarbeiten: Events an externe Systeme ausliefern
+      processAllWebhooks().catch(() => ({ processed: 0, succeeded: 0, failed: 0, disabled: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -130,6 +133,11 @@ export async function GET(req: NextRequest) {
         vouchers_created: delayResult.totalVouchers,
       },
       scheduled_releases: scheduleResult.released,
+      webhooks: {
+        processed: webhookResult.processed,
+        succeeded: webhookResult.succeeded,
+        failed:    webhookResult.failed,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

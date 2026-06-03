@@ -1,11 +1,49 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–24 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #22 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–25 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #22 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 25: Webhook System + External Integration Engine [DONE ✅] — 2026-06-03
+- [x] `scripts/migrations/025_webhooks.sql`
+  - `delivery_webhooks` Tabelle: URL, HMAC-Secret, Events[], is_active, consecutive_failures, last_delivered_at
+  - `delivery_webhook_deliveries` Tabelle: Delivery-Log mit attempt_count + next_retry_at (Retry-Queue)
+  - `v_webhook_summary` VIEW: Webhook-Stats (total_delivered, pending_deliveries, failed_deliveries) für Admin
+  - 3 Performance-Indizes: Pending-Queue (WHERE delivered_at IS NULL), Admin-Timeline, aktive Webhooks per Location
+- [x] `lib/delivery/webhooks.ts` — Webhook Engine (10 Funktionen)
+  - `registerWebhook(locationId, url, secret, events[], description)`: validiert URL/Secret/Events, INSERT
+  - `listWebhooks(locationId)`: lädt v_webhook_summary mit Stats
+  - `getWebhook(locationId, webhookId)`: Einzel-Lookup
+  - `updateWebhook(locationId, webhookId, changes)`: partielle Updates (url/secret/events/is_active/description)
+  - `deleteWebhook(locationId, webhookId)`: löscht Webhook + Deliveries via CASCADE
+  - `queueWebhookEvent(locationId, eventType, payload)`: findet aktive Webhooks die den Event-Typ abonniert haben → Delivery-Einträge anlegen (fire-and-forget)
+  - `processWebhookQueue(limit)`: verarbeitet pending Deliveries — HMAC-signiert, POST mit 10s Timeout
+    - Retry-Backoff: 1 min → 5 min → 30 min → 2h → 8h (5 Versuche max)
+    - Auto-Disable: nach 10 aufeinanderfolgenden Fehlern → is_active = false
+    - Signatur-Header: `X-Mise-Signature: <sha256-hmac>`, `X-Mise-Event: <type>`
+  - `processAllWebhooks()`: Cron-Wrapper (bis zu 100 Deliveries pro Tick)
+  - `sendTestEvent(locationId, webhookId)`: Test-POST direkt (ohne Queue) für URL-Validierung
+  - `getDeliveryLog(locationId, webhookId, limit)`: Delivery-History für Admin
+- [x] `app/api/delivery/admin/webhooks/route.ts` — Webhook-Verwaltung
+  - `GET ?location_id=...` — Liste mit Stats aus v_webhook_summary; Graceful-Fallback wenn Migration fehlt
+  - `POST { location_id, url, secret, events[], description? }` — Webhook registrieren (409 bei Duplikat)
+- [x] `app/api/delivery/admin/webhooks/[webhookId]/route.ts` — Einzel-Webhook
+  - `GET ?location_id=...` — Details; `?log=true&limit=N` → + Delivery-Log (max 200)
+  - `PATCH { location_id, url?, secret?, events?, is_active?, description? }` — Felder aktualisieren
+  - `DELETE ?location_id=...` — löschen
+  - `POST ?action=test { location_id }` — Test-Event senden (gibt ok, status, body, signature zurück)
+- [x] Cron-Integration (`app/api/cron/smart-dispatch/route.ts`)
+  - `processAllWebhooks()` parallel im 2-Min-Tick
+  - Response enthält `webhooks: { processed, succeeded, failed }`
+- [x] Tour-Status-Integration (`app/api/delivery/tours/[id]/status/route.ts`)
+  - `on_route` → `queueWebhookEvent(batch_picked_up)` — Fahrer hat abgeholt
+  - `delivered` → `queueWebhookEvent(batch_completed)` — Tour abgeschlossen
+  - `cancelled` → `queueWebhookEvent(batch_cancelled)` — Tour storniert
+  - Alle fire-and-forget, blockieren Response nicht
+- Build: `./node_modules/.bin/next build` ✓ (0 Fehler, 0 Warnungen)
 
 ## Phase 24: Scheduled Orders + Pre-Order Management [DONE ✅] — 2026-06-03
 - [x] `scripts/migrations/024_scheduled_orders.sql`

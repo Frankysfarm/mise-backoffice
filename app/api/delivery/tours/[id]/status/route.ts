@@ -10,6 +10,7 @@ import { recomputeDriverRating } from '@/lib/delivery/rating';
 import { calculateDeliveryPayout } from '@/lib/delivery/payout';
 import { recoverCancelledBatch } from '@/lib/delivery/recovery';
 import { generateRatingToken } from '@/lib/delivery/satisfaction';
+import { queueWebhookEvent } from '@/lib/delivery/webhooks';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,40 @@ export async function PATCH(
   // Bei Stornierung: Recovery Engine befreit nicht-gelieferte Stops (fire-and-forget)
   if (body.state === 'cancelled') {
     recoverCancelledBatch(params.id, 'admin_cancelled', true).catch(() => {});
+  }
+
+  // Webhook-Events für externe Systeme (fire-and-forget)
+  if (body.state === 'on_route' || body.state === 'delivered' || body.state === 'cancelled') {
+    (async () => {
+      try {
+        const { data: batchForWebhook } = await sb
+          .from('mise_delivery_batches')
+          .select('id, driver_id, location_id')
+          .eq('id', params.id)
+          .maybeSingle();
+
+        if (!batchForWebhook?.location_id) return;
+        const locId = batchForWebhook.location_id as string;
+
+        if (body.state === 'on_route') {
+          await queueWebhookEvent(locId, 'batch_picked_up', {
+            batch_id:  params.id,
+            driver_id: batchForWebhook.driver_id ?? null,
+          });
+        } else if (body.state === 'delivered') {
+          await queueWebhookEvent(locId, 'batch_completed', {
+            batch_id:   params.id,
+            driver_id:  batchForWebhook.driver_id ?? null,
+            completed_at: new Date().toISOString(),
+          });
+        } else if (body.state === 'cancelled') {
+          await queueWebhookEvent(locId, 'batch_cancelled', {
+            batch_id: params.id,
+            reason:   'admin_cancelled',
+          });
+        }
+      } catch { /* fire-and-forget */ }
+    })();
   }
 
   return NextResponse.json({ ok: true, state: body.state });
