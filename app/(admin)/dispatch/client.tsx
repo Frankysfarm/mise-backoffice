@@ -1801,9 +1801,17 @@ function BatchRow({ batch }: { batch: Batch }) {
                     )}>
                       {isDone ? <Check className="h-3.5 w-3.5 text-matcha-600" /> : s.reihenfolge}
                     </div>
-                    <div className="mt-1 w-16 text-center text-[9px] leading-tight truncate text-muted-foreground">
+                    <div
+                      className="mt-1 w-20 text-center text-[9px] leading-tight truncate text-muted-foreground font-medium"
+                      title={[s.order?.kunde_name, s.order?.kunde_adresse].filter(Boolean).join(' · ')}
+                    >
                       {s.order?.kunde_name ?? '—'}
                     </div>
+                    {s.order?.kunde_adresse && (
+                      <div className="w-20 text-center text-[8px] leading-tight truncate text-muted-foreground/60">
+                        {s.order.kunde_adresse.split(',')[0]}
+                      </div>
+                    )}
                     {stopEtaStr && (
                       <div className={cn(
                         'text-[8px] tabular-nums text-center font-bold',

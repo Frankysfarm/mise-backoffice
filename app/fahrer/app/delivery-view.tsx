@@ -278,14 +278,7 @@ export function DeliveryView({
             <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5 flex items-center gap-2">
               <span>Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min</span>
               {gpsSpeed != null && gpsSpeed > 0 && (
-                <span className={cn(
-                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
-                  gpsSpeed > 50 ? 'bg-red-500/30 text-red-300' :
-                  gpsSpeed > 30 ? 'bg-amber-500/30 text-amber-200' :
-                  'bg-accent/20 text-accent',
-                )}>
-                  {gpsSpeed} km/h
-                </span>
+                <SpeedArcGauge speed={gpsSpeed} />
               )}
             </div>
             {totalEtaMin != null && batchStartedAt && (() => {
@@ -871,6 +864,32 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
       {closing ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
       {closing ? 'Wird abgeschlossen…' : 'Tour abschließen'}
     </button>
+  );
+}
+
+function SpeedArcGauge({ speed }: { speed: number }) {
+  const MAX_SPEED = 60;
+  const pct = Math.min(1, speed / MAX_SPEED);
+  const r = 14;
+  const arc = Math.PI * r;
+  const color = speed > 50 ? '#f97316' : speed > 30 ? '#d4a843' : '#4ae68a';
+  return (
+    <div className="flex flex-col items-center shrink-0" title={`${speed} km/h`}>
+      <svg width="36" height="22" viewBox="0 0 36 22" className="overflow-visible">
+        <path d={`M 4 18 A ${r} ${r} 0 0 1 32 18`} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3.5" strokeLinecap="round" />
+        <path
+          d={`M 4 18 A ${r} ${r} 0 0 1 32 18`}
+          fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray={arc}
+          strokeDashoffset={arc * (1 - pct)}
+          style={{ transition: 'stroke-dashoffset 0.8s ease, stroke 0.5s' }}
+        />
+        <text x="18" y="17" textAnchor="middle" fontSize="8" fontWeight="800" fill={color} fontFamily="monospace">
+          {speed}
+        </text>
+      </svg>
+      <span className="text-[7px] text-matcha-400 font-bold leading-none">km/h</span>
+    </div>
   );
 }
 

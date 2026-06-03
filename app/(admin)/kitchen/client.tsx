@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Euro, Flame, Home as HomeIcon,
-  Inbox, Loader2, MapPin, Package, ShoppingBag, TrendingUp, Utensils, X, Zap,
+  Inbox, Loader2, MapPin, Monitor, Package, ShoppingBag, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder } from './actions';
@@ -176,6 +176,7 @@ export function KitchenBoard({
   const [hourlyData, setHourlyData] = useState<{ h: number; label: string; orders: number }[]>([]);
   const [cookFlash, setCookFlash] = useState<{ orderId: string; orderNum: string; name: string } | null>(null);
   const [rushSnoozedUntil, setRushSnoozedUntil] = useState(0);
+  const [bigDisplay, setBigDisplay] = useState(false);
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
 
   // Für Vergleich zwischen Renders
@@ -478,6 +479,17 @@ export function KitchenBoard({
               Test
             </button>
           )}
+          <button
+            onClick={() => setBigDisplay((v) => !v)}
+            className={cn(
+              'inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition',
+              bigDisplay ? 'bg-matcha-700 text-white border-matcha-700' : 'bg-card text-foreground hover:bg-muted',
+            )}
+            title={bigDisplay ? 'Normalmodus' : 'Küchendisplay (TV-Modus)'}
+          >
+            <Monitor className="h-3.5 w-3.5" />
+            {bigDisplay ? 'Normal' : 'TV'}
+          </button>
         </div>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>{filtered.filter((o) => o.status !== 'unterwegs').length} offen</span>
@@ -502,8 +514,13 @@ export function KitchenBoard({
         />
       )}
 
+      {/* Küchendisplay (TV-Modus) */}
+      {bigDisplay && (
+        <KitchenBigDisplayGrid orders={filtered} timings={timings} onClose={() => setBigDisplay(false)} />
+      )}
+
       {/* Kanban */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {!bigDisplay && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {COLUMNS.map((col) => {
           const colOrders = filtered.filter((o) => o.status === col.status);
           const criticalCount = colOrders.filter((o) => isCriticallyLate(o)).length;
@@ -616,6 +633,212 @@ export function KitchenBoard({
             </section>
           );
         })}
+      </div>}
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenBigDisplayGrid ------------------------------ */
+
+function KitchenBigDisplayGrid({
+  orders,
+  timings,
+  onClose,
+}: {
+  orders: Order[];
+  timings: KitchenTiming[];
+  onClose: () => void;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  const ready   = orders.filter((o) => o.status === 'fertig');
+
+  const sortedCooking = [...cooking].sort((a, b) => {
+    const aElapsed = a.bestellt_am ? now - new Date(a.bestellt_am).getTime() : 0;
+    const bElapsed = b.bestellt_am ? now - new Date(b.bestellt_am).getTime() : 0;
+    const aEst = (a.geschaetzte_zubereitung_min ?? 15) * 60_000;
+    const bEst = (b.geschaetzte_zubereitung_min ?? 15) * 60_000;
+    return (bElapsed - bEst) - (aElapsed - aEst);
+  });
+
+  return (
+    <div className="fixed inset-0 z-[200] flex flex-col bg-[#0a0f0c] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <ChefHat className="h-6 w-6 text-matcha-400" />
+          <span className="font-display text-xl font-black text-white uppercase tracking-widest">
+            Küchendisplay
+          </span>
+          <span className="text-[10px] font-bold text-matcha-600 uppercase tracking-wider">
+            {cooking.length} kochend · {ready.length} bereit
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-sm text-matcha-500 tabular-nums">
+            {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </span>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main grid */}
+      <div className="flex-1 overflow-auto p-5">
+        {sortedCooking.length === 0 && ready.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center">
+            <ChefHat className="h-24 w-24 text-matcha-800 mb-4" />
+            <div className="font-display text-4xl font-black text-matcha-600">Küche frei</div>
+            <div className="mt-2 text-matcha-700 text-xl">Keine aktiven Bestellungen</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {sortedCooking.map((order) => {
+              const timing = timings.find((t) => t.order_id === order.id) ?? null;
+              const elapsedMs = order.bestellt_am ? now - new Date(order.bestellt_am).getTime() : 0;
+              const est = order.geschaetzte_zubereitung_min ?? 15;
+              const estMs = est * 60_000;
+
+              let pct: number;
+              let remainingSec: number;
+
+              if (timing?.status === 'cooking' && timing.cook_start_at && timing.ready_target) {
+                const start = new Date(timing.cook_start_at).getTime();
+                const end   = new Date(timing.ready_target).getTime();
+                pct = end > start ? Math.min(100, Math.max(0, Math.round((now - start) / (end - start) * 100))) : 100;
+                remainingSec = Math.floor((new Date(timing.ready_target).getTime() - now) / 1000);
+              } else {
+                pct = Math.min(100, Math.round((elapsedMs / estMs) * 100));
+                remainingSec = Math.floor((estMs - elapsedMs) / 1000);
+              }
+
+              const overdue = remainingSec < 0;
+              const absSec  = Math.abs(remainingSec);
+              const displayMin = Math.floor(absSec / 60);
+              const displaySec = absSec % 60;
+              const ringColor =
+                pct >= 100 ? '#ef4444' :
+                pct >= 85  ? '#f97316' :
+                pct >= 60  ? '#eab308' :
+                timing?.status === 'cooking' ? '#3b82f6' : '#22c55e';
+
+              return (
+                <div
+                  key={order.id}
+                  className={cn(
+                    'rounded-2xl p-4 flex flex-col items-center gap-3 transition',
+                    overdue
+                      ? 'bg-red-950/80 border-2 border-red-500 animate-pulse'
+                      : pct >= 85
+                      ? 'bg-orange-950/80 border-2 border-orange-500/70'
+                      : 'bg-matcha-900/80 border border-matcha-700/50',
+                  )}
+                >
+                  {/* SVG Countdown Ring */}
+                  <div className="relative h-24 w-24 flex items-center justify-center">
+                    <svg className="absolute inset-0 -rotate-90" width="96" height="96" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+                      <circle
+                        cx="48" cy="48" r="42" fill="none"
+                        stroke={ringColor} strokeWidth="5" strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 42}`}
+                        strokeDashoffset={`${2 * Math.PI * 42 * (1 - Math.min(1, pct / 100))}`}
+                        style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+                      />
+                    </svg>
+                    <div className="relative text-center">
+                      <div className="font-mono text-xl font-black text-white tabular-nums leading-none">
+                        {overdue ? '+' : ''}{displayMin}:{String(displaySec).padStart(2, '0')}
+                      </div>
+                      <div className="text-[9px] font-bold uppercase tracking-wider mt-0.5" style={{ color: ringColor }}>
+                        {overdue ? 'ÜBERZOGEN' : 'verbleibend'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Order info */}
+                  <div className="text-center space-y-1 w-full">
+                    <div className="font-mono text-[10px] font-bold text-matcha-400">
+                      #{order.bestellnummer.replace('FF-', '')}
+                    </div>
+                    <div className="font-display text-base font-black text-white leading-tight truncate">
+                      {order.kunde_name}
+                    </div>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className={cn(
+                        'rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase',
+                        order.status === 'in_zubereitung' ? 'bg-orange-500/30 text-orange-300' : 'bg-blue-500/30 text-blue-300',
+                      )}>
+                        {order.status === 'in_zubereitung' ? 'kocht' : 'angenommen'}
+                      </span>
+                      {order.typ === 'lieferung' && (
+                        <Bike className="h-3 w-3 text-matcha-500" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Items (max 3) */}
+                  <div className="w-full space-y-0.5 border-t border-white/10 pt-2">
+                    {order.items?.slice(0, 3).map((it) => (
+                      <div key={it.id} className="flex items-center gap-1.5 text-[10px]">
+                        <span className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center font-bold text-white shrink-0 text-[8px]">
+                          {it.menge}
+                        </span>
+                        <span className="text-matcha-300 truncate">{it.name}</span>
+                      </div>
+                    ))}
+                    {order.items && order.items.length > 3 && (
+                      <div className="text-[9px] text-matcha-500">+{order.items.length - 3} weitere</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Ready orders: smaller chips */}
+            {ready.length > 0 && (
+              <div className="col-span-full mt-2">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-matcha-600 mb-2">
+                  Fertig · wartet auf Abholung ({ready.length})
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {ready.map((order) => {
+                    const waitMin = order.fertig_am
+                      ? Math.floor((now - new Date(order.fertig_am).getTime()) / 60_000)
+                      : 0;
+                    const urgent = waitMin >= 10;
+                    return (
+                      <div
+                        key={order.id}
+                        className={cn(
+                          'flex items-center gap-2 rounded-xl border px-3 py-2 text-[11px]',
+                          urgent ? 'border-red-500/50 bg-red-950/50 animate-pulse' : 'border-matcha-700/50 bg-matcha-900/50',
+                        )}
+                      >
+                        <Package className={cn('h-3.5 w-3.5 shrink-0', urgent ? 'text-red-400' : 'text-matcha-400')} />
+                        <span className="font-mono font-bold text-white">#{order.bestellnummer.replace('FF-', '')}</span>
+                        <span className="text-matcha-300">{order.kunde_name}</span>
+                        <span className={cn('font-mono font-bold tabular-nums', urgent ? 'text-red-400' : 'text-matcha-500')}>
+                          {waitMin}m
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
