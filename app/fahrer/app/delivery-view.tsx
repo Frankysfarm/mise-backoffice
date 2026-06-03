@@ -654,6 +654,13 @@ export function DeliveryView({
                       );
                     })()}
                   </div>
+                  {/* Kundennotiz — auch für ausstehende Folge-Stops sichtbar */}
+                  {!done && stop.order.kunde_notiz && (
+                    <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-amber-500/15 border border-amber-400/20 px-2 py-1">
+                      <span className="shrink-0 text-[9px] font-black text-amber-300 uppercase tracking-wider mt-0.5">Notiz:</span>
+                      <span className="text-[10px] text-amber-200 leading-snug">{stop.order.kunde_notiz}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

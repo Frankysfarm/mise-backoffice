@@ -418,6 +418,9 @@ export function KitchenBoard({
       {/* Gang-Übersicht: Items nach Gängen für kochende Bestellungen */}
       <GangTimerPanel orders={filtered} />
 
+      {/* Sonderanfragen & Kundennotizen — alle aktiven Bestellungen mit Notiz */}
+      <OrderNotesPanel orders={filtered} />
+
       {/* Küchen-Checkliste: konsolidierte Items aller aktiven Bestellungen */}
       <PrepItemsPanel orders={filtered} />
 
@@ -1713,6 +1716,57 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
               )}>
                 {waitMin} Min
               </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ OrderNotesPanel ------------------------------ */
+
+function OrderNotesPanel({ orders }: { orders: Order[] }) {
+  const active = orders.filter((o) =>
+    !['fertig', 'unterwegs'].includes(o.status) &&
+    (o.kunde_notiz || o.kunde_lieferhinweis),
+  );
+  if (active.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <AlertCircle className="h-4 w-4 text-amber-700 shrink-0" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-amber-800">
+          Sonderanfragen · {active.length} Bestellung{active.length !== 1 ? 'en' : ''} mit Hinweis
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {active.map((o) => {
+          const note = o.kunde_notiz || o.kunde_lieferhinweis;
+          const isUrgent = (() => {
+            if (!o.bestellt_am) return false;
+            const waitMin = (Date.now() - new Date(o.bestellt_am).getTime()) / 60_000;
+            return waitMin >= (o.geschaetzte_zubereitung_min ?? 15);
+          })();
+          return (
+            <div
+              key={o.id}
+              className={cn(
+                'rounded-lg border px-3 py-2 text-xs max-w-[280px]',
+                isUrgent ? 'border-red-300 bg-red-50' : 'border-amber-200 bg-white',
+              )}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-mono font-bold text-matcha-700">
+                  #{o.bestellnummer.replace('FF-', '')}
+                </span>
+                <span className="font-semibold truncate">{o.kunde_name}</span>
+                {isUrgent && (
+                  <span className="ml-auto shrink-0 rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[8px] font-black animate-pulse">!</span>
+                )}
+              </div>
+              <div className="text-[11px] text-amber-900 leading-snug italic">„{note}"</div>
             </div>
           );
         })}
