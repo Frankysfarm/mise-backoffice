@@ -21,14 +21,25 @@ type OrderMarker = {
   seq: number;
 };
 
+type UnassignedMarker = {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  zone?: string | null;
+  waitMin?: number;
+};
+
 export function DispatchDriverMap({
   drivers,
   orders,
+  unassigned,
   restaurantLat,
   restaurantLng,
 }: {
   drivers: DriverMarker[];
   orders: OrderMarker[];
+  unassigned?: UnassignedMarker[];
   restaurantLat?: number | null;
   restaurantLng?: number | null;
 }) {
@@ -105,6 +116,22 @@ export function DispatchDriverMap({
           iconAnchor: [13, 13],
         });
         L.marker([o.lat, o.lng], { icon }).addTo(map).bindPopup(o.name);
+      }
+
+      // Unassigned ready order markers (orange/red !)
+      for (const u of (unassigned ?? [])) {
+        if (!u.lat || !u.lng) continue;
+        allLatLngs.push([u.lat, u.lng]);
+        const urgent = (u.waitMin ?? 0) >= 10;
+        const bg = urgent ? '#ef4444' : '#f97316';
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:${bg};border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,.4);font-size:12px;font-weight:900;color:white;">!</div>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+        const popup = `<b>${u.name}</b>${u.zone ? `<br/>Zone ${u.zone}` : ''}${u.waitMin != null ? `<br/>${u.waitMin} Min bereit` : ''}`;
+        L.marker([u.lat, u.lng], { icon }).addTo(map).bindPopup(popup);
       }
 
       if (allLatLngs.length > 1) {

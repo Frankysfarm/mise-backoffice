@@ -811,6 +811,19 @@ function LiveDriverMapPanel({
     }).filter(Boolean) as { id: string; name: string; lat: number; lng: number; done: boolean; seq: number }[],
   );
 
+  // Unassigned: fertige Bestellungen die NICHT in einem aktiven Batch sind
+  const assignedOrderIds = new Set(batches.flatMap((b) => b.stops.map((s) => s.order_id)));
+  const unassignedMarkers = orders
+    .filter((o) => o.kunde_lat && o.kunde_lng && !assignedOrderIds.has(o.id))
+    .map((o) => ({
+      id: o.id,
+      name: o.kunde_name,
+      lat: o.kunde_lat!,
+      lng: o.kunde_lng!,
+      zone: o.delivery_zone,
+      waitMin: o.fertig_am ? Math.floor((Date.now() - new Date(o.fertig_am).getTime()) / 60_000) : undefined,
+    }));
+
   return (
     <Card className="overflow-hidden">
       <button
@@ -821,6 +834,11 @@ function LiveDriverMapPanel({
           <MapPin className="h-4 w-4 text-matcha-600" />
           <span className="font-display text-sm font-bold uppercase tracking-wider">Fahrer-Karte</span>
           <Badge variant="secondary">{onlineWithGps.length} aktiv</Badge>
+          {unassignedMarkers.length > 0 && (
+            <Badge variant="destructive" className="text-[10px]">
+              {unassignedMarkers.length} unzugewiesen
+            </Badge>
+          )}
           <div className="flex gap-1 ml-1">
             {driverMarkers.map((d) => (
               <span
@@ -842,6 +860,7 @@ function LiveDriverMapPanel({
           <DispatchDriverMap
             drivers={driverMarkers}
             orders={orderMarkers}
+            unassigned={unassignedMarkers}
           />
         </div>
       )}
