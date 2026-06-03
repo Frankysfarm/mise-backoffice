@@ -1605,7 +1605,7 @@ export function LiveOrderFeed({ locationId }: { locationId?: string }) {
           setEvents((xs) => [ev, ...xs].slice(0, 12));
         },
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setConnected(status === 'SUBSCRIBED');
       });
     return () => { supabase.removeChannel(ch); };

@@ -1,10 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–22 + alle Frontend-Features + CEO Review #20 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–23 + alle Frontend-Features + CEO Review #21 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #20 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle Features korrekt. 1 Bug behoben (tracking rating → satisfaction API). System vollständig marktreif.
+**DONE** — CEO Review #21 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle Features korrekt. 2 TypeScript-Bugs behoben (title-prop + subscribe-Typ). System vollständig marktreif.
+
+## CEO Review #21 — 2026-06-03
+
+### Geprüfte Commits (seit CEO Review #20)
+- `ecd2149` feat(delivery/frontend): Rush-Mode-Banner + PendingValue-Panel + DriverAssigned-Chip + Bestellgeschwindigkeit-Ampel
+- `2808c90` feat(delivery/frontend): DelayMonitorPanel im Dispatch-Board + Gutschein-Anzeige + Scan-Trigger
+- `69dea71` feat(delivery/frontend): Stations-Checkliste in Kitchen + Echtzeit-Bestellfeed in Statistiken
+- `fcec798` feat(delivery/frontend): Phase-23-Integration (Rush-Mode, PendingValue, Bestellgeschwindigkeit)
+- `c79f105` merge: Bestellgeschwindigkeit-Ampel + LiveOrderFeed aus origin/main
+- `6a8b4ad` feat(delivery/backend): Phase 23 — Proactive Delay Alert System + Auto-Compensation
+
+### Bug-Fixes: 2 TypeScript-Fehler behoben
+
+**Bug 1** `app/(admin)/dispatch/client.tsx:2495`
+- **Fehler**: `<Gift title="..." />` — Lucide-Icon akzeptiert kein `title`-Prop (kein HTML-Attribut im SVGElement-Typ)
+- **Fix**: `title="..."` → `aria-label="..."` (korrekte semantische Alternative)
+
+**Bug 2** `components/lieferdienst/statistics-view.tsx:1608`
+- **Fehler**: `.subscribe((status) => {...})` — Parameter implizit `any` (noImplicitAny)
+- **Fix**: `.subscribe((status: string) => {...})` — explizite Typisierung
+
+### Code-Review RushModeBanner (kitchen/client.tsx)
+- `critical` Filter: `waitMin >= geschaetzte_zubereitung_min + 10` — korrekte Überfälligkeitslogik ✅
+- Snooze: `snoozedUntil = Date.now() + 3 * 60_000` — 3-Min-Cooldown ✅
+- Nur bei `critical.length >= 3` sichtbar — verhindert False Positives bei ruhigem Betrieb ✅
+- `sorted.slice(0, 6)` — zeigt max 6 Bestellnummern mit +overMin-Badge ✅
+
+### Code-Review PendingValuePanel (dispatch/client.tsx)
+- `freshWait = !fertig_am || waited < 5 min` — Catch-All für neue/noch nicht fertige Bestellungen (intentional) ✅
+- `longWait + medWait + freshWait` ergibt vollständige Partitionierung aller Pending-Orders ✅
+- Zahlungsart-Buckets: bar/karte/online korrekt kategorisiert ✅
+- 15s-Tick für Live-Updates ohne Supabase-Polling ✅
+
+### Code-Review Bestellgeschwindigkeit-Ampel (statistics-view.tsx)
+- `ordersLastHalfHour * 2` Extrapolation auf stündliche Rate — sinnvolle Methode ✅
+- Schwellen: ≥10/h = Stoßzeit (rot+ping), ≥5/h = Normal (amber), <5/h = Ruhig (grau) ✅
+- Balken: `Math.min(100, ratePerHour / 15 * 100)` — max 15/h = 100% Balken ✅
+
+### Code-Review LiveOrderFeed (statistics-view.tsx)
+- Supabase Realtime auf `customer_orders` mit optionalem `location_id`-Filter ✅
+- `newIds.current` Set + 3s-Timeout für Highlight-Animation — korrekt ✅
+- `.slice(0, 12)` begrenzt Feed-Größe, kein Memory Leak ✅
+- `if (events.length === 0 && !connected) return null` — kein Flash of empty UI ✅
+
+### Code-Review Phase 23 Backend (lib/delivery/delay-monitor.ts)
+- `scanDelayedOrders()` liest `v_delayed_orders` VIEW — Graceful Fallback wenn Migration fehlt ✅
+- `createCompensationVoucher()` — Betrag gestaffelt: 5€ (<45min), 7.50€ (<60min), 10€ (≥60min) ✅
+- `processDelayedOrder()`: first_notice ab 15 Min, critical+Gutschein ab 30 Min — sinnvolle Eskalation ✅
+- `runDelayMonitorAllLocations()`: Error-Isolation per Location via `.catch()` ✅
+- Cron-Integration in smart-dispatch/route.ts vollständig ✅
+
+### Gesamt-Status nach Review #21
+- TypeScript: 0 Fehler ✅
+- Build: `next build` kompiliert sauber (170 Seiten, 0 Fehler) ✅
+- Alle neuen Features (Phase 23 + 6 Frontend-Komponenten) korrekt integriert ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅
+- System: **MARKT-REIF**
 
 ## CEO Review #20 — 2026-06-02
 

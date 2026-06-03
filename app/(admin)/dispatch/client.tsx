@@ -2492,7 +2492,7 @@ function DelayMonitorPanel({ locationId }: { locationId?: string }) {
               <span className="font-mono font-bold">#{o.bestellnummer.replace(/^[A-Z]+-/, '')}</span>
               <span className="flex-1 truncate font-medium">{o.kundeName}</span>
               <div className="flex items-center gap-1 shrink-0">
-                {o.voucherCreated && <Gift className="h-3 w-3 text-purple-600" title="Gutschein erstellt" />}
+                {o.voucherCreated && <Gift className="h-3 w-3 text-purple-600" aria-label="Gutschein erstellt" />}
                 {o.criticalNoticeSent && <span className="text-[8px] bg-red-200 text-red-700 rounded px-1">Krit.</span>}
                 {o.firstNoticeSent && !o.criticalNoticeSent && <span className="text-[8px] bg-amber-200 text-amber-700 rounded px-1">Benach.</span>}
               </div>
