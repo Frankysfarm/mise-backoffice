@@ -2217,8 +2217,27 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
   const isTable = Boolean(order.tisch_id);
   const typLabel = isTable ? `🍽 Tisch ${order.tisch_nummer ?? ''}` : order.typ === 'lieferung' ? '🛵 Liefern' : order.typ === 'abholung' ? '🥡 Abholung' : '🍽 Vor Ort';
 
+  // Graduated urgency: left-border accent makes status scannable across the kanban
+  const urgencyBorder =
+    critical                              ? 'border-l-4 border-l-red-500'    :
+    urgent                                ? 'border-l-4 border-l-orange-400' :
+    progressPct >= 50 && progressPct < 70 ? 'border-l-4 border-l-yellow-400' :
+    progressPct < 50 && order.status === 'in_zubereitung' ? 'border-l-4 border-l-matcha-400' :
+    '';
+
+  const urgencyBg =
+    critical ? 'bg-red-50/50 dark:bg-red-950/20' :
+    urgent   ? 'bg-orange-50/40 dark:bg-orange-950/15' :
+    '';
+
   return (
-    <Card className={cn('bg-card p-4 transition', urgent && 'ring-2 ring-orange-400', critical && 'ring-2 ring-red-500 animate-pulse')}>
+    <Card className={cn(
+      'p-4 transition',
+      urgencyBorder,
+      urgencyBg,
+      urgent   && !critical && 'ring-2 ring-orange-400',
+      critical && 'ring-2 ring-red-500 animate-pulse',
+    )}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">

@@ -113,6 +113,41 @@ export function FahrerApp({
   const [pickOpen, setPickOpen] = useState(false);
   const [pickItems, setPickItems] = useState<any[]>([]);
 
+  // Küchenstatus für Pickup-Phase: welche Bestellungen sind schon fertig?
+  const [kitchenStatuses, setKitchenStatuses] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    if (!activeBatch || activeBatch.status === 'unterwegs') return;
+    const orderIds = activeBatch.stops.map((s) => s.order_id).filter(Boolean);
+    if (orderIds.length === 0) return;
+
+    // Initial fetch
+    supabase.from('customer_orders')
+      .select('id, status')
+      .in('id', orderIds)
+      .then(({ data }) => {
+        if (!data) return;
+        setKitchenStatuses(new Map((data as { id: string; status: string }[]).map((r) => [r.id, r.status])));
+      });
+
+    // Realtime subscription
+    const ch = supabase
+      .channel(`kitchen-status-${activeBatch.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'customer_orders',
+        filter: `id=in.(${orderIds.join(',')})`,
+      }, (payload: { new: { id: string; status: string } }) => {
+        const { id, status: newStatus } = payload.new;
+        setKitchenStatuses((prev) => new Map(prev).set(id, newStatus));
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBatch?.id, activeBatch?.status]);
+
   // Fetch Items wenn Pick-Dialog geöffnet wird
   useEffect(() => {
     if (!pickOpen || !activeBatch) return;
@@ -439,14 +474,33 @@ export function FahrerApp({
               {activeBatch.stops.map((stop) => {
                 const o = stop.order as any;
                 const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                const kStatus = kitchenStatuses.get(stop.order_id) ?? null;
+                const kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs';
+                const kitchenCooking = kStatus === 'in_zubereitung';
                 return (
                   <div key={stop.id} className={cn(
-                    'rounded-xl border p-3 flex items-center gap-3',
+                    'rounded-xl border p-3 flex items-center gap-3 transition',
+                    kitchenReady ? 'bg-matcha-700/40 border-accent/40' :
                     isCash ? 'bg-amber-500/10 border-amber-400/30' : 'bg-white/5 border-white/10',
                   )}>
-                    <div className="h-8 w-8 rounded-lg bg-accent/20 text-accent grid place-items-center font-display font-black">{stop.reihenfolge}</div>
+                    <div className={cn(
+                      'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
+                      kitchenReady ? 'bg-accent text-matcha-900' : 'bg-accent/20 text-accent',
+                    )}>{kitchenReady ? '✓' : stop.reihenfolge}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
+                        {/* Küchenstatus-Chip */}
+                        {kitchenReady && (
+                          <span className="shrink-0 rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
+                        )}
+                        {kitchenCooking && (
+                          <span className="shrink-0 rounded-full bg-orange-500/20 text-orange-300 px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
+                        )}
+                        {kStatus === 'bestätigt' && (
+                          <span className="shrink-0 rounded-full bg-blue-500/20 text-blue-300 px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
+                        )}
+                      </div>
                       <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
                     </div>
                     <div className="flex flex-col items-end gap-0.5 shrink-0">
@@ -459,6 +513,20 @@ export function FahrerApp({
                 );
               })}
             </div>
+
+            {/* Alle-Fertig-Banner wenn alle Bestellungen bereit sind */}
+            {activeBatch.stops.length > 0 && activeBatch.stops.every((s) => {
+              const ks = kitchenStatuses.get(s.order_id);
+              return ks === 'fertig' || ks === 'unterwegs';
+            }) && (
+              <div className="mb-3 rounded-xl bg-accent/15 border-2 border-accent/50 px-4 py-3 flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <div className="font-display font-bold text-accent">Alle Bestellungen bereit!</div>
+                  <div className="text-[11px] text-matcha-300">Packen & starten</div>
+                </div>
+              </div>
+            )}
 
             {/* Route-Vorschau in Google Maps */}
             {activeBatch.stops.length > 0 && (() => {

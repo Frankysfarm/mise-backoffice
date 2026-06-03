@@ -1149,8 +1149,21 @@ function OrderRow({
             </span>
           )}
           {order.dispatch_score != null && (
-            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums', scoreMeta(order.dispatch_score).cls)}>
-              ⚡ {Math.round(order.dispatch_score)}
+            <span className={cn('inline-flex flex-col gap-0.5 items-start', scoreMeta(order.dispatch_score).cls)}>
+              <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums', scoreMeta(order.dispatch_score).cls)}>
+                ⚡ {Math.round(order.dispatch_score)}
+              </span>
+              <span className="inline-block h-1 w-14 rounded-full overflow-hidden bg-black/10">
+                <span
+                  className={cn(
+                    'block h-full rounded-full transition-all',
+                    order.dispatch_score >= 80 ? 'bg-matcha-500' :
+                    order.dispatch_score >= 60 ? 'bg-blue-400' :
+                    order.dispatch_score >= 40 ? 'bg-orange-400' : 'bg-red-400',
+                  )}
+                  style={{ width: `${order.dispatch_score}%` }}
+                />
+              </span>
             </span>
           )}
           {order.external_source && (
