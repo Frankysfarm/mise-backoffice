@@ -64,6 +64,7 @@ type Batch = {
   driver_id: string;
   status: string;
   started_at: string | null;
+  total_eta_min: number | null;
 };
 
 type Stop = {
@@ -266,14 +267,15 @@ export function KitchenBoard({
   async function refreshBatches() {
     const [{ data: legacy }, { data: smart }] = await Promise.all([
       supabase.from('delivery_batches')
-        .select('id, driver_id, status, started_at')
+        .select('id, driver_id, status, started_at, total_eta_min')
         .in('status', ['pickup', 'aktiv', 'unterwegs', 'zugewiesen']),
       supabase.from('mise_delivery_batches')
-        .select('id, driver_id, state, started_at')
+        .select('id, driver_id, state, started_at, total_eta_min')
         .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route']),
     ]);
     const normalizedSmart = ((smart ?? []) as any[]).map((b: any) => ({
       id: b.id, driver_id: b.driver_id, status: b.state, started_at: b.started_at,
+      total_eta_min: b.total_eta_min ?? null,
     }));
     setBatches([...((legacy ?? []) as any[]), ...normalizedSmart]);
   }
@@ -619,15 +621,27 @@ export function KitchenBoard({
                           return acc;
                         }, {})
                       : {};
-                  return colOrders.map((o) => (
-                    <OrderTicket
-                      key={o.id}
-                      order={o}
-                      next={col.next}
-                      timing={timings.find((t) => t.order_id === o.id) ?? null}
-                      sameZoneCount={o.delivery_zone ? (fertigZoneCounts[o.delivery_zone] ?? 0) : 0}
-                    />
-                  ));
+                  return colOrders.map((o) => {
+                    const batchStop = stops.find((s) => s.order_id === o.id && !s.geliefert_am);
+                    const batch = batchStop ? batches.find((b) => b.id === batchStop.batch_id) : null;
+                    const driverEtaMs = (() => {
+                      if (!batchStop || !batch?.started_at || batch.total_eta_min == null) return null;
+                      const batchStops = stops.filter((s) => s.batch_id === batch.id);
+                      const total = batchStops.length;
+                      const frac = total > 0 ? batchStop.reihenfolge / total : 1;
+                      return new Date(batch.started_at).getTime() + frac * batch.total_eta_min * 60_000;
+                    })();
+                    return (
+                      <OrderTicket
+                        key={o.id}
+                        order={o}
+                        next={col.next}
+                        timing={timings.find((t) => t.order_id === o.id) ?? null}
+                        sameZoneCount={o.delivery_zone ? (fertigZoneCounts[o.delivery_zone] ?? 0) : 0}
+                        driverEtaMs={driverEtaMs}
+                      />
+                    );
+                  });
                 })()}
               </div>
             </section>
@@ -2146,7 +2160,7 @@ function fmtCountdown(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order; next: string | null; timing: KitchenTiming | null; sameZoneCount?: number }) {
+function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = null }: { order: Order; next: string | null; timing: KitchenTiming | null; sameZoneCount?: number; driverEtaMs?: number | null }) {
   const [pending, startTransition] = useTransition();
 
   const waitMin = order.bestellt_am
@@ -2276,6 +2290,19 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0 }: { order: Order;
         )}>
           <Zap className="h-2.5 w-2.5" />
           {timingChip.label}
+        </div>
+      )}
+
+      {/* Fahrer-ETA-Chip: fertige Lieferbestellung ist bereits einem aktiven Batch zugewiesen */}
+      {order.status === 'fertig' && order.typ === 'lieferung' && driverEtaMs != null && (
+        <div className={cn(
+          'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+          driverEtaMs < Date.now() + 5 * 60_000
+            ? 'bg-matcha-700 text-white animate-pulse'
+            : 'bg-blue-100 text-blue-800',
+        )}>
+          <Bike className="h-2.5 w-2.5" />
+          Fahrer ~{new Date(driverEtaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
         </div>
       )}
 
