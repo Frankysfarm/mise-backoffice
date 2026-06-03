@@ -1,6 +1,6 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–24 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #21 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–24 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #22 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
@@ -607,6 +607,11 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-03: CEO-Agent — Review #22: 4 neue Frontend-Features geprüft, 1 Bug behoben
+  - Geprüft: KitchenBigDisplayGrid TV-Modus, BatchRow-Adressen, SpeedArcGauge (Fahrer), Fahrer-Banner (Storefront), Fahrer-ETA-Chip (Kitchen)
+  - Bug-Fix: success-state.tsx — fahrer_vorname nicht in customer_orders-Tabelle → Fahrer-Name via GET /tracking nachgeladen
+  - Bug-Fix: tracking/route.ts — driver_name in Response ergänzt (mise_drivers.employee_id → employees.vorname, parallel zu GPS)
+  - Build: ✓ (170 Seiten, 0 Fehler), tsc --noEmit: 0 Fehler
 - 2026-06-03: Backend-Architekt — Phase 24: Scheduled Orders + Pre-Order Management
   - scripts/migrations/024_scheduled_orders.sql: scheduled_at + schedule_status Spalten + v_scheduled_orders VIEW + release_due_scheduled_orders() Funktion
   - lib/delivery/scheduled.ts: 7 Funktionen (releaseScheduledOrders, getScheduledQueue, scheduleOrder, unscheduleOrder, manuallyReleaseOrder, getScheduledSummary)

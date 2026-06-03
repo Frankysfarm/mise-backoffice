@@ -1,10 +1,73 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–23 + alle Frontend-Features + CEO Review #21 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–24 + alle Frontend-Features + CEO Review #22 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #21 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle Features korrekt. 2 TypeScript-Bugs behoben (title-prop + subscribe-Typ). System vollständig marktreif.
+**DONE** — CEO Review #22 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle Features korrekt. 1 Bug behoben (Fahrer-Name auf Bestellbestätigung). System vollständig marktreif.
+
+## CEO Review #22 — 2026-06-03
+
+### Geprüfte Commits (seit CEO Review #21)
+- `f156d5d` feat(delivery/backend): Phase 24 — Scheduled Orders + Pre-Order Management
+- `8e58fd5` feat(delivery/frontend): Küchendisplay TV-Modus, BatchRow-Adressen, SpeedArcGauge
+- `c4ca5d0` feat(kitchen): Fahrer-ETA-Chip für fertige Lieferbestellungen in aktivem Batch
+- `f8d5ecf` feat(storefront): Fahrer-Banner auf Bestellbestätigungsseite bei Status 'unterwegs'
+
+### Bug-Fix: Fahrer-Name auf Bestellbestätigung nie angezeigt
+
+**Datei**: `app/order/[locationSlug]/components/success-state.tsx`
+**Fehler**: Realtime-Payload von `customer_orders` enthielt nie `fahrer_vorname` — diese Spalte existiert nicht auf der Tabelle (nur in Views wie `v_order_tracking`). `driverName` blieb permanent `null`, das Banner zeigte immer den Fallback-Text "Fahrer ist unterwegs!" statt dem echten Fahrernamen.
+**Fix**:
+- `success-state.tsx`: bei Status-Wechsel zu `'unterwegs'` → `GET /api/delivery/orders/${orderId}/tracking` zum Nachladen des Fahrernamens
+- `tracking/route.ts`: `driver_name` (über `mise_drivers.employee_id → employees.vorname`) in Response ergänzt; Lookup parallel zur GPS-Abfrage (kein N+1)
+
+### Code-Review TV-Modus Kitchen (`8e58fd5`)
+
+**KitchenBigDisplayGrid** (`kitchen/client.tsx`):
+- `fixed inset-0 z-[200]` Fullscreen-Overlay korrekt — überlagert alle anderen Panels ✅
+- Sortierung: `(bElapsed - bEst) - (aElapsed - aEst)` = dringlichste zuerst (negativste Überfälligkeit oben) ✅
+- SVG-Ring `r=42`, `circumference = 2π×42 ≈ 263.9px` — `strokeDashoffset`-Formel korrekt ✅
+- Farbsystem: grün→blau→gelb→orange→rot nach pct (60/85/100%) ✅
+- Ready-Strip: `waitMin ≥ 10` → rot (`urgent`) — sinnvoller Schwellenwert ✅
+- `setInterval(1s)` für Live-Countdown mit `clearInterval` ✅
+- Leerer Zustand: "Küche frei" + ChefHat — kein leerer Bildschirm ✅
+
+### Code-Review Fahrer-ETA-Chip Kitchen (`c4ca5d0`)
+
+- `batchStop.reihenfolge / total` Proportional-ETA — einfache aber valide Näherung für MVP ✅
+- `driverEtaMs < Date.now() + 5*60_000` → grün-pulsierend (Ankunft <5 Min) ✅
+- Null-Guards: `!batchStop || !batch?.started_at || batch.total_eta_min == null → null` ✅
+- `stops.filter(s => s.batch_id === batch.id)` — korrekte Stop-Partition pro Batch ✅
+- Nur sichtbar bei `status==='fertig' && typ==='lieferung' && driverEtaMs != null` ✅
+
+### Code-Review SpeedArcGauge Fahrer (`8e58fd5`)
+
+- `r=14`, Arc `M 4 18 A 14 14 0 0 1 32 18` = exakter Halbkreis (Zentrum 18,18; Radius 14 = halbe Strecke 28/2) ✅
+- `arc = Math.PI * 14 ≈ 44px` für `strokeDasharray` korrekt ✅
+- Nur sichtbar wenn `gpsSpeed != null && gpsSpeed > 0` → TypeScript-Narrowing zu `number` ✅
+- Farbsystem: grün ≤30, gold ≤50, orange >50 km/h ✅
+- Eigenständige Komponente, kein Konflikt mit `StopEtaBar` SpeedArc ✅
+
+### Code-Review BatchRow-Adressen Dispatch (`8e58fd5`)
+
+- `s.order?.kunde_adresse.split(',')[0]` — zeigt nur Straße (ohne PLZ/Stadt), übersichtlich ✅
+- `title`-Tooltip mit Vollname + Adresse — kein Datenverlust ✅
+- `kunde_adresse` bereits im Batch-Select vorhanden ✅
+
+### Code-Review Fahrer-Banner Storefront (`f8d5ecf`)
+
+- Banner nur bei `isDelivery && liveStatus === 'unterwegs'` ✅
+- Fallback `'🛵'` und "Fahrer ist unterwegs!" wenn kein Name → Bug behoben, Name wird jetzt geladen ✅
+- `statusFlash && 'ring-2 ring-accent animate-pulse'` — visuelles Feedback bei Status-Updates ✅
+
+### Gesamt-Status nach Review #22
+- TypeScript: **0 Fehler** ✅
+- Build: **170 Seiten, 0 Fehler, 0 Warnungen** ✅
+- Phase 24 Backend + 4 neue Frontend-Features korrekt integriert ✅
+- Bug-Fix: Fahrer-Name auf Bestellbestätigung jetzt korrekt über Tracking-API ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅
+- System: **MARKT-REIF**
 
 ## CEO Review #21 — 2026-06-03
 
