@@ -69,6 +69,8 @@ type ReadyOrder = {
   delivery_zone: string | null;
   eta_earliest: string | null;
   eta_latest: string | null;
+  kunde_notiz: string | null;
+  kunde_lieferhinweis: string | null;
 };
 
 type Batch = {
@@ -161,7 +163,7 @@ export function DispatchBoard({
     const [{ data: o }, { data: d }, { data: legacy }, { data: smart }] = await Promise.all([
       supabase
         .from('customer_orders')
-        .select('id, bestellnummer, status, typ, kunde_name, kunde_adresse, kunde_plz, kunde_lat, kunde_lng, gesamtbetrag, zahlungsart, fertig_am, external_source, location_id, dispatch_score, delivery_zone, eta_earliest, eta_latest')
+        .select('id, bestellnummer, status, typ, kunde_name, kunde_adresse, kunde_plz, kunde_lat, kunde_lng, gesamtbetrag, zahlungsart, fertig_am, external_source, location_id, dispatch_score, delivery_zone, eta_earliest, eta_latest, kunde_notiz, kunde_lieferhinweis')
         .eq('typ', 'lieferung')
         .in('status', ['fertig', 'unterwegs'])
         .order('fertig_am', { ascending: true }),
@@ -1236,6 +1238,14 @@ function OrderRow({
             {order.kunde_plz ? `, ${order.kunde_plz}` : ''}
           </span>
         </div>
+        {(order.kunde_notiz || order.kunde_lieferhinweis) && (
+          <div className="mt-1 flex items-center gap-1.5 rounded-md bg-amber-50 border border-amber-200 px-2 py-1">
+            <AlertTriangle className="h-3 w-3 text-amber-600 shrink-0" />
+            <span className="text-[10px] text-amber-800 leading-snug line-clamp-1">
+              {order.kunde_notiz ?? order.kunde_lieferhinweis}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="text-right">

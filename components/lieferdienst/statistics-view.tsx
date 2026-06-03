@@ -103,6 +103,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   }[]>([])
   const [satisfactionData, setSatisfactionData] = useState<SatisfactionData>(null)
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([])
+  const [dailyKpis, setDailyKpis] = useState<{
+    orders: { total: number; delivery: number; pickup: number; completed: number; cancelled: number };
+    revenue: { total: number | null; delivery: number | null; pickup: number | null; cash: number | null; card: number | null };
+    activeDrivers: number;
+  } | null>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -172,6 +177,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/alerts?location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.alerts?.length) setActiveAlerts(d.alerts) })
+      .catch(() => {})
+    const todayStr = new Date().toISOString().slice(0, 10)
+    fetch(`/api/delivery/admin/reporting?type=daily&location_id=${locationId}&date=${todayStr}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.orders && !d._fallback) setDailyKpis({ orders: d.orders, revenue: d.revenue, activeDrivers: d.activeDrivers ?? 0 }) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -802,6 +812,73 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                     <span className="font-semibold text-char">{count}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DB-verifizierter Tagesbericht (aus Reporting-API) */}
+      {dailyKpis && (dailyKpis.orders.total > 0 || (dailyKpis.revenue.total ?? 0) > 0) && (
+        <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
+            <span className="text-sm font-bold text-char">Tagesbericht · DB-verifiziert</span>
+            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Echtdaten
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div className="rounded-xl bg-stone-50 p-3 border border-stone-100 text-center">
+              <div className="text-2xl font-black text-char">{dailyKpis.orders.total}</div>
+              <div className="text-[10px] text-steel mt-0.5 uppercase tracking-wide">Bestellungen</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-3 border border-stone-100 text-center">
+              <div className="text-2xl font-black text-violet-600">{dailyKpis.orders.delivery}</div>
+              <div className="text-[10px] text-steel mt-0.5 uppercase tracking-wide">Lieferungen</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-3 border border-stone-100 text-center">
+              <div className="text-2xl font-black text-amber-600">{dailyKpis.orders.pickup}</div>
+              <div className="text-[10px] text-steel mt-0.5 uppercase tracking-wide">Abholungen</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-3 border border-stone-100 text-center">
+              <div className="text-2xl font-black text-emerald-600">{dailyKpis.orders.completed}</div>
+              <div className="text-[10px] text-steel mt-0.5 uppercase tracking-wide">Abgeschlossen</div>
+            </div>
+          </div>
+          {dailyKpis.revenue.total != null && dailyKpis.revenue.total > 0 && (
+            <div className="border-t border-stone-100 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-steel uppercase tracking-wide">Umsatz (DB)</span>
+                <span className="font-display text-xl font-black text-char">
+                  {dailyKpis.revenue.total.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                {dailyKpis.revenue.cash != null && dailyKpis.revenue.cash > 0 && (
+                  <div className="rounded-lg bg-amber-50 border border-amber-100 p-2">
+                    <div className="text-sm font-black text-amber-700">
+                      {dailyKpis.revenue.cash.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    </div>
+                    <div className="text-[9px] text-steel mt-0.5">💵 Bar</div>
+                  </div>
+                )}
+                {dailyKpis.revenue.card != null && dailyKpis.revenue.card > 0 && (
+                  <div className="rounded-lg bg-blue-50 border border-blue-100 p-2">
+                    <div className="text-sm font-black text-blue-700">
+                      {dailyKpis.revenue.card.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    </div>
+                    <div className="text-[9px] text-steel mt-0.5">💳 Karte</div>
+                  </div>
+                )}
+                {dailyKpis.revenue.delivery != null && dailyKpis.revenue.pickup != null && (
+                  <div className="rounded-lg bg-violet-50 border border-violet-100 p-2">
+                    <div className="text-sm font-black text-violet-700">
+                      {(dailyKpis.revenue.total - (dailyKpis.revenue.cash ?? 0) - (dailyKpis.revenue.card ?? 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    </div>
+                    <div className="text-[9px] text-steel mt-0.5">🌐 Online</div>
+                  </div>
+                )}
               </div>
             </div>
           )}
