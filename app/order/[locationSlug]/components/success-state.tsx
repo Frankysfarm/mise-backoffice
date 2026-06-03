@@ -46,6 +46,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [etaWindow, setEtaWindow] = React.useState<{ earliest: string; latest: string } | null>(null);
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
   const [statusFlash, setStatusFlash] = React.useState(false);
+  const [driverName, setDriverName] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (secsLeft <= 0) return;
@@ -83,12 +84,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload: { new: { status?: string; eta_earliest?: string; eta_latest?: string } }) => {
+        (payload: { new: { status?: string; eta_earliest?: string; eta_latest?: string; fahrer_vorname?: string | null } }) => {
           const newStatus = payload.new?.status;
           if (newStatus && newStatus !== liveStatus) {
             setLiveStatus(newStatus);
             setStatusFlash(true);
             setTimeout(() => setStatusFlash(false), 3000);
+          }
+          if (payload.new?.fahrer_vorname) {
+            setDriverName(payload.new.fahrer_vorname);
           }
           if (payload.new?.eta_earliest) {
             const newSecsLeft = Math.max(0, Math.floor((new Date(payload.new.eta_earliest).getTime() - Date.now()) / 1000));
@@ -188,6 +192,26 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             </div>
           );
         })()}
+
+        {/* Fahrer-Banner: sichtbar wenn Bestellung unterwegs ist */}
+        {isDelivery && liveStatus === 'unterwegs' && (
+          <div className={cn(
+            'mt-4 flex items-center gap-3 w-full rounded-2xl px-4 py-3 ring-1 transition-all',
+            'bg-matcha-700/60 ring-accent/40',
+            statusFlash && 'ring-2 ring-accent animate-pulse',
+          )}>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 font-display text-sm font-bold text-accent">
+              {driverName ? driverName[0].toUpperCase() : '🛵'}
+            </div>
+            <div className="text-left flex-1 min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">Dein Fahrer</div>
+              <div className="font-display text-sm font-bold truncate">
+                {driverName ? `${driverName} ist unterwegs!` : 'Fahrer ist unterwegs!'}
+              </div>
+            </div>
+            <span className="text-xl shrink-0">🛵</span>
+          </div>
+        )}
 
         {/* Live-Status Mini-Timeline — aktualisiert sich in Echtzeit */}
         {orderId && (
