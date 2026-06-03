@@ -29,7 +29,9 @@ export type DeliveryEventType =
   | 'kitchen_cooking'
   | 'delay_first_notice'
   | 'delay_critical_notice'
-  | 'delay_compensation_created';
+  | 'delay_compensation_created'
+  | 'order_scheduled'
+  | 'order_released_for_dispatch';
 
 export interface DeliveryEvent {
   event_type: DeliveryEventType;

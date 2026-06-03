@@ -52,6 +52,7 @@ interface OrderRow {
   created_at: string;
   dispatch_attempts: number;
   dispatch_escalated_at: string | null;
+  schedule_status: 'scheduled' | 'released' | 'immediate' | null;
 }
 
 interface LocationRow {
@@ -105,10 +106,12 @@ export async function smartDispatchTick(): Promise<{
 }> {
   const { data: orders } = await sb()
     .from('customer_orders')
-    .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at')
+    .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at, schedule_status')
     .eq('typ', 'lieferung')
     .is('mise_batch_id', null)
     .in('status', ['neu', 'in_zubereitung', 'fertig'])
+    // Vorbestellungen (schedule_status='scheduled') überspringen — nur freigeben wenn Küche-Startzeit erreicht
+    .or('schedule_status.is.null,schedule_status.neq.scheduled')
     .order('created_at', { ascending: true })
     .limit(50);
 

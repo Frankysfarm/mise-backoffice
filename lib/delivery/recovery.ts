@@ -66,6 +66,7 @@ interface OrderRow {
   created_at: string;
   dispatch_attempts: number;
   dispatch_escalated_at: string | null;
+  schedule_status: 'scheduled' | 'released' | 'immediate' | null;
 }
 
 // ----------------------------------------------------------------
@@ -202,7 +203,7 @@ export async function recoverCancelledBatch(
     // Load the full order rows for dispatch
     const { data: orderRows } = await sb
       .from('customer_orders')
-      .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at')
+      .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at, schedule_status')
       .in('id', undeliveredOrderIds);
 
     for (const row of orderRows ?? []) {

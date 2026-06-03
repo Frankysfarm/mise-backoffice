@@ -18,6 +18,7 @@ import { scanStaleBatches } from '@/lib/delivery/recovery';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
 import { runDelayMonitorAllLocations } from '@/lib/delivery/delay-monitor';
+import { releaseScheduledOrders } from '@/lib/delivery/scheduled';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
     // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
     const isRatingTick = nowMin % 10 < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -89,6 +90,8 @@ export async function GET(req: NextRequest) {
         locations: 0, totalScanned: 0, totalFirstNotices: 0,
         totalCriticalNotices: 0, totalVouchers: 0,
       })),
+      // Geplante Vorbestellungen freigeben wenn Küchen-Startzeit erreicht
+      releaseScheduledOrders().catch(() => ({ released: 0, orders: [] as string[] })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -126,6 +129,7 @@ export async function GET(req: NextRequest) {
         critical_notices: delayResult.totalCriticalNotices,
         vouchers_created: delayResult.totalVouchers,
       },
+      scheduled_releases: scheduleResult.released,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

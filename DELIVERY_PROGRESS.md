@@ -1,11 +1,45 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–23 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #21 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–24 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #21 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 24: Scheduled Orders + Pre-Order Management [DONE ✅] — 2026-06-03
+- [x] `scripts/migrations/024_scheduled_orders.sql`
+  - `customer_orders.scheduled_at` (timestamptz): Wunsch-Lieferzeitpunkt für Vorbestellungen
+  - `customer_orders.schedule_status` ('scheduled'|'released'|'immediate'): Freigabestatus
+  - `v_scheduled_orders` VIEW: Vorbestellungen nächste 24h mit kitchen_start_at + ready_for_dispatch
+  - `release_due_scheduled_orders()` PL/pgSQL-Funktion: gibt fällige Orders frei (scheduled_at - prep_time <= NOW())
+  - 2 Performance-Indizes für cron-basierten Scan + Admin-Übersicht
+- [x] `lib/delivery/scheduled.ts` — Scheduled-Orders Engine (7 Funktionen)
+  - `releaseScheduledOrders()`: scannt fällige Vorbestellungen, setzt schedule_status='released' (Graceful-Fallback wenn Migration fehlt)
+  - `getScheduledQueue(locationId)`: Vorbestellungen nächste 24h via v_scheduled_orders
+  - `scheduleOrder(orderId, scheduledAt, locationId)`: setzt scheduled_at + status, Validierung (min. 10 Min Vorlauf, nicht bereits dispatched)
+  - `unscheduleOrder(orderId, locationId)`: hebt Vorbestellung auf → sofortiger Dispatch
+  - `manuallyReleaseOrder(orderId, locationId)`: Admin-Freigabe (Bypass Zeitcheck)
+  - `getScheduledSummary(locationId, hours)`: KPIs für nächste N Stunden (total/pending/released/next_due_in_min)
+  - 2 neue DeliveryEventTypes: `order_scheduled` + `order_released_for_dispatch`
+- [x] `PATCH /api/delivery/orders/[orderId]/schedule` — Vorab-Zeit setzen/ändern
+  - Body: `{ scheduled_at: ISO8601, location_id }` → setzt schedule_status='scheduled'
+  - Validierung: ≥10 Min Vorlauf, nicht bereits dispatched/delivered
+- [x] `DELETE /api/delivery/orders/[orderId]/schedule` — Vorbestellung aufheben
+  - `?location_id=...` → setzt scheduled_at=NULL, schedule_status=NULL
+- [x] `GET+POST /api/delivery/admin/scheduled` — Admin-Verwaltung
+  - `GET ?location_id=...&hours=4` — Queue + Summary (pending/released/next_due_in_min)
+  - `POST { action: 'release', order_id, location_id }` — manuelle Freigabe
+  - `POST { action: 'release_all', location_id }` — alle fälligen Orders freigeben
+- [x] `lib/delivery/dispatch-engine.ts` — Dispatch-Filter erweitert
+  - SELECT enthält jetzt `schedule_status`
+  - `.or('schedule_status.is.null,schedule_status.neq.scheduled')` — 'scheduled'-Orders werden übersprungen bis Freigabe
+  - `OrderRow` Interface um `schedule_status` erweitert
+  - `lib/delivery/recovery.ts`: `OrderRow` + SELECT synchron erweitert
+- [x] Cron-Integration (`app/api/cron/smart-dispatch/route.ts`)
+  - `releaseScheduledOrders()` parallel im 2-Min-Tick
+  - Response enthält `scheduled_releases: N`
+- Build: `./node_modules/.bin/next build` ✓ (170 Seiten, 0 Fehler), `tsc --noEmit` ✓ (0 Fehler)
 
 ## Phase 23: Proactive Delay Alert System + Auto-Compensation [DONE ✅] — 2026-06-02
 - [x] `scripts/migrations/023_delay_alerts.sql`
@@ -573,6 +607,14 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-03: Backend-Architekt — Phase 24: Scheduled Orders + Pre-Order Management
+  - scripts/migrations/024_scheduled_orders.sql: scheduled_at + schedule_status Spalten + v_scheduled_orders VIEW + release_due_scheduled_orders() Funktion
+  - lib/delivery/scheduled.ts: 7 Funktionen (releaseScheduledOrders, getScheduledQueue, scheduleOrder, unscheduleOrder, manuallyReleaseOrder, getScheduledSummary)
+  - PATCH+DELETE /api/delivery/orders/[orderId]/schedule: Vorab-Zeit setzen + aufheben
+  - GET+POST /api/delivery/admin/scheduled: Admin-Queue + manuelle Freigabe
+  - dispatch-engine.ts + recovery.ts: schedule_status in SELECT + OR-Filter für Dispatch
+  - Cron: releaseScheduledOrders() parallel → scheduled_releases in Response
+  - Build: ✓ (170 Seiten, 0 Fehler), tsc --noEmit: 0 Fehler
 - 2026-06-02: Backend-Architekt — Phase 22: Customer Satisfaction Tracking + Post-Delivery Rating
   - scripts/migrations/022_customer_satisfaction.sql: customer_delivery_ratings + v_driver_satisfaction + v_location_satisfaction + recompute_driver_rating_with_satisfaction() + Trigger
   - lib/delivery/satisfaction.ts: 6 Funktionen (generateRatingToken, generateMissingRatingTokens, submitCustomerRating, getSatisfactionSummary, getOrderForToken, markRatingTokensSent)
