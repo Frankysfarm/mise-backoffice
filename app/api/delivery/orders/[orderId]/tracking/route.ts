@@ -89,7 +89,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       ).length
     : null;
 
-  // Fahrer-Position (jüngste Location)
+  // Fahrer-Position + Name (jüngste Location)
   const driverId = batch?.driver_id ?? order.mise_driver_id;
   let driverPosition: {
     lat: number;
@@ -97,15 +97,23 @@ export async function GET(req: NextRequest, { params }: Params) {
     heading: number | null;
     seconds_stale: number;
   } | null = null;
+  let driverName: string | null = null;
 
   if (driverId) {
-    const { data: loc } = await sb
-      .from('mise_driver_locations')
-      .select('lat, lng, heading, recorded_at')
-      .eq('driver_id', driverId)
-      .order('recorded_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const [{ data: loc }, { data: driverRow }] = await Promise.all([
+      sb
+        .from('mise_driver_locations')
+        .select('lat, lng, heading, recorded_at')
+        .eq('driver_id', driverId)
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      sb
+        .from('mise_drivers')
+        .select('employee_id')
+        .eq('id', driverId)
+        .maybeSingle(),
+    ]);
 
     if (loc) {
       const secondsStale = Math.floor(
@@ -117,6 +125,15 @@ export async function GET(req: NextRequest, { params }: Params) {
         heading: (loc.heading as number | null) ?? null,
         seconds_stale: secondsStale,
       };
+    }
+
+    if (driverRow?.employee_id) {
+      const { data: emp } = await sb
+        .from('employees')
+        .select('vorname')
+        .eq('id', driverRow.employee_id)
+        .maybeSingle();
+      if (emp?.vorname) driverName = emp.vorname as string;
     }
   }
 
@@ -130,5 +147,6 @@ export async function GET(req: NextRequest, { params }: Params) {
     batch_state:   batch?.state ?? null,
     stops_before:  stopsBefore,
     driver:        driverPosition,
+    driver_name:   driverName,
   });
 }

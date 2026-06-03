@@ -84,15 +84,19 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload: { new: { status?: string; eta_earliest?: string; eta_latest?: string; fahrer_vorname?: string | null } }) => {
+        (payload: { new: { status?: string; eta_earliest?: string; eta_latest?: string } }) => {
           const newStatus = payload.new?.status;
           if (newStatus && newStatus !== liveStatus) {
             setLiveStatus(newStatus);
             setStatusFlash(true);
             setTimeout(() => setStatusFlash(false), 3000);
-          }
-          if (payload.new?.fahrer_vorname) {
-            setDriverName(payload.new.fahrer_vorname);
+            // fahrer_vorname is not a column on customer_orders — fetch via tracking API
+            if (newStatus === 'unterwegs' && orderId) {
+              fetch(`/api/delivery/orders/${orderId}/tracking`)
+                .then((r) => r.ok ? r.json() : null)
+                .then((d) => { if (d?.driver_name) setDriverName(d.driver_name); })
+                .catch(() => {});
+            }
           }
           if (payload.new?.eta_earliest) {
             const newSecsLeft = Math.max(0, Math.floor((new Date(payload.new.eta_earliest).getTime() - Date.now()) / 1000));
