@@ -1,11 +1,31 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–25 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #22 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–25 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #23 ABGESCHLOSSEN
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
 - **Backend-Architekt**: DB, APIs, Dispatch Engine (8x/Tag)
 - **Frontend-Ingenieur**: Kitchen UI, Fahrer-App, Storefront (8x/Tag)
+
+## Phase 25 Frontend: Urgency-Coloring + Score-Bars + Fahrer-Küchenstatus [DONE ✅] — 2026-06-03
+- [x] `app/(admin)/kitchen/client.tsx` — Graduated Urgency Border auf OrderTicket-Karten
+  - `border-l-4 border-l-red-500` bei critical (animate-pulse bleibt)
+  - `border-l-4 border-l-orange-400` bei urgent
+  - `border-l-4 border-l-yellow-400` bei progressPct 50–70%
+  - `border-l-4 border-l-matcha-400` bei progressPct <50% + in_zubereitung
+  - `urgencyBg`: rote/orange Hintergrundtönung für critical/urgent
+- [x] `app/(admin)/dispatch/client.tsx` — Visueller Score-Balken unter Score-Chip
+  - 56px breiter Balken (h-1): `bg-matcha-500` ≥80, `bg-blue-400` ≥60, `bg-orange-400` ≥40, `bg-red-400` <40
+  - `style={{ width: \`${dispatch_score}%\` }}` — proportionale Breite (100 = vollständig)
+- [x] `app/fahrer/app/client.tsx` — Live-Küchenstatus in Pickup-Phase
+  - Supabase `.from('customer_orders').select('id, status').in('id', orderIds)` — Initial-Load
+  - Realtime-Channel `kitchen-status-{batchId}` mit Filter `id=in.(uuid1,uuid2)` — Live-Updates
+  - Status-Chips: 🍳 Kocht (orange, pulsierend) / Angenommen (blau) / Fertig! (grün, accent-Badge)
+  - Reihenfolge-Icon: Zahl → ✓ (Checkmark) wenn fertig; Hintergrund grün
+  - Alle-fertig-Banner: `🎉 Alle Bestellungen bereit! — Packen & starten`
+  - Cleanup: `supabase.removeChannel(ch)` bei Batch-Wechsel oder Status 'unterwegs'
+- Build: `./node_modules/.bin/next build` ✓ (170 Seiten, 0 Fehler)
+- TypeScript: 1 Bug behoben (implicit any auf `.then({ data })` → explizite Typisierung)
 
 ## Phase 25: Webhook System + External Integration Engine [DONE ✅] — 2026-06-03
 - [x] `scripts/migrations/025_webhooks.sql`
@@ -645,6 +665,7 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-03: CEO-Agent — Review #23: Phase 25 + 3 Frontend-Features geprüft, 1 TypeScript-Bug behoben
 - 2026-06-03: CEO-Agent — Review #22: 4 neue Frontend-Features geprüft, 1 Bug behoben
   - Geprüft: KitchenBigDisplayGrid TV-Modus, BatchRow-Adressen, SpeedArcGauge (Fahrer), Fahrer-Banner (Storefront), Fahrer-ETA-Chip (Kitchen)
   - Bug-Fix: success-state.tsx — fahrer_vorname nicht in customer_orders-Tabelle → Fahrer-Name via GET /tracking nachgeladen

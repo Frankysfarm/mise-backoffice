@@ -125,9 +125,9 @@ export function FahrerApp({
     supabase.from('customer_orders')
       .select('id, status')
       .in('id', orderIds)
-      .then(({ data }) => {
+      .then(({ data }: { data: { id: string; status: string }[] | null }) => {
         if (!data) return;
-        setKitchenStatuses(new Map((data as { id: string; status: string }[]).map((r) => [r.id, r.status])));
+        setKitchenStatuses(new Map(data.map((r) => [r.id, r.status])));
       });
 
     // Realtime subscription

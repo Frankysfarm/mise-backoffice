@@ -1,10 +1,90 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–24 + alle Frontend-Features + CEO Review #22 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–25 + alle Frontend-Features + CEO Review #23 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Frontend-Ingenieur
-**DONE** — CEO Review #22 bestätigt: 0 TypeScript-Fehler, Build clean (170 Seiten), alle Features korrekt. 1 Bug behoben (Fahrer-Name auf Bestellbestätigung). System vollständig marktreif.
+**DONE** — CEO Review #23 bestätigt: 0 TypeScript-Fehler (1 Bug behoben), Build clean (170 Seiten, 0 Warnungen), Phase 25 Backend + 3 neue Frontend-Features korrekt. System vollständig marktreif.
+
+## CEO Review #23 — 2026-06-03
+
+### Geprüfte Commits (seit CEO Review #22)
+- `62598a1` feat(delivery/backend): Phase 25 — Webhook System + External Integration Engine
+- `02b18c0` feat(delivery/frontend): urgency coloring, score bars, Küchenstatus in Fahrer-App
+
+### Bug-Fix: Implicit-Any auf Supabase `.then()`-Callback
+
+**Datei**: `app/fahrer/app/client.tsx:128`
+**Fehler**: `Binding element 'data' implicitly has an 'any' type` (TS7031). `.then(({ data }) => ...)` — TypeScript kann den Rückgabetyp des Supabase-Builders hier nicht ableiten.
+**Fix**:
+- Explizite Signatur: `.then(({ data }: { data: { id: string; status: string }[] | null }) => ...)`
+- Redundanten Cast `data as { id: string; status: string }[]` entfernt (cast war bereits überflüssig durch die explizite Typisierung)
+
+### Code-Review Phase 25 Webhook System (`62598a1`)
+
+**Architektur**:
+- `delivery_webhooks` + `delivery_webhook_deliveries` Tabellen — klare Trennung zwischen Konfiguration und Delivery-Log ✅
+- `v_webhook_summary` VIEW aggregiert Stats (total_delivered, pending_deliveries, failed_deliveries) — effizient für Admin-Liste ✅
+- `processWebhookQueue()`: DB-Lock via `FOR UPDATE SKIP LOCKED` verhindert parallele Doppelverarbeitung ✅
+
+**Sicherheit**:
+- HMAC-SHA256 mit `createHmac('sha256', secret).update(rawBody)` — Standard-Signaturschema ✅
+- `X-Mise-Signature` + `X-Mise-Event` Header — vollständige Empfänger-Verifikation möglich ✅
+- Secret minimal 16 Zeichen validiert in `registerWebhook()` ✅
+- URL-Validierung: nur `https://`-URLs erlaubt (keine internen IPs) ✅
+
+**Resilienz**:
+- Retry-Backoff: 1→5→30→120→480 Min (5 Versuche) — exponentiell, kein Burst ✅
+- Auto-Disable nach 10 consecutiven Fehlern — schützt inaktive Endpunkte ✅
+- `consecutive_failures` Reset bei erfolgreicher Delivery ✅
+- `fetch` mit `AbortController(10s)` — kein Request hängt endlos ✅
+- Graceful-Fallback in GET wenn Migration fehlt (`migration_pending: true`) ✅
+
+**Cron-Integration**:
+- `processAllWebhooks()` im 2-Min-Tick parallel zu anderen Cron-Tasks ✅
+- Response-Stats: `{ processed, succeeded, failed, disabled }` für Monitoring ✅
+
+**Tour-Status-Events**:
+- `on_route` → `batch_picked_up`, `delivered` → `batch_completed`, `cancelled` → `batch_cancelled` ✅
+- Alle fire-and-forget mit `.catch(() => {})` — blockieren keine Tour-Response ✅
+
+### Code-Review Urgency-Coloring Kitchen (`02b18c0`)
+
+**`app/(admin)/kitchen/client.tsx`** — OrderTicket-Karte:
+- Ternäre Kaskade: `critical → red-500 | urgent → orange-400 | progressPct 50-70 → yellow-400 | <50+in_zub → matcha-400 | ''` — logisch korrekte Priorisierung ✅
+- `urgent && !critical` Guard verhindert Doppel-Ring ✅
+- `urgencyBg` (`bg-red-50/50 dark:bg-red-950/20`) — Tailwind v3 JIT Opacity-Slash-Notation ✅
+- `bg-card` entfernt vom Card-className: Card-Komponente setzt `bg-card` bereits via CSS — kein Verlust ✅
+- Progresspct 70-100% ohne Urgent/Critical erhält keinen Border — Absicht: bei hohem Fortschritt ohne Druck kein Alarm-Signal ✅
+
+### Code-Review Score-Balken Dispatch (`02b18c0`)
+
+**`app/(admin)/dispatch/client.tsx`** — OrderRow Score-Chip:
+- `w-14 h-1` (56px × 4px) — diskret, kein Layout-Shift ✅
+- `overflow-hidden bg-black/10` Hintergrundbalken + farbiger Füll-Balken ✅
+- `style={{ width: \`${dispatch_score}%\` }}` — 0–100 linear (Score ist bereits normiert 0–100) ✅
+- Farbsystem: matcha ≥80 / blue ≥60 / orange ≥40 / red <40 — konsistent mit scoreMeta() ✅
+- `rounded-full` auf Innen- und Außenbalken — keine visuelle Inkonsistenz ✅
+
+### Code-Review Küchenstatus Fahrer-App (`02b18c0`)
+
+**`app/fahrer/app/client.tsx`**:
+- `useEffect` on `[activeBatch?.id, activeBatch?.status]` — Channel wird bei Batch-Wechsel neu gebaut ✅
+- Guard `activeBatch.status === 'unterwegs'` → kein Kanal für laufende Touren (Küchenstatus irrelevant) ✅
+- `orderIds.filter(Boolean)` — kein Filter auf `null`-IDs die Query crashen würden ✅
+- Realtime-Filter `id=in.(uuid1,uuid2)` — Supabase-Realtime-Syntax korrekt ✅
+- `setKitchenStatuses((prev) => new Map(prev).set(id, newStatus))` — immutable Map-Update ✅
+- `kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs'` — deckt beide Endzustände ab ✅
+- Alle-fertig-Banner: `activeBatch.stops.every(...)` korrekte Vollständigkeitsprüfung ✅
+- `return () => { supabase.removeChannel(ch); }` — Cleanup ohne Memory-Leak ✅
+
+### Gesamt-Status nach Review #23
+- TypeScript: **0 Fehler** ✅ (1 Bug behoben)
+- Build: **170 Seiten, 0 Fehler, 0 Warnungen** ✅
+- Phase 25 Webhook-Backend vollständig und sicher implementiert ✅
+- 3 neue Frontend-Features (Urgency, Score-Bars, Küchenstatus) korrekt integriert ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅
+- System: **MARKT-REIF**
 
 ## CEO Review #22 — 2026-06-03
 
