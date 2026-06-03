@@ -12,6 +12,23 @@
 - `5358cdf` feat(delivery/backend): Phase 26 — Business Intelligence Export + Periodic Report Engine
 - `4e30753` docs(delivery): DELIVERY_PROGRESS.md Phase 26 eingetragen
 - `17d609a` feat(delivery/frontend): Fahrer Stop-Notizen + Küchen Sonderanfragen-Panel
+- `b133d2c` feat(delivery/frontend): Tracking-Link Teilen + Dispatch Neue-Bestellung-Flash
+- `bef723a` feat(delivery/frontend): Dispatch Kundennotizen + Statistik DB-Tagesbericht
+
+### Nachtrag: 2 weitere Frontend-Commits geprüft
+
+**Dispatch Neue-Bestellung-Flash** (`dispatch/client.tsx`):
+- `newOrderFlash` + `prevReadyCountRef` — Diff gegen vorherigen `'fertig'`-Count ✅
+- 6s sichtbar dann auto-hide, Schließen-Button ✅
+
+**Dispatch Kundennotizen** (`dispatch/client.tsx`):
+- `kunde_notiz, kunde_lieferhinweis` in Supabase-Query + Amber-Badge ✅
+
+**Fahrer Tracking-Link teilen** (`delivery-view.tsx`):
+- `navigator.share` mit Clipboard-Fallback + `copiedStopId`-Feedback ✅
+
+**Statistik DB-Tagesbericht** (`statistics-view.tsx`):
+- Polling `/api/delivery/admin/reporting?type=daily` + Graceful-Fallback ✅
 
 ### Befund: Phase 26 Backend vorhanden, Frontend-Integration fehlte
 

@@ -2,15 +2,18 @@
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–26 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #24 ABGESCHLOSSEN
 
-## CEO Review #24 — Frontend BI-Export Integration [DONE ✅] — 2026-06-03
+## CEO Review #24 — Frontend BI-Export Integration + 2 neue Features geprüft [DONE ✅] — 2026-06-03
 - [x] `app/(admin)/analytics/client.tsx` — `ExportPanel`-Komponente hinzugefügt
   - "Bestellungen CSV" Button: lädt `/api/delivery/admin/reporting/export?format=orders` herunter
   - "Fahrer-Performance CSV" Button: lädt `/api/delivery/admin/reporting/export?format=drivers` herunter
   - Zeitraum: letzte 30 Tage, sichtbar als Zeitraum-Label unter den Buttons
   - Loading-State während Download, RFC-4180-Hinweis
 - [x] `app/(admin)/analytics/page.tsx` — `locationId` aus `empT.location_id` an Dashboard-Props übergeben
+- [x] Dispatch Neue-Bestellung-Flash: 6s Banner wenn Küche Fertig meldet ✅
+- [x] Dispatch Kundennotizen: Amber-Badge in Dispatch-Board ✅
+- [x] Fahrer Tracking-Link: Web Share API + Clipboard-Fallback ✅
+- [x] Statistik DB-Tagesbericht: Live-KPIs aus Reporting-API ✅
 - [x] Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen)
-- Phase 26 Backend-API war vollständig, aber Frontend-Integration fehlte → jetzt vollständig
 
 ## Phase 26: Business Intelligence Export + Periodic Report Engine [DONE ✅] — 2026-06-03
 - [x] `scripts/migrations/026_bi_reporting.sql`
