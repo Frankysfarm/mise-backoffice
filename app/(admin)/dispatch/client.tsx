@@ -89,7 +89,7 @@ type Batch = {
   }[];
 };
 
-type Location = { id: string; name: string };
+type Location = { id: string; name: string; lat?: number | null; lng?: number | null };
 
 export function DispatchBoard({
   initialOrders,
@@ -360,7 +360,20 @@ export function DispatchBoard({
       <PendingValuePanel orders={readyOrders} />
 
       {/* Live Driver Map */}
-      <LiveDriverMapPanel drivers={drivers} batches={batches} orders={filteredOrders} />
+      {(() => {
+        const loc = locationFilter !== 'all'
+          ? locations.find((l) => l.id === locationFilter)
+          : locations[0];
+        return (
+          <LiveDriverMapPanel
+            drivers={drivers}
+            batches={batches}
+            orders={filteredOrders}
+            restaurantLat={loc?.lat ?? null}
+            restaurantLng={loc?.lng ?? null}
+          />
+        );
+      })()}
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         {/* Left Column: Ready + Active */}
@@ -769,10 +782,14 @@ function LiveDriverMapPanel({
   drivers,
   batches,
   orders,
+  restaurantLat,
+  restaurantLng,
 }: {
   drivers: Driver[];
   batches: Batch[];
   orders: ReadyOrder[];
+  restaurantLat?: number | null;
+  restaurantLng?: number | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -861,6 +878,8 @@ function LiveDriverMapPanel({
             drivers={driverMarkers}
             orders={orderMarkers}
             unassigned={unassignedMarkers}
+            restaurantLat={restaurantLat}
+            restaurantLng={restaurantLng}
           />
         </div>
       )}

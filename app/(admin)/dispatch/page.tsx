@@ -57,7 +57,7 @@ export default async function DispatchPage() {
       .select('id, state, driver_id, started_at, total_distance_km, total_eta_min, zone, driver:mise_drivers(id, name), stops:mise_delivery_batch_stops(id, order_id, sequence, completed_at, type, order:customer_orders(bestellnummer, kunde_name, kunde_adresse))')
       .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
       .order('created_at', { ascending: false }),
-    supabase.from('locations').select('id, name'),
+    supabase.from('locations').select('id, name, lat, lng'),
   ]);
 
   const allBatches = [
