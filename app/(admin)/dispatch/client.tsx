@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -113,6 +113,8 @@ export function DispatchBoard({
   const [dispatchPending, setDispatchPending] = useState(false);
   const [etaRefreshing, setEtaRefreshing] = useState(false);
   const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
+  const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
+  const prevReadyCountRef = useRef(initialOrders.filter((o) => o.status === 'fertig').length);
 
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
@@ -178,7 +180,14 @@ export function DispatchBoard({
         .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
         .order('created_at', { ascending: false }),
     ]);
-    setOrders((o as any) ?? []);
+    const newOrders: ReadyOrder[] = (o as any) ?? [];
+    const newReadyCount = newOrders.filter((x) => x.status === 'fertig').length;
+    if (newReadyCount > prevReadyCountRef.current) {
+      setNewOrderFlash({ count: newReadyCount - prevReadyCountRef.current });
+      setTimeout(() => setNewOrderFlash(null), 6000);
+    }
+    prevReadyCountRef.current = newReadyCount;
+    setOrders(newOrders);
     setDrivers((d as any) ?? []);
     const normalizedSmart = ((smart ?? []) as any[]).map((b: any) => ({
       id: b.id, status: b.state, fahrer_id: b.driver_id, startzeit: b.started_at ?? null,
@@ -272,6 +281,21 @@ export function DispatchBoard({
 
   return (
     <div className="space-y-6">
+      {/* Neue Bestellung — kurzer Flash wenn neue Ready-Bestellung eintrifft */}
+      {newOrderFlash && (
+        <div className="flex items-center gap-3 rounded-xl border-2 border-matcha-400 bg-matcha-50 px-4 py-3 shadow-md animate-in slide-in-from-top-2 duration-300">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-matcha-600 text-white">
+            <Package className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <div className="font-display text-sm font-bold text-matcha-900">
+              {newOrderFlash.count === 1 ? 'Neue Bestellung bereit!' : `${newOrderFlash.count} neue Bestellungen bereit!`}
+            </div>
+            <div className="text-xs text-matcha-600">Küche meldet Fertig — bitte Fahrer zuweisen</div>
+          </div>
+          <button onClick={() => setNewOrderFlash(null)} className="text-matcha-400 hover:text-matcha-700 text-lg leading-none">×</button>
+        </div>
+      )}
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">

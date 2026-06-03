@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2 } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type Stop = {
@@ -62,6 +62,7 @@ export function DeliveryView({
   const mountedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [copiedStopId, setCopiedStopId] = useState<string | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -712,6 +713,29 @@ export function DeliveryView({
                       <Phone size={16} />
                     </a>
                   )}
+                  {/* Tracking-Link an Kunden teilen */}
+                  <button
+                    onClick={async () => {
+                      const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/track/${stop.order.bestellnummer}`;
+                      const text = `Deine Bestellung ist unterwegs! Verfolge sie hier: ${url}`;
+                      if (typeof navigator !== 'undefined' && navigator.share) {
+                        try { await navigator.share({ title: 'Lieferung verfolgen', text, url }); } catch {}
+                      } else {
+                        try { await navigator.clipboard.writeText(url); } catch {}
+                        setCopiedStopId(stop.id);
+                        setTimeout(() => setCopiedStopId(null), 2000);
+                      }
+                    }}
+                    title="Tracking-Link teilen"
+                    className={cn(
+                      'h-11 w-11 rounded-xl grid place-items-center transition shrink-0',
+                      copiedStopId === stop.id
+                        ? 'bg-accent/30 text-accent'
+                        : 'bg-white/10 hover:bg-white/20 text-matcha-200',
+                    )}
+                  >
+                    {copiedStopId === stop.id ? <Check size={16} /> : <Share2 size={16} />}
+                  </button>
                   {/* Angekommen-Button — nur wenn noch nicht angekommen */}
                   {!stop.angekommen_am && !arrivedIds.has(stop.id) && (
                     <button
