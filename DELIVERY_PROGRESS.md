@@ -1,6 +1,43 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–25 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #23 ABGESCHLOSSEN
+## STATUS: MARKT-REIF ✅ — PHASEN 1–26 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #23 ABGESCHLOSSEN
+
+## Phase 26: Business Intelligence Export + Periodic Report Engine [DONE ✅] — 2026-06-03
+- [x] `scripts/migrations/026_bi_reporting.sql`
+  - `v_daily_location_kpis` VIEW: Tages-KPIs pro Location (Berliner Kalender-Tag) aus customer_orders
+    - total/delivery/pickup/completed/cancelled orders, Umsatz gesamt/lieferung/abholung/bar/karte, aktive Fahrer
+  - `v_driver_period_stats` VIEW: Fahrer-Performance pro Tag aus delivery_performance
+    - Lieferungen, on_time_count/pct, avg_eta_deviation_min via LEFT JOIN mise_drivers
+  - `delivery_report_snapshots` Tabelle: gecachte Perioden-Reports (UNIQUE per location+type+period_start)
+    - Felder: orders_count, delivered_count, revenue_eur, on_time_pct, JSONB-Payload
+    - RLS: service_role all + authenticated select (tenant-gefiltert via employees.tenant_id)
+  - Index `idx_customer_orders_location_created_reporting` für schnelle Tages-Queries
+- [x] `lib/delivery/reporting.ts` — BI-Engine (7 Funktionen, 283 Zeilen)
+  - `getDailyKpis(locationId, date)`: Tages-KPIs aus v_daily_location_kpis; Graceful-Fallback wenn Migration fehlt
+  - `getPeriodReport(locationId, periodType, from, to)`: Aggregierter Report inkl. dailyBreakdown
+    + topDrivers (max 10, nach Lieferungen sortiert) + Summary-KPIs (Umsatz, onTimePct, avgEtaDev, daysIncluded)
+  - `getMultiLocationSummary(locationIds[], from, to)`: Franchise-Vergleich bis 20 Locations
+    aggregiert aus v_daily_location_kpis + v_driver_period_stats + locations
+  - `generateOrdersCSV(locationId, from, to)`: RFC-4180-CSV max 10 000 Bestellungen (12 Spalten)
+    Felder: bestellnummer, typ, status, gesamtbetrag_eur, zahlungsart, bezahlt, zone, score, eta, fahrer_id, erstellt_am
+  - `generateDriversCSV(locationId, from, to)`: CSV Fahrer-Performance aus v_driver_period_stats
+    Felder: datum, fahrer_name, fahrzeug, lieferungen, puenktlich, spaet, puenktlich_pct, avg_abweichung_min
+  - `cacheReportSnapshot(locationId, type, start, end)`: UPSERT in delivery_report_snapshots (idempotent)
+  - `runDailyReportCache()`: Cron-Helfer; cached daily (gestern) + weekly (Mo–gestern) für alle aktiven Locations (max 50)
+- [x] `app/api/delivery/admin/reporting/route.ts` — 4 Query-Typen
+  - `GET ?type=daily  &location_id=...&date=YYYY-MM-DD` → DailyKpis; leere Antwort mit _hint wenn keine Daten
+  - `GET ?type=period &location_id=...&period_type=...&from=...&to=...` → PeriodReport (max 366 Tage)
+    Standard-Zeiträume: weekly=laufende Woche Mo, monthly=erster des Monats
+  - `GET ?type=multi  &location_ids=id1,id2,...&from=...&to=...` → MultiLocationSummary
+    Auth-Guard: nur Locations im eigenen Tenant werden zurückgegeben (keine IDs aus anderen Tenants)
+  - `GET ?type=cached &location_id=...&report_type=...&limit=N` → gecachte Snapshots-Liste (max 90)
+- [x] `app/api/delivery/admin/reporting/export/route.ts` — CSV-Download
+  - `GET ?format=orders &location_id=...&from=...&to=...` → `text/csv` mit `Content-Disposition: attachment`
+  - `GET ?format=drivers&location_id=...&from=...&to=...` → Fahrer-Performance CSV
+- [x] Cron-Integration (`app/api/cron/smart-dispatch/route.ts`)
+  - `runDailyReportCache()` täglich um 02:00 UTC (`nowHour === 2 && nowMin < 2`)
+  - Response enthält `report_cache: { locations, snapshots, errors }`
+- Build: `npm run build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen)
 
 ## Agenten-Team
 - **CEO Agent**: Review, QA, Integration, Bug-Fixes (8x/Tag)
