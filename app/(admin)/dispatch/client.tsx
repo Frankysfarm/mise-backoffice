@@ -1859,9 +1859,15 @@ function BatchRow({ batch }: { batch: Batch }) {
                       {s.order?.kunde_name ?? '—'}
                     </div>
                     {s.order?.kunde_adresse && (
-                      <div className="w-20 text-center text-[8px] leading-tight truncate text-muted-foreground/60">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.order.kunde_adresse)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block w-20 text-center text-[8px] leading-tight truncate text-muted-foreground/60 hover:text-matcha-600 hover:underline transition"
+                        title={`In Google Maps öffnen: ${s.order.kunde_adresse}`}
+                      >
                         {s.order.kunde_adresse.split(',')[0]}
-                      </div>
+                      </a>
                     )}
                     {stopEtaStr && (
                       <div className={cn(
@@ -1885,7 +1891,7 @@ function BatchRow({ batch }: { batch: Batch }) {
             })}
         </div>
       </div>
-      <div className="mt-1 flex items-center gap-2 text-xs">
+      <div className="mt-1 flex items-center gap-2 text-xs flex-wrap">
         <span className={cn(
           'rounded-full px-2 py-0.5 font-bold',
           progress === 100 ? 'bg-matcha-100 text-matcha-800' :
@@ -1894,6 +1900,32 @@ function BatchRow({ batch }: { batch: Batch }) {
         )}>
           {done}/{total} · {Math.round(progress)}%
         </span>
+
+        {/* Google Maps Route für alle offenen Stops */}
+        {(() => {
+          const openStops = batch.stops
+            .filter((s) => !s.geliefert_am && s.order?.kunde_adresse)
+            .sort((a, b) => a.reihenfolge - b.reihenfolge);
+          if (openStops.length === 0) return null;
+          const addrs = openStops.map((s) => encodeURIComponent(s.order!.kunde_adresse!));
+          const dest = addrs[addrs.length - 1];
+          const waypoints = addrs.slice(0, -1).join('|');
+          const mapsUrl = waypoints
+            ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${waypoints}&travelmode=driving`
+            : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+          return (
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-full bg-matcha-50 border border-matcha-200 px-2.5 py-0.5 text-[10px] font-bold text-matcha-700 hover:bg-matcha-100 transition"
+              title="Route in Google Maps öffnen"
+            >
+              <MapPin className="h-3 w-3" />
+              Route öffnen
+            </a>
+          );
+        })()}
 
         {/* Re-Optimieren: nur wenn Tour noch nicht abgeschlossen */}
         {progress < 100 && (
