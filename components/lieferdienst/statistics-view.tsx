@@ -6,7 +6,7 @@ import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdie
 import { createClient } from '@/lib/supabase/client'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp
 } from 'lucide-react'
 import {
   BarChart,
@@ -47,6 +47,24 @@ type TrendData = {
   delta_delivered: number;
 } | null;
 
+type SatisfactionData = {
+  totalRatings: number;
+  avgRating: number;
+  positiveRate: number;
+  negativeRate: number;
+  withComment: number;
+  byDriver: { driver_id: string; name: string | null; avg_rating: number; count: number }[];
+  recentComments: { rating: number; comment: string; created_at: string }[];
+} | null;
+
+type ActiveAlert = {
+  id: string;
+  severity: 'critical' | 'warning' | 'info';
+  title: string;
+  message: string;
+  created_at: string;
+};
+
 type LiveDriver = {
   id: string;
   name: string;
@@ -83,6 +101,8 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [forecastSlots, setForecastSlots] = useState<{
     hourLocal: string; expectedOrders: number; recommendedMinDrivers: number;
   }[]>([])
+  const [satisfactionData, setSatisfactionData] = useState<SatisfactionData>(null)
+  const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -144,6 +164,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/forecast?location_id=${locationId}&hours=6`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.slots?.length) setForecastSlots(d.slots) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/satisfaction?location_id=${locationId}&days=14`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d && d.totalRatings > 0) setSatisfactionData(d) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/alerts?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.alerts?.length) setActiveAlerts(d.alerts) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -332,6 +360,45 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         )
       })()}
+
+      {/* Betriebsalarme */}
+      {activeAlerts.length > 0 && (
+        <div className={`rounded-2xl border p-4 ${activeAlerts.some(a => a.severity === 'critical') ? 'border-red-300 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className={`w-4 h-4 ${activeAlerts.some(a => a.severity === 'critical') ? 'text-red-600' : 'text-amber-600'}`} />
+            <span className={`text-sm font-bold uppercase tracking-wider ${activeAlerts.some(a => a.severity === 'critical') ? 'text-red-700' : 'text-amber-700'}`}>
+              Betriebsalarme · {activeAlerts.length} aktiv
+            </span>
+            {activeAlerts.some(a => a.severity === 'critical') && (
+              <span className="ml-auto inline-flex h-2 w-2 rounded-full bg-red-500 animate-ping" />
+            )}
+          </div>
+          <div className="space-y-2">
+            {activeAlerts.slice(0, 5).map((alert) => (
+              <div key={alert.id} className={`flex items-start gap-3 rounded-xl border px-3 py-2.5 ${
+                alert.severity === 'critical' ? 'border-red-200 bg-red-100/60' :
+                alert.severity === 'warning' ? 'border-amber-200 bg-amber-100/60' :
+                'border-stone-200 bg-stone-100/60'
+              }`}>
+                <span className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                  alert.severity === 'critical' ? 'bg-red-500 text-white' :
+                  alert.severity === 'warning' ? 'bg-amber-500 text-white' :
+                  'bg-stone-400 text-white'
+                }`}>
+                  {alert.severity === 'critical' ? 'Kritisch' : alert.severity === 'warning' ? 'Warnung' : 'Info'}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-char truncate">{alert.title}</div>
+                  <div className="text-xs text-stone-600 mt-0.5 line-clamp-1">{alert.message}</div>
+                </div>
+                <span className="shrink-0 text-[10px] text-stone-400 tabular-nums">
+                  {new Date(alert.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Echtzeit-Bestellungseingang */}
       <LiveOrderFeed locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id} />
@@ -1136,6 +1203,99 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Kundenzufriedenheit */}
+      {satisfactionData && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <Star className="w-5 h-5 text-amber-400" />
+            Kundenzufriedenheit · 14 Tage
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className={`text-3xl font-black ${satisfactionData.avgRating >= 4 ? 'text-emerald-600' : satisfactionData.avgRating >= 3 ? 'text-amber-600' : 'text-red-600'}`}>
+                {satisfactionData.avgRating.toFixed(1)}
+              </div>
+              <div className="flex justify-center gap-0.5 mt-1">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} className={`w-3 h-3 ${s <= Math.round(satisfactionData.avgRating) ? 'fill-amber-400 text-amber-400' : 'text-stone-200'}`} />
+                ))}
+              </div>
+              <div className="text-xs text-stone-500 mt-1">{satisfactionData.totalRatings} Bewertungen</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className="text-3xl font-black text-emerald-600">{Math.round(satisfactionData.positiveRate)}%</div>
+              <div className="text-xs text-stone-500 mt-1 flex items-center justify-center gap-1">
+                <ThumbsUp className="w-3 h-3" /> Positiv
+              </div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className="text-3xl font-black text-red-500">{Math.round(satisfactionData.negativeRate)}%</div>
+              <div className="text-xs text-stone-500 mt-1">Negativ</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+              <div className="text-3xl font-black text-blue-600">{satisfactionData.withComment}</div>
+              <div className="text-xs text-stone-500 mt-1 flex items-center justify-center gap-1">
+                <MessageSquare className="w-3 h-3" /> Kommentare
+              </div>
+            </div>
+          </div>
+          {/* Positiv-Rate Balken */}
+          <div className="mb-5">
+            <div className="flex justify-between text-xs text-stone-500 mb-1">
+              <span>Positiv-Rate</span>
+              <span className="font-bold">{Math.round(satisfactionData.positiveRate)}%</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-stone-100 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${satisfactionData.positiveRate >= 80 ? 'bg-emerald-400' : satisfactionData.positiveRate >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
+                style={{ width: `${satisfactionData.positiveRate}%` }}
+              />
+            </div>
+          </div>
+          {/* Top Fahrer nach Bewertung */}
+          {satisfactionData.byDriver.length > 0 && (
+            <div className="mb-5">
+              <div className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">Fahrer-Bewertungen</div>
+              <div className="space-y-1.5">
+                {satisfactionData.byDriver.slice(0, 4).map((d) => (
+                  <div key={d.driver_id} className="flex items-center gap-3 text-sm">
+                    <span className="flex-1 min-w-0 truncate font-medium text-char">{d.name ?? '—'}</span>
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} className={`w-3 h-3 ${s <= Math.round(d.avg_rating) ? 'fill-amber-400 text-amber-400' : 'text-stone-200'}`} />
+                      ))}
+                    </div>
+                    <span className="w-8 text-right font-bold tabular-nums text-char">{d.avg_rating.toFixed(1)}</span>
+                    <span className="text-xs text-stone-400 w-16 text-right">{d.count} Bew.</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Letzte Kommentare */}
+          {satisfactionData.recentComments.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">Letzte Kommentare</div>
+              <div className="space-y-2">
+                {satisfactionData.recentComments.slice(0, 3).map((c, i) => (
+                  <div key={i} className="flex items-start gap-2.5 rounded-xl bg-stone-50 p-3 border border-stone-100">
+                    <div className="flex gap-0.5 mt-0.5 shrink-0">
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} className={`w-3 h-3 ${s <= c.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-200'}`} />
+                      ))}
+                    </div>
+                    <p className="flex-1 text-sm text-char line-clamp-2">{c.comment}</p>
+                    <span className="shrink-0 text-[10px] text-stone-400 tabular-nums">
+                      {new Date(c.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
