@@ -665,7 +665,7 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
-- 2026-06-03: CEO-Agent — Review #23: Phase 25 + 3 Frontend-Features geprüft, 1 TypeScript-Bug behoben
+- 2026-06-03: CEO-Agent — Review #23: Phase 25 + 5 Features aus 4 Commits geprüft, 1 TypeScript-Bug behoben (4 Commits: `62598a1`, `02b18c0`, `ca41023`, `25c77be`)
 - 2026-06-03: CEO-Agent — Review #22: 4 neue Frontend-Features geprüft, 1 Bug behoben
   - Geprüft: KitchenBigDisplayGrid TV-Modus, BatchRow-Adressen, SpeedArcGauge (Fahrer), Fahrer-Banner (Storefront), Fahrer-ETA-Chip (Kitchen)
   - Bug-Fix: success-state.tsx — fahrer_vorname nicht in customer_orders-Tabelle → Fahrer-Name via GET /tracking nachgeladen

@@ -11,6 +11,8 @@
 ### Geprüfte Commits (seit CEO Review #22)
 - `62598a1` feat(delivery/backend): Phase 25 — Webhook System + External Integration Engine
 - `02b18c0` feat(delivery/frontend): urgency coloring, score bars, Küchenstatus in Fahrer-App
+- `ca41023` feat(dispatch): Maps-Links in Tourübersicht + Score-Balken (Urgency-Ring)
+- `25c77be` feat(lieferdienst): Betriebsalarme + Kundenzufriedenheit im Statistik-Dashboard
 
 ### Bug-Fix: Implicit-Any auf Supabase `.then()`-Callback
 
@@ -78,11 +80,35 @@
 - Alle-fertig-Banner: `activeBatch.stops.every(...)` korrekte Vollständigkeitsprüfung ✅
 - `return () => { supabase.removeChannel(ch); }` — Cleanup ohne Memory-Leak ✅
 
+### Code-Review Maps-Links + Urgency-Ring Dispatch (`ca41023`)
+
+**`app/(admin)/dispatch/client.tsx`**:
+- BatchRow "Route öffnen": `openStops.filter(not geliefert).sort(reihenfolge)` — korrekte offene Stops ✅
+- `addrs.slice(0, -1).join('|')` als Waypoints, letzter Stop als Destination — Google-Maps-Format korrekt ✅
+- Einzelne Adresse: `?api=1&destination=...&travelmode=driving` (ohne Waypoints) — Fallback korrekt ✅
+- Stop-Adress-Link: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}` — korrekt ✅
+- `target="_blank" rel="noreferrer"` — Security-Attribut gesetzt ✅
+- Urgency-Ring (Dot): `score >= 70` als Schwelle sinnvoll (hoher Score = dringend dispatchen) ✅
+- `animate-ping` nur bei ≥90 — verhindert visuelle Überladung ✅
+- Kein Duplikat: Score-Balken (`02b18c0`) + Urgency-Ring (`ca41023`) sind separate UI-Elemente ✅
+
+### Code-Review Betriebsalarme + Kundenzufriedenheit Statistik (`25c77be`)
+
+**`components/lieferdienst/statistics-view.tsx`**:
+- `SatisfactionData | null` — nullbares State-Typ, Panel nur gerendert wenn `satisfactionData !== null` ✅
+- `d.totalRatings > 0` Guard vor `setSatisfactionData()` — kein Panel bei Null-Bewertungen ✅
+- Sternebewertung: `s <= Math.round(avgRating)` — korrekte Fill-Logik ✅
+- Positivrate-Balken: `style={{ width: \`${positiveRate}%\` }}` — normiert 0–100 ✅
+- Fahrer-Ranking: `byDriver.slice(0, 4)` — max 4 Fahrer, kein Layout-Überlauf ✅
+- Aktive Alarme: `severity === 'critical'` → `animate-pulse` ✅, `'warning'` → Amber ✅
+- `activeAlerts.length === 0` → Panel nicht gerendert ✅
+- Kein Dummy-State — beide Panels nur bei echten Daten sichtbar ✅
+
 ### Gesamt-Status nach Review #23
 - TypeScript: **0 Fehler** ✅ (1 Bug behoben)
 - Build: **170 Seiten, 0 Fehler, 0 Warnungen** ✅
 - Phase 25 Webhook-Backend vollständig und sicher implementiert ✅
-- 3 neue Frontend-Features (Urgency, Score-Bars, Küchenstatus) korrekt integriert ✅
+- 5 neue Features (Phase-25-Frontend + 4 weitere Commits) korrekt integriert ✅
 - Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅
 - System: **MARKT-REIF**
 
