@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn, euro } from '@/lib/utils';
 import {
-  BarChart3, Banknote, Bike, CheckCircle2, CreditCard, Download, FileText, Globe, MailOpen, Package, RefreshCw, Settings2, Ticket, TrendingDown, TrendingUp, Users,
+  AlertTriangle, BarChart3, Banknote, Bell, Bike, CheckCircle2, CreditCard, Download, FileText, Globe, Link2, MailOpen, Package, Plus, RefreshCw, Settings2, Ticket, Trash2, TrendingDown, TrendingUp, Users, Webhook, X,
 } from 'lucide-react';
 
 // ─── Delivery Config Typen ───────────────────────────────────────────────────
@@ -375,6 +375,12 @@ export function AnalyticsDashboard({
 
       {/* Liefer-Konfiguration */}
       {locationId && <DeliveryConfigPanel locationId={locationId} />}
+
+      {/* Betriebsalarme */}
+      {locationId && <AlertsPanel locationId={locationId} />}
+
+      {/* Webhook-Verwaltung */}
+      {locationId && <WebhooksPanel locationId={locationId} />}
     </div>
   );
 }
@@ -1039,5 +1045,691 @@ function ConfigRow({
         )}
       </div>
     </div>
+  );
+}
+
+// ─── Alerts Panel ─────────────────────────────────────────────────────────────
+
+type AlertSeverity = 'info' | 'warning' | 'critical';
+
+type DeliveryAlert = {
+  id: string;
+  alert_type: string;
+  severity: AlertSeverity;
+  message: string;
+  details: Record<string, unknown> | null;
+  created_at: string;
+  resolved_at: string | null;
+};
+
+type AlertsResponse = {
+  alerts: DeliveryAlert[];
+  total: number;
+  critical: number;
+  warning: number;
+  error?: string;
+};
+
+const ALERT_TYPE_LABELS: Record<string, string> = {
+  dispatch_queue_high:    'Dispatch-Queue überfüllt',
+  no_drivers_online:      'Kein Fahrer online',
+  kitchen_overload:       'Küche überlastet',
+  stale_orders_critical:  'Bestellungen nicht zugewiesen',
+  eta_accuracy_low:       'ETA-Genauigkeit niedrig',
+};
+
+function AlertsPanel({ locationId }: { locationId: string }) {
+  const [data, setData]             = useState<AlertsResponse | null>(null);
+  const [loading, setLoading]       = useState(true);
+  const [resolving, setResolving]   = useState<string | null>(null);
+  const [evaluating, setEvaluating] = useState(false);
+  const [err, setErr]               = useState<string | null>(null);
+  const [evalResult, setEvalResult] = useState<{ created: number; resolved: number } | null>(null);
+
+  const load = () => {
+    setLoading(true);
+    setErr(null);
+    fetch(`/api/delivery/admin/alerts?location_id=${locationId}&view=active`)
+      .then((r) => r.json())
+      .then((d: AlertsResponse) => {
+        if (d.error) { setErr(d.error); return; }
+        setData(d);
+      })
+      .catch(() => setErr('Netzwerkfehler'))
+      .finally(() => setLoading(false));
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [locationId]);
+
+  async function resolveAlert(id: string) {
+    setResolving(id);
+    try {
+      const res = await fetch(`/api/delivery/admin/alerts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve' }),
+      });
+      if (res.ok) load();
+      else {
+        const j = await res.json() as { error?: string };
+        setErr(j.error ?? 'Fehler beim Auflösen');
+      }
+    } finally {
+      setResolving(null);
+    }
+  }
+
+  async function resolveAll() {
+    if (!confirm('Alle aktiven Alarme auflösen?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/delivery/admin/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId, action: 'resolve_all' }),
+      });
+      if (res.ok) load();
+      else {
+        const j = await res.json() as { error?: string };
+        setErr(j.error ?? 'Fehler');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function evaluate() {
+    setEvaluating(true);
+    setEvalResult(null);
+    try {
+      const res = await fetch('/api/delivery/admin/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId, action: 'evaluate' }),
+      });
+      const j = await res.json() as { created?: number; resolved?: number; error?: string };
+      if (j.error) { setErr(j.error); return; }
+      setEvalResult({ created: j.created ?? 0, resolved: j.resolved ?? 0 });
+      load();
+    } finally {
+      setEvaluating(false);
+    }
+  }
+
+  const hasCritical = (data?.critical ?? 0) > 0;
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <Bell size={16} className={hasCritical ? 'text-red-600 animate-pulse' : 'text-matcha-700'} />
+          <h2 className="font-display font-bold">Betriebsalarme</h2>
+          {data && data.total > 0 && (
+            <span className={cn(
+              'text-xs inline-flex items-center rounded-full px-1.5 py-0.5 font-semibold',
+              hasCritical ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800',
+            )}>
+              {data.total} aktiv
+            </span>
+          )}
+          {data && data.total === 0 && (
+            <span className="text-[11px] text-muted-foreground">Keine aktiven Alarme</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {evalResult && (
+            <span className="text-[10px] text-muted-foreground">
+              +{evalResult.created} neu · {evalResult.resolved} gelöst
+            </span>
+          )}
+          <button
+            onClick={evaluate}
+            disabled={evaluating}
+            className="flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted transition disabled:opacity-50"
+          >
+            <RefreshCw size={12} className={evaluating ? 'animate-spin' : ''} />
+            Regeln prüfen
+          </button>
+          {data && data.total > 0 && (
+            <button
+              onClick={resolveAll}
+              disabled={loading}
+              className="rounded-md px-2.5 py-1 text-xs font-semibold bg-muted text-foreground hover:bg-muted/70 transition"
+            >
+              Alle auflösen
+            </button>
+          )}
+          <button
+            onClick={load}
+            disabled={loading}
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted transition disabled:opacity-50"
+            title="Aktualisieren"
+          >
+            <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
+      </div>
+
+      {err && (
+        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{err}</div>
+      )}
+
+      {loading && !data && (
+        <div className="space-y-2">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-12 rounded-md bg-muted animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {data && data.total === 0 && !loading && (
+        <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+          <CheckCircle2 size={14} />
+          System läuft normal — keine aktiven Alarme.
+        </div>
+      )}
+
+      {data && data.alerts.length > 0 && (
+        <div className="space-y-2">
+          {data.alerts.map((alert) => {
+            const isCritical = alert.severity === 'critical';
+            const isWarning  = alert.severity === 'warning';
+            const ageMin = Math.round((Date.now() - new Date(alert.created_at).getTime()) / 60_000);
+            return (
+              <div
+                key={alert.id}
+                className={cn(
+                  'flex items-start gap-3 rounded-lg border px-4 py-3',
+                  isCritical ? 'border-red-200 bg-red-50' : isWarning ? 'border-amber-200 bg-amber-50' : 'border-border bg-background',
+                )}
+              >
+                <AlertTriangle size={14} className={cn(
+                  'shrink-0 mt-0.5',
+                  isCritical ? 'text-red-600' : isWarning ? 'text-amber-600' : 'text-muted-foreground',
+                )} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={cn(
+                      'text-[10px] font-bold uppercase tracking-wide rounded-full px-1.5 py-px',
+                      isCritical ? 'bg-red-200 text-red-800' : isWarning ? 'bg-amber-200 text-amber-800' : 'bg-muted text-muted-foreground',
+                    )}>
+                      {isCritical ? 'KRITISCH' : isWarning ? 'WARNUNG' : 'INFO'}
+                    </span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {ALERT_TYPE_LABELS[alert.alert_type] ?? alert.alert_type}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      vor {ageMin < 1 ? '<1' : ageMin} Min
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-foreground/80 line-clamp-2">{alert.message}</p>
+                </div>
+                <button
+                  onClick={() => resolveAlert(alert.id)}
+                  disabled={resolving === alert.id}
+                  className="shrink-0 rounded-md px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:bg-muted/80 transition disabled:opacity-50"
+                >
+                  {resolving === alert.id ? '…' : 'Auflösen'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ─── Webhooks Panel ───────────────────────────────────────────────────────────
+
+const ALL_EVENTS = [
+  'order_received', 'order_dispatched', 'order_bundled', 'order_held',
+  'batch_created', 'batch_assigned', 'batch_picked_up', 'batch_completed', 'batch_cancelled',
+  'stop_delivered', 'driver_online', 'driver_offline', 'eta_updated',
+  'kitchen_ready', 'kitchen_cooking',
+  'delay_first_notice', 'delay_critical_notice', 'delay_compensation_created',
+  'order_scheduled', 'order_released_for_dispatch',
+] as const;
+
+const EVENT_LABELS: Record<string, string> = {
+  order_received:               'Bestellung eingegangen',
+  order_dispatched:             'Bestellung dispatcht',
+  order_bundled:                'Bestellung gebündelt',
+  order_held:                   'Bestellung gehalten',
+  batch_created:                'Batch erstellt',
+  batch_assigned:               'Batch zugewiesen',
+  batch_picked_up:              'Abgeholt (on_route)',
+  batch_completed:              'Tour abgeschlossen',
+  batch_cancelled:              'Tour storniert',
+  stop_delivered:               'Stop zugestellt',
+  driver_online:                'Fahrer online',
+  driver_offline:               'Fahrer offline',
+  eta_updated:                  'ETA aktualisiert',
+  kitchen_ready:                'Küche: fertig',
+  kitchen_cooking:              'Küche: kocht',
+  delay_first_notice:           'Erste Verspätungswarnung',
+  delay_critical_notice:        'Kritische Verspätung',
+  delay_compensation_created:   'Gutschein erstellt',
+  order_scheduled:              'Vorbestellung erstellt',
+  order_released_for_dispatch:  'Vorbestellung freigegeben',
+};
+
+type WebhookWithStats = {
+  id: string;
+  url: string;
+  description: string | null;
+  is_active: boolean;
+  events: string[];
+  last_delivered_at: string | null;
+  consecutive_failures: number;
+  created_at: string;
+  total_delivered: number;
+  pending_deliveries: number;
+  failed_deliveries: number;
+};
+
+type WebhooksListResponse = {
+  webhooks: WebhookWithStats[];
+  total: number;
+  migration_pending?: boolean;
+  error?: string;
+};
+
+type TestResult = {
+  ok: boolean;
+  status: number | null;
+  body: string | null;
+  signature: string | null;
+  error?: string;
+};
+
+function WebhooksPanel({ locationId }: { locationId: string }) {
+  const [data, setData]               = useState<WebhooksListResponse | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [err, setErr]                 = useState<string | null>(null);
+  const [showAdd, setShowAdd]         = useState(false);
+  const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
+  const [testing, setTesting]         = useState<string | null>(null);
+  const [deleting, setDeleting]       = useState<string | null>(null);
+  const [toggling, setToggling]       = useState<string | null>(null);
+
+  // Add-form state
+  const [newUrl, setNewUrl]           = useState('');
+  const [newSecret, setNewSecret]     = useState('');
+  const [newDesc, setNewDesc]         = useState('');
+  const [newEvents, setNewEvents]     = useState<string[]>(['batch_completed', 'batch_cancelled']);
+  const [adding, setAdding]           = useState(false);
+  const [addErr, setAddErr]           = useState<string | null>(null);
+
+  const load = () => {
+    setLoading(true);
+    setErr(null);
+    fetch(`/api/delivery/admin/webhooks?location_id=${locationId}`)
+      .then((r) => r.json())
+      .then((d: WebhooksListResponse) => {
+        if (d.error) { setErr(d.error); return; }
+        setData(d);
+      })
+      .catch(() => setErr('Netzwerkfehler'))
+      .finally(() => setLoading(false));
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [locationId]);
+
+  async function toggleWebhook(wh: WebhookWithStats) {
+    setToggling(wh.id);
+    try {
+      const res = await fetch(`/api/delivery/admin/webhooks/${wh.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId, is_active: !wh.is_active }),
+      });
+      if (res.ok) load();
+      else {
+        const j = await res.json() as { error?: string };
+        setErr(j.error ?? 'Toggle-Fehler');
+      }
+    } finally {
+      setToggling(null);
+    }
+  }
+
+  async function deleteWebhook(id: string) {
+    if (!confirm('Webhook löschen? Alle Delivery-Logs werden ebenfalls entfernt.')) return;
+    setDeleting(id);
+    try {
+      const res = await fetch(`/api/delivery/admin/webhooks/${id}?location_id=${locationId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) load();
+      else {
+        const j = await res.json() as { error?: string };
+        setErr(j.error ?? 'Fehler beim Löschen');
+      }
+    } finally {
+      setDeleting(null);
+    }
+  }
+
+  async function testWebhook(id: string) {
+    setTesting(id);
+    try {
+      const res = await fetch(`/api/delivery/admin/webhooks/${id}?action=test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId }),
+      });
+      const j = await res.json() as TestResult & { error?: string };
+      setTestResults((prev) => ({ ...prev, [id]: j }));
+    } finally {
+      setTesting(null);
+    }
+  }
+
+  async function addWebhook() {
+    setAddErr(null);
+    if (!newUrl.startsWith('https://')) { setAddErr('URL muss mit https:// beginnen'); return; }
+    if (newSecret.length < 16)          { setAddErr('Secret muss mind. 16 Zeichen haben'); return; }
+    if (newEvents.length === 0)         { setAddErr('Mindestens ein Event wählen'); return; }
+    setAdding(true);
+    try {
+      const res = await fetch('/api/delivery/admin/webhooks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location_id: locationId,
+          url: newUrl,
+          secret: newSecret,
+          events: newEvents,
+          description: newDesc || undefined,
+        }),
+      });
+      if (res.ok) {
+        setShowAdd(false);
+        setNewUrl(''); setNewSecret(''); setNewDesc(''); setNewEvents(['batch_completed', 'batch_cancelled']);
+        load();
+      } else {
+        const j = await res.json() as { error?: string };
+        setAddErr(j.error ?? 'Fehler beim Erstellen');
+      }
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  function toggleEvent(ev: string) {
+    setNewEvents((prev) =>
+      prev.includes(ev) ? prev.filter((e) => e !== ev) : [...prev, ev],
+    );
+  }
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <Webhook size={16} className="text-matcha-700" />
+          <h2 className="font-display font-bold">Webhooks</h2>
+          {data && (
+            <span className="text-xs text-muted-foreground">
+              {data.total} konfiguriert
+            </span>
+          )}
+          {data?.migration_pending && (
+            <span className="text-[10px] text-orange-500 font-medium ml-1">Migration 025 fehlt</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={load}
+            disabled={loading}
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted transition disabled:opacity-50"
+            title="Aktualisieren"
+          >
+            <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+          </button>
+          <button
+            onClick={() => { setShowAdd((v) => !v); setAddErr(null); }}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold bg-matcha-600 text-white hover:bg-matcha-700 transition"
+          >
+            <Plus size={12} />
+            Webhook hinzufügen
+          </button>
+        </div>
+      </div>
+
+      {err && (
+        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{err}</div>
+      )}
+
+      {/* Add-Formular */}
+      {showAdd && (
+        <div className="mb-5 rounded-xl border border-matcha-200 bg-matcha-50/40 p-4 space-y-3">
+          <div className="text-xs font-bold uppercase tracking-wider text-matcha-800 mb-1">Neuer Webhook</div>
+          {addErr && (
+            <div className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{addErr}</div>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                URL (https://)
+              </label>
+              <input
+                type="url"
+                placeholder="https://mein-system.de/webhook"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                className="w-full rounded-md border border-input bg-white px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-matcha-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Secret (min. 16 Zeichen)
+              </label>
+              <input
+                type="text"
+                placeholder="mein-geheimes-passwort-lang"
+                value={newSecret}
+                onChange={(e) => setNewSecret(e.target.value)}
+                className="w-full rounded-md border border-input bg-white px-3 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-matcha-500"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              Beschreibung (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="z.B. POS-Integration Buchhaltung"
+              value={newDesc}
+              onChange={(e) => setNewDesc(e.target.value)}
+              className="w-full rounded-md border border-input bg-white px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-matcha-500"
+            />
+          </div>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Events abonnieren
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {ALL_EVENTS.map((ev) => (
+                <button
+                  key={ev}
+                  type="button"
+                  onClick={() => toggleEvent(ev)}
+                  className={cn(
+                    'rounded-full border px-2 py-0.5 text-[10px] font-semibold transition',
+                    newEvents.includes(ev)
+                      ? 'border-matcha-500 bg-matcha-100 text-matcha-800'
+                      : 'border-border bg-background text-muted-foreground hover:border-matcha-300',
+                  )}
+                >
+                  {EVENT_LABELS[ev] ?? ev}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              onClick={addWebhook}
+              disabled={adding}
+              className="rounded-md px-4 py-1.5 text-xs font-semibold bg-matcha-600 text-white hover:bg-matcha-700 transition disabled:opacity-50"
+            >
+              {adding ? 'Wird erstellt…' : 'Erstellen'}
+            </button>
+            <button
+              onClick={() => { setShowAdd(false); setAddErr(null); }}
+              className="rounded-md px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted transition"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading && !data && (
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-16 rounded-md bg-muted animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {data && data.total === 0 && !loading && !showAdd && (
+        <div className="flex items-center gap-3 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
+          <Link2 size={16} className="shrink-0" />
+          <div>
+            <div className="font-medium text-foreground">Noch keine Webhooks konfiguriert</div>
+            <div className="text-xs mt-0.5">
+              Verbinde externe Systeme (POS, Buchhaltung, Analytics) — alle Delivery-Events werden HMAC-signiert übertragen.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data && data.webhooks.length > 0 && (
+        <div className="space-y-3">
+          {data.webhooks.map((wh) => {
+            const testR = testResults[wh.id];
+            const lastDelivered = wh.last_delivered_at
+              ? new Date(wh.last_delivered_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+              : null;
+            return (
+              <div
+                key={wh.id}
+                className={cn(
+                  'rounded-xl border p-4 transition',
+                  wh.is_active ? 'border-border bg-background' : 'border-dashed border-border bg-muted/30',
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={cn(
+                    'mt-0.5 h-2.5 w-2.5 rounded-full shrink-0',
+                    wh.is_active
+                      ? wh.consecutive_failures > 0 ? 'bg-amber-500' : 'bg-matcha-500'
+                      : 'bg-muted-foreground/40',
+                  )} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-mono font-semibold text-foreground truncate max-w-[300px]">
+                        {wh.url}
+                      </span>
+                      {!wh.is_active && (
+                        <span className="rounded-full bg-muted px-1.5 py-px text-[9px] font-bold uppercase text-muted-foreground">
+                          INAKTIV
+                        </span>
+                      )}
+                      {wh.consecutive_failures > 0 && (
+                        <span className="rounded-full bg-amber-100 px-1.5 py-px text-[9px] font-bold text-amber-800">
+                          {wh.consecutive_failures} Fehler
+                        </span>
+                      )}
+                    </div>
+                    {wh.description && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5">{wh.description}</div>
+                    )}
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <CheckCircle2 size={10} className="text-matcha-500" />
+                        {wh.total_delivered} zugestellt
+                      </span>
+                      {wh.pending_deliveries > 0 && (
+                        <span className="flex items-center gap-1 text-amber-600">
+                          <RefreshCw size={10} />
+                          {wh.pending_deliveries} ausstehend
+                        </span>
+                      )}
+                      {wh.failed_deliveries > 0 && (
+                        <span className="flex items-center gap-1 text-red-600">
+                          <X size={10} />
+                          {wh.failed_deliveries} fehlgeschlagen
+                        </span>
+                      )}
+                      {lastDelivered && (
+                        <span>Letzte Zustellung: {lastDelivered}</span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {wh.events.slice(0, 6).map((ev) => (
+                        <span key={ev} className="rounded-full bg-muted/60 px-1.5 py-px text-[9px] font-medium text-muted-foreground">
+                          {EVENT_LABELS[ev] ?? ev}
+                        </span>
+                      ))}
+                      {wh.events.length > 6 && (
+                        <span className="rounded-full bg-muted/60 px-1.5 py-px text-[9px] font-medium text-muted-foreground">
+                          +{wh.events.length - 6}
+                        </span>
+                      )}
+                    </div>
+                    {testR && (
+                      <div className={cn(
+                        'mt-2 rounded-md px-2.5 py-1.5 text-[10px] font-mono',
+                        testR.ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800',
+                      )}>
+                        {testR.ok
+                          ? `✓ HTTP ${testR.status} — Test erfolgreich`
+                          : `✗ ${testR.error ?? `HTTP ${testR.status}`}`
+                        }
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => testWebhook(wh.id)}
+                      disabled={testing === wh.id}
+                      className="rounded-md px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:bg-muted transition disabled:opacity-50"
+                      title="Test-Event senden"
+                    >
+                      {testing === wh.id ? '…' : 'Test'}
+                    </button>
+                    <button
+                      onClick={() => toggleWebhook(wh)}
+                      disabled={toggling === wh.id}
+                      className={cn(
+                        'rounded-md px-2 py-1 text-[10px] font-semibold transition disabled:opacity-50',
+                        wh.is_active
+                          ? 'text-amber-700 hover:bg-amber-50'
+                          : 'text-matcha-700 hover:bg-matcha-50',
+                      )}
+                    >
+                      {toggling === wh.id ? '…' : wh.is_active ? 'Deaktivieren' : 'Aktivieren'}
+                    </button>
+                    <button
+                      onClick={() => deleteWebhook(wh.id)}
+                      disabled={deleting === wh.id}
+                      className="rounded-md p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 transition disabled:opacity-50"
+                      title="Webhook löschen"
+                    >
+                      {deleting === wh.id ? <RefreshCw size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }
