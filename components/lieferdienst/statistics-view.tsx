@@ -885,6 +885,91 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Schicht-Performance-Übersicht: Recharts Balkendiagramm Bestellungen je Stunde */}
+      {hourlyData.filter(d => d.orders > 0).length >= 2 && (() => {
+        const nowH = new Date().getHours();
+        const displayData = hourlyData.filter(d => d.orders > 0 || d.hour.startsWith(String(nowH)));
+        const maxOrders = Math.max(...displayData.map(d => d.orders), 1);
+        const totalDelivered = completedOrders.length;
+        const totalRevenue = [...orders, ...completedOrders].reduce((s, o) => s + ((o as any).gesamtbetrag ?? (o as any).total ?? 0), 0);
+        const peakIdx = displayData.reduce((best, d, i) => d.orders > displayData[best].orders ? i : best, 0);
+        const peakLabel = displayData[peakIdx]?.hour ?? '';
+
+        return (
+          <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-violet-600" />
+                <span className="text-sm font-bold text-char">Bestellungen je Stunde</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-stone-500">
+                {peakLabel && <span className="font-semibold text-char">Peak: {peakLabel}</span>}
+                <span className="font-semibold text-emerald-700">{totalDelivered} geliefert</span>
+                {totalRevenue > 0 && (
+                  <span className="font-semibold text-violet-700">
+                    {totalRevenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                )}
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={120}>
+              <BarChart data={displayData} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barCategoryGap="25%">
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="hour"
+                  tick={{ fontSize: 10, fill: '#64748b' }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 9, fill: '#94a3b8' }}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  cursor={{ fill: '#f1f5f9' }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.[0]) return null;
+                    const d = payload[0].payload as { hour: string; orders: number };
+                    return (
+                      <div className="rounded-lg bg-matcha-900 px-2.5 py-1.5 text-[11px] text-white shadow-lg">
+                        <div className="font-bold">{d.hour} Uhr</div>
+                        <div>{d.orders} Bestellung{d.orders !== 1 ? 'en' : ''}</div>
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={32}>
+                  {displayData.map((entry, index) => {
+                    const pct = maxOrders > 0 ? entry.orders / maxOrders : 0;
+                    const color =
+                      pct >= 0.9 ? '#ef4444' :
+                      pct >= 0.7 ? '#f97316' :
+                      pct >= 0.4 ? '#f59e0b' : '#10b981';
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            {/* Kompakte KPI-Leiste unter dem Chart */}
+            <div className="mt-3 pt-3 border-t border-stone-100 grid grid-cols-4 gap-2 text-center">
+              {[
+                { label: 'Gesamt', value: stats.totalOrders, color: 'text-char' },
+                { label: 'Geliefert', value: totalDelivered, color: 'text-emerald-700' },
+                { label: 'Abgelehnt', value: stats.rejectedOrders, color: stats.rejectedOrders > 0 ? 'text-red-600' : 'text-stone-400' },
+                { label: 'Ø Wert', value: avgOrderValue > 0 ? `${avgOrderValue.toFixed(0)} €` : '–', color: 'text-violet-700' },
+              ].map(kpi => (
+                <div key={kpi.label}>
+                  <div className={`font-black text-lg leading-tight ${kpi.color}`}>{kpi.value}</div>
+                  <div className="text-[9px] text-stone-400 uppercase tracking-wide mt-0.5">{kpi.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* SLA-Panel: On-Time-Rate, Ø-Verzögerung, Zone-Aufschlüsselung */}
       {slaData && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">

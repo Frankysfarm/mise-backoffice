@@ -736,7 +736,9 @@ type EtaLoad = 'quiet' | 'normal' | 'busy';
 function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin: number }) {
   const [etaMin, setEtaMin] = React.useState<number>(baseEtaMin);
   const [load, setLoad] = React.useState<EtaLoad>('normal');
+  const [activeCount, setActiveCount] = React.useState<number | null>(null);
   const [loaded, setLoaded] = React.useState(false);
+  const [, setTick] = React.useState(0);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -748,43 +750,70 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
         if (cancelled) return;
         setEtaMin(d.eta_min ?? baseEtaMin);
         setLoad(d.load ?? 'normal');
+        if (d.active_orders != null) setActiveCount(d.active_orders);
         setLoaded(true);
       } catch {}
     };
     poll();
     const iv = setInterval(poll, 60_000);
-    return () => { cancelled = true; clearInterval(iv); };
+    // Tick every 30s for countdown refresh
+    const tickIv = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => { cancelled = true; clearInterval(iv); clearInterval(tickIv); };
   }, [locationId, baseEtaMin]);
 
   if (!loaded) return null;
 
   const meta = {
-    quiet: { dot: 'bg-green-500', text: 'text-green-700', bg: 'bg-green-50 border-green-200', label: 'Küche frei' },
-    normal: { dot: 'bg-amber-400', text: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', label: 'Normale Auslastung' },
-    busy:   { dot: 'bg-red-500',   text: 'text-red-700',   bg: 'bg-red-50 border-red-200',     label: 'Hohe Auslastung' },
+    quiet:  { dot: 'bg-green-500', text: 'text-green-700', bg: 'bg-green-50 border-green-200',   label: 'Küche frei',          emoji: '✨' },
+    normal: { dot: 'bg-amber-400', text: 'text-amber-700', bg: 'bg-amber-50 border-amber-200',   label: 'Normale Auslastung',  emoji: '👌' },
+    busy:   { dot: 'bg-red-500',   text: 'text-red-700',   bg: 'bg-red-50 border-red-200',       label: 'Hohe Auslastung',     emoji: '🔥' },
   }[load];
 
+  // ETA range: +/- 5 min
+  const etaFrom = Math.max(10, etaMin - 5);
+  const etaTo   = etaMin + 5;
+
+  // Load bar: map etaMin to a 0-100 scale (20min = 0%, 60min = 100%)
+  const barPct = Math.min(100, Math.max(0, Math.round(((etaMin - 20) / 40) * 100)));
+  const barColor =
+    load === 'quiet' ? 'bg-green-400' :
+    load === 'normal' ? 'bg-amber-400' : 'bg-red-400';
+
   return (
-    <div className={cn('mx-auto max-w-6xl px-4 md:px-8 mt-3')}>
-      <div className={cn(
-        'flex items-center gap-3 rounded-xl border px-4 py-2.5 text-sm',
-        meta.bg,
-      )}>
-        <span className="relative flex h-2.5 w-2.5 shrink-0">
-          <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full opacity-60', meta.dot)} />
-          <span className={cn('relative inline-flex rounded-full h-2.5 w-2.5', meta.dot)} />
-        </span>
-        <div className="flex items-center gap-2 flex-1 flex-wrap">
-          <span className={cn('font-bold', meta.text)}>{meta.label}</span>
-          <span className="text-muted-foreground text-xs">·</span>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            Lieferzeit aktuell ca. <strong className={meta.text}>{etaMin} Min</strong>
+    <div className="mx-auto max-w-6xl px-4 md:px-8 mt-3">
+      <div className={cn('rounded-xl border px-4 py-3', meta.bg)}>
+        <div className="flex items-center gap-3">
+          <span className="text-lg shrink-0">{meta.emoji}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={cn('font-bold text-sm', meta.text)}>{meta.label}</span>
+              <span className="text-muted-foreground text-xs">·</span>
+              <span className={cn('font-display font-black text-base tabular-nums', meta.text)}>
+                {etaFrom}–{etaTo} Min
+              </span>
+              {activeCount != null && activeCount > 0 && (
+                <>
+                  <span className="text-muted-foreground text-xs">·</span>
+                  <span className="text-xs text-muted-foreground">{activeCount} Bestellungen aktiv</span>
+                </>
+              )}
+            </div>
+            {/* Auslastungs-Balken */}
+            <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
+              <div
+                className={cn('h-full rounded-full transition-all duration-700', barColor)}
+                style={{ width: `${barPct}%` }}
+              />
+            </div>
+          </div>
+          <span className="flex items-center gap-1 text-[10px] text-muted-foreground/60 shrink-0">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full opacity-60', meta.dot)} />
+              <span className={cn('relative inline-flex rounded-full h-1.5 w-1.5', meta.dot)} />
+            </span>
+            Live
           </span>
         </div>
-        <span className="flex items-center gap-1 text-[10px] text-muted-foreground/60">
-          <Zap className="h-2.5 w-2.5" /> Live
-        </span>
       </div>
     </div>
   );

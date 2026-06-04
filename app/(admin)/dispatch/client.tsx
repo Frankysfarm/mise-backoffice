@@ -367,6 +367,9 @@ export function DispatchBoard({
       {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
+      {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
+      {batches.length > 0 && <TourVisualizationPanel batches={batches} />}
+
       {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
       <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
 
@@ -2626,5 +2629,186 @@ function DelayMonitorPanel({ locationId }: { locationId?: string }) {
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ TourVisualizationPanel ------------------------------ */
+
+function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
+  const [open, setOpen] = useState(false);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  if (batches.length === 0) return null;
+
+  const enriched = batches.map((b) => {
+    const total = b.stops.length;
+    const done = b.stops.filter((s) => s.geliefert_am).length;
+    const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+    const etaMs = b.startzeit && b.total_eta_min != null
+      ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
+      : null;
+    const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+    const nextStop = b.stops
+      .filter((s) => !s.geliefert_am)
+      .sort((a, b) => a.reihenfolge - b.reihenfolge)[0] ?? null;
+    return { batch: b, total, done, progress, etaMs, secLeft, nextStop };
+  }).sort((a, b) => (a.secLeft ?? 9999) - (b.secLeft ?? 9999));
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-3 text-left hover:bg-muted/30 transition border-b"
+      >
+        <div className="flex items-center gap-2">
+          <RouteIcon className="h-4 w-4 text-matcha-600" />
+          <span className="font-display text-sm font-bold uppercase tracking-wider">Tour-Visualisierung</span>
+          <Badge variant="secondary">{batches.length} Touren</Badge>
+          {enriched.filter((e) => e.secLeft !== null && e.secLeft < 0).length > 0 && (
+            <Badge variant="destructive" className="text-[10px] animate-pulse">
+              {enriched.filter((e) => e.secLeft !== null && e.secLeft < 0).length} überzogen
+            </Badge>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-4">
+          {enriched.map(({ batch, total, done, progress, secLeft, nextStop }) => {
+            const driverName = batch.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}` : `Fahrer`;
+            const overdue = secLeft !== null && secLeft < 0;
+            const imminent = !overdue && secLeft !== null && secLeft < 300;
+            const headerBg =
+              overdue   ? 'bg-red-50 border-red-200'    :
+              imminent  ? 'bg-orange-50 border-orange-200' :
+              progress === 100 ? 'bg-matcha-50 border-matcha-200' :
+              'bg-card border-border';
+            return (
+              <div key={batch.id} className={cn('rounded-xl border p-3', headerBg)}>
+                {/* Tour Header */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={cn(
+                    'h-10 w-10 rounded-xl grid place-items-center font-display font-black text-sm shrink-0',
+                    overdue   ? 'bg-red-600 text-white'    :
+                    imminent  ? 'bg-orange-500 text-white'  :
+                    progress === 100 ? 'bg-matcha-600 text-white' :
+                    'bg-matcha-700 text-white',
+                  )}>
+                    {progress === 100 ? '✓' : `${Math.round(progress)}%`}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-display font-bold">{driverName}</span>
+                      {batch.zone && (
+                        <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black', zoneMeta(batch.zone).cls)}>
+                          Zone {batch.zone}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
+                      <span className="tabular-nums">{done}/{total} Stopps</span>
+                      {batch.total_distance_km != null && (
+                        <span>{batch.total_distance_km.toFixed(1)} km</span>
+                      )}
+                      {secLeft !== null && (
+                        <span className={cn(
+                          'font-bold tabular-nums',
+                          overdue ? 'text-red-600' : imminent ? 'text-orange-600' : 'text-matcha-700',
+                        )}>
+                          {overdue
+                            ? `+${Math.floor(-secLeft / 60)}m überzogen`
+                            : `~${Math.floor(secLeft / 60)}m zurück`}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {nextStop?.order?.kunde_adresse && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextStop.order.kunde_adresse)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-matcha-200 bg-matcha-50 px-2.5 py-1 text-[10px] font-bold text-matcha-700 hover:bg-matcha-100 transition"
+                    >
+                      <MapPin className="h-3 w-3" />
+                      Nächster
+                    </a>
+                  )}
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mb-3 h-1.5 rounded-full bg-black/10 overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-all duration-500',
+                      progress === 100 ? 'bg-matcha-500' :
+                      overdue ? 'bg-red-500 animate-pulse' :
+                      progress > 60 ? 'bg-orange-400' : 'bg-blue-400',
+                    )}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                {/* Stop dots timeline */}
+                <div className="flex items-center gap-0 overflow-x-auto pb-1 scrollbar-hide">
+                  {batch.stops
+                    .slice()
+                    .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                    .map((stop, idx, arr) => {
+                      const isDone = !!stop.geliefert_am;
+                      const isNext = !isDone && arr.slice(0, idx).every((p) => !!p.geliefert_am);
+                      const stopEtaStr = stop.order?.eta_earliest
+                        ? new Date(stop.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                        : null;
+                      const stopEtaOverdue = stop.order?.eta_earliest
+                        ? new Date(stop.order.eta_earliest).getTime() < now
+                        : false;
+                      return (
+                        <div key={stop.id} className="flex items-center shrink-0">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className={cn(
+                              'h-7 w-7 rounded-full grid place-items-center text-[10px] font-bold border-2 transition-all',
+                              isDone
+                                ? 'bg-matcha-100 border-matcha-400 text-matcha-700'
+                                : isNext
+                                ? 'bg-orange-50 border-orange-400 text-orange-800 ring-2 ring-orange-200 ring-offset-1'
+                                : 'bg-muted border-border text-muted-foreground',
+                            )}>
+                              {isDone ? '✓' : stop.reihenfolge}
+                            </div>
+                            <div className="w-16 text-center text-[8px] leading-tight truncate text-muted-foreground">
+                              {stop.order?.kunde_name ?? '—'}
+                            </div>
+                            {stopEtaStr && (
+                              <div className={cn(
+                                'text-[7px] font-bold tabular-nums text-center',
+                                stopEtaOverdue && !isDone ? 'text-red-600' :
+                                isNext ? 'text-orange-600' : 'text-muted-foreground/60',
+                              )}>
+                                {stopEtaOverdue && !isDone ? '!' : '~'}{stopEtaStr}
+                              </div>
+                            )}
+                          </div>
+                          {idx < arr.length - 1 && (
+                            <div className={cn(
+                              'h-0.5 w-6 rounded-full mx-1 shrink-0 mb-4',
+                              isDone ? 'bg-matcha-400' : 'bg-border',
+                            )} />
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }

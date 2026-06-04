@@ -469,48 +469,97 @@ export function FahrerApp({
               );
             })()}
 
-            {/* Übersicht Stops */}
+            {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
             <div className="space-y-2 mb-4">
-              {activeBatch.stops.map((stop) => {
-                const o = stop.order as any;
-                const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
-                const kStatus = kitchenStatuses.get(stop.order_id) ?? null;
-                const kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs';
-                const kitchenCooking = kStatus === 'in_zubereitung';
-                return (
-                  <div key={stop.id} className={cn(
-                    'rounded-xl border p-3 flex items-center gap-3 transition',
-                    kitchenReady ? 'bg-matcha-700/40 border-accent/40' :
-                    isCash ? 'bg-amber-500/10 border-amber-400/30' : 'bg-white/5 border-white/10',
-                  )}>
-                    <div className={cn(
-                      'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
-                      kitchenReady ? 'bg-accent text-matcha-900' : 'bg-accent/20 text-accent',
-                    )}>{kitchenReady ? '✓' : stop.reihenfolge}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
-                        {/* Küchenstatus-Chip */}
-                        {kitchenReady && (
-                          <span className="shrink-0 rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
-                        )}
-                        {kitchenCooking && (
-                          <span className="shrink-0 rounded-full bg-orange-500/20 text-orange-300 px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
-                        )}
-                        {kStatus === 'bestätigt' && (
-                          <span className="shrink-0 rounded-full bg-blue-500/20 text-blue-300 px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
-                        )}
+              {activeBatch.stops
+                .slice()
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .map((stop, idx, arr) => {
+                  const o = stop.order as any;
+                  const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                  const kStatus = kitchenStatuses.get(stop.order_id) ?? null;
+                  const kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs';
+                  const kitchenCooking = kStatus === 'in_zubereitung';
+                  const isLast = idx === arr.length - 1;
+
+                  // Individual stop nav URL
+                  const stopNavUrl = stop.order.kunde_lat && stop.order.kunde_lng
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`
+                    : stop.order.kunde_adresse
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.order.kunde_adresse)}`
+                    : null;
+
+                  // Distanz-Chip
+                  const distM = (stop as any).distanz_zum_vorgaenger_m as number | null;
+
+                  return (
+                    <div key={stop.id} className="relative">
+                      {/* Vertical connector line between stops */}
+                      {!isLast && (
+                        <div className="absolute left-[15px] top-[52px] bottom-[-8px] w-0.5 bg-white/10 z-0" />
+                      )}
+                      <div className={cn(
+                        'relative z-10 rounded-xl border p-3 flex items-center gap-3 transition',
+                        kitchenReady ? 'bg-matcha-700/40 border-accent/40' :
+                        isCash ? 'bg-amber-500/10 border-amber-400/30' : 'bg-white/5 border-white/10',
+                      )}>
+                        <div className={cn(
+                          'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
+                          kitchenReady ? 'bg-accent text-matcha-900' : 'bg-accent/20 text-accent',
+                        )}>{kitchenReady ? '✓' : stop.reihenfolge}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
+                            {kitchenReady && (
+                              <span className="shrink-0 rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
+                            )}
+                            {kitchenCooking && (
+                              <span className="shrink-0 rounded-full bg-orange-500/20 text-orange-300 px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
+                            )}
+                            {kStatus === 'bestätigt' && (
+                              <span className="shrink-0 rounded-full bg-blue-500/20 text-blue-300 px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
+                          {/* Distanz + ETA */}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {distM != null && distM > 0 && (
+                              <span className="text-[9px] text-matcha-400 tabular-nums">
+                                {distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${Math.round(distM)} m`}
+                              </span>
+                            )}
+                            {o.eta_earliest && (
+                              <span className={cn(
+                                'text-[9px] font-bold tabular-nums',
+                                new Date(o.eta_earliest).getTime() < Date.now() ? 'text-red-400' : 'text-accent/70',
+                              )}>
+                                ~{new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <div className={cn('font-display font-bold', isCash ? 'text-amber-300' : 'text-accent')}>
+                            {euro(stop.order.gesamtbetrag)}
+                          </div>
+                          {isCash && <div className="text-[9px] font-bold text-amber-400 uppercase">Bar</div>}
+                          {/* Individual Navigation Button */}
+                          {stopNavUrl && (
+                            <a
+                              href={stopNavUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-lg bg-accent/20 text-accent px-2 py-1 text-[9px] font-bold hover:bg-accent/30 transition"
+                              title="Diesen Stopp in Maps öffnen"
+                            >
+                              <Navigation className="h-3 w-3" />
+                              Nav
+                            </a>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-xs text-matcha-300 truncate">{stop.order.kunde_adresse}</div>
                     </div>
-                    <div className="flex flex-col items-end gap-0.5 shrink-0">
-                      <div className={cn('font-display font-bold', isCash ? 'text-amber-300' : 'text-accent')}>
-                        {euro(stop.order.gesamtbetrag)}
-                      </div>
-                      {isCash && <div className="text-[9px] font-bold text-amber-400 uppercase">Bar</div>}
-                    </div>
-                  </div>
-                );
+                  );
               })}
             </div>
 
