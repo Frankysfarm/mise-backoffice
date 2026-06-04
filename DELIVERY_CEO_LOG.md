@@ -1,10 +1,65 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–26 + alle Frontend-Features + CEO Review #24 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–27 + alle Frontend-Features + CEO Review #25 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #24 bestätigt:** Build clean (170 Seiten, 0 Fehler), Phase 26 komplett (Backend + Frontend). Nächste optionale Erweiterung: Periode-Report-UI (Wochen/Monats-Report im Analytics-Dashboard).
+**CEO Review #25 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnings), Phase 27 komplett (Perioden-Report-UI + 5 neue Frontend-Features). System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+
+## CEO Review #25 — 2026-06-04
+
+### Geprüfte Commits (seit CEO Review #24)
+- `aa3fa79` review(delivery): CEO Review #24 Nachtrag — 4 neue Frontend-Features geprüft
+- `b78a655` feat(delivery/frontend): Phase 27 — Perioden-Report-UI im Analytics-Dashboard
+- `fff7f34` feat(delivery/frontend): Smart-Timing-Countdown, Tour-Visualisierung, Stopp-Navigation, ETA-Bar, Statistiken-Dashboard
+
+### Integrations-Check Phase 27 + letzter Commit
+
+**Kitchen SmartTimingCountdownGrid** (`kitchen/client.tsx`):
+- 1s-Interval für Live-SVG-Countdown-Ringe ✅
+- Farbcodierung grün→gelb→orange→rot nach `pct` korrekt ✅
+- Nur bei `!bigDisplay` und mind. 1 `cooking`-Timing eingeblendet ✅
+- `cook_start_at` + `ready_target` null-safe (beide im Filter verlangt) ✅
+
+**Dispatch TourVisualizationPanel** (`dispatch/client.tsx`):
+- 5s-Tick für Live-ETA-Update ✅
+- `sort((a, b) => a.reihenfolge - b.reihenfolge)` inside `batches.map((b) => …)` — `b` im sort-Callback shadowed outer `b` legal (JS-Scoping), kein Bug ✅
+- Google-Maps-Link für nächsten Stopp via `kunde_adresse` encode ✅
+- Fortschrittsbalken + Stopp-Dots-Timeline korrekt berechnet ✅
+
+**Fahrer Per-Stopp-Navigation** (`fahrer/app/client.tsx`):
+- `stopNavUrl` priorisiert `kunde_lat/kunde_lng` → Koordinaten-Link, Fallback auf Adresse-Suche ✅
+- `distanz_zum_vorgaenger_m` null-safe + m/km-Formatierung ✅
+- Vertikale Connector-Linie zwischen Stopps via `absolute` Positionierung ✅
+- Stops werden jetzt `.sort((a,b) => a.reihenfolge - b.reihenfolge)` sortiert ✅
+
+**Storefront LiveEtaBar** (`storefront.tsx`):
+- `active_orders`-Feld aus `/api/delivery/eta/live` korrekt abgerufen ✅
+- API gibt `{ eta_min, load, active_orders, drivers_online }` zurück (geprüft) ✅
+- ETA-Bereich `etaFrom = max(10, etaMin-5)` bis `etaTo = etaMin+5` plausibel ✅
+- Auslastungsbalken 0–100% mapped auf 20–60 Min ETA ✅
+
+**Lieferdienst Schicht-Performance-Dashboard** (`statistics-view.tsx`):
+- `recharts` korrekt in `package.json` eingetragen (`^3.8.1`) ✅
+- `hourlyData` an Line 209 definiert, wiederverwendet ✅
+- `displayData` filtert 0-Bestellungen-Stunden heraus (Minimum 2 Datenpunkte) ✅
+- Farbkodierter `<Cell>` per Balken nach Auslastungs-Prozent ✅
+
+**Periode-Report-UI** (`analytics/client.tsx`):
+- Tabs: Diese Woche / Dieser Monat / Letzte 30 Tage ✅
+- Fetch: `GET /api/delivery/admin/reporting?type=period&...` (bestehende API) ✅
+- Empty-State + Loading-Skeleton + Error-State vollständig ✅
+- Top-5-Fahrer-Tabelle korrekt sortiert nach Lieferungen-Anzahl ✅
+
+### Build-Prüfung
+- `npx next build`: Kompiliert sauber, 0 TypeScript-Fehler, 0 Warnungen ✅
+- `npx tsc --noEmit`: 0 Fehler ✅
+
+### Status nach Review #25
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Analytics: alle synchron ✅
+- System: MARKT-REIF ✅ — bereit für Produktiv-Deployment
 
 ## CEO Review #24 — 2026-06-03
 
