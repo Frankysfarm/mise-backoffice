@@ -1,6 +1,12 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–29 + CEO REVIEW #25 ABGESCHLOSSEN — 2026-06-04
+## STATUS: MARKT-REIF ✅ — PHASEN 1–29 + 2 TRACKING-FEATURES + CEO REVIEW #26 ABGESCHLOSSEN — 2026-06-04
+
+## CEO Review #26 — 2026-06-04 [DONE ✅]
+- [x] TypeScript-Bug behoben: `lib/delivery/config.ts` — `Json`-Typ-Import aus `@supabase/supabase-js` (nicht exportiert) → `unknown`-Cast
+- [x] `DeliveryQueueCard` (`app/track/[bestellnummer]/tracking.tsx`): Kunden sehen Warteposition in Liefer-Queue mit animierten Dots + ETA-Fenster
+- [x] `KitchenItemConsolidationPanel` (`app/(admin)/kitchen/client.tsx`): Parallelbatch-Empfehlung für Küche — gleiche Items in mehreren Bestellungen gebündelt
+- [x] Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 29: Dynamic Delivery Configuration Engine [DONE ✅] — 2026-06-04
 - [x] `scripts/migrations/027_delivery_config.sql`

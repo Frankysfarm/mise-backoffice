@@ -259,7 +259,7 @@ export async function upsertSetting(
       {
         location_id: locationId,
         key,
-        value:       value as unknown as import('@supabase/supabase-js').Json,
+        value:       value as unknown,
         updated_by:  updatedBy ?? null,
         updated_at:  new Date().toISOString(),
       },

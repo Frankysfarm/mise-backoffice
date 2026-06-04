@@ -1,10 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–27 + alle Frontend-Features + CEO Review #25 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–29 + alle Frontend-Features + CEO Review #26 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #25 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnings), Phase 27 komplett (Perioden-Report-UI + 5 neue Frontend-Features). System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+**CEO Review #26 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), Phase 29 komplett (Dynamic Delivery Config Engine). 2 neue Frontend-Features geprüft und integriert. 1 TypeScript-Bug in lib/delivery/config.ts (ungültiger `Json`-Import) behoben. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+
+## CEO Review #26 — 2026-06-04
+
+### Geprüfte Commits (seit CEO Review #25)
+- `e98739d` feat(delivery/backend): Phase 29 — Dynamic Delivery Configuration Engine
+- `d2cab28` feat(tracking): add DeliveryQueueCard stop-position indicator + KitchenItemConsolidationPanel
+
+### Bug gefixt
+**`lib/delivery/config.ts` Zeile 262 — ungültiger `Json`-Import:**
+- `value as unknown as import('@supabase/supabase-js').Json` → `@supabase/supabase-js` exportiert kein `Json`-Typ
+- Fix: `value as unknown` — korrekte TypeScript-Lösung, Supabase-Client akzeptiert `unknown` intern
+- `npx tsc --noEmit`: 0 Fehler nach Fix ✅
+
+### Integrations-Check
+
+**Tracking `DeliveryQueueCard`** (`app/track/[bestellnummer]/tracking.tsx`):
+- `stopsBefore` State aus Realtime-Payload (`d.stops_before`) korrekt befüllt ✅
+- Guard `stopsBefore != null && stopsBefore > 0` verhindert Anzeige wenn Kunde erster/einziger Stopp ✅
+- `totalDots = Math.min(stopsBefore + 1, 6)` — sinnvolle Obergrenze, Overflow-Label `+N weitere` ✅
+- ETA-Fenster `etaEarliest–etaLatest` aus `order`-Props, null-safe Fallback auf einzelne Werte ✅
+- `stops_before` in Tracking-API (`app/api/delivery/orders/[orderId]/tracking/route.ts:148`) korrekt berechnet ✅
+
+**Kitchen `KitchenItemConsolidationPanel`** (`app/(admin)/kitchen/client.tsx`):
+- Nur bei ≥2 aktiven Bestellungen angezeigt (Guard `active.length < 2`) ✅
+- Item-Map nach Namen aggregiert, sortiert nach Gesamtmenge desc, Top-8 ✅
+- Balken-Breite proportional zu `maxTotal` (100% = meistbestelltes Item) ✅
+- Bestellnummern-Anzeige kürzt `#PREFIX-` Prefix korrekt ab ✅
+- Nur Items mit ≥2 Bestellungen → echte Batch-Empfehlung, kein Noise ✅
+
+### Build-Prüfung
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: `✓ Compiled successfully`, 170 Seiten, 0 TypeScript-Fehler ✅
+
+### Status nach Review #26
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Analytics ↔ Config: alle synchron ✅
+- System: MARKT-REIF ✅ — bereit für Produktiv-Deployment
 
 ## CEO Review #25 — 2026-06-04
 
