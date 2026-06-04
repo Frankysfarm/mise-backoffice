@@ -1,11 +1,45 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn, euro } from '@/lib/utils';
 import {
-  Banknote, Bike, CreditCard, Download, FileText, Globe, MailOpen, Package, Ticket, TrendingDown, TrendingUp, Users,
+  BarChart3, Banknote, Bike, CreditCard, Download, FileText, Globe, MailOpen, Package, Ticket, TrendingDown, TrendingUp, Users,
 } from 'lucide-react';
+
+// ─── Perioden-Report Typen ───────────────────────────────────────────────────
+type PeriodSummary = {
+  totalOrders: number;
+  totalDeliveries: number;
+  completedOrders: number;
+  cancelledOrders: number;
+  totalRevenue: number | null;
+  avgDailyOrders: number;
+  onTimePct: number | null;
+  avgEtaDeviationMin: number | null;
+  activeDriversUnique: number;
+  daysIncluded: number;
+};
+type PeriodDriver = {
+  driverName: string | null;
+  driverVehicle: string | null;
+  deliveries: number;
+  onTimePct: number | null;
+  avgEtaDeviationMin: number | null;
+};
+type DailyBreakdownItem = {
+  date: string;
+  orders: { total: number; completed: number };
+  revenue: { total: number | null };
+};
+type PeriodReportData = {
+  periodStart: string;
+  periodEnd: string;
+  summary: PeriodSummary;
+  dailyBreakdown: DailyBreakdownItem[];
+  topDrivers: PeriodDriver[];
+};
+// ────────────────────────────────────────────────────────────────────────────
 
 type Order = {
   bestellnummer: string;
@@ -309,6 +343,9 @@ export function AnalyticsDashboard({
         </Card>
       </div>
 
+      {/* Perioden-Report Lieferservice */}
+      {locationId && <PeriodReportPanel locationId={locationId} />}
+
       {/* BI-Export */}
       {locationId && <ExportPanel locationId={locationId} today={today} />}
     </div>
@@ -368,6 +405,227 @@ function ExportPanel({ locationId, today }: { locationId: string; today: string 
     </Card>
   );
 }
+
+// ─── Perioden-Report Panel ───────────────────────────────────────────────────
+
+const PERIOD_LABELS: Record<string, string> = {
+  weekly: 'Diese Woche',
+  monthly: 'Dieser Monat',
+  last30: 'Letzte 30 Tage',
+};
+
+function PeriodReportPanel({ locationId }: { locationId: string }) {
+  const [period, setPeriod] = useState<'weekly' | 'monthly' | 'last30'>('weekly');
+  const [report, setReport] = useState<PeriodReportData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setErr(null);
+
+    const params = new URLSearchParams({ type: 'period', location_id: locationId });
+    if (period === 'last30') {
+      params.set('period_type', 'custom');
+      params.set('from', new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10));
+      params.set('to', new Date().toISOString().slice(0, 10));
+    } else {
+      params.set('period_type', period);
+    }
+
+    fetch(`/api/delivery/admin/reporting?${params}`)
+      .then((r) => r.json())
+      .then((data: PeriodReportData & { error?: string }) => {
+        if (data.error) { setErr(data.error); return; }
+        setReport(data);
+      })
+      .catch(() => setErr('Netzwerkfehler'))
+      .finally(() => setLoading(false));
+  }, [locationId, period]);
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <BarChart3 size={16} className="text-matcha-700" />
+          <h2 className="font-display font-bold">Liefer-Report</h2>
+          <span className="text-xs text-muted-foreground">Bestellungen · Umsatz · Pünktlichkeit</span>
+        </div>
+        <div className="flex gap-1">
+          {(['weekly', 'monthly', 'last30'] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={cn(
+                'px-3 py-1 rounded-md text-xs font-semibold transition',
+                period === p
+                  ? 'bg-matcha-800 text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/70',
+              )}
+            >
+              {PERIOD_LABELS[p]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading && (
+        <div className="h-40 flex items-center justify-center text-sm text-muted-foreground animate-pulse">
+          Lade Report…
+        </div>
+      )}
+
+      {!loading && err && (
+        <div className="h-20 flex items-center justify-center text-sm text-red-500">{err}</div>
+      )}
+
+      {!loading && !err && report && (
+        <div className="space-y-5">
+          <div className="text-xs text-muted-foreground">
+            {report.periodStart} — {report.periodEnd}
+            {' · '}{report.summary.daysIncluded} {report.summary.daysIncluded === 1 ? 'Tag' : 'Tage'}
+            {' · '}{PERIOD_LABELS[period]}
+          </div>
+
+          {/* KPI-Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <PeriodKPI label="Bestellungen" value={String(report.summary.totalOrders)} sub={`Ø ${report.summary.avgDailyOrders.toFixed(1)}/Tag`} />
+            <PeriodKPI label="Liefer-Umsatz" value={report.summary.totalRevenue != null ? euro(report.summary.totalRevenue) : '—'} tone="accent" />
+            <PeriodKPI
+              label="Abgeschlossen"
+              value={String(report.summary.completedOrders)}
+              sub={report.summary.totalOrders > 0
+                ? `${Math.round(report.summary.completedOrders / report.summary.totalOrders * 100)}%`
+                : '—'}
+            />
+            <PeriodKPI
+              label="Pünktlichkeit"
+              value={report.summary.onTimePct != null ? `${report.summary.onTimePct.toFixed(1)}%` : '—'}
+              tone={report.summary.onTimePct != null ? (report.summary.onTimePct >= 80 ? 'good' : report.summary.onTimePct >= 60 ? 'warn' : 'bad') : undefined}
+            />
+            <PeriodKPI
+              label="Ø ETA-Abw."
+              value={report.summary.avgEtaDeviationMin != null
+                ? `${report.summary.avgEtaDeviationMin > 0 ? '+' : ''}${report.summary.avgEtaDeviationMin.toFixed(1)} Min`
+                : '—'}
+              sub={`${report.summary.activeDriversUnique} Fahrer aktiv`}
+            />
+          </div>
+
+          {/* Tagesverlauf */}
+          {report.dailyBreakdown.length > 1 && (
+            <div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Tagesverlauf — Bestellungen
+              </div>
+              <PeriodMiniChart data={report.dailyBreakdown} />
+            </div>
+          )}
+
+          {/* Top-Fahrer */}
+          {report.topDrivers.length > 0 && (
+            <div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                Top-Fahrer
+              </div>
+              <div className="divide-y divide-border/50">
+                {report.topDrivers.slice(0, 5).map((d, i) => (
+                  <div key={i} className="flex items-center gap-3 py-2 text-sm">
+                    <div className="font-display font-bold text-muted-foreground w-5 text-xs shrink-0">{i + 1}.</div>
+                    <div className="flex-1 flex items-center gap-2 min-w-0">
+                      <span className="font-semibold truncate">{d.driverName ?? 'Unbekannt'}</span>
+                      {d.driverVehicle && (
+                        <span className="text-[10px] text-muted-foreground bg-muted rounded px-1 py-0.5 shrink-0">
+                          {d.driverVehicle}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-display font-bold text-sm">{d.deliveries} Liefg.</div>
+                      <div className="flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
+                        {d.onTimePct != null && (
+                          <span className={cn(
+                            d.onTimePct >= 80 ? 'text-matcha-700' : d.onTimePct >= 60 ? 'text-amber-600' : 'text-red-500',
+                          )}>
+                            {d.onTimePct.toFixed(1)}% pünktl.
+                          </span>
+                        )}
+                        {d.avgEtaDeviationMin != null && (
+                          <span>Ø {d.avgEtaDeviationMin > 0 ? '+' : ''}{d.avgEtaDeviationMin.toFixed(1)} Min</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {report.summary.totalOrders === 0 && (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              Keine Liefer-Daten für diesen Zeitraum.
+              <br />
+              <span className="text-[11px]">Migration 026 ausführen oder anderen Zeitraum wählen.</span>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function PeriodKPI({
+  label, value, sub, tone,
+}: {
+  label: string; value: string; sub?: string;
+  tone?: 'accent' | 'good' | 'warn' | 'bad';
+}) {
+  const bg = tone === 'accent'
+    ? 'bg-matcha-900 text-white'
+    : tone === 'good'
+      ? 'bg-matcha-50 text-matcha-900'
+      : tone === 'warn'
+        ? 'bg-amber-50 text-amber-900'
+        : tone === 'bad'
+          ? 'bg-red-50 text-red-900'
+          : 'bg-muted/50';
+  const subColor = tone === 'accent' ? 'text-matcha-300' : tone === 'good' ? 'text-matcha-600' : tone === 'warn' ? 'text-amber-600' : tone === 'bad' ? 'text-red-500' : 'text-muted-foreground';
+  return (
+    <div className={cn('rounded-xl p-3', bg)}>
+      <div className={cn('text-[9px] font-bold uppercase tracking-[0.15em] mb-1', tone === 'accent' ? 'text-matcha-300' : 'text-muted-foreground')}>{label}</div>
+      <div className="font-display font-bold text-lg leading-tight">{value}</div>
+      {sub && <div className={cn('text-[10px] mt-0.5', subColor)}>{sub}</div>}
+    </div>
+  );
+}
+
+function PeriodMiniChart({ data }: { data: DailyBreakdownItem[] }) {
+  const maxOrders = Math.max(1, ...data.map((d) => d.orders.total));
+  return (
+    <div className="flex items-end gap-px h-16">
+      {data.map((d, i) => {
+        const pct = (d.orders.total / maxOrders) * 100;
+        const label = new Date(`${d.date}T12:00:00`).toLocaleDateString('de-DE', {
+          weekday: 'short', day: '2-digit',
+        });
+        return (
+          <div
+            key={i}
+            className="flex-1 flex flex-col items-center justify-end group"
+            title={`${label}: ${d.orders.total} Bestellungen`}
+          >
+            <div
+              className="w-full bg-gradient-to-t from-matcha-700 to-accent rounded-t hover:brightness-110 transition"
+              style={{ height: `${pct}%`, minHeight: d.orders.total > 0 ? '3px' : '0' }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function KPICard({
   icon, label, value, tone, trend,

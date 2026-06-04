@@ -1,5 +1,20 @@
 # Smart Delivery System — Fortschritt
 
+## STATUS: MARKT-REIF ✅ — PHASEN 1–26 + PERIODE-REPORT-UI ABGESCHLOSSEN — 2026-06-04
+
+## Phase 27: Perioden-Report-UI im Analytics-Dashboard [DONE ✅] — 2026-06-04
+- [x] `app/(admin)/analytics/client.tsx` — `PeriodReportPanel`-Komponente ergänzt
+  - Zeitraum-Tabs: „Diese Woche" / „Dieser Monat" / „Letzte 30 Tage" (umschaltbar, client-side fetch)
+  - Fetch: `GET /api/delivery/admin/reporting?type=period&location_id=...&period_type=weekly/monthly` (bestehende API)
+  - KPI-Kacheln (5): Bestellungen + Ø/Tag, Liefer-Umsatz (accent), Abgeschlossen + %, Pünktlichkeit (farbcodiert good/warn/bad), Ø ETA-Abweichung + aktive Fahrer
+  - Tagesverlauf-Minibar-Chart (`PeriodMiniChart`): Balken proportional zu täglichen Bestellungen, Tooltip-Hover
+  - Top-5-Fahrer-Tabelle: Name, Fahrzeug-Badge, Lieferungen, Pünktlich-%, Ø ETA-Abweichung (farbkodiert)
+  - Empty-State wenn 0 Bestellungen: Hinweis auf Migration 026
+  - Loading-Skeleton (animate-pulse) + Error-State
+  - Zwei Hilfs-Komponenten: `PeriodKPI` (5 Tone-Varianten), `PeriodMiniChart` (h-16 Balken)
+  - Positioniert oberhalb Export-Panel; nur sichtbar wenn `locationId` vorhanden
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
+
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–26 + POST-PHASE-9 + POST-PHASE-10 + CEO REVIEW #24 ABGESCHLOSSEN
 
 ## CEO Review #24 — Frontend BI-Export Integration + 2 neue Features geprüft [DONE ✅] — 2026-06-03
