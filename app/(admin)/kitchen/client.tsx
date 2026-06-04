@@ -179,6 +179,8 @@ export function KitchenBoard({
   const [rushSnoozedUntil, setRushSnoozedUntil] = useState(0);
   const [bigDisplay, setBigDisplay] = useState(false);
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
+  const [activityFeed, setActivityFeed] = useState<{ id: string; bestellnummer: string; status: string; name: string; ts: number }[]>([]);
+  const prevOrderStatuses = useRef<Map<string, string>>(new Map());
 
   // Für Vergleich zwischen Renders
   const prev = useRef({
@@ -398,6 +400,22 @@ export function KitchenBoard({
     }
   }, [timings, orders, audio]);
 
+  // Activity-Feed: Überwache Statusübergänge aller Bestellungen
+  useEffect(() => {
+    const newEntries: typeof activityFeed = [];
+    for (const o of orders) {
+      const prev = prevOrderStatuses.current.get(o.id);
+      if (prev !== undefined && prev !== o.status) {
+        newEntries.push({ id: o.id, bestellnummer: o.bestellnummer, status: o.status, name: o.kunde_name, ts: Date.now() });
+      }
+      prevOrderStatuses.current.set(o.id, o.status);
+    }
+    if (newEntries.length > 0) {
+      setActivityFeed((prev) => [...newEntries, ...prev].slice(0, 12));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders]);
+
   return (
     <div className="space-y-4">
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
@@ -426,6 +444,9 @@ export function KitchenBoard({
 
       {/* Parallelbatch-Empfehlung: gleiche Items über mehrere Bestellungen bündeln */}
       <KitchenItemConsolidationPanel orders={filtered} />
+
+      {/* Echtzeit-Aktivitätsfeed: letzte Statusübergänge */}
+      <KitchenActivityFeed feed={activityFeed} />
 
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
@@ -3162,6 +3183,70 @@ function KitchenItemConsolidationPanel({ orders }: { orders: Order[] }) {
                   <div className="h-full rounded-full bg-matcha-500 transition-all" style={{ width: `${pct}%` }} />
                 </div>
                 <div className="text-[9px] text-matcha-500 mt-0.5 truncate">{orderNums}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenActivityFeed ------------------------------ */
+
+function KitchenActivityFeed({
+  feed,
+}: {
+  feed: { id: string; bestellnummer: string; status: string; name: string; ts: number }[];
+}) {
+  if (feed.length === 0) return null;
+
+  const statusMeta = (s: string): { icon: string; label: string; bg: string; text: string } => {
+    switch (s) {
+      case 'bestätigt':      return { icon: '✓', label: 'Angenommen',    bg: 'bg-blue-100',   text: 'text-blue-800' };
+      case 'in_zubereitung': return { icon: '🍳', label: 'Kochen',       bg: 'bg-orange-100', text: 'text-orange-800' };
+      case 'fertig':         return { icon: '📦', label: 'Fertig',        bg: 'bg-matcha-100', text: 'text-matcha-800' };
+      case 'unterwegs':      return { icon: '🛵', label: 'Unterwegs',     bg: 'bg-violet-100', text: 'text-violet-800' };
+      case 'geliefert':      return { icon: '🏠', label: 'Geliefert',     bg: 'bg-emerald-100', text: 'text-emerald-800' };
+      case 'abgeholt':       return { icon: '✅', label: 'Abgeholt',      bg: 'bg-emerald-100', text: 'text-emerald-800' };
+      case 'storniert':      return { icon: '✕', label: 'Storniert',     bg: 'bg-red-100',    text: 'text-red-800' };
+      default:               return { icon: '→', label: s,               bg: 'bg-muted',      text: 'text-muted-foreground' };
+    }
+  };
+
+  const relTime = (ts: number) => {
+    const sec = Math.floor((Date.now() - ts) / 1000);
+    if (sec < 5) return 'gerade';
+    if (sec < 60) return `${sec}s`;
+    return `${Math.floor(sec / 60)}m`;
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2 border-b bg-muted/30">
+        <TrendingUp className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="font-display text-[10px] font-bold uppercase tracking-wider">Echtzeit-Aktivität</span>
+        <span className="ml-auto text-[9px] text-muted-foreground tabular-nums">
+          {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </span>
+      </div>
+      <div className="flex gap-2 overflow-x-auto p-3 scrollbar-hide">
+        {feed.map((entry) => {
+          const m = statusMeta(entry.status);
+          return (
+            <div
+              key={`${entry.id}-${entry.ts}`}
+              className={cn('shrink-0 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[10px]', m.bg)}
+            >
+              <span className="text-base leading-none">{m.icon}</span>
+              <div className="min-w-0">
+                <div className={cn('font-bold truncate', m.text)}>
+                  #{entry.bestellnummer.replace(/^[A-Z]+-/, '')}
+                </div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className={cn('font-semibold', m.text)}>{m.label}</span>
+                  <span className="text-[8px] text-muted-foreground tabular-nums">{relTime(entry.ts)}</span>
+                </div>
               </div>
             </div>
           );

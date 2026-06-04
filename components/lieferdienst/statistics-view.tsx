@@ -1326,12 +1326,15 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                 </tr>
               </thead>
               <tbody>
-                {driverPerf
-                  .sort((a, b) => b.deliveries_today - a.deliveries_today)
-                  .map((d, i) => {
-                    const delta = d.deliveries_today - d.deliveries_yesterday
-                    const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗', car: '🚗' }
-                    const isActive = !!d.active_batch_id
+                {(() => {
+                  const sorted = [...driverPerf].sort((a, b) => b.deliveries_today - a.deliveries_today);
+                  const maxDeliveries = Math.max(...sorted.map(d => d.deliveries_today), 1);
+                  const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗', car: '🚗' };
+                  return sorted.map((d, i) => {
+                    const delta = d.deliveries_today - d.deliveries_yesterday;
+                    const isActive = !!d.active_batch_id;
+                    const barPct = Math.round((d.deliveries_today / maxDeliveries) * 100);
+                    const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-stone-400' : i === 2 ? 'bg-orange-300' : 'bg-emerald-300';
                     return (
                       <tr key={d.driver_id} className="border-b border-stone-50 hover:bg-stone-50 transition">
                         <td className="py-3">
@@ -1343,7 +1346,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                             <span className="text-base">{vehicleEmoji[d.vehicle] ?? '🚲'}</span>
                           </div>
                         </td>
-                        <td className="py-3 text-right font-black text-char tabular-nums text-lg">{d.deliveries_today}</td>
+                        <td className="py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="w-20 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                              <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${barPct}%` }} />
+                            </div>
+                            <span className="font-black text-char tabular-nums text-lg w-6 text-right">{d.deliveries_today}</span>
+                          </div>
+                        </td>
                         <td className="py-3 text-right text-stone-400 tabular-nums">{d.deliveries_yesterday}</td>
                         <td className="py-3 text-right">
                           {delta !== 0 ? (
@@ -1360,8 +1370,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                           </span>
                         </td>
                       </tr>
-                    )
-                  })}
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           </div>

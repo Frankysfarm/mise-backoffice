@@ -244,8 +244,19 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
               />
               <div>
                 <div className="text-sm font-bold text-matcha-100">Kochzeit</div>
-                <div className="text-[11px] text-matcha-300 mt-0.5">
-                  Fertig in ~{Math.max(0, order.geschaetzte_zubereitung_min - Math.floor((Date.now() - new Date(order.bestellt_am).getTime()) / 60_000))} Min
+                <div className="text-[11px] text-matcha-300 mt-0.5 tabular-nums">
+                  {(() => {
+                    const remSec = Math.max(0, Math.floor(
+                      (new Date(order.bestellt_am).getTime() + order.geschaetzte_zubereitung_min * 60_000 - Date.now()) / 1000
+                    ));
+                    const rm = Math.floor(remSec / 60);
+                    const rs = remSec % 60;
+                    return remSec <= 0
+                      ? 'Fertig jeden Moment!'
+                      : rm > 0
+                      ? `Fertig in ${rm}:${String(rs).padStart(2, '0')} Min`
+                      : `Fertig in ${rs}s`;
+                  })()}
                 </div>
               </div>
             </div>
@@ -611,7 +622,7 @@ function CookingProgressRing({
 }) {
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -622,28 +633,37 @@ function CookingProgressRing({
   const r = 22;
   const circ = 2 * Math.PI * r;
   const overdue = now > targetMs;
+  const remSec = Math.max(0, Math.floor((targetMs - now) / 1000));
+  const rm = Math.floor(remSec / 60);
+  const rs = remSec % 60;
+  const ringColor =
+    overdue ? '#f87171' :
+    pct >= 0.85 ? '#fb923c' :
+    pct >= 0.6 ? '#fbbf24' :
+    'var(--accent, #4ae68a)';
 
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0">
-      <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4" />
+    <svg width="64" height="64" viewBox="0 0 64 64" className="shrink-0">
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="5" />
       <circle
-        cx="28" cy="28" r={r}
+        cx="32" cy="32" r={r}
         fill="none"
-        stroke={overdue ? '#f87171' : 'var(--accent, #4ae68a)'}
-        strokeWidth="4"
+        stroke={ringColor}
+        strokeWidth="5"
         strokeLinecap="round"
         strokeDasharray={circ}
         strokeDashoffset={circ * (1 - pct)}
-        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 5s linear' }}
+        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
       />
-      <text
-        x="28" y="32"
-        textAnchor="middle"
-        fontSize="11"
-        fontWeight="bold"
-        fill={overdue ? '#fca5a5' : '#d1fae5'}
-      >
-        {Math.round(pct * 100)}%
+      {overdue ? (
+        <text x="32" y="30" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#fca5a5">ÜBER-</text>
+      ) : (
+        <text x="32" y="30" textAnchor="middle" fontSize="13" fontWeight="bold" fill={ringColor} fontFamily="monospace">
+          {rm}:{String(rs).padStart(2, '0')}
+        </text>
+      )}
+      <text x="32" y="42" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.5)">
+        {overdue ? 'FÄLLIG' : 'noch'}
       </text>
     </svg>
   );

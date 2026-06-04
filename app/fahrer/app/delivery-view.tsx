@@ -504,8 +504,28 @@ export function DeliveryView({
                     {s.order.kunde_adresse}
                   </div>
                   {s.order.eta_earliest && (() => {
+                    const etaMs = new Date(s.order.eta_earliest).getTime();
+                    const secLeft = Math.floor((etaMs - Date.now()) / 1000);
                     const etaStr = new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                    return <div className="text-[9px] text-matcha-500 mt-0.5 tabular-nums">~{etaStr} Uhr</div>;
+                    const overdue = secLeft < 0;
+                    const soon = !overdue && secLeft < 600;
+                    const rm = Math.floor(Math.abs(secLeft) / 60);
+                    const rs = Math.abs(secLeft) % 60;
+                    return (
+                      <div className="mt-0.5 flex items-center gap-1 flex-wrap">
+                        <span className="text-[9px] text-matcha-500 tabular-nums">~{etaStr}</span>
+                        {secLeft < 1800 && (
+                          <span className={cn(
+                            'rounded-full px-1.5 py-0.5 text-[8px] font-bold tabular-nums',
+                            overdue ? 'bg-red-500/40 text-red-200 animate-pulse' :
+                            soon ? 'bg-amber-500/30 text-amber-200' :
+                            'bg-matcha-700/50 text-matcha-300',
+                          )}>
+                            {overdue ? `+${rm}:${String(rs).padStart(2, '0')}` : `${rm}:${String(rs).padStart(2, '0')}`}
+                          </span>
+                        )}
+                      </div>
+                    );
                   })()}
                 </div>
               );

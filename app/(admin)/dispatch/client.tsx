@@ -1100,6 +1100,65 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
           <div className="mt-1.5 text-[9px] text-muted-foreground">{bundledStops} gebündelt · {singleStops} einzeln</div>
         </Card>
       )}
+
+      {/* Score-Verteilung Histogramm */}
+      {scored.length >= 2 && (
+        <Card className="p-4 sm:col-span-2 lg:col-span-4">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Score-Verteilung · {scored.length} Bestellungen</div>
+            {avgScore !== null && (
+              <span className={cn(
+                'ml-auto rounded-full px-2.5 py-0.5 text-[10px] font-black tabular-nums',
+                avgScore >= 80 ? 'bg-matcha-100 text-matcha-800' :
+                avgScore >= 60 ? 'bg-blue-100 text-blue-800' :
+                avgScore >= 40 ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800',
+              )}>
+                Ø {avgScore}
+              </span>
+            )}
+          </div>
+          <div className="flex items-end gap-1 h-16">
+            {[
+              { lo: 0,  hi: 20,  label: '0–20',  cls: 'bg-red-400',     textCls: 'text-red-700' },
+              { lo: 20, hi: 40,  label: '20–40', cls: 'bg-orange-400',  textCls: 'text-orange-700' },
+              { lo: 40, hi: 60,  label: '40–60', cls: 'bg-amber-400',   textCls: 'text-amber-700' },
+              { lo: 60, hi: 80,  label: '60–80', cls: 'bg-blue-400',    textCls: 'text-blue-700' },
+              { lo: 80, hi: 101, label: '80–100',cls: 'bg-matcha-500',  textCls: 'text-matcha-700' },
+            ].map((bucket) => {
+              const count = scored.filter((o) => {
+                const sc = o.dispatch_score ?? 0;
+                return sc >= bucket.lo && sc < bucket.hi;
+              }).length;
+              const maxBucketCount = Math.max(
+                ...([0,20,40,60,80].map((lo, _, arr) => {
+                  const hi = lo + 20 === 100 ? 101 : lo + 20;
+                  return scored.filter((o) => {
+                    const sc = o.dispatch_score ?? 0;
+                    return sc >= lo && sc < hi;
+                  }).length;
+                })),
+                1,
+              );
+              const barPct = Math.round((count / maxBucketCount) * 100);
+              return (
+                <div key={bucket.label} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                  {count > 0 && (
+                    <span className={cn('text-[9px] font-black tabular-nums', bucket.textCls)}>{count}</span>
+                  )}
+                  <div className="w-full flex items-end" style={{ height: '44px' }}>
+                    <div
+                      className={cn('w-full rounded-t transition-all duration-500', bucket.cls, count === 0 && 'opacity-20')}
+                      style={{ height: `${Math.max(count === 0 ? 6 : 20, barPct * 0.44)}px` }}
+                    />
+                  </div>
+                  <span className="text-[8px] text-muted-foreground tabular-nums leading-none">{bucket.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
