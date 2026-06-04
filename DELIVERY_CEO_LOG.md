@@ -1,10 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–29 + alle Frontend-Features + CEO Review #26 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–30 + alle Frontend-Features + CEO Review #27 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #26 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), Phase 29 komplett (Dynamic Delivery Config Engine). 2 neue Frontend-Features geprüft und integriert. 1 TypeScript-Bug in lib/delivery/config.ts (ungültiger `Json`-Import) behoben. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+**CEO Review #27 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), 5 neue Echtzeit-Features geprüft und integriert. Keine Bugs gefunden. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+
+## CEO Review #27 — 2026-06-04
+
+### Geprüfte Commits (seit CEO Review #26)
+- `2934d3e` feat(delivery/frontend): Echtzeit-Erweiterungen für Kitchen, Dispatch, Fahrer & Tracking
+
+### Bugs gefunden
+Keine. ✅
+
+### Integrations-Check
+
+**Dispatch Score-Verteilung Histogramm** (`dispatch/client.tsx`):
+- 5 Buckets: 0–20 (rot), 20–40 (orange), 40–60 (amber), 60–80 (blau), 80–100 (matcha) ✅
+- `maxBucketCount = Math.max(...buckets, 1)` — Division-by-Zero-Schutz korrekt ✅
+- `hi: 101` für letzten Bucket schließt Score=100 korrekt ein ✅
+- Ø-Score-Badge korrekt farbkodiert nach Score-Tier ✅
+- Nur bei `scored.length >= 2` angezeigt — kein Noise bei wenig Daten ✅
+
+**Kitchen KitchenActivityFeed** (`kitchen/client.tsx`):
+- `prevOrderStatuses.current` korrekt mit `useRef` — kein stale closure ✅
+- `eslint-disable react-hooks/exhaustive-deps` korrekt begründet (Ref braucht keine Dep) ✅
+- Feed auf 12 Einträge begrenzt, LIFO-Order (neueste zuerst) ✅
+- Nur angezeigt wenn `feed.length > 0` ✅
+
+**Fahrer Stop-Vorschaukarten MM:SS-Countdown** (`delivery-view.tsx`):
+- `DeliveryView` hat 1s-Interval via `setElapsed` (Zeile 67) → Countdown tickt live ✅
+- `secLeft < 1800` Guard: Chip nur bei <30 Min sichtbar — kein Clutter ✅
+- `overdue` (secLeft < 0): rot + `animate-pulse` + `+MM:SS`-Anzeige ✅
+- `soon` (0–600s): amber ✅
+
+**TrackingView CookingProgressRing + Text** (`tracking.tsx`):
+- `TrackingView` hat eigenen 1s-Tick (Zeile 83–93) → inline MM:SS-Text und Ring ticken synchron ✅
+- Kochzeit-Text: `remSec <= 0` → "Fertig jeden Moment!" / `rm > 0` → "X:XX Min" / else → "XXs" ✅
+- Ring-Farbcodierung: grün → amber → orange → rot je nach `pct` ✅
+- Overdue-SVG: "ÜBER-" (y=30) + "FÄLLIG" (y=42) beide innerhalb 64×64-Viewbox ✅
+- `stroke-dashoffset 1s linear` synchron mit 1s-Tick ✅
+
+**Statistiken Fahrer-Tagesranking** (`statistics-view.tsx`):
+- `[...driverPerf].sort(...)` — non-mutating Sort, kein State-Mutation-Bug ✅
+- `maxDeliveries = Math.max(...sorted.map(d => d.deliveries_today), 1)` — Division-by-Zero-Schutz ✅
+- Balkenfarben: Gold (#1) → Silber (#2) → Bronze (#3) → Grün (Rest) ✅
+- `vehicleEmoji` aus IIFE herausgezogen → nicht mehr 1× pro Zeile neu allokiert ✅
+
+### Build-Prüfung
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: `✓ Compiled successfully`, 170 Seiten, 0 TypeScript-Fehler ✅
+
+### Status nach Review #27
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Tracking ↔ Analytics ↔ Config: alle synchron ✅
+- System: MARKT-REIF ✅ — bereit für Produktiv-Deployment
 
 ## CEO Review #26 — 2026-06-04
 
