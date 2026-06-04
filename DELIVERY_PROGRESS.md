@@ -1,6 +1,25 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–29 + 2 TRACKING-FEATURES + CEO REVIEW #26 ABGESCHLOSSEN — 2026-06-04
+## STATUS: MARKT-REIF ✅ — PHASEN 1–30 + CEO REVIEW #26 ABGESCHLOSSEN — 2026-06-04
+
+## Phase 30: Delivery Config Management UI [DONE ✅] — 2026-06-04
+- [x] `app/(admin)/analytics/client.tsx` — `DeliveryConfigPanel` + `ConfigRow` ergänzt
+  - Lädt alle 20 Delivery-Settings aus `GET /api/delivery/admin/config?location_id=...`
+  - Zeigt Settings gruppiert nach Kategorie: Dispatch / Touren-Bündelung / Liefer-Zonen / ETA / Küchen-Timing / Fahrer-Scoring
+  - Inline-Editing: Klick auf Wert → Zahlen-Input → Enter/Blur speichert via `PATCH /api/delivery/admin/config`
+  - Client-seitige Validierung: min/max aus API-Metadaten, NaN-Guard
+  - Einheitskürzel pro Key (min / km / % / km/h / Stopps / x) in KEY_UNITS-Map
+  - "ANGEPASST"-Badge (amber) für überschriebene Settings + Default-Wert-Anzeige
+  - Gesamt-Badge: „N angepasst" im Panel-Header
+  - Grüner CheckCircle-Flash 2s nach erfolgreichem Speichern
+  - „Alle zurücksetzen" Button (rot, Confirm-Dialog) → `POST { action: 'reset' }` + Reload
+  - Refresh-Button mit Spin-Animation
+  - Graceful-Fallback-Hinweis wenn Migration 027 noch fehlt
+  - Loading-Skeleton (animate-pulse) + Error-Banner
+  - Neue Imports: `useRef`, `CheckCircle2`, `RefreshCw`, `Settings2` (lucide)
+  - Neue Typen: `ConfigSettingRow`, `ConfigResponse` (TypeScript strict, kein `any`)
+  - Panel positioniert unterhalb ExportPanel im Analytics-Dashboard
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## CEO Review #26 — 2026-06-04 [DONE ✅]
 - [x] TypeScript-Bug behoben: `lib/delivery/config.ts` — `Json`-Typ-Import aus `@supabase/supabase-js` (nicht exportiert) → `unknown`-Cast
