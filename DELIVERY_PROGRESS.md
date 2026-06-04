@@ -1,6 +1,37 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–30 + CEO REVIEW #27 ABGESCHLOSSEN — 2026-06-04
+## STATUS: MARKT-REIF ✅ — PHASEN 1–31 + CEO REVIEW #27 ABGESCHLOSSEN — 2026-06-04
+
+## Phase 31: Webhooks + Alerts Management UI [DONE ✅] — 2026-06-04
+- [x] `app/(admin)/analytics/client.tsx` — `AlertsPanel` + `WebhooksPanel` ergänzt
+
+  **AlertsPanel:**
+  - Lädt aktive Betriebsalarme via `GET /api/delivery/admin/alerts?view=active`
+  - Farbkodierung 3-stufig: critical (rot+puls), warning (amber), info (grau)
+  - Pro-Alert-Auflösen via `PATCH /api/delivery/admin/alerts/[id]` + `{ action: 'resolve' }`
+  - "Alle auflösen" Button → `POST { action: 'resolve_all' }`
+  - "Regeln prüfen" Button → `POST { action: 'evaluate' }`, zeigt +N neu / N gelöst
+  - Bell-Icon pulsiert bei critical-Alarmen
+  - Grüner "System läuft normal" State bei 0 Alarmen
+  - Loading-Skeleton (animate-pulse) + Error-Banner
+
+  **WebhooksPanel:**
+  - Lädt Webhook-Liste mit Stats via `GET /api/delivery/admin/webhooks`
+  - Pro Webhook: zugestellt/ausstehend/fehlgeschlagen Stats, letzter Delivery-Timestamp
+  - Aktivierungs-Toggle via `PATCH /api/delivery/admin/webhooks/[id]` + `{ is_active }`
+  - Löschen mit Confirm-Dialog → `DELETE /api/delivery/admin/webhooks/[id]`
+  - Test-Event senden → `POST /api/delivery/admin/webhooks/[id]?action=test`, zeigt HTTP-Status
+  - Grüner Punkt = aktiv, Amber = aktiv aber consecutive_failures > 0, Grau = inaktiv
+  - Fehler-Count-Badge (amber) bei aufeinanderfolgenden Fehlern
+  - Add-Formular (Inline): URL/Secret/Beschreibung-Felder + 20 Event-Toggles (alle DeliveryEventTypes)
+  - Client-seitige Validierung: https:// Pflicht, Secret min. 16 Zeichen, mind. 1 Event
+  - Event-Badges per Webhook (max. 6 sichtbar + "+N")
+  - Migration-025-Hinweis wenn Tabelle fehlt (migration_pending graceful fallback)
+  - Empty-State mit Erklärungs-Text
+
+  **Neue Lucide-Imports:** `AlertTriangle, Bell, Link2, Plus, Trash2, Webhook, X`
+  **TypeScript:** strict, kein `any` — alle Response-Typen explizit typisiert
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## CEO Review #27 — Echtzeit-Erweiterungen [DONE ✅] — 2026-06-04
 - [x] `app/(admin)/dispatch/client.tsx` — Score-Verteilung-Histogramm (5 Buckets 0–100, Ø-Badge, Farbkodierung)
@@ -809,6 +840,10 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-04: Backend-Architekt — Phase 31: Webhooks + Alerts Management UI
+  - analytics/client.tsx: AlertsPanel (aktive Alarme, auflösen, evaluate) + WebhooksPanel (Liste, Add-Formular, Toggle, Delete, Test)
+  - Alle 20 DeliveryEventTypes als klickbare Event-Toggles im Add-Formular
+  - Build: ✓ (170 Seiten, 0 Fehler, 0 Warnungen), git push ✓
 - 2026-06-03: CEO-Agent — Review #23: Phase 25 + 5 Features aus 4 Commits geprüft, 1 TypeScript-Bug behoben (4 Commits: `62598a1`, `02b18c0`, `ca41023`, `25c77be`)
 - 2026-06-03: CEO-Agent — Review #22: 4 neue Frontend-Features geprüft, 1 Bug behoben
   - Geprüft: KitchenBigDisplayGrid TV-Modus, BatchRow-Adressen, SpeedArcGauge (Fahrer), Fahrer-Banner (Storefront), Fahrer-ETA-Chip (Kitchen)
