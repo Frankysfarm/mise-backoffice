@@ -324,6 +324,11 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           </ol>
         </div>
 
+        {/* Liefer-Warteschlange: visueller Stop-Indikator wenn Fahrer unterwegs */}
+        {order.status === 'unterwegs' && stopsBefore != null && stopsBefore > 0 && (
+          <DeliveryQueueCard stopsBefore={stopsBefore} etaEarliest={order.eta_earliest} etaLatest={order.eta_latest} />
+        )}
+
         {/* Fahrer zugewiesen — Essen wird gerade abgeholt */}
         {isDelivery && order.fahrer_id && order.fahrer_vorname && order.status === 'fertig' && (
           <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-subtle">
@@ -711,6 +716,81 @@ function EtaWindowBar({
         <span className={cn(isInWindow && 'text-accent font-bold')}>
           {fmt(earliestMs)}–{fmt(latestMs)}
         </span>
+      </div>
+    </div>
+  );
+}
+
+function DeliveryQueueCard({
+  stopsBefore,
+  etaEarliest,
+  etaLatest,
+}: {
+  stopsBefore: number;
+  etaEarliest: string | null;
+  etaLatest: string | null;
+}) {
+  const totalDots = Math.min(stopsBefore + 1, 6);
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
+
+  return (
+    <div className="rounded-2xl border border-matcha-200 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="h-7 w-7 rounded-full bg-matcha-100 flex items-center justify-center">
+          <span className="text-sm">📦</span>
+        </div>
+        <div>
+          <p className="text-xs font-bold text-matcha-800">Liefer-Reihenfolge</p>
+          <p className="text-[10px] text-matcha-500">
+            {stopsBefore === 1
+              ? 'Noch 1 Stopp vor dir'
+              : `Noch ${stopsBefore} Stopps vor dir`}
+          </p>
+        </div>
+        {(etaEarliest || etaLatest) && (
+          <div className="ml-auto text-right">
+            <p className="text-[10px] text-matcha-400">Ankunft ca.</p>
+            <p className="text-xs font-bold text-matcha-700">
+              {etaEarliest && etaLatest
+                ? `${fmt(etaEarliest)}–${fmt(etaLatest)}`
+                : etaEarliest
+                ? fmt(etaEarliest)
+                : etaLatest
+                ? fmt(etaLatest)
+                : '—'}
+            </p>
+          </div>
+        )}
+      </div>
+      {/* Stop dots */}
+      <div className="flex items-center gap-1.5">
+        {Array.from({ length: totalDots }).map((_, i) => {
+          const isLast = i === totalDots - 1;
+          const isYou = isLast;
+          return (
+            <div key={i} className="flex items-center gap-1.5 flex-1 last:flex-none">
+              <div
+                className={cn(
+                  'h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 transition-all',
+                  isYou
+                    ? 'bg-matcha-600 text-white ring-2 ring-matcha-300 ring-offset-1 scale-110'
+                    : 'bg-matcha-100 text-matcha-600',
+                )}
+              >
+                {isYou ? '★' : i + 1}
+              </div>
+              {!isLast && (
+                <div className="flex-1 h-0.5 rounded-full bg-matcha-100">
+                  <div className="h-full rounded-full bg-matcha-300 w-full" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {stopsBefore >= 6 && (
+          <span className="text-[10px] text-matcha-400 shrink-0 ml-1">+{stopsBefore - 5} weitere</span>
+        )}
       </div>
     </div>
   );

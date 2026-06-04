@@ -424,6 +424,9 @@ export function KitchenBoard({
       {/* Küchen-Checkliste: konsolidierte Items aller aktiven Bestellungen */}
       <PrepItemsPanel orders={filtered} />
 
+      {/* Parallelbatch-Empfehlung: gleiche Items über mehrere Bestellungen bündeln */}
+      <KitchenItemConsolidationPanel orders={filtered} />
+
       {/* Überfällige Bestellungen — prominenter Alert wenn ≥2 kritisch */}
       <OverdueOrdersAlert orders={filtered} />
 
@@ -3097,6 +3100,68 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
                     Fertig ~{new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
                   </div>
                 )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenItemConsolidationPanel ------------------------------ */
+
+function KitchenItemConsolidationPanel({ orders }: { orders: Order[] }) {
+  const active = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (active.length < 2) return null;
+
+  const itemMap = new Map<string, { total: number; orders: { id: string; bestellnummer: string; menge: number }[] }>();
+  for (const order of active) {
+    for (const item of (order.items ?? [])) {
+      const key = item.name;
+      const entry = itemMap.get(key) ?? { total: 0, orders: [] };
+      entry.total += item.menge;
+      entry.orders.push({ id: order.id, bestellnummer: order.bestellnummer, menge: item.menge });
+      itemMap.set(key, entry);
+    }
+  }
+
+  const multi = [...itemMap.entries()]
+    .filter(([, v]) => v.orders.length >= 2)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 8);
+
+  if (multi.length === 0) return null;
+
+  const maxTotal = multi[0][1].total;
+
+  return (
+    <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <ChefHat className="h-4 w-4 text-matcha-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Parallelbatch · gleiche Items in mehreren Bestellungen
+        </span>
+        <span className="ml-auto text-[10px] text-matcha-500">{multi.length} Artikel kombinierbar</span>
+      </div>
+      <div className="space-y-2">
+        {multi.map(([name, { total, orders: itemOrders }]) => {
+          const pct = Math.round((total / maxTotal) * 100);
+          const orderNums = itemOrders.map((o) => `#${o.bestellnummer.replace(/^[A-Z]+-/, '')}`).join(' · ');
+          return (
+            <div key={name} className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-matcha-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                {total}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between text-[11px] mb-0.5">
+                  <span className="font-bold truncate">{name}</span>
+                  <span className="text-matcha-500 shrink-0 ml-2 text-[9px]">{itemOrders.length} Best.</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-matcha-200 overflow-hidden">
+                  <div className="h-full rounded-full bg-matcha-500 transition-all" style={{ width: `${pct}%` }} />
+                </div>
+                <div className="text-[9px] text-matcha-500 mt-0.5 truncate">{orderNums}</div>
               </div>
             </div>
           );
