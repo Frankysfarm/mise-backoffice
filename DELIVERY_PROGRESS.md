@@ -1,6 +1,42 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–27 + CEO REVIEW #25 ABGESCHLOSSEN — 2026-06-04
+## STATUS: MARKT-REIF ✅ — PHASEN 1–29 + CEO REVIEW #25 ABGESCHLOSSEN — 2026-06-04
+
+## Phase 29: Dynamic Delivery Configuration Engine [DONE ✅] — 2026-06-04
+- [x] `scripts/migrations/027_delivery_config.sql`
+  - `delivery_settings` Tabelle: key/value-Config pro Location (UNIQUE per location_id+key)
+  - `delivery_setting_defaults` Tabelle: System-Defaults (20 Schlüssel, read-only Referenz)
+  - `get_delivery_setting(location_id, key)` PostgreSQL-Funktion: Custom-Wert oder Default (COALESCE)
+  - `v_delivery_settings_all` VIEW: merged Custom + Defaults mit `effective_value` + `is_customised`-Flag
+  - RLS: service_role all + authenticated select+modify (tenant-gefiltert via employees)
+  - 3 Performance-Indizes: location, location+key, category
+- [x] `lib/delivery/config.ts` — Config Engine (7 Funktionen, TypeScript strict)
+  - `DeliverySettingKey` Union-Type: 20 bekannte Schlüssel (dispatch/bundling/zones/eta/kitchen/scoring)
+  - `DEFAULTS` hard-coded Fallback (spiegelt Migration 027 Seed-Daten)
+  - 60s In-Memory-Cache pro Location (Map mit expiresAt)
+  - `getSettings(locationId)`: alle Settings laden, mit Cache + Graceful-Fallback wenn Migration fehlt
+  - `getSetting(locationId, key)`: einzelner Wert
+  - `listSettings(locationId)`: alle Settings mit Metadaten (description/min/max/is_customised) aus v_delivery_settings_all
+  - `upsertSetting(locationId, key, value, updatedBy)`: UPSERT mit min/max-Validierung gegen delivery_setting_defaults
+  - `resetToDefaults(locationId)`: alle Custom-Settings löschen → Cache invalidieren
+  - `cloneSettings(sourceId, targetId)`: Settings-Kopie zwischen Locations (multi-tenant safe)
+  - `invalidateCache(locationId)`: manueller Cache-Busting für Cron/Admin
+  - `getHardcodedDefaults()`: Returns defaults ohne DB-Zugriff
+- [x] `app/api/delivery/admin/config/route.ts` — Config-Verwaltung API
+  - `GET ?location_id=...` → alle Settings gruppiert nach Category + Customised-Count
+  - `GET ?location_id=...&key=...` → einzelnes Setting mit Metadaten (404 wenn unbekannt)
+  - `PATCH { location_id, key, value }` → Einzelwert setzen, min/max-Validierung, Cache-Busting
+  - `POST { location_id, action: 'reset' }` → auf Defaults zurücksetzen
+  - `POST { location_id, action: 'clone', source_location_id }` → Settings klonen (Tenant-Guard)
+  - Auth-Guard: 401 nicht eingeloggt, 403 wenn Location nicht im eigenen Tenant
+- Konfigurierbare Parameter (20 Schlüssel):
+  - **dispatch**: `escalation_min`(10), `max_radius_km`(12), `stale_batch_min`(60), `max_attempts`(5)
+  - **bundling**: `max_detour_km`(1.5), `max_stops`(4), `time_window_min`(8)
+  - **zones**: `zone_a_radius_km`(2.0), `zone_b_radius_km`(4.0), `zone_c_radius_km`(7.0)
+  - **eta**: `base_min`(15), `buffer_pct`(20), `avg_speed_kmh`(25)
+  - **kitchen**: `prep_default_min`(12), `sync_interval_min`(2)
+  - **scoring**: `weight_distance`(30), `weight_capacity`(25), `weight_rating`(20), `weight_zone`(15), `weight_priority`(10)
+- Build: `next build` ✓ (171 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 28: 5 Frontend-Features + CEO Review #25 [DONE ✅] — 2026-06-04
 - [x] `app/(admin)/kitchen/client.tsx` — `SmartTimingCountdownGrid`: SVG-Countdown-Ringe mit 1s-Tick, farbkodiert grün→rot
