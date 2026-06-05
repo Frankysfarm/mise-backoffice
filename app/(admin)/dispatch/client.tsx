@@ -298,6 +298,14 @@ export function DispatchBoard({
           <button onClick={() => setNewOrderFlash(null)} className="text-matcha-400 hover:text-matcha-700 text-lg leading-none">×</button>
         </div>
       )}
+      {/* Schicht-Übersicht: Heutige Lieferleistung */}
+      <TodayDispatchOverview
+        locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? locations[0]?.id ?? null)}
+        readyCount={readyOrders.length}
+        enRouteCount={enRouteOrders.length}
+        onlineDrivers={onlineDrivers.length}
+      />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -2869,5 +2877,124 @@ function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ TodayDispatchOverview ------------------------------ */
+
+function TodayDispatchOverview({
+  locationId,
+  readyCount,
+  enRouteCount,
+  onlineDrivers,
+}: {
+  locationId: string | null;
+  readyCount: number;
+  enRouteCount: number;
+  onlineDrivers: number;
+}) {
+  const [trend, setTrend] = useState<{
+    today: { orders: number; delivered: number; avg_score: number | null };
+    yesterday: { orders: number; delivered: number; avg_score: number | null };
+    delta_orders: number;
+    delta_delivered: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!locationId) return;
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/delivery/admin/trends?location_id=${locationId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setTrend(data);
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  const hasData = trend && (trend.today.orders > 0 || enRouteCount > 0 || readyCount > 0);
+  if (!hasData && readyCount === 0 && enRouteCount === 0) return null;
+
+  const deliveredToday = trend?.today.delivered ?? 0;
+  const ordersToday = trend?.today.orders ?? 0;
+  const deliveryRate = ordersToday > 0 ? Math.round((deliveredToday / ordersToday) * 100) : null;
+  const deltaDelivered = trend?.delta_delivered ?? 0;
+  const avgScore = trend?.today.avg_score;
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-gradient-to-r from-matcha-50 to-card px-4 py-2.5">
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="h-2 w-2 rounded-full bg-matcha-500 animate-pulse" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-700">Schicht heute</span>
+      </div>
+
+      {deliveredToday > 0 && (
+        <div className="flex items-center gap-1.5">
+          <Check className="h-3.5 w-3.5 text-matcha-600" />
+          <span className="font-display text-sm font-black text-matcha-800">{deliveredToday}</span>
+          <span className="text-[10px] text-muted-foreground">geliefert</span>
+          {deltaDelivered !== 0 && (
+            <span className={cn(
+              'text-[9px] font-bold rounded-full px-1.5 py-0.5',
+              deltaDelivered > 0 ? 'bg-matcha-100 text-matcha-700' : 'bg-red-100 text-red-700',
+            )}>
+              {deltaDelivered > 0 ? '+' : ''}{deltaDelivered} vs gestern
+            </span>
+          )}
+        </div>
+      )}
+
+      {deliveryRate !== null && (
+        <>
+          <div className="h-4 w-px bg-border hidden sm:block" />
+          <div className="flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-matcha-600" />
+            <span className={cn(
+              'font-display text-sm font-black',
+              deliveryRate >= 90 ? 'text-matcha-700' : deliveryRate >= 70 ? 'text-amber-700' : 'text-red-700',
+            )}>{deliveryRate}%</span>
+            <span className="text-[10px] text-muted-foreground">Lieferquote</span>
+          </div>
+        </>
+      )}
+
+      {avgScore !== null && avgScore !== undefined && (
+        <>
+          <div className="h-4 w-px bg-border hidden sm:block" />
+          <div className="flex items-center gap-1.5">
+            <Target className="h-3.5 w-3.5 text-matcha-600" />
+            <span className={cn(
+              'font-display text-sm font-black',
+              avgScore >= 80 ? 'text-matcha-700' : avgScore >= 60 ? 'text-amber-700' : 'text-red-700',
+            )}>{Math.round(avgScore)}</span>
+            <span className="text-[10px] text-muted-foreground">Ø Score</span>
+          </div>
+        </>
+      )}
+
+      <div className="ml-auto flex items-center gap-2">
+        {readyCount > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-matcha-100 text-matcha-800 px-2 py-0.5 text-[10px] font-bold">
+            <Package className="h-3 w-3" />
+            {readyCount} bereit
+          </span>
+        )}
+        {enRouteCount > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-[10px] font-bold animate-pulse">
+            <Truck className="h-3 w-3" />
+            {enRouteCount} unterwegs
+          </span>
+        )}
+        {onlineDrivers > 0 && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-800 px-2 py-0.5 text-[10px] font-bold">
+            <Bike className="h-3 w-3" />
+            {onlineDrivers} online
+          </span>
+        )}
+      </div>
+    </div>
   );
 }

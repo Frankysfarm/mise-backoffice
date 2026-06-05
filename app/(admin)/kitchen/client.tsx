@@ -535,6 +535,11 @@ export function KitchenBoard({
       {/* Proaktiv: "Jetzt kochen!" — wenn Kochstart <5 Min oder überfällig */}
       {timings.length > 0 && <CookingAlertBar timings={timings} orders={filtered} />}
 
+      {/* Geplante Kochstarts: SVG-Countdown-Grid für scheduled Timings */}
+      {!bigDisplay && timings.filter((t) => t.status === 'scheduled').length > 0 && (
+        <ScheduledCookCountdownGrid timings={timings} orders={filtered} />
+      )}
+
       {/* Smart-Timing Countdown-Grid: Kompakte Uhren für alle kochenden Bestellungen */}
       {!bigDisplay && timings.filter((t) => t.status === 'cooking').length > 0 && (
         <SmartTimingCountdownGrid timings={timings} orders={filtered} />
@@ -3125,6 +3130,125 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ ScheduledCookCountdownGrid ------------------------------ */
+
+function ScheduledCookCountdownGrid({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const AHEAD_WINDOW_SEC = 15 * 60; // 15-Minuten-Vorschauhorizont
+  const now = Date.now();
+
+  const upcoming = timings
+    .filter((t) => t.status === 'scheduled' && t.cook_start_at)
+    .map((t) => {
+      const order = orders.find((o) => o.id === t.order_id);
+      if (!order) return null;
+      const cookStartMs = new Date(t.cook_start_at!).getTime();
+      const secsToCook = Math.floor((cookStartMs - now) / 1000);
+      if (secsToCook > AHEAD_WINDOW_SEC) return null; // außerhalb Vorschauhorizont
+      const overdue = secsToCook < 0;
+      const absSec = Math.abs(secsToCook);
+      // Ring füllt sich je näher der Kochstart kommt: 0% = 15 Min vor, 100% = Kochstart
+      const pct = Math.min(100, Math.max(0, Math.round(((AHEAD_WINDOW_SEC - Math.max(0, secsToCook)) / AHEAD_WINDOW_SEC) * 100)));
+      const ringColor =
+        overdue           ? '#ef4444' :
+        secsToCook < 120  ? '#f97316' :
+        secsToCook < 300  ? '#eab308' :
+        '#3b82f6';
+      return { t, order, secsToCook, overdue, absSec, pct, ringColor };
+    })
+    .filter(Boolean) as { t: KitchenTiming; order: Order; secsToCook: number; overdue: boolean; absSec: number; pct: number; ringColor: string }[];
+
+  if (upcoming.length === 0) return null;
+
+  const R = 28, circ = 2 * Math.PI * R;
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Clock className="h-4 w-4 text-blue-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-blue-800">
+          Geplante Kochstarts · {upcoming.length} in den nächsten 15 Min
+        </span>
+        <span className="ml-auto text-[9px] text-blue-400 tabular-nums">
+          {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {upcoming
+          .sort((a, b) => a.secsToCook - b.secsToCook)
+          .map(({ t, order, secsToCook, overdue, absSec, pct, ringColor }) => {
+            const m = Math.floor(absSec / 60);
+            const s = absSec % 60;
+            const cardBg =
+              overdue           ? 'bg-red-50 border-red-300' :
+              secsToCook < 120  ? 'bg-orange-50 border-orange-300' :
+              secsToCook < 300  ? 'bg-amber-50 border-amber-200' :
+              'bg-blue-50 border-blue-200';
+            return (
+              <div
+                key={t.id}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl border px-3 py-2 min-w-[200px]',
+                  cardBg,
+                  overdue && 'animate-pulse',
+                )}
+              >
+                {/* SVG Countdown-Ring */}
+                <div className="relative h-16 w-16 shrink-0 flex items-center justify-center">
+                  <svg className="absolute inset-0 -rotate-90" width="64" height="64" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r={R} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="4" />
+                    <circle
+                      cx="32" cy="32" r={R} fill="none"
+                      stroke={ringColor} strokeWidth="4" strokeLinecap="round"
+                      strokeDasharray={String(circ)}
+                      strokeDashoffset={String(circ * (1 - pct / 100))}
+                      style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+                    />
+                  </svg>
+                  <div className="relative text-center leading-none">
+                    <div className="font-mono text-sm font-black tabular-nums" style={{ color: ringColor }}>
+                      {overdue ? '+' : ''}{m}:{String(s).padStart(2, '0')}
+                    </div>
+                    <div className="text-[8px] font-bold uppercase" style={{ color: ringColor }}>
+                      {overdue ? 'ÜBER' : 'START'}
+                    </div>
+                  </div>
+                </div>
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <div className="font-mono text-[10px] text-muted-foreground">
+                    #{order.bestellnummer.replace('FF-', '')}
+                  </div>
+                  <div className="font-display font-bold truncate text-sm leading-tight">{order.kunde_name}</div>
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {order.typ === 'lieferung' && (
+                      <span className="rounded-full bg-blue-100 text-blue-700 px-1.5 py-0.5 text-[8px] font-bold">Lieferung</span>
+                    )}
+                    {t.prep_min && (
+                      <span className="rounded-full bg-blue-100 text-blue-700 px-1.5 py-0.5 text-[8px] font-bold">
+                        {t.prep_min} Min
+                      </span>
+                    )}
+                  </div>
+                  {t.ready_target && (
+                    <div className="text-[9px] text-muted-foreground mt-0.5 tabular-nums">
+                      Fertig ~{new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
       </div>
     </div>
   );

@@ -581,9 +581,10 @@ export function LieferdienstClient() {
                   .filter(o => o.acceptedAt && (o as any).doneAt)
                   .map(o => (new Date((o as any).doneAt).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000)
                 const avgPrep = prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null
+                const ordersPerHour = schichtMinutes >= 5 ? Math.round((allToday.length / schichtMinutes) * 60 * 10) / 10 : null
                 if (allToday.length === 0) return null
                 return (
-                  <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="mb-4 grid grid-cols-2 md:grid-cols-5 gap-2">
                     <div className="rounded-xl bg-white border border-stone-200 px-3 py-2.5">
                       <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Heute gesamt</div>
                       <div className="text-xl font-black text-char tabular-nums">{allToday.length}</div>
@@ -614,6 +615,15 @@ export function LieferdienstClient() {
                       </div>
                       <div className="text-[10px] text-stone-400 mt-0.5">{rejected.length} abgelehnt</div>
                     </div>
+                    {ordersPerHour !== null && (
+                      <div className={`rounded-xl border px-3 py-2.5 ${ordersPerHour >= 10 ? 'bg-emerald-50 border-emerald-200' : ordersPerHour >= 5 ? 'bg-white border-stone-200' : 'bg-amber-50 border-amber-200'}`}>
+                        <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-0.5">Schicht-Tempo</div>
+                        <div className={`text-xl font-black tabular-nums ${ordersPerHour >= 10 ? 'text-emerald-700' : ordersPerHour >= 5 ? 'text-char' : 'text-amber-700'}`}>
+                          {ordersPerHour}/h
+                        </div>
+                        <div className="text-[10px] text-stone-400 mt-0.5">Bestellungen/Std</div>
+                      </div>
+                    )}
                   </div>
                 )
               })()}

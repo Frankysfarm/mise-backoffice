@@ -47,6 +47,21 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
   const [statusFlash, setStatusFlash] = React.useState(false);
   const [driverName, setDriverName] = React.useState<string | null>(null);
+  const [shared, setShared] = React.useState(false);
+
+  async function shareTracking() {
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/track/${bestellnummer}` : '';
+    const text = `Verfolge meine Bestellung ${bestellnummer} live!`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Bestellung verfolgen', text, url }); } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 3000);
+      } catch {}
+    }
+  }
 
   React.useEffect(() => {
     if (secsLeft <= 0) return;
@@ -281,6 +296,32 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           Live verfolgen
           <ArrowRight className="h-5 w-5" />
         </a>
+
+        {/* Tracking-Link teilen */}
+        <button
+          type="button"
+          onClick={shareTracking}
+          className={cn(
+            'mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold transition',
+            shared
+              ? 'bg-matcha-700/60 text-accent border-accent/30'
+              : 'bg-white/5 text-matcha-200 hover:bg-white/10',
+          )}
+        >
+          {shared ? (
+            <>
+              <Check className="h-4 w-4 text-accent" />
+              Link kopiert!
+            </>
+          ) : (
+            <>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Tracking-Link teilen
+            </>
+          )}
+        </button>
 
         <button
           type="button"

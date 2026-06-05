@@ -528,14 +528,24 @@ export function FahrerApp({
                                 {distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${Math.round(distM)} m`}
                               </span>
                             )}
-                            {o.eta_earliest && (
+                            {o.eta_earliest ? (
                               <span className={cn(
-                                'text-[9px] font-bold tabular-nums',
-                                new Date(o.eta_earliest).getTime() < Date.now() ? 'text-red-400' : 'text-accent/70',
+                                'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
+                                new Date(o.eta_earliest).getTime() < Date.now()
+                                  ? 'bg-red-500/20 text-red-300'
+                                  : 'bg-accent/15 text-accent/80',
                               )}>
-                                ~{new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                ⏰ ~{new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                               </span>
-                            )}
+                            ) : (activeBatch as any).total_eta_min && arr.length > 0 ? (() => {
+                              const estMs = Date.now() + ((idx + 1) / arr.length) * (activeBatch as any).total_eta_min * 60_000;
+                              const estTime = new Date(estMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                              return (
+                                <span className="text-[9px] font-bold text-matcha-300 tabular-nums rounded-full bg-white/5 px-1.5 py-0.5">
+                                  ⏰ ~{estTime}
+                                </span>
+                              );
+                            })() : null}
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
