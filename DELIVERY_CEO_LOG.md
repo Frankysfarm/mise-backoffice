@@ -11,6 +11,7 @@
 ### Geprüfte Commits (seit CEO Review #29)
 - `2fcc15b` feat(delivery/frontend): Gantt-Zeitleiste Küche, Dispatch-Empfehlung, Fahrer Schnellaktionen
 - `ac58efb` fix(kitchen): useState statt React.useState in KitchenGanttStrip
+- `4e3e89d` feat(lieferdienst): Bestellkarte zeigt Fertigzeit + Gesamtbetrag
 
 ### Bugs gefunden
 Keine. ✅
@@ -45,6 +46,14 @@ Keine. ✅
 - `target="_blank" rel="noreferrer"` — Security-Attribut korrekt ✅
 - `e.stopPropagation()` verhindert versehentliches Auslösen des Parent-Click-Handlers ✅
 - `kunde_telefon` in DB-SELECT von `page.tsx` bereits enthalten ✅
+
+**Bestellkarte Fertigzeit + Gesamtbetrag** (`components/lieferdienst/order-card.tsx`):
+- `!countdown.isOverdue && order.acceptedAt && order.estimatedTime` Guard — nur angezeigt wenn sinnvoll ✅
+- Fertigzeit-Berechnung: `acceptedAt + estimatedTime × 60000` — korrekt ✅
+- `toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })` — korrekte DE-Formatierung ✅
+- Gesamtbetrag: `totalAmount ?? gesamtbetrag ?? 0` — Fallback-Kette deckt beide Schemas ab ✅
+- Guard `> 0` verhindert 0€-Anzeige bei fehlenden Daten ✅
+- `as any` Cast für Legacy-Felder — konsistentes Pattern im Codebase ✅
 
 ### Build-Status
 - `next build`: ✅ 170 Seiten, 0 TypeScript-Fehler, 0 Warnungen
