@@ -1,5 +1,44 @@
 # Smart Delivery System — Fortschritt
 
+## Feature-Status (Auto-Parser)
+<!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] delivery_zones Tabelle
+- [x] delivery_tours Tabelle
+- [x] tour_stops Tabelle
+- [x] dispatch_scores Tabelle
+- [x] kitchen_timings Tabelle
+- [x] customer_orders erweitern
+- [x] drivers erweitern
+- [x] dispatch-engine.ts
+- [x] scoring.ts (10 Faktoren)
+- [x] bundling.ts
+- [x] zones.ts (A/B/C/D)
+- [x] eta.ts (dynamisch)
+- [x] kitchen-sync.ts
+- [x] tour-optimizer.ts
+- [x] POST /api/delivery/dispatch
+- [x] GET /api/delivery/tours
+- [x] PATCH /api/delivery/tours/[id]
+- [x] GET+POST /api/delivery/zones
+- [x] GET /api/delivery/eta
+- [x] GET /api/delivery/kitchen/queue
+- [x] GET /api/delivery/stats
+- [x] Smart-Timing-Anzeige
+- [x] Countdown bis Fahrer
+- [x] Farbcodierung Grün/Gelb/Rot
+- [x] Realtime Updates
+- [x] Tour-Übersicht mit Stops
+- [x] Karten-Ansicht
+- [x] Navigation-Links
+- [x] GPS-Tracking
+- [x] Dynamische ETA-Anzeige
+- [x] Live-Tracking Fahrer
+- [x] Realtime Status
+- [x] Zonen-Konfiguration
+- [x] Touren-Übersicht
+- [x] Fahrer-Management
+- [x] Statistiken-Dashboard
+
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–34 + CEO REVIEW #28 ABGESCHLOSSEN — 2026-06-05
 
 ## Phase 34: Driver GPS Trail Tracking + Geofencing Auto-Status Engine [DONE ✅] — 2026-06-05
