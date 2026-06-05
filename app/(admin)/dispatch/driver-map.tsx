@@ -30,21 +30,33 @@ type UnassignedMarker = {
   waitMin?: number;
 };
 
+export type DriverTrail = {
+  driverId: string;
+  points: Array<{ lat: number; lng: number }>;
+};
+
 export function DispatchDriverMap({
   drivers,
   orders,
   unassigned,
   restaurantLat,
   restaurantLng,
+  trails,
 }: {
   drivers: DriverMarker[];
   orders: OrderMarker[];
   unassigned?: UnassignedMarker[];
   restaurantLat?: number | null;
   restaurantLng?: number | null;
+  trails?: DriverTrail[];
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trailLayerRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const leafletRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -53,12 +65,14 @@ export function DispatchDriverMap({
 
     (async () => {
       const L = (await import('leaflet')).default;
+      leafletRef.current = L;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await import('leaflet/dist/leaflet.css' as any).catch(() => {});
       if (cancelled || !mapRef.current) return;
 
       // Determine center: prefer restaurant coords, fall back to first driver
-      let centerLat = restaurantLat ?? drivers[0]?.lat ?? 48.137;
-      let centerLng = restaurantLng ?? drivers[0]?.lng ?? 11.575;
+      const centerLat = restaurantLat ?? drivers[0]?.lat ?? 48.137;
+      const centerLng = restaurantLng ?? drivers[0]?.lng ?? 11.575;
 
       const map = L.map(mapRef.current, { zoomControl: true }).setView([centerLat, centerLng], 13);
       mapInstanceRef.current = map;
@@ -138,6 +152,20 @@ export function DispatchDriverMap({
         map.fitBounds(allLatLngs, { padding: [30, 30] });
       }
 
+      // Trail-Polylinien für Fahrerspuren
+      const trailLayer = L.layerGroup().addTo(map);
+      trailLayerRef.current = trailLayer;
+      const TRAIL_COLORS: Record<string, string> = {
+        frei: '#22c55e', unterwegs: '#f97316', zurueck: '#3b82f6',
+      };
+      for (const t of (trails ?? [])) {
+        if (t.points.length < 2) continue;
+        const driver = drivers.find((d) => d.id === t.driverId);
+        const color = driver ? (TRAIL_COLORS[driver.state] ?? '#94a3b8') : '#94a3b8';
+        const latlngs = t.points.map((p) => [p.lat, p.lng] as [number, number]);
+        L.polyline(latlngs, { color, weight: 3, opacity: 0.55, dashArray: '5,4' }).addTo(trailLayer);
+      }
+
       setReady(true);
     })();
 
@@ -153,9 +181,9 @@ export function DispatchDriverMap({
 
   // Update driver markers on position change (separate effect)
   useEffect(() => {
-    const map = mapInstanceRef.current;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const map = mapInstanceRef.current as any;
     if (!map || !ready) return;
-    // Simple approach: refit bounds when drivers update
     const allLatLngs: [number, number][] = drivers.map((d) => [d.lat, d.lng]);
     if (restaurantLat && restaurantLng) allLatLngs.push([restaurantLat, restaurantLng]);
     if (allLatLngs.length > 1) {
@@ -163,6 +191,25 @@ export function DispatchDriverMap({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drivers.map((d) => `${d.lat},${d.lng}`).join('|'), ready]);
+
+  // Trail-Polylinien aktualisieren wenn neue GPS-Spuren eintreffen
+  useEffect(() => {
+    const trailLayer = trailLayerRef.current;
+    const L = leafletRef.current;
+    if (!trailLayer || !L || !ready) return;
+    trailLayer.clearLayers();
+    const TRAIL_COLORS: Record<string, string> = {
+      frei: '#22c55e', unterwegs: '#f97316', zurueck: '#3b82f6',
+    };
+    for (const t of (trails ?? [])) {
+      if (t.points.length < 2) continue;
+      const driver = drivers.find((d) => d.id === t.driverId);
+      const color = driver ? (TRAIL_COLORS[driver.state] ?? '#94a3b8') : '#94a3b8';
+      const latlngs = t.points.map((p) => [p.lat, p.lng] as [number, number]);
+      L.polyline(latlngs, { color, weight: 3, opacity: 0.55, dashArray: '5,4' }).addTo(trailLayer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(trails ?? []).map((t) => `${t.driverId}:${t.points.length}`).join('|'), ready]);
 
   return (
     <div ref={mapRef} className="w-full h-full" />

@@ -1,6 +1,61 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–32 + CEO REVIEW #28 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–34 + CEO REVIEW #28 ABGESCHLOSSEN — 2026-06-05
+
+## Phase 34: Driver GPS Trail Tracking + Geofencing Auto-Status Engine [DONE ✅] — 2026-06-05
+
+### Motivation
+Bisher gab es keine kontinuierliche GPS-Aufzeichnung während aktiver Touren.
+Fahrer-Statüsse (assigned → at_restaurant → en_route) mussten manuell ausgelöst werden.
+Phase 34 schließt diese Lücke: automatische Breadcrumb-Spur + Proximity-Geofencing.
+
+### Was wurde gebaut
+- [x] `scripts/migrations/029_gps_tracking.sql`
+  - `driver_gps_trail` Tabelle: GPS-Breadcrumbs pro Fahrer (driver_id, location_id, batch_id, lat, lng, accuracy_m, speed_kmh, heading_deg, recorded_at)
+  - `driver_geofence_events` Tabelle: automatisch erkannte Ankunfts-Ereignisse (arrived_restaurant / arrived_customer / departed_restaurant) mit order_id, distance_m, auto_processed-Flag
+  - `v_driver_last_gps` VIEW: letzter bekannter GPS-Punkt pro Fahrer mit Driver-State/Vehicle
+  - `v_active_driver_trails` VIEW: Fahrerspuren der letzten 30 Min als JSON-Array (bis 60 Punkte pro Fahrer)
+  - `cleanup_old_gps_trails()` PostgreSQL-Funktion: löscht Trail-Punkte >24h + Geofence-Events >7 Tage, gibt gelöschte Zeilen zurück
+  - RLS: service_role all + authenticated SELECT via employees.location_id
+  - 3 Indizes: (driver_id, recorded_at DESC), (location_id, recorded_at DESC), (batch_id) WHERE NOT NULL
+
+- [x] `lib/delivery/gps-tracker.ts` — GPS-Tracking + Geofencing Engine (TypeScript strict, kein `any`)
+  - `recordGpsPoint(params)`: Breadcrumb in driver_gps_trail + mise_drivers.last_lat/lng parallel aktualisieren
+  - `checkGeofences(driverId, lat, lng, locationId)`: Proximity-Check mit 3-Minuten-Duplikat-Guard
+    - Restaurant-Ankunft: state=assigned + <150m → loggt `arrived_restaurant` + setzt state=at_restaurant
+    - Kunden-Ankunft: state=en_route + <100m zum nächsten Dropoff-Stop → loggt `arrived_customer`
+    - Race-condition-safe: UPDATE nur wenn state noch 'assigned' (optimistic lock)
+  - `getActiveTrails(locationId)`: alle Fahrerspuren für Dispatch-Karte, Graceful Fallback wenn Migration fehlt
+  - `getDriverTrail(driverId, minutes)`: Einzelspur der letzten N Minuten (max 120 Punkte)
+  - `getGeofenceEvents(params)`: Geofence-Events filtern nach driverId / batchId / locationId
+  - `pruneOldTrails()`: ruft cleanup_old_gps_trails() auf, gibt gelöschte Zeilen zurück
+
+- [x] `app/api/driver-app/me/gps/route.ts` — GPS-Update Endpoint (Fahrer-App)
+  - POST: `{ driverId, locationId, lat, lng, batchId?, accuracy_m?, speed_kmh?, heading_deg? }`
+  - Koordinaten-Validierung: lat [-90,90], lng [-180,180]
+  - Ruft recordGpsPoint() + checkGeofences() auf
+  - Response enthält `geofenceEvents` + `newDriverState` wenn Geofence ausgelöst
+
+- [x] `app/api/delivery/admin/gps-trails/route.ts` — Admin GPS-Trails API
+  - `GET ?location_id=...` → alle aktiven Fahrerspuren (30 Min) + Graceful Fallback (_fallback: true)
+  - `GET ?location_id=...&driver_id=...&minutes=60` → Einzelspur eines Fahrers
+  - `GET ?location_id=...&action=geofence_events` → letzte Geofence-Events der Location
+  - Auth: Employee → location_id → Tenant-Guard bei cross-location Abfragen
+
+- [x] `app/(admin)/dispatch/driver-map.tsx` — Trail-Polylinien in Dispatch-Karte
+  - Neuer `trails?: DriverTrail[]` Prop (`{ driverId, points: [{lat, lng}] }`)
+  - Initiales Rendern: Trail-Polylinien als gestrichelte Linie (dashArray 5,4), opacity 0.55
+  - Farbkodierung: grün (frei) / orange (unterwegs) / blau (zurück) — passend zu Fahrer-Markern
+  - Separater Update-Effect: `trailLayerRef.clearLayers()` + Neu-Rendern bei neuen GPS-Daten
+  - `leafletRef` für typsicheren Zugriff auf Leaflet-Instanz ohne `window.L`
+
+### Technische Details
+- Geofence-Radien: 150m Restaurant / 100m Kunde (urban delivery optimiert)
+- Duplikat-Guard: kein zweites Event innerhalb 3 Minuten für dieselbe batch_id + event_type
+- Per-Order-Deduplizierung bei `arrived_customer`: separater Key `arrived_customer_{orderId}`
+- Cleanup-Retention: GPS-Trail 24h / Geofence-Events 7 Tage
+- Driver-State-Update: `at_restaurant` nur gesetzt wenn state noch 'assigned' (race-condition-safe)
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## CEO Review #28 — Frontend-Erweiterungen Phase 33 [DONE ✅] — 2026-06-05
 
