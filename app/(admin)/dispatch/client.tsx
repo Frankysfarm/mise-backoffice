@@ -366,6 +366,37 @@ export function DispatchBoard({
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
 
+      {/* Beste nächste Aktion — KI-Empfehlung für Dispatcher */}
+      {readyOrders.length > 0 && onlineDrivers.length > 0 && (
+        <DispatchNextBestAction
+          orders={readyOrders}
+          drivers={onlineDrivers}
+          batches={batches}
+          onAssign={async (orderIds, driverId) => {
+            // Direktzuweisung ohne selected-State-Abhängigkeit
+            const locationId = readyOrders.find((o) => orderIds.includes(o.id))?.location_id ?? null;
+            const { data, error } = await supabase.rpc('assign_to_driver', {
+              p_employee_id: driverId,
+              p_order_ids:   orderIds,
+              p_location_id: locationId,
+            });
+            if (error || !(data as { ok: boolean })?.ok) {
+              // Fallback
+              const { data: batch } = await supabase
+                .from('delivery_batches')
+                .insert({ location_id: locationId, fahrer_id: driverId, status: 'pickup', startzeit: new Date().toISOString(), erstellt_von: null, auto_erstellt: false })
+                .select().single();
+              if (batch) {
+                await supabase.from('delivery_batch_stops').insert(orderIds.map((id, i) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: i + 1 })));
+                await supabase.from('customer_orders').update({ fahrer_id: driverId, batch_id: (batch as { id: string }).id, status: 'unterwegs' }).in('id', orderIds);
+                await supabase.from('driver_status').update({ aktueller_batch_id: (batch as { id: string }).id }).eq('employee_id', driverId);
+              }
+            }
+            await refresh();
+          }}
+        />
+      )}
+
       {/* Capacity Forecast — nächster freier Fahrer */}
       <CapacityForecastChip batches={batches} onlineDrivers={onlineDrivers} />
 
@@ -3009,6 +3040,149 @@ function TodayDispatchOverview({
             </span>
           );
         })()}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchNextBestAction ------------------------------ */
+
+function DispatchNextBestAction({
+  orders,
+  drivers,
+  batches,
+  onAssign,
+}: {
+  orders: ReadyOrder[];
+  drivers: Driver[];
+  batches: Batch[];
+  onAssign: (orderIds: string[], driverId: string) => void;
+}) {
+  const [dismissed, setDismissed] = useState(false);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (dismissed || orders.length === 0 || drivers.length === 0) return null;
+
+  const now = Date.now();
+  const freeDrivers = drivers.filter((d) => !d.aktueller_batch_id);
+  if (freeDrivers.length === 0) return null;
+
+  const topOrder = [...orders]
+    .sort((a, b) => {
+      const aScore = (a.dispatch_score ?? 0) + (a.fertig_am ? Math.floor((now - new Date(a.fertig_am).getTime()) / 60_000) * 2 : 0);
+      const bScore = (b.dispatch_score ?? 0) + (b.fertig_am ? Math.floor((now - new Date(b.fertig_am).getTime()) / 60_000) * 2 : 0);
+      return bScore - aScore;
+    })[0];
+
+  if (!topOrder) return null;
+
+  const waitMin = topOrder.fertig_am
+    ? Math.floor((now - new Date(topOrder.fertig_am).getTime()) / 60_000)
+    : null;
+
+  const sameZone = topOrder.delivery_zone
+    ? orders.filter((o) => o.id !== topOrder.id && o.delivery_zone === topOrder.delivery_zone)
+    : [];
+
+  const bestDriver = freeDrivers[0];
+  const driverName = bestDriver.employee
+    ? `${bestDriver.employee.vorname} ${bestDriver.employee.nachname}`.trim()
+    : 'Fahrer';
+
+  const orderIds = [topOrder.id, ...sameZone.slice(0, 2).map((o) => o.id)];
+  const bundled = orderIds.length > 1;
+  const urgency = (waitMin ?? 0) >= 10 ? 'critical' : (waitMin ?? 0) >= 5 ? 'urgent' : 'normal';
+
+  return (
+    <div className={cn(
+      'rounded-xl border-2 p-3 transition',
+      urgency === 'critical' ? 'border-red-400 bg-red-50 animate-pulse' :
+      urgency === 'urgent'   ? 'border-orange-400 bg-orange-50' :
+      'border-matcha-300 bg-matcha-50',
+    )}>
+      <div className="flex items-center gap-2 mb-2">
+        <Zap className={cn(
+          'h-4 w-4',
+          urgency === 'critical' ? 'text-red-600' :
+          urgency === 'urgent'   ? 'text-orange-600' : 'text-matcha-700',
+        )} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          urgency === 'critical' ? 'text-red-800' :
+          urgency === 'urgent'   ? 'text-orange-800' : 'text-matcha-800',
+        )}>
+          Empfehlung — Beste nächste Aktion
+        </span>
+        <button
+          onClick={() => setDismissed(true)}
+          className="ml-auto text-muted-foreground hover:text-foreground text-lg leading-none transition"
+          title="Ausblenden"
+        >×</button>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 rounded-lg border bg-white/70 px-3 py-2 min-w-0">
+          <Package className="h-4 w-4 text-matcha-600 shrink-0" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-mono text-xs font-bold text-matcha-700">
+                #{topOrder.bestellnummer.replace('FF-', '')}
+              </span>
+              {topOrder.dispatch_score != null && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                  topOrder.dispatch_score >= 80 ? 'bg-matcha-100 text-matcha-800' :
+                  topOrder.dispatch_score >= 60 ? 'bg-blue-100 text-blue-800' :
+                  'bg-orange-100 text-orange-800',
+                )}>⚡ {Math.round(topOrder.dispatch_score)}</span>
+              )}
+              {waitMin != null && waitMin > 0 && (
+                <span className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                  waitMin >= 10 ? 'bg-red-100 text-red-700' :
+                  waitMin >= 5  ? 'bg-orange-100 text-orange-700' : 'bg-muted text-muted-foreground',
+                )}>{waitMin} Min Warte</span>
+              )}
+              {topOrder.delivery_zone && (
+                <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-bold', zoneMeta(topOrder.delivery_zone).cls)}>
+                  Zone {topOrder.delivery_zone}
+                </span>
+              )}
+            </div>
+            <div className="text-xs font-semibold truncate mt-0.5">{topOrder.kunde_name}</div>
+          </div>
+        </div>
+        {bundled && (
+          <div className="flex items-center gap-1 rounded-lg border bg-violet-50 px-3 py-2 text-xs font-bold text-violet-800">
+            <RouteIcon className="h-3.5 w-3.5" />
+            +{orderIds.length - 1} Bundle · ~{(orderIds.length - 1) * 7} Min gespart
+          </div>
+        )}
+        <div className="flex items-center gap-1 text-muted-foreground text-xs">
+          <Truck className="h-3.5 w-3.5" />→
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border bg-white/70 px-3 py-2">
+          <Bike className="h-4 w-4 text-matcha-600 shrink-0" />
+          <div>
+            <div className="text-xs font-bold">{driverName}</div>
+            <div className="text-[10px] text-muted-foreground">{bestDriver.fahrzeug}</div>
+          </div>
+        </div>
+        <button
+          onClick={() => { onAssign(orderIds, bestDriver.employee_id); setDismissed(true); }}
+          className={cn(
+            'ml-auto inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white transition active:scale-[0.98]',
+            urgency === 'critical' ? 'bg-red-600 hover:bg-red-700' :
+            urgency === 'urgent'   ? 'bg-orange-600 hover:bg-orange-700' :
+            'bg-matcha-700 hover:bg-matcha-800',
+          )}
+        >
+          <Check className="h-3.5 w-3.5" />
+          {bundled ? `${orderIds.length}× Zuweisen` : 'Zuweisen'}
+        </button>
       </div>
     </div>
   );

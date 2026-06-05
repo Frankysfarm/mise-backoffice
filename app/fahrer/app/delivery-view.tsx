@@ -503,6 +503,33 @@ export function DeliveryView({
                   <div className="text-[9px] text-matcha-400 leading-tight truncate mt-0.5">
                     {s.order.kunde_adresse}
                   </div>
+                  {/* Schnellaktionen: Anrufen + Navigation */}
+                  <div className="mt-1.5 flex gap-1.5">
+                    {s.order.kunde_telefon && (
+                      <a
+                        href={`tel:${s.order.kunde_telefon}`}
+                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-matcha-700/60 border border-matcha-600/40 py-1 text-[9px] font-bold text-matcha-200 active:scale-[0.97] transition"
+                        title="Anrufen"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Phone size={9} />
+                        Anrufen
+                      </a>
+                    )}
+                    {s.order.kunde_lat && s.order.kunde_lng && (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${s.order.kunde_lat},${s.order.kunde_lng}&travelmode=driving`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-accent/15 border border-accent/30 py-1 text-[9px] font-bold text-accent active:scale-[0.97] transition"
+                        title="Navigation"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Navigation size={9} />
+                        Nav
+                      </a>
+                    )}
+                  </div>
                   {s.order.eta_earliest && (() => {
                     const etaMs = new Date(s.order.eta_earliest).getTime();
                     const secLeft = Math.floor((etaMs - Date.now()) / 1000);

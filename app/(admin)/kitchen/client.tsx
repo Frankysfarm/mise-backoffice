@@ -560,6 +560,11 @@ export function KitchenBoard({
         <SmartTimingCountdownGrid timings={timings} orders={filtered} />
       )}
 
+      {/* Gantt-Zeitleiste: alle kochenden + bestätigten Bestellungen auf einem Zeitstrahl */}
+      {!bigDisplay && filtered.filter((o) => ['in_zubereitung', 'bestätigt'].includes(o.status)).length >= 2 && (
+        <KitchenGanttStrip orders={filtered} timings={timings} />
+      )}
+
       {/* Popup: ungenommene Order */}
       {unacceptedAlert && (
         <UnacceptedOrderPopup
@@ -3429,6 +3434,147 @@ function nextLabel(status: string): string {
     default:               return status;
   }
 }
+/* ------------------------------ KitchenGanttStrip ------------------------------ */
+
+function KitchenGanttStrip({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const horizonMs = 30 * 60_000; // 30-Minuten-Fenster
+
+  const active = orders
+    .filter((o) => ['in_zubereitung', 'bestätigt'].includes(o.status) && o.bestellt_am)
+    .map((o) => {
+      const timing = timings.find((t) => t.order_id === o.id);
+      const startMs = now;
+      let finishMs: number;
+      if (timing?.status === 'cooking' && timing.ready_target) {
+        finishMs = new Date(timing.ready_target).getTime();
+      } else {
+        const elapsed = o.bestellt_am ? now - new Date(o.bestellt_am).getTime() : 0;
+        const remaining = ((o.geschaetzte_zubereitung_min ?? 15) * 60_000) - elapsed;
+        finishMs = now + Math.max(0, remaining);
+      }
+      const remSec = Math.floor((finishMs - now) / 1000);
+      const pct = timing?.cook_start_at && timing.ready_target
+        ? Math.min(100, Math.max(0, Math.round((now - new Date(timing.cook_start_at).getTime()) / (new Date(timing.ready_target).getTime() - new Date(timing.cook_start_at).getTime()) * 100)))
+        : o.bestellt_am
+          ? Math.min(100, Math.round(((now - new Date(o.bestellt_am).getTime()) / ((o.geschaetzte_zubereitung_min ?? 15) * 60_000)) * 100))
+          : 0;
+      const overdue = remSec < 0;
+      const barLeft = 0;
+      const barRight = Math.min(1, (finishMs - now) / horizonMs);
+      return { o, timing, finishMs, remSec, pct, overdue, barLeft, barRight };
+    })
+    .sort((a, b) => a.finishMs - b.finishMs);
+
+  if (active.length < 2) return null;
+
+  const ticks = [0, 5, 10, 15, 20, 25, 30];
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Clock className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-foreground">
+          Zeitleiste · nächste 30 Min
+        </span>
+        <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
+          {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+
+      {/* Zeitachse */}
+      <div className="relative mb-1 flex items-center pl-24 pr-2">
+        {ticks.map((m) => (
+          <div
+            key={m}
+            className="absolute text-[8px] tabular-nums text-muted-foreground/70"
+            style={{ left: `calc(6rem + ${(m / 30) * (100 - 8)}%)` }}
+          >
+            {m === 0 ? 'jetzt' : `+${m}m`}
+          </div>
+        ))}
+      </div>
+
+      {/* Balken je Bestellung */}
+      <div className="space-y-1.5 pt-3">
+        {active.map(({ o, remSec, pct, overdue, barRight }) => {
+          const barColor =
+            overdue    ? 'bg-red-500'    :
+            pct >= 80  ? 'bg-orange-400' :
+            pct >= 55  ? 'bg-amber-400'  :
+            o.status === 'in_zubereitung' ? 'bg-blue-400' : 'bg-matcha-400';
+          const textColor =
+            overdue    ? 'text-red-600'    :
+            pct >= 80  ? 'text-orange-600' :
+            pct >= 55  ? 'text-amber-600'  : 'text-matcha-700';
+          const absSecLeft = Math.abs(remSec);
+          const m = Math.floor(absSecLeft / 60);
+          const s = absSecLeft % 60;
+          const label = overdue
+            ? `+${m}:${String(s).padStart(2, '0')}`
+            : `${m}:${String(s).padStart(2, '0')}`;
+          return (
+            <div key={o.id} className="flex items-center gap-2">
+              {/* Label */}
+              <div className="w-24 shrink-0 text-right pr-1.5">
+                <div className="text-[10px] font-bold truncate text-foreground leading-tight">
+                  {o.kunde_name.split(' ')[0]}
+                </div>
+                <div className={cn('text-[9px] font-mono tabular-nums font-bold leading-tight', textColor)}>
+                  {overdue ? '!' : ''}{label}
+                </div>
+              </div>
+              {/* Track */}
+              <div className="flex-1 h-5 relative rounded-full bg-muted overflow-hidden">
+                {/* Progress fill (elapsed portion shown as faint overlay) */}
+                <div
+                  className={cn('absolute left-0 h-full rounded-full opacity-20', barColor)}
+                  style={{ width: `${Math.min(100, pct)}%` }}
+                />
+                {/* Remaining bar from "now" to finish */}
+                {!overdue && (
+                  <div
+                    className={cn('absolute left-0 top-0 h-full rounded-full transition-all', barColor, overdue && 'animate-pulse')}
+                    style={{ width: `${Math.min(100, barRight * 100)}%` }}
+                  />
+                )}
+                {overdue && (
+                  <div className="absolute inset-0 bg-red-400 animate-pulse rounded-full" />
+                )}
+                {/* Status label inside bar */}
+                <div className="absolute inset-0 flex items-center px-2">
+                  <span className="text-[8px] font-bold text-white drop-shadow truncate">
+                    {o.status === 'in_zubereitung' ? 'kocht' : 'angenommen'}
+                    {o.typ === 'lieferung' ? ' · Lieferung' : ''}
+                  </span>
+                </div>
+              </div>
+              {/* Finish time */}
+              <div className="w-10 shrink-0 text-[8px] tabular-nums text-muted-foreground text-right">
+                {new Date(Date.now() + Math.max(0, remSec * 1000)).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legende */}
+      <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-muted-foreground border-t pt-2">
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-400" />In Zubereitung</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-matcha-400" />Angenommen</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-orange-400" />&gt;80% verbraucht</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" />Überzogen</span>
+      </div>
+    </div>
+  );
+}
+
 function payLabel(z: string): string {
   switch (z) {
     case 'bar':    return 'Bar';
