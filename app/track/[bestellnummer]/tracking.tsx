@@ -262,6 +262,35 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             </div>
           )}
 
+          {/* Liefer-Countdown-Ring — visueller Countdown bis ETA wenn Fahrer unterwegs */}
+          {order.status === 'unterwegs' && (order.eta_earliest || order.eta_latest) && order.fertig_am && (
+            <div className="mt-4 flex items-center gap-4">
+              <DeliveryCountdownRing
+                startIso={order.fertig_am}
+                etaIso={order.eta_latest ?? order.eta_earliest!}
+              />
+              <div>
+                <div className="text-sm font-bold text-matcha-100">Lieferung</div>
+                <div className="text-[11px] text-matcha-300 mt-0.5 tabular-nums">
+                  {(() => {
+                    const target = order.eta_latest ?? order.eta_earliest;
+                    if (!target) return 'Unterwegs';
+                    const remSec = Math.floor((new Date(target).getTime() - Date.now()) / 1000);
+                    if (remSec <= 0) return 'Jeden Moment!';
+                    const rm = Math.floor(remSec / 60);
+                    const rs = remSec % 60;
+                    return rm > 0 ? `Noch ca. ${rm}:${String(rs).padStart(2, '0')} Min` : `Noch ${rs}s`;
+                  })()}
+                </div>
+                {stopsBefore != null && stopsBefore > 0 && (
+                  <div className="text-[10px] text-matcha-400 mt-0.5">
+                    {stopsBefore === 1 ? '1 Stopp vor dir' : `${stopsBefore} Stopps vor dir`}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {order.status !== 'geliefert' && order.status !== 'abgeholt' && order.status !== 'storniert' && (
             <div className="mt-4 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -613,6 +642,59 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
 }
 
 /* Kochfortschritt-Ring — animierter SVG-Ring für in_zubereitung Status */
+/* DeliveryCountdownRing — Countdown-Ring für Unterwegs-Phase */
+function DeliveryCountdownRing({ startIso, etaIso }: { startIso: string; etaIso: string }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const startMs = new Date(startIso).getTime();
+  const etaMs = new Date(etaIso).getTime();
+  const now = Date.now();
+  const total = Math.max(1, etaMs - startMs);
+  const elapsed = now - startMs;
+  const pct = Math.min(1, Math.max(0, elapsed / total));
+  const r = 22;
+  const circ = 2 * Math.PI * r;
+  const overdue = now > etaMs;
+  const remSec = Math.max(0, Math.floor((etaMs - now) / 1000));
+  const rm = Math.floor(remSec / 60);
+  const rs = remSec % 60;
+  const ringColor =
+    overdue ? '#f87171' :
+    pct >= 0.85 ? '#fb923c' :
+    pct >= 0.6 ? '#fbbf24' :
+    '#4ade80';
+
+  return (
+    <svg width="64" height="64" viewBox="0 0 64 64" className="shrink-0">
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="5" />
+      <circle
+        cx="32" cy="32" r={r}
+        fill="none"
+        stroke={ringColor}
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={circ * (1 - pct)}
+        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+      />
+      {overdue ? (
+        <text x="32" y="35" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#fca5a5">Jeden</text>
+      ) : (
+        <text x="32" y="30" textAnchor="middle" fontSize="13" fontWeight="bold" fill={ringColor} fontFamily="monospace">
+          {rm}:{String(rs).padStart(2, '0')}
+        </text>
+      )}
+      <text x="32" y={overdue ? 44 : 42} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.5)">
+        {overdue ? 'Moment!' : 'noch'}
+      </text>
+    </svg>
+  );
+}
+
 function CookingProgressRing({
   startIso,
   targetMin,
