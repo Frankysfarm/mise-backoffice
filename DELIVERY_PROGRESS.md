@@ -39,7 +39,16 @@
 - [x] Fahrer-Management
 - [x] Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–36 + CEO REVIEW #29 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–36 + CEO REVIEW #30 ABGESCHLOSSEN — 2026-06-05
+
+## CEO Review #30 — Frontend-Erweiterungen Phase 36 [DONE ✅] — 2026-06-05
+
+### Features geprüft und abgenommen
+- [x] `app/(admin)/kitchen/client.tsx` — `KitchenGanttStrip`: horizontale 30-Min-Timeline aller kochenden/bestätigten Bestellungen, 5s-Tick, farbkodierte Urgency (matcha→amber→orange→rot), Overdue-Puls, Finish-Uhrzeit, Zeitachsen-Ticks alle 5 Min
+- [x] `app/(admin)/dispatch/client.tsx` — `DispatchNextBestAction`: KI-Empfehlungskasten mit Beste-Fahrer-Bestellungs-Kombination, Bündelungsempfehlung (gleiche Zone, max 3 Orders), Score-Badge, Warte-Countdown, Direktzuweisung via RPC mit Legacy-Fallback, Urgency-Farbkodierung 3-stufig, Dismiss-Button
+- [x] `app/fahrer/app/delivery-view.tsx` — Schnellaktionen pro Upcoming-Stop: Telefon-Button (`tel:`-Link) + Navigations-Button (Google-Maps-deeplink mit GPS-Koordinaten), Einhand-Bedienung, `e.stopPropagation()`, Security-Attribut
+- [x] `fix(kitchen)`: `React.useState` → `useState` in KitchenGanttStrip — Konsistenz-Fix ✅
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 36: ETA Accuracy Calibration Engine [DONE ✅] — 2026-06-05
 
