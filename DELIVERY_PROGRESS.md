@@ -1,6 +1,43 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–31 + CEO REVIEW #27 ABGESCHLOSSEN — 2026-06-04
+## STATUS: MARKT-REIF ✅ — PHASEN 1–32 + CEO REVIEW #27 ABGESCHLOSSEN — 2026-06-05
+
+## Phase 32: Franchise Real-Time Command Center [DONE ✅] — 2026-06-05
+
+### Motivation
+Die bestehende Multi-Location-Funktion (`/api/delivery/admin/reporting?type=multi`)
+liefert nur historische Perioden-Reports. Franchise-Betreiber mit mehreren Standorten
+hatten keine Möglichkeit, den Echtzeit-Status aller Locations gleichzeitig zu sehen.
+
+### Was wurde gebaut
+- [x] `scripts/migrations/028_franchise_realtime.sql`
+  - `v_location_realtime_status` VIEW: Echtzeit-KPIs pro Location (queue_depth, active_tours,
+    cooking_now, oldest_queued_min, completed_today, active_alerts, critical_alerts)
+  - `v_tenant_driver_summary` VIEW: Fahrer-Verteilung tenant-weit (online/idle/busy)
+  - 3 Performance-Indizes: Franchise-Queue-Scan, aktive-Tours-Scan, Employees-Location
+- [x] `lib/delivery/franchise.ts` — Franchise Engine (6 Funktionen, TypeScript strict, kein `any`)
+  - `getTenantLocations(tenantId)`: alle Locations eines Tenants geordnet nach Name
+  - `getFranchiseRealtime(tenantId)`: Echtzeit-KPIs via `v_location_realtime_status`
+    + Graceful-Fallback wenn Migration 028 fehlt (`_fallback: true`)
+  - `deriveHealth(row)`: berechnet 'ok'|'warning'|'critical' aus KPIs (Alarmcount + Queue-Alter)
+  - `getTenantDriverStatus(tenantId)`: Fahrer-Headcount via `v_tenant_driver_summary`
+  - `getFranchiseAlerts(tenantId)`: alle offenen Alarme aller Tenant-Locations (max 50, neueste zuerst)
+  - `getFranchiseSummary(tenantId)`: kombiniertes Dashboard in 1 Call (Promise.all-parallel)
+    — locations[] + drivers{} + alerts[] + totals{} + generated_at
+- [x] `app/api/delivery/admin/franchise/route.ts` — Franchise API
+  - Auth: authentifizierter Employee → location_id → tenant_id (automatisch aufgelöst)
+  - `GET ?action=overview` (default) → vollständiges `FranchiseSummary`
+  - `GET ?action=alerts` → alle offenen Alarme mit Location-Namen
+  - `GET ?action=locations` → statische Location-Liste für Tenant
+
+### Technische Details
+- Abgrenzung zu `reporting?type=multi`: das ist historisch/perioden-basiert (v_daily_location_kpis);
+  `franchise?action=overview` ist Echtzeit (kein Cache, SELECT on demand)
+- TypeScript: `GenericStringError`-Handling via `rawRow as unknown as Record<string, unknown>`
+  (Views existieren noch nicht im Supabase-Typen-Schema — dasselbe Muster wie Phase 26/reporting.ts)
+- Health-Signallogik: critical = critical_alerts>0; warning = active_alerts>0 ODER queue_depth≥5
+  ODER oldest_queued_min≥15; sonst ok
+- Build: `next build` ✓ (171 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 31: Webhooks + Alerts Management UI [DONE ✅] — 2026-06-04
 - [x] `app/(admin)/analytics/client.tsx` — `AlertsPanel` + `WebhooksPanel` ergänzt
