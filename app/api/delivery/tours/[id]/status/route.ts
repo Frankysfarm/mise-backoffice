@@ -12,6 +12,7 @@ import { recoverCancelledBatch } from '@/lib/delivery/recovery';
 import { generateRatingToken } from '@/lib/delivery/satisfaction';
 import { queueWebhookEvent } from '@/lib/delivery/webhooks';
 import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
+import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/customer-notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -119,6 +120,46 @@ export async function PATCH(
             reason:   'admin_cancelled',
           });
         }
+      } catch { /* fire-and-forget */ }
+    })();
+  }
+
+  // Customer Event Feed: Kunden über Tour-Status-Änderungen informieren (fire-and-forget)
+  if (['at_restaurant', 'on_route', 'delivered', 'cancelled'].includes(body.state)) {
+    (async () => {
+      try {
+        const { data: bEvt } = await sb
+          .from('mise_delivery_batches')
+          .select('location_id')
+          .eq('id', params.id)
+          .maybeSingle();
+        if (!bEvt?.location_id) return;
+        const locId = bEvt.location_id as string;
+
+        const { data: sEvt } = await sb
+          .from('mise_delivery_batch_stops')
+          .select('order_id')
+          .eq('batch_id', params.id)
+          .eq('type', 'dropoff')
+          .not('order_id', 'is', null);
+
+        const orderIds = (sEvt ?? []).map((s: { order_id: unknown }) => s.order_id as string).filter(Boolean);
+        if (orderIds.length === 0) return;
+
+        const evMap: Record<string, CustomerEventType> = {
+          at_restaurant: 'driver_at_restaurant',
+          on_route:      'driver_departing',
+          delivered:     'delivered',
+          cancelled:     'cancelled',
+        };
+        const evType = evMap[body.state];
+        if (!evType) return;
+
+        await Promise.all(
+          orderIds.map((oid) =>
+            recordCustomerEvent(oid, locId, evType, { batch_id: params.id }),
+          ),
+        );
       } catch { /* fire-and-forget */ }
     })();
   }

@@ -17,6 +17,7 @@ import {
   Truck,
   ShoppingBag,
   MessageCircle,
+  X,
 } from 'lucide-react';
 
 type Order = {
@@ -59,6 +60,16 @@ type Msg = {
   created_at: string;
 };
 
+type DeliveryEvent = {
+  id: string;
+  order_id: string;
+  location_id: string;
+  event_type: string;
+  message_de: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
+
 const STEPS: { status: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { status: 'bestätigt', label: 'Bestätigt', icon: Check },
   { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
@@ -85,6 +96,7 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
   const [ratingHover, setRatingHover] = useState(0);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
+  const [deliveryEvents, setDeliveryEvents] = useState<DeliveryEvent[]>([]);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -140,8 +152,14 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
         { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${order.order_id}` },
         (payload: { new: Msg }) => setMessages((m) => [...m, payload.new]),
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'customer_delivery_events', filter: `order_id=eq.${order.order_id}` },
+        (payload: { new: DeliveryEvent }) => setDeliveryEvents((prev) => [...prev, payload.new]),
+      )
       .subscribe();
     void loadMessages();
+    void loadEvents();
     return () => {
       supabase.removeChannel(ch);
     };
@@ -164,6 +182,14 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
       .order('created_at', { ascending: true });
     setMessages((data as Msg[]) ?? []);
     setTimeout(() => listRef.current?.scrollTo({ top: 99999, behavior: 'smooth' }), 50);
+  }
+  async function loadEvents() {
+    try {
+      const res = await fetch(`/api/delivery/orders/${order.order_id}/events`);
+      if (!res.ok) return;
+      const body = await res.json() as { events: DeliveryEvent[] };
+      setDeliveryEvents(body.events ?? []);
+    } catch { /* graceful: Migration 031 evtl. noch nicht eingespielt */ }
   }
 
   async function send() {
@@ -516,6 +542,9 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             <div className="font-display text-xl font-bold">{euro(order.gesamtbetrag)}</div>
           </div>
         </div>
+
+        {/* Liefer-Event-Timeline — erscheint sobald erste Events vorhanden */}
+        <CustomerEventTimeline events={deliveryEvents} />
 
         {/* Bewertungs-Karte — erscheint nach Lieferung/Abholung */}
         {['geliefert', 'abgeholt'].includes(order.status) && !ratingDismissed && (
@@ -897,6 +926,76 @@ function DeliveryQueueCard({
     </div>
   );
 }
+
+// ── Customer Event Timeline ───────────────────────────────────────────────────
+
+const EVENT_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  driver_assigned:      Truck,
+  driver_at_restaurant: ChefHat,
+  driver_departing:     Truck,
+  driver_nearby:        MapPin,
+  delivered:            ShoppingBag,
+  cancelled:            X,
+  delayed:              Clock,
+};
+
+const EVENT_COLOR: Record<string, string> = {
+  driver_assigned:      'bg-blue-100 text-blue-600',
+  driver_at_restaurant: 'bg-amber-100 text-amber-600',
+  driver_departing:     'bg-matcha-100 text-matcha-700',
+  driver_nearby:        'bg-orange-100 text-orange-600',
+  delivered:            'bg-matcha-200 text-matcha-800',
+  cancelled:            'bg-red-100 text-red-600',
+  delayed:              'bg-amber-100 text-amber-700',
+};
+
+function CustomerEventTimeline({ events }: { events: DeliveryEvent[] }) {
+  if (events.length === 0) return null;
+
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Berlin',
+    });
+
+  return (
+    <div className="rounded-2xl border bg-card p-4 sm:p-5 shadow-subtle">
+      <h2 className="mb-4 font-display text-sm font-bold uppercase tracking-wider text-foreground">
+        Liefer-Verlauf
+      </h2>
+      <ol className="relative ml-3 border-l border-matcha-100 space-y-0">
+        {events.map((evt, i) => {
+          const Icon = EVENT_ICON[evt.event_type] ?? Clock;
+          const color = EVENT_COLOR[evt.event_type] ?? 'bg-stone-100 text-stone-500';
+          const isLast = i === events.length - 1;
+          return (
+            <li key={evt.id} className={cn('ml-5 pb-4', isLast && 'pb-0')}>
+              <div
+                className={cn(
+                  'absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full',
+                  color,
+                )}
+              >
+                <Icon className="h-3 w-3" />
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-sm font-medium leading-snug text-foreground">
+                  {evt.message_de}
+                </p>
+                <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+                  {fmt(evt.created_at)}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function heroHeadline(o: Order): string {
   switch (o.status) {

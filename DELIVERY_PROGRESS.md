@@ -38,8 +38,76 @@
 - [x] Touren-Übersicht
 - [x] Fahrer-Management
 - [x] Statistiken-Dashboard
+- [x] customer_delivery_events Tabelle
+- [x] customer-notify.ts (Event Feed Engine)
+- [x] GET /api/delivery/orders/[orderId]/events
+- [x] Realtime Event-Subscription Tracking-Page
+- [x] CustomerEventTimeline Komponente
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–36 + CEO REVIEW #30 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–37 + CEO REVIEW #30 ABGESCHLOSSEN — 2026-06-05
+
+## Phase 37: Customer Delivery Event Feed [DONE ✅] — 2026-06-05
+
+### Motivation
+Kunden mussten die Tracking-Page aktiv beobachten, um Statusänderungen zu bemerken.
+Es gab keine chronologische Darstellung, was mit ihrer Bestellung passiert ist.
+Phase 37 schließt diese Lücke: ein automatischer Event-Log pro Bestellung,
+sichtbar als Live-Timeline auf der Tracking-Page.
+
+### Was wurde gebaut
+- [x] `scripts/migrations/031_customer_events.sql`
+  - `customer_delivery_events` Tabelle: chronologischer Event-Log pro Bestellung
+  - Felder: id, order_id, location_id, event_type, message_de, metadata, created_at
+  - Event-Typen: driver_assigned / driver_at_restaurant / driver_departing / driver_nearby / delivered / cancelled / delayed
+  - `REPLICA IDENTITY FULL` für Supabase-Realtime-Subscriptions
+  - FK → customer_orders mit ON DELETE CASCADE (migration-safe via DO $$ EXCEPTION)
+  - 2 Indizes: (order_id, created_at DESC) + (location_id, created_at DESC)
+  - RLS: service_role all + anon SELECT (UUID als impliziter Token) + authenticated via location_id
+
+- [x] `lib/delivery/customer-notify.ts` — Customer Event Engine (TypeScript strict, kein `any`)
+  - `recordCustomerEvent(orderId, locationId, eventType, metadata?)`: INSERT fire-and-forget
+    - Graceful Skip wenn Tabelle fehlt (Migration 031 noch nicht eingespielt)
+    - `EVENT_MESSAGES` Map: deutsche Kundennachrichten pro Event-Typ
+  - `getOrderEvents(orderId)`: lädt alle Events chronologisch aufsteigend
+    - Graceful Fallback: leeres Array bei Fehler/fehlender Migration
+  - Singleton Service-Client (SUPABASE_SERVICE_ROLE_KEY) — selbes Muster wie gps-tracker.ts
+
+- [x] `app/api/delivery/orders/[orderId]/events/route.ts`
+  - `GET /api/delivery/orders/[orderId]/events` → `{ events: CustomerDeliveryEvent[] }`
+  - Kein Auth: orderId (UUID) ist praktisch unratbar (120 Bit Entropie)
+  - UUID-Validierung via Regex vor DB-Zugriff
+  - Graceful Fallback wenn Migration fehlt
+
+- [x] `lib/delivery/dispatch-engine.ts` Integration:
+  - Nach Push-Benachrichtigung an Fahrer: `recordCustomerEvent('driver_assigned')` fire-and-forget
+  - Payload: driver_id, batch_id, zone, eta_earliest/latest
+
+- [x] `app/api/delivery/tours/[id]/status/route.ts` Integration:
+  - PATCH on_route → `driver_departing` für alle Batch-Dropoff-Orders
+  - PATCH at_restaurant → `driver_at_restaurant` für alle Batch-Dropoff-Orders
+  - PATCH delivered → `delivered` für alle Batch-Dropoff-Orders
+  - PATCH cancelled → `cancelled` für alle Batch-Dropoff-Orders
+  - Lädt Batch-Location + Dropoff-Stop-OrderIds, feuert parallel via `Promise.all`
+
+- [x] `lib/delivery/gps-tracker.ts` Integration:
+  - Bei `arrived_customer` Geofence (Fahrer <100m vom Kunden): `recordCustomerEvent('driver_nearby')`
+  - Payload: driver_id, batch_id, distance_m
+  - Fire-and-forget `.catch(() => {})` — kein fataler Fehler
+
+- [x] `app/track/[bestellnummer]/tracking.tsx` — CustomerEventTimeline Komponente
+  - Neuer Zustand: `deliveryEvents: DeliveryEvent[]`
+  - `loadEvents()`: initialer Fetch via `/api/delivery/orders/${order_id}/events`
+  - Realtime-Subscription: `customer_delivery_events` INSERT-Event im bestehenden Channel
+  - `CustomerEventTimeline`: vertikale Timeline, Icon + farbkodiert pro Event-Typ
+    - Farbschema: blau (zugewiesen) / amber (Restaurant) / matcha (unterwegs) / orange (in der Nähe) / dunkelgrün (geliefert) / rot (storniert)
+    - Timestamps in DE-Lokalzeit (Europe/Berlin)
+    - Positioned nach "Bestellung"-Block, vor "Bewertungs-Karte"
+  - Nur gerendert wenn `events.length > 0` (kein leerer State)
+
+### Technische Details
+- 4 Trigger-Punkte: Dispatch (1) + Tour-Status (3: at_restaurant/on_route/delivered/cancelled) + GPS-Geofence (1: driver_nearby)
+- `arrived_customer` Geofence hat 3-Min-Duplikat-Guard (aus Phase 34) → kein doppeltes `driver_nearby`
+- Build: `next build` ✓ (170+ Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## CEO Review #30 — Frontend-Erweiterungen Phase 36 [DONE ✅] — 2026-06-05
 

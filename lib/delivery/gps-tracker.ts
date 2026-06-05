@@ -20,6 +20,7 @@
 import 'server-only';
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
 import { haversineKm } from '@/lib/google-maps';
+import { recordCustomerEvent } from './customer-notify';
 
 // ── Singleton service client ───────────────────────────────────────────────────
 let _sb: SupabaseClient | null = null;
@@ -242,6 +243,12 @@ export async function checkGeofences(
           lng,
           distanceM: dm,
         });
+        // Customer Event Feed: Fahrer ist in der Nähe (fire-and-forget)
+        recordCustomerEvent(orderId, locationId, 'driver_nearby', {
+          driver_id: driverId,
+          batch_id:  batchId,
+          distance_m: dm,
+        }).catch(() => {});
         break; // nur nächster Stop relevant
       }
     }

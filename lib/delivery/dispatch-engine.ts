@@ -26,6 +26,7 @@ import { upsertKitchenTiming } from './kitchen-sync';
 import { logDeliveryEvent } from './events';
 import { enqueueBatchPush } from './push-notify';
 import { logEtaPrediction } from './eta-calibration';
+import { recordCustomerEvent } from './customer-notify';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -413,6 +414,15 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     restaurantName,
     distanceKm,
     outcome,
+  }).catch(() => {});
+
+  // Customer Event Feed: Fahrer zugewiesen (fire-and-forget)
+  recordCustomerEvent(o.id, o.location_id, 'driver_assigned', {
+    driver_id:     best.driver.id,
+    batch_id:      batchId,
+    zone,
+    eta_earliest:  eta.earliestUtc.toISOString(),
+    eta_latest:    eta.latestUtc.toISOString(),
   }).catch(() => {});
 
   return {

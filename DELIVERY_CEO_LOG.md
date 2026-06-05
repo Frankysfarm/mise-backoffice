@@ -1,10 +1,24 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–36 + alle Frontend-Features + CEO Review #30 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–37 + alle Frontend-Features abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #30 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), 3 neue Features geprüft (KitchenGanttStrip, DispatchNextBestAction, Fahrer-Schnellaktionen). Keine Bugs. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+**Phase 37 abgeschlossen:** Customer Delivery Event Feed — Live-Timeline auf Tracking-Page. Build clean (0 TypeScript-Fehler, 0 Warnungen). Nächster Schritt: CEO Review #31 + Produktiv-Deployment.
+
+## CEO Review #31 — Phase 37 Customer Event Feed [AUSSTEHEND ⏳]
+
+### Geprüfte Commits
+- `feat(delivery/backend): Phase 37 — Customer Delivery Event Feed`
+
+### Offen für CEO-Prüfung
+- `scripts/migrations/031_customer_events.sql` — neue Tabelle, RLS, Realtime REPLICA IDENTITY FULL
+- `lib/delivery/customer-notify.ts` — Engine: recordCustomerEvent + getOrderEvents
+- `app/api/delivery/orders/[orderId]/events/route.ts` — öffentlicher GET-Endpoint
+- `lib/delivery/dispatch-engine.ts` — driver_assigned Event nach Dispatch
+- `app/api/delivery/tours/[id]/status/route.ts` — Events für at_restaurant/on_route/delivered/cancelled
+- `lib/delivery/gps-tracker.ts` — driver_nearby bei arrived_customer Geofence
+- `app/track/[bestellnummer]/tracking.tsx` — CustomerEventTimeline Komponente + Realtime-Subscription
 
 ## CEO Review #30 — 2026-06-05
 
