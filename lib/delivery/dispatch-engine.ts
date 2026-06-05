@@ -25,6 +25,7 @@ import { calculateEta, updateOrderEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
 import { logDeliveryEvent } from './events';
 import { enqueueBatchPush } from './push-notify';
+import { logEtaPrediction } from './eta-calibration';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -339,6 +340,23 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     eta_latest:   eta.latestUtc.toISOString(),
     dispatch_score: bestScore.total,
   }).eq('id', o.id);
+
+  // 9a) ETA-Vorhersage für Kalibrierungs-Engine loggen (fire-and-forget)
+  const nowForCalib = new Date();
+  const predictedEarliestMin =
+    (eta.earliestUtc.getTime() - nowForCalib.getTime()) / 60_000;
+  const predictedLatestMin =
+    (eta.latestUtc.getTime() - nowForCalib.getTime()) / 60_000;
+  logEtaPrediction({
+    orderId:             o.id,
+    locationId:          o.location_id,
+    batchId,
+    driverId:            best.driver.id,
+    zone,
+    vehicle:             best.driver.vehicle,
+    predictedEarliestMin,
+    predictedLatestMin,
+  }).catch(() => {});
 
   // 9) Küchen-Timing
   try {

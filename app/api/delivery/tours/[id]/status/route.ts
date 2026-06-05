@@ -11,6 +11,7 @@ import { calculateDeliveryPayout } from '@/lib/delivery/payout';
 import { recoverCancelledBatch } from '@/lib/delivery/recovery';
 import { generateRatingToken } from '@/lib/delivery/satisfaction';
 import { queueWebhookEvent } from '@/lib/delivery/webhooks';
+import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -72,6 +73,11 @@ export async function PATCH(
           // Kunden-Rating-Token generieren (fire-and-forget)
           if (stop.order_id) {
             generateRatingToken(stop.order_id as string).catch(() => {});
+            // ETA-Kalibrierungs-Engine: echte Lieferzeit eintragen
+            const deliveredAt = stop.completed_at
+              ? new Date(stop.completed_at as string)
+              : new Date();
+            recordActualDelivery(stop.order_id as string, deliveredAt).catch(() => {});
           }
         }
       }

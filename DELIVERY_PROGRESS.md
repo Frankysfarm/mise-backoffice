@@ -39,7 +39,66 @@
 - [x] Fahrer-Management
 - [x] Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–34 + CEO REVIEW #29 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–36 + CEO REVIEW #29 ABGESCHLOSSEN — 2026-06-05
+
+## Phase 36: ETA Accuracy Calibration Engine [DONE ✅] — 2026-06-05
+
+### Motivation
+Bisher wurden ETAs mit fixen Geschwindigkeiten (18 km/h Fahrrad, 30 km/h Auto) berechnet.
+Systematische Abweichungen pro Zone, Fahrzeugtyp oder Tageszeit wurden nicht korrigiert.
+Phase 36 schließt diese Lücke mit einem automatischen ML-Feedback-Loop.
+
+### Was wurde gebaut
+- [x] `scripts/migrations/030_eta_calibration.sql`
+  - `eta_accuracy_log` Tabelle: Vorhersage (predicted_earliest/latest_min) vs. Realität (actual_min) pro Bestellung
+    - Genau 1 Eintrag pro Bestellung (UNIQUE INDEX auf order_id)
+    - `on_time` GENERATED COLUMN: TRUE wenn actual_min <= predicted_latest_min
+    - Indizes: Aggregations-Index (location, zone, vehicle, hour) + Pending-Index (actual_min IS NULL)
+  - `eta_calibration_factors` Tabelle: Kalibrierungsfaktor pro (location, zone, vehicle, hour_bucket)
+    - hour_bucket: 0=00–05h / 1=06–11h / 2=12–17h / 3=18–23h
+    - Faktor 1.0 = neutral, >1.0 = ETAs werden zukünftig verlängert
+    - Klammerung [0.7, 2.0] verhindert Extreme
+  - `v_eta_accuracy_summary` VIEW: Aggregierte Genauigkeitsmetriken pro (location, zone, vehicle)
+    - completed/pending deliveries, avg_error_min, on_time_rate, avg_relative_error
+  - `recompute_calibration_factors(p_location_id)` PL/pgSQL Funktion:
+    - Berechnet Faktoren aus letzten 30 Tagen (min 5 Samples pro Bucket)
+    - UPSERT auf eta_calibration_factors → idempotent
+    - Gibt Anzahl upserted Rows zurück
+  - RLS: service_role ALL + authenticated SELECT via employees.location_id
+
+- [x] `lib/delivery/eta-calibration.ts` — Kalibrierungs-Engine (TypeScript strict, kein `any`)
+  - `logEtaPrediction(params)`: Dispatch-Zeitpunkt + Vorhersage in eta_accuracy_log upsert
+    - hour_of_day (UTC), day_of_week (0=Mo–6=So)
+  - `recordActualDelivery(orderId, deliveredAt)`: actual_min = (delivered_at - predicted_at) / 60s
+    - Plausibilitätscheck: 0 < actual_min < 480 (8h max)
+    - Graceful Skip wenn kein Log-Eintrag vorhanden (ältere Orders)
+  - `recomputeCalibrationFactors(locationId)`: ruft DB-Funktion auf, gibt rows_upserted zurück
+  - `recomputeAllLocations()`: Cron-Wrapper für alle aktiven Locations (per-location try/catch)
+  - `getCalibrationFactor(locationId, zone, vehicle, hourOfDay)`: factor lookup, default 1.0
+  - `getAccuracyReport(locationId)`: overall + byZone[] + calibrationFactors[]
+    - Graceful Fallback mit `_fallback: true` wenn Migration 030 fehlt
+
+- [x] `app/api/delivery/admin/eta-accuracy/route.ts`
+  - GET → `getAccuracyReport()` für eigenen Standort (Auth via employees.location_id)
+  - POST → `recomputeCalibrationFactors()` manuell triggern
+
+- [x] `lib/delivery/dispatch-engine.ts` Integration:
+  - Nach ETA-Berechnung (Schritt 9a): `logEtaPrediction()` fire-and-forget
+  - Felder: orderId, locationId, batchId, driverId, zone, vehicle, predictedEarliestMin, predictedLatestMin
+
+- [x] `app/api/delivery/tours/[id]/status/route.ts` Integration:
+  - Bei state=delivered: `recordActualDelivery(orderId, stop.completed_at)` fire-and-forget
+  - Pro Dropoff-Stop (neben bestehendem Payout + Rating-Token)
+
+- [x] `app/api/cron/smart-dispatch/route.ts` Integration:
+  - `recomputeEtaCalibration()` täglich um 02:00 UTC (parallel zu `runDailyReportCache`)
+  - Response enthält `eta_calibration: { locations, factorsUpdated, errors }`
+
+### Technische Details
+- Kalibrierungsfaktor-Formel: `1.0 + (avg_error / avg_predicted_latest)` — klemmt auf [0.7, 2.0]
+- Mindestsamplesize: 5 Deliveries pro (zone × vehicle × hour_bucket) für statistische Relevanz
+- Rollierendes 30-Tage-Fenster: ältere Daten verlieren Einfluss automatisch
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## CEO Review #29 — Frontend-Erweiterungen Phase 35 [DONE ✅] — 2026-06-05
 
