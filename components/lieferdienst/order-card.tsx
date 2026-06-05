@@ -236,13 +236,20 @@ export function OrderCard({
                 </div>
                 {/* Progress Bar */}
                 <div className="w-full h-1.5 bg-emerald-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full transition-all duration-1000 ${
                       countdown.isOverdue ? 'bg-red-500' : countdown.isUrgent ? 'bg-amber-500' : 'bg-emerald-500'
                     }`}
                     style={{ width: `${countdown.percentage}%` }}
                   />
                 </div>
+                {/* Exact finish time */}
+                {!countdown.isOverdue && order.acceptedAt && order.estimatedTime && (
+                  <div className="text-center text-[10px] text-emerald-600 font-mono mt-1.5 tabular-nums">
+                    Fertig bis {new Date(new Date(order.acceptedAt).getTime() + order.estimatedTime * 60000)
+                      .toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                  </div>
+                )}
               </div>
             )}
             {order.status === 'waiting_customer' && (
@@ -349,6 +356,16 @@ export function OrderCard({
 
         {/* Actions */}
         <div className="px-4 py-3 border-t border-stone-100 bg-stone-50/50">
+          {/* Order total */}
+          {((order as any).totalAmount ?? (order as any).gesamtbetrag ?? 0) > 0 && (
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-xs text-stone-400 font-medium">Gesamt</span>
+              <span className="text-sm font-mono font-bold text-emerald-700 tabular-nums">
+                {((order as any).totalAmount ?? (order as any).gesamtbetrag ?? 0)
+                  .toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+              </span>
+            </div>
+          )}
           {order.status === 'pending' && (
             <div className="flex gap-2">
               <Button
