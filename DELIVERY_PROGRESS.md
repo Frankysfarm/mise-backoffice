@@ -1,6 +1,16 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–32 + CEO REVIEW #27 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–32 + CEO REVIEW #28 ABGESCHLOSSEN — 2026-06-05
+
+## CEO Review #28 — Frontend-Erweiterungen Phase 33 [DONE ✅] — 2026-06-05
+
+### Features geprüft und abgenommen
+- [x] `app/(admin)/kitchen/client.tsx` — `ScheduledCookCountdownGrid`: SVG-Countdown-Ring für geplante Kochstarts (status=scheduled), 15-Min-Vorschauhorizont, farbkodierte Dringlichkeit (blau→amber→orange→rot), 1s-Tick, Sort by urgency
+- [x] `app/(admin)/dispatch/client.tsx` — `TodayDispatchOverview`: persistente Schicht-Leiste (Lieferquote, Ø Score, Delta vs. gestern), 60s-Reload, graceful fallback, bereit/unterwegs/online-Badges
+- [x] `app/fahrer/app/client.tsx` — Per-Stopp-ETA mit Fallback-Schätzung (`total_eta_min` anteilig), visuelles Badge mit `⏰`-Icon
+- [x] `app/order/[locationSlug]/components/success-state.tsx` — Tracking-Link teilen: Web Share API (mobil) + Clipboard-Fallback (Desktop), 3s-Bestätigungsflash
+- [x] `app/(admin)/lieferdienst/client.tsx` — KPI-Schicht-Tempo: Bestellungen/h mit Guard `schichtMinutes >= 5`, Farbkodierung 3-stufig, Grid 4→5 Spalten
+- Build: `next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 32: Franchise Real-Time Command Center [DONE ✅] — 2026-06-05
 
