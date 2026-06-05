@@ -3437,8 +3437,8 @@ function nextLabel(status: string): string {
 /* ------------------------------ KitchenGanttStrip ------------------------------ */
 
 function KitchenGanttStrip({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
-  const [, setTick] = React.useState(0);
-  React.useEffect(() => {
+  const [, setTick] = useState(0);
+  useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 5000);
     return () => clearInterval(t);
   }, []);
