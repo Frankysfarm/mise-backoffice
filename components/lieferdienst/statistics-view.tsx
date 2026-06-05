@@ -1532,8 +1532,90 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* Live-Umsatz Schicht */}
       <ShiftRevenuePanel orders={orders} completedOrders={completedOrders} deliveryStats={deliveryStats} />
+
+      {/* Fahrer-Bestenliste heute */}
+      <DriverLeaderboard driverPerf={driverPerf} />
     </div>
   )
+}
+
+/* ------------------------------ DriverLeaderboard ------------------------------ */
+
+type DriverPerfEntry = {
+  driver_id: string;
+  employee_name: string | null;
+  vehicle: string;
+  state: string;
+  deliveries_today: number;
+  deliveries_yesterday: number;
+  active_batch_id: string | null;
+};
+
+const VEHICLE_EMOJI: Record<string, string> = {
+  auto: '🚗', bike: '🚲', ebike: '⚡', roller: '🛵', scooter: '🛵', fuss: '🚶',
+};
+
+function DriverLeaderboard({ driverPerf }: { driverPerf: DriverPerfEntry[] }) {
+  if (driverPerf.length === 0) return null;
+  const sorted = [...driverPerf].sort((a, b) => b.deliveries_today - a.deliveries_today);
+  const top5 = sorted.slice(0, 5);
+  const maxDeliveries = top5[0]?.deliveries_today ?? 0;
+  if (maxDeliveries === 0) return null;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Star className="w-4 h-4 text-amber-500" />
+        <span className="font-bold text-sm uppercase tracking-wider text-char">Fahrer-Bestenliste · Heute</span>
+      </div>
+      <div className="space-y-2">
+        {top5.map((d, i) => {
+          const pct = maxDeliveries > 0 ? Math.round((d.deliveries_today / maxDeliveries) * 100) : 0;
+          const isActive = !!d.active_batch_id;
+          const vEmoji = VEHICLE_EMOJI[d.vehicle] ?? '🚴';
+          const deltaYesterday = d.deliveries_today - d.deliveries_yesterday;
+          const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-stone-400' : i === 2 ? 'bg-orange-400' : 'bg-stone-200';
+          const medalLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+          return (
+            <div key={d.driver_id} className="flex items-center gap-3">
+              <div className="w-7 text-center shrink-0">
+                <span className="text-sm font-black">{medalLabel}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="font-semibold text-sm text-char truncate">
+                    {vEmoji} {d.employee_name ?? `Fahrer ${d.driver_id.slice(0, 4)}`}
+                  </span>
+                  {isActive && (
+                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" title="Aktive Tour" />
+                  )}
+                  {deltaYesterday !== 0 && d.deliveries_yesterday > 0 && (
+                    <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 shrink-0 ${deltaYesterday > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                      {deltaYesterday > 0 ? '+' : ''}{deltaYesterday}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="text-xs font-black text-char shrink-0 tabular-nums w-8 text-right">
+                    {d.deliveries_today}
+                  </span>
+                  <span className="text-[10px] text-stone-400 shrink-0">Lief.</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {sorted.length > 5 && (
+        <div className="mt-3 text-[10px] text-stone-400 text-center">
+          +{sorted.length - 5} weitere Fahrer
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ------------------------------ ShiftTargetPanel ------------------------------ */

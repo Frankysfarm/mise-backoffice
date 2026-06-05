@@ -967,11 +967,14 @@ function OpenBatchSection({
       const cashAmount = stops
         .filter((s) => s.zahlungsart === 'bar' || s.bezahlt === false)
         .reduce((sum, s) => sum + s.gesamtbetrag, 0);
+      // Fahrer-Verdienstschätzung: Basis 3€/Stop + 0.15€/km
+      const estDriverEarnings = Math.round((stops.length * 3 + totalDistanceKm * 0.15) * 100) / 100;
       return {
         batchId,
         stops,
         totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
         cashAmount,
+        estDriverEarnings,
         locationName: stops[0].location_name,
         locationLat: locLat,
         locationLng: locLng,
@@ -1000,7 +1003,7 @@ function OpenBatchSection({
         </div>
       ) : (
         <div className="space-y-3">
-          {grouped.map(({ batchId, stops, totalAmount, cashAmount, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
+          {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
             <div key={batchId} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
               <div className="flex items-start gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
@@ -1015,6 +1018,12 @@ function OpenBatchSection({
                     {cashAmount > 0 && (
                       <span className="flex items-center gap-1 font-bold text-amber-300">
                         <Banknote size={10} /> Bar: {euro(cashAmount)}
+                      </span>
+                    )}
+                    {/* Fahrer-Verdienstschätzung */}
+                    {estDriverEarnings > 0 && (
+                      <span className="flex items-center gap-1 rounded-full bg-matcha-700/40 border border-matcha-600/40 px-2 py-0.5 font-bold text-matcha-100">
+                        <TrendingUp size={10} /> ~{euro(estDriverEarnings)} Verdienst
                       </span>
                     )}
                     {estEtaMin ? (

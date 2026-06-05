@@ -529,6 +529,21 @@ export function KitchenBoard({
               <span>heute fertig</span>
             </span>
           )}
+          {/* Küchen-Auslastungs-Ampel */}
+          {(() => {
+            const cooking = filtered.filter((o) => o.status === 'in_zubereitung').length;
+            const level = cooking >= 7 ? 'red' : cooking >= 4 ? 'orange' : 'green';
+            const label = cooking >= 7 ? 'Überlastet' : cooking >= 4 ? 'Ausgelastet' : 'Normal';
+            const dotCls = level === 'red' ? 'bg-red-500 animate-pulse' : level === 'orange' ? 'bg-orange-500' : 'bg-matcha-500';
+            const textCls = level === 'red' ? 'text-red-600' : level === 'orange' ? 'text-orange-600' : 'text-matcha-600';
+            return (
+              <span className="flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-xs">
+                <span className={cn('h-2 w-2 rounded-full', dotCls)} />
+                <span className={cn('font-bold', textCls)}>{cooking} kochend</span>
+                <span className="text-muted-foreground">· {label}</span>
+              </span>
+            );
+          })()}
         </div>
       </div>
 

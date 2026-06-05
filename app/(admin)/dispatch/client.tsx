@@ -2994,6 +2994,21 @@ function TodayDispatchOverview({
             {onlineDrivers} online
           </span>
         )}
+        {/* Warteschlangen-Schätzung: wann ist die Queue leer? */}
+        {readyCount > 0 && onlineDrivers > 0 && (() => {
+          const avgTourMin = 25;
+          const clearMin = Math.ceil(readyCount / onlineDrivers) * avgTourMin;
+          const overloaded = clearMin > 60;
+          return (
+            <span className={cn(
+              'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold',
+              overloaded ? 'bg-red-100 text-red-800' : 'bg-blue-50 text-blue-700',
+            )}>
+              <Clock className="h-3 w-3" />
+              Queue ~{clearMin}m
+            </span>
+          );
+        })()}
       </div>
     </div>
   );
