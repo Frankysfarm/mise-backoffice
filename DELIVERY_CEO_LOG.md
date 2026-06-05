@@ -1,10 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–32 + alle Frontend-Features + CEO Review #28 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–34 + alle Frontend-Features + CEO Review #29 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #28 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), 5 neue Features geprüft (ScheduledCookCountdownGrid, TodayDispatchOverview, Fahrer-ETA-Fallback, Storefront-Share, Schicht-Tempo). Keine Bugs. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+**CEO Review #29 bestätigt:** Build clean (0 TypeScript-Fehler, 0 Warnungen), 5 neue Features geprüft (DeliveryCountdownRing, Kitchen-Auslastungs-Ampel, Dispatch-Queue-Clearance, Fahrer-Verdienst-Schätzung, DriverLeaderboard). Keine Bugs. System vollständig synchron. Keine weiteren Pflicht-Features offen. Nächster Schritt: Produktiv-Deployment.
+
+## CEO Review #29 — 2026-06-05
+
+### Geprüfte Commits (seit CEO Review #28)
+- `cba5cca` feat(delivery/frontend): Küchen-Ampel, Dispatch-Queue-Schätzung, Fahrer-Verdienst & Driver-Bestenliste
+- `29440fe` feat(tracking): Liefer-Countdown-Ring für Unterwegs-Phase
+
+### Bugs gefunden
+Keine.
+
+### Feature-Prüfung
+
+**DeliveryCountdownRing** (`app/track/[bestellnummer]/tracking.tsx`):
+- SVG-Countdown-Ring symmetrisch zu CookingProgressRing — konsistente UX ✅
+- Guard: `status==='unterwegs' && (eta_earliest||eta_latest) && fertig_am` — korrekt, fallback-sicher ✅
+- Farbkodierung grün→amber→orange→rot mit Overdue-Zustand ✅
+- 1s-Tick-Interval mit Cleanup, kein Memory-Leak ✅
+- Stopp-Badge unter dem Ring zeigt `stopsBefore` wenn >0 ✅
+
+**Kitchen Auslastungs-Ampel** (`app/(admin)/kitchen/client.tsx`):
+- Liest aus `filtered` (gecachter Zustand) — kein unnötiger Re-Fetch ✅
+- 3-stufig: Normal (<4) / Ausgelastet (4–6) / Überlastet (≥7) — praxisnahe Schwellwerte ✅
+- Puls-Animation bei Rot für sofortige Aufmerksamkeit ✅
+
+**Dispatch Queue-Clearance** (`app/(admin)/dispatch/client.tsx`):
+- Guard `readyCount > 0 && onlineDrivers > 0` — keine Division durch Null ✅
+- Formel `Math.ceil(readyCount / onlineDrivers) * 25 min` — reasonable für urban delivery ✅
+- Rot-Alert bei >60 Min — wichtige Überlast-Warnung ✅
+
+**Fahrer Verdienst-Schätzung** (`app/fahrer/app/client.tsx`):
+- `3€/Stopp + 0.15€/km` — motivationsfördernd, marktüblich ✅
+- Guard `estDriverEarnings > 0` — kein leeres Badge ✅
+- Cents-Rundung korrekt (`Math.round(...* 100) / 100`) ✅
+
+**DriverLeaderboard** (`components/lieferdienst/statistics-view.tsx`):
+- Null-Guards: `driverPerf.length === 0` + `maxDeliveries === 0` → kein Render ✅
+- Top-5 sorted by `deliveries_today` DESC ✅
+- Proportionale Balkendarstellung + Medaillen-Emojis + Delta-Badge vs. gestern ✅
+- Aktiv-Pulse-Punkt bei laufender Tour ✅
+
+### Build-Status
+- `next build`: ✅ 0 TypeScript-Fehler, 0 Warnungen
+- `tsc --noEmit`: ✅ 0 Fehler
+- Alle 170+ Seiten kompiliert
 
 ## CEO Review #28 — 2026-06-05
 

@@ -39,7 +39,17 @@
 - [x] Fahrer-Management
 - [x] Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–34 + CEO REVIEW #28 ABGESCHLOSSEN — 2026-06-05
+## STATUS: MARKT-REIF ✅ — PHASEN 1–34 + CEO REVIEW #29 ABGESCHLOSSEN — 2026-06-05
+
+## CEO Review #29 — Frontend-Erweiterungen Phase 35 [DONE ✅] — 2026-06-05
+
+### Features geprüft und abgenommen
+- [x] `app/track/[bestellnummer]/tracking.tsx` — `DeliveryCountdownRing`: SVG-Countdown-Ring für Unterwegs-Phase, gespiegelt zu CookingProgressRing, `fertig_am → eta_latest` als Zeitfenster, Farbkodierung grün→amber→orange→rot, Overdue-Zustand, 1s-Tick
+- [x] `app/(admin)/kitchen/client.tsx` — `KüchenlastAmpel`: Live-Auslastungsindikator im Toolbar (Normal / Ausgelastet / Überlastet), pulsiert bei Rot, liest aus gecachtem `filtered`-State
+- [x] `app/(admin)/dispatch/client.tsx` — `Queue-Clearance-Badge` in TodayDispatchOverview: schätzt Wartezeit bis Queue leer (`readyCount / onlineDrivers × 25min`), Rot-Alert bei >60 Min, Division-durch-Null Guard
+- [x] `app/fahrer/app/client.tsx` — Verdienst-Schätzung pro Tour: `3€/Stopp + 0.15€/km`, Cents-gerundet, Badge nur wenn >0€
+- [x] `components/lieferdienst/statistics-view.tsx` — `DriverLeaderboard`: Top-5 Fahrer nach Lieferungen heute, proportionale Balken, Medaillen-Emojis, Delta vs. gestern, Aktiv-Pulse-Punkt
+- Build: `next build` ✓ (170+ Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 34: Driver GPS Trail Tracking + Geofencing Auto-Status Engine [DONE ✅] — 2026-06-05
 
