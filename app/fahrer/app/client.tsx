@@ -761,6 +761,15 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driverId]);
 
+  const [realEarnings, setRealEarnings] = useState<{ deliveries: number; totalEur: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/earnings')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.today?.deliveries >= 0) setRealEarnings(d.today); })
+      .catch(() => {});
+  }, []);
+
   // Online-Zeit aus driver_status
   useEffect(() => {
     if (!isOnline) return;
@@ -840,8 +849,8 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
             const effScore = Math.min(100, Math.round(delivPerHour * 20)); // ~5/h = 100%
             const effLabel = effScore >= 80 ? 'Excellent' : effScore >= 60 ? 'Sehr gut' : effScore >= 40 ? 'Gut' : 'Aufwärmen';
             const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : effScore >= 40 ? 'bg-amber-400' : 'bg-muted';
-            // Stundenlohn-Schätzung: Annahme 3€ Basis-Provision/Lieferung + 0.15€/km
-            const estimatedEarnings = stats.deliveries * 3 + stats.totalDistKm * 0.15;
+            const estimatedEarnings = realEarnings?.totalEur ?? (stats.deliveries * 3 + stats.totalDistKm * 0.15);
+            const isRealEarnings = realEarnings !== null && realEarnings.totalEur > 0;
             const earningsPerHour = onlineMin >= 5 ? (estimatedEarnings / Math.max(1, onlineMin)) * 60 : null;
             return (
               <div className="mt-3 space-y-2">
@@ -859,7 +868,10 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                   <div className="mt-1 flex justify-between text-[10px] text-matcha-400">
                     <span>{delivPerHour}/h Lieferungen</span>
                     {earningsPerHour != null && (
-                      <span className="text-accent font-bold">≈ {earningsPerHour.toFixed(2)}€/h</span>
+                      <span className="text-accent font-bold">
+                        ≈ {earningsPerHour.toFixed(2)}€/h
+                        <span className="ml-1 opacity-60 text-[9px]">{isRealEarnings ? '✓ echt' : '~schätz.'}</span>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -868,7 +880,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                   const nowH = new Date().getHours();
                   const shiftEndH = 22;
                   const hoursLeft = Math.max(0, shiftEndH - nowH - new Date().getMinutes() / 60);
-                  const currentEarnings = stats.deliveries * 3 + stats.totalDistKm * 0.15;
+                  const currentEarnings = estimatedEarnings;
                   const projectedEarnings = currentEarnings + earningsPerHour * hoursLeft;
                   if (hoursLeft <= 0 || projectedEarnings <= 0) return null;
                   return (
@@ -882,7 +894,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                         </span>
                       </div>
                       <div className="text-[9px] text-matcha-400 mt-0.5">
-                        {currentEarnings.toFixed(0)}€ bereits + {(earningsPerHour * hoursLeft).toFixed(0)}€ prognose
+                        {currentEarnings.toFixed(0)}€ bereits{isRealEarnings ? ' (Echtdaten)' : ' (Schätzung)'} + {(earningsPerHour * hoursLeft).toFixed(0)}€ prognose
                       </div>
                     </div>
                   );
