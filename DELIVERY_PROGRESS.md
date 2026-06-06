@@ -78,11 +78,85 @@
 - [x] Fahrer-App: "Nicht zugestellt" Button + Grund-Modal
 - [x] FailedAttemptsPanel im Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–40 + CEO REVIEW #34 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–41 + CEO REVIEW #34 ABGESCHLOSSEN — 2026-06-06
 
 - [x] Kitchen: Inline Prep-Zeit-Anpassung (+5/-5 Min) via updatePrepTime Server-Action
 - [x] Dispatch: DriverRow Entfernung zum Restaurant (Haversine, farbkodiert) + Fahrzeit-Schätzung
 - [x] proof.ts TypeScript-Bugfix: .catch() auf PostgrestFilterBuilder
+- [x] shift_claims Tabelle (Migration 035)
+- [x] shift-booking.ts (Self-Service Schichtbuchung Engine)
+- [x] GET /api/delivery/shifts/available (Fahrer: offene Slots)
+- [x] GET+POST+DELETE /api/delivery/shifts/claim (Fahrer: anmelden/stornieren)
+- [x] GET+PATCH /api/delivery/admin/shift-claims (Admin: genehmigen/ablehnen)
+- [x] SchichtBuchung Panel in Fahrer-App (collapsible, verfügbare Slots + Meine Anmeldungen)
+
+## Phase 41: Fahrer Self-Service Schichtbuchung [DONE ✅] — 2026-06-06
+
+### Motivation
+Dispatcher mussten bisher alle Schichten manuell zuweisen. Fahrer hatten keine
+Möglichkeit, selbst zu sehen wann Schichten gebraucht werden oder sich anzumelden.
+Phase 41 schließt diese Lücke: Fahrer sehen offene Deckungslücken in der Fahrer-App
+und können sich per Knopfdruck anmelden. Admin genehmigt → Schicht wird automatisch angelegt.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/035_shift_booking.sql`
+  - `shift_claims` Tabelle: Fahrer-Anmeldungen für Schicht-Slots
+    - status: pending → approved / rejected / cancelled
+    - UNIQUE (driver_id, planned_start) — kein Doppel-Slot
+    - reviewed_by / reviewed_at / rejection_reason für Admin-Tracking
+    - RLS: service_role ALL + authenticated SELECT (eigene Claims)
+    - 3 Indizes: location+start, driver+status, pending partial-index
+
+- [x] `lib/delivery/shift-booking.ts` — Schichtbuchungs-Engine (TypeScript strict, kein `any`)
+  - Typen: ShiftClaim / ShiftClaimWithDriver / BookableSlot / ClaimStats
+  - `getBookableSlots(locationId, driverId, daysAhead)`:
+    - Liest coverage_requirements + driver_shifts für die nächsten N Tage
+    - Gruppiert aufeinanderfolgende Peak-Stunden zu Schicht-Blöcken (Gap ≥ 2h = neuer Block)
+    - Gibt nur Blöcke zurück, bei denen scheduled_drivers < target_drivers
+    - Markiert Slots wo Fahrer bereits eine Anmeldung hat (alreadyClaimed)
+  - `claimShift()`: INSERT in shift_claims, wirft 23505 bei Duplikat (UI-freundlich)
+  - `cancelShiftClaim()`: setzt status='cancelled' (nur eigene + pending)
+  - `approveShiftClaim()`: status='approved' + driver_shifts INSERT (fire-and-forget)
+  - `rejectShiftClaim()`: status='rejected' + rejection_reason
+  - `getDriverClaims()`: Fahrer sieht eigene Anmeldungen (nächste 14 Tage)
+  - `getPendingClaims()`: Admin sieht offene Anmeldungen mit Fahrerdaten (JOIN mise_drivers)
+  - `getClaimStats()`: pending/approved/rejected/cancelled Zähler (letzte 30 Tage)
+  - Graceful Fallback: alle Funktionen fangen 42P01 ab → kein Fatal-Crash
+
+- [x] `app/api/delivery/shifts/available/route.ts`
+  - `GET ?location_id=...&days_ahead=7` → BookableSlot[] für eingeloggten Fahrer
+  - Auth: muss ein mise_drivers-Eintrag mit auth_user_id sein
+  - Fahrer-ID wird server-seitig aufgelöst (kein Client-seitiger Trust)
+
+- [x] `app/api/delivery/shifts/claim/route.ts`
+  - `GET ?days_ahead=14` → eigene Anmeldungen (alle Status)
+  - `POST { location_id, planned_start, planned_end, notes? }` → neue Anmeldung
+    - Validierung: future-only, max 12h Dauer, korrektes Datumsformat
+    - 409 bei Duplikat mit User-freundlicher Fehlermeldung
+  - `DELETE ?claim_id=...` → Anmeldung zurückziehen (nur pending)
+
+- [x] `app/api/delivery/admin/shift-claims/route.ts`
+  - `GET` → offene Anmeldungen mit Fahrername + Fahrzeug
+  - `GET ?action=stats` → ClaimStats (30-Tage-Fenster)
+  - `PATCH { action: 'approve', claim_id }` → genehmigen + driver_shifts anlegen
+  - `PATCH { action: 'reject', claim_id, reason? }` → ablehnen mit optionalem Grund
+  - Admin-Guard: location_id via employees.auth_user_id aufgelöst
+
+- [x] `app/fahrer/app/client.tsx` — SchichtBuchung Component
+  - Collapsible Panel (standardmäßig zugeklappt → kein UI-Clutter im Arbeitsalltag)
+  - Badge-Zähler im Header: offene Slots + ausstehende/genehmigte Claims
+  - "Offene Slots": je Slot mit DayLabel, TimeLabel, Fahrerbedarf-Badge, "Anmelden"-Button
+  - "Meine Anmeldungen": genehmigte (grün) und wartende (amber) Claims mit Cancel-Option
+  - Loading-States + Fehlerbehandlung via alert()
+  - Nur sichtbar wenn driver.location_id gesetzt ist
+
+### Technische Details
+- Kein neuer Polling-Loop: Fahrer lädt manuell per Toggle oder Refresh-Button
+- Schicht-Blöcke aus coverage_requirements (UTC day_of_week + hour_of_day)
+- Duplikat-Schutz: DB UNIQUE + API 409 mit DE-sprachiger Fehlermeldung
+- approveShiftClaim: driver_shifts INSERT als fire-and-forget (kein Rollback nötig)
+- Build: `next build` → ✓ Compiled successfully, 0 TypeScript-Fehler, 0 Warnungen ✅
 
 ## Phase 40: Delivery Proof & Failed-Attempt Engine [DONE ✅] — 2026-06-06
 

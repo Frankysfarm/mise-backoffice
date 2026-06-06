@@ -1,10 +1,30 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–40 + alle Frontend-Features abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–41 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 40 + Frontend-Features abgeschlossen:** Delivery Proof & Failed-Attempt Engine, Kitchen Prep-Zeit-Anpassung, Dispatch Fahrer-Entfernung. CEO Review #34 durchgeführt. Build clean (0 Fehler, 0 TS-Fehler). Nächster Schritt: Migrationen 033+034 in Supabase Production ausführen, dann Produktiv-Deployment.
+**Phase 41 abgeschlossen:** Fahrer Self-Service Schichtbuchung. Build clean (0 Fehler, 0 TS-Fehler).
+Migrationen 033+034+035 in Supabase Production ausführen, dann Produktiv-Deployment.
+
+## Phase 41 — Backend-Architekt-Agent — 2026-06-06
+
+### Was gebaut wurde
+- `scripts/migrations/035_shift_booking.sql`: shift_claims Tabelle + RLS + 3 Indizes
+- `lib/delivery/shift-booking.ts`: 8 Funktionen, TypeScript strict, Graceful 42P01 Fallback
+- `app/api/delivery/shifts/available/route.ts`: GET offene Slots für Fahrer
+- `app/api/delivery/shifts/claim/route.ts`: GET+POST+DELETE Fahrer-Self-Service
+- `app/api/delivery/admin/shift-claims/route.ts`: GET+PATCH Admin-Verwaltung
+- `app/fahrer/app/client.tsx`: SchichtBuchung Component + Calendar+ChevronDown/Up Icons
+
+### TypeScript
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
+
+### Deployment-Checkliste
+1. Migration 035 (`scripts/migrations/035_shift_booking.sql`) in Supabase Production ausführen
+2. Migrationen 033+034 (falls noch ausstehend) ebenfalls einspielen
+3. Fahrer über neue Schicht-Buchungsfunktion in der App informieren
 
 ## CEO Review #34 — 2026-06-06
 

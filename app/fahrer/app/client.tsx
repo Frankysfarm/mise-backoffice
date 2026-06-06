@@ -4,8 +4,9 @@ import React, { useEffect, useMemo, useRef, useState, useTransition } from 'reac
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Banknote, Bike, Check, Car, CheckCircle2, Clock, Footprints, Loader2, LogOut, Map as MapIcon, MapPin,
-  Navigation, Phone, Power, Route, ShoppingBag, TrendingUp, Trophy, Zap,
+  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
+  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Power, Route, ShoppingBag,
+  TrendingUp, Trophy, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
 import { PickDialog } from './pick-dialog';
@@ -646,6 +647,11 @@ export function FahrerApp({
 
         {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
         {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
+
+        {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
+        {!activeBatch && driver.location_id && (
+          <SchichtBuchung locationId={driver.location_id} />
+        )}
       </main>
 
       <UpdateBanner />
@@ -1115,6 +1121,248 @@ function OpenBatchSection({
               </button>
             </div>
           ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- SchichtBuchung ---------- */
+
+type BookableSlot = {
+  slotStart: string;
+  slotEnd: string;
+  dayLabel: string;
+  timeLabel: string;
+  driverNeeded: number;
+  driverTarget: number;
+  alreadyClaimed: boolean;
+};
+
+type DriverClaim = {
+  id: string;
+  plannedStart: string;
+  plannedEnd: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  rejectionReason: string | null;
+};
+
+function SchichtBuchung({ locationId }: { locationId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [slots, setSlots] = useState<BookableSlot[]>([]);
+  const [claims, setClaims] = useState<DriverClaim[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [claimPending, setClaimPending] = useState<string | null>(null);
+  const [cancelPending, setCancelPending] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const [slotsRes, claimsRes] = await Promise.all([
+        fetch(`/api/delivery/shifts/available?location_id=${locationId}`),
+        fetch('/api/delivery/shifts/claim'),
+      ]);
+      if (slotsRes.ok) {
+        const { slots: s = [] } = await slotsRes.json() as { slots: BookableSlot[] };
+        setSlots(s);
+      }
+      if (claimsRes.ok) {
+        const { claims: c = [] } = await claimsRes.json() as { claims: DriverClaim[] };
+        setClaims(c);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function toggle() {
+    if (!expanded) load();
+    setExpanded(v => !v);
+  }
+
+  async function doClaim(slot: BookableSlot) {
+    setClaimPending(slot.slotStart);
+    try {
+      const res = await fetch('/api/delivery/shifts/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location_id:   locationId,
+          planned_start: slot.slotStart,
+          planned_end:   slot.slotEnd,
+        }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json() as { error?: string };
+        alert(error ?? 'Anmeldung fehlgeschlagen');
+      } else {
+        await load();
+      }
+    } finally {
+      setClaimPending(null);
+    }
+  }
+
+  async function doCancel(claimId: string) {
+    setCancelPending(claimId);
+    try {
+      await fetch(`/api/delivery/shifts/claim?claim_id=${claimId}`, { method: 'DELETE' });
+      await load();
+    } finally {
+      setCancelPending(null);
+    }
+  }
+
+  const pendingClaims  = claims.filter(c => c.status === 'pending');
+  const approvedClaims = claims.filter(c => c.status === 'approved');
+  const openSlots      = slots.filter(s => !s.alreadyClaimed);
+  const totalBadge     = openSlots.length + pendingClaims.length + approvedClaims.length;
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/5">
+      <button
+        onClick={toggle}
+        className="w-full flex items-center gap-3 px-4 py-4 text-left"
+      >
+        <div className="h-9 w-9 rounded-xl bg-matcha-700 flex items-center justify-center shrink-0">
+          <Calendar size={18} className="text-accent" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-display font-bold text-sm">Schichten buchen</div>
+          <div className="text-[11px] text-matcha-300">
+            {expanded
+              ? 'Tippe um zuzuklappen'
+              : openSlots.length > 0
+              ? `${openSlots.length} offene Slot${openSlots.length === 1 ? '' : 's'}`
+              : 'Verfügbare Schichten anzeigen'}
+          </div>
+        </div>
+        {totalBadge > 0 && !expanded && (
+          <span className="rounded-full bg-accent text-matcha-900 px-2 py-0.5 text-xs font-black">
+            {totalBadge}
+          </span>
+        )}
+        {expanded
+          ? <ChevronUp size={16} className="text-matcha-300 shrink-0" />
+          : <ChevronDown size={16} className="text-matcha-300 shrink-0" />}
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4">
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-4 text-matcha-300 text-sm">
+              <Loader2 size={16} className="animate-spin" />
+              Lade Schichten…
+            </div>
+          )}
+
+          {/* Meine Anmeldungen */}
+          {!loading && (pendingClaims.length > 0 || approvedClaims.length > 0) && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300 mb-2">
+                Meine Anmeldungen
+              </div>
+              <div className="space-y-2">
+                {[...approvedClaims, ...pendingClaims].map(c => {
+                  const start = new Date(c.plannedStart);
+                  const end   = new Date(c.plannedEnd);
+                  const dayLbl = start.toLocaleDateString('de-DE', {
+                    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC',
+                  });
+                  const timeLbl = `${start.toISOString().slice(11, 16)} – ${end.toISOString().slice(11, 16)} Uhr`;
+                  const isApproved = c.status === 'approved';
+                  return (
+                    <div key={c.id} className={cn(
+                      'rounded-xl border px-3 py-2.5 flex items-center gap-3',
+                      isApproved
+                        ? 'bg-accent/10 border-accent/30'
+                        : 'bg-white/5 border-white/10',
+                    )}>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{dayLbl}</div>
+                        <div className="text-[11px] text-matcha-300">{timeLbl}</div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={cn(
+                          'text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full',
+                          isApproved
+                            ? 'bg-accent/20 text-accent'
+                            : 'bg-amber-500/20 text-amber-300',
+                        )}>
+                          {isApproved ? '✓ Genehmigt' : '⏳ Wartet'}
+                        </span>
+                        {c.status === 'pending' && (
+                          <button
+                            onClick={() => doCancel(c.id)}
+                            disabled={cancelPending === c.id}
+                            className="h-7 w-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-matcha-300 transition disabled:opacity-40"
+                            title="Anmeldung zurückziehen"
+                          >
+                            {cancelPending === c.id
+                              ? <Loader2 size={12} className="animate-spin" />
+                              : <span className="text-xs">✕</span>}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Verfügbare Slots */}
+          {!loading && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300 mb-2">
+                Offene Slots
+              </div>
+              {openSlots.length === 0 ? (
+                <div className="rounded-xl bg-white/5 border border-white/10 px-4 py-5 text-center">
+                  <Clock size={20} className="mx-auto mb-1.5 text-matcha-300 opacity-60" />
+                  <div className="text-sm text-matcha-200">Keine offenen Schichten</div>
+                  <div className="text-[11px] text-matcha-400 mt-0.5">
+                    Alle Slots für die nächsten 7 Tage sind gedeckt.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {openSlots.map(slot => (
+                    <div
+                      key={slot.slotStart}
+                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 flex items-center gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{slot.dayLabel}</div>
+                        <div className="text-[11px] text-matcha-300">{slot.timeLabel}</div>
+                        <div className="text-[10px] text-amber-300 mt-0.5">
+                          {slot.driverNeeded} von {slot.driverTarget} Fahrern noch gesucht
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => doClaim(slot)}
+                        disabled={claimPending === slot.slotStart}
+                        className="h-9 px-3 rounded-xl bg-accent text-matcha-900 font-display font-bold text-xs inline-flex items-center gap-1.5 shrink-0 transition active:scale-95 disabled:opacity-60"
+                      >
+                        {claimPending === slot.slotStart
+                          ? <Loader2 size={12} className="animate-spin" />
+                          : <Check size={12} />}
+                        Anmelden
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={load}
+            disabled={loading}
+            className="w-full text-center text-[11px] text-matcha-400 hover:text-matcha-200 transition py-1"
+          >
+            {loading ? 'Aktualisiere…' : '↻ Aktualisieren'}
+          </button>
         </div>
       )}
     </section>
