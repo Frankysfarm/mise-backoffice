@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
@@ -911,6 +911,23 @@ export function DeliveryView({
                       <Phone size={16} />
                     </a>
                   )}
+                  {/* WhatsApp-Schnellnachricht: "Ich bin da" */}
+                  {stop.order.kunde_telefon && (() => {
+                    const raw = stop.order.kunde_telefon!.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+                    const intl = raw.startsWith('+') ? raw.slice(1) : raw.startsWith('00') ? raw.slice(2) : raw.startsWith('0') ? '49' + raw.slice(1) : '49' + raw;
+                    const msg = encodeURIComponent(`Hallo! Ich bin Ihr Lieferfahrer und stehe vor Ihrer Tür. Bestellung #${stop.order.bestellnummer.replace(/^[A-Z]+-/, '')} 🚗`);
+                    return (
+                      <a
+                        href={`https://wa.me/${intl}?text=${msg}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="h-11 w-11 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 grid place-items-center text-[#25D366]"
+                        title="WhatsApp: Ich bin da!"
+                      >
+                        <MessageSquare size={16} />
+                      </a>
+                    );
+                  })()}
                   {/* Tracking-Link an Kunden teilen */}
                   <button
                     onClick={async () => {

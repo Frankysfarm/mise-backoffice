@@ -30,6 +30,8 @@ import {
   Zap,
   AlertTriangle,
   Gift,
+  Phone,
+  MessageSquare,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -1565,13 +1567,32 @@ function DriverRow({
           </div>
         </div>
         {e?.telefon && driver.ist_online && (
-          <a
-            href={`tel:${e.telefon}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground"
-            title="Anrufen"
-          >
-            <User className="h-3.5 w-3.5" />
-          </a>
+          <div className="flex items-center gap-1">
+            <a
+              href={`tel:${e.telefon}`}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground"
+              title="Anrufen"
+            >
+              <Phone className="h-3.5 w-3.5" />
+            </a>
+            {(() => {
+              const raw = e.telefon!.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+              const intl = raw.startsWith('+') ? raw.slice(1) : raw.startsWith('00') ? raw.slice(2) : raw.startsWith('0') ? '49' + raw.slice(1) : '49' + raw;
+              const driverName = `${e.vorname} ${e.nachname}`.trim();
+              const msg = encodeURIComponent(`Hallo ${e.vorname}! Bitte melde dich kurz beim Dispatch. 🙏`);
+              return (
+                <a
+                  href={`https://wa.me/${intl}?text=${msg}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366]"
+                  title={`WhatsApp an ${driverName}`}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                </a>
+              );
+            })()}
+          </div>
         )}
         {canAssign && (
           <Button size="sm" onClick={onAssign} disabled={busy}>
