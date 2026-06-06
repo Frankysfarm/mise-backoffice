@@ -205,6 +205,15 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     milestoneBonuses: Record<string, number>;
     locationId: string;
   } | null>(null)
+  const [alertRules, setAlertRules] = useState<{
+    id: string;
+    alert_type: string;
+    threshold_value: number;
+    window_minutes: number;
+    severity: 'info' | 'warning' | 'critical';
+    enabled: boolean;
+    location_id: string;
+  }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -320,6 +329,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           })
         }
       })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/alert-rules?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.rules?.length) setAlertRules(d.rules) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -546,6 +559,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             ))}
           </div>
         </div>
+      )}
+
+      {/* Alert-Regeln Konfiguration */}
+      {alertRules.length > 0 && (
+        <AlertRulesPanel
+          rules={alertRules}
+          onRuleChanged={(updated) => setAlertRules(prev => prev.map(r => r.id === updated.id ? updated : r))}
+        />
       )}
 
       {/* Echtzeit-Bestellungseingang */}
@@ -2994,5 +3015,173 @@ function NumInput({ label, value, min, max, step, onChange }: {
         className="h-9 rounded-lg border border-stone-200 bg-white px-3 text-sm font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-matcha-400"
       />
     </label>
+  );
+}
+
+/* ------------------------------ AlertRulesPanel ------------------------------ */
+
+type AlertRuleItem = {
+  id: string;
+  alert_type: string;
+  threshold_value: number;
+  window_minutes: number;
+  severity: 'info' | 'warning' | 'critical';
+  enabled: boolean;
+  location_id: string;
+};
+
+const ALERT_TYPE_LABELS: Record<string, { label: string; unit: string; desc: string }> = {
+  dispatch_queue_high:   { label: 'Dispatch-Queue',      unit: 'Bestellungen',  desc: 'Alarm wenn N+ Bestellungen auf Fahrer warten' },
+  no_drivers_online:    { label: 'Keine Fahrer online',  unit: '',              desc: 'Alarm wenn keine Fahrer online sind' },
+  kitchen_overload:     { label: 'Küchen-Überlastung',   unit: 'offene Orders', desc: 'Alarm bei zu vielen gleichzeitigen Bestellungen' },
+  stale_orders_critical:{ label: 'Alte unzugewiesene',  unit: 'Min warten',    desc: 'Alarm wenn Bestellungen zu lange unzugewiesen' },
+  eta_accuracy_low:     { label: 'ETA-Genauigkeit',      unit: '% Pünktlich',   desc: 'Alarm wenn ETA-Trefferquote unter Schwellwert fällt' },
+};
+
+const SEV_CLS: Record<string, string> = {
+  critical: 'bg-red-100 text-red-700 border-red-200',
+  warning:  'bg-amber-100 text-amber-700 border-amber-200',
+  info:     'bg-blue-100 text-blue-700 border-blue-200',
+};
+const SEV_LABEL: Record<string, string> = { critical: 'Kritisch', warning: 'Warnung', info: 'Info' };
+
+function AlertRulesPanel({ rules, onRuleChanged }: {
+  rules: AlertRuleItem[];
+  onRuleChanged: (r: AlertRuleItem) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [draftThreshold, setDraftThreshold] = useState<number>(0);
+
+  async function toggle(rule: AlertRuleItem) {
+    const updated = { ...rule, enabled: !rule.enabled };
+    setSaving(rule.id);
+    try {
+      const res = await fetch('/api/delivery/admin/alert-rules', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          location_id: rule.location_id,
+          alert_type: rule.alert_type,
+          threshold_value: rule.threshold_value,
+          window_minutes: rule.window_minutes,
+          severity: rule.severity,
+          enabled: updated.enabled,
+        }),
+      });
+      if (res.ok) onRuleChanged(updated);
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function saveThreshold(rule: AlertRuleItem) {
+    const updated = { ...rule, threshold_value: draftThreshold };
+    setSaving(rule.id);
+    try {
+      const res = await fetch('/api/delivery/admin/alert-rules', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          location_id: rule.location_id,
+          alert_type: rule.alert_type,
+          threshold_value: draftThreshold,
+          window_minutes: rule.window_minutes,
+          severity: rule.severity,
+          enabled: rule.enabled,
+        }),
+      });
+      if (res.ok) { onRuleChanged(updated); setEditId(null); }
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  const enabledCount = rules.filter(r => r.enabled).length;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-stone-50 transition"
+      >
+        <div className="flex items-center gap-2">
+          <Zap className="w-4 h-4 text-amber-500" />
+          <span className="font-bold text-sm uppercase tracking-wider text-char">Alert-Regeln</span>
+          <span className="text-xs text-stone-400">{enabledCount}/{rules.length} aktiv</span>
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 border-t border-stone-100">
+          <p className="text-[11px] text-stone-400 mt-3 mb-3">Schwellwerte definieren, wann Betriebsalarme ausgelöst werden.</p>
+          <div className="space-y-2">
+            {rules.map((rule) => {
+              const meta = ALERT_TYPE_LABELS[rule.alert_type] ?? { label: rule.alert_type, unit: '', desc: '' };
+              const isEditing = editId === rule.id;
+              const isSaving = saving === rule.id;
+              return (
+                <div key={rule.id} className={`rounded-xl border p-3 transition ${rule.enabled ? 'bg-white border-stone-200' : 'bg-stone-50 border-stone-100 opacity-60'}`}>
+                  <div className="flex items-start gap-3">
+                    {/* Toggle */}
+                    <button
+                      onClick={() => void toggle(rule)}
+                      disabled={isSaving}
+                      className={`mt-0.5 relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 transition-colors ${rule.enabled ? 'bg-matcha-600 border-matcha-600' : 'bg-stone-200 border-stone-200'}`}
+                      title={rule.enabled ? 'Deaktivieren' : 'Aktivieren'}
+                    >
+                      <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${rule.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm text-char">{meta.label}</span>
+                        <span className={`rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase ${SEV_CLS[rule.severity] ?? SEV_CLS.info}`}>
+                          {SEV_LABEL[rule.severity] ?? rule.severity}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-stone-400 mt-0.5">{meta.desc}</div>
+                      {/* Threshold edit */}
+                      <div className="mt-2 flex items-center gap-2">
+                        {isEditing ? (
+                          <>
+                            <input
+                              type="number"
+                              value={draftThreshold}
+                              onChange={(e) => setDraftThreshold(parseFloat(e.target.value) || 0)}
+                              className="h-7 w-20 rounded-lg border border-stone-200 px-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-matcha-400"
+                            />
+                            {meta.unit && <span className="text-[11px] text-stone-400">{meta.unit}</span>}
+                            <button
+                              onClick={() => void saveThreshold(rule)}
+                              disabled={isSaving}
+                              className="h-7 rounded-lg bg-matcha-700 text-white px-2 text-xs font-bold hover:bg-matcha-800 disabled:opacity-60 transition"
+                            >
+                              {isSaving ? '…' : 'OK'}
+                            </button>
+                            <button onClick={() => setEditId(null)} className="h-7 rounded-lg border px-2 text-xs font-semibold text-stone-500 hover:bg-stone-50 transition">
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => { setEditId(rule.id); setDraftThreshold(rule.threshold_value); }}
+                            className="text-[11px] rounded-full bg-stone-100 hover:bg-stone-200 px-2.5 py-1 font-bold tabular-nums text-stone-700 transition"
+                          >
+                            Schwellwert: {rule.threshold_value}{meta.unit ? ` ${meta.unit}` : ''}
+                            {rule.window_minutes > 0 ? ` (letzte ${rule.window_minutes} Min)` : ''}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
