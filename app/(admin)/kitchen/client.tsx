@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Euro, Flame, Home as HomeIcon,
-  Inbox, Loader2, MapPin, Monitor, Package, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
+  Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Phone, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder, updatePrepTime } from './actions';
@@ -48,6 +48,7 @@ type Driver = {
   id: string;
   vorname: string;
   nachname: string;
+  telefon?: string | null;
   status: {
     ist_online: boolean;
     fahrzeug: string | null;
@@ -263,7 +264,7 @@ export function KitchenBoard({
   }
   async function refreshDrivers() {
     const { data } = await supabase.from('employees')
-      .select('id, vorname, nachname, rolle, status:driver_status(ist_online, fahrzeug, aktueller_batch_id, last_lat, last_lng, last_update, online_seit)')
+      .select('id, vorname, nachname, rolle, telefon, status:driver_status(ist_online, fahrzeug, aktueller_batch_id, last_lat, last_lng, last_update, online_seit)')
       .eq('rolle', 'fahrer').eq('aktiv', true);
     setDrivers((data as any[]) ?? []);
   }
@@ -2279,6 +2280,8 @@ function DriverChip({
   const estReturnMin = state === 'unterwegs' ? remainingStops * 8 : null;
 
   const cfg = STATE_CONFIG[state];
+  const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗' };
+  const vEmoji = driver.status?.fahrzeug ? (vehicleEmoji[driver.status.fahrzeug] ?? '🚲') : null;
 
   return (
     <div className={cn('rounded-xl border-2 p-3 transition', cfg.bg, state === 'zurueck' && 'animate-pulse ring-2 ring-matcha-500/50')}>
@@ -2290,8 +2293,11 @@ function DriverChip({
                               <Bike className="h-4 w-4 opacity-40" />}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-display text-sm font-bold truncate">
-            {driver.vorname} {driver.nachname}
+          <div className="flex items-center gap-1">
+            <div className="font-display text-sm font-bold truncate">
+              {driver.vorname} {driver.nachname}
+            </div>
+            {vEmoji && <span className="text-xs shrink-0">{vEmoji}</span>}
           </div>
           <div className={cn('text-[10px] font-bold uppercase tracking-wider', cfg.textColor)}>
             {cfg.label}
@@ -2300,6 +2306,33 @@ function DriverChip({
             )}
           </div>
         </div>
+        {driver.telefon && driver.status?.ist_online && (
+          <div className="flex items-center gap-1 shrink-0">
+            <a
+              href={`tel:${driver.telefon}`}
+              className="h-7 w-7 rounded-lg flex items-center justify-center bg-white/60 hover:bg-white text-foreground/70 hover:text-foreground transition"
+              title="Anrufen"
+            >
+              <Phone className="h-3 w-3" />
+            </a>
+            {(() => {
+              const raw = driver.telefon.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+              const intl = raw.startsWith('+') ? raw.slice(1) : raw.startsWith('00') ? raw.slice(2) : raw.startsWith('0') ? '49' + raw.slice(1) : '49' + raw;
+              const msg = encodeURIComponent(`Hallo ${driver.vorname}! Bitte komm zum Restaurant, es gibt einen Auftrag für dich. 🍔`);
+              return (
+                <a
+                  href={`https://wa.me/${intl}?text=${msg}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="h-7 w-7 rounded-lg flex items-center justify-center bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] transition"
+                  title="WhatsApp"
+                >
+                  <MessageSquare className="h-3 w-3" />
+                </a>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* Details je State */}
@@ -2637,7 +2670,18 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
       )}
 
       <div className="mt-3">
-        <div className="text-sm font-semibold">{order.kunde_name}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-semibold">{order.kunde_name}</div>
+          {order.kunde_telefon && (
+            <a
+              href={`tel:${order.kunde_telefon}`}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted hover:bg-muted/70 text-muted-foreground transition"
+              title={`Anrufen: ${order.kunde_telefon}`}
+            >
+              <Phone className="h-3 w-3" />
+            </a>
+          )}
+        </div>
         {order.typ === 'lieferung' && order.kunde_adresse && (
           <div className="text-xs text-muted-foreground">
             {order.kunde_adresse}{order.kunde_plz ? `, ${order.kunde_plz}` : ''}

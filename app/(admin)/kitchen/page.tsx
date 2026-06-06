@@ -31,7 +31,7 @@ export default async function KitchenPage() {
     svc.from('locations').select('id, name, lat, lng').eq('tenant_id', emp.tenant_id),
     svc.from('employees')
       .select(`
-        id, vorname, nachname, rolle,
+        id, vorname, nachname, rolle, telefon,
         status:driver_status(ist_online, fahrzeug, aktueller_batch_id, last_lat, last_lng, last_update, online_seit)
       `)
       .eq('tenant_id', emp.tenant_id).eq('rolle', 'fahrer').eq('aktiv', true),
