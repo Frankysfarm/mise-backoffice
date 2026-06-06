@@ -24,6 +24,7 @@ import { runDailyReportCache } from '@/lib/delivery/reporting';
 import { recomputeAllLocations as recomputeEtaCalibration } from '@/lib/delivery/eta-calibration';
 import { evaluateSurgeAllLocations } from '@/lib/delivery/surge';
 import { processWindowDispatchAllLocations, markMissedWindows } from '@/lib/delivery/windows';
+import { releaseRetryAttempts } from '@/lib/delivery/proof';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -67,7 +68,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -116,6 +117,8 @@ export async function GET(req: NextRequest) {
       // Window Booking: fällige Lieferfenster freigeben + abgelaufene als missed markieren
       processWindowDispatchAllLocations().catch(() => ({ locations: 0, released: 0 })),
       markMissedWindows().catch(() => 0),
+      // Retry-Attempts: fällige Wiederholungsversuche in Dispatch-Queue freigeben
+      releaseRetryAttempts().catch(() => ({ released: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -171,6 +174,7 @@ export async function GET(req: NextRequest) {
         released: windowResult.released,
         missed_marked: missedWindows,
       },
+      retry_attempts_released: retryResult.released,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

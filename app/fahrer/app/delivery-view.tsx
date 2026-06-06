@@ -2,8 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2 } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
+
+type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
+const FAILED_REASON_LABELS: Record<FailedReason, string> = {
+  no_answer:      'Keine Reaktion',
+  not_home:       'Nicht zu Hause',
+  wrong_address:  'Falsche Adresse',
+  refused:        'Annahme verweigert',
+  access_denied:  'Kein Zutritt (Tor/Klingel)',
+  other:          'Sonstiges',
+};
 
 type Stop = {
   id: string;
@@ -65,6 +75,10 @@ export function DeliveryView({
   const [elapsed, setElapsed] = useState(0);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [copiedStopId, setCopiedStopId] = useState<string | null>(null);
+  const [failedStopId, setFailedStopId] = useState<string | null>(null);
+  const [failedReason, setFailedReason] = useState<FailedReason>('no_answer');
+  const [failedNotes, setFailedNotes] = useState('');
+  const [pendingFailed, setPendingFailed] = useState<string | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -253,6 +267,31 @@ export function DeliveryView({
     setPending(null);
     setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
+  }
+
+  async function markFailedAttempt(stopId: string) {
+    const stop = stops.find((s) => s.id === stopId);
+    if (!stop) return;
+    setPendingFailed(stopId);
+    try {
+      await fetch(`/api/delivery/tours/${batchId}/failed-attempt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stop_id:   stopId,
+          order_id:  stop.order_id,
+          reason:    failedReason,
+          notes:     failedNotes.trim() || null,
+          driver_lat: driverLat,
+          driver_lng: driverLng,
+        }),
+      });
+    } catch { /* fire-and-forget */ }
+    setPendingFailed(null);
+    setSkippedIds((s) => new Set([...s, stopId]));
+    setFailedStopId(null);
+    setFailedNotes('');
+    setFailedReason('no_answer');
   }
 
   // Live earnings estimate: base €1.50/stop + €0.20/km from completed stops
@@ -646,6 +685,71 @@ export function DeliveryView({
         );
       })()}
 
+      {/* Modal: Nicht zugestellt melden */}
+      {failedStopId && (() => {
+        const stop = stops.find((s) => s.id === failedStopId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setFailedStopId(null)}>
+            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center">
+                <AlertTriangle className="mx-auto mb-2 text-amber-400" size={28} />
+                <div className="font-display font-bold text-lg">Nicht zugestellt</div>
+                <p className="text-sm text-matcha-300 mt-1">
+                  {stop?.order.kunde_name} — #{stop?.order.bestellnummer.replace(/^[A-Z]+-/, '')}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Grund</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.entries(FAILED_REASON_LABELS) as [FailedReason, string][]).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setFailedReason(key)}
+                      className={cn(
+                        'h-10 rounded-xl text-[11px] font-bold border transition active:scale-[0.97]',
+                        failedReason === key
+                          ? 'bg-amber-500/30 border-amber-400 text-amber-200'
+                          : 'bg-white/5 border-white/10 text-matcha-300',
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
+                <textarea
+                  value={failedNotes}
+                  onChange={(e) => setFailedNotes(e.target.value.slice(0, 200))}
+                  placeholder="z.B. Klingel defekt, falsche Hausnummer…"
+                  rows={2}
+                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-white placeholder:text-matcha-500 px-3 py-2 resize-none focus:outline-none focus:border-amber-400/60"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setFailedStopId(null); setFailedNotes(''); setFailedReason('no_answer'); }}
+                  className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={() => markFailedAttempt(failedStopId)}
+                  disabled={pendingFailed === failedStopId}
+                  className="flex-1 h-12 rounded-xl bg-amber-500 text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {pendingFailed === failedStopId
+                    ? <Loader2 size={16} className="animate-spin" />
+                    : <AlertTriangle size={16} />}
+                  Melden
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Bestätigung: Stopp überspringen */}
       {confirmSkipId && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm" onClick={() => setConfirmSkipId(null)}>
@@ -839,13 +943,23 @@ export function DeliveryView({
                       <Flag size={13} /> Angekommen
                     </button>
                   )}
-                  {/* Nicht angetroffen — Stopp ans Ende schieben, später nochmal */}
+                  {/* Nicht angetroffen — Stopp zurückstellen oder dauerhaft als nicht zugestellt melden */}
                   {openStops.length > 1 && (
                     <button
                       onClick={() => setConfirmSkipId(stop.id)}
                       className="h-11 px-2.5 rounded-xl bg-white/8 border border-white/15 text-matcha-300 flex items-center gap-1 text-[11px] font-bold shrink-0"
                     >
                       Zurückst.
+                    </button>
+                  )}
+                  {/* Dauerhaft nicht zugestellt melden (Fahrer vor Ort) */}
+                  {(stop.angekommen_am || arrivedIds.has(stop.id)) && (
+                    <button
+                      onClick={() => { setFailedStopId(stop.id); setFailedReason('no_answer'); setFailedNotes(''); }}
+                      className="h-11 px-2.5 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-300 flex items-center gap-1 text-[11px] font-bold shrink-0"
+                      title="Nicht zugestellt melden"
+                    >
+                      <AlertTriangle size={12} /> N. zust.
                     </button>
                   )}
                   {stop.order.kunde_lat && stop.order.kunde_lng && (() => {

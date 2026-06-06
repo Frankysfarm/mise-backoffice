@@ -66,8 +66,103 @@
 - [x] Window-Dispatch im Cron-Tick (fällige Fenster freigeben)
 - [x] markWindowDispatched() in dispatch-engine.ts
 - [x] markWindowDelivered() in tours/[id]/status/route.ts
+- [x] delivery_proofs Tabelle
+- [x] delivery_failed_attempts Tabelle
+- [x] v_pending_failed_attempts View
+- [x] proof.ts (Proof & Failed-Attempt Engine)
+- [x] POST /api/delivery/tours/[id]/proof
+- [x] GET /api/delivery/tours/[id]/proof
+- [x] POST /api/delivery/tours/[id]/failed-attempt
+- [x] GET+POST /api/delivery/admin/failed-attempts
+- [x] releaseRetryAttempts() im Cron-Tick
+- [x] Fahrer-App: "Nicht zugestellt" Button + Grund-Modal
+- [x] FailedAttemptsPanel im Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–39 + CEO REVIEW #33 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–40 + CEO REVIEW #33 ABGESCHLOSSEN — 2026-06-06
+
+## Phase 40: Delivery Proof & Failed-Attempt Engine [DONE ✅] — 2026-06-06
+
+### Motivation
+Bei Streitigkeiten über nicht erhaltene Lieferungen fehlte ein Nachweis-System.
+Fehlgeschlagene Zustellversuche (Nicht zu Hause, falsche Adresse, kein Zutritt) wurden
+nicht strukturiert erfasst — Operations hatte keinen Überblick, welche Bestellungen
+erneut zugestellt werden müssen.
+Phase 40 schließt diese Lücke: Fahrer können Zustellnachweise (Foto-URL, Ablageort)
+und Fehlversuche mit Grund + Retry-Plan melden.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/034_delivery_proof.sql`
+  - `delivery_proofs` Tabelle: Foto-Nachweis pro Stop
+    - proof_type: photo / left_at_door / neighbour / handed_to_person / contactless
+    - photo_url, notes (max 500 Zeichen), driver_lat/lng, created_at
+    - Indexes: order_id, tour_stop_id, location+time
+  - `delivery_failed_attempts` Tabelle: fehlgeschlagene Zustellversuche
+    - reason: no_answer / wrong_address / refused / access_denied / not_home / other
+    - attempt_number (auto-increment per Order), photo_url, notes
+    - next_attempt_at (Retry-Planung), resolved_at, resolution
+    - Indexes: order_id, location+pending, next_attempt_at (partial)
+  - `v_pending_failed_attempts` VIEW: offene Fälle mit Kunden- und Fahrerdaten
+  - RLS: service_role ALL + authenticated SELECT (tenant-gefiltert)
+
+- [x] `lib/delivery/proof.ts` — Proof & Failed-Attempt Engine (TypeScript strict, kein `any`)
+  - Typen: DeliveryProof / FailedAttempt / PendingFailedAttempt / ProofInput / FailedAttemptInput / FailedAttemptStats
+  - `recordDeliveryProof(locationId, input)`: Nachweis speichern (fire-and-forget kompatibel)
+  - `getOrderProof(orderId)`: Nachweis für Bestellung abrufen
+  - `listProofs(locationId, days)`: Alle Nachweise einer Location
+  - `recordFailedAttempt(locationId, input)`: Fehlversuch erfassen
+    - attempt_number auto-increment (zählt Vorversuche für dieselbe Order)
+    - Setzt customer_orders.status='nicht_zugestellt' (fire-and-forget)
+  - `getPendingFailedAttempts(locationId)`: Offene Fälle via View
+  - `scheduleRetry(attemptId, locationId, nextAttemptAt)`: Retry terminieren
+    - Setzt schedule_status='released' für Retry-Orders
+  - `resolveFailedAttempt(attemptId, locationId, resolution)`: Fall abschließen
+  - `getFailedAttemptStats(locationId, days)`: Admin-Dashboard-Statistiken
+  - `releaseRetryAttempts()`: Cron-Helfer — fällige Retries in Dispatch-Queue freigeben
+
+- [x] `app/api/delivery/tours/[id]/proof/route.ts` — Fahrer-API Nachweis
+  - `POST`: Fahrer reicht Nachweis ein (proof_type + opt. photo_url + notes + GPS)
+    - Auth: zugewiesener Fahrer oder Admin dieser Location
+    - Validierung: UUID-Format, proof_type enum, URL-Länge, Notes-Länge
+  - `GET ?order_id=...`: Admin ruft Nachweis für eine Bestellung ab
+
+- [x] `app/api/delivery/tours/[id]/failed-attempt/route.ts` — Fahrer-API Fehlversuch
+  - `POST`: Fahrer meldet Fehlversuch (reason + opt. photo_url + notes + GPS)
+    - Auth: zugewiesener Fahrer oder Admin
+    - Tenant-Guard: order_id muss zur Batch gehören
+    - Validierung: alle Felder, Strings auf max. Länge
+
+- [x] `app/api/delivery/admin/failed-attempts/route.ts` — Admin-API
+  - `GET ?action=list` → offene PendingFailedAttempt[] mit Bestellinformationen
+  - `GET ?action=stats&days=30` → FailedAttemptStats (total, pending, byReason, byResolution, avgResolutionHours)
+  - `POST { action: 'schedule_retry', attempt_id, next_attempt_at }` → Retry-Termin setzen
+  - `POST { action: 'resolve', attempt_id, resolution }` → Fall abschließen
+  - `POST { action: 'release_retries' }` → fällige Retries sofort freigeben (Debug)
+
+- [x] `app/api/cron/smart-dispatch/route.ts` Integration:
+  - `releaseRetryAttempts()` jeder 2-Min-Tick → gibt retry_scheduled Orders frei
+  - Response enthält `retry_attempts_released`
+
+- [x] `app/fahrer/app/delivery-view.tsx` — Fahrer-UI
+  - Neuer State: failedStopId, failedReason, failedNotes, pendingFailed
+  - `markFailedAttempt(stopId)`: POST an `/api/delivery/tours/[id]/failed-attempt`, dann Skip
+  - Modal "Nicht zugestellt": 6 Grund-Buttons (2-Spalten-Grid) + optionales Notiz-Textarea
+  - Button "N. zust." (AlertTriangle-Icon) erscheint wenn Fahrer angekommen ist
+    (angekommen_am gesetzt oder arrivedIds.has(stopId)) — Kontext: Fahrer vor Ort
+
+- [x] `components/lieferdienst/statistics-view.tsx` — FailedAttemptsPanel
+  - Fetch: `/api/delivery/admin/failed-attempts?action=list` + `?action=stats`
+  - KPI-Zeile: Gesamt / Offen / Gelöst% / Ø Lösezeit in Stunden
+  - Häufigste Gründe: Balkendiagramm (top 4)
+  - Auflösungen: Chip-Liste mit Zählung
+  - Offene Fälle-Liste (max 5): Name, Bestellnummer, Grund-Badge, Fahrer, Retry-Termin
+
+### Technische Details
+- Graceful Fallback: alle Funktionen fangen Migration-fehlt-Fehler (42P01) ab → kein Fatal-Crash
+- Race-condition-safe attempt_number: COUNT-Query vor INSERT (wie Surge + Windows)
+- Retry-Flow: scheduleRetry → status='retry_scheduled' → Cron-Tick → status='released' → Dispatch-Engine
+- Fahrer-UI: "N. zust."-Button erst sichtbar wenn Fahrer als angekommen markiert — verhindert versehentliche Meldungen
+- Build: `next build` → Compiled successfully, 173 Seiten, 0 TypeScript-Fehler, 0 Warnungen ✅
 
 ## Phase 39: Delivery Time Window Booking Engine [DONE ✅] — 2026-06-06
 

@@ -114,6 +114,31 @@ type CoverageData = {
   }[];
 } | null;
 
+type FailedAttemptsData = {
+  stats: {
+    total: number;
+    pending: number;
+    resolved: number;
+    resolutionRate: number;
+    byReason: Record<string, number>;
+    byResolution: Record<string, number>;
+    avgResolutionHours: number | null;
+  };
+  attempts: {
+    id: string;
+    orderId: string;
+    reason: string;
+    attemptNumber: number;
+    notes: string | null;
+    nextAttemptAt: string | null;
+    createdAt: string;
+    bestellnummer: string | null;
+    kundeName: string | null;
+    kundeAdresse: string | null;
+    driverName: string | null;
+  }[];
+} | null;
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -150,6 +175,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [etaAccuracy, setEtaAccuracy] = useState<EtaAccuracyData>(null)
   const [surgeData, setSurgeData] = useState<SurgeData>(null)
   const [coverageData, setCoverageData] = useState<CoverageData>(null)
+  const [failedAttemptsData, setFailedAttemptsData] = useState<FailedAttemptsData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -237,6 +263,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.summary && d.summary.total_slots > 0) setCoverageData(d) })
       .catch(() => {})
+    Promise.all([
+      fetch(`/api/delivery/admin/failed-attempts?location_id=${locationId}&action=list`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/delivery/admin/failed-attempts?location_id=${locationId}&action=stats&days=30`).then(r => r.ok ? r.json() : null),
+    ]).then(([listData, statsData]) => {
+      if (statsData?.stats && statsData.stats.total > 0) {
+        setFailedAttemptsData({ stats: statsData.stats, attempts: listData?.attempts ?? [] })
+      }
+    }).catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -1607,6 +1641,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* Push-Benachrichtigungen Statistik */}
       <PushNotificationStats completedOrders={completedOrders} />
+
+      {/* Fehlgeschlagene Zustellversuche */}
+      {failedAttemptsData && (
+        <FailedAttemptsPanel data={failedAttemptsData} />
+      )}
     </div>
   )
 }
@@ -2494,6 +2533,148 @@ function PushNotificationStats({ completedOrders }: { completedOrders: Order[] }
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ FailedAttemptsPanel ------------------------------ */
+
+const REASON_LABELS: Record<string, string> = {
+  no_answer:     'Keine Reaktion',
+  not_home:      'Nicht zu Hause',
+  wrong_address: 'Falsche Adresse',
+  refused:       'Annahme verweigert',
+  access_denied: 'Kein Zutritt',
+  other:         'Sonstiges',
+};
+const RESOLUTION_LABELS: Record<string, string> = {
+  delivered:              'Nachträglich zugestellt',
+  returned_to_restaurant: 'Zurückgebracht',
+  cancelled:              'Storniert',
+  rescheduled:            'Neuer Termin',
+};
+
+function FailedAttemptsPanel({ data }: { data: NonNullable<FailedAttemptsData> }) {
+  const { stats, attempts } = data;
+  const topReasons = Object.entries(stats.byReason)
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+  const maxReason = topReasons[0]?.[1] ?? 1;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5 space-y-5">
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 text-amber-500" />
+        <span className="font-bold text-sm uppercase tracking-wider text-stone-800">Fehlgeschlagene Zustellversuche</span>
+        <span className="ml-auto text-[10px] text-stone-400 font-medium">Letzte 30 Tage</span>
+      </div>
+
+      {/* KPI-Zeile */}
+      <div className="grid grid-cols-4 gap-3">
+        <div className="rounded-xl bg-stone-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-stone-700">{stats.total}</div>
+          <div className="text-[11px] text-stone-500 font-medium">Gesamt</div>
+        </div>
+        <div className="rounded-xl bg-amber-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-amber-700">{stats.pending}</div>
+          <div className="text-[11px] text-amber-600 font-medium">Offen</div>
+        </div>
+        <div className="rounded-xl bg-emerald-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-emerald-700">{stats.resolutionRate}%</div>
+          <div className="text-[11px] text-emerald-600 font-medium">Gelöst</div>
+        </div>
+        <div className="rounded-xl bg-blue-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-blue-700">
+            {stats.avgResolutionHours != null ? `${stats.avgResolutionHours}h` : '—'}
+          </div>
+          <div className="text-[11px] text-blue-600 font-medium">Ø Lösezeit</div>
+        </div>
+      </div>
+
+      {/* Häufigste Gründe */}
+      {topReasons.length > 0 && (
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-stone-500 mb-2">Häufigste Gründe</div>
+          <div className="space-y-2">
+            {topReasons.map(([reason, count]) => {
+              const pct = Math.round((count / maxReason) * 100);
+              return (
+                <div key={reason} className="flex items-center gap-3">
+                  <div className="w-28 shrink-0 text-[11px] font-medium text-stone-700">{REASON_LABELS[reason] ?? reason}</div>
+                  <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
+                    <div className="h-full rounded-full bg-amber-400 transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="w-6 text-right text-[11px] tabular-nums font-bold text-stone-700">{count}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Auflösungen */}
+      {Object.keys(stats.byResolution).length > 0 && (
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-stone-500 mb-2">Auflösungen</div>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(stats.byResolution).map(([res, count]) => (
+              <span key={res} className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold text-stone-700">
+                {RESOLUTION_LABELS[res] ?? res}
+                <span className="ml-1 font-black text-stone-500">{count}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Offene Versuche */}
+      {attempts.length > 0 && (
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-stone-500 mb-2">
+            Offene Fälle ({attempts.length})
+          </div>
+          <div className="space-y-2">
+            {attempts.slice(0, 5).map((a) => (
+              <div key={a.id} className="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[12px] font-bold text-stone-800 truncate">
+                      {a.kundeName ?? '—'}
+                    </span>
+                    {a.bestellnummer && (
+                      <span className="text-[10px] font-mono text-stone-500">#{a.bestellnummer.replace(/^[A-Z]+-/, '')}</span>
+                    )}
+                    <span className="ml-auto rounded-full bg-amber-200 text-amber-800 px-2 py-0.5 text-[10px] font-bold">
+                      {REASON_LABELS[a.reason] ?? a.reason}
+                    </span>
+                  </div>
+                  {a.kundeAdresse && (
+                    <div className="text-[10px] text-stone-500 mt-0.5 truncate">{a.kundeAdresse}</div>
+                  )}
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {a.driverName && (
+                      <span className="text-[10px] text-stone-400">Fahrer: {a.driverName}</span>
+                    )}
+                    {a.nextAttemptAt && (
+                      <span className="text-[10px] font-medium text-blue-600">
+                        Retry: {new Date(a.nextAttemptAt).toLocaleString('de-DE', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-stone-400">
+                      {new Date(a.createdAt).toLocaleString('de-DE', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {attempts.length > 5 && (
+              <div className="text-center text-[11px] text-stone-400">+ {attempts.length - 5} weitere offene Fälle</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
