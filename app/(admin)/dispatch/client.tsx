@@ -133,6 +133,7 @@ export function DispatchBoard({
   const [scheduledSummary, setScheduledSummary] = useState<{ total: number; pending: number; released: number; next_due_in_min: number | null } | null>(null);
   const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
   const [shiftClaims, setShiftClaims] = useState<ShiftClaimItem[]>([]);
+  const [staleOrders, setStaleOrders] = useState<{ id: string; bestellnummer: string; age_min: number; dispatch_attempts: number; escalation_status: string | null; delivery_zone: string | null }[]>([]);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -178,6 +179,20 @@ export function DispatchBoard({
     const iv = setInterval(load, 60_000);
     return () => clearInterval(iv);
   }, []);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/stale-orders?location_id=${locationId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.orders)) setStaleOrders(d.orders); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  }, [locations]);
 
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
@@ -512,6 +527,9 @@ export function DispatchBoard({
 
       {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
       <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
+
+      {/* Stale Dispatch: Bestellungen >10 Min ohne Fahrer-Zuweisung (Eskalation) */}
+      <StaleOrdersPanel orders={staleOrders} />
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
       <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
@@ -3971,5 +3989,89 @@ function ShiftClaimsPanel({ claims: initialClaims }: { claims: ShiftClaimItem[] 
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ StaleOrdersPanel ------------------------------ */
+
+function StaleOrdersPanel({ orders }: {
+  orders: { id: string; bestellnummer: string; age_min: number; dispatch_attempts: number; escalation_status: string | null; delivery_zone: string | null }[]
+}) {
+  const [open, setOpen] = useState(false);
+
+  const escalated = orders.filter(o => o.escalation_status === 'escalated' || o.escalation_status === 'needs_escalation');
+  if (orders.length === 0) return null;
+
+  const isUrgent = escalated.length > 0;
+
+  return (
+    <div className={cn(
+      'rounded-xl border-2 px-4 py-3',
+      isUrgent ? 'border-red-400 bg-red-50' : 'border-amber-300 bg-amber-50',
+    )}>
+      <button onClick={() => setOpen(v => !v)} className="flex items-center gap-3 w-full text-left">
+        <AlertTriangle className={cn('h-4 w-4 shrink-0', isUrgent ? 'text-red-600 animate-pulse' : 'text-amber-600')} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={cn('font-bold text-sm', isUrgent ? 'text-red-900' : 'text-amber-900')}>
+              {orders.length} Bestellung{orders.length !== 1 ? 'en' : ''} ohne Fahrer (&gt;10 Min)
+            </span>
+            {escalated.length > 0 && (
+              <span className="rounded-full bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5">
+                {escalated.length}× eskaliert
+              </span>
+            )}
+          </div>
+          <div className={cn('text-xs mt-0.5', isUrgent ? 'text-red-700' : 'text-amber-700')}>
+            Dispatch-Radius wurde bereits erweitert — manuelles Eingreifen empfohlen
+          </div>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 shrink-0" /> : <ChevronDown className="h-4 w-4 shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-2 border-t border-amber-200 pt-3">
+          {orders.slice(0, 8).map(o => {
+            const isEsc = o.escalation_status === 'escalated';
+            const needsEsc = o.escalation_status === 'needs_escalation';
+            return (
+              <div key={o.id} className={cn(
+                'rounded-xl border p-3 flex items-center gap-3',
+                isEsc ? 'border-red-200 bg-red-50' : needsEsc ? 'border-amber-200 bg-amber-50' : 'border-border bg-card',
+              )}>
+                <div className={cn('h-2.5 w-2.5 rounded-full shrink-0',
+                  isEsc ? 'bg-red-500 animate-pulse' : needsEsc ? 'bg-amber-500' : 'bg-amber-300',
+                )} />
+                <div className="flex-1 min-w-0">
+                  <div className="font-mono font-bold text-xs text-foreground">
+                    #{o.bestellnummer.replace(/^[A-Z]+-/, '')}
+                  </div>
+                  {o.delivery_zone && (
+                    <div className="text-[10px] text-muted-foreground">{o.delivery_zone}</div>
+                  )}
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className={cn('font-bold tabular-nums text-xs', o.age_min >= 20 ? 'text-red-700' : 'text-amber-700')}>
+                    {o.age_min} Min
+                  </div>
+                  <div className="text-[9px] text-muted-foreground">
+                    {o.dispatch_attempts} Versuch{o.dispatch_attempts !== 1 ? 'e' : ''}
+                  </div>
+                </div>
+                {isEsc && (
+                  <span className="rounded-full bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 shrink-0">Eskaliert</span>
+                )}
+                {needsEsc && !isEsc && (
+                  <span className="rounded-full bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 shrink-0">! Eskalieren</span>
+                )}
+              </div>
+            );
+          })}
+          {orders.length > 8 && (
+            <div className="text-center text-[11px] text-muted-foreground">+ {orders.length - 8} weitere</div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
