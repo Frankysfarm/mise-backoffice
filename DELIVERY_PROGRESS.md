@@ -78,7 +78,11 @@
 - [x] Fahrer-App: "Nicht zugestellt" Button + Grund-Modal
 - [x] FailedAttemptsPanel im Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–40 + CEO REVIEW #33 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–40 + CEO REVIEW #34 ABGESCHLOSSEN — 2026-06-06
+
+- [x] Kitchen: Inline Prep-Zeit-Anpassung (+5/-5 Min) via updatePrepTime Server-Action
+- [x] Dispatch: DriverRow Entfernung zum Restaurant (Haversine, farbkodiert) + Fahrzeit-Schätzung
+- [x] proof.ts TypeScript-Bugfix: .catch() auf PostgrestFilterBuilder
 
 ## Phase 40: Delivery Proof & Failed-Attempt Engine [DONE ✅] — 2026-06-06
 
