@@ -22,6 +22,7 @@ import { releaseScheduledOrders } from '@/lib/delivery/scheduled';
 import { processAllWebhooks } from '@/lib/delivery/webhooks';
 import { runDailyReportCache } from '@/lib/delivery/reporting';
 import { recomputeAllLocations as recomputeEtaCalibration } from '@/lib/delivery/eta-calibration';
+import { evaluateSurgeAllLocations } from '@/lib/delivery/surge';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -109,6 +110,8 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? recomputeEtaCalibration().catch(() => ({ locations: 0, factorsUpdated: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Surge Pricing: Nachfragespitzen erkennen + Fahrer-Boni aktivieren (jeder Tick)
+      evaluateSurgeAllLocations().catch(() => ({ locations: 0, activated: 0, deactivated: 0, active: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -154,6 +157,12 @@ export async function GET(req: NextRequest) {
       },
       ...(reportCacheResult ? { report_cache: reportCacheResult } : {}),
       ...(etaCalibResult ? { eta_calibration: etaCalibResult } : {}),
+      surge: {
+        locations: surgeResult.locations,
+        activated: surgeResult.activated,
+        deactivated: surgeResult.deactivated,
+        active: surgeResult.active,
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

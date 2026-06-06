@@ -13,6 +13,7 @@ import { generateRatingToken } from '@/lib/delivery/satisfaction';
 import { queueWebhookEvent } from '@/lib/delivery/webhooks';
 import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
 import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/customer-notify';
+import { recordDriverSurgeBonus } from '@/lib/delivery/surge';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,14 @@ export async function PATCH(
               : new Date();
             recordActualDelivery(stop.order_id as string, deliveredAt).catch(() => {});
           }
+
+          // Surge-Bonus: Fahrer erhält Bonus wenn Surge aktiv war (fire-and-forget)
+          recordDriverSurgeBonus({
+            driverId: batch.driver_id as string,
+            locationId: batch.location_id as string,
+            batchId: batch.id as string,
+            orderId: (stop.order_id as string | null) ?? undefined,
+          }).catch(() => {});
         }
       }
     }

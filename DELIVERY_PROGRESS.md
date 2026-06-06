@@ -43,8 +43,104 @@
 - [x] GET /api/delivery/orders/[orderId]/events
 - [x] Realtime Event-Subscription Tracking-Page
 - [x] CustomerEventTimeline Komponente
+- [x] delivery_surge_rules Tabelle
+- [x] delivery_surge_events Tabelle
+- [x] driver_surge_bonuses Tabelle
+- [x] v_surge_status View
+- [x] v_driver_surge_earnings View
+- [x] surge.ts (Surge Pricing + Driver Incentive Engine)
+- [x] GET+POST /api/delivery/admin/surge
+- [x] Surge-Evaluation im Cron-Tick (2-Min-Intervall)
+- [x] Driver-Surge-Bonus bei Tour-Abschluss
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–37 + CEO REVIEW #31 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–38 + CEO REVIEW #31 ABGESCHLOSSEN — 2026-06-06
+
+## Phase 38: Surge Pricing + Driver Incentive Engine [DONE ✅] — 2026-06-06
+
+### Motivation
+Spitzenzeiten (Freitagabend, Regenwetter, Events) führten zu langen Wartezeiten, weil
+Fahrer-Kapazität und Nachfrage nicht dynamisch ausgeglichen wurden. Kunden erlebten
+unvorhersehbare ETAs, Fahrer wurden in ruhigen Zeiten zu gut bezahlt und in Spitzenzeiten
+zu wenig incentiviert.
+Phase 38 schließt diese Lücke: automatische Erkennung von Nachfragespitzen + dynamischer
+Liefergebühr-Aufpreis + automatische Fahrer-Boni pro Lieferung während Surge.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/032_surge_pricing.sql`
+  - `delivery_surge_rules` Tabelle: konfigurierbare Surge-Regeln pro Location
+    - Trigger-Felder: min_queue_depth (offene Orders ohne Fahrer), min_orders_per_hour,
+      min_driver_utilization_pct (% Fahrer ausgelastet)
+    - Surge-Parameter: multiplier [1.0–3.0], driver_bonus_eur pro Lieferung
+    - Zeitfenster: active_from_utc / active_until_utc / active_weekdays
+    - auto_stop_after_min: Automatische Deaktivierung nach Cooldown
+    - UNIQUE (location_id, name), FK → locations (migration-safe)
+  - `delivery_surge_events` Tabelle: Log aktiver Surge-Perioden
+    - Trigger-Snapshot (queue, orders/h, utilization%), effective_multiplier, driver_bonus_eur
+    - Aggregierte Ergebnisse bei Ende: deliveries_during, total_bonus_paid_eur
+  - `driver_surge_bonuses` Tabelle: Bonus-Eintrag pro Fahrer + Lieferung während Surge
+    - driver_id → mise_drivers, surge_event_id → delivery_surge_events
+    - bonus_eur, multiplier (Snapshot des Surge-Wertes)
+  - `v_surge_status` VIEW: Echtzeit-Status pro Location
+    - Berechnet queue_depth + orders_last_30min + driver_utilization_pct live
+    - conditions_met + in_time_window Flags (direkt für Admin-UI nutzbar)
+    - Joined mit laufendem Surge-Event (active_event_id, surge_started_at)
+  - `v_driver_surge_earnings` VIEW: Bonus-Summe pro Fahrer (heutiger Tag)
+    - Joined mit employees + mise_drivers für Anzeige-Name + Fahrzeug
+  - RLS: service_role ALL + authenticated SELECT (tenant-gefiltert via employees.location_id)
+  - 3 Indizes: (location_id, active_event, time)
+
+- [x] `lib/delivery/surge.ts` — Surge Engine (TypeScript strict, kein `any`)
+  - Typen: SurgeRule / SurgeEvent / SurgeStatus / DriverSurgeBonus / SurgeSummary / SurgeRuleInput
+  - `listSurgeRules(locationId)`: alle Regeln einer Location; Graceful Fallback wenn Migration fehlt
+  - `configureSurgeRule(locationId, input)`: UPSERT Regel (onConflict: name); min/max-Validierung
+  - `getCurrentSurge(locationId)`: liest v_surge_status; gibt SurgeStatus zurück (isActive, multiplier, ...)
+    — Graceful Fallback mit noSurge (multiplier=1.0) bei fehlender Migration
+  - `getSurgeMultiplier(locationId)`: schlanker Helper → effektiver Multiplikator (1.0 = kein Surge)
+  - `evaluateSurgeForLocation(locationId)`: Kern-Evaluierung
+    - Lädt Regeln → prüft conditionsMet → aktiviert/deaktiviert Surge-Event
+    - Auto-Deaktivierung: Bedingungen erfüllt nicht mehr + auto_stop_after_min überschritten
+    - Loggt Surge-Start als operativen Alert (fire-and-forget, optional)
+    - Returns: { wasActive, nowActive, multiplier, action: activated/deactivated/unchanged/skipped }
+  - `evaluateSurgeAllLocations()`: Cron-Wrapper (max 50 aktive Locations, per-location try/catch)
+  - `recordDriverSurgeBonus(params)`: Bonus-Eintrag nach Lieferung
+    - Prüft ob Surge aktiv + driverBonusEur > 0, dann INSERT in driver_surge_bonuses
+    - Gibt tatsächlich gezahlten Betrag zurück (0 wenn kein Surge)
+    - Graceful Fallback: Exception → 0 zurück, kein fataler Fehler
+  - `manuallyActivateSurge(locationId, multiplier, driverBonusEur)`: Admin-Override
+    - Beendet ggf. laufendes Event → öffnet neues mit override-Parametern
+  - `manuallyDeactivateSurge(locationId)`: Admin: laufendes Event beenden
+  - `getSurgeSummary(locationId)`: Admin-Dashboard (Promise.all parallel)
+    - status + todayEvents + topDriverBonuses + todayTotalBonusPaidEur + surgeActivationsToday
+
+- [x] `app/api/delivery/admin/surge/route.ts` — Surge Admin API
+  - Auth: authentifizierter Employee → location_id (Tenant-Guard bei cross-location)
+  - `GET ?action=summary` (default) → vollständiges SurgeSummary
+  - `GET ?action=rules` → SurgeRule[] für die Location
+  - `GET ?action=status` → SurgeStatus (Echtzeit-Schlanke-Variante)
+  - `POST { action: 'configure', rule: SurgeRuleInput }` → Regel anlegen/updaten
+  - `POST { action: 'activate', multiplier, driver_bonus_eur }` → manueller Surge-Start
+  - `POST { action: 'deactivate' }` → laufenden Surge beenden
+  - `POST { action: 'evaluate' }` → Bedingungen sofort auswerten (Debug)
+
+- [x] `app/api/delivery/tours/[id]/status/route.ts` Integration:
+  - Import `recordDriverSurgeBonus` aus lib/delivery/surge
+  - Bei state=delivered: pro Dropoff-Stop → `recordDriverSurgeBonus({ driverId, locationId, batchId, orderId })` fire-and-forget
+  - Kein Bonus wenn Surge nicht aktiv (getSurgeMultiplier → 1.0) — graceful no-op
+
+- [x] `app/api/cron/smart-dispatch/route.ts` Integration:
+  - Import `evaluateSurgeAllLocations`
+  - Im Promise.all-Pool: `evaluateSurgeAllLocations()` jeder 2-Min-Tick
+  - Response enthält `surge: { locations, activated, deactivated, active }`
+
+### Technische Details
+- Surge-Trigger: 3-fache UND-Bedingung (Queue ≥ N AND orders/h ≥ M AND driver_util% ≥ P)
+  — verhindert False Positives bei einzelnen Signalen
+- Auto-Deaktivierung: Surge bleibt `auto_stop_after_min` (default 30 Min) aktiv nachdem
+  Bedingungen nicht mehr erfüllt sind → verhindert Flapping
+- Multiplikator für Liefergebühr: Frontend liest `GET /api/delivery/admin/surge?action=status`
+  → multiplier direkt verwendbar (z.B. base_fee * multiplier)
+- Build: `./node_modules/.bin/next build` ✓ (170 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 37: Customer Delivery Event Feed [DONE ✅] — 2026-06-05
 
