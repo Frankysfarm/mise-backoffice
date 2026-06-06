@@ -11,11 +11,19 @@
 ### Geprüfte Commits (seit CEO Review #33)
 - `22cf936` feat(delivery/frontend): Prep-Zeit-Korrektur, Fahrer-Entfernung, TS-Bugfix
 - `d83727d` feat(delivery/backend): Phase 40 — Delivery Proof & Failed-Attempt Engine
+- `ac53500` feat(frontend): WhatsApp-Buttons für Fahrer-App + Dispatch; Anruf-Icon-Fix
 
 ### Bugs gefunden
 Keine. ✅
 
 ### Feature-Prüfung
+
+**WhatsApp-Buttons** (`app/fahrer/app/delivery-view.tsx`, `app/(admin)/dispatch/client.tsx`):
+- Fahrer-App: "Ich bin da"-WhatsApp-Nachricht neben Anruf-Button ✅
+- Normalisierung 0.../00.../+... → +49 internationales Format korrekt ✅
+- Dispatch: Phone-Icon korrigiert + WhatsApp-Ping für Dispatcher ✅
+- `Phone` + `MessageSquare` korrekt in Lucide-Imports ✅
+- Security: `target="_blank" rel="noreferrer"` gesetzt ✅
 
 **Phase 40 — Delivery Proof & Failed-Attempt Engine** (`lib/delivery/proof.ts`):
 - `recordDeliveryProof()`: Nachweis-INSERT mit Graceful Fallback (42P01) ✅
