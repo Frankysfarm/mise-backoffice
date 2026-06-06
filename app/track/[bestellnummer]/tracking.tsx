@@ -100,6 +100,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
   const [deliveryEvents, setDeliveryEvents] = useState<DeliveryEvent[]>([]);
   const [shared, setShared] = useState(false);
   const [kitchenBannerDismissed, setKitchenBannerDismissed] = useState(false);
+  const [quickReplySent, setQuickReplySent] = useState<string | null>(null);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -199,6 +200,16 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
     const msg = text.trim();
     if (!msg) return;
     setText('');
+    await supabase.from('order_messages').insert({
+      order_id: order.order_id,
+      sender: 'kunde',
+      nachricht: msg,
+    });
+  }
+
+  async function sendQuickReply(msg: string) {
+    if (quickReplySent) return;
+    setQuickReplySent(msg);
     await supabase.from('order_messages').insert({
       order_id: order.order_id,
       sender: 'kunde',
@@ -370,24 +381,53 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
 
         {/* Küchen-Benachrichtigung Banner — für Abholer wenn Küche "fertig"-Nachricht gesendet hat */}
         {latestKitchenMsg && !kitchenBannerDismissed && (
-          <div className="flex items-start gap-3 rounded-2xl border-2 border-matcha-300 bg-gradient-to-br from-matcha-50 to-white p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-matcha-600 text-xl">
-              🔔
+          <div className="rounded-2xl border-2 border-matcha-300 bg-gradient-to-br from-matcha-50 to-white shadow-sm animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-3 p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-matcha-600 text-xl">
+                🔔
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-matcha-800">Nachricht von der Küche</p>
+                <p className="mt-0.5 text-sm text-matcha-700">{latestKitchenMsg.nachricht}</p>
+                <p className="mt-1 text-[10px] text-matcha-400 tabular-nums">
+                  {new Date(latestKitchenMsg.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                </p>
+              </div>
+              <button
+                onClick={() => setKitchenBannerDismissed(true)}
+                className="shrink-0 rounded-full p-1 text-matcha-400 hover:bg-matcha-100 hover:text-matcha-700 transition"
+                aria-label="Schließen"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-matcha-800">Nachricht von der Küche</p>
-              <p className="mt-0.5 text-sm text-matcha-700">{latestKitchenMsg.nachricht}</p>
-              <p className="mt-1 text-[10px] text-matcha-400 tabular-nums">
-                {new Date(latestKitchenMsg.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
-              </p>
-            </div>
-            <button
-              onClick={() => setKitchenBannerDismissed(true)}
-              className="shrink-0 rounded-full p-1 text-matcha-400 hover:bg-matcha-100 hover:text-matcha-700 transition"
-              aria-label="Schließen"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {/* Quick-Reply Buttons — Antwortmöglichkeit für Abholkunden */}
+            {!isDelivery && (
+              <div className="border-t border-matcha-100 px-4 pb-4 pt-3">
+                {quickReplySent ? (
+                  <div className="flex items-center gap-2 text-sm text-matcha-700 font-medium">
+                    <Check className="h-4 w-4 text-matcha-600" />
+                    <span>Antwort gesendet: „{quickReplySent}"</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '✅ Ich komme gleich!', msg: '✅ Ich bin gleich da!' },
+                      { label: '🕐 ~5 Minuten', msg: '🕐 Ich brauche noch ca. 5 Minuten.' },
+                      { label: '🚶 Unterwegs', msg: '🚶 Ich bin gerade auf dem Weg zu euch.' },
+                    ].map(({ label, msg }) => (
+                      <button
+                        key={label}
+                        onClick={() => void sendQuickReply(msg)}
+                        className="inline-flex items-center rounded-full bg-matcha-100 hover:bg-matcha-200 active:scale-95 text-matcha-800 text-xs font-semibold px-3 py-1.5 transition"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
