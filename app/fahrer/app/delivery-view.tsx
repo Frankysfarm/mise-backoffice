@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
@@ -79,6 +79,8 @@ export function DeliveryView({
   const [failedReason, setFailedReason] = useState<FailedReason>('no_answer');
   const [failedNotes, setFailedNotes] = useState('');
   const [pendingFailed, setPendingFailed] = useState<string | null>(null);
+  const [delayOpen, setDelayOpen] = useState(false);
+  const [delaySent, setDelaySent] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -366,6 +368,20 @@ export function DeliveryView({
                 </span>
               </div>
             )}
+            {/* Verzögerung melden — sendet Nachricht an Kunden-Tracking */}
+            <button
+              onClick={() => setDelayOpen(true)}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold transition',
+                delaySent
+                  ? 'bg-matcha-700 text-matcha-200'
+                  : 'bg-amber-500/15 border border-amber-400/30 text-amber-300 active:scale-95',
+              )}
+              title="Verzögerung oder Problem melden"
+            >
+              <AlertCircle size={9} />
+              {delaySent ? 'Gemeldet ✓' : 'Verspätung?'}
+            </button>
           </div>
         </div>
         {/* Tour-Kassen-Zusammenfassung */}
@@ -681,6 +697,58 @@ export function DeliveryView({
                 <span className="tabular-nums">{Math.round(((totalDistM - remainDistM) / totalDistM) * 100)}%</span>
               </>
             )}
+          </div>
+        );
+      })()}
+
+      {/* Modal: Verzögerung / Problem melden */}
+      {delayOpen && (() => {
+        const nextPending = stops.find((s) => !s.geliefert_am);
+        const DELAY_OPTIONS = [
+          { label: '~5 Min verspätet', msg: '🕐 Ich bin etwa 5 Minuten später als geplant – bitte kurz Geduld!' },
+          { label: '~10+ Min verspätet', msg: '🕐 Ich bin leider etwas verspätet (10+ Min) – danke für dein Verständnis!' },
+          { label: 'Straße gesperrt', msg: '🚧 Straße gesperrt – ich fahre eine Umleitung und bin bald bei dir!' },
+          { label: 'Adresse schwer zu finden', msg: '📍 Ich suche gerade deine genaue Adresse – kannst du kurz ans Telefon gehen?' },
+          { label: 'Verkehr / Stau', msg: '🚗 Starker Verkehr – ich bin auf dem Weg, es dauert etwas länger als geplant.' },
+        ];
+        async function sendDelay(msg: string) {
+          if (!nextPending) return;
+          await supabase.from('order_messages').insert({
+            order_id: nextPending.order_id,
+            sender: 'fahrer',
+            nachricht: msg,
+          });
+          setDelaySent(true);
+          setDelayOpen(false);
+          setTimeout(() => setDelaySent(false), 30_000);
+        }
+        return (
+          <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setDelayOpen(false)}>
+            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center">
+                <AlertCircle className="mx-auto mb-2 text-amber-400" size={28} />
+                <div className="font-display font-bold text-lg">Verzögerung melden</div>
+                <p className="text-sm text-matcha-300 mt-1">Kunden werden automatisch benachrichtigt.</p>
+              </div>
+              <div className="space-y-2">
+                {DELAY_OPTIONS.map(({ label, msg }) => (
+                  <button
+                    key={label}
+                    onClick={() => void sendDelay(msg)}
+                    className="w-full h-11 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-sm font-bold text-left px-4 flex items-center gap-2 active:scale-[0.98] transition"
+                  >
+                    <AlertCircle size={14} className="text-amber-400 shrink-0" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setDelayOpen(false)}
+                className="w-full h-11 rounded-xl bg-white/10 font-bold text-sm"
+              >
+                Abbrechen
+              </button>
+            </div>
           </div>
         );
       })()}
