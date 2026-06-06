@@ -84,7 +84,7 @@ function stepIndex(status: string): number {
   return i >= 0 ? i : 0;
 }
 
-export function TrackingView({ order: initial, items, tenant }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null }) {
+export function TrackingView({ order: initial, items, tenant, restaurantTelefon }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null }) {
   const supabase = createClient();
   const [order, setOrder] = useState(initial);
   const [stopsBefore, setStopsBefore] = useState<number | null>(null);
@@ -428,13 +428,15 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
                 Rückerstattung: {euro(order.gesamtbetrag)}
               </div>
             )}
-            <a
-              href="tel:+4924190008888"
-              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-red-600 text-white font-bold text-sm"
-            >
-              <Phone className="h-4 w-4" />
-              Restaurant anrufen
-            </a>
+            {restaurantTelefon && (
+              <a
+                href={`tel:${restaurantTelefon}`}
+                className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-red-600 text-white font-bold text-sm"
+              >
+                <Phone className="h-4 w-4" />
+                Restaurant anrufen
+              </a>
+            )}
           </div>
         )}
 
@@ -648,9 +650,11 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
           </div>
         )}
 
-        <p className="pt-2 text-center text-xs text-muted-foreground">
-          Fragen? <a href="tel:+4924190008888" className="underline">Anrufen</a> · Antworten in Minuten
-        </p>
+        {restaurantTelefon && (
+          <p className="pt-2 text-center text-xs text-muted-foreground">
+            Fragen? <a href={`tel:${restaurantTelefon}`} className="underline">Anrufen</a> · Antworten in Minuten
+          </p>
+        )}
       </main>
 
       {/* Chat Modal */}

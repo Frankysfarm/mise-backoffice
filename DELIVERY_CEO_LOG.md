@@ -6,18 +6,75 @@
 ## Anweisungen an Agenten-Team
 **Phase 37 abgeschlossen:** Customer Delivery Event Feed — Live-Timeline auf Tracking-Page. Build clean (0 TypeScript-Fehler, 0 Warnungen). Nächster Schritt: CEO Review #31 + Produktiv-Deployment.
 
-## CEO Review #31 — Phase 37 Customer Event Feed [AUSSTEHEND ⏳]
+## CEO Review #31 — 2026-06-06
 
 ### Geprüfte Commits
+- `feat(tracking): share button, storniert/abgeholt cards, hero copy fixes`
+- `feat(lieferdienst): Supabase realtime subscription replaces 8s polling`
+- `feat(kitchen+dispatch): station focus panel + driver shift leaderboard`
 - `feat(delivery/backend): Phase 37 — Customer Delivery Event Feed`
 
-### Offen für CEO-Prüfung
-- `scripts/migrations/031_customer_events.sql` — neue Tabelle, RLS, Realtime REPLICA IDENTITY FULL
-- `lib/delivery/customer-notify.ts` — Engine: recordCustomerEvent + getOrderEvents
-- `app/api/delivery/orders/[orderId]/events/route.ts` — öffentlicher GET-Endpoint
-- `lib/delivery/dispatch-engine.ts` — driver_assigned Event nach Dispatch
-- `app/api/delivery/tours/[id]/status/route.ts` — Events für at_restaurant/on_route/delivered/cancelled
-- `lib/delivery/gps-tracker.ts` — driver_nearby bei arrived_customer Geofence
+### Bugs gefunden & gefixt
+
+**Bug 1 — TypeScript-Fehler TS2538** (`app/api/delivery/tours/[id]/status/route.ts:155`):
+- `body.state` ist `string | undefined` — async IIFE verliert TypeScript Narrowing aus dem äußeren Scope
+- Fix: non-null assertion `body.state!` — sicher weil outer guard `!body.state` früher returned
+- **Status: GEFIXT ✅**
+
+**Bug 2 — Hardcodierte Telefonnummer** (`app/track/[bestellnummer]/tracking.tsx:432,652`):
+- Storniert-Karte und Footer zeigten `tel:+4924190008888` (Demo-Nummer, nicht produktionsreif)
+- Fix: `page.tsx` lädt nun `locations(telefon)` via Supabase-Join aus `customer_orders`
+- `TrackingView` bekommt neues Prop `restaurantTelefon?: string | null`
+- Beide Links zeigen nur wenn `restaurantTelefon` vorhanden, korrekte Nummer aus DB
+- **Status: GEFIXT ✅**
+
+### Feature-Prüfung
+
+**Share-Button** (`tracking.tsx`):
+- Web Share API mit Clipboard-Fallback ✅
+- Nur für aktive Bestellungen sichtbar (ausgeblendet bei geliefert/abgeholt/storniert) ✅
+- Shared-State + 2s Reset für visuelles Feedback ✅
+
+**Storniert-Karte** (`tracking.tsx`):
+- Rückerstattungsbetrag nur wenn `order.bezahlt === true` ✅
+- Telefon-Button jetzt dynamisch aus DB, konditionell ✅
+
+**Abgeholt-Karte** (`tracking.tsx`):
+- Konsistente Celebration-UI wie geliefert-Karte ✅
+
+**heroTitle/heroSub** (`tracking.tsx`):
+- Korrekter Text für abgeholt/storniert ✅
+
+**Supabase Realtime** (`lieferdienst/client.tsx`):
+- Channel auf `customer_orders` + `delivery_batches` ✅
+- Fallback-Poll auf 30s reduziert (war 8s) ✅
+- Channel in cleanup entfernt (`supabase.removeChannel(channel)`) ✅
+
+**KitchenStationFocusPanel** (`kitchen/client.tsx`):
+- Station-Filter-Buttons (Grill/Warm/Kalt/Sonstiges) mit Live-Item-Zählung ✅
+- Panel nur sichtbar wenn Items vorhanden (hidden wenn count === 0) ✅
+- 1s-Tick für Live-Countdown, cleanup korrekt ✅
+
+**DriverShiftLeaderboard** (`dispatch/client.tsx`):
+- Lädt `delivery_batches` + `delivery_batch_stops` für heutige Schicht ✅
+- 60s-Refresh-Intervall mit cleanup ✅
+- Aggregate-Footer: Gesamtstopps, km, Durchschnitt pro Fahrer ✅
+- Dependency `[drivers.length]` korrekt ✅
+
+**Phase 37 — Customer Event Feed** (`customer-notify.ts`, `route.ts`, `tracking.tsx`):
+- `recordCustomerEvent`: fire-and-forget, graceful skip wenn Tabelle fehlt ✅
+- UUID-Validierung vor DB-Zugriff ✅
+- Realtime-Subscription + Initial-Load in `tracking.tsx` ✅
+- Integration in dispatch-engine, tours/[id]/status, gps-tracker ✅
+
+### TypeScript nach allen Fixes
+- 0 Fehler ✅
+- Build: `next build` kompiliert sauber — `✓ Compiled successfully` ✅
+
+### Nächste Priorität für Agenten-Team
+1. **Deployment**: Migration 031 (`customer_delivery_events`) in Supabase Production ausführen
+2. Cron-Job `/api/cron/smart-dispatch` einrichten (alle 2 Min via Vercel Cron)
+3. Monitoring: Supabase Realtime-Verbindungen überwachen
 - `app/track/[bestellnummer]/tracking.tsx` — CustomerEventTimeline Komponente + Realtime-Subscription
 
 ## CEO Review #30 — 2026-06-05

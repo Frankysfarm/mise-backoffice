@@ -24,7 +24,7 @@ export default async function TrackPage({
 
   const [{ data: items }, { data: fullOrder }] = await Promise.all([
     supabase.from('order_items').select('name, menge, einzelpreis').eq('order_id', (order as any).order_id),
-    svc.from('customer_orders').select('tenant_id,kunde_telefon,kunde_email,status,tenants(name,logo_url,brand_color)').eq('id', (order as any).order_id).maybeSingle(),
+    svc.from('customer_orders').select('tenant_id,location_id,kunde_telefon,kunde_email,status,tenants(name,logo_url,brand_color),locations(telefon)').eq('id', (order as any).order_id).maybeSingle(),
   ]);
 
   const showOptIn = Boolean(
@@ -46,7 +46,7 @@ export default async function TrackPage({
           />
         </div>
       )}
-      <TrackingView order={order as any} items={(items as any) ?? []} tenant={(fullOrder as any)?.tenants ?? null} />
+      <TrackingView order={order as any} items={(items as any) ?? []} tenant={(fullOrder as any)?.tenants ?? null} restaurantTelefon={(fullOrder as any)?.locations?.telefon ?? null} />
     </div>
   );
 }

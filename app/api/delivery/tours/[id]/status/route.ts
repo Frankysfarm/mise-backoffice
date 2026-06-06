@@ -152,7 +152,7 @@ export async function PATCH(
           delivered:     'delivered',
           cancelled:     'cancelled',
         };
-        const evType = evMap[body.state];
+        const evType = evMap[body.state!];
         if (!evType) return;
 
         await Promise.all(
