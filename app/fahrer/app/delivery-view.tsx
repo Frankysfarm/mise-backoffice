@@ -82,6 +82,9 @@ export function DeliveryView({
   const [pendingFailed, setPendingFailed] = useState<string | null>(null);
   const [delayOpen, setDelayOpen] = useState(false);
   const [delaySent, setDelaySent] = useState(false);
+  // Kundennachrichten: Map<order_id, Nachricht[]>
+  const [customerMsgs, setCustomerMsgs] = useState<Map<string, { id: string; nachricht: string; created_at: string }[]>>(new Map());
+  const [expandedMsgOrderId, setExpandedMsgOrderId] = useState<string | null>(null);
   type ProofType = 'handed_to_person' | 'left_at_door' | 'neighbour' | 'contactless' | 'photo';
   const [proofModalStopId, setProofModalStopId] = useState<string | null>(null);
   const [proofType, setProofType] = useState<ProofType>('handed_to_person');
@@ -120,6 +123,52 @@ export function DeliveryView({
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchId]);
+
+  // Kundennachrichten laden + Realtime-Abo
+  useEffect(() => {
+    const orderIds = initialStops.map((s) => s.order_id);
+    if (orderIds.length === 0) return;
+
+    // Initial laden
+    supabase
+      .from('order_messages')
+      .select('id, order_id, nachricht, created_at')
+      .in('order_id', orderIds)
+      .eq('sender', 'kunde')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        const map = new Map<string, { id: string; nachricht: string; created_at: string }[]>();
+        for (const m of data as { id: string; order_id: string; nachricht: string; created_at: string }[]) {
+          if (!map.has(m.order_id)) map.set(m.order_id, []);
+          map.get(m.order_id)!.push({ id: m.id, nachricht: m.nachricht, created_at: m.created_at });
+        }
+        setCustomerMsgs(map);
+      });
+
+    // Realtime: neue Kundennachrichten
+    const ch = supabase
+      .channel(`delivery-msgs-${batchId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'order_messages',
+        filter: `order_id=in.(${orderIds.join(',')})`,
+      }, (payload: { new: { id: string; order_id: string; sender: string; nachricht: string; created_at: string } }) => {
+        const { new: msg } = payload;
+        if (msg.sender !== 'kunde') return;
+        setCustomerMsgs((prev) => {
+          const m = new Map(prev);
+          const existing = m.get(msg.order_id) ?? [];
+          m.set(msg.order_id, [{ id: msg.id, nachricht: msg.nachricht, created_at: msg.created_at }, ...existing]);
+          return m;
+        });
+        setExpandedMsgOrderId(msg.order_id);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchId]);
 
@@ -1049,6 +1098,43 @@ export function DeliveryView({
                       <span className="text-[10px] text-amber-200 leading-snug">{stop.order.kunde_notiz}</span>
                     </div>
                   )}
+                  {/* Kundennachrichten-Badge + Expandable */}
+                  {!done && (() => {
+                    const msgs = customerMsgs.get(stop.order_id) ?? [];
+                    if (msgs.length === 0) return null;
+                    const isExpanded = expandedMsgOrderId === stop.order_id;
+                    const latest = msgs[0];
+                    return (
+                      <button
+                        onClick={() => setExpandedMsgOrderId(isExpanded ? null : stop.order_id)}
+                        className="mt-1.5 w-full text-left"
+                      >
+                        <div className="flex items-start gap-1.5 rounded-md bg-blue-500/20 border border-blue-400/40 px-2 py-1.5">
+                          <MessageSquare className="shrink-0 h-3 w-3 text-blue-300 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[9px] font-black text-blue-300 uppercase tracking-wider">
+                              Kunde{msgs.length > 1 ? ` · ${msgs.length} Nachr.` : ''}
+                            </div>
+                            {isExpanded ? (
+                              <div className="mt-1 space-y-1.5">
+                                {msgs.map((m) => (
+                                  <div key={m.id}>
+                                    <div className="text-[10px] text-blue-100 leading-snug">{m.nachricht}</div>
+                                    <div className="text-[8px] text-blue-400 tabular-nums">
+                                      {new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-[10px] text-blue-200 leading-snug truncate">{latest.nachricht}</div>
+                            )}
+                          </div>
+                          <span className="shrink-0 text-[9px] text-blue-400 font-bold">{isExpanded ? '▲' : '▼'}</span>
+                        </div>
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
 
