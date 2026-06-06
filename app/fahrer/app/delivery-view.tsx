@@ -55,6 +55,8 @@ export function DeliveryView({
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const [proximityTriggered, setProximityTriggered] = useState<Set<string>>(new Set());
+  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+  const [confirmSkipId, setConfirmSkipId] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
   const driverMarkerRef = useRef<any>(null);
@@ -109,7 +111,8 @@ export function DeliveryView({
 
   const openStops = sorted.filter((s) => !s.geliefert_am);
   const doneCount = sorted.length - openStops.length;
-  const nextStop = openStops[0];
+  // Skipped stops go to back; all other open stops come first
+  const nextStop = openStops.find((s) => !skippedIds.has(s.id)) ?? openStops[0];
   const allDone = openStops.length === 0;
 
   // GPS-Proximity: Auto-Arrived wenn Fahrer < 80m vom nächsten Stopp
@@ -643,6 +646,38 @@ export function DeliveryView({
         );
       })()}
 
+      {/* Bestätigung: Stopp überspringen */}
+      {confirmSkipId && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm" onClick={() => setConfirmSkipId(null)}>
+          <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="text-2xl mb-2">🚪</div>
+              <div className="font-display font-bold text-lg">Nicht angetroffen?</div>
+              <p className="text-sm text-matcha-300 mt-1">
+                Stopp wird ans Ende der Tour verschoben. Du kannst danach nochmal versuchen.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmSkipId(null)}
+                className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={() => {
+                  setSkippedIds((s) => new Set([...s, confirmSkipId]));
+                  setConfirmSkipId(null);
+                }}
+                className="flex-1 h-12 rounded-xl bg-amber-500 text-matcha-900 font-display font-bold text-sm"
+              >
+                Zurückstellen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {sorted.map((stop) => {
           const done = !!stop.geliefert_am;
@@ -751,6 +786,18 @@ export function DeliveryView({
                   <Flag size={11} /> Angekommen — bitte zustellen
                 </div>
               )}
+              {/* Zurückgestellt-Badge für übersprungene Stops */}
+              {!done && skippedIds.has(stop.id) && (
+                <div className="mt-2 flex items-center justify-between rounded-xl bg-amber-500/15 border border-amber-400/30 px-3 py-1.5">
+                  <span className="text-[11px] font-bold text-amber-300">Zurückgestellt — nach anderen Stops nochmal</span>
+                  <button
+                    onClick={() => setSkippedIds((s) => { const n = new Set(s); n.delete(stop.id); return n; })}
+                    className="text-[10px] font-bold text-amber-200 underline"
+                  >
+                    Jetzt
+                  </button>
+                </div>
+              )}
 
               {/* Actions nur für next stop */}
               {isNext && (
@@ -790,6 +837,15 @@ export function DeliveryView({
                       className="h-11 px-3 rounded-xl bg-accent/20 border border-accent/40 text-accent flex items-center gap-1.5 text-xs font-bold shrink-0"
                     >
                       <Flag size={13} /> Angekommen
+                    </button>
+                  )}
+                  {/* Nicht angetroffen — Stopp ans Ende schieben, später nochmal */}
+                  {openStops.length > 1 && (
+                    <button
+                      onClick={() => setConfirmSkipId(stop.id)}
+                      className="h-11 px-2.5 rounded-xl bg-white/8 border border-white/15 text-matcha-300 flex items-center gap-1 text-[11px] font-bold shrink-0"
+                    >
+                      Zurückst.
                     </button>
                   )}
                   {stop.order.kunde_lat && stop.order.kunde_lng && (() => {
