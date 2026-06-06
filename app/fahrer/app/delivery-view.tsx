@@ -82,6 +82,11 @@ export function DeliveryView({
   const [pendingFailed, setPendingFailed] = useState<string | null>(null);
   const [delayOpen, setDelayOpen] = useState(false);
   const [delaySent, setDelaySent] = useState(false);
+  type ProofType = 'handed_to_person' | 'left_at_door' | 'neighbour' | 'contactless' | 'photo';
+  const [proofModalStopId, setProofModalStopId] = useState<string | null>(null);
+  const [proofType, setProofType] = useState<ProofType>('handed_to_person');
+  const [proofNotes, setProofNotes] = useState('');
+  const [proofPending, setProofPending] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -295,6 +300,29 @@ export function DeliveryView({
     setFailedStopId(null);
     setFailedNotes('');
     setFailedReason('no_answer');
+  }
+
+  async function confirmDeliveryWithProof(stopId: string) {
+    setProofPending(true);
+    const stop = stops.find((s) => s.id === stopId);
+    // Fire-and-forget — proof stored for admin review, delivery proceeds regardless
+    fetch(`/api/delivery/tours/${batchId}/proof`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        stop_id:    stopId,
+        order_id:   stop?.order_id ?? null,
+        proof_type: proofType,
+        notes:      proofNotes.trim() || null,
+        driver_lat: driverLat ?? null,
+        driver_lng: driverLng ?? null,
+      }),
+    }).catch(() => {});
+    await markDelivered(stopId);
+    setProofModalStopId(null);
+    setProofNotes('');
+    setProofType('handed_to_person');
+    setProofPending(false);
   }
 
   // Live earnings estimate: base €1.50/stop + €0.20/km from completed stops
@@ -883,6 +911,78 @@ export function DeliveryView({
         </div>
       )}
 
+      {/* Modal: Liefernachweis — Art der Übergabe wählen */}
+      {proofModalStopId && (() => {
+        const proofStop = stops.find((s) => s.id === proofModalStopId);
+        const isBarProof = !proofStop?.order.bezahlt || proofStop?.order.zahlungsart === 'bar';
+        const PROOF_OPTIONS: { key: ProofType; label: string; icon: string }[] = [
+          { key: 'handed_to_person', label: 'Übergeben', icon: '🤝' },
+          { key: 'left_at_door',    label: 'Vor Tür',    icon: '🚪' },
+          { key: 'neighbour',       label: 'Nachbar',    icon: '👥' },
+          { key: 'contactless',     label: 'Kontaktlos', icon: '📦' },
+          { key: 'photo',           label: 'Foto',       icon: '📷' },
+        ];
+        return (
+          <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => !proofPending && setProofModalStopId(null)}>
+            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center">
+                <CheckCircle2 className="mx-auto mb-2 text-accent" size={28} />
+                <div className="font-display font-bold text-lg">Liefernachweis</div>
+                <p className="text-sm text-matcha-300 mt-1">
+                  {proofStop?.order.kunde_name} — wie wurde zugestellt?
+                </p>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {PROOF_OPTIONS.map(({ key, label, icon }) => (
+                  <button
+                    key={key}
+                    onClick={() => setProofType(key)}
+                    className={cn(
+                      'rounded-xl py-3 text-[10px] font-bold border flex flex-col items-center gap-1 transition active:scale-[0.97]',
+                      proofType === key
+                        ? 'bg-accent/20 border-accent text-accent'
+                        : 'bg-white/5 border-white/10 text-matcha-300',
+                    )}
+                  >
+                    <span className="text-xl">{icon}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
+                <textarea
+                  value={proofNotes}
+                  onChange={(e) => setProofNotes(e.target.value.slice(0, 200))}
+                  placeholder="z.B. Paket vor Eingangstür abgestellt…"
+                  rows={2}
+                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-white placeholder:text-matcha-500 px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setProofModalStopId(null)}
+                  disabled={proofPending}
+                  className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm disabled:opacity-40"
+                >
+                  Zurück
+                </button>
+                <button
+                  onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
+                  disabled={proofPending}
+                  className="flex-1 h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {proofPending
+                    ? <Loader2 size={16} className="animate-spin" />
+                    : <CheckCircle2 size={16} />}
+                  {isBarProof ? 'Kassiert & Zugestellt' : 'Bestätigen'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {sorted.map((stop) => {
           const done = !!stop.geliefert_am;
@@ -1111,8 +1211,8 @@ export function DeliveryView({
                     );
                   })()}
                   <button
-                    onClick={() => markDelivered(stop.id)}
-                    disabled={pending === stop.id}
+                    onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); }}
+                    disabled={pending === stop.id || proofPending}
                     className="flex-1 h-11 rounded-xl bg-accent text-matcha-900 flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
                   >
                     {pending === stop.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
