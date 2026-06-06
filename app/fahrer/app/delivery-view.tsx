@@ -929,6 +929,43 @@ export function DeliveryView({
                 </div>
               </div>
 
+              {/* Tour-Qualitätsscore */}
+              {(() => {
+                const withEta = stops.filter((s) => s.geliefert_am && s.order.eta_latest);
+                const onTime = withEta.filter((s) => new Date(s.geliefert_am!).getTime() <= new Date(s.order.eta_latest!).getTime()).length;
+                const etaPct = withEta.length > 0 ? Math.round((onTime / withEta.length) * 100) : null;
+                const speedScore = totalDistKm > 0 && elapsedMin > 0 ? Math.min(100, Math.round((totalDistKm / elapsedMin) * 200)) : null;
+                const score = etaPct != null ? Math.round(etaPct * 0.7 + (speedScore ?? 70) * 0.3) : (speedScore ?? null);
+                if (score == null) return null;
+                const grade = score >= 90 ? { label: 'Exzellent', color: 'text-accent', ring: 'border-accent' } :
+                              score >= 75 ? { label: 'Gut', color: 'text-matcha-300', ring: 'border-matcha-400' } :
+                              score >= 55 ? { label: 'Ok', color: 'text-amber-300', ring: 'border-amber-400' } :
+                              { label: 'Verbesserbar', color: 'text-red-300', ring: 'border-red-400' };
+                return (
+                  <div className={`rounded-xl border-2 ${grade.ring} bg-white/5 p-4`}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300 mb-2">Tour-Qualität</div>
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="relative flex items-center justify-center w-16 h-16">
+                        <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
+                          <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
+                          <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor"
+                            className={grade.color}
+                            strokeWidth="6" strokeLinecap="round"
+                            strokeDasharray={`${2 * Math.PI * 26}`}
+                            strokeDashoffset={`${2 * Math.PI * 26 * (1 - score / 100)}`} />
+                        </svg>
+                        <div className={`absolute font-black text-base tabular-nums ${grade.color}`}>{score}</div>
+                      </div>
+                      <div className="text-left">
+                        <div className={`font-display text-lg font-black ${grade.color}`}>{grade.label}</div>
+                        {etaPct != null && <div className="text-xs text-matcha-300 mt-0.5">{etaPct}% rechtzeitig geliefert</div>}
+                        {speedScore != null && <div className="text-xs text-matcha-300">{(totalDistKm / elapsedMin * 60).toFixed(1)} km/h Ø</div>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Cash collection summary */}
               {totalCash > 0 && (
                 <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
