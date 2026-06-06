@@ -75,6 +75,29 @@ type LiveDriver = {
   active_batch: { stop_count: number; state: string; zone: string | null } | null;
 };
 
+type EtaAccuracyData = {
+  overall: { completedDeliveries: number; onTimeRate: number; avgErrorMin: number };
+  byZone: { zone: string; vehicle: string; completedDeliveries: number; onTimeRate: number; avgErrorMin: number }[];
+  _fallback?: boolean;
+} | null;
+
+type SurgeData = {
+  status: {
+    isActive: boolean;
+    multiplier: number;
+    driverBonusEur: number;
+    currentQueueDepth: number;
+    ordersPerHourEst: number;
+    driverUtilizationPct: number;
+    conditionsMet: boolean;
+    ruleName: string | null;
+  };
+  surgeActivationsToday: number;
+  todayTotalBonusPaidEur: number;
+  todayDeliveriesDuringSurge: number;
+  topDriverBonuses: { driver_name: string; total_bonus_today_eur: number; bonus_deliveries: number }[];
+} | null;
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -108,6 +131,8 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     revenue: { total: number | null; delivery: number | null; pickup: number | null; cash: number | null; card: number | null };
     activeDrivers: number;
   } | null>(null)
+  const [etaAccuracy, setEtaAccuracy] = useState<EtaAccuracyData>(null)
+  const [surgeData, setSurgeData] = useState<SurgeData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -182,6 +207,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/reporting?type=daily&location_id=${locationId}&date=${todayStr}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.orders && !d._fallback) setDailyKpis({ orders: d.orders, revenue: d.revenue, activeDrivers: d.activeDrivers ?? 0 }) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/eta-accuracy?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.overall && !d._fallback) setEtaAccuracy(d) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/surge?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.status) setSurgeData(d) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1535,6 +1568,16 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* Fahrer-Bestenliste heute */}
       <DriverLeaderboard driverPerf={driverPerf} />
+
+      {/* ETA-Genauigkeit */}
+      {etaAccuracy && etaAccuracy.overall.completedDeliveries > 0 && (
+        <EtaAccuracyPanel data={etaAccuracy} />
+      )}
+
+      {/* Surge-Preis Status */}
+      {surgeData && (
+        <SurgePricingPanel data={surgeData} />
+      )}
     </div>
   )
 }
@@ -1957,6 +2000,190 @@ function ShiftRevenuePanel({
               {Math.round(avgDeliveryScore)}
             </span>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------ EtaAccuracyPanel ------------------------------ */
+
+function EtaAccuracyPanel({ data }: { data: NonNullable<EtaAccuracyData> }) {
+  const onTimePct = Math.round(data.overall.onTimeRate * 100)
+  const errorMin = Math.round(Math.abs(data.overall.avgErrorMin))
+  const early = data.overall.avgErrorMin < 0
+  const topZones = [...data.byZone]
+    .filter(z => z.completedDeliveries >= 3)
+    .sort((a, b) => b.completedDeliveries - a.completedDeliveries)
+    .slice(0, 6)
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-5">
+        <Target className="w-5 h-5 text-blue-600" />
+        <h3 className="text-lg font-semibold text-char">ETA-Genauigkeit</h3>
+        <span className="ml-auto text-xs text-stone-400">{data.overall.completedDeliveries} Lieferungen ausgewertet</span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5">
+        <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+          <div className={`text-3xl font-black ${onTimePct >= 80 ? 'text-emerald-600' : onTimePct >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+            {onTimePct}%
+          </div>
+          <div className="text-xs text-stone-500 mt-1">Pünktlich-Rate</div>
+        </div>
+        <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+          <div className={`text-3xl font-black ${errorMin <= 5 ? 'text-emerald-600' : errorMin <= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+            {early ? '-' : '+'}{errorMin}m
+          </div>
+          <div className="text-xs text-stone-500 mt-1">{early ? 'Ø früher' : 'Ø später'} als ETA</div>
+        </div>
+        <div className="rounded-xl bg-stone-50 p-4 border border-stone-100 text-center">
+          <div className="text-3xl font-black text-char">{data.overall.completedDeliveries}</div>
+          <div className="text-xs text-stone-500 mt-1">Lieferungen</div>
+        </div>
+      </div>
+
+      <div className="mb-2 flex justify-between text-xs text-stone-500">
+        <span>Pünktlichkeitsrate</span>
+        <span className="font-bold">{onTimePct}%</span>
+      </div>
+      <div className="h-2 rounded-full bg-stone-100 overflow-hidden mb-5">
+        <div
+          className={`h-full rounded-full transition-all ${onTimePct >= 80 ? 'bg-emerald-400' : onTimePct >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
+          style={{ width: `${onTimePct}%` }}
+        />
+      </div>
+
+      {topZones.length > 0 && (
+        <>
+          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">Nach Zone</div>
+          <div className="space-y-2">
+            {topZones.map((z) => {
+              const zPct = Math.round(z.onTimeRate * 100)
+              const zErr = Math.round(Math.abs(z.avgErrorMin))
+              const zEarly = z.avgErrorMin < 0
+              const zColor = z.zone === 'A' ? 'bg-emerald-400' : z.zone === 'B' ? 'bg-blue-400' : z.zone === 'C' ? 'bg-amber-400' : 'bg-red-400'
+              return (
+                <div key={`${z.zone}-${z.vehicle}`} className="flex items-center gap-3 text-sm">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${zColor}`}>
+                    {z.zone}
+                  </span>
+                  <span className="text-xs text-stone-500 shrink-0 w-14 capitalize">{z.vehicle}</span>
+                  <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${zPct >= 80 ? 'bg-emerald-400' : zPct >= 60 ? 'bg-amber-400' : 'bg-red-400'}`} style={{ width: `${zPct}%` }} />
+                  </div>
+                  <span className="w-10 text-right font-bold tabular-nums text-char shrink-0">{zPct}%</span>
+                  <span className={`text-xs shrink-0 font-medium ${zEarly ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {zEarly ? '-' : '+'}{zErr}m
+                  </span>
+                  <span className="text-[10px] text-stone-400 w-10 text-right shrink-0">{z.completedDeliveries}×</span>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------ SurgePricingPanel ------------------------------ */
+
+function SurgePricingPanel({ data }: { data: NonNullable<SurgeData> }) {
+  const { status } = data
+  const hasActivity = data.surgeActivationsToday > 0 || data.todayDeliveriesDuringSurge > 0
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-5">
+        <Zap className={`w-5 h-5 ${status.isActive ? 'text-amber-500' : 'text-stone-400'}`} />
+        <h3 className="text-lg font-semibold text-char">Surge-Pricing</h3>
+        <span className={`ml-2 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${status.isActive ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-500'}`}>
+          {status.isActive ? 'Aktiv' : 'Inaktiv'}
+        </span>
+        {status.ruleName && (
+          <span className="ml-1 text-xs text-stone-400 truncate">{status.ruleName}</span>
+        )}
+      </div>
+
+      {status.isActive && (
+        <div className="mb-5 rounded-xl bg-amber-50 border border-amber-200 p-4">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-black text-amber-700">{status.multiplier.toFixed(1)}×</div>
+              <div className="text-xs text-amber-600 mt-0.5">Multiplier</div>
+            </div>
+            <div>
+              <div className="text-2xl font-black text-amber-700">+{status.driverBonusEur.toFixed(2)}€</div>
+              <div className="text-xs text-amber-600 mt-0.5">Fahrer-Bonus</div>
+            </div>
+            <div>
+              <div className="text-2xl font-black text-amber-700">{status.currentQueueDepth}</div>
+              <div className="text-xs text-amber-600 mt-0.5">Warteschlange</div>
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <div className="flex justify-between text-xs text-stone-500 mb-1">
+                <span>Fahrer-Auslastung</span>
+                <span className="font-bold">{Math.round(status.driverUtilizationPct)}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-amber-100 overflow-hidden">
+                <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${status.driverUtilizationPct}%` }} />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-sm font-bold text-amber-700">{Math.round(status.ordersPerHourEst)}/h</div>
+              <div className="text-[10px] text-amber-600">Geschätzte Rate</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!status.isActive && status.conditionsMet && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span className="text-sm text-amber-700 font-medium">Surge-Bedingungen erfüllt — kann manuell aktiviert werden</span>
+        </div>
+      )}
+
+      {hasActivity && (
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="rounded-xl bg-stone-50 p-3 border border-stone-100">
+            <div className="text-xl font-black text-char">{data.surgeActivationsToday}</div>
+            <div className="text-[10px] text-stone-500 mt-0.5">Aktivierungen</div>
+          </div>
+          <div className="rounded-xl bg-stone-50 p-3 border border-stone-100">
+            <div className="text-xl font-black text-char">{data.todayDeliveriesDuringSurge}</div>
+            <div className="text-[10px] text-stone-500 mt-0.5">Surge-Lieferungen</div>
+          </div>
+          <div className="rounded-xl bg-stone-50 p-3 border border-stone-100">
+            <div className="text-xl font-black text-emerald-600">{data.todayTotalBonusPaidEur.toFixed(2)}€</div>
+            <div className="text-[10px] text-stone-500 mt-0.5">Bonus ausgezahlt</div>
+          </div>
+        </div>
+      )}
+
+      {data.topDriverBonuses.length > 0 && (
+        <div className="mt-4">
+          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">Top-Fahrer Boni heute</div>
+          <div className="space-y-1.5">
+            {data.topDriverBonuses.slice(0, 3).map((d, i) => (
+              <div key={i} className="flex items-center gap-3 text-sm">
+                <span className="w-5 shrink-0 text-center">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                <span className="flex-1 min-w-0 truncate font-medium text-char">{d.driver_name}</span>
+                <span className="font-bold text-emerald-600 shrink-0">+{d.total_bonus_today_eur.toFixed(2)}€</span>
+                <span className="text-xs text-stone-400 w-14 text-right shrink-0">{d.bonus_deliveries} Lief.</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!status.isActive && !hasActivity && (
+        <div className="text-center py-4 text-sm text-stone-400">
+          Kein Surge-Pricing heute aktiv
         </div>
       )}
     </div>
