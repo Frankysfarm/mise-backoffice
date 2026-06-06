@@ -120,6 +120,8 @@ export function DispatchBoard({
   const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
   const prevReadyCountRef = useRef(initialOrders.filter((o) => o.status === 'fertig').length);
   const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number } | null>(null);
+  const [scheduledSummary, setScheduledSummary] = useState<{ total: number; pending: number; released: number; next_due_in_min: number | null } | null>(null);
+  const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -134,6 +136,23 @@ export function DispatchBoard({
     };
     poll();
     const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [locations]);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/scheduled?location_id=${locationId}&hours=4`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d?.summary) setScheduledSummary(d.summary);
+          if (d?.orders) setScheduledOrders(d.orders);
+        })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 120_000);
     return () => clearInterval(iv);
   }, [locations]);
 
@@ -341,6 +360,11 @@ export function DispatchBoard({
           <span className="text-inherit opacity-70">·</span>
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
         </div>
+      )}
+
+      {/* Vorbestellungen: nächste 4h Übersicht */}
+      {scheduledSummary && scheduledSummary.total > 0 && (
+        <ScheduledOrdersPanel summary={scheduledSummary} orders={scheduledOrders} />
       )}
 
       {/* Schicht-Übersicht: Heutige Lieferleistung */}
@@ -3683,5 +3707,99 @@ function DeliveryWindowsPanel() {
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ ScheduledOrdersPanel ------------------------------ */
+
+function ScheduledOrdersPanel({ summary, orders }: {
+  summary: { total: number; pending: number; released: number; next_due_in_min: number | null };
+  orders: { id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[];
+}) {
+  const [open, setOpen] = useState(false);
+
+  const nextDue = summary.next_due_in_min;
+  const isUrgent = nextDue !== null && nextDue <= 15;
+
+  return (
+    <div className={cn(
+      'flex flex-col rounded-xl border px-4 py-3 text-sm transition',
+      isUrgent
+        ? 'border-amber-300 bg-amber-50'
+        : 'border-matcha-200 bg-matcha-50',
+    )}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-3 w-full text-left"
+      >
+        <Clock className={cn('h-4 w-4 shrink-0', isUrgent ? 'text-amber-600' : 'text-matcha-600')} />
+        <div className="flex-1 flex flex-wrap items-center gap-2">
+          <span className={cn('font-bold', isUrgent ? 'text-amber-800' : 'text-matcha-800')}>
+            {summary.total} Vorbestellung{summary.total !== 1 ? 'en'  : ''} · nächste 4h
+          </span>
+          {summary.pending > 0 && (
+            <span className="rounded-full bg-white/70 border border-matcha-200 px-2 py-0.5 text-[10px] font-bold text-matcha-700">
+              {summary.pending} ausstehend
+            </span>
+          )}
+          {summary.released > 0 && (
+            <span className="rounded-full bg-matcha-200 px-2 py-0.5 text-[10px] font-bold text-matcha-800">
+              {summary.released} freigegeben
+            </span>
+          )}
+          {nextDue !== null && (
+            <span className={cn(
+              'rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums',
+              isUrgent ? 'bg-amber-200 text-amber-900' : 'bg-matcha-200 text-matcha-900',
+            )}>
+              Nächste Küche in {nextDue <= 0 ? 'jetzt' : `${nextDue} Min`}
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
+      </button>
+
+      {open && orders.length > 0 && (
+        <div className="mt-3 divide-y divide-matcha-200/60 border-t border-matcha-200/60">
+          {orders.slice(0, 8).map(o => {
+            const sched = new Date(o.scheduled_at);
+            const isPending = o.schedule_status === 'scheduled';
+            const minsK = o.mins_until_kitchen_start;
+            return (
+              <div key={o.id} className="flex items-center gap-3 py-2">
+                <div className={cn(
+                  'h-2 w-2 rounded-full shrink-0',
+                  isPending ? 'bg-amber-400' : 'bg-matcha-500',
+                )} />
+                <div className="flex-1 min-w-0">
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    #{o.bestellnummer.replace('FF-', '')}
+                  </span>
+                  {o.kunde_name && (
+                    <span className="ml-2 text-xs text-muted-foreground truncate">{o.kunde_name}</span>
+                  )}
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="font-mono text-xs font-bold tabular-nums">
+                    {sched.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  {minsK !== null && minsK > 0 && (
+                    <div className={cn('text-[9px] tabular-nums', minsK <= 10 ? 'text-amber-700 font-bold' : 'text-muted-foreground')}>
+                      Küche in {minsK} Min
+                    </div>
+                  )}
+                  {isPending && (minsK === null || minsK <= 0) && (
+                    <div className="text-[9px] text-amber-700 font-bold">▶ Freigeben!</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {orders.length > 8 && (
+            <div className="pt-2 text-[11px] text-muted-foreground text-center">+ {orders.length - 8} weitere Vorbestellungen</div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
