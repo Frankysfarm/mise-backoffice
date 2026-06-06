@@ -705,6 +705,29 @@ export function KitchenBoard({
                     </div>
                   );
                 })()}
+                {/* Zonen-Verteilung: nur für `fertig`-Spalte — hilft Dispatch beim Bündeln */}
+                {col.status === 'fertig' && colOrders.filter(o => o.typ === 'lieferung' && o.delivery_zone).length > 0 && (() => {
+                  const zoneCounts: Record<string, number> = {};
+                  for (const o of colOrders) {
+                    if (o.delivery_zone) zoneCounts[o.delivery_zone] = (zoneCounts[o.delivery_zone] ?? 0) + 1;
+                  }
+                  const sorted = Object.entries(zoneCounts).sort((a, b) => b[1] - a[1]);
+                  if (sorted.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap gap-1 px-3 py-1.5 border-t border-black/5 bg-matcha-50/40">
+                      {sorted.map(([zone, cnt]) => (
+                        <span key={zone} className={cn(
+                          'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-black tabular-nums',
+                          cnt >= 3 ? 'bg-matcha-700 text-white' : cnt === 2 ? 'bg-matcha-200 text-matcha-900' : 'bg-matcha-100 text-matcha-700',
+                        )}>
+                          {zone}
+                          <span className="opacity-80">×{cnt}</span>
+                        </span>
+                      ))}
+                      <span className="text-[8px] text-muted-foreground self-center">Dispatch-Zonen</span>
+                    </div>
+                  );
+                })()}
               </header>
               <div className="space-y-3 p-3">
                 {colOrders.length === 0 && (

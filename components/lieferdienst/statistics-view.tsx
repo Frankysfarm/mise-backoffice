@@ -6,7 +6,7 @@ import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdie
 import { createClient } from '@/lib/supabase/client'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp, ChevronUp, ChevronDown
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp, ChevronUp, ChevronDown, Copy, Check as CheckIcon
 } from 'lucide-react'
 import {
   BarChart,
@@ -378,6 +378,32 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   }).length
   const ratePerHour = ordersLastHalfHour * 2  // extrapoliert
 
+  const [rapportCopied, setRapportCopied] = useState(false)
+
+  function handleCopyRapport() {
+    const now = new Date()
+    const done = completedOrders.filter(o => o.status === 'done')
+    const rejected = completedOrders.filter(o => o.status === 'rejected')
+    const revenue = done.reduce((s, o) => s + ((o as any).gesamtbetrag ?? 0), 0)
+    const lines = [
+      `📊 Schicht-Rapport — ${now.toLocaleDateString('de-DE')} ${now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`,
+      ``,
+      `✅ Fertige Bestellungen: ${done.length}`,
+      `❌ Abgelehnt: ${rejected.length}`,
+      `💶 Umsatz (fertig): ${revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`,
+      `📦 Aktiv: ${orders.filter(o => !['done', 'rejected'].includes(o.status)).length}`,
+      liveDrivers.length > 0 ? `🚗 Fahrer online: ${liveDrivers.filter(d => d.active).length}` : '',
+      deliveryStats ? `🗺 Touren heute: ${deliveryStats.tours.total}` : '',
+      slaData ? `⏱ Pünktlichkeit: ${slaData.summary.onTimePct}%` : '',
+      ``,
+      `Stand: ${now.toLocaleString('de-DE')}`,
+    ].filter(Boolean)
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setRapportCopied(true)
+      setTimeout(() => setRapportCopied(false), 3000)
+    }).catch(() => {})
+  }
+
   function handleExportCSV() {
     const rows = [
       ['Bestellnummer', 'Zeit', 'Status', 'Typ', 'Betrag (€)', 'Zone', 'Zahlungsart'],
@@ -423,6 +449,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-2">
+          <button
+            onClick={handleCopyRapport}
+            className={`flex items-center gap-1.5 text-xs font-medium transition px-3 py-1.5 rounded-lg border ${rapportCopied ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-stone-200 text-steel hover:text-char hover:bg-stone-50'}`}
+            title="Schicht-Rapport in die Zwischenablage kopieren"
+          >
+            {rapportCopied ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {rapportCopied ? 'Kopiert!' : 'Rapport'}
+          </button>
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 text-xs font-medium text-steel hover:text-char transition px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50"
