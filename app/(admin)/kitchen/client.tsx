@@ -466,6 +466,9 @@ export function KitchenBoard({
       {/* Pickup-Forecast: kochende Lieferbestellungen die in <15 Min fertig sind */}
       <PickupForecastPanel orders={filtered} />
 
+      {/* Batch-Optimierungs-Hinweis: Zonen mit bündelbaren Bestellungen */}
+      <BatchOptimizationHint orders={filtered} />
+
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
 
@@ -3970,6 +3973,122 @@ function KitchenStationFocusPanel({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ BatchOptimizationHint ------------------------------ */
+
+/**
+ * Zeigt Zonen mit mehreren Lieferbestellungen, die innerhalb von 5 Minuten
+ * gleichzeitig fertig sein werden — hilft Küche beim optimalen Batchversand.
+ */
+function BatchOptimizationHint({ orders }: { orders: Order[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const BATCH_WINDOW_MS = 5 * 60_000; // 5-Minuten-Fenster
+
+  // Schätze Fertigzeit für jede kochende/bestätigte Lieferbestellung
+  const upcoming = orders
+    .filter((o) => o.typ === 'lieferung' && ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status) && o.delivery_zone)
+    .map((o) => {
+      const base = o.bestellt_am ? new Date(o.bestellt_am).getTime() : now;
+      const readyMs = o.status === 'fertig'
+        ? (o.fertig_am ? new Date(o.fertig_am).getTime() : now)
+        : base + (o.geschaetzte_zubereitung_min ?? 15) * 60_000;
+      const minUntilReady = Math.floor((readyMs - now) / 60_000);
+      return { order: o, readyMs, minUntilReady };
+    });
+
+  // Gruppiere nach Zone, finde Zonen mit ≥2 Bestellungen im selben 5-Min-Fenster
+  const byZone = new Map<string, typeof upcoming>();
+  for (const item of upcoming) {
+    const z = item.order.delivery_zone!;
+    if (!byZone.has(z)) byZone.set(z, []);
+    byZone.get(z)!.push(item);
+  }
+
+  const batchOpportunities: { zone: string; items: typeof upcoming; windowMin: number; earliest: number; latest: number }[] = [];
+  for (const [zone, items] of byZone) {
+    if (items.length < 2) continue;
+    const sorted = [...items].sort((a, b) => a.readyMs - b.readyMs);
+    // Prüfe ob früheste und späteste Fertigzeit innerhalb BATCH_WINDOW_MS
+    const earliest = sorted[0].readyMs;
+    const latest = sorted[sorted.length - 1].readyMs;
+    if (latest - earliest <= BATCH_WINDOW_MS) {
+      const windowMin = Math.floor((latest - earliest) / 60_000);
+      batchOpportunities.push({ zone, items: sorted, windowMin, earliest, latest });
+    }
+  }
+
+  if (batchOpportunities.length === 0) return null;
+
+  const ZONE_COLORS: Record<string, string> = {
+    A: 'bg-green-100 text-green-800 border-green-300',
+    B: 'bg-blue-100 text-blue-800 border-blue-300',
+    C: 'bg-orange-100 text-orange-800 border-orange-300',
+    D: 'bg-red-100 text-red-800 border-red-300',
+  };
+
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Target className="h-4 w-4 text-amber-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-amber-800">
+          Batch-Potenzial · {batchOpportunities.length} Zone{batchOpportunities.length !== 1 ? 'n' : ''} bündelbar
+        </span>
+        <span className="ml-auto text-[10px] text-amber-600">In 5-Min-Fenster</span>
+      </div>
+      <div className="space-y-2">
+        {batchOpportunities.map(({ zone, items, windowMin, earliest }) => {
+          const zCls = ZONE_COLORS[zone] ?? 'bg-muted text-muted-foreground border-border';
+          const allReady = items.every((i) => i.order.status === 'fertig');
+          const firstReadyStr = new Date(earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          return (
+            <div key={zone} className={cn('flex items-start gap-2 rounded-lg border px-3 py-2 text-xs', allReady ? 'border-matcha-300 bg-matcha-50' : 'border-amber-200 bg-white')}>
+              <span className={cn('rounded px-1.5 py-0.5 text-[10px] font-black shrink-0', zCls)}>Zone {zone}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap gap-1 mb-1">
+                  {items.map(({ order, minUntilReady }) => (
+                    <span
+                      key={order.id}
+                      className={cn(
+                        'rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                        order.status === 'fertig' ? 'bg-matcha-200 text-matcha-800' :
+                        minUntilReady <= 2 ? 'bg-orange-200 text-orange-800 animate-pulse' :
+                        'bg-amber-100 text-amber-800',
+                      )}
+                    >
+                      #{order.bestellnummer.replace(/^[A-Z]+-/, '')}
+                      {order.status === 'fertig' ? ' ✓' : ` ~${minUntilReady}m`}
+                    </span>
+                  ))}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {allReady
+                    ? `Alle ${items.length} bereit — jetzt bündeln!`
+                    : windowMin === 0
+                    ? `Gleichzeitig fertig ~${firstReadyStr}`
+                    : `Fertig innerhalb ${windowMin} Min · ab ~${firstReadyStr}`}
+                </div>
+              </div>
+              {allReady && (
+                <a
+                  href="/dispatch"
+                  className="shrink-0 rounded-lg bg-matcha-700 text-white px-2 py-1 text-[10px] font-bold hover:bg-matcha-800 transition"
+                >
+                  Dispatch →
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
