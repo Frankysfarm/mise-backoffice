@@ -38,6 +38,7 @@ type Stop = {
     eta_earliest?: string | null;
     eta_latest?: string | null;
     kunde_notiz?: string | null;
+    kunde_lieferhinweis?: string | null;
   };
 };
 
@@ -429,6 +430,12 @@ export function DeliveryView({
               <span className="text-amber-200 text-[11px] leading-snug">{nextStop.order.kunde_notiz}</span>
             </div>
           )}
+          {nextStop.order.kunde_lieferhinweis && (
+            <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-blue-500/15 border border-blue-400/30 px-2 py-1.5">
+              <span className="text-blue-300 text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Lieferhinweis:</span>
+              <span className="text-blue-200 text-[11px] leading-snug">{nextStop.order.kunde_lieferhinweis}</span>
+            </div>
+          )}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="flex items-center gap-1 text-matcha-300">
               <span className="h-5 w-5 rounded-full bg-accent text-matcha-900 flex items-center justify-center font-black text-[10px]">
@@ -518,6 +525,32 @@ export function DeliveryView({
                   title="In Waze öffnen"
                 >
                   Waze
+                </a>
+              </div>
+            );
+          })()}
+          {/* Kunde direkt kontaktieren */}
+          {nextStop.order.kunde_telefon && (() => {
+            const raw = nextStop.order.kunde_telefon!.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+            const intl = raw.startsWith('+') ? raw.slice(1) : raw.startsWith('00') ? raw.slice(2) : raw.startsWith('0') ? '49' + raw.slice(1) : '49' + raw;
+            const msg = encodeURIComponent(`Hallo! Ich bin Ihr Lieferfahrer und bin gleich da. Bestellung #${nextStop.order.bestellnummer.replace(/^[A-Z]+-/, '')} 🚗`);
+            return (
+              <div className="mt-2 flex gap-2">
+                <a
+                  href={`tel:${nextStop.order.kunde_telefon}`}
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-matcha-700/60 border border-matcha-600/40 text-matcha-100 font-bold text-sm active:scale-[0.98] transition"
+                >
+                  <Phone size={14} />
+                  Anrufen
+                </a>
+                <a
+                  href={`https://wa.me/${intl}?text=${msg}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 text-[#25D366] font-bold text-sm active:scale-[0.98] transition"
+                >
+                  <MessageSquare size={14} />
+                  WhatsApp
                 </a>
               </div>
             );
