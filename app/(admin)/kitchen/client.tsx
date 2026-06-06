@@ -2522,17 +2522,30 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
       )}
 
       {/* Fahrer-ETA-Chip: fertige Lieferbestellung ist bereits einem aktiven Batch zugewiesen */}
-      {order.status === 'fertig' && order.typ === 'lieferung' && driverEtaMs != null && (
-        <div className={cn(
-          'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
-          driverEtaMs < Date.now() + 5 * 60_000
-            ? 'bg-matcha-700 text-white animate-pulse'
-            : 'bg-blue-100 text-blue-800',
-        )}>
-          <Bike className="h-2.5 w-2.5" />
-          Fahrer ~{new Date(driverEtaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-        </div>
-      )}
+      {order.status === 'fertig' && order.typ === 'lieferung' && driverEtaMs != null && (() => {
+        const secUntil = Math.floor((driverEtaMs - Date.now()) / 1000);
+        const minUntil = Math.floor(secUntil / 60);
+        const isImminent = secUntil < 300;
+        const isOverdue = secUntil < 0;
+        const countdownLabel = isOverdue
+          ? 'Fahrer kommt gerade'
+          : secUntil < 60
+          ? 'Fahrer kommt gleich!'
+          : `Fahrer in ${minUntil} Min`;
+        const clockLabel = new Date(driverEtaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        return (
+          <div className={cn(
+            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+            isImminent
+              ? 'bg-matcha-700 text-white animate-pulse'
+              : 'bg-blue-100 text-blue-800',
+          )}>
+            <Bike className="h-2.5 w-2.5" />
+            <span>{countdownLabel}</span>
+            <span className="opacity-60">~{clockLabel}</span>
+          </div>
+        );
+      })()}
 
       {/* Bündelungs-Chip: mehrere fertige Lieferbestellungen in derselben Zone */}
       {order.status === 'fertig' && order.typ === 'lieferung' && sameZoneCount >= 2 && order.delivery_zone && (
