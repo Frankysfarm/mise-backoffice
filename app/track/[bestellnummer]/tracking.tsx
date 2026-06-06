@@ -17,6 +17,7 @@ import {
   Truck,
   ShoppingBag,
   MessageCircle,
+  Share2,
   X,
 } from 'lucide-react';
 
@@ -97,6 +98,7 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
   const [deliveryEvents, setDeliveryEvents] = useState<DeliveryEvent[]>([]);
+  const [shared, setShared] = useState(false);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -245,7 +247,29 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
               <div className="mt-0.5 text-[10px] uppercase tracking-wider text-matcha-300">Bestellung verfolgen</div>
             </div>
           </div>
-          <div className="font-mono text-xs tracking-wider text-matcha-300">#{order.bestellnummer.replace(/^[A-Z]+-/, '')}</div>
+          <div className="flex items-center gap-3">
+            <div className="font-mono text-xs tracking-wider text-matcha-300">#{order.bestellnummer.replace(/^[A-Z]+-/, '')}</div>
+            {!['geliefert', 'abgeholt', 'storniert'].includes(order.status) && (
+              <button
+                onClick={async () => {
+                  const url = typeof window !== 'undefined' ? window.location.href : '';
+                  const text = `Verfolge meine Bestellung bei ${tenant?.name ?? 'uns'}: ${url}`;
+                  if (typeof navigator !== 'undefined' && navigator.share) {
+                    try { await navigator.share({ title: 'Bestellung verfolgen', text, url }); } catch {}
+                  } else {
+                    try { await navigator.clipboard.writeText(url); } catch {}
+                    setShared(true);
+                    setTimeout(() => setShared(false), 2000);
+                  }
+                }}
+                title="Link teilen"
+                className="flex items-center gap-1 rounded-full bg-white/10 hover:bg-white/20 px-2.5 py-1 text-[10px] font-bold text-matcha-200 transition"
+              >
+                {shared ? <Check className="h-3 w-3" /> : <Share2 className="h-3 w-3" />}
+                {shared ? 'Kopiert!' : 'Teilen'}
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -389,6 +413,39 @@ export function TrackingView({ order: initial, items, tenant }: { order: Order; 
             })}
           </ol>
         </div>
+
+        {/* Storniert-Karte */}
+        {order.status === 'storniert' && (
+          <div className="rounded-2xl border-2 border-red-200 bg-red-50 p-5 shadow-subtle text-center space-y-3">
+            <div className="text-4xl">😔</div>
+            <div className="font-display text-lg font-bold text-red-800">Bestellung storniert</div>
+            <p className="text-sm text-red-700">
+              Deine Bestellung #{order.bestellnummer.replace(/^[A-Z]+-/, '')} wurde leider storniert.
+              Solltest du Fragen haben, melde dich bitte bei uns.
+            </p>
+            {order.bezahlt && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-red-100 border border-red-200 px-4 py-2 text-sm font-bold text-red-700">
+                Rückerstattung: {euro(order.gesamtbetrag)}
+              </div>
+            )}
+            <a
+              href="tel:+4924190008888"
+              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-red-600 text-white font-bold text-sm"
+            >
+              <Phone className="h-4 w-4" />
+              Restaurant anrufen
+            </a>
+          </div>
+        )}
+
+        {/* Abgeholt-Karte */}
+        {order.status === 'abgeholt' && (
+          <div className="rounded-2xl border-2 border-matcha-200 bg-gradient-to-br from-matcha-50 to-white p-5 shadow-subtle text-center space-y-2">
+            <div className="text-4xl">🛍️</div>
+            <div className="font-display text-xl font-bold text-matcha-800">Guten Appetit!</div>
+            <p className="text-sm text-matcha-600">Danke, dass du bei uns bestellt hast.</p>
+          </div>
+        )}
 
         {/* Liefer-Warteschlange: visueller Stop-Indikator wenn Fahrer unterwegs */}
         {order.status === 'unterwegs' && stopsBefore != null && stopsBefore > 0 && (
@@ -1012,6 +1069,8 @@ function heroHeadline(o: Order): string {
 }
 function heroTitle(o: Order): string {
   if (o.status === 'geliefert') return 'Guten Appetit 🍵';
+  if (o.status === 'abgeholt') return 'Guten Appetit 🛍️';
+  if (o.status === 'storniert') return 'Bestellung storniert';
   if (o.status === 'unterwegs') return `Gleich bei dir, ${o.kunde_name.split(' ')[0]}!`;
   if (o.status === 'fertig' && o.typ === 'lieferung') return 'Ein Fahrer kommt gleich vorbei';
   if (o.status === 'fertig') return 'Du kannst abholen';
@@ -1020,6 +1079,8 @@ function heroTitle(o: Order): string {
 }
 function heroSub(o: Order): string {
   if (o.status === 'geliefert') return 'Wir hoffen, es hat geschmeckt.';
+  if (o.status === 'abgeholt') return 'Wir hoffen, es hat geschmeckt.';
+  if (o.status === 'storniert') return 'Tut uns leid. Bitte kontaktiere uns bei Fragen.';
   if (o.status === 'unterwegs') return 'Du kannst den Fahrer live verfolgen.';
   if (o.status === 'in_zubereitung') return 'Frisch gemacht, dauert noch ein paar Minuten.';
   return 'Wir halten dich hier auf dem Laufenden.';
