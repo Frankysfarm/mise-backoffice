@@ -139,6 +139,25 @@ type FailedAttemptsData = {
   }[];
 } | null;
 
+type PayoutSummaryData = {
+  today: {
+    activeDrivers: number;
+    totalDeliveries: number;
+    totalPayoutEur: number;
+    avgPerDelivery: number;
+  };
+  pending: {
+    draftPeriods: number;
+    totalAmountEur: number;
+  };
+  topDriverToday: Array<{
+    driverId: string;
+    driverName: string;
+    deliveries: number;
+    totalEur: number;
+  }>;
+} | null;
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -176,6 +195,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [surgeData, setSurgeData] = useState<SurgeData>(null)
   const [coverageData, setCoverageData] = useState<CoverageData>(null)
   const [failedAttemptsData, setFailedAttemptsData] = useState<FailedAttemptsData>(null)
+  const [payoutSummary, setPayoutSummary] = useState<PayoutSummaryData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -271,6 +291,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         setFailedAttemptsData({ stats: statsData.stats, attempts: listData?.attempts ?? [] })
       }
     }).catch(() => {})
+    fetch(`/api/delivery/admin/payouts?view=summary&location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.summary) setPayoutSummary(d.summary) })
+      .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -1646,6 +1670,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {failedAttemptsData && (
         <FailedAttemptsPanel data={failedAttemptsData} />
       )}
+
+      {/* Fahrer-Vergütung heute */}
+      {payoutSummary && payoutSummary.today.totalDeliveries > 0 && (
+        <PayoutSummaryPanel data={payoutSummary} />
+      )}
     </div>
   )
 }
@@ -2673,6 +2702,84 @@ function FailedAttemptsPanel({ data }: { data: NonNullable<FailedAttemptsData> }
               <div className="text-center text-[11px] text-stone-400">+ {attempts.length - 5} weitere offene Fälle</div>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ PayoutSummaryPanel ------------------------------ */
+
+function PayoutSummaryPanel({ data }: { data: NonNullable<PayoutSummaryData> }) {
+  const fmt = (n: number) =>
+    n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+
+  const maxEur = data.topDriverToday.length > 0 ? data.topDriverToday[0].totalEur : 1;
+  const medalLabel = (i: number) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <DollarSign className="w-4 h-4 text-emerald-600" />
+        <span className="font-bold text-sm uppercase tracking-wider text-char">Fahrer-Vergütung · Heute</span>
+      </div>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div className="rounded-xl bg-emerald-50 p-3 text-center">
+          <div className="text-xl font-black text-emerald-700">{fmt(data.today.totalPayoutEur)}</div>
+          <div className="text-[11px] text-emerald-600 mt-0.5">Gesamt ausgezahlt</div>
+        </div>
+        <div className="rounded-xl bg-stone-50 p-3 text-center">
+          <div className="text-xl font-black text-char">{fmt(data.today.avgPerDelivery)}</div>
+          <div className="text-[11px] text-stone-500 mt-0.5">Ø pro Lieferung</div>
+        </div>
+        <div className="rounded-xl bg-blue-50 p-3 text-center">
+          <div className="text-xl font-black text-blue-700">{data.today.totalDeliveries}</div>
+          <div className="text-[11px] text-blue-600 mt-0.5">Lieferungen</div>
+        </div>
+        <div className="rounded-xl bg-amber-50 p-3 text-center">
+          <div className="text-xl font-black text-amber-700">{data.today.activeDrivers}</div>
+          <div className="text-[11px] text-amber-600 mt-0.5">Aktive Fahrer</div>
+        </div>
+      </div>
+
+      {/* Top-Fahrer */}
+      {data.topDriverToday.length > 0 && (
+        <div className="mb-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-2">Top-Fahrer heute</div>
+          <div className="space-y-2">
+            {data.topDriverToday.map((d, i) => {
+              const pct = maxEur > 0 ? Math.round((d.totalEur / maxEur) * 100) : 0;
+              const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-stone-400' : i === 2 ? 'bg-orange-400' : 'bg-stone-200';
+              return (
+                <div key={d.driverId} className="flex items-center gap-2">
+                  <div className="w-7 text-center shrink-0 text-sm font-black">{medalLabel(i)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-sm font-semibold text-char truncate">{d.driverName}</span>
+                      <span className="text-sm font-black text-emerald-700 shrink-0 ml-2">{fmt(d.totalEur)}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                      <div className={`h-full rounded-full ${barColor} transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="text-[10px] text-stone-400 mt-0.5">{d.deliveries} Lieferungen</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Ausstehende Perioden */}
+      {data.pending.draftPeriods > 0 && (
+        <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+          <span className="text-xs text-amber-800">
+            <span className="font-bold">{data.pending.draftPeriods} Abrechnungsperiode{data.pending.draftPeriods !== 1 ? 'n' : ''}</span>
+            {' '}ausstehend — {fmt(data.pending.totalAmountEur)} zur Freigabe
+          </span>
         </div>
       )}
     </div>
