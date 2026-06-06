@@ -10,7 +10,7 @@ import {
   Inbox, Loader2, MapPin, Monitor, Package, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { advanceOrder, cancelOrder } from './actions';
+import { advanceOrder, cancelOrder, updatePrepTime } from './actions';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2598,6 +2598,27 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
                 return readyAt ? `~${readyAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}` : '';
               })()}
             </span>
+          </div>
+          {/* Prep-Zeit-Korrektur: Inline-Anpassung der geschätzten Zubereitungszeit */}
+          <div className="mt-1.5 flex items-center gap-1">
+            <span className="text-[9px] text-muted-foreground/60 mr-0.5">Zubereitung:</span>
+            <button
+              onClick={() => startTransition(() => void updatePrepTime(order.id, est - 5))}
+              disabled={pending || est <= 5}
+              className="h-5 px-1.5 rounded text-[9px] font-bold bg-muted hover:bg-orange-100 hover:text-orange-700 text-muted-foreground disabled:opacity-30 transition"
+              title="-5 Minuten"
+            >
+              −5
+            </button>
+            <span className="text-[9px] font-bold tabular-nums text-foreground px-0.5">{est} Min</span>
+            <button
+              onClick={() => startTransition(() => void updatePrepTime(order.id, est + 5))}
+              disabled={pending || est >= 120}
+              className="h-5 px-1.5 rounded text-[9px] font-bold bg-muted hover:bg-matcha-100 hover:text-matcha-700 text-muted-foreground disabled:opacity-30 transition"
+              title="+5 Minuten"
+            >
+              +5
+            </button>
           </div>
         </div>
       )}

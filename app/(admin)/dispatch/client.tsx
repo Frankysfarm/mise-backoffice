@@ -585,16 +585,23 @@ export function DispatchBoard({
             </div>
 
             <div className="divide-y">
-              {onlineDrivers.map((d) => (
-                <DriverRow
-                  key={d.employee_id}
-                  driver={d}
-                  activeBatch={batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id) ?? null}
-                  canAssign={selected.size > 0 && !d.aktueller_batch_id}
-                  busy={pending}
-                  onAssign={() => assignToDriver(d.employee_id)}
-                />
-              ))}
+              {onlineDrivers.map((d) => {
+                const loc = locationFilter !== 'all'
+                  ? locations.find((l) => l.id === locationFilter)
+                  : locations[0];
+                return (
+                  <DriverRow
+                    key={d.employee_id}
+                    driver={d}
+                    activeBatch={batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id) ?? null}
+                    canAssign={selected.size > 0 && !d.aktueller_batch_id}
+                    busy={pending}
+                    onAssign={() => assignToDriver(d.employee_id)}
+                    restaurantLat={loc?.lat ?? null}
+                    restaurantLng={loc?.lng ?? null}
+                  />
+                );
+              })}
               {onlineDrivers.length === 0 && (
                 <div className="p-6 text-center text-sm text-muted-foreground">
                   Momentan ist kein Fahrer online.
@@ -1445,12 +1452,16 @@ function DriverRow({
   canAssign,
   busy,
   onAssign,
+  restaurantLat,
+  restaurantLng,
 }: {
   driver: Driver;
   activeBatch?: ActiveBatchRef | null;
   canAssign: boolean;
   busy: boolean;
   onAssign: () => void;
+  restaurantLat?: number | null;
+  restaurantLng?: number | null;
 }) {
   const e = driver.employee;
   const initials = e ? `${e.vorname?.[0] ?? ''}${e.nachname?.[0] ?? ''}`.toUpperCase() : '?';
@@ -1482,6 +1493,19 @@ function DriverRow({
       minute: '2-digit',
     });
     return { secLeft, returnStr, remainingStops, totalStops, doneStops };
+  })();
+
+  // Entfernung zum Abholort — nur für freie Fahrer mit GPS
+  const distToRestaurant = (() => {
+    if (activeBatch) return null;
+    if (!driver.ist_online || driver.last_lat == null || driver.last_lng == null) return null;
+    if (restaurantLat == null || restaurantLng == null) return null;
+    const km = haversineKm(
+      { lat: driver.last_lat, lng: driver.last_lng },
+      { lat: restaurantLat, lng: restaurantLng },
+    );
+    const walkMinEstimate = Math.round((km / 15) * 60); // 15 km/h als Fahrad-Tempo
+    return { km, walkMinEstimate };
   })();
 
   return (
@@ -1521,6 +1545,17 @@ function DriverRow({
                     lastSeen > 15 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700',
                   )}>
                     GPS vor {lastSeen}m
+                  </span>
+                )}
+                {distToRestaurant && (
+                  <span className={cn(
+                    'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold',
+                    distToRestaurant.km < 0.5 ? 'bg-matcha-100 text-matcha-800' :
+                    distToRestaurant.km < 2 ? 'bg-blue-50 text-blue-700' :
+                    'bg-muted text-muted-foreground',
+                  )} title={`~${distToRestaurant.walkMinEstimate} Min zum Restaurant`}>
+                    <MapPin className="h-2.5 w-2.5" />
+                    {distToRestaurant.km < 1 ? `${Math.round(distToRestaurant.km * 1000)} m` : `${distToRestaurant.km.toFixed(1)} km`}
                   </span>
                 )}
               </>

@@ -258,10 +258,10 @@ export async function recordFailedAttempt(
     }
 
     // Bestellstatus auf 'nicht_zugestellt' setzen (fire-and-forget)
-    sb.from('customer_orders')
+    void sb.from('customer_orders')
       .update({ status: 'nicht_zugestellt' })
       .eq('id', input.orderId)
-      .catch(() => {});
+      .then(() => {});
 
     return mapAttemptRow(data);
   } catch {
@@ -321,10 +321,10 @@ export async function scheduleRetry(
       .maybeSingle();
 
     if (attempt?.order_id) {
-      sb.from('customer_orders')
+      void sb.from('customer_orders')
         .update({ status: 'retry_scheduled', scheduled_at: nextAttemptAt.toISOString() })
         .eq('id', attempt.order_id as string)
-        .catch(() => {});
+        .then(() => {});
     }
 
     return true;

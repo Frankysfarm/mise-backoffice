@@ -37,6 +37,18 @@ export async function cancelOrder(orderId: string) {
   return { ok: true };
 }
 
+export async function updatePrepTime(orderId: string, newMinutes: number) {
+  const supabase = await createClient();
+  const clamped = Math.max(1, Math.min(120, newMinutes));
+  const { error } = await supabase
+    .from('customer_orders')
+    .update({ geschaetzte_zubereitung_min: clamped })
+    .eq('id', orderId);
+  if (error) return { ok: false };
+  revalidatePath('/kitchen');
+  return { ok: true };
+}
+
 function systemMsg(status: string): string {
   switch (status) {
     case 'bestätigt': return '✓ Bestellung bestätigt';
