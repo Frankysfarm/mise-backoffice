@@ -442,6 +442,7 @@ export function DispatchBoard({
             orders={filteredOrders}
             restaurantLat={loc?.lat ?? null}
             restaurantLng={loc?.lng ?? null}
+            locationId={loc?.id ?? null}
           />
         );
       })()}
@@ -855,14 +856,38 @@ function LiveDriverMapPanel({
   orders,
   restaurantLat,
   restaurantLng,
+  locationId,
 }: {
   drivers: Driver[];
   batches: Batch[];
   orders: ReadyOrder[];
   restaurantLat?: number | null;
   restaurantLng?: number | null;
+  locationId?: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const [trails, setTrails] = useState<import('./driver-map').DriverTrail[]>([]);
+
+  useEffect(() => {
+    if (!open || !locationId) return;
+    let cancelled = false;
+    const load = () => {
+      fetch(`/api/delivery/admin/gps-trails?location_id=${locationId}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((d: { drivers?: { driver_id: string; trail_points: { lat: number; lng: number }[] }[] } | null) => {
+          if (cancelled || !d?.drivers) return;
+          setTrails(
+            d.drivers
+              .filter((dr) => dr.trail_points.length >= 2)
+              .map((dr) => ({ driverId: dr.driver_id, points: dr.trail_points })),
+          );
+        })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 15_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [open, locationId]);
 
   const onlineWithGps = drivers.filter((d) => d.ist_online && d.last_lat && d.last_lng);
   if (onlineWithGps.length === 0) return null;
@@ -951,6 +976,7 @@ function LiveDriverMapPanel({
             unassigned={unassignedMarkers}
             restaurantLat={restaurantLat}
             restaurantLng={restaurantLng}
+            trails={trails}
           />
         </div>
       )}
