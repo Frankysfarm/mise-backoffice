@@ -6,7 +6,7 @@ import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdie
 import { createClient } from '@/lib/supabase/client'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
-  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp
+  Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp, ChevronUp, ChevronDown
 } from 'lucide-react'
 import {
   BarChart,
@@ -196,6 +196,15 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [coverageData, setCoverageData] = useState<CoverageData>(null)
   const [failedAttemptsData, setFailedAttemptsData] = useState<FailedAttemptsData>(null)
   const [payoutSummary, setPayoutSummary] = useState<PayoutSummaryData>(null)
+  const [payoutConfig, setPayoutConfig] = useState<{
+    basePerDelivery: number;
+    kmRate: number;
+    peakMultiplier: number;
+    bonusPerRatingPoint: number;
+    minRatingForBonus: number;
+    milestoneBonuses: Record<string, number>;
+    locationId: string;
+  } | null>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -294,6 +303,23 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/payouts?view=summary&location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.summary) setPayoutSummary(d.summary) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/payout-config?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.config) {
+          const c = d.config;
+          setPayoutConfig({
+            basePerDelivery: c.base_per_delivery ?? c.basePerDelivery ?? 3.00,
+            kmRate: c.km_rate ?? c.kmRate ?? 0.25,
+            peakMultiplier: c.peak_multiplier ?? c.peakMultiplier ?? 1.20,
+            bonusPerRatingPoint: c.bonus_per_rating_point ?? c.bonusPerRatingPoint ?? 0.10,
+            minRatingForBonus: c.min_rating_for_bonus ?? c.minRatingForBonus ?? 4.0,
+            milestoneBonuses: c.milestone_bonuses ?? c.milestoneBonuses ?? {},
+            locationId,
+          })
+        }
+      })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1675,6 +1701,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {payoutSummary && payoutSummary.today.totalDeliveries > 0 && (
         <PayoutSummaryPanel data={payoutSummary} />
       )}
+
+      {/* Vergütungs-Konfiguration */}
+      {payoutConfig && (
+        <PayoutConfigPanel
+          config={payoutConfig}
+          onSaved={(updated) => setPayoutConfig(updated)}
+        />
+      )}
     </div>
   )
 }
@@ -2783,5 +2817,182 @@ function PayoutSummaryPanel({ data }: { data: NonNullable<PayoutSummaryData> }) 
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ PayoutConfigPanel ------------------------------ */
+
+type PayoutConfigState = {
+  basePerDelivery: number;
+  kmRate: number;
+  peakMultiplier: number;
+  bonusPerRatingPoint: number;
+  minRatingForBonus: number;
+  milestoneBonuses: Record<string, number>;
+  locationId: string;
+};
+
+function PayoutConfigPanel({ config, onSaved }: { config: PayoutConfigState; onSaved: (c: PayoutConfigState) => void }) {
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [draft, setDraft] = useState(config);
+
+  function startEdit() { setDraft(config); setEditing(true); }
+  function cancel() { setEditing(false); setSaveMsg(null); }
+
+  async function save() {
+    setSaving(true);
+    try {
+      const body = {
+        location_id: config.locationId,
+        base_per_delivery: draft.basePerDelivery,
+        km_rate: draft.kmRate,
+        peak_multiplier: draft.peakMultiplier,
+        bonus_per_rating_point: draft.bonusPerRatingPoint,
+        min_rating_for_bonus: draft.minRatingForBonus,
+        milestone_bonuses: draft.milestoneBonuses,
+      };
+      const res = await fetch('/api/delivery/admin/payout-config', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        onSaved({ ...draft });
+        setEditing(false);
+        setSaveMsg('Gespeichert ✓');
+        setTimeout(() => setSaveMsg(null), 4000);
+      } else {
+        setSaveMsg('Fehler beim Speichern');
+      }
+    } catch {
+      setSaveMsg('Netzwerkfehler');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const fmtEur = (n: number) => `${n.toFixed(2)} €`;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-stone-50 transition"
+      >
+        <div className="flex items-center gap-2">
+          <Target className="w-4 h-4 text-matcha-600" />
+          <span className="font-bold text-sm uppercase tracking-wider text-char">Vergütungs-Konfiguration</span>
+          {!open && (
+            <span className="text-xs text-stone-400 ml-1">
+              Basis {fmtEur(config.basePerDelivery)} · {fmtEur(config.kmRate)}/km · ×{config.peakMultiplier.toFixed(2)} Peak
+            </span>
+          )}
+          {saveMsg && <span className="text-xs font-semibold text-emerald-600">{saveMsg}</span>}
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 border-t border-stone-100">
+          {!editing ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                <ConfigChip label="Basis / Lieferung" value={fmtEur(config.basePerDelivery)} color="emerald" />
+                <ConfigChip label="km-Bonus" value={`${fmtEur(config.kmRate)}/km`} color="blue" />
+                <ConfigChip label="Peak-Multiplikator" value={`×${config.peakMultiplier.toFixed(2)}`} color="amber" />
+                <ConfigChip label="Rating-Bonus" value={`${fmtEur(config.bonusPerRatingPoint)}/0.1★`} color="violet" />
+                <ConfigChip label="Mindest-Rating" value={`≥${config.minRatingForBonus.toFixed(1)}★`} color="stone" />
+              </div>
+              {Object.keys(config.milestoneBonuses).length > 0 && (
+                <div className="mt-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 mb-1.5">Meilenstein-Boni</div>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(config.milestoneBonuses).sort(([a], [b]) => Number(a) - Number(b)).map(([count, bonus]) => (
+                      <div key={count} className="rounded-full bg-stone-100 px-3 py-1 text-xs font-bold text-stone-700">
+                        {count}. Lieferung → +{fmtEur(bonus)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={startEdit}
+                className="mt-4 rounded-xl bg-matcha-700 text-white px-4 py-2 text-sm font-bold hover:bg-matcha-800 transition"
+              >
+                Konfiguration bearbeiten
+              </button>
+            </>
+          ) : (
+            <div className="mt-4 space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <NumInput label="Basis / Lieferung (€)" value={draft.basePerDelivery} min={0} max={20} step={0.1}
+                  onChange={(v) => setDraft(d => ({ ...d, basePerDelivery: v }))} />
+                <NumInput label="km-Rate (€/km)" value={draft.kmRate} min={0} max={2} step={0.01}
+                  onChange={(v) => setDraft(d => ({ ...d, kmRate: v }))} />
+                <NumInput label="Peak-Multiplikator" value={draft.peakMultiplier} min={1} max={3} step={0.05}
+                  onChange={(v) => setDraft(d => ({ ...d, peakMultiplier: v }))} />
+                <NumInput label="Rating-Bonus (€/0.1★)" value={draft.bonusPerRatingPoint} min={0} max={1} step={0.01}
+                  onChange={(v) => setDraft(d => ({ ...d, bonusPerRatingPoint: v }))} />
+                <NumInput label="Mindest-Rating für Bonus" value={draft.minRatingForBonus} min={1} max={5} step={0.1}
+                  onChange={(v) => setDraft(d => ({ ...d, minRatingForBonus: v }))} />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => void save()}
+                  disabled={saving}
+                  className="rounded-xl bg-matcha-700 text-white px-4 py-2 text-sm font-bold hover:bg-matcha-800 disabled:opacity-60 transition flex items-center gap-2"
+                >
+                  {saving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                  {saving ? 'Speichern…' : 'Speichern'}
+                </button>
+                <button onClick={cancel} className="rounded-xl border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 hover:bg-stone-50 transition">
+                  Abbrechen
+                </button>
+              </div>
+              {saveMsg && <div className="text-sm font-semibold text-red-600">{saveMsg}</div>}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConfigChip({ label, value, color }: { label: string; value: string; color: string }) {
+  const cls: Record<string, string> = {
+    emerald: 'bg-emerald-50 text-emerald-800',
+    blue: 'bg-blue-50 text-blue-800',
+    amber: 'bg-amber-50 text-amber-800',
+    violet: 'bg-violet-50 text-violet-800',
+    stone: 'bg-stone-100 text-stone-700',
+  };
+  return (
+    <div className={`rounded-xl p-3 ${cls[color] ?? cls.stone}`}>
+      <div className="text-lg font-black">{value}</div>
+      <div className="text-[11px] font-medium mt-0.5 opacity-75">{label}</div>
+    </div>
+  );
+}
+
+function NumInput({ label, value, min, max, step, onChange }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[11px] font-semibold text-stone-500">{label}</span>
+      <input
+        type="number"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        className="h-9 rounded-lg border border-stone-200 bg-white px-3 text-sm font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-matcha-400"
+      />
+    </label>
   );
 }
