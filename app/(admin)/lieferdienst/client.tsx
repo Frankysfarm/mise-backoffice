@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { Order, OrderStatus, mockOrders, generateRandomOrder } from '@/lib/lieferdienst/orders'
 import { OrderCard } from '@/components/lieferdienst/order-card'
 import { IncomingOrderDialog } from '@/components/lieferdienst/incoming-order-dialog'
@@ -72,7 +73,8 @@ export function LieferdienstClient() {
   // Shift Notes State
   const [shiftNotes, setShiftNotes] = useState<ShiftNote[]>(mockShiftNotes)
 
-  // === REAL DB-DATA INJECTION (patches mock-Defaults nach Mount + Realtime-Poll) ===
+  // === REAL DB-DATA INJECTION (Supabase Realtime + 30s Fallback-Poll) ===
+  const fetchDataRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     let cancelled = false;
     const fetchData = () => {
@@ -85,9 +87,28 @@ export function LieferdienstClient() {
           if (Array.isArray(d.menu))    setMenuItems(d.menu);
         }).catch(() => {});
     };
+    fetchDataRef.current = fetchData;
     fetchData();
-    const t = setInterval(fetchData, 8000);
-    return () => { cancelled = true; clearInterval(t); };
+
+    // Realtime: trigger re-fetch on any order change
+    const supabase = createClient();
+    const channel = supabase
+      .channel('lieferdienst-orders-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_orders' }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    // 30s fallback poll (instead of 8s) — realtime handles the fast path
+    const t = setInterval(fetchData, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   
