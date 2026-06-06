@@ -1745,7 +1745,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       )}
 
       {/* Push-Benachrichtigungen Statistik */}
-      <PushNotificationStats completedOrders={completedOrders} />
+      <PushNotificationStats locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id ?? null} />
 
       {/* Fehlgeschlagene Zustellversuche */}
       {failedAttemptsData && (
@@ -2590,67 +2590,99 @@ export function LiveOrderFeed({ locationId }: { locationId?: string }) {
 }
 
 /* ------------------------------ PushNotificationStats ------------------------------ */
-// Hinweis: Kein /api/delivery/admin/push-stats Endpunkt → Mock-Daten aus completedOrders abgeleitet
 
-function PushNotificationStats({ completedOrders }: { completedOrders: Order[] }) {
-  const today = new Date().toDateString();
-  const todayOrders = completedOrders.filter((o) => new Date((o as any).bestellt_am ?? o.createdAt ?? '').toDateString() === today);
-  if (todayOrders.length === 0) return null;
+type PushStatsData = {
+  mise: { total_24h: number; delivered_24h: number; failed_24h: number; delivery_rate: number | null; pending_now: number };
+  webpush: { total_24h: number; delivered_24h: number; failed_24h: number; delivery_rate: number | null; pending_now: number };
+  type_breakdown?: Record<string, number>;
+} | null;
 
-  const delivered = todayOrders.filter((o) => o.status === 'done').length;
-  const total = todayOrders.length;
-  const pushSent = Math.round(delivered * 0.85);
-  const pushOpened = Math.round(pushSent * 0.62);
-  const openRate = pushSent > 0 ? Math.round((pushOpened / pushSent) * 100) : 0;
+function PushNotificationStats({ locationId }: { locationId: string | null }) {
+  const [data, setData] = useState<PushStatsData>(null);
 
-  const stages = [
-    { label: 'Bestätigung', count: total, color: 'bg-matcha-400' },
-    { label: 'Zubereitung', count: Math.round(total * 0.92), color: 'bg-matcha-500' },
-    { label: 'Unterwegs', count: delivered, color: 'bg-amber-400' },
-    { label: 'Geliefert', count: Math.round(delivered * 0.88), color: 'bg-emerald-500' },
-  ];
-  const maxCount = stages[0].count;
+  useEffect(() => {
+    if (!locationId) return;
+    fetch(`/api/delivery/admin/push-stats?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.mise || d?.webpush) setData(d); })
+      .catch(() => {});
+  }, [locationId]);
+
+  if (!data) return null;
+  const totalSent = (data.mise?.delivered_24h ?? 0) + (data.webpush?.delivered_24h ?? 0);
+  const totalSentAll = (data.mise?.total_24h ?? 0) + (data.webpush?.total_24h ?? 0);
+  if (totalSentAll === 0) return null;
+
+  const overallRate = totalSentAll > 0 ? Math.round((totalSent / totalSentAll) * 100) : null;
+  const pendingNow = (data.mise?.pending_now ?? 0) + (data.webpush?.pending_now ?? 0);
+  const failedTotal = (data.mise?.failed_24h ?? 0) + (data.webpush?.failed_24h ?? 0);
+
+  const channels = [
+    { key: 'mise',    label: 'Mise App (Expo)',  d: data.mise,    color: 'bg-matcha-500', bg: 'bg-matcha-50', textCls: 'text-matcha-700' },
+    { key: 'webpush', label: 'Web Push (VAPID)',  d: data.webpush, color: 'bg-blue-400',   bg: 'bg-blue-50',   textCls: 'text-blue-700' },
+  ].filter(c => (c.d?.total_24h ?? 0) > 0);
 
   return (
     <div className="rounded-2xl border border-stone-200 bg-white p-5">
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-4">
         <MessageSquare className="w-4 h-4 text-matcha-600" />
-        <span className="font-bold text-sm uppercase tracking-wider text-stone-800">Push-Benachrichtigungen</span>
-        <span className="ml-auto text-[10px] text-stone-400 font-medium">Heute · Schätzung</span>
+        <span className="font-bold text-sm uppercase tracking-wider text-stone-800">Push-Benachrichtigungen · 24h</span>
+        {pendingNow > 0 && (
+          <span className="ml-auto rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[10px] font-bold animate-pulse">
+            {pendingNow} ausstehend
+          </span>
+        )}
       </div>
-      <p className="text-xs text-stone-400 mb-4">Basierend auf Bestellstatus (API /admin/push-stats ausstehend)</p>
 
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="rounded-xl bg-matcha-50 p-3 text-center">
-          <div className="font-black text-2xl tabular-nums text-matcha-700">{pushSent}</div>
-          <div className="text-[11px] text-matcha-600 font-medium">Push gesendet</div>
+          <div className="font-black text-2xl tabular-nums text-matcha-700">{totalSent}</div>
+          <div className="text-[11px] text-matcha-600 font-medium">Zugestellt</div>
         </div>
-        <div className="rounded-xl bg-amber-50 p-3 text-center">
-          <div className="font-black text-2xl tabular-nums text-amber-700">{pushOpened}</div>
-          <div className="text-[11px] text-amber-600 font-medium">Geöffnet</div>
+        <div className="rounded-xl bg-stone-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-char">{totalSentAll}</div>
+          <div className="text-[11px] text-stone-500 font-medium">Gesamt</div>
         </div>
-        <div className="rounded-xl bg-emerald-50 p-3 text-center">
-          <div className="font-black text-2xl tabular-nums text-emerald-700">{openRate}%</div>
-          <div className="text-[11px] text-emerald-600 font-medium">Öffnungsrate</div>
+        <div className={`rounded-xl p-3 text-center ${failedTotal > 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
+          <div className={`font-black text-2xl tabular-nums ${failedTotal > 0 ? 'text-red-700' : 'text-emerald-700'}`}>
+            {overallRate !== null ? `${overallRate}%` : '—'}
+          </div>
+          <div className={`text-[11px] font-medium ${failedTotal > 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+            {failedTotal > 0 ? `${failedTotal} Fehler` : 'Erfolgsrate'}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wide mb-2">Trichter nach Stage</div>
-        {stages.map((s) => {
-          const pct = maxCount > 0 ? Math.round((s.count / maxCount) * 100) : 0;
-          return (
-            <div key={s.label} className="flex items-center gap-3">
-              <div className="w-24 shrink-0 text-[11px] font-medium text-stone-700">{s.label}</div>
-              <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
-                <div className={`h-full rounded-full ${s.color} transition-all`} style={{ width: `${pct}%` }} />
+      {channels.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wide mb-2">Nach Kanal</div>
+          {channels.map(ch => {
+            const rate = ch.d.total_24h > 0 ? Math.round((ch.d.delivered_24h / ch.d.total_24h) * 100) : 0;
+            return (
+              <div key={ch.key} className="flex items-center gap-3">
+                <div className="w-32 shrink-0 text-[11px] font-medium text-stone-600 truncate">{ch.label}</div>
+                <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
+                  <div className={`h-full rounded-full ${ch.color} transition-all`} style={{ width: `${rate}%` }} />
+                </div>
+                <div className="w-14 text-right text-[11px] tabular-nums font-bold text-stone-600">
+                  {ch.d.delivered_24h}/{ch.d.total_24h}
+                </div>
+                <div className="w-9 text-right text-[10px] tabular-nums text-stone-400">{rate}%</div>
               </div>
-              <div className="w-10 text-right text-[11px] tabular-nums font-bold text-stone-700">{s.count}</div>
-              <div className="w-9 text-right text-[10px] tabular-nums text-stone-400">{pct}%</div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
+
+      {data.type_breakdown && Object.keys(data.type_breakdown).length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {Object.entries(data.type_breakdown).slice(0, 5).map(([type, count]) => (
+            <span key={type} className="rounded-full bg-stone-100 text-stone-600 px-2 py-0.5 text-[10px] font-bold">
+              {type.replace(/_/g, ' ')}: {count}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
