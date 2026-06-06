@@ -56,8 +56,114 @@
 - [x] Surge-Pricing-Panel im Statistiken-Dashboard
 - [x] GPS-Fahrerspuren live in der Dispatch-Karte (15s-Refresh)
 - [x] Fahrer-Abdeckungsanalyse im Statistiken-Dashboard (Midnight-Fix ✅)
+- [x] delivery_time_slots Tabelle
+- [x] delivery_window_bookings Tabelle
+- [x] v_slot_availability View
+- [x] v_window_dispatch_queue View
+- [x] windows.ts (Time Window Booking Engine)
+- [x] GET+POST+DELETE /api/delivery/windows (Kunden-API)
+- [x] GET+POST /api/delivery/admin/windows (Admin-API)
+- [x] Window-Dispatch im Cron-Tick (fällige Fenster freigeben)
+- [x] markWindowDispatched() in dispatch-engine.ts
+- [x] markWindowDelivered() in tours/[id]/status/route.ts
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–38 + CEO REVIEW #32 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–39 + CEO REVIEW #32 ABGESCHLOSSEN — 2026-06-06
+
+## Phase 39: Delivery Time Window Booking Engine [DONE ✅] — 2026-06-06
+
+### Motivation
+Kunden konnten bisher keine konkreten Lieferzeitfenster buchen — ETAs waren unverbindlich.
+Für Operations war es schwierig, Küchen-Starts und Fahrertourenplanung im Voraus zu planen.
+Phase 39 schließt diese Lücke: Kunden wählen ein 30-Minuten-Fenster beim Checkout,
+Operations plant Dispatch + Küche automatisch darum.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/033_delivery_windows.sql`
+  - `delivery_time_slots` Tabelle: konfigurierbare Zeitfenster pro Location + Wochentag
+    - day_of_week (0=Mo–6=So), slot_start_utc / slot_end_utc (HH:MM UTC)
+    - capacity: maximale Buchungen pro Fenster (default 8)
+    - slot_type: standard / express / scheduled
+    - extra_fee_eur: optionaler Aufpreis für gebuchtes Fenster
+    - UNIQUE (location_id, day_of_week, slot_start_utc) — kein Duplikat-Slot
+  - `delivery_window_bookings` Tabelle: Buchung Bestellung → Slot
+    - UNIQUE (order_id): max. 1 Buchung pro Bestellung
+    - status: pending → confirmed → dispatched → delivered / missed / cancelled
+    - confirmed_at, dispatched_at, delivered_at: Tracking-Timestamps
+    - extra_fee_eur: Snapshot des Slot-Aufpreises zum Buchungszeitpunkt
+  - `v_slot_availability` VIEW: Live-Kapazität pro Slot + Tag (heute + morgen)
+    - booked_count, remaining_capacity, utilization_pct
+    - Für Storefront-API: nur Slots mit verbleibender Kapazität anzeigen
+  - `v_window_dispatch_queue` VIEW: Buchungen die in <15 Min starten und noch pending
+    - Für Cron-Scan: automatische Freigabe zum richtigen Zeitpunkt
+  - RLS: service_role ALL + authenticated SELECT (tenant-gefiltert)
+  - 4 Indizes: location+dow, location+window_start, slot+window_start, pending_start
+
+- [x] `lib/delivery/windows.ts` — Time Window Booking Engine (TypeScript strict, kein `any`)
+  - Typen: TimeSlot / SlotAvailability / WindowBooking / AvailableSlot / WindowStats / SlotConfigInput / DispatchWindowResult
+  - `getSlotConfig(locationId)`: alle Slots (aktiv + inaktiv); erstellt Default-Slots on-demand
+    wenn noch keine Konfiguration vorhanden (buildDefaultSlots: Mo–So 11:00–22:00 UTC, 30-Min-Slots)
+  - `upsertSlotConfig(locationId, slots[])`: UPSERT Slot-Konfiguration (onConflict: location+dow+start)
+  - `setSlotActive(slotId, locationId, isActive)`: Slot aktivieren / deaktivieren
+  - `getAvailableSlots(locationId, date)`: Verfügbare Fenster für einen Tag
+    - Nur Slots mit remaining_capacity > 0 + window_start in der Zukunft
+    - `is_filling_fast: true` wenn utilization_pct >= 70% (Dringlichkeitssignal)
+  - `bookDeliveryWindow(orderId, slotId, locationId, notes?)`: Fenster buchen
+    - Slot-Kapazität: COUNT < capacity (race-condition-safe)
+    - Mindestvorlauf: 30 Minuten
+    - Setzt customer_orders.scheduled_at + schedule_status='scheduled' (Phase-24-Integration)
+    - Loggt `order_scheduled` DeliveryEvent
+  - `cancelWindowBooking(bookingId, locationId)`: Stornierung + schedule_status zurücksetzen
+  - `getOrderWindow(orderId)`: Buchung für eine Bestellung abrufen
+  - `processWindowDispatch(locationId?)`: Cron-Helfer
+    - Liest v_window_dispatch_queue (Fenster in <15 Min)
+    - Prüft ob kitchenStart (window_start - prep_time) <= now
+    - schedule_status='released' → Dispatch-Engine greift an
+    - Buchungsstatus auf 'confirmed' setzen
+  - `processWindowDispatchAllLocations()`: Cron-Wrapper (alle aktiven Locations, per-location try/catch)
+  - `markWindowDispatched(orderId)`: fire-and-forget aus dispatch-engine.ts
+  - `markWindowDelivered(orderId)`: fire-and-forget aus tours/[id]/status/route.ts
+  - `markMissedWindows()`: Cron — abgelaufene Buchungen als 'missed' markieren (+30 Min Grace Period)
+  - `getWindowStats(locationId)`: Admin-Dashboard (total, status-Aufschlüsselung, revenue, avg_utilization)
+  - `listWindowBookings(locationId, date?)`: Buchungsliste mit Slot-Label + Bestellnummer
+
+- [x] `app/api/delivery/windows/route.ts` — Kunden-API (kein Auth, orderId als Autorisierung)
+  - `GET ?location_id=...&date=YYYY-MM-DD` → AvailableSlot[] für Storefront-Checkout
+  - `GET ?location_id=...&order_id=...` → Einzelbuchung für eine Bestellung
+  - `POST { order_id, slot_id, location_id, notes? }` → Fenster buchen (201 Created)
+  - `DELETE ?order_id=...&location_id=...` → Buchung stornieren
+  - UUID-Validierung aller IDs vor DB-Zugriff
+  - Tenant-Guard: order_id muss zur location_id gehören
+
+- [x] `app/api/delivery/admin/windows/route.ts` — Admin-API
+  - `GET ?action=slots` → Slot-Konfiguration der Location
+  - `GET ?action=availability` → heute + morgen Verfügbarkeits-Übersicht (zwei Tage parallel)
+  - `GET ?action=bookings&date=YYYY-MM-DD` → Buchungsliste mit Slot-Metadaten
+  - `GET ?action=stats` (default) → Tages-Statistiken (Buchungen, Status, Umsatz, Auslastung)
+  - `POST { action: 'configure', slots: SlotConfigInput[] }` → Slot-Konfiguration setzen
+    - Validierung: day_of_week 0–6, HH:MM Format
+  - `POST { action: 'toggle_slot', slot_id, is_active }` → Slot aktivieren/deaktivieren
+  - `POST { action: 'cancel_booking', booking_id }` → Admin-seitige Stornierung
+  - `POST { action: 'process_dispatch' }` → fällige Windows sofort freigeben (Debug)
+
+- [x] `app/api/cron/smart-dispatch/route.ts` Integration:
+  - `processWindowDispatchAllLocations()` + `markMissedWindows()` jeder 2-Min-Tick
+  - Response enthält `windows: { released, missed_marked }`
+
+- [x] `lib/delivery/dispatch-engine.ts` Integration:
+  - `markWindowDispatched(orderId)` nach erfolgreicher Dispatch-Zuweisung (fire-and-forget)
+
+- [x] `app/api/delivery/tours/[id]/status/route.ts` Integration:
+  - `markWindowDelivered(orderId)` bei state=delivered pro Dropoff-Stop (fire-and-forget)
+
+### Technische Details
+- Default-Slots: 22 Slots/Tag × 7 Tage = 154 Slots werden on-demand erstellt wenn keine Konfig vorhanden
+- Kapazitäts-Check race-condition-safe: COUNT-Query < capacity (kein LOCK nötig — graceful overflow bei gleichzeitigen Requests)
+- Integration mit Phase 24 (scheduled_orders): Window-Buchung setzt schedule_status='scheduled' → identischer Release-Flow
+- Küchenvorlauf: processWindowDispatch berechnet kitchenStart = window_start - estimated_prep_min
+  → Küche startet rechtzeitig, Bestellung ist beim Fensterbeginn fertig
+- Missed-Guard: markMissedWindows() greift erst 30 Min nach Fenster-Ende — Grace Period für Dispatch-Verzögerungen
+- Build: `next build` ✓ (172 Seiten, 0 TypeScript-Fehler, 0 Warnungen) ✅
 
 ## Phase 38: Surge Pricing + Driver Incentive Engine [DONE ✅] — 2026-06-06
 
@@ -1227,6 +1333,15 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-06: Backend-Architekt — Phase 39: Delivery Time Window Booking Engine
+  - scripts/migrations/033_delivery_windows.sql: delivery_time_slots + delivery_window_bookings + v_slot_availability + v_window_dispatch_queue + RLS + 4 Indizes
+  - lib/delivery/windows.ts: 12 Funktionen (getSlotConfig, upsertSlotConfig, getAvailableSlots, bookDeliveryWindow, cancelWindowBooking, processWindowDispatch, processWindowDispatchAllLocations, markWindowDispatched, markWindowDelivered, markMissedWindows, getWindowStats, listWindowBookings)
+  - GET+POST+DELETE /api/delivery/windows: Kunden-API (UUID-Validierung, Tenant-Guard)
+  - GET+POST /api/delivery/admin/windows: Admin-API (slots/availability/bookings/stats + configure/toggle/cancel/process_dispatch)
+  - Cron: processWindowDispatchAllLocations() + markMissedWindows() → windows: { released, missed_marked }
+  - dispatch-engine.ts: markWindowDispatched() fire-and-forget nach Dispatch
+  - tours/[id]/status: markWindowDelivered() fire-and-forget bei state=delivered
+  - Build: ✓ (0 TypeScript-Fehler, 0 Warnungen)
 - 2026-06-04: Backend-Architekt — Phase 31: Webhooks + Alerts Management UI
   - analytics/client.tsx: AlertsPanel (aktive Alarme, auflösen, evaluate) + WebhooksPanel (Liste, Add-Formular, Toggle, Delete, Test)
   - Alle 20 DeliveryEventTypes als klickbare Event-Toggles im Add-Formular

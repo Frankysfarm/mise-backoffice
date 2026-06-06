@@ -23,6 +23,7 @@ import { processAllWebhooks } from '@/lib/delivery/webhooks';
 import { runDailyReportCache } from '@/lib/delivery/reporting';
 import { recomputeAllLocations as recomputeEtaCalibration } from '@/lib/delivery/eta-calibration';
 import { evaluateSurgeAllLocations } from '@/lib/delivery/surge';
+import { processWindowDispatchAllLocations, markMissedWindows } from '@/lib/delivery/windows';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -112,6 +113,9 @@ export async function GET(req: NextRequest) {
         : Promise.resolve(null),
       // Surge Pricing: Nachfragespitzen erkennen + Fahrer-Boni aktivieren (jeder Tick)
       evaluateSurgeAllLocations().catch(() => ({ locations: 0, activated: 0, deactivated: 0, active: 0 })),
+      // Window Booking: fällige Lieferfenster freigeben + abgelaufene als missed markieren
+      processWindowDispatchAllLocations().catch(() => ({ locations: 0, released: 0 })),
+      markMissedWindows().catch(() => 0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -162,6 +166,10 @@ export async function GET(req: NextRequest) {
         activated: surgeResult.activated,
         deactivated: surgeResult.deactivated,
         active: surgeResult.active,
+      },
+      windows: {
+        released: windowResult.released,
+        missed_marked: missedWindows,
       },
     });
   } catch (e) {

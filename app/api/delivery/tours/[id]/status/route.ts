@@ -14,6 +14,7 @@ import { queueWebhookEvent } from '@/lib/delivery/webhooks';
 import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
 import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/customer-notify';
 import { recordDriverSurgeBonus } from '@/lib/delivery/surge';
+import { markWindowDelivered, markWindowDispatched } from '@/lib/delivery/windows';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -89,6 +90,11 @@ export async function PATCH(
             batchId: batch.id as string,
             orderId: (stop.order_id as string | null) ?? undefined,
           }).catch(() => {});
+
+          // Window-Buchung als geliefert markieren (fire-and-forget)
+          if (stop.order_id) {
+            markWindowDelivered(stop.order_id as string).catch(() => {});
+          }
         }
       }
     }

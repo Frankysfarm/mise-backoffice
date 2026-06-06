@@ -27,6 +27,7 @@ import { logDeliveryEvent } from './events';
 import { enqueueBatchPush } from './push-notify';
 import { logEtaPrediction } from './eta-calibration';
 import { recordCustomerEvent } from './customer-notify';
+import { markWindowDispatched } from './windows';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -415,6 +416,9 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     distanceKm,
     outcome,
   }).catch(() => {});
+
+  // Window-Buchung: Status auf 'dispatched' setzen (fire-and-forget)
+  markWindowDispatched(o.id).catch(() => {});
 
   // Customer Event Feed: Fahrer zugewiesen (fire-and-forget)
   recordCustomerEvent(o.id, o.location_id, 'driver_assigned', {
