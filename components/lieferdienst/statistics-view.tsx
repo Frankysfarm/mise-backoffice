@@ -235,6 +235,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     location_id: string;
   }[]>([])
   const [franchiseSummary, setFranchiseSummary] = useState<FranchiseSummaryData>(null)
+  const [eventLog, setEventLog] = useState<{ id: string; event_type: string; occurred_at: string; order_id: string | null; batch_id: string | null }[]>([])
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -358,6 +359,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch('/api/delivery/admin/franchise')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.locations && d.locations.length >= 1 && !d._fallback) setFranchiseSummary(d) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/events?location_id=${locationId}&limit=30`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (Array.isArray(d?.events) && d.events.length > 0) setEventLog(d.events) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1793,6 +1798,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {/* Franchise Echtzeit-Übersicht (mehrere Standorte) */}
       {franchiseSummary && franchiseSummary.locations.length > 1 && (
         <FranchiseOverviewPanel data={franchiseSummary} />
+      )}
+
+      {/* Delivery Event Log — Aktivitätsprotokoll */}
+      {eventLog.length > 0 && (
+        <DeliveryEventLog events={eventLog} />
       )}
     </div>
   )
@@ -3372,6 +3382,108 @@ function FranchiseOverviewPanel({ data }: { data: NonNullable<FranchiseSummaryDa
                 <div className="text-[11px] text-stone-500 text-center">+ {data.alerts.length - 5} weitere Alarme</div>
               )}
             </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ DeliveryEventLog ------------------------------ */
+
+const EVENT_LABELS: Record<string, { label: string; dot: string }> = {
+  order_received:            { label: "Neue Bestellung",           dot: "bg-matcha-500" },
+  order_dispatched:          { label: "Bestellung zugewiesen",     dot: "bg-matcha-600" },
+  order_bundled:             { label: "Bestellung gebündelt",      dot: "bg-blue-500"   },
+  order_held:                { label: "Bestellung zurückgestellt", dot: "bg-amber-400"  },
+  order_geocoded:            { label: "Adresse geocodiert",        dot: "bg-stone-400"  },
+  batch_created:             { label: "Tour erstellt",             dot: "bg-matcha-500" },
+  batch_assigned:            { label: "Tour zugewiesen",           dot: "bg-matcha-600" },
+  batch_optimized:           { label: "Tour optimiert",            dot: "bg-blue-400"   },
+  batch_picked_up:           { label: "Tour abgeholt",             dot: "bg-matcha-500" },
+  batch_completed:           { label: "Tour abgeschlossen",        dot: "bg-matcha-700" },
+  batch_cancelled:           { label: "Tour storniert",            dot: "bg-red-500"    },
+  stop_delivered:            { label: "Lieferung abgeschlossen",   dot: "bg-matcha-500" },
+  driver_online:             { label: "Fahrer eingeloggt",         dot: "bg-matcha-400" },
+  driver_offline:            { label: "Fahrer ausgeloggt",         dot: "bg-stone-400"  },
+  eta_updated:               { label: "ETA aktualisiert",          dot: "bg-stone-400"  },
+  zone_classified:           { label: "Zone klassifiziert",        dot: "bg-stone-400"  },
+  kitchen_ready:             { label: "Küche: Fertig",             dot: "bg-matcha-500" },
+  kitchen_cooking:           { label: "Küche: Zubereitung",        dot: "bg-amber-400"  },
+  delay_first_notice:        { label: "Verspätung gemeldet",       dot: "bg-amber-500"  },
+  delay_critical_notice:     { label: "Kritische Verspätung",      dot: "bg-red-500"    },
+  delay_compensation_created:{ label: "Gutschein erstellt",        dot: "bg-amber-400"  },
+  order_scheduled:           { label: "Vorbestellung erstellt",    dot: "bg-blue-400"   },
+  order_released_for_dispatch:{ label: "Vorbestellung freigegeben", dot: "bg-matcha-500" },
+};
+
+function relativeTime(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60)  return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} Min`;
+  return `${Math.floor(diff / 3600)}h`;
+}
+
+function DeliveryEventLog({ events }: { events: { id: string; event_type: string; occurred_at: string; order_id: string | null; batch_id: string | null }[] }) {
+  const [open, setOpen] = useState(false);
+
+  const problemCount = events.filter(e => e.event_type.includes("cancel") || e.event_type.includes("delay")).length;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+      <button onClick={() => setOpen(v => !v)} className="flex items-center gap-3 w-full text-left">
+        <Activity className="h-5 w-5 text-stone-500 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm text-stone-800">Aktivitätsprotokoll</span>
+            <span className="rounded-full bg-stone-200 text-stone-700 text-[10px] font-bold px-1.5 py-0.5 leading-none">
+              {events.length}
+            </span>
+            {problemCount > 0 && (
+              <span className="rounded-full bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 leading-none">
+                {problemCount} Problem{problemCount !== 1 ? "e" : ""}
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-stone-500 mt-0.5">
+            Letzte Aktivität: {relativeTime(events[0].occurred_at)} · {events.length} Ereignisse
+          </div>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-stone-400 shrink-0" /> : <ChevronDown className="h-4 w-4 text-stone-400 shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="mt-3 border-t border-stone-200 pt-3">
+          <div className="space-y-0">
+            {events.slice(0, 25).map((ev, i) => {
+              const meta = EVENT_LABELS[ev.event_type] ?? { label: ev.event_type, dot: "bg-stone-400" };
+              const isProblem = ev.event_type.includes("cancel") || ev.event_type.includes("delay");
+              return (
+                <div key={ev.id} className={`flex items-start gap-3 py-1.5 ${i < events.length - 1 ? "border-b border-stone-100" : ""}`}>
+                  <div className="flex flex-col items-center shrink-0 mt-1.5">
+                    <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
+                    {i < events.length - 1 && <span className="w-px flex-1 bg-stone-200 my-0.5" style={{height: 14}} />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-xs font-semibold ${isProblem ? "text-amber-800" : "text-stone-700"}`}>
+                      {meta.label}
+                    </div>
+                    {(ev.order_id || ev.batch_id) && (
+                      <div className="text-[10px] text-stone-400 font-mono truncate">
+                        {ev.order_id && `Bestellung: ${ev.order_id.slice(-8)}`}
+                        {ev.batch_id && !ev.order_id && `Tour: ${ev.batch_id.slice(-8)}`}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[10px] tabular-nums text-stone-400 shrink-0 mt-1">
+                    {relativeTime(ev.occurred_at)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {events.length > 25 && (
+            <div className="mt-2 text-center text-[11px] text-stone-400">+ {events.length - 25} ältere Ereignisse</div>
           )}
         </div>
       )}
