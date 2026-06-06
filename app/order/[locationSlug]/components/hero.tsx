@@ -467,6 +467,25 @@ function HeroAurora({ location, orderType, onOrderType, popularCount, itemCount,
   const closeHour = 19;
   const isOpen = new Date().getHours() < closeHour;
 
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: 'low' | 'medium' | 'high'; active_orders?: number } | null>(null);
+  React.useEffect(() => {
+    if (!location.id || orderType !== 'lieferung') return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${location.id}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.eta_min != null) {
+          const load: 'low' | 'medium' | 'high' = d.eta_min > 45 ? 'high' : d.eta_min > 30 ? 'medium' : 'low';
+          setLiveEta({ eta_min: d.eta_min, load, active_orders: d.active_orders });
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [location.id, orderType]);
+
   return (
     <section className="relative isolate overflow-hidden">
       {/* Aurora-Wave SVG decoration behind headline */}
@@ -542,7 +561,12 @@ function HeroAurora({ location, orderType, onOrderType, popularCount, itemCount,
             <span className="dot" />
             <span>{isOpen ? 'Geöffnet' : 'Geschlossen'}</span>
           </div>
-          {orderType === 'lieferung' && deliveryTimeMin ? (
+          {orderType === 'lieferung' && liveEta ? (
+            <div className="glass-pill" style={liveEta.load === 'high' ? { background: 'rgba(239,68,68,0.18)', borderColor: 'rgba(239,68,68,0.4)' } : liveEta.load === 'medium' ? { background: 'rgba(251,191,36,0.15)', borderColor: 'rgba(251,191,36,0.35)' } : { background: 'rgba(74,230,138,0.15)', borderColor: 'rgba(74,230,138,0.35)' }}>
+              <span className="dot" style={{ background: liveEta.load === 'high' ? '#ef4444' : liveEta.load === 'medium' ? '#fbbf24' : '#4ae68a' }} />
+              <span>{liveEta.load === 'high' ? 'Sehr ausgelastet' : liveEta.load === 'medium' ? 'Etwas ausgelastet' : 'Küche bereit'} · ~{liveEta.eta_min} Min</span>
+            </div>
+          ) : orderType === 'lieferung' && deliveryTimeMin ? (
             <div className="glass-pill">
               <svg className="icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
