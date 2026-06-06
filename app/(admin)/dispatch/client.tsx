@@ -445,6 +445,9 @@ export function DispatchBoard({
       {/* Capacity Forecast — nächster freier Fahrer */}
       <CapacityForecastChip batches={batches} onlineDrivers={onlineDrivers} />
 
+      {/* Lieferfenster — vorgebuchte Zeit-Slots für heute */}
+      <DeliveryWindowsPanel />
+
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
@@ -3530,5 +3533,155 @@ function DriverShiftLeaderboard({
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ DeliveryWindowsPanel ------------------------------ */
+
+type WindowSlot = {
+  slot_id: string;
+  window_start_utc: string;
+  window_end_utc: string;
+  slot_type: string;
+  label: string | null;
+  extra_fee_eur: number;
+  remaining_capacity: number;
+  utilization_pct: number;
+  is_filling_fast: boolean;
+};
+
+function DeliveryWindowsPanel() {
+  const [open, setOpen] = useState(false);
+  const [slots, setSlots] = useState<WindowSlot[]>([]);
+  const [stats, setStats] = useState<{
+    total_bookings_today: number;
+    confirmed: number;
+    dispatched: number;
+    delivered: number;
+    missed: number;
+    avg_utilization_pct: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const load = () => {
+      Promise.all([
+        fetch('/api/delivery/admin/windows?action=availability').then(r => r.ok ? r.json() : null),
+        fetch('/api/delivery/admin/windows?action=stats').then(r => r.ok ? r.json() : null),
+      ]).then(([avail, st]) => {
+        if (avail?.today?.slots?.length) setSlots(avail.today.slots);
+        if (st && !st._fallback) setStats(st);
+      }).catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  if (slots.length === 0 && !stats) return null;
+
+  const now = new Date();
+  const upcoming = slots.filter(s => new Date(s.window_end_utc) > now);
+  const totalBooked = stats?.total_bookings_today ?? 0;
+
+  if (totalBooked === 0 && upcoming.length === 0) return null;
+
+  const slotTypeMeta = (type: string) =>
+    type === 'express' ? { label: 'Express', cls: 'bg-amber-100 text-amber-800' }
+    : type === 'scheduled' ? { label: 'Geplant', cls: 'bg-blue-100 text-blue-800' }
+    : { label: 'Standard', cls: 'bg-stone-100 text-stone-700' };
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-3 border-b text-left hover:bg-muted/30 transition"
+      >
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-matcha-600" />
+          <span className="font-display text-sm font-bold uppercase tracking-wider">Lieferfenster · Heute</span>
+          {totalBooked > 0 && (
+            <Badge variant="secondary">{totalBooked} Buchungen</Badge>
+          )}
+          {upcoming.some(s => s.is_filling_fast) && (
+            <Badge variant="destructive" className="text-[10px]">Fast voll!</Badge>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-3">
+          {/* Stats row */}
+          {stats && totalBooked > 0 && (
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              {[
+                { label: 'Gesamt', value: stats.total_bookings_today, cls: 'text-foreground' },
+                { label: 'Bestätigt', value: stats.confirmed, cls: 'text-blue-700' },
+                { label: 'Unterwegs', value: stats.dispatched, cls: 'text-amber-700' },
+                { label: 'Geliefert', value: stats.delivered, cls: 'text-matcha-700' },
+              ].map(m => (
+                <div key={m.label} className="text-center">
+                  <div className={`text-lg font-black tabular-nums ${m.cls}`}>{m.value}</div>
+                  <div className="text-[10px] text-muted-foreground">{m.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Upcoming slots */}
+          {upcoming.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bevorstehende Slots</div>
+              {upcoming.slice(0, 6).map(slot => {
+                const start = new Date(slot.window_start_utc);
+                const end   = new Date(slot.window_end_utc);
+                const isActive = start <= now && now < end;
+                const pct = Math.min(100, Math.round(slot.utilization_pct));
+                const meta = slotTypeMeta(slot.slot_type);
+                return (
+                  <div key={slot.slot_id} className={cn(
+                    'rounded-xl border p-2.5',
+                    isActive ? 'border-matcha-300 bg-matcha-50' :
+                    slot.is_filling_fast ? 'border-amber-300 bg-amber-50' :
+                    'border-border bg-card',
+                  )}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-mono text-xs font-bold tabular-nums text-foreground">
+                        {start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                        {' – '}
+                        {end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-bold', meta.cls)}>{meta.label}</span>
+                      {slot.label && <span className="text-[10px] text-muted-foreground truncate flex-1">{slot.label}</span>}
+                      {isActive && <span className="ml-auto inline-flex h-1.5 w-1.5 rounded-full bg-matcha-500 animate-pulse" />}
+                      {slot.extra_fee_eur > 0 && (
+                        <span className="text-[10px] font-bold text-amber-700">+{slot.extra_fee_eur.toFixed(2)} €</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn('h-full rounded-full transition-all', pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-400' : 'bg-matcha-500')}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className={cn('text-[10px] font-bold tabular-nums shrink-0', pct >= 90 ? 'text-red-700' : pct >= 70 ? 'text-amber-700' : 'text-muted-foreground')}>
+                        {pct}%
+                      </span>
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        {slot.remaining_capacity} frei
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {upcoming.length === 0 && totalBooked === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-2">Keine Lieferfenster für heute konfiguriert.</p>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
