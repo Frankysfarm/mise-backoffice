@@ -1,10 +1,74 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–37 + alle Frontend-Features abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–38 + alle Frontend-Features abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 37 abgeschlossen:** Customer Delivery Event Feed — Live-Timeline auf Tracking-Page. Build clean (0 TypeScript-Fehler, 0 Warnungen). Nächster Schritt: CEO Review #31 + Produktiv-Deployment.
+**Phase 38 abgeschlossen:** Surge Pricing + Driver Incentive Engine. CEO Review #32 durchgeführt. Build clean (0 TypeScript-Fehler, 0 Warnungen, 170 Seiten). Nächster Schritt: Produktiv-Deployment (Migrationen 032 in Supabase Production, Vercel Cron einrichten).
+
+## CEO Review #32 — 2026-06-06
+
+### Geprüfte Commits (seit CEO Review #31)
+- `4855f8f` feat(delivery/backend): Phase 38 — Surge Pricing + Driver Incentive Engine
+- `021c634` feat(delivery/frontend): ETA-Genauigkeits- und Surge-Pricing-Panel im Statistiken-Dashboard
+- `0615b25` feat(delivery/frontend): GPS-Fahrerspuren live in der Dispatch-Karte
+- `5aa6c0a` feat(delivery/frontend): Fahrer-Abdeckungsanalyse im Statistiken-Dashboard
+
+### Bugs gefunden & gefixt
+
+**Bug — Mitternacht-Wrapping im CoverageAnalysisPanel** (`components/lieferdienst/statistics-view.tsx:2232`):
+- Filter `s.hour_of_day < currentHour + 12` ignoriert Slots nach Mitternacht (z.B. bei currentHour=15 fehlen Stunden 0–2)
+- Fix: Wrap-aware Filter + sort mit +24 Normalisierung
+- **Status: GEFIXT ✅**
+
+### Feature-Prüfung
+
+**Phase 38 — Surge Pricing Engine** (`lib/delivery/surge.ts`, `app/api/delivery/admin/surge/route.ts`):
+- `evaluateSurgeForLocation`: 3 Trigger-Bedingungen (Queue-Tiefe, Bestellrate, Fahrer-Auslastung), Zeitfenster-Prüfung, Wochentag-Check ✅
+- `manuallyActivateSurge` / `manuallyDeactivateSurge`: Admin-Kontrolle mit fire-and-forget ✅
+- `recordDriverSurgeBonus`: Bonus-Buchung nach Lieferung, idempotent per tour_stop_id ✅
+- `getSurgeSummary`: Live-Status + Verlauf + Top-Fahrer-Boni für Dashboard ✅
+- Surge-Evaluation im Cron-Tick: `evaluateSurgeAllLocations` alle 2 Min ✅
+- Bonus bei `delivered` in `tours/[id]/status/route.ts` fire-and-forget ✅
+- Admin API: GET summary/rules/status + POST configure/activate/deactivate/evaluate ✅
+- Tenant-Guard: location_id wird gegen auth user's location validiert ✅
+- TypeScript strict: keine `any`-Casts ✅
+
+**SurgePricingPanel** (`components/lieferdienst/statistics-view.tsx`):
+- Live-Status-Badge (Aktiv/Inaktiv) mit Amber-Farbcodierung ✅
+- Fahrer-Auslastungs-Balken mit driverUtilizationPct ✅
+- Tagesstatistiken: Aktivierungen, Lieferungen, Bonussumme ✅
+- Top-Fahrer Boni-Rangliste mit Rang-Badge ✅
+- Surge-Daten-Fetch via `/api/delivery/admin/surge` ✅
+
+**EtaAccuracyPanel** (`components/lieferdienst/statistics-view.tsx`):
+- Pünktlichkeitsrate + Ø Abweichung aus `/api/delivery/admin/eta-accuracy` ✅
+- Fortschrittsbalken mit Grün/Amber/Rot Farbcodierung ✅
+- Zonenweise Aufschlüsselung: min. 3 Lieferungen Filter (statistische Aussagekraft) ✅
+- Early/Late-Anzeige mit Vorzeichen korrekt ✅
+
+**LiveDriverMapPanel — GPS-Spuren** (`app/(admin)/dispatch/client.tsx`):
+- `trails` State via `useState<DriverTrail[]>([])` lazy initialisiert ✅
+- Fetch nur wenn Karte offen (`open === true`) und `locationId` vorhanden — lazy loading korrekt ✅
+- 15s-Intervall mit `cancelled` Flag + `clearInterval` cleanup — kein Memory-Leak ✅
+- `filter(dr => dr.trail_points.length >= 2)`: nur Spuren mit mind. 2 Punkten (zeichenbar) ✅
+- `DriverTrail`-Typ korrekt importiert aus `./driver-map` ✅
+- `locationId` Prop wird von DispatchBoard via `loc?.id ?? null` übergeben ✅
+
+**CoverageAnalysisPanel** (`components/lieferdienst/statistics-view.tsx`):
+- Abdeckungsrate, Unterdeckungs-Slots, Stundenplan korrekt ✅
+- Farbcodierung: rot = Lücke, amber = genau gedeckt, grün = ausreichend ✅
+- Mitternacht-Wrapping Bug gefixt (s.o.) ✅
+
+### TypeScript nach allen Fixes
+- 0 Fehler ✅
+- Build: `next build` → `✓ Compiled successfully`, 170 Seiten, 0 Warnungen ✅
+
+### Deployment-Checkliste für Agenten-Team
+1. **Migration 032** (`scripts/migrations/032_surge_pricing.sql`) in Supabase Production ausführen
+2. Cron-Job `/api/cron/smart-dispatch` alle 2 Min via Vercel Cron aktivieren
+3. Surge-Regeln in Admin-UI konfigurieren (Freitagabend, Regenwetter etc.)
+4. ETA-Accuracy-Monitoring nach 1 Woche Betrieb auswerten
 
 ## CEO Review #31 — 2026-06-06
 

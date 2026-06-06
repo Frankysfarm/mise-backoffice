@@ -2228,9 +2228,17 @@ function CoverageAnalysisPanel({ data }: { data: NonNullable<CoverageData> }) {
   // Nächste Stunden mit Unterdeckung
   const now = new Date()
   const currentHour = now.getHours()
+  const endHour = currentHour + 12
   const upcomingSlots = coverage
-    .filter((s) => s.hour_of_day >= currentHour && s.hour_of_day < currentHour + 12)
-    .sort((a, b) => a.hour_of_day - b.hour_of_day)
+    .filter((s) => {
+      if (endHour <= 24) return s.hour_of_day >= currentHour && s.hour_of_day < endHour
+      return s.hour_of_day >= currentHour || s.hour_of_day < endHour % 24
+    })
+    .sort((a, b) => {
+      const aN = a.hour_of_day >= currentHour ? a.hour_of_day : a.hour_of_day + 24
+      const bN = b.hour_of_day >= currentHour ? b.hour_of_day : b.hour_of_day + 24
+      return aN - bN
+    })
     .slice(0, 8)
 
   return (

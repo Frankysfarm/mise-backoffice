@@ -52,8 +52,12 @@
 - [x] GET+POST /api/delivery/admin/surge
 - [x] Surge-Evaluation im Cron-Tick (2-Min-Intervall)
 - [x] Driver-Surge-Bonus bei Tour-Abschluss
+- [x] ETA-Genauigkeits-Panel im Statistiken-Dashboard
+- [x] Surge-Pricing-Panel im Statistiken-Dashboard
+- [x] GPS-Fahrerspuren live in der Dispatch-Karte (15s-Refresh)
+- [x] Fahrer-Abdeckungsanalyse im Statistiken-Dashboard (Midnight-Fix ✅)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–38 + CEO REVIEW #31 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–38 + CEO REVIEW #32 ABGESCHLOSSEN — 2026-06-06
 
 ## Phase 38: Surge Pricing + Driver Incentive Engine [DONE ✅] — 2026-06-06
 
