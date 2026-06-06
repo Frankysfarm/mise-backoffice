@@ -1838,7 +1838,12 @@ function PickupForecastPanel({ orders }: { orders: Order[] }) {
 /* ------------------------------ PickupWaitPanel ------------------------------ */
 
 function PickupWaitPanel({ orders }: { orders: Order[] }) {
+  const supabase = createClient();
   const [, setTick] = React.useState(0);
+  const [notifiedIds, setNotifiedIds] = React.useState<Set<string>>(new Set());
+  const [notifiedAt, setNotifiedAt] = React.useState<Record<string, number>>({});
+  const [sendingId, setSendingId] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 10_000);
     return () => clearInterval(t);
@@ -1858,6 +1863,20 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
   if (waiting.length === 0) return null;
 
   const hasLong = waiting.some((w) => w.waitMin >= 10);
+
+  async function notifyCustomer(orderId: string) {
+    setSendingId(orderId);
+    try {
+      await supabase.from('order_messages').insert({
+        order_id: orderId,
+        sender: 'küche',
+        nachricht: '🔔 Ihre Bestellung ist fertig — bitte kommen Sie zur Kasse! Vielen Dank für Ihre Geduld. 🙏',
+      });
+      setNotifiedIds((s) => new Set([...s, orderId]));
+      setNotifiedAt((m) => ({ ...m, [orderId]: Date.now() }));
+    } catch { /* fire-and-forget */ }
+    setSendingId(null);
+  }
 
   return (
     <div className={cn(
@@ -1879,6 +1898,10 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
         {waiting.map(({ order, waitMin }) => {
           const isLong = waitMin >= 10;
           const isMedium = waitMin >= 5 && waitMin < 10;
+          const notified = notifiedIds.has(order.id);
+          const notifiedMinsAgo = notifiedAt[order.id]
+            ? Math.floor((now - notifiedAt[order.id]) / 60_000)
+            : null;
           return (
             <div key={order.id} className={cn(
               'flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px]',
@@ -1898,6 +1921,26 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
               )}>
                 {waitMin} Min
               </span>
+              {/* Kunde benachrichtigen — schreibt in order_messages → Tracking-Seite zeigt Popup */}
+              <button
+                onClick={() => notifyCustomer(order.id)}
+                disabled={sendingId === order.id || notified}
+                title={notified ? `Kunde benachrichtigt${notifiedMinsAgo != null && notifiedMinsAgo > 0 ? ` vor ${notifiedMinsAgo} Min` : ''}` : 'Kunde per Tracking-Chat benachrichtigen'}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[9px] font-bold transition',
+                  notified
+                    ? 'bg-matcha-600 text-white cursor-default'
+                    : 'bg-matcha-100 text-matcha-800 hover:bg-matcha-200 active:scale-95',
+                  sendingId === order.id && 'opacity-50',
+                )}
+              >
+                <MessageSquare className="h-2.5 w-2.5 shrink-0" />
+                {notified
+                  ? notifiedMinsAgo != null && notifiedMinsAgo > 0
+                    ? `vor ${notifiedMinsAgo}m`
+                    : '✓ Gesendet'
+                  : 'Benachrichtigen'}
+              </button>
             </div>
           );
         })}
