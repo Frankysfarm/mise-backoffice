@@ -1843,11 +1843,58 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
   const [notifiedIds, setNotifiedIds] = React.useState<Set<string>>(new Set());
   const [notifiedAt, setNotifiedAt] = React.useState<Record<string, number>>({});
   const [sendingId, setSendingId] = React.useState<string | null>(null);
+  const [customerReplies, setCustomerReplies] = React.useState<Map<string, { nachricht: string; created_at: string }>>(new Map());
 
   React.useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 10_000);
     return () => clearInterval(t);
   }, []);
+
+  // Kundennachrichten laden + Realtime-Abo für Abholbestellungen
+  React.useEffect(() => {
+    const pickupOrderIds = orders
+      .filter((o) => o.status === 'fertig' && o.typ === 'abholung')
+      .map((o) => o.id);
+    if (pickupOrderIds.length === 0) return;
+
+    // Letzte Kundennachricht pro Order laden
+    supabase
+      .from('order_messages')
+      .select('order_id, nachricht, created_at')
+      .in('order_id', pickupOrderIds)
+      .eq('sender', 'kunde')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        const map = new Map<string, { nachricht: string; created_at: string }>();
+        for (const m of data as { order_id: string; nachricht: string; created_at: string }[]) {
+          if (!map.has(m.order_id)) map.set(m.order_id, { nachricht: m.nachricht, created_at: m.created_at });
+        }
+        setCustomerReplies(map);
+      });
+
+    // Realtime: neue Kundennachrichten
+    const ch = supabase
+      .channel(`pickup-msgs-${pickupOrderIds.join('-').slice(0, 40)}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'order_messages',
+        filter: `order_id=in.(${pickupOrderIds.join(',')})`,
+      }, (payload: { new: { order_id: string; sender: string; nachricht: string; created_at: string } }) => {
+        const msg = payload.new;
+        if (msg.sender !== 'kunde') return;
+        setCustomerReplies((prev) => {
+          const m = new Map(prev);
+          m.set(msg.order_id, { nachricht: msg.nachricht, created_at: msg.created_at });
+          return m;
+        });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders.map(o => o.id).join(',')]);
+
 
   const now = Date.now();
   const waiting = orders
@@ -1941,6 +1988,21 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
                     : '✓ Gesendet'
                   : 'Benachrichtigen'}
               </button>
+              {/* Kundenantwort auf Benachrichtigung */}
+              {customerReplies.has(order.id) && (() => {
+                const reply = customerReplies.get(order.id)!;
+                const replyMin = Math.floor((now - new Date(reply.created_at).getTime()) / 60_000);
+                return (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-md bg-blue-100 border border-blue-300 px-1.5 py-0.5 text-[9px] font-medium text-blue-900 max-w-[120px]"
+                    title={reply.nachricht}
+                  >
+                    <MessageSquare className="h-2 w-2 shrink-0 text-blue-500" />
+                    <span className="truncate">{reply.nachricht}</span>
+                    {replyMin > 0 && <span className="shrink-0 text-blue-400 font-bold">·{replyMin}m</span>}
+                  </span>
+                );
+              })()}
             </div>
           );
         })}
