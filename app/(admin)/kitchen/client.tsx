@@ -428,6 +428,9 @@ export function KitchenBoard({
       {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}
       <KitchenEfficiencyPanel orders={filtered} />
 
+      {/* Smart-Timing Genauigkeit: Wie präzise treffen unsere Schätzungen? */}
+      {timings.length > 0 && <KitchenTimingAccuracyBar timings={timings} />}
+
       {/* Prioritäts-Queue: Welche 3 Bestellungen jetzt zubereiten? */}
       <TopUrgentOrders orders={filtered} />
 
@@ -1174,6 +1177,63 @@ function KitchenEfficiencyPanel({ orders }: { orders: Order[] }) {
               {avgDiff > 0 ? `+${avgDiff}` : avgDiff}m
             </div>
             <div className="text-[9px] text-muted-foreground">Δ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenTimingAccuracyBar ------------------------------ */
+
+function KitchenTimingAccuracyBar({ timings }: { timings: KitchenTiming[] }) {
+  const done = timings.filter((t) => (t.status === 'ready' || t.status === 'picked_up') && t.cook_start_at && t.ready_target && t.prep_min);
+  if (done.length < 2) return null;
+
+  const results = done.map((t) => {
+    const scheduledMs = new Date(t.ready_target!).getTime() - new Date(t.cook_start_at!).getTime();
+    const scheduledMin = scheduledMs / 60_000;
+    const actualMin = t.prep_min!;
+    const diffMin = actualMin - scheduledMin;
+    return { scheduledMin, actualMin, diffMin, onTime: Math.abs(diffMin) <= 2 };
+  });
+
+  const onTimePct = Math.round((results.filter((r) => r.onTime).length / results.length) * 100);
+  const avgDiff = Math.round((results.reduce((s, r) => s + r.diffMin, 0) / results.length) * 10) / 10;
+  const barColor = onTimePct >= 85 ? 'bg-matcha-500' : onTimePct >= 65 ? 'bg-amber-400' : 'bg-red-400';
+  const textColor = onTimePct >= 85 ? 'text-matcha-700' : onTimePct >= 65 ? 'text-amber-700' : 'text-red-700';
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Target className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          Smart-Timing Genauigkeit · {done.length} abgeschlossen
+        </span>
+        <span className={cn('ml-auto text-[10px] font-black tabular-nums', textColor)}>
+          {onTimePct}% im Ziel (±2 Min)
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${onTimePct}%` }} />
+          </div>
+          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+            <span>0%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        <div className="flex gap-3 text-[11px] shrink-0">
+          <div className="text-center">
+            <div className={cn('font-black text-base tabular-nums', avgDiff > 2 ? 'text-red-600' : avgDiff < -2 ? 'text-amber-600' : 'text-matcha-600')}>
+              {avgDiff > 0 ? `+${avgDiff}` : avgDiff}m
+            </div>
+            <div className="text-[9px] text-muted-foreground">Ø Abw.</div>
+          </div>
+          <div className="text-center">
+            <div className={cn('font-black text-base tabular-nums', textColor)}>{onTimePct}%</div>
+            <div className="text-[9px] text-muted-foreground">Präzision</div>
           </div>
         </div>
       </div>

@@ -117,6 +117,23 @@ export function DispatchBoard({
   const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
   const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
   const prevReadyCountRef = useRef(initialOrders.filter((o) => o.status === 'fertig').length);
+  const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number } | null>(null);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d?.eta_min != null) setKitchenLoad({ eta_min: d.eta_min, load: d.load ?? 'quiet', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0 });
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, [locations]);
 
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
@@ -298,6 +315,32 @@ export function DispatchBoard({
           <button onClick={() => setNewOrderFlash(null)} className="text-matcha-400 hover:text-matcha-700 text-lg leading-none">×</button>
         </div>
       )}
+      {/* Küchen-Auslastungs-Chip: live ETA + Surge-Indikator */}
+      {kitchenLoad && (
+        <div className={cn(
+          'flex items-center gap-3 rounded-xl border px-4 py-2.5 text-sm',
+          kitchenLoad.load === 'busy' ? 'border-red-300 bg-red-50 text-red-800' :
+          kitchenLoad.load === 'normal' ? 'border-amber-300 bg-amber-50 text-amber-800' :
+          'border-matcha-300 bg-matcha-50 text-matcha-800'
+        )}>
+          <span className={cn(
+            'h-2.5 w-2.5 rounded-full animate-pulse',
+            kitchenLoad.load === 'busy' ? 'bg-red-500' :
+            kitchenLoad.load === 'normal' ? 'bg-amber-500' : 'bg-matcha-500'
+          )} />
+          <span className="font-semibold">
+            {kitchenLoad.load === 'busy' ? 'Küche sehr ausgelastet' :
+             kitchenLoad.load === 'normal' ? 'Küche etwas ausgelastet' : 'Küche bereit'}
+          </span>
+          <span className="text-inherit opacity-70">·</span>
+          <span>~{kitchenLoad.eta_min} Min ETA</span>
+          <span className="text-inherit opacity-70">·</span>
+          <span>{kitchenLoad.active_orders} aktive Bestellungen</span>
+          <span className="text-inherit opacity-70">·</span>
+          <span>{kitchenLoad.drivers_online} Fahrer online</span>
+        </div>
+      )}
+
       {/* Schicht-Übersicht: Heutige Lieferleistung */}
       <TodayDispatchOverview
         locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? locations[0]?.id ?? null)}

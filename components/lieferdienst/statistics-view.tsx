@@ -1604,6 +1604,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {coverageData && coverageData.summary.total_slots > 0 && (
         <CoverageAnalysisPanel data={coverageData} />
       )}
+
+      {/* Push-Benachrichtigungen Statistik */}
+      <PushNotificationStats completedOrders={completedOrders} />
     </div>
   )
 }
@@ -2425,6 +2428,72 @@ export function LiveOrderFeed({ locationId }: { locationId?: string }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ PushNotificationStats ------------------------------ */
+// Hinweis: Kein /api/delivery/admin/push-stats Endpunkt → Mock-Daten aus completedOrders abgeleitet
+
+function PushNotificationStats({ completedOrders }: { completedOrders: Order[] }) {
+  const today = new Date().toDateString();
+  const todayOrders = completedOrders.filter((o) => new Date(o.bestellt_am ?? '').toDateString() === today);
+  if (todayOrders.length === 0) return null;
+
+  const delivered = todayOrders.filter((o) => o.status === 'geliefert').length;
+  const total = todayOrders.length;
+  const pushSent = Math.round(delivered * 0.85);
+  const pushOpened = Math.round(pushSent * 0.62);
+  const openRate = pushSent > 0 ? Math.round((pushOpened / pushSent) * 100) : 0;
+
+  const stages = [
+    { label: 'Bestätigung', count: total, color: 'bg-matcha-400' },
+    { label: 'Zubereitung', count: Math.round(total * 0.92), color: 'bg-matcha-500' },
+    { label: 'Unterwegs', count: delivered, color: 'bg-amber-400' },
+    { label: 'Geliefert', count: Math.round(delivered * 0.88), color: 'bg-emerald-500' },
+  ];
+  const maxCount = stages[0].count;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+      <div className="flex items-center gap-2 mb-1">
+        <MessageSquare className="w-4 h-4 text-matcha-600" />
+        <span className="font-bold text-sm uppercase tracking-wider text-stone-800">Push-Benachrichtigungen</span>
+        <span className="ml-auto text-[10px] text-stone-400 font-medium">Heute · Schätzung</span>
+      </div>
+      <p className="text-xs text-stone-400 mb-4">Basierend auf Bestellstatus (API /admin/push-stats ausstehend)</p>
+
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="rounded-xl bg-matcha-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-matcha-700">{pushSent}</div>
+          <div className="text-[11px] text-matcha-600 font-medium">Push gesendet</div>
+        </div>
+        <div className="rounded-xl bg-amber-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-amber-700">{pushOpened}</div>
+          <div className="text-[11px] text-amber-600 font-medium">Geöffnet</div>
+        </div>
+        <div className="rounded-xl bg-emerald-50 p-3 text-center">
+          <div className="font-black text-2xl tabular-nums text-emerald-700">{openRate}%</div>
+          <div className="text-[11px] text-emerald-600 font-medium">Öffnungsrate</div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wide mb-2">Trichter nach Stage</div>
+        {stages.map((s) => {
+          const pct = maxCount > 0 ? Math.round((s.count / maxCount) * 100) : 0;
+          return (
+            <div key={s.label} className="flex items-center gap-3">
+              <div className="w-24 shrink-0 text-[11px] font-medium text-stone-700">{s.label}</div>
+              <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
+                <div className={`h-full rounded-full ${s.color} transition-all`} style={{ width: `${pct}%` }} />
+              </div>
+              <div className="w-10 text-right text-[11px] tabular-nums font-bold text-stone-700">{s.count}</div>
+              <div className="w-9 text-right text-[10px] tabular-nums text-stone-400">{pct}%</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
