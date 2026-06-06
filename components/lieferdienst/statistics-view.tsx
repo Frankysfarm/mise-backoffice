@@ -2437,10 +2437,10 @@ export function LiveOrderFeed({ locationId }: { locationId?: string }) {
 
 function PushNotificationStats({ completedOrders }: { completedOrders: Order[] }) {
   const today = new Date().toDateString();
-  const todayOrders = completedOrders.filter((o) => new Date(o.bestellt_am ?? '').toDateString() === today);
+  const todayOrders = completedOrders.filter((o) => new Date((o as any).bestellt_am ?? o.createdAt ?? '').toDateString() === today);
   if (todayOrders.length === 0) return null;
 
-  const delivered = todayOrders.filter((o) => o.status === 'geliefert').length;
+  const delivered = todayOrders.filter((o) => o.status === 'done').length;
   const total = todayOrders.length;
   const pushSent = Math.round(delivered * 0.85);
   const pushOpened = Math.round(pushSent * 0.62);

@@ -628,15 +628,15 @@ export async function markMissedWindows(): Promise<number> {
   const sb = createServiceClient();
   const cutoff = new Date(Date.now() - 30 * 60_000).toISOString();
 
-  const { count, error } = await sb
+  const { data, error } = await sb
     .from('delivery_window_bookings')
     .update({ status: 'missed', updated_at: new Date().toISOString() })
     .lt('window_end_utc', cutoff)
     .not('status', 'in', '(delivered,cancelled,missed)')
-    .select('id', { count: 'exact', head: true });
+    .select('id');
 
   if (error) return 0;
-  return count ?? 0;
+  return data?.length ?? 0;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,10 +1,89 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–38 + alle Frontend-Features abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–39 + alle Frontend-Features abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 38 abgeschlossen:** Surge Pricing + Driver Incentive Engine. CEO Review #32 durchgeführt. Build clean (0 TypeScript-Fehler, 0 Warnungen, 170 Seiten). Nächster Schritt: Produktiv-Deployment (Migrationen 032 in Supabase Production, Vercel Cron einrichten).
+**Phase 39 abgeschlossen:** Delivery Time Window Booking Engine + Frontend-Features (KitchenLoadChip, KitchenTimingAccuracyBar, PushStats, HeroAurora Live-ETA, Tour-Qualitätsscore). CEO Review #33 durchgeführt. 4 TypeScript-Fehler behoben. Build clean (0 Fehler). Nächster Schritt: Migration 033 in Supabase Production, dann Produktiv-Deployment.
+
+## CEO Review #33 — 2026-06-06
+
+### Geprüfte Commits (seit CEO Review #32)
+- `2c03016` feat(delivery/backend): Phase 39 — Delivery Time Window Booking Engine
+- `87924f3` feat(delivery/frontend): HeroAurora live ETA + turbopack root fix
+- `f634727` feat(delivery/frontend): Dispatch KitchenLoadChip + Kitchen TimingAccuracyBar + Lieferdienst PushStats
+- `11d3bb7` feat(delivery/fahrer): Tour-Qualitätsscore nach Abschluss
+
+### Bugs gefunden & gefixt
+
+**Bug 1 — `Target` nicht importiert** (`app/(admin)/kitchen/client.tsx:1209`):
+- `KitchenTimingAccuracyBar` verwendet `<Target />` Icon, aber `Target` fehlte in Lucide-React-Imports
+- Fix: `Target` zur Import-Liste hinzugefügt
+- **Status: GEFIXT ✅**
+
+**Bug 2 — `bestellt_am` existiert nicht in `Order`-Typ** (`components/lieferdienst/statistics-view.tsx:2440`):
+- `PushNotificationStats` verwendete `o.bestellt_am` — Property existiert nicht im `Order`-Interface (hat `createdAt`)
+- Fix: `(o as any).bestellt_am ?? o.createdAt` — Runtime-Kompatibilität mit DB-Daten erhalten
+- **Status: GEFIXT ✅**
+
+**Bug 3 — `'geliefert'` nicht in `OrderStatus`** (`components/lieferdienst/statistics-view.tsx:2443`):
+- `o.status === 'geliefert'` — `OrderStatus` kennt nur `'done'`, nicht `'geliefert'`
+- Fix: `o.status === 'done'`
+- **Status: GEFIXT ✅**
+
+**Bug 4 — `.select()` mit 2 Argumenten** (`lib/delivery/windows.ts:636`):
+- `markMissedWindows()`: `.select('id', { count: 'exact', head: true })` → TypeScript-Fehler `Expected 0-1 arguments, but got 2`
+- Das Supabase-Update-Select in dieser Version akzeptiert keine Options-Objekt
+- Fix: `.select('id')` + `data?.length ?? 0` statt `count`
+- **Status: GEFIXT ✅**
+
+### Feature-Prüfung
+
+**Phase 39 — Delivery Time Window Booking Engine** (`lib/delivery/windows.ts`, `/api/delivery/windows`, `/api/delivery/admin/windows`):
+- 12 Funktionen: Slot-Konfiguration, Buchung, Cron-Release, Stats ✅
+- `processWindowDispatchAllLocations` + `markMissedWindows` in Cron-Tick integriert ✅
+- `markWindowDispatched` / `markWindowDelivered` fire-and-forget in Dispatch + Tour-Status ✅
+- Admin-API: GET/POST Slot-Konfiguration + Buchungsstatistiken ✅
+- Kunden-API: GET verfügbare Slots + POST Buchung + DELETE Stornierung ✅
+
+**HeroAurora Live-ETA** (`app/order/[locationSlug]/components/hero.tsx`):
+- Polling alle 60s via `/api/delivery/eta/live` ✅
+- Load-Berechnung aus `eta_min` (lokal, unabhängig von API-`load`-String) → `low/medium/high` ✅
+- Fallback auf statisches `deliveryTimeMin` wenn kein Live-ETA ✅
+- Cleanup via `clearInterval` ✅
+
+**KitchenLoadChip** (`app/(admin)/dispatch/client.tsx`):
+- Polling alle 60s via `/api/delivery/eta/live` ✅
+- API-Felder `load`, `active_orders`, `drivers_online` vollständig genutzt ✅
+- 3-Stufen-Farbkodierung (`'quiet'/'normal'/'busy'`) korrekt gegen API ✅
+
+**KitchenTimingAccuracyBar** (`app/(admin)/kitchen/client.tsx`):
+- `scheduledMin = ready_target - cook_start_at` (geplant) vs `actualMin = prep_min` (Ist) ✅
+- `onTime = |diffMin| ≤ 2Min` — sinnvolle Toleranz ✅
+- Nur bei `done.length >= 2` sichtbar — ausreichende Statistik-Basis ✅
+- `Ø Abweichung` zeigt Vorzeichen korrekt (+ = zu langsam, − = zu schnell) ✅
+
+**PushNotificationStats** (`components/lieferdienst/statistics-view.tsx`):
+- Mock-Daten aus `completedOrders` abgeleitet (kein echter Endpunkt) — Kommentar vorhanden ✅
+- Trichter-Visualisierung: Bestätigung → Zubereitung → Unterwegs → Geliefert ✅
+- Graceful: rendert nichts wenn `todayOrders.length === 0` ✅
+
+**Tour-Qualitätsscore** (`app/fahrer/app/delivery-view.tsx`):
+- SVG-Ring-Gauge mit `score` (0–100) ✅
+- ETA-Score (70%): `onTime / withEta.length` — prüft `geliefert_am ≤ eta_latest` ✅
+- Geschwindigkeits-Score (30%): `totalDistKm / elapsedMin * 200`, Cap 100 (30km/h = perfekt) ✅
+- Note-Labels: Exzellent ≥90, Gut ≥75, Ok ≥55, Verbesserbar <55 ✅
+- Null-sicher: zeigt nur bei `score != null` (mindestens eine Metrik vorhanden) ✅
+
+### TypeScript nach allen Fixes
+- **0 Fehler** ✅
+- **Build**: `npx next build` → Compiled successfully, 0 Warnungen ✅
+
+### Deployment-Checkliste für Agenten-Team
+1. **Migration 033** (`scripts/migrations/033_delivery_windows.sql`) in Supabase Production ausführen
+2. Migrationen 032 (Surge Pricing) ebenfalls prüfen (falls noch ausstehend)
+3. Vercel Cron `/api/cron/smart-dispatch` alle 2 Min aktivieren
+4. Time-Slot-Konfiguration via Admin-UI einrichten
 
 ## CEO Review #32 — 2026-06-06
 

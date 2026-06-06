@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
   AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Euro, Flame, Home as HomeIcon,
-  Inbox, Loader2, MapPin, Monitor, Package, ShoppingBag, TrendingUp, Utensils, X, Zap,
+  Inbox, Loader2, MapPin, Monitor, Package, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder } from './actions';

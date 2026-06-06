@@ -67,7 +67,7 @@
 - [x] markWindowDispatched() in dispatch-engine.ts
 - [x] markWindowDelivered() in tours/[id]/status/route.ts
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–39 + CEO REVIEW #32 ABGESCHLOSSEN — 2026-06-06
+## STATUS: MARKT-REIF ✅ — PHASEN 1–39 + CEO REVIEW #33 ABGESCHLOSSEN — 2026-06-06
 
 ## Phase 39: Delivery Time Window Booking Engine [DONE ✅] — 2026-06-06
 
@@ -1333,6 +1333,18 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-06: CEO Review #33 — 4 TypeScript-Fehler behoben, 4 Commits QA-geprüft, Build clean
+  - Bug 1: `Target` Icon fehlte in kitchen/client.tsx Lucide-Imports → gefixt
+  - Bug 2: `bestellt_am` nicht in Order-Typ → `(o as any).bestellt_am ?? o.createdAt` → gefixt
+  - Bug 3: `'geliefert'` nicht in OrderStatus → `'done'` → gefixt
+  - Bug 4: `windows.ts` `.select()` mit 2 Argumenten → `.select('id')` + `data?.length` → gefixt
+  - Phase 39 Backend: Time Window Engine vollständig integriert (Cron, Dispatch, Tour-Status) ✅
+  - HeroAurora Live-ETA: load lokal aus eta_min berechnet (nicht von API-String abhängig) ✅
+  - KitchenLoadChip: API-Felder korrekt verarbeitet, 3-Stufen-Farbkodierung ✅
+  - KitchenTimingAccuracyBar: scheduledMin vs actualMin Logik korrekt ✅
+  - PushNotificationStats: Mock-Trichter, graceful null-return, korrekte Status-Prüfung ✅
+  - Tour-Qualitätsscore: SVG-Gauge + ETA/Speed-Gewichtung (70%/30%) korrekt ✅
+  - TypeScript: 0 Fehler ✅ | Build: ✓ Compiled successfully ✅
 - 2026-06-06: Backend-Architekt — Phase 39: Delivery Time Window Booking Engine
   - scripts/migrations/033_delivery_windows.sql: delivery_time_slots + delivery_window_bookings + v_slot_availability + v_window_dispatch_queue + RLS + 4 Indizes
   - lib/delivery/windows.ts: 12 Funktionen (getSlotConfig, upsertSlotConfig, getAvailableSlots, bookDeliveryWindow, cancelWindowBooking, processWindowDispatch, processWindowDispatchAllLocations, markWindowDispatched, markWindowDelivered, markMissedWindows, getWindowStats, listWindowBookings)
