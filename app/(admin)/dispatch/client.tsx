@@ -95,6 +95,16 @@ type Batch = {
 
 type Location = { id: string; name: string; lat?: number | null; lng?: number | null };
 
+type ShiftClaimItem = {
+  id: string;
+  driverName: string | null;
+  driverVehicle: string | null;
+  plannedStart: string;
+  plannedEnd: string;
+  status: string;
+  notes: string | null;
+};
+
 export function DispatchBoard({
   initialOrders,
   initialDrivers,
@@ -122,6 +132,7 @@ export function DispatchBoard({
   const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number } | null>(null);
   const [scheduledSummary, setScheduledSummary] = useState<{ total: number; pending: number; released: number; next_due_in_min: number | null } | null>(null);
   const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
+  const [shiftClaims, setShiftClaims] = useState<ShiftClaimItem[]>([]);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -155,6 +166,18 @@ export function DispatchBoard({
     const iv = setInterval(load, 120_000);
     return () => clearInterval(iv);
   }, [locations]);
+
+  useEffect(() => {
+    const load = () => {
+      fetch('/api/delivery/admin/shift-claims')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.claims)) setShiftClaims(d.claims); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, []);
 
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
@@ -471,6 +494,9 @@ export function DispatchBoard({
 
       {/* Lieferfenster — vorgebuchte Zeit-Slots für heute */}
       <DeliveryWindowsPanel />
+
+      {/* Schichtanfragen — ausstehende Fahrer-Schichtanmeldungen */}
+      <ShiftClaimsPanel claims={shiftClaims} />
 
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
@@ -3801,5 +3827,149 @@ function ScheduledOrdersPanel({ summary, orders }: {
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ ShiftClaimsPanel ------------------------------ */
+
+function ShiftClaimsPanel({ claims: initialClaims }: { claims: ShiftClaimItem[] }) {
+  const [open, setOpen] = useState(false);
+  const [claims, setClaims] = useState(initialClaims);
+  const [acting, setActing] = useState<string | null>(null);
+  const [rejectId, setRejectId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  useEffect(() => { setClaims(initialClaims); }, [initialClaims]);
+
+  const pendingClaims = claims.filter(c => c.status === 'pending');
+  if (pendingClaims.length === 0) return null;
+
+  async function doAction(claimId: string, action: 'approve' | 'reject', reason?: string) {
+    setActing(claimId);
+    try {
+      const body: Record<string, string> = { action, claim_id: claimId };
+      if (reason) body.reason = reason;
+      const res = await fetch('/api/delivery/admin/shift-claims', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        setClaims(cs => cs.map(c => c.id === claimId
+          ? { ...c, status: action === 'approve' ? 'approved' : 'rejected' }
+          : c,
+        ));
+        setRejectId(null);
+        setRejectReason('');
+      }
+    } finally {
+      setActing(null);
+    }
+  }
+
+  return (
+    <Card className="p-4 border-amber-300 bg-amber-50">
+      <button onClick={() => setOpen(v => !v)} className="flex items-center gap-3 w-full text-left">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-200 text-amber-800 shrink-0">
+          <User className="h-4 w-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-amber-900 text-sm">Schichtanfragen</span>
+            <span className="rounded-full bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 leading-none">
+              {pendingClaims.length}
+            </span>
+          </div>
+          <div className="text-xs text-amber-700 mt-0.5">
+            {pendingClaims.length} offene Anfrage{pendingClaims.length !== 1 ? 'n' : ''} warten auf Genehmigung
+          </div>
+        </div>
+        {open
+          ? <ChevronUp className="h-4 w-4 text-amber-600 shrink-0" />
+          : <ChevronDown className="h-4 w-4 text-amber-600 shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-2.5 border-t border-amber-200 pt-3">
+          {pendingClaims.map(claim => {
+            const start = new Date(claim.plannedStart);
+            const end   = new Date(claim.plannedEnd);
+            const isActing = acting === claim.id;
+            const isReject = rejectId === claim.id;
+            return (
+              <div key={claim.id} className="rounded-xl border border-amber-200 bg-white p-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm text-foreground">
+                      {claim.driverName ?? 'Unbekannter Fahrer'}
+                    </div>
+                    {claim.driverVehicle && (
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {claim.driverVehicle}
+                      </div>
+                    )}
+                    <div className="mt-1 font-mono text-xs tabular-nums text-foreground">
+                      {start.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })}
+                      {' '}
+                      {start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      {' – '}
+                      {end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    {claim.notes && (
+                      <div className="mt-1 text-[11px] text-muted-foreground italic">
+                        &ldquo;{claim.notes}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                  {!isReject && (
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <button
+                        onClick={() => doAction(claim.id, 'approve')}
+                        disabled={isActing}
+                        className="flex items-center gap-1.5 rounded-lg bg-matcha-700 text-white px-2.5 py-1.5 text-xs font-bold disabled:opacity-50 transition"
+                      >
+                        <Check className="h-3 w-3" />
+                        Genehmigen
+                      </button>
+                      <button
+                        onClick={() => { setRejectId(claim.id); setRejectReason(''); }}
+                        disabled={isActing}
+                        className="flex items-center gap-1.5 rounded-lg border border-red-300 bg-red-50 text-red-700 px-2.5 py-1.5 text-xs font-bold disabled:opacity-50 transition"
+                      >
+                        Ablehnen
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {isReject && (
+                  <div className="mt-2 flex gap-2 items-center border-t border-amber-100 pt-2">
+                    <input
+                      type="text"
+                      value={rejectReason}
+                      onChange={e => setRejectReason(e.target.value)}
+                      placeholder="Ablehnungsgrund (optional)"
+                      className="flex-1 h-8 rounded-lg border px-3 text-xs bg-background"
+                    />
+                    <button
+                      onClick={() => doAction(claim.id, 'reject', rejectReason || undefined)}
+                      disabled={isActing}
+                      className="rounded-lg bg-red-600 text-white px-3 py-1.5 text-xs font-bold disabled:opacity-50 transition"
+                    >
+                      {isActing ? '…' : 'Bestätigen'}
+                    </button>
+                    <button
+                      onClick={() => setRejectId(null)}
+                      className="rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition"
+                    >
+                      Abbrechen
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }
