@@ -1761,7 +1761,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
 
       {/* ETA-Genauigkeit */}
       {etaAccuracy && etaAccuracy.overall.completedDeliveries > 0 && (
-        <EtaAccuracyPanel data={etaAccuracy} />
+        <EtaAccuracyPanel
+          data={etaAccuracy}
+          locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id}
+        />
       )}
 
       {/* Surge-Preis Status */}
@@ -2234,7 +2237,7 @@ function ShiftRevenuePanel({
 
 /* ------------------------------ EtaAccuracyPanel ------------------------------ */
 
-function EtaAccuracyPanel({ data }: { data: NonNullable<EtaAccuracyData> }) {
+function EtaAccuracyPanel({ data, locationId }: { data: NonNullable<EtaAccuracyData>; locationId?: string }) {
   const onTimePct = Math.round(data.overall.onTimeRate * 100)
   const errorMin = Math.round(Math.abs(data.overall.avgErrorMin))
   const early = data.overall.avgErrorMin < 0
@@ -2243,12 +2246,49 @@ function EtaAccuracyPanel({ data }: { data: NonNullable<EtaAccuracyData> }) {
     .sort((a, b) => b.completedDeliveries - a.completedDeliveries)
     .slice(0, 6)
 
+  const [recalibrating, setRecalibrating] = React.useState(false)
+  const [recalibrated, setRecalibrated] = React.useState<string | null>(null)
+
+  async function triggerRecalibration() {
+    if (recalibrating) return
+    setRecalibrating(true)
+    try {
+      const url = locationId
+        ? `/api/delivery/admin/eta-accuracy?location_id=${locationId}`
+        : '/api/delivery/admin/eta-accuracy'
+      const res = await fetch(url, { method: 'POST' })
+      if (res.ok) {
+        const d = await res.json()
+        setRecalibrated(`${d.factors_updated ?? '?'} Faktoren aktualisiert`)
+        setTimeout(() => setRecalibrated(null), 6000)
+      }
+    } catch { /* fire-and-forget */ }
+    setRecalibrating(false)
+  }
+
   return (
     <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
       <div className="flex items-center gap-2 mb-5">
         <Target className="w-5 h-5 text-blue-600" />
         <h3 className="text-lg font-semibold text-char">ETA-Genauigkeit</h3>
-        <span className="ml-auto text-xs text-stone-400">{data.overall.completedDeliveries} Lieferungen ausgewertet</span>
+        <span className="text-xs text-stone-400">{data.overall.completedDeliveries} Lieferungen ausgewertet</span>
+        <button
+          onClick={triggerRecalibration}
+          disabled={recalibrating}
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+            recalibrated
+              ? 'bg-emerald-100 text-emerald-700'
+              : 'bg-blue-50 text-blue-700 hover:bg-blue-100 active:scale-95'
+          } disabled:opacity-50`}
+        >
+          {recalibrating ? (
+            <><span className="h-3 w-3 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />Kalibriere…</>
+          ) : recalibrated ? (
+            <>✓ {recalibrated}</>
+          ) : (
+            <>⚡ Neu kalibrieren</>
+          )}
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5">
