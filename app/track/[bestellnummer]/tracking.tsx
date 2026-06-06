@@ -56,7 +56,7 @@ type Item = { name: string; menge: number; einzelpreis: number };
 
 type Msg = {
   id: string;
-  sender: 'fahrer' | 'kunde' | 'system';
+  sender: 'fahrer' | 'kunde' | 'küche' | 'system';
   nachricht: string;
   created_at: string;
 };
@@ -99,6 +99,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
   const [ratingDismissed, setRatingDismissed] = useState(false);
   const [deliveryEvents, setDeliveryEvents] = useState<DeliveryEvent[]>([]);
   const [shared, setShared] = useState(false);
+  const [kitchenBannerDismissed, setKitchenBannerDismissed] = useState(false);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -227,7 +228,8 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
 
   const active = stepIndex(order.status);
   const isDelivery = order.typ === 'lieferung';
-  const unread = messages.filter((m) => m.sender === 'fahrer').length;
+  const unread = messages.filter((m) => m.sender === 'fahrer' || m.sender === 'küche').length;
+  const latestKitchenMsg = [...messages].reverse().find((m) => m.sender === 'küche') ?? null;
 
   return (
     <div className="min-h-screen bg-surface">
@@ -365,6 +367,29 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
             </div>
           )}
         </div>
+
+        {/* Küchen-Benachrichtigung Banner — für Abholer wenn Küche "fertig"-Nachricht gesendet hat */}
+        {latestKitchenMsg && !kitchenBannerDismissed && (
+          <div className="flex items-start gap-3 rounded-2xl border-2 border-matcha-300 bg-gradient-to-br from-matcha-50 to-white p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-matcha-600 text-xl">
+              🔔
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-matcha-800">Nachricht von der Küche</p>
+              <p className="mt-0.5 text-sm text-matcha-700">{latestKitchenMsg.nachricht}</p>
+              <p className="mt-1 text-[10px] text-matcha-400 tabular-nums">
+                {new Date(latestKitchenMsg.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+              </p>
+            </div>
+            <button
+              onClick={() => setKitchenBannerDismissed(true)}
+              className="shrink-0 rounded-full p-1 text-matcha-400 hover:bg-matcha-100 hover:text-matcha-700 transition"
+              aria-label="Schließen"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {/* Timeline */}
         <div className="rounded-2xl border bg-card p-4 sm:p-5 shadow-subtle">
@@ -688,11 +713,16 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
                       'max-w-[75%] rounded-2xl px-4 py-2 text-sm',
                       m.sender === 'kunde'
                         ? 'rounded-br-md bg-matcha-700 text-white'
+                        : m.sender === 'küche'
+                        ? 'rounded-bl-md border border-matcha-200 bg-matcha-50 text-matcha-800'
                         : m.sender === 'system'
                         ? 'rounded-md border bg-muted text-xs italic text-muted-foreground'
                         : 'rounded-bl-md border bg-muted',
                     )}
                   >
+                    {m.sender === 'küche' && (
+                      <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-matcha-500">🧑‍🍳 Küche</div>
+                    )}
                     {m.nachricht}
                     <div className={cn('mt-1 text-[10px]', m.sender === 'kunde' ? 'text-matcha-200' : 'text-muted-foreground')}>
                       {new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
