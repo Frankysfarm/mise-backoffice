@@ -158,6 +158,26 @@ type PayoutSummaryData = {
   }>;
 } | null;
 
+type FranchiseSummaryData = {
+  tenant_id: string;
+  locations: {
+    location_id: string;
+    location_name: string;
+    queue_depth: number;
+    active_tours: number;
+    cooking_now: number;
+    oldest_queued_min: number | null;
+    completed_today: number;
+    active_alerts: number;
+    critical_alerts: number;
+    health: 'ok' | 'warning' | 'critical';
+  }[];
+  drivers: { drivers_online: number; drivers_idle: number; drivers_busy: number };
+  alerts: { id: string; location_name: string; alert_type: string; severity: string; message: string; created_at: string }[];
+  totals: { queue_depth: number; active_tours: number; cooking_now: number; completed_today: number; active_alerts: number; critical_alerts: number };
+  _fallback?: true;
+} | null;
+
 interface StatisticsViewProps {
   orders: Order[]
   completedOrders: Order[]
@@ -214,6 +234,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     enabled: boolean;
     location_id: string;
   }[]>([])
+  const [franchiseSummary, setFranchiseSummary] = useState<FranchiseSummaryData>(null)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
@@ -333,6 +354,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/alert-rules?location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.rules?.length) setAlertRules(d.rules) })
+      .catch(() => {})
+    fetch('/api/delivery/admin/franchise')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.locations && d.locations.length >= 1 && !d._fallback) setFranchiseSummary(d) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1763,6 +1788,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           config={payoutConfig}
           onSaved={(updated) => setPayoutConfig(updated)}
         />
+      )}
+
+      {/* Franchise Echtzeit-Übersicht (mehrere Standorte) */}
+      {franchiseSummary && franchiseSummary.locations.length > 1 && (
+        <FranchiseOverviewPanel data={franchiseSummary} />
       )}
     </div>
   )
@@ -3246,6 +3276,103 @@ function AlertRulesPanel({ rules, onRuleChanged }: {
               );
             })}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ FranchiseOverviewPanel ------------------------------ */
+
+function FranchiseOverviewPanel({ data }: { data: NonNullable<FranchiseSummaryData> }) {
+  const [open, setOpen] = useState(true);
+
+  const hasCritical = data.totals.critical_alerts > 0;
+  const hasAlerts   = data.totals.active_alerts > 0;
+
+  const healthColor = (h: 'ok' | 'warning' | 'critical') =>
+    h === 'critical' ? 'bg-red-500' : h === 'warning' ? 'bg-amber-400' : 'bg-matcha-500';
+
+  const healthBorder = (h: 'ok' | 'warning' | 'critical') =>
+    h === 'critical' ? 'border-red-200 bg-red-50' : h === 'warning' ? 'border-amber-200 bg-amber-50' : 'border-matcha-200 bg-matcha-50';
+
+  return (
+    <div className={`rounded-2xl border p-4 ${hasCritical ? 'border-red-300 bg-red-50' : hasAlerts ? 'border-amber-300 bg-amber-50' : 'border-matcha-200 bg-matcha-50'}`}>
+      <button onClick={() => setOpen(v => !v)} className="flex items-center gap-3 w-full text-left">
+        <MapPin className={`h-5 w-5 shrink-0 ${hasCritical ? 'text-red-600' : hasAlerts ? 'text-amber-600' : 'text-matcha-600'}`} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`font-bold text-sm ${hasCritical ? 'text-red-900' : hasAlerts ? 'text-amber-900' : 'text-matcha-900'}`}>
+              Franchise-Übersicht · {data.locations.length} Standorte
+            </span>
+            {hasCritical && (
+              <span className="rounded-full bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 leading-none">
+                {data.totals.critical_alerts} kritisch
+              </span>
+            )}
+          </div>
+          <div className={`text-xs mt-0.5 ${hasCritical ? 'text-red-700' : hasAlerts ? 'text-amber-700' : 'text-matcha-700'}`}>
+            {data.totals.queue_depth} wartend · {data.totals.active_tours} Touren · {data.totals.completed_today} heute geliefert · {data.drivers.drivers_online} Fahrer online
+          </div>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 shrink-0 text-stone-400" /> : <ChevronDown className="h-4 w-4 shrink-0 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-2 border-t border-stone-200 pt-3">
+          {/* Per-location rows */}
+          {data.locations.map(loc => (
+            <div key={loc.location_id} className={`rounded-xl border p-3 ${healthBorder(loc.health)}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`h-2 w-2 rounded-full shrink-0 ${healthColor(loc.health)}`} />
+                <span className="font-bold text-sm text-stone-800 truncate flex-1">{loc.location_name}</span>
+                {loc.critical_alerts > 0 && (
+                  <span className="rounded-full bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5">{loc.critical_alerts} kritisch</span>
+                )}
+                {loc.active_alerts > 0 && loc.critical_alerts === 0 && (
+                  <span className="rounded-full bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5">{loc.active_alerts} Alarm</span>
+                )}
+              </div>
+              <div className="grid grid-cols-4 gap-2 text-center">
+                {[
+                  { label: 'Wartend', value: loc.queue_depth, warn: loc.queue_depth >= 5 },
+                  { label: 'Touren', value: loc.active_tours, warn: false },
+                  { label: 'Küche', value: loc.cooking_now, warn: false },
+                  { label: 'Geliefert', value: loc.completed_today, warn: false },
+                ].map(({ label, value, warn }) => (
+                  <div key={label} className="rounded-lg bg-white/60 border border-white/80 py-1.5">
+                    <div className={`text-base font-black tabular-nums ${warn && value > 0 ? 'text-amber-700' : 'text-stone-800'}`}>{value}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-wider text-stone-500">{label}</div>
+                  </div>
+                ))}
+              </div>
+              {loc.oldest_queued_min !== null && loc.oldest_queued_min > 10 && (
+                <div className="mt-1.5 text-[10px] font-bold text-amber-700">
+                  Älteste Bestellung wartet {loc.oldest_queued_min} Min
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Cross-location alerts */}
+          {data.alerts.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Aktive Alarme</div>
+              {data.alerts.slice(0, 5).map(alert => (
+                <div key={alert.id} className={`rounded-xl border px-3 py-2 text-xs ${
+                  alert.severity === 'critical' ? 'border-red-200 bg-red-50 text-red-800' :
+                  alert.severity === 'warning'  ? 'border-amber-200 bg-amber-50 text-amber-800' :
+                  'border-stone-200 bg-stone-50 text-stone-700'
+                }`}>
+                  <span className="font-bold">{alert.location_name}:</span>{' '}
+                  {alert.message}
+                </div>
+              ))}
+              {data.alerts.length > 5 && (
+                <div className="text-[11px] text-stone-500 text-center">+ {data.alerts.length - 5} weitere Alarme</div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
