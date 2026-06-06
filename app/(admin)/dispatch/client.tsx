@@ -406,6 +406,9 @@ export function DispatchBoard({
       {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
+      {/* Fahrer-Schicht-Leaderboard: Stopps, Distanz, ETA-Genauigkeit */}
+      <DriverShiftLeaderboard drivers={drivers} batches={batches} />
+
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} />}
 
@@ -3184,6 +3187,223 @@ function DispatchNextBestAction({
           {bundled ? `${orderIds.length}× Zuweisen` : 'Zuweisen'}
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DriverShiftLeaderboard ------------------------------ */
+
+type ShiftStats = {
+  driverId: string;
+  name: string;
+  initials: string;
+  fahrzeug: string;
+  completedStops: number;
+  totalStops: number;
+  totalDistKm: number;
+  activeMinutes: number;
+  avgEtaAccuracySec: number | null;
+  isOnline: boolean;
+  isBusy: boolean;
+};
+
+function DriverShiftLeaderboard({
+  drivers,
+  batches,
+}: {
+  drivers: Driver[];
+  batches: Batch[];
+}) {
+  const supabase = createClient();
+  const [dbStats, setDbStats] = useState<Record<string, { stops: number; km: number }>>({});
+
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const load = async () => {
+      const onlineIds = drivers.filter((d) => d.ist_online).map((d) => d.employee_id);
+      if (onlineIds.length === 0) return;
+      const { data } = await supabase
+        .from('delivery_batches')
+        .select('fahrer_id, total_distance_km, stops:delivery_batch_stops(id, geliefert_am)')
+        .in('fahrer_id', onlineIds)
+        .gte('created_at', today.toISOString());
+      if (!data) return;
+      const map: Record<string, { stops: number; km: number }> = {};
+      for (const b of data as any[]) {
+        const id = b.fahrer_id as string;
+        if (!map[id]) map[id] = { stops: 0, km: 0 };
+        map[id].km += b.total_distance_km ?? 0;
+        map[id].stops += ((b.stops as any[]) ?? []).filter((s: any) => s.geliefert_am).length;
+      }
+      setDbStats(map);
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drivers.length]);
+
+  const onlineDrivers = drivers.filter((d) => d.ist_online);
+  if (onlineDrivers.length === 0) return null;
+
+  const stats: ShiftStats[] = onlineDrivers.map((d) => {
+    const e = d.employee;
+    const name = e ? `${e.vorname} ${e.nachname}`.trim() : '?';
+    const initials = e ? `${e.vorname?.[0] ?? ''}${e.nachname?.[0] ?? ''}`.toUpperCase() : '?';
+    const batch = batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id);
+    const completed = batch?.stops.filter((s) => s.geliefert_am).length ?? 0;
+    const total = batch?.stops.length ?? 0;
+    const db = dbStats[d.employee_id] ?? { stops: 0, km: 0 };
+    const activeMinutes = d.online_seit
+      ? Math.floor((Date.now() - new Date(d.online_seit).getTime()) / 60_000)
+      : 0;
+    return {
+      driverId: d.employee_id,
+      name,
+      initials,
+      fahrzeug: d.fahrzeug ?? 'bike',
+      completedStops: db.stops,
+      totalStops: total,
+      totalDistKm: Math.round(db.km * 10) / 10,
+      activeMinutes,
+      avgEtaAccuracySec: null,
+      isOnline: true,
+      isBusy: !!d.aktueller_batch_id,
+    };
+  }).sort((a, b) => b.completedStops - a.completedStops || b.activeMinutes - a.activeMinutes);
+
+  const totalDeliveries = stats.reduce((s, x) => s + x.completedStops, 0);
+  if (totalDeliveries === 0 && stats.every((s) => s.activeMinutes < 5)) return null;
+
+  const vehicleEmoji: Record<string, string> = { bike: '🚲', ebike: '🛵', scooter: '🛴', auto: '🚗', fahrrad: '🚲' };
+
+  return (
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <div className="flex items-center gap-2 border-b px-5 py-3">
+        <TrendingUp className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider">Schicht-Leaderboard</span>
+        <span className="ml-2 text-[10px] text-muted-foreground">{onlineDrivers.length} Fahrer online</span>
+        {totalDeliveries > 0 && (
+          <span className="ml-auto text-[10px] font-bold text-matcha-700">{totalDeliveries} Stopps heute</span>
+        )}
+      </div>
+
+      <div className="divide-y">
+        {stats.map((s, idx) => {
+          const rank = idx + 1;
+          const rankCls =
+            rank === 1 ? 'text-yellow-600 font-black' :
+            rank === 2 ? 'text-slate-500 font-black' :
+            rank === 3 ? 'text-amber-700 font-black' :
+            'text-muted-foreground font-medium';
+          const delivPerHour = s.activeMinutes >= 5 && s.completedStops > 0
+            ? Math.round((s.completedStops / s.activeMinutes) * 60 * 10) / 10
+            : null;
+          const effBar = delivPerHour != null ? Math.min(100, Math.round(delivPerHour * 20)) : 0;
+
+          return (
+            <div key={s.driverId} className="flex items-center gap-4 px-5 py-3">
+              {/* Rank */}
+              <div className={cn('w-6 text-sm text-center shrink-0', rankCls)}>
+                {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
+              </div>
+
+              {/* Avatar */}
+              <div className="relative shrink-0">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-matcha-700 font-display text-xs font-bold text-white">
+                  {s.initials}
+                </div>
+                <span
+                  className={cn(
+                    'absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background',
+                    s.isBusy ? 'bg-orange-500' : 'bg-matcha-400',
+                  )}
+                  title={s.isBusy ? 'Unterwegs' : 'Frei'}
+                />
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-sm truncate">{s.name}</span>
+                  <span>{vehicleEmoji[s.fahrzeug] ?? '🚲'}</span>
+                  {s.isBusy && (
+                    <span className="shrink-0 text-[9px] font-bold rounded-full bg-orange-100 text-orange-800 px-1.5 py-0.5">
+                      {s.totalStops > 0 ? `${batches.find(b => b.fahrer_id === s.driverId)?.stops.filter(x => x.geliefert_am).length ?? 0}/${s.totalStops} Stop` : 'unterwegs'}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  {/* Efficiency bar */}
+                  {effBar > 0 && (
+                    <div className="flex-1 max-w-[80px] h-1 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all',
+                          effBar >= 80 ? 'bg-matcha-500' : effBar >= 50 ? 'bg-amber-400' : 'bg-blue-400',
+                        )}
+                        style={{ width: `${effBar}%` }}
+                      />
+                    </div>
+                  )}
+                  {delivPerHour != null && (
+                    <span className="text-[10px] text-muted-foreground tabular-nums">{delivPerHour}/h</span>
+                  )}
+                  {s.activeMinutes > 0 && (
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {s.activeMinutes >= 60
+                        ? `${Math.floor(s.activeMinutes / 60)}h ${s.activeMinutes % 60}m`
+                        : `${s.activeMinutes}m`} online
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center gap-3 shrink-0 text-right">
+                <div>
+                  <div className={cn(
+                    'font-display text-lg font-black leading-none tabular-nums',
+                    s.completedStops >= 5 ? 'text-matcha-700' : s.completedStops >= 2 ? 'text-amber-700' : 'text-muted-foreground',
+                  )}>
+                    {s.completedStops}
+                  </div>
+                  <div className="text-[9px] text-muted-foreground">Stopps</div>
+                </div>
+                {s.totalDistKm > 0 && (
+                  <div>
+                    <div className="font-display text-sm font-bold leading-none text-muted-foreground tabular-nums">
+                      {s.totalDistKm}
+                    </div>
+                    <div className="text-[9px] text-muted-foreground">km</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer: aggregate */}
+      {totalDeliveries > 0 && (
+        <div className="flex items-center gap-4 border-t bg-muted/30 px-5 py-2 text-[10px] text-muted-foreground">
+          <span><span className="font-bold text-foreground">{totalDeliveries}</span> Stopps gesamt</span>
+          {stats.some((s) => s.totalDistKm > 0) && (
+            <span>
+              <span className="font-bold text-foreground">
+                {Math.round(stats.reduce((s, x) => s + x.totalDistKm, 0) * 10) / 10}
+              </span> km gesamt
+            </span>
+          )}
+          <span className="ml-auto">
+            Ø <span className="font-bold text-foreground">
+              {stats.filter((s) => s.completedStops > 0).length > 0
+                ? Math.round(totalDeliveries / stats.filter((s) => s.completedStops > 0).length * 10) / 10
+                : 0}
+            </span>/Fahrer
+          </span>
+        </div>
+      )}
     </div>
   );
 }

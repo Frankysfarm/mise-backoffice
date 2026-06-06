@@ -178,6 +178,7 @@ export function KitchenBoard({
   const [cookFlash, setCookFlash] = useState<{ orderId: string; orderNum: string; name: string } | null>(null);
   const [rushSnoozedUntil, setRushSnoozedUntil] = useState(0);
   const [bigDisplay, setBigDisplay] = useState(false);
+  const [stationFocus, setStationFocus] = useState<PrepStation | 'all'>('all');
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
   const [activityFeed, setActivityFeed] = useState<{ id: string; bestellnummer: string; status: string; name: string; ts: number }[]>([]);
   const prevOrderStatuses = useRef<Map<string, string>>(new Map());
@@ -519,6 +520,37 @@ export function KitchenBoard({
             <Monitor className="h-3.5 w-3.5" />
             {bigDisplay ? 'Normal' : 'TV'}
           </button>
+          {/* Station-Fokus-Buttons */}
+          <div className="flex items-center gap-1 rounded-lg border bg-muted p-1">
+            {(['all', 'Grill', 'Warm', 'Kalt', 'Sonstiges'] as const).map((st) => {
+              const meta = st !== 'all' ? STATION_META[st] : null;
+              const isActive = stationFocus === st;
+              // Count items in this station across active orders
+              const count = st === 'all' ? 0 : filtered
+                .filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status))
+                .flatMap(o => o.items ?? [])
+                .filter(it => classifyStation(it.name) === st)
+                .reduce((s, it) => s + it.menge, 0);
+              if (st !== 'all' && count === 0) return null;
+              return (
+                <button
+                  key={st}
+                  onClick={() => setStationFocus(st)}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-bold transition',
+                    isActive
+                      ? st === 'all'
+                        ? 'bg-card text-foreground shadow-sm'
+                        : cn('shadow-sm text-white', st === 'Grill' ? 'bg-orange-500' : st === 'Warm' ? 'bg-red-500' : st === 'Kalt' ? 'bg-sky-500' : 'bg-matcha-600')
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {st === 'all' ? 'Alle' : meta!.label}
+                  {st !== 'all' && count > 0 && <span className="ml-0.5 tabular-nums opacity-80">{count}</span>}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>{filtered.filter((o) => o.status !== 'unterwegs').length} offen</span>
@@ -576,6 +608,15 @@ export function KitchenBoard({
       {/* Küchendisplay (TV-Modus) */}
       {bigDisplay && (
         <KitchenBigDisplayGrid orders={filtered} timings={timings} onClose={() => setBigDisplay(false)} />
+      )}
+
+      {/* Station-Fokus-Panel: Kompaktansicht für einzelne Station */}
+      {stationFocus !== 'all' && !bigDisplay && (
+        <KitchenStationFocusPanel
+          orders={filtered}
+          station={stationFocus}
+          onClose={() => setStationFocus('all')}
+        />
       )}
 
       {/* Kanban */}
@@ -3582,4 +3623,192 @@ function payLabel(z: string): string {
     case 'online': return 'Online';
     default:       return z;
   }
+}
+
+/* ------------------------------ KitchenStationFocusPanel ------------------------------ */
+
+function KitchenStationFocusPanel({
+  orders,
+  station,
+  onClose,
+}: {
+  orders: Order[];
+  station: PrepStation;
+  onClose: () => void;
+}) {
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const meta = STATION_META[station];
+  const now = Date.now();
+  const active = orders.filter((o) => ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status));
+
+  // Aggregate items for this station across all active orders
+  type ItemEntry = {
+    name: string;
+    totalMenge: number;
+    notizen: string[];
+    orders: { id: string; bestellnummer: string; menge: number; urgent: boolean; critical: boolean; waitMin: number }[];
+    maxWaitMin: number;
+  };
+
+  const byItem = new Map<string, ItemEntry>();
+  for (const o of active) {
+    const waitMin = o.bestellt_am
+      ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000)
+      : 0;
+    const est = o.geschaetzte_zubereitung_min ?? 15;
+    const urgent = waitMin >= est;
+    const critical = waitMin >= est + 10;
+    for (const it of o.items ?? []) {
+      if (classifyStation(it.name) !== station) continue;
+      const key = it.name;
+      if (!byItem.has(key)) byItem.set(key, { name: it.name, totalMenge: 0, notizen: [], orders: [], maxWaitMin: 0 });
+      const entry = byItem.get(key)!;
+      entry.totalMenge += it.menge;
+      entry.maxWaitMin = Math.max(entry.maxWaitMin, waitMin);
+      if (it.notiz) entry.notizen.push(it.notiz);
+      entry.orders.push({ id: o.id, bestellnummer: o.bestellnummer, menge: it.menge, urgent, critical, waitMin });
+    }
+  }
+
+  const entries = Array.from(byItem.values()).sort((a, b) => b.maxWaitMin - a.maxWaitMin);
+  if (entries.length === 0) return null;
+
+  const urgentCount = entries.filter((e) => e.orders.some((o) => o.urgent)).length;
+  const checkedCount = checked.size;
+  const allDone = checkedCount === entries.length && entries.length > 0;
+
+  const borderCls =
+    station === 'Grill'     ? 'border-orange-300 bg-orange-50' :
+    station === 'Warm'      ? 'border-red-300 bg-red-50' :
+    station === 'Kalt'      ? 'border-sky-300 bg-sky-50' :
+    'border-matcha-300 bg-matcha-50';
+
+  return (
+    <div className={cn('rounded-xl border-2 p-4', borderCls)}>
+      {/* Header */}
+      <div className="mb-3 flex items-center gap-2">
+        <span className={cn('h-3 w-3 rounded-full shrink-0', meta.dot)} />
+        <span className={cn('font-display text-sm font-bold uppercase tracking-wider', meta.color)}>
+          Station {meta.label} · {entries.length} Artikel · {entries.reduce((s, e) => s + e.totalMenge, 0)} Stück
+        </span>
+        {urgentCount > 0 && (
+          <span className="rounded-full bg-red-500 text-white px-2 py-0.5 text-[9px] font-bold animate-pulse">
+            {urgentCount} dringend
+          </span>
+        )}
+        {checkedCount > 0 && (
+          <span className="ml-1 rounded-full bg-matcha-600 text-white px-2 py-0.5 text-[9px] font-bold">
+            {checkedCount}/{entries.length} ✓
+          </span>
+        )}
+        <button
+          onClick={onClose}
+          className="ml-auto h-7 w-7 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition shrink-0"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Item list */}
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {entries.map((entry) => {
+          const isChecked = checked.has(entry.name);
+          const isUrgent = entry.orders.some((o) => o.urgent);
+          const isCritical = entry.orders.some((o) => o.critical);
+          const maxWait = entry.maxWaitMin;
+          return (
+            <button
+              key={entry.name}
+              onClick={() => setChecked((s) => {
+                const n = new Set(s);
+                n.has(entry.name) ? n.delete(entry.name) : n.add(entry.name);
+                return n;
+              })}
+              className={cn(
+                'flex items-start gap-3 rounded-xl px-3 py-2.5 text-left transition active:scale-[0.98] border',
+                isChecked
+                  ? 'bg-matcha-700/15 border-matcha-400/30 opacity-60'
+                  : isCritical
+                    ? 'bg-red-500/10 border-red-300/70'
+                    : isUrgent
+                      ? 'bg-orange-500/10 border-orange-300/60'
+                      : 'bg-white/70 border-black/8',
+              )}
+            >
+              {/* Count badge */}
+              <div className={cn(
+                'h-10 w-10 rounded-xl grid place-items-center font-display font-black text-xl shrink-0 leading-none',
+                isChecked
+                  ? 'bg-matcha-500 text-white'
+                  : isCritical
+                    ? 'bg-red-500 text-white'
+                    : isUrgent
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-white text-foreground border border-black/10',
+              )}>
+                {isChecked ? <Check className="h-5 w-5" /> : entry.totalMenge}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className={cn(
+                  'font-bold text-sm leading-tight',
+                  isChecked && 'line-through opacity-50',
+                )}>
+                  {entry.name}
+                </div>
+                {/* Per-order chips */}
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {entry.orders.map((o, i) => (
+                    <span key={i} className={cn(
+                      'text-[9px] font-bold rounded-full px-1.5 py-0.5 tabular-nums',
+                      o.critical ? 'bg-red-100 text-red-700' :
+                      o.urgent   ? 'bg-orange-100 text-orange-700' :
+                                   'bg-black/8 text-foreground/60',
+                    )}>
+                      #{o.bestellnummer.replace('FF-', '')} ×{o.menge}
+                      {o.urgent && <span className="ml-0.5 text-[8px]">({o.waitMin}m)</span>}
+                    </span>
+                  ))}
+                </div>
+                {/* Notizen */}
+                {entry.notizen.length > 0 && !isChecked && (
+                  <div className="mt-1 text-[10px] italic text-orange-700 leading-tight">
+                    „{entry.notizen[0]}"
+                    {entry.notizen.length > 1 && <span className="text-muted-foreground"> +{entry.notizen.length - 1}</span>}
+                  </div>
+                )}
+              </div>
+
+              {/* Wait time */}
+              {!isChecked && (
+                <div className={cn(
+                  'text-[10px] font-bold tabular-nums shrink-0 self-start mt-1',
+                  isCritical ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-muted-foreground',
+                )}>
+                  {maxWait}m
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* All done banner */}
+      {allDone && (
+        <div className="mt-3 rounded-xl bg-matcha-700/20 border border-matcha-400/40 px-4 py-3 flex items-center gap-3">
+          <span className="text-2xl">🎉</span>
+          <div>
+            <div className="font-display font-bold text-matcha-800 text-sm">Alle Artikel dieser Station fertig!</div>
+            <div className="text-[11px] text-matcha-600">Station {meta.label} abgehakt</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
