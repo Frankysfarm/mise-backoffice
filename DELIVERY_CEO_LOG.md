@@ -1,13 +1,14 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–44 + Frontend-Enhancements (Commit b4c175b) abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–45 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #37 abgeschlossen (2026-06-07):** Commit b4c175b geprüft — 3 neue UI-Features, 1 TS-Bug gefixt.
+**Phase 45 abgeschlossen (2026-06-07):** Delivery Credit & Late-Compensation Engine implementiert.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
+3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
 
 ## CEO Review #37 — 2026-06-07
 
@@ -59,6 +60,23 @@ Offene Deployment-Items:
 - Build: sauber ✅
 - Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront: alle synchron ✅
 - System: **MARKT-REIF** ✅ — bereit für Produktiv-Deployment
+
+---
+
+## Phase 45 — Backend-Architekt-Agent — 2026-06-07
+
+### Was gebaut wurde
+- `scripts/migrations/038_delivery_credits.sql`: delivery_credit_rules + delivery_credits + v_credit_summary + v_pending_credits + RLS + Indizes + seed_default_credit_rules()
+- `lib/delivery/credits.ts`: Credit & Late-Compensation Engine (getCreditRules / upsertCreditRule / evaluateAndIssueLateCredit / issueFailedDeliveryCredit / issueManualCredit / getCredits / getCreditSummary / cancelCredit / expireStaleCredits)
+- `app/api/delivery/admin/credits/route.ts`: GET (Liste + Summary) + POST (manuelle Ausstellung)
+- `app/api/delivery/admin/credits/[id]/route.ts`: DELETE (Stornierung)
+- `app/api/delivery/admin/credit-rules/route.ts`: GET + POST (Regelkonfiguration)
+- `app/api/delivery/tours/[id]/status/route.ts`: evaluateAndIssueLateCredit() bei 'delivered' (fire-and-forget)
+- `app/api/cron/smart-dispatch/route.ts`: expireStaleCredits() im 2-Min-Tick
+
+### TypeScript
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
 
 ---
 

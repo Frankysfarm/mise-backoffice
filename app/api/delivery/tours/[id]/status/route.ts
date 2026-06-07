@@ -15,6 +15,7 @@ import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
 import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/customer-notify';
 import { recordDriverSurgeBonus } from '@/lib/delivery/surge';
 import { markWindowDelivered, markWindowDispatched } from '@/lib/delivery/windows';
+import { evaluateAndIssueLateCredit } from '@/lib/delivery/credits';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,6 +95,15 @@ export async function PATCH(
           // Window-Buchung als geliefert markieren (fire-and-forget)
           if (stop.order_id) {
             markWindowDelivered(stop.order_id as string).catch(() => {});
+          }
+
+          // Verspätungs-Credit prüfen und ggf. ausstellen (fire-and-forget)
+          if (stop.order_id && batch.location_id) {
+            evaluateAndIssueLateCredit(
+              stop.order_id as string,
+              batch.location_id as string,
+              stop.completed_at ? new Date(stop.completed_at as string) : new Date(),
+            ).catch(() => {});
           }
         }
       }

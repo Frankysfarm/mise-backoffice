@@ -26,6 +26,7 @@ import { evaluateSurgeAllLocations } from '@/lib/delivery/surge';
 import { processWindowDispatchAllLocations, markMissedWindows } from '@/lib/delivery/windows';
 import { releaseRetryAttempts } from '@/lib/delivery/proof';
 import { evaluateAutoSignalAllLocations } from '@/lib/delivery/capacity';
+import { expireStaleCredits } from '@/lib/delivery/credits';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -122,6 +123,8 @@ export async function GET(req: NextRequest) {
       releaseRetryAttempts().catch(() => ({ released: 0 })),
       // Queue-Signal: Küchenauslastung → Storefront-Wartezeit-Banner (jeder Tick)
       evaluateAutoSignalAllLocations().catch(() => ({ locations: 0, upgraded: 0, downgraded: 0, errors: 0 })),
+      // Credits: abgelaufene Gutschriften als 'expired' markieren (stündlich ausreichend, hier jeder Tick)
+      expireStaleCredits().catch(() => ({ expired: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -183,6 +186,7 @@ export async function GET(req: NextRequest) {
         upgraded:  queueSignalResult.upgraded,
         downgraded: queueSignalResult.downgraded,
       },
+      credits_expired: creditsResult.expired,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

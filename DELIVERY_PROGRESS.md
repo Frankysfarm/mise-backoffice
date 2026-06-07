@@ -114,7 +114,94 @@
 - [x] KitchenDriverAtRestaurantAlert (Blinkbanner wenn Fahrer mit at_restaurant-Batch am Restaurant wartet)
 - [x] Lieferverifizierungs-Liste in Fahrer-App (Artikel pro Stop kollapsierbar prüfen vor Übergabe)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–44 + CEO REVIEW #37 ABGESCHLOSSEN — 2026-06-07
+- [x] delivery_credit_rules Tabelle (Migration 038)
+- [x] delivery_credits Tabelle (Migration 038)
+- [x] v_credit_summary View (Migration 038)
+- [x] v_pending_credits View (Migration 038)
+- [x] seed_default_credit_rules() SQL-Funktion
+- [x] credits.ts (Credit & Late-Compensation Engine)
+- [x] GET+POST /api/delivery/admin/credits (Admin-Übersicht + manuelle Ausstellung)
+- [x] DELETE /api/delivery/admin/credits/[id] (Stornierung)
+- [x] GET+POST /api/delivery/admin/credit-rules (Regelkonfiguration)
+- [x] evaluateAndIssueLateCredit() in tours/[id]/status PATCH (fire-and-forget)
+- [x] expireStaleCredits() im Cron-Tick
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–45 + CEO REVIEW #37 ABGESCHLOSSEN — 2026-06-07
+
+## Phase 45: Delivery Credit & Late-Compensation Engine [DONE ✅] — 2026-06-07
+
+### Motivation
+Wenn eine Lieferung zu spät kommt oder fehlschlägt, gab es bisher keine automatische
+Kompensation für den Kunden. Das führt zu Unzufriedenheit und Bewertungsschäden.
+Phase 45 schließt diese Lücke: konfigurierbare Regeln pro Location lösen automatisch
+Gutschriften aus — ohne manuellen Admin-Aufwand.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/038_delivery_credits.sql`
+  - `delivery_credit_rules` Tabelle: Konfiguration pro Location (trigger_type, threshold_min, credit_eur, credit_pct, max_credit_eur, expires_in_days, active)
+    - UNIQUE auf (location_id, trigger_type) → kein doppelter Regelsatz
+    - Trigger-Typen: `late_delivery`, `failed_delivery`, `manual`
+  - `delivery_credits` Tabelle: Ausgestellte Gutschriften
+    - Eindeutiger Token (hex, 32 Zeichen) für Kunden-Einlösung
+    - Kundendaten-Snapshot (name, phone) zum Ausstellungszeitpunkt
+    - Status-Lifecycle: issued → redeemed / expired / cancelled
+    - `late_minutes` Feld: Dokumentiert Verspätungsminuten bei late_delivery
+    - Dedup-Guard über order_id + reason (kein Doppel-Credit)
+  - `v_credit_summary` View: Aggregierte KPIs pro Location (issued/redeemed/expired, Einlösequote)
+  - `v_pending_credits` View: Offene Credits mit Bestelldetails für Admin-Dashboard
+  - `seed_default_credit_rules()` Funktion: Starter-Regeln (10 Min → €2, Failed → €5) per Opt-In
+  - RLS: service_role ALL + authenticated SELECT (tenant-gefiltert)
+  - Indizes: location+issued_at, order_id, status, token, expires_at (partial)
+  - updated_at Trigger für beide Tabellen
+
+- [x] `lib/delivery/credits.ts` — Credit & Late-Compensation Engine (TypeScript strict, kein `any`)
+  - Typen: CreditRule / DeliveryCredit / CreditSummary / ManualCreditInput / IssueResult
+  - `getCreditRules(locationId)`: aktive Regeln laden
+  - `upsertCreditRule(locationId, input)`: Regel erstellen/aktualisieren (UPSERT)
+  - `evaluateAndIssueLateCredit(orderId, locationId, deliveredAt)`:
+    - Lädt active late_delivery Regel
+    - Vergleicht deliveredAt mit eta_latest (versprochene Lieferzeit)
+    - Berechnet Verspätungsminuten; wenn < threshold_min → kein Credit
+    - Dedup-Guard: kein zweiter Credit für dieselbe Bestellung
+    - Betrag = credit_eur + (credit_pct % von Bestellwert), capped auf max_credit_eur
+    - Graceful Fallback wenn Migration 038 fehlt (42P01 Code)
+  - `issueFailedDeliveryCredit(orderId, locationId)`: Credit bei fehlgeschlagener Zustellung
+  - `issueManualCredit(input)`: Admin erstellt Credit manuell (mit userId für Audit)
+  - `getCredits(locationId, options)`: Credits listen (filterbar nach Status, paginierbar)
+    - Separater customer_orders Lookup für Bestelldetails (keine Supabase-Join-Typ-Probleme)
+  - `getCreditSummary(locationId)`: v_credit_summary abrufen
+  - `cancelCredit(creditId, locationId)`: Stornierung (nur issued, nicht redeemed)
+  - `expireStaleCredits()`: Setzt abgelaufene issued-Credits auf expired (Cron-Helfer)
+
+- [x] `app/api/delivery/admin/credits/route.ts`
+  - `GET ?summary=true` → { summary }
+  - `GET ?status=issued|redeemed|... &limit=&offset=` → { credits[], summary }
+  - `POST { amount_eur, reason, order_id?, customer_*, notes?, expires_in_days? }` → 201 { credit }
+  - Auth: employees.auth_user_id → location_id
+
+- [x] `app/api/delivery/admin/credits/[id]/route.ts`
+  - `DELETE` → Credit stornieren (409 wenn bereits eingelöst)
+
+- [x] `app/api/delivery/admin/credit-rules/route.ts`
+  - `GET` → { rules[] }
+  - `POST { trigger_type, threshold_min?, credit_eur, credit_pct?, max_credit_eur?, expires_in_days?, active? }` → UPSERT
+  - Validierung: trigger_type Enum, credit_eur positiv
+
+- [x] Integration `app/api/delivery/tours/[id]/status/route.ts`
+  - On `delivered`: `evaluateAndIssueLateCredit()` für jeden Dropoff-Stop (fire-and-forget)
+  - Kein Blocking: `.catch(() => {})` — kein Fatal wenn Tabelle fehlt
+
+- [x] Integration `app/api/cron/smart-dispatch/route.ts`
+  - `expireStaleCredits()` im Promise.all des 2-Min-Ticks
+  - Response enthält `credits_expired: N`
+
+### Technische Details
+- Alle 6 Funktionen mit Graceful Fallback (42P01 Migration-fehlt-Fehler)
+- TypeScript strict: 0 Fehler nach `npx tsc --noEmit`
+- Build: `npx next build` ✓ (0 Fehler, 0 Warnungen)
+- Multi-Tenant: jede Query filtert location_id
+- Keine externen Dependencies
 
 ## Phase 44: Kitchen-Queue-Signal → Storefront Live-Wartezeit & Bestellpause [DONE ✅] — 2026-06-07
 
