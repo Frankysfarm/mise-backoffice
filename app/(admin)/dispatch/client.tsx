@@ -34,6 +34,9 @@ import {
   Phone,
   MessageSquare,
   X,
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -149,6 +152,14 @@ export function DispatchBoard({
     totalDeliveriesToday: number | null;
     driverUtilization: number | null;
   } | null>(null);
+  const [overviewStats, setOverviewStats] = useState<{
+    today_stats: { total_orders: number; dispatched: number; delivered: number; pending: number; drivers_online: number };
+    zone_counts: Record<string, number>;
+  } | null>(null);
+  const [recoveryEvents, setRecoveryEvents] = useState<{
+    id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null;
+  }[]>([]);
+  const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -246,6 +257,34 @@ export function DispatchBoard({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locations, drivers.length]);
 
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/overview?location_id=${locationId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.today_stats) setOverviewStats({ today_stats: d.today_stats, zone_counts: d.zone_counts ?? {} }); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, [locations]);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/recovery?location_id=${locationId}&limit=10`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.events)) setRecoveryEvents(d.events); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  }, [locations]);
+
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
     try {
@@ -268,6 +307,26 @@ export function DispatchBoard({
       await refresh();
     } finally {
       setDispatchPending(false);
+    }
+  }
+
+  async function triggerRecovery(batchId: string) {
+    setRecoveryPending(batchId);
+    try {
+      await fetch('/api/delivery/admin/recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batch_id: batchId, reason: 'manual_admin' }),
+      });
+      await refresh();
+      const locationId = locations[0]?.id;
+      if (locationId) {
+        const d = await fetch(`/api/delivery/admin/recovery?location_id=${locationId}&limit=10`)
+          .then(r => r.ok ? r.json() : null);
+        if (Array.isArray(d?.events)) setRecoveryEvents(d.events);
+      }
+    } catch {} finally {
+      setRecoveryPending(null);
     }
   }
 
@@ -488,6 +547,11 @@ export function DispatchBoard({
       {/* Nachfrage-Prognose: nächste 6h basierend auf historischem Muster */}
       <DemandForecastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
+      {/* Heutige Lieferstatistiken — Überblick aus DB */}
+      {overviewStats && (
+        <TodayStatsBar stats={overviewStats.today_stats} zoneCounts={overviewStats.zone_counts} />
+      )}
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -621,6 +685,14 @@ export function DispatchBoard({
           }}
         />
       )}
+
+      {/* Batch-Wiederherstellung: stornierte / fehlgeschlagene Touren manuell wiederherstellen */}
+      <RecoveryPanel
+        batches={batches}
+        recoveryEvents={recoveryEvents}
+        recoveryPending={recoveryPending}
+        onRecover={triggerRecovery}
+      />
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
       <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
@@ -4661,6 +4733,192 @@ function FailedAttemptsPanel({
             {showAll ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             {showAll ? 'Weniger anzeigen' : `${attempts.length - 3} weitere anzeigen`}
           </button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ------------------------------ TodayStatsBar ------------------------------ */
+
+function TodayStatsBar({
+  stats,
+  zoneCounts,
+}: {
+  stats: { total_orders: number; dispatched: number; delivered: number; pending: number; drivers_online: number };
+  zoneCounts: Record<string, number>;
+}) {
+  const topZones = Object.entries(zoneCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+  const deliveryPct = stats.total_orders > 0
+    ? Math.round((stats.delivered / stats.total_orders) * 100)
+    : 0;
+
+  return (
+    <div className="rounded-xl border bg-card px-4 py-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+      <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
+        <TrendingUp className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="text-xs font-bold uppercase tracking-wide text-matcha-700">Heute</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground">Bestellungen</span>
+        <span className="font-bold tabular-nums">{stats.total_orders}</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <CheckCircle2 className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="text-xs text-muted-foreground">Zugestellt</span>
+        <span className="font-bold tabular-nums text-matcha-700">{stats.delivered}</span>
+        {stats.total_orders > 0 && (
+          <span className="text-[11px] text-muted-foreground">({deliveryPct}%)</span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Clock className="h-3.5 w-3.5 text-amber-500" />
+        <span className="text-xs text-muted-foreground">Ausstehend</span>
+        <span className="font-bold tabular-nums text-amber-700">{stats.pending}</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Zap className="h-3.5 w-3.5 text-blue-500" />
+        <span className="text-xs text-muted-foreground">Dispatched</span>
+        <span className="font-bold tabular-nums">{stats.dispatched}</span>
+      </div>
+
+      {topZones.length > 0 && (
+        <div className="flex items-center gap-1.5 ml-auto">
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Zonen:</span>
+          <div className="flex items-center gap-1">
+            {topZones.map(([zone, count]) => (
+              <span key={zone} className="inline-flex items-center gap-0.5 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold">
+                {zone} <span className="text-muted-foreground">·{count}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="w-full h-1 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-matcha-500 rounded-full transition-all duration-700"
+          style={{ width: `${deliveryPct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ RecoveryPanel ------------------------------ */
+
+const RECOVERABLE_STATUSES = ['storniert', 'cancelled', 'fehlgeschlagen', 'failed', 'stuck'];
+
+function RecoveryPanel({
+  batches,
+  recoveryEvents,
+  recoveryPending,
+  onRecover,
+}: {
+  batches: Batch[];
+  recoveryEvents: { id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null }[];
+  recoveryPending: string | null;
+  onRecover: (batchId: string) => void;
+}) {
+  const [showHistory, setShowHistory] = useState(false);
+  const recoverableBatches = batches.filter((b) => RECOVERABLE_STATUSES.includes(b.status));
+
+  if (recoverableBatches.length === 0 && recoveryEvents.length === 0) return null;
+
+  return (
+    <Card className="overflow-hidden border-amber-200">
+      <div className="flex items-center gap-3 px-5 py-3 border-b bg-amber-50">
+        <RotateCcw className="h-4 w-4 text-amber-600 shrink-0" />
+        <span className="font-display text-sm font-bold text-amber-900">Batch-Wiederherstellung</span>
+        {recoverableBatches.length > 0 && (
+          <Badge className="ml-auto bg-amber-100 text-amber-800 border-amber-300">
+            {recoverableBatches.length} wiederherstellbar
+          </Badge>
+        )}
+      </div>
+
+      {recoverableBatches.length > 0 && (
+        <div className="divide-y">
+          {recoverableBatches.map((b) => {
+            const isBusy = recoveryPending === b.id;
+            const driverName = b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : null;
+            const stopCount = b.stops?.length ?? 0;
+            return (
+              <div key={b.id} className="flex items-center gap-4 px-5 py-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-display text-sm font-bold font-mono">
+                      {b.id.slice(-6).toUpperCase()}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] border-red-300 text-red-700">
+                      {b.status}
+                    </Badge>
+                    {b.zone && (
+                      <Badge variant="secondary" className="text-[10px]">{b.zone}</Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                    {driverName && <span className="flex items-center gap-1"><User size={10} />{driverName}</span>}
+                    {stopCount > 0 && <span className="flex items-center gap-1"><Package size={10} />{stopCount} Stopps</span>}
+                    {b.total_distance_km && (
+                      <span className="flex items-center gap-1"><RouteIcon size={10} />{b.total_distance_km.toFixed(1)} km</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => onRecover(b.id)}
+                  disabled={isBusy || recoveryPending !== null}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50 transition shrink-0"
+                >
+                  {isBusy ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
+                  Wiederherstellen
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {recoveryEvents.length > 0 && (
+        <div className="border-t">
+          <button
+            onClick={() => setShowHistory((v) => !v)}
+            className="w-full flex items-center gap-2 px-5 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition"
+          >
+            <History size={13} />
+            Verlauf ({recoveryEvents.length})
+            {showHistory ? <ChevronUp size={12} className="ml-auto" /> : <ChevronDown size={12} className="ml-auto" />}
+          </button>
+          {showHistory && (
+            <div className="divide-y border-t">
+              {recoveryEvents.map((ev) => {
+                const when = new Date(ev.triggered_at);
+                const ago = Math.floor((Date.now() - when.getTime()) / 60_000);
+                return (
+                  <div key={ev.id} className="flex items-center gap-3 px-5 py-2 text-xs">
+                    {ev.success
+                      ? <CheckCircle2 size={13} className="text-matcha-600 shrink-0" />
+                      : <XCircle size={13} className="text-red-500 shrink-0" />}
+                    <span className="font-mono text-muted-foreground">{ev.batch_id.slice(-6).toUpperCase()}</span>
+                    <span className="text-muted-foreground">{ev.recovery_type}</span>
+                    <span className="ml-auto text-muted-foreground">
+                      {ago < 60 ? `vor ${ago}m` : `vor ${Math.floor(ago / 60)}h`}
+                    </span>
+                    {ev.error_message && (
+                      <span className="text-red-600 italic truncate max-w-[160px]">{ev.error_message}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </Card>
