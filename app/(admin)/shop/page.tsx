@@ -21,7 +21,7 @@ type TenantRow = {
   name: string;
   slug: string;
   custom_domain: string | null;
-  custom_domain_status: 'pending' | 'verified' | 'error' | null;
+  custom_domain_status: 'pending' | 'verified' | 'active' | 'dns_ok' | 'provisioning' | 'error' | null;
   hero_image_url: string | null;
   logo_url: string | null;
   storefront_theme_id: string | null;
@@ -129,18 +129,21 @@ export default async function ShopOverviewPage() {
   const setupComplete = checklistOpen.length === 0;
 
   // === Public URL des Shops ===
-  const publicUrl = tenant.custom_domain && tenant.custom_domain_status === 'verified'
+  const publicUrl = tenant.custom_domain && ['verified','active'].includes(String(tenant.custom_domain_status ?? ''))
     ? `https://${tenant.custom_domain}`
     : `https://mise-gastro.de/order/${tenant.slug}`;
   const customDomainPending = tenant.custom_domain && tenant.custom_domain_status === 'pending';
   const customDomainError = tenant.custom_domain && tenant.custom_domain_status === 'error';
 
   // === QR-Code als Data-URL serverseitig generieren ===
-  const qrDataUrl = await QRCode.toDataURL(publicUrl, {
+  // Wichtig: Wir encoden NICHT publicUrl, sondern den stabilen Redirector
+  // /go/[slug]. Wenn der Owner später die Domain wechselt, bleibt der QR.
+  const qrStableUrl = `https://mise-gastro.de/go/${tenant.slug}`;
+  const qrDataUrl = await QRCode.toDataURL(qrStableUrl, {
     width: 320,
     margin: 2,
     color: { dark: '#0f2922', light: '#ffffff' },
-    errorCorrectionLevel: 'M',
+    errorCorrectionLevel: 'H',
   });
 
   const primary = tenant.theme_primary ?? '#14532d';
@@ -187,7 +190,7 @@ export default async function ShopOverviewPage() {
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/15 px-3 py-1.5 text-sm font-mono">
               <Globe size={12} /> {publicUrl.replace(/^https?:\/\//, '')}
             </div>
-            {tenant.custom_domain && tenant.custom_domain_status === 'verified' && (
+            {tenant.custom_domain && ['verified','active'].includes(String(tenant.custom_domain_status ?? '')) && (
               <div className="mt-2 text-xs opacity-80 inline-flex items-center gap-1">
                 <ShieldCheck size={12} /> eigene Domain aktiv · Subdomain bleibt erreichbar
               </div>
@@ -235,7 +238,7 @@ export default async function ShopOverviewPage() {
         <KPI icon={<ShoppingBag size={14} />} label="Bestellungen heute"  value={ordersTodayCount ?? 0} sub={`gestern ${ordersYesterdayCount ?? 0} · 7T ${ordersWeekCount ?? 0}`} />
         <KPI icon={<Bike size={14} />}        label="Fahrer online"       value={`${onlineDrivers}/${totalDrivers}`} sub={totalDrivers === 0 ? 'noch keiner eingeladen' : undefined} />
         <KPI icon={<CreditCard size={14} />}  label="Online-Zahlung"      value={hasStripe ? 'aktiv' : 'aus'} tone={hasStripe ? 'green' : 'amber'} />
-        <KPI icon={<Globe size={14} />}       label="Domain"              value={tenant.custom_domain && tenant.custom_domain_status === 'verified' ? 'eigen' : tenant.custom_domain ? 'pending' : 'Sub'} tone={tenant.custom_domain && tenant.custom_domain_status === 'verified' ? 'green' : tenant.custom_domain ? 'amber' : 'muted'} />
+        <KPI icon={<Globe size={14} />}       label="Domain"              value={tenant.custom_domain && ['verified','active'].includes(String(tenant.custom_domain_status ?? '')) ? 'eigen' : tenant.custom_domain ? 'pending' : 'Sub'} tone={tenant.custom_domain && ['verified','active'].includes(String(tenant.custom_domain_status ?? '')) ? 'green' : tenant.custom_domain ? 'amber' : 'muted'} />
       </div>
 
       {/* Setup-Checkliste — nur wenn was offen ist (oder als grüne „Alles bereit"-Karte) */}
@@ -319,7 +322,7 @@ export default async function ShopOverviewPage() {
           icon={<Globe className="h-5 w-5" />}
           title="Eigene Domain"
           subtitle={
-            tenant.custom_domain && tenant.custom_domain_status === 'verified'
+            tenant.custom_domain && ['verified','active'].includes(String(tenant.custom_domain_status ?? ''))
               ? `${tenant.custom_domain} · aktiv ✓`
               : tenant.custom_domain
                 ? `${tenant.custom_domain} · ${tenant.custom_domain_status === 'pending' ? 'wartet auf DNS' : 'Fehler'}`

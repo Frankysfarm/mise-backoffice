@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
   ArrowRight, ArrowUpRight, Bell, Bike, ChefHat, Clock, CreditCard,
-  Grid, Rocket, Sparkles, Store, TrendingUp, Utensils,
+  Grid, Rocket, ShoppingBag, Sparkles, Store, TrendingUp, Utensils,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createServiceClient } from '@/lib/supabase/server';
@@ -252,10 +252,11 @@ export default async function HomePage() {
           <SectionTitle title="Schnellzugriff" />
 
           <div className="space-y-2">
-            <QuickLink href="/modules"             icon={<Grid />}          label="Alle Module"       sub="Zur Modul-Übersicht" primary />
-            <QuickLink href={`/order/${t.slug}`}   icon={<Store />}          label="Bestellseite"     sub="Kunden-Shop öffnen"  external />
-            <QuickLink href="/menu"                icon={<Utensils />}       label="Menü bearbeiten"  sub="Produkte & Preise" />
-            <QuickLink href="/settings/restaurant" icon={<CreditCard />}     label="Einstellungen"    sub="Stammdaten · Zahlung" />
+            <QuickLink href="/modules"             icon={<Grid />}          label="Alle Module"           sub="Aktiv + Bookbar" primary />
+            <QuickLink href="/shop"                icon={<ShoppingBag />}   label="Online-Shop Cockpit"   sub="Cockpit · QR · Settings" />
+            <QuickLink href="/menu"                icon={<Utensils />}      label="Menü bearbeiten"      sub="Produkte · Preise · Bilder" />
+            <QuickLink href={`/order/${t.slug}`}   icon={<Store />}         label="Bestellseite ansehen" sub="So sieht's der Kunde"  external />
+            <QuickLink href="/settings/restaurant" icon={<CreditCard />}    label="Einstellungen"        sub="Stammdaten · Zahlung" />
           </div>
         </aside>
       </section>

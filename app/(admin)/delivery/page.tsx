@@ -8,7 +8,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { euro } from '@/lib/utils';
-import { SeedTestButton } from './seed-test-button';
+// import { SeedTestButton } from './seed-test-button'; // deaktiviert in Produktion
 
 export const dynamic = 'force-dynamic';
 
@@ -52,10 +52,11 @@ export default async function DeliveryOverviewPage() {
         description="Fahrer, Touren, Konditionen und externe Plattformen an einem Ort."
       />
 
-      {/* Test-Orders-Button */}
+      {/* Test-Orders-Button — deaktiviert (Produktion). Falls dev-only, in Env-Check verpacken.
       <div className="mb-6">
         <SeedTestButton />
       </div>
+      */}
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">

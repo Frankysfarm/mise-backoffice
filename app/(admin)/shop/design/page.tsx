@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { BannerLogoUpload } from './banner-logo-upload';
-import { BissWhitelabelCard } from './biss-whitelabel-card';
+import { Palette, Sparkles, Gift, ArrowRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,21 +23,55 @@ export default async function ShopDesignPage() {
     .single();
   if (!tenant) redirect('/start');
 
-
-
   return (
     <>
       <PageHeader
         title="Design & Banner"
-        description="Dein Online-Shop läuft mit der BISS-Whitelabel-App. Im Brand-Studio passt du Farben, Schriften, Texte, Animationen und deine Domain an."
+        description="Logo, Banner-Bild und Storefront-Texte für deine Online-Bestellseite."
         backHref="/shop"
       />
       <div className="space-y-6">
-        <BissWhitelabelCard
-          tenantId={tenant.id}
-          tenantSlug={tenant.slug}
-          current={tenant.storefront_theme_id}
-        />
+
+        {/* Quick-Links zu Settings die funktionieren */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link href="/storefront-settings" className="group rounded-2xl border bg-white p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 grid place-items-center">
+                <Palette size={18} className="text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-sm">Texte & Tagline</div>
+                <div className="text-xs text-muted-foreground">Hero-Banner, Loyalty-Texte</div>
+              </div>
+              <ArrowRight size={14} className="text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+          <Link href="/storefront-settings" className="group rounded-2xl border bg-white p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 grid place-items-center">
+                <Gift size={18} className="text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-sm">Welcome-Popup</div>
+                <div className="text-xs text-muted-foreground">Gratis-Drinks auswählen</div>
+              </div>
+              <ArrowRight size={14} className="text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+          <Link href="/storefront-settings" className="group rounded-2xl border bg-white p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 grid place-items-center">
+                <Sparkles size={18} className="text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-sm">Cross-Sell</div>
+                <div className="text-xs text-muted-foreground">Produkt-Vorschläge im Cart</div>
+              </div>
+              <ArrowRight size={14} className="text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
+        </div>
+
         <BannerLogoUpload
           tenantId={tenant.id}
           heroImageUrl={(tenant as any).hero_image_url ?? null}
