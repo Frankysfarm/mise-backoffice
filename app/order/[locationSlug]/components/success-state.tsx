@@ -48,6 +48,28 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [statusFlash, setStatusFlash] = React.useState(false);
   const [driverName, setDriverName] = React.useState<string | null>(null);
   const [shared, setShared] = React.useState(false);
+  const [rating, setRating] = React.useState(0);
+  const [ratingHover, setRatingHover] = React.useState(0);
+  const [ratingSubmitted, setRatingSubmitted] = React.useState(false);
+
+  async function submitRating(stars: number) {
+    if (!orderId || ratingSubmitted) return;
+    setRating(stars);
+    setRatingSubmitted(true);
+    try {
+      const tokenRes = await fetch(`/api/delivery/orders/${orderId}/rate`);
+      if (tokenRes.ok) {
+        const { token } = await tokenRes.json() as { token?: string };
+        if (token) {
+          await fetch(`/api/delivery/orders/${orderId}/rate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, rating: stars }),
+          });
+        }
+      }
+    } catch {}
+  }
 
   async function shareTracking() {
     const url = typeof window !== 'undefined' ? `${window.location.origin}/track/${bestellnummer}` : '';
@@ -322,6 +344,49 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             </>
           )}
         </button>
+
+        {/* Celebration + Bewertung bei Lieferung/Abholung abgeschlossen */}
+        {['geliefert', 'abgeholt'].includes(liveStatus) && (
+          <div className="mt-5 w-full rounded-2xl bg-accent/10 ring-1 ring-accent/30 px-5 py-5">
+            <div className="text-3xl mb-1">🎉</div>
+            <div className="font-display text-lg font-black text-accent leading-tight">
+              {liveStatus === 'geliefert' ? 'Guten Appetit!' : 'Viel Freude!'}
+            </div>
+            <div className="text-[11px] text-matcha-300 mt-1 mb-4">
+              {liveStatus === 'geliefert' ? 'Deine Bestellung ist angekommen.' : 'Danke für deinen Besuch!'}
+            </div>
+            {ratingSubmitted ? (
+              <div className="text-center">
+                <div className="flex justify-center gap-1 mb-2">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <span key={s} className={cn('text-2xl', s <= rating ? 'text-gold' : 'text-matcha-600')}>★</span>
+                  ))}
+                </div>
+                <div className="text-[11px] text-matcha-300">Danke für deine Bewertung!</div>
+              </div>
+            ) : orderId ? (
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-400 mb-2 text-center">
+                  Wie war es?
+                </div>
+                <div className="flex justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => submitRating(s)}
+                      onMouseEnter={() => setRatingHover(s)}
+                      onMouseLeave={() => setRatingHover(0)}
+                      className="text-3xl transition-transform hover:scale-125 active:scale-110"
+                      aria-label={`${s} Stern${s !== 1 ? 'e' : ''}`}
+                    >
+                      <span className={s <= (ratingHover || rating) ? 'text-gold' : 'text-matcha-600'}>★</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
 
         <button
           type="button"
