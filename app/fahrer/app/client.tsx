@@ -658,6 +658,11 @@ export function FahrerApp({
           />
         )}
 
+        {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
+        {!activeBatch && isOnline && openBatches.length === 0 && (
+          <FahrerWarteAnzeige driverId={driver.id} />
+        )}
+
         {/* Offline state */}
         {!isOnline && !activeBatch && (
           <section className="text-center py-8">
@@ -971,6 +976,85 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const out = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
   return out;
+}
+
+/* ---------- FahrerWarteAnzeige ---------- */
+
+function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
+  const supabase = createClient();
+  const [waitSec, setWaitSec] = useState(0);
+  const [lastDeliveryMin, setLastDeliveryMin] = useState<number | null>(null);
+  const [pulse, setPulse] = useState(false);
+
+  // Tick every second for wait timer
+  useEffect(() => {
+    const t = setInterval(() => {
+      setWaitSec((s) => s + 1);
+      setPulse((p) => !p);
+    }, 1_000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Fetch last completed delivery time
+  useEffect(() => {
+    (async () => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: lastStop } = await supabase
+        .from('delivery_batch_stops')
+        .select('geliefert_am, batch:delivery_batches!inner(fahrer_id)')
+        .eq('batch.fahrer_id', driverId)
+        .gte('geliefert_am', today.toISOString())
+        .not('geliefert_am', 'is', null)
+        .order('geliefert_am', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (lastStop?.geliefert_am) {
+        const min = Math.floor((Date.now() - new Date(lastStop.geliefert_am as string).getTime()) / 60_000);
+        setLastDeliveryMin(min);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  const waitMin = Math.floor(waitSec / 60);
+  const waitSecDisplay = waitSec % 60;
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/3 p-5 text-center">
+      {/* Pulse ring */}
+      <div className="relative inline-flex items-center justify-center mb-4">
+        <div className={cn(
+          'absolute h-16 w-16 rounded-full border-2 border-accent transition-all duration-1000',
+          pulse ? 'scale-125 opacity-0' : 'scale-100 opacity-40',
+        )} />
+        <div className="h-12 w-12 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center">
+          <Route className="h-6 w-6 text-accent" />
+        </div>
+      </div>
+
+      <div className="font-display text-matcha-100 font-bold text-base mb-1">
+        Warte auf nächste Tour…
+      </div>
+      <div className="text-[11px] text-matcha-400 mb-3">
+        System ist aktiv — du bekommst sofort eine Benachrichtigung
+      </div>
+
+      {/* Wait timer */}
+      <div className="inline-flex items-center gap-1.5 rounded-xl bg-white/5 px-4 py-2 tabular-nums">
+        <Clock className="h-3.5 w-3.5 text-matcha-400" />
+        <span className="text-sm font-black text-matcha-200">
+          {waitMin > 0 ? `${waitMin}m ` : ''}{waitSecDisplay.toString().padStart(2, '0')}s
+        </span>
+        <span className="text-[10px] text-matcha-400">Wartezeit</span>
+      </div>
+
+      {lastDeliveryMin !== null && (
+        <div className="mt-2 text-[10px] text-matcha-400">
+          Letzte Lieferung vor {lastDeliveryMin} Min
+        </div>
+      )}
+    </section>
+  );
 }
 
 function OpenBatchSection({
