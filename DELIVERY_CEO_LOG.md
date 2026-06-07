@@ -1,11 +1,29 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–43 + 6 UI-Enhancement-Commits abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–44 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #36 abgeschlossen (2026-06-07):** 6 neue UI-Enhancement-Commits geprüft — 0 Bugs, TypeScript 0 Fehler, Build sauber.
-Offenes Deployment-Item: Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen.
+**Phase 44 abgeschlossen (2026-06-07):** Kitchen-Queue-Signal Engine — Feedback-Schleife Küche → Storefront.
+Offene Deployment-Items:
+1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
+2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
+
+## Phase 44 — Backend-Architekt-Agent — 2026-06-07
+
+### Was gebaut wurde
+- `scripts/migrations/037_queue_signal.sql`: location_queue_signals + queue_signal_history + v_queue_signal_status + RLS
+- `lib/delivery/capacity.ts`: Queue-Signal Engine (getCurrentQueueSignal / setQueueSignal / evaluateAutoSignal / evaluateAutoSignalAllLocations)
+- `app/api/delivery/queue-signal/route.ts`: öffentlicher GET-Endpunkt für Storefront
+- `app/api/delivery/admin/queue-signal/route.ts`: GET+POST+DELETE Admin-Kontrolle
+- `app/api/delivery/eta/live/route.ts`: Integration queue_signal + eta_extension_min in Response
+- `app/api/cron/smart-dispatch/route.ts`: evaluateAutoSignalAllLocations() im 2-Min-Tick
+- `app/order/[locationSlug]/storefront-v2.tsx`: Queue-Signal-Banner (⏳/🚫) im Storefront
+- `components/lieferdienst/statistics-view.tsx`: QueueSignalPanel im Admin-Dashboard
+
+### TypeScript
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
 
 ## CEO Review #36 — 2026-06-07
 

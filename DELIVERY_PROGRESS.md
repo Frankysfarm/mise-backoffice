@@ -99,7 +99,107 @@
 - [x] Celebration-Panel + Sternebewertung im Storefront nach Lieferung/Abholung
 - [x] Schicht-Streak Gamification im Lieferdienst-Board (🔥 Nx Streak ab 3 pünktlichen Abschlüssen)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–43 + CEO REVIEW #36 ABGESCHLOSSEN — 2026-06-07
+- [x] location_queue_signals Tabelle (Migration 037)
+- [x] queue_signal_history Tabelle (Migration 037)
+- [x] v_queue_signal_status View (Migration 037)
+- [x] capacity.ts (Queue-Signal Engine: getCurrentQueueSignal / setQueueSignal / evaluateAutoSignal / Cron-Wrapper)
+- [x] GET /api/delivery/queue-signal (öffentlicher Storefront-Endpunkt)
+- [x] GET+POST+DELETE /api/delivery/admin/queue-signal (Admin-Kontrolle)
+- [x] ETA-Live-Endpoint: queue_signal + eta_extension_min + signal_message im Response
+- [x] Auto-Evaluierung im Cron-Tick (2-Min-Intervall): queueDepth ≥7→+20 Min / ≥4→+10 Min / <4→normal
+- [x] Storefront V2: Wartezeit-Banner bei signal=extended/paused (⏳/🚫 + Nachricht)
+- [x] QueueSignalPanel im Statistiken-Dashboard (Signal setzen, History, Reset)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–44 + CEO REVIEW #36 ABGESCHLOSSEN — 2026-06-07
+
+## Phase 44: Kitchen-Queue-Signal → Storefront Live-Wartezeit & Bestellpause [DONE ✅] — 2026-06-07
+
+### Motivation
+Küchenauslastung war bisher nur für Operations sichtbar (KitchenQueuePressureMeter).
+Kunden im Storefront sahen immer die gleiche ETA — auch wenn die Küche auf Anschlag lief.
+Ergebnis: gebrochene Versprechen, unzufriedene Kunden.
+Phase 44 schließt diese Feedback-Schleife: Küchenlast → Auto-Signal → Storefront-Banner.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/037_queue_signal.sql`
+  - `location_queue_signals` Tabelle: aktueller Zustand pro Location (1 Zeile, UPSERT-Muster)
+    - signal_type: normal / extended / paused
+    - eta_extension_min: extra Minuten zur Basis-ETA (0–120)
+    - message_de: optionale Kundennachricht (max 200 Zeichen)
+    - auto_triggered: war das Signal automatisch oder manuell gesetzt?
+    - trigger_source: 'kitchen_queue' | 'manual' | 'manual_reset'
+    - queue_depth: Küchenauslastungs-Snapshot zum Auslösezeitpunkt
+    - expires_at: optionales Auto-Ablaufen für temporäre manuelle Overrides
+  - `queue_signal_history` Tabelle: Append-only History-Log aller Zustandsänderungen
+  - `v_queue_signal_status` View: aktuelle Signale mit Location-Namen
+  - RLS: service_role ALL + anon SELECT (Storefront) + authenticated SELECT (tenant-gefiltert)
+  - Index: (location_id, recorded_at DESC) für schnelle History-Abfragen
+
+- [x] `lib/delivery/capacity.ts` — Queue-Signal Engine (TypeScript strict, kein `any`)
+  - Typen: QueueSignalType / QueueSignal / QueueSignalInput / AutoEvalResult / SignalHistoryEntry
+  - `getCurrentQueueSignal(locationId)`: liest aktuelles Signal; expired Signale → default 'normal'
+  - `setQueueSignal(locationId, input, autoTriggered?, source?, queueDepth?, createdBy?)`:
+    UPSERT auf location_id + fire-and-forget History-Eintrag
+    - DEFAULT_MESSAGES pro Signal-Typ (kein leerer Text für Kunden)
+  - `resetQueueSignal(locationId)`: setzt auf 'normal' (trigger_source='manual_reset')
+  - `getSignalHistory(locationId, limit)`: letzte N Einträge (descending)
+  - `evaluateAutoSignal(locationId)`: Auto-Evaluierung basierend auf Küchenauslastung
+    - Manuelle 'paused'-Signale werden nie überschrieben (Operations-Kontrolle bleibt)
+    - queueDepth ≥ 7: extended + 20 Min ETA-Verlängerung
+    - queueDepth 4–6: extended + 10 Min ETA-Verlängerung
+    - queueDepth < 4: normal (0 Min Extension)
+    - Returns: AutoEvalResult mit action (upgraded / downgraded / unchanged)
+  - `evaluateAutoSignalAllLocations()`: Cron-Wrapper (max 50 Locations, per-location try/catch)
+
+- [x] `app/api/delivery/queue-signal/route.ts` — öffentlicher Endpunkt
+  - `GET ?location_id=...` → { signal_type, eta_extension_min, message_de, expires_at }
+  - Kein Auth: Storefront liest ohne Session
+  - Graceful Fallback: keine Location → 'normal' mit ext=0
+
+- [x] `app/api/delivery/admin/queue-signal/route.ts` — Admin-Kontrolle
+  - `GET ?action=status` → { signal, history (10 Einträge) }
+  - `GET ?action=history&limit=N` → { history }
+  - `POST { signal_type, eta_extension_min?, message_de?, expires_at? }` → Signal setzen
+    - Validierung: signal_type enum, eta_extension_min 0–120, message_de ≤200 Zeichen
+    - trigger_source='manual', userId aus Session
+  - `DELETE` → Signal auf 'normal' zurücksetzen
+  - Auth-Guard: employees.auth_user_id → location_id
+
+- [x] `app/api/delivery/eta/live/route.ts` Integration
+  - `getCurrentQueueSignal()` parallel zu bestehenden DB-Queries
+  - ETA-Extension aufaddieren: `eta_min = base_eta + eta_extension_min`
+  - Response enthält: queue_signal, eta_extension_min, signal_message, eta_min_base
+  - `.catch(() => null)` Graceful Fallback — kein Fatal wenn Tabelle fehlt
+
+- [x] `app/api/cron/smart-dispatch/route.ts` Integration
+  - `evaluateAutoSignalAllLocations()` jeder 2-Min-Tick
+  - Cron-Response enthält `queue_signal: { locations, upgraded, downgraded }`
+
+- [x] `app/order/[locationSlug]/storefront-v2.tsx` — Storefront-Banner
+  - `liveEta` State erweitert um queue_signal, eta_extension_min, signal_message
+  - Queue-Signal-Banner erscheint zwischen Info-Chips und Order-Type-Tabs
+  - signal='extended': ⏳ Amber-Banner mit Wartezeit-Text
+  - signal='paused': 🚫 Rot-Banner mit Pause-Text
+  - signal='normal': kein Banner (kein visuelles Rauschen)
+  - message_de-Override: Custom-Text ersetzt Standard-Nachricht
+
+- [x] `components/lieferdienst/statistics-view.tsx` — QueueSignalPanel
+  - Collapsible Panel nach DeliveryFeePanel im Admin-Statistiken-Dashboard
+  - Zeigt aktuellen Signal-Typ als farbigen Badge (matcha / amber / rot)
+  - 3 Signal-Buttons (Normal / Erhöhte Wartezeit / Pausiert)
+  - Inline-Editing: eta_extension_min + optionale message_de
+  - "Signal setzen" → POST an Admin-API
+  - "Zurücksetzen" → DELETE → sofort normal
+  - History-Log: letzte 5 Einträge mit Zeit + Auto/Manuell-Indikator
+
+### Technische Details
+- Auto-Evaluierung ersetzt manuelle 'paused'-Signale NICHT (Operations behält Kontrolle)
+- ETA-Extension wird ÜBER der basis load-basierten ETA addiert — keine Doppelverlängerung wenn
+  load='busy' UND signal='extended' (beide addieren sich additiv → ehrlichste Prognose)
+- Migration 037 graceful: IF NOT EXISTS + DO $$ EXCEPTION-Pattern für alle Policies
+- Keine breaking changes: bestehende Felder von `/api/delivery/eta/live` erhalten bleiben
+- Build: `next build` → ✓ Compiled successfully, 170 Seiten, 0 TypeScript-Fehler, 0 Warnungen ✅
 
 ## Phase 43: Storefront-Checkout — Dynamische Liefergebühr + Admin-Fee-Panel [DONE ✅] — 2026-06-07
 

@@ -1806,6 +1806,13 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         />
       ) : null}
 
+      {/* Queue-Signal-Steuerung: Wartezeit-Banner für Storefront */}
+      {(orders[0] as any)?.location_id || (completedOrders[0] as any)?.location_id ? (
+        <QueueSignalPanel
+          locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id}
+        />
+      ) : null}
+
       {/* Franchise Echtzeit-Übersicht (mehrere Standorte) */}
       {franchiseSummary && franchiseSummary.locations.length > 1 && (
         <FranchiseOverviewPanel data={franchiseSummary} />
@@ -3532,6 +3539,216 @@ function DeliveryEventLog({ events }: { events: { id: string; event_type: string
           </div>
           {events.length > 25 && (
             <div className="mt-2 text-center text-[11px] text-stone-400">+ {events.length - 25} ältere Ereignisse</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ QueueSignalPanel ------------------------------ */
+
+type QueueSignal = {
+  signal_type: 'normal' | 'extended' | 'paused';
+  eta_extension_min: number;
+  message_de: string | null;
+  expires_at: string | null;
+  updated_at?: string;
+};
+
+function QueueSignalPanel({ locationId }: { locationId: string }) {
+  const [signal, setSignal] = useState<QueueSignal | null>(null);
+  const [history, setHistory] = useState<{ id: string; signal_type: string; eta_extension_min: number; recorded_at: string; auto_triggered: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  // Form state
+  const [selType, setSelType] = useState<'normal' | 'extended' | 'paused'>('normal');
+  const [selEta, setSelEta] = useState(10);
+  const [selMsg, setSelMsg] = useState('');
+
+  const load = async () => {
+    try {
+      const r = await fetch('/api/delivery/admin/queue-signal?action=status');
+      if (!r.ok) return;
+      const d = await r.json() as { signal: QueueSignal; history: typeof history };
+      setSignal(d.signal);
+      setHistory(d.history ?? []);
+      setSelType(d.signal?.signal_type ?? 'normal');
+      setSelEta(d.signal?.eta_extension_min ?? 10);
+      setSelMsg(d.signal?.message_de ?? '');
+    } catch { /* graceful */ }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, [locationId]);
+
+  const applySignal = async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/delivery/admin/queue-signal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          signal_type: selType,
+          eta_extension_min: selEta,
+          message_de: selMsg || null,
+        }),
+      });
+      await load();
+    } catch { /* graceful */ }
+    finally { setSaving(false); }
+  };
+
+  const resetSignal = async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/delivery/admin/queue-signal', { method: 'DELETE' });
+      await load();
+    } catch { /* graceful */ }
+    finally { setSaving(false); }
+  };
+
+  const signalColor = {
+    normal:   'text-matcha-700 bg-matcha-50',
+    extended: 'text-amber-700 bg-amber-50',
+    paused:   'text-red-700 bg-red-50',
+  };
+  const signalLabel = { normal: 'Normal', extended: 'Erhöhte Wartezeit', paused: 'Pausiert' };
+
+  return (
+    <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+      <button
+        className="flex w-full items-center justify-between text-left"
+        onClick={() => setOpen(o => !o)}
+      >
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-amber-500" />
+          <span className="text-sm font-semibold text-stone-800">Wartezeit-Signal (Storefront)</span>
+          {signal && signal.signal_type !== 'normal' && (
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${signalColor[signal.signal_type]}`}>
+              {signalLabel[signal.signal_type]}
+              {signal.eta_extension_min > 0 && ` +${signal.eta_extension_min} Min`}
+            </span>
+          )}
+          {signal?.signal_type === 'normal' && (
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold text-matcha-700 bg-matcha-50">Normal</span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3 border-t border-stone-100 pt-3">
+          {loading ? (
+            <div className="h-8 animate-pulse rounded bg-stone-100" />
+          ) : (
+            <>
+              {/* Aktueller Zustand */}
+              {signal && (
+                <div className="rounded-md bg-stone-50 p-3 text-xs text-stone-600">
+                  <div className="flex items-center gap-2 font-semibold text-stone-800 mb-1">
+                    <span>Aktuell:</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${signalColor[signal.signal_type]}`}>
+                      {signalLabel[signal.signal_type]}
+                    </span>
+                    {signal.signal_type !== 'normal' && (
+                      <span className="text-stone-500">+{signal.eta_extension_min} Min · {signal.message_de ?? 'Standardtext'}</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-stone-400">
+                    Dieses Signal erscheint automatisch als Banner im Storefront für Lieferbestellungen.
+                    Auto-Evaluierung läuft jede 2 Minuten basierend auf der Küchenauslastung.
+                  </p>
+                </div>
+              )}
+
+              {/* Manuelles Override */}
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-stone-700">Manuell setzen:</div>
+                <div className="flex gap-2">
+                  {(['normal', 'extended', 'paused'] as const).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setSelType(t)}
+                      className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition-colors
+                        ${selType === t
+                          ? t === 'normal' ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
+                            : t === 'extended' ? 'border-amber-400 bg-amber-50 text-amber-700'
+                            : 'border-red-400 bg-red-50 text-red-700'
+                          : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300'
+                        }`}
+                    >
+                      {signalLabel[t]}
+                    </button>
+                  ))}
+                </div>
+
+                {selType !== 'normal' && (
+                  <div className="flex gap-2 items-center">
+                    <label className="text-xs text-stone-500 shrink-0">Verlängerung (Min):</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={120}
+                      value={selEta}
+                      onChange={e => setSelEta(Number(e.target.value))}
+                      className="w-20 rounded border border-stone-200 px-2 py-1 text-xs text-stone-800"
+                    />
+                  </div>
+                )}
+
+                {selType !== 'normal' && (
+                  <input
+                    type="text"
+                    maxLength={200}
+                    placeholder="Optionale Nachricht (leer = Standardtext)"
+                    value={selMsg}
+                    onChange={e => setSelMsg(e.target.value)}
+                    className="w-full rounded border border-stone-200 px-2 py-1.5 text-xs text-stone-800 placeholder:text-stone-400"
+                  />
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={applySignal}
+                    disabled={saving}
+                    className="flex-1 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+                  >
+                    {saving ? 'Speichern…' : 'Signal setzen'}
+                  </button>
+                  {signal?.signal_type !== 'normal' && (
+                    <button
+                      onClick={resetSignal}
+                      disabled={saving}
+                      className="rounded-md border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-50"
+                    >
+                      Zurücksetzen
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* History */}
+              {history.length > 0 && (
+                <div className="mt-1">
+                  <div className="text-xs font-semibold text-stone-600 mb-1.5">Letzte Änderungen</div>
+                  <div className="space-y-1">
+                    {history.slice(0, 5).map(h => (
+                      <div key={h.id} className="flex items-center gap-2 text-[10px] text-stone-500">
+                        <span className={`rounded-full px-1.5 py-0.5 font-bold ${signalColor[h.signal_type as 'normal' | 'extended' | 'paused'] ?? 'text-stone-600 bg-stone-100'}`}>
+                          {signalLabel[h.signal_type as 'normal' | 'extended' | 'paused'] ?? h.signal_type}
+                        </span>
+                        {h.eta_extension_min > 0 && <span>+{h.eta_extension_min} Min</span>}
+                        {h.auto_triggered && <span className="text-stone-400">(auto)</span>}
+                        <span className="ml-auto tabular-nums">{new Date(h.recorded_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

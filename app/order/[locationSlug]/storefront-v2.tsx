@@ -61,13 +61,29 @@ export function StorefrontV2({
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [pulse, setPulse] = React.useState(false);
   const [search, setSearch] = React.useState('');
-  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: string } | null>(null);
+  const [liveEta, setLiveEta] = React.useState<{
+    eta_min: number;
+    load: string;
+    queue_signal: string;
+    eta_extension_min: number;
+    signal_message: string | null;
+  } | null>(null);
 
   React.useEffect(() => {
     const load = () => {
       fetch(`/api/delivery/eta/live?location_id=${location.id}`)
         .then(r => r.ok ? r.json() : null)
-        .then(d => { if (d?.eta_min != null) setLiveEta({ eta_min: d.eta_min, load: d.load ?? 'quiet' }); })
+        .then(d => {
+          if (d?.eta_min != null) {
+            setLiveEta({
+              eta_min:           d.eta_min,
+              load:              d.load ?? 'quiet',
+              queue_signal:      d.queue_signal ?? 'normal',
+              eta_extension_min: d.eta_extension_min ?? 0,
+              signal_message:    d.signal_message ?? null,
+            });
+          }
+        })
         .catch(() => {});
     };
     load();
@@ -242,6 +258,32 @@ export function StorefrontV2({
               )}
             </div>
           </div>
+
+          {/* Queue-Signal-Banner: Wartezeit-Hinweis wenn Küche ausgelastet / Pause */}
+          {liveEta && orderType === 'lieferung' && liveEta.queue_signal !== 'normal' && (
+            <div
+              style={{
+                margin: '0.5rem 0 0',
+                padding: '0.6rem 1rem',
+                borderRadius: '0.5rem',
+                background: liveEta.queue_signal === 'paused' ? 'rgba(239,68,68,0.13)' : 'rgba(245,158,11,0.13)',
+                color: liveEta.queue_signal === 'paused' ? '#b91c1c' : '#92400e',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <span>{liveEta.queue_signal === 'paused' ? '🚫' : '⏳'}</span>
+              <span>
+                {liveEta.signal_message ??
+                  (liveEta.queue_signal === 'paused'
+                    ? 'Momentan nehmen wir keine neuen Lieferbestellungen an.'
+                    : `Aktuell erhöhte Wartezeit (+${liveEta.eta_extension_min} Min) — bitte etwas mehr Zeit einplanen.`)}
+              </span>
+            </div>
+          )}
 
           {/* Order type tabs */}
           <div className="v2-order-type" role="tablist">
