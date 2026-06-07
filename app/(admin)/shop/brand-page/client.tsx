@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, Trash2, Save, ExternalLink, Eye, Check, Image as ImageIcon, Calendar, UtensilsCrossed, Truck, Instagram, Facebook, Music2 } from 'lucide-react';
+import { Plus, Trash2, Save, ExternalLink, Eye, Check, Image as ImageIcon, Palette, Calendar, UtensilsCrossed, Truck, Instagram, Facebook, Music2 } from 'lucide-react';
+import { BannerLogoUpload } from '../design/banner-logo-upload';
 
 interface ButtonConfig {
   id: string;
@@ -37,6 +38,10 @@ export function BrandPageEditor({ tenant }: { tenant: { id: string; name: string
   const [saved, setSaved] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [genResult, setGenResult] = useState<string | null>(null);
+
+  // Markenfarben (Theme) — werden an die Brand-Page durchgereicht. Leer = Orange-Fallback.
+  const initialTheme = (tenant.storefront_settings?.theme as { primary?: string; accent?: string } | undefined) ?? {};
+  const [theme, setTheme] = useState<{ primary?: string; accent?: string }>(initialTheme);
 
   const generateAiImages = async () => {
     if (!confirm('Lass DALL-E 3 jetzt 8 Galerie-Bilder + 1 Hero generieren (~$0.36)?')) return;
@@ -90,7 +95,11 @@ export function BrandPageEditor({ tenant }: { tenant: { id: string; name: string
   const save = () => {
     startTransition(async () => {
       const sb = createClient();
-      const newSettings = { ...(tenant.storefront_settings ?? {}), brand_page: brand };
+      const newSettings = {
+        ...(tenant.storefront_settings ?? {}),
+        brand_page: brand,
+        theme: { ...((tenant.storefront_settings?.theme as Record<string, unknown>) ?? {}), ...theme },
+      };
       await sb.from('tenants').update({ storefront_settings: newSettings }).eq('id', tenant.id);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -143,6 +152,59 @@ export function BrandPageEditor({ tenant }: { tenant: { id: string; name: string
           </div>
         )}
       </div>
+
+      {/* FARBEN */}
+      <Section title="🎨 Markenfarben" subtitle="Färben Buttons, Topbar, Titel & Preise auf deiner Brand-Page. Leer lassen = aktuelles Orange.">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Hauptfarbe">
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={theme.primary && /^#[0-9a-fA-F]{6}$/.test(theme.primary) ? theme.primary : '#FF5A1F'}
+                onChange={(e) => setTheme((t) => ({ ...t, primary: e.target.value }))}
+                className="h-10 w-14 rounded-lg border cursor-pointer p-0.5"
+                aria-label="Hauptfarbe wählen"
+              />
+              <input
+                type="text"
+                value={theme.primary ?? ''}
+                onChange={(e) => setTheme((t) => ({ ...t, primary: e.target.value }))}
+                placeholder="#FF5A1F (leer = Orange)"
+                className="input flex-1"
+              />
+            </div>
+          </Field>
+          <Field label="Akzentfarbe">
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={theme.accent && /^#[0-9a-fA-F]{6}$/.test(theme.accent) ? theme.accent : '#F2B25C'}
+                onChange={(e) => setTheme((t) => ({ ...t, accent: e.target.value }))}
+                className="h-10 w-14 rounded-lg border cursor-pointer p-0.5"
+                aria-label="Akzentfarbe wählen"
+              />
+              <input
+                type="text"
+                value={theme.accent ?? ''}
+                onChange={(e) => setTheme((t) => ({ ...t, accent: e.target.value }))}
+                placeholder="#F2B25C"
+                className="input flex-1"
+              />
+            </div>
+          </Field>
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Palette size={13} /> Nach „Speichern" sofort live auf der Brand-Page sichtbar.
+        </div>
+      </Section>
+
+      {/* LOGO & BANNER (eigenes Storage, speichert direkt) */}
+      <BannerLogoUpload
+        tenantId={tenant.id}
+        heroImageUrl={tenant.hero_image_url}
+        logoUrl={tenant.logo_url}
+        contextLabel="Brand-Page"
+      />
 
       {/* HERO */}
       <Section title="🎬 Hero (groß ganz oben)" subtitle="Erster Eindruck — Bild/Video + Title + Subtitle">
