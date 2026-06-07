@@ -114,6 +114,10 @@ export function FahrerApp({
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
   const [pickItems, setPickItems] = useState<any[]>([]);
+  const [showShiftEnd, setShowShiftEnd] = useState(false);
+  const [shiftSnapshot, setShiftSnapshot] = useState<{
+    deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
+  } | null>(null);
 
   // Küchenstatus für Pickup-Phase: welche Bestellungen sind schon fertig?
   const [kitchenStatuses, setKitchenStatuses] = useState<Map<string, string>>(new Map());
@@ -262,16 +266,54 @@ export function FahrerApp({
     router.refresh();
   }
 
-  async function toggleOnline() {
-    const next = !isOnline;
+  async function goOffline() {
+    setShowShiftEnd(false);
     startTransition(async () => {
       await supabase.from('driver_status').upsert({
-        employee_id: driver.id,
-        ist_online: next,
-        fahrzeug: vehicle,
-        online_seit: next ? new Date().toISOString() : null,
+        employee_id: driver.id, ist_online: false, fahrzeug: vehicle, online_seit: null,
       });
-      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: vehicle, aktueller_batch_id: null, online_seit: null }), ist_online: next, online_seit: next ? new Date().toISOString() : null }));
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: vehicle, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+    });
+  }
+
+  async function toggleOnline() {
+    const next = !isOnline;
+    if (!next) {
+      // Going offline — check if there are deliveries to show summary
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km')
+        .eq('fahrer_id', driver.id)
+        .gte('created_at', today.toISOString());
+      if (batches && (batches as any[]).length > 0) {
+        const { data: stops } = await supabase
+          .from('delivery_batch_stops')
+          .select('id, order:customer_orders(gesamtbetrag)')
+          .in('batch_id', (batches as any[]).map((b: any) => b.id))
+          .not('geliefert_am', 'is', null);
+        const deliveries = (stops as any[])?.length ?? 0;
+        if (deliveries > 0) {
+          const betrag = ((stops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+          const distKm = ((batches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+          const onlineMin = status?.online_seit
+            ? Math.floor((Date.now() - new Date(status.online_seit as string).getTime()) / 60_000)
+            : 0;
+          setShiftSnapshot({ deliveries, tours: (batches as any[]).length, distKm, betrag, onlineMin });
+          setShowShiftEnd(true);
+          return;
+        }
+      }
+      await goOffline();
+      return;
+    }
+    // Going online
+    startTransition(async () => {
+      await supabase.from('driver_status').upsert({
+        employee_id: driver.id, ist_online: true, fahrzeug: vehicle,
+        online_seit: new Date().toISOString(),
+      });
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: vehicle, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
 
@@ -695,6 +737,15 @@ export function FahrerApp({
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => { setPickOpen(false); router.refresh(); }}
+        />
+      )}
+
+      {/* Schicht-Abschluss Modal */}
+      {showShiftEnd && shiftSnapshot && (
+        <SchichtAbschlussModal
+          snapshot={shiftSnapshot}
+          onConfirm={goOffline}
+          onCancel={() => setShowShiftEnd(false)}
         />
       )}
     </div>
@@ -1503,5 +1554,116 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
         </div>
       )}
     </section>
+  );
+}
+
+/* ---------- SchichtAbschlussModal ---------- */
+
+function SchichtAbschlussModal({
+  snapshot,
+  onConfirm,
+  onCancel,
+}: {
+  snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number };
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const effScore = snapshot.onlineMin > 0
+    ? Math.min(100, Math.round((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60 * 20))
+    : 0;
+  const badge = effScore >= 80
+    ? { label: 'Excellent! 🏆', color: 'text-accent' }
+    : effScore >= 60
+    ? { label: 'Sehr gut! ⭐', color: 'text-blue-400' }
+    : effScore >= 40
+    ? { label: 'Gut gemacht! 👏', color: 'text-amber-400' }
+    : { label: 'Danke für deine Schicht!', color: 'text-matcha-200' };
+
+  const estEarnings = snapshot.deliveries * 3 + snapshot.distKm * 0.15;
+  const hStr = snapshot.onlineMin >= 60 ? `${Math.floor(snapshot.onlineMin / 60)}h ` : '';
+  const mStr = `${snapshot.onlineMin % 60}m`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-matcha-900/80 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-matcha-800 border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 animate-in slide-in-from-bottom-4 duration-300">
+        {/* Header */}
+        <div className="text-center mb-5">
+          <div className="text-5xl mb-2">🎉</div>
+          <div className="font-display text-2xl font-black text-accent">Schicht abgeschlossen!</div>
+          <div className={`text-sm font-bold mt-1 ${badge.color}`}>{badge.label}</div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-2.5 mb-4">
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center">
+            <div className="font-display text-3xl font-black text-accent leading-none">{snapshot.deliveries}</div>
+            <div className="text-[11px] text-matcha-300 mt-1.5">Lieferungen</div>
+          </div>
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center">
+            <div className="font-display text-3xl font-black text-accent leading-none">{snapshot.tours}</div>
+            <div className="text-[11px] text-matcha-300 mt-1.5">Touren</div>
+          </div>
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center">
+            <div className="font-display text-xl font-black text-accent leading-none">
+              {snapshot.distKm > 0 ? `${snapshot.distKm.toFixed(1)} km` : '—'}
+            </div>
+            <div className="text-[11px] text-matcha-300 mt-1.5">Strecke</div>
+          </div>
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-center">
+            <div className="font-display text-xl font-black text-accent leading-none">
+              {snapshot.onlineMin > 0 ? `${hStr}${mStr}` : '—'}
+            </div>
+            <div className="text-[11px] text-matcha-300 mt-1.5">Online-Zeit</div>
+          </div>
+        </div>
+
+        {/* Estimated earnings */}
+        {estEarnings > 0 && (
+          <div className="rounded-2xl bg-accent/10 border border-accent/20 px-4 py-3 mb-5 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1">
+              Geschätzter Verdienst
+            </div>
+            <div className="font-display text-2xl font-black text-accent">{euro(Math.round(estEarnings * 100) / 100)}</div>
+            <div className="text-[9px] text-matcha-400 mt-0.5">Ø {euro(Math.round((estEarnings / Math.max(1, snapshot.deliveries)) * 100) / 100)} pro Lieferung</div>
+          </div>
+        )}
+
+        {/* Efficiency bar */}
+        {effScore > 0 && (
+          <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3 mb-5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Schicht-Effizienz</span>
+              <span className="text-[10px] font-black text-accent">{effScore}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : 'bg-amber-400'}`}
+                style={{ width: `${effScore}%` }}
+              />
+            </div>
+            <div className="mt-1 text-[10px] text-matcha-400 text-right">
+              {snapshot.onlineMin > 0 ? `${((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60).toFixed(1)}/h Lieferungen` : ''}
+            </div>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="space-y-2.5">
+          <button
+            onClick={onConfirm}
+            className="w-full h-13 rounded-2xl bg-matcha-700 border border-white/10 text-matcha-100 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          >
+            <Power size={18} />
+            Schicht abschließen
+          </button>
+          <button
+            onClick={onCancel}
+            className="w-full h-12 rounded-2xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          >
+            Weiter arbeiten
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

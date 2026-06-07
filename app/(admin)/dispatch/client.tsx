@@ -450,6 +450,9 @@ export function DispatchBoard({
         <LiveDeliveryHealthPanel health={deliveryHealth} />
       )}
 
+      {/* Nachfrage-Prognose: nächste 6h basierend auf historischem Muster */}
+      <DemandForecastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -4310,6 +4313,130 @@ function ZoneCapacityPanel({ orders, drivers }: { orders: ReadyOrder[]; drivers:
           );
         })}
       </div>
+    </Card>
+  );
+}
+
+/* ---------- DemandForecastPanel ---------- */
+
+type ForecastSlot = {
+  hourLocal: string;
+  expectedOrders: number;
+  recommendedMinDrivers: number;
+};
+
+function DemandForecastPanel({ locationId }: { locationId: string | null }) {
+  const [slots, setSlots] = useState<ForecastSlot[]>([]);
+  const [summary, setSummary] = useState<{
+    totalExpectedOrders: number;
+    peakSlot: { hourLocal: string } | null;
+    recommendedMaxDrivers: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!locationId) return;
+    setLoading(true);
+    fetch(`/api/delivery/admin/forecast?location_id=${locationId}&hours=6`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.slots) {
+          setSlots((d.slots as ForecastSlot[]).slice(0, 6));
+          setSummary(d.summary ?? null);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [locationId]);
+
+  if (!locationId) return null;
+  if (!loading && slots.length === 0) return null;
+
+  const maxExpected = slots.reduce((m, s) => Math.max(m, s.expectedOrders), 1);
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center gap-2 px-5 py-3 border-b text-left hover:bg-muted/30 transition"
+      >
+        <TrendingUp className="h-4 w-4 text-matcha-600 shrink-0" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider">Nachfrage-Prognose</span>
+        {summary && !expanded && (
+          <span className="ml-auto text-xs text-muted-foreground">
+            ~{summary.totalExpectedOrders} Bestellungen in 6h erwartet
+          </span>
+        )}
+        {expanded
+          ? <ChevronUp size={14} className="ml-auto text-muted-foreground" />
+          : <ChevronDown size={14} className="ml-auto shrink-0 text-muted-foreground" />}
+      </button>
+
+      {expanded && (
+        <div className="p-4">
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              Lade Prognose…
+            </div>
+          )}
+          {!loading && slots.length > 0 && (
+            <>
+              {/* Bar chart */}
+              <div className="flex items-end gap-2 mb-3" style={{ height: '96px' }}>
+                {slots.map((slot, i) => {
+                  const pct = slot.expectedOrders / maxExpected;
+                  const isPeak = summary?.peakSlot?.hourLocal === slot.hourLocal;
+                  const barH = Math.max(8, Math.round(pct * 64));
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="text-[10px] font-bold tabular-nums text-foreground leading-none">
+                        {slot.expectedOrders}
+                      </div>
+                      <div className="w-full flex items-end justify-center" style={{ height: '64px' }}>
+                        <div
+                          className={cn(
+                            'w-full rounded-t transition-all',
+                            isPeak ? 'bg-matcha-500' : 'bg-matcha-200',
+                          )}
+                          style={{ height: `${barH}px` }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-muted-foreground tabular-nums leading-none">{slot.hourLocal}</div>
+                      <div className={cn(
+                        'text-[9px] font-bold tabular-nums leading-none',
+                        slot.recommendedMinDrivers >= 3 ? 'text-red-500' :
+                        slot.recommendedMinDrivers >= 2 ? 'text-amber-500' : 'text-matcha-500',
+                      )}>
+                        {slot.recommendedMinDrivers}F
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Summary footer */}
+              {summary && (
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground border-t pt-3">
+                  <div>
+                    Peak:{' '}
+                    <span className="font-bold text-foreground">{summary.peakSlot?.hourLocal ?? '—'} Uhr</span>
+                  </div>
+                  <div>
+                    Max. Fahrer:{' '}
+                    <span className="font-bold text-foreground">{summary.recommendedMaxDrivers}</span>
+                  </div>
+                  <div>
+                    Gesamt:{' '}
+                    <span className="font-bold text-foreground">~{summary.totalExpectedOrders} Bestellungen</span>
+                  </div>
+                  <div className="ml-auto text-[10px] text-muted-foreground">F = empf. Fahrer/Slot</div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
