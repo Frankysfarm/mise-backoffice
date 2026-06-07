@@ -573,6 +573,96 @@ export async function cancelCredit(
   return { ok: true, reason: 'cancelled' };
 }
 
+export interface CreditLookup {
+  token: string;
+  amountEur: number;
+  status: CreditStatus;
+  expiresAt: string | null;
+  customerName: string | null;
+  reason: CreditReason;
+}
+
+/**
+ * Öffentliche Token-Suche — kein Auth nötig.
+ * Gibt nur Status/Betrag zurück, keine internen IDs.
+ */
+export async function lookupCreditByToken(token: string): Promise<CreditLookup | null> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('delivery_credits')
+    .select('token, amount_eur, status, expires_at, customer_name, reason')
+    .eq('token', token)
+    .maybeSingle();
+
+  if (error) {
+    if (isMigrationMissing(error)) return null;
+    return null;
+  }
+  if (!data) return null;
+
+  const r = data as Record<string, unknown>;
+  return {
+    token:        r.token as string,
+    amountEur:    Number(r.amount_eur),
+    status:       r.status as CreditStatus,
+    expiresAt:    (r.expires_at as string | null) ?? null,
+    customerName: (r.customer_name as string | null) ?? null,
+    reason:       r.reason as CreditReason,
+  };
+}
+
+/**
+ * Löst einen Credit auf eine Bestellung ein.
+ * Wird nach erfolgreicher Bestellerstellung aufgerufen.
+ */
+export async function redeemCreditOnOrder(
+  token: string,
+  orderId: string,
+  locationId: string,
+): Promise<{ ok: boolean; reason: string; amountEur: number | null }> {
+  const sb = createServiceClient();
+
+  const { data: credit, error: fetchErr } = await sb
+    .from('delivery_credits')
+    .select('id, status, expires_at, amount_eur, location_id')
+    .eq('token', token)
+    .maybeSingle();
+
+  if (fetchErr) {
+    if (isMigrationMissing(fetchErr)) return { ok: false, reason: 'migration_pending', amountEur: null };
+    return { ok: false, reason: fetchErr.message, amountEur: null };
+  }
+  if (!credit) return { ok: false, reason: 'not_found', amountEur: null };
+
+  const r = credit as Record<string, unknown>;
+
+  // Tenant-Check
+  if ((r.location_id as string) !== locationId) {
+    return { ok: false, reason: 'wrong_location', amountEur: null };
+  }
+  if ((r.status as string) !== 'issued') {
+    return { ok: false, reason: `status_${r.status as string}`, amountEur: null };
+  }
+  if (r.expires_at && new Date(r.expires_at as string) < new Date()) {
+    return { ok: false, reason: 'expired', amountEur: null };
+  }
+
+  const { error: updateErr } = await sb
+    .from('delivery_credits')
+    .update({
+      status:             'redeemed',
+      redeemed_order_id:  orderId,
+      redeemed_at:        new Date().toISOString(),
+    })
+    .eq('id', r.id as string)
+    .eq('status', 'issued'); // Optimistic-Lock: kein Doppel-Einlösen
+
+  if (updateErr) return { ok: false, reason: updateErr.message, amountEur: null };
+
+  return { ok: true, reason: 'redeemed', amountEur: Number(r.amount_eur) };
+}
+
 /**
  * Markiert alle abgelaufenen 'issued'-Credits als 'expired'.
  * Cron-Helfer — einmal pro Stunde ausreichend.

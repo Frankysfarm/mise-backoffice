@@ -126,7 +126,14 @@
 - [x] evaluateAndIssueLateCredit() in tours/[id]/status PATCH (fire-and-forget)
 - [x] expireStaleCredits() im Cron-Tick
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–45 + CEO REVIEW #38 ABGESCHLOSSEN — 2026-06-07
+- [x] lookupCreditByToken() — öffentliche Token-Suche ohne Auth
+- [x] redeemCreditOnOrder() — optimistic-locked Einlösung mit Tenant-Check
+- [x] GET /api/delivery/credits/lookup?token=xxx — Storefront-Lookup (kein Auth)
+- [x] POST /api/delivery/credits/[token]/redeem — Credit einlösen nach Order-Erstellung
+- [x] Checkout-UI: Liefergutschrift-Code Feld (nur lieferung, neben Voucher)
+- [x] Storefront: creditDiscount in Gesamtbetrag-Berechnung + fire-and-forget Redemption
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–46 + CEO REVIEW #38 ABGESCHLOSSEN — 2026-06-07
 
 ### CEO Review #38 (2026-06-07)
 - TypeScript: 0 Fehler ✅
@@ -134,6 +141,47 @@
 - Phase 45 (Delivery Credits): vollständig implementiert ✅
 - Frontend: KitchenUpcomingPickupStrip, KitchenDriverAtRestaurantAlert, CapacityForecastChip (beide Zeiten), TourVisualizationPanel Vergütung, Haptic Feedback, LiveEtaBar Uhrzeit, Stats Highlights Grid — alle korrekt ✅
 - Kein Bug gefunden ✅
+
+## Phase 46: Customer Credit Redemption Flow [DONE ✅] — 2026-06-07
+
+### Motivation
+Phase 45 stellte Gutschriften aus (Token wird in DB gespeichert), aber Kunden konnten
+Tokens nicht einlösen — kein öffentlicher Endpunkt, keine Checkout-UI. Phase 46 schließt
+diese Lücke: vollständiger Kreislauf von der automatischen Ausstellung bis zur Einlösung
+im Checkout.
+
+### Was wurde gebaut
+
+- [x] `lib/delivery/credits.ts` — 2 neue Funktionen
+  - `lookupCreditByToken(token)`: öffentliche Suche nach Token (kein Auth) — gibt amountEur, status,
+    expiresAt, customerName zurück (keine internen IDs)
+  - `redeemCreditOnOrder(token, orderId, locationId)`: Optimistic-Lock UPDATE (nur wenn status='issued'),
+    Tenant-Check (location_id muss matchen), setzt redeemed_order_id + redeemed_at
+
+- [x] `app/api/delivery/credits/lookup/route.ts` — GET (öffentlich, kein Auth)
+  - `?token=xxx` → { valid: true, amountEur, expiresAt, customerName } oder { valid: false, reason }
+  - Gibt nie interne IDs oder location_id zurück
+
+- [x] `app/api/delivery/credits/[token]/redeem/route.ts` — POST (Token-basierter Auth)
+  - Body: `{ order_id, location_id }` → 200 { ok: true, amountEur } oder 400 { ok: false, reason }
+
+- [x] `app/order/[locationSlug]/components/checkout-sheet.tsx`
+  - Props: `deliveryCredit` + `onDeliveryCreditChange`
+  - State: `creditInput / creditLoading / creditError`
+  - `lookupCredit(token)`: ruft `/api/delivery/credits/lookup` auf, setzt Credit über Callback
+  - UI: blau-gestaltetes Gutschrift-Feld (nur für `lieferung`), analog zur Voucher-Box
+  - Zeigt nach Einlösung: "Gutschrift angewendet — -X,XX € Rabatt" + Entfernen-Button
+
+- [x] `app/order/[locationSlug]/storefront.tsx`
+  - `deliveryCredit` State (null | { token, amountEur })
+  - `creditDiscount = deliveryCredit?.amountEur ?? 0`
+  - `total = Math.max(0, subtotal + deliveryFee - voucherRabatt - creditDiscount)`
+  - Nach Order-Erstellung: fire-and-forget `POST /api/delivery/credits/[token]/redeem`
+  - Props an CheckoutSheet: `deliveryCredit` + `onDeliveryCreditChange`
+
+### Build
+- TypeScript: 0 Fehler ✅
+- next build: 171 Seiten (1 neue Route), Compiled successfully ✅
 
 ## Phase 45: Delivery Credit & Late-Compensation Engine [DONE ✅] — 2026-06-07
 

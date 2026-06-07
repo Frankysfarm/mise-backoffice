@@ -125,10 +125,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   );
   // Voucher-State
   const [voucher, setVoucher] = React.useState<{ voucher_id: string; code: string; typ: string; rabatt: number; beschreibung: string | null } | null>(null);
+  // Delivery Credit State
+  const [deliveryCredit, setDeliveryCredit] = React.useState<{ token: string; amountEur: number } | null>(null);
   const deliveryFeeBase = orderType === 'lieferung' ? DELIVERY_FEE : 0;
   const deliveryFee = voucher?.typ === 'gratis_lieferung' && orderType === 'lieferung' ? 0 : deliveryFeeBase;
   const voucherRabatt = voucher?.typ !== 'gratis_lieferung' ? (voucher?.rabatt ?? 0) : 0;
-  const total = Math.max(0, subtotal + deliveryFee - voucherRabatt);
+  const creditDiscount = deliveryCredit?.amountEur ?? 0;
+  const total = Math.max(0, subtotal + deliveryFee - voucherRabatt - creditDiscount);
 
   const getCategory = React.useCallback(
     (id: string | null) => (id ? categoryMap.get(id) : undefined),
@@ -286,6 +289,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           p_kunde_telefon: form.telefon ?? null,
         });
         try { sessionStorage.removeItem(`pending_voucher:${location.id}`); } catch {}
+      }
+
+      // Delivery Credit einlösen (fire-and-forget — kein Fatal wenn es fehlschlägt)
+      if (deliveryCredit) {
+        void fetch(`/api/delivery/credits/${deliveryCredit.token}/redeem`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: order.id, location_id: location.id }),
+        }).catch(() => null);
       }
 
       // Wenn Online-Zahlung: Stripe-Checkout-Session erstellen + Redirect
@@ -685,6 +697,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         subtotal={subtotal}
         voucher={voucher}
         onVoucherChange={setVoucher}
+        deliveryCredit={deliveryCredit}
+        onDeliveryCreditChange={setDeliveryCredit}
       />
 
       {/* Hidden unused import suppression (keeps lint happy when X not used elsewhere). */}

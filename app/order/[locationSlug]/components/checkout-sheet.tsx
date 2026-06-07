@@ -42,6 +42,9 @@ type Props = {
   subtotal?: number;
   voucher?: { voucher_id: string; code: string; typ: string; rabatt: number; beschreibung: string | null } | null;
   onVoucherChange?: (v: { voucher_id: string; code: string; typ: string; rabatt: number; beschreibung: string | null } | null) => void;
+  /** Für Liefergutschrift-Einlösung (automatisch ausgestellte Delivery Credits) */
+  deliveryCredit?: { token: string; amountEur: number } | null;
+  onDeliveryCreditChange?: (c: { token: string; amountEur: number } | null) => void;
 };
 
 function formatEuro(n: number): string {
@@ -50,7 +53,7 @@ function formatEuro(n: number): string {
 
 const QUICK_REPLIES = ['An der Tür klingeln', 'Bei Nachbar abgeben', 'Ans Gartentor', 'Kontaktlos vor die Tür'];
 
-export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange }: Props) {
+export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange, deliveryCredit, onDeliveryCreditChange }: Props) {
   const steps = orderType === 'lieferung' ? ['Adresse', 'Kontakt', 'Bezahlen'] : ['Kontakt', 'Bezahlen'];
   const [step, setStep] = React.useState(0);
 
@@ -127,6 +130,11 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [voucherLoading, setVoucherLoading] = React.useState(false);
   const [voucherError, setVoucherError] = React.useState<string | null>(null);
 
+  // Liefergutschrift-Code (Delivery Credit Token)
+  const [creditInput, setCreditInput] = React.useState('');
+  const [creditLoading, setCreditLoading] = React.useState(false);
+  const [creditError, setCreditError] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     if (!open || !locationId || voucher) return;
     try {
@@ -169,6 +177,30 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
       setVoucherError(e instanceof Error ? e.message : 'Fehler');
     } finally {
       setVoucherLoading(false);
+    }
+  }
+
+  async function lookupCredit(token: string) {
+    if (!token.trim()) return;
+    setCreditLoading(true);
+    setCreditError(null);
+    try {
+      const res = await fetch(`/api/delivery/credits/lookup?token=${encodeURIComponent(token.trim())}`);
+      const json = await res.json() as { valid?: boolean; amountEur?: number; token?: string; reason?: string; error?: string };
+      if (!res.ok || !json.valid) {
+        const msg = json.reason === 'redeemed' ? 'Gutschrift bereits eingelöst'
+          : json.reason === 'expired' || json.reason === 'expired' ? 'Gutschrift abgelaufen'
+          : json.reason === 'cancelled' ? 'Gutschrift storniert'
+          : json.error === 'not_found' ? 'Code nicht gefunden'
+          : 'Code ungültig';
+        setCreditError(msg);
+        return;
+      }
+      onDeliveryCreditChange?.({ token: json.token ?? token.trim(), amountEur: json.amountEur ?? 0 });
+    } catch (e) {
+      setCreditError(e instanceof Error ? e.message : 'Fehler');
+    } finally {
+      setCreditLoading(false);
     }
   }
 
@@ -557,6 +589,57 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                   </div>
                 )}
               </div>
+
+              {/* Liefergutschrift-Code (Delivery Credit) */}
+              {orderType === 'lieferung' && (
+                <div className="rounded-2xl border border-dashed border-blue-400/40 bg-blue-50/50 p-4">
+                  {deliveryCredit ? (
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-bold text-blue-900">
+                          Gutschrift angewendet
+                        </div>
+                        <div className="text-xs text-blue-700">
+                          -{deliveryCredit.amountEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Rabatt
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { onDeliveryCreditChange?.(null); setCreditInput(''); }}
+                        className="text-xs text-blue-700 underline"
+                      >
+                        Entfernen
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-700">Liefergutschrift</label>
+                      <div className="mt-1.5 flex gap-2">
+                        <input
+                          value={creditInput}
+                          onChange={(e) => { setCreditInput(e.target.value.toLowerCase()); setCreditError(null); }}
+                          placeholder="Gutschrift-Code eingeben"
+                          className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm font-mono outline-none focus:border-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => lookupCredit(creditInput)}
+                          disabled={creditLoading || !creditInput.trim()}
+                          className="rounded-xl bg-blue-600 text-white px-4 text-sm font-bold hover:bg-blue-500 disabled:opacity-40"
+                        >
+                          {creditLoading ? '…' : 'Einlösen'}
+                        </button>
+                      </div>
+                      {creditError && (
+                        <div className="mt-2 text-xs text-red-700">{creditError}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="text-sm text-matcha-800/70">
                 Wähle, wie du zahlen möchtest. Alle Optionen sind sicher.
