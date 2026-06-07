@@ -73,6 +73,10 @@ export function LieferdienstClient() {
   // Shift Notes State
   const [shiftNotes, setShiftNotes] = useState<ShiftNote[]>(mockShiftNotes)
 
+  // Streak — aufeinanderfolgende pünktliche Abschlüsse
+  const [prepStreak, setPrepStreak] = useState(0)
+  const [streakFlash, setStreakFlash] = useState(false)
+
   // === REAL DB-DATA INJECTION (Supabase Realtime + 30s Fallback-Poll) ===
   const fetchDataRef = useRef<(() => void) | null>(null);
   useEffect(() => {
@@ -302,6 +306,20 @@ export function LieferdienstClient() {
     setOrders(prev => {
       const order = prev.find(o => o.id === orderId)
       if (order) {
+        // Streak: pünktlich wenn acceptedAt vorhanden und Abschluss ≤ estimatedTime + 5 Min
+        const withinTime = (() => {
+          if (!order.acceptedAt || !order.estimatedTime) return true;
+          const elapsedMin = (Date.now() - new Date(order.acceptedAt).getTime()) / 60_000;
+          return elapsedMin <= (order.estimatedTime + 5);
+        })();
+        setPrepStreak(s => {
+          const next = withinTime ? s + 1 : 0;
+          if (next > 0 && next % 3 === 0) {
+            setStreakFlash(true);
+            setTimeout(() => setStreakFlash(false), 2500);
+          }
+          return next;
+        });
         setCompletedOrders(completed => [...completed, { ...order, status: 'done' as OrderStatus }])
       }
       return prev.filter(o => o.id !== orderId)
@@ -325,6 +343,7 @@ export function LieferdienstClient() {
 
   const handleCancelOrder = (orderId: string, reason: string) => {
     playSound('warning', soundEnabled)
+    setPrepStreak(0)
     setOrders(prev => {
       const order = prev.find(o => o.id === orderId)
       if (order) {
@@ -500,6 +519,18 @@ export function LieferdienstClient() {
                     <TrendingUp className="w-4 h-4 text-violet-600" />
                     <span className="text-sm font-semibold text-violet-700">
                       {Math.round((completedOrders.length / schichtMinutes) * 60)}/h
+                    </span>
+                  </div>
+                )}
+                {prepStreak >= 3 && (
+                  <div className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
+                    streakFlash
+                      ? 'bg-orange-400 border border-orange-500 scale-110 shadow-lg shadow-orange-400/40'
+                      : 'bg-orange-50 border border-orange-200'
+                  }`} title="Aufeinanderfolgende pünktliche Abschlüsse">
+                    <span className="text-base">🔥</span>
+                    <span className={`text-sm font-black tabular-nums ${streakFlash ? 'text-white' : 'text-orange-700'}`}>
+                      {prepStreak}x Streak
                     </span>
                   </div>
                 )}
