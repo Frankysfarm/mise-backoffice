@@ -127,6 +127,7 @@ export function DispatchBoard({
   const [orderSort, setOrderSort] = useState<'wait' | 'zone' | 'score'>('wait');
   const [pending, startTransition] = useTransition();
   const [dispatchPending, setDispatchPending] = useState(false);
+  const [cancelPending, setCancelPending] = useState(false);
   const [etaRefreshing, setEtaRefreshing] = useState(false);
   const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
   const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
@@ -359,6 +360,21 @@ export function DispatchBoard({
       else next.add(id);
       return next;
     });
+  }
+
+  async function cancelSelectedOrders() {
+    if (selected.size === 0) return;
+    const count = selected.size;
+    if (!confirm(`${count} ${count === 1 ? 'Bestellung' : 'Bestellungen'} stornieren? Diese Aktion kann nicht rückgängig gemacht werden.`)) return;
+    setCancelPending(true);
+    try {
+      await Promise.all(Array.from(selected).map((orderId) =>
+        fetch(`/api/delivery/orders/${orderId}/cancel`, { method: 'PATCH' }).catch(() => {}),
+      ));
+      setSelected(new Set());
+    } finally {
+      setCancelPending(false);
+    }
   }
 
   async function assignToDriver(fahrerId: string) {
@@ -650,9 +666,20 @@ export function DispatchBoard({
               </div>
               <div className="flex items-center gap-2">
                 {selected.size > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    {selected.size} ausgewählt · wähle Fahrer rechts
-                  </div>
+                  <>
+                    <div className="text-xs text-muted-foreground">
+                      {selected.size} ausgewählt · wähle Fahrer rechts
+                    </div>
+                    <button
+                      onClick={cancelSelectedOrders}
+                      disabled={cancelPending}
+                      className="inline-flex items-center gap-1 h-6 rounded border border-red-200 bg-red-50 px-2 text-[10px] font-bold text-red-700 hover:bg-red-100 disabled:opacity-50 transition"
+                      title="Ausgewählte Bestellungen stornieren"
+                    >
+                      {cancelPending ? <Loader2 size={9} className="animate-spin" /> : <X size={9} />}
+                      Stornieren
+                    </button>
+                  </>
                 )}
                 <select
                   value={orderSort}
