@@ -435,6 +435,9 @@ export function KitchenBoard({
       {/* Prioritäts-Queue: Welche 3 Bestellungen jetzt zubereiten? */}
       <TopUrgentOrders orders={filtered} />
 
+      {/* Warteschlangen-Druckmeter: Tiefe, Wachstumsrate, Räumungszeit */}
+      <KitchenQueuePressureMeter orders={filtered} />
+
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
@@ -4237,6 +4240,107 @@ function BatchOptimizationHint({ orders }: { orders: Order[] }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenQueuePressureMeter ------------------------------ */
+
+function KitchenQueuePressureMeter({ orders }: { orders: Order[] }) {
+  const [history, setHistory] = useState<{ ts: number; depth: number }[]>([]);
+  const now = Date.now();
+
+  const active = orders.filter((o) =>
+    ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status),
+  );
+  const depth = active.length;
+
+  // Track depth over time for trend detection
+  useEffect(() => {
+    setHistory((prev) => {
+      const next = [...prev, { ts: now, depth }].filter((p) => now - p.ts < 10 * 60_000);
+      return next;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [depth]);
+
+  if (depth === 0) return null;
+
+  // Trend: compare now with 3 min ago
+  const oldEntry = history.find((h) => now - h.ts >= 2.5 * 60_000);
+  const trend: 'up' | 'down' | 'stable' = oldEntry == null
+    ? 'stable'
+    : depth > oldEntry.depth ? 'up' : depth < oldEntry.depth ? 'down' : 'stable';
+
+  // Clearance estimate: avg prep time remaining
+  const avgEstMin = (() => {
+    const withEst = active.filter((o) => o.geschaetzte_zubereitung_min);
+    if (withEst.length === 0) return 15;
+    const remaining = withEst.map((o) => {
+      const elapsed = o.bestellt_am ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000) : 0;
+      return Math.max(0, (o.geschaetzte_zubereitung_min ?? 15) - elapsed);
+    });
+    return Math.round(remaining.reduce((a, b) => a + b, 0) / remaining.length);
+  })();
+
+  // Pressure level
+  const pressure: 'low' | 'medium' | 'high' | 'critical' =
+    depth >= 8 ? 'critical' : depth >= 5 ? 'high' : depth >= 3 ? 'medium' : 'low';
+
+  const pressureMeta = {
+    low:      { label: 'Niedrig',  bar: 'bg-matcha-400', text: 'text-matcha-700', bg: 'bg-matcha-50 border-matcha-200',   pct: 20 },
+    medium:   { label: 'Mittel',   bar: 'bg-amber-400',  text: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',     pct: 45 },
+    high:     { label: 'Hoch',     bar: 'bg-orange-500', text: 'text-orange-700', bg: 'bg-orange-50 border-orange-200',   pct: 70 },
+    critical: { label: 'Kritisch', bar: 'bg-red-500',    text: 'text-red-700',    bg: 'bg-red-50 border-red-200',         pct: 95 },
+  }[pressure];
+
+  const trendIcon = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
+  const trendCls  = trend === 'up' ? 'text-red-600' : trend === 'down' ? 'text-matcha-600' : 'text-muted-foreground';
+
+  return (
+    <div className={cn('rounded-xl border px-4 py-3', pressureMeta.bg)}>
+      <div className="flex items-center gap-2 mb-2">
+        <Flame className={cn('h-4 w-4', pressureMeta.text)} />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">Warteschlangen-Druck</span>
+        <span className={cn('ml-auto text-xs font-black tabular-nums', pressureMeta.text)}>
+          {depth} Bestellung{depth !== 1 ? 'en' : ''}
+        </span>
+        <span className={cn('text-xs font-bold', trendCls)} title="Trend letzte 3 Min">
+          {trendIcon}
+        </span>
+      </div>
+
+      {/* Pressure bar */}
+      <div className="h-2 rounded-full bg-muted overflow-hidden mb-3">
+        <div
+          className={cn('h-full rounded-full transition-all duration-700', pressureMeta.bar)}
+          style={{ width: `${pressureMeta.pct}%` }}
+        />
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-2 text-[10px]">
+        <div className="text-center">
+          <div className={cn('text-base font-black tabular-nums leading-none', pressureMeta.text)}>{depth}</div>
+          <div className="text-muted-foreground mt-0.5">In Bearbeitung</div>
+        </div>
+        <div className="text-center border-x border-border">
+          <div className={cn('text-base font-black tabular-nums leading-none', pressureMeta.text)}>
+            {avgEstMin > 0 ? `${avgEstMin}m` : '—'}
+          </div>
+          <div className="text-muted-foreground mt-0.5">Ø Restzeit</div>
+        </div>
+        <div className="text-center">
+          <div className={cn('text-base font-black leading-none', pressureMeta.text)}>{pressureMeta.label}</div>
+          <div className="text-muted-foreground mt-0.5">Druckstufe</div>
+        </div>
+      </div>
+
+      {pressure === 'critical' && (
+        <div className="mt-2 text-center text-[10px] font-bold text-red-700 animate-pulse">
+          ⚠ Hohe Auslastung — Prioritäten setzen!
+        </div>
+      )}
     </div>
   );
 }
