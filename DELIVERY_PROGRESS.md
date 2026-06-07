@@ -89,7 +89,15 @@
 - [x] Surge-Badge + Gratis-Liefern-Hinweis im Checkout (Zone-Info-Card)
 - [x] Zahlung-Schritt: dynamische Gebührenanzeige statt statischem Hardcode
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–43 + CEO REVIEW #35 ABGESCHLOSSEN — 2026-06-07
+- [x] Live Kitchen ETA im Storefront V2 (load chip: Küche frei / mäßig / viel los)
+- [x] Station-Badges in Kitchen OrderTicket (Grill / Warm / Kalt / Sonstiges)
+- [x] SVG Arc Gauge im Dispatch BatchRow (Tour-Zeitfortschritt mit Farbkodierung)
+- [x] LiveDeliveryHealthPanel im Dispatch-Board (SLA / ETA / Fahrer-Auslastung / Ø Lieferzeit)
+- [x] KitchenQueuePressureMeter (Tiefe, Trend, Räumungszeit, 4 Druckstufen)
+- [x] FahrerWarteAnzeige (Live-Sekundenzähler + Puls-Animation bei leerer Queue)
+- [x] "Beste Wahl"-Badge für Touren nach Verdienst/Minute-Rate
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–43 + CEO REVIEW #36 ABGESCHLOSSEN — 2026-06-07
 
 ## Phase 43: Storefront-Checkout — Dynamische Liefergebühr + Admin-Fee-Panel [DONE ✅] — 2026-06-07
 
