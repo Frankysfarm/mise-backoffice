@@ -30,8 +30,10 @@ import {
   Zap,
   AlertTriangle,
   Gift,
+  Loader2,
   Phone,
   MessageSquare,
+  X,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -134,6 +136,11 @@ export function DispatchBoard({
   const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
   const [shiftClaims, setShiftClaims] = useState<ShiftClaimItem[]>([]);
   const [staleOrders, setStaleOrders] = useState<{ id: string; bestellnummer: string; age_min: number; dispatch_attempts: number; escalation_status: string | null; delivery_zone: string | null }[]>([]);
+  const [failedAttempts, setFailedAttempts] = useState<{
+    id: string; orderId: string; reason: string; attemptNumber: number;
+    notes: string | null; nextAttemptAt: string | null; createdAt: string;
+    bestellnummer: string | null; kundeName: string | null; kundeAdresse: string | null; driverName: string | null;
+  }[]>([]);
   const [deliveryHealth, setDeliveryHealth] = useState<{
     slaOnTimePct: number | null;
     etaAccuracyPct: number | null;
@@ -200,6 +207,18 @@ export function DispatchBoard({
     const iv = setInterval(load, 30_000);
     return () => clearInterval(iv);
   }, [locations]);
+
+  useEffect(() => {
+    const load = () => {
+      fetch('/api/delivery/admin/failed-attempts?action=list')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.attempts)) setFailedAttempts(d.attempts); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, []);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -573,6 +592,19 @@ export function DispatchBoard({
 
       {/* Stale Dispatch: Bestellungen >10 Min ohne Fahrer-Zuweisung (Eskalation) */}
       <StaleOrdersPanel orders={staleOrders} />
+
+      {/* Fehlgeschlagene Zustellversuche: Wiederholung planen oder abschließen */}
+      {failedAttempts.length > 0 && (
+        <FailedAttemptsPanel
+          attempts={failedAttempts}
+          onRefresh={() => {
+            fetch('/api/delivery/admin/failed-attempts?action=list')
+              .then(r => r.ok ? r.json() : null)
+              .then(d => { if (Array.isArray(d?.attempts)) setFailedAttempts(d.attempts); })
+              .catch(() => {});
+          }}
+        />
+      )}
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
       <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
@@ -4435,6 +4467,173 @@ function DemandForecastPanel({ locationId }: { locationId: string | null }) {
               )}
             </>
           )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ------------------------------ FailedAttemptsPanel ------------------------------ */
+
+type FailedAttemptItem = {
+  id: string;
+  orderId: string;
+  reason: string;
+  attemptNumber: number;
+  notes: string | null;
+  nextAttemptAt: string | null;
+  createdAt: string;
+  bestellnummer: string | null;
+  kundeName: string | null;
+  kundeAdresse: string | null;
+  driverName: string | null;
+};
+
+const FAILED_REASON_LABELS: Record<string, string> = {
+  no_answer: 'Nicht geöffnet',
+  wrong_address: 'Falsche Adresse',
+  refused: 'Annahme verweigert',
+  access_denied: 'Kein Zutritt',
+  not_home: 'Nicht zuhause',
+  other: 'Sonstiges',
+};
+
+function FailedAttemptsPanel({
+  attempts,
+  onRefresh,
+}: {
+  attempts: FailedAttemptItem[];
+  onRefresh: () => void;
+}) {
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const displayed = showAll ? attempts : attempts.slice(0, 3);
+
+  async function scheduleRetry(id: string, minutesFromNow: number) {
+    setPendingId(id);
+    try {
+      const nextAt = new Date(Date.now() + minutesFromNow * 60_000).toISOString();
+      await fetch('/api/delivery/admin/failed-attempts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'schedule_retry', attempt_id: id, next_attempt_at: nextAt }),
+      });
+      onRefresh();
+    } catch {} finally {
+      setPendingId(null);
+    }
+  }
+
+  async function resolveAttempt(id: string, resolution: string) {
+    setPendingId(id);
+    try {
+      await fetch('/api/delivery/admin/failed-attempts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve', attempt_id: id, resolution }),
+      });
+      onRefresh();
+    } catch {} finally {
+      setPendingId(null);
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden border-2 border-red-200">
+      <div className="flex items-center gap-3 px-5 py-3 border-b bg-red-50">
+        <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
+        <span className="font-display text-sm font-bold text-red-900">Fehlgeschlagene Zustellung</span>
+        <Badge variant="destructive" className="ml-auto">{attempts.length}</Badge>
+      </div>
+      <div className="divide-y">
+        {displayed.map((a) => {
+          const ago = Math.floor((Date.now() - new Date(a.createdAt).getTime()) / 60_000);
+          const isBusy = pendingId === a.id;
+          return (
+            <div key={a.id} className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-8 w-8 rounded-lg bg-red-100 border border-red-200 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-black text-red-700">#{a.attemptNumber}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-display text-sm font-bold">{a.kundeName ?? 'Unbekannt'}</span>
+                    <Badge variant="outline" className="text-[10px]">
+                      {FAILED_REASON_LABELS[a.reason] ?? a.reason}
+                    </Badge>
+                    {a.bestellnummer && (
+                      <span className="text-[11px] text-muted-foreground font-mono">#{a.bestellnummer.slice(-4)}</span>
+                    )}
+                  </div>
+                  {a.kundeAdresse && (
+                    <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                      <MapPin size={10} />
+                      {a.kundeAdresse}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Clock size={10} />
+                      vor {ago < 60 ? `${ago}m` : `${Math.floor(ago / 60)}h`}
+                    </span>
+                    {a.driverName && <span>Fahrer: {a.driverName}</span>}
+                    {a.notes && <span className="italic truncate max-w-[180px]">{a.notes}</span>}
+                  </div>
+                  {a.nextAttemptAt && (
+                    <div className="mt-1 text-[11px] font-semibold text-amber-700 flex items-center gap-1">
+                      <Clock size={10} />
+                      Retry: {new Date(a.nextAttemptAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button
+                  onClick={() => scheduleRetry(a.id, 30)}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50 transition"
+                >
+                  <Clock size={11} />
+                  Retry in 30m
+                </button>
+                <button
+                  onClick={() => scheduleRetry(a.id, 60)}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-50 transition"
+                >
+                  <Clock size={11} />
+                  in 60m
+                </button>
+                <button
+                  onClick={() => resolveAttempt(a.id, 'returned_to_restaurant')}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50 transition"
+                >
+                  {isBusy ? <Loader2 size={11} className="animate-spin" /> : <Check size={11} />}
+                  Zurück ins Restaurant
+                </button>
+                <button
+                  onClick={() => resolveAttempt(a.id, 'cancelled')}
+                  disabled={isBusy}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50 transition"
+                >
+                  <X size={11} />
+                  Stornieren
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {attempts.length > 3 && (
+        <div className="border-t px-5 py-2 bg-muted/30">
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            className="text-sm text-muted-foreground hover:text-foreground transition flex items-center gap-1"
+          >
+            {showAll ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {showAll ? 'Weniger anzeigen' : `${attempts.length - 3} weitere anzeigen`}
+          </button>
         </div>
       )}
     </Card>
