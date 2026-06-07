@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Order } from '@/lib/lieferdienst/orders'
 import { calculateDailyStats, formatCurrency, formatTime } from '@/lib/lieferdienst/statistics'
 import { createClient } from '@/lib/supabase/client'
+import { DeliveryFeePanel } from '@/components/lieferdienst/delivery-fee-panel'
 import {
   Activity, TrendingUp, Clock, CheckCircle, XCircle,
   Package, RefreshCw, Target, Truck, Users, DollarSign, BarChart3, Route, Zap, MapPin, Download, ShieldCheck, CalendarClock, Radio, Star, AlertTriangle, MessageSquare, ThumbsUp, ChevronUp, ChevronDown, Copy, Check as CheckIcon
@@ -1797,6 +1798,13 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           onSaved={(updated) => setPayoutConfig(updated)}
         />
       )}
+
+      {/* Liefergebühr-Konfiguration */}
+      {(orders[0] as any)?.location_id || (completedOrders[0] as any)?.location_id ? (
+        <DeliveryFeePanel
+          locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id}
+        />
+      ) : null}
 
       {/* Franchise Echtzeit-Übersicht (mehrere Standorte) */}
       {franchiseSummary && franchiseSummary.locations.length > 1 && (

@@ -71,6 +71,27 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [zahlungsart, setZahlungsart] = React.useState<PaymentMethod>('online');
   const [marketingOptin, setMarketingOptin] = React.useState(false);
 
+  // Dynamische Liefergebühr — wird geladen wenn Adress-Koordinaten bekannt
+  const [feeQuote, setFeeQuote] = React.useState<{
+    zone: string; zone_label: string; zone_color: string;
+    distance_km: number; eta_min: number;
+    base_fee_eur: number; surge_multiplier: number; surge_surcharge_eur: number;
+    total_fee_eur: number; is_free_delivery: boolean;
+    free_delivery_above_eur: number | null; min_order_eur: number; is_min_order_met: boolean;
+    breakdown: string;
+  } | null>(null);
+  React.useEffect(() => {
+    if (orderType !== 'lieferung' || !locationId || address.lat == null || address.lng == null) {
+      setFeeQuote(null);
+      return;
+    }
+    const url = `/api/delivery/fee?location_id=${locationId}&lat=${address.lat}&lng=${address.lng}&order_total=${total}`;
+    fetch(url)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.zone) setFeeQuote(d); })
+      .catch(() => null);
+  }, [orderType, locationId, address.lat, address.lng, total]);
+
   // Live-ETA vom Server holen (Küchenauslastung-basiert)
   const [liveEta, setLiveEta] = React.useState<{
     eta_min: number; load: string; active_orders?: number; drivers_online?: number;
@@ -343,6 +364,37 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                 </div>
               )}
 
+              {/* Dynamische Liefergebühr-Info nach Adress-Auswahl */}
+              {feeQuote && !outOfRange && (
+                <div className="rounded-xl border border-matcha-200 bg-matcha-50 px-3 py-2.5 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-matcha-900">
+                      Zone {feeQuote.zone} — {feeQuote.zone_label}
+                      {feeQuote.surge_multiplier > 1 && (
+                        <span className="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+                          ×{feeQuote.surge_multiplier.toFixed(1)} Surge
+                        </span>
+                      )}
+                    </span>
+                    <span className="font-bold text-matcha-900">
+                      {feeQuote.is_free_delivery
+                        ? '🎉 Gratis-Lieferung'
+                        : `${feeQuote.total_fee_eur.toFixed(2).replace('.', ',')} € Lieferung`}
+                    </span>
+                  </div>
+                  {feeQuote.free_delivery_above_eur && !feeQuote.is_free_delivery && (
+                    <div className="text-matcha-600">
+                      Ab {feeQuote.free_delivery_above_eur.toFixed(2).replace('.', ',')} € kostenlos liefern
+                    </div>
+                  )}
+                  {!feeQuote.is_min_order_met && (
+                    <div className="text-amber-700 font-medium">
+                      Mindestbestellwert {feeQuote.min_order_eur.toFixed(2).replace('.', ',')} € nicht erreicht
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Live-ETA Widget — visuelle Aufschlüsselung */}
               {liveEta && (() => {
                 const prepMin = liveEta.load === 'busy' ? 20 : liveEta.load === 'quiet' ? 12 : 15;
@@ -550,7 +602,14 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                   <span className="font-display text-xl font-bold text-matcha-900">{formatEuro(total)}&nbsp;€</span>
                 </div>
                 <p className="mt-1 text-xs text-matcha-800/60">
-                  Inkl. MwSt. {orderType === 'lieferung' ? '· inkl. 2,90 € Lieferung' : '· Abholung im Café'}
+                  Inkl. MwSt.{' '}
+                  {orderType === 'lieferung'
+                    ? feeQuote
+                      ? feeQuote.is_free_delivery
+                        ? '· Gratis-Lieferung'
+                        : `· inkl. ${feeQuote.total_fee_eur.toFixed(2).replace('.', ',')} € Lieferung`
+                      : '· inkl. Lieferung'
+                    : '· Abholung im Café'}
                 </p>
               </div>
             </section>

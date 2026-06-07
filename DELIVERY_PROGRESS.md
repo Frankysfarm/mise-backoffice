@@ -84,8 +84,50 @@
 - [x] GET /api/delivery/fee (öffentlicher Storefront-Endpunkt)
 - [x] GET+POST /api/delivery/admin/fee-config (Admin-Konfiguration)
 - [x] DeliveryFeePanel Komponente (Zonen-Gebühren-Editor)
+- [x] DeliveryFeePanel im Admin-Statistiken-Dashboard eingebunden
+- [x] Dynamische Liefergebühr im Storefront-Checkout (live nach Adress-Auswahl)
+- [x] Surge-Badge + Gratis-Liefern-Hinweis im Checkout (Zone-Info-Card)
+- [x] Zahlung-Schritt: dynamische Gebührenanzeige statt statischem Hardcode
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–42 + CEO REVIEW #35 ABGESCHLOSSEN — 2026-06-07
+## STATUS: MARKT-REIF ✅ — PHASEN 1–43 + CEO REVIEW #35 ABGESCHLOSSEN — 2026-06-07
+
+## Phase 43: Storefront-Checkout — Dynamische Liefergebühr + Admin-Fee-Panel [DONE ✅] — 2026-06-07
+
+### Motivation
+CEO Review #35 hatte zwei offene Deployment-Items:
+1. `DeliveryFeePanel` war gebaut, aber noch nirgendwo in der Admin-UI eingebunden.
+2. Storefront zeigte statisch "2,90 € Lieferung" — ohne Zone, Surge oder Gratis-Schwelle.
+Phase 43 schließt beide Lücken vollständig.
+
+### Was wurde gebaut
+
+- [x] `components/lieferdienst/statistics-view.tsx` — DeliveryFeePanel Integration
+  - Import von `@/components/lieferdienst/delivery-fee-panel` hinzugefügt
+  - Neues Panel-Block "Liefergebühr-Konfiguration" nach PayoutConfigPanel
+  - `locationId` via `(orders[0] as any)?.location_id` — Muster konsistent mit anderen Panels
+  - Conditional render: Panel erscheint nur wenn locationId aufgelöst werden kann
+
+- [x] `app/order/[locationSlug]/components/checkout-sheet.tsx` — Live-Gebühren-Quote
+  - `feeQuote` State mit vollständigem FeeQuote-Typ (TypeScript strict)
+  - `useEffect`: nach Adress-Koordinaten-Auflösung → fetch `/api/delivery/fee`
+    - Trigger-Deps: `orderType`, `locationId`, `address.lat`, `address.lng`, `total`
+    - Kein Fetch wenn lat/lng null (Adresse noch nicht gewählt)
+  - **Adress-Schritt**: neues Fee-Info-Card nach Entfernungsanzeige:
+    - Zone-Label (A/B/C/D) + Surge-Badge (×N.N, amber) wenn aktiv
+    - Gebühr: "X,XX € Lieferung" oder "🎉 Gratis-Lieferung"
+    - Gratis-Schwelle-Hinweis: "Ab XX,XX € kostenlos liefern"
+    - Mindestbestellwert-Warnung wenn nicht erreicht
+  - **Bezahl-Schritt**: Zusammenfassungszeile ersetzt Hardcode "2,90 €":
+    - feeQuote vorhanden + gratis → "· Gratis-Lieferung"
+    - feeQuote vorhanden + kostenpflichtig → "· inkl. X,XX € Lieferung"
+    - Kein feeQuote → "· inkl. Lieferung" (neutraler Fallback)
+
+### Technische Details
+- Kein neuer API-Endpunkt nötig — `/api/delivery/fee` aus Phase 42 vollständig genutzt
+- Kein Eingriff in `total`-Prop-Flow — Fee-Quote ist informational
+- `feeQuote` wird auf null gesetzt wenn kein locationId oder Koordinaten vorhanden
+- `outOfRange && !feeQuote` verhindert Fee-Card bei außerhalb-Liefergebiet-Adressen
+- Build: `next build` → ✓ Compiled successfully, 170 Seiten, 0 TypeScript-Fehler, 0 Warnungen ✅
 
 ## Phase 42: Liefergebühr-Kalkulator & Kostenlos-Liefern-Schwelle [DONE ✅] — 2026-06-07
 
