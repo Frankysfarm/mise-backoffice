@@ -2594,19 +2594,23 @@ function CapacityForecastChip({
   const busyDriverIds = new Set(batches.map((b) => b.fahrer_id).filter(Boolean));
   const freeDrivers = onlineDrivers.filter((d) => !busyDriverIds.has(d.employee_id));
 
-  // Earliest return from active tours
-  const nextReturn = batches
+  // Earliest and latest return from active tours
+  const returnTimes = batches
     .map((b) => {
       if (!b.startzeit || b.total_eta_min == null) return null;
       return new Date(b.startzeit).getTime() + b.total_eta_min * 60_000;
     })
     .filter((ms): ms is number => ms != null && ms > now)
-    .sort((a, b) => a - b)[0] ?? null;
+    .sort((a, b) => a - b);
+
+  const nextReturn = returnTimes[0] ?? null;
+  const lastReturn = returnTimes[returnTimes.length - 1] ?? null;
 
   const fmtTime = (ms: number) =>
     new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
   const minLeft = nextReturn ? Math.ceil((nextReturn - now) / 60_000) : null;
+  const allFreeMin = lastReturn ? Math.ceil((lastReturn - now) / 60_000) : null;
 
   if (freeDrivers.length === 0 && nextReturn == null && batches.length === 0) return null;
 
@@ -2632,11 +2636,23 @@ function CapacityForecastChip({
       {nextReturn != null && (
         <span className="text-xs text-muted-foreground">
           Nächster frei:{' '}
-          <span className="font-semibold text-foreground">
+          <span className="font-semibold text-foreground tabular-nums">
             ~{fmtTime(nextReturn)}
           </span>
           {minLeft != null && minLeft > 0 && (
-            <span className="ml-1 text-muted-foreground">(in {minLeft} Min)</span>
+            <span className="ml-1 tabular-nums text-muted-foreground/70">(in {minLeft} Min)</span>
+          )}
+        </span>
+      )}
+
+      {lastReturn != null && lastReturn !== nextReturn && (
+        <span className="text-xs text-muted-foreground">
+          Alle frei:{' '}
+          <span className="font-semibold text-foreground tabular-nums">
+            ~{fmtTime(lastReturn)}
+          </span>
+          {allFreeMin != null && allFreeMin > 0 && (
+            <span className="ml-1 tabular-nums text-muted-foreground/70">(in {allFreeMin} Min)</span>
           )}
         </span>
       )}
@@ -3226,6 +3242,12 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       <span className="tabular-nums">{done}/{total} Stopps</span>
                       {batch.total_distance_km != null && (
                         <span>{batch.total_distance_km.toFixed(1)} km</span>
+                      )}
+                      {/* Fahrer-Vergütungsschätzung: €1.50/Stopp + €0.20/km */}
+                      {batch.total_distance_km != null && total > 0 && (
+                        <span className="font-semibold text-matcha-600 tabular-nums" title="Geschätzte Fahrer-Vergütung (€1.50/Stopp + €0.20/km)">
+                          ~{(total * 1.50 + batch.total_distance_km * 0.20).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        </span>
                       )}
                       {secLeft !== null && (
                         <span className={cn(

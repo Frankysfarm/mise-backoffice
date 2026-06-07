@@ -424,7 +424,10 @@ export function KitchenBoard({
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
       {/* Fahrer am Restaurant Alert */}
-      <KitchenDriverAtRestaurantAlert batches={batches} drivers={drivers} />
+      <KitchenDriverAtRestaurantAlert batches={batches} drivers={drivers} stops={stops} orders={orders} />
+
+      {/* Nächste Fahrerankünfte: wann kommt welcher Fahrer, welche Orders mitnehmen? */}
+      <KitchenUpcomingPickupStrip batches={batches} drivers={drivers} stops={stops} orders={filtered} />
 
       {/* Queue-Signal-Steuerung: Bestellfluss pausieren / ETA verlängern */}
       <QueueSignalControl locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -4351,9 +4354,135 @@ function KitchenQueuePressureMeter({ orders }: { orders: Order[] }) {
   );
 }
 
+/* ------------------------------ KitchenUpcomingPickupStrip ------------------------------ */
+
+function KitchenUpcomingPickupStrip({
+  batches, drivers, stops, orders,
+}: {
+  batches: Batch[];
+  drivers: Driver[];
+  stops: Stop[];
+  orders: Order[];
+}) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+
+  // Upcoming pickups: batches currently unterwegs that will return within 30 min
+  type PickupEntry = { batch: Batch; etaMs: number; secLeft: number; batchOrders: Order[]; driver: Driver | undefined };
+  const upcoming: PickupEntry[] = batches
+    .filter((b) => b.status === 'unterwegs' || b.status === 'on_route')
+    .flatMap((b) => {
+      const etaMs = b.started_at && b.total_eta_min != null
+        ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+        : null;
+      if (!etaMs) return [];
+      const secLeft = Math.floor((etaMs - now) / 1000);
+      if (secLeft > 25 * 60 || secLeft < -3 * 60) return [];
+      const batchStops = stops
+        .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+        .sort((a, c) => a.reihenfolge - c.reihenfolge);
+      const batchOrders = batchStops
+        .map((s) => orders.find((o) => o.id === s.order_id))
+        .filter((o): o is Order => o != null);
+      const driver = drivers.find((d) => d.id === b.driver_id);
+      return [{ batch: b, etaMs, secLeft, batchOrders, driver }];
+    })
+    .sort((a, b) => a.secLeft - b.secLeft);
+
+  if (upcoming.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Bike className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+        <span className="font-display text-xs font-black uppercase tracking-wider text-blue-800">
+          Nächste Abholungen
+        </span>
+        <span className="text-[9px] font-bold text-blue-400 ml-auto">
+          {upcoming.length} Fahrer kommen
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {upcoming.map(({ batch, etaMs: batchEtaMs, secLeft, batchOrders, driver }) => {
+          const name = driver ? `${driver.vorname.charAt(0)}. ${driver.nachname}` : 'Fahrer';
+          const overdue = secLeft < 0;
+          const imminent = !overdue && secLeft < 5 * 60;
+          const minLeft = Math.abs(Math.floor(secLeft / 60));
+          const arrivalStr = new Date(batchEtaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          // Check if all orders for this pickup are ready
+          const allReady = batchOrders.every((o) => o.status === 'fertig');
+          const notReadyCount = batchOrders.filter((o) => o.status !== 'fertig').length;
+
+          return (
+            <div
+              key={batch.id}
+              className={cn(
+                'rounded-lg border px-3 py-2 flex items-start gap-2 min-w-0',
+                overdue   ? 'border-red-300 bg-red-50'    :
+                imminent  ? 'border-orange-300 bg-orange-50' :
+                allReady  ? 'border-matcha-300 bg-matcha-50' :
+                'border-blue-200 bg-white',
+              )}
+            >
+              <div className="shrink-0">
+                <div className={cn(
+                  'font-display text-sm font-black tabular-nums leading-tight',
+                  overdue ? 'text-red-600' : imminent ? 'text-orange-600' : 'text-blue-700',
+                )}>
+                  {overdue ? `+${minLeft}m` : imminent ? `~${minLeft}m` : arrivalStr}
+                </div>
+                <div className="text-[9px] text-muted-foreground">{name}</div>
+              </div>
+              <div className="min-w-0 flex-1">
+                {batchOrders.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {batchOrders.map((o) => (
+                      <span
+                        key={o.id}
+                        className={cn(
+                          'rounded px-1.5 py-0.5 text-[9px] font-bold',
+                          o.status === 'fertig'   ? 'bg-matcha-100 text-matcha-700' :
+                          o.status === 'in_zubereitung' ? 'bg-orange-100 text-orange-700' :
+                          'bg-amber-100 text-amber-700',
+                        )}
+                        title={o.kunde_name}
+                      >
+                        #{o.bestellnummer.replace('FF-', '')} {o.status === 'fertig' ? '✓' : '…'}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[9px] text-muted-foreground italic">Alle geliefert</span>
+                )}
+                {notReadyCount > 0 && (
+                  <div className="text-[9px] font-bold text-orange-600 mt-0.5">
+                    ⚠ {notReadyCount} noch nicht fertig
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ------------------------------ KitchenDriverAtRestaurantAlert ------------------------------ */
 
-function KitchenDriverAtRestaurantAlert({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+function KitchenDriverAtRestaurantAlert({
+  batches, drivers, stops, orders,
+}: {
+  batches: Batch[];
+  drivers: Driver[];
+  stops: Stop[];
+  orders: Order[];
+}) {
   const [, setTick] = React.useState(0);
   React.useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 5_000);
@@ -4364,28 +4493,93 @@ function KitchenDriverAtRestaurantAlert({ batches, drivers }: { batches: Batch[]
   if (atRestaurant.length === 0) return null;
 
   return (
-    <div className="rounded-xl border-2 border-matcha-500 bg-matcha-50 p-3 animate-pulse ring-2 ring-matcha-400/30">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="flex h-3 w-3 shrink-0">
-          <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-matcha-400 opacity-75" />
+    <div className="rounded-xl border-2 border-matcha-500 bg-matcha-50 p-3 ring-2 ring-matcha-400/30">
+      {/* Header */}
+      <div className="flex items-center gap-2 flex-wrap mb-2">
+        <span className="relative flex h-3 w-3 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-matcha-400 opacity-75" />
           <span className="relative inline-flex rounded-full h-3 w-3 bg-matcha-500" />
         </span>
         <span className="font-display text-xs font-black uppercase tracking-wider text-matcha-800">
           {atRestaurant.length === 1 ? 'Fahrer am Restaurant!' : `${atRestaurant.length} Fahrer am Restaurant!`}
         </span>
-        <div className="flex flex-wrap gap-1.5 ml-1">
-          {atRestaurant.map((b) => {
-            const driver = drivers.find((d) => d.id === b.driver_id);
-            const name = driver ? `${driver.vorname} ${driver.nachname}` : 'Fahrer';
-            return (
-              <span key={b.id} className="inline-flex items-center gap-1 rounded-full bg-matcha-700 text-white px-2.5 py-0.5 text-[10px] font-bold">
-                <Bike className="h-2.5 w-2.5" />
-                {name}
-              </span>
-            );
-          })}
-        </div>
-        <span className="ml-auto text-[10px] text-matcha-600 font-semibold">Bestellungen bereitstellen!</span>
+        <span className="ml-auto text-[10px] text-matcha-600 font-semibold animate-pulse">
+          ⚡ Bestellungen bereitstellen!
+        </span>
+      </div>
+
+      {/* Per-driver pickup checklist */}
+      <div className="space-y-2">
+        {atRestaurant.map((b) => {
+          const driver = drivers.find((d) => d.id === b.driver_id);
+          const name = driver ? `${driver.vorname} ${driver.nachname}` : 'Fahrer';
+          const batchStops = stops
+            .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+            .sort((a, c) => a.reihenfolge - c.reihenfolge);
+          const batchOrders = batchStops
+            .map((s) => orders.find((o) => o.id === s.order_id))
+            .filter(Boolean) as Order[];
+
+          return (
+            <div key={b.id} className="rounded-lg bg-white border border-matcha-200 p-2.5">
+              <div className="flex items-center gap-2 mb-2">
+                <Bike className="h-3.5 w-3.5 text-matcha-700 shrink-0" />
+                <span className="font-display text-[11px] font-black text-matcha-800">{name}</span>
+                <span className="ml-auto text-[9px] font-bold text-matcha-500 bg-matcha-100 rounded-full px-2 py-0.5">
+                  {batchOrders.length} Bestellungen
+                </span>
+              </div>
+              {batchOrders.length > 0 ? (
+                <div className="space-y-1">
+                  {batchOrders.map((o) => {
+                    const isReady = o.status === 'fertig';
+                    const waitMin = o.fertig_am
+                      ? Math.floor((Date.now() - new Date(o.fertig_am).getTime()) / 60_000)
+                      : null;
+                    return (
+                      <div
+                        key={o.id}
+                        className={cn(
+                          'flex items-center gap-2 rounded-md px-2 py-1.5 text-[10px]',
+                          isReady ? 'bg-matcha-50 border border-matcha-300' : 'bg-orange-50 border border-orange-200',
+                        )}
+                      >
+                        <span className={cn(
+                          'h-4 w-4 rounded-full flex items-center justify-center text-[8px] font-black shrink-0',
+                          isReady ? 'bg-matcha-600 text-white' : 'bg-orange-500 text-white',
+                        )}>
+                          {isReady ? '✓' : '!'}
+                        </span>
+                        <span className="font-mono font-bold text-matcha-700 shrink-0">
+                          #{o.bestellnummer.replace('FF-', '')}
+                        </span>
+                        <span className="text-muted-foreground truncate flex-1">{o.kunde_name}</span>
+                        {!isReady && (
+                          <span className="shrink-0 font-bold text-orange-600">Noch nicht fertig!</span>
+                        )}
+                        {isReady && waitMin !== null && waitMin > 0 && (
+                          <span className={cn(
+                            'shrink-0 font-bold tabular-nums',
+                            waitMin >= 10 ? 'text-red-600' : 'text-amber-600',
+                          )}>
+                            {waitMin} Min
+                          </span>
+                        )}
+                        {o.delivery_zone && (
+                          <span className="shrink-0 rounded px-1 py-0.5 bg-matcha-100 text-matcha-700 text-[8px] font-black">
+                            Z{o.delivery_zone}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-[10px] text-muted-foreground italic">Keine offenen Stops gefunden</div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

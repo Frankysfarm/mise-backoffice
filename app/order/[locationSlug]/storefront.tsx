@@ -798,6 +798,20 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
                 </>
               )}
             </div>
+            <div className="mt-0.5 flex items-center gap-2 flex-wrap">
+              {/* Absolute delivery time window */}
+              {(() => {
+                const fromMs = Date.now() + etaFrom * 60_000;
+                const toMs   = Date.now() + etaTo   * 60_000;
+                const fmt = (ms: number) =>
+                  new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <span className={cn('text-xs font-semibold tabular-nums', meta.text)}>
+                    Ankunft ~{fmt(fromMs)}–{fmt(toMs)} Uhr
+                  </span>
+                );
+              })()}
+            </div>
             {/* Auslastungs-Balken */}
             <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
               <div

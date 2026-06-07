@@ -517,6 +517,55 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       </div>
 
+      {/* Schicht-Highlights — kompakte KPI-Leiste */}
+      {(stats.totalOrders > 0 || stats.revenue > 0) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            {
+              icon: <Package className="w-4 h-4 text-violet-500" />,
+              label: 'Bestellungen',
+              value: stats.totalOrders,
+              sub: `${stats.completedOrders} fertig`,
+              color: 'border-violet-100 bg-violet-50',
+              textColor: 'text-violet-700',
+            },
+            {
+              icon: <DollarSign className="w-4 h-4 text-emerald-500" />,
+              label: 'Umsatz heute',
+              value: stats.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }),
+              sub: stats.completedOrders > 0 ? `Ø ${(stats.revenue / stats.completedOrders).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}/Bestellung` : undefined,
+              color: 'border-emerald-100 bg-emerald-50',
+              textColor: 'text-emerald-700',
+            },
+            {
+              icon: <Clock className="w-4 h-4 text-amber-500" />,
+              label: 'Ø Zubereitungszeit',
+              value: stats.avgPrepTime > 0 ? `${stats.avgPrepTime} Min` : '—',
+              sub: stats.peakHour > 0 ? `Peak: ${String(stats.peakHour).padStart(2,'0')}:00 Uhr` : undefined,
+              color: 'border-amber-100 bg-amber-50',
+              textColor: 'text-amber-700',
+            },
+            {
+              icon: <TrendingUp className="w-4 h-4 text-blue-500" />,
+              label: 'Tempo jetzt',
+              value: ratePerHour > 0 ? `${ratePerHour}/h` : `${ordersLastHour} letzte Std`,
+              sub: stats.rejectedOrders > 0 ? `${stats.rejectedOrders} abgelehnt` : 'Keine Ablehnungen',
+              color: 'border-blue-100 bg-blue-50',
+              textColor: 'text-blue-700',
+            },
+          ].map((kpi, i) => (
+            <div key={i} className={`rounded-xl border p-3 ${kpi.color}`}>
+              <div className="flex items-center gap-1.5 mb-1">
+                {kpi.icon}
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">{kpi.label}</span>
+              </div>
+              <div className={`font-display text-xl font-black leading-none ${kpi.textColor}`}>{kpi.value}</div>
+              {kpi.sub && <div className="text-[10px] text-stone-400 mt-0.5">{kpi.sub}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Jetzt-Status Banner */}
       {liveDrivers.length > 0 && (() => {
         const onlineDrivers = liveDrivers.filter(d => d.active)

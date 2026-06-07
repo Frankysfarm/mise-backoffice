@@ -345,7 +345,12 @@ export function DeliveryView({
     })();
   }, [driverLat, driverLng]);
 
+  function vibrate(pattern: number | number[]) {
+    try { if ('vibrate' in navigator) navigator.vibrate(pattern); } catch {}
+  }
+
   async function markArrived(stopId: string) {
+    vibrate([50, 30, 50]);
     const now = new Date().toISOString();
     await Promise.all([
       supabase.from('delivery_batch_stops').update({ angekommen_am: now }).eq('id', stopId),
@@ -356,6 +361,7 @@ export function DeliveryView({
   }
 
   async function markDelivered(stopId: string) {
+    vibrate([100, 50, 100, 50, 200]);
     setPending(stopId);
     const now = new Date().toISOString();
     const stop = stops.find((s) => s.id === stopId);
