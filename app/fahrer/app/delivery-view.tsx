@@ -90,6 +90,9 @@ export function DeliveryView({
   const [proofType, setProofType] = useState<ProofType>('handed_to_person');
   const [proofNotes, setProofNotes] = useState('');
   const [proofPending, setProofPending] = useState(false);
+  type OItem = { order_id: string; name: string; menge: number; einzelpreis: number; notiz: string | null };
+  const [orderItems, setOrderItems] = useState<Map<string, OItem[]>>(new Map());
+  const [showItemsStopId, setShowItemsStopId] = useState<string | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -169,6 +172,26 @@ export function DeliveryView({
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchId]);
+
+  // Bestellpositionen laden (für Lieferverifizierung)
+  useEffect(() => {
+    const orderIds = initialStops.map((s) => s.order_id);
+    if (orderIds.length === 0) return;
+    supabase
+      .from('order_items')
+      .select('order_id, name, menge, einzelpreis, notiz')
+      .in('order_id', orderIds)
+      .then(({ data }: { data: OItem[] | null }) => {
+        if (!data) return;
+        const map = new Map<string, OItem[]>();
+        for (const item of data) {
+          if (!map.has(item.order_id)) map.set(item.order_id, []);
+          map.get(item.order_id)!.push(item);
+        }
+        setOrderItems(map);
+      });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchId]);
 
@@ -513,6 +536,43 @@ export function DeliveryView({
               <span className="text-blue-200 text-[11px] leading-snug">{nextStop.order.kunde_lieferhinweis}</span>
             </div>
           )}
+          {/* Bestellpositionen: Lieferverifizierung */}
+          {(() => {
+            const items = orderItems.get(nextStop.order_id);
+            if (!items || items.length === 0) return null;
+            const isShown = showItemsStopId === nextStop.id;
+            return (
+              <div className="mt-2">
+                <button
+                  onClick={() => setShowItemsStopId(isShown ? null : nextStop.id)}
+                  className="flex items-center gap-2 w-full text-left rounded-xl bg-matcha-800/60 border border-matcha-600/40 px-3 py-2 transition active:scale-[0.99]"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-wider text-matcha-300">
+                    {items.reduce((s, i) => s + i.menge, 0)} Artikel prüfen
+                  </span>
+                  <span className="ml-auto text-matcha-400 text-[10px]">{isShown ? '▲' : '▼'}</span>
+                </button>
+                {isShown && (
+                  <div className="mt-1 rounded-xl bg-matcha-800/40 border border-matcha-600/30 divide-y divide-matcha-700/30 overflow-hidden">
+                    {items.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 px-3 py-2">
+                        <span className="h-6 w-6 rounded-full bg-matcha-700 text-matcha-100 flex items-center justify-center font-black text-[11px] shrink-0">
+                          {item.menge}
+                        </span>
+                        <span className="flex-1 text-[12px] font-semibold text-matcha-100 leading-tight">{item.name}</span>
+                        {item.notiz && (
+                          <span className="text-[9px] text-amber-300 italic max-w-[80px] truncate">{item.notiz}</span>
+                        )}
+                        <span className="text-[10px] text-matcha-400 tabular-nums">
+                          {(item.menge * item.einzelpreis).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="flex items-center gap-1 text-matcha-300">
               <span className="h-5 w-5 rounded-full bg-accent text-matcha-900 flex items-center justify-center font-black text-[10px]">

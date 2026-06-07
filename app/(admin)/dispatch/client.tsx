@@ -553,6 +553,9 @@ export function DispatchBoard({
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
+      {/* Zonen-Kapazitäts-Panel: Bestellungen nach Zone + freie Fahrer */}
+      {readyOrders.length > 0 && <ZoneCapacityPanel orders={readyOrders} drivers={drivers} />}
+
       {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
@@ -4230,5 +4233,83 @@ function LiveDeliveryHealthPanel({
         })}
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ ZoneCapacityPanel ------------------------------ */
+
+function ZoneCapacityPanel({ orders, drivers }: { orders: ReadyOrder[]; drivers: Driver[] }) {
+  const ZONES = ['A', 'B', 'C', 'D'] as const;
+  const onlineDrivers = drivers.filter((d) => d.ist_online);
+  const idleDrivers = onlineDrivers.filter((d) => !d.aktueller_batch_id);
+
+  const zoneData = ZONES.map((zone) => {
+    const zoneOrders = orders.filter((o) => o.delivery_zone === zone);
+    return { zone, count: zoneOrders.length };
+  }).filter((z) => z.count > 0);
+
+  if (zoneData.length === 0) return null;
+
+  const total = zoneData.reduce((s, z) => s + z.count, 0);
+  const maxCount = Math.max(...zoneData.map((z) => z.count), 1);
+
+  const ZONE_META: Record<string, { cls: string; bar: string; label: string }> = {
+    A: { cls: 'border-emerald-200 bg-emerald-50', bar: 'bg-emerald-400', label: 'Nah' },
+    B: { cls: 'border-blue-200 bg-blue-50', bar: 'bg-blue-400', label: 'Mittel' },
+    C: { cls: 'border-amber-200 bg-amber-50', bar: 'bg-amber-400', label: 'Weit' },
+    D: { cls: 'border-red-200 bg-red-50', bar: 'bg-red-400', label: 'Fernzone' },
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-3 border-b">
+        <Target className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider">Zonen-Kapazität</span>
+        <Badge variant="secondary">{total} bereit</Badge>
+        <div className="ml-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          <span className="font-bold text-matcha-700">{idleDrivers.length}</span> Fahrer frei ·
+          <span className="font-bold">{onlineDrivers.length}</span> online
+        </div>
+      </div>
+      <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {zoneData.map(({ zone, count }) => {
+          const meta = ZONE_META[zone] ?? ZONE_META['D'];
+          const pct = Math.round((count / maxCount) * 100);
+          const pressure = count >= 4 ? 'hoch' : count >= 2 ? 'normal' : 'niedrig';
+          return (
+            <div key={zone} className={cn('rounded-xl border p-3', meta.cls)}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-display text-lg font-black text-foreground">Zone {zone}</span>
+                <span className="text-[9px] font-bold text-muted-foreground uppercase">{meta.label}</span>
+              </div>
+              <div className="text-3xl font-black tabular-nums mb-1">{count}</div>
+              <div className="text-[10px] text-muted-foreground mb-2">
+                {count === 1 ? 'Bestellung' : 'Bestellungen'}
+              </div>
+              <div className="h-1.5 rounded-full bg-black/10 overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full transition-all', meta.bar, pressure === 'hoch' && 'animate-pulse')}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              {pressure === 'hoch' && (
+                <div className="mt-1 text-[9px] font-bold text-red-600 uppercase tracking-wider">Hohe Last</div>
+              )}
+            </div>
+          );
+        })}
+        {/* Placeholder zones (empty) */}
+        {ZONES.filter((z) => !zoneData.find((d) => d.zone === z)).map((zone) => {
+          const meta = ZONE_META[zone];
+          return (
+            <div key={zone} className="rounded-xl border border-dashed border-black/10 p-3 opacity-30">
+              <div className="font-display text-lg font-black text-muted-foreground">Zone {zone}</div>
+              <div className="text-2xl font-black text-muted-foreground tabular-nums">0</div>
+              <div className="text-[10px] text-muted-foreground">{meta.label}</div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 }

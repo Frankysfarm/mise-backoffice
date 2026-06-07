@@ -423,6 +423,9 @@ export function KitchenBoard({
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
+      {/* Fahrer am Restaurant Alert */}
+      <KitchenDriverAtRestaurantAlert batches={batches} drivers={drivers} />
+
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
@@ -4341,6 +4344,46 @@ function KitchenQueuePressureMeter({ orders }: { orders: Order[] }) {
           ⚠ Hohe Auslastung — Prioritäten setzen!
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenDriverAtRestaurantAlert ------------------------------ */
+
+function KitchenDriverAtRestaurantAlert({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const atRestaurant = batches.filter((b) => b.status === 'at_restaurant');
+  if (atRestaurant.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border-2 border-matcha-500 bg-matcha-50 p-3 animate-pulse ring-2 ring-matcha-400/30">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="flex h-3 w-3 shrink-0">
+          <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-matcha-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-matcha-500" />
+        </span>
+        <span className="font-display text-xs font-black uppercase tracking-wider text-matcha-800">
+          {atRestaurant.length === 1 ? 'Fahrer am Restaurant!' : `${atRestaurant.length} Fahrer am Restaurant!`}
+        </span>
+        <div className="flex flex-wrap gap-1.5 ml-1">
+          {atRestaurant.map((b) => {
+            const driver = drivers.find((d) => d.id === b.driver_id);
+            const name = driver ? `${driver.vorname} ${driver.nachname}` : 'Fahrer';
+            return (
+              <span key={b.id} className="inline-flex items-center gap-1 rounded-full bg-matcha-700 text-white px-2.5 py-0.5 text-[10px] font-bold">
+                <Bike className="h-2.5 w-2.5" />
+                {name}
+              </span>
+            );
+          })}
+        </div>
+        <span className="ml-auto text-[10px] text-matcha-600 font-semibold">Bestellungen bereitstellen!</span>
+      </div>
     </div>
   );
 }
