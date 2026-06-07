@@ -61,6 +61,19 @@ export function StorefrontV2({
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [pulse, setPulse] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [liveEta, setLiveEta] = React.useState<{ eta_min: number; load: string } | null>(null);
+
+  React.useEffect(() => {
+    const load = () => {
+      fetch(`/api/delivery/eta/live?location_id=${location.id}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.eta_min != null) setLiveEta({ eta_min: d.eta_min, load: d.load ?? 'quiet' }); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  }, [location.id]);
 
   // Custom accent override
   const customStyle = tenant.primary
@@ -183,7 +196,16 @@ export function StorefrontV2({
               </span>
               <span>({ratingCountFake})</span>
               <span className="v2-hero__meta-dot" />
-              <span>{deliveryTime}–{deliveryTime + 10} min</span>
+              {liveEta ? (
+                <span style={{
+                  color: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#f97316' : '#22c55e',
+                  fontWeight: 700,
+                }}>
+                  {liveEta.eta_min}–{liveEta.eta_min + 10} min
+                </span>
+              ) : (
+                <span>{deliveryTime}–{deliveryTime + 10} min</span>
+              )}
               <span className="v2-hero__meta-dot" />
               <span>
                 {orderType === 'lieferung' && deliveryFee > 0
@@ -199,6 +221,15 @@ export function StorefrontV2({
                 <span className="v2-info-chip__dot" />
                 {isOpen ? 'Geöffnet bis 22 Uhr' : 'Geschlossen'}
               </span>
+              {liveEta && orderType === 'lieferung' && (
+                <span className="v2-info-chip" style={{
+                  background: liveEta.load === 'busy' ? 'rgba(239,68,68,0.12)' : liveEta.load === 'normal' ? 'rgba(249,115,22,0.12)' : 'rgba(34,197,94,0.12)',
+                  color: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#f97316' : '#16a34a',
+                  fontWeight: 700,
+                }}>
+                  🍳 {liveEta.load === 'busy' ? 'Viel los' : liveEta.load === 'normal' ? 'Mäßig ausgelastet' : 'Küche frei'} · ~{liveEta.eta_min} Min
+                </span>
+              )}
               {(location.adresse || location.stadt) && (
                 <span className="v2-info-chip">
                   📍 {[location.adresse, location.stadt].filter(Boolean).join(', ')}

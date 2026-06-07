@@ -23,9 +23,9 @@ import { Driver, mockDrivers } from '@/lib/lieferdienst/drivers'
 import { Language } from '@/lib/lieferdienst/translations'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useOfflineStorage } from '@/hooks/use-offline'
-import { 
-  Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users, 
-  Settings as SettingsIcon, WifiOff, Globe, Phone
+import {
+  Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
+  Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -493,6 +493,14 @@ export function LieferdienstClient() {
                 {stats.waiting > 0 && (
                   <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl animate-pulse">
                     <span className="text-sm font-semibold text-amber-700">{stats.waiting} Wartend</span>
+                  </div>
+                )}
+                {schichtMinutes >= 10 && completedOrders.length > 0 && (
+                  <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 px-4 py-2 rounded-xl" title="Bestellungen pro Stunde diese Schicht">
+                    <TrendingUp className="w-4 h-4 text-violet-600" />
+                    <span className="text-sm font-semibold text-violet-700">
+                      {Math.round((completedOrders.length / schichtMinutes) * 60)}/h
+                    </span>
                   </div>
                 )}
               </div>

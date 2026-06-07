@@ -2896,6 +2896,29 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
         ))}
       </ul>
 
+      {/* Stations-Übersicht: welche Küchenstationen braucht diese Bestellung? */}
+      {order.items && order.items.length > 0 && (() => {
+        const needed = new Set<PrepStation>();
+        for (const it of order.items) {
+          const st = classifyStation(it.name);
+          if (st !== 'Sonstiges') needed.add(st);
+        }
+        if (needed.size === 0) return null;
+        return (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {Array.from(needed).map((st) => {
+              const m = STATION_META[st];
+              return (
+                <span key={st} className={cn('inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold border', m.bg, m.color)}>
+                  <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', m.dot)} />
+                  {m.label}
+                </span>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {(order.kunde_notiz || order.kunde_lieferhinweis) && (
         <div className="mt-3 rounded-md border border-gold/30 bg-gold/10 p-2 text-[11px] text-matcha-900">
           <span className="font-semibold">Hinweis: </span>

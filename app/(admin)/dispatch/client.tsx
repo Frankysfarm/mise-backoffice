@@ -2119,22 +2119,46 @@ function BatchRow({ batch }: { batch: Batch }) {
         )}
       </div>
 
-      {etaRemainingSec !== null && (
-        <div className={cn(
-          'mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold',
-          etaRemainingSec > 300 ? 'bg-matcha-100 text-matcha-800' :
-          etaRemainingSec > 60 ? 'bg-orange-100 text-orange-800' :
-          'bg-red-100 text-red-800 animate-pulse',
-        )}>
-          <Clock className="h-3 w-3" />
-          {etaRemainingSec > 0
-            ? `Fertig in ${Math.floor(etaRemainingSec / 60)}:${String(etaRemainingSec % 60).padStart(2, '0')}`
-            : `+${Math.floor(-etaRemainingSec / 60)}:${String((-etaRemainingSec) % 60).padStart(2, '0')} überzogen`}
-          {etaReturnStr && etaRemainingSec > 0 && (
-            <span className="ml-1 opacity-70">· ~{etaReturnStr} Uhr</span>
-          )}
-        </div>
-      )}
+      {etaRemainingSec !== null && (() => {
+        const totalEtaSec = (batch.total_eta_min ?? 0) * 60;
+        const elapsedSec = totalEtaSec - etaRemainingSec;
+        const timePct = totalEtaSec > 0 ? Math.min(100, Math.max(0, Math.round((elapsedSec / totalEtaSec) * 100))) : 0;
+        const overdue = etaRemainingSec < 0;
+        const r = 20;
+        const circ = 2 * Math.PI * r;
+        const arcColor = overdue ? '#ef4444' : timePct > 80 ? '#f97316' : timePct > 55 ? '#eab308' : '#22c55e';
+        return (
+          <div className="mt-2 flex items-center gap-3">
+            {totalEtaSec > 0 && (
+              <div className="relative flex items-center justify-center h-12 w-12 shrink-0" title={`${timePct}% der Tour-Zeit vergangen`}>
+                <svg className="-rotate-90" width="48" height="48" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="4" />
+                  <circle
+                    cx="24" cy="24" r={r} fill="none"
+                    stroke={arcColor} strokeWidth="4" strokeLinecap="round"
+                    strokeDasharray={circ}
+                    strokeDashoffset={circ * (1 - Math.min(1, timePct / 100))}
+                    style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
+                  />
+                </svg>
+                <span className="absolute text-[9px] font-black tabular-nums" style={{ color: arcColor }}>
+                  {overdue ? `+${Math.floor(-etaRemainingSec / 60)}` : `${Math.floor(etaRemainingSec / 60)}'`}
+                </span>
+              </div>
+            )}
+            <div className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold',
+              overdue ? 'bg-red-100 text-red-800 animate-pulse' : etaRemainingSec > 300 ? 'bg-matcha-100 text-matcha-800' : 'bg-orange-100 text-orange-800',
+            )}>
+              <Clock className="h-3 w-3" />
+              {overdue
+                ? `+${Math.floor(-etaRemainingSec / 60)}:${String((-etaRemainingSec) % 60).padStart(2, '0')} überzogen`
+                : `Fertig in ${Math.floor(etaRemainingSec / 60)}:${String(etaRemainingSec % 60).padStart(2, '0')}`}
+              {etaReturnStr && !overdue && <span className="ml-1 opacity-70">· ~{etaReturnStr} Uhr</span>}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
         <div

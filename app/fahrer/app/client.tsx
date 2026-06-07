@@ -1042,15 +1042,34 @@ function OpenBatchSection({
         </div>
       ) : (
         <div className="space-y-3">
-          {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }) => (
-            <div key={batchId} className="rounded-2xl bg-accent/5 border-2 border-accent/30 p-4">
+          {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }, idx) => {
+            // Beste Wahl: höchster Verdienst / geschätzte Minuten
+            const earningRate = estEtaMin && estEtaMin > 0 && estDriverEarnings > 0
+              ? estDriverEarnings / estEtaMin
+              : 0;
+            const bestIdx = grouped.reduce((best, g, i) => {
+              const r = g.estEtaMin && g.estEtaMin > 0 && g.estDriverEarnings > 0
+                ? g.estDriverEarnings / g.estEtaMin : 0;
+              return r > (grouped[best].estEtaMin && grouped[best].estEtaMin! > 0 && grouped[best].estDriverEarnings > 0
+                ? grouped[best].estDriverEarnings / grouped[best].estEtaMin! : 0) ? i : best;
+            }, 0);
+            const isBestChoice = grouped.length > 1 && idx === bestIdx && earningRate > 0;
+            return (
+            <div key={batchId} className={cn('rounded-2xl p-4', isBestChoice ? 'bg-accent/10 border-2 border-accent' : 'bg-accent/5 border-2 border-accent/30')}>
               <div className="flex items-start gap-3 mb-3">
-                <div className="h-10 w-10 rounded-xl bg-accent text-matcha-900 flex items-center justify-center shrink-0">
+                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', isBestChoice ? 'bg-accent text-matcha-900' : 'bg-accent/20 text-accent')}>
                   <Zap size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-display font-bold">
-                    {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="font-display font-bold">
+                      {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
+                    </div>
+                    {isBestChoice && (
+                      <span className="rounded-full bg-accent text-matcha-900 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide">
+                        ⭐ Beste Wahl
+                      </span>
+                    )}
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-matcha-300">
                     <span className="font-bold text-accent">{euro(totalAmount)}</span>
@@ -1153,7 +1172,8 @@ function OpenBatchSection({
                 {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
               </button>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
