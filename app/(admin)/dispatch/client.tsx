@@ -134,6 +134,13 @@ export function DispatchBoard({
   const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
   const [shiftClaims, setShiftClaims] = useState<ShiftClaimItem[]>([]);
   const [staleOrders, setStaleOrders] = useState<{ id: string; bestellnummer: string; age_min: number; dispatch_attempts: number; escalation_status: string | null; delivery_zone: string | null }[]>([]);
+  const [deliveryHealth, setDeliveryHealth] = useState<{
+    slaOnTimePct: number | null;
+    etaAccuracyPct: number | null;
+    avgDeliveryMin: number | null;
+    totalDeliveriesToday: number | null;
+    driverUtilization: number | null;
+  } | null>(null);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -193,6 +200,31 @@ export function DispatchBoard({
     const iv = setInterval(load, 30_000);
     return () => clearInterval(iv);
   }, [locations]);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = async () => {
+      try {
+        const [slaRes, etaRes] = await Promise.all([
+          fetch(`/api/delivery/admin/sla?location_id=${locationId}&days=1`).then(r => r.ok ? r.json() : null),
+          fetch(`/api/delivery/admin/eta-accuracy?location_id=${locationId}`).then(r => r.ok ? r.json() : null),
+        ]);
+        const slaOnTimePct = slaRes?.summary?.onTimePct ?? null;
+        const avgDeliveryMin = slaRes?.summary?.avgDeliveryMin ?? null;
+        const totalDeliveriesToday = slaRes?.summary?.totalStops ?? null;
+        const etaAccuracyPct = etaRes?.overall?.onTimeRate != null ? Math.round(etaRes.overall.onTimeRate * 100) : null;
+        const driverUtilization = drivers.length > 0
+          ? Math.round((drivers.filter((d) => d.ist_online).length / drivers.length) * 100)
+          : null;
+        setDeliveryHealth({ slaOnTimePct, etaAccuracyPct, avgDeliveryMin, totalDeliveriesToday, driverUtilization });
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations, drivers.length]);
 
   async function triggerEtaRefresh() {
     setEtaRefreshing(true);
@@ -412,6 +444,11 @@ export function DispatchBoard({
         enRouteCount={enRouteOrders.length}
         onlineDrivers={onlineDrivers.length}
       />
+
+      {/* Live Delivery Health — SLA, ETA-Genauigkeit, Fahrer-Auslastung */}
+      {deliveryHealth && (
+        <LiveDeliveryHealthPanel health={deliveryHealth} />
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -4117,6 +4154,81 @@ function StaleOrdersPanel({ orders }: {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function LiveDeliveryHealthPanel({
+  health,
+}: {
+  health: {
+    slaOnTimePct: number | null;
+    etaAccuracyPct: number | null;
+    avgDeliveryMin: number | null;
+    totalDeliveriesToday: number | null;
+    driverUtilization: number | null;
+  };
+}) {
+  const metrics = [
+    { label: 'SLA On-Time', value: health.slaOnTimePct, unit: '%', good: 85, ok: 65, icon: '🎯' },
+    { label: 'ETA-Genauigkeit', value: health.etaAccuracyPct, unit: '%', good: 80, ok: 60, icon: '⏱' },
+    { label: 'Fahrer online', value: health.driverUtilization, unit: '%', good: 70, ok: 40, icon: '🛵' },
+    { label: 'Ø Lieferzeit', value: health.avgDeliveryMin != null ? Math.round(health.avgDeliveryMin) : null, unit: ' Min', good: 30, ok: 45, invert: true, icon: '🚀' },
+    { label: 'Lieferungen heute', value: health.totalDeliveriesToday, unit: '', good: 10, ok: 5, icon: '📦' },
+  ].filter((m) => m.value != null);
+  if (metrics.length < 2) return null;
+  const overallScore = (() => {
+    let sum = 0; let count = 0;
+    if (health.slaOnTimePct != null)      { sum += health.slaOnTimePct;  count++; }
+    if (health.etaAccuracyPct != null)    { sum += health.etaAccuracyPct; count++; }
+    if (health.driverUtilization != null) { sum += health.driverUtilization; count++; }
+    return count > 0 ? Math.round(sum / count) : null;
+  })();
+  const healthColor = overallScore != null
+    ? overallScore >= 80 ? 'text-matcha-700' : overallScore >= 60 ? 'text-amber-700' : 'text-red-700'
+    : 'text-muted-foreground';
+  const healthLabel = overallScore != null
+    ? overallScore >= 80 ? 'Gut' : overallScore >= 60 ? 'Mäßig' : 'Kritisch'
+    : '—';
+  return (
+    <div className="rounded-xl border border-border bg-card px-4 py-3">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">❤️</span>
+        <span className="font-display text-xs font-bold uppercase tracking-wider">Delivery Health</span>
+        {overallScore != null && (
+          <span className={cn('ml-auto text-sm font-black tabular-nums', healthColor)}>
+            {overallScore}% · {healthLabel}
+          </span>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {metrics.map((m) => {
+          const val = m.value!;
+          const isGood = (m as { invert?: boolean }).invert ? val <= m.good : val >= m.good;
+          const isOk   = (m as { invert?: boolean }).invert ? val <= m.ok   : val >= m.ok;
+          const pct    = (m as { invert?: boolean }).invert
+            ? Math.max(0, Math.min(100, Math.round((1 - (val - m.good) / Math.max(1, m.ok - m.good)) * 100)))
+            : Math.max(0, Math.min(100, Math.round((val / 100) * 100)));
+          const barCls = isGood ? 'bg-matcha-500' : isOk ? 'bg-amber-400' : 'bg-red-400';
+          const textCls = isGood ? 'text-matcha-700' : isOk ? 'text-amber-700' : 'text-red-700';
+          return (
+            <div key={m.label} className="space-y-1">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-muted-foreground font-medium flex items-center gap-0.5">
+                  <span>{m.icon}</span> {m.label}
+                </span>
+                <span className={cn('font-black tabular-nums', textCls)}>{val}{m.unit}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full transition-all duration-700', barCls)}
+                  style={{ width: `${m.unit === '' ? Math.min(100, val * 4) : pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
