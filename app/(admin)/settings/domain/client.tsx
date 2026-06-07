@@ -120,7 +120,7 @@ export function DomainSettings({
   }
 
   const isPending = status === 'pending' || (savedAt !== null);
-  const isVerified = status === 'verified' && !savedAt;
+  const isVerified = (status === 'verified' || status === 'active') && !savedAt;
   const isError = status === 'error' && !savedAt;
   const fallbackUrl = `https://mise-gastro.de/biss-app/${slug}`;
   const cnameTarget = 'cname.mise-gastro.de';

@@ -86,6 +86,9 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/api/stripe/webhook') ||
     pathname.startsWith('/api/vouchers/') ||
     pathname.startsWith('/api/email/process-outbox') ||
+    pathname.startsWith('/api/checkout/') ||
+    pathname.startsWith('/go/') ||
+    pathname.startsWith('/api/qr/') ||
     pathname === '/unsubscribe' ||
     pathname.startsWith('/api/track/') ||
     pathname.startsWith('/api/driver/v1/') ||

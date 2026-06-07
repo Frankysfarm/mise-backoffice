@@ -52,7 +52,7 @@ export default async function QRBestellsystemPage() {
   const items = itemsCount ?? 0;
   const designOk = Boolean(t?.logo_url || t?.hero_image_url);
   const stripeOk = Boolean(t?.stripe_connect_charges_enabled);
-  const domainOk = Boolean(t?.custom_domain && t.custom_domain_status === 'verified');
+  const domainOk = Boolean(t?.custom_domain && ['verified','active'].includes(String(t.custom_domain_status ?? '')));
 
   const baseUrl = domainOk && t?.custom_domain ? `https://${t.custom_domain}` : 'https://mise-gastro.de';
   const universalToken = (location as { universal_qr_token?: string } | null)?.universal_qr_token;

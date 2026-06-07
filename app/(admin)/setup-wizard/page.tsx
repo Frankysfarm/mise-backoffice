@@ -115,7 +115,7 @@ export default async function SetupWizardPage() {
       moduleFlags={moduleFlags}
       moduleSubStatus={moduleSubStatus}
       hasCustomDomain={Boolean(t.custom_domain)}
-      domainVerified={t.custom_domain_status === 'verified'}
+      domainVerified={['verified','active'].includes(String(t.custom_domain_status ?? ''))}
     />
   );
 }

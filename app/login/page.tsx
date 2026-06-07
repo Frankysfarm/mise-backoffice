@@ -33,17 +33,19 @@ function LoginScreen() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const qrFailed = reason === 'qr_failed';
   const qrErrorMsg = params.get('qr_error');
-  const [mode, setMode] = useState<'kasse' | 'lieferung'>(() => {
+  const [mode, setMode] = useState<'kasse' | 'lieferung' | 'backoffice'>(() => {
     // URL-Param hat höchste Priorität, dann next-Pfad, dann localStorage, dann Default
     const m = params.get('mode');
     if (m === 'lieferung') return 'lieferung';
     if (m === 'kasse') return 'kasse';
+    if (m === 'backoffice' || m === 'admin') return 'backoffice';
     if (next.startsWith('/pos/inbox')) return 'lieferung';
+    if (next.startsWith('/shop') || next === '/' || next.startsWith('/menu') || next.startsWith('/settings') || next.startsWith('/delivery') || next.startsWith('/dispatch')) return 'backoffice';
     if (typeof window !== 'undefined') {
       const remembered = window.localStorage.getItem('mise.loginMode');
-      if (remembered === 'lieferung' || remembered === 'kasse') return remembered;
+      if (remembered === 'lieferung' || remembered === 'kasse' || remembered === 'backoffice') return remembered;
     }
-    return 'kasse';
+    return 'backoffice';
   });
 
   useEffect(() => {
@@ -53,6 +55,13 @@ function LoginScreen() {
   }, [mode]);
 
   function resolveTarget(): string {
+    if (mode === 'backoffice') {
+      // Backoffice: Restaurant-Inhaber landet auf Dashboard '/' — dort sieht er
+      // KPIs + alle Module + Schnellzugriffe. Setup-Wizard wird vom Dashboard
+      // selbst gerouted falls Onboarding noch nicht abgeschlossen.
+      if (next && next !== '/start' && !next.startsWith('/pos')) return next;
+      return '/';
+    }
     if (mode === 'lieferung') return '/pos/inbox';
     if (next.startsWith('/pos/inbox')) return '/pos';
     if (next === '/' || next === '/start') return '/pos';
@@ -274,12 +283,22 @@ function LoginScreen() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-1.5 rounded-2xl border-2 border-matcha-200 bg-cream/40 p-1.5">
+            <div className="grid grid-cols-3 gap-1.5 rounded-2xl border-2 border-matcha-200 bg-cream/40 p-1.5">
+              <button
+                type="button"
+                onClick={() => setMode('backoffice')}
+                className={cn(
+                  'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
+                  mode === 'backoffice' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
+                )}
+              >
+                <span aria-hidden>{'\u{1F3E2}'}</span> Backoffice
+              </button>
               <button
                 type="button"
                 onClick={() => setMode('kasse')}
                 className={cn(
-                  'rounded-xl px-3 py-3 text-sm font-bold transition flex items-center justify-center gap-2',
+                  'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
                   mode === 'kasse' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
                 )}
               >
@@ -289,15 +308,17 @@ function LoginScreen() {
                 type="button"
                 onClick={() => setMode('lieferung')}
                 className={cn(
-                  'rounded-xl px-3 py-3 text-sm font-bold transition flex items-center justify-center gap-2',
+                  'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
                   mode === 'lieferung' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
                 )}
               >
-                <span aria-hidden>{'\u{1F6F5}'}</span> Lieferservice
+                <span aria-hidden>{'\u{1F6F5}'}</span> Lieferung
               </button>
             </div>
             <p className="text-xs text-muted-foreground -mt-1">
-              {mode === 'kasse'
+              {mode === 'backoffice'
+                ? 'Restaurant-Cockpit: Menü, Bilder, Domain, Stripe, Module, alles steuern.'
+                : mode === 'kasse'
                 ? 'Du landest direkt im POS-Terminal (Tische, Items, Kassieren).'
                 : 'Du landest direkt im Bestelleingang (Online-Lieferungen + Abholungen).'}
             </p>
