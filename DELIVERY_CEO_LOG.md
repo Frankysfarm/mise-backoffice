@@ -1,10 +1,10 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–43 + 4 UI-Enhancement-Commits abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–43 + 6 UI-Enhancement-Commits abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #36 abgeschlossen (2026-06-07):** 4 neue UI-Enhancement-Commits geprüft — 0 Bugs, TypeScript 0 Fehler, Build sauber.
+**CEO Review #36 abgeschlossen (2026-06-07):** 6 neue UI-Enhancement-Commits geprüft — 0 Bugs, TypeScript 0 Fehler, Build sauber.
 Offenes Deployment-Item: Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen.
 
 ## CEO Review #36 — 2026-06-07
@@ -14,6 +14,8 @@ Offenes Deployment-Item: Migration 036 (`scripts/migrations/036_delivery_fee_thr
 - `3683300` feat(dispatch): Live Delivery Health Panel mit SLA, ETA-Genauigkeit und Fahrer-Auslastung
 - `dd440e2` feat(kitchen): Warteschlangen-Druckmeter mit Tiefe, Trend und Räumungszeit
 - `ca629c8` feat(fahrer): Warte-Anzeige mit Live-Timer und Puls-Animation
+- `53a70c8` feat(storefront): Lieferungs-Celebration und Stern-Bewertung nach Abschluss
+- `efc08d0` feat(lieferdienst): Schicht-Streak Gamification für pünktliche Bestellabschlüsse
 
 ### Bugs gefunden
 Keine. ✅
@@ -65,6 +67,23 @@ Keine. ✅
 - `bestIdx`-Reduce findet korrekt höchsten Rate-Index ✅
 - `isBestChoice = grouped.length > 1 && idx === bestIdx && earningRate > 0` — nur bei mehreren Touren + positivem Rate ✅
 - Korrekte JSX-Umstrukturierung: `{ ... return (...) }` Wrapper korrekt hinzugefügt ✅
+
+**Celebration + Sternebewertung** (`app/order/[locationSlug]/components/success-state.tsx`):
+- Panel erscheint nur wenn `liveStatus === 'geliefert' || 'abgeholt'` — korrekte Supabase-Realtime-Abhängigkeit ✅
+- `submitRating()`: GET-Token → POST-Bewertung Zwei-Schritt-Flow — korrekte Token-Nutzung ✅
+- `ratingSubmitted` Flag direkt beim Klick gesetzt — verhindert Doppel-Submit ✅
+- `GET /api/delivery/orders/${orderId}/rate` → `{ token }` existiert in `rate/route.ts` ✅
+- `POST /api/delivery/orders/${orderId}/rate` → Token + 1-5 Validierung korrekt ✅
+- Hover-State `ratingHover || rating` korrekt: nach Abgabe bleiben Sterne gefüllt ✅
+- `try/catch {}` um fetch → kein Crash bei API-Fehler, User sieht Bestätigung trotzdem ✅
+
+**Schicht-Streak Gamification** (`app/(admin)/lieferdienst/client.tsx`):
+- Streak-Berechnung: `acceptedAt + estimatedTime + 5 Min Toleranz` — praxisnahe Schwelle ✅
+- `setPrepStreak(s => withinTime ? s + 1 : 0)` innerhalb `setOrders`-Callback — korrekte State-Reihenfolge ✅
+- Flash-Animation bei jedem 3er-Meilenstein: `next % 3 === 0 && next > 0` — korrekte Modulo-Prüfung ✅
+- `setTimeout(2500ms)` für Flash-Reset — schnell genug um nicht störend zu sein ✅
+- `setPrepStreak(0)` in `handleCancelOrder` — faire Streak-Berechnung ✅
+- Badge nur sichtbar ab `prepStreak >= 3` — kein Clutter bei frühen Bestellungen ✅
 
 ### TypeScript nach Review
 - **0 Fehler** ✅

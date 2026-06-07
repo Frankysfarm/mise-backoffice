@@ -96,6 +96,8 @@
 - [x] KitchenQueuePressureMeter (Tiefe, Trend, Räumungszeit, 4 Druckstufen)
 - [x] FahrerWarteAnzeige (Live-Sekundenzähler + Puls-Animation bei leerer Queue)
 - [x] "Beste Wahl"-Badge für Touren nach Verdienst/Minute-Rate
+- [x] Celebration-Panel + Sternebewertung im Storefront nach Lieferung/Abholung
+- [x] Schicht-Streak Gamification im Lieferdienst-Board (🔥 Nx Streak ab 3 pünktlichen Abschlüssen)
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–43 + CEO REVIEW #36 ABGESCHLOSSEN — 2026-06-07
 
