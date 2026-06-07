@@ -1,11 +1,28 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–41 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–42 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 41 abgeschlossen:** Fahrer Self-Service Schichtbuchung. Build clean (0 Fehler, 0 TS-Fehler).
-Migrationen 033+034+035 in Supabase Production ausführen, dann Produktiv-Deployment.
+**Phase 42 abgeschlossen:** Liefergebühr-Kalkulator + Kostenlos-Liefern-Schwelle. Build clean (0 Fehler, 0 TS-Fehler).
+Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen.
+Storefront kann `GET /api/delivery/fee` für Live-Gebühren-Quotes nutzen.
+Admin-Panel: `DeliveryFeePanel` in Lieferdienst-Settings einbinden.
+
+## Phase 42 — Backend-Architekt-Agent — 2026-06-07
+
+### Was gebaut wurde
+- `scripts/migrations/036_delivery_fee_threshold.sql`: `free_delivery_above_eur` Spalte + View
+- `lib/delivery/zones.ts`: neues Feld in ZoneConfig, DEFAULT_ZONES, allen Mappern
+- `lib/delivery/delivery-fee.ts`: getDeliveryFeeQuote / getPublicFeeQuote / getAllZoneFees
+- `app/api/delivery/fee/route.ts`: öffentlicher GET-Endpunkt für Storefront
+- `app/api/delivery/admin/fee-config/route.ts`: GET+POST Admin-Konfiguration
+- `app/api/delivery/zones/route.ts`: POST akzeptiert free_delivery_above_eur
+- `components/lieferdienst/delivery-fee-panel.tsx`: collapsible Admin-Gebühren-Editor
+
+### TypeScript
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
 
 ## Phase 41 — Backend-Architekt-Agent — 2026-06-06
 

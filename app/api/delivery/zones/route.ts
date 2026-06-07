@@ -44,14 +44,15 @@ export async function POST(req: NextRequest) {
   }
 
   const zone = await upsertZone(body.location_id, {
-    name:          body.name!,
-    label:         body.label!,
-    min_km:        Number(body.min_km),
-    max_km:        Number(body.max_km),
-    surcharge_eur: Number(body.surcharge_eur ?? 0),
-    min_order_eur: Number(body.min_order_eur ?? 0),
-    eta_base_min:  Number(body.eta_base_min),
-    color:         body.color ?? '#22c55e',
+    name:                    body.name!,
+    label:                   body.label!,
+    min_km:                  Number(body.min_km),
+    max_km:                  Number(body.max_km),
+    surcharge_eur:           Number(body.surcharge_eur ?? 0),
+    min_order_eur:           Number(body.min_order_eur ?? 0),
+    free_delivery_above_eur: body.free_delivery_above_eur ?? null,
+    eta_base_min:            Number(body.eta_base_min),
+    color:                   body.color ?? '#22c55e',
   });
 
   return NextResponse.json({ ok: true, zone });

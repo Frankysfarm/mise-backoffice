@@ -20,15 +20,16 @@ export interface ZoneConfig {
   max_km: number;
   surcharge_eur: number;
   min_order_eur: number;
+  free_delivery_above_eur: number | null;
   eta_base_min: number;
   color: string;
 }
 
 const DEFAULT_ZONES: Omit<ZoneConfig, 'id'>[] = [
-  { name: 'A', label: 'Express',    min_km: 0,  max_km: 3,  surcharge_eur: 0,    min_order_eur: 0,  eta_base_min: 20, color: '#22c55e' },
-  { name: 'B', label: 'Standard',   min_km: 3,  max_km: 6,  surcharge_eur: 1.5,  min_order_eur: 15, eta_base_min: 30, color: '#3b82f6' },
-  { name: 'C', label: 'Weit',       min_km: 6,  max_km: 10, surcharge_eur: 2.5,  min_order_eur: 20, eta_base_min: 45, color: '#f59e0b' },
-  { name: 'D', label: 'Außerhalb',  min_km: 10, max_km: 999, surcharge_eur: 4.0, min_order_eur: 30, eta_base_min: 60, color: '#ef4444' },
+  { name: 'A', label: 'Express',   min_km: 0,  max_km: 3,   surcharge_eur: 0,   min_order_eur: 0,  free_delivery_above_eur: 15,   eta_base_min: 20, color: '#22c55e' },
+  { name: 'B', label: 'Standard',  min_km: 3,  max_km: 6,   surcharge_eur: 1.5, min_order_eur: 15, free_delivery_above_eur: 25,   eta_base_min: 30, color: '#3b82f6' },
+  { name: 'C', label: 'Weit',      min_km: 6,  max_km: 10,  surcharge_eur: 2.5, min_order_eur: 20, free_delivery_above_eur: 35,   eta_base_min: 45, color: '#f59e0b' },
+  { name: 'D', label: 'Außerhalb', min_km: 10, max_km: 999, surcharge_eur: 4.0, min_order_eur: 30, free_delivery_above_eur: null, eta_base_min: 60, color: '#ef4444' },
 ];
 
 const zoneCache = new Map<string, { zones: ZoneConfig[]; at: number }>();
@@ -42,7 +43,7 @@ export async function getZoneConfig(locationId: string): Promise<ZoneConfig[]> {
   const sb = createServiceClient();
   const { data } = await sb
     .from('delivery_zones')
-    .select('id, name, label, min_km, max_km, surcharge_eur, min_order_eur, eta_base_min, color')
+    .select('id, name, label, min_km, max_km, surcharge_eur, min_order_eur, free_delivery_above_eur, eta_base_min, color')
     .eq('location_id', locationId)
     .eq('active', true)
     .order('min_km', { ascending: true });
@@ -55,6 +56,7 @@ export async function getZoneConfig(locationId: string): Promise<ZoneConfig[]> {
     max_km: Number(r.max_km),
     surcharge_eur: Number(r.surcharge_eur),
     min_order_eur: Number(r.min_order_eur),
+    free_delivery_above_eur: r.free_delivery_above_eur != null ? Number(r.free_delivery_above_eur) : null,
     eta_base_min: Number(r.eta_base_min),
     color: r.color as string,
   }));
@@ -107,6 +109,7 @@ export async function upsertZone(
         max_km: zone.max_km,
         surcharge_eur: zone.surcharge_eur,
         min_order_eur: zone.min_order_eur,
+        free_delivery_above_eur: zone.free_delivery_above_eur ?? null,
         eta_base_min: zone.eta_base_min,
         color: zone.color,
         active: true,
@@ -128,6 +131,7 @@ export async function upsertZone(
     max_km: Number(data.max_km),
     surcharge_eur: Number(data.surcharge_eur),
     min_order_eur: Number(data.min_order_eur),
+    free_delivery_above_eur: data.free_delivery_above_eur != null ? Number(data.free_delivery_above_eur) : null,
     eta_base_min: Number(data.eta_base_min),
     color: data.color as string,
   };
@@ -146,6 +150,7 @@ export async function updateZoneById(
   if (patch.max_km       != null) payload.max_km        = Number(patch.max_km);
   if (patch.surcharge_eur != null) payload.surcharge_eur = Number(patch.surcharge_eur);
   if (patch.min_order_eur != null) payload.min_order_eur = Number(patch.min_order_eur);
+  if ('free_delivery_above_eur' in patch) payload.free_delivery_above_eur = patch.free_delivery_above_eur ?? null;
   if (patch.eta_base_min != null) payload.eta_base_min  = Number(patch.eta_base_min);
   if (patch.color        != null) payload.color         = patch.color;
 
@@ -168,6 +173,7 @@ export async function updateZoneById(
     max_km: Number(data.max_km),
     surcharge_eur: Number(data.surcharge_eur),
     min_order_eur: Number(data.min_order_eur),
+    free_delivery_above_eur: data.free_delivery_above_eur != null ? Number(data.free_delivery_above_eur) : null,
     eta_base_min: Number(data.eta_base_min),
     color: data.color as string,
   };
@@ -199,6 +205,7 @@ export async function seedDefaultZones(locationId: string): Promise<void> {
     max_km: z.max_km,
     surcharge_eur: z.surcharge_eur,
     min_order_eur: z.min_order_eur,
+    free_delivery_above_eur: z.free_delivery_above_eur ?? null,
     eta_base_min: z.eta_base_min,
     color: z.color,
     active: true,

@@ -78,7 +78,97 @@
 - [x] Fahrer-App: "Nicht zugestellt" Button + Grund-Modal
 - [x] FailedAttemptsPanel im Statistiken-Dashboard
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–41 + CEO REVIEW #34 ABGESCHLOSSEN — 2026-06-06
+- [x] delivery_zones.free_delivery_above_eur Spalte (Migration 036)
+- [x] v_delivery_fee_rules View
+- [x] delivery-fee.ts (Liefergebühr-Kalkulator Engine)
+- [x] GET /api/delivery/fee (öffentlicher Storefront-Endpunkt)
+- [x] GET+POST /api/delivery/admin/fee-config (Admin-Konfiguration)
+- [x] DeliveryFeePanel Komponente (Zonen-Gebühren-Editor)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–42 + CEO REVIEW #34 ABGESCHLOSSEN — 2026-06-07
+
+## Phase 42: Liefergebühr-Kalkulator & Kostenlos-Liefern-Schwelle [DONE ✅] — 2026-06-07
+
+### Motivation
+Der Storefront-Checkout konnte die tatsächliche Liefergebühr nicht berechnen.
+Bisherige Lösung: statische Werte oder kein Live-Quote.
+Phase 42 liefert einen einzigen API-Aufruf der Zone, Surge-Multiplikator und
+Kostenlos-Liefern-Schwelle kombiniert — vollständig für den Checkout nutzbar.
+
+### Was wurde gebaut
+
+- [x] `scripts/migrations/036_delivery_fee_threshold.sql`
+  - `delivery_zones.free_delivery_above_eur` Spalte (ALTER TABLE, graceful IF NOT EXISTS)
+    - Kostenlos-Liefern-Schwelle pro Zone: A=15€, B=25€, C=35€, D=null
+  - `v_delivery_fee_rules` VIEW für Admin-Dashboard und Calculator
+  - Default-UPDATE für bestehende Zeilen (Zone A–D)
+
+- [x] `lib/delivery/zones.ts` — `free_delivery_above_eur` in ZoneConfig Typ + alle Mapper
+  - DEFAULT_ZONES mit sinnvollen Schwellenwerten pro Zone
+  - `upsertZone` + `updateZoneById` + `seedDefaultZones` unterstützen neues Feld
+  - Vollständige Rückwärtskompatibilität (null = kein kostenloses Liefern)
+
+- [x] `lib/delivery/delivery-fee.ts` — Liefergebühr-Engine (TypeScript strict, kein `any`)
+  - Typen: FeeQuote / FeeQuoteError
+  - `getDeliveryFeeQuote(locationId, customerCoords, orderTotal)`:
+    - Lädt Restaurant-Koordinaten aus locations-Tabelle
+    - `classifyZone()` für Distanz + Zone
+    - `getSurgeMultiplier()` für aktuellen Surge (Graceful Fallback 1.0)
+    - Berechnet: baseFee + surgeSurcharge → Kostenlos-Check → totalFee
+    - Gibt FeeQuote mit vollständigem breakdown zurück
+  - `getPublicFeeQuote()`: Graceful-Wrapper (null statt throw) für Storefront
+  - `getAllZoneFees()`: alle Zonen einer Location mit Gebühren
+
+- [x] `app/api/delivery/fee/route.ts` — öffentlicher GET-Endpunkt (kein Auth)
+  - `GET ?location_id=...&lat=...&lng=...&order_total=...`
+  - Validierung: koordinaten-range, order_total >= 0, UUID-Format
+  - Antwort: vollständiges FeeQuote-Objekt
+  - Storefront: direkter JS-fetch ohne Session
+
+- [x] `app/api/delivery/admin/fee-config/route.ts` — Admin-Konfiguration
+  - `GET ?location_id=...` → alle Zonen mit Gebühren
+  - `POST { zone, surcharge_eur?, min_order_eur?, free_delivery_above_eur?, ... }`
+    - Validierung: zone A–D, Zahlen >= 0, free_delivery_above_eur > 0 oder null
+    - Lädt bestehende Zone, merged nur geänderte Felder, upsert
+  - Admin-Auth-Guard: location_id via employees.auth_user_id
+
+- [x] `app/api/delivery/zones/route.ts` — POST akzeptiert jetzt `free_delivery_above_eur`
+
+- [x] `components/lieferdienst/delivery-fee-panel.tsx` — Admin-Gebühren-Editor
+  - Collapsible Panel mit Zone-Badges im collapsed state
+  - Inline-Editing für surcharge_eur, min_order_eur, free_delivery_above_eur pro Zone
+  - "Gespeichert"-Feedback mit 2s-Timeout
+  - Erklärungstext für Kostenlos-Schwelle
+
+### Technische Details
+- `getSurgeMultiplier()` mit `.catch(() => 1.0)` — kein Fatal-Crash wenn Surge-Tabelle fehlt
+- `getLocationCoords()` liest lat/lng aus locations-Tabelle (kein geocoding nötig)
+- Surge-Surcharge: `baseFee × (multiplier - 1)` — bei baseFee=0 kein Surge-Aufschlag
+- Kostenlos-Liefern: override auf totalFee=0 wenn Schwelle erreicht (nach Surge-Berechnung)
+- Vollständig rückwärtskompatibel: bestehende Zonen ohne Spalte → free_delivery_above_eur=null
+- Build: `next build` → ✓ Compiled successfully, 0 TypeScript-Fehler, 0 Warnungen ✅
+
+### API-Nutzungsbeispiel (Storefront Checkout)
+```
+GET /api/delivery/fee?location_id=abc&lat=52.52&lng=13.40&order_total=18.00
+
+{
+  "zone": "B",
+  "zone_label": "Standard",
+  "zone_color": "#3b82f6",
+  "distance_km": 4.2,
+  "eta_min": 30,
+  "base_fee_eur": 1.5,
+  "surge_multiplier": 1.3,
+  "surge_surcharge_eur": 0.45,
+  "total_fee_eur": 1.95,
+  "is_free_delivery": false,
+  "free_delivery_above_eur": 25,
+  "min_order_eur": 15,
+  "is_min_order_met": true,
+  "breakdown": "€1.50 + Surge €0.45 (×1.3) = €1.95"
+}
+```
 
 - [x] Kitchen: Inline Prep-Zeit-Anpassung (+5/-5 Min) via updatePrepTime Server-Action
 - [x] Dispatch: DriverRow Entfernung zum Restaurant (Haversine, farbkodiert) + Fahrzeit-Schätzung
