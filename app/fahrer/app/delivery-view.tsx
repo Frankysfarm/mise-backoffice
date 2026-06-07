@@ -93,6 +93,7 @@ export function DeliveryView({
   type OItem = { order_id: string; name: string; menge: number; einzelpreis: number; notiz: string | null };
   const [orderItems, setOrderItems] = useState<Map<string, OItem[]>>(new Map());
   const [showItemsStopId, setShowItemsStopId] = useState<string | null>(null);
+  const [restaurantLoc, setRestaurantLoc] = useState<{ lat: number; lng: number; name: string } | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -192,6 +193,33 @@ export function DeliveryView({
         }
         setOrderItems(map);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchId]);
+
+  // Restaurant-Standort laden (für Rückfahrt-Navigation nach Tour-Ende)
+  useEffect(() => {
+    (async () => {
+      const { data: batch } = await supabase
+        .from('delivery_batches')
+        .select('location:locations(name, lat, lng)')
+        .eq('id', batchId)
+        .maybeSingle();
+      const loc = (batch as any)?.location;
+      if (loc?.lat && loc?.lng) {
+        setRestaurantLoc({ lat: loc.lat, lng: loc.lng, name: loc.name ?? 'Restaurant' });
+        return;
+      }
+      // Fallback: mise_delivery_batches
+      const { data: miseBatch } = await supabase
+        .from('mise_delivery_batches')
+        .select('location:mise_locations(name, latitude, longitude)')
+        .eq('id', batchId)
+        .maybeSingle();
+      const ml = (miseBatch as any)?.location;
+      if (ml?.latitude && ml?.longitude) {
+        setRestaurantLoc({ lat: ml.latitude, lng: ml.longitude, name: ml.name ?? 'Restaurant' });
+      }
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchId]);
 
@@ -1386,6 +1414,42 @@ export function DeliveryView({
               </div>
               {/* Explicit tour close button — prevents accidental early close, updates batch status */}
               <TourCloseButton batchId={batchId} onDone={onAllDone} />
+
+              {/* Navigation zurück zum Restaurant */}
+              {restaurantLoc && (() => {
+                const { lat, lng, name } = restaurantLoc;
+                const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+                const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+                const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
+                const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+                return (
+                  <div className="rounded-xl border border-matcha-500/40 bg-matcha-900/60 p-3">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-400 mb-2 flex items-center gap-1.5">
+                      <Navigation size={10} />
+                      Zurück: {name}
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href={isIos ? appleUrl : googleUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg bg-matcha-700 text-matcha-100 font-bold text-xs active:scale-[0.98] transition"
+                      >
+                        <Navigation size={12} />
+                        {isIos ? 'Apple Maps' : 'Google Maps'}
+                      </a>
+                      <a
+                        href={wazeUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center gap-1 h-9 px-3 rounded-lg bg-[#33ccff]/15 border border-[#33ccff]/30 text-[#33ccff] font-bold text-xs active:scale-[0.98] transition"
+                      >
+                        Waze
+                      </a>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Tour-Zusammenfassung */}
               <div className="grid grid-cols-3 gap-2 text-center">
