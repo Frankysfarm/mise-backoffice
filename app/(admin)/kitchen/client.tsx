@@ -6,8 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
-  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, Clock, Euro, Flame, Home as HomeIcon,
-  Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Phone, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
+  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, ChevronDown, ChevronUp, Clock, Euro, Flame, Home as HomeIcon,
+  Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Pause, Phone, Play, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder, updatePrepTime } from './actions';
@@ -425,6 +425,9 @@ export function KitchenBoard({
 
       {/* Fahrer am Restaurant Alert */}
       <KitchenDriverAtRestaurantAlert batches={batches} drivers={drivers} />
+
+      {/* Queue-Signal-Steuerung: Bestellfluss pausieren / ETA verlängern */}
+      <QueueSignalControl locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
 
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
@@ -4385,5 +4388,194 @@ function KitchenDriverAtRestaurantAlert({ batches, drivers }: { batches: Batch[]
         <span className="ml-auto text-[10px] text-matcha-600 font-semibold">Bestellungen bereitstellen!</span>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ QueueSignalControl ------------------------------ */
+
+type QueueSignal = {
+  signal_type: 'normal' | 'extended' | 'paused';
+  eta_extension_min: number | null;
+  message_de: string | null;
+  expires_at: string | null;
+  trigger_source: string | null;
+  created_at: string;
+};
+
+function QueueSignalControl({ locationId }: { locationId: string | null }) {
+  const [signal, setSignal] = useState<QueueSignal | null>(null);
+  const [history, setHistory] = useState<QueueSignal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [actionPending, setActionPending] = useState(false);
+  const [extMin, setExtMin] = useState(15);
+
+  async function load() {
+    if (!locationId) return;
+    setLoading(true);
+    try {
+      const r = await fetch('/api/delivery/admin/queue-signal?action=status');
+      if (!r.ok) return;
+      const d = await r.json() as { signal: QueueSignal; history: QueueSignal[] };
+      setSignal(d.signal ?? null);
+      setHistory(d.history ?? []);
+    } catch {} finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!locationId) return;
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationId]);
+
+  async function setSignalType(type: 'normal' | 'extended' | 'paused', etaMin?: number) {
+    setActionPending(true);
+    try {
+      if (type === 'normal') {
+        await fetch('/api/delivery/admin/queue-signal', { method: 'DELETE' });
+      } else {
+        await fetch('/api/delivery/admin/queue-signal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            signal_type: type,
+            eta_extension_min: etaMin ?? null,
+            message_de: type === 'paused'
+              ? 'Küche überlastet — Bestellungen kurz pausiert'
+              : `ETA um ${etaMin} Min verlängert`,
+          }),
+        });
+      }
+      await load();
+    } catch {} finally {
+      setActionPending(false);
+    }
+  }
+
+  if (!locationId) return null;
+
+  const isNormal = !signal || signal.signal_type === 'normal';
+  const isPaused = signal?.signal_type === 'paused';
+  const isExtended = signal?.signal_type === 'extended';
+
+  const statusBg = isPaused
+    ? 'border-red-300 bg-red-50'
+    : isExtended
+    ? 'border-amber-300 bg-amber-50'
+    : 'border-matcha-200 bg-matcha-50';
+
+  const statusDot = isPaused ? 'bg-red-500 animate-pulse' : isExtended ? 'bg-amber-500' : 'bg-matcha-500';
+
+  const statusLabel = isPaused
+    ? 'Pausiert — keine neuen Bestellungen'
+    : isExtended
+    ? `ETA +${signal?.eta_extension_min ?? '?'} Min verlängert`
+    : 'Normal — Bestellungen fließen';
+
+  return (
+    <Card className={cn('overflow-hidden border-2', statusBg)}>
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:opacity-80 transition"
+      >
+        <span className={cn('h-2.5 w-2.5 rounded-full shrink-0', statusDot)} />
+        <span className="font-display text-sm font-bold">
+          {isPaused ? '⏸ Bestellfluss pausiert!' : isExtended ? '⏱ ETA verlängert' : 'Bestellfluss-Steuerung'}
+        </span>
+        <span className={cn('text-xs font-semibold', isPaused ? 'text-red-700' : isExtended ? 'text-amber-700' : 'text-matcha-700')}>
+          {statusLabel}
+        </span>
+        {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+        {expanded
+          ? <ChevronUp size={14} className="ml-auto text-muted-foreground shrink-0" />
+          : <ChevronDown size={14} className="ml-auto text-muted-foreground shrink-0" />}
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 space-y-3 border-t">
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 pt-3">
+            <button
+              onClick={() => setSignalType('normal')}
+              disabled={actionPending || isNormal}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-bold transition border',
+                isNormal
+                  ? 'bg-matcha-100 border-matcha-400 text-matcha-800 cursor-default'
+                  : 'bg-white border-matcha-300 text-matcha-700 hover:bg-matcha-50 disabled:opacity-50',
+              )}
+            >
+              <Play size={13} />
+              Normal
+            </button>
+
+            {/* ETA-Verlängerung */}
+            <div className="flex items-center gap-1">
+              <select
+                value={extMin}
+                onChange={(e) => setExtMin(Number(e.target.value))}
+                className="h-8 rounded-l-lg border border-amber-300 bg-white px-2 text-sm text-amber-800 font-bold"
+              >
+                {[10, 15, 20, 30, 45, 60].map((m) => <option key={m} value={m}>+{m} Min</option>)}
+              </select>
+              <button
+                onClick={() => setSignalType('extended', extMin)}
+                disabled={actionPending}
+                className="inline-flex items-center gap-1.5 h-8 rounded-r-lg border-y border-r border-amber-300 bg-amber-50 px-3 text-sm font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50 transition"
+              >
+                <Clock size={12} />
+                ETA verlängern
+              </button>
+            </div>
+
+            <button
+              onClick={() => { if (confirm('Bestellfluss pausieren? Keine neuen Lieferbestellungen werden angenommen!')) setSignalType('paused'); }}
+              disabled={actionPending || isPaused}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-bold transition border',
+                isPaused
+                  ? 'bg-red-100 border-red-400 text-red-800 cursor-default'
+                  : 'bg-white border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-50',
+              )}
+            >
+              <Pause size={13} />
+              {isPaused ? 'Pausiert ✓' : 'Pausieren'}
+            </button>
+          </div>
+
+          {/* Signal history */}
+          {history.length > 0 && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-1.5">
+                Letzte Signale
+              </div>
+              <div className="space-y-1">
+                {history.slice(0, 5).map((h, i) => {
+                  const t = new Date(h.created_at);
+                  const timeStr = `${t.getHours().toString().padStart(2, '0')}:${t.getMinutes().toString().padStart(2, '0')}`;
+                  const dotCls = h.signal_type === 'paused' ? 'bg-red-400' : h.signal_type === 'extended' ? 'bg-amber-400' : 'bg-matcha-400';
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', dotCls)} />
+                      <span className="tabular-nums text-[11px]">{timeStr}</span>
+                      <span className="font-semibold text-foreground">
+                        {h.signal_type === 'paused' ? 'Pausiert' : h.signal_type === 'extended' ? `ETA +${h.eta_extension_min}m` : 'Normal'}
+                      </span>
+                      {h.trigger_source && (
+                        <span className="text-[10px] text-muted-foreground opacity-70">({h.trigger_source})</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
