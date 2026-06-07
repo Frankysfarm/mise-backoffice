@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle, Camera, ImageIcon } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
@@ -90,6 +90,9 @@ export function DeliveryView({
   const [proofType, setProofType] = useState<ProofType>('handed_to_person');
   const [proofNotes, setProofNotes] = useState('');
   const [proofPending, setProofPending] = useState(false);
+  const [proofPhotoBlob, setProofPhotoBlob] = useState<Blob | null>(null);
+  const [proofPhotoPreview, setProofPhotoPreview] = useState<string | null>(null);
+  const proofCameraRef = useRef<HTMLInputElement>(null);
   type OItem = { order_id: string; name: string; menge: number; einzelpreis: number; notiz: string | null };
   const [orderItems, setOrderItems] = useState<Map<string, OItem[]>>(new Map());
   const [showItemsStopId, setShowItemsStopId] = useState<string | null>(null);
@@ -408,9 +411,30 @@ export function DeliveryView({
     setFailedReason('no_answer');
   }
 
+  async function uploadProofPhoto(blob: Blob, stopId: string): Promise<string | null> {
+    try {
+      const path = `${batchId}/${stopId}-${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('delivery-proofs').upload(path, blob, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      });
+      if (error) return null;
+      const { data } = supabase.storage.from('delivery-proofs').getPublicUrl(path);
+      return data?.publicUrl ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async function confirmDeliveryWithProof(stopId: string) {
     setProofPending(true);
     const stop = stops.find((s) => s.id === stopId);
+
+    let photoUrl: string | null = null;
+    if (proofType === 'photo' && proofPhotoBlob) {
+      photoUrl = await uploadProofPhoto(proofPhotoBlob, stopId);
+    }
+
     // Fire-and-forget — proof stored for admin review, delivery proceeds regardless
     fetch(`/api/delivery/tours/${batchId}/proof`, {
       method: 'POST',
@@ -419,6 +443,7 @@ export function DeliveryView({
         stop_id:    stopId,
         order_id:   stop?.order_id ?? null,
         proof_type: proofType,
+        photo_url:  photoUrl,
         notes:      proofNotes.trim() || null,
         driver_lat: driverLat ?? null,
         driver_lng: driverLng ?? null,
@@ -428,6 +453,8 @@ export function DeliveryView({
     setProofModalStopId(null);
     setProofNotes('');
     setProofType('handed_to_person');
+    setProofPhotoBlob(null);
+    setProofPhotoPreview(null);
     setProofPending(false);
   }
 
@@ -1079,7 +1106,10 @@ export function DeliveryView({
                 {PROOF_OPTIONS.map(({ key, label, icon }) => (
                   <button
                     key={key}
-                    onClick={() => setProofType(key)}
+                    onClick={() => {
+                      setProofType(key);
+                      if (key !== 'photo') { setProofPhotoBlob(null); setProofPhotoPreview(null); }
+                    }}
                     className={cn(
                       'rounded-xl py-3 text-[10px] font-bold border flex flex-col items-center gap-1 transition active:scale-[0.97]',
                       proofType === key
@@ -1092,6 +1122,68 @@ export function DeliveryView({
                   </button>
                 ))}
               </div>
+
+              {/* Foto-Aufnahme: nur wenn 'photo' gewählt */}
+              {proofType === 'photo' && (
+                <div>
+                  <input
+                    ref={proofCameraRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      // Compress via Canvas to max 800px, quality 0.75
+                      const img = new Image();
+                      const objectUrl = URL.createObjectURL(file);
+                      img.onload = () => {
+                        const maxDim = 800;
+                        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.round(img.width * scale);
+                        canvas.height = Math.round(img.height * scale);
+                        const ctx = canvas.getContext('2d')!;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob((blob) => {
+                          if (!blob) return;
+                          setProofPhotoBlob(blob);
+                          setProofPhotoPreview(canvas.toDataURL('image/jpeg', 0.75));
+                        }, 'image/jpeg', 0.75);
+                        URL.revokeObjectURL(objectUrl);
+                      };
+                      img.src = objectUrl;
+                    }}
+                  />
+                  {proofPhotoPreview ? (
+                    <div className="relative rounded-xl overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={proofPhotoPreview} alt="Foto-Vorschau" className="w-full h-40 object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => { setProofPhotoBlob(null); setProofPhotoPreview(null); proofCameraRef.current && (proofCameraRef.current.value = ''); }}
+                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 flex items-center justify-center text-white text-xs font-bold"
+                      >
+                        ✕
+                      </button>
+                      <div className="absolute bottom-0 inset-x-0 py-1.5 bg-black/50 text-[10px] font-bold text-accent text-center flex items-center justify-center gap-1">
+                        <ImageIcon size={10} /> Foto bereit
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => proofCameraRef.current?.click()}
+                      className="w-full h-20 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 flex flex-col items-center justify-center gap-1.5 text-accent/80 hover:bg-accent/10 active:scale-[0.98] transition"
+                    >
+                      <Camera size={22} />
+                      <span className="text-[11px] font-bold">Foto aufnehmen</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
                 <textarea
@@ -1104,7 +1196,7 @@ export function DeliveryView({
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setProofModalStopId(null)}
+                  onClick={() => { setProofModalStopId(null); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                   disabled={proofPending}
                   className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm disabled:opacity-40"
                 >
@@ -1112,13 +1204,13 @@ export function DeliveryView({
                 </button>
                 <button
                   onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
-                  disabled={proofPending}
+                  disabled={proofPending || (proofType === 'photo' && !proofPhotoBlob)}
                   className="flex-1 h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {proofPending
                     ? <Loader2 size={16} className="animate-spin" />
                     : <CheckCircle2 size={16} />}
-                  {isBarProof ? 'Kassiert & Zugestellt' : 'Bestätigen'}
+                  {proofType === 'photo' && !proofPhotoBlob ? 'Foto fehlt noch' : isBarProof ? 'Kassiert & Zugestellt' : 'Bestätigen'}
                 </button>
               </div>
             </div>
@@ -1391,7 +1483,7 @@ export function DeliveryView({
                     );
                   })()}
                   <button
-                    onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); }}
+                    onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                     disabled={pending === stop.id || proofPending}
                     className="flex-1 h-11 rounded-xl bg-accent text-matcha-900 flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
                   >
