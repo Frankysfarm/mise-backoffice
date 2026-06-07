@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle } from 'lucide-react';
+import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
@@ -138,10 +138,10 @@ export function DeliveryView({
       .in('order_id', orderIds)
       .eq('sender', 'kunde')
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
+      .then(({ data }: { data: { id: string; order_id: string; nachricht: string; created_at: string }[] | null }) => {
         if (!data) return;
         const map = new Map<string, { id: string; nachricht: string; created_at: string }[]>();
-        for (const m of data as { id: string; order_id: string; nachricht: string; created_at: string }[]) {
+        for (const m of data) {
           if (!map.has(m.order_id)) map.set(m.order_id, []);
           map.get(m.order_id)!.push({ id: m.id, nachricht: m.nachricht, created_at: m.created_at });
         }
@@ -754,7 +754,7 @@ export function DeliveryView({
               rel="noreferrer"
               className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-white transition"
             >
-              <Map size={16} />
+              <MapIcon size={16} />
               {stopsWithCoords.length === 1 ? 'Navigieren' : `Alle ${stopsWithCoords.length} Stops in Maps`}
             </a>
           </div>

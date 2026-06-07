@@ -1864,10 +1864,10 @@ function PickupWaitPanel({ orders }: { orders: Order[] }) {
       .in('order_id', pickupOrderIds)
       .eq('sender', 'kunde')
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
+      .then(({ data }: { data: { order_id: string; nachricht: string; created_at: string }[] | null }) => {
         if (!data) return;
         const map = new Map<string, { nachricht: string; created_at: string }>();
-        for (const m of data as { order_id: string; nachricht: string; created_at: string }[]) {
+        for (const m of data) {
           if (!map.has(m.order_id)) map.set(m.order_id, { nachricht: m.nachricht, created_at: m.created_at });
         }
         setCustomerReplies(map);

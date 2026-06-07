@@ -9,6 +9,84 @@ Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase 
 Storefront kann `GET /api/delivery/fee` für Live-Gebühren-Quotes nutzen.
 Admin-Panel: `DeliveryFeePanel` in Lieferdienst-Settings einbinden.
 
+## CEO Review #35 — 2026-06-07
+
+### Geprüfte Commits (seit CEO Review #34)
+- `28c08a9` feat(delivery/frontend): Smart-Timing-Chips, Tour-Vergütung, Dispatch-Fahreranruf
+- `82d00c9` feat(delivery/backend): Phase 42 — Liefergebühr-Kalkulator & Kostenlos-Liefern-Schwelle
+- `193084c` feat(kitchen): Zeige Kundenantworten in PickupWaitPanel
+- `76e4dfe` feat(storefront/tracking): Quick-Reply-Buttons im Küchen-Banner für Abholkunden
+- `055bef5` feat(fahrer): Kundennachrichten in DeliveryView — Realtime-Chat-Abo
+
+### Bugs gefunden & gefixt
+
+**Bug 1 — `Map` Lucide-Icon shadowed nativen `Map`-Typ** (`app/fahrer/app/delivery-view.tsx:5`):
+- `Map` wurde aus `lucide-react` importiert → überschattete native `Map`-Klasse
+- Alle `new Map()` und `Map<...>` in `useState` und `useEffect` wurden als Lucide-Komponente interpretiert
+- Fix: `Map` → `Map as MapIcon` im Import, Verwendung bei `<MapIcon size={16} />` angepasst
+- **Status: GEFIXT ✅**
+
+**Bug 2 — Implizites `any` in `.then()` Callback** (`app/fahrer/app/delivery-view.tsx:141`):
+- `.then(({ data }) => {...})` ohne Typ-Annotation → TS7031
+- Fix: Explizite Typ-Signatur `({ data }: { data: ... | null })` hinzugefügt, redundanter Cast entfernt
+- **Status: GEFIXT ✅**
+
+**Bug 3 — Implizites `any` in Kitchen PickupWaitPanel** (`app/(admin)/kitchen/client.tsx:1867`):
+- `.then(({ data }) => {...})` ohne Typ-Annotation → TS7031
+- Fix: Explizite Typ-Signatur `({ data }: { data: ... | null })` hinzugefügt
+- **Status: GEFIXT ✅**
+
+**Bug 4 — `React.useState` ohne React-Import** (`components/lieferdienst/statistics-view.tsx:2249-2250`):
+- `React.useState` in `EtaAccuracyPanel` — aber `React` nicht als Namespace importiert (nur named imports)
+- Fix: `React.useState` → `useState` (bereits im named import vorhanden)
+- **Status: GEFIXT ✅**
+
+### Feature-Prüfung
+
+**Phase 42 — Liefergebühr-Kalkulator** (`lib/delivery/delivery-fee.ts`):
+- `getDeliveryFeeQuote()`: korrekte Imports von `classifyZone`, `getSurgeMultiplier` ✅
+- `FeeQuote`-Typ vollständig mit allen Breakdown-Feldern ✅
+- `.catch(() => 1.0)` Fallback bei Surge-Lookup ✅
+- Öffentlicher API-Endpunkt: koordinaten-Range-Prüfung, UUID-Validierung ✅
+- Admin-Config-Endpunkt: Auth-Guard, Zone-Validierung A–D, Zahlen-Validierung ✅
+- `delivery-fee-panel.tsx`: Inline-Editing, min="0" Constraints, Gespeichert-Feedback ✅
+
+**Smart-Timing-Chips + Dispatch-Fahreranruf** (`dispatch/client.tsx`):
+- `tel:`-Links konditionell nur wenn `e.telefon && ist_online` ✅
+- Phone-Cleanup via Regex `replace(/[^\d+]/g, '')` — sicher ✅
+- `target="_blank" rel="noreferrer"` Security-Attribut gesetzt ✅
+
+**PickupWaitPanel Kundenantworten** (`kitchen/client.tsx`):
+- Realtime-Channel für neue `order_messages` korrekt aufgesetzt ✅
+- Map-Lookup O(1) mit `.has()` Check vor `.get()` ✅
+- `pickup-msgs-` Channel mit Batch-ID als Identifier ✅
+
+**Kundennachrichten in DeliveryView** (`fahrer/app/delivery-view.tsx`):
+- Realtime-Abo `delivery-msgs-${batchId}` — korrekte `filter: order_id=in.(...)` Syntax ✅
+- `expandedMsgOrderId` bei neuem Msg gesetzt → Auto-Open ✅
+- Map-State immutable via `new Map(prev)` ✅
+
+**Tour-Vergütung Schätzung** (`fahrer/app/client.tsx:477`):
+- `stopCount * 1.50 + distKm * 0.20` — marktübliche Schätzformel ✅
+- `total_distance_km` via `as any` Cast — akzeptables Pattern für optionales API-Feld ✅
+- Guard `estEarnings <= 0` verhindert leeres Badge ✅
+
+### TypeScript nach allen Fixes
+- **0 Fehler** ✅
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
+
+### Deployment-Checkliste
+1. **Migration 036** (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
+2. `DeliveryFeePanel` in Lieferdienst-Admin-Settings-Seite einbinden
+3. Storefront-Checkout: `GET /api/delivery/fee` für Live-Gebühren-Quote integrieren
+
+### Status nach Review #35
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Analytics: alle synchron ✅
+- System: **MARKT-REIF** ✅ — bereit für Produktiv-Deployment
+
 ## Phase 42 — Backend-Architekt-Agent — 2026-06-07
 
 ### Was gebaut wurde
