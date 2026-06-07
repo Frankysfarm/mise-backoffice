@@ -523,7 +523,7 @@ export function DispatchBoard({
       <DriverShiftLeaderboard drivers={drivers} batches={batches} />
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
-      {batches.length > 0 && <TourVisualizationPanel batches={batches} />}
+      {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} />}
 
       {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
       <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
@@ -2931,7 +2931,7 @@ function DelayMonitorPanel({ locationId }: { locationId?: string }) {
 
 /* ------------------------------ TourVisualizationPanel ------------------------------ */
 
-function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
+function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; drivers?: Driver[] }) {
   const [open, setOpen] = useState(false);
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -2977,8 +2977,9 @@ function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
 
       {open && (
         <div className="p-4 space-y-4">
-          {enriched.map(({ batch, total, done, progress, secLeft, nextStop }) => {
+          {enriched.map(({ batch, total, done, progress, secLeft, nextStop, etaMs }) => {
             const driverName = batch.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}` : `Fahrer`;
+            const driverPhone = drivers.find((d) => d.employee_id === batch.fahrer_id)?.employee?.telefon ?? null;
             const overdue = secLeft !== null && secLeft < 0;
             const imminent = !overdue && secLeft !== null && secLeft < 300;
             const headerBg =
@@ -3000,12 +3001,27 @@ function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
                     {progress === 100 ? '✓' : `${Math.round(progress)}%`}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-display font-bold">{driverName}</span>
                       {batch.zone && (
                         <span className={cn('rounded px-1.5 py-0.5 text-[9px] font-black', zoneMeta(batch.zone).cls)}>
                           Zone {batch.zone}
                         </span>
+                      )}
+                      {driverPhone && (
+                        <a
+                          href={`tel:${driverPhone}`}
+                          className={cn(
+                            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold transition',
+                            overdue
+                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                              : 'bg-muted text-muted-foreground hover:bg-muted/70',
+                          )}
+                          title={`Anrufen: ${driverPhone}`}
+                        >
+                          <Phone className="h-2.5 w-2.5" />
+                          {overdue ? 'Anrufen!' : driverPhone}
+                        </a>
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-0.5">
@@ -3021,6 +3037,11 @@ function TourVisualizationPanel({ batches }: { batches: Batch[] }) {
                           {overdue
                             ? `+${Math.floor(-secLeft / 60)}m überzogen`
                             : `~${Math.floor(secLeft / 60)}m zurück`}
+                        </span>
+                      )}
+                      {etaMs !== null && !overdue && (
+                        <span className="text-muted-foreground/60 tabular-nums">
+                          ↩ {new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>

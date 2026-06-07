@@ -471,6 +471,26 @@ export function FahrerApp({
               );
             })()}
 
+            {/* Geschätzte Fahrervergütung für diese Tour */}
+            {(() => {
+              const stopCount = activeBatch.stops.length;
+              const distKm = (activeBatch as any).total_distance_km as number | null ?? 0;
+              const estEarnings = stopCount * 1.50 + distKm * 0.20;
+              if (estEarnings <= 0) return null;
+              return (
+                <div className="rounded-xl bg-matcha-700/30 border border-matcha-500/30 px-4 py-3 mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Geschätzte Vergütung</div>
+                    <div className="text-[9px] text-matcha-400 mt-0.5">
+                      {stopCount}× €1.50
+                      {distKm > 0 ? ` + ${distKm.toFixed(1)} km × €0.20` : ''}
+                    </div>
+                  </div>
+                  <div className="font-display font-black text-accent text-xl">{euro(estEarnings)}</div>
+                </div>
+              );
+            })()}
+
             {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
             <div className="space-y-2 mb-4">
               {activeBatch.stops

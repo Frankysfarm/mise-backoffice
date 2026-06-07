@@ -2726,6 +2726,26 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
         </a>
       )}
 
+      {/* Fertig-seit-Chip: Wie lange wartet die fertige Bestellung auf Abholung? */}
+      {order.status === 'fertig' && order.fertig_am && (() => {
+        const waitSinceFertig = Math.floor((Date.now() - new Date(order.fertig_am).getTime()) / 60_000);
+        if (waitSinceFertig < 3) return null;
+        return (
+          <div className={cn(
+            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+            waitSinceFertig >= 20
+              ? 'bg-red-500 text-white animate-pulse'
+              : waitSinceFertig >= 12
+              ? 'bg-orange-100 text-orange-800'
+              : 'bg-amber-50 text-amber-700',
+          )}>
+            <Clock className="h-2.5 w-2.5" />
+            Fertig seit {waitSinceFertig} Min
+            {waitSinceFertig >= 20 && ' ⚠️'}
+          </div>
+        );
+      })()}
+
       {/* Annahme-Urgency für 'neu'-Bestellungen */}
       {order.status === 'neu' && acceptUrgent && (
         <div className={cn(
