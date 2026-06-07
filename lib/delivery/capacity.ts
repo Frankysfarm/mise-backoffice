@@ -149,18 +149,18 @@ export async function setQueueSignal(
     .single();
 
   // History-Eintrag schreiben (fire-and-forget)
-  sb()
-    .from('queue_signal_history')
-    .insert({
-      location_id:       locationId,
-      signal_type:       input.signalType,
-      eta_extension_min: etaExtensionMin,
-      message_de:        messageDe,
-      auto_triggered:    autoTriggered,
-      queue_depth:       queueDepth,
-    })
-    .then(() => {})
-    .catch(() => {});
+  void Promise.resolve(
+    sb()
+      .from('queue_signal_history')
+      .insert({
+        location_id:       locationId,
+        signal_type:       input.signalType,
+        eta_extension_min: etaExtensionMin,
+        message_de:        messageDe,
+        auto_triggered:    autoTriggered,
+        queue_depth:       queueDepth,
+      }),
+  ).catch(() => {});
 
   return data ? _mapRow(data) : _defaultSignal(locationId);
 }

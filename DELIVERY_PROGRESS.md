@@ -110,7 +110,11 @@
 - [x] Storefront V2: Wartezeit-Banner bei signal=extended/paused (⏳/🚫 + Nachricht)
 - [x] QueueSignalPanel im Statistiken-Dashboard (Signal setzen, History, Reset)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–44 + CEO REVIEW #36 ABGESCHLOSSEN — 2026-06-07
+- [x] ZoneCapacityPanel im Dispatch-Board (Bestellungen pro Zone A/B/C/D + Fahrer-Auslastung + Druck-Warnung)
+- [x] KitchenDriverAtRestaurantAlert (Blinkbanner wenn Fahrer mit at_restaurant-Batch am Restaurant wartet)
+- [x] Lieferverifizierungs-Liste in Fahrer-App (Artikel pro Stop kollapsierbar prüfen vor Übergabe)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–44 + CEO REVIEW #37 ABGESCHLOSSEN — 2026-06-07
 
 ## Phase 44: Kitchen-Queue-Signal → Storefront Live-Wartezeit & Bestellpause [DONE ✅] — 2026-06-07
 

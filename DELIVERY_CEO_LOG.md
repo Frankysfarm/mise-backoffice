@@ -1,13 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–44 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–44 + Frontend-Enhancements (Commit b4c175b) abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 44 abgeschlossen (2026-06-07):** Kitchen-Queue-Signal Engine — Feedback-Schleife Küche → Storefront.
+**CEO Review #37 abgeschlossen (2026-06-07):** Commit b4c175b geprüft — 3 neue UI-Features, 1 TS-Bug gefixt.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
+
+## CEO Review #37 — 2026-06-07
+
+### Geprüfter Commit
+- `b4c175b` feat(delivery/frontend): Zonen-Kapazität, Fahrer-Alert, Lieferverifizierung
+
+### Bug gefunden & gefixt
+
+**Bug — `.catch()` auf `PromiseLike<void>`** (`lib/delivery/capacity.ts:163`):
+- `sb().from('queue_signal_history').insert({...}).then(() => {}).catch(() => {})` — Supabase `.insert().then()` gibt `PromiseLike<void>` zurück, kein volles `Promise`. `.catch()` ist auf `PromiseLike` nicht definiert.
+- TypeScript-Fehler: `TS2339: Property 'catch' does not exist on type 'PromiseLike<void>'`
+- Fix: `void Promise.resolve(sb().from(...).insert({...})).catch(() => {})` — konvertiert zu echtem Promise
+- **Status: GEFIXT ✅**
+
+### Feature-Prüfung
+
+**ZoneCapacityPanel** (`app/(admin)/dispatch/client.tsx`):
+- `delivery_zone` in `ReadyOrder`-Typ vorhanden (Zeile 71) — kein implizites `any` ✅
+- `Target`-Icon korrekt importiert (Zeile 20) ✅
+- `zoneData.length === 0 → return null` — kein leeres Panel ✅
+- Placeholder-Kacheln für leere Zonen mit `opacity-30` — professioneller Look ✅
+- `pressure === 'hoch'` ab ≥4 Bestellungen — `animate-pulse` + Rote Warnung — praxisnahe Schwelle ✅
+- Fahrer-Statistik-Header: freie vs. online Fahrer korrekt berechnet (`!aktueller_batch_id`) ✅
+- Render-Bedingung `readyOrders.length > 0` — kein Render bei leerer Queue ✅
+
+**KitchenDriverAtRestaurantAlert** (`app/(admin)/kitchen/client.tsx`):
+- `Bike`-Icon korrekt in Lucide-Imports (Zeile 9) ✅
+- `Batch.driver_id` und `Driver.vorname/nachname` existieren in ihren Typen ✅
+- `atRestaurant.length === 0 → return null` ✅
+- `animate-pulse` + `ring-2` + `animate-ping` Puls-Punkt — visuelle Dringlichkeit klar ✅
+- 5s-Tick mit `clearInterval`-Cleanup — kein Memory-Leak ✅
+- Mehrere Fahrer werden alle aufgelistet (`.map()`) — korrekt bei mehreren Batches ✅
+
+**Lieferverifizierungs-Liste** (`app/fahrer/app/delivery-view.tsx`):
+- Lokaler `OItem`-Typ vollständig mit allen DB-Feldern ✅
+- `useEffect` lädt Items einmalig per `[batchId]` — kein Re-Fetch bei Stop-Wechsel ✅
+- `Map<string, OItem[]>` nach `order_id` gruppiert — O(1)-Lookup per Stop ✅
+- Kollapsierbar per `showItemsStopId` State — kein UI-Clutter wenn nicht gebraucht ✅
+- Mengen × Einzelpreis Summe korrekt (`toLocaleString('de-DE', currency)`) ✅
+- Notiz-Feld als amber-kursiver Text — konsistent mit bestehendem Notiz-Pattern ✅
+- `eslint-disable react-hooks/exhaustive-deps` korrekt begründet (initialStops ist stable) ✅
+
+### TypeScript nach Fix
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
+
+### Status nach Review #37
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront: alle synchron ✅
+- System: **MARKT-REIF** ✅ — bereit für Produktiv-Deployment
+
+---
 
 ## Phase 44 — Backend-Architekt-Agent — 2026-06-07
 
