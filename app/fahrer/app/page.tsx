@@ -69,12 +69,12 @@ export default async function FahrerAppPage() {
   // Legacy-Batch hat Vorrang; Mise-Batch als Fallback
   const activeBatch = legacyActiveBatch ?? normalizedMiseBatch;
 
-  // Offene Mise-Touren (pending_acceptance) fuer diesen Fahrer -> OpenBatch-Format
-  // (damit Klingeln + Annehmen greifen; claim laeuft ueber claim_mise_delivery_batch)
+  // Offene Mise-Touren (pending_acceptance) -> OpenBatch-Format (Klingeln + Annehmen).
+  // Restaurant-Info kommt ueber order.location (mise_delivery_batches hat keine location_id).
   const { data: misePending } = miseDriver
     ? await svc
         .from('mise_delivery_batches')
-        .select('id, location_id, created_at, location:locations(name,lat,lng), stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min))')
+        .select('id, created_at, stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min,location:locations(name,lat,lng)))')
         .eq('driver_id', miseDriver.id)
         .eq('state', 'pending_acceptance')
     : { data: null };
@@ -85,7 +85,7 @@ export default async function FahrerAppPage() {
       .map((s: any) => ({
         batch_id: b.id,
         tenant_id: (driver as any).tenant_id,
-        location_id: b.location_id,
+        location_id: null,
         created_at: b.created_at,
         order_id: s.order_id,
         bestellnummer: s.order.bestellnummer,
@@ -97,9 +97,9 @@ export default async function FahrerAppPage() {
         kunde_lng: s.order.kunde_lng,
         gesamtbetrag: s.order.gesamtbetrag,
         geschaetzte_lieferung_min: s.order.geschaetzte_lieferung_min ?? null,
-        location_name: b.location?.name ?? 'Restaurant',
-        location_lat: b.location?.lat ?? null,
-        location_lng: b.location?.lng ?? null,
+        location_name: s.order.location?.name ?? 'Restaurant',
+        location_lat: s.order.location?.lat ?? null,
+        location_lng: s.order.location?.lng ?? null,
         source_system: 'mise',
         zahlungsart: s.order.zahlungsart ?? null,
         bezahlt: s.order.bezahlt ?? null,
