@@ -33,6 +33,8 @@ import {
   Loader2,
   Phone,
   MessageSquare,
+  Send,
+  Megaphone,
   X,
   RotateCcw,
   CheckCircle2,
@@ -160,6 +162,13 @@ export function DispatchBoard({
     id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null;
   }[]>([]);
   const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
+
+  // Fahrer-Broadcasts
+  const [broadcasts, setBroadcasts] = useState<{
+    id: string; message: string; priority: string; sentByName: string | null;
+    createdAt: string; expiresAt: string; isActive: boolean; readCount: number;
+  }[]>([]);
+  const [broadcastSending, setBroadcastSending] = useState(false);
 
   // Score breakdown popover
   const [scorePopover, setScorePopover] = useState<{
@@ -295,6 +304,20 @@ export function DispatchBoard({
     };
     load();
     const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  }, [locations]);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/broadcasts?location_id=${locationId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.broadcasts)) setBroadcasts(d.broadcasts); })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 60_000);
     return () => clearInterval(iv);
   }, [locations]);
 
@@ -551,6 +574,40 @@ export function DispatchBoard({
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
         </div>
       )}
+
+      {/* Fahrer-Nachrichten: Betriebskommunikation */}
+      <BroadcastPanel
+        locationId={locations[0]?.id ?? null}
+        broadcasts={broadcasts}
+        sending={broadcastSending}
+        onSend={async (msg, priority) => {
+          const locationId = locations[0]?.id;
+          if (!locationId) return;
+          setBroadcastSending(true);
+          try {
+            const res = await fetch('/api/delivery/admin/broadcasts', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ location_id: locationId, message: msg, priority }),
+            });
+            if (res.ok) {
+              const d = await res.json();
+              setBroadcasts(prev => [{
+                id: d.id, message: msg, priority, sentByName: null,
+                createdAt: d.created_at, expiresAt: '', isActive: true, readCount: 0,
+              }, ...prev.slice(0, 9)]);
+            }
+          } finally {
+            setBroadcastSending(false);
+          }
+        }}
+        onDelete={async (id) => {
+          const locationId = locations[0]?.id;
+          if (!locationId) return;
+          await fetch(`/api/delivery/admin/broadcasts?id=${id}&location_id=${locationId}`, { method: 'DELETE' });
+          setBroadcasts(prev => prev.filter(b => b.id !== id));
+        }}
+      />
 
       {/* Vorbestellungen: nächste 4h Übersicht */}
       {scheduledSummary && scheduledSummary.total > 0 && (
@@ -5076,6 +5133,122 @@ function RecoveryPanel({
                 );
               })}
             </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ─── BroadcastPanel ───────────────────────────────────────────────────────────
+
+function BroadcastPanel({
+  locationId,
+  broadcasts,
+  sending,
+  onSend,
+  onDelete,
+}: {
+  locationId: string | null;
+  broadcasts: { id: string; message: string; priority: string; sentByName: string | null; createdAt: string; isActive: boolean; readCount: number }[];
+  sending: boolean;
+  onSend: (msg: string, priority: 'normal' | 'urgent') => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [priority, setPriority] = useState<'normal' | 'urgent'>('normal');
+
+  const activeCount = broadcasts.filter(b => b.isActive).length;
+
+  async function handleSend() {
+    if (!msg.trim() || !locationId) return;
+    await onSend(msg.trim(), priority);
+    setMsg('');
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition"
+      >
+        <Megaphone size={16} className="text-blue-600 shrink-0" />
+        <span className="font-display text-sm font-bold flex-1 text-left">Fahrer-Nachrichten</span>
+        {activeCount > 0 && (
+          <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px]">
+            {activeCount} aktiv
+          </Badge>
+        )}
+        {open ? <ChevronUp size={14} className="text-muted-foreground" /> : <ChevronDown size={14} className="text-muted-foreground" />}
+      </button>
+
+      {open && (
+        <div className="border-t divide-y">
+          <div className="px-5 py-4 space-y-3">
+            <textarea
+              value={msg}
+              onChange={e => setMsg(e.target.value.slice(0, 280))}
+              placeholder="Nachricht an alle aktiven Fahrer..."
+              rows={2}
+              className="w-full rounded-lg border bg-muted/30 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <div className="flex items-center gap-3">
+              <div className="flex rounded-lg border overflow-hidden text-xs">
+                <button
+                  onClick={() => setPriority('normal')}
+                  className={cn('px-3 py-1.5 font-medium transition', priority === 'normal' ? 'bg-blue-600 text-white' : 'hover:bg-muted/50')}
+                >
+                  Normal
+                </button>
+                <button
+                  onClick={() => setPriority('urgent')}
+                  className={cn('px-3 py-1.5 font-medium transition', priority === 'urgent' ? 'bg-red-600 text-white' : 'hover:bg-muted/50')}
+                >
+                  Dringend
+                </button>
+              </div>
+              <span className="text-[10px] text-muted-foreground ml-auto">{msg.length}/280</span>
+              <button
+                onClick={handleSend}
+                disabled={sending || !msg.trim() || !locationId}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition"
+              >
+                {sending ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                Senden
+              </button>
+            </div>
+          </div>
+
+          {broadcasts.length === 0 ? (
+            <div className="px-5 py-3 text-xs text-muted-foreground italic">Keine Nachrichten vorhanden.</div>
+          ) : (
+            broadcasts.slice(0, 8).map(b => {
+              const ago = Math.floor((Date.now() - new Date(b.createdAt).getTime()) / 60_000);
+              return (
+                <div key={b.id} className="flex items-start gap-3 px-5 py-3">
+                  <div className={cn('mt-0.5 shrink-0 h-2 w-2 rounded-full', b.isActive ? (b.priority === 'urgent' ? 'bg-red-500' : 'bg-blue-500') : 'bg-muted-foreground/30')} />
+                  <div className="flex-1 min-w-0">
+                    <p className={cn('text-sm', !b.isActive && 'text-muted-foreground line-through')}>{b.message}</p>
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
+                      {b.sentByName && <span>{b.sentByName}</span>}
+                      <span>·</span>
+                      <span>{ago < 60 ? `vor ${ago} Min` : `vor ${Math.floor(ago / 60)} h`}</span>
+                      {b.readCount > 0 && <><span>·</span><span>{b.readCount}× gelesen</span></>}
+                    </div>
+                  </div>
+                  {b.isActive && (
+                    <button
+                      onClick={() => onDelete(b.id)}
+                      className="shrink-0 text-muted-foreground hover:text-red-600 transition p-1"
+                      title="Nachricht löschen"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       )}

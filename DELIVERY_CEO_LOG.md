@@ -10,6 +10,23 @@ Offene Deployment-Items:
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
 3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
 
+## Phase 47 — Backend-Architekt-Agent — 2026-06-08
+
+### Was gebaut wurde
+- `scripts/migrations/039_driver_broadcasts.sql`: driver_broadcasts + driver_broadcast_reads + v_broadcast_status + RLS
+- `lib/delivery/messaging.ts`: Driver Broadcast Engine (sendBroadcast / listBroadcasts / getActiveBroadcasts / markBroadcastRead / deleteBroadcast / expireOldBroadcasts)
+- `app/api/delivery/admin/broadcasts/route.ts`: GET (Liste) + POST (senden) + DELETE (löschen)
+- `app/api/delivery/driver/messages/route.ts`: GET (aktive Nachrichten) + POST (Lesebestätigung)
+- `app/api/cron/smart-dispatch/route.ts`: expireOldBroadcasts() im 2-Min-Tick (bereinigt >24h alte Einträge)
+- `app/(admin)/dispatch/client.tsx`: BroadcastPanel (aufklappbar, Normal/Dringend-Toggle, Send-Formular, Verlauf, Löschen-Button)
+- `app/fahrer/app/client.tsx`: Betriebsnachrichten-Banner (dismissierbar, 60s-Poll, 🚨 urgent / 📢 normal, Lesebestätigung feuert beim Schließen)
+
+### TypeScript
+- **0 Fehler** ✅
+- `npx next build`: ✓ Compiled successfully, 0 Warnungen ✅
+
+---
+
 ## CEO Review #39 — 2026-06-08
 
 ### Geprüfte Commits (seit CEO Review #38)

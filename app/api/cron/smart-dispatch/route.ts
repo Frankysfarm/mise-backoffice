@@ -27,6 +27,7 @@ import { processWindowDispatchAllLocations, markMissedWindows } from '@/lib/deli
 import { releaseRetryAttempts } from '@/lib/delivery/proof';
 import { evaluateAutoSignalAllLocations } from '@/lib/delivery/capacity';
 import { expireStaleCredits } from '@/lib/delivery/credits';
+import { expireOldBroadcasts } from '@/lib/delivery/messaging';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -125,6 +126,8 @@ export async function GET(req: NextRequest) {
       evaluateAutoSignalAllLocations().catch(() => ({ locations: 0, upgraded: 0, downgraded: 0, errors: 0 })),
       // Credits: abgelaufene Gutschriften als 'expired' markieren (stündlich ausreichend, hier jeder Tick)
       expireStaleCredits().catch(() => ({ expired: 0 })),
+      // Broadcasts: abgelaufene Nachrichten (>24h) bereinigen (stündlich ausreichend, hier jeder Tick)
+      expireOldBroadcasts().catch(() => ({ deleted: 0 })),
     ]);
 
     const durationMs = Date.now() - start;
@@ -187,6 +190,7 @@ export async function GET(req: NextRequest) {
         downgraded: queueSignalResult.downgraded,
       },
       credits_expired: creditsResult.expired,
+      broadcasts_cleaned: broadcastsResult.deleted,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

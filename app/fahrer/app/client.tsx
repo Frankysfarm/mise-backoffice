@@ -119,6 +119,36 @@ export function FahrerApp({
     deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
   } | null>(null);
 
+  // Betriebsnachrichten vom Dispatch
+  const [broadcasts, setBroadcasts] = useState<{ id: string; message: string; priority: string; sentByName: string | null; createdAt: string }[]>([]);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const load = () => {
+      fetch('/api/delivery/driver/messages')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.messages)) setBroadcasts(d.messages); })
+        .catch(() => {});
+    };
+    if (isOnline) {
+      load();
+      const iv = setInterval(load, 60_000);
+      return () => clearInterval(iv);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
+
+  function dismissBroadcast(id: string) {
+    setDismissedIds(prev => new Set([...prev, id]));
+    fetch('/api/delivery/driver/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ broadcast_id: id }),
+    }).catch(() => {});
+  }
+
+  const visibleBroadcasts = broadcasts.filter(b => !dismissedIds.has(b.id));
+
   // Küchenstatus für Pickup-Phase: welche Bestellungen sind schon fertig?
   const [kitchenStatuses, setKitchenStatuses] = useState<Map<string, string>>(new Map());
 
@@ -397,6 +427,34 @@ export function FahrerApp({
       </header>
 
       <main className="px-4 py-6 space-y-5">
+        {/* Betriebsnachrichten vom Dispatch */}
+        {visibleBroadcasts.map(b => (
+          <div
+            key={b.id}
+            className={cn(
+              'flex items-start gap-3 rounded-2xl border px-4 py-3 animate-in slide-in-from-top-2 duration-200',
+              b.priority === 'urgent'
+                ? 'border-red-400 bg-red-950/30 text-red-100'
+                : 'border-blue-400/50 bg-blue-950/30 text-blue-100',
+            )}
+          >
+            <span className="text-lg shrink-0">{b.priority === 'urgent' ? '🚨' : '📢'}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium leading-snug">{b.message}</p>
+              {b.sentByName && (
+                <p className="text-[10px] opacity-60 mt-0.5">{b.sentByName}</p>
+              )}
+            </div>
+            <button
+              onClick={() => dismissBroadcast(b.id)}
+              className="shrink-0 opacity-50 hover:opacity-100 transition p-1"
+              aria-label="Schließen"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+
         {/* Online Toggle */}
         {!activeBatch && (
           <section>

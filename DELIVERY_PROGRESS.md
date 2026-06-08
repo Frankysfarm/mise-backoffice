@@ -143,7 +143,17 @@
 - [x] Shop-Cockpit Redesign + Storefront-Settings (cross_sell, sections, section_order, theme)
 - [x] Customers-Seite im Admin-Backoffice
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–46 + CEO REVIEW #39 ABGESCHLOSSEN — 2026-06-08
+- [x] driver_broadcasts Tabelle (Migration 039)
+- [x] driver_broadcast_reads Tabelle (Migration 039)
+- [x] v_broadcast_status View (Migration 039)
+- [x] messaging.ts (Driver Broadcast Engine: sendBroadcast / listBroadcasts / getActiveBroadcasts / markBroadcastRead / deleteBroadcast / expireOldBroadcasts)
+- [x] POST+GET+DELETE /api/delivery/admin/broadcasts (Dispatch sendet an Fahrer)
+- [x] GET+POST /api/delivery/driver/messages (Fahrer holt Nachrichten + Lesebestätigung)
+- [x] expireOldBroadcasts() im Cron-Tick (>24h alte Nachrichten bereinigen)
+- [x] BroadcastPanel im Dispatch-Board (aufklappbar, Normal/Dringend, Löschen)
+- [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–47 + CEO REVIEW #39 ABGESCHLOSSEN — 2026-06-08
 
 ### CEO Review #39 (2026-06-08)
 - TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅
