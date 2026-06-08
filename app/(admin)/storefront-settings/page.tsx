@@ -20,10 +20,17 @@ export default async function StorefrontSettingsPage() {
     .select('id, name, preis, category_id, menu_categories(name)')
     .order('name');
 
+  const normalizedProducts = (products ?? []).map((p) => ({
+    ...p,
+    menu_categories: Array.isArray(p.menu_categories)
+      ? (p.menu_categories[0] ?? null)
+      : (p.menu_categories as { name: string } | null),
+  }));
+
   return (
     <StorefrontSettingsClient
       tenant={tenant}
-      products={products ?? []}
+      products={normalizedProducts}
     />
   );
 }

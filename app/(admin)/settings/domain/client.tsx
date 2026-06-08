@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { AlertCircle, ArrowRight, Check, Copy, Globe, Loader2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Status = 'pending' | 'verified' | 'error' | null;
+type Status = 'pending' | 'verified' | 'error' | 'active' | 'provisioning' | 'dns_ok' | null;
 
 export function DomainSettings({
   tenantId, slug, name, currentDomain, status, verifiedAt, lastError,

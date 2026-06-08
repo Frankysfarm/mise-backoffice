@@ -133,14 +133,24 @@
 - [x] Checkout-UI: Liefergutschrift-Code Feld (nur lieferung, neben Voucher)
 - [x] Storefront: creditDiscount in Gesamtbetrag-Berechnung + fire-and-forget Redemption
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–46 + CEO REVIEW #38 ABGESCHLOSSEN — 2026-06-07
+- [x] startCookingNow Server Action + CookingAlertBar Kochstart-Button (Kitchen)
+- [x] Storefront Live-Fahrer-Karte via Leaflet (GPS-Polling 15s, nur bei unterwegs)
+- [x] Fahrer-App Alle-Stopps vertikale Timeline (auf-/zuklappbar, ETA, Distanz, Next-Stop-Indikator)
+- [x] Kitchen OrderTicket Prioritätsscore-Badge (P30–P100, Farb-Schwellen)
+- [x] Lieferpipeline-Panel in Statistiken (5 Status-Stufen, Live-Balken)
+- [x] APNs Alert-Sender für Capacitor-Driver-App (.p8 Token-Auth, HTTP/2, inert bis ENV)
+- [x] Brand-Page Markenfarben-Picker + Logo-Upload (schreibt in storefront_settings.theme)
+- [x] Shop-Cockpit Redesign + Storefront-Settings (cross_sell, sections, section_order, theme)
+- [x] Customers-Seite im Admin-Backoffice
 
-### CEO Review #38 (2026-06-07)
-- TypeScript: 0 Fehler ✅
+## STATUS: MARKT-REIF ✅ — PHASEN 1–46 + CEO REVIEW #39 ABGESCHLOSSEN — 2026-06-08
+
+### CEO Review #39 (2026-06-08)
+- TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅
 - Build: next build sauber ✅
-- Phase 45 (Delivery Credits): vollständig implementiert ✅
-- Frontend: KitchenUpcomingPickupStrip, KitchenDriverAtRestaurantAlert, CapacityForecastChip (beide Zeiten), TourVisualizationPanel Vergütung, Haptic Feedback, LiveEtaBar Uhrzeit, Stats Highlights Grid — alle korrekt ✅
-- Kein Bug gefunden ✅
+- 4 TS-Bugs gefixt: Status-Typ-Erweiterung (domain), StorefrontSettings Typ (4 fehlende Felder), toggleCrossSellProduct-Funktion, menu_categories Array-Normalisierung ✅
+- 8 neue Features geprüft, alle korrekt implementiert ✅
+- Kein Logik-Bug gefunden ✅
 
 ## Phase 46: Customer Credit Redemption Flow [DONE ✅] — 2026-06-07
 

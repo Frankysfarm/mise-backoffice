@@ -1,14 +1,100 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–45 + CEO Review #38 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–46 + CEO Review #39 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 45 abgeschlossen, CEO Review #38 bestätigt (2026-06-07):** System ist vollständig marktreif.
+**Phase 46 abgeschlossen, CEO Review #39 bestätigt (2026-06-08):** System ist vollständig marktreif.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
 3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
+
+## CEO Review #39 — 2026-06-08
+
+### Geprüfte Commits (seit CEO Review #38)
+- `ca23e72` feat(delivery/frontend): Kochstart-Button in CookingAlertBar
+- `ea27e3b` feat(delivery/frontend): Smart-Timing, Fahrer-Karte, Tour-Timeline, Stats-Pipeline
+- `d3664f5` chore(driver/push): APNs-Alert-Sender (.p8 Token-Auth) als Grundstein für Capacitor-Driver-App
+- `f061f03` feat(brand-page): Markenfarben-Picker + Logo-Upload im Brand-Editor
+- `aa15eec` feat(shop): Cockpit-Redesign, Storefront-Settings + Brand-Page-Editor
+- `c7f9637` feat(login): Backoffice-Login-Modus + Domain-Status active akzeptieren
+- `bb502f6` feat(shop): stabiler QR-Code-Redirector /go/[slug] + /api/qr
+
+### Bugs gefunden & gefixt (CEO fix direkt in diesem Review)
+
+**Bug 1 — TS2367: Status-Vergleich auf `'active'` schlägt fehl** (`settings/domain/client.tsx:123`):
+- `Status` Typ war `'pending' | 'verified' | 'error' | null` — fehlte `'active' | 'provisioning' | 'dns_ok'`
+- Fix: Typ auf alle 6 möglichen DB-Werte erweitert
+- **Status: GEFIXT ✅**
+
+**Bug 2 — TS2322: `status` prop inkompatibel bei `DomainSettings`** (`shop/domain/page.tsx:95`):
+- Folge-Fehler aus Bug 1 — durch Fix 1 automatisch mitbehoben
+- **Status: GEFIXT ✅**
+
+**Bug 3 — 25x TS2339/TS2345: Fehlende Felder in `StorefrontSettings` Typ** (`storefront-settings/client.tsx`):
+- `cross_sell`, `section_order`, `sections`, `theme` wurden im Code genutzt aber fehlten im Typ
+- Außerdem fehlte Funktion `toggleCrossSellProduct` im Komponenten-Scope (TS2304)
+- Fix: Alle 4 Felder mit korrekten Typen ergänzt; `toggleCrossSellProduct` als eigene Funktion implementiert (analog zu `toggleFreeProduct`, max 6 Produkte)
+- **Status: GEFIXT ✅**
+
+**Bug 4 — TS2322: `menu_categories` Array/Objekt-Mismatch** (`storefront-settings/page.tsx:26`):
+- Supabase gibt bei `.select('menu_categories(name)')` immer ein Array zurück, `Product`-Typ erwartet `{ name: string } | null`
+- Fix: Normalisierung per `.map()` — `array[0] ?? null` vor Übergabe an Client-Komponente
+- **Status: GEFIXT ✅**
+
+### TypeScript & Build
+- Vor Fix: **30 TypeScript-Fehler** ❌
+- Nach Fix: **0 Fehler** ✅
+- `npx next build`: **Compiled successfully, 0 Fehler** ✅
+
+### Feature-Prüfung
+
+**`startCookingNow` Server Action** (`kitchen/actions.ts:40`):
+- Liest `kitchen_timings.prep_min` aus DB, berechnet `ready_target = now + prep_min * 60_000` ✅
+- Setzt `status='cooking'`, `cook_start_at`, `ready_target` — korrekt ✅
+- Fallback: `prepMin = 15` wenn DB-Wert null ✅
+
+**CookingAlertBar Kochstart-Button** (`kitchen/client.tsx:3073`):
+- `startCookingNow(t.id)` via `useTransition`, lokales `started`-Set verhindert Doppelklick ✅
+- Button zeigt "✓ Kochen gestartet" nach Erfolg, disabled danach ✅
+- Farbe: rot bei overdue, orange sonst — korrekt ✅
+
+**Storefront Live-Fahrer-Karte** (`success-state.tsx`):
+- Leaflet lazy-import (async), MapInstance im Ref — kein Memory-Leak ✅
+- Cleanup `map.remove()` bei Unmount ✅
+- Polling nur wenn `liveStatus === 'unterwegs'` — nicht verschwenderisch ✅
+- `seconds_stale > 30` → Warnung "Xm alt" — sinnvoll ✅
+
+**Fahrer-App Alle-Stopps-Timeline** (`delivery-view.tsx:936`):
+- `isNext`: prüft ob alle vorigen `geliefert_am` gesetzt sind — korrekte Next-Stop-Logik ✅
+- `etaOverdue` nur bei ungelieferten Stops mit eta_earliest in Vergangenheit ✅
+- `distKm` nur wenn `distanz_zum_vorgaenger_m > 0` — filtert 0-Werte korrekt ✅
+- Auf-/Zuklapp-Toggle per `showAllStops`-State ✅
+
+**Kitchen OrderTicket Prioritätsscore-Badge** (`kitchen/client.tsx:2638`):
+- `score < 30` → kein Badge (sauber, kein visueller Noise) ✅
+- Farbkodierung: ≥75=rot, ≥55=orange, sonst=amber ✅
+
+**APNs Alert-Sender** (`lib/apns-alert.ts`):
+- `isApnsAlertConfigured()` Guard — bleibt inert bis ENV gesetzt ✅
+- HTTP/2 Session-Pool — keine Connection-Floods ✅
+- JWT-Refresh nach 50 Min (APNs erlaubt 60 Min max) ✅
+
+**Lieferpipeline-Panel** (`statistics-view.tsx:569`):
+- `if (totalActive === 0) return null` — versteckt sich bei leerer Pipeline ✅
+- Balken-Breite proportional zum Anteil an Total-Aktiv ✅
+
+**Brand-Page Farbpicker** (`shop/brand-page/client.tsx:43`):
+- Regex-Validierung `^#[0-9a-fA-F]{6}$` vor Color-Picker-Value — verhindert ungültige Farben ✅
+- Schreibt in `storefront_settings.theme` — konsistent mit Storefront-Settings-Komponente ✅
+
+### Status nach Review #39
+- TypeScript: 0 Fehler ✅
+- Build: `next build` kompiliert sauber ✅
+- 4 TS-Bugs aus neuen Commits gefixt ✅
+- 8 neue Features geprüft, alle korrekt implementiert ✅
+- **Gesamt: MARKT-REIF ✅**
 
 ## CEO Review #38 — 2026-06-07
 

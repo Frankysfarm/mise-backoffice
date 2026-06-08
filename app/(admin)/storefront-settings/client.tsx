@@ -37,6 +37,27 @@ type StorefrontSettings = {
     min_minutes?: number;
     max_minutes?: number;
   };
+  cross_sell?: {
+    enabled?: boolean;
+    title?: string;
+    product_ids?: string[];
+  };
+  section_order?: string[];
+  sections?: {
+    welcome_banner?: boolean;
+    bestseller_rail?: boolean;
+    loyalty_card?: boolean;
+    delivery_band?: boolean;
+    bonus_card?: boolean;
+    diet_filter?: boolean;
+    sticky_cart?: boolean;
+    [key: string]: boolean | undefined;
+  };
+  theme?: {
+    primary?: string;
+    accent?: string;
+    background?: string;
+  };
 };
 
 interface Props {
@@ -70,6 +91,12 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
     const current = settings.welcome_popup?.free_product_ids ?? [];
     const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
     update('welcome_popup', { free_product_ids: next.slice(0, 4) });
+  };
+
+  const toggleCrossSellProduct = (id: string) => {
+    const current = settings.cross_sell?.product_ids ?? [];
+    const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+    update('cross_sell', { product_ids: next.slice(0, 6) });
   };
 
   const save = () => {
