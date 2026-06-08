@@ -3,70 +3,67 @@
 import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-/**
- * Fragt beim App-Start automatisch die NATIVEN iOS-Berechtigungen ab
- * (System-Dialoge fuer Standort + Mitteilungen) und registriert das
- * APNs-Push-Token beim Server.
- *
- * - Laeuft NUR in der nativen App (Capacitor). Im Browser: no-op.
- * - Loest die echten weissen Apple-Popups aus (nicht die app-eigene Seite).
- */
+function beacon(stage: string, data: unknown) {
+  try {
+    fetch('/api/driver/v1/push-debug', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage, data }),
+      keepalive: true,
+    });
+  } catch { /* noop */ }
+}
+
 export function PushRegister() {
   useEffect(() => {
     const Cap = (window as unknown as { Capacitor?: any }).Capacitor;
-    if (!Cap?.isNativePlatform?.()) return;
+    beacon('init', {
+      hasCapacitor: !!Cap,
+      isNative: Cap?.isNativePlatform?.() ?? null,
+      platform: Cap?.getPlatform?.() ?? null,
+      hasPlugins: !!Cap?.Plugins,
+      pluginKeys: Cap?.Plugins ? Object.keys(Cap.Plugins) : [],
+      hasPN: !!Cap?.Plugins?.PushNotifications,
+    });
 
-    let regHandle: { remove?: () => void } | null = null;
+    if (!Cap?.isNativePlatform?.()) { beacon('abort', 'not-native'); return; }
+    const PN = Cap.Plugins?.PushNotifications;
+    if (!PN) { beacon('abort', 'no-PN-plugin'); return; }
 
-    (async () => {
-      // 1) Standort nativ anfragen (iOS-System-Dialog)
-      try {
-        const Geo = Cap.Plugins?.Geolocation;
-        if (Geo?.requestPermissions) await Geo.requestPermissions();
-      } catch {
-        /* noop */
-      }
-      // 2) Mitteilungen nativ anfragen (iOS-System-Dialog) + registrieren
-      try {
-        const PN = Cap.Plugins?.PushNotifications;
-        if (PN) {
-          const perm = await PN.requestPermissions();
-          if (perm?.receive === 'granted') await PN.register();
-        }
-      } catch {
-        /* noop */
-      }
-    })();
-
-    // Token-Listener: rohes APNs-Token -> Server
     try {
-      const PN = Cap.Plugins?.PushNotifications;
-      if (PN?.addListener) {
-        const maybe = PN.addListener('registration', async (t: { value: string }) => {
-          try {
-            const sb = createClient();
-            const { data } = await sb.auth.getSession();
-            const token = data?.session?.access_token;
-            if (!token || !t?.value) return;
-            await fetch('/api/driver/v1/me/push-token', {
+      PN.addListener?.('registration', async (t: { value?: string }) => {
+        beacon('registration', { len: t?.value?.length ?? 0, head: (t?.value ?? '').slice(0, 10) });
+        try {
+          const sb = createClient();
+          const { data } = await sb.auth.getSession();
+          const token = data?.session?.access_token;
+          if (token && t?.value) {
+            const r = await fetch('/api/driver/v1/me/push-token', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
               body: JSON.stringify({ expo_push_token: t.value, push_enabled: true }),
             });
-          } catch {
-            /* noop */
+            beacon('token-posted', { ok: r.ok, status: r.status });
+          } else {
+            beacon('token-post-skip', { hasSession: !!token, hasToken: !!t?.value });
           }
-        });
-        if (maybe && typeof maybe.then === 'function') maybe.then((h: { remove?: () => void }) => { regHandle = h; });
-        else regHandle = maybe;
-      }
-    } catch {
-      /* noop */
-    }
+        } catch (e) { beacon('token-post-error', String((e as Error)?.message ?? e)); }
+      });
+      PN.addListener?.('registrationError', (e: unknown) => beacon('registrationError', String((e as any)?.error ?? JSON.stringify(e))));
+    } catch (e) { beacon('listener-error', String((e as Error)?.message ?? e)); }
 
-    return () => {
-      try { regHandle?.remove?.(); } catch { /* noop */ }
-    };
+    (async () => {
+      try {
+        const perm = await PN.requestPermissions();
+        beacon('permission', perm);
+        if (perm?.receive === 'granted') {
+          await PN.register();
+          beacon('register-called', 'ok');
+        }
+      } catch (e) { beacon('register-error', String((e as Error)?.message ?? e)); }
+    })();
+
+    try { Cap.Plugins?.Geolocation?.requestPermissions?.(); } catch { /* noop */ }
   }, []);
 
   return null;
