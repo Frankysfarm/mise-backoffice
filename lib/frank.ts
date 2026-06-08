@@ -201,7 +201,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     if (!fits) continue;
 
     await addOrderToBundle(openBatch.id, o.id, loc, d.vehicle);
-    await rerouteBundle(openBatch.id);
+    // Route wird erst nach komplettem Pickup berechnet (siehe picked-up endpoint)
     await logDecision(
       'bundle',
       d.id,
@@ -223,7 +223,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
   const best = pickBest(nearby, loc);
   const batch = await createBundle(best.id, o, loc);
-  await rerouteBundle(batch);
+  // Route erst nach Pickup
   await logDecision('assign', best.id, [o.id], `Direkt zugewiesen — kein passender Bundle offen.`);
   return 'assigned';
 }
@@ -437,7 +437,7 @@ async function addOrderToBundle(
  * Fallback wenn Google nicht antwortet: Stops bleiben in DB-Reihenfolge,
  * polyline bleibt null, distance/eta via Haversine geschätzt.
  */
-async function rerouteBundle(batchId: string): Promise<void> {
+export async function rerouteBundle(batchId: string): Promise<void> {
   const c = sb();
   const { data: stops } = await c
     .from('mise_delivery_batch_stops')

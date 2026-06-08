@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDriverFromBearer, sb, unauthorized } from '../../../_lib/driver-auth';
+import { rerouteBundle } from '@/lib/frank';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -59,6 +60,17 @@ export async function POST(
     .from('customer_orders')
     .update({ status: 'unterwegs' })
     .eq('id', orderId);
+
+  // Route ERST berechnen, wenn ALLE Bestellungen der Tour abgeholt sind
+  const { data: remainingPickups } = await c
+    .from('mise_delivery_batch_stops')
+    .select('id')
+    .eq('batch_id', batch.id)
+    .eq('type', 'pickup')
+    .is('completed_at', null);
+  if (!remainingPickups || remainingPickups.length === 0) {
+    try { await rerouteBundle(batch.id); } catch { /* Route-Fehler darf Pickup nicht blockieren */ }
+  }
 
   return NextResponse.json({ ok: true });
 }

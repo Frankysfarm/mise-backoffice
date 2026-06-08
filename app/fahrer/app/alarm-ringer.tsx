@@ -69,17 +69,26 @@ export function AlarmRinger({
     osc.frequency.setValueAtTime(880, now);
     osc.frequency.setValueAtTime(1320, now + 0.15);
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.4, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.85, now + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
     osc.start(now);
     osc.stop(now + 0.4);
-    if ('vibrate' in navigator) navigator.vibrate([200, 80, 200]);
+    // zweiter, hoeherer Ton fuer mehr Durchdringung
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc2.frequency.setValueAtTime(1760, now + 0.18);
+    gain2.gain.setValueAtTime(0.0001, now + 0.18);
+    gain2.gain.exponentialRampToValueAtTime(0.85, now + 0.19);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+    osc2.start(now + 0.18); osc2.stop(now + 0.55);
+    if ('vibrate' in navigator) navigator.vibrate([500, 120, 500, 120, 500]);
   }
 
   function start() {
     if (intervalRef.current) return;
     beep();
-    intervalRef.current = setInterval(beep, 1200);
+    intervalRef.current = setInterval(beep, 700);
   }
 
   function stop() {

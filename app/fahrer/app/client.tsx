@@ -353,8 +353,7 @@ export function FahrerApp({
             .update({ aktueller_batch_id: batchId })
             .eq('employee_id', driver.id);
         }
-        setPickOpen(true);
-        router.refresh();
+        window.location.reload();
       } else {
         alert((data as any)?.error ?? 'Konnte Tour nicht annehmen');
       }
