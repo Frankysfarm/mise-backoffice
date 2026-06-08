@@ -240,6 +240,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [refreshing, setRefreshing] = useState(false)
   const [nextRefreshSec, setNextRefreshSec] = useState(30)
+  const [liveKpi, setLiveKpi] = useState<{
+    eta_min: number; load: string; active_orders: number; drivers_online: number;
+  } | null>(null)
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -256,6 +259,21 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     return () => { clearInterval(iv); clearInterval(countdownIv); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
+    if (!locationId) return
+    const pollLiveKpi = () => {
+      fetch(`/api/delivery/eta/live?location_id=${locationId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.eta_min != null) setLiveKpi({ eta_min: d.eta_min, load: d.load ?? 'quiet', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0 }) })
+        .catch(() => {})
+    }
+    pollLiveKpi()
+    const kpiIv = setInterval(pollLiveKpi, 30_000)
+    return () => clearInterval(kpiIv)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders.length, completedOrders.length])
 
   useEffect(() => {
     const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
@@ -516,6 +534,39 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         </div>
       </div>
+
+      {/* Live-Status-Strip: Echtzeit Küchen- und Lieferauslastung */}
+      {liveKpi && (
+        <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
+          liveKpi.load === 'busy' ? 'border-red-200 bg-red-50' :
+          liveKpi.load === 'normal' ? 'border-amber-200 bg-amber-50' :
+          'border-emerald-200 bg-emerald-50'
+        }`}>
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${
+              liveKpi.load === 'busy' ? 'bg-red-400' :
+              liveKpi.load === 'normal' ? 'bg-amber-400' : 'bg-emerald-400'
+            }`} />
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+              liveKpi.load === 'busy' ? 'bg-red-500' :
+              liveKpi.load === 'normal' ? 'bg-amber-500' : 'bg-emerald-500'
+            }`} />
+          </span>
+          <span className={`font-bold ${
+            liveKpi.load === 'busy' ? 'text-red-700' :
+            liveKpi.load === 'normal' ? 'text-amber-700' : 'text-emerald-700'
+          }`}>
+            {liveKpi.load === 'busy' ? 'Küche sehr ausgelastet' :
+             liveKpi.load === 'normal' ? 'Normale Auslastung' : 'Ruhig'}
+          </span>
+          <span className="text-stone-400">·</span>
+          <span className="text-stone-600">⏱ ~<strong>{liveKpi.eta_min}</strong> Min ETA</span>
+          <span className="text-stone-400">·</span>
+          <span className="text-stone-600">📦 <strong>{liveKpi.active_orders}</strong> aktive Bestellungen</span>
+          <span className="text-stone-400">·</span>
+          <span className="text-stone-600">🚗 <strong>{liveKpi.drivers_online}</strong> Fahrer online</span>
+        </div>
+      )}
 
       {/* Schicht-Highlights — kompakte KPI-Leiste */}
       {(stats.totalOrders > 0 || stats.revenue > 0) && (

@@ -1951,8 +1951,24 @@ function DriverRow({
   return (
     <div className="px-5 py-3">
       <div className="flex items-center gap-3">
-        <div className="relative">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-matcha-700 font-display text-sm font-bold text-white">
+        <div className="relative flex items-center justify-center" style={{ width: 44, height: 44 }}>
+          {/* Tour-Fortschritts-Ring: SVG-Overlay wenn Fahrer unterwegs */}
+          {returnInfo && returnInfo.totalStops > 0 && (
+            <svg className="absolute inset-0 -rotate-90" width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="19" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="3" />
+              <circle
+                cx="22" cy="22" r="19"
+                fill="none"
+                stroke={returnInfo.secLeft !== null && returnInfo.secLeft <= 0 ? '#22c55e' : returnInfo.secLeft !== null && returnInfo.secLeft < 300 ? '#f97316' : '#3b82f6'}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 19}`}
+                strokeDashoffset={`${2 * Math.PI * 19 * (1 - returnInfo.doneStops / returnInfo.totalStops)}`}
+                style={{ transition: 'stroke-dashoffset 0.8s ease, stroke 0.5s' }}
+              />
+            </svg>
+          )}
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-matcha-700 font-display text-sm font-bold text-white">
             {initials}
           </div>
           <div

@@ -10,7 +10,7 @@ import {
   Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Pause, Phone, Play, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady } from './actions';
+import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady, createKitchenTiming } from './actions';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2872,6 +2872,17 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
             >
               +5
             </button>
+            {/* Smart-Timing anlegen: nur wenn kein Timing vorhanden */}
+            {!timing && (
+              <button
+                onClick={() => startTransition(() => void createKitchenTiming(order.id, est))}
+                disabled={pending}
+                className="ml-1 h-5 px-1.5 rounded text-[9px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 disabled:opacity-30 transition"
+                title="Smart-Timing anlegen und Countdown starten"
+              >
+                ⏱ Timing
+              </button>
+            )}
           </div>
         </div>
       )}

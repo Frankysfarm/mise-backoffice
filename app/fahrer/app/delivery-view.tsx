@@ -1482,6 +1482,17 @@ export function DeliveryView({
               {isNext && nextStop && stop.id === nextStop.id && stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0 && (
                 <StopEtaBar distanzM={stop.distanz_zum_vorgaenger_m} gpsSpeed={gpsSpeed} />
               )}
+              {/* Live-GPS-Näherungs-Ring: Echtzeit-Distanz wenn GPS vorhanden */}
+              {isNext && nextStop && stop.id === nextStop.id &&
+                driverLat != null && driverLng != null &&
+                stop.order.kunde_lat != null && stop.order.kunde_lng != null && (
+                <LiveProximityRing
+                  driverLat={driverLat}
+                  driverLng={driverLng}
+                  destLat={stop.order.kunde_lat}
+                  destLng={stop.order.kunde_lng}
+                />
+              )}
 
               {/* Arrived-Badge wenn bereits angekommen, aber noch nicht zugestellt */}
               {isNext && (stop.angekommen_am || arrivedIds.has(stop.id)) && !stop.geliefert_am && (
@@ -1801,6 +1812,90 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
       {closing ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
       {closing ? 'Wird abgeschlossen…' : 'Tour abschließen'}
     </button>
+  );
+}
+
+/* Live-GPS-Näherungs-Ring: Echtzeit-Distanz zum nächsten Stop, basierend auf Fahrer-GPS */
+function LiveProximityRing({
+  driverLat, driverLng,
+  destLat, destLng,
+}: { driverLat: number; driverLng: number; destLat: number; destLng: number }) {
+  const [distM, setDistM] = useState<number | null>(null);
+
+  useEffect(() => {
+    function calcDist(lat1: number, lng1: number, lat2: number, lng2: number): number {
+      const R = 6371000;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    setDistM(calcDist(driverLat, driverLng, destLat, destLng));
+  }, [driverLat, driverLng, destLat, destLng]);
+
+  if (distM === null) return null;
+
+  // Ring füllt sich von 0% (weit weg) → 100% (unter 15m = angekommen)
+  const MAX_DIST_M = 400;
+  const pct = Math.max(0, Math.min(100, Math.round(((MAX_DIST_M - distM) / MAX_DIST_M) * 100)));
+  const arrived = distM < 30;
+  const near    = distM < 80;
+  const soon    = distM < 200;
+
+  const ringColor = arrived ? '#4ae68a' : near ? '#f97316' : soon ? '#d4a843' : '#3b82f6';
+  const R = 20, circ = 2 * Math.PI * R;
+
+  const label = arrived
+    ? 'Angekommen!'
+    : distM < 1000
+    ? `${Math.round(distM)} m`
+    : `${(distM / 1000).toFixed(1)} km`;
+
+  return (
+    <div className={cn(
+      'mt-2 flex items-center gap-3 rounded-xl px-3 py-2 border',
+      arrived ? 'bg-accent/20 border-accent/50' :
+      near    ? 'bg-orange-500/15 border-orange-400/40' :
+      soon    ? 'bg-amber-500/10 border-amber-400/30' :
+                'bg-blue-500/10 border-blue-400/20',
+    )}>
+      {/* SVG Proximity Ring */}
+      <div className="relative h-12 w-12 shrink-0 flex items-center justify-center">
+        <svg className="absolute inset-0 -rotate-90" width="48" height="48" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+          <circle
+            cx="24" cy="24" r={R}
+            fill="none"
+            stroke={ringColor}
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - pct / 100)}
+            style={{ transition: 'stroke-dashoffset 0.8s ease, stroke 0.5s' }}
+          />
+        </svg>
+        <span className="relative text-[8px] font-black text-center leading-none" style={{ color: ringColor }}>
+          {arrived ? '✓' : `${pct}%`}
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Entfernung</div>
+        <div className={cn(
+          'font-display font-black text-base tabular-nums leading-tight',
+          arrived ? 'text-accent' : near ? 'text-orange-300' : 'text-white',
+        )}>
+          {label}
+        </div>
+        {near && !arrived && (
+          <div className="text-[9px] text-orange-300 font-bold animate-pulse">Fast da!</div>
+        )}
+        {arrived && (
+          <div className="text-[9px] text-accent font-bold">Bitte klingeln</div>
+        )}
+      </div>
+    </div>
   );
 }
 

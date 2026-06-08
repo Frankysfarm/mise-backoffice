@@ -132,6 +132,46 @@ export async function updatePrepTime(orderId: string, newMinutes: number) {
   return { ok: true };
 }
 
+export async function createKitchenTiming(orderId: string, prepMin?: number) {
+  const supabase = await createClient();
+  // Check if timing already exists
+  const { data: existing } = await supabase
+    .from('kitchen_timings')
+    .select('id')
+    .eq('order_id', orderId)
+    .in('status', ['scheduled', 'cooking'])
+    .maybeSingle();
+  if (existing) return { ok: true, existing: true };
+
+  // Fetch order to get estimated prep time
+  const { data: order } = await supabase
+    .from('customer_orders')
+    .select('geschaetzte_zubereitung_min, status')
+    .eq('id', orderId)
+    .maybeSingle();
+
+  const minutesToUse = prepMin ?? (order as any)?.geschaetzte_zubereitung_min ?? 15;
+  const now = new Date().toISOString();
+  const isCooking = (order as any)?.status === 'in_zubereitung';
+
+  const readyTarget = new Date(Date.now() + minutesToUse * 60_000).toISOString();
+
+  const { error } = await supabase.from('kitchen_timings').insert({
+    order_id: orderId,
+    status: isCooking ? 'cooking' : 'scheduled',
+    cook_start_at: isCooking ? now : null,
+    ready_target: isCooking ? readyTarget : null,
+    prep_min: minutesToUse,
+    created_at: now,
+    updated_at: now,
+  });
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath('/kitchen');
+  return { ok: true };
+}
+
 function systemMsg(status: string): string {
   switch (status) {
     case 'bestätigt': return '✓ Bestellung bestätigt';
