@@ -42,6 +42,7 @@ interface OrderRow {
   kunde_adresse: string | null;
   kunde_plz: string | null;
   kunde_stadt: string | null;
+  created_at?: string | null;
 }
 
 interface LocationRow {
@@ -72,6 +73,21 @@ function sb(): SupabaseClient {
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
 
+// --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
+type DispatchStrategy = 'speed' | 'balance' | 'spar';
+interface StrategyPreset { detourKm: number; slotBonus: number; holdSec: number; }
+const STRATEGY_PRESETS: Record<DispatchStrategy, StrategyPreset> = {
+  speed:   { detourKm: 0.5, slotBonus: 0, holdSec: 0 },
+  balance: { detourKm: 1.5, slotBonus: 0, holdSec: 0 },
+  spar:    { detourKm: 2.5, slotBonus: 1, holdSec: 180 },
+};
+
+async function tenantStrategy(tenantId: string): Promise<StrategyPreset> {
+  const { data } = await sb().from('tenants').select('dispatch_strategy').eq('id', tenantId).maybeSingle();
+  const s = ((data as { dispatch_strategy?: string } | null)?.dispatch_strategy as DispatchStrategy) ?? 'balance';
+  return STRATEGY_PRESETS[s] ?? STRATEGY_PRESETS.balance;
+}
+
 export interface DispatchTickResult {
   scanned_orders: number;
   bundled: number;
@@ -87,7 +103,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   const c = sb();
   const { data: orders } = await c
     .from('customer_orders')
-    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt')
+    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at')
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
@@ -125,6 +141,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     .maybeSingle();
   if (!locRaw) return 'held';
   const loc = locRaw as LocationRow;
+  const preset = await tenantStrategy(loc.tenant_id);
 
   // 2) Customer-Adresse geocoden falls nötig
   if (o.kunde_lat == null || o.kunde_lng == null) {
@@ -180,7 +197,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       .maybeSingle();
     if (!openBatch) continue;
 
-    const fits = await canBundle(openBatch.id, d, o, loc);
+    const fits = await canBundle(openBatch.id, d, o, loc, preset);
     if (!fits) continue;
 
     await addOrderToBundle(openBatch.id, o.id, loc, d.vehicle);
@@ -192,6 +209,15 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       `An offenen Bundle gehängt — kürzerer Umweg als neuer Trip.`,
     );
     return 'bundled';
+  }
+
+  // 4b) Spar-Modus: kein passender Bundle -> kurz warten (sammeln) statt sofort allein rauszuschicken
+  if (preset.holdSec > 0 && o.created_at) {
+    const ageSec = (Date.now() - new Date(o.created_at).getTime()) / 1000;
+    if (ageSec < preset.holdSec) {
+      await logDecision('hold', null, [o.id], `Spar-Modus: warte auf Buendel (${Math.round(ageSec)}/${preset.holdSec}s)`);
+      return 'held';
+    }
   }
 
   // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
@@ -230,6 +256,7 @@ async function canBundle(
   driver: DriverRow,
   newOrder: OrderRow,
   pickupLoc: LocationRow,
+  preset: StrategyPreset,
 ): Promise<boolean> {
   const c = sb();
   const { data: stops } = await c
@@ -240,7 +267,7 @@ async function canBundle(
   const pickups = (stops ?? []).filter((s: any) => s.type === 'pickup');
 
   // Slot-Check
-  if (dropoffs.length >= VEHICLE_SLOTS[driver.vehicle]) return false;
+  if (dropoffs.length >= VEHICLE_SLOTS[driver.vehicle] + preset.slotBonus) return false;
 
   // Pickup-Restaurant identisch? Sonst zwingt das eine 2. Pickup-Stop → nur erlaubt
   // wenn Pickup auch nah am bestehenden Bundle (haversine < detour)
@@ -261,7 +288,7 @@ async function canBundle(
       haversineKm(
         { lat: d.lat, lng: d.lng },
         { lat: newOrder.kunde_lat!, lng: newOrder.kunde_lng! },
-      ) < MAX_BUNDLE_DETOUR_KM
+      ) < preset.detourKm
     );
   });
 

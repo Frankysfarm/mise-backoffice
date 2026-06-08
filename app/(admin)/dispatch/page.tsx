@@ -1,6 +1,8 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { createClient } from '@/lib/supabase/server';
 import { DispatchBoard } from './client';
+import { StrategyPicker } from './strategy-picker';
+import { getAdminContext, isAdminContext } from '@/app/api/admin/_lib/tenant-from-session';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +31,13 @@ function normalizeMiseBatch(b: any) {
 
 export default async function DispatchPage() {
   const supabase = await createClient();
+
+  const ctx = await getAdminContext();
+  const tenantId = isAdminContext(ctx) ? ctx.tenant_id : null;
+  const { data: tRow } = tenantId
+    ? await supabase.from('tenants').select('dispatch_strategy').eq('id', tenantId).maybeSingle()
+    : { data: null };
+  const currentStrategy = (((tRow as { dispatch_strategy?: string } | null)?.dispatch_strategy) ?? 'balance') as 'speed' | 'balance' | 'spar';
 
   const [
     { data: readyOrders },
@@ -71,6 +80,7 @@ export default async function DispatchPage() {
         title="Dispatch"
         description="Live-Übersicht: Fahrer, offene Lieferungen und laufende Touren"
       />
+      <StrategyPicker current={currentStrategy} />
       <DispatchBoard
         initialOrders={(readyOrders as any[]) ?? []}
         initialDrivers={(drivers as any[]) ?? []}
