@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sb } from '../../_lib/driver-auth';
 import { sendVoipPush } from '@/lib/apns-voip';
+import { sendAlertPush, isApnsAlertConfigured } from '@/lib/apns-alert';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -133,6 +134,29 @@ export async function POST(req: NextRequest) {
       }
       // Egal welcher Fehler — fall back auf Expo wenn vorhanden
       // (kein continue → es geht in den Expo-Block unten)
+    }
+
+    // 1b) APNs-Alert fuer rohe Device-Tokens (Capacitor-App, 64-Hex statt Expo-Token)
+    const rawTok = drv?.expo_push_token;
+    const isExpoTok = typeof rawTok === 'string' && /^Expo(nent)?PushToken\[/.test(rawTok);
+    if (rawTok && !isExpoTok && /^[0-9a-fA-F]{64}$/.test(rawTok) && isApnsAlertConfigured()) {
+      const r = await sendAlertPush(rawTok, {
+        title: row.title,
+        body: row.body,
+        sound: row.sound ?? 'default',
+        data: (row.data ?? {}) as Record<string, unknown>,
+      });
+      if (r.ok) {
+        await c.from('mise_push_outbox').update({ sent_at: new Date().toISOString(), fail_reason: 'apns-alert-ok' }).eq('id', row.id);
+        sent++;
+        continue;
+      }
+      if (r.tokenDead) {
+        await c.from('mise_drivers').update({ expo_push_token: null, push_token_updated_at: new Date().toISOString() }).eq('id', row.driver_id);
+      }
+      await c.from('mise_push_outbox').update({ failed_at: new Date().toISOString(), fail_reason: r.error ?? 'apns-alert-fail' }).eq('id', row.id);
+      skipped++;
+      continue;
     }
 
     // 2) Expo-Push (Standard oder Fallback)

@@ -12,6 +12,7 @@ import { cn, euro } from '@/lib/utils';
 import { PickDialog } from './pick-dialog';
 import { DeliveryView } from './delivery-view';
 import { AlarmRinger } from './alarm-ringer';
+import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 
@@ -783,6 +784,7 @@ export function FahrerApp({
       <UpdateBanner />
 
       {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
+      <PushRegister />
       <AlarmRinger
         openBatchIds={openBatches.map((b) => b.batch_id)}
         assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
