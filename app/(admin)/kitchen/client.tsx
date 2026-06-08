@@ -2934,6 +2934,11 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
             </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 leading-tight">
+                {(() => {
+                  const st = classifyStation(it.name);
+                  const dot = STATION_META[st].dot;
+                  return <span className={cn('mt-0.5 h-2 w-2 shrink-0 rounded-full', dot)} title={STATION_META[st].label} />;
+                })()}
                 <span className="font-medium">{it.name}</span>
                 {it.gang != null && it.gang > 0 && (
                   <span className="shrink-0 rounded px-1 py-0.5 text-[9px] font-bold bg-blue-50 border border-blue-200 text-blue-700">
