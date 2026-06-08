@@ -69,11 +69,50 @@ export default async function FahrerAppPage() {
   // Legacy-Batch hat Vorrang; Mise-Batch als Fallback
   const activeBatch = legacyActiveBatch ?? normalizedMiseBatch;
 
+  // Offene Mise-Touren (pending_acceptance) fuer diesen Fahrer -> OpenBatch-Format
+  // (damit Klingeln + Annehmen greifen; claim laeuft ueber claim_mise_delivery_batch)
+  const { data: misePending } = miseDriver
+    ? await svc
+        .from('mise_delivery_batches')
+        .select('id, location_id, created_at, location:locations(name,lat,lng), stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min))')
+        .eq('driver_id', miseDriver.id)
+        .eq('state', 'pending_acceptance')
+    : { data: null };
+
+  const misePendingOpen = (((misePending as unknown) as any[]) ?? []).flatMap((b: any) =>
+    (b.stops ?? [])
+      .filter((s: any) => s.type === 'dropoff' && s.order)
+      .map((s: any) => ({
+        batch_id: b.id,
+        tenant_id: (driver as any).tenant_id,
+        location_id: b.location_id,
+        created_at: b.created_at,
+        order_id: s.order_id,
+        bestellnummer: s.order.bestellnummer,
+        kunde_name: s.order.kunde_name,
+        kunde_adresse: s.order.kunde_adresse,
+        kunde_plz: s.order.kunde_plz,
+        kunde_stadt: s.order.kunde_stadt,
+        kunde_lat: s.order.kunde_lat,
+        kunde_lng: s.order.kunde_lng,
+        gesamtbetrag: s.order.gesamtbetrag,
+        geschaetzte_lieferung_min: s.order.geschaetzte_lieferung_min ?? null,
+        location_name: b.location?.name ?? 'Restaurant',
+        location_lat: b.location?.lat ?? null,
+        location_lng: b.location?.lng ?? null,
+        source_system: 'mise',
+        zahlungsart: s.order.zahlungsart ?? null,
+        bezahlt: s.order.bezahlt ?? null,
+      })),
+  );
+
+  const allOpenBatches = [...(((openBatches as unknown) as any[]) ?? []), ...misePendingOpen];
+
   return (
     <FahrerApp
       driver={driver as any}
       initialStatus={(status as any) ?? null}
-      initialOpenBatches={(openBatches as any[]) ?? []}
+      initialOpenBatches={allOpenBatches}
       initialActiveBatch={(activeBatch as any) ?? null}
     />
   );
