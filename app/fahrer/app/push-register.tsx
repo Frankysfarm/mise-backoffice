@@ -4,51 +4,61 @@ import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Registriert das native APNs-Push-Token (Capacitor) beim Server.
- * - Laeuft NUR in der nativen App mit installiertem PushNotifications-Plugin.
- * - Im Browser / ohne Plugin: no-op (window.Capacitor.Plugins.PushNotifications fehlt).
- * - Token (rohes 64-Hex APNs-Token) geht an /api/driver/v1/me/push-token,
- *   push-flush erkennt es und sendet echte APNs-Alerts (laute Wiederhol-Hinweise).
+ * Fragt beim App-Start automatisch die NATIVEN iOS-Berechtigungen ab
+ * (System-Dialoge fuer Standort + Mitteilungen) und registriert das
+ * APNs-Push-Token beim Server.
+ *
+ * - Laeuft NUR in der nativen App (Capacitor). Im Browser: no-op.
+ * - Loest die echten weissen Apple-Popups aus (nicht die app-eigene Seite).
  */
 export function PushRegister() {
   useEffect(() => {
     const Cap = (window as unknown as { Capacitor?: any }).Capacitor;
-    const PN = Cap?.Plugins?.PushNotifications;
-    if (!Cap?.isNativePlatform?.() || !PN) return;
+    if (!Cap?.isNativePlatform?.()) return;
 
     let regHandle: { remove?: () => void } | null = null;
 
     (async () => {
+      // 1) Standort nativ anfragen (iOS-System-Dialog)
       try {
-        const perm = await PN.requestPermissions();
-        if (perm?.receive !== 'granted') return;
-        await PN.register();
+        const Geo = Cap.Plugins?.Geolocation;
+        if (Geo?.requestPermissions) await Geo.requestPermissions();
+      } catch {
+        /* noop */
+      }
+      // 2) Mitteilungen nativ anfragen (iOS-System-Dialog) + registrieren
+      try {
+        const PN = Cap.Plugins?.PushNotifications;
+        if (PN) {
+          const perm = await PN.requestPermissions();
+          if (perm?.receive === 'granted') await PN.register();
+        }
       } catch {
         /* noop */
       }
     })();
 
+    // Token-Listener: rohes APNs-Token -> Server
     try {
-      const maybe = PN.addListener('registration', async (t: { value: string }) => {
-        try {
-          const sb = createClient();
-          const { data } = await sb.auth.getSession();
-          const token = data?.session?.access_token;
-          if (!token || !t?.value) return;
-          await fetch('/api/driver/v1/me/push-token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ expo_push_token: t.value, push_enabled: true }),
-          });
-        } catch {
-          /* noop */
-        }
-      });
-      // addListener kann Promise<Handle> oder Handle sein
-      if (maybe && typeof maybe.then === 'function') {
-        maybe.then((h: { remove?: () => void }) => { regHandle = h; });
-      } else {
-        regHandle = maybe;
+      const PN = Cap.Plugins?.PushNotifications;
+      if (PN?.addListener) {
+        const maybe = PN.addListener('registration', async (t: { value: string }) => {
+          try {
+            const sb = createClient();
+            const { data } = await sb.auth.getSession();
+            const token = data?.session?.access_token;
+            if (!token || !t?.value) return;
+            await fetch('/api/driver/v1/me/push-token', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ expo_push_token: t.value, push_enabled: true }),
+            });
+          } catch {
+            /* noop */
+          }
+        });
+        if (maybe && typeof maybe.then === 'function') maybe.then((h: { remove?: () => void }) => { regHandle = h; });
+        else regHandle = maybe;
       }
     } catch {
       /* noop */
