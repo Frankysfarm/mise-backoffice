@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export default async function FahrerAppPage() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) redirect('/login?next=/fahrer/app');
+  if (!user) redirect('/fahrer/login');
 
   const svc = createServiceClient();
 

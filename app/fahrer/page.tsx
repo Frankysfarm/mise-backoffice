@@ -55,10 +55,10 @@ export default function FahrerPWAHome() {
 
         {/* Login-Link */}
         <Link
-          href="/login?next=/fahrer/app"
+          href="/fahrer/login"
           className="mt-8 flex items-center justify-center gap-2 rounded-2xl bg-accent text-matcha-900 py-4 font-display font-bold"
         >
-          Mit Mitarbeiter-Login starten <ArrowRight size={16} />
+          Als Fahrer einloggen <ArrowRight size={16} />
         </Link>
 
         <p className="text-xs text-matcha-300 text-center mt-4">
