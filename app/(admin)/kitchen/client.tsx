@@ -10,7 +10,7 @@ import {
   Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Pause, Phone, Play, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow } from './actions';
+import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady } from './actions';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3433,6 +3433,8 @@ function CookNowFlash({
 
 function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
   const [, setTick] = useState(0);
+  const [readyPending, startReadyTransition] = useTransition();
+  const [markedReady, setMarkedReady] = useState<Set<string>>(new Set());
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
@@ -3541,6 +3543,23 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
                     Fertig ~{new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
                   </div>
                 )}
+                <button
+                  disabled={readyPending || markedReady.has(t.id)}
+                  onClick={() => startReadyTransition(async () => {
+                    const res = await markTimingReady(t.id);
+                    if (res.ok) setMarkedReady((s) => new Set(s).add(t.id));
+                  })}
+                  className={cn(
+                    'mt-1.5 w-full rounded-lg py-1 text-[10px] font-black transition-colors',
+                    markedReady.has(t.id)
+                      ? 'bg-green-200 text-green-800 cursor-default'
+                      : overdue
+                      ? 'bg-red-600 text-white hover:bg-red-700 active:scale-[0.98]'
+                      : 'bg-matcha-600 text-white hover:bg-matcha-700 active:scale-[0.98]',
+                  )}
+                >
+                  {markedReady.has(t.id) ? '✓ Fertig!' : readyPending ? '…' : '✓ Als fertig markieren'}
+                </button>
               </div>
             </div>
           );

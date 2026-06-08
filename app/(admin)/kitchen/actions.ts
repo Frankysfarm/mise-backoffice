@@ -57,6 +57,36 @@ export async function startCookingNow(timingId: string) {
   return { ok: true };
 }
 
+export async function markTimingReady(timingId: string) {
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  // Also advance the linked customer_order to 'fertig'
+  const { data: timing } = await supabase
+    .from('kitchen_timings')
+    .select('order_id')
+    .eq('id', timingId)
+    .maybeSingle();
+  const { error } = await supabase
+    .from('kitchen_timings')
+    .update({ status: 'ready', actual_ready_at: now })
+    .eq('id', timingId);
+  if (error) return { ok: false, error: error.message };
+  if ((timing as any)?.order_id) {
+    await supabase
+      .from('customer_orders')
+      .update({ status: 'fertig', fertig_am: now })
+      .eq('id', (timing as any).order_id);
+    await supabase.from('order_messages').insert({
+      order_id: (timing as any).order_id,
+      sender: 'system',
+      nachricht: '✨ Bestellung ist fertig',
+    });
+  }
+  revalidatePath('/kitchen');
+  revalidatePath('/dispatch');
+  return { ok: true };
+}
+
 export async function updatePrepTime(orderId: string, newMinutes: number) {
   const supabase = await createClient();
   const clamped = Math.max(1, Math.min(120, newMinutes));
