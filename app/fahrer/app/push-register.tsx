@@ -69,6 +69,34 @@ export function PushRegister() {
     })();
 
     try { Cap.Plugins?.Geolocation?.requestPermissions?.(); } catch { /* noop */ }
+
+    // VoIP-Token (nativ via PushKit in Preferences) -> Server (CallKit/Uber-Anruf)
+    (async () => {
+      const Pref = Cap.Plugins?.Preferences;
+      if (!Pref) return;
+      for (let i = 0; i < 12; i++) {
+        try {
+          const { value } = await Pref.get({ key: 'mise_voip_token' });
+          if (value && String(value).length >= 10) {
+            const sb = createClient();
+            const { data } = await sb.auth.getSession();
+            const tk = data?.session?.access_token;
+            if (tk) {
+              const r = await fetch('/api/driver/v1/me/voip-token-save', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tk}` },
+                body: JSON.stringify({ voip_push_token: value }),
+              });
+              beacon('voip-posted', { ok: r.ok, status: r.status });
+            }
+            return;
+          }
+        } catch { /* noop */ }
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+      beacon('voip-no-token', {});
+    })();
   }, []);
 
   return null;
