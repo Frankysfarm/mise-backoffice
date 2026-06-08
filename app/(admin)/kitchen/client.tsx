@@ -3573,6 +3573,8 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
 
 function ScheduledCookCountdownGrid({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
   const [, setTick] = useState(0);
+  const [cookPending, startCookTransition] = useTransition();
+  const [cookStarted, setCookStarted] = useState<Set<string>>(new Set());
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
@@ -3679,6 +3681,23 @@ function ScheduledCookCountdownGrid({ timings, orders }: { timings: KitchenTimin
                       Fertig ~{new Date(t.ready_target).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
                     </div>
                   )}
+                  <button
+                    disabled={cookPending || cookStarted.has(t.id)}
+                    onClick={() => startCookTransition(async () => {
+                      const res = await startCookingNow(t.id);
+                      if (res.ok) setCookStarted((s) => new Set(s).add(t.id));
+                    })}
+                    className={cn(
+                      'mt-1.5 w-full rounded-lg py-1 text-[10px] font-black transition-colors',
+                      cookStarted.has(t.id)
+                        ? 'bg-green-200 text-green-800 cursor-default'
+                        : overdue
+                        ? 'bg-red-600 text-white hover:bg-red-700 active:scale-[0.98]'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98]',
+                    )}
+                  >
+                    {cookStarted.has(t.id) ? '✓ Kochen gestartet' : cookPending ? '…' : '🍳 Jetzt starten!'}
+                  </button>
                 </div>
               </div>
             );
