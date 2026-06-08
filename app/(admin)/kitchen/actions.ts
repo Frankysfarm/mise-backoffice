@@ -40,10 +40,9 @@ export async function cancelOrder(orderId: string) {
 export async function startCookingNow(timingId: string) {
   const supabase = await createClient();
   const now = new Date().toISOString();
-  // Fetch existing timing to keep prep_min
   const { data: timing } = await supabase
     .from('kitchen_timings')
-    .select('prep_min')
+    .select('prep_min, order_id')
     .eq('id', timingId)
     .maybeSingle();
   const prepMin = (timing as any)?.prep_min ?? 15;
@@ -53,7 +52,20 @@ export async function startCookingNow(timingId: string) {
     .update({ status: 'cooking', cook_start_at: now, ready_target: readyTarget })
     .eq('id', timingId);
   if (error) return { ok: false, error: error.message };
+  if ((timing as any)?.order_id) {
+    await supabase
+      .from('customer_orders')
+      .update({ status: 'in_zubereitung', zubereitung_start: now })
+      .eq('id', (timing as any).order_id)
+      .in('status', ['neu', 'bestätigt']); // only advance if not already further along
+    await supabase.from('order_messages').insert({
+      order_id: (timing as any).order_id,
+      sender: 'system',
+      nachricht: '🍳 Zubereitung gestartet',
+    });
+  }
   revalidatePath('/kitchen');
+  revalidatePath('/dispatch');
   return { ok: true };
 }
 
