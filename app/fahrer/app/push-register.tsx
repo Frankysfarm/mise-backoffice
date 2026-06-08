@@ -41,7 +41,7 @@ export function PushRegister() {
               const { data } = await sbc.auth.getSession();
               bearer = data?.session?.access_token;
             } catch { /* noop */ }
-            const r = await fetch('/api/driver/push-token-save', {
+            const r = await fetch('/api/driver/v1/me/push-token-save', {
               method: 'POST',
               credentials: 'include',
               headers: {
