@@ -153,7 +153,18 @@
 - [x] BroadcastPanel im Dispatch-Board (aufklappbar, Normal/Dringend, Löschen)
 - [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–47 + CEO REVIEW #39 ABGESCHLOSSEN — 2026-06-08
+## STATUS: MARKT-REIF ✅ — PHASEN 1–47 + CEO REVIEW #40 ABGESCHLOSSEN — 2026-06-08
+
+### CEO Review #40 (2026-06-08)
+- TypeScript: 0 Fehler ✅
+- Build: next build sauber ✅
+- 2 neue Commits (6 Features) geprüft — kein Bug gefunden ✅
+- [x] Station-Farbpunkte (orange/rot/sky/matcha) pro Item im OrderTicket
+- [x] createKitchenTiming Server Action (manuelles Timing für Bestellungen ohne Smart-Timing)
+- [x] ⏱ Timing-Button im Kitchen-Display (nur wenn kein Timing vorhanden)
+- [x] Tour-Fortschritts-Ring als Avatar-Overlay in DriverRow (Dispatch Board)
+- [x] LiveProximityRing in Fahrer-App (Echtzeit-Haversine-Distanz zum nächsten Stop)
+- [x] Live-KPI-Strip in Statistiken (Auslastung + ETA + Bestellungen + Fahrer, 30s-Poll)
 
 ### CEO Review #39 (2026-06-08)
 - TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅

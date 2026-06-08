@@ -1,14 +1,76 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–46 + CEO Review #39 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–47 + CEO Review #40 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**Phase 46 abgeschlossen, CEO Review #39 bestätigt (2026-06-08):** System ist vollständig marktreif.
+**CEO Review #40 bestätigt (2026-06-08):** System ist vollständig marktreif. 2 weitere Feature-Commits geprüft — keine Bugs.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
 3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
+4. Migration 039 (`scripts/migrations/039_driver_broadcasts.sql`) in Supabase Production ausführen
+
+## CEO Review #40 — 2026-06-08
+
+### Geprüfte Commits
+1. `f6c4a70` — feat(kitchen): station-color dot on each order item
+2. `44abe6d` — feat(delivery/frontend): smart-timing action, proximity ring, tour-progress overlay, live-kpi strip
+
+### Befund: 0 Bugs — alle Features korrekt
+
+#### Feature 1: Station-Farbpunkte im OrderTicket (5 Zeilen)
+**Datei**: `app/(admin)/kitchen/client.tsx` L2934–2941
+- `classifyStation()` + `STATION_META[st].dot` wird korrekt wiederverwendet
+- IIFE-Inline-Rendering (kein extra Component nötig) — sauber
+- Orange=Grill, Rot=Warm, Sky=Kalt, Matcha=Sonstiges ✅
+
+#### Feature 2: `createKitchenTiming` Server Action
+**Datei**: `app/(admin)/kitchen/actions.ts` L155–196
+- Guards gegen Duplikate: prüft bestehende `scheduled`/`cooking` Rows ✅
+- Erkennt Status: `in_zubereitung` → status=`cooking`, sonst `scheduled` ✅
+- `est` (= `order.geschaetzte_zubereitung_min ?? 15`) korrekt aus Scope übergeben ✅
+- `revalidatePath('/kitchen')` + `revalidatePath('/dispatch')` korrekt ✅
+
+#### Feature 3: ⏱ Timing-Button in OrderTicket
+**Datei**: `app/(admin)/kitchen/client.tsx` L2875–2885
+- Nur gerendert wenn `!timing` → kein doppeltes Anlegen möglich ✅
+- Disabled während Transition (pending guard) ✅
+
+#### Feature 4: Tour-Fortschritts-Ring in DriverRow (SVG-Overlay)
+**Datei**: `app/(admin)/dispatch/client.tsx` L1954–1968
+- SVG Ring zeigt `doneStops / totalStops` als Kreisbogen ✅
+- Farbwechsel: Blau (normal) → Orange (<5 Min) → Grün (ETA überschritten) ✅
+- `strokeDashoffset` Transition: 0.8s ease — smooth update ✅
+- Nur gerendert wenn `returnInfo && totalStops > 0` ✅
+
+#### Feature 5: LiveProximityRing in Fahrer-App
+**Datei**: `app/fahrer/app/delivery-view.tsx` (neu, ~90 Zeilen)
+- Haversine-Berechnung korrekt implementiert (Formel geprüft) ✅
+- 400m Maximalradius, Prozentwert: `(400 - distM) / 400 * 100` ✅
+- 5 Zustände: weit (blau), bald (amber), nah (orange), Anklingeln (orange), Angekommen (grün) ✅
+- Props korrekt übergeben: `driverLat/Lng` aus Parent + `stop.order.kunde_lat/lng` ✅
+- Guards: nur gerendert wenn alle 4 Koordinaten nicht null ✅
+
+#### Feature 6: Live-KPI-Strip in StatisticsView
+**Datei**: `components/lieferdienst/statistics-view.tsx` L260–280 + L535–568
+- Pollt `/api/delivery/eta/live?location_id=...` alle 30s ✅
+- API existiert: `app/api/delivery/eta/live/route.ts` — liefert `{eta_min, load, active_orders, drivers_online}` ✅
+- Response-Shape stimmt überein — kein Property-Mismatch ✅
+- Guard: `if (!locationId) return` verhindert Poll ohne Location ✅
+- 3-Farb-Schema Quiet/Normal/Busy mit Puls-Dot korrekt ✅
+
+### Build-Status
+- TypeScript: `npx tsc --noEmit` → Exit 0 ✅
+- Next.js: `next build` → Exit 0 (kein Fehler, 1 next.config.js Warning für `turbopack.root` — nicht blockierend) ✅
+
+### Status nach Review #40
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Alle 6 neuen Features korrekt — kein Bug gefunden ✅
+- System bleibt MARKT-REIF ✅
+
+---
 
 ## Phase 47 — Backend-Architekt-Agent — 2026-06-08
 
