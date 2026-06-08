@@ -566,6 +566,41 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Lieferpipeline — Live-Status aller aktiven Bestellungen */}
+      {(() => {
+        const pipeline = [
+          { status: 'neu',            label: 'Eingegangen', color: 'bg-amber-400',  textColor: 'text-amber-800',  bg: 'bg-amber-50  border-amber-200' },
+          { status: 'bestätigt',      label: 'Angenommen',  color: 'bg-blue-400',   textColor: 'text-blue-800',   bg: 'bg-blue-50   border-blue-200'  },
+          { status: 'in_zubereitung', label: 'In Küche',    color: 'bg-orange-400', textColor: 'text-orange-800', bg: 'bg-orange-50 border-orange-200'},
+          { status: 'fertig',         label: 'Bereit',      color: 'bg-violet-400', textColor: 'text-violet-800', bg: 'bg-violet-50 border-violet-200'},
+          { status: 'unterwegs',      label: 'Unterwegs',   color: 'bg-emerald-500',textColor: 'text-emerald-800',bg: 'bg-emerald-50 border-emerald-200'},
+        ]
+        const counts = pipeline.map((p) => ({
+          ...p,
+          count: allOrders.filter((o: any) => o.status === p.status).length,
+        }))
+        const totalActive = counts.reduce((s, p) => s + p.count, 0)
+        if (totalActive === 0) return null
+        return (
+          <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Lieferpipeline · {totalActive} aktiv</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {counts.filter(p => p.count > 0).map(p => (
+                <div key={p.status} className={`flex-1 min-w-[72px] rounded-xl border px-3 py-2 text-center ${p.bg}`}>
+                  <div className={`font-display text-2xl font-black leading-none ${p.textColor}`}>{p.count}</div>
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-stone-500 mt-1">{p.label}</div>
+                  <div className="mt-1.5 h-1 rounded-full bg-white/60 overflow-hidden">
+                    <div className={`h-full rounded-full ${p.color}`} style={{ width: `${Math.min(100, (p.count / Math.max(totalActive, 1)) * 100)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Jetzt-Status Banner */}
       {liveDrivers.length > 0 && (() => {
         const onlineDrivers = liveDrivers.filter(d => d.active)

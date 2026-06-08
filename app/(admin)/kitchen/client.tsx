@@ -2634,6 +2634,17 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
                 {order.external_source}
               </span>
             )}
+            {/* Priority score badge — only shown when above threshold */}
+            {(() => {
+              const score = computeOrderPriority(order);
+              if (score < 30) return null;
+              const bg = score >= 75 ? 'bg-red-500 text-white' : score >= 55 ? 'bg-orange-400 text-white' : 'bg-amber-300 text-amber-900';
+              return (
+                <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-black tabular-nums', bg)} title={`Prioritätsscore: ${Math.round(score)}`}>
+                  P{Math.round(score)}
+                </span>
+              );
+            })()}
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">{typLabel}</div>
         </div>

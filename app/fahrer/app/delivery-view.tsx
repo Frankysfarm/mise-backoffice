@@ -97,6 +97,7 @@ export function DeliveryView({
   const [orderItems, setOrderItems] = useState<Map<string, OItem[]>>(new Map());
   const [showItemsStopId, setShowItemsStopId] = useState<string | null>(null);
   const [restaurantLoc, setRestaurantLoc] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [showAllStops, setShowAllStops] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -931,6 +932,131 @@ export function DeliveryView({
           </div>
         );
       })()}
+
+      {/* Alle Stopps — vertikale Timeline (auf-/zuklappbar) */}
+      {stops.length > 1 && (
+        <div className="mx-4 mt-3">
+          <button
+            onClick={() => setShowAllStops((v) => !v)}
+            className="flex w-full items-center justify-between rounded-2xl bg-white/8 border border-white/10 px-4 py-2.5 active:scale-[0.99] transition"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-matcha-300">Alle Stopps</span>
+              <span className={cn(
+                'rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
+                doneCount === stops.length
+                  ? 'bg-accent/20 text-accent'
+                  : 'bg-white/10 text-matcha-300',
+              )}>
+                {doneCount}/{stops.length}
+              </span>
+            </div>
+            <span className="text-matcha-400 text-sm">{showAllStops ? '▲' : '▼'}</span>
+          </button>
+
+          {showAllStops && (
+            <div className="mt-2 rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
+              {[...stops]
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .map((s, idx, arr) => {
+                  const done = !!s.geliefert_am;
+                  const isNext = !done && arr.slice(0, idx).every((p) => !!p.geliefert_am);
+                  const isBar = !s.order.bezahlt || s.order.zahlungsart === 'bar';
+                  const deliveryTime = s.geliefert_am
+                    ? new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                    : null;
+                  const etaStr = s.order.eta_earliest
+                    ? new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                    : null;
+                  const etaOverdue = s.order.eta_earliest && !done
+                    ? new Date(s.order.eta_earliest).getTime() < Date.now()
+                    : false;
+                  const distKm = s.distanz_zum_vorgaenger_m != null && s.distanz_zum_vorgaenger_m > 0
+                    ? (s.distanz_zum_vorgaenger_m / 1000).toFixed(1)
+                    : null;
+                  return (
+                    <div key={s.id} className={cn(
+                      'flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 transition',
+                      isNext ? 'bg-accent/5' : done ? 'opacity-60' : '',
+                    )}>
+                      {/* Sequence dot */}
+                      <div className="flex flex-col items-center shrink-0 mt-0.5">
+                        <div className={cn(
+                          'h-7 w-7 rounded-full flex items-center justify-center font-black text-[11px] border-2',
+                          done
+                            ? 'bg-accent/20 border-accent text-accent'
+                            : isNext
+                            ? 'bg-matcha-900 border-accent text-accent ring-2 ring-accent/30 ring-offset-1 ring-offset-transparent'
+                            : 'bg-white/5 border-white/20 text-matcha-400',
+                        )}>
+                          {done ? '✓' : s.reihenfolge}
+                        </div>
+                        {idx < arr.length - 1 && (
+                          <div className={cn(
+                            'w-0.5 flex-1 mt-1 min-h-[16px]',
+                            done ? 'bg-accent/30' : 'bg-white/10',
+                          )} />
+                        )}
+                      </div>
+
+                      {/* Stop details */}
+                      <div className="flex-1 min-w-0 pb-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={cn(
+                            'font-display font-bold text-sm',
+                            done ? 'text-matcha-300 line-through' : isNext ? 'text-white' : 'text-matcha-200',
+                          )}>
+                            {s.order.kunde_name}
+                          </span>
+                          {isBar && !done && (
+                            <span className="rounded-full bg-amber-500/30 text-amber-300 px-1.5 py-0.5 text-[8px] font-bold">
+                              BAR {euro(s.order.gesamtbetrag)}
+                            </span>
+                          )}
+                          {done && (
+                            <span className="rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[8px] font-bold">
+                              {deliveryTime}
+                            </span>
+                          )}
+                          {isNext && (
+                            <span className="rounded-full bg-accent text-matcha-900 px-1.5 py-0.5 text-[8px] font-black">
+                              Nächster
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-matcha-400 leading-tight truncate mt-0.5">
+                          {s.order.kunde_adresse}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {distKm && (
+                            <span className="text-[9px] text-matcha-500 tabular-nums">{distKm} km</span>
+                          )}
+                          {etaStr && !done && (
+                            <span className={cn(
+                              'text-[9px] font-bold tabular-nums',
+                              etaOverdue ? 'text-red-400 animate-pulse' : 'text-matcha-400',
+                            )}>
+                              {etaOverdue ? '⚠ ' : '~'}{etaStr}
+                            </span>
+                          )}
+                          {s.order.kunde_telefon && (
+                            <a
+                              href={`tel:${s.order.kunde_telefon}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[9px] font-bold text-matcha-400 hover:text-matcha-200 transition"
+                            >
+                              📞 Anrufen
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modal: Verzögerung / Problem melden */}
       {delayOpen && (() => {

@@ -51,6 +51,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [rating, setRating] = React.useState(0);
   const [ratingHover, setRatingHover] = React.useState(0);
   const [ratingSubmitted, setRatingSubmitted] = React.useState(false);
+  const [driverPos, setDriverPos] = React.useState<{ lat: number; lng: number; heading: number | null; seconds_stale: number } | null>(null);
+  const trackingMapRef = React.useRef<HTMLDivElement>(null);
+  const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
 
   async function submitRating(stars: number) {
     if (!orderId || ratingSubmitted) return;
@@ -148,6 +151,59 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
+
+  // Poll driver GPS position every 15s when order is en-route
+  React.useEffect(() => {
+    if (!orderId || !isDelivery || liveStatus !== 'unterwegs') return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/orders/${orderId}/tracking`);
+        if (!res.ok || cancelled) return;
+        const d = await res.json();
+        if (d?.driver?.lat != null) setDriverPos(d.driver);
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 15_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [orderId, isDelivery, liveStatus]);
+
+  // Leaflet mini-map: init on first driver position, then pan on updates
+  React.useEffect(() => {
+    if (!driverPos || !trackingMapRef.current) return;
+    (async () => {
+      const L = (await import('leaflet')).default;
+      await import('leaflet/dist/leaflet.css' as any).catch(() => {});
+      if (!trackingMapInstanceRef.current) {
+        const map = L.map(trackingMapRef.current!, {
+          zoomControl: false, attributionControl: false,
+          dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+        }).setView([driverPos.lat, driverPos.lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:#4ae68a;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(0,0,0,0.4)">🛵</div>`,
+          iconAnchor: [18, 18],
+        });
+        const marker = L.marker([driverPos.lat, driverPos.lng], { icon }).addTo(map);
+        trackingMapInstanceRef.current = { map, marker };
+      } else {
+        trackingMapInstanceRef.current.marker.setLatLng([driverPos.lat, driverPos.lng]);
+        trackingMapInstanceRef.current.map.panTo([driverPos.lat, driverPos.lng], { animate: true });
+      }
+    })();
+  }, [driverPos]);
+
+  // Cleanup Leaflet map on unmount
+  React.useEffect(() => {
+    return () => {
+      if (trackingMapInstanceRef.current) {
+        try { trackingMapInstanceRef.current.map.remove(); } catch {}
+        trackingMapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   const minsLeft = Math.floor(secsLeft / 60);
   const secsPart = secsLeft % 60;
@@ -251,6 +307,23 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               </div>
             </div>
             <span className="text-xl shrink-0">🛵</span>
+          </div>
+        )}
+
+        {/* Live Driver Position Mini-Map — shown when driver has GPS signal */}
+        {isDelivery && liveStatus === 'unterwegs' && driverPos && (
+          <div className="mt-4 w-full relative overflow-hidden rounded-2xl border border-accent/20" style={{ height: 150 }}>
+            <div ref={trackingMapRef} className="w-full h-full" />
+            <div className="absolute top-2 left-2 z-[1000] flex items-center gap-1.5 rounded-full bg-matcha-900/80 border border-accent/30 px-2.5 py-1 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+              </span>
+              <span className="text-[10px] font-bold text-accent">Fahrer live</span>
+              {driverPos.seconds_stale > 30 && (
+                <span className="text-[9px] text-matcha-400">· {Math.floor(driverPos.seconds_stale / 60)}m alt</span>
+              )}
+            </div>
           </div>
         )}
 
