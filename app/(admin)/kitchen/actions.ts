@@ -33,7 +33,13 @@ export async function cancelOrder(orderId: string) {
     .update({ status: 'storniert', storniert_am: new Date().toISOString() })
     .eq('id', orderId);
   if (error) return { ok: false, error: error.message };
+  await supabase.from('order_messages').insert({
+    order_id: orderId,
+    sender: 'system',
+    nachricht: '❌ Bestellung wurde storniert',
+  });
   revalidatePath('/kitchen');
+  revalidatePath('/dispatch');
   return { ok: true };
 }
 
