@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
       const r = await sendAlertPush(rawTok, {
         title: row.title,
         body: row.body,
-        sound: row.sound ?? 'default',
+        sound: 'alarm.caf',
         data: (row.data ?? {}) as Record<string, unknown>,
       });
       if (r.ok) {
