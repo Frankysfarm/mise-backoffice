@@ -10,7 +10,7 @@ import {
   Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Pause, Phone, Play, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { advanceOrder, cancelOrder, updatePrepTime } from './actions';
+import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow } from './actions';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2984,6 +2984,8 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
 /* ------------------------------ CookingAlertBar ------------------------------ */
 
 function CookingAlertBar({ timings, orders }: { timings: KitchenTiming[]; orders: Order[] }) {
+  const [pending, startTransition] = useTransition();
+  const [started, setStarted] = useState<Set<string>>(new Set());
   const now = Date.now();
 
   const alerts = timings
@@ -3065,6 +3067,23 @@ function CookingAlertBar({ timings, orders }: { timings: KitchenTiming[]; orders
                   </div>
                 );
               })()}
+              <button
+                disabled={pending || started.has(t.id)}
+                onClick={() => startTransition(async () => {
+                  const res = await startCookingNow(t.id);
+                  if (res.ok) setStarted((s) => new Set(s).add(t.id));
+                })}
+                className={cn(
+                  'mt-2 w-full rounded-lg py-1.5 text-[11px] font-bold transition-colors',
+                  started.has(t.id)
+                    ? 'bg-green-200 text-green-800 cursor-default'
+                    : overdue
+                    ? 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800'
+                    : 'bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700',
+                )}
+              >
+                {started.has(t.id) ? '✓ Kochen gestartet' : pending ? '…' : '🍳 Jetzt kochen!'}
+              </button>
             </div>
           );
         })}

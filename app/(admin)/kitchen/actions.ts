@@ -37,6 +37,26 @@ export async function cancelOrder(orderId: string) {
   return { ok: true };
 }
 
+export async function startCookingNow(timingId: string) {
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  // Fetch existing timing to keep prep_min
+  const { data: timing } = await supabase
+    .from('kitchen_timings')
+    .select('prep_min')
+    .eq('id', timingId)
+    .maybeSingle();
+  const prepMin = (timing as any)?.prep_min ?? 15;
+  const readyTarget = new Date(Date.now() + prepMin * 60_000).toISOString();
+  const { error } = await supabase
+    .from('kitchen_timings')
+    .update({ status: 'cooking', cook_start_at: now, ready_target: readyTarget })
+    .eq('id', timingId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/kitchen');
+  return { ok: true };
+}
+
 export async function updatePrepTime(orderId: string, newMinutes: number) {
   const supabase = await createClient();
   const clamped = Math.max(1, Math.min(120, newMinutes));
