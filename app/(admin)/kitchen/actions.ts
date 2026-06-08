@@ -14,6 +14,21 @@ export async function advanceOrder(orderId: string, nextStatus: string) {
   const { error } = await supabase.from('customer_orders').update(patch).eq('id', orderId);
   if (error) return { ok: false, error: error.message };
 
+  // Sync kitchen_timings status when order is advanced
+  if (nextStatus === 'in_zubereitung') {
+    await supabase
+      .from('kitchen_timings')
+      .update({ status: 'cooking', cook_start_at: now, updated_at: now })
+      .eq('order_id', orderId)
+      .eq('status', 'scheduled');
+  } else if (nextStatus === 'fertig') {
+    await supabase
+      .from('kitchen_timings')
+      .update({ status: 'ready', updated_at: now })
+      .eq('order_id', orderId)
+      .in('status', ['scheduled', 'cooking']);
+  }
+
   // System-Nachricht in den Chat
   await supabase.from('order_messages').insert({
     order_id: orderId,
