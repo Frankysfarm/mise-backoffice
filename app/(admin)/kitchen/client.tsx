@@ -804,6 +804,9 @@ function KitchenBigDisplayGrid({
   onClose: () => void;
 }) {
   const [, setTick] = useState(0);
+  const [, startBigTransition] = useTransition();
+  const [bigMarkedReady, setBigMarkedReady] = useState<Set<string>>(new Set());
+  const [bigMarkedDone, setBigMarkedDone] = useState<Set<string>>(new Set());
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
@@ -955,6 +958,36 @@ function KitchenBigDisplayGrid({
                       <div className="text-[9px] text-matcha-500">+{order.items.length - 3} weitere</div>
                     )}
                   </div>
+                  {/* One-tap Fertig button — for kitchen staff using the TV display */}
+                  {!bigMarkedDone.has(order.id) && (
+                    <button
+                      onClick={() => {
+                        const t = timings.find((x) => x.order_id === order.id);
+                        startBigTransition(async () => {
+                          if (t) {
+                            const res = await markTimingReady(t.id);
+                            if (res.ok) { setBigMarkedReady((s) => new Set(s).add(t.id)); setBigMarkedDone((s) => new Set(s).add(order.id)); }
+                          } else {
+                            const res = await advanceOrder(order.id, 'fertig');
+                            if (res.ok) setBigMarkedDone((s) => new Set(s).add(order.id));
+                          }
+                        });
+                      }}
+                      className={cn(
+                        'mt-auto w-full rounded-xl py-2.5 text-sm font-black tracking-wide transition-all active:scale-[0.98]',
+                        overdue
+                          ? 'bg-red-600 text-white hover:bg-red-500'
+                          : 'bg-accent text-matcha-900 hover:brightness-110',
+                      )}
+                    >
+                      ✓ Fertig!
+                    </button>
+                  )}
+                  {bigMarkedDone.has(order.id) && (
+                    <div className="mt-auto w-full rounded-xl py-2.5 text-sm font-black text-center bg-matcha-700 text-accent">
+                      ✓ Markiert
+                    </div>
+                  )}
                 </div>
               );
             })}
