@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Driver } from '@/lib/lieferdienst/drivers'
-import { 
-  Car, Bike, MapPin, Phone, Clock, Package, 
+import {
+  Car, Bike, MapPin, Phone, Clock, Package,
   Navigation, ArrowLeft, User, CheckCircle, AlertCircle, Truck as TruckIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,42 @@ import { Badge } from '@/components/ui/badge'
 
 interface DriversViewProps {
   drivers: Driver[]
+}
+
+function DriverMiniMap({ lat, lng }: { lat: number; lng: number }) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    let cancelled = false;
+    (async () => {
+      const L = (await import('leaflet')).default;
+      await import('leaflet/dist/leaflet.css' as any).catch(() => {});
+      if (cancelled || !mapRef.current) return;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.setView([lat, lng], 15);
+        return;
+      }
+      const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([lat, lng], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      const icon = L.divIcon({
+        html: '<div style="width:20px;height:20px;border-radius:50%;background:#4ae68a;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
+        className: '',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+      L.marker([lat, lng], { icon }).addTo(map);
+      mapInstanceRef.current = map;
+    })();
+    return () => { cancelled = true; };
+  }, [lat, lng]);
+
+  useEffect(() => {
+    return () => { mapInstanceRef.current?.remove(); mapInstanceRef.current = null; };
+  }, []);
+
+  return <div ref={mapRef} className="w-full h-full" />;
 }
 
 const getVehicleIcon = (type: Driver['vehicleType']) => {
@@ -143,11 +179,18 @@ export function DriversView({ drivers }: DriversViewProps) {
                   GPS aktiv
                 </Badge>
               </div>
-              <div className="h-48 bg-stone-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Navigation className="w-8 h-8 text-stone-400 mx-auto mb-2" />
-                  <p className="text-stone-500 text-sm">Karten-Integration</p>
-                </div>
+              <div className="h-48 rounded-lg overflow-hidden">
+                {selectedDriver.location
+                  ? <DriverMiniMap lat={selectedDriver.location.lat} lng={selectedDriver.location.lng} />
+                  : (
+                    <div className="h-full bg-stone-200 flex items-center justify-center">
+                      <div className="text-center">
+                        <Navigation className="w-8 h-8 text-stone-400 mx-auto mb-2" />
+                        <p className="text-stone-500 text-sm">Kein GPS-Signal</p>
+                      </div>
+                    </div>
+                  )
+                }
               </div>
             </div>
 
