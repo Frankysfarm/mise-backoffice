@@ -16,13 +16,6 @@ import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 
-const VEHICLES = [
-  { id: 'fuss',    label: 'Zu Fuß',  icon: Footprints, hint: 'bis ~1 km' },
-  { id: 'fahrrad', label: 'Fahrrad', icon: Bike,       hint: 'bis ~3 km' },
-  { id: 'ebike',   label: 'E-Bike',  icon: Zap,        hint: 'bis ~6 km' },
-  { id: 'roller',  label: 'Roller',  icon: Bike,       hint: 'bis ~10 km' },
-  { id: 'auto',    label: 'Auto',    icon: Car,        hint: 'keine Grenze' },
-];
 
 type Driver = {
   id: string;
@@ -105,7 +98,6 @@ export function FahrerApp({
   const [status, setStatus] = useState(initialStatus);
   const [openBatches, setOpenBatches] = useState(initialOpenBatches);
   const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
-  const [vehicle, setVehicle] = useState<string>(driver.fahrzeug_praeferenz ?? 'ebike');
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
@@ -482,34 +474,8 @@ export function FahrerApp({
                 </div>
               </div>
             </button>
-
-            {/* Vehicle selector — alle 5 Fahrzeug-Typen */}
             {isOnline && !activeBatch && (
               <>
-                <div className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300 px-1">Mein Fahrzeug</div>
-                <div className="mt-2 grid grid-cols-5 gap-1.5">
-                  {VEHICLES.map((v) => {
-                    const Icon = v.icon;
-                    const isActive = vehicle === v.id;
-                    return (
-                      <button
-                        key={v.id}
-                        onClick={() => { setVehicle(v.id); supabase.from('driver_status').update({ fahrzeug: v.id }).eq('employee_id', driver.id); }}
-                        className={cn(
-                          'rounded-xl p-2 border-2 transition flex flex-col items-center gap-1 min-h-[76px]',
-                          isActive ? 'bg-accent text-matcha-900 border-accent' : 'bg-white/5 border-white/10 text-matcha-200',
-                        )}
-                        title={v.hint}
-                      >
-                        <Icon className="h-5 w-5" />
-                        <div className="text-[10px] font-bold leading-tight text-center">{v.label}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="mt-2 px-2 text-[11px] text-matcha-300 leading-relaxed">
-                  Dein Fahrzeug entscheidet welche Touren du bekommst. E-Bike ≈ Stadt, Auto = weit.
-                </div>
 
                 {/* GPS-Status */}
                 <div className="mt-3 flex items-center gap-2 text-[11px]">

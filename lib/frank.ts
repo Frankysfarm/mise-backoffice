@@ -70,7 +70,7 @@ function sb(): SupabaseClient {
   return _sb;
 }
 
-const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
+const DEFAULT_SLOTS = 4; // einheitlich, kein Fahrzeug-Typ mehr
 const MAX_BUNDLE_DETOUR_KM = 1.5;
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
@@ -267,7 +267,7 @@ async function canBundle(
   const pickups = (stops ?? []).filter((s: any) => s.type === 'pickup');
 
   // Slot-Check
-  if (dropoffs.length >= VEHICLE_SLOTS[driver.vehicle] + preset.slotBonus) return false;
+  if (dropoffs.length >= DEFAULT_SLOTS + preset.slotBonus) return false;
 
   // Pickup-Restaurant identisch? Sonst zwingt das eine 2. Pickup-Stop → nur erlaubt
   // wenn Pickup auch nah am bestehenden Bundle (haversine < detour)

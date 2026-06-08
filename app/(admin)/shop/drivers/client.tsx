@@ -323,7 +323,7 @@ function InviteDriverForm({
 }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [vehicle, setVehicle] = useState<'bike' | 'car'>('bike');
+  const vehicle = 'bike' as const;
   const [maxRadius, setMaxRadius] = useState(4);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -398,28 +398,6 @@ function InviteDriverForm({
           />
         </label>
 
-        <div className="mb-4">
-          <span className="text-xs uppercase tracking-wider font-semibold text-[#6B6B6B] block mb-2">
-            Fahrzeug
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            {(['bike', 'car'] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setVehicle(v)}
-                className="py-3 rounded-xl border-2 font-medium text-sm"
-                style={{
-                  borderColor: vehicle === v ? 'black' : '#ECE5D3',
-                  background: vehicle === v ? 'black' : 'white',
-                  color: vehicle === v ? 'white' : 'black',
-                }}
-              >
-                {v === 'bike' ? '🚲 2-Rad' : '🚗 Auto'}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <label className="block mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs uppercase tracking-wider font-semibold text-[#6B6B6B]">
@@ -430,7 +408,7 @@ function InviteDriverForm({
           <input
             type="range"
             min={1}
-            max={vehicle === 'car' ? 15 : 8}
+            max={15}
             value={maxRadius}
             onChange={(e) => setMaxRadius(Number(e.target.value))}
             className="w-full"
