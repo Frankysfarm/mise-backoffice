@@ -86,7 +86,7 @@ export async function markTimingReady(timingId: string) {
     .maybeSingle();
   const { error } = await supabase
     .from('kitchen_timings')
-    .update({ status: 'ready', actual_ready_at: now })
+    .update({ status: 'ready', updated_at: now })
     .eq('id', timingId);
   if (error) return { ok: false, error: error.message };
   if ((timing as any)?.order_id) {
