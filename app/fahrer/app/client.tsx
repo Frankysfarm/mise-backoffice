@@ -393,7 +393,7 @@ export function FahrerApp({
   const VAPID = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '';
 
   return (
-    <PermissionsGate vapidPublic={VAPID} driverId={driver.id}>
+    <>
     <div className="min-h-screen pb-24">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-gradient-to-br from-matcha-900 to-matcha-700 px-4 py-4 border-b border-white/10">
@@ -774,7 +774,7 @@ export function FahrerApp({
         />
       )}
     </div>
-    </PermissionsGate>
+    </>
   );
 }
 
