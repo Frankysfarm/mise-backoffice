@@ -61,6 +61,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
     eta: number;
     type: OrderType;
     orderId: string;
+    items: CartItem[];
   } | null>(null);
 
   const [activeSectionId, setActiveSectionId] = React.useState<string | null>(null);
@@ -326,6 +327,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         eta,
         type: orderType,
         orderId: order.id,
+        items: cart,
       });
       setCart([]);
       setCheckoutOpen(false);
@@ -353,6 +355,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         isDelivery={orderSuccess.type === 'lieferung'}
         onNewOrder={() => setOrderSuccess(null)}
         orderId={orderSuccess.orderId}
+        cartItems={orderSuccess.items}
       />
     );
   }

@@ -2,8 +2,14 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Check, ChefHat, Package, ShoppingBag, Truck } from 'lucide-react';
+import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Package, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+
+type CartItem = {
+  item: { name: string; preis: number };
+  qty: number;
+  extra_preis?: number;
+};
 
 type Props = {
   bestellnummer: string;
@@ -12,6 +18,7 @@ type Props = {
   isDelivery: boolean;
   onNewOrder: () => void;
   orderId?: string;
+  cartItems?: CartItem[];
 };
 
 const DELIVERY_STEPS = [
@@ -37,11 +44,12 @@ function liveStatusIndex(status: string, steps: readonly StatusStep[]): number {
   return i >= 0 ? i : 0;
 }
 
-export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId }: Props) {
+export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId, cartItems }: Props) {
   const firstName = name?.split(' ')[0];
   const supabase = React.useMemo(() => createClient(), []);
   const STATUS_STEPS: readonly StatusStep[] = isDelivery ? DELIVERY_STEPS : PICKUP_STEPS;
 
+  const [itemsOpen, setItemsOpen] = React.useState(false);
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
   const [etaWindow, setEtaWindow] = React.useState<{ earliest: string; latest: string } | null>(null);
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
@@ -380,6 +388,47 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">Bestellnr.</span>
           <span className="font-mono text-sm font-bold text-accent">{bestellnummer}</span>
         </div>
+
+        {/* Bestellübersicht — aufklappbar */}
+        {cartItems && cartItems.length > 0 && (
+          <div className="mt-4 w-full rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+            <button
+              onClick={() => setItemsOpen((v) => !v)}
+              className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">
+                Deine Bestellung · {cartItems.reduce((s, c) => s + c.qty, 0)} Artikel
+              </span>
+              {itemsOpen
+                ? <ChevronUp className="h-3.5 w-3.5 text-matcha-400" />
+                : <ChevronDown className="h-3.5 w-3.5 text-matcha-400" />
+              }
+            </button>
+            {itemsOpen && (
+              <div className="border-t border-white/10 px-4 pb-3 pt-2 space-y-1.5">
+                {cartItems.map((ci, i) => (
+                  <div key={i} className="flex items-center justify-between text-[12px]">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="h-5 w-5 rounded-full bg-accent/20 text-accent flex items-center justify-center text-[10px] font-black shrink-0">
+                        {ci.qty}
+                      </span>
+                      <span className="text-matcha-100 truncate">{ci.item.name}</span>
+                    </div>
+                    <span className="text-matcha-300 font-mono tabular-nums shrink-0 ml-2">
+                      {((ci.item.preis + (ci.extra_preis ?? 0)) * ci.qty).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    </span>
+                  </div>
+                ))}
+                <div className="border-t border-white/10 mt-2 pt-2 flex items-center justify-between text-[12px]">
+                  <span className="font-bold text-matcha-200">Gesamt</span>
+                  <span className="font-mono font-black text-accent tabular-nums">
+                    {cartItems.reduce((s, c) => s + (c.item.preis + (c.extra_preis ?? 0)) * c.qty, 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <a
           href={`/track/${bestellnummer}`}
