@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
 
 function beacon(stage: string, data: unknown) {
   try {
@@ -34,18 +33,13 @@ export function PushRegister() {
       PN.addListener?.('registration', async (t: { value?: string }) => {
         beacon('registration', { len: t?.value?.length ?? 0, head: (t?.value ?? '').slice(0, 10) });
         try {
-          const sb = createClient();
-          const { data } = await sb.auth.getSession();
-          const token = data?.session?.access_token;
-          if (token && t?.value) {
-            const r = await fetch('/api/driver/v1/me/push-token', {
+          if (t?.value) {
+            const r = await fetch('/api/fahrer/push-token', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ expo_push_token: t.value, push_enabled: true }),
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ expo_push_token: t.value }),
             });
             beacon('token-posted', { ok: r.ok, status: r.status });
-          } else {
-            beacon('token-post-skip', { hasSession: !!token, hasToken: !!t?.value });
           }
         } catch (e) { beacon('token-post-error', String((e as Error)?.message ?? e)); }
       });
