@@ -133,6 +133,9 @@
 - [x] Checkout-UI: Liefergutschrift-Code Feld (nur lieferung, neben Voucher)
 - [x] Storefront: creditDiscount in Gesamtbetrag-Berechnung + fire-and-forget Redemption
 
+- [x] Kitchen OrderTicket: Timing-synchronisierter Advance-Button (markTimingReady + advanceOrder kombiniert)
+- [x] Kitchen OrderTicket: Rote „Jetzt fertig!"-Variante mit Flame-Icon bei überfälligem Timing
+- [x] Fahrer Pick-Phase: Live ETA-Countdown „~X Min (HH:MM)" pro Stop mit Farb-Codierung
 - [x] startCookingNow Server Action + CookingAlertBar Kochstart-Button (Kitchen)
 - [x] Storefront Live-Fahrer-Karte via Leaflet (GPS-Polling 15s, nur bei unterwegs)
 - [x] Fahrer-App Alle-Stopps vertikale Timeline (auf-/zuklappbar, ETA, Distanz, Next-Stop-Indikator)
@@ -188,6 +191,19 @@
 - [x] GET /api/delivery/admin/notification-log (Admin-Übersicht gesendeter Benachrichtigungen)
 - [x] recordCustomerEvent() → enqueueForOrder() Integration (fire-and-forget nach Event-Insert)
 - [x] processAllCustomerNotifications() im Cron-Tick (HMAC-signierter Webhook-Versand, 3 Retries)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–50 + CEO REVIEW #42 ABGESCHLOSSEN — 2026-06-09
+
+### CEO Review #42 (2026-06-09)
+- TypeScript: 0 Fehler ✅
+- Build: next build sauber ✅
+- Frontend-Erweiterungen: Kitchen Timing-Sync + Fahrer ETA-Countdown ✅
+- [x] Kitchen OrderTicket: Timing-synchronisierter Advance-Button (ruft markTimingReady wenn Timing cooking & Bestellung auf fertig gesetzt wird)
+- [x] Kitchen OrderTicket: Rote „Jetzt fertig!"-Variante mit Flame-Icon wenn Timing überfällig (remainingSec ≤ 0)
+- [x] Kitchen OrderTicket: Grüne Variante wenn Timing fast fertig (remainingSec ≤ 60s)
+- [x] Fahrer Pick-Phase: ETA-Anzeige pro Stop jetzt „~X Min (15:30)" statt nur „~15:30"
+- [x] Fahrer Pick-Phase: Orange ETA-Chip wenn Lieferzeit ≤ 10 Min verbleibend
+- [x] Fahrer Pick-Phase: Rote ETA-Chip + „X m verspätet" wenn ETA schon überschritten
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–49 + CEO REVIEW #41 ABGESCHLOSSEN — 2026-06-09
 

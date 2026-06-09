@@ -3039,16 +3039,32 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
           >
             <X className="h-3.5 w-3.5" />
           </button>
-          {next && (
-            <button
-              onClick={() => startTransition(() => void advanceOrder(order.id, next))}
-              disabled={pending}
-              className="inline-flex h-9 items-center gap-1.5 rounded-md bg-matcha-700 px-4 text-sm font-bold text-white hover:bg-matcha-800 disabled:opacity-50"
-            >
-              <Check className="h-4 w-4" />
-              {nextLabel(next)}
-            </button>
-          )}
+          {next && (() => {
+            // Wenn Timing vorhanden + cooking + fertig-Schritt → kombinierten Button zeigen
+            const isFertigStep = next === 'fertig';
+            const cookingTimingOverdue = isFertigStep && timing?.status === 'cooking' && remainingSec <= 0;
+            const cookingTimingDone   = isFertigStep && timing?.status === 'cooking' && remainingSec <= 60 && remainingSec > 0;
+            const btnCls = cookingTimingOverdue
+              ? 'inline-flex h-9 items-center gap-1.5 rounded-md bg-red-600 px-4 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50 animate-pulse'
+              : cookingTimingDone
+              ? 'inline-flex h-9 items-center gap-1.5 rounded-md bg-matcha-600 px-4 text-sm font-bold text-white hover:bg-matcha-700 disabled:opacity-50'
+              : 'inline-flex h-9 items-center gap-1.5 rounded-md bg-matcha-700 px-4 text-sm font-bold text-white hover:bg-matcha-800 disabled:opacity-50';
+            return (
+              <button
+                onClick={() => startTransition(async () => {
+                  await advanceOrder(order.id, next);
+                  if (isFertigStep && timing?.status === 'cooking') {
+                    await markTimingReady(timing.id);
+                  }
+                })}
+                disabled={pending}
+                className={btnCls}
+              >
+                {cookingTimingOverdue ? <Flame className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                {cookingTimingOverdue ? 'Jetzt fertig!' : nextLabel(next)}
+              </button>
+            );
+          })()}
         </div>
       </div>
     </Card>

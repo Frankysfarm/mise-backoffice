@@ -662,21 +662,26 @@ export function FahrerApp({
                                 {distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${Math.round(distM)} m`}
                               </span>
                             )}
-                            {o.eta_earliest ? (
-                              <span className={cn(
-                                'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
-                                new Date(o.eta_earliest).getTime() < Date.now()
-                                  ? 'bg-red-500/20 text-red-300'
-                                  : 'bg-accent/15 text-accent/80',
-                              )}>
-                                ⏰ ~{new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            ) : (activeBatch as any).total_eta_min && arr.length > 0 ? (() => {
+                            {o.eta_earliest ? (() => {
+                              const etaMs = new Date(o.eta_earliest).getTime();
+                              const etaStr = new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                              const minLeft = Math.round((etaMs - Date.now()) / 60_000);
+                              const isOverdue = etaMs < Date.now();
+                              return (
+                                <span className={cn(
+                                  'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
+                                  isOverdue ? 'bg-red-500/20 text-red-300' : minLeft <= 10 ? 'bg-orange-500/20 text-orange-300' : 'bg-accent/15 text-accent/80',
+                                )}>
+                                  ⏰ {isOverdue ? `${Math.abs(minLeft)}m verspätet` : `~${minLeft} Min`} ({etaStr})
+                                </span>
+                              );
+                            })() : (activeBatch as any).total_eta_min && arr.length > 0 ? (() => {
                               const estMs = Date.now() + ((idx + 1) / arr.length) * (activeBatch as any).total_eta_min * 60_000;
                               const estTime = new Date(estMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                              const estMin = Math.round(((idx + 1) / arr.length) * (activeBatch as any).total_eta_min);
                               return (
                                 <span className="text-[9px] font-bold text-matcha-300 tabular-nums rounded-full bg-white/5 px-1.5 py-0.5">
-                                  ⏰ ~{estTime}
+                                  ⏰ ~{estMin} Min ({estTime})
                                 </span>
                               );
                             })() : null}
