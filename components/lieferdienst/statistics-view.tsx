@@ -159,6 +159,21 @@ type PayoutSummaryData = {
   }>;
 } | null;
 
+type PayoutPeriodRow = {
+  id: string;
+  driver_id: string;
+  driverName: string;
+  periodType: string;
+  periodStart: string;
+  periodEnd: string;
+  deliveriesCount: number;
+  totalKm: number;
+  totalPayout: number;
+  status: 'draft' | 'approved' | 'paid';
+  approvedAt: string | null;
+  paidAt: string | null;
+};
+
 type FranchiseSummaryData = {
   tenant_id: string;
   locations: {
@@ -243,6 +258,8 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [liveKpi, setLiveKpi] = useState<{
     eta_min: number; load: string; active_orders: number; drivers_online: number;
   } | null>(null)
+  const [payoutPeriods, setPayoutPeriods] = useState<PayoutPeriodRow[]>([])
+  const [payoutPeriodsLoading, setPayoutPeriodsLoading] = useState(false)
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -368,6 +385,31 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             milestoneBonuses: c.milestone_bonuses ?? c.milestoneBonuses ?? {},
             locationId,
           })
+        }
+      })
+      .catch(() => {})
+    const sinceMonday = (() => {
+      const d = new Date(); const day = d.getDay(); const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff); d.setHours(0, 0, 0, 0); return d.toISOString();
+    })()
+    fetch(`/api/delivery/admin/payouts?view=periods&location_id=${locationId}&since=${sinceMonday}&limit=50`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.periods?.length) {
+          setPayoutPeriods(d.periods.map((p: Record<string, unknown>) => ({
+            id: p.id as string,
+            driver_id: p.driverId as string,
+            driverName: (p.driverName as string | undefined) ?? 'Unbekannt',
+            periodType: p.periodType as string,
+            periodStart: p.periodStart as string,
+            periodEnd: p.periodEnd as string,
+            deliveriesCount: Number(p.deliveriesCount),
+            totalKm: Number(p.totalKm),
+            totalPayout: Number(p.totalPayout),
+            status: p.status as 'draft' | 'approved' | 'paid',
+            approvedAt: (p.approvedAt as string | null) ?? null,
+            paidAt: (p.paidAt as string | null) ?? null,
+          })))
         }
       })
       .catch(() => {})
@@ -1933,6 +1975,47 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           onSaved={(updated) => setPayoutConfig(updated)}
         />
       )}
+
+      {/* Perioden-Abrechnung */}
+      {(orders[0] as any)?.location_id || (completedOrders[0] as any)?.location_id ? (
+        <DriverPayoutPeriodsPanel
+          locationId={(orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id}
+          periods={payoutPeriods}
+          loading={payoutPeriodsLoading}
+          onRefresh={() => {
+            const lid = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
+            if (!lid) return
+            setPayoutPeriodsLoading(true)
+            const sinceMonday = (() => {
+              const d = new Date(); const day = d.getDay(); const diff = day === 0 ? -6 : 1 - day;
+              d.setDate(d.getDate() + diff); d.setHours(0, 0, 0, 0); return d.toISOString();
+            })()
+            fetch(`/api/delivery/admin/payouts?view=periods&location_id=${lid}&since=${sinceMonday}&limit=50`)
+              .then(r => r.ok ? r.json() : null)
+              .then(d => {
+                if (d?.periods?.length) {
+                  setPayoutPeriods(d.periods.map((p: Record<string, unknown>) => ({
+                    id: p.id as string,
+                    driver_id: p.driverId as string,
+                    driverName: (p.driverName as string | undefined) ?? 'Unbekannt',
+                    periodType: p.periodType as string,
+                    periodStart: p.periodStart as string,
+                    periodEnd: p.periodEnd as string,
+                    deliveriesCount: Number(p.deliveriesCount),
+                    totalKm: Number(p.totalKm),
+                    totalPayout: Number(p.totalPayout),
+                    status: p.status as 'draft' | 'approved' | 'paid',
+                    approvedAt: (p.approvedAt as string | null) ?? null,
+                    paidAt: (p.paidAt as string | null) ?? null,
+                  })))
+                } else { setPayoutPeriods([]) }
+              })
+              .catch(() => {})
+              .finally(() => setPayoutPeriodsLoading(false))
+          }}
+          onPeriodsChanged={(updated) => setPayoutPeriods(updated)}
+        />
+      ) : null}
 
       {/* Liefergebühr-Konfiguration */}
       {(orders[0] as any)?.location_id || (completedOrders[0] as any)?.location_id ? (
@@ -3884,6 +3967,322 @@ function QueueSignalPanel({ locationId }: { locationId: string }) {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DriverPayoutPeriodsPanel
+   Vollständige Abrechnungs-Perioden-Verwaltung:
+   - Übersicht aller Perioden (diese Woche) mit Status
+   - Freigeben / Als bezahlt markieren (einzeln + bulk)
+   - Tagesperioden generieren
+   - CSV-Export (Perioden oder Einzeldatensätze)
+────────────────────────────────────────────────────────────────────────────── */
+
+function DriverPayoutPeriodsPanel({
+  locationId,
+  periods,
+  loading,
+  onRefresh,
+  onPeriodsChanged,
+}: {
+  locationId: string;
+  periods: PayoutPeriodRow[];
+  loading: boolean;
+  onRefresh: () => void;
+  onPeriodsChanged: (updated: PayoutPeriodRow[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [actionBusy, setActionBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+
+  const fmt = (n: number) =>
+    n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+
+  const totalDraft = periods.filter(p => p.status === 'draft').length;
+  const totalApproved = periods.filter(p => p.status === 'approved').length;
+  const totalPaid = periods.filter(p => p.status === 'paid').length;
+  const totalAmount = periods.reduce((s, p) => s + p.totalPayout, 0);
+
+  const statusColor: Record<string, string> = {
+    draft: 'bg-amber-100 text-amber-800',
+    approved: 'bg-blue-100 text-blue-800',
+    paid: 'bg-matcha-100 text-matcha-800',
+  };
+  const statusLabel: Record<string, string> = {
+    draft: 'Entwurf', approved: 'Freigegeben', paid: 'Ausgezahlt',
+  };
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function selectAll(status?: string) {
+    const ids = periods.filter(p => !status || p.status === status).map(p => p.id);
+    setSelectedIds(new Set(ids));
+  }
+  function clearSelection() { setSelectedIds(new Set()); }
+
+  async function bulkAction(action: 'bulk_approve' | 'bulk_mark_paid') {
+    if (selectedIds.size === 0) { setMsg('Keine Perioden ausgewählt'); return; }
+    setActionBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/delivery/admin/payouts', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action, period_ids: [...selectedIds] }),
+      });
+      if (res.ok) {
+        const newStatus = action === 'bulk_approve' ? 'approved' : 'paid';
+        const updated = periods.map(p =>
+          selectedIds.has(p.id)
+            ? { ...p, status: newStatus as 'approved' | 'paid' }
+            : p
+        );
+        onPeriodsChanged(updated);
+        clearSelection();
+        setMsg(action === 'bulk_approve' ? `${selectedIds.size} Periode(n) freigegeben ✓` : `${selectedIds.size} Periode(n) als bezahlt markiert ✓`);
+        setTimeout(() => setMsg(null), 4000);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setMsg(`Fehler: ${(err as Record<string, unknown>).error ?? 'Unbekannt'}`);
+      }
+    } catch { setMsg('Netzwerkfehler'); }
+    finally { setActionBusy(false); }
+  }
+
+  async function generateDaily() {
+    setGenerating(true); setMsg(null);
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await fetch('/api/delivery/admin/payouts', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'generate_daily', location_id: locationId, date: today }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setMsg(`${d.driver_count ?? 0} Fahrer-Perioden generiert (${fmt(d.total_payout_eur ?? 0)}) ✓`);
+        setTimeout(() => { setMsg(null); onRefresh(); }, 2000);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setMsg(`Fehler: ${(err as Record<string, unknown>).error ?? 'Unbekannt'}`);
+      }
+    } catch { setMsg('Netzwerkfehler'); }
+    finally { setGenerating(false); }
+  }
+
+  function downloadCsv(granularity: 'periods' | 'records') {
+    const sinceMonday = (() => {
+      const d = new Date(); const day = d.getDay(); const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff); d.setHours(0, 0, 0, 0); return d.toISOString();
+    })();
+    const url = `/api/delivery/admin/payouts/export?location_id=${locationId}&since=${sinceMonday}&granularity=${granularity}`;
+    const a = document.createElement('a'); a.href = url; a.click();
+  }
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-stone-50 transition"
+      >
+        <div className="flex items-center gap-2 flex-wrap">
+          <DollarSign className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span className="font-bold text-sm uppercase tracking-wider text-char">Abrechnungs-Perioden · Diese Woche</span>
+          {totalDraft > 0 && (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+              {totalDraft} offen
+            </span>
+          )}
+          {!open && periods.length > 0 && (
+            <span className="text-xs text-stone-400">{periods.length} Perioden · {fmt(totalAmount)}</span>
+          )}
+          {msg && <span className="text-xs font-semibold text-emerald-600 ml-1">{msg}</span>}
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-stone-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-stone-400 shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 border-t border-stone-100 space-y-4 pt-4">
+          {/* Status-KPIs */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-amber-50 p-3 text-center">
+              <div className="text-xl font-black text-amber-700">{totalDraft}</div>
+              <div className="text-[11px] text-amber-600">Entwurf</div>
+            </div>
+            <div className="rounded-xl bg-blue-50 p-3 text-center">
+              <div className="text-xl font-black text-blue-700">{totalApproved}</div>
+              <div className="text-[11px] text-blue-600">Freigegeben</div>
+            </div>
+            <div className="rounded-xl bg-matcha-50 p-3 text-center">
+              <div className="text-xl font-black text-matcha-700">{totalPaid}</div>
+              <div className="text-[11px] text-matcha-600">Ausgezahlt</div>
+            </div>
+          </div>
+
+          {/* Aktions-Zeile */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={generateDaily}
+              disabled={generating || actionBusy}
+              className="rounded-md bg-stone-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-stone-800 disabled:opacity-50"
+            >
+              {generating ? 'Generiere…' : '+ Heutige Perioden'}
+            </button>
+            {selectedIds.size > 0 && (
+              <>
+                <button
+                  onClick={() => void bulkAction('bulk_approve')}
+                  disabled={actionBusy}
+                  className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {selectedIds.size}× Freigeben
+                </button>
+                <button
+                  onClick={() => void bulkAction('bulk_mark_paid')}
+                  disabled={actionBusy}
+                  className="rounded-md bg-matcha-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-matcha-800 disabled:opacity-50"
+                >
+                  {selectedIds.size}× Bezahlt
+                </button>
+                <button onClick={clearSelection} className="rounded-md border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50">
+                  Auswahl aufheben
+                </button>
+              </>
+            )}
+            <div className="ml-auto flex gap-2">
+              <button
+                onClick={() => downloadCsv('periods')}
+                className="flex items-center gap-1 rounded-md border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50"
+              >
+                <Download className="w-3 h-3" /> Perioden CSV
+              </button>
+              <button
+                onClick={() => downloadCsv('records')}
+                className="flex items-center gap-1 rounded-md border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50"
+              >
+                <Download className="w-3 h-3" /> Einzeln CSV
+              </button>
+              <button
+                onClick={onRefresh}
+                disabled={loading}
+                className="rounded-md border border-stone-200 px-2 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-50"
+                title="Aktualisieren"
+              >
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Quick-Select */}
+          {periods.some(p => p.status === 'draft') && (
+            <div className="flex gap-2 text-[11px]">
+              <button onClick={() => selectAll('draft')} className="text-amber-600 underline hover:text-amber-800">
+                Alle Entwürfe wählen
+              </button>
+              <button onClick={() => selectAll('approved')} className="text-blue-600 underline hover:text-blue-800">
+                Alle Freigegebenen wählen
+              </button>
+            </div>
+          )}
+
+          {/* Perioden-Liste */}
+          {loading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-10 animate-pulse rounded-lg bg-stone-100" />)}
+            </div>
+          ) : periods.length === 0 ? (
+            <div className="rounded-xl bg-stone-50 py-8 text-center text-sm text-stone-400">
+              Keine Perioden diese Woche — klicke „+ Heutige Perioden" um Tagesabrechnungen zu generieren.
+            </div>
+          ) : (
+            <div className="overflow-x-auto -mx-5 px-5">
+              <table className="w-full text-xs min-w-[600px]">
+                <thead>
+                  <tr className="border-b text-left text-[10px] uppercase tracking-wider text-stone-400">
+                    <th className="py-2 pr-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.size === periods.length && periods.length > 0}
+                        onChange={e => e.target.checked ? selectAll() : clearSelection()}
+                        className="rounded border-stone-300"
+                      />
+                    </th>
+                    <th className="py-2 pr-3">Fahrer</th>
+                    <th className="py-2 pr-3">Typ</th>
+                    <th className="py-2 pr-3">Von</th>
+                    <th className="py-2 pr-3">Bis</th>
+                    <th className="py-2 pr-3 text-right">Lief.</th>
+                    <th className="py-2 pr-3 text-right">km</th>
+                    <th className="py-2 pr-3 text-right">Betrag</th>
+                    <th className="py-2 pr-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {periods.map(p => {
+                    const isSelected = selectedIds.has(p.id);
+                    const typeLabel: Record<string, string> = { daily: 'Tag', weekly: 'Woche', monthly: 'Monat', custom: 'Custom' };
+                    return (
+                      <tr
+                        key={p.id}
+                        onClick={() => toggleSelect(p.id)}
+                        className={`border-b cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-stone-50'}`}
+                      >
+                        <td className="py-2.5 pr-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(p.id)}
+                            onClick={e => e.stopPropagation()}
+                            className="rounded border-stone-300"
+                          />
+                        </td>
+                        <td className="py-2.5 pr-3 font-semibold text-stone-800">{p.driverName}</td>
+                        <td className="py-2.5 pr-3 text-stone-500">{typeLabel[p.periodType] ?? p.periodType}</td>
+                        <td className="py-2.5 pr-3 text-stone-500 tabular-nums">
+                          {new Date(p.periodStart).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                        </td>
+                        <td className="py-2.5 pr-3 text-stone-500 tabular-nums">
+                          {new Date(p.periodEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                        </td>
+                        <td className="py-2.5 pr-3 text-right tabular-nums text-stone-700">{p.deliveriesCount}</td>
+                        <td className="py-2.5 pr-3 text-right tabular-nums text-stone-500">{p.totalKm.toFixed(1)}</td>
+                        <td className="py-2.5 pr-3 text-right tabular-nums font-bold text-emerald-700">{fmt(p.totalPayout)}</td>
+                        <td className="py-2.5 pr-3">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor[p.status] ?? 'bg-stone-100 text-stone-600'}`}>
+                            {statusLabel[p.status] ?? p.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                {periods.length > 0 && (
+                  <tfoot>
+                    <tr className="border-t-2 border-stone-200 font-bold text-stone-800">
+                      <td colSpan={5} className="py-2 text-xs text-stone-500">
+                        {periods.length} Perioden · {periods.reduce((s, p) => s + p.deliveriesCount, 0)} Lieferungen
+                      </td>
+                      <td className="py-2 text-right tabular-nums">{periods.reduce((s, p) => s + p.deliveriesCount, 0)}</td>
+                      <td className="py-2 text-right tabular-nums">{periods.reduce((s, p) => s + p.totalKm, 0).toFixed(1)}</td>
+                      <td className="py-2 text-right tabular-nums text-emerald-700">{fmt(totalAmount)}</td>
+                      <td />
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
           )}
         </div>
       )}

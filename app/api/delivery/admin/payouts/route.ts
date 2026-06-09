@@ -13,8 +13,11 @@
  *
  * POST-Body (Aktion wählen):
  *   { action: "generate_daily", location_id, date: "YYYY-MM-DD" }
+ *   { action: "generate_weekly", location_id }
  *   { action: "approve_period", period_id }
+ *   { action: "bulk_approve", period_ids: string[] }
  *   { action: "mark_paid",      period_id }
+ *   { action: "bulk_mark_paid", period_ids: string[] }
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -124,6 +127,48 @@ export async function POST(req: NextRequest) {
       if (!periodId) return NextResponse.json({ error: 'period_id fehlt' }, { status: 400 });
       await markPeriodPaid(periodId);
       return NextResponse.json({ ok: true, period_id: periodId, status: 'paid' });
+    }
+
+    // Wochenperioden für alle Fahrer generieren (Montag–Sonntag dieser Woche)
+    if (action === 'generate_weekly') {
+      const locationId = body.location_id as string | undefined;
+      if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+
+      const now = new Date();
+      const day = now.getDay();
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday);
+      monday.setHours(0, 0, 0, 0);
+
+      const result = await generateAllPeriodsForDate(locationId, monday, 'weekly');
+      return NextResponse.json({
+        ok: true,
+        week_start: monday.toISOString().slice(0, 10),
+        driver_count: result.driverCount,
+        period_ids: result.periodIds,
+        total_payout_eur: Math.round(result.totalPayout * 100) / 100,
+      });
+    }
+
+    // Bulk: Mehrere Perioden auf einmal freigeben
+    if (action === 'bulk_approve') {
+      const periodIds = body.period_ids as string[] | undefined;
+      if (!Array.isArray(periodIds) || periodIds.length === 0) {
+        return NextResponse.json({ error: 'period_ids muss ein nicht-leeres Array sein' }, { status: 400 });
+      }
+      await Promise.all(periodIds.map((id) => approvePeriod(id, user.id)));
+      return NextResponse.json({ ok: true, approved: periodIds.length, status: 'approved' });
+    }
+
+    // Bulk: Mehrere Perioden auf einmal als bezahlt markieren
+    if (action === 'bulk_mark_paid') {
+      const periodIds = body.period_ids as string[] | undefined;
+      if (!Array.isArray(periodIds) || periodIds.length === 0) {
+        return NextResponse.json({ error: 'period_ids muss ein nicht-leeres Array sein' }, { status: 400 });
+      }
+      await Promise.all(periodIds.map((id) => markPeriodPaid(id)));
+      return NextResponse.json({ ok: true, marked_paid: periodIds.length, status: 'paid' });
     }
 
     return NextResponse.json({ error: `Unbekannte Aktion: ${action}` }, { status: 400 });
