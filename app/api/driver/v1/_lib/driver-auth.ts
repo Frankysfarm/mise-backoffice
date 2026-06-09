@@ -96,20 +96,55 @@ export async function getDriverFromBearer(
 ): Promise<{ driver: DriverPublic; token: string } | null> {
   const auth = req.headers.get('authorization') ?? '';
   const m = /^Bearer (.+)$/i.exec(auth);
-  if (!m) return null;
-  const token = m[1].trim();
+  if (m) {
+    const token = m[1].trim();
 
-  // Heuristik: Supabase-JWTs haben 3 Punkt-Segmente und beginnen mit "ey".
-  const looksLikeJwt = token.startsWith('ey') && token.split('.').length === 3;
-  if (looksLikeJwt) {
-    const viaJwt = await driverFromSupabaseJwt(token);
-    if (viaJwt) return { driver: viaJwt, token };
-    // Falls JWT-Form aber unbekannter User: kein Fallback nötig, ist nicht authentisiert
-    return null;
+    // Heuristik: Supabase-JWTs haben 3 Punkt-Segmente und beginnen mit "ey".
+    const looksLikeJwt = token.startsWith('ey') && token.split('.').length === 3;
+    if (looksLikeJwt) {
+      const viaJwt = await driverFromSupabaseJwt(token);
+      if (viaJwt) return { driver: viaJwt, token };
+      // JWT-Form aber unbekannter User -> Bearer nicht gueltig; Cookie-Fallback unten versuchen
+    } else {
+      // Legacy: mise_driver_sessions
+      const viaLegacy = await driverFromLegacySession(token);
+      if (viaLegacy) return viaLegacy;
+    }
   }
 
-  // Legacy: mise_driver_sessions
-  return await driverFromLegacySession(token);
+  // Fallback: Cookie-Session (z.B. /fahrer-Browser/WebView, wo kein Bearer/localStorage-Token
+  // existiert — die Supabase-Session liegt nur im httpOnly-Cookie). Identisch zu /api/delivery/*.
+  return await driverFromCookieSession();
+}
+
+/**
+ * Cookie-basierter Auth-Fallback. Liest die Supabase-Session aus dem httpOnly-Cookie
+ * (createClient() aus @/lib/supabase/server, ssr-cookies) und mappt sie via
+ * mise_drivers.auth_user_id auf einen Driver. Dadurch funktionieren die /api/driver/v1/*
+ * Endpoints auch im /fahrer-Browser/WebView, wo kein Bearer-Token verfuegbar ist.
+ * Der Service-Role-Client (sb()) wird fuer den DB-Lookup genutzt, damit RLS nicht stoert.
+ */
+async function driverFromCookieSession(): Promise<{ driver: DriverPublic; token: string } | null> {
+  try {
+    const { createClient: createCookieClient } = await import('@/lib/supabase/server');
+    const ssrClient = await createCookieClient();
+    const { data: { user } } = await ssrClient.auth.getUser();
+    if (!user) return null;
+
+    // Hinweis: select('*') statt DRIVER_SELECT — letzteres referenziert die in der
+    // realen mise_drivers-Tabelle nicht existierende Spalte 'employee_id' und wuerde
+    // den Lookup mit einem Fehler null liefern lassen (-> 401). '*' liefert robust
+    // alle vorhandenen Spalten; Consumer (decline/issue) nutzen nur driver.id.
+    const { data: driver } = await sb()
+      .from('mise_drivers')
+      .select('*')
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+    if (!driver) return null;
+    return { driver: driver as DriverPublic, token: 'cookie-session' };
+  } catch {
+    return null;
+  }
 }
 
 async function driverFromSupabaseJwt(token: string): Promise<DriverPublic | null> {

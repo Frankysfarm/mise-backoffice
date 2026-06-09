@@ -187,13 +187,15 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     return 'held';
   }
 
-  // 4) Bundling: gibt's einen Driver mit pending_acceptance Bundle das passt?
+  // 4) Bundling: nur an BEREITS ANGENOMMENE Touren (assigned/at_restaurant) mergen.
+  //    F4 (Founder-Freigabe 2026-06): pending_acceptance NICHT mehr buendeln -> jede Order
+  //    klingelt einzeln (Uber-Style); Merge in aktive Tour passiert via accept/merge-RPC.
   for (const d of nearby) {
     const { data: openBatch } = await c
       .from('mise_delivery_batches')
       .select('id, state')
       .eq('driver_id', d.id)
-      .in('state', ['pending_acceptance', 'assigned', 'at_restaurant'])
+      .in('state', ['assigned', 'at_restaurant'])
       .maybeSingle();
     if (!openBatch) continue;
 
