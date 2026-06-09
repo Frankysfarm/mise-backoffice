@@ -1,15 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–47 + CEO Review #40 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–48 + CEO Review #40 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
-**CEO Review #40 bestätigt (2026-06-08):** System ist vollständig marktreif. 2 weitere Feature-Commits geprüft — keine Bugs.
+**Phase 48 abgeschlossen (2026-06-09):** Fahrer-Abrechnungs-Verwaltung + CSV-Export implementiert.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
 2. Migration 037 (`scripts/migrations/037_queue_signal.sql`) in Supabase Production ausführen
 3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
 4. Migration 039 (`scripts/migrations/039_driver_broadcasts.sql`) in Supabase Production ausführen
+5. Migration 040 (`scripts/migrations/040_payout_period_management.sql`) in Supabase Production ausführen
+
+## Phase 48 — Backend-Architekt-Agent — 2026-06-09
+
+### Was gebaut wurde
+- `scripts/migrations/040_payout_period_management.sql`: `v_payout_periods_full` (Perioden + Fahrername), `v_payout_daily_summary` (Tages-KPIs) + 2 Indizes für Bulk-Operationen
+- `app/api/delivery/admin/payouts/export/route.ts`: CSV-Download-Endpunkt (GET)
+  - `granularity=periods`: Perioden-Export (Fahrer, Typ, Von/Bis, Lieferungen, km, alle Bonuskomponenten, Status)
+  - `granularity=records`: Einzeldatensatz-Export (pro Lieferung, Peak-Flag, Rating-Snapshot)
+  - Excel-kompatibel: UTF-8 BOM, RFC-4180, Content-Disposition: attachment
+- `app/api/delivery/admin/payouts/route.ts`: 4 neue POST-Aktionen
+  - `generate_weekly`: Wochenperioden für alle Fahrer (Montag–Sonntag)
+  - `bulk_approve`: Mehrfach-Freigabe via `period_ids[]`
+  - `bulk_mark_paid`: Mehrfach-Auszahlung via `period_ids[]`
+- `components/lieferdienst/statistics-view.tsx`: `DriverPayoutPeriodsPanel`
+  - Status-KPIs (Entwurf / Freigegeben / Ausgezahlt)
+  - Tabellarische Perioden-Liste mit Checkbox-Selektion
+  - Bulk-Aktionen: Mehrere Perioden auf einmal freigeben / bezahlen
+  - Quick-Select: "Alle Entwürfe" / "Alle Freigegebenen" per Klick
+  - CSV-Export-Buttons (Perioden + Einzeldatensätze)
+  - Tages-Perioden-Generator ("+ Heutige Perioden"-Button)
+  - Gesamt-Footer mit Summen (Lieferungen, km, Betrag)
+
+### TypeScript
+- **0 Fehler** ✅
+- `next build`: ✓ Compiled successfully, 0 Warnungen ✅
+
+---
 
 ## CEO Review #40 — 2026-06-08
 

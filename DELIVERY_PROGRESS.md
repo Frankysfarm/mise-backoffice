@@ -166,6 +166,14 @@
 - [x] LiveProximityRing in Fahrer-App (Echtzeit-Haversine-Distanz zum nächsten Stop)
 - [x] Live-KPI-Strip in Statistiken (Auslastung + ETA + Bestellungen + Fahrer, 30s-Poll)
 
+- [x] v_payout_periods_full View (Migration 040)
+- [x] v_payout_daily_summary View (Migration 040)
+- [x] GET /api/delivery/admin/payouts/export (CSV-Download Perioden + Einzeldatensätze)
+- [x] generate_weekly + bulk_approve + bulk_mark_paid in POST /api/delivery/admin/payouts
+- [x] DriverPayoutPeriodsPanel im Statistiken-Dashboard (Checkbox-Selektion, Bulk-Aktionen, CSV-Export)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–48 ABGESCHLOSSEN — 2026-06-09
+
 ### CEO Review #39 (2026-06-08)
 - TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅
 - Build: next build sauber ✅
