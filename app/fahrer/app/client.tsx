@@ -306,6 +306,8 @@ export function FahrerApp({
       await supabase.from('driver_status').upsert({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
+      // Mise-Fahrer: state auf offline -> Frank ruft NICHT mehr an
+      await supabase.from('mise_drivers').update({ state: 'offline' }).eq('id', driver.id);
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
     });
   }
@@ -347,6 +349,8 @@ export function FahrerApp({
         employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
         online_seit: new Date().toISOString(),
       });
+      // Mise-Fahrer: state auf idle -> Frank darf zuteilen (nur wenn nicht auf aktiver Tour)
+      await supabase.from('mise_drivers').update({ state: 'idle' }).eq('id', driver.id).eq('state', 'offline');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
