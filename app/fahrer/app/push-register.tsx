@@ -70,6 +70,20 @@ export function PushRegister() {
 
     try { Cap.Plugins?.Geolocation?.requestPermissions?.(); } catch { /* noop */ }
 
+    // Access-Token nativ verfuegbar machen (fuer CallKit-Annehmen -> accept-tour)
+    const storeToken = async () => {
+      try {
+        const Pref = Cap.Plugins?.Preferences;
+        if (!Pref) return;
+        const sb = createClient();
+        const { data } = await sb.auth.getSession();
+        const tk = data?.session?.access_token;
+        if (tk) await Pref.set({ key: 'mise_access_token', value: tk });
+      } catch { /* noop */ }
+    };
+    storeToken();
+    const tokIv = setInterval(storeToken, 60_000);
+
     // VoIP-Token (nativ via PushKit in Preferences) -> Server (CallKit/Uber-Anruf)
     (async () => {
       const Pref = Cap.Plugins?.Preferences;
@@ -97,6 +111,7 @@ export function PushRegister() {
       }
       beacon('voip-no-token', {});
     })();
+    return () => clearInterval(tokIv);
   }, []);
 
   return null;
