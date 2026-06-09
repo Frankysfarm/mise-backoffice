@@ -50,6 +50,14 @@ export default async function FahrerAppPage() {
       : Promise.resolve({ data: null }),
   ]);
 
+  console.log('[FAHRER-DBG]', JSON.stringify({
+    uid: user.id,
+    mise: (miseDriver as any)?.id ?? null,
+    activeId: (miseActiveBatch as any)?.id ?? null,
+    activeState: (miseActiveBatch as any)?.state ?? null,
+    activeStops: ((miseActiveBatch as any)?.stops ?? []).length,
+    legacyActive: (legacyActiveBatch as any)?.id ?? null,
+  }));
   // Mise-Batch auf Legacy-Format normalisieren (client.tsx erwartet ActiveBatch-Typ)
   const normalizedMiseBatch = miseActiveBatch ? {
     id: (miseActiveBatch as any).id,
