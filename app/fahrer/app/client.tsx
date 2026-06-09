@@ -207,6 +207,17 @@ export function FahrerApp({
     };
   }, []);
 
+  /* Beim Zurueckkommen in die App (z.B. nach CallKit-Anruf) frisch laden -> neue Tour erscheint */
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && !activeBatch && !pickOpen) {
+        window.location.reload();
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [activeBatch, pickOpen]);
+
   /* GPS-Tracking: bei Online-Status watchPosition starten, Updates alle ~15s */
   useEffect(() => {
     if (!isOnline) {
