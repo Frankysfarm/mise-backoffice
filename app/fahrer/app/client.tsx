@@ -409,7 +409,7 @@ export function FahrerApp({
     <>
     <div className="min-h-screen pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-gradient-to-br from-matcha-900 to-matcha-700 px-4 py-4 border-b border-[var(--line)]">
+      <header className="sticky top-0 z-10 bg-[var(--bg)] px-4 py-4 border-b border-[var(--line)]">
         <div className="flex items-center gap-3">
           <div className={cn(
             'h-11 w-11 rounded-2xl flex items-center justify-center',

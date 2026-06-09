@@ -56,7 +56,7 @@ export default function FahrerLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-matcha-900 to-matcha-700 text-[var(--ink)]">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
       <div className="flex-1 flex flex-col justify-center px-6 py-12 max-w-md mx-auto w-full">
         <div className="flex items-center gap-3 mb-10">
           <div className="h-12 w-12 rounded-2xl bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center">
