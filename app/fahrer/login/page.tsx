@@ -84,7 +84,7 @@ export default function FahrerLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-2xl bg-[var(--surface-2)] border border-white/15 pl-10 pr-3 py-3.5 text-[var(--ink)] placeholder-matcha-300 focus:outline-none focus:border-accent"
+                className="w-full rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] pl-10 pr-3 py-3.5 text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-accent"
                 placeholder="du@beispiel.de"
               />
             </div>
@@ -99,7 +99,7 @@ export default function FahrerLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-2xl bg-[var(--surface-2)] border border-white/15 pl-10 pr-11 py-3.5 text-[var(--ink)] placeholder-matcha-300 focus:outline-none focus:border-accent"
+                className="w-full rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] pl-10 pr-11 py-3.5 text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-accent"
                 placeholder="********"
               />
               <button
@@ -114,7 +114,7 @@ export default function FahrerLoginPage() {
           </div>
 
           {err && (
-            <div className="flex items-start gap-2 rounded-2xl bg-red-500/15 border border-red-400/30 p-3 text-sm text-red-100">
+            <div className="flex items-start gap-2 rounded-2xl bg-[var(--danger)]/15 border border-[var(--danger)]/40/30 p-3 text-sm text-[var(--danger)]">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <span>{err}</span>
             </div>

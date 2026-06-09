@@ -91,14 +91,14 @@ export function PickDialog({
               key={item.id}
               className={`rounded-2xl border-2 p-4 transition ${
                 done
-                  ? missing ? 'border-red-500/40 bg-red-500/10' : 'border-accent bg-[var(--accent-tint)]'
+                  ? missing ? 'border-[var(--danger)]/40 bg-[var(--danger-tint)]' : 'border-accent bg-[var(--accent-tint)]'
                   : isCurrent ? 'border-accent bg-[var(--accent-tint)] shadow-lg shadow-accent/20' : 'border-[var(--line)] bg-[var(--surface-2)] opacity-50'
               }`}
             >
               <div className="flex items-start gap-3">
                 <div className={`h-10 w-10 rounded-xl grid place-items-center font-display font-black shrink-0 ${
                   done
-                    ? missing ? 'bg-red-500 text-[var(--ink)]' : 'bg-[var(--accent)] text-white'
+                    ? missing ? 'bg-[var(--danger)] text-[var(--ink)]' : 'bg-[var(--accent)] text-white'
                     : 'bg-[var(--surface-2)] text-[var(--ink-2)]'
                 }`}>
                   {done ? (missing ? <AlertCircle size={18} /> : <Check size={18} />) : (idx + 1)}
@@ -126,7 +126,7 @@ export function PickDialog({
                   <button
                     onClick={() => confirm(item.id, true)}
                     disabled={pending === item.id}
-                    className="h-12 px-4 rounded-xl bg-red-500/20 text-red-200 border-2 border-red-500/40 font-bold inline-flex items-center justify-center gap-2"
+                    className="h-12 px-4 rounded-xl bg-[var(--danger-tint)] text-[var(--danger)] border-2 border-[var(--danger)]/40 font-bold inline-flex items-center justify-center gap-2"
                   >
                     <X size={16} />
                     Fehlt
@@ -135,7 +135,7 @@ export function PickDialog({
               )}
 
               {done && missing && (
-                <div className="mt-2 text-xs text-red-200 font-semibold inline-flex items-center gap-1">
+                <div className="mt-2 text-xs text-[var(--danger)] font-semibold inline-flex items-center gap-1">
                   <AlertCircle size={12} /> Küche wurde informiert
                 </div>
               )}

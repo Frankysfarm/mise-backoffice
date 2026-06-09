@@ -439,8 +439,8 @@ export function FahrerApp({
             className={cn(
               'flex items-start gap-3 rounded-2xl border px-4 py-3 animate-in slide-in-from-top-2 duration-200',
               b.priority === 'urgent'
-                ? 'border-red-400 bg-red-950/30 text-red-100'
-                : 'border-blue-400/50 bg-blue-950/30 text-blue-100',
+                ? 'border-[var(--danger)]/40 bg-[var(--danger-tint)] text-[var(--danger)]'
+                : 'border-[var(--accent)]/40 bg-[var(--accent-tint)] text-[var(--accent)]',
             )}
           >
             <span className="text-lg shrink-0">{b.priority === 'urgent' ? '🚨' : '📢'}</span>
@@ -491,7 +491,7 @@ export function FahrerApp({
 
                 {/* GPS-Status */}
                 <div className="mt-3 flex items-center gap-2 text-[11px]">
-                  {gpsOk === false && <span className="text-red-300">⚠️ GPS blockiert — in Safari/Chrome Standort erlauben</span>}
+                  {gpsOk === false && <span className="text-[var(--danger)]">⚠️ GPS blockiert — in Safari/Chrome Standort erlauben</span>}
                   {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
                   {gpsOk === null && <span className="text-[var(--ink-3)]">📍 Warte auf GPS-Signal…</span>}
                 </div>
@@ -547,7 +547,7 @@ export function FahrerApp({
                   allReady
                     ? 'bg-accent/15 border-[var(--accent)]/40'
                     : cookingCount > 0
-                    ? 'bg-orange-500/10 border-orange-400/30'
+                    ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30'
                     : 'bg-[var(--surface-2)] border-[var(--line)]',
                 )}>
                   <div className="flex items-center justify-between mb-1.5">
@@ -558,7 +558,7 @@ export function FahrerApp({
                       {allReady ? '✓ Alle bereit zum Abholen' : `Küche: ${readyCount} von ${total} fertig`}
                     </span>
                     {cookingCount > 0 && (
-                      <span className="text-[10px] font-bold text-orange-300 animate-pulse">
+                      <span className="text-[10px] font-bold text-[var(--warn)] animate-pulse">
                         {cookingCount} kocht noch
                       </span>
                     )}
@@ -567,7 +567,7 @@ export function FahrerApp({
                     <div
                       className={cn(
                         'h-full rounded-full transition-all duration-500',
-                        allReady ? 'bg-accent' : pct >= 50 ? 'bg-orange-400' : 'bg-matcha-500',
+                        allReady ? 'bg-accent' : pct >= 50 ? 'bg-[var(--warn)]' : 'bg-[var(--accent)]',
                       )}
                       style={{ width: `${pct}%` }}
                     />
@@ -585,13 +585,13 @@ export function FahrerApp({
               const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
               if (totalCash <= 0) return null;
               return (
-                <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 px-4 py-3 mb-3 flex items-center gap-3">
-                  <Banknote className="h-5 w-5 text-amber-300 shrink-0" />
+                <div className="rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-4 py-3 mb-3 flex items-center gap-3">
+                  <Banknote className="h-5 w-5 text-[var(--warn)] shrink-0" />
                   <div className="flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300">Bar kassieren</div>
-                    <div className="font-display font-black text-amber-200 text-xl">{euro(totalCash)}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)]">Bar kassieren</div>
+                    <div className="font-display font-black text-[var(--warn)] text-xl">{euro(totalCash)}</div>
                   </div>
-                  <div className="text-[10px] text-amber-400">{cashStops.length} {cashStops.length === 1 ? 'Zahlung' : 'Zahlungen'}</div>
+                  <div className="text-[10px] text-[var(--warn)]">{cashStops.length} {cashStops.length === 1 ? 'Zahlung' : 'Zahlungen'}</div>
                 </div>
               );
             })()}
@@ -603,7 +603,7 @@ export function FahrerApp({
               const estEarnings = stopCount * 1.50 + distKm * 0.20;
               if (estEarnings <= 0) return null;
               return (
-                <div className="rounded-xl bg-[var(--surface-2)]/30 border border-matcha-500/30 px-4 py-3 mb-3 flex items-center justify-between">
+                <div className="rounded-xl bg-[var(--surface-2)]/30 border border-[var(--line)] px-4 py-3 mb-3 flex items-center justify-between">
                   <div>
                     <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Geschätzte Vergütung</div>
                     <div className="text-[9px] text-[var(--ink-3)] mt-0.5">
@@ -648,7 +648,7 @@ export function FahrerApp({
                       <div className={cn(
                         'relative z-10 rounded-xl border p-3 flex items-center gap-3 transition',
                         kitchenReady ? 'bg-[var(--surface-2)] border-[var(--accent)]/40' :
-                        isCash ? 'bg-amber-500/10 border-amber-400/30' : 'bg-[var(--surface-2)] border-[var(--line)]',
+                        isCash ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30' : 'bg-[var(--surface-2)] border-[var(--line)]',
                       )}>
                         <div className={cn(
                           'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
@@ -661,10 +661,10 @@ export function FahrerApp({
                               <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
                             )}
                             {kitchenCooking && (
-                              <span className="shrink-0 rounded-full bg-orange-500/20 text-orange-300 px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
+                              <span className="shrink-0 rounded-full bg-[var(--warn-tint)] text-[var(--warn)] px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
                             )}
                             {kStatus === 'bestätigt' && (
-                              <span className="shrink-0 rounded-full bg-blue-500/20 text-blue-300 px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
+                              <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-[var(--accent)] px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
                             )}
                           </div>
                           <div className="text-xs text-[var(--ink-3)] truncate">{stop.order.kunde_adresse}</div>
@@ -683,7 +683,7 @@ export function FahrerApp({
                               return (
                                 <span className={cn(
                                   'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
-                                  isOverdue ? 'bg-red-500/20 text-red-300' : minLeft <= 10 ? 'bg-orange-500/20 text-orange-300' : 'bg-accent/15 text-accent/80',
+                                  isOverdue ? 'bg-[var(--danger-tint)] text-[var(--danger)]' : minLeft <= 10 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-accent/15 text-accent/80',
                                 )}>
                                   ⏰ {isOverdue ? `${Math.abs(minLeft)}m verspätet` : `~${minLeft} Min`} ({etaStr})
                                 </span>
@@ -701,10 +701,10 @@ export function FahrerApp({
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <div className={cn('font-display font-bold', isCash ? 'text-amber-300' : 'text-accent')}>
+                          <div className={cn('font-display font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>
                             {euro(stop.order.gesamtbetrag)}
                           </div>
-                          {isCash && <div className="text-[9px] font-bold text-amber-400 uppercase">Bar</div>}
+                          {isCash && <div className="text-[9px] font-bold text-[var(--warn)] uppercase">Bar</div>}
                           {/* Individual Navigation Button */}
                           {stopNavUrl && (
                             <a
@@ -969,7 +969,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
   return (
     <section className={cn(
       'rounded-2xl border p-4',
-      hasData ? 'bg-[var(--surface-2)] border-[var(--line)]' : 'bg-white/3 border-[var(--line)] opacity-60',
+      hasData ? 'bg-[var(--surface-2)] border-[var(--line)]' : 'bg-[var(--surface)] border-[var(--line)] opacity-60',
     )}>
       <div className="flex items-center gap-2 mb-3">
         <Trophy className="h-4 w-4 text-accent" />
@@ -1021,7 +1021,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
             const delivPerHour = Math.round((stats.deliveries / Math.max(1, onlineMin)) * 60 * 10) / 10;
             const effScore = Math.min(100, Math.round(delivPerHour * 20)); // ~5/h = 100%
             const effLabel = effScore >= 80 ? 'Excellent' : effScore >= 60 ? 'Sehr gut' : effScore >= 40 ? 'Gut' : 'Aufwärmen';
-            const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : effScore >= 40 ? 'bg-amber-400' : 'bg-muted';
+            const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-[var(--accent)]' : effScore >= 40 ? 'bg-[var(--warn)]' : 'bg-muted';
             const estimatedEarnings = realEarnings?.totalEur ?? (stats.deliveries * 3 + stats.totalDistKm * 0.15);
             const isRealEarnings = realEarnings !== null && realEarnings.totalEur > 0;
             const earningsPerHour = onlineMin >= 5 ? (estimatedEarnings / Math.max(1, onlineMin)) * 60 : null;
@@ -1089,7 +1089,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                       </div>
                       <div className="h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-gold transition-all duration-700"
+                          className="h-full rounded-full bg-[var(--ink-3)] transition-all duration-700"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -1168,7 +1168,7 @@ function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
   const waitSecDisplay = waitSec % 60;
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-white/3 p-5 text-center">
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 text-center">
       {/* Pulse ring */}
       <div className="relative inline-flex items-center justify-center mb-4">
         <div className={cn(
@@ -1306,7 +1306,7 @@ function OpenBatchSection({
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--ink-3)]">
                     <span className="font-bold text-accent">{euro(totalAmount)}</span>
                     {cashAmount > 0 && (
-                      <span className="flex items-center gap-1 font-bold text-amber-300">
+                      <span className="flex items-center gap-1 font-bold text-[var(--warn)]">
                         <Banknote size={10} /> Bar: {euro(cashAmount)}
                       </span>
                     )}
@@ -1332,7 +1332,7 @@ function OpenBatchSection({
                       return (
                         <span className={cn(
                           'flex items-center gap-1 rounded-full px-2 py-0.5 font-bold',
-                          d < 0.3 ? 'bg-[var(--accent-tint)] text-accent' : d < 1 ? 'bg-amber-500/20 text-amber-300' : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
+                          d < 0.3 ? 'bg-[var(--accent-tint)] text-accent' : d < 1 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
                         )}>
                           <Navigation size={9} /> {label} zur Abholung
                         </span>
@@ -1373,7 +1373,7 @@ function OpenBatchSection({
                   return (
                     <div key={s.order_id} className={cn(
                       'flex items-start gap-2 rounded-xl px-3 py-2',
-                      isCash ? 'bg-amber-500/10 border border-amber-400/30' : 'bg-[var(--surface-2)]',
+                      isCash ? 'bg-[var(--warn-tint)] border border-[var(--warn)]/30' : 'bg-[var(--surface-2)]',
                     )}>
                       <div className="h-6 w-6 rounded-lg bg-[var(--accent-tint)] text-accent grid place-items-center text-[11px] font-black shrink-0">{i + 1}</div>
                       <div className="flex-1 min-w-0">
@@ -1383,9 +1383,9 @@ function OpenBatchSection({
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
-                        <div className={cn('text-sm font-bold', isCash ? 'text-amber-300' : 'text-accent')}>{euro(s.gesamtbetrag)}</div>
+                        <div className={cn('text-sm font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>{euro(s.gesamtbetrag)}</div>
                         {isCash && (
-                          <div className="flex items-center gap-0.5 text-[9px] font-bold text-amber-300 uppercase tracking-wide">
+                          <div className="flex items-center gap-0.5 text-[9px] font-bold text-[var(--warn)] uppercase tracking-wide">
                             <Banknote size={9} /> Bar
                           </div>
                         )}
@@ -1572,7 +1572,7 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
                           'text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full',
                           isApproved
                             ? 'bg-[var(--accent-tint)] text-accent'
-                            : 'bg-amber-500/20 text-amber-300',
+                            : 'bg-[var(--warn-tint)] text-[var(--warn)]',
                         )}>
                           {isApproved ? '✓ Genehmigt' : '⏳ Wartet'}
                         </span>
@@ -1620,7 +1620,7 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-bold truncate">{slot.dayLabel}</div>
                         <div className="text-[11px] text-[var(--ink-3)]">{slot.timeLabel}</div>
-                        <div className="text-[10px] text-amber-300 mt-0.5">
+                        <div className="text-[10px] text-[var(--warn)] mt-0.5">
                           {slot.driverNeeded} von {slot.driverTarget} Fahrern noch gesucht
                         </div>
                       </div>
@@ -1673,7 +1673,7 @@ function SchichtAbschlussModal({
     : effScore >= 60
     ? { label: 'Sehr gut! ⭐', color: 'text-blue-400' }
     : effScore >= 40
-    ? { label: 'Gut gemacht! 👏', color: 'text-amber-400' }
+    ? { label: 'Gut gemacht! 👏', color: 'text-[var(--warn)]' }
     : { label: 'Danke für deine Schicht!', color: 'text-[var(--ink-2)]' };
 
   const estEarnings = snapshot.deliveries * 3 + snapshot.distKm * 0.15;
@@ -1681,7 +1681,7 @@ function SchichtAbschlussModal({
   const mStr = `${snapshot.onlineMin % 60}m`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-white/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-[var(--surface)]0 backdrop-blur-sm">
       <div className="w-full max-w-sm bg-white border border-[var(--line)] rounded-t-3xl sm:rounded-3xl p-6 animate-in slide-in-from-bottom-4 duration-300">
         {/* Header */}
         <div className="text-center mb-5">
@@ -1734,7 +1734,7 @@ function SchichtAbschlussModal({
             </div>
             <div className="h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-blue-400' : 'bg-amber-400'}`}
+                className={`h-full rounded-full transition-all duration-700 ${effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-[var(--accent)]' : 'bg-[var(--warn)]'}`}
                 style={{ width: `${effScore}%` }}
               />
             </div>

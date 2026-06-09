@@ -470,7 +470,7 @@ export function DeliveryView({
     <div className="flex-1 flex flex-col bg-white">
       {/* Offline-Warnung */}
       {!isOnline && (
-        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-red-600 px-4 py-2 text-sm font-bold text-[var(--ink)]">
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-[var(--danger)] px-4 py-2 text-sm font-bold text-[var(--ink)]">
           <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
           Kein Internet — Änderungen werden verzögert synchronisiert
         </div>
@@ -501,15 +501,15 @@ export function DeliveryView({
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                   <span className={cn(
                     'text-[10px] font-bold tabular-nums',
-                    secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-[var(--ink-3)]',
+                    secLeft <= 0 && doneCount < stops.length ? 'text-[var(--warn)]' : 'text-[var(--ink-3)]',
                   )}>
                     {doneCount === stops.length ? '✓ Tour abgeschlossen' : `Tour fertig ~${finishStr}`}
                   </span>
                   {doneCount < stops.length && secLeft > -600 && (
                     <span className={cn(
                       'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums',
-                      secLeft <= 0 ? 'bg-amber-500/30 text-amber-200' :
-                      secLeft < 300 ? 'bg-orange-500/30 text-orange-200' :
+                      secLeft <= 0 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' :
+                      secLeft < 300 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' :
                       'bg-[var(--surface-2)] text-[var(--ink-2)]',
                     )}>
                       {secLeft <= 0 ? 'Überfällig' : `noch ${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`}
@@ -538,7 +538,7 @@ export function DeliveryView({
                 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold transition',
                 delaySent
                   ? 'bg-[var(--surface-2)] text-[var(--ink-2)]'
-                  : 'bg-amber-500/15 border border-amber-400/30 text-amber-300 active:scale-95',
+                  : 'bg-[var(--warn-tint)] border border-[var(--warn)]/30 text-[var(--warn)] active:scale-95',
               )}
               title="Verzögerung oder Problem melden"
             >
@@ -555,9 +555,9 @@ export function DeliveryView({
           if (totalCash === 0) return null;
           return (
             <div className="mt-2 flex items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 px-3 py-1.5">
-                <Banknote size={12} className="text-amber-300" />
-                <span className="text-[11px] font-bold text-amber-200">Bar kassieren: {euro(totalCash)}</span>
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-3 py-1.5">
+                <Banknote size={12} className="text-[var(--warn)]" />
+                <span className="text-[11px] font-bold text-[var(--warn)]">Bar kassieren: {euro(totalCash)}</span>
               </div>
               <div className="text-[10px] text-[var(--ink-3)]">Gesamt: {euro(totalAll)}</div>
             </div>
@@ -573,8 +573,8 @@ export function DeliveryView({
             <span className={cn(
               'ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
               !nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
-                ? 'bg-amber-400 text-[var(--ink)]'
-                : 'bg-[var(--surface-2)] text-matcha-50',
+                ? 'bg-[var(--warn)] text-[var(--ink)]'
+                : 'bg-[var(--surface-2)] text-[var(--ink)]',
             )}>
               {!nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
                 ? `BAR ${euro(nextStop.order.gesamtbetrag)}`
@@ -587,14 +587,14 @@ export function DeliveryView({
             {nextStop.order.kunde_plz && `, ${nextStop.order.kunde_plz}`}
           </div>
           {nextStop.order.kunde_notiz && (
-            <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-amber-500/15 border border-amber-400/30 px-2 py-1.5">
-              <span className="text-amber-300 text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Notiz:</span>
-              <span className="text-amber-200 text-[11px] leading-snug">{nextStop.order.kunde_notiz}</span>
+            <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-2 py-1.5">
+              <span className="text-[var(--warn)] text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Notiz:</span>
+              <span className="text-[var(--warn)] text-[11px] leading-snug">{nextStop.order.kunde_notiz}</span>
             </div>
           )}
           {nextStop.order.kunde_lieferhinweis && (
             <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-blue-500/15 border border-blue-400/30 px-2 py-1.5">
-              <span className="text-blue-300 text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Lieferhinweis:</span>
+              <span className="text-[var(--accent)] text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Lieferhinweis:</span>
               <span className="text-blue-200 text-[11px] leading-snug">{nextStop.order.kunde_lieferhinweis}</span>
             </div>
           )}
@@ -607,7 +607,7 @@ export function DeliveryView({
               <div className="mt-2">
                 <button
                   onClick={() => setShowItemsStopId(isShown ? null : nextStop.id)}
-                  className="flex items-center gap-2 w-full text-left rounded-xl bg-white/60 border border-[var(--line)] px-3 py-2 transition active:scale-[0.99]"
+                  className="flex items-center gap-2 w-full text-left rounded-xl bg-[var(--surface)] border border-[var(--line)] px-3 py-2 transition active:scale-[0.99]"
                 >
                   <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ink-3)]">
                     {items.reduce((s, i) => s + i.menge, 0)} Artikel prüfen
@@ -615,7 +615,7 @@ export function DeliveryView({
                   <span className="ml-auto text-[var(--ink-3)] text-[10px]">{isShown ? '▲' : '▼'}</span>
                 </button>
                 {isShown && (
-                  <div className="mt-1 rounded-xl bg-white/40 border border-matcha-600/30 divide-y divide-matcha-700/30 overflow-hidden">
+                  <div className="mt-1 rounded-xl bg-[var(--surface)] border border-[var(--line)] divide-y divide-matcha-700/30 overflow-hidden">
                     {items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 px-3 py-2">
                         <span className="h-6 w-6 rounded-full bg-[var(--surface-2)] text-[var(--ink-2)] flex items-center justify-center font-black text-[11px] shrink-0">
@@ -623,7 +623,7 @@ export function DeliveryView({
                         </span>
                         <span className="flex-1 text-[12px] font-semibold text-[var(--ink-2)] leading-tight">{item.name}</span>
                         {item.notiz && (
-                          <span className="text-[9px] text-amber-300 italic max-w-[80px] truncate">{item.notiz}</span>
+                          <span className="text-[9px] text-[var(--warn)] italic max-w-[80px] truncate">{item.notiz}</span>
                         )}
                         <span className="text-[10px] text-[var(--ink-3)] tabular-nums">
                           {(item.menge * item.einzelpreis).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
@@ -657,8 +657,8 @@ export function DeliveryView({
               return (
                 <span className={cn(
                   'rounded-full px-2 py-0.5 font-bold',
-                  secLeft < 0 ? 'bg-red-500/30 text-red-300' :
-                  secLeft < 180 ? 'bg-amber-500/30 text-amber-200' :
+                  secLeft < 0 ? 'bg-[var(--danger-tint)] text-[var(--danger)]' :
+                  secLeft < 180 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' :
                   'bg-[var(--surface-2)] text-[var(--ink-2)]',
                 )}>
                   ~{etaStr} Uhr
@@ -679,9 +679,9 @@ export function DeliveryView({
               <div className={cn(
                 'mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-bold',
                 overdue
-                  ? 'bg-red-500/30 text-red-200 animate-pulse'
+                  ? 'bg-[var(--danger-tint)] text-[var(--danger)] animate-pulse'
                   : secLeft < 300
-                    ? 'bg-amber-500/30 text-amber-200'
+                    ? 'bg-[var(--warn-tint)] text-[var(--warn)]'
                     : 'bg-[var(--surface-2)]/60 text-[var(--ink-2)]',
               )}>
                 <span>{overdue ? '⚠ ETA überzogen' : '🕐 ETA'}</span>
@@ -779,7 +779,7 @@ export function DeliveryView({
                       {s.reihenfolge}
                     </span>
                     {isCash && (
-                      <span className="rounded-full bg-amber-500/30 text-amber-300 px-1.5 py-0.5 text-[9px] font-bold">
+                      <span className="rounded-full bg-[var(--warn-tint)] text-[var(--warn)] px-1.5 py-0.5 text-[9px] font-bold">
                         BAR
                       </span>
                     )}
@@ -834,8 +834,8 @@ export function DeliveryView({
                         {secLeft < 1800 && (
                           <span className={cn(
                             'rounded-full px-1.5 py-0.5 text-[8px] font-bold tabular-nums',
-                            overdue ? 'bg-red-500/40 text-red-200 animate-pulse' :
-                            soon ? 'bg-amber-500/30 text-amber-200' :
+                            overdue ? 'bg-[var(--danger-tint)] text-[var(--danger)] animate-pulse' :
+                            soon ? 'bg-[var(--warn-tint)] text-[var(--warn)]' :
                             'bg-[var(--surface-2)]/50 text-[var(--ink-3)]',
                           )}>
                             {overdue ? `+${rm}:${String(rs).padStart(2, '0')}` : `${rm}:${String(rs).padStart(2, '0')}`}
@@ -899,7 +899,7 @@ export function DeliveryView({
                 leafletMapRef.current.setView([driverLat, driverLng], 15, { animate: true });
               }
             }}
-            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-white/80 border border-white/20 text-[var(--ink)] flex items-center justify-center backdrop-blur hover:bg-white/90 active:scale-95 transition"
+            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-[var(--surface)]0 border border-[var(--line)] text-[var(--ink)] flex items-center justify-center backdrop-blur hover:bg-white/90 active:scale-95 transition"
             title="Zu meiner Position"
           >
             <Navigation size={16} className="text-accent" />
@@ -938,7 +938,7 @@ export function DeliveryView({
         <div className="mx-4 mt-3">
           <button
             onClick={() => setShowAllStops((v) => !v)}
-            className="flex w-full items-center justify-between rounded-2xl bg-white/8 border border-[var(--line)] px-4 py-2.5 active:scale-[0.99] transition"
+            className="flex w-full items-center justify-between rounded-2xl bg-[var(--surface)] border border-[var(--line)] px-4 py-2.5 active:scale-[0.99] transition"
           >
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-[var(--ink-3)]">Alle Stopps</span>
@@ -987,7 +987,7 @@ export function DeliveryView({
                             ? 'bg-[var(--accent-tint)] border-accent text-accent'
                             : isNext
                             ? 'bg-white border-accent text-accent ring-2 ring-accent/30 ring-offset-1 ring-offset-transparent'
-                            : 'bg-[var(--surface-2)] border-white/20 text-[var(--ink-3)]',
+                            : 'bg-[var(--surface-2)] border-[var(--line)] text-[var(--ink-3)]',
                         )}>
                           {done ? '✓' : s.reihenfolge}
                         </div>
@@ -1009,7 +1009,7 @@ export function DeliveryView({
                             {s.order.kunde_name}
                           </span>
                           {isBar && !done && (
-                            <span className="rounded-full bg-amber-500/30 text-amber-300 px-1.5 py-0.5 text-[8px] font-bold">
+                            <span className="rounded-full bg-[var(--warn-tint)] text-[var(--warn)] px-1.5 py-0.5 text-[8px] font-bold">
                               BAR {euro(s.order.gesamtbetrag)}
                             </span>
                           )}
@@ -1034,7 +1034,7 @@ export function DeliveryView({
                           {etaStr && !done && (
                             <span className={cn(
                               'text-[9px] font-bold tabular-nums',
-                              etaOverdue ? 'text-red-400 animate-pulse' : 'text-[var(--ink-3)]',
+                              etaOverdue ? 'text-[var(--danger)] animate-pulse' : 'text-[var(--ink-3)]',
                             )}>
                               {etaOverdue ? '⚠ ' : '~'}{etaStr}
                             </span>
@@ -1083,7 +1083,7 @@ export function DeliveryView({
           <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setDelayOpen(false)}>
             <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div className="text-center">
-                <AlertCircle className="mx-auto mb-2 text-amber-400" size={28} />
+                <AlertCircle className="mx-auto mb-2 text-[var(--warn)]" size={28} />
                 <div className="font-display font-bold text-lg">Verzögerung melden</div>
                 <p className="text-sm text-[var(--ink-3)] mt-1">Kunden werden automatisch benachrichtigt.</p>
               </div>
@@ -1092,9 +1092,9 @@ export function DeliveryView({
                   <button
                     key={label}
                     onClick={() => void sendDelay(msg)}
-                    className="w-full h-11 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-sm font-bold text-left px-4 flex items-center gap-2 active:scale-[0.98] transition"
+                    className="w-full h-11 rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 text-[var(--warn)] text-sm font-bold text-left px-4 flex items-center gap-2 active:scale-[0.98] transition"
                   >
-                    <AlertCircle size={14} className="text-amber-400 shrink-0" />
+                    <AlertCircle size={14} className="text-[var(--warn)] shrink-0" />
                     {label}
                   </button>
                 ))}
@@ -1117,7 +1117,7 @@ export function DeliveryView({
           <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setFailedStopId(null)}>
             <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div className="text-center">
-                <AlertTriangle className="mx-auto mb-2 text-amber-400" size={28} />
+                <AlertTriangle className="mx-auto mb-2 text-[var(--warn)]" size={28} />
                 <div className="font-display font-bold text-lg">Nicht zugestellt</div>
                 <p className="text-sm text-[var(--ink-3)] mt-1">
                   {stop?.order.kunde_name} — #{stop?.order.bestellnummer.replace(/^[A-Z]+-/, '')}
@@ -1133,7 +1133,7 @@ export function DeliveryView({
                       className={cn(
                         'h-10 rounded-xl text-[11px] font-bold border transition active:scale-[0.97]',
                         failedReason === key
-                          ? 'bg-amber-500/30 border-amber-400 text-amber-200'
+                          ? 'bg-[var(--warn-tint)] border-[var(--warn)]/40 text-[var(--warn)]'
                           : 'bg-[var(--surface-2)] border-[var(--line)] text-[var(--ink-3)]',
                       )}
                     >
@@ -1149,7 +1149,7 @@ export function DeliveryView({
                   onChange={(e) => setFailedNotes(e.target.value.slice(0, 200))}
                   placeholder="z.B. Klingel defekt, falsche Hausnummer…"
                   rows={2}
-                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-amber-400/60"
+                  className="w-full rounded-xl bg-[var(--surface)] border border-[var(--line)] text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-[var(--warn)]/40/60"
                 />
               </div>
               <div className="flex gap-3">
@@ -1162,7 +1162,7 @@ export function DeliveryView({
                 <button
                   onClick={() => markFailedAttempt(failedStopId)}
                   disabled={pendingFailed === failedStopId}
-                  className="flex-1 h-12 rounded-xl bg-amber-500 text-[var(--ink)] font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-1 h-12 rounded-xl bg-[var(--warn)] text-[var(--ink)] font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {pendingFailed === failedStopId
                     ? <Loader2 size={16} className="animate-spin" />
@@ -1198,7 +1198,7 @@ export function DeliveryView({
                   setSkippedIds((s) => new Set([...s, confirmSkipId]));
                   setConfirmSkipId(null);
                 }}
-                className="flex-1 h-12 rounded-xl bg-amber-500 text-[var(--ink)] font-display font-bold text-sm"
+                className="flex-1 h-12 rounded-xl bg-[var(--warn)] text-[var(--ink)] font-display font-bold text-sm"
               >
                 Zurückstellen
               </button>
@@ -1317,7 +1317,7 @@ export function DeliveryView({
                   onChange={(e) => setProofNotes(e.target.value.slice(0, 200))}
                   placeholder="z.B. Paket vor Eingangstür abgestellt…"
                   rows={2}
-                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
+                  className="w-full rounded-xl bg-[var(--surface)] border border-[var(--line)] text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
                 />
               </div>
               <div className="flex gap-3">
@@ -1393,9 +1393,9 @@ export function DeliveryView({
                       return (
                         <span className={cn(
                           'rounded-full px-1.5 py-0.5 font-bold',
-                          secLeft < 0 ? 'bg-red-500/30 text-red-300' :
-                          secLeft < 300 ? 'bg-amber-500/30 text-amber-200' :
-                          isReal ? 'bg-blue-500/20 text-blue-200' :
+                          secLeft < 0 ? 'bg-[var(--danger-tint)] text-[var(--danger)]' :
+                          secLeft < 300 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' :
+                          isReal ? 'bg-[var(--accent-tint)] text-blue-200' :
                           'bg-[var(--surface-2)]',
                         )}>
                           {isReal ? '' : '~'}{etaStr}
@@ -1405,9 +1405,9 @@ export function DeliveryView({
                   </div>
                   {/* Kundennotiz — auch für ausstehende Folge-Stops sichtbar */}
                   {!done && stop.order.kunde_notiz && (
-                    <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-amber-500/15 border border-amber-400/20 px-2 py-1">
-                      <span className="shrink-0 text-[9px] font-black text-amber-300 uppercase tracking-wider mt-0.5">Notiz:</span>
-                      <span className="text-[10px] text-amber-200 leading-snug">{stop.order.kunde_notiz}</span>
+                    <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-[var(--warn-tint)] border border-[var(--warn)]/40/20 px-2 py-1">
+                      <span className="shrink-0 text-[9px] font-black text-[var(--warn)] uppercase tracking-wider mt-0.5">Notiz:</span>
+                      <span className="text-[10px] text-[var(--warn)] leading-snug">{stop.order.kunde_notiz}</span>
                     </div>
                   )}
                   {/* Kundennachrichten-Badge + Expandable */}
@@ -1421,17 +1421,17 @@ export function DeliveryView({
                         onClick={() => setExpandedMsgOrderId(isExpanded ? null : stop.order_id)}
                         className="mt-1.5 w-full text-left"
                       >
-                        <div className="flex items-start gap-1.5 rounded-md bg-blue-500/20 border border-blue-400/40 px-2 py-1.5">
-                          <MessageSquare className="shrink-0 h-3 w-3 text-blue-300 mt-0.5" />
+                        <div className="flex items-start gap-1.5 rounded-md bg-[var(--accent-tint)] border border-blue-400/40 px-2 py-1.5">
+                          <MessageSquare className="shrink-0 h-3 w-3 text-[var(--accent)] mt-0.5" />
                           <div className="flex-1 min-w-0">
-                            <div className="text-[9px] font-black text-blue-300 uppercase tracking-wider">
+                            <div className="text-[9px] font-black text-[var(--accent)] uppercase tracking-wider">
                               Kunde{msgs.length > 1 ? ` · ${msgs.length} Nachr.` : ''}
                             </div>
                             {isExpanded ? (
                               <div className="mt-1 space-y-1.5">
                                 {msgs.map((m) => (
                                   <div key={m.id}>
-                                    <div className="text-[10px] text-blue-100 leading-snug">{m.nachricht}</div>
+                                    <div className="text-[10px] text-[var(--accent)] leading-snug">{m.nachricht}</div>
                                     <div className="text-[8px] text-blue-400 tabular-nums">
                                       {new Date(m.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                     </div>
@@ -1453,16 +1453,16 @@ export function DeliveryView({
               {/* Zahlungs-Indikator */}
               <div className={cn(
                 'mt-3 rounded-xl p-3 flex items-center gap-3',
-                isBar && !done ? 'bg-amber-500/20 border-2 border-amber-400' : 'bg-[var(--surface-2)]/50',
+                isBar && !done ? 'bg-[var(--warn-tint)] border-2 border-[var(--warn)]/40' : 'bg-[var(--surface-2)]/50',
               )}>
                 {isBar && !done ? (
                   <>
-                    <div className="h-10 w-10 rounded-lg bg-amber-400 text-[var(--ink)] grid place-items-center">
+                    <div className="h-10 w-10 rounded-lg bg-[var(--warn)] text-[var(--ink)] grid place-items-center">
                       <Banknote size={20} />
                     </div>
                     <div className="flex-1">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300">BAR kassieren</div>
-                      <div className="font-display text-2xl font-black text-amber-200">{euro(amount)}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)]">BAR kassieren</div>
+                      <div className="font-display text-2xl font-black text-[var(--warn)]">{euro(amount)}</div>
                     </div>
                   </>
                 ) : (
@@ -1502,11 +1502,11 @@ export function DeliveryView({
               )}
               {/* Zurückgestellt-Badge für übersprungene Stops */}
               {!done && skippedIds.has(stop.id) && (
-                <div className="mt-2 flex items-center justify-between rounded-xl bg-amber-500/15 border border-amber-400/30 px-3 py-1.5">
-                  <span className="text-[11px] font-bold text-amber-300">Zurückgestellt — nach anderen Stops nochmal</span>
+                <div className="mt-2 flex items-center justify-between rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-3 py-1.5">
+                  <span className="text-[11px] font-bold text-[var(--warn)]">Zurückgestellt — nach anderen Stops nochmal</span>
                   <button
                     onClick={() => setSkippedIds((s) => { const n = new Set(s); n.delete(stop.id); return n; })}
-                    className="text-[10px] font-bold text-amber-200 underline"
+                    className="text-[10px] font-bold text-[var(--warn)] underline"
                   >
                     Jetzt
                   </button>
@@ -1574,7 +1574,7 @@ export function DeliveryView({
                   {openStops.length > 1 && (
                     <button
                       onClick={() => setConfirmSkipId(stop.id)}
-                      className="h-11 px-2.5 rounded-xl bg-white/8 border border-white/15 text-[var(--ink-3)] flex items-center gap-1 text-[11px] font-bold shrink-0"
+                      className="h-11 px-2.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--ink-3)] flex items-center gap-1 text-[11px] font-bold shrink-0"
                     >
                       Zurückst.
                     </button>
@@ -1583,7 +1583,7 @@ export function DeliveryView({
                   {(stop.angekommen_am || arrivedIds.has(stop.id)) && (
                     <button
                       onClick={() => { setFailedStopId(stop.id); setFailedReason('no_answer'); setFailedNotes(''); }}
-                      className="h-11 px-2.5 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-300 flex items-center gap-1 text-[11px] font-bold shrink-0"
+                      className="h-11 px-2.5 rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 text-[var(--warn)] flex items-center gap-1 text-[11px] font-bold shrink-0"
                       title="Nicht zugestellt melden"
                     >
                       <AlertTriangle size={12} /> N. zust.
@@ -1612,7 +1612,7 @@ export function DeliveryView({
                         <a
                           href={secondaryHref}
                           target="_blank" rel="noreferrer"
-                          className="h-11 px-3 rounded-xl bg-[var(--surface-2)] hover:bg-white/15 flex items-center justify-center text-xs font-bold text-[var(--ink-3)]"
+                          className="h-11 px-3 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface)] flex items-center justify-center text-xs font-bold text-[var(--ink-3)]"
                         >
                           {secondaryLabel}
                         </a>
@@ -1658,7 +1658,7 @@ export function DeliveryView({
                 const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
                 const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
                 return (
-                  <div className="rounded-xl border border-matcha-500/40 bg-white/60 p-3">
+                  <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3">
                     <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink-3)] mb-2 flex items-center gap-1.5">
                       <Navigation size={10} />
                       Zurück: {name}
@@ -1715,9 +1715,9 @@ export function DeliveryView({
                 const score = etaPct != null ? Math.round(etaPct * 0.7 + (speedScore ?? 70) * 0.3) : (speedScore ?? null);
                 if (score == null) return null;
                 const grade = score >= 90 ? { label: 'Exzellent', color: 'text-accent', ring: 'border-accent' } :
-                              score >= 75 ? { label: 'Gut', color: 'text-[var(--ink-3)]', ring: 'border-matcha-400' } :
-                              score >= 55 ? { label: 'Ok', color: 'text-amber-300', ring: 'border-amber-400' } :
-                              { label: 'Verbesserbar', color: 'text-red-300', ring: 'border-red-400' };
+                              score >= 75 ? { label: 'Gut', color: 'text-[var(--ink-3)]', ring: 'border-[var(--line)]' } :
+                              score >= 55 ? { label: 'Ok', color: 'text-[var(--warn)]', ring: 'border-[var(--warn)]/40' } :
+                              { label: 'Verbesserbar', color: 'text-[var(--danger)]', ring: 'border-[var(--danger)]/40' };
                 return (
                   <div className={`rounded-xl border-2 ${grade.ring} bg-[var(--surface-2)] p-4`}>
                     <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-2">Tour-Qualität</div>
@@ -1745,16 +1745,16 @@ export function DeliveryView({
 
               {/* Cash collection summary */}
               {totalCash > 0 && (
-                <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 mb-2">
+                <div className="rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 p-4 text-left">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)] mb-2">
                     Kassiertes Bargeld — bitte abgeben
                   </div>
-                  <div className="font-display text-3xl font-black text-amber-200">
+                  <div className="font-display text-3xl font-black text-[var(--warn)]">
                     {euro(totalCash)}
                   </div>
                   <div className="mt-2 space-y-1">
                     {cashStops.map((s) => (
-                      <div key={s.id} className="flex items-center justify-between text-xs text-amber-100">
+                      <div key={s.id} className="flex items-center justify-between text-xs text-[var(--warn)]">
                         <span>#{s.order.bestellnummer.replace(/^[A-Z]+-/, '')} · {s.order.kunde_name}</span>
                         <span className="font-bold tabular-nums">{euro(s.order.gesamtbetrag)}</span>
                       </div>
@@ -1857,8 +1857,8 @@ function LiveProximityRing({
     <div className={cn(
       'mt-2 flex items-center gap-3 rounded-xl px-3 py-2 border',
       arrived ? 'bg-[var(--accent-tint)] border-accent/50' :
-      near    ? 'bg-orange-500/15 border-orange-400/40' :
-      soon    ? 'bg-amber-500/10 border-amber-400/30' :
+      near    ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30' :
+      soon    ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30' :
                 'bg-blue-500/10 border-blue-400/20',
     )}>
       {/* SVG Proximity Ring */}
@@ -1884,12 +1884,12 @@ function LiveProximityRing({
         <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Entfernung</div>
         <div className={cn(
           'font-display font-black text-base tabular-nums leading-tight',
-          arrived ? 'text-accent' : near ? 'text-orange-300' : 'text-[var(--ink)]',
+          arrived ? 'text-accent' : near ? 'text-[var(--warn)]' : 'text-[var(--ink)]',
         )}>
           {label}
         </div>
         {near && !arrived && (
-          <div className="text-[9px] text-orange-300 font-bold animate-pulse">Fast da!</div>
+          <div className="text-[9px] text-[var(--warn)] font-bold animate-pulse">Fast da!</div>
         )}
         {arrived && (
           <div className="text-[9px] text-accent font-bold">Bitte klingeln</div>
@@ -1982,7 +1982,7 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
 
           <span className={cn(
             'font-bold tabular-nums',
-            remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-[var(--ink)]',
+            remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-[var(--warn)]' : 'text-[var(--ink)]',
           )}>
             {remaining === 0 ? 'Fast da!' : `~${m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s}s`}`}
           </span>
@@ -1994,7 +1994,7 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
         <div
           className={cn(
             'h-full rounded-full transition-all',
-            progressPct >= 100 ? 'bg-accent' : progressPct > 70 ? 'bg-orange-400' : 'bg-matcha-400',
+            progressPct >= 100 ? 'bg-accent' : progressPct > 70 ? 'bg-[var(--warn)]' : 'bg-[var(--accent)]',
           )}
           style={{ width: `${progressPct}%` }}
         />
