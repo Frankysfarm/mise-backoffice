@@ -86,9 +86,10 @@ type ActiveBatch = {
 };
 
 export function FahrerApp({
-  driver, initialStatus, initialOpenBatches, initialActiveBatch,
+  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch,
 }: {
   driver: Driver;
+  miseDriverId: string | null;
   initialStatus: Status | null;
   initialOpenBatches: OpenBatch[];
   initialActiveBatch: ActiveBatch | null;
@@ -310,7 +311,7 @@ export function FahrerApp({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
       // Mise-Fahrer: state auf offline -> Frank ruft NICHT mehr an
-      await supabase.from('mise_drivers').update({ state: 'offline' }).eq('id', driver.id);
+      await supabase.from('mise_drivers').update({ state: 'offline' }).eq('id', miseDriverId ?? '');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
     });
   }
@@ -353,7 +354,7 @@ export function FahrerApp({
         online_seit: new Date().toISOString(),
       });
       // Mise-Fahrer: state auf idle -> Frank darf zuteilen (nur wenn nicht auf aktiver Tour)
-      await supabase.from('mise_drivers').update({ state: 'idle' }).eq('id', driver.id).eq('state', 'offline');
+      await supabase.from('mise_drivers').update({ state: 'idle' }).eq('id', miseDriverId ?? '').eq('state', 'offline');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
@@ -362,19 +363,13 @@ export function FahrerApp({
     const batch = openBatches.find((b) => b.batch_id === batchId);
     const isMise = batch?.source_system === 'mise';
     startTransition(async () => {
-      const { data } = isMise
-        ? await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: driver.id })
-        : await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
-      if ((data as any)?.ok) {
-        if (isMise) {
-          await supabase.from('driver_status')
-            .update({ aktueller_batch_id: batchId })
-            .eq('employee_id', driver.id);
-        }
-        router.refresh();
+      if (isMise) {
+        await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: miseDriverId ?? driver.id });
       } else {
-        console.warn('claim failed:', (data as any)?.error);
+        await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
       }
+      // Voller Reload: page.tsx laedt den jetzt-aktiven Batch -> Tour erscheint zuverlaessig
+      window.location.reload();
     });
   }
 

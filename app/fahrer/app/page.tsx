@@ -111,6 +111,7 @@ export default async function FahrerAppPage() {
   return (
     <FahrerApp
       driver={driver as any}
+      miseDriverId={miseDriver?.id ?? null}
       initialStatus={(status as any) ?? null}
       initialOpenBatches={allOpenBatches}
       initialActiveBatch={(activeBatch as any) ?? null}
