@@ -2754,16 +2754,33 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
         )}
       </div>
 
-      {/* Smart-Timing Chip */}
-      {timingChip && (
-        <div className={cn(
-          'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
-          timingChip.color,
-          timingChip.pulse && 'animate-pulse',
-        )}>
-          <Zap className="h-2.5 w-2.5" />
-          {timingChip.label}
-        </div>
+      {/* Smart-Timing Chip — klickbar wenn Status 'scheduled', ruft startCookingNow auf */}
+      {timingChip && timing && (
+        timing.status === 'scheduled' ? (
+          <button
+            onClick={() => startTransition(async () => { await startCookingNow(timing.id); })}
+            disabled={pending}
+            title="Kochstart bestätigen"
+            className={cn(
+              'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold cursor-pointer',
+              'hover:opacity-80 active:scale-95 transition-all disabled:opacity-50',
+              timingChip.color,
+              timingChip.pulse && 'animate-pulse',
+            )}
+          >
+            <Zap className="h-2.5 w-2.5" />
+            {timingChip.label}
+          </button>
+        ) : (
+          <div className={cn(
+            'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+            timingChip.color,
+            timingChip.pulse && 'animate-pulse',
+          )}>
+            <Zap className="h-2.5 w-2.5" />
+            {timingChip.label}
+          </div>
+        )
       )}
 
       {/* Fahrer-ETA-Chip: fertige Lieferbestellung ist bereits einem aktiven Batch zugewiesen */}
