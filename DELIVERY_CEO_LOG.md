@@ -1,9 +1,13 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–48 + CEO Review #40 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–48 + CEO Review #41 abgeschlossen. Deployment-bereit.
 
 ## Anweisungen an Agenten-Team
+**CEO Review #41 abgeschlossen (2026-06-09):** 4 TypeScript-Bugs gefunden + gefixt. Phase 48 + Frontend-Extensions vollständig.
+Offene Deployment-Items:
+1. Migration 036–040 in Supabase Production ausführen (siehe unten)
+
 **Phase 48 abgeschlossen (2026-06-09):** Fahrer-Abrechnungs-Verwaltung + CSV-Export implementiert.
 Offene Deployment-Items:
 1. Migration 036 (`scripts/migrations/036_delivery_fee_threshold.sql`) in Supabase Production ausführen
@@ -11,6 +15,58 @@ Offene Deployment-Items:
 3. Migration 038 (`scripts/migrations/038_delivery_credits.sql`) in Supabase Production ausführen
 4. Migration 039 (`scripts/migrations/039_driver_broadcasts.sql`) in Supabase Production ausführen
 5. Migration 040 (`scripts/migrations/040_payout_period_management.sql`) in Supabase Production ausführen
+
+## CEO Review #41 — 2026-06-09
+
+### Geprüfte Commits
+1. `8b665ce` — feat(delivery/frontend): extend kitchen/dispatch/fahrer/lieferdienst UI
+
+### Befund: 4 TypeScript-Fehler → 0 nach Fix
+
+#### Bug 1: `vehicle` undefiniert — `app/fahrer/app/client.tsx` (×4)
+**Ursache**: Commit `a993f74` (Fahrzeug-Typ-Auswahl entfernt) hat den `vehicle`-State gelöscht, aber
+4 Stellen in `goOffline()` und `toggleOnline()` nutzen noch die Variable.
+**Fix**: `vehicle` → `driver.fahrzeug_praeferenz` (driver.fahrzeug_praeferenz ist der Persistent-Wert aus DB).
+
+#### Bug 2: Supabase Join-Cast-Fehler — `app/api/delivery/admin/payouts/export/route.ts` (×2)
+**Ursache**: Supabase gibt Relationen `mise_drivers(name)` als `{ name: any }[]` (Array), nicht als
+einzelnes Objekt zurück. Cast `as { name: string } | null` schlägt fehl → TS2352.
+**Fix**: `Array.isArray() ? [0] : obj` Pattern — identisch zu anderen fixed Stellen im Projekt.
+
+### TypeScript nach Fix
+- **0 Fehler** ✅
+- `next build`: ✓ Compiled successfully ✅
+
+### Feature-Inspektion (Frontend-Commit `8b665ce`)
+
+#### Kitchen: Stationsverteilung-Chips
+- `classifyStation()` + `PrepStation` korrekt importiert (line 3264) ✅
+- `stationCounts` aggregiert `it.menge` korrekt pro Station ✅
+- dotColors für alle 4 Stationen definiert ✅
+- Nur für `in_zubereitung` + `bestätigt` Columns angezeigt ✅
+
+#### Fahrer: Küchen-Bereitschafts-Fortschritt
+- `kitchenStatuses` State (line 146) korrekt als Map vorhanden ✅
+- `ks === 'fertig' || ks === 'unterwegs'` als "ready" — korrekt (unterwegs = bereits abgeholt) ✅
+- Fortschrittsbalke prozentual (`pct`), Farbkodierung grün/orange/matcha ✅
+- IIFE-Pattern konsistent mit restlichem Client ✅
+
+#### Lieferdienst: Stunden-Sparkline
+- `completedOrders` State vorhanden (line 50) ✅
+- `(o as any).createdAt ?? (o as any).bestellt_am` — korrekte Fallback-Chain für Mock + Live-Daten ✅
+- CSS-only Sparkline (keine neuen Deps) ✅
+- Guard `allToday.length < 3` verhindert leere Charts ✅
+
+#### Tailwind: fehlende Farb-Tokens
+- `saffron`, `char`, `steel` in `tailwind.config.ts` ergänzt ✅
+- Fixes vorherige CSS-Fehler in lieferdienst-Komponenten ✅
+
+### Status nach Review #41
+- TypeScript: 0 Fehler ✅
+- Build: sauber ✅
+- Alle neuen Features korrekt integriert ✅
+
+---
 
 ## Phase 48 — Backend-Architekt-Agent — 2026-06-09
 

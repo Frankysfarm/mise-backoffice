@@ -172,7 +172,14 @@
 - [x] generate_weekly + bulk_approve + bulk_mark_paid in POST /api/delivery/admin/payouts
 - [x] DriverPayoutPeriodsPanel im Statistiken-Dashboard (Checkbox-Selektion, Bulk-Aktionen, CSV-Export)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–48 ABGESCHLOSSEN — 2026-06-09
+- [x] Kitchen: Stationsverteilung-Chips (Grill/Warm/Kalt/Sonstiges) in in_zubereitung + bestätigt Columns
+- [x] Fahrer-App: Küchen-Bereitschafts-Fortschrittsbalken (X von Y Stops fertig) in Pickup-Phase
+- [x] Lieferdienst: Stunden-Sparkline (Bestellvolumen je Stunde, letzte 8h) im KPI-Strip
+- [x] Tailwind: saffron/char/steel Farb-Tokens (fehlende Lieferdienst-Theme-Farben)
+- [x] Bugfix: `vehicle` undefined → `driver.fahrzeug_praeferenz` (Fahrer-App goOffline/toggleOnline)
+- [x] Bugfix: Supabase Join-Cast Array → `as { name: string } | null` (Payouts CSV-Export)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–48 + CEO REVIEW #41 ABGESCHLOSSEN — 2026-06-09
 
 ### CEO Review #39 (2026-06-08)
 - TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅

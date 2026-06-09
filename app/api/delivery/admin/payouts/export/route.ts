@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
     const lines: string[] = [header.map(esc).join(',')];
 
     for (const r of rows) {
-      const driver = r.mise_drivers as { name: string } | null;
+      const driver = (Array.isArray(r.mise_drivers) ? r.mise_drivers[0] : r.mise_drivers) as { name: string } | null;
       lines.push([
         dateFmt(r.completed_at as string),
         driver?.name ?? r.driver_id,
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
   const lines: string[] = [header.map(esc).join(',')];
 
   for (const p of rows) {
-    const driver = p.mise_drivers as { name: string } | null;
+    const driver = (Array.isArray(p.mise_drivers) ? p.mise_drivers[0] : p.mise_drivers) as { name: string } | null;
     const periodTypeLabel: Record<string, string> = {
       daily: 'Täglich', weekly: 'Wöchentlich',
       monthly: 'Monatlich', custom: 'Benutzerdefiniert',
