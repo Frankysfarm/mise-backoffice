@@ -98,6 +98,9 @@ export function FahrerApp({
   const [status, setStatus] = useState(initialStatus);
   const [openBatches, setOpenBatches] = useState(initialOpenBatches);
   const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
+  // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
+  useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
+  useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
@@ -211,7 +214,7 @@ export function FahrerApp({
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === 'visible' && !activeBatch && !pickOpen) {
-        window.location.reload();
+        router.refresh();
       }
     };
     document.addEventListener('visibilitychange', onVis);
@@ -368,7 +371,7 @@ export function FahrerApp({
             .update({ aktueller_batch_id: batchId })
             .eq('employee_id', driver.id);
         }
-        window.location.reload();
+        router.refresh();
       } else {
         console.warn('claim failed:', (data as any)?.error);
       }
@@ -1400,7 +1403,7 @@ function OpenBatchSection({
               <button
                 onClick={() => onClaim(batchId)}
                 disabled={pending}
-                className="w-full h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+                className="w-full h-14 rounded-xl bg-accent text-matcha-900 font-display font-bold text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                 {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
