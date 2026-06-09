@@ -467,10 +467,10 @@ export function DeliveryView({
   }, 0);
 
   return (
-    <div className="flex-1 flex flex-col bg-matcha-900">
+    <div className="flex-1 flex flex-col bg-white">
       {/* Offline-Warnung */}
       {!isOnline && (
-        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-red-600 px-4 py-2 text-sm font-bold text-white">
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-red-600 px-4 py-2 text-sm font-bold text-[var(--ink)]">
           <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
           Kein Internet — Änderungen werden verzögert synchronisiert
         </div>
@@ -479,11 +479,11 @@ export function DeliveryView({
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Lieferung läuft</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Lieferung läuft</div>
             <div className="font-display font-bold text-lg">
               {doneCount} / {stops.length} zugestellt
             </div>
-            <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5 flex items-center gap-2">
+            <div className="text-[10px] text-[var(--ink-3)] tabular-nums mt-0.5 flex items-center gap-2">
               <span>Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min</span>
               {gpsSpeed != null && gpsSpeed > 0 && (
                 <SpeedArcGauge speed={gpsSpeed} />
@@ -501,7 +501,7 @@ export function DeliveryView({
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                   <span className={cn(
                     'text-[10px] font-bold tabular-nums',
-                    secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-matcha-500',
+                    secLeft <= 0 && doneCount < stops.length ? 'text-amber-300' : 'text-[var(--ink-3)]',
                   )}>
                     {doneCount === stops.length ? '✓ Tour abgeschlossen' : `Tour fertig ~${finishStr}`}
                   </span>
@@ -510,7 +510,7 @@ export function DeliveryView({
                       'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums',
                       secLeft <= 0 ? 'bg-amber-500/30 text-amber-200' :
                       secLeft < 300 ? 'bg-orange-500/30 text-orange-200' :
-                      'bg-matcha-700 text-matcha-100',
+                      'bg-[var(--surface-2)] text-[var(--ink-2)]',
                     )}>
                       {secLeft <= 0 ? 'Überfällig' : `noch ${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`}
                     </span>
@@ -520,11 +520,11 @@ export function DeliveryView({
             })()}
           </div>
           <div className="flex-1 flex flex-col items-end gap-1.5 ml-3">
-            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden">
               <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
             </div>
             {estimatedEarnings > 0 && (
-              <div className="inline-flex items-center gap-1 rounded-full bg-accent/15 border border-accent/30 px-2 py-1">
+              <div className="inline-flex items-center gap-1 rounded-full bg-accent/15 border border-[var(--accent)]/30 px-2 py-1">
                 <TrendingUp size={10} className="text-accent" />
                 <span className="text-[10px] font-bold tabular-nums text-accent">
                   ~{estimatedEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
@@ -537,7 +537,7 @@ export function DeliveryView({
               className={cn(
                 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold transition',
                 delaySent
-                  ? 'bg-matcha-700 text-matcha-200'
+                  ? 'bg-[var(--surface-2)] text-[var(--ink-2)]'
                   : 'bg-amber-500/15 border border-amber-400/30 text-amber-300 active:scale-95',
               )}
               title="Verzögerung oder Problem melden"
@@ -559,7 +559,7 @@ export function DeliveryView({
                 <Banknote size={12} className="text-amber-300" />
                 <span className="text-[11px] font-bold text-amber-200">Bar kassieren: {euro(totalCash)}</span>
               </div>
-              <div className="text-[10px] text-matcha-400">Gesamt: {euro(totalAll)}</div>
+              <div className="text-[10px] text-[var(--ink-3)]">Gesamt: {euro(totalAll)}</div>
             </div>
           );
         })()}
@@ -567,14 +567,14 @@ export function DeliveryView({
 
       {/* Next-Stop-Hero: prominente Anzeige des nächsten Stops */}
       {nextStop && !allDone && (
-        <div className="mx-4 mt-3 rounded-2xl bg-accent/10 border-2 border-accent/30 p-4">
+        <div className="mx-4 mt-3 rounded-2xl bg-[var(--accent-tint)] border-2 border-[var(--accent)]/30 p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <span className="text-[9px] font-black uppercase tracking-widest text-accent">Nächster Stopp</span>
             <span className={cn(
               'ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
               !nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
-                ? 'bg-amber-400 text-matcha-900'
-                : 'bg-matcha-700 text-matcha-50',
+                ? 'bg-amber-400 text-[var(--ink)]'
+                : 'bg-[var(--surface-2)] text-matcha-50',
             )}>
               {!nextStop.order.bezahlt || nextStop.order.zahlungsart === 'bar'
                 ? `BAR ${euro(nextStop.order.gesamtbetrag)}`
@@ -582,7 +582,7 @@ export function DeliveryView({
             </span>
           </div>
           <div className="font-display text-xl font-black leading-tight">{nextStop.order.kunde_name}</div>
-          <div className="mt-0.5 text-sm text-matcha-200 leading-tight">
+          <div className="mt-0.5 text-sm text-[var(--ink-2)] leading-tight">
             {nextStop.order.kunde_adresse}
             {nextStop.order.kunde_plz && `, ${nextStop.order.kunde_plz}`}
           </div>
@@ -607,25 +607,25 @@ export function DeliveryView({
               <div className="mt-2">
                 <button
                   onClick={() => setShowItemsStopId(isShown ? null : nextStop.id)}
-                  className="flex items-center gap-2 w-full text-left rounded-xl bg-matcha-800/60 border border-matcha-600/40 px-3 py-2 transition active:scale-[0.99]"
+                  className="flex items-center gap-2 w-full text-left rounded-xl bg-white/60 border border-[var(--line)] px-3 py-2 transition active:scale-[0.99]"
                 >
-                  <span className="text-[10px] font-black uppercase tracking-wider text-matcha-300">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ink-3)]">
                     {items.reduce((s, i) => s + i.menge, 0)} Artikel prüfen
                   </span>
-                  <span className="ml-auto text-matcha-400 text-[10px]">{isShown ? '▲' : '▼'}</span>
+                  <span className="ml-auto text-[var(--ink-3)] text-[10px]">{isShown ? '▲' : '▼'}</span>
                 </button>
                 {isShown && (
-                  <div className="mt-1 rounded-xl bg-matcha-800/40 border border-matcha-600/30 divide-y divide-matcha-700/30 overflow-hidden">
+                  <div className="mt-1 rounded-xl bg-white/40 border border-matcha-600/30 divide-y divide-matcha-700/30 overflow-hidden">
                     {items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 px-3 py-2">
-                        <span className="h-6 w-6 rounded-full bg-matcha-700 text-matcha-100 flex items-center justify-center font-black text-[11px] shrink-0">
+                        <span className="h-6 w-6 rounded-full bg-[var(--surface-2)] text-[var(--ink-2)] flex items-center justify-center font-black text-[11px] shrink-0">
                           {item.menge}
                         </span>
-                        <span className="flex-1 text-[12px] font-semibold text-matcha-100 leading-tight">{item.name}</span>
+                        <span className="flex-1 text-[12px] font-semibold text-[var(--ink-2)] leading-tight">{item.name}</span>
                         {item.notiz && (
                           <span className="text-[9px] text-amber-300 italic max-w-[80px] truncate">{item.notiz}</span>
                         )}
-                        <span className="text-[10px] text-matcha-400 tabular-nums">
+                        <span className="text-[10px] text-[var(--ink-3)] tabular-nums">
                           {(item.menge * item.einzelpreis).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                         </span>
                       </div>
@@ -636,14 +636,14 @@ export function DeliveryView({
             );
           })()}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
-            <span className="flex items-center gap-1 text-matcha-300">
-              <span className="h-5 w-5 rounded-full bg-accent text-matcha-900 flex items-center justify-center font-black text-[10px]">
+            <span className="flex items-center gap-1 text-[var(--ink-3)]">
+              <span className="h-5 w-5 rounded-full bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center font-black text-[10px]">
                 {nextStop.reihenfolge}
               </span>
               Stopp {nextStop.reihenfolge} von {stops.length}
             </span>
             {nextStop.distanz_zum_vorgaenger_m != null && nextStop.distanz_zum_vorgaenger_m > 0 && (
-              <span className="text-matcha-300 font-mono">
+              <span className="text-[var(--ink-3)] font-mono">
                 {(nextStop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km
               </span>
             )}
@@ -659,7 +659,7 @@ export function DeliveryView({
                   'rounded-full px-2 py-0.5 font-bold',
                   secLeft < 0 ? 'bg-red-500/30 text-red-300' :
                   secLeft < 180 ? 'bg-amber-500/30 text-amber-200' :
-                  'bg-white/10 text-matcha-200',
+                  'bg-[var(--surface-2)] text-[var(--ink-2)]',
                 )}>
                   ~{etaStr} Uhr
                 </span>
@@ -682,7 +682,7 @@ export function DeliveryView({
                   ? 'bg-red-500/30 text-red-200 animate-pulse'
                   : secLeft < 300
                     ? 'bg-amber-500/30 text-amber-200'
-                    : 'bg-matcha-700/60 text-matcha-100',
+                    : 'bg-[var(--surface-2)]/60 text-[var(--ink-2)]',
               )}>
                 <span>{overdue ? '⚠ ETA überzogen' : '🕐 ETA'}</span>
                 <span className="tabular-nums font-mono">
@@ -711,7 +711,7 @@ export function DeliveryView({
                   href={isIos ? appleUrl : googleUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-accent text-matcha-900 font-bold text-sm transition active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-bold text-sm transition active:scale-[0.98]"
                 >
                   <Navigation size={14} />
                   {isIos ? 'Apple Maps' : 'Google Maps'}
@@ -737,7 +737,7 @@ export function DeliveryView({
               <div className="mt-2 flex gap-2">
                 <a
                   href={`tel:${nextStop.order.kunde_telefon}`}
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-matcha-700/60 border border-matcha-600/40 text-matcha-100 font-bold text-sm active:scale-[0.98] transition"
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[var(--surface-2)]/60 border border-[var(--line)] text-[var(--ink-2)] font-bold text-sm active:scale-[0.98] transition"
                 >
                   <Phone size={14} />
                   Anrufen
@@ -760,7 +760,7 @@ export function DeliveryView({
       {/* Upcoming Stops Preview — kompakter Horizontalstreifen für Stops 2..n */}
       {openStops.length > 1 && (
         <div className="mx-4 mt-2">
-          <div className="text-[9px] font-black uppercase tracking-widest text-matcha-400 mb-1.5">
+          <div className="text-[9px] font-black uppercase tracking-widest text-[var(--ink-3)] mb-1.5">
             Nächste Stops
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -772,10 +772,10 @@ export function DeliveryView({
               return (
                 <div
                   key={s.id}
-                  className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 min-w-[140px] max-w-[180px]"
+                  className="shrink-0 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2 min-w-[140px] max-w-[180px]"
                 >
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="h-5 w-5 rounded-full bg-matcha-700 text-matcha-100 flex items-center justify-center font-black text-[10px] shrink-0">
+                    <span className="h-5 w-5 rounded-full bg-[var(--surface-2)] text-[var(--ink-2)] flex items-center justify-center font-black text-[10px] shrink-0">
                       {s.reihenfolge}
                     </span>
                     {isCash && (
@@ -784,13 +784,13 @@ export function DeliveryView({
                       </span>
                     )}
                     {distKm && (
-                      <span className="text-[9px] text-matcha-400 ml-auto tabular-nums">{distKm} km</span>
+                      <span className="text-[9px] text-[var(--ink-3)] ml-auto tabular-nums">{distKm} km</span>
                     )}
                   </div>
-                  <div className="text-[11px] font-bold text-matcha-100 leading-tight truncate">
+                  <div className="text-[11px] font-bold text-[var(--ink-2)] leading-tight truncate">
                     {s.order.kunde_name}
                   </div>
-                  <div className="text-[9px] text-matcha-400 leading-tight truncate mt-0.5">
+                  <div className="text-[9px] text-[var(--ink-3)] leading-tight truncate mt-0.5">
                     {s.order.kunde_adresse}
                   </div>
                   {/* Schnellaktionen: Anrufen + Navigation */}
@@ -798,7 +798,7 @@ export function DeliveryView({
                     {s.order.kunde_telefon && (
                       <a
                         href={`tel:${s.order.kunde_telefon}`}
-                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-matcha-700/60 border border-matcha-600/40 py-1 text-[9px] font-bold text-matcha-200 active:scale-[0.97] transition"
+                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-[var(--surface-2)]/60 border border-[var(--line)] py-1 text-[9px] font-bold text-[var(--ink-2)] active:scale-[0.97] transition"
                         title="Anrufen"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -811,7 +811,7 @@ export function DeliveryView({
                         href={`https://www.google.com/maps/dir/?api=1&destination=${s.order.kunde_lat},${s.order.kunde_lng}&travelmode=driving`}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-accent/15 border border-accent/30 py-1 text-[9px] font-bold text-accent active:scale-[0.97] transition"
+                        className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-accent/15 border border-[var(--accent)]/30 py-1 text-[9px] font-bold text-accent active:scale-[0.97] transition"
                         title="Navigation"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -830,13 +830,13 @@ export function DeliveryView({
                     const rs = Math.abs(secLeft) % 60;
                     return (
                       <div className="mt-0.5 flex items-center gap-1 flex-wrap">
-                        <span className="text-[9px] text-matcha-500 tabular-nums">~{etaStr}</span>
+                        <span className="text-[9px] text-[var(--ink-3)] tabular-nums">~{etaStr}</span>
                         {secLeft < 1800 && (
                           <span className={cn(
                             'rounded-full px-1.5 py-0.5 text-[8px] font-bold tabular-nums',
                             overdue ? 'bg-red-500/40 text-red-200 animate-pulse' :
                             soon ? 'bg-amber-500/30 text-amber-200' :
-                            'bg-matcha-700/50 text-matcha-300',
+                            'bg-[var(--surface-2)]/50 text-[var(--ink-3)]',
                           )}>
                             {overdue ? `+${rm}:${String(rs).padStart(2, '0')}` : `${rm}:${String(rs).padStart(2, '0')}`}
                           </span>
@@ -874,7 +874,7 @@ export function DeliveryView({
               href={mapsUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-white transition"
+              className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] text-sm font-bold text-[var(--ink)] transition"
             >
               <MapIcon size={16} />
               {stopsWithCoords.length === 1 ? 'Navigieren' : `Alle ${stopsWithCoords.length} Stops in Maps`}
@@ -884,10 +884,10 @@ export function DeliveryView({
       })()}
 
       {/* Map */}
-      <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-white/10 relative" style={{ height: 240 }}>
+      <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-[var(--line)] relative" style={{ height: 240 }}>
         <div ref={mapRef} className="w-full h-full" />
         {!mapReady && (
-          <div className="absolute inset-0 flex items-center justify-center text-matcha-300 text-sm">
+          <div className="absolute inset-0 flex items-center justify-center text-[var(--ink-3)] text-sm">
             <Loader2 className="animate-spin mr-2" size={14} /> Karte lädt…
           </div>
         )}
@@ -899,7 +899,7 @@ export function DeliveryView({
                 leafletMapRef.current.setView([driverLat, driverLng], 15, { animate: true });
               }
             }}
-            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-matcha-900/80 border border-white/20 text-white flex items-center justify-center backdrop-blur hover:bg-matcha-800/90 active:scale-95 transition"
+            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-white/80 border border-white/20 text-[var(--ink)] flex items-center justify-center backdrop-blur hover:bg-white/90 active:scale-95 transition"
             title="Zu meiner Position"
           >
             <Navigation size={16} className="text-accent" />
@@ -913,14 +913,14 @@ export function DeliveryView({
         const totalDistM = stops.reduce((s, st) => s + (st.distanz_zum_vorgaenger_m ?? 0), 0);
         if (remainDistM === 0) return null;
         return (
-          <div className="mx-4 mt-1 flex items-center gap-3 text-[10px] text-matcha-300">
-            <span className="font-bold text-matcha-100">{openStops.length} verbleibend</span>
-            <span className="text-matcha-400">·</span>
+          <div className="mx-4 mt-1 flex items-center gap-3 text-[10px] text-[var(--ink-3)]">
+            <span className="font-bold text-[var(--ink-2)]">{openStops.length} verbleibend</span>
+            <span className="text-[var(--ink-3)]">·</span>
             <span>~{(remainDistM / 1000).toFixed(1)} km</span>
             {totalDistM > 0 && (
               <>
-                <span className="text-matcha-400">·</span>
-                <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                <span className="text-[var(--ink-3)]">·</span>
+                <div className="flex-1 h-1 rounded-full bg-[var(--surface-2)] overflow-hidden">
                   <div
                     className="h-full rounded-full bg-accent transition-all"
                     style={{ width: `${Math.max(0, ((totalDistM - remainDistM) / totalDistM) * 100)}%` }}
@@ -938,24 +938,24 @@ export function DeliveryView({
         <div className="mx-4 mt-3">
           <button
             onClick={() => setShowAllStops((v) => !v)}
-            className="flex w-full items-center justify-between rounded-2xl bg-white/8 border border-white/10 px-4 py-2.5 active:scale-[0.99] transition"
+            className="flex w-full items-center justify-between rounded-2xl bg-white/8 border border-[var(--line)] px-4 py-2.5 active:scale-[0.99] transition"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-matcha-300">Alle Stopps</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[var(--ink-3)]">Alle Stopps</span>
               <span className={cn(
                 'rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
                 doneCount === stops.length
-                  ? 'bg-accent/20 text-accent'
-                  : 'bg-white/10 text-matcha-300',
+                  ? 'bg-[var(--accent-tint)] text-accent'
+                  : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
               )}>
                 {doneCount}/{stops.length}
               </span>
             </div>
-            <span className="text-matcha-400 text-sm">{showAllStops ? '▲' : '▼'}</span>
+            <span className="text-[var(--ink-3)] text-sm">{showAllStops ? '▲' : '▼'}</span>
           </button>
 
           {showAllStops && (
-            <div className="mt-2 rounded-2xl bg-white/5 border border-white/10 overflow-hidden">
+            <div className="mt-2 rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] overflow-hidden">
               {[...stops]
                 .sort((a, b) => a.reihenfolge - b.reihenfolge)
                 .map((s, idx, arr) => {
@@ -976,25 +976,25 @@ export function DeliveryView({
                     : null;
                   return (
                     <div key={s.id} className={cn(
-                      'flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 transition',
-                      isNext ? 'bg-accent/5' : done ? 'opacity-60' : '',
+                      'flex items-start gap-3 px-4 py-3 border-b border-[var(--line)] last:border-0 transition',
+                      isNext ? 'bg-[var(--accent-tint)]' : done ? 'opacity-60' : '',
                     )}>
                       {/* Sequence dot */}
                       <div className="flex flex-col items-center shrink-0 mt-0.5">
                         <div className={cn(
                           'h-7 w-7 rounded-full flex items-center justify-center font-black text-[11px] border-2',
                           done
-                            ? 'bg-accent/20 border-accent text-accent'
+                            ? 'bg-[var(--accent-tint)] border-accent text-accent'
                             : isNext
-                            ? 'bg-matcha-900 border-accent text-accent ring-2 ring-accent/30 ring-offset-1 ring-offset-transparent'
-                            : 'bg-white/5 border-white/20 text-matcha-400',
+                            ? 'bg-white border-accent text-accent ring-2 ring-accent/30 ring-offset-1 ring-offset-transparent'
+                            : 'bg-[var(--surface-2)] border-white/20 text-[var(--ink-3)]',
                         )}>
                           {done ? '✓' : s.reihenfolge}
                         </div>
                         {idx < arr.length - 1 && (
                           <div className={cn(
                             'w-0.5 flex-1 mt-1 min-h-[16px]',
-                            done ? 'bg-accent/30' : 'bg-white/10',
+                            done ? 'bg-accent/30' : 'bg-[var(--surface-2)]',
                           )} />
                         )}
                       </div>
@@ -1004,7 +1004,7 @@ export function DeliveryView({
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className={cn(
                             'font-display font-bold text-sm',
-                            done ? 'text-matcha-300 line-through' : isNext ? 'text-white' : 'text-matcha-200',
+                            done ? 'text-[var(--ink-3)] line-through' : isNext ? 'text-[var(--ink)]' : 'text-[var(--ink-2)]',
                           )}>
                             {s.order.kunde_name}
                           </span>
@@ -1014,27 +1014,27 @@ export function DeliveryView({
                             </span>
                           )}
                           {done && (
-                            <span className="rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[8px] font-bold">
+                            <span className="rounded-full bg-[var(--accent-tint)] text-accent px-1.5 py-0.5 text-[8px] font-bold">
                               {deliveryTime}
                             </span>
                           )}
                           {isNext && (
-                            <span className="rounded-full bg-accent text-matcha-900 px-1.5 py-0.5 text-[8px] font-black">
+                            <span className="rounded-full bg-[var(--accent)] text-[var(--ink)] px-1.5 py-0.5 text-[8px] font-black">
                               Nächster
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-matcha-400 leading-tight truncate mt-0.5">
+                        <div className="text-[10px] text-[var(--ink-3)] leading-tight truncate mt-0.5">
                           {s.order.kunde_adresse}
                         </div>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           {distKm && (
-                            <span className="text-[9px] text-matcha-500 tabular-nums">{distKm} km</span>
+                            <span className="text-[9px] text-[var(--ink-3)] tabular-nums">{distKm} km</span>
                           )}
                           {etaStr && !done && (
                             <span className={cn(
                               'text-[9px] font-bold tabular-nums',
-                              etaOverdue ? 'text-red-400 animate-pulse' : 'text-matcha-400',
+                              etaOverdue ? 'text-red-400 animate-pulse' : 'text-[var(--ink-3)]',
                             )}>
                               {etaOverdue ? '⚠ ' : '~'}{etaStr}
                             </span>
@@ -1043,7 +1043,7 @@ export function DeliveryView({
                             <a
                               href={`tel:${s.order.kunde_telefon}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="text-[9px] font-bold text-matcha-400 hover:text-matcha-200 transition"
+                              className="text-[9px] font-bold text-[var(--ink-3)] hover:text-[var(--ink-2)] transition"
                             >
                               📞 Anrufen
                             </a>
@@ -1081,11 +1081,11 @@ export function DeliveryView({
         }
         return (
           <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setDelayOpen(false)}>
-            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div className="text-center">
                 <AlertCircle className="mx-auto mb-2 text-amber-400" size={28} />
                 <div className="font-display font-bold text-lg">Verzögerung melden</div>
-                <p className="text-sm text-matcha-300 mt-1">Kunden werden automatisch benachrichtigt.</p>
+                <p className="text-sm text-[var(--ink-3)] mt-1">Kunden werden automatisch benachrichtigt.</p>
               </div>
               <div className="space-y-2">
                 {DELAY_OPTIONS.map(({ label, msg }) => (
@@ -1101,7 +1101,7 @@ export function DeliveryView({
               </div>
               <button
                 onClick={() => setDelayOpen(false)}
-                className="w-full h-11 rounded-xl bg-white/10 font-bold text-sm"
+                className="w-full h-11 rounded-xl bg-[var(--surface-2)] font-bold text-sm"
               >
                 Abbrechen
               </button>
@@ -1115,16 +1115,16 @@ export function DeliveryView({
         const stop = stops.find((s) => s.id === failedStopId);
         return (
           <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => setFailedStopId(null)}>
-            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div className="text-center">
                 <AlertTriangle className="mx-auto mb-2 text-amber-400" size={28} />
                 <div className="font-display font-bold text-lg">Nicht zugestellt</div>
-                <p className="text-sm text-matcha-300 mt-1">
+                <p className="text-sm text-[var(--ink-3)] mt-1">
                   {stop?.order.kunde_name} — #{stop?.order.bestellnummer.replace(/^[A-Z]+-/, '')}
                 </p>
               </div>
               <div className="space-y-2">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">Grund</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Grund</div>
                 <div className="grid grid-cols-2 gap-2">
                   {(Object.entries(FAILED_REASON_LABELS) as [FailedReason, string][]).map(([key, label]) => (
                     <button
@@ -1134,7 +1134,7 @@ export function DeliveryView({
                         'h-10 rounded-xl text-[11px] font-bold border transition active:scale-[0.97]',
                         failedReason === key
                           ? 'bg-amber-500/30 border-amber-400 text-amber-200'
-                          : 'bg-white/5 border-white/10 text-matcha-300',
+                          : 'bg-[var(--surface-2)] border-[var(--line)] text-[var(--ink-3)]',
                       )}
                     >
                       {label}
@@ -1143,26 +1143,26 @@ export function DeliveryView({
                 </div>
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-1.5">Notiz (optional)</div>
                 <textarea
                   value={failedNotes}
                   onChange={(e) => setFailedNotes(e.target.value.slice(0, 200))}
                   placeholder="z.B. Klingel defekt, falsche Hausnummer…"
                   rows={2}
-                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-white placeholder:text-matcha-500 px-3 py-2 resize-none focus:outline-none focus:border-amber-400/60"
+                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-amber-400/60"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => { setFailedStopId(null); setFailedNotes(''); setFailedReason('no_answer'); }}
-                  className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm"
+                  className="flex-1 h-12 rounded-xl bg-[var(--surface-2)] font-bold text-sm"
                 >
                   Abbrechen
                 </button>
                 <button
                   onClick={() => markFailedAttempt(failedStopId)}
                   disabled={pendingFailed === failedStopId}
-                  className="flex-1 h-12 rounded-xl bg-amber-500 text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-1 h-12 rounded-xl bg-amber-500 text-[var(--ink)] font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {pendingFailed === failedStopId
                     ? <Loader2 size={16} className="animate-spin" />
@@ -1178,18 +1178,18 @@ export function DeliveryView({
       {/* Bestätigung: Stopp überspringen */}
       {confirmSkipId && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/60 backdrop-blur-sm" onClick={() => setConfirmSkipId(null)}>
-          <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="text-center">
               <div className="text-2xl mb-2">🚪</div>
               <div className="font-display font-bold text-lg">Nicht angetroffen?</div>
-              <p className="text-sm text-matcha-300 mt-1">
+              <p className="text-sm text-[var(--ink-3)] mt-1">
                 Stopp wird ans Ende der Tour verschoben. Du kannst danach nochmal versuchen.
               </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmSkipId(null)}
-                className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm"
+                className="flex-1 h-12 rounded-xl bg-[var(--surface-2)] font-bold text-sm"
               >
                 Abbrechen
               </button>
@@ -1198,7 +1198,7 @@ export function DeliveryView({
                   setSkippedIds((s) => new Set([...s, confirmSkipId]));
                   setConfirmSkipId(null);
                 }}
-                className="flex-1 h-12 rounded-xl bg-amber-500 text-matcha-900 font-display font-bold text-sm"
+                className="flex-1 h-12 rounded-xl bg-amber-500 text-[var(--ink)] font-display font-bold text-sm"
               >
                 Zurückstellen
               </button>
@@ -1220,11 +1220,11 @@ export function DeliveryView({
         ];
         return (
           <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => !proofPending && setProofModalStopId(null)}>
-            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full rounded-t-3xl bg-white border-t border-[var(--line)] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
               <div className="text-center">
                 <CheckCircle2 className="mx-auto mb-2 text-accent" size={28} />
                 <div className="font-display font-bold text-lg">Liefernachweis</div>
-                <p className="text-sm text-matcha-300 mt-1">
+                <p className="text-sm text-[var(--ink-3)] mt-1">
                   {proofStop?.order.kunde_name} — wie wurde zugestellt?
                 </p>
               </div>
@@ -1239,8 +1239,8 @@ export function DeliveryView({
                     className={cn(
                       'rounded-xl py-3 text-[10px] font-bold border flex flex-col items-center gap-1 transition active:scale-[0.97]',
                       proofType === key
-                        ? 'bg-accent/20 border-accent text-accent'
-                        : 'bg-white/5 border-white/10 text-matcha-300',
+                        ? 'bg-[var(--accent-tint)] border-accent text-accent'
+                        : 'bg-[var(--surface-2)] border-[var(--line)] text-[var(--ink-3)]',
                     )}
                   >
                     <span className="text-xl">{icon}</span>
@@ -1289,7 +1289,7 @@ export function DeliveryView({
                       <button
                         type="button"
                         onClick={() => { setProofPhotoBlob(null); setProofPhotoPreview(null); proofCameraRef.current && (proofCameraRef.current.value = ''); }}
-                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 flex items-center justify-center text-white text-xs font-bold"
+                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 flex items-center justify-center text-[var(--ink)] text-xs font-bold"
                       >
                         ✕
                       </button>
@@ -1301,7 +1301,7 @@ export function DeliveryView({
                     <button
                       type="button"
                       onClick={() => proofCameraRef.current?.click()}
-                      className="w-full h-20 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 flex flex-col items-center justify-center gap-1.5 text-accent/80 hover:bg-accent/10 active:scale-[0.98] transition"
+                      className="w-full h-20 rounded-xl border-2 border-dashed border-[var(--accent)]/40 bg-[var(--accent-tint)] flex flex-col items-center justify-center gap-1.5 text-accent/80 hover:bg-[var(--accent-tint)] active:scale-[0.98] transition"
                     >
                       <Camera size={22} />
                       <span className="text-[11px] font-bold">Foto aufnehmen</span>
@@ -1311,27 +1311,27 @@ export function DeliveryView({
               )}
 
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-1.5">Notiz (optional)</div>
                 <textarea
                   value={proofNotes}
                   onChange={(e) => setProofNotes(e.target.value.slice(0, 200))}
                   placeholder="z.B. Paket vor Eingangstür abgestellt…"
                   rows={2}
-                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-white placeholder:text-matcha-500 px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
+                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => { setProofModalStopId(null); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                   disabled={proofPending}
-                  className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm disabled:opacity-40"
+                  className="flex-1 h-12 rounded-xl bg-[var(--surface-2)] font-bold text-sm disabled:opacity-40"
                 >
                   Zurück
                 </button>
                 <button
                   onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
                   disabled={proofPending || (proofType === 'photo' && !proofPhotoBlob)}
-                  className="flex-1 h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-1 h-12 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {proofPending
                     ? <Loader2 size={16} className="animate-spin" />
@@ -1354,26 +1354,26 @@ export function DeliveryView({
           return (
             <div key={stop.id} className={cn(
               'rounded-2xl p-4 border-2 transition',
-              done ? 'bg-white/5 border-white/10 opacity-50' :
-              isNext ? 'bg-accent/10 border-accent shadow-xl shadow-accent/20' :
-              'bg-white/5 border-white/10',
+              done ? 'bg-[var(--surface-2)] border-[var(--line)] opacity-50' :
+              isNext ? 'bg-[var(--accent-tint)] border-accent shadow-xl shadow-accent/20' :
+              'bg-[var(--surface-2)] border-[var(--line)]',
             )}>
               <div className="flex items-start gap-3">
                 <div className={cn(
                   'h-12 w-12 rounded-xl grid place-items-center font-display font-black text-lg shrink-0',
-                  done ? 'bg-matcha-700 text-accent' :
-                  isNext ? 'bg-accent text-matcha-900' :
-                  'bg-white/10 text-matcha-200',
+                  done ? 'bg-[var(--surface-2)] text-accent' :
+                  isNext ? 'bg-[var(--accent)] text-[var(--ink)]' :
+                  'bg-[var(--surface-2)] text-[var(--ink-2)]',
                 )}>
                   {done ? <Check size={20} /> : stop.reihenfolge}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display font-bold leading-tight">{stop.order.kunde_name}</div>
-                  <div className="text-sm text-matcha-200 leading-tight">
+                  <div className="text-sm text-[var(--ink-2)] leading-tight">
                     {stop.order.kunde_adresse}
                     {stop.order.kunde_plz && `, ${stop.order.kunde_plz}`}
                   </div>
-                  <div className="mt-1 flex items-center gap-2 text-[10px] font-mono text-matcha-300">
+                  <div className="mt-1 flex items-center gap-2 text-[10px] font-mono text-[var(--ink-3)]">
                     <span>#{stop.order.bestellnummer.replace(/^[A-Z]+-/, '')}</span>
                     {stop.distanz_zum_vorgaenger_m && stop.distanz_zum_vorgaenger_m > 0 && (
                       <span>· {(stop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km</span>
@@ -1396,7 +1396,7 @@ export function DeliveryView({
                           secLeft < 0 ? 'bg-red-500/30 text-red-300' :
                           secLeft < 300 ? 'bg-amber-500/30 text-amber-200' :
                           isReal ? 'bg-blue-500/20 text-blue-200' :
-                          'bg-white/10',
+                          'bg-[var(--surface-2)]',
                         )}>
                           {isReal ? '' : '~'}{etaStr}
                         </span>
@@ -1453,11 +1453,11 @@ export function DeliveryView({
               {/* Zahlungs-Indikator */}
               <div className={cn(
                 'mt-3 rounded-xl p-3 flex items-center gap-3',
-                isBar && !done ? 'bg-amber-500/20 border-2 border-amber-400' : 'bg-matcha-700/50',
+                isBar && !done ? 'bg-amber-500/20 border-2 border-amber-400' : 'bg-[var(--surface-2)]/50',
               )}>
                 {isBar && !done ? (
                   <>
-                    <div className="h-10 w-10 rounded-lg bg-amber-400 text-matcha-900 grid place-items-center">
+                    <div className="h-10 w-10 rounded-lg bg-amber-400 text-[var(--ink)] grid place-items-center">
                       <Banknote size={20} />
                     </div>
                     <div className="flex-1">
@@ -1467,12 +1467,12 @@ export function DeliveryView({
                   </>
                 ) : (
                   <>
-                    <div className="h-10 w-10 rounded-lg bg-matcha-700 text-accent grid place-items-center">
+                    <div className="h-10 w-10 rounded-lg bg-[var(--surface-2)] text-accent grid place-items-center">
                       <CreditCard size={20} />
                     </div>
                     <div className="flex-1">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Online bezahlt ✓</div>
-                      <div className="font-bold text-white">{euro(amount)}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Online bezahlt ✓</div>
+                      <div className="font-bold text-[var(--ink)]">{euro(amount)}</div>
                     </div>
                   </>
                 )}
@@ -1496,7 +1496,7 @@ export function DeliveryView({
 
               {/* Arrived-Badge wenn bereits angekommen, aber noch nicht zugestellt */}
               {isNext && (stop.angekommen_am || arrivedIds.has(stop.id)) && !stop.geliefert_am && (
-                <div className="mt-2 flex items-center gap-1.5 rounded-full bg-accent/20 border border-accent/40 px-3 py-1 text-[11px] font-bold text-accent">
+                <div className="mt-2 flex items-center gap-1.5 rounded-full bg-[var(--accent-tint)] border border-[var(--accent)]/40 px-3 py-1 text-[11px] font-bold text-accent">
                   <Flag size={11} /> Angekommen — bitte zustellen
                 </div>
               )}
@@ -1517,7 +1517,7 @@ export function DeliveryView({
               {isNext && (
                 <div className="mt-3 flex gap-2">
                   {stop.order.kunde_telefon && (
-                    <a href={`tel:${stop.order.kunde_telefon}`} className="h-11 w-11 rounded-xl bg-white/10 hover:bg-white/20 grid place-items-center">
+                    <a href={`tel:${stop.order.kunde_telefon}`} className="h-11 w-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] grid place-items-center">
                       <Phone size={16} />
                     </a>
                   )}
@@ -1556,7 +1556,7 @@ export function DeliveryView({
                       'h-11 w-11 rounded-xl grid place-items-center transition shrink-0',
                       copiedStopId === stop.id
                         ? 'bg-accent/30 text-accent'
-                        : 'bg-white/10 hover:bg-white/20 text-matcha-200',
+                        : 'bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] text-[var(--ink-2)]',
                     )}
                   >
                     {copiedStopId === stop.id ? <Check size={16} /> : <Share2 size={16} />}
@@ -1565,7 +1565,7 @@ export function DeliveryView({
                   {!stop.angekommen_am && !arrivedIds.has(stop.id) && (
                     <button
                       onClick={() => markArrived(stop.id)}
-                      className="h-11 px-3 rounded-xl bg-accent/20 border border-accent/40 text-accent flex items-center gap-1.5 text-xs font-bold shrink-0"
+                      className="h-11 px-3 rounded-xl bg-[var(--accent-tint)] border border-[var(--accent)]/40 text-accent flex items-center gap-1.5 text-xs font-bold shrink-0"
                     >
                       <Flag size={13} /> Angekommen
                     </button>
@@ -1574,7 +1574,7 @@ export function DeliveryView({
                   {openStops.length > 1 && (
                     <button
                       onClick={() => setConfirmSkipId(stop.id)}
-                      className="h-11 px-2.5 rounded-xl bg-white/8 border border-white/15 text-matcha-300 flex items-center gap-1 text-[11px] font-bold shrink-0"
+                      className="h-11 px-2.5 rounded-xl bg-white/8 border border-white/15 text-[var(--ink-3)] flex items-center gap-1 text-[11px] font-bold shrink-0"
                     >
                       Zurückst.
                     </button>
@@ -1605,14 +1605,14 @@ export function DeliveryView({
                         <a
                           href={primaryHref}
                           target="_blank" rel="noreferrer"
-                          className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center gap-2 text-sm font-bold"
+                          className="flex-1 h-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center gap-2 text-sm font-bold"
                         >
                           <Navigation size={16} /> Navigieren
                         </a>
                         <a
                           href={secondaryHref}
                           target="_blank" rel="noreferrer"
-                          className="h-11 px-3 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs font-bold text-matcha-300"
+                          className="h-11 px-3 rounded-xl bg-[var(--surface-2)] hover:bg-white/15 flex items-center justify-center text-xs font-bold text-[var(--ink-3)]"
                         >
                           {secondaryLabel}
                         </a>
@@ -1622,7 +1622,7 @@ export function DeliveryView({
                   <button
                     onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                     disabled={pending === stop.id || proofPending}
-                    className="flex-1 h-11 rounded-xl bg-accent text-matcha-900 flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
+                    className="flex-1 h-11 rounded-xl bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
                   >
                     {pending === stop.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                     {isBar ? 'Kassiert & Zugestellt' : 'Zugestellt'}
@@ -1641,11 +1641,11 @@ export function DeliveryView({
           const elapsedMin = Math.floor(elapsed / 60);
           const totalDistKm = stops.reduce((sum, s) => sum + ((s.distanz_zum_vorgaenger_m ?? 0) / 1000), 0);
           return (
-            <div className="rounded-2xl bg-matcha-700 border-2 border-accent p-5 text-center space-y-4">
+            <div className="rounded-2xl bg-[var(--surface-2)] border-2 border-accent p-5 text-center space-y-4">
               <div>
                 <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-2" />
                 <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
-                <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
+                <div className="text-sm text-[var(--ink-2)] mt-1">Zurück zum Restaurant</div>
               </div>
               {/* Explicit tour close button — prevents accidental early close, updates batch status */}
               <TourCloseButton batchId={batchId} onDone={onAllDone} />
@@ -1658,8 +1658,8 @@ export function DeliveryView({
                 const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
                 const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
                 return (
-                  <div className="rounded-xl border border-matcha-500/40 bg-matcha-900/60 p-3">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-400 mb-2 flex items-center gap-1.5">
+                  <div className="rounded-xl border border-matcha-500/40 bg-white/60 p-3">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink-3)] mb-2 flex items-center gap-1.5">
                       <Navigation size={10} />
                       Zurück: {name}
                     </div>
@@ -1668,7 +1668,7 @@ export function DeliveryView({
                         href={isIos ? appleUrl : googleUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg bg-matcha-700 text-matcha-100 font-bold text-xs active:scale-[0.98] transition"
+                        className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg bg-[var(--surface-2)] text-[var(--ink-2)] font-bold text-xs active:scale-[0.98] transition"
                       >
                         <Navigation size={12} />
                         {isIos ? 'Apple Maps' : 'Google Maps'}
@@ -1688,19 +1688,19 @@ export function DeliveryView({
 
               {/* Tour-Zusammenfassung */}
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-xl bg-white/10 p-3">
+                <div className="rounded-xl bg-[var(--surface-2)] p-3">
                   <div className="font-display text-xl font-black text-accent">{stops.length}</div>
-                  <div className="text-[10px] text-matcha-300 mt-0.5">Stopps</div>
+                  <div className="text-[10px] text-[var(--ink-3)] mt-0.5">Stopps</div>
                 </div>
-                <div className="rounded-xl bg-white/10 p-3">
+                <div className="rounded-xl bg-[var(--surface-2)] p-3">
                   <div className="font-display text-xl font-black text-accent">{elapsedMin}m</div>
-                  <div className="text-[10px] text-matcha-300 mt-0.5">Unterwegs</div>
+                  <div className="text-[10px] text-[var(--ink-3)] mt-0.5">Unterwegs</div>
                 </div>
-                <div className="rounded-xl bg-white/10 p-3">
+                <div className="rounded-xl bg-[var(--surface-2)] p-3">
                   <div className="font-display text-xl font-black text-accent">
                     {totalDistKm > 0 ? `${totalDistKm.toFixed(1)}km` : `${stops.length}×`}
                   </div>
-                  <div className="text-[10px] text-matcha-300 mt-0.5">
+                  <div className="text-[10px] text-[var(--ink-3)] mt-0.5">
                     {totalDistKm > 0 ? 'Distanz' : 'Lieferungen'}
                   </div>
                 </div>
@@ -1715,12 +1715,12 @@ export function DeliveryView({
                 const score = etaPct != null ? Math.round(etaPct * 0.7 + (speedScore ?? 70) * 0.3) : (speedScore ?? null);
                 if (score == null) return null;
                 const grade = score >= 90 ? { label: 'Exzellent', color: 'text-accent', ring: 'border-accent' } :
-                              score >= 75 ? { label: 'Gut', color: 'text-matcha-300', ring: 'border-matcha-400' } :
+                              score >= 75 ? { label: 'Gut', color: 'text-[var(--ink-3)]', ring: 'border-matcha-400' } :
                               score >= 55 ? { label: 'Ok', color: 'text-amber-300', ring: 'border-amber-400' } :
                               { label: 'Verbesserbar', color: 'text-red-300', ring: 'border-red-400' };
                 return (
-                  <div className={`rounded-xl border-2 ${grade.ring} bg-white/5 p-4`}>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300 mb-2">Tour-Qualität</div>
+                  <div className={`rounded-xl border-2 ${grade.ring} bg-[var(--surface-2)] p-4`}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-2">Tour-Qualität</div>
                     <div className="flex items-center justify-center gap-4">
                       <div className="relative flex items-center justify-center w-16 h-16">
                         <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
@@ -1735,8 +1735,8 @@ export function DeliveryView({
                       </div>
                       <div className="text-left">
                         <div className={`font-display text-lg font-black ${grade.color}`}>{grade.label}</div>
-                        {etaPct != null && <div className="text-xs text-matcha-300 mt-0.5">{etaPct}% rechtzeitig geliefert</div>}
-                        {speedScore != null && <div className="text-xs text-matcha-300">{(totalDistKm / elapsedMin * 60).toFixed(1)} km/h Ø</div>}
+                        {etaPct != null && <div className="text-xs text-[var(--ink-3)] mt-0.5">{etaPct}% rechtzeitig geliefert</div>}
+                        {speedScore != null && <div className="text-xs text-[var(--ink-3)]">{(totalDistKm / elapsedMin * 60).toFixed(1)} km/h Ø</div>}
                       </div>
                     </div>
                   </div>
@@ -1761,7 +1761,7 @@ export function DeliveryView({
                     ))}
                   </div>
                   {onlineTotal > 0 && (
-                    <div className="mt-3 text-[10px] text-matcha-300">
+                    <div className="mt-3 text-[10px] text-[var(--ink-3)]">
                       Online bezahlt: {euro(onlineTotal)} — kein Bargeld
                     </div>
                   )}
@@ -1807,7 +1807,7 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
     <button
       onClick={close}
       disabled={closing}
-      className="w-full h-14 rounded-2xl bg-accent text-matcha-900 font-display font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-accent/30"
+      className="w-full h-14 rounded-2xl bg-[var(--accent)] text-[var(--ink)] font-display font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-accent/30"
     >
       {closing ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
       {closing ? 'Wird abgeschlossen…' : 'Tour abschließen'}
@@ -1856,7 +1856,7 @@ function LiveProximityRing({
   return (
     <div className={cn(
       'mt-2 flex items-center gap-3 rounded-xl px-3 py-2 border',
-      arrived ? 'bg-accent/20 border-accent/50' :
+      arrived ? 'bg-[var(--accent-tint)] border-accent/50' :
       near    ? 'bg-orange-500/15 border-orange-400/40' :
       soon    ? 'bg-amber-500/10 border-amber-400/30' :
                 'bg-blue-500/10 border-blue-400/20',
@@ -1884,7 +1884,7 @@ function LiveProximityRing({
         <div className="text-[9px] font-bold uppercase tracking-widest opacity-60">Entfernung</div>
         <div className={cn(
           'font-display font-black text-base tabular-nums leading-tight',
-          arrived ? 'text-accent' : near ? 'text-orange-300' : 'text-white',
+          arrived ? 'text-accent' : near ? 'text-orange-300' : 'text-[var(--ink)]',
         )}>
           {label}
         </div>
@@ -1920,7 +1920,7 @@ function SpeedArcGauge({ speed }: { speed: number }) {
           {speed}
         </text>
       </svg>
-      <span className="text-[7px] text-matcha-400 font-bold leading-none">km/h</span>
+      <span className="text-[7px] text-[var(--ink-3)] font-bold leading-none">km/h</span>
     </div>
   );
 }
@@ -1947,9 +1947,9 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
   const speedColor = liveSpeed == null ? '#4d7c5f' : liveSpeed > 50 ? '#f97316' : liveSpeed > 25 ? '#d4a843' : '#4ae68a';
 
   return (
-    <div className="mt-2 rounded-xl bg-white/10 px-3 py-2.5 space-y-2">
+    <div className="mt-2 rounded-xl bg-[var(--surface-2)] px-3 py-2.5 space-y-2">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-matcha-300 flex items-center gap-1.5">
+        <span className="text-[var(--ink-3)] flex items-center gap-1.5">
           <ArrowRight size={12} />
           {(distanzM / 1000).toFixed(1)} km
         </span>
@@ -1976,13 +1976,13 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
                   {liveSpeed}
                 </text>
               </svg>
-              <span className="text-[8px] text-matcha-400 -mt-1 font-bold">km/h</span>
+              <span className="text-[8px] text-[var(--ink-3)] -mt-1 font-bold">km/h</span>
             </div>
           )}
 
           <span className={cn(
             'font-bold tabular-nums',
-            remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-white',
+            remaining === 0 ? 'text-accent' : remaining < 120 ? 'text-orange-300' : 'text-[var(--ink)]',
           )}>
             {remaining === 0 ? 'Fast da!' : `~${m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s}s`}`}
           </span>
@@ -1990,7 +1990,7 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
       </div>
 
       {/* Route progress bar */}
-      <div className="h-1 rounded-full bg-white/10 overflow-hidden">
+      <div className="h-1 rounded-full bg-[var(--surface-2)] overflow-hidden">
         <div
           className={cn(
             'h-full rounded-full transition-all',
