@@ -43,7 +43,9 @@ export default async function FahrerAppPage() {
       ? svc.from('mise_delivery_batches')
           .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,eta_earliest,eta_latest,kunde_notiz,kunde_lieferhinweis))')
           .eq('driver_id', miseDriver.id)
-          .in('state', ['assigned', 'at_restaurant', 'on_route'])
+          .in('state', ['assigned', 'at_restaurant', 'on_route', 'in_progress'])
+          .order('created_at', { ascending: false })
+          .limit(1)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
