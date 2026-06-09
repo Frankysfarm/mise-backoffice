@@ -64,7 +64,7 @@ const EVENT_MESSAGES: Record<CustomerEventType, string> = {
 // ── Schreiben ─────────────────────────────────────────────────────────────────
 
 /**
- * Schreibt ein Customer-Delivery-Event.
+ * Schreibt ein Customer-Delivery-Event und stellt eine Push-Benachrichtigung in die Queue.
  * Fire-and-forget: niemals eine Exception nach oben propagieren.
  */
 export async function recordCustomerEvent(
@@ -73,22 +73,32 @@ export async function recordCustomerEvent(
   eventType: CustomerEventType,
   metadata?: Record<string, unknown>,
 ): Promise<void> {
-  const { error } = await sb()
+  const messageDe = EVENT_MESSAGES[eventType];
+
+  const { data: inserted, error } = await sb()
     .from('customer_delivery_events')
     .insert({
       order_id:    orderId,
       location_id: locationId,
       event_type:  eventType,
-      message_de:  EVENT_MESSAGES[eventType],
+      message_de:  messageDe,
       metadata:    metadata ?? null,
       created_at:  new Date().toISOString(),
-    });
+    })
+    .select('id')
+    .maybeSingle();
 
   if (error) {
-    // Tabelle existiert noch nicht (Migration 031 fehlt) → still
     if (error.message.includes('customer_delivery_events') || error.code === '42P01') return;
     console.error('[customer-notify] recordCustomerEvent:', error.message, { orderId, eventType });
+    return;
   }
+
+  // Push-Benachrichtigung fire-and-forget (dynamischer Import → kein zirkulärer Import)
+  const eventId = (inserted as { id: string } | null)?.id;
+  import('./customer-push').then(({ enqueueForOrder }) =>
+    enqueueForOrder(orderId, locationId, eventId, eventType, messageDe, metadata),
+  ).catch(() => { /* graceful */ });
 }
 
 // ── Lesen ─────────────────────────────────────────────────────────────────────

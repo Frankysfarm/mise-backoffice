@@ -179,7 +179,17 @@
 - [x] Bugfix: `vehicle` undefined → `driver.fahrzeug_praeferenz` (Fahrer-App goOffline/toggleOnline)
 - [x] Bugfix: Supabase Join-Cast Array → `as { name: string } | null` (Payouts CSV-Export)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–48 + CEO REVIEW #41 ABGESCHLOSSEN — 2026-06-09
+- [x] customer_notification_config Tabelle (Migration 041)
+- [x] customer_notification_queue Tabelle (Migration 041)
+- [x] v_pending_customer_notifications View (Migration 041)
+- [x] v_customer_notification_log View (Migration 041)
+- [x] customer-push.ts (Push Notification Engine: enqueueForOrder / enqueueCustomerNotification / processAllCustomerNotifications / getNotificationConfig / upsertNotificationConfig / getNotificationLog / getNotificationStats)
+- [x] GET+POST /api/delivery/admin/notification-config (Tenant-Konfiguration: Webhook-URL, Secret, Events, Rate-Limit)
+- [x] GET /api/delivery/admin/notification-log (Admin-Übersicht gesendeter Benachrichtigungen)
+- [x] recordCustomerEvent() → enqueueForOrder() Integration (fire-and-forget nach Event-Insert)
+- [x] processAllCustomerNotifications() im Cron-Tick (HMAC-signierter Webhook-Versand, 3 Retries)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–49 + CEO REVIEW #41 ABGESCHLOSSEN — 2026-06-09
 
 ### CEO Review #39 (2026-06-08)
 - TypeScript: 30 Fehler gefunden → **0 Fehler nach Fix** ✅

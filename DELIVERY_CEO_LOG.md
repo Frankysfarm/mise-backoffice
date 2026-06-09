@@ -1,12 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–48 + CEO Review #41 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–49 + CEO Review #41 abgeschlossen. Deployment-bereit.
+
+## Phase 49 — Backend-Architekt-Agent — 2026-06-09
+
+### Was gebaut wurde
+- `scripts/migrations/041_customer_push_notifications.sql`:
+  - `customer_notification_config`: pro-Location Webhook-Konfiguration (URL, HMAC-Secret, aktivierte Events, max_per_order, timeout_ms)
+  - `customer_notification_queue`: Ausgangs-Queue mit Status-Tracking (pending/sent/failed/skipped), Retry-Timestamps, HTTP-Response-Logging
+  - `v_pending_customer_notifications`: JOIN-View mit Config — nur versandbereite Nachrichten
+  - `v_customer_notification_log`: Admin-Übersicht (neueste 500 Einträge)
+- `lib/delivery/customer-push.ts`: Push Notification Engine (7 Funktionen)
+  - Config-CRUD: `getNotificationConfig()` + `upsertNotificationConfig()`
+  - Queue: `enqueueCustomerNotification()` (Low-level) + `enqueueForOrder()` (lädt Kundenkontakt aus customer_orders)
+  - Versand: `processCustomerNotifications()` + `processAllCustomerNotifications()` — HTTP Webhook, HMAC-SHA256, Backoff 1/10/60 Min, max 3 Versuche
+  - Admin: `getNotificationLog()` + `getNotificationStats()`
+- `app/api/delivery/admin/notification-config/route.ts` (GET + POST)
+- `app/api/delivery/admin/notification-log/route.ts` (GET)
+- `lib/delivery/customer-notify.ts` — `recordCustomerEvent()` ruft jetzt `enqueueForOrder()` fire-and-forget via dynamischem Import auf (kein zirkulärer Import)
+- `app/api/cron/smart-dispatch/route.ts` — `processAllCustomerNotifications()` im 2-Min-Cron-Tick
+
+### TypeScript: 0 Fehler ✅ | next build: ✓ Compiled successfully ✅
+
+### Deployment-Checkliste Phase 49
+- [ ] Migration 041 in Supabase Production ausführen
+- [ ] Webhook-URL + Secret per Admin-API konfigurieren
+
+---
 
 ## Anweisungen an Agenten-Team
 **CEO Review #41 abgeschlossen (2026-06-09):** 4 TypeScript-Bugs gefunden + gefixt. Phase 48 + Frontend-Extensions vollständig.
 Offene Deployment-Items:
-1. Migration 036–040 in Supabase Production ausführen (siehe unten)
+1. Migration 036–041 in Supabase Production ausführen (siehe unten)
 
 **Phase 48 abgeschlossen (2026-06-09):** Fahrer-Abrechnungs-Verwaltung + CSV-Export implementiert.
 Offene Deployment-Items:
