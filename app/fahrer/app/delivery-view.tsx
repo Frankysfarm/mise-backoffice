@@ -521,7 +521,7 @@ export function DeliveryView({
           </div>
           <div className="flex-1 flex flex-col items-end gap-1.5 ml-3">
             <div className="w-full h-1.5 bg-[var(--surface-2)] rounded-full overflow-hidden">
-              <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
+              <div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
             </div>
             {estimatedEarnings > 0 && (
               <div className="inline-flex items-center gap-1 rounded-full bg-accent/15 border border-[var(--accent)]/30 px-2 py-1">
@@ -637,7 +637,7 @@ export function DeliveryView({
           })()}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="flex items-center gap-1 text-[var(--ink-3)]">
-              <span className="h-5 w-5 rounded-full bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center font-black text-[10px]">
+              <span className="h-5 w-5 rounded-full bg-[var(--accent)] text-white flex items-center justify-center font-black text-[10px]">
                 {nextStop.reihenfolge}
               </span>
               Stopp {nextStop.reihenfolge} von {stops.length}
@@ -711,7 +711,7 @@ export function DeliveryView({
                   href={isIos ? appleUrl : googleUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-bold text-sm transition active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[var(--accent)] text-white font-bold text-sm transition active:scale-[0.98]"
                 >
                   <Navigation size={14} />
                   {isIos ? 'Apple Maps' : 'Google Maps'}
@@ -922,7 +922,7 @@ export function DeliveryView({
                 <span className="text-[var(--ink-3)]">·</span>
                 <div className="flex-1 h-1 rounded-full bg-[var(--surface-2)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-accent transition-all"
+                    className="h-full rounded-full bg-[var(--accent)] transition-all"
                     style={{ width: `${Math.max(0, ((totalDistM - remainDistM) / totalDistM) * 100)}%` }}
                   />
                 </div>
@@ -1019,7 +1019,7 @@ export function DeliveryView({
                             </span>
                           )}
                           {isNext && (
-                            <span className="rounded-full bg-[var(--accent)] text-[var(--ink)] px-1.5 py-0.5 text-[8px] font-black">
+                            <span className="rounded-full bg-[var(--accent)] text-white px-1.5 py-0.5 text-[8px] font-black">
                               Nächster
                             </span>
                           )}
@@ -1331,7 +1331,7 @@ export function DeliveryView({
                 <button
                   onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
                   disabled={proofPending || (proofType === 'photo' && !proofPhotoBlob)}
-                  className="flex-1 h-12 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-1 h-12 rounded-xl bg-[var(--accent)] text-white font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {proofPending
                     ? <Loader2 size={16} className="animate-spin" />
@@ -1362,7 +1362,7 @@ export function DeliveryView({
                 <div className={cn(
                   'h-12 w-12 rounded-xl grid place-items-center font-display font-black text-lg shrink-0',
                   done ? 'bg-[var(--surface-2)] text-accent' :
-                  isNext ? 'bg-[var(--accent)] text-[var(--ink)]' :
+                  isNext ? 'bg-[var(--accent)] text-white' :
                   'bg-[var(--surface-2)] text-[var(--ink-2)]',
                 )}>
                   {done ? <Check size={20} /> : stop.reihenfolge}
@@ -1622,7 +1622,7 @@ export function DeliveryView({
                   <button
                     onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                     disabled={pending === stop.id || proofPending}
-                    className="flex-1 h-11 rounded-xl bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
+                    className="flex-1 h-11 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center gap-2 font-display font-bold active:scale-[0.98] disabled:opacity-50"
                   >
                     {pending === stop.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                     {isBar ? 'Kassiert & Zugestellt' : 'Zugestellt'}
@@ -1807,7 +1807,7 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
     <button
       onClick={close}
       disabled={closing}
-      className="w-full h-14 rounded-2xl bg-[var(--accent)] text-[var(--ink)] font-display font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-accent/30"
+      className="w-full h-14 rounded-2xl bg-[var(--accent)] text-white font-display font-black text-lg flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-60 shadow-xl shadow-accent/30"
     >
       {closing ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
       {closing ? 'Wird abgeschlossen…' : 'Tour abschließen'}

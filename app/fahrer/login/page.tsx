@@ -59,7 +59,7 @@ export default function FahrerLoginPage() {
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
       <div className="flex-1 flex flex-col justify-center px-6 py-12 max-w-md mx-auto w-full">
         <div className="flex items-center gap-3 mb-10">
-          <div className="h-12 w-12 rounded-2xl bg-[var(--accent)] text-[var(--ink)] flex items-center justify-center">
+          <div className="h-12 w-12 rounded-2xl bg-[var(--accent)] text-white flex items-center justify-center">
             <Bike size={24} />
           </div>
           <div>
@@ -128,7 +128,7 @@ export default function FahrerLoginPage() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] text-[var(--ink)] py-4 font-display font-bold disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[var(--accent)] text-white py-4 font-display font-bold disabled:opacity-60"
           >
             {busy ? (
               <>

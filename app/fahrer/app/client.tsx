@@ -413,7 +413,7 @@ export function FahrerApp({
         <div className="flex items-center gap-3">
           <div className={cn(
             'h-11 w-11 rounded-2xl flex items-center justify-center',
-            isOnline ? 'bg-[var(--accent)] text-[var(--ink)]' : 'bg-[var(--surface-2)]',
+            isOnline ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-2)]',
           )}>
             <Bike size={22} />
           </div>
@@ -469,7 +469,7 @@ export function FahrerApp({
               className={cn(
                 'w-full rounded-3xl p-5 font-display font-bold text-lg flex items-center gap-4 transition active:scale-[0.98]',
                 isOnline
-                  ? 'bg-[var(--accent)] text-[var(--ink)] shadow-lg'
+                  ? 'bg-[var(--accent)] text-white shadow-lg'
                   : 'bg-[var(--surface-2)] border-2 border-[var(--line)] text-[var(--ink-2)]',
               )}
             >
@@ -652,7 +652,7 @@ export function FahrerApp({
                       )}>
                         <div className={cn(
                           'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
-                          kitchenReady ? 'bg-[var(--accent)] text-[var(--ink)]' : 'bg-[var(--accent-tint)] text-accent',
+                          kitchenReady ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-accent',
                         )}>{kitchenReady ? '✓' : stop.reihenfolge}</div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -766,7 +766,7 @@ export function FahrerApp({
             {/* Großer Pick-Starten Button */}
             <button
               onClick={() => setPickOpen(true)}
-              className="w-full h-16 rounded-2xl bg-[var(--accent)] text-[var(--ink)] font-display text-xl font-black inline-flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl shadow-accent/30"
+              className="w-full h-16 rounded-2xl bg-[var(--accent)] text-white font-display text-xl font-black inline-flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl shadow-accent/30"
             >
               <ShoppingBag className="h-6 w-6" />
               Jetzt Packen & Kontrollieren
@@ -1262,7 +1262,7 @@ function OpenBatchSection({
         <ShoppingBag className="h-4 w-4" />
         <h2 className="font-display text-sm font-bold uppercase tracking-wider">Verfügbare Touren</h2>
         {grouped.length > 0 && (
-          <span className="ml-auto rounded-full bg-[var(--accent)] text-[var(--ink)] px-2 py-0.5 text-xs font-bold">{grouped.length}</span>
+          <span className="ml-auto rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-xs font-bold">{grouped.length}</span>
         )}
       </div>
 
@@ -1289,7 +1289,7 @@ function OpenBatchSection({
             return (
             <div key={batchId} className={cn('rounded-2xl p-4', isBestChoice ? 'bg-[var(--accent-tint)] border-2 border-accent' : 'bg-[var(--accent-tint)] border-2 border-[var(--accent)]/30')}>
               <div className="flex items-start gap-3 mb-3">
-                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', isBestChoice ? 'bg-[var(--accent)] text-[var(--ink)]' : 'bg-[var(--accent-tint)] text-accent')}>
+                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', isBestChoice ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-accent')}>
                   <Zap size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1298,7 +1298,7 @@ function OpenBatchSection({
                       {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
                     </div>
                     {isBestChoice && (
-                      <span className="rounded-full bg-[var(--accent)] text-[var(--ink)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide">
+                      <span className="rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide">
                         ⭐ Beste Wahl
                       </span>
                     )}
@@ -1398,7 +1398,7 @@ function OpenBatchSection({
               <button
                 onClick={() => onClaim(batchId)}
                 disabled={pending}
-                className="w-full h-14 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+                className="w-full h-14 rounded-xl bg-[var(--accent)] text-white font-display font-bold text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                 {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
@@ -1523,7 +1523,7 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
           </div>
         </div>
         {totalBadge > 0 && !expanded && (
-          <span className="rounded-full bg-[var(--accent)] text-[var(--ink)] px-2 py-0.5 text-xs font-black">
+          <span className="rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-xs font-black">
             {totalBadge}
           </span>
         )}
@@ -1627,7 +1627,7 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
                       <button
                         onClick={() => doClaim(slot)}
                         disabled={claimPending === slot.slotStart}
-                        className="h-9 px-3 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold text-xs inline-flex items-center gap-1.5 shrink-0 transition active:scale-95 disabled:opacity-60"
+                        className="h-9 px-3 rounded-xl bg-[var(--accent)] text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shrink-0 transition active:scale-95 disabled:opacity-60"
                       >
                         {claimPending === slot.slotStart
                           ? <Loader2 size={12} className="animate-spin" />
@@ -1755,7 +1755,7 @@ function SchichtAbschlussModal({
           </button>
           <button
             onClick={onCancel}
-            className="w-full h-12 rounded-2xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
+            className="w-full h-12 rounded-2xl bg-[var(--accent)] text-white font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
           >
             Weiter arbeiten
           </button>

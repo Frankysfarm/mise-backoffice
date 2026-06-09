@@ -77,7 +77,7 @@ export function PickDialog({
         <span className="font-bold">{confirmed} / {local.length}</span>
         <span className="text-[var(--ink-3)]">Items bestätigt</span>
         <div className="flex-1 h-1.5 bg-[var(--surface-2)] rounded-full ml-2 overflow-hidden">
-          <div className="h-full bg-accent transition-all" style={{ width: `${(confirmed / local.length) * 100}%` }} />
+          <div className="h-full bg-[var(--accent)] transition-all" style={{ width: `${(confirmed / local.length) * 100}%` }} />
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export function PickDialog({
               <div className="flex items-start gap-3">
                 <div className={`h-10 w-10 rounded-xl grid place-items-center font-display font-black shrink-0 ${
                   done
-                    ? missing ? 'bg-red-500 text-[var(--ink)]' : 'bg-[var(--accent)] text-[var(--ink)]'
+                    ? missing ? 'bg-red-500 text-[var(--ink)]' : 'bg-[var(--accent)] text-white'
                     : 'bg-[var(--surface-2)] text-[var(--ink-2)]'
                 }`}>
                   {done ? (missing ? <AlertCircle size={18} /> : <Check size={18} />) : (idx + 1)}
@@ -118,7 +118,7 @@ export function PickDialog({
                   <button
                     onClick={() => confirm(item.id, false)}
                     disabled={pending === item.id}
-                    className="flex-1 h-12 rounded-xl bg-[var(--accent)] text-[var(--ink)] font-display font-bold inline-flex items-center justify-center gap-2 active:scale-[0.98]"
+                    className="flex-1 h-12 rounded-xl bg-[var(--accent)] text-white font-display font-bold inline-flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     {pending === item.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                     Ist dabei
@@ -148,7 +148,7 @@ export function PickDialog({
         <button
           onClick={complete}
           disabled={!allDone || pending === 'complete'}
-          className="w-full h-14 rounded-2xl bg-[var(--accent)] text-[var(--ink)] font-display font-black text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-40"
+          className="w-full h-14 rounded-2xl bg-[var(--accent)] text-white font-display font-black text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-40"
         >
           {pending === 'complete' ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
           {allDone ? 'Alles dabei — losfahren' : `Noch ${local.length - confirmed} prüfen`}
