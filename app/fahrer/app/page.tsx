@@ -43,25 +43,17 @@ export default async function FahrerAppPage() {
       ? svc.from('mise_delivery_batches')
           .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis))')
           .eq('driver_id', miseDriver.id)
-          .in('state', ['assigned', 'at_restaurant', 'on_route', 'in_progress'])
+          .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
 
-  console.log('[FAHRER-DBG]', JSON.stringify({
-    uid: user.id,
-    mise: (miseDriver as any)?.id ?? null,
-    activeId: (miseActiveBatch as any)?.id ?? null,
-    activeState: (miseActiveBatch as any)?.state ?? null,
-    activeStops: ((miseActiveBatch as any)?.stops ?? []).length,
-    legacyActive: (legacyActiveBatch as any)?.id ?? null,
-  }));
   // Mise-Batch auf Legacy-Format normalisieren (client.tsx erwartet ActiveBatch-Typ)
   const normalizedMiseBatch = miseActiveBatch ? {
     id: (miseActiveBatch as any).id,
-    status: (miseActiveBatch as any).state === 'on_route' ? 'unterwegs' : 'pickup',
+    status: ['in_progress', 'picked_up'].includes((miseActiveBatch as any).state) ? 'unterwegs' : 'pickup',
     started_at: null,
     stops: ((miseActiveBatch as any).stops ?? [])
       .filter((s: any) => s.type === 'dropoff')
