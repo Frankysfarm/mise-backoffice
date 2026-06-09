@@ -663,6 +663,31 @@ export function KitchenBoard({
                     )}
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* Stationsverteilung — nur für in_zubereitung + bestätigt */}
+                    {(col.status === 'in_zubereitung' || col.status === 'bestätigt') && colOrders.length > 0 && (() => {
+                      const stationCounts: Partial<Record<PrepStation, number>> = {};
+                      for (const o of colOrders) {
+                        for (const it of o.items ?? []) {
+                          const st = classifyStation(it.name);
+                          stationCounts[st] = (stationCounts[st] ?? 0) + it.menge;
+                        }
+                      }
+                      const entries = (Object.entries(stationCounts) as [PrepStation, number][]).filter(([, n]) => n > 0);
+                      if (entries.length === 0) return null;
+                      const dotColors: Record<PrepStation, string> = {
+                        Grill: 'bg-orange-400', Warm: 'bg-red-400', Kalt: 'bg-sky-400', Sonstiges: 'bg-matcha-500',
+                      };
+                      return (
+                        <div className="flex items-center gap-1">
+                          {entries.map(([st, n]) => (
+                            <span key={st} className="inline-flex items-center gap-0.5 rounded-full bg-black/5 px-1.5 py-0.5 text-[8px] font-black tabular-nums">
+                              <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', dotColors[st])} />
+                              {n}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     {/* "Nächste fertig" — nur für in_zubereitung */}
                     {col.status === 'in_zubereitung' && colOrders.length > 0 && (() => {
                       const now = Date.now();

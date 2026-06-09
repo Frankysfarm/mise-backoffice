@@ -687,6 +687,49 @@ export function LieferdienstClient() {
                   </div>
                 )
               })()}
+              {/* Stunden-Sparkline: Bestellvolumen der letzten Schichtstunden */}
+              {(() => {
+                const allToday = [...orders, ...completedOrders]
+                if (allToday.length < 3) return null
+                const nowH = new Date().getHours()
+                // Zeige bis zu 8 Stunden rückwärts
+                const hours: { h: number; count: number }[] = []
+                for (let i = 7; i >= 0; i--) {
+                  const h = (nowH - i + 24) % 24
+                  const count = allToday.filter(o => {
+                    const t = (o as any).createdAt ?? (o as any).bestellt_am
+                    if (!t) return false
+                    return new Date(t).getHours() === h
+                  }).length
+                  hours.push({ h, count })
+                }
+                const maxCount = Math.max(...hours.map(x => x.count), 1)
+                if (hours.every(x => x.count === 0)) return null
+                return (
+                  <div className="mb-4 rounded-xl bg-white border border-stone-200 px-4 py-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black uppercase tracking-wider text-stone-400">Bestellungen je Stunde</span>
+                      <span className="text-[9px] text-stone-400 tabular-nums">letzte 8h</span>
+                    </div>
+                    <div className="flex items-end gap-1 h-10">
+                      {hours.map(({ h, count }) => {
+                        const isNow = h === nowH
+                        const pct = Math.max(4, Math.round((count / maxCount) * 100))
+                        return (
+                          <div key={h} className="flex-1 flex flex-col items-center gap-0.5">
+                            <div
+                              className={`w-full rounded-t-sm transition-all ${isNow ? 'bg-amber-400' : count > 0 ? 'bg-stone-300' : 'bg-stone-100'}`}
+                              style={{ height: `${pct}%` }}
+                              title={`${h}:00 – ${count} Bestellungen`}
+                            />
+                            <span className={`text-[8px] tabular-nums font-bold ${isNow ? 'text-amber-600' : 'text-stone-400'}`}>{h}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
               {/* Live-Lieferungs-Statusbar */}
               {(() => {
                 const activeDrivers = drivers.filter(d => d.status !== 'offline')

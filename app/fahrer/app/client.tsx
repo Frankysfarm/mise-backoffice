@@ -517,6 +517,52 @@ export function FahrerApp({
               </div>
             </div>
 
+            {/* Küchen-Bereitschafts-Fortschritt: X von Y Bestellungen fertig */}
+            {(() => {
+              const total = activeBatch.stops.length;
+              if (total === 0) return null;
+              const readyCount = activeBatch.stops.filter((s) => {
+                const ks = kitchenStatuses.get(s.order_id);
+                return ks === 'fertig' || ks === 'unterwegs';
+              }).length;
+              const cookingCount = activeBatch.stops.filter((s) => kitchenStatuses.get(s.order_id) === 'in_zubereitung').length;
+              const allReady = readyCount === total;
+              const pct = Math.round((readyCount / total) * 100);
+              return (
+                <div className={cn(
+                  'rounded-xl border px-4 py-3 mb-3',
+                  allReady
+                    ? 'bg-accent/15 border-accent/40'
+                    : cookingCount > 0
+                    ? 'bg-orange-500/10 border-orange-400/30'
+                    : 'bg-white/5 border-white/10',
+                )}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={cn(
+                      'text-[11px] font-bold uppercase tracking-wider',
+                      allReady ? 'text-accent' : 'text-matcha-300',
+                    )}>
+                      {allReady ? '✓ Alle bereit zum Abholen' : `Küche: ${readyCount} von ${total} fertig`}
+                    </span>
+                    {cookingCount > 0 && (
+                      <span className="text-[10px] font-bold text-orange-300 animate-pulse">
+                        {cookingCount} kocht noch
+                      </span>
+                    )}
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all duration-500',
+                        allReady ? 'bg-accent' : pct >= 50 ? 'bg-orange-400' : 'bg-matcha-500',
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Cash-to-collect Banner */}
             {(() => {
               const cashStops = activeBatch.stops.filter((s) => {

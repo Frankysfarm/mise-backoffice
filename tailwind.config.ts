@@ -43,6 +43,10 @@ const config: Config = {
         },
         gold:    { DEFAULT: '#d4a843', soft: '#f0e6d3' },
         surface: { DEFAULT: '#f5f2ed', warm: '#f0e6d3' },
+        // Lieferdienst-UI theme colors
+        saffron: { DEFAULT: '#f4a623', light: '#fef3dc', dark: '#c5830c' },
+        char:    '#1c1917',
+        steel:   '#6b7280',
       },
       fontFamily: {
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],
