@@ -366,7 +366,7 @@ export function FahrerApp({
         }
         window.location.reload();
       } else {
-        alert((data as any)?.error ?? 'Konnte Tour nicht annehmen');
+        console.warn('claim failed:', (data as any)?.error);
       }
     });
   }
@@ -776,14 +776,22 @@ export function FahrerApp({
           </section>
         )}
 
-        {/* Open Batches — Pickup Inbox */}
-        {!activeBatch && isOnline && (
-          <OpenBatchSection
-            openBatches={openBatches}
-            pending={pending}
-            onClaim={claimBatch}
-            driverPos={driverPos}
-          />
+        {/* Eingehende Bestellung(en) — POPUP zum Annehmen */}
+        {!activeBatch && isOnline && openBatches.length > 0 && (
+          <div className="fixed inset-0 z-[60] bg-matcha-900/95 backdrop-blur-sm flex flex-col p-4 overflow-y-auto">
+            <div className="text-center pt-5 pb-3 shrink-0">
+              <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 text-accent px-4 py-1.5 font-display font-black uppercase tracking-wider text-sm animate-pulse">
+                <ShoppingBag size={16} /> Neue Bestellung
+              </div>
+              <div className="text-matcha-200 text-sm mt-2">Nimm die Tour an, um loszulegen</div>
+            </div>
+            <OpenBatchSection
+              openBatches={openBatches}
+              pending={pending}
+              onClaim={claimBatch}
+              driverPos={driverPos}
+            />
+          </div>
         )}
 
         {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
