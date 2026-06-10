@@ -260,6 +260,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   } | null>(null)
   const [payoutPeriods, setPayoutPeriods] = useState<PayoutPeriodRow[]>([])
   const [payoutPeriodsLoading, setPayoutPeriodsLoading] = useState(false)
+  const [weekTrend, setWeekTrend] = useState<{ day: string; bestellungen: number; geliefert: number }[]>([])
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -426,6 +427,47 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       .then(d => { if (Array.isArray(d?.events) && d.events.length > 0) setEventLog(d.events) })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 7-Tage-Verlauf: letzte 7 Tage direkt aus customer_orders
+  useEffect(() => {
+    const locationId = (orders[0] as any)?.location_id ?? (completedOrders[0] as any)?.location_id
+    const supabase = createClient()
+    const since = new Date()
+    since.setDate(since.getDate() - 6)
+    since.setHours(0, 0, 0, 0)
+    supabase
+      .from('customer_orders')
+      .select('created_at, status, location_id')
+      .gte('created_at', since.toISOString())
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        if (!data) return
+        const filtered: { created_at: string; status: string; location_id: string | null }[] =
+          locationId ? (data as any[]).filter((o) => o.location_id === locationId) : (data as any[])
+        const slots = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date()
+          d.setDate(d.getDate() - (6 - i))
+          d.setHours(0, 0, 0, 0)
+          return { day: d.toLocaleDateString('de-DE', { weekday: 'short' }), date: d }
+        })
+        const result = slots.map(({ day, date }) => {
+          const next = new Date(date)
+          next.setDate(next.getDate() + 1)
+          const dayOrders = filtered.filter((o) => {
+            const t = new Date(o.created_at).getTime()
+            return t >= date.getTime() && t < next.getTime()
+          })
+          return {
+            day,
+            bestellungen: dayOrders.length,
+            geliefert: dayOrders.filter((o) => o.status === 'done' || o.status === 'delivered').length,
+          }
+        })
+        if (result.some((r) => r.bestellungen > 0)) setWeekTrend(result)
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const deliveredOrders = completedOrders.filter(o => o.status === 'done')
@@ -864,6 +906,40 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* 7-Tage-Verlauf */}
+      {weekTrend.length > 0 && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-bold text-char">7-Tage-Verlauf</span>
+            <span className="ml-auto text-[10px] text-stone-400 uppercase tracking-wider">letzte 7 Tage</span>
+          </div>
+          <ResponsiveContainer width="100%" height={140}>
+            <BarChart data={weekTrend} barGap={2} barCategoryGap="25%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={24} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 12 }}
+                formatter={(value: number, name: string) => [value, name === 'bestellungen' ? 'Bestellungen' : 'Geliefert']}
+              />
+              <Bar dataKey="bestellungen" fill="#c4b5fd" radius={[3, 3, 0, 0]} name="bestellungen" />
+              <Bar dataKey="geliefert" fill="#34d399" radius={[3, 3, 0, 0]} name="geliefert" />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="flex items-center justify-center gap-5 mt-3 text-[10px] text-stone-500">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-2.5 h-2.5 rounded-sm bg-violet-300" />
+              Bestellungen
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-400" />
+              Geliefert
+            </span>
           </div>
         </div>
       )}

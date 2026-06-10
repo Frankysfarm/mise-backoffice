@@ -1743,6 +1743,40 @@ export function DeliveryView({
                 );
               })()}
 
+              {/* Geschätzter Fahrer-Verdienst */}
+              {(() => {
+                const BASE_PER_STOP = 3.00;
+                const KM_RATE = 0.25;
+                const baseEarning = stops.length * BASE_PER_STOP;
+                const kmEarning = totalDistKm > 0 ? totalDistKm * KM_RATE : 0;
+                const totalEstimate = baseEarning + kmEarning;
+                return (
+                  <div className="rounded-xl bg-matcha-900/60 border border-matcha-500/30 p-4">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300 mb-3 flex items-center gap-1.5">
+                      <TrendingUp size={10} className="text-accent" />
+                      Geschätzter Verdienst
+                    </div>
+                    <div className="space-y-1.5 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-matcha-200">{stops.length}× Stopps × {euro(BASE_PER_STOP)}</span>
+                        <span className="font-bold tabular-nums text-white">{euro(baseEarning)}</span>
+                      </div>
+                      {totalDistKm > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-matcha-200">{totalDistKm.toFixed(1)} km × {euro(KM_RATE)}</span>
+                          <span className="font-bold tabular-nums text-white">{euro(kmEarning)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-matcha-600/50 flex items-center justify-between">
+                      <span className="text-sm font-bold text-white">Schätzung gesamt</span>
+                      <span className="font-display text-xl font-black text-accent">{euro(totalEstimate)}</span>
+                    </div>
+                    <p className="text-[9px] text-matcha-400 mt-2">Offizielle Abrechnung erfolgt durch die Zentrale</p>
+                  </div>
+                );
+              })()}
+
               {/* Cash collection summary */}
               {totalCash > 0 && (
                 <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 text-left">
