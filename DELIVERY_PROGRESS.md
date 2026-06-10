@@ -2,6 +2,8 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] FahrerRankingCard (Wochen-Ranking im Warte-Zustand)
+- [x] KitchenDispatchPressureChip (Rückstau-Indikator in Küchen-Toolbar)
 - [x] delivery_zones Tabelle
 - [x] delivery_tours Tabelle
 - [x] tour_stops Tabelle
@@ -2469,3 +2471,10 @@ Siehe DELIVERY_CEO_LOG.md
   - 9 API-Routes unter app/api/delivery/
   - Build: Compiled successfully
 - 2026-05-27: Projekt gestartet, Agenten eingerichtet
+
+- 2026-06-10: Frontend-Ingenieur — Phase 57: FahrerRankingCard + KitchenDispatchPressureChip
+  - FahrerRankingCard: Wochen-Ranking (#Platz/Gesamt), Stops/Touren/km, Trend ↑↓=, Medaillen 🥇🥈🥉
+    Erscheint im Warte-Zustand (online, kein aktiver Batch) via /api/delivery/driver/my-performance
+  - KitchenDispatchPressureChip: Toolbar-Chip zeigt fertige Lieferbestellungen die auf Dispatch warten
+    Farbampel: grün (1), orange (2–3), rot+pulse (4+) — sofort sichtbar für Küchenpersonal
+  - Build: Compiled successfully, 0 TypeScript-Fehler
