@@ -429,6 +429,11 @@ export function KitchenBoard({
       {/* Nächste Fahrerankünfte: wann kommt welcher Fahrer, welche Orders mitnehmen? */}
       <KitchenUpcomingPickupStrip batches={batches} drivers={drivers} stops={stops} orders={filtered} />
 
+      {/* Handoff-Matrix: Ready-Target vs. Fahrerankünfte — zeigt Konflikte (Fahrer früher als Essen fertig) */}
+      {timings.length > 0 && (
+        <KitchenHandoffMatrix batches={batches} drivers={drivers} stops={stops} orders={filtered} timings={timings} />
+      )}
+
       {/* Queue-Signal-Steuerung: Bestellfluss pausieren / ETA verlängern */}
       <QueueSignalControl locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
 
@@ -4946,5 +4951,213 @@ function QueueSignalControl({ locationId }: { locationId: string | null }) {
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ KitchenHandoffMatrix ------------------------------ */
+
+function KitchenHandoffMatrix({
+  batches, drivers, stops, orders, timings,
+}: {
+  batches: Batch[];
+  drivers: Driver[];
+  stops: Stop[];
+  orders: Order[];
+  timings: KitchenTiming[];
+}) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+
+  // Only batches that are en-route and returning within 30 min
+  type Row = {
+    batch: Batch;
+    driver: Driver | undefined;
+    arrivalMs: number;
+    secLeft: number;
+    entries: Array<{
+      order: Order;
+      timing: KitchenTiming | undefined;
+      readyMs: number | null;
+      gapSec: number | null; // positive = food ready before driver; negative = driver arrives early
+    }>;
+  };
+
+  const rows: Row[] = batches
+    .filter((b) => b.status === 'unterwegs' || b.status === 'on_route' || b.status === 'assigned' || b.status === 'pickup')
+    .flatMap((b) => {
+      const etaMs = b.started_at && b.total_eta_min != null
+        ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+        : null;
+      if (!etaMs) return [];
+      const secLeft = Math.floor((etaMs - now) / 1000);
+      if (secLeft > 30 * 60 || secLeft < -5 * 60) return [];
+
+      const batchStops = stops
+        .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+        .sort((a, c) => a.reihenfolge - c.reihenfolge);
+
+      const entries = batchStops
+        .map((s) => {
+          const order = orders.find((o) => o.id === s.order_id);
+          if (!order) return null;
+          const timing = timings.find((t) => t.order_id === order.id);
+          const readyMs = timing?.ready_target ? new Date(timing.ready_target).getTime() : null;
+          // gap: how many seconds food will be ready BEFORE driver arrives
+          const gapSec = readyMs != null ? Math.floor((etaMs - readyMs) / 1000) : null;
+          return { order, timing, readyMs, gapSec };
+        })
+        .filter((e): e is NonNullable<typeof e> => e !== null);
+
+      if (entries.length === 0) return [];
+      const driver = drivers.find((d) => d.id === b.driver_id);
+      return [{ batch: b, driver, arrivalMs: etaMs, secLeft, entries }];
+    })
+    .sort((a, b) => a.secLeft - b.secLeft);
+
+  // Only show if there's at least one entry with timing data
+  const hasTimingData = rows.some((r) => r.entries.some((e) => e.timing));
+  if (rows.length === 0 || !hasTimingData) return null;
+
+  // Count conflicts (driver arrives before food ready)
+  const conflicts = rows.flatMap((r) => r.entries.filter((e) => e.gapSec !== null && e.gapSec < 0));
+
+  return (
+    <div className={cn(
+      'rounded-xl border p-3',
+      conflicts.length > 0 ? 'border-red-300 bg-red-50' : 'border-matcha-200 bg-matcha-50',
+    )}>
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2.5">
+        <Target className="h-3.5 w-3.5 text-matcha-700 shrink-0" />
+        <span className="font-display text-xs font-black uppercase tracking-wider text-matcha-800">
+          Handoff-Matrix
+        </span>
+        {conflicts.length > 0 && (
+          <span className="ml-1 rounded-full bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 animate-pulse">
+            {conflicts.length} Konflikt{conflicts.length !== 1 ? 'e' : ''}
+          </span>
+        )}
+        <span className="ml-auto text-[9px] text-matcha-500 font-semibold">
+          Ready-Target vs. Ankunft
+        </span>
+      </div>
+
+      {/* Rows */}
+      <div className="space-y-2">
+        {rows.map(({ batch, driver, arrivalMs, secLeft, entries }) => {
+          const overdue = secLeft < 0;
+          const imminent = !overdue && secLeft < 5 * 60;
+          const minLeft = Math.abs(Math.floor(secLeft / 60));
+          const arrivalStr = new Date(arrivalMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          const driverName = driver ? `${driver.vorname.charAt(0)}. ${driver.nachname}` : 'Fahrer';
+
+          return (
+            <div key={batch.id} className="rounded-lg bg-white border border-matcha-100 p-2">
+              {/* Row header: driver + ETA */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={cn(
+                  'h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shrink-0',
+                  overdue ? 'bg-red-500' : imminent ? 'bg-orange-500' : 'bg-matcha-600',
+                )}>
+                  {driverName.charAt(0)}
+                </div>
+                <span className="text-[11px] font-bold text-matcha-800">{driverName}</span>
+                <span className={cn(
+                  'ml-auto text-[11px] font-black tabular-nums',
+                  overdue ? 'text-red-600' : imminent ? 'text-orange-600' : 'text-matcha-700',
+                )}>
+                  {overdue ? `+${minLeft}m überfällig` : imminent ? `~${minLeft} Min` : arrivalStr}
+                </span>
+              </div>
+
+              {/* Order cells */}
+              <div className="flex flex-wrap gap-1.5">
+                {entries.map(({ order, timing, readyMs, gapSec }) => {
+                  const conflict = gapSec !== null && gapSec < 0; // driver arrives before food ready
+                  const ahead   = gapSec !== null && gapSec >= 0; // food ready before driver
+                  const noTiming = !timing;
+
+                  const readyStr = readyMs
+                    ? new Date(readyMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                    : null;
+
+                  const gapMinAbs = gapSec !== null ? Math.abs(Math.floor(gapSec / 60)) : null;
+
+                  return (
+                    <div
+                      key={order.id}
+                      className={cn(
+                        'rounded-lg border px-2 py-1.5 min-w-[72px] text-center',
+                        conflict  ? 'border-red-300 bg-red-50'     :
+                        ahead     ? 'border-matcha-300 bg-matcha-50' :
+                        noTiming  ? 'border-dashed border-muted bg-muted/30' :
+                        'border-amber-200 bg-amber-50',
+                      )}
+                    >
+                      {/* Order number */}
+                      <div className="text-[10px] font-black text-matcha-800 tabular-nums">
+                        #{order.bestellnummer.replace('FF-', '')}
+                      </div>
+
+                      {/* Ready time */}
+                      {readyStr ? (
+                        <div className="text-[9px] tabular-nums text-muted-foreground mt-0.5">{readyStr}</div>
+                      ) : (
+                        <div className="text-[9px] text-muted-foreground italic mt-0.5">kein Timing</div>
+                      )}
+
+                      {/* Gap indicator */}
+                      {gapMinAbs !== null && (
+                        <div className={cn(
+                          'text-[9px] font-black mt-0.5 tabular-nums',
+                          conflict ? 'text-red-600' : 'text-matcha-600',
+                        )}>
+                          {conflict
+                            ? `⚠ ${gapMinAbs}m zu früh`
+                            : gapMinAbs === 0
+                            ? '✓ pünktlich'
+                            : `✓ +${gapMinAbs}m`}
+                        </div>
+                      )}
+
+                      {/* Status dot */}
+                      {timing && (
+                        <div className={cn(
+                          'mt-1 h-1 w-full rounded-full',
+                          timing.status === 'ready'     ? 'bg-matcha-500' :
+                          timing.status === 'cooking'   ? 'bg-orange-400' :
+                          timing.status === 'scheduled' ? 'bg-blue-300'   :
+                          'bg-muted',
+                        )} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap items-center gap-3 mt-2.5 pt-2 border-t border-matcha-100">
+        {[
+          { cls: 'bg-red-500', label: 'Fahrer früher als Essen fertig' },
+          { cls: 'bg-matcha-500', label: 'Essen rechtzeitig fertig' },
+          { cls: 'bg-orange-400', label: 'In Zubereitung' },
+          { cls: 'bg-blue-300', label: 'Geplant' },
+        ].map(({ cls, label }) => (
+          <div key={label} className="flex items-center gap-1">
+            <div className={cn('h-2 w-2 rounded-full shrink-0', cls)} />
+            <span className="text-[9px] text-muted-foreground">{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

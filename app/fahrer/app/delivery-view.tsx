@@ -99,6 +99,7 @@ export function DeliveryView({
   const [restaurantLoc, setRestaurantLoc] = useState<{ lat: number; lng: number; name: string } | null>(null);
   const [showAllStops, setShowAllStops] = useState(false);
   const [routeChangedNotice, setRouteChangedNotice] = useState<{ type: string; ts: number } | null>(null);
+  const [earningsBubble, setEarningsBubble] = useState<{ amount: number; key: number } | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -404,6 +405,10 @@ export function DeliveryView({
     ]);
     setPending(null);
     setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
+    // Kurze Verdienst-Bubble anzeigen
+    const kmBonus = stop.distanz_zum_vorgaenger_m != null ? (stop.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
+    setEarningsBubble({ amount: 1.50 + kmBonus, key: Date.now() });
+    setTimeout(() => setEarningsBubble(null), 3000);
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }
 
@@ -517,6 +522,11 @@ export function DeliveryView({
           </button>
         </div>
       )}
+      {/* Verdienst-Bubble: kurze Einblendung nach jeder Zustellung */}
+      {earningsBubble && (
+        <LiveEarningsBubble key={earningsBubble.key} amount={earningsBubble.amount} />
+      )}
+
       {/* Header */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center justify-between">
@@ -2074,6 +2084,25 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
           )}
           style={{ width: `${progressPct}%` }}
         />
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ LiveEarningsBubble ------------------------------ */
+
+function LiveEarningsBubble({ amount }: { amount: number }) {
+  return (
+    <div
+      className="fixed inset-x-0 top-1/3 z-50 flex justify-center pointer-events-none animate-in fade-in zoom-in-75 duration-300"
+      style={{ animationFillMode: 'both' }}
+    >
+      <div className="flex items-center gap-2 rounded-2xl bg-accent/95 shadow-2xl px-5 py-3 ring-2 ring-accent/40">
+        <TrendingUp className="h-5 w-5 text-matcha-900 shrink-0" />
+        <span className="font-display text-lg font-black text-matcha-900 tabular-nums">
+          +{amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+        </span>
+        <span className="text-[11px] font-bold text-matcha-700">verdient</span>
       </div>
     </div>
   );

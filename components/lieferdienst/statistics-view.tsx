@@ -2061,6 +2061,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         avgEtaMin={avgEtaMin}
       />
 
+      {/* Wochentags-Auslastung: Heatmap der letzten 4 Wochen */}
+      {completedOrders.length > 0 && (
+        <WochentagsHeatmap completedOrders={completedOrders} />
+      )}
+
       {/* Live-Umsatz Schicht */}
       <ShiftRevenuePanel orders={orders} completedOrders={completedOrders} deliveryStats={deliveryStats} />
 
@@ -4416,6 +4421,97 @@ function DriverPayoutPeriodsPanel({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ WochentagsHeatmap ------------------------------ */
+
+const WEEKDAYS_DE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] as const;
+
+function WochentagsHeatmap({ completedOrders }: { completedOrders: Order[] }) {
+  // Build 4-week × 7-day grid from deliveredAt timestamps
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Grid: rows = weeks (0 = current, 3 = 4 weeks ago), cols = day-of-week (0=Mon … 6=Sun)
+  const grid: number[][] = Array.from({ length: 4 }, () => Array(7).fill(0));
+
+  for (const o of completedOrders) {
+    const ts = (o as any).deliveredAt ?? (o as any).delivered_at ?? (o as any).geliefert_am;
+    if (!ts) continue;
+    const d = new Date(ts);
+    const diffDays = Math.floor((today.getTime() - d.setHours(0, 0, 0, 0)) / 86_400_000);
+    if (diffDays < 0 || diffDays >= 28) continue;
+    const weekIdx = Math.floor(diffDays / 7); // 0 = this week
+    // JS getDay(): 0=Sun, 1=Mon…6=Sat → convert to 0=Mon…6=Sun
+    const jsDay = new Date(ts).getDay();
+    const dayIdx = jsDay === 0 ? 6 : jsDay - 1;
+    grid[weekIdx][dayIdx] = (grid[weekIdx][dayIdx] ?? 0) + 1;
+  }
+
+  const maxCount = Math.max(...grid.flat(), 1);
+
+  function cellColor(count: number): string {
+    if (count === 0) return 'bg-stone-100 text-stone-300';
+    const pct = count / maxCount;
+    if (pct >= 0.8) return 'bg-emerald-600 text-white';
+    if (pct >= 0.6) return 'bg-emerald-500 text-white';
+    if (pct >= 0.4) return 'bg-emerald-400 text-white';
+    if (pct >= 0.2) return 'bg-emerald-200 text-emerald-800';
+    return 'bg-emerald-100 text-emerald-600';
+  }
+
+  const weekLabels = ['Diese Woche', 'Vorw.', 'Vor 2W', 'Vor 3W'];
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <CalendarClock className="w-5 h-5 text-emerald-600" />
+        <h3 className="text-lg font-semibold text-char">Wochentags-Auslastung</h3>
+        <span className="ml-auto text-xs text-stone-400">letzte 4 Wochen · abgeschlossene Lieferungen</span>
+      </div>
+
+      {/* Column headers (weekdays) */}
+      <div className="grid grid-cols-[72px_repeat(7,1fr)] gap-1 mb-1">
+        <div />
+        {WEEKDAYS_DE.map((d) => (
+          <div key={d} className="text-center text-[11px] font-bold text-stone-500">{d}</div>
+        ))}
+      </div>
+
+      {/* Rows (weeks) */}
+      {grid.map((row, wIdx) => (
+        <div key={wIdx} className="grid grid-cols-[72px_repeat(7,1fr)] gap-1 mb-1">
+          <div className="text-[10px] font-semibold text-stone-400 flex items-center pr-1">{weekLabels[wIdx]}</div>
+          {row.map((count, dIdx) => {
+            const isToday = wIdx === 0 && dIdx === (today.getDay() === 0 ? 6 : today.getDay() - 1);
+            return (
+              <div
+                key={dIdx}
+                className={[
+                  'rounded-md h-8 flex items-center justify-center text-[11px] font-bold tabular-nums transition',
+                  cellColor(count),
+                  isToday ? 'ring-2 ring-offset-1 ring-emerald-500' : '',
+                ].join(' ')}
+                title={`${WEEKDAYS_DE[dIdx]} ${weekLabels[wIdx]}: ${count} Lieferungen`}
+              >
+                {count > 0 ? count : ''}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* Legend */}
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        <span className="text-[10px] text-stone-400">Wenig</span>
+        {['bg-emerald-100', 'bg-emerald-200', 'bg-emerald-400', 'bg-emerald-500', 'bg-emerald-600'].map((cls) => (
+          <div key={cls} className={`h-3 w-5 rounded-sm ${cls}`} />
+        ))}
+        <span className="text-[10px] text-stone-400">Viel</span>
+        <span className="ml-auto text-[10px] text-stone-400 italic">● = heute</span>
+      </div>
     </div>
   );
 }
