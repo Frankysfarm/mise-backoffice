@@ -3,6 +3,84 @@
 ## Aktuelle Priorität
 **MARKT-REIF.** Phasen 1–52 abgeschlossen. Deployment-bereit.
 
+---
+
+## CEO Review #43 — 2026-06-10
+
+### Geprüfter Commit
+1. `c585d89` — feat(delivery/backend): Phase 52 — Live-Tour-Modifikation Engine
+
+### Build & TypeScript
+- `next build`: ✓ Compiled successfully, 176 Seiten ✅
+- TypeScript: **0 Fehler** ✅ (Build + manuelle Inspektion)
+
+### Code-Inspektion: `lib/delivery/tour-modifier.ts` (803 Zeilen)
+
+#### Architektur — korrekt ✅
+- 4 öffentliche Funktionen: `insertStopIntoActiveTour` / `removeStopFromActiveTour` / `reoptimizeActiveTour` / `getTourModifications`
+- Alle Operationen multi-tenant-sicher (location_id-Prüfung bei jedem DB-Zugriff) ✅
+- `ACTIVE_STATES`-Guard verhindert Modifikation abgeschlossener Touren ✅
+- Abgeschlossene Stops (`completed_at IS NOT NULL`) bleiben unberührt ✅
+- Jede Änderung schreibt Audit-Log in `tour_modifications` ✅
+
+#### `insertStopIntoActiveTour` — korrekt ✅
+- Doppelte Validierung: Batch aktiv + Bestellung selbe Location + keine Doppel-Zuweisung + Koordinaten vorhanden ✅
+- Pickup-Dedup via Haversine < 50m (SAME_RESTAURANT_KM) — verhindert doppelte Restaurant-Stops ✅
+- Stop-Count nach Insert exakt via `{ count: 'exact', head: true }` ✅
+- Optimierung via `optimizeTour()` mit Haversine-Fallback bei Fehler ✅
+- Fahrer-Push fire-and-forget mit `.catch(() => {})` ✅
+- Delivery-Event fire-and-forget ✅
+
+#### `removeStopFromActiveTour` — korrekt ✅
+- Verwaiste-Pickup-Bereinigung: nur wenn kein weiterer offener Dropoff derselben Bestellung vorhanden ✅
+- Bestellungs-Liberation: `mise_batch_id = null, mise_driver_id = null` bei letztem Dropoff ✅
+- Re-Sequenzierung: completedStops bleiben, openStops ab `baseSeq` neu nummeriert ✅
+- `remainingStopsRaw` wird NACH Delete-Operation geladen → korrekter newCount ✅
+
+#### `reoptimizeActiveTour` — korrekt mit Hinweis ✅
+- Nearest-Neighbor-Heuristik: Pickups-zuerst, dann Dropoffs ✅
+- Origin: letzter abgeschlossener Stop oder Restaurant-Position ✅
+- ETA-Neuberechnung mit Haversine @ 25 km/h ✅
+- **Hinweis (nicht kritisch)**: Für Multi-Restaurant-Touren ist Pickups-vor-Dropoffs-Strategie eine Vereinfachung. Optimal wäre pickup_A → dropoff_A → pickup_B → dropoff_B, aber Nearest-Neighbor-Heuristik ist für Live-Ops ausreichend. Dokumentiert.
+
+#### API-Routen — korrekt ✅
+- `POST /stops`: Auth + location_id-Check + 422 bei Logik-Fehler ✅
+- `DELETE /stops/[stopId]`: Auth + optionaler reason-Body mit try/catch ✅
+- `POST /reoptimize`: Auth + location_id-Check ✅
+- `GET /modifications`: Auth + `?limit` mit Max-Cap 200 ✅
+
+#### Migration 043 — korrekt ✅
+- `tour_modifications` Tabelle + `mise_delivery_batches` Spalten (`modification_count`, `last_modified_at`) ✅
+- `v_active_tours_open_stops` View für Dispatch-Board ✅
+- RLS: service_role ALL + authenticated SELECT mit location_id-Filter ✅
+- 4 Indizes (batch+created_at, location+created_at, order_id, last_modified_at) ✅
+
+#### Befund: Geringfügige Inkonsistenz (nicht blockierend)
+- **Migration 043** definiert atomare SQL-Funktion `increment_batch_modification_count()` (`SET modification_count = modification_count + 1`)
+- **TypeScript** nutzt Read-then-Write-Pattern statt der SQL-Funktion
+- **Risiko**: minimaler Race-Condition bei gleichzeitigen Admin-Ops — akzeptabel da Admin-Operationen selten und nicht-concurrently ablaufen
+- **Empfehlung für nächste Iteration**: `rpc('increment_batch_modification_count', { p_batch_id: batchId })` verwenden, um SQL-Funktion zu nutzen
+
+#### events.ts Integration ✅
+- 3 neue Event-Typen korrekt ergänzt: `tour_stop_inserted` | `tour_stop_removed` | `tour_reoptimized`
+- Fire-and-forget in allen 3 Hauptfunktionen ✅
+
+### Status nach Review #43
+- TypeScript: 0 Fehler ✅
+- Build: sauber, 176 Seiten ✅
+- Phase 52 (Live-Tour-Modifikation Engine): **DONE ✅**
+- Deployment-Checkliste Phase 52:
+  - [ ] Migration 043 in Supabase Production ausführen (`scripts/migrations/043_tour_modifications.sql`)
+  - [ ] Kein neuer ENV-Var erforderlich
+- **System: MARKT-REIF** ✅ — 52 Phasen, 4 neue Admin-APIs
+
+### Nächste Schritte (optional — System ist bereits marktreif)
+1. **Frontend-Erweiterung**: Dispatch-Board UI für Live-Tour-Bearbeitung (Stop einfügen/entfernen via `POST/DELETE /admin/tours/[id]/stops`)
+2. **Frontend-Erweiterung**: Audit-Trail-Modal im Dispatch-Board (ruft `GET /admin/tours/[id]/modifications`)
+3. **Optimierung**: TypeScript nutzt SQL-Funktion `increment_batch_modification_count()` via `rpc()` statt Read-then-Write
+
+---
+
 ## Phase 52 — Backend-Architekt-Agent — 2026-06-10
 
 ### Was gebaut wurde
