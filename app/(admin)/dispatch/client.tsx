@@ -750,7 +750,7 @@ export function DispatchBoard({
       <DriverShiftLeaderboard drivers={drivers} batches={batches} />
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
-      {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} />}
+      {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -3369,7 +3369,13 @@ type TourModification = {
   eta_after_min: number | null;
 };
 
-function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; drivers?: Driver[] }) {
+function TourVisualizationPanel({
+  batches, drivers = [], readyOrders = [],
+}: {
+  batches: Batch[];
+  drivers?: Driver[];
+  readyOrders?: ReadyOrder[];
+}) {
   const [open, setOpen] = useState(false);
   const [, setTick] = useState(0);
   const [removePending, setRemovePending] = useState<string | null>(null);
@@ -3377,6 +3383,8 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
   const [modifications, setModifications] = useState<Map<string, TourModification[]>>(new Map());
   const [showMods, setShowMods] = useState<Set<string>>(new Set());
   const [reoptResult, setReoptResult] = useState<Map<string, string>>(new Map());
+  const [addStopOpen, setAddStopOpen] = useState<string | null>(null);
+  const [addStopPending, setAddStopPending] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 5000);
@@ -3442,6 +3450,28 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
         setModifications((m) => new Map(m).set(batchId, (d as { modifications?: TourModification[] }).modifications ?? []));
       }
     } catch {}
+  }
+
+  async function addStopToTour(batchId: string, orderId: string) {
+    if (addStopPending) return;
+    setAddStopPending(orderId);
+    try {
+      const res = await fetch(`/api/delivery/admin/tours/${batchId}/stops`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId }),
+      });
+      if (res.ok) {
+        setAddStopOpen(null);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Fehler: ${(err as { error?: string }).error ?? res.statusText}`);
+      }
+    } catch {
+      alert('Netzwerkfehler beim Hinzufügen des Stopps.');
+    } finally {
+      setAddStopPending(null);
+    }
   }
 
   const now = Date.now();
@@ -3614,6 +3644,62 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       <History className="h-3 w-3" />
                       {batchMods ? batchMods.length : ''}
                     </button>
+                    {/* Bestellung zur Tour hinzufügen */}
+                    {canModify && readyOrders.length > 0 && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setAddStopOpen(addStopOpen === batch.id ? null : batch.id)}
+                          title="Bestellung zu dieser Tour hinzufügen"
+                          className={cn(
+                            'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold transition',
+                            addStopOpen === batch.id
+                              ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
+                              : 'border-matcha-300 bg-white text-matcha-700 hover:bg-matcha-50',
+                          )}
+                        >
+                          <Zap className="h-3 w-3" />
+                          +Stop
+                        </button>
+                        {addStopOpen === batch.id && (
+                          <div className="absolute right-0 top-full mt-1 z-20 w-64 rounded-xl border bg-popover shadow-lg overflow-hidden">
+                            <div className="px-3 py-2 border-b bg-muted/50">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                Bestellung einreihen
+                              </span>
+                            </div>
+                            <div className="max-h-48 overflow-y-auto divide-y">
+                              {readyOrders
+                                .filter((ro) => !batch.stops.some((s) => s.order_id === ro.id))
+                                .slice(0, 8)
+                                .map((ro) => (
+                                  <button
+                                    key={ro.id}
+                                    onClick={() => addStopToTour(batch.id, ro.id)}
+                                    disabled={addStopPending === ro.id}
+                                    className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/50 transition"
+                                  >
+                                    {addStopPending === ro.id
+                                      ? <Loader2 className="h-3.5 w-3.5 animate-spin text-matcha-600 shrink-0" />
+                                      : <Zap className="h-3.5 w-3.5 text-matcha-500 shrink-0" />}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-[11px] font-semibold truncate">{ro.kunde_name}</div>
+                                      <div className="text-[9px] text-muted-foreground truncate flex items-center gap-1">
+                                        {ro.delivery_zone && (
+                                          <span className={cn('rounded px-1 py-0 text-[8px] font-bold', zoneMeta(ro.delivery_zone).cls)}>
+                                            {ro.delivery_zone}
+                                          </span>
+                                        )}
+                                        {ro.kunde_adresse}
+                                      </div>
+                                    </div>
+                                    <span className="shrink-0 text-[10px] font-mono text-matcha-700">{euro(ro.gesamtbetrag)}</span>
+                                  </button>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
