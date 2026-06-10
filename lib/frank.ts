@@ -141,7 +141,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     .maybeSingle();
   if (!locRaw) return 'held';
   const loc = locRaw as LocationRow;
-  const preset = await tenantStrategy(loc.tenant_id);
+  // (Strategie/Preset entfernt — simpler Dispatch, Buendeln kommt spaeter)
 
   // 2) Customer-Adresse geocoden falls nötig
   if (o.kunde_lat == null || o.kunde_lng == null) {
@@ -170,63 +170,26 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     }
   }
 
-  // 3) Driver-Pool: tenant + active + online + im Radius vom Restaurant (haversine)
-  if (loc.lat == null || loc.lng == null) {
-    await logDecision('hold', null, [o.id], 'Restaurant nicht geocodiert');
-    return 'held';
-  }
+  // 3) SIMPLER Dispatch (Founder 2026-06): jede Order EINZELN dem online-Fahrer anbieten.
+  //    Kein Auto-Buendeln, kein Hold. EIN Fahrer kriegt alle (auch waehrend er unterwegs ist).
+  //    Buendeln/Smart-Routing fuer MEHRERE Fahrer (damit keiner kreuz und quer faehrt) kommt
+  //    spaeter — mit echten Daten + harten Grenzen.
   const drivers = await driversForTenant(loc.tenant_id);
-  const nearby = drivers.filter((d) => {
-    if (d.last_lat == null || d.last_lng == null) return true; // keine Position → trotzdem versuchen
-    const km = haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat!, lng: loc.lng! });
-    return km <= d.max_radius_km;
-  });
-
-  if (nearby.length === 0) {
-    await logDecision('hold', null, [o.id], 'Kein Fahrer im Radius');
+  if (drivers.length === 0) {
+    await logDecision('hold', null, [o.id], 'Kein Fahrer online');
     return 'held';
   }
-
-  // 4) Bundling: nur an BEREITS ANGENOMMENE Touren (assigned/at_restaurant) mergen.
-  //    F4 (Founder-Freigabe 2026-06): pending_acceptance NICHT mehr buendeln -> jede Order
-  //    klingelt einzeln (Uber-Style); Merge in aktive Tour passiert via accept/merge-RPC.
-  for (const d of nearby) {
-    const { data: openBatch } = await c
-      .from('mise_delivery_batches')
-      .select('id, state')
-      .eq('driver_id', d.id)
-      .in('state', ['assigned', 'at_restaurant'])
-      .maybeSingle();
-    if (!openBatch) continue;
-
-    const fits = await canBundle(openBatch.id, d, o, loc, preset);
-    if (!fits) continue;
-
-    await addOrderToBundle(openBatch.id, o.id, loc, d.vehicle);
-    // Route wird erst nach komplettem Pickup berechnet (siehe picked-up endpoint)
-    await logDecision(
-      'bundle',
-      d.id,
-      [o.id],
-      `An offenen Bundle gehängt — kürzerer Umweg als neuer Trip.`,
-    );
-    return 'bundled';
-  }
-
-  // 4b) Spar-Modus: kein passender Bundle -> kurz warten (sammeln) statt sofort allein rauszuschicken
-  if (preset.holdSec > 0 && o.created_at) {
-    const ageSec = (Date.now() - new Date(o.created_at).getTime()) / 1000;
-    if (ageSec < preset.holdSec) {
-      await logDecision('hold', null, [o.id], `Spar-Modus: warte auf Buendel (${Math.round(ageSec)}/${preset.holdSec}s)`);
-      return 'held';
-    }
-  }
-
-  // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
-  const best = pickBest(nearby, loc);
-  const batch = await createBundle(best.id, o, loc);
-  // Route erst nach Pickup
-  await logDecision('assign', best.id, [o.id], `Direkt zugewiesen — kein passender Bundle offen.`);
+  // Radius nur als BEVORZUGUNG: wer im Radius ist zuerst; wenn keiner im Radius
+  // (z.B. Fahrer schon unterwegs), trotzdem allen online-Fahrern anbieten — NICHT halten.
+  const inRadius = drivers.filter((d) => {
+    if (d.last_lat == null || d.last_lng == null) return true;
+    if (loc.lat == null || loc.lng == null) return true;
+    return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat, lng: loc.lng }) <= d.max_radius_km;
+  });
+  const pool = inRadius.length > 0 ? inRadius : drivers;
+  const best = pickBest(pool, loc);
+  await createBundle(best.id, o, loc);
+  await logDecision('assign', best.id, [o.id], 'Einzeln angeboten (simpler Dispatch)');
   return 'assigned';
 }
 
