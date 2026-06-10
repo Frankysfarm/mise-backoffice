@@ -754,6 +754,8 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
   const [etaMin, setEtaMin] = React.useState<number>(baseEtaMin);
   const [load, setLoad] = React.useState<EtaLoad>('normal');
   const [activeCount, setActiveCount] = React.useState<number | null>(null);
+  const [signalMessage, setSignalMessage] = React.useState<string | null>(null);
+  const [etaExtension, setEtaExtension] = React.useState<number>(0);
   const [loaded, setLoaded] = React.useState(false);
   const [, setTick] = React.useState(0);
 
@@ -768,6 +770,8 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
         setEtaMin(d.eta_min ?? baseEtaMin);
         setLoad(d.load ?? 'normal');
         if (d.active_orders != null) setActiveCount(d.active_orders);
+        setSignalMessage(d.signal_message ?? null);
+        setEtaExtension(d.eta_extension_min ?? 0);
         setLoaded(true);
       } catch {}
     };
@@ -829,6 +833,13 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
                 );
               })()}
             </div>
+            {/* Queue-Signal-Meldung: manuelle Nachricht aus dem Backoffice */}
+            {signalMessage && etaExtension > 0 && (
+              <div className={cn('mt-1 text-xs font-medium rounded-md px-2 py-1 flex items-center gap-1.5', meta.bg, 'border', meta.text)}>
+                <span>⚠️</span>
+                <span>{signalMessage}</span>
+              </div>
+            )}
             {/* Auslastungs-Balken */}
             <div className="mt-1.5 h-1 rounded-full bg-black/10 overflow-hidden">
               <div

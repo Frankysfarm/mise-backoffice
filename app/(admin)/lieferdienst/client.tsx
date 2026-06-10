@@ -949,43 +949,53 @@ function LieferdienstTagesvergleich({
   completedOrders: Order[];
   schichtMinutes: number;
 }) {
+  const supabase = createClient();
   const [dbStats, setDbStats] = useState<{
     today: { total: number; revenue: number; avgPrepMin: number | null };
     yesterday: { total: number; revenue: number; avgPrepMin: number | null };
   } | null>(null);
 
   useEffect(() => {
-    // Versuche DB-Stats der letzten 2 Tage zu laden
-    fetch('/api/lieferdienst/data', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (!d?.orders) return;
-        const all = (d.orders as Order[]);
-        const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-        const yesterdayStart = new Date(todayStart); yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-        const todayOrders = all.filter(o => {
-          const t = (o as any).bestellt_am ?? (o as any).createdAt;
-          return t && new Date(t) >= todayStart;
-        });
-        const yesterdayOrders = all.filter(o => {
-          const t = (o as any).bestellt_am ?? (o as any).createdAt;
-          return t && new Date(t) >= yesterdayStart && new Date(t) < todayStart;
-        });
-        const calcStats = (arr: Order[]) => {
-          const done = arr.filter(o => o.status === 'done');
-          const revenue = done.reduce((s, o) => s + ((o as any).total ?? (o as any).gesamtbetrag ?? 0), 0);
-          const prepTimes = done
-            .filter(o => o.acceptedAt && (o as any).doneAt)
-            .map(o => (new Date((o as any).doneAt).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000);
-          return {
-            total: arr.length,
-            revenue,
-            avgPrepMin: prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null,
-          };
+    // Lade historische Daten direkt aus Supabase (heutige + gestrige abgeschlossene Bestellungen)
+    const load = async () => {
+      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+      const yesterdayStart = new Date(todayStart); yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+
+      const [{ data: todayRows }, { data: yesterdayRows }] = await Promise.all([
+        supabase
+          .from('customer_orders')
+          .select('gesamtbetrag, bestellt_am, bestaetigt_am, fertig_am, status')
+          .gte('bestellt_am', todayStart.toISOString())
+          .in('status', ['geliefert', 'abgeholt', 'fertig', 'unterwegs', 'storniert']),
+        supabase
+          .from('customer_orders')
+          .select('gesamtbetrag, bestellt_am, bestaetigt_am, fertig_am, status')
+          .gte('bestellt_am', yesterdayStart.toISOString())
+          .lt('bestellt_am', todayStart.toISOString())
+          .in('status', ['geliefert', 'abgeholt', 'fertig', 'storniert']),
+      ]);
+
+      const calcStats = (rows: { gesamtbetrag: number; bestaetigt_am: string | null; fertig_am: string | null; status: string }[]) => {
+        const done = (rows ?? []).filter(r => !['storniert'].includes(r.status));
+        const revenue = done.reduce((s, r) => s + Number(r.gesamtbetrag ?? 0), 0);
+        const prepTimes = done
+          .filter(r => r.bestaetigt_am && r.fertig_am)
+          .map(r => (new Date(r.fertig_am!).getTime() - new Date(r.bestaetigt_am!).getTime()) / 60_000)
+          .filter(t => t > 0 && t < 120);
+        return {
+          total: (rows ?? []).length,
+          revenue,
+          avgPrepMin: prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null,
         };
-        setDbStats({ today: calcStats(todayOrders), yesterday: calcStats(yesterdayOrders) });
-      })
-      .catch(() => {});
+      };
+
+      setDbStats({
+        today: calcStats((todayRows ?? []) as any),
+        yesterday: calcStats((yesterdayRows ?? []) as any),
+      });
+    };
+    load().catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Lokale Daten als Fallback
