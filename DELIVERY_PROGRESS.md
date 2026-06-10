@@ -202,7 +202,18 @@
 - [x] Auto-Incident bei Bewertung ≤2★ (fire-and-forget in submitCustomerRating)
 - [x] autoCreateIncidentsForRatings() im Cron-Tick (Sicherheitsnetz, jeder Tick)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–51 + CEO REVIEW #42 ABGESCHLOSSEN — 2026-06-10
+- [x] tour_modifications Tabelle (Migration 043)
+- [x] modification_count + last_modified_at Spalten auf mise_delivery_batches (Migration 043)
+- [x] v_active_tours_open_stops View (Migration 043)
+- [x] increment_batch_modification_count() SQL-Funktion (Migration 043)
+- [x] tour-modifier.ts (Live-Tour-Modifikation Engine: insertStopIntoActiveTour / removeStopFromActiveTour / reoptimizeActiveTour / getTourModifications)
+- [x] POST /api/delivery/admin/tours/[id]/stops (Stop in aktive Tour einfügen)
+- [x] DELETE /api/delivery/admin/tours/[id]/stops/[stopId] (Stop aus aktiver Tour entfernen)
+- [x] POST /api/delivery/admin/tours/[id]/reoptimize (Verbleibende Stops neu optimieren)
+- [x] GET /api/delivery/admin/tours/[id]/modifications (Audit-Trail der Touren-Änderungen)
+- [x] events.ts: tour_stop_inserted / tour_stop_removed / tour_reoptimized Event-Typen ergänzt
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–52 + CEO REVIEW #42 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #42 (2026-06-10)
 - TypeScript: 2 Fehler gefunden → **0 Fehler nach Fix** ✅
