@@ -224,7 +224,45 @@
 - [x] LiveEarningsBubble: +€X.XX Einblendung nach jeder Zustellung in Fahrer-App
 - [x] WochentagsHeatmap: 4-Wochen × 7-Tage Kalender-Grid in Statistiken
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + FRONTEND-ERWEITERUNGEN + CEO REVIEW #45 ABGESCHLOSSEN — 2026-06-10
+- [x] Phase 54: BatchDetailModal im ActiveTourRail (Klick → Drill-Down Dialog)
+- [x] Phase 54: ETA-Überschreitungs-Alert-Banner (>5 Min überfällig, pro Tour einmalig)
+- [x] Phase 54: Kitchen Handoff-Konflikt Audio-Alert (neuer conflict_alert SoundType, absteigender 3-Ton)
+- [x] Bugfix: delivery-view.tsx stop?.distanz_zum_vorgaenger_m (TS18048 undefined guard)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–54 + FRONTEND-ERWEITERUNGEN — 2026-06-10
+
+### Phase 54 — Backend-Architekt — 2026-06-10
+
+#### Was gebaut wurde
+
+**dispatch/client.tsx — BatchDetailModal:**
+- `ActiveTourRail` jetzt klickbar: jede Tour-Zeile öffnet per `onSelect(b.id)` ein Dialog-Modal
+- `BatchDetailModal` als IIFE-Inline-Dialog innerhalb des DispatchBoard-Returns:
+  - Fahrer-Chip mit Avatar-Initial, vollständiger Name, Telefon, Status
+  - 3-Spalten-Stats-Grid: Stopps, Strecke, ETA-Minuten
+  - Scrollbare Stop-Liste: nächster Stop (orange-pulsierend), erledigte Stops (grün/✓), Adressen, Zustellzeit
+  - Schließt via `setBatchDetailId(null)` (Dialog `onOpenChange`)
+- Nutzt vorhandene `Dialog`-Komponente aus `@/components/ui/dialog`
+
+**dispatch/client.tsx — ETA-Überschreitungs-Alerts:**
+- `overdueAlerts` State + `notifiedOverdueRef` (Set) für einmalige Benachrichtigung pro Tour
+- `useEffect` auf `batches`: wenn Tour >5 Min überfällig und noch nicht gemeldet → Banner hinzufügen
+- Roter Banner mit AlertTriangle-Icon, Fahrername, Überschreitungsminuten, X-Schließen-Button
+- Completed/inaktive Touren werden automatisch aus `notifiedOverdueRef` entfernt
+
+**kitchen/client.tsx — Handoff-Konflikt Audio-Alert:**
+- Neuer SoundType `'conflict_alert'`: absteigender 3-Ton (784→622→494 Hz, triangle oscillator)
+- `prevHandoffConflictCount` Ref speichert vorherige Konfliktzahl
+- `useEffect` auf `[batches, stops, timings, audio]`: berechnet Konflikte (gleiche Logik wie KitchenHandoffMatrix)
+- Nur wenn Konfliktzahl steigt → `playSound('conflict_alert')`, gated by `audio`-Toggle
+
+**delivery-view.tsx — Bugfix:**
+- `stop.distanz_zum_vorgaenger_m` → `stop?.distanz_zum_vorgaenger_m` (TS18048: 'stop' possibly undefined)
+- `stops.find()` gibt `undefined` zurück wenn stopId nicht gefunden → Optional-Chain schützt davor
+
+#### Build-Verifikation
+- TypeScript: **0 Fehler** ✅ (`tsc --noEmit` exit 0)
+- Build: `next build` sauber, **176 Seiten** ✅
 
 ### CEO Review #45 (2026-06-10)
 - TypeScript: **0 Fehler** ✅ (`npx tsc --noEmit` exit 0)
