@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Btn, Icon, Spinner, type IconName, SAFE_TOP, SAFE_BOTTOM } from '../app/drive-ui';
+import { BUILD_VERSION } from '../build-version';
 
 /* Brand-Mark im Drive-Stil — Lieferdienst „Mise". */
 function BrandMark({ size = 32 }: { size?: number }) {
@@ -357,6 +358,7 @@ export default function FahrerLoginPage() {
             >
               Nur fuer Fahrer:innen · Zugang per Einladung vom Restaurant
             </div>
+            <div className="mono" style={{ marginTop: 8, fontSize: 11, color: 'var(--ink-3)', opacity: 0.7, textAlign: 'center' }}>v {BUILD_VERSION}</div>
           </div>
         </form>
       </div>
