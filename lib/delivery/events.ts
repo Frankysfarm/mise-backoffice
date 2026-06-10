@@ -31,7 +31,10 @@ export type DeliveryEventType =
   | 'delay_critical_notice'
   | 'delay_compensation_created'
   | 'order_scheduled'
-  | 'order_released_for_dispatch';
+  | 'order_released_for_dispatch'
+  | 'tour_stop_inserted'
+  | 'tour_stop_removed'
+  | 'tour_reoptimized';
 
 export interface DeliveryEvent {
   event_type: DeliveryEventType;
@@ -87,13 +90,23 @@ export async function getRecentEvents(
     .order('occurred_at', { ascending: false })
     .limit(limit);
 
-  return (data ?? []).map((r) => ({
-    id:          r.id as string,
+  interface EventRow {
+    id: string;
+    event_type: string;
+    order_id: string | null;
+    batch_id: string | null;
+    driver_id: string | null;
+    payload: Record<string, unknown> | null;
+    occurred_at: string;
+  }
+
+  return ((data ?? []) as EventRow[]).map((r) => ({
+    id:          r.id,
     event_type:  r.event_type as DeliveryEventType,
-    order_id:    r.order_id as string | null,
-    batch_id:    r.batch_id as string | null,
-    driver_id:   r.driver_id as string | null,
+    order_id:    r.order_id,
+    batch_id:    r.batch_id,
+    driver_id:   r.driver_id,
     payload:     (r.payload ?? {}) as Record<string, unknown>,
-    occurred_at: r.occurred_at as string,
+    occurred_at: r.occurred_at,
   }));
 }

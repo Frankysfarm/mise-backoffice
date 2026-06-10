@@ -1,7 +1,55 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–51 + CEO Review #42 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–52 abgeschlossen. Deployment-bereit.
+
+## Phase 52 — Backend-Architekt-Agent — 2026-06-10
+
+### Was gebaut wurde
+
+- `scripts/migrations/043_tour_modifications.sql`:
+  - `tour_modifications`: Vollständiger Audit-Trail für alle Live-Änderungen an aktiven Touren (type, position, ETA before/after, performed_by, reason)
+  - `modification_count` + `last_modified_at` Spalten auf `mise_delivery_batches` (für schnelle Admin-Übersicht)
+  - `v_active_tours_open_stops`: View — aktive Touren mit ihren offenen Stops (für Dispatch-Board)
+  - `increment_batch_modification_count()`: SQL-Funktion (atomic increment)
+  - RLS: service_role ALL + authenticated SELECT (location_id Tenant-Filter)
+  - Indizes: batch_id+created_at, location_id+created_at, order_id, last_modified_at
+
+- `lib/delivery/tour-modifier.ts`: Live-Tour-Modifikation Engine (TypeScript strict, kein `any`)
+  - `insertStopIntoActiveTour(batchId, orderId, locationId, performedBy?)`:
+    Validierung (aktiver State, selbe Location, kein Duplikat, Koordinaten vorhanden),
+    Pickup-Dedup (selbes Restaurant < 50m), Stop-Insert (Pickup + Dropoff),
+    Tour-Neuoptimierung via `optimizeTour()`, Fahrer-Push-Benachrichtigung, Audit-Log
+  - `removeStopFromActiveTour(batchId, stopId, locationId, reason, performedBy?)`:
+    Validierung (aktiver State, Stop nicht abgeschlossen), Stop-Löschung,
+    Verwaiste-Pickup-Bereinigung, Order-Liberation (mise_batch_id = null),
+    Neusequenzierung verbleibender Stops, Tour-Neuoptimierung, Audit-Log
+  - `reoptimizeActiveTour(batchId, locationId, performedBy?)`:
+    Nearest-Neighbor-Heuristik auf offenen Stops (completed_at = null),
+    Pickups immer zuerst, Origin = letzter abgeschlossener Stop oder Restaurant,
+    ETA-Neuberechnung (Haversine, 25 km/h), Audit-Log
+  - `getTourModifications(batchId, locationId, limit?)`: Audit-Trail-Abruf
+
+- `lib/delivery/events.ts`: 3 neue Event-Typen ergänzt:
+  `tour_stop_inserted` | `tour_stop_removed` | `tour_reoptimized`
+
+- API-Routes (alle Admin-only, Employee-Location-Check):
+  - `POST /api/delivery/admin/tours/[id]/stops` — Stop einreihen, Body: `{ order_id }`
+  - `DELETE /api/delivery/admin/tours/[id]/stops/[stopId]` — Stop entfernen, Body (opt): `{ reason }`
+  - `POST /api/delivery/admin/tours/[id]/reoptimize` — Nearest-Neighbor-Reoptimierung
+  - `GET /api/delivery/admin/tours/[id]/modifications` — Audit-Trail, `?limit=N`
+
+### TypeScript
+- **0 Fehler** in neuen Dateien ✅
+- `next build`: ✓ Compiled successfully, 176 Seiten ✅
+
+### Invarianten
+- Nur aktive Batches können modifiziert werden (pending_acceptance / assigned / at_restaurant / on_route / en_route)
+- Abgeschlossene Stops (completed_at IS NOT NULL) werden nie bewegt
+- Multi-Tenant: jede Operation prüft location_id
+- Fahrer wird bei Stop-Insert per Push benachrichtigt
+
+---
 
 ## CEO Review #42 — 2026-06-10
 
