@@ -551,7 +551,7 @@ export function FahrerApp({
                 <Power size={26} />
               </div>
               <div className="text-left flex-1">
-                <div className="text-xl">{isOnline ? 'Du bist online' : 'Los geht&apos;s'}</div>
+                <div className="text-xl">{isOnline ? 'Du bist online' : 'Los geht’s'}</div>
                 <div className={cn('text-sm font-normal mt-0.5', isOnline ? 'text-[var(--ink)]/70' : 'text-[var(--ink-3)]')}>
                   {isOnline ? 'Tippe hier zum Offline-Gehen' : 'Tippe um online zu gehen'}
                 </div>
