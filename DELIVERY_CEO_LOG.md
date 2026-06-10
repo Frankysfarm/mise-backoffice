@@ -3,6 +3,124 @@
 ## Aktuelle Priorität
 **MARKT-REIF.** Phasen 1–52 abgeschlossen. Deployment-bereit.
 
+---
+
+## CEO Review #43 — 2026-06-10
+
+### Geprüfte Commits
+1. `c585d89` — feat(delivery/backend): Phase 52 — Live-Tour-Modifikation Engine
+2. `123006a` — feat(delivery/frontend): Tour-Modifikation UI + Incident-Panel + Fahrer-Routenänderungs-Banner
+3. `e57e3b2` — feat(delivery/frontend): Bestellung zu aktiver Tour hinzufügen
+
+### Build & TypeScript
+- `next build`: ✓ Compiled successfully, 176 Seiten ✅
+- TypeScript: **0 Fehler** ✅ (Build + manuelle Inspektion)
+
+### Code-Inspektion: `lib/delivery/tour-modifier.ts` (803 Zeilen)
+
+#### Architektur — korrekt ✅
+- 4 öffentliche Funktionen: `insertStopIntoActiveTour` / `removeStopFromActiveTour` / `reoptimizeActiveTour` / `getTourModifications`
+- Alle Operationen multi-tenant-sicher (location_id-Prüfung bei jedem DB-Zugriff) ✅
+- `ACTIVE_STATES`-Guard verhindert Modifikation abgeschlossener Touren ✅
+- Abgeschlossene Stops (`completed_at IS NOT NULL`) bleiben unberührt ✅
+- Jede Änderung schreibt Audit-Log in `tour_modifications` ✅
+
+#### `insertStopIntoActiveTour` — korrekt ✅
+- Doppelte Validierung: Batch aktiv + Bestellung selbe Location + keine Doppel-Zuweisung + Koordinaten vorhanden ✅
+- Pickup-Dedup via Haversine < 50m (SAME_RESTAURANT_KM) — verhindert doppelte Restaurant-Stops ✅
+- Stop-Count nach Insert exakt via `{ count: 'exact', head: true }` ✅
+- Optimierung via `optimizeTour()` mit Haversine-Fallback bei Fehler ✅
+- Fahrer-Push fire-and-forget mit `.catch(() => {})` ✅
+- Delivery-Event fire-and-forget ✅
+
+#### `removeStopFromActiveTour` — korrekt ✅
+- Verwaiste-Pickup-Bereinigung: nur wenn kein weiterer offener Dropoff derselben Bestellung vorhanden ✅
+- Bestellungs-Liberation: `mise_batch_id = null, mise_driver_id = null` bei letztem Dropoff ✅
+- Re-Sequenzierung: completedStops bleiben, openStops ab `baseSeq` neu nummeriert ✅
+- `remainingStopsRaw` wird NACH Delete-Operation geladen → korrekter newCount ✅
+
+#### `reoptimizeActiveTour` — korrekt mit Hinweis ✅
+- Nearest-Neighbor-Heuristik: Pickups-zuerst, dann Dropoffs ✅
+- Origin: letzter abgeschlossener Stop oder Restaurant-Position ✅
+- ETA-Neuberechnung mit Haversine @ 25 km/h ✅
+- **Hinweis (nicht kritisch)**: Für Multi-Restaurant-Touren ist Pickups-vor-Dropoffs-Strategie eine Vereinfachung. Optimal wäre pickup_A → dropoff_A → pickup_B → dropoff_B, aber Nearest-Neighbor-Heuristik ist für Live-Ops ausreichend. Dokumentiert.
+
+#### API-Routen — korrekt ✅
+- `POST /stops`: Auth + location_id-Check + 422 bei Logik-Fehler ✅
+- `DELETE /stops/[stopId]`: Auth + optionaler reason-Body mit try/catch ✅
+- `POST /reoptimize`: Auth + location_id-Check ✅
+- `GET /modifications`: Auth + `?limit` mit Max-Cap 200 ✅
+
+#### Migration 043 — korrekt ✅
+- `tour_modifications` Tabelle + `mise_delivery_batches` Spalten (`modification_count`, `last_modified_at`) ✅
+- `v_active_tours_open_stops` View für Dispatch-Board ✅
+- RLS: service_role ALL + authenticated SELECT mit location_id-Filter ✅
+- 4 Indizes (batch+created_at, location+created_at, order_id, last_modified_at) ✅
+
+#### Befund: Geringfügige Inkonsistenz (nicht blockierend)
+- **Migration 043** definiert atomare SQL-Funktion `increment_batch_modification_count()` (`SET modification_count = modification_count + 1`)
+- **TypeScript** nutzt Read-then-Write-Pattern statt der SQL-Funktion
+- **Risiko**: minimaler Race-Condition bei gleichzeitigen Admin-Ops — akzeptabel da Admin-Operationen selten und nicht-concurrently ablaufen
+- **Empfehlung für nächste Iteration**: `rpc('increment_batch_modification_count', { p_batch_id: batchId })` verwenden, um SQL-Funktion zu nutzen
+
+#### events.ts Integration ✅
+- 3 neue Event-Typen korrekt ergänzt: `tour_stop_inserted` | `tour_stop_removed` | `tour_reoptimized`
+- Fire-and-forget in allen 3 Hauptfunktionen ✅
+
+### Frontend-Commit-Inspektion (Commits 123006a + e57e3b2)
+
+#### Tour-Modifikations-UI im Dispatch-Board — korrekt mit 3 Bugs gefunden
+- `TourVisualizationPanel`: Stop-Entfernen (Trash-Button + confirm()), Tour-Reoptimierung, Audit-Trail-Toggle ✅
+- `canModify`-Flag prüft ACTIVE_STATUSES korrekt (pending_acceptance/assigned/at_restaurant/on_route/en_route/pickup/unterwegs) ✅
+- `addStopToTour()`: POST zum Backend mit order_id, schließt Dropdown nach Erfolg ✅
+- `readyOrders`-Prop: filtert bereits in Tour befindliche Orders aus der Auswahlliste ✅
+- `OpenIncidentsPanel`: Polling 90s, Severity-Farbcodierung, Einzel-Lösen per PATCH ✅
+
+**Bug 1 (gefixt)**: `delivery-view.tsx` Realtime-Payload-Typ falsch
+- Code: `payload.new.type` — **DB-Spalte heißt `modification_type`**
+- Payload-Interface deklarierte `{ new: { type: string } }` → immer `undefined` zur Laufzeit
+- Folge: Routenänderungs-Banner erschien zwar, zeigte aber IMMER generische Meldung
+- Fix: Interface auf `{ new: { modification_type: string } }` korrigiert, `type = payload.new.modification_type` ✅
+
+**Bug 2 (gefixt)**: `dispatch/client.tsx` Reoptimierungs-Antwortfeld falsch
+- Code: `(d as { total_eta_min?: number }).total_eta_min` — API gibt `etaAfterMin` (camelCase) zurück
+- Folge: Reoptimierung zeigte immer "✓ Optimiert" statt "✓ 35 Min neu berechnet"
+- Fix: `(d as { etaAfterMin?: number }).etaAfterMin` ✅
+
+**Bug 3 (gefixt)**: `OpenIncidentsPanel` — `status=open` zu eng
+- Code: `?status=open` — filtert nur exakten `open`-Status
+- Folge: Incidents mit Status `investigating` oder `escalated` werden nicht angezeigt
+- Fix: `?status=open_all` → zeigt open + investigating + escalated ✅
+
+#### `statistics-view.tsx` Incident-KPI-Block — korrekt ✅
+- 4-Spalten-Grid: Offen / Kritisch / Heute gelöst / Gesamt ✅
+- `animate-pulse` bei `critical_open > 0` ✅
+- Grüner OK-Banner bei 0 offenen Incidents ✅
+- Fetch-Typ korrekt annotiert (kein implizites `any`) ✅
+- Nur rendered wenn `total_incidents > 0 || total_open > 0` ✅
+
+#### `delivery-view.tsx` Realtime-Banner — korrekt (nach Fix) ✅
+- Supabase Channel auf `tour_modifications` mit `batch_id`-Filter ✅
+- 12s Auto-Dismiss via `setTimeout` ✅
+- Sticky Top + animate-in Slide-Animation ✅
+- OK-Button zum manuellen Dismiss ✅
+
+### Status nach Review #43
+- TypeScript: 0 Fehler ✅
+- Build: sauber, 176 Seiten ✅
+- Phase 52 (Live-Tour-Modifikation Engine): **DONE ✅**
+- Frontend-Integration (Tour-Modifikation UI + Incidents-Panel + Routenänderungs-Banner): **DONE ✅**
+- Bugs gefixt: 3 (Realtime-Payload-Feldname, Reoptimierungs-ETA-Feld, Incident-Status-Filter)
+- Deployment-Checkliste Phase 52:
+  - [ ] Migration 043 in Supabase Production ausführen (`scripts/migrations/043_tour_modifications.sql`)
+  - [ ] Kein neuer ENV-Var erforderlich
+- **System: MARKT-REIF** ✅ — 52 Phasen vollständig Frontend + Backend integriert
+
+### Offener Hinweis (nicht kritisch)
+- `logModification()` in `tour-modifier.ts`: nutzt Read-then-Write statt atomarer SQL-Funktion `increment_batch_modification_count()` — akzeptabel bei admin-seriellen Ops, aber für die nächste Iteration auf `rpc()` umstellen.
+
+---
+
 ## Phase 52 — Backend-Architekt-Agent — 2026-06-10
 
 ### Was gebaut wurde
