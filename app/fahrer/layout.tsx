@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { BUILD_VERSION } from './build-version';
 
 export const metadata: Metadata = {
   title: 'Mise Fahrer',
@@ -34,6 +35,7 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
         href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
       />
       <div className="drive min-h-screen">{children}</div>
+      <div className="mono" style={{ position: 'fixed', bottom: 3, right: 6, zIndex: 9999, fontSize: 9, lineHeight: 1, color: 'var(--ink-3)', opacity: 0.5, pointerEvents: 'none' }}>v {BUILD_VERSION}</div>
       <style
         dangerouslySetInnerHTML={{
           __html: `
