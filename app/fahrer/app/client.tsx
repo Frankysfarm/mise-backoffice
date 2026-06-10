@@ -532,7 +532,7 @@ export function FahrerApp({
         ))}
 
         {/* Online Toggle — im Drive-Warte-Screen steckt der Offline-Button in der Fahrer-Leiste */}
-        {!activeBatch && !(isOnline && openBatches.length === 0) && (
+        {false && (
           <section>
             <button
               onClick={toggleOnline}
@@ -764,8 +764,9 @@ export function FahrerApp({
         )}
 
         {/* Warte-Anzeige: kein Batch, online, keine offenen Touren — Drive HomeScreen */}
-        {!activeBatch && isOnline && openBatches.length === 0 && (
+        {!activeBatch && (
           <FahrerWarteAnzeige
+            isOnline={isOnline}
             driverId={driver.id}
             driverName={`${driver.vorname} ${driver.nachname}`.trim()}
             vehicle={driver.fahrzeug_praeferenz}
@@ -776,7 +777,7 @@ export function FahrerApp({
         )}
 
         {/* Offline state */}
-        {!isOnline && !activeBatch && (
+        {false && (
           <section className="text-center py-8">
             <Power className="h-12 w-12 text-[var(--ink-3)] mx-auto mb-2 opacity-40" />
             <div className="text-[var(--ink-2)]">Du bist offline. Geh online, um Touren anzunehmen.</div>
@@ -784,12 +785,12 @@ export function FahrerApp({
         )}
 
         {/* Schicht-Statistik — wenn kein aktiver Batch und NICHT im Drive-Warte-Screen */}
-        {!activeBatch && !(isOnline && openBatches.length === 0) && (
+        {false && (
           <SchichtStats driverId={driver.id} isOnline={isOnline} />
         )}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
-        {!activeBatch && !(isOnline && openBatches.length === 0) && driver.location_id && (
+        {false && driver.location_id && (
           <SchichtBuchung locationId={driver.location_id} />
         )}
       </main>
@@ -1199,6 +1200,7 @@ function WarteMapBg() {
 }
 
 function FahrerWarteAnzeige({
+  isOnline,
   driverId,
   driverName,
   vehicle,
@@ -1206,6 +1208,7 @@ function FahrerWarteAnzeige({
   onGoOffline,
   offlinePending,
 }: {
+  isOnline: boolean;
   driverId: string;
   driverName: string;
   vehicle: string | null;
@@ -1280,11 +1283,11 @@ function FahrerWarteAnzeige({
               width: 9,
               height: 9,
               borderRadius: 99,
-              background: 'var(--accent)',
-              boxShadow: '0 0 0 3px var(--accent-tint)',
+              background: isOnline ? 'var(--accent)' : 'var(--ink-3)',
+              boxShadow: isOnline ? '0 0 0 3px var(--accent-tint)' : 'none',
             }}
           />
-          <span style={{ fontWeight: 700, fontSize: 14.5 }}>Online</span>
+          <span style={{ fontWeight: 700, fontSize: 14.5 }}>{isOnline ? 'Online' : 'Offline'}</span>
         </div>
         <div className="flex-1" />
         {gpsOk === false && (
@@ -1334,7 +1337,7 @@ function FahrerWarteAnzeige({
           </div>
         </div>
         <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>
-          Warte auf Bestellungen
+          {isOnline ? 'Warte auf Bestellungen' : 'Du bist offline'}
         </div>
         <div
           style={{
@@ -1345,7 +1348,7 @@ function FahrerWarteAnzeige({
             lineHeight: 1.4,
           }}
         >
-          Bleib in der Naehe vom Restaurant. Neue Auftraege kommen automatisch rein.
+          {isOnline ? 'Bleib in der Naehe vom Restaurant. Neue Auftraege kommen automatisch rein.' : 'Tippe unten auf „Online gehen“, um Bestellungen zu bekommen.'}
         </div>
 
         {/* Wartezeit-Chip (mono) */}
@@ -1407,14 +1410,14 @@ function FahrerWarteAnzeige({
             </div>
           </div>
           <Btn
-            variant="secondary"
+            variant={isOnline ? "secondary" : "primary"}
             size="sm"
             full={false}
             onClick={onGoOffline}
             disabled={offlinePending}
             style={{ width: 'auto' }}
           >
-            {offlinePending ? <DSpinner size={16} color="var(--ink-2)" /> : 'Offline'}
+            {offlinePending ? <DSpinner size={16} color="var(--ink-2)" /> : (isOnline ? 'Offline' : 'Online gehen')}
           </Btn>
         </div>
       </div>
