@@ -81,6 +81,7 @@ type ActiveBatch = {
       gesamtbetrag: number;
       kunde_notiz?: string | null;
       kunde_lieferhinweis?: string | null;
+      kunde_telefon?: string | null;
     };
   }[];
 };
@@ -748,6 +749,17 @@ export function FahrerApp({
                             >
                               <Navigation className="h-3 w-3" />
                               Nav
+                            </a>
+                          )}
+                          {/* Anruf-Button — Kundennummer direkt wählen */}
+                          {o.kunde_telefon && (
+                            <a
+                              href={`tel:${o.kunde_telefon}`}
+                              className="inline-flex items-center gap-1 rounded-lg bg-white/10 text-matcha-200 px-2 py-1 text-[9px] font-bold hover:bg-white/20 transition"
+                              title={`Anrufen: ${o.kunde_telefon}`}
+                            >
+                              <Phone className="h-3 w-3" />
+                              Anruf
                             </a>
                           )}
                         </div>

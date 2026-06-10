@@ -757,10 +757,12 @@ export function DispatchBoard({
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
 
-      {/* Quick-Assign: beste Bestellung → bester freier Fahrer mit einem Klick */}
+      {/* Quick-Assign: beste Bestellung → nächster freier Fahrer mit einem Klick */}
       <DispatchQuickAssignBar
         orders={readyOrders}
         drivers={drivers}
+        restaurantLat={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lat ?? null) : (locations[0]?.lat ?? null)}
+        restaurantLng={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lng ?? null) : (locations[0]?.lng ?? null)}
         onAssign={async (orderIds, driverId) => {
           const locationId = readyOrders.find((o) => orderIds.includes(o.id))?.location_id ?? null;
           const { data, error } = await supabase.rpc('assign_to_driver', {
@@ -6114,14 +6116,18 @@ function ActiveTourRail({ batches, drivers, onSelect }: { batches: Batch[]; driv
 }
 
 /* ---- DispatchQuickAssignBar ---- */
-/* Zeigt die eine beste Zuweisung (höchster Score + freier Fahrer) mit einem Klick */
+/* Zeigt die eine beste Zuweisung (höchster Score + nächster freier Fahrer) mit einem Klick */
 function DispatchQuickAssignBar({
   orders,
   drivers,
+  restaurantLat,
+  restaurantLng,
   onAssign,
 }: {
   orders: ReadyOrder[];
   drivers: Driver[];
+  restaurantLat?: number | null;
+  restaurantLng?: number | null;
   onAssign: (orderIds: string[], driverId: string) => Promise<void>;
 }) {
   const [pending, setPending] = useState(false);
@@ -6138,8 +6144,22 @@ function DispatchQuickAssignBar({
     ? Math.floor((Date.now() - new Date(topOrder.fertig_am).getTime()) / 60_000)
     : null;
 
-  // Nächster freier Fahrer = erster verfügbarer (Dispatch-System kennt Geo)
-  const bestDriver = freeDrivers[0];
+  // Nächster freier Fahrer: GPS-nächster zum Restaurant, sonst erster verfügbarer
+  const bestDriver = (() => {
+    if (restaurantLat != null && restaurantLng != null) {
+      const withGps = freeDrivers.filter((d) => d.last_lat != null && d.last_lng != null);
+      if (withGps.length > 0) {
+        return withGps.slice().sort((a, b) =>
+          haversineKm({ lat: a.last_lat!, lng: a.last_lng! }, { lat: restaurantLat!, lng: restaurantLng! }) -
+          haversineKm({ lat: b.last_lat!, lng: b.last_lng! }, { lat: restaurantLat!, lng: restaurantLng! })
+        )[0];
+      }
+    }
+    return freeDrivers[0];
+  })();
+  const nearestDistKm = (restaurantLat != null && restaurantLng != null && bestDriver.last_lat != null && bestDriver.last_lng != null)
+    ? haversineKm({ lat: bestDriver.last_lat, lng: bestDriver.last_lng }, { lat: restaurantLat, lng: restaurantLng })
+    : null;
   const driverName = bestDriver.employee
     ? `${bestDriver.employee.vorname} ${bestDriver.employee.nachname.charAt(0)}.`
     : 'Fahrer';
@@ -6174,6 +6194,7 @@ function DispatchQuickAssignBar({
           {topOrder.dispatch_score != null ? ` · Score ${Math.round(topOrder.dispatch_score)}` : ''}
           {waitMin != null ? ` · wartet ${waitMin} Min` : ''}
           {' → '}{driverName}
+          {nearestDistKm != null ? ` · ${nearestDistKm < 1 ? `${Math.round(nearestDistKm * 1000)} m` : `${nearestDistKm.toFixed(1)} km`} weg` : ''}
         </span>
       </div>
       <button
