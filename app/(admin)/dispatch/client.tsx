@@ -1169,121 +1169,176 @@ export function DispatchBoard({
       </div>
     )}
     {/* BatchDetailModal */}
-    {batchDetailId && (() => {
-      const b = batches.find((bt) => bt.id === batchDetailId);
-      if (!b) return null;
-      const total = b.stops.length;
-      const done = b.stops.filter((s) => s.geliefert_am).length;
-      const etaMs = b.startzeit && b.total_eta_min != null
-        ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
-        : null;
-      const now = Date.now();
-      const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
-      const overdue = secLeft !== null && secLeft < 0;
-      const finStr = etaMs
-        ? new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-        : null;
-      const driver = drivers.find((d) => d.employee_id === b.fahrer_id || d.aktueller_batch_id === b.id);
-      const driverFull = b.fahrer
-        ? `${b.fahrer.vorname} ${b.fahrer.nachname}`
-        : driver?.employee ? `${driver.employee.vorname} ${driver.employee.nachname}` : 'Fahrer';
-      const phone = driver?.employee?.telefon ?? null;
-      return (
-        <Dialog open onOpenChange={(o) => { if (!o) setBatchDetailId(null); }}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-base">
-                <Truck className="h-4 w-4 text-matcha-600" />
-                Tour-Detail
-                {b.zone && (
-                  <span className={cn('ml-1 text-xs font-bold px-1.5 py-0.5 rounded', zoneMeta(b.zone).cls)}>
-                    Zone {b.zone}
-                  </span>
-                )}
-              </DialogTitle>
-            </DialogHeader>
-
-            {/* Driver info */}
-            <div className="flex items-center gap-3 rounded-xl border bg-muted/30 px-4 py-3">
-              <div className="h-10 w-10 rounded-full bg-matcha-700 flex items-center justify-center text-white font-black text-sm shrink-0">
-                {driverFull.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-sm">{driverFull}</div>
-                {phone && <div className="text-xs text-muted-foreground">{phone}</div>}
-                <div className="text-[11px] text-muted-foreground capitalize mt-0.5">{b.status.replace(/_/g, ' ')}</div>
-              </div>
-              <div className="text-right shrink-0">
-                <div className={cn('text-sm font-black tabular-nums', overdue ? 'text-red-600' : 'text-matcha-700')}>
-                  {secLeft !== null
-                    ? overdue
-                      ? `+${Math.floor(-secLeft / 60)}m überfällig`
-                      : secLeft < 3600
-                        ? `${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`
-                        : finStr ?? '—'
-                    : '—'}
-                </div>
-                {finStr && <div className="text-[10px] text-muted-foreground">{finStr} Uhr</div>}
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: 'Stopps', value: `${done}/${total}` },
-                { label: 'Strecke', value: b.total_distance_km != null ? `${b.total_distance_km.toFixed(1)} km` : '—' },
-                { label: 'ETA', value: b.total_eta_min != null ? `${b.total_eta_min} Min` : '—' },
-              ].map(({ label, value }) => (
-                <div key={label} className="rounded-lg border bg-card px-3 py-2 text-center">
-                  <div className="text-xs text-muted-foreground">{label}</div>
-                  <div className="text-sm font-bold tabular-nums">{value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Stop list */}
-            <div className="rounded-xl border overflow-hidden">
-              <div className="px-3 py-2 bg-muted/40 border-b text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Stopps
-              </div>
-              <div className="divide-y max-h-64 overflow-y-auto">
-                {b.stops
-                  .sort((a, c) => a.reihenfolge - c.reihenfolge)
-                  .map((s, i) => (
-                    <div key={s.id} className={cn('flex items-start gap-2.5 px-3 py-2.5', s.geliefert_am ? 'opacity-50' : '')}>
-                      <div className={cn(
-                        'h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-black text-white shrink-0 mt-0.5',
-                        s.geliefert_am ? 'bg-matcha-500' : i === done ? 'bg-orange-400 animate-pulse' : 'bg-muted-foreground/40',
-                      )}>
-                        {s.geliefert_am ? '✓' : i + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold truncate">
-                          {s.order?.kunde_name ?? `Stopp ${i + 1}`}
-                          {s.order?.bestellnummer && (
-                            <span className="ml-1 text-[10px] text-muted-foreground font-normal">
-                              #{s.order.bestellnummer.replace('FF-', '')}
-                            </span>
-                          )}
-                        </div>
-                        {s.order?.kunde_adresse && (
-                          <div className="text-[10px] text-muted-foreground truncate">{s.order.kunde_adresse}</div>
-                        )}
-                        {s.geliefert_am && (
-                          <div className="text-[10px] text-matcha-600 font-semibold">
-                            Zugestellt {new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      );
-    })()}
+    <BatchDetailDialog
+      batchId={batchDetailId}
+      batches={batches}
+      drivers={drivers}
+      onClose={() => setBatchDetailId(null)}
+    />
     </>
+  );
+}
+
+/* ------------------------------ BatchDetailDialog ------------------------------ */
+
+function BatchDetailDialog({
+  batchId,
+  batches,
+  drivers,
+  onClose,
+}: {
+  batchId: string | null;
+  batches: Batch[];
+  drivers: Driver[];
+  onClose: () => void;
+}) {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!batchId) return;
+    const iv = setInterval(() => setTick((n) => n + 1), 1_000);
+    return () => clearInterval(iv);
+  }, [batchId]);
+
+  if (!batchId) return null;
+  const b = batches.find((bt) => bt.id === batchId);
+  if (!b) return null;
+
+  const total = b.stops.length;
+  const done = b.stops.filter((s) => s.geliefert_am).length;
+  const etaMs =
+    b.startzeit && b.total_eta_min != null
+      ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
+      : null;
+  const now = Date.now();
+  const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+  const overdue = secLeft !== null && secLeft < 0;
+  const finStr = etaMs
+    ? new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+    : null;
+  const driver = drivers.find((d) => d.employee_id === b.fahrer_id || d.aktueller_batch_id === b.id);
+  const driverFull = b.fahrer
+    ? `${b.fahrer.vorname} ${b.fahrer.nachname}`
+    : driver?.employee
+      ? `${driver.employee.vorname} ${driver.employee.nachname}`
+      : 'Fahrer';
+  const phone = driver?.employee?.telefon ?? null;
+
+  const sortedStops = [...b.stops].sort((a, c) => a.reihenfolge - c.reihenfolge);
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Truck className="h-4 w-4 text-matcha-600" />
+            Tour-Detail
+            {b.zone && (
+              <span className={cn('ml-1 text-xs font-bold px-1.5 py-0.5 rounded', zoneMeta(b.zone).cls)}>
+                Zone {b.zone}
+              </span>
+            )}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Driver info + tour countdown */}
+        <div className="flex items-center gap-3 rounded-xl border bg-muted/30 px-4 py-3">
+          <div className="h-10 w-10 rounded-full bg-matcha-700 flex items-center justify-center text-white font-black text-sm shrink-0">
+            {driverFull.charAt(0)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-sm">{driverFull}</div>
+            {phone && <div className="text-xs text-muted-foreground">{phone}</div>}
+            <div className="text-[11px] text-muted-foreground capitalize mt-0.5">{b.status.replace(/_/g, ' ')}</div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className={cn('text-sm font-black tabular-nums', overdue ? 'text-red-600' : 'text-matcha-700')}>
+              {secLeft !== null
+                ? overdue
+                  ? `+${Math.floor(-secLeft / 60)}m überfällig`
+                  : secLeft < 3600
+                    ? `${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`
+                    : finStr ?? '—'
+                : '—'}
+            </div>
+            {finStr && <div className="text-[10px] text-muted-foreground">{finStr} Uhr</div>}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'Stopps', value: `${done}/${total}` },
+            { label: 'Strecke', value: b.total_distance_km != null ? `${b.total_distance_km.toFixed(1)} km` : '—' },
+            { label: 'ETA', value: b.total_eta_min != null ? `${b.total_eta_min} Min` : '—' },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-lg border bg-card px-3 py-2 text-center">
+              <div className="text-xs text-muted-foreground">{label}</div>
+              <div className="text-sm font-bold tabular-nums">{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Stop list with per-stop ETA countdown */}
+        <div className="rounded-xl border overflow-hidden">
+          <div className="px-3 py-2 bg-muted/40 border-b text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Stopps
+          </div>
+          <div className="divide-y max-h-64 overflow-y-auto">
+            {sortedStops.map((s, i) => {
+              const stopEtaMs = s.order?.eta_earliest
+                ? new Date(s.order.eta_earliest).getTime()
+                : null;
+              const stopSecLeft = stopEtaMs ? Math.floor((stopEtaMs - now) / 1000) : null;
+              const stopOverdue = stopSecLeft !== null && stopSecLeft < 0;
+              const stopUrgent = stopSecLeft !== null && stopSecLeft >= 0 && stopSecLeft < 600;
+              const stopEtaColor = stopOverdue
+                ? 'text-red-500'
+                : stopUrgent
+                  ? 'text-orange-500'
+                  : 'text-matcha-600';
+
+              return (
+                <div key={s.id} className={cn('flex items-start gap-2.5 px-3 py-2.5', s.geliefert_am ? 'opacity-50' : '')}>
+                  <div className={cn(
+                    'h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-black text-white shrink-0 mt-0.5',
+                    s.geliefert_am ? 'bg-matcha-500' : i === done ? 'bg-orange-400 animate-pulse' : 'bg-muted-foreground/40',
+                  )}>
+                    {s.geliefert_am ? '✓' : i + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold truncate">
+                      {s.order?.kunde_name ?? `Stopp ${i + 1}`}
+                      {s.order?.bestellnummer && (
+                        <span className="ml-1 text-[10px] text-muted-foreground font-normal">
+                          #{s.order.bestellnummer.replace('FF-', '')}
+                        </span>
+                      )}
+                    </div>
+                    {s.order?.kunde_adresse && (
+                      <div className="text-[10px] text-muted-foreground truncate">{s.order.kunde_adresse}</div>
+                    )}
+                    {s.geliefert_am ? (
+                      <div className="text-[10px] text-matcha-600 font-semibold">
+                        Zugestellt {new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    ) : stopSecLeft !== null ? (
+                      <div className={cn('text-[10px] font-semibold tabular-nums', stopEtaColor)}>
+                        {stopOverdue
+                          ? `${Math.floor(-stopSecLeft / 60)}m überfällig`
+                          : stopSecLeft < 3600
+                            ? `${Math.floor(stopSecLeft / 60)}:${String(stopSecLeft % 60).padStart(2, '0')} verbleibend`
+                            : `ETA ${new Date(stopEtaMs!).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr`}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

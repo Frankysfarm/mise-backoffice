@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
-  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Power, Route, ShoppingBag,
+  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Route, ShoppingBag,
   TrendingUp, Trophy, Zap,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -837,7 +837,7 @@ export function FahrerApp({
 
         {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
         {!activeBatch && isOnline && openBatches.length === 0 && (
-          <FahrerWarteAnzeige driverId={driver.id} />
+          <FahrerWarteAnzeige driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}
@@ -1170,11 +1170,12 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 /* ---------- FahrerWarteAnzeige ---------- */
 
-function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
+function FahrerWarteAnzeige({ driverId, locationId }: { driverId: string; locationId?: string | null }) {
   const supabase = createClient();
   const [waitSec, setWaitSec] = useState(0);
   const [lastDeliveryMin, setLastDeliveryMin] = useState<number | null>(null);
   const [pulse, setPulse] = useState(false);
+  const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; active_orders: number } | null>(null);
 
   // Tick every second for wait timer
   useEffect(() => {
@@ -1184,6 +1185,22 @@ function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
     }, 1_000);
     return () => clearInterval(t);
   }, []);
+
+  // Live kitchen queue depth
+  useEffect(() => {
+    if (!locationId) return;
+    const poll = () =>
+      fetch(`/api/delivery/eta/live?location_id=${locationId}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d?.eta_min != null)
+            setKitchenLoad({ eta_min: d.eta_min as number, active_orders: (d.active_orders as number) ?? 0 });
+        })
+        .catch(() => {});
+    poll();
+    const iv = setInterval(poll, 30_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
 
   // Fetch last completed delivery time
   useEffect(() => {
@@ -1241,6 +1258,21 @@ function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
       {lastDeliveryMin !== null && (
         <div className="mt-2 text-[10px] text-matcha-400">
           Letzte Lieferung vor {lastDeliveryMin} Min
+        </div>
+      )}
+
+      {/* Live kitchen load */}
+      {kitchenLoad && (
+        <div className={cn(
+          'mt-3 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[10px] font-semibold',
+          kitchenLoad.eta_min > 30
+            ? 'bg-red-500/15 text-red-300'
+            : kitchenLoad.eta_min > 20
+              ? 'bg-orange-500/15 text-orange-300'
+              : 'bg-matcha-500/15 text-matcha-300',
+        )}>
+          <Package className="h-3 w-3 shrink-0" />
+          Küche: {kitchenLoad.active_orders} Bestellung{kitchenLoad.active_orders !== 1 ? 'en' : ''} · ETA {kitchenLoad.eta_min} Min
         </div>
       )}
     </section>
