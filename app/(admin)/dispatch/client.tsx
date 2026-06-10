@@ -39,6 +39,8 @@ import {
   RotateCcw,
   CheckCircle2,
   XCircle,
+  Trash2,
+  GitCommit,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -749,6 +751,9 @@ export function DispatchBoard({
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} />}
+
+      {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
+      <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Fahrer-Tipp: welcher freie Fahrer ist am nächsten zu welcher Zone */}
       <DriverZoneMatchPanel orders={filteredOrders} drivers={drivers} batches={batches} />
@@ -3354,16 +3359,95 @@ function DelayMonitorPanel({ locationId }: { locationId?: string }) {
 
 /* ------------------------------ TourVisualizationPanel ------------------------------ */
 
+type TourModification = {
+  id: string;
+  type: string;
+  performed_by: string | null;
+  reason: string | null;
+  created_at: string;
+  eta_before_min: number | null;
+  eta_after_min: number | null;
+};
+
 function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; drivers?: Driver[] }) {
   const [open, setOpen] = useState(false);
   const [, setTick] = useState(0);
+  const [removePending, setRemovePending] = useState<string | null>(null);
+  const [reoptPending, setReoptPending] = useState<string | null>(null);
+  const [modifications, setModifications] = useState<Map<string, TourModification[]>>(new Map());
+  const [showMods, setShowMods] = useState<Set<string>>(new Set());
+  const [reoptResult, setReoptResult] = useState<Map<string, string>>(new Map());
+
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 5000);
     return () => clearInterval(t);
   }, []);
 
+  async function removeStop(batchId: string, stopId: string) {
+    if (removePending) return;
+    setRemovePending(stopId);
+    try {
+      const res = await fetch(`/api/delivery/admin/tours/${batchId}/stops/${stopId}`, {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ reason: 'Admin: manuell entfernt' }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(`Fehler: ${(err as { error?: string }).error ?? res.statusText}`);
+      }
+    } catch {
+      alert('Netzwerkfehler beim Entfernen des Stopps.');
+    } finally {
+      setRemovePending(null);
+    }
+  }
+
+  async function reoptimizeTour(batchId: string) {
+    if (reoptPending) return;
+    setReoptPending(batchId);
+    setReoptResult((m) => { const n = new Map(m); n.delete(batchId); return n; });
+    try {
+      const res = await fetch(`/api/delivery/admin/tours/${batchId}/reoptimize`, { method: 'POST' });
+      if (res.ok) {
+        const d = await res.json();
+        const etaMin: number | null = (d as { total_eta_min?: number }).total_eta_min ?? null;
+        setReoptResult((m) => new Map(m).set(batchId, etaMin != null ? `✓ ${etaMin} Min neu berechnet` : '✓ Optimiert'));
+        setTimeout(() => setReoptResult((m) => { const n = new Map(m); n.delete(batchId); return n; }), 4000);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Fehler: ${(err as { error?: string }).error ?? res.statusText}`);
+      }
+    } catch {
+      alert('Netzwerkfehler bei Reoptimierung.');
+    } finally {
+      setReoptPending(null);
+    }
+  }
+
+  async function toggleModifications(batchId: string) {
+    const next = new Set(showMods);
+    if (next.has(batchId)) {
+      next.delete(batchId);
+      setShowMods(next);
+      return;
+    }
+    next.add(batchId);
+    setShowMods(next);
+    if (modifications.has(batchId)) return;
+    try {
+      const res = await fetch(`/api/delivery/admin/tours/${batchId}/modifications?limit=20`);
+      if (res.ok) {
+        const d = await res.json();
+        setModifications((m) => new Map(m).set(batchId, (d as { modifications?: TourModification[] }).modifications ?? []));
+      }
+    } catch {}
+  }
+
   const now = Date.now();
   if (batches.length === 0) return null;
+
+  const ACTIVE_STATUSES = new Set(['pending_acceptance', 'assigned', 'at_restaurant', 'on_route', 'en_route', 'pickup', 'unterwegs']);
 
   const enriched = batches.map((b) => {
     const total = b.stops.length;
@@ -3376,8 +3460,17 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
     const nextStop = b.stops
       .filter((s) => !s.geliefert_am)
       .sort((a, b) => a.reihenfolge - b.reihenfolge)[0] ?? null;
-    return { batch: b, total, done, progress, etaMs, secLeft, nextStop };
+    const canModify = ACTIVE_STATUSES.has(b.status) && done < total;
+    return { batch: b, total, done, progress, etaMs, secLeft, nextStop, canModify };
   }).sort((a, b) => (a.secLeft ?? 9999) - (b.secLeft ?? 9999));
+
+  const MOD_TYPE_LABELS: Record<string, string> = {
+    stop_inserted: 'Stopp hinzugefügt',
+    stop_removed: 'Stopp entfernt',
+    tour_reoptimized: 'Route optimiert',
+    tour_stop_inserted: 'Stopp hinzugefügt',
+    tour_stop_removed: 'Stopp entfernt',
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -3400,7 +3493,7 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
 
       {open && (
         <div className="p-4 space-y-4">
-          {enriched.map(({ batch, total, done, progress, secLeft, nextStop, etaMs }) => {
+          {enriched.map(({ batch, total, done, progress, secLeft, nextStop, etaMs, canModify }) => {
             const driverName = batch.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}` : `Fahrer`;
             const driverPhone = drivers.find((d) => d.employee_id === batch.fahrer_id)?.employee?.telefon ?? null;
             const overdue = secLeft !== null && secLeft < 0;
@@ -3410,6 +3503,8 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
               imminent  ? 'bg-orange-50 border-orange-200' :
               progress === 100 ? 'bg-matcha-50 border-matcha-200' :
               'bg-card border-border';
+            const batchMods = modifications.get(batch.id);
+            const modsShown = showMods.has(batch.id);
             return (
               <div key={batch.id} className={cn('rounded-xl border p-3', headerBg)}>
                 {/* Tour Header */}
@@ -3452,7 +3547,6 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       {batch.total_distance_km != null && (
                         <span>{batch.total_distance_km.toFixed(1)} km</span>
                       )}
-                      {/* Fahrer-Vergütungsschätzung: €1.50/Stopp + €0.20/km */}
                       {batch.total_distance_km != null && total > 0 && (
                         <span className="font-semibold text-matcha-600 tabular-nums" title="Geschätzte Fahrer-Vergütung (€1.50/Stopp + €0.20/km)">
                           ~{(total * 1.50 + batch.total_distance_km * 0.20).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
@@ -3475,17 +3569,52 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       )}
                     </div>
                   </div>
-                  {nextStop?.order?.kunde_adresse && (
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextStop.order.kunde_adresse)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-matcha-200 bg-matcha-50 px-2.5 py-1 text-[10px] font-bold text-matcha-700 hover:bg-matcha-100 transition"
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {nextStop?.order?.kunde_adresse && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextStop.order.kunde_adresse)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-full border border-matcha-200 bg-matcha-50 px-2.5 py-1 text-[10px] font-bold text-matcha-700 hover:bg-matcha-100 transition"
+                      >
+                        <MapPin className="h-3 w-3" />
+                        Nächster
+                      </a>
+                    )}
+                    {/* Neu optimieren — nur für aktive Touren */}
+                    {canModify && (
+                      <button
+                        onClick={() => reoptimizeTour(batch.id)}
+                        disabled={reoptPending === batch.id}
+                        title="Route neu optimieren (Nearest-Neighbor)"
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold transition',
+                          reoptResult.get(batch.id)
+                            ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
+                            : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100',
+                        )}
+                      >
+                        {reoptPending === batch.id
+                          ? <Loader2 className="h-3 w-3 animate-spin" />
+                          : <RotateCcw className="h-3 w-3" />}
+                        {reoptResult.get(batch.id) ?? 'Optimieren'}
+                      </button>
+                    )}
+                    {/* Änderungsprotokoll */}
+                    <button
+                      onClick={() => toggleModifications(batch.id)}
+                      title="Änderungsprotokoll anzeigen"
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold transition',
+                        modsShown
+                          ? 'border-amber-300 bg-amber-50 text-amber-700'
+                          : 'border-border bg-muted text-muted-foreground hover:bg-muted/70',
+                      )}
                     >
-                      <MapPin className="h-3 w-3" />
-                      Nächster
-                    </a>
-                  )}
+                      <History className="h-3 w-3" />
+                      {batchMods ? batchMods.length : ''}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Progress Bar */}
@@ -3501,7 +3630,7 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                   />
                 </div>
 
-                {/* Stop dots timeline */}
+                {/* Stop dots timeline — with remove buttons for active tours */}
                 <div className="flex items-center gap-0 overflow-x-auto pb-1 scrollbar-hide">
                   {batch.stops
                     .slice()
@@ -3515,9 +3644,28 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       const stopEtaOverdue = stop.order?.eta_earliest
                         ? new Date(stop.order.eta_earliest).getTime() < now
                         : false;
+                      const canRemove = canModify && !isDone && !isNext;
                       return (
                         <div key={stop.id} className="flex items-center shrink-0">
-                          <div className="flex flex-col items-center gap-0.5">
+                          <div className="flex flex-col items-center gap-0.5 relative">
+                            {/* Delete button — appears on hover for future stops */}
+                            {canRemove && (
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Stopp ${stop.reihenfolge} (${stop.order?.kunde_name ?? ''}) aus der Tour entfernen?`)) {
+                                    removeStop(batch.id, stop.id);
+                                  }
+                                }}
+                                disabled={removePending === stop.id}
+                                title="Stopp aus Tour entfernen"
+                                className="absolute -top-1.5 -right-1 z-10 h-4 w-4 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity"
+                                style={{ fontSize: 8 }}
+                              >
+                                {removePending === stop.id
+                                  ? <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                                  : <Trash2 className="h-2.5 w-2.5" />}
+                              </button>
+                            )}
                             <div className={cn(
                               'h-7 w-7 rounded-full grid place-items-center text-[10px] font-bold border-2 transition-all',
                               isDone
@@ -3551,6 +3699,54 @@ function TourVisualizationPanel({ batches, drivers = [] }: { batches: Batch[]; d
                       );
                     })}
                 </div>
+
+                {/* Änderungsprotokoll — collapsible audit trail */}
+                {modsShown && (
+                  <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 p-2.5">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <GitCommit className="h-3 w-3 text-amber-600" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Änderungsprotokoll</span>
+                    </div>
+                    {!batchMods ? (
+                      <div className="flex items-center gap-1.5 text-[10px] text-amber-600">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Lädt…
+                      </div>
+                    ) : batchMods.length === 0 ? (
+                      <div className="text-[10px] text-amber-600/70">Keine Änderungen protokolliert.</div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {batchMods.map((mod) => {
+                          const label = MOD_TYPE_LABELS[mod.type] ?? mod.type;
+                          const ts = new Date(mod.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                          const etaDiff = mod.eta_before_min != null && mod.eta_after_min != null
+                            ? mod.eta_after_min - mod.eta_before_min
+                            : null;
+                          return (
+                            <div key={mod.id} className="flex items-start gap-2 text-[10px]">
+                              <span className="tabular-nums text-amber-500 shrink-0 mt-0.5">{ts}</span>
+                              <div className="flex-1 min-w-0">
+                                <span className="font-bold text-amber-800">{label}</span>
+                                {mod.reason && <span className="text-amber-600"> · {mod.reason}</span>}
+                                {etaDiff !== null && (
+                                  <span className={cn(
+                                    'ml-1 font-mono font-bold',
+                                    etaDiff > 0 ? 'text-red-600' : 'text-matcha-600',
+                                  )}>
+                                    {etaDiff > 0 ? `+${etaDiff}m` : `${etaDiff}m`}
+                                  </span>
+                                )}
+                                {mod.performed_by && (
+                                  <span className="text-amber-500"> · {mod.performed_by}</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -5265,6 +5461,167 @@ function BroadcastPanel({
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ------------------------------ OpenIncidentsPanel ------------------------------ */
+
+type Incident = {
+  id: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'in_progress' | 'escalated' | 'resolved' | 'closed';
+  title: string;
+  description: string | null;
+  created_at: string;
+  order_bestellnummer: string | null;
+  driver_name: string | null;
+};
+
+const INCIDENT_SEVERITY_META: Record<string, { label: string; cls: string }> = {
+  low:      { label: 'Niedrig',   cls: 'bg-gray-100 text-gray-700 border-gray-200' },
+  medium:   { label: 'Mittel',    cls: 'bg-amber-100 text-amber-800 border-amber-200' },
+  high:     { label: 'Hoch',      cls: 'bg-orange-100 text-orange-800 border-orange-200' },
+  critical: { label: 'Kritisch',  cls: 'bg-red-100 text-red-800 border-red-200 animate-pulse' },
+};
+
+const INCIDENT_TYPE_LABELS: Record<string, string> = {
+  late_delivery:        'Verspätete Lieferung',
+  wrong_order:          'Falsche Bestellung',
+  missing_item:         'Fehlender Artikel',
+  driver_complaint:     'Fahrer-Beschwerde',
+  customer_complaint:   'Kunden-Beschwerde',
+  damage:               'Schaden/Unfall',
+  no_show:              'Fahrer erschienen nicht',
+  other:                'Sonstiges',
+};
+
+function OpenIncidentsPanel({ locationId }: { locationId: string | null }) {
+  const [open, setOpen] = useState(false);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [stats, setStats] = useState<{ total: number; open: number; critical: number } | null>(null);
+  const [resolving, setResolving] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!locationId) return;
+    const load = async () => {
+      try {
+        const [statsRes, listRes] = await Promise.all([
+          fetch(`/api/delivery/admin/incidents?stats=true&location_id=${locationId}`),
+          fetch(`/api/delivery/admin/incidents?status=open&location_id=${locationId}&limit=20`),
+        ]);
+        if (statsRes.ok) {
+          const d = await statsRes.json() as { stats?: { total_open: number; total_incidents: number; critical_open: number } };
+          if (d.stats) {
+            setStats({ total: d.stats.total_incidents ?? 0, open: d.stats.total_open ?? 0, critical: d.stats.critical_open ?? 0 });
+          }
+        }
+        if (listRes.ok) {
+          const d = await listRes.json() as { incidents?: Incident[] };
+          setIncidents(d.incidents ?? []);
+        }
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 90_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  async function resolveIncident(id: string) {
+    if (resolving) return;
+    setResolving(id);
+    try {
+      await fetch(`/api/delivery/admin/incidents/${id}?location_id=${locationId}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve', notes: 'Admin: Manuell aufgelöst' }),
+      });
+      setIncidents((prev) => prev.filter((i) => i.id !== id));
+      setStats((s) => s ? { ...s, open: Math.max(0, s.open - 1) } : s);
+    } catch {}
+    setResolving(null);
+  }
+
+  if (!locationId) return null;
+  const criticalCount = incidents.filter((i) => i.severity === 'critical').length;
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-3 px-5 py-3 hover:bg-muted/30 transition border-b text-left"
+      >
+        <AlertTriangle className="h-4 w-4 text-orange-600 shrink-0" />
+        <span className="font-display text-sm font-bold flex-1">Offene Incidents</span>
+        {stats && stats.open > 0 && (
+          <Badge
+            variant={criticalCount > 0 ? 'destructive' : 'secondary'}
+            className={cn('text-[10px]', criticalCount > 0 && 'animate-pulse')}
+          >
+            {stats.open} offen{criticalCount > 0 ? ` · ${criticalCount} kritisch` : ''}
+          </Badge>
+        )}
+        {(!stats || stats.open === 0) && (
+          <Badge variant="secondary" className="text-[10px] text-matcha-600">Alles OK</Badge>
+        )}
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="p-4">
+          {incidents.length === 0 ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              <CheckCircle2 className="h-8 w-8 text-matcha-400 mx-auto mb-2 opacity-60" />
+              Keine offenen Incidents.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {incidents.map((inc) => {
+                const sev = INCIDENT_SEVERITY_META[inc.severity] ?? INCIDENT_SEVERITY_META.low;
+                const typeLabel = INCIDENT_TYPE_LABELS[inc.type] ?? inc.type;
+                const createdAt = new Date(inc.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                return (
+                  <div key={inc.id} className={cn('rounded-xl border px-3 py-2.5 flex items-start gap-3', sev.cls)}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span className="font-display text-sm font-bold leading-tight">{inc.title}</span>
+                        <span className={cn('rounded-full border px-1.5 py-0.5 text-[9px] font-black', sev.cls)}>
+                          {sev.label}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground/70 font-mono">{createdAt}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] flex-wrap">
+                        <span className="font-semibold">{typeLabel}</span>
+                        {inc.order_bestellnummer && (
+                          <span className="rounded bg-black/5 px-1 py-0.5 font-mono">#{inc.order_bestellnummer.replace('FF-', '')}</span>
+                        )}
+                        {inc.driver_name && (
+                          <span className="text-muted-foreground">· {inc.driver_name}</span>
+                        )}
+                      </div>
+                      {inc.description && (
+                        <div className="mt-1 text-[10px] text-muted-foreground/80 line-clamp-2">{inc.description}</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => resolveIncident(inc.id)}
+                      disabled={resolving === inc.id}
+                      title="Incident als gelöst markieren"
+                      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-matcha-300 bg-matcha-50 px-2 py-0.5 text-[10px] font-bold text-matcha-700 hover:bg-matcha-100 transition"
+                    >
+                      {resolving === inc.id
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : <Check className="h-3 w-3" />}
+                      Lösen
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}

@@ -98,6 +98,7 @@ export function DeliveryView({
   const [showItemsStopId, setShowItemsStopId] = useState<string | null>(null);
   const [restaurantLoc, setRestaurantLoc] = useState<{ lat: number; lng: number; name: string } | null>(null);
   const [showAllStops, setShowAllStops] = useState(false);
+  const [routeChangedNotice, setRouteChangedNotice] = useState<{ type: string; ts: number } | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -131,6 +132,25 @@ export function DeliveryView({
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [batchId]);
+
+  // Tour-Modifikationen: Echtzeit-Benachrichtigung wenn Dispatch die Route ändert
+  useEffect(() => {
+    const ch = supabase
+      .channel(`tour-mods-${batchId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'tour_modifications',
+        filter: `batch_id=eq.${batchId}`,
+      }, (payload: { new: { type: string; created_at: string } }) => {
+        const { type } = payload.new;
+        setRouteChangedNotice({ type, ts: Date.now() });
+        setTimeout(() => setRouteChangedNotice(null), 12_000);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchId]);
 
@@ -473,6 +493,28 @@ export function DeliveryView({
         <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-red-600 px-4 py-2 text-sm font-bold text-white">
           <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
           Kein Internet — Änderungen werden verzögert synchronisiert
+        </div>
+      )}
+      {/* Route-Änderungs-Banner — erscheint wenn Dispatch die Tour live modifiziert */}
+      {routeChangedNotice && (
+        <div className="sticky top-0 z-40 flex items-center gap-3 bg-blue-600 px-4 py-2.5 text-white animate-in slide-in-from-top-2 duration-300">
+          <span className="text-lg shrink-0">🔄</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-black uppercase tracking-wide">Route aktualisiert</div>
+            <div className="text-[10px] opacity-80">
+              {routeChangedNotice.type === 'tour_reoptimized' || routeChangedNotice.type === 'tour_stop_removed'
+                ? 'Dispatch hat deine Route neu optimiert. Bitte prüfe die Stopps.'
+                : routeChangedNotice.type === 'tour_stop_inserted' || routeChangedNotice.type === 'stop_inserted'
+                  ? 'Ein neuer Stopp wurde zu deiner Tour hinzugefügt.'
+                  : 'Deine Tour wurde vom Dispatch geändert.'}
+            </div>
+          </div>
+          <button
+            onClick={() => setRouteChangedNotice(null)}
+            className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold"
+          >
+            OK
+          </button>
         </div>
       )}
       {/* Header */}

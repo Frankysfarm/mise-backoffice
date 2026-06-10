@@ -261,6 +261,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [payoutPeriods, setPayoutPeriods] = useState<PayoutPeriodRow[]>([])
   const [payoutPeriodsLoading, setPayoutPeriodsLoading] = useState(false)
   const [weekTrend, setWeekTrend] = useState<{ day: string; bestellungen: number; geliefert: number }[]>([])
+  const [incidentStats, setIncidentStats] = useState<{
+    total_incidents: number; total_open: number; critical_open: number; resolved_today: number;
+  } | null>(null)
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -425,6 +428,19 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/events?location_id=${locationId}&limit=30`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (Array.isArray(d?.events) && d.events.length > 0) setEventLog(d.events) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/incidents?stats=true&location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { stats?: { total_incidents?: number; total_open?: number; critical_open?: number; resolved_today?: number } } | null) => {
+        if (d?.stats) {
+          setIncidentStats({
+            total_incidents: d.stats.total_incidents ?? 0,
+            total_open: d.stats.total_open ?? 0,
+            critical_open: d.stats.critical_open ?? 0,
+            resolved_today: d.stats.resolved_today ?? 0,
+          })
+        }
+      })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -1853,6 +1869,44 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Incident-KPIs */}
+      {incidentStats && (incidentStats.total_incidents > 0 || incidentStats.total_open > 0) && (
+        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-char mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-orange-500" />
+            Incident-Übersicht
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className={`rounded-xl p-4 border text-center ${incidentStats.total_open > 0 ? 'bg-orange-50 border-orange-200' : 'bg-stone-50 border-stone-100'}`}>
+              <div className={`text-3xl font-black ${incidentStats.total_open > 0 ? 'text-orange-600' : 'text-emerald-600'}`}>
+                {incidentStats.total_open}
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Offen</div>
+            </div>
+            <div className={`rounded-xl p-4 border text-center ${incidentStats.critical_open > 0 ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-stone-50 border-stone-100'}`}>
+              <div className={`text-3xl font-black ${incidentStats.critical_open > 0 ? 'text-red-600' : 'text-stone-400'}`}>
+                {incidentStats.critical_open}
+              </div>
+              <div className="text-xs text-stone-500 mt-1">Kritisch</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 border border-stone-100 p-4 text-center">
+              <div className="text-3xl font-black text-blue-600">{incidentStats.resolved_today}</div>
+              <div className="text-xs text-stone-500 mt-1">Heute gelöst</div>
+            </div>
+            <div className="rounded-xl bg-stone-50 border border-stone-100 p-4 text-center">
+              <div className="text-3xl font-black text-stone-700">{incidentStats.total_incidents}</div>
+              <div className="text-xs text-stone-500 mt-1">Gesamt</div>
+            </div>
+          </div>
+          {incidentStats.total_open === 0 && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-2.5">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-sm font-semibold text-emerald-700">Alle Incidents aufgelöst — keine offenen Vorfälle.</span>
+            </div>
+          )}
         </div>
       )}
 
