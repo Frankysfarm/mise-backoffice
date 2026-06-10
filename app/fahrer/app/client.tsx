@@ -583,21 +583,34 @@ export function FahrerApp({
           </section>
         )}
 
-        {/* Neue Order WAEHREND der Tour — Drive 10-incoming-on-tour: "+ Dazunehmen" */}
+        {/* Schwebende Box: Naechste Bestellungen waehrend der Tour (Vision: wird vorbereitet) */}
         {activeBatch && isOnline && openBatches.length > 0 && (
           <section style={{ marginBottom: 16 }}>
-            {openBatches.map((b) => (
-              <div key={b.batch_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, background: 'var(--accent-tint)', borderRadius: 16, marginBottom: 8, boxShadow: 'inset 0 0 0 1.5px var(--accent)' }}>
-                <div style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <DIcon name="bell" size={20} stroke={2} style={{ color: 'var(--accent)' }} className="ring-anim" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 4px 8px' }}>
+              <DIcon name="bell" size={15} stroke={2.2} style={{ color: 'var(--accent)' }} className="ring-anim" />
+              <span style={{ fontSize: 12.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-2)' }}>Naechste Bestellungen</span>
+              <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>{openBatches.length}</span>
+            </div>
+            {openBatches.map((b) => {
+              const ks = kitchenStatuses.get(b.order_id);
+              const ready = !ks || ks === 'fertig' || ks === 'unterwegs';
+              const sLabel = ready ? 'Abholbereit' : 'Wird vorbereitet';
+              const sColor = ready ? 'var(--accent)' : 'var(--warn)';
+              const sBg = ready ? 'var(--accent-tint)' : 'var(--warn-tint)';
+              return (
+                <div key={b.batch_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, background: 'var(--surface)', borderRadius: 16, marginBottom: 8, boxShadow: 'inset 0 0 0 1px var(--line), 0 2px 10px -6px rgba(0,0,0,.14)' }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: sBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <DIcon name={ready ? 'bag' : 'clock'} size={19} stroke={2} style={{ color: sColor }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14.5 }}>Neue Bestellung <span className="mono" style={{ color: 'var(--ink-2)' }}>#{(b.bestellnummer || '').slice(-4)}</span></div>
+                    <div style={{ fontSize: 12.5, color: 'var(--ink-2)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.kunde_name} · {b.kunde_adresse}</div>
+                    <span style={{ display: 'inline-block', marginTop: 4, fontSize: 10.5, fontWeight: 700, color: sColor, background: sBg, padding: '2px 8px', borderRadius: 7 }}>{sLabel}</span>
+                  </div>
+                  <Btn size="sm" full={false} onClick={() => acceptDuringTour(b.batch_id)} disabled={pending} icon="plus">Dazunehmen</Btn>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>Neue Bestellung <span className="mono" style={{ color: 'var(--ink-2)' }}>#{(b.bestellnummer || '').slice(-4)}</span></div>
-                  <div style={{ fontSize: 12.5, color: 'var(--ink-2)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.kunde_name} · {b.kunde_adresse}</div>
-                </div>
-                <Btn size="sm" full={false} onClick={() => acceptDuringTour(b.batch_id)} disabled={pending} icon="plus">Dazunehmen</Btn>
-              </div>
-            ))}
+              );
+            })}
           </section>
         )}
 
