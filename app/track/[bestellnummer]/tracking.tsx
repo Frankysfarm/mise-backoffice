@@ -101,6 +101,8 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
   const [shared, setShared] = useState(false);
   const [kitchenBannerDismissed, setKitchenBannerDismissed] = useState(false);
   const [quickReplySent, setQuickReplySent] = useState<string | null>(null);
+  const [etaImproved, setEtaImproved] = useState(false);
+  const prevEtaLatestRef = useRef<string | null>(initial.eta_latest);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -115,16 +117,28 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
         .then((r) => r.ok ? r.json() : null)
         .then((d) => {
           if (!d) return;
-          setOrder((prev) => ({
-            ...prev,
-            status: d.status ?? prev.status,
-            eta_earliest: d.eta_earliest ?? prev.eta_earliest,
-            eta_latest: d.eta_latest ?? prev.eta_latest,
-            fahrer_lat: d.driver?.lat ?? prev.fahrer_lat,
-            fahrer_lng: d.driver?.lng ?? prev.fahrer_lng,
-            fahrer_heading: d.driver?.heading ?? prev.fahrer_heading,
-            fahrer_last_update: d.driver ? new Date().toISOString() : prev.fahrer_last_update,
-          }));
+          setOrder((prev) => {
+            // Detect ETA improvement: new eta_latest is earlier than previous
+            if (d.eta_latest && prevEtaLatestRef.current) {
+              const newMs = new Date(d.eta_latest).getTime();
+              const oldMs = new Date(prevEtaLatestRef.current).getTime();
+              if (newMs < oldMs - 60_000) {
+                setEtaImproved(true);
+                setTimeout(() => setEtaImproved(false), 6_000);
+              }
+            }
+            if (d.eta_latest) prevEtaLatestRef.current = d.eta_latest;
+            return {
+              ...prev,
+              status: d.status ?? prev.status,
+              eta_earliest: d.eta_earliest ?? prev.eta_earliest,
+              eta_latest: d.eta_latest ?? prev.eta_latest,
+              fahrer_lat: d.driver?.lat ?? prev.fahrer_lat,
+              fahrer_lng: d.driver?.lng ?? prev.fahrer_lng,
+              fahrer_heading: d.driver?.heading ?? prev.fahrer_heading,
+              fahrer_last_update: d.driver ? new Date().toISOString() : prev.fahrer_last_update,
+            };
+          });
           if (d.stops_before != null) setStopsBefore(d.stops_before);
         })
         .catch(() => {});
@@ -378,6 +392,26 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
             </div>
           )}
         </div>
+
+        {/* ETA-Verbesserungs-Banner: animiertes Highlight wenn Lieferzeit kürzer wird */}
+        {etaImproved && (
+          <div className="rounded-2xl border-2 border-accent bg-gradient-to-r from-matcha-50 via-white to-matcha-50 p-4 flex items-center gap-3 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-matcha-900 text-xl font-black">
+              🚀
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-bold text-matcha-800 text-sm">Deine Bestellung kommt früher!</p>
+              <p className="text-xs text-matcha-600 mt-0.5">Die Lieferzeit wurde nach vorne korrigiert.</p>
+            </div>
+            <button
+              onClick={() => setEtaImproved(false)}
+              className="shrink-0 rounded-full p-1 text-matcha-400 hover:bg-matcha-100 transition"
+              aria-label="Schließen"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {/* Küchen-Benachrichtigung Banner — für Abholer wenn Küche "fertig"-Nachricht gesendet hat */}
         {latestKitchenMsg && !kitchenBannerDismissed && (
