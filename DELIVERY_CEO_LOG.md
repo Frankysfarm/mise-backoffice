@@ -1,7 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–53 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–53 + ActiveTourRail abgeschlossen. Deployment-bereit.
+
+---
+
+## CEO Review #45 — 2026-06-10
+
+### Prüfung: Phase 53 (Legacy-Konsolidierung) + ActiveTourRail
+
+**Ergebnis: FREIGEGEBEN** — kein Bug, kein TypeScript-Fehler, Build sauber (176 Seiten).
+
+#### Phase 53 Backend-Prüfung
+
+SQL-Funktion `ensure_mise_driver()`:
+- Lookup per `auth_user_id` korrekt ✅
+- Auto-Insert mit korrekten Feldern (`state: 'idle'`, `active: true`) ✅
+- `RETURNS uuid` — NULL-safe wenn Employee nicht gefunden ✅
+
+SQL-Funktion `assign_to_driver()` v2:
+- `stop_count = v_order_count * 2` korrekt (pickup + dropoff je Bestellung) ✅
+- Stops-Loop: Sequenz `(i-1)*2` / `(i-1)*2+1` → keine Kollisionen ✅
+- `driver_status.aktueller_batch_id` wird korrekt auf `mise_delivery_batches.id` gesetzt ✅
+- Response `legacy_batch_id: null` hält Rückwärtskompatibilität mit `dispatch/client.tsx` ✅
+- Legacy `delivery_batches` unberührt ✅
+
+Fahrer-App Priority-Flip (`app/fahrer/app/page.tsx`):
+- `normalizedMiseBatch ?? legacyActiveBatch` korrekt ✅
+- In-Flight-Legacy-Batches weiterhin sichtbar bis completed ✅
+
+#### ActiveTourRail Frontend-Prüfung (`dispatch/client.tsx`)
+
+Alle verwendeten `Batch`-Felder im Typ vorhanden: `reihenfolge`, `geliefert_am`, `startzeit`,
+`total_eta_min`, `total_distance_km`, `zone`, `fahrer.vorname`, `fahrer.nachname` ✅
+
+Stop-Punkte-Logik: `i === done` markiert korrekt den aktuellen (nächsten) Stop als orange ✅
+
+ETA-Countdown: `setTick` alle 10s → `now = Date.now()` wird bei Re-Render neu berechnet;
+für Tour-Overview ausreichend (kein 1s-Timer nötig) ✅
+
+Driver-Lookup Fallback-Kette:
+1. `b.fahrer` (immer gesetzt bei legacy + mise via Normalisierung)
+2. Falls null: `drivers.find(d => d.employee_id === b.fahrer_id || d.aktueller_batch_id === b.id)`
+— Für Mise-Batches trifft `d.aktueller_batch_id === b.id` (nach Phase 53 korrekt gesetzt) ✅
+
+`zoneMeta(b.zone).cls.replace(/bg-\S+/, '').trim()` — extrahiert nur Text-Farbklasse ✅
+`GitCommit`-Icon in Lucide-Imports (Zeile 43) vorhanden ✅
+
+### Anweisungen für nächste Iteration
+
+**Phase 54 (Cleanup) — wenn alle In-Flight-Legacy-Batches completed:**
+1. `dispatch/client.tsx`: `delivery_batches`-Query + Legacy-Normalisierung entfernen
+2. `v_open_dispatch_batches`: Legacy-Union-Teil entfernen (Migration 045)
+3. `dispatch/client.tsx`: Legacy-Fallback in `assignToDriver()` entfernen
+
+**Nächste Features (optional):**
+- ActiveTourRail: Klick auf Tour → öffnet BatchDetailModal (drill-down)
+- ActiveTourRail: ETA-Überschreitung Push-Notification (wenn overdue > 5min)
+- Phase 54 Cleanup erst wenn keine aktiven Legacy-Batches mehr in Production
 
 ---
 

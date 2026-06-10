@@ -219,8 +219,35 @@
 - [x] OpenIncidentsPanel im Dispatch-Board (90s-Poll, Severity-Farbkodierung, Lösen-Button)
 - [x] Fahrer-App: Echtzeit-Routenänderungs-Banner (Supabase Realtime auf tour_modifications)
 - [x] Statistiken: Incident-KPI-Block (Offen/Kritisch/Heute gelöst/Gesamt)
+- [x] ActiveTourRail: kompakter Live-Überblick aller laufenden Touren im Dispatch-Board
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + CEO REVIEW #44 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + ACTIVETOURAIL + CEO REVIEW #45 ABGESCHLOSSEN — 2026-06-10
+
+### CEO Review #45 (2026-06-10)
+- TypeScript: **0 Fehler** ✅ (`npx tsc --noEmit` exit 0)
+- Build: `npx next build` sauber, 176 Seiten ✅
+- **2 neue Commits geprüft**: Phase 53 (Legacy-Konsolidierung) + ActiveTourRail (Dispatch-Frontend)
+- **0 Bugs gefunden** — beide Commits sind produktionsreif
+
+#### Prüfprotokoll
+
+**Phase 53 SQL (044_legacy_consolidation.sql):**
+- `ensure_mise_driver()`: Korrekt — sucht per `auth_user_id`, auto-erstellt falls nicht vorhanden ✅
+- `assign_to_driver()` v2: Korrekt — nur noch `mise_delivery_batches`, kein `delivery_batches` ✅
+- `stop_count = v_order_count * 2`: Korrekt — je 1 pickup + 1 dropoff Stop pro Bestellung ✅
+- `driver_status.aktueller_batch_id` → `mise_delivery_batches.id`: Korrekt für Phase-53-Batches ✅
+- Legacy-Batches unberührt, `v_open_dispatch_batches` liest weiterhin beide Systeme ✅
+- Fahrer-App Priority-Flip (`normalizedMiseBatch ?? legacyActiveBatch`): Korrekt ✅
+
+**ActiveTourRail (dispatch/client.tsx):**
+- Batch-Typ-Kompatibilität: alle verwendeten Felder (`reihenfolge`, `geliefert_am`, `startzeit`, `total_eta_min`, `total_distance_km`, `zone`, `fahrer`) korrekt im `Batch`-Typ vorhanden ✅
+- Stop-Normalisierung: Mise-Stops (`sequence`→`reihenfolge`, `completed_at`→`geliefert_am`) korrekt ✅
+- Stop-Punkte-Logik (`i === done` für aktuellen Stop): mathematisch korrekt ✅
+- ETA-Countdown: `setTick` alle 10s → `now` wird bei Re-Render neu berechnet ✅
+- Status-Filter (`ACTIVE`-Set) deckt alle Legacy- und Mise-Zustände ab ✅
+- `zoneMeta().cls.replace(/bg-\S+/, '')` extrahiert korrekt nur die Text-Farbe ✅
+- `GitCommit`-Icon: in Lucide-Imports (Zeile 43) vorhanden ✅
+- Driver-Fallback: für Mise-Batches greift `d.aktueller_batch_id === b.id` korrekt ✅
 
 ### CEO Review #44 (2026-06-10)
 - TypeScript: **0 Fehler** ✅
