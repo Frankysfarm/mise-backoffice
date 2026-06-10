@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
   Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Power, Route, ShoppingBag,
-  TrendingUp, Trophy, X, Zap,
+  TrendingUp, Trophy, X,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
+import { Btn, IconBtn, Avatar, Sheet, Icon as DIcon, Spinner as DSpinner } from './drive-ui';
 import { PickDialog } from './pick-dialog';
 import { DeliveryView } from './delivery-view';
 import { AlarmRinger } from './alarm-ringer';
@@ -111,6 +112,8 @@ export function FahrerApp({
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
   const [pickItems, setPickItems] = useState<any[]>([]);
+  // Artikel-Anzahl pro Bestellung (fuer die Drive "Zu picken"-Karten)
+  const [pickCounts, setPickCounts] = useState<Map<string, number>>(new Map());
   // F1 Route-Popup: nach komplettem Pickup ("Alles abgeholt. Beste Route fertig")
   const [routeSheet, setRouteSheet] = useState<{ stops: number; km: number | null } | null>(null);
   const [decliningBatch, setDecliningBatch] = useState<string | null>(null);
@@ -181,6 +184,25 @@ export function FahrerApp({
       .subscribe();
 
     return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBatch?.id, activeBatch?.status]);
+
+  // Artikel-Anzahl pro Bestellung laden (Pick-Phase) -> "N Artikel" auf den Karten
+  useEffect(() => {
+    if (!activeBatch || activeBatch.status === 'unterwegs') return;
+    const orderIds = activeBatch.stops.map((s) => s.order_id).filter(Boolean);
+    if (orderIds.length === 0) return;
+    (async () => {
+      const { data } = await supabase.from('order_items')
+        .select('order_id, menge')
+        .in('order_id', orderIds);
+      if (!data) return;
+      const m = new Map<string, number>();
+      for (const row of data as { order_id: string; menge: number }[]) {
+        m.set(row.order_id, (m.get(row.order_id) ?? 0) + (row.menge ?? 1));
+      }
+      setPickCounts(m);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeBatch?.id, activeBatch?.status]);
 
@@ -509,8 +531,8 @@ export function FahrerApp({
           </div>
         ))}
 
-        {/* Online Toggle */}
-        {!activeBatch && (
+        {/* Online Toggle — im Drive-Warte-Screen steckt der Offline-Button in der Fahrer-Leiste */}
+        {!activeBatch && !(isOnline && openBatches.length === 0) && (
           <section>
             <button
               onClick={toggleOnline}
@@ -563,293 +585,194 @@ export function FahrerApp({
           />
         )}
 
-        {/* Active Batch — Pick-Phase: groß + zentral, kein ablenkender Kram */}
-        {activeBatch && activeBatch.status !== 'unterwegs' && (
-          <section>
-            <div className="flex items-center justify-between mb-3 text-accent">
-              <div className="flex items-center gap-2">
-                <Navigation className="h-4 w-4" />
-                <h2 className="font-display text-sm font-bold uppercase tracking-wider">Tour #{activeBatch.stops[0]?.order.bestellnummer.slice(-4)}</h2>
+        {/* Active Batch — Pick-Phase: Drive "Zu picken" (03/04-orders.png) */}
+        {activeBatch && activeBatch.status !== 'unterwegs' && (() => {
+          const stops = activeBatch.stops.slice().sort((a, b) => a.reihenfolge - b.reihenfolge);
+          const total = stops.length;
+          const hubName = (activeBatch as any).location_name
+            || (driver as any).hub_name
+            || 'Restaurant';
+          const readyCount = stops.filter((s) => {
+            const ks = kitchenStatuses.get(s.order_id);
+            return ks === 'fertig' || ks === 'unterwegs';
+          }).length;
+          const cookingCount = stops.filter((s) => kitchenStatuses.get(s.order_id) === 'in_zubereitung').length;
+          const allReady = total > 0 && readyCount === total;
+          const cashStops = stops.filter((s) => {
+            const o = s.order as any;
+            return o.zahlungsart === 'bar' || o.bezahlt === false;
+          });
+          const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          // Maps-Routenvorschau (alle Stops mit Koordinaten)
+          const withCoords = stops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);
+          const mapsUrl = (() => {
+            if (withCoords.length === 0) return null;
+            const dest = `${withCoords[withCoords.length - 1].order.kunde_lat},${withCoords[withCoords.length - 1].order.kunde_lng}`;
+            const waypoints = withCoords.slice(0, -1).map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`).join('|');
+            return waypoints
+              ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+              : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+          })();
+
+          return (
+          <section style={{ margin: '-24px -16px 0' }}>
+            {/* Drive-Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '8px 18px 12px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1, color: 'var(--ink)' }}>Zu picken</div>
+                <div style={{ fontSize: 13.5, color: 'var(--ink-2)', fontWeight: 500, marginTop: 2 }}>
+                  {total} {total === 1 ? 'Bestellung' : 'Bestellungen'} · {hubName}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-[var(--ink-3)]">{activeBatch.stops.length} {activeBatch.stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
-                <span className="font-display font-bold text-accent">
-                  {euro(activeBatch.stops.reduce((s, st) => s + st.order.gesamtbetrag, 0))}
-                </span>
-              </div>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px',
+                borderRadius: 9, fontSize: 12.5, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1,
+                background: 'var(--accent-tint)', color: 'var(--accent)', marginTop: 4,
+              }}>
+                <DIcon name="bag" size={14} stroke={2.4} />{readyCount}/{total}
+              </span>
             </div>
 
-            {/* Küchen-Bereitschafts-Fortschritt: X von Y Bestellungen fertig */}
-            {(() => {
-              const total = activeBatch.stops.length;
-              if (total === 0) return null;
-              const readyCount = activeBatch.stops.filter((s) => {
-                const ks = kitchenStatuses.get(s.order_id);
-                return ks === 'fertig' || ks === 'unterwegs';
-              }).length;
-              const cookingCount = activeBatch.stops.filter((s) => kitchenStatuses.get(s.order_id) === 'in_zubereitung').length;
-              const allReady = readyCount === total;
-              const pct = Math.round((readyCount / total) * 100);
-              return (
-                <div className={cn(
-                  'rounded-xl border px-4 py-3 mb-3',
-                  allReady
-                    ? 'bg-accent/15 border-[var(--accent)]/40'
-                    : cookingCount > 0
-                    ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30'
-                    : 'bg-[var(--surface-2)] border-[var(--line)]',
-                )}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={cn(
-                      'text-[11px] font-bold uppercase tracking-wider',
-                      allReady ? 'text-accent' : 'text-[var(--ink-3)]',
-                    )}>
-                      {allReady ? '✓ Alle bereit zum Abholen' : `Küche: ${readyCount} von ${total} fertig`}
-                    </span>
-                    {cookingCount > 0 && (
-                      <span className="text-[10px] font-bold text-[var(--warn)] animate-pulse">
-                        {cookingCount} kocht noch
-                      </span>
-                    )}
-                  </div>
-                  <div className="h-1.5 rounded-full bg-[var(--surface-2)] overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-500',
-                        allReady ? 'bg-accent' : pct >= 50 ? 'bg-[var(--warn)]' : 'bg-[var(--accent)]',
-                      )}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Cash-to-collect Banner */}
-            {(() => {
-              const cashStops = activeBatch.stops.filter((s) => {
-                const o = s.order as any;
-                return o.zahlungsart === 'bar' || o.bezahlt === false;
-              });
-              const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
-              if (totalCash <= 0) return null;
-              return (
-                <div className="rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-4 py-3 mb-3 flex items-center gap-3">
-                  <Banknote className="h-5 w-5 text-[var(--warn)] shrink-0" />
-                  <div className="flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)]">Bar kassieren</div>
-                    <div className="font-display font-black text-[var(--warn)] text-xl">{euro(totalCash)}</div>
-                  </div>
-                  <div className="text-[10px] text-[var(--warn)]">{cashStops.length} {cashStops.length === 1 ? 'Zahlung' : 'Zahlungen'}</div>
-                </div>
-              );
-            })()}
-
-            {/* Geschätzte Fahrervergütung für diese Tour */}
-            {(() => {
-              const stopCount = activeBatch.stops.length;
-              const distKm = (activeBatch as any).total_distance_km as number | null ?? 0;
-              const estEarnings = stopCount * 1.50 + distKm * 0.20;
-              if (estEarnings <= 0) return null;
-              return (
-                <div className="rounded-xl bg-[var(--surface-2)]/30 border border-[var(--line)] px-4 py-3 mb-3 flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Geschätzte Vergütung</div>
-                    <div className="text-[9px] text-[var(--ink-3)] mt-0.5">
-                      {stopCount}× €1.50
-                      {distKm > 0 ? ` + ${distKm.toFixed(1)} km × €0.20` : ''}
-                    </div>
-                  </div>
-                  <div className="font-display font-black text-accent text-xl">{euro(estEarnings)}</div>
-                </div>
-              );
-            })()}
-
-            {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
-            <div className="space-y-2 mb-4">
-              {activeBatch.stops
-                .slice()
-                .sort((a, b) => a.reihenfolge - b.reihenfolge)
-                .map((stop, idx, arr) => {
-                  const o = stop.order as any;
-                  const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
-                  const kStatus = kitchenStatuses.get(stop.order_id) ?? null;
-                  const kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs';
-                  const kitchenCooking = kStatus === 'in_zubereitung';
-                  const isLast = idx === arr.length - 1;
-
-                  // Individual stop nav URL
-                  const stopNavUrl = stop.order.kunde_lat && stop.order.kunde_lng
-                    ? `https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`
-                    : stop.order.kunde_adresse
-                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.order.kunde_adresse)}`
-                    : null;
-
-                  // Distanz-Chip
-                  const distM = (stop as any).distanz_zum_vorgaenger_m as number | null;
-
-                  return (
-                    <div key={stop.id} className="relative">
-                      {/* Vertical connector line between stops */}
-                      {!isLast && (
-                        <div className="absolute left-[15px] top-[52px] bottom-[-8px] w-0.5 bg-[var(--surface-2)] z-0" />
-                      )}
-                      <div className={cn(
-                        'relative z-10 rounded-xl border p-3 flex items-center gap-3 transition',
-                        kitchenReady ? 'bg-[var(--surface-2)] border-[var(--accent)]/40' :
-                        isCash ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30' : 'bg-[var(--surface-2)] border-[var(--line)]',
-                      )}>
-                        <div className={cn(
-                          'h-10 w-10 rounded-full grid place-items-center font-bold shrink-0',
-                          kitchenReady ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-[var(--accent)]',
-                        )}>{kitchenReady ? '✓' : initials(stop.order.kunde_name)}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
-                            {kitchenReady && (
-                              <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
-                            )}
-                            {kitchenCooking && (
-                              <span className="shrink-0 rounded-full bg-[var(--warn-tint)] text-[var(--warn)] px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
-                            )}
-                            {kStatus === 'bestätigt' && (
-                              <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-[var(--accent)] px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
-                            )}
-                          </div>
-                          <div className="text-xs text-[var(--ink-3)] truncate">{stop.order.kunde_adresse}</div>
-                          {/* Distanz + ETA */}
-                          <div className="flex items-center gap-2 mt-0.5">
-                            {distM != null && distM > 0 && (
-                              <span className="text-[9px] text-[var(--ink-3)] mono">
-                                {distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${Math.round(distM)} m`}
-                              </span>
-                            )}
-                            {o.eta_earliest ? (() => {
-                              const etaMs = new Date(o.eta_earliest).getTime();
-                              const etaStr = new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                              const minLeft = Math.round((etaMs - Date.now()) / 60_000);
-                              const isOverdue = etaMs < Date.now();
-                              return (
-                                <span className={cn(
-                                  'text-[9px] font-bold mono rounded-full px-1.5 py-0.5',
-                                  isOverdue ? 'bg-[var(--danger-tint)] text-[var(--danger)]' : minLeft <= 10 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-accent/15 text-accent/80',
-                                )}>
-                                  ⏰ {isOverdue ? `${Math.abs(minLeft)}m verspätet` : `~${minLeft} Min`} ({etaStr})
-                                </span>
-                              );
-                            })() : (activeBatch as any).total_eta_min && arr.length > 0 ? (() => {
-                              const estMs = Date.now() + ((idx + 1) / arr.length) * (activeBatch as any).total_eta_min * 60_000;
-                              const estTime = new Date(estMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                              const estMin = Math.round(((idx + 1) / arr.length) * (activeBatch as any).total_eta_min);
-                              return (
-                                <span className="text-[9px] font-bold text-[var(--ink-3)] mono rounded-full bg-[var(--surface-2)] px-1.5 py-0.5">
-                                  ⏰ ~{estMin} Min ({estTime})
-                                </span>
-                              );
-                            })() : null}
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <div className={cn('font-display font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>
-                            {euro(stop.order.gesamtbetrag)}
-                          </div>
-                          {isCash && <div className="text-[9px] font-bold text-[var(--warn)] uppercase">Bar</div>}
-                          {/* Individual Navigation Button */}
-                          {stopNavUrl && (
-                            <a
-                              href={stopNavUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1 rounded-lg bg-[var(--accent-tint)] text-accent px-2 py-1 text-[9px] font-bold hover:bg-accent/30 transition"
-                              title="Diesen Stopp in Maps öffnen"
-                            >
-                              <Navigation className="h-3 w-3" />
-                              Nav
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-              })}
-            </div>
-
-            {/* Alle-Fertig-Banner wenn alle Bestellungen bereit sind */}
-            {activeBatch.stops.length > 0 && activeBatch.stops.every((s) => {
-              const ks = kitchenStatuses.get(s.order_id);
-              return ks === 'fertig' || ks === 'unterwegs';
-            }) && (
-              <div className="mb-3 rounded-xl bg-accent/15 border-2 border-accent/50 px-4 py-3 flex items-center gap-3">
-                <span className="text-2xl">🎉</span>
-                <div>
-                  <div className="font-display font-bold text-accent">Alle Bestellungen bereit!</div>
-                  <div className="text-[11px] text-[var(--ink-3)]">Packen & starten</div>
-                </div>
+            {/* Küche / Bar — schlanke Drive-Hinweiszeile */}
+            {(cookingCount > 0 || totalCash > 0) && (
+              <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px', flexWrap: 'wrap' }}>
+                {cookingCount > 0 && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 9,
+                    fontSize: 12.5, fontWeight: 700, background: 'var(--warn-tint)', color: 'var(--warn)',
+                  }}>{cookingCount} kocht noch</span>
+                )}
+                {totalCash > 0 && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 9,
+                    fontSize: 12.5, fontWeight: 700, background: 'var(--warn-tint)', color: 'var(--warn)',
+                  }}>
+                    <Banknote size={14} /> Bar kassieren · {euro(totalCash)}
+                  </span>
+                )}
               </div>
             )}
 
-            {/* Route-Vorschau in Google Maps */}
-            {activeBatch.stops.length > 0 && (() => {
-              const withCoords = activeBatch.stops
-                .sort((a, b) => a.reihenfolge - b.reihenfolge)
-                .filter((s) => s.order.kunde_lat && s.order.kunde_lng);
-              if (withCoords.length === 0) return null;
-              const dest = `${withCoords[withCoords.length - 1].order.kunde_lat},${withCoords[withCoords.length - 1].order.kunde_lng}`;
-              const waypoints = withCoords.slice(0, -1).map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`).join('|');
-              const mapsUrl = waypoints
-                ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
-                : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
-              return (
+            {/* Order-Karten (Drive 03/04) */}
+            <div style={{ padding: '2px 16px 12px' }}>
+              {stops.map((stop) => {
+                const o = stop.order as any;
+                const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                const ks = kitchenStatuses.get(stop.order_id) ?? null;
+                const kitchenReady = ks === 'fertig' || ks === 'unterwegs';
+                const kitchenCooking = ks === 'in_zubereitung';
+                const itemCount = pickCounts.get(stop.order_id) ?? null;
+                const code = o.bestellnummer?.replace(/^[A-Z]+-?/, '') ?? '';
+                return (
+                  <button
+                    key={stop.id}
+                    type="button"
+                    className="press"
+                    onClick={() => setPickOpen(true)}
+                    style={{
+                      width: '100%', textAlign: 'left', display: 'block', background: 'var(--surface)',
+                      borderRadius: 20, padding: 16, marginBottom: 12,
+                      boxShadow: '0 2px 10px -6px rgba(0,0,0,.14), inset 0 0 0 1px var(--line)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 13 }}>
+                      <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>#{code}</span>
+                      <div style={{ flex: 1 }} />
+                      {kitchenReady ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--accent-tint)', color: 'var(--accent)' }}>
+                          <DIcon name="check" size={14} stroke={2.4} /> Bereit
+                        </span>
+                      ) : kitchenCooking ? (
+                        <span style={{ padding: '5px 11px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--warn-tint)', color: 'var(--warn)' }}>Kocht</span>
+                      ) : (
+                        <span style={{ padding: '5px 11px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--surface-2)', color: 'var(--ink-2)' }}>Offen</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+                      <Avatar name={o.kunde_name} size={44} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 16.5, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.kunde_name}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--ink-2)', fontSize: 13.5, fontWeight: 500, marginTop: 1 }}>
+                          <DIcon name="pin" size={14} stroke={2} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.kunde_adresse || '—'}</span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent)', flexShrink: 0 }}>
+                        <span style={{ fontSize: 14, fontWeight: 700 }}>Picken</span>
+                        <DIcon name="chevron" size={17} stroke={2.6} />
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ flex: 1, background: 'var(--line)', borderRadius: 99, height: 7, overflow: 'hidden' }}>
+                        <div style={{ width: kitchenReady ? '100%' : '0%', height: '100%', background: 'var(--accent)', borderRadius: 99, transition: 'width .45s cubic-bezier(.2,.7,.2,1)' }} />
+                      </div>
+                      <span style={{ fontSize: 12.5, color: isCash ? 'var(--warn)' : 'var(--ink-3)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        {isCash ? `Bar · ${euro(o.gesamtbetrag)}` : itemCount != null ? `${itemCount} Artikel` : euro(o.gesamtbetrag)}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Footer: Maps-Vorschau (sekundär) + Primary Pick-Button */}
+            <div style={{ padding: '0 16px' }}>
+              {mapsUrl && (
                 <a
                   href={mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full h-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] text-sm font-bold text-[var(--ink-2)] inline-flex items-center justify-center gap-2 mb-3 transition"
+                  className="press"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, width: '100%',
+                    height: 46, borderRadius: 13, marginBottom: 10, fontSize: 15, fontWeight: 700,
+                    background: 'var(--surface-2)', color: 'var(--ink)', boxShadow: 'inset 0 0 0 1.5px var(--line)',
+                  }}
                 >
-                  <MapIcon className="h-4 w-4" />
-                  Route in Maps vorschauen ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
+                  <DIcon name="route" size={18} stroke={2.2} style={{ color: 'var(--accent)' }} />
+                  Route in Maps vorschauen
                 </a>
-              );
-            })()}
-
-            {/* Großer Pick-Starten Button */}
-            <button
-              onClick={() => setPickOpen(true)}
-              className="w-full h-16 rounded-[17px] bg-[var(--accent)] text-white text-xl font-black inline-flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_6px_18px_-8px_var(--accent)]"
-            >
-              <ShoppingBag className="h-6 w-6" />
-              Jetzt Packen & Kontrollieren
-            </button>
-
-            <div className="mt-3 text-xs text-[var(--ink-3)] text-center leading-relaxed">
-              Tippe „Packen" → geh jedes Item durch („ist dabei" / „fehlt"). Danach wird die schnellste Route berechnet.
+              )}
+              <Btn onClick={() => setPickOpen(true)} icon={allReady ? 'check-circle' : 'bag'}>
+                {allReady ? 'Alle bereit · Jetzt picken' : `Erst alle picken · ${readyCount}/${total}`}
+              </Btn>
+              <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.5 }}>
+                Tippe eine Bestellung → geh jedes Gericht durch. Danach berechnen wir die Route.
+              </div>
             </div>
           </section>
-        )}
+          );
+        })()}
 
-        {/* Eingehende Bestellung(en) — POPUP zum Annehmen */}
+        {/* Eingehende Tour — echtes Drive-BOTTOM-SHEET (02-incoming.png) zum Annehmen */}
         {!activeBatch && isOnline && openBatches.length > 0 && (
-          <div className="fixed inset-0 z-[60] bg-white/95 backdrop-blur-sm flex flex-col p-4 overflow-y-auto">
-            <div className="text-center pt-5 pb-3 shrink-0">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[var(--accent-tint)] text-accent px-4 py-1.5 font-display font-black uppercase tracking-wider text-sm animate-pulse">
-                <ShoppingBag size={16} /> Neue Bestellung
+          <div className="fixed inset-0 z-[60]">
+            <Sheet dismissable={false} pad={20}>
+              <div className="scroll" style={{ overflowY: 'auto' }}>
+                <OpenBatchSection
+                  openBatches={openBatches}
+                  pending={pending}
+                  onClaim={claimBatch}
+                  onDecline={declineBatch}
+                  decliningBatch={decliningBatch}
+                  driverPos={driverPos}
+                  onExpire={() => router.refresh()}
+                />
               </div>
-              <div className="text-[var(--ink-2)] text-sm mt-2">Nimm die Tour an, um loszulegen</div>
-            </div>
-            <OpenBatchSection
-              openBatches={openBatches}
-              pending={pending}
-              onClaim={claimBatch}
-              onDecline={declineBatch}
-              decliningBatch={decliningBatch}
-              driverPos={driverPos}
-            />
+            </Sheet>
           </div>
         )}
 
-        {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
+        {/* Warte-Anzeige: kein Batch, online, keine offenen Touren — Drive HomeScreen */}
         {!activeBatch && isOnline && openBatches.length === 0 && (
-          <FahrerWarteAnzeige driverId={driver.id} />
+          <FahrerWarteAnzeige
+            driverId={driver.id}
+            driverName={`${driver.vorname} ${driver.nachname}`.trim()}
+            vehicle={driver.fahrzeug_praeferenz}
+            gpsOk={gpsOk}
+            onGoOffline={toggleOnline}
+            offlinePending={pending}
+          />
         )}
 
         {/* Offline state */}
@@ -860,11 +783,13 @@ export function FahrerApp({
           </section>
         )}
 
-        {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
-        {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
+        {/* Schicht-Statistik — wenn kein aktiver Batch und NICHT im Drive-Warte-Screen */}
+        {!activeBatch && !(isOnline && openBatches.length === 0) && (
+          <SchichtStats driverId={driver.id} isOnline={isOnline} />
+        )}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
-        {!activeBatch && driver.location_id && (
+        {!activeBatch && !(isOnline && openBatches.length === 0) && driver.location_id && (
           <SchichtBuchung locationId={driver.location_id} />
         )}
       </main>
@@ -1230,24 +1155,75 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return out;
 }
 
-/* ---------- FahrerWarteAnzeige ---------- */
+/* ---------- FahrerWarteAnzeige (Drive HomeScreen: Karte + Puls + Warte-Status) ---------- */
 
-function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
+/* Stilisierter Karten-Hintergrund (CSS-Strassenraster + Block-/Park-Flaechen). */
+function WarteMapBg() {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'var(--map-bg, #E7ECE7)',
+        backgroundImage:
+          'linear-gradient(90deg, var(--map-road, #fff) 0 6px, transparent 6px),' +
+          'linear-gradient(0deg, var(--map-road, #fff) 0 6px, transparent 6px)',
+        backgroundSize: '78px 78px, 78px 78px',
+        backgroundPosition: '24px 0, 0 36px',
+        opacity: 0.55,
+      }}
+    >
+      {[
+        { l: '8%', t: 40, w: 70, h: 54, park: true },
+        { l: '62%', t: 24, w: 88, h: 48 },
+        { l: '38%', t: 150, w: 96, h: 60, park: true },
+        { l: '70%', t: 210, w: 78, h: 70 },
+        { l: '10%', t: 250, w: 90, h: 58 },
+      ].map((b, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: b.l,
+            top: b.t,
+            width: b.w,
+            height: b.h,
+            borderRadius: 9,
+            background: b.park ? 'var(--map-park, #D5E6D8)' : 'var(--map-block, #DBE2DC)',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function FahrerWarteAnzeige({
+  driverId,
+  driverName,
+  vehicle,
+  gpsOk,
+  onGoOffline,
+  offlinePending,
+}: {
+  driverId: string;
+  driverName: string;
+  vehicle: string | null;
+  gpsOk: boolean | null;
+  onGoOffline: () => void;
+  offlinePending: boolean;
+}) {
   const supabase = createClient();
   const [waitSec, setWaitSec] = useState(0);
   const [lastDeliveryMin, setLastDeliveryMin] = useState<number | null>(null);
-  const [pulse, setPulse] = useState(false);
 
-  // Tick every second for wait timer
+  // Wartezeit-Ticker
   useEffect(() => {
-    const t = setInterval(() => {
-      setWaitSec((s) => s + 1);
-      setPulse((p) => !p);
-    }, 1_000);
+    const t = setInterval(() => setWaitSec((s) => s + 1), 1_000);
     return () => clearInterval(t);
   }, []);
 
-  // Fetch last completed delivery time
+  // Letzte abgeschlossene Lieferung holen
   useEffect(() => {
     (async () => {
       const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1272,40 +1248,223 @@ function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
   const waitSecDisplay = waitSec % 60;
 
   return (
-    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 text-center">
-      {/* Pulse ring */}
-      <div className="relative inline-flex items-center justify-center mb-4">
-        <div className={cn(
-          'absolute h-16 w-16 rounded-full border-2 border-accent transition-all duration-1000',
-          pulse ? 'scale-125 opacity-0' : 'scale-100 opacity-40',
-        )} />
-        <div className="h-12 w-12 rounded-full bg-[var(--accent-tint)] border border-[var(--accent)]/40 flex items-center justify-center">
-          <Route className="h-6 w-6 text-accent" />
+    // Full-bleed: bricht aus dem main-Padding (px-4 py-6) aus -> Drive-Vollbild-Look
+    <section
+      className="relative -mx-4 -mt-6 overflow-hidden rounded-b-[28px]"
+      style={{ height: 'calc(100dvh - 184px)', minHeight: 440, background: 'var(--bg)' }}
+    >
+      <WarteMapBg />
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(180deg, var(--bg) 2%, transparent 18% 60%, var(--bg) 99%)',
+        }}
+      />
+
+      {/* Top Status-Pill */}
+      <div className="absolute left-4 right-4 top-4 flex items-center gap-2.5">
+        <div
+          className="flex items-center gap-2.5"
+          style={{
+            padding: '9px 14px',
+            background: 'var(--surface)',
+            borderRadius: 14,
+            boxShadow: '0 4px 16px -6px rgba(0,0,0,.25), inset 0 0 0 1px var(--line)',
+          }}
+        >
+          <span
+            style={{
+              width: 9,
+              height: 9,
+              borderRadius: 99,
+              background: 'var(--accent)',
+              boxShadow: '0 0 0 3px var(--accent-tint)',
+            }}
+          />
+          <span style={{ fontWeight: 700, fontSize: 14.5 }}>Online</span>
+        </div>
+        <div className="flex-1" />
+        {gpsOk === false && (
+          <span
+            style={{
+              padding: '7px 11px',
+              borderRadius: 12,
+              background: 'var(--danger-tint)',
+              color: 'var(--danger)',
+              fontSize: 11.5,
+              fontWeight: 700,
+            }}
+          >
+            GPS aus
+          </span>
+        )}
+      </div>
+
+      {/* Zentrierte Warte-Karte: Puls-Ring + Bag-Icon */}
+      <div
+        className="absolute text-center"
+        style={{ left: '50%', top: '44%', transform: 'translate(-50%,-50%)', width: 250 }}
+      >
+        <div style={{ position: 'relative', width: 92, height: 92, margin: '0 auto 18px' }}>
+          <span
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: 'var(--accent)',
+              animation: 'drv-pulse 2s ease-out infinite',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: 'var(--surface)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 24px -8px rgba(0,0,0,.3)',
+            }}
+          >
+            <DIcon name="bag" size={40} stroke={1.8} style={{ color: 'var(--accent)' }} />
+          </div>
+        </div>
+        <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>
+          Warte auf Bestellungen
+        </div>
+        <div
+          style={{
+            fontSize: 14,
+            color: 'var(--ink-2)',
+            marginTop: 5,
+            fontWeight: 500,
+            lineHeight: 1.4,
+          }}
+        >
+          Bleib in der Naehe vom Restaurant. Neue Auftraege kommen automatisch rein.
+        </div>
+
+        {/* Wartezeit-Chip (mono) */}
+        <div
+          className="mono"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 7,
+            marginTop: 14,
+            padding: '8px 13px',
+            borderRadius: 12,
+            background: 'var(--surface-2)',
+          }}
+        >
+          <DIcon name="clock" size={14} style={{ color: 'var(--ink-3)' }} />
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink-2)' }}>
+            {waitMin > 0 ? `${waitMin}m ` : ''}
+            {waitSecDisplay.toString().padStart(2, '0')}s
+          </span>
+          {lastDeliveryMin !== null && (
+            <span style={{ fontSize: 11, color: 'var(--ink-3)', fontWeight: 600 }}>
+              · letzte vor {lastDeliveryMin}m
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="font-display text-[var(--ink-2)] font-bold text-base mb-1">
-        Warte auf nächste Tour…
-      </div>
-      <div className="text-[11px] text-[var(--ink-3)] mb-3">
-        System ist aktiv — du bekommst sofort eine Benachrichtigung
-      </div>
-
-      {/* Wait timer */}
-      <div className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--surface-2)] px-4 py-2 mono">
-        <Clock className="h-3.5 w-3.5 text-[var(--ink-3)]" />
-        <span className="text-sm font-black text-[var(--ink-2)]">
-          {waitMin > 0 ? `${waitMin}m ` : ''}{waitSecDisplay.toString().padStart(2, '0')}s
-        </span>
-        <span className="text-[10px] text-[var(--ink-3)]">Wartezeit</span>
-      </div>
-
-      {lastDeliveryMin !== null && (
-        <div className="mt-2 text-[10px] text-[var(--ink-3)]">
-          Letzte Lieferung vor {lastDeliveryMin} Min
+      {/* Untere Fahrer-Leiste */}
+      <div className="absolute bottom-4 left-4 right-4">
+        <div
+          className="flex items-center gap-3"
+          style={{
+            padding: 12,
+            background: 'var(--surface)',
+            borderRadius: 18,
+            boxShadow: '0 2px 10px -4px rgba(0,0,0,.12), inset 0 0 0 1px var(--line)',
+          }}
+        >
+          <Avatar name={driverName} size={46} />
+          <div className="min-w-0 flex-1">
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 15.5,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {driverName}
+            </div>
+            <div
+              className="flex items-center gap-1.5"
+              style={{ color: 'var(--ink-2)', fontSize: 13, fontWeight: 600, marginTop: 1 }}
+            >
+              <DIcon name="truck" size={14} style={{ color: 'var(--accent)' }} />
+              {vehicle || 'Lieferung'}
+            </div>
+          </div>
+          <Btn
+            variant="secondary"
+            size="sm"
+            full={false}
+            onClick={onGoOffline}
+            disabled={offlinePending}
+            style={{ width: 'auto' }}
+          >
+            {offlinePending ? <DSpinner size={16} color="var(--ink-2)" /> : 'Offline'}
+          </Btn>
         </div>
-      )}
+      </div>
     </section>
+  );
+}
+
+/* D3 Countdown-Ring: 52px SVG-Kreis (R=22), accent-Stroke, mono-Zahl mittig.
+   Start ~60s. Bei 0: NICHTS Destruktives — visuell auf 0, optional onExpire (sanfter Reload). */
+function CountdownRing({ seconds = 60, onExpire }: { seconds?: number; onExpire?: () => void }) {
+  const [left, setLeft] = useState(seconds);
+  const firedRef = useRef(false);
+  useEffect(() => {
+    setLeft(seconds);
+    firedRef.current = false;
+    const iv = setInterval(() => {
+      setLeft((s) => {
+        if (s <= 1) {
+          clearInterval(iv);
+          if (!firedRef.current) { firedRef.current = true; onExpire?.(); }
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds]);
+
+  const R = 22;
+  const C = 2 * Math.PI * R;
+  const frac = Math.max(0, Math.min(1, left / seconds));
+  const offset = C * (1 - frac);
+  const low = left <= 10;
+  return (
+    <div className="relative shrink-0" style={{ width: 52, height: 52 }} aria-label={`${left} Sekunden`}>
+      <svg width={52} height={52} viewBox="0 0 52 52" className="-rotate-90">
+        <circle cx={26} cy={26} r={R} fill="none" stroke="var(--line)" strokeWidth={4} />
+        <circle
+          cx={26} cy={26} r={R} fill="none"
+          stroke={low ? 'var(--warn)' : 'var(--accent)'}
+          strokeWidth={4} strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 1s linear, stroke .3s ease' }}
+        />
+      </svg>
+      <div className={cn('absolute inset-0 grid place-items-center mono font-bold text-sm', low ? 'text-[var(--warn)]' : 'text-accent')}>
+        {left}
+      </div>
+    </div>
   );
 }
 
@@ -1316,6 +1475,7 @@ function OpenBatchSection({
   onDecline,
   decliningBatch,
   driverPos,
+  onExpire,
 }: {
   openBatches: OpenBatch[];
   pending: boolean;
@@ -1323,6 +1483,7 @@ function OpenBatchSection({
   onDecline?: (batchId: string) => void;
   decliningBatch?: string | null;
   driverPos?: { lat: number; lng: number } | null;
+  onExpire?: () => void;
 }) {
   // Group stops by batch_id for multi-stop display
   const grouped = useMemo(() => {
@@ -1364,15 +1525,60 @@ function OpenBatchSection({
     });
   }, [openBatches]);
 
+  // Drive-Metriken: Artikel (Stops als Proxy), Gesamt-Strecke, geschaetzte Dauer
+  const totalItems = openBatches.length;
+  const totalDistKm = grouped.reduce((s, g) => s + (g.totalDistanceKm ?? 0), 0);
+  const totalEtaMin = grouped.reduce((s, g) => s + (g.estEtaMin ?? g.maxEta ?? 0), 0);
+  const restaurantName = grouped[0]?.locationName ?? 'Restaurant';
+
   return (
     <section>
-      <div className="flex items-center gap-2 mb-3 text-accent">
-        <ShoppingBag className="h-4 w-4" />
-        <h2 className="font-display text-sm font-bold uppercase tracking-wider">Verfügbare Touren</h2>
-        {grouped.length > 0 && (
-          <span className="ml-auto rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-xs font-bold">{grouped.length}</span>
-        )}
+      {/* Drive-Header: Bag-Tile (wackelt) + Titel + Countdown-Ring (52px, mono) */}
+      <div className="flex items-center gap-3" style={{ marginBottom: 16 }}>
+        <div
+          className="grid place-items-center shrink-0"
+          style={{ width: 46, height: 46, borderRadius: 14, background: 'var(--accent-tint)' }}
+        >
+          <DIcon name="bag" size={24} stroke={2} style={{ color: 'var(--accent)' }} className="ring-anim" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>Neue Tour</div>
+          <div
+            style={{
+              fontSize: 14,
+              color: 'var(--ink-2)',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {grouped.length} {grouped.length === 1 ? 'Bestellung' : 'Bestellungen'} · {restaurantName}
+          </div>
+        </div>
+        {grouped.length > 0 && <CountdownRing seconds={60} onExpire={onExpire} />}
       </div>
+
+      {/* Drive-Metriken: Artikel · Strecke · Dauer */}
+      {grouped.length > 0 && (
+        <div className="flex gap-2" style={{ marginBottom: 14 }}>
+          {([
+            ['box', String(totalItems), 'Bestellungen'] as const,
+            ['route', `${totalDistKm.toFixed(1)} km`, 'Strecke'] as const,
+            ['clock', totalEtaMin > 0 ? `~${totalEtaMin} min` : '—', 'Dauer'] as const,
+          ]).map(([ic, val, lab]) => (
+            <div
+              key={lab}
+              className="flex-1 text-center"
+              style={{ background: 'var(--surface-2)', borderRadius: 14, padding: '12px 10px' }}
+            >
+              <DIcon name={ic} size={18} stroke={2} style={{ color: 'var(--accent)' }} />
+              <div style={{ fontWeight: 800, fontSize: 17, marginTop: 3 }} className="mono">{val}</div>
+              <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontWeight: 600 }}>{lab}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {grouped.length === 0 ? (
         <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-6 text-center">
@@ -1381,160 +1587,114 @@ function OpenBatchSection({
           <div className="text-[var(--ink-3)] text-xs mt-1">Bleib online — wir sagen dir Bescheid.</div>
         </div>
       ) : (
-        <div className="space-y-3">
-          {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }, idx) => {
-            // Beste Wahl: höchster Verdienst / geschätzte Minuten
-            const earningRate = estEtaMin && estEtaMin > 0 && estDriverEarnings > 0
-              ? estDriverEarnings / estEtaMin
-              : 0;
-            const bestIdx = grouped.reduce((best, g, i) => {
-              const r = g.estEtaMin && g.estEtaMin > 0 && g.estDriverEarnings > 0
-                ? g.estDriverEarnings / g.estEtaMin : 0;
-              return r > (grouped[best].estEtaMin && grouped[best].estEtaMin! > 0 && grouped[best].estDriverEarnings > 0
-                ? grouped[best].estDriverEarnings / grouped[best].estEtaMin! : 0) ? i : best;
-            }, 0);
-            const isBestChoice = grouped.length > 1 && idx === bestIdx && earningRate > 0;
+        /* Drive-getreu (02-incoming.png): pro Batch eine flache, ruhige Stopp-Liste.
+           Nummerierte mono-Box | Adresse + Untertitel | rechts mono #Code.
+           Keine Accent-Karte/Zap/„Beste Wahl"/Verdienst-Chips/Route-Viz mehr. */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {grouped.map(({ batchId, stops, cashAmount, locationLat, locationLng }) => {
+            const isMise = stops[0]?.source_system === 'mise';
+            const canDecline = isMise && !!onDecline;
+            const isDeclining = decliningBatch === batchId;
+            const hub = locationLat != null && locationLng != null
+              ? { lat: locationLat, lng: locationLng } : null;
             return (
-            <div key={batchId} className={cn('rounded-2xl p-4', isBestChoice ? 'bg-[var(--accent-tint)] border-2 border-accent' : 'bg-[var(--accent-tint)] border-2 border-[var(--accent)]/30')}>
-              <div className="flex items-start gap-3 mb-3">
-                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', isBestChoice ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-accent')}>
-                  <Zap size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="font-display font-bold">
-                      {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
-                    </div>
-                    {isBestChoice && (
-                      <span className="rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide">
-                        ⭐ Beste Wahl
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--ink-3)]">
-                    <span className="mono font-bold text-accent">{euro(totalAmount)}</span>
-                    {cashAmount > 0 && (
-                      <span className="mono flex items-center gap-1 font-bold text-[var(--warn)]">
-                        <Banknote size={10} /> Bar: {euro(cashAmount)}
-                      </span>
-                    )}
-                    {/* Fahrer-Verdienstschätzung */}
-                    {estDriverEarnings > 0 && (
-                      <span className="mono flex items-center gap-1 rounded-full bg-[var(--surface-2)] border border-[var(--line)] px-2 py-0.5 font-bold text-[var(--ink-2)]">
-                        <TrendingUp size={10} /> ~{euro(estDriverEarnings)} Verdienst
-                      </span>
-                    )}
-                    {estEtaMin ? (
-                      <span className="mono flex items-center gap-1"><Clock size={10} /> ~{estEtaMin} Min</span>
-                    ) : maxEta > 0 ? (
-                      <span className="mono flex items-center gap-1"><Clock size={10} /> ~{maxEta} Min</span>
-                    ) : null}
-                    {totalDistanceKm != null && (
-                      <span className="mono flex items-center gap-1"><Route size={10} /> {totalDistanceKm.toFixed(1)} km</span>
-                    )}
-                    <span>{stops.length} {stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
-                    {/* Distance from driver to pickup location */}
-                    {driverPos && stops[0].location_lat && stops[0].location_lng && (() => {
-                      const d = haversineKm(driverPos, { lat: stops[0].location_lat!, lng: stops[0].location_lng! });
-                      const label = d < 0.1 ? '< 100m' : d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`;
-                      return (
-                        <span className={cn(
-                          'flex items-center gap-1 rounded-full px-2 py-0.5 font-bold',
-                          d < 0.3 ? 'bg-[var(--accent-tint)] text-accent' : d < 1 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
-                        )}>
-                          <Navigation size={9} /> {label} zur Abholung
-                        </span>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Route-Visualisierung für Multi-Stop */}
-              {stops.length > 1 && totalDistanceKm != null && (
-                <div className="mb-3 rounded-xl bg-[var(--surface-2)] px-3 py-2">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-1.5">Route</div>
-                  <div className="flex items-center gap-1 overflow-x-auto pb-1">
-                    <div className="flex flex-col items-center shrink-0">
-                      <div className="h-5 w-5 rounded-full bg-[var(--surface-2)] text-accent flex items-center justify-center">
-                        <MapPin size={10} />
-                      </div>
-                      <div className="text-[9px] text-[var(--ink-3)] max-w-[52px] truncate text-center mt-0.5">{locationName}</div>
-                    </div>
-                    {stops.map((s, i) => (
-                      <div key={s.order_id} className="flex items-center gap-1 shrink-0">
-                        <div className="w-4 h-0.5 bg-accent/40 rounded-full mb-3" />
-                        <div className="flex flex-col items-center">
-                          <div className="h-5 w-5 rounded-full bg-[var(--accent-tint)] border border-[var(--accent)]/40 text-accent flex items-center justify-center text-[9px] font-black">{i + 1}</div>
-                          <div className="text-[9px] text-[var(--ink-3)] max-w-[52px] truncate text-center mt-0.5">{s.kunde_name.split(' ')[0]}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Stop list */}
-              <div className="space-y-2 mb-3">
-                {stops.map((s, i) => {
-                  const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
-                  return (
-                    <div key={s.order_id} className={cn(
-                      'flex items-start gap-2 rounded-xl px-3 py-2',
-                      isCash ? 'bg-[var(--warn-tint)] border border-[var(--warn)]/30' : 'bg-[var(--surface-2)]',
-                    )}>
-                      <div className="h-10 w-10 rounded-full bg-[var(--accent-tint)] text-[var(--accent)] grid place-items-center text-[11px] font-bold shrink-0">{initials(s.kunde_name)}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-bold truncate">{s.kunde_name}</div>
-                        <div className="text-[11px] text-[var(--ink-3)] truncate">
-                          {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <div className={cn('mono text-sm font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>{euro(s.gesamtbetrag)}</div>
-                        {isCash && (
-                          <div className="flex items-center gap-0.5 text-[9px] font-bold text-[var(--warn)] uppercase tracking-wide">
-                            <Banknote size={9} /> Bar
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {(() => {
-                const isMise = stops[0]?.source_system === 'mise';
-                const canDecline = isMise && !!onDecline;
-                const isDeclining = decliningBatch === batchId;
-                return (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => onClaim(batchId)}
-                      disabled={pending || isDeclining}
-                      className={cn(
-                        'h-14 rounded-[17px] bg-[var(--accent)] text-white font-bold text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60 shadow-[0_6px_18px_-8px_var(--accent)]',
-                        canDecline ? 'flex-1' : 'w-full',
-                      )}
-                    >
-                      {pending && !isDeclining ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                      {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
-                    </button>
-                    {canDecline && (
-                      <button
-                        onClick={() => onDecline!(batchId)}
-                        disabled={pending || isDeclining}
-                        title="Ablehnen"
-                        className="h-14 px-4 rounded-[17px] bg-[var(--surface-2)] text-[var(--ink-2)] border border-[var(--line)] font-bold inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+              <div key={batchId}>
+                {/* flache Stopp-Liste */}
+                <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: 4, marginBottom: 12 }}>
+                  {stops.map((s, i) => {
+                    const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
+                    const stopKm = hub && s.kunde_lat != null && s.kunde_lng != null
+                      ? haversineKm(hub, { lat: s.kunde_lat, lng: s.kunde_lng }) : null;
+                    const sub = [
+                      s.kunde_plz || s.kunde_stadt
+                        ? [s.kunde_plz, s.kunde_stadt].filter(Boolean).join(' ')
+                        : null,
+                      stopKm != null ? `${stopKm.toFixed(1)} km` : null,
+                    ].filter(Boolean).join(' · ');
+                    return (
+                      <div
+                        key={s.order_id}
+                        className="flex items-center gap-3"
+                        style={{
+                          padding: '11px 12px',
+                          borderBottom: i < stops.length - 1 ? '1px solid var(--line-2, var(--line))' : 'none',
+                        }}
                       >
-                        {isDeclining ? <Loader2 size={18} className="animate-spin" /> : <X size={18} />}
-                        Ablehnen
-                      </button>
-                    )}
+                        <div
+                          className="mono grid place-items-center shrink-0"
+                          style={{
+                            width: 26, height: 26, borderRadius: 8, background: 'var(--surface)',
+                            fontWeight: 700, fontSize: 13, boxShadow: 'inset 0 0 0 1px var(--line)',
+                          }}
+                        >
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div
+                            style={{ fontWeight: 700, fontSize: 14.5 }}
+                            className="truncate"
+                          >
+                            {s.kunde_adresse || s.kunde_name}
+                          </div>
+                          <div
+                            style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 600 }}
+                            className="flex items-center gap-1.5"
+                          >
+                            {sub || s.kunde_name}
+                            {isCash && (
+                              <span className="inline-flex items-center gap-0.5 text-[var(--warn)]">
+                                <Banknote size={11} /> Bar
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <span
+                          className="mono shrink-0"
+                          style={{ fontSize: 12.5, color: 'var(--ink-3)', fontWeight: 700, whiteSpace: 'nowrap' }}
+                        >
+                          #{s.bestellnummer.slice(-4)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Bar-Hinweis (nur wenn Bargeld zu kassieren) */}
+                {cashAmount > 0 && (
+                  <div
+                    className="flex items-center gap-2"
+                    style={{
+                      background: 'var(--warn-tint)', borderRadius: 12,
+                      padding: '9px 12px', marginBottom: 12,
+                      fontSize: 13, fontWeight: 600, color: 'var(--warn)',
+                    }}
+                  >
+                    <Banknote size={15} /> {euro(cashAmount)} bar kassieren
                   </div>
-                );
-              })()}
-            </div>
+                )}
+
+                {/* Ablehnen / Annehmen */}
+                <div className="flex gap-2.5">
+                  {canDecline && (
+                    <Btn
+                      variant="secondary"
+                      onClick={() => onDecline!(batchId)}
+                      disabled={pending || isDeclining}
+                      style={{ flex: '0 0 34%' }}
+                    >
+                      {isDeclining ? <DSpinner size={18} color="var(--ink-2)" /> : 'Ablehnen'}
+                    </Btn>
+                  )}
+                  <Btn
+                    onClick={() => onClaim(batchId)}
+                    disabled={pending || isDeclining}
+                    iconRight={pending && !isDeclining ? undefined : 'arrow'}
+                    style={{ flex: 1 }}
+                  >
+                    {pending && !isDeclining ? <DSpinner size={18} /> : 'Annehmen'}
+                  </Btn>
+                </div>
+              </div>
             );
           })}
         </div>

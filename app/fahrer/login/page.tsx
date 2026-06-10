@@ -2,8 +2,162 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bike, Loader2, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { Btn, Icon, Spinner, type IconName, SAFE_TOP, SAFE_BOTTOM } from '../app/drive-ui';
+
+/* Brand-Mark im Drive-Stil — Lieferdienst „Mise". */
+function BrandMark({ size = 32 }: { size?: number }) {
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: size * 0.28,
+          background: 'var(--accent)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          boxShadow: '0 6px 16px -6px var(--accent)',
+        }}
+      >
+        <Icon name="bag" size={size * 0.58} stroke={2.1} style={{ color: 'var(--on-accent)' }} />
+      </div>
+      <span style={{ fontSize: size * 0.62, fontWeight: 800, letterSpacing: '-0.04em' }}>Mise</span>
+    </div>
+  );
+}
+
+/* Stilisierter Karten-Hintergrund (CSS, kein Leaflet) — Strassen + Park-Bloecke. */
+function MapHero() {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'var(--map-bg, #E7ECE7)',
+        backgroundImage: [
+          'linear-gradient(90deg, var(--map-road, #fff) 0 6px, transparent 6px)',
+          'linear-gradient(0deg, var(--map-road, #fff) 0 6px, transparent 6px)',
+        ].join(','),
+        backgroundSize: '74px 74px, 74px 74px',
+        backgroundPosition: '18px 0, 0 26px',
+        opacity: 0.5,
+      }}
+    >
+      {/* ein paar Block-Flaechen fuer Tiefe */}
+      {[
+        { l: 14, t: 30, w: 46, h: 40 },
+        { l: 78, t: 22, w: 58, h: 34, park: true },
+        { l: 64, t: 92, w: 70, h: 46 },
+        { l: 168, t: 54, w: 52, h: 56, park: true },
+      ].map((b, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: b.l,
+            top: b.t,
+            width: b.w,
+            height: b.h,
+            borderRadius: 8,
+            background: b.park ? 'var(--map-park, #D5E6D8)' : 'var(--map-block, #DBE2DC)',
+          }}
+        />
+      ))}
+      {/* Hub-Pin links unten */}
+      <div style={{ position: 'absolute', left: 56, top: 196, color: 'var(--accent)' }}>
+        <Icon name="pin-fill" size={30} />
+      </div>
+    </div>
+  );
+}
+
+function Field({
+  icon,
+  label,
+  value,
+  onChange,
+  type = 'text',
+  inputMode,
+  placeholder,
+  autoComplete,
+  rightSlot,
+}: {
+  icon: IconName;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  inputMode?: 'email' | 'numeric' | 'tel' | 'text';
+  placeholder?: string;
+  autoComplete?: string;
+  rightSlot?: React.ReactNode;
+}) {
+  const [focus, setFocus] = useState(false);
+  return (
+    <label
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '0 16px',
+        height: 60,
+        background: 'var(--surface)',
+        borderRadius: 16,
+        boxShadow: `inset 0 0 0 ${focus ? 2 : 1.5}px ${focus ? 'var(--accent)' : 'var(--line)'}`,
+        transition: 'box-shadow .15s ease',
+      }}
+    >
+      <Icon
+        name={icon}
+        size={21}
+        stroke={2}
+        style={{ color: focus ? 'var(--accent)' : 'var(--ink-3)', flexShrink: 0 }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: 11.5,
+            fontWeight: 700,
+            color: 'var(--ink-3)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+          }}
+        >
+          {label}
+        </div>
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
+          type={type}
+          inputMode={inputMode}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          autoCapitalize="none"
+          autoCorrect="off"
+          required
+          style={{
+            border: 'none',
+            outline: 'none',
+            background: 'transparent',
+            width: '100%',
+            fontSize: 16.5,
+            fontWeight: 600,
+            color: 'var(--ink)',
+            padding: '2px 0 0',
+            fontFamily: 'inherit',
+          }}
+        />
+      </div>
+      {rightSlot}
+    </label>
+  );
+}
 
 export default function FahrerLoginPage() {
   const router = useRouter();
@@ -56,102 +210,155 @@ export default function FahrerLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--ink)]">
-      <div className="flex-1 flex flex-col justify-center px-6 py-12 max-w-md mx-auto w-full">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="h-12 w-12 rounded-2xl bg-[var(--accent)] text-white flex items-center justify-center">
-            <Bike size={24} />
-          </div>
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--ink-2)]">Mise</div>
-            <div className="text-xl font-bold">Fahrer</div>
-          </div>
+    <div
+      style={{
+        position: 'relative',
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--bg)',
+        color: 'var(--ink)',
+      }}
+    >
+      {/* Hero mit dezenter Karte */}
+      <div style={{ position: 'relative', height: 280, overflow: 'hidden', flexShrink: 0 }}>
+        <MapHero />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, transparent 30%, var(--bg) 92%)',
+          }}
+        />
+        <div style={{ position: 'absolute', top: SAFE_TOP + 8, left: 22 }}>
+          <BrandMark size={32} />
+        </div>
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          padding: '4px 22px 0',
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: 460,
+          width: '100%',
+          margin: '0 auto',
+        }}
+      >
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.08 }}>
+          Schicht starten
+        </div>
+        <div style={{ fontSize: 15.5, color: 'var(--ink-2)', marginTop: 7, fontWeight: 500 }}>
+          Melde dich mit deinem Fahrer-Zugang an.
         </div>
 
-        <h1 className="text-3xl font-bold tracking-tight mb-1">Anmelden</h1>
-        <p className="text-[var(--ink-2)] text-sm mb-8">Mit deinem Fahrer-Zugang einloggen.</p>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-[var(--ink-2)]">E-Mail</label>
-            <div className="mt-1 relative">
-              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]" />
-              <input
-                type="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                inputMode="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-[60px] rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] pl-10 pr-3 text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-accent"
-                placeholder="du@beispiel.de"
-              />
-            </div>
+        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Field
+              icon="user"
+              label="E-Mail"
+              value={email}
+              onChange={setEmail}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="du@beispiel.de"
+            />
+            <Field
+              icon="lock"
+              label="Passwort"
+              value={password}
+              onChange={setPassword}
+              type={showPwd ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              rightSlot={
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  aria-label="Passwort anzeigen"
+                  className="press"
+                  style={{ color: 'var(--ink-3)', fontSize: 13, fontWeight: 700, padding: 4 }}
+                >
+                  {showPwd ? 'verbergen' : 'zeigen'}
+                </button>
+              }
+            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-[var(--ink-2)]">Passwort</label>
-            <div className="mt-1 relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]" />
-              <input
-                type={showPwd ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-[60px] rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] pl-10 pr-11 text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-accent"
-                placeholder="********"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                aria-label="Passwort anzeigen"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]"
-              >
-                {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={onForgot}
+            className="press"
+            style={{
+              alignSelf: 'flex-start',
+              marginTop: 14,
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--accent)',
+              padding: 0,
+            }}
+          >
+            Passwort vergessen?
+          </button>
 
           {err && (
-            <div className="flex items-start gap-2 rounded-2xl bg-[var(--danger-tint)] border border-[var(--danger)]/30 p-3 text-sm text-[var(--danger)]">
-              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <div
+              style={{
+                marginTop: 16,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 9,
+                padding: '12px 14px',
+                borderRadius: 14,
+                background: 'var(--danger-tint)',
+                color: 'var(--danger)',
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1.4,
+              }}
+            >
+              <Icon name="alert" size={18} stroke={2.2} style={{ flexShrink: 0, marginTop: 1 }} />
               <span>{err}</span>
             </div>
           )}
           {resetSent && (
-            <div className="rounded-2xl bg-accent/15 border border-[var(--accent)]/30 p-3 text-sm text-accent">
-              Falls die E-Mail als Fahrer registriert ist, haben wir dir einen Link zum Passwort-Zuruecksetzen geschickt.
+            <div
+              style={{
+                marginTop: 16,
+                padding: '12px 14px',
+                borderRadius: 14,
+                background: 'var(--accent-tint)',
+                color: 'var(--accent)',
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1.4,
+              }}
+            >
+              Falls die E-Mail als Fahrer registriert ist, haben wir dir einen Link zum
+              Passwort-Zuruecksetzen geschickt.
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full flex items-center justify-center gap-2 rounded-[17px] bg-[var(--accent)] text-white py-4 font-bold disabled:opacity-60 shadow-[0_6px_18px_-8px_var(--accent)]"
-          >
-            {busy ? (
-              <>
-                <Loader2 size={16} className="animate-spin" /> Anmelden…
-              </>
-            ) : (
-              <>
-                Anmelden <ArrowRight size={16} />
-              </>
-            )}
-          </button>
+          <div style={{ flex: 1, minHeight: 18 }} />
+          <div style={{ paddingBottom: SAFE_BOTTOM + 14 }}>
+            <Btn type="submit" disabled={busy} icon={busy ? undefined : 'power'}>
+              {busy ? <Spinner /> : 'Anmelden & online gehen'}
+            </Btn>
+            <div
+              style={{
+                textAlign: 'center',
+                marginTop: 14,
+                fontSize: 13,
+                color: 'var(--ink-3)',
+                fontWeight: 500,
+              }}
+            >
+              Nur fuer Fahrer:innen · Zugang per Einladung vom Restaurant
+            </div>
+          </div>
         </form>
-
-        <button
-          onClick={onForgot}
-          className="mt-5 text-sm text-[var(--ink-2)] underline-offset-2 hover:underline mx-auto"
-        >
-          Passwort vergessen?
-        </button>
-
-        <p className="text-xs text-[var(--ink-3)] text-center mt-8">
-          Diese App ist nur fuer Fahrer:innen. Deinen Zugang bekommst du per Einladung von deinem Restaurant.
-        </p>
       </div>
     </div>
   );

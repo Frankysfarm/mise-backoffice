@@ -1766,11 +1766,21 @@ export function DeliveryView({
           const elapsedMin = Math.floor(elapsed / 60);
           const totalDistKm = stops.reduce((sum, s) => sum + ((s.distanz_zum_vorgaenger_m ?? 0) / 1000), 0);
           return (
-            <div className="rounded-2xl bg-[var(--surface-2)] border-2 border-accent p-5 text-center space-y-4">
-              <div>
-                <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-2" />
-                <div className="font-display text-xl font-black">Alle ausgeliefert!</div>
-                <div className="text-sm text-[var(--ink-2)] mt-1">Zurück zum Restaurant</div>
+            <div className="rounded-2xl bg-[var(--surface)] p-5 text-center space-y-4" style={{ boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+              <div className="flex flex-col items-center">
+                {/* Drive Pop-Check-Kreis (10-summary.png) */}
+                <div
+                  style={{
+                    width: 96, height: 96, borderRadius: '50%', background: 'var(--accent)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: 14, boxShadow: '0 16px 40px -12px var(--accent)',
+                    animation: 'drv-pop .5s cubic-bezier(.2,.9,.3,1.2)',
+                  }}
+                >
+                  <Check size={50} strokeWidth={3} className="text-white" />
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--ink)' }}>Tour abgeschlossen</div>
+                <div style={{ fontSize: 15, color: 'var(--ink-2)', fontWeight: 500, marginTop: 6 }}>Stark gefahren! Alles dokumentiert.</div>
               </div>
               {/* Explicit tour close button — prevents accidental early close, updates batch status */}
               <TourCloseButton batchId={batchId} onDone={onAllDone} />
