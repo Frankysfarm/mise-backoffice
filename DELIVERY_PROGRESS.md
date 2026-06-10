@@ -212,14 +212,25 @@
 - [x] POST /api/delivery/admin/tours/[id]/reoptimize (Verbleibende Stops neu optimieren)
 - [x] GET /api/delivery/admin/tours/[id]/modifications (Audit-Trail der Touren-Änderungen)
 - [x] events.ts: tour_stop_inserted / tour_stop_removed / tour_reoptimized Event-Typen ergänzt
+- [x] TourVisualizationPanel: Stop-Entfernen (Trash-Button + confirm) in aktiven Touren
+- [x] TourVisualizationPanel: Tour-Reoptimierungs-Button (POST /admin/tours/[id]/reoptimize)
+- [x] TourVisualizationPanel: Änderungsprotokoll-Audit-Trail (GET /admin/tours/[id]/modifications)
+- [x] TourVisualizationPanel: Bestellung einreihen (Stop-Add-Dropdown, POST /admin/tours/[id]/stops)
+- [x] OpenIncidentsPanel im Dispatch-Board (90s-Poll, Severity-Farbkodierung, Lösen-Button)
+- [x] Fahrer-App: Echtzeit-Routenänderungs-Banner (Supabase Realtime auf tour_modifications)
+- [x] Statistiken: Incident-KPI-Block (Offen/Kritisch/Heute gelöst/Gesamt)
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–52 + CEO REVIEW #43 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #43 (2026-06-10)
 - TypeScript: **0 Fehler** ✅
 - Build: next build sauber, 176 Seiten ✅
-- Phase 52 (Live-Tour-Modifikation Engine) vollständig geprüft ✅
-- Keine kritischen Bugs gefunden ✅
+- 3 Commits geprüft: Phase 52 Backend + 2 Frontend-Extensions (Tour-Modifikation UI, Incident-Panel, Fahrer-Banner) ✅
+- **3 Bugs gefunden und gefixt**:
+  - `delivery-view.tsx`: Realtime-Payload `modification_type` statt falschem `type`
+  - `dispatch/client.tsx`: Reoptimierungs-ETA `etaAfterMin` statt `total_eta_min`
+  - `dispatch/client.tsx`: Incident-Filter `open_all` statt `open` (zeigt jetzt auch investigating/escalated)
+- Vollständige Frontend-Backend-Integration Phase 52 ✅
 - Deployment-bereit: nur Migration 043 in Supabase ausführen
 
 ### CEO Review #42 (2026-06-10)

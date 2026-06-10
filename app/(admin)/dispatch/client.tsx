@@ -3419,7 +3419,7 @@ function TourVisualizationPanel({
       const res = await fetch(`/api/delivery/admin/tours/${batchId}/reoptimize`, { method: 'POST' });
       if (res.ok) {
         const d = await res.json();
-        const etaMin: number | null = (d as { total_eta_min?: number }).total_eta_min ?? null;
+        const etaMin: number | null = (d as { etaAfterMin?: number }).etaAfterMin ?? null;
         setReoptResult((m) => new Map(m).set(batchId, etaMin != null ? `✓ ${etaMin} Min neu berechnet` : '✓ Optimiert'));
         setTimeout(() => setReoptResult((m) => { const n = new Map(m); n.delete(batchId); return n; }), 4000);
       } else {
@@ -5598,7 +5598,7 @@ function OpenIncidentsPanel({ locationId }: { locationId: string | null }) {
       try {
         const [statsRes, listRes] = await Promise.all([
           fetch(`/api/delivery/admin/incidents?stats=true&location_id=${locationId}`),
-          fetch(`/api/delivery/admin/incidents?status=open&location_id=${locationId}&limit=20`),
+          fetch(`/api/delivery/admin/incidents?status=open_all&location_id=${locationId}&limit=20`),
         ]);
         if (statsRes.ok) {
           const d = await statsRes.json() as { stats?: { total_open: number; total_incidents: number; critical_open: number } };

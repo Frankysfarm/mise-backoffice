@@ -144,8 +144,8 @@ export function DeliveryView({
         schema: 'public',
         table: 'tour_modifications',
         filter: `batch_id=eq.${batchId}`,
-      }, (payload: { new: { type: string; created_at: string } }) => {
-        const { type } = payload.new;
+      }, (payload: { new: { modification_type: string; created_at: string } }) => {
+        const type = payload.new.modification_type;
         setRouteChangedNotice({ type, ts: Date.now() });
         setTimeout(() => setRouteChangedNotice(null), 12_000);
       })
