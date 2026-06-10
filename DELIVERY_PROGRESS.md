@@ -220,8 +220,11 @@
 - [x] Fahrer-App: Echtzeit-Routenänderungs-Banner (Supabase Realtime auf tour_modifications)
 - [x] Statistiken: Incident-KPI-Block (Offen/Kritisch/Heute gelöst/Gesamt)
 - [x] ActiveTourRail: kompakter Live-Überblick aller laufenden Touren im Dispatch-Board
+- [x] KitchenHandoffMatrix: Ready-Target vs. Fahrerankünfte – Konflikterkennung (Fahrer früher als Essen fertig)
+- [x] LiveEarningsBubble: +€X.XX Einblendung nach jeder Zustellung in Fahrer-App
+- [x] WochentagsHeatmap: 4-Wochen × 7-Tage Kalender-Grid in Statistiken
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + ACTIVETOURAIL + CEO REVIEW #45 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + FRONTEND-ERWEITERUNGEN + CEO REVIEW #45 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #45 (2026-06-10)
 - TypeScript: **0 Fehler** ✅ (`npx tsc --noEmit` exit 0)

@@ -1,15 +1,15 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–53 + ActiveTourRail abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–53 + Frontend-Erweiterungen (ActiveTourRail, KitchenHandoffMatrix, LiveEarningsBubble, WochentagsHeatmap) abgeschlossen. Deployment-bereit.
 
 ---
 
 ## CEO Review #45 — 2026-06-10
 
-### Prüfung: Phase 53 (Legacy-Konsolidierung) + ActiveTourRail
+### Prüfung: Phase 53 + ActiveTourRail + KitchenHandoffMatrix + LiveEarningsBubble + WochentagsHeatmap
 
-**Ergebnis: FREIGEGEBEN** — kein Bug, kein TypeScript-Fehler, Build sauber (176 Seiten).
+**Ergebnis: FREIGEGEBEN** — 0 Bugs, 0 TypeScript-Fehler, Build sauber (176 Seiten).
 
 #### Phase 53 Backend-Prüfung
 
@@ -54,9 +54,36 @@ Driver-Lookup Fallback-Kette:
 2. `v_open_dispatch_batches`: Legacy-Union-Teil entfernen (Migration 045)
 3. `dispatch/client.tsx`: Legacy-Fallback in `assignToDriver()` entfernen
 
+#### KitchenHandoffMatrix Frontend-Prüfung (`kitchen/client.tsx`)
+
+- `Batch.started_at` im Kitchen-Typ vorhanden (distinct von `startzeit` im Dispatch-Typ) ✅
+- `Driver.vorname` + `Driver.nachname` im Kitchen-Typ vorhanden, Lookup via `d.id === b.driver_id` ✅
+- `Stop.batch_id`, `Stop.reihenfolge`, `Stop.geliefert_am` alle im Typ ✅
+- `KitchenTiming.ready_target` + `.order_id` + `.status` im Typ ✅
+- Konfliktlogik: `gapSec = (etaMs - readyMs) / 1000` — negativ = Fahrer früher als Essen fertig ✅
+- Nur Batches innerhalb 30-Min-Fenster angezeigt ✅
+- `Target`-Icon in Lucide-Imports (Zeile 10) vorhanden ✅
+
+#### LiveEarningsBubble (`delivery-view.tsx`)
+
+- Berechnung: `€1.50 + (distanz_m / 1000 * 0.20)` ✅
+- `setTimeout` entfernt Bubble nach 3s ✅
+- `key={earningsBubble.key}` mit `Date.now()` erzwingt Re-Mount bei jeder neuen Zustellung ✅
+- `TrendingUp`-Icon in Lucide-Imports vorhanden ✅
+
+#### WochentagsHeatmap (`statistics-view.tsx`)
+
+- Grid-Aufbau: 4 Wochen × 7 Tage, korrekt ✅
+- JS `getDay()` 0=So → 0=Mo Konvertierung: `jsDay === 0 ? 6 : jsDay - 1` korrekt ✅
+- `d.setHours(0,0,0,0)` mutiert `d`, Rückgabewert als Millisekunden für Diff ✅
+- `new Date(ts).getDay()` für Wochentag nutzt Original-`ts` (nicht mutiertes `d`) ✅
+- `maxCount = Math.max(...grid.flat(), 1)` schützt vor Division durch 0 ✅
+- `CalendarClock`-Icon in Lucide-Imports vorhanden ✅
+
 **Nächste Features (optional):**
 - ActiveTourRail: Klick auf Tour → öffnet BatchDetailModal (drill-down)
 - ActiveTourRail: ETA-Überschreitung Push-Notification (wenn overdue > 5min)
+- KitchenHandoffMatrix: Audio-Alert wenn neuer Konflikt erkannt
 - Phase 54 Cleanup erst wenn keine aktiven Legacy-Batches mehr in Production
 
 ---
