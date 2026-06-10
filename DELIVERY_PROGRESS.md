@@ -192,7 +192,17 @@
 - [x] recordCustomerEvent() → enqueueForOrder() Integration (fire-and-forget nach Event-Insert)
 - [x] processAllCustomerNotifications() im Cron-Tick (HMAC-signierter Webhook-Versand, 3 Retries)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–50 + CEO REVIEW #42 ABGESCHLOSSEN — 2026-06-09
+- [x] delivery_incidents Tabelle (Migration 042)
+- [x] incident_actions Tabelle (Migration 042)
+- [x] v_open_incidents View (Migration 042)
+- [x] v_incident_stats View (Migration 042)
+- [x] incidents.ts (Incident Management Engine: createIncidentFromRating / createManualIncident / getIncidents / getIncident / updateIncident / addIncidentAction / resolveIncident / escalateIncident / getIncidentStats / autoCreateIncidentsForRatings)
+- [x] GET+POST /api/delivery/admin/incidents (Liste + manuell erstellen + Stats)
+- [x] GET+PATCH /api/delivery/admin/incidents/[id] (Detail + resolve + escalate + close + note)
+- [x] Auto-Incident bei Bewertung ≤2★ (fire-and-forget in submitCustomerRating)
+- [x] autoCreateIncidentsForRatings() im Cron-Tick (Sicherheitsnetz, jeder Tick)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–51 + 2026-06-10 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #42 (2026-06-09)
 - TypeScript: 0 Fehler ✅

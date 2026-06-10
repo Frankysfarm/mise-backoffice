@@ -29,6 +29,7 @@ import { evaluateAutoSignalAllLocations } from '@/lib/delivery/capacity';
 import { expireStaleCredits } from '@/lib/delivery/credits';
 import { expireOldBroadcasts } from '@/lib/delivery/messaging';
 import { processAllCustomerNotifications } from '@/lib/delivery/customer-push';
+import { autoCreateIncidentsForRatings } from '@/lib/delivery/incidents';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -72,7 +73,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -131,6 +132,8 @@ export async function GET(req: NextRequest) {
       expireOldBroadcasts().catch(() => ({ deleted: 0 })),
       // Customer Push: ausstehende SMS/WhatsApp-Benachrichtigungen versenden (jeder Tick)
       processAllCustomerNotifications().catch(() => ({ processed: 0, sent: 0, failed: 0, skipped: 0 })),
+      // Incidents: schlechte Bewertungen (≤2★) ohne Incident nachholen (Sicherheitsnetz)
+      autoCreateIncidentsForRatings().catch(() => 0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -199,6 +202,7 @@ export async function GET(req: NextRequest) {
         sent:      customerPushResult.sent,
         failed:    customerPushResult.failed,
       },
+      incidents_created: incidentsCreated,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

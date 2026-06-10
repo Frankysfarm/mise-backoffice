@@ -198,6 +198,18 @@ export async function submitCustomerRating(input: SubmitRatingInput): Promise<Su
     return { success: false, error: 'Bewertung konnte nicht gespeichert werden.' };
   }
 
+  // Auto-Incident für schlechte Bewertungen (≤2 Sterne), fire-and-forget
+  if (input.rating <= 2) {
+    import('@/lib/delivery/incidents').then(({ createIncidentFromRating }) => {
+      createIncidentFromRating(
+        order.id,
+        order.location_id,
+        input.rating as 1 | 2,
+        input.comment?.trim() ?? null,
+      ).catch(() => {});
+    }).catch(() => {});
+  }
+
   return { success: true };
 }
 
