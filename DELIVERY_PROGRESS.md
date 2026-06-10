@@ -249,8 +249,10 @@
 - [x] DriverHistoricalLeaderboardPanel im Dispatch-Board (Podium Top-3, vollständige Tabelle, Period-Switcher, Snapshot-Trigger)
 - [x] MyPerformanceBadge in Fahrer-App (Wochen-Rang im Delivery-Header)
 - [x] snapshotAllLocations() im Cron-Tick täglich 02:00 UTC (gestrigen Tag snapshotten)
+- [x] FahrerRankingCard in Fahrer-App (Wochen-Ranking, Trend-Indikator, Podium-Farben) — Phase 57
+- [x] KitchenDispatchPressureChip (fertige Lieferbestellungen warten auf Dispatch) — Phase 57
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–56 + CEO REVIEW #47 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–57 + CEO REVIEW #48 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #47 — 2026-06-10
 

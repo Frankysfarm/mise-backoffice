@@ -454,10 +454,7 @@ export async function getDriverHistory(
 
   const { data: rows, error } = await sb
     .from('driver_performance_snapshots')
-    .select(
-      'snapshot_date, tours_completed, stops_completed, total_distance_km, ' +
-      'avg_delivery_min, on_time_rate, avg_rating, total_earnings_eur, active_minutes',
-    )
+    .select('snapshot_date, tours_completed, stops_completed, total_distance_km, avg_delivery_min, on_time_rate, avg_rating, total_earnings_eur, active_minutes')
     .eq('driver_id', driverId)
     .eq('location_id', locationId)
     .gte('snapshot_date', since.toISOString().slice(0, 10))

@@ -3406,3 +3406,80 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 1. Storefront Tracking-Badge (stops_before anzeigen)
 2. Admin Zonen-Tabelle (einfaches CRUD)
 3. Heatmap als Top-Zonen-Tabelle in statistics-view
+
+## CEO Review #48 — 2026-06-10
+
+### Geprüfte Commits
+- `d679da8` feat(delivery/backend): Phase 56 — Driver Performance Snapshots & Historical Leaderboard
+- `713e11a` feat(delivery/frontend): Phase 57 — FahrerRankingCard + KitchenDispatchPressureChip
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Kompiliert sauber ✅
+
+### Befund Phase 56 (Backend)
+
+**lib/delivery/driver-performance.ts (512 Zeilen)**:
+- Snapshot-Engine: `computeAndSaveSnapshot()` aggregiert Touren, Stops, Distanz, ETA-Genauigkeit, Rating, Verdienst ✅
+- `snapshotAllDriversForLocation()` + `snapshotAllLocations()` für Cron-Batch ✅
+- `getLeaderboard()`: Lädt View (today/week/month), reichert mit Employee-Namen an, gewichtete Metriken ✅
+- `getDriverHistory()`: 14-Tage-Trend für persönliche Stats ✅
+- `getDriverRank()`: Einzelner Rank im aktuellen Leaderboard ✅
+
+**Bug gefunden und gefixt — String-Konkatenation in `.select()`**:
+- Datei: `lib/delivery/driver-performance.ts`, `getDriverHistory()` 
+- Verletzung der Lernregel aus CEO Review #3 (Supabase `.select()` IMMER als Single-Literal)
+- String-Konkatenation `'snapshot_date, ...' + 'avg_delivery_min, ...'` → Single-Literal zusammengeführt
+- TypeScript: 0 Fehler nach Fix ✅
+
+**Migration 046**:
+- Tabelle `driver_performance_snapshots` mit UNIQUE(driver_id, location_id, snapshot_date) ✅
+- 3 Views: `v_driver_leaderboard_today/week/month` mit RANK() OVER PARTITION BY location_id ✅
+- Gewichteter on_time_rate + avg_rating (stops-weighted, nicht einfacher AVG) — korrekte Statistik ✅
+
+**API-Routes**:
+- `GET+POST /api/delivery/admin/driver-leaderboard` — Auth-Guard, period-Validierung, limit cap bei 50 ✅
+- `GET /api/delivery/driver/my-performance` — Fahrer-ID + Location-ID Auflösung über mise_drivers + employees ✅
+
+**Cron-Integration**:
+- `snapshotDriverPerformance()` wird täglich um 02:00 UTC ausgeführt (isReportTick) ✅
+- Fehlertoleranz: `.catch(() => ...)` verhindert Cron-Absturz bei Snapshot-Fehler ✅
+
+### Befund Phase 57 (Frontend)
+
+**FahrerRankingCard** (`app/fahrer/app/client.tsx`):
+- Sichtbar nur wenn `!activeBatch && isOnline` — korrekte Sichtbarkeitslogik ✅
+- Pollt `/api/delivery/driver/my-performance?period=week&days=14` einmalig beim Mount ✅
+- Trend-Berechnung: letzte 3 Tage vs. vorherige 3 Tage aus history.slice(-7) — korrekte Logik ✅
+- Podium-Farben (Gold/Silber/Bronze), TrendingUp mit rotate-180 für Downtrend ✅
+- Alle Icons (Trophy, TrendingUp) korrekt importiert ✅
+
+**KitchenDispatchPressureChip** (`app/(admin)/kitchen/client.tsx`):
+- Filter: `status === 'fertig' && typ === 'lieferung'` — nur fertige Lieferungen, keine Abholungen ✅
+- Farbcodierung: Grün (<2), Orange (2-3), Rot + Pulse (≥4) ✅
+- Inline, kein API-Aufruf nötig (nutzt bereits vorhandene `filtered` State-Variable) ✅
+
+**MyPerformanceBadge** (`app/fahrer/app/delivery-view.tsx`):
+- Zeigt Wochen-Rang in Fahrer-App-Header ✅
+- Top-3 → goldenes Styling, sonst dezent grau ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen zeigt Dispatch-Rückstau (fertige Bestellungen warten auf Abholung) ✅
+- Dispatch zeigt historisches Leaderboard mit Podium + Volltabelle ✅
+- Fahrer-App zeigt persönliches Ranking + Wochen-Trend ✅
+- Snapshot-Cron liefert tägliche Datenbasis für alle Views ✅
+
+### Status nach Review #48
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 56 (Backend Performance Snapshots): DONE ✅
+- Phase 57 (Frontend Ranking UI): DONE ✅
+- Bugs gefixed: 1 (String-Concat in getDriverHistory)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 58: Kunden-Bewertungs-API (`POST /api/delivery/orders/[id]/rate`) — Sterne + Kommentar nach Lieferung
+2. Oder: Fahrer-Schicht-Tracking (Schicht-Start/Ende, Pausen) für genauere `active_minutes`
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 58: Kunden-Bewertungs-Dialog im Storefront-Tracking-Screen nach Zustellung
+2. Oder: Leaderboard-Visualisierung mit Trend-Linien (Sparklines) in Dispatch
