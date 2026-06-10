@@ -840,6 +840,9 @@ export function FahrerApp({
           <FahrerWarteAnzeige driverId={driver.id} />
         )}
 
+        {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}
+        {!activeBatch && isOnline && <FahrerRankingCard />}
+
         {/* Offline state */}
         {!isOnline && !activeBatch && (
           <section className="text-center py-8">
@@ -1240,6 +1243,119 @@ function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
           Letzte Lieferung vor {lastDeliveryMin} Min
         </div>
       )}
+    </section>
+  );
+}
+
+/* ---------- FahrerRankingCard ---------- */
+
+type RankingState = {
+  rank: number;
+  total: number;
+  toursWeek: number;
+  stopsWeek: number;
+  distKmWeek: number;
+  onTimeRate: number | null;
+  trend: 'up' | 'down' | 'same';
+};
+
+function FahrerRankingCard() {
+  const [perf, setPerf] = useState<RankingState | null>(null);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/my-performance?period=week&days=14')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d || d.rank == null) return;
+        const history = (d.history ?? []) as Array<{
+          toursCompleted: number;
+          stopsCompleted: number;
+          totalDistanceKm: number;
+          onTimeRate: number | null;
+        }>;
+        const lastWeek = history.slice(-7);
+        const toursWeek = lastWeek.reduce((s, h) => s + h.toursCompleted, 0);
+        const stopsWeek = lastWeek.reduce((s, h) => s + h.stopsCompleted, 0);
+        const distKmWeek = lastWeek.reduce((s, h) => s + h.totalDistanceKm, 0);
+        const ratedDays = lastWeek.filter((h) => h.onTimeRate != null);
+        const onTimeRate =
+          ratedDays.length > 0
+            ? ratedDays.reduce((s, h) => s + h.onTimeRate!, 0) / ratedDays.length
+            : null;
+        const recentStops = lastWeek.slice(-3).reduce((s, h) => s + h.stopsCompleted, 0);
+        const prevStops = lastWeek.slice(-6, -3).reduce((s, h) => s + h.stopsCompleted, 0);
+        const trend: 'up' | 'down' | 'same' =
+          recentStops > prevStops + 1 ? 'up' : recentStops < prevStops - 1 ? 'down' : 'same';
+        setPerf({ rank: d.rank, total: d.total ?? 1, toursWeek, stopsWeek, distKmWeek, onTimeRate, trend });
+      })
+      .catch(() => {});
+  }, []);
+
+  if (!perf) return null;
+
+  const medal = perf.rank === 1 ? '🥇' : perf.rank === 2 ? '🥈' : perf.rank === 3 ? '🥉' : null;
+  const rankColor =
+    perf.rank === 1
+      ? 'text-yellow-400'
+      : perf.rank <= 3
+      ? 'text-matcha-300'
+      : 'text-white/60';
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-yellow-400" />
+          <span className="text-xs font-bold uppercase tracking-widest text-white/60">
+            Wochen-Ranking
+          </span>
+        </div>
+        <div className={cn('flex items-center gap-1 font-display font-black text-2xl', rankColor)}>
+          {medal && <span>{medal}</span>}
+          <span>#{perf.rank}</span>
+          <span className="text-sm font-normal text-white/40">/ {perf.total}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-xl bg-white/5 px-2 py-2.5">
+          <div className="font-display text-xl font-black text-white">{perf.stopsWeek}</div>
+          <div className="text-[10px] text-white/50 uppercase tracking-wider mt-0.5">Lieferungen</div>
+        </div>
+        <div className="rounded-xl bg-white/5 px-2 py-2.5">
+          <div className="font-display text-xl font-black text-white">{perf.toursWeek}</div>
+          <div className="text-[10px] text-white/50 uppercase tracking-wider mt-0.5">Touren</div>
+        </div>
+        <div className="rounded-xl bg-white/5 px-2 py-2.5">
+          <div className="font-display text-xl font-black text-white">
+            {perf.distKmWeek.toFixed(0)}
+            <span className="text-xs font-normal text-white/50"> km</span>
+          </div>
+          <div className="text-[10px] text-white/50 uppercase tracking-wider mt-0.5">Strecke</div>
+        </div>
+      </div>
+
+      <div className="mt-2.5 flex items-center justify-between text-xs text-white/50">
+        {perf.onTimeRate != null && (
+          <span>
+            Pünktlich:{' '}
+            <span className="font-bold text-matcha-300">{Math.round(perf.onTimeRate * 100)}%</span>
+          </span>
+        )}
+        <span className="ml-auto flex items-center gap-1">
+          <TrendingUp
+            className={cn(
+              'h-3.5 w-3.5',
+              perf.trend === 'up'
+                ? 'text-matcha-400'
+                : perf.trend === 'down'
+                ? 'text-red-400 rotate-180'
+                : 'text-white/30',
+            )}
+          />
+          {perf.trend === 'up' ? 'Trend steigend' : perf.trend === 'down' ? 'Trend fallend' : 'Stabil'}
+        </span>
+      </div>
     </section>
   );
 }

@@ -651,6 +651,23 @@ export function KitchenBoard({
               </span>
             );
           })()}
+          {/* Dispatch-Rückstau: fertige Lieferbestellungen warten auf Abholung */}
+          {(() => {
+            const waiting = filtered.filter(
+              (o) => o.status === 'fertig' && o.typ === 'lieferung',
+            ).length;
+            if (waiting === 0) return null;
+            const dotCls =
+              waiting >= 4 ? 'bg-red-500 animate-pulse' : waiting >= 2 ? 'bg-orange-500' : 'bg-matcha-500';
+            const textCls =
+              waiting >= 4 ? 'text-red-600' : waiting >= 2 ? 'text-orange-600' : 'text-matcha-600';
+            return (
+              <span className="flex items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 text-xs">
+                <span className={cn('h-2 w-2 rounded-full', dotCls)} />
+                <span className={cn('font-bold', textCls)}>{waiting} warten auf Dispatch</span>
+              </span>
+            );
+          })()}
         </div>
       </div>
 
