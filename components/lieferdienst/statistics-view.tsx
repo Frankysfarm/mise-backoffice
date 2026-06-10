@@ -441,7 +441,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       .select('created_at, status, location_id')
       .gte('created_at', since.toISOString())
       .order('created_at', { ascending: true })
-      .then(({ data }) => {
+      .then(({ data }: { data: { created_at: string; status: string; location_id: string | null }[] | null }) => {
         if (!data) return
         const filtered: { created_at: string; status: string; location_id: string | null }[] =
           locationId ? (data as any[]).filter((o) => o.location_id === locationId) : (data as any[])
@@ -925,7 +925,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
               <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={24} allowDecimals={false} />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 12 }}
-                formatter={(value: number, name: string) => [value, name === 'bestellungen' ? 'Bestellungen' : 'Geliefert']}
+                formatter={(value: any, name: any) => [typeof value === 'number' ? value : Number(value ?? 0), name === 'bestellungen' ? 'Bestellungen' : 'Geliefert'] as [number, string]}
               />
               <Bar dataKey="bestellungen" fill="#c4b5fd" radius={[3, 3, 0, 0]} name="bestellungen" />
               <Bar dataKey="geliefert" fill="#34d399" radius={[3, 3, 0, 0]} name="geliefert" />
