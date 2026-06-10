@@ -61,6 +61,7 @@ function mapOrder(o: any) {
     status: STATUS_MAP[o.status] || 'pending',
     createdAt: o.bestellt_am,
     acceptedAt: o.bestaetigt_am,
+    doneAt: o.fertig_am,
     customerName: o.kunde_name,
     customerPhone: o.kunde_telefon,
     customerAddress: o.kunde_adresse,

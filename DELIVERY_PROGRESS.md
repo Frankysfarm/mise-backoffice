@@ -229,7 +229,26 @@
 - [x] Phase 54: Kitchen Handoff-Konflikt Audio-Alert (neuer conflict_alert SoundType, absteigender 3-Ton)
 - [x] Bugfix: delivery-view.tsx stop?.distanz_zum_vorgaenger_m (TS18048 undefined guard)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–54 + FRONTEND-ERWEITERUNGEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–54 + CEO REVIEW #46 ABGESCHLOSSEN — 2026-06-10
+
+### CEO Review #46 — 2026-06-10
+
+**5 neue Commits geprüft** (Phase 54 Extensions): 0 TypeScript-Fehler, Build sauber.
+
+**1 Bug gefixt** (MITTEL):
+- `mapOrder()` in `/api/lieferdienst/data/route.ts` mappt jetzt `fertig_am → doneAt`
+- `Order`-Interface in `lib/lieferdienst/orders.ts` um `doneAt?` erweitert
+- Schichtfortschritt-Pünktlichkeits-Metrik war immer `null` — jetzt funktional
+
+**5 neue Features bestätigt**:
+- [x] DispatchQuickAssignBar: GPS-nächster freier Fahrer (haversineKm) + Fallback-Write
+- [x] LieferdienstTagesvergleich: Supabase-Direktabfrage statt API-Endpoint
+- [x] Queue-Signal-Banner in LiveEtaBar (Storefront): signal_message + eta_extension_min
+- [x] iOS-Navigation (maps:// statt Google Maps) + Anruf-Button in Fahrer-App
+- [x] KitchenPrepTimelineBar: 30-Min-Zeitstrahl aller kochenden Orders
+- [x] KitchenSmartTimingNudge: Batch-Erstellung für Orders ohne Smart-Timing
+
+---
 
 ### Phase 54 — Backend-Architekt — 2026-06-10
 

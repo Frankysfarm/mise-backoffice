@@ -1,7 +1,71 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–53 + Frontend-Erweiterungen (ActiveTourRail, KitchenHandoffMatrix, LiveEarningsBubble, WochentagsHeatmap) abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–54 + Frontend-Erweiterungen vollständig abgeschlossen. Bug gefixt (doneAt-Mapping). Deployment-bereit.
+
+---
+
+## CEO Review #46 — 2026-06-10
+
+### Geprüfte Commits (5 Commits seit Review #45)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `ec859b1` | Tagesvergleich Supabase-Fix, Queue-Signal-Banner | ✅ |
+| `07f72de` | GPS-nächster Fahrer im Quick-Assign, Anruf-Button | ✅ |
+| `5427861` | iOS-Navigation, smart-timing-nudge, quick-assign | ✅ |
+| `07e8643` | live-tick ETAs, prep-timeline, wartezeit-ampel | ✅ |
+| `689805c` | DELIVERY_PROGRESS Phase 54 docs | ✅ |
+
+### TypeScript: 0 Fehler ✅
+### Build: `next build` — Exit 0, 176 Seiten ✅
+
+### Bug gefunden und gefixt: `doneAt`-Mapping fehlte (MITTEL)
+
+**Datei**: `app/api/lieferdienst/data/route.ts`, `lib/lieferdienst/orders.ts`, `app/(admin)/lieferdienst/client.tsx`
+
+**Problem**: Die `mapOrder()`-Funktion in der Lieferdienst-API selektierte `fertig_am` aus der DB, mapfte das Feld aber nicht auf `doneAt` im Frontend-Typ. Folge: Die Schichtfortschritt-Pünktlichkeits-Metrik ("% pünktlich") war immer `null` und wurde nie angezeigt, obwohl echte Daten vorhanden wären. Auch die avg-Zubereitungszeit-Berechnung in der Statistik-Komponente war betroffen.
+
+**Fix**:
+1. `lib/lieferdienst/orders.ts`: `doneAt?: Date | string` zum `Order`-Interface hinzugefügt
+2. `app/api/lieferdienst/data/route.ts`: `doneAt: o.fertig_am` in `mapOrder()` eingefügt
+3. `app/(admin)/lieferdienst/client.tsx`: `(o as any).doneAt` → typsicheres `o.doneAt` (2 Stellen)
+
+**Lernregel**: Wenn ein DB-Feld per `.select()` abgerufen wird, MUSS es in `mapX()` auf einen Frontend-Typ gemappt werden — sonst werden Metriken still ignoriert.
+
+### Neue Features geprüft
+
+#### 1. DispatchQuickAssignBar — GPS-nächster Fahrer (`dispatch/client.tsx`)
+- `haversineKm()` bereits in der Datei definiert (Line 2955) ✅
+- Fallback auf `freeDrivers[0]` wenn kein GPS vorhanden ✅
+- Fallback-Write auf `delivery_batches` wenn RPC `assign_to_driver` fehlschlägt ✅
+- `restaurantLat/Lng` korrekt aus `locations`-Array geholt (Location-Typ hat optionales `lat?/lng?`) ✅
+
+#### 2. LieferdienstTagesvergleich — Supabase-Fix (`lieferdienst/client.tsx`)
+- Liest jetzt direkt aus `customer_orders` statt vom `/api/lieferdienst/data`-Endpoint ✅
+- Filter: `['geliefert', 'abgeholt', 'fertig', 'unterwegs', 'storniert']` — korrekt ✅
+- Stornierte werden aus Umsatz-Berechnung ausgeschlossen ✅
+- `calcStats()` filtert Zubereitungszeiten >120 Min (Ausreißer-Schutz) ✅
+
+#### 3. Queue-Signal-Banner im Storefront (`storefront.tsx`)
+- API `/api/delivery/eta/live` liefert `signal_message` + `eta_extension_min` korrekt ✅
+- Banner erscheint nur wenn `signalMessage && etaExtension > 0` (doppelte Guard) ✅
+
+#### 4. iOS-Navigation in Fahrer-App (`fahrer/app/client.tsx`)
+- `maps://` Scheme auf iOS, Google Maps auf Android ✅
+- `Phone`-Icon importiert (Line 8) ✅
+- `kunde_telefon` im `ActiveBatch`-Typ ergänzt ✅
+
+#### 5. KitchenPrepTimelineBar + KitchenSmartTimingNudge (`kitchen/client.tsx`)
+- 30-Min-Zeitfenster, 5s-Refresh-Tick ✅
+- Stationsfarben (Grill/Warm/Kalt/Sonstiges) per Regex aus Item-Name ✅
+- `KitchenSmartTimingNudge` Batch-Erstellung via `createKitchenTiming()` ✅
+
+### Status nach Review #46
+- TypeScript: **0 Fehler** ✅
+- Build: **sauber** ✅
+- 1 Bug gefixt (doneAt-Mapping)
+- Alle 5 neuen Features integriert und logisch korrekt
 
 ---
 

@@ -26,6 +26,7 @@ export interface Order {
   status: OrderStatus
   createdAt: Date | string
   acceptedAt?: Date | string // Wann wurde die Bestellung angenommen
+  doneAt?: Date | string     // Wann wurde die Bestellung fertiggestellt
   customerName?: string
   customerPhone?: string
   priority?: 'normal' | 'rush' | 'vip' | 'express'

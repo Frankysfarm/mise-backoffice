@@ -638,8 +638,8 @@ export function LieferdienstClient() {
                 const revenue = done.reduce((s, o) => s + ((o as any).total ?? (o as any).gesamtbetrag ?? 0), 0)
                 const rejRate = allToday.length > 0 ? Math.round((rejected.length / allToday.length) * 100) : 0
                 const prepTimes = done
-                  .filter(o => o.acceptedAt && (o as any).doneAt)
-                  .map(o => (new Date((o as any).doneAt).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000)
+                  .filter(o => o.acceptedAt && o.doneAt)
+                  .map(o => (new Date(o.doneAt!).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000)
                 const avgPrep = prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null
                 const ordersPerHour = schichtMinutes >= 5 ? Math.round((allToday.length / schichtMinutes) * 60 * 10) / 10 : null
                 if (allToday.length === 0) return null
@@ -740,10 +740,8 @@ export function LieferdienstClient() {
                 const fortschrittPct = Math.min(100, Math.round((schichtMinutes / schichtDauerMin) * 100))
                 const done = completedOrders.filter(o => o.status === 'done')
                 const onTime = done.filter(o => {
-                  const accepted = (o as any).acceptedAt
-                  const doneAt = (o as any).doneAt
-                  if (!accepted || !doneAt) return false
-                  const min = (new Date(doneAt).getTime() - new Date(accepted).getTime()) / 60_000
+                  if (!o.acceptedAt || !o.doneAt) return false
+                  const min = (new Date(o.doneAt).getTime() - new Date(o.acceptedAt).getTime()) / 60_000
                   return min <= 20
                 }).length
                 const onTimePct = done.length > 0 ? Math.round((onTime / done.length) * 100) : null
