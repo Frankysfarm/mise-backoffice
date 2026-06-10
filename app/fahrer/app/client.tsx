@@ -656,11 +656,16 @@ export function FahrerApp({
                   const kitchenCooking = kStatus === 'in_zubereitung';
                   const isLast = idx === arr.length - 1;
 
-                  // Individual stop nav URL
+                  // Individual stop nav URL — Apple Maps auf iOS, sonst Google Maps
+                  const isIos = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
                   const stopNavUrl = stop.order.kunde_lat && stop.order.kunde_lng
-                    ? `https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`
+                    ? isIos
+                      ? `maps://maps.apple.com/?daddr=${stop.order.kunde_lat},${stop.order.kunde_lng}&dirflg=d`
+                      : `https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`
                     : stop.order.kunde_adresse
-                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.order.kunde_adresse)}`
+                    ? isIos
+                      ? `maps://maps.apple.com/?q=${encodeURIComponent(stop.order.kunde_adresse)}`
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.order.kunde_adresse)}`
                     : null;
 
                   // Distanz-Chip
@@ -766,7 +771,7 @@ export function FahrerApp({
               </div>
             )}
 
-            {/* Route-Vorschau in Google Maps */}
+            {/* Route-Vorschau in Maps (Apple Maps auf iOS, Google Maps sonst) */}
             {activeBatch.stops.length > 0 && (() => {
               const withCoords = activeBatch.stops
                 .sort((a, b) => a.reihenfolge - b.reihenfolge)
@@ -774,9 +779,12 @@ export function FahrerApp({
               if (withCoords.length === 0) return null;
               const dest = `${withCoords[withCoords.length - 1].order.kunde_lat},${withCoords[withCoords.length - 1].order.kunde_lng}`;
               const waypoints = withCoords.slice(0, -1).map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`).join('|');
-              const mapsUrl = waypoints
-                ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
-                : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+              const isIosDevice = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+              const mapsUrl = isIosDevice
+                ? `maps://maps.apple.com/?daddr=${dest}${withCoords.slice(0, -1).map((s) => `&waypoint=${s.order.kunde_lat},${s.order.kunde_lng}`).join('')}&dirflg=d`
+                : waypoints
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+                  : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
               return (
                 <a
                   href={mapsUrl}
@@ -785,7 +793,7 @@ export function FahrerApp({
                   className="w-full h-11 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold text-matcha-200 inline-flex items-center justify-center gap-2 mb-3 transition"
                 >
                   <MapIcon className="h-4 w-4" />
-                  Route in Maps vorschauen ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
+                  {isIosDevice ? '🍎' : '🗺️'} Route in {isIosDevice ? 'Apple Maps' : 'Google Maps'} ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
                 </a>
               );
             })()}

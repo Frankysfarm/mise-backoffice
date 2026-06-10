@@ -757,6 +757,32 @@ export function DispatchBoard({
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
 
+      {/* Quick-Assign: beste Bestellung → bester freier Fahrer mit einem Klick */}
+      <DispatchQuickAssignBar
+        orders={readyOrders}
+        drivers={drivers}
+        onAssign={async (orderIds, driverId) => {
+          const locationId = readyOrders.find((o) => orderIds.includes(o.id))?.location_id ?? null;
+          const { data, error } = await supabase.rpc('assign_to_driver', {
+            p_employee_id: driverId,
+            p_order_ids: orderIds,
+            p_location_id: locationId,
+          });
+          if (error || !(data as { ok: boolean })?.ok) {
+            const { data: batch } = await supabase
+              .from('delivery_batches')
+              .insert({ location_id: locationId, fahrer_id: driverId, status: 'pickup', startzeit: new Date().toISOString(), erstellt_von: null, auto_erstellt: false })
+              .select().single();
+            if (batch) {
+              await supabase.from('delivery_batch_stops').insert(orderIds.map((id, i) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: i + 1 })));
+              await supabase.from('customer_orders').update({ fahrer_id: driverId, batch_id: (batch as { id: string }).id, status: 'unterwegs' }).in('id', orderIds);
+              await supabase.from('driver_status').update({ aktueller_batch_id: (batch as { id: string }).id }).eq('employee_id', driverId);
+            }
+          }
+          await refresh();
+        }}
+      />
+
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
 
@@ -6083,6 +6109,81 @@ function ActiveTourRail({ batches, drivers, onSelect }: { batches: Batch[]; driv
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ---- DispatchQuickAssignBar ---- */
+/* Zeigt die eine beste Zuweisung (höchster Score + freier Fahrer) mit einem Klick */
+function DispatchQuickAssignBar({
+  orders,
+  drivers,
+  onAssign,
+}: {
+  orders: ReadyOrder[];
+  drivers: Driver[];
+  onAssign: (orderIds: string[], driverId: string) => Promise<void>;
+}) {
+  const [pending, setPending] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
+
+  const freeDrivers = drivers.filter((d) => d.ist_online && !d.aktueller_batch_id);
+  const topOrder = orders
+    .filter((o) => o.status === 'fertig' && o.dispatch_score != null)
+    .sort((a, b) => (b.dispatch_score ?? 0) - (a.dispatch_score ?? 0))[0] ?? null;
+
+  if (!topOrder || freeDrivers.length === 0) return null;
+
+  const waitMin = topOrder.fertig_am
+    ? Math.floor((Date.now() - new Date(topOrder.fertig_am).getTime()) / 60_000)
+    : null;
+
+  // Nächster freier Fahrer = erster verfügbarer (Dispatch-System kennt Geo)
+  const bestDriver = freeDrivers[0];
+  const driverName = bestDriver.employee
+    ? `${bestDriver.employee.vorname} ${bestDriver.employee.nachname.charAt(0)}.`
+    : 'Fahrer';
+
+  async function quickAssign() {
+    setPending(true);
+    try {
+      await onAssign([topOrder!.id], bestDriver.employee_id);
+      setDone(`✓ ${topOrder!.bestellnummer.replace('FF-', '')} → ${driverName}`);
+      setTimeout(() => setDone(null), 6000);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-matcha-300 bg-matcha-50 px-4 py-2.5 text-sm">
+        <span className="text-matcha-600 font-bold">{done}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5">
+      <Zap className="h-4 w-4 text-blue-600 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <span className="text-xs font-bold text-blue-900">Beste nächste Aktion</span>
+        <span className="text-[10px] text-blue-700 ml-2">
+          #{topOrder.bestellnummer.replace('FF-', '')}
+          {topOrder.delivery_zone ? ` · Zone ${topOrder.delivery_zone}` : ''}
+          {topOrder.dispatch_score != null ? ` · Score ${Math.round(topOrder.dispatch_score)}` : ''}
+          {waitMin != null ? ` · wartet ${waitMin} Min` : ''}
+          {' → '}{driverName}
+        </span>
+      </div>
+      <button
+        onClick={quickAssign}
+        disabled={pending}
+        className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-blue-700 disabled:opacity-50 transition"
+      >
+        {pending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+        {pending ? '…' : 'Zuweisen'}
+      </button>
     </div>
   );
 }

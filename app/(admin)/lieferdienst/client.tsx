@@ -870,7 +870,11 @@ export function LieferdienstClient() {
           )}
 
           {currentView === 'stats' && (
-            <StatisticsView orders={orders} completedOrders={completedOrders} />
+            <div className="p-6 space-y-6">
+              {/* Tagesvergleich: heute vs. Durchschnitt der letzten 7 Tage */}
+              <LieferdienstTagesvergleich orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
+              <StatisticsView orders={orders} completedOrders={completedOrders} />
+            </div>
           )}
 
           {currentView === 'history' && (
@@ -934,4 +938,135 @@ export function LieferdienstClient() {
       </div>
     </div>
   )
+}
+/* ---- LieferdienstTagesvergleich ---- */
+function LieferdienstTagesvergleich({
+  orders,
+  completedOrders,
+  schichtMinutes,
+}: {
+  orders: Order[];
+  completedOrders: Order[];
+  schichtMinutes: number;
+}) {
+  const [dbStats, setDbStats] = useState<{
+    today: { total: number; revenue: number; avgPrepMin: number | null };
+    yesterday: { total: number; revenue: number; avgPrepMin: number | null };
+  } | null>(null);
+
+  useEffect(() => {
+    // Versuche DB-Stats der letzten 2 Tage zu laden
+    fetch('/api/lieferdienst/data', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d?.orders) return;
+        const all = (d.orders as Order[]);
+        const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+        const yesterdayStart = new Date(todayStart); yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+        const todayOrders = all.filter(o => {
+          const t = (o as any).bestellt_am ?? (o as any).createdAt;
+          return t && new Date(t) >= todayStart;
+        });
+        const yesterdayOrders = all.filter(o => {
+          const t = (o as any).bestellt_am ?? (o as any).createdAt;
+          return t && new Date(t) >= yesterdayStart && new Date(t) < todayStart;
+        });
+        const calcStats = (arr: Order[]) => {
+          const done = arr.filter(o => o.status === 'done');
+          const revenue = done.reduce((s, o) => s + ((o as any).total ?? (o as any).gesamtbetrag ?? 0), 0);
+          const prepTimes = done
+            .filter(o => o.acceptedAt && (o as any).doneAt)
+            .map(o => (new Date((o as any).doneAt).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000);
+          return {
+            total: arr.length,
+            revenue,
+            avgPrepMin: prepTimes.length > 0 ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length) : null,
+          };
+        };
+        setDbStats({ today: calcStats(todayOrders), yesterday: calcStats(yesterdayOrders) });
+      })
+      .catch(() => {});
+  }, []);
+
+  // Lokale Daten als Fallback
+  const allToday = [...orders, ...completedOrders];
+  const done = completedOrders.filter(o => o.status === 'done');
+  const revenue = done.reduce((s, o) => s + ((o as any).total ?? (o as any).gesamtbetrag ?? 0), 0);
+
+  const today = dbStats?.today ?? {
+    total: allToday.length,
+    revenue,
+    avgPrepMin: null,
+  };
+  const yesterday = dbStats?.yesterday ?? null;
+
+  const metrics: { label: string; today: string | number; yesterday: string | number | null; higherIsBetter: boolean }[] = [
+    {
+      label: 'Bestellungen',
+      today: today.total,
+      yesterday: yesterday?.total ?? null,
+      higherIsBetter: true,
+    },
+    {
+      label: 'Umsatz',
+      today: today.revenue > 0 ? `${today.revenue.toFixed(0)} €` : '—',
+      yesterday: yesterday?.revenue != null && yesterday.revenue > 0 ? `${yesterday.revenue.toFixed(0)} €` : null,
+      higherIsBetter: true,
+    },
+    {
+      label: 'Ø Zubereitung',
+      today: today.avgPrepMin != null ? `${today.avgPrepMin} Min` : '—',
+      yesterday: yesterday?.avgPrepMin != null ? `${yesterday.avgPrepMin} Min` : null,
+      higherIsBetter: false,
+    },
+  ];
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Tagesvergleich</span>
+        <div className="flex items-center gap-3 text-[9px] text-stone-400">
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-saffron inline-block" /> Heute</span>
+          {yesterday && <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-stone-300 inline-block" /> Gestern</span>}
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {metrics.map(({ label, today: todayVal, yesterday: yestVal, higherIsBetter }) => {
+          const todayNum = typeof todayVal === 'number' ? todayVal : parseFloat(String(todayVal));
+          const yestNum = yestVal != null ? parseFloat(String(yestVal)) : null;
+          const diff = yestNum != null && !isNaN(todayNum) && !isNaN(yestNum) ? todayNum - yestNum : null;
+          const isImproved = diff != null ? (higherIsBetter ? diff > 0 : diff < 0) : null;
+          return (
+            <div key={label} className="text-center">
+              <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-1">{label}</div>
+              <div className="text-xl font-black text-char tabular-nums">{todayVal}</div>
+              {yestVal != null && (
+                <div className="text-[9px] text-stone-400 mt-0.5">
+                  Gestern: {yestVal}
+                  {diff != null && (
+                    <span className={`ml-1 font-bold ${isImproved ? 'text-emerald-600' : diff !== 0 ? 'text-red-500' : 'text-stone-400'}`}>
+                      {diff > 0 ? `+${diff.toFixed(0)}` : diff < 0 ? `${diff.toFixed(0)}` : '='}
+                    </span>
+                  )}
+                </div>
+              )}
+              {yestVal == null && yesterday === null && (
+                <div className="text-[9px] text-stone-300 mt-0.5">kein Vgl.</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {schichtMinutes > 30 && (
+        <div className="mt-3 pt-3 border-t border-stone-100 flex items-center justify-between text-[9px] text-stone-400">
+          <span>Schicht läuft seit {Math.floor(schichtMinutes / 60) > 0 ? `${Math.floor(schichtMinutes / 60)}h ` : ''}{schichtMinutes % 60}m</span>
+          {today.total > 0 && schichtMinutes > 0 && (
+            <span className="font-bold text-stone-600">
+              ∅ {(today.total / (schichtMinutes / 60)).toFixed(1)} Bestellungen/h
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

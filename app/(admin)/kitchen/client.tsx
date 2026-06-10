@@ -491,6 +491,9 @@ export function KitchenBoard({
       {/* Smart-Timing Genauigkeit: Wie präzise treffen unsere Schätzungen? */}
       {timings.length > 0 && <KitchenTimingAccuracyBar timings={timings} />}
 
+      {/* Smart-Timing Nudge: Kochende Bestellungen ohne Timing-Eintrag */}
+      <KitchenSmartTimingNudge orders={filtered} timings={timings} />
+
       {/* Prioritäts-Queue: Welche 3 Bestellungen jetzt zubereiten? */}
       <TopUrgentOrders orders={filtered} />
 
@@ -5324,6 +5327,60 @@ function KitchenPrepTimelineBar({ orders, timings }: { orders: Order[]; timings:
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---- KitchenSmartTimingNudge ---- */
+/* Zeigt Prompt wenn kochende Orders kein Smart-Timing haben — Batch-Erstellung */
+function KitchenSmartTimingNudge({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, startTransition] = useTransition();
+  const [creating, setCreating] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const cookingWithoutTiming = orders.filter((o) =>
+    ['in_zubereitung', 'bestätigt'].includes(o.status) &&
+    !timings.find((t) => t.order_id === o.id)
+  );
+
+  if (cookingWithoutTiming.length === 0 || done) return null;
+
+  async function createAll() {
+    setCreating(true);
+    try {
+      await Promise.all(
+        cookingWithoutTiming.map((o) =>
+          createKitchenTiming(o.id, o.geschaetzte_zubereitung_min ?? 15),
+        ),
+      );
+      setDone(true);
+      setTimeout(() => setDone(false), 8000);
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 flex items-center gap-3">
+      <Zap className="h-4 w-4 text-blue-600 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-bold text-blue-900">
+          {cookingWithoutTiming.length} {cookingWithoutTiming.length === 1 ? 'Bestellung' : 'Bestellungen'} ohne Smart-Timing
+        </div>
+        <div className="text-[10px] text-blue-600 mt-0.5">
+          Präzise Countdowns aktivieren für:{' '}
+          {cookingWithoutTiming.slice(0, 3).map((o) => o.bestellnummer.replace('FF-', '')).join(', ')}
+          {cookingWithoutTiming.length > 3 ? ` +${cookingWithoutTiming.length - 3}` : ''}
+        </div>
+      </div>
+      <button
+        onClick={() => startTransition(() => void createAll())}
+        disabled={creating}
+        className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-blue-700 disabled:opacity-50 transition"
+      >
+        {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+        {creating ? 'Erstelle…' : 'Alle aktivieren'}
+      </button>
     </div>
   );
 }
