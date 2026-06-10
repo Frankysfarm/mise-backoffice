@@ -237,7 +237,18 @@
 - [x] dispatch-engine.ts: smartDispatchTick() nutzt jetzt sortByPriority() statt FIFO — VIP/Express/fertige/Zone-D-Orders dispatchen zuerst
 - [x] GET+PATCH+DELETE /api/delivery/admin/dispatch-queue (Queue-Snapshot + Health-Metriken + Admin-Boost)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–55 + CEO REVIEW #47 ABGESCHLOSSEN — 2026-06-10
+- [x] driver_performance_snapshots Tabelle (Migration 046)
+- [x] v_driver_leaderboard_today View (Migration 046)
+- [x] v_driver_leaderboard_week View (Migration 046)
+- [x] v_driver_leaderboard_month View (Migration 046)
+- [x] driver-performance.ts (Snapshot Engine: computeAndSaveSnapshot / snapshotAllDriversForLocation / snapshotAllLocations / getLeaderboard / getDriverHistory / getDriverRank)
+- [x] GET+POST /api/delivery/admin/driver-leaderboard (Wochen-/Monats-Leaderboard + manueller Snapshot-Trigger)
+- [x] GET /api/delivery/driver/my-performance (persönlicher Rank + 14-Tage-Trend)
+- [x] DriverHistoricalLeaderboardPanel im Dispatch-Board (Podium Top-3, vollständige Tabelle, Period-Switcher, Snapshot-Trigger)
+- [x] MyPerformanceBadge in Fahrer-App (Wochen-Rang im Delivery-Header)
+- [x] snapshotAllLocations() im Cron-Tick täglich 02:00 UTC (gestrigen Tag snapshotten)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–56 + CEO REVIEW #47 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #47 — 2026-06-10
 

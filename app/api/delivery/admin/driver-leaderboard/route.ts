@@ -1,0 +1,89 @@
+/**
+ * GET  /api/delivery/admin/driver-leaderboard
+ *   ?location_id=...&period=today|week|month&limit=20
+ *   → LeaderboardEntry[] + meta
+ *
+ * POST /api/delivery/admin/driver-leaderboard
+ *   body: { location_id, date? (ISO YYYY-MM-DD) }
+ *   → Snapshot für alle Fahrer dieser Location berechnen + speichern
+ *
+ * Nur für eingeloggte Admins.
+ */
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
+import {
+  getLeaderboard,
+  snapshotAllDriversForLocation,
+  type LeaderboardPeriod,
+} from '@/lib/delivery/driver-performance';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+async function getLocationId(
+  sb: Awaited<ReturnType<typeof createClient>>,
+  queryLocationId: string | null,
+): Promise<string | null> {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return null;
+
+  if (queryLocationId) return queryLocationId;
+
+  const svc = createServiceClient();
+  const { data: emp } = await svc
+    .from('employees')
+    .select('location_id')
+    .eq('auth_user_id', user.id)
+    .single();
+  return (emp?.location_id as string) ?? null;
+}
+
+export async function GET(req: NextRequest) {
+  const sb = await createClient();
+  const { searchParams } = new URL(req.url);
+
+  const locationId = await getLocationId(sb, searchParams.get('location_id'));
+  if (!locationId) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
+
+  const period = (searchParams.get('period') ?? 'week') as LeaderboardPeriod;
+  if (!['today', 'week', 'month'].includes(period)) {
+    return NextResponse.json({ error: 'Ungültiger period-Wert' }, { status: 400 });
+  }
+  const limit = Math.min(Number(searchParams.get('limit') ?? 20), 50);
+
+  const entries = await getLeaderboard(locationId, period, limit);
+
+  return NextResponse.json({
+    period,
+    total: entries.length,
+    entries,
+    generated_at: new Date().toISOString(),
+  });
+}
+
+export async function POST(req: NextRequest) {
+  const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+
+  let body: { location_id?: string; date?: string };
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: 'Ungültiger Body' }, { status: 400 }); }
+
+  const locationId = body.location_id;
+  if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+
+  const date = body.date ? new Date(body.date) : new Date();
+  if (isNaN(date.getTime())) {
+    return NextResponse.json({ error: 'Ungültiges Datum' }, { status: 400 });
+  }
+
+  const result = await snapshotAllDriversForLocation(locationId, date);
+
+  return NextResponse.json({
+    ok: true,
+    date: date.toISOString().slice(0, 10),
+    ...result,
+  });
+}

@@ -30,6 +30,7 @@ import { expireStaleCredits } from '@/lib/delivery/credits';
 import { expireOldBroadcasts } from '@/lib/delivery/messaging';
 import { processAllCustomerNotifications } from '@/lib/delivery/customer-push';
 import { autoCreateIncidentsForRatings } from '@/lib/delivery/incidents';
+import { snapshotAllLocations as snapshotDriverPerformance } from '@/lib/delivery/driver-performance';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -134,6 +135,10 @@ export async function GET(req: NextRequest) {
       processAllCustomerNotifications().catch(() => ({ processed: 0, sent: 0, failed: 0, skipped: 0 })),
       // Incidents: schlechte Bewertungen (≤2★) ohne Incident nachholen (Sicherheitsnetz)
       autoCreateIncidentsForRatings().catch(() => 0),
+      // Driver-Performance-Snapshots täglich um 02:00 UTC: gestrigen Tag für alle Locations
+      isReportTick
+        ? snapshotDriverPerformance().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -203,6 +208,7 @@ export async function GET(req: NextRequest) {
         failed:    customerPushResult.failed,
       },
       incidents_created: incidentsCreated,
+      ...(driverPerfResult ? { driver_performance_snapshots: driverPerfResult } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -42,6 +42,10 @@ import {
   XCircle,
   Trash2,
   GitCommit,
+  Trophy,
+  Star,
+  BarChart2,
+  Calendar,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -842,6 +846,9 @@ export function DispatchBoard({
 
       {/* Fahrer-Schicht-Leaderboard: Stopps, Distanz, ETA-Genauigkeit */}
       <DriverShiftLeaderboard drivers={drivers} batches={batches} />
+
+      {/* Historisches Leaderboard: Wochen-/Monatsranking aus persistenten Snapshots */}
+      <DriverHistoricalLeaderboardPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}
@@ -6377,6 +6384,244 @@ function DispatchQuickAssignBar({
         {pending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
         {pending ? '…' : 'Zuweisen'}
       </button>
+    </div>
+  );
+}
+
+/* ------------------------------ DriverHistoricalLeaderboardPanel ------------------------------ */
+
+type HistoricalLeaderEntry = {
+  rank: number;
+  driverId: string;
+  driverName: string | null;
+  initials: string;
+  toursCompleted: number;
+  stopsCompleted: number;
+  totalDistanceKm: number;
+  avgDeliveryMin: number | null;
+  onTimeRate: number | null;
+  avgRating: number | null;
+  earningsEur: number;
+  activeDays: number;
+};
+
+type LbPeriod = 'today' | 'week' | 'month';
+
+function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string | null }) {
+  const [period, setPeriod] = useState<LbPeriod>('week');
+  const [entries, setEntries] = useState<HistoricalLeaderEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [snapping, setSnapping] = useState(false);
+  const [snapMsg, setSnapMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || !locationId) return;
+    setLoading(true);
+    fetch(`/api/delivery/admin/driver-leaderboard?location_id=${locationId}&period=${period}&limit=20`)
+      .then((r) => r.json())
+      .then((d) => setEntries((d.entries ?? []) as HistoricalLeaderEntry[]))
+      .catch(() => setEntries([]))
+      .finally(() => setLoading(false));
+  }, [open, period, locationId]);
+
+  const triggerSnapshot = async () => {
+    if (!locationId) return;
+    setSnapping(true);
+    setSnapMsg(null);
+    try {
+      const res = await fetch('/api/delivery/admin/driver-leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId }),
+      });
+      const d = await res.json();
+      setSnapMsg(`${d.snapshots ?? 0} Snapshots erstellt`);
+      // Refresh
+      setEntries([]);
+      setLoading(true);
+      fetch(`/api/delivery/admin/driver-leaderboard?location_id=${locationId}&period=${period}&limit=20`)
+        .then((r) => r.json())
+        .then((data) => setEntries((data.entries ?? []) as HistoricalLeaderEntry[]))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    } catch {
+      setSnapMsg('Fehler beim Snapshot');
+    } finally {
+      setSnapping(false);
+    }
+  };
+
+  const PERIOD_LABELS: Record<LbPeriod, string> = { today: 'Heute', week: 'Diese Woche', month: 'Dieser Monat' };
+  const PODIUM_COLORS = ['text-yellow-500', 'text-stone-400', 'text-amber-600'];
+  const PODIUM_SIZES  = ['h-8 w-8 text-lg', 'h-7 w-7 text-base', 'h-6 w-6 text-sm'];
+
+  return (
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <button
+        className="w-full flex items-center gap-2 border-b px-5 py-3 hover:bg-muted/30 transition-colors"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Trophy className="h-4 w-4 text-yellow-500" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider">Historisches Leaderboard</span>
+        <span className="ml-2 text-[10px] text-muted-foreground">Wochen-/Monatsranking</span>
+        <div className="ml-auto flex items-center gap-2">
+          {entries.length > 0 && !loading && (
+            <span className="text-[10px] font-bold text-yellow-600">{entries.length} Fahrer</span>
+          )}
+          {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-4">
+          {/* Period Switcher + Snapshot Button */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {(['today', 'week', 'month'] as LbPeriod[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition',
+                  period === p
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                )}
+              >
+                {p === 'today' && <Calendar className="h-3 w-3" />}
+                {p === 'week'  && <BarChart2 className="h-3 w-3" />}
+                {p === 'month' && <Trophy className="h-3 w-3" />}
+                {PERIOD_LABELS[p]}
+              </button>
+            ))}
+            <button
+              onClick={triggerSnapshot}
+              disabled={snapping}
+              className="ml-auto inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] text-muted-foreground hover:bg-muted/60 disabled:opacity-50 transition"
+            >
+              {snapping ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+              Snapshot jetzt
+            </button>
+          </div>
+
+          {snapMsg && (
+            <p className="text-[11px] text-green-700 bg-green-50 border border-green-200 rounded px-3 py-1.5">{snapMsg}</p>
+          )}
+
+          {loading && (
+            <div className="flex items-center justify-center py-8 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              <span className="text-sm">Lade Leaderboard…</span>
+            </div>
+          )}
+
+          {!loading && entries.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-2">
+              <Trophy className="h-8 w-8 opacity-20" />
+              <p className="text-sm">Noch keine Snapshot-Daten für {PERIOD_LABELS[period]}.</p>
+              <p className="text-[11px]">Klicke &quot;Snapshot jetzt&quot; um Daten zu berechnen.</p>
+            </div>
+          )}
+
+          {!loading && entries.length > 0 && (
+            <>
+              {/* Podium — Top 3 */}
+              {entries.slice(0, 3).length > 0 && (
+                <div className="flex items-end justify-center gap-3 pt-2 pb-4">
+                  {[entries[1], entries[0], entries[2]].filter(Boolean).map((e, podiumIdx) => {
+                    const actualRank = podiumIdx === 0 ? 2 : podiumIdx === 1 ? 1 : 3;
+                    const colorCls  = PODIUM_COLORS[actualRank - 1] ?? 'text-muted-foreground';
+                    const sizeCls   = PODIUM_SIZES[actualRank - 1] ?? 'h-6 w-6';
+                    const heightCls = actualRank === 1 ? 'h-24' : actualRank === 2 ? 'h-20' : 'h-16';
+                    return (
+                      <div key={e.driverId} className="flex flex-col items-center gap-1 min-w-[72px]">
+                        <div className={cn('flex items-center justify-center rounded-full bg-muted font-bold', sizeCls, colorCls)}>
+                          {e.initials}
+                        </div>
+                        <span className="text-[10px] font-semibold text-center truncate max-w-[70px]">
+                          {e.driverName ?? '—'}
+                        </span>
+                        <span className={cn('text-[10px] font-bold', colorCls)}>{e.stopsCompleted} Stopps</span>
+                        <div className={cn('w-full rounded-t-lg bg-muted border', heightCls, actualRank === 1 ? 'bg-yellow-100 border-yellow-300' : actualRank === 2 ? 'bg-stone-100 border-stone-300' : 'bg-amber-50 border-amber-200')}>
+                          <div className="flex items-center justify-center h-full">
+                            <span className={cn('text-lg font-black', colorCls)}>#{actualRank}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Vollständige Tabelle */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-[11px]">
+                  <thead>
+                    <tr className="border-b text-muted-foreground">
+                      <th className="text-left pb-2 pl-1 w-7">#</th>
+                      <th className="text-left pb-2">Fahrer</th>
+                      <th className="text-right pb-2">Stopps</th>
+                      <th className="text-right pb-2">km</th>
+                      <th className="text-right pb-2">Pünktl.</th>
+                      <th className="text-right pb-2">Ø ETA</th>
+                      <th className="text-right pb-2">★</th>
+                      <th className="text-right pb-2 pr-1">€</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {entries.map((e) => (
+                      <tr key={e.driverId} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-1.5 pl-1 font-bold tabular-nums text-muted-foreground">
+                          {e.rank <= 3 ? (
+                            <span className={PODIUM_COLORS[e.rank - 1] ?? ''}>{e.rank}</span>
+                          ) : e.rank}
+                        </td>
+                        <td className="py-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center justify-center rounded-full bg-muted w-5 h-5 text-[9px] font-bold shrink-0">
+                              {e.initials}
+                            </span>
+                            <span className="truncate max-w-[90px] font-medium">{e.driverName ?? '—'}</span>
+                            {e.activeDays > 1 && (
+                              <span className="text-[9px] text-muted-foreground">·{e.activeDays}T</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-1.5 text-right tabular-nums font-semibold">{e.stopsCompleted}</td>
+                        <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.totalDistanceKm.toFixed(1)}</td>
+                        <td className="py-1.5 text-right tabular-nums">
+                          {e.onTimeRate != null ? (
+                            <span className={cn(
+                              'font-semibold',
+                              e.onTimeRate >= 0.9 ? 'text-green-600' : e.onTimeRate >= 0.75 ? 'text-yellow-600' : 'text-red-500',
+                            )}>
+                              {Math.round(e.onTimeRate * 100)}%
+                            </span>
+                          ) : '—'}
+                        </td>
+                        <td className="py-1.5 text-right tabular-nums text-muted-foreground">
+                          {e.avgDeliveryMin != null ? `${Math.round(e.avgDeliveryMin)}'` : '—'}
+                        </td>
+                        <td className="py-1.5 text-right">
+                          {e.avgRating != null ? (
+                            <span className="inline-flex items-center gap-0.5">
+                              <Star className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" />
+                              <span className="tabular-nums">{e.avgRating.toFixed(1)}</span>
+                            </span>
+                          ) : '—'}
+                        </td>
+                        <td className="py-1.5 text-right tabular-nums pr-1 text-green-700 font-semibold">
+                          {e.earningsEur > 0 ? `€${e.earningsEur.toFixed(2)}` : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

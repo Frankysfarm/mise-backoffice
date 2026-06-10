@@ -583,6 +583,7 @@ export function DeliveryView({
                 </span>
               </div>
             )}
+            <MyPerformanceBadge />
             {/* Verzögerung melden — sendet Nachricht an Kunden-Tracking */}
             <button
               onClick={() => setDelayOpen(true)}
@@ -2085,6 +2086,37 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
           style={{ width: `${progressPct}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ MyPerformanceBadge ------------------------------ */
+
+function MyPerformanceBadge() {
+  const [data, setData] = useState<{ rank: number; total: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/my-performance?period=week')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.rank != null && d.total != null) setData({ rank: d.rank, total: d.total });
+      })
+      .catch(() => {});
+  }, []);
+
+  if (!data) return null;
+
+  const isTop3 = data.rank <= 3;
+  return (
+    <div className={cn(
+      'inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold',
+      isTop3
+        ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-200'
+        : 'bg-white/10 border-white/20 text-white/60',
+    )}>
+      {isTop3 && <span>🏆</span>}
+      <span>#{data.rank} von {data.total}</span>
+      <span className="opacity-60">diese Woche</span>
     </div>
   );
 }
