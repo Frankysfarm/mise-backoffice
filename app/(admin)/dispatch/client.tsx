@@ -698,6 +698,9 @@ export function DispatchBoard({
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
 
+      {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
+      {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} />}
+
       {/* Beste nächste Aktion — KI-Empfehlung für Dispatcher */}
       {readyOrders.length > 0 && onlineDrivers.length > 0 && (
         <DispatchNextBestAction
@@ -5713,5 +5716,150 @@ function OpenIncidentsPanel({ locationId }: { locationId: string | null }) {
         </div>
       )}
     </Card>
+  );
+}
+
+/* ------------------------------ ActiveTourRail ------------------------------ */
+
+function ActiveTourRail({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const ACTIVE = new Set(['pickup', 'unterwegs', 'pending_acceptance', 'assigned', 'at_restaurant', 'on_route']);
+  const active = batches.filter((b) => ACTIVE.has(b.status));
+  if (active.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="flex items-center gap-2 border-b px-4 py-2">
+        <GitCommit className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Tour-Schiene · {active.length} aktiv
+        </span>
+      </div>
+      <div className="flex flex-col divide-y">
+        {active.map((b) => {
+          const total = b.stops.length;
+          const done = b.stops.filter((s) => s.geliefert_am).length;
+          const remaining = total - done;
+          const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+          const etaMs = b.startzeit && b.total_eta_min != null
+            ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
+            : null;
+          const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+          const overdue = secLeft !== null && secLeft < 0;
+          const soon = !overdue && secLeft !== null && secLeft < 5 * 60;
+          const finStr = etaMs
+            ? new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+            : null;
+          const driver = drivers.find((d) => d.employee_id === b.fahrer_id || d.aktueller_batch_id === b.id);
+          const driverName = b.fahrer
+            ? `${b.fahrer.vorname.charAt(0)}. ${b.fahrer.nachname}`
+            : driver?.employee?.vorname ?? 'Fahrer';
+
+          const statusColor =
+            pct === 100 ? 'bg-matcha-500' :
+            overdue ? 'bg-red-500' :
+            soon ? 'bg-orange-400' :
+            'bg-matcha-600';
+
+          return (
+            <div key={b.id} className="flex items-center gap-3 px-4 py-2.5">
+              {/* Driver avatar chip */}
+              <div className={cn(
+                'h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-[11px] font-black text-white',
+                pct === 100 ? 'bg-matcha-500' : overdue ? 'bg-red-500' : 'bg-matcha-700',
+              )}>
+                {driverName.charAt(0)}
+              </div>
+
+              {/* Driver + zone */}
+              <div className="min-w-0 w-24 shrink-0">
+                <div className="text-[11px] font-bold truncate">{driverName}</div>
+                {b.zone && (
+                  <span className={cn('text-[9px] font-bold', zoneMeta(b.zone).cls.replace(/bg-\S+/, '').trim())}>
+                    Zone {b.zone}
+                  </span>
+                )}
+              </div>
+
+              {/* Stop dots */}
+              <div className="flex items-center gap-0.5 flex-1 min-w-0">
+                {b.stops
+                  .sort((a, c) => a.reihenfolge - c.reihenfolge)
+                  .slice(0, 8)
+                  .map((s, i) => (
+                    <span
+                      key={s.id}
+                      className={cn(
+                        'inline-flex items-center justify-center rounded-full shrink-0',
+                        s.geliefert_am
+                          ? 'h-4 w-4 bg-matcha-500 text-white text-[8px] font-black'
+                          : i === done
+                          ? 'h-4 w-4 bg-orange-400 text-white text-[8px] font-black animate-pulse ring-1 ring-orange-300 ring-offset-1'
+                          : 'h-4 w-4 bg-muted text-muted-foreground text-[8px]',
+                      )}
+                      title={s.order?.kunde_name ?? `Stopp ${i + 1}`}
+                    >
+                      {s.geliefert_am ? '✓' : i + 1}
+                    </span>
+                  ))
+                }
+                {b.stops.length > 8 && (
+                  <span className="text-[9px] text-muted-foreground ml-1">+{b.stops.length - 8}</span>
+                )}
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-16 shrink-0">
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={cn('h-full rounded-full transition-all', statusColor)}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <div className="text-[9px] text-muted-foreground tabular-nums mt-0.5 text-right">
+                  {done}/{total}
+                </div>
+              </div>
+
+              {/* ETA */}
+              <div className="shrink-0 text-right min-w-[52px]">
+                {secLeft !== null ? (
+                  <>
+                    <div className={cn(
+                      'text-[11px] font-black tabular-nums leading-tight',
+                      overdue ? 'text-red-600' : soon ? 'text-orange-600' : 'text-matcha-700',
+                    )}>
+                      {overdue
+                        ? `+${Math.floor(-secLeft / 60)}m`
+                        : secLeft < 3600
+                        ? `${Math.floor(secLeft / 60)}:${String(secLeft % 60).padStart(2, '0')}`
+                        : finStr ?? '—'}
+                    </div>
+                    {finStr && (
+                      <div className="text-[9px] text-muted-foreground tabular-nums">{finStr}</div>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[9px] text-muted-foreground">—</span>
+                )}
+              </div>
+
+              {/* Distance */}
+              {b.total_distance_km != null && b.total_distance_km > 0 && (
+                <div className="shrink-0 text-[9px] text-muted-foreground tabular-nums min-w-[32px] text-right">
+                  {b.total_distance_km.toFixed(1)} km
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
