@@ -15,6 +15,7 @@
  */
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/server';
+import { getNetActiveMinutes } from '@/lib/delivery/shifts';
 
 // ============================================================
 // Typen
@@ -115,14 +116,14 @@ export async function computeAndSaveSnapshot(
     (sum, b) => sum + (Number(b.total_distance_km) || 0), 0,
   );
 
-  // Active minutes: von Start erste Tour bis Ende letzte Tour (wenn Batches vorhanden)
-  let activeMinutes = 0;
-  if (batches && batches.length > 0) {
+  // Active minutes: aus Schicht-Daten (Netto, Pausen abgezogen) — Migration 047
+  // Fallback: Tour-Zeitspanne wenn keine Schichtdaten vorhanden
+  let activeMinutes = await getNetActiveMinutes(driverId, date).catch(() => 0);
+  if (activeMinutes === 0 && batches && batches.length > 0) {
     const starts = batches.map((b) => new Date(b.created_at as string).getTime());
     const firstStart = Math.min(...starts);
     const lastEnd = new Date(dayEnd).getTime();
     activeMinutes = Math.max(0, Math.round((Math.min(lastEnd, Date.now()) - firstStart) / 60_000));
-    // Cap at 12 Stunden — Sicherheitsmaßnahme bei fehlerhaften Timestamps
     activeMinutes = Math.min(activeMinutes, 720);
   }
 

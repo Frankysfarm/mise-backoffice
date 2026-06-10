@@ -4,6 +4,14 @@
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
 - [x] FahrerRankingCard (Wochen-Ranking im Warte-Zustand)
 - [x] KitchenDispatchPressureChip (Rückstau-Indikator in Küchen-Toolbar)
+- [x] shift_breaks Tabelle (Migration 047)
+- [x] v_shift_break_summary View (Migration 047)
+- [x] v_driver_active_minutes_today View (Migration 047)
+- [x] get_driver_active_minutes() SQL-Funktion (Migration 047)
+- [x] startBreak() / endBreak() / getActiveBreak() / getShiftBreaks() / getBreakSummary() / getNetActiveMinutes() in shifts.ts
+- [x] POST+GET /api/delivery/driver/shift/break (Fahrer startet/beendet Pause)
+- [x] GET+DELETE /api/delivery/admin/shifts/[id]/breaks (Admin-Pausen-Übersicht)
+- [x] computeAndSaveSnapshot() nutzt getNetActiveMinutes() für genaue active_minutes
 - [x] delivery_zones Tabelle
 - [x] delivery_tours Tabelle
 - [x] tour_stops Tabelle
@@ -158,7 +166,7 @@
 - [x] BroadcastPanel im Dispatch-Board (aufklappbar, Normal/Dringend, Löschen)
 - [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–47 + CEO REVIEW #40 ABGESCHLOSSEN — 2026-06-08
+## STATUS: MARKT-REIF ✅ — PHASEN 1–58 + CEO REVIEW #48 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #40 (2026-06-08)
 - TypeScript: 0 Fehler ✅
@@ -2474,6 +2482,13 @@ Siehe DELIVERY_CEO_LOG.md
   - Build: Compiled successfully
 - 2026-05-27: Projekt gestartet, Agenten eingerichtet
 
+- 2026-06-10: Backend-Architekt — Phase 58: Fahrer-Pausen-Tracking (Shift Break Engine)
+  - scripts/migrations/047_shift_breaks.sql: shift_breaks + v_shift_break_summary + v_driver_active_minutes_today + get_driver_active_minutes() SQL-Funktion
+  - lib/delivery/shifts.ts: +6 Funktionen (startBreak/endBreak/getActiveBreak/getShiftBreaks/getBreakSummary/getNetActiveMinutes)
+  - POST+GET /api/delivery/driver/shift/break: Fahrer startet/beendet Pause, holt Zusammenfassung
+  - GET+DELETE /api/delivery/admin/shifts/[id]/breaks: Admin-Pausen-Übersicht + Korrektur-Löschen
+  - driver-performance.ts: computeAndSaveSnapshot() nutzt getNetActiveMinutes() → Pausen von active_minutes abgezogen
+  - Build: ✓ (0 TypeScript-Fehler in neuen Dateien, 0 Warnungen)
 - 2026-06-10: Frontend-Ingenieur — Phase 57: FahrerRankingCard + KitchenDispatchPressureChip
   - FahrerRankingCard: Wochen-Ranking (#Platz/Gesamt), Stops/Touren/km, Trend ↑↓=, Medaillen 🥇🥈🥉
     Erscheint im Warte-Zustand (online, kein aktiver Batch) via /api/delivery/driver/my-performance

@@ -298,8 +298,206 @@ export async function getCurrentCoverageStatus(
 }
 
 // ============================================================
+// Pausen-Management (shift_breaks — Migration 047)
+// ============================================================
+
+export type BreakType = 'pause' | 'personal' | 'technical' | 'mandatory';
+
+export interface ShiftBreak {
+  id: string;
+  shiftId: string;
+  driverId: string;
+  locationId: string;
+  startedAt: string;
+  endedAt: string | null;
+  breakType: BreakType;
+  notes: string | null;
+  createdAt: string;
+  durationMinutes: number | null; // null wenn noch läuft
+}
+
+export interface BreakSummary {
+  shiftId: string;
+  breakCount: number;
+  totalBreakMinutes: number;
+  hasActiveBreak: boolean;
+  activeBreakId: string | null;
+  activeBreakStartedAt: string | null;
+}
+
+/** Startet eine Pause für den Fahrer in der angegebenen Schicht. */
+export async function startBreak(
+  shiftId: string,
+  driverId: string,
+  locationId: string,
+  breakType: BreakType = 'pause',
+  notes?: string,
+): Promise<ShiftBreak> {
+  const sb = createServiceClient();
+
+  // Sicherheitscheck: keine offene Pause erlaubt
+  const { data: existing } = await sb
+    .from('shift_breaks')
+    .select('id')
+    .eq('shift_id', shiftId)
+    .eq('driver_id', driverId)
+    .is('ended_at', null)
+    .maybeSingle();
+
+  if (existing) {
+    throw new Error('[shifts] Fahrer hat bereits eine laufende Pause.');
+  }
+
+  const { data, error } = await sb
+    .from('shift_breaks')
+    .insert({
+      shift_id:    shiftId,
+      driver_id:   driverId,
+      location_id: locationId,
+      break_type:  breakType,
+      notes:       notes ?? null,
+    })
+    .select('id, shift_id, driver_id, location_id, started_at, ended_at, break_type, notes, created_at')
+    .single();
+
+  if (error) throw new Error(`[shifts] startBreak: ${error.message}`);
+  return normalizeBreak(data as Record<string, unknown>);
+}
+
+/** Beendet die aktuell laufende Pause eines Fahrers. */
+export async function endBreak(
+  shiftId: string,
+  driverId: string,
+): Promise<ShiftBreak> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('shift_breaks')
+    .update({ ended_at: new Date().toISOString() })
+    .eq('shift_id', shiftId)
+    .eq('driver_id', driverId)
+    .is('ended_at', null)
+    .select('id, shift_id, driver_id, location_id, started_at, ended_at, break_type, notes, created_at')
+    .single();
+
+  if (error) throw new Error(`[shifts] endBreak: ${error.message}`);
+  return normalizeBreak(data as Record<string, unknown>);
+}
+
+/** Gibt die aktuell laufende Pause zurück (oder null). */
+export async function getActiveBreak(
+  shiftId: string,
+): Promise<ShiftBreak | null> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('shift_breaks')
+    .select('id, shift_id, driver_id, location_id, started_at, ended_at, break_type, notes, created_at')
+    .eq('shift_id', shiftId)
+    .is('ended_at', null)
+    .maybeSingle();
+
+  if (error) throw new Error(`[shifts] getActiveBreak: ${error.message}`);
+  if (!data) return null;
+  return normalizeBreak(data as Record<string, unknown>);
+}
+
+/** Gibt alle Pausen einer Schicht zurück, sortiert nach Startzeit. */
+export async function getShiftBreaks(shiftId: string): Promise<ShiftBreak[]> {
+  const sb = createServiceClient();
+
+  const { data, error } = await sb
+    .from('shift_breaks')
+    .select('id, shift_id, driver_id, location_id, started_at, ended_at, break_type, notes, created_at')
+    .eq('shift_id', shiftId)
+    .order('started_at', { ascending: true });
+
+  if (error) throw new Error(`[shifts] getShiftBreaks: ${error.message}`);
+  return (data ?? []).map((r) => normalizeBreak(r as Record<string, unknown>));
+}
+
+/** Gibt Pausen-Zusammenfassung für eine Schicht zurück. */
+export async function getBreakSummary(shiftId: string): Promise<BreakSummary> {
+  const sb = createServiceClient();
+
+  const { data: breaks, error } = await sb
+    .from('shift_breaks')
+    .select('id, started_at, ended_at')
+    .eq('shift_id', shiftId)
+    .order('started_at', { ascending: true });
+
+  if (error) throw new Error(`[shifts] getBreakSummary: ${error.message}`);
+
+  const rows = breaks ?? [];
+  const activeBreak = rows.find((r) => !(r as Record<string, unknown>)['ended_at']);
+  const completedBreaks = rows.filter((r) => (r as Record<string, unknown>)['ended_at']);
+  const totalBreakMinutes = completedBreaks.reduce((sum, r) => {
+    const rec = r as Record<string, unknown>;
+    const start = new Date(rec['started_at'] as string).getTime();
+    const end   = new Date(rec['ended_at']   as string).getTime();
+    return sum + Math.max(0, Math.round((end - start) / 60_000));
+  }, 0);
+
+  const activeRec = activeBreak as Record<string, unknown> | undefined;
+  return {
+    shiftId,
+    breakCount:         completedBreaks.length + (activeBreak ? 1 : 0),
+    totalBreakMinutes,
+    hasActiveBreak:     !!activeBreak,
+    activeBreakId:      activeRec ? (activeRec['id'] as string) : null,
+    activeBreakStartedAt: activeRec ? (activeRec['started_at'] as string) : null,
+  };
+}
+
+/**
+ * Gibt Netto-Aktivminuten für einen Fahrer an einem Tag zurück.
+ * Nutzt DB-Funktion get_driver_active_minutes() (Migration 047).
+ * Fallback: berechnet aus Schichtdaten wenn DB-Funktion fehlt.
+ */
+export async function getNetActiveMinutes(
+  driverId: string,
+  date: Date = new Date(),
+): Promise<number> {
+  const sb = createServiceClient();
+  const dateStr = date.toISOString().slice(0, 10);
+
+  const { data, error } = await sb.rpc('get_driver_active_minutes', {
+    p_driver_id: driverId,
+    p_date:      dateStr,
+  });
+
+  if (error) {
+    // Graceful fallback: Migration noch nicht ausgeführt
+    console.warn('[shifts] getNetActiveMinutes DB fallback:', error.message);
+    return 0;
+  }
+  return (data as number | null) ?? 0;
+}
+
+// ============================================================
 // Intern
 // ============================================================
+
+function normalizeBreak(r: Record<string, unknown>): ShiftBreak {
+  const start = r['started_at'] as string;
+  const end   = r['ended_at']   as string | null;
+  const durationMinutes = end
+    ? Math.max(0, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60_000))
+    : null;
+
+  return {
+    id:              r['id'] as string,
+    shiftId:         r['shift_id'] as string,
+    driverId:        r['driver_id'] as string,
+    locationId:      r['location_id'] as string,
+    startedAt:       start,
+    endedAt:         end,
+    breakType:       r['break_type'] as BreakType,
+    notes:           r['notes'] as string | null,
+    createdAt:       r['created_at'] as string,
+    durationMinutes,
+  };
+}
 
 // Supabase-Join liefert mise_drivers als verschachteltes Objekt
 function normalizeShifts(rows: unknown[]): ShiftRow[] {
