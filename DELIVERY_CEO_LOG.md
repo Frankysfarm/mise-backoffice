@@ -1,7 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–49 + CEO Review #41 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–51 + CEO Review #42 abgeschlossen. Deployment-bereit.
+
+## Phase 51 — Backend-Architekt-Agent — 2026-06-10
+
+### Was gebaut wurde
+- `scripts/migrations/042_delivery_incidents.sql`:
+  - `delivery_incidents`: Strukturiertes Incident-Tracking (type, severity, status, Audit-Felder, RLS)
+  - `incident_actions`: Chronologisches Aktions-Log pro Incident (created/resolved/escalated/note/...)
+  - `v_open_incidents`: JOIN-View mit Bestellnummer + Fahrername, sortiert nach Severity
+  - `v_incident_stats`: Aggregierte KPIs pro Location (total, open, resolved, by_type, avg_resolution_min, credits_issued)
+- `lib/delivery/incidents.ts`: Incident Management Engine (TypeScript strict, 10 Funktionen)
+  - `createIncidentFromRating(orderId, locationId, rating, comment)`: Auto-Incident für ≤2★ mit Dedup-Guard
+  - `createManualIncident(input)`: Admin erstellt Incident mit Typ / Severity / Beschreibung
+  - `getIncidents(locationId, filters)`: Liste mit Status/Typ/Severity-Filter, Paginierung, Enrichment (Bestellnr., Fahrername)
+  - `getIncident(id, locationId)`: Einzelner Incident mit vollem Aktions-Log
+  - `updateIncident(id, locationId, update, performedBy)`: Felder + automatisches Aktions-Logging bei Status-/Severity-Wechsel
+  - `addIncidentAction(incidentId, locationId, actionType, note)`: Beliebige Aktionen loggen
+  - `resolveIncident(id, locationId, notes, creditId?)`: Auflösen mit Notiz + optionaler Credit-Verlinkung
+  - `escalateIncident(id, locationId, note)`: Severity→high + Status→escalated
+  - `getIncidentStats(locationId)`: v_incident_stats abfragen
+  - `autoCreateIncidentsForRatings()`: Cron-Helfer — scannt Bewertungen ≤2★ der letzten 24h auf fehlende Incidents
+- `app/api/delivery/admin/incidents/route.ts` (GET + POST)
+  - GET `?stats=true` → { stats } aus v_incident_stats
+  - GET `?status=open_all|...&type=...&severity=...&limit=N&offset=N` → { incidents[], total }
+  - POST `{ type, title, severity?, description?, order_id?, driver_id?, customer_* }` → 201 { incident }
+- `app/api/delivery/admin/incidents/[id]/route.ts` (GET + PATCH)
+  - GET → { incident } mit actions[]
+  - PATCH `?action=resolve` → { notes, credit_issued_id? }
+  - PATCH `?action=escalate` → { note }
+  - PATCH `?action=close` → schließt Incident
+  - PATCH `?action=add_note|customer_contacted|driver_contacted` → Aktions-Eintrag
+  - PATCH (kein action) → Feld-Update (status, severity, description, resolution_notes)
+- Integration `lib/delivery/satisfaction.ts`: nach Rating-Insert ≤2★ → `createIncidentFromRating()` fire-and-forget via dynamischem Import
+- Integration `app/api/cron/smart-dispatch/route.ts`: `autoCreateIncidentsForRatings()` parallel im 2-Min-Tick → `incidents_created` in Cron-Response
+
+### TypeScript: 0 Fehler ✅ | next build: ✓ Compiled successfully (176 Seiten) ✅
+
+### Deployment-Checkliste Phase 51
+- [ ] Migration 042 in Supabase Production ausführen (`scripts/migrations/042_delivery_incidents.sql`)
+- [ ] Kein weiterer ENV-Var nötig
+
+---
 
 ## Phase 49 — Backend-Architekt-Agent — 2026-06-09
 
