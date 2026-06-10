@@ -90,7 +90,7 @@ type KitchenTiming = {
 
 /* ------------------------------ Sounds ------------------------------ */
 
-type SoundType = 'new_order' | 'driver_back' | 'order_picked' | 'urgent';
+type SoundType = 'new_order' | 'driver_back' | 'order_picked' | 'urgent' | 'conflict_alert';
 
 function playSound(type: SoundType) {
   try {
@@ -144,6 +144,17 @@ function playSound(type: SoundType) {
         o.connect(g); g.connect(ctx.destination);
         o.start(now); o.stop(now + 0.5);
         break;
+      case 'conflict_alert':
+        // Absteigender 3-Ton — "Handoff-Konflikt: Fahrer zu früh"
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(784, now);
+        o.frequency.setValueAtTime(622, now + 0.13);
+        o.frequency.setValueAtTime(494, now + 0.26);
+        g.gain.setValueAtTime(0.22, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(now); o.stop(now + 0.6);
+        break;
     }
   } catch {}
 }
@@ -183,6 +194,7 @@ export function KitchenBoard({
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
   const [activityFeed, setActivityFeed] = useState<{ id: string; bestellnummer: string; status: string; name: string; ts: number }[]>([]);
   const prevOrderStatuses = useRef<Map<string, string>>(new Map());
+  const prevHandoffConflictCount = useRef(0);
 
   // Für Vergleich zwischen Renders
   const prev = useRef({
@@ -401,6 +413,34 @@ export function KitchenBoard({
       prevTimingStatuses.current.set(t.id, t.status);
     }
   }, [timings, orders, audio]);
+
+  // Handoff-Konflikt Audio-Alert: Fahrer früher als Essen fertig
+  useEffect(() => {
+    if (!audio) return;
+    const now = Date.now();
+    const activeBatches = batches.filter(
+      (b) => b.status === 'unterwegs' || b.status === 'on_route' || b.status === 'assigned' || b.status === 'pickup',
+    );
+    let conflictCount = 0;
+    for (const b of activeBatches) {
+      const etaMs = b.started_at && b.total_eta_min != null
+        ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+        : null;
+      if (!etaMs) continue;
+      const secLeft = Math.floor((etaMs - now) / 1000);
+      if (secLeft > 30 * 60 || secLeft < -5 * 60) continue;
+      for (const s of stops.filter((st) => st.batch_id === b.id && !st.geliefert_am)) {
+        const timing = timings.find((t) => t.order_id === s.order_id);
+        if (!timing?.ready_target) continue;
+        const readyMs = new Date(timing.ready_target).getTime();
+        if (etaMs - readyMs < 0) conflictCount++;
+      }
+    }
+    if (conflictCount > prevHandoffConflictCount.current) {
+      playSound('conflict_alert');
+    }
+    prevHandoffConflictCount.current = conflictCount;
+  }, [batches, stops, timings, audio]);
 
   // Activity-Feed: Überwache Statusübergänge aller Bestellungen
   useEffect(() => {

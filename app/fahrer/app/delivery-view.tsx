@@ -406,7 +406,7 @@ export function DeliveryView({
     setPending(null);
     setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
     // Kurze Verdienst-Bubble anzeigen
-    const kmBonus = stop.distanz_zum_vorgaenger_m != null ? (stop.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
+    const kmBonus = stop?.distanz_zum_vorgaenger_m != null ? (stop.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
     setEarningsBubble({ amount: 1.50 + kmBonus, key: Date.now() });
     setTimeout(() => setEarningsBubble(null), 3000);
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
