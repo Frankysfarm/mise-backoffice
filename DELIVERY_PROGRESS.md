@@ -220,7 +220,7 @@
 - [x] Fahrer-App: Echtzeit-Routenänderungs-Banner (Supabase Realtime auf tour_modifications)
 - [x] Statistiken: Incident-KPI-Block (Offen/Kritisch/Heute gelöst/Gesamt)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–52 + CEO REVIEW #44 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–53 + CEO REVIEW #44 ABGESCHLOSSEN — 2026-06-10
 
 ### CEO Review #44 (2026-06-10)
 - TypeScript: **0 Fehler** ✅
@@ -238,6 +238,40 @@
   - Incidents-API `open_all` Status-Handling korrekt ✅
   - `getTourModifications` IDOR-Schutz via Location-Filter aktiv ✅
   - `assignToDriver` Bridge-Write (RPC → Legacy-Fallback) korrekt ✅
+
+- [x] Phase 53: Legacy-Konsolidierung Phase 1 (Migration 044 + Fahrer-App Priorität)
+
+### Phase 53 — Backend-Architekt — 2026-06-10
+
+#### Was gebaut wurde
+
+- `scripts/migrations/044_legacy_consolidation.sql`:
+  - `ensure_mise_driver(p_employee_id uuid) RETURNS uuid`:
+    Auto-erstellt `mise_drivers`-Eintrag für jeden Fahrer falls noch keiner existiert.
+    Ermöglicht mise-only Dispatch auch für Fahrer ohne bestehenden Mise-Account.
+  - `assign_to_driver()` v2 (Phase 53):
+    Schreibt jetzt ausschließlich in `mise_delivery_batches` (kein `delivery_batches` mehr).
+    `ensure_mise_driver()` wird intern aufgerufen → kein manuelles Onboarding nötig.
+    Response enthält `legacy_batch_id: null` für Rückwärtskompatibilität mit Client-Code.
+    `driver_status.aktueller_batch_id` zeigt jetzt auf `mise_delivery_batches.id`.
+  - Index `idx_mise_batches_driver_state` für schnelle Fahrer-App-Abfragen.
+
+- `app/fahrer/app/page.tsx` (Priority-Flip):
+  - **Vorher**: `const activeBatch = legacyActiveBatch ?? normalizedMiseBatch`
+  - **Nachher**: `const activeBatch = normalizedMiseBatch ?? legacyActiveBatch`
+  - Mise-Batches haben jetzt Vorrang; Legacy-Batches funktionieren weiterhin als Fallback
+    für bereits aktive In-Flight-Lieferungen während der Transition.
+
+#### Invarianten
+- Neue manuelle Dispatches: NUR mise_delivery_batches (kein delivery_batches-Record mehr)
+- Bestehende delivery_batches: unverändert, werden weiter gelesen bis completed
+- dispatch/client.tsx: liest weiterhin beide Systeme (In-Flight-Sichtbarkeit erhalten)
+- v_open_dispatch_batches: Legacy-Union bleibt für Transition (Phase 54: cleanup)
+
+#### Phase 54 (nächste Iteration): Cleanup
+- dispatch/client.tsx: delivery_batches-Query entfernen (wenn alle In-Flight-Batches completed)
+- v_open_dispatch_batches: Legacy-Union entfernen
+- dispatch/client.tsx: Legacy-Fallback-Write in assignToDriver() entfernen
 
 ### CEO Review #43 (2026-06-10)
 - TypeScript: **0 Fehler** ✅

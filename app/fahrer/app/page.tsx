@@ -66,8 +66,8 @@ export default async function FahrerAppPage() {
       })),
   } : null;
 
-  // Legacy-Batch hat Vorrang; Mise-Batch als Fallback
-  const activeBatch = legacyActiveBatch ?? normalizedMiseBatch;
+  // Mise-Batch hat Vorrang (Phase 53: Legacy-Konsolidierung); Legacy als Fallback für In-Flight-Batches
+  const activeBatch = normalizedMiseBatch ?? legacyActiveBatch;
 
   // Offene Mise-Touren (pending_acceptance) -> OpenBatch-Format (Klingeln + Annehmen).
   // Restaurant-Info kommt ueber order.location (mise_delivery_batches hat keine location_id).

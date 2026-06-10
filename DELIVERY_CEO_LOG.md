@@ -1,7 +1,41 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–52 abgeschlossen. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–53 abgeschlossen. Deployment-bereit.
+
+---
+
+## Phase 53 — Backend-Architekt — 2026-06-10
+
+### Legacy-Konsolidierung Phase 1
+
+**Migration 044** (`scripts/migrations/044_legacy_consolidation.sql`):
+- `ensure_mise_driver(p_employee_id uuid)`: Auto-erstellt `mise_drivers` für jeden Fahrer (auto-onboarding)
+- `assign_to_driver()` v2: Schreibt NUR noch in `mise_delivery_batches` (kein `delivery_batches` mehr)
+  - Response: `legacy_batch_id: null` (Rückwärtskompatibilität mit dispatch/client.tsx erhalten)
+  - `driver_status.aktueller_batch_id` → `mise_delivery_batches.id`
+- Index `idx_mise_batches_driver_state` für schnelle Fahrer-App-Abfragen
+
+**Fahrer-App** (`app/fahrer/app/page.tsx`):
+- Priority-Flip: `normalizedMiseBatch ?? legacyActiveBatch` (war: `legacyActiveBatch ?? normalizedMiseBatch`)
+- Mise-Batches haben jetzt Vorrang; Legacy-Batches bleiben als Fallback für In-Flight-Transition
+
+**Build**: ✓ Compiled successfully, 176 Seiten ✅
+
+### Was NICHT geändert wurde (bewusst)
+- `dispatch/client.tsx`: dual-read bleibt (In-Flight-Legacy-Sichtbarkeit für Transition)
+- `v_open_dispatch_batches`: Legacy-Union bleibt (fahrer-app sieht noch alte open batches)
+- Legacy-Fallback-Write in `assignToDriver()` client-seitig: bleibt als Sicherheitsnetz
+
+### Deployment-Checkliste
+- [ ] Migration 044 in Supabase Production ausführen
+- [ ] Migration 043 in Supabase Production ausführen (falls noch ausstehend)
+- [ ] Verifikation: `assign_to_driver` erstellt keine `delivery_batches`-Records mehr
+
+### Phase 54 (Cleanup, wenn alle In-Flight-Legacy-Batches completed)
+- dispatch/client.tsx: `delivery_batches`-Query entfernen
+- v_open_dispatch_batches: Legacy-Union entfernen
+- dispatch/client.tsx: Legacy-Fallback-Write in `assignToDriver()` entfernen
 
 ---
 
