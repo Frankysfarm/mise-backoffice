@@ -932,29 +932,7 @@ export function DeliveryView({
         );
       })()}
 
-      {/* Map — Hero (Drive 07-route: Karte ist der Held) */}
-      <div className="mx-4 mt-2 rounded-2xl overflow-hidden border border-[var(--line)] relative shadow-[0_2px_10px_-6px_rgba(0,0,0,.14)]" style={{ height: 300 }}>
-        <div ref={mapRef} className="w-full h-full" />
-        {!mapReady && (
-          <div className="absolute inset-0 flex items-center justify-center text-[var(--ink-3)] text-sm">
-            <Loader2 className="animate-spin mr-2" size={14} /> Karte lädt…
-          </div>
-        )}
-        {/* Re-center button */}
-        {mapReady && driverLat != null && driverLng != null && (
-          <button
-            onClick={() => {
-              if (leafletMapRef.current && driverLat != null && driverLng != null) {
-                leafletMapRef.current.setView([driverLat, driverLng], 15, { animate: true });
-              }
-            }}
-            className="absolute bottom-2 right-2 z-[1000] h-9 w-9 rounded-xl bg-[var(--surface)]/90 border border-[var(--line)] text-[var(--ink)] flex items-center justify-center backdrop-blur hover:bg-[var(--surface)] active:scale-95 transition"
-            title="Zu meiner Position"
-          >
-            <Navigation size={16} className="text-accent" />
-          </button>
-        )}
-      </div>
+      {/* Karte entfernt (sah im Drive-Look unsauber aus) - Navigation via externem Maps-Link */}
 
       {/* Stops — Restdistanz-Streifen */}
       {openStops.length > 0 && (() => {
