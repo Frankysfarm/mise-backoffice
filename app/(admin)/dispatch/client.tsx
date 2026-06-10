@@ -788,6 +788,9 @@ export function DispatchBoard({
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
 
+      {/* Tour-Gantt: alle aktiven Touren auf 90-Min-Zeitstrahl mit Jetzt-Linie */}
+      {batches.length > 0 && <DispatchTourGantt batches={batches} drivers={drivers} />}
+
       {/* Beste nächste Aktion — KI-Empfehlung für Dispatcher */}
       {readyOrders.length > 0 && onlineDrivers.length > 0 && (
         <DispatchNextBestAction
@@ -6111,6 +6114,175 @@ function ActiveTourRail({ batches, drivers, onSelect }: { batches: Batch[]; driv
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchTourGantt ------------------------------ */
+
+function DispatchTourGantt({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const ACTIVE = new Set(['pickup', 'unterwegs', 'pending_acceptance', 'assigned', 'at_restaurant', 'on_route']);
+  const active = batches.filter((b) => ACTIVE.has(b.status));
+  if (active.length === 0) return null;
+
+  const now = Date.now();
+  const HORIZON_MIN = 90;
+  const horizonMs = HORIZON_MIN * 60_000;
+
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <button
+        onClick={() => setIsOpen((v) => !v)}
+        className="w-full flex items-center gap-2 px-4 py-2 border-b hover:bg-muted/30 transition-colors"
+      >
+        <GitCommit className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="font-display text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Tour-Gantt · {active.length} aktiv · 90 Min
+        </span>
+        <span className="ml-auto text-[10px] text-muted-foreground">{isOpen ? '▲' : '▼'}</span>
+      </button>
+
+      {isOpen && (
+        <div className="p-3 space-y-2">
+          {/* Zeit-Skala */}
+          <div className="flex ml-[88px] mb-1">
+            {Array.from({ length: 7 }, (_, i) => {
+              const tMs = now + i * 15 * 60_000;
+              const label = new Date(tMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+              return (
+                <div key={i} className="flex-1 text-[8px] text-muted-foreground text-left" style={{ width: `${100 / 7}%` }}>
+                  {label}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Touren-Zeilen */}
+          {active.map((b) => {
+            const driver = drivers.find((d) => d.id === b.fahrer_id);
+            const driverName = b.fahrer
+              ? `${b.fahrer.vorname} ${b.fahrer.nachname.charAt(0)}.`
+              : driver
+              ? `${driver.vorname} ${driver.nachname.charAt(0)}.`
+              : 'Unbekannt';
+
+            const total = b.stops.length;
+            const done = b.stops.filter((s) => s.geliefert_am).length;
+            const pct = total > 0 ? (done / total) * 100 : 0;
+
+            // Startzeit der Tour (früheste ETA oder startzeit)
+            const tourStartMs = b.startzeit
+              ? new Date(b.startzeit).getTime()
+              : b.stops[0]?.order?.eta_earliest
+              ? new Date(b.stops[0].order.eta_earliest).getTime() - (b.total_eta_min ?? 30) * 60_000
+              : now - 15 * 60_000;
+
+            // Endzeit der Tour (späteste eta_latest oder total_eta_min)
+            const latestEtas = b.stops
+              .map((s) => s.order?.eta_latest)
+              .filter(Boolean)
+              .map((e) => new Date(e!).getTime());
+            const tourEndMs = latestEtas.length > 0
+              ? Math.max(...latestEtas)
+              : tourStartMs + (b.total_eta_min ?? 45) * 60_000;
+
+            const barStart = Math.max(0, tourStartMs - now);
+            const barEnd = Math.min(horizonMs, tourEndMs - now);
+            const barWidth = Math.max(2, ((barEnd - barStart) / horizonMs) * 100);
+            const barLeft = Math.min(98, (barStart / horizonMs) * 100);
+
+            const isLate = tourEndMs < now;
+            const barColor = isLate
+              ? 'bg-red-400'
+              : pct >= 80
+              ? 'bg-matcha-400'
+              : pct >= 50
+              ? 'bg-blue-400'
+              : 'bg-orange-400';
+
+            // Jetzt-Linie: 0% des Balkenbereichs
+            const nowPct = Math.min(100, ((now - tourStartMs) / Math.max(1, tourEndMs - tourStartMs)) * 100);
+
+            return (
+              <div key={b.id} className="flex items-center gap-2">
+                {/* Fahrername */}
+                <div className="w-[80px] shrink-0 text-[9px] font-semibold text-foreground truncate text-right pr-1">
+                  {driverName}
+                </div>
+
+                {/* Gantt-Balken */}
+                <div className="relative flex-1 h-5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={cn('absolute top-0 h-full rounded-full opacity-80 transition-all duration-500', barColor)}
+                    style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
+                  />
+                  {/* Fortschritt innerhalb des Balkens */}
+                  {barWidth > 0 && (
+                    <div
+                      className="absolute top-0 h-full rounded-full bg-white/30"
+                      style={{ left: `${barLeft}%`, width: `${barWidth * pct / 100}%` }}
+                    />
+                  )}
+                  {/* Jetzt-Linie */}
+                  <div
+                    className="absolute top-0 h-full w-px bg-foreground/60"
+                    style={{ left: `0%` }}
+                  />
+                  {/* Stopp-Markers */}
+                  {b.stops.map((s, i) => {
+                    const stopEta = s.order?.eta_earliest ? new Date(s.order.eta_earliest).getTime() : null;
+                    if (!stopEta) return null;
+                    const markerLeft = Math.min(98, Math.max(1, ((stopEta - now) / horizonMs) * 100));
+                    return (
+                      <div
+                        key={s.id}
+                        className={cn(
+                          'absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full border border-white',
+                          s.geliefert_am ? 'bg-matcha-500' : 'bg-white'
+                        )}
+                        style={{ left: `${markerLeft}%` }}
+                        title={`Stopp ${i + 1}: ${s.order?.kunde_name ?? ''}`}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Progress */}
+                <div className="w-[36px] shrink-0 text-[9px] text-muted-foreground tabular-nums text-right">
+                  {done}/{total}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Legende */}
+          <div className="flex items-center gap-3 pt-1 border-t mt-1">
+            {[
+              { color: 'bg-matcha-400', label: '≥80%' },
+              { color: 'bg-blue-400', label: '≥50%' },
+              { color: 'bg-orange-400', label: '<50%' },
+              { color: 'bg-red-400', label: 'überfällig' },
+            ].map((l) => (
+              <div key={l.label} className="flex items-center gap-1">
+                <div className={cn('h-2 w-3 rounded-sm', l.color)} />
+                <span className="text-[8px] text-muted-foreground">{l.label}</span>
+              </div>
+            ))}
+            <div className="flex items-center gap-1 ml-auto">
+              <div className="h-3 w-px bg-foreground/60" />
+              <span className="text-[8px] text-muted-foreground">Jetzt</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

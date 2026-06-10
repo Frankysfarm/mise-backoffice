@@ -503,6 +503,9 @@ export function KitchenBoard({
       {/* Cooking Load Summary */}
       <CookingLoadPanel orders={filtered} />
 
+      {/* 2h-Fenster-Vorschau: 8×15-Min-Intervalle mit erwarteten Fertigstellungen */}
+      <KitchenFensterForecast orders={filtered} timings={timings} />
+
       {/* Gang-Übersicht: Items nach Gängen für kochende Bestellungen */}
       <GangTimerPanel orders={filtered} />
 
@@ -1663,6 +1666,110 @@ function RushModeBanner({
         >
           <X className="h-4 w-4" />
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenFensterForecast ------------------------------ */
+
+function KitchenFensterForecast({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const now = Date.now();
+  const WINDOW_MIN = 15;
+  const NUM_WINDOWS = 8;
+
+  const windows = Array.from({ length: NUM_WINDOWS }, (_, i) => {
+    const startMs = now + i * WINDOW_MIN * 60_000;
+    const endMs = startMs + WINDOW_MIN * 60_000;
+    const label = new Date(startMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    let count = 0;
+    for (const o of orders) {
+      if (!['bestätigt', 'in_zubereitung'].includes(o.status)) continue;
+      const timing = timings.find((t) => t.order_id === o.id);
+      let estFinishMs: number;
+      if (timing?.status === 'cooking' && timing.ready_target) {
+        estFinishMs = new Date(timing.ready_target).getTime();
+      } else if (timing?.status === 'scheduled' && timing.cook_start_at && timing.prep_min) {
+        estFinishMs = new Date(timing.cook_start_at).getTime() + timing.prep_min * 60_000;
+      } else if (o.bestellt_am) {
+        estFinishMs = new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000;
+      } else {
+        continue;
+      }
+      if (estFinishMs >= startMs && estFinishMs < endMs) count++;
+    }
+    const overdueCount = i === 0
+      ? orders.filter((o) => {
+          if (!['bestätigt', 'in_zubereitung'].includes(o.status)) return false;
+          const t = timings.find((tt) => tt.order_id === o.id);
+          const fin = t?.ready_target
+            ? new Date(t.ready_target).getTime()
+            : o.bestellt_am
+            ? new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000
+            : null;
+          return fin !== null && fin < now;
+        }).length
+      : 0;
+    return { label, count, overdueCount };
+  });
+
+  const maxCount = Math.max(...windows.map((w) => w.count), 1);
+  const total = windows.reduce((s, w) => s + w.count, 0);
+  if (total === 0 && windows[0].overdueCount === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-center gap-2 mb-3">
+        <Clock className="h-4 w-4 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          2h-Fenster · {total} erwartet
+        </span>
+        {windows[0].overdueCount > 0 && (
+          <span className="ml-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-black text-red-700 animate-pulse">
+            {windows[0].overdueCount} überfällig
+          </span>
+        )}
+        <span className="ml-auto text-[10px] text-muted-foreground">15-Min-Intervalle</span>
+      </div>
+      <div className="grid grid-cols-8 gap-1">
+        {windows.map((w, i) => {
+          const height = Math.max(6, Math.round((w.count / maxCount) * 56));
+          const barColor =
+            i === 0 && w.overdueCount > 0
+              ? 'bg-red-500'
+              : w.count >= 4
+              ? 'bg-orange-400'
+              : w.count >= 2
+              ? 'bg-amber-400'
+              : w.count > 0
+              ? 'bg-matcha-400'
+              : 'bg-muted';
+          return (
+            <div key={i} className="flex flex-col items-center gap-0.5">
+              <div className="relative flex items-end h-[56px] w-full">
+                <div
+                  className={cn('w-full rounded-t-sm transition-all duration-500', barColor)}
+                  style={{ height: `${height}px` }}
+                />
+                {i === 0 && w.overdueCount > 0 && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[8px] font-black text-red-600 animate-pulse">
+                    +{w.overdueCount}
+                  </span>
+                )}
+              </div>
+              <span className={cn('text-[8px] font-bold tabular-nums', i === 0 ? 'text-foreground' : 'text-muted-foreground')}>
+                {w.count > 0 ? w.count : '–'}
+              </span>
+              <span className="text-[7px] text-muted-foreground leading-none">{w.label}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
