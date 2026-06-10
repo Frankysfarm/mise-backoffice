@@ -6167,11 +6167,11 @@ function DispatchTourGantt({ batches, drivers }: { batches: Batch[]; drivers: Dr
 
           {/* Touren-Zeilen */}
           {active.map((b) => {
-            const driver = drivers.find((d) => d.id === b.fahrer_id);
+            const driver = drivers.find((d) => d.employee_id === b.fahrer_id);
             const driverName = b.fahrer
               ? `${b.fahrer.vorname} ${b.fahrer.nachname.charAt(0)}.`
-              : driver
-              ? `${driver.vorname} ${driver.nachname.charAt(0)}.`
+              : driver?.employee
+              ? `${driver.employee.vorname} ${driver.employee.nachname.charAt(0)}.`
               : 'Unbekannt';
 
             const total = b.stops.length;

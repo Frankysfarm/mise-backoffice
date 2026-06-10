@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–54 + Frontend-Erweiterungen vollständig abgeschlossen. Bug gefixt (doneAt-Mapping). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–55 vollständig abgeschlossen. Bug gefixt (DispatchTourGantt Driver-Typ). Deployment-bereit.
+
+---
+
+## CEO Review #47 — 2026-06-10
+
+### Geprüfte Commits (2 Commits seit Review #46)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| da68a73 | feat(delivery/frontend): KitchenFensterForecast + DispatchTourGantt | ✅ geprüft, 1 Bug gefixt |
+| d9ffe7c | feat(delivery/backend): Phase 55 — Smart Dispatch Queue Intelligence | ✅ sauber |
+
+### Bug gefixt: DispatchTourGantt — Driver-Typ-Mismatch
+
+**Datei**: `app/(admin)/dispatch/client.tsx:6170–6174`
+
+**Problem**: `DispatchTourGantt` versuchte `d.id` und `driver.vorname/nachname` direkt zu lesen.
+Der `Driver`-Typ (Zeile 52) hat aber kein `.id`-Feld (heißt `employee_id`),
+und Namen stehen in `.employee.vorname/.nachname`.
+
+```
+// ❌ Vor Fix (3 TS2339-Fehler)
+const driver = drivers.find((d) => d.id === b.fahrer_id);
+driver ? `${driver.vorname} ${driver.nachname.charAt(0)}.`
+
+// ✅ Nach Fix
+const driver = drivers.find((d) => d.employee_id === b.fahrer_id);
+driver?.employee ? `${driver.employee.vorname} ${driver.employee.nachname.charAt(0)}.`
+```
+
+**Schwere**: MITTEL — Build lief durch, aber `tsc --noEmit` lieferte 3 Fehler.
+
+### Integrations-Prüfung
+
+**Phase 55 Backend — Queue Intelligence**:
+- SQL `compute_dispatch_priority()` ↔ TypeScript `computeOrderPriority()`: Gewichte identisch ✅
+- `dispatch-engine.ts`: fetcht `dispatch_priority_boost`, `delivery_zone`, `status` → `sortByPriority()` korrekt eingebunden ✅
+- API `GET/PATCH/DELETE /api/delivery/admin/dispatch-queue`: Auth-Guard + Multi-Tenant-Guard korrekt ✅
+- FIFO-Tiebreaker bei gleichem Score: Starvation ausgeschlossen ✅
+
+**Phase 55 Frontend — Fenster-Forecast + Tour-Gantt**:
+- `KitchenFensterForecast`: 8×15-Min-Fenster, überfällige Orders in Fenster 0 rot+pulsierend, null-safe ✅
+- `DispatchTourGantt`: 90-Min-Zeitstrahl, Gantt-Balken-Positionierung via `barLeft/barWidth %`, Farben nach Fortschritt korrekt, null-safe ✅
+
+### Build-Status
+- `tsc --noEmit`: **0 Fehler** ✅ (nach Fix)
+- `next build`: **sauber** ✅
 
 ---
 

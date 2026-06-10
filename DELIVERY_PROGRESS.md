@@ -237,7 +237,25 @@
 - [x] dispatch-engine.ts: smartDispatchTick() nutzt jetzt sortByPriority() statt FIFO — VIP/Express/fertige/Zone-D-Orders dispatchen zuerst
 - [x] GET+PATCH+DELETE /api/delivery/admin/dispatch-queue (Queue-Snapshot + Health-Metriken + Admin-Boost)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–55 + CEO REVIEW #46 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–55 + CEO REVIEW #47 ABGESCHLOSSEN — 2026-06-10
+
+### CEO Review #47 — 2026-06-10
+
+**2 neue Commits geprüft** (Phase 55 Frontend + Backend):
+
+**1 Bug gefixt** (MITTEL — TypeScript):
+- `DispatchTourGantt` in `app/(admin)/dispatch/client.tsx:6170–6174`
+- `d.id` → `d.employee_id` (Driver-Typ hat kein `.id`, nur `.employee_id`)
+- `driver.vorname/nachname` → `driver.employee?.vorname/nachname` (Namen sind nested)
+- Ohne Fix: `next build` kompiliert, aber `tsc --noEmit` wirft 3 TS2339-Fehler
+- Nach Fix: 0 TypeScript-Fehler ✅
+
+**Phase 55 Frontend geprüft**:
+- `KitchenFensterForecast`: 8×15-Min-Fenster korrekt berechnet, überfällige Bestellungen korrekt identifiziert, Timer-Refresh alle 30s ✅
+- `DispatchTourGantt`: 90-Min-Zeitstrahl korrekt, Fortschritts-% stimmt (done/total), Gantt-Balken-Positionierung korrekt (barLeft/barWidth in %), Timer-Refresh alle 15s ✅
+- Beide Komponenten sind null-safe (return null wenn keine Daten) ✅
+
+**Build nach Fix**: TypeScript 0 Fehler ✅ · `next build` sauber ✅
 
 ### Phase 55 — Backend-Architekt — 2026-06-10
 
