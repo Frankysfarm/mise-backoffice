@@ -202,18 +202,22 @@
 - [x] Auto-Incident bei Bewertung ≤2★ (fire-and-forget in submitCustomerRating)
 - [x] autoCreateIncidentsForRatings() im Cron-Tick (Sicherheitsnetz, jeder Tick)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–51 + 2026-06-10 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–51 + CEO REVIEW #42 ABGESCHLOSSEN — 2026-06-10
 
-### CEO Review #42 (2026-06-09)
-- TypeScript: 0 Fehler ✅
-- Build: next build sauber ✅
-- Frontend-Erweiterungen: Kitchen Timing-Sync + Fahrer ETA-Countdown ✅
-- [x] Kitchen OrderTicket: Timing-synchronisierter Advance-Button (ruft markTimingReady wenn Timing cooking & Bestellung auf fertig gesetzt wird)
-- [x] Kitchen OrderTicket: Rote „Jetzt fertig!"-Variante mit Flame-Icon wenn Timing überfällig (remainingSec ≤ 0)
-- [x] Kitchen OrderTicket: Grüne Variante wenn Timing fast fertig (remainingSec ≤ 60s)
-- [x] Fahrer Pick-Phase: ETA-Anzeige pro Stop jetzt „~X Min (15:30)" statt nur „~15:30"
-- [x] Fahrer Pick-Phase: Orange ETA-Chip wenn Lieferzeit ≤ 10 Min verbleibend
-- [x] Fahrer Pick-Phase: Rote ETA-Chip + „X m verspätet" wenn ETA schon überschritten
+### CEO Review #42 (2026-06-10)
+- TypeScript: 2 Fehler gefunden → **0 Fehler nach Fix** ✅
+- Build: next build sauber, 176 Seiten ✅
+- 8 neue Commits geprüft: Phase 49 + Phase 51 + 6 Frontend-Extensions ✅
+- Bugs gefixt: 2× TS-Fehler in `statistics-view.tsx` (`.then()`-Callback-Typ + Recharts `formatter`-Typ) ✅
+- [x] Phase 49: Customer Push Notification Engine (Webhook, HMAC-SHA256, Retry-Queue) ✅
+- [x] Phase 51: Incident Management Engine (10 Funktionen, Auto-Incident bei ≤2★) ✅
+- [x] Kitchen Timing-synchronisierter Advance-Button (markTimingReady on fertig-Step) ✅
+- [x] Kitchen Kochstart-Chip als interaktiver Button (scheduled → startCookingNow) ✅
+- [x] Fahrer ETA-Countdown: „~X Min (15:30)", Orange/Rot-Eskalation ✅
+- [x] Fahrer Resume-Reload: visibilitychange-Listener nach CallKit-Anruf ✅
+- [x] CallKit Accept-Tour Endpoint: Bearer+Cookie Dual-Auth ✅
+- [x] Fahrer Verdienst-Schätzung + 7-Tage-Verlauf BarChart ✅
+- [x] ETA-Verbesserungs-Banner: 60s-Schwelle, 6s Auto-Dismiss ✅
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–49 + CEO REVIEW #41 ABGESCHLOSSEN — 2026-06-09
 
