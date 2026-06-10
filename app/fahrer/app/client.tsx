@@ -398,6 +398,18 @@ export function FahrerApp({
     });
   }
 
+  // Order WAEHREND aktiver Tour annehmen -> in aktiven Batch mergen (F4, 10-incoming-on-tour)
+  async function acceptDuringTour(orderBatchId: string) {
+    if (!activeBatch) return;
+    startTransition(async () => {
+      await supabase.rpc('merge_mise_order_into_active_batch', {
+        p_active_batch_id: activeBatch.id,
+        p_order_batch_id: orderBatchId,
+      });
+      window.location.reload();
+    });
+  }
+
   // F3: Tour ablehnen -> zurueck in den Pool / an naechsten Fahrer
   async function declineBatch(batchId: string) {
     setDecliningBatch(batchId);
@@ -568,6 +580,24 @@ export function FahrerApp({
                 </div>
               </>
             )}
+          </section>
+        )}
+
+        {/* Neue Order WAEHREND der Tour — Drive 10-incoming-on-tour: "+ Dazunehmen" */}
+        {activeBatch && isOnline && openBatches.filter((b) => b.source_system === 'mise').length > 0 && (
+          <section style={{ marginBottom: 16 }}>
+            {openBatches.filter((b) => b.source_system === 'mise').map((b) => (
+              <div key={b.batch_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, background: 'var(--accent-tint)', borderRadius: 16, marginBottom: 8, boxShadow: 'inset 0 0 0 1.5px var(--accent)' }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <DIcon name="bell" size={20} stroke={2} style={{ color: 'var(--accent)' }} className="ring-anim" />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>Neue Bestellung <span className="mono" style={{ color: 'var(--ink-2)' }}>#{(b.bestellnummer || '').slice(-4)}</span></div>
+                  <div style={{ fontSize: 12.5, color: 'var(--ink-2)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.kunde_name} · {b.kunde_adresse}</div>
+                </div>
+                <Btn size="sm" full={false} onClick={() => acceptDuringTour(b.batch_id)} disabled={pending} icon="plus">Dazunehmen</Btn>
+              </div>
+            ))}
           </section>
         )}
 
