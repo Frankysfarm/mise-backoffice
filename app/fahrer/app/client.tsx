@@ -101,6 +101,14 @@ export function FahrerApp({
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
+
+  // Live-Tick: sorgt dafür, dass ETA-Countdowns in Stopp-Liste jede Sekunde neu berechnet werden
+  const [, setLiveTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setLiveTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   const gpsWatchRef = useRef<number | null>(null);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
@@ -522,6 +530,27 @@ export function FahrerApp({
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-matcha-300">{activeBatch.stops.length} {activeBatch.stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                {/* Live Tour-ETA: nächster frühester Kundentermin */}
+                {(() => {
+                  const nextEta = activeBatch.stops
+                    .map((s) => (s.order as any).eta_earliest as string | null)
+                    .filter(Boolean)
+                    .map((d) => new Date(d!).getTime())
+                    .sort((a, b) => a - b)[0] ?? null;
+                  if (!nextEta) return null;
+                  const secLeft = Math.floor((nextEta - Date.now()) / 1000);
+                  const isOverdue = secLeft < 0;
+                  const mm = Math.abs(Math.floor(secLeft / 60));
+                  const ss = Math.abs(secLeft % 60);
+                  return (
+                    <span className={cn(
+                      'rounded-full px-2 py-0.5 text-[9px] font-black tabular-nums',
+                      isOverdue ? 'bg-red-500/30 text-red-200 animate-pulse' : secLeft < 600 ? 'bg-orange-500/30 text-orange-200' : 'bg-accent/20 text-accent',
+                    )}>
+                      ⏰ {isOverdue ? '-' : ''}{mm}:{String(ss).padStart(2, '0')}
+                    </span>
+                  );
+                })()}
                 <span className="font-display font-bold text-accent">
                   {euro(activeBatch.stops.reduce((s, st) => s + st.order.gesamtbetrag, 0))}
                 </span>

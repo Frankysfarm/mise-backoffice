@@ -463,6 +463,11 @@ export function KitchenBoard({
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
+      {/* 30-Minuten Fertigstellungs-Zeitleiste: alle aktiven Orders auf einem Zeitstrahl */}
+      {filtered.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
+        <KitchenPrepTimelineBar orders={filtered} timings={timings} />
+      )}
+
       {/* Fahrer am Restaurant Alert */}
       <KitchenDriverAtRestaurantAlert batches={batches} drivers={drivers} stops={stops} orders={orders} />
 
@@ -5197,6 +5202,127 @@ function KitchenHandoffMatrix({
             <span className="text-[9px] text-muted-foreground">{label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---- KitchenPrepTimelineBar ---- */
+/* 30-Min-Fenster: alle kochenden/bestätigten Orders als farbige Punkte auf einem Zeitstrahl */
+function KitchenPrepTimelineBar({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const windowMs = 30 * 60_000;
+  const windowStart = now;
+  const windowEnd = now + windowMs;
+
+  const active = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (active.length === 0) return null;
+
+  type TimeSlot = {
+    order: Order;
+    readyMs: number;
+    isOverdue: boolean;
+    stationCls: string;
+    stationName: string;
+  };
+
+  const slots: TimeSlot[] = active.map((o) => {
+    const timing = timings.find((t) => t.order_id === o.id);
+    const readyMs = timing?.ready_target
+      ? new Date(timing.ready_target).getTime()
+      : o.bestellt_am
+        ? new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000
+        : now + 15 * 60_000;
+    const mainItem = (o.items?.[0]?.name ?? '').toLowerCase();
+    const stationCls =
+      /burger|steak|schnitzel|grill|bbq|wrap|kebab/.test(mainItem) ? 'bg-orange-500' :
+      /suppe|pasta|curry|bowl|wok|ramen/.test(mainItem)             ? 'bg-red-500' :
+      /salat|dessert|getränk|cola|wasser/.test(mainItem)            ? 'bg-sky-500' :
+      'bg-matcha-500';
+    const stationName =
+      /burger|steak|schnitzel|grill|bbq|wrap|kebab/.test(mainItem) ? 'Grill' :
+      /suppe|pasta|curry|bowl|wok|ramen/.test(mainItem)             ? 'Warm' :
+      /salat|dessert|getränk|cola|wasser/.test(mainItem)            ? 'Kalt' :
+      'Sonstiges';
+    return { order: o, readyMs, isOverdue: readyMs < now, stationCls, stationName };
+  }).sort((a, b) => a.readyMs - b.readyMs);
+
+  return (
+    <div className="rounded-xl border bg-card px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Fertigstellungs-Zeitstrahl · nächste 30 Min
+        </span>
+        <span className="text-[9px] text-muted-foreground tabular-nums">
+          {new Date(windowStart).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+          {' – '}
+          {new Date(windowEnd).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+
+      <div className="relative h-10 bg-muted/40 rounded-lg overflow-visible border border-border/50">
+        {[5, 10, 15, 20, 25].map((m) => (
+          <div key={m} className="absolute top-0 bottom-0 flex flex-col items-center" style={{ left: `${(m / 30) * 100}%`, transform: 'translateX(-50%)' }}>
+            <div className="h-full w-px bg-border/40" />
+            <span className="absolute -bottom-4 text-[8px] text-muted-foreground tabular-nums whitespace-nowrap">{m}&apos;</span>
+          </div>
+        ))}
+        <div className="absolute top-0 bottom-0 w-0.5 bg-red-500/70 z-10" style={{ left: 0 }}>
+          <span className="absolute -top-4 -left-2 text-[8px] font-black text-red-600 whitespace-nowrap">JETZT</span>
+        </div>
+        {slots.map((slot) => {
+          const pct = Math.min(100, Math.max(0, ((slot.readyMs - windowStart) / windowMs) * 100));
+          const inWindow = slot.readyMs >= windowStart && slot.readyMs <= windowEnd;
+          if (!inWindow && !slot.isOverdue) return null;
+          const leftPct = slot.isOverdue ? 0 : pct;
+          const minLeft = Math.round((slot.readyMs - now) / 60_000);
+          return (
+            <div
+              key={slot.order.id}
+              className="absolute z-20"
+              style={{ left: `${leftPct}%`, top: '50%', transform: 'translate(-50%, -50%)' }}
+              title={`${slot.order.bestellnummer} · ${slot.order.kunde_name} · ${Math.abs(minLeft)} Min`}
+            >
+              <div className={cn(
+                'h-6 w-6 rounded-full border-2 border-white shadow-md flex items-center justify-center text-[8px] font-black text-white',
+                slot.isOverdue ? 'bg-red-500 animate-pulse' : slot.stationCls,
+              )}>
+                {slot.order.bestellnummer.slice(-2)}
+              </div>
+              <div className={cn(
+                'absolute top-7 left-1/2 -translate-x-1/2 text-[7px] font-bold tabular-nums whitespace-nowrap',
+                slot.isOverdue ? 'text-red-600' : 'text-muted-foreground',
+              )}>
+                {slot.isOverdue ? `+${Math.abs(minLeft)}m` : `${minLeft}m`}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mt-5">
+        {[['bg-orange-500', 'Grill'], ['bg-red-500', 'Warm'], ['bg-sky-500', 'Kalt'], ['bg-matcha-500', 'Sonstiges']].map(([cls, name]) => {
+          const count = slots.filter((s) => s.stationName === name).length;
+          if (count === 0) return null;
+          return (
+            <div key={name} className="flex items-center gap-1">
+              <div className={cn('h-2 w-2 rounded-full shrink-0', cls)} />
+              <span className="text-[9px] text-muted-foreground">{name} ({count})</span>
+            </div>
+          );
+        })}
+        {slots.filter((s) => s.isOverdue).length > 0 && (
+          <span className="text-[9px] font-bold text-red-600 flex items-center gap-1">
+            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            {slots.filter((s) => s.isOverdue).length} überzogen
+          </span>
+        )}
       </div>
     </div>
   );

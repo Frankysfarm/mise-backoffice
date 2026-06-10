@@ -730,6 +730,51 @@ export function LieferdienstClient() {
                   </div>
                 )
               })()}
+              {/* Schicht-Ziellinie: Fortschritt gegenüber geschätztem Schichtziel */}
+              {(() => {
+                const allToday = [...orders, ...completedOrders]
+                if (allToday.length < 2 || schichtMinutes < 10) return null
+                // Projektion: aktuelles Tempo × verbleibende Zeit bis Schichtende (8h)
+                const schichtDauerMin = 8 * 60
+                const zielBestellungen = Math.round((allToday.length / schichtMinutes) * schichtDauerMin)
+                const fortschrittPct = Math.min(100, Math.round((schichtMinutes / schichtDauerMin) * 100))
+                const done = completedOrders.filter(o => o.status === 'done')
+                const onTime = done.filter(o => {
+                  const accepted = (o as any).acceptedAt
+                  const doneAt = (o as any).doneAt
+                  if (!accepted || !doneAt) return false
+                  const min = (new Date(doneAt).getTime() - new Date(accepted).getTime()) / 60_000
+                  return min <= 20
+                }).length
+                const onTimePct = done.length > 0 ? Math.round((onTime / done.length) * 100) : null
+                return (
+                  <div className="mb-4 rounded-xl bg-white border border-stone-200 px-4 py-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black uppercase tracking-wider text-stone-400">Schichtfortschritt</span>
+                      <span className="text-[9px] text-stone-400 tabular-nums">
+                        {schichtHours > 0 ? `${schichtHours}h ` : ''}{schichtRestMin}m / 8h
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-stone-100 overflow-hidden mb-2">
+                      <div
+                        className={`h-full rounded-full transition-all ${fortschrittPct >= 75 ? 'bg-emerald-500' : fortschrittPct >= 40 ? 'bg-amber-400' : 'bg-stone-300'}`}
+                        style={{ width: `${fortschrittPct}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-stone-500">
+                        Projektion: <span className="font-black text-char">{zielBestellungen}</span> Bestellungen heute
+                      </span>
+                      {onTimePct !== null && (
+                        <span className={`font-black ${onTimePct >= 80 ? 'text-emerald-700' : onTimePct >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+                          {onTimePct}% pünktlich
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
+
               {/* Live-Lieferungs-Statusbar */}
               {(() => {
                 const activeDrivers = drivers.filter(d => d.status !== 'offline')

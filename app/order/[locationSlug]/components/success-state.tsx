@@ -51,6 +51,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
 
   const [itemsOpen, setItemsOpen] = React.useState(false);
   const [secsLeft, setSecsLeft] = React.useState(etaMinutes * 60);
+  // Live-Ticker: zählt Sekunden seit letztem GPS-Update hoch
+  const [driverPosUpdatedAt, setDriverPosUpdatedAt] = React.useState<number | null>(null);
+  const [gpsStaleSeconds, setGpsStaleSeconds] = React.useState(0);
   const [etaWindow, setEtaWindow] = React.useState<{ earliest: string; latest: string } | null>(null);
   const [liveStatus, setLiveStatus] = React.useState<string>('bestätigt');
   const [statusFlash, setStatusFlash] = React.useState(false);
@@ -169,12 +172,20 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         const res = await fetch(`/api/delivery/orders/${orderId}/tracking`);
         if (!res.ok || cancelled) return;
         const d = await res.json();
-        if (d?.driver?.lat != null) setDriverPos(d.driver);
+        if (d?.driver?.lat != null) {
+          setDriverPos(d.driver);
+          setDriverPosUpdatedAt(Date.now());
+          setGpsStaleSeconds(0);
+        }
       } catch {}
     };
     poll();
     const iv = setInterval(poll, 15_000);
-    return () => { cancelled = true; clearInterval(iv); };
+    // Sekunden-Ticker für Aktualitätsanzeige
+    const staleTick = setInterval(() => {
+      setGpsStaleSeconds((s) => s + 1);
+    }, 1000);
+    return () => { cancelled = true; clearInterval(iv); clearInterval(staleTick); };
   }, [orderId, isDelivery, liveStatus]);
 
   // Leaflet mini-map: init on first driver position, then pan on updates
@@ -328,8 +339,19 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
               </span>
               <span className="text-[10px] font-bold text-accent">Fahrer live</span>
-              {driverPos.seconds_stale > 30 && (
-                <span className="text-[9px] text-matcha-400">· {Math.floor(driverPos.seconds_stale / 60)}m alt</span>
+              {/* Live-Aktualitätsanzeige: wie viele Sekunden ist das GPS-Signal alt? */}
+              {gpsStaleSeconds < 5 ? (
+                <span className="text-[9px] text-accent font-bold">· gerade jetzt</span>
+              ) : gpsStaleSeconds < 30 ? (
+                <span className="text-[9px] text-matcha-300">· vor {gpsStaleSeconds}s</span>
+              ) : (
+                <span className="text-[9px] text-matcha-400">· vor {Math.floor(gpsStaleSeconds / 60)}m</span>
+              )}
+              {driverPosUpdatedAt && gpsStaleSeconds < 5 && (
+                <span className="relative flex h-1.5 w-1.5 shrink-0 ml-0.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent" />
+                </span>
               )}
             </div>
           </div>

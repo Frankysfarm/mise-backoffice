@@ -1835,6 +1835,51 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
         </Card>
       )}
 
+      {/* Wartezeit-Ampel: Wie lange warten fertige Bestellungen auf Abholung? */}
+      {orders.filter((o) => o.fertig_am).length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="h-4 w-4 text-matcha-600" />
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Wartezeit-Ampel</div>
+          </div>
+          {(() => {
+            const withWait = orders.filter((o) => o.fertig_am);
+            const fresh  = withWait.filter((o) => (Date.now() - new Date(o.fertig_am!).getTime()) < 5 * 60_000);
+            const medium = withWait.filter((o) => { const m = (Date.now() - new Date(o.fertig_am!).getTime()) / 60_000; return m >= 5 && m < 10; });
+            const old    = withWait.filter((o) => (Date.now() - new Date(o.fertig_am!).getTime()) >= 10 * 60_000);
+            const maxWaitMin = withWait.length > 0
+              ? Math.round(Math.max(...withWait.map((o) => (Date.now() - new Date(o.fertig_am!).getTime()) / 60_000)))
+              : 0;
+            const rows = [
+              { label: '<5 Min',  count: fresh.length,  cls: 'bg-matcha-500', textCls: 'text-matcha-700' },
+              { label: '5–10 Min', count: medium.length, cls: 'bg-orange-400', textCls: 'text-orange-700' },
+              { label: '>10 Min', count: old.length,    cls: 'bg-red-500',    textCls: 'text-red-700' },
+            ];
+            return (
+              <div className="space-y-2">
+                {rows.map((r) => (
+                  <div key={r.label} className="flex items-center gap-2">
+                    <span className="w-14 text-right text-[9px] font-bold text-muted-foreground tabular-nums shrink-0">{r.label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-full transition-all', r.cls)}
+                        style={{ width: withWait.length > 0 ? `${(r.count / withWait.length) * 100}%` : '0%' }}
+                      />
+                    </div>
+                    <span className={cn('w-4 text-[10px] font-black tabular-nums shrink-0', r.textCls)}>{r.count}</span>
+                  </div>
+                ))}
+                {maxWaitMin > 0 && (
+                  <div className={cn('mt-1.5 text-[9px] text-right tabular-nums font-bold', maxWaitMin >= 10 ? 'text-red-600' : 'text-muted-foreground')}>
+                    Längste Wartezeit: {maxWaitMin} Min
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </Card>
+      )}
+
       {/* Score-Verteilung Histogramm */}
       {scored.length >= 2 && (
         <Card className="p-4 sm:col-span-2 lg:col-span-4">
