@@ -28,6 +28,7 @@ import { enqueueBatchPush } from './push-notify';
 import { logEtaPrediction } from './eta-calibration';
 import { recordCustomerEvent } from './customer-notify';
 import { markWindowDispatched } from './windows';
+import { sortByPriority } from './queue-intelligence';
 import type { ZoneName } from './zones';
 
 export interface DispatchResult {
@@ -56,6 +57,9 @@ interface OrderRow {
   dispatch_attempts: number;
   dispatch_escalated_at: string | null;
   schedule_status: 'scheduled' | 'released' | 'immediate' | null;
+  delivery_zone?: string | null;
+  dispatch_priority_boost?: number;
+  status?: string | null;
 }
 
 interface LocationRow {
@@ -107,9 +111,9 @@ export async function smartDispatchTick(): Promise<{
   escalated: number;
   results: DispatchResult[];
 }> {
-  const { data: orders } = await sb()
+  const { data: rawOrders } = await sb()
     .from('customer_orders')
-    .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at, schedule_status')
+    .select('id, location_id, status, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at, schedule_status, delivery_zone, dispatch_priority_boost')
     .eq('typ', 'lieferung')
     .is('mise_batch_id', null)
     .in('status', ['neu', 'in_zubereitung', 'fertig'])
@@ -118,10 +122,13 @@ export async function smartDispatchTick(): Promise<{
     .order('created_at', { ascending: true })
     .limit(50);
 
+  // Phase 55: Smart Priority Queue — VIP/Express/fertige/Zone-D-Orders zuerst
+  const orders = sortByPriority((rawOrders ?? []) as OrderRow[]);
+
   const results: DispatchResult[] = [];
   const now = new Date().toISOString();
 
-  for (const o of orders ?? []) {
+  for (const o of orders) {
     const row = o as OrderRow;
     // Eskalations-Radius: nach ≥3 Versuchen Radius um 50% erweitern
     const radiusFactor = row.dispatch_attempts >= 3 ? 1.5 : 1.0;

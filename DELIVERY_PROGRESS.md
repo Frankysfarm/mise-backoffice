@@ -229,7 +229,65 @@
 - [x] Phase 54: Kitchen Handoff-Konflikt Audio-Alert (neuer conflict_alert SoundType, absteigender 3-Ton)
 - [x] Bugfix: delivery-view.tsx stop?.distanz_zum_vorgaenger_m (TS18048 undefined guard)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–54 + CEO REVIEW #46 ABGESCHLOSSEN — 2026-06-10
+- [x] dispatch_priority_boost Spalte auf customer_orders (Migration 045)
+- [x] compute_dispatch_priority() SQL-Funktion (Komposit-Score 0–100: Priorität + Status + Zone + Wartezeit + Eskalation + Boost)
+- [x] v_dispatch_priority_queue View (geordnete Queue aller wartenden Lieferbestellungen)
+- [x] Performance-Indizes für Priority-Queue-Abfragen (Migration 045)
+- [x] lib/delivery/queue-intelligence.ts (computeOrderPriority / computeOrderPriorityBreakdown / sortByPriority / getDispatchQueue / boostOrderPriority / resetOrderBoost / getQueueHealth)
+- [x] dispatch-engine.ts: smartDispatchTick() nutzt jetzt sortByPriority() statt FIFO — VIP/Express/fertige/Zone-D-Orders dispatchen zuerst
+- [x] GET+PATCH+DELETE /api/delivery/admin/dispatch-queue (Queue-Snapshot + Health-Metriken + Admin-Boost)
+
+## STATUS: MARKT-REIF ✅ — PHASEN 1–55 + CEO REVIEW #46 ABGESCHLOSSEN — 2026-06-10
+
+### Phase 55 — Backend-Architekt — 2026-06-10
+
+#### Was gebaut wurde
+
+**Problem**: `smartDispatchTick()` dispatcht Bestellungen in reiner FIFO-Reihenfolge (`ORDER BY created_at ASC`). Eine normale Bestellung, die 5 Minuten früher bestellt wurde, blockiert eine Express-Bestellung oder eine bereits fertig gekochte VIP-Bestellung.
+
+**Lösung: Smart Dispatch Queue Intelligence**
+
+**scripts/migrations/045_dispatch_queue_intelligence.sql**:
+- `dispatch_priority_boost integer DEFAULT 0` auf `customer_orders`: Admin-Override-Spalte
+- `compute_dispatch_priority(p_order_id uuid) RETURNS integer`: SQL-Funktion 0–100
+  - express=40 / vip=35 / rush=20 / normal=0 (Bestellpriorität)
+  - fertig=25 / in_zubereitung=10 / neu=0 (Küchenstatus)
+  - Zone D=12 / C=8 / B=4 / A=0 (Zonen-Dringlichkeit)
+  - +1 je 2 Min Wartezeit, max 15 (Zeit-Faktor)
+  - +20 wenn `dispatch_escalated_at` gesetzt (Eskalations-Boost)
+  - +COALESCE(dispatch_priority_boost, 0) (Admin-Override)
+- `v_dispatch_priority_queue`: View aller wartenden Orders, sortiert nach Score DESC, FIFO als Tiebreaker
+- Indizes: `idx_orders_priority_queue` + `idx_orders_priority_boost`
+
+**lib/delivery/queue-intelligence.ts** (neu):
+- `computeOrderPriority(order)`: TypeScript-Mirror der SQL-Funktion, ohne DB-Zugriff — O(1)
+- `computeOrderPriorityBreakdown(order)`: vollständiger Score-Breakdown (für Dashboard)
+- `sortByPriority(orders)`: Array in-place sortieren nach Priority DESC, FIFO als Tiebreaker
+- `getDispatchQueue(locationId, limit?)`: lädt aus `v_dispatch_priority_queue` + berechnet Breakdowns
+- `boostOrderPriority(orderId, locationId, boost)`: setzt `dispatch_priority_boost` (0–50, Multi-Tenant-Guard)
+- `resetOrderBoost(orderId, locationId)`: setzt Boost auf 0
+- `getQueueHealth(locationId)`: Aggregat-Metriken — total_waiting, avg_wait_min, max_wait_min, score_buckets, by_status/zone/priority, escalated_count
+
+**lib/delivery/dispatch-engine.ts** (Update):
+- `smartDispatchTick()` fetcht jetzt auch `status`, `delivery_zone`, `dispatch_priority_boost`
+- Nach dem Fetch: `sortByPriority(orders)` — VIP/Express/fertig/Zone-D zuerst
+- `OrderRow`-Interface: neue Felder optional (`?`) → Rückwärtskompatibel mit recovery.ts
+
+**GET+PATCH+DELETE /api/delivery/admin/dispatch-queue** (neu):
+- `GET ?location_id=`: Queue-Snapshot + Health-Metriken in einem Call
+- `PATCH ?location_id=` body `{order_id, boost}`: Admin-Boost setzen
+- `DELETE ?location_id=&order_id=`: Boost zurücksetzen
+- Multi-Tenant-Guard: Location-Membership via Supabase RLS-Kontext
+
+#### Invarianten
+- `dispatch_priority_boost` ersetzt NICHT den algorithmischen Score — er addiert sich dazu (max 50 Punkte Extra)
+- FIFO bleibt als Tiebreaker bei gleichem Score → keine Verhungerung (starvation)
+- `recovery.ts`: `OrderRow` ist weiterhin kompatibel (neue Felder sind optional)
+- Cron: `smartDispatchTick()` profitiert automatisch ohne weitere Cron-Änderungen
+
+#### Build-Verifikation
+- TypeScript: **0 Fehler** ✅ (`tsc --noEmit` exit 0)
+- Build: `next build` sauber ✅
 
 ### CEO Review #46 — 2026-06-10
 
