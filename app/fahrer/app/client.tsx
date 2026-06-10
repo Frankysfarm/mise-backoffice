@@ -584,9 +584,9 @@ export function FahrerApp({
         )}
 
         {/* Neue Order WAEHREND der Tour — Drive 10-incoming-on-tour: "+ Dazunehmen" */}
-        {activeBatch && isOnline && openBatches.filter((b) => b.source_system === 'mise').length > 0 && (
+        {activeBatch && isOnline && openBatches.length > 0 && (
           <section style={{ marginBottom: 16 }}>
-            {openBatches.filter((b) => b.source_system === 'mise').map((b) => (
+            {openBatches.map((b) => (
               <div key={b.batch_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, background: 'var(--accent-tint)', borderRadius: 16, marginBottom: 8, boxShadow: 'inset 0 0 0 1.5px var(--accent)' }}>
                 <div style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <DIcon name="bell" size={20} stroke={2} style={{ color: 'var(--accent)' }} className="ring-anim" />
