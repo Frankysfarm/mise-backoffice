@@ -220,7 +220,24 @@
 - [x] Fahrer-App: Echtzeit-Routenänderungs-Banner (Supabase Realtime auf tour_modifications)
 - [x] Statistiken: Incident-KPI-Block (Offen/Kritisch/Heute gelöst/Gesamt)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–52 + CEO REVIEW #43 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–52 + CEO REVIEW #44 ABGESCHLOSSEN — 2026-06-10
+
+### CEO Review #44 (2026-06-10)
+- TypeScript: **0 Fehler** ✅
+- Build: next build sauber, 176 Seiten ✅
+- Vollständige Integrations-Tiefenprüfung Phase 52 (Tour-Modifikation Engine + Frontend)
+- **1 Bug gefunden und gefixt**:
+  - `dispatch/client.tsx`: Tour-Modifikations-Buttons (+Stop, Remove Stop, Reoptimize) waren für
+    ALLE Batches sichtbar — auch für Legacy-Batches aus `delivery_batches`. Da `insertStopIntoActiveTour /
+    removeStopFromActiveTour / reoptimizeActiveTour` ausschließlich `mise_delivery_batches` abfragen,
+    schlugen diese Aktionen auf Legacy-Tours mit 422 fehl. Fix: `_isMise: true` Marker bei
+    Normalisierung von `mise_delivery_batches`, alle drei Buttons jetzt mit `(batch as any)._isMise` gegattet.
+- Alle anderen Prüfungen bestanden:
+  - Multi-Tenant-Sicherheit (`location_id` in allen API-Routes und tour-modifier-Abfragen) ✅
+  - Realtime-Cleanup (alle `removeChannel`-Calls vorhanden) ✅
+  - Incidents-API `open_all` Status-Handling korrekt ✅
+  - `getTourModifications` IDOR-Schutz via Location-Filter aktiv ✅
+  - `assignToDriver` Bridge-Write (RPC → Legacy-Fallback) korrekt ✅
 
 ### CEO Review #43 (2026-06-10)
 - TypeScript: **0 Fehler** ✅

@@ -420,6 +420,7 @@ export function DispatchBoard({
       id: b.id, status: b.state, fahrer_id: b.driver_id, startzeit: b.started_at ?? null,
       total_distance_km: b.total_distance_km ?? null, total_eta_min: b.total_eta_min ?? null, zone: b.zone ?? null,
       fahrer: b.driver ? { vorname: b.driver.name, nachname: '' } : null,
+      _isMise: true,
       stops: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff').map((s: any) => ({
         id: s.id, order_id: s.order_id, reihenfolge: s.sequence, geliefert_am: s.completed_at ?? null, order: s.order ?? null,
       })),
@@ -3611,8 +3612,8 @@ function TourVisualizationPanel({
                         Nächster
                       </a>
                     )}
-                    {/* Neu optimieren — nur für aktive Touren */}
-                    {canModify && (
+                    {/* Neu optimieren — nur für mise_delivery_batches */}
+                    {canModify && (batch as any)._isMise && (
                       <button
                         onClick={() => reoptimizeTour(batch.id)}
                         disabled={reoptPending === batch.id}
@@ -3644,8 +3645,8 @@ function TourVisualizationPanel({
                       <History className="h-3 w-3" />
                       {batchMods ? batchMods.length : ''}
                     </button>
-                    {/* Bestellung zur Tour hinzufügen */}
-                    {canModify && readyOrders.length > 0 && (
+                    {/* Bestellung zur Tour hinzufügen — nur für mise_delivery_batches */}
+                    {canModify && (batch as any)._isMise && readyOrders.length > 0 && (
                       <div className="relative">
                         <button
                           onClick={() => setAddStopOpen(addStopOpen === batch.id ? null : batch.id)}
@@ -3730,7 +3731,7 @@ function TourVisualizationPanel({
                       const stopEtaOverdue = stop.order?.eta_earliest
                         ? new Date(stop.order.eta_earliest).getTime() < now
                         : false;
-                      const canRemove = canModify && !isDone && !isNext;
+                      const canRemove = canModify && (batch as any)._isMise && !isDone && !isNext;
                       return (
                         <div key={stop.id} className="flex items-center shrink-0">
                           <div className="flex flex-col items-center gap-0.5 relative">

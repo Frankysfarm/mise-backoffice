@@ -5,6 +5,65 @@
 
 ---
 
+## CEO Review #44 — 2026-06-10
+
+### Geprüfte Commits
+1. `7a2e657` — review(delivery): CEO Review #43 — 3 Bugs gefixt, Phase 52 + Frontend-Integration verifiziert
+
+### Build & TypeScript
+- `next build`: ✓ Compiled successfully, 176 Seiten ✅
+- `tsc --noEmit`: **0 Fehler** ✅
+
+### Integrations-Tiefenprüfung Phase 52
+
+#### Bug gefunden: Tour-Modifikations-Buttons auf Legacy-Batches (MITTEL)
+**Datei**: `app/(admin)/dispatch/client.tsx` (Normalisierung + `canModify`-Gates)
+
+**Problem**: Die Dispatch-Board-Funktion `refresh()` normalisiert beide Batch-Quellen in ein einziges Array:
+- Legacy `delivery_batches` → Status `pickup`/`unterwegs`
+- Neue `mise_delivery_batches` → Status `pending_acceptance`/`assigned`/`at_restaurant`/`on_route`
+
+Die `canModify`-Bedingung prüfte nur den Status (ACTIVE_STATUSES enthält beide Systeme).
+Dadurch wurden die Buttons **+Stop**, **Remove Stop** und **Reoptimize** auf Legacy-Batches angezeigt.
+Da `insertStopIntoActiveTour / removeStopFromActiveTour / reoptimizeActiveTour` ausschließlich
+`mise_delivery_batches` abfragen, schlugen alle drei Aktionen auf Legacy-Tours mit **422** fehl.
+
+**Fix**:
+```typescript
+// Normalisierung: Mise-Batches markieren
+const normalizedSmart = smart.map((b) => ({
+  ...normalizedFields,
+  _isMise: true,  // ← NEU
+  stops: ...
+}));
+
+// Gates: alle drei Modifikations-Buttons prüfen _isMise
+{canModify && (batch as any)._isMise && (  // Reoptimize
+{canModify && (batch as any)._isMise && readyOrders.length > 0 && (  // +Stop
+const canRemove = canModify && (batch as any)._isMise && !isDone && !isNext;  // Remove Stop
+```
+
+#### Alle anderen Prüfungen bestanden
+- **Multi-Tenant-Sicherheit**: Alle API-Routes und tour-modifier-Abfragen filtern nach `location_id` ✅
+- **Realtime-Cleanup**: Alle `useEffect`-Subscriptions geben `removeChannel` zurück ✅
+- **`getTourModifications` IDOR**: `.eq('location_id', locationId)` in Query (line 784) ✅
+- **`assignToDriver` Bridge-Write**: RPC-Aufruf → Legacy-Fallback korrekt ✅
+- **Incidents `open_all`**: API-Route unterstützt Status-Wert korrekt ✅
+- **leerer `orderIds`-Filter**: Guard `if (orderIds.length === 0) return;` vor Realtime-Abo ✅
+- **`modification_count` Race Condition**: Kommentar im Code erklärt bewusste Entscheidung
+  (Admin-Operationen selten genug, kein atomares RPC nötig) — akzeptabel ✅
+
+### Anweisungen für nächste Phase
+**Status: Deployment-bereit.** Alle Phasen 1–52 vollständig implementiert und geprüft.
+
+Nächste Schritte (nur wenn weiterentwickelt wird):
+1. **Migration 043 in Supabase ausführen** (tour_modifications-Tabelle, neue Spalten auf mise_delivery_batches)
+2. **assign_to_driver RPC verifizieren** (stellt sicher dass Bridge-Write für Mise-Batches funktioniert)
+3. **Legacy-Konsolidierung** (optionaler Sprint): `delivery_batches` → `mise_delivery_batches` migrieren,
+   Fahrer-App auf neue Tabelle umstellen, Legacy-Fallback entfernen
+
+---
+
 ## CEO Review #43 — 2026-06-10
 
 ### Geprüfte Commits
