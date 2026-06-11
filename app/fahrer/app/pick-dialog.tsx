@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Btn, Icon as DIcon, Progress, Spinner as DSpinner, SAFE_TOP, SAFE_BOTTOM } from './drive-ui';
 
@@ -50,6 +50,8 @@ export function PickDialog({
   const supabase = createClient();
   const [pending, setPending] = useState<string | null>(null);
   const [local, setLocal] = useState(items);
+  // Sync: wenn items (server-geladen) sich aendert -> local nachziehen (sonst bleibt 0)
+  useEffect(() => { setLocal(items); }, [items]);
   const [openId, setOpenId] = useState<string | null>(null);
 
   const confirmed = local.filter((i) => i.pick_confirmed_at).length;
