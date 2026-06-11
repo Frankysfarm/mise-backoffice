@@ -111,6 +111,7 @@ export function FahrerApp({
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
+  const [pickOrderId, setPickOrderId] = useState<string | null>(null);
   const [pickItems, setPickItems] = useState<any[]>([]);
   // Artikel-Anzahl pro Bestellung (fuer die Drive "Zu picken"-Karten)
   const [pickCounts, setPickCounts] = useState<Map<string, number>>(new Map());
@@ -209,14 +210,13 @@ export function FahrerApp({
   // Fetch Items wenn Pick-Dialog geöffnet wird
   useEffect(() => {
     if (!pickOpen || !activeBatch) return;
-    (async () => {
-      const orderIds = activeBatch.stops.map((s) => s.order_id);
-      const { data } = await supabase.from('order_items')
-        .select('id, order_id, name, menge, notiz, pick_confirmed_at, pick_missing')
-        .in('order_id', orderIds);
-      setPickItems((data as any[]) ?? []);
-    })();
-  }, [pickOpen, activeBatch, supabase]);
+    // Items kommen server-seitig mit dem Batch (Service-Role, RLS-frei) — kein Client-Query
+    const all = (activeBatch.stops ?? []).flatMap((s: any) =>
+      (((s.order?.items ?? []) as any[]).map((it) => ({ ...it, order_id: it.order_id ?? s.order_id }))));
+    const seen = new Set<string>();
+    const dedup = all.filter((it) => { if (seen.has(it.id)) return false; seen.add(it.id); return true; });
+    setPickItems(pickOrderId ? dedup.filter((it) => it.order_id === pickOrderId) : dedup);
+  }, [pickOpen, activeBatch, supabase, pickOrderId]);
 
   /* SW-Auto-Update-Check: alle 60s Polling; UpdateBanner zeigt sich wenn neue Version */
   useEffect(() => {
@@ -711,7 +711,7 @@ export function FahrerApp({
                     key={stop.id}
                     type="button"
                     className="press"
-                    onClick={() => setPickOpen(true)}
+                    onClick={() => { setPickOrderId(stop.order_id); setPickOpen(true); }}
                     style={{
                       width: '100%', textAlign: 'left', display: 'block', background: 'var(--surface)',
                       borderRadius: 20, padding: 16, marginBottom: 12,
@@ -776,7 +776,7 @@ export function FahrerApp({
                   Route in Maps vorschauen
                 </a>
               )}
-              <Btn onClick={() => setPickOpen(true)} icon={allReady ? 'check-circle' : 'bag'}>
+              <Btn onClick={() => { setPickOrderId(stops[0]?.order_id ?? null); setPickOpen(true); }} icon={allReady ? 'check-circle' : 'bag'}>
                 {allReady ? 'Alle bereit · Jetzt picken' : `Erst alle picken · ${readyCount}/${total}`}
               </Btn>
               <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.5 }}>
@@ -849,7 +849,7 @@ export function FahrerApp({
 
       {pickOpen && activeBatch && (
         <PickDialog
-          orderBestellnummer={activeBatch.stops[0]?.order.bestellnummer ?? ''}
+          orderBestellnummer={(activeBatch.stops.find((s) => s.order_id === pickOrderId)?.order.bestellnummer) ?? activeBatch.stops[0]?.order.bestellnummer ?? ''}
           items={pickItems}
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}

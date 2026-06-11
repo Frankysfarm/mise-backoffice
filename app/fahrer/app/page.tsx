@@ -41,7 +41,7 @@ export default async function FahrerAppPage() {
     // Mise-Batch (mise_delivery_batches) — nur wenn Mise-Driver-Account vorhanden
     miseDriver
       ? svc.from('mise_delivery_batches')
-          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis))')
+          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
           .eq('driver_id', miseDriver.id)
           .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
           .order('created_at', { ascending: false })
