@@ -1,10 +1,18 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–62 abgeschlossen. CEO Review #50: 1 Bug gefixt. TypeScript 0 Fehler. Build sauber.**
+**Phasen 1–63 abgeschlossen. TypeScript 0 Fehler. Build sauber (180+ Seiten).**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 63: Admin-UI Fahrer-Bewerbungen (app/(admin)/drivers/bewerbungen/)
+- [x] BewerbungenClient — Funnel-KPIs (pending/reviewing/approved/rejected/total)
+- [x] Filterbares Bewerbungs-Listing (Status-Dropdown + Name/E-Mail-Suche)
+- [x] DetailModal — Bewerbungsdetails + Status-Wechsel-Buttons + Onboarding-Checkliste
+- [x] Onboarding-Steps interaktiv abhaken (toggle per Klick, Progressbalken)
+- [x] Admin-Notizen Textarea mit Speichern-Button
+- [x] Sidebar-Link „Fahrer-Bewerbungen" unter Fahrer-Gruppe (ClipboardList-Icon)
+- [x] ClipboardList in ICON_MAP von sidebar-client.tsx ergänzt
 - [x] ZonenlaufzeitPanel — eigener DB-Fetch (30 Tage, delivery_zone + fertig_am + geliefert_am)
 - [x] TourOnTimeRing — SVG-Kreisring mit Pünktlichkeits-Delta (Fahrer-App)
 - [x] KitchenPipelinePanel — Zubereitung-in-Progress mit Countdown + Zonen-Bündelung (Dispatch)
