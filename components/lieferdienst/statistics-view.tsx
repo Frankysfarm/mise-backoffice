@@ -1756,6 +1756,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Zonenlaufzeit: durchschnittliche Lieferzeit nach Zone */}
+      <ZonenlaufzeitPanel completedOrders={completedOrders} />
+
       {/* Top-Artikel heute */}
       {(() => {
         const itemCounts: Record<string, number> = {};
@@ -4426,6 +4429,102 @@ function DriverPayoutPeriodsPanel({
 }
 
 /* ------------------------------ WochentagsHeatmap ------------------------------ */
+
+/* ------------------------------ ZonenlaufzeitPanel ------------------------------ */
+/* Durchschnittliche Lieferzeit (fertig_am → geliefert_am) pro Lieferzone */
+function ZonenlaufzeitPanel({ completedOrders }: { completedOrders: Order[] }) {
+  type ZoneEntry = { total: number; count: number; min: number; max: number };
+  const zoneMap = new Map<string, ZoneEntry>();
+
+  for (const o of completedOrders) {
+    const raw = o as any;
+    const zone: string = raw.delivery_zone ?? raw.lieferzone ?? null;
+    if (!zone) continue;
+    const fertigTs = raw.fertig_am ?? raw.ready_at ?? null;
+    const geliefertTs = raw.geliefert_am ?? raw.delivered_at ?? raw.deliveredAt ?? null;
+    if (!fertigTs || !geliefertTs) continue;
+    const diffMin = (new Date(geliefertTs).getTime() - new Date(fertigTs).getTime()) / 60_000;
+    if (diffMin <= 0 || diffMin > 120) continue; // sanity: max 2h
+    const e = zoneMap.get(zone) ?? { total: 0, count: 0, min: Infinity, max: -Infinity };
+    e.total += diffMin;
+    e.count += 1;
+    e.min = Math.min(e.min, diffMin);
+    e.max = Math.max(e.max, diffMin);
+    zoneMap.set(zone, e);
+  }
+
+  const rows = [...zoneMap.entries()]
+    .map(([zone, { total, count, min, max }]) => ({
+      zone,
+      avgMin: total / count,
+      count,
+      min: min === Infinity ? 0 : min,
+      max: max === -Infinity ? 0 : max,
+    }))
+    .sort((a, b) => a.avgMin - b.avgMin);
+
+  if (rows.length === 0) return null;
+
+  const maxAvg = Math.max(...rows.map((r) => r.avgMin), 1);
+
+  const barColor = (avgMin: number) =>
+    avgMin <= 15 ? 'bg-emerald-500' :
+    avgMin <= 25 ? 'bg-amber-400' :
+    avgMin <= 35 ? 'bg-orange-400' : 'bg-red-400';
+
+  const textColor = (avgMin: number) =>
+    avgMin <= 15 ? 'text-emerald-700' :
+    avgMin <= 25 ? 'text-amber-700' :
+    avgMin <= 35 ? 'text-orange-700' : 'text-red-700';
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Route className="w-5 h-5 text-blue-500" />
+        <h3 className="text-lg font-semibold text-char">Lieferzeit nach Zone</h3>
+        <span className="ml-auto text-xs text-stone-400">Ø von Fertig→Geliefert · {rows.reduce((s, r) => s + r.count, 0)} Lieferungen</span>
+      </div>
+      <div className="space-y-3">
+        {rows.map(({ zone, avgMin, count, min, max }) => {
+          const pct = Math.round((avgMin / maxAvg) * 100);
+          return (
+            <div key={zone}>
+              <div className="flex items-center justify-between text-sm mb-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${barColor(avgMin)}`}>
+                    {zone}
+                  </span>
+                  <span className="font-medium text-char">Zone {zone}</span>
+                  <span className="text-[10px] text-stone-400">{count} Lieferungen</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] text-stone-400 tabular-nums">
+                    {Math.round(min)}–{Math.round(max)} Min
+                  </span>
+                  <span className={`font-black tabular-nums text-sm ${textColor(avgMin)}`}>
+                    Ø {avgMin.toFixed(1)} Min
+                  </span>
+                </div>
+              </div>
+              <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${barColor(avgMin)}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex items-center gap-4 text-[10px]">
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> ≤15 Min</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-amber-400 inline-block" /> ≤25 Min</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-orange-400 inline-block" /> ≤35 Min</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" /> &gt;35 Min</span>
+      </div>
+    </div>
+  );
+}
 
 const WEEKDAYS_DE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] as const;
 
