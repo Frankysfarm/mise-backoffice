@@ -1275,6 +1275,18 @@ function FahrerWarteAnzeige({ driverId, locationId }: { driverId: string; locati
           Küche: {kitchenLoad.active_orders} Bestellung{kitchenLoad.active_orders !== 1 ? 'en' : ''} · ETA {kitchenLoad.eta_min} Min
         </div>
       )}
+
+      {/* Nächste Tour Schätzung: basierend auf Küchen-ETA */}
+      {kitchenLoad && kitchenLoad.active_orders >= 1 && (() => {
+        // Schätze wann die erste fertige Bestellung dispatcht werden kann
+        // (erste Hälfte der ETA = Durchschnitt bis erste Bestellung fertig)
+        const estMin = Math.max(1, Math.round(kitchenLoad.eta_min * 0.4));
+        return (
+          <div className="mt-2 text-[11px] font-bold text-accent/80 tabular-nums">
+            ⚡ Nächste Tour in ca. {estMin} Min erwartet
+          </div>
+        );
+      })()}
     </section>
   );
 }

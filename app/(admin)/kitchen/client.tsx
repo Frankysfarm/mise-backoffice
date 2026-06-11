@@ -845,6 +845,54 @@ export function KitchenBoard({
                   );
                 })()}
               </header>
+
+              {/* Batch-Koch-Empfehlung: häufigstes Item über ≥2 kochende Bestellungen */}
+              {col.status === 'in_zubereitung' && colOrders.length >= 2 && (() => {
+                const itemCounts: Record<string, { total: number; orders: number }> = {};
+                for (const o of colOrders) {
+                  for (const it of o.items ?? []) {
+                    if (!itemCounts[it.name]) itemCounts[it.name] = { total: 0, orders: 0 };
+                    itemCounts[it.name].total += it.menge;
+                    itemCounts[it.name].orders += 1;
+                  }
+                }
+                const best = Object.entries(itemCounts)
+                  .filter(([, v]) => v.orders >= 2)
+                  .sort((a, b) => b[1].total - a[1].total)[0];
+                if (!best) return null;
+                return (
+                  <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-1.5 text-[11px]">
+                    <span className="shrink-0 text-base">🍳</span>
+                    <span className="font-bold text-orange-800">Jetzt gemeinsam:</span>
+                    <span className="text-orange-700 truncate">
+                      {best[1].total}× {best[0]}
+                      <span className="ml-1 opacity-70">({best[1].orders} Best.)</span>
+                    </span>
+                  </div>
+                );
+              })()}
+
+              {/* Dispatch-Hinweis: fertige Lieferbestellungen >5 Min warten — schnell dispatchen! */}
+              {col.status === 'fertig' && (() => {
+                const waitingLong = colOrders.filter((o) => {
+                  if (o.typ !== 'lieferung' || !o.fertig_am) return false;
+                  return (Date.now() - new Date(o.fertig_am).getTime()) / 60_000 >= 5;
+                });
+                if (waitingLong.length === 0) return null;
+                return (
+                  <a
+                    href="/dispatch"
+                    className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-matcha-300 bg-matcha-50 px-3 py-1.5 text-[11px] hover:bg-matcha-100 transition"
+                  >
+                    <Bike className="h-3 w-3 text-matcha-700 shrink-0" />
+                    <span className="font-bold text-matcha-800">
+                      {waitingLong.length} Bestellung{waitingLong.length !== 1 ? 'en' : ''} {waitingLong.length !== 1 ? 'warten' : 'wartet'} &gt;5 Min
+                    </span>
+                    <span className="ml-auto text-[10px] text-matcha-600 font-semibold">→ Dispatch</span>
+                  </a>
+                );
+              })()}
+
               <div className="space-y-3 p-3">
                 {colOrders.length === 0 && (
                   <div className="rounded-lg border-2 border-dashed border-black/10 p-6 text-center text-xs text-muted-foreground">

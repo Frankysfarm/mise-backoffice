@@ -522,6 +522,12 @@ export function LieferdienstClient() {
                     </span>
                   </div>
                 )}
+                {completedOrders.length > 0 && (
+                  <div className="flex items-center gap-2 bg-matcha-50 border border-matcha-200 px-4 py-2 rounded-xl" title="Heute abgeschlossene Bestellungen">
+                    <Package className="w-4 h-4 text-matcha-600" />
+                    <span className="text-sm font-semibold text-matcha-700">{completedOrders.length} heute fertig</span>
+                  </div>
+                )}
                 {prepStreak >= 3 && (
                   <div className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
                     streakFlash
