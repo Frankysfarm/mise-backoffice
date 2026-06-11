@@ -528,6 +528,18 @@ export function LieferdienstClient() {
                     <span className="text-sm font-semibold text-matcha-700">{completedOrders.length} heute fertig</span>
                   </div>
                 )}
+                {(() => {
+                  const timed = completedOrders.filter(o => o.acceptedAt && o.doneAt)
+                  if (timed.length < 2) return null
+                  const avgMin = timed.reduce((s, o) => s + (new Date(o.doneAt!).getTime() - new Date(o.acceptedAt!).getTime()) / 60_000, 0) / timed.length
+                  const color = avgMin <= 20 ? 'text-matcha-700 bg-matcha-50 border-matcha-200' : avgMin <= 30 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-red-700 bg-red-50 border-red-200'
+                  return (
+                    <div className={`flex items-center gap-2 border px-4 py-2 rounded-xl ${color}`} title="Durchschnittliche Bearbeitungszeit heute">
+                      <Clock className="w-4 h-4 shrink-0" />
+                      <span className="text-sm font-semibold tabular-nums">⌀ {Math.round(avgMin)} Min</span>
+                    </div>
+                  )
+                })()}
                 {prepStreak >= 3 && (
                   <div className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
                     streakFlash
