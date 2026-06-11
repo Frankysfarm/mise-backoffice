@@ -47,6 +47,8 @@ import {
   Star,
   BarChart2,
   Calendar,
+  Navigation2,
+  Gauge,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -806,6 +808,9 @@ export function DispatchBoard({
 
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
+
+      {/* Live-GPS-Puls: Echtzeit-Geschwindigkeit + Signal-Status aller aktiven Fahrer */}
+      {batches.length > 0 && <LiveDriverPulseStrip batches={batches} drivers={drivers} />}
 
       {/* Quick-Assign: beste Bestellung → nächster freier Fahrer mit einem Klick */}
       <DispatchQuickAssignBar
@@ -6861,6 +6866,146 @@ function KitchenPipelinePanel({ orders }: {
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+/* ------------------------------ LiveDriverPulseStrip ------------------------------ */
+
+type LiveDriverGps = {
+  id: string;
+  name: string;
+  vehicle: string | null;
+  state: string;
+  last_lat: number | null;
+  last_lng: number | null;
+  last_position_at: string | null;
+  position?: {
+    lat: number; lng: number;
+    heading: number | null;
+    speed_kmh: number | null;
+    recorded_at: string;
+    seconds_stale: number;
+  } | null;
+  active_batch?: { id: string; state: string; stop_count: number; zone: string | null } | null;
+};
+
+const HEADING_LABEL = (deg: number): string => {
+  const dirs = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
+  return dirs[Math.round(deg / 45) % 8];
+};
+
+function LiveDriverPulseStrip({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+  const [gpsDrivers, setGpsDrivers] = useState<LiveDriverGps[]>([]);
+  const [lastFetch, setLastFetch] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const load = () => {
+      fetch('/api/delivery/admin/drivers')
+        .then((r) => r.ok ? r.json() : null)
+        .then((d: { drivers?: LiveDriverGps[] } | null) => {
+          if (Array.isArray(d?.drivers)) {
+            setGpsDrivers(d!.drivers);
+            setLastFetch(new Date());
+          }
+        })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 15_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const activeGps = gpsDrivers.filter((g) => {
+    if (g.active_batch != null) return true;
+    const legacyDriver = drivers.find((d) => {
+      const fullName = `${d.employee?.vorname ?? ''} ${d.employee?.nachname ?? ''}`.trim().toLowerCase();
+      return fullName === g.name?.toLowerCase();
+    });
+    return legacyDriver?.aktueller_batch_id != null;
+  });
+
+  if (activeGps.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-blue-100 bg-blue-50/50 px-3 py-2.5">
+      <div className="mb-2 flex items-center gap-2">
+        <Radio className="h-3.5 w-3.5 text-blue-600 animate-pulse shrink-0" />
+        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-800">
+          Live-GPS · {activeGps.length} Fahrer unterwegs
+        </span>
+        <span className="ml-auto text-[9px] text-blue-400 tabular-nums">
+          {lastFetch.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {activeGps.map((g) => {
+          const stale = g.position?.seconds_stale ?? (
+            g.last_position_at
+              ? Math.floor((Date.now() - new Date(g.last_position_at).getTime()) / 1000)
+              : null
+          );
+          const speed = g.position?.speed_kmh ?? null;
+          const heading = g.position?.heading ?? null;
+          const isMoving = speed != null ? speed > 2 : null;
+          const isStale = stale != null && stale > 120;
+          const isNoSignal = stale == null || stale > 300;
+
+          const chipColor = isNoSignal
+            ? 'border-stone-200 bg-white text-stone-500'
+            : isStale
+              ? 'border-amber-200 bg-amber-50 text-amber-800'
+              : isMoving
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : 'border-blue-200 bg-white text-blue-800';
+
+          const staleLabel = stale == null
+            ? 'Kein Signal'
+            : stale < 60 ? `${stale}s`
+            : stale < 3600 ? `${Math.floor(stale / 60)}m`
+            : `${Math.floor(stale / 3600)}h`;
+
+          return (
+            <div
+              key={g.id}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition',
+                chipColor,
+              )}
+              title={`${g.name} · ${speed != null ? `${speed.toFixed(0)} km/h` : '—'} · Signal vor ${staleLabel}`}
+            >
+              <span className="text-sm leading-none shrink-0">
+                {g.vehicle === 'bike' ? '🚲' : g.vehicle === 'ebike' ? '⚡' : g.vehicle === 'roller' || g.vehicle === 'scooter' ? '🛵' : '🚗'}
+              </span>
+              <span className="font-bold truncate max-w-[60px]">
+                {g.name?.split(' ')[0] ?? '?'}
+              </span>
+              {speed != null && (
+                <span className="inline-flex items-center gap-0.5 font-mono font-black tabular-nums">
+                  <Gauge size={9} className="shrink-0" />
+                  {speed.toFixed(0)}<span className="font-normal opacity-70 text-[9px]">km/h</span>
+                </span>
+              )}
+              {heading != null && (
+                <span className="inline-flex items-center gap-0.5 opacity-80">
+                  <Navigation2
+                    size={9}
+                    className="shrink-0"
+                    style={{ transform: `rotate(${heading}deg)` }}
+                  />
+                  <span className="text-[9px]">{HEADING_LABEL(heading)}</span>
+                </span>
+              )}
+              <span className={cn(
+                'text-[9px] shrink-0',
+                isNoSignal ? 'text-stone-400' : isStale ? 'text-amber-600 font-bold' : 'opacity-60',
+              )}>
+                {isNoSignal ? <WifiOff size={9} className="inline" /> : staleLabel}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
