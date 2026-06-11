@@ -1,10 +1,14 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–61 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
+**Phasen 1–62 abgeschlossen. CEO Review #50: 1 Bug gefixt. TypeScript 0 Fehler. Build sauber.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] ZonenlaufzeitPanel — eigener DB-Fetch (30 Tage, delivery_zone + fertig_am + geliefert_am)
+- [x] TourOnTimeRing — SVG-Kreisring mit Pünktlichkeits-Delta (Fahrer-App)
+- [x] KitchenPipelinePanel — Zubereitung-in-Progress mit Countdown + Zonen-Bündelung (Dispatch)
+- [x] Bug gefixt: ZonenlaufzeitPanel war immer leer (fehlender DB-Fetch → completedOrders ohne delivery_zone/geliefert_am)
 - [x] driver_applications Tabelle (Migration 049)
 - [x] driver_onboarding_steps Tabelle (Migration 049)
 - [x] v_application_overview View (Migration 049)

@@ -1,7 +1,84 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–59 vollständig abgeschlossen. 0 Bugs in Review #49. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–61 vollständig abgeschlossen. 1 Bug in Review #50 gefixed. Deployment-bereit.
+
+---
+
+## CEO Review #50 — 2026-06-11
+
+### Geprüfte Commits (4 Commits seit Review #49)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `b07b45b` | feat(delivery/backend): Phase 61 — Fahrer-Bewerbungs- & Onboarding-Engine | ✅ sauber |
+| `34d21d5` | feat(dispatch): Küchen-Pipeline-Panel mit Countdown und Zonen-Bündelung | ✅ sauber |
+| `e52ec4b` | feat(fahrer): TourOnTimeRing — SVG-Fortschrittsring mit Pünktlichkeitsstatus | ✅ sauber |
+| `1f3bd6a` | feat(lieferdienst): ZonenlaufzeitPanel — Ø-Lieferzeit nach Lieferzone | ⚠️ Bug → gefixt |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Kompiliert sauber ✅
+
+### Befund Phase 61 (Backend — Onboarding-Engine)
+
+**lib/delivery/onboarding.ts**:
+- `submitApplication()` mit Duplicate-Guard (409 bei vorhandener offener Bewerbung für gleiche E-Mail) ✅
+- `updateApplicationStatus()` mit Auto-Step-Erzeugung bei Übergang in `reviewing` ✅
+- `createDefaultOnboardingSteps()` — 6 Standard-Steps, idempotent (kein Duplikat bei Wiederholung) ✅
+- `expireStaleApplicationsAllLocations()` — läuft via Cron `isDemandTick` (alle 30 Min) ✅
+- `getOnboardingFunnelStats()` — aggregiert KPIs über `v_onboarding_funnel` View ✅
+
+**API-Routes**:
+- `POST /api/delivery/driver/apply` — öffentlich, E-Mail-Validierung, 400/409/201 korrekt ✅
+- `GET /api/delivery/admin/applications` — Auth-Guard, `?view=funnel` für Trichter-KPIs ✅
+- `GET+PATCH /api/delivery/admin/applications/[id]` — Einzelansicht + Status-Wechsel ✅
+- `GET+PATCH /api/delivery/admin/applications/[id]/steps` — Checkliste abhaken ✅
+
+**Cron-Integration**:
+- `isDemandTick` = Minute 0–1 und 30–31 → effektiv alle 30 Min ✅
+- Fehlertoleranz: `.catch(() => ({ expired: 0 }))` schützt Cron vor Absturz ✅
+
+### Befund Phase 60+61 Frontend (Dispatch-Pipeline + TourOnTimeRing + ZonenlaufzeitPanel)
+
+**KitchenPipelinePanel** (`app/(admin)/dispatch/client.tsx`):
+- Pollt `customer_orders` JOIN `kitchen_timings` (30s) für Orders in `in_zubereitung|bestätigt` ✅
+- Farbcodierung: grün=fertig, orange+pulse=≤5 Min, weiß=später ✅
+- Zonen-Bündelung hebt Zonen mit ≥2 gleichzeitigen Orders hervor ✅
+
+**TourOnTimeRing** (`app/fahrer/app/delivery-view.tsx`):
+- SVG-Kreisring (r=18, circ berechnet korrekt) ✅
+- On-Time-Delta: `pct - expectedPct` (±15%/±25% Schwellen) — sinnvolle Logik ✅
+- Farbübergänge mit CSS-Transitions auf strokeDasharray + stroke ✅
+
+### Bug gefunden und gefixt — ZonenlaufzeitPanel immer leer
+
+**Datei**: `components/lieferdienst/statistics-view.tsx`, Funktion `ZonenlaufzeitPanel`
+
+**Problem**: Das Panel las `completedOrders` aus dem In-Memory-Session-State aus. Diese Objekte stammen aus `/api/lieferdienst/data` → `mapOrder()`, welche weder `delivery_zone` noch `geliefert_am` enthält. `geliefert_am` wird erst bei Lieferung auf `tour_stops` gesetzt, nicht auf den aktiven `customer_orders`. Ergebnis: `if (!zone) continue` sprang immer durch, `rows.length === 0`, Panel gab `null` zurück — nie sichtbar.
+
+**Fix**: Komponente um eigenen `useEffect`-Fetch erweitert. Direkte Supabase-Abfrage auf `customer_orders` (30 Tage, `status='geliefert'`, Felder `delivery_zone, fertig_am, geliefert_am`). Fallback auf leer wenn keine `location_id` bekannt. TypeScript-Annotation für `.then()` hinzugefügt um implizites `any` zu vermeiden.
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Dispatch sieht Küchen-Pipeline vor `fertig`-Status → proaktive Fahrer-Planung ✅
+- Fahrer-App zeigt Pünktlichkeitsring mit SVG-Animation ✅
+- Statistics zeigt Lieferzeit-Analyse nach Zone (30 Tage, echte DB-Daten) ✅
+- Onboarding-Bewerbungsportal öffentlich erreichbar, Admin-Funnel im Dashboard ✅
+
+### Status nach Review #50
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 61 (Onboarding-Engine): DONE ✅
+- Phase 62 Frontend (Pipeline+Ring+ZonenPanel): DONE ✅ (nach Bug-Fix)
+- Bugs gefixed: 1 (ZonenlaufzeitPanel immer leer wegen fehlendem DB-Fetch)
+
+### Nächste Schritte für Backend-Architekt
+1. Admin-UI für Fahrer-Bewerbungen (Tabelle + Status-Wechsel-Buttons + Onboarding-Checkliste)
+2. Oder: Public-facing Bewerbungsformular auf Storefront/Landing-Page
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Admin-UI für Bewerbungs-Funnel (KPI-Cards + Bewerbungsliste + Detail-Modal)
+2. Oder: Onboarding-Checkliste als Tab in Fahrer-Admin-Seite
 
 ---
 

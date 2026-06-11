@@ -4433,18 +4433,37 @@ function DriverPayoutPeriodsPanel({
 /* ------------------------------ ZonenlaufzeitPanel ------------------------------ */
 /* Durchschnittliche Lieferzeit (fertig_am → geliefert_am) pro Lieferzone */
 function ZonenlaufzeitPanel({ completedOrders }: { completedOrders: Order[] }) {
+  type DbRow = { delivery_zone: string; fertig_am: string; geliefert_am: string };
+  const [dbRows, setDbRows] = useState<DbRow[]>([]);
+
+  useEffect(() => {
+    const locationId = (completedOrders[0] as any)?.location_id ?? null;
+    if (!locationId) return;
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+    const sb = createClient();
+    sb.from('customer_orders')
+      .select('delivery_zone, fertig_am, geliefert_am')
+      .eq('location_id', locationId)
+      .eq('typ', 'lieferung')
+      .not('delivery_zone', 'is', null)
+      .not('fertig_am', 'is', null)
+      .not('geliefert_am', 'is', null)
+      .gte('bestellt_am', since.toISOString())
+      .limit(500)
+      .then((res: { data: unknown[] | null }) => { if (res.data) setDbRows(res.data as DbRow[]); })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedOrders.length]);
+
   type ZoneEntry = { total: number; count: number; min: number; max: number };
   const zoneMap = new Map<string, ZoneEntry>();
 
-  for (const o of completedOrders) {
-    const raw = o as any;
-    const zone: string = raw.delivery_zone ?? raw.lieferzone ?? null;
+  for (const row of dbRows) {
+    const zone = row.delivery_zone;
     if (!zone) continue;
-    const fertigTs = raw.fertig_am ?? raw.ready_at ?? null;
-    const geliefertTs = raw.geliefert_am ?? raw.delivered_at ?? raw.deliveredAt ?? null;
-    if (!fertigTs || !geliefertTs) continue;
-    const diffMin = (new Date(geliefertTs).getTime() - new Date(fertigTs).getTime()) / 60_000;
-    if (diffMin <= 0 || diffMin > 120) continue; // sanity: max 2h
+    const diffMin = (new Date(row.geliefert_am).getTime() - new Date(row.fertig_am).getTime()) / 60_000;
+    if (diffMin <= 0 || diffMin > 120) continue;
     const e = zoneMap.get(zone) ?? { total: 0, count: 0, min: Infinity, max: -Infinity };
     e.total += diffMin;
     e.count += 1;
