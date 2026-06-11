@@ -512,6 +512,9 @@ export function KitchenBoard({
       {/* Sonderanfragen & Kundennotizen — alle aktiven Bestellungen mit Notiz */}
       <OrderNotesPanel orders={filtered} />
 
+      {/* Stations-Auslastungsbalken: Portionen je Station im aktuellen Queue */}
+      <KitchenStationLoadBar orders={filtered} />
+
       {/* Küchen-Checkliste: konsolidierte Items aller aktiven Bestellungen */}
       <PrepItemsPanel orders={filtered} />
 
@@ -5639,6 +5642,79 @@ function KitchenSmartTimingNudge({ orders, timings }: { orders: Order[]; timings
         {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
         {creating ? 'Erstelle…' : 'Alle aktivieren'}
       </button>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenStationLoadBar ------------------------------ */
+/* Kompakter Überblick: Portionen je Prep-Station im aktiven Queue */
+function KitchenStationLoadBar({ orders }: { orders: Order[] }) {
+  const STATIONS: PrepStation[] = ['Grill', 'Warm', 'Kalt', 'Sonstiges'];
+
+  const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (cooking.length === 0) return null;
+
+  // Count portions per station
+  const portionsPerStation: Record<PrepStation, number> = { Grill: 0, Warm: 0, Kalt: 0, Sonstiges: 0 };
+  const itemsPerStation: Record<PrepStation, number> = { Grill: 0, Warm: 0, Kalt: 0, Sonstiges: 0 };
+  for (const o of cooking) {
+    for (const it of o.items ?? []) {
+      const st = classifyStation(it.name);
+      portionsPerStation[st] += it.menge;
+      itemsPerStation[st] += 1;
+    }
+  }
+
+  const totalPortions = Object.values(portionsPerStation).reduce((s, n) => s + n, 0);
+  if (totalPortions === 0) return null;
+
+  const stationBarColor: Record<PrepStation, string> = {
+    Grill:     'bg-orange-400',
+    Warm:      'bg-red-400',
+    Kalt:      'bg-sky-400',
+    Sonstiges: 'bg-matcha-400',
+  };
+  const stationTextColor: Record<PrepStation, string> = {
+    Grill:     'text-orange-700',
+    Warm:      'text-red-700',
+    Kalt:      'text-sky-700',
+    Sonstiges: 'text-matcha-700',
+  };
+
+  const maxPortions = Math.max(...Object.values(portionsPerStation), 1);
+
+  return (
+    <div className="rounded-xl border border-matcha-200 bg-matcha-50 px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Utensils className="h-4 w-4 text-matcha-600 shrink-0" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Stations-Auslastung
+        </span>
+        <span className="ml-auto text-[10px] text-matcha-500 tabular-nums">{totalPortions} Portionen · {cooking.length} Best.</span>
+      </div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
+        {STATIONS.map((st) => {
+          const portions = portionsPerStation[st];
+          const items = itemsPerStation[st];
+          const pct = Math.round((portions / maxPortions) * 100);
+          if (portions === 0) return null;
+          return (
+            <div key={st} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className={`font-black uppercase tracking-wider ${stationTextColor[st]}`}>{st}</span>
+                <span className="tabular-nums text-matcha-500 font-bold">{portions}×</span>
+              </div>
+              <div className="h-2 rounded-full bg-matcha-200 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${stationBarColor[st]}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <div className="text-[9px] text-matcha-400">{items} {items === 1 ? 'Artikel' : 'Artikel'}</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
