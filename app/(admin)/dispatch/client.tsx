@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { cn, euro } from '@/lib/utils';
 import {
   Bike,
+  ChefHat,
   Clock,
   ChevronDown,
   ChevronUp,
@@ -169,6 +170,13 @@ export function DispatchBoard({
     id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null;
   }[]>([]);
   const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
+
+  // Küchen-Pipeline: Bestellungen die noch kochen aber bald fertig werden
+  const [pipelineOrders, setPipelineOrders] = useState<{
+    id: string; bestellnummer: string; status: string; delivery_zone: string | null;
+    geschaetzte_zubereitung_min: number | null; bestellt_am: string | null;
+    ready_target: string | null; timing_status: string | null;
+  }[]>([]);
 
   // Fahrer-Broadcasts
   const [broadcasts, setBroadcasts] = useState<{
@@ -333,6 +341,39 @@ export function DispatchBoard({
     load();
     const iv = setInterval(load, 60_000);
     return () => clearInterval(iv);
+  }, [locations]);
+
+  // Küchen-Pipeline laden: Bestellungen in Zubereitung (für Dispatch-Vorplanung)
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = async () => {
+      try {
+        const { data: cooking } = await supabase
+          .from('customer_orders')
+          .select('id, bestellnummer, status, delivery_zone, geschaetzte_zubereitung_min, bestellt_am')
+          .eq('typ', 'lieferung')
+          .eq('location_id', locationId)
+          .in('status', ['in_zubereitung', 'bestätigt'])
+          .order('bestellt_am', { ascending: true });
+        if (!cooking?.length) { setPipelineOrders([]); return; }
+        const { data: timings } = await supabase
+          .from('kitchen_timings')
+          .select('order_id, ready_target, status')
+          .in('order_id', (cooking as any[]).map((o) => o.id))
+          .in('status', ['cooking', 'scheduled']);
+        const tm = new Map(((timings ?? []) as any[]).map((t) => [t.order_id, t]));
+        setPipelineOrders((cooking as any[]).map((o) => ({
+          ...o,
+          ready_target: tm.get(o.id)?.ready_target ?? null,
+          timing_status: tm.get(o.id)?.status ?? null,
+        })));
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locations]);
 
   async function triggerEtaRefresh() {
@@ -639,6 +680,11 @@ export function DispatchBoard({
           <span className="text-inherit opacity-70">·</span>
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
         </div>
+      )}
+
+      {/* Küchen-Pipeline: Bestellungen die bald fertig werden — für Fahrer-Vorplanung */}
+      {pipelineOrders.length > 0 && (
+        <KitchenPipelinePanel orders={pipelineOrders} />
       )}
 
       {/* Fahrer-Nachrichten: Betriebskommunikation */}
@@ -6677,6 +6723,144 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenPipelinePanel ------------------------------ */
+
+function KitchenPipelinePanel({ orders }: {
+  orders: {
+    id: string; bestellnummer: string; status: string; delivery_zone: string | null;
+    geschaetzte_zubereitung_min: number | null; bestellt_am: string | null;
+    ready_target: string | null; timing_status: string | null;
+  }[];
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+
+  const sorted = [...orders].sort((a, b) => {
+    const aEta = a.ready_target
+      ? new Date(a.ready_target).getTime()
+      : a.bestellt_am
+        ? new Date(a.bestellt_am).getTime() + (a.geschaetzte_zubereitung_min ?? 15) * 60_000
+        : Infinity;
+    const bEta = b.ready_target
+      ? new Date(b.ready_target).getTime()
+      : b.bestellt_am
+        ? new Date(b.bestellt_am).getTime() + (b.geschaetzte_zubereitung_min ?? 15) * 60_000
+        : Infinity;
+    return aEta - bEta;
+  });
+
+  // Gruppe: wie viele werden in den nächsten 10 Min fertig?
+  const soonCount = sorted.filter((o) => {
+    const etaMs = o.ready_target
+      ? new Date(o.ready_target).getTime()
+      : o.bestellt_am
+        ? new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000
+        : null;
+    return etaMs != null && etaMs - now <= 10 * 60_000;
+  }).length;
+
+  return (
+    <div className="rounded-xl border border-orange-200 bg-orange-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <ChefHat className="h-4 w-4 text-orange-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-orange-800">
+          Küchen-Pipeline · {orders.length} noch in Zubereitung
+        </span>
+        {soonCount > 0 && (
+          <span className="ml-1 rounded-full bg-orange-500 text-white px-2 py-0.5 text-[10px] font-black animate-pulse">
+            {soonCount} in ~10 Min bereit
+          </span>
+        )}
+        <span className="ml-auto text-[10px] text-orange-500">Fahrer vorplanen</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {sorted.slice(0, 8).map((o) => {
+          const etaMs = o.ready_target
+            ? new Date(o.ready_target).getTime()
+            : o.bestellt_am
+              ? new Date(o.bestellt_am).getTime() + (o.geschaetzte_zubereitung_min ?? 15) * 60_000
+              : null;
+          const secLeft = etaMs != null ? Math.floor((etaMs - now) / 1000) : null;
+          const isReady = secLeft != null && secLeft <= 0;
+          const isSoon = secLeft != null && secLeft > 0 && secLeft <= 300;
+          const mm = secLeft != null ? Math.abs(Math.floor(secLeft / 60)) : null;
+          const ss = secLeft != null ? Math.abs(secLeft % 60) : null;
+          const isCooking = o.timing_status === 'cooking' || o.status === 'in_zubereitung';
+          return (
+            <div
+              key={o.id}
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs',
+                isReady
+                  ? 'bg-matcha-50 border-matcha-300'
+                  : isSoon
+                  ? 'bg-orange-100 border-orange-300 animate-pulse'
+                  : 'bg-white border-orange-200',
+              )}
+            >
+              <span className={cn(
+                'font-mono font-black tabular-nums text-[11px] min-w-[32px]',
+                isReady ? 'text-matcha-600' : isSoon ? 'text-orange-700' : 'text-orange-500',
+              )}>
+                {isReady ? '✓' : secLeft == null ? '?' : `${mm}:${String(ss).padStart(2, '0')}`}
+              </span>
+              <span className="font-bold text-foreground">
+                #{o.bestellnummer.replace(/^FF-/, '')}
+              </span>
+              {o.delivery_zone && (
+                <span className="rounded-full bg-matcha-100 text-matcha-700 px-1.5 py-0.5 text-[9px] font-bold">
+                  {o.delivery_zone}
+                </span>
+              )}
+              <span className={cn(
+                'rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase',
+                isCooking ? 'bg-orange-200 text-orange-800' : 'bg-blue-100 text-blue-700',
+              )}>
+                {isCooking ? 'kocht' : 'angenommen'}
+              </span>
+            </div>
+          );
+        })}
+        {sorted.length > 8 && (
+          <span className="text-[10px] text-muted-foreground self-center">
+            +{sorted.length - 8} weitere
+          </span>
+        )}
+      </div>
+      {/* Zone-Vorschau: welche Zonen werden als nächstes fertig? */}
+      {sorted.length >= 2 && (() => {
+        const zoneCounts: Record<string, number> = {};
+        for (const o of sorted.slice(0, 8)) {
+          if (o.delivery_zone) zoneCounts[o.delivery_zone] = (zoneCounts[o.delivery_zone] ?? 0) + 1;
+        }
+        const zones = Object.entries(zoneCounts).sort((a, b) => b[1] - a[1]);
+        if (zones.length === 0) return null;
+        return (
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap border-t border-orange-200 pt-2">
+            <span className="text-[10px] text-orange-600 font-bold">Zonen bündeln:</span>
+            {zones.map(([zone, cnt]) => (
+              <span
+                key={zone}
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums',
+                  cnt >= 3 ? 'bg-orange-500 text-white' : cnt >= 2 ? 'bg-orange-200 text-orange-900' : 'bg-orange-100 text-orange-700',
+                )}
+              >
+                {zone} ×{cnt}
+              </span>
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 }
