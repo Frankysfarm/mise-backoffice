@@ -456,6 +456,16 @@ export function FahrerApp({
     setRouteSheet({ stops: stopsCount, km });
   }
 
+  // Alle Orders gepickt -> Batch-Pickup abschliessen + Route-Sheet (das eigentliche "losfahren")
+  async function completeAndRoute(batchId: string) {
+    startTransition(async () => {
+      const { error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
+      if (error) return;
+      void showRouteSheetAfterPickup(batchId);
+      router.refresh();
+    });
+  }
+
   async function markDelivered(stopId: string) {
     startTransition(async () => {
       const now = new Date().toISOString();
@@ -632,6 +642,9 @@ export function FahrerApp({
         {activeBatch && activeBatch.status !== 'unterwegs' && (() => {
           const stops = activeBatch.stops.slice().sort((a, b) => a.reihenfolge - b.reihenfolge);
           const total = stops.length;
+          const isOrderPicked = (s: any) => { const its = (s.order?.items ?? []) as any[]; return its.length > 0 && its.every((it) => it.pick_confirmed_at); };
+          const pickedCount = stops.filter(isOrderPicked).length;
+          const allPicked = total > 0 && pickedCount === total;
           const hubName = (activeBatch as any).location_name
             || (driver as any).hub_name
             || 'Restaurant';
@@ -700,6 +713,7 @@ export function FahrerApp({
             <div style={{ padding: '2px 16px 12px' }}>
               {stops.map((stop) => {
                 const o = stop.order as any;
+                const picked = isOrderPicked(stop);
                 const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
                 const ks = kitchenStatuses.get(stop.order_id) ?? null;
                 const kitchenReady = ks === 'fertig' || ks === 'unterwegs';
@@ -721,7 +735,11 @@ export function FahrerApp({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 13 }}>
                       <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>#{code}</span>
                       <div style={{ flex: 1 }} />
-                      {kitchenReady ? (
+                      {picked ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--accent)', color: 'var(--on-accent)' }}>
+                          <DIcon name="check" size={14} stroke={2.4} /> In der Tüte
+                        </span>
+                      ) : kitchenReady ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--accent-tint)', color: 'var(--accent)' }}>
                           <DIcon name="check" size={14} stroke={2.4} /> Bereit
                         </span>
@@ -776,9 +794,11 @@ export function FahrerApp({
                   Route in Maps vorschauen
                 </a>
               )}
-              <Btn onClick={() => { setPickOrderId(stops[0]?.order_id ?? null); setPickOpen(true); }} icon={allReady ? 'check-circle' : 'bag'}>
-                {allReady ? 'Alle bereit · Jetzt picken' : `Erst alle picken · ${readyCount}/${total}`}
-              </Btn>
+              {allPicked ? (
+                <Btn onClick={() => completeAndRoute(activeBatch.id)} disabled={pending} icon="route">Route berechnen</Btn>
+              ) : (
+                <Btn onClick={() => { const next = stops.find((s) => !isOrderPicked(s)); setPickOrderId((next ?? stops[0])?.order_id ?? null); setPickOpen(true); }} icon="bag">{`Picken · ${pickedCount}/${total} in der Tüte`}</Btn>
+              )}
               <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.5 }}>
                 Tippe eine Bestellung → geh jedes Gericht durch. Danach berechnen wir die Route.
               </div>
@@ -854,10 +874,8 @@ export function FahrerApp({
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => {
-            const id = activeBatch.id;
+            // Diese Order in der Tuete -> zurueck zur Uebersicht. Route erst wenn alle gepickt.
             setPickOpen(false);
-            // F1: Bestaetigendes Route-Sheet zeigen, dann Daten neu laden
-            void showRouteSheetAfterPickup(id);
             router.refresh();
           }}
         />

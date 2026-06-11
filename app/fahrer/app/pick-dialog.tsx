@@ -75,13 +75,8 @@ export function PickDialog({
   }
 
   async function complete() {
-    setPending('complete');
-    const { data, error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
-    setPending(null);
-    if (error || !(data as any)?.ok) {
-      alert(error?.message ?? (data as any)?.error ?? 'Fehler');
-      return;
-    }
+    // Items sind einzeln bestaetigt (confirm_pick_item). Diese Order ist in der Tuete -> zurueck zur Uebersicht.
+    // Batch-Abschluss (confirm_pickup_complete) erst wenn ALLE Orders gepickt sind -> via "Route berechnen".
     onComplete();
   }
 
