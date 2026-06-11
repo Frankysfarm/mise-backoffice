@@ -1,7 +1,111 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–61 vollständig abgeschlossen. 1 Bug in Review #50 gefixed. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–63 vollständig abgeschlossen. 2 Bugs in Review #51 gefixed. Deployment-bereit.
+
+---
+
+## CEO Review #51 — 2026-06-11
+
+### Geprüfte Commits (5 Commits seit Review #50)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `ff44553` | feat(delivery/backend): Phase 63 — Admin-UI Fahrer-Bewerbungen | ✅ sauber |
+| `51f15e9` | feat(delivery/frontend): KitchenUntrackedTimerRow + Live-GPS-Abstand Fahrer | ✅ sauber |
+| `3a50b98` | feat(delivery/frontend): CompliancePanel in Statistiken-Dashboard | ✅ sauber |
+| `939c511` | feat(delivery/frontend): LiveDriverPulseStrip im Dispatch — GPS-Geschwindigkeit + Richtung | ⚠️ Bug → gefixt |
+| `9eda048` | feat(delivery/frontend): LetzteStoppsLog Fahrer-App — Schicht-Verlauf als Timeline | ⚠️ 2 Bugs → gefixt |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Kompiliert sauber ✅
+
+### Befund Phase 63 (Backend — Admin-UI Bewerbungen)
+
+**app/(admin)/drivers/bewerbungen/client.tsx (634 Zeilen)**:
+- `BewerbungenClient` mit Funnel-KPI-Cards (Ausstehend/In Prüfung/Genehmigt/Abgelehnt/Total) ✅
+- KPI-Cards doppeln als Filter-Toggle — UX sauber ✅
+- `DetailModal`: Status-Wechsel + Onboarding-Checkliste + Admin-Notizen in einem Slide-Panel ✅
+- `toggleStep()`: optimistisches State-Update mit `.map()` — korrekte Logik ✅
+- `changeStatus()` lädt Onboarding-Steps automatisch nach, wenn Status auf `reviewing` wechselt ✅
+- Fortschrittsbalken: `completedRequired/requiredSteps` korrekte Pflicht-Berechnung ✅
+
+**app/(admin)/drivers/bewerbungen/page.tsx**:
+- Server-Komponente mit Auth (`requireManagerPlus`) + Tenant-safe Location-Loader ✅
+- Fallback: `locationId = empT.location_id ?? locations[0]?.id` — kein Absturz wenn keine location_id ✅
+
+**Sidebar**:
+- `ClipboardList` in `ICON_MAP` ergänzt ✅
+- Sidebar-Link unter Fahrer-Gruppe korrekt eingebettet ✅
+
+### Befund KitchenUntrackedTimerRow (commit 51f15e9)
+
+**app/(admin)/kitchen/client.tsx**:
+- Filtert `status === 'in_zubereitung' && !trackedIds.has(o.id)` — nur ungemonitored Bestellungen ✅
+- Stoppuhr per `setInterval(1s)` mit korrektem Cleanup ✅
+- `elapsedMin / (o.geschaetzte_zubereitung_min ?? 15)` → ratio für Farbcodierung ✅
+- Rote pulse-Animation wenn `ratio >= 1` (überfällig) ✅
+
+**app/fahrer/app/delivery-view.tsx (GPS-Abstand)**:
+- Haversine-Formel korrekt implementiert (R=6371000m, dLat/dLon, atan2) ✅
+- Null-guard: `driverLat != null && driverLng != null && nextStop.order.kunde_lat != null` ✅
+- Schwellen: <150m = „Fast da!" (accent pulse), <600m = amber, sonst dezent ✅
+
+### Befund CompliancePanel in Statistiken-Dashboard (commit 3a50b98)
+
+**components/lieferdienst/statistics-view.tsx**:
+- API-Response-Struktur von `getComplianceStatus()` bestätigt: `totalDrivers, compliant, expiringSoon, partial, nonCompliant, noCerts, blockedForDispatch, drivers` ✅
+- Fetch innerhalb bestehenden `useEffect` — korrekte locationId-Auflösung ✅
+- Typ-Cast `d as Parameters<typeof setComplianceData>[0]` nach `totalDrivers`-Check — sicher ✅
+- Stacked Progress Bar + Legende + Fahrer-Tabelle mit Blockiert-Warnung ✅
+- `ShieldCheck` und `AlertTriangle` korrekt importiert ✅
+
+### Bug 1 gefunden und gefixt — LiveDriverPulseStrip: `position` vs `live_position`
+
+**Datei**: `app/(admin)/dispatch/client.tsx`, `LiveDriverGps`-Typ + Render-Logik
+
+**Problem**: Der `LiveDriverGps`-Typ deklarierte das Positions-Feld als `position?`, aber die API `/api/delivery/admin/drivers` liefert das Feld als `live_position` (Route.ts Zeile 93: `live_position: latestPosition.get(...)`). TypeScript fand keinen Fehler weil der API-Response per Cast auf `{ drivers?: LiveDriverGps[] }` typisiert wurde. Zur Laufzeit waren `g.position?.speed_kmh`, `g.position?.heading` und `g.position?.seconds_stale` immer `undefined` — Fahrer-Chips zeigten nie Geschwindigkeit/Richtung, sondern immer „Kein Signal".
+
+**Fix**:
+- `LiveDriverGps.position?` → `LiveDriverGps.live_position?`
+- Alle 3 Referenzen im Render: `g.position?.seconds_stale`, `g.position?.speed_kmh`, `g.position?.heading` → `g.live_position?....`
+
+### Bug 2 gefunden und gefixt — LetzteStoppsLog: falsche Tabellennamen + Feldnamen
+
+**Datei**: `app/fahrer/app/client.tsx`, Funktion `LetzteStoppsLog`
+
+**Problem**: Vier falsche Identifier, alle führten zu 0 Ergebnissen (Komponente unsichtbar):
+1. `.from('delivery_batches')` → korrekt: `mise_delivery_batches`
+2. `.eq('fahrer_id', driverId)` → korrekt: `.eq('driver_id', driverId)`
+3. `.from('delivery_batch_stops')` → korrekt: `mise_delivery_batch_stops`
+4. `.select('id, geliefert_am, ...')` + `.not('geliefert_am', 'is', null)` + `.order('geliefert_am', ...)` → korrekt: `completed_at` (Supabase-Feld in `mise_delivery_batch_stops`)
+
+**Fix**: Alle vier Stellen korrigiert. Das interne State-Feld `geliefert_am` bleibt unverändert (nur internes Mapping, kein DB-Feld).
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: KitchenUntrackedTimerRow zeigt Bestellungen ohne Smart-Timing als Stoppuhr-Chips ✅
+- Kitchen: KitchenPipelinePanel + DispatchPressureChip bereits vorhanden (Review #50) ✅
+- Dispatch: LiveDriverPulseStrip zeigt jetzt korrekt GPS-Geschwindigkeit + Richtung (Bug gefixt) ✅
+- Driver: Live GPS-Abstand zum nächsten Stopp (Haversine) in Fahrer-App ✅
+- Driver: LetzteStoppsLog zeigt heutige Lieferungen als Timeline (Bug gefixt, Daten sichtbar) ✅
+- Statistics: CompliancePanel zeigt Fahrer-Zertifikats-Status direkt im Statistiken-Dashboard ✅
+- Admin: Fahrer-Bewerbungen Seite mit Funnel-KPI + Detail-Modal + Onboarding-Checkliste ✅
+
+### Status nach Review #51
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 63 (Admin-UI Bewerbungen): DONE ✅
+- Phasen 60–63 Frontend: DONE ✅
+- Bugs gefixed: 2 (LiveDriverPulseStrip live_position, LetzteStoppsLog falsche Tabellen)
+
+### Nächste Schritte für Backend-Architekt
+1. Öffentliches Bewerbungsformular auf Storefront/Landing-Page (`POST /api/delivery/driver/apply`)
+2. Oder: Fahrer-Gehaltsabrechnungs-Export (PDF/CSV) für abgeschlossene Abrechnungsperioden
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Push-Notifications für Fahrer bei neuer Batch-Zuweisung (Service Worker + Supabase Realtime)
+2. Oder: Kundenbewertungs-Dialog in Storefront-Tracking nach Zustellung
 
 ---
 

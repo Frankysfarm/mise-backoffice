@@ -6880,7 +6880,7 @@ type LiveDriverGps = {
   last_lat: number | null;
   last_lng: number | null;
   last_position_at: string | null;
-  position?: {
+  live_position?: {
     lat: number; lng: number;
     heading: number | null;
     speed_kmh: number | null;
@@ -6940,13 +6940,13 @@ function LiveDriverPulseStrip({ batches, drivers }: { batches: Batch[]; drivers:
       </div>
       <div className="flex flex-wrap gap-2">
         {activeGps.map((g) => {
-          const stale = g.position?.seconds_stale ?? (
+          const stale = g.live_position?.seconds_stale ?? (
             g.last_position_at
               ? Math.floor((Date.now() - new Date(g.last_position_at).getTime()) / 1000)
               : null
           );
-          const speed = g.position?.speed_kmh ?? null;
-          const heading = g.position?.heading ?? null;
+          const speed = g.live_position?.speed_kmh ?? null;
+          const heading = g.live_position?.heading ?? null;
           const isMoving = speed != null ? speed > 2 : null;
           const isStale = stale != null && stale > 120;
           const isNoSignal = stale == null || stale > 300;

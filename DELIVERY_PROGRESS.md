@@ -1,10 +1,16 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–63 abgeschlossen. TypeScript 0 Fehler. Build sauber (180+ Seiten).**
+**Phasen 1–63 abgeschlossen. TypeScript 0 Fehler. Build sauber (180+ Seiten). CEO Review #51: 2 Bugs gefixt.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #51: 2 Bugs gefixt (LiveDriverPulseStrip live_position-Feld, LetzteStoppsLog Tabellennamen)
+- [x] LiveDriverPulseStrip — GPS-Geschwindigkeit + Richtung + Signal-Staleness im Dispatch (Bug gefixt)
+- [x] LetzteStoppsLog — Fahrer-App Timeline heutiger Lieferungen (Bug gefixt: mise_delivery_batches + completed_at)
+- [x] KitchenUntrackedTimerRow — Stoppuhr für Bestellungen ohne Smart-Timing in Küchen-View
+- [x] Live GPS-Abstand (Haversine) zum nächsten Stopp in Fahrer-App
+- [x] CompliancePanel in Statistiken-Dashboard — Fahrer-Zertifikats-Übersicht + Blockiert-Status
 - [x] Phase 63: Admin-UI Fahrer-Bewerbungen (app/(admin)/drivers/bewerbungen/)
 - [x] BewerbungenClient — Funnel-KPIs (pending/reviewing/approved/rejected/total)
 - [x] Filterbares Bewerbungs-Listing (Status-Dropdown + Name/E-Mail-Suche)

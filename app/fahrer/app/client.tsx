@@ -1987,22 +1987,22 @@ function LetzteStoppsLog({ driverId }: { driverId: string }) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     (async () => {
       const { data: batches } = await supabase
-        .from('delivery_batches')
+        .from('mise_delivery_batches')
         .select('id')
-        .eq('fahrer_id', driverId)
+        .eq('driver_id', driverId)
         .gte('created_at', today.toISOString());
       if (!batches?.length) return;
       const { data: rows } = await supabase
-        .from('delivery_batch_stops')
-        .select('id, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse, gesamtbetrag)')
+        .from('mise_delivery_batch_stops')
+        .select('id, completed_at, order:customer_orders(bestellnummer, kunde_name, kunde_adresse, gesamtbetrag)')
         .in('batch_id', (batches as { id: string }[]).map((b) => b.id))
-        .not('geliefert_am', 'is', null)
-        .order('geliefert_am', { ascending: false })
+        .not('completed_at', 'is', null)
+        .order('completed_at', { ascending: false })
         .limit(20);
       if (!rows) return;
       setStops((rows as any[]).map((r) => ({
         id: r.id,
-        geliefert_am: r.geliefert_am,
+        geliefert_am: r.completed_at,
         kunde_name: r.order?.kunde_name ?? '—',
         kunde_adresse: r.order?.kunde_adresse ?? null,
         bestellnummer: r.order?.bestellnummer ?? '—',
