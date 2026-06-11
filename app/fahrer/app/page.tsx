@@ -29,7 +29,7 @@ export default async function FahrerAppPage() {
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
-  const [{ data: status }, { data: openBatches }, { data: legacyActiveBatch }, { data: miseActiveBatch }] = await Promise.all([
+  const [{ data: status }, { data: openBatches }, { data: legacyActiveBatch }, { data: miseActiveBatchesRaw }] = await Promise.all([
     svc.from('driver_status').select('*').eq('employee_id', driver.id).maybeSingle(),
     svc.from('v_open_dispatch_batches').select('*').eq('tenant_id', driver.tenant_id),
     // Legacy-Batch (delivery_batches)
@@ -45,10 +45,13 @@ export default async function FahrerAppPage() {
           .eq('driver_id', miseDriver.id)
           .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
           .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+
+  // Mehr-Batch: in_progress (laufende Lieferung) bleibt aktiv; andere (assigned) sind Warte-Touren (waehrend Liefern angenommen).
+  const allMiseBatches = ((miseActiveBatchesRaw as unknown) as any[]) ?? [];
+  const miseActiveBatch = allMiseBatches.find((b) => ['in_progress', 'picked_up'].includes(b.state)) ?? allMiseBatches[0] ?? null;
+  const miseWaiting = allMiseBatches.filter((b) => b !== miseActiveBatch && ['assigned', 'at_restaurant'].includes(b.state));
 
   // Mise-Batch auf Legacy-Format normalisieren (client.tsx erwartet ActiveBatch-Typ)
   const normalizedMiseBatch = miseActiveBatch ? {
@@ -70,6 +73,18 @@ export default async function FahrerAppPage() {
 
   // Legacy-Batch hat Vorrang; Mise-Batch als Fallback
   const activeBatch = legacyActiveBatch ?? normalizedMiseBatch;
+
+  // Warte-Touren (waehrend Liefern angenommen, warten auf Abholung) -> Box-Format
+  const waitingBatches = miseWaiting.map((b: any) => ({
+    batch_id: b.id,
+    orders: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff').map((s: any) => ({
+      order_id: s.order_id,
+      bestellnummer: s.order?.bestellnummer ?? '',
+      kunde_name: s.order?.kunde_name ?? '',
+      kunde_adresse: s.order?.kunde_adresse ?? '',
+      picked: ((s.order?.items ?? []) as any[]).length > 0 && ((s.order?.items ?? []) as any[]).every((it: any) => it.pick_confirmed_at),
+    })),
+  }));
 
   // Offene Mise-Touren (pending_acceptance) -> OpenBatch-Format (Klingeln + Annehmen).
   // Restaurant-Info kommt ueber order.location (mise_delivery_batches hat keine location_id).
@@ -117,6 +132,7 @@ export default async function FahrerAppPage() {
       initialStatus={(status as any) ?? null}
       initialOpenBatches={allOpenBatches}
       initialActiveBatch={(activeBatch as any) ?? null}
+      initialWaitingBatches={waitingBatches as any}
     />
   );
 }

@@ -87,13 +87,14 @@ type ActiveBatch = {
 };
 
 export function FahrerApp({
-  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch,
+  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch, initialWaitingBatches = [],
 }: {
   driver: Driver;
   miseDriverId: string | null;
   initialStatus: Status | null;
   initialOpenBatches: OpenBatch[];
   initialActiveBatch: ActiveBatch | null;
+  initialWaitingBatches?: { batch_id: string; orders: { order_id: string; bestellnummer: string; kunde_name: string; kunde_adresse: string; picked: boolean }[] }[];
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -402,10 +403,13 @@ export function FahrerApp({
   async function acceptDuringTour(orderBatchId: string) {
     if (!activeBatch) return;
     startTransition(async () => {
-      await supabase.rpc('merge_mise_order_into_active_batch', {
-        p_active_batch_id: activeBatch.id,
-        p_order_batch_id: orderBatchId,
-      });
+      if (activeBatch.status === 'unterwegs') {
+        // Waehrend Liefern: separate Warte-Tour (claimen) — NICHT in die laufende Route mergen (Kuechen-JIT)
+        await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: orderBatchId, p_employee_id: miseDriverId ?? driver.id });
+      } else {
+        // Waehrend Picken: in die aktive Tour mergen
+        await supabase.rpc('merge_mise_order_into_active_batch', { p_active_batch_id: activeBatch.id, p_order_batch_id: orderBatchId });
+      }
       window.location.reload();
     });
   }
@@ -625,6 +629,29 @@ export function FahrerApp({
         )}
 
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
+        {/* Kuechen-JIT: waehrend Liefern angenommene Orders warten auf Abholung (werden vorbereitet) */}
+        {activeBatch && activeBatch.status === 'unterwegs' && initialWaitingBatches.length > 0 && (
+          <section style={{ margin: '0 0 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 4px 8px' }}>
+              <DIcon name="clock" size={15} stroke={2.2} style={{ color: 'var(--warn)' }} />
+              <span style={{ fontSize: 12.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ink-2)' }}>Wartet auf Abholung</span>
+            </div>
+            {initialWaitingBatches.flatMap((wb) => wb.orders).map((ord) => (
+              <div key={ord.order_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, background: 'var(--surface)', borderRadius: 16, marginBottom: 8, boxShadow: 'inset 0 0 0 1px var(--line)' }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: ord.picked ? 'var(--accent-tint)' : 'var(--warn-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <DIcon name={ord.picked ? 'bag' : 'clock'} size={19} stroke={2} style={{ color: ord.picked ? 'var(--accent)' : 'var(--warn)' }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>{ord.kunde_name} <span className="mono" style={{ color: 'var(--ink-3)', fontSize: 12 }}>#{(ord.bestellnummer || '').slice(-4)}</span></div>
+                  <div style={{ fontSize: 12.5, color: 'var(--ink-2)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ord.kunde_adresse}</div>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: ord.picked ? 'var(--accent)' : 'var(--warn)', background: ord.picked ? 'var(--accent-tint)' : 'var(--warn-tint)', padding: '4px 9px', borderRadius: 8, whiteSpace: 'nowrap' }}>{ord.picked ? 'abholbereit' : 'wird vorbereitet'}</span>
+              </div>
+            ))}
+            <div style={{ fontSize: 12, color: 'var(--ink-3)', textAlign: 'center', marginTop: 4 }}>Nach deinen Lieferungen zurueck zum Restaurant abholen.</div>
+          </section>
+        )}
+
         {activeBatch && activeBatch.status === 'unterwegs' && (
           <DeliveryView
             batchId={activeBatch.id}
