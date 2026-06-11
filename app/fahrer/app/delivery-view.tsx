@@ -706,6 +706,30 @@ export function DeliveryView({
                 {(nextStop.distanz_zum_vorgaenger_m / 1000).toFixed(1)} km
               </span>
             )}
+            {/* Live GPS-Abstand: Echtzeit-Berechnung von Fahrerposition zum nächsten Stopp */}
+            {driverLat != null && driverLng != null && nextStop.order.kunde_lat != null && nextStop.order.kunde_lng != null && (() => {
+              const R = 6371000;
+              const dLat = ((nextStop.order.kunde_lat - driverLat) * Math.PI) / 180;
+              const dLon = ((nextStop.order.kunde_lng - driverLng) * Math.PI) / 180;
+              const a = Math.sin(dLat / 2) ** 2
+                + Math.cos((driverLat * Math.PI) / 180) * Math.cos((nextStop.order.kunde_lat * Math.PI) / 180)
+                * Math.sin(dLon / 2) ** 2;
+              const distM = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+              const isClose = distM < 150;
+              const isNear  = distM < 600;
+              return (
+                <span className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-bold tabular-nums transition',
+                  isClose ? 'bg-accent text-matcha-900 animate-pulse' :
+                  isNear  ? 'bg-amber-500/30 text-amber-200' :
+                            'bg-white/10 text-matcha-400',
+                )}>
+                  <MapPin size={9} />
+                  {distM < 1000 ? `${distM} m` : `${(distM / 1000).toFixed(1)} km`}
+                  {isClose && ' · Fast da!'}
+                </span>
+              );
+            })()}
             {/* ETA für nächsten Stopp */}
             {batchStartedAt && totalEtaMin != null && (() => {
               const startMs = new Date(batchStartedAt).getTime();

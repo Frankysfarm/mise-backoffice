@@ -674,6 +674,9 @@ export function KitchenBoard({
         </div>
       </div>
 
+      {/* Unkontrollierte Bestellungen: Echtzeitbalken für Bestellungen OHNE Kitchen-Timing — immer sichtbar */}
+      {!bigDisplay && <KitchenUntrackedTimerRow orders={filtered} timings={timings} />}
+
       {/* Proaktiv: "Jetzt kochen!" — wenn Kochstart <5 Min oder überfällig */}
       {timings.length > 0 && <CookingAlertBar timings={timings} orders={filtered} />}
 
@@ -5711,6 +5714,68 @@ function KitchenStationLoadBar({ orders }: { orders: Order[] }) {
                 />
               </div>
               <div className="text-[9px] text-matcha-400">{items} {items === 1 ? 'Artikel' : 'Artikel'}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function KitchenUntrackedTimerRow({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const trackedIds = new Set(timings.map((t) => t.order_id));
+  const untracked = orders.filter(
+    (o) => o.status === 'in_zubereitung' && !trackedIds.has(o.id) && o.bestellt_am,
+  );
+  if (untracked.length === 0) return null;
+
+  const now = Date.now();
+
+  return (
+    <div className="rounded-xl border border-orange-200 bg-orange-50/60 px-3 py-2">
+      <div className="mb-1.5 flex items-center gap-2">
+        <Flame className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-800">
+          Kocht · Kein Smart-Timing ({untracked.length})
+        </span>
+        <span className="ml-auto text-[9px] text-orange-500">Stoppuhr hochzählend</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {untracked.map((o) => {
+          const elapsedMs = now - new Date(o.bestellt_am!).getTime();
+          const elapsedMin = Math.floor(elapsedMs / 60_000);
+          const elapsedSec = Math.floor((elapsedMs % 60_000) / 1000);
+          const est = o.geschaetzte_zubereitung_min ?? 15;
+          const ratio = elapsedMin / est;
+          const isOver  = ratio >= 1;
+          const isNear  = ratio >= 0.75;
+          const station = classifyStation(o.items?.[0]?.name ?? '');
+          const dot = STATION_META[station].dot;
+          return (
+            <div
+              key={o.id}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition',
+                isOver  ? 'border-red-300 bg-red-50 text-red-800 animate-pulse' :
+                isNear  ? 'border-orange-300 bg-orange-100 text-orange-800' :
+                          'border-orange-200 bg-white text-orange-700',
+              )}
+              title={`#${o.bestellnummer} · Schätzung: ${est} Min`}
+            >
+              <span className={cn('h-2 w-2 rounded-full shrink-0', dot)} />
+              <span className="font-mono font-black tabular-nums">
+                {elapsedMin}:{String(elapsedSec).padStart(2, '0')}
+              </span>
+              <span className="font-semibold truncate max-w-[80px]">
+                #{o.bestellnummer.replace(/^[A-Z]+-/, '')} {o.kunde_name.split(' ')[0]}
+              </span>
+              {isOver && <AlertCircle className="h-3 w-3 text-red-600 shrink-0" />}
             </div>
           );
         })}
