@@ -572,9 +572,12 @@ export function DeliveryView({
             })()}
           </div>
           <div className="flex-1 flex flex-col items-end gap-1.5 ml-3">
-            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-accent transition-all" style={{ width: `${(doneCount / stops.length) * 100}%` }} />
-            </div>
+            <TourOnTimeRing
+              doneCount={doneCount}
+              totalStops={stops.length}
+              elapsedSec={elapsed}
+              totalEtaMin={totalEtaMin ?? null}
+            />
             {estimatedEarnings > 0 && (
               <div className="inline-flex items-center gap-1 rounded-full bg-accent/15 border border-accent/30 px-2 py-1">
                 <TrendingUp size={10} className="text-accent" />
@@ -2089,6 +2092,92 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
           style={{ width: `${progressPct}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ TourOnTimeRing ------------------------------ */
+/* SVG-Ring zeigt Fortschritt der Tour + On-Time-Status durch Farbkodierung */
+function TourOnTimeRing({
+  doneCount,
+  totalStops,
+  elapsedSec,
+  totalEtaMin,
+}: {
+  doneCount: number;
+  totalStops: number;
+  elapsedSec: number;
+  totalEtaMin: number | null;
+}) {
+  const pct = totalStops > 0 ? doneCount / totalStops : 0;
+  const allDone = doneCount >= totalStops;
+
+  // On-time score: compare actual done % vs expected done % based on elapsed time
+  let onTimeStatus: 'ahead' | 'on_time' | 'behind' | 'late' = 'on_time';
+  if (totalEtaMin != null && totalEtaMin > 0 && !allDone) {
+    const elapsedMin = elapsedSec / 60;
+    const expectedPct = Math.min(elapsedMin / totalEtaMin, 1);
+    const delta = pct - expectedPct; // positive = ahead, negative = behind
+    if (delta > 0.15) onTimeStatus = 'ahead';
+    else if (delta >= -0.1) onTimeStatus = 'on_time';
+    else if (delta >= -0.25) onTimeStatus = 'behind';
+    else onTimeStatus = 'late';
+  }
+  if (allDone) onTimeStatus = 'ahead';
+
+  const ringColor =
+    allDone ? '#86efac' :           // light green: done
+    onTimeStatus === 'ahead' ? '#4ade80' :   // green
+    onTimeStatus === 'on_time' ? '#a3e635' : // accent/lime
+    onTimeStatus === 'behind' ? '#fb923c' :  // orange
+    '#f87171';                               // red: late
+
+  const label =
+    allDone ? '✓' :
+    onTimeStatus === 'ahead' ? 'top' :
+    onTimeStatus === 'on_time' ? 'ok' :
+    onTimeStatus === 'behind' ? 'spät' :
+    '!';
+
+  const r = 18;
+  const circ = 2 * Math.PI * r;
+  const dash = pct * circ;
+
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        {/* track */}
+        <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+        {/* progress arc */}
+        <circle
+          cx="22" cy="22" r={r}
+          fill="none"
+          stroke={ringColor}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${circ}`}
+          transform="rotate(-90 22 22)"
+          style={{ transition: 'stroke-dasharray 0.6s ease, stroke 0.4s ease' }}
+        />
+        {/* center text */}
+        <text
+          x="22" y="22"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={allDone ? '9' : '8'}
+          fontWeight="800"
+          fill={ringColor}
+          fontFamily="monospace"
+        >
+          {allDone ? '✓' : `${Math.round(pct * 100)}%`}
+        </text>
+      </svg>
+      <span
+        className="text-[8px] font-black uppercase tracking-wider tabular-nums"
+        style={{ color: ringColor }}
+      >
+        {label}
+      </span>
     </div>
   );
 }
