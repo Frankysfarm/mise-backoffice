@@ -264,6 +264,26 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [incidentStats, setIncidentStats] = useState<{
     total_incidents: number; total_open: number; critical_open: number; resolved_today: number;
   } | null>(null)
+  const [complianceData, setComplianceData] = useState<{
+    totalDrivers: number;
+    compliant: number;
+    expiringSoon: number;
+    partial: number;
+    nonCompliant: number;
+    noCerts: number;
+    blockedForDispatch: number;
+    drivers: {
+      driverId: string;
+      employeeId: string | null;
+      vehicle: string | null;
+      complianceStatus: string;
+      activeCerts: number;
+      expiredCerts: number;
+      suspendedCerts: number;
+      expiringSoonCount: number;
+      dispatchBlocked: boolean;
+    }[];
+  } | null>(null)
 
   const fetchDrivers = () => {
     fetch('/api/delivery/admin/drivers')
@@ -439,6 +459,14 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
             critical_open: d.stats.critical_open ?? 0,
             resolved_today: d.stats.resolved_today ?? 0,
           })
+        }
+      })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/compliance?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: Record<string, unknown> | null) => {
+        if (d && typeof d.totalDrivers === 'number') {
+          setComplianceData(d as Parameters<typeof setComplianceData>[0])
         }
       })
       .catch(() => {})
@@ -2172,6 +2200,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {/* Franchise Echtzeit-Übersicht (mehrere Standorte) */}
       {franchiseSummary && franchiseSummary.locations.length > 1 && (
         <FranchiseOverviewPanel data={franchiseSummary} />
+      )}
+
+      {/* Fahrer-Compliance: Zertifikate und Dispatch-Freigaben */}
+      {complianceData && complianceData.totalDrivers > 0 && (
+        <CompliancePanel data={complianceData} />
       )}
 
       {/* Delivery Event Log — Aktivitätsprotokoll */}
@@ -4630,6 +4663,144 @@ function WochentagsHeatmap({ completedOrders }: { completedOrders: Order[] }) {
         <span className="text-[10px] text-stone-400">Viel</span>
         <span className="ml-auto text-[10px] text-stone-400 italic">● = heute</span>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ CompliancePanel ------------------------------ */
+
+type CompliancePanelData = {
+  totalDrivers: number;
+  compliant: number;
+  expiringSoon: number;
+  partial: number;
+  nonCompliant: number;
+  noCerts: number;
+  blockedForDispatch: number;
+  drivers: {
+    driverId: string;
+    employeeId: string | null;
+    vehicle: string | null;
+    complianceStatus: string;
+    activeCerts: number;
+    expiredCerts: number;
+    suspendedCerts: number;
+    expiringSoonCount: number;
+    dispatchBlocked: boolean;
+  }[];
+};
+
+const COMPLIANCE_LABEL: Record<string, string> = {
+  compliant: 'Konform',
+  expiring_soon: 'Läuft bald ab',
+  partial: 'Teilweise',
+  non_compliant: 'Nicht konform',
+  no_certs: 'Keine Zertifikate',
+};
+
+const COMPLIANCE_COLOR: Record<string, string> = {
+  compliant: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  expiring_soon: 'bg-amber-100 text-amber-800 border-amber-200',
+  partial: 'bg-orange-100 text-orange-800 border-orange-200',
+  non_compliant: 'bg-red-100 text-red-800 border-red-200',
+  no_certs: 'bg-stone-100 text-stone-600 border-stone-200',
+};
+
+const VEHICLE_ICON: Record<string, string> = {
+  auto: '🚗', bike: '🚲', ebike: '⚡', roller: '🛵', scooter: '🛵', fuss: '🚶',
+};
+
+function CompliancePanel({ data }: { data: CompliancePanelData }) {
+  const atRisk = data.drivers.filter(
+    (d) => d.complianceStatus !== 'compliant' || d.dispatchBlocked,
+  );
+
+  const bars = [
+    { label: 'Konform', count: data.compliant, color: 'bg-emerald-500' },
+    { label: 'Bald ablauffend', count: data.expiringSoon, color: 'bg-amber-400' },
+    { label: 'Teilweise', count: data.partial, color: 'bg-orange-400' },
+    { label: 'Nicht konform', count: data.nonCompliant, color: 'bg-red-500' },
+    { label: 'Keine Certs', count: data.noCerts, color: 'bg-stone-300' },
+  ].filter((b) => b.count > 0);
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <ShieldCheck className="w-5 h-5 text-emerald-600" />
+        <h3 className="text-lg font-semibold text-char">Fahrer-Compliance</h3>
+        {data.blockedForDispatch > 0 && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-red-100 border border-red-200 px-2.5 py-1 text-[11px] font-bold text-red-700">
+            <AlertTriangle className="w-3 h-3" />
+            {data.blockedForDispatch} gesperrt
+          </span>
+        )}
+      </div>
+
+      {/* Stacked progress bar */}
+      <div className="flex h-3 rounded-full overflow-hidden mb-3">
+        {bars.map((b) => (
+          <div
+            key={b.label}
+            className={`${b.color} transition-all`}
+            style={{ width: `${Math.round((b.count / Math.max(1, data.totalDrivers)) * 100)}%` }}
+            title={`${b.label}: ${b.count}`}
+          />
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 mb-4 text-[11px]">
+        {bars.map((b) => (
+          <span key={b.label} className="flex items-center gap-1">
+            <span className={`h-2.5 w-2.5 rounded-full ${b.color} inline-block`} />
+            {b.label}: <strong>{b.count}</strong>
+          </span>
+        ))}
+        <span className="ml-auto text-stone-400">{data.totalDrivers} Fahrer gesamt</span>
+      </div>
+
+      {/* At-risk drivers */}
+      {atRisk.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-2">
+            Handlungsbedarf ({atRisk.length})
+          </div>
+          {atRisk.map((d) => (
+            <div
+              key={d.driverId}
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2 text-[12px] ${COMPLIANCE_COLOR[d.complianceStatus] ?? 'bg-stone-50 text-stone-700 border-stone-200'}`}
+            >
+              <span className="text-base leading-none">
+                {d.vehicle ? (VEHICLE_ICON[d.vehicle] ?? '🚗') : '🚗'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold truncate">
+                  {d.employeeId ? `Fahrer ${d.employeeId.slice(-6).toUpperCase()}` : 'Unbekannt'}
+                  {d.dispatchBlocked && (
+                    <span className="ml-2 text-[10px] font-black text-red-700 bg-red-100 rounded px-1">GESPERRT</span>
+                  )}
+                </div>
+                <div className="text-[10px] opacity-75">
+                  {COMPLIANCE_LABEL[d.complianceStatus] ?? d.complianceStatus}
+                  {d.expiringSoonCount > 0 && ` · ${d.expiringSoonCount} läuft bald ab`}
+                  {d.expiredCerts > 0 && ` · ${d.expiredCerts} abgelaufen`}
+                  {d.suspendedCerts > 0 && ` · ${d.suspendedCerts} gesperrt`}
+                </div>
+              </div>
+              <div className="text-right text-[10px] shrink-0">
+                <div className="font-black">{d.activeCerts}</div>
+                <div className="opacity-60">aktiv</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {atRisk.length === 0 && (
+        <div className="text-center text-sm text-emerald-700 font-semibold py-2">
+          Alle Fahrer sind konform ✓
+        </div>
+      )}
     </div>
   );
 }
