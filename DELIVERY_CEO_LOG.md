@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–63 vollständig abgeschlossen. 2 Bugs in Review #51 gefixed. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–63 vollständig abgeschlossen. CEO Review #52: 0 Bugs, Build sauber (180 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #52 — 2026-06-11
+
+### Geprüfte Commits (2 Commits seit Review #51)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `baf682e` | feat(kitchen): timer-schnellstart + verbleibend-chip für ungeplante Orders | ✅ sauber |
+| `3d9203b` | review(delivery): CEO Review #51 — 2 Bugs gefixt (LiveDriverPulseStrip live_position, LetzteStoppsLog Tabellennamen) | ✅ sauber |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: 180 Seiten, kompiliert sauber ✅
+- Keine Warnings im Build ✅
+
+### Vollständiger Integrations-Check
+
+**Kitchen ↔ Dispatch ↔ Driver ↔ Storefront — alles verbunden:**
+
+- **Kitchen**: `KitchenUntrackedTimerRow` (Stoppuhr-Chips für Bestellungen ohne Smart-Timing) ✅
+- **Kitchen → Dispatch**: `KitchenPipelinePanel` zeigt aktive Kochvorgänge mit Countdown im Dispatch ✅
+- **Kitchen → Dispatch**: `KitchenDispatchPressureChip` zeigt Rückstau-Indikator in Küchen-Toolbar ✅
+- **Kitchen Load → Storefront**: `signal_message` + `eta_extension_min` in storefront-v2.tsx + storefront.tsx korrekt verdrahtet ✅
+- **Dispatch → Driver**: `LiveDriverPulseStrip` zeigt GPS-Geschwindigkeit + Richtung + Staleness (Bug in Review #51 gefixt) ✅
+- **Driver App**: `TourOnTimeRing` SVG-Fortschrittsring mit Pünktlichkeit ✅
+- **Driver App**: `LetzteStoppsLog` Timeline heutiger Lieferungen (Bugs in Review #51 gefixt) ✅
+- **Driver App**: `TourProgressDots` + `FahrerRankingCard` + Haversine GPS-Abstand ✅
+- **Statistics**: `CompliancePanel` Fahrer-Zertifikatsstatus im Statistiken-Dashboard ✅
+- **Admin**: Fahrer-Bewerbungen mit Funnel-KPIs + DetailModal + Onboarding-Checkliste ✅
+- **Sidebar**: `ClipboardList` Icon + Link „Fahrer-Bewerbungen" unter Fahrer-Gruppe ✅
+- **Backend-APIs**: 40+ Delivery-API-Routes vollständig vorhanden (admin/, driver/, dispatch, eta, zones, tours, shifts, compliance, applications...) ✅
+
+### Deutsche UI & Professionelle UX
+- Alle Texte auf Deutsch ✅
+- Farbcodierungen (Rot/Amber/Grün) konsistent durch alle Views ✅
+- Optimistische State-Updates (toggleStep, Onboarding-Checkliste) ✅
+- Live-Ticker (1s/30s-Polls) sauber implementiert ✅
+
+### Befund KitchenTimer (commit baf682e)
+- `KitchenUntrackedTimerRow` korrekt in `app/(admin)/kitchen/client.tsx` eingebettet
+- Filtert `status === 'in_zubereitung' && !trackedIds.has(o.id)` — nur ungemonitored Bestellungen ✅
+- Nicht gerendert bei `bigDisplay` (Anzeigenmodus) ✅
+- `setInterval(1s)` mit korrektem `clearInterval`-Cleanup in useEffect ✅
+
+### Bugs in Review #52
+- **0 neue Bugs gefunden** — alle Fixes aus Review #51 sind korrekt ✅
+
+### Nächste Schritte
+1. **Deployment**: Der Build ist production-ready. Deployment auf Vercel/Railway kann sofort erfolgen.
+2. **Datenbank-Migrations**: Migrations 047–049 müssen auf Produktions-Supabase ausgeführt werden (shift_breaks, driver_certifications, driver_applications).
+3. **Cron-Jobs aktivieren**: `evaluateComplianceAllLocations()` (stündlich), `expireStaleApplicationsAllLocations()` (alle 30 Min).
+4. **Push-Notifications**: `push-register.tsx` im Fahrer-App prüfen ob Vapid-Keys konfiguriert sind.
+5. **GPS-Tracking**: Sicherstellen dass Fahrer-App Geolocation-Permissions korrekt abfragt.
+
+### Status nach Review #52
+- TypeScript: 0 Fehler ✅
+- Build: 180 Seiten kompiliert sauber ✅
+- Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: VOLLSTÄNDIG ✅
+- Phasen 1–63: ALLE ABGESCHLOSSEN ✅
+- Neue Bugs: 0
 
 ---
 
