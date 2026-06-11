@@ -32,6 +32,7 @@ import { processAllCustomerNotifications } from '@/lib/delivery/customer-push';
 import { autoCreateIncidentsForRatings } from '@/lib/delivery/incidents';
 import { snapshotAllLocations as snapshotDriverPerformance } from '@/lib/delivery/driver-performance';
 import { evaluateComplianceAllLocations } from '@/lib/delivery/compliance';
+import { expireStaleApplicationsAllLocations } from '@/lib/delivery/onboarding';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -75,7 +76,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -143,6 +144,10 @@ export async function GET(req: NextRequest) {
       // Compliance: abgelaufene Zertifikate markieren + ablaufende zählen (stündlich ausreichend)
       isReportTick || isDemandTick
         ? evaluateComplianceAllLocations().catch(() => ({ locations: 0, alertsGenerated: 0, expiredAutoUpdated: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Onboarding: abgelaufene pending-Bewerbungen als 'withdrawn' markieren (alle 30 Min reicht)
+      isDemandTick
+        ? expireStaleApplicationsAllLocations().catch(() => ({ expired: 0 }))
         : Promise.resolve(null),
     ]);
 
@@ -215,6 +220,7 @@ export async function GET(req: NextRequest) {
       incidents_created: incidentsCreated,
       ...(driverPerfResult ? { driver_performance_snapshots: driverPerfResult } : {}),
       ...(complianceResult ? { compliance: complianceResult } : {}),
+      ...(onboardingResult ? { onboarding_expired: onboardingResult.expired } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

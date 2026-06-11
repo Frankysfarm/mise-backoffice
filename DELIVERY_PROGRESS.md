@@ -1,10 +1,28 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–60 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
+**Phasen 1–61 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] driver_applications Tabelle (Migration 049)
+- [x] driver_onboarding_steps Tabelle (Migration 049)
+- [x] v_application_overview View (Migration 049)
+- [x] v_onboarding_funnel View (Migration 049)
+- [x] onboarding.ts (Bewerbungs- & Onboarding-Engine, 10 Funktionen)
+- [x] submitApplication() — öffentlich, Duplicate-Guard, Tenant-sicher
+- [x] getApplications() + getApplicationById() — Admin-Liste mit Filtern
+- [x] updateApplicationStatus() — pending→reviewing→approved/rejected, Auto-Steps
+- [x] createDefaultOnboardingSteps() — 6 Default-Steps, idempotent
+- [x] getOnboardingSteps() + updateOnboardingStep() — Checkliste abhaken
+- [x] linkDriverToApplication() — Fahrer-Account nach Erstellung verknüpfen
+- [x] expireStaleApplicationsAllLocations() — Cron-Wrapper (alle 30 Min)
+- [x] getOnboardingFunnelStats() — Trichter-KPIs für Admin-Dashboard
+- [x] POST /api/delivery/driver/apply (öffentlich, E-Mail-Validierung, Duplicate-409)
+- [x] GET /api/delivery/admin/applications (Liste + Trichter-Funnel)
+- [x] GET+PATCH /api/delivery/admin/applications/[id] (Einzelansicht + Status-Update)
+- [x] GET+PATCH /api/delivery/admin/applications/[id]/steps (Onboarding-Checkliste)
+- [x] Cron-Integration: expireStaleApplicationsAllLocations() alle 30 Min
 - [x] CompliancePanel Admin-UI (Zertifikatsverwaltung pro Fahrer + Übersichts-Dashboard)
 - [x] Compliance-Tab in Fahrer-Admin-Seite (Drivers/client.tsx)
 - [x] StatCards für Compliance-KPIs (konform / läuft bald ab / nicht konform / blockiert)
@@ -197,6 +215,31 @@
 - [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
 
 ## STATUS: MARKT-REIF ✅ — PHASEN 1–60 + CEO REVIEW #49 ABGESCHLOSSEN — 2026-06-11
+
+## Phase 61: Fahrer-Bewerbungs- & Onboarding-Engine [DONE ✅] — 2026-06-11
+
+### Backend
+- **Migration 049** (`scripts/migrations/049_driver_onboarding.sql`)
+  - `driver_applications`: vollständige Bewerbungstabelle (Status, Fahrzeugtyp, Verfügbarkeit, Referral-Code)
+  - `driver_onboarding_steps`: konfigurierbare Onboarding-Checkliste je Bewerbung (step_key UNIQUE)
+  - `v_application_overview`: Bewerbungen mit Steps-Fortschritt (steps_total / steps_completed / steps_blocking)
+  - `v_onboarding_funnel`: Trichter-Statistiken je Standort inkl. Approval-Rate
+- **`lib/delivery/onboarding.ts`** (10 Funktionen):
+  - `submitApplication()` — öffentlich, Duplicate-Guard (gleiche E-Mail + Location = 409)
+  - `getApplications()` — Admin-Liste mit Filter (status, search, limit, offset)
+  - `getApplicationById()` — Einzelansicht + Steps in einem Query
+  - `updateApplicationStatus()` — Status-Wechsel + auto-`createDefaultOnboardingSteps` beim ersten 'reviewing'
+  - `createDefaultOnboardingSteps()` — 6 Default-Steps (idempotent via ON CONFLICT)
+  - `getOnboardingSteps()` + `updateOnboardingStep()` — Checkliste abhaken, completed_at setzen
+  - `linkDriverToApplication()` — Fahrer-Account nach manueller Erstellung verknüpfen
+  - `expireStaleApplicationsAllLocations()` — Cron-Wrapper
+  - `getOnboardingFunnelStats()` — Trichter-KPIs pro Location
+- **API-Routes**:
+  - `POST /api/delivery/driver/apply` — öffentlich, kein Auth, E-Mail-Regex-Check
+  - `GET /api/delivery/admin/applications` — Liste + `?view=funnel` für Dashboard
+  - `GET+PATCH /api/delivery/admin/applications/[id]` — Einzelansicht + Status-Update
+  - `GET+PATCH /api/delivery/admin/applications/[id]/steps` — Onboarding-Checkliste
+- **Cron-Integration**: `expireStaleApplicationsAllLocations()` alle 30 Min (isDemandTick)
 
 ## Phase 60: Compliance Dashboard Admin-UI [DONE ✅] — 2026-06-11
 - [x] **`app/(admin)/drivers/compliance-panel.tsx`** — 360+ Zeilen Compliance-Admin-UI
@@ -2327,6 +2370,15 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-11: Backend-Architekt — Phase 61: Fahrer-Bewerbungs- & Onboarding-Engine
+  - scripts/migrations/049_driver_onboarding.sql: driver_applications + driver_onboarding_steps + v_application_overview + v_onboarding_funnel
+  - lib/delivery/onboarding.ts: 10 Funktionen (submitApplication, getApplications, getApplicationById, updateApplicationStatus, createDefaultOnboardingSteps, getOnboardingSteps, updateOnboardingStep, linkDriverToApplication, expireStaleApplicationsAllLocations, getOnboardingFunnelStats)
+  - POST /api/delivery/driver/apply: öffentlicher Endpunkt, E-Mail-Validierung, Duplicate-409
+  - GET /api/delivery/admin/applications: Liste + Trichter-Funnel (?view=funnel)
+  - GET+PATCH /api/delivery/admin/applications/[id]: Einzelansicht + Status-Wechsel
+  - GET+PATCH /api/delivery/admin/applications/[id]/steps: Onboarding-Checkliste abhaken
+  - Cron: expireStaleApplicationsAllLocations() alle 30 Min (isDemandTick)
+  - Build: ✓ (0 TypeScript-Fehler, 0 Warnungen)
 - 2026-06-11: Backend-Architekt — Phase 60: Compliance Dashboard Admin-UI
   - app/(admin)/drivers/compliance-panel.tsx: CompliancePanel, DriverComplianceRow, CertRow, CertFormModal, StatCard (360+ Zeilen)
   - app/(admin)/drivers/client.tsx: Tab-Navigation (Fahrer / Compliance), TabButton-Komponente, driverNames-Map
