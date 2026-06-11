@@ -7,8 +7,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, dateTimeDE } from '@/lib/utils';
 import {
-  AlertCircle, Bike, Check, Copy, ExternalLink, Loader2, Mail, Package, Phone, Plus, Send, Store, UserPlus, Wifi, WifiOff, X,
+  AlertCircle, Bike, Check, Copy, ExternalLink, Loader2, Mail, Package, Phone, Plus, Send, ShieldCheck, Store, UserPlus, Wifi, WifiOff, X,
 } from 'lucide-react';
+import { CompliancePanel } from './compliance-panel';
 
 type Driver = {
   id: string;
@@ -50,8 +51,15 @@ export function DriversClient({
 }) {
   const router = useRouter();
   const [showInvite, setShowInvite] = useState(false);
+  const [activeTab, setActiveTab] = useState<'drivers' | 'compliance'>('drivers');
   const online = drivers.filter((d) => d.driver_status?.[0]?.ist_online);
   const offline = drivers.filter((d) => !d.driver_status?.[0]?.ist_online);
+
+  // Build name lookup for CompliancePanel (employee_id → name)
+  const driverNames: Record<string, string> = {};
+  for (const d of drivers) {
+    driverNames[d.id] = `${d.vorname} ${d.nachname}`;
+  }
 
   const primary = tenant.theme_primary ?? '#14532d';
   const accent = tenant.theme_accent ?? '#4ae68a';
@@ -119,60 +127,83 @@ export function DriversClient({
         </div>
       </div>
 
-      {/* Resend-Warning */}
-      {!resendReady && (
-        <Card className="p-4 border-amber-300 bg-amber-50 flex items-start gap-3">
-          <AlertCircle size={18} className="text-amber-700 shrink-0 mt-0.5" />
-          <div className="flex-1 text-sm">
-            <strong className="text-amber-900">E-Mail noch nicht verbunden.</strong>
-            <p className="text-amber-800 mt-1">
-              Ohne Resend kannst du trotzdem Fahrer anlegen — die Zugangsdaten werden dir direkt angezeigt, du musst sie manuell weitergeben.
-              <a href="/settings/email" className="underline font-semibold ml-1">Jetzt einrichten →</a>
-            </p>
-          </div>
-        </Card>
-      )}
-
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <StatPill label="Online" value={online.length} tone="accent" />
-          <StatPill label="Gesamt" value={drivers.length} />
-        </div>
-        <button
-          onClick={() => setShowInvite(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-matcha-900 text-matcha-50 px-4 py-2.5 text-sm font-bold hover:bg-matcha-800"
-        >
-          <UserPlus size={14} /> Fahrer einladen
-        </button>
+      {/* Tab Nav */}
+      <div className="flex items-center gap-1 border-b">
+        <TabButton active={activeTab === 'drivers'} onClick={() => setActiveTab('drivers')}>
+          <Bike size={14} /> Fahrer
+        </TabButton>
+        <TabButton active={activeTab === 'compliance'} onClick={() => setActiveTab('compliance')}>
+          <ShieldCheck size={14} /> Compliance
+        </TabButton>
       </div>
 
-      {/* Drivers */}
-      {drivers.length === 0 ? (
-        <Card className="p-10 text-center">
-          <div className="h-14 w-14 mx-auto rounded-full bg-matcha-100 text-matcha-700 flex items-center justify-center mb-3">
-            <Bike size={22} />
-          </div>
-          <div className="font-display text-lg font-bold">Noch keine Fahrer</div>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Lade deinen ersten Fahrer ein. Er bekommt per E-Mail einen Link zur Fahrer-App + Login-Daten.
-          </p>
-          <button
-            onClick={() => setShowInvite(true)}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-matcha-900 text-matcha-50 px-5 py-2.5 text-sm font-bold"
-          >
-            <UserPlus size={14} /> Ersten Fahrer einladen
-          </button>
-        </Card>
-      ) : (
+      {activeTab === 'drivers' && (
         <>
-          {online.length > 0 && (
-            <DriversSection title="Online" tone="accent" drivers={online} locations={locations} />
+          {/* Resend-Warning */}
+          {!resendReady && (
+            <Card className="p-4 border-amber-300 bg-amber-50 flex items-start gap-3">
+              <AlertCircle size={18} className="text-amber-700 shrink-0 mt-0.5" />
+              <div className="flex-1 text-sm">
+                <strong className="text-amber-900">E-Mail noch nicht verbunden.</strong>
+                <p className="text-amber-800 mt-1">
+                  Ohne Resend kannst du trotzdem Fahrer anlegen — die Zugangsdaten werden dir direkt angezeigt, du musst sie manuell weitergeben.
+                  <a href="/settings/email" className="underline font-semibold ml-1">Jetzt einrichten →</a>
+                </p>
+              </div>
+            </Card>
           )}
-          {offline.length > 0 && (
-            <DriversSection title="Offline / Eingeladen" tone="muted" drivers={offline} locations={locations} />
+
+          {/* Toolbar */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <StatPill label="Online" value={online.length} tone="accent" />
+              <StatPill label="Gesamt" value={drivers.length} />
+            </div>
+            <button
+              onClick={() => setShowInvite(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-matcha-900 text-matcha-50 px-4 py-2.5 text-sm font-bold hover:bg-matcha-800"
+            >
+              <UserPlus size={14} /> Fahrer einladen
+            </button>
+          </div>
+
+          {/* Drivers */}
+          {drivers.length === 0 ? (
+            <Card className="p-10 text-center">
+              <div className="h-14 w-14 mx-auto rounded-full bg-matcha-100 text-matcha-700 flex items-center justify-center mb-3">
+                <Bike size={22} />
+              </div>
+              <div className="font-display text-lg font-bold">Noch keine Fahrer</div>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                Lade deinen ersten Fahrer ein. Er bekommt per E-Mail einen Link zur Fahrer-App + Login-Daten.
+              </p>
+              <button
+                onClick={() => setShowInvite(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-matcha-900 text-matcha-50 px-5 py-2.5 text-sm font-bold"
+              >
+                <UserPlus size={14} /> Ersten Fahrer einladen
+              </button>
+            </Card>
+          ) : (
+            <>
+              {online.length > 0 && (
+                <DriversSection title="Online" tone="accent" drivers={online} locations={locations} />
+              )}
+              {offline.length > 0 && (
+                <DriversSection title="Offline / Eingeladen" tone="muted" drivers={offline} locations={locations} />
+              )}
+            </>
           )}
         </>
+      )}
+
+      {activeTab === 'compliance' && defaultLocationId && (
+        <CompliancePanel locationId={defaultLocationId} driverNames={driverNames} />
+      )}
+      {activeTab === 'compliance' && !defaultLocationId && (
+        <Card className="p-6 text-center text-sm text-muted-foreground">
+          Keine Location ausgewählt. Bitte zuerst eine Location zuweisen.
+        </Card>
       )}
 
       {showInvite && (
@@ -185,6 +216,26 @@ export function DriversClient({
         />
       )}
     </div>
+  );
+}
+
+function TabButton({ active, onClick, children }: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition',
+        active
+          ? 'border-matcha-700 text-matcha-900'
+          : 'border-transparent text-muted-foreground hover:text-foreground',
+      )}
+    >
+      {children}
+    </button>
   );
 }
 

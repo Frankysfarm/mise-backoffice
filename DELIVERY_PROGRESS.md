@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–59 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
+**Phasen 1–60 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CompliancePanel Admin-UI (Zertifikatsverwaltung pro Fahrer + Übersichts-Dashboard)
+- [x] Compliance-Tab in Fahrer-Admin-Seite (Drivers/client.tsx)
+- [x] StatCards für Compliance-KPIs (konform / läuft bald ab / nicht konform / blockiert)
+- [x] Expiring-Soon-Alert im Compliance-Tab (≤30 Tage)
+- [x] Dispatch-Blockiert-Alert (Lebensmittelhygiene abgelaufen/gesperrt)
+- [x] Per-Fahrer Zertifikat-Verwaltung (aufklappbar, Add/Delete)
+- [x] CertFormModal (Typ, Nummer, Ausstellungs-/Ablaufdatum, Status, Notizen)
 - [x] KitchenRevenueGauge (Pipeline-Umsatz aller aktiven Bestellungen)
 - [x] LieferdienstWochenvergleich (7-Tage-Balkendiagramm + Durchschnittslinie)
 - [x] TourProgressDots (nummerierte Fortschritts-Punkte + Bargeld-Badge in Fahrer-App)
@@ -189,7 +196,25 @@
 - [x] BroadcastPanel im Dispatch-Board (aufklappbar, Normal/Dringend, Löschen)
 - [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–59 + CEO REVIEW #48 ABGESCHLOSSEN — 2026-06-11
+## STATUS: MARKT-REIF ✅ — PHASEN 1–60 + CEO REVIEW #49 ABGESCHLOSSEN — 2026-06-11
+
+## Phase 60: Compliance Dashboard Admin-UI [DONE ✅] — 2026-06-11
+- [x] **`app/(admin)/drivers/compliance-panel.tsx`** — 360+ Zeilen Compliance-Admin-UI
+  - `CompliancePanel` Haupt-Komponente: Lade-State, Stat-Cards, Alerts, Fahrer-Liste
+  - `DriverComplianceRow` aufklappbar: lädt Zertifikate on-demand, Add-Button
+  - `CertRow` mit Ablauf-Farbkodierung (14d=rot, 30d=amber), Löschen-Button mit Bestätigung
+  - `CertFormModal`: Typ, Nummer, Ausstellungs-/Ablaufdatum, Status, Notizen — POST an API
+  - `StatCard`: 6 KPIs (konform / läuft bald ab / teilweise / nicht konform / keine Certs / blockiert)
+  - Expiring-Soon-Alert: Liste mit Tage-bis-Ablauf (gelb, <30 Tage)
+  - Dispatch-blockiert-Alert: Banner wenn food_hygiene expired/suspended
+  - Fahrer-Sortierung: blocked/non_compliant zuerst, compliant zuletzt
+  - Multi-Tenant-safe: alle Requests mit `location_id` Parameter
+- [x] **`app/(admin)/drivers/client.tsx`** — Tab-Navigation ergänzt
+  - "Fahrer"-Tab (bestehende Ansicht, unverändert)
+  - "Compliance"-Tab (CompliancePanel) — ShieldCheck-Icon
+  - `driverNames`-Map für Compliance-Panel aus vorhandenen Driver-Daten
+  - `TabButton` Komponente (border-b-2 Active-Style, matcha-Farben)
+- Build: tsc --noEmit ✓ (0 Fehler), next build ✓ (Compiled successfully)
 
 ## Phase 59: Driver Certification & Compliance Engine [DONE ✅] — 2026-06-11
 - [x] **`scripts/migrations/048_driver_compliance.sql`** — Datenmodell + Views
@@ -2302,6 +2327,11 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-11: Backend-Architekt — Phase 60: Compliance Dashboard Admin-UI
+  - app/(admin)/drivers/compliance-panel.tsx: CompliancePanel, DriverComplianceRow, CertRow, CertFormModal, StatCard (360+ Zeilen)
+  - app/(admin)/drivers/client.tsx: Tab-Navigation (Fahrer / Compliance), TabButton-Komponente, driverNames-Map
+  - Compliance-Tab zeigt: 6 KPI-StatCards, Expiring-Soon-Alert, Dispatch-blockiert-Alert, aufklappbare Fahrer-Liste mit Cert-CRUD
+  - Build: ✓ (0 TypeScript-Fehler, 0 Warnungen)
 - 2026-06-11: Backend-Architekt — Phase 59: Driver Certification & Compliance Engine
   - scripts/migrations/048_driver_compliance.sql: driver_certifications + v_driver_compliance_status + v_expiring_soon_certs + 4 Indizes
   - lib/delivery/compliance.ts: 9 Funktionen (getCertifications, upsertCertification, deleteCertification, getComplianceStatus, getExpiringSoon, checkDriverCompliance, autoExpireCertifications, generateComplianceAlerts, evaluateComplianceAllLocations)
