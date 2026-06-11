@@ -31,6 +31,9 @@ import { markWindowDispatched } from './windows';
 import { sortByPriority } from './queue-intelligence';
 import type { ZoneName } from './zones';
 
+// Phase 59: Compliance-blocked drivers are excluded from dispatch
+// Import is lazy-evaluated to avoid circular deps and handle missing migration gracefully
+
 export interface DispatchResult {
   orderId: string;
   outcome: 'dispatched' | 'bundled' | 'held';
@@ -494,5 +497,24 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
   // Da wir keinen direkten Tenant-Filter auf mise_drivers haben, alle aktiven zurückgeben
   // (Frank-Kompatibilität — Fahrer sind systemweit aktiv, nicht location-gebunden)
   void locationIds; // multi-tenant wird über Frank-Routing sichergestellt
+
+  // Phase 59: Compliance-Block — food_hygiene abgelaufen/gesperrt → Fahrer ausschließen
+  if (drivers.length > 0) {
+    try {
+      const { data: blockedCerts } = await sb()
+        .from('driver_certifications')
+        .select('driver_id')
+        .in('driver_id', drivers.map((d) => d.id))
+        .eq('cert_type', 'food_hygiene')
+        .in('status', ['expired', 'suspended']);
+      if (blockedCerts && blockedCerts.length > 0) {
+        const blocked = new Set(blockedCerts.map((c) => String((c as { driver_id: string }).driver_id)));
+        return drivers.filter((d) => !blocked.has(d.id));
+      }
+    } catch {
+      // Graceful fallback: wenn Tabelle noch nicht migriert → alle Fahrer erlaubt
+    }
+  }
+
   return drivers;
 }

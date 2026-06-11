@@ -2,6 +2,19 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] driver_certifications Tabelle (Migration 048)
+- [x] v_driver_compliance_status View (Migration 048)
+- [x] v_expiring_soon_certs View (Migration 048)
+- [x] compliance.ts (Certification & Compliance Engine)
+- [x] getCertifications() / upsertCertification() / deleteCertification()
+- [x] getComplianceStatus() (Location-Übersicht mit Driver-Details)
+- [x] getExpiringSoon() (Ablaufende Zertifikate, konfigurierbares Fenster)
+- [x] checkDriverCompliance() (hard-block bei food_hygiene expired/suspended)
+- [x] autoExpireCertifications() + generateComplianceAlerts()
+- [x] evaluateComplianceAllLocations() (Cron-Wrapper)
+- [x] GET+POST+DELETE /api/delivery/admin/compliance (Admin-API)
+- [x] Compliance-Filter in loadActiveDrivers() — food_hygiene-Block vor Dispatch
+- [x] Cron-Integration: evaluateComplianceAllLocations() (stündlich)
 - [x] FahrerRankingCard (Wochen-Ranking im Warte-Zustand)
 - [x] KitchenDispatchPressureChip (Rückstau-Indikator in Küchen-Toolbar)
 - [x] shift_breaks Tabelle (Migration 047)
@@ -166,7 +179,40 @@
 - [x] BroadcastPanel im Dispatch-Board (aufklappbar, Normal/Dringend, Löschen)
 - [x] Betriebsnachrichten-Banner in Fahrer-App (dismissierbar, 60s-Poll, 🚨/📢 Priorität)
 
-## STATUS: MARKT-REIF ✅ — PHASEN 1–58 + CEO REVIEW #48 ABGESCHLOSSEN — 2026-06-10
+## STATUS: MARKT-REIF ✅ — PHASEN 1–59 + CEO REVIEW #48 ABGESCHLOSSEN — 2026-06-11
+
+## Phase 59: Driver Certification & Compliance Engine [DONE ✅] — 2026-06-11
+- [x] **`scripts/migrations/048_driver_compliance.sql`** — Datenmodell + Views
+  - `driver_certifications` Tabelle: cert_type, cert_number, issued_at, expires_at, status — UNIQUE(driver_id, cert_type)
+  - 6 Zertifikatstypen: `food_hygiene` | `drivers_license` | `vehicle_inspection` | `food_handler` | `id_verification` | `other`
+  - 4 Status: `active` | `expired` | `suspended` | `pending_renewal`
+  - `v_driver_compliance_status` VIEW: compliance_status (compliant/expiring_soon/partial/non_compliant/no_certs) pro Fahrer
+  - `v_expiring_soon_certs` VIEW: aktive Zertifikate die in ≤30 Tagen ablaufen
+  - 4 Performance-Indizes: driver_id, location_id, expires_at (partial), cert_type+status
+- [x] **`lib/delivery/compliance.ts`** — TypeScript Compliance Engine (290+ Zeilen)
+  - `getCertifications(driverId, locationId)` — Zertifikate eines Fahrers laden
+  - `upsertCertification(input)` — Zertifikat hinzufügen / aktualisieren (UPSERT via driver_id+cert_type)
+  - `deleteCertification(certId, locationId)` — Zertifikat entfernen (Multi-Tenant-Guard)
+  - `getComplianceStatus(locationId)` — Compliance-Übersicht aller Fahrer einer Location
+  - `getExpiringSoon(locationId, days?)` — Ablaufende Certs (1–90 Tage, default 30)
+  - `checkDriverCompliance(driverId)` — Hard-block bei food_hygiene expired/suspended; graceful fallback bei fehlender Tabelle
+  - `autoExpireCertifications(locationId)` — Abgelaufene Certs automatisch auf 'expired' setzen
+  - `generateComplianceAlerts(locationId)` — Alert-Zusammenfassung (expired auto-updated + expiring soon count)
+  - `evaluateComplianceAllLocations()` — Cron-Wrapper: alle aktiven Locations
+- [x] **`GET+POST+DELETE /api/delivery/admin/compliance`** — Admin-API
+  - `GET ?view=overview` — Compliance-Übersicht + Driver-Liste mit Status + blocked_count
+  - `GET ?view=expiring&days=N` — Ablaufende Zertifikate (1–90 Tage)
+  - `GET ?view=driver&driver_id=...` — Zertifikate + Compliance-Status eines Fahrers
+  - `POST { driver_id, cert_type, cert_number, issued_at, expires_at, status, notes }` — Zertifikat hinzufügen/aktualisieren
+  - `POST { action: 'evaluate', location_id }` — Compliance manuell triggern
+  - `DELETE ?cert_id=...&location_id=...` — Zertifikat entfernen
+- [x] **Dispatch-Engine Integration** (`lib/delivery/dispatch-engine.ts`)
+  - `loadActiveDrivers()`: filtert Fahrer mit abgelaufenem/gesperrtem food_hygiene-Zertifikat
+  - Single Batch-Query (kein N+1), graceful fallback wenn Tabelle noch nicht migriert
+- [x] **Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`)
+  - `evaluateComplianceAllLocations()` jede Stunde (isReportTick || isDemandTick)
+  - Response enthält `compliance: { locations, alertsGenerated, expiredAutoUpdated, errors }`
+- Build: npx tsc --noEmit ✓ (0 Fehler), npx next build ✓ (Compiled successfully)
 
 ### CEO Review #40 (2026-06-08)
 - TypeScript: 0 Fehler ✅
@@ -2246,6 +2292,13 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-11: Backend-Architekt — Phase 59: Driver Certification & Compliance Engine
+  - scripts/migrations/048_driver_compliance.sql: driver_certifications + v_driver_compliance_status + v_expiring_soon_certs + 4 Indizes
+  - lib/delivery/compliance.ts: 9 Funktionen (getCertifications, upsertCertification, deleteCertification, getComplianceStatus, getExpiringSoon, checkDriverCompliance, autoExpireCertifications, generateComplianceAlerts, evaluateComplianceAllLocations)
+  - GET+POST+DELETE /api/delivery/admin/compliance: overview/expiring/driver views + Zertifikat-CRUD + evaluate action
+  - dispatch-engine.ts: loadActiveDrivers() filtert food_hygiene-gesperrte Fahrer (graceful fallback)
+  - Cron: evaluateComplianceAllLocations() stündlich → compliance: { locations, alertsGenerated, expiredAutoUpdated } in Response
+  - Build: ✓ (0 TypeScript-Fehler, 0 Warnungen)
 - 2026-06-06: CEO Review #33 — 4 TypeScript-Fehler behoben, 4 Commits QA-geprüft, Build clean
   - Bug 1: `Target` Icon fehlte in kitchen/client.tsx Lucide-Imports → gefixt
   - Bug 2: `bestellt_am` nicht in Order-Typ → `(o as any).bestellt_am ?? o.createdAt` → gefixt
