@@ -3017,6 +3017,24 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
         )
       )}
 
+      {/* Timer-Schnellstart: nur wenn in_zubereitung und noch kein Timing vorhanden */}
+      {order.status === 'in_zubereitung' && timing === null && (
+        <button
+          onClick={() => startTransition(async () => { await createKitchenTiming(order.id, order.geschaetzte_zubereitung_min ?? 15); })}
+          disabled={pending}
+          className="mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold bg-blue-100 text-blue-800 hover:bg-blue-200 transition cursor-pointer disabled:opacity-50"
+        >
+          ⚡ Timer starten
+        </button>
+      )}
+
+      {/* Verbleibend-Chip: geschätzte Restzeit ohne Smart-Timing */}
+      {timing === null && order.status === 'in_zubereitung' && (est - waitMin) > 0 && (
+        <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-matcha-50 border border-matcha-200 px-2 py-0.5 text-[9px] font-medium text-matcha-700">
+          ~ {Math.max(0, est - waitMin)}m verbleibend
+        </div>
+      )}
+
       {/* Fahrer-ETA-Chip: fertige Lieferbestellung ist bereits einem aktiven Batch zugewiesen */}
       {order.status === 'fertig' && order.typ === 'lieferung' && driverEtaMs != null && (() => {
         const secUntil = Math.floor((driverEtaMs - Date.now()) / 1000);

@@ -3004,6 +3004,8 @@ function BatchRow({ batch }: { batch: Batch }) {
             })}
         </div>
       </div>
+      {/* Erweiterte Stopp-Details — ein-/ausklappbar */}
+      {batch.stops.length > 0 && <ExpandableStopList batch={batch} />}
       <div className="mt-1 flex items-center gap-2 text-xs flex-wrap">
         <span className={cn(
           'rounded-full px-2 py-0.5 font-bold',
@@ -3062,6 +3064,70 @@ function BatchRow({ batch }: { batch: Batch }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function ExpandableStopList({ batch }: { batch: Batch }) {
+  const [open, setOpen] = useState(false);
+  const sorted = [...batch.stops].sort((a, b) => a.reihenfolge - b.reihenfolge);
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition"
+      >
+        {open ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+        {open ? 'Stopps ausblenden' : `${sorted.length} Stopps anzeigen`}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-1.5">
+          {sorted.map((s, idx) => {
+            const isDone = !!s.geliefert_am;
+            const isNext = !isDone && sorted.slice(0, idx).every(p => !!p.geliefert_am);
+            const etaStr = s.order?.eta_earliest
+              ? new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : null;
+            const etaOverdue = s.order?.eta_earliest && new Date(s.order.eta_earliest) < new Date();
+            return (
+              <div key={s.id} className={cn(
+                'flex items-center gap-2 rounded-lg px-3 py-2 text-xs border',
+                isDone ? 'bg-matcha-50 border-matcha-200 opacity-60' :
+                isNext ? 'bg-orange-50 border-orange-300' :
+                'bg-card border-border',
+              )}>
+                <div className={cn(
+                  'h-6 w-6 rounded-full grid place-items-center text-[10px] font-black shrink-0',
+                  isDone ? 'bg-matcha-500 text-white' : isNext ? 'bg-orange-500 text-white' : 'bg-muted text-muted-foreground',
+                )}>
+                  {isDone ? '✓' : s.reihenfolge}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate">{s.order?.kunde_name ?? '—'}</div>
+                  <div className="text-muted-foreground truncate text-[10px]">
+                    {s.order?.kunde_adresse ?? ''}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  {etaStr && (
+                    <div className={cn(
+                      'text-[10px] font-bold tabular-nums',
+                      etaOverdue ? 'text-red-600' : isNext ? 'text-orange-700' : 'text-muted-foreground',
+                    )}>
+                      {etaOverdue ? '⚠ ' : ''}{etaStr}
+                    </div>
+                  )}
+                  {isDone && s.geliefert_am && (
+                    <div className="text-[9px] text-matcha-600 font-medium">
+                      ✓ {new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

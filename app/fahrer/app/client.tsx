@@ -509,6 +509,43 @@ export function FahrerApp({
 
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
         {activeBatch && activeBatch.status === 'unterwegs' && (
+          <>
+            {/* Tour-Fortschritts-Kopfleiste */}
+            {(() => {
+              const total = activeBatch.stops.length;
+              const done = activeBatch.stops.filter((s: any) => s.geliefert_am).length;
+              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+              const etaMin = activeBatch.total_eta_min;
+              const startedAt = activeBatch.started_at;
+              const elapsedMin = startedAt ? Math.floor((Date.now() - new Date(startedAt).getTime()) / 60_000) : 0;
+              const remainingMin = etaMin != null ? Math.max(0, etaMin - elapsedMin) : null;
+              return (
+                <div className="rounded-2xl bg-matcha-800/60 border border-white/10 px-4 py-3 mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">
+                      Tour-Fortschritt
+                    </span>
+                    <span className="font-display font-bold text-accent">
+                      {done}/{total} Stopps
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all duration-500',
+                        pct === 100 ? 'bg-accent' : pct >= 60 ? 'bg-matcha-400' : 'bg-orange-400',
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  {remainingMin !== null && (
+                    <div className="mt-1.5 text-[10px] text-matcha-400 tabular-nums">
+                      {remainingMin === 0 ? 'Tour abgeschlossen!' : `~${remainingMin} Min bis Tour-Ende`}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}
@@ -519,6 +556,7 @@ export function FahrerApp({
             driverLng={driverPos?.lng ?? null}
             onAllDone={() => router.refresh()}
           />
+          </>
         )}
 
         {/* Active Batch — Pick-Phase: groß + zentral, kein ablenkender Kram */}

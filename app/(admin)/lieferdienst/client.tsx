@@ -891,7 +891,10 @@ export function LieferdienstClient() {
               <LieferdienstWochenvergleich />
               {/* Tagesvergleich: heute vs. gestern */}
               <LieferdienstTagesvergleich orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
-              <StatisticsView orders={orders} completedOrders={completedOrders} />
+              <>
+                <LiveDeliveryStatusBar />
+                <StatisticsView orders={orders} completedOrders={completedOrders} />
+              </>
             </div>
           )}
 
@@ -1207,6 +1210,74 @@ function LieferdienstTagesvergleich({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---- LiveDeliveryStatusBar ---- */
+function LiveDeliveryStatusBar() {
+  const supabase = createClient();
+  const [stats, setStats] = useState<{
+    driversOnline: number;
+    activeTours: number;
+    cookingNow: number;
+    waitingDispatch: number;
+    deliveredToday: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const [
+          { count: driversOnline },
+          { count: activeTours },
+          { count: cookingNow },
+          { count: waitingDispatch },
+          { count: deliveredToday },
+        ] = await Promise.all([
+          supabase.from('driver_status').select('*', { count: 'exact', head: true }).eq('ist_online', true),
+          supabase.from('delivery_batches').select('*', { count: 'exact', head: true }).in('status', ['unterwegs', 'pickup', 'aktiv']),
+          supabase.from('customer_orders').select('*', { count: 'exact', head: true }).eq('status', 'in_zubereitung'),
+          supabase.from('customer_orders').select('*', { count: 'exact', head: true }).eq('status', 'fertig').eq('typ', 'lieferung'),
+          supabase.from('customer_orders').select('*', { count: 'exact', head: true }).in('status', ['geliefert', 'abgeholt', 'abgeschlossen']).gte('bestellt_am', today.toISOString()),
+        ]);
+        setStats({
+          driversOnline: driversOnline ?? 0,
+          activeTours: activeTours ?? 0,
+          cookingNow: cookingNow ?? 0,
+          waitingDispatch: waitingDispatch ?? 0,
+          deliveredToday: deliveredToday ?? 0,
+        });
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!stats) return null;
+
+  const items = [
+    { icon: '🟢', label: 'Fahrer online', value: stats.driversOnline, urgent: stats.driversOnline === 0 },
+    { icon: '🛵', label: 'Aktive Touren', value: stats.activeTours, urgent: false },
+    { icon: '🍳', label: 'In Zubereitung', value: stats.cookingNow, urgent: stats.cookingNow >= 6 },
+    { icon: '📦', label: 'Wartet auf Fahrer', value: stats.waitingDispatch, urgent: stats.waitingDispatch >= 3 },
+    { icon: '✅', label: 'Heute geliefert', value: stats.deliveredToday, urgent: false },
+  ];
+
+  return (
+    <div className="grid grid-cols-5 gap-2 mb-4">
+      {items.map((item) => (
+        <div key={item.label} className={`rounded-xl border px-3 py-2.5 text-center ${item.urgent ? 'border-red-300 bg-red-50' : 'border-stone-200 bg-white'}`}>
+          <div className="text-lg mb-0.5">{item.icon}</div>
+          <div className={`font-display text-2xl font-black tabular-nums leading-none ${item.urgent ? 'text-red-700' : 'text-char'}`}>
+            {item.value}
+          </div>
+          <div className="text-[9px] font-bold uppercase tracking-wide text-stone-400 mt-0.5 leading-tight">{item.label}</div>
+        </div>
+      ))}
     </div>
   );
 }
