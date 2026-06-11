@@ -618,6 +618,9 @@ export function DeliveryView({
         })()}
       </div>
 
+      {/* Tour-Fortschritts-Dots: alle Stopps als nummerierte Punkte */}
+      {sorted.length > 1 && <TourProgressDots stops={sorted} doneCount={doneCount} />}
+
       {/* Next-Stop-Hero: prominente Anzeige des nächsten Stops */}
       {nextStop && !allDone && (
         <div className="mx-4 mt-3 rounded-2xl bg-accent/10 border-2 border-accent/30 p-4">
@@ -2086,6 +2089,52 @@ function StopEtaBar({ distanzM, gpsSpeed }: { distanzM: number; gpsSpeed?: numbe
           style={{ width: `${progressPct}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ TourProgressDots ------------------------------ */
+/* Zeigt alle Stopps als nummerierte Punkte mit Verbindungslinien — kompakter Fortschrittsstreifen */
+function TourProgressDots({ stops, doneCount }: { stops: Stop[]; doneCount: number }) {
+  if (stops.length <= 1) return null;
+  return (
+    <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto">
+      {stops.flatMap((s, idx) => {
+        const isDone = !!s.geliefert_am;
+        const isNext = !isDone && doneCount === idx;
+        const isCash = !s.order.bezahlt || s.order.zahlungsart === 'bar';
+        const els = [
+          <div
+            key={s.id}
+            title={`Stopp ${s.reihenfolge}: ${s.order.kunde_name}`}
+            className={cn(
+              'relative h-7 w-7 shrink-0 rounded-full flex items-center justify-center font-black text-[10px] border-2 transition-all',
+              isDone
+                ? 'bg-matcha-700 border-matcha-600 text-matcha-400'
+                : isNext
+                  ? 'bg-accent border-accent text-matcha-900 shadow-lg shadow-accent/30 scale-110'
+                  : 'bg-white/8 border-white/15 text-matcha-500',
+            )}
+          >
+            {isDone ? '✓' : s.reihenfolge}
+            {isCash && !isDone && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 border-2 border-matcha-900" />
+            )}
+          </div>,
+        ];
+        if (idx < stops.length - 1) {
+          els.push(
+            <div
+              key={`line-${idx}`}
+              className={cn('h-px w-3 shrink-0 transition-all', isDone ? 'bg-matcha-600' : 'bg-white/10')}
+            />,
+          );
+        }
+        return els;
+      })}
+      <span className="ml-2 shrink-0 text-[9px] text-matcha-500 font-bold tabular-nums">
+        {doneCount}/{stops.length}
+      </span>
     </div>
   );
 }

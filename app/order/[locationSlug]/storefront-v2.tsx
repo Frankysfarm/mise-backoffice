@@ -243,7 +243,7 @@ export function StorefrontV2({
                   color: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#f97316' : '#16a34a',
                   fontWeight: 700,
                 }}>
-                  🍳 {liveEta.load === 'busy' ? 'Viel los' : liveEta.load === 'normal' ? 'Mäßig ausgelastet' : 'Küche frei'} · ~{liveEta.eta_min} Min
+                  🍳 {liveEta.signal_message ?? (liveEta.load === 'busy' ? 'Viel los' : liveEta.load === 'normal' ? 'Mäßig ausgelastet' : 'Küche frei')} · ~{liveEta.eta_min} Min{liveEta.eta_extension_min > 0 ? ` (+${liveEta.eta_extension_min} Min Wartezeit)` : ''}
                 </span>
               )}
               {(location.adresse || location.stadt) && (

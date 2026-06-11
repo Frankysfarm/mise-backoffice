@@ -711,6 +711,9 @@ export function KitchenBoard({
         />
       )}
 
+      {/* Umsatz-Pipeline: Gesamtwert aller aktiven Bestellungen */}
+      {!bigDisplay && <KitchenRevenueGauge orders={filtered} />}
+
       {/* Kanban */}
       {!bigDisplay && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {COLUMNS.map((col) => {
@@ -5457,6 +5460,89 @@ function KitchenPrepTimelineBar({ orders, timings }: { orders: Order[]; timings:
 
 /* ---- KitchenSmartTimingNudge ---- */
 /* Zeigt Prompt wenn kochende Orders kein Smart-Timing haben — Batch-Erstellung */
+/* ---- KitchenRevenueGauge ---- */
+/* Zeigt den Gesamtwert der aktuell aktiven Bestellungen in der Küche */
+function KitchenRevenueGauge({ orders }: { orders: Order[] }) {
+  const active = orders.filter(o => ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status));
+  const total = active.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+  if (total === 0 || active.length === 0) return null;
+
+  const byStatus: Record<string, number> = {};
+  for (const o of active) {
+    byStatus[o.status] = (byStatus[o.status] ?? 0) + (o.gesamtbetrag ?? 0);
+  }
+  const cooking = (byStatus['in_zubereitung'] ?? 0) + (byStatus['bestätigt'] ?? 0);
+  const ready = byStatus['fertig'] ?? 0;
+  const incoming = byStatus['neu'] ?? 0;
+
+  const STATUS_COLORS: Record<string, string> = {
+    fertig: 'bg-matcha-500',
+    in_zubereitung: 'bg-orange-500',
+    bestätigt: 'bg-blue-500',
+    neu: 'bg-gold',
+  };
+
+  return (
+    <div className="rounded-xl border bg-card px-4 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <div className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mb-0.5">
+            Pipeline-Umsatz
+          </div>
+          <div className="text-2xl font-black tabular-nums text-foreground leading-none">
+            {euro(total)}
+          </div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            {active.length} aktive Bestellung{active.length !== 1 ? 'en' : ''}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 text-right ml-auto shrink-0">
+          {incoming > 0 && (
+            <div className="flex items-center gap-1.5 text-[10px] justify-end">
+              <span className="font-bold text-amber-600 tabular-nums">{euro(incoming)}</span>
+              <span className="text-muted-foreground">neu</span>
+              <span className="h-2 w-2 rounded-full bg-gold shrink-0" />
+            </div>
+          )}
+          {cooking > 0 && (
+            <div className="flex items-center gap-1.5 text-[10px] justify-end">
+              <span className="font-bold text-orange-600 tabular-nums">{euro(cooking)}</span>
+              <span className="text-muted-foreground">kochend</span>
+              <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+            </div>
+          )}
+          {ready > 0 && (
+            <div className="flex items-center gap-1.5 text-[10px] justify-end">
+              <span className="font-bold text-matcha-600 tabular-nums">{euro(ready)}</span>
+              <span className="text-muted-foreground">bereit</span>
+              <span className="h-2 w-2 rounded-full bg-matcha-500 shrink-0" />
+            </div>
+          )}
+        </div>
+        {/* Fortschrittsbalken nach Status */}
+        <div className="flex flex-col gap-1 w-24 shrink-0">
+          {['fertig', 'in_zubereitung', 'bestätigt', 'neu'].map(status => {
+            const val = byStatus[status] ?? 0;
+            if (val === 0) return null;
+            const pct = Math.round((val / total) * 100);
+            return (
+              <div key={status} className="flex items-center gap-1.5">
+                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={cn('h-full rounded-full', STATUS_COLORS[status] ?? 'bg-muted-foreground')}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="text-[8px] tabular-nums text-muted-foreground w-8 text-right">{pct}%</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function KitchenSmartTimingNudge({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
   const [, startTransition] = useTransition();
   const [creating, setCreating] = useState(false);

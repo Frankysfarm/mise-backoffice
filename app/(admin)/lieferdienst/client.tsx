@@ -869,7 +869,9 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
-              {/* Tagesvergleich: heute vs. Durchschnitt der letzten 7 Tage */}
+              {/* 7-Tage Wochenübersicht */}
+              <LieferdienstWochenvergleich />
+              {/* Tagesvergleich: heute vs. gestern */}
               <LieferdienstTagesvergleich orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               <StatisticsView orders={orders} completedOrders={completedOrders} />
             </div>
@@ -937,6 +939,118 @@ export function LieferdienstClient() {
     </div>
   )
 }
+/* ---- LieferdienstWochenvergleich ---- */
+function LieferdienstWochenvergleich() {
+  const supabase = createClient();
+  const [data, setData] = useState<{ tag: string; bestellungen: number; umsatz: number; isToday: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const today = new Date(); today.setHours(23, 59, 59, 999);
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 6); weekAgo.setHours(0, 0, 0, 0);
+
+      const { data: rows } = await supabase
+        .from('customer_orders')
+        .select('bestellt_am, gesamtbetrag, status')
+        .gte('bestellt_am', weekAgo.toISOString())
+        .lte('bestellt_am', today.toISOString());
+
+      if (!rows) { setLoading(false); return; }
+
+      const buckets: { tag: string; bestellungen: number; umsatz: number; isToday: boolean }[] = [];
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0, 0, 0, 0);
+        const next = new Date(d); next.setDate(next.getDate() + 1);
+        const dayRows = (rows as { bestellt_am: string; gesamtbetrag: number; status: string }[]).filter(r => {
+          if (!r.bestellt_am) return false;
+          const t = new Date(r.bestellt_am);
+          return t >= d && t < next && r.status !== 'storniert';
+        });
+        buckets.push({
+          tag: d.toLocaleDateString('de-DE', { weekday: 'short' }),
+          bestellungen: dayRows.length,
+          umsatz: dayRows.reduce((s, r) => s + Number(r.gesamtbetrag ?? 0), 0),
+          isToday: d.toDateString() === now.toDateString(),
+        });
+      }
+      setData(buckets);
+      setLoading(false);
+    };
+    load().catch(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading) return null;
+  if (data.every(d => d.bestellungen === 0)) return null;
+
+  const maxOrders = Math.max(...data.map(d => d.bestellungen), 1);
+  const totalOrders = data.reduce((s, d) => s + d.bestellungen, 0);
+  const totalRevenue = data.reduce((s, d) => s + d.umsatz, 0);
+  const avgOrders = Math.round(totalOrders / data.filter(d => d.bestellungen > 0).length) || 0;
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">7-Tage Übersicht</span>
+          <div className="flex items-center gap-3 mt-0.5">
+            <span className="text-xs font-bold text-char">{totalOrders} Bestellungen</span>
+            {totalRevenue > 0 && (
+              <span className="text-xs font-bold text-emerald-700">
+                {totalRevenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-[9px] text-stone-400">∅ pro Tag</div>
+          <div className="text-sm font-black text-char tabular-nums">{avgOrders}</div>
+        </div>
+      </div>
+
+      {/* Bar Chart */}
+      <div className="flex items-end gap-1.5 h-20">
+        {data.map(({ tag, bestellungen, umsatz, isToday }) => {
+          const pct = bestellungen > 0 ? Math.max(10, Math.round((bestellungen / maxOrders) * 100)) : 4;
+          const aboveAvg = bestellungen > avgOrders;
+          return (
+            <div key={tag} className="flex-1 flex flex-col items-center gap-0.5">
+              {bestellungen > 0 && (
+                <span className={`text-[8px] font-bold tabular-nums ${isToday ? 'text-saffron' : aboveAvg ? 'text-emerald-600' : 'text-stone-400'}`}>
+                  {bestellungen}
+                </span>
+              )}
+              <div
+                className={`w-full rounded-t-sm transition-all ${
+                  isToday ? 'bg-saffron' : aboveAvg ? 'bg-emerald-400' : bestellungen > 0 ? 'bg-stone-300' : 'bg-stone-100'
+                }`}
+                style={{ height: `${pct}%` }}
+                title={`${tag}: ${bestellungen} Bestellungen${umsatz > 0 ? `, ${umsatz.toFixed(0)} €` : ''}`}
+              />
+              <span className={`text-[8px] font-bold ${isToday ? 'text-saffron' : 'text-stone-400'}`}>{tag}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legende */}
+      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-stone-100 text-[9px]">
+        <span className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-saffron inline-block" /> Heute
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block" /> Überdurchschnittlich
+        </span>
+        <span className="flex items-center gap-1 ml-auto text-stone-400">
+          Ø {avgOrders} / Tag
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /* ---- LieferdienstTagesvergleich ---- */
 function LieferdienstTagesvergleich({
   orders,
