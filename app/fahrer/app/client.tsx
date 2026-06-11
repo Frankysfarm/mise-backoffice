@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
   Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Route, ShoppingBag,
-  TrendingUp, Trophy, Zap,
+  TrendingUp, Trophy, Zap, ListOrdered,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
 import { PickDialog } from './pick-dialog';
@@ -853,6 +853,9 @@ export function FahrerApp({
 
         {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
         {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
+
+        {/* Heutige Stopps-Verlauf — zeitlicher Log der abgeschlossenen Lieferungen */}
+        {!activeBatch && <LetzteStoppsLog driverId={driver.id} />}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
         {!activeBatch && driver.location_id && (
@@ -1961,5 +1964,118 @@ function SchichtAbschlussModal({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ---------- LetzteStoppsLog ---------- */
+
+type StopLogEntry = {
+  id: string;
+  geliefert_am: string;
+  kunde_name: string;
+  kunde_adresse: string | null;
+  bestellnummer: string;
+  gesamtbetrag: number;
+};
+
+function LetzteStoppsLog({ driverId }: { driverId: string }) {
+  const supabase = createClient();
+  const [stops, setStops] = useState<StopLogEntry[]>([]);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    (async () => {
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id')
+        .eq('fahrer_id', driverId)
+        .gte('created_at', today.toISOString());
+      if (!batches?.length) return;
+      const { data: rows } = await supabase
+        .from('delivery_batch_stops')
+        .select('id, geliefert_am, order:customer_orders(bestellnummer, kunde_name, kunde_adresse, gesamtbetrag)')
+        .in('batch_id', (batches as { id: string }[]).map((b) => b.id))
+        .not('geliefert_am', 'is', null)
+        .order('geliefert_am', { ascending: false })
+        .limit(20);
+      if (!rows) return;
+      setStops((rows as any[]).map((r) => ({
+        id: r.id,
+        geliefert_am: r.geliefert_am,
+        kunde_name: r.order?.kunde_name ?? '—',
+        kunde_adresse: r.order?.kunde_adresse ?? null,
+        bestellnummer: r.order?.bestellnummer ?? '—',
+        gesamtbetrag: r.order?.gesamtbetrag ?? 0,
+      })));
+    })().catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  if (stops.length === 0) return null;
+
+  const visible = expanded ? stops : stops.slice(0, 4);
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <button
+        className="flex w-full items-center gap-2 mb-3"
+        onClick={() => setExpanded((e) => !e)}
+      >
+        <ListOrdered className="h-4 w-4 text-matcha-300 shrink-0" />
+        <span className="text-xs font-bold uppercase tracking-widest text-white/60 flex-1 text-left">
+          Heutige Lieferungen ({stops.length})
+        </span>
+        {stops.length > 4 && (
+          <ChevronDown className={cn('h-4 w-4 text-matcha-400 transition-transform', expanded && 'rotate-180')} />
+        )}
+      </button>
+      <div className="space-y-1.5">
+        {visible.map((s, i) => {
+          const time = new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          return (
+            <div key={s.id} className="flex items-center gap-2.5 py-1.5">
+              {/* Timeline dot */}
+              <div className="relative flex shrink-0 flex-col items-center">
+                <div className={cn(
+                  'h-5 w-5 rounded-full border-2 flex items-center justify-center text-[9px] font-black',
+                  i === 0 ? 'border-accent bg-accent/20 text-accent' : 'border-white/20 bg-white/5 text-matcha-400',
+                )}>
+                  {stops.length - i}
+                </div>
+                {i < visible.length - 1 && (
+                  <div className="absolute top-5 h-full w-px bg-white/10" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-matcha-200 truncate">
+                    {s.kunde_name.split(' ')[0]}
+                  </span>
+                  <span className="text-[10px] text-matcha-400 truncate flex-1">
+                    {s.kunde_adresse?.split(',')[0] ?? ''}
+                  </span>
+                </div>
+                <div className="text-[9px] text-matcha-500">
+                  #{s.bestellnummer.replace(/^[A-Z]+-/, '')}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-[11px] font-bold text-accent">{euro(s.gesamtbetrag)}</div>
+                <div className="text-[9px] text-matcha-500 tabular-nums">{time}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {stops.length > 4 && !expanded && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="mt-2 w-full text-center text-[10px] text-matcha-400 hover:text-matcha-200 transition"
+        >
+          + {stops.length - 4} weitere anzeigen
+        </button>
+      )}
+    </section>
   );
 }
