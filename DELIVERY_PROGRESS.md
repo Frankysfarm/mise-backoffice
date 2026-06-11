@@ -1,7 +1,17 @@
 # Smart Delivery System — Fortschritt
 
+## STATUS: MARKT-REIF
+**Phasen 1–59 abgeschlossen. CEO Review #49: 0 Bugs. TypeScript 0 Fehler. Build sauber.**
+
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] KitchenRevenueGauge (Pipeline-Umsatz aller aktiven Bestellungen)
+- [x] LieferdienstWochenvergleich (7-Tage-Balkendiagramm + Durchschnittslinie)
+- [x] TourProgressDots (nummerierte Fortschritts-Punkte + Bargeld-Badge in Fahrer-App)
+- [x] ETA-Chip mit signal_message + eta_extension_min (Storefront)
+- [x] BatchDetailDialog (extrahiert aus IIFE → Komponente mit 1s Live-Ticker)
+- [x] Per-Stop ETA Countdown im Dispatch (color-coded overdue/urgent/normal)
+- [x] FahrerWarteAnzeige mit locationId + Live-Kitchen-Queue-Tiefe (30s-Poll)
 - [x] driver_certifications Tabelle (Migration 048)
 - [x] v_driver_compliance_status View (Migration 048)
 - [x] v_expiring_soon_certs View (Migration 048)

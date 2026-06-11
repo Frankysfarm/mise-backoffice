@@ -1,7 +1,105 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–55 vollständig abgeschlossen. Bug gefixt (DispatchTourGantt Driver-Typ). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–59 vollständig abgeschlossen. 0 Bugs in Review #49. Deployment-bereit.
+
+---
+
+## CEO Review #49 — 2026-06-11
+
+### Geprüfte Commits (4 Commits seit Review #48)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `e531f05` | feat(delivery/backend): Phase 58 — Fahrer-Pausen-Tracking + genaue active_minutes | ✅ sauber |
+| `2eef895` | feat(delivery/frontend): dispatch tour-stop ETA countdown + fahrer warte-anzeige live kitchen load | ✅ sauber |
+| `a268d68` | feat(delivery/backend): Phase 59 — Driver Certification & Compliance Engine | ✅ sauber |
+| `356b8f6` | feat(delivery/frontend): Smart-Timing-Gauge, 7-Tage-Chart, Tour-Dots, ETA-Signal | ✅ sauber |
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅
+- `next build`: **sauber** ✅ (harmlose Warning: `turbopack`-Key in next.config.js — kein Fehler)
+
+### Bug gefixt: 0
+
+### Integrations-Prüfung Phase 58 (Backend)
+
+**Pausen-Tracking** (`lib/delivery/shifts.ts`):
+- `startBreak / endBreak / getActiveBreak / getBreakSummary / getNetActiveMinutes` vollständig implementiert ✅
+- Auth in `POST /api/delivery/driver/shift/break`: User Auth → Driver-Lookup via `auth_user_id` → Tenant-safe ✅
+- `computeAndSaveSnapshot()` importiert `getNetActiveMinutes()` und nutzt Netto-Minuten (Schicht − Pausen) für `active_minutes` ✅
+- Graceful: `getNetActiveMinutes().catch(() => 0)` — kein Snapshot-Absturz wenn Tabelle noch nicht migriert ✅
+
+### Integrations-Prüfung Phase 58 (Frontend)
+
+**BatchDetailDialog** (`app/(admin)/dispatch/client.tsx`):
+- Korrekt aus IIFE extrahiert in eigene Komponente — Props: `batchId, batches, drivers, onClose` ✅
+- Live-Ticker: `setInterval(() => setTick(n => n + 1), 1000)` läuft nur wenn `batchId` gesetzt, Cleanup korrekt ✅
+- Per-Stop ETA Countdown: `eta_earliest` via `new Date(s.order.eta_earliest).getTime()`, null-safe mit optional chaining ✅
+- Farb-Codierung: overdue (rot), urgent <5min (orange), <10min (gelb), normal (grün) ✅
+- Driver-Auflösung: `drivers.find(d => d.employee_id === b.fahrer_id || d.aktueller_batch_id === b.id)` — doppelter Fallback ✅
+
+**FahrerWarteAnzeige** (`app/fahrer/app/client.tsx`):
+- Erhält `locationId={driver.location_id}` korrekt als Prop ✅
+- Pollt `/api/delivery/eta/live?location_id=...` alle 30s — Cleanup via `clearInterval` ✅
+- ETA-API gibt `active_orders` korrekt zurück (bestätigt in route.ts) ✅
+- Early return wenn `!locationId` — kein unnötiger Fetch ✅
+
+### Integrations-Prüfung Phase 59 (Backend)
+
+**Compliance Engine** (`lib/delivery/compliance.ts`):
+- Alle 7 Funktionen: `getCertifications, upsertCertification, deleteCertification, getComplianceStatus, getExpiringSoon, checkDriverCompliance, autoExpireCertifications` ✅
+- Hard-Block in `loadActiveDrivers()` (dispatch-engine.ts L501–520): Query auf `driver_certifications` filtert `food_hygiene` mit `expired|suspended` — graceful fallback bei fehlender Tabelle ✅
+- Compliance Admin API: GET/POST/DELETE auth-gesichert (User Auth → 401, location_id required → 400) ✅
+- `evaluateComplianceAllLocations()` als Cron-Wrapper — stündliche Ausführung vorgesehen ✅
+
+### Integrations-Prüfung Phase 59 (Frontend)
+
+**KitchenRevenueGauge** (`app/(admin)/kitchen/client.tsx`):
+- Filtert `['neu', 'bestätigt', 'in_zubereitung', 'fertig']` — stornierte Bestellungen ausgeschlossen ✅
+- Null-safe: `o.gesamtbetrag ?? 0`, early return bei `total === 0 || active.length === 0` ✅
+- Fortschrittsbalken-Prozentsätze korrekt berechnet: `(val / total) * 100` ✅
+- Nur sichtbar wenn `!bigDisplay` (Küchen-Großanzeige nicht stören) ✅
+
+**LieferdienstWochenvergleich** (`app/(admin)/lieferdienst/client.tsx`):
+- Supabase-Query: 7 Tage rückwärts, Stornierungen (`status !== 'storniert'`) korrekt ausgeschlossen ✅
+- Bucket-Logik: `[i=6 down to 0]` → chronologisch sortiert, `isToday` korrekt via `toDateString()` ✅
+- `avgOrders`: Division nur über Tage mit `bestellungen > 0` — kein Division-by-zero ✅
+- Early return wenn alle Tage 0 Bestellungen ✅
+
+**TourProgressDots** (`app/fahrer/app/delivery-view.tsx`):
+- Nummerierte Punkte + Verbindungslinien via `flatMap` — korrekte Key-Vergabe (`s.id` + `line-${idx}`) ✅
+- Bargeld-Badge (`isCash && !isDone`): korrekte Logik (`!s.order.bezahlt || zahlungsart === 'bar'`) ✅
+- `doneCount === idx` für "next stop" Highlight — korrekt (doneCount = erledigte Stops) ✅
+- Scroll-Overflow mit `overflow-x-auto` für viele Stops ✅
+
+**ETA-Chip Storefront** (`app/order/[locationSlug]/storefront-v2.tsx`):
+- `liveEta` Typ enthält `eta_extension_min: number` + `signal_message: string | null` ✅
+- `eta_extension_min ?? 0` im setState — immer ein Zahl-Wert ✅
+- `signal_message ?? fallback-text` — null-safe ✅
+- ETA-API gibt alle erwarteten Felder zurück (bestätigt in `/api/delivery/eta/live/route.ts`) ✅
+
+### Integration gesamt: Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: RevenueGauge zeigt Pipeline-Wert + DispatchPressureChip zeigt Rückstau → vollständig ✅
+- Dispatch: BatchDetailDialog mit Live-ETA-Countdown + Leaderboard + Compliance-Block ✅
+- Driver: FahrerWarteAnzeige mit Live-Kitchen-Load + TourProgressDots + PausenTracking ✅
+- Storefront: ETA-Chip mit signal_message + eta_extension_min ✅
+
+### Status nach Review #49
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 58 (Pausen-Tracking): DONE ✅
+- Phase 59 (Compliance Engine): DONE ✅
+- Phase 59 Frontend (Gauge, Chart, Dots, ETA-Chip): DONE ✅
+- Bugs gefunden: 0
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 60: Kunden-Bewertungs-API (`POST /api/delivery/orders/[id]/rate`) — Sterne + Kommentar nach Lieferung
+2. Oder: Live-Tracking via WebSockets (Supabase Realtime) für Fahrer-GPS auf Kundenseite
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 60: Kunden-Bewertungs-Dialog im Storefront-Tracking-Screen nach Zustellung
+2. Oder: Compliance-Dashboard im Admin (Übersicht ablaufender Zertifikate, Fahrer-Block-Status)
 
 ---
 
