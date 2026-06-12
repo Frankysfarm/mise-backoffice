@@ -2256,8 +2256,13 @@ function OrderRow({
               {order.external_source}
             </span>
           )}
+          {!urgent && waitingMin !== null && waitingMin >= 3 && (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 tabular-nums">
+              wartet {waitingMin}m
+            </span>
+          )}
           {urgent && (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700 animate-pulse">
               wartet {waitingMin}m
             </span>
           )}
@@ -3131,6 +3136,37 @@ function BatchRow({ batch }: { batch: Batch }) {
           </button>
         )}
       </div>
+
+      {/* Kompakter Stop-Fortschritts-Strip */}
+      {batch.stops && batch.stops.length > 0 && (
+        <div className="mt-2 flex items-center gap-1 flex-wrap">
+          {[...batch.stops].sort((a, b) => a.reihenfolge - b.reihenfolge).map((stop, idx) => {
+            const done = !!stop.geliefert_am;
+            const isCurrent = !done && [...batch.stops].sort((a, b) => a.reihenfolge - b.reihenfolge).slice(0, idx).every(s => !!s.geliefert_am);
+            return (
+              <div key={stop.id} className="flex items-center gap-1">
+                <div className={cn(
+                  'h-5 w-5 rounded-full flex items-center justify-center text-[9px] font-black border',
+                  done ? 'bg-matcha-600 border-matcha-600 text-white' :
+                  isCurrent ? 'bg-orange-500 border-orange-500 text-white animate-pulse' :
+                  'bg-white border-border text-muted-foreground',
+                )}>
+                  {done ? '✓' : stop.reihenfolge}
+                </div>
+                {idx < batch.stops.length - 1 && (
+                  <div className={cn('h-0.5 w-3 rounded', done ? 'bg-matcha-400' : 'bg-border')} />
+                )}
+              </div>
+            );
+          })}
+          {(() => {
+            const doneCount = batch.stops.filter(s => !!s.geliefert_am).length;
+            const pct = batch.stops.length > 0 ? Math.round((doneCount / batch.stops.length) * 100) : 0;
+            if (pct === 0 && doneCount === 0) return null;
+            return <span className="ml-1 text-[9px] font-bold text-muted-foreground tabular-nums">{doneCount}/{batch.stops.length}</span>;
+          })()}
+        </div>
+      )}
     </div>
   );
 }

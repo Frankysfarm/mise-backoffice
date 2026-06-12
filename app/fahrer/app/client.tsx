@@ -121,6 +121,13 @@ export function FahrerApp({
     deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
   } | null>(null);
 
+  // Heutige Schicht: Lieferungen + Schätzung
+  const [todayStats, setTodayStats] = useState<{ deliveries: number; estEarnings: number } | null>(null);
+
+  // Wochen-Performance: Rang + 7-Tage-Trend
+  type RankData = { rank: number; total: number; history: { date: string; stopsCompleted: number; onTimeRate: number | null }[] };
+  const [rankData, setRankData] = useState<RankData | null>(null);
+
   // Betriebsnachrichten vom Dispatch
   const [broadcasts, setBroadcasts] = useState<{ id: string; message: string; priority: string; sentByName: string | null; createdAt: string }[]>([]);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
@@ -139,6 +146,44 @@ export function FahrerApp({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
+
+  useEffect(() => {
+    if (!isOnline) return;
+    fetch('/api/delivery/driver/my-performance?period=week&days=7')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.rank != null && d?.total != null) {
+          setRankData({ rank: d.rank, total: d.total, history: Array.isArray(d.history) ? d.history : [] });
+        }
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
+
+  useEffect(() => {
+    if (!isOnline) return;
+    const load = async () => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km')
+        .eq('fahrer_id', driver.id)
+        .gte('created_at', today.toISOString());
+      if (!batches?.length) { setTodayStats({ deliveries: 0, estEarnings: 0 }); return; }
+      const { data: stops } = await supabase
+        .from('delivery_batch_stops')
+        .select('id, distanz_zum_vorgaenger_m')
+        .in('batch_id', (batches as any[]).map((b: any) => b.id))
+        .not('geliefert_am', 'is', null);
+      const deliveries = (stops as any[])?.length ?? 0;
+      const distKm = ((batches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+      const estEarnings = deliveries * 1.50 + distKm * 0.20;
+      setTodayStats({ deliveries, estEarnings });
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, [isOnline, driver.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function dismissBroadcast(id: string) {
     setDismissedIds(prev => new Set([...prev, id]));
@@ -502,6 +547,76 @@ export function FahrerApp({
                   {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
                   {gpsOk === null && <span className="text-matcha-300">📍 Warte auf GPS-Signal…</span>}
                 </div>
+
+                {/* Heutige Schicht — Statistik-Widget */}
+                {todayStats && todayStats.deliveries > 0 && (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-matcha-700/40 border border-matcha-600/30 px-3 py-2.5 text-center">
+                      <div className="font-display font-black text-2xl text-accent">{todayStats.deliveries}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300 mt-0.5">Lieferungen heute</div>
+                    </div>
+                    <div className="rounded-xl bg-accent/15 border border-accent/30 px-3 py-2.5 text-center">
+                      <div className="font-display font-black text-2xl text-accent">{todayStats.estEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300 mt-0.5">Geschätzte Vergütung</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Wochen-Rang — 7-Tage-Sparkline mit Rang-Badge */}
+                {rankData && (
+                  <div className={cn(
+                    'mt-3 rounded-xl border px-3 py-2.5',
+                    rankData.rank <= 3 ? 'bg-yellow-500/10 border-yellow-500/25' : 'bg-white/5 border-white/10',
+                  )}>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          {rankData.rank <= 3 && <span className="text-sm">🏆</span>}
+                          <span className={cn(
+                            'font-display font-black text-lg leading-none',
+                            rankData.rank <= 3 ? 'text-yellow-300' : 'text-accent',
+                          )}>
+                            #{rankData.rank}
+                          </span>
+                          <span className="text-[10px] text-matcha-400">von {rankData.total} · diese Woche</span>
+                        </div>
+                        {(() => {
+                          const last = rankData.history.at(-1)?.onTimeRate;
+                          if (last == null) return null;
+                          return (
+                            <div className={cn(
+                              'text-[10px] mt-0.5 font-bold',
+                              last >= 0.9 ? 'text-accent' : last >= 0.7 ? 'text-amber-300' : 'text-red-400',
+                            )}>
+                              {Math.round(last * 100)}% pünktlich
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      {/* 7-Tage Stops-Sparkline */}
+                      {rankData.history.length > 0 && (() => {
+                        const hist = rankData.history.slice(-7);
+                        const mx = Math.max(1, ...hist.map(h => h.stopsCompleted));
+                        return (
+                          <div className="flex items-end gap-[3px] h-8 shrink-0">
+                            {hist.map((p, i) => {
+                              const h = Math.max(4, Math.round((p.stopsCompleted / mx) * 28));
+                              const isLatest = i === hist.length - 1;
+                              return (
+                                <div
+                                  key={p.date}
+                                  style={{ height: `${h}px` }}
+                                  className={cn('w-2.5 rounded-sm', isLatest ? 'bg-accent' : 'bg-white/25')}
+                                  title={`${new Date(p.date).toLocaleDateString('de-DE', { weekday: 'short' })}: ${p.stopsCompleted}`}
+                                />
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </section>
@@ -937,6 +1052,7 @@ export function FahrerApp({
       {showShiftEnd && shiftSnapshot && (
         <SchichtAbschlussModal
           snapshot={shiftSnapshot}
+          rankData={rankData}
           onConfirm={goOffline}
           onCancel={() => setShowShiftEnd(false)}
         />
@@ -2011,10 +2127,12 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
 
 function SchichtAbschlussModal({
   snapshot,
+  rankData,
   onConfirm,
   onCancel,
 }: {
   snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number };
+  rankData: { rank: number; total: number } | null;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -2093,6 +2211,25 @@ function SchichtAbschlussModal({
             </div>
             <div className="mt-1 text-[10px] text-matcha-400 text-right">
               {snapshot.onlineMin > 0 ? `${((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60).toFixed(1)}/h Lieferungen` : ''}
+            </div>
+          </div>
+        )}
+
+        {/* Wochen-Rang — Kontext für diese Schicht */}
+        {rankData && (
+          <div className={cn(
+            'rounded-2xl border px-4 py-3 mb-5 flex items-center justify-between',
+            rankData.rank <= 3 ? 'bg-yellow-500/15 border-yellow-500/30' : 'bg-white/5 border-white/10',
+          )}>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-0.5">Wochenrang</div>
+              <div className={cn('font-display text-xl font-black', rankData.rank <= 3 ? 'text-yellow-300' : 'text-accent')}>
+                {rankData.rank <= 3 && '🏆 '}#{rankData.rank}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] text-matcha-400">von {rankData.total} Fahrern</div>
+              <div className="text-[10px] text-matcha-300 mt-0.5">diese Woche</div>
             </div>
           </div>
         )}

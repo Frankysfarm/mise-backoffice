@@ -1030,6 +1030,21 @@ function DeliveryQueueCard({
   const fmt = (iso: string) =>
     new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
 
+  // Live countdown — parent re-renders every second via global tick state
+  const etaMs = etaLatest
+    ? new Date(etaLatest).getTime()
+    : etaEarliest
+    ? new Date(etaEarliest).getTime()
+    : null;
+  const nowMs = Date.now();
+  const secsLeft = etaMs != null ? Math.floor((etaMs - nowMs) / 1000) : null;
+  const isOverdue = secsLeft != null && secsLeft < 0;
+  const minLeft = secsLeft != null ? Math.abs(Math.floor(secsLeft / 60)) : null;
+  const urgency =
+    isOverdue ? 'bg-red-100 text-red-700 border-red-200' :
+    secsLeft != null && secsLeft < 5 * 60 ? 'bg-orange-100 text-orange-700 border-orange-200' :
+    'bg-matcha-100 text-matcha-700 border-matcha-200';
+
   return (
     <div className="rounded-2xl border border-matcha-200 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
@@ -1044,7 +1059,37 @@ function DeliveryQueueCard({
               : `Noch ${stopsBefore} Stopps vor dir`}
           </p>
         </div>
-        {(etaEarliest || etaLatest) && (
+        {etaMs != null && (
+          <div className="ml-auto flex flex-col items-end gap-1">
+            {/* Live countdown badge */}
+            {minLeft != null && (
+              <span className={cn(
+                'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-black tabular-nums',
+                urgency,
+                isOverdue && 'animate-pulse',
+              )}>
+                {isOverdue
+                  ? `+${minLeft} Min überfällig`
+                  : minLeft === 0
+                  ? 'Jeden Moment!'
+                  : `noch ~${minLeft} Min`}
+              </span>
+            )}
+            {/* Static arrival window */}
+            {(etaEarliest || etaLatest) && (
+              <p className="text-[9px] text-matcha-400">
+                {etaEarliest && etaLatest
+                  ? `${fmt(etaEarliest)}–${fmt(etaLatest)}`
+                  : etaEarliest
+                  ? fmt(etaEarliest)
+                  : etaLatest
+                  ? fmt(etaLatest)
+                  : ''}
+              </p>
+            )}
+          </div>
+        )}
+        {etaMs == null && (etaEarliest || etaLatest) && (
           <div className="ml-auto text-right">
             <p className="text-[10px] text-matcha-400">Ankunft ca.</p>
             <p className="text-xs font-bold text-matcha-700">

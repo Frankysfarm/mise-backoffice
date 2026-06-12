@@ -2216,6 +2216,49 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {eventLog.length > 0 && (
         <DeliveryEventLog events={eventLog} />
       )}
+
+      {/* SLA + ETA-Genauigkeit: Pünktlichkeitsmessung */}
+      {(slaData || etaAccuracy) && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Target className="w-4 h-4 text-violet-600" />
+            <span className="font-bold text-sm uppercase tracking-wider text-char">Liefer-Qualität</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {slaData?.summary && (
+              <>
+                <div className="text-center">
+                  <div className={`font-display text-3xl font-black ${slaData.summary.onTimePct >= 90 ? 'text-emerald-600' : slaData.summary.onTimePct >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
+                    {slaData.summary.onTimePct}%
+                  </div>
+                  <div className="text-xs text-steel mt-0.5">Pünktlich (SLA)</div>
+                  <div className="mt-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                    <div className={`h-full rounded-full ${slaData.summary.onTimePct >= 90 ? 'bg-emerald-400' : slaData.summary.onTimePct >= 70 ? 'bg-amber-400' : 'bg-red-400'}`} style={{ width: `${slaData.summary.onTimePct}%` }} />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-display text-3xl font-black text-char">{slaData.summary.avgDeliveryMin}</div>
+                  <div className="text-xs text-steel mt-0.5">Ø Lieferzeit (Min)</div>
+                </div>
+              </>
+            )}
+            {etaAccuracy?.overall && (
+              <>
+                <div className="text-center">
+                  <div className={`font-display text-3xl font-black ${etaAccuracy.overall.onTimeRate >= 0.85 ? 'text-emerald-600' : etaAccuracy.overall.onTimeRate >= 0.65 ? 'text-amber-600' : 'text-red-600'}`}>
+                    {Math.round(etaAccuracy.overall.onTimeRate * 100)}%
+                  </div>
+                  <div className="text-xs text-steel mt-0.5">ETA-Genauigkeit</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-display text-3xl font-black text-char">±{Math.round(etaAccuracy.overall.avgErrorMin)}</div>
+                  <div className="text-xs text-steel mt-0.5">Ø Abweichung (Min)</div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -2237,26 +2280,31 @@ const VEHICLE_EMOJI: Record<string, string> = {
 };
 
 function DriverLeaderboard({ driverPerf }: { driverPerf: DriverPerfEntry[] }) {
+  const [showAll, setShowAll] = useState(false);
   if (driverPerf.length === 0) return null;
   const sorted = [...driverPerf].sort((a, b) => b.deliveries_today - a.deliveries_today);
-  const top5 = sorted.slice(0, 5);
-  const maxDeliveries = top5[0]?.deliveries_today ?? 0;
+  const maxDeliveries = sorted[0]?.deliveries_today ?? 0;
   if (maxDeliveries === 0) return null;
+  const shown = showAll ? sorted : sorted.slice(0, 5);
 
   return (
     <div className="rounded-2xl border border-stone-200 bg-white p-5">
       <div className="flex items-center gap-2 mb-4">
         <Star className="w-4 h-4 text-amber-500" />
         <span className="font-bold text-sm uppercase tracking-wider text-char">Fahrer-Bestenliste · Heute</span>
+        <span className="ml-auto text-[10px] text-stone-400">{sorted.length} Fahrer</span>
       </div>
       <div className="space-y-2">
-        {top5.map((d, i) => {
+        {shown.map((d, i) => {
           const pct = maxDeliveries > 0 ? Math.round((d.deliveries_today / maxDeliveries) * 100) : 0;
           const isActive = !!d.active_batch_id;
           const vEmoji = VEHICLE_EMOJI[d.vehicle] ?? '🚴';
           const deltaYesterday = d.deliveries_today - d.deliveries_yesterday;
           const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-stone-400' : i === 2 ? 'bg-orange-400' : 'bg-stone-200';
           const medalLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+          // Estimated earnings: €3 base per delivery + vehicle bonus
+          const kmBonus = d.vehicle === 'auto' || d.vehicle === 'car' ? 0 : 0; // simplified
+          const estEarnings = d.deliveries_today * 3.0 + kmBonus;
           return (
             <div key={d.driver_id} className="flex items-center gap-3">
               <div className="w-7 text-center shrink-0">
@@ -2275,6 +2323,11 @@ function DriverLeaderboard({ driverPerf }: { driverPerf: DriverPerfEntry[] }) {
                       {deltaYesterday > 0 ? '+' : ''}{deltaYesterday}
                     </span>
                   )}
+                  {estEarnings > 0 && d.deliveries_today > 0 && (
+                    <span className="ml-auto shrink-0 text-[10px] font-bold text-emerald-700 tabular-nums">
+                      ~{estEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
@@ -2291,9 +2344,16 @@ function DriverLeaderboard({ driverPerf }: { driverPerf: DriverPerfEntry[] }) {
         })}
       </div>
       {sorted.length > 5 && (
-        <div className="mt-3 text-[10px] text-stone-400 text-center">
-          +{sorted.length - 5} weitere Fahrer
-        </div>
+        <button
+          onClick={() => setShowAll((x) => !x)}
+          className="mt-3 w-full flex items-center justify-center gap-1.5 text-[11px] font-semibold text-stone-500 hover:text-stone-700 transition py-1"
+        >
+          {showAll ? (
+            <><ChevronUp className="w-3.5 h-3.5" /> Weniger anzeigen</>
+          ) : (
+            <><ChevronDown className="w-3.5 h-3.5" /> +{sorted.length - 5} weitere anzeigen</>
+          )}
+        </button>
       )}
     </div>
   );

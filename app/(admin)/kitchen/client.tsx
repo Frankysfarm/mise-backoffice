@@ -3043,6 +3043,23 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
         </div>
       )}
 
+      {/* Wartet-auf-Dispatch-Chip: fertige Lieferbestellung noch nicht in einem Batch */}
+      {order.status === 'fertig' && order.typ === 'lieferung' && order.fertig_am && (() => {
+        const fertigMs = Date.now() - new Date(order.fertig_am).getTime();
+        const fertigMin = Math.floor(fertigMs / 60_000);
+        const fertigSec = Math.floor((fertigMs % 60_000) / 1_000);
+        const cls = fertigMin >= 12 ? 'bg-red-500 text-white animate-pulse' :
+                    fertigMin >= 7  ? 'bg-orange-500 text-white' :
+                    fertigMin >= 3  ? 'bg-amber-100 text-amber-800' :
+                                      'bg-matcha-100 text-matcha-700';
+        return (
+          <div className={cn('mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold', cls)}>
+            <Bike className="h-2.5 w-2.5" />
+            Dispatch: {fertigMin}:{String(fertigSec).padStart(2,'0')}
+          </div>
+        );
+      })()}
+
       {/* Fahrer-ETA-Chip: fertige Lieferbestellung ist bereits einem aktiven Batch zugewiesen */}
       {order.status === 'fertig' && order.typ === 'lieferung' && driverEtaMs != null && (() => {
         const secUntil = Math.floor((driverEtaMs - Date.now()) / 1000);
@@ -5221,6 +5238,8 @@ function KitchenHandoffMatrix({
   timings: KitchenTiming[];
 }) {
   const [, setTick] = React.useState(0);
+  const [startedIds, setStartedIds] = React.useState<Set<string>>(new Set());
+  const [startPending, startTransition] = React.useTransition();
   React.useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 15_000);
     return () => clearInterval(t);
@@ -5389,6 +5408,28 @@ function KitchenHandoffMatrix({
                           timing.status === 'scheduled' ? 'bg-blue-300'   :
                           'bg-muted',
                         )} />
+                      )}
+
+                      {/* Inline "Kochen starten" for conflict + scheduled timing */}
+                      {conflict && timing && timing.status === 'scheduled' && !startedIds.has(timing.id) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startTransition(async () => {
+                              await startCookingNow(timing.id);
+                              setStartedIds((s) => new Set([...s, timing.id]));
+                            });
+                          }}
+                          disabled={startPending}
+                          className="mt-1.5 w-full rounded bg-red-600 text-white text-[8px] font-black py-0.5 hover:bg-red-700 active:scale-95 transition"
+                        >
+                          Kochen!
+                        </button>
+                      )}
+                      {conflict && timing && timing.status === 'scheduled' && startedIds.has(timing.id) && (
+                        <div className="mt-1.5 w-full rounded bg-matcha-500 text-white text-[8px] font-black py-0.5 text-center">
+                          ✓ Start
+                        </div>
                       )}
                     </div>
                   );

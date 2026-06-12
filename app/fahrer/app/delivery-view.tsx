@@ -2254,14 +2254,35 @@ function TourProgressDots({ stops, doneCount }: { stops: Stop[]; doneCount: numb
 
 /* ------------------------------ MyPerformanceBadge ------------------------------ */
 
+type PerfHistoryPoint = {
+  date: string;
+  stopsCompleted: number;
+  onTimeRate: number | null;
+  totalEarningsEur: number;
+  toursCompleted: number;
+};
+
+type PerfData = {
+  rank: number;
+  total: number;
+  history: PerfHistoryPoint[];
+};
+
 function MyPerformanceBadge() {
-  const [data, setData] = useState<{ rank: number; total: number } | null>(null);
+  const [data, setData] = useState<PerfData | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    fetch('/api/delivery/driver/my-performance?period=week')
+    fetch('/api/delivery/driver/my-performance?period=week&days=7')
       .then((r) => r.json())
       .then((d) => {
-        if (d.rank != null && d.total != null) setData({ rank: d.rank, total: d.total });
+        if (d.rank != null && d.total != null) {
+          setData({
+            rank: d.rank,
+            total: d.total,
+            history: Array.isArray(d.history) ? d.history : [],
+          });
+        }
       })
       .catch(() => {});
   }, []);
@@ -2269,16 +2290,81 @@ function MyPerformanceBadge() {
   if (!data) return null;
 
   const isTop3 = data.rank <= 3;
+  const last7 = data.history.slice(-7);
+  const maxStops = Math.max(1, ...last7.map((p) => p.stopsCompleted));
+  const weekStops = last7.reduce((s, p) => s + p.stopsCompleted, 0);
+  const weekEarnings = last7.reduce((s, p) => s + p.totalEarningsEur, 0);
+  const latestOnTime = [...last7].reverse().find((p) => p.onTimeRate != null)?.onTimeRate ?? null;
+  const trend = last7.length >= 2
+    ? last7[last7.length - 1].stopsCompleted - last7[last7.length - 2].stopsCompleted
+    : 0;
+
   return (
-    <div className={cn(
-      'inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold',
-      isTop3
-        ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-200'
-        : 'bg-white/10 border-white/20 text-white/60',
-    )}>
-      {isTop3 && <span>🏆</span>}
-      <span>#{data.rank} von {data.total}</span>
-      <span className="opacity-60">diese Woche</span>
+    <div className="flex flex-col items-end gap-0">
+      {/* Compact badge pill — tappable */}
+      <button
+        onClick={() => setExpanded((x) => !x)}
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-bold active:scale-[0.97] transition-transform',
+          isTop3
+            ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-200'
+            : 'bg-white/10 border-white/20 text-white/60',
+        )}
+      >
+        {isTop3 && <span>🏆</span>}
+        <span>#{data.rank}/{data.total}</span>
+        {/* 7-day stops sparkline — tiny bar chart */}
+        <span className="flex items-end gap-[2px] h-[12px]">
+          {last7.map((p, i) => {
+            const barH = maxStops > 0 ? Math.max(3, Math.round((p.stopsCompleted / maxStops) * 10)) : 3;
+            const isLatest = i === last7.length - 1;
+            return (
+              <span
+                key={p.date}
+                style={{ height: `${barH}px` }}
+                className={cn('inline-block w-[3px] rounded-[1px]', isLatest ? 'bg-accent' : 'bg-white/35')}
+              />
+            );
+          })}
+        </span>
+        {trend > 0 && <span className="text-accent text-[9px]">▲</span>}
+        {trend < 0 && <span className="text-red-400 text-[9px]">▼</span>}
+      </button>
+
+      {/* Expandable weekly-stats panel */}
+      {expanded && (
+        <div className={cn(
+          'mt-1 rounded-xl border p-2.5 w-44 text-right',
+          isTop3 ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-white/5 border-white/10',
+        )}>
+          <div className="grid grid-cols-3 gap-1.5 text-center">
+            <div>
+              <div className="text-sm font-black tabular-nums text-white">{weekStops}</div>
+              <div className="text-[8px] text-white/40 leading-tight">Stops<br/>7 Tage</div>
+            </div>
+            <div>
+              <div className={cn(
+                'text-sm font-black tabular-nums',
+                latestOnTime == null ? 'text-white/30'
+                  : latestOnTime >= 0.9 ? 'text-accent'
+                  : latestOnTime >= 0.7 ? 'text-amber-300'
+                  : 'text-red-400',
+              )}>
+                {latestOnTime != null ? `${Math.round(latestOnTime * 100)}%` : '—'}
+              </div>
+              <div className="text-[8px] text-white/40 leading-tight">Pünktlich<br/>letzte Tour</div>
+            </div>
+            <div>
+              <div className="text-sm font-black tabular-nums text-white">
+                {weekEarnings > 0
+                  ? weekEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 })
+                  : '—'}
+              </div>
+              <div className="text-[8px] text-white/40 leading-tight">Verdienst<br/>7 Tage</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
