@@ -956,6 +956,9 @@ export function DispatchBoard({
       {/* Schichtanfragen — ausstehende Fahrer-Schichtanmeldungen */}
       <ShiftClaimsPanel claims={shiftClaims} />
 
+      {/* Phase 89: Kapazitäts-Gauge — freie Plätze in Touren + freie Fahrer */}
+      <DispatchCapacityGauge batches={batches} drivers={onlineDrivers} readyCount={readyOrders.length} />
+
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
 
@@ -7909,6 +7912,112 @@ function DispatchTourCompletionSpeedPanel({ batches }: { batches: Batch[] }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchCapacityGauge ------------------------------ */
+/* Phase 89: Zeigt verbleibende Kapazität über alle aktiven Touren und freie Fahrer.
+   Hilft dem Dispatcher zu sehen, wieviele weitere Bestellungen noch eingebunden werden können. */
+function DispatchCapacityGauge({
+  batches,
+  drivers,
+  readyCount,
+}: {
+  batches: Batch[];
+  drivers: Driver[];
+  readyCount: number;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const MAX_STOPS_PER_TOUR = 4;
+
+  // Kapazität in aktiven Touren
+  const activeTourCapacity = batches.reduce((sum, b) => {
+    const openStops = b.stops.filter((s) => !s.geliefert_am).length;
+    return sum + Math.max(0, MAX_STOPS_PER_TOUR - openStops);
+  }, 0);
+
+  // Freie Online-Fahrer (kein aktiver Batch)
+  const freeDrivers = drivers.filter((d) => d.ist_online && !d.aktueller_batch_id);
+  const freeDriverCapacity = freeDrivers.length * MAX_STOPS_PER_TOUR;
+
+  const totalCapacity = activeTourCapacity + freeDriverCapacity;
+  const deficit = Math.max(0, readyCount - totalCapacity);
+  const surplus = Math.max(0, totalCapacity - readyCount);
+
+  if (batches.length === 0 && freeDrivers.length === 0) return null;
+
+  const statusColor =
+    deficit > 0 ? 'text-red-600' :
+    surplus === 0 ? 'text-amber-600' :
+    surplus >= readyCount ? 'text-matcha-600' :
+    'text-blue-600';
+  const bgColor =
+    deficit > 0 ? 'bg-red-50 border-red-200' :
+    surplus === 0 ? 'bg-amber-50 border-amber-200' :
+    'bg-matcha-50 border-matcha-200';
+
+  const gaugeLabel =
+    deficit > 0 ? `${deficit} Best. ohne Kapazität` :
+    totalCapacity === 0 ? 'Keine Kapazität' :
+    `${surplus} Plätze frei`;
+
+  return (
+    <div className={cn('rounded-xl border px-4 py-3', bgColor)}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Gauge className="h-3.5 w-3.5 text-matcha-600 shrink-0" />
+          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Kapazitäts-Gauge
+          </span>
+        </div>
+        <span className={cn('text-[10px] font-black tabular-nums', statusColor)}>
+          {gaugeLabel}
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="text-center">
+          <div className="font-black text-xl tabular-nums text-matcha-700">{activeTourCapacity}</div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">In Touren frei</div>
+        </div>
+        <div className="text-center">
+          <div className="font-black text-xl tabular-nums text-blue-600">{freeDriverCapacity}</div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Freie Fahrer</div>
+        </div>
+        <div className="text-center">
+          <div className={cn('font-black text-xl tabular-nums', statusColor)}>{totalCapacity}</div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Gesamt frei</div>
+        </div>
+      </div>
+      {/* Visual capacity bar */}
+      <div className="mt-3">
+        <div className="flex items-center justify-between text-[9px] text-muted-foreground mb-1">
+          <span>{readyCount} bereit</span>
+          <span>Max {totalCapacity} Plätze</span>
+        </div>
+        <div className="h-2 rounded-full bg-black/10 overflow-hidden">
+          <div
+            className={cn(
+              'h-full rounded-full transition-all duration-700',
+              deficit > 0 ? 'bg-red-500' :
+              readyCount === 0 ? 'bg-matcha-300' :
+              'bg-matcha-500',
+            )}
+            style={{ width: totalCapacity > 0 ? `${Math.min(100, (readyCount / totalCapacity) * 100)}%` : '0%' }}
+          />
+        </div>
+      </div>
+      {deficit > 0 && (
+        <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-red-100/80 border border-red-200 px-2.5 py-1.5 text-[10px] font-semibold text-red-800">
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          {deficit} Bestellung{deficit > 1 ? 'en' : ''} haben keinen Fahrer — Kapazität erweitern!
+        </div>
+      )}
     </div>
   );
 }

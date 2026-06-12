@@ -906,6 +906,8 @@ export function LieferdienstClient() {
               <FahrerTagesZielPanel />
               {/* Zone-Umsatz: Bestellungen + Umsatz nach Lieferzone */}
               <LieferdienstZonenumsatz />
+              {/* Phase 89: Stündlicher Durchsatz-Sparkline */}
+              <LieferdienstDurchsatzPanel />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2012,6 +2014,102 @@ function LieferdienstZonenumsatz() {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---- Phase 89: LieferdienstDurchsatzPanel ---- */
+/* Zeigt den stündlichen Bestelldurchsatz heute als Mini-Sparkline mit
+   Trend-Indikator und aktuellem Stunden-Wert. */
+function LieferdienstDurchsatzPanel() {
+  const supabase = createClient();
+  type HourBucket = { h: number; label: string; orders: number };
+  const [buckets, setBuckets] = useState<HourBucket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: rows } = await supabase
+          .from('customer_orders')
+          .select('bestellt_am')
+          .gte('bestellt_am', today.toISOString())
+          .not('bestellt_am', 'is', null);
+        if (!rows) return;
+        const counts: Record<number, number> = {};
+        for (const r of rows as { bestellt_am: string }[]) {
+          const h = new Date(r.bestellt_am).getHours();
+          counts[h] = (counts[h] ?? 0) + 1;
+        }
+        const nowH = new Date().getHours();
+        const result: HourBucket[] = [];
+        for (let h = Math.max(0, nowH - 7); h <= nowH; h++) {
+          result.push({ h, label: `${h}:00`, orders: counts[h] ?? 0 });
+        }
+        setBuckets(result);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    const tick = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => { clearInterval(iv); clearInterval(tick); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || buckets.length < 2) return null;
+
+  const maxOrders = Math.max(...buckets.map(b => b.orders), 1);
+  const nowH = new Date().getHours();
+  const currentHour = buckets.find(b => b.h === nowH);
+  const prevHour = buckets.find(b => b.h === nowH - 1);
+  const trend = currentHour && prevHour
+    ? currentHour.orders > prevHour.orders ? 'up' : currentHour.orders < prevHour.orders ? 'down' : 'flat'
+    : 'flat';
+  const totalToday = buckets.reduce((s, b) => s + b.orders, 0);
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-matcha-600" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Durchsatz heute</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] font-bold ${trend === 'up' ? 'text-matcha-600' : trend === 'down' ? 'text-red-500' : 'text-stone-400'}`}>
+            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {currentHour?.orders ?? 0}/h jetzt
+          </span>
+          <span className="text-[10px] text-stone-400 font-bold">Σ {totalToday}</span>
+        </div>
+      </div>
+      {/* Mini Sparkline */}
+      <div className="flex items-end gap-1 h-10">
+        {buckets.map((b) => {
+          const h = Math.max(2, Math.round((b.orders / maxOrders) * 100));
+          const isCurrent = b.h === nowH;
+          return (
+            <div key={b.h} className="flex-1 flex flex-col items-center gap-0.5">
+              <div
+                className={`w-full rounded-t-sm transition-all ${isCurrent ? 'bg-matcha-500' : 'bg-stone-200'}`}
+                style={{ height: `${h}%`, minHeight: 2 }}
+                title={`${b.label}: ${b.orders} Best.`}
+              />
+              {isCurrent && (
+                <span className="text-[7px] font-bold text-matcha-600 tabular-nums">{b.h}h</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex items-center gap-2 text-[9px] text-stone-400">
+        <span className="flex items-center gap-0.5">
+          <span className="h-2 w-2 rounded-sm bg-matcha-500 inline-block" />aktuelle Stunde
+        </span>
+        <span className="flex items-center gap-0.5">
+          <span className="h-2 w-2 rounded-sm bg-stone-200 inline-block" />vergangene Stunden
+        </span>
       </div>
     </div>
   );

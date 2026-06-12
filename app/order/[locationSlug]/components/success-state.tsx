@@ -219,14 +219,30 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
         }).setView([driverPos.lat, driverPos.lng], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        const heading = driverPos.heading;
+        const rotateStyle = heading != null ? `transform:rotate(${heading}deg)` : '';
         const icon = L.divIcon({
           className: '',
-          html: `<div style="width:36px;height:36px;border-radius:50%;background:#4ae68a;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(0,0,0,0.4)">🛵</div>`,
-          iconAnchor: [18, 18],
+          html: `<div style="width:40px;height:40px;position:relative;display:flex;align-items:center;justify-content:center">
+            ${heading != null ? `<div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:10px solid #4ae68a;${rotateStyle};transform-origin:50% 200%;"></div>` : ''}
+            <div style="width:36px;height:36px;border-radius:50%;background:#4ae68a;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(0,0,0,0.4)">🛵</div>
+          </div>`,
+          iconAnchor: [20, 20],
         });
         const marker = L.marker([driverPos.lat, driverPos.lng], { icon }).addTo(map);
         trackingMapInstanceRef.current = { map, marker };
       } else {
+        const heading = driverPos.heading;
+        const rotateStyle = heading != null ? `transform:rotate(${heading}deg)` : '';
+        const newIcon = (await import('leaflet')).default.divIcon({
+          className: '',
+          html: `<div style="width:40px;height:40px;position:relative;display:flex;align-items:center;justify-content:center">
+            ${heading != null ? `<div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:10px solid #4ae68a;${rotateStyle};transform-origin:50% 200%;"></div>` : ''}
+            <div style="width:36px;height:36px;border-radius:50%;background:#4ae68a;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(0,0,0,0.4)">🛵</div>
+          </div>`,
+          iconAnchor: [20, 20],
+        });
+        trackingMapInstanceRef.current.marker.setIcon(newIcon);
         trackingMapInstanceRef.current.marker.setLatLng([driverPos.lat, driverPos.lng]);
         trackingMapInstanceRef.current.map.panTo([driverPos.lat, driverPos.lng], { animate: true });
       }
@@ -404,14 +420,25 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </div>
         )}
         {isDelivery && liveStatus === 'unterwegs' && stopsBefore === 0 && (
-          <div className="mt-3 flex items-center justify-center gap-2 rounded-2xl bg-accent/10 px-4 py-2.5 ring-1 ring-accent/30 w-full">
-            <span className="text-lg">🎯</span>
+          <div className={cn(
+            'mt-3 flex items-center justify-center gap-2 rounded-2xl px-4 py-2.5 ring-1 w-full transition-all',
+            // Phase 89: imminent-puls wenn <2 Min verbleibend
+            secsLeft > 0 && secsLeft < 120
+              ? 'bg-accent/20 ring-accent/60 animate-pulse'
+              : 'bg-accent/10 ring-accent/30',
+          )}>
+            <span className="text-lg">{secsLeft > 0 && secsLeft < 120 ? '🔔' : '🎯'}</span>
             <div className="text-left">
-              <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">
-                Du bist der nächste Stopp!
+              <div className={cn(
+                'text-[10px] font-bold uppercase tracking-[0.12em]',
+                secsLeft > 0 && secsLeft < 120 ? 'text-white' : 'text-accent',
+              )}>
+                {secsLeft > 0 && secsLeft < 120 ? 'Fahrer ist fast da!' : 'Du bist der nächste Stopp!'}
               </div>
               <div className="text-[11px] text-matcha-300">
-                Fahrer ist direkt auf dem Weg zu dir
+                {secsLeft > 0 && secsLeft < 120
+                  ? `Noch ca. ${Math.ceil(secsLeft / 60)} Min — bitte zur Tür!`
+                  : 'Fahrer ist direkt auf dem Weg zu dir'}
               </div>
             </div>
           </div>

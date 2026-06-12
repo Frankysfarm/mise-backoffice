@@ -2243,45 +2243,78 @@ function TourOnTimeRing({
 /* ------------------------------ TourProgressDots ------------------------------ */
 /* Zeigt alle Stopps als nummerierte Punkte mit Verbindungslinien — kompakter Fortschrittsstreifen */
 function TourProgressDots({ stops, doneCount }: { stops: Stop[]; doneCount: number }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
   if (stops.length <= 1) return null;
+
   return (
-    <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto">
-      {stops.flatMap((s, idx) => {
-        const isDone = !!s.geliefert_am;
-        const isNext = !isDone && doneCount === idx;
-        const isCash = !s.order.bezahlt || s.order.zahlungsart === 'bar';
-        const els = [
-          <div
-            key={s.id}
-            title={`Stopp ${s.reihenfolge}: ${s.order.kunde_name}`}
-            className={cn(
-              'relative h-7 w-7 shrink-0 rounded-full flex items-center justify-center font-black text-[10px] border-2 transition-all',
-              isDone
-                ? 'bg-matcha-700 border-matcha-600 text-matcha-400'
-                : isNext
-                  ? 'bg-accent border-accent text-matcha-900 shadow-lg shadow-accent/30 scale-110'
-                  : 'bg-white/8 border-white/15 text-matcha-500',
-            )}
-          >
-            {isDone ? '✓' : s.reihenfolge}
-            {isCash && !isDone && (
-              <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 border-2 border-matcha-900" />
-            )}
-          </div>,
-        ];
-        if (idx < stops.length - 1) {
-          els.push(
-            <div
-              key={`line-${idx}`}
-              className={cn('h-px w-3 shrink-0 transition-all', isDone ? 'bg-matcha-600' : 'bg-white/10')}
-            />,
-          );
-        }
-        return els;
-      })}
-      <span className="ml-2 shrink-0 text-[9px] text-matcha-500 font-bold tabular-nums">
-        {doneCount}/{stops.length}
-      </span>
+    <div className="px-4 py-2 overflow-x-auto">
+      <div className="flex items-center gap-1 min-w-0">
+        {stops.flatMap((s, idx) => {
+          const isDone = !!s.geliefert_am;
+          const isNext = !isDone && doneCount === idx;
+          const isCash = !s.order.bezahlt || s.order.zahlungsart === 'bar';
+
+          // Per-stop ETA label
+          const etaLabel = (() => {
+            if (isDone) return null;
+            const eta = s.order.eta_earliest;
+            if (!eta) return null;
+            const ms = new Date(eta).getTime() - Date.now();
+            const absMins = Math.abs(Math.round(ms / 60_000));
+            const isLate = ms < 0;
+            if (absMins > 99) return null;
+            return { label: isLate ? `+${absMins}` : `${absMins}m`, late: isLate, soon: !isLate && ms < 5 * 60_000 };
+          })();
+
+          const els = [
+            <div key={s.id} className="flex flex-col items-center gap-0.5">
+              <div
+                title={`Stopp ${s.reihenfolge}: ${s.order.kunde_name}`}
+                className={cn(
+                  'relative h-7 w-7 shrink-0 rounded-full flex items-center justify-center font-black text-[10px] border-2 transition-all',
+                  isDone
+                    ? 'bg-matcha-700 border-matcha-600 text-matcha-400'
+                    : isNext
+                      ? 'bg-accent border-accent text-matcha-900 shadow-lg shadow-accent/30 scale-110'
+                      : 'bg-white/8 border-white/15 text-matcha-500',
+                )}
+              >
+                {isDone ? '✓' : s.reihenfolge}
+                {isCash && !isDone && (
+                  <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-amber-400 border-2 border-matcha-900" />
+                )}
+              </div>
+              {etaLabel && (
+                <span className={cn(
+                  'text-[8px] font-bold tabular-nums leading-none',
+                  etaLabel.late ? 'text-red-400 animate-pulse' :
+                  etaLabel.soon ? 'text-amber-300' :
+                  'text-matcha-500',
+                )}>
+                  {etaLabel.label}
+                </span>
+              )}
+            </div>,
+          ];
+          if (idx < stops.length - 1) {
+            els.push(
+              <div
+                key={`line-${idx}`}
+                className={cn('h-px w-3 shrink-0 self-start mt-3.5 transition-all', isDone ? 'bg-matcha-600' : 'bg-white/10')}
+              />,
+            );
+          }
+          return els;
+        })}
+        <span className="ml-2 shrink-0 text-[9px] text-matcha-500 font-bold tabular-nums self-start mt-2">
+          {doneCount}/{stops.length}
+        </span>
+      </div>
     </div>
   );
 }

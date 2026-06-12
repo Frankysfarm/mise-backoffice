@@ -500,6 +500,9 @@ export function KitchenBoard({
       {/* Smart-Timing Genauigkeit: Wie präzise treffen unsere Schätzungen? */}
       {timings.length > 0 && <KitchenTimingAccuracyBar timings={timings} />}
 
+      {/* Phase 89: Smart-Prep-Advisor — historische Ist-Zeiten analysieren + Empfehlung */}
+      <KitchenSmartPrepAdvisor orders={filtered} />
+
       {/* Smart-Timing Nudge: Kochende Bestellungen ohne Timing-Eintrag */}
       <KitchenSmartTimingNudge orders={filtered} timings={timings} />
 
@@ -6635,6 +6638,113 @@ function KitchenHandoffSyncPanel({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenSmartPrepAdvisor ------------------------------ */
+/* Phase 89: Analysiert die letzten fertiggestellten Bestellungen und schlägt optimale
+   Zubereitungszeiten für die aktuell wartenden Bestellungen vor. */
+function KitchenSmartPrepAdvisor({ orders }: { orders: Order[] }) {
+  const supabase = createClient();
+  type HistoryPoint = { status: string; bestellt_am: string; fertig_am: string; geschaetzte_zubereitung_min: number | null };
+  const [history, setHistory] = useState<HistoryPoint[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const since = new Date(Date.now() - 4 * 60 * 60_000).toISOString();
+        const { data } = await supabase
+          .from('customer_orders')
+          .select('status, bestellt_am, fertig_am, geschaetzte_zubereitung_min')
+          .in('status', ['fertig', 'unterwegs', 'geliefert', 'abgeholt', 'abgeschlossen'])
+          .gte('fertig_am', since)
+          .not('fertig_am', 'is', null)
+          .not('bestellt_am', 'is', null)
+          .limit(30);
+        setHistory((data as HistoryPoint[]) ?? []);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const pending = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (pending.length === 0 || (loading && history.length === 0)) return null;
+
+  // Compute historical actual prep time statistics
+  const actuals = history
+    .map((h) => {
+      const actual = Math.floor((new Date(h.fertig_am).getTime() - new Date(h.bestellt_am).getTime()) / 60_000);
+      const est = h.geschaetzte_zubereitung_min ?? 15;
+      return { actual, est, delta: actual - est };
+    })
+    .filter((x) => x.actual > 0 && x.actual < 90);
+
+  if (actuals.length < 3) return null;
+
+  const avgActual = Math.round(actuals.reduce((s, x) => s + x.actual, 0) / actuals.length);
+  const avgDelta  = Math.round(actuals.reduce((s, x) => s + x.delta, 0) / actuals.length);
+  const onTimePct = Math.round((actuals.filter((x) => x.delta <= 2).length / actuals.length) * 100);
+
+  // Suggest optimal prep time for next orders
+  const avgPendingEst = pending.length > 0
+    ? Math.round(pending.reduce((s, o) => s + (o.geschaetzte_zubereitung_min ?? 15), 0) / pending.length)
+    : 15;
+  const suggestedTime = Math.max(5, avgPendingEst + Math.round(avgDelta * 0.7));
+
+  const qualityColor =
+    onTimePct >= 80 ? 'text-matcha-700' :
+    onTimePct >= 60 ? 'text-amber-700' :
+    'text-red-700';
+  const qualityBg =
+    onTimePct >= 80 ? 'bg-matcha-50 border-matcha-200' :
+    onTimePct >= 60 ? 'bg-amber-50 border-amber-200' :
+    'bg-red-50 border-red-200';
+
+  return (
+    <div className={cn('rounded-xl border px-4 py-3', qualityBg)}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Target className="h-3.5 w-3.5 text-matcha-600 shrink-0" />
+          <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Smart-Prep-Advisor · {actuals.length} Referenzbestellungen
+          </span>
+        </div>
+        <span className={cn('text-[10px] font-black tabular-nums', qualityColor)}>
+          {onTimePct}% on-time
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-lg bg-white/60 border border-current/10 px-2 py-1.5">
+          <div className="font-black text-base tabular-nums">{avgActual}m</div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Ø Ist (4h)</div>
+        </div>
+        <div className="rounded-lg bg-white/60 border border-current/10 px-2 py-1.5">
+          <div className={cn('font-black text-base tabular-nums', avgDelta > 2 ? 'text-red-600' : avgDelta < -2 ? 'text-matcha-600' : 'text-muted-foreground')}>
+            {avgDelta > 0 ? `+${avgDelta}` : avgDelta}m
+          </div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Ø Abweichung</div>
+        </div>
+        <div className="rounded-lg bg-white/60 border border-current/10 px-2 py-1.5">
+          <div className="font-black text-base tabular-nums text-blue-700">{suggestedTime}m</div>
+          <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Empfehlung</div>
+        </div>
+      </div>
+      {Math.abs(avgDelta) >= 3 && (
+        <div className={cn(
+          'mt-2 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold',
+          avgDelta > 0 ? 'bg-orange-100/80 text-orange-800' : 'bg-matcha-100/80 text-matcha-800',
+        )}>
+          <Zap className="h-3 w-3 shrink-0" />
+          {avgDelta > 0
+            ? `Bestellungen dauern Ø ${avgDelta}m länger als geschätzt — Schätzung erhöhen?`
+            : `Küche ist ${Math.abs(avgDelta)}m schneller als geschätzt — gut!`}
+        </div>
+      )}
     </div>
   );
 }
