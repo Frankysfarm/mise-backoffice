@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–69 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
+**Phasen 1–70 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 70: Auto-Versand Bewertungs-Links nach Lieferung (generateRatingToken → Customer Push Integration)
+- [x] sendRatingLinkAfterDelivery() — generiert Token + stellt rating_request-Push in Queue + markiert rating_sent_at
+- [x] processPendingRatingLinks() — Cron-Helfer: bis 50 gelieferte Orders ohne rating_sent_at per Tick verarbeiten
+- [x] CustomerEventType erweitert um 'rating_request' (customer-notify.ts) mit DE-Nachricht
+- [x] Tour-Status-Route: bei state=delivered → sendRatingLinkAfterDelivery statt generateRatingToken (fire-and-forget)
+- [x] Cron: isRatingTick → generateMissingRatingTokens + processPendingRatingLinks parallel
+- [x] Migration 050: Partial-Index idx_customer_orders_rating_pending für performante Cron-Abfrage
 - [x] CEO Review #56: 3 Bugs gefixt (2× Recharts Tooltip-Typen, 1× Tabellennamen + employee→driver Mapping in LieferdienstFahrerEinsatz)
 - [x] Phase 69: Lieferdienst-Stats-Dashboard — LieferdienstStundenChart, LieferdienstRejektionsrate, LieferdienstFahrerEinsatz
 - [x] LieferdienstStundenChart — stündliche Bestellungen + Umsatz BarChart/LineChart, Peak-Stunde, KPI-Chips, 5-Min-Polling

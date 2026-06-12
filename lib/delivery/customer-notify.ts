@@ -37,7 +37,8 @@ export type CustomerEventType =
   | 'driver_nearby'
   | 'delivered'
   | 'cancelled'
-  | 'delayed';
+  | 'delayed'
+  | 'rating_request';
 
 export interface CustomerDeliveryEvent {
   id: string;
@@ -59,6 +60,7 @@ const EVENT_MESSAGES: Record<CustomerEventType, string> = {
   delivered:            'Bestellung wurde erfolgreich geliefert',
   cancelled:            'Deine Bestellung wurde storniert',
   delayed:              'Deine Bestellung verzögert sich leicht',
+  rating_request:       'Wie war deine Lieferung? Wir freuen uns über dein Feedback.',
 };
 
 // ── Schreiben ─────────────────────────────────────────────────────────────────

@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { recomputeDriverRating } from '@/lib/delivery/rating';
 import { calculateDeliveryPayout } from '@/lib/delivery/payout';
 import { recoverCancelledBatch } from '@/lib/delivery/recovery';
-import { generateRatingToken } from '@/lib/delivery/satisfaction';
+import { sendRatingLinkAfterDelivery } from '@/lib/delivery/satisfaction';
 import { queueWebhookEvent } from '@/lib/delivery/webhooks';
 import { recordActualDelivery } from '@/lib/delivery/eta-calibration';
 import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/customer-notify';
@@ -74,9 +74,9 @@ export async function PATCH(
             completedAt: (stop.completed_at as string | null) ?? undefined,
           }).catch(() => {});
 
-          // Kunden-Rating-Token generieren (fire-and-forget)
+          // Kunden-Rating-Token generieren + Link versenden (fire-and-forget)
           if (stop.order_id) {
-            generateRatingToken(stop.order_id as string).catch(() => {});
+            sendRatingLinkAfterDelivery(stop.order_id as string, batch.location_id as string).catch(() => {});
             // ETA-Kalibrierungs-Engine: echte Lieferzeit eintragen
             const deliveredAt = stop.completed_at
               ? new Date(stop.completed_at as string)

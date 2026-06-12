@@ -16,7 +16,7 @@ import { snapshotAllLocations } from '@/lib/delivery/forecast';
 import { evaluateAlertsAllLocations } from '@/lib/delivery/alerts';
 import { scanStaleBatches } from '@/lib/delivery/recovery';
 import { createServiceClient } from '@/lib/supabase/server';
-import { generateMissingRatingTokens } from '@/lib/delivery/satisfaction';
+import { generateMissingRatingTokens, processPendingRatingLinks } from '@/lib/delivery/satisfaction';
 import { runDelayMonitorAllLocations } from '@/lib/delivery/delay-monitor';
 import { releaseScheduledOrders } from '@/lib/delivery/scheduled';
 import { processAllWebhooks } from '@/lib/delivery/webhooks';
@@ -92,17 +92,18 @@ export async function GET(req: NextRequest) {
         : Promise.resolve(null),
       evaluateAlertsAllLocations().catch(() => ({ locations: 0, created: 0, resolved: 0 })),
       scanStaleBatches(60).catch(() => ({ scanned: 0, recovered: [] as string[] })),
-      // Rating-Tokens für kürzlich gelieferte Orders generieren
+      // Rating-Tokens generieren + Links versenden (alle 10 Min)
       isRatingTick ? (async () => {
         try {
           const { data: locs } = await serviceSb.from('locations').select('id').eq('active', true).limit(20);
-          let total = 0;
+          let totalTokens = 0;
           for (const loc of locs ?? []) {
-            total += await generateMissingRatingTokens(loc.id as string);
+            totalTokens += await generateMissingRatingTokens(loc.id as string);
           }
-          return total;
-        } catch { return 0; }
-      })() : Promise.resolve(0),
+          const linkResult = await processPendingRatingLinks();
+          return { tokens: totalTokens, links_sent: linkResult.sent, links_processed: linkResult.processed };
+        } catch { return { tokens: 0, links_sent: 0, links_processed: 0 }; }
+      })() : Promise.resolve({ tokens: 0, links_sent: 0, links_processed: 0 }),
       // Delay-Monitor: verspätete Lieferungen erkennen + Gutscheine erstellen
       runDelayMonitorAllLocations().catch(() => ({
         locations: 0, totalScanned: 0, totalFirstNotices: 0,
@@ -179,7 +180,7 @@ export async function GET(req: NextRequest) {
         batches_scanned: recoveryResult.scanned,
         batches_recovered: recoveryResult.recovered.length,
       },
-      ...(isRatingTick ? { rating_tokens_generated: ratingTokensGenerated } : {}),
+      ...(isRatingTick ? { rating: ratingTokensGenerated } : {}),
       delay_monitor: {
         scanned:          delayResult.totalScanned,
         first_notices:    delayResult.totalFirstNotices,

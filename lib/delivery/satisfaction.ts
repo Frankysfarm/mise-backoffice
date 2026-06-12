@@ -350,3 +350,107 @@ export async function markRatingTokensSent(orderIds: string[]): Promise<void> {
     .in('id', orderIds)
     .is('rating_sent_at', null);
 }
+
+// ─── Phase 70: Auto-Versand Bewertungs-Links ────────────────────────────────
+
+/**
+ * Sendet den Bewertungs-Link an den Kunden nach erfolgreicher Lieferung.
+ * 1. Generiert/holt den Rating-Token.
+ * 2. Stellt eine rating_request-Benachrichtigung via Customer-Push in die Queue.
+ * 3. Markiert rating_sent_at auf der Bestellung.
+ * Fire-and-forget kompatibel — wirft niemals.
+ */
+export async function sendRatingLinkAfterDelivery(
+  orderId: string,
+  locationId: string,
+  baseUrl: string = process.env.NEXT_PUBLIC_APP_URL ?? '',
+): Promise<boolean> {
+  try {
+    const tokenResult = await generateRatingToken(orderId, baseUrl);
+    if (!tokenResult) return false;
+
+    const sb = createServiceClient();
+
+    // Kundenkontakt laden
+    const { data: order } = await sb
+      .from('customer_orders')
+      .select('kunde_telefon, kunde_name, rating_sent_at')
+      .eq('id', orderId)
+      .maybeSingle();
+
+    if (!order) return false;
+    if (order.rating_sent_at) return true; // Bereits gesendet
+
+    const phone = (order.kunde_telefon as string | null) ?? null;
+    const name  = (order.kunde_name  as string | null) ?? null;
+
+    // Push-Benachrichtigung mit Bewertungs-URL in die Queue stellen (fire-and-forget)
+    if (phone) {
+      const message = `Wie war deine Lieferung? Bewerte uns in 10 Sekunden: ${tokenResult.ratingUrl}`;
+      import('@/lib/delivery/customer-push').then(({ enqueueCustomerNotification }) =>
+        enqueueCustomerNotification({
+          orderId,
+          locationId,
+          eventType: 'rating_request',
+          messageDe: message,
+          customerPhone: phone,
+          customerEmail: null,
+          customerName: name,
+          metadata: { rating_url: tokenResult.ratingUrl, token: tokenResult.token },
+        }),
+      ).catch(() => {});
+    }
+
+    // rating_sent_at setzen (auch wenn kein Telefon → Token wurde generiert)
+    await sb
+      .from('customer_orders')
+      .update({ rating_sent_at: new Date().toISOString() })
+      .eq('id', orderId)
+      .is('rating_sent_at', null);
+
+    return true;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn('[satisfaction] sendRatingLinkAfterDelivery failed:', msg);
+    return false;
+  }
+}
+
+export interface PendingRatingLinksResult {
+  processed: number;
+  sent: number;
+}
+
+/**
+ * Cron-Helfer: findet alle kürzlich gelieferten Bestellungen, die bereits einen
+ * Rating-Token haben, aber noch keinen Link an den Kunden geschickt haben,
+ * und verschickt die Links.
+ * Max 50 pro Aufruf.
+ */
+export async function processPendingRatingLinks(): Promise<PendingRatingLinksResult> {
+  const sb = createServiceClient();
+
+  const { data: orders } = await sb
+    .from('customer_orders')
+    .select('id, location_id')
+    .in('status', ['geliefert', 'abgeschlossen'])
+    .not('rating_token', 'is', null)
+    .is('rating_sent_at', null)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (!orders?.length) return { processed: 0, sent: 0 };
+
+  let sent = 0;
+  await Promise.all(
+    orders.map(async (o) => {
+      const ok = await sendRatingLinkAfterDelivery(
+        o.id as string,
+        o.location_id as string,
+      );
+      if (ok) sent++;
+    }),
+  );
+
+  return { processed: orders.length, sent };
+}
