@@ -1,7 +1,72 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–89 vollständig abgeschlossen. CEO Review #66 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–90 vollständig abgeschlossen. CEO Review #67 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #67 — 2026-06-12
+
+### Geprüfte Commits (2 neue Commits seit Review #66)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `50121e0` | feat(delivery/backend): Phase 90 — Push-Notifications 'Fahrer fast da' (2-Min-Trigger) | ✅ |
+| `35a77e1` | feat(delivery/frontend): kitchen smart-timing absolute clock + urgency heatstrip | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully ✅
+
+### Befund Phase 90 (Backend — Push-Notification "Fahrer fast da")
+
+**lib/delivery/gps-tracker.ts — `checkAlmostThereProximity()`**:
+- Dynamischer Schwellwert: speed_kmh × 2.5 Min Puffer (max 2000m), Fallback bike=750m / car=1250m ✅
+- Dedup-Guard: prüft `customer_delivery_events` (order_id + event_type='driver_almost_there') vor Feuern ✅
+- Fire-and-forget `.catch(() => {})` — blockiert GPS-Response nicht ✅
+- Hält `driverRow.state === 'en_route'` — feuert nicht bei idle/offline Fahrern ✅
+
+**lib/delivery/customer-notify.ts**:
+- `CustomerEventType` um `'driver_almost_there'` erweitert ✅
+- Deutsche Nachricht: `'Dein Fahrer ist in ca. 2 Minuten bei dir! 🛵 Bitte bereit halten.'` ✅
+
+**app/api/driver-app/me/gps/route.ts**:
+- `checkAlmostThereProximity(driverId, lat, lng, locationId, speed_kmh)` korrekt eingebunden ✅
+- Fire-and-forget `.catch(() => {})` am API-Endpunkt ✅
+
+**scripts/migrations/054_customer_almost_there.sql**:
+- `CREATE INDEX IF NOT EXISTS idx_cde_order_event ON customer_delivery_events (order_id, event_type)` ✅
+- Performance-Index für Dedup-Lookup korrekt ✅
+
+### Befund Kitchen Smart-Timing + Urgency Heat-Strip (Frontend)
+
+**app/(admin)/kitchen/client.tsx**:
+- `timingChip` zeigt jetzt absolute Uhrzeit zusätzlich zum Countdown (z.B. `Fertig in 4:30 · um 18:45`) ✅
+- `heatColor` Urgency-Farbband am Kartenrand: rot (≥100%), orange (≥85%), gelb (≥60%), blau (timing aktiv), matcha (normal) ✅
+- Negativ-Margin-Technik `-mx-4 -mt-4 mb-3` — nahtloser Strip ohne Layout-Umbau ✅
+- Pulsiert bei progressPct ≥ 85 (animate-pulse) ✅
+- `next.config.js` turbopack.root Fix korrekt angewandt ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- **Kitchen**: KitchenSmartPrepAdvisor (Prep-Empfehlungen), KitchenThroughputMeter, Urgency Heat-Strip ✅
+- **Dispatch**: DispatchCapacityGauge (freie Slots + Fahrer), LieferdienstDurchsatzPanel (8h Sparkline + Trend) ✅
+- **Fahrer-App**: TourProgressDots mit ETA-Countdown (30s-Tick), Rot/Amber Farbkodierung ✅
+- **Storefront**: GPS-Heading-Arrow, Distanz-Badge, Stops-Before-Badge, Push-Notification bei <2 Min ✅
+- **GPS-Loop**: `POST /api/driver-app/me/gps` → recordGpsPoint + checkGeofences + checkAlmostThereProximity ✅
+
+### Bugs gefunden und gefixt
+- Keine neuen Bugs. 0 TypeScript-Fehler. Build sauber.
+
+### Status nach Review #67
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully ✅
+- Phase 90 (Backend Push-Notification): DONE ✅
+- Kitchen Smart-Timing + Heat-Strip: DONE ✅
+- Bugs gefixed: 0
+
+### Nächste Schritte (optional — System ist MARKT-REIF)
+Das System ist vollständig. Alle 90 Phasen abgeschlossen. Empfehlungen für Post-Launch:
+1. Produktions-Deployment auf Vercel/Supabase (Migration 054 ausführen)
+2. Monitoring: GPS-Webhook-Latenz, Push-Notification Delivery-Rate
+3. A/B-Test: Prüfen ob "Fahrer fast da"-Notification Click-Through auf Rating erhöht
 
 ## CEO Review #66 — 2026-06-12
 
