@@ -31,10 +31,12 @@ export async function POST(req: NextRequest) {
   const c = sb();
   const { data: repush } = await c.rpc('fn_repush_pending_batches');
   const { data: cancelled } = await c.rpc('fn_auto_cancel_unaccepted_batches');
+  const { data: recovered } = await c.rpc('fn_recover_abandoned_tours');
 
   return NextResponse.json({
     ok: true,
     repushed: Number(repush ?? 0),
     auto_cancelled: Number(cancelled ?? 0),
+    recovered_abandoned: Number(recovered ?? 0),
   });
 }
