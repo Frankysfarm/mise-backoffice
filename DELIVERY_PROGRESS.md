@@ -1,10 +1,16 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–79 abgeschlossen. CEO Review #60. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
+**Phasen 1–80 abgeschlossen. CEO Review #61. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 80: Fahrer-Küchen-Sync + Dispatch Tour-Vorschau — CEO Review #61
+- [x] KitchenHandoffSyncPanel: Live-Sync-Anzeige pro aktiver Tour (grün=synchron, amber=Fahrer wartet, rot=Essen wartet)
+- [x] Bugfix: syncQuality-Bedingungen vertauscht (deltaMin > 5 → konflikt, deltaMin < -8 → warte)
+- [x] BatchSelectionPreview: Tour-Vorschau bei ≥1 ausgewählter Bestellung (Zonen, Distanz, ETA, Wert, Score)
+- [x] Haversine-Routenschätzung Restaurant→Stops→Restaurant korrekt implementiert
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 183 Seiten)
 - [x] Phase 79: Push-Benachrichtigungen bei Tier-Upgrade (Bronze→Silber→Gold→Platin)
 - [x] CustomerEventType: 'loyalty_tier_upgrade' hinzugefügt (customer-notify.ts)
 - [x] earnPoints(): sendet Tier-Upgrade-Push fire-and-forget via enqueueCustomerNotification (loyalty-points.ts)

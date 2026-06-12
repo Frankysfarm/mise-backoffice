@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–77 vollständig abgeschlossen. CEO Review #60 abgeschlossen. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–80 vollständig abgeschlossen. CEO Review #61 abgeschlossen. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.
+
+## CEO Review #61 — 2026-06-12
+
+### Geprüfte Commits (1 neuer Commit seit Review #60)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `d105452` | feat(delivery/frontend): Phase 80 — Fahrer-Küchen-Sync + Dispatch Tour-Vorschau | ✅ nach Fix |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Compiled successfully, 183 Seiten ✅
+
+### Befund Phase 80
+
+**KitchenHandoffSyncPanel** (`app/(admin)/kitchen/client.tsx`):
+- `deltaMin = etaMs - latestReady` Formel korrekt: positiv = Fahrer-ETA nach Kochfertig-Ziel ✅
+- **BUG GEFUNDEN & GEFIXT**: syncQuality-Bedingungen waren vertauscht
+  - `deltaMin > 5` war als `'warte'` (Fahrer wartet) markiert — FALSCH (Essen wartet, da Fahrer zu spät)
+  - `deltaMin < -8` war als `'konflikt'` (Essen wartet) markiert — FALSCH (Fahrer wartet, da er früher da)
+  - Fix: `deltaMin > 5 → 'konflikt'` / `deltaMin < -8 → 'warte'`
+- Farbkodierung: gut=grün, warte=amber, konflikt=rot ✅
+- 1s-Tick für Live-Updates korrekt via `setInterval` + cleanup ✅
+- Stop-Filter: nur offene Stops (`!s.geliefert_am`) korrekt ✅
+- ACTIVE-Status-Set deckt alle relevanten Batch-Zustände ab ✅
+
+**BatchSelectionPreview** (`app/(admin)/dispatch/client.tsx`):
+- Haversine-Distanz: Restaurant → Stop1 → Stop2 → … → Restaurant korrekt ✅
+- ETA-Formel: `estDistKm * 3 + orders.length * 2` (3 Min/km + 2 Min Übergabe) sinnvoll ✅
+- avgScore: nur Orders mit gesetztem `dispatch_score` einbezogen, kein Division-by-Zero ✅
+- `Location.lat`/`lng` optional — `?? null` Fallback überall vorhanden ✅
+- Icon-Imports: `Target`, `Navigation2`, `Banknote`, `Gauge` alle korrekt importiert ✅
+- Gesamtwert `toLocaleString('de-DE')` mit EUR-Format korrekt ✅
+
+### Bugs gefunden: 1 (gefixt)
+- MITTEL: `KitchenHandoffSyncPanel` syncQuality-Bedingungen vertauscht → falsche Ampelfarben für Sync-Status
+
+### Status nach Review #61
+- TypeScript: 0 Fehler ✅
+- Build: 183 Seiten, Compiled successfully ✅
+- Phasen 1–80: vollständig implementiert und geprüft ✅
+
+### Nächste Schritte (optional, System ist markt-reif)
+1. Phase 81: A/B-Test Dashboard für Loyalty-Kampagnen
+2. Phase 82: Fahrer-Navi-Integration (Turn-by-Turn innerhalb App)
+3. Phase 83: Bestellungsvorhersage-KI (Demand Forecast)
 
 ## CEO Review #60 — 2026-06-12
 

@@ -6576,8 +6576,8 @@ function KitchenHandoffSyncPanel({
 
       if (etaMs !== null && latestReady !== null) {
         deltaMin = Math.round((etaMs - latestReady) / 60_000);
-        if (deltaMin > 5) syncQuality = 'warte'; // fahrer arrives before food ready → driver waits
-        else if (deltaMin < -8) syncQuality = 'konflikt'; // food waits very long
+        if (deltaMin > 5) syncQuality = 'konflikt'; // driver ETA after food ready → Essen wartet auf Fahrer
+        else if (deltaMin < -8) syncQuality = 'warte'; // driver arrives before food ready → Fahrer wartet
         else syncQuality = 'gut';
       }
 
