@@ -2302,9 +2302,7 @@ function DriverLeaderboard({ driverPerf }: { driverPerf: DriverPerfEntry[] }) {
           const deltaYesterday = d.deliveries_today - d.deliveries_yesterday;
           const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-stone-400' : i === 2 ? 'bg-orange-400' : 'bg-stone-200';
           const medalLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-          // Estimated earnings: €3 base per delivery + vehicle bonus
-          const kmBonus = d.vehicle === 'auto' || d.vehicle === 'car' ? 0 : 0; // simplified
-          const estEarnings = d.deliveries_today * 3.0 + kmBonus;
+          const estEarnings = d.deliveries_today * 3.0;
           return (
             <div key={d.driver_id} className="flex items-center gap-3">
               <div className="w-7 text-center shrink-0">

@@ -1,7 +1,82 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–67 vollständig abgeschlossen. CEO Review #54 abgeschlossen: 2 Bugs gefixt (SSE-Loop + .env.example). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–68 vollständig abgeschlossen. CEO Review #55 abgeschlossen: 1 Bug gefixt (totes kmBonus in DriverLeaderboard). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+---
+
+## CEO Review #55 — 2026-06-12
+
+### Geprüfte Commits (1 Commit seit Review #54)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `c63ecfc` | feat(delivery/frontend): Fahrer-Rang-Sparkline, Dispatch-Wartezeit-Chip, Küchen-Konflikt-Aktion, Tracking-Countdown | ⚠️ 1 Bug → gefixt |
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅ (vor und nach Fix)
+- `next build`: **Kompiliert sauber** ✅
+
+### Befund Phase 68 (Frontend: 6 Dateien)
+
+**6 geänderte Dateien geprüft:**
+
+**`app/fahrer/app/client.tsx`** — Wochen-Rang-Widget mit 7-Tage-Sparkline + Heutige-Schicht-Stats:
+- Neuer `todayStats`-State: supabase-Fetch auf `delivery_batches` + `delivery_batch_stops` mit 60s-Polling ✅
+- Neuer `rankData`-State: Fetch auf `/api/delivery/driver/my-performance?period=week&days=7` ✅
+- Earnings-Formel: `deliveries * 1.50 + distKm * 0.20` — korrekt, verwendet echte km-Daten ✅
+- Sichtbarkeitslogik `!activeBatch && isOnline` — konsistent mit bisherigem Muster ✅
+
+**`app/fahrer/app/delivery-view.tsx`** — MyPerformanceBadge mit 7-Tage-Sparkline + ausklappbarem Panel:
+- `totalEarningsEur` aus `driver_performance_snapshots.total_earnings_eur` via API ✅
+- Sparkline: `inline-block` Balken mit `Math.max(3, ...)` Mindesthöhe — solide ✅
+- Expanded-Panel zeigt Stops, Pünktlichkeit, Wochenverdienst ✅
+
+**`app/(admin)/dispatch/client.tsx`** — OrderRow Wartezeit-Chip:
+- Amber-Chip ab 3 Min (`!urgent && waitingMin >= 3`) — korrekte Schwellenwert-Senkung ✅
+- Rot-Chip ab 10 Min (`urgent`) — unverändert korrekt ✅
+- Stop-Fortschritts-Strip: `sort(reihenfolge)` + `isCurrent`-Logik sauber ✅
+
+**`app/(admin)/kitchen/client.tsx`** — KitchenHandoffMatrix Kochen!-Button:
+- `startedIds` + `startTransition` korrekt im Scope von `KitchenHandoffMatrix` ✅
+- `disabled={startPending}` (isPending boolean) — korrekte React-Semantik ✅
+- Optimistisches UI: sofort Badge "✓ Start" nach Klick ohne Re-Render-Abhängigkeit ✅
+
+**`app/track/[bestellnummer]/tracking.tsx`** — Live-Countdown:
+- `setInterval(() => setTick, 1000)` im Parent → jede Sekunde neues `Date.now()` ✅
+- Korrekte Urgency-Stufen: >5 Min grün, <5 Min orange, überfällig rot+pulse ✅
+- Fallback: statisches Zeitfenster wenn kein eta_latest ✅
+
+**`components/lieferdienst/statistics-view.tsx`** — DriverLeaderboard Vergütung + showAll:
+- `showAll`-State korrekt im Scope von `DriverLeaderboard`-Komponente ✅
+- SLA-Panel + ETA-Accuracy-Panel: Target-Icon korrekt importiert ✅
+
+**Bug gefunden und gefixt — Totes `kmBonus` in DriverLeaderboard**:
+- Datei: `components/lieferdienst/statistics-view.tsx`, Zeile 2306
+- Ternary `d.vehicle === 'auto' ? 0 : 0` → beide Zweige identisch, immer 0
+- Irreführender Kommentar "vehicle bonus" obwohl kein Bonus berechnet wird
+- Fix: Dead code entfernt, `estEarnings = d.deliveries_today * 3.0` direkt ✅
+- TypeScript: 0 Fehler nach Fix ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen zeigt Kochen!-Button für Konflikt-Bestellungen mit scheduled-Timing ✅
+- Dispatch zeigt Amber-Wartezeit-Chip ab 3 Min (frühere Warnung als bisher) ✅
+- Fahrer-App zeigt Sparkline + Rang-Kontext im SchichtAbschluss-Modal ✅
+- Storefront zeigt Live-Countdown "noch ~X Min" statt nur statischem Zeitfenster ✅
+
+### Status nach Review #55
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 68 (Frontend Enhancement): DONE ✅
+- Bugs gefixt: 1 (totes kmBonus in DriverLeaderboard)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 69: Kunden-Bewertungs-API (`POST /api/delivery/orders/[id]/rate`) — Sterne + Kommentar nach Lieferung
+2. Oder: Schicht-Tracking (Start/Ende/Pausen) für genauere `active_minutes` in Snapshots
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 69: Kunden-Bewertungs-Dialog im Storefront-Tracking-Screen nach Zustellung
+2. Oder: Fahrer-Schicht-Verlauf-Seite (Einsätze, Pausen, Gesamtverdienst pro Schicht)
 
 ---
 

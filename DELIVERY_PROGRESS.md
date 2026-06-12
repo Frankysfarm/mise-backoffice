@@ -1,10 +1,19 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–67 abgeschlossen. CEO Review #54 abgeschlossen: 2 Bugs gefixt. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
+**Phasen 1–68 abgeschlossen. CEO Review #55 abgeschlossen: 1 Bug gefixt. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #55: 1 Bug gefixt (totes kmBonus in DriverLeaderboard statistics-view.tsx entfernt)
+- [x] Phase 68: Frontend Enhancements — Fahrer-Rang-Sparkline, Dispatch-Wartezeit-Chip, Küchen-Konflikt-Aktion, Tracking-Countdown
+- [x] MyPerformanceBadge mit 7-Tage-Stopps-Sparkline + ausklappbarem Panel (Pünktlichkeit, Verdienst)
+- [x] TagesStats-Widget für Fahrer-App (Live-Lieferungen heute + Schätzung, 60s Polling)
+- [x] Wartezeit-Chip in Dispatch-OrderRow: Amber ab 3 Min (früher als bisher), Rot ab 10 Min
+- [x] Stop-Fortschritts-Strip in Dispatch-Batch mit numerischen Kreisen + Verbindungslinien
+- [x] "Kochen!"-Button inline in KitchenHandoffMatrix für Konflikt-Bestellungen mit scheduled-Timing
+- [x] Live-Countdown im Storefront-Tracking ("noch ~X Min" / "Jeden Moment!" / "+X Min überfällig")
+- [x] DriverLeaderboard in Statistiken: geschätzte Vergütung je Fahrer + "Alle anzeigen"-Toggle
 - [x] CEO Review #54: 2 Bugs gefixt (SSE-[DONE]-Loop nur inner break → finished-Flag, .env.local.example fehlte ANTHROPIC_API_KEY)
 - [x] Phase 67: KI-Dispatch-Assistent — Claude Haiku analysiert Live-Queue und streamt deutsche Dispatch-Empfehlungen
 - [x] lib/delivery/ai-dispatch.ts — buildDispatchContext() + streamDispatchAdvice() (Anthropic SDK, Haiku)
