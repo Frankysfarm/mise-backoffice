@@ -1,10 +1,19 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–82 abgeschlossen. CEO Review #63. Build sauber (184 Seiten). Deployment-bereit.**
+**Phasen 1–83 abgeschlossen. CEO Review #63. Build sauber (184 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 83: Fahrer-Navi-Integration (Turn-by-Turn in App) — 2026-06-12
+- [x] scripts/migrations/053_navigation_routes.sql — driver_navigation_routes Tabelle (Cache Google Directions Steps per batch+stop_index+vehicle, UNIQUE-Constraint, 2 Indizes, RLS)
+- [x] lib/delivery/navigation.ts — getNavState(), fetchDirectionsSteps(), findCurrentStepIndex(), buildNaviDeepLinks(), pruneNavCache() + getCachedSegment()/cacheSegment()
+- [x] GET /api/delivery/driver/navigation — Fahrer-Auth, Multi-Tenant location_id Guard, Google Directions Steps mit Caching, Fallback bei API-Fehler (nur Deep-Links)
+- [x] app/fahrer/app/navi-widget.tsx — NaviWidget: ManeuverIcon (15 Manöver-Mappings), aktueller Schritt (Pfeil+Instruction+Distanz), Nächster-Schritt-Vorschau, Distanz/ETA-Header, Google/Apple/Waze Deep-Links, 12s Auto-Poll, Collapse-Toggle
+- [x] delivery-view.tsx: NaviWidget vor Next-Stop-Hero integriert, doppelte Navi-Buttons entfernt, Import ergänzt
+- [x] Cron: pruneNavCache() fire-and-forget (alte Routen-Caches >4h löschen), nav_cache_pruned in Cron-Response
+- [x] Graceful Fallback ohne Google Maps API-Key: Haversine-Schätzung als Single-Step
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 184 Seiten)
 - [x] Phase 82: A/B-Test Dashboard für Loyalty-Kampagnen — 2026-06-12
 - [x] scripts/migrations/052_loyalty_ab_tests.sql — loyalty_ab_tests, loyalty_ab_variants, loyalty_ab_assignments, loyalty_ab_events, v_ab_test_metrics View
 - [x] lib/delivery/loyalty-ab.ts — createTest(), getTest(), listTests(), updateTestStatus(), deleteTest(), getOrAssignVariant(), getActiveTest(), recordAbEvent(), getTestMetrics()

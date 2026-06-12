@@ -35,6 +35,7 @@ import { evaluateComplianceAllLocations } from '@/lib/delivery/compliance';
 import { expireStaleApplicationsAllLocations } from '@/lib/delivery/onboarding';
 import { runSlaEscalationAllLocations } from '@/lib/delivery/sla-escalation';
 import { processExpiredPointsAllLocations } from '@/lib/delivery/loyalty-points';
+import { pruneNavCache } from '@/lib/delivery/navigation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,7 +79,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -160,6 +161,8 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? processExpiredPointsAllLocations().catch(() => ({ locations: 0, totalExpired: 0 }))
         : Promise.resolve(null),
+      // Nav-Cache: alte Routen-Caches löschen (alle 2 Stunden)
+      pruneNavCache().catch(() => 0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -234,6 +237,7 @@ export async function GET(req: NextRequest) {
       ...(onboardingResult ? { onboarding_expired: onboardingResult.expired } : {}),
       ...(slaEscalationResult ? { sla_escalation: { escalated: slaEscalationResult.escalated, resolved: slaEscalationResult.resolved, below_threshold: slaEscalationResult.below_threshold.length } } : {}),
       ...(loyaltyExpireResult ? { loyalty_points_expired: loyaltyExpireResult.totalExpired } : {}),
+      nav_cache_pruned: navCachePruned ?? 0,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

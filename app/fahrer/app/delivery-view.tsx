@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle, Camera, ImageIcon } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
+import { NaviWidget } from './navi-widget';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
 const FAILED_REASON_LABELS: Record<FailedReason, string> = {
@@ -658,6 +659,19 @@ export function DeliveryView({
       {/* Tour-Fortschritts-Dots: alle Stopps als nummerierte Punkte */}
       {sorted.length > 1 && <TourProgressDots stops={sorted} doneCount={doneCount} />}
 
+      {/* NaviWidget — Turn-by-Turn Navigation zum nächsten Stopp */}
+      {nextStop && !allDone && nextStop.order.kunde_lat && nextStop.order.kunde_lng && (
+        <NaviWidget
+          batchId={batchId}
+          stopIndex={doneCount}
+          toLat={nextStop.order.kunde_lat}
+          toLng={nextStop.order.kunde_lng}
+          vehicle="car"
+          driverLat={driverLat ?? null}
+          driverLng={driverLng ?? null}
+        />
+      )}
+
       {/* Next-Stop-Hero: prominente Anzeige des nächsten Stops */}
       {nextStop && !allDone && (
         <div className="mx-4 mt-3 rounded-2xl bg-accent/10 border-2 border-accent/30 p-4">
@@ -814,37 +828,7 @@ export function DeliveryView({
             );
           })()}
 
-          {/* Direct navigation buttons for next stop */}
-          {nextStop.order.kunde_lat && nextStop.order.kunde_lng && (() => {
-            const lat = nextStop.order.kunde_lat!;
-            const lng = nextStop.order.kunde_lng!;
-            const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
-            const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-            const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
-            const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
-            return (
-              <div className="mt-3 flex gap-2">
-                <a
-                  href={isIos ? appleUrl : googleUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-accent text-matcha-900 font-bold text-sm transition active:scale-[0.98]"
-                >
-                  <Navigation size={14} />
-                  {isIos ? 'Apple Maps' : 'Google Maps'}
-                </a>
-                <a
-                  href={wazeUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-[#33ccff]/20 border border-[#33ccff]/40 text-[#33ccff] font-bold text-sm transition active:scale-[0.98]"
-                  title="In Waze öffnen"
-                >
-                  Waze
-                </a>
-              </div>
-            );
-          })()}
+          {/* Navigation via NaviWidget (über dem Stop-Hero) */}
           {/* Kunde direkt kontaktieren */}
           {nextStop.order.kunde_telefon && (() => {
             const raw = nextStop.order.kunde_telefon!.replace(/\s+/g, '').replace(/[^\d+]/g, '');
