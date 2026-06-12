@@ -2955,19 +2955,20 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
     ? Math.floor((new Date(timing.ready_target).getTime() - Date.now()) / 1000)
     : (est * 60) - waitSec;
 
-  // Smart-Timing-Chip: zeigt Kochstart oder Fertig-Ziel
+  // Smart-Timing-Chip: zeigt Kochstart oder Fertig-Ziel (relativ + absolut)
   const timingChip = (() => {
     if (!timing) return null;
     const now = Date.now();
+    const fmtClock = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     if (timing.status === 'scheduled' && timing.cook_start_at) {
       const secs = Math.floor((new Date(timing.cook_start_at).getTime() - now) / 1000);
-      if (secs > 0) return { label: `Kochstart in ${fmtCountdown(secs)}`, color: 'bg-blue-100 text-blue-800', pulse: secs < 120 };
+      if (secs > 0) return { label: `Kochstart in ${fmtCountdown(secs)} · um ${fmtClock(timing.cook_start_at)}`, color: 'bg-blue-100 text-blue-800', pulse: secs < 120 };
       return { label: 'Kochstart jetzt!', color: 'bg-orange-500 text-white', pulse: true };
     }
     if (timing.status === 'cooking' && timing.ready_target) {
       const secs = Math.floor((new Date(timing.ready_target).getTime() - now) / 1000);
-      if (secs > 0) return { label: `Fertig in ${fmtCountdown(secs)}`, color: 'bg-matcha-100 text-matcha-800', pulse: secs < 120 };
-      return { label: 'Sollte fertig sein!', color: 'bg-red-500 text-white', pulse: true };
+      if (secs > 0) return { label: `Fertig in ${fmtCountdown(secs)} · um ${fmtClock(timing.ready_target)}`, color: 'bg-matcha-100 text-matcha-800', pulse: secs < 120 };
+      return { label: `Sollte fertig sein! (${fmtClock(timing.ready_target)})`, color: 'bg-red-500 text-white', pulse: true };
     }
     return null;
   })();
@@ -2988,6 +2989,14 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
     urgent   ? 'bg-orange-50/40 dark:bg-orange-950/15' :
     '';
 
+  // Urgency-Farbband: 5px farbcodierter Streifen am Kartenrand (sofort lesbar auf TV-Abstand)
+  const heatColor =
+    progressPct >= 100 ? 'bg-red-500'    :
+    progressPct >= 85  ? 'bg-orange-500' :
+    progressPct >= 60  ? 'bg-yellow-400' :
+    cookTimingPct !== null ? 'bg-blue-400'  :
+    'bg-matcha-400';
+
   return (
     <Card className={cn(
       'p-4 transition',
@@ -2996,6 +3005,10 @@ function OrderTicket({ order, next, timing, sameZoneCount = 0, driverEtaMs = nul
       urgent   && !critical && 'ring-2 ring-orange-400',
       critical && 'ring-2 ring-red-500 animate-pulse',
     )}>
+      {/* Farb-Warnband: sofort sichtbar auch aus Entfernung (-mx-4 -mt-4 escapes card padding) */}
+      {(order.status === 'in_zubereitung' || order.status === 'bestätigt') && (
+        <div className={cn('-mx-4 -mt-4 mb-3 h-1.5 rounded-t-xl transition-all duration-1000', heatColor, progressPct >= 85 && 'animate-pulse')} />
+      )}
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
