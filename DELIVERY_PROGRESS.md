@@ -1,10 +1,20 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–72 abgeschlossen. CEO Review #58. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.**
+**Phasen 1–75 abgeschlossen. CEO Review #58. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 75: Automatische SLA-Eskalation — kritischer Alert wenn On-Time-Rate < 80%
+- [x] lib/delivery/sla-escalation.ts — checkSlaEscalation() + runSlaEscalationAllLocations(), auto-resolve bei Erholung
+- [x] Cron-Integration: SLA-Prüfung alle 10 Min (isRatingTick), Ergebnis in Cron-Response
+- [x] Phase 74: Franchise-Vergleichs-Dashboard (/delivery/franchise-compare)
+- [x] GET /api/delivery/admin/franchise-compare — On-Time-Rate, Ø-Rating, Umsatz, Queue pro Location, nach Composite-Score sortiert
+- [x] app/(admin)/delivery/franchise-compare/ — 30s Auto-Refresh, Rang-Podium 🥇🥈🥉, KPI-Grid Farbcodierung, Gesamt-KPI-Chips
+- [x] Sidebar-Eintrag "Franchise-Vergleich" (BarChart2) unter Lieferdienst → Loslegen
+- [x] Phase 73: Inline-Bewertungs-Widget mit Kommentarfeld in Storefront
+- [x] success-state.tsx: Zwei-Schritt-Flow — Stern wählen → Kommentar-Textarea + Absenden-Button
+- [x] Kommentar optional (max 300 Zeichen), Dark-Theme Styling, Bewertung erst beim Absenden übertragen
 - [x] CEO Review #58: 3 Bugs gefixt (KitchenReadyForecastPanel Tick 5s→1s, TourVisualizationPanel Auto-Open stale closure, LieferdienstDeliveryKpis ETA-Abweichung negativ)
 - [x] Phase 72: Echtzeit-Betriebscockpit (Live Ops Dashboard) — Ops-Center Admin-Seite
 - [x] GET /api/delivery/admin/ops-snapshot — Einzel-Endpoint für alle Live-KPIs (Queue-Funnel, Fahrer-Status, Alarme, Revenue, SLA, Durchsatz, Verspätungen, At-Risk-Orders)
