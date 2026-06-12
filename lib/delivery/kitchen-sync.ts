@@ -144,6 +144,34 @@ export async function syncKitchenNotifications(): Promise<{
   return { notified: ids.length, locations };
 }
 
+/** Ueberlauf: Order in die Koch-Warteschlange (warten/kochgesperrt). Idempotent — aendert bereits kochende nicht. */
+export async function scheduleKitchenHold(orderId: string, locationId: string, batchId: string | null): Promise<void> {
+  const sb = createServiceClient();
+  const now = new Date().toISOString();
+  await sb.from('kitchen_timings').upsert(
+    { order_id: orderId, location_id: locationId, batch_id: batchId, status: 'scheduled', updated_at: now },
+    { onConflict: 'order_id', ignoreDuplicates: true },
+  );
+}
+
+/** Gibt die AELTESTE wartende Order einer Location zum Kochen frei (Fahrer auf Rueckweg). Liefert order_id oder null. */
+export async function promoteNextScheduled(locationId: string): Promise<string | null> {
+  const sb = createServiceClient();
+  const { data } = await sb
+    .from('kitchen_timings')
+    .select('id, order_id')
+    .eq('location_id', locationId)
+    .eq('status', 'scheduled')
+    .order('created_at', { ascending: true })
+    .limit(1);
+  if (!data || data.length === 0) return null;
+  const now = new Date().toISOString();
+  await sb.from('kitchen_timings')
+    .update({ status: 'cooking', notified_at: now, updated_at: now })
+    .eq('id', data[0].id as string);
+  return data[0].order_id as string;
+}
+
 function parseRow(r: Record<string, unknown>): KitchenTiming {
   return {
     id:           r.id as string,

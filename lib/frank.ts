@@ -24,6 +24,7 @@ import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { directions, geocode, haversineKm, type RouteResult } from './google-maps';
 import { enqueueBatchPush } from './delivery/push-notify';
+import { scheduleKitchenHold } from './delivery/kitchen-sync';
 
 interface DriverRow {
   id: string;
@@ -195,7 +196,9 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     }
   }
   if (eligible.length === 0) {
-    await logDecision('hold', null, [o.id], `Alle Fahrer voll (Basis ${CAP_BASE}, Cluster bis ${CAP_CLUSTER}) - Order wartet auf freien Slot`);
+    // Ueberlauf: Order in die Koch-Warteschlange -> Kueche kocht erst wenn ein Fahrer auf Rueckweg ist (JIT-Frische)
+    if (o.location_id) { try { await scheduleKitchenHold(o.id, o.location_id, null); } catch { /* nicht fatal */ } }
+    await logDecision('hold', null, [o.id], `Alle Fahrer voll (Basis ${CAP_BASE}, Cluster bis ${CAP_CLUSTER}) - Order wartet (kochgesperrt)`);
     return 'held';
   }
   const available = eligible;

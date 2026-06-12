@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { badRequest, getDriverFromBearer, sb, unauthorized } from '../../../_lib/driver-auth';
+import { markPickedUp, promoteNextScheduled } from '@/lib/delivery/kitchen-sync';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -85,6 +86,28 @@ export async function POST(
         .eq('aktueller_batch_id', batch.id),
     ]);
   }
+
+  // JIT-Koch-Gate: diese Order ist erledigt -> aus der Koch-Warteschlange nehmen
+  try { await markPickedUp(orderId); } catch { /* noop */ }
+  // Meilenstein: Fahrer fast fertig (<=1 offener Stopp) -> naechste WARTENDE Order kochen lassen (Fahrer auf Rueckweg)
+  try {
+    const { data: ab } = await c
+      .from('mise_delivery_batches').select('id')
+      .eq('driver_id', batch.driver_id)
+      .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress']);
+    const ids = (ab ?? []).map((b) => b.id as string);
+    let remaining = 0;
+    if (ids.length) {
+      const { data: rs } = await c
+        .from('mise_delivery_batch_stops').select('id')
+        .in('batch_id', ids).eq('type', 'dropoff').is('completed_at', null);
+      remaining = rs?.length ?? 0;
+    }
+    if (remaining <= 1) {
+      const { data: ord } = await c.from('customer_orders').select('location_id').eq('id', orderId).single();
+      if (ord?.location_id) await promoteNextScheduled(ord.location_id as string);
+    }
+  } catch { /* noop */ }
 
   return NextResponse.json({ ok: true, batch_completed: !openStops || openStops.length === 0 });
 }
