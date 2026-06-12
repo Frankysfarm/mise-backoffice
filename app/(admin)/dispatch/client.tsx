@@ -4380,6 +4380,51 @@ function TourVisualizationPanel({
                     })}
                 </div>
 
+                {/* Pünktlichkeits-Prognose: projected delivery pace vs. order ETAs */}
+                {done > 0 && batch.startzeit && (() => {
+                  const elapsedSec = (now - new Date(batch.startzeit).getTime()) / 1000;
+                  const avgSecPerStop = elapsedSec / done;
+                  const pending = batch.stops
+                    .filter((s) => !s.geliefert_am)
+                    .sort((a, b) => a.reihenfolge - b.reihenfolge);
+                  let onTimeCount = 0; let lateCount = 0;
+                  pending.forEach((stop, idx) => {
+                    if (stop.order?.eta_earliest) {
+                      const projMs = now + avgSecPerStop * (idx + 1) * 1000;
+                      if (projMs <= new Date(stop.order.eta_earliest).getTime()) onTimeCount++;
+                      else lateCount++;
+                    }
+                  });
+                  const targetSecPerStop = batch.total_eta_min != null ? (batch.total_eta_min * 60) / total : null;
+                  const paceRatio = targetSecPerStop ? avgSecPerStop / targetSecPerStop : null;
+                  if (paceRatio === null && onTimeCount === 0 && lateCount === 0) return null;
+                  return (
+                    <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Prognose</span>
+                      {onTimeCount > 0 && (
+                        <span className="rounded-full bg-matcha-100 text-matcha-700 px-2 py-0.5 text-[9px] font-bold">
+                          {onTimeCount} pünktlich
+                        </span>
+                      )}
+                      {lateCount > 0 && (
+                        <span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-[9px] font-bold animate-pulse">
+                          {lateCount} zu spät
+                        </span>
+                      )}
+                      {paceRatio !== null && (
+                        <span className={cn(
+                          'rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums',
+                          paceRatio <= 0.9 ? 'bg-matcha-100 text-matcha-700' :
+                          paceRatio <= 1.1 ? 'bg-blue-100 text-blue-700' :
+                          paceRatio <= 1.3 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700',
+                        )}>
+                          Ø {Math.round(avgSecPerStop)}s/Stop {paceRatio <= 1.0 ? '↑ Gut' : '↓ Langsam'}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {/* Änderungsprotokoll — collapsible audit trail */}
                 {modsShown && (
                   <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 p-2.5">
