@@ -908,6 +908,8 @@ export function LieferdienstClient() {
               <LieferdienstZonenumsatz />
               {/* Phase 89: Stündlicher Durchsatz-Sparkline */}
               <LieferdienstDurchsatzPanel />
+              {/* Schicht-Prognose: projizierter Tagesabschluss basierend auf aktuellem Tempo */}
+              <LieferdienstSchichtPrognose />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2111,6 +2113,103 @@ function LieferdienstDurchsatzPanel() {
           <span className="h-2 w-2 rounded-sm bg-stone-200 inline-block" />vergangene Stunden
         </span>
       </div>
+    </div>
+  );
+}
+
+/* ---- LieferdienstSchichtPrognose: projizierter Schichtabschluss ---- */
+function LieferdienstSchichtPrognose() {
+  const supabase = createClient();
+  type HourRow = { h: number; orders: number; revenue: number };
+  const [hourlyData, setHourlyData] = useState<HourRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: rows } = await supabase
+          .from('customer_orders')
+          .select('bestellt_am, gesamtbetrag')
+          .gte('bestellt_am', today.toISOString())
+          .not('bestellt_am', 'is', null);
+        if (!rows) return;
+        const map: Record<number, { orders: number; revenue: number }> = {};
+        for (const r of rows as { bestellt_am: string; gesamtbetrag: number }[]) {
+          const h = new Date(r.bestellt_am).getHours();
+          if (!map[h]) map[h] = { orders: 0, revenue: 0 };
+          map[h].orders += 1;
+          map[h].revenue += r.gesamtbetrag ?? 0;
+        }
+        const nowH = new Date().getHours();
+        const result: HourRow[] = [];
+        for (let h = Math.max(0, nowH - 5); h <= nowH; h++) {
+          result.push({ h, orders: map[h]?.orders ?? 0, revenue: map[h]?.revenue ?? 0 });
+        }
+        setHourlyData(result);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || hourlyData.length < 2) return null;
+
+  const nowH = new Date().getHours();
+  // Ø der letzten 3 Stunden als Prognose-Basis
+  const recent = hourlyData.slice(-3);
+  const avgOrders = recent.reduce((s, r) => s + r.orders, 0) / recent.length;
+  const avgRevenue = recent.reduce((s, r) => s + r.revenue, 0) / recent.length;
+
+  // Schichtende: entweder 22 Uhr oder 8h ab jetzt (min)
+  const shiftEndH = Math.min(22, nowH + 8);
+  const hoursLeft = Math.max(0, shiftEndH - nowH);
+  const projOrders = Math.round(avgOrders * hoursLeft);
+  const projRevenue = avgRevenue * hoursLeft;
+
+  const todayOrders = hourlyData.reduce((s, r) => s + r.orders, 0);
+  const todayRevenue = hourlyData.reduce((s, r) => s + r.revenue, 0);
+
+  const isGood = avgOrders >= 5;
+  const isBusy = avgOrders >= 10;
+
+  return (
+    <div className={`rounded-xl border px-4 py-4 ${isBusy ? 'border-amber-200 bg-amber-50' : 'bg-white border-stone-200'}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className={`h-4 w-4 ${isBusy ? 'text-amber-600' : 'text-matcha-600'}`} />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Schicht-Prognose</span>
+          <span className={`text-[9px] font-bold rounded-full px-2 py-0.5 ${isBusy ? 'bg-amber-200 text-amber-800' : isGood ? 'bg-matcha-100 text-matcha-700' : 'bg-stone-100 text-stone-600'}`}>
+            Ø {avgOrders.toFixed(1)} Best./h
+          </span>
+        </div>
+        <span className="text-[9px] text-stone-400 tabular-nums">bis {shiftEndH}:00 Uhr</span>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg bg-stone-50 border border-stone-100 px-3 py-2">
+          <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400 mb-1">Heute bisher</div>
+          <div className="text-lg font-black tabular-nums text-stone-800">{todayOrders}</div>
+          <div className="text-[9px] text-stone-500 tabular-nums">
+            {todayRevenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </div>
+        </div>
+        <div className={`rounded-lg border px-3 py-2 ${isBusy ? 'bg-amber-50 border-amber-200' : 'bg-matcha-50 border-matcha-100'}`}>
+          <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400 mb-1">Prognose gesamt</div>
+          <div className={`text-lg font-black tabular-nums ${isBusy ? 'text-amber-800' : 'text-matcha-800'}`}>
+            ~{todayOrders + projOrders}
+          </div>
+          <div className="text-[9px] text-stone-500 tabular-nums">
+            ~{(todayRevenue + projRevenue).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </div>
+        </div>
+      </div>
+      {hoursLeft > 0 && (
+        <div className="mt-2 text-[9px] text-stone-400">
+          Bei aktuellem Tempo: +{projOrders} Bestellungen in {hoursLeft}h
+        </div>
+      )}
     </div>
   );
 }
