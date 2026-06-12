@@ -3,11 +3,20 @@
  *
  * STRATEGIE: Network-First für alles außer /_next/static/ (content-hashed).
  * Dadurch gibt es NIE eine alte gecachte Seite — Updates sind sofort live.
+ *
+ * Phase 91: Offline-Bundle Caching
+ * /api/delivery/driver/offline-bundle  → Stale-While-Revalidate (5 Min)
+ * /api/delivery/driver/navigation       → Cache-First (15 Min TTL)
  */
 
-const VERSION = 'v4-' + new Date().toISOString().slice(0, 10);
-const STATIC_CACHE = `mise-static-${VERSION}`;
+const VERSION = 'v5-' + new Date().toISOString().slice(0, 10);
+const STATIC_CACHE  = `mise-static-${VERSION}`;
 const RUNTIME_CACHE = `mise-runtime-${VERSION}`;
+const OFFLINE_CACHE = `mise-offline-${VERSION}`;
+
+// Offline-Bundle Pfade — immer mit frischer Kopie im Cache vorhalten
+const OFFLINE_BUNDLE_PATH = '/api/delivery/driver/offline-bundle';
+const NAV_PATH            = '/api/delivery/driver/navigation';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
@@ -17,7 +26,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
     await Promise.all(
-      keys.filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE).map((k) => caches.delete(k))
+      keys
+        .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE && k !== OFFLINE_CACHE)
+        .map((k) => caches.delete(k))
     );
     await self.clients.claim();
     const clients = await self.clients.matchAll({ type: 'window' });
@@ -39,6 +50,55 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
       )
+    );
+    return;
+  }
+
+  // Phase 91: Offline-Bundle → Stale-While-Revalidate
+  // Immer erst Cache zurückgeben, im Hintergrund aktualisieren
+  if (url.pathname === OFFLINE_BUNDLE_PATH) {
+    event.respondWith(
+      caches.open(OFFLINE_CACHE).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        const fetchPromise = fetch(event.request).then((res) => {
+          if (res.ok) cache.put(event.request, res.clone());
+          return res;
+        }).catch(() => null);
+
+        // Sofort aus Cache + Revalidate im Hintergrund
+        if (cached) {
+          event.waitUntil(fetchPromise);
+          return cached;
+        }
+        // Kein Cache: warten auf Netzwerk
+        const fresh = await fetchPromise;
+        return fresh ?? new Response(JSON.stringify({ error: 'offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      })
+    );
+    return;
+  }
+
+  // Navigations-Route → Cache-First mit 15-Min TTL
+  if (url.pathname === NAV_PATH) {
+    event.respondWith(
+      caches.open(OFFLINE_CACHE).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        if (cached) {
+          const dateHeader = cached.headers.get('date');
+          const ageMs = dateHeader ? Date.now() - new Date(dateHeader).getTime() : Infinity;
+          if (ageMs < 15 * 60 * 1000) return cached; // < 15 Min → Cache verwenden
+        }
+        return fetch(event.request).then((res) => {
+          if (res.ok) cache.put(event.request, res.clone());
+          return res;
+        }).catch(() => cached ?? new Response(JSON.stringify({ error: 'offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        }));
+      })
     );
     return;
   }
@@ -100,5 +160,13 @@ self.addEventListener('message', (event) => {
   }
   if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  // Phase 91: Fahrer-App fordert Offline-Bundle-Prefetch an
+  if (event.data?.type === 'PREFETCH_OFFLINE_BUNDLE') {
+    caches.open(OFFLINE_CACHE).then((cache) =>
+      fetch(OFFLINE_BUNDLE_PATH).then((res) => {
+        if (res.ok) cache.put(OFFLINE_BUNDLE_PATH, res);
+      }).catch(() => {})
+    );
   }
 });

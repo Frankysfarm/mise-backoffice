@@ -247,6 +247,21 @@ export function FahrerApp({
     })();
   }, [pickOpen, activeBatch, supabase]);
 
+  /* Phase 91: Offline-Bundle beim App-Start prefetchen → SW cached es für Offline-Betrieb */
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.active?.postMessage({ type: 'PREFETCH_OFFLINE_BUNDLE' });
+    }).catch(() => {});
+    // Alle 5 Min erneut prefetchen damit Bundle frisch bleibt
+    const prefetchIv = setInterval(() => {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.active?.postMessage({ type: 'PREFETCH_OFFLINE_BUNDLE' });
+      }).catch(() => {});
+    }, 5 * 60_000);
+    return () => clearInterval(prefetchIv);
+  }, []);
+
   /* SW-Auto-Update-Check: alle 60s Polling; UpdateBanner zeigt sich wenn neue Version */
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;

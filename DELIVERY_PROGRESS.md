@@ -1,10 +1,21 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–90 abgeschlossen. CEO Review #68 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–92 abgeschlossen. CEO Review #68 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 92: Admin CSV/ZIP Datenexport — 2026-06-12
+- [x] GET /api/delivery/admin/export — type=tours|shifts|payouts|drivers|all, from/to, format=csv|zip
+- [x] JSZip-Bundle: Touren+Schichten+Abrechnung+Fahrer als ZIP-Archiv, UTF-8 BOM, max 10 000 Zeilen/Tabelle
+- [x] app/(admin)/delivery/export/ — ExportClient: Zeitraum-Picker + 5 Export-Typen (ZIP hervorgehoben)
+- [x] Sidebar: "Datenexport (CSV/ZIP)" mit FileDown-Icon unter Loslegen-Gruppe
+- [x] Phase 91: Fahrer-App Offline-Modus (Service Worker + Bundle-API) — 2026-06-12
+- [x] GET /api/delivery/driver/offline-bundle — Fahrer-Profil, Restaurant-Info, aktiver Batch+Stops, nächste 2 Schichten
+- [x] Cache-Control: max-age=300, stale-while-revalidate=600 (5 Min frisch, 10 Min stale)
+- [x] public/sw.js v5: OFFLINE_CACHE für /api/delivery/driver/offline-bundle (Stale-While-Revalidate) + /api/delivery/driver/navigation (Cache-First 15 Min)
+- [x] PREFETCH_OFFLINE_BUNDLE Message-Handler im SW — Fahrer-App triggert Prefetch beim Mount + alle 5 Min
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 187 Seiten)
 - [x] Phase 90: Push-Notifications "Fahrer fast da" — 2-Minuten-Trigger — 2026-06-12
 - [x] CustomerEventType `driver_almost_there` in customer-notify.ts — DE-Nachricht "Dein Fahrer ist in ca. 2 Minuten bei dir! 🛵"
 - [x] checkAlmostThereProximity() in gps-tracker.ts — dynamischer Schwellwert (speed_kmh × 2.5 min, Fallback: bike 750m / car 1250m)

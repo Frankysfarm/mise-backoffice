@@ -1,7 +1,31 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–90 vollständig abgeschlossen. CEO Review #68 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–92 vollständig abgeschlossen. CEO Review #68 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## Backend-Architekt — Phase 91+92 — 2026-06-12
+
+### Phase 91: Fahrer-App Offline-Modus
+- `GET /api/delivery/driver/offline-bundle` — Bundle-Endpoint: Fahrer-Profil + aktiver Batch + Stops + Restaurant-Info + nächste 2 Schichten
+- `Cache-Control: max-age=300, stale-while-revalidate=600` — SW liest 5 Min aus Cache, revalidiert im Hintergrund
+- `public/sw.js v5` — neuer `OFFLINE_CACHE` für Bundle + Navigation:
+  - `/api/delivery/driver/offline-bundle` → Stale-While-Revalidate (immer sofort aus Cache)
+  - `/api/delivery/driver/navigation` → Cache-First mit 15-Min TTL (Straßenrouten-Cache)
+  - `PREFETCH_OFFLINE_BUNDLE` Message-Handler — Fahrer-App triggert SW-Prefetch beim Mount + alle 5 Min
+- `app/fahrer/app/client.tsx`: `useEffect` sendet `PREFETCH_OFFLINE_BUNDLE` an SW beim App-Start
+
+### Phase 92: Admin CSV/ZIP Datenexport
+- `GET /api/delivery/admin/export` — vollständiger Export-Endpoint
+  - `?type=tours|shifts|payouts|drivers|all` — einzelne CSV oder ZIP-Komplett-Export
+  - `?from=YYYY-MM-DD&to=YYYY-MM-DD` — Zeitraum-Filter, default 30 Tage
+  - `?format=csv|zip` — explizite Format-Wahl; type=all → ZIP default
+  - UTF-8 BOM für Excel-Kompatibilität, max 10 000 Zeilen/Tabelle
+  - JSZip: ZIP-Archiv mit touren.csv + schichten.csv + abrechnung.csv + fahrer.csv + README.txt
+- `app/(admin)/delivery/export/` — ExportClient: Zeitraum-Picker + 5 schöne Export-Karten (ZIP grün hervorgehoben)
+- Sidebar: "Datenexport (CSV/ZIP)" mit `FileDown`-Icon unter Lieferdienst > Loslegen
+
+### Build
+- `next build` ✓ 187 Seiten, 0 TypeScript-Fehler, 0 Warnungen
 
 ## CEO Review #68 — 2026-06-12
 
