@@ -1248,6 +1248,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         <SpitzenStundenPanel hourlyData={hourlyData} />
       )}
 
+      {/* Bestellwert-Verteilung: Histogramm nach Preisbändern */}
+      <BestellwertHistogram orders={orders} completedOrders={completedOrders} />
+
       {/* Delivery Performance */}
       {deliveredOrders.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
@@ -4864,6 +4867,84 @@ function CompliancePanel({ data }: { data: CompliancePanelData }) {
           Alle Fahrer sind konform ✓
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ BestellwertHistogram ------------------------------ */
+// Visualises order-value distribution across €5-bands so managers can spot
+// high-AOV clusters and missing price-point opportunities.
+function BestellwertHistogram({ orders, completedOrders }: { orders: Order[]; completedOrders: Order[] }) {
+  const allOrders = [...orders, ...completedOrders];
+  const bands = [
+    { label: '<€10',   min: 0,  max: 10  },
+    { label: '€10–20', min: 10, max: 20  },
+    { label: '€20–30', min: 20, max: 30  },
+    { label: '€30–40', min: 30, max: 40  },
+    { label: '€40–50', min: 40, max: 50  },
+    { label: '>€50',   min: 50, max: Infinity },
+  ];
+
+  const counts = bands.map((b) => ({
+    label: b.label,
+    count: allOrders.filter((o) => {
+      const v = (o as any).totalAmount ?? (o as any).gesamtbetrag ?? 0;
+      return v >= b.min && v < b.max;
+    }).length,
+  }));
+
+  const total = counts.reduce((s, b) => s + b.count, 0);
+  if (total === 0) return null;
+
+  const maxCount = Math.max(...counts.map((b) => b.count), 1);
+  const avgValue = total > 0
+    ? allOrders.reduce((s, o) => s + ((o as any).totalAmount ?? (o as any).gesamtbetrag ?? 0), 0) / total
+    : 0;
+  const colors = ['bg-blue-300', 'bg-blue-400', 'bg-violet-400', 'bg-violet-500', 'bg-purple-500', 'bg-purple-600'];
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <BarChart3 className="w-4 h-4 text-violet-600" />
+        <span className="text-xs font-bold uppercase tracking-wider text-char">Bestellwert-Verteilung</span>
+        {avgValue > 0 && (
+          <span className="ml-auto text-[10px] font-bold text-stone-500">
+            Ø {avgValue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })}
+          </span>
+        )}
+      </div>
+      <div className="flex items-end gap-2 h-28">
+        {counts.map((b, i) => {
+          const heightPct = Math.round((b.count / maxCount) * 100);
+          const pct = total > 0 ? Math.round((b.count / total) * 100) : 0;
+          return (
+            <div key={b.label} className="flex-1 flex flex-col items-center gap-1 group">
+              <span className="text-[9px] font-black tabular-nums text-stone-500 opacity-0 group-hover:opacity-100 transition">
+                {pct}%
+              </span>
+              <div className="w-full relative flex flex-col justify-end" style={{ height: 72 }}>
+                <div
+                  className={`w-full rounded-t-md transition-all ${colors[i]}`}
+                  style={{ height: `${heightPct}%` }}
+                />
+              </div>
+              <span className="text-[8px] font-bold text-stone-500 text-center leading-tight">{b.label}</span>
+              <span className="text-[9px] font-black tabular-nums text-char">{b.count}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-stone-400">
+        {counts
+          .filter((b) => b.count > 0)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 2)
+          .map((b) => (
+            <span key={b.label} className="inline-flex items-center gap-1 rounded-full border border-stone-200 px-2 py-0.5 font-medium">
+              Meist {b.label} · {total > 0 ? Math.round((b.count / total) * 100) : 0}% der Bestellungen
+            </span>
+          ))}
+      </div>
     </div>
   );
 }

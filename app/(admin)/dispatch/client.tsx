@@ -625,6 +625,7 @@ export function DispatchBoard({
 
   return (
     <>
+    <DispatchBrowserNotifier batches={batches} orders={readyOrders} />
     <div className="space-y-6">
       {/* Neue Bestellung — kurzer Flash wenn neue Ready-Bestellung eintrifft */}
       {newOrderFlash && (
@@ -7633,4 +7634,73 @@ function DispatchScoreBar({ score }: { score: number | null }) {
       </div>
     </div>
   );
+}
+
+/* ------------------------------ DispatchBrowserNotifier ------------------------------ */
+// Fires native browser Notification when tours become overdue or orders wait >10 min without a driver.
+// Mirrors the in-app overdueAlerts banner but reaches the dispatcher even when the tab is in the background.
+function DispatchBrowserNotifier({ batches, orders }: { batches: Batch[]; orders: ReadyOrder[] }) {
+  const permRef = useRef<NotificationPermission | null>(null);
+  const notifiedOverdueRef = useRef<Set<string>>(new Set());
+  const notifiedLongWaitRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((p) => { permRef.current = p; });
+    } else {
+      permRef.current = Notification.permission;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (permRef.current !== 'granted') {
+      permRef.current = Notification.permission;
+      if (permRef.current !== 'granted') return;
+    }
+
+    const ACTIVE = new Set(['pickup', 'unterwegs', 'pending_acceptance', 'assigned', 'at_restaurant', 'on_route']);
+    const now = Date.now();
+
+    for (const b of batches) {
+      if (!ACTIVE.has(b.status)) continue;
+      const etaMs = b.startzeit && b.total_eta_min != null
+        ? new Date(b.startzeit).getTime() + b.total_eta_min * 60_000
+        : null;
+      if (!etaMs || now - etaMs < 5 * 60_000) continue;
+      if (notifiedOverdueRef.current.has(b.id)) continue;
+      notifiedOverdueRef.current.add(b.id);
+      const driverName = b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Fahrer unbekannt';
+      const overdueMin = Math.floor((now - etaMs) / 60_000);
+      new Notification('Tour überfällig – Dispatch', {
+        body: `${driverName} · ETA +${overdueMin} Min überschritten`,
+        tag: `overdue-${b.id}`,
+        icon: '/favicon.ico',
+      });
+    }
+    for (const id of notifiedOverdueRef.current) {
+      const b = batches.find((bt) => bt.id === id);
+      if (!b || !ACTIVE.has(b.status)) notifiedOverdueRef.current.delete(id);
+    }
+
+    for (const o of orders) {
+      if (notifiedLongWaitRef.current.has(o.id)) continue;
+      const waitMs = o.fertig_am ? now - new Date(o.fertig_am).getTime() : 0;
+      if (waitMs < 10 * 60_000) continue;
+      notifiedLongWaitRef.current.add(o.id);
+      const waitMin = Math.floor(waitMs / 60_000);
+      new Notification('Bestellung wartet – Dispatch', {
+        body: `${o.bestellnummer} · ${waitMin} Min ohne Fahrer-Zuweisung`,
+        tag: `longwait-${o.id}`,
+        icon: '/favicon.ico',
+      });
+    }
+    const orderIds = new Set(orders.map((o) => o.id));
+    for (const id of notifiedLongWaitRef.current) {
+      if (!orderIds.has(id)) notifiedLongWaitRef.current.delete(id);
+    }
+  }, [batches, orders]);
+
+  return null;
 }
