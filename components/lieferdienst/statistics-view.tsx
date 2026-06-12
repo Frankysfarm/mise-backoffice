@@ -1688,6 +1688,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Live Touren: aktive Touren mit Stopp-Fortschritt */}
+      <LieferdienstLiveTouren />
+
       {/* Fahrer-Effizienz Schicht-Zusammenfassung */}
       {liveDrivers.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
@@ -4994,6 +4997,150 @@ function SpitzenStundenPanel({ hourlyData }: { hourlyData: { hour: string; order
                 <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[9px] font-black">
                   +{d.orders - avgPerActiveHour}
                 </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// LieferdienstLiveTouren — Aktive Touren mit Stopp-Fortschritt in Echtzeit
+// ---------------------------------------------------------------------------
+type LiveTour = {
+  id: string;
+  fahrer: string | null;
+  zone: string | null;
+  startzeit: string | null;
+  total_distance_km: number | null;
+  stops: {
+    id: string;
+    reihenfolge: number;
+    geliefert_am: string | null;
+    bestellnummer: string;
+    kunde_name: string;
+    eta_earliest: string | null;
+  }[];
+};
+
+function LieferdienstLiveTouren() {
+  const [tours, setTours] = useState<LiveTour[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    async function load() {
+      const { data } = await supabase
+        .from('delivery_batches')
+        .select(`
+          id, zone, startzeit, total_distance_km,
+          fahrer:employees(vorname, nachname),
+          stops:delivery_batch_stops(
+            id, reihenfolge, geliefert_am,
+            order:customer_orders(bestellnummer, kunde_name, eta_earliest)
+          )
+        `)
+        .eq('status', 'unterwegs')
+        .order('startzeit', { ascending: false })
+        .limit(10);
+
+      if (!data) return;
+      const mapped: LiveTour[] = (data as any[])
+        .map((b: any) => ({
+          id: b.id,
+          fahrer: b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : null,
+          zone: b.zone,
+          startzeit: b.startzeit,
+          total_distance_km: b.total_distance_km,
+          stops: ((b.stops as any[]) ?? [])
+            .sort((a: any, x: any) => a.reihenfolge - x.reihenfolge)
+            .map((s: any) => ({
+              id: s.id,
+              reihenfolge: s.reihenfolge,
+              geliefert_am: s.geliefert_am,
+              bestellnummer: s.order?.bestellnummer ?? '',
+              kunde_name: s.order?.kunde_name ?? '',
+              eta_earliest: s.order?.eta_earliest ?? null,
+            })),
+        }));
+      setTours(mapped);
+      setLoading(false);
+    }
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  }, [locationId]);
+
+  if (loading || tours.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <h3 className="text-lg font-semibold text-char mb-1 flex items-center gap-2">
+        <Route className="w-5 h-5 text-blue-500" />
+        Live Touren
+        <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          LIVE
+        </span>
+      </h3>
+      <p className="text-sm text-steel mb-4">{tours.length} Tour{tours.length !== 1 ? 'en' : ''} aktiv</p>
+      <div className="space-y-3">
+        {tours.map(tour => {
+          const delivered = tour.stops.filter(s => s.geliefert_am).length;
+          const total = tour.stops.length;
+          const pct = total > 0 ? Math.round((delivered / total) * 100) : 0;
+          const durationMin = tour.startzeit
+            ? Math.round((Date.now() - new Date(tour.startzeit).getTime()) / 60_000)
+            : null;
+          return (
+            <div key={tour.id} className="rounded-xl border border-stone-100 bg-stone-50 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-orange-500" />
+                  <span className="font-semibold text-sm text-char">{tour.fahrer ?? 'Fahrer'}</span>
+                  {tour.zone && (
+                    <span className="rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[9px] font-bold">{tour.zone}</span>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className="font-mono text-xs font-black text-char">{delivered}/{total}</span>
+                  {durationMin != null && (
+                    <div className="text-[9px] text-steel">{durationMin}m</div>
+                  )}
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div className="h-1.5 rounded-full bg-stone-200 mb-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${pct === 100 ? 'bg-emerald-500' : 'bg-orange-400'}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              {/* Stop list */}
+              <div className="space-y-1">
+                {tour.stops.map(stop => (
+                  <div key={stop.id} className="flex items-center gap-2 text-xs">
+                    <span className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 text-[8px] font-black ${stop.geliefert_am ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+                      {stop.geliefert_am ? '✓' : stop.reihenfolge}
+                    </span>
+                    <span className={`flex-1 truncate ${stop.geliefert_am ? 'line-through text-stone-400' : 'text-stone-700'}`}>
+                      {stop.kunde_name}
+                    </span>
+                    <span className="font-mono text-[9px] text-stone-400">
+                      #{stop.bestellnummer.replace(/^FF-/, '').slice(-4)}
+                    </span>
+                    {!stop.geliefert_am && stop.eta_earliest && (
+                      <span className="text-[9px] text-blue-600 font-medium">
+                        {new Date(stop.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {tour.total_distance_km != null && (
+                <div className="mt-2 text-[10px] text-steel">{tour.total_distance_km.toFixed(1)} km geplant</div>
               )}
             </div>
           );
