@@ -104,6 +104,21 @@ export function FahrerApp({
   // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
   useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
   useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
+  // Externe Links (Navi/Maps/WhatsApp/Waze) zuverlaessig im System oeffnen.
+  // Capacitor-WebView ignoriert <a target="_blank"> oft -> aktiv via window.open ans System reichen.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement)?.closest?.('a') as HTMLAnchorElement | null;
+      if (!a) return;
+      const href = a.getAttribute('href') || '';
+      if (/^https?:\/\//i.test(href) && a.getAttribute('target') === '_blank') {
+        e.preventDefault();
+        try { window.open(href, '_blank'); } catch { location.href = href; }
+      }
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
   // Heartbeat: meldet "App aktiv" -> push-flush laesst den VoIP-Anruf weg solange du in der App bist
   useEffect(() => {
     async function beat() {
