@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, FileText, Footprints,
-  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Receipt, Route, ShoppingBag,
+  History, Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Receipt, Route, ShoppingBag,
   TrendingUp, Trophy, Zap, ListOrdered,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -1022,6 +1022,9 @@ export function FahrerApp({
 
         {/* Abrechnungsperioden — Lohnzettel-Download */}
         {!activeBatch && <MeineAbrechnungen />}
+
+        {/* Schicht-Verlauf — letzte abgeschlossene Schichten */}
+        {!activeBatch && <MeineSchichten />}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
         {!activeBatch && driver.location_id && (
@@ -2471,6 +2474,151 @@ function MeineAbrechnungen() {
                     PDF
                   </a>
                 </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- MeineSchichten ---------- */
+
+interface ShiftEntry {
+  id: string;
+  plannedStart: string;
+  plannedEnd: string;
+  actualStart: string | null;
+  actualEnd: string | null;
+  status: string;
+  durationMinutes: number | null;
+  activeMinutes: number | null;
+  breakMinutes: number;
+  breakCount: number;
+  deliveries: number;
+  distanceKm: number;
+  earningsEur: number;
+}
+
+const SHIFT_STATUS_LABEL: Record<string, string> = {
+  completed: 'Abgeschlossen',
+  active:    'Läuft',
+  missed:    'Verpasst',
+};
+const SHIFT_STATUS_COLOR: Record<string, string> = {
+  completed: 'text-accent',
+  active:    'text-blue-400',
+  missed:    'text-red-400',
+};
+
+function MeineSchichten() {
+  const [shifts, setShifts] = useState<ShiftEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/shifts?limit=15')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: { shifts?: ShiftEntry[] } | null) => { if (d?.shifts) setShifts(d.shifts); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (!loading && shifts.length === 0) return null;
+
+  function fmtTime(iso: string | null): string {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  }
+  function fmtMin(min: number | null): string {
+    if (min === null || min < 0) return '—';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return h > 0 ? `${h}h ${m}min` : `${m}min`;
+  }
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/3 p-4">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-2"
+      >
+        <History className="h-4 w-4 text-matcha-300" />
+        <span className="text-xs font-bold uppercase tracking-widest text-white/60">
+          Schicht-Verlauf
+        </span>
+        {shifts.length > 0 && (
+          <span className="ml-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-matcha-300">
+            {shifts.length}
+          </span>
+        )}
+        <ChevronDown className={cn('ml-auto h-4 w-4 text-white/40 transition-transform', open && 'rotate-180')} />
+      </button>
+
+      {open && (
+        <div className="mt-4 space-y-2">
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-white/40" />
+            </div>
+          ) : (
+            shifts.map((s) => (
+              <div key={s.id} className="rounded-xl bg-white/5 p-3 space-y-2">
+                {/* Header: Datum + Status */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-3.5 w-3.5 text-matcha-400 shrink-0" />
+                    <span className="text-[11px] font-bold text-matcha-200">
+                      {fmtDate(s.plannedStart)}
+                    </span>
+                    <span className="text-[10px] text-matcha-500 tabular-nums">
+                      {fmtTime(s.actualStart)} – {fmtTime(s.actualEnd)}
+                    </span>
+                  </div>
+                  <span className={cn('text-[10px] font-semibold', SHIFT_STATUS_COLOR[s.status] ?? 'text-white/40')}>
+                    {SHIFT_STATUS_LABEL[s.status] ?? s.status}
+                  </span>
+                </div>
+
+                {/* Stats-Zeile */}
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                    <span className="text-sm font-black text-accent tabular-nums">{s.deliveries}</span>
+                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Lief.</span>
+                  </div>
+                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                    <span className="text-sm font-black text-matcha-200 tabular-nums">
+                      {s.activeMinutes !== null ? fmtMin(s.activeMinutes) : fmtMin(s.durationMinutes)}
+                    </span>
+                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Aktiv</span>
+                  </div>
+                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                    <span className="text-sm font-black text-matcha-200 tabular-nums">
+                      {s.distanceKm > 0 ? `${s.distanceKm.toFixed(1)} km` : '—'}
+                    </span>
+                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Strecke</span>
+                  </div>
+                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                    <span className="text-sm font-black text-accent tabular-nums">
+                      {s.earningsEur > 0
+                        ? s.earningsEur.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
+                        : '—'}
+                    </span>
+                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Verdienst</span>
+                  </div>
+                </div>
+
+                {/* Pausen-Info (nur wenn vorhanden) */}
+                {s.breakCount > 0 && (
+                  <div className="flex items-center gap-1.5 text-[10px] text-matcha-500">
+                    <Clock className="h-3 w-3 shrink-0" />
+                    <span>{s.breakCount} Pause{s.breakCount !== 1 ? 'n' : ''} · {fmtMin(s.breakMinutes)}</span>
+                  </div>
+                )}
               </div>
             ))
           )}

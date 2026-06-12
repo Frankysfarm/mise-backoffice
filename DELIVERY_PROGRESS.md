@@ -1,10 +1,14 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–68 abgeschlossen. CEO Review #55 abgeschlossen: 1 Bug gefixt. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
+**Phasen 1–69 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 69: Fahrer-Schicht-Verlauf — GET /api/delivery/driver/shifts + MeineSchichten-Widget in Fahrer-App
+- [x] GET /api/delivery/driver/shifts — letzte 15 Schichten mit Lieferungen, Aktivzeit, Pausen, Strecke, Verdienst
+- [x] MeineSchichten-Komponente in app/fahrer/app/client.tsx — aufklappbar, 4-Spalten-Stats-Grid pro Schicht (Lieferungen/Aktiv/Strecke/Verdienst), Pausen-Zeile
+- [x] Batches per Zeitfenster-Overlap Schichten zugeordnet (actual_start → actual_end), kein shift_id-Fremdschlüssel nötig
 - [x] CEO Review #55: 1 Bug gefixt (totes kmBonus in DriverLeaderboard statistics-view.tsx entfernt)
 - [x] Phase 68: Frontend Enhancements — Fahrer-Rang-Sparkline, Dispatch-Wartezeit-Chip, Küchen-Konflikt-Aktion, Tracking-Countdown
 - [x] MyPerformanceBadge mit 7-Tage-Stopps-Sparkline + ausklappbarem Panel (Pünktlichkeit, Verdienst)

@@ -1,7 +1,20 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–68 vollständig abgeschlossen. CEO Review #55 abgeschlossen: 1 Bug gefixt (totes kmBonus in DriverLeaderboard). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–69 vollständig abgeschlossen. CEO Review #55 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+### Phase 69 abgeschlossen — 2026-06-12
+
+**Fahrer-Schicht-Verlauf** — Shift-History in Fahrer-App
+
+- `GET /api/delivery/driver/shifts` — letzte 15 Schichten mit Echtzeit-Metriken (Lieferungen, Aktivzeit, Pausen, Strecke, Verdienst)
+- `MeineSchichten`-Widget in `app/fahrer/app/client.tsx` — aufklappbares 4-Spalten-Grid (Lieferungen/Aktiv/Strecke/Verdienst) pro Schicht
+- Batches per Zeitfenster-Overlap zugeordnet (kein Fremdschlüssel-Migration nötig)
+- TypeScript: 0 Fehler ✅ | Build: sauber ✅
+
+### Nächste Schritte
+1. Phase 70: Automatische Bewertungs-Link-Versendung per Push/SMS nach Lieferung (generateRatingToken → Customer Push Integration)
+2. Oder: Schicht-Kalender im Dispatch-Board (visuelle Wochenansicht mit Coverage-Gaps-Overlay)
 
 ---
 
