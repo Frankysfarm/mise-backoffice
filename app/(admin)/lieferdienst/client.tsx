@@ -1391,10 +1391,10 @@ function LieferdienstStundenChart() {
           <YAxis tick={{ fontSize: 8, fill: '#a8a29e' }} axisLine={false} tickLine={false} width={28} />
           <Tooltip
             contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4', padding: '6px 10px' }}
-            formatter={(val: number, name: string) =>
-              name === 'orders' ? [`${val} Bestellungen`, ''] : [`${val} €`, 'Umsatz']
+            formatter={(val: unknown, name: unknown) =>
+              name === 'orders' ? [`${val as number} Bestellungen`, ''] : [`${val as number} €`, 'Umsatz']
             }
-            labelFormatter={(h: string) => `${h}:00 Uhr`}
+            labelFormatter={(h: unknown) => `${h as string}:00 Uhr`}
           />
           <Bar dataKey="orders" radius={[4, 4, 0, 0]}>
             {data.map((entry) => (
@@ -1422,8 +1422,8 @@ function LieferdienstStundenChart() {
             />
             <Tooltip
               contentStyle={{ fontSize: 10, borderRadius: 6, padding: '4px 8px' }}
-              formatter={(v: number) => [`${v} €`, 'Umsatz']}
-              labelFormatter={(h: string) => `${h}:00 Uhr`}
+              formatter={(v: unknown) => [`${v as number} €`, 'Umsatz']}
+              labelFormatter={(h: unknown) => `${h as string}:00 Uhr`}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -1564,29 +1564,46 @@ function LieferdienstFahrerEinsatz({ drivers }: { drivers: Driver[] }) {
 
         if (!statuses?.length) { setLiveDrivers([]); return; }
 
-        const ids = (statuses as any[]).map((s: any) => s.employee_id);
+        const employeeIds = (statuses as any[]).map((s: any) => s.employee_id);
+
+        // employee_id → mise_drivers.id mapping (driver_id used in batches)
+        const { data: miseDrivers } = await supabase
+          .from('mise_drivers')
+          .select('id, employee_id')
+          .in('employee_id', employeeIds);
+
+        const empToDriverId = new Map<string, string>();
+        for (const d of (miseDrivers ?? []) as any[]) {
+          if (d.employee_id) empToDriverId.set(d.employee_id as string, d.id as string);
+        }
+        const driverIds = Array.from(empToDriverId.values());
+
         const { data: batchRows } = await supabase
-          .from('delivery_batch_stops')
-          .select('batch_id, batch:delivery_batches(fahrer_id)')
+          .from('mise_delivery_batch_stops')
+          .select('batch_id, batch:mise_delivery_batches(driver_id)')
           .not('geliefert_am', 'is', null)
           .gte('geliefert_am', today.toISOString());
 
+        // count by driver_id (mise_drivers.id)
         const deliveryCount: Record<string, number> = {};
         for (const row of (batchRows ?? []) as any[]) {
-          const fid = row.batch?.fahrer_id;
-          if (fid && ids.includes(fid)) {
+          const fid = row.batch?.driver_id;
+          if (fid && driverIds.includes(fid)) {
             deliveryCount[fid] = (deliveryCount[fid] ?? 0) + 1;
           }
         }
 
-        setLiveDrivers((statuses as any[]).map((s: any) => ({
-          id: s.employee_id,
-          name: s.employee ? `${s.employee.vorname} ${s.employee.nachname}` : 'Unbekannt',
-          status: 'online',
-          vehicle: s.fahrzeug ?? 'auto',
-          deliveries: deliveryCount[s.employee_id] ?? 0,
-          online_seit: s.online_seit,
-        })));
+        setLiveDrivers((statuses as any[]).map((s: any) => {
+          const driverId = empToDriverId.get(s.employee_id as string);
+          return {
+            id: s.employee_id,
+            name: s.employee ? `${s.employee.vorname} ${s.employee.nachname}` : 'Unbekannt',
+            status: 'online',
+            vehicle: s.fahrzeug ?? 'auto',
+            deliveries: driverId ? (deliveryCount[driverId] ?? 0) : 0,
+            online_seit: s.online_seit,
+          };
+        }));
       } catch {}
     };
 

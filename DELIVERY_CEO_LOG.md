@@ -1,7 +1,70 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–69 vollständig abgeschlossen. CEO Review #55 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–69 vollständig abgeschlossen. CEO Review #56 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #56 — 2026-06-12
+
+### Geprüfte Commits (2 Commits seit Review #55)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `3da209b` | feat(delivery/backend): Phase 69 — Fahrer-Schicht-Verlauf | ✅ OK |
+| `a291f20` | feat(delivery/frontend): Lieferdienst-Stats-Dashboard + Fahrer-Wartezeit-Anzeige | ⚠️ 3 Bugs → gefixt |
+
+### TypeScript & Build
+- `tsc --noEmit`: **4 Fehler** → **0 Fehler** nach Fix ✅
+- `next build`: **sauber** ✅
+
+### Befund Phase 69 Backend (shifts API)
+- `GET /api/delivery/driver/shifts` — korrekte Auth, limit-Cap, Batches per Zeitfenster-Overlap ✅
+- Pausen (`shift_breaks`) korrekt aggregiert ✅
+- Verdienst-Schätzung: 1.50 € × Lieferungen + 0.20 € × km ✅
+- Keine TypeScript-Fehler, kein Migrations-Eingriff nötig ✅
+
+### Befund Phase 69 Frontend (Lieferdienst Stats + Fahrer-App)
+**MeineSchichten** (`app/fahrer/app/client.tsx`):
+- Aufklappbares Grid: Lieferungen/Aktiv/Strecke/Verdienst korrekt ✅
+- `fertig_am` Realtime-Subscription für "Fertig seit X Min"-Badge funktioniert ✅
+- Korrekte Icons (History, Calendar, Clock, ChevronDown) ✅
+
+**LieferdienstStundenChart** (`app/(admin)/lieferdienst/client.tsx`):
+- Stündliche Bestellungen + Umsatz (BarChart + LineChart), Peak-Stunde, KPI-Chips ✅
+- 5-Minuten-Polling korrekt ✅
+
+**LieferdienstRejektionsrate**:
+- 7 DB-Abfragen (1 je Tag) für Verlaufsdaten — akzeptabel, kein Polling ✅
+- Farbcodierung grün/gelb/rot korrekt ✅
+
+**LieferdienstFahrerEinsatz — 3 Bugs gefixt**:
+
+**Bug 1+2: Falsche Recharts-Tooltip-Typen** (4 TypeScript-Fehler)
+- `formatter={(val: number, ...)` → `formatter={(val: unknown, ...)` + `val as number`
+- `labelFormatter={(h: string)` → `labelFormatter={(h: unknown)` + `h as string`
+- Betraf 2 Tooltips (Stunden-BarChart + Umsatz-LineChart)
+
+**Bug 3: Falsche Tabellennamen + fehlender employee→driver Lookup** (Laufzeit-Bug)
+- `delivery_batch_stops` → `mise_delivery_batch_stops` ✅
+- `delivery_batches(fahrer_id)` → `mise_delivery_batches(driver_id)` ✅
+- `deliveryCount[s.employee_id]` matchte nie gegen `driver_id` (mise_drivers.id)
+- Fix: Zusatz-Query auf `mise_drivers` um `employee_id → driver_id` Map zu bauen
+- Lieferzählung pro Fahrer jetzt korrekt
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Fahrer-App: Schicht-Verlauf + "Fertig seit X Min"-Badge korrekt ✅
+- Dispatch/Stats: Stunden-Chart + Ablehnungsrate + Fahrer-Einsatz korrekt ✅
+- Bestehende Integration unverändert ✅
+
+### Status nach Review #56
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Bugs gefixt: 3 (2× TS-Typen, 1× Tabellennamen + employee/driver Mapping)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 70: Bewertungs-Link nach Lieferung (generateRatingToken → Push/SMS)
+2. Oder: Schicht-Kalender im Dispatch (Wochenansicht + Coverage-Gaps)
+
+---
 
 ### Phase 69 abgeschlossen — 2026-06-12
 

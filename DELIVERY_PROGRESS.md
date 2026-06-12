@@ -5,6 +5,12 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #56: 3 Bugs gefixt (2× Recharts Tooltip-Typen, 1× Tabellennamen + employee→driver Mapping in LieferdienstFahrerEinsatz)
+- [x] Phase 69: Lieferdienst-Stats-Dashboard — LieferdienstStundenChart, LieferdienstRejektionsrate, LieferdienstFahrerEinsatz
+- [x] LieferdienstStundenChart — stündliche Bestellungen + Umsatz BarChart/LineChart, Peak-Stunde, KPI-Chips, 5-Min-Polling
+- [x] LieferdienstRejektionsrate — 7-Tage-Verlauf Ablehnungsrate mit Farbcodierung + häufigster Grund
+- [x] LieferdienstFahrerEinsatz — Live-Driver-Grid (Online-Status, Fahrzeugtyp, Schichtdauer, Lieferungen je Fahrer)
+- [x] Fahrer-App: "Fertig seit X Min"-Badge auf Stop-Karte (fertig_am via Realtime-Subscription)
 - [x] Phase 69: Fahrer-Schicht-Verlauf — GET /api/delivery/driver/shifts + MeineSchichten-Widget in Fahrer-App
 - [x] GET /api/delivery/driver/shifts — letzte 15 Schichten mit Lieferungen, Aktivzeit, Pausen, Strecke, Verdienst
 - [x] MeineSchichten-Komponente in app/fahrer/app/client.tsx — aufklappbar, 4-Spalten-Stats-Grid pro Schicht (Lieferungen/Aktiv/Strecke/Verdienst), Pausen-Zeile
