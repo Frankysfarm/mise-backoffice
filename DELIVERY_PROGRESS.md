@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–86 abgeschlossen. CEO Review #64. Build sauber (185 Seiten). Deployment-bereit.**
+**Phasen 1–87 abgeschlossen. Build sauber (185 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 87: Smart-UI-Erweiterungen — Kitchen/Dispatch/Fahrer/Storefront/Statistiken — 2026-06-12
+- [x] KitchenOrderAgeGrid: Echtzeit-Farbcodierungs-Grid (grün→gelb→orange→rot) für alle aktiven Bestellungen, 1s-Tick, Pulse bei Überfälligkeit
+- [x] DispatchTourCompletionSpeedPanel: Tour-Geschwindigkeit Ahead/Behind/On-Schedule vs. lineare ETA-Schätzung, 15s Live-Update
+- [x] StopEtaStatusChip: Pro-Stopp ETA-Statuschip in Fahrer-App (Zeitfenster/Zu früh/Zu spät), 30s-Tick
+- [x] LieferdienstZonenumsatz: Bestellungen + Umsatz je Lieferzone als Bar-Chart im Stats-Dashboard, 60s-Refresh
+- [x] Storefront LiveEtaBar: Fahrer-Online-Indikator — zeigt aktive Fahreranzahl neben Küchenauslastung
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 185 Seiten)
 - [x] Phase 86: Multi-Location A/B-Test-Sync für Loyalty-Kampagnen — 2026-06-12
 - [x] lib/delivery/loyalty-ab.ts: syncTestToLocations() — kopiert Test+Varianten in Ziel-Locations, Duplikat-Guard (gleicher Name), Rollback bei Fehler
 - [x] POST /api/delivery/admin/loyalty-ab/sync — neuer Endpunkt: source_location_id + test_id + target_location_ids[]
