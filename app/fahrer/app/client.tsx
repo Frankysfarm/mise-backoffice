@@ -2493,6 +2493,7 @@ function MeineSchichten() {
   const [shifts, setShifts] = useState<ShiftEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/delivery/driver/shifts?limit=15')
@@ -2543,61 +2544,150 @@ function MeineSchichten() {
               <Loader2 className="h-4 w-4 animate-spin text-white/40" />
             </div>
           ) : (
-            shifts.map((s) => (
-              <div key={s.id} className="rounded-xl bg-white/5 p-3 space-y-2">
-                {/* Header: Datum + Status */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5 text-matcha-400 shrink-0" />
-                    <span className="text-[11px] font-bold text-matcha-200">
-                      {fmtDate(s.plannedStart)}
-                    </span>
-                    <span className="text-[10px] text-matcha-500 tabular-nums">
-                      {fmtTime(s.actualStart)} – {fmtTime(s.actualEnd)}
-                    </span>
-                  </div>
-                  <span className={cn('text-[10px] font-semibold', SHIFT_STATUS_COLOR[s.status] ?? 'text-white/40')}>
-                    {SHIFT_STATUS_LABEL[s.status] ?? s.status}
-                  </span>
-                </div>
+            shifts.map((s) => {
+              const isExpanded = expandedId === s.id;
+              const basePay = s.deliveries * 1.50;
+              const distPay = s.distanceKm * 0.20;
+              const calcTotal = basePay + distPay;
+              const activeH = (s.activeMinutes ?? s.durationMinutes ?? 0) / 60;
+              const eurPerH = activeH > 0 ? s.earningsEur / activeH : null;
+              const stopsPerH = activeH > 0 ? s.deliveries / activeH : null;
+              const completedStatus = s.status === 'completed';
 
-                {/* Stats-Zeile */}
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
-                    <span className="text-sm font-black text-accent tabular-nums">{s.deliveries}</span>
-                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Lief.</span>
-                  </div>
-                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
-                    <span className="text-sm font-black text-matcha-200 tabular-nums">
-                      {s.activeMinutes !== null ? fmtMin(s.activeMinutes) : fmtMin(s.durationMinutes)}
-                    </span>
-                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Aktiv</span>
-                  </div>
-                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
-                    <span className="text-sm font-black text-matcha-200 tabular-nums">
-                      {s.distanceKm > 0 ? `${s.distanceKm.toFixed(1)} km` : '—'}
-                    </span>
-                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Strecke</span>
-                  </div>
-                  <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
-                    <span className="text-sm font-black text-accent tabular-nums">
-                      {s.earningsEur > 0
-                        ? s.earningsEur.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
-                        : '—'}
-                    </span>
-                    <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Verdienst</span>
-                  </div>
-                </div>
+              return (
+                <div key={s.id} className="rounded-xl bg-white/5 overflow-hidden">
+                  {/* Klickbarer Schicht-Header */}
+                  <button
+                    onClick={() => setExpandedId(isExpanded ? null : s.id)}
+                    className="w-full p-3 space-y-2 text-left"
+                  >
+                    {/* Header: Datum + Status */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5 text-matcha-400 shrink-0" />
+                        <span className="text-[11px] font-bold text-matcha-200">
+                          {fmtDate(s.plannedStart)}
+                        </span>
+                        <span className="text-[10px] text-matcha-500 tabular-nums">
+                          {fmtTime(s.actualStart)} – {fmtTime(s.actualEnd)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className={cn('text-[10px] font-semibold', SHIFT_STATUS_COLOR[s.status] ?? 'text-white/40')}>
+                          {SHIFT_STATUS_LABEL[s.status] ?? s.status}
+                        </span>
+                        <ChevronDown className={cn('h-3 w-3 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
+                      </div>
+                    </div>
 
-                {/* Pausen-Info (nur wenn vorhanden) */}
-                {s.breakCount > 0 && (
-                  <div className="flex items-center gap-1.5 text-[10px] text-matcha-500">
-                    <Clock className="h-3 w-3 shrink-0" />
-                    <span>{s.breakCount} Pause{s.breakCount !== 1 ? 'n' : ''} · {fmtMin(s.breakMinutes)}</span>
-                  </div>
-                )}
-              </div>
-            ))
+                    {/* Stats-Zeile */}
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black text-accent tabular-nums">{s.deliveries}</span>
+                        <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Lief.</span>
+                      </div>
+                      <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black text-matcha-200 tabular-nums">
+                          {s.activeMinutes !== null ? fmtMin(s.activeMinutes) : fmtMin(s.durationMinutes)}
+                        </span>
+                        <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Aktiv</span>
+                      </div>
+                      <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black text-matcha-200 tabular-nums">
+                          {s.distanceKm > 0 ? `${s.distanceKm.toFixed(1)} km` : '—'}
+                        </span>
+                        <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Strecke</span>
+                      </div>
+                      <div className="flex flex-col items-center rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black text-accent tabular-nums">
+                          {s.earningsEur > 0
+                            ? s.earningsEur.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
+                            : '—'}
+                        </span>
+                        <span className="text-[9px] text-matcha-500 leading-tight mt-0.5">Verdienst</span>
+                      </div>
+                    </div>
+
+                    {/* Pausen-Info (nur wenn vorhanden) */}
+                    {s.breakCount > 0 && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-matcha-500">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        <span>{s.breakCount} Pause{s.breakCount !== 1 ? 'n' : ''} · {fmtMin(s.breakMinutes)}</span>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Aufgeklappte Verdienst-Aufschlüsselung */}
+                  {isExpanded && completedStatus && (
+                    <div className="border-t border-white/10 px-3 pb-3 pt-2.5 space-y-2.5">
+                      <div className="text-[9px] font-black uppercase tracking-widest text-matcha-400">
+                        Verdienst-Aufschlüsselung
+                      </div>
+
+                      {/* Berechnungszeilen */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-matcha-400">
+                            Basis ({s.deliveries} × €1,50)
+                          </span>
+                          <span className="font-bold text-matcha-200 tabular-nums">
+                            {basePay.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        {s.distanceKm > 0 && (
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-matcha-400">
+                              Strecke ({s.distanceKm.toFixed(1)} km × €0,20)
+                            </span>
+                            <span className="font-bold text-matcha-200 tabular-nums">
+                              {distPay.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        )}
+                        {s.earningsEur > 0 && Math.abs(s.earningsEur - calcTotal) > 0.01 && (
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-matcha-400">Bonus / Sonstiges</span>
+                            <span className="font-bold text-matcha-200 tabular-nums">
+                              {(s.earningsEur - calcTotal).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between text-[11px] border-t border-white/10 pt-1.5">
+                          <span className="font-bold text-matcha-200">Gesamt erfasst</span>
+                          <span className="font-black text-accent tabular-nums">
+                            {s.earningsEur > 0
+                              ? s.earningsEur.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
+                              : calcTotal.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Effizienz-Kennzahlen */}
+                      {(eurPerH !== null || stopsPerH !== null) && (
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          {eurPerH !== null && (
+                            <div className="rounded-lg bg-white/5 px-3 py-2 text-center">
+                              <div className="text-sm font-black text-accent tabular-nums">
+                                {eurPerH.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[9px] text-matcha-500 mt-0.5">€ / Stunde</div>
+                            </div>
+                          )}
+                          {stopsPerH !== null && (
+                            <div className="rounded-lg bg-white/5 px-3 py-2 text-center">
+                              <div className="text-sm font-black text-matcha-200 tabular-nums">
+                                {stopsPerH.toFixed(1)}
+                              </div>
+                              <div className="text-[9px] text-matcha-500 mt-0.5">Stopps / Std.</div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       )}

@@ -28,6 +28,7 @@ import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
   BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
+  Award, Target, Star,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -901,6 +902,8 @@ export function LieferdienstClient() {
               <LieferdienstFahrerEinsatz drivers={drivers} />
               {/* Liefer-SLA & Durchsatz-KPIs */}
               <LieferdienstDeliveryKpis />
+              {/* Fahrer Tages-Ziele */}
+              <FahrerTagesZielPanel />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -1829,6 +1832,117 @@ function LieferdienstDeliveryKpis() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ---- FahrerTagesZielPanel ---- */
+// Tages-Leistung aller Fahrer mit Fortschrittsbalken gegen ein 20-Stops-Tagesziel
+function FahrerTagesZielPanel() {
+  const DAILY_TARGET = 20;
+
+  interface LeaderEntry {
+    rank: number;
+    driverId: string;
+    driverName: string | null;
+    initials: string;
+    stopsCompleted: number;
+    onTimeRate: number | null;
+    avgRating: number | null;
+    earningsEur: number;
+  }
+
+  const [entries, setEntries] = useState<LeaderEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/delivery/admin/driver-leaderboard?period=today&limit=8');
+        if (!res.ok) return;
+        const data = await res.json();
+        setEntries((data.entries ?? []) as LeaderEntry[]);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 90_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  if (loading || entries.length === 0) return null;
+
+  const topStops = entries[0]?.stopsCompleted ?? 0;
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Target className="h-4 w-4 text-matcha-600" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">
+            Fahrer Tages-Ziele
+          </span>
+        </div>
+        <span className="text-[9px] text-stone-400">Ziel: {DAILY_TARGET} Stopps</span>
+      </div>
+
+      <div className="space-y-2.5">
+        {entries.map((e, i) => {
+          const pct = Math.min(100, Math.round((e.stopsCompleted / DAILY_TARGET) * 100));
+          const reachedGoal = e.stopsCompleted >= DAILY_TARGET;
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+          const barColor = reachedGoal
+            ? 'bg-matcha-500'
+            : pct >= 60
+            ? 'bg-amber-400'
+            : 'bg-stone-300';
+          const onTimePct = e.onTimeRate != null ? Math.round(e.onTimeRate * 100) : null;
+          const name = e.driverName ?? e.initials;
+
+          return (
+            <div key={e.driverId} className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm w-5 text-center shrink-0 tabular-nums">
+                  {medal ?? <span className="text-[10px] font-bold text-stone-400">{e.rank}.</span>}
+                </span>
+                <span className="text-xs font-bold text-char flex-1 truncate">{name}</span>
+                <div className="flex items-center gap-2 shrink-0 text-[10px] tabular-nums">
+                  {onTimePct !== null && (
+                    <span className={onTimePct >= 90 ? 'text-emerald-600 font-bold' : onTimePct >= 75 ? 'text-amber-600 font-bold' : 'text-red-500 font-bold'}>
+                      {onTimePct}%
+                    </span>
+                  )}
+                  {e.avgRating != null && (
+                    <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                      <Star className="h-2.5 w-2.5 fill-amber-400 stroke-amber-400" />
+                      {e.avgRating.toFixed(1)}
+                    </span>
+                  )}
+                  <span className="font-black text-stone-700">
+                    {e.stopsCompleted}
+                    <span className="font-normal text-stone-400">/{DAILY_TARGET}</span>
+                  </span>
+                  {reachedGoal && (
+                    <Award className="h-3.5 w-3.5 text-matcha-500 shrink-0" />
+                  )}
+                </div>
+              </div>
+              <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden ml-7">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${barColor}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {topStops >= DAILY_TARGET && (
+        <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-1.5 text-[10px] text-matcha-600 font-bold">
+          <Award className="h-3.5 w-3.5" />
+          <span>{entries.filter((e) => e.stopsCompleted >= DAILY_TARGET).length} Fahrer haben das Tagesziel erreicht</span>
+        </div>
+      )}
     </div>
   );
 }
