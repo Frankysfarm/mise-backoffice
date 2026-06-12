@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
-  Banknote, Check, ChevronRight, Clock, Euro, Loader2,
+  Banknote, Check, ChevronRight, Clock, Euro, FileText, Loader2,
   RefreshCw, TrendingUp, Users, Zap,
 } from 'lucide-react';
 
@@ -348,7 +348,7 @@ export function PayoutsClient({
                       {p.onTimeRatePct != null && <span>{p.onTimeRatePct.toFixed(0)}% pünktlich</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-lg font-bold tabular-nums">{fmtEur(p.totalPayout)}</span>
                     {p.status === 'draft' && (
                       <button
@@ -371,6 +371,15 @@ export function PayoutsClient({
                     {p.status === 'paid' && p.paidAt && (
                       <span className="text-xs text-muted-foreground">Bezahlt {fmtDate(p.paidAt)}</span>
                     )}
+                    <a
+                      href={`/api/pdf/lohnzettel?period_id=${p.id}&location_id=${locationId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+                      title="Lohnzettel als PDF herunterladen"
+                    >
+                      <FileText className="h-3 w-3" /> PDF
+                    </a>
                   </div>
                 </div>
               </Card>

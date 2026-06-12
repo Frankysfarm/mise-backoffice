@@ -1,10 +1,16 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–63 abgeschlossen. TypeScript 0 Fehler. Build sauber (180 Seiten). CEO Review #52: 0 Bugs, vollständiger Integrations-Check bestanden. Deployment-bereit.**
+**Phasen 1–64 abgeschlossen. TypeScript 0 Fehler. Build sauber. CEO Review #52: 0 Bugs. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 64: Fahrer-Lohnzettel PDF (individueller Gehaltsnachweis pro Abrechnungsperiode)
+- [x] lib/pdf/lohnzettel-pdf.tsx — React-PDF Lohnzettel-Dokument (Vergütungsaufschlüsselung, KPIs, Status-Badge)
+- [x] GET /api/pdf/lohnzettel — PDF-Generierung mit Dual-Auth (Admin ODER Fahrer selbst)
+- [x] GET /api/delivery/driver/periods — Eigene Abrechnungsperioden inkl. Lohnzettel-Links
+- [x] Admin: PDF-Download-Button in Perioden-Tab (app/(admin)/drivers/payouts/client.tsx)
+- [x] Fahrer-App: MeineAbrechnungen-Sektion mit ausklappbarer Perioden-Liste + PDF-Download
 - [x] CEO Review #52: 0 Bugs, Build sauber (180 Seiten), vollständiger Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
 - [x] CEO Review #51: 2 Bugs gefixt (LiveDriverPulseStrip live_position-Feld, LetzteStoppsLog Tabellennamen)
 - [x] LiveDriverPulseStrip — GPS-Geschwindigkeit + Richtung + Signal-Staleness im Dispatch (Bug gefixt)

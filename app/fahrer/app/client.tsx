@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useRef, useState, useTransition } from 'reac
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
-  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Route, ShoppingBag,
+  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, FileText, Footprints,
+  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Package, Phone, Power, Receipt, Route, ShoppingBag,
   TrendingUp, Trophy, Zap, ListOrdered,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -894,6 +894,9 @@ export function FahrerApp({
 
         {/* Heutige Stopps-Verlauf — zeitlicher Log der abgeschlossenen Lieferungen */}
         {!activeBatch && <LetzteStoppsLog driverId={driver.id} />}
+
+        {/* Abrechnungsperioden — Lohnzettel-Download */}
+        {!activeBatch && <MeineAbrechnungen />}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
         {!activeBatch && driver.location_id && (
@@ -2113,6 +2116,118 @@ function LetzteStoppsLog({ driverId }: { driverId: string }) {
         >
           + {stops.length - 4} weitere anzeigen
         </button>
+      )}
+    </section>
+  );
+}
+
+/* ---------- MeineAbrechnungen ---------- */
+
+interface DriverPeriod {
+  id: string;
+  periodType: string;
+  periodStart: string;
+  periodEnd: string;
+  deliveriesCount: number;
+  totalKm: number;
+  totalPayout: number;
+  avgRating: number | null;
+  onTimeRatePct: number | null;
+  status: 'draft' | 'approved' | 'paid';
+  paidAt: string | null;
+  pdfUrl: string;
+}
+
+function MeineAbrechnungen() {
+  const [periods, setPeriods] = useState<DriverPeriod[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/periods')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.periods) setPeriods(d.periods); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (!loading && periods.length === 0) return null;
+
+  const PERIOD_LABELS: Record<string, string> = {
+    daily: 'Tagesabr.', weekly: 'Wochenabr.', monthly: 'Monatsabr.', custom: 'Abrechnung',
+  };
+  const STATUS_COLORS: Record<string, string> = {
+    draft: 'text-white/40',
+    approved: 'text-blue-400',
+    paid: 'text-accent',
+  };
+  const STATUS_LABELS: Record<string, string> = {
+    draft: 'Entwurf', approved: 'Freigegeben', paid: 'Ausgezahlt',
+  };
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/3 p-4">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center gap-2"
+      >
+        <Receipt className="h-4 w-4 text-matcha-300" />
+        <span className="text-xs font-bold uppercase tracking-widest text-white/60">
+          Meine Abrechnungen
+        </span>
+        {periods.length > 0 && (
+          <span className="ml-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-matcha-300">
+            {periods.length}
+          </span>
+        )}
+        <ChevronDown className={cn('ml-auto h-4 w-4 text-white/40 transition-transform', open && 'rotate-180')} />
+      </button>
+
+      {open && (
+        <div className="mt-4 space-y-2">
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-white/40" />
+            </div>
+          ) : (
+            periods.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-bold text-matcha-200">
+                      {PERIOD_LABELS[p.periodType] ?? 'Abrechnung'}
+                    </span>
+                    <span className={cn('text-[10px] font-medium', STATUS_COLORS[p.status])}>
+                      · {STATUS_LABELS[p.status]}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-matcha-500 tabular-nums mt-0.5">
+                    {new Date(p.periodStart).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                    {' – '}
+                    {new Date(p.periodEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                    {' · '}{p.deliveriesCount} Lief.
+                    {p.avgRating != null && ` · ★${p.avgRating.toFixed(1)}`}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm font-black text-accent tabular-nums">
+                    {p.totalPayout.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                  <a
+                    href={p.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 rounded-lg bg-white/10 px-2 py-1 text-[10px] font-medium text-matcha-300 hover:bg-white/20 transition"
+                    title="Lohnzettel als PDF"
+                  >
+                    <FileText className="h-3 w-3" />
+                    PDF
+                  </a>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       )}
     </section>
   );
