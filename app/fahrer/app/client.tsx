@@ -1037,6 +1037,9 @@ export function FahrerApp({
         {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}
         {!activeBatch && isOnline && <FahrerRankingCard />}
 
+        {/* Aktive Challenges */}
+        {!activeBatch && isOnline && <ChallengeWidget />}
+
         {/* Offline state */}
         {!isOnline && !activeBatch && (
           <section className="text-center py-8">
@@ -1713,6 +1716,97 @@ function FahrerRankingCard() {
           {perf.trend === 'up' ? 'Trend steigend' : perf.trend === 'down' ? 'Trend fallend' : 'Stabil'}
         </span>
       </div>
+    </section>
+  );
+}
+
+/* ---------- ChallengeWidget — aktive Challenges in der Fahrer-App ---------- */
+
+type ChallengeEntry = {
+  challenge: {
+    id: string;
+    title: string;
+    challengeType: string;
+    targetValue: number;
+    rewardEur: number;
+    endsAt: string;
+  };
+  participation: {
+    currentValue: number;
+    progressPct: number;
+    completed: boolean;
+    rank: number;
+  };
+};
+
+function ChallengeWidget() {
+  const [entries, setEntries] = useState<ChallengeEntry[]>([]);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/challenges')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.challenges) setEntries(d.challenges as ChallengeEntry[]); })
+      .catch(() => {});
+  }, []);
+
+  if (entries.length === 0) return null;
+
+  function unitLabel(type: string): string {
+    if (type === 'deliveries_count') return 'Lieferungen';
+    if (type === 'on_time_rate')     return '% Pünktlichkeit';
+    if (type === 'avg_rating')       return '★ Sterne';
+    if (type === 'revenue_total')    return '€ Umsatz';
+    return '';
+  }
+
+  function timeLeft(iso: string): string {
+    const diff = new Date(iso).getTime() - Date.now();
+    if (diff <= 0) return 'Abgelaufen';
+    const h = Math.floor(diff / 3_600_000);
+    const m = Math.floor((diff % 3_600_000) / 60_000);
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m} Min`;
+  }
+
+  return (
+    <section className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Zap className="h-4 w-4 text-amber-400" />
+        <span className="text-xs font-bold uppercase tracking-widest text-white/60">Aktive Challenges</span>
+      </div>
+      {entries.map(({ challenge: ch, participation: p }) => {
+        const pct = Math.min(100, Math.round(p.progressPct));
+        return (
+          <div key={ch.id} className="rounded-xl bg-white/5 p-3">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <span className="text-sm font-medium text-white leading-tight">{ch.title}</span>
+              {ch.rewardEur > 0 && (
+                <span className="shrink-0 rounded-full bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 text-xs font-bold text-amber-300">
+                  +€{ch.rewardEur.toFixed(2)}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center justify-between text-xs text-white/50 mb-1.5">
+              <span>{p.currentValue} / {ch.targetValue} {unitLabel(ch.challengeType)}</span>
+              <span>{timeLeft(ch.endsAt)}</span>
+            </div>
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all',
+                  p.completed ? 'bg-emerald-400' : pct >= 75 ? 'bg-amber-400' : 'bg-blue-400',
+                )}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            {p.completed && (
+              <p className="mt-1.5 text-xs text-emerald-400 font-medium">
+                ✓ Ziel erreicht — Prämie wird abgerechnet!
+              </p>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 }

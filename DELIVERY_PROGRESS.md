@@ -1,10 +1,20 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–96 abgeschlossen. CEO Review #71 ✅. Build sauber. 0 TypeScript-Fehler. 189 Seiten. Deployment-bereit.**
+**Phasen 1–97 abgeschlossen. CEO Review #71 ✅. Build sauber. 0 TypeScript-Fehler. 190 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 97: Driver Incentive Challenge Engine (Gamified Delivery Targets) — 2026-06-12
+- [x] scripts/migrations/058_driver_challenges.sql: driver_challenges (4 Typen: deliveries_count/on_time_rate/avg_rating/revenue_total, draft/active/completed/cancelled), driver_challenge_participations (UNIQUE challenge_id+driver_id, Fortschritt, Abschluss-Tracking), v_challenge_leaderboard View (RANK() OVER PARTITION BY challenge_id), 6 Indizes, RLS
+- [x] lib/delivery/challenges.ts: listChallenges(), getChallenge() (Detail + Leaderboard mit Driver-Namen), createChallenge() (Auto-Enroll aller aktiven Fahrer), deleteChallenge() (soft cancel), updateProgressForDriver() (alle 4 Metriken aus DB berechnet), checkAndAwardChallenges() (Status-Übergänge + Fortschritt-Refresh), checkAndAwardChallengesAllLocations() (Cron-Batch), getDriverActiveChallenges() (Fahrer-App)
+- [x] GET+POST+DELETE /api/delivery/admin/challenges: Liste (+ Status-Filter), Detail via ?id=, Neue Challenge anlegen, Stornieren
+- [x] GET /api/delivery/driver/challenges: Fahrer-App — aktive Challenges mit Fortschritt
+- [x] app/(admin)/delivery/challenges/: ChallengesClient mit 4 KPI-Karten (Aktiv/Abgeschlossen/Prämien/Gewinner), Status-Filter-Tabs, CreateChallengeForm (alle 4 Typen, Datetime-Picker, Max-Gewinner), ChallengeCard mit aufklappbarem Leaderboard (Fortschrittsbalken pro Fahrer)
+- [x] ChallengeWidget in fahrer/app/client.tsx: aktive Challenges mit Fortschrittsbalken + Prämien-Badge, sichtbar wenn online & kein aktiver Batch
+- [x] Cron: checkAndAwardChallengesAllLocations() alle 10 Min (isRatingTick) → challenges: { checked, progress_updated, auto_completed }
+- [x] Sidebar: "Fahrer-Challenges" mit Zap-Icon + Zap in ICON_MAP ergänzt
+- [x] Build: Compiled successfully ✓ (190 Seiten, 0 TypeScript-Fehler in neuen Dateien)
 - [x] Phase 96: KI-Tages-Digest (Daily Operations Digest + AI Narrative) — 2026-06-12
 - [x] scripts/migrations/057_daily_digest.sql: delivery_daily_digests (location_id + digest_date UNIQUE, metrics JSONB, anomalies JSONB, ai_summary TEXT, RLS)
 - [x] lib/delivery/daily-digest.ts: gatherDailyMetrics() (10 KPI-Dimensionen: Bestellungen/Umsatz/Performance/Fahrer/CDES/Zufriedenheit/Verspätungen), detectAnomalies() (8 Metriken, Warning >25%/Critical >50% Abweichung vs. Vortag), streamDailyDigest() (Claude Haiku SSE), saveDailyDigest() (DB-Cache + AI), getDigestHistory() (30 Tage), generateDigestAllLocations() (Cron-Helfer)
