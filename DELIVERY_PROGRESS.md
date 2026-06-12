@@ -1,10 +1,18 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–70 abgeschlossen. CEO Review #57. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
+**Phasen 1–72 abgeschlossen. CEO Review #57. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 72: Echtzeit-Betriebscockpit (Live Ops Dashboard) — Ops-Center Admin-Seite
+- [x] GET /api/delivery/admin/ops-snapshot — Einzel-Endpoint für alle Live-KPIs (Queue-Funnel, Fahrer-Status, Alarme, Revenue, SLA, Durchsatz, Verspätungen, At-Risk-Orders)
+- [x] app/(admin)/delivery/ops-center/page.tsx — Server-Wrapper mit requireManagerPlus + location_id Auflösung
+- [x] app/(admin)/delivery/ops-center/client.tsx — React-Client mit 30s Auto-Refresh, Countdown-Ticker, manueller Refresh-Button
+- [x] OpsCenterClient: Queue-Pipeline-Funnel (neu/Küche/bereit/unterwegs mit Balken), Fahrer-Ring (online/idle/active/offline), Alert-Panel, At-Risk-Bestellungen-Grid
+- [x] StatCards: Umsatz heute vs. gestern (Δ%), On-Time-Rate (SLA), Durchsatz/Std, aktive Verspätungen — farbcodiert ok/warn/critical
+- [x] Sidebar-Eintrag "Ops-Cockpit (Live-KPIs)" unter Lieferdienst > Loslegen
+- [x] Build: 181 Seiten, Compiled successfully ✅
 - [x] CEO Review #57: 1 Bug gefixt (DriverLeaderboardMini zeigte immer 0 Deliveries — jetzt auf liveDrivers umgestellt)
 - [x] Phase 71: KitchenUrgencyTicker — Live-Countdown zum nächsten fertigen Auftrag (Kitchen)
 - [x] Phase 71: DispatchScoreBar — Score-Balken auf fertigen Bestellkarten im Dispatch
