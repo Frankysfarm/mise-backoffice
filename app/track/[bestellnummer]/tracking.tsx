@@ -84,7 +84,7 @@ function stepIndex(status: string): number {
   return i >= 0 ? i : 0;
 }
 
-export function TrackingView({ order: initial, items, tenant, restaurantTelefon }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null }) {
+export function TrackingView({ order: initial, items, tenant, restaurantTelefon, restaurantLat, restaurantLng }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null; restaurantLat?: number | null; restaurantLng?: number | null }) {
   const supabase = createClient();
   const [order, setOrder] = useState(initial);
   const [stopsBefore, setStopsBefore] = useState<number | null>(null);
@@ -579,6 +579,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
               <LiveMap
                 driver={order.fahrer_lat && order.fahrer_lng ? { lat: Number(order.fahrer_lat), lng: Number(order.fahrer_lng) } : null}
                 dest={order.kunde_lat && order.kunde_lng ? { lat: Number(order.kunde_lat), lng: Number(order.kunde_lng) } : null}
+                pickup={restaurantLat && restaurantLng ? { lat: restaurantLat, lng: restaurantLng } : null}
                 heading={order.fahrer_heading}
               />
             </div>
