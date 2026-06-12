@@ -1,10 +1,21 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–87 abgeschlossen. CEO Review #65 ✅. Build sauber (185 Seiten). 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–88 abgeschlossen. CEO Review #65 ✅. Build sauber (187 Seiten). 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 88: Besetzungs-Cockpit — 7-Tage Schichtplanung mit Forecast-Integration — 2026-06-12
+- [x] lib/delivery/shift-planner.ts — getStaffingPlan(): 7-Tage-Prognose × geplante Schichten → StaffingSlot[] mit CoverageStatus (ok/low/gap/over/off)
+- [x] GET /api/delivery/admin/shift-planner — Multi-Tenant-sicher, ?days=1-14, gibt StaffingPlan mit Summary zurück
+- [x] app/(admin)/delivery/shift-planner/page.tsx — requireManagerPlus + tenant_id Pflicht
+- [x] app/(admin)/delivery/shift-planner/client.tsx — StaffingCockpitClient: 4 KPI-Karten (Lücken/Unterbesetzt/Gut/Abdeckung%)
+- [x] Heatmap-Grid: 18 Betriebsstunden (06–24) × 7 Tage, farbcodierte Zellen (rot=Lücke/gelb=gering/grün=OK/blau=über/grau=kein Betrieb)
+- [x] SlotDetail: Klick auf Zelle öffnet Detail-Panel (Erwartete Bestellungen, Fahrer, Empfehlung Min/Ziel, Handlungsempfehlung bei Lücken)
+- [x] DayRow: aufklappbare Tages-Aufschlüsselung mit Mini-Stunden-Streifen + Bestellkacheln
+- [x] Sidebar: "Besetzungs-Cockpit" Eintrag (CalendarCheck2-Icon) unter Loslegen-Gruppe
+- [x] 5-Minuten Auto-Refresh + manueller Refresh-Button
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 187 Seiten)
 - [x] Phase 87: Smart-UI-Erweiterungen — Kitchen/Dispatch/Fahrer/Storefront/Statistiken — 2026-06-12
 - [x] KitchenOrderAgeGrid: Echtzeit-Farbcodierungs-Grid (grün→gelb→orange→rot) für alle aktiven Bestellungen, 1s-Tick, Pulse bei Überfälligkeit
 - [x] DispatchTourCompletionSpeedPanel: Tour-Geschwindigkeit Voraus/Verzögert/Im-Plan vs. lineare ETA-Schätzung, 15s Live-Update (Labels auf Deutsch korrigiert)

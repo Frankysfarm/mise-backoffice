@@ -150,6 +150,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/franchise-compare', icon: 'BarChart2', label: 'Franchise-Vergleich' },
       { group: 'Loslegen', href: '/delivery/loyalty',          icon: 'Trophy',    label: 'Loyalty-Punkte' },
       { group: 'Loslegen', href: '/delivery/forecast',         icon: 'Brain',     label: 'Nachfrage-Prognose KI' },
+      { group: 'Loslegen', href: '/delivery/shift-planner', icon: 'CalendarCheck2', label: 'Besetzungs-Cockpit' },
       { group: 'Loslegen', href: '/dispatch',              icon: 'MapPin',          label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
