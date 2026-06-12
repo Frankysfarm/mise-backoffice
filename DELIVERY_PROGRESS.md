@@ -1,10 +1,19 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–81 abgeschlossen. CEO Review #62. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
+**Phasen 1–82 abgeschlossen. CEO Review #62. Build sauber (184 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 82: A/B-Test Dashboard für Loyalty-Kampagnen — 2026-06-12
+- [x] scripts/migrations/052_loyalty_ab_tests.sql — loyalty_ab_tests, loyalty_ab_variants, loyalty_ab_assignments, loyalty_ab_events, v_ab_test_metrics View
+- [x] lib/delivery/loyalty-ab.ts — createTest(), getTest(), listTests(), updateTestStatus(), deleteTest(), getOrAssignVariant(), getActiveTest(), recordAbEvent(), getTestMetrics()
+- [x] GET+POST+PATCH+DELETE /api/delivery/admin/loyalty-ab — vollständige CRUD-API
+- [x] earnPoints() in loyalty-points.ts: aktiven A/B-Test erkennen, Variante hash-basiert zuweisen, Punkte-Multiplikator anwenden, Ereignisse fire-and-forget aufzeichnen
+- [x] LoyaltyAdminClient: Tab-System "Übersicht" (bestehend) + "A/B Tests" (neu)
+- [x] AbTestsPanel: Test-Liste, Create-Formular (2–4 Varianten, Multiplikator, Anteil), Status-Aktionen (Aktivieren/Pausieren/Abschließen/Löschen), Metriken-Vergleich (Conversion-Rate, Ø Bestellwert, Umsatz, Lift % vs. Kontrolle)
+- [x] Deterministischer Hash-basierter Varianten-Zuweiser (customerBucket → pickVariant) — stabile Zuweisung ohne DB-Write-Overhead
+- [x] Build: Compiled successfully ✓ (184 Seiten)
 - [x] Phase 81: Schicht-Verdienst-Aufschlüssel + Fahrer Tages-Ziele — CEO Review #62
 - [x] FahrerTagesZielPanel: Fortschrittsbalken 20-Stopps-Tagesziel, Pünktlichkeitsrate, 90s-Polling
 - [x] MeineSchichten: aufklappbare Verdienst-Aufschlüsselung (Basis+Strecke+Bonus, €/h, Stopps/h)

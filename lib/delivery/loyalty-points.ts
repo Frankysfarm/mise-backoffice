@@ -30,6 +30,7 @@
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/server';
 import { enqueueCustomerNotification } from './customer-push';
+import { getActiveTest, getOrAssignVariant, recordAbEvent } from './loyalty-ab';
 
 // ── Konstanten ────────────────────────────────────────────────────────────────
 
@@ -224,8 +225,27 @@ export async function earnPoints(input: {
   customerName: string | null;
 }): Promise<EarnResult> {
   const svc = createServiceClient();
-  const points = Math.max(1, Math.round(input.amountEur * POINTS_PER_EUR));
   const normalizedEmail = input.customerEmail.trim().toLowerCase();
+
+  // A/B-Test: aktiven Test für Location laden und ggf. Multiplikator anwenden
+  let abMultiplier = 1.0;
+  let abAssignmentId: string | null = null;
+  let abTestId: string | null = null;
+  let abVariantId: string | null = null;
+  try {
+    const activeTest = await getActiveTest(input.locationId);
+    if (activeTest) {
+      const assignment = await getOrAssignVariant(activeTest.id, input.locationId, normalizedEmail);
+      if (assignment) {
+        abMultiplier    = assignment.variant.pointsMultiplier;
+        abAssignmentId  = assignment.assignmentId;
+        abTestId        = activeTest.id;
+        abVariantId     = assignment.variant.id;
+      }
+    }
+  } catch { /* A/B-Fehler sollen Punkte-Vergabe nicht blockieren */ }
+
+  const points = Math.max(1, Math.round(input.amountEur * POINTS_PER_EUR * abMultiplier));
 
   const account = await getOrCreateAccount(normalizedEmail, input.customerName, input.locationId);
   const prevTier = account.tier;
@@ -260,6 +280,30 @@ export async function earnPoints(input: {
     description:   `Bestellung: ${Math.round(input.amountEur * 100) / 100} €`,
     expires_at:    expiresAt.toISOString(),
   });
+
+  // A/B-Test: Ereignisse aufzeichnen fire-and-forget
+  if (abAssignmentId && abTestId && abVariantId) {
+    Promise.all([
+      recordAbEvent({
+        assignmentId: abAssignmentId,
+        testId:       abTestId,
+        variantId:    abVariantId,
+        locationId:   input.locationId,
+        eventType:    'order_placed',
+        orderId:      input.orderId,
+        amountEur:    input.amountEur,
+      }),
+      recordAbEvent({
+        assignmentId: abAssignmentId,
+        testId:       abTestId,
+        variantId:    abVariantId,
+        locationId:   input.locationId,
+        eventType:    'points_earned',
+        orderId:      input.orderId,
+        pointsDelta:  points,
+      }),
+    ]).catch(() => null);
+  }
 
   const upgraded = newTier !== prevTier;
 
