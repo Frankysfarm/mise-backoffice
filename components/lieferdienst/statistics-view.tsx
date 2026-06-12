@@ -1037,6 +1037,66 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Stunden-Analyse: Bestellungen pro Stunde */}
+      {allOrders.length > 0 && (() => {
+        const hourBuckets: Record<number, { bestellungen: number; geliefert: number }> = {};
+        for (let h = 0; h < 24; h++) hourBuckets[h] = { bestellungen: 0, geliefert: 0 };
+        for (const o of allOrders) {
+          const d = o.createdAt instanceof Date ? o.createdAt : new Date(o.createdAt as string);
+          if (isNaN(d.getTime())) continue;
+          const h = d.getHours();
+          hourBuckets[h].bestellungen++;
+          if (o.status === 'delivered' || o.status === 'geliefert') hourBuckets[h].geliefert++;
+        }
+        const nowHour = new Date().getHours();
+        const minHour = Math.min(...Object.entries(hourBuckets).filter(([, v]) => v.bestellungen > 0).map(([h]) => Number(h)));
+        const maxHour = Math.max(nowHour, ...Object.entries(hourBuckets).filter(([, v]) => v.bestellungen > 0).map(([h]) => Number(h)));
+        if (minHour > maxHour) return null;
+        const hourlyData = Array.from({ length: maxHour - minHour + 1 }, (_, i) => {
+          const h = minHour + i;
+          return { stunde: `${String(h).padStart(2, '0')}h`, h, ...hourBuckets[h] };
+        });
+        const peakHour = hourlyData.reduce((best, d) => (d.bestellungen > best.bestellungen ? d : best), hourlyData[0]);
+        return (
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <Activity className="w-4 h-4 text-amber-500" />
+              <span className="text-sm font-bold text-char">Stunden-Analyse</span>
+              <span className="ml-auto text-[10px] text-stone-400 uppercase tracking-wider">heute</span>
+            </div>
+            {peakHour.bestellungen > 0 && (
+              <div className="text-[10px] text-stone-400 mb-3">
+                Peak: <strong className="text-amber-600">{peakHour.stunde}</strong> — {peakHour.bestellungen} Bestellungen
+              </div>
+            )}
+            <ResponsiveContainer width="100%" height={120}>
+              <BarChart data={hourlyData} barGap={1} barCategoryGap="15%">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} interval={1} />
+                <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={18} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: 11 }}
+                  formatter={(value: any, name: any) => [Number(value ?? 0), name === 'bestellungen' ? 'Bestellungen' : 'Geliefert'] as [number, string]}
+                />
+                <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]} name="bestellungen">
+                  {hourlyData.map((entry) => (
+                    <Cell
+                      key={`cell-${entry.h}`}
+                      fill={entry.h === peakHour.h ? '#f59e0b' : entry.h === nowHour ? '#6ee7b7' : '#e2e8f0'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="flex items-center justify-center gap-5 mt-2 text-[10px] text-stone-400">
+              <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400" />Peak-Stunde</span>
+              <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-300" />Aktuelle Stunde</span>
+              <span className="flex items-center gap-1.5"><span className="inline-block w-2.5 h-2.5 rounded-sm bg-slate-200" />Vergangen</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Schicht-Prognose */}
       {ratePerHour > 0 && (() => {
         const nowHour = new Date().getHours();
