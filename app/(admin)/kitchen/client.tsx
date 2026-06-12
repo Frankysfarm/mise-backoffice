@@ -551,6 +551,9 @@ export function KitchenBoard({
       {/* Abholung-Warte-Panel: Kunden die auf ihre Abholung warten */}
       <PickupWaitPanel orders={filtered} />
 
+      {/* Durchsatz-Meter: fertige Bestellungen pro Stunde (rollendes 30-Min-Fenster) */}
+      <KitchenThroughputMeter orders={filtered} />
+
       {/* Stale Orders Alert — Lieferungen ohne Fahrer >10 Min */}
       <StaleOrdersWidget
         locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
@@ -5914,6 +5917,90 @@ function KitchenItemPrioritySort({ orders, timings }: { orders: Order[]; timings
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenThroughputMeter ------------------------------ */
+
+function KitchenThroughputMeter({ orders }: { orders: Order[] }) {
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const w30 = 30 * 60_000;
+  const w60 = 60 * 60_000;
+
+  const completedInWindow = (from: number, to: number) =>
+    orders.filter((o) => {
+      const t = o.fertig_am ? new Date(o.fertig_am).getTime() : null;
+      return t != null && t >= from && t <= to;
+    }).length;
+
+  const last30 = completedInWindow(now - w30, now);
+  const last60 = completedInWindow(now - w60, now);
+  const prev30 = completedInWindow(now - w60, now - w30);
+
+  const rate = last30 * 2;
+  const prevRate = prev30 * 2;
+  const trend: 'up' | 'down' | 'flat' =
+    rate > prevRate + 1 ? 'up' : rate < prevRate - 1 ? 'down' : 'flat';
+
+  const TARGET = 8;
+  const pct = Math.min(100, Math.round((rate / TARGET) * 100));
+  const barColor =
+    pct >= 90 ? 'bg-matcha-500' :
+    pct >= 60 ? 'bg-blue-400' :
+    pct >= 30 ? 'bg-amber-400' : 'bg-muted';
+  const label =
+    pct >= 90 ? 'Volllast' : pct >= 60 ? 'Normal' : pct >= 30 ? 'Ruhig' : 'Sehr ruhig';
+  const labelCls =
+    pct >= 90 ? 'bg-matcha-100 text-matcha-700' :
+    pct >= 60 ? 'bg-blue-100 text-blue-700' :
+    pct >= 30 ? 'bg-amber-100 text-amber-700' : 'bg-muted text-muted-foreground';
+
+  if (last30 === 0 && last60 === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border bg-card px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <TrendingUp className="h-3.5 w-3.5 shrink-0 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">Durchsatz</span>
+        <span className={cn('ml-1 rounded-full px-2 py-0.5 text-[9px] font-black', labelCls)}>{label}</span>
+        <span className="ml-auto text-[10px] tabular-nums text-muted-foreground">
+          {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'}{' '}
+          <span className="font-bold">{Math.abs(rate - prevRate)}/h</span>{' vs. vorhin'}
+        </span>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <div className="mb-1 flex items-center justify-between text-[10px]">
+            <span className="text-muted-foreground">Best./h — 30-Min-Fenster</span>
+            <span className="font-black tabular-nums">{rate}/h</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all duration-700', barColor)}
+              style={{ width: `${Math.max(4, pct)}%` }}
+            />
+          </div>
+          <div className="mt-1 flex justify-between text-[9px] text-muted-foreground">
+            <span>0</span>
+            <span className="font-semibold text-matcha-500">Ziel {TARGET}/h</span>
+            <span>{Math.round(TARGET * 1.5)}</span>
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="font-mono text-2xl font-black tabular-nums text-matcha-700">{last30}</div>
+          <div className="text-[9px] text-muted-foreground leading-tight">in 30 Min</div>
+          {last60 > last30 && (
+            <div className="text-[9px] text-muted-foreground opacity-60">{last60} in 60 Min</div>
+          )}
+        </div>
       </div>
     </div>
   );

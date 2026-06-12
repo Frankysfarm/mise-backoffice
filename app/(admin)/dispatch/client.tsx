@@ -1064,6 +1064,9 @@ export function DispatchBoard({
             }}
           />
 
+          {/* Schicht-Leaderboard: Top Fahrer nach heutigen Lieferungen */}
+          <DispatchShiftLeaderboard drivers={onlineDrivers} batches={batches} />
+
           <Card className="overflow-hidden">
             <div className="flex items-center justify-between border-b px-5 py-3">
               <div className="flex items-center gap-2">
@@ -7156,6 +7159,98 @@ function DispatchCapacityMeter({
             style={{ width: `${utilization}%` }}
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchShiftLeaderboard ------------------------------ */
+
+function DispatchShiftLeaderboard({
+  drivers,
+  batches,
+}: {
+  drivers: Driver[];
+  batches: Batch[];
+}) {
+  type DriverRow = { driverId: string; name: string; deliveries: number; onlineMin: number };
+  const [rows, setRows] = useState<DriverRow[]>([]);
+
+  useEffect(() => {
+    if (drivers.length === 0) return;
+    const supabase = createClient();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    (async () => {
+      const { data: stops } = await supabase
+        .from('delivery_batch_stops')
+        .select('batch_id, geliefert_am, batch:delivery_batches!inner(fahrer_id)')
+        .not('geliefert_am', 'is', null)
+        .gte('geliefert_am', today.toISOString()) as { data: Array<{ batch_id: string; geliefert_am: string; batch: { fahrer_id: string } }> | null };
+
+      const countByDriver: Record<string, number> = {};
+      for (const s of stops ?? []) {
+        const did = s.batch?.fahrer_id;
+        if (did) countByDriver[did] = (countByDriver[did] ?? 0) + 1;
+      }
+
+      const result: DriverRow[] = drivers
+        .filter((d) => (countByDriver[d.employee_id] ?? 0) > 0)
+        .map((d) => ({
+          driverId: d.employee_id,
+          name: d.employee
+            ? `${d.employee.vorname} ${d.employee.nachname?.charAt(0) ?? ''}.`
+            : d.employee_id.slice(0, 8),
+          deliveries: countByDriver[d.employee_id] ?? 0,
+          onlineMin: d.online_seit
+            ? Math.max(1, Math.floor((Date.now() - new Date(d.online_seit).getTime()) / 60_000))
+            : 60,
+        }))
+        .sort((a, b) => b.deliveries - a.deliveries)
+        .slice(0, 5);
+
+      setRows(result);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drivers.map((d) => d.employee_id).join(',')]);
+
+  if (rows.length === 0) return null;
+
+  const maxD = rows[0]?.deliveries ?? 1;
+  const medals = ['🥇', '🥈', '🥉'];
+
+  return (
+    <div className="rounded-xl border border-border bg-card px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Trophy className="h-3.5 w-3.5 shrink-0 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">Schicht-Ranking</span>
+        <span className="ml-auto text-[9px] text-muted-foreground">Lieferungen heute</span>
+      </div>
+      <div className="space-y-1.5">
+        {rows.map((r, i) => {
+          const pct = Math.round((r.deliveries / maxD) * 100);
+          const dph = Math.round((r.deliveries / r.onlineMin) * 60 * 10) / 10;
+          return (
+            <div key={r.driverId} className="flex items-center gap-2">
+              <span className="w-5 shrink-0 text-center text-[11px]">
+                {medals[i] ?? `${i + 1}.`}
+              </span>
+              <span className="flex-1 min-w-0 truncate text-xs font-medium">{r.name}</span>
+              <span className="shrink-0 text-[9px] tabular-nums text-muted-foreground">{dph}/h</span>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-matcha-500 transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="w-4 text-right text-[10px] font-black tabular-nums text-matcha-700">
+                  {r.deliveries}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

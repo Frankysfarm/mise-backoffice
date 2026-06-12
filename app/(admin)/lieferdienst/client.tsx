@@ -831,6 +831,44 @@ export function LieferdienstClient() {
                   </div>
                 )
               })()}
+              {/* Fahrer-Mini-Leaderboard: Top Fahrer nach heutigen Lieferungen */}
+              {(() => {
+                const activeDrivers = drivers.filter(d => d.status !== 'offline')
+                if (activeDrivers.length === 0) return null
+                const topDrivers = activeDrivers
+                  .filter(d => ((d as any).deliveries_today ?? 0) > 0)
+                  .sort((a, b) => ((b as any).deliveries_today ?? 0) - ((a as any).deliveries_today ?? 0))
+                  .slice(0, 3)
+                if (topDrivers.length === 0) return null
+                const medals = ['🥇', '🥈', '🥉']
+                const maxD = Math.max(...topDrivers.map(d => (d as any).deliveries_today ?? 1), 1)
+                return (
+                  <div className="mb-4 rounded-xl bg-white border border-stone-200 px-4 py-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                      <span className="text-[9px] font-black uppercase tracking-wider text-stone-400">Top Fahrer heute</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {topDrivers.map((d, i) => {
+                        const count = (d as any).deliveries_today ?? 0
+                        const pct = Math.round((count / maxD) * 100)
+                        return (
+                          <div key={d.id} className="flex items-center gap-2">
+                            <span className="w-5 text-center text-[11px]">{medals[i]}</span>
+                            <span className="flex-1 min-w-0 truncate text-xs font-medium text-char">{d.name}</span>
+                            <div className="flex shrink-0 items-center gap-1.5">
+                              <div className="h-1.5 w-16 rounded-full bg-stone-100 overflow-hidden">
+                                <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className="w-4 text-right text-[10px] font-black tabular-nums text-emerald-700">{count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
               {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[60vh]">
                   <div className="w-20 h-20 rounded-2xl bg-stone-100 flex items-center justify-center mb-5 border border-stone-200">

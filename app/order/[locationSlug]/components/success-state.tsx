@@ -63,6 +63,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [ratingHover, setRatingHover] = React.useState(0);
   const [ratingSubmitted, setRatingSubmitted] = React.useState(false);
   const [driverPos, setDriverPos] = React.useState<{ lat: number; lng: number; heading: number | null; seconds_stale: number } | null>(null);
+  const [stopsBefore, setStopsBefore] = React.useState<number | null>(null);
   const trackingMapRef = React.useRef<HTMLDivElement>(null);
   const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
 
@@ -176,6 +177,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           setDriverPos(d.driver);
           setDriverPosUpdatedAt(Date.now());
           setGpsStaleSeconds(0);
+        }
+        if (typeof d?.stops_before === 'number') {
+          setStopsBefore(d.stops_before);
         }
       } catch {}
     };
@@ -365,6 +369,36 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               </div>
             </div>
             <span className="text-xl shrink-0">🛵</span>
+          </div>
+        )}
+
+        {/* Stopps-vor-dir Badge: wie viele Lieferungen liegen vor der eigenen */}
+        {isDelivery && liveStatus === 'unterwegs' && stopsBefore != null && stopsBefore > 0 && (
+          <div className="mt-3 flex items-center justify-center gap-2 rounded-2xl bg-white/5 px-4 py-2.5 ring-1 ring-white/10 w-full">
+            <span className="text-lg">{stopsBefore === 1 ? '1️⃣' : stopsBefore === 2 ? '2️⃣' : '🔢'}</span>
+            <div className="text-left">
+              <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-matcha-300">
+                {stopsBefore === 1
+                  ? 'Eine Lieferung vor dir'
+                  : `${stopsBefore} Lieferungen vor dir`}
+              </div>
+              <div className="text-[11px] text-matcha-400">
+                Fahrer kommt danach zu dir
+              </div>
+            </div>
+          </div>
+        )}
+        {isDelivery && liveStatus === 'unterwegs' && stopsBefore === 0 && (
+          <div className="mt-3 flex items-center justify-center gap-2 rounded-2xl bg-accent/10 px-4 py-2.5 ring-1 ring-accent/30 w-full">
+            <span className="text-lg">🎯</span>
+            <div className="text-left">
+              <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">
+                Du bist der nächste Stopp!
+              </div>
+              <div className="text-[11px] text-matcha-300">
+                Fahrer ist direkt auf dem Weg zu dir
+              </div>
+            </div>
           </div>
         )}
 

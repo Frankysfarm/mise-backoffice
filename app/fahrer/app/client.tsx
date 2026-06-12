@@ -899,6 +899,9 @@ export function FahrerApp({
         {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
         {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
 
+        {/* Tempo-Karte: rollendes Liefertempo der letzten 2 Stunden */}
+        {!activeBatch && isOnline && <FahrerPaceCard driverId={driver.id} />}
+
         {/* Heutige Stopps-Verlauf — zeitlicher Log der abgeschlossenen Lieferungen */}
         {!activeBatch && <LetzteStoppsLog driverId={driver.id} />}
 
@@ -1197,6 +1200,98 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
           })()}
         </>
       )}
+    </section>
+  );
+}
+
+/* ---------- FahrerPaceCard ---------- */
+
+function FahrerPaceCard({ driverId }: { driverId: string }) {
+  const supabase = createClient();
+  type SlotData = { h: number; count: number };
+  const [slots, setSlots] = useState<SlotData[]>([]);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5 * 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const since = new Date(Date.now() - 2 * 60 * 60_000).toISOString();
+    (async () => {
+      const { data: legacyBatches } = await supabase
+        .from('delivery_batches')
+        .select('id')
+        .eq('fahrer_id', driverId)
+        .gte('created_at', since);
+
+      if (!legacyBatches?.length) return;
+
+      const { data: stops } = await supabase
+        .from('delivery_batch_stops')
+        .select('geliefert_am')
+        .in('batch_id', (legacyBatches as { id: string }[]).map((b) => b.id))
+        .not('geliefert_am', 'is', null)
+        .gte('geliefert_am', since) as { data: { geliefert_am: string }[] | null };
+
+      if (!stops?.length) return;
+
+      const buckets: Record<number, number> = {};
+      for (const s of stops) {
+        const h = new Date(s.geliefert_am).getHours();
+        buckets[h] = (buckets[h] ?? 0) + 1;
+      }
+      const nowH = new Date().getHours();
+      const result: SlotData[] = [];
+      for (let i = 1; i >= 0; i--) {
+        const h = (nowH - i + 24) % 24;
+        result.push({ h, count: buckets[h] ?? 0 });
+      }
+      setSlots(result);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  if (slots.length === 0 || slots.every((s) => s.count === 0)) return null;
+
+  const total = slots.reduce((s, x) => s + x.count, 0);
+  const rate = Math.round(total / 2 * 10) / 10; // deliveries/hour over 2h window
+  const max = Math.max(...slots.map((s) => s.count), 1);
+
+  const rateColor =
+    rate >= 4 ? 'text-accent' : rate >= 2 ? 'text-amber-300' : 'text-matcha-400';
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <TrendingUp className="h-3.5 w-3.5 text-accent" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">
+          Liefertempo (2h)
+        </span>
+        <span className={cn('ml-auto font-mono text-lg font-black tabular-nums', rateColor)}>
+          {rate}/h
+        </span>
+      </div>
+      <div className="flex items-end gap-1.5">
+        {slots.map(({ h, count }) => {
+          const barPct = Math.max(8, Math.round((count / max) * 100));
+          const isNow = h === new Date().getHours();
+          return (
+            <div key={h} className="flex flex-1 flex-col items-center gap-0.5">
+              <span className="text-[8px] font-bold tabular-nums text-matcha-400">{count}</span>
+              <div
+                className={cn(
+                  'w-full rounded-t-sm transition-all',
+                  isNow ? 'bg-accent' : 'bg-matcha-600',
+                )}
+                style={{ height: `${barPct * 0.4}px` }}
+              />
+              <span className="text-[8px] tabular-nums text-matcha-500">{h}h</span>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
