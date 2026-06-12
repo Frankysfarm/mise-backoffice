@@ -1051,6 +1051,7 @@ export function FahrerApp({
         <SchichtAbschlussModal
           snapshot={shiftSnapshot}
           rankData={rankData}
+          driverId={driver.id}
           onConfirm={goOffline}
           onCancel={() => setShowShiftEnd(false)}
         />
@@ -2126,14 +2127,46 @@ function SchichtBuchung({ locationId }: { locationId: string }) {
 function SchichtAbschlussModal({
   snapshot,
   rankData,
+  driverId,
   onConfirm,
   onCancel,
 }: {
   snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number };
   rankData: { rank: number; total: number } | null;
+  driverId: string;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const supabase = createClient();
+  type TourDetail = { id: string; stops: number; distKm: number | null; startzeit: string | null; durationMin: number | null };
+  const [tourDetails, setTourDetails] = useState<TourDetail[]>([]);
+  const [showTours, setShowTours] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km, startzeit, stops:delivery_batch_stops(id, geliefert_am)')
+        .eq('fahrer_id', driverId)
+        .gte('created_at', today.toISOString())
+        .order('startzeit', { ascending: true });
+      if (!batches) return;
+      const details: TourDetail[] = (batches as any[]).map((b: any) => {
+        const stops = (b.stops as any[]) ?? [];
+        const delivered = stops.filter((s: any) => s.geliefert_am);
+        let durationMin: number | null = null;
+        if (b.startzeit && delivered.length > 0) {
+          const last = delivered.reduce((latest: any, s: any) => (!latest || s.geliefert_am > latest.geliefert_am ? s : latest), null);
+          if (last) durationMin = Math.round((new Date(last.geliefert_am).getTime() - new Date(b.startzeit).getTime()) / 60_000);
+        }
+        return { id: b.id, stops: delivered.length, distKm: b.total_distance_km, startzeit: b.startzeit, durationMin };
+      });
+      setTourDetails(details.filter(d => d.stops > 0));
+    }
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
   const effScore = snapshot.onlineMin > 0
     ? Math.min(100, Math.round((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60 * 20))
     : 0;
@@ -2229,6 +2262,40 @@ function SchichtAbschlussModal({
               <div className="text-[10px] text-matcha-400">von {rankData.total} Fahrern</div>
               <div className="text-[10px] text-matcha-300 mt-0.5">diese Woche</div>
             </div>
+          </div>
+        )}
+
+        {/* Per-Tour Breakdown */}
+        {tourDetails.length > 0 && (
+          <div className="mb-4">
+            <button
+              onClick={() => setShowTours(v => !v)}
+              className="w-full flex items-center justify-between rounded-2xl bg-white/5 border border-white/10 px-4 py-2.5 text-[11px] font-bold text-matcha-300 active:bg-white/10 transition"
+            >
+              <span>Tour-Details ({tourDetails.length} Touren)</span>
+              <span>{showTours ? '▲' : '▼'}</span>
+            </button>
+            {showTours && (
+              <div className="mt-1.5 space-y-1.5">
+                {tourDetails.map((t, i) => (
+                  <div key={t.id} className="rounded-xl bg-white/5 border border-white/10 px-3 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-matcha-400">Tour {i + 1}</span>
+                      {t.startzeit && (
+                        <span className="text-[10px] text-matcha-500">
+                          {new Date(t.startzeit).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] text-right">
+                      <span className="text-accent font-bold">{t.stops} Stopps</span>
+                      {t.distKm != null && <span className="text-matcha-300">{t.distKm.toFixed(1)} km</span>}
+                      {t.durationMin != null && <span className="text-matcha-400">{t.durationMin}m</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
