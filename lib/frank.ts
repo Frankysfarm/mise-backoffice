@@ -73,6 +73,7 @@ function sb(): SupabaseClient {
 
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
+const MAX_ACTIVE_STOPS = 5; // max gleichzeitige Liefer-Stopps pro Fahrer -> danach wartet die Order
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
@@ -180,14 +181,21 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     await logDecision('hold', null, [o.id], 'Kein Fahrer online');
     return 'held';
   }
+  // CAP: Fahrer mit voller Tour (>= MAX_ACTIVE_STOPS Dropoffs) ausschliessen -> Order wartet auf freien Slot
+  const counts = await Promise.all(drivers.map(async (d) => ({ d, stops: await driverActiveStopCount(d.id) })));
+  const available = counts.filter((x) => x.stops < MAX_ACTIVE_STOPS).map((x) => x.d);
+  if (available.length === 0) {
+    await logDecision('hold', null, [o.id], `Alle Fahrer voll (>= ${MAX_ACTIVE_STOPS} Stopps) - Order wartet auf freien Slot`);
+    return 'held';
+  }
   // Radius nur als BEVORZUGUNG: wer im Radius ist zuerst; wenn keiner im Radius
   // (z.B. Fahrer schon unterwegs), trotzdem allen online-Fahrern anbieten — NICHT halten.
-  const inRadius = drivers.filter((d) => {
+  const inRadius = available.filter((d) => {
     if (d.last_lat == null || d.last_lng == null) return true;
     if (loc.lat == null || loc.lng == null) return true;
     return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat, lng: loc.lng }) <= d.max_radius_km;
   });
-  const pool = inRadius.length > 0 ? inRadius : drivers;
+  const pool = inRadius.length > 0 ? inRadius : available;
   const best = pickBest(pool, loc);
   const batchId = await createBundle(best.id, o, loc);
   await logDecision('assign', best.id, [o.id], 'Einzeln angeboten (simpler Dispatch)');
@@ -198,6 +206,21 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     : 0;
   void enqueueBatchPush({ driverId: best.id, batchId, orderCount: 1, restaurantName, distanceKm, outcome: 'dispatched' }).catch(() => {});
   return 'assigned';
+}
+
+// Zaehlt aktive Liefer-Stopps (Dropoffs) eines Fahrers ueber alle offenen Touren -> fuer den Cap
+async function driverActiveStopCount(driverId: string): Promise<number> {
+  const c = sb();
+  const { data } = await c
+    .from('mise_delivery_batches')
+    .select('id, stops:mise_delivery_batch_stops(type)')
+    .eq('driver_id', driverId)
+    .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress']);
+  let n = 0;
+  for (const b of (data ?? []) as any[]) {
+    n += ((b.stops ?? []) as any[]).filter((st) => st.type === 'dropoff').length;
+  }
+  return n;
 }
 
 async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
