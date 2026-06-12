@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady, createKitchenTiming } from './actions';
+import { KitchenSmartCountdownGrid } from './countdown-grid';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -466,6 +467,9 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
+
+      {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
+      <KitchenSmartCountdownGrid orders={filtered} timings={timings} />
 
       {/* 30-Minuten Fertigstellungs-Zeitleiste: alle aktiven Orders auf einem Zeitstrahl */}
       {filtered.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (

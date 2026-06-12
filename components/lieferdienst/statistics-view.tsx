@@ -696,6 +696,55 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Qualitäts-Ampel: SLA · ETA-Genauigkeit · Dispatch-Score */}
+      {(slaData || etaAccuracy || deliveryStats) && (() => {
+        const slaScore = slaData ? Math.round(slaData.summary.onTimePct) : null;
+        const etaScore = etaAccuracy ? Math.round(etaAccuracy.overall.onTimeRate * 100) : null;
+        const dispScore = deliveryStats?.scoring?.avg_score ?? null;
+        const metrics = [
+          { key: 'SLA Pünktlichkeit', value: slaScore, unit: '%', good: 90, ok: 70 },
+          { key: 'ETA-Genauigkeit', value: etaScore, unit: '%', good: 85, ok: 65 },
+          { key: 'Dispatch-Score', value: dispScore, unit: 'Pkt', good: 80, ok: 60 },
+        ].filter(m => m.value !== null);
+        if (metrics.length === 0) return null;
+        const overall = metrics.length > 0
+          ? metrics.every(m => m.value! >= m.good) ? 'green'
+          : metrics.some(m => m.value! < m.ok) ? 'red' : 'amber'
+          : 'amber';
+        return (
+          <div className={`rounded-xl border-2 px-4 py-3 flex flex-wrap items-center gap-4 ${
+            overall === 'green' ? 'border-emerald-300 bg-emerald-50' :
+            overall === 'red' ? 'border-red-300 bg-red-50' :
+            'border-amber-300 bg-amber-50'
+          }`}>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className={`h-3.5 w-3.5 rounded-full ${
+                overall === 'green' ? 'bg-emerald-500' :
+                overall === 'red' ? 'bg-red-500 animate-pulse' : 'bg-amber-500'
+              }`} />
+              <span className={`text-[11px] font-black uppercase tracking-wider ${
+                overall === 'green' ? 'text-emerald-700' :
+                overall === 'red' ? 'text-red-700' : 'text-amber-700'
+              }`}>
+                {overall === 'green' ? 'Top-Qualität' : overall === 'red' ? 'Handlungsbedarf' : 'Verbesserungspotenzial'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-3 flex-1">
+              {metrics.map(m => {
+                const color = m.value! >= m.good ? 'text-emerald-700' : m.value! >= m.ok ? 'text-amber-700' : 'text-red-700';
+                const bg = m.value! >= m.good ? 'bg-emerald-100' : m.value! >= m.ok ? 'bg-amber-100' : 'bg-red-100';
+                return (
+                  <div key={m.key} className={`flex items-center gap-1.5 rounded-lg ${bg} px-2.5 py-1`}>
+                    <span className={`font-black text-sm tabular-nums ${color}`}>{m.value}{m.unit}</span>
+                    <span className="text-[10px] text-stone-500">{m.key}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Schicht-Highlights — kompakte KPI-Leiste */}
       {(stats.totalOrders > 0 || stats.revenue > 0) && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

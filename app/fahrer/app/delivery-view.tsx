@@ -688,6 +688,40 @@ export function DeliveryView({
                 : `Online ✓`}
             </span>
           </div>
+          {/* ETA-Countdown für diesen Stopp */}
+          {nextStop.order.eta_earliest && (() => {
+            const etaMs = new Date(nextStop.order.eta_earliest).getTime();
+            const secsLeft = Math.floor((etaMs - Date.now()) / 1000);
+            const isOverdue = secsLeft < 0;
+            const minsLeft = Math.abs(Math.floor(secsLeft / 60));
+            const secsPart = Math.abs(secsLeft % 60);
+            const etaTime = new Date(nextStop.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const etaLatestTime = nextStop.order.eta_latest
+              ? new Date(nextStop.order.eta_latest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : null;
+            return (
+              <div className={cn(
+                'mb-2 flex items-center gap-2 rounded-xl px-3 py-1.5 text-[11px] font-bold',
+                isOverdue
+                  ? 'bg-red-500/25 border border-red-400/50 text-red-300 animate-pulse'
+                  : secsLeft < 120
+                  ? 'bg-orange-500/20 border border-orange-400/40 text-orange-300'
+                  : secsLeft < 300
+                  ? 'bg-amber-500/15 border border-amber-400/30 text-amber-300'
+                  : 'bg-white/8 border border-white/15 text-matcha-300',
+              )}>
+                <span className="text-base shrink-0">{isOverdue ? '⚠️' : secsLeft < 120 ? '🔔' : '🕐'}</span>
+                <span className="flex-1">
+                  {isOverdue
+                    ? `${minsLeft}:${String(secsPart).padStart(2, '0')} überfällig`
+                    : `${minsLeft}:${String(secsPart).padStart(2, '0')} bis ETA`}
+                </span>
+                <span className="font-mono tabular-nums shrink-0 opacity-80">
+                  {etaLatestTime ? `${etaTime}–${etaLatestTime}` : etaTime}
+                </span>
+              </div>
+            );
+          })()}
           <div className="font-display text-xl font-black leading-tight">{nextStop.order.kunde_name}</div>
           <div className="mt-0.5 text-sm text-matcha-200 leading-tight">
             {nextStop.order.kunde_adresse}

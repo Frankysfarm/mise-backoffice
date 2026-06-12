@@ -56,6 +56,7 @@ const DispatchDriverMap = dynamic(
   () => import('./driver-map').then((m) => m.DispatchDriverMap),
   { ssr: false },
 );
+import { TourSequenzPanel } from './tour-sequenz';
 
 type Driver = {
   employee_id: string;
@@ -912,6 +913,9 @@ export function DispatchBoard({
 
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
+
+      {/* Tour-Sequenz: Detaillierte Stopp-für-Stopp-Ansicht aller aktiven Touren */}
+      <TourSequenzPanel batches={batches} />
 
       {/* Tour-Gantt: alle aktiven Touren auf 90-Min-Zeitstrahl mit Jetzt-Linie */}
       {batches.length > 0 && <DispatchTourGantt batches={batches} drivers={drivers} />}
