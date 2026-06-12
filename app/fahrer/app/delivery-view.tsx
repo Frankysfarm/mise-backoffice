@@ -727,6 +727,29 @@ export function DeliveryView({
             {nextStop.order.kunde_adresse}
             {nextStop.order.kunde_plz && `, ${nextStop.order.kunde_plz}`}
           </div>
+          {/* GPS-Speed ETA: Schätzt Ankunftszeit basierend auf aktueller Geschwindigkeit */}
+          {gpsSpeed != null && gpsSpeed > 2 && driverDistToNextM != null && driverDistToNextM > 0 && (() => {
+            const speedMs = gpsSpeed / 3.6;
+            const etaSec = Math.round(driverDistToNextM / speedMs);
+            const etaMin = Math.ceil(etaSec / 60);
+            const distStr = driverDistToNextM >= 1000
+              ? `${(driverDistToNextM / 1000).toFixed(1)} km`
+              : `${driverDistToNextM} m`;
+            return (
+              <div className="mt-1.5 flex items-center gap-2 rounded-xl bg-blue-500/15 border border-blue-400/30 px-3 py-1.5">
+                <span className="text-base shrink-0">🚀</span>
+                <div className="flex-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-300">GPS-ETA</span>
+                  <span className="ml-2 text-[11px] font-bold text-blue-200 tabular-nums">
+                    {etaMin === 1 ? '~1 Min' : `~${etaMin} Min`}
+                  </span>
+                </div>
+                <span className="text-[9px] text-blue-400 tabular-nums shrink-0">
+                  {distStr} · {gpsSpeed} km/h
+                </span>
+              </div>
+            );
+          })()}
           {nextStop.order.kunde_notiz && (
             <div className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-amber-500/15 border border-amber-400/30 px-2 py-1.5">
               <span className="text-amber-300 text-[10px] font-black uppercase tracking-wider shrink-0 mt-0.5">Notiz:</span>
