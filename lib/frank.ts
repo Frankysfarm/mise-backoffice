@@ -23,6 +23,7 @@
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { directions, geocode, haversineKm, type RouteResult } from './google-maps';
+import { enqueueBatchPush } from './delivery/push-notify';
 
 interface DriverRow {
   id: string;
@@ -188,8 +189,14 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   });
   const pool = inRadius.length > 0 ? inRadius : drivers;
   const best = pickBest(pool, loc);
-  await createBundle(best.id, o, loc);
+  const batchId = await createBundle(best.id, o, loc);
   await logDecision('assign', best.id, [o.id], 'Einzeln angeboten (simpler Dispatch)');
+  // Push an den Fahrer queuen (ging bei der Frank-Vereinfachung verloren -> kein Push seit heute frueh)
+  const restaurantName = [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name;
+  const distanceKm = (best.last_lat != null && best.last_lng != null && loc.lat != null && loc.lng != null)
+    ? haversineKm({ lat: best.last_lat, lng: best.last_lng }, { lat: loc.lat, lng: loc.lng })
+    : 0;
+  void enqueueBatchPush({ driverId: best.id, batchId, orderCount: 1, restaurantName, distanceKm, outcome: 'dispatched' }).catch(() => {});
   return 'assigned';
 }
 
