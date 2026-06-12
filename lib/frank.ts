@@ -183,7 +183,6 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     await logDecision('hold', null, [o.id], 'Kein Fahrer online');
     return 'held';
   }
-  // CAP: Fahrer mit voller Tour (>= MAX_ACTIVE_STOPS Dropoffs) ausschliessen -> Order wartet auf freien Slot
   // Dynamischer CAP: Basis CAP_BASE Stopps/Fahrer; bis CAP_CLUSTER WENN die neue Order nah an der Tour liegt.
   const eligible: DriverRow[] = [];
   for (const d of drivers) {
