@@ -146,7 +146,8 @@ const MODULE_DEFS: SidebarModule[] = [
     icon: 'Bike',
     items: [
       { group: 'Loslegen', href: '/delivery',              icon: 'LayoutDashboard', label: 'Übersicht' },
-      { group: 'Loslegen', href: '/delivery/ops-center',  icon: 'Monitor',         label: 'Ops-Cockpit (Live-KPIs)' },
+      { group: 'Loslegen', href: '/delivery/ops-center',        icon: 'Monitor',   label: 'Ops-Cockpit (Live-KPIs)' },
+      { group: 'Loslegen', href: '/delivery/franchise-compare', icon: 'BarChart2', label: 'Franchise-Vergleich' },
       { group: 'Loslegen', href: '/dispatch',              icon: 'MapPin',          label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

@@ -61,16 +61,24 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [shared, setShared] = React.useState(false);
   const [rating, setRating] = React.useState(0);
   const [ratingHover, setRatingHover] = React.useState(0);
+  const [ratingPending, setRatingPending] = React.useState(false);
+  const [ratingComment, setRatingComment] = React.useState('');
+  const [ratingSubmitting, setRatingSubmitting] = React.useState(false);
   const [ratingSubmitted, setRatingSubmitted] = React.useState(false);
   const [driverPos, setDriverPos] = React.useState<{ lat: number; lng: number; heading: number | null; seconds_stale: number } | null>(null);
   const [stopsBefore, setStopsBefore] = React.useState<number | null>(null);
   const trackingMapRef = React.useRef<HTMLDivElement>(null);
   const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
 
-  async function submitRating(stars: number) {
-    if (!orderId || ratingSubmitted) return;
+  function selectRatingStar(stars: number) {
+    if (ratingSubmitted || ratingSubmitting) return;
     setRating(stars);
-    setRatingSubmitted(true);
+    setRatingPending(true);
+  }
+
+  async function submitRating() {
+    if (!orderId || ratingSubmitted || ratingSubmitting || !rating) return;
+    setRatingSubmitting(true);
     try {
       const tokenRes = await fetch(`/api/delivery/orders/${orderId}/rate`);
       if (tokenRes.ok) {
@@ -79,11 +87,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           await fetch(`/api/delivery/orders/${orderId}/rate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, rating: stars }),
+            body: JSON.stringify({
+              token,
+              rating,
+              comment: ratingComment.trim() || undefined,
+            }),
           });
         }
       }
     } catch {}
+    setRatingSubmitting(false);
+    setRatingSubmitted(true);
+    setRatingPending(false);
   }
 
   async function shareTracking() {
@@ -579,18 +594,19 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                     <span key={s} className={cn('text-2xl', s <= rating ? 'text-gold' : 'text-matcha-600')}>★</span>
                   ))}
                 </div>
-                <div className="text-[11px] text-matcha-300">Danke für deine Bewertung!</div>
+                <div className="text-[11px] text-matcha-300">Danke für deine Bewertung! 🙏</div>
               </div>
             ) : orderId ? (
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-400 mb-2 text-center">
                   Wie war es?
                 </div>
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-2 mb-3">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <button
                       key={s}
-                      onClick={() => submitRating(s)}
+                      type="button"
+                      onClick={() => selectRatingStar(s)}
                       onMouseEnter={() => setRatingHover(s)}
                       onMouseLeave={() => setRatingHover(0)}
                       className="text-3xl transition-transform hover:scale-125 active:scale-110"
@@ -600,6 +616,26 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                     </button>
                   ))}
                 </div>
+                {ratingPending && (
+                  <div className="mt-1">
+                    <textarea
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                      placeholder="Optionaler Kommentar… (z.B. schnelle Lieferung, freundlicher Fahrer)"
+                      rows={2}
+                      maxLength={300}
+                      className="w-full rounded-xl bg-matcha-800/60 border border-white/10 text-matcha-100 placeholder-matcha-500 text-xs px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-accent/40 mb-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={submitRating}
+                      disabled={ratingSubmitting}
+                      className="w-full rounded-xl bg-accent text-matcha-900 font-bold text-sm py-2 transition hover:brightness-110 disabled:opacity-60"
+                    >
+                      {ratingSubmitting ? 'Wird gesendet…' : 'Bewertung abschicken'}
+                    </button>
+                  </div>
+                )}
               </div>
             ) : null}
           </div>
