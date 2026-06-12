@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle, Camera, ImageIcon } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
 import { NaviWidget } from './navi-widget';
+import { TourCompletionScreen } from './tour-completion';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
 const FAILED_REASON_LABELS: Record<FailedReason, string> = {
@@ -64,6 +65,7 @@ export function DeliveryView({
 }) {
   const supabase = createClient();
   const [stops, setStops] = useState(initialStops);
+  const [showCompletion, setShowCompletion] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const [proximityTriggered, setProximityTriggered] = useState<Set<string>>(new Set());
@@ -498,6 +500,23 @@ export function DeliveryView({
     const kmBonus = s.distanz_zum_vorgaenger_m != null ? (s.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
     return sum + 1.50 + kmBonus;
   }, 0);
+
+  /* Tour-Abschluss-Feier: wird nach TourCloseButton angezeigt */
+  if (showCompletion) {
+    const totalBetrag = stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+    const totalDistKm = stops.reduce((sum, s) => sum + ((s.distanz_zum_vorgaenger_m ?? 0) / 1000), 0);
+    return (
+      <TourCompletionScreen
+        stats={{
+          stopsCompleted: stops.length,
+          totalBetrag,
+          elapsedMin: Math.floor(elapsed / 60),
+          distanceKm: totalDistKm > 0 ? totalDistKm : null,
+        }}
+        onContinue={onAllDone}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-matcha-900">
@@ -1853,7 +1872,7 @@ export function DeliveryView({
                 <div className="text-sm text-matcha-200 mt-1">Zurück zum Restaurant</div>
               </div>
               {/* Explicit tour close button — prevents accidental early close, updates batch status */}
-              <TourCloseButton batchId={batchId} onDone={onAllDone} />
+              <TourCloseButton batchId={batchId} onDone={() => setShowCompletion(true)} />
 
               {/* Navigation zurück zum Restaurant */}
               {restaurantLoc && (() => {

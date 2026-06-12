@@ -57,6 +57,7 @@ const DispatchDriverMap = dynamic(
   { ssr: false },
 );
 import { TourSequenzPanel } from './tour-sequenz';
+import { ScoreRadarChart } from './score-radar';
 
 type Driver = {
   employee_id: string;
@@ -1293,6 +1294,11 @@ export function DispatchBoard({
                   )}
                 </div>
               </div>
+              {/* Radar-Chart — visueller Überblick aller 10 Faktoren */}
+              <div className="flex justify-center py-1">
+                <ScoreRadarChart score={scorePopover.score} />
+              </div>
+
               {/* 10-factor breakdown */}
               <div className="space-y-1.5">
                 {([
