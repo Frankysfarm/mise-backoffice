@@ -1,7 +1,57 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–90 vollständig abgeschlossen. CEO Review #67 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–90 vollständig abgeschlossen. CEO Review #68 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #68 — 2026-06-12
+
+### Geprüfte Commits (3 neue Commits — Live-UX-Verfeinerungen)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `d1246f4` | feat: storefront LiveEtaBar sekundengenauer Countdown (1s-Tick, absoluter HH:MM-Chip) | ✅ |
+| `230c685` | feat: fahrer-app GPS-Abstand (Haversine) + Pace-Puffer-Chip in Upcoming-Stops-Strip | ✅ |
+| `d61c56b` | feat: dispatch Pünktlichkeits-Prognose per Tour + Ø Tempo-Bewertung | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully ✅
+
+### Befund (3 Frontend-Commits — Live-UX-Verfeinerungen)
+
+**storefront.tsx — LiveEtaBar (1s-Tick)**:
+- `setInterval(1000)` + Cleanup `clearInterval(tickIv)` korrekt implementiert ✅
+- `nowMs` State wird für absoluten HH:MM-HH:MM Ankunftsbereich + MM:SS Countdown verwendet ✅
+- Bestehender 60s-Polling-Tick für Küchenlast unverändert beibehalten ✅
+
+**delivery-view.tsx — GPS-Abstand + Pace-Puffer**:
+- Haversine-Formel inline (korrekte Mathematik: φ, Δφ, Δλ, Erduadius 6371000m) ✅
+- Zeigt Luftlinie Fahrer → Stopp (bevorzugt vor Stopp-zu-Stopp-Distanz) ✅
+- `paceBufferSec` korrekt im IIFE-Scope: `etaMs - projMs` → Sek. Puffer ✅
+- Farbkodierung: grün ≥120s, amber ≥0s, rot <0s (pulsiert) ✅
+- Kein Memory Leak — keine eigenen Intervals, nutzt Parent-Tick ✅
+
+**dispatch/client.tsx — Pünktlichkeits-Prognose**:
+- `avgSecPerStop = elapsedSec / done` — korrekte laufende Durschnitt-Berechnung ✅
+- `projMs = now + avgSecPerStop × (idx+1) × 1000` — Stop-Sequenz korrekt berücksichtigt ✅
+- Nur wenn `done > 0 && batch.startzeit` — kein Division-durch-Null Bug ✅
+- Prognose wird nur gerendert wenn Daten vorhanden: `paceRatio === null && onTimeCount === 0 && lateCount === 0 → return null` ✅
+
+### Integrations-Check
+- Storefront: Sekundengenauer Countdown synchron mit Kitchen ETA ✅
+- Fahrer-App: GPS-Abstand + Pace-Puffer für bessere Routenplanung ✅
+- Dispatch: Echtzeit-Pünktlichkeitsprognose pro Tour ✅
+
+### Bugs gefunden und gefixt
+- Keine neuen Bugs. 0 TypeScript-Fehler. Build sauber.
+
+### Status nach Review #68
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully ✅
+- 3 Live-UX Commits: DONE ✅
+- Bugs gefixed: 0
+
+---
 
 ## CEO Review #67 — 2026-06-12
 
