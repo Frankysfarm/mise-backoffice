@@ -839,6 +839,16 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
 
         {/* Footer CTA */}
         <div className="border-t border-black/5 bg-white/80 px-5 py-4 backdrop-blur">
+          {/* Kapazitäts-Hinweis vor dem letzten Schritt */}
+          {isLastStep && orderType === 'lieferung' && liveEta && liveEta.load === 'busy' && (
+            <div className="mb-3 flex items-start gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-xs font-medium text-orange-800">
+              <span className="shrink-0">⏳</span>
+              <span>
+                Gerade viel los — aktuell ca. <strong>{liveEta.eta_min} Min</strong> Lieferzeit.
+                {(liveEta as any).active_orders ? ` ${(liveEta as any).active_orders} aktive Bestellungen.` : ''}
+              </span>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleNext}
