@@ -484,6 +484,14 @@ export async function rerouteBundle(batchId: string): Promise<void> {
   }
 
   if (route) {
+    // Google-optimierte Reihenfolge (TSP) auf die Stopps anwenden -> Fahrer faehrt nicht kreuz und quer
+    if (route.optimized_order && route.optimized_order.length === waypoints.length) {
+      const middle = ordered.slice(1, -1);
+      const finalOrder = [ordered[0], ...route.optimized_order.map((i) => middle[i]), ordered[ordered.length - 1]];
+      for (let i = 0; i < finalOrder.length; i++) {
+        await c.from('mise_delivery_batch_stops').update({ sequence: i + 1 }).eq('id', (finalOrder[i] as any).id);
+      }
+    }
     await c
       .from('mise_delivery_batches')
       .update({

@@ -481,6 +481,12 @@ export function FahrerApp({
     startTransition(async () => {
       const { error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
       if (error) return;
+      // Google-Maps-Route optimieren (beste Stopp-Reihenfolge)
+      try {
+        const { data } = await supabase.auth.getSession();
+        const tok = data.session?.access_token;
+        await fetch(`/api/driver/v1/batch/${batchId}/reroute`, { method: 'POST', headers: tok ? { authorization: `Bearer ${tok}` } : {} });
+      } catch { /* noop */ }
       void showRouteSheetAfterPickup(batchId);
       router.refresh();
     });
