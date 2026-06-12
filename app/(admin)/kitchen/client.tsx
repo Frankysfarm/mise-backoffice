@@ -479,6 +479,11 @@ export function KitchenBoard({
         <KitchenHandoffMatrix batches={batches} drivers={drivers} stops={stops} orders={filtered} timings={timings} />
       )}
 
+      {/* Artikel-Priorität: welche Items jetzt kochen? Sortiert nach Deadline */}
+      {!bigDisplay && filtered.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
+        <KitchenItemPrioritySort orders={filtered} timings={timings} />
+      )}
+
       {/* Queue-Signal-Steuerung: Bestellfluss pausieren / ETA verlängern */}
       <QueueSignalControl locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
 
@@ -5794,6 +5799,118 @@ function KitchenUntrackedTimerRow({ orders, timings }: { orders: Order[]; timing
                 #{o.bestellnummer.replace(/^[A-Z]+-/, '')} {o.kunde_name.split(' ')[0]}
               </span>
               {isOver && <AlertCircle className="h-3 w-3 text-red-600 shrink-0" />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenItemPrioritySort (Phase 65) ------------------------------ */
+function KitchenItemPrioritySort({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const active = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (active.length === 0) return null;
+
+  const now = Date.now();
+
+  type ItemRow = {
+    name: string;
+    totalMenge: number;
+    station: PrepStation;
+    urgencyMs: number;
+    isOverdue: boolean;
+    isUrgent: boolean;
+  };
+
+  const map = new Map<string, ItemRow>();
+
+  for (const order of active) {
+    const timing = timings.find((t) => t.order_id === order.id);
+    const urgencyMs = timing?.ready_target
+      ? new Date(timing.ready_target).getTime()
+      : now + ((order.geschaetzte_zubereitung_min ?? 20) * 60_000);
+
+    for (const item of (order.items ?? [])) {
+      const key = item.name.toLowerCase().trim();
+      const existing = map.get(key);
+      if (existing) {
+        existing.totalMenge += item.menge;
+        if (urgencyMs < existing.urgencyMs) existing.urgencyMs = urgencyMs;
+      } else {
+        map.set(key, {
+          name: item.name,
+          totalMenge: item.menge,
+          station: classifyStation(item.name),
+          urgencyMs,
+          isOverdue: false,
+          isUrgent: false,
+        });
+      }
+    }
+  }
+
+  const rows = Array.from(map.values())
+    .map((r) => ({
+      ...r,
+      isOverdue: r.urgencyMs < now,
+      isUrgent: !r.isOverdue && r.urgencyMs < now + 6 * 60_000,
+    }))
+    .sort((a, b) => a.urgencyMs - b.urgencyMs)
+    .slice(0, 10);
+
+  if (rows.length === 0) return null;
+
+  const overdueCount = rows.filter((r) => r.isOverdue).length;
+  const urgentCount  = rows.filter((r) => r.isUrgent).length;
+
+  return (
+    <div className={cn(
+      'rounded-xl border px-4 py-3',
+      overdueCount > 0 ? 'border-red-200 bg-red-50/50' : 'border-matcha-200 bg-white',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <Zap className="h-3.5 w-3.5 shrink-0 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-matcha-800">
+          Artikel-Priorität
+        </span>
+        {overdueCount > 0 && (
+          <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-black text-red-700">
+            {overdueCount} überfällig
+          </span>
+        )}
+        {urgentCount > 0 && (
+          <span className="rounded-full bg-orange-100 px-1.5 py-0.5 text-[9px] font-black text-orange-700">
+            {urgentCount} dringend
+          </span>
+        )}
+        <span className="ml-auto text-[9px] text-matcha-400">
+          {active.length} Best. · {rows.length} Arten
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-y-1 sm:grid-cols-2">
+        {rows.map((r) => {
+          const minLeft = Math.round((r.urgencyMs - now) / 60_000);
+          const dot = STATION_META[r.station].dot;
+          return (
+            <div key={r.name} className="flex items-center gap-2 py-0.5">
+              <span className={cn('h-2 w-2 shrink-0 rounded-full', dot)} />
+              <span className="flex-1 truncate text-xs font-medium text-matcha-800">{r.name}</span>
+              <span className="shrink-0 text-[10px] font-black text-matcha-500">{r.totalMenge}×</span>
+              <span className={cn(
+                'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                r.isOverdue ? 'bg-red-100 text-red-700'    :
+                r.isUrgent  ? 'bg-orange-100 text-orange-700' :
+                              'bg-matcha-50 text-matcha-600',
+              )}>
+                {r.isOverdue ? `+${Math.abs(minLeft)}m` : minLeft <= 0 ? 'jetzt!' : `~${minLeft}m`}
+              </span>
             </div>
           );
         })}

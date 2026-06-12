@@ -539,8 +539,15 @@ export function FahrerApp({
                     />
                   </div>
                   {remainingMin !== null && (
-                    <div className="mt-1.5 text-[10px] text-matcha-400 tabular-nums">
-                      {remainingMin === 0 ? 'Tour abgeschlossen!' : `~${remainingMin} Min bis Tour-Ende`}
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] tabular-nums">
+                      <span className="text-matcha-400">
+                        {remainingMin === 0 ? 'Tour abgeschlossen!' : `~${remainingMin} Min bis Tour-Ende`}
+                      </span>
+                      {remainingMin > 0 && (
+                        <span className="font-bold text-matcha-300">
+                          Rückkehr ~{new Date(Date.now() + remainingMin * 60_000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

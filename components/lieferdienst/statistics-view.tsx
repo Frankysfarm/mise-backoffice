@@ -1243,6 +1243,11 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       </div>
 
+      {/* Spitzenstunden: Top-3 Stunden nach Bestellvolumen */}
+      {hourlyData.filter((d) => d.orders > 0).length >= 2 && (
+        <SpitzenStundenPanel hourlyData={hourlyData} />
+      )}
+
       {/* Delivery Performance */}
       {deliveredOrders.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
@@ -4801,6 +4806,60 @@ function CompliancePanel({ data }: { data: CompliancePanelData }) {
           Alle Fahrer sind konform ✓
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------ SpitzenStundenPanel (Phase 65) ------------------------------ */
+function SpitzenStundenPanel({ hourlyData }: { hourlyData: { hour: string; orders: number }[] }) {
+  const sorted = [...hourlyData]
+    .filter((d) => d.orders > 0)
+    .sort((a, b) => b.orders - a.orders);
+
+  if (sorted.length === 0) return null;
+
+  const top3 = sorted.slice(0, 3);
+  const maxOrders = top3[0].orders;
+  const totalOrders = hourlyData.reduce((s, d) => s + d.orders, 0);
+  const avgPerActiveHour = sorted.length > 0
+    ? Math.round(totalOrders / sorted.length)
+    : 0;
+
+  const rankEmoji = ['🥇', '🥈', '🥉'];
+
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="w-4 h-4 text-amber-500 shrink-0" />
+        <h3 className="text-sm font-bold text-char uppercase tracking-wider">Spitzenstunden</h3>
+        <span className="ml-auto text-[11px] text-steel">Ø {avgPerActiveHour} Best./Stunde</span>
+      </div>
+      <div className="space-y-2.5">
+        {top3.map((d, i) => {
+          const pct = maxOrders > 0 ? Math.round((d.orders / maxOrders) * 100) : 0;
+          const barColor = i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-amber-300' : 'bg-amber-200';
+          return (
+            <div key={d.hour} className="flex items-center gap-3">
+              <span className="text-base leading-none w-5 text-center shrink-0">{rankEmoji[i]}</span>
+              <span className="w-14 shrink-0 text-sm font-bold text-char tabular-nums">{d.hour}</span>
+              <div className="flex-1 h-3 rounded-full bg-stone-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${barColor}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <span className="shrink-0 text-sm font-black text-char tabular-nums w-8 text-right">
+                {d.orders}
+              </span>
+              {d.orders > avgPerActiveHour && (
+                <span className="shrink-0 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[9px] font-black">
+                  +{d.orders - avgPerActiveHour}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

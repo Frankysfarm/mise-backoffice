@@ -736,6 +736,9 @@ export function DispatchBoard({
         onlineDrivers={onlineDrivers.length}
       />
 
+      {/* Kapazitäts-Meter: Live-Auslastung der verfügbaren Fahrer */}
+      <DispatchCapacityMeter drivers={drivers} readyOrders={readyOrders} batches={batches} />
+
       {/* Live Delivery Health — SLA, ETA-Genauigkeit, Fahrer-Auslastung */}
       {deliveryHealth && (
         <LiveDeliveryHealthPanel health={deliveryHealth} />
@@ -7071,6 +7074,88 @@ function LiveDriverPulseStrip({ batches, drivers }: { batches: Batch[]; drivers:
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchCapacityMeter (Phase 65) ------------------------------ */
+function DispatchCapacityMeter({
+  drivers,
+  readyOrders,
+  batches,
+}: {
+  drivers: Driver[];
+  readyOrders: ReadyOrder[];
+  batches: Batch[];
+}) {
+  const onlineCount = drivers.filter((d) => d.ist_online).length;
+  const activeBatchCount = batches.filter((b) =>
+    ['assigned', 'pickup', 'at_restaurant', 'on_route', 'unterwegs', 'pending_acceptance'].includes(b.status ?? ''),
+  ).length;
+  const waitingCount = readyOrders.filter((o) => o.status === 'fertig').length;
+
+  if (onlineCount === 0 && readyOrders.length === 0) return null;
+
+  const utilization =
+    onlineCount > 0 ? Math.min(100, Math.round((activeBatchCount / onlineCount) * 100)) : 0;
+
+  const pressure: 'high' | 'medium' | 'low' =
+    waitingCount > onlineCount ? 'high' : waitingCount > 0 ? 'medium' : 'low';
+
+  const utilColor =
+    utilization >= 90 ? 'bg-red-500' :
+    utilization >= 60 ? 'bg-orange-400' : 'bg-matcha-500';
+
+  const pressureLabel =
+    pressure === 'high' ? 'Hoher Druck' :
+    pressure === 'medium' ? 'Normaler Betrieb' : 'Entspannt';
+
+  const pressureBadge =
+    pressure === 'high'   ? 'bg-red-100 text-red-700 border-red-200' :
+    pressure === 'medium' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                            'bg-matcha-50 text-matcha-700 border-matcha-200';
+
+  return (
+    <div className="rounded-xl border border-border bg-card px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Gauge className="h-3.5 w-3.5 shrink-0 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider">
+          Kapazitäts-Meter
+        </span>
+        <span className={cn('ml-auto rounded-full border px-2 py-0.5 text-[9px] font-black', pressureBadge)}>
+          {pressureLabel}
+        </span>
+      </div>
+
+      <div className="mb-2.5 grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-lg bg-matcha-50 py-1.5">
+          <div className="font-mono text-lg font-black text-matcha-700">{onlineCount}</div>
+          <div className="text-[9px] font-bold uppercase text-matcha-500">Online</div>
+        </div>
+        <div className="rounded-lg bg-blue-50 py-1.5">
+          <div className="font-mono text-lg font-black text-blue-700">{activeBatchCount}</div>
+          <div className="text-[9px] font-bold uppercase text-blue-500">Unterwegs</div>
+        </div>
+        <div className={cn('rounded-lg py-1.5', waitingCount > 0 ? 'bg-orange-50' : 'bg-stone-50')}>
+          <div className={cn('font-mono text-lg font-black', waitingCount > 0 ? 'text-orange-700' : 'text-stone-400')}>
+            {waitingCount}
+          </div>
+          <div className="text-[9px] font-bold uppercase text-stone-400">Warten</div>
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-1 flex items-center justify-between text-[9px]">
+          <span className="font-bold uppercase text-muted-foreground">Auslastung</span>
+          <span className="font-mono font-black">{utilization}%</span>
+        </div>
+        <div className="h-2.5 overflow-hidden rounded-full bg-muted">
+          <div
+            className={cn('h-full rounded-full transition-all duration-700', utilColor)}
+            style={{ width: `${utilization}%` }}
+          />
+        </div>
       </div>
     </div>
   );

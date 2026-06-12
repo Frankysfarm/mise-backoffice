@@ -298,13 +298,52 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {etaWindow && (() => {
           const fmt = (iso: string) => new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
           const windowMinutes = Math.round((new Date(etaWindow.latest).getTime() - new Date(etaWindow.earliest).getTime()) / 60_000);
+          const earliest = new Date(etaWindow.earliest).getTime();
+          const latest = new Date(etaWindow.latest).getTime();
+          const nowMs = Date.now();
+          // Position des aktuellen Zeitpunkts innerhalb des Fensters (0–100%)
+          const windowSpan = latest - earliest;
+          // Zeige das Fenster 10 Min früher und 10 Min später als Kontext
+          const displayStart = earliest - 10 * 60_000;
+          const displayEnd = latest + 10 * 60_000;
+          const displaySpan = displayEnd - displayStart;
+          const earliestPct = ((earliest - displayStart) / displaySpan) * 100;
+          const latestPct = ((latest - displayStart) / displaySpan) * 100;
+          const nowPct = Math.min(100, Math.max(0, ((nowMs - displayStart) / displaySpan) * 100));
           return (
-            <div className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 text-[11px]">
-              <span className="text-matcha-400 font-bold uppercase tracking-wider">{isDelivery ? 'Zeitfenster' : 'Abholung'}</span>
-              <span className="font-mono font-bold text-matcha-100">{fmt(etaWindow.earliest)}–{fmt(etaWindow.latest)}</span>
-              {windowMinutes <= 10 && (
-                <span className="rounded-full bg-matcha-500/30 text-matcha-300 px-1.5 py-0.5 text-[9px] font-bold">Präzise</span>
-              )}
+            <div className="mt-2 w-full rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 text-[11px]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-matcha-400 font-bold uppercase tracking-wider">
+                  {isDelivery ? 'Zeitfenster' : 'Abholung'}
+                </span>
+                <span className="font-mono font-bold text-matcha-100">
+                  {fmt(etaWindow.earliest)}–{fmt(etaWindow.latest)}
+                </span>
+                {windowMinutes <= 10 && (
+                  <span className="rounded-full bg-matcha-500/30 text-matcha-300 px-1.5 py-0.5 text-[9px] font-bold">Präzise</span>
+                )}
+              </div>
+              {/* Visueller ETA-Balken */}
+              <div className="relative h-2 rounded-full bg-white/10 overflow-visible">
+                {/* Fenster-Bereich (früheste–späteste Zeit) */}
+                <div
+                  className="absolute top-0 h-full rounded-full bg-accent/40"
+                  style={{ left: `${earliestPct}%`, width: `${latestPct - earliestPct}%` }}
+                />
+                {/* Aktueller Zeitpunkt — nur wenn noch nicht vorbei */}
+                {nowMs < latest && (
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-accent border-2 border-matcha-900 shadow"
+                    style={{ left: `calc(${nowPct}% - 6px)` }}
+                    title="Jetzt"
+                  />
+                )}
+              </div>
+              <div className="mt-1 flex justify-between text-[9px] text-matcha-400">
+                <span>{fmt(etaWindow.earliest)}</span>
+                <span className="text-matcha-500 italic">Zeitfenster: {windowSpan > 0 ? `${windowMinutes} Min` : 'exakt'}</span>
+                <span>{fmt(etaWindow.latest)}</span>
+              </div>
             </div>
           );
         })()}
