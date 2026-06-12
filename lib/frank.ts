@@ -73,7 +73,9 @@ function sb(): SupabaseClient {
 
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
-const MAX_ACTIVE_STOPS = 2; // Industrie-Standard (Uber/Wolt) fuer Frische bei kleinem Restaurant; spaeter Owner-konfigurierbar
+const CAP_BASE = 4;                 // Basis: max aktive Liefer-Stopps pro Fahrer (Pasta bleibt warm - Founder Tahar)
+const CAP_CLUSTER = 5;              // bis 5 erlaubt, WENN die neue Order nah an der bestehenden Tour liegt
+const CAP_CLUSTER_RADIUS_KM = 2.0;  // "nah beieinander" = neue Lieferadresse <= 2 km an einem bestehenden Stopp
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
@@ -182,12 +184,22 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     return 'held';
   }
   // CAP: Fahrer mit voller Tour (>= MAX_ACTIVE_STOPS Dropoffs) ausschliessen -> Order wartet auf freien Slot
-  const counts = await Promise.all(drivers.map(async (d) => ({ d, stops: await driverActiveStopCount(d.id) })));
-  const available = counts.filter((x) => x.stops < MAX_ACTIVE_STOPS).map((x) => x.d);
-  if (available.length === 0) {
-    await logDecision('hold', null, [o.id], `Alle Fahrer voll (>= ${MAX_ACTIVE_STOPS} Stopps) - Order wartet auf freien Slot`);
+  // Dynamischer CAP: Basis CAP_BASE Stopps/Fahrer; bis CAP_CLUSTER WENN die neue Order nah an der Tour liegt.
+  const eligible: DriverRow[] = [];
+  for (const d of drivers) {
+    const dropoffs = await driverActiveDropoffs(d.id);
+    const n = dropoffs.length;
+    if (n < CAP_BASE) { eligible.push(d); continue; }
+    if (n < CAP_CLUSTER && o.kunde_lat != null && o.kunde_lng != null) {
+      const nearCluster = dropoffs.some((st) => haversineKm(st, { lat: o.kunde_lat!, lng: o.kunde_lng! }) <= CAP_CLUSTER_RADIUS_KM);
+      if (nearCluster) eligible.push(d);
+    }
+  }
+  if (eligible.length === 0) {
+    await logDecision('hold', null, [o.id], `Alle Fahrer voll (Basis ${CAP_BASE}, Cluster bis ${CAP_CLUSTER}) - Order wartet auf freien Slot`);
     return 'held';
   }
+  const available = eligible;
   // Radius nur als BEVORZUGUNG: wer im Radius ist zuerst; wenn keiner im Radius
   // (z.B. Fahrer schon unterwegs), trotzdem allen online-Fahrern anbieten — NICHT halten.
   const inRadius = available.filter((d) => {
@@ -208,19 +220,21 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   return 'assigned';
 }
 
-// Zaehlt aktive Liefer-Stopps (Dropoffs) eines Fahrers ueber alle offenen Touren -> fuer den Cap
-async function driverActiveStopCount(driverId: string): Promise<number> {
+// Aktive Liefer-Stopps (Dropoff-Positionen) eines Fahrers ueber alle offenen Touren -> fuer den dynamischen Cap
+async function driverActiveDropoffs(driverId: string): Promise<Array<{ lat: number; lng: number }>> {
   const c = sb();
   const { data } = await c
     .from('mise_delivery_batches')
-    .select('id, stops:mise_delivery_batch_stops(type)')
+    .select('id, stops:mise_delivery_batch_stops(type, lat, lng)')
     .eq('driver_id', driverId)
     .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress']);
-  let n = 0;
+  const out: Array<{ lat: number; lng: number }> = [];
   for (const b of (data ?? []) as any[]) {
-    n += ((b.stops ?? []) as any[]).filter((st) => st.type === 'dropoff').length;
+    for (const st of ((b.stops ?? []) as any[])) {
+      if (st.type === 'dropoff' && st.lat != null && st.lng != null) out.push({ lat: st.lat, lng: st.lng });
+    }
   }
-  return n;
+  return out;
 }
 
 async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
