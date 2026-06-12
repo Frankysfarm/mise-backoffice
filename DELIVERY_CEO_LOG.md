@@ -1,7 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–92 vollständig abgeschlossen. CEO Review #69 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–94 vollständig abgeschlossen. CEO Review #70 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #70 — 2026-06-12
+
+### Geprüfte Commits (1 neuer Commit seit Review #69)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `8f5c6c5` | feat(delivery/frontend): Phase 94 — KitchenPrepSpeedometer, TopArtikelPanel, FahrerSchichtCountdown | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully, 187 Seiten ✅
+- Bugs gefunden: 0 ✅
+
+### Befund: KitchenPrepSpeedometer (kitchen/client.tsx)
+- Nutzt `orders`-Prop (real-time synchron, kein eigener API-Aufruf) ✅
+- Fenster: letzte 30 Min gefiltert via `fertig_am`, Hochrechnung ×2 → /h korrekt ✅
+- Tagesdurchschnitt: `doneToday.length / hoursElapsed`, `Math.max(1, ...)` verhindert Div/0 ✅
+- `maxBar = Math.max(ratePerHour, avgPerHour, 12)` — kein leerer Balken, immer skaliert ✅
+- Farbschwellen: grün ≥8/h, amber ≥4/h, rot <4/h — produktionslogisch korrekt ✅
+- Early-Return wenn `recentDone.length === 0 && doneToday.length === 0` ✅
+- 30s-Tick mit korrektem Cleanup ✅
+
+### Befund: TopArtikelPanel (statistics-view.tsx)
+- Supabase-Join `order_items` × `customer_orders!inner` — korrekter Inner-Join ✅
+- `.gte('order.bestellt_am', today.toISOString())` — nur heutige Bestellungen ✅
+- `.limit(2000)` — verhindert Memory-Overflow bei großen Restaurants ✅
+- Aggregation client-seitig: `agg[key].menge += qty; agg[key].revenue += qty * einzelpreis` ✅
+- `maxMenge = Math.max(...items.map(i => i.menge), 1)` — kein Div/0 ✅
+- `totalRevenue > 0` Guard vor Prozentberechnung ✅
+- Graceful Catch + `return null` wenn `items.length === 0` ✅
+- 5-Min-Refresh mit Cleanup ✅
+
+### Befund: FahrerSchichtCountdown (fahrer/app/client.tsx)
+- Nur angezeigt wenn `!activeBatch && isOnline && status?.online_seit` — korrekte Guard-Conditions ✅
+- `pct = Math.min(100, ...)` — kein Überlauf des Fortschrittsrings ✅
+- SVG-Ring: `-rotate-90` für korrekten Start oben, strokeDasharray sauber berechnet ✅
+- `isDone` (≥8h) zeigt Überschreitungszeit: `(elapsedHours − 8)h MM m` — mathematisch korrekt ✅
+- Farbstufen: grün <5h, amber 5–7h, rot ≥7h/überschritten ✅
+- 60s-Tick mit Cleanup ✅
+
+### Cron-Integration (Phase 93 No-Show-Handler)
+- `detectAndHandleNoShowsAllLocations()` in smart-dispatch/route.ts auf `isDemandTick` (alle 30 Min) ✅
+- Fire-and-forget mit `.catch()` — Cron bricht nicht ab bei Fehler ✅
+- `recordPerfectShiftIfClean()` in endShift() korrekt wired ✅
+
+### Integrations-Check
+- Kitchen: KitchenPrepSpeedometer direkt in orders-Stream integriert ✅
+- Statistics: TopArtikelPanel zeigt meistbestellte Artikel mit Umsatzanteil ✅
+- Fahrer-App: FahrerSchichtCountdown nur sichtbar wenn online + kein aktiver Batch ✅
+- Alle 5 Bereiche (Kitchen/Dispatch/Fahrer/Storefront/Statistiken) synchron ✅
+
+### Status nach Review #70
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 187 Seiten ✅
+- Bugs gefixed: 0
+- System: MARKT-REIF ✅
+
+---
 
 ## CEO Review #69 — 2026-06-12
 
