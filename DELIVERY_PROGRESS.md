@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–75 abgeschlossen. CEO Review #58. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.**
+**Phasen 1–76 abgeschlossen. CEO Review #58. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 76: Frontend UX-Enhancements — Richtungspfeil Karte, Gleichzeitig-Fertig-Warnung, Stopp-ETA-Countdown, Bar-Kassier-Tracker
+- [x] live-map.tsx: heading-Prop neu — Fahrermarker dreht sich zur Fahrtrichtung (GPS-Heading-basiert)
+- [x] tracking.tsx: fahrer_heading jetzt an LiveMap übergeben (vorher ungenutzt)
+- [x] SmartTimingCountdownGrid: Gleichzeitig-fertig-Banner wenn ≥2 Timer ±90s auseinander fertig werden
+- [x] ExpandableStopList (Dispatch): Live-ETA-Countdown 1s-Tick pro Stopp, rot+pulse bei Überfälligkeit
+- [x] delivery-view.tsx: Bar-Kassier-Chip zeigt verbleibende vs. bereits kassierte Beträge getrennt
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 182 Seiten)
 - [x] Phase 75: Automatische SLA-Eskalation — kritischer Alert wenn On-Time-Rate < 80%
 - [x] lib/delivery/sla-escalation.ts — checkSlaEscalation() + runSlaEscalationAllLocations(), auto-resolve bei Erholung
 - [x] Cron-Integration: SLA-Prüfung alle 10 Min (isRatingTick), Ergebnis in Cron-Response
