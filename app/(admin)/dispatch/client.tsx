@@ -2256,6 +2256,7 @@ function OrderRow({
               </span>
             </button>
           )}
+          <DispatchScoreBar score={order.dispatch_score} />
           {order.external_source && (
             <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-matcha-900">
               {order.external_source}
@@ -7573,6 +7574,25 @@ function DispatchZoneAnalysisPanel({ orders }: { orders: ReadyOrder[] }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchScoreBar ------------------------------ */
+function DispatchScoreBar({ score }: { score: number | null }) {
+  if (score == null) return null;
+  const pct = Math.min(100, Math.max(0, score));
+  const color = pct >= 75 ? 'bg-matcha-500' : pct >= 50 ? 'bg-amber-400' : 'bg-red-400';
+  const label = pct >= 75 ? 'Gut' : pct >= 50 ? 'OK' : 'Schlecht';
+  return (
+    <div className="mt-1.5">
+      <div className="flex items-center justify-between mb-0.5">
+        <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wide">Score</span>
+        <span className="text-[9px] font-black tabular-nums">{Math.round(pct)} · {label}</span>
+      </div>
+      <div className="h-1 rounded-full bg-muted overflow-hidden">
+        <div className={cn('h-full rounded-full transition-all', color)} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

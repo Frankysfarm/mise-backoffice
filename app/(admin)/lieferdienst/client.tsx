@@ -1682,6 +1682,51 @@ function LieferdienstFahrerEinsatz({ drivers }: { drivers: Driver[] }) {
           </span>
         </div>
       )}
+      <DriverLeaderboardMini drivers={drivers} />
+    </div>
+  );
+}
+
+/* ---- DriverLeaderboardMini ---- */
+function DriverLeaderboardMini({ drivers }: { drivers: import('@/lib/lieferdienst/drivers').Driver[] }) {
+  const vehicleEmoji: Record<string, string> = { bike: '🚲', scooter: '🛵', car: '🚗', auto: '🚗', fahrrad: '🚲', motorrad: '🛵' };
+  const active = [...drivers].filter(d => d.status !== 'offline');
+  if (active.length < 2) return null;
+
+  // Sort by deliveries count (use ordersDelivered or fallback to 0)
+  const sorted = active.slice().sort((a, b) => {
+    const aD = (a as any).ordersDelivered ?? (a as any).deliveries ?? 0;
+    const bD = (b as any).ordersDelivered ?? (b as any).deliveries ?? 0;
+    return bD - aD;
+  });
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4 mt-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">🏆</span>
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Schicht-Rangliste</span>
+      </div>
+      <div className="space-y-2">
+        {sorted.slice(0, 5).map((d, i) => {
+          const deliveries = (d as any).ordersDelivered ?? (d as any).deliveries ?? 0;
+          const maxDel = (sorted[0] as any).ordersDelivered ?? (sorted[0] as any).deliveries ?? 1;
+          const pct = maxDel > 0 ? Math.round((deliveries / maxDel) * 100) : 0;
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+          return (
+            <div key={d.id} className="flex items-center gap-2">
+              <span className="text-sm w-6 text-center shrink-0">{medal}</span>
+              <span className="text-sm shrink-0">{vehicleEmoji[d.vehicleType ?? 'auto'] ?? '🚗'}</span>
+              <span className="text-xs font-bold text-char truncate flex-1">{d.name}</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="w-16 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-matcha-400 transition-all" style={{ width: `${pct}%` }} />
+                </div>
+                <span className="text-[10px] font-black text-stone-600 tabular-nums w-5 text-right">{deliveries}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

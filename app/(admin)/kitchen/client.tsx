@@ -460,6 +460,7 @@ export function KitchenBoard({
 
   return (
     <div className="space-y-4">
+      <KitchenUrgencyTicker orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
@@ -6144,6 +6145,66 @@ function KitchenAllergenMonitor({ orders }: { orders: Order[] }) {
             <span className="flex-1 break-words font-medium leading-snug">{e.text}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenUrgencyTicker ------------------------------ */
+function KitchenUrgencyTicker({ orders }: { orders: Order[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const cooking = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (cooking.length === 0) return null;
+
+  // Find next-ready order (smallest remaining time)
+  type ReadyInfo = { order: Order; remainSec: number; overdue: boolean };
+  const infos: ReadyInfo[] = cooking.map((o) => {
+    const est = (o.geschaetzte_zubereitung_min ?? 15) * 60;
+    const elapsed = o.bestellt_am ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 1000) : 0;
+    const remain = est - elapsed;
+    return { order: o, remainSec: remain, overdue: remain < 0 };
+  });
+
+  const overdueCount = infos.filter((x) => x.overdue).length;
+  const nextReady = infos.filter((x) => !x.overdue).sort((a, b) => a.remainSec - b.remainSec)[0];
+
+  const fmtSec = (s: number) => {
+    const abs = Math.abs(s);
+    return `${Math.floor(abs / 60)}:${String(abs % 60).padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex items-center gap-3 flex-wrap px-1 mb-1">
+      {overdueCount > 0 && (
+        <div className={cn(
+          'flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold',
+          overdueCount >= 3 ? 'border-red-400 bg-red-50 text-red-700 animate-pulse' : 'border-orange-400 bg-orange-50 text-orange-700',
+        )}>
+          <Flame className="h-3 w-3" />
+          {overdueCount} überfällig
+        </div>
+      )}
+      {nextReady && (
+        <div className={cn(
+          'flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tabular-nums',
+          nextReady.remainSec < 120 ? 'border-matcha-400 bg-matcha-50 text-matcha-700 animate-pulse' : 'border-blue-300 bg-blue-50 text-blue-700',
+        )}>
+          <Clock className="h-3 w-3" />
+          Nächste fertig: {fmtSec(nextReady.remainSec)}
+          <span className="font-normal opacity-70 truncate max-w-[100px]">
+            {nextReady.order.kunde_name}
+          </span>
+        </div>
+      )}
+      <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-muted-foreground">
+        <Target className="h-3 w-3" />
+        {cooking.length} in Zubereitung
       </div>
     </div>
   );

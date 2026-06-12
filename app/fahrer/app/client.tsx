@@ -672,6 +672,7 @@ export function FahrerApp({
                 </div>
               );
             })()}
+          <TourBriefingCard batch={activeBatch as any} />
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}
@@ -2642,5 +2643,50 @@ function MeineSchichten() {
         </div>
       )}
     </section>
+  );
+}
+
+function TourBriefingCard({ batch }: { batch: { stops: { order: { gesamtbetrag: number; zahlungsart?: string | null; bezahlt?: boolean | null; kunde_adresse?: string | null } }[]; total_distance_km?: number | null; total_eta_min?: number | null } }) {
+  const cashStops = batch.stops.filter(s => !s.order.bezahlt || s.order.zahlungsart === 'bar');
+  const totalCash = cashStops.reduce((s, st) => s + st.order.gesamtbetrag, 0);
+  const estEarnings = batch.stops.length * 1.50 + ((batch.total_distance_km ?? 0) * 0.20);
+  const etaMin = batch.total_eta_min ?? null;
+
+  if (batch.stops.length === 0) return null;
+
+  return (
+    <div className="mx-4 mt-3 rounded-2xl bg-white/8 border border-white/15 p-4 space-y-3">
+      <div className="text-[10px] font-black uppercase tracking-widest text-matcha-300">Tour-Übersicht</div>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="text-center">
+          <div className="text-xl font-black text-white tabular-nums">{batch.stops.length}</div>
+          <div className="text-[9px] text-matcha-400 font-bold uppercase">Stopps</div>
+        </div>
+        {etaMin && (
+          <div className="text-center">
+            <div className="text-xl font-black text-accent tabular-nums">{etaMin}</div>
+            <div className="text-[9px] text-matcha-400 font-bold uppercase">Min ETA</div>
+          </div>
+        )}
+        {batch.total_distance_km != null && (
+          <div className="text-center">
+            <div className="text-xl font-black text-white tabular-nums">{batch.total_distance_km.toFixed(1)}</div>
+            <div className="text-[9px] text-matcha-400 font-bold uppercase">km</div>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {cashStops.length > 0 && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 px-2.5 py-1 text-[11px] font-bold text-amber-200">
+            💵 {cashStops.length}× Bar · {totalCash.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })}
+          </div>
+        )}
+        {estEarnings > 0 && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-matcha-700/60 border border-matcha-600/40 px-2.5 py-1 text-[11px] font-bold text-matcha-100">
+            ~{estEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })} Verdienst
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
