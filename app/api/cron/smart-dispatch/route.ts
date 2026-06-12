@@ -38,6 +38,7 @@ import { processExpiredPointsAllLocations } from '@/lib/delivery/loyalty-points'
 import { pruneNavCache } from '@/lib/delivery/navigation';
 import { detectAndHandleNoShowsAllLocations } from '@/lib/delivery/driver-reliability';
 import { processUnscoredAllLocations as processCdesAllLocations } from '@/lib/delivery/cdes';
+import { generateDigestAllLocations } from '@/lib/delivery/daily-digest';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,8 +81,10 @@ export async function GET(req: NextRequest) {
     // Report-Cache täglich um 02:00 UTC (Tag-Report + Wochen-Report für alle Locations)
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
+    // Daily digest: täglich um 03:00 UTC (nach Report-Cache bei 02:00)
+    const isDigestTick = nowHour === 3 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -173,6 +176,10 @@ export async function GET(req: NextRequest) {
       isDemandTick
         ? processCdesAllLocations().catch(() => ({ locations: 0, totalProcessed: 0, totalRecoveries: 0, errors: 0 }))
         : Promise.resolve(null),
+      // Daily Digest: täglich um 03:00 UTC — gestrigen Tag für alle Locations
+      isDigestTick
+        ? generateDigestAllLocations().catch(() => ({ locations: 0, generated: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -250,6 +257,7 @@ export async function GET(req: NextRequest) {
       nav_cache_pruned: navCachePruned ?? 0,
       ...(noShowResult ? { no_show_detection: { detected: noShowResult.total_detected, broadcasts_sent: noShowResult.broadcasts_sent } } : {}),
       ...(cdesResult ? { cdes: { processed: cdesResult.totalProcessed, recoveries: cdesResult.totalRecoveries } } : {}),
+      ...(digestResult ? { daily_digest: { locations: digestResult.locations, generated: digestResult.generated, errors: digestResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

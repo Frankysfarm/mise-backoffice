@@ -153,6 +153,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/shift-planner', icon: 'CalendarCheck2', label: 'Besetzungs-Cockpit' },
       { group: 'Loslegen', href: '/delivery/export',       icon: 'FileDown',        label: 'Datenexport (CSV/ZIP)' },
       { group: 'Loslegen', href: '/delivery/cdes',         icon: 'Star',            label: 'Erfahrungs-Score (CDES)' },
+      { group: 'Loslegen', href: '/delivery/digest',       icon: 'BookOpen',        label: 'Tages-Digest (KI)' },
       { group: 'Loslegen', href: '/dispatch',              icon: 'MapPin',          label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
