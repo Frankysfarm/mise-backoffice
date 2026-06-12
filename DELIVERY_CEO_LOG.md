@@ -30,6 +30,74 @@ Ganzheitlicher Qualitäts-Score (0–100) pro abgeschlossener Lieferbestellung a
 
 **Build:** Compiled successfully ✓ 188 Seiten, 0 TypeScript-Fehler
 
+## CEO Review #71 — 2026-06-12
+
+### Geprüfte Commits (2 neue Commits seit Review #70)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `755ac8b` | feat(delivery/frontend): Smart-Timing Countdown, Tour-Sequenz, ETA-Wecker | ✅ |
+| `ff22fef` | feat(fahrer): Gesamte-Route-Navigation + Tour-Wegpunkte | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully, 188 Seiten ✅
+- Bugs gefunden: 0 ✅
+
+### Befund: KitchenSmartCountdownGrid (kitchen/countdown-grid.tsx)
+- `CountdownRing` SVG korrekt: `-rotate-90` für 12-Uhr-Start, `strokeDashoffset = circ − pct*circ` — mathematisch sauber ✅
+- Farblogik: grün >5 Min / amber 2–5 Min / orange <2 Min / rot überfällig — konsistent mit Design-System ✅
+- `sorted = [...cooking].sort()` — nie mutiert Original-Array, stabiles Sort ✅
+- `timingMap = new Map(timings.map(t => [t.order_id, t]))` — O(1)-Lookup, kein N²-Scan ✅
+- `1s-Tick` via `useCountdownTick()` — separater Hook, Cleanup korrekt ✅
+- Fallback: wenn kein `ready_target`, Countdown läuft ab `bestellt_am` + `geschaetzte_zubereitung_min` ✅
+- Early return bei `cooking.length === 0` — keine leere UI ✅
+- Integration in `kitchen/client.tsx:472` — `<KitchenSmartCountdownGrid orders={filtered} timings={timings} />` ✅
+
+### Befund: TourSequenzPanel (dispatch/tour-sequenz.tsx)
+- Status-Whitelist: `['pickup', 'unterwegs', 'on_route', 'at_restaurant', 'assigned', 'pending_acceptance']` vollständig ✅
+- `isNext`-Logik: `!isDone && stops.slice(0, idx).every(s => s.geliefert_am)` — sauber, korrekt für linearen Fortschritt ✅
+- Fortschrittsbalken: `doneCount / stops.length * 100` mit Null-Guard ✅
+- Connector-Linie via `absolute left-[13px]` — visuell korrekt positioniert ✅
+- Fahrer-Avatar: `vorname[0]` mit `?? '?'` Fallback ✅
+- Überfälligkeit: `secsLeft < -60` (1 Min Toleranz) — produktionslogisch sinnvoll ✅
+- Integration in `dispatch/client.tsx:918` — `<TourSequenzPanel batches={batches} />` ✅
+
+### Befund: ETA-Countdown (fahrer/app/delivery-view.tsx)
+- Countdown nur wenn `nextStop.order.eta_earliest` vorhanden — kein null-crash ✅
+- Zeitfenster `etaTime–etaLatestTime` angezeigt wenn `eta_latest` existiert ✅
+- Farbstufen: grün/amber/orange/rot mit `animate-pulse` bei überfällig — konsistent mit KitchenSmartCountdownGrid ✅
+- Emoji-Icons per Dringlichkeit: 🕐/🔔/⚠️ — schnell visuell erfassbar ✅
+
+### Befund: Qualitäts-Ampel (statistics-view.tsx)
+- 3 Metriken: SLA-Pünktlichkeit / ETA-Genauigkeit / Dispatch-Score ✅
+- Gesamturteil: grün=alle ≥ gut-Schwelle / rot=mindestens eine < ok-Schwelle / amber=dazwischen — korrekte Logik ✅
+- Nur gerendert wenn mindestens eine Metrik verfügbar (`metrics.length > 0`) ✅
+
+### Befund: Gesamte-Route-Navigation (fahrer/app/client.tsx)
+- Guard: `stopsWithCoords.length < 2` — verhindert Single-Stop-Navigation ✅
+- iOS (Apple Maps): Destination = letzter Stopp, via=Zwischenstopps ✅
+- Android (Google Maps): `destination=last`, `waypoints=middle|stops` (encoded) ✅
+- `filter(s => s.order.kunde_lat && s.order.kunde_lng)` — nur Stopps mit GPS-Koordinaten ✅
+- `rel="noopener noreferrer"` auf externem Link ✅
+- `Route`-Icon korrekt importiert (`line 8 fahrer/client.tsx`) ✅
+- Visuelle Einbettung: `rounded-xl bg-blue-600/20 border border-blue-400/40` — dezent, passt zu Fahrer-App-Darkmode ✅
+
+### Integrations-Check
+- Kitchen: SmartCountdownGrid zeigt alle `in_zubereitung`-Bestellungen live ✅
+- Dispatch: TourSequenzPanel zeigt alle aktiven Touren mit Stop-für-Stop-Fortschritt ✅
+- Fahrer-App: ETA-Countdown im Next-Stop-Hero + Ein-Klick Multi-Stop-Navigation ✅
+- Statistiken: Qualitäts-Ampel zeigt aggregiertes SLA/ETA/Dispatch-Urteil ✅
+- CDES: fire-and-forget bei state=delivered (tour-status route) + alle 30 Min Cron-Batch ✅
+
+### Status nach Review #71
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 188 Seiten ✅
+- Bugs gefixed: 0
+- System: **MARKT-REIF** ✅
+
+---
+
 ## CEO Review #70 — 2026-06-12
 
 ### Geprüfte Commits (1 neuer Commit seit Review #69)

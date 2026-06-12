@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–95 abgeschlossen. CEO Review #70 ✅. Build sauber. 0 TypeScript-Fehler. 188 Seiten. Deployment-bereit.**
+**Phasen 1–95 abgeschlossen. CEO Review #71 ✅. Build sauber. 0 TypeScript-Fehler. 188 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 95 (Frontend-Erweiterungen): Smart-Timing Countdown + Tour-Sequenz + ETA-Wecker + Gesamte-Route-Navigation — 2026-06-12
+- [x] KitchenSmartCountdownGrid (kitchen/countdown-grid.tsx): SVG-Countdown-Ringe pro Bestellung, 1s-Tick, Farbstufen grün/amber/orange/rot, Sort nach Dringlichkeit
+- [x] TourSequenzPanel (dispatch/tour-sequenz.tsx): Stop-für-Stop-Visualisierung aller aktiven Touren, Fortschrittsbalken, Überfälligkeits-Anzeige
+- [x] ETA-Countdown (fahrer/app/delivery-view.tsx): Sekundengenauer Countdown im Next-Stop-Hero, Zeitfenster eta_earliest–eta_latest
+- [x] Qualitäts-Ampel (statistics-view.tsx): SLA/ETA/Dispatch kombiniertes Ampelurteil oben im Dashboard
+- [x] Gesamte-Route-Navigation (fahrer/app/client.tsx): Ein-Klick Multi-Stop-Navigation (Google Maps Android / Apple Maps iOS), Wegpunkte in Reihenfolge
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 188 Seiten)
 - [x] Phase 95: Customer Delivery Experience Score (CDES) — 2026-06-12
 - [x] scripts/migrations/056_cdes.sql: customer_experience_scores Tabelle (4 Komponenten-Scores, UNIQUE order_id), v_cdes_summary, v_cdes_daily_trend Views, 4 Performance-Indizes, RLS
 - [x] lib/delivery/cdes.ts: computeExperienceScore() (ETA/Notification/Driver/Attempt-Scores), processUnscored(), processUnscoredAllLocations(), getStats(), getDailyTrend(), getLowScoreOrders(), triggerRecovery() (automatische Gutschrift €2/€4 bei Score<40)
