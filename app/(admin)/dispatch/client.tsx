@@ -212,7 +212,7 @@ export function DispatchBoard({
 
   // ETA overdue notifications — tracks which batch IDs have already fired
   const notifiedOverdueRef = useRef<Set<string>>(new Set());
-  const [overdueAlerts, setOverdueAlerts] = useState<{ id: string; batchId: string; driverName: string; overdueMin: number }[]>([]);
+  const [overdueAlerts, setOverdueAlerts] = useState<{ id: string; batchId: string; driverName: string; overdueMin: number; driverPhone: string | null }[]>([]);
 
   useEffect(() => {
     const locationId = locations[0]?.id;
@@ -447,9 +447,11 @@ export function DispatchBoard({
       const driverName = b.fahrer
         ? `${b.fahrer.vorname} ${b.fahrer.nachname}`
         : 'Unbekannter Fahrer';
+      const driverObj = drivers.find((d) => d.employee_id === b.fahrer_id);
+      const driverPhone = driverObj?.employee?.telefon ?? null;
       const overdueMin = Math.floor(overdueMs / 60_000);
       const alertId = `${b.id}-${Math.floor(overdueMs / 60_000)}`;
-      setOverdueAlerts((prev) => [...prev.filter((a) => a.batchId !== b.id), { id: alertId, batchId: b.id, driverName, overdueMin }]);
+      setOverdueAlerts((prev) => [...prev.filter((a) => a.batchId !== b.id), { id: alertId, batchId: b.id, driverName, overdueMin, driverPhone }]);
     }
     // Clear notified set for completed batches
     for (const id of notifiedOverdueRef.current) {
@@ -647,20 +649,48 @@ export function DispatchBoard({
       {overdueAlerts.length > 0 && (
         <div className="space-y-1.5">
           {overdueAlerts.map((alert) => (
-            <div key={alert.id} className="flex items-center gap-3 rounded-xl border-2 border-red-400 bg-red-50 px-4 py-2.5 shadow-md animate-in slide-in-from-top-2 duration-300">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
-              <div className="flex-1">
-                <div className="font-display text-sm font-bold text-red-900">
-                  Tour überfällig: {alert.driverName}
+            <div key={alert.id} className="rounded-xl border-2 border-red-400 bg-red-50 px-4 py-2.5 shadow-md animate-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-red-600 animate-pulse" />
+                <div className="flex-1">
+                  <div className="font-display text-sm font-bold text-red-900">
+                    Tour überfällig: {alert.driverName}
+                  </div>
+                  <div className="text-xs text-red-700">
+                    ETA überschritten um {alert.overdueMin} Min
+                  </div>
                 </div>
-                <div className="text-xs text-red-700">
-                  ETA überschritten um {alert.overdueMin} Min — bitte prüfen
-                </div>
+                <button
+                  onClick={() => setOverdueAlerts((prev) => prev.filter((a) => a.id !== alert.id))}
+                  className="text-red-400 hover:text-red-700 text-lg leading-none shrink-0"
+                >×</button>
               </div>
-              <button
-                onClick={() => setOverdueAlerts((prev) => prev.filter((a) => a.id !== alert.id))}
-                className="text-red-400 hover:text-red-700 text-lg leading-none"
-              >×</button>
+              {/* Schnellaktionen */}
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                {alert.driverPhone && (
+                  <a
+                    href={`tel:${alert.driverPhone}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-red-700 transition"
+                  >
+                    <Phone className="h-3 w-3" />
+                    Fahrer anrufen
+                  </a>
+                )}
+                <button
+                  onClick={() => {
+                    // Scroll TourVisualizationPanel into view
+                    document.querySelector('[data-tour-panel]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setOverdueAlerts((prev) => prev.filter((a) => a.id !== alert.id));
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-[11px] font-bold text-red-700 hover:bg-red-50 transition"
+                >
+                  <RouteIcon className="h-3 w-3" />
+                  Tour anzeigen
+                </button>
+                <span className="ml-auto text-[10px] text-red-500 font-mono tabular-nums">
+                  +{alert.overdueMin} Min
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -4104,6 +4134,7 @@ function TourVisualizationPanel({
   };
 
   return (
+    <div data-tour-panel>
     <Card className="overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
@@ -4485,6 +4516,7 @@ function TourVisualizationPanel({
         </div>
       )}
     </Card>
+    </div>
   );
 }
 
