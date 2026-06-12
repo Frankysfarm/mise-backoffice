@@ -264,6 +264,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
   const [incidentStats, setIncidentStats] = useState<{
     total_incidents: number; total_open: number; critical_open: number; resolved_today: number;
   } | null>(null)
+  const [cdesStats, setCdesStats] = useState<{
+    avgScore: number; totalOrders: number; excellentCount: number; goodCount: number; fairCount: number; poorCount: number;
+  } | null>(null)
   const [complianceData, setComplianceData] = useState<{
     totalDrivers: number;
     compliant: number;
@@ -378,6 +381,10 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
     fetch(`/api/delivery/admin/surge?location_id=${locationId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.status) setSurgeData(d) })
+      .catch(() => {})
+    fetch(`/api/delivery/admin/cdes?location_id=${locationId}&action=stats&days=1`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.avgScore != null && d.totalOrders > 0) setCdesStats({ avgScore: d.avgScore, totalOrders: d.totalOrders, excellentCount: d.excellentCount ?? 0, goodCount: d.goodCount ?? 0, fairCount: d.fairCount ?? 0, poorCount: d.poorCount ?? 0 }) })
       .catch(() => {})
     fetch(`/api/delivery/admin/coverage?location_id=${locationId}&hours=12`)
       .then(r => r.ok ? r.json() : null)
@@ -744,6 +751,54 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           </div>
         );
       })()}
+
+      {/* CDES — Kunden-Erfahrungs-Score (Customer Delivery Experience Score) */}
+      {cdesStats && (
+        <div className="rounded-xl border px-4 py-3 flex flex-wrap items-center gap-4 border-indigo-200 bg-indigo-50">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-base shrink-0">⭐</span>
+            <span className="text-[11px] font-black uppercase tracking-wider text-indigo-700">
+              Kunden-Erfahrungs-Score
+            </span>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap flex-1">
+            {/* Avg score gauge */}
+            <div className="flex items-center gap-2">
+              <div className={`text-2xl font-black tabular-nums ${
+                cdesStats.avgScore >= 80 ? 'text-emerald-600' :
+                cdesStats.avgScore >= 60 ? 'text-amber-600' : 'text-red-600'
+              }`}>
+                {Math.round(cdesStats.avgScore)}
+              </div>
+              <div className="text-[10px] text-stone-400">
+                <div>von 100</div>
+                <div>{cdesStats.totalOrders} Lieferungen</div>
+              </div>
+            </div>
+            {/* Distribution mini bars */}
+            <div className="flex items-center gap-1 shrink-0">
+              {[
+                { label: 'Excellent', count: cdesStats.excellentCount, color: 'bg-emerald-500' },
+                { label: 'Gut', count: cdesStats.goodCount, color: 'bg-blue-400' },
+                { label: 'Okay', count: cdesStats.fairCount, color: 'bg-amber-400' },
+                { label: 'Schlecht', count: cdesStats.poorCount, color: 'bg-red-400' },
+              ].map(({ label, count, color }) => count > 0 && (
+                <div key={label} className="flex flex-col items-center gap-0.5" title={`${label}: ${count}`}>
+                  <span className="text-[8px] text-stone-400 tabular-nums">{count}</span>
+                  <div className={`w-4 rounded-sm ${color}`} style={{ height: `${Math.max(4, Math.round((count / cdesStats.totalOrders) * 32))}px` }} />
+                  <span className="text-[7px] text-stone-400 truncate max-w-[28px]">{label}</span>
+                </div>
+              ))}
+            </div>
+            <a
+              href="/delivery/cdes"
+              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-indigo-300 bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700 hover:bg-indigo-50 transition shrink-0"
+            >
+              Details →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Schicht-Highlights — kompakte KPI-Leiste */}
       {(stats.totalOrders > 0 || stats.revenue > 0) && (
