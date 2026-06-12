@@ -980,6 +980,9 @@ export function DispatchBoard({
       {/* Tour-Fortschrittsgeschwindigkeit: Ist die Tour vor oder hinter dem Zeitplan? */}
       {batches.length > 0 && <DispatchTourCompletionSpeedPanel batches={batches} />}
 
+      {/* Handoff-Geschwindigkeit: Ø-Zeit von Fertig → Fahrer-Zuweisung */}
+      <DispatchHandoffSpeedPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
@@ -8063,6 +8066,94 @@ function DispatchCapacityGauge({
           {deficit} Bestellung{deficit > 1 ? 'en' : ''} haben keinen Fahrer — Kapazität erweitern!
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DispatchHandoffSpeedPanel — Ø-Zeit von fertig_am → Batch-Dispatch
+// ---------------------------------------------------------------------------
+function DispatchHandoffSpeedPanel({ locationId }: { locationId: string | null }) {
+  const supabase = createClient();
+  type HandoffRow = { sec: number; hour: number };
+  const [rows, setRows] = useState<HandoffRow[]>([]);
+
+  useEffect(() => {
+    if (!locationId) return;
+    async function load() {
+      const since = new Date(Date.now() - 8 * 3600_000).toISOString();
+      const { data } = await supabase
+        .from('delivery_batch_stops')
+        .select('order:customer_orders(fertig_am, location_id), batch:delivery_batches(startzeit)')
+        .gte('created_at', since)
+        .limit(60);
+
+      if (!data) return;
+      const parsed: HandoffRow[] = [];
+      for (const row of data as unknown as { order: { fertig_am: string | null; location_id: string | null } | null; batch: { startzeit: string | null } | null }[]) {
+        if (!row.order?.fertig_am || !row.batch?.startzeit) continue;
+        if (locationId && row.order.location_id !== locationId) continue;
+        const sec = Math.round((new Date(row.batch.startzeit).getTime() - new Date(row.order.fertig_am).getTime()) / 1000);
+        if (sec < 0 || sec > 1800) continue;
+        parsed.push({ sec, hour: new Date(row.batch.startzeit).getHours() });
+      }
+      setRows(parsed);
+    }
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationId]);
+
+  if (rows.length < 3) return null;
+
+  const avg = Math.round(rows.reduce((s, r) => s + r.sec, 0) / rows.length);
+  const recent5 = rows.slice(-5);
+  const recentAvg = Math.round(recent5.reduce((s, r) => s + r.sec, 0) / recent5.length);
+  const trend = recentAvg - avg;
+
+  const buckets = [30, 60, 120, 180, 300, 600];
+  const labels  = ['<30s', '1m', '2m', '3m', '5m', '10m', '>10m'];
+  const hist = Array(labels.length).fill(0);
+  rows.forEach(r => {
+    const idx = buckets.findIndex(b => r.sec < b);
+    hist[idx === -1 ? labels.length - 1 : idx]++;
+  });
+  const maxH = Math.max(...hist, 1);
+
+  const avgColor = avg < 120 ? 'text-matcha-400' : avg < 300 ? 'text-amber-400' : 'text-red-400';
+
+  return (
+    <div className="rounded-xl border border-matcha-700 bg-matcha-900/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+          <Zap className="h-3.5 w-3.5 text-gold" />
+          Handoff-Geschwindigkeit
+        </span>
+        <span className="text-[10px] text-matcha-400">{rows.length} Touren heute</span>
+      </div>
+      <div className="flex items-end gap-4">
+        <div>
+          <div className={cn('font-mono text-2xl font-black tabular-nums', avgColor)}>
+            {avg < 60 ? `${avg}s` : `${Math.floor(avg / 60)}m${String(avg % 60).padStart(2, '0')}s`}
+          </div>
+          <div className="text-[9px] text-matcha-400">Ø fertig → Fahrer</div>
+        </div>
+        {trend !== 0 && (
+          <div className={cn('text-xs font-bold', trend < 0 ? 'text-matcha-400' : 'text-red-400')}>
+            {trend < 0 ? '▼ ' : '▲ '}{Math.abs(trend)}s letzte 5
+          </div>
+        )}
+      </div>
+      <div className="flex items-end gap-1 h-10">
+        {hist.map((count, i) => (
+          <div key={i} className="flex flex-col items-center gap-0.5 flex-1">
+            <div
+              className={cn('w-full rounded-sm', count > 0 ? 'bg-matcha-500' : 'bg-matcha-800')}
+              style={{ height: `${Math.round((count / maxH) * 36)}px` }}
+            />
+            <span className="text-[7px] text-matcha-500 font-mono">{labels[i]}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
