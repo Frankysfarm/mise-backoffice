@@ -3918,7 +3918,12 @@ function TourVisualizationPanel({
   drivers?: Driver[];
   readyOrders?: ReadyOrder[];
 }) {
-  const [open, setOpen] = useState(false);
+  // Auto-open when any tour is overdue >5 Min — dispatcher sofort informieren
+  const hasOverdue = batches.some((b) => {
+    if (!b.startzeit || b.total_eta_min == null) return false;
+    return Date.now() > new Date(b.startzeit).getTime() + b.total_eta_min * 60_000 + 5 * 60_000;
+  });
+  const [open, setOpen] = useState(hasOverdue);
   const [, setTick] = useState(0);
   const [removePending, setRemovePending] = useState<string | null>(null);
   const [reoptPending, setReoptPending] = useState<string | null>(null);

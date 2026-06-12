@@ -1114,14 +1114,24 @@ export function DeliveryView({
                           {distKm && (
                             <span className="text-[9px] text-matcha-500 tabular-nums">{distKm} km</span>
                           )}
-                          {etaStr && !done && (
-                            <span className={cn(
-                              'text-[9px] font-bold tabular-nums',
-                              etaOverdue ? 'text-red-400 animate-pulse' : 'text-matcha-400',
-                            )}>
-                              {etaOverdue ? '⚠ ' : '~'}{etaStr}
-                            </span>
-                          )}
+                          {etaStr && !done && (() => {
+                            const etaMs = new Date(s.order.eta_earliest!).getTime();
+                            const secLeft = Math.floor((etaMs - Date.now()) / 1000);
+                            const rm = Math.floor(Math.abs(secLeft) / 60);
+                            const rs = Math.abs(secLeft) % 60;
+                            return (
+                              <span className={cn(
+                                'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums',
+                                etaOverdue
+                                  ? 'bg-red-500/30 text-red-300 animate-pulse'
+                                  : secLeft < 600
+                                  ? 'bg-amber-500/25 text-amber-300'
+                                  : 'bg-matcha-700/60 text-matcha-300',
+                              )}>
+                                {etaOverdue ? `+${rm}:${String(rs).padStart(2,'0')} überfällig` : `~${rm}:${String(rs).padStart(2,'0')} · ${etaStr}`}
+                              </span>
+                            );
+                          })()}
                           {s.order.kunde_telefon && (
                             <a
                               href={`tel:${s.order.kunde_telefon}`}

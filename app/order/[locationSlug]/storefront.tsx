@@ -815,7 +815,15 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
               {activeCount != null && activeCount > 0 && (
                 <>
                   <span className="text-muted-foreground text-xs">·</span>
-                  <span className="text-xs text-muted-foreground">{activeCount} Bestellungen aktiv</span>
+                  <span className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                    activeCount >= 10 ? 'bg-red-100 text-red-700' :
+                    activeCount >= 5  ? 'bg-amber-100 text-amber-700' :
+                    'bg-muted text-muted-foreground',
+                  )}>
+                    <span className="font-black tabular-nums">{activeCount}</span>
+                    {activeCount === 1 ? ' Bestellung in der Küche' : ' Bestellungen in der Küche'}
+                  </span>
                 </>
               )}
             </div>

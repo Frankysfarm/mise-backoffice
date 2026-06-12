@@ -699,6 +699,9 @@ export function KitchenBoard({
         <SmartTimingCountdownGrid timings={timings} orders={filtered} />
       )}
 
+      {/* Fertig-in-10-Min-Vorschau: zeigt Bestellungen die in <10 Min fertig sein werden */}
+      {!bigDisplay && <KitchenReadyForecastPanel orders={filtered} timings={timings} />}
+
       {/* Gantt-Zeitleiste: alle kochenden + bestätigten Bestellungen auf einem Zeitstrahl */}
       {!bigDisplay && filtered.filter((o) => ['in_zubereitung', 'bestätigt'].includes(o.status)).length >= 2 && (
         <KitchenGanttStrip orders={filtered} timings={timings} />
@@ -6205,6 +6208,99 @@ function KitchenUrgencyTicker({ orders }: { orders: Order[] }) {
       <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-muted-foreground">
         <Target className="h-3 w-3" />
         {cooking.length} in Zubereitung
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenReadyForecastPanel ------------------------------ */
+// Zeigt alle Bestellungen die in den nächsten 10 Minuten fertig sein werden — sowohl mit
+// Smart-Timing (ready_target) als auch ohne (basierend auf geschaetzte_zubereitung_min).
+function KitchenReadyForecastPanel({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  const WINDOW_MS = 10 * 60_000;
+  const now = Date.now();
+
+  const upcoming = orders
+    .filter((o) => ['in_zubereitung', 'bestätigt'].includes(o.status))
+    .map((o) => {
+      const timing = timings.find((t) => t.order_id === o.id);
+      let readyMs: number | null = null;
+      if (timing?.status === 'cooking' && timing.ready_target) {
+        readyMs = new Date(timing.ready_target).getTime();
+      } else if (o.bestellt_am && o.geschaetzte_zubereitung_min) {
+        readyMs = new Date(o.bestellt_am).getTime() + o.geschaetzte_zubereitung_min * 60_000;
+      }
+      return { order: o, timing, readyMs };
+    })
+    .filter(({ readyMs }) => readyMs !== null && readyMs - now >= -60_000 && readyMs - now <= WINDOW_MS)
+    .sort((a, b) => (a.readyMs ?? 0) - (b.readyMs ?? 0));
+
+  if (upcoming.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Target className="h-4 w-4 text-blue-700" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-blue-800">
+          In 10 Min fertig · {upcoming.length} Bestellung{upcoming.length !== 1 ? 'en' : ''}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {upcoming.map(({ order, timing, readyMs }) => {
+          const secLeft = readyMs ? Math.floor((readyMs - now) / 1000) : null;
+          const overdue = secLeft !== null && secLeft < 0;
+          const imminent = !overdue && secLeft !== null && secLeft < 120;
+          const hasSmartTiming = timing?.status === 'cooking' && timing.ready_target;
+          const m = secLeft !== null ? Math.floor(Math.abs(secLeft) / 60) : null;
+          const s = secLeft !== null ? Math.abs(secLeft) % 60 : null;
+          return (
+            <div
+              key={order.id}
+              className={cn(
+                'flex items-center gap-2 rounded-lg border px-3 py-2 min-w-[180px]',
+                overdue   ? 'bg-red-50 border-red-300' :
+                imminent  ? 'bg-orange-50 border-orange-300 animate-pulse' :
+                'bg-white border-blue-200',
+              )}
+            >
+              <div className={cn(
+                'h-8 w-8 rounded-full flex items-center justify-center font-mono font-black text-[11px] shrink-0 tabular-nums',
+                overdue  ? 'bg-red-500 text-white' :
+                imminent ? 'bg-orange-500 text-white' :
+                'bg-blue-100 text-blue-800',
+              )}>
+                {m !== null && s !== null
+                  ? `${overdue ? '+' : ''}${m}:${String(s).padStart(2, '0')}`
+                  : '?'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-[9px] text-muted-foreground">
+                  #{order.bestellnummer.replace('FF-', '')}
+                  {hasSmartTiming && (
+                    <span className="ml-1 text-blue-600 font-bold">⏱</span>
+                  )}
+                </div>
+                <div className="font-display font-bold text-[12px] truncate leading-tight">{order.kunde_name}</div>
+                {order.typ === 'lieferung' && order.delivery_zone && (
+                  <span className={cn(
+                    'inline-block rounded-full px-1.5 py-0.5 text-[8px] font-black mt-0.5',
+                    order.delivery_zone === 'A' ? 'bg-green-100 text-green-800' :
+                    order.delivery_zone === 'B' ? 'bg-blue-100 text-blue-800' :
+                    order.delivery_zone === 'C' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800',
+                  )}>
+                    Zone {order.delivery_zone}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ import { useOfflineStorage } from '@/hooks/use-offline'
 import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
-  BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle,
+  BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -899,6 +899,8 @@ export function LieferdienstClient() {
               <LieferdienstRejektionsrate orders={orders} completedOrders={completedOrders} />
               {/* Fahrer-Einsatz Dashboard */}
               <LieferdienstFahrerEinsatz drivers={drivers} />
+              {/* Liefer-SLA & Durchsatz-KPIs */}
+              <LieferdienstDeliveryKpis />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -1719,6 +1721,113 @@ function DriverLeaderboardMini({ liveDrivers }: { liveDrivers: { id: string; nam
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---- LieferdienstDeliveryKpis ---- */
+// Liefer-spezifische KPIs: SLA-Pünktlichkeit, Ø-Lieferzeit, ETA-Genauigkeit
+function LieferdienstDeliveryKpis() {
+  const [sla, setSla] = useState<{
+    onTimePct: number;
+    avgDeliveryMin: number;
+    totalStops: number;
+  } | null>(null);
+  const [etaAccuracy, setEtaAccuracy] = useState<{
+    onTimeRate: number;
+    avgErrorMin: number;
+    completedDeliveries: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [slaRes, etaRes] = await Promise.all([
+          fetch('/api/delivery/admin/sla?days=1').then(r => r.ok ? r.json() : null),
+          fetch('/api/delivery/admin/eta-accuracy').then(r => r.ok ? r.json() : null),
+        ]);
+        if (slaRes?.summary) setSla({
+          onTimePct: Math.round(slaRes.summary.onTimePct ?? 0),
+          avgDeliveryMin: Math.round(slaRes.summary.avgDeliveryMin ?? 0),
+          totalStops: slaRes.summary.totalStops ?? 0,
+        });
+        if (etaRes?.overall) setEtaAccuracy({
+          onTimeRate: Math.round((etaRes.overall.onTimeRate ?? 0) * 100),
+          avgErrorMin: Math.round(etaRes.overall.avgErrorMin ?? 0),
+          completedDeliveries: etaRes.overall.completedDeliveries ?? 0,
+        });
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  if (loading) return null;
+  if (!sla && !etaAccuracy) return null;
+
+  const kpis = [
+    sla && {
+      label: 'SLA Pünktlichkeit',
+      value: `${sla.onTimePct}%`,
+      sub: `${sla.totalStops} Lieferungen`,
+      color: sla.onTimePct >= 90 ? 'text-emerald-700' : sla.onTimePct >= 75 ? 'text-amber-700' : 'text-red-700',
+      bg: sla.onTimePct >= 90 ? 'bg-emerald-50 border-emerald-200' : sla.onTimePct >= 75 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
+      bar: sla.onTimePct,
+      barColor: sla.onTimePct >= 90 ? 'bg-emerald-400' : sla.onTimePct >= 75 ? 'bg-amber-400' : 'bg-red-400',
+    },
+    sla && {
+      label: 'Ø Lieferzeit',
+      value: sla.avgDeliveryMin > 0 ? `${sla.avgDeliveryMin} Min` : '–',
+      sub: 'Ziel: ≤35 Min',
+      color: sla.avgDeliveryMin <= 35 ? 'text-emerald-700' : sla.avgDeliveryMin <= 45 ? 'text-amber-700' : 'text-red-700',
+      bg: sla.avgDeliveryMin <= 35 ? 'bg-emerald-50 border-emerald-200' : sla.avgDeliveryMin <= 45 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
+      bar: sla.avgDeliveryMin > 0 ? Math.min(100, Math.round((35 / sla.avgDeliveryMin) * 100)) : 0,
+      barColor: sla.avgDeliveryMin <= 35 ? 'bg-emerald-400' : sla.avgDeliveryMin <= 45 ? 'bg-amber-400' : 'bg-red-400',
+    },
+    etaAccuracy && {
+      label: 'ETA-Genauigkeit',
+      value: `${etaAccuracy.onTimeRate}%`,
+      sub: `${etaAccuracy.completedDeliveries} Messungen`,
+      color: etaAccuracy.onTimeRate >= 85 ? 'text-emerald-700' : etaAccuracy.onTimeRate >= 70 ? 'text-amber-700' : 'text-red-700',
+      bg: etaAccuracy.onTimeRate >= 85 ? 'bg-emerald-50 border-emerald-200' : etaAccuracy.onTimeRate >= 70 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
+      bar: etaAccuracy.onTimeRate,
+      barColor: etaAccuracy.onTimeRate >= 85 ? 'bg-emerald-400' : etaAccuracy.onTimeRate >= 70 ? 'bg-amber-400' : 'bg-red-400',
+    },
+    etaAccuracy && {
+      label: 'Ø ETA-Abweichung',
+      value: etaAccuracy.avgErrorMin > 0 ? `${etaAccuracy.avgErrorMin > 0 ? '+' : ''}${etaAccuracy.avgErrorMin} Min` : '0 Min',
+      sub: 'Abweichung heute',
+      color: Math.abs(etaAccuracy.avgErrorMin) <= 3 ? 'text-emerald-700' : Math.abs(etaAccuracy.avgErrorMin) <= 8 ? 'text-amber-700' : 'text-red-700',
+      bg: Math.abs(etaAccuracy.avgErrorMin) <= 3 ? 'bg-emerald-50 border-emerald-200' : Math.abs(etaAccuracy.avgErrorMin) <= 8 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
+      bar: Math.max(0, 100 - Math.abs(etaAccuracy.avgErrorMin) * 10),
+      barColor: Math.abs(etaAccuracy.avgErrorMin) <= 3 ? 'bg-emerald-400' : Math.abs(etaAccuracy.avgErrorMin) <= 8 ? 'bg-amber-400' : 'bg-red-400',
+    },
+  ].filter(Boolean) as { label: string; value: string; sub: string; color: string; bg: string; bar: number; barColor: string }[];
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Route className="h-4 w-4 text-matcha-600" />
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Liefer-KPIs heute</span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className={`rounded-xl border px-3 py-3 ${kpi.bg}`}>
+            <div className="text-[9px] font-black uppercase tracking-wider text-stone-500 mb-1">{kpi.label}</div>
+            <div className={`text-2xl font-black tabular-nums leading-none ${kpi.color}`}>{kpi.value}</div>
+            <div className="text-[9px] text-stone-400 mt-1">{kpi.sub}</div>
+            {/* Progress bar */}
+            <div className="mt-2 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${kpi.barColor}`}
+                style={{ width: `${Math.min(100, Math.max(0, kpi.bar))}%` }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
