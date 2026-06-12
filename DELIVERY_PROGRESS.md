@@ -1,10 +1,24 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–84 abgeschlossen. CEO Review #64. Build sauber (184 Seiten). Deployment-bereit.**
+**Phasen 1–86 abgeschlossen. CEO Review #64. Build sauber (185 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 86: Multi-Location A/B-Test-Sync für Loyalty-Kampagnen — 2026-06-12
+- [x] lib/delivery/loyalty-ab.ts: syncTestToLocations() — kopiert Test+Varianten in Ziel-Locations, Duplikat-Guard (gleicher Name), Rollback bei Fehler
+- [x] POST /api/delivery/admin/loyalty-ab/sync — neuer Endpunkt: source_location_id + test_id + target_location_ids[]
+- [x] LoyaltyAdminClient A/B Tests Panel: Share2-Sync-Button pro Test, Inline-Sync-Formular mit Location-IDs-Input, Ergebnis (erstellt/übersprungen/Fehler)
+- [x] Phase 85: Nachfrage-Prognose KI — AI-enhanced Demand Forecasting Dashboard — 2026-06-12
+- [x] lib/delivery/ai-forecast.ts — buildForecastAiContext() (Forecast+Queue+Fahrer+Verlauf), streamForecastInsights() (Claude Haiku SSE)
+- [x] POST /api/delivery/admin/ai-forecast — SSE-Streaming-Endpoint mit Auth + Multi-Tenant location_id
+- [x] app/(admin)/delivery/forecast/ — neue Admin-Seite: page.tsx (requireManagerPlus + tenant_id), client.tsx (ForecastKiClient)
+- [x] ForecastKiClient: 12h Stunden-Balken-Chart (blau/orange, Peak-Linie), KPI-Summary-Cards (Erwartet/Peak-Zeit/Max-Fahrer/Qualität), 30s Auto-Refresh
+- [x] KiInsightsPanel: SSE-Streaming Claude-Analyse (Trendanalyse/Peak-Vorbereitung/Fahrer-Empfehlung/Risiken/Top-Maßnahme), Markdown-Rendering
+- [x] Detail-Tabelle: alle 12 Stunden mit Konfidenz-Intervall, Fahrer-Empfehlung (min/Ziel), Datenpunkte-Warnung
+- [x] Sidebar-Eintrag "Nachfrage-Prognose KI" (Brain-Icon) unter Lieferdienst > Loslegen
+- [x] Brain-Icon in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 185 Seiten)
 - [x] Phase 84: Fahrer-Pausen-Widget mit Backend-Integration — 2026-06-12 (CEO Review #64 Bug-Fix)
 - [x] FahrerPauseWidget: aktive Schicht-ID beim Mount geladen, laufende Pause reload-stabil, Start/Ende via POST /api/delivery/driver/shift/break persistiert, todayPausenMin aus Backend-Summary aktualisiert
 - [x] Phase 83: Fahrer-Navi-Integration (Turn-by-Turn in App) — 2026-06-12

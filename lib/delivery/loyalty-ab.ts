@@ -437,6 +437,103 @@ export async function recordAbEvent(input: {
   });
 }
 
+// ── syncTestToLocations ───────────────────────────────────────────────────────
+
+export interface SyncResult {
+  sourceTestId: string;
+  targetLocationIds: string[];
+  created: string[];
+  skipped: string[];
+  errors: Array<{ locationId: string; error: string }>;
+}
+
+/**
+ * Kopiert einen bestehenden A/B-Test (Konfiguration + Varianten) in eine oder
+ * mehrere andere Locations. Bestehende Tests mit gleichem Namen werden übersprungen.
+ * Nur Tests im Status 'draft' oder 'active' können synchronisiert werden.
+ */
+export async function syncTestToLocations(
+  sourceTestId: string,
+  sourceLocationId: string,
+  targetLocationIds: string[],
+): Promise<SyncResult> {
+  const svc = createServiceClient();
+
+  const source = await getTest(sourceTestId, sourceLocationId);
+  if (!source) throw new Error('Quell-Test nicht gefunden');
+  if (source.variants.length < 2) throw new Error('Quell-Test hat zu wenige Varianten');
+
+  const result: SyncResult = {
+    sourceTestId,
+    targetLocationIds,
+    created: [],
+    skipped: [],
+    errors: [],
+  };
+
+  for (const targetLocId of targetLocationIds) {
+    if (targetLocId === sourceLocationId) {
+      result.skipped.push(targetLocId);
+      continue;
+    }
+
+    try {
+      // Existiert schon ein Test mit gleichem Namen?
+      const { data: existing } = await svc
+        .from('loyalty_ab_tests')
+        .select('id')
+        .eq('location_id', targetLocId)
+        .eq('name', source.name)
+        .maybeSingle();
+
+      if (existing) {
+        result.skipped.push(targetLocId);
+        continue;
+      }
+
+      const { data: newTest, error: testErr } = await svc
+        .from('loyalty_ab_tests')
+        .insert({
+          location_id: targetLocId,
+          name:        source.name,
+          description: source.description,
+          status:      'draft',
+        })
+        .select()
+        .single();
+
+      if (testErr) throw new Error(testErr.message);
+
+      const variantRows = source.variants.map((v) => ({
+        test_id:           newTest.id,
+        name:              v.name,
+        description:       v.description,
+        points_multiplier: v.pointsMultiplier,
+        allocation_pct:    v.allocationPct,
+      }));
+
+      const { error: varErr } = await svc
+        .from('loyalty_ab_variants')
+        .insert(variantRows);
+
+      if (varErr) {
+        // Rollback: neu angelegten Test löschen
+        await svc.from('loyalty_ab_tests').delete().eq('id', newTest.id);
+        throw new Error(varErr.message);
+      }
+
+      result.created.push(targetLocId);
+    } catch (e) {
+      result.errors.push({
+        locationId: targetLocId,
+        error:      e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+
+  return result;
+}
+
 /** Metriken pro Variante für einen Test */
 export async function getTestMetrics(
   testId: string,

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Trophy, Star, Gift, TrendingUp, Users, Coins, RefreshCw, Plus, Minus,
   FlaskConical, PlayCircle, PauseCircle, CheckCircle2, Trash2,
-  ChevronDown, ChevronUp, BarChart3, Zap,
+  ChevronDown, ChevronUp, BarChart3, Zap, Share2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -162,6 +162,9 @@ function AbTestsPanel({ locationId }: { locationId: string }) {
   ]);
   const [creating, setCreating] = useState(false);
   const [createMsg, setCreateMsg] = useState<string | null>(null);
+  const [syncingTestId, setSyncingTestId] = useState<string | null>(null);
+  const [syncTargets, setSyncTargets] = useState('');
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   const loadTests = useCallback(async () => {
     setLoading(true);
@@ -221,6 +224,27 @@ function AbTestsPanel({ locationId }: { locationId: string }) {
       void loadTests();
     } catch (err) {
       alert(`Fehler: ${err instanceof Error ? err.message : 'Unbekannt'}`);
+    }
+  }
+
+  async function syncTest(testId: string) {
+    const ids = syncTargets.split(',').map((s) => s.trim()).filter(Boolean);
+    if (!ids.length) { setSyncResult('Keine Ziel-Location-IDs eingegeben'); return; }
+    try {
+      const res = await fetch('/api/delivery/admin/loyalty-ab/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source_location_id: locationId, test_id: testId, target_location_ids: ids }),
+      });
+      const data = await res.json() as { created?: string[]; skipped?: string[]; errors?: Array<{ locationId: string; error: string }> };
+      const parts: string[] = [];
+      if (data.created?.length) parts.push(`✓ Erstellt in: ${data.created.join(', ')}`);
+      if (data.skipped?.length) parts.push(`↷ Übersprungen: ${data.skipped.join(', ')}`);
+      if (data.errors?.length) parts.push(`✗ Fehler: ${data.errors.map((e) => `${e.locationId}: ${e.error}`).join('; ')}`);
+      setSyncResult(parts.join(' | ') || 'Fertig');
+      setSyncTargets('');
+    } catch (err) {
+      setSyncResult(`Fehler: ${err instanceof Error ? err.message : 'Unbekannt'}`);
     }
   }
 
@@ -505,6 +529,16 @@ function AbTestsPanel({ locationId }: { locationId: string }) {
                       </>
                     )}
                     <button
+                      onClick={() => {
+                        setSyncingTestId(syncingTestId === test.id ? null : test.id);
+                        setSyncResult(null);
+                      }}
+                      title="Zu anderen Standorten synchronisieren"
+                      className="rounded-md bg-violet-100 p-1.5 text-violet-700 hover:bg-violet-200"
+                    >
+                      <Share2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button
                       onClick={() => toggleExpand(test.id)}
                       className="rounded-md border p-1.5 hover:bg-accent"
                     >
@@ -512,6 +546,32 @@ function AbTestsPanel({ locationId }: { locationId: string }) {
                     </button>
                   </div>
                 </div>
+
+                {/* Sync-Panel */}
+                {syncingTestId === test.id && (
+                  <div className="border-t bg-violet-50 px-4 py-3">
+                    <p className="mb-2 text-xs font-medium text-violet-700">
+                      Test zu anderen Standorten kopieren (Entwurf)
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        value={syncTargets}
+                        onChange={(e) => setSyncTargets(e.target.value)}
+                        placeholder="Location-IDs, kommagetrennt"
+                        className="flex-1 rounded border border-violet-200 bg-white px-2 py-1 text-xs"
+                      />
+                      <button
+                        onClick={() => void syncTest(test.id)}
+                        className="rounded bg-violet-600 px-3 py-1 text-xs font-medium text-white hover:bg-violet-700"
+                      >
+                        Sync
+                      </button>
+                    </div>
+                    {syncResult && (
+                      <p className="mt-1.5 text-xs text-violet-600">{syncResult}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Expanded: Metriken */}
                 {isExpanded && (

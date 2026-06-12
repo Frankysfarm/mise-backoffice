@@ -7,6 +7,7 @@ import {
   updateTestStatus,
   deleteTest,
   getTestMetrics,
+  syncTestToLocations,
 } from '@/lib/delivery/loyalty-ab';
 
 async function resolveLocationId(req: NextRequest): Promise<string | null> {
