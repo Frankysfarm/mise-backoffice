@@ -224,13 +224,13 @@ async function driverActiveDropoffs(driverId: string): Promise<Array<{ lat: numb
   const c = sb();
   const { data } = await c
     .from('mise_delivery_batches')
-    .select('id, stops:mise_delivery_batch_stops(type, lat, lng)')
+    .select('id, stops:mise_delivery_batch_stops(type, lat, lng, completed_at)')
     .eq('driver_id', driverId)
     .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress']);
   const out: Array<{ lat: number; lng: number }> = [];
   for (const b of (data ?? []) as any[]) {
     for (const st of ((b.stops ?? []) as any[])) {
-      if (st.type === 'dropoff' && st.lat != null && st.lng != null) out.push({ lat: st.lat, lng: st.lng });
+      if (st.type === 'dropoff' && st.completed_at == null && st.lat != null && st.lng != null) out.push({ lat: st.lat, lng: st.lng });
     }
   }
   return out;
@@ -476,7 +476,7 @@ export async function rerouteBundle(batchId: string): Promise<void> {
       origin,
       destination,
       waypoints,
-      optimize: dropoffs.length > 1, // nur bei mehreren Dropoffs Sinn
+      optimize: dropoffs.length > 1 && pickups.length === 1, // TSP nur bei mehreren Dropoffs + GENAU EINEM Pickup (sonst koennte ein Dropoff vor seinen Pickup sortiert werden)
       mode: 'driving',
     });
   } catch {
