@@ -3179,7 +3179,15 @@ function BatchRow({ batch }: { batch: Batch }) {
 
 function ExpandableStopList({ batch }: { batch: Batch }) {
   const [open, setOpen] = useState(false);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!open) return;
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [open]);
+
   const sorted = [...batch.stops].sort((a, b) => a.reihenfolge - b.reihenfolge);
+  const now = Date.now();
   return (
     <div className="mt-2">
       <button
@@ -3194,20 +3202,28 @@ function ExpandableStopList({ batch }: { batch: Batch }) {
           {sorted.map((s, idx) => {
             const isDone = !!s.geliefert_am;
             const isNext = !isDone && sorted.slice(0, idx).every(p => !!p.geliefert_am);
-            const etaStr = s.order?.eta_earliest
-              ? new Date(s.order.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+            const etaMs = s.order?.eta_earliest ? new Date(s.order.eta_earliest).getTime() : null;
+            const etaStr = etaMs
+              ? new Date(etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
               : null;
-            const etaOverdue = s.order?.eta_earliest && new Date(s.order.eta_earliest) < new Date();
+            const secLeft = etaMs ? Math.floor((etaMs - now) / 1000) : null;
+            const etaOverdue = secLeft !== null && secLeft < 0;
+            const mAbs = secLeft !== null ? Math.abs(Math.floor(secLeft / 60)) : null;
+            const sAbs = secLeft !== null ? Math.abs(secLeft) % 60 : null;
             return (
               <div key={s.id} className={cn(
                 'flex items-center gap-2 rounded-lg px-3 py-2 text-xs border',
                 isDone ? 'bg-matcha-50 border-matcha-200 opacity-60' :
+                etaOverdue && isNext ? 'bg-red-50 border-red-300' :
                 isNext ? 'bg-orange-50 border-orange-300' :
                 'bg-card border-border',
               )}>
                 <div className={cn(
                   'h-6 w-6 rounded-full grid place-items-center text-[10px] font-black shrink-0',
-                  isDone ? 'bg-matcha-500 text-white' : isNext ? 'bg-orange-500 text-white' : 'bg-muted text-muted-foreground',
+                  isDone ? 'bg-matcha-500 text-white' :
+                  etaOverdue && isNext ? 'bg-red-500 text-white animate-pulse' :
+                  isNext ? 'bg-orange-500 text-white' :
+                  'bg-muted text-muted-foreground',
                 )}>
                   {isDone ? '✓' : s.reihenfolge}
                 </div>
@@ -3217,13 +3233,24 @@ function ExpandableStopList({ batch }: { batch: Batch }) {
                     {s.order?.kunde_adresse ?? ''}
                   </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  {etaStr && (
+                <div className="shrink-0 text-right space-y-0.5">
+                  {etaStr && !isDone && (
                     <div className={cn(
                       'text-[10px] font-bold tabular-nums',
                       etaOverdue ? 'text-red-600' : isNext ? 'text-orange-700' : 'text-muted-foreground',
                     )}>
-                      {etaOverdue ? '⚠ ' : ''}{etaStr}
+                      {etaStr}
+                    </div>
+                  )}
+                  {!isDone && secLeft !== null && mAbs !== null && sAbs !== null && (
+                    <div className={cn(
+                      'text-[9px] font-bold tabular-nums',
+                      etaOverdue ? 'text-red-500 animate-pulse' :
+                      secLeft < 300 ? 'text-amber-600' : 'text-muted-foreground',
+                    )}>
+                      {etaOverdue
+                        ? `+${mAbs}:${String(sAbs).padStart(2, '0')} überfällig`
+                        : `noch ${mAbs}:${String(sAbs).padStart(2, '0')}`}
                     </div>
                   )}
                   {isDone && s.geliefert_am && (

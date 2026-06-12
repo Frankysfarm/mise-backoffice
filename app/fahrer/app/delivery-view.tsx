@@ -603,19 +603,33 @@ export function DeliveryView({
             </button>
           </div>
         </div>
-        {/* Tour-Kassen-Zusammenfassung */}
+        {/* Tour-Kassen-Zusammenfassung — zeigt verbleibende Bar-Beträge */}
         {(() => {
           const cashStops = stops.filter((s) => !s.order.bezahlt || s.order.zahlungsart === 'bar');
-          const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
-          const totalAll = stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
-          if (totalCash === 0) return null;
+          if (cashStops.length === 0) return null;
+          const remaining = cashStops.filter((s) => !s.geliefert_am);
+          const collected = cashStops.filter((s) => !!s.geliefert_am);
+          const remainingCash = remaining.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+          const collectedCash = collected.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
           return (
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 px-3 py-1.5">
-                <Banknote size={12} className="text-amber-300" />
-                <span className="text-[11px] font-bold text-amber-200">Bar kassieren: {euro(totalCash)}</span>
-              </div>
-              <div className="text-[10px] text-matcha-400">Gesamt: {euro(totalAll)}</div>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              {remainingCash > 0 && (
+                <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 px-3 py-1.5">
+                  <Banknote size={12} className="text-amber-300" />
+                  <span className="text-[11px] font-bold text-amber-200">
+                    Noch kassieren: {euro(remainingCash)}
+                  </span>
+                  <span className="text-[9px] text-amber-400">
+                    ({remaining.length} Stopp{remaining.length !== 1 ? 's' : ''})
+                  </span>
+                </div>
+              )}
+              {collectedCash > 0 && (
+                <div className="flex items-center gap-1.5 rounded-lg bg-matcha-700/40 border border-matcha-600/40 px-2.5 py-1.5">
+                  <Check size={10} className="text-accent" />
+                  <span className="text-[10px] font-bold text-matcha-200">{euro(collectedCash)} kassiert</span>
+                </div>
+              )}
             </div>
           );
         })()}

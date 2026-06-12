@@ -7,9 +7,30 @@ type Props = {
   driver: { lat: number; lng: number } | null;
   dest: { lat: number; lng: number } | null;
   pickup?: { lat: number; lng: number } | null;
+  heading?: number | null;
 };
 
-export function LiveMap({ driver, dest, pickup }: Props) {
+function buildDriverIcon(L: typeof import('leaflet'), heading: number | null) {
+  const deg = heading ?? 0;
+  const hasHeading = heading != null;
+  return L.divIcon({
+    html: `
+      <div style="position:relative;width:44px;height:44px">
+        <div style="position:absolute;inset:0;border-radius:50%;background:#4ae68a;opacity:.25;animation:ping 2s cubic-bezier(0,0,.2,1) infinite"></div>
+        ${hasHeading ? `
+        <div style="position:absolute;top:0;left:50%;transform:translateX(-50%) rotate(${deg}deg);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:10px solid #4ae68a;transform-origin:50% 100%;margin-top:2px;"></div>
+        ` : ''}
+        <div style="position:absolute;inset:14px;border-radius:50%;background:#14532d;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">🛵</div>
+      </div>
+      <style>@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }</style>
+    `,
+    className: '',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+  });
+}
+
+export function LiveMap({ driver, dest, pickup, heading }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LMap | null>(null);
   const driverMarker = useRef<LMarker | null>(null);
@@ -63,7 +84,7 @@ export function LiveMap({ driver, dest, pickup }: Props) {
       renderMarkers(L);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driver?.lat, driver?.lng, dest?.lat, dest?.lng]);
+  }, [driver?.lat, driver?.lng, dest?.lat, dest?.lng, heading]);
 
   async function renderMarkers(L: typeof import('leaflet')) {
     const map = mapRef.current;
@@ -81,18 +102,7 @@ export function LiveMap({ driver, dest, pickup }: Props) {
       iconSize: [30, 30],
       iconAnchor: [15, 15],
     });
-    const driverIcon = L.divIcon({
-      html: `
-        <div style="position:relative;width:44px;height:44px">
-          <div style="position:absolute;inset:0;border-radius:50%;background:#4ae68a;opacity:.25;animation:ping 2s cubic-bezier(0,0,.2,1) infinite"></div>
-          <div style="position:absolute;inset:14px;border-radius:50%;background:#14532d;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">🛵</div>
-        </div>
-        <style>@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }</style>
-      `,
-      className: '',
-      iconSize: [44, 44],
-      iconAnchor: [22, 22],
-    });
+    const driverIcon = buildDriverIcon(L, heading ?? null);
 
     if (dest) {
       if (destMarker.current) destMarker.current.setLatLng([dest.lat, dest.lng]);
@@ -103,8 +113,12 @@ export function LiveMap({ driver, dest, pickup }: Props) {
       else pickupMarker.current = L.marker([pickup.lat, pickup.lng], { icon: pickupIcon }).addTo(map);
     }
     if (driver) {
-      if (driverMarker.current) driverMarker.current.setLatLng([driver.lat, driver.lng]);
-      else driverMarker.current = L.marker([driver.lat, driver.lng], { icon: driverIcon }).addTo(map);
+      if (driverMarker.current) {
+        driverMarker.current.setLatLng([driver.lat, driver.lng]);
+        driverMarker.current.setIcon(driverIcon);
+      } else {
+        driverMarker.current = L.marker([driver.lat, driver.lng], { icon: driverIcon }).addTo(map);
+      }
     }
 
     if (driver && dest) {

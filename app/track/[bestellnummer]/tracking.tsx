@@ -579,6 +579,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
               <LiveMap
                 driver={order.fahrer_lat && order.fahrer_lng ? { lat: Number(order.fahrer_lat), lng: Number(order.fahrer_lng) } : null}
                 dest={order.kunde_lat && order.kunde_lng ? { lat: Number(order.kunde_lat), lng: Number(order.kunde_lng) } : null}
+                heading={order.fahrer_heading}
               />
             </div>
             <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5">

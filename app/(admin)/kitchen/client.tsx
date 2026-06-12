@@ -3910,6 +3910,24 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
 
   const R = 28, circ = 2 * Math.PI * R;
 
+  // Gleichzeitig-fertig-Warnung: ≥2 Bestellungen fertig innerhalb 90 Sekunden
+  const simultaneous = (() => {
+    if (cooking.length < 2) return null;
+    const sorted = [...cooking].sort((a, b) => a.remSec - b.remSec);
+    const groups: typeof cooking[] = [];
+    let cur: typeof cooking = [sorted[0]];
+    for (let i = 1; i < sorted.length; i++) {
+      if (Math.abs(sorted[i].remSec - sorted[i - 1].remSec) <= 90) {
+        cur.push(sorted[i]);
+      } else {
+        if (cur.length >= 2) groups.push(cur);
+        cur = [sorted[i]];
+      }
+    }
+    if (cur.length >= 2) groups.push(cur);
+    return groups.length > 0 ? groups[0] : null;
+  })();
+
   return (
     <div className="rounded-xl border border-matcha-200 bg-gradient-to-br from-matcha-50 to-white p-3">
       <div className="mb-2 flex items-center gap-2">
@@ -3921,6 +3939,18 @@ function SmartTimingCountdownGrid({ timings, orders }: { timings: KitchenTiming[
           {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
       </div>
+      {simultaneous && (
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 animate-pulse">
+          <Zap className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+          <span className="text-[10px] font-bold text-amber-800">
+            ⚡ {simultaneous.length} Bestellungen gleichzeitig fertig
+            {simultaneous[0].remSec > 0
+              ? ` in ~${Math.floor(simultaneous[0].remSec / 60)}:${String(simultaneous[0].remSec % 60).padStart(2, '0')} Min`
+              : ' — jetzt bündeln!'}
+          </span>
+          <span className="ml-auto text-[9px] text-amber-600 font-semibold">→ Dispatch</span>
+        </div>
+      )}
       <div className="flex flex-wrap gap-3">
         {cooking.map(({ t, order, pct, overdue, absSec, ringColor }) => {
           const m = Math.floor(absSec / 60);
