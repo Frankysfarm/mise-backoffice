@@ -469,7 +469,28 @@ export function KitchenBoard({
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
       {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
-      <KitchenSmartCountdownGrid orders={filtered} timings={timings} />
+      <KitchenSmartCountdownGrid
+        orders={filtered}
+        timings={timings}
+        driverETAs={(() => {
+          const now = Date.now();
+          return batches
+            .filter((b) => b.status === 'unterwegs' || b.status === 'on_route')
+            .flatMap((b) => {
+              const etaMs = b.started_at && b.total_eta_min != null
+                ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+                : null;
+              if (!etaMs) return [];
+              const etaSec = Math.max(0, Math.floor((etaMs - now) / 1000));
+              if (etaSec > 20 * 60) return [];
+              const driver = drivers.find((d) => d.id === b.driver_id);
+              const driverName = driver ? `${driver.vorname} ${driver.nachname[0]}.` : 'Fahrer';
+              return stops
+                .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+                .map((s) => ({ order_id: s.order_id, driver_name: driverName, eta_sec: etaSec }));
+            });
+        })()}
+      />
 
       {/* 30-Minuten Fertigstellungs-Zeitleiste: alle aktiven Orders auf einem Zeitstrahl */}
       {filtered.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
