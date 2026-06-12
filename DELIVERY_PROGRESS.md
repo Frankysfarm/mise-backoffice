@@ -1,10 +1,23 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–94 abgeschlossen + Live-UX-Erweiterungen. CEO Review #70 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–95 abgeschlossen. CEO Review #70 ✅. Build sauber. 0 TypeScript-Fehler. 188 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 95: Customer Delivery Experience Score (CDES) — 2026-06-12
+- [x] scripts/migrations/056_cdes.sql: customer_experience_scores Tabelle (4 Komponenten-Scores, UNIQUE order_id), v_cdes_summary, v_cdes_daily_trend Views, 4 Performance-Indizes, RLS
+- [x] lib/delivery/cdes.ts: computeExperienceScore() (ETA/Notification/Driver/Attempt-Scores), processUnscored(), processUnscoredAllLocations(), getStats(), getDailyTrend(), getLowScoreOrders(), triggerRecovery() (automatische Gutschrift €2/€4 bei Score<40)
+- [x] Score-Algorithmus: eta_accuracy_score (0–30) + notification_score (0–20) + driver_quality_score (0–25) + attempt_score (0–25) = Total 0–100
+- [x] Recovery: Score<40 → issueManualCredit() (€2 bei 30–39, €4 bei <30), recovery_credit_id gesetzt
+- [x] GET /api/delivery/admin/cdes: action=stats|trend|low_scores, kombinierter Dashboard-Response (stats+trend+lowScores)
+- [x] POST /api/delivery/admin/cdes: batch compute (alle ungescore-ten gelieferten Orders) oder einzelne Order
+- [x] app/(admin)/delivery/cdes/page.tsx + client.tsx: CDES-Dashboard mit KPI-Karten (Ø Score, Excellent/Gut, Kritisch, Fehlversuche), Score-Verteilung, Tages-Trend-Chart (14 Tage), Komponenten-Balken (ETA/Push/Fahrer/Versuch), Low-Score-Orders-Queue
+- [x] Cron-Integration: processUnscoredAllLocations() alle 30 Min (isDemandTick), Response enthält cdes: { processed, recoveries }
+- [x] Tour-Status-Route: computeExperienceScore() fire-and-forget für jeden Dropoff-Stop bei state=delivered
+- [x] Sidebar: "Erfahrungs-Score (CDES)" mit Star-Icon unter Lieferdienst > Loslegen
+- [x] Star-Icon in ICON_MAP von sidebar-client.tsx ergänzt
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 188 Seiten)
 - [x] Phase 94: KitchenPrepSpeedometer + TopArtikelPanel + FahrerSchichtCountdown — 2026-06-12
 - [x] KitchenPrepSpeedometer (kitchen/client.tsx): Echtzeit-Küchen-Tempo-Gauge, Best./h letzte 30 Min vs. Tages-Ø, Farbcodierung (grün/amber/rot), 30s-Tick
 - [x] TopArtikelPanel (statistics-view.tsx): Top-8-Artikel heute, Supabase-Join order_items×customer_orders, animierte Fortschrittsbalken + Umsatzanteil, 5-Min-Refresh

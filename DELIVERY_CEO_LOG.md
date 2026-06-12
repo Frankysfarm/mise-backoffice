@@ -1,7 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–94 vollständig abgeschlossen. CEO Review #70 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–95 vollständig abgeschlossen. CEO Review #70 abgeschlossen. TypeScript 0 Fehler. Build sauber. 188 Seiten. Deployment-bereit.
+
+## Backend-Architekt — Phase 95 — 2026-06-12
+
+### Phase 95: Customer Delivery Experience Score (CDES)
+
+**Was gebaut wurde:**
+
+Ganzheitlicher Qualitäts-Score (0–100) pro abgeschlossener Lieferbestellung aus 4 Komponenten:
+- **ETA-Accuracy (0–30)**: War die Lieferung pünktlich gegenüber der versprochenen Lieferzeit?
+- **Notification-Score (0–20)**: Wurden Bestellbestätigung + "Fahrer fast da"-Push korrekt abgesetzt?
+- **Driver-Quality (0–25)**: Fahrer-Reliability-Tier (excellent=25, good=20, medium=12, critical=5)
+- **Attempt-Score (0–25)**: Wurde beim ersten Versuch zugestellt (0 wenn Fehlversuch)?
+
+**Schwellen:** 80–100=Excellent / 60–79=Gut / 40–59=Okay / 0–39=Kritisch → Recovery
+
+**Dateien:**
+
+- `scripts/migrations/056_cdes.sql` — `customer_experience_scores` Tabelle (UNIQUE order_id, 4 Component-Scores, recovery_triggered, recovery_credit_id), `v_cdes_summary` + `v_cdes_daily_trend` Views, 4 Indizes, RLS
+- `lib/delivery/cdes.ts` — `computeExperienceScore()`, `processUnscored()`, `processUnscoredAllLocations()`, `getStats()`, `getDailyTrend()`, `getLowScoreOrders()` + interne `triggerRecovery()` (€2/€4 Gutschrift via `issueManualCredit()`)
+- `GET /api/delivery/admin/cdes` — kombinierter Dashboard-Response (stats+trend+lowScores) oder einzelne Actions
+- `POST /api/delivery/admin/cdes` — manuelles Batch-Compute oder Einzelbestellung
+- `app/(admin)/delivery/cdes/page.tsx` + `client.tsx` — 188. Seite: KPI-Karten, Verteilungs-Panel, Tages-Trend-Chart, Komponenten-Balken, Low-Score-Attention-Queue
+- Cron: `processUnscoredAllLocations()` alle 30 Min (isDemandTick)
+- Tour-Status-Route: `computeExperienceScore()` fire-and-forget bei state=delivered für jeden Dropoff-Stop
+- Sidebar: "Erfahrungs-Score (CDES)" mit Star-Icon
+
+**Build:** Compiled successfully ✓ 188 Seiten, 0 TypeScript-Fehler
 
 ## CEO Review #70 — 2026-06-12
 

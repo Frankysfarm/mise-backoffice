@@ -37,6 +37,7 @@ import { runSlaEscalationAllLocations } from '@/lib/delivery/sla-escalation';
 import { processExpiredPointsAllLocations } from '@/lib/delivery/loyalty-points';
 import { pruneNavCache } from '@/lib/delivery/navigation';
 import { detectAndHandleNoShowsAllLocations } from '@/lib/delivery/driver-reliability';
+import { processUnscoredAllLocations as processCdesAllLocations } from '@/lib/delivery/cdes';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,7 +81,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -168,6 +169,10 @@ export async function GET(req: NextRequest) {
       isDemandTick
         ? detectAndHandleNoShowsAllLocations().catch(() => ({ locations: 0, total_detected: 0, broadcasts_sent: 0 }))
         : Promise.resolve(null),
+      // CDES: Customer Delivery Experience Score für abgeschlossene Lieferungen berechnen (alle 30 Min)
+      isDemandTick
+        ? processCdesAllLocations().catch(() => ({ locations: 0, totalProcessed: 0, totalRecoveries: 0, errors: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -244,6 +249,7 @@ export async function GET(req: NextRequest) {
       ...(loyaltyExpireResult ? { loyalty_points_expired: loyaltyExpireResult.totalExpired } : {}),
       nav_cache_pruned: navCachePruned ?? 0,
       ...(noShowResult ? { no_show_detection: { detected: noShowResult.total_detected, broadcasts_sent: noShowResult.broadcasts_sent } } : {}),
+      ...(cdesResult ? { cdes: { processed: cdesResult.totalProcessed, recoveries: cdesResult.totalRecoveries } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

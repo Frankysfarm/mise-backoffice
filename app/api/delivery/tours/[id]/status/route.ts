@@ -17,6 +17,7 @@ import { recordDriverSurgeBonus } from '@/lib/delivery/surge';
 import { markWindowDelivered, markWindowDispatched } from '@/lib/delivery/windows';
 import { evaluateAndIssueLateCredit } from '@/lib/delivery/credits';
 import { earnPoints } from '@/lib/delivery/loyalty-points';
+import { computeExperienceScore } from '@/lib/delivery/cdes';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -126,6 +127,11 @@ export async function PATCH(
                 });
               } catch { /* fire-and-forget */ }
             })();
+          }
+
+          // CDES: Erfahrungs-Score für gelieferte Bestellung berechnen (fire-and-forget)
+          if (stop.order_id && batch.location_id) {
+            computeExperienceScore(stop.order_id as string, batch.location_id as string).catch(() => {});
           }
         }
       }
