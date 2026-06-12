@@ -73,7 +73,7 @@ function sb(): SupabaseClient {
 
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
-const MAX_ACTIVE_STOPS = 5; // max gleichzeitige Liefer-Stopps pro Fahrer -> danach wartet die Order
+const MAX_ACTIVE_STOPS = 2; // Industrie-Standard (Uber/Wolt) fuer Frische bei kleinem Restaurant; spaeter Owner-konfigurierbar
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
