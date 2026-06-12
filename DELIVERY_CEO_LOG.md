@@ -1,7 +1,41 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–66 vollständig abgeschlossen. CEO Review #53: 3 Bugs gefixt, Build sauber (180 Seiten). Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–67 vollständig abgeschlossen. Phase 67: KI-Dispatch-Assistent (Claude Haiku Streaming). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+---
+
+## Phase 67 — 2026-06-12
+
+### KI-Dispatch-Assistent
+
+**Ziel**: Claude Haiku analysiert den Live-Dispatch-Zustand und streamt auf Deutsch strukturierte Empfehlungen direkt ins Dispatch-Board.
+
+**lib/delivery/ai-dispatch.ts**:
+- `buildDispatchContext(locationId)` — Liest parallel aus DB: wartende Lieferbestellungen (Zone, Wartezeit, Priorität, Betrag), aktive Fahrer (Fahrzeug, State, GPS-Alter, Kapazität), laufende Touren (Stops-Fortschritt, ETA), Küchen-Auslastung (aktiv in_zubereitung)
+- `streamDispatchAdvice(locationId)` — Baut strukturierten Prompt → streamt Claude Haiku Response als `ReadableStream<string>`
+- Prompt erzwingt 4-Abschnitt-Struktur: Sofortmaßnahmen, Priorisierung, Engpässe, Empfehlung
+- Modell: `claude-haiku-4-5-20251001` (schnell + kostengünstig für Echtzeit-Dispatch)
+
+**POST /api/delivery/admin/ai-assist**:
+- Auth: Supabase-Session erforderlich (kein öffentlicher Zugang)
+- Multi-Tenant: `location_id` Pflichtparameter
+- Response: `text/event-stream` SSE mit `data: <chunk>\n\n` + `data: [DONE]\n\n`
+- Newlines escaped als `\\n` für SSE-Kompatibilität
+
+**AiDispatchAssistantPanel (dispatch/client.tsx)**:
+- Violetter „KI-Empfehlung"-Button mit Sparkles-Icon neben Auto-Dispatch in der Toolbar
+- Beim Klick: SSE-Stream lesen, Text progressive aufbauen (Streaming-Cursor-Animation)
+- Panel zeigt Pre-formatted Text mit Auto-Scroll beim Nachladen
+- „analysiert…" Pulse-Badge während Streaming läuft
+- Schließen-Button — Panel und Text werden zurückgesetzt
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅
+- `next build`: **sauber kompiliert** ✅
+
+### Umgebungsvariable
+- `ANTHROPIC_API_KEY` muss in `.env.local` / Vercel-Secrets gesetzt sein (SDK liest automatisch)
 
 ---
 

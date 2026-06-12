@@ -1,10 +1,15 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF
-**Phasen 1–66 abgeschlossen. TypeScript 0 Fehler. Build sauber. CEO Review #53: 3 Bugs gefixt. Deployment-bereit.**
+## STATUS: MARKT-REIF + KI
+**Phasen 1–67 abgeschlossen. TypeScript 0 Fehler. Build sauber. Phase 67: KI-Dispatch-Assistent (Claude Haiku Streaming). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 67: KI-Dispatch-Assistent — Claude Haiku analysiert Live-Queue und streamt deutsche Dispatch-Empfehlungen
+- [x] lib/delivery/ai-dispatch.ts — buildDispatchContext() + streamDispatchAdvice() (Anthropic SDK, Haiku)
+- [x] POST /api/delivery/admin/ai-assist — SSE-Streaming-Endpoint mit Auth + Multi-Tenant location_id
+- [x] AiDispatchAssistantPanel — violettes Streaming-Panel im Dispatch-Board (Sparkles-Button neben Auto-Dispatch)
+- [x] KI-Kontext: wartende Bestellungen (Zone/Wartezeit/Priorität), Fahrer (Fahrzeug/State/GPS-Alter), Küchen-Auslastung, aktive Touren
 - [x] Phase 66: 5 neue UI-Panels — KitchenThroughputMeter, DispatchShiftLeaderboard, FahrerPaceCard, Lieferdienst-Leaderboard, StopsBefore-Badge
 - [x] KitchenThroughputMeter — rollendes 30-Min-Fenster Bestellungen/h mit Trend-Pfeil (Kitchen)
 - [x] DispatchShiftLeaderboard — Top-Fahrer nach heutigen Lieferungen mit Mini-Bars (Dispatch) — Bug gefixt: jetzt mit Mise-Batches

@@ -49,6 +49,7 @@ import {
   Calendar,
   Navigation2,
   Gauge,
+  Sparkles,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -172,6 +173,11 @@ export function DispatchBoard({
     id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null;
   }[]>([]);
   const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
+
+  // KI-Dispatch-Assistent
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiText, setAiText] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   // Küchen-Pipeline: Bestellungen die noch kochen aber bald fertig werden
   const [pipelineOrders, setPipelineOrders] = useState<{
@@ -806,8 +812,62 @@ export function DispatchBoard({
             <Zap className="h-3.5 w-3.5" />
             {dispatchPending ? 'Läuft…' : 'Auto-Dispatch'}
           </button>
+          <button
+            onClick={async () => {
+              const locationId = locationFilter !== 'all'
+                ? locationFilter
+                : (orders[0]?.location_id ?? locations[0]?.id ?? null);
+              if (!locationId) return;
+              setAiPanelOpen(true);
+              setAiText('');
+              setAiLoading(true);
+              try {
+                const res = await fetch('/api/delivery/admin/ai-assist', {
+                  method: 'POST',
+                  headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ location_id: locationId }),
+                });
+                if (!res.ok || !res.body) {
+                  setAiText('Fehler: KI-Assistent nicht verfügbar.');
+                  return;
+                }
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  buffer += decoder.decode(value, { stream: true });
+                  const lines = buffer.split('\n');
+                  buffer = lines.pop() ?? '';
+                  for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const chunk = line.slice(6);
+                    if (chunk === '[DONE]') break;
+                    setAiText((prev) => prev + chunk.replace(/\\n/g, '\n'));
+                  }
+                }
+              } finally {
+                setAiLoading(false);
+              }
+            }}
+            disabled={aiLoading}
+            className="inline-flex items-center gap-2 rounded-lg border border-violet-300 bg-violet-50 px-3 py-1.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 disabled:opacity-60"
+          >
+            <Sparkles className={cn('h-3.5 w-3.5', aiLoading && 'animate-pulse')} />
+            {aiLoading ? 'KI denkt…' : 'KI-Empfehlung'}
+          </button>
         </div>
       </div>
+
+      {/* KI-Dispatch-Assistent Panel */}
+      {aiPanelOpen && (
+        <AiDispatchAssistantPanel
+          text={aiText}
+          loading={aiLoading}
+          onClose={() => { setAiPanelOpen(false); setAiText(''); }}
+        />
+      )}
 
       {/* Unterwegs-ETA-Strip: alle aktiven Lieferungen mit Countdown */}
       {enRouteOrders.length > 0 && <EnRouteEtaStrip orders={enRouteOrders} />}
@@ -7263,6 +7323,66 @@ function DispatchShiftLeaderboard({
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ AiDispatchAssistantPanel (Phase 67) ------------------------------ */
+
+function AiDispatchAssistantPanel({
+  text,
+  loading,
+  onClose,
+}: {
+  text: string;
+  loading: boolean;
+  onClose: () => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [text]);
+
+  return (
+    <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600">
+            <Sparkles className="h-3.5 w-3.5 text-white" />
+          </div>
+          <span className="text-sm font-semibold text-violet-800">KI-Dispatch-Assistent</span>
+          {loading && (
+            <span className="flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-medium text-violet-600">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-violet-500" />
+              analysiert…
+            </span>
+          )}
+        </div>
+        <button
+          onClick={onClose}
+          className="rounded-md p-1 text-violet-400 hover:bg-violet-100 hover:text-violet-700 transition"
+          aria-label="Schließen"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div
+        ref={scrollRef}
+        className="max-h-72 overflow-y-auto rounded-lg bg-white/80 p-3 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-mono"
+      >
+        {text || (loading ? (
+          <span className="text-violet-400 italic">KI liest aktuellen Dispatch-Zustand…</span>
+        ) : (
+          <span className="text-muted-foreground italic">Kein Inhalt</span>
+        ))}
+        {loading && text && (
+          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-violet-500 align-text-bottom" />
+        )}
       </div>
     </div>
   );
