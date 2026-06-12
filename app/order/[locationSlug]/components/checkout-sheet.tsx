@@ -9,6 +9,7 @@ import {
   Check,
   Clock,
   CreditCard,
+  Gift,
   Globe,
   Loader2,
   MapPin,
@@ -45,6 +46,8 @@ type Props = {
   /** Für Liefergutschrift-Einlösung (automatisch ausgestellte Delivery Credits) */
   deliveryCredit?: { token: string; amountEur: number } | null;
   onDeliveryCreditChange?: (c: { token: string; amountEur: number } | null) => void;
+  /** Loyalty-Punkte-Einlösung */
+  onLoyaltyChange?: (l: { pointsToRedeem: number; discountEur: number } | null) => void;
 };
 
 function formatEuro(n: number): string {
@@ -53,7 +56,23 @@ function formatEuro(n: number): string {
 
 const QUICK_REPLIES = ['An der Tür klingeln', 'Bei Nachbar abgeben', 'Ans Gartentor', 'Kontaktlos vor die Tür'];
 
-export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange, deliveryCredit, onDeliveryCreditChange }: Props) {
+// Loyalty-Konstanten (spiegeln lib/delivery/loyalty-points.ts — server-only dort)
+const MIN_LOYALTY_REDEEM = 100;
+const LOYALTY_REDEEM_RATE = 0.01; // € pro Punkt
+const LOYALTY_MAX_PCT = 0.20;     // max 20 % des Warenkorbs
+
+type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'platinum';
+const TIER_LABEL: Record<LoyaltyTier, string> = {
+  bronze: '🥉 Bronze', silver: '🥈 Silber', gold: '🥇 Gold', platinum: '👑 Platin',
+};
+const TIER_COLOR: Record<LoyaltyTier, string> = {
+  bronze: 'bg-amber-100 text-amber-800',
+  silver: 'bg-gray-100 text-gray-600',
+  gold: 'bg-yellow-100 text-yellow-800',
+  platinum: 'bg-purple-100 text-purple-800',
+};
+
+export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange, deliveryCredit, onDeliveryCreditChange, onLoyaltyChange }: Props) {
   const steps = orderType === 'lieferung' ? ['Adresse', 'Kontakt', 'Bezahlen'] : ['Kontakt', 'Bezahlen'];
   const [step, setStep] = React.useState(0);
 
@@ -134,6 +153,67 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [creditInput, setCreditInput] = React.useState('');
   const [creditLoading, setCreditLoading] = React.useState(false);
   const [creditError, setCreditError] = React.useState<string | null>(null);
+
+  // Loyalty-Punkte
+  const [loyaltyBalance, setLoyaltyBalance] = React.useState<{
+    found: boolean;
+    totalPoints: number;
+    tier: LoyaltyTier;
+  } | null>(null);
+  const [loyaltyEnabled, setLoyaltyEnabled] = React.useState(false);
+
+  const paymentStepIndex = steps.length - 1;
+
+  // Effektiv einlösbare Punkte (cap: 20 % des Warenkorbs, min 100)
+  const loyaltyMaxPoints = React.useMemo(() => {
+    if (!loyaltyBalance?.found || !loyaltyBalance.totalPoints) return 0;
+    const capByOrder = Math.floor(((subtotal ?? 0) * LOYALTY_MAX_PCT) / LOYALTY_REDEEM_RATE);
+    return Math.max(0, Math.min(loyaltyBalance.totalPoints, capByOrder));
+  }, [loyaltyBalance, subtotal]);
+
+  const loyaltyDiscountEur = Math.round(loyaltyMaxPoints * LOYALTY_REDEEM_RATE * 100) / 100;
+  const canUseLoyalty = loyaltyMaxPoints >= MIN_LOYALTY_REDEEM;
+
+  // Punkte-Kontostand laden wenn E-Mail bekannt + auf Zahlungsschritt
+  React.useEffect(() => {
+    if (step !== paymentStepIndex || !email || !locationId) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    let cancelled = false;
+    fetch(`/api/delivery/loyalty/balance?email=${encodeURIComponent(email)}&location_id=${encodeURIComponent(locationId)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { found?: boolean; totalPoints?: number; tier?: string } | null) => {
+        if (!cancelled && d !== null) {
+          setLoyaltyBalance({
+            found: d.found ?? false,
+            totalPoints: d.totalPoints ?? 0,
+            tier: (d.tier as LoyaltyTier) ?? 'bronze',
+          });
+        }
+      })
+      .catch(() => null);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, email, locationId]);
+
+  // Notify parent über Loyalty-Discount
+  React.useEffect(() => {
+    if (!loyaltyEnabled || !canUseLoyalty) {
+      onLoyaltyChange?.(null);
+      return;
+    }
+    onLoyaltyChange?.({ pointsToRedeem: loyaltyMaxPoints, discountEur: loyaltyDiscountEur });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loyaltyEnabled, loyaltyMaxPoints, loyaltyDiscountEur, canUseLoyalty]);
+
+  // Reset bei Schließen
+  React.useEffect(() => {
+    if (!open) {
+      setLoyaltyBalance(null);
+      setLoyaltyEnabled(false);
+      onLoyaltyChange?.(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   React.useEffect(() => {
     if (!open || !locationId || voucher) return;
@@ -636,6 +716,64 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                       {creditError && (
                         <div className="mt-2 text-xs text-red-700">{creditError}</div>
                       )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Loyalty-Punkte einlösen */}
+              {loyaltyBalance !== null && (
+                <div className="rounded-2xl border border-dashed border-amber-400/50 bg-amber-50/50 p-4">
+                  {loyaltyBalance.found ? (
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                          <Gift className="h-3.5 w-3.5 shrink-0 text-amber-700" />
+                          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">Treuepunkte</span>
+                          <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold', TIER_COLOR[loyaltyBalance.tier])}>
+                            {TIER_LABEL[loyaltyBalance.tier]}
+                          </span>
+                        </div>
+                        <div className="text-sm font-bold text-amber-900">
+                          {loyaltyBalance.totalPoints.toLocaleString('de-DE')} Punkte
+                        </div>
+                        {loyaltyEnabled && canUseLoyalty && (
+                          <div className="mt-0.5 text-xs text-amber-700 font-medium">
+                            −{formatEuro(loyaltyDiscountEur)}&nbsp;€ ({loyaltyMaxPoints} Punkte eingelöst)
+                          </div>
+                        )}
+                        {!canUseLoyalty && loyaltyBalance.totalPoints < MIN_LOYALTY_REDEEM && (
+                          <div className="mt-0.5 text-xs text-amber-700/60">
+                            Noch {MIN_LOYALTY_REDEEM - loyaltyBalance.totalPoints} Punkte bis zur Einlösung
+                          </div>
+                        )}
+                        {!canUseLoyalty && loyaltyBalance.totalPoints >= MIN_LOYALTY_REDEEM && (
+                          <div className="mt-0.5 text-xs text-amber-700/60">
+                            Bestellbetrag zu niedrig für Einlösung
+                          </div>
+                        )}
+                      </div>
+                      {canUseLoyalty && (
+                        <button
+                          type="button"
+                          onClick={() => setLoyaltyEnabled((v) => !v)}
+                          className={cn(
+                            'flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition',
+                            loyaltyEnabled
+                              ? 'bg-amber-700 text-white shadow-sm'
+                              : 'bg-amber-100 text-amber-900 hover:bg-amber-200',
+                          )}
+                        >
+                          {loyaltyEnabled ? '✓ Aktiv' : 'Anwenden'}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2">
+                      <Gift className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600" />
+                      <p className="text-xs text-amber-700">
+                        Noch keine Punkte — du sammelst automatisch bei jeder Lieferung!
+                      </p>
                     </div>
                   )}
                 </div>

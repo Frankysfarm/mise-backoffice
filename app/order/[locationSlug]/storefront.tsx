@@ -128,11 +128,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const [voucher, setVoucher] = React.useState<{ voucher_id: string; code: string; typ: string; rabatt: number; beschreibung: string | null } | null>(null);
   // Delivery Credit State
   const [deliveryCredit, setDeliveryCredit] = React.useState<{ token: string; amountEur: number } | null>(null);
+  // Loyalty-Punkte-State
+  const [loyalty, setLoyalty] = React.useState<{ pointsToRedeem: number; discountEur: number } | null>(null);
   const deliveryFeeBase = orderType === 'lieferung' ? DELIVERY_FEE : 0;
   const deliveryFee = voucher?.typ === 'gratis_lieferung' && orderType === 'lieferung' ? 0 : deliveryFeeBase;
   const voucherRabatt = voucher?.typ !== 'gratis_lieferung' ? (voucher?.rabatt ?? 0) : 0;
   const creditDiscount = deliveryCredit?.amountEur ?? 0;
-  const total = Math.max(0, subtotal + deliveryFee - voucherRabatt - creditDiscount);
+  const loyaltyDiscount = loyalty?.discountEur ?? 0;
+  const total = Math.max(0, subtotal + deliveryFee - voucherRabatt - creditDiscount - loyaltyDiscount);
 
   const getCategory = React.useCallback(
     (id: string | null) => (id ? categoryMap.get(id) : undefined),
@@ -298,6 +301,21 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ order_id: order.id, location_id: location.id }),
+        }).catch(() => null);
+      }
+
+      // Loyalty-Punkte einlösen (fire-and-forget)
+      if (loyalty && form.email) {
+        void fetch('/api/delivery/loyalty/redeem', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: form.email,
+            location_id: location.id,
+            points: loyalty.pointsToRedeem,
+            order_id: order.id,
+            order_amount_eur: subtotal,
+          }),
         }).catch(() => null);
       }
 
@@ -702,6 +720,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         onVoucherChange={setVoucher}
         deliveryCredit={deliveryCredit}
         onDeliveryCreditChange={setDeliveryCredit}
+        onLoyaltyChange={setLoyalty}
       />
 
       {/* Hidden unused import suppression (keeps lint happy when X not used elsewhere). */}

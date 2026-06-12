@@ -29,6 +29,7 @@
  */
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/server';
+import { enqueueCustomerNotification } from './customer-push';
 
 // ── Konstanten ────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,10 @@ function isMissingTable(err: { code?: string } | null): boolean {
   return err?.code === '42P01';
 }
 
+const TIER_LABEL_DE: Record<LoyaltyTier, string> = {
+  bronze: 'Bronze', silver: 'Silber', gold: 'Gold', platinum: 'Platin',
+};
+
 // ── Interner Account-Lookup ───────────────────────────────────────────────────
 
 async function getOrCreateAccount(
@@ -256,12 +261,27 @@ export async function earnPoints(input: {
     expires_at:    expiresAt.toISOString(),
   });
 
+  const upgraded = newTier !== prevTier;
+
+  // Tier-Upgrade-Push fire-and-forget
+  if (upgraded) {
+    enqueueCustomerNotification({
+      orderId:       input.orderId,
+      locationId:    input.locationId,
+      eventType:     'loyalty_tier_upgrade',
+      messageDe:     `🎉 Herzlichen Glückwunsch! Du hast ${TIER_LABEL_DE[newTier]} erreicht! Du hast jetzt ${newTotal} Punkte.`,
+      customerEmail: input.customerEmail || null,
+      customerName:  input.customerName,
+      metadata:      { prevTier, newTier, totalPoints: newTotal },
+    }).catch(() => null);
+  }
+
   return {
     accountId:    account.id,
     pointsEarned: points,
     newBalance:   newTotal,
     tier:         newTier,
-    tierUpgraded: newTier !== prevTier,
+    tierUpgraded: upgraded,
   };
 }
 

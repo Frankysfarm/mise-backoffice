@@ -38,7 +38,8 @@ export type CustomerEventType =
   | 'delivered'
   | 'cancelled'
   | 'delayed'
-  | 'rating_request';
+  | 'rating_request'
+  | 'loyalty_tier_upgrade';
 
 export interface CustomerDeliveryEvent {
   id: string;
@@ -61,6 +62,7 @@ const EVENT_MESSAGES: Record<CustomerEventType, string> = {
   cancelled:            'Deine Bestellung wurde storniert',
   delayed:              'Deine Bestellung verzögert sich leicht',
   rating_request:       'Wie war deine Lieferung? Wir freuen uns über dein Feedback.',
+  loyalty_tier_upgrade: 'Herzlichen Glückwunsch! Du hast ein neues Treuepunkte-Level erreicht! 🎉',
 };
 
 // ── Schreiben ─────────────────────────────────────────────────────────────────

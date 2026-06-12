@@ -1,10 +1,20 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–77 abgeschlossen. CEO Review #60. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
+**Phasen 1–79 abgeschlossen. CEO Review #60. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 79: Push-Benachrichtigungen bei Tier-Upgrade (Bronze→Silber→Gold→Platin)
+- [x] CustomerEventType: 'loyalty_tier_upgrade' hinzugefügt (customer-notify.ts)
+- [x] earnPoints(): sendet Tier-Upgrade-Push fire-and-forget via enqueueCustomerNotification (loyalty-points.ts)
+- [x] Push-Text inkl. neuem Tier-Label und aktuellem Punktestand (DE)
+- [x] Phase 78: Loyalty-Punkte im Storefront-Checkout anzeigen + Einlösungs-Toggle
+- [x] checkout-sheet.tsx: Loyalty-Block auf Zahlungsschritt — Balance-Fetch, Tier-Badge, Punkte-Anzeige, Einlösen-Toggle
+- [x] Einlöse-Cap: min 100 Punkte, max 20 % des Warenkorbs (clientseitig berechnet)
+- [x] storefront.tsx: loyalty-State, loyaltyDiscount in total-Berechnung, onLoyaltyChange → setLoyalty
+- [x] storefront.tsx: Nach Bestellerstellung loyalty/redeem API fire-and-forget (mit order_id)
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 183 Seiten)
 - [x] Phase 77: Kunden-Loyalty-Punkte-System — Punkte sammeln, Tier-System, Einlösung im Checkout
 - [x] scripts/migrations/051_customer_loyalty_points.sql — customer_loyalty_accounts, loyalty_point_transactions, v_loyalty_leaderboard
 - [x] lib/delivery/loyalty-points.ts — earnPoints(), redeemPoints(), getBalance(), getLeaderboard(), getLoyaltyKpis(), manualAdjust(), processExpiredPointsAllLocations()
