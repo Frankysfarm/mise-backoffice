@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, euro } from '@/lib/utils';
 import {
-  AlertCircle, Bell, BellOff, Bike, Check, ChefHat, ChevronDown, ChevronUp, Clock, Euro, Flame, Home as HomeIcon,
+  AlertCircle, Bell, BellOff, Bike, Check, CheckCircle2, ChefHat, ChevronDown, ChevronUp, Clock, Euro, Flame, Home as HomeIcon,
   Inbox, Loader2, MapPin, MessageSquare, Monitor, Package, Pause, Phone, Play, ShoppingBag, Target, TrendingUp, Utensils, X, Zap,
 } from 'lucide-react';
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -597,6 +597,16 @@ export function KitchenBoard({
               Test
             </button>
           )}
+          {/* Alle Timer starten — für alle in_zubereitung Bestellungen ohne Timing */}
+          {(() => {
+            const untracked = filtered.filter(
+              (o) => o.status === 'in_zubereitung' && !timings.find((t) => t.order_id === o.id),
+            );
+            if (untracked.length === 0) return null;
+            return (
+              <KitchenBulkTimerStart orders={untracked} onDone={refreshTimings} />
+            );
+          })()}
           {/* Farbsystem-Legende */}
           <button
             onClick={() => setShowColorLegend((v) => !v)}
@@ -6346,5 +6356,56 @@ function KitchenReadyForecastPanel({ orders, timings }: { orders: Order[]; timin
         })}
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ KitchenBulkTimerStart ------------------------------ */
+function KitchenBulkTimerStart({ orders, onDone }: { orders: Order[]; onDone: () => void }) {
+  const [pending, startTransition] = useTransition();
+  const [done, setDone] = useState(false);
+
+  const handleStart = () => {
+    startTransition(async () => {
+      await Promise.all(
+        orders.map((o) => createKitchenTiming(o.id, o.geschaetzte_zubereitung_min ?? 15)),
+      );
+      setDone(true);
+      onDone();
+      setTimeout(() => setDone(false), 3000);
+    });
+  };
+
+  if (done) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-matcha-300 bg-matcha-50 px-3 py-1 text-xs font-bold text-matcha-700">
+        <CheckCircle2 className="h-3 w-3" />
+        {orders.length} Timer gestartet
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleStart}
+      disabled={pending}
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition-colors',
+        pending
+          ? 'border-blue-200 bg-blue-50 text-blue-400 cursor-not-allowed'
+          : 'border-blue-400 bg-blue-500 text-white hover:bg-blue-600 active:scale-95',
+      )}
+    >
+      {pending ? (
+        <>
+          <Loader2 className="h-3 w-3 animate-spin" />
+          Starte Timer…
+        </>
+      ) : (
+        <>
+          <Play className="h-3 w-3" />
+          {orders.length} Timer starten
+        </>
+      )}
+    </button>
   );
 }
