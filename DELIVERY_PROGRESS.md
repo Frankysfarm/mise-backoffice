@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–88 abgeschlossen. CEO Review #65 ✅. Build sauber (187 Seiten). 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–89 abgeschlossen. CEO Review #66 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 89: Smart-UI-Erweiterungen — Kitchen/Dispatch/Fahrer/Storefront/Statistiken — 2026-06-12
+- [x] KitchenSmartPrepAdvisor: analysiert letzte 4h Referenzbestellungen, zeigt Ø Ist-Zeit, Ø Abweichung, empfohlene Zubereitungszeit — 5-Min-Refresh
+- [x] DispatchCapacityGauge: freie Slots in aktiven Touren + freie Fahrer-Kapazität, Kapazitätsbalken, Deficit-Warning — 15s-Tick
+- [x] TourProgressDots ETA-Labels: Minuten-Countdown pro Stopp in Fahrer-App, rot+pulse überfällig, amber <5 Min — 30s-Tick
+- [x] LieferdienstDurchsatzPanel: 8-Stunden-Sparkline mit Trend-Indikator ↑↓→ und Stunden-Rate — 5-Min-Refresh
+- [x] Storefront Dreieck-Pfeil: Fahrtrichtung als CSS-Pfeil basierend auf GPS-heading; "Fahrer ist fast da!"-Banner pulsiert bei <2 Min ETA
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler)
 - [x] Phase 88: Besetzungs-Cockpit — 7-Tage Schichtplanung mit Forecast-Integration — 2026-06-12
 - [x] lib/delivery/shift-planner.ts — getStaffingPlan(): 7-Tage-Prognose × geplante Schichten → StaffingSlot[] mit CoverageStatus (ok/low/gap/over/off)
 - [x] GET /api/delivery/admin/shift-planner — Multi-Tenant-sicher, ?days=1-14, gibt StaffingPlan mit Summary zurück

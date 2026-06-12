@@ -1,7 +1,91 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–87 vollständig abgeschlossen. CEO Review #65 abgeschlossen. TypeScript 0 Fehler. Build sauber (185 Seiten). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–89 vollständig abgeschlossen. CEO Review #66 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #66 — 2026-06-12
+
+### Geprüfte Commits (2 neue Commits seit Review #65)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `ba38502` | feat(delivery/backend+frontend): Phase 88 — Besetzungs-Cockpit (7-Tage Schicht-Heatmap) | ✅ |
+| `5ceba76` | feat(delivery/frontend): Phase 89 — Smart-UI-Erweiterungen für alle 5 Bereiche | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully ✅
+
+### Befund Phase 88 (Backend+Frontend)
+
+**lib/delivery/shift-planner.ts**:
+- `getStaffingPlan()` — 7-Tage-Prognose × geplante Schichten → StaffingSlot[] mit CoverageStatus ✅
+- Multi-Tenant-sicher, ?days=1-14 ✅
+
+**app/(admin)/delivery/shift-planner/**:
+- StaffingCockpitClient: 4 KPI-Karten, Heatmap-Grid 18h × 7 Tage ✅
+- SlotDetail: Click-to-expand Detailpanel ✅
+- 5-Minuten Auto-Refresh ✅
+
+### Befund Phase 89 (Frontend — 5 Bereiche)
+
+**Kitchen — KitchenSmartPrepAdvisor**:
+- Lädt letzte 4h Referenzbestellungen aus `customer_orders` via Supabase ✅
+- Berechnet Ø Ist-Zeit, Ø Abweichung, empfohlene Zubereitungszeit (avgDelta × 0.7) ✅
+- `actuals.filter(x => x.actual > 0 && x.actual < 90)` — sauberer Outlier-Filter ✅
+- Zeigt nur bei `pending.length >= 1 && actuals.length >= 3` — keine false positives ✅
+- Type `HistoryPoint` korrekt inline definiert, keine Type-Lücken ✅
+
+**Dispatch — DispatchCapacityGauge**:
+- `MAX_STOPS_PER_TOUR = 4` — Konstante lokal definiert, leicht anpassbar ✅
+- Freie Slots in aktiven Touren: open stops < MAX_STOPS_PER_TOUR ✅
+- Freie Fahrer: `ist_online && !aktueller_batch_id` ✅
+- Kapazitätsbalken + Deficit-Warning bei Unterkapazität ✅
+- `Gauge` Icon bereits in dispatch/client.tsx importiert ✅
+
+**Fahrer-App — TourProgressDots ETA-Labels**:
+- `eta_earliest` auf Stop-Typ als `string | null` definiert (Zeile 39) ✅
+- ETA-Label zeigt Minuten-Countdown, rot+pulse wenn überfällig, amber wenn <5 Min ✅
+- 30s setInterval für Live-Ticker ✅
+- Verbindungslinien `self-start mt-3.5` — korrekte vertikale Ausrichtung ✅
+
+**Lieferdienst-Statistiken — LieferdienstDurchsatzPanel**:
+- 8-Stunden-Fenster (nowH-7 bis nowH) ✅
+- Sparkline mit SVG-freier CSS-Balken-Implementierung ✅
+- `BarChart3` Icon importiert ✅
+- Trend-Indikator ↑↓→ basierend auf currentHour vs. prevHour ✅
+
+**Storefront — success-state.tsx**:
+- `driverPos` Typ enthält `heading: number | null` (Zeile 68) ✅
+- Dreieck-Pfeil korrekt mit CSS-Border-Trick + `transform:rotate(${heading}deg)` ✅
+- `transform-origin:50% 200%` — Pfeilspitze zeigt in Fahrtrichtung ✅
+- `secsLeft < 120` → "Fahrer ist fast da!" Banner pulsiert mit `animate-pulse` ✅
+- Icon-Wechsel 🎯 → 🔔 bei <2 Min ✅
+
+### Bugs gefunden und gefixt
+**0 Bugs** — Phase 88+89 ist produktionsreif.
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront
+- Kitchen analysiert historische Prep-Zeiten und gibt Echtzeit-Empfehlungen ✅
+- Dispatch sieht Gesamt-Kapazität inkl. freier Fahrer auf einen Blick ✅
+- Fahrer-App zeigt ETA-Countdowns pro Stopp direkt im Fortschrittsstreifen ✅
+- Storefront zeigt Fahrtrichtung als Pfeil + "Fast da!"-Banner unter 2 Minuten ✅
+- Besetzungs-Cockpit verknüpft Schicht-Forecast mit Heatmap (Admin) ✅
+
+### Status nach Review #66
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber ✅
+- Phase 88 (Besetzungs-Cockpit): DONE ✅
+- Phase 89 (Smart-UI alle 5 Bereiche): DONE ✅
+- Bugs gefixed: 0
+
+### Nächste Schritte (Optional — System bereits MARKT-REIF)
+Das System ist vollständig deployment-bereit. Folgende Erweiterungen sind möglich:
+1. Phase 90: Push-Notifications an Kunden bei "Fahrer fast da" (2-Min-Trigger)
+2. Phase 91: Fahrer-App Offline-Modus (Service Worker, Bestelldaten cachen)
+3. Phase 92: Admin-Dashboard Export (CSV/PDF für Schicht-Heatmap, Statistiken)
+
+---
 
 ## CEO Review #65 — 2026-06-12
 
