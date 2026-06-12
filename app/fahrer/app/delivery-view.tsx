@@ -884,9 +884,23 @@ export function DeliveryView({
                         BAR
                       </span>
                     )}
-                    {distKm && (
-                      <span className="text-[9px] text-matcha-400 ml-auto tabular-nums">{distKm} km</span>
-                    )}
+                    <span className="ml-auto flex flex-col items-end gap-0 tabular-nums">
+                      {/* GPS-Abstand Fahrer → Stopp (Luftlinie) hat Vorrang vor Stopp-zu-Stopp */}
+                      {driverLat != null && driverLng != null && s.order.kunde_lat != null && s.order.kunde_lng != null ? (() => {
+                        const φ1 = driverLat * Math.PI / 180, φ2 = s.order.kunde_lat * Math.PI / 180;
+                        const dφ = (s.order.kunde_lat - driverLat) * Math.PI / 180;
+                        const dλ = (s.order.kunde_lng - driverLng) * Math.PI / 180;
+                        const a = Math.sin(dφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(dλ / 2) ** 2;
+                        const dm = Math.round(6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                        return (
+                          <span className="text-[9px] text-accent/70 font-bold">
+                            {dm < 1000 ? `~${dm}m` : `~${(dm / 1000).toFixed(1)}km`}
+                          </span>
+                        );
+                      })() : distKm ? (
+                        <span className="text-[9px] text-matcha-400">{distKm} km</span>
+                      ) : null}
+                    </span>
                   </div>
                   <div className="text-[11px] font-bold text-matcha-100 leading-tight truncate">
                     {s.order.kunde_name}
@@ -929,6 +943,11 @@ export function DeliveryView({
                     const soon = !overdue && secLeft < 600;
                     const rm = Math.floor(Math.abs(secLeft) / 60);
                     const rs = Math.abs(secLeft) % 60;
+                    // Pace-basierter Puffer: projizierte Ankunft vs. ETA
+                    const paceBufferSec = batchStartedAt && totalEtaMin && stops.length > 0 ? (() => {
+                      const projMs = new Date(batchStartedAt).getTime() + (s.reihenfolge / stops.length) * totalEtaMin * 60_000;
+                      return Math.floor((etaMs - projMs) / 1000);
+                    })() : null;
                     return (
                       <div className="mt-0.5 flex items-center gap-1 flex-wrap">
                         <span className="text-[9px] text-matcha-500 tabular-nums">~{etaStr}</span>
@@ -940,6 +959,18 @@ export function DeliveryView({
                             'bg-matcha-700/50 text-matcha-300',
                           )}>
                             {overdue ? `+${rm}:${String(rs).padStart(2, '0')}` : `${rm}:${String(rs).padStart(2, '0')}`}
+                          </span>
+                        )}
+                        {paceBufferSec !== null && (
+                          <span className={cn(
+                            'rounded-full px-1.5 py-0.5 text-[8px] font-bold tabular-nums',
+                            paceBufferSec >= 120 ? 'text-matcha-400' :
+                            paceBufferSec >= 0   ? 'text-amber-400' :
+                            'text-red-400 animate-pulse',
+                          )}>
+                            {paceBufferSec >= 0
+                              ? `+${Math.floor(paceBufferSec / 60)}m Puffer`
+                              : `-${Math.floor(-paceBufferSec / 60)}m`}
                           </span>
                         )}
                       </div>
