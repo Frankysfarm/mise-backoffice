@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–92 abgeschlossen + Live-UX-Erweiterungen. CEO Review #69 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–93 abgeschlossen + Live-UX-Erweiterungen. CEO Review #69 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 93: Fahrer-Zuverlässigkeits-Score + No-Show-Handler — 2026-06-12
+- [x] scripts/migrations/055_driver_reliability.sql: driver_shift_events + driver_reliability_scores (Score 0–100), 5 Indizes, RLS
+- [x] lib/delivery/driver-reliability.ts: recordShiftEvent, updateDriverReliabilityScore, detectAndHandleNoShows, detectAndHandleNoShowsAllLocations, recordPerfectShiftIfClean, recordLateStartIfDelayed, getReliabilityLeaderboard, getDriverReliabilityHistory, getReliabilityStats
+- [x] GET /api/delivery/admin/driver-reliability: action=leaderboard|stats|history, Auth via tenant_id
+- [x] Cron: detectAndHandleNoShowsAllLocations() jeden isDemandTick (alle 30 Min), No-Show → Broadcast + Score-Update
+- [x] Score-Formel: 100 − (no_shows×25) − (late_starts×5) − (early_ends×10) + (perfects×2), Tier excellent/good/medium/critical
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 187 Seiten)
 - [x] Dispatch Handoff-Geschwindigkeit Panel — 2026-06-12
 - [x] DispatchHandoffSpeedPanel: Ø-Zeit fertig→Fahrer (letzte 8h), Trend-Indikator ▲/▼, 7-Bucket-Histogram (<30s…>10m)
 - [x] Kitchen Dispatch-Backlog-Eskalation + Schicht-Vergleich — 2026-06-12

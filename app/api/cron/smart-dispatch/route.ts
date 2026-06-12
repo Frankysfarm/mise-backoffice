@@ -36,6 +36,7 @@ import { expireStaleApplicationsAllLocations } from '@/lib/delivery/onboarding';
 import { runSlaEscalationAllLocations } from '@/lib/delivery/sla-escalation';
 import { processExpiredPointsAllLocations } from '@/lib/delivery/loyalty-points';
 import { pruneNavCache } from '@/lib/delivery/navigation';
+import { detectAndHandleNoShowsAllLocations } from '@/lib/delivery/driver-reliability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -79,7 +80,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -163,6 +164,10 @@ export async function GET(req: NextRequest) {
         : Promise.resolve(null),
       // Nav-Cache: alte Routen-Caches löschen (alle 2 Stunden)
       pruneNavCache().catch(() => 0),
+      // No-Show-Erkennung: verpasste Schichten → Event + Broadcast (alle 30 Min)
+      isDemandTick
+        ? detectAndHandleNoShowsAllLocations().catch(() => ({ locations: 0, total_detected: 0, broadcasts_sent: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -238,6 +243,7 @@ export async function GET(req: NextRequest) {
       ...(slaEscalationResult ? { sla_escalation: { escalated: slaEscalationResult.escalated, resolved: slaEscalationResult.resolved, below_threshold: slaEscalationResult.below_threshold.length } } : {}),
       ...(loyaltyExpireResult ? { loyalty_points_expired: loyaltyExpireResult.totalExpired } : {}),
       nav_cache_pruned: navCachePruned ?? 0,
+      ...(noShowResult ? { no_show_detection: { detected: noShowResult.total_detected, broadcasts_sent: noShowResult.broadcasts_sent } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
