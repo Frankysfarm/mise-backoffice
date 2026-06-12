@@ -1,7 +1,100 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–72 vollständig abgeschlossen. CEO Review #58 abgeschlossen. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–76 vollständig abgeschlossen. CEO Review #59 abgeschlossen. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.
+
+## CEO Review #59 — 2026-06-12
+
+### Geprüfte Commits (2 neue Commits seit Review #58)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `dcb35c7` | feat(delivery/backend): Phasen 73–75 — Rating+Kommentar, Franchise-Dashboard, SLA-Eskalation | ✅ sauber |
+| `2a4ecef` | feat(delivery/frontend): Phase 76 — Richtungspfeil Karte, Gleichzeitig-Fertig-Warnung, Stopp-ETA-Countdown, Bar-Kassier-Tracker | ✅ sauber |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Compiled successfully, 182 Seiten ✅
+
+### Befund Phase 73 (Rating+Kommentar Zwei-Schritt-Flow)
+
+**success-state.tsx**:
+- Zwei-Schritt-Flow: Stern-Klick → `selectRatingStar()` setzt `ratingPending=true` → Textarea + Submit-Button erscheinen ✅
+- `submitRating()`: wartet auf expliziten Klick, sendet `comment` optional mit (max 300 Zeichen) ✅
+- Guard: `!rating` → kein Absenden ohne gewählten Stern ✅
+- `ratingSubmitting`-State blockiert doppelte Requests korrekt ✅
+- API-Route `POST /api/delivery/orders/[orderId]/rate`: akzeptiert `comment?` ✅
+- `submitCustomerRating()` in `satisfaction.ts`: speichert `comment` in DB ✅
+
+### Befund Phase 74 (Franchise-Vergleichs-Dashboard)
+
+**GET /api/delivery/admin/franchise-compare**:
+- Tenant-ID über `employees.tenant_id` korrekt ermittelt ✅
+- Parallele DB-Abfragen: SLA (letzten 30 Lieferungen), Bewertungen (14 Tage), Umsatz heute ✅
+- Composite-Score: 50% SLA + 30% Rating + 20% Durchsatz (max 10 Lieferungen = 20 Punkte) — sinnvolle Gewichtung ✅
+- Sortierung nach Score DESC, Rang-Zuweisung korrekt ✅
+- Fallback auf leere LocationRealtimeStatus wenn `getFranchiseSummary()` fehlschlägt ✅
+- Multi-Tenant-sicher (kein Cross-Tenant-Datenleck) ✅
+
+**FranchiseCompareClient**:
+- 30s-Auto-Refresh mit Countdown-Ticker korrekt ✅
+- Rang-Podium 🥇🥈🥉 korrekt ✅
+- Farbkodierung `onTimeColor / ratingColor / healthColor` sinnvoll ✅
+- Sidebar-Eintrag unter `Loslegen` mit `BarChart2`-Icon korrekt importiert ✅
+
+### Befund Phase 75 (SLA-Eskalation)
+
+**lib/delivery/sla-escalation.ts**:
+- `checkSlaEscalation()`: mindestens 5 Datenpunkte nötig (MIN_SAMPLE_SIZE) — kein Alarm bei Datenmangel ✅
+- Fire-Logik: Alarm NUR wenn `isBelow && !existing` → kein Duplikat-Spam ✅
+- Auto-Resolve: Alarm aufgelöst wenn `!isBelow && existing` → korrekte Erholung ✅
+- `runSlaEscalationAllLocations()`: `Promise.allSettled` schützt vor Einzelfehlern ✅
+- Cron-Integration: `isRatingTick` (alle 10 Min) korrekt verdrahtet ✅
+- Cron-Response enthält `sla_escalation.escalated + resolved + below_threshold.length` ✅
+
+### Befund Phase 76 (Frontend UX)
+
+**live-map.tsx**:
+- `buildDriverIcon()`: CSS-Dreieck dreht sich gemäß GPS-Heading ✅
+- `hasHeading = heading != null` — kein Pfeil wenn kein GPS-Heading ✅
+- Pfeil wird bei jedem Re-Render via `setIcon()` aktualisiert ✅
+- `tracking.tsx`: `fahrer_heading` wird jetzt an `LiveMap` weitergegeben ✅
+
+**SmartTimingCountdownGrid** (kitchen/client.tsx):
+- Gleichzeitig-Fertig-Banner: Gruppierung per sequenziellem Sliding-Window (`≤90s Abstand`) ✅
+- Zeigt erste Gruppe mit `≥2` gleichzeitigen Orders ✅
+- Korrekte `remSec`-Sortierung vor Gruppierung ✅
+
+**ExpandableStopList** (dispatch/client.tsx):
+- 1s-Tick nur wenn Panel `open` — kein unnötiger Hintergrund-Timer ✅
+- `secLeft = floor((etaMs - now) / 1000)` korrekt ✅
+- Zwei getrennte ternary-Ausdrücke: äußeres `div` (Hintergrundfarbe) und inneres Badge — kein Duplikat-Condition-Bug ✅
+- Überfällig: rot + `animate-pulse` ✅
+
+**delivery-view.tsx** (Bar-Kassier-Tracker):
+- `remaining = cashStops.filter(!geliefert_am)` + `collected = cashStops.filter(geliefert_am)` — korrekte Trennung ✅
+- Getrennte Anzeige: Amber = noch kassieren, Grün = bereits kassiert ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: Gleichzeitig-Fertig-Banner warnt Dispatch rechtzeitig ✅
+- Dispatch: Stop-ETA-Countdown 1s-live, rot+pulse bei Überfälligkeit ✅
+- Fahrer: Bar-Kassier-Tracker zeigt verbleibende/kassierte Beträge ✅
+- Storefront: Heading-Pfeil auf Fahrermarker in Live-Karte ✅
+- Franchise-Vergleich: Admin sieht alle Locations im Leistungsvergleich ✅
+- SLA-Eskalation: automatischer kritischer Alert wenn On-Time < 80% ✅
+
+### Status nach Review #59
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully, 182 Seiten ✅
+- **Bugs gefunden: 0** — alle 4 Phasen sind produktionsreif
+- Status: **MARKT-REIF + KI** bestätigt
+
+### Nächste mögliche Phasen
+- Phase 77: Multi-Location Dispatch — Fahrer zwischen Locations wechseln / Überlast-Routing
+- Phase 77: Kunden-Loyalty-Programm (Punkte bei jeder Bestellung, Einlösung ab Schwelle)
+- Phase 77: Fahrer-Schicht-Planung (Wochenkalender im Admin, Coverage-Gap-Erkennung)
+
+---
 
 ## CEO Review #58 — 2026-06-12
 
