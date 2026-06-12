@@ -834,7 +834,8 @@ export function DispatchBoard({
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
-                while (true) {
+                let finished = false;
+                while (!finished) {
                   const { done, value } = await reader.read();
                   if (done) break;
                   buffer += decoder.decode(value, { stream: true });
@@ -843,7 +844,7 @@ export function DispatchBoard({
                   for (const line of lines) {
                     if (!line.startsWith('data: ')) continue;
                     const chunk = line.slice(6);
-                    if (chunk === '[DONE]') break;
+                    if (chunk === '[DONE]') { finished = true; break; }
                     setAiText((prev) => prev + chunk.replace(/\\n/g, '\n'));
                   }
                 }

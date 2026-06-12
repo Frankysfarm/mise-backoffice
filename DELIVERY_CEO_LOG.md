@@ -1,7 +1,78 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–67 vollständig abgeschlossen. Phase 67: KI-Dispatch-Assistent (Claude Haiku Streaming). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–67 vollständig abgeschlossen. CEO Review #54 abgeschlossen: 2 Bugs gefixt (SSE-Loop + .env.example). TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+---
+
+## CEO Review #54 — 2026-06-12
+
+### Geprüfte Commits (1 Commit seit Review #53)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `b4c7c17` | feat(delivery/backend): Phase 67 — KI-Dispatch-Assistent (Claude Haiku Streaming) | ⚠️ 2 Bugs → gefixt |
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅ (vor und nach Fix)
+- `next build`: **180 Seiten, kompiliert sauber** ✅
+
+### Befund Phase 67 (KI-Dispatch-Assistent)
+
+**lib/delivery/ai-dispatch.ts**:
+- `buildDispatchContext()`: Parallele DB-Abfragen (Bestellungen, Fahrer, Batches, Küche) ✅
+- `mise_drivers` hat kein `location_id` (globale Tabelle) — kein Filter ist korrekt ✅
+- `streamDispatchAdvice()`: Anthropic SDK korrekt initialisiert, Haiku-Modell, 800 max_tokens ✅
+- ReadableStream korrekt mit `content_block_delta` + `text_delta` ✅
+- `buildPrompt()`: 4-Abschnitt-Prompt auf Deutsch, konkrete Felder übergeben ✅
+
+**POST /api/delivery/admin/ai-assist**:
+- Auth-Guard via Supabase Session ✅
+- `location_id` Pflicht-Validierung ✅
+- SSE-Response mit `text/event-stream` + `x-accel-buffering: no` ✅
+- Newline-Escaping `\n` → `\\n` für SSE-Kompatibilität ✅
+- Error-Handling in `catch` Block ✅
+
+**AiDispatchAssistantPanel**:
+- Sparkles + X Icon korrekt importiert aus lucide-react ✅
+- Auto-Scroll via `scrollRef` + `useEffect` ✅
+- Streaming-Cursor-Animation ✅
+
+### Bug 1 gefunden und gefixt — SSE `[DONE]` break nur inner loop
+
+**Datei**: `app/(admin)/dispatch/client.tsx`, AI-Button onClick Handler (Zeile 846)
+
+**Problem**: `if (chunk === '[DONE]') break;` brach nur den inneren `for`-Loop, nicht den äußeren `while(true)`-Loop. Nach `[DONE]` wurde erneut `reader.read()` aufgerufen und auf den Stream-Close gewartet — bei langsamen Verbindungen ein unnötiger Hänger.
+
+**Fix**: `finished`-Flag eingeführt. `if (chunk === '[DONE]') { finished = true; break; }` + `while (!finished)` — der äußere Loop bricht sofort nach `[DONE]`.
+
+### Bug 2 gefunden und gefixt — ANTHROPIC_API_KEY fehlt in .env.local.example
+
+**Datei**: `.env.local.example`
+
+**Problem**: `ANTHROPIC_API_KEY` war nicht dokumentiert. Neuentwickler würden Phase 67 (KI-Assistent) + bestehende KI-Features (Menu-Import, Help-Chat, Training-Generator) nicht zum Laufen bringen, da kein Hinweis auf den nötigen API-Key existierte.
+
+**Fix**: `ANTHROPIC_API_KEY=sk-ant-REPLACE_WITH_YOUR_KEY` hinzugefügt.
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen → KI-Kontext: Küchen-Auslastung (aktiv in_zubereitung Count) fließt in Claude-Prompt ein ✅
+- Dispatch → KI-Panel: Violetter Button neben Auto-Dispatch, SSE-Streaming-Panel ✅
+- Driver → KI-Kontext: Fahrer-State + Kapazität + GPS-Alter in Prompt ✅
+- Storefront: kein direkter KI-Bezug — Phase 67 ist Dispatch-only ✅
+
+### Status nach Review #54
+- TypeScript: 0 Fehler ✅
+- Build: 180 Seiten, kompiliert sauber ✅
+- Phase 67 (KI-Dispatch-Assistent): DONE, 2 Bugs gefixt ✅
+- Bugs gefixed: 2 (SSE-Loop-Break, .env.example)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 68: KI-Kontext erweitern — historische Zonen-Laufzeiten + Fahrer-Performance-Snapshots in `buildDispatchContext()` einbeziehen
+2. Oder: Rate-Limiting für `/api/delivery/admin/ai-assist` (max. 1 Anfrage/Minute pro Location)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 68: Markdown-Rendering im `AiDispatchAssistantPanel` (aktuell `whitespace-pre-wrap monospace` — `**Fett**` wird nicht gerendert)
+2. Oder: KI-Kontext-Preview-Tooltip am Sparkles-Button (zeigt wieviele Bestellungen/Fahrer analysiert werden)
 
 ---
 

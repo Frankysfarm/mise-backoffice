@@ -1,10 +1,11 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–67 abgeschlossen. TypeScript 0 Fehler. Build sauber. Phase 67: KI-Dispatch-Assistent (Claude Haiku Streaming). Deployment-bereit.**
+**Phasen 1–67 abgeschlossen. CEO Review #54 abgeschlossen: 2 Bugs gefixt. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #54: 2 Bugs gefixt (SSE-[DONE]-Loop nur inner break → finished-Flag, .env.local.example fehlte ANTHROPIC_API_KEY)
 - [x] Phase 67: KI-Dispatch-Assistent — Claude Haiku analysiert Live-Queue und streamt deutsche Dispatch-Empfehlungen
 - [x] lib/delivery/ai-dispatch.ts — buildDispatchContext() + streamDispatchAdvice() (Anthropic SDK, Haiku)
 - [x] POST /api/delivery/admin/ai-assist — SSE-Streaming-Endpoint mit Auth + Multi-Tenant location_id
