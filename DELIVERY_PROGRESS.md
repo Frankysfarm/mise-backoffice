@@ -1,10 +1,19 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–95 abgeschlossen. CEO Review #71 ✅. Build sauber. 0 TypeScript-Fehler. 188 Seiten. Deployment-bereit.**
+**Phasen 1–96 abgeschlossen. CEO Review #71 ✅. Build sauber. 0 TypeScript-Fehler. 189 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 96: KI-Tages-Digest (Daily Operations Digest + AI Narrative) — 2026-06-12
+- [x] scripts/migrations/057_daily_digest.sql: delivery_daily_digests (location_id + digest_date UNIQUE, metrics JSONB, anomalies JSONB, ai_summary TEXT, RLS)
+- [x] lib/delivery/daily-digest.ts: gatherDailyMetrics() (10 KPI-Dimensionen: Bestellungen/Umsatz/Performance/Fahrer/CDES/Zufriedenheit/Verspätungen), detectAnomalies() (8 Metriken, Warning >25%/Critical >50% Abweichung vs. Vortag), streamDailyDigest() (Claude Haiku SSE), saveDailyDigest() (DB-Cache + AI), getDigestHistory() (30 Tage), generateDigestAllLocations() (Cron-Helfer)
+- [x] GET /api/delivery/admin/daily-digest: gespeicherter Digest + Live-Fallback-Metriken + 30-Tage-History
+- [x] POST /api/delivery/admin/daily-digest: stream=true → SSE-Stream / stream=false → Digest berechnen + speichern
+- [x] app/(admin)/delivery/digest/: DigestClient mit Datums-Picker, 8 KPI-Karten (Bestellungen/Umsatz/Performance/Fahrer/CDES/Verspätungen), Anomalie-Chips (Warning/Critical), KI-Zusammenfassungs-Panel (Streaming Claude), 30-Tage-Verlaufstabelle + Bestellungs-Sparkline
+- [x] Cron: generateDigestAllLocations() täglich um 03:00 UTC (isDigestTick) → daily_digest: { locations, generated, errors } in Response
+- [x] Sidebar: "Tages-Digest (KI)" mit BookOpen-Icon unter Loslegen-Gruppe
+- [x] Build: Compiled successfully ✓ (189 Seiten, 0 TypeScript-Fehler in neuen Dateien)
 - [x] Phase 95 (Frontend-Erweiterungen): Smart-Timing Countdown + Tour-Sequenz + ETA-Wecker + Gesamte-Route-Navigation — 2026-06-12
 - [x] KitchenSmartCountdownGrid (kitchen/countdown-grid.tsx): SVG-Countdown-Ringe pro Bestellung, 1s-Tick, Farbstufen grün/amber/orange/rot, Sort nach Dringlichkeit
 - [x] TourSequenzPanel (dispatch/tour-sequenz.tsx): Stop-für-Stop-Visualisierung aller aktiven Touren, Fortschrittsbalken, Überfälligkeits-Anzeige
@@ -2874,6 +2883,14 @@ Siehe DELIVERY_CEO_LOG.md
   - Build: Compiled successfully
 - 2026-05-27: Projekt gestartet, Agenten eingerichtet
 
+- 2026-06-12: Backend-Architekt — Phase 96: KI-Tages-Digest + Anomalie-Erkennung
+  - scripts/migrations/057_daily_digest.sql: delivery_daily_digests + RLS-Policy + Performance-Index
+  - lib/delivery/daily-digest.ts: 7 Funktionen — gatherDailyMetrics() (10 KPI-Dimensionen), detectAnomalies() (8 Metriken, Warning/Critical), streamDailyDigest() (Claude Haiku SSE), saveDailyDigest() (DB + AI-Summary), getDailyDigest(), getDigestHistory(), generateDigestAllLocations()
+  - GET+POST /api/delivery/admin/daily-digest: vollständige REST-API mit SSE-Streaming und DB-Persist
+  - app/(admin)/delivery/digest/: DigestClient mit KPI-Grid, Anomalie-Chips, KI-Panel (Streaming), 30-Tage-Verlauf + Sparkline
+  - Cron: isDigestTick (täglich 03:00 UTC) → generateDigestAllLocations() → daily_digest in Response
+  - Sidebar: "Tages-Digest (KI)" mit BookOpen-Icon unter Loslegen
+  - Build: npm run build ✓ (189 Seiten, 0 neue TypeScript-Fehler)
 - 2026-06-10: Backend-Architekt — Phase 58: Fahrer-Pausen-Tracking (Shift Break Engine)
   - scripts/migrations/047_shift_breaks.sql: shift_breaks + v_shift_break_summary + v_driver_active_minutes_today + get_driver_active_minutes() SQL-Funktion
   - lib/delivery/shifts.ts: +6 Funktionen (startBreak/endBreak/getActiveBreak/getShiftBreaks/getBreakSummary/getNetActiveMinutes)
