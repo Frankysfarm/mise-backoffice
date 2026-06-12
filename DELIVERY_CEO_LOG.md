@@ -1,7 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–69 vollständig abgeschlossen. CEO Review #56 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–70 vollständig abgeschlossen. CEO Review #57 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #57 — 2026-06-12
+
+### Geprüfte Commits (2 Commits seit Review #56)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `46bc95b` | feat(delivery/backend): Phase 70 — Auto-Versand Bewertungs-Links nach Lieferung | ✅ OK |
+| `5021cc7` | feat(delivery/frontend): Smart-Timing, Score-Anzeige, Tour-Briefing, Schicht-Rangliste | ⚠️ 1 Bug → gefixt |
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅
+- `next build`: **sauber** ✅
+
+### Befund Phase 70 Backend (Rating-Links)
+- `sendRatingLinkAfterDelivery()` — Token-Generierung + Push-Queue — Logik korrekt ✅
+- `processPendingRatingLinks()` — Cron-Helfer mit Batch-Limit 50 — korrekt ✅
+- `CustomerEventType 'rating_request'` — DE-Text, korrekt eingebunden ✅
+- Migration 050 Partial-Index `idx_customer_orders_rating_pending` — performante Cron-Abfrage ✅
+
+### Befund Phase 71 Frontend (KitchenUrgencyTicker, DispatchScoreBar, DriverLeaderboardMini, TourBriefingCard)
+
+**KitchenUrgencyTicker** (`app/(admin)/kitchen/client.tsx`):
+- 1-Sek-Interval für Live-Countdown — korrekte `setInterval` + Cleanup ✅
+- Farbkodierung: Rot/Orange bei überfällig, Blau→Matcha bei <2 Min — korrekt ✅
+- `cooking.length === 0` → `return null` Guard ✅
+
+**DispatchScoreBar** (`app/(admin)/dispatch/client.tsx`):
+- `dispatch_score: number | null` — Feld existiert im Order-Typ ✅
+- Farbkodierung grün ≥75 / gelb ≥50 / rot <50 — korrekt ✅
+
+**DriverLeaderboardMini** — Bug gefunden & gefixt:
+- **Bug**: Props-Typ war `Driver[]` (kein `deliveries`-Feld) → alle Fahrer zeigten 0
+- **Fix**: Prop auf `liveDrivers` umgestellt (DriverRow[] mit echten Delivery-Counts)
+- Call-Site in `LieferdienstFahrerEinsatz` von `drivers={drivers}` auf `liveDrivers={liveDrivers}` geändert
+- `any`-Casts entfernt, Typen sauber ✅
+
+**TourBriefingCard** (`app/fahrer/app/client.tsx`):
+- Cash-Stop-Filter `!bezahlt || zahlungsart === 'bar'` — korrekte Logik ✅
+- Verdienst-Schätzung 1,50 €/Stopp + 0,20 €/km — zeigt immer, da stops.length > 0 ✅
+- `batch.stops.length === 0` Guard ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen Urgency-Ticker zeigt Echtzeit-Countdown für nächste fertige Bestellung ✅
+- Dispatch Score-Balken auf fertige Bestellkarten sichtbar ✅
+- Lieferdienst Schicht-Rangliste zeigt jetzt echte Delivery-Counts aus Backend ✅
+- Fahrer-App Tour-Briefing beim Tourantritt: Stopps, ETA, Bar-Summe, Verdienst ✅
+- Rating-Links nach Lieferung: Auto-Push + Cron-Fallback vollständig verkettet ✅
+
+### Fazit
+- Bugs: 1 gefixt (DriverLeaderboardMini Delivery-Count immer 0)
+- TypeScript: 0 Fehler
+- Build: sauber
+- Status: **MARKT-REIF + KI** bestätigt
+
+---
 
 ## CEO Review #56 — 2026-06-12
 

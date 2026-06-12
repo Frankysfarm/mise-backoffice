@@ -1,10 +1,15 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–70 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
+**Phasen 1–70 abgeschlossen. CEO Review #57. TypeScript 0 Fehler. Build sauber. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #57: 1 Bug gefixt (DriverLeaderboardMini zeigte immer 0 Deliveries — jetzt auf liveDrivers umgestellt)
+- [x] Phase 71: KitchenUrgencyTicker — Live-Countdown zum nächsten fertigen Auftrag (Kitchen)
+- [x] Phase 71: DispatchScoreBar — Score-Balken auf fertigen Bestellkarten im Dispatch
+- [x] Phase 71: DriverLeaderboardMini — Schicht-Rangliste mit echten Delivery-Counts (Lieferdienst)
+- [x] Phase 71: TourBriefingCard — Tour-Übersicht beim Tourantritt (Stopps/ETA/Bar-Summe/Verdienst) in Fahrer-App
 - [x] Phase 70: Auto-Versand Bewertungs-Links nach Lieferung (generateRatingToken → Customer Push Integration)
 - [x] sendRatingLinkAfterDelivery() — generiert Token + stellt rating_request-Push in Queue + markiert rating_sent_at
 - [x] processPendingRatingLinks() — Cron-Helfer: bis 50 gelieferte Orders ohne rating_sent_at per Tick verarbeiten
