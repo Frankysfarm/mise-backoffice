@@ -512,7 +512,7 @@ export function DispatchBoard({
     const normalizedSmart = ((smart ?? []) as any[]).map((b: any) => ({
       id: b.id, status: b.state, fahrer_id: b.driver_id, startzeit: b.started_at ?? null,
       total_distance_km: b.total_distance_km ?? null, total_eta_min: b.total_eta_min ?? null, zone: b.zone ?? null,
-      fahrer: b.driver ? { vorname: b.driver.name, nachname: '' } : null,
+      fahrer: b.driver ? { vorname: b.driver.name ?? 'Fahrer', nachname: '' } : null,
       _isMise: true,
       stops: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff').map((s: any) => ({
         id: s.id, order_id: s.order_id, reihenfolge: s.sequence, geliefert_am: s.completed_at ?? null, order: s.order ?? null,

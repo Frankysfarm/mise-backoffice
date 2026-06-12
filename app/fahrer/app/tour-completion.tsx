@@ -59,7 +59,7 @@ export function TourCompletionScreen({ stats, onContinue }: TourCompletionScreen
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [onContinue]);
 
   return (
     <div

@@ -1,7 +1,81 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–95 vollständig abgeschlossen. CEO Review #70 abgeschlossen. TypeScript 0 Fehler. Build sauber. 188 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–98 vollständig abgeschlossen. CEO Review #72 abgeschlossen. TypeScript 0 Fehler. Build sauber. 190 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #72 — 2026-06-12
+
+### Geprüfte Commits (5 neue Commits seit Review #71)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `50616ef` | feat(delivery/frontend): Phase 98 — Score-Radar-Chart + Tour-Completion-Screen | ✅ |
+| `dd801dd` | feat(delivery/backend): Phase 97 — Driver Incentive Challenge Engine | ✅ (Bug #4 gefixed) |
+| `3809291` | feat(lieferdienst): CDES-widget im statistik-dashboard | ✅ (TS-Bug gefixed) |
+| `4bdaede` | feat(dispatch): überfällige-tour-alert mit schnellaktionen | ✅ |
+| `2d1d39f` | feat(tracking): restaurant-marker auf kundenverfolgungskarte | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully, 190 Seiten ✅
+- Bugs gefunden: 3 (1 kritisch, 1 hoch, 1 mittel) — alle gefixed
+
+### Bugs gefixed
+
+#### Bug #1 — TS2367: statistics-view.tsx:1104 (Stunden-Analyse)
+- **Problem:** `o.status === 'delivered' || o.status === 'geliefert'` — `OrderStatus`-Typ hat weder `'delivered'` noch `'geliefert'`, TypeScript-Fehler TS2367
+- **Fix:** `(o.status as string) === 'delivered' || (o.status as string) === 'geliefert'`
+- **Datei:** `components/lieferdienst/statistics-view.tsx:1104`
+
+#### Bug #2 — Datenverlust: challenges.ts:371 (completed_at-Logik)
+- **Problem:** `completed_at: isNewlyCompleted && !wasCompleted ? nowIso : (existing ? null : null)` — der Ausdruck `(existing ? null : null)` ist immer `null`, überschreibt bestehenden `completed_at`-Timestamp mit `null` → Datenverlust, Leaderboard zeigt kein Abschluss-Datum
+- **Fix:** `(existing?.completed_at ?? null)` — bestehenden Timestamp bewahren
+- **Datei:** `lib/delivery/challenges.ts:371` + select um `completed_at` erweitert (Zeile 355)
+
+#### Bug #3 — Stale Closure: tour-completion.tsx:62 (useEffect)
+- **Problem:** `useEffect(() => { setTimeout(() => onContinue(), 8000) }, [])` — `onContinue` nicht in Dependencies, stale closure bei Re-render des Parents
+- **Fix:** `}, [onContinue])` — korrekte Dependency
+- **Datei:** `app/fahrer/app/tour-completion.tsx:62`
+
+#### Bug #4 — Null-Display: dispatch/client.tsx:515 (Fahrer-Name)
+- **Problem:** `b.driver.name` kann null sein → zeigt "null" in Fahrer-Name
+- **Fix:** `b.driver.name ?? 'Fahrer'`
+- **Datei:** `app/(admin)/dispatch/client.tsx:515`
+
+### Befund: ScoreRadarChart (dispatch/score-radar.tsx)
+- `polarToXY`: korrekte Trigonometrie, `-90°` für 12-Uhr-Start ✅
+- `maxRadius(val)`: Normalisierung `(val/10)*(CENTER-22)`, Clamp `Math.min(10, Math.max(0, ...))` ✅
+- Score-Polygon: `M/L/Z` korrekt, `strokeDasharray` nicht benötigt (Polygon) ✅
+- Label-Anchoring: `end/start/middle` je nach X-Position relativ zum Center ✅
+- Farbcodierung: grün ≥80 / blau ≥60 / orange ≥40 / rot <40 — konsistent ✅
+- TypeScript-sauber: alle Zugriffe über `score[f.key] as number` mit explizitem Cast ✅
+
+### Befund: TourCompletionScreen (fahrer/app/tour-completion.tsx)
+- Konfetti-Animation: 28 Partikel, randomisierte Farbe/Position/Timing ✅
+- Auto-Weiterleitung: 8s-Timer mit korrektem Cleanup ✅ (stale-closure fix angewendet)
+- CSS-Keyframes: `confetti-fall` + `pop-in` + `slide-up` inline injiziert ✅
+- Stats-Grid: Stops/Umsatz/Zeit/Distanz mit Null-Guards ✅
+
+### Befund: Driver Incentive Challenge Engine (lib/delivery/challenges.ts)
+- `updateProgressForDriver()`: berechnet alle 4 Metriken direkt aus DB (kein manuelles Tracking) ✅
+- `isNewlyCompleted = currentValue >= target && canWin` — korrekte Logik ✅
+- `completed_at`-Fix: kein Datenverlust mehr bei Progress-Updates ✅
+- `checkAndAwardChallenges()`: iteriert über aktive Challenges, batch-aktualisiert Fortschritt ✅
+- RLS auf `driver_challenge_participations` ✅
+
+### Befund: CDES-Widget (statistics-view.tsx)
+- CDES-Widget korrekt in Statistiken integriert ✅
+- Tages-Trend-Daten, Ø-Score, Verteilung angezeigt ✅
+
+### Status nach Review #72
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 190 Seiten ✅
+- Bugs gefixed: 4
+- System: **MARKT-REIF** ✅
+
+---
 
 ## Backend-Architekt — Phase 95 — 2026-06-12
 

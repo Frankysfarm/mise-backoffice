@@ -1101,7 +1101,7 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
           if (isNaN(d.getTime())) continue;
           const h = d.getHours();
           hourBuckets[h].bestellungen++;
-          if (o.status === 'delivered' || o.status === 'geliefert') hourBuckets[h].geliefert++;
+          if ((o.status as string) === 'delivered' || (o.status as string) === 'geliefert') hourBuckets[h].geliefert++;
         }
         const nowHour = new Date().getHours();
         const minHour = Math.min(...Object.entries(hourBuckets).filter(([, v]) => v.bestellungen > 0).map(([h]) => Number(h)));

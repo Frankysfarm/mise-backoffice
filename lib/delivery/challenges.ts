@@ -352,7 +352,7 @@ export async function updateProgressForDriver(
     // Check previous completion state
     const { data: existing } = await sb
       .from('driver_challenge_participations')
-      .select('completed, current_value')
+      .select('completed, current_value, completed_at')
       .eq('challenge_id', ch.id)
       .eq('driver_id', driverId)
       .maybeSingle();
@@ -368,7 +368,7 @@ export async function updateProgressForDriver(
           driver_id:    driverId,
           current_value: currentValue,
           completed:     isNewlyCompleted || wasCompleted,
-          completed_at:  isNewlyCompleted && !wasCompleted ? nowIso : (existing ? null : null),
+          completed_at:  isNewlyCompleted && !wasCompleted ? nowIso : (existing?.completed_at ?? null),
           updated_at:    nowIso,
         },
         { onConflict: 'challenge_id,driver_id' },
