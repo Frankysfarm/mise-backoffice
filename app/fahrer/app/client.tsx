@@ -198,6 +198,8 @@ export function FahrerApp({
 
   // Küchenstatus für Pickup-Phase: welche Bestellungen sind schon fertig?
   const [kitchenStatuses, setKitchenStatuses] = useState<Map<string, string>>(new Map());
+  // fertig_am je Order: zum Anzeigen wie lange eine Bestellung schon wartet
+  const [kitchenFertigAt, setKitchenFertigAt] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (!activeBatch || activeBatch.status === 'unterwegs') return;
@@ -206,11 +208,12 @@ export function FahrerApp({
 
     // Initial fetch
     supabase.from('customer_orders')
-      .select('id, status')
+      .select('id, status, fertig_am')
       .in('id', orderIds)
-      .then(({ data }: { data: { id: string; status: string }[] | null }) => {
+      .then(({ data }: { data: { id: string; status: string; fertig_am: string | null }[] | null }) => {
         if (!data) return;
         setKitchenStatuses(new Map(data.map((r) => [r.id, r.status])));
+        setKitchenFertigAt(new Map(data.filter(r => r.fertig_am).map((r) => [r.id, r.fertig_am!])));
       });
 
     // Realtime subscription
@@ -221,9 +224,10 @@ export function FahrerApp({
         schema: 'public',
         table: 'customer_orders',
         filter: `id=in.(${orderIds.join(',')})`,
-      }, (payload: { new: { id: string; status: string } }) => {
-        const { id, status: newStatus } = payload.new;
+      }, (payload: { new: { id: string; status: string; fertig_am?: string | null } }) => {
+        const { id, status: newStatus, fertig_am } = payload.new;
         setKitchenStatuses((prev) => new Map(prev).set(id, newStatus));
+        if (fertig_am) setKitchenFertigAt((prev) => new Map(prev).set(id, fertig_am));
       })
       .subscribe();
 
@@ -851,7 +855,20 @@ export function FahrerApp({
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
                             {kitchenReady && (
-                              <span className="shrink-0 rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
+                              <>
+                                <span className="shrink-0 rounded-full bg-accent/20 text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
+                                {kitchenFertigAt.get(stop.order_id) && (() => {
+                                  const fertigMs = Date.now() - new Date(kitchenFertigAt.get(stop.order_id)!).getTime();
+                                  const fertigMin = Math.floor(fertigMs / 60_000);
+                                  if (fertigMin < 1) return null;
+                                  const cls = fertigMin >= 10 ? 'bg-red-500/25 text-red-300' : fertigMin >= 5 ? 'bg-orange-500/25 text-orange-300' : 'bg-white/10 text-matcha-300';
+                                  return (
+                                    <span className={cn('shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold tabular-nums', cls)}>
+                                      {fertigMin >= 10 ? '⚠️ ' : ''}{fertigMin} Min warten
+                                    </span>
+                                  );
+                                })()}
+                              </>
                             )}
                             {kitchenCooking && (
                               <span className="shrink-0 rounded-full bg-orange-500/20 text-orange-300 px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>

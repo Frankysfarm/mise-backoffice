@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, YAxis } from 'recharts'
 import { Order, OrderStatus, mockOrders, generateRandomOrder } from '@/lib/lieferdienst/orders'
 import { OrderCard } from '@/components/lieferdienst/order-card'
 import { IncomingOrderDialog } from '@/components/lieferdienst/incoming-order-dialog'
@@ -25,7 +26,8 @@ import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useOfflineStorage } from '@/hooks/use-offline'
 import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
-  Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp
+  Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
+  BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -889,8 +891,14 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* 7-Tage Wochenübersicht */}
               <LieferdienstWochenvergleich />
+              {/* Stunden-Umsatz-Chart: Bestellungen + Umsatz je Stunde heute */}
+              <LieferdienstStundenChart />
               {/* Tagesvergleich: heute vs. gestern */}
               <LieferdienstTagesvergleich orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
+              {/* Ablehnungsrate + Kategorien */}
+              <LieferdienstRejektionsrate orders={orders} completedOrders={completedOrders} />
+              {/* Fahrer-Einsatz Dashboard */}
+              <LieferdienstFahrerEinsatz drivers={drivers} />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -1278,6 +1286,385 @@ function LiveDeliveryStatusBar() {
           <div className="text-[9px] font-bold uppercase tracking-wide text-stone-400 mt-0.5 leading-tight">{item.label}</div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---- LieferdienstStundenChart ---- */
+function LieferdienstStundenChart() {
+  const supabase = createClient();
+  type HourBucket = { h: number; label: string; orders: number; revenue: number; isNow: boolean };
+  const [data, setData] = useState<HourBucket[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: rows } = await supabase
+          .from('customer_orders')
+          .select('bestellt_am, gesamtbetrag, status')
+          .gte('bestellt_am', today.toISOString())
+          .not('bestellt_am', 'is', null);
+
+        const nowH = new Date().getHours();
+        const buckets: Record<number, { orders: number; revenue: number }> = {};
+        for (const r of (rows ?? []) as { bestellt_am: string; gesamtbetrag: number; status: string }[]) {
+          const h = new Date(r.bestellt_am).getHours();
+          if (!buckets[h]) buckets[h] = { orders: 0, revenue: 0 };
+          buckets[h].orders += 1;
+          if (!['storniert', 'rejected'].includes(r.status)) {
+            buckets[h].revenue += Number(r.gesamtbetrag ?? 0);
+          }
+        }
+
+        const startH = Math.min(10, nowH);
+        const endH = Math.max(nowH, 22);
+        const result: HourBucket[] = [];
+        for (let h = startH; h <= endH; h++) {
+          result.push({
+            h, label: `${h}`,
+            orders: buckets[h]?.orders ?? 0,
+            revenue: Math.round(buckets[h]?.revenue ?? 0),
+            isNow: h === nowH,
+          });
+        }
+        setData(result);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const totalOrders = data.reduce((s, d) => s + d.orders, 0);
+  const totalRevenue = data.reduce((s, d) => s + d.revenue, 0);
+  const peakHour = data.reduce((best, d) => d.orders > (best?.orders ?? 0) ? d : best, data[0]);
+
+  if (loading) {
+    return (
+      <div className="rounded-xl bg-white border border-stone-200 px-4 py-4 animate-pulse">
+        <div className="h-4 w-40 bg-stone-100 rounded mb-3" />
+        <div className="h-24 bg-stone-50 rounded" />
+      </div>
+    );
+  }
+  if (data.every(d => d.orders === 0)) return null;
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-amber-500" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Stunden-Performance heute</span>
+        </div>
+        <div className="flex items-center gap-3 text-[9px] text-stone-400">
+          {peakHour && peakHour.orders > 0 && (
+            <span className="font-bold text-amber-600">Peak: {peakHour.h}:00 Uhr ({peakHour.orders})</span>
+          )}
+          <span>{totalOrders} Best. · {totalRevenue.toFixed(0)} €</span>
+        </div>
+      </div>
+
+      {/* KPI Chips */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        {[
+          { icon: <Package className="h-3.5 w-3.5" />, label: 'Bestellungen', value: totalOrders, color: 'text-amber-600' },
+          { icon: <Euro className="h-3.5 w-3.5" />, label: 'Umsatz', value: `${totalRevenue.toFixed(0)} €`, color: 'text-emerald-600' },
+          { icon: <TrendingUp className="h-3.5 w-3.5" />, label: 'Ø / Stunde', value: (totalOrders / Math.max(1, data.filter(d => d.orders > 0).length)).toFixed(1), color: 'text-blue-600' },
+        ].map(kpi => (
+          <div key={kpi.label} className="rounded-lg bg-stone-50 border border-stone-100 px-2.5 py-2 flex items-center gap-2">
+            <span className={kpi.color}>{kpi.icon}</span>
+            <div>
+              <div className={`font-black text-sm tabular-nums ${kpi.color}`}>{kpi.value}</div>
+              <div className="text-[8px] font-bold uppercase tracking-wide text-stone-400">{kpi.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Dual-Bar Chart: Bestellungen (links) + Umsatz-Linie (rechts) */}
+      <ResponsiveContainer width="100%" height={110}>
+        <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barSize={12}>
+          <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#78716c' }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontSize: 8, fill: '#a8a29e' }} axisLine={false} tickLine={false} width={28} />
+          <Tooltip
+            contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4', padding: '6px 10px' }}
+            formatter={(val: number, name: string) =>
+              name === 'orders' ? [`${val} Bestellungen`, ''] : [`${val} €`, 'Umsatz']
+            }
+            labelFormatter={(h: string) => `${h}:00 Uhr`}
+          />
+          <Bar dataKey="orders" radius={[4, 4, 0, 0]}>
+            {data.map((entry) => (
+              <Cell
+                key={entry.h}
+                fill={entry.isNow ? '#f59e0b' : entry.orders > 0 ? '#d4b896' : '#f5f5f4'}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+
+      {/* Umsatz Sparkline */}
+      <div className="mt-1">
+        <div className="flex items-center gap-1 mb-1">
+          <span className="h-1 w-4 rounded-full bg-emerald-400 inline-block" />
+          <span className="text-[8px] text-stone-400 font-bold uppercase tracking-wide">Umsatz (€)</span>
+        </div>
+        <ResponsiveContainer width="100%" height={40}>
+          <LineChart data={data} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
+            <YAxis hide domain={['auto', 'auto']} />
+            <Line
+              type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2}
+              dot={false} strokeDasharray="0"
+            />
+            <Tooltip
+              contentStyle={{ fontSize: 10, borderRadius: 6, padding: '4px 8px' }}
+              formatter={(v: number) => [`${v} €`, 'Umsatz']}
+              labelFormatter={(h: string) => `${h}:00 Uhr`}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+/* ---- LieferdienstRejektionsrate ---- */
+function LieferdienstRejektionsrate({ orders, completedOrders }: { orders: Order[]; completedOrders: Order[] }) {
+  const supabase = createClient();
+  type WeekDay = { label: string; total: number; rejected: number; rate: number };
+  const [weekData, setWeekData] = useState<WeekDay[]>([]);
+  const [topReason, setTopReason] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const days: WeekDay[] = [];
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        for (let i = 6; i >= 0; i--) {
+          const start = new Date(today); start.setDate(start.getDate() - i);
+          const end   = new Date(start); end.setDate(end.getDate() + 1);
+          const { data: rows } = await supabase
+            .from('customer_orders')
+            .select('status')
+            .gte('bestellt_am', start.toISOString())
+            .lt('bestellt_am', end.toISOString());
+          const total = (rows ?? []).length;
+          const rejected = (rows ?? []).filter((r: { status: string }) => r.status === 'storniert').length;
+          days.push({
+            label: i === 0 ? 'Heute' : start.toLocaleDateString('de-DE', { weekday: 'short' }),
+            total, rejected, rate: total > 0 ? Math.round((rejected / total) * 100) : 0,
+          });
+        }
+        setWeekData(days);
+      } catch {}
+    };
+    load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const all = [...orders, ...completedOrders];
+  const rejected = completedOrders.filter(o => o.status === 'rejected');
+  const total = all.length;
+  const rate = total > 0 ? Math.round((rejected.length / total) * 100) : 0;
+
+  const reasons: Record<string, number> = {};
+  for (const o of rejected) {
+    const r = (o as any).rejectionReason ?? 'Sonstiges';
+    reasons[r] = (reasons[r] ?? 0) + 1;
+  }
+  const topReasonLocal = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+  const rateColor = rate >= 15 ? 'text-red-600' : rate >= 5 ? 'text-amber-600' : 'text-emerald-600';
+  const rateBg   = rate >= 15 ? 'bg-red-50 border-red-200' : rate >= 5 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200';
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center gap-2 mb-3">
+        <XCircle className="h-4 w-4 text-red-400" />
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Ablehnungsrate</span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className={`rounded-lg border px-3 py-2.5 text-center ${rateBg}`}>
+          <div className={`font-black text-2xl tabular-nums leading-none ${rateColor}`}>{rate}%</div>
+          <div className="text-[8px] font-bold uppercase tracking-wide text-stone-400 mt-1">Heute</div>
+        </div>
+        <div className="rounded-lg border border-stone-100 bg-stone-50 px-3 py-2.5 text-center">
+          <div className="font-black text-2xl tabular-nums leading-none text-char">{rejected.length}</div>
+          <div className="text-[8px] font-bold uppercase tracking-wide text-stone-400 mt-1">Abgelehnt</div>
+        </div>
+        <div className="rounded-lg border border-stone-100 bg-stone-50 px-3 py-2.5 text-center">
+          <div className="font-black text-2xl tabular-nums leading-none text-char">{total}</div>
+          <div className="text-[8px] font-bold uppercase tracking-wide text-stone-400 mt-1">Gesamt</div>
+        </div>
+      </div>
+
+      {/* 7-Tage Rate Balken */}
+      {weekData.length > 0 && (
+        <>
+          <div className="text-[9px] font-bold uppercase tracking-wide text-stone-400 mb-2">7-Tage-Verlauf</div>
+          <div className="flex items-end gap-1 h-12">
+            {weekData.map((d) => {
+              const h = Math.max(4, d.rate);
+              const isToday = d.label === 'Heute';
+              const color = d.rate >= 15 ? '#ef4444' : d.rate >= 5 ? '#f59e0b' : '#10b981';
+              return (
+                <div key={d.label} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-full rounded-t-sm transition-all"
+                    style={{ height: `${h}%`, backgroundColor: isToday ? color : '#e7e5e4', minHeight: 4 }}
+                    title={`${d.label}: ${d.rate}% (${d.rejected}/${d.total})`}
+                  />
+                  <span className={`text-[8px] tabular-nums font-bold ${isToday ? 'text-stone-700' : 'text-stone-400'}`}>
+                    {d.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2 mt-2 text-[8px] text-stone-400">
+            <span className="flex items-center gap-0.5"><span className="h-2 w-2 rounded-full bg-emerald-400 inline-block" /> &lt;5% gut</span>
+            <span className="flex items-center gap-0.5"><span className="h-2 w-2 rounded-full bg-amber-400 inline-block" /> 5-15% ok</span>
+            <span className="flex items-center gap-0.5"><span className="h-2 w-2 rounded-full bg-red-400 inline-block" /> &gt;15% kritisch</span>
+          </div>
+        </>
+      )}
+
+      {(topReasonLocal) && (
+        <div className="mt-3 pt-3 border-t border-stone-100 flex items-center gap-2 text-[10px]">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+          <span className="text-stone-500">Häufigster Grund: <span className="font-bold text-stone-700">{topReasonLocal}</span></span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---- LieferdienstFahrerEinsatz ---- */
+function LieferdienstFahrerEinsatz({ drivers }: { drivers: Driver[] }) {
+  const supabase = createClient();
+  type DriverRow = {
+    id: string; name: string; status: string; vehicle: string;
+    deliveries: number; online_seit: string | null;
+  };
+  const [liveDrivers, setLiveDrivers] = useState<DriverRow[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: statuses } = await supabase
+          .from('driver_status')
+          .select('employee_id, ist_online, fahrzeug, online_seit, employee:employees(vorname, nachname)')
+          .eq('ist_online', true);
+
+        if (!statuses?.length) { setLiveDrivers([]); return; }
+
+        const ids = (statuses as any[]).map((s: any) => s.employee_id);
+        const { data: batchRows } = await supabase
+          .from('delivery_batch_stops')
+          .select('batch_id, batch:delivery_batches(fahrer_id)')
+          .not('geliefert_am', 'is', null)
+          .gte('geliefert_am', today.toISOString());
+
+        const deliveryCount: Record<string, number> = {};
+        for (const row of (batchRows ?? []) as any[]) {
+          const fid = row.batch?.fahrer_id;
+          if (fid && ids.includes(fid)) {
+            deliveryCount[fid] = (deliveryCount[fid] ?? 0) + 1;
+          }
+        }
+
+        setLiveDrivers((statuses as any[]).map((s: any) => ({
+          id: s.employee_id,
+          name: s.employee ? `${s.employee.vorname} ${s.employee.nachname}` : 'Unbekannt',
+          status: 'online',
+          vehicle: s.fahrzeug ?? 'auto',
+          deliveries: deliveryCount[s.employee_id] ?? 0,
+          online_seit: s.online_seit,
+        })));
+      } catch {}
+    };
+
+    // Also include mock drivers if we have them
+    const mockRows: DriverRow[] = drivers
+      .filter(d => d.status !== 'offline')
+      .map(d => ({
+        id: d.id, name: d.name, status: d.status, vehicle: d.vehicleType ?? 'auto',
+        deliveries: 0, online_seit: null,
+      }));
+    setLiveDrivers(mockRows);
+
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drivers.length]);
+
+  const vehicleEmoji: Record<string, string> = { bike: '🚲', scooter: '🛵', car: '🚗', auto: '🚗', fahrrad: '🚲', motorrad: '🛵' };
+
+  if (liveDrivers.length === 0) return null;
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-blue-500" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Fahrer im Einsatz</span>
+        </div>
+        <span className="text-[10px] font-bold text-emerald-600">{liveDrivers.length} online</span>
+      </div>
+
+      <div className="space-y-2">
+        {liveDrivers.map((d) => {
+          const onlineSeit = d.online_seit ? Math.floor((Date.now() - new Date(d.online_seit).getTime()) / 60_000) : null;
+          const statusColor = d.status === 'delivering' || d.status === 'unterwegs'
+            ? 'bg-amber-100 text-amber-700'
+            : d.status === 'available' || d.status === 'online'
+            ? 'bg-emerald-100 text-emerald-700'
+            : 'bg-stone-100 text-stone-500';
+          const statusLabel = d.status === 'delivering' ? 'Unterwegs'
+            : d.status === 'returning' ? 'Rückfahrt'
+            : d.status === 'picking_up' ? 'Abholung'
+            : 'Bereit';
+
+          return (
+            <div key={d.id} className="flex items-center gap-3 rounded-lg bg-stone-50 border border-stone-100 px-3 py-2">
+              <div className="h-8 w-8 rounded-lg bg-stone-200 flex items-center justify-center text-base shrink-0">
+                {vehicleEmoji[d.vehicle] ?? '🚗'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm text-char truncate">{d.name}</div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${statusColor}`}>{statusLabel}</span>
+                  {onlineSeit !== null && (
+                    <span className="text-[8px] text-stone-400 tabular-nums">
+                      {Math.floor(onlineSeit / 60) > 0 ? `${Math.floor(onlineSeit / 60)}h ` : ''}{onlineSeit % 60}m online
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-black text-base tabular-nums text-char">{d.deliveries}</div>
+                <div className="text-[8px] text-stone-400 font-bold uppercase">Lieferungen</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {liveDrivers.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-stone-100 flex items-center justify-between text-[9px] text-stone-400">
+          <span>Gesamt heute:</span>
+          <span className="font-black text-stone-600 tabular-nums">
+            {liveDrivers.reduce((s, d) => s + d.deliveries, 0)} Lieferungen
+          </span>
+        </div>
+      )}
     </div>
   );
 }
