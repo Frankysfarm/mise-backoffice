@@ -461,6 +461,8 @@ export function KitchenBoard({
 
   return (
     <div className="space-y-4">
+      {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
+      <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
@@ -6438,4 +6440,77 @@ function KitchenBulkTimerStart({ orders, onDone }: { orders: Order[]; onDone: ()
       )}
     </button>
   );
+}
+
+/* ------------------------------ KitchenWebNotifier ------------------------------ */
+// Browser-Benachrichtigungen für neue Bestellungen und kritisch überfällige Aufträge.
+// Nutzt die Web Notifications API — fragt nur einmalig nach Erlaubnis.
+export function KitchenWebNotifier({
+  orders,
+  audio,
+}: {
+  orders: Order[];
+  audio: boolean;
+}) {
+  const permRef = useRef<NotificationPermission | null>(null);
+  const prevNewCountRef = useRef(orders.filter((o) => o.status === 'neu').length);
+  const notifiedCriticalRef = useRef<Set<string>>(new Set());
+
+  // Einmalig Erlaubnis anfragen wenn Audio aktiv (Nutzer hat Interaktion signalisiert)
+  useEffect(() => {
+    if (!audio) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((p) => { permRef.current = p; });
+    } else {
+      permRef.current = Notification.permission;
+    }
+  }, [audio]);
+
+  useEffect(() => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const newCount = orders.filter((o) => o.status === 'neu').length;
+
+    // Neue Bestellung angekommen
+    if (newCount > prevNewCountRef.current) {
+      const newest = [...orders]
+        .filter((o) => o.status === 'neu')
+        .sort((a, b) => (b.bestellt_am ?? '').localeCompare(a.bestellt_am ?? ''))
+        .at(0);
+      try {
+        const n = new Notification('🔔 Neue Bestellung!', {
+          body: newest
+            ? `${newest.kunde_name} · ${newest.typ === 'lieferung' ? '🛵 Lieferung' : '🥡 Abholung'}`
+            : 'Eine neue Bestellung ist eingegangen.',
+          tag: `new-order-${Date.now()}`,
+          requireInteraction: false,
+          silent: true, // Ton kommt via playSound
+        });
+        setTimeout(() => n.close(), 8000);
+      } catch {}
+    }
+    prevNewCountRef.current = newCount;
+
+    // Kritisch überfällige Bestellungen
+    for (const o of orders) {
+      if (notifiedCriticalRef.current.has(o.id)) continue;
+      if (!isCriticallyLate(o)) continue;
+      notifiedCriticalRef.current.add(o.id);
+      try {
+        const elMin = o.bestellt_am
+          ? Math.floor((Date.now() - new Date(o.bestellt_am).getTime()) / 60_000)
+          : 0;
+        const n = new Notification('⚠️ Bestellung überfällig!', {
+          body: `#${o.bestellnummer.replace('FF-', '')} · ${o.kunde_name} · ${elMin} Min`,
+          tag: `critical-${o.id}`,
+          requireInteraction: true,
+          silent: false,
+        });
+        setTimeout(() => n.close(), 15000);
+      } catch {}
+    }
+  }, [orders]);
+
+  return null;
 }

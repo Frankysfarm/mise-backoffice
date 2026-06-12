@@ -100,6 +100,8 @@ export function DeliveryView({
   const [showAllStops, setShowAllStops] = useState(false);
   const [routeChangedNotice, setRouteChangedNotice] = useState<{ type: string; ts: number } | null>(null);
   const [earningsBubble, setEarningsBubble] = useState<{ amount: number; key: number } | null>(null);
+  // Näherungs-Banner: Abstand zum nächsten Stopp in Metern (null = unbekannt)
+  const [driverDistToNextM, setDriverDistToNextM] = useState<number | null>(null);
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -262,14 +264,15 @@ export function DeliveryView({
   const nextStop = openStops.find((s) => !skippedIds.has(s.id)) ?? openStops[0];
   const allDone = openStops.length === 0;
 
-  // GPS-Proximity: Auto-Arrived wenn Fahrer < 80m vom nächsten Stopp
+  // GPS-Proximity: Abstand zum nächsten Stopp berechnen + Auto-Arrived bei < 80m
   useEffect(() => {
-    if (driverLat == null || driverLng == null || !nextStop) return;
+    if (driverLat == null || driverLng == null || !nextStop) {
+      setDriverDistToNextM(null);
+      return;
+    }
     const destLat = nextStop.order.kunde_lat;
     const destLng = nextStop.order.kunde_lng;
-    if (!destLat || !destLng) return;
-    if (proximityTriggered.has(nextStop.id)) return;
-    if (arrivedIds.has(nextStop.id) || nextStop.angekommen_am) return;
+    if (!destLat || !destLng) { setDriverDistToNextM(null); return; }
 
     const R = 6371000;
     const dLat = ((destLat - driverLat) * Math.PI) / 180;
@@ -279,7 +282,11 @@ export function DeliveryView({
       Math.cos((driverLat * Math.PI) / 180) * Math.cos((destLat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
     const distM = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
+    setDriverDistToNextM(Math.round(distM));
+
     if (distM < 80) {
+      if (proximityTriggered.has(nextStop.id)) return;
+      if (arrivedIds.has(nextStop.id) || nextStop.angekommen_am) return;
       setProximityTriggered((s) => new Set([...s, nextStop.id]));
       if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
         navigator.vibrate([200, 50, 200]);
@@ -520,6 +527,19 @@ export function DeliveryView({
           >
             OK
           </button>
+        </div>
+      )}
+      {/* Näherungs-Banner: erscheint wenn Fahrer < 300m vom nächsten Stopp */}
+      {driverDistToNextM !== null && driverDistToNextM > 80 && driverDistToNextM <= 300 && nextStop && !arrivedIds.has(nextStop.id) && !nextStop.angekommen_am && (
+        <div className="sticky top-0 z-40 flex items-center gap-3 bg-amber-500 px-4 py-2.5 text-matcha-900 animate-in slide-in-from-top-2 duration-200">
+          <span className="text-xl shrink-0 animate-bounce">📍</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-black uppercase tracking-wide">Fast da!</div>
+            <div className="text-[10px] font-semibold opacity-80 truncate">
+              Noch ca. {driverDistToNextM} m · {nextStop.order.kunde_adresse ?? nextStop.order.kunde_name}
+            </div>
+          </div>
+          <span className="shrink-0 font-mono text-sm font-black tabular-nums">{driverDistToNextM} m</span>
         </div>
       )}
       {/* Verdienst-Bubble: kurze Einblendung nach jeder Zustellung */}
