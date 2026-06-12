@@ -1,10 +1,12 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF + KI
-**Phasen 1–83 abgeschlossen. CEO Review #63. Build sauber (184 Seiten). Deployment-bereit.**
+## STATUS: MARKT-REIF
+**Phasen 1–84 abgeschlossen. CEO Review #64. Build sauber (184 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 84: Fahrer-Pausen-Widget mit Backend-Integration — 2026-06-12 (CEO Review #64 Bug-Fix)
+- [x] FahrerPauseWidget: aktive Schicht-ID beim Mount geladen, laufende Pause reload-stabil, Start/Ende via POST /api/delivery/driver/shift/break persistiert, todayPausenMin aus Backend-Summary aktualisiert
 - [x] Phase 83: Fahrer-Navi-Integration (Turn-by-Turn in App) — 2026-06-12
 - [x] scripts/migrations/053_navigation_routes.sql — driver_navigation_routes Tabelle (Cache Google Directions Steps per batch+stop_index+vehicle, UNIQUE-Constraint, 2 Indizes, RLS)
 - [x] lib/delivery/navigation.ts — getNavState(), fetchDirectionsSteps(), findCurrentStepIndex(), buildNaviDeepLinks(), pruneNavCache() + getCachedSegment()/cacheSegment()

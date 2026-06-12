@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–82 vollständig abgeschlossen. CEO Review #63 abgeschlossen. TypeScript 0 Fehler. Build sauber (184 Seiten). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–84 vollständig abgeschlossen. CEO Review #64 abgeschlossen. TypeScript 0 Fehler. Build sauber (184 Seiten). Deployment-bereit.
+
+## CEO Review #64 — 2026-06-12
+
+### Geprüfte Commits (2 neue Commits seit Review #63)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `b0c64ed` | feat(delivery/backend): Phase 83 — Fahrer-Navi-Integration Turn-by-Turn | ✅ sauber |
+| `db07908` | feat(delivery/frontend): Phase 84 — Fahrer-Pausen-Widget | ⚠️ Bug gefixt |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- Build: 184 Seiten, Compiled successfully ✅
+
+### Befund Phase 83 (Backend Navi)
+
+**lib/delivery/navigation.ts**:
+- `fetchDirectionsSteps()`: Google Directions API mit Mode car/bike, HTML-Strip korrekt ✅
+- `getNavState()`: DB-Cache mit 2h TTL, `pruneNavCache()` fire-and-forget im Cron ✅
+- `getCurrentStep()`: Haversine-basiertes Step-Matching, nächster Schritt korrekt ermittelt ✅
+- `buildNaviDeepLinks()`: Waypoints-URL für Google/Waze, Universal-Links für iOS korrekt ✅
+- Fallback wenn kein `GOOGLE_MAPS_API_KEY`: Luftlinien-Segment zurückgegeben, kein Absturz ✅
+
+**API-Route `/api/delivery/driver/navigation`**:
+- Multi-Tenant-Guard: batch.location_id === driver.location_id ✅
+- Fahrer-Batch-Ownership geprüft ✅
+- Fallback bei getNavState-Fehler: nur Deep-Links zurückgegeben ✅
+
+**NaviWidget (Frontend)**:
+- Manöver-Icons vollständig (15 Typen) ✅
+- 12s-Polling mit AbortController sauber ✅
+- Collapse-Toggle, Deep-Link-Buttons (iOS/Android/Waze) ✅
+- Doppelte Navi-Buttons in delivery-view.tsx entfernt ✅
+
+### Befund Phase 84 (Pausen-Widget) — BUG GEFUNDEN UND GEFIXT
+
+**Bug**: `FahrerPauseWidget` war rein client-side (kein Backend). Pausen wurden nicht in `shift_breaks` (Phase 58) gespeichert → `getNetActiveMinutes()` ignorierte diese Pausen → Performance-Snapshots fehlerhaft.
+
+**Fix** (`app/fahrer/app/client.tsx`):
+1. Mount: lädt aktive Schicht via `/api/delivery/driver/shifts?limit=5` → extrahiert `shift_id` + `breakMinutes`
+2. Mount: prüft laufende Pause via `GET /api/delivery/driver/shift/break?shift_id=...` → stellt Timer wieder her (page-reload-stabil)
+3. Pause-Start: `POST /api/delivery/driver/shift/break { action:'start', shift_id, break_type:'pause' }`
+4. Pause-Ende: `POST /api/delivery/driver/shift/break { action:'end', shift_id }` + aktualisiert `todayPausenMin` aus Backend
+5. Fallback: Funktioniert weiterhin ohne aktive Schicht (client-side Akkumulation)
+6. TypeScript-Typkorrektheit: `startedAt` (camelCase), `totalBreakMinutes` laut `ShiftBreak`/`BreakSummary` Interface
+
+**Resultat**: Pausen werden persistent in `shift_breaks` gespeichert, Performance-Snapshots korrekt, widget reload-stabil.
+
+### Bugs gefunden: 1 (gefixt)
+
+### Status nach Review #64
+- Phasen 1–84: vollständig geprüft und produktionsreif ✅
+- Nächste optionale Phasen:
+  1. Phase 85: Demand Forecast KI (Bestellvolumen-Vorhersage)
+  2. Phase 86: Multi-Location A/B-Test-Sync
+
+---
 
 ## CEO Review #63 — 2026-06-12
 

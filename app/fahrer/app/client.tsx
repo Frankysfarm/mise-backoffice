@@ -2843,11 +2843,34 @@ function TourLiveProgressHeader({ batch }: {
   );
 }
 
-// Phase 84 — Pausen-Timer: lokaler Countdown ohne Backend-Abhängigkeit
+// Phase 84 — Pausen-Timer mit Backend-Integration (Phase 58 shift_breaks)
 function FahrerPauseWidget() {
+  const [activeShiftId, setActiveShiftId] = React.useState<string | null>(null);
   const [pauseStart, setPauseStart] = React.useState<number | null>(null);
   const [elapsed, setElapsed] = React.useState(0);
   const [todayPausenMin, setTodayPausenMin] = React.useState(0);
+  const [saving, setSaving] = React.useState(false);
+
+  // Aktive Schicht + laufende Pause beim Mount laden
+  useEffect(() => {
+    fetch('/api/delivery/driver/shifts?limit=5')
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { shifts?: { id: string; status: string; breakMinutes?: number }[] } | null) => {
+        const active = d?.shifts?.find(s => s.status === 'active');
+        if (!active) return;
+        setActiveShiftId(active.id);
+        setTodayPausenMin(active.breakMinutes ?? 0);
+        fetch(`/api/delivery/driver/shift/break?shift_id=${active.id}`)
+          .then(r => r.ok ? r.json() : null)
+          .then((b: { activeBreak?: { id: string; startedAt: string } | null } | null) => {
+            if (b?.activeBreak) {
+              setPauseStart(new Date(b.activeBreak.startedAt).getTime());
+            }
+          })
+          .catch(() => {});
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (pauseStart === null) return;
@@ -2855,18 +2878,49 @@ function FahrerPauseWidget() {
     return () => clearInterval(t);
   }, [pauseStart]);
 
-  function startPause() {
-    setPauseStart(Date.now());
-    setElapsed(0);
+  async function startPause() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (activeShiftId) {
+        await fetch('/api/delivery/driver/shift/break', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: 'start', shift_id: activeShiftId, break_type: 'pause' }),
+        }).catch(() => {});
+      }
+      setPauseStart(Date.now());
+      setElapsed(0);
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function endPause() {
-    if (pauseStart !== null) {
-      const min = Math.round((Date.now() - pauseStart) / 60_000);
-      setTodayPausenMin((p) => p + Math.max(1, min));
+  async function endPause() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (activeShiftId) {
+        await fetch('/api/delivery/driver/shift/break', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: 'end', shift_id: activeShiftId }),
+        }).catch(() => {});
+        fetch(`/api/delivery/driver/shift/break?shift_id=${activeShiftId}`)
+          .then(r => r.ok ? r.json() : null)
+          .then((b: { summary?: { totalBreakMinutes?: number } } | null) => {
+            if (b?.summary?.totalBreakMinutes != null) setTodayPausenMin(b.summary.totalBreakMinutes);
+          })
+          .catch(() => {});
+      } else if (pauseStart !== null) {
+        const min = Math.round((Date.now() - pauseStart) / 60_000);
+        setTodayPausenMin(p => p + Math.max(1, min));
+      }
+      setPauseStart(null);
+      setElapsed(0);
+    } finally {
+      setSaving(false);
     }
-    setPauseStart(null);
-    setElapsed(0);
   }
 
   const isPausing = pauseStart !== null;
@@ -2897,14 +2951,15 @@ function FahrerPauseWidget() {
         </div>
         <button
           onClick={isPausing ? endPause : startPause}
+          disabled={saving}
           className={cn(
-            'rounded-xl px-4 py-2 text-sm font-bold shrink-0 transition active:scale-95',
+            'rounded-xl px-4 py-2 text-sm font-bold shrink-0 transition active:scale-95 disabled:opacity-60',
             isPausing
               ? 'bg-amber-400 text-matcha-900 hover:bg-amber-300'
               : 'bg-white/10 text-matcha-200 hover:bg-white/20',
           )}
         >
-          {isPausing ? 'Beenden' : 'Pause nehmen'}
+          {saving ? '…' : isPausing ? 'Beenden' : 'Pause nehmen'}
         </button>
       </div>
     </div>
