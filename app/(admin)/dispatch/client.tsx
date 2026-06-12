@@ -6938,71 +6938,127 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
                 </div>
               )}
 
-              {/* Vollständige Tabelle */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-[11px]">
-                  <thead>
-                    <tr className="border-b text-muted-foreground">
-                      <th className="text-left pb-2 pl-1 w-7">#</th>
-                      <th className="text-left pb-2">Fahrer</th>
-                      <th className="text-right pb-2">Stopps</th>
-                      <th className="text-right pb-2">km</th>
-                      <th className="text-right pb-2">Pünktl.</th>
-                      <th className="text-right pb-2">Ø ETA</th>
-                      <th className="text-right pb-2">★</th>
-                      <th className="text-right pb-2 pr-1">€</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {entries.map((e) => (
-                      <tr key={e.driverId} className="border-b last:border-0 hover:bg-muted/30">
-                        <td className="py-1.5 pl-1 font-bold tabular-nums text-muted-foreground">
-                          {e.rank <= 3 ? (
-                            <span className={PODIUM_COLORS[e.rank - 1] ?? ''}>{e.rank}</span>
-                          ) : e.rank}
-                        </td>
-                        <td className="py-1.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className="inline-flex items-center justify-center rounded-full bg-muted w-5 h-5 text-[9px] font-bold shrink-0">
+              {/* Vollständige Tabelle mit Inline-Bars */}
+              {(() => {
+                const maxStops    = Math.max(1, ...entries.map(e => e.stopsCompleted));
+                const maxEarnings = Math.max(1, ...entries.map(e => e.earningsEur));
+                const maxDist     = Math.max(1, ...entries.map(e => e.totalDistanceKm));
+                return (
+                  <div className="space-y-1.5">
+                    {entries.map((e, idx) => {
+                      const stopsPct    = Math.round((e.stopsCompleted / maxStops) * 100);
+                      const earningsPct = Math.round((e.earningsEur / maxEarnings) * 100);
+                      const onTimePct   = e.onTimeRate != null ? Math.round(e.onTimeRate * 100) : null;
+                      const ratingPct   = e.avgRating  != null ? Math.round((e.avgRating / 5) * 100) : null;
+                      const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null;
+                      return (
+                        <div
+                          key={e.driverId}
+                          className={cn(
+                            'rounded-xl border p-2.5 transition hover:shadow-sm',
+                            idx === 0 ? 'border-yellow-300 bg-yellow-50/50' :
+                            idx === 1 ? 'border-stone-300 bg-stone-50/50' :
+                            idx === 2 ? 'border-amber-200 bg-amber-50/30' :
+                            'border-border bg-card',
+                          )}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="w-5 text-center font-bold tabular-nums text-[10px] text-muted-foreground shrink-0">
+                              {medal ?? `#${e.rank}`}
+                            </span>
+                            <span className={cn(
+                              'inline-flex items-center justify-center rounded-full w-6 h-6 text-[10px] font-bold shrink-0',
+                              idx === 0 ? 'bg-yellow-200 text-yellow-800' :
+                              idx === 1 ? 'bg-stone-200 text-stone-700' :
+                              idx === 2 ? 'bg-amber-100 text-amber-800' :
+                              'bg-muted text-muted-foreground',
+                            )}>
                               {e.initials}
                             </span>
-                            <span className="truncate max-w-[90px] font-medium">{e.driverName ?? '—'}</span>
-                            {e.activeDays > 1 && (
-                              <span className="text-[9px] text-muted-foreground">·{e.activeDays}T</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-[12px] truncate">{e.driverName ?? '—'}</span>
+                                {e.activeDays > 1 && (
+                                  <span className="text-[9px] text-muted-foreground shrink-0">·{e.activeDays}T</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0 text-[10px]">
+                              <span className="tabular-nums font-bold">{e.stopsCompleted} Stopps</span>
+                              {e.earningsEur > 0 && (
+                                <span className="tabular-nums text-green-700 font-semibold">€{e.earningsEur.toFixed(2)}</span>
+                              )}
+                            </div>
+                          </div>
+                          {/* Inline metric bars */}
+                          <div className="space-y-1">
+                            {/* Stopps-Bar */}
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-14 text-[9px] text-muted-foreground shrink-0">Stopps</span>
+                              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-matcha-500 transition-all duration-500"
+                                  style={{ width: `${stopsPct}%` }}
+                                />
+                              </div>
+                              <span className="w-6 text-right text-[9px] tabular-nums text-muted-foreground shrink-0">{e.stopsCompleted}</span>
+                            </div>
+                            {/* Pünktlichkeits-Bar */}
+                            {onTimePct != null && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-14 text-[9px] text-muted-foreground shrink-0">Pünktl.</span>
+                                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      'h-full rounded-full transition-all duration-500',
+                                      onTimePct >= 90 ? 'bg-green-500' : onTimePct >= 75 ? 'bg-yellow-500' : 'bg-red-400',
+                                    )}
+                                    style={{ width: `${onTimePct}%` }}
+                                  />
+                                </div>
+                                <span className={cn(
+                                  'w-6 text-right text-[9px] tabular-nums font-semibold shrink-0',
+                                  onTimePct >= 90 ? 'text-green-600' : onTimePct >= 75 ? 'text-yellow-600' : 'text-red-500',
+                                )}>{onTimePct}%</span>
+                              </div>
+                            )}
+                            {/* Rating-Bar */}
+                            {ratingPct != null && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-14 text-[9px] text-muted-foreground shrink-0">Bewert.</span>
+                                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-yellow-400 transition-all duration-500"
+                                    style={{ width: `${ratingPct}%` }}
+                                  />
+                                </div>
+                                <span className="w-6 text-right text-[9px] tabular-nums text-yellow-600 font-semibold shrink-0">
+                                  {e.avgRating!.toFixed(1)}
+                                </span>
+                              </div>
+                            )}
+                            {/* Distanz-Bar */}
+                            {e.totalDistanceKm > 0 && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-14 text-[9px] text-muted-foreground shrink-0">Distanz</span>
+                                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-blue-400 transition-all duration-500"
+                                    style={{ width: `${Math.round((e.totalDistanceKm / maxDist) * 100)}%` }}
+                                  />
+                                </div>
+                                <span className="w-10 text-right text-[9px] tabular-nums text-muted-foreground shrink-0">
+                                  {e.totalDistanceKm.toFixed(1)} km
+                                </span>
+                              </div>
                             )}
                           </div>
-                        </td>
-                        <td className="py-1.5 text-right tabular-nums font-semibold">{e.stopsCompleted}</td>
-                        <td className="py-1.5 text-right tabular-nums text-muted-foreground">{e.totalDistanceKm.toFixed(1)}</td>
-                        <td className="py-1.5 text-right tabular-nums">
-                          {e.onTimeRate != null ? (
-                            <span className={cn(
-                              'font-semibold',
-                              e.onTimeRate >= 0.9 ? 'text-green-600' : e.onTimeRate >= 0.75 ? 'text-yellow-600' : 'text-red-500',
-                            )}>
-                              {Math.round(e.onTimeRate * 100)}%
-                            </span>
-                          ) : '—'}
-                        </td>
-                        <td className="py-1.5 text-right tabular-nums text-muted-foreground">
-                          {e.avgDeliveryMin != null ? `${Math.round(e.avgDeliveryMin)}'` : '—'}
-                        </td>
-                        <td className="py-1.5 text-right">
-                          {e.avgRating != null ? (
-                            <span className="inline-flex items-center gap-0.5">
-                              <Star className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" />
-                              <span className="tabular-nums">{e.avgRating.toFixed(1)}</span>
-                            </span>
-                          ) : '—'}
-                        </td>
-                        <td className="py-1.5 text-right tabular-nums pr-1 text-green-700 font-semibold">
-                          {e.earningsEur > 0 ? `€${e.earningsEur.toFixed(2)}` : '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </>
           )}
         </div>
