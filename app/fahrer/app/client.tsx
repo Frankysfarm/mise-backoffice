@@ -629,49 +629,8 @@ export function FahrerApp({
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
         {activeBatch && activeBatch.status === 'unterwegs' && (
           <>
-            {/* Tour-Fortschritts-Kopfleiste */}
-            {(() => {
-              const total = activeBatch.stops.length;
-              const done = activeBatch.stops.filter((s: any) => s.geliefert_am).length;
-              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-              const etaMin = activeBatch.total_eta_min;
-              const startedAt = activeBatch.started_at;
-              const elapsedMin = startedAt ? Math.floor((Date.now() - new Date(startedAt).getTime()) / 60_000) : 0;
-              const remainingMin = etaMin != null ? Math.max(0, etaMin - elapsedMin) : null;
-              return (
-                <div className="rounded-2xl bg-matcha-800/60 border border-white/10 px-4 py-3 mb-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">
-                      Tour-Fortschritt
-                    </span>
-                    <span className="font-display font-bold text-accent">
-                      {done}/{total} Stopps
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-500',
-                        pct === 100 ? 'bg-accent' : pct >= 60 ? 'bg-matcha-400' : 'bg-orange-400',
-                      )}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  {remainingMin !== null && (
-                    <div className="mt-1.5 flex items-center justify-between text-[10px] tabular-nums">
-                      <span className="text-matcha-400">
-                        {remainingMin === 0 ? 'Tour abgeschlossen!' : `~${remainingMin} Min bis Tour-Ende`}
-                      </span>
-                      {remainingMin > 0 && (
-                        <span className="font-bold text-matcha-300">
-                          Rückkehr ~{new Date(Date.now() + remainingMin * 60_000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            {/* Tour-Fortschritts-Kopfleiste — mit Live-Sekunden-Countdown */}
+            <TourLiveProgressHeader batch={activeBatch as any} />
           <TourBriefingCard batch={activeBatch as any} />
           <DeliveryView
             batchId={activeBatch.id}
@@ -2685,6 +2644,106 @@ function TourBriefingCard({ batch }: { batch: { stops: { order: { gesamtbetrag: 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-matcha-700/60 border border-matcha-600/40 px-2.5 py-1 text-[11px] font-bold text-matcha-100">
             ~{estEarnings.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })} Verdienst
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ----- TourLiveProgressHeader ----- */
+// Kopfleiste mit Live-Sekunden-Countdown — ersetzt das IIFE-Pattern und re-rendert sekündlich.
+function TourLiveProgressHeader({ batch }: {
+  batch: {
+    stops: { geliefert_am?: string | null }[];
+    total_eta_min?: number | null;
+    started_at?: string | null;
+  };
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const total = batch.stops.length;
+  const done = batch.stops.filter((s) => s.geliefert_am).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const etaMin = batch.total_eta_min;
+  const startedAt = batch.started_at;
+
+  // Berechne verbleibende Sekunden (live)
+  const remainSec = (() => {
+    if (!startedAt || etaMin == null) return null;
+    const endMs = new Date(startedAt).getTime() + etaMin * 60_000;
+    return Math.max(0, Math.floor((endMs - Date.now()) / 1000));
+  })();
+
+  const overdue = remainSec === 0 && done < total;
+  const totalOverdueSec = (() => {
+    if (!startedAt || etaMin == null) return 0;
+    const endMs = new Date(startedAt).getTime() + etaMin * 60_000;
+    return Math.max(0, Math.floor((Date.now() - endMs) / 1000));
+  })();
+
+  const fmtSec = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${String(sec).padStart(2, '0')}`;
+  };
+
+  const returnTime = (() => {
+    if (remainSec == null || remainSec === 0) return null;
+    return new Date(Date.now() + remainSec * 1000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  })();
+
+  return (
+    <div className={cn(
+      'rounded-2xl border px-4 py-3 mb-3',
+      overdue ? 'bg-red-900/30 border-red-500/40' :
+      pct === 100 ? 'bg-accent/15 border-accent/30' :
+      'bg-matcha-800/60 border-white/10',
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Route className="h-3.5 w-3.5 text-matcha-300" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-matcha-300">
+            Tour-Fortschritt
+          </span>
+        </div>
+        <span className="font-display font-bold text-accent tabular-nums">
+          {done}/{total} Stopps
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all duration-500',
+            pct === 100 ? 'bg-accent' :
+            overdue ? 'bg-red-500 animate-pulse' :
+            pct >= 60 ? 'bg-matcha-400' : 'bg-orange-400',
+          )}
+          style={{ width: `${Math.max(2, pct)}%` }}
+        />
+      </div>
+      <div className="mt-1.5 flex items-center justify-between text-[10px] tabular-nums">
+        {pct === 100 ? (
+          <span className="text-accent font-bold">Tour abgeschlossen! ✓</span>
+        ) : overdue ? (
+          <span className="text-red-400 font-bold animate-pulse">
+            +{fmtSec(totalOverdueSec)} überfällig
+          </span>
+        ) : remainSec != null ? (
+          <span className={cn('font-bold tabular-nums', remainSec < 300 ? 'text-amber-300' : 'text-matcha-300')}>
+            Noch {fmtSec(remainSec)} bis Tour-Ende
+          </span>
+        ) : (
+          <span className="text-matcha-400">{done < total ? 'Tour läuft…' : ''}</span>
+        )}
+        {returnTime && done < total && (
+          <span className="text-matcha-300">
+            Rückkehr ~{returnTime} Uhr
+          </span>
         )}
       </div>
     </div>

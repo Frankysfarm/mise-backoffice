@@ -190,6 +190,7 @@ export function KitchenBoard({
   const [cookFlash, setCookFlash] = useState<{ orderId: string; orderNum: string; name: string } | null>(null);
   const [rushSnoozedUntil, setRushSnoozedUntil] = useState(0);
   const [bigDisplay, setBigDisplay] = useState(false);
+  const [showColorLegend, setShowColorLegend] = useState(false);
   const [stationFocus, setStationFocus] = useState<PrepStation | 'all'>('all');
   const prevTimingStatuses = useRef<Map<string, string>>(new Map());
   const [activityFeed, setActivityFeed] = useState<{ id: string; bestellnummer: string; status: string; name: string; ts: number }[]>([]);
@@ -596,6 +597,17 @@ export function KitchenBoard({
               Test
             </button>
           )}
+          {/* Farbsystem-Legende */}
+          <button
+            onClick={() => setShowColorLegend((v) => !v)}
+            className={cn(
+              'inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-bold transition',
+              showColorLegend ? 'bg-matcha-100 border-matcha-400 text-matcha-700' : 'bg-card border-border text-muted-foreground hover:bg-muted',
+            )}
+            title="Farbsystem-Legende"
+          >
+            ?
+          </button>
           <button
             onClick={() => setBigDisplay((v) => !v)}
             className={cn(
@@ -682,6 +694,37 @@ export function KitchenBoard({
           })()}
         </div>
       </div>
+
+      {/* Farbsystem-Legende: erklärt das Bedeutungssystem der Farben im Küchen-Board */}
+      {showColorLegend && !bigDisplay && (
+        <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 text-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-display font-bold text-matcha-800 text-xs uppercase tracking-wider">Farbsystem-Legende</span>
+            <button onClick={() => setShowColorLegend(false)} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { dot: 'bg-green-500',  ring: 'border-green-500',  label: 'Im Plan',        desc: '< 60% der Zeit verbraucht',    border: 'border-l-matcha-400' },
+              { dot: 'bg-yellow-400', ring: 'border-yellow-400', label: 'Aufgepasst',     desc: '60–85% der Zeit verbraucht',  border: 'border-l-yellow-400' },
+              { dot: 'bg-orange-500', ring: 'border-orange-500', label: 'Eilt',           desc: '85–100% der Zeit verbraucht', border: 'border-l-orange-400' },
+              { dot: 'bg-red-500',    ring: 'border-red-500',    label: 'Überfällig',     desc: 'Zubereitungszeit überschritten', border: 'border-l-red-500' },
+            ].map((item) => (
+              <div key={item.label} className={cn('rounded-lg bg-white border-l-4 border px-3 py-2', item.border)}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={cn('h-3 w-3 rounded-full shrink-0', item.dot)} />
+                  <span className="font-bold text-[11px]">{item.label}</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-snug">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-matcha-200 grid grid-cols-2 md:grid-cols-3 gap-2 text-[10px] text-muted-foreground">
+            <span><span className="font-bold text-blue-600">Blauer Ring</span> = Smart-Timing aktiv (präzise Messung)</span>
+            <span><span className="font-bold text-red-600">Rote Karte</span> = Kritisch überfällig (&gt;10 Min)</span>
+            <span><span className="font-bold text-orange-600">Orangener Rand</span> = Dringlich (≥1 Min warten)</span>
+          </div>
+        </div>
+      )}
 
       {/* Unkontrollierte Bestellungen: Echtzeitbalken für Bestellungen OHNE Kitchen-Timing — immer sichtbar */}
       {!bigDisplay && <KitchenUntrackedTimerRow orders={filtered} timings={timings} />}
