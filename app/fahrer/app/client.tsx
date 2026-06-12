@@ -786,6 +786,45 @@ export function FahrerApp({
               );
             })()}
 
+            {/* Gesamte Route in Navi öffnen — alle Stopps als Wegpunkte */}
+            {(() => {
+              const stopsWithCoords = activeBatch.stops
+                .slice()
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .filter(s => s.order.kunde_lat && s.order.kunde_lng);
+              if (stopsWithCoords.length < 2) return null;
+              const isIos = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+              let routeUrl: string;
+              if (isIos) {
+                const last = stopsWithCoords[stopsWithCoords.length - 1];
+                const waypoints = stopsWithCoords
+                  .slice(0, -1)
+                  .map(s => `${s.order.kunde_lat},${s.order.kunde_lng}`)
+                  .join('/');
+                routeUrl = `maps://maps.apple.com/?daddr=${last.order.kunde_lat},${last.order.kunde_lng}&dirflg=d`;
+                if (waypoints) routeUrl += `&via=${encodeURIComponent(waypoints)}`;
+              } else {
+                const waypoints = stopsWithCoords
+                  .slice(1, -1)
+                  .map(s => `${s.order.kunde_lat},${s.order.kunde_lng}`)
+                  .join('|');
+                const last = stopsWithCoords[stopsWithCoords.length - 1];
+                routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${last.order.kunde_lat},${last.order.kunde_lng}&travelmode=driving`;
+                if (waypoints) routeUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
+              }
+              return (
+                <a
+                  href={routeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mb-3 flex items-center justify-center gap-2 rounded-xl bg-blue-600/20 border border-blue-400/40 px-4 py-2.5 text-blue-200 text-[12px] font-bold transition active:scale-[0.98]"
+                >
+                  <Route size={14} />
+                  Gesamte Route navigieren ({stopsWithCoords.length} Stopps)
+                </a>
+              );
+            })()}
+
             {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
             <div className="space-y-2 mb-4">
               {activeBatch.stops
