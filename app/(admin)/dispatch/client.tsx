@@ -1091,6 +1091,14 @@ export function DispatchBoard({
                 ))}
               </div>
             )}
+            {/* Tour-Vorschau: Inline-Zusammenfassung der ausgewählten Bestellungen */}
+            {selected.size >= 1 && (
+              <BatchSelectionPreview
+                orders={readyOrders.filter((o) => selected.has(o.id))}
+                restaurantLat={locations[0]?.lat ?? null}
+                restaurantLng={locations[0]?.lng ?? null}
+              />
+            )}
           </Card>
 
           <Card className="overflow-hidden">
@@ -7703,4 +7711,102 @@ function DispatchBrowserNotifier({ batches, orders }: { batches: Batch[]; orders
   }, [batches, orders]);
 
   return null;
+}
+
+/* ------------------------------ BatchSelectionPreview ------------------------------ */
+
+function BatchSelectionPreview({
+  orders,
+  restaurantLat,
+  restaurantLng,
+}: {
+  orders: ReadyOrder[];
+  restaurantLat: number | null;
+  restaurantLng: number | null;
+}) {
+  if (orders.length === 0) return null;
+
+  const totalValue = orders.reduce((s, o) => s + o.gesamtbetrag, 0);
+  const avgScore =
+    orders.filter((o) => o.dispatch_score != null).length > 0
+      ? Math.round(
+          orders.reduce((s, o) => s + (o.dispatch_score ?? 0), 0) /
+            orders.filter((o) => o.dispatch_score != null).length,
+        )
+      : null;
+
+  // Zones
+  const zones = [...new Set(orders.map((o) => o.delivery_zone).filter(Boolean))] as string[];
+
+  // Estimate route distance: restaurant → stop1 → stop2 → ... → restaurant
+  type OrderWithCoords = ReadyOrder & { kunde_lat: number; kunde_lng: number };
+  let estDistKm: number | null = null;
+  const withCoords = orders.filter((o): o is OrderWithCoords =>
+    o.kunde_lat != null && o.kunde_lng != null,
+  );
+  if (withCoords.length > 0 && restaurantLat != null && restaurantLng != null) {
+    let dist = 0;
+    let prev = { lat: restaurantLat, lng: restaurantLng };
+    for (const o of withCoords) {
+      dist += haversineKm(prev, { lat: o.kunde_lat, lng: o.kunde_lng });
+      prev = { lat: o.kunde_lat, lng: o.kunde_lng };
+    }
+    dist += haversineKm(prev, { lat: restaurantLat, lng: restaurantLng });
+    estDistKm = Math.round(dist * 10) / 10;
+  }
+
+  // Rough ETA estimate: 3 min/km avg delivery speed + 2 min per stop handoff
+  const estMinutes = estDistKm != null ? Math.round(estDistKm * 3 + orders.length * 2) : null;
+
+  const scoreColor =
+    avgScore == null ? 'text-muted-foreground'
+    : avgScore >= 80 ? 'text-matcha-600'
+    : avgScore >= 60 ? 'text-blue-500'
+    : avgScore >= 40 ? 'text-orange-500'
+    : 'text-red-500';
+
+  return (
+    <div className="border-t bg-matcha-50/80 px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Target className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="font-display text-[10px] font-bold uppercase tracking-wider text-matcha-800">
+          Tour-Vorschau · {orders.length} Stopp{orders.length > 1 ? 's' : ''}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {zones.length > 0 && (
+          <div className="flex items-center gap-1.5 rounded-md bg-white border px-2 py-1">
+            <MapPin className="h-3 w-3 text-matcha-500" />
+            <span className="text-[10px] font-semibold">
+              {zones.map((z) => `Zone ${z}`).join(' + ')}
+            </span>
+          </div>
+        )}
+        {estDistKm != null && (
+          <div className="flex items-center gap-1.5 rounded-md bg-white border px-2 py-1">
+            <Navigation2 className="h-3 w-3 text-blue-500" />
+            <span className="text-[10px] font-semibold tabular-nums">~{estDistKm} km</span>
+          </div>
+        )}
+        {estMinutes != null && (
+          <div className="flex items-center gap-1.5 rounded-md bg-white border px-2 py-1">
+            <Clock className="h-3 w-3 text-amber-500" />
+            <span className="text-[10px] font-semibold tabular-nums">~{estMinutes} Min</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 rounded-md bg-white border px-2 py-1">
+          <Banknote className="h-3 w-3 text-matcha-500" />
+          <span className="text-[10px] font-semibold tabular-nums">
+            {totalValue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+          </span>
+        </div>
+        {avgScore != null && (
+          <div className="flex items-center gap-1.5 rounded-md bg-white border px-2 py-1">
+            <Gauge className="h-3 w-3 text-matcha-500" />
+            <span className={cn('text-[10px] font-bold tabular-nums', scoreColor)}>Score {avgScore}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

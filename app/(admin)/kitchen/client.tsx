@@ -552,6 +552,11 @@ export function KitchenBoard({
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
 
+      {/* Fahrer-Küchen-Synchronisation: Timing-Abgleich zwischen aktiven Batches und Kochzeiten */}
+      {batches.length > 0 && timings.length > 0 && (
+        <KitchenHandoffSyncPanel batches={batches} stops={stops} timings={timings} orders={filtered} />
+      )}
+
       {/* Abholung-Warte-Panel: Kunden die auf ihre Abholung warten */}
       <PickupWaitPanel orders={filtered} />
 
@@ -6513,4 +6518,120 @@ export function KitchenWebNotifier({
   }, [orders]);
 
   return null;
+}
+
+/* ------------------------------ KitchenHandoffSyncPanel ------------------------------ */
+
+function KitchenHandoffSyncPanel({
+  batches, stops, timings, orders,
+}: {
+  batches: Batch[];
+  stops: Stop[];
+  timings: KitchenTiming[];
+  orders: Order[];
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const ACTIVE = new Set(['pickup', 'unterwegs', 'assigned', 'at_restaurant', 'on_route']);
+
+  type SyncRow = {
+    batchId: string;
+    driverId: string;
+    etaMs: number | null;
+    syncQuality: 'gut' | 'warte' | 'konflikt';
+    deltaMin: number | null; // positive = fahrer früher (warten), negative = essen früher (optimal/warm halten)
+    orderNums: string[];
+    readyTargets: (number | null)[];
+  };
+
+  const rows: SyncRow[] = batches
+    .filter((b) => ACTIVE.has(b.status))
+    .map((b) => {
+      const etaMs =
+        b.started_at && b.total_eta_min != null
+          ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+          : null;
+
+      const batchStops = stops.filter((s) => s.batch_id === b.id && !s.geliefert_am);
+      const orderNums: string[] = [];
+      const readyTargets: (number | null)[] = [];
+
+      for (const s of batchStops) {
+        const order = orders.find((o) => o.id === s.order_id);
+        if (order) orderNums.push(order.bestellnummer.replace(/^FF-/, ''));
+        const timing = timings.find((t) => t.order_id === s.order_id);
+        readyTargets.push(timing?.ready_target ? new Date(timing.ready_target).getTime() : null);
+      }
+
+      const validTargets = readyTargets.filter((t): t is number => t !== null);
+      const latestReady = validTargets.length ? Math.max(...validTargets) : null;
+
+      let syncQuality: SyncRow['syncQuality'] = 'gut';
+      let deltaMin: number | null = null;
+
+      if (etaMs !== null && latestReady !== null) {
+        deltaMin = Math.round((etaMs - latestReady) / 60_000);
+        if (deltaMin > 5) syncQuality = 'warte'; // fahrer arrives before food ready → driver waits
+        else if (deltaMin < -8) syncQuality = 'konflikt'; // food waits very long
+        else syncQuality = 'gut';
+      }
+
+      return { batchId: b.id, driverId: b.driver_id, etaMs, syncQuality, deltaMin, orderNums, readyTargets };
+    })
+    .filter((r) => r.orderNums.length > 0);
+
+  if (rows.length === 0) return null;
+
+  const colorMap = {
+    gut:      { card: 'border-matcha-300 bg-matcha-50', dot: 'bg-matcha-500', label: 'Synchron', text: 'text-matcha-700' },
+    warte:    { card: 'border-amber-300 bg-amber-50',   dot: 'bg-amber-400',  label: 'Fahrer wartet', text: 'text-amber-700' },
+    konflikt: { card: 'border-red-300 bg-red-50',       dot: 'bg-red-500',    label: 'Essen wartet', text: 'text-red-700' },
+  };
+
+  return (
+    <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Zap className="h-4 w-4 text-blue-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-blue-800">
+          Fahrer-Küchen-Sync · {rows.length} aktive Tour{rows.length > 1 ? 'en' : ''}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {rows.map((r) => {
+          const meta = colorMap[r.syncQuality];
+          const etaStr = r.etaMs
+            ? new Date(r.etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+            : '—';
+          return (
+            <div key={r.batchId} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2 min-w-[180px]', meta.card)}>
+              <div className={cn('h-2.5 w-2.5 rounded-full shrink-0', meta.dot)} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-bold truncate">
+                  {r.orderNums.length > 0 ? `#${r.orderNums.slice(0, 2).join(' · #')}` : 'Ohne Nummern'}
+                </div>
+                <div className={cn('text-[9px] font-semibold', meta.text)}>
+                  {meta.label}
+                  {r.deltaMin !== null && r.deltaMin !== 0 && (
+                    <span className="ml-1 opacity-80">
+                      {r.deltaMin > 0
+                        ? `(+${r.deltaMin}m Wartezeit)`
+                        : `(${Math.abs(r.deltaMin)}m Vorlauf)`}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="text-[9px] text-muted-foreground tabular-nums shrink-0">
+                ETA {etaStr}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
