@@ -104,17 +104,30 @@ export function FahrerApp({
   // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
   useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
   useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
-  // Externe Links (Navi/Maps/WhatsApp/Waze) zuverlaessig im System oeffnen.
-  // Capacitor-WebView ignoriert <a target="_blank"> oft -> aktiv via window.open ans System reichen.
+  // Externe Links im System oeffnen; Per-Stop-Navi bevorzugt die Google-Maps-App (sonst macht iOS Apple Maps auf).
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement)?.closest?.('a') as HTMLAnchorElement | null;
       if (!a) return;
       const href = a.getAttribute('href') || '';
-      if (/^https?:\/\//i.test(href) && a.getAttribute('target') === '_blank') {
-        e.preventDefault();
-        try { window.open(href, '_blank'); } catch { location.href = href; }
+      if (!(/^https?:\/\//i.test(href) && a.getAttribute('target') === '_blank')) return;
+      e.preventDefault();
+      const destM = /[?&]destination=([^&]+)/.exec(href);
+      const hasWaypoints = /[?&]waypoints=/.test(href);
+      if (/google\.com\/maps/.test(href) && destM && !hasWaypoints) {
+        // Google-Maps-App erzwingen; wenn nicht installiert (App bleibt im Vordergrund) -> Web-Fallback
+        const appUrl = `comgooglemaps://?daddr=${destM[1]}&directionsmode=driving`;
+        let switched = false;
+        const onHide = () => { switched = true; };
+        document.addEventListener('visibilitychange', onHide, { once: true });
+        try { window.location.href = appUrl; } catch { /* noop */ }
+        window.setTimeout(() => {
+          document.removeEventListener('visibilitychange', onHide);
+          if (!switched) { try { window.open(href, '_blank'); } catch { location.href = href; } }
+        }, 800);
+        return;
       }
+      try { window.open(href, '_blank'); } catch { location.href = href; }
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
