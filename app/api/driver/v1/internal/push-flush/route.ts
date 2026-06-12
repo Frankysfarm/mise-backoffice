@@ -35,6 +35,7 @@ interface DriverShortRow {
   expo_push_token: string | null;
   voip_push_token: string | null;
   push_enabled: boolean;
+  last_active_at: string | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   const { data: pending } = await c
     .from('mise_push_outbox')
     .select(
-      'id, driver_id, type, title, body, data, sound, priority, attempts, drivers:driver_id(expo_push_token,voip_push_token,push_enabled)',
+      'id, driver_id, type, title, body, data, sound, priority, attempts, drivers:driver_id(expo_push_token,voip_push_token,push_enabled,last_active_at)',
     )
     .is('sent_at', null)
     .is('failed_at', null)
@@ -95,6 +96,17 @@ export async function POST(req: NextRequest) {
       await c
         .from('mise_push_outbox')
         .update({ failed_at: new Date().toISOString(), fail_reason: 'push_enabled=false' })
+        .eq('id', row.id);
+      skipped++;
+      continue;
+    }
+
+    // Fahrer gerade aktiv in der App? -> Realtime zeigt die Order live -> KEIN Anruf/Push
+    const lastActive = drv?.last_active_at ? new Date(drv.last_active_at).getTime() : 0;
+    if (Date.now() - lastActive < 25_000) {
+      await c
+        .from('mise_push_outbox')
+        .update({ sent_at: new Date().toISOString(), fail_reason: 'skip-foreground' })
         .eq('id', row.id);
       skipped++;
       continue;

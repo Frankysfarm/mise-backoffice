@@ -104,6 +104,22 @@ export function FahrerApp({
   // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
   useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
   useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
+  // Heartbeat: meldet "App aktiv" -> push-flush laesst den VoIP-Anruf weg solange du in der App bist
+  useEffect(() => {
+    async function beat() {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      try {
+        const { data } = await supabase.auth.getSession();
+        const tok = data.session?.access_token;
+        await fetch('/api/driver/v1/me/heartbeat', { method: 'POST', headers: tok ? { authorization: `Bearer ${tok}` } : {} });
+      } catch { /* noop */ }
+    }
+    beat();
+    const iv = setInterval(beat, 15000);
+    const onVis = () => { if (document.visibilityState === 'visible') beat(); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVis); };
+  }, [supabase]);
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
