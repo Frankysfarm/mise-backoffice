@@ -7859,15 +7859,15 @@ function DispatchTourCompletionSpeedPanel({ batches }: { batches: Batch[] }) {
     let Icon: React.ElementType;
 
     if (diffRounded > 0) {
-      statusLabel = `Ahead +${diffRounded} Stopp${diffRounded !== 1 ? 's' : ''}`;
+      statusLabel = `Voraus +${diffRounded} Stopp${diffRounded !== 1 ? 's' : ''}`;
       statusClass = 'text-green-600 bg-green-50 border-green-200';
       Icon = TrendingUp;
     } else if (diffRounded < 0) {
-      statusLabel = `Behind ${diffRounded} Stopp${Math.abs(diffRounded) !== 1 ? 's' : ''}`;
+      statusLabel = `Verzögert ${diffRounded} Stopp${Math.abs(diffRounded) !== 1 ? 's' : ''}`;
       statusClass = 'text-red-600 bg-red-50 border-red-200';
       Icon = Clock;
     } else {
-      statusLabel = 'On Schedule';
+      statusLabel = 'Im Plan';
       statusClass = 'text-blue-600 bg-blue-50 border-blue-200';
       Icon = CheckCircle2;
     }
@@ -7879,8 +7879,8 @@ function DispatchTourCompletionSpeedPanel({ batches }: { batches: Batch[] }) {
     <div className="rounded-xl border border-matcha-200 bg-white shadow-sm overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-matcha-100 bg-matcha-50/40">
         <TrendingUp className="h-4 w-4 text-matcha-600" />
-        <span className="text-sm font-semibold text-matcha-800">Tour Completion Speed</span>
-        <span className="ml-auto text-[10px] text-matcha-400">Updates every 15 s</span>
+        <span className="text-sm font-semibold text-matcha-800">Tour-Geschwindigkeit</span>
+        <span className="ml-auto text-[10px] text-matcha-400">Aktualisiert alle 15 s</span>
       </div>
       <div className="divide-y divide-matcha-50">
         {rows.map(({ batch, driverName, actualDone, totalStops, elapsedMin, totalEtaMin, statusLabel, statusClass, Icon }) => (

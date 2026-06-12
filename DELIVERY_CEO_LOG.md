@@ -1,7 +1,73 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–84 vollständig abgeschlossen. CEO Review #64 abgeschlossen. TypeScript 0 Fehler. Build sauber (184 Seiten). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–87 vollständig abgeschlossen. CEO Review #65 abgeschlossen. TypeScript 0 Fehler. Build sauber (185 Seiten). Deployment-bereit.
+
+## CEO Review #65 — 2026-06-12
+
+### Geprüfte Commits (3 neue Commits seit Review #64)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `e153908` | feat(delivery/backend): Phase 85+86 — Nachfrage-Prognose KI + Multi-Location A/B-Test-Sync | ✅ |
+| `46b64c7` | feat(delivery/frontend): Phase 87 — Smart-UI-Erweiterungen für alle 5 Bereiche | ✅ (1 Bug gefixt) |
+| `5600f89` | docs: Phase 87 in DELIVERY_PROGRESS.md eingetragen | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully, 185 Seiten ✅
+
+### Befund Phase 85+86 (Backend)
+
+**lib/delivery/ai-forecast.ts**:
+- `buildForecastAiContext()` — aggregiert Forecast+Queue+Fahrer+Verlauf ✅
+- `streamForecastInsights()` — Claude Haiku SSE-Streaming korrekt implementiert ✅
+- `POST /api/delivery/admin/ai-forecast` — Auth + Multi-Tenant location_id ✅
+
+**lib/delivery/loyalty-ab.ts**:
+- `syncTestToLocations()` — Duplikat-Guard korrekt (gleicher Name), Rollback bei Fehler ✅
+- `POST /api/delivery/admin/loyalty-ab/sync` — source_location_id + test_id + target_location_ids[] ✅
+
+### Befund Phase 87 (Frontend)
+
+**KitchenOrderAgeGrid** (`app/(admin)/kitchen/client.tsx`):
+- 1s-Tick korrekt via `setInterval` + `useEffect`-Cleanup ✅
+- Farbcodierung grün→gelb→orange→rot + Pulse bei Überfälligkeit ✅
+- Sichtbar nur wenn aktive Bestellungen existieren ✅
+
+**DispatchTourCompletionSpeedPanel** (`app/(admin)/dispatch/client.tsx`):
+- 15s-Update-Intervall korrekt ✅
+- Logik: actualDone vs. expectedDone (linear interpoliert) korrekt ✅
+- **Bug gefunden und gefixt**: Status-Labels waren auf Englisch ("Ahead", "Behind", "On Schedule", "Tour Completion Speed", "Updates every 15 s") → auf Deutsch geändert ("Voraus", "Verzögert", "Im Plan", "Tour-Geschwindigkeit", "Aktualisiert alle 15 s")
+- Anforderung "Deutsche Texte, professionelle UI" jetzt erfüllt ✅
+
+**StopEtaStatusChip** (`app/fahrer/app/delivery-view.tsx`):
+- Null-Check auf `etaEarliest` ✅
+- Fallback-Fenster (+10 min wenn kein `etaLatest`) ✅
+- 30s-Tick korrekt ✅
+
+**LieferdienstZonenumsatz** (`app/(admin)/lieferdienst/client.tsx`):
+- Supabase `.not('delivery_zone', 'is', null)` korrekt (kein String-Concat) ✅
+- Konsistent mit Sibling-Komponenten (kein expliziter location_id-Filter — RLS handhabt Tenant-Isolation) ✅
+- 60s-Refresh + Cleanup ✅
+
+**LiveEtaBar** (`app/order/[locationSlug]/storefront.tsx`):
+- location_id korrekt an `/api/delivery/eta/live?location_id=...` übergeben ✅
+- Cancelled-Flag verhindert State-Update nach Unmount ✅
+- Küche-Auslastung + Fahrerzahl + ETA-Fenster + Queue-Signal-Meldung vollständig angezeigt ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen zeigt Bestellalter-Grid mit 1s-Live-Tick ✅
+- Dispatch zeigt Tour-Geschwindigkeit (Ahead/Behind/Im Plan) je aktivem Fahrer ✅
+- Fahrer-App zeigt ETA-Statuschip pro Stopp ✅
+- Storefront LiveEtaBar zeigt Küchen-Auslastung + Fahrer-Online-Count ✅
+- Lieferdienst-Stats zeigt Zone-Umsatz-BarChart ✅
+
+### Status nach Review #65
+- TypeScript: 0 Fehler ✅
+- Build: 185 Seiten, Compiled successfully ✅
+- Phasen 85+86+87: DONE ✅
+- Bugs gefixt: 1 (englische Labels in DispatchTourCompletionSpeedPanel → Deutsch)
 
 ## CEO Review #64 — 2026-06-12
 
