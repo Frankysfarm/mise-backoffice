@@ -1,10 +1,22 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–64 abgeschlossen. TypeScript 0 Fehler. Build sauber. CEO Review #52: 0 Bugs. Deployment-bereit.**
+**Phasen 1–66 abgeschlossen. TypeScript 0 Fehler. Build sauber. CEO Review #53: 3 Bugs gefixt. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 66: 5 neue UI-Panels — KitchenThroughputMeter, DispatchShiftLeaderboard, FahrerPaceCard, Lieferdienst-Leaderboard, StopsBefore-Badge
+- [x] KitchenThroughputMeter — rollendes 30-Min-Fenster Bestellungen/h mit Trend-Pfeil (Kitchen)
+- [x] DispatchShiftLeaderboard — Top-Fahrer nach heutigen Lieferungen mit Mini-Bars (Dispatch) — Bug gefixt: jetzt mit Mise-Batches
+- [x] FahrerPaceCard — rollendes 2h-Liefertempo Histogramm (Fahrer-App) — Bug gefixt: jetzt mit Mise-Batches
+- [x] StopsBefore-Badge — Stopps vor der eigenen Lieferung (Storefront SuccessState)
+- [x] Phase 65: Smart Delivery Intelligence Enhancement — 5 neue Komponenten
+- [x] KitchenItemPrioritySort — Artikel sortiert nach Deadline + Farbcodierung (Kitchen)
+- [x] DispatchCapacityMeter — Live-Auslastungs-Meter Online/Unterwegs/Warten (Dispatch)
+- [x] TourRueckgabeEta — geschätzte Rückkehrzeit ~HH:MM Uhr in Tour-Header (Fahrer-App)
+- [x] SpitzenStundenPanel — Top-3 Spitzenstunden nach Bestellvolumen (Statistiken)
+- [x] ETAFensterBalken — visueller Zeitstrahl mit Fenster + Zeitmarker (Storefront)
+- [x] CEO Review #53: 3 Bugs gefixt (DispatchShiftLeaderboard Legacy-only, FahrerPaceCard Legacy-only, Mini-Leaderboard totes Feld)
 - [x] Phase 64: Fahrer-Lohnzettel PDF (individueller Gehaltsnachweis pro Abrechnungsperiode)
 - [x] lib/pdf/lohnzettel-pdf.tsx — React-PDF Lohnzettel-Dokument (Vergütungsaufschlüsselung, KPIs, Status-Badge)
 - [x] GET /api/pdf/lohnzettel — PDF-Generierung mit Dual-Auth (Admin ODER Fahrer selbst)

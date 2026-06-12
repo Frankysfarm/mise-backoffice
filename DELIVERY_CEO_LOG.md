@@ -1,7 +1,122 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–63 vollständig abgeschlossen. CEO Review #52: 0 Bugs, Build sauber (180 Seiten). Deployment-bereit.
+**MARKT-REIF.** Phasen 1–66 vollständig abgeschlossen. CEO Review #53: 3 Bugs gefixt, Build sauber (180 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #53 — 2026-06-12
+
+### Geprüfte Commits (3 Commits seit Review #52)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `f6d88dd` | feat(delivery/backend): Phase 64 — Fahrer-Lohnzettel PDF | ✅ sauber |
+| `86154eb` | feat(delivery/frontend): Phase 65 — Smart Delivery Intelligence Enhancement | ✅ sauber |
+| `0e9fff1` | feat(delivery/frontend): Phase 66 — 5 neue UI-Panels (Durchsatz, Leaderboard, Pace, Stopps) | ⚠️ 3 Bugs → gefixt |
+
+### TypeScript & Build
+- `tsc --noEmit`: **0 Fehler** ✅ (vor und nach Fix)
+- `next build`: **180 Seiten, kompiliert sauber** ✅
+
+### Befund Phase 64 (Backend — Fahrer-Lohnzettel PDF)
+
+**lib/pdf/lohnzettel-pdf.tsx**:
+- React-PDF Dokument mit Vergütungsaufschlüsselung (Basis, km, Peak, Rating, Meilenstein) ✅
+- KPI-Kacheln, Status-Badge (Genehmigt/Ausstehend/Abgelehnt), Fahrerdaten ✅
+
+**GET /api/pdf/lohnzettel**:
+- Dual-Auth: Manager (requireManagerPlus) ODER Fahrer selbst (auth_user_id check) ✅
+- `renderToBuffer` aus `@react-pdf/renderer` — korrekte PDF-Generierung ✅
+- Query für Perioden-Daten + Standort-Daten vollständig ✅
+
+**GET /api/delivery/driver/periods**:
+- Fahrer-eigene Perioden der letzten 90 Tage inkl. `pdfUrl` ✅
+- Auth: Bearer + Cookie Dual-Auth wie andere Fahrer-Routes ✅
+
+**Admin-UI (app/(admin)/drivers/payouts/client.tsx)**:
+- PDF-Download-Button in Perioden-Tab ✅
+
+**Fahrer-App (client.tsx)**:
+- `MeineAbrechnungen`-Sektion mit ausklappbarer Perioden-Liste + PDF-Download-Links ✅
+- 90s-Poll-Intervall mit korrektem Cleanup ✅
+
+### Befund Phase 65 (Frontend — Smart Delivery Intelligence Enhancement)
+
+**KitchenItemPrioritySort** (`app/(admin)/kitchen/client.tsx`):
+- Aggregiert Artikel-Mengen über alle aktiven Bestellungen — korrekte Map-Logik ✅
+- `urgencyMs`: nutzt `timing.ready_target` wenn vorhanden, sonst Fallback (`geschaetzte_zubereitung_min ?? 20`) ✅
+- `isOverdue`/`isUrgent` korrekt berechnet (now + 6 Min Schwelle für urgent) ✅
+- 30s-Tick mit Cleanup ✅
+- Nur angezeigt wenn `!bigDisplay` und aktive Orders vorhanden ✅
+
+**DispatchCapacityMeter** (`app/(admin)/dispatch/client.tsx`):
+- `utilization = activeBatchCount / onlineCount` — korrekte Auslastungsformel ✅
+- `pressure = waitingCount > onlineCount` → 'high' — sinnvolle Drucklogik ✅
+- Null-safe: return null wenn kein Fahrer online und keine Ready-Orders ✅
+
+**TourRueckgabeEta** (`app/fahrer/app/client.tsx`):
+- `~${remainingMin} Min + Rückkehr ~HH:MM Uhr` — korrekte `toLocaleTimeString` Berechnung ✅
+- Inline-Erweiterung des bestehenden Tour-Header-Bereichs ✅
+
+**SpitzenStundenPanel** (`components/lieferdienst/statistics-view.tsx`):
+- Top-3 Stunden nach `orders`-Count, Prozentsatz-Balken korrekt ✅
+- `avgPerActiveHour = totalOrders / sorted.length` — kein Division-by-zero dank Guard ✅
+- Nur angezeigt wenn ≥2 Stunden mit Bestellungen ✅
+
+**ETAFensterBalken** (`app/order/.../success-state.tsx`):
+- `windowMinutes` korrekt definiert (Zeile 304) ✅
+- `displayStart/End` ±10 Min Kontext-Padding — visuell sinnvoll ✅
+- `nowPct = Math.min(100, Math.max(0, ...))` — clamp verhindert Overflow ✅
+- Nur wenn `nowMs < latest` (Zeitmarker ausgeblendet wenn Fenster vorbei) ✅
+
+### Bug 1 gefunden und gefixt — DispatchShiftLeaderboard: nur Legacy-Tabellen
+
+**Datei**: `app/(admin)/dispatch/client.tsx`, `DispatchShiftLeaderboard`
+
+**Problem**: Die Komponente fragte ausschließlich `delivery_batch_stops` (Legacy) + `delivery_batches` (Legacy) ab. Seit Phase 53 gehen neue Dispatches in `mise_delivery_batches` + `mise_delivery_batch_stops`. Folge: Alle Fahrer mit neuen Mise-Dispatches hatten `countByDriver[employee_id] = 0` → Leaderboard zeigte immer 0 Fahrer → `return null`.
+
+**Fix**: Parallel-Query: `mise_delivery_batch_stops` (type='dropoff', completed_at heute) mit Join-Chain `mise_delivery_batches!inner → mise_drivers!inner(employee_id)`. Beide Ergebnisse werden in `countByDriver` zusammengeführt.
+
+### Bug 2 gefunden und gefixt — FahrerPaceCard: nur Legacy delivery_batches
+
+**Datei**: `app/fahrer/app/client.tsx`, `FahrerPaceCard`
+
+**Problem**: Die Komponente queried `delivery_batches` mit `.eq('fahrer_id', driverId)`. Wenn keine Legacy-Batches gefunden werden (seit Phase 53 der Normalfall), bricht `if (!legacyBatches?.length) return;` früh ab. Mise-Batches aus `mise_delivery_batches` werden nie abgefragt → Karte nie sichtbar.
+
+**Fix**: Mirroring von `SchichtStats`-Pattern:
+1. Parallel: `delivery_batches` (legacy fahrer_id) + `mise_drivers` (employee_id → mise_drivers.id)
+2. Dann: `delivery_batch_stops` (legacy) + `mise_delivery_batches` (nach mise_driver_id) + `mise_delivery_batch_stops` (type='dropoff')
+3. Alle Timestamps (geliefert_am + completed_at) zusammenführen → Stunden-Buckets
+
+### Bug 3 gefunden und gefixt — Lieferdienst Mini-Leaderboard: deliveries_today fehlt
+
+**Datei**: `app/(admin)/lieferdienst/client.tsx`, inline Mini-Leaderboard
+
+**Problem**: Das Leaderboard greift auf `(d as any).deliveries_today` zu, aber das Driver-Interface (`lib/lieferdienst/drivers.ts`) hat dieses Feld nicht. Die API (`/api/lieferdienst/data`) liefert es ebenfalls nicht. `topDrivers` ist immer leer → `return null` → totes Code-Fragment.
+
+**Fix**: Das gesamte Mini-Leaderboard-Fragment entfernt. Für ein funktionsfähiges Fahrer-Leaderboard steht `DispatchShiftLeaderboard` im Dispatch-Board zur Verfügung (jetzt mit Mise-Support).
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+
+- **Kitchen**: `KitchenItemPrioritySort` (Artikel-Priorität nach Deadline) + `KitchenThroughputMeter` (rollendes 30-Min-Fenster) ✅
+- **Dispatch**: `DispatchCapacityMeter` (Live-Auslastung) + `DispatchShiftLeaderboard` (Top-Fahrer, jetzt mit Mise-Support) ✅
+- **Driver**: `FahrerPaceCard` (2h-Liefertempo, jetzt mit Mise-Batches) + `TourRueckgabeEta` (Rückkehrzeit) ✅
+- **Storefront**: `ETAFensterBalken` (visueller Zeitstrahl) + `StopsBefore-Badge` (Stopps vor der eigenen Lieferung) ✅
+- **PDF**: Fahrer-Lohnzettel mit Dual-Auth — Admin + Fahrer-Selbstabfrage ✅
+
+### Status nach Review #53
+- TypeScript: **0 Fehler** ✅
+- Build: **180 Seiten, kompiliert sauber** ✅
+- Phase 64 (Lohnzettel PDF): DONE ✅
+- Phase 65 (Smart Intelligence Enhancement): DONE ✅
+- Phase 66 (5 neue UI-Panels): DONE ✅ (nach 3 Bug-Fixes)
+- Bugs gefixt: 3 (DispatchShiftLeaderboard Legacy-only, FahrerPaceCard Legacy-only, Mini-Leaderboard totes Feld)
+
+### Nächste Schritte
+1. **Deployment**: Production-ready. Vercel/Railway deploy kann sofort erfolgen.
+2. **Datenbank-Migrations**: 047–049 auf Produktions-Supabase noch ausstehend (shift_breaks, certifications, applications).
+3. **FahrerPaceCard**: Gibt Einzel-Fahrer nur Daten aus den letzten 2h — bei wenig Traffic ggf. auf 4h erweitern.
 
 ---
 

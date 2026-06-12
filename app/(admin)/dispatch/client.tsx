@@ -7182,15 +7182,27 @@ function DispatchShiftLeaderboard({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     (async () => {
-      const { data: stops } = await supabase
-        .from('delivery_batch_stops')
-        .select('batch_id, geliefert_am, batch:delivery_batches!inner(fahrer_id)')
-        .not('geliefert_am', 'is', null)
-        .gte('geliefert_am', today.toISOString()) as { data: Array<{ batch_id: string; geliefert_am: string; batch: { fahrer_id: string } }> | null };
+      const [{ data: legacyStops }, { data: miseStops }] = await Promise.all([
+        supabase
+          .from('delivery_batch_stops')
+          .select('batch_id, geliefert_am, batch:delivery_batches!inner(fahrer_id)')
+          .not('geliefert_am', 'is', null)
+          .gte('geliefert_am', today.toISOString()) as Promise<{ data: Array<{ batch_id: string; geliefert_am: string; batch: { fahrer_id: string } }> | null }>,
+        supabase
+          .from('mise_delivery_batch_stops')
+          .select('completed_at, batch:mise_delivery_batches!inner(driver:mise_drivers!inner(employee_id))')
+          .eq('type', 'dropoff')
+          .not('completed_at', 'is', null)
+          .gte('completed_at', today.toISOString()) as Promise<{ data: Array<{ completed_at: string; batch: { driver: { employee_id: string } } }> | null }>,
+      ]);
 
       const countByDriver: Record<string, number> = {};
-      for (const s of stops ?? []) {
+      for (const s of legacyStops ?? []) {
         const did = s.batch?.fahrer_id;
+        if (did) countByDriver[did] = (countByDriver[did] ?? 0) + 1;
+      }
+      for (const s of miseStops ?? []) {
+        const did = s.batch?.driver?.employee_id;
         if (did) countByDriver[did] = (countByDriver[did] ?? 0) + 1;
       }
 

@@ -1220,26 +1220,34 @@ function FahrerPaceCard({ driverId }: { driverId: string }) {
   useEffect(() => {
     const since = new Date(Date.now() - 2 * 60 * 60_000).toISOString();
     (async () => {
-      const { data: legacyBatches } = await supabase
-        .from('delivery_batches')
-        .select('id')
-        .eq('fahrer_id', driverId)
-        .gte('created_at', since);
+      const [{ data: legacyBatches }, { data: miseDriver }] = await Promise.all([
+        supabase.from('delivery_batches').select('id').eq('fahrer_id', driverId).gte('created_at', since),
+        supabase.from('mise_drivers').select('id').eq('employee_id', driverId).maybeSingle(),
+      ]);
+      const miseDriverId = (miseDriver as { id: string } | null)?.id ?? null;
 
-      if (!legacyBatches?.length) return;
+      const { data: miseBatches } = miseDriverId
+        ? await supabase.from('mise_delivery_batches').select('id').eq('driver_id', miseDriverId).gte('created_at', since)
+        : { data: [] as { id: string }[] };
 
-      const { data: stops } = await supabase
-        .from('delivery_batch_stops')
-        .select('geliefert_am')
-        .in('batch_id', (legacyBatches as { id: string }[]).map((b) => b.id))
-        .not('geliefert_am', 'is', null)
-        .gte('geliefert_am', since) as { data: { geliefert_am: string }[] | null };
+      const [{ data: legacyStops }, { data: miseStops }] = await Promise.all([
+        legacyBatches?.length
+          ? supabase.from('delivery_batch_stops').select('geliefert_am').in('batch_id', (legacyBatches as { id: string }[]).map((b) => b.id)).not('geliefert_am', 'is', null).gte('geliefert_am', since) as Promise<{ data: { geliefert_am: string }[] | null }>
+          : Promise.resolve({ data: [] as { geliefert_am: string }[] }),
+        miseBatches?.length
+          ? supabase.from('mise_delivery_batch_stops').select('completed_at').eq('type', 'dropoff').in('batch_id', (miseBatches as { id: string }[]).map((b) => b.id)).not('completed_at', 'is', null).gte('completed_at', since) as Promise<{ data: { completed_at: string }[] | null }>
+          : Promise.resolve({ data: [] as { completed_at: string }[] }),
+      ]);
 
-      if (!stops?.length) return;
+      const allTimestamps: string[] = [
+        ...(legacyStops ?? []).map((s) => s.geliefert_am),
+        ...(miseStops ?? []).map((s) => s.completed_at),
+      ];
+      if (!allTimestamps.length) return;
 
       const buckets: Record<number, number> = {};
-      for (const s of stops) {
-        const h = new Date(s.geliefert_am).getHours();
+      for (const ts of allTimestamps) {
+        const h = new Date(ts).getHours();
         buckets[h] = (buckets[h] ?? 0) + 1;
       }
       const nowH = new Date().getHours();
