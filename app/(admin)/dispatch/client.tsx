@@ -3933,6 +3933,11 @@ function TourVisualizationPanel({
   const [addStopOpen, setAddStopOpen] = useState<string | null>(null);
   const [addStopPending, setAddStopPending] = useState<string | null>(null);
 
+  // Auto-open wenn eine Tour neu überfällig wird (stale-closure-safe)
+  useEffect(() => {
+    if (hasOverdue) setOpen(true);
+  }, [hasOverdue]);
+
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 5000);
     return () => clearInterval(t);

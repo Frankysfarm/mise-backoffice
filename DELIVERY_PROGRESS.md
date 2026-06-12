@@ -1,10 +1,11 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–72 abgeschlossen. CEO Review #57. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.**
+**Phasen 1–72 abgeschlossen. CEO Review #58. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] CEO Review #58: 3 Bugs gefixt (KitchenReadyForecastPanel Tick 5s→1s, TourVisualizationPanel Auto-Open stale closure, LieferdienstDeliveryKpis ETA-Abweichung negativ)
 - [x] Phase 72: Echtzeit-Betriebscockpit (Live Ops Dashboard) — Ops-Center Admin-Seite
 - [x] GET /api/delivery/admin/ops-snapshot — Einzel-Endpoint für alle Live-KPIs (Queue-Funnel, Fahrer-Status, Alarme, Revenue, SLA, Durchsatz, Verspätungen, At-Risk-Orders)
 - [x] app/(admin)/delivery/ops-center/page.tsx — Server-Wrapper mit requireManagerPlus + location_id Auflösung

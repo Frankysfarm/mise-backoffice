@@ -6272,7 +6272,7 @@ function KitchenUrgencyTicker({ orders }: { orders: Order[] }) {
 function KitchenReadyForecastPanel({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
   const [, setTick] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(t);
   }, []);
 

@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–70 vollständig abgeschlossen. CEO Review #57 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–72 vollständig abgeschlossen. CEO Review #58 abgeschlossen. TypeScript 0 Fehler. Build sauber (181 Seiten). Deployment-bereit.
+
+## CEO Review #58 — 2026-06-12
+
+### Geprüfte Commits (2 Commits seit Review #57)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `8a9539b` | Smart-Timing, Tour-Visualisierung, ETA-Countdowns (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst) | ✅ geprüft |
+| `6aa51ad` | Live-Countdown Fahrer (TourLiveProgressHeader), Farbsystem-Legende Kitchen | ✅ geprüft |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Compiled successfully, 181 Seiten ✅
+
+### Befund Phase 71/72 (Frontend)
+
+**KitchenReadyForecastPanel** (`app/(admin)/kitchen/client.tsx`):
+- Zeigt Bestellungen die in <10 Min fertig werden mit Farbcodierung ✅
+- **Bug gefunden & gefixt**: Tick-Intervall war 5000ms → MM:SS Countdown aktualisierte ruckartig. Auf 1000ms gesetzt ✅
+
+**TourVisualizationPanel** (`app/(admin)/dispatch/client.tsx`):
+- Auto-öffnet sich wenn Touren >5 Min überfällig sind ✅
+- **Bug gefunden & gefixt**: `useState(hasOverdue)` nur Initial-Wert — Panel öffnete sich nicht wenn Tour neu überfällig wurde. `useEffect` ergänzt um Auto-Open reaktiv zu machen ✅
+
+**LieferdienstDeliveryKpis** (`app/(admin)/lieferdienst/client.tsx`):
+- SLA-Pünktlichkeit, Ø-Lieferzeit, ETA-Genauigkeit mit Progress-Balken ✅
+- **Bug gefunden & gefixt**: ETA-Abweichung zeigte `'0 Min'` wenn `avgErrorMin` negativ war (frühe Lieferungen). Jetzt korrekt `−X Min` ✅
+
+**TourLiveProgressHeader** (`app/fahrer/app/client.tsx`):
+- Sekündlicher MM:SS-Live-Countdown im Fahrer-Tour-Header ✅
+- Überfällig-Anzeige in Rot mit Puls-Animation — `Math.max(0,...)` korrekt → `=== 0` funktioniert als Überfällig-Check ✅
+
+**Farbsystem-Legende Kitchen** (`app/(admin)/kitchen/client.tsx`):
+- Erklärt Ring-Farben (grün/gelb/orange/rot), Smart-Timing (blau), ein-/ausklappbar ✅
+
+**LiveEtaBar Storefront** (`app/order/[locationSlug]/storefront.tsx`):
+- Warteschlangen-Chip mit farbcodierter Auslastung ✅
+- 30s-Tick korrekt für Minutenbereich-Anzeige ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: KitchenReadyForecastPanel (1s-Countdown), Farbsystem-Legende, KitchenUrgencyTicker ✅
+- Dispatch: TourVisualizationPanel (Auto-Open reaktiv), DispatchScoreBar, KI-Assistent ✅
+- Fahrer: TourLiveProgressHeader (Live-Countdown), DriverLeaderboardMini, TourBriefingCard ✅
+- Storefront: LiveEtaBar (Queue-Chip), ETA-Countdown ✅
+- Lieferdienst: LieferdienstDeliveryKpis (ETA-Abweichung fix), Fahrer-Einsatz-Grid ✅
+- Ops-Center (Phase 72): /api/delivery/admin/ops-snapshot ✅, Auth via requireManagerPlus ✅, Sidebar-Eintrag ✅
+- Cron: snapshotDriverPerformance (isReportTick), processPendingRatingLinks (isRatingTick alle 10 Min) ✅
+
+### Status nach Review #58
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully, 181 Seiten ✅
+- Bugs gefixt: 3
+  1. KitchenReadyForecastPanel Tick 5s→1s (choppy countdown)
+  2. TourVisualizationPanel Auto-Open stale closure (useEffect ergänzt)
+  3. LieferdienstDeliveryKpis ETA-Abweichung negativ-Werte (Logik-Bug)
+
+### Nächste mögliche Phasen
+- Phase 73: Kunden-Bewertungs-Widget im Storefront nach Zustellung (Sterne + Kommentar)
+- Phase 74: Franchise-Vergleichs-Dashboard (multi-location KPI-Vergleich)
+- Phase 75: Automatische SLA-Eskalation (Push-Alert wenn on-time-rate < 80%)
 
 ## CEO Review #57 — 2026-06-12
 

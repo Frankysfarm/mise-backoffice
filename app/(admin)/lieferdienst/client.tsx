@@ -1798,7 +1798,7 @@ function LieferdienstDeliveryKpis() {
     },
     etaAccuracy && {
       label: 'Ø ETA-Abweichung',
-      value: etaAccuracy.avgErrorMin > 0 ? `${etaAccuracy.avgErrorMin > 0 ? '+' : ''}${etaAccuracy.avgErrorMin} Min` : '0 Min',
+      value: etaAccuracy.avgErrorMin !== 0 ? `${etaAccuracy.avgErrorMin > 0 ? '+' : ''}${etaAccuracy.avgErrorMin} Min` : '0 Min',
       sub: 'Abweichung heute',
       color: Math.abs(etaAccuracy.avgErrorMin) <= 3 ? 'text-emerald-700' : Math.abs(etaAccuracy.avgErrorMin) <= 8 ? 'text-amber-700' : 'text-red-700',
       bg: Math.abs(etaAccuracy.avgErrorMin) <= 3 ? 'bg-emerald-50 border-emerald-200' : Math.abs(etaAccuracy.avgErrorMin) <= 8 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
