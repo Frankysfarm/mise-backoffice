@@ -1012,6 +1012,11 @@ export function FahrerApp({
         {/* Tempo-Karte: rollendes Liefertempo der letzten 2 Stunden */}
         {!activeBatch && isOnline && <FahrerPaceCard driverId={driver.id} />}
 
+        {/* Phase 94: Schicht-Dauer-Anzeige — wie lange ist der Fahrer schon online? */}
+        {!activeBatch && isOnline && status?.online_seit && (
+          <FahrerSchichtCountdown onlineSeit={status.online_seit} />
+        )}
+
         {/* Heutige Stopps-Verlauf — zeitlicher Log der abgeschlossenen Lieferungen */}
         {!activeBatch && <LetzteStoppsLog driverId={driver.id} />}
 
@@ -3043,6 +3048,110 @@ function FahrerPauseWidget() {
         >
           {saving ? '…' : isPausing ? 'Beenden' : 'Pause nehmen'}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 94: FahrerSchichtCountdown — Schicht-Dauer-Tracker
+// Zeigt wie lange der Fahrer schon online ist und wie viel von einer
+// 8-Stunden-Schicht noch übrig bleibt, mit farbcodiertem Fortschrittsring.
+// ---------------------------------------------------------------------------
+function FahrerSchichtCountdown({ onlineSeit }: { onlineSeit: string }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const SHIFT_HOURS = 8;
+  const elapsedMs = Date.now() - new Date(onlineSeit).getTime();
+  const elapsedMin = Math.max(0, Math.floor(elapsedMs / 60_000));
+  const elapsedHours = Math.floor(elapsedMin / 60);
+  const elapsedRestMin = elapsedMin % 60;
+
+  const shiftMaxMin = SHIFT_HOURS * 60;
+  const pct = Math.min(100, Math.round((elapsedMin / shiftMaxMin) * 100));
+  const remainingMin = Math.max(0, shiftMaxMin - elapsedMin);
+  const remainingH = Math.floor(remainingMin / 60);
+  const remainingRestMin = remainingMin % 60;
+
+  const isDone = elapsedMin >= shiftMaxMin;
+  const isLate = elapsedMin >= 7 * 60;
+  const isWarn = elapsedMin >= 5 * 60;
+
+  const ringColor = isDone ? 'text-red-400' : isLate ? 'text-red-400' : isWarn ? 'text-amber-400' : 'text-matcha-400';
+  const barColor  = isDone ? 'bg-red-500' : isLate ? 'bg-red-500' : isWarn ? 'bg-amber-400' : 'bg-matcha-500';
+  const label     = isDone ? '⚠ Schicht überschritten' : isLate ? '⚠ Fast Schichtende' : isWarn ? '→ Schicht läuft gut' : '⚡ Frisch gestartet';
+
+  // SVG Kreis-Segment (klein, 36px)
+  const R = 14;
+  const CIRCUM = 2 * Math.PI * R;
+  const dash = (pct / 100) * CIRCUM;
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">Schicht-Dauer</span>
+        <span className={cn('text-[10px] font-bold', ringColor)}>{label}</span>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {/* SVG Fortschrittsring */}
+        <svg width="36" height="36" viewBox="0 0 36 36" className="shrink-0 -rotate-90">
+          <circle cx="18" cy="18" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+          <circle
+            cx="18" cy="18" r={R} fill="none"
+            stroke={isDone || isLate ? '#ef4444' : isWarn ? '#f59e0b' : '#6aab8a'}
+            strokeWidth="3"
+            strokeDasharray={`${dash} ${CIRCUM}`}
+            strokeLinecap="round"
+            className="transition-all duration-700"
+          />
+        </svg>
+
+        <div className="flex-1 min-w-0">
+          {/* Abgelaufene Zeit */}
+          <div className="flex items-baseline gap-1">
+            <span className={cn('font-mono text-xl font-black tabular-nums leading-none', ringColor)}>
+              {elapsedHours}:{String(elapsedRestMin).padStart(2, '0')}
+            </span>
+            <span className="text-[10px] text-matcha-400">h online</span>
+          </div>
+
+          {/* Verbleibende Zeit */}
+          {!isDone ? (
+            <div className="text-[11px] text-matcha-400 mt-0.5">
+              Noch {remainingH}:{String(remainingRestMin).padStart(2, '0')} h bis 8h
+            </div>
+          ) : (
+            <div className="text-[11px] text-red-400 mt-0.5 font-bold">
+              {elapsedHours - SHIFT_HOURS}h {String(elapsedRestMin).padStart(2, '0')}m überschritten
+            </div>
+          )}
+        </div>
+
+        {/* Prozent-Badge */}
+        <div className={cn(
+          'shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black tabular-nums',
+          isDone || isLate ? 'bg-red-500/20 text-red-300' : isWarn ? 'bg-amber-500/20 text-amber-300' : 'bg-matcha-500/20 text-matcha-300',
+        )}>
+          {pct}%
+        </div>
+      </div>
+
+      {/* Fortschrittsbalken */}
+      <div className="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className={cn('h-full rounded-full transition-all duration-700', barColor)}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+
+      <div className="mt-1.5 flex justify-between text-[9px] text-matcha-500">
+        <span>Start: {new Date(onlineSeit).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
+        <span>Ziel: {new Date(new Date(onlineSeit).getTime() + SHIFT_HOURS * 3_600_000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
       </div>
     </div>
   );

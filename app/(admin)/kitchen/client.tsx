@@ -561,6 +561,9 @@ export function KitchenBoard({
       {/* Heute vs. Vorwoche: Stunde-für-Stunde-Benchmark */}
       <KitchenSchichtVergleich />
 
+      {/* Phase 94: Echtzeit-Küchen-Zubereitungsgeschwindigkeit */}
+      <KitchenPrepSpeedometer orders={filtered} />
+
       {/* Fahrer-Küchen-Synchronisation: Timing-Abgleich zwischen aktiven Batches und Kochzeiten */}
       {batches.length > 0 && timings.length > 0 && (
         <KitchenHandoffSyncPanel batches={batches} stops={stops} timings={timings} orders={filtered} />
@@ -6966,6 +6969,101 @@ function KitchenSchichtVergleich() {
         <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-matcha-700" /> Vorwoche</span>
         <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-matcha-500" /> Heute</span>
         <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-gold" /> Jetzt</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 94: KitchenPrepSpeedometer — Echtzeit-Küchen-Tempo (Bestellungen/h)
+// Zeigt wie viele Bestellungen die Küche in den letzten 30 Min fertiggestellt
+// hat (hochgerechnet auf /h) und vergleicht mit dem stündlichen Tagesdurchschnitt.
+// ---------------------------------------------------------------------------
+function KitchenPrepSpeedometer({ orders }: { orders: Order[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const WINDOW_MS = 30 * 60_000; // 30 Minuten
+
+  // Bestellungen die in den letzten 30 Min Status "fertig" oder "unterwegs" erreicht haben
+  const recentDone = orders.filter((o) => {
+    if (!o.fertig_am) return false;
+    return now - new Date(o.fertig_am).getTime() < WINDOW_MS;
+  });
+  const ratePerHour = recentDone.length * 2; // 30 Min → × 2 = /h
+
+  // Tagesdurchschnitt: alle fertiggestellten Bestellungen seit Mitternacht
+  const midnightMs = new Date().setHours(0, 0, 0, 0);
+  const hoursElapsed = Math.max(1, (now - midnightMs) / 3_600_000);
+  const doneToday = orders.filter((o) => o.fertig_am && new Date(o.fertig_am).getTime() >= midnightMs);
+  const avgPerHour = Math.round(doneToday.length / hoursElapsed);
+
+  if (recentDone.length === 0 && doneToday.length === 0) return null;
+
+  const isHot  = ratePerHour >= 8;
+  const isWarm = ratePerHour >= 4;
+  const speedColor  = isHot ? 'text-matcha-300' : isWarm ? 'text-amber-300' : 'text-red-400';
+  const barColor    = isHot ? 'bg-matcha-500'   : isWarm ? 'bg-amber-400'   : 'bg-red-500';
+  const borderColor = isHot ? 'border-matcha-700/40' : isWarm ? 'border-amber-500/30' : 'border-red-500/30';
+  const bgColor     = isHot ? 'bg-matcha-900/30' : isWarm ? 'bg-amber-900/20' : 'bg-red-900/20';
+  const label       = isHot ? '⚡ Spitzentempo' : isWarm ? '→ Normaltempo' : '⚠ Langsam';
+  const maxBar      = Math.max(ratePerHour, avgPerHour, 12);
+
+  return (
+    <div className={cn('rounded-xl border p-3 space-y-2', bgColor, borderColor)}>
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-bold text-white">
+          <Zap className="h-3.5 w-3.5 text-gold" />
+          Küchen-Tempo
+        </span>
+        <span className={cn('text-[10px] font-bold', speedColor)}>{label}</span>
+      </div>
+
+      {/* Aktuelle Rate */}
+      <div className="flex items-end gap-1">
+        <span className={cn('font-mono text-2xl font-black tabular-nums leading-none', speedColor)}>
+          {ratePerHour}
+        </span>
+        <span className="text-[10px] text-matcha-400 mb-0.5">Best./h jetzt</span>
+        {avgPerHour > 0 && (
+          <span className="ml-auto text-[10px] text-matcha-400">
+            Ø heute: {avgPerHour}/h
+          </span>
+        )}
+      </div>
+
+      {/* Balken-Vergleich */}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] text-matcha-400 w-12 shrink-0">Jetzt</span>
+          <div className="flex-1 h-2 rounded-full bg-black/20 overflow-hidden">
+            <div
+              className={cn('h-full rounded-full transition-all duration-700', barColor)}
+              style={{ width: `${Math.min(100, (ratePerHour / maxBar) * 100)}%` }}
+            />
+          </div>
+          <span className="text-[9px] font-bold text-white w-6 text-right tabular-nums">{ratePerHour}</span>
+        </div>
+        {avgPerHour > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] text-matcha-400 w-12 shrink-0">Ø heute</span>
+            <div className="flex-1 h-2 rounded-full bg-black/20 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-matcha-700 transition-all duration-700"
+                style={{ width: `${Math.min(100, (avgPerHour / maxBar) * 100)}%` }}
+              />
+            </div>
+            <span className="text-[9px] text-matcha-400 w-6 text-right tabular-nums">{avgPerHour}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="text-[9px] text-matcha-500">
+        {recentDone.length} Best. fertig in letzten 30 Min · {doneToday.length} heute gesamt
       </div>
     </div>
   );

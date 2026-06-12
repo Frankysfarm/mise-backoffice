@@ -1691,6 +1691,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
       {/* Live Touren: aktive Touren mit Stopp-Fortschritt */}
       <LieferdienstLiveTouren />
 
+      {/* Phase 94: Top-Artikel heute — meistbestellte Positionen */}
+      <TopArtikelPanel />
+
       {/* Fahrer-Effizienz Schicht-Zusammenfassung */}
       {liveDrivers.length > 0 && (
         <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
@@ -5147,6 +5150,117 @@ function LieferdienstLiveTouren() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 94: TopArtikelPanel — Top-Bestellpositionen heute mit Umsatzanteil
+// Aggregiert order_items (via Supabase-Direktabfrage) nach Namen, zeigt
+// die 8 meistbestellten Artikel mit Balkendiagramm + Umsatzanteil.
+// ---------------------------------------------------------------------------
+function TopArtikelPanel() {
+  const supabase = createClient();
+  type ItemRow = { name: string; menge: number; revenue: number };
+  const [items, setItems] = useState<ItemRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Lade order_items aller heutigen Bestellungen
+        const { data } = await supabase
+          .from('order_items')
+          .select('name, menge, einzelpreis, order:customer_orders!inner(bestellt_am)')
+          .gte('order.bestellt_am' as any, today.toISOString())
+          .not('name', 'is', null)
+          .limit(2000);
+
+        if (!data) { setLoading(false); return; }
+
+        const agg: Record<string, { menge: number; revenue: number }> = {};
+        for (const row of data as any[]) {
+          const key = ((row.name as string) ?? '').trim();
+          if (!key) continue;
+          if (!agg[key]) agg[key] = { menge: 0, revenue: 0 };
+          const qty = row.menge ?? 1;
+          agg[key].menge += qty;
+          agg[key].revenue += qty * (row.einzelpreis ?? 0);
+        }
+
+        const sorted = Object.entries(agg)
+          .map(([name, v]) => ({ name, ...v }))
+          .sort((a, b) => b.menge - a.menge)
+          .slice(0, 8);
+
+        setItems(sorted);
+      } catch {
+        // Graceful fallback — Tabelle oder Join möglicherweise noch nicht vorhanden
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || items.length === 0) return null;
+
+  const maxMenge = Math.max(...items.map((i) => i.menge), 1);
+  const totalRevenue = items.reduce((s, i) => s + i.revenue, 0);
+
+  return (
+    <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+      <h3 className="text-lg font-semibold text-char mb-1 flex items-center gap-2">
+        <Package className="w-5 h-5 text-matcha-600" />
+        Top-Artikel heute
+      </h3>
+      <p className="text-sm text-steel mb-4">Meistbestellte Positionen seit Mitternacht</p>
+      <div className="space-y-2.5">
+        {items.map((item, i) => {
+          const revPct = totalRevenue > 0 ? Math.round((item.revenue / totalRevenue) * 100) : 0;
+          return (
+            <div key={item.name} className="flex items-center gap-3">
+              <span className="w-5 shrink-0 text-[10px] font-black tabular-nums text-right text-stone-400">
+                {i + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-char truncate pr-2">{item.name}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs font-black text-matcha-700">{item.menge}×</span>
+                    <span className="text-[10px] text-stone-400 tabular-nums">
+                      {item.revenue > 0
+                        ? item.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+                        : ''}
+                    </span>
+                    {revPct > 0 && (
+                      <span className="text-[9px] font-bold text-stone-300">{revPct}%</span>
+                    )}
+                  </div>
+                </div>
+                <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-matcha-500 transition-all duration-500"
+                    style={{ width: `${(item.menge / maxMenge) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {totalRevenue > 0 && (
+        <div className="mt-3 text-[10px] text-stone-400">
+          Umsatz dieser Artikel gesamt:{' '}
+          {totalRevenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+        </div>
+      )}
     </div>
   );
 }
