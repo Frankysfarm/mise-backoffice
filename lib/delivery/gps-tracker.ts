@@ -41,6 +41,10 @@ function sb(): SupabaseClient {
 const GEOFENCE_RESTAURANT_M = 150;
 const GEOFENCE_CUSTOMER_M   = 100;
 
+// 2-Min-Annäherungs-Schwellwert je Fahrzeug (m):  speed_m_min × 2.5 min Puffer
+const ALMOST_THERE_M: Record<'bike' | 'car', number> = { bike: 750, car: 1250 };
+const ALMOST_THERE_DEFAULT_M = 750;
+
 // ── Typen ──────────────────────────────────────────────────────────────────────
 
 export interface GpsPoint {
@@ -265,6 +269,83 @@ export async function checkGeofences(
   }
 
   return { events, newDriverState };
+}
+
+// ── 2b. 2-Minuten-Annäherungs-Check ──────────────────────────────────────────
+
+/**
+ * Prüft ob ein Fahrer innerhalb des 2-Minuten-Schwellwerts eines Kunden-Stops ist.
+ * Feuert `driver_almost_there`-Event genau einmal pro Bestellung (Dedup via customer_delivery_events).
+ * Wird fire-and-forget aus dem GPS-Update-Endpoint aufgerufen.
+ */
+export async function checkAlmostThereProximity(
+  driverId: string,
+  lat: number,
+  lng: number,
+  locationId: string,
+  speedKmh?: number | null,
+): Promise<void> {
+  const client = sb();
+  const pos = { lat, lng };
+
+  // Nur wenn Fahrer aktiv unterwegs ist (en_route)
+  const { data: driverRow } = await client
+    .from('mise_drivers')
+    .select('id, state, active_batch_id, vehicle')
+    .eq('id', driverId)
+    .single();
+
+  if (!driverRow || driverRow.state !== 'en_route') return;
+
+  const batchId = driverRow.active_batch_id as string | null;
+  if (!batchId) return;
+
+  // Schwellwert: wenn aktuelle speed_kmh bekannt → dynamisch, sonst Fahrzeugtyp
+  let thresholdM: number;
+  if (speedKmh != null && speedKmh > 2) {
+    // speed_m_per_min × 2.5 min Puffer
+    thresholdM = Math.min(Math.round((speedKmh / 60) * 1000 * 2.5), 2000);
+  } else {
+    const vehicle = (driverRow.vehicle as string | null) === 'car' ? 'car' : 'bike';
+    thresholdM = ALMOST_THERE_M[vehicle];
+  }
+
+  // Nächsten offenen Dropoff-Stop laden (in Reihenfolge)
+  const { data: stops } = await client
+    .from('mise_delivery_batch_stops')
+    .select('id, order_id, lat, lng, sequence')
+    .eq('batch_id', batchId)
+    .eq('type', 'dropoff')
+    .order('sequence', { ascending: true });
+
+  for (const stop of stops ?? []) {
+    if (stop.lat == null || stop.lng == null || !stop.order_id) continue;
+
+    const orderId = stop.order_id as string;
+    const dm = distanceM(pos, { lat: stop.lat as number, lng: stop.lng as number });
+
+    if (dm > thresholdM) continue; // noch nicht nah genug
+
+    // Dedup: wurde `driver_almost_there` für diese Bestellung schon gesendet?
+    const { data: existing } = await client
+      .from('customer_delivery_events')
+      .select('id')
+      .eq('order_id', orderId)
+      .eq('event_type', 'driver_almost_there')
+      .maybeSingle();
+
+    if (existing) break; // bereits gesendet → nächste Stops auch überspringen
+
+    // Event feuern (fire-and-forget)
+    recordCustomerEvent(orderId, locationId, 'driver_almost_there', {
+      driver_id:   driverId,
+      batch_id:    batchId,
+      distance_m:  dm,
+      threshold_m: thresholdM,
+    }).catch(() => {});
+
+    break; // immer nur nächster relevanter Stop
+  }
 }
 
 // ── 3. Geofence-Event loggen ──────────────────────────────────────────────────

@@ -29,7 +29,7 @@
  * }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { recordGpsPoint, checkGeofences } from '@/lib/delivery/gps-tracker';
+import { recordGpsPoint, checkGeofences, checkAlmostThereProximity } from '@/lib/delivery/gps-tracker';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
 
   // Geofencing prüfen
   const { events, newDriverState } = await checkGeofences(driverId, lat, lng, locationId);
+
+  // 2-Min-Annäherungs-Push fire-and-forget (kein await — Response nicht blockieren)
+  checkAlmostThereProximity(driverId, lat, lng, locationId, speed_kmh).catch(() => {});
 
   const response: Record<string, unknown> = { ok: true };
   if (events.length > 0)     response.geofenceEvents  = events;

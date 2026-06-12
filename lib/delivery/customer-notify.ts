@@ -35,6 +35,7 @@ export type CustomerEventType =
   | 'driver_at_restaurant'
   | 'driver_departing'
   | 'driver_nearby'
+  | 'driver_almost_there'
   | 'delivered'
   | 'cancelled'
   | 'delayed'
@@ -58,6 +59,7 @@ const EVENT_MESSAGES: Record<CustomerEventType, string> = {
   driver_at_restaurant: 'Fahrer ist beim Restaurant angekommen',
   driver_departing:     'Deine Bestellung ist jetzt unterwegs zu dir',
   driver_nearby:        'Fahrer ist gleich bei dir — bitte bereit halten!',
+  driver_almost_there:  'Dein Fahrer ist in ca. 2 Minuten bei dir! 🛵 Bitte bereit halten.',
   delivered:            'Bestellung wurde erfolgreich geliefert',
   cancelled:            'Deine Bestellung wurde storniert',
   delayed:              'Deine Bestellung verzögert sich leicht',

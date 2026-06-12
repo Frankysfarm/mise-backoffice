@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–89 abgeschlossen. CEO Review #66 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–90 abgeschlossen. CEO Review #66 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 90: Push-Notifications "Fahrer fast da" — 2-Minuten-Trigger — 2026-06-12
+- [x] CustomerEventType `driver_almost_there` in customer-notify.ts — DE-Nachricht "Dein Fahrer ist in ca. 2 Minuten bei dir! 🛵"
+- [x] checkAlmostThereProximity() in gps-tracker.ts — dynamischer Schwellwert (speed_kmh × 2.5 min, Fallback: bike 750m / car 1250m)
+- [x] Dedup via customer_delivery_events (event_type = driver_almost_there) — genau 1 Push pro Bestellung
+- [x] GPS-Route /api/driver-app/me/gps integriert — fire-and-forget, blockiert Response nicht
+- [x] Migration 054: idx_cde_order_event auf customer_delivery_events(order_id, event_type) für Dedup-Performance
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler)
 - [x] Phase 89: Smart-UI-Erweiterungen — Kitchen/Dispatch/Fahrer/Storefront/Statistiken — 2026-06-12
 - [x] KitchenSmartPrepAdvisor: analysiert letzte 4h Referenzbestellungen, zeigt Ø Ist-Zeit, Ø Abweichung, empfohlene Zubereitungszeit — 5-Min-Refresh
 - [x] DispatchCapacityGauge: freie Slots in aktiven Touren + freie Fahrer-Kapazität, Kapazitätsbalken, Deficit-Warning — 15s-Tick
