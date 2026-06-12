@@ -5071,7 +5071,8 @@ function LieferdienstLiveTouren() {
     load();
     const iv = setInterval(load, 30_000);
     return () => clearInterval(iv);
-  }, [locationId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading || tours.length === 0) return null;
 
