@@ -621,6 +621,9 @@ export function FahrerApp({
                     </div>
                   </div>
                 )}
+
+                {/* Pause-Widget — Phase 84 */}
+                <FahrerPauseWidget />
               </>
             )}
           </section>
@@ -2835,6 +2838,74 @@ function TourLiveProgressHeader({ batch }: {
             Rückkehr ~{returnTime} Uhr
           </span>
         )}
+      </div>
+    </div>
+  );
+}
+
+// Phase 84 — Pausen-Timer: lokaler Countdown ohne Backend-Abhängigkeit
+function FahrerPauseWidget() {
+  const [pauseStart, setPauseStart] = React.useState<number | null>(null);
+  const [elapsed, setElapsed] = React.useState(0);
+  const [todayPausenMin, setTodayPausenMin] = React.useState(0);
+
+  useEffect(() => {
+    if (pauseStart === null) return;
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - pauseStart) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [pauseStart]);
+
+  function startPause() {
+    setPauseStart(Date.now());
+    setElapsed(0);
+  }
+
+  function endPause() {
+    if (pauseStart !== null) {
+      const min = Math.round((Date.now() - pauseStart) / 60_000);
+      setTodayPausenMin((p) => p + Math.max(1, min));
+    }
+    setPauseStart(null);
+    setElapsed(0);
+  }
+
+  const isPausing = pauseStart !== null;
+  const mm = Math.floor(elapsed / 60);
+  const ss = elapsed % 60;
+
+  return (
+    <div className={cn(
+      'rounded-xl border px-4 py-3 mt-3 transition-colors',
+      isPausing ? 'bg-amber-500/20 border-amber-400/40' : 'bg-white/5 border-white/10',
+    )}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-300">
+            {isPausing ? '⏸ Pause läuft' : '☕ Pause'}
+          </div>
+          {isPausing ? (
+            <div className="font-display font-black text-amber-200 text-xl tabular-nums leading-none mt-0.5">
+              {mm}:{String(ss).padStart(2, '0')}
+            </div>
+          ) : todayPausenMin > 0 ? (
+            <div className="text-[11px] text-matcha-400 mt-0.5">
+              Heute: {todayPausenMin} Min Pause
+            </div>
+          ) : (
+            <div className="text-[11px] text-matcha-400 mt-0.5">Noch keine Pause heute</div>
+          )}
+        </div>
+        <button
+          onClick={isPausing ? endPause : startPause}
+          className={cn(
+            'rounded-xl px-4 py-2 text-sm font-bold shrink-0 transition active:scale-95',
+            isPausing
+              ? 'bg-amber-400 text-matcha-900 hover:bg-amber-300'
+              : 'bg-white/10 text-matcha-200 hover:bg-white/20',
+          )}
+        >
+          {isPausing ? 'Beenden' : 'Pause nehmen'}
+        </button>
       </div>
     </div>
   );
