@@ -574,6 +574,9 @@ export function KitchenBoard({
       {/* Fahrer-Statusleiste oben */}
       <DriverPanel drivers={drivers} states={driverStates} batches={batches} stops={stops} orders={orders} />
 
+      {/* Bestellalter-Grid: farbkodierte Chips für alle aktiven Bestellungen */}
+      {!bigDisplay && <KitchenOrderAgeGrid orders={filtered} />}
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -6628,6 +6631,55 @@ function KitchenHandoffSyncPanel({
               <div className="text-[9px] text-muted-foreground tabular-nums shrink-0">
                 ETA {etaStr}
               </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function KitchenOrderAgeGrid({ orders }: { orders: Order[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const active = orders.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status) && o.bestellt_am);
+  if (active.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border bg-card px-4 py-3">
+      <div className="mb-2 flex items-center gap-2">
+        <Clock className="h-3.5 w-3.5 text-matcha-600" />
+        <span className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Bestellalter · {active.length} aktiv
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {active.map(o => {
+          const est = (o.geschaetzte_zubereitung_min ?? 15) * 60_000;
+          const elapsed = now - new Date(o.bestellt_am!).getTime();
+          const pct = Math.min(200, Math.round((elapsed / est) * 100));
+          const overdue = pct >= 100;
+          const elapsedSec = Math.floor(elapsed / 1000);
+          const mm = Math.floor(elapsedSec / 60);
+          const ss = String(elapsedSec % 60).padStart(2, '0');
+          const bg = overdue ? 'bg-red-100 border-red-300 text-red-800' :
+                     pct >= 75 ? 'bg-orange-100 border-orange-300 text-orange-800' :
+                     pct >= 50 ? 'bg-amber-100 border-amber-300 text-amber-800' :
+                     'bg-matcha-50 border-matcha-200 text-matcha-800';
+          return (
+            <div
+              key={o.id}
+              className={cn('flex flex-col items-center rounded-lg border px-2.5 py-1.5 text-center min-w-[56px]', bg, overdue && 'animate-pulse')}
+              title={`${o.kunde_name} · ${mm}:${ss} vergangen`}
+            >
+              <span className="font-mono text-[9px] font-black tabular-nums">#{o.bestellnummer.replace(/^FF-/, '').slice(-4)}</span>
+              <span className="font-mono text-sm font-black tabular-nums leading-tight">{mm}:{ss}</span>
+              <span className="text-[8px] font-bold opacity-60">{o.status === 'in_zubereitung' ? '🍳' : '✓'}</span>
             </div>
           );
         })}

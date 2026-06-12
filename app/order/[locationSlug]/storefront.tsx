@@ -773,6 +773,7 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
   const [etaMin, setEtaMin] = React.useState<number>(baseEtaMin);
   const [load, setLoad] = React.useState<EtaLoad>('normal');
   const [activeCount, setActiveCount] = React.useState<number | null>(null);
+  const [driversOnline, setDriversOnline] = React.useState<number | null>(null);
   const [signalMessage, setSignalMessage] = React.useState<string | null>(null);
   const [etaExtension, setEtaExtension] = React.useState<number>(0);
   const [loaded, setLoaded] = React.useState(false);
@@ -789,6 +790,7 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
         setEtaMin(d.eta_min ?? baseEtaMin);
         setLoad(d.load ?? 'normal');
         if (d.active_orders != null) setActiveCount(d.active_orders);
+        if (d.drivers_online != null) setDriversOnline(d.drivers_online);
         setSignalMessage(d.signal_message ?? null);
         setEtaExtension(d.eta_extension_min ?? 0);
         setLoaded(true);
@@ -842,6 +844,20 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
                   )}>
                     <span className="font-black tabular-nums">{activeCount}</span>
                     {activeCount === 1 ? ' Bestellung in der Küche' : ' Bestellungen in der Küche'}
+                  </span>
+                </>
+              )}
+              {driversOnline != null && driversOnline > 0 && (
+                <>
+                  <span className="text-muted-foreground text-xs">·</span>
+                  <span className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                    driversOnline >= 3 ? 'bg-green-100 text-green-700' :
+                    driversOnline >= 1 ? 'bg-blue-50 text-blue-700' :
+                    'bg-muted text-muted-foreground',
+                  )}>
+                    🛵 <span className="font-black tabular-nums">{driversOnline}</span>
+                    {driversOnline === 1 ? ' Fahrer aktiv' : ' Fahrer aktiv'}
                   </span>
                 </>
               )}

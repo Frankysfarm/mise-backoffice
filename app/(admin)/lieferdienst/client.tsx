@@ -28,7 +28,7 @@ import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
   BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
-  Award, Target, Star,
+  Award, Target, Star, MapPin,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -904,6 +904,8 @@ export function LieferdienstClient() {
               <LieferdienstDeliveryKpis />
               {/* Fahrer Tages-Ziele */}
               <FahrerTagesZielPanel />
+              {/* Zone-Umsatz: Bestellungen + Umsatz nach Lieferzone */}
+              <LieferdienstZonenumsatz />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -1943,6 +1945,74 @@ function FahrerTagesZielPanel() {
           <span>{entries.filter((e) => e.stopsCompleted >= DAILY_TARGET).length} Fahrer haben das Tagesziel erreicht</span>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---- LieferdienstZonenumsatz ---- */
+function LieferdienstZonenumsatz() {
+  const supabase = createClient();
+  const [data, setData] = useState<{ zone: string; orders: number; revenue: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: rows } = await supabase
+          .from('customer_orders')
+          .select('delivery_zone, gesamtbetrag')
+          .eq('typ', 'lieferung')
+          .gte('bestellt_am', today.toISOString())
+          .not('delivery_zone', 'is', null);
+        if (!rows) return;
+        const map = new Map<string, { orders: number; revenue: number }>();
+        for (const r of rows as { delivery_zone: string; gesamtbetrag: number }[]) {
+          const z = r.delivery_zone ?? 'Unbekannt';
+          const cur = map.get(z) ?? { orders: 0, revenue: 0 };
+          map.set(z, { orders: cur.orders + 1, revenue: cur.revenue + (r.gesamtbetrag ?? 0) });
+        }
+        const sorted = Array.from(map.entries())
+          .map(([zone, d]) => ({ zone, ...d }))
+          .sort((a, b) => b.orders - a.orders);
+        setData(sorted);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || data.length === 0) return null;
+  const maxOrders = Math.max(...data.map(d => d.orders), 1);
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center gap-2 mb-4">
+        <MapPin className="h-4 w-4 text-matcha-600" />
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Bestellungen nach Zone · heute</span>
+      </div>
+      <div className="space-y-2.5">
+        {data.map((row, i) => {
+          const pct = Math.round((row.orders / maxOrders) * 100);
+          const barColor = i === 0 ? 'bg-matcha-500' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-amber-400' : 'bg-stone-300';
+          return (
+            <div key={row.zone}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-stone-700">Zone {row.zone}</span>
+                <div className="flex items-center gap-2 text-[10px] text-stone-400">
+                  <span className="font-bold text-stone-600">{row.orders} Best.</span>
+                  <span>{row.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+              <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

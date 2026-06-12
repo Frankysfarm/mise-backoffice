@@ -1513,6 +1513,12 @@ export function DeliveryView({
                         </span>
                       );
                     })()}
+                    {!done && (
+                      <StopEtaStatusChip
+                        etaEarliest={stop.order.eta_earliest}
+                        etaLatest={stop.order.eta_latest}
+                      />
+                    )}
                   </div>
                   {/* Kundennotiz — auch für ausstehende Folge-Stops sichtbar */}
                   {!done && stop.order.kunde_notiz && (
@@ -2394,6 +2400,45 @@ function MyPerformanceBadge() {
         </div>
       )}
     </div>
+  );
+}
+
+/* ------------------------------ StopEtaStatusChip ------------------------------ */
+
+function StopEtaStatusChip({ etaEarliest, etaLatest }: { etaEarliest: string | null | undefined; etaLatest: string | null | undefined }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick(n => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (!etaEarliest) return null;
+  const now = Date.now();
+  const earliest = new Date(etaEarliest).getTime();
+  const latest = etaLatest ? new Date(etaLatest).getTime() : earliest + 10 * 60_000;
+
+  const minutesToWindow = Math.floor((earliest - now) / 60_000);
+  const afterWindow = now > latest;
+
+  if (afterWindow) {
+    const lateMin = Math.floor((now - latest) / 60_000);
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/20 border border-red-500/40 px-2 py-0.5 text-[9px] font-bold text-red-300">
+        ⚠ +{lateMin}m spät
+      </span>
+    );
+  }
+  if (minutesToWindow > 5) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/20 border border-blue-500/40 px-2 py-0.5 text-[9px] font-bold text-blue-300">
+        ⏳ Ankunft in {minutesToWindow}m
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 border border-accent/40 px-2 py-0.5 text-[9px] font-bold text-accent">
+      ✓ Zeitfenster
+    </span>
   );
 }
 

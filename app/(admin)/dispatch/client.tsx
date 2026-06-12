@@ -974,6 +974,9 @@ export function DispatchBoard({
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}
 
+      {/* Tour-Fortschrittsgeschwindigkeit: Ist die Tour vor oder hinter dem Zeitplan? */}
+      {batches.length > 0 && <DispatchTourCompletionSpeedPanel batches={batches} />}
+
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
@@ -7806,6 +7809,105 @@ function BatchSelectionPreview({
             <span className={cn('text-[10px] font-bold tabular-nums', scoreColor)}>Score {avgScore}</span>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DispatchTourCompletionSpeedPanel
+// Shows, for each active tour (batch), whether it is ahead or behind schedule
+// based on stops completed vs time elapsed relative to total ETA.
+// ---------------------------------------------------------------------------
+function DispatchTourCompletionSpeedPanel({ batches }: { batches: Batch[] }) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Only show batches that are actively in delivery (have a start time and stops)
+  const activeBatches = batches.filter(
+    (b) => b.status === 'in_delivery' && b.startzeit && b.stops.length > 0 && b.total_eta_min != null,
+  );
+
+  if (activeBatches.length === 0) return null;
+
+  const rows = activeBatches.map((batch) => {
+    const startMs = new Date(batch.startzeit!).getTime();
+    const elapsedMin = Math.max(0, (now - startMs) / 60_000);
+    const totalEtaMin = batch.total_eta_min!;
+    const totalStops = batch.stops.length;
+
+    // Linear estimate: how many stops should be done by now
+    const progressRatio = totalEtaMin > 0 ? Math.min(elapsedMin / totalEtaMin, 1) : 0;
+    const expectedDone = progressRatio * totalStops;
+
+    // Actual stops completed (geliefert_am set)
+    const actualDone = batch.stops.filter((s) => s.geliefert_am != null).length;
+
+    const diff = actualDone - expectedDone;
+    const diffRounded = Math.round(diff);
+
+    const driverName = batch.fahrer
+      ? `${batch.fahrer.vorname} ${batch.fahrer.nachname}`
+      : batch.id.slice(0, 8);
+
+    let statusLabel: string;
+    let statusClass: string;
+    let Icon: React.ElementType;
+
+    if (diffRounded > 0) {
+      statusLabel = `Ahead +${diffRounded} Stopp${diffRounded !== 1 ? 's' : ''}`;
+      statusClass = 'text-green-600 bg-green-50 border-green-200';
+      Icon = TrendingUp;
+    } else if (diffRounded < 0) {
+      statusLabel = `Behind ${diffRounded} Stopp${Math.abs(diffRounded) !== 1 ? 's' : ''}`;
+      statusClass = 'text-red-600 bg-red-50 border-red-200';
+      Icon = Clock;
+    } else {
+      statusLabel = 'On Schedule';
+      statusClass = 'text-blue-600 bg-blue-50 border-blue-200';
+      Icon = CheckCircle2;
+    }
+
+    return { batch, driverName, actualDone, totalStops, elapsedMin, totalEtaMin, statusLabel, statusClass, Icon };
+  });
+
+  return (
+    <div className="rounded-xl border border-matcha-200 bg-white shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-matcha-100 bg-matcha-50/40">
+        <TrendingUp className="h-4 w-4 text-matcha-600" />
+        <span className="text-sm font-semibold text-matcha-800">Tour Completion Speed</span>
+        <span className="ml-auto text-[10px] text-matcha-400">Updates every 15 s</span>
+      </div>
+      <div className="divide-y divide-matcha-50">
+        {rows.map(({ batch, driverName, actualDone, totalStops, elapsedMin, totalEtaMin, statusLabel, statusClass, Icon }) => (
+          <div key={batch.id} className="flex items-center gap-3 px-4 py-2.5">
+            {/* Driver / tour info */}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-gray-800">{driverName}</p>
+              <p className="text-[10px] text-gray-400 tabular-nums">
+                {actualDone}/{totalStops} Stopps &middot; {Math.round(elapsedMin)} / {Math.round(totalEtaMin)} min
+              </p>
+            </div>
+
+            {/* Progress bar */}
+            <div className="hidden sm:block w-24 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-matcha-400"
+                style={{ width: `${Math.min(100, (actualDone / Math.max(1, totalStops)) * 100)}%` }}
+              />
+            </div>
+
+            {/* Status badge */}
+            <div className={cn('flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap', statusClass)}>
+              <Icon className="h-3 w-3" />
+              {statusLabel}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
