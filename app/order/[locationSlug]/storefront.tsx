@@ -777,7 +777,7 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
   const [signalMessage, setSignalMessage] = React.useState<string | null>(null);
   const [etaExtension, setEtaExtension] = React.useState<number>(0);
   const [loaded, setLoaded] = React.useState(false);
-  const [, setTick] = React.useState(0);
+  const [nowMs, setNowMs] = React.useState(Date.now());
 
   React.useEffect(() => {
     let cancelled = false;
@@ -798,8 +798,8 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
     };
     poll();
     const iv = setInterval(poll, 60_000);
-    // Tick every 30s for countdown refresh
-    const tickIv = setInterval(() => setTick((n) => n + 1), 30_000);
+    // Sekundengenauer Countdown
+    const tickIv = setInterval(() => setNowMs(Date.now()), 1_000);
     return () => { cancelled = true; clearInterval(iv); clearInterval(tickIv); };
   }, [locationId, baseEtaMin]);
 
@@ -863,16 +863,33 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
               )}
             </div>
             <div className="mt-0.5 flex items-center gap-2 flex-wrap">
-              {/* Absolute delivery time window */}
+              {/* Absolute delivery time window + live countdown (sekundengenau) */}
               {(() => {
-                const fromMs = Date.now() + etaFrom * 60_000;
-                const toMs   = Date.now() + etaTo   * 60_000;
+                const fromMs = nowMs + etaFrom * 60_000;
+                const toMs   = nowMs + etaTo   * 60_000;
                 const fmt = (ms: number) =>
                   new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const cdSec = Math.max(0, Math.floor((fromMs - nowMs) / 1000));
+                const cdMin = Math.floor(cdSec / 60);
+                const cdS   = cdSec % 60;
                 return (
-                  <span className={cn('text-xs font-semibold tabular-nums', meta.text)}>
-                    Ankunft ~{fmt(fromMs)}–{fmt(toMs)} Uhr
-                  </span>
+                  <>
+                    <span className={cn('text-xs font-semibold tabular-nums', meta.text)}>
+                      Ankunft ~{fmt(fromMs)}–{fmt(toMs)} Uhr
+                    </span>
+                    <span className={cn(
+                      'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums border',
+                      load === 'quiet'  ? 'border-green-300 bg-green-100 text-green-700' :
+                      load === 'normal' ? 'border-amber-300 bg-amber-100 text-amber-700' :
+                      'border-red-300 bg-red-100 text-red-700',
+                    )}>
+                      <span className="relative flex h-1.5 w-1.5 mr-0.5">
+                        <span className={cn('animate-ping absolute inline-flex h-full w-full rounded-full opacity-60', meta.dot)} />
+                        <span className={cn('relative inline-flex rounded-full h-1.5 w-1.5', meta.dot)} />
+                      </span>
+                      {cdMin > 0 ? `${cdMin}:${String(cdS).padStart(2, '0')} Min` : `${cdSec}s`}
+                    </span>
+                  </>
                 );
               })()}
             </div>
