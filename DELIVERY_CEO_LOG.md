@@ -1,7 +1,104 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + KI.** Phasen 1–76 vollständig abgeschlossen. CEO Review #59 abgeschlossen. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.
+**MARKT-REIF + KI.** Phasen 1–77 vollständig abgeschlossen. CEO Review #60 abgeschlossen. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.
+
+## CEO Review #60 — 2026-06-12
+
+### Geprüfte Commits (3 neue Commits seit Review #59)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `d354a1d` | feat(delivery/backend): Phase 77 — Kunden-Loyalty-Punkte-System | ✅ sauber |
+| `26cdba4` | feat(delivery/frontend): kitchen browser notifications + fahrer proximity alert banner | ✅ sauber |
+| `1ad86fe` | feat(delivery/frontend): dispatch browser notifications + stats bestellwert histogram | ✅ sauber |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: Compiled successfully, 183 Seiten ✅
+
+### Befund Phase 77 (Kunden-Loyalty-Punkte-System)
+
+**lib/delivery/loyalty-points.ts** (633 Zeilen):
+- `earnPoints()`: Punkte = `Math.max(1, Math.round(amountEur * 10))`, Tier-Upgrade-Erkennung korrekt ✅
+- `redeemPoints()`: MAX_REDEEM_PCT=20% Grenze korrekt (`actualDiscount = Math.min(requestedDiscount, maxDiscount)`), Integer-Safe-Punkte-Rückberechnung ✅
+- `getBalance()`: next-Tier-Points berechnet als `threshold - lifetimePoints` ✅
+- `getLoyaltyKpis()`: Einlösungsrate = `(lifetime - outstanding) / lifetime * 100` korrekt ✅
+- `manualAdjust()`: lifetime_points nur bei positiver Anpassung erhöht — korrekte Logik ✅
+- `processExpiredPoints()`: Verarbeitete Earn-Buchungen werden mit `expires_at = null` markiert — verhindert Doppelt-Verfall ✅
+- `isMissingTable()`-Guard: graceful fallback wenn Migration noch nicht angewendet ✅
+
+**API-Routes**:
+- `GET /api/delivery/loyalty/balance`: E-Mail-Regex-Validierung + missing-account graceful return ✅
+- `POST /api/delivery/loyalty/redeem`: `Number.isInteger(points)` Guard + MIN_REDEEM_POINTS Prüfung ✅
+- `GET+POST /api/delivery/admin/loyalty`: Auth-Guard, resolveLocationId, leaderboard+kpis parallel ✅
+
+**Tour-Status-Integration** (`tours/[id]/status/route.ts` Zeile 120):
+- `earnPoints()` wird fire-and-forget bei `stop.state === 'delivered'` aufgerufen ✅
+- Kunden-E-Mail aus `customer_orders.kunde_email` abgerufen ✅
+- try/catch verhindert Tour-Status-Fehler bei Loyalty-Problemen ✅
+
+**Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`):
+- `processExpiredPointsAllLocations()` bei `isReportTick` (täglich 02:00 UTC) ✅
+- `.catch()` verhindert Cron-Absturz ✅
+- Ergebnis in Cron-Response: `loyalty_points_expired` ✅
+
+**Admin-UI** (`app/(admin)/delivery/loyalty/`):
+- KPI-Cards: Konten, ausstehende Punkte, Lifetime, Einlösungsrate ✅
+- Tier-Verteilung: Bronze/Silber/Gold/Platin mit Prozentbalken ✅
+- Leaderboard: Top-25 Kunden mit Rang, Tier-Badge, Punktestand ✅
+- Manuelle Anpassung: +/- Buttons, Echtzeit-Feedback ✅
+- Sidebar-Eintrag "Loyalty-Punkte" (Trophy) korrekt verknüpft ✅
+
+### Befund Browser-Benachrichtigungen (Kitchen + Dispatch)
+
+**KitchenWebNotifier** (`app/(admin)/kitchen/client.tsx`):
+- Erlaubnis-Anfrage nur wenn `audio === true` (Nutzer hat Interaktion) — korrektes UX-Pattern ✅
+- Neue Bestellungen: `newCount > prevNewCountRef.current` — verhindert false positives ✅
+- Kritisch überfällige: Set-basierter Dedup, `requireInteraction: true` für kritische Alerts ✅
+- `isCriticallyLate()` bereits definiert in client.tsx (Zeile 4331) ✅
+
+**DispatchBrowserNotifier** (`app/(admin)/dispatch/client.tsx`):
+- Overdue Tours: ETA+5 Min Schwelle, `notifiedOverdueRef` Set-Dedup ✅
+- Long-Wait Orders: >10 Min ohne Fahrer, `notifiedLongWaitRef` Set-Dedup ✅
+- Cleanup-Loop: entfernt abgeschlossene Touren/assignte Orders aus Dedup-Sets ✅
+- `permRef.current` wird bei jedem Render aktualisiert falls Nutzer Erlaubnis gegeben hat ✅
+
+### Befund Fahrer-Näherungs-Banner
+
+**delivery-view.tsx**:
+- Zeigt amber Banner bei 80m–300m Abstand zum nächsten Stopp ✅
+- Auto-Arrived-Trigger bei <80m bereits vorhanden — Banner und Auto-Arrived schließen sich sauber aus ✅
+- Banner verschwindet wenn Stop als angekommen markiert ✅
+
+### Befund BestellwertHistogram
+
+**components/lieferdienst/statistics-view.tsx**:
+- 6 Preisbänder (<€10 bis >€50) korrekt definiert ✅
+- `max: Infinity` für letztes Band korrekt ✅
+- `BarChart3` war bereits importiert — kein doppelter Import ✅
+- `totalAmount ?? gesamtbetrag` konsistent mit restlichem Code in der Datei ✅
+- `total === 0 → return null` verhindert leere Chart-Anzeige ✅
+
+### Integrations-Check (Gesamt-System)
+- Kitchen ↔ Dispatch: KitchenDispatchPressureChip zeigt Wartestau ✅
+- Dispatch ↔ Driver: Tour-Zuweisung, Overdue-Alerts ✅
+- Driver ↔ Storefront: Kunden-Tracking, Proximity-Banner, Loyalty-Punkte nach Lieferung ✅
+- Storefront ↔ Loyalty: balance-Endpoint public, redeem-Endpoint gesichert ✅
+- Cron: SLA-Eskalation, Rating-Links, Loyalty-Expire, Performance-Snapshots — alle aktiv ✅
+
+### Status nach Review #60
+- TypeScript: 0 Fehler ✅
+- Build: 183 Seiten, Compiled successfully ✅
+- Phasen 1–77: vollständig implementiert und geprüft ✅
+- Bugs gefunden: 0
+
+### Nächste Schritte (optional, System ist markt-reif)
+1. Phase 78: Loyalty-Punkte im Storefront-Checkout anzeigen + Einlösungs-Toggle
+2. Phase 79: Push-Benachrichtigungen bei Tier-Upgrade (Bronze→Silber etc.)
+3. Phase 80: A/B-Test Dashboard für Loyalty-Kampagnen
+
+---
 
 ## CEO Review #59 — 2026-06-12
 
