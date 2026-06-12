@@ -555,6 +555,12 @@ export function KitchenBoard({
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
 
+      {/* Backlog-Eskalation: Fertige Lieferbestellungen ohne Fahrer */}
+      <KitchenDispatchBacklogPanel orders={filtered} />
+
+      {/* Heute vs. Vorwoche: Stunde-für-Stunde-Benchmark */}
+      <KitchenSchichtVergleich />
+
       {/* Fahrer-Küchen-Synchronisation: Timing-Abgleich zwischen aktiven Batches und Kochzeiten */}
       {batches.length > 0 && timings.length > 0 && (
         <KitchenHandoffSyncPanel batches={batches} stops={stops} timings={timings} orders={filtered} />
@@ -6806,6 +6812,160 @@ function KitchenOrderAgeGrid({ orders }: { orders: Order[] }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// KitchenDispatchBacklogPanel — fertige Lieferbestellungen warten auf Fahrer
+// ---------------------------------------------------------------------------
+function KitchenDispatchBacklogPanel({ orders }: { orders: Order[] }) {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 5_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const waiting = orders
+    .filter(o => o.status === 'fertig' && o.typ === 'lieferung' && o.fertig_am)
+    .sort((a, b) => new Date(a.fertig_am!).getTime() - new Date(b.fertig_am!).getTime());
+
+  if (waiting.length === 0) return null;
+
+  const now = Date.now();
+  const worstSec = Math.floor((now - new Date(waiting[0].fertig_am!).getTime()) / 1000);
+  const urgency =
+    worstSec >= 900 ? 'critical' :
+    worstSec >= 480 ? 'warning' : 'ok';
+
+  const border =
+    urgency === 'critical' ? 'border-red-500 bg-red-950/40' :
+    urgency === 'warning'  ? 'border-amber-400 bg-amber-950/30' :
+                             'border-matcha-500 bg-matcha-900/40';
+  const label =
+    urgency === 'critical' ? '🚨 Kritisch — Fahrer dringend benötigt!' :
+    urgency === 'warning'  ? '⚠️ Warten auf Fahrer' :
+                             '✅ Bereit zur Abholung';
+
+  return (
+    <div className={cn('rounded-xl border p-3 space-y-2', border)}>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-white">{label}</span>
+        <span className="text-[10px] text-matcha-300">{waiting.length} Best. warten</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {waiting.map(o => {
+          const sec = Math.floor((now - new Date(o.fertig_am!).getTime()) / 1000);
+          const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+          const ss = String(sec % 60).padStart(2, '0');
+          const chipColor =
+            sec >= 900 ? 'bg-red-900 border-red-500 text-red-100 animate-pulse' :
+            sec >= 480 ? 'bg-amber-900 border-amber-400 text-amber-100' :
+                         'bg-matcha-800 border-matcha-500 text-matcha-100';
+          return (
+            <div
+              key={o.id}
+              className={cn('flex flex-col items-center rounded-lg border px-2.5 py-1.5 text-center min-w-[64px]', chipColor)}
+              title={`${o.kunde_name} · wartet seit ${mm}:${ss}`}
+            >
+              <span className="font-mono text-[9px] font-black tabular-nums">#{o.bestellnummer.replace(/^FF-/, '').slice(-4)}</span>
+              <span className="font-mono text-sm font-black tabular-nums leading-tight">{mm}:{ss}</span>
+              {o.delivery_zone && <span className="text-[8px] font-bold opacity-70 truncate max-w-[56px]">{o.delivery_zone}</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// KitchenSchichtVergleich — Heute vs. gleicher Wochentag letzte Woche
+// ---------------------------------------------------------------------------
+function KitchenSchichtVergleich() {
+  const supabase = createClient();
+  const [data, setData] = useState<{ hour: number; heute: number; vorwoche: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const now = new Date();
+      const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+      const todayEnd   = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+      const lwStart    = new Date(todayStart); lwStart.setDate(lwStart.getDate() - 7);
+      const lwEnd      = new Date(todayEnd);   lwEnd.setDate(lwEnd.getDate() - 7);
+
+      const [r1, r2] = await Promise.all([
+        supabase
+          .from('customer_orders')
+          .select('erstellt_am')
+          .gte('erstellt_am', todayStart.toISOString())
+          .lte('erstellt_am', todayEnd.toISOString()),
+        supabase
+          .from('customer_orders')
+          .select('erstellt_am')
+          .gte('erstellt_am', lwStart.toISOString())
+          .lte('erstellt_am', lwEnd.toISOString()),
+      ]);
+
+      const bucket = (rows: { erstellt_am: string }[] | null) => {
+        const h = Array(24).fill(0);
+        (rows ?? []).forEach(r => { h[new Date(r.erstellt_am).getHours()]++; });
+        return h;
+      };
+
+      const heute    = bucket(r1.data as { erstellt_am: string }[] | null);
+      const vorwoche = bucket(r2.data as { erstellt_am: string }[] | null);
+      setData(Array.from({ length: 24 }, (_, i) => ({ hour: i, heute: heute[i], vorwoche: vorwoche[i] })));
+      setLoading(false);
+    }
+    load();
+  }, [supabase]);
+
+  if (loading) return null;
+
+  const nowHour = new Date().getHours();
+  const totalHeute    = data.reduce((s, d) => s + d.heute, 0);
+  const totalVorwoche = data.reduce((s, d) => s + d.vorwoche, 0);
+  const trend = totalVorwoche > 0 ? Math.round(((totalHeute - totalVorwoche) / totalVorwoche) * 100) : null;
+  const maxVal = Math.max(...data.map(d => Math.max(d.heute, d.vorwoche)), 1);
+
+  // Only show hours with any activity in either week, plus current hour
+  const active = data.filter(d => d.heute > 0 || d.vorwoche > 0 || d.hour === nowHour);
+  if (active.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-matcha-700 bg-matcha-900/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-white">Heute vs. Vorwoche</span>
+        {trend !== null && (
+          <span className={cn('text-xs font-bold', trend >= 0 ? 'text-matcha-400' : 'text-red-400')}>
+            {trend >= 0 ? '+' : ''}{trend}%
+          </span>
+        )}
+      </div>
+      <div className="flex items-end gap-0.5 h-14 overflow-x-auto">
+        {active.map(d => {
+          const isNow = d.hour === nowHour;
+          const hPct = Math.round((d.heute / maxVal) * 100);
+          const vPct = Math.round((d.vorwoche / maxVal) * 100);
+          const barColor = isNow ? 'bg-gold' : d.heute >= d.vorwoche ? 'bg-matcha-500' : 'bg-red-400';
+          return (
+            <div key={d.hour} className="flex flex-col items-center gap-0.5 flex-1 min-w-[18px]" title={`${d.hour}h: heute ${d.heute}, vorwoche ${d.vorwoche}`}>
+              <div className="flex items-end gap-px w-full justify-center" style={{ height: '44px' }}>
+                <div className="bg-matcha-700 w-[5px] rounded-sm" style={{ height: `${vPct}%` }} />
+                <div className={cn('w-[5px] rounded-sm', barColor)} style={{ height: `${hPct}%` }} />
+              </div>
+              <span className="text-[7px] text-matcha-400 font-mono">{String(d.hour).padStart(2, '0')}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-3 text-[9px] text-matcha-400">
+        <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-matcha-700" /> Vorwoche</span>
+        <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-matcha-500" /> Heute</span>
+        <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-gold" /> Jetzt</span>
       </div>
     </div>
   );
