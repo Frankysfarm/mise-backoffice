@@ -1,10 +1,21 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + KI
-**Phasen 1–76 abgeschlossen. CEO Review #59. TypeScript 0 Fehler. Build sauber (182 Seiten). Deployment-bereit.**
+**Phasen 1–77 abgeschlossen. CEO Review #59. TypeScript 0 Fehler. Build sauber (183 Seiten). Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 77: Kunden-Loyalty-Punkte-System — Punkte sammeln, Tier-System, Einlösung im Checkout
+- [x] scripts/migrations/051_customer_loyalty_points.sql — customer_loyalty_accounts, loyalty_point_transactions, v_loyalty_leaderboard
+- [x] lib/delivery/loyalty-points.ts — earnPoints(), redeemPoints(), getBalance(), getLeaderboard(), getLoyaltyKpis(), manualAdjust(), processExpiredPointsAllLocations()
+- [x] GET /api/delivery/loyalty/balance — öffentlicher Kontostand-Endpunkt (E-Mail + location_id)
+- [x] POST /api/delivery/loyalty/redeem — Punkte im Checkout einlösen (Rabatt in EUR)
+- [x] GET+POST /api/delivery/admin/loyalty — Admin-Leaderboard, KPI-Cards, manuelle Anpassung
+- [x] tours/[id]/status/route.ts: earnPoints() fire-and-forget bei state=delivered (pro Dropoff-Stop mit kunde_email)
+- [x] Cron: processExpiredPointsAllLocations() täglich um 02:00 UTC (isReportTick), Ergebnis in Cron-Response
+- [x] app/(admin)/delivery/loyalty/ — Admin-UI: Leaderboard, Tier-Verteilung (Bronze/Silber/Gold/Platin), KPI-Cards, manuelle Punkte-Anpassung
+- [x] Sidebar-Eintrag "Loyalty-Punkte" (Trophy) unter Lieferdienst > Loslegen
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 183 Seiten)
 - [x] Phase 76: Frontend UX-Enhancements — Richtungspfeil Karte, Gleichzeitig-Fertig-Warnung, Stopp-ETA-Countdown, Bar-Kassier-Tracker
 - [x] live-map.tsx: heading-Prop neu — Fahrermarker dreht sich zur Fahrtrichtung (GPS-Heading-basiert)
 - [x] tracking.tsx: fahrer_heading jetzt an LiveMap übergeben (vorher ungenutzt)

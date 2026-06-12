@@ -34,6 +34,7 @@ import { snapshotAllLocations as snapshotDriverPerformance } from '@/lib/deliver
 import { evaluateComplianceAllLocations } from '@/lib/delivery/compliance';
 import { expireStaleApplicationsAllLocations } from '@/lib/delivery/onboarding';
 import { runSlaEscalationAllLocations } from '@/lib/delivery/sla-escalation';
+import { processExpiredPointsAllLocations } from '@/lib/delivery/loyalty-points';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
     const nowHour       = new Date().getUTCHours();
     const isReportTick  = nowHour === 2 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -155,6 +156,10 @@ export async function GET(req: NextRequest) {
       isRatingTick
         ? runSlaEscalationAllLocations().catch(() => ({ locations_checked: 0, escalated: 0, resolved: 0, below_threshold: [] }))
         : Promise.resolve(null),
+      // Loyalty-Punkte: abgelaufene Punkte verfallen lassen (täglich um 02:00 UTC)
+      isReportTick
+        ? processExpiredPointsAllLocations().catch(() => ({ locations: 0, totalExpired: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -228,6 +233,7 @@ export async function GET(req: NextRequest) {
       ...(complianceResult ? { compliance: complianceResult } : {}),
       ...(onboardingResult ? { onboarding_expired: onboardingResult.expired } : {}),
       ...(slaEscalationResult ? { sla_escalation: { escalated: slaEscalationResult.escalated, resolved: slaEscalationResult.resolved, below_threshold: slaEscalationResult.below_threshold.length } } : {}),
+      ...(loyaltyExpireResult ? { loyalty_points_expired: loyaltyExpireResult.totalExpired } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

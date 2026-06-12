@@ -16,6 +16,7 @@ import { recordCustomerEvent, type CustomerEventType } from '@/lib/delivery/cust
 import { recordDriverSurgeBonus } from '@/lib/delivery/surge';
 import { markWindowDelivered, markWindowDispatched } from '@/lib/delivery/windows';
 import { evaluateAndIssueLateCredit } from '@/lib/delivery/credits';
+import { earnPoints } from '@/lib/delivery/loyalty-points';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -104,6 +105,27 @@ export async function PATCH(
               batch.location_id as string,
               stop.completed_at ? new Date(stop.completed_at as string) : new Date(),
             ).catch(() => {});
+          }
+
+          // Loyalty-Punkte vergeben (fire-and-forget)
+          if (stop.order_id && batch.location_id) {
+            (async () => {
+              try {
+                const { data: ord } = await sb
+                  .from('customer_orders')
+                  .select('gesamtbetrag, kunde_email, kunde_name')
+                  .eq('id', stop.order_id as string)
+                  .maybeSingle();
+                if (!ord?.kunde_email || !(ord.gesamtbetrag)) return;
+                await earnPoints({
+                  orderId:       stop.order_id as string,
+                  locationId:    batch.location_id as string,
+                  amountEur:     Number(ord.gesamtbetrag),
+                  customerEmail: ord.kunde_email as string,
+                  customerName:  (ord.kunde_name as string | null) ?? null,
+                });
+              } catch { /* fire-and-forget */ }
+            })();
           }
         }
       }

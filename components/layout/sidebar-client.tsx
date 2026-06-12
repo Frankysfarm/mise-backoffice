@@ -9,7 +9,7 @@ import {
   Receipt, Calculator, CreditCard, Ticket, Plug, Mail, Rocket, Grid,
   ArrowLeft, Store, Clock, Shield, Monitor, Lock, HelpCircle, Phone, History,
   ChevronRight, Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone,
-  ShoppingBag, FolderOpen, ClipboardList, BarChart2,
+  ShoppingBag, FolderOpen, ClipboardList, BarChart2, Trophy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +20,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Receipt, Calculator, CreditCard, Ticket, Plug, Mail, Rocket, Grid,
   Store, Clock, Shield, Monitor, Lock, HelpCircle, Phone, History,
   Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone, ShoppingBag,
-  FolderOpen, ClipboardList, BarChart2,
+  FolderOpen, ClipboardList, BarChart2, Trophy,
 };
 
 export type SidebarItem = {
