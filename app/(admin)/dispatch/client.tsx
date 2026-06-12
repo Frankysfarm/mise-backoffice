@@ -6773,6 +6773,55 @@ function DispatchQuickAssignBar({
   );
 }
 
+/* ------------------------------ MiniSparkline SVG ------------------------------ */
+
+function MiniSparkline({
+  data,
+  color = '#4ade80',
+  width = 80,
+  height = 24,
+}: {
+  data: number[];
+  color?: string;
+  width?: number;
+  height?: number;
+}) {
+  if (data.length < 2) return <span className="text-[9px] text-muted-foreground">–</span>;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pad = 2;
+  const innerH = height - pad * 2;
+  const innerW = width - pad * 2;
+  const pts = data.map((v, i) => ({
+    x: pad + (i / (data.length - 1)) * innerW,
+    y: pad + innerH - ((v - min) / range) * innerH,
+  }));
+  const polyPts = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const last = pts[pts.length - 1];
+  // Area fill path
+  const areaD = [
+    `M${pts[0].x.toFixed(1)},${(pad + innerH).toFixed(1)}`,
+    ...pts.map((p) => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`),
+    `L${last.x.toFixed(1)},${(pad + innerH).toFixed(1)}`,
+    'Z',
+  ].join(' ');
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
+      <path d={areaD} fill={color} fillOpacity="0.12" />
+      <polyline
+        points={polyPts}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx={last.x} cy={last.y} r="2.2" fill={color} />
+    </svg>
+  );
+}
+
 /* ------------------------------ DriverHistoricalLeaderboardPanel ------------------------------ */
 
 type HistoricalLeaderEntry = {
@@ -6799,6 +6848,35 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
   const [open, setOpen] = useState(false);
   const [snapping, setSnapping] = useState(false);
   const [snapMsg, setSnapMsg] = useState<string | null>(null);
+  const [expandedDriver, setExpandedDriver] = useState<string | null>(null);
+  const [historyCache, setHistoryCache] = useState<Map<string, number[]>>(new Map());
+  const [historyLoading, setHistoryLoading] = useState<Set<string>>(new Set());
+
+  async function fetchDriverHistory(driverId: string) {
+    if (!locationId || historyCache.has(driverId) || historyLoading.has(driverId)) return;
+    setHistoryLoading((s) => new Set(s).add(driverId));
+    try {
+      const res = await fetch(
+        `/api/delivery/admin/driver-performance?driver_id=${driverId}&location_id=${locationId}&days=14`,
+      );
+      if (res.ok) {
+        const d = await res.json() as { history?: { stopsCompleted?: number }[] };
+        const stops = (d.history ?? []).map((p) => p.stopsCompleted ?? 0);
+        setHistoryCache((m) => new Map(m).set(driverId, stops));
+      }
+    } catch { /* ignore */ } finally {
+      setHistoryLoading((s) => { const n = new Set(s); n.delete(driverId); return n; });
+    }
+  }
+
+  function toggleDriver(driverId: string) {
+    if (expandedDriver === driverId) {
+      setExpandedDriver(null);
+    } else {
+      setExpandedDriver(driverId);
+      fetchDriverHistory(driverId);
+    }
+  }
 
   useEffect(() => {
     if (!open || !locationId) return;
@@ -6962,7 +7040,11 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
                             'border-border bg-card',
                           )}
                         >
-                          <div className="flex items-center gap-2 mb-2">
+                          <button
+                            type="button"
+                            className="flex items-center gap-2 mb-2 w-full text-left"
+                            onClick={() => toggleDriver(e.driverId)}
+                          >
                             <span className="w-5 text-center font-bold tabular-nums text-[10px] text-muted-foreground shrink-0">
                               {medal ?? `#${e.rank}`}
                             </span>
@@ -6983,13 +7065,17 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0 text-[10px]">
+                            <div className="flex items-center gap-1.5 shrink-0 text-[10px]">
                               <span className="tabular-nums font-bold">{e.stopsCompleted} Stopps</span>
                               {e.earningsEur > 0 && (
                                 <span className="tabular-nums text-green-700 font-semibold">€{e.earningsEur.toFixed(2)}</span>
                               )}
+                              {expandedDriver === e.driverId
+                                ? <ChevronUp className="h-3 w-3 text-muted-foreground" />
+                                : <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                              }
                             </div>
-                          </div>
+                          </button>
                           {/* Inline metric bars */}
                           <div className="space-y-1">
                             {/* Stopps-Bar */}
@@ -7053,6 +7139,61 @@ function DriverHistoricalLeaderboardPanel({ locationId }: { locationId: string |
                               </div>
                             )}
                           </div>
+
+                          {/* Sparkline — 14-Tage Trend, aufklappbar */}
+                          {expandedDriver === e.driverId && (
+                            <div className="mt-2.5 border-t pt-2.5">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                                  <BarChart2 className="h-2.5 w-2.5" />
+                                  14-Tage Trend (Stopps)
+                                </span>
+                                {historyLoading.has(e.driverId) && (
+                                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                                )}
+                              </div>
+                              {historyCache.has(e.driverId) ? (
+                                <div className="flex items-end gap-3">
+                                  <MiniSparkline
+                                    data={historyCache.get(e.driverId)!}
+                                    color={
+                                      idx === 0 ? '#ca8a04' :
+                                      idx === 1 ? '#78716c' :
+                                      idx === 2 ? '#d97706' :
+                                      '#4ade80'
+                                    }
+                                    width={120}
+                                    height={28}
+                                  />
+                                  <div className="text-[9px] text-muted-foreground">
+                                    {historyCache.get(e.driverId)!.length > 0 ? (
+                                      <>
+                                        <span className="font-bold text-foreground">
+                                          {historyCache.get(e.driverId)![historyCache.get(e.driverId)!.length - 1]}
+                                        </span>
+                                        {' '}gestern
+                                        {historyCache.get(e.driverId)!.length >= 7 && (() => {
+                                          const arr = historyCache.get(e.driverId)!;
+                                          const last3  = arr.slice(-3).reduce((s, v) => s + v, 0) / 3;
+                                          const prev3  = arr.slice(-6, -3).reduce((s, v) => s + v, 0) / 3;
+                                          const delta = last3 - prev3;
+                                          return (
+                                            <span className={cn('ml-1.5 font-semibold', delta >= 0 ? 'text-green-600' : 'text-red-500')}>
+                                              {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(1)}
+                                            </span>
+                                          );
+                                        })()}
+                                      </>
+                                    ) : (
+                                      <span>Keine Daten</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ) : !historyLoading.has(e.driverId) ? (
+                                <span className="text-[9px] text-muted-foreground">Keine Snapshot-Daten vorhanden</span>
+                              ) : null}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
