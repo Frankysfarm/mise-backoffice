@@ -1,10 +1,17 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–92 abgeschlossen. CEO Review #68 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
+**Phasen 1–92 abgeschlossen + Live-UX-Erweiterungen. CEO Review #69 ✅. Build sauber. 0 TypeScript-Fehler. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Dispatch Handoff-Geschwindigkeit Panel — 2026-06-12
+- [x] DispatchHandoffSpeedPanel: Ø-Zeit fertig→Fahrer (letzte 8h), Trend-Indikator ▲/▼, 7-Bucket-Histogram (<30s…>10m)
+- [x] Kitchen Dispatch-Backlog-Eskalation + Schicht-Vergleich — 2026-06-12
+- [x] KitchenDispatchBacklogPanel: fertige Lieferbestellungen warten auf Fahrer (ok/warning/critical, 5s-Tick)
+- [x] KitchenSchichtVergleich: Heute vs. gleicher Wochentag Vorwoche — Stunden-Doppelbalken + Trend%
+- [x] Bug-Fix: export/route.ts — 3 TypeScript-Fehler gefixt (Array→Record-Cast ×2, Buffer→Uint8Array ×1)
+- [x] Build: Compiled successfully ✓ (0 TypeScript-Fehler, 187 Seiten)
 - [x] Phase 92: Admin CSV/ZIP Datenexport — 2026-06-12
 - [x] GET /api/delivery/admin/export — type=tours|shifts|payouts|drivers|all, from/to, format=csv|zip
 - [x] JSZip-Bundle: Touren+Schichten+Abrechnung+Fahrer als ZIP-Archiv, UTF-8 BOM, max 10 000 Zeilen/Tabelle

@@ -65,7 +65,7 @@ async function exportTours(locationId: string, from: string, to: string) {
     .limit(MAX_ROWS);
 
   const rows = (data ?? []).map((b) => {
-    const drv = b.driver as Record<string, unknown> | null;
+    const drv = (Array.isArray(b.driver) ? b.driver[0] : b.driver) as Record<string, unknown> | null;
     return {
       tour_id: b.id,
       status: b.state,
@@ -149,7 +149,7 @@ async function exportPayouts(locationId: string, from: string, to: string) {
     .limit(MAX_ROWS);
 
   const rows = (data ?? []).map((p) => {
-    const drv = p.driver as Record<string, unknown> | null;
+    const drv = (Array.isArray(p.driver) ? p.driver[0] : p.driver) as Record<string, unknown> | null;
     return {
       abrechnungs_id: p.id,
       fahrer_id: p.driver_id,
@@ -265,7 +265,7 @@ export async function GET(req: NextRequest) {
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
     const zipFilename = `mise-export-${from}-${to}.zip`;
 
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(new Uint8Array(zipBuffer), {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${zipFilename}"`,

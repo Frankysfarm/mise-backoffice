@@ -1,7 +1,75 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–92 vollständig abgeschlossen. CEO Review #68 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–92 vollständig abgeschlossen. CEO Review #69 abgeschlossen. TypeScript 0 Fehler. Build sauber. Deployment-bereit.
+
+## CEO Review #69 — 2026-06-12
+
+### Geprüfte Commits (3 neue Commits seit Review #68)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `cfe5ee7` | feat(dispatch): DispatchHandoffSpeedPanel — Ø-Zeit fertig→Fahrer + Histogram | ✅ |
+| `eb8b1c4` | feat(kitchen): KitchenDispatchBacklogPanel + KitchenSchichtVergleich | ✅ |
+| `0015592` | feat(delivery/backend): Phase 91+92 — Offline-Bundle API + Admin CSV/ZIP Export | ✅ (Bugs gefixt) |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅ (nach 3 Bug-Fixes in export/route.ts)
+- `next build`: ✓ Compiled successfully, 187 Seiten ✅
+
+### Befund: DispatchHandoffSpeedPanel (commit cfe5ee7)
+
+**app/(admin)/dispatch/client.tsx**:
+- Abfrage: `delivery_batch_stops` mit Join auf `customer_orders(fertig_am, location_id)` + `delivery_batches(startzeit)` — korrekte Tabellennamen für Frontend-Kontext ✅
+- Delta-Berechnung: `(batch.startzeit − order.fertig_am) / 1000` in Sekunden, Filter 0–1800s (verhindert Ausreißer) ✅
+- Client-seitiger Location-Filter auf max 60 Rows — akzeptable Tradeoff ✅
+- Trend: recent-5 vs. Gesamt-Ø → Richtungsindikator ▲/▼ ✅
+- Histogram: 7 Buckets [<30s, 1m, 2m, 3m, 5m, 10m, >10m], `maxH = Math.max(...hist, 1)` verhindert Division-durch-Null ✅
+- `rows.length < 3 → return null` — kein leeres Panel bei Datenmangel ✅
+- Farbschwellen: grün <2m, amber <5m, rot ≥5m — logisch korrekt ✅
+
+### Befund: KitchenDispatchBacklogPanel + KitchenSchichtVergleich (commit eb8b1c4)
+
+**KitchenDispatchBacklogPanel** (`app/(admin)/kitchen/client.tsx`):
+- Nutzt `orders`-Prop (bereits real-time synchron) — kein eigener API-Aufruf nötig ✅
+- Filter: `status === 'fertig' && typ === 'lieferung' && fertig_am` — korrekte Bedingungen ✅
+- Eskalationsstufen: ok (<8min / 480s), warning (8–15min / 900s), critical (≥15min) ✅
+- 5s-Tick (setInterval) mit korrektem Cleanup ✅
+- Per-Order-Chip: Bestellnummer (letzte 4 Zeichen nach `FF-`-Strip), MM:SS Countdown, Zone ✅
+- `animate-pulse` nur im Critical-State — UI-Fokus korrekt priorisiert ✅
+
+**KitchenSchichtVergleich**:
+- Parallele Supabase-Abfragen: heute + gleicher Wochentag −7 Tage → Promise.all ✅
+- Stundenbuckets: `Array(24).fill(0)` + `getHours()` → korrekte 24h-Verteilung ✅
+- Aktiv-Filter: Stunden mit Aktivität in einer der Wochen (verhindert leere Achsen) ✅
+- Trend-Prozent: nur wenn `totalVorwoche > 0` (kein Division-durch-Null) ✅
+- Farblogik: gold=aktuelle Stunde, grün=heute≥vorwoche, rot=heute<vorwoche ✅
+
+### Bugs gefunden und gefixt (export/route.ts)
+
+**Fehler 1 + 2 — TS2352: Array-zu-Record-Cast (Zeilen 68, 152)**:
+- Supabase gibt Join-Daten als Array zurück; `as Record<string, unknown>` direkt → TypeScript-Fehler
+- Fix: `(Array.isArray(b.driver) ? b.driver[0] : b.driver) as Record<string, unknown> | null`
+- Gilt für `exportTours()` (b.driver) und `exportPayouts()` (p.driver)
+
+**Fehler 3 — TS2345: Buffer nicht assignierbar zu BodyInit (Zeile 268)**:
+- `zip.generateAsync({ type: 'nodebuffer' })` → `Buffer<ArrayBufferLike>`
+- `new NextResponse(zipBuffer, ...)` → TypeScript erwartet `BodyInit` (kein Node.js Buffer)
+- Fix: `new NextResponse(new Uint8Array(zipBuffer), ...)` — Web-Standard-Typ ✅
+
+### Integrations-Check
+- Kitchen: Backlog-Eskalation direkt sichtbar wenn Fahrer zu langsam abholen ✅
+- Dispatch: Handoff-Geschwindigkeit zeigt Ø-Zeit + Histogram für Schichtanalyse ✅
+- Backend: Export-API liefert korrekte CSV/ZIP für alle 4 Datentypen ✅
+- Offline-Bundle: SW prefetcht beim Fahrer-App-Mount, Stale-While-Revalidate aktiv ✅
+
+### Status nach Review #69
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 187 Seiten ✅
+- Bugs gefixed: 3 (TS2352 ×2, TS2345 ×1 in export/route.ts)
+- System: MARKT-REIF ✅
+
+---
 
 ## Backend-Architekt — Phase 91+92 — 2026-06-12
 
