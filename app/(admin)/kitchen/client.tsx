@@ -703,6 +703,9 @@ export function KitchenBoard({
         <KitchenGanttStrip orders={filtered} timings={timings} />
       )}
 
+      {/* Allergen & Sonderwunsch-Monitor: alle Notizen aktiver Bestellungen im Überblick */}
+      {!bigDisplay && <KitchenAllergenMonitor orders={filtered} />}
+
       {/* Popup: ungenommene Order */}
       {unacceptedAlert && (
         <UnacceptedOrderPopup
@@ -6042,6 +6045,105 @@ function KitchenThroughputMeter({ orders }: { orders: Order[] }) {
             <div className="text-[9px] text-muted-foreground opacity-60">{last60} in 60 Min</div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ KitchenAllergenMonitor ------------------------------ */
+
+const ALLERGY_KEYWORDS = /allergi|unverträgl|intoleran|laktose|gluten|nuss|erdnuss|fisch|krebst|ei-frei|weizen|sesam|senf|sellerie|halal|koscher|vegan|vegetari/i;
+
+function KitchenAllergenMonitor({ orders }: { orders: Order[] }) {
+  const active = orders.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status));
+  if (active.length === 0) return null;
+
+  type NoteEntry = {
+    orderId: string;
+    bestellnummer: string;
+    kundeNamen: string;
+    text: string;
+    isAllergy: boolean;
+  };
+
+  const entries: NoteEntry[] = [];
+
+  for (const o of active) {
+    if (o.kunde_notiz) {
+      entries.push({
+        orderId: o.id,
+        bestellnummer: o.bestellnummer,
+        kundeNamen: o.kunde_name,
+        text: o.kunde_notiz,
+        isAllergy: ALLERGY_KEYWORDS.test(o.kunde_notiz),
+      });
+    }
+    if (o.kunde_lieferhinweis && o.kunde_lieferhinweis !== o.kunde_notiz) {
+      entries.push({
+        orderId: o.id + '_hl',
+        bestellnummer: o.bestellnummer,
+        kundeNamen: o.kunde_name,
+        text: `📦 ${o.kunde_lieferhinweis}`,
+        isAllergy: false,
+      });
+    }
+    for (const item of o.items ?? []) {
+      if (item.notiz) {
+        entries.push({
+          orderId: o.id + '_it_' + item.id,
+          bestellnummer: o.bestellnummer,
+          kundeNamen: o.kunde_name,
+          text: `${item.menge}× ${item.name}: ${item.notiz}`,
+          isAllergy: ALLERGY_KEYWORDS.test(item.notiz),
+        });
+      }
+    }
+  }
+
+  if (entries.length === 0) return null;
+
+  const allergyCount = entries.filter((e) => e.isAllergy).length;
+
+  return (
+    <div className={cn(
+      'rounded-xl border px-4 py-3',
+      allergyCount > 0 ? 'border-red-300 bg-red-50' : 'border-amber-200 bg-amber-50/60',
+    )}>
+      <div className="mb-2 flex items-center gap-2">
+        <AlertCircle className={cn('h-3.5 w-3.5 shrink-0', allergyCount > 0 ? 'text-red-600' : 'text-amber-600')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          allergyCount > 0 ? 'text-red-800' : 'text-amber-800',
+        )}>
+          Sonderwünsche & Allergien
+        </span>
+        {allergyCount > 0 && (
+          <span className="rounded-full bg-red-600 px-1.5 py-0.5 text-[9px] font-black text-white animate-pulse">
+            {allergyCount} Allergie
+          </span>
+        )}
+        <span className="ml-auto text-[9px] text-muted-foreground">{entries.length} Hinweise</span>
+      </div>
+      <div className="space-y-1">
+        {entries.map((e) => (
+          <div
+            key={e.orderId}
+            className={cn(
+              'flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-[11px]',
+              e.isAllergy
+                ? 'border-red-300 bg-white text-red-800'
+                : 'border-amber-200 bg-white text-amber-900',
+            )}
+          >
+            <span className={cn(
+              'shrink-0 rounded px-1 py-0.5 text-[9px] font-black tabular-nums',
+              e.isAllergy ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700',
+            )}>
+              #{e.bestellnummer.replace(/^[A-Z]+-/, '')}
+            </span>
+            <span className="flex-1 break-words font-medium leading-snug">{e.text}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

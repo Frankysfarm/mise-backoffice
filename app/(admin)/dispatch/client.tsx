@@ -758,6 +758,11 @@ export function DispatchBoard({
         <TodayStatsBar stats={overviewStats.today_stats} zoneCounts={overviewStats.zone_counts} />
       )}
 
+      {/* Zonen-Analyse: Wartezeiten je Lieferzone — hebt unter-bediente Zonen hervor */}
+      {readyOrders.length > 0 && (
+        <DispatchZoneAnalysisPanel orders={readyOrders} />
+      )}
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -7420,6 +7425,154 @@ function AiDispatchAssistantPanel({
         {loading && text && (
           <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-violet-500 align-text-bottom" />
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ DispatchZoneAnalysisPanel ------------------------------ */
+
+const ZONE_META_DISPATCH: Record<string, { label: string; ring: string; bg: string; text: string; bar: string }> = {
+  A: { label: 'Zone A ≤2 km', ring: 'border-matcha-400', bg: 'bg-matcha-50',  text: 'text-matcha-800', bar: 'bg-matcha-500' },
+  B: { label: 'Zone B ≤4 km', ring: 'border-blue-400',   bg: 'bg-blue-50',    text: 'text-blue-800',   bar: 'bg-blue-500'   },
+  C: { label: 'Zone C ≤7 km', ring: 'border-amber-400',  bg: 'bg-amber-50',   text: 'text-amber-800',  bar: 'bg-amber-500'  },
+  D: { label: 'Zone D  >7 km', ring: 'border-red-400',    bg: 'bg-red-50',     text: 'text-red-800',    bar: 'bg-red-500'    },
+};
+
+function DispatchZoneAnalysisPanel({ orders }: { orders: ReadyOrder[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 20_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (orders.length === 0) return null;
+
+  const now = Date.now();
+
+  type ZoneRow = {
+    zone: string;
+    count: number;
+    avgWaitMin: number;
+    maxWaitMin: number;
+    totalValue: number;
+    orders: ReadyOrder[];
+  };
+
+  const map = new Map<string, ReadyOrder[]>();
+  for (const o of orders) {
+    const z = o.delivery_zone ?? '?';
+    if (!map.has(z)) map.set(z, []);
+    map.get(z)!.push(o);
+  }
+
+  const rows: ZoneRow[] = Array.from(map.entries())
+    .map(([zone, zOrders]) => {
+      const waitTimes = zOrders.map((o) =>
+        o.fertig_am ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0,
+      );
+      return {
+        zone,
+        count: zOrders.length,
+        avgWaitMin: waitTimes.length > 0 ? Math.round(waitTimes.reduce((s, v) => s + v, 0) / waitTimes.length) : 0,
+        maxWaitMin: waitTimes.length > 0 ? Math.max(...waitTimes) : 0,
+        totalValue: zOrders.reduce((s, o) => s + o.gesamtbetrag, 0),
+        orders: zOrders,
+      };
+    })
+    .sort((a, b) => b.maxWaitMin - a.maxWaitMin);
+
+  const maxCount = Math.max(...rows.map((r) => r.count), 1);
+  const criticalZones = rows.filter((r) => r.maxWaitMin >= 10).length;
+
+  return (
+    <div className={cn(
+      'rounded-xl border px-4 py-3',
+      criticalZones > 0 ? 'border-red-200 bg-red-50/40' : 'border-border bg-card',
+    )}>
+      <div className="mb-3 flex items-center gap-2">
+        <MapPin className={cn('h-3.5 w-3.5 shrink-0', criticalZones > 0 ? 'text-red-600' : 'text-matcha-600')} />
+        <span className={cn(
+          'font-display text-xs font-bold uppercase tracking-wider',
+          criticalZones > 0 ? 'text-red-800' : 'text-matcha-800',
+        )}>
+          Zonen-Analyse · {orders.length} bereit
+        </span>
+        {criticalZones > 0 && (
+          <span className="rounded-full bg-red-600 px-1.5 py-0.5 text-[9px] font-black text-white animate-pulse">
+            {criticalZones} Zone{criticalZones !== 1 ? 'n' : ''} &gt;10m
+          </span>
+        )}
+        <span className="ml-auto text-[9px] text-muted-foreground">Wartezeit seit Fertig</span>
+      </div>
+
+      <div className="space-y-2">
+        {rows.map((r) => {
+          const meta = ZONE_META_DISPATCH[r.zone] ?? ZONE_META_DISPATCH.D;
+          const pct = Math.round((r.count / maxCount) * 100);
+          const waitColor =
+            r.maxWaitMin >= 10 ? 'bg-red-100 text-red-700' :
+            r.maxWaitMin >= 5  ? 'bg-orange-100 text-orange-700' :
+                                 'bg-matcha-100 text-matcha-700';
+          const avgColor =
+            r.avgWaitMin >= 10 ? 'text-red-600 font-black' :
+            r.avgWaitMin >= 5  ? 'text-orange-600 font-bold' :
+                                 'text-matcha-700 font-semibold';
+
+          return (
+            <div key={r.zone} className={cn('rounded-lg border px-3 py-2', meta.ring, meta.bg)}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={cn('text-[10px] font-black uppercase tracking-wide', meta.text)}>
+                  {meta.label !== 'Zone ? ≤? km' ? meta.label : `Zone ${r.zone}`}
+                </span>
+                <span className={cn('ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums', waitColor)}>
+                  max {r.maxWaitMin}m
+                </span>
+                <span className={cn('text-[9px] tabular-nums', avgColor)}>
+                  Ø {r.avgWaitMin}m
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-0.5 text-[9px] text-muted-foreground">
+                    <span className="tabular-nums font-black">{r.count} Best.</span>
+                    <span className="tabular-nums">{euro(r.totalValue)}</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
+                    <div
+                      className={cn('h-full rounded-full transition-all duration-700', meta.bar)}
+                      style={{ width: `${Math.max(8, pct)}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="shrink-0 flex flex-wrap gap-1">
+                  {r.orders.slice(0, 4).map((o) => {
+                    const wMin = o.fertig_am ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0;
+                    return (
+                      <span
+                        key={o.id}
+                        className={cn(
+                          'rounded px-1 py-0.5 text-[8px] font-bold tabular-nums',
+                          wMin >= 10 ? 'bg-red-200 text-red-800' :
+                          wMin >= 5  ? 'bg-orange-200 text-orange-800' :
+                                       'bg-white/70 text-foreground/60',
+                        )}
+                        title={`#${o.bestellnummer} · ${wMin}m warten`}
+                      >
+                        #{o.bestellnummer.replace(/^[A-Z]+-/, '')}
+                      </span>
+                    );
+                  })}
+                  {r.orders.length > 4 && (
+                    <span className="rounded px-1 py-0.5 text-[8px] font-bold text-muted-foreground">
+                      +{r.orders.length - 4}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
