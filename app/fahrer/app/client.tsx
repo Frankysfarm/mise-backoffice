@@ -145,6 +145,9 @@ export function FahrerApp({
   const [broadcasts, setBroadcasts] = useState<{ id: string; message: string; priority: string; sentByName: string | null; createdAt: string }[]>([]);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
 
+  // Nächste geplante Schichten (aus offline-bundle)
+  const [upcomingShifts, setUpcomingShifts] = useState<{ id: string; planned_start: string; planned_end: string; status: string }[]>([]);
+
   useEffect(() => {
     const load = () => {
       fetch('/api/delivery/driver/messages')
@@ -159,6 +162,13 @@ export function FahrerApp({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/offline-bundle', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (Array.isArray(d?.upcomingShifts)) setUpcomingShifts(d.upcomingShifts); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!isOnline) return;
@@ -581,6 +591,47 @@ export function FahrerApp({
                   {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
                   {gpsOk === null && <span className="text-matcha-300">📍 Warte auf GPS-Signal…</span>}
                 </div>
+
+                {/* Nächste Schichten — aus offline-bundle */}
+                {upcomingShifts.length > 0 && (
+                  <div className="mt-3 rounded-xl border border-matcha-600/40 bg-matcha-800/50 px-4 py-3">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-matcha-400 mb-2 flex items-center gap-1.5">
+                      <Calendar size={10} />
+                      Nächste Schicht
+                    </div>
+                    {upcomingShifts.slice(0, 2).map((shift, i) => {
+                      const start = new Date(shift.planned_start);
+                      const end = new Date(shift.planned_end);
+                      const msUntil = start.getTime() - Date.now();
+                      const isToday = start.toDateString() === new Date().toDateString();
+                      const hoursUntil = Math.floor(msUntil / 3_600_000);
+                      const minsUntil = Math.floor((msUntil % 3_600_000) / 60_000);
+                      const countdown = msUntil > 0
+                        ? hoursUntil > 0 ? `in ${hoursUntil}h ${minsUntil}m` : `in ${minsUntil}m`
+                        : null;
+                      return (
+                        <div key={shift.id} className={cn('flex items-center gap-3 py-1.5', i > 0 && 'border-t border-matcha-700/50 mt-1.5')}>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-white">
+                              {isToday ? 'Heute' : start.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'short' })}
+                            </div>
+                            <div className="text-[11px] text-matcha-300 tabular-nums">
+                              {start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} – {end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                            </div>
+                          </div>
+                          {countdown && (
+                            <span className="text-[11px] font-bold text-accent bg-accent/10 rounded-full px-2.5 py-0.5 tabular-nums shrink-0">
+                              {countdown}
+                            </span>
+                          )}
+                          {shift.status === 'active' && (
+                            <span className="text-[10px] font-bold text-matcha-100 bg-matcha-600 rounded-full px-2 py-0.5 shrink-0">Aktiv</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Heutige Schicht — Statistik-Widget */}
                 {todayStats && todayStats.deliveries > 0 && (
