@@ -1,12 +1,21 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–103 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 194 Seiten. Deployment-bereit.**
+**Phasen 1–104 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
 **CEO Review #77 — 2026-06-13: Phase 103 geprüft. 0 Bugs. Alle Systeme grün.**
 **CEO Review #76 — 2026-06-13: 1 Bug gefixt (pruneOldSnapshots Cron-Verdrahtung).**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 104: Smart Predictive Surge Engine & Driver Mobilization — 2026-06-13
+- [x] scripts/migrations/063_surge_prediction.sql: surge_predictions (location_id/surge_window_start/surge_window_end/predicted_intensity low|medium|high/confidence_pct/signals JSONB/broadcasts_sent/actual_peak_orders/was_accurate, RLS), surge_mobilization_events (prediction_id→Cascade/driver_id/notified_at/came_online_at, RLS), v_mobilization_effectiveness VIEW (accuracy_pct/mobilization_rate_pct/avg_response_time_min), v_recent_surge_predictions VIEW (letzte 48h mit notified/responded Fahrer-Counts)
+- [x] lib/delivery/surge-prediction.ts: predictSurgeForLocation() (Velocity-Ratio letzte 30 Min vs. historischer Ø gleiche Stunde+Wochentag 4 Wochen, Intensität LOW/MEDIUM/HIGH, Konfidenz-Formel aus Datenpunkte+Ratio+Peak, Duplikat-Guard 15-min-Fenster, Broadcast an offline Fahrer der letzten 7 Tage via messaging.ts, Mobilisierungs-Events), runSurgePredictionAllLocations() (Cron-Batch alle aktiven Locations), evaluatePastPredictions() (Genauigkeit: actual vs. threshold, was_accurate setzen), trackDriverCameOnline() (Mobilisierungs-Event schließen wenn Fahrer online geht), getRecentPredictions(), getMobilizationStats(), getPredictionDashboard()
+- [x] GET+POST /api/delivery/admin/surge-prediction: Auth-Guard via employees, GET=Dashboard (Stats+Vorhersagen+pendingEvaluation), POST action=predict|evaluate, location_id-Auflösung via employees.tenant_id
+- [x] app/(admin)/delivery/surge-prediction/: SurgePredictionClient mit 4 KPI-Karten (Vorhersagen 14d/Genauigkeit/Fahrer mobilisiert/Ø Reaktionszeit), Aktive Vorhersagen Banner, aufklappbare PredictionRow (Intensitäts-Badge/Fenster/Signal-Breakdown/Evaluierungs-Status), How-it-Works Box, Vorhersage-Timeline letzte 48h, Auto-Refresh 60s, Manual Predict + Evaluate Buttons
+- [x] Cron: runSurgePredictionAllLocations() alle 10 Min (isRatingTick) → surge_prediction: { predictions, broadcasts, skipped }; evaluatePastPredictions() alle 10 Min → surge_eval: { evaluated }
+- [x] Sidebar: "Surge-Vorhersage (KI)" mit Radio-Icon unter Loslegen-Gruppe
+- [x] Radio-Icon in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: npx next build ✓ (195 Seiten, 0 Fehler)
 - [x] Phase 102: System-Health Observatory (Multi-Tenant-Isolations-Audit + KPI-Snapshots) — 2026-06-13
 - [x] scripts/migrations/062_health_observatory.sql: delivery_health_snapshots (KPI-Snapshot: drivers_online/active/pending_orders/active_tours/dispatch_queue/open_alerts/avg_eta_min/eta_accuracy_pct/health_score 0–100, RLS), delivery_isolation_audits (Audit-Log: table_name/total_rows/orphaned_rows/severity ok|warning|critical, RLS), v_health_trend_24h VIEW (stündliche Buckets), prune_old_health_snapshots() SQL-Funktion (Cleanup >7 Tage)
 - [x] lib/delivery/health-observatory.ts: computeHealthScore() (5-Faktor Abzugs-Formel: Fahrer/Queue/Alerts/ETA-Genauigkeit), scoreToGrade() (A≥90/B≥75/C≥55/D<55), takeHealthSnapshot() (7 parallele Count-Queries + ETA-Accuracy), takeSnapshotAllLocations() (Cron-Batch), runIsolationAudit() (10 Kern-Tabellen auf NULL location_id prüfen), getHealthTrend() (client-seitige Stunden-Bucket-Aggregation), getLatestSnapshot(), getLatestAuditResults(), getObservatoryDashboard() (kombinierter Response), pruneOldSnapshots()
