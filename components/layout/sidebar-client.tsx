@@ -11,7 +11,7 @@ import {
   ChevronRight, Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone,
   ShoppingBag, FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
   FileDown, Star, Zap, Navigation, TrendingUp, UserX, Activity, Radio, MapPinned,
-  MessageSquare, Map as MapIcon, Waves, Heart,
+  MessageSquare, Map as MapIcon, Waves, Heart, CalendarDays,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +24,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone, ShoppingBag,
   FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
   FileDown, Star, Zap, Navigation, TrendingUp, UserX, Activity, Radio, MapPinned,
-  MessageSquare, MapIcon, Waves, Heart,
+  MessageSquare, MapIcon, Waves, Heart, CalendarDays,
 };
 
 export type SidebarItem = {

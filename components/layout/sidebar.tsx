@@ -167,6 +167,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/geo-demand',          icon: 'Globe',     label: 'Geo-Nachfrage & Expansion' },
       { group: 'Loslegen', href: '/delivery/flow-intelligence',  icon: 'Waves',     label: 'Bestellfluss-Intelligenz' },
       { group: 'Loslegen', href: '/delivery/fatigue-monitor',   icon: 'Heart',     label: 'Fahrer-Ermüdungsmonitor' },
+      { group: 'Loslegen', href: '/delivery/peak-intelligence', icon: 'CalendarDays', label: 'Spitzentag-Radar' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

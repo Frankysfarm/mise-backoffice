@@ -54,6 +54,7 @@ import { scanAndRecordCompletedTours } from '@/lib/delivery/tour-analytics';
 import { snapshotGeoDemandAllLocations } from '@/lib/delivery/geo-demand';
 import { runFlowIntelligenceAllLocations, pruneOldFlowSnapshots } from '@/lib/delivery/flow-intelligence';
 import { snapshotFatigueAllLocations, pruneFatigueSnapshots } from '@/lib/delivery/fatigue-monitor';
+import { snapshotPatternsAllLocations as snapshotPeakPatterns, analyzePeakAllLocations, pruneOldAlerts as prunePeakAlerts } from '@/lib/delivery/peak-intelligence';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -104,8 +105,12 @@ export async function GET(req: NextRequest) {
     const isReEngageTick = nowHour === 4 && nowMin < 2;
     // Adress-Intelligenz-Scan: täglich um 05:00 UTC
     const isAddressScanTick = nowHour === 5 && nowMin < 2;
+    // Peak-Pattern-Snapshot: täglich um 02:30 UTC (nach Report-Tick)
+    const isPeakPatternTick = nowHour === 2 && nowMin >= 28 && nowMin < 32;
+    // Peak-Alert-Analyse: täglich um 06:00 UTC (frühmorgens, für Tagesvorbereitung)
+    const isPeakAlertTick = nowHour === 6 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -292,6 +297,18 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneFatigueSnapshots(30).catch(() => 0)
         : Promise.resolve(null),
+      // Peak-Day-Pattern-Snapshot: täglich 02:30 UTC (Phase 120)
+      isPeakPatternTick
+        ? snapshotPeakPatterns().catch(() => null)
+        : Promise.resolve(null),
+      // Peak-Alert-Analyse: täglich 06:00 UTC (Phase 120)
+      isPeakAlertTick
+        ? analyzePeakAllLocations().catch(() => null)
+        : Promise.resolve(null),
+      // Peak-Alerts bereinigen: erledigte Alerts > 30 Tage (täglich 02:00 UTC, Phase 120)
+      isReportTick
+        ? prunePeakAlerts().catch(() => 0)
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -390,6 +407,9 @@ export async function GET(req: NextRequest) {
       ...(flowSnapshotsPruned ? { flow_snapshots_pruned: flowSnapshotsPruned } : {}),
       ...(fatigueResult ? { fatigue_monitor: { locations: fatigueResult.locations, drivers: fatigueResult.drivers, at_risk: fatigueResult.atRisk, errors: fatigueResult.errors } } : {}),
       ...(fatigueSnapshotsPruned ? { fatigue_snapshots_pruned: fatigueSnapshotsPruned } : {}),
+      ...(peakPatternResult ? { peak_patterns: { locations: peakPatternResult.locations, snapshots: peakPatternResult.snapshots, peak_days: peakPatternResult.peak_days, errors: peakPatternResult.errors } } : {}),
+      ...(peakAlertResult ? { peak_alerts: { locations: peakAlertResult.locations, created: peakAlertResult.total_alerts_created, updated: peakAlertResult.total_alerts_updated, errors: peakAlertResult.errors } } : {}),
+      ...(peakAlertsPruned ? { peak_alerts_pruned: peakAlertsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
