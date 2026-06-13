@@ -7,7 +7,7 @@ import {
   Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
   Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike, Map as MapIcon,
 } from 'lucide-react';
-import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing } from './actions';
+import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing, setPrintMethod as savePrintMethod, testPrint } from './actions';
 
 const MapView = dynamic(() => import('./map-view'), { ssr: false });
 
@@ -60,9 +60,11 @@ export default function KitchenMonitor({
   const [activated, setActivated] = useState(false);
   const [muted, setMuted] = useState(false);
   const [autoPrint, setAutoPrint] = useState(true);
+  const [printMethod, setPrintMethodState] = useState<string>('browser');
   const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
   const [soundOpen, setSoundOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+  function chooseMethod(m: string) { setPrintMethodState(m); savePrintMethod(token, m); }
   function chooseSound(k: string) { setSoundType(k); try { localStorage.setItem('kuche_sound', k); } catch { /* noop */ } if (audioCtxRef.current) { try { audioCtxRef.current.resume(); } catch { /* noop */ } SOUNDS[k]?.play(audioCtxRef.current); } }
   const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -81,7 +83,7 @@ export default function KitchenMonitor({
       const fresh = r.orders as Order[];
       // lokale pending "fehlt"-Edits bewahren (Polling ueberschreibt sonst)
       for (const o of fresh) for (const it of (o.items ?? [])) if (pendingMissing.current.has(it.id)) it.pick_missing = true;
-      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]);
+      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'browser');
     }
     const iv = setInterval(poll, 4000);
     return () => { alive = false; clearInterval(iv); };
@@ -132,7 +134,7 @@ export default function KitchenMonitor({
     setBusy(orderId); setAcceptingId(null);
     const ord = orders.find((o) => o.id === orderId);
     await acceptOrder(token, orderId, prepMin);
-    if (autoPrint && ord) printBon(ord, prepMin);
+    if (autoPrint && printMethod !== 'cloudprnt' && ord) printBon(ord, prepMin);
     await refresh(); setBusy(null);
   }
   async function onFertig(orderId: string) {
@@ -338,19 +340,34 @@ export default function KitchenMonitor({
         <div onClick={() => setSoundOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 50 }}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(440px, 92vw)', height: '100%', background: C.headerBg, padding: 20, overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 19, fontWeight: 800 }}>Klingelton</div>
+              <div style={{ fontSize: 19, fontWeight: 800 }}>Einstellungen</div>
               <button onClick={() => setSoundOpen(false)} style={{ background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={24} /></button>
             </div>
             <div style={{ fontSize: 14, color: C.t2, marginBottom: 14 }}>Wähle den Ton für neue Bestellungen. Tippen = auswählen + vorhören.</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.t2, letterSpacing: '.04em', marginBottom: 8 }}>🔔 KLINGELTON</div>
             {Object.entries(SOUNDS).map(([k, v]) => (
-              <button key={k} onClick={() => chooseSound(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px', borderRadius: 12, marginBottom: 8, border: soundType === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: soundType === k ? C.zubTint : C.card, color: C.t1 }}>
+              <button key={k} onClick={() => chooseSound(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: 12, marginBottom: 8, border: soundType === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: soundType === k ? C.zubTint : C.card, color: C.t1 }}>
                 <span style={{ fontWeight: 700, fontSize: 16 }}>{v.label}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  {soundType === k && <Check size={18} color={C.zub} />}
-                  <Play size={18} color={C.t2} />
+                  {soundType === k && <Check size={18} color={C.zub} />}<Play size={18} color={C.t2} />
                 </span>
               </button>
             ))}
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.t2, letterSpacing: '.04em', margin: '24px 0 8px' }}>🖨 DRUCKER</div>
+            <div style={{ fontSize: 13, color: C.t3, marginBottom: 10 }}>Wie soll der Küchen-Bon gedruckt werden?</div>
+            {([['browser', 'Browser-Druck (PC/Tablet, Kiosk-Modus = ohne Dialog)'], ['cloudprnt', 'CloudPRNT-Drucker (Star — ohne PC, druckt automatisch)'], ['off', 'Kein Druck']] as [string, string][]).map(([k, label]) => (
+              <button key={k} onClick={() => chooseMethod(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 12, marginBottom: 8, border: printMethod === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: printMethod === k ? C.zubTint : C.card, color: C.t1, textAlign: 'left' }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{label}</span>
+                {printMethod === k && <Check size={18} color={C.zub} style={{ flexShrink: 0 }} />}
+              </button>
+            ))}
+            {printMethod === 'cloudprnt' && (
+              <div style={{ marginTop: 10, padding: 14, background: C.card, borderRadius: 12, border: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 13, color: C.t2, marginBottom: 8 }}>Diese URL beim Drucker eintragen (CloudPRNT-Server-URL):</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 12.5, color: C.link, wordBreak: 'break-all', background: C.laneBg, padding: 10, borderRadius: 8, marginBottom: 10 }}>{`https://mise-gastro.de/api/print/cloudprnt?token=${token}`}</div>
+                <button onClick={() => testPrint(token)} style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: C.zub, color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>🖨 Test-Druck senden</button>
+              </div>
+            )}
           </div>
         </div>
       )}
