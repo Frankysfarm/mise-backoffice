@@ -718,6 +718,27 @@ export function FahrerApp({
             />
           </div>
           <TourBriefingCard batch={activeBatch as any} />
+          {/* Route-Karte während aktiver Lieferung — zeigt verbleibende Stopps + Fahrerposition */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourMiniMap
+                stops={activeBatch.stops.map((s) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  geliefert_am: s.geliefert_am,
+                  order: {
+                    kunde_name: s.order.kunde_name,
+                    kunde_lat: s.order.kunde_lat ?? null,
+                    kunde_lng: s.order.kunde_lng ?? null,
+                    bestellnummer: s.order.bestellnummer,
+                  },
+                }))}
+                driverLat={driverPos?.lat ?? null}
+                driverLng={driverPos?.lng ?? null}
+                className="mb-3"
+              />
+            </div>
+          )}
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–132 abgeschlossen. Build sauber. 206 Seiten. Deployment-bereit.**
+**Phasen 1–133 abgeschlossen. Build sauber. 206 Seiten. Deployment-bereit.**
+**Frontend-Ingenieur — 2026-06-13: Phase 133 abgeschlossen. Fahrer-App: TourMiniMap jetzt auch in aktiver Lieferphase ('unterwegs') sichtbar — fehlte dort, obwohl in Pickup-Phase vorhanden. Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 132 abgeschlossen. Fahrer-App: EtaCountdown-Dringlichkeit verbessert (pulse-Animation bei Urgent/Überfällig, Icon-Labels, differenziertere Farbstufen). Build 206 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 131 abgeschlossen. Smart Kitchen Prep Time Learning Engine: ready_at in kitchen_timings, Prep-Beobachtungen, gelernter p75-Schätzwert, Admin-Dashboard. Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 130 abgeschlossen. Fahrer-App: Schnellnachrichten-Chips unter WhatsApp-Button (4 Vorlagen: ~5 Min, Bitte runter, Warte draußen, Kein Einlass). Build 205 Seiten sauber.**
