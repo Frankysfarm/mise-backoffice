@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
       byDay: [],
       byDriver: [],
       recentComments: [],
+      _fallback: true,
       _hint: 'Migration 022_customer_satisfaction.sql noch nicht ausgeführt',
     });
   }

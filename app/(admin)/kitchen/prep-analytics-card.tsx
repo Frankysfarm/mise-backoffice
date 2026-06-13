@@ -161,7 +161,7 @@ export function PrepAnalyticsCard({
               <BarChart data={hourBuckets} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} barSize={14}>
                 <XAxis dataKey="label" tick={{ fontSize: 8, fill: '#999' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number) => [`${v} Min`, 'Ø Zeit']}
+                  formatter={(v: any) => [`${v ?? '?'} Min`, 'Ø Zeit']}
                   contentStyle={{ fontSize: 10, padding: '2px 6px', borderRadius: 6 }}
                 />
                 <Bar dataKey="avgMin">

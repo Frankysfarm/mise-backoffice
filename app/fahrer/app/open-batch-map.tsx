@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -184,5 +184,5 @@ function MapCanvas({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, stops.length]);
 
-  return <div ref={mapRef} style={{ height: 180, width: '100%' }} />;
+  return <div ref={mapRef as React.RefObject<HTMLDivElement>} style={{ height: 180, width: '100%' }} />;
 }

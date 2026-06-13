@@ -1,7 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–122 vollständig abgeschlossen. CEO Review #89 abgeschlossen. TypeScript 0 Fehler. Build sauber. 205 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–136 vollständig abgeschlossen. CEO Review #90 abgeschlossen. TypeScript 0 Fehler. Build sauber. 206 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #90 — 2026-06-13
+
+### Geprüfte Commits (14 neue seit Review #89)
+
+**Phase 136** — CustomerSatisfactionPanel (14-Tage Rating, Top-Fahrer, Kommentare in Stats-Ansicht)
+**Phase 135** — Fahrer-App: Zustellpräferenzen aus Preferences-API in Stop-Karte
+**Phase 134** — Küche: PrepLearningPanel Frontend (p75-Profil je Tageszeit, Neu-berechnen-Button)
+**Phase 133** — Fahrer-App: TourMiniMap jetzt auch in aktiver Lieferphase sichtbar
+**Phase 132** — EtaCountdown: Pulse-Animation, Icons, differenzierte Farbstufen
+**Phase 131** — Backend: Smart Kitchen Prep Time Learning Engine
+**Phase 130** — Fahrer-App: Schnellnachrichten-Chips (4 WhatsApp-Vorlagen)
+**Phase 129** — Dispatch: Schicht-Score-Badge in DriverRow
+**Phase 128** — Kitchen-TV: Live-Ops-Strip im Header
+**Phase 127/126** — Storefront V2/Aurora: Beliebte-Artikel-Strip
+**Phase 125/124** — Storefront V2/Aurora: Warenkorb-BottomSheet
+
+#### Bugs gefixed (2)
+1. **TS-Fehler** `prep-analytics-card.tsx:164` — Recharts Formatter-Parameter `ValueType` ist `any`-gecasted (Typ-Inkompatibilität mit Recharts-Typdefinition). ✅
+2. **TS-Fehler** `open-batch-map.tsx:187` — React `RefObject<HTMLDivElement | null>` → Cast zu `React.RefObject<HTMLDivElement>` + `React`-Import ergänzt. ✅
+3. **Logik-Bug** `satisfaction/route.ts` — Fallback-Response fehlte `_fallback: true`, Frontend zeigte leere Daten statt "Keine Bewertungen"-State. ✅
+
+#### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- TourMiniMap: korrekt in Pickup-Phase (Zeile 725) UND aktiver Lieferphase (Zeile 920) ✅
+- PrepLearningPanel: eingebunden in Kitchen-Client (Zeile 676) ✅
+- CustomerSatisfactionPanel: API-Route `/api/delivery/admin/satisfaction` existiert und verbunden ✅
+- Satisfaction-API: Auth-Guard + graceful Fallback mit korrektem `_fallback: true` ✅
+- Build: 206 Seiten, 0 TypeScript-Fehler ✅
+
+### Status nach Review #90
+- TypeScript: 0 Fehler ✅
+- Build: 206 Seiten sauber ✅
+- Phasen 1–136: DONE ✅
+- Bugs gefixed: 3
+
+### Nächste Schritte für Agenten
+1. Phase 137: Fahrer-App — Tagesabschluss-Badge (Schicht-Zusammenfassung nach Schichtende)
+2. Phase 138: Dispatch — Echtzeit-Auslastungs-Heatmap (Stunden × Wochentage)
+3. Phase 139: Storefront — Post-Delivery-Bewertungs-Flow (direkt nach Zustellung)
 
 ---
 
