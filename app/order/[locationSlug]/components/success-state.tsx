@@ -4,6 +4,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Copy, Package, Share2, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { PostDeliveryRating } from './post-delivery-rating';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -70,6 +71,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const trackingMapRef = React.useRef<HTMLDivElement>(null);
   const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
   const [copiedLink, setCopiedLink] = React.useState(false);
+  const [showPostDeliveryRating, setShowPostDeliveryRating] = React.useState(false);
+  const postDeliveryTriggeredRef = React.useRef(false);
+
+  // Trigger Post-Delivery-Rating wenn Status auf 'geliefert' wechselt (nur einmal)
+  React.useEffect(() => {
+    if (liveStatus === 'geliefert' && orderId && !postDeliveryTriggeredRef.current && !ratingSubmitted) {
+      postDeliveryTriggeredRef.current = true;
+      setShowPostDeliveryRating(true);
+    }
+  }, [liveStatus, orderId, ratingSubmitted]);
 
   function shareTrackingLink() {
     if (!orderId) return;
@@ -722,6 +733,19 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           to { transform: scale(1); opacity: 1; }
         }
       `}</style>
+
+      {/* Post-Delivery-Rating: Vollbild-Overlay direkt nach Zustellung */}
+      {orderId && (
+        <PostDeliveryRating
+          orderId={orderId}
+          bestellnummer={bestellnummer}
+          triggered={showPostDeliveryRating}
+          onDismiss={() => {
+            setShowPostDeliveryRating(false);
+            setRatingSubmitted(true);
+          }}
+        />
+      )}
     </main>
   );
 }

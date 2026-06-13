@@ -62,6 +62,7 @@ import { DispatchQueuePanel } from './dispatch-queue-panel';
 import { ZoneCoverageCard } from './zone-coverage-card';
 import { TourRouteOverview } from './tour-route-overview';
 import { ZoneWaitHeatmap } from './zone-wait-heatmap';
+import { AuslastungsHeatmap } from './auslastungs-heatmap';
 import { LiveTourTracker } from './live-tour-tracker';
 import { DriverReturnForecast } from './driver-return-forecast';
 import { EtaAccuracyLive } from './eta-accuracy-live';
@@ -1084,6 +1085,9 @@ export function DispatchBoard({
 
       {/* Zonen-Wartezeit-Heatmap: Farbkodierte Wartezeiten je Lieferzone */}
       <ZoneWaitHeatmap orders={readyOrders} />
+
+      {/* Auslastungs-Heatmap: historisches Bestellvolumen Stunden × Wochentage */}
+      <AuslastungsHeatmap locationId={locations[0]?.id} />
 
       {/* Zonen-Abdeckung: Welche Zonen haben Bedarf und welche sind gedeckt? */}
       <ZoneCoverageCard

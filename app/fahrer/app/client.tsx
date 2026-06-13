@@ -24,6 +24,7 @@ import { SchichtPuls } from './schicht-puls';
 import { TourSpeedTracker } from './tour-speed-tracker';
 import { OpenBatchMap } from './open-batch-map';
 import { OfflineNetworkBanner } from './offline-network-banner';
+import { TagesabschlussBadge, type TagesabschlussData } from './tagesabschluss-badge';
 
 
 type Driver = {
@@ -129,6 +130,9 @@ export function FahrerApp({
   const [shiftSnapshot, setShiftSnapshot] = useState<{
     deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
   } | null>(null);
+
+  // Tagesabschluss-Badge: persistente Schicht-Zusammenfassung nach Schichtende
+  const [tagesabschlussData, setTagesabschlussData] = useState<TagesabschlussData | null>(null);
 
   // Heutige Schicht: Lieferungen + Schätzung
   const [todayStats, setTodayStats] = useState<{ deliveries: number; estEarnings: number } | null>(null);
@@ -415,7 +419,9 @@ export function FahrerApp({
           const onlineMin = status?.online_seit
             ? Math.floor((Date.now() - new Date(status.online_seit as string).getTime()) / 60_000)
             : 0;
-          setShiftSnapshot({ deliveries, tours: (batches as any[]).length, distKm, betrag, onlineMin });
+          const snap = { deliveries, tours: (batches as any[]).length, distKm, betrag, onlineMin };
+          setShiftSnapshot(snap);
+          setTagesabschlussData({ ...snap, date: new Date().toISOString().slice(0, 10) });
           setShowShiftEnd(true);
           return;
         }
@@ -1161,6 +1167,14 @@ export function FahrerApp({
             <div className="text-matcha-200">Du bist offline. Geh online, um Touren anzunehmen.</div>
           </section>
         )}
+
+        {/* Tagesabschluss-Badge: persistente Schicht-Zusammenfassung nach Schichtende */}
+        <TagesabschlussBadge
+          isOnline={isOnline}
+          driverId={driver.id}
+          shiftData={tagesabschlussData}
+          rankData={rankData}
+        />
 
         {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
         {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–136 abgeschlossen. CEO Review #90 bestanden. Build sauber. 206 Seiten. Deployment-bereit.**
+**Phasen 1–139 abgeschlossen. CEO Review #90 bestanden. Build sauber. 206 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phasen 137–139 abgeschlossen. Fahrer-App Tagesabschluss-Badge, Dispatch Auslastungs-Heatmap (Stunden×Wochentage + API), Storefront Post-Delivery-Rating-Flow. Build 206 Seiten sauber.**
 **CEO-Agent — 2026-06-13: Review #90 abgeschlossen. 14 neue Phasen (123–136) geprüft. 3 Bugs gefixt (2× TypeScript, 1× Logik-Bug satisfaction/_fallback). Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron. TypeScript 0 Fehler. Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 136 abgeschlossen. Lieferdienst: CustomerSatisfactionPanel in Stats-Ansicht (Ø-Rating, Positiv/Negativ-Rate, Top-Fahrer, Kommentare aus Satisfaction-API — bisher nur im Tagesabschluss). Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 135 abgeschlossen. Fahrer-App: Zustellpräferenzen aus Preferences-API in Stop-Karte (Klingeln/Nicht-klingeln, Etage, Wohnungsnr., Torcode, Sonderhinweise). Build 206 Seiten sauber.**
@@ -48,6 +49,16 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 139: Post-Delivery-Bewertungs-Flow — 2026-06-13
+- [x] PostDeliveryRating (app/order/[locationSlug]/components/post-delivery-rating.tsx): Vollbild-Overlay direkt nach Zustellung (status='geliefert'), Stern-Auswahl (1-5) mit Label, 6 Quick-Tags (Schnell/Freundlich/Heiß/Vollständig/Sorgfältig/Pünktlich), Kommentar-Textarea, 3-Step-Flow (Stars→Comment→Done), Token-basierter Submit via /api/delivery/orders/{id}/rate, Danke-Screen mit Celebration-Emoji
+- [x] Integration success-state.tsx: PostDeliveryRating importiert, showPostDeliveryRating State + useEffect (triggered on 'geliefert' einmalig via Ref-Guard), onDismiss setzt ratingSubmitted=true (verhindert Doppel-Rating im InPage-Widget)
+- [x] Phase 138: Dispatch Echtzeit-Auslastungs-Heatmap — 2026-06-13
+- [x] GET /api/delivery/admin/utilization-heatmap: Auth via employees.location_id, ?weeks=1-26 (default 8), aggregiert customer_orders (status geliefert/abgeschlossen/abgeholt) nach hour×weekday (0=Mo…6=So per ISO-Mapping), ISO-Week-Bucket für avg/max, Response: {cells[168]: {hour/weekday/avg_orders/max_orders/total_orders/weeks_with_data}, weeks, since}, Cache s-maxage=300
+- [x] AuslastungsHeatmap (app/(admin)/dispatch/auslastungs-heatmap.tsx): 9 Stunden-Gruppen (0-5/6-9/10-11/12-13/14-15/16-17/18-19/20-21/22-23) × 7 Wochentage, Farb-Kodierung 5-stufig (emerald→lime→amber→orange→red) nach normalisiertem avg, Stoßzeit-Banner (busiest slot), Hover-Tooltip, Wochen-Selector (4/8/12W), Refresh-Button, Legende; Integration in dispatch/client.tsx nach ZoneWaitHeatmap
+- [x] Phase 137: Fahrer-App Tagesabschluss-Badge — 2026-06-13
+- [x] TagesabschlussBadge (app/fahrer/app/tagesabschluss-badge.tsx): Persistenter Badge nach Schichtende (localStorage mise_tagesabschluss_badge:{driverId}, Datum-Guard "nur heute"), Auto-Show nach goOffline mit Lieferungen, Dismiss-Button (X), Expand/Collapse-Toggle; Compact-Header (Emoji+Label+Stats-Pill), Expanded-Detail: 4 KPI-Cards (Lieferungen/Touren/Online-Zeit/Strecke), Effizienz-Bar mit Lieferungen/h, Verdienst-Schätzung (€3/Lief + €0.15/km), Wochenrang-Panel; Reset bei isOnline=true (nächste Schicht)
+- [x] Integration client.tsx: TagesabschlussBadge + TagesabschlussData importiert, tagesabschlussData State, setTagesabschlussData() in toggleOnline() parallel zu setShiftSnapshot(), Badge nach Offline-State-Section gerendert
+- [x] Build: next build → 206 Seiten, 0 Fehler
 - [x] Phase 131: Smart Kitchen Prep Time Learning Engine — 2026-06-13
 - [x] scripts/migrations/076_kitchen_prep_learning.sql: ready_at zu kitchen_timings hinzugefügt, kitchen_prep_observations (location_id/order_id/item_count/estimated_prep_min/actual_prep_min/hour_bucket/day_of_week, UNIQUE order_id, RLS, 2 Indizes), kitchen_prep_profiles (p75/p90/stddev/avg_delta/accuracy_pct, UNIQUE location+hour_bucket, RLS), v_prep_accuracy_30d VIEW (30d-Aggregat: avg_actual/estimated/delta/p75/p90/accuracy_pct), v_prep_outliers_7d VIEW (|delta|>8 Min letzten 7 Tage mit bestellnummer), v_prep_bucket_stats VIEW (alle 5 Buckets: mean/p75/p90/stddev/avg_delta), prune_old_prep_observations() SQL-Funktion (Cleanup >90 Tage)
 - [x] lib/delivery/kitchen-prep-learning.ts: recordPrepObservation() (fire-and-forget: notified_at→ready_at aus kitchen_timings → actual_prep_min, Sanity 1–90 Min, item_count aus customer_orders, Upsert), recomputePrepProfilesForLocation() (v_prep_bucket_stats + Accuracy-Berechnung aus Rohdaten → Upsert kitchen_prep_profiles), recomputePrepProfilesAllLocations() (Cron-Batch), getSmartPrepEstimate() (gelernter p75 für aktuellen Bucket, Fallback 15 Min bei <5 Obs.), getPrepLearningDashboard() (summary+profiles+outliers+currentEstimate), prunePrepObservations() (via SQL-Funktion)
