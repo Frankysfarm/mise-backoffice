@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–114 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Phasen 1–115 abgeschlossen. Build sauber. 199 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 115 abgeschlossen. Build 199 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 114 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #83 — 2026-06-13: Phase 113 geprüft. 1 Bug gefixt (fahrer_vorname → driver_name). Build 198 Seiten sauber. Alle Systeme grün.**
 **Frontend-Ingenieur — 2026-06-13: Phase 113 abgeschlossen. Build 198 Seiten sauber.**
@@ -19,6 +20,15 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 115: Tour Performance Analytics & Bundle Learning Engine — 2026-06-13
+- [x] scripts/migrations/070_tour_performance.sql: tour_performance_snapshots (bundle_size/planned vs actual stops/ETA/SLA/route km/avg detour km/bundle_efficiency_score 0-100/zone A-D breakdown, UNIQUE on batch_id, RLS), v_tour_performance_trend VIEW (14d tägl. Buckets), v_bundle_efficiency_by_zone VIEW (14d per Zone), v_tour_analytics_summary VIEW (30d KPIs + bundle_rate_pct)
+- [x] lib/delivery/tour-analytics.ts: computeBundleEfficiencyScore() (40% SLA + 30% ETA-Genauigkeit + 30% Stop-Auslastung), recordTourPerformance() (fire-and-forget nach Tour=delivered: Stops/Timing/Zonen/Route-km berechnen), getTourAnalyticsDashboard() (Summary+Trend+ZoneEfficiency+Recommendations), buildRecommendations() (optimale Bundle-Größe, vorgeschlagener Max-Umweg, Trend-Richtung, Zone-Insight), scanAndRecordCompletedTours() (Cron-Backfill)
+- [x] app/api/delivery/tours/[id]/status/route.ts: recordTourPerformance() fire-and-forget bei state=delivered eingehängt
+- [x] app/api/delivery/admin/tour-analytics/route.ts: GET Dashboard, POST action=scan|record
+- [x] app/(admin)/delivery/tour-analytics/: TourAnalyticsClient — 4 KPI-Kacheln (Touren 30d/Ø Effizienz/Pünktlichkeit/Bundle-Rate), Empfehlungsblock (Bundle-Größe/Max-Umweg/beste+schlechteste Zone/Insight), 14-Tage-Trend-Tabelle (Effizienz-Farb-Ampel), Zone-Effizienz-Panel (4 Zonen: Stops/Score/Pünktlichkeit-Balken), Info-Box, 2-Min-Auto-Refresh, Backfill-Scan-Button
+- [x] cron: scanAndRecordCompletedTours() täglich 02:00 UTC (isReportTick) → tour_analytics: { locations, tours_processed, errors }
+- [x] sidebar: "Tour-Performance Analytics" mit BarChart2-Icon unter Loslegen-Gruppe
+- [x] Build: next build ✓ (199 Seiten, 0 Fehler)
 - [x] Phase 114: Tracking-API Enrichment — Fahrzeug-Label, Kunden-Name, Gesamtbetrag — 2026-06-13
 - [x] lib/delivery/live-tracking.ts: LiveTrackingPayload um driverVehicleLabel/kundeName/gesamtbetrag erweitert; VEHICLE_LABELS-Map (car/bike/moped/scooter/ebike/motorcycle → DE-Bezeichnung); getOrderTrackingData() liest kunde_name+gesamtbetrag aus customer_orders, setzt driverVehicleLabel aus mise_drivers.vehicle
 - [x] app/api/delivery/tracking/[bestellnummer]/route.ts: fahrer_fahrzeug/kunde_name/gesamtbetrag in JSON-Response — PaidOrderClient rendert jetzt Fahrername + Fahrzeugtyp korrekt bei Status "unterwegs"
