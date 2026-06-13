@@ -910,6 +910,8 @@ export function LieferdienstClient() {
               <LieferdienstDurchsatzPanel />
               {/* Schicht-Prognose: projizierter Tagesabschluss basierend auf aktuellem Tempo */}
               <LieferdienstSchichtPrognose />
+              {/* Top-Artikel: meistbestellte Artikel heute */}
+              <LieferdienstTopArtikel completedOrders={completedOrders} />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2210,6 +2212,81 @@ function LieferdienstSchichtPrognose() {
           Bei aktuellem Tempo: +{projOrders} Bestellungen in {hoursLeft}h
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---- LieferdienstTopArtikel: meistbestellte Artikel heute ---- */
+function LieferdienstTopArtikel({ completedOrders }: { completedOrders: Order[] }) {
+  type ArticleEntry = { name: string; count: number; revenue: number };
+
+  const done = completedOrders.filter(o => o.status === 'done');
+  if (done.length === 0) return null;
+
+  // Aggregiere Artikel aus den abgeschlossenen Bestellungen
+  const articleMap = new Map<string, ArticleEntry>();
+  for (const order of done) {
+    for (const item of order.items) {
+      const key = item.name;
+      const existing = articleMap.get(key);
+      const qty = (item as any).quantity ?? (item as any).qty ?? (item as any).menge ?? 1;
+      const preis = (item as any).preis ?? (item as any).einzelpreis ?? (item as any).price ?? 0;
+      if (existing) {
+        existing.count += qty;
+        existing.revenue += qty * preis;
+      } else {
+        articleMap.set(key, { name: key, count: qty, revenue: qty * preis });
+      }
+    }
+  }
+
+  const top = [...articleMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  if (top.length === 0) return null;
+
+  const maxCount = top[0].count;
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <ChefHat className="h-4 w-4 text-saffron" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Top-Artikel heute</span>
+        </div>
+        <span className="text-[9px] text-stone-400">{done.length} Bestellungen · {top.reduce((s, a) => s + a.count, 0)} Pos.</span>
+      </div>
+      <div className="space-y-2">
+        {top.map((article, i) => {
+          const pct = Math.max(6, Math.round((article.count / maxCount) * 100));
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null;
+          return (
+            <div key={article.name} className="flex items-center gap-2">
+              <span className="text-sm w-5 text-center shrink-0">{medal ?? <span className="text-[10px] font-bold text-stone-400">{i + 1}.</span>}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-bold text-char truncate max-w-[70%]">{article.name}</span>
+                  <div className="flex items-center gap-2 shrink-0 text-[10px] tabular-nums">
+                    {article.revenue > 0 && (
+                      <span className="text-stone-400">
+                        {article.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                      </span>
+                    )}
+                    <span className="font-black text-char">{article.count}×</span>
+                  </div>
+                </div>
+                <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${i === 0 ? 'bg-saffron' : i <= 2 ? 'bg-amber-400' : 'bg-stone-300'}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

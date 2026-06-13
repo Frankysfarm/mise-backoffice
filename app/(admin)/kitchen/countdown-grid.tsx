@@ -322,12 +322,46 @@ export function KitchenSmartCountdownGrid({
   // Summary stats
   const overdueCount = sorted.filter(o => getSecsLeft(o, timingMap.get(o.id)) <= 0).length;
   const urgentCount  = sorted.filter(o => { const s = getSecsLeft(o, timingMap.get(o.id)); return s > 0 && s <= 120; }).length;
+  const warnCount    = sorted.filter(o => { const s = getSecsLeft(o, timingMap.get(o.id)); return s > 120 && s <= 300; }).length;
+  const okCount      = cooking.length - overdueCount - urgentCount - warnCount;
   const driverCount  = (driverETAs ?? []).length;
+
+  // Kitchen Health Score: 100 = all on track, decreases with urgency/overdue
+  const healthScore = cooking.length === 0 ? 100
+    : Math.max(0, Math.round(
+        ((okCount * 100 + warnCount * 60 + urgentCount * 25 + overdueCount * 0) / cooking.length)
+      ));
+  const healthColor = healthScore >= 80 ? '#22c55e' : healthScore >= 55 ? '#f59e0b' : healthScore >= 30 ? '#f97316' : '#ef4444';
+  const healthLabel = healthScore >= 80 ? 'Gut' : healthScore >= 55 ? 'Anspannt' : healthScore >= 30 ? 'Kritisch' : 'Alarm!';
 
   const activeStations = stationOrder.filter(s => (stationGroups.get(s) ?? []).length > 0);
 
   return (
     <div className="rounded-xl border bg-card p-3 space-y-3">
+      {/* Kitchen Health Score Bar */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Küchen-Status</span>
+            <span className="text-[9px] font-black tabular-nums" style={{ color: healthColor }}>{healthLabel} · {healthScore}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${healthScore}%`, backgroundColor: healthColor }}
+            />
+          </div>
+        </div>
+        {/* Urgency mini-strip: one dot per order, colored by urgency */}
+        <div className="flex items-center gap-0.5 shrink-0" title="Jede Kachel = 1 Bestellung">
+          {sorted.map((o) => {
+            const s = getSecsLeft(o, timingMap.get(o.id));
+            const col = s <= 0 ? 'bg-red-500' : s <= 120 ? 'bg-orange-400' : s <= 300 ? 'bg-amber-400' : 'bg-green-500';
+            return <span key={o.id} className={cn('h-2.5 w-2.5 rounded-full inline-block shrink-0', col)} />;
+          })}
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center gap-2 flex-wrap">
         <ChefHat className="h-4 w-4 text-orange-500 shrink-0" />
