@@ -164,7 +164,8 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/comms-log', icon: 'MessageSquare', label: 'Kommunikations-Log' },
       { group: 'Loslegen', href: '/delivery/zone-affinity', icon: 'MapIcon', label: 'Zonen-Affinität Fahrer' },
       { group: 'Loslegen', href: '/delivery/tour-analytics', icon: 'BarChart2', label: 'Tour-Performance Analytics' },
-      { group: 'Loslegen', href: '/delivery/geo-demand',   icon: 'Globe',     label: 'Geo-Nachfrage & Expansion' },
+      { group: 'Loslegen', href: '/delivery/geo-demand',          icon: 'Globe',     label: 'Geo-Nachfrage & Expansion' },
+      { group: 'Loslegen', href: '/delivery/flow-intelligence',  icon: 'Waves',     label: 'Bestellfluss-Intelligenz' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

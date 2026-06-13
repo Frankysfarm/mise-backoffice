@@ -6236,3 +6236,48 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 58: Kunden-Bewertungs-Dialog im Storefront-Tracking-Screen nach Zustellung
 2. Oder: Leaderboard-Visualisierung mit Trend-Linien (Sparklines) in Dispatch
+
+---
+
+## Phase 118 — Backend-Architekt-Agent — 2026-06-13
+
+### Durchgeführte Arbeit: Smart Order Flow Intelligence & Real-time Anomaly Detector
+
+**scripts/migrations/072_order_flow_intelligence.sql:**
+- `order_flow_snapshots` Tabelle: 5-Min-Snapshots des Bestellflusses (orders 5/15/60min, Stornierungen, Fehllieferungen, Fahrer online, Ø ETA, expected_per_5min, Z-Score, anomaly_type), UNIQUE(location_id, snapshot_at), 4 Indizes, RLS
+- `flow_anomaly_events` Tabelle: Erkannte Anomalien (type/severity/z_score/metrics JSONB/auto_action), RLS
+- `v_flow_anomaly_recent` VIEW: 48h-Anomalie-Log mit location_name, is_active-Flag, minutes_ago
+- `v_flow_trend_24h` VIEW: Stündliche Buckets (avg_orders_5min/avg_expected/avg_z_score/anomaly_count)
+- `prune_old_flow_snapshots()` SQL-Funktion: Cleanup Snapshots >14 Tage
+
+**lib/delivery/flow-intelligence.ts:**
+- `takeFlowSnapshot(locationId)`: 7 parallele Supabase-Queries (orders 5/15/60min, Stornierungen 30min, Fehllieferungen 30min, Fahrer online, aktive Tour-ETAs), Poisson-Z-Score gegen 4-Wochen-Baseline (gleicher Wochentag+Stunde), 5 Anomalie-Typen
+- Anomalie-Hierarchie: driver_shortage > failure_cluster > cancellation_surge > volume_spike/drop
+- `detectAndHandleAnomalies()`: 30-Min-Dedup-Guard, Severity-Klassifikation (low/medium/high/critical), auto `createManualIncident()` bei high/critical, Event-Eintrag in `flow_anomaly_events`
+- `resolveStaleAnomalies()`: schließt alle offenen Events wenn aktueller Snapshot wieder 'none' ist
+- `getFlowDashboard()`: 6 parallele Queries → kombinierter Response (latest_snapshot/current_status/active_anomaly_count/anomalies_24h/recent_anomalies/trend_24h/total_snapshots_24h)
+- `runFlowIntelligenceAllLocations()`: Cron-Batch, fire-and-forget pro Location (snapshot + resolve + detect)
+- `pruneOldFlowSnapshots()`: ruft SQL-Funktion auf, gibt deleted-Count zurück
+
+**API GET+POST /api/delivery/admin/flow-intelligence:**
+- Auth via `employees.location_id` (Fallback: Query-Param für Superadmin)
+- GET: Dashboard aus `getFlowDashboard()`
+- POST action=snapshot: manueller Snapshot + Anomalie-Detektion
+- POST action=resolve: alle offenen Anomalien für Location auflösen
+
+**app/(admin)/delivery/flow-intelligence/:**
+- `StatusHero`: farbkodierte Hero-Card (grün=normal, blau=spike, amber=drop, orange=cancellation, rot=failed/driver), animate-pulse bei Anomalie, Severity-Badge
+- 4 KPI-Karten: Bestellungen letzte 5min (mit Erwartungswert), Bestellungen letzte 60min, Stornierungen 30min (mit %-Rate), Fahrer online (mit Ø ETA)
+- Anomalie-Zähler-Band: aktive Anomalien + Z-Score mit Farbcodierung
+- `TrendChart`: 24h-Stunden-Balken (blau=normal, rot=Anomalie-Stunden), gestrichelte Erwartungs-Linie, Hover-Tooltip
+- `AnomalyRow`: aufklappbar — Metriken-Grid (Bestellungen/Fahrer/Stornierungen/Fehllieferungen), Auto-Aktion, Resolved-Zeitstempel
+- Info-Box: Erklärung der 5 Anomalie-Typen + Z-Score-Logik
+- 60s Auto-Refresh, „Snapshot jetzt"-Button, „Alle auflösen"-Button
+
+**Cron-Integration:**
+- `runFlowIntelligenceAllLocations()` alle 5 Min (isRatingTick) → `flow_intelligence` in Response
+- `pruneOldFlowSnapshots()` täglich 02:00 UTC (isReportTick) → `flow_snapshots_pruned` in Response
+
+**Sidebar:** „Bestellfluss-Intelligenz" mit Waves-Icon unter Loslegen; Waves in ICON_MAP ergänzt
+
+**Build:** npx next build ✓ (201 Seiten, 0 TypeScript-Fehler)

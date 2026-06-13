@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–117 abgeschlossen. Build sauber. 200 Seiten. Deployment-bereit.**
+**Phasen 1–118 abgeschlossen. Build sauber. 201 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 118 abgeschlossen. Build 201 Seiten sauber.**
 **CEO Review #85 — 2026-06-13: Phase 116+117 geprüft. 0 Bugs. Build 200 Seiten sauber. Alle Systeme grün.**
 **Frontend-Ingenieur — 2026-06-13: Phase 117 abgeschlossen. Build 200 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 116 abgeschlossen. Build 200 Seiten sauber.**
@@ -24,6 +25,14 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 118: Smart Order Flow Intelligence & Real-time Anomaly Detector — 2026-06-13
+- [x] scripts/migrations/072_order_flow_intelligence.sql: order_flow_snapshots (location_id/snapshot_at UNIQUE, orders_last_5min/15min/60min, cancellations_last_30min, failed_deliveries_30min, drivers_online, avg_eta_min, expected_per_5min, z_score, anomaly_type, 4 Indizes, RLS), flow_anomaly_events (anomaly_type/severity/z_score/metrics JSONB/auto_action/notes, RLS), v_flow_anomaly_recent VIEW (48h Anomalie-Log mit location_name/is_active/minutes_ago), v_flow_trend_24h VIEW (stündliche Buckets: avg_orders/expected/z_score/anomaly_count), prune_old_flow_snapshots() SQL-Funktion (Cleanup >14 Tage)
+- [x] lib/delivery/flow-intelligence.ts: takeFlowSnapshot() (5 parallele Count-Queries: orders 5/15/60min/cancels/failed/drivers/ETA, 4-Wochen-Baseline-Abfrage für gleichen Wochentag+Stunde, Poisson-Z-Score, 5 Anomalie-Typen: volume_spike/volume_drop/cancellation_surge/failure_cluster/driver_shortage), detectAndHandleAnomalies() (30-Min-Dedup-Guard, Severity-Klassifikation, auto createManualIncident bei high/critical), resolveStaleAnomalies() (schließt offene Events wenn Snapshot wieder normal), getFlowDashboard() (latest_snapshot/current_status/active_anomaly_count/anomalies_24h/recent_anomalies/trend_24h), runFlowIntelligenceAllLocations() (Cron-Batch alle aktiven Locations), pruneOldFlowSnapshots() (Cleanup via SQL-Funktion)
+- [x] GET+POST /api/delivery/admin/flow-intelligence: Auth via employees.location_id, GET=Dashboard, POST action=snapshot (manueller Trigger + Anomalie-Detektion) | action=resolve (alle offenen Anomalien schließen)
+- [x] app/(admin)/delivery/flow-intelligence/: FlowIntelligenceClient mit StatusHero (farbkodiert nach Anomalie-Typ + animate-pulse bei Anomalie), 4 KPI-Karten (Bestellungen 5min/60min/Stornierungen 30min/Fahrer online), Anomalie-Zähler-Band (aktiv + Z-Score), TrendChart 24h (Stunden-Balken blau/rot, gestrichelte Erwartungs-Linie, Hover-Tooltip), Anomalie-Log 48h (aufklappbare AnomalyRow mit Metriken-Grid/Auto-Aktion/Resolved-Status), Info-Box (Erklärung der 5 Anomalie-Typen), 60s Auto-Refresh, Snapshot-jetzt-Button, Alle-auflösen-Button
+- [x] Cron: runFlowIntelligenceAllLocations() alle 5 Min (isRatingTick) → flow_intelligence: { locations, snapshots, anomalies, errors }; pruneOldFlowSnapshots() täglich 02:00 UTC (isReportTick) → flow_snapshots_pruned
+- [x] Sidebar: "Bestellfluss-Intelligenz" mit Waves-Icon unter Loslegen-Gruppe; Waves in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: next build ✓ (201 Seiten, 0 Fehler)
 - [x] Phase 116: Geo-Demand Intelligence & Zone Expansion Advisor — 2026-06-13
 - [x] scripts/migrations/071_geo_demand_intelligence.sql: delivery_geo_demand_snapshots (location_id/snapshot_date/plz UNIQUE, order_count/revenue_eur/avg_distance_km/on_time_count/zone_name/is_outside_zone, 2 Indizes, RLS), v_geo_demand_summary VIEW (Aggregat letzte 30d pro PLZ: total_orders/revenue/avg_distance/on_time_pct/days_with_data), v_zone_expansion_candidates VIEW (PLZs außerhalb Zone mit ≥3 Bestellungen: total_orders/estimated_weekly_revenue/projected_annual_revenue/expansion_score)
 - [x] lib/delivery/geo-demand.ts: snapshotGeoDemand() (Haversine-Distanz → Zone-Klassifizierung → PLZ-Aggregation → Upsert), snapshotGeoDemandAllLocations() (Cron-Batch), getGeoDemandMap() (v_geo_demand_summary), getExpansionCandidates() (v_zone_expansion_candidates Top-20), getGeoDemandDashboard() (kombinierter Response: Summary+DemandMap+Kandidaten+TopPLZ)
