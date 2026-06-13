@@ -42,6 +42,7 @@ import { LiveMetricsStrip } from './live-metrics-strip'
 import { FahrerRangliste } from './fahrer-rangliste'
 import { OpsStatusWidget } from './ops-status-widget'
 import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
+import { ReviewFlagsPanel } from './review-flags-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -64,7 +65,7 @@ export function LieferdienstClient() {
   const [settings, setSettings] = useState<Settings>(defaultSettings)
   
   // Navigation State
-  const [currentView, setCurrentView] = useState<'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers'>('orders')
+  const [currentView, setCurrentView] = useState<'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers' | 'reviews'>('orders')
   const [currentStation, setCurrentStation] = useState<Station>('all')
   const [language, setLanguage] = useState<Language>('de')
   
@@ -973,6 +974,10 @@ export function LieferdienstClient() {
 
           {currentView === 'drivers' && (
             <DriversView drivers={drivers} />
+          )}
+
+          {currentView === 'reviews' && (
+            <ReviewFlagsPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
           )}
         </main>
 

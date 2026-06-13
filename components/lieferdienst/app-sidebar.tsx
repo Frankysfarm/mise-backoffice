@@ -1,16 +1,16 @@
 'use client'
 
-import { 
-  ChefHat, BarChart3, History, UtensilsCrossed, Users, 
-  StickyNote, Settings, LogOut, Flame, Salad, Wine, Cake, Car
+import {
+  ChefHat, BarChart3, History, UtensilsCrossed, Users,
+  StickyNote, Settings, LogOut, Flame, Salad, Wine, Cake, Car, Flag
 } from 'lucide-react'
 import { Language } from '@/lib/lieferdienst/translations'
 import { StaffMember } from '@/lib/lieferdienst/staff'
 import { Station } from '@/lib/lieferdienst/staff'
 
 interface AppSidebarProps {
-  currentView: 'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers'
-  onViewChange: (view: 'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers') => void
+  currentView: 'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers' | 'reviews'
+  onViewChange: (view: 'orders' | 'stats' | 'history' | 'menu' | 'staff' | 'notes' | 'drivers' | 'reviews') => void
   currentStation: Station
   onStationChange: (station: Station) => void
   currentStaff: StaffMember | null
@@ -45,6 +45,7 @@ export function AppSidebar({
     { key: 'history' as const, icon: History, label: 'Historie' },
     { key: 'menu' as const, icon: UtensilsCrossed, label: 'Artikel' },
     { key: 'notes' as const, icon: StickyNote, label: 'Notizen' },
+    { key: 'reviews' as const, icon: Flag, label: 'Fahrer-Reviews', badge: undefined as number | undefined },
   ]
 
   const stationItems = [

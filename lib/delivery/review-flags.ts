@@ -362,6 +362,71 @@ export async function getFlagStats(locationId: string): Promise<FlagStats> {
   };
 }
 
+// ── Cron: Alle Fahrer scannen ─────────────────────────────────────────────────
+
+/**
+ * Täglicher Cron-Job: Alle Fahrer die in den letzten 14 Tagen Ratings erhalten haben,
+ * werden auf Review-Würdigkeit geprüft. Idempotent dank UNIQUE-Partial-Index.
+ */
+export async function checkAllDrivers(): Promise<{
+  locations: number;
+  driversChecked: number;
+  flagged: number;
+  alreadyFlagged: number;
+  errors: number;
+}> {
+  const sb = createServiceClient();
+  const since14d = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Distinct (driver_id, location_id) Paare der letzten 14 Tage
+  const { data: pairs } = await sb
+    .from('customer_delivery_ratings')
+    .select('driver_id, location_id')
+    .gte('created_at', since14d)
+    .not('driver_id', 'is', null)
+    .limit(500);
+
+  if (!pairs?.length) {
+    return { locations: 0, driversChecked: 0, flagged: 0, alreadyFlagged: 0, errors: 0 };
+  }
+
+  // Deduplizieren
+  const seen = new Set<string>();
+  const uniquePairs: Array<{ driver_id: string; location_id: string }> = [];
+  for (const p of pairs) {
+    const key = `${p.driver_id as string}:${p.location_id as string}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniquePairs.push({ driver_id: p.driver_id as string, location_id: p.location_id as string });
+    }
+  }
+
+  const locationSet = new Set(uniquePairs.map((p) => p.location_id));
+  let driversChecked = 0;
+  let flagged = 0;
+  let alreadyFlagged = 0;
+  let errors = 0;
+
+  for (const pair of uniquePairs) {
+    try {
+      const result = await checkAndFlagDriver(pair.driver_id, pair.location_id);
+      driversChecked++;
+      if (result.flagged) flagged++;
+      if (result.alreadyOpen) alreadyFlagged++;
+    } catch {
+      errors++;
+    }
+  }
+
+  return {
+    locations: locationSet.size,
+    driversChecked,
+    flagged,
+    alreadyFlagged,
+    errors,
+  };
+}
+
 // ── Row-Mapper ────────────────────────────────────────────────────────────────
 
 function mapBaseRow(row: Record<string, unknown>): ReviewFlag {
