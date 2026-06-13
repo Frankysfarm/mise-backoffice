@@ -116,7 +116,7 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
 
   // Live-ETA vom Server holen (Küchenauslastung-basiert)
   const [liveEta, setLiveEta] = React.useState<{
-    eta_min: number; load: string; active_orders?: number; drivers_online?: number;
+    eta_min: number; load: string; active_orders?: number; drivers_online?: number; queue_signal?: string;
   } | null>(null);
   React.useEffect(() => {
     if (orderType !== 'lieferung' || !locationId || !open) return;
@@ -858,7 +858,13 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
         {/* Footer CTA */}
         <div className="border-t border-black/5 bg-white/80 px-5 py-4 backdrop-blur">
           {/* Kapazitäts-Hinweis vor dem letzten Schritt */}
-          {isLastStep && orderType === 'lieferung' && liveEta && liveEta.load === 'busy' && (
+          {isLastStep && orderType === 'lieferung' && liveEta?.queue_signal === 'paused' && (
+            <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-bold text-red-800">
+              <span className="shrink-0">🚫</span>
+              <span>Lieferung momentan pausiert. Bitte etwas später versuchen.</span>
+            </div>
+          )}
+          {isLastStep && orderType === 'lieferung' && liveEta && liveEta.load === 'busy' && liveEta.queue_signal !== 'paused' && (
             <div className="mb-3 flex items-start gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2.5 text-xs font-medium text-orange-800">
               <span className="shrink-0">⏳</span>
               <span>
@@ -870,7 +876,7 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
           <button
             type="button"
             onClick={handleNext}
-            disabled={!canAdvance || loading}
+            disabled={!canAdvance || loading || (isLastStep && orderType === 'lieferung' && liveEta?.queue_signal === 'paused')}
             className={cn(
               'flex h-14 w-full items-center justify-between rounded-2xl px-5 font-display text-base font-bold shadow-soft transition',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white',
