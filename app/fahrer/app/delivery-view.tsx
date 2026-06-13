@@ -929,25 +929,49 @@ export function DeliveryView({
           {nextStop.order.kunde_telefon && (() => {
             const raw = nextStop.order.kunde_telefon!.replace(/\s+/g, '').replace(/[^\d+]/g, '');
             const intl = raw.startsWith('+') ? raw.slice(1) : raw.startsWith('00') ? raw.slice(2) : raw.startsWith('0') ? '49' + raw.slice(1) : '49' + raw;
-            const msg = encodeURIComponent(`Hallo! Ich bin Ihr Lieferfahrer und bin gleich da. Bestellung #${nextStop.order.bestellnummer.replace(/^[A-Z]+-/, '')} 🚗`);
+            const orderNum = nextStop.order.bestellnummer.replace(/^[A-Z]+-/, '');
+            const waUrl = (text: string) => `https://wa.me/${intl}?text=${encodeURIComponent(text)}`;
+            const quickMsgs = [
+              { label: '~5 Min', text: `Hallo! Ich bin ca. 5 Minuten von Ihnen entfernt. Bestellung #${orderNum} 🚗` },
+              { label: 'Bitte runter', text: `Hallo! Ich warte unten vor dem Eingang. Bestellung #${orderNum} 🚪` },
+              { label: 'Warte draußen', text: `Hallo! Ich warte vor der Tür mit Ihrer Bestellung #${orderNum}. ⏳` },
+              { label: 'Kein Einlass', text: `Hallo! Ich kann nicht hinein — bitte öffnen Sie die Tür. Bestellung #${orderNum} 🔔` },
+            ];
             return (
-              <div className="mt-2 flex gap-2">
-                <a
-                  href={`tel:${nextStop.order.kunde_telefon}`}
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-matcha-700/60 border border-matcha-600/40 text-matcha-100 font-bold text-sm active:scale-[0.98] transition"
-                >
-                  <Phone size={14} />
-                  Anrufen
-                </a>
-                <a
-                  href={`https://wa.me/${intl}?text=${msg}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 text-[#25D366] font-bold text-sm active:scale-[0.98] transition"
-                >
-                  <MessageSquare size={14} />
-                  WhatsApp
-                </a>
+              <div className="mt-2 space-y-2">
+                <div className="flex gap-2">
+                  <a
+                    href={`tel:${nextStop.order.kunde_telefon}`}
+                    className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-matcha-700/60 border border-matcha-600/40 text-matcha-100 font-bold text-sm active:scale-[0.98] transition"
+                  >
+                    <Phone size={14} />
+                    Anrufen
+                  </a>
+                  <a
+                    href={waUrl(`Hallo! Ich bin Ihr Lieferfahrer und bin gleich da. Bestellung #${orderNum} 🚗`)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl bg-[#25D366]/15 border border-[#25D366]/40 text-[#25D366] font-bold text-sm active:scale-[0.98] transition"
+                  >
+                    <MessageSquare size={14} />
+                    WhatsApp
+                  </a>
+                </div>
+                {/* Schnellnachrichten: ein Tipp öffnet WhatsApp mit vorausgefülltem Text */}
+                <div className="flex gap-1.5 flex-wrap">
+                  {quickMsgs.map((m) => (
+                    <a
+                      key={m.label}
+                      href={waUrl(m.text)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#25D366]/10 border border-[#25D366]/25 px-2.5 py-1 text-[10px] font-bold text-[#25D366] active:scale-95 transition"
+                    >
+                      <MessageSquare size={10} />
+                      {m.label}
+                    </a>
+                  ))}
+                </div>
               </div>
             );
           })()}

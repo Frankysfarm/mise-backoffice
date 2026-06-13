@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–129 abgeschlossen. Build sauber. 205 Seiten. Deployment-bereit.**
+**Phasen 1–130 abgeschlossen. Build sauber. 205 Seiten. Deployment-bereit.**
+**Frontend-Ingenieur — 2026-06-13: Phase 130 abgeschlossen. Fahrer-App: Schnellnachrichten-Chips unter WhatsApp-Button (4 Vorlagen: ~5 Min, Bitte runter, Warte draußen, Kein Einlass). Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 129 abgeschlossen. Dispatch: Schicht-Score-Badge in DriverRow (Lieferungen + SLA%) aus Batch-Daten berechnet. Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 128 abgeschlossen. Küchen-TV: Live-Ops-Strip im Header (ETA, Fahrer, Aktiv-Bestellungen, Lastfarbe). Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 127 abgeschlossen. V2-Storefront: Beliebte-Artikel-Strip hinzugefügt (fehlte wie Aurora). Build 205 Seiten sauber.**
