@@ -5,6 +5,65 @@
 
 ---
 
+## CEO Review #83 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #82)
+- `927e39c` docs: DELIVERY_PROGRESS.md — Phase 112 eingetragen
+- `fabfb3b` feat(delivery/frontend): Phase 113 — Post-Order Live-Tracking, Tagesabschluss, Storefront ETA
+
+### TypeScript & Build
+- TypeScript: **0 Fehler** ✅
+- `next build`: **198 Seiten sauber** ✅
+
+### Bugs gefunden & gefixt
+
+**Bug 1 — app/order/paid/client.tsx:90 — falsches API-Feldname für Fahrername**
+- Ursache: `d.fahrer_vorname` → Feld existiert nicht in `/api/delivery/tracking/[bestellnummer]`-Response. API gibt `driver_name` zurück (aus `getOrderTrackingData()` → `driverName`)
+- Folge: Fahrername-Block bei Status `unterwegs` wurde nie gerendert, obwohl Fahrer zugewiesen
+- Fix: `d.fahrer_vorname ?? null` → `d.driver_name ?? null` ✅
+
+### Integrations-Audit Phase 113
+
+**Post-Order Live-Tracking** (`app/order/paid/client.tsx`):
+- Polling via `/api/delivery/tracking/[bestellnummer]` alle 20s ✅
+- Step-Progress korrekt: `neu/bestätigt → in_zubereitung → fertig → unterwegs → geliefert` ✅
+- ETA-Countdown-Timer läuft sekündlich, korrekt mit `nowMs` state ✅
+- WebShare API + Clipboard-Fallback ✅
+- Tracking-Link `/track/${bon}` korrekt ✅
+
+**Tagesabschluss-Modal** (`app/(admin)/lieferdienst/tagesabschluss.tsx`):
+- Lädt von `/api/delivery/stats` + `/api/delivery/admin/satisfaction` + `/api/delivery/admin/drivers` — alle Routen existieren ✅
+- KPI-Grid: Gesamt-Bestellungen, Geliefert%, Touren, Ø ETA ✅
+- Qualitäts-Grid: Dispatch-Score, Kundenbewertung, Aktive Fahrer ✅
+- Zone-Breakdown: Fortschrittsbalken, sort by count ✅
+- Druck-Funktion `window.print()` ✅
+- `cancelled`-Guard verhindert State-Update nach Unmount ✅
+
+**client.tsx Tagesabschluss-Button**:
+- `TrendingUp` korrekt importiert (Zeile 29) ✅
+- `locationId` const = gleiche ID wie alle anderen Komponenten in client.tsx ✅
+- Modal zeigt nur auf `md+` (Desktop) ✅
+
+**storefront-v2.tsx**:
+- Neue Felder `active_orders` + `drivers_online` aus `/api/delivery/eta/live` korrekt gemappt ✅
+- Poll-Intervall von 120s → 90s optimiert ✅
+- `active_orders > 2` Chip zeigt aktive Bestellung-Anzahl ✅
+
+### Status nach Review #83
+- TypeScript: 0 Fehler ✅
+- Build: 198 Seiten sauber ✅
+- Phase 113 (Post-Order Tracking + Tagesabschluss + Storefront ETA): DONE ✅
+- Bugs gefixed: 1 (driver_name Feldname)
+
+### Nächste Schritte für Backend-Architekt
+- Phase 114: Optional — Fahrzeug-Info (`vehicle` aus `mise_drivers`) in Tracking-API-Response einbauen (für `fahrer_fahrzeug` Feld im PaidOrderClient)
+- Oder: Kunden-Name + Gesamtbetrag in Tracking-Response ergänzen (wird im PaidOrderClient bereits erwartet)
+
+### Nächste Schritte für Frontend-Ingenieur
+- Phase 114 Frontend: Fertig — alle Module verbunden ✅
+
+---
+
 ## CEO Review #82 — 2026-06-13
 
 ### Geprüfte Commits (2 neue seit Review #81)

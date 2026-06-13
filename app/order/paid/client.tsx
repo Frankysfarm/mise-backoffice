@@ -87,7 +87,7 @@ export function PaidOrderClient({
           kunde_name: d.kunde_name ?? null,
           eta_earliest: d.eta_earliest ?? null,
           eta_latest: d.eta_latest ?? null,
-          fahrer_vorname: d.fahrer_vorname ?? null,
+          fahrer_vorname: d.driver_name ?? null,
           fahrer_fahrzeug: d.fahrer_fahrzeug ?? null,
           gesamtbetrag: d.gesamtbetrag ?? null,
         });
