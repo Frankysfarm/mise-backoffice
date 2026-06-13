@@ -1,7 +1,92 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–98 vollständig abgeschlossen. CEO Review #72 abgeschlossen. TypeScript 0 Fehler. Build sauber. 190 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–99 vollständig abgeschlossen. CEO Review #73 abgeschlossen. TypeScript 0 Fehler. Build sauber. 191 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #73 — 2026-06-13
+
+### Geprüfte Commits (3 neue Commits seit Review #72)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `b41ae79` | feat(fahrer): Fahrer-Vergütung im Tour-Abschluss-Screen | ✅ |
+| `352f4df` | feat(delivery/frontend): Dispatch ETA-Badges + Storefront Queue-Anzeige | ✅ |
+| `55a9159` | feat(delivery/backend): Phase 99 — Smart Driver Pre-Positioning Engine | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: ✓ Compiled successfully, 191 Seiten ✅
+- Bugs gefunden: 0 — keine Fixes nötig
+
+### Befund Phase 99 (Positioning Engine)
+
+**lib/delivery/positioning.ts**:
+- `generatePositioningSuggestions()`: Prognose-gesteuert, High-Demand → Restaurant-nahe Zonen, Medium-Demand → Außenzonen ✅
+- `expireStaleSuggestions()` + `getActiveSuggestions()` mit Fahrer-Namen/Distanz ✅
+- `respondToSuggestion()`, `getPositioningStats()`, `getPositioningHistory()` (7-Tage) ✅
+- `runPositioningAllLocations()` Cron-Batch korrekt in `smart-dispatch` route eingebunden (isRatingTick = alle 10 Min) ✅
+
+**APIs**:
+- `GET+POST /api/delivery/admin/positioning`: Auth-Guard, Übersicht + manueller Trigger ✅
+- `GET+POST /api/delivery/driver/positioning`: Fahrer-seitig, Annehmen/Ablehnen ✅
+
+**Frontend Admin** (`app/(admin)/delivery/positioning/client.tsx`):
+- 4 KPI-Karten: Offene / Akzeptanzrate / Gesamt / Ø Reaktionszeit ✅
+- Vorschlagsliste mit Pending/Alle Tabs ✅
+- 7-Tage-Compliance-Balkendiagramm ✅
+- Import von `PositioningDayStats` aus `lib/delivery/positioning` — korrekt typisiert ✅
+
+**PositioningSuggestionBanner** (`app/fahrer/app/client.tsx`):
+- Nur sichtbar wenn `!activeBatch && isOnline` — korrekte Sichtbarkeitslogik ✅
+- Polling einmalig beim Mount ✅
+- 20-Min-Ablauf-Countdown mit `setInterval` ✅
+- Google Maps Deep-Link für Navigation ✅
+- Annehmen/Ablehnen POST korrekt implementiert ✅
+
+### Befund feat(fahrer): Fahrer-Vergütung (b41ae79)
+
+**tour-completion.tsx**:
+- `estEarnings?: number` optional im `CompletionStats` Interface — sauber ✅
+- Vergütungs-Banner erscheint nur wenn `estEarnings != null && estEarnings > 0` ✅
+- Stundensatz-Berechnung: `(estEarnings / elapsedMin) * 60` — korrekte Logik ✅
+
+**delivery-view.tsx**:
+- `estimatedEarnings` wird live im Fahrer-Header angezeigt (Zeile 626) ✅
+- `tourEarnings` im `showCompletion`-Block korrekt berechnet (€1.50/Stop + €0.20/km) ✅
+- Doppelte Berechnung (`estimatedEarnings` + `tourEarnings`) akzeptabel — unterschiedliche Zwecke (Live-Anzeige vs. Abschluss-Screen) ✅
+
+### Befund feat(delivery/frontend): ETA-Badges + Queue-Anzeige (352f4df)
+
+**tour-sequenz.tsx**:
+- `StopEtaBadge`: Grau=Normal, Orange (<5 Min), Rot+Pulse (überfällig) ✅
+- `useTick()` triggert alle 30s Re-render — korrekte Timing-Logik ✅
+- `BatchSequenzCard` zeigt Tour-ETA-Countdown + Überfällig-Warnung ✅
+
+**checkout-sheet.tsx**:
+- `liveEta.active_orders` + `liveEta.drivers_online` aus `/api/delivery/eta/live` ✅
+- API gibt korrekt beide Felder zurück ✅
+- Queue-Anzeige nur wenn Daten vorhanden (`!= null`) ✅
+- Fahrer-Farbcodierung: Rot=0, Amber=1-2, Grün=3+ ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen → Dispatch: KitchenDispatchPressureChip zeigt fertige Bestellungen ohne Fahrer ✅
+- Dispatch → Driver: TourSequenzPanel mit ETA-Badges zeigt Fahrerstatus real-time ✅
+- Driver → Fahrer-App: PositioningSuggestionBanner für idle Fahrer ✅
+- Storefront → Checkout: Queue-Signal (aktive Bestellungen + Fahrer) vor Bestellung sichtbar ✅
+- Cron: Positioning alle 10 Min, korrekt in `smart-dispatch` eingebunden ✅
+
+### Status nach Review #73
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 191 Seiten ✅
+- Phase 99 (Smart Driver Pre-Positioning Engine): DONE ✅
+- Fahrer-Vergütungsanzeige: DONE ✅
+- ETA-Badges + Queue-Anzeige: DONE ✅
+- Bugs gefixed: 0
+
+### System-Zustand: MARKT-REIF
+Alle 99 Phasen abgeschlossen. Kein Handlungsbedarf. Deployment kann jederzeit erfolgen.
 
 ---
 
