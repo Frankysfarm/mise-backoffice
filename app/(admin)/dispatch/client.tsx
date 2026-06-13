@@ -162,7 +162,7 @@ export function DispatchBoard({
   const [dispatchPending, setDispatchPending] = useState(false);
   const [cancelPending, setCancelPending] = useState(false);
   const [etaRefreshing, setEtaRefreshing] = useState(false);
-  const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
+  const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; orders_skipped: number; batches_processed: number; errors: number; duration_ms: number } | null>(null);
   const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
   const prevReadyCountRef = useRef(initialOrders.filter((o) => o.status === 'fertig').length);
   const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number; queue_signal: string; eta_extension_min: number } | null>(null);
@@ -426,7 +426,7 @@ export function DispatchBoard({
       const res = await fetch('/api/delivery/admin/eta-refresh', { method: 'POST' });
       const data = await res.json().catch(() => null);
       if (data?.ok) {
-        setEtaRefreshResult({ orders_updated: data.orders_updated ?? 0, duration_ms: data.duration_ms ?? 0 });
+        setEtaRefreshResult({ orders_updated: data.orders_updated ?? 0, orders_skipped: data.orders_skipped ?? 0, batches_processed: data.batches_processed ?? 0, errors: data.errors ?? 0, duration_ms: data.duration_ms ?? 0 });
         setTimeout(() => setEtaRefreshResult(null), 5000);
       }
       await refresh();
@@ -951,24 +951,33 @@ export function DispatchBoard({
               highlight={deliveryHealth.etaAccuracyPct >= 80 ? 'green' : deliveryHealth.etaAccuracyPct >= 60 ? 'amber' : 'red'}
             />
           )}
-          <button
-            onClick={triggerEtaRefresh}
-            disabled={etaRefreshing || batches.length === 0}
-            title="Live-ETAs aller laufenden Touren neu berechnen"
-            className={cn(
-              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
-              etaRefreshResult
-                ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
-                : batches.length > 0
-                  ? 'border-border bg-card text-muted-foreground hover:bg-muted'
-                  : 'border-border bg-muted text-muted-foreground cursor-default opacity-50',
+          <div className="flex flex-col items-start gap-0.5">
+            <button
+              onClick={triggerEtaRefresh}
+              disabled={etaRefreshing || batches.length === 0}
+              title="Live-ETAs aller laufenden Touren neu berechnen"
+              className={cn(
+                'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
+                etaRefreshResult
+                  ? 'border-matcha-400 bg-matcha-50 text-matcha-700'
+                  : batches.length > 0
+                    ? 'border-border bg-card text-muted-foreground hover:bg-muted'
+                    : 'border-border bg-muted text-muted-foreground cursor-default opacity-50',
+              )}
+            >
+              <RefreshCw className={cn('h-3.5 w-3.5', etaRefreshing && 'animate-spin')} />
+              {etaRefreshResult
+                ? `✓ ${etaRefreshResult.orders_updated} ETAs aktualisiert`
+                : etaRefreshing ? 'ETAs…' : 'ETAs'}
+            </button>
+            {etaRefreshResult && (
+              <span className="text-[10px] text-matcha-600 font-mono pl-1 tabular-nums">
+                {etaRefreshResult.batches_processed} Touren · {etaRefreshResult.orders_skipped} übersprungen
+                {etaRefreshResult.errors > 0 && ` · ${etaRefreshResult.errors} Fehler`}
+                {' · '}{etaRefreshResult.duration_ms}ms
+              </span>
             )}
-          >
-            <RefreshCw className={cn('h-3.5 w-3.5', etaRefreshing && 'animate-spin')} />
-            {etaRefreshResult
-              ? `✓ ${etaRefreshResult.orders_updated} ETAs aktualisiert`
-              : etaRefreshing ? 'ETAs…' : 'ETAs'}
-          </button>
+          </div>
           <button
             onClick={smartDispatch}
             disabled={dispatchPending || readyOrders.length === 0}
