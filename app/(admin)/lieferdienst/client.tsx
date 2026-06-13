@@ -39,6 +39,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { OpsSnapshotPanel } from './ops-snapshot-panel'
 import { LiveMetricsStrip } from './live-metrics-strip'
+import { FahrerRangliste } from './fahrer-rangliste'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -840,6 +841,9 @@ export function LieferdienstClient() {
                   </div>
                 )
               })()}
+              {/* Fahrer-Rangliste heute */}
+              <FahrerRangliste locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+
               {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-[60vh]">
                   <div className="w-20 h-20 rounded-2xl bg-stone-100 flex items-center justify-center mb-5 border border-stone-200">

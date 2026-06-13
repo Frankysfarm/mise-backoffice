@@ -15,6 +15,7 @@ import { AlarmRinger } from './alarm-ringer';
 import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
+import { SchichtEffizienzMeter } from './schicht-effizienz';
 
 
 type Driver = {
@@ -635,6 +636,15 @@ export function FahrerApp({
                       })()}
                     </div>
                   </div>
+                )}
+
+                {/* Schicht-Effizienz: Liefertempo vs. Ziel */}
+                {todayStats && status?.online_seit && (
+                  <SchichtEffizienzMeter
+                    deliveries={todayStats.deliveries}
+                    onlineMin={Math.floor((Date.now() - new Date(status.online_seit).getTime()) / 60_000)}
+                    estEarnings={todayStats.estEarnings}
+                  />
                 )}
 
                 {/* Pause-Widget — Phase 84 */}
