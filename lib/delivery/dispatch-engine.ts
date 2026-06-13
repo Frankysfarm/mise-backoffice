@@ -29,6 +29,7 @@ import { logEtaPrediction } from './eta-calibration';
 import { recordCustomerEvent } from './customer-notify';
 import { markWindowDispatched } from './windows';
 import { sortByPriority } from './queue-intelligence';
+import { getDriverZoneAffinities } from './zone-affinity';
 import type { ZoneName } from './zones';
 
 // Phase 59: Compliance-blocked drivers are excluded from dispatch
@@ -234,7 +235,10 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   });
   if (nearby.length === 0) return held(`Kein Fahrer im Radius (${radiusFactor > 1 ? `×${radiusFactor} eskaliert` : 'normal'})`);
 
-  // 5) Scoring
+  // 5) Scoring — load zone affinities (Phase 110) then rank drivers
+  const nearbyIds = nearby.map((d) => d.id);
+  const zoneAffinities = await getDriverZoneAffinities(nearbyIds, o.location_id).catch(() => ({} as Record<string, Record<string, number>>));
+
   const driverInputs: DriverScoreInput[] = nearby.map((d) => ({
     id: d.id,
     vehicle: d.vehicle,
@@ -244,6 +248,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     max_capacity: d.max_capacity,
     total_deliveries: d.total_deliveries,
     active_batch_id: d.mise_batch_id ?? null,
+    zone_affinity: zoneAffinities[d.id] ?? null,
   }));
 
   const ranked = rankDrivers(driverInputs, orderInput);

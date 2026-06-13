@@ -48,6 +48,7 @@ import { runSurgePredictionAllLocations, evaluatePastPredictions } from '@/lib/d
 import { batchRecomputeRatingsForLocation } from '@/lib/delivery/rating';
 import { scanProblematicAddressesAllLocations } from '@/lib/delivery/address-intelligence';
 import { pruneOldCommsLogs } from '@/lib/delivery/comms-log';
+import { refreshZoneAffinityAllLocations } from '@/lib/delivery/zone-affinity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -99,7 +100,7 @@ export async function GET(req: NextRequest) {
     // Adress-Intelligenz-Scan: täglich um 05:00 UTC
     const isAddressScanTick = nowHour === 5 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -254,6 +255,10 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneOldCommsLogs(90).catch(() => 0)
         : Promise.resolve(0),
+      // Zonen-Affinität: Fahrer-Zone-Stats nachtliches Reconcile (täglich 02:00 UTC, Phase 110)
+      isReportTick
+        ? refreshZoneAffinityAllLocations().catch(() => ({ locations: 0, driversUpdated: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -344,6 +349,7 @@ export async function GET(req: NextRequest) {
       ...(ratingRecencyResult ? { rating_recency: { recomputed: ratingRecencyResult.recomputed, errors: ratingRecencyResult.errors } } : {}),
       ...(addressScanResult ? { address_intelligence: { locations: addressScanResult.locations, problematic: addressScanResult.totalProblematic } } : {}),
       ...(commsLogsPruned ? { comms_logs_pruned: commsLogsPruned } : {}),
+      ...(zoneAffinityResult ? { zone_affinity: { locations: zoneAffinityResult.locations, drivers_updated: zoneAffinityResult.driversUpdated, errors: zoneAffinityResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

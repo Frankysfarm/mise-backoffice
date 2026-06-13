@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–109 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 197 Seiten. Deployment-bereit.**
+**Phasen 1–110 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 198 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 110 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #80 — 2026-06-13: Phase 109 + 2 neue Frontend-Commits geprüft. 1 TS-Fehler gefixt. Integrations-Audit sauber. Build 197 Seiten. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 109 abgeschlossen. Build 197 Seiten sauber.**
 **CEO Review #79 — 2026-06-13: 6 Frontend-Commits + Phase 108 geprüft. 4 Bugs gefixt (TS-Fehler). Alle Systeme grün.**
@@ -11,6 +12,17 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 110: Smart Driver Zone Affinity Engine (Zonen-Affinität-Tracking für automatische Fahrerzuweisung) — 2026-06-13
+- [x] scripts/migrations/068_zone_affinity.sql: driver_zone_stats (location_id/driver_id/zone_name A|B|C|D UNIQUE, total_deliveries/on_time_count/avg_delivery_min/last_delivery_at/updated_at, 3 Indizes, RLS), v_zone_affinity_matrix VIEW (Fahrer×Zone-Matrix mit berechneten Affinitäts-Scores 0–100: 60% Routine + 40% Pünktlichkeit), v_zone_coverage_stats VIEW (Zone-Aggregat: drivers_active/total_deliveries/avg_affinity_score/on_time_pct/avg_delivery_min)
+- [x] lib/delivery/zone-affinity.ts: computeAffinityScore() (60% Routine min(deliveries×3,60) + 40% On-Time-Rate), recordZoneDelivery() (fire-and-forget nach Lieferung, Upsert mit Rolling-Avg), getDriverZoneAffinities() (Bulk-Lookup für Dispatch), getZoneAffinityMatrix() (Admin-Matrix via v_zone_affinity_matrix), getZoneCoverageStats() (v_zone_coverage_stats), getZoneAffinityDashboard() (Matrix+Coverage+TopDriverPerZone), refreshZoneAffinityAllLocations() (nachtliches Reconcile-Batch aus Rohdaten)
+- [x] scoring.ts: DriverScoreInput um zone_affinity: Record<string,number>|null erweitert; scoreZone() nutzt Affinität (70% Affinität + 30% statische Nähe wenn vorhanden, sonst reiner Proximity-Fallback)
+- [x] dispatch-engine.ts: getDriverZoneAffinities() vor Scoring geladen und als zone_affinity in DriverScoreInput[] eingebettet
+- [x] tours/[id]/status/route.ts: recordZoneDelivery() fire-and-forget bei state=delivered (zone aus customer_orders.delivery_zone, wasOnTime via eta_latest Vergleich)
+- [x] GET+POST /api/delivery/admin/zone-affinity: Auth via employees.tenant_id, GET Dashboard (Matrix+Coverage+TopDriverPerZone+lastUpdated), POST action=refresh (nachtliches Reconcile manuell auslösen)
+- [x] app/(admin)/delivery/zone-affinity/: ZoneAffinityClient mit 4 KPI-Karten (Aktive Fahrer/Zonen abgedeckt/Zone-Lieferungen/Ø Pünktlichkeit), 4 farbkodierte Zonen-Coverage-Karten (Top-Fahrer pro Zone, Pünktlichkeit, Ø Affinität), aufklappbare Fahrer×Zonen-Matrix (Score-Farb-Chips grün/blau/amber/orange, Lieferungscount, dominante Zone-Badge), Detailansicht pro Fahrer mit Routine/Pünktlichkeits-Balken je Zone, Score-Legende, Info-Box mit Erklärung, 2-Min-Auto-Refresh
+- [x] Cron: refreshZoneAffinityAllLocations() täglich 02:00 UTC (isReportTick) → zone_affinity: { locations, drivers_updated, errors } in Response
+- [x] Sidebar: "Zonen-Affinität Fahrer" mit MapIcon-Icon unter Loslegen-Gruppe; Map as MapIcon in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: next build ✓ (198 Seiten, 0 Fehler)
 - [x] Phase 109: Fahrer-Kommunikations-Log (Push/Broadcast/System-Nachrichten-Tracking) — 2026-06-13
 - [x] scripts/migrations/067_driver_comms_log.sql: driver_communication_log (channel push|broadcast|in_app|system, message_type 9 ENUMs, direction dispatch_to_driver|system|driver_to_dispatch, status sent|delivered|read|failed, title/body/sent_by_name/reference_type/reference_id/metadata JSONB, 4 Indizes, RLS), v_comms_log_stats VIEW (KPIs: total/heute/woche nach Kanal, read_rate_pct/delivery_rate_pct), v_comms_log_driver_summary VIEW (pro-Fahrer: total/today/last_message_at/read_count/push_count/broadcast_count)
 - [x] lib/delivery/comms-log.ts: logCommunication() fire-and-forget (tableExists-Guard, nie blockierend), markCommDelivered/markCommRead(), getCommunicationLog() (paginiert, alle Filter: channel/type/status/driver/datum), getCommLogStats() (aus v_comms_log_stats View), getDriverCommSummaries() (aus v_comms_log_driver_summary View), getHourlyCommVolume() (24h-Stunden-Buckets via UTC-Aggregation), getCommLogDashboard() (kombinierter Response), pruneOldCommsLogs() (Cron-Cleanup >90 Tage), sendDirectDriverMessage() (Push in mise_push_outbox + Log in einem Schritt)

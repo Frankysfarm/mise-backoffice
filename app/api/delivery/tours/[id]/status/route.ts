@@ -18,6 +18,7 @@ import { markWindowDelivered, markWindowDispatched } from '@/lib/delivery/window
 import { evaluateAndIssueLateCredit } from '@/lib/delivery/credits';
 import { earnPoints } from '@/lib/delivery/loyalty-points';
 import { computeExperienceScore } from '@/lib/delivery/cdes';
+import { recordZoneDelivery } from '@/lib/delivery/zone-affinity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -132,6 +133,34 @@ export async function PATCH(
           // CDES: Erfahrungs-Score für gelieferte Bestellung berechnen (fire-and-forget)
           if (stop.order_id && batch.location_id) {
             computeExperienceScore(stop.order_id as string, batch.location_id as string).catch(() => {});
+          }
+
+          // Zone Affinity: Fahrer-Zone-Stats aktualisieren (Phase 110, fire-and-forget)
+          if (stop.order_id && batch.location_id) {
+            (async () => {
+              try {
+                const { data: ord } = await sb
+                  .from('customer_orders')
+                  .select('delivery_zone, eta_latest, geliefert_am')
+                  .eq('id', stop.order_id as string)
+                  .maybeSingle();
+                if (!ord?.delivery_zone) return;
+
+                const completedAt = stop.completed_at ? new Date(stop.completed_at as string) : new Date();
+                const wasOnTime = ord.eta_latest
+                  ? completedAt <= new Date(ord.eta_latest as string)
+                  : true;
+
+                await recordZoneDelivery({
+                  driverId:         batch.driver_id as string,
+                  locationId:       batch.location_id as string,
+                  zone:             ord.delivery_zone as 'A' | 'B' | 'C' | 'D',
+                  wasOnTime,
+                  deliveryMinutes:  null,
+                  deliveredAt:      completedAt,
+                });
+              } catch { /* fire-and-forget */ }
+            })();
           }
         }
       }

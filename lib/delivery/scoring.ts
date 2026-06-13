@@ -32,6 +32,7 @@ export interface DriverScoreInput {
   active_batch_id?: string | null;
   rating?: number | null;           // 0–5
   avg_delivery_min?: number | null; // Durchschnittliche Lieferzeit
+  zone_affinity?: Record<string, number> | null; // zone → affinity score 0–100 (Phase 110)
 }
 
 export interface OrderScoreInput {
@@ -144,10 +145,27 @@ function scoreExperience(driver: DriverScoreInput): number {
 }
 
 function scoreZone(driver: DriverScoreInput, order: OrderScoreInput): number {
-  if (!driver.zone || !order.zone) return 5;
-  if (driver.zone === order.zone) return 10;
+  const orderZone = order.zone;
+
+  // Phase 110: blend zone affinity (0–100) with static zone-match score
+  const affinity = orderZone ? (driver.zone_affinity?.[orderZone] ?? null) : null;
+  if (affinity != null) {
+    // Affinity contributes 70%, static proximity 30%
+    const staticScore = (() => {
+      if (!driver.zone || !orderZone) return 5;
+      if (driver.zone === orderZone) return 10;
+      const zones: ZoneName[] = ['A', 'B', 'C', 'D'];
+      const diff = Math.abs(zones.indexOf(driver.zone) - zones.indexOf(orderZone));
+      return Math.max(0, 10 - diff * 3);
+    })();
+    return Math.round((affinity / 100) * 7 * 10 + staticScore * 3) / 10;
+  }
+
+  // Fallback: static zone proximity only
+  if (!driver.zone || !orderZone) return 5;
+  if (driver.zone === orderZone) return 10;
   const zones: ZoneName[] = ['A', 'B', 'C', 'D'];
-  const diff = Math.abs(zones.indexOf(driver.zone) - zones.indexOf(order.zone));
+  const diff = Math.abs(zones.indexOf(driver.zone) - zones.indexOf(orderZone));
   return Math.max(0, 10 - diff * 3);
 }
 
