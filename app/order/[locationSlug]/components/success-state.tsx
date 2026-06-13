@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Package, ShoppingBag, Truck } from 'lucide-react';
+import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Copy, Package, Share2, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 type CartItem = {
@@ -69,6 +69,20 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [stopsBefore, setStopsBefore] = React.useState<number | null>(null);
   const trackingMapRef = React.useRef<HTMLDivElement>(null);
   const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
+  const [copiedLink, setCopiedLink] = React.useState(false);
+
+  function shareTrackingLink() {
+    if (!orderId) return;
+    const url = `${window.location.href.split('?')[0]}?track=${orderId}`;
+    if (navigator.share) {
+      navigator.share({ title: 'Bestellung verfolgen', url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2500);
+      }).catch(() => {});
+    }
+  }
 
   function selectRatingStar(stars: number) {
     if (ratingSubmitted || ratingSubmitting) return;
@@ -470,6 +484,31 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               )}
             </div>
           </div>
+        )}
+
+        {/* Tracking teilen — nur wenn unterwegs */}
+        {isDelivery && liveStatus === 'unterwegs' && orderId && (
+          <button
+            onClick={shareTrackingLink}
+            className={cn(
+              'mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-[11px] font-bold transition active:scale-[0.97]',
+              copiedLink
+                ? 'border-accent/60 bg-accent/15 text-accent'
+                : 'border-white/10 bg-white/5 text-matcha-300 hover:bg-white/10',
+            )}
+          >
+            {copiedLink ? (
+              <>
+                <Copy className="h-3.5 w-3.5 shrink-0" />
+                Link kopiert!
+              </>
+            ) : (
+              <>
+                <Share2 className="h-3.5 w-3.5 shrink-0" />
+                Tracking-Link teilen
+              </>
+            )}
+          </button>
         )}
 
         {/* Live-Status Mini-Timeline — aktualisiert sich in Echtzeit */}

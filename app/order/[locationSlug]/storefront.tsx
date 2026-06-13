@@ -418,6 +418,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         logoUrl={logoUrl}
       />
 
+      {/* Geteilter Tracking-Link — zeigt Bestellstatus wenn ?track=ORDER_ID in URL */}
+      <SharedTrackingBanner />
+
       {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
       <ActiveOrderBanner locationId={location.id} />
 
@@ -776,6 +779,93 @@ function categoryDescription(name: string): string {
   if (/food/.test(n)) return 'Hausgemacht, ehrlich und mit den besten Zutaten.';
   if (/special/.test(n)) return 'Unsere Signatures — Limited Editions und Saisongäste.';
   return 'Unsere Auswahl, sorgfältig kuratiert.';
+}
+
+/* ------------------------------ SharedTrackingBanner ------------------------------ */
+
+function SharedTrackingBanner() {
+  const [orderId, setOrderId] = React.useState<string | null>(null);
+  const [orderData, setOrderData] = React.useState<{
+    status: string; bestellnummer: string; kundeNama: string | null; etaEarliest: string | null;
+  } | null>(null);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+  const [dismissed, setDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = new URLSearchParams(window.location.search).get('track');
+    if (id) setOrderId(id);
+  }, []);
+
+  React.useEffect(() => {
+    if (!orderId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/orders/${orderId}/tracking`);
+        if (!r.ok || cancelled) return;
+        const d = await r.json();
+        if (cancelled) return;
+        setOrderData({ status: d.status, bestellnummer: d.bestellnummer, kundeNama: d.kunde_name ?? null, etaEarliest: d.eta_earliest ?? null });
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    const tick = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => { cancelled = true; clearInterval(iv); clearInterval(tick); };
+  }, [orderId]);
+
+  if (!orderId || dismissed || !orderData) return null;
+
+  const secsLeft = orderData.etaEarliest
+    ? Math.max(0, Math.floor((new Date(orderData.etaEarliest).getTime() - nowMs) / 1000))
+    : null;
+  const minsLeft = secsLeft != null ? Math.floor(secsLeft / 60) : null;
+
+  const statusLabel: Record<string, string> = {
+    neu: 'Eingegangen', bestätigt: 'Bestätigt', in_zubereitung: 'Wird zubereitet',
+    fertig: 'Bereit', unterwegs: 'Unterwegs', geliefert: 'Geliefert 🎉', storniert: 'Storniert',
+  };
+  const isTerminal = ['geliefert', 'abgeholt', 'storniert'].includes(orderData.status);
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 md:px-8 mt-3">
+      <div className={cn(
+        'rounded-xl border px-4 py-3 flex items-center gap-3',
+        isTerminal ? 'bg-matcha-50 border-matcha-200' : 'bg-blue-50 border-blue-200',
+      )}>
+        <span className="text-xl shrink-0">{isTerminal ? '✅' : '📍'}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={cn('font-bold text-sm', isTerminal ? 'text-matcha-700' : 'text-blue-800')}>
+              {statusLabel[orderData.status] ?? orderData.status}
+            </span>
+            <span className="text-muted-foreground text-xs">·</span>
+            <span className="text-xs text-muted-foreground font-mono">{orderData.bestellnummer}</span>
+            {!isTerminal && minsLeft != null && minsLeft > 0 && (
+              <>
+                <span className="text-muted-foreground text-xs">·</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 border border-blue-200 px-2 py-0.5 text-[10px] font-black tabular-nums text-blue-700">
+                  <Clock className="h-2.5 w-2.5" />
+                  {minsLeft} Min
+                </span>
+              </>
+            )}
+          </div>
+          {orderData.kundeNama && (
+            <div className="text-xs text-muted-foreground mt-0.5 truncate">für {orderData.kundeNama}</div>
+          )}
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="h-6 w-6 rounded-full flex items-center justify-center hover:bg-black/5 text-muted-foreground shrink-0"
+          aria-label="Schließen"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------ ActiveOrderBanner ------------------------------ */
