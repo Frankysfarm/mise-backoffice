@@ -9,7 +9,34 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, ChefHat, Clock, Package, Zap } from 'lucide-react';
+import { Bike, CheckCircle2, ChefHat, Clock, Package, Zap } from 'lucide-react';
+
+const LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
+
+type LiveOps = {
+  eta_min: number;
+  load: 'quiet' | 'normal' | 'busy';
+  active_orders: number;
+  drivers_online: number;
+};
+
+function useLiveOps() {
+  const [data, setData] = useState<LiveOps | null>(null);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch(`/api/delivery/eta/live?location_id=${LOCATION_ID}`);
+        if (!r.ok) return;
+        const d = await r.json();
+        setData({ eta_min: d.eta_min ?? 30, load: d.load ?? 'normal', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0 });
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 30_000);
+    return () => clearInterval(iv);
+  }, []);
+  return data;
+}
 
 type Order = {
   id: string;
@@ -163,6 +190,7 @@ export function KitchenTVDisplay({
 
   const overdue = cookingWithUrgency.filter((x) => x.urgency === 'overdue');
   const critical = cookingWithUrgency.filter((x) => x.urgency !== 'ok');
+  const liveOps = useLiveOps();
 
   return (
     <div className="min-h-screen bg-matcha-950 text-white flex flex-col select-none">
@@ -178,6 +206,40 @@ export function KitchenTVDisplay({
 
         {/* Live-Ampel */}
         <div className="flex items-center gap-6">
+          {/* Live-Ops-Status: Kunden-ETA + Fahrer */}
+          {liveOps && (
+            <div className={cn(
+              'flex items-center gap-3 rounded-xl px-4 py-2 border text-sm',
+              liveOps.load === 'busy' ? 'bg-red-900/40 border-red-500/50 text-red-200' :
+              liveOps.load === 'normal' ? 'bg-amber-900/30 border-amber-500/40 text-amber-200' :
+              'bg-matcha-900/50 border-matcha-500/40 text-matcha-200',
+            )}>
+              <span className={cn(
+                'h-2.5 w-2.5 rounded-full shrink-0',
+                liveOps.load === 'busy' ? 'bg-red-400 animate-pulse' :
+                liveOps.load === 'normal' ? 'bg-amber-400' : 'bg-matcha-400',
+              )} />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 opacity-60" />
+                  <span className="font-black tabular-nums">~{liveOps.eta_min} Min</span>
+                  <span className="opacity-60 text-xs">ETA</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Bike className="h-4 w-4 opacity-60" />
+                  <span className={cn('font-black tabular-nums', liveOps.drivers_online === 0 && 'text-red-400')}>
+                    {liveOps.drivers_online}
+                  </span>
+                  <span className="opacity-60 text-xs">Fahrer</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Package className="h-4 w-4 opacity-60" />
+                  <span className="font-black tabular-nums">{liveOps.active_orders}</span>
+                  <span className="opacity-60 text-xs">aktiv</span>
+                </div>
+              </div>
+            </div>
+          )}
           {overdue.length > 0 && (
             <div className="flex items-center gap-2 bg-red-700 rounded-xl px-4 py-2 animate-pulse">
               <span className="h-3 w-3 rounded-full bg-red-300 animate-ping" />
