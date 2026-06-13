@@ -86,6 +86,7 @@ function stepIndex(status: string): number {
 }
 
 type DeliveryProof = { proof_type: string; photo_url: string | null; notes: string | null; created_at: string };
+type FailedAttempt = { id: string; reason: string; attempt_number: number; next_attempt_at: string | null; created_at: string };
 
 const PROOF_LABEL: Record<string, string> = {
   handed_to_person: 'Persönlich übergeben',
@@ -95,7 +96,16 @@ const PROOF_LABEL: Record<string, string> = {
   photo: 'Fotonachweis',
 };
 
-export function TrackingView({ order: initial, items, tenant, restaurantTelefon, restaurantLat, restaurantLng, initialProof }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null; restaurantLat?: number | null; restaurantLng?: number | null; initialProof?: DeliveryProof | null }) {
+const FAILED_REASON_LABEL: Record<string, string> = {
+  no_answer: 'Keine Antwort',
+  wrong_address: 'Falsche Adresse',
+  refused: 'Annahme verweigert',
+  access_denied: 'Kein Zugang',
+  not_home: 'Nicht zu Hause',
+  other: 'Sonstiges',
+};
+
+export function TrackingView({ order: initial, items, tenant, restaurantTelefon, restaurantLat, restaurantLng, initialProof, initialFailedAttempts }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null; restaurantLat?: number | null; restaurantLng?: number | null; initialProof?: DeliveryProof | null; initialFailedAttempts?: FailedAttempt[] }) {
   const supabase = createClient();
   const [order, setOrder] = useState(initial);
   const [stopsBefore, setStopsBefore] = useState<number | null>(null);
@@ -115,6 +125,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
   const [etaImproved, setEtaImproved] = useState(false);
   const prevEtaLatestRef = useRef<string | null>(initial.eta_latest);
   const [deliveryProof, setDeliveryProof] = useState<DeliveryProof | null>(initialProof ?? null);
+  const failedAttempts = initialFailedAttempts ?? [];
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -737,6 +748,31 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
 
         {/* Liefer-Event-Timeline — erscheint sobald erste Events vorhanden */}
         <CustomerEventTimeline events={deliveryEvents} />
+
+        {/* Fehlgeschlagene Zustellversuche — zeigt Retry-Info bei nicht_zugestellt */}
+        {failedAttempts.length > 0 && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 space-y-2">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+              <span className="font-display text-sm font-bold text-amber-900">
+                {failedAttempts.length === 1 ? 'Zustellversuch fehlgeschlagen' : `${failedAttempts.length} Zustellversuche`}
+              </span>
+            </div>
+            {failedAttempts.map((a) => (
+              <div key={a.id} className="text-xs text-amber-800">
+                <span className="font-semibold">Versuch {a.attempt_number}:</span>{' '}
+                {FAILED_REASON_LABEL[a.reason] ?? a.reason}
+                {' · '}
+                {new Date(a.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                {a.next_attempt_at && (
+                  <span className="ml-1 text-amber-700 font-semibold">
+                    → Neuer Versuch geplant: {new Date(a.next_attempt_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Liefernachweis — erscheint wenn Bestellung zugestellt und Nachweis vorhanden */}
         {order.status === 'geliefert' && deliveryProof && (

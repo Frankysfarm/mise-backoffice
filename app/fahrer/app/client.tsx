@@ -148,6 +148,9 @@ export function FahrerApp({
   // Nächste geplante Schichten (aus offline-bundle)
   const [upcomingShifts, setUpcomingShifts] = useState<{ id: string; planned_start: string; planned_end: string; status: string }[]>([]);
 
+  // Peak-Zeit-Erkennung: pollt eta/live zur Erkennung von Surge/Stoßzeiten
+  const [peakSignal, setPeakSignal] = useState<{ signal: string; load: string; etaExtension: number } | null>(null);
+
   useEffect(() => {
     const load = () => {
       fetch('/api/delivery/driver/messages')
@@ -169,6 +172,20 @@ export function FahrerApp({
       .then(d => { if (Array.isArray(d?.upcomingShifts)) setUpcomingShifts(d.upcomingShifts); })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!isOnline || !driver.location_id) return;
+    const poll = () => {
+      fetch(`/api/delivery/eta/live?location_id=${driver.location_id}`, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.queue_signal) setPeakSignal({ signal: d.queue_signal, load: d.load ?? 'normal', etaExtension: d.eta_extension_min ?? 0 }); })
+        .catch(() => {});
+    };
+    poll();
+    const iv = setInterval(poll, 90_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, driver.location_id]);
 
   useEffect(() => {
     if (!isOnline) return;
@@ -591,6 +608,26 @@ export function FahrerApp({
                   {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
                   {gpsOk === null && <span className="text-matcha-300">📍 Warte auf GPS-Signal…</span>}
                 </div>
+
+                {/* Peak-Zeit Banner: zeigt Bonus-Stunden dem Fahrer */}
+                {peakSignal && (peakSignal.signal === 'surge' || peakSignal.load === 'busy') && (
+                  <div className={cn(
+                    'mt-3 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-bold',
+                    peakSignal.signal === 'surge'
+                      ? 'bg-red-500/20 border border-red-400/40 text-red-200'
+                      : 'bg-amber-500/15 border border-amber-400/30 text-amber-200',
+                  )}>
+                    <Zap className="h-4 w-4 shrink-0 animate-pulse" />
+                    <div className="flex-1 min-w-0">
+                      <div>{peakSignal.signal === 'surge' ? '⚡ Surge-Zeit aktiv' : '🔥 Stoßzeit'}</div>
+                      <div className="text-[10px] font-normal opacity-80 mt-0.5">
+                        {peakSignal.signal === 'surge'
+                          ? `ETA +${peakSignal.etaExtension} Min — höchste Nachfrage`
+                          : 'Viele Bestellungen — jetzt online bleiben!'}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Nächste Schichten — aus offline-bundle */}
                 {upcomingShifts.length > 0 && (
