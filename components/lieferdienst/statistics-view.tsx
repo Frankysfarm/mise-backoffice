@@ -703,6 +703,9 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Schicht-Echtzeit-Scorecard: Live-KPIs für die aktuelle Schicht */}
+      <SchichtEchtzeitScorecard orders={orders} completedOrders={completedOrders} />
+
       {/* Phase 105: Schicht-KPI-Banner — kompakte Schlüsselkennzahlen oben */}
       {(dailyKpis || slaData || deliveryStats) && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -5501,6 +5504,126 @@ function TopArtikelPanel() {
           {totalRevenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SchichtEchtzeitScorecard
+// Kompakte Echtzeit-Scorecard für die aktuelle Schicht:
+// Umsatz/h, Bestellungen/h, Fertigungsquote, Ø Wartezeit
+// Wird im Statistik-Panel ganz oben angezeigt für sofortigen Überblick.
+// ---------------------------------------------------------------------------
+export function SchichtEchtzeitScorecard({ orders, completedOrders }: { orders: Order[]; completedOrders: Order[] }) {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const iv = setInterval(() => setTick(n => n + 1), 30_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const now = Date.now();
+  const schichtStart = new Date();
+  schichtStart.setHours(0, 0, 0, 0);
+  const schichtMs = Math.max(1, now - schichtStart.getTime());
+  const schichtH = schichtMs / 3600_000;
+
+  const allToday = [...orders, ...completedOrders].filter(o => {
+    const d = (o as unknown as { createdAt?: string; bestellt_am?: string }).createdAt
+      || (o as unknown as { bestellt_am?: string }).bestellt_am;
+    if (!d) return false;
+    return new Date(d) >= schichtStart;
+  });
+
+  const done = allToday.filter(o => ['done', 'geliefert', 'abgeholt'].includes(o.status));
+  const total = allToday.length;
+  const fertigungsquote = total > 0 ? Math.round((done.length / total) * 100) : 0;
+
+  // Umsatz aus completedOrders (haben totalAmount oder gesamtbetrag)
+  const revenue = completedOrders.reduce((s, o) => {
+    const amt = (o as unknown as { totalAmount?: number; gesamtbetrag?: number }).totalAmount
+      ?? (o as unknown as { gesamtbetrag?: number }).gesamtbetrag ?? 0;
+    return s + amt;
+  }, 0);
+
+  const ordersPerH = schichtH > 0 ? (total / schichtH).toFixed(1) : '—';
+  const revenuePerH = schichtH > 0 ? (revenue / schichtH) : 0;
+
+  // Durchschnittliche Wartezeit (estimatedTime)
+  const withTime = allToday.filter(o => typeof (o as unknown as { estimatedTime?: number }).estimatedTime === 'number');
+  const avgWait = withTime.length > 0
+    ? Math.round(withTime.reduce((s, o) => s + ((o as unknown as { estimatedTime?: number }).estimatedTime ?? 0), 0) / withTime.length)
+    : null;
+
+  const metrics = [
+    {
+      label: 'Umsatz / h',
+      value: revenuePerH > 0
+        ? revenuePerH.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+        : '—',
+      color: 'text-emerald-700',
+      bg: 'bg-emerald-50 border-emerald-200',
+      icon: '€',
+    },
+    {
+      label: 'Bestellungen / h',
+      value: ordersPerH,
+      color: 'text-blue-700',
+      bg: 'bg-blue-50 border-blue-200',
+      icon: '📦',
+    },
+    {
+      label: 'Fertigungsquote',
+      value: `${fertigungsquote} %`,
+      color: fertigungsquote >= 90 ? 'text-emerald-700' : fertigungsquote >= 70 ? 'text-amber-700' : 'text-red-700',
+      bg: fertigungsquote >= 90 ? 'bg-emerald-50 border-emerald-200' : fertigungsquote >= 70 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200',
+      icon: '✓',
+    },
+    {
+      label: 'Ø Zubereitungszeit',
+      value: avgWait != null ? `${avgWait} Min` : '—',
+      color: avgWait != null && avgWait <= 15 ? 'text-emerald-700' : avgWait != null && avgWait <= 25 ? 'text-amber-700' : 'text-red-700',
+      bg: avgWait != null && avgWait <= 15 ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200',
+      icon: '⏱',
+    },
+  ];
+
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Activity className="h-4 w-4 text-emerald-600 animate-pulse" />
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-500">
+          Schicht-Scorecard (Echtzeit)
+        </span>
+        <span className="ml-auto text-[10px] text-stone-400">
+          {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr · {total} Bestellungen heute
+        </span>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {metrics.map((m) => (
+          <div key={m.label} className={`rounded-xl border px-3 py-2.5 flex flex-col gap-1 ${m.bg}`}>
+            <div className="flex items-center gap-1.5">
+              <span className="text-base leading-none">{m.icon}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-stone-500 leading-none">{m.label}</span>
+            </div>
+            <div className={`font-display text-xl font-black tabular-nums ${m.color}`}>
+              {m.value}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Schicht-Fortschrittsbalken */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-[9px] text-stone-400">
+          <span>Schichtfortschritt (0:00 → 24:00)</span>
+          <span>{Math.round((schichtH / 24) * 100)} % des Tages</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+            style={{ width: `${Math.min(100, (schichtH / 24) * 100)}%` }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

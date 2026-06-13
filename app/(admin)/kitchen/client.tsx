@@ -660,6 +660,11 @@ export function KitchenBoard({
         <KitchenDriverPickupForecast batches={batches} drivers={drivers} stops={stops} orders={filtered} />
       )}
 
+      {/* Phase 117: Urgency-Rail — alle aktiven Bestellungen als farbige Dringlichkeits-Chips */}
+      {!bigDisplay && filtered.length > 0 && (
+        <KitchenOrderUrgencyRail orders={filtered} timings={timings} />
+      )}
+
       {/* Abholung-Warte-Panel: Kunden die auf ihre Abholung warten */}
       <PickupWaitPanel orders={filtered} />
 
@@ -7337,6 +7342,157 @@ function KitchenDriverPickupForecast({
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 117: KitchenOrderUrgencyRail
+// Horizontales Urgency-Band — alle aktiven Bestellungen als farbige Chips
+// mit Live-Countdown seit Bestelleingang. Sofort-Scan für die Küche.
+// Grün > 10 Min, Gelb 5-10 Min, Orange 2-5 Min, Rot < 2 Min, Pulsierend = überfällig
+// ---------------------------------------------------------------------------
+export function KitchenOrderUrgencyRail({ orders, timings }: { orders: Order[]; timings: KitchenTiming[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const iv = setInterval(() => setTick((n) => n + 1), 5_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const active = orders.filter((o) =>
+    ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)
+  );
+  if (active.length === 0) return null;
+
+  const now = Date.now();
+
+  type ChipData = {
+    id: string;
+    nr: string;
+    status: string;
+    elapsedMin: number;
+    prepMin: number | null;
+    timing: KitchenTiming | undefined;
+    remainSec: number | null; // seconds until ready_target
+    urgency: 'ok' | 'tight' | 'urgent' | 'critical' | 'done';
+  };
+
+  const chips: ChipData[] = active.map((o) => {
+    const elapsedMin = o.bestellt_am
+      ? Math.floor((now - new Date(o.bestellt_am).getTime()) / 60_000)
+      : 0;
+    const timing = timings.find((t) => t.order_id === o.id);
+    let remainSec: number | null = null;
+    if (timing?.ready_target) {
+      remainSec = Math.round((new Date(timing.ready_target).getTime() - now) / 1_000);
+    }
+    const prepMin = o.geschaetzte_zubereitung_min ?? timing?.prep_min ?? null;
+
+    let urgency: ChipData['urgency'] = 'ok';
+    if (o.status === 'fertig') {
+      urgency = 'done';
+    } else if (remainSec !== null) {
+      if (remainSec < 0) urgency = 'critical';
+      else if (remainSec < 120) urgency = 'urgent';
+      else if (remainSec < 300) urgency = 'tight';
+      else urgency = 'ok';
+    } else if (prepMin !== null) {
+      const expectedDoneMin = prepMin - elapsedMin;
+      if (expectedDoneMin < 0) urgency = 'critical';
+      else if (expectedDoneMin < 2) urgency = 'urgent';
+      else if (expectedDoneMin < 5) urgency = 'tight';
+      else urgency = 'ok';
+    } else {
+      if (elapsedMin > 20) urgency = 'critical';
+      else if (elapsedMin > 12) urgency = 'urgent';
+      else if (elapsedMin > 7) urgency = 'tight';
+    }
+
+    return { id: o.id, nr: o.bestellnummer.replace('FF-', ''), status: o.status, elapsedMin, prepMin, timing, remainSec, urgency };
+  });
+
+  chips.sort((a, b) => {
+    const order = ['critical', 'urgent', 'tight', 'ok', 'done'];
+    return order.indexOf(a.urgency) - order.indexOf(b.urgency);
+  });
+
+  const urgencyStyle: Record<ChipData['urgency'], { bg: string; text: string; border: string; pulse: boolean }> = {
+    critical: { bg: 'bg-red-600',    text: 'text-white',          border: 'border-red-700',    pulse: true  },
+    urgent:   { bg: 'bg-orange-500', text: 'text-white',          border: 'border-orange-600', pulse: false },
+    tight:    { bg: 'bg-amber-400',  text: 'text-amber-900',      border: 'border-amber-500',  pulse: false },
+    ok:       { bg: 'bg-matcha-600', text: 'text-white',          border: 'border-matcha-700', pulse: false },
+    done:     { bg: 'bg-matcha-900', text: 'text-matcha-400',     border: 'border-matcha-700', pulse: false },
+  };
+
+  const statusIcon: Record<string, string> = {
+    neu: '📥', bestätigt: '✓', in_zubereitung: '🔥', fertig: '✅',
+  };
+
+  function fmtRemain(sec: number | null): string {
+    if (sec === null) return '';
+    if (sec < 0) return `+${Math.abs(Math.ceil(sec / 60))}m`;
+    const m = Math.floor(sec / 60);
+    const s = Math.abs(sec % 60);
+    if (m > 0) return `${m}:${String(s).padStart(2, '0')}`;
+    return `0:${String(s).padStart(2, '0')}`;
+  }
+
+  const critCount = chips.filter((c) => c.urgency === 'critical').length;
+  const urgentCount = chips.filter((c) => c.urgency === 'urgent').length;
+
+  return (
+    <div className="rounded-xl border border-matcha-700/50 bg-matcha-900/50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-matcha-700/40">
+        <Flame className="h-3.5 w-3.5 text-orange-400 shrink-0" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-matcha-300">
+          Urgency-Rail · {active.length} aktiv
+        </span>
+        {critCount > 0 && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-black text-white animate-pulse">
+            {critCount} krit.
+          </span>
+        )}
+        {urgentCount > 0 && (
+          <span className={cn('rounded-full bg-orange-500 px-2 py-0.5 text-[9px] font-black text-white', critCount === 0 && 'ml-auto')}>
+            {urgentCount} dringend
+          </span>
+        )}
+      </div>
+
+      {/* Chip-Rail */}
+      <div className="flex gap-2 overflow-x-auto px-3 py-2.5 scrollbar-none">
+        {chips.map((chip) => {
+          const s = urgencyStyle[chip.urgency];
+          return (
+            <div
+              key={chip.id}
+              className={cn(
+                'flex-shrink-0 flex flex-col items-center gap-0.5 rounded-xl border px-2.5 py-2 min-w-[60px]',
+                s.bg, s.text, s.border,
+                chip.urgency === 'critical' && 'animate-pulse',
+              )}
+            >
+              <span className="text-[10px]">{statusIcon[chip.status] ?? '·'}</span>
+              <span className="font-mono text-[11px] font-black leading-none tabular-nums">
+                #{chip.nr.slice(-4)}
+              </span>
+              {chip.remainSec !== null ? (
+                <span className={cn('font-mono text-[10px] font-bold tabular-nums', chip.remainSec < 0 && 'text-red-200')}>
+                  {fmtRemain(chip.remainSec)}
+                </span>
+              ) : (
+                <span className="font-mono text-[10px] tabular-nums opacity-80">
+                  {chip.elapsedMin}m
+                </span>
+              )}
+              <span className="text-[8px] opacity-70 leading-none">
+                {chip.urgency === 'done' ? 'fertig' : chip.urgency === 'critical' ? 'überfällig' : chip.urgency === 'urgent' ? 'dringend' : chip.urgency === 'tight' ? 'knapp' : 'OK'}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

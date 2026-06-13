@@ -295,6 +295,51 @@ export function StorefrontV2({
             </div>
           )}
 
+          {/* Dynamische ETA-Leiste: zeigt Live-Auslastung als visuellen Balken */}
+          {liveEta && orderType === 'lieferung' && liveEta.load && (
+            <div style={{
+              margin: '0.5rem 0 0',
+              borderRadius: '0.75rem',
+              background: 'rgba(0,0,0,0.06)',
+              padding: '0.6rem 0.875rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.6 }}>
+                  Live-Auslastung
+                </span>
+                <span style={{
+                  fontSize: '0.72rem', fontWeight: 800,
+                  color: liveEta.load === 'busy' ? '#dc2626' : liveEta.load === 'normal' ? '#d97706' : '#16a34a',
+                }}>
+                  {liveEta.load === 'busy' ? '🔴 Sehr ausgelastet' : liveEta.load === 'normal' ? '🟡 Mäßig ausgelastet' : '🟢 Küche frei'}
+                </span>
+              </div>
+              {/* Load bar */}
+              <div style={{ height: '4px', borderRadius: '9999px', background: 'rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', borderRadius: '9999px',
+                  width: liveEta.load === 'busy' ? '90%' : liveEta.load === 'normal' ? '55%' : '20%',
+                  background: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#f59e0b' : '#22c55e',
+                  transition: 'width 1s ease',
+                }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.7rem' }}>
+                {liveEta.active_orders != null && (
+                  <span style={{ opacity: 0.65 }}>📦 {liveEta.active_orders} Bestellungen aktiv</span>
+                )}
+                {liveEta.drivers_online != null && (
+                  <span style={{ opacity: 0.65 }}>🛵 {liveEta.drivers_online} Fahrer online</span>
+                )}
+                <span style={{ marginLeft: 'auto', fontWeight: 800, fontSize: '0.78rem' }}>
+                  ~{liveEta.eta_min}{liveEta.eta_extension_min > 0 ? `+${liveEta.eta_extension_min}` : ''} Min
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Order type tabs */}
           <div className="v2-order-type" role="tablist">
             <button

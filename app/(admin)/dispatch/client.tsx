@@ -1063,6 +1063,9 @@ export function DispatchBoard({
       {/* Historisches Leaderboard: Wochen-/Monatsranking aus persistenten Snapshots */}
       <DriverHistoricalLeaderboardPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
+      {/* Tour-Score-Board: priorisierte Liste aktiver Touren nach ETA-Gesundheit */}
+      {batches.length > 0 && <DispatchActiveTourScoreBoard batches={batches} drivers={drivers} />}
+
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}
 
@@ -8613,6 +8616,150 @@ function DispatchBundleOpportunityAlert({ orders, drivers }: { orders: ReadyOrde
             </div>
           </div>
         ))}
+      </div>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DispatchActiveTourScoreBoard
+// Zeigt alle aktiven Touren als priorisierte Score-Liste:
+// ETA-Status (grün/gelb/rot), Fortschritt (X von Y Stopps), Fahrername
+// Hilft dem Dispatcher, sofort zu sehen welche Touren Aufmerksamkeit brauchen.
+// ---------------------------------------------------------------------------
+export function DispatchActiveTourScoreBoard({ batches, drivers }: { batches: Batch[]; drivers: Driver[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const iv = setInterval(() => setTick((n) => n + 1), 15_000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const now = Date.now();
+
+  type TourRow = {
+    batch: Batch;
+    driverName: string;
+    completedStops: number;
+    totalStops: number;
+    elapsedMin: number;
+    etaMin: number | null;
+    remainMin: number | null;
+    health: 'on-time' | 'tight' | 'late' | 'unknown';
+    progressPct: number;
+  };
+
+  const rows: TourRow[] = batches
+    .filter((b) => ['unterwegs', 'on_route', 'gestartet'].includes(b.status))
+    .map((b) => {
+      const driver = drivers.find((d) => d.employee_id === (b.fahrer_id ?? ''));
+      const driverName = driver?.employee
+        ? `${driver.employee.vorname} ${driver.employee.nachname[0]}.`
+        : 'Fahrer';
+      const totalStops = b.stops?.length ?? 0;
+      const completedStops = b.stops?.filter((s) => s.geliefert_am).length ?? 0;
+      const startMs = b.startzeit ? new Date(b.startzeit).getTime() : null;
+      const elapsedMin = startMs ? Math.floor((now - startMs) / 60_000) : 0;
+      const etaMin = b.total_eta_min ?? null;
+      const remainMin = etaMin !== null ? Math.max(0, etaMin - elapsedMin) : null;
+
+      let health: TourRow['health'] = 'unknown';
+      if (etaMin !== null) {
+        const usedPct = elapsedMin / etaMin;
+        const donePct = totalStops > 0 ? completedStops / totalStops : 0;
+        if (usedPct - donePct > 0.3) health = 'late';
+        else if (usedPct - donePct > 0.1) health = 'tight';
+        else health = 'on-time';
+      }
+
+      return {
+        batch: b,
+        driverName,
+        completedStops,
+        totalStops,
+        elapsedMin,
+        etaMin,
+        remainMin,
+        health,
+        progressPct: totalStops > 0 ? Math.round((completedStops / totalStops) * 100) : 0,
+      };
+    })
+    .sort((a, b) => {
+      const order = ['late', 'tight', 'on-time', 'unknown'];
+      return order.indexOf(a.health) - order.indexOf(b.health);
+    });
+
+  if (rows.length === 0) return null;
+
+  const healthStyle = {
+    late:     { bg: 'bg-red-50',     border: 'border-red-200',     badge: 'bg-red-500 text-white',      label: 'Verspätet',   barColor: 'bg-red-400'   },
+    tight:    { bg: 'bg-amber-50',   border: 'border-amber-200',   badge: 'bg-amber-400 text-white',    label: 'Knapp',       barColor: 'bg-amber-400' },
+    'on-time':{ bg: 'bg-matcha-50',  border: 'border-matcha-200',  badge: 'bg-matcha-500 text-white',   label: 'Pünktlich',   barColor: 'bg-matcha-500'},
+    unknown:  { bg: 'bg-muted/30',   border: 'border-border',      badge: 'bg-muted text-muted-foreground', label: 'Unbekannt', barColor: 'bg-muted-foreground'},
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b">
+        <RouteIcon className="h-4 w-4 text-matcha-600 shrink-0" />
+        <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+          Aktive Touren · Score-Board
+        </span>
+        <Badge variant="secondary" className="ml-auto">
+          {rows.length} Tour{rows.length !== 1 ? 'en' : ''}
+        </Badge>
+      </div>
+      <div className="divide-y">
+        {rows.map((row) => {
+          const hs = healthStyle[row.health];
+          return (
+            <div key={row.batch.id} className={cn('px-4 py-3 flex items-center gap-3', hs.bg)}>
+              {/* Health badge */}
+              <div className={cn('shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black min-w-[58px] text-center', hs.badge)}>
+                {hs.label}
+              </div>
+
+              {/* Driver + zone */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold truncate">{row.driverName}</span>
+                  {row.batch.zone && (
+                    <span className="text-[9px] rounded-full bg-white/60 border px-1.5 py-0.5 font-bold">
+                      Zone {row.batch.zone}
+                    </span>
+                  )}
+                  {row.remainMin !== null && (
+                    <span className={cn(
+                      'text-[10px] font-bold tabular-nums',
+                      row.health === 'late' ? 'text-red-600' : row.health === 'tight' ? 'text-amber-600' : 'text-matcha-600',
+                    )}>
+                      ~{row.remainMin} Min verbleibend
+                    </span>
+                  )}
+                </div>
+                {/* Progress bar */}
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-black/10 overflow-hidden">
+                    <div
+                      className={cn('h-full rounded-full transition-all duration-700', hs.barColor)}
+                      style={{ width: `${row.progressPct}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] font-bold tabular-nums shrink-0 text-muted-foreground">
+                    {row.completedStops}/{row.totalStops}
+                  </span>
+                </div>
+              </div>
+
+              {/* Elapsed */}
+              <div className="shrink-0 text-right">
+                <div className="font-mono text-sm font-black tabular-nums text-foreground">
+                  {row.elapsedMin}m
+                </div>
+                <div className="text-[8px] text-muted-foreground">vergangen</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

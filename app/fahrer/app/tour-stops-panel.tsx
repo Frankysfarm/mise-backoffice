@@ -267,12 +267,35 @@ export function TourStopsPanel({
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+      {/* Fortschritts-Balken mit Stopp-Markierungen */}
+      <div className="relative h-2 rounded-full bg-white/10 overflow-hidden">
         <div
           className="h-full rounded-full bg-accent transition-all duration-700"
           style={{ width: `${sorted.length > 0 ? (completedCount / sorted.length) * 100 : 0}%` }}
         />
+      </div>
+      {/* Mini-KPI-Strip: Fortschritt, verbleibende Stops, Distanz */}
+      <div className="flex items-center gap-2 px-0.5">
+        <div className="flex-1 flex items-center gap-1.5">
+          <span className={cn(
+            'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black',
+            completedCount === sorted.length
+              ? 'bg-accent/20 text-accent'
+              : 'bg-white/10 text-matcha-300',
+          )}>
+            {completedCount}/{sorted.length} ✓
+          </span>
+          {sorted.length - completedCount > 0 && (
+            <span className="text-[10px] text-matcha-400">
+              {sorted.length - completedCount} verbleibend
+            </span>
+          )}
+        </div>
+        {totalDistanceKm != null && totalDistanceKm > 0 && (
+          <span className="text-[10px] text-matcha-500 font-mono">
+            {totalDistanceKm.toFixed(1)} km gesamt
+          </span>
+        )}
       </div>
 
       {/* Stops */}
