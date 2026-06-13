@@ -46,13 +46,29 @@ function useTick() {
 function EtaCountdown({ iso }: { iso: string }) {
   useTick();
   const secs = Math.floor((new Date(iso).getTime() - Date.now()) / 1000);
-  if (secs < -300) return <span className="text-red-400 font-black text-[10px]">Überfällig</span>;
-  if (secs < 0) return <span className="text-orange-400 font-black text-[10px]">Jetzt!</span>;
+  if (secs < -600)
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-red-500/20 px-1.5 py-0.5 text-red-400 font-black text-[10px] animate-pulse">
+        <AlertTriangle size={9} />
+        Überfällig
+      </span>
+    );
+  if (secs < 0)
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-500/20 px-1.5 py-0.5 text-orange-400 font-black text-[10px] animate-pulse">
+        <Clock size={9} />
+        Jetzt!
+      </span>
+    );
   const mm = Math.floor(secs / 60);
   const ss = secs % 60;
-  const color = secs < 300 ? 'text-orange-400' : secs < 600 ? 'text-amber-400' : 'text-accent';
+  const isUrgent = secs < 300;
+  const isTight = secs < 600;
   return (
-    <span className={cn('font-mono font-black text-[11px] tabular-nums', color)}>
+    <span className={cn(
+      'font-mono font-black text-[11px] tabular-nums',
+      isUrgent ? 'text-orange-400 animate-pulse' : isTight ? 'text-amber-400' : 'text-accent',
+    )}>
       {mm}:{String(ss).padStart(2, '0')}
     </span>
   );
