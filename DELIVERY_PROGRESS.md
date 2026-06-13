@@ -1,12 +1,22 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–105 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
+**Phasen 1–107 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
 **CEO Review #78 — 2026-06-13: Phase 104+105 geprüft. 1 Bug gefixt (aria-label). Alle Systeme grün.**
-**CEO Review #77 — 2026-06-13: Phase 103 geprüft. 0 Bugs. Alle Systeme grün.**
+**Backend-Architekt — 2026-06-13: Phase 106+107 abgeschlossen. Build 195 Seiten sauber.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 107: Live Order Tracking + GeoFencing Backend — 2026-06-13
+- [x] scripts/migrations/065_order_tracking_sessions.sql: order_tracking_sessions (order_id/bestellnummer/started_at/last_ping_at/pings/almost_there_at/arrived_at/user_agent/ip_hash, RLS), v_tracking_session_stats VIEW (tägliche Analytics pro Location), v_live_order_tracking VIEW (Fahrer-Position + Haversine-Distanz + Almost-There-Flag < 300m via LATERAL JOIN auf mise_driver_locations)
+- [x] lib/delivery/live-tracking.ts: computeGeofencing() (Distanz, almostThere <300m, etaMinRemaining via Speed/Fallback, bearingDeg), getOrderTrackingData() (vollständiger Tracking-Payload mit Geofencing), recordTrackingSession() (Analytics fire-and-forget, Session-Ping-Update), getTrackingSessionStats()
+- [x] GET /api/delivery/tracking/[bestellnummer]: Neuer öffentlicher Tracking-Endpunkt via Bestellnummer (nicht UUID), inkl. geo.distance_m/almost_there/eta_min_remaining/bearing_deg, Analytics-Session via session_id Query-Param, IP-Hash SHA-256 für Datenschutz
+- [x] GET /api/delivery/orders/[orderId]/tracking: Enhanced mit computeGeofencing() — gibt jetzt geo.{distance_m, almost_there, eta_min_remaining, bearing_deg} zurück, speed_kmh aus mise_driver_locations ergänzt
+- [x] Phase 106: Driver-Rating Recency-Gewichtung — 2026-06-13
+- [x] scripts/migrations/064_driver_rating_recency.sql: recompute_driver_rating() ersetzt (Exponential-Decay λ=0.0693, Halbwertszeit 10 Lieferungen), recompute_driver_rating_with_satisfaction() ersetzt (60% ETA recency-gewichtet + 40% Kunden-Rating mit λ=0.099, Halbwertszeit 7 Bewertungen), v_driver_rating_breakdown VIEW (w_on_time_pct/w_avg_dev_min/avg_delivery_min/total_cust_ratings/w_cust_rating/recency_concentration)
+- [x] lib/delivery/rating.ts: getDriverRatingBreakdown() (lädt v_driver_rating_breakdown für einen Fahrer), batchRecomputeRatingsForLocation() (nachtliches Recency-Recompute aller aktiven Fahrer)
+- [x] Cron: batchRecomputeRatingsForLocation() täglich 02:00 UTC für alle aktiven Locations → rating_recency: { recomputed, errors } in Response
+- [x] Build: next build ✓ (195 Seiten, 0 Fehler)
 - [x] Phase 105: Fahrer-Pickup-Prognose, SLA-Metriken, Stopp-ETA, Schicht-KPI-Banner — 2026-06-13
 - [x] app/(admin)/kitchen/client.tsx: KitchenDriverPickupForecast — 30-Min-Vorschau Fahrer-Rückkehr, Urgency-Stufen now/soon/later, freie-Fahrer-Banner, Auto-Refresh 10s
 - [x] app/(admin)/dispatch/client.tsx: SLA-Pünktlichkeit + ETA-Genauigkeit als farbkodierte Metric-Chips im Toolbar, Metric-Komponente um highlight + string-value erweitert

@@ -1,17 +1,19 @@
 /**
  * GET /api/delivery/orders/[orderId]/tracking
  *
- * Live-Tracking-Daten für eine Bestellung.
- * Öffentlicher Endpunkt (kein Auth) — nutzt order_token aus Query.
+ * Live-Tracking-Daten für eine Bestellung (interne API, via UUID).
+ * Öffentlicher Endpunkt (kein Auth).
  *
  * Gibt zurück:
  * - Bestellstatus + ETA
  * - Fahrer-Position (lat/lng, seconds_stale)
  * - Tour-Fortschritt (wieviele Stops noch vor diesem)
+ * - Geofencing: distance_m, almost_there, eta_min_remaining, bearing_deg (Phase 107)
  * - Display-Label "19:20–19:40"
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { computeGeofencing } from '@/lib/delivery/live-tracking';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -98,19 +100,20 @@ export async function GET(req: NextRequest, { params }: Params) {
     seconds_stale: number;
   } | null = null;
   let driverName: string | null = null;
+  let geo = { distanceM: null as number | null, almostThere: false, etaMinRemaining: null as number | null, bearingDeg: null as number | null };
 
   if (driverId) {
     const [{ data: loc }, { data: driverRow }] = await Promise.all([
       sb
         .from('mise_driver_locations')
-        .select('lat, lng, heading, recorded_at')
+        .select('lat, lng, heading, speed_kmh, recorded_at')
         .eq('driver_id', driverId)
         .order('recorded_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
       sb
         .from('mise_drivers')
-        .select('employee_id')
+        .select('employee_id, vehicle')
         .eq('id', driverId)
         .maybeSingle(),
     ]);
@@ -120,11 +123,12 @@ export async function GET(req: NextRequest, { params }: Params) {
         (Date.now() - new Date(loc.recorded_at as string).getTime()) / 1000,
       );
       driverPosition = {
-        lat: loc.lat as number,
-        lng: loc.lng as number,
-        heading: (loc.heading as number | null) ?? null,
+        lat:           loc.lat as number,
+        lng:           loc.lng as number,
+        heading:       (loc.heading as number | null) ?? null,
         seconds_stale: secondsStale,
-      };
+        speed_kmh:     (loc.speed_kmh as number | null) ?? null,
+      } as typeof driverPosition & { speed_kmh: number | null };
     }
 
     if (driverRow?.employee_id) {
@@ -134,6 +138,20 @@ export async function GET(req: NextRequest, { params }: Params) {
         .eq('id', driverRow.employee_id)
         .maybeSingle();
       if (emp?.vorname) driverName = emp.vorname as string;
+    }
+
+    // Geofencing: Distanz + Almost-There + Bearing (Phase 107)
+    const kundePos = order.kunde_lat != null && order.kunde_lng != null
+      ? { lat: order.kunde_lat as number, lng: order.kunde_lng as number }
+      : null;
+    if (driverPosition && kundePos) {
+      const vehicleType = (driverRow?.vehicle as string | null) === 'car' ? 'car' : 'bike';
+      const dp = driverPosition as typeof driverPosition & { speed_kmh: number | null };
+      geo = computeGeofencing(
+        { lat: dp.lat, lng: dp.lng, speedKmh: dp.speed_kmh ?? null },
+        kundePos,
+        vehicleType,
+      );
     }
   }
 
@@ -148,5 +166,11 @@ export async function GET(req: NextRequest, { params }: Params) {
     stops_before:  stopsBefore,
     driver:        driverPosition,
     driver_name:   driverName,
+    geo: {
+      distance_m:        geo.distanceM,
+      almost_there:      geo.almostThere,
+      eta_min_remaining: geo.etaMinRemaining,
+      bearing_deg:       geo.bearingDeg,
+    },
   });
 }

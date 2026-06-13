@@ -45,6 +45,7 @@ import { snapshotAllLocations as snapshotProfitability } from '@/lib/delivery/pr
 import { analyzeChurnAllLocations, runReEngagementAllLocations } from '@/lib/delivery/churn-prevention';
 import { takeSnapshotAllLocations as takeHealthSnapshots, pruneOldSnapshots } from '@/lib/delivery/health-observatory';
 import { runSurgePredictionAllLocations, evaluatePastPredictions } from '@/lib/delivery/surge-prediction';
+import { batchRecomputeRatingsForLocation } from '@/lib/delivery/rating';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -94,7 +95,7 @@ export async function GET(req: NextRequest) {
     const isChurnTick   = nowHour === 2 && nowMin < 2;
     const isReEngageTick = nowHour === 4 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -226,6 +227,22 @@ export async function GET(req: NextRequest) {
       isRatingTick
         ? evaluatePastPredictions().catch(() => ({ evaluated: 0 }))
         : Promise.resolve(null),
+      // Fahrer-Rating Recency-Neuberechnung: täglich um 02:00 UTC alle aktiven Locations (Phase 106)
+      isReportTick
+        ? (async () => {
+            try {
+              const { data: locs } = await serviceSb.from('locations').select('id').eq('active', true).limit(20);
+              let totalRecomputed = 0;
+              let totalErrors = 0;
+              for (const loc of locs ?? []) {
+                const r = await batchRecomputeRatingsForLocation(loc.id as string);
+                totalRecomputed += r.recomputed;
+                totalErrors     += r.errors;
+              }
+              return { recomputed: totalRecomputed, errors: totalErrors };
+            } catch { return { recomputed: 0, errors: 1 }; }
+          })()
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -313,6 +330,7 @@ export async function GET(req: NextRequest) {
       ...(healthSnapshotsPruned ? { health_snapshots_pruned: healthSnapshotsPruned } : {}),
       ...(surgePredictionResult ? { surge_prediction: { predictions: surgePredictionResult.predictions, broadcasts: surgePredictionResult.broadcasts, skipped: surgePredictionResult.skipped } } : {}),
       ...(surgeEvalResult ? { surge_eval: { evaluated: surgeEvalResult.evaluated } } : {}),
+      ...(ratingRecencyResult ? { rating_recency: { recomputed: ratingRecencyResult.recomputed, errors: ratingRecencyResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

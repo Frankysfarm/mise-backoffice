@@ -151,3 +151,75 @@ export async function getSlaSummary(
 
   return { ...aggregate(rows), byDriver, byZone };
 }
+
+// ── Phase 106: Recency-Weighted Rating Breakdown ───────────────────────────
+
+export interface RatingBreakdown {
+  driverId: string;
+  currentRating: number | null;
+  totalDeliveries: number;
+  wOnTimePct: number | null;       // recency-weighted on-time %
+  wAvgDevMin: number | null;       // recency-weighted ETA deviation
+  avgDeliveryMin: number | null;
+  totalCustRatings: number;
+  wCustRating: number | null;      // recency-weighted customer rating
+  recencyConcentration: number | null; // 0–1: share of last 5 deliveries in total weight
+}
+
+/**
+ * Lädt die Recency-gewichteten Rating-Komponenten für einen Fahrer
+ * aus v_driver_rating_breakdown (Migration 064).
+ */
+export async function getDriverRatingBreakdown(
+  driverId: string,
+): Promise<RatingBreakdown | null> {
+  const sb = createServiceClient();
+  const { data } = await sb
+    .from('v_driver_rating_breakdown')
+    .select('*')
+    .eq('driver_id', driverId)
+    .maybeSingle();
+
+  if (!data) return null;
+  return {
+    driverId:             data.driver_id as string,
+    currentRating:        (data.current_rating as number | null),
+    totalDeliveries:      (data.total_deliveries as number) ?? 0,
+    wOnTimePct:           (data.w_on_time_pct as number | null),
+    wAvgDevMin:           (data.w_avg_dev_min as number | null),
+    avgDeliveryMin:       (data.avg_delivery_min as number | null),
+    totalCustRatings:     (data.total_cust_ratings as number) ?? 0,
+    wCustRating:          (data.w_cust_rating as number | null),
+    recencyConcentration: (data.recency_concentration as number | null),
+  };
+}
+
+/**
+ * Berechnet die Recency-gewichteten Ratings für alle Fahrer einer Location neu.
+ * Gedacht für nächtlichen Cron-Job (isReportTick).
+ */
+export async function batchRecomputeRatingsForLocation(
+  locationId: string,
+): Promise<{ recomputed: number; errors: number }> {
+  const sb = createServiceClient();
+  const { data: drivers } = await sb
+    .from('mise_drivers')
+    .select('id')
+    .eq('location_id', locationId)
+    .eq('active', true);
+
+  let recomputed = 0;
+  let errors = 0;
+  for (const d of drivers ?? []) {
+    try {
+      const { error } = await sb.rpc('recompute_driver_rating', {
+        p_driver_id: d.id as string,
+      });
+      if (error) errors++;
+      else recomputed++;
+    } catch {
+      errors++;
+    }
+  }
+  return { recomputed, errors };
+}
