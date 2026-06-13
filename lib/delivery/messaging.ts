@@ -17,6 +17,7 @@
  */
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/server';
+import { logCommunication } from './comms-log';
 
 // ─── Typen ────────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,19 @@ export async function sendBroadcast(params: {
     .single();
 
   if (error) throw new Error(`sendBroadcast: ${error.message}`);
+
+  // Kommunikations-Log (fire-and-forget)
+  void logCommunication({
+    locationId,
+    channel:       'broadcast',
+    messageType:   'broadcast',
+    direction:     'dispatch_to_driver',
+    body:          trimmed,
+    sentByName,
+    referenceType: 'broadcast',
+    referenceId:   data.id as string,
+    metadata:      { priority, target },
+  });
 
   return {
     id:        data.id as string,

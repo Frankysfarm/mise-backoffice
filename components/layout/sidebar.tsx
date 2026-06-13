@@ -161,6 +161,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/health-observatory', icon: 'Activity',  label: 'System-Health Observatory' },
       { group: 'Loslegen', href: '/delivery/surge-prediction',     icon: 'Radio',     label: 'Surge-Vorhersage (KI)' },
       { group: 'Loslegen', href: '/delivery/address-intelligence', icon: 'MapPinned', label: 'Adress-Intelligenz' },
+      { group: 'Loslegen', href: '/delivery/comms-log', icon: 'MessageSquare', label: 'Kommunikations-Log' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

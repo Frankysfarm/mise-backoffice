@@ -47,6 +47,7 @@ import { takeSnapshotAllLocations as takeHealthSnapshots, pruneOldSnapshots } fr
 import { runSurgePredictionAllLocations, evaluatePastPredictions } from '@/lib/delivery/surge-prediction';
 import { batchRecomputeRatingsForLocation } from '@/lib/delivery/rating';
 import { scanProblematicAddressesAllLocations } from '@/lib/delivery/address-intelligence';
+import { pruneOldCommsLogs } from '@/lib/delivery/comms-log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -98,7 +99,7 @@ export async function GET(req: NextRequest) {
     // Adress-Intelligenz-Scan: täglich um 05:00 UTC
     const isAddressScanTick = nowHour === 5 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -249,6 +250,10 @@ export async function GET(req: NextRequest) {
       isAddressScanTick
         ? scanProblematicAddressesAllLocations().catch(() => ({ locations: 0, totalProblematic: 0 }))
         : Promise.resolve(null),
+      // Kommunikations-Log bereinigen: Logs > 90 Tage löschen (täglich 02:00 UTC)
+      isReportTick
+        ? pruneOldCommsLogs(90).catch(() => 0)
+        : Promise.resolve(0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -338,6 +343,7 @@ export async function GET(req: NextRequest) {
       ...(surgeEvalResult ? { surge_eval: { evaluated: surgeEvalResult.evaluated } } : {}),
       ...(ratingRecencyResult ? { rating_recency: { recomputed: ratingRecencyResult.recomputed, errors: ratingRecencyResult.errors } } : {}),
       ...(addressScanResult ? { address_intelligence: { locations: addressScanResult.locations, problematic: addressScanResult.totalProblematic } } : {}),
+      ...(commsLogsPruned ? { comms_logs_pruned: commsLogsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
