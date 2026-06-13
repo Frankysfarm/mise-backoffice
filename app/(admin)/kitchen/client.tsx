@@ -826,7 +826,7 @@ export function KitchenBoard({
 
       {/* Küchendisplay (TV-Modus) */}
       {bigDisplay && (
-        <KitchenBigDisplayGrid orders={filtered} timings={timings} onClose={() => setBigDisplay(false)} />
+        <KitchenBigDisplayGrid orders={filtered} timings={timings} batches={batches} drivers={drivers} onClose={() => setBigDisplay(false)} />
       )}
 
       {/* Station-Fokus-Panel: Kompaktansicht für einzelne Station */}
@@ -1073,10 +1073,14 @@ export function KitchenBoard({
 function KitchenBigDisplayGrid({
   orders,
   timings,
+  batches,
+  drivers,
   onClose,
 }: {
   orders: Order[];
   timings: KitchenTiming[];
+  batches: Batch[];
+  drivers: Driver[];
   onClose: () => void;
 }) {
   const [, setTick] = useState(0);
@@ -1303,6 +1307,49 @@ function KitchenBigDisplayGrid({
           </div>
         )}
       </div>
+
+      {/* Aktive Touren — Footer-Leiste für Küchenpersonal */}
+      {batches.filter(b => ['unterwegs', 'on_route', 'pickup', 'assigned'].includes(b.status)).length > 0 && (
+        <div className="border-t border-white/5 bg-matcha-950/80 px-5 py-2.5">
+          <div className="flex items-center gap-3 overflow-x-auto">
+            <span className="text-[9px] font-black uppercase tracking-widest text-matcha-600 shrink-0">Touren</span>
+            {batches
+              .filter(b => ['unterwegs', 'on_route', 'pickup', 'assigned'].includes(b.status))
+              .map(b => {
+                const driver = drivers.find(d => d.id === b.driver_id);
+                const etaMs = b.started_at && b.total_eta_min
+                  ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+                  : null;
+                const remainMin = etaMs ? Math.round((etaMs - now) / 60_000) : null;
+                const isOverdue = remainMin !== null && remainMin < 0;
+                return (
+                  <div
+                    key={b.id}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg border px-3 py-1.5 shrink-0 text-[10px]',
+                      b.status === 'pickup' ? 'border-amber-500/40 bg-amber-950/40 text-amber-300' :
+                      isOverdue ? 'border-red-500/30 bg-red-950/30 text-red-400 animate-pulse' :
+                      'border-matcha-700/30 bg-matcha-900/30 text-matcha-400',
+                    )}
+                  >
+                    <Bike className="h-3 w-3 shrink-0" />
+                    <span className="font-bold">
+                      {driver ? `${driver.vorname} ${driver.nachname[0]}.` : 'Fahrer'}
+                    </span>
+                    {b.status === 'pickup' && (
+                      <span className="font-black text-amber-200 uppercase text-[9px]">abholt</span>
+                    )}
+                    {remainMin !== null && b.status !== 'pickup' && (
+                      <span className="font-mono tabular-nums">
+                        {isOverdue ? `+${Math.abs(remainMin)}m` : `${remainMin}m`}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
