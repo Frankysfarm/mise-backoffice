@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, Zap } from 'lucide-react';
+import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, X, Zap } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { ItemDetailSheet } from './item-sheet';
 
 type LiveEtaLoad = 'quiet' | 'normal' | 'busy';
@@ -321,6 +322,12 @@ export function StorefrontAurora({
           </div>
         </section>
 
+        {/* Geteilter Tracking-Link oder wiederkehrender Kunde mit aktiver Bestellung */}
+        <div className="au-container" style={{ paddingTop: 12, paddingBottom: 0 }}>
+          <AuroraSharedTrackingBanner />
+          <AuroraActiveOrderBanner locationId={location.id} />
+        </div>
+
         {/* === STICKY CATEGORY NAV === */}
         <nav className="au-cat-nav" aria-label="Kategorien">
           <div className="au-cat-nav__inner">
@@ -444,6 +451,188 @@ export function StorefrontAurora({
         </div>
         <span className="au-cart-bar__price">{formatEuro(total)}</span>
       </div>
+    </div>
+  );
+}
+
+// ─── Live-Tracking Banner (Shared Link) ──────────────────────────────────
+
+function AuroraSharedTrackingBanner() {
+  const [orderId, setOrderId] = React.useState<string | null>(null);
+  const [trackData, setTrackData] = React.useState<{
+    status: string; bestellnummer: string; etaEarliest: string | null;
+  } | null>(null);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+  const [dismissed, setDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = new URLSearchParams(window.location.search).get('track');
+    if (id) setOrderId(id);
+  }, []);
+
+  React.useEffect(() => {
+    if (!orderId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/orders/${orderId}/tracking`);
+        if (!r.ok || cancelled) return;
+        const d = await r.json();
+        if (!cancelled) setTrackData({ status: d.status, bestellnummer: d.bestellnummer, etaEarliest: d.eta_earliest ?? null });
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    const tick = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => { cancelled = true; clearInterval(iv); clearInterval(tick); };
+  }, [orderId]);
+
+  if (!orderId || dismissed || !trackData) return null;
+  const isTerminal = ['geliefert', 'abgeholt', 'storniert'].includes(trackData.status);
+  const secsLeft = trackData.etaEarliest
+    ? Math.max(0, Math.floor((new Date(trackData.etaEarliest).getTime() - nowMs) / 1000))
+    : null;
+  const minsLeft = secsLeft != null ? Math.floor(secsLeft / 60) : null;
+  const statusLabel: Record<string, string> = {
+    neu: 'Eingegangen', bestätigt: 'Bestätigt', in_zubereitung: 'Wird zubereitet',
+    fertig: 'Bereit', unterwegs: 'Unterwegs 🛵', geliefert: 'Geliefert ✅',
+  };
+
+  return (
+    <div style={{
+      margin: '0 0 8px',
+      padding: '10px 14px',
+      borderRadius: 14,
+      background: isTerminal ? 'rgba(74,230,138,0.08)' : 'rgba(59,130,246,0.1)',
+      border: `1px solid ${isTerminal ? 'rgba(74,230,138,0.25)' : 'rgba(59,130,246,0.25)'}`,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+    }}>
+      <span style={{ fontSize: 18, flexShrink: 0 }}>{isTerminal ? '✅' : '📍'}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+          {statusLabel[trackData.status] ?? trackData.status}
+          {' · '}
+          <span style={{ fontFamily: 'monospace', opacity: 0.7 }}>{trackData.bestellnummer}</span>
+        </div>
+        {!isTerminal && minsLeft != null && minsLeft > 0 && (
+          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: 1 }}>
+            <Clock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 3 }} />
+            Noch ca. {minsLeft} Min
+          </div>
+        )}
+      </div>
+      <button
+        onClick={() => setDismissed(true)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, flexShrink: 0, padding: 4 }}
+        aria-label="Schließen"
+      >
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
+
+// ─── Active Order Banner (Returning Customer) ──────────────────────────────────
+
+function AuroraActiveOrderBanner({ locationId }: { locationId: string }) {
+  const supabase = React.useMemo(() => createClient(), []);
+  const [banner, setBanner] = React.useState<{
+    bestellnummer: string; orderId: string; isDelivery: boolean; etaMs: number; status: string;
+  } | null>(null);
+  const [dismissed, setDismissed] = React.useState(false);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(`active_order:${locationId}`);
+      if (!raw) return;
+      const stored = JSON.parse(raw) as { bestellnummer: string; orderId: string; isDelivery: boolean; placedAt: number; etaMs: number };
+      if (Date.now() - stored.placedAt > 3 * 60 * 60 * 1000) {
+        localStorage.removeItem(`active_order:${locationId}`);
+        return;
+      }
+      setBanner({ ...stored, status: 'bestätigt' });
+    } catch {}
+  }, [locationId]);
+
+  React.useEffect(() => {
+    if (!banner?.orderId) return;
+    const ch = supabase
+      .channel(`aurora-order-${banner.orderId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${banner.orderId}` },
+        (payload: { new: { status?: string } }) => {
+          const s = payload.new?.status;
+          if (!s) return;
+          if (['geliefert', 'abgeholt', 'storniert'].includes(s)) {
+            localStorage.removeItem(`active_order:${locationId}`);
+            setBanner(null);
+          } else {
+            setBanner((prev) => prev ? { ...prev, status: s } : null);
+          }
+        },
+      )
+      .subscribe();
+    const tick = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => { supabase.removeChannel(ch); clearInterval(tick); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banner?.orderId]);
+
+  if (!banner || dismissed) return null;
+  const minsLeft = Math.max(0, Math.floor((banner.etaMs - nowMs) / 60_000));
+  const statusLabel: Record<string, string> = {
+    bestätigt: 'Bestätigt', in_zubereitung: 'Wird zubereitet',
+    fertig: 'Bereit zur Abholung', unterwegs: 'Unterwegs 🛵',
+  };
+
+  return (
+    <div style={{
+      margin: '0 0 8px',
+      padding: '10px 14px',
+      borderRadius: 14,
+      background: 'rgba(74,230,138,0.08)',
+      border: '1px solid rgba(74,230,138,0.25)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+    }}>
+      <span style={{ fontSize: 18, flexShrink: 0 }}>🧾</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+          Bestellung {banner.bestellnummer}
+          {' · '}
+          <span style={{ opacity: 0.7 }}>{statusLabel[banner.status] ?? banner.status}</span>
+        </div>
+        {minsLeft > 0 && (
+          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: 1 }}>
+            <Clock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 3 }} />
+            Noch ca. {minsLeft} Min
+          </div>
+        )}
+      </div>
+      <a
+        href={`/track/${banner.bestellnummer}`}
+        style={{
+          fontSize: '0.7rem', fontWeight: 700, flexShrink: 0,
+          padding: '4px 10px', borderRadius: 9999,
+          background: 'rgba(74,230,138,0.15)', color: 'inherit',
+          textDecoration: 'none', border: '1px solid rgba(74,230,138,0.3)',
+        }}
+      >
+        Verfolgen
+      </a>
+      <button
+        onClick={() => setDismissed(true)}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, flexShrink: 0, padding: 4 }}
+        aria-label="Schließen"
+      >
+        <X size={14} />
+      </button>
     </div>
   );
 }

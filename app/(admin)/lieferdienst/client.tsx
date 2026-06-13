@@ -50,6 +50,7 @@ import { SchichtPrognosePanel } from './schicht-prognose'
 import { DeliveryLiveKpiPanel } from './delivery-live-kpi'
 import { TourPerformancePanel } from './tour-performance-panel'
 import { ZonePerformanceKpi } from './zone-performance-kpi'
+import { LiveOpsHeader } from './live-ops-header'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -674,6 +675,12 @@ export function LieferdienstClient() {
           {/* Live-Metriken: kompakte KPI-Leiste (immer sichtbar im Bestellbereich) */}
           {currentView === 'orders' && (
             <LiveMetricsStrip locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+          )}
+          {/* Live-Ops-Header: Auslastung, Fahrer, ETA — kompakter Status-Chip */}
+          {currentView === 'orders' && (
+            <div className="px-6 pt-3">
+              <LiveOpsHeader locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+            </div>
           )}
           {currentView === 'orders' && (
             <div className="flex gap-6 p-6 pb-24">
