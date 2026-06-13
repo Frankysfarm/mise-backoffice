@@ -64,10 +64,14 @@ export async function POST(
     })
     .eq('id', stop.id);
 
-  await c
-    .from('customer_orders')
-    .update({ status: 'geliefert' })
-    .eq('id', orderId);
+  const { data: paidOrd } = await c.from('customer_orders').select('bezahlt, zahlungsart').eq('id', orderId).maybeSingle();
+  const ordUpdate: Record<string, unknown> = { status: 'geliefert' };
+  if (paidOrd && !paidOrd.bezahlt && (paidOrd.zahlungsart === 'bar' || paidOrd.zahlungsart == null)) {
+    ordUpdate.bezahlt = true;
+    ordUpdate.zahlungsart = 'bar';
+    ordUpdate.stripe_payment_id = `cash:driver:${m.driver.id}:${now}`;
+  }
+  await c.from('customer_orders').update(ordUpdate).eq('id', orderId);
 
   // Sind alle Stops erledigt? → Batch completed
   const { data: openStops } = await c
