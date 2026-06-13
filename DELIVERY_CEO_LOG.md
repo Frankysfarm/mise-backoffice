@@ -1,7 +1,89 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–109 vollständig abgeschlossen. CEO Review #80 abgeschlossen. TypeScript 0 Fehler. Build sauber. 197 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–110 + Frontend-Batch vollständig abgeschlossen. CEO Review #81 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #81 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #80)
+- `f7345c7` feat(delivery/backend): Phase 110 — Smart Driver Zone Affinity Engine
+- `9b5f15b` feat(delivery/frontend): Smart-Timing, Tour-Ring, Zonen-Heatmap, Ops-Status
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅
+- `next build`: 198 Seiten, 0 Fehler ✅
+
+### Befund Phase 110 (Backend)
+
+**lib/delivery/zone-affinity.ts (364 Zeilen)**:
+- `computeAffinityScore()`: 60% Routine (min(deliveries×3,60)) + 40% On-Time-Rate — korrekte Gewichtung ✅
+- `recordZoneDelivery()`: Upsert mit Rolling-Avg, fire-and-forget bei Lieferung ✅
+- `getDriverZoneAffinities()`: Bulk-Lookup für Dispatch-Engine ✅
+- `getZoneAffinityDashboard()`: Matrix + Coverage + TopDriverPerZone ✅
+
+**scoring.ts**:
+- `scoreZone()`: Affinität 70% + statische Nähe 30% — Formel korrekt geprüft: max 10, min 0 ✅
+- `(affinity/100)*7*10 + staticScore*3) / 10` → bei affinity=100/static=10: Ergebnis 10 ✅
+
+**dispatch-engine.ts**:
+- `getDriverZoneAffinities()` wird vor Scoring geladen, korrekt in `zone_affinity` eingebettet ✅
+
+**tours/[id]/status route.ts**:
+- `recordZoneDelivery()` fire-and-forget bei `state=delivered`, `wasOnTime` via eta_latest-Vergleich ✅
+- `deliveryMinutes: null` — akzeptabel, da Startzeit nicht verfügbar; kein Bug ✅
+
+### Befund Frontend-Batch
+
+**KitchenCookStartTimer** (`cook-start-timer.tsx`):
+- Countdown-Logik: `startIn = driverSec - prepSec` — korrekt, positiv = noch Zeit, negativ = überfällig ✅
+- Filterung: nur Orders mit `status === 'bestätigt'` (noch nicht in Zubereitung) ✅
+- IIFE-Pattern konsistent mit bestehendem `KitchenSmartCountdownGrid`-IIFE ✅
+- `batches`, `stops`, `orders` alle im Scope (state-Variablen in `KitchenBoard`) ✅
+
+**TourProgressRing** (`tour-ring.tsx`):
+- SVG-Kreisring mit `strokeDashoffset` — mathematisch korrekt ✅
+- `remainSec = etaSec - elapsedSec` — korrekte ETA-Berechnung, negativ verhindert durch `Math.max(0, ...)` ✅
+- Farb-Transition (amber bei <50%, grün bei ≥50% und done) — sinnvolle UX ✅
+- Props korrekt befüllt in `fahrer/app/client.tsx` (stops.length, geliefert_am, started_at, total_eta_min) ✅
+
+**ZoneWaitHeatmap** (`zone-wait-heatmap.tsx`):
+- Empfängt `readyOrders` aus DispatchBoard — Typen stimmen überein (`bestellnummer`, `delivery_zone`, `fertig_am`, `status`) ✅
+- Interne Filterung: nur `status === 'fertig'` für Wartezeitberechnung, Total inkl. alle Zonen-Orders ✅
+- Zeigt max 6 Zonen, sortiert nach maxWaitMin DESC ✅
+
+**OpsStatusWidget** (`ops-status-widget.tsx`):
+- Hardcodierte `locationId="bb01ae0a-..."` — konsistentes Muster in gesamtem lieferdienst/client.tsx ✅
+- Load-Kalkulation: `active/online > 2.5` = storm, `>1.8` oder ETA>45 = busy — sinnvolle Schwellwerte ✅
+- 30s-Polling via `/api/delivery/eta/live` ✅
+
+### Bugs gefunden und gefixt
+**0 Bugs.** Alle Phasen und Frontend-Komponenten sauber.
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: CookStartTimer warnt bei Fahrer-ETA < Prep-Zeit ✅
+- Dispatch: ZoneWaitHeatmap zeigt kritische Zonen in Echtzeit ✅
+- Fahrer-App: TourProgressRing zeigt Stopp-Fortschritt + ETA ✅
+- Lieferdienst: OpsStatusWidget zeigt Betriebslage in Stats-View ✅
+- Zone-Affinity: Dispatch-Engine nutzt historische Zonen-Scores automatisch ✅
+
+### Status nach Review #81
+- TypeScript: 0 Fehler ✅
+- Build: 198 Seiten, sauber ✅
+- Phase 110 (Backend Zone Affinity): DONE ✅
+- Frontend-Batch (4 neue Komponenten): DONE ✅
+- Bugs gefixed: 0
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 111: Kunden-Zufriedenheits-Score (Post-Delivery-Rating aggregiert, schlechte Ratings triggern Fahrer-Review)
+2. Oder: Schicht-Tracking (Schichtstart/Ende/Pausen für genaue active_minutes in Leaderboard)
+3. Oder: Proaktive Dispatch-Alerts (Slack/Push wenn Zone-Rückstau >10 Min)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Kochstart-Timer in Kitchen-TV-Modus (Fullscreen) integrieren
+2. Tour-Ring im Fahrer-App-Header statt separatem Block (kompaktere Variante)
+3. Dispatch-Automation-Vorschläge-Panel (basierend auf Zone-Affinity-Scores)
 
 ---
 

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–110 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 198 Seiten. Deployment-bereit.**
+**Phasen 1–110 + Frontend-Batch abgeschlossen. Build sauber. 0 TypeScript-Fehler. 198 Seiten. Deployment-bereit.**
+**CEO Review #81 — 2026-06-13: Phase 110 + 2 Frontend-Commits geprüft. 0 Bugs. Build 198 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 110 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #80 — 2026-06-13: Phase 109 + 2 neue Frontend-Commits geprüft. 1 TS-Fehler gefixt. Integrations-Audit sauber. Build 197 Seiten. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 109 abgeschlossen. Build 197 Seiten sauber.**
@@ -23,6 +24,11 @@
 - [x] Cron: refreshZoneAffinityAllLocations() täglich 02:00 UTC (isReportTick) → zone_affinity: { locations, drivers_updated, errors } in Response
 - [x] Sidebar: "Zonen-Affinität Fahrer" mit MapIcon-Icon unter Loslegen-Gruppe; Map as MapIcon in sidebar-client.tsx ICON_MAP ergänzt
 - [x] Build: next build ✓ (198 Seiten, 0 Fehler)
+- [x] Frontend-Batch (nach Phase 110): Smart-Timing, Tour-Ring, Zonen-Heatmap, Ops-Status — 2026-06-13
+- [x] app/(admin)/kitchen/cook-start-timer.tsx: KitchenCookStartTimer — Countdown-Empfehlung wann Küche für aktive Touren mit Fahrer-ETA starten muss (Kochzeit vs. Fahrer-Ankunft, Farb-Ampel grün/orange/rot, "JETZT!"/Überfällig-Hinweis, Auto-Tick per Sekunde)
+- [x] app/fahrer/app/tour-ring.tsx: TourProgressRing — animierter SVG-Kreisring mit Stopp-Fortschritt (completedStops/totalStops), Farb-Transition (amber→grün), Distanz-Badge, Unterwegs-Zeit, verbleibende ETA
+- [x] app/(admin)/dispatch/zone-wait-heatmap.tsx: ZoneWaitHeatmap — farbkodierte Wartezeiten je Lieferzone (fertige Bestellungen), Ø + Max-Wartezeit, Balken-Füllstand (max 20 Min = 100%), Rot >15 Min / Amber >5 Min / Grün ≤5 Min, eingebunden in DispatchBoard über readyOrders
+- [x] app/(admin)/lieferdienst/ops-status-widget.tsx: OpsStatusWidget — Echtzeit-Betriebsstimmung (calm/normal/busy/storm) aus /api/delivery/eta/live, Auslastungsfaktor (active/drivers), 30s-Polling, eingebunden in Lieferdienst stats-View
 - [x] Phase 109: Fahrer-Kommunikations-Log (Push/Broadcast/System-Nachrichten-Tracking) — 2026-06-13
 - [x] scripts/migrations/067_driver_comms_log.sql: driver_communication_log (channel push|broadcast|in_app|system, message_type 9 ENUMs, direction dispatch_to_driver|system|driver_to_dispatch, status sent|delivered|read|failed, title/body/sent_by_name/reference_type/reference_id/metadata JSONB, 4 Indizes, RLS), v_comms_log_stats VIEW (KPIs: total/heute/woche nach Kanal, read_rate_pct/delivery_rate_pct), v_comms_log_driver_summary VIEW (pro-Fahrer: total/today/last_message_at/read_count/push_count/broadcast_count)
 - [x] lib/delivery/comms-log.ts: logCommunication() fire-and-forget (tableExists-Guard, nie blockierend), markCommDelivered/markCommRead(), getCommunicationLog() (paginiert, alle Filter: channel/type/status/driver/datum), getCommLogStats() (aus v_comms_log_stats View), getDriverCommSummaries() (aus v_comms_log_driver_summary View), getHourlyCommVolume() (24h-Stunden-Buckets via UTC-Aggregation), getCommLogDashboard() (kombinierter Response), pruneOldCommsLogs() (Cron-Cleanup >90 Tage), sendDirectDriverMessage() (Push in mise_push_outbox + Log in einem Schritt)
