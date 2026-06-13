@@ -96,6 +96,10 @@ export default function KitchenMonitor({
   const fertig = orders.filter((o) => o.status === 'fertig');
   const soldOutCount = items.filter((i) => !i.verfuegbar).length;
   const ringing = neu.length > 0 ? neu[0] : null;
+  // Koch-Slot: darf gekocht werden, wenn ein Fahrer frei (idle) oder auf dem Rueckweg (letzter Stopp) ist.
+  // Kein Fahrer getrackt -> nicht blocken (Abholung/Vor-Ort brauchen eh keinen Fahrer).
+  const canCook = drivers.length === 0 || drivers.some((d) => !d.busy || d.returning);
+  const ringingHold = !!ringing && ringing.typ === 'lieferung' && !canCook;
 
   // All-Day-Counts (aggregiert ueber alle aktiven Orders)
   const allDay = (() => {
@@ -209,6 +213,11 @@ export default function KitchenMonitor({
                 </div>
               ))}
             </div>
+            {ringingHold && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.warnTint, color: C.warnSoft, borderRadius: 12, padding: '12px 14px', marginBottom: 10, fontSize: 15, fontWeight: 700 }}>
+                ⏸ Alle Fahrer unterwegs — du kannst mit dem Kochen warten, bis einer zurückkommt.
+              </div>
+            )}
             {acceptingId === ringing.id ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 {PREP.map((m) => (
@@ -286,11 +295,18 @@ export default function KitchenMonitor({
       {/* SPALTEN */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, padding: 16, alignItems: 'start' }}>
         <Column title="NEU" count={neu.length} color={C.neu}>
-          {neu.map((o) => (
-            <Card key={o.id} o={o} now={now} {...sharedCardProps}>
-              <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id} style={{ width: '100%', padding: '18px 0', borderRadius: 14, border: 'none', background: C.zub, color: '#fff', fontWeight: 800, fontSize: 19, cursor: 'pointer' }}>✓ Annehmen · {DEFAULT_PREP} Min</button>
-            </Card>
-          ))}
+          {neu.map((o) => {
+            const hold = o.typ === 'lieferung' && !canCook;
+            return (
+              <Card key={o.id} o={o} now={now} cookHold={hold} {...sharedCardProps}>
+                <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800,
+                    fontSize: hold ? 15 : 19, background: hold ? C.border : C.zub, color: hold ? C.t2 : '#fff' }}>
+                  {hold ? '⏸ Fahrer unterwegs · trotzdem annehmen' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
+                </button>
+              </Card>
+            );
+          })}
           {neu.length === 0 && <Empty text="Keine neuen Bestellungen" />}
         </Column>
         <Column title="IN ZUBEREITUNG" count={kochen.length} color={C.zub}>
@@ -419,9 +435,9 @@ function CardHead({ o, big }: { o: Order; big?: boolean }) {
     </div>
   );
 }
-function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint }: {
+function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint, cookHold }: {
   o: Order; now: number; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null;
-  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void;
+  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void; cookHold?: boolean;
 }) {
   const tc = typeCfg(o.typ);
   // Timer: in Zubereitung = Countdown zu fertig_am, sonst Alter seit Eingang
