@@ -16,6 +16,7 @@ import { KitchenSmartBatchAlert } from './smart-batch-alert';
 import { KitchenWaveDetector } from './wave-detector';
 import { KitchenCookStartTimer } from './cook-start-timer';
 import { KitchenStationColorGrid } from './station-color-grid';
+import { KitchenBatchPrepGrouping } from './batch-prep-grouping';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -622,6 +623,16 @@ export function KitchenBoard({
 
       {/* Smart-Batch-Alert: Mehrere fertige Bestellungen in gleicher Zone → Batch-Empfehlung */}
       <KitchenSmartBatchAlert orders={filtered} />
+
+      {/* Phase 113: Batch-Zubereitung-Gruppierung — Orders derselben Tour zusammen sehen */}
+      {batches.length > 0 && (
+        <KitchenBatchPrepGrouping
+          orders={filtered}
+          batches={batches}
+          stops={stops}
+          drivers={drivers}
+        />
+      )}
 
       {/* Backlog-Eskalation: Fertige Lieferbestellungen ohne Fahrer */}
       <KitchenDispatchBacklogPanel orders={filtered} />
