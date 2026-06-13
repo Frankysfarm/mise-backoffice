@@ -907,12 +907,12 @@ export function LieferdienstClient() {
                 orders={[...orders, ...completedOrders].map(o => ({
                   id: o.id,
                   status: o.status,
-                  acceptedAt: o.acceptedAt ?? null,
-                  completedAt: (o as any).doneAt ?? null,
-                  deliveredAt: (o as any).doneAt ?? null,
+                  acceptedAt: o.acceptedAt ? new Date(o.acceptedAt) : null,
+                  completedAt: (o as any).doneAt ? new Date((o as any).doneAt) : null,
+                  deliveredAt: (o as any).doneAt ? new Date((o as any).doneAt) : null,
                   typ: o.type,
                 }))}
-                driversOnline={drivers.filter(d => d.status === 'available' || d.status === 'busy').length}
+                driversOnline={drivers.filter(d => d.status === 'available' || d.status === 'picking_up').length}
                 schichtStart={schichtStart}
               />
               {/* Live Ops-Status: Stimmungsmeter für den aktuellen Betrieb */}

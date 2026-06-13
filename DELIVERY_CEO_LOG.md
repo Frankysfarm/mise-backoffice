@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–110 + Frontend-Batch vollständig abgeschlossen. CEO Review #81 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–111 vollständig abgeschlossen. CEO Review #82 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #82 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #81)
+- `ff43f35` feat(delivery/frontend): Smart-Timing, Tour-Stops, Score-Visualisierung
+- `3e1cd16` feat(delivery/backend): Phase 111 — Fahrer-Review-Flag Engine
+
+### TypeScript & Build
+- TypeScript vor Fix: **3 Fehler** ⚠️ → nach Fix: **0 Fehler** ✅
+- `next build`: 198 Seiten sauber ✅
+
+### Bugs gefunden & gefixt
+
+**Bug 1 — station-color-grid.tsx:160 — `kunde_name` fehlt im lokalen Order-Typ**
+- Ursache: Lokale `Order`-Typ-Definition fehlte `kunde_name?: string | null`
+- Fix: Feld zum Typ hinzugefügt ✅
+
+**Bug 2 — lieferdienst/client.tsx:907 — `acceptedAt` String nicht konvertiert**
+- Ursache: `o.acceptedAt ?? null` liefert `string | Date | null`, aber `ShiftKPIStrip` erwartet `Date | null | undefined`
+- Fix: `o.acceptedAt ? new Date(o.acceptedAt) : null` für alle 3 Datums-Felder ✅
+
+**Bug 3 — lieferdienst/client.tsx:915 — Ungültiger DriverStatus `'busy'`**
+- Ursache: `d.status === 'busy'` — `'busy'` existiert nicht in `DriverStatus`; korrekte Werte sind `available | picking_up | delivering | returning | offline`
+- Fix: `d.status === 'picking_up'` (zählt aktive Fahrer mit Abholauftrag korrekt) ✅
+
+### Befund Phase 111 Backend (review-flags.ts)
+- `checkAndFlagDriver()`: Idempotent durch Vorab-Prüfung auf offene Flags ✅
+- Regel 1 (`low_avg_14d`): avg < 3.0 bei ≥ 3 Ratings in 14 Tagen — Schwellwerte als `const` ausgelagert ✅
+- Regel 2 (`one_star_burst_7d`): ≥ 2 Einzel-Sterne in 7 Tagen — korrekt mit `since7d`-Filter ✅
+- UNIQUE-Partial-Index in Migration verhindert doppelte offene Flags ✅
+- `processRatingReviewCheck()`: fire-and-forget, kein Blocking der Rating-Response ✅
+- API `GET/POST /api/delivery/reviews`: Auth-Guard, input validation, 409 bei Konflikt ✅
+- API `PATCH /api/delivery/reviews/[id]`: Status-Validierung, korrekte `params`-Auflösung ✅
+
+### Befund Phase 111 Frontend
+- `KitchenStationColorGrid`: Echtzeit-Countdowns, Stations-Erkennung per Keyword-Matching, Farbampel ✅
+- `LiveTourTracker`: Fortschrittsbalken pro Tour, ETA-Countdown, Überfällig-Alert ✅
+- `TourStopsPanel`: Nummerierte Stopp-Liste, Zahlungswarnung, Navigation-Button ✅
+- `ShiftKPIStrip`: Kompakte KPI-Leiste (Ø Lieferzeit, Bestellungen/h, Fahrer online) ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: StationColorGrid + LiveTourTracker-Feed ✅
+- Dispatch: LiveTourTracker zeigt alle aktiven Touren in Echtzeit ✅
+- Fahrer-App: TourStopsPanel mit ETA und Navigation ✅
+- Review-Flags: Trigger nach Kunden-Rating → Admin-Review-Flow ✅
+
+### Status nach Review #82
+- TypeScript: 0 Fehler ✅
+- Build: 198 Seiten sauber ✅
+- Phase 111 Backend (Review-Flag Engine): DONE ✅
+- Phase 111 Frontend (4 neue Komponenten): DONE ✅
+- Bugs gefixt: 3
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 112: Admin-UI für Fahrer-Review-Flags (`/lieferdienst` → neuer Tab "Reviews")
+2. Oder: Cron-Job für automatisches tägliches Re-Scanning aller aktiven Fahrer (`checkAllDrivers()`)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 112: ReviewFlagsDashboard-Komponente (offene Flags, Status-Änderung, Filter nach Grund)
+2. Oder: TourStopsPanel-Erweiterung mit Echtzeit-GPS-Position (Leaflet-Marker pro Stopp)
 
 ---
 

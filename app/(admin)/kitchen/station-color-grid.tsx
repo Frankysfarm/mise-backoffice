@@ -10,6 +10,7 @@ type Order = {
   status: string;
   bestellt_am: string | null;
   geschaetzte_zubereitung_min: number | null;
+  kunde_name?: string | null;
   items: { name: string; menge: number }[];
 };
 
