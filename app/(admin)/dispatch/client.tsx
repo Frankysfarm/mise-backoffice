@@ -62,6 +62,7 @@ import { DispatchQueuePanel } from './dispatch-queue-panel';
 import { ZoneCoverageCard } from './zone-coverage-card';
 import { TourRouteOverview } from './tour-route-overview';
 import { ZoneWaitHeatmap } from './zone-wait-heatmap';
+import { LiveTourTracker } from './live-tour-tracker';
 
 type Driver = {
   employee_id: string;
@@ -978,6 +979,9 @@ export function DispatchBoard({
         drivers={drivers}
         batches={batches}
       />
+
+      {/* Live-Tour-Tracker: kompakte Statuskarten aller aktiven Touren mit Farbkodierung */}
+      {batches.length > 0 && <LiveTourTracker batches={batches} />}
 
       {/* Tour-Routen-Übersicht: alle aktiven Touren mit Stopp-Fortschritt und ETA */}
       <TourRouteOverview batches={batches} />

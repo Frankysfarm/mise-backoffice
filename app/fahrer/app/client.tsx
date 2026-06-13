@@ -17,6 +17,7 @@ import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
+import { TourStopsPanel } from './tour-stops-panel';
 
 
 type Driver = {
@@ -668,6 +669,16 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourStopsPanel
+                stops={activeBatch.stops as any}
+                batchStartedAt={activeBatch.started_at}
+                totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
           <TourBriefingCard batch={activeBatch as any} />
           <DeliveryView
             batchId={activeBatch.id}

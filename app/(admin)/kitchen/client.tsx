@@ -15,6 +15,7 @@ import { KitchenSmartCountdownGrid } from './countdown-grid';
 import { KitchenSmartBatchAlert } from './smart-batch-alert';
 import { KitchenWaveDetector } from './wave-detector';
 import { KitchenCookStartTimer } from './cook-start-timer';
+import { KitchenStationColorGrid } from './station-color-grid';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -502,6 +503,9 @@ export function KitchenBoard({
             });
         })()}
       />
+
+      {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}
+      <KitchenStationColorGrid orders={filtered} timings={timings} />
 
       {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
       <KitchenSmartCountdownGrid

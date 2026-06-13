@@ -41,6 +41,7 @@ import { OpsSnapshotPanel } from './ops-snapshot-panel'
 import { LiveMetricsStrip } from './live-metrics-strip'
 import { FahrerRangliste } from './fahrer-rangliste'
 import { OpsStatusWidget } from './ops-status-widget'
+import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -901,6 +902,19 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-KPI-Leiste: Schnellübersicht der wichtigsten Kennzahlen */}
+              <ShiftKPIStrip
+                orders={[...orders, ...completedOrders].map(o => ({
+                  id: o.id,
+                  status: o.status,
+                  acceptedAt: o.acceptedAt ?? null,
+                  completedAt: (o as any).doneAt ?? null,
+                  deliveredAt: (o as any).doneAt ?? null,
+                  typ: o.type,
+                }))}
+                driversOnline={drivers.filter(d => d.status === 'available' || d.status === 'busy').length}
+                schichtStart={schichtStart}
+              />
               {/* Live Ops-Status: Stimmungsmeter für den aktuellen Betrieb */}
               <OpsStatusWidget locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Echtzeit-Bestellpipeline: Live-Funnel aller Auftragsphasen */}
