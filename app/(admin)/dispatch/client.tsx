@@ -68,6 +68,7 @@ import { EtaAccuracyLive } from './eta-accuracy-live';
 import { DispatchTourHealthStrip } from './tour-health-strip';
 import { TourEtaStrip } from './tour-eta-strip';
 import { OrderScoreGrid } from './order-score-grid';
+import { SmartAssignmentPanel } from './smart-assignment';
 
 type Driver = {
   employee_id: string;
@@ -804,6 +805,20 @@ export function DispatchBoard({
 
       {/* Nachfrage-Prognose: nächste 6h basierend auf historischem Muster */}
       <DemandForecastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Smart-Zuweisung: KI-basierte Fahrer-Empfehlung für die prioritärste wartende Bestellung */}
+      {readyOrders.length > 0 && onlineDrivers.length > 0 && (
+        <SmartAssignmentPanel
+          orders={readyOrders}
+          drivers={drivers}
+          onAssign={(driverId) => {
+            if (readyOrders.length > 0) {
+              setSelected(new Set([readyOrders[0].id]));
+              assignToDriver(driverId);
+            }
+          }}
+        />
+      )}
 
       {/* Dispatch-Prioritäts-Queue: Score-basierte Warteliste mit Boost */}
       <DispatchQueuePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

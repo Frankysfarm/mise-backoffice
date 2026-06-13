@@ -21,6 +21,7 @@ import { KitchenItemComplexityStrip } from './item-complexity-strip';
 import { KitchenShiftPerformanceBadge } from './schicht-performance-badge';
 import { KitchenPrepProgressCards } from './prep-progress-cards';
 import { KochstartAlertBand } from './kochstart-alert';
+import { ItemPriorityBoard } from './item-priority-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -512,6 +513,11 @@ export function KitchenBoard({
             });
         })()}
       />
+
+      {/* Artikel-Prioritäts-Board: Welche Items jetzt zubereiten? Gruppiert + nach Deadline sortiert */}
+      {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && !bigDisplay && (
+        <ItemPriorityBoard orders={filtered} timings={timings} />
+      )}
 
       {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}
       <KitchenStationColorGrid orders={filtered} timings={timings} />
