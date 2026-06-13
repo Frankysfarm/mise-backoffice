@@ -60,6 +60,7 @@ import { TourSequenzPanel } from './tour-sequenz';
 import { ScoreRadarChart } from './score-radar';
 import { DispatchQueuePanel } from './dispatch-queue-panel';
 import { ZoneCoverageCard } from './zone-coverage-card';
+import { TourRouteOverview } from './tour-route-overview';
 
 type Driver = {
   employee_id: string;
@@ -973,6 +974,9 @@ export function DispatchBoard({
         drivers={drivers}
         batches={batches}
       />
+
+      {/* Tour-Routen-Übersicht: alle aktiven Touren mit Stopp-Fortschritt und ETA */}
+      <TourRouteOverview batches={batches} />
 
       {/* Tour-Sequenz: Detaillierte Stopp-für-Stopp-Ansicht aller aktiven Touren */}
       <TourSequenzPanel batches={batches} />
