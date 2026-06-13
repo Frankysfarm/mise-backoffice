@@ -112,7 +112,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
-    .in('status', ['neu', 'in_zubereitung', 'fertig'])
+    .in('status', ['fertig'])  // B: Fahrer erst rufen wenn die Kueche FERTIG gekocht hat (Kueche zuerst)
     .order('created_at', { ascending: true })
     .limit(50);
 
