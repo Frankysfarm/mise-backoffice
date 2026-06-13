@@ -819,6 +819,23 @@ export function DispatchBoard({
           <Metric icon={<Truck className="h-4 w-4" />} label="Unterwegs" value={enRouteOrders.length} />
           <Metric icon={<Bike className="h-4 w-4" />} label="Online" value={onlineDrivers.length} />
           <Metric icon={<RouteIcon className="h-4 w-4" />} label="Touren" value={batches.length} />
+          {/* Phase 105: Live-SLA + ETA-Genauigkeit als Metric-Chips */}
+          {deliveryHealth?.slaOnTimePct != null && (
+            <Metric
+              icon={<Target className="h-4 w-4" />}
+              label="SLA"
+              value={`${deliveryHealth.slaOnTimePct}%`}
+              highlight={deliveryHealth.slaOnTimePct >= 85 ? 'green' : deliveryHealth.slaOnTimePct >= 70 ? 'amber' : 'red'}
+            />
+          )}
+          {deliveryHealth?.etaAccuracyPct != null && (
+            <Metric
+              icon={<Gauge className="h-4 w-4" />}
+              label="ETA-Genau."
+              value={`${deliveryHealth.etaAccuracyPct}%`}
+              highlight={deliveryHealth.etaAccuracyPct >= 80 ? 'green' : deliveryHealth.etaAccuracyPct >= 60 ? 'amber' : 'red'}
+            />
+          )}
           <button
             onClick={triggerEtaRefresh}
             disabled={etaRefreshing || batches.length === 0}
@@ -2219,13 +2236,14 @@ function DispatchScoreSummary({ orders, batches }: { orders: ReadyOrder[]; batch
   );
 }
 
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function Metric({ icon, label, value, highlight }: { icon: React.ReactNode; label: string; value: number | string; highlight?: 'green' | 'amber' | 'red' }) {
+  const valColor = highlight === 'green' ? 'text-matcha-600' : highlight === 'amber' ? 'text-amber-600' : highlight === 'red' ? 'text-red-600' : undefined;
   return (
     <div className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5">
       <div className="text-muted-foreground">{icon}</div>
       <div>
         <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
-        <div className="font-display text-sm font-bold leading-none">{value}</div>
+        <div className={cn('font-display text-sm font-bold leading-none', valColor)}>{value}</div>
       </div>
     </div>
   );

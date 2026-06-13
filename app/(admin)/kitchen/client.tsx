@@ -594,6 +594,11 @@ export function KitchenBoard({
         <KitchenHandoffSyncPanel batches={batches} stops={stops} timings={timings} orders={filtered} />
       )}
 
+      {/* Phase 105: Fahrer-Pickup-Prognose — wann kommt welcher Fahrer in den nächsten 30 Min? */}
+      {batches.length > 0 && (
+        <KitchenDriverPickupForecast batches={batches} drivers={drivers} stops={stops} orders={filtered} />
+      )}
+
       {/* Abholung-Warte-Panel: Kunden die auf ihre Abholung warten */}
       <PickupWaitPanel orders={filtered} />
 
@@ -7090,6 +7095,140 @@ function KitchenPrepSpeedometer({ orders }: { orders: Order[] }) {
       <div className="text-[9px] text-matcha-500">
         {recentDone.length} Best. fertig in letzten 30 Min · {doneToday.length} heute gesamt
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 105: KitchenDriverPickupForecast
+// Zeigt in den nächsten 30 Min wann welche Fahrer zum Abholen ankommen.
+// Hilft der Küche zu entscheiden wann sie mit dem Kochen aufhören kann.
+// ---------------------------------------------------------------------------
+function KitchenDriverPickupForecast({
+  batches, drivers, stops, orders,
+}: {
+  batches: Batch[];
+  drivers: Driver[];
+  stops: Stop[];
+  orders: Order[];
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const now = Date.now();
+  const WINDOW_MS = 30 * 60_000;
+
+  // Batches die unterwegs sind und in 30 Min zurückkommen
+  type PickupEvent = {
+    driverName: string;
+    etaMs: number;
+    minLeft: number;
+    orderIds: string[];
+    urgency: 'now' | 'soon' | 'later';
+  };
+
+  const upcoming: PickupEvent[] = [];
+
+  for (const b of batches) {
+    if (!['unterwegs', 'on_route'].includes(b.status)) continue;
+    if (!b.started_at || b.total_eta_min == null) continue;
+    const etaMs = new Date(b.started_at).getTime() + b.total_eta_min * 60_000;
+    const diff = etaMs - now;
+    if (diff < -5 * 60_000 || diff > WINDOW_MS) continue;
+    const minLeft = Math.max(0, Math.round(diff / 60_000));
+    const driver = drivers.find((d) => d.id === b.driver_id);
+    const driverName = driver ? `${driver.vorname} ${driver.nachname[0]}.` : 'Fahrer';
+    const batchOrderIds = stops
+      .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+      .map((s) => s.order_id);
+    upcoming.push({
+      driverName,
+      etaMs,
+      minLeft,
+      orderIds: batchOrderIds,
+      urgency: minLeft <= 5 ? 'now' : minLeft <= 15 ? 'soon' : 'later',
+    });
+  }
+
+  // Also show free drivers who could be dispatched soon
+  const freeDriverCount = drivers.filter((d) => {
+    const st = d.status;
+    return st?.ist_online && !st.aktueller_batch_id;
+  }).length;
+
+  if (upcoming.length === 0 && freeDriverCount === 0) return null;
+
+  upcoming.sort((a, b) => a.etaMs - b.etaMs);
+
+  return (
+    <div className="rounded-xl border bg-card p-3 space-y-2">
+      <div className="flex items-center gap-2">
+        <Bike className="h-4 w-4 text-blue-500 shrink-0" />
+        <span className="text-xs font-bold text-foreground">Fahrer-Pickup-Prognose</span>
+        <span className="text-[10px] text-muted-foreground ml-auto">nächste 30 Min</span>
+      </div>
+
+      {freeDriverCount > 0 && (
+        <div className="flex items-center gap-2 rounded-lg bg-matcha-50 border border-matcha-200 px-3 py-1.5 text-[11px]">
+          <span className="h-2 w-2 rounded-full bg-matcha-500 shrink-0" />
+          <span className="font-bold text-matcha-700">{freeDriverCount} freier Fahrer</span>
+          <span className="text-matcha-600">kann sofort für neue Tour eingeplant werden</span>
+        </div>
+      )}
+
+      {upcoming.length > 0 && (
+        <div className="space-y-1.5">
+          {upcoming.map((ev, i) => {
+            const returnTime = new Date(ev.etaMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const readyOrders = ev.orderIds.map((id) => orders.find((o) => o.id === id)).filter(Boolean);
+            const allReady = readyOrders.every((o) => o && ['fertig', 'unterwegs'].includes(o.status));
+            return (
+              <div key={i} className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 border',
+                ev.urgency === 'now'
+                  ? 'bg-blue-50 border-blue-300'
+                  : ev.urgency === 'soon'
+                  ? 'bg-amber-50 border-amber-200'
+                  : 'bg-muted/40 border-border',
+              )}>
+                <div className={cn(
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-black',
+                  ev.urgency === 'now' ? 'bg-blue-500 text-white' :
+                  ev.urgency === 'soon' ? 'bg-amber-400 text-white' : 'bg-muted text-muted-foreground',
+                )}>
+                  {ev.urgency === 'now' ? '!' : `${ev.minLeft}m`}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold truncate">{ev.driverName}</span>
+                    <span className="text-[10px] text-muted-foreground">~{returnTime} Uhr</span>
+                    {ev.orderIds.length > 0 && (
+                      <span className="text-[9px] rounded-full bg-blue-100 text-blue-700 px-1.5 py-0.5 font-bold">
+                        {ev.orderIds.length} Stopps
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[10px] mt-0.5">
+                    {ev.urgency === 'now' ? (
+                      <span className="text-blue-700 font-bold animate-pulse">Ankunft in Kürze — Neue Tour bereit?</span>
+                    ) : ev.urgency === 'soon' ? (
+                      <span className="text-amber-700">Jetzt neue Bestellungen vorbereiten</span>
+                    ) : (
+                      <span className="text-muted-foreground">Tour läuft noch</span>
+                    )}
+                  </div>
+                </div>
+                {allReady && ev.urgency !== 'later' && (
+                  <CheckCircle2 className="h-4 w-4 text-matcha-500 shrink-0" title="Alle Bestellungen fertig" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

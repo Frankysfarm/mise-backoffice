@@ -1975,10 +1975,15 @@ function OpenBatchSection({
                 </div>
               )}
 
-              {/* Stop list */}
+              {/* Stop list — Phase 105: mit geschätzter Ankunftszeit pro Stopp */}
               <div className="space-y-2 mb-3">
                 {stops.map((s, i) => {
                   const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
+                  // Schätze Ankunftszeit: Abholung ~5 Min + 3 Min/Stopp (grob)
+                  const pickupMin = 5;
+                  const perStopMin = 3;
+                  const etaMin = pickupMin + (i + 1) * perStopMin + Math.round(((s.geschaetzte_lieferung_min ?? 20) / stops.length));
+                  const etaTime = new Date(Date.now() + etaMin * 60_000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                   return (
                     <div key={s.order_id} className={cn(
                       'flex items-start gap-2 rounded-xl px-3 py-2',
@@ -1989,6 +1994,11 @@ function OpenBatchSection({
                         <div className="text-sm font-bold truncate">{s.kunde_name}</div>
                         <div className="text-[11px] text-matcha-300 truncate">
                           {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
+                        </div>
+                        {/* Phase 105: Geschätzte Ankunftszeit */}
+                        <div className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-accent/10 px-1.5 py-0.5 text-[9px] font-bold text-accent/80">
+                          <Clock size={8} />
+                          ~{etaMin} Min · ca. {etaTime} Uhr
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">

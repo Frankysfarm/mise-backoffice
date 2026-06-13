@@ -703,6 +703,82 @@ export function StatisticsView({ orders, completedOrders }: StatisticsViewProps)
         </div>
       )}
 
+      {/* Phase 105: Schicht-KPI-Banner — kompakte Schlüsselkennzahlen oben */}
+      {(dailyKpis || slaData || deliveryStats) && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* Umsatz heute */}
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-1">Umsatz heute</div>
+            <div className="font-display text-xl font-black text-emerald-800 tabular-nums">
+              {dailyKpis?.revenue?.total != null
+                ? dailyKpis.revenue.total.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+                : '—'}
+            </div>
+            {dailyKpis?.revenue?.cash != null && dailyKpis.revenue.cash > 0 && (
+              <div className="text-[10px] text-emerald-600 mt-0.5">
+                davon {dailyKpis.revenue.cash.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })} Bar
+              </div>
+            )}
+          </div>
+
+          {/* Lieferungen heute */}
+          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-1">Lieferungen</div>
+            <div className="font-display text-xl font-black text-blue-800 tabular-nums">
+              {deliveryStats?.orders?.delivered ?? dailyKpis?.orders?.completed ?? '—'}
+            </div>
+            {deliveryStats?.tours?.total != null && (
+              <div className="text-[10px] text-blue-600 mt-0.5">{deliveryStats.tours.total} Touren</div>
+            )}
+          </div>
+
+          {/* SLA Pünktlichkeit */}
+          <div className={`rounded-xl border px-4 py-3 ${
+            slaData && slaData.summary.onTimePct >= 85
+              ? 'border-matcha-200 bg-matcha-50'
+              : slaData && slaData.summary.onTimePct >= 70
+              ? 'border-amber-200 bg-amber-50'
+              : 'border-red-200 bg-red-50'
+          }`}>
+            <div className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${
+              slaData && slaData.summary.onTimePct >= 85 ? 'text-matcha-600' :
+              slaData && slaData.summary.onTimePct >= 70 ? 'text-amber-600' : 'text-red-600'
+            }`}>SLA Pünktlich</div>
+            <div className={`font-display text-xl font-black tabular-nums ${
+              slaData && slaData.summary.onTimePct >= 85 ? 'text-matcha-800' :
+              slaData && slaData.summary.onTimePct >= 70 ? 'text-amber-800' : 'text-red-800'
+            }`}>
+              {slaData ? `${Math.round(slaData.summary.onTimePct)}%` : '—'}
+            </div>
+            {slaData && (
+              <div className={`text-[10px] mt-0.5 ${
+                slaData.summary.onTimePct >= 85 ? 'text-matcha-600' :
+                slaData.summary.onTimePct >= 70 ? 'text-amber-600' : 'text-red-600'
+              }`}>
+                {slaData.summary.onTimeCount} von {slaData.summary.totalStops} pünktlich
+              </div>
+            )}
+          </div>
+
+          {/* Ø Lieferzeit */}
+          <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-violet-600 mb-1">Ø Lieferzeit</div>
+            <div className="font-display text-xl font-black text-violet-800 tabular-nums">
+              {slaData?.summary?.avgDeliveryMin != null
+                ? `${Math.round(slaData.summary.avgDeliveryMin)} Min`
+                : deliveryStats?.tours?.avg_eta_min != null
+                ? `${Math.round(deliveryStats.tours.avg_eta_min)} Min`
+                : '—'}
+            </div>
+            {slaData?.summary?.avgDeviationMin != null && (
+              <div className={`text-[10px] mt-0.5 ${Math.abs(slaData.summary.avgDeviationMin) <= 2 ? 'text-violet-600' : 'text-amber-600'}`}>
+                {slaData.summary.avgDeviationMin >= 0 ? '+' : ''}{Math.round(slaData.summary.avgDeviationMin)} Min vs. ETA
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Qualitäts-Ampel: SLA · ETA-Genauigkeit · Dispatch-Score */}
       {(slaData || etaAccuracy || deliveryStats) && (() => {
         const slaScore = slaData ? Math.round(slaData.summary.onTimePct) : null;
