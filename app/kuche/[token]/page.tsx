@@ -9,7 +9,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
   const svc = createServiceClient();
   const { data: loc } = await svc
     .from('locations')
-    .select('id, tenant_id, name')
+    .select('id, tenant_id, name, lat, lng')
     .eq('kitchen_token', token)
     .maybeSingle();
   if (!loc) notFound();
@@ -36,6 +36,8 @@ export default async function Page({ params }: { params: Promise<{ token: string
       initialItems={(items ?? []) as any}
       logoUrl={(tenant?.logo_url as string) ?? null}
       brandColor={(tenant?.theme_primary as string) ?? null}
+      shopLat={(loc.lat as number) ?? null}
+      shopLng={(loc.lng as number) ?? null}
     />
   );
 }

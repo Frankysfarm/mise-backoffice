@@ -1,11 +1,15 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+
 import { useEffect, useRef, useState } from 'react';
 import {
   Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
-  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike,
+  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike, Map as MapIcon,
 } from 'lucide-react';
 import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing } from './actions';
+
+const MapView = dynamic(() => import('./map-view'), { ssr: false });
 
 const C = {
   appBg: '#0B0F0D', headerBg: '#121815', laneBg: '#0E1311', card: '#18211C', cardHover: '#1F2A24',
@@ -41,7 +45,7 @@ function typeCfg(typ: string | null) {
 const fmt = (sec: number) => { const a = Math.abs(sec); return `${Math.floor(a / 60)}:${String(a % 60).padStart(2, '0')}`; };
 
 export default function KitchenMonitor({
-  token, shopName, initialOrders, initialItems, logoUrl, brandColor,
+  token, shopName, initialOrders, initialItems, logoUrl, brandColor, shopLat, shopLng,
 }: {
   token: string; shopName: string; initialOrders: Order[]; initialItems: MenuItem[]; logoUrl: string | null; brandColor: string | null;
 }) {
@@ -58,6 +62,7 @@ export default function KitchenMonitor({
   const [autoPrint, setAutoPrint] = useState(true);
   const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
   const [soundOpen, setSoundOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
   function chooseSound(k: string) { setSoundType(k); try { localStorage.setItem('kuche_sound', k); } catch { /* noop */ } if (audioCtxRef.current) { try { audioCtxRef.current.resume(); } catch { /* noop */ } SOUNDS[k]?.play(audioCtxRef.current); } }
   const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -241,6 +246,7 @@ export default function KitchenMonitor({
           <IconBtn on={() => setSoundOpen(true)}><Settings2 size={20} /></IconBtn>
           <IconBtn on={() => setAutoPrint((v) => !v)} active={autoPrint}><Printer size={20} /></IconBtn>
           <button onClick={() => setSoldOutOpen(true)} style={{ padding: '11px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: soldOutCount > 0 ? C.warn : C.border, color: '#fff', cursor: 'pointer' }}>{soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft'}</button>
+          <IconBtn on={() => setMapOpen(true)} active={drivers.some((d) => d.returning)}><MapIcon size={20} /></IconBtn>
           <IconBtn on={() => { try { document.documentElement.requestFullscreen(); } catch { /* noop */ } }}><Maximize size={20} /></IconBtn>
         </div>
       </div>
@@ -311,6 +317,19 @@ export default function KitchenMonitor({
         <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 90, display: 'flex', alignItems: 'center', gap: 14, background: C.card, border: `1px solid ${C.borderStrong}`, borderRadius: 14, padding: '12px 18px', boxShadow: '0 10px 40px -10px #000' }}>
           <span style={{ fontSize: 15, fontWeight: 600 }}>{toast.text}</span>
           <button onClick={() => { toast.undo(); setToast(null); }} style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.zub, border: 'none', color: '#fff', borderRadius: 10, padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}><Undo2 size={16} /> Rückgängig</button>
+        </div>
+      )}
+
+      {/* Live-Karte */}
+      {mapOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: C.appBg, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', background: C.headerBg, borderBottom: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 18, fontWeight: 800 }}>🗺️ Fahrer-Karte · {drivers.filter((d) => d.lat != null).length} live</span>
+            <button onClick={() => setMapOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.border, border: 'none', color: '#fff', borderRadius: 12, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}><X size={18} /> Schließen</button>
+          </div>
+          <div style={{ flex: 1, padding: 12 }}>
+            <MapView shopLat={shopLat} shopLng={shopLng} shopName={shopName} drivers={drivers} />
+          </div>
         </div>
       )}
 
