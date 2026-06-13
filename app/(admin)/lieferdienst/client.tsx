@@ -43,6 +43,7 @@ import { FahrerRangliste } from './fahrer-rangliste'
 import { OpsStatusWidget } from './ops-status-widget'
 import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
 import { ReviewFlagsPanel } from './review-flags-panel'
+import { TagesabschlussModal } from './tagesabschluss'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -85,6 +86,10 @@ export function LieferdienstClient() {
   // Streak — aufeinanderfolgende pünktliche Abschlüsse
   const [prepStreak, setPrepStreak] = useState(0)
   const [streakFlash, setStreakFlash] = useState(false)
+
+  // Tagesabschluss modal
+  const [showTagesabschluss, setShowTagesabschluss] = useState(false)
+  const locationId = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'
 
   // === REAL DB-DATA INJECTION (Supabase Realtime + 30s Fallback-Poll) ===
   const fetchDataRef = useRef<(() => void) | null>(null);
@@ -473,6 +478,14 @@ export function LieferdienstClient() {
           />
         )}
 
+        {/* Tagesabschluss Modal */}
+        {showTagesabschluss && (
+          <TagesabschlussModal
+            locationId={locationId}
+            onClose={() => setShowTagesabschluss(false)}
+          />
+        )}
+
         {/* Header */}
         <header className="sticky top-0 z-10 bg-white border-b border-stone-200">
           <div className="flex items-center justify-between px-3 md:px-6 h-14 md:h-[72px]">
@@ -583,7 +596,16 @@ export function LieferdienstClient() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <button 
+              <button
+                onClick={() => setShowTagesabschluss(true)}
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-sm font-bold"
+                title="Tagesabschluss anzeigen"
+              >
+                <TrendingUp className="w-4 h-4" />
+                Abschluss
+              </button>
+
+              <button
                 onClick={() => setShowSettings(true)}
                 className="p-2.5 rounded-xl transition-all bg-stone-100 text-stone-600 border border-stone-200 hover:bg-stone-200"
               >

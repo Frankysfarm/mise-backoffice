@@ -67,6 +67,8 @@ export function StorefrontV2({
     queue_signal: string;
     eta_extension_min: number;
     signal_message: string | null;
+    active_orders: number | null;
+    drivers_online: number | null;
   } | null>(null);
 
   React.useEffect(() => {
@@ -81,13 +83,15 @@ export function StorefrontV2({
               queue_signal:      d.queue_signal ?? 'normal',
               eta_extension_min: d.eta_extension_min ?? 0,
               signal_message:    d.signal_message ?? null,
+              active_orders:     d.active_orders ?? null,
+              drivers_online:    d.drivers_online ?? null,
             });
           }
         })
         .catch(() => {});
     };
     load();
-    const iv = setInterval(load, 120_000);
+    const iv = setInterval(load, 90_000);
     return () => clearInterval(iv);
   }, [location.id]);
 
@@ -243,7 +247,13 @@ export function StorefrontV2({
                   color: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#f97316' : '#16a34a',
                   fontWeight: 700,
                 }}>
-                  🍳 {liveEta.signal_message ?? (liveEta.load === 'busy' ? 'Viel los' : liveEta.load === 'normal' ? 'Mäßig ausgelastet' : 'Küche frei')} · ~{liveEta.eta_min} Min{liveEta.eta_extension_min > 0 ? ` (+${liveEta.eta_extension_min} Min Wartezeit)` : ''}
+                  🍳{' '}
+                  {liveEta.signal_message ?? (liveEta.load === 'busy' ? 'Viel los' : liveEta.load === 'normal' ? 'Mäßig ausgelastet' : 'Küche frei')}
+                  {' · ~'}{liveEta.eta_min} Min
+                  {liveEta.eta_extension_min > 0 && ` (+${liveEta.eta_extension_min} Min)`}
+                  {liveEta.active_orders != null && liveEta.active_orders > 2 && (
+                    <> · {liveEta.active_orders} {liveEta.active_orders === 1 ? 'Bestellung' : 'Bestellungen'} aktiv</>
+                  )}
                 </span>
               )}
               {(location.adresse || location.stadt) && (
