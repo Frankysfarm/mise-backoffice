@@ -1000,6 +1000,8 @@ export function LieferdienstClient() {
               <CustomerSatisfactionPanel locationId={locationId} />
               {/* Besetzungsplan: 7-Tage Forecast vs. geplante Schichten */}
               <SchichtPlanPanel locationId={locationId} />
+              {/* Liefer-Zonen-Verteilung: wo landen die Bestellungen? */}
+              <LieferZonenPanel locationId={locationId} />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -3050,6 +3052,116 @@ function SchichtPlanPanel({ locationId }: { locationId: string }) {
 
           {!loading && !plan && (
             <div className="text-sm text-stone-400 text-center py-4">Keine Plan-Daten verfügbar</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ LieferZonenPanel ------------------------------ */
+
+type HeatmapPoint = { lat: number; lng: number; weight: number; zone: string };
+
+type ZoneEntry = { zone: string; orders: number; pct: number };
+
+function LieferZonenPanel({ locationId }: { locationId: string }) {
+  const [open, setOpen] = useState(false);
+  const [zones, setZones] = useState<ZoneEntry[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [period, setPeriod] = useState<'7' | '30'>('30');
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    const from = new Date(Date.now() - Number(period) * 86_400_000).toISOString();
+    fetch(`/api/delivery/admin/heatmap?location_id=${locationId}&from=${from}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d?.points) return;
+        const pts = d.points as HeatmapPoint[];
+        setTotal(d.total ?? 0);
+        const zoneMap = new Map<string, number>();
+        for (const p of pts) {
+          const z = p.zone === 'unknown' ? 'Unbekannt' : p.zone;
+          zoneMap.set(z, (zoneMap.get(z) ?? 0) + p.weight);
+        }
+        const sum = Array.from(zoneMap.values()).reduce((a, b) => a + b, 0);
+        const sorted: ZoneEntry[] = Array.from(zoneMap.entries())
+          .sort((a, b) => b[1] - a[1])
+          .map(([zone, orders]) => ({ zone, orders, pct: sum > 0 ? Math.round((orders / sum) * 100) : 0 }));
+        setZones(sorted);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [open, locationId, period]);
+
+  const ZONE_COLORS = ['bg-matcha-500', 'bg-matcha-400', 'bg-matcha-300', 'bg-amber-400', 'bg-amber-300', 'bg-red-400'];
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <MapPin className="h-4 w-4 text-matcha-600 shrink-0" />
+          <span className="text-sm font-bold text-stone-800">Liefer-Zonen Verteilung</span>
+          {total > 0 && (
+            <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-matcha-50 text-matcha-700">
+              {total} Bestellungen
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="border-t border-stone-100 px-5 pb-5 pt-4">
+          {/* Period toggle */}
+          <div className="flex gap-2 mb-4">
+            {(['7', '30'] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setPeriod(d)}
+                className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition ${
+                  period === d ? 'bg-matcha-600 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                }`}
+              >
+                {d} Tage
+              </button>
+            ))}
+          </div>
+
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-stone-400 py-4">
+              <Loader2 className="h-4 w-4 animate-spin" /> Lade Zonen-Daten…
+            </div>
+          )}
+
+          {!loading && zones.length > 0 && (
+            <div className="space-y-2">
+              {zones.slice(0, 8).map((z, i) => (
+                <div key={z.zone} className="flex items-center gap-3">
+                  <div className="w-24 text-[11px] font-bold text-stone-600 truncate">{z.zone}</div>
+                  <div className="flex-1 relative h-5 rounded-md bg-stone-50 border border-stone-100 overflow-hidden">
+                    <div
+                      className={`h-full rounded-md ${ZONE_COLORS[Math.min(i, ZONE_COLORS.length - 1)]} transition-all`}
+                      style={{ width: `${z.pct}%` }}
+                    />
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-stone-700">
+                      {z.orders}
+                    </span>
+                  </div>
+                  <div className="w-8 text-[10px] font-bold text-stone-400 text-right">{z.pct}%</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!loading && zones.length === 0 && (
+            <div className="text-sm text-stone-400 text-center py-4">Keine Koordinaten-Daten im Zeitraum</div>
           )}
         </div>
       )}
