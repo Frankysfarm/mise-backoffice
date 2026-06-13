@@ -23,6 +23,7 @@ import { KitchenPrepProgressCards } from './prep-progress-cards';
 import { KochstartAlertBand } from './kochstart-alert';
 import { ItemPriorityBoard } from './item-priority-board';
 import { SchichtVelocity } from './schicht-velocity';
+import { PrepAnalyticsCard } from './prep-analytics-card';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -585,6 +586,11 @@ export function KitchenBoard({
 
       {/* Smart-Timing Genauigkeit: Wie präzise treffen unsere Schätzungen? */}
       {timings.length > 0 && <KitchenTimingAccuracyBar timings={timings} />}
+
+      {/* Prep-Analytics: Ø Zubereitungszeit, Pünktlichkeitsquote, stündlicher Trend */}
+      {!bigDisplay && timings.length >= 2 && (
+        <PrepAnalyticsCard timings={timings} orders={filtered} />
+      )}
 
       {/* Phase 89: Smart-Prep-Advisor — historische Ist-Zeiten analysieren + Empfehlung */}
       <KitchenSmartPrepAdvisor orders={filtered} />

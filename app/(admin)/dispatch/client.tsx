@@ -70,6 +70,7 @@ import { TourEtaStrip } from './tour-eta-strip';
 import { OrderScoreGrid } from './order-score-grid';
 import { SmartAssignmentPanel } from './smart-assignment';
 import { ZoneStatsDashboard } from './zone-stats-dashboard';
+import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
 
 type Driver = {
   employee_id: string;
@@ -758,6 +759,9 @@ export function DispatchBoard({
 
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
       <TourEtaStrip batches={batches} drivers={drivers} />
+
+      {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
+      <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Score-Übersicht: Alle wartenden Bestellungen mit Dispatch-Score als Farbbalken */}
       {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}

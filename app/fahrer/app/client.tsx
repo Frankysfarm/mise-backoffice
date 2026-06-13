@@ -22,6 +22,7 @@ import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
 import { SchichtPuls } from './schicht-puls';
 import { TourSpeedTracker } from './tour-speed-tracker';
+import { OpenBatchMap } from './open-batch-map';
 
 
 type Driver = {
@@ -2083,6 +2084,20 @@ function OpenBatchSection({
                   </div>
                 </div>
               )}
+
+              {/* Karten-Vorschau: Alle Lieferpunkte vor dem Annehmen auf der Karte sehen */}
+              <OpenBatchMap
+                stops={stops.map((s) => ({
+                  order_id: s.order_id,
+                  kunde_name: s.kunde_name,
+                  kunde_lat: s.kunde_lat ?? null,
+                  kunde_lng: s.kunde_lng ?? null,
+                }))}
+                restaurantLat={stops[0]?.location_lat ?? null}
+                restaurantLng={stops[0]?.location_lng ?? null}
+                restaurantName={stops[0]?.location_name}
+                className="mb-3"
+              />
 
               {/* Stop list — Phase 105: mit geschätzter Ankunftszeit pro Stopp */}
               <div className="space-y-2 mb-3">
