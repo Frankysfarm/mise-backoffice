@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–115 abgeschlossen. Build sauber. 199 Seiten. Deployment-bereit.**
+**Phasen 1–116 abgeschlossen. Build sauber. 200 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 116 abgeschlossen. Build 200 Seiten sauber.**
 **CEO Review #84 — 2026-06-13: Phasen 114+115 + Frontend-Batch geprüft. 2 TS-Bugs gefixt. Build 199 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 115 abgeschlossen. Build 199 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 114 abgeschlossen. Build 198 Seiten sauber.**
@@ -21,6 +22,14 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 116: Geo-Demand Intelligence & Zone Expansion Advisor — 2026-06-13
+- [x] scripts/migrations/071_geo_demand_intelligence.sql: delivery_geo_demand_snapshots (location_id/snapshot_date/plz UNIQUE, order_count/revenue_eur/avg_distance_km/on_time_count/zone_name/is_outside_zone, 2 Indizes, RLS), v_geo_demand_summary VIEW (Aggregat letzte 30d pro PLZ: total_orders/revenue/avg_distance/on_time_pct/days_with_data), v_zone_expansion_candidates VIEW (PLZs außerhalb Zone mit ≥3 Bestellungen: total_orders/estimated_weekly_revenue/projected_annual_revenue/expansion_score)
+- [x] lib/delivery/geo-demand.ts: snapshotGeoDemand() (Haversine-Distanz → Zone-Klassifizierung → PLZ-Aggregation → Upsert), snapshotGeoDemandAllLocations() (Cron-Batch), getGeoDemandMap() (v_geo_demand_summary), getExpansionCandidates() (v_zone_expansion_candidates Top-20), getGeoDemandDashboard() (kombinierter Response: Summary+DemandMap+Kandidaten+TopPLZ)
+- [x] GET+POST /api/delivery/admin/geo-demand: Auth via employees.location_id, GET=Dashboard, POST action=snapshot (manueller Trigger)
+- [x] app/(admin)/delivery/geo-demand/: GeoDemandClient mit 6 KPI-Karten (Abgedeckte PLZs/Außerhalb/Bestellungen 30d/Umsatz 30d/Abdeckungsrate/Expansions-Potenzial), Top-Kandidat-Banner, 2 Tabs (Nachfrage-Karte mit PLZ-Balken/Farb-Ampel Zonen; Expansionskandidaten-Karten mit Score-Balken/Weekly-Revenue/Jahres-Projektion), Info-Box, 2-Min Auto-Refresh, Snapshot-Button
+- [x] Cron: snapshotGeoDemandAllLocations() täglich 02:00 UTC (isReportTick) → geo_demand: { locations, plzs, errors } in Response
+- [x] Sidebar: "Geo-Nachfrage & Expansion" mit Globe-Icon unter Loslegen-Gruppe
+- [x] Build: next build ✓ (200 Seiten, 0 Fehler)
 - [x] Phase 115: Tour Performance Analytics & Bundle Learning Engine — 2026-06-13
 - [x] scripts/migrations/070_tour_performance.sql: tour_performance_snapshots (bundle_size/planned vs actual stops/ETA/SLA/route km/avg detour km/bundle_efficiency_score 0-100/zone A-D breakdown, UNIQUE on batch_id, RLS), v_tour_performance_trend VIEW (14d tägl. Buckets), v_bundle_efficiency_by_zone VIEW (14d per Zone), v_tour_analytics_summary VIEW (30d KPIs + bundle_rate_pct)
 - [x] lib/delivery/tour-analytics.ts: computeBundleEfficiencyScore() (40% SLA + 30% ETA-Genauigkeit + 30% Stop-Auslastung), recordTourPerformance() (fire-and-forget nach Tour=delivered: Stops/Timing/Zonen/Route-km berechnen), getTourAnalyticsDashboard() (Summary+Trend+ZoneEfficiency+Recommendations), buildRecommendations() (optimale Bundle-Größe, vorgeschlagener Max-Umweg, Trend-Richtung, Zone-Insight), scanAndRecordCompletedTours() (Cron-Backfill)
@@ -2802,6 +2811,14 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-13: Backend-Architekt — Phase 116: Geo-Demand Intelligence & Zone Expansion Advisor
+  - scripts/migrations/071_geo_demand_intelligence.sql: delivery_geo_demand_snapshots + v_geo_demand_summary + v_zone_expansion_candidates
+  - lib/delivery/geo-demand.ts: snapshotGeoDemand/snapshotGeoDemandAllLocations/getGeoDemandMap/getExpansionCandidates/getGeoDemandDashboard
+  - GET+POST /api/delivery/admin/geo-demand: Dashboard + manueller Snapshot-Trigger
+  - app/(admin)/delivery/geo-demand/: GeoDemandClient — 6 KPI-Karten, Demand-Karte, Expansionskandidaten mit ROI-Schätzung
+  - Cron: snapshotGeoDemandAllLocations() täglich 02:00 UTC
+  - Sidebar: "Geo-Nachfrage & Expansion" + Globe-Icon
+  - Build: next build ✓ (200 Seiten, 0 Fehler)
 - 2026-06-13: Backend-Architekt — Phase 112: Fahrer-Review-Flag Admin-UI + täglicher Cron-Scan
   - lib/delivery/review-flags.ts: +checkAllDrivers() — distinct (driver_id, location_id)-Paare aus customer_delivery_ratings der letzten 14 Tage, checkAndFlagDriver() für jedes Paar, idempotent
   - app/(admin)/lieferdienst/review-flags-panel.tsx: ReviewFlagsPanel (350 Zeilen): 6 KPI-StatCards (offen, in_review, neu 7d, gelöst/verworfen 30d, ⌀ Rating geflaggte Fahrer), FlagRow (aufklappbar: Admin-Notiz, Aktionen in_review/resolved/dismissed), ManualFlagForm (Fahrerliste + POST), Doppelfilter Status+Grund

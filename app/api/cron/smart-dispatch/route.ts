@@ -51,6 +51,7 @@ import { pruneOldCommsLogs } from '@/lib/delivery/comms-log';
 import { refreshZoneAffinityAllLocations } from '@/lib/delivery/zone-affinity';
 import { checkAllDrivers } from '@/lib/delivery/review-flags';
 import { scanAndRecordCompletedTours } from '@/lib/delivery/tour-analytics';
+import { snapshotGeoDemandAllLocations } from '@/lib/delivery/geo-demand';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -102,7 +103,7 @@ export async function GET(req: NextRequest) {
     // Adress-Intelligenz-Scan: täglich um 05:00 UTC
     const isAddressScanTick = nowHour === 5 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -269,6 +270,10 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? scanAndRecordCompletedTours().catch(() => ({ locations: 0, toursProcessed: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Geo-Demand Snapshot: PLZ-Nachfrage-Dichte täglich um 02:00 UTC (Phase 116)
+      isReportTick
+        ? snapshotGeoDemandAllLocations().catch(() => ({ locations: 0, plzs: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -362,6 +367,7 @@ export async function GET(req: NextRequest) {
       ...(zoneAffinityResult ? { zone_affinity: { locations: zoneAffinityResult.locations, drivers_updated: zoneAffinityResult.driversUpdated, errors: zoneAffinityResult.errors } } : {}),
       ...(reviewFlagScanResult ? { review_flag_scan: { drivers_checked: reviewFlagScanResult.driversChecked, flagged: reviewFlagScanResult.flagged, already_flagged: reviewFlagScanResult.alreadyFlagged, errors: reviewFlagScanResult.errors } } : {}),
       ...(tourAnalyticsResult ? { tour_analytics: { locations: tourAnalyticsResult.locations, tours_processed: tourAnalyticsResult.toursProcessed, errors: tourAnalyticsResult.errors } } : {}),
+      ...(geoDemandResult ? { geo_demand: { locations: geoDemandResult.locations, plzs: geoDemandResult.plzs, errors: geoDemandResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
