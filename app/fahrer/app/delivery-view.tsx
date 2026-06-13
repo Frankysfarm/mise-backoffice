@@ -505,6 +505,10 @@ export function DeliveryView({
   if (showCompletion) {
     const totalBetrag = stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
     const totalDistKm = stops.reduce((sum, s) => sum + ((s.distanz_zum_vorgaenger_m ?? 0) / 1000), 0);
+    const tourEarnings = stops.reduce((sum, s) => {
+      const km = (s.distanz_zum_vorgaenger_m ?? 0) / 1000;
+      return sum + 1.50 + km * 0.20;
+    }, 0);
     return (
       <TourCompletionScreen
         stats={{
@@ -512,6 +516,7 @@ export function DeliveryView({
           totalBetrag,
           elapsedMin: Math.floor(elapsed / 60),
           distanceKm: totalDistKm > 0 ? totalDistKm : null,
+          estEarnings: tourEarnings,
         }}
         onContinue={onAllDone}
       />

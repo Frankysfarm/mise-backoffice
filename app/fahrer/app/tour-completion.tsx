@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, Star, Package, MapPin, Clock } from 'lucide-react';
+import { CheckCircle2, Star, Package, MapPin, Clock, Banknote } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
 
 interface CompletionStats {
@@ -15,6 +15,7 @@ interface CompletionStats {
   totalBetrag: number;
   elapsedMin: number;
   distanceKm: number | null;
+  estEarnings?: number;
 }
 
 interface TourCompletionScreenProps {
@@ -135,6 +136,29 @@ export function TourCompletionScreen({ stats, onContinue }: TourCompletionScreen
             value={stats.distanceKm != null ? `${stats.distanceKm.toFixed(1)} km` : '–'}
           />
         </div>
+
+        {/* Estimated earnings banner */}
+        {stats.estEarnings != null && stats.estEarnings > 0 && (
+          <div
+            className="w-full rounded-2xl bg-accent/20 border border-accent/40 px-4 py-3 flex items-center justify-between"
+            style={{ animation: 'slide-up 0.4s ease-out 0.45s both' }}
+          >
+            <div className="flex items-center gap-2 text-matcha-300">
+              <Banknote className="h-4 w-4 shrink-0" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Geschätzte Vergütung</span>
+            </div>
+            <div className="text-right">
+              <div className="font-display font-black text-xl text-accent leading-none">
+                {euro(stats.estEarnings)}
+              </div>
+              {stats.elapsedMin > 0 && (
+                <div className="text-[10px] text-matcha-400 tabular-nums mt-0.5">
+                  ≈ {euro((stats.estEarnings / stats.elapsedMin) * 60)}/h
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* CTA */}
         <button
