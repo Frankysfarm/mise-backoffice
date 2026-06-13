@@ -27,6 +27,7 @@ export default function KitchenMonitor({
   const [stornoConfirm, setStornoConfirm] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [activated, setActivated] = useState(false);
+  const [autoPrint, setAutoPrint] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Uhr fuer Countdowns
@@ -84,7 +85,9 @@ export default function KitchenMonitor({
   }
   async function onAccept(orderId: string, prepMin: number) {
     setBusy(orderId); setAcceptingId(null);
+    const ord = orders.find((o) => o.id === orderId);
     await acceptOrder(token, orderId, prepMin);
+    if (autoPrint && ord) printBon(ord, prepMin);
     await refresh(); setBusy(null);
   }
   async function onFertig(orderId: string) {
@@ -105,6 +108,47 @@ export default function KitchenMonitor({
     await toggleItem(token, it.id, !it.verfuegbar);
     setItems((xs) => xs.map((x) => x.id === it.id ? { ...x, verfuegbar: !x.verfuegbar } : x));
   }
+  function buildBon(o: Order, prepMin?: number): string {
+    const esc = (s: string) => (s || '').replace(/[<>&]/g, (m) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' } as any)[m]);
+    const lines = (o.items ?? []).map((it) => `<div class="it"><b>${it.menge}×</b> ${esc(it.name)}${it.pick_missing ? ' <b>(FEHLT)</b>' : ''}${it.notiz ? `<br><span class="n">  ${esc(it.notiz)}</span>` : ''}</div>`).join('');
+    const typ = o.typ === 'lieferung' ? 'LIEFERUNG' : o.typ === 'abholung' ? 'ABHOLUNG' : 'VOR ORT';
+    const d = new Date();
+    return `<!doctype html><html><head><meta charset="utf-8"><style>
+      @page{size:80mm auto;margin:0}
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{width:80mm;padding:4mm 3mm;font-family:'Courier New',monospace;color:#000;font-size:13px;line-height:1.35}
+      .c{text-align:center}.b{font-weight:800}.big{font-size:17px;font-weight:800}
+      hr{border:none;border-top:1px dashed #000;margin:6px 0}
+      .it{margin:3px 0;font-size:14px}.n{font-style:italic;font-size:12px}
+    </style></head><body>
+      <div class="c big">${esc(shopName)}</div>
+      <div class="c">Küchen-Bon</div>
+      <hr>
+      <div class="b" style="font-size:16px">#${(o.bestellnummer || '').slice(-6) || '----'}</div>
+      <div>${d.toLocaleDateString('de-DE')} ${d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
+      <div class="b">${typ}</div>
+      <hr>
+      ${o.kunde_name ? `<div class="b">${esc(o.kunde_name)}</div>` : ''}
+      ${o.kunde_telefon ? `<div>Tel: ${esc(o.kunde_telefon)}</div>` : ''}
+      ${o.typ === 'lieferung' && o.kunde_adresse ? `<div>${esc(o.kunde_adresse)}</div>` : ''}
+      <hr>
+      ${lines}
+      <hr>
+      ${prepMin ? `<div class="c b" style="font-size:15px">FERTIG IN ${prepMin} MIN</div>` : ''}
+      <div class="c" style="margin-top:8px">.</div>
+    </body></html>`;
+  }
+  function printBon(o: Order, prepMin?: number) {
+    try {
+      const f = document.createElement('iframe');
+      f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+      document.body.appendChild(f);
+      const doc = f.contentWindow!.document;
+      doc.open(); doc.write(buildBon(o, prepMin)); doc.close();
+      setTimeout(() => { try { f.contentWindow!.focus(); f.contentWindow!.print(); } catch { /* noop */ } setTimeout(() => { try { document.body.removeChild(f); } catch { /* noop */ } }, 1500); }, 300);
+    } catch { /* noop */ }
+  }
+
   function activate() {
     try {
       const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
@@ -180,18 +224,24 @@ export default function KitchenMonitor({
             <div style={{ fontSize: 12.5, color: '#7d9488' }}>Küche · {orders.length} aktiv</div>
           </div>
         </div>
-        <button onClick={() => setSoldOutOpen(true)}
-          style={{ padding: '11px 18px', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none',
-            background: soldOutCount > 0 ? '#E5484D' : '#243029', color: '#fff', cursor: 'pointer' }}>
-          {soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft verwalten'}
-        </button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button onClick={() => setAutoPrint((v) => !v)} title="Bon automatisch drucken beim Annehmen"
+            style={{ padding: '11px 14px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: autoPrint ? '#0F9C50' : '#243029', color: '#fff', cursor: 'pointer' }}>
+            🖨 Auto-Druck {autoPrint ? 'AN' : 'AUS'}
+          </button>
+          <button onClick={() => setSoldOutOpen(true)}
+            style={{ padding: '11px 18px', borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none',
+              background: soldOutCount > 0 ? '#E5484D' : '#243029', color: '#fff', cursor: 'pointer' }}>
+            {soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft verwalten'}
+          </button>
+        </div>
       </div>
 
       {/* 3 Spalten */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, padding: 16, alignItems: 'start' }}>
         <Column title="NEU" count={neu.length} color="#E0A82E">
           {neu.map((o) => (
-            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing} onPrint={(ord) => printBon(ord)}>
               <button onClick={() => setAcceptingId(o.id)} disabled={busy === o.id}
                 style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 17, cursor: 'pointer' }}>
                 ✓ Annehmen
@@ -206,7 +256,7 @@ export default function KitchenMonitor({
             const left = o.fertig_am ? Math.round((new Date(o.fertig_am).getTime() - now) / 60000) : null;
             const over = left != null && left < 0;
             return (
-              <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
+              <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing} onPrint={(ord) => printBon(ord)}>
                 {left != null && (
                   <div style={{ textAlign: 'center', marginBottom: 10, fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: over ? '#E5484D' : '#E07C0B' }}>
                     {over ? `+${Math.abs(left)} Min` : `noch ${left} Min`}
@@ -224,7 +274,7 @@ export default function KitchenMonitor({
 
         <Column title="FERTIG" count={fertig.length} color="#0F9C50">
           {fertig.map((o) => (
-            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing} onPrint={(ord) => printBon(ord)}>
               <div style={{ textAlign: 'center', padding: '10px 0', color: '#0F9C50', fontWeight: 800, fontSize: 16 }}>✓ Bereit zur Abholung</div>
             </Card>
           ))}
@@ -270,12 +320,15 @@ function Column({ title, count, color, children }: { title: string; count: numbe
   );
 }
 
-function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing }: { o: Order; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null; setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void }) {
+function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint }: { o: Order; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null; setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void }) {
   return (
     <div style={{ background: '#1d2823', borderRadius: 16, padding: 15, boxShadow: '0 2px 12px -6px rgba(0,0,0,.5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
         <span style={{ fontWeight: 800, fontSize: 17, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
-        <span style={{ fontSize: 12, color: '#7d9488', fontWeight: 600 }}>{o.typ === 'lieferung' ? '🚗 Lieferung' : o.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: '#7d9488', fontWeight: 600 }}>{o.typ === 'lieferung' ? '🚗 Lieferung' : o.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</span>
+          {onPrint && <button onClick={() => onPrint(o)} title="Bon drucken" style={{ background: 'none', border: 'none', color: '#9fb3a7', fontSize: 16, cursor: 'pointer', padding: 0 }}>🖨</button>}
+        </span>
       </div>
       {(o.kunde_name || o.kunde_telefon) && (
         <div style={{ fontSize: 12.5, color: '#9fb3a7', marginBottom: 8, lineHeight: 1.4 }}>
