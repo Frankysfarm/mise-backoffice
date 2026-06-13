@@ -76,11 +76,14 @@ export async function GET(req: NextRequest, { params }: Params) {
         }
       : null,
     driver_name:     payload.driverName,
+    fahrer_fahrzeug: payload.driverVehicleLabel,
+    kunde_name:      payload.kundeName,
+    gesamtbetrag:    payload.gesamtbetrag,
     geo: {
-      distance_m:       payload.geo.distanceM,
-      almost_there:     payload.geo.almostThere,
+      distance_m:        payload.geo.distanceM,
+      almost_there:      payload.geo.almostThere,
       eta_min_remaining: payload.geo.etaMinRemaining,
-      bearing_deg:      payload.geo.bearingDeg,
+      bearing_deg:       payload.geo.bearingDeg,
     },
   });
 }

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–113 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Phasen 1–114 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 114 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #83 — 2026-06-13: Phase 113 geprüft. 1 Bug gefixt (fahrer_vorname → driver_name). Build 198 Seiten sauber. Alle Systeme grün.**
 **Frontend-Ingenieur — 2026-06-13: Phase 113 abgeschlossen. Build 198 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 112 abgeschlossen. Build 198 Seiten sauber.**
@@ -18,6 +19,10 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 114: Tracking-API Enrichment — Fahrzeug-Label, Kunden-Name, Gesamtbetrag — 2026-06-13
+- [x] lib/delivery/live-tracking.ts: LiveTrackingPayload um driverVehicleLabel/kundeName/gesamtbetrag erweitert; VEHICLE_LABELS-Map (car/bike/moped/scooter/ebike/motorcycle → DE-Bezeichnung); getOrderTrackingData() liest kunde_name+gesamtbetrag aus customer_orders, setzt driverVehicleLabel aus mise_drivers.vehicle
+- [x] app/api/delivery/tracking/[bestellnummer]/route.ts: fahrer_fahrzeug/kunde_name/gesamtbetrag in JSON-Response — PaidOrderClient rendert jetzt Fahrername + Fahrzeugtyp korrekt bei Status "unterwegs"
+- [x] Build: next build ✓ (198 Seiten, 0 Fehler)
 - [x] Phase 113: Frontend-Erweiterungen — Post-Order Live-Tracking, Tagesabschluss, Kitchen Batch-Grouping, Dispatch Return-Forecast — 2026-06-13
 - [x] app/order/paid/client.tsx: PaidOrderClient — Live-Polling Order-Status, Step-Progress, ETA-Countdown, Share-Button, Fahrer-Info
 - [x] app/order/paid/page.tsx: Delegiert an PaidOrderClient (Server → Client)

@@ -54,6 +54,9 @@ export interface LiveTrackingPayload {
   stopsBefore: number | null;
   driver: LiveTrackingDriver | null;
   driverName: string | null;
+  driverVehicleLabel: string | null;
+  kundeName: string | null;
+  gesamtbetrag: number | null;
   geo: GeofencingData;
 }
 
@@ -104,7 +107,7 @@ export async function getOrderTrackingData(
   // Bestellung laden
   const { data: order } = await sb
     .from('customer_orders')
-    .select('id, bestellnummer, status, typ, eta_earliest, eta_latest, mise_batch_id, mise_driver_id, location_id, kunde_lat, kunde_lng')
+    .select('id, bestellnummer, status, typ, eta_earliest, eta_latest, mise_batch_id, mise_driver_id, location_id, kunde_lat, kunde_lng, kunde_name, gesamtbetrag')
     .eq('bestellnummer', bestellnummer)
     .eq('typ', 'lieferung')
     .maybeSingle();
@@ -124,17 +127,20 @@ export async function getOrderTrackingData(
   // Ohne Batch → frühes Tracking
   if (!order.mise_batch_id) {
     return {
-      orderId:      order.id as string,
-      bestellnummer: order.bestellnummer as string,
-      status:       order.status as string,
+      orderId:            order.id as string,
+      bestellnummer:      order.bestellnummer as string,
+      status:             order.status as string,
       etaLabel,
-      etaEarliest:  order.eta_earliest as string | null,
-      etaLatest:    order.eta_latest as string | null,
-      batchState:   null,
-      stopsBefore:  null,
-      driver:       null,
-      driverName:   null,
-      geo:          { distanceM: null, almostThere: false, etaMinRemaining: null, bearingDeg: null },
+      etaEarliest:        order.eta_earliest as string | null,
+      etaLatest:          order.eta_latest as string | null,
+      batchState:         null,
+      stopsBefore:        null,
+      driver:             null,
+      driverName:         null,
+      driverVehicleLabel: null,
+      kundeName:          (order.kunde_name as string | null) ?? null,
+      gesamtbetrag:       (order.gesamtbetrag as number | null) ?? null,
+      geo:                { distanceM: null, almostThere: false, etaMinRemaining: null, bearingDeg: null },
     };
   }
 
@@ -172,7 +178,17 @@ export async function getOrderTrackingData(
   const driverId = (batch?.driver_id ?? order.mise_driver_id) as string | null;
   let driver: LiveTrackingDriver | null = null;
   let driverName: string | null = null;
+  let driverVehicleLabel: string | null = null;
   let vehicleType: 'bike' | 'car' = 'bike';
+
+  const VEHICLE_LABELS: Record<string, string> = {
+    car:       'Auto',
+    bike:      'Fahrrad',
+    moped:     'Moped',
+    scooter:   'Scooter',
+    ebike:     'E-Bike',
+    motorcycle: 'Motorrad',
+  };
 
   if (driverId) {
     const [locRes, driverRes] = await Promise.all([
@@ -204,7 +220,9 @@ export async function getOrderTrackingData(
     }
 
     if (driverRes.data) {
-      vehicleType = (driverRes.data.vehicle as string | null) === 'car' ? 'car' : 'bike';
+      const rawVehicle = (driverRes.data.vehicle as string | null) ?? 'bike';
+      vehicleType = rawVehicle === 'car' ? 'car' : 'bike';
+      driverVehicleLabel = VEHICLE_LABELS[rawVehicle] ?? null;
       if (driverRes.data.employee_id) {
         const { data: emp } = await sb
           .from('employees')
@@ -230,16 +248,19 @@ export async function getOrderTrackingData(
     : { distanceM: null, almostThere: false, etaMinRemaining: null, bearingDeg: null };
 
   return {
-    orderId:       order.id as string,
-    bestellnummer: order.bestellnummer as string,
-    status:        order.status as string,
+    orderId:            order.id as string,
+    bestellnummer:      order.bestellnummer as string,
+    status:             order.status as string,
     etaLabel,
-    etaEarliest:   order.eta_earliest as string | null,
-    etaLatest:     order.eta_latest as string | null,
-    batchState:    (batch?.state as string | null) ?? null,
+    etaEarliest:        order.eta_earliest as string | null,
+    etaLatest:          order.eta_latest as string | null,
+    batchState:         (batch?.state as string | null) ?? null,
     stopsBefore,
     driver,
     driverName,
+    driverVehicleLabel,
+    kundeName:          (order.kunde_name as string | null) ?? null,
+    gesamtbetrag:       (order.gesamtbetrag as number | null) ?? null,
     geo,
   };
 }
