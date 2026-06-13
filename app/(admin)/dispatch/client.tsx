@@ -1532,6 +1532,70 @@ export function DispatchBoard({
   );
 }
 
+/* ------------------------------ DeliveryProofBadge ------------------------------ */
+
+const PROOF_LABEL: Record<string, string> = {
+  handed_to_person: 'Übergeben',
+  left_at_door:     'Vor Tür',
+  neighbour:        'Nachbar',
+  contactless:      'Kontaktlos',
+  photo:            'Foto',
+};
+
+function DeliveryProofBadge({ batchId, orderId }: { batchId: string; orderId: string }) {
+  const [proof, setProof] = useState<{ proof_type: string; photo_url: string | null; notes: string | null } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  async function load() {
+    if (proof || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/delivery/tours/${batchId}/proof?order_id=${orderId}`);
+      if (res.ok) {
+        const d = await res.json();
+        setProof(d.proof ?? null);
+      }
+    } catch {} finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => { setOpen((v) => !v); load(); }}
+        className="text-[9px] font-bold text-matcha-600 hover:text-matcha-800 transition underline-offset-2 hover:underline"
+      >
+        {loading ? '…' : open ? '▲ Nachweis' : '▼ Nachweis'}
+      </button>
+      {open && (
+        <div className="mt-1 rounded bg-matcha-50 border border-matcha-200 px-2 py-1.5">
+          {proof ? (
+            <>
+              <div className="text-[10px] font-bold text-matcha-700">
+                {PROOF_LABEL[proof.proof_type] ?? proof.proof_type}
+              </div>
+              {proof.notes && (
+                <div className="text-[9px] text-matcha-600 italic mt-0.5">„{proof.notes}"</div>
+              )}
+              {proof.photo_url && (
+                <a href={proof.photo_url} target="_blank" rel="noopener noreferrer" className="block mt-1">
+                  <img src={proof.photo_url} alt="Lieferfoto" className="w-20 h-14 object-cover rounded border border-matcha-200" />
+                </a>
+              )}
+            </>
+          ) : loading ? (
+            <div className="text-[9px] text-matcha-400">Lade…</div>
+          ) : (
+            <div className="text-[9px] text-matcha-400">Kein Nachweis</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------ BatchDetailDialog ------------------------------ */
 
 function BatchDetailDialog({
@@ -1672,8 +1736,13 @@ function BatchDetailDialog({
                       <div className="text-[10px] text-muted-foreground truncate">{s.order.kunde_adresse}</div>
                     )}
                     {s.geliefert_am ? (
-                      <div className="text-[10px] text-matcha-600 font-semibold">
-                        Zugestellt {new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      <div>
+                        <div className="text-[10px] text-matcha-600 font-semibold">
+                          Zugestellt {new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        {s.order_id && (
+                          <DeliveryProofBadge batchId={b.id} orderId={s.order_id} />
+                        )}
                       </div>
                     ) : stopSecLeft !== null ? (
                       <div className={cn('text-[10px] font-semibold tabular-nums', stopEtaColor)}>
