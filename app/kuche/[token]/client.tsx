@@ -24,12 +24,13 @@ export default function KitchenMonitor({
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
-  const prevNewCount = useRef(initialOrders.filter((o) => o.status === 'neu').length);
+  const [activated, setActivated] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Uhr fuer Countdowns
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
-  // Polling alle 6s
+  // Polling alle 4s
   useEffect(() => {
     let alive = true;
     async function poll() {
@@ -37,19 +38,47 @@ export default function KitchenMonitor({
       if (!alive || 'error' in r) return;
       setOrders(r.orders as Order[]);
       setItems(r.items as MenuItem[]);
-      const neu = (r.orders as Order[]).filter((o) => o.status === 'neu').length;
-      if (neu > prevNewCount.current) { try { new Audio('/sounds/ding.mp3').play().catch(() => {}); } catch {} }
-      prevNewCount.current = neu;
     }
-    const iv = setInterval(poll, 6000);
+    const iv = setInterval(poll, 4000);
     return () => { alive = false; clearInterval(iv); };
   }, [token]);
+
+  const neu = orders.filter((o) => o.status === 'neu' || o.status === 'bestätigt');
+  const kochen = orders.filter((o) => o.status === 'in_zubereitung');
+  const fertig = orders.filter((o) => o.status === 'fertig');
+  const soldOutCount = items.filter((i) => !i.verfuegbar).length;
+  const ringing = neu.length > 0 ? neu[0] : null; // aelteste neue Order ploppt + klingelt
+
+  // DAUER-ALARM solange eine neue Order wartet (bis angenommen)
+  useEffect(() => {
+    if (!ringing || !activated) return;
+    let stopped = false;
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    try { ctx.resume(); } catch { /* noop */ }
+    function beep() {
+      if (stopped || !ctx) return;
+      const t = ctx.currentTime;
+      [880, 1320].forEach((freq, i) => {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'square'; o.frequency.value = freq;
+        o.connect(g); g.connect(ctx.destination);
+        const s = t + i * 0.18;
+        g.gain.setValueAtTime(0.0001, s);
+        g.gain.exponentialRampToValueAtTime(0.5, s + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, s + 0.16);
+        o.start(s); o.stop(s + 0.17);
+      });
+    }
+    beep();
+    const iv = setInterval(beep, 1100);
+    return () => { stopped = true; clearInterval(iv); };
+  }, [ringing?.id, activated]);
 
   async function refresh() {
     const r = await getKitchenData(token);
     if (!('error' in r)) { setOrders(r.orders as Order[]); setItems(r.items as MenuItem[]); }
   }
-
   async function onAccept(orderId: string, prepMin: number) {
     setBusy(orderId); setAcceptingId(null);
     await acceptOrder(token, orderId, prepMin);
@@ -64,14 +93,72 @@ export default function KitchenMonitor({
     await toggleItem(token, it.id, !it.verfuegbar);
     setItems((xs) => xs.map((x) => x.id === it.id ? { ...x, verfuegbar: !x.verfuegbar } : x));
   }
+  function activate() {
+    try {
+      const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new Ctx();
+      audioCtxRef.current.resume();
+    } catch { /* noop */ }
+    setActivated(true);
+  }
 
-  const neu = orders.filter((o) => o.status === 'neu' || o.status === 'bestätigt');
-  const kochen = orders.filter((o) => o.status === 'in_zubereitung');
-  const fertig = orders.filter((o) => o.status === 'fertig');
-  const soldOutCount = items.filter((i) => !i.verfuegbar).length;
+  // ── Aktivierungs-Overlay (entsperrt Ton, Browser-Pflicht) ──
+  if (!activated) {
+    return (
+      <div onClick={activate} style={{ minHeight: '100vh', background: '#0f1411', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 18, cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ fontSize: 60 }}>🍕</div>
+        <div style={{ fontSize: 26, fontWeight: 800 }}>{shopName} · Küche</div>
+        <button onClick={activate} style={{ padding: '20px 40px', borderRadius: 16, border: 'none', background: '#0F9C50', color: '#fff', fontSize: 22, fontWeight: 800, cursor: 'pointer' }}>
+          ▶ Bildschirm starten
+        </button>
+        <div style={{ fontSize: 14, color: '#7d9488', maxWidth: 320, textAlign: 'center' }}>Einmal tippen, damit der Klingel-Ton funktioniert. Danach läuft alles automatisch.</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f1411', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
+      {/* ── VOLLBILD-POPUP: neue Bestellung (klingelt bis angenommen) ── */}
+      {ringing && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(224,40,40,.18)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'kpulse 1.1s ease-in-out infinite' }}>
+          <style>{'@keyframes kpulse{0%,100%{background:rgba(224,40,40,.12)}50%{background:rgba(224,40,40,.28)}}'}</style>
+          <div style={{ width: 'min(560px, 96vw)', background: '#1d2823', borderRadius: 24, padding: 26, boxShadow: '0 20px 80px -20px #000', border: '2px solid #E5484D' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+              <span style={{ fontSize: 30 }}>🔔</span>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#ff7a7d', letterSpacing: '.02em' }}>NEUE BESTELLUNG</span>
+              {neu.length > 1 && <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 700, color: '#9fb3a7' }}>+{neu.length - 1} weitere</span>}
+            </div>
+            <div style={{ fontFamily: 'monospace', fontSize: 20, fontWeight: 800, marginBottom: 4 }}>#{(ringing.bestellnummer || '').slice(-4) || '----'} · {ringing.typ === 'lieferung' ? '🚗 Lieferung' : ringing.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</div>
+            <div style={{ margin: '12px 0', maxHeight: '38vh', overflowY: 'auto' }}>
+              {(ringing.items ?? []).map((it) => (
+                <div key={it.id} style={{ display: 'flex', gap: 10, fontSize: 19, padding: '5px 0' }}>
+                  <span style={{ fontWeight: 900, color: '#0F9C50', minWidth: 32 }}>{it.menge}×</span>
+                  <span style={{ fontWeight: 700 }}>{it.name}{it.notiz ? <span style={{ color: '#E0A82E', fontSize: 15 }}> · {it.notiz}</span> : null}</span>
+                </div>
+              ))}
+            </div>
+            {acceptingId === ringing.id ? (
+              <div>
+                <div style={{ fontSize: 14, color: '#9fb3a7', marginBottom: 8, fontWeight: 700 }}>In wie viel Minuten fertig?</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {PREP_OPTIONS.map((m) => (
+                    <button key={m} onClick={() => onAccept(ringing.id, m)} disabled={!!busy}
+                      style={{ flex: '1 0 28%', padding: '20px 0', borderRadius: 14, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 900, fontSize: 20, cursor: 'pointer' }}>
+                      {m} Min
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setAcceptingId(ringing.id)} disabled={busy === ringing.id}
+                style={{ width: '100%', padding: '22px 0', borderRadius: 16, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 900, fontSize: 24, cursor: 'pointer' }}>
+                ✓ ANNEHMEN
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 22px', background: '#16201b', borderBottom: '1px solid #243029' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -93,25 +180,10 @@ export default function KitchenMonitor({
         <Column title="NEU" count={neu.length} color="#E0A82E">
           {neu.map((o) => (
             <Card key={o.id} o={o}>
-              {acceptingId === o.id ? (
-                <div>
-                  <div style={{ fontSize: 13, color: '#9fb3a7', marginBottom: 8, fontWeight: 600 }}>Zubereitungszeit?</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {PREP_OPTIONS.map((m) => (
-                      <button key={m} onClick={() => onAccept(o.id, m)} disabled={!!busy}
-                        style={{ flex: '1 0 28%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 17, cursor: 'pointer' }}>
-                        {m} Min
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={() => setAcceptingId(null)} style={{ marginTop: 8, width: '100%', padding: 10, borderRadius: 10, border: 'none', background: 'transparent', color: '#7d9488', fontSize: 13, cursor: 'pointer' }}>Abbrechen</button>
-                </div>
-              ) : (
-                <button onClick={() => setAcceptingId(o.id)} disabled={busy === o.id}
-                  style={{ width: '100%', padding: '16px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 18, cursor: 'pointer' }}>
-                  ✓ Annehmen
-                </button>
-              )}
+              <button onClick={() => setAcceptingId(o.id)} disabled={busy === o.id}
+                style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 17, cursor: 'pointer' }}>
+                ✓ Annehmen
+              </button>
             </Card>
           ))}
           {neu.length === 0 && <Empty text="Keine neuen Bestellungen" />}
@@ -141,9 +213,7 @@ export default function KitchenMonitor({
         <Column title="FERTIG" count={fertig.length} color="#0F9C50">
           {fertig.map((o) => (
             <Card key={o.id} o={o}>
-              <div style={{ textAlign: 'center', padding: '10px 0', color: '#0F9C50', fontWeight: 800, fontSize: 16 }}>
-                ✓ Bereit zur Abholung
-              </div>
+              <div style={{ textAlign: 'center', padding: '10px 0', color: '#0F9C50', fontWeight: 800, fontSize: 16 }}>✓ Bereit zur Abholung</div>
             </Card>
           ))}
           {fertig.length === 0 && <Empty text="Nichts fertig" />}
@@ -158,7 +228,7 @@ export default function KitchenMonitor({
               <div style={{ fontSize: 18, fontWeight: 800 }}>Ausverkauft heute</div>
               <button onClick={() => setSoldOutOpen(false)} style={{ background: 'none', border: 'none', color: '#7d9488', fontSize: 22, cursor: 'pointer' }}>×</button>
             </div>
-            <div style={{ fontSize: 13, color: '#7d9488', marginBottom: 14 }}>Tippe ein Gericht → wird als ausverkauft markiert (Kunden können es nicht mehr bestellen).</div>
+            <div style={{ fontSize: 13, color: '#7d9488', marginBottom: 14 }}>Tippe ein Gericht → ausverkauft (Kunden können es nicht mehr bestellen).</div>
             {items.map((it) => (
               <button key={it.id} onClick={() => onToggle(it)}
                 style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 14px', borderRadius: 12, marginBottom: 8, border: 'none', cursor: 'pointer',
