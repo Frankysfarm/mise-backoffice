@@ -93,7 +93,7 @@ export function LiveWaitBadge({
   const rangeLow = Math.max(5, displayMin - 5);
   const rangeHigh = displayMin + 5;
 
-  const isSurge = data?.queue_signal === 'surge' || data?.eta_extension_min > 5;
+  const isSurge = data?.queue_signal === 'surge' || (data?.eta_extension_min ?? 0) > 5;
 
   return (
     <div className={cn(

@@ -1,7 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–113 vollständig abgeschlossen. CEO Review #83 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–115 vollständig abgeschlossen. CEO Review #84 abgeschlossen. TypeScript 0 Fehler. Build sauber. 199 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #84 — 2026-06-13
+
+### Geprüfte Commits (5 neue seit Review #83)
+- `fd77ae6` feat(delivery/backend): Phase 114 — Tracking-API Enrichment (Fahrzeug, Kunde, Betrag)
+- `5e61b70` feat(delivery/frontend): Smart-Timing, ETA-Genauigkeit, Verdienst-Fortschritt, Bestellfluss-Chart
+- `1b2b96c` feat(delivery/backend): Phase 115 — Tour Performance Analytics & Bundle Learning
+- `5046d43` docs: Phase 115 Fortschritt in DELIVERY_PROGRESS.md eingetragen
+- `13f5438` feat(delivery/frontend): Tour-Minimap, Kitchen-Schicht-Badge, Lieferdienst-Umsatzchart
+
+### TypeScript & Build
+- TypeScript: **0 Fehler** ✅ (2 Bugs gefixt)
+- `next build`: **199 Seiten sauber** ✅
+
+### Bugs gefunden & gefixt
+
+**Bug 1 — app/order/[locationSlug]/components/live-wait-badge.tsx:96 — undefined-Check fehlt**
+- Ursache: `data?.eta_extension_min > 5` — TypeScript TS18048: `eta_extension_min` möglicherweise `undefined`
+- Fix: `(data?.eta_extension_min ?? 0) > 5` ✅
+
+**Bug 2 — lib/delivery/tour-analytics.ts:183 — Typ-Inkompatibilität beim Cast**
+- Ursache: Supabase-Query-Return-Typ für `mise_batch_stops` überlappte nicht direkt mit `Stop[]` (alle Felder `any`)
+- Fix: `as unknown as Stop[]` (doppelter Cast via `unknown`) ✅
+
+### Integrations-Audit Phase 114–115 + Frontend-Batch
+
+**Phase 114 — Tracking-API Enrichment:**
+- `getOrderTrackingData()` gibt `driverVehicleLabel` + `kundeName` + `gesamtbetrag` zurück ✅
+- `PaidOrderClient` zeigt Fahrername + Fahrzeugtyp korrekt bei Status `unterwegs` ✅
+
+**Phase 115 — Tour Performance Analytics:**
+- `computeBundleEfficiencyScore()` — 40% SLA + 30% ETA-Genauigkeit + 30% Stop-Auslastung ✅
+- `recordTourPerformance()` fire-and-forget in `tours/[id]/status/route.ts` bei `state=delivered` ✅
+- Admin-Dashboard `/delivery/tour-analytics` — 4 KPI-Kacheln, Empfehlungsblock, 14d-Trend, Zone-Effizienz ✅
+- Cron `scanAndRecordCompletedTours()` täglich 02:00 UTC eingehängt ✅
+- Sidebar-NavItem "Tour-Performance Analytics" mit BarChart2-Icon ✅
+
+**Frontend-Batch (Phase 114–115 Ergänzungen):**
+- `EtaAccuracyLive` (Dispatch): GaugeRing + Zonen-Aufschlüsselung, 60s-Polling ✅
+- `KitchenItemComplexityStrip`: Bestellkomplexitäts-Einstufung (einfach/mittel/komplex/⚡Alarm) ✅
+- `EarningsProgressBar` (Fahrer): Schicht-Verdienst vs. 80 € Tagesziel, Stopps + Ø-Zeit ✅
+- `RealtimeFlowChart` (Lieferdienst): stündlicher Bestellfluss-Barchart mit Peak-Stunde + Trend ✅
+- `LiveWaitBadge` (Storefront): wiederverwendbarer ETA-Badge mit Surge-Erkennung ✅
+- `TourMiniMap` (Fahrer-App): Leaflet-Minimap bei ≥2 Stopps in Pickup-Phase, Leaflet in package.json ✅
+- `SchichtPerformanceBadge` (Kitchen): Orders/h + Ø Prep-Zeit + Pünktlichkeit + 30-Min-Durchsatz ✅
+- `SchichtUmsatzChart` (Lieferdienst): stündlicher Umsatz-Barchart mit Gestern-Vergleich ✅
+
+### Status nach Review #84
+- TypeScript: 0 Fehler ✅
+- Build: 199 Seiten sauber ✅
+- Phasen 1–115 vollständig ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Systeme synchron ✅
+- Bugs gefixt: 2 (live-wait-badge undefined-Check, tour-analytics Stop[]-Cast)
 
 ---
 

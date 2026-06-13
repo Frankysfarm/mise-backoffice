@@ -180,7 +180,7 @@ export async function recordTourPerformance(batchId: string): Promise<void> {
     };
 
     const stops: Stop[] = Array.isArray(batch.mise_batch_stops)
-      ? (batch.mise_batch_stops as Stop[])
+      ? (batch.mise_batch_stops as unknown as Stop[])
       : [];
 
     const dropoffStops = stops.filter((s) => s.stop_type === 'dropoff');
