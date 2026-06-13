@@ -211,9 +211,43 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
       setLoyaltyBalance(null);
       setLoyaltyEnabled(false);
       onLoyaltyChange?.(null);
+      setSavedPrefs(null);
+      setPrefillApplied(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Gespeicherte Lieferpräferenzen laden wenn E-Mail eingegeben
+  const [savedPrefs, setSavedPrefs] = React.useState<{
+    addressDisplay: string | null;
+    floor: string | null;
+    gateCode: string | null;
+    specialInstructions: string | null;
+  } | null>(null);
+  const [prefillApplied, setPrefillApplied] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!email || !locationId || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    let cancelled = false;
+    fetch(`/api/delivery/preferences?email=${encodeURIComponent(email)}&location_id=${encodeURIComponent(locationId)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: { addresses?: { addressDisplay: string | null; floor: string | null; gateCode: string | null; specialInstructions: string | null }[] } | null) => {
+        if (cancelled || !d?.addresses?.length) return;
+        const top = d.addresses[0];
+        if (top.floor || top.gateCode || top.specialInstructions) setSavedPrefs(top);
+      })
+      .catch(() => null);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, locationId]);
+
+  function applyPrefs() {
+    if (!savedPrefs) return;
+    if (!etage && savedPrefs.floor) setEtage(savedPrefs.floor);
+    if (!tuercode && savedPrefs.gateCode) setTuercode(savedPrefs.gateCode);
+    if (!lieferhinweis && savedPrefs.specialInstructions) setLieferhinweis(savedPrefs.specialInstructions);
+    setPrefillApplied(true);
+  }
 
   React.useEffect(() => {
     if (!open || !locationId || voucher) return;
@@ -612,6 +646,32 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
               <Field label="Dein Name" value={name} onChange={setName} placeholder="z.B. Franka" autoFocus icon={<User className="h-4 w-4" />} />
               <Field label="Telefon" value={telefon} onChange={setTelefon} placeholder="0151 1234567" inputMode="tel" />
               <Field label="E-Mail (optional)" value={email} onChange={setEmail} placeholder="für die Bestellbestätigung" inputMode="email" />
+
+              {/* Gespeicherte Lieferinfos: erscheint wenn bekannte E-Mail erkannt */}
+              {savedPrefs && !prefillApplied && orderType === 'lieferung' && (
+                <div className="flex items-start gap-3 rounded-xl border border-matcha-200 bg-matcha-50 px-4 py-3">
+                  <MapPin className="h-4 w-4 text-matcha-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold text-matcha-800">Gespeicherte Lieferinfos gefunden</div>
+                    {savedPrefs.addressDisplay && (
+                      <div className="text-[11px] text-matcha-600 mt-0.5 truncate">{savedPrefs.addressDisplay}</div>
+                    )}
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                      {savedPrefs.floor && <span className="text-[10px] bg-matcha-100 rounded px-1.5 py-0.5 text-matcha-700">Etage: {savedPrefs.floor}</span>}
+                      {savedPrefs.gateCode && <span className="text-[10px] bg-matcha-100 rounded px-1.5 py-0.5 text-matcha-700">Code: {savedPrefs.gateCode}</span>}
+                      {savedPrefs.specialInstructions && <span className="text-[10px] bg-matcha-100 rounded px-1.5 py-0.5 text-matcha-700 truncate max-w-[160px]">{savedPrefs.specialInstructions}</span>}
+                    </div>
+                  </div>
+                  <button onClick={applyPrefs} type="button" className="shrink-0 text-[11px] font-bold text-matcha-700 bg-matcha-200 hover:bg-matcha-300 rounded-lg px-2.5 py-1.5 transition">
+                    Übernehmen
+                  </button>
+                </div>
+              )}
+              {prefillApplied && (
+                <div className="flex items-center gap-2 text-xs text-matcha-700">
+                  <Check className="h-3.5 w-3.5" /> Lieferhinweise übernommen
+                </div>
+              )}
 
               {email && (
                 <label className="flex items-start gap-3 cursor-pointer pt-1">

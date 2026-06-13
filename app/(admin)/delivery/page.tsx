@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
-  Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp,
+  Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -107,6 +107,13 @@ export default async function DeliveryOverviewPage() {
           title="Konditionen"
           subtitle={`Liefergebühr ${tenant?.liefergebuehr ? euro(tenant.liefergebuehr) : '—'} · Mindest ${tenant?.mindestbestellwert ? euro(tenant.mindestbestellwert) : '—'}`}
           cta="Preise & Limits"
+        />
+        <SectionCard
+          href="/delivery/surge-prediction"
+          icon={<Zap className="h-5 w-5" />}
+          title="Surge-Prognose"
+          subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung · Genauigkeitsrate"
+          cta="Prognosen ansehen"
         />
       </div>
     </>
