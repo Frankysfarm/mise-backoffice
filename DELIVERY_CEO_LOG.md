@@ -1,7 +1,91 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–100 vollständig abgeschlossen. CEO Review #74 abgeschlossen. TypeScript 0 Fehler. Build sauber. 192 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–101 + Frontend-Update vollständig abgeschlossen. CEO Review #75 abgeschlossen. TypeScript 0 Fehler. Build sauber. 193 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #75 — 2026-06-13
+
+### Geprüfte Commits (2 neue Commits seit Review #74)
+
+| Commit | Feature | Status |
+|--------|---------|--------|
+| `a7bbbf3` | feat(delivery/backend): Phase 101 — Smart Customer Churn Prevention & Re-Engagement Engine | ✅ |
+| `56b8a0e` | feat(delivery/frontend): Live-ETA Aurora, Bundle-Alert Dispatch, Gesamtscore Lieferdienst, Tour-Rest-Strip Fahrer | ✅ |
+
+### TypeScript & Build
+- TypeScript: 0 Fehler ✅ (`npx tsc --noEmit` exit 0)
+- `next build`: ✓ Compiled successfully, 193 Seiten ✅
+- Bugs gefunden: 0 — keine Fixes nötig
+
+### Befund Phase 101 (Churn Prevention Engine)
+
+**scripts/migrations/061_churn_prevention.sql**:
+- `customer_churn_risk_scores`: UNIQUE(location_id, customer_email) + 3 Indizes ✅
+- `v_churn_at_risk` VIEW: risk_score≥60 + Dedup-Filter (14 Tage seit letzter Kampagne) ✅
+- `v_churn_stats`: Aggregat mit win_back_rate_pct als ROUND(win_backs/campaigns_sent*100,1) ✅
+- RLS: service_role korrekt konfiguriert ✅
+
+**lib/delivery/churn-prevention.ts**:
+- RFM-Score: Recency (0–50) + Frequency-Rückgang (0–30) + Aktivität (0–20) = max 100 ✅
+- Batch-Upsert (100er-Pakete): verhindert API-Timeouts bei großen Location-Datensätzen ✅
+- 14-Tage-Dedup in `runReEngagementCampaign()`: kein doppelter Credit-Versand möglich ✅
+- `markCampaignConverted()`: fire-and-forget, kein Absturz bei Tracking-Fehler ✅
+
+**API + Frontend**:
+- Auth-Guard via `employees.tenant_id` — Isolation gesichert ✅
+- dryRun-Modus: Kampagne simulierbar ohne Credit-Ausgabe ✅
+- ChurnPreventionClient: SVG-Donut korrekt mit 4 Risikostufen ✅
+- Cron: 02:00 UTC Analyse + 04:00 UTC Re-Engagement ✅
+
+### Befund Frontend-Update (Commit 56b8a0e)
+
+**storefront-aurora.tsx — useAuroraLiveEta Hook**:
+- 60s-Polling via `setInterval` + cancelled-Flag — kein Memory-Leak ✅
+- Graceful Fallback: bei API-Fehler bleibt `deliveryTime` aus Tenant-Config ✅
+- Farbcodierung: rot=busy, grün=quiet — visuell korrekt ✅
+- `driversOnline ≥ 3` = grüner Chip, sonst Standard ✅
+
+**dispatch/client.tsx — DispatchBundleOpportunityAlert**:
+- Filter: `status === 'fertig' && typ === 'lieferung'` — nur lieferbare Bestellungen ✅
+- Zone-Gruppierung: `delivery_zone ?? 'X'` — fallback korrekt ✅
+- `oldestWaitMin ≥ 10`: rote animate-pulse + ring-Klasse als Dringlichkeits-Signal ✅
+- `ZONE_CLS` Map mit Default `'X'` — kein unhandled undefined ✅
+
+**lieferdienst/client.tsx — LieferdienstGesamtScore**:
+- Gewichtung: SLA 40% + ETA 25% + Durchsatz 20% + Ablehnungsrate 15% = 100% ✅
+- API-Calls zu `/api/delivery/admin/sla` + `/api/delivery/admin/eta-accuracy` ✅
+- Fallback: `slaScore/etaScore = 75` wenn API nicht antwortet ✅
+- SVG-Gauge: `strokeDashoffset = circ - dash` — korrekte kreisförmige Darstellung ✅
+- `Target`-Icon korrekt importiert (Zeile 31) ✅
+
+**fahrer/app/delivery-view.tsx — TourRemainingStrip**:
+- Nur sichtbar wenn `sorted.length > 1 && !allDone` — korrekte Bedingung ✅
+- `distanz_zum_vorgaenger_m`: summiert korrekt verbleibende Distanz ✅
+- `cashRemaining`: `!s.order.bezahlt || s.order.zahlungsart === 'bar'` — Bar-Zahlung korrekt erkannt ✅
+- Überfälligkeits-Alert: rot + pulse wenn ETA überschritten ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Storefront: Live-ETA mit Echtzeit-Last-Indikator ✅
+- Dispatch: Bündelungsalert reduziert Leerfahrten ✅
+- Lieferdienst-Statistiken: Schicht-Score als übergeordneter KPI ✅
+- Fahrer-App: Tour-Reststreifen mit Kassenbetrags-Übersicht ✅
+- Alle 4 Module synchron — keine Lücken ✅
+
+### Status nach Review #75
+- TypeScript: 0 Fehler ✅
+- Build: 193 Seiten, Compiled successfully ✅
+- Phase 101 (Churn Prevention): DONE ✅
+- Frontend-Update (4 neue Komponenten): DONE ✅
+- Bugs gefixed: 0
+
+### Nächste Schritte für Teams
+**Phase 102 (optional — System ist bereits MARKT-REIF):**
+- Backend: Multi-Tenant-Isolation Audit + Performance-Benchmarks
+- Frontend: PWA-Manifest + Service-Worker für Fahrer-App (Offline-Fähigkeit)
+- Ops: Supabase-Migration-Skripte in CI/CD-Pipeline einbinden
+- Docs: API-Dokumentation für externe Integrations-Partner
 
 ---
 

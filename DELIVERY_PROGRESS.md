@@ -1,10 +1,11 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF + PHASE 101
-**Phasen 1–101 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 193 Seiten. Deployment-bereit.**
+## STATUS: MARKT-REIF
+**Phasen 1–101 + Frontend-Update abgeschlossen. Build sauber. 0 TypeScript-Fehler. 193 Seiten. CEO Review #75 bestanden. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Frontend-Update (CEO Review #75): Live-ETA Aurora (60s-Poll, Lastfarben busy/quiet), DispatchBundleOpportunityAlert (Zone-Gruppierung, ≥10min Warnung animate-pulse), LieferdienstGesamtScore (SLA 40%+ETA 25%+Durchsatz 20%+Ablehnung 15%, SVG-Gauge), TourRemainingStrip (verbleibende Stopps+Distanz+Bar-Kassenbetrag+Überfälligkeits-Alert) — 2026-06-13
 - [x] Phase 101: Smart Customer Churn Prevention & Re-Engagement Engine — 2026-06-13
 - [x] scripts/migrations/061_churn_prevention.sql: customer_churn_risk_scores Tabelle (risk_score 0–100, risk_tier safe/warning/at_risk/churned, RFM-Felder, campaign_sent_at/campaign_result/credit_id, UNIQUE location_id+customer_email, 3 Indizes, RLS), v_churn_at_risk VIEW (risk_score≥60, nicht kontaktiert letzte 14 Tage), v_churn_stats VIEW (Aggregat: total_customers/count_safe/count_warning/count_at_risk/count_churned/campaigns_sent/win_backs/win_back_rate_pct/avg_risk_score)
 - [x] lib/delivery/churn-prevention.ts: analyzeChurnForLocation() (Batch-Abfrage customer_orders letzte 120 Tage, RFM-Score-Berechnung: Recency 0–50/Frequency-Rückgang 0–30/Aktivität 0–20, Upsert in Batches von 100), analyzeChurnAllLocations() (Cron-Batch alle aktiven Locations), getChurnDashboard() (Stats+At-Risk-Liste+Kampagnen-History), runReEngagementCampaign() (issueManualCredit €3 at_risk/€5 churned, 14-Tage-Dedup, campaign_result=pending), runReEngagementAllLocations() (Cron-Batch), markCampaignConverted() (fire-and-forget Win-Back-Tracking)
