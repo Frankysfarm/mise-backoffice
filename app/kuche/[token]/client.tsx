@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getKitchenData, acceptOrder, markFertig, toggleItem, stornoOrder } from './actions';
+import { getKitchenData, acceptOrder, markFertig, toggleItem, stornoOrder, markItemMissing } from './actions';
 
-type Item = { id: string; name: string; menge: number; notiz: string | null };
+type Item = { id: string; name: string; menge: number; notiz: string | null; pick_missing?: boolean | null };
 type Order = {
   id: string; bestellnummer: string | null; status: string; kunde_name: string | null;
   kunde_telefon: string | null; kunde_adresse: string | null;
@@ -91,6 +91,10 @@ export default function KitchenMonitor({
     setBusy(orderId);
     await markFertig(token, orderId);
     await refresh(); setBusy(null);
+  }
+  async function onItemMissing(itemId: string, missing: boolean) {
+    setOrders((os) => os.map((o) => ({ ...o, items: (o.items ?? []).map((it) => it.id === itemId ? { ...it, pick_missing: missing } : it) })));
+    await markItemMissing(token, itemId, missing);
   }
   async function onStorno(orderId: string) {
     setBusy(orderId); setStornoId(null);
@@ -187,7 +191,7 @@ export default function KitchenMonitor({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, padding: 16, alignItems: 'start' }}>
         <Column title="NEU" count={neu.length} color="#E0A82E">
           {neu.map((o) => (
-            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
               <button onClick={() => setAcceptingId(o.id)} disabled={busy === o.id}
                 style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 17, cursor: 'pointer' }}>
                 ✓ Annehmen
@@ -202,7 +206,7 @@ export default function KitchenMonitor({
             const left = o.fertig_am ? Math.round((new Date(o.fertig_am).getTime() - now) / 60000) : null;
             const over = left != null && left < 0;
             return (
-              <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
+              <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
                 {left != null && (
                   <div style={{ textAlign: 'center', marginBottom: 10, fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: over ? '#E5484D' : '#E07C0B' }}>
                     {over ? `+${Math.abs(left)} Min` : `noch ${left} Min`}
@@ -220,7 +224,7 @@ export default function KitchenMonitor({
 
         <Column title="FERTIG" count={fertig.length} color="#0F9C50">
           {fertig.map((o) => (
-            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm} onItemMissing={onItemMissing}>
               <div style={{ textAlign: 'center', padding: '10px 0', color: '#0F9C50', fontWeight: 800, fontSize: 16 }}>✓ Bereit zur Abholung</div>
             </Card>
           ))}
@@ -266,7 +270,7 @@ function Column({ title, count, color, children }: { title: string; count: numbe
   );
 }
 
-function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm }: { o: Order; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null; setStornoConfirm?: (id: string | null) => void }) {
+function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing }: { o: Order; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null; setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void }) {
   return (
     <div style={{ background: '#1d2823', borderRadius: 16, padding: 15, boxShadow: '0 2px 12px -6px rgba(0,0,0,.5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
@@ -282,10 +286,13 @@ function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm }: { o: O
       )}
       <div style={{ marginBottom: 12 }}>
         {(o.items ?? []).map((it) => (
-          <div key={it.id} style={{ display: 'flex', gap: 8, fontSize: 15.5, padding: '3px 0' }}>
-            <span style={{ fontWeight: 800, color: '#0F9C50', minWidth: 24 }}>{it.menge}×</span>
-            <span style={{ fontWeight: 600 }}>{it.name}{it.notiz ? <span style={{ color: '#E0A82E', fontSize: 13 }}> · {it.notiz}</span> : null}</span>
-          </div>
+          <button key={it.id} onClick={() => onItemMissing && onItemMissing(it.id, !it.pick_missing)} disabled={!onItemMissing}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15.5, padding: '5px 7px', width: '100%', textAlign: 'left', borderRadius: 8, border: 'none', cursor: onItemMissing ? 'pointer' : 'default',
+              background: it.pick_missing ? '#3a1c1d' : 'transparent', color: it.pick_missing ? '#ff9b9e' : '#fff' }}>
+            <span style={{ fontWeight: 800, color: it.pick_missing ? '#ff9b9e' : '#0F9C50', minWidth: 24 }}>{it.menge}×</span>
+            <span style={{ fontWeight: 600, textDecoration: it.pick_missing ? 'line-through' : 'none' }}>{it.name}{it.notiz ? <span style={{ color: '#E0A82E', fontSize: 13 }}> · {it.notiz}</span> : null}</span>
+            {it.pick_missing && <span style={{ marginLeft: 'auto', fontSize: 10.5, fontWeight: 800, color: '#ff9b9e' }}>FEHLT</span>}
+          </button>
         ))}
         {(o.items ?? []).length === 0 && <div style={{ color: '#7d9488', fontSize: 14 }}>(keine Positionen)</div>}
       </div>
