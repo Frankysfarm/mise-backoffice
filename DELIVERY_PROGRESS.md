@@ -1,10 +1,18 @@
 # Smart Delivery System — Fortschritt
 
-## STATUS: MARKT-REIF
-**Phasen 1–100 abgeschlossen. CEO Review #74 ✅. Build sauber. 0 TypeScript-Fehler. 192 Seiten. Deployment-bereit.**
+## STATUS: MARKT-REIF + PHASE 101
+**Phasen 1–101 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 193 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 101: Smart Customer Churn Prevention & Re-Engagement Engine — 2026-06-13
+- [x] scripts/migrations/061_churn_prevention.sql: customer_churn_risk_scores Tabelle (risk_score 0–100, risk_tier safe/warning/at_risk/churned, RFM-Felder, campaign_sent_at/campaign_result/credit_id, UNIQUE location_id+customer_email, 3 Indizes, RLS), v_churn_at_risk VIEW (risk_score≥60, nicht kontaktiert letzte 14 Tage), v_churn_stats VIEW (Aggregat: total_customers/count_safe/count_warning/count_at_risk/count_churned/campaigns_sent/win_backs/win_back_rate_pct/avg_risk_score)
+- [x] lib/delivery/churn-prevention.ts: analyzeChurnForLocation() (Batch-Abfrage customer_orders letzte 120 Tage, RFM-Score-Berechnung: Recency 0–50/Frequency-Rückgang 0–30/Aktivität 0–20, Upsert in Batches von 100), analyzeChurnAllLocations() (Cron-Batch alle aktiven Locations), getChurnDashboard() (Stats+At-Risk-Liste+Kampagnen-History), runReEngagementCampaign() (issueManualCredit €3 at_risk/€5 churned, 14-Tage-Dedup, campaign_result=pending), runReEngagementAllLocations() (Cron-Batch), markCampaignConverted() (fire-and-forget Win-Back-Tracking)
+- [x] GET+POST /api/delivery/admin/churn-prevention: Auth-Guard via employees.tenant_id, GET=Dashboard, POST action=analyze|campaign (dryRun-Modus)
+- [x] app/(admin)/delivery/churn-prevention/: ChurnPreventionClient mit 4 KPI-Karten (Kunden/Gefährdet+Abgewandert/Kampagnen/Win-Backs), SVG-Donut Risikoverteilung (safe/warning/at_risk/churned), CampaignForm (maxCustomers/creditAtRisk/creditChurned/dryRun-Toggle), Kundenliste mit aufklappbaren Details (Risk-Bar, Tage seit letztem Kauf, Frequency-Vergleich, Kampagnenstatus), Tabs At-Risk / Versendete Kampagnen
+- [x] Cron: analyzeChurnAllLocations() täglich 02:00 UTC (isChurnTick), runReEngagementAllLocations() täglich 04:00 UTC (isReEngageTick), Response-Felder churn_analysis + churn_re_engagement
+- [x] Sidebar: "Kunden-Retention" mit UserX-Icon unter Loslegen; UserX in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: Compiled successfully ✓ (193 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 100: Delivery Profitability Analytics Engine — 2026-06-13
 - [x] scripts/migrations/060_profitability.sql: delivery_profitability_snapshots Tabelle (revenue_eur/cost_eur/profit_eur/margin_pct als GENERATED ALWAYS stored columns, UNIQUE location_id+snapshot_date, RLS), v_zone_profitability VIEW (P&L pro Lieferzone letzte 30 Tage), v_driver_profitability VIEW (Kosten + Gewinnbeitrag pro Fahrer), v_hourly_profitability VIEW (P&L nach Tagesstunde Berlin-TZ)
 - [x] lib/delivery/profitability.ts: snapshotProfitability() (Tages-Aggregation Revenue+Cost→DB-Upsert), snapshotAllLocations() (Cron-Batch gestern für alle aktiven Locations), getSnapshots() (30/90-Tage-Verlauf), getZoneProfitability() (Zone-Tabelle), getDriverProfitability() (Fahrer-Namen via mise_drivers+employees JOIN), getHourlyProfitability() (Stundenprofil), getRecommendedFees() (Gebühren-Empfehlung: Ziel-Marge 35%, empfohlene Mindestgebühr), getDashboard() (kombinierter Response mit Trend+Vergleich)
