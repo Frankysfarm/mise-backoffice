@@ -18,6 +18,7 @@ import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
+import { EarningsProgressBar } from './earnings-progress-bar';
 
 
 type Driver = {
@@ -646,6 +647,18 @@ export function FahrerApp({
                     deliveries={todayStats.deliveries}
                     onlineMin={Math.floor((Date.now() - new Date(status.online_seit).getTime()) / 60_000)}
                     estEarnings={todayStats.estEarnings}
+                  />
+                )}
+
+                {/* Tagesverdienst-Fortschrittsbalken: Einnahmen + Stopps + Ø-Zeit */}
+                {todayStats && (
+                  <EarningsProgressBar
+                    completedBatches={0}
+                    totalDeliveries={todayStats.deliveries}
+                    cashCollected={todayStats.estEarnings}
+                    onlineSinceIso={status?.online_seit ?? null}
+                    activeBatch={activeBatch}
+                    dailyTargetEur={80}
                   />
                 )}
 

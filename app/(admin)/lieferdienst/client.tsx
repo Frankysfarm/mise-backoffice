@@ -44,6 +44,7 @@ import { OpsStatusWidget } from './ops-status-widget'
 import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
 import { ReviewFlagsPanel } from './review-flags-panel'
 import { TagesabschlussModal } from './tagesabschluss'
+import { RealtimeFlowChart } from '@/components/lieferdienst/realtime-flow-chart'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -956,6 +957,8 @@ export function LieferdienstClient() {
               <LieferdienstRejektionsrate orders={orders} completedOrders={completedOrders} />
               {/* Fahrer-Einsatz Dashboard */}
               <LieferdienstFahrerEinsatz drivers={drivers} />
+              {/* Echtzeit-Bestellfluss: Bestellungen pro Stunde (heute) — Live aus lokalem State */}
+              <RealtimeFlowChart orders={orders} completedOrders={completedOrders} />
               {/* Liefer-SLA & Durchsatz-KPIs */}
               <LieferdienstDeliveryKpis />
               {/* Fahrer Tages-Ziele */}

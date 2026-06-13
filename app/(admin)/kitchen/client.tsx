@@ -17,6 +17,7 @@ import { KitchenWaveDetector } from './wave-detector';
 import { KitchenCookStartTimer } from './cook-start-timer';
 import { KitchenStationColorGrid } from './station-color-grid';
 import { KitchenBatchPrepGrouping } from './batch-prep-grouping';
+import { KitchenItemComplexityStrip } from './item-complexity-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -598,6 +599,9 @@ export function KitchenBoard({
 
       {/* Parallelbatch-Empfehlung: gleiche Items über mehrere Bestellungen bündeln */}
       <KitchenItemConsolidationPanel orders={filtered} />
+
+      {/* Bestellkomplexität: Einfach / Mittel / Komplex / ⚡ Alarm — Priorisierungshilfe */}
+      <KitchenItemComplexityStrip orders={filtered} />
 
       {/* Echtzeit-Aktivitätsfeed: letzte Statusübergänge */}
       <KitchenActivityFeed feed={activityFeed} />

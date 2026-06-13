@@ -64,6 +64,7 @@ import { TourRouteOverview } from './tour-route-overview';
 import { ZoneWaitHeatmap } from './zone-wait-heatmap';
 import { LiveTourTracker } from './live-tour-tracker';
 import { DriverReturnForecast } from './driver-return-forecast';
+import { EtaAccuracyLive } from './eta-accuracy-live';
 
 type Driver = {
   employee_id: string;
@@ -1043,6 +1044,9 @@ export function DispatchBoard({
 
       {/* Score + Zone Summary */}
       <DispatchScoreSummary orders={readyOrders} batches={batches} />
+
+      {/* ETA-Genauigkeit heute: Pünktlichkeitsrate + Ø-Abweichung nach Zone */}
+      <EtaAccuracyLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Zonen-Kapazitäts-Panel: Bestellungen nach Zone + freie Fahrer */}
       {readyOrders.length > 0 && <ZoneCapacityPanel orders={readyOrders} drivers={drivers} />}
