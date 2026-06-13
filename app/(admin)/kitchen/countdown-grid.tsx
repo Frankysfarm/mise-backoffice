@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Clock, ChefHat, CheckCircle2, AlertTriangle, Bike, Flame, Thermometer, Coffee, Salad } from 'lucide-react';
+import { Clock, ChefHat, CheckCircle2, AlertTriangle, Bike, Flame, Thermometer, Coffee, Salad, Zap } from 'lucide-react';
 
 type Order = {
   id: string;
@@ -404,6 +404,28 @@ export function KitchenSmartCountdownGrid({
           )}
         </span>
       </div>
+
+      {/* Gleichzeitig-Welle: ≥3 Bestellungen enden im gleichen 3-Min-Fenster */}
+      {(() => {
+        const now = Date.now();
+        const buckets = new Map<number, number>();
+        for (const o of sorted) {
+          const s = getSecsLeft(o, timingMap.get(o.id));
+          if (s <= 0 || s > 12 * 60) continue;
+          const bucket = Math.floor(s / 180) * 180;
+          buckets.set(bucket, (buckets.get(bucket) ?? 0) + 1);
+        }
+        let topBucket = 0, topCount = 0;
+        for (const [b, c] of buckets) { if (c > topCount) { topBucket = b; topCount = c; } }
+        if (topCount < 3) return null;
+        const minsLeft = Math.max(1, Math.round(topBucket / 60));
+        return (
+          <div className="flex items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs font-black text-amber-800 animate-pulse">
+            <Zap className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+            Gleichzeitig-Welle in ~{minsLeft} Min: {topCount} Bestellungen fertig! Alle Stationen bereit?
+          </div>
+        );
+      })()}
 
       {/* Station-grouped grid */}
       {activeStations.length > 1 ? (

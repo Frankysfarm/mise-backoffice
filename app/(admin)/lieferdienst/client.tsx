@@ -914,6 +914,8 @@ export function LieferdienstClient() {
               <LieferdienstSchichtPrognose />
               {/* Top-Artikel: meistbestellte Artikel heute */}
               <LieferdienstTopArtikel completedOrders={completedOrders} />
+              {/* Lieferpünktlichkeit: Verteilung pünktlich / leicht spät / sehr spät */}
+              <LieferdienstZuverlassigkeitsPanel />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2288,6 +2290,99 @@ function LieferdienstTopArtikel({ completedOrders }: { completedOrders: Order[] 
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---- LieferdienstZuverlassigkeitsPanel: Lieferpünktlichkeitsverteilung ---- */
+function LieferdienstZuverlassigkeitsPanel() {
+  type Bucket = { label: string; count: number; color: string };
+  const [buckets, setBuckets] = useState<Bucket[]>([]);
+  const [avgDelayMin, setAvgDelayMin] = useState<number | null>(null);
+  const [totalDelivered, setTotalDelivered] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { data: rows } = await supabase
+          .from('customer_orders')
+          .select('eta_latest, geliefert_am')
+          .not('geliefert_am', 'is', null)
+          .gte('geliefert_am', today.toISOString());
+        if (!rows || rows.length === 0) return;
+
+        let onTime = 0, slightlyLate = 0, veryLate = 0, noEta = 0;
+        let totalDelayMs = 0; let delayCount = 0;
+
+        for (const r of rows as { eta_latest: string | null; geliefert_am: string }[]) {
+          if (!r.eta_latest) { noEta++; continue; }
+          const delayMs = new Date(r.geliefert_am).getTime() - new Date(r.eta_latest).getTime();
+          const delayMin = delayMs / 60_000;
+          if (delayMin <= 0) onTime++;
+          else if (delayMin <= 10) { slightlyLate++; totalDelayMs += delayMs; delayCount++; }
+          else { veryLate++; totalDelayMs += delayMs; delayCount++; }
+        }
+
+        setTotalDelivered(rows.length);
+        setAvgDelayMin(delayCount > 0 ? Math.round(totalDelayMs / delayCount / 60_000) : null);
+        setBuckets([
+          { label: 'Pünktlich', count: onTime, color: '#16a34a' },
+          { label: '+1–10 Min', count: slightlyLate, color: '#d97706' },
+          { label: '>10 Min', count: veryLate, color: '#dc2626' },
+          ...(noEta > 0 ? [{ label: 'Kein ETA', count: noEta, color: '#94a3b8' }] : []),
+        ]);
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 3 * 60_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || totalDelivered === 0) return null;
+
+  const noEtaCount = buckets.find(b => b.label === 'Kein ETA')?.count ?? 0;
+  const withEta = totalDelivered - noEtaCount;
+  const onTimePct = withEta > 0 ? Math.round((buckets[0]?.count ?? 0) / withEta * 100) : 0;
+  const isGood = onTimePct >= 85;
+  const isBad = onTimePct < 65;
+
+  return (
+    <div className={`rounded-xl border px-4 py-4 ${isGood ? 'bg-emerald-50 border-emerald-200' : isBad ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className={`h-4 w-4 ${isGood ? 'text-emerald-600' : isBad ? 'text-red-600' : 'text-amber-600'}`} />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Lieferpünktlichkeit</span>
+          <span className={`text-[9px] font-bold rounded-full px-2 py-0.5 ${isGood ? 'bg-emerald-200 text-emerald-800' : isBad ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>
+            {onTimePct}% pünktlich
+          </span>
+        </div>
+        <span className="text-[9px] text-stone-400 tabular-nums">{totalDelivered} geliefert heute</span>
+      </div>
+      <div className="flex h-5 rounded-full overflow-hidden gap-px mb-3">
+        {buckets.filter(b => b.count > 0).map((b) => (
+          <div
+            key={b.label}
+            style={{ width: `${(b.count / totalDelivered) * 100}%`, backgroundColor: b.color }}
+            title={`${b.label}: ${b.count}`}
+          />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1">
+        {buckets.filter(b => b.count > 0).map((b) => (
+          <div key={b.label} className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full inline-block shrink-0" style={{ backgroundColor: b.color }} />
+            <span className="text-[9px] text-stone-600 font-bold">{b.label}</span>
+            <span className="text-[9px] text-stone-400 tabular-nums">{b.count}</span>
+          </div>
+        ))}
+        {avgDelayMin !== null && avgDelayMin > 0 && (
+          <div className="ml-auto text-[9px] text-stone-400 tabular-nums">Ø Verspätung: {avgDelayMin} Min</div>
+        )}
       </div>
     </div>
   );

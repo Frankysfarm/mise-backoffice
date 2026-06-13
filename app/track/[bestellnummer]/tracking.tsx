@@ -505,7 +505,26 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
                     >
                       {s.label}
                     </div>
-                    {current && <div className="mt-0.5 text-xs text-muted-foreground">Jetzt</div>}
+                    {(() => {
+                      const fmt = (iso: string) =>
+                        new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                      if (done) {
+                        const ts =
+                          s.status === 'bestätigt' ? order.bestellt_am
+                          : s.status === 'fertig' ? order.fertig_am
+                          : s.status === 'geliefert' ? order.geliefert_am
+                          : null;
+                        if (ts) return <div className="mt-0.5 text-[10px] text-muted-foreground tabular-nums">{fmt(ts)}</div>;
+                      }
+                      if (current) return <div className="mt-0.5 text-xs text-muted-foreground">Jetzt</div>;
+                      if (!done && !current) {
+                        const etaTarget = order.eta_earliest ?? order.eta_latest;
+                        if (etaTarget && (s.status === 'unterwegs' || s.status === 'geliefert')) {
+                          return <div className="mt-0.5 text-[10px] text-muted-foreground tabular-nums">~{fmt(etaTarget)}</div>;
+                        }
+                      }
+                      return null;
+                    })()}
                   </div>
                 </li>
               );

@@ -199,6 +199,28 @@ function BatchSequenzCard({ batch }: { batch: Batch }) {
           {remaining > 0 ? `${remaining} offen` : 'Fertig'}
         </span>
       </div>
+
+      {/* Tempo-Badge: Stopps/h bei laufenden Touren */}
+      {doneCount > 0 && batch.startzeit && (() => {
+        const elapsedH = (Date.now() - new Date(batch.startzeit).getTime()) / 3_600_000;
+        if (elapsedH < 0.05) return null;
+        const rate = Math.round(doneCount / elapsedH);
+        if (rate === 0) return null;
+        const isGood = rate >= 3;
+        return (
+          <div className="flex items-center justify-between">
+            <span className={cn(
+              'text-[9px] font-bold rounded-full px-2 py-0.5',
+              isGood ? 'bg-matcha-100 text-matcha-700' : 'bg-amber-100 text-amber-700',
+            )}>
+              {rate} Stopps/h
+            </span>
+            <span className="text-[9px] text-muted-foreground tabular-nums">
+              {Math.round(elapsedH * 60)} Min on Tour
+            </span>
+          </div>
+        );
+      })()}
     </div>
   );
 }

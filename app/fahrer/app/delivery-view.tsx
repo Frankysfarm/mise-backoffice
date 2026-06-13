@@ -1249,6 +1249,9 @@ export function DeliveryView({
                           {distKm && (
                             <span className="text-[9px] text-matcha-500 tabular-nums">{distKm} km</span>
                           )}
+                          {distKm && !done && (
+                            <span className="text-[9px] text-matcha-400/70 tabular-nums">~{Math.max(1, Math.ceil(parseFloat(distKm) * 60 / 25))} Min</span>
+                          )}
                           {etaStr && !done && (() => {
                             const etaMs = new Date(s.order.eta_earliest!).getTime();
                             const secLeft = Math.floor((etaMs - Date.now()) / 1000);
