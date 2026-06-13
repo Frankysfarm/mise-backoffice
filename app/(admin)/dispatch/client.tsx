@@ -66,6 +66,8 @@ import { LiveTourTracker } from './live-tour-tracker';
 import { DriverReturnForecast } from './driver-return-forecast';
 import { EtaAccuracyLive } from './eta-accuracy-live';
 import { DispatchTourHealthStrip } from './tour-health-strip';
+import { TourEtaStrip } from './tour-eta-strip';
+import { OrderScoreGrid } from './order-score-grid';
 
 type Driver = {
   employee_id: string;
@@ -730,6 +732,12 @@ export function DispatchBoard({
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
         </div>
       )}
+
+      {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
+      <TourEtaStrip batches={batches} drivers={drivers} />
+
+      {/* Score-Übersicht: Alle wartenden Bestellungen mit Dispatch-Score als Farbbalken */}
+      {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}
 
       {/* Tour-Puls: Kompakter Health-Streifen für alle aktiven Touren */}
       <DispatchTourHealthStrip batches={batches} />

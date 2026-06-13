@@ -298,6 +298,51 @@ export function TourStopsPanel({
         )}
       </div>
 
+      {/* Nächster Stopp — prominentes Summary-Panel für den aktuellen Zielort */}
+      {nextPendingIndex >= 0 && !allDone && (() => {
+        const next = sorted[nextPendingIndex];
+        const o = next?.order;
+        if (!o) return null;
+        const navUrl = mapsUrl(o.kunde_lat, o.kunde_lng, [o.kunde_adresse, o.kunde_plz].filter(Boolean).join(', '));
+        const needsPay = !o.bezahlt && (o.zahlungsart === 'bar' || o.zahlungsart === 'ec');
+        return (
+          <div className="rounded-2xl border-2 border-accent/60 bg-accent/8 px-4 py-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center text-matcha-900 font-black text-sm shrink-0">
+                {nextPendingIndex + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-matcha-50 text-sm truncate">{o.kunde_name}</div>
+                <div className="text-[10px] text-matcha-400 truncate">{o.kunde_adresse}{o.kunde_plz ? `, ${o.kunde_plz}` : ''}</div>
+              </div>
+              {o.eta_earliest && (
+                <div className="shrink-0 text-right">
+                  <EtaCountdown iso={o.eta_earliest} />
+                  <div className="text-[8px] text-matcha-500 mt-0.5">ETA</div>
+                </div>
+              )}
+            </div>
+            {needsPay && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-amber-500/15 border border-amber-400/30 px-2.5 py-1.5">
+                <Banknote className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                <span className="text-[11px] font-bold text-amber-300">
+                  {o.zahlungsart === 'bar' ? `${euro(o.gesamtbetrag)} Barzahlung kassieren` : 'EC-Karte kassieren'}
+                </span>
+              </div>
+            )}
+            <a
+              href={navUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 h-10 w-full rounded-xl bg-accent text-matcha-900 font-black text-sm active:scale-[0.98] transition"
+            >
+              <Navigation className="h-4 w-4" />
+              Zum Ziel navigieren
+            </a>
+          </div>
+        );
+      })()}
+
       {/* Stops */}
       <div className="space-y-1.5">
         {sorted.map((stop, i) => (
