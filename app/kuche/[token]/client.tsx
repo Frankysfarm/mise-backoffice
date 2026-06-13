@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
-  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle,
+  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check,
 } from 'lucide-react';
 import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing } from './actions';
 
@@ -13,6 +13,14 @@ const C = {
   neu: '#FFB020', neuTint: '#3A2D0E', zub: '#12B85C', zubTint: '#0E2E1C', fertig: '#22C9C0', fertigTint: '#0C2E2C',
   warn: '#FF4D4F', warnTint: '#3A1517', warnSoft: '#FF8A3D', gold: '#F0BC44', goldTint: '#2E2410', btnHover: '#15CF66',
 };
+const SOUNDS: Record<string, { label: string; play: (ctx: AudioContext) => void }> = {
+  sirene: { label: 'Sirene', play: (ctx) => { const t = ctx.currentTime; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sawtooth'; o.connect(g); g.connect(ctx.destination); o.frequency.setValueAtTime(560, t); o.frequency.linearRampToValueAtTime(1180, t + 0.22); o.frequency.linearRampToValueAtTime(560, t + 0.44); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.02); g.gain.setValueAtTime(0.7, t + 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5); o.start(t); o.stop(t + 0.5); } },
+  glocke: { label: 'Glocke', play: (ctx) => { const t = ctx.currentTime; ([[988, 0], [784, 0.2]] as [number, number][]).forEach(([fr, d]) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = fr; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.6, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.5); o.start(ss); o.stop(ss + 0.5); }); } },
+  piep: { label: 'Piepser', play: (ctx) => { const t = ctx.currentTime; [0, 0.16, 0.32].forEach((d) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'square'; o.frequency.value = 1046; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.5, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.11); o.start(ss); o.stop(ss + 0.12); }); } },
+  gong: { label: 'Gong', play: (ctx) => { const t = ctx.currentTime; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = 330; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1); o.start(t); o.stop(t + 1.15); } },
+  alarm: { label: 'Alarm (hektisch)', play: (ctx) => { const t = ctx.currentTime; [0, 0.12, 0.24, 0.36].forEach((d) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'square'; o.frequency.value = 1320; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.55, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.08); o.start(ss); o.stop(ss + 0.09); }); } },
+};
+
 const PREP = [15, 20, 25, 30, 45];
 const DEFAULT_PREP = 20;
 
@@ -47,6 +55,9 @@ export default function KitchenMonitor({
   const [activated, setActivated] = useState(false);
   const [muted, setMuted] = useState(false);
   const [autoPrint, setAutoPrint] = useState(true);
+  const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
+  const [soundOpen, setSoundOpen] = useState(false);
+  function chooseSound(k: string) { setSoundType(k); try { localStorage.setItem('kuche_sound', k); } catch { /* noop */ } if (audioCtxRef.current) { try { audioCtxRef.current.resume(); } catch { /* noop */ } SOUNDS[k]?.play(audioCtxRef.current); } }
   const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const pendingMissing = useRef<Set<string>>(new Set());
@@ -87,17 +98,10 @@ export default function KitchenMonitor({
     if (!ringing || !activated || muted) return;
     let stopped = false; const ctx = audioCtxRef.current; if (!ctx) return;
     try { ctx.resume(); } catch { /* noop */ }
-    function beep() {
-      if (stopped || !ctx) return; const t = ctx.currentTime;
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = 'sawtooth'; o.connect(g); g.connect(ctx.destination);
-      o.frequency.setValueAtTime(560, t); o.frequency.linearRampToValueAtTime(1180, t + 0.22); o.frequency.linearRampToValueAtTime(560, t + 0.44);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.02); g.gain.setValueAtTime(0.7, t + 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-      o.start(t); o.stop(t + 0.5);
-    }
-    beep(); const iv = setInterval(beep, 850);
+    const play = () => { if (!stopped && ctx) (SOUNDS[soundType] ?? SOUNDS.sirene).play(ctx); };
+    play(); const iv = setInterval(play, 950);
     return () => { stopped = true; clearInterval(iv); };
-  }, [ringing?.id, activated, muted]);
+  }, [ringing?.id, activated, muted, soundType]);
 
   async function refresh() { const r = await getKitchenData(token); if (!('error' in r)) { setOrders(r.orders as Order[]); setItems(r.items as MenuItem[]); } }
   function showToast(text: string, undo: () => void) { setToast({ text, undo }); setTimeout(() => setToast((t) => (t && t.text === text ? null : t)), 5000); }
@@ -217,6 +221,7 @@ export default function KitchenMonitor({
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span style={{ fontFamily: 'monospace', fontSize: 20, fontWeight: 700, color: C.t1 }}>{new Date(now).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
           <IconBtn on={() => setMuted((m) => !m)} active={!muted}>{muted ? <VolumeX size={20} /> : <Volume2 size={20} />}</IconBtn>
+          <IconBtn on={() => setSoundOpen(true)}><Settings2 size={20} /></IconBtn>
           <IconBtn on={() => setAutoPrint((v) => !v)} active={autoPrint}><Printer size={20} /></IconBtn>
           <button onClick={() => setSoldOutOpen(true)} style={{ padding: '11px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: soldOutCount > 0 ? C.warn : C.border, color: '#fff', cursor: 'pointer' }}>{soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft'}</button>
           <IconBtn on={() => { try { document.documentElement.requestFullscreen(); } catch { /* noop */ } }}><Maximize size={20} /></IconBtn>
@@ -259,6 +264,28 @@ export default function KitchenMonitor({
         <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 90, display: 'flex', alignItems: 'center', gap: 14, background: C.card, border: `1px solid ${C.borderStrong}`, borderRadius: 14, padding: '12px 18px', boxShadow: '0 10px 40px -10px #000' }}>
           <span style={{ fontSize: 15, fontWeight: 600 }}>{toast.text}</span>
           <button onClick={() => { toast.undo(); setToast(null); }} style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.zub, border: 'none', color: '#fff', borderRadius: 10, padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}><Undo2 size={16} /> Rückgängig</button>
+        </div>
+      )}
+
+      {/* Sound-Drawer */}
+      {soundOpen && (
+        <div onClick={() => setSoundOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 50 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(440px, 92vw)', height: '100%', background: C.headerBg, padding: 20, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 19, fontWeight: 800 }}>Klingelton</div>
+              <button onClick={() => setSoundOpen(false)} style={{ background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            <div style={{ fontSize: 14, color: C.t2, marginBottom: 14 }}>Wähle den Ton für neue Bestellungen. Tippen = auswählen + vorhören.</div>
+            {Object.entries(SOUNDS).map(([k, v]) => (
+              <button key={k} onClick={() => chooseSound(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px', borderRadius: 12, marginBottom: 8, border: soundType === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: soundType === k ? C.zubTint : C.card, color: C.t1 }}>
+                <span style={{ fontWeight: 700, fontSize: 16 }}>{v.label}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {soundType === k && <Check size={18} color={C.zub} />}
+                  <Play size={18} color={C.t2} />
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
