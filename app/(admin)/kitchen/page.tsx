@@ -64,6 +64,7 @@ export default async function KitchenPage() {
       <PageHeader
         title="Küchen-Monitor"
         description="Bestellungen annehmen, zubereiten, Fahrer im Blick behalten."
+        actions={<a href="/kitchen/tv" target="_blank" className="inline-flex h-9 items-center gap-2 rounded-md border bg-card px-3 text-sm hover:bg-muted transition">📺 TV-Display</a>}
       />
       <KitchenBoard
         initialOrders={(orders as any[]) ?? []}

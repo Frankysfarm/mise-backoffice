@@ -49,6 +49,7 @@ import { RealtimeFlowChart } from '@/components/lieferdienst/realtime-flow-chart
 import { SchichtPrognosePanel } from './schicht-prognose'
 import { DeliveryLiveKpiPanel } from './delivery-live-kpi'
 import { TourPerformancePanel } from './tour-performance-panel'
+import { ZonePerformanceKpi } from './zone-performance-kpi'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -934,6 +935,8 @@ export function LieferdienstClient() {
               <DeliveryLiveKpiPanel />
               {/* Tour-Performance-Analyse: 30-Tage-Trend, Zonen-Effizienz, KI-Empfehlung */}
               <TourPerformancePanel />
+              {/* Zonen-Performance-KPIs: SLA, Ø Lieferzeit, Abweichung je Zone A–D */}
+              <ZonePerformanceKpi locationId={locationId} />
               {/* Schicht-KPI-Leiste: Schnellübersicht der wichtigsten Kennzahlen */}
               <ShiftKPIStrip
                 orders={[...orders, ...completedOrders].map(o => ({

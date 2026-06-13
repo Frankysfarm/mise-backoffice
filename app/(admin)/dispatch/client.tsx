@@ -69,6 +69,7 @@ import { DispatchTourHealthStrip } from './tour-health-strip';
 import { TourEtaStrip } from './tour-eta-strip';
 import { OrderScoreGrid } from './order-score-grid';
 import { SmartAssignmentPanel } from './smart-assignment';
+import { ZoneStatsDashboard } from './zone-stats-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -998,6 +999,25 @@ export function DispatchBoard({
 
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
+
+      {/* Zonen-Stats-Dashboard: Übersicht aller Zonen mit Bestellungen, Fahrern, Wartezeiten */}
+      <ZoneStatsDashboard
+        orders={readyOrders.map(o => ({
+          id: o.id,
+          bestellnummer: o.bestellnummer,
+          status: o.status,
+          delivery_zone: o.delivery_zone,
+          fertig_am: o.fertig_am,
+          gesamtbetrag: o.gesamtbetrag,
+          dispatch_score: o.dispatch_score,
+        }))}
+        batches={batches.map(b => ({
+          id: b.id,
+          status: b.status,
+          zone: b.zone,
+          fahrer_id: b.fahrer_id,
+        }))}
+      />
 
       {/* Zonen-Wartezeit-Heatmap: Farbkodierte Wartezeiten je Lieferzone */}
       <ZoneWaitHeatmap orders={readyOrders} />

@@ -21,6 +21,7 @@ import { TourStopsPanel } from './tour-stops-panel';
 import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
 import { SchichtPuls } from './schicht-puls';
+import { TourSpeedTracker } from './tour-speed-tracker';
 
 
 type Driver = {
@@ -703,6 +704,19 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Tour-Tempo-Tracker: aktueller Pace vs. benötigtes Tempo für pünktliche Lieferung */}
+          <div className="px-4">
+            <TourSpeedTracker
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                geliefert_am: s.geliefert_am,
+                angekommen_am: (s as any).angekommen_am ?? null,
+              }))}
+              batchStartedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
+          </div>
           <TourBriefingCard batch={activeBatch as any} />
           <DeliveryView
             batchId={activeBatch.id}
