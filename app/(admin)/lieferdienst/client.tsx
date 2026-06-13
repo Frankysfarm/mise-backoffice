@@ -995,6 +995,8 @@ export function LieferdienstClient() {
               <LieferdienstTopArtikel completedOrders={completedOrders} />
               {/* Lieferpünktlichkeit: Verteilung pünktlich / leicht spät / sehr spät */}
               <LieferdienstZuverlassigkeitsPanel />
+              {/* Kundenzufriedenheit: Ø-Rating, positive/negative Rate, Top-Fahrer, Kommentare */}
+              <CustomerSatisfactionPanel locationId={locationId} />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2726,6 +2728,141 @@ function LiveOrderFunnelPanel() {
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+/* ------------------------------ CustomerSatisfactionPanel ------------------------------ */
+
+type SatisfactionData = {
+  totalRatings: number;
+  avgRating: number;
+  positiveRate: number;
+  negativeRate: number;
+  withComment: number;
+  byDriver: Array<{ driverName: string | null; avgRating: number; count: number }>;
+  recentComments: Array<{ rating: number; comment: string; createdAt: string }>;
+};
+
+function CustomerSatisfactionPanel({ locationId }: { locationId: string }) {
+  const [data, setData] = useState<SatisfactionData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    fetch(`/api/delivery/admin/satisfaction?location_id=${locationId}&days=14`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && !d._fallback) setData(d);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [open, locationId]);
+
+  const stars = (rating: number) => {
+    const full = Math.round(rating);
+    return '★'.repeat(full) + '☆'.repeat(Math.max(0, 5 - full));
+  };
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-5 py-3 hover:bg-stone-50 transition"
+      >
+        <div className="flex items-center gap-2">
+          <Star className="h-4 w-4 text-amber-500" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Kundenzufriedenheit (14 Tage)</span>
+          {data && (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+              ⌀ {data.avgRating.toFixed(1)} · {data.totalRatings} Ratings
+            </span>
+          )}
+        </div>
+        <span className="text-stone-400 text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="border-t px-5 py-4 space-y-4">
+          {loading && (
+            <div className="text-sm text-stone-400 flex items-center gap-2">
+              <Activity className="h-4 w-4 animate-pulse" />
+              Lade Zufriedenheitsdaten…
+            </div>
+          )}
+
+          {!loading && !data && (
+            <div className="text-sm text-stone-400">Noch keine Bewertungen (14 Tage).</div>
+          )}
+
+          {!loading && data && (
+            <>
+              {/* KPI-Row */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-3 text-center">
+                  <div className="text-2xl font-black text-amber-600">{data.avgRating.toFixed(1)}</div>
+                  <div className="text-[9px] text-amber-500 mt-0.5 font-bold uppercase tracking-wider">Ø Rating</div>
+                  <div className="text-amber-500 text-sm mt-0.5">{stars(data.avgRating)}</div>
+                </div>
+                <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-3 text-center">
+                  <div className="text-2xl font-black text-emerald-600">{Math.round(data.positiveRate * 100)}%</div>
+                  <div className="text-[9px] text-emerald-500 mt-0.5 font-bold uppercase tracking-wider">Positiv</div>
+                  <div className="text-[10px] text-emerald-500 mt-0.5">{data.totalRatings} Gesamt</div>
+                </div>
+                <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-3 text-center">
+                  <div className="text-2xl font-black text-red-500">{Math.round(data.negativeRate * 100)}%</div>
+                  <div className="text-[9px] text-red-400 mt-0.5 font-bold uppercase tracking-wider">Negativ</div>
+                  <div className="text-[10px] text-red-400 mt-0.5">{data.withComment} mit Kommentar</div>
+                </div>
+              </div>
+
+              {/* Top Fahrer */}
+              {data.byDriver.length > 0 && (
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-2">Top-Fahrer nach Rating</div>
+                  <div className="space-y-1.5">
+                    {data.byDriver.slice(0, 5).map((d, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="w-5 shrink-0 text-center text-[11px]">
+                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
+                        </span>
+                        <span className="flex-1 text-[12px] font-semibold text-stone-700 truncate">
+                          {d.driverName ?? 'Unbekannt'}
+                        </span>
+                        <span className="text-amber-500 text-[11px] shrink-0">{stars(d.avgRating)}</span>
+                        <span className="w-8 text-right text-[11px] font-bold text-stone-500 tabular-nums">{d.avgRating.toFixed(1)}</span>
+                        <span className="w-8 text-right text-[10px] text-stone-400 tabular-nums">n={d.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Neueste Kommentare */}
+              {data.recentComments.length > 0 && (
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 mb-2">Neueste Kommentare</div>
+                  <div className="space-y-2">
+                    {data.recentComments.slice(0, 3).map((c, i) => (
+                      <div key={i} className="rounded-lg bg-stone-50 border border-stone-200 px-3 py-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-amber-500 text-[11px]">{stars(c.rating)}</span>
+                          <span className="text-[9px] text-stone-400">
+                            {new Date(c.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-stone-600 leading-snug italic">"{c.comment}"</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
