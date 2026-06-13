@@ -104,6 +104,7 @@ export function StorefrontAurora({
   const [pulse, setPulse] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [sheetItem, setSheetItem] = React.useState<AuroraItem | null>(null);
+  const [cartSheetOpen, setCartSheetOpen] = React.useState(false);
 
   // Brand-token override (per tenant — only --brand-primary, --brand-accent, --brand-on-primary)
   const brandStyle: React.CSSProperties & Record<string, string> = {};
@@ -209,7 +210,7 @@ export function StorefrontAurora({
                 <span className="au-logo__wordmark">{location.name}</span>
               )}
             </a>
-            <button className="au-cart-btn" onClick={() => alert('Warenkorb (kommt im Bottom-Sheet)')}>
+            <button className="au-cart-btn" onClick={() => setCartSheetOpen(true)}>
               <ShoppingBag size={18} strokeWidth={1.6} />
               {totalItems > 0 && <span className="au-cart-btn__count">{totalItems}</span>}
             </button>
@@ -432,6 +433,193 @@ export function StorefrontAurora({
           for (let i = 0; i < qty; i++) addItem(sheetItem.id);
         }}
       />
+
+      {/* === CART BOTTOM SHEET === */}
+      {cartSheetOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Warenkorb"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 60,
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'flex-end',
+          }}
+          onClick={() => setCartSheetOpen(false)}
+        >
+          <div
+            style={{
+              width: '100%', maxHeight: '88vh',
+              background: 'var(--surface, #fff)',
+              borderRadius: '20px 20px 0 0',
+              display: 'flex', flexDirection: 'column',
+              overflow: 'hidden',
+              animation: 'au-slide-up 0.28s cubic-bezier(0.32,0.72,0,1) both',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <style>{`@keyframes au-slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
+            {/* Handle + Header */}
+            <div style={{ padding: '12px 20px 0', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(0,0,0,0.12)', margin: '0 auto 16px' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.5 }}>Dein Warenkorb</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>
+                    {totalItems === 0 ? 'Noch leer' : `${totalItems} Artikel`}
+                  </div>
+                </div>
+                <button
+                  aria-label="Schließen"
+                  onClick={() => setCartSheetOpen(false)}
+                  style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    border: 'none', background: 'rgba(0,0,0,0.06)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', fontSize: 18, color: 'inherit',
+                  }}
+                >
+                  <X size={18} strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+
+            {/* Items list */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
+              {totalItems === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.5 }}>
+                  <ShoppingBag size={40} strokeWidth={1.2} style={{ margin: '0 auto 12px', display: 'block' }} />
+                  <div style={{ fontWeight: 600 }}>Noch nichts im Warenkorb</div>
+                </div>
+              ) : (
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  {Array.from(cart.entries()).map(([itemId, qty]) => {
+                    const item = items.find((i) => i.id === itemId);
+                    if (!item) return null;
+                    return (
+                      <li key={itemId} style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 0',
+                        borderBottom: '1px solid rgba(0,0,0,0.06)',
+                      }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 2 }}>{item.name}</div>
+                          <div style={{ fontSize: '0.8rem', opacity: 0.55 }}>{formatEuro(item.preis)} €</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <button
+                            onClick={() => removeItem(itemId)}
+                            style={{
+                              width: 28, height: 28, borderRadius: '50%',
+                              border: '1.5px solid rgba(0,0,0,0.12)', background: 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: 'pointer', fontSize: 16, fontWeight: 700,
+                            }}
+                          >
+                            <Minus size={13} strokeWidth={2.5} />
+                          </button>
+                          <span style={{ fontWeight: 700, fontSize: '0.9rem', minWidth: 20, textAlign: 'center' }}>{qty}</span>
+                          <button
+                            onClick={() => addItem(itemId)}
+                            style={{
+                              width: 28, height: 28, borderRadius: '50%',
+                              border: '1.5px solid rgba(0,0,0,0.12)', background: 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              cursor: 'pointer', fontSize: 16, fontWeight: 700,
+                            }}
+                          >
+                            <Plus size={13} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem', width: 56, textAlign: 'right', flexShrink: 0 }}>
+                          {formatEuro(item.preis * qty)} €
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Summary + CTA */}
+            {totalItems > 0 && (
+              <div style={{ padding: '16px 20px 24px', borderTop: '1px solid rgba(0,0,0,0.06)', flexShrink: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', opacity: 0.6 }}>
+                    <span>Zwischensumme</span>
+                    <span>{formatEuro(total)} €</span>
+                  </div>
+                  {orderType === 'lieferung' && deliveryFee > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', opacity: 0.6 }}>
+                      <span>Liefergebühr</span>
+                      <span>{formatEuro(deliveryFee)} €</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem', marginTop: 4 }}>
+                    <span>Gesamt</span>
+                    <span>{formatEuro(total + (orderType === 'lieferung' ? deliveryFee : 0))} €</span>
+                  </div>
+                </div>
+
+                {/* Live-ETA-Hinweis vor Checkout */}
+                {orderType === 'lieferung' && liveEta.ready && remainingToMin === 0 && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+                    padding: '8px 12px', borderRadius: 10,
+                    background: liveEta.load === 'busy' ? 'rgba(239,68,68,0.08)' : liveEta.load === 'normal' ? 'rgba(251,191,36,0.1)' : 'rgba(34,197,94,0.08)',
+                  }}>
+                    <span style={{
+                      width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                      background: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#fbbf24' : '#22c55e',
+                    }} />
+                    <span style={{
+                      fontSize: '0.78rem', fontWeight: 600,
+                      color: liveEta.load === 'busy' ? '#dc2626' : liveEta.load === 'normal' ? '#d97706' : '#16a34a',
+                    }}>
+                      ~{liveEta.etaMin} Min Lieferzeit
+                      {liveEta.load === 'busy' ? ' · Gerade viel los' : liveEta.load === 'normal' ? ' · Normal ausgelastet' : ' · Küche bereit'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Min-Bestellwert nicht erreicht */}
+                {orderType === 'lieferung' && remainingToMin > 0 && (
+                  <div style={{
+                    padding: '8px 12px', borderRadius: 10, marginBottom: 12,
+                    background: 'rgba(251,191,36,0.12)',
+                    fontSize: '0.8rem', fontWeight: 600, color: '#92400e',
+                  }}>
+                    Noch <strong>{formatEuro(remainingToMin)} €</strong> bis zum Mindestbestellwert
+                  </div>
+                )}
+
+                <button
+                  disabled={orderType === 'lieferung' && remainingToMin > 0}
+                  style={{
+                    width: '100%', height: 52, borderRadius: 14,
+                    border: 'none', cursor: orderType === 'lieferung' && remainingToMin > 0 ? 'not-allowed' : 'pointer',
+                    background: orderType === 'lieferung' && remainingToMin > 0
+                      ? 'rgba(0,0,0,0.08)'
+                      : 'var(--brand-primary, var(--au-brand, #4F46E5))',
+                    color: orderType === 'lieferung' && remainingToMin > 0 ? 'rgba(0,0,0,0.35)' : '#fff',
+                    fontWeight: 700, fontSize: '1rem',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  }}
+                  onClick={() => {
+                    if (orderType === 'lieferung' && remainingToMin > 0) return;
+                    // Checkout-Flow (wird in einem späteren Phase ergänzt)
+                    setCartSheetOpen(false);
+                    window.location.href = `mailto:?subject=Bestellung+${location.name}`;
+                  }}
+                >
+                  <ShoppingBag size={18} strokeWidth={2} />
+                  Zur Kasse · {formatEuro(total + (orderType === 'lieferung' ? deliveryFee : 0))} €
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* === MOBILE CART BAR === */}
       <div
