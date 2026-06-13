@@ -1,7 +1,87 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–120 vollständig abgeschlossen. CEO Review #88 abgeschlossen. TypeScript 0 Fehler. Build sauber. 204 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–122 vollständig abgeschlossen. CEO Review #89 abgeschlossen. TypeScript 0 Fehler. Build sauber. 205 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #89 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #88)
+
+**Commit c8b7966** — feat(delivery/backend): Phase 121 — Smart Menu Item Sales Analytics
+
+#### Menu-Analytics Backend (`lib/delivery/menu-analytics.ts`)
+- `snapshotMenuAnalytics()`: Aggregiert abgeschlossene Liefer-Bestellungen → `order_items` nach `item_name`, UPSERT in `delivery_menu_snapshots` ✅
+- `snapshotMenuAllLocations()`: Cron-Batch über alle Locations mit Fehlerbehandlung ✅
+- `getHeroItems()`, `getSlowMovers()`, `getItemTrend()`, `getDailyTrend()`, `getMenuDashboard()`: alle korrekt typisiert ✅
+- `pruneMenuSnapshots(90)`: Cleanup alter Snapshots ✅
+
+#### Menu-Analytics API (`/api/delivery/admin/menu-analytics`)
+- Auth-Guard via `employees.location_id`, Superadmin-Fallback via Query-Param ✅
+- GET → Dashboard, POST `action=snapshot` + `action=item_trend` ✅
+
+#### MenuAnalyticsClient (`/delivery/menu-analytics/`)
+- 6 KPI-Karten, 3 Tabs (Hero/Slow-Mover/Trend), Umsatz-Balken, 5-Min Auto-Refresh ✅
+
+#### Cron-Integration (`/api/cron/smart-dispatch/route.ts`)
+- `snapshotMenuAllLocations()` täglich 02:00 UTC (`isReportTick`) ✅
+- `pruneMenuSnapshots(90)` täglich 02:00 UTC ✅
+
+#### Sidebar (`components/layout/sidebar.tsx` + `sidebar-client.tsx`)
+- `PieChart`-Icon in `ICON_MAP` + `Menü-Analytics` Eintrag unter Gruppe `Loslegen` ✅
+
+---
+
+**Commit e0987e3** — feat(delivery/frontend): Phase 122 — Schicht-Velocity, Live-Ops-Header, Aurora-Tracking-Banner
+
+#### SchichtVelocity (`kitchen/schicht-velocity.tsx`)
+- Orders/h jetzt vs. letzte Stunde vs. gestern gleiche Stunde — 3 parallele Supabase-Count-Queries ✅
+- Trend-Icons + Farbcodierung (matcha-600/red-500/muted) ✅
+- 60s Auto-Refresh via `setInterval` ✅
+- Integration in `kitchen/client.tsx` nach `KitchenShiftPerformanceBadge` ✅
+- LocationId-Weitergabe korrekt: `locationFilter === 'all' ? locations[0]?.id ?? null : locationFilter` ✅
+
+#### LiveOpsHeader (`lieferdienst/live-ops-header.tsx`)
+- Konsumiert `/api/delivery/eta/live` — bereits bestehende API ✅
+- Auslastungsklassen quiet/normal/busy/surge mit korrekter CSS-Klassenzuweisung ✅
+- Pulsierender Status-Dot (animate-ping), Surge-Badge, Keine-Fahrer-Warnung (animate-pulse) ✅
+- 30s API-Refresh + 1s Tick für Live-Anzeige ✅
+- Integration in `lieferdienst/client.tsx` unter Orders-View, konsistente `locationId` ✅
+
+#### AuroraSharedTrackingBanner + AuroraActiveOrderBanner (`storefront-aurora.tsx`)
+- `AuroraSharedTrackingBanner`: `?track=ID` URL-Parameter → polling `/api/delivery/orders/{id}/tracking` (30s) + 1s Countdown-Tick ✅
+- `AuroraActiveOrderBanner`: `localStorage` `active_order:{locationId}` → Supabase Realtime UPDATE-Listener auf `customer_orders` ✅
+- Beide: Aurora inline-style Design, Dismiss-Button, Terminal-Status-Erkennung ✅
+- Korrekt in `StorefrontAurora` eingebunden (Zeile 327–328) ✅
+
+### TypeScript-Check
+- `npx tsc --noEmit` → Exit 0 (0 Fehler) ✅
+
+### Build-Check
+- `npx next build` → 205 Seiten, 0 Fehler ✅
+
+### Integrations-Check
+- Kitchen SchichtVelocity ↔ Supabase `customer_orders` Count-Queries: verbunden ✅
+- Lieferdienst LiveOpsHeader ↔ `/api/delivery/eta/live`: verbunden ✅
+- Storefront AuroraSharedTrackingBanner ↔ `/api/delivery/orders/{id}/tracking`: verbunden ✅
+- Storefront AuroraActiveOrderBanner ↔ Supabase Realtime + localStorage: verbunden ✅
+- Menu-Analytics Cron: `isReportTick` (02:00 UTC) korrekt konditioniert ✅
+- Sidebar: `PieChart`-Icon in `ICON_MAP` + `/delivery/menu-analytics` Link korrekt ✅
+
+### Befunde
+- **0 Bugs** — Phasen 121+122 sauber
+- LiveOpsHeader `locationId` hardcodiert — konsistent mit gesamtem `lieferdienst/client.tsx`-Pattern (Zeile 99: `const locationId = '...'`) ✅
+- Alle Komponenten korrekt in bestehende Views integriert
+- Keine TypeScript-Fehler, kein Dead Code
+
+### Status nach Review #89
+- TypeScript: 0 Fehler ✅
+- Build: 205 Seiten sauber ✅
+- Alle 122 Phasen abgeschlossen ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: vollständig synchron ✅
+- Deutsche Texte: durchgängig ✅
+- **MARKT-REIF** ✅
 
 ---
 
