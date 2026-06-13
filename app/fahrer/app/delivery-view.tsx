@@ -105,6 +105,17 @@ export function DeliveryView({
   const [earningsBubble, setEarningsBubble] = useState<{ amount: number; key: number } | null>(null);
   // Näherungs-Banner: Abstand zum nächsten Stopp in Metern (null = unbekannt)
   const [driverDistToNextM, setDriverDistToNextM] = useState<number | null>(null);
+  // Adress-Präferenzen: Zustellhinweise aus vergangenen Bestellungen (Preferences-API)
+  const [stopPrefs, setStopPrefs] = useState<Map<string, {
+    ring_bell?: boolean | null;
+    leave_at_door?: boolean | null;
+    floor?: string | null;
+    apartment?: string | null;
+    gate_code?: string | null;
+    building_info?: string | null;
+    special_instructions?: string | null;
+  }>>(new Map());
+
   useEffect(() => {
     const t = setInterval(() => setElapsed(Math.floor((Date.now() - mountedAt.current) / 1000)), 1000);
     return () => clearInterval(t);
@@ -252,6 +263,24 @@ export function DeliveryView({
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [batchId]);
+
+  // Präferenzen je Stopp laden (fire-and-forget)
+  useEffect(() => {
+    for (const s of stops) {
+      if (s.geliefert_am || stopPrefs.has(s.order_id)) continue;
+      const orderId = s.order_id;
+      const LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
+      fetch(`/api/delivery/preferences?action=order&order_id=${orderId}&location_id=${LOCATION_ID}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d?.preferences) {
+            setStopPrefs(m => { const n = new Map(m); n.set(orderId, d.preferences); return n; });
+          }
+        })
+        .catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops.map(s => s.order_id).join(',')]);
 
   // Sort: nicht-geliefert zuerst nach reihenfolge, dann geliefert
   const sorted = [...stops].sort((a, b) => {
@@ -919,6 +948,43 @@ export function DeliveryView({
                   <span className="tabular-nums">
                     (noch {Math.floor(secLeft / 60)}:{String(secLeft % 60).padStart(2, '0')})
                   </span>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Gespeicherte Zustellpräferenzen aus vergangenen Bestellungen */}
+          {(() => {
+            const prefs = stopPrefs.get(nextStop.order_id);
+            if (!prefs) return null;
+            const chips: { icon: string; text: string; warn?: boolean }[] = [];
+            if (prefs.ring_bell === false) chips.push({ icon: '🔕', text: 'Nicht klingeln', warn: true });
+            if (prefs.ring_bell === true) chips.push({ icon: '🔔', text: 'Klingeln' });
+            if (prefs.leave_at_door === true) chips.push({ icon: '🚪', text: 'Vor Tür lassen' });
+            if (prefs.floor) chips.push({ icon: '🏢', text: `Etage ${prefs.floor}` });
+            if (prefs.apartment) chips.push({ icon: '🏠', text: `Wohnung ${prefs.apartment}` });
+            if (prefs.gate_code) chips.push({ icon: '🔑', text: `Code: ${prefs.gate_code}`, warn: true });
+            if (prefs.building_info) chips.push({ icon: '📍', text: prefs.building_info });
+            if (!chips.length && !prefs.special_instructions) return null;
+            return (
+              <div className="mt-2 rounded-xl bg-amber-900/30 border border-amber-600/40 px-3 py-2 space-y-1.5">
+                <div className="text-[9px] font-black uppercase tracking-widest text-amber-400">Zustellhinweise</div>
+                {chips.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {chips.map((c, i) => (
+                      <span key={i} className={cn(
+                        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold',
+                        c.warn ? 'bg-amber-500/30 text-amber-200' : 'bg-white/10 text-matcha-100',
+                      )}>
+                        {c.icon} {c.text}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {prefs.special_instructions && (
+                  <div className="text-[11px] text-amber-100 leading-snug italic">
+                    {prefs.special_instructions}
+                  </div>
                 )}
               </div>
             );

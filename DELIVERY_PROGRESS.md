@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–134 abgeschlossen. Build sauber. 206 Seiten. Deployment-bereit.**
+**Phasen 1–135 abgeschlossen. Build sauber. 206 Seiten. Deployment-bereit.**
+**Frontend-Ingenieur — 2026-06-13: Phase 135 abgeschlossen. Fahrer-App: Zustellpräferenzen aus Preferences-API in Stop-Karte (Klingeln/Nicht-klingeln, Etage, Wohnungsnr., Torcode, Sonderhinweise). Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 134 abgeschlossen. Küche: PrepLearningPanel — Frontend für Zubereitungszeit-Lernmodul (Phase 131 Backend, p75-Profile je Tageszeit, Neu-berechnen-Button). Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 133 abgeschlossen. Fahrer-App: TourMiniMap jetzt auch in aktiver Lieferphase ('unterwegs') sichtbar — fehlte dort, obwohl in Pickup-Phase vorhanden. Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 132 abgeschlossen. Fahrer-App: EtaCountdown-Dringlichkeit verbessert (pulse-Animation bei Urgent/Überfällig, Icon-Labels, differenziertere Farbstufen). Build 206 Seiten sauber.**
