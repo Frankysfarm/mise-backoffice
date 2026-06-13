@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { OpsSnapshotPanel } from './ops-snapshot-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -892,6 +893,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Echtzeit-Bestellpipeline: Live-Funnel aller Auftragsphasen */}
               <LiveOrderFunnelPanel />
+              {/* Live Ops-Cockpit: Queue-Status, Revenue, SLA, Fahrer, At-Risk */}
+              <OpsSnapshotPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Schicht-Gesamtscore: gewichteter KPI-Score (neu) */}
               <LieferdienstGesamtScore orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               {/* 7-Tage Wochenübersicht */}

@@ -58,6 +58,7 @@ const DispatchDriverMap = dynamic(
 );
 import { TourSequenzPanel } from './tour-sequenz';
 import { ScoreRadarChart } from './score-radar';
+import { DispatchQueuePanel } from './dispatch-queue-panel';
 
 type Driver = {
   employee_id: string;
@@ -785,6 +786,9 @@ export function DispatchBoard({
 
       {/* Nachfrage-Prognose: nächste 6h basierend auf historischem Muster */}
       <DemandForecastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Dispatch-Prioritäts-Queue: Score-basierte Warteliste mit Boost */}
+      <DispatchQueuePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Heutige Lieferstatistiken — Überblick aus DB */}
       {overviewStats && (
