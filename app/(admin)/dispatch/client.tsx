@@ -71,6 +71,7 @@ import { OrderScoreGrid } from './order-score-grid';
 import { SmartAssignmentPanel } from './smart-assignment';
 import { ZoneStatsDashboard } from './zone-stats-dashboard';
 import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
+import { DriverReliabilityPanel } from './driver-reliability-panel';
 
 type Driver = {
   employee_id: string;
@@ -762,6 +763,8 @@ export function DispatchBoard({
 
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
+      <DriverReliabilityPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Score-Übersicht: Alle wartenden Bestellungen mit Dispatch-Score als Farbbalken */}
       {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}
