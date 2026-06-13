@@ -40,6 +40,7 @@ import { detectAndHandleNoShowsAllLocations } from '@/lib/delivery/driver-reliab
 import { processUnscoredAllLocations as processCdesAllLocations } from '@/lib/delivery/cdes';
 import { generateDigestAllLocations } from '@/lib/delivery/daily-digest';
 import { checkAndAwardChallengesAllLocations } from '@/lib/delivery/challenges';
+import { runPositioningAllLocations } from '@/lib/delivery/positioning';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -85,7 +86,7 @@ export async function GET(req: NextRequest) {
     // Daily digest: täglich um 03:00 UTC (nach Report-Cache bei 02:00)
     const isDigestTick = nowHour === 3 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -185,6 +186,10 @@ export async function GET(req: NextRequest) {
       isRatingTick
         ? checkAndAwardChallengesAllLocations().catch(() => ({ locations: 0, checked: 0, progressUpdated: 0, autoCompleted: 0 }))
         : Promise.resolve(null),
+      // Fahrer-Positionierung: Vorschläge generieren (alle 10 Min)
+      isRatingTick
+        ? runPositioningAllLocations().catch(() => ({ locations: 0, total_created: 0, total_expired: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -264,6 +269,7 @@ export async function GET(req: NextRequest) {
       ...(cdesResult ? { cdes: { processed: cdesResult.totalProcessed, recoveries: cdesResult.totalRecoveries } } : {}),
       ...(digestResult ? { daily_digest: { locations: digestResult.locations, generated: digestResult.generated, errors: digestResult.errors } } : {}),
       ...(challengeResult ? { challenges: { checked: challengeResult.checked, progress_updated: challengeResult.progressUpdated, auto_completed: challengeResult.autoCompleted } } : {}),
+      ...(positioningResult ? { positioning: { locations: positioningResult.locations, created: positioningResult.total_created, expired: positioningResult.total_expired } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

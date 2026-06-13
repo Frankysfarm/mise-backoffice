@@ -1,10 +1,21 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–98 abgeschlossen. CEO Review #72 ✅. Build sauber. 0 TypeScript-Fehler. 190 Seiten. Deployment-bereit. 4 Bugs gefixed.**
+**Phasen 1–99 abgeschlossen. CEO Review #72 ✅. Build sauber. 0 TypeScript-Fehler. 191 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 99: Smart Driver Pre-Positioning Engine — 2026-06-13
+- [x] scripts/migrations/059_driver_positioning.sql: driver_positioning_suggestions Tabelle (target_zone/target_lat/target_lng/target_label/reason/demand_score/response ENUM pending|accepted|rejected|expired, expires_at), v_positioning_compliance VIEW (acceptance_rate_pct, avg_response_min, 24h-Fenster), 3 Indizes, RLS
+- [x] lib/delivery/positioning.ts: generatePositioningSuggestions() (Prognose-gesteuert: high=nah am Restaurant, medium=Außenzonen-Abdeckung), expireStaleSuggestions(), getActiveSuggestions() (mit Fahrer-Namen + Distanz), getDriverActiveSuggestion(), respondToSuggestion(), getPositioningStats(), getPositioningHistory() (7-Tage-Verlauf), runPositioningAllLocations() (Cron-Batch)
+- [x] GET+POST /api/delivery/admin/positioning: Overview (suggestions+stats+history) + manuelles Trigger
+- [x] GET+POST /api/delivery/driver/positioning: Fahrer-App — aktiver Vorschlag + Annehmen/Ablehnen
+- [x] app/(admin)/delivery/positioning/: PositioningClient mit 4 KPI-Karten (Offene/Akzeptanzrate/Gesamt/Ø Reaktionszeit), Vorschlagsliste (Pending/Alle Tabs), 7-Tage-Compliance-Balkendiagramm (grün=angenommen, grau=gesamt), How-it-Works Info-Box
+- [x] PositioningSuggestionBanner in fahrer/app/client.tsx: Idle-Fahrer sehen Positionierungs-Empfehlung mit Navigations-Button (Google Maps Deep-Link), Annehmen/Ablehnen, 20-Min-Ablauf-Countdown
+- [x] Cron: runPositioningAllLocations() alle 10 Min (isRatingTick) → positioning: { locations, created, expired } in Response
+- [x] Sidebar: "Fahrer-Positionierung" mit Navigation-Icon unter Loslegen-Gruppe
+- [x] Navigation-Icon in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: Compiled successfully ✓ (191 Seiten, 0 TypeScript-Fehler in neuen Dateien)
 - [x] Phase 98: Score Radar-Chart + Tour-Completion-Screen + Dashboard-Status-Update — 2026-06-12
 - [x] ScoreRadarChart (dispatch/score-radar.tsx): SVG-Spinnen-Diagramm für 10 Dispatch-Score-Faktoren, farbcodiert nach Score-Wert, eingebettet in Score-Aufschlüsselung im Dispatch-Board
 - [x] TourCompletionScreen (fahrer/app/tour-completion.tsx): Animierter Vollbild-Abschluss nach allen Stops mit Konfetti, Stats (Lieferungen/Umsatz/Dauer/Distanz), Auto-Weiterleitung nach 8s

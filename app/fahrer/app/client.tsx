@@ -1040,6 +1040,9 @@ export function FahrerApp({
         {/* Aktive Challenges */}
         {!activeBatch && isOnline && <ChallengeWidget />}
 
+        {/* Positionierungs-Empfehlung */}
+        {!activeBatch && isOnline && <PositioningSuggestionBanner />}
+
         {/* Offline state */}
         {!isOnline && !activeBatch && (
           <section className="text-center py-8">
@@ -3287,5 +3290,123 @@ function FahrerSchichtCountdown({ onlineSeit }: { onlineSeit: string }) {
         <span>Ziel: {new Date(new Date(onlineSeit).getTime() + SHIFT_HOURS * 3_600_000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</span>
       </div>
     </div>
+  );
+}
+
+/* ---------- PositioningSuggestionBanner — Standort-Empfehlung für Idle-Fahrer ---------- */
+
+type PositioningSuggestionData = {
+  id: string;
+  target_label: string;
+  reason: string;
+  demand_score: number;
+  expires_at: string;
+  target_lat: number | null;
+  target_lng: number | null;
+};
+
+function PositioningSuggestionBanner() {
+  const [suggestion, setSuggestion] = useState<PositioningSuggestionData | null>(null);
+  const [responded, setResponded] = useState(false);
+  const [minsLeft, setMinsLeft] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/positioning')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.suggestion) {
+          setSuggestion(d.suggestion);
+          setMinsLeft(Math.max(0, Math.round((new Date(d.suggestion.expires_at).getTime() - Date.now()) / 60_000)));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!suggestion || responded) return;
+    const timer = setInterval(() => {
+      setMinsLeft((m) => {
+        if (m <= 0) { clearInterval(timer); setSuggestion(null); return 0; }
+        return m - 1;
+      });
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [suggestion, responded]);
+
+  const respond = async (response: 'accepted' | 'rejected') => {
+    if (!suggestion) return;
+    setResponded(true);
+    await fetch('/api/delivery/driver/positioning', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suggestion_id: suggestion.id, response }),
+    }).catch(() => {});
+  };
+
+  const openNavigation = () => {
+    if (!suggestion?.target_lat || !suggestion?.target_lng) return;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${suggestion.target_lat},${suggestion.target_lng}`;
+    window.open(url, '_blank');
+  };
+
+  if (!suggestion || responded) return null;
+
+  const isHighDemand = suggestion.demand_score >= 70;
+
+  return (
+    <section className="bg-gradient-to-br from-blue-900/80 to-blue-800/80 border border-blue-700/50 rounded-2xl p-4 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            'w-8 h-8 rounded-full flex items-center justify-center text-sm',
+            isHighDemand ? 'bg-orange-500/20 text-orange-300' : 'bg-blue-500/20 text-blue-300',
+          )}>
+            📍
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-blue-200 uppercase tracking-wide">
+              Positions-Empfehlung
+            </div>
+            <div className="text-sm font-bold text-white">{suggestion.target_label}</div>
+          </div>
+        </div>
+        <div className="text-xs text-blue-400 shrink-0">
+          {minsLeft} Min
+        </div>
+      </div>
+
+      <p className="text-xs text-blue-300 leading-relaxed">{suggestion.reason}</p>
+
+      {isHighDemand && (
+        <div className="flex items-center gap-1.5 text-xs text-orange-300 font-medium">
+          <span>🔥</span> Hohe Nachfrage erwartet
+        </div>
+      )}
+
+      <div className="flex gap-2 pt-1">
+        {suggestion.target_lat && suggestion.target_lng && (
+          <button
+            onClick={() => { respond('accepted'); openNavigation(); }}
+            className="flex-1 py-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+          >
+            <span>🗺️</span> Navigieren
+          </button>
+        )}
+        {!suggestion.target_lat && (
+          <button
+            onClick={() => respond('accepted')}
+            className="flex-1 py-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            ✓ Verstanden
+          </button>
+        )}
+        <button
+          onClick={() => respond('rejected')}
+          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-blue-200 text-sm rounded-xl transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+    </section>
   );
 }

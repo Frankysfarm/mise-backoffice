@@ -155,6 +155,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/cdes',         icon: 'Star',            label: 'Erfahrungs-Score (CDES)' },
       { group: 'Loslegen', href: '/delivery/digest',       icon: 'BookOpen',        label: 'Tages-Digest (KI)' },
       { group: 'Loslegen', href: '/delivery/challenges',   icon: 'Zap',             label: 'Fahrer-Challenges' },
+      { group: 'Loslegen', href: '/delivery/positioning',  icon: 'Navigation',      label: 'Fahrer-Positionierung' },
       { group: 'Loslegen', href: '/dispatch',              icon: 'MapPin',          label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
