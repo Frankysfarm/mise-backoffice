@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–112 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Phasen 1–113 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Frontend-Ingenieur — 2026-06-13: Phase 113 abgeschlossen. Build 198 Seiten sauber.**
 **Backend-Architekt — 2026-06-13: Phase 112 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #82 — 2026-06-13: Phase 111 (Frontend + Backend) geprüft. 3 TS-Fehler gefixt. Build 198 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 111 abgeschlossen. Build 198 Seiten sauber.**
@@ -16,6 +17,17 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 113: Frontend-Erweiterungen — Post-Order Live-Tracking, Tagesabschluss, Kitchen Batch-Grouping, Dispatch Return-Forecast — 2026-06-13
+- [x] app/order/paid/client.tsx: PaidOrderClient — Live-Polling Order-Status, Step-Progress, ETA-Countdown, Share-Button, Fahrer-Info
+- [x] app/order/paid/page.tsx: Delegiert an PaidOrderClient (Server → Client)
+- [x] app/(admin)/lieferdienst/tagesabschluss.tsx: TagesabschlussModal — Schichtbericht KPI-Grid (Gesamt/Geliefert/Touren/Ø ETA), Qualität (Dispatch-Score/Kunden-Bewertung/Fahrer), Zone-Breakdown, Drucken
+- [x] app/(admin)/lieferdienst/client.tsx: "Abschluss"-Button im Header + TagesabschlussModal Integration + locationId State
+- [x] app/order/[locationSlug]/storefront-v2.tsx: ETA-Chip zeigt aktive Bestellungsanzahl (active_orders > 2), ETA-Poll 90s
+- [x] app/(admin)/kitchen/batch-prep-grouping.tsx: KitchenBatchPrepGrouping — Orders einer Tour gruppiert anzeigen, Fahrer-ETA-Countdown, gemeinsame Items hervorheben
+- [x] app/(admin)/kitchen/client.tsx: KitchenBatchPrepGrouping Import + Integration
+- [x] app/(admin)/dispatch/driver-return-forecast.tsx: DriverReturnForecast — Fahrer-Rückkehr-Timeline, Fortschrittsbalken, Farb-Ampel, freie Fahrer-Chips
+- [x] app/(admin)/dispatch/client.tsx: DriverReturnForecast Import + Integration nach LiveTourTracker
+- [x] Build: next build ✓ (198 Seiten, 0 Fehler)
 - [x] Phase 112: Fahrer-Review-Flag Admin-UI + täglicher Cron-Scan — 2026-06-13
 - [x] lib/delivery/review-flags.ts: +checkAllDrivers() — scannt alle (driver_id, location_id)-Paare der letzten 14 Tage, idempotent, 06:00 UTC Cron
 - [x] app/(admin)/lieferdienst/review-flags-panel.tsx: ReviewFlagsPanel (KPI-StatCards, FlagRow mit Aktionen, ManualFlagForm, Doppelfilter Status+Grund)
