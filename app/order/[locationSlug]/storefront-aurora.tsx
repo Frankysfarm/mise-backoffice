@@ -443,11 +443,26 @@ export function StorefrontAurora({
       >
         <div className="au-cart-bar__left">
           <span className="au-cart-bar__count">{totalItems}</span>
-          <span className="au-cart-bar__label">
-            {orderType === 'lieferung' && remainingToMin > 0
-              ? `Noch ${formatEuro(remainingToMin)} bis Min.`
-              : 'Warenkorb ansehen'}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span className="au-cart-bar__label">
+              {orderType === 'lieferung' && remainingToMin > 0
+                ? `Noch ${formatEuro(remainingToMin)} bis Min.`
+                : 'Warenkorb ansehen'}
+            </span>
+            {/* Live-ETA-Hinweis: nur bei Lieferung + wenn Daten geladen */}
+            {orderType === 'lieferung' && liveEta.ready && remainingToMin === 0 && (
+              <span style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                opacity: 0.8,
+                color: liveEta.load === 'busy' ? '#fca5a5' : liveEta.load === 'normal' ? '#fcd34d' : '#86efac',
+                letterSpacing: '0.01em',
+              }}>
+                ~{liveEta.etaMin} Min
+                {liveEta.load === 'busy' ? ' · Viel los' : liveEta.load === 'normal' ? ' · Normal' : ' · Küche frei'}
+              </span>
+            )}
+          </div>
         </div>
         <span className="au-cart-bar__price">{formatEuro(total)}</span>
       </div>

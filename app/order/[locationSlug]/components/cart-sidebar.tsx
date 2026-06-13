@@ -6,6 +6,7 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { ItemImage } from './item-image';
 import type { CartItem, Category, OrderType } from './types';
 import { DELIVERY_FEE, MIN_ORDER } from './types';
+import { LiveWaitBadge } from './live-wait-badge';
 
 type Props = {
   cart: CartItem[];
@@ -22,6 +23,8 @@ type Props = {
   /** For the mobile bottom-sheet variant. */
   onClose?: () => void;
   variant: 'desktop' | 'sheet';
+  /** Filial-ID für Live-ETA-Anzeige im Warenkorb (nur bei Lieferung) */
+  locationId?: string;
 };
 
 function formatEuro(n: number): string {
@@ -42,6 +45,7 @@ export function CartSidebar({
   onBrowse,
   onClose,
   variant,
+  locationId,
 }: Props) {
   const minReached = subtotal >= MIN_ORDER || orderType === 'abholung';
   const missing = Math.max(0, MIN_ORDER - subtotal);
@@ -175,6 +179,15 @@ export function CartSidebar({
             <div className="rounded-xl bg-gold/15 px-3 py-2 text-xs text-matcha-900">
               Noch <span className="font-bold">{formatEuro(missing)}&nbsp;€</span> bis zum Mindestbestellwert.
             </div>
+          )}
+
+          {/* Live-ETA-Badge: zeigt Wartezeit und Küchenlast vor dem Checkout */}
+          {orderType === 'lieferung' && locationId && minReached && (
+            <LiveWaitBadge
+              locationId={locationId}
+              orderType="lieferung"
+              className="w-full justify-center"
+            />
           )}
 
           <button

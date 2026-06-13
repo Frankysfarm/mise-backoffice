@@ -649,6 +649,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             onCheckout={() => setCheckoutOpen(true)}
             onBrowse={() => scrollToSection(popular.length > 0 ? 'beliebt' : categories[0]?.id ?? '')}
             variant="desktop"
+            locationId={location.id}
           />
         </div>
       </main>
@@ -695,6 +696,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               }}
               onClose={() => setCartSheetOpen(false)}
               variant="sheet"
+              locationId={location.id}
             />
           </div>
         </div>
