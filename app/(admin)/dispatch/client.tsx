@@ -556,6 +556,27 @@ export function DispatchBoard({
   const onlineDrivers = drivers.filter((d) => d.ist_online);
   const offlineDrivers = drivers.filter((d) => !d.ist_online);
 
+  // Per-driver shift stats computed from current batches
+  const driverShiftStats = useMemo(() => {
+    const m = new Map<string, { stops: number; onTime: number; timed: number }>();
+    for (const b of batches) {
+      if (!b.fahrer_id) continue;
+      if (!m.has(b.fahrer_id)) m.set(b.fahrer_id, { stops: 0, onTime: 0, timed: 0 });
+      const entry = m.get(b.fahrer_id)!;
+      for (const s of b.stops) {
+        if (!s.geliefert_am) continue;
+        entry.stops++;
+        if (s.order?.eta_latest) {
+          entry.timed++;
+          if (new Date(s.geliefert_am).getTime() <= new Date(s.order.eta_latest).getTime()) {
+            entry.onTime++;
+          }
+        }
+      }
+    }
+    return m;
+  }, [batches]);
+
   function toggleSelect(id: string) {
     setSelected((s) => {
       const next = new Set(s);
@@ -1320,6 +1341,7 @@ export function DispatchBoard({
                     onAssign={() => assignToDriver(d.employee_id)}
                     restaurantLat={loc?.lat ?? null}
                     restaurantLng={loc?.lng ?? null}
+                    shiftStats={driverShiftStats.get(d.employee_id) ?? null}
                   />
                 );
               })}
@@ -2574,6 +2596,7 @@ function DriverRow({
   onAssign,
   restaurantLat,
   restaurantLng,
+  shiftStats,
 }: {
   driver: Driver;
   activeBatch?: ActiveBatchRef | null;
@@ -2582,6 +2605,7 @@ function DriverRow({
   onAssign: () => void;
   restaurantLat?: number | null;
   restaurantLng?: number | null;
+  shiftStats?: { stops: number; onTime: number; timed: number } | null;
 }) {
   const e = driver.employee;
   const initials = e ? `${e.vorname?.[0] ?? ''}${e.nachname?.[0] ?? ''}`.toUpperCase() : '?';
@@ -2764,6 +2788,30 @@ function DriverRow({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {/* Schicht-Score-Badge: Lieferungen + SLA-Pünktlichkeit dieser Schicht */}
+      {shiftStats && shiftStats.stops > 0 && (
+        <div className="mt-1.5 pl-[52px] flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-matcha-50 border border-matcha-200 px-2 py-0.5 text-[9px] font-bold text-matcha-700">
+            <CheckCircle2 className="h-2.5 w-2.5" />
+            {shiftStats.stops} Ld.
+          </span>
+          {shiftStats.timed > 0 && (() => {
+            const pct = Math.round((shiftStats.onTime / shiftStats.timed) * 100);
+            return (
+              <span className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold',
+                pct >= 85 ? 'bg-matcha-50 border-matcha-200 text-matcha-700' :
+                pct >= 70 ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                'bg-red-50 border-red-200 text-red-700',
+              )}>
+                <Target className="h-2.5 w-2.5" />
+                SLA {pct}%
+              </span>
+            );
+          })()}
         </div>
       )}
     </div>
