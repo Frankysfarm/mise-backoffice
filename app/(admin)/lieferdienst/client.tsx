@@ -28,7 +28,7 @@ import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
   BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
-  Award, Target, Star, MapPin, ArrowRight, Activity,
+  Award, Target, Star, MapPin, ArrowRight, Activity, Zap,
   Calendar, ChevronUp, ChevronDown, Loader2,
 } from 'lucide-react'
 import {
@@ -98,6 +98,19 @@ export function LieferdienstClient() {
   // Tagesabschluss modal
   const [showTagesabschluss, setShowTagesabschluss] = useState(false)
   const locationId = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'
+  const [queueSignal, setQueueSignal] = useState<{ signal: string; etaExtension: number } | null>(null)
+
+  useEffect(() => {
+    const poll = () => {
+      fetch(`/api/delivery/eta/live?location_id=${locationId}`, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.queue_signal) setQueueSignal({ signal: d.queue_signal, etaExtension: d.eta_extension_min ?? 0 }); })
+        .catch(() => {});
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => clearInterval(iv);
+  }, []);
 
   // === REAL DB-DATA INJECTION (Supabase Realtime + 30s Fallback-Poll) ===
   const fetchDataRef = useRef<(() => void) | null>(null);
@@ -580,6 +593,17 @@ export function LieferdienstClient() {
                     <span className={`text-sm font-black tabular-nums ${streakFlash ? 'text-white' : 'text-orange-700'}`}>
                       {prepStreak}x Streak
                     </span>
+                  </div>
+                )}
+                {queueSignal?.signal === 'surge' && (
+                  <div className="flex items-center gap-1.5 bg-red-50 border border-red-300 px-3 py-2 rounded-xl animate-pulse" title={`ETA +${queueSignal.etaExtension} Min durch Surge`}>
+                    <Zap className="w-4 h-4 text-red-500 shrink-0" />
+                    <span className="text-sm font-bold text-red-700">Surge +{queueSignal.etaExtension} Min</span>
+                  </div>
+                )}
+                {queueSignal?.signal === 'paused' && (
+                  <div className="flex items-center gap-1.5 bg-red-600 border border-red-700 px-3 py-2 rounded-xl" title="Bestellannahme pausiert">
+                    <span className="text-sm font-bold text-white">⏸ Pausiert</span>
                   </div>
                 )}
               </div>

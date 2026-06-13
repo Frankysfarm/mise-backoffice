@@ -165,7 +165,7 @@ export function DispatchBoard({
   const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; duration_ms: number } | null>(null);
   const [newOrderFlash, setNewOrderFlash] = useState<{ count: number } | null>(null);
   const prevReadyCountRef = useRef(initialOrders.filter((o) => o.status === 'fertig').length);
-  const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number } | null>(null);
+  const [kitchenLoad, setKitchenLoad] = useState<{ eta_min: number; load: string; active_orders: number; drivers_online: number; queue_signal: string; eta_extension_min: number } | null>(null);
   const [scheduledSummary, setScheduledSummary] = useState<{ total: number; pending: number; released: number; next_due_in_min: number | null } | null>(null);
   const [scheduledOrders, setScheduledOrders] = useState<{ id: string; bestellnummer: string; kunde_name: string | null; scheduled_at: string; schedule_status: string; mins_until_kitchen_start: number | null }[]>([]);
   const [shiftClaims, setShiftClaims] = useState<ShiftClaimItem[]>([]);
@@ -241,7 +241,7 @@ export function DispatchBoard({
         const res = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
         if (!res.ok) return;
         const d = await res.json();
-        if (d?.eta_min != null) setKitchenLoad({ eta_min: d.eta_min, load: d.load ?? 'quiet', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0 });
+        if (d?.eta_min != null) setKitchenLoad({ eta_min: d.eta_min, load: d.load ?? 'quiet', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0, queue_signal: d.queue_signal ?? 'normal', eta_extension_min: d.eta_extension_min ?? 0 });
       } catch {}
     };
     poll();
@@ -775,6 +775,19 @@ export function DispatchBoard({
           <span>{kitchenLoad.active_orders} aktive Bestellungen</span>
           <span className="text-inherit opacity-70">·</span>
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
+        </div>
+      )}
+
+      {/* Surge-Warnung: wenn queue_signal=surge oder ETA-Verlängerung >5min */}
+      {kitchenLoad && (kitchenLoad.queue_signal === 'surge' || kitchenLoad.eta_extension_min > 5) && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-red-800 text-sm">
+          <Zap className="h-4 w-4 text-red-500 shrink-0 animate-pulse" />
+          <span className="font-bold">Surge aktiv</span>
+          <span className="text-red-600 opacity-80">·</span>
+          <span>ETA um +{kitchenLoad.eta_extension_min} Min verlängert</span>
+          <span className="ml-auto text-[11px] bg-red-100 border border-red-200 rounded px-2 py-0.5 font-mono font-semibold">
+            Hohe Nachfrage
+          </span>
         </div>
       )}
 
