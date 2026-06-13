@@ -16,6 +16,7 @@ import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
+import { TourProgressRing } from './tour-ring';
 
 
 type Driver = {
@@ -659,6 +660,14 @@ export function FahrerApp({
           <>
             {/* Tour-Fortschritts-Kopfleiste — mit Live-Sekunden-Countdown */}
             <TourLiveProgressHeader batch={activeBatch as any} />
+            {/* Tour-Fortschritts-Ring: visuelle Übersicht Stopps + ETA */}
+            <TourProgressRing
+              totalStops={activeBatch.stops.length}
+              completedStops={activeBatch.stops.filter((s) => s.geliefert_am != null).length}
+              distanceKm={(activeBatch as any).total_distance_km ?? null}
+              startedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
           <TourBriefingCard batch={activeBatch as any} />
           <DeliveryView
             batchId={activeBatch.id}

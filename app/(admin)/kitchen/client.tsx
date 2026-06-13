@@ -14,6 +14,7 @@ import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingR
 import { KitchenSmartCountdownGrid } from './countdown-grid';
 import { KitchenSmartBatchAlert } from './smart-batch-alert';
 import { KitchenWaveDetector } from './wave-detector';
+import { KitchenCookStartTimer } from './cook-start-timer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -471,6 +472,36 @@ export function KitchenBoard({
       <KitchenWaveDetector orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
+
+      {/* Kochstart-Empfehlung: wann muss die Küche mit kochen beginnen damit Fahrer nicht wartet */}
+      <KitchenCookStartTimer
+        orders={(() => {
+          const now = Date.now();
+          return batches
+            .filter((b) => b.status === 'unterwegs' || b.status === 'on_route' || b.status === 'assigned')
+            .flatMap((b) => {
+              const etaMs = b.started_at && b.total_eta_min != null
+                ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+                : null;
+              if (!etaMs) return [];
+              const etaSec = Math.max(0, Math.floor((etaMs - now) / 1000));
+              return stops
+                .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+                .map((s) => {
+                  const order = orders.find((o) => o.id === s.order_id);
+                  if (!order || order.status !== 'bestätigt') return null;
+                  return {
+                    id: order.id,
+                    bestellnummer: order.bestellnummer,
+                    kunde_name: order.kunde_name,
+                    prep_min: order.geschaetzte_zubereitung_min ?? 15,
+                    driver_eta_sec: etaSec,
+                  };
+                })
+                .filter(Boolean) as any[];
+            });
+        })()}
+      />
 
       {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
       <KitchenSmartCountdownGrid

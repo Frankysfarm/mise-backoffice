@@ -40,6 +40,7 @@ import { Button } from '@/components/ui/button'
 import { OpsSnapshotPanel } from './ops-snapshot-panel'
 import { LiveMetricsStrip } from './live-metrics-strip'
 import { FahrerRangliste } from './fahrer-rangliste'
+import { OpsStatusWidget } from './ops-status-widget'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -900,6 +901,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Live Ops-Status: Stimmungsmeter für den aktuellen Betrieb */}
+              <OpsStatusWidget locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Echtzeit-Bestellpipeline: Live-Funnel aller Auftragsphasen */}
               <LiveOrderFunnelPanel />
               {/* Live Ops-Cockpit: Queue-Status, Revenue, SLA, Fahrer, At-Risk */}

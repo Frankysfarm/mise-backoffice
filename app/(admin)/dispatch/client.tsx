@@ -61,6 +61,7 @@ import { ScoreRadarChart } from './score-radar';
 import { DispatchQueuePanel } from './dispatch-queue-panel';
 import { ZoneCoverageCard } from './zone-coverage-card';
 import { TourRouteOverview } from './tour-route-overview';
+import { ZoneWaitHeatmap } from './zone-wait-heatmap';
 
 type Driver = {
   employee_id: string;
@@ -967,6 +968,9 @@ export function DispatchBoard({
 
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
+
+      {/* Zonen-Wartezeit-Heatmap: Farbkodierte Wartezeiten je Lieferzone */}
+      <ZoneWaitHeatmap orders={readyOrders} />
 
       {/* Zonen-Abdeckung: Welche Zonen haben Bedarf und welche sind gedeckt? */}
       <ZoneCoverageCard
