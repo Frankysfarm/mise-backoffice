@@ -56,6 +56,7 @@ import { runFlowIntelligenceAllLocations, pruneOldFlowSnapshots } from '@/lib/de
 import { snapshotFatigueAllLocations, pruneFatigueSnapshots } from '@/lib/delivery/fatigue-monitor';
 import { snapshotPatternsAllLocations as snapshotPeakPatterns, analyzePeakAllLocations, pruneOldAlerts as prunePeakAlerts } from '@/lib/delivery/peak-intelligence';
 import { snapshotMenuAllLocations, pruneMenuSnapshots } from '@/lib/delivery/menu-analytics';
+import { recomputePrepProfilesAllLocations, prunePrepObservations } from '@/lib/delivery/kitchen-prep-learning';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -111,7 +112,7 @@ export async function GET(req: NextRequest) {
     // Peak-Alert-Analyse: täglich um 06:00 UTC (frühmorgens, für Tagesvorbereitung)
     const isPeakAlertTick = nowHour === 6 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -318,6 +319,14 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneMenuSnapshots(90).catch(() => 0)
         : Promise.resolve(null),
+      // Küchen-Lernkurve: Profile neu berechnen täglich 02:00 UTC (Phase 127)
+      isReportTick
+        ? recomputePrepProfilesAllLocations().catch(() => ({ locations: 0, profilesUpdated: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Küchen-Lernkurve: alte Beobachtungen bereinigen > 90 Tage (Phase 127)
+      isReportTick
+        ? prunePrepObservations(90).catch(() => 0)
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -421,6 +430,8 @@ export async function GET(req: NextRequest) {
       ...(peakAlertsPruned ? { peak_alerts_pruned: peakAlertsPruned } : {}),
       ...(menuSnapshotResult ? { menu_analytics: { locations: menuSnapshotResult.locations, items_upserted: menuSnapshotResult.items_upserted, orders_analyzed: menuSnapshotResult.orders_analyzed, errors: menuSnapshotResult.errors } } : {}),
       ...(menuSnapshotsPruned ? { menu_snapshots_pruned: menuSnapshotsPruned } : {}),
+      ...(prepProfilesResult ? { prep_learning: { locations: prepProfilesResult.locations, profiles_updated: prepProfilesResult.profilesUpdated, errors: prepProfilesResult.errors } } : {}),
+      ...(prepObservationsPruned ? { prep_observations_pruned: prepObservationsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -83,12 +83,20 @@ export async function markCooking(orderId: string): Promise<void> {
 }
 
 /** Markiert eine Bestellung als fertig (bereit zur Abholung). */
-export async function markReady(orderId: string): Promise<void> {
+export async function markReady(orderId: string, locationId?: string): Promise<void> {
   const sb = createServiceClient();
+  const now = new Date().toISOString();
   await sb
     .from('kitchen_timings')
-    .update({ status: 'ready', updated_at: new Date().toISOString() })
+    .update({ status: 'ready', ready_at: now, updated_at: now })
     .eq('order_id', orderId);
+
+  // Prep-Zeit-Beobachtung asynchron aufzeichnen (fire-and-forget)
+  if (locationId) {
+    import('@/lib/delivery/kitchen-prep-learning')
+      .then(({ recordPrepObservation }) => recordPrepObservation(orderId, locationId))
+      .catch(() => {});
+  }
 }
 
 /** Markiert eine Bestellung als abgeholt. */

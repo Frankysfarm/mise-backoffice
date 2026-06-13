@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–130 abgeschlossen. Build sauber. 205 Seiten. Deployment-bereit.**
+**Phasen 1–131 abgeschlossen. Build sauber. 206 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 131 abgeschlossen. Smart Kitchen Prep Time Learning Engine: ready_at in kitchen_timings, Prep-Beobachtungen, gelernter p75-Schätzwert, Admin-Dashboard. Build 206 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 130 abgeschlossen. Fahrer-App: Schnellnachrichten-Chips unter WhatsApp-Button (4 Vorlagen: ~5 Min, Bitte runter, Warte draußen, Kein Einlass). Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 129 abgeschlossen. Dispatch: Schicht-Score-Badge in DriverRow (Lieferungen + SLA%) aus Batch-Daten berechnet. Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 128 abgeschlossen. Küchen-TV: Live-Ops-Strip im Header (ETA, Fahrer, Aktiv-Bestellungen, Lastfarbe). Build 205 Seiten sauber.**
@@ -41,6 +42,15 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 131: Smart Kitchen Prep Time Learning Engine — 2026-06-13
+- [x] scripts/migrations/076_kitchen_prep_learning.sql: ready_at zu kitchen_timings hinzugefügt, kitchen_prep_observations (location_id/order_id/item_count/estimated_prep_min/actual_prep_min/hour_bucket/day_of_week, UNIQUE order_id, RLS, 2 Indizes), kitchen_prep_profiles (p75/p90/stddev/avg_delta/accuracy_pct, UNIQUE location+hour_bucket, RLS), v_prep_accuracy_30d VIEW (30d-Aggregat: avg_actual/estimated/delta/p75/p90/accuracy_pct), v_prep_outliers_7d VIEW (|delta|>8 Min letzten 7 Tage mit bestellnummer), v_prep_bucket_stats VIEW (alle 5 Buckets: mean/p75/p90/stddev/avg_delta), prune_old_prep_observations() SQL-Funktion (Cleanup >90 Tage)
+- [x] lib/delivery/kitchen-prep-learning.ts: recordPrepObservation() (fire-and-forget: notified_at→ready_at aus kitchen_timings → actual_prep_min, Sanity 1–90 Min, item_count aus customer_orders, Upsert), recomputePrepProfilesForLocation() (v_prep_bucket_stats + Accuracy-Berechnung aus Rohdaten → Upsert kitchen_prep_profiles), recomputePrepProfilesAllLocations() (Cron-Batch), getSmartPrepEstimate() (gelernter p75 für aktuellen Bucket, Fallback 15 Min bei <5 Obs.), getPrepLearningDashboard() (summary+profiles+outliers+currentEstimate), prunePrepObservations() (via SQL-Funktion)
+- [x] lib/delivery/kitchen-sync.ts: markReady() um ready_at=now() ergänzt; recordPrepObservation() fire-and-forget via dynamic import nach ready-Status
+- [x] GET+POST /api/delivery/admin/prep-learning: Auth via employees.location_id, GET=Dashboard, POST action=recompute (Profiles neu berechnen) | action=estimate (aktuellen Schätzwert abrufen)
+- [x] app/(admin)/delivery/prep-learning/: PrepLearningClient — 4 KPI-Karten (Beobachtungen 30d/Ø Abweichung/Genauigkeit ±3Min/Aktueller Schätzwert), 5 Bucket-Karten (Morgen/Mittag/Nachmittag/Abend/Spät: mean+p75★+p90+Genauigkeitsbalken+Δ-Empfehlung), Ausreißer-Tabelle letzte 7 Tage (>8 Min Abweichung, sortiert nach |Δ|), Info-Box (Lernkurven-Erklärung), 2-Min Auto-Refresh, Neu-berechnen-Button
+- [x] Cron: recomputePrepProfilesAllLocations() täglich 02:00 UTC (isReportTick) → prep_learning: {locations/profiles_updated/errors}; prunePrepObservations(90) täglich 02:00 UTC → prep_observations_pruned
+- [x] Sidebar: "Küchen-Lernkurve" mit BookCheck-Icon unter Loslegen-Gruppe; BookCheck in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: next build → 206 Seiten, 0 Fehler; npx tsc --noEmit → 0 Fehler
 - [x] Phase 121: Smart Menu Item Sales Analytics — 2026-06-13
 - [x] scripts/migrations/075_menu_item_analytics.sql: delivery_menu_snapshots (location_id/snapshot_date/item_name UNIQUE, order_count/quantity_sold/revenue_eur, RLS, 2 Indizes), v_menu_item_performance_30d VIEW (30d-Aggregat: total_orders/quantity/revenue/avg_price/days_with_sales/avg_orders_per_day), v_hero_items VIEW (RANK() OVER PARTITION BY location_id ORDER BY revenue DESC), v_slow_movers VIEW (<5 Bestellungen 30d, days_since_last_sale), v_menu_weekly_trend VIEW (14d-Tagessummen: orders/quantity/revenue/distinct_items), prune_old_menu_snapshots() SQL-Funktion (Cleanup >90 Tage)
 - [x] lib/delivery/menu-analytics.ts: snapshotMenuAnalytics() (lädt abgeschlossene Liefer-Bestellungen typ=lieferung/status=geliefert|abgeschlossen, aggregiert order_items nach item_name, Upsert), snapshotMenuAllLocations() (Cron-Batch), getItemPerformance() (TS-seitige Aggregation mit rank), getHeroItems() (Top-10 nach Umsatz), getSlowMovers() (<5 Bestellungen), getItemTrend() (14d-Sparkline pro Artikel), getDailyTrend() (14d-Tagessummen), getMenuDashboard() (kombinierter Response), pruneMenuSnapshots() (via SQL-Funktion)
