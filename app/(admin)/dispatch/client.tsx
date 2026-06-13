@@ -59,6 +59,7 @@ const DispatchDriverMap = dynamic(
 import { TourSequenzPanel } from './tour-sequenz';
 import { ScoreRadarChart } from './score-radar';
 import { DispatchQueuePanel } from './dispatch-queue-panel';
+import { ZoneCoverageCard } from './zone-coverage-card';
 
 type Driver = {
   employee_id: string;
@@ -965,6 +966,13 @@ export function DispatchBoard({
 
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
+
+      {/* Zonen-Abdeckung: Welche Zonen haben Bedarf und welche sind gedeckt? */}
+      <ZoneCoverageCard
+        readyOrders={readyOrders.filter((o) => o.status === 'fertig')}
+        drivers={drivers}
+        batches={batches}
+      />
 
       {/* Tour-Sequenz: Detaillierte Stopp-für-Stopp-Ansicht aller aktiven Touren */}
       <TourSequenzPanel batches={batches} />

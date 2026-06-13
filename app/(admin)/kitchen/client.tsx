@@ -12,6 +12,8 @@ import {
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady, createKitchenTiming } from './actions';
 import { KitchenSmartCountdownGrid } from './countdown-grid';
+import { KitchenSmartBatchAlert } from './smart-batch-alert';
+import { KitchenWaveDetector } from './wave-detector';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -465,6 +467,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Bestellungswellen-Detektor: Alarm wenn ≥3 Bestellungen in 5 Min eintreffen */}
+      <KitchenWaveDetector orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 
@@ -580,6 +584,9 @@ export function KitchenBoard({
 
       {/* Dispatch-Bereit Panel: Fertige Lieferbest. gruppiert nach Zone */}
       <DispatchReadinessPanel orders={filtered} />
+
+      {/* Smart-Batch-Alert: Mehrere fertige Bestellungen in gleicher Zone → Batch-Empfehlung */}
+      <KitchenSmartBatchAlert orders={filtered} />
 
       {/* Backlog-Eskalation: Fertige Lieferbestellungen ohne Fahrer */}
       <KitchenDispatchBacklogPanel orders={filtered} />
