@@ -198,7 +198,7 @@ export function TourPerformancePanel() {
                 contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, fontSize: 11 }}
                 labelStyle={{ color: '#94a3b8' }}
                 itemStyle={{ color: '#c4b5fd' }}
-                formatter={(v: number) => [`${v}`, 'Score']}
+                formatter={(v) => [v != null ? `${v}` : '–', 'Score']}
               />
               <Area
                 type="monotone"
