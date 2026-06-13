@@ -18,6 +18,7 @@ import { KitchenCookStartTimer } from './cook-start-timer';
 import { KitchenStationColorGrid } from './station-color-grid';
 import { KitchenBatchPrepGrouping } from './batch-prep-grouping';
 import { KitchenItemComplexityStrip } from './item-complexity-strip';
+import { KitchenShiftPerformanceBadge } from './schicht-performance-badge';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -471,6 +472,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Schicht-Tempo-Anzeige: Orders/h, Ø Zubereitungszeit, Pünktlichkeit */}
+      <KitchenShiftPerformanceBadge locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Bestellungswellen-Detektor: Alarm wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenWaveDetector orders={filtered} />
       {/* Vollbild-Flash: scheduled→cooking Übergang */}

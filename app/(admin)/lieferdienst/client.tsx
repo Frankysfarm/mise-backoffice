@@ -41,6 +41,7 @@ import { OpsSnapshotPanel } from './ops-snapshot-panel'
 import { LiveMetricsStrip } from './live-metrics-strip'
 import { FahrerRangliste } from './fahrer-rangliste'
 import { OpsStatusWidget } from './ops-status-widget'
+import { SchichtUmsatzChart } from './schicht-umsatz-chart'
 import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
 import { ReviewFlagsPanel } from './review-flags-panel'
 import { TagesabschlussModal } from './tagesabschluss'
@@ -945,6 +946,8 @@ export function LieferdienstClient() {
               <LiveOrderFunnelPanel />
               {/* Live Ops-Cockpit: Queue-Status, Revenue, SLA, Fahrer, At-Risk */}
               <OpsSnapshotPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+              {/* Schicht-Umsatz-Chart: Stündlicher Umsatz heute + Vergleich gestern */}
+              <SchichtUmsatzChart locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Schicht-Gesamtscore: gewichteter KPI-Score (neu) */}
               <LieferdienstGesamtScore orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               {/* 7-Tage Wochenübersicht */}

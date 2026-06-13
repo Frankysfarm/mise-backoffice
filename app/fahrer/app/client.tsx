@@ -19,6 +19,7 @@ import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
 import { EarningsProgressBar } from './earnings-progress-bar';
+import { TourMiniMap } from './tour-mini-map';
 
 
 type Driver = {
@@ -867,6 +868,26 @@ export function FahrerApp({
                 </a>
               );
             })()}
+
+            {/* Tour-Karte: Mini-Map mit allen Stopps farbkodiert */}
+            {activeBatch.stops.length > 1 && (
+              <TourMiniMap
+                stops={activeBatch.stops.map((s) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  geliefert_am: s.geliefert_am,
+                  order: {
+                    kunde_name: s.order.kunde_name,
+                    kunde_lat: s.order.kunde_lat,
+                    kunde_lng: s.order.kunde_lng,
+                    bestellnummer: s.order.bestellnummer,
+                  },
+                }))}
+                driverLat={driverPos?.lat ?? null}
+                driverLng={driverPos?.lng ?? null}
+                className="mb-3"
+              />
+            )}
 
             {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
             <div className="space-y-2 mb-4">
