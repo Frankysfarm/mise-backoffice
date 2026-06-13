@@ -134,6 +134,7 @@ export function StorefrontV2({
   const deliveryFee = tenant.delivery_fee ?? 0;
   const deliveryTime = tenant.delivery_time_min ?? 30;
   const reachedMin = total >= minOrder;
+  const popularItems = React.useMemo(() => items.filter((i) => i.beliebt && i.verfuegbar !== false), [items]);
   const remainingToMin = Math.max(0, minOrder - total);
 
   function addItem(itemId: string) {
@@ -415,6 +416,66 @@ export function StorefrontV2({
             />
           </label>
         </div>
+
+        {/* === BELIEBTE ARTIKEL === */}
+        {popularItems.length > 0 && !search.trim() && (
+          <div style={{ padding: '24px 0 4px' }}>
+            <div style={{ padding: '0 16px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '1rem' }}>⭐</span>
+              <div>
+                <div style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', marginBottom: 1 }}>Beliebt</div>
+                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>Das lieben unsere Gäste</div>
+              </div>
+            </div>
+            <div style={{
+              display: 'flex', gap: 10, overflowX: 'auto',
+              padding: '0 16px 4px', scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none',
+            }}>
+              {popularItems.map((item) => {
+                const qty = cart.get(item.id) ?? 0;
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      flexShrink: 0, width: 148, borderRadius: 14,
+                      border: '1px solid var(--border)', background: 'var(--surface)',
+                      overflow: 'hidden', scrollSnapAlign: 'start',
+                      boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    {item.bild_url ? (
+                      <img src={item.bild_url} alt={item.name} style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }} loading="lazy" />
+                    ) : (
+                      <div style={{ width: '100%', height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-2)', fontSize: 32 }}>🍽️</div>
+                    )}
+                    <div style={{ padding: '8px 10px 10px' }}>
+                      <div style={{ fontSize: '0.78rem', fontWeight: 700, marginBottom: 6, lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', color: 'var(--text-primary)' }}>
+                        {item.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent, #111)' }}>{formatEuro(item.preis)}</span>
+                        <button
+                          onClick={() => { if (qty > 0) removeItem(item.id); else addItem(item.id); }}
+                          style={{
+                            width: 26, height: 26, borderRadius: '50%',
+                            background: qty > 0 ? 'var(--accent, #111)' : 'var(--surface-2)',
+                            border: 'none', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: qty > 0 ? '#fff' : 'var(--text-primary)',
+                          }}
+                        >
+                          {qty > 0 ? <Minus size={12} strokeWidth={2.5} /> : <Plus size={12} strokeWidth={2.5} />}
+                        </button>
+                      </div>
+                      {qty > 0 && <div style={{ marginTop: 3, fontSize: '0.68rem', fontWeight: 700, color: 'var(--accent, #111)' }}>{qty}× gewählt</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* === CATEGORIES + ITEMS === */}
         {categories.map((cat) => {
