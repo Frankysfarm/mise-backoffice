@@ -46,6 +46,7 @@ import { ShiftKPIStrip } from '@/components/lieferdienst/shift-kpi-strip'
 import { ReviewFlagsPanel } from './review-flags-panel'
 import { TagesabschlussModal } from './tagesabschluss'
 import { RealtimeFlowChart } from '@/components/lieferdienst/realtime-flow-chart'
+import { SchichtPrognosePanel } from './schicht-prognose'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -970,6 +971,8 @@ export function LieferdienstClient() {
               <LieferdienstZonenumsatz />
               {/* Phase 89: Stündlicher Durchsatz-Sparkline */}
               <LieferdienstDurchsatzPanel />
+              {/* Schicht-Prognose mit Tagesziel-Vergleich: visuell + KPI-Grid */}
+              <SchichtPrognosePanel />
               {/* Schicht-Prognose: projizierter Tagesabschluss basierend auf aktuellem Tempo */}
               <LieferdienstSchichtPrognose />
               {/* Top-Artikel: meistbestellte Artikel heute */}

@@ -65,6 +65,7 @@ import { ZoneWaitHeatmap } from './zone-wait-heatmap';
 import { LiveTourTracker } from './live-tour-tracker';
 import { DriverReturnForecast } from './driver-return-forecast';
 import { EtaAccuracyLive } from './eta-accuracy-live';
+import { DispatchTourHealthStrip } from './tour-health-strip';
 
 type Driver = {
   employee_id: string;
@@ -729,6 +730,9 @@ export function DispatchBoard({
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
         </div>
       )}
+
+      {/* Tour-Puls: Kompakter Health-Streifen für alle aktiven Touren */}
+      <DispatchTourHealthStrip batches={batches} />
 
       {/* Küchen-Pipeline: Bestellungen die bald fertig werden — für Fahrer-Vorplanung */}
       {pipelineOrders.length > 0 && (

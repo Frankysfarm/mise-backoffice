@@ -19,6 +19,7 @@ import { KitchenStationColorGrid } from './station-color-grid';
 import { KitchenBatchPrepGrouping } from './batch-prep-grouping';
 import { KitchenItemComplexityStrip } from './item-complexity-strip';
 import { KitchenShiftPerformanceBadge } from './schicht-performance-badge';
+import { KitchenPrepProgressCards } from './prep-progress-cards';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -511,6 +512,9 @@ export function KitchenBoard({
 
       {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}
       <KitchenStationColorGrid orders={filtered} timings={timings} />
+
+      {/* Kochfortschritt-Ringe: visueller Fortschritt je kochender Bestellung */}
+      <KitchenPrepProgressCards orders={filtered} timings={timings} />
 
       {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
       <KitchenSmartCountdownGrid

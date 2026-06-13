@@ -20,6 +20,7 @@ import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
 import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
+import { SchichtPuls } from './schicht-puls';
 
 
 type Driver = {
@@ -640,6 +641,15 @@ export function FahrerApp({
                       })()}
                     </div>
                   </div>
+                )}
+
+                {/* Schicht-Puls: Live-Tempo-Ring mit Wochenvergleich */}
+                {todayStats && status?.online_seit && (
+                  <SchichtPuls
+                    onlineSinceIso={status.online_seit}
+                    totalDeliveries={todayStats.deliveries}
+                    weekHistory={rankData?.history ?? []}
+                  />
                 )}
 
                 {/* Schicht-Effizienz: Liefertempo vs. Ziel */}

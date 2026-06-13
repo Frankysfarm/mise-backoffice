@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Clock, Zap } from 'lucide-react';
+import { Bike, Clock, Zap } from 'lucide-react';
 
 interface LiveEtaData {
   eta_min: number;
@@ -131,6 +131,17 @@ export function LiveWaitBadge({
 
       {!isSurge && isBusy && (
         <span className="text-[10px] font-semibold opacity-80">{style.label}</span>
+      )}
+
+      {/* Fahrer-Status: nur sichtbar wenn Daten geladen */}
+      {data?.drivers_online !== undefined && data.drivers_online > 0 && !isSurge && (
+        <span className="flex items-center gap-0.5 text-[10px] font-medium opacity-70">
+          <Bike className="h-3 w-3" />
+          {data.drivers_online}
+        </span>
+      )}
+      {data?.drivers_online === 0 && (
+        <span className="text-[10px] font-black text-red-600">Keine Fahrer!</span>
       )}
     </div>
   );
