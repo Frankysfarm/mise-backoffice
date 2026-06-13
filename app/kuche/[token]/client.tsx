@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import {
-  Truck, ShoppingBag, MapPin, BellRing, Printer, Check, Maximize, Volume2, VolumeX,
-  Undo2, X, UtensilsCrossed, RotateCcw, Bike, AlertTriangle,
+  Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
+  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle,
 } from 'lucide-react';
 import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing } from './actions';
 
@@ -41,7 +41,6 @@ export default function KitchenMonitor({
   const [items, setItems] = useState<MenuItem[]>(initialItems);
   const [soldOutOpen, setSoldOutOpen] = useState(false);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
-  const [pickTime, setPickTime] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [stornoConfirm, setStornoConfirm] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -104,7 +103,7 @@ export default function KitchenMonitor({
   function showToast(text: string, undo: () => void) { setToast({ text, undo }); setTimeout(() => setToast((t) => (t && t.text === text ? null : t)), 5000); }
 
   async function onAccept(orderId: string, prepMin: number) {
-    setBusy(orderId); setAcceptingId(null); setPickTime(null);
+    setBusy(orderId); setAcceptingId(null);
     const ord = orders.find((o) => o.id === orderId);
     await acceptOrder(token, orderId, prepMin);
     if (autoPrint && ord) printBon(ord, prepMin);
