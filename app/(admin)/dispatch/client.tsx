@@ -63,6 +63,7 @@ import { ZoneCoverageCard } from './zone-coverage-card';
 import { TourRouteOverview } from './tour-route-overview';
 import { ZoneWaitHeatmap } from './zone-wait-heatmap';
 import { LiveTourTracker } from './live-tour-tracker';
+import { DriverReturnForecast } from './driver-return-forecast';
 
 type Driver = {
   employee_id: string;
@@ -982,6 +983,11 @@ export function DispatchBoard({
 
       {/* Live-Tour-Tracker: kompakte Statuskarten aller aktiven Touren mit Farbkodierung */}
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
+
+      {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
+      {drivers.length > 0 && (
+        <DriverReturnForecast drivers={drivers} batches={batches} />
+      )}
 
       {/* Tour-Routen-Übersicht: alle aktiven Touren mit Stopp-Fortschritt und ETA */}
       <TourRouteOverview batches={batches} />
