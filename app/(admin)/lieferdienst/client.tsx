@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, YAxis } from 'recharts'
 import { Order, OrderStatus, mockOrders, generateRandomOrder } from '@/lib/lieferdienst/orders'
@@ -28,7 +28,7 @@ import {
   Clock, Bell, Volume2, VolumeX, ChefHat, Package, Truck, Users,
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
   BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
-  Award, Target, Star, MapPin,
+  Award, Target, Star, MapPin, ArrowRight, Activity,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -890,6 +890,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Echtzeit-Bestellpipeline: Live-Funnel aller Auftragsphasen */}
+              <LiveOrderFunnelPanel />
               {/* Schicht-Gesamtscore: gewichteter KPI-Score (neu) */}
               <LieferdienstGesamtScore orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               {/* 7-Tage Wochenübersicht */}
@@ -2501,6 +2503,141 @@ function LieferdienstGesamtScore({ orders, completedOrders, schichtMinutes }: {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   LiveOrderFunnelPanel
+   Echtzeit-Bestellpipeline: zeigt Anzahl offener Bestellungen
+   je Statusphase als visuellen Trichter mit Pfeilen.
+────────────────────────────────────────────────────────── */
+function LiveOrderFunnelPanel() {
+  const supabase = createClient();
+  type Stage = { status: string; label: string; icon: React.ElementType; color: string; bg: string; dot: string };
+  const STAGES: Stage[] = [
+    { status: 'neu',            label: 'Eingegangen', icon: Bell,          color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',    dot: 'bg-amber-500' },
+    { status: 'bestätigt',      label: 'Angenommen',  icon: CheckCircle2,  color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200',      dot: 'bg-blue-500' },
+    { status: 'in_zubereitung', label: 'Kochend',     icon: ChefHat,       color: 'text-orange-700',  bg: 'bg-orange-50 border-orange-200',  dot: 'bg-orange-500' },
+    { status: 'fertig',         label: 'Fertig',      icon: Package,       color: 'text-purple-700',  bg: 'bg-purple-50 border-purple-200',  dot: 'bg-purple-500' },
+    { status: 'unterwegs',      label: 'Unterwegs',   icon: Truck,         color: 'text-matcha-700',  bg: 'bg-matcha-50 border-matcha-200',  dot: 'bg-matcha-500' },
+  ];
+
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [deliveredToday, setDeliveredToday] = useState<number>(0);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const results = await Promise.all(
+          STAGES.map(s =>
+            supabase.from('customer_orders')
+              .select('id', { count: 'exact', head: true })
+              .eq('status', s.status)
+              .then(({ count }) => ({ status: s.status, count: count ?? 0 }))
+          )
+        );
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const { count: delivered } = await supabase
+          .from('customer_orders')
+          .select('id', { count: 'exact', head: true })
+          .in('status', ['geliefert', 'abgeholt', 'abgeschlossen'])
+          .gte('bestellt_am', today.toISOString());
+        const map: Record<string, number> = {};
+        for (const r of results) map[r.status] = r.count;
+        setCounts(map);
+        setDeliveredToday(delivered ?? 0);
+      } catch {}
+    };
+    load();
+    const iv = setInterval(load, 20_000);
+    // Sekunden-Ticker für Live-Gefühl
+    const tick = setInterval(() => setTick(n => n + 1), 20_000);
+    return () => { clearInterval(iv); clearInterval(tick); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const total = STAGES.reduce((s, st) => s + (counts[st.status] ?? 0), 0);
+
+  return (
+    <div className="rounded-xl bg-white border border-stone-200 px-4 py-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-matcha-600 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">Live-Bestellpipeline</span>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-stone-400">
+          <span className="font-bold text-stone-600">{total} aktiv</span>
+          {deliveredToday > 0 && <span>· {deliveredToday} heute geliefert</span>}
+        </div>
+      </div>
+
+      {/* Funnel row */}
+      <div className="flex items-stretch gap-1 overflow-x-auto pb-1">
+        {STAGES.map((stage, i) => {
+          const count = counts[stage.status] ?? 0;
+          const Icon = stage.icon;
+          const isBottleneck = count >= 5;
+          return (
+            <React.Fragment key={stage.status}>
+              <div className={`flex-1 min-w-[72px] rounded-xl border ${stage.bg} p-2.5 flex flex-col items-center gap-1.5 transition-all ${isBottleneck ? 'ring-2 ring-red-300 animate-pulse' : ''}`}>
+                <div className="flex items-center gap-1">
+                  <span className={`h-1.5 w-1.5 rounded-full ${count > 0 ? stage.dot : 'bg-stone-200'} shrink-0`} />
+                  <Icon className={`h-3 w-3 ${stage.color} shrink-0`} />
+                </div>
+                <div className={`text-2xl font-black tabular-nums leading-none ${stage.color} ${count === 0 ? 'opacity-30' : ''}`}>
+                  {count}
+                </div>
+                <div className={`text-[8px] font-bold text-center leading-tight ${stage.color} opacity-80`}>
+                  {stage.label}
+                </div>
+                {isBottleneck && (
+                  <div className="text-[7px] font-black text-red-600 bg-red-50 rounded-full px-1 py-0.5 leading-none">
+                    Rückstau!
+                  </div>
+                )}
+              </div>
+              {i < STAGES.length - 1 && (
+                <div className="flex items-center self-center">
+                  <ArrowRight className="h-3 w-3 text-stone-300 shrink-0" />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+        {/* Delivered today badge */}
+        <div className="flex items-center self-center">
+          <ArrowRight className="h-3 w-3 text-stone-300 shrink-0" />
+        </div>
+        <div className="flex-1 min-w-[72px] rounded-xl border bg-matcha-50 border-matcha-200 p-2.5 flex flex-col items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-matcha-500 shrink-0" />
+            <CheckCircle2 className="h-3 w-3 text-matcha-600 shrink-0" />
+          </div>
+          <div className="text-2xl font-black tabular-nums leading-none text-matcha-700">
+            {deliveredToday}
+          </div>
+          <div className="text-[8px] font-bold text-center leading-tight text-matcha-600 opacity-80">
+            Geliefert heute
+          </div>
+        </div>
+      </div>
+
+      {/* Bottleneck-Hinweis */}
+      {(() => {
+        const bottleneck = STAGES.find(s => (counts[s.status] ?? 0) >= 5);
+        if (!bottleneck) return null;
+        const Icon = bottleneck.icon;
+        return (
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-[10px]">
+            <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+            <span className="font-bold text-red-700">
+              Rückstau bei <span className="font-black">{bottleneck.label}</span>: {counts[bottleneck.status]} Bestellungen warten
+            </span>
+          </div>
+        );
+      })()}
     </div>
   );
 }

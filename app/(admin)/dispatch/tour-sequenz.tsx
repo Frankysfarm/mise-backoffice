@@ -2,7 +2,82 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, Clock, MapPin, Route, ChevronRight, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Clock, MapPin, Route, ChevronRight, AlertTriangle, Timer } from 'lucide-react';
+
+/* ── TourArcTimer: SVG-Bogen zeigt vergangene Tourzeit als Kreisausschnitt ── */
+function TourArcTimer({
+  startzeit,
+  totalEtaMin,
+  doneCount,
+  totalStops,
+}: {
+  startzeit: string | null | undefined;
+  totalEtaMin: number | null;
+  doneCount: number;
+  totalStops: number;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 5000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (!startzeit || !totalEtaMin) return null;
+
+  const totalMs = totalEtaMin * 60_000;
+  const elapsedMs = Date.now() - new Date(startzeit).getTime();
+  const pct = Math.min(1, Math.max(0, elapsedMs / totalMs));
+  const stopsPct = totalStops > 0 ? doneCount / totalStops : 0;
+  const isOverdue = elapsedMs > totalMs;
+
+  const SIZE = 56;
+  const R = SIZE / 2 - 6;
+  const circ = 2 * Math.PI * R;
+  // Time arc
+  const timeDash = pct * circ;
+  const timeColor = isOverdue ? '#ef4444' : pct > 0.8 ? '#f97316' : pct > 0.6 ? '#f59e0b' : '#22c55e';
+  // Stops arc (inner)
+  const stopR = R - 7;
+  const stopCirc = 2 * Math.PI * stopR;
+  const stopDash = stopsPct * stopCirc;
+
+  const elapsedMin = Math.floor(elapsedMs / 60_000);
+  const remainMin = Math.max(0, Math.round((totalMs - elapsedMs) / 60_000));
+
+  return (
+    <div className="flex flex-col items-center shrink-0" title={`${elapsedMin} Min vergangen · ${remainMin} Min verbleibend`}>
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
+        {/* Track */}
+        <circle cx={SIZE/2} cy={SIZE/2} r={R} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth={5} />
+        {/* Time progress arc */}
+        <circle
+          cx={SIZE/2} cy={SIZE/2} r={R} fill="none"
+          stroke={timeColor} strokeWidth={5} strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={circ - timeDash}
+          style={{ transition: 'stroke-dashoffset 5s linear' }}
+        />
+        {/* Stops progress inner arc */}
+        <circle cx={SIZE/2} cy={SIZE/2} r={stopR} fill="none" stroke="rgba(34,197,94,0.25)" strokeWidth={3.5} />
+        <circle
+          cx={SIZE/2} cy={SIZE/2} r={stopR} fill="none"
+          stroke="#22c55e" strokeWidth={3.5} strokeLinecap="round"
+          strokeDasharray={stopCirc}
+          strokeDashoffset={stopCirc - stopDash}
+          style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+        />
+      </svg>
+      <div className="mt-0.5 text-center">
+        <div className={cn('text-[9px] font-black tabular-nums leading-none', isOverdue ? 'text-red-600' : 'text-muted-foreground')}>
+          {isOverdue ? `+${Math.round((elapsedMs - totalMs) / 60_000)}m` : `${remainMin}m`}
+        </div>
+        <div className="text-[8px] text-muted-foreground leading-none mt-0.5">
+          {isOverdue ? 'überfällig' : 'verbleibend'}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 type Stop = {
   id: string;
@@ -119,21 +194,29 @@ function BatchSequenzCard({ batch }: { batch: Batch }) {
             </div>
           </div>
         </div>
-        <div className="shrink-0 text-right">
-          {secsLeft !== null ? (
-            <div className={cn(
-              'font-mono text-[11px] font-black tabular-nums',
-              isOverdue ? 'text-red-600' : secsLeft < 300 ? 'text-orange-600' : 'text-matcha-700',
-            )}>
-              {isOverdue ? (
-                <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3" />+{Math.abs(Math.floor(secsLeft / 60))} Min</span>
-              ) : (
-                `${Math.floor(secsLeft / 60)} Min`
-              )}
+        <div className="shrink-0 flex items-center gap-2">
+          <TourArcTimer
+            startzeit={batch.startzeit}
+            totalEtaMin={batch.total_eta_min}
+            doneCount={doneCount}
+            totalStops={stops.length}
+          />
+          <div className="text-right">
+            {secsLeft !== null ? (
+              <div className={cn(
+                'font-mono text-[11px] font-black tabular-nums',
+                isOverdue ? 'text-red-600' : secsLeft < 300 ? 'text-orange-600' : 'text-matcha-700',
+              )}>
+                {isOverdue ? (
+                  <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3" />+{Math.abs(Math.floor(secsLeft / 60))} Min</span>
+                ) : (
+                  `${Math.floor(secsLeft / 60)} Min`
+                )}
+              </div>
+            ) : null}
+            <div className="text-[10px] text-muted-foreground">
+              {doneCount}/{stops.length} zugestellt
             </div>
-          ) : null}
-          <div className="text-[10px] text-muted-foreground">
-            {doneCount}/{stops.length} zugestellt
           </div>
         </div>
       </div>

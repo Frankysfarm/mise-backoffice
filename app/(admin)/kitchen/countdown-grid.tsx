@@ -290,10 +290,12 @@ export function KitchenSmartCountdownGrid({
   orders,
   timings,
   driverETAs,
+  bigDisplay = false,
 }: {
   orders: Order[];
   timings: KitchenTiming[];
   driverETAs?: DriverBatchETA[];
+  bigDisplay?: boolean;
 }) {
   const cooking = orders.filter((o) => o.status === 'in_zubereitung');
   if (cooking.length === 0) return null;
@@ -343,6 +345,78 @@ export function KitchenSmartCountdownGrid({
   // Queue clearance: how many minutes until the last order is done
   const maxSecsLeft = Math.max(...sorted.map(o => getSecsLeft(o, timingMap.get(o.id))));
   const clearMinutes = maxSecsLeft > 0 ? Math.ceil(maxSecsLeft / 60) : null;
+
+  /* ── TV / Big-Display Modus: maximale Lesbarkeit auf Küchendisplay ── */
+  if (bigDisplay) {
+    const urgentOrders = sorted.filter(o => {
+      const s = getSecsLeft(o, timingMap.get(o.id));
+      return s <= 0 || s <= 300;
+    });
+    const showOrders = urgentOrders.length > 0 ? urgentOrders : sorted.slice(0, 6);
+    return (
+      <div className="rounded-2xl border-2 border-orange-300 bg-orange-50 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ChefHat className="h-5 w-5 text-orange-600" />
+            <span className="text-base font-black text-orange-800">
+              {cooking.length} In Zubereitung
+            </span>
+            {overdueCount > 0 && (
+              <span className="rounded-full bg-red-600 text-white px-2.5 py-1 text-sm font-black animate-pulse">
+                ⚠ {overdueCount} ÜBERFÄLLIG
+              </span>
+            )}
+          </div>
+          <span className="text-[11px] font-bold text-orange-600 bg-orange-100 rounded-full px-3 py-1">
+            Küche: {healthLabel} {healthScore}%
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {showOrders.map(o => {
+            const s = getSecsLeft(o, timingMap.get(o.id));
+            const isOver = s <= 0;
+            const isUrgent = s > 0 && s <= 120;
+            const minsLeft = Math.abs(Math.floor(s / 60));
+            const secsOnly = Math.abs(Math.round(s % 60));
+            const station = detectStation(o.items);
+            const meta = STATION_META[station];
+            const SIcon = meta.icon;
+            return (
+              <div key={o.id} className={cn(
+                'rounded-xl border-2 px-4 py-3 flex flex-col gap-1',
+                isOver ? 'border-red-500 bg-red-100 animate-pulse' :
+                isUrgent ? 'border-orange-400 bg-orange-100' :
+                'border-matcha-300 bg-white',
+              )}>
+                <div className={cn(
+                  'font-mono text-4xl font-black tabular-nums leading-none',
+                  isOver ? 'text-red-700' : isUrgent ? 'text-orange-700' : 'text-matcha-700',
+                )}>
+                  {isOver ? `+${minsLeft}:${String(secsOnly).padStart(2, '0')}` : `${minsLeft}:${String(secsOnly).padStart(2, '0')}`}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className={cn('flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold', meta.color)}>
+                    <SIcon className="h-2.5 w-2.5" />{meta.label}
+                  </span>
+                  <span className="text-xs font-black text-muted-foreground">{o.bestellnummer}</span>
+                </div>
+                <div className="text-xs font-semibold truncate">{o.kunde_name}</div>
+                <div className="text-[10px] text-muted-foreground truncate">
+                  {o.items.slice(0, 2).map(it => `${it.menge}× ${it.name}`).join(', ')}
+                  {o.items.length > 2 && ` +${o.items.length - 2}`}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {cooking.length > showOrders.length && (
+          <div className="text-center text-sm font-bold text-orange-600 bg-orange-100 rounded-full py-1">
+            +{cooking.length - showOrders.length} weitere kochen
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border bg-card p-3 space-y-3">

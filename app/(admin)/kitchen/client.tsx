@@ -472,6 +472,7 @@ export function KitchenBoard({
       <KitchenSmartCountdownGrid
         orders={filtered}
         timings={timings}
+        bigDisplay={bigDisplay}
         driverETAs={(() => {
           const now = Date.now();
           return batches

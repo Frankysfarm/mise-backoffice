@@ -688,6 +688,16 @@ export function DeliveryView({
       {/* Tour-Fortschritts-Dots: alle Stopps als nummerierte Punkte */}
       {sorted.length > 1 && <TourProgressDots stops={sorted} doneCount={doneCount} />}
 
+      {/* Kommende-Stopps-Timeline: horizontale Übersicht aller verbleibenden Stopps mit ETA */}
+      {openStops.length > 1 && (
+        <UpcomingStopsTimeline
+          stops={sorted}
+          doneCount={doneCount}
+          batchStartedAt={batchStartedAt}
+          totalEtaMin={totalEtaMin}
+        />
+      )}
+
       {/* NaviWidget — Turn-by-Turn Navigation zum nächsten Stopp */}
       {nextStop && !allDone && nextStop.order.kunde_lat && nextStop.order.kunde_lng && (
         <NaviWidget
@@ -2520,6 +2530,124 @@ function TourProgressDots({ stops, doneCount }: { stops: Stop[]; doneCount: numb
         <span className="ml-2 shrink-0 text-[9px] text-matcha-500 font-bold tabular-nums self-start mt-2">
           {doneCount}/{stops.length}
         </span>
+      </div>
+    </div>
+  );
+}
+
+/* ── UpcomingStopsTimeline ──────────────────────────────────────────────────
+   Kompakte horizontale Liste aller verbleibenden Stopps mit ETA-Countdown
+   und Distanz-Badge. Zeigt nur wenn >1 offener Stopp vorhanden.
+──────────────────────────────────────────────────────────────────────────── */
+function UpcomingStopsTimeline({
+  stops,
+  doneCount,
+  batchStartedAt,
+  totalEtaMin,
+}: {
+  stops: Stop[];
+  doneCount: number;
+  batchStartedAt?: string | null;
+  totalEtaMin?: number | null;
+}) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick(n => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const openStops = stops.filter(s => !s.geliefert_am).sort((a, b) => a.reihenfolge - b.reihenfolge);
+  if (openStops.length <= 1) return null;
+
+  // Per-stop ETA from batch start + proportional time
+  const getStopEtaStr = (stop: Stop): { str: string; isLate: boolean; isSoon: boolean } | null => {
+    // Prefer DB eta_earliest
+    if (stop.order.eta_earliest) {
+      const ms = new Date(stop.order.eta_earliest).getTime() - Date.now();
+      const absMins = Math.abs(Math.round(ms / 60_000));
+      const isLate = ms < 0;
+      return {
+        str: isLate ? `+${absMins}m` : `${absMins}m`,
+        isLate,
+        isSoon: !isLate && ms < 5 * 60_000,
+      };
+    }
+    // Fallback: proportional from tour ETA
+    if (batchStartedAt && totalEtaMin && stops.length > 0) {
+      const etaMs = new Date(batchStartedAt).getTime() + (stop.reihenfolge / stops.length) * totalEtaMin * 60_000;
+      const ms = etaMs - Date.now();
+      const absMins = Math.abs(Math.round(ms / 60_000));
+      const isLate = ms < 0;
+      return { str: isLate ? `+${absMins}m` : `${absMins}m`, isLate, isSoon: !isLate && ms < 5 * 60_000 };
+    }
+    return null;
+  };
+
+  return (
+    <div className="px-4 mb-2">
+      <div className="text-[8px] font-black uppercase tracking-widest text-matcha-400 mb-1.5">
+        Kommende Stopps · {openStops.length} verbleibend
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {openStops.map((stop, idx) => {
+          const isNext = idx === 0;
+          const eta = getStopEtaStr(stop);
+          const hasDist = stop.distanz_zum_vorgaenger_m != null && stop.distanz_zum_vorgaenger_m > 0;
+          const distStr = hasDist
+            ? stop.distanz_zum_vorgaenger_m! >= 1000
+              ? `${(stop.distanz_zum_vorgaenger_m! / 1000).toFixed(1)} km`
+              : `${stop.distanz_zum_vorgaenger_m} m`
+            : null;
+          const isCash = !stop.order.bezahlt || stop.order.zahlungsart === 'bar';
+
+          return (
+            <div
+              key={stop.id}
+              className={cn(
+                'shrink-0 rounded-xl border p-2.5 flex flex-col gap-1 transition-all',
+                'min-w-[110px] max-w-[140px]',
+                isNext
+                  ? 'border-accent/50 bg-accent/10'
+                  : 'border-white/10 bg-white/5',
+              )}
+            >
+              <div className="flex items-center justify-between gap-1">
+                <span className={cn(
+                  'h-5 w-5 shrink-0 rounded-full flex items-center justify-center font-black text-[10px]',
+                  isNext ? 'bg-accent text-matcha-900' : 'bg-white/10 text-matcha-400',
+                )}>
+                  {stop.reihenfolge}
+                </span>
+                {isCash && (
+                  <span className="text-[8px] font-black text-amber-300 bg-amber-500/20 rounded-full px-1">BAR</span>
+                )}
+                {eta && (
+                  <span className={cn(
+                    'text-[9px] font-black tabular-nums rounded-full px-1.5 py-0.5 shrink-0',
+                    eta.isLate ? 'bg-red-500/30 text-red-300 animate-pulse' :
+                    eta.isSoon ? 'bg-amber-500/30 text-amber-200' :
+                    'bg-white/8 text-matcha-300',
+                  )}>
+                    {eta.str}
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] font-bold text-matcha-100 truncate leading-tight">
+                {stop.order.kunde_name}
+              </div>
+              {stop.order.kunde_adresse && (
+                <div className="text-[9px] text-matcha-400 truncate leading-tight">
+                  {stop.order.kunde_adresse.replace(/,\s*\d{5}.*$/, '')}
+                </div>
+              )}
+              {distStr && (
+                <div className="text-[8px] text-matcha-500 font-mono">
+                  {distStr}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
