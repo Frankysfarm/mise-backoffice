@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search } from 'lucide-react';
+import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X } from 'lucide-react';
 
 export type V2OrderType = 'lieferung' | 'abholung';
 
@@ -61,6 +61,7 @@ export function StorefrontV2({
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [pulse, setPulse] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [cartSheetOpen, setCartSheetOpen] = React.useState(false);
   const [liveEta, setLiveEta] = React.useState<{
     eta_min: number;
     load: string;
@@ -471,6 +472,190 @@ export function StorefrontV2({
         </footer>
       </div>
 
+      {/* === CART BOTTOM SHEET === */}
+      {cartSheetOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Warenkorb"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 60,
+            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'flex-end',
+          }}
+          onClick={() => setCartSheetOpen(false)}
+        >
+          <div
+            style={{
+              width: '100%', maxHeight: '88vh',
+              background: 'var(--bg-primary, #fff)',
+              borderRadius: '20px 20px 0 0',
+              display: 'flex', flexDirection: 'column',
+              overflow: 'hidden',
+              animation: 'v2-slide-up 0.26s cubic-bezier(0.32,0.72,0,1) both',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <style>{`@keyframes v2-slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
+            {/* Handle + Header */}
+            <div style={{ padding: '12px 20px 0', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'var(--border, rgba(0,0,0,0.12))', margin: '0 auto 14px' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div>
+                  <div className="v2-caption v2-text-muted" style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.6rem', fontWeight: 800 }}>Warenkorb</div>
+                  <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>
+                    {totalItems === 0 ? 'Leer' : `${totalItems} Artikel`}
+                  </div>
+                </div>
+                <button
+                  aria-label="Schließen"
+                  onClick={() => setCartSheetOpen(false)}
+                  style={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    border: '1.5px solid var(--border, rgba(0,0,0,0.1))',
+                    background: 'transparent', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-muted, #6b7280)',
+                  }}
+                >
+                  <X size={17} strokeWidth={2.2} />
+                </button>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
+              {totalItems === 0 ? (
+                <div style={{ textAlign: 'center', padding: '48px 0', opacity: 0.45 }}>
+                  <ShoppingBag size={38} strokeWidth={1.3} style={{ margin: '0 auto 12px', display: 'block' }} />
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Noch nichts im Warenkorb</div>
+                </div>
+              ) : (
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  {Array.from(cart.entries()).map(([itemId, qty]) => {
+                    const item = items.find((i) => i.id === itemId);
+                    if (!item) return null;
+                    return (
+                      <li key={itemId} style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '11px 0',
+                        borderBottom: '1px solid var(--border, rgba(0,0,0,0.06))',
+                      }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 2 }}>{item.name}</div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted, #6b7280)' }}>{formatEuro(item.preis)}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                          <button
+                            style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            border: '1.5px solid var(--border, rgba(0,0,0,0.12))',
+                            background: 'transparent', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
+                            onClick={() => {
+                              setCart((prev) => {
+                                const next = new Map(prev);
+                                const cur = next.get(itemId) ?? 0;
+                                if (cur <= 1) next.delete(itemId); else next.set(itemId, cur - 1);
+                                return next;
+                              });
+                            }}
+                          >
+                            <Minus size={12} strokeWidth={2.5} />
+                          </button>
+                          <span style={{ fontWeight: 700, fontSize: '0.88rem', minWidth: 18, textAlign: 'center' }}>{qty}</span>
+                          <button
+                            style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            border: '1.5px solid var(--border, rgba(0,0,0,0.12))',
+                            background: 'transparent', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
+                            onClick={() => {
+                              setCart((prev) => {
+                                const next = new Map(prev);
+                                next.set(itemId, (next.get(itemId) ?? 0) + 1);
+                                return next;
+                              });
+                            }}
+                          >
+                            <Plus size={12} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: '0.88rem', width: 52, textAlign: 'right', flexShrink: 0 }}>
+                          {formatEuro(item.preis * qty)}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Summary + CTA */}
+            {totalItems > 0 && (
+              <div style={{ padding: '14px 20px 24px', borderTop: '1px solid var(--border, rgba(0,0,0,0.06))', flexShrink: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--text-muted, #6b7280)' }}>
+                    <span>Zwischensumme</span><span>{formatEuro(total)}</span>
+                  </div>
+                  {orderType === 'lieferung' && deliveryFee > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--text-muted, #6b7280)' }}>
+                      <span>Liefergebühr</span><span>{formatEuro(deliveryFee)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1rem', marginTop: 4 }}>
+                    <span>Gesamt</span>
+                    <span>{formatEuro(total + (orderType === 'lieferung' ? deliveryFee : 0))}</span>
+                  </div>
+                </div>
+
+                {/* Live-ETA-Hinweis */}
+                {liveEta && orderType === 'lieferung' && reachedMin && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+                    padding: '7px 11px', borderRadius: 9,
+                    background: liveEta.load === 'busy' ? 'rgba(239,68,68,0.07)' : liveEta.load === 'normal' ? 'rgba(251,191,36,0.08)' : 'rgba(34,197,94,0.07)',
+                  }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: liveEta.load === 'busy' ? '#ef4444' : liveEta.load === 'normal' ? '#fbbf24' : '#22c55e' }} />
+                    <span style={{ fontSize: '0.76rem', fontWeight: 600, color: liveEta.load === 'busy' ? '#dc2626' : liveEta.load === 'normal' ? '#d97706' : '#16a34a' }}>
+                      ~{liveEta.eta_min + (liveEta.eta_extension_min ?? 0)} Min
+                      {liveEta.load === 'busy' ? ' · Gerade viel los' : liveEta.load === 'normal' ? ' · Normal' : ' · Küche bereit'}
+                    </span>
+                  </div>
+                )}
+
+                {!reachedMin && orderType === 'lieferung' && (
+                  <div style={{ padding: '7px 11px', borderRadius: 9, marginBottom: 12, background: 'rgba(251,191,36,0.1)', fontSize: '0.78rem', fontWeight: 600, color: '#92400e' }}>
+                    Noch <strong>{formatEuro(remainingToMin)}</strong> bis zum Mindestbestellwert
+                  </div>
+                )}
+
+                <button
+                  disabled={orderType === 'lieferung' && !reachedMin}
+                  style={{
+                    width: '100%', height: 50, borderRadius: 13,
+                    border: 'none',
+                    cursor: orderType === 'lieferung' && !reachedMin ? 'not-allowed' : 'pointer',
+                    background: orderType === 'lieferung' && !reachedMin
+                      ? 'var(--surface-2, rgba(0,0,0,0.06))'
+                      : 'var(--accent, #111)',
+                    color: orderType === 'lieferung' && !reachedMin ? 'var(--text-muted, #9ca3af)' : '#fff',
+                    fontWeight: 700, fontSize: '0.95rem',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  }}
+                  onClick={() => { if (orderType === 'lieferung' && !reachedMin) return; setCartSheetOpen(false); }}
+                >
+                  <ShoppingBag size={17} strokeWidth={2} />
+                  Zur Kasse · {formatEuro(total + (orderType === 'lieferung' ? deliveryFee : 0))}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* === CART BAR === */}
       <div
         className="v2-cart-bar"
@@ -478,6 +663,8 @@ export function StorefrontV2({
         data-pulse={pulse}
         role="region"
         aria-label="Warenkorb"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setCartSheetOpen(true)}
       >
         <div className="v2-cart-bar__left">
           <span className="v2-cart-bar__count">{totalItems}</span>

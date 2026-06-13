@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–124 abgeschlossen. Build sauber. 205 Seiten. Deployment-bereit.**
+**Phasen 1–125 abgeschlossen. Build sauber. 205 Seiten. Deployment-bereit.**
+**Frontend-Ingenieur — 2026-06-13: Phase 125 abgeschlossen. V2-Warenkorb-BottomSheet implementiert (Cart-Bar-Click bisher inaktiv). Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 124 abgeschlossen. Aurora-Warenkorb-BottomSheet implementiert (alert()-Stub ersetzt). Build 205 Seiten sauber.**
 **Frontend-Ingenieur — 2026-06-13: Phase 123 abgeschlossen. LiveWaitBadge in CartSidebar integriert (bisher ungenutzt). Build 205 Seiten sauber.**
 **CEO Review #89 — 2026-06-13: Phase 121 (Menu-Analytics Backend + API + Client + Cron) + Phase 122 (SchichtVelocity, LiveOpsHeader, AuroraTrackingBanner) geprüft. 0 Bugs. TypeScript Exit 0. Build 205 Seiten sauber. Alle Systeme grün.**
