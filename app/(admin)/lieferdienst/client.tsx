@@ -29,6 +29,7 @@ import {
   Settings as SettingsIcon, WifiOff, Globe, Phone, TrendingUp,
   BarChart3, Euro, AlertTriangle, CheckCircle2, XCircle, Route,
   Award, Target, Star, MapPin, ArrowRight, Activity,
+  Calendar, ChevronUp, ChevronDown, Loader2,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -997,6 +998,8 @@ export function LieferdienstClient() {
               <LieferdienstZuverlassigkeitsPanel />
               {/* Kundenzufriedenheit: Ø-Rating, positive/negative Rate, Top-Fahrer, Kommentare */}
               <CustomerSatisfactionPanel locationId={locationId} />
+              {/* Besetzungsplan: 7-Tage Forecast vs. geplante Schichten */}
+              <SchichtPlanPanel locationId={locationId} />
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
@@ -2860,6 +2863,193 @@ function CustomerSatisfactionPanel({ locationId }: { locationId: string }) {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------ SchichtPlanPanel ------------------------------ */
+
+type CoverageStatus = 'ok' | 'low' | 'gap' | 'over' | 'off';
+
+type StaffingSlot = {
+  hourLocal: string;
+  dayLabel: string;
+  expectedOrders: number;
+  recommendedMin: number;
+  recommendedTarget: number;
+  scheduledDrivers: number;
+  status: CoverageStatus;
+};
+
+type StaffingDay = {
+  date: string;
+  dayLabel: string;
+  slots: StaffingSlot[];
+  gapCount: number;
+  lowCount: number;
+  okCount: number;
+  coveragePct: number;
+};
+
+type StaffingPlan = {
+  days: StaffingDay[];
+  summary: {
+    totalGaps: number;
+    totalLow: number;
+    totalOk: number;
+    avgCoveragePct: number;
+    peakDriverNeed: number;
+  };
+};
+
+const STATUS_COLOR: Record<CoverageStatus, string> = {
+  ok:   'bg-matcha-400',
+  over: 'bg-matcha-600',
+  low:  'bg-amber-400',
+  gap:  'bg-red-400',
+  off:  'bg-stone-200',
+};
+
+function SchichtPlanPanel({ locationId }: { locationId: string }) {
+  const [open, setOpen] = useState(false);
+  const [plan, setPlan] = useState<StaffingPlan | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(0);
+
+  useEffect(() => {
+    if (!open || plan) return;
+    setLoading(true);
+    fetch(`/api/delivery/admin/shift-planner?location_id=${locationId}&days=7`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.days) setPlan(d as StaffingPlan); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [open, locationId, plan]);
+
+  const day = plan?.days[selectedDay];
+  const peakHour = day?.slots.reduce<StaffingSlot | null>((best, s) => {
+    if (s.status === 'off') return best;
+    if (!best || s.expectedOrders > best.expectedOrders) return s;
+    return best;
+  }, null);
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <Calendar className="h-4 w-4 text-matcha-600 shrink-0" />
+          <span className="text-sm font-bold text-stone-800">7-Tage Besetzungsplan</span>
+          {plan && (
+            <span className={`ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+              plan.summary.totalGaps > 0 ? 'bg-red-100 text-red-700' :
+              plan.summary.totalLow > 0 ? 'bg-amber-100 text-amber-700' :
+              'bg-matcha-50 text-matcha-700'
+            }`}>
+              {plan.summary.totalGaps > 0 ? `${plan.summary.totalGaps} Lücken` :
+               plan.summary.totalLow > 0 ? `${plan.summary.totalLow} knapp` :
+               `${Math.round(plan.summary.avgCoveragePct)}% Abdeckung`}
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+      </button>
+
+      {open && (
+        <div className="border-t border-stone-100 px-5 pb-5 pt-4">
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-stone-400 py-4">
+              <Loader2 className="h-4 w-4 animate-spin" />Lade Besetzungsplan…
+            </div>
+          )}
+
+          {!loading && plan && (
+            <>
+              {/* Summary KPIs */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Lücken', value: plan.summary.totalGaps, color: plan.summary.totalGaps > 0 ? 'text-red-600' : 'text-matcha-600' },
+                  { label: 'Knapp', value: plan.summary.totalLow, color: plan.summary.totalLow > 0 ? 'text-amber-600' : 'text-matcha-600' },
+                  { label: 'Abdeckung', value: `${Math.round(plan.summary.avgCoveragePct)}%`, color: 'text-matcha-700' },
+                  { label: 'Spitzen-Bedarf', value: `${plan.summary.peakDriverNeed} Fhr.`, color: 'text-stone-700' },
+                ].map((k) => (
+                  <div key={k.label} className="rounded-xl bg-stone-50 border border-stone-100 px-3 py-2.5 text-center">
+                    <div className={`font-display font-black text-lg leading-none ${k.color}`}>{k.value}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">{k.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Day selector */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3 -mx-1 px-1">
+                {plan.days.map((d, i) => (
+                  <button
+                    key={d.date}
+                    onClick={() => setSelectedDay(i)}
+                    className={`shrink-0 rounded-xl px-3 py-1.5 text-center transition ${
+                      selectedDay === i ? 'bg-matcha-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    <div className="text-[10px] font-bold leading-none">{d.dayLabel.split(' ')[0]}</div>
+                    <div className={`text-[11px] font-black leading-none mt-0.5 ${
+                      d.gapCount > 0 ? 'text-red-300' : d.lowCount > 0 ? 'text-amber-300' : ''
+                    }`}>
+                      {d.gapCount > 0 ? '⚠' : d.lowCount > 0 ? '~' : '✓'}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Hourly heatmap for selected day */}
+              {day && (
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-2">
+                    {day.dayLabel} — Stündliche Besetzung
+                    {peakHour && (
+                      <span className="ml-2 font-normal text-stone-500">
+                        Peak {peakHour.hourLocal} ({peakHour.expectedOrders} Bestellungen erwartet)
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-[auto_1fr_auto] gap-x-2 gap-y-1 text-[10px]">
+                    {day.slots.filter(s => s.status !== 'off').map((s, i) => (
+                      <React.Fragment key={i}>
+                        <span className="text-stone-400 tabular-nums font-mono">{s.hourLocal}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            className={`h-4 rounded-sm ${STATUS_COLOR[s.status]} transition-all`}
+                            style={{ width: `${Math.min(100, (s.scheduledDrivers / Math.max(1, s.recommendedTarget)) * 100)}%`, minWidth: 4 }}
+                            title={`${s.scheduledDrivers} geplant / ${s.recommendedTarget} benötigt`}
+                          />
+                          {s.status === 'gap' && <span className="text-red-500 font-bold">Lücke</span>}
+                          {s.status === 'low' && <span className="text-amber-500 font-bold">Knapp</span>}
+                        </div>
+                        <span className="text-stone-500 tabular-nums">{s.scheduledDrivers}/{s.recommendedTarget}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+
+                  {/* Legend */}
+                  <div className="mt-3 flex flex-wrap gap-3 text-[9px] text-stone-500">
+                    {([['ok', 'OK'], ['over', 'Überschuss'], ['low', 'Knapp'], ['gap', 'Lücke']] as const).map(([s, label]) => (
+                      <div key={s} className="flex items-center gap-1">
+                        <div className={`h-2.5 w-5 rounded-sm ${STATUS_COLOR[s]}`} />
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {!loading && !plan && (
+            <div className="text-sm text-stone-400 text-center py-4">Keine Plan-Daten verfügbar</div>
           )}
         </div>
       )}
