@@ -1000,6 +1000,9 @@ export function DispatchBoard({
       {/* Zonen-Kapazitäts-Panel: Bestellungen nach Zone + freie Fahrer */}
       {readyOrders.length > 0 && <ZoneCapacityPanel orders={readyOrders} drivers={drivers} />}
 
+      {/* Bündelungschancen: proaktiver Alert wenn ≥2 Bestellungen in gleicher Zone unverteilt */}
+      {readyOrders.length >= 2 && <DispatchBundleOpportunityAlert orders={readyOrders} drivers={drivers} />}
+
       {/* Tour Return Timeline — wann kommen Fahrer zurück? */}
       {batches.length > 0 && <TourReturnTimeline batches={batches} />}
 
@@ -8394,5 +8397,104 @@ function DispatchHandoffSpeedPanel({ locationId }: { locationId: string | null }
         ))}
       </div>
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   DispatchBundleOpportunityAlert
+   Zeigt proaktiv Bündelungsmöglichkeiten: Zonen mit ≥2 fertigen Bestellungen
+   ohne zugewiesenen Fahrer — Dispatcher kann sofort bündeln.
+   --------------------------------------------------------------------------- */
+function DispatchBundleOpportunityAlert({ orders, drivers }: { orders: ReadyOrder[]; drivers: Driver[] }) {
+  const unassigned = orders.filter(
+    (o) => o.status === 'fertig' && o.typ === 'lieferung',
+  );
+  if (unassigned.length < 2) return null;
+
+  const freeDrivers = drivers.filter((d) => d.ist_online && !d.aktueller_batch_id);
+
+  // Group by zone
+  const byZone: Record<string, ReadyOrder[]> = {};
+  for (const o of unassigned) {
+    const z = o.delivery_zone ?? 'X';
+    if (!byZone[z]) byZone[z] = [];
+    byZone[z].push(o);
+  }
+
+  const opportunities = Object.entries(byZone)
+    .filter(([, zoneOrders]) => zoneOrders.length >= 2)
+    .map(([zone, zoneOrders]) => ({
+      zone,
+      count: zoneOrders.length,
+      totalValue: zoneOrders.reduce((s, o) => s + o.gesamtbetrag, 0),
+      oldestWaitMin: (() => {
+        const oldest = zoneOrders.reduce((m, o) => {
+          const ms = o.fertig_am ? Date.now() - new Date(o.fertig_am).getTime() : 0;
+          return ms > m ? ms : m;
+        }, 0);
+        return Math.floor(oldest / 60_000);
+      })(),
+    }))
+    .sort((a, b) => b.count - a.count || b.oldestWaitMin - a.oldestWaitMin);
+
+  if (opportunities.length === 0) return null;
+
+  const ZONE_CLS: Record<string, string> = {
+    A: 'border-emerald-300 bg-emerald-50 text-emerald-800',
+    B: 'border-blue-300 bg-blue-50 text-blue-800',
+    C: 'border-amber-300 bg-amber-50 text-amber-800',
+    D: 'border-red-300 bg-red-50 text-red-800',
+    X: 'border-gray-300 bg-gray-50 text-gray-800',
+  };
+
+  return (
+    <Card className="border-matcha-200 bg-matcha-50/40 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-matcha-200/60">
+        <Zap className="h-4 w-4 text-matcha-700 shrink-0" />
+        <span className="font-display text-sm font-bold uppercase tracking-wider text-matcha-800">
+          Bündelungschancen
+        </span>
+        <Badge variant="secondary" className="bg-matcha-100 text-matcha-800">
+          {opportunities.length} Zone{opportunities.length !== 1 ? 'n' : ''}
+        </Badge>
+        {freeDrivers.length > 0 && (
+          <span className="ml-auto text-[10px] font-bold text-matcha-600">
+            {freeDrivers.length} Fahrer frei
+          </span>
+        )}
+      </div>
+      <div className="p-3 flex flex-wrap gap-2">
+        {opportunities.map(({ zone, count, totalValue, oldestWaitMin }) => (
+          <div
+            key={zone}
+            className={cn(
+              'flex items-center gap-2 rounded-xl border px-3 py-2',
+              ZONE_CLS[zone] ?? ZONE_CLS['X'],
+              oldestWaitMin >= 10 && 'ring-1 ring-red-400 animate-pulse',
+            )}
+          >
+            <div className="font-display text-sm font-black">Zone {zone}</div>
+            <div className="flex flex-col items-center shrink-0">
+              <span className="text-xl font-black tabular-nums leading-none">{count}</span>
+              <span className="text-[8px] font-bold uppercase">Bestellungen</span>
+            </div>
+            <div className="text-[10px] space-y-0.5">
+              <div className="font-bold tabular-nums">
+                {totalValue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+              </div>
+              <div className={cn('font-bold', oldestWaitMin >= 10 ? 'text-red-600' : 'text-muted-foreground')}>
+                {oldestWaitMin > 0 ? `⏱ ${oldestWaitMin}m warten` : 'Gerade fertig'}
+              </div>
+            </div>
+            <div className={cn(
+              'rounded-full px-2 py-0.5 text-[8px] font-black shrink-0',
+              count >= 3 ? 'bg-matcha-700 text-white' : 'bg-white/60 text-muted-foreground',
+            )}>
+              {count >= 3 ? '→ Sofort bündeln!' : '→ Bündeln'}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }

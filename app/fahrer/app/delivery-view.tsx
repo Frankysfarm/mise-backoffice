@@ -680,6 +680,11 @@ export function DeliveryView({
         })()}
       </div>
 
+      {/* Tour-Rest-Übersicht: verbleibende Stopps, Distanz und Kassenbeträge */}
+      {sorted.length > 1 && !allDone && (
+        <TourRemainingStrip stops={sorted} doneCount={doneCount} />
+      )}
+
       {/* Tour-Fortschritts-Dots: alle Stopps als nummerierte Punkte */}
       {sorted.length > 1 && <TourProgressDots stops={sorted} doneCount={doneCount} />}
 
@@ -2348,6 +2353,92 @@ function TourOnTimeRing({
       >
         {label}
       </span>
+    </div>
+  );
+}
+
+/* ------------------------------ TourRemainingStrip ------------------------------ */
+/* Kompaktes Banner: verbleibende Stopps, geschätzte Distanz und noch zu kassierende Beträge */
+function TourRemainingStrip({ stops, doneCount }: { stops: Stop[]; doneCount: number }) {
+  const remaining = stops.filter((s) => !s.geliefert_am);
+  if (remaining.length === 0) return null;
+
+  const remainingDistM = remaining.reduce((sum, s) => sum + (s.distanz_zum_vorgaenger_m ?? 0), 0);
+  const remainingDistStr = remainingDistM >= 1000
+    ? `${(remainingDistM / 1000).toFixed(1)} km`
+    : remainingDistM > 0 ? `${Math.round(remainingDistM)} m` : null;
+
+  const cashRemaining = remaining.filter(s => !s.order.bezahlt || s.order.zahlungsart === 'bar');
+  const cashTotal = cashRemaining.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+
+  const nextOverdue = remaining.some(s => s.order.eta_earliest && new Date(s.order.eta_earliest).getTime() < Date.now());
+
+  return (
+    <div className={cn(
+      'mx-4 mt-1 mb-0 rounded-xl border px-3 py-2 flex items-center gap-3 flex-wrap',
+      nextOverdue ? 'bg-red-900/20 border-red-500/30' : 'bg-white/5 border-white/10',
+    )}>
+      {/* Verbleibende Stopps */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span className="text-[9px] font-black uppercase tracking-widest text-matcha-400">Noch</span>
+        <span className={cn(
+          'font-display text-lg font-black tabular-nums leading-none',
+          nextOverdue ? 'text-red-300' : 'text-white',
+        )}>
+          {remaining.length}
+        </span>
+        <span className="text-[9px] text-matcha-400 font-bold">
+          Stopp{remaining.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      <div className="h-6 w-px bg-white/10 shrink-0" />
+
+      {/* Fortschrittsbalken */}
+      <div className="flex-1 min-w-[60px] max-w-[80px]">
+        <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div
+            className={cn(
+              'h-full rounded-full transition-all duration-500',
+              doneCount === stops.length ? 'bg-accent' :
+              doneCount >= stops.length * 0.6 ? 'bg-matcha-400' : 'bg-orange-400',
+            )}
+            style={{ width: `${Math.round((doneCount / stops.length) * 100)}%` }}
+          />
+        </div>
+        <div className="text-[8px] text-matcha-500 font-bold mt-0.5 tabular-nums">
+          {doneCount}/{stops.length}
+        </div>
+      </div>
+
+      {remainingDistStr && (
+        <>
+          <div className="h-6 w-px bg-white/10 shrink-0" />
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[9px] text-matcha-400">~</span>
+            <span className="text-[11px] font-black text-matcha-200 tabular-nums">{remainingDistStr}</span>
+            <span className="text-[8px] text-matcha-400">gesamt</span>
+          </div>
+        </>
+      )}
+
+      {cashTotal > 0 && (
+        <>
+          <div className="h-6 w-px bg-white/10 shrink-0" />
+          <div className="flex items-center gap-1.5 shrink-0 rounded-lg bg-amber-500/15 border border-amber-400/25 px-2 py-0.5">
+            <span className="text-[9px] font-black text-amber-300 tabular-nums">
+              💵 {cashTotal.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+            </span>
+            <span className="text-[8px] text-amber-400">kassieren</span>
+          </div>
+        </>
+      )}
+
+      {nextOverdue && (
+        <div className="ml-auto shrink-0 text-[9px] font-black text-red-300 animate-pulse">
+          ⚠ Verspätet!
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,38 @@
 'use client';
 
 import * as React from 'react';
-import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock } from 'lucide-react';
+import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, Zap } from 'lucide-react';
 import { ItemDetailSheet } from './item-sheet';
+
+type LiveEtaLoad = 'quiet' | 'normal' | 'busy';
+
+function useAuroraLiveEta(locationId: string, baseMin: number) {
+  const [etaMin, setEtaMin] = React.useState(baseMin);
+  const [load, setLoad] = React.useState<LiveEtaLoad>('normal');
+  const [driversOnline, setDriversOnline] = React.useState<number | null>(null);
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
+        if (!res.ok || cancelled) return;
+        const d = await res.json();
+        if (cancelled) return;
+        if (d?.eta_min != null) setEtaMin(d.eta_min);
+        if (d?.load) setLoad(d.load as LiveEtaLoad);
+        if (d?.drivers_online != null) setDriversOnline(d.drivers_online);
+        setReady(true);
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 60_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [locationId]);
+
+  return { etaMin, load, driversOnline, ready };
+}
 
 export type AuroraOrderType = 'lieferung' | 'abholung';
 
@@ -114,6 +144,8 @@ export function StorefrontAurora({
   const minOrder = tenant.min_order ?? 12;
   const deliveryFee = tenant.delivery_fee ?? 0;
   const deliveryTime = tenant.delivery_time_min ?? 30;
+
+  const liveEta = useAuroraLiveEta(location.id, deliveryTime);
   const remainingToMin = Math.max(0, minOrder - total);
   const isOpen = new Date().getHours() < 22;
   const initialsLetter = location.name.charAt(0).toUpperCase();
@@ -203,9 +235,32 @@ export function StorefrontAurora({
                 </span>
                 <span style={{ opacity: 0.6 }}>(210 Bewertungen)</span>
                 <span className="au-hero__meta-dot" />
-                <span>
-                  <Clock size={13} strokeWidth={1.6} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 4 }} />
-                  {deliveryTime}–{deliveryTime + 10} Min
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={13} strokeWidth={1.6} style={{ verticalAlign: '-2px' }} />
+                  {liveEta.ready ? (
+                    <>
+                      <span style={{
+                        fontWeight: 800,
+                        color: liveEta.load === 'busy' ? '#dc2626' : liveEta.load === 'quiet' ? '#16a34a' : undefined,
+                      }}>
+                        {liveEta.etaMin}–{liveEta.etaMin + 10} Min
+                      </span>
+                      {liveEta.load !== 'normal' && (
+                        <span style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '1px 6px',
+                          borderRadius: 9999,
+                          backgroundColor: liveEta.load === 'busy' ? 'rgba(220,38,38,0.12)' : 'rgba(22,163,74,0.12)',
+                          color: liveEta.load === 'busy' ? '#dc2626' : '#16a34a',
+                        }}>
+                          {liveEta.load === 'busy' ? '🔥 Ausgelastet' : '✨ Sehr schnell'}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span>{deliveryTime}–{deliveryTime + 10} Min</span>
+                  )}
                 </span>
                 {orderType === 'lieferung' && deliveryFee > 0 && (
                   <>
@@ -235,6 +290,14 @@ export function StorefrontAurora({
                   <a href={`tel:${location.telefon}`} className="au-status-chip" style={{ textDecoration: 'none' }}>
                     📞 {location.telefon}
                   </a>
+                )}
+                {liveEta.ready && liveEta.driversOnline != null && liveEta.driversOnline > 0 && orderType === 'lieferung' && (
+                  <span className="au-status-chip" style={{
+                    backgroundColor: liveEta.driversOnline >= 3 ? 'rgba(22,163,74,0.1)' : undefined,
+                    color: liveEta.driversOnline >= 3 ? '#15803d' : undefined,
+                  }}>
+                    🛵 {liveEta.driversOnline} Fahrer aktiv
+                  </span>
                 )}
               </div>
 

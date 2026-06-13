@@ -890,6 +890,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-Gesamtscore: gewichteter KPI-Score (neu) */}
+              <LieferdienstGesamtScore orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               {/* 7-Tage Wochenübersicht */}
               <LieferdienstWochenvergleich />
               {/* Stunden-Umsatz-Chart: Bestellungen + Umsatz je Stunde heute */}
@@ -2286,6 +2288,123 @@ function LieferdienstTopArtikel({ completedOrders }: { completedOrders: Order[] 
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---- LieferdienstGesamtScore ---- */
+// Composite Schicht-Score (0-100): SLA 40% + ETA 25% + Durchsatz 20% + Ablehnungsrate 15%
+function LieferdienstGesamtScore({ orders, completedOrders, schichtMinutes }: {
+  orders: { status: string }[];
+  completedOrders: { status: string; acceptedAt?: Date | string | null; doneAt?: Date | string | null }[];
+  schichtMinutes: number;
+}) {
+  const [sla, setSla] = useState<{ onTimePct: number; totalStops: number } | null>(null);
+  const [eta, setEta] = useState<{ onTimeRate: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [slaRes, etaRes] = await Promise.all([
+          fetch('/api/delivery/admin/sla?days=1').then(r => r.ok ? r.json() : null),
+          fetch('/api/delivery/admin/eta-accuracy').then(r => r.ok ? r.json() : null),
+        ]);
+        if (slaRes?.summary) setSla({ onTimePct: slaRes.summary.onTimePct ?? 0, totalStops: slaRes.summary.totalStops ?? 0 });
+        if (etaRes?.overall) setEta({ onTimeRate: (etaRes.overall.onTimeRate ?? 0) * 100 });
+      } catch {} finally { setLoading(false); }
+    };
+    load();
+    const iv = setInterval(load, 120_000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading) return null;
+
+  const allOrders = [...orders, ...completedOrders];
+  const total = allOrders.length;
+  const rejected = allOrders.filter(o => ['storniert', 'rejected'].includes(o.status)).length;
+  const rejRate = total > 0 ? Math.round((rejected / total) * 100) : 0;
+
+  // Durchsatz: Bestellungen/Stunde vs Ziel 8/h
+  const TARGET_PER_HOUR = 8;
+  const actualPerHour = schichtMinutes > 5 ? (total / schichtMinutes) * 60 : 0;
+  const throughputScore = Math.min(100, Math.round((actualPerHour / TARGET_PER_HOUR) * 100));
+
+  // Component scores (0-100 each)
+  const slaScore = sla ? Math.round(sla.onTimePct) : 75;
+  const etaScore = eta ? Math.round(eta.onTimeRate) : 75;
+  const rejScore = Math.max(0, 100 - rejRate * 5);
+  const thruScore = throughputScore;
+
+  // Weighted composite
+  const composite = Math.round(slaScore * 0.40 + etaScore * 0.25 + thruScore * 0.20 + rejScore * 0.15);
+
+  const grade = composite >= 90 ? 'A+' : composite >= 80 ? 'A' : composite >= 70 ? 'B' : composite >= 60 ? 'C' : 'D';
+  const color = composite >= 80 ? '#16a34a' : composite >= 60 ? '#d97706' : '#dc2626';
+  const bgCls = composite >= 80 ? 'bg-emerald-50 border-emerald-200' : composite >= 60 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+  const scoreLabel = composite >= 80 ? 'Ausgezeichnet' : composite >= 60 ? 'Gut' : 'Verbesserungsbedarf';
+
+  const components = [
+    { label: 'Pünktlichkeit', weight: '40%', score: slaScore, detail: sla ? `${sla.onTimePct.toFixed(0)}%` : '–' },
+    { label: 'ETA-Genauigkeit', weight: '25%', score: etaScore, detail: eta ? `${eta.onTimeRate.toFixed(0)}%` : '–' },
+    { label: 'Durchsatz', weight: '20%', score: thruScore, detail: `${actualPerHour.toFixed(1)}/h` },
+    { label: 'Ablehnungsrate', weight: '15%', score: rejScore, detail: `${rejRate}% rej.` },
+  ];
+
+  const R = 44;
+  const circ = 2 * Math.PI * R;
+  const dash = (composite / 100) * circ;
+
+  return (
+    <div className={`rounded-xl border ${bgCls} px-4 py-4 mb-2`}>
+      <div className="flex items-center gap-2 mb-3">
+        <Target className="h-4 w-4" style={{ color }} />
+        <span className="text-[10px] font-black uppercase tracking-wider text-stone-500">Schicht-Gesamtscore</span>
+        <span className="ml-auto text-[9px] text-stone-400">gewichteter KPI-Schnitt</span>
+      </div>
+      <div className="flex items-center gap-4">
+        {/* Arc gauge */}
+        <div className="relative shrink-0 flex items-center justify-center" style={{ width: 96, height: 96 }}>
+          <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
+            <circle cx="48" cy="48" r={R} fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="7" />
+            <circle
+              cx="48" cy="48" r={R} fill="none"
+              stroke={color} strokeWidth="7" strokeLinecap="round"
+              strokeDasharray={circ}
+              strokeDashoffset={circ - dash}
+              style={{ transition: 'stroke-dashoffset 1s ease' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-black leading-none tabular-nums" style={{ color }}>{composite}</span>
+            <span className="text-[10px] font-black" style={{ color }}>{grade}</span>
+          </div>
+        </div>
+        {/* Details */}
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-base font-black mb-1" style={{ color }}>{scoreLabel}</div>
+          <div className="space-y-1.5">
+            {components.map(c => (
+              <div key={c.label} className="flex items-center gap-2">
+                <span className="text-[9px] font-bold text-stone-500 w-[90px] shrink-0">{c.label}</span>
+                <div className="flex-1 h-1.5 rounded-full bg-stone-200 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.max(0, c.score))}%`,
+                      backgroundColor: c.score >= 80 ? '#16a34a' : c.score >= 60 ? '#d97706' : '#dc2626',
+                    }}
+                  />
+                </div>
+                <span className="text-[9px] font-black tabular-nums text-stone-600 w-10 text-right shrink-0">{c.detail}</span>
+                <span className="text-[8px] text-stone-400 shrink-0">{c.weight}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
