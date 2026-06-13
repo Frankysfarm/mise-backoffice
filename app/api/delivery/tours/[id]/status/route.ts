@@ -19,6 +19,7 @@ import { evaluateAndIssueLateCredit } from '@/lib/delivery/credits';
 import { earnPoints } from '@/lib/delivery/loyalty-points';
 import { computeExperienceScore } from '@/lib/delivery/cdes';
 import { recordZoneDelivery } from '@/lib/delivery/zone-affinity';
+import { recordTourPerformance } from '@/lib/delivery/tour-analytics';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -165,6 +166,11 @@ export async function PATCH(
         }
       }
     }
+  }
+
+  // Tour Performance Analytics: Snapshot nach Abschluss (Phase 115, fire-and-forget)
+  if (body.state === 'delivered') {
+    recordTourPerformance(params.id).catch(() => {});
   }
 
   // Bei Stornierung: Recovery Engine befreit nicht-gelieferte Stops (fire-and-forget)
