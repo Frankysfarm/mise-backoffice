@@ -100,8 +100,10 @@ export default function KitchenMonitor({
   // Kein Fahrer getrackt -> nicht blocken (Abholung/Vor-Ort brauchen eh keinen Fahrer).
   const canCook = drivers.length === 0 || drivers.some((d) => !d.busy || d.returning);
   const ringingHold = !!ringing && ringing.typ === 'lieferung' && !canCook;
-  const heldOrders = neu.filter((od) => od.typ === 'lieferung' && !canCook);
-  const readyNeu = neu.filter((od) => !(od.typ === 'lieferung' && !canCook));
+  const MAX_WAIT_MS = 10 * 60 * 1000; // Notfall: nach 10 Min trotzdem kochen (kein Kunde wartet ewig)
+  const isStale = (od: Order) => now - new Date(od.created_at).getTime() > MAX_WAIT_MS;
+  const heldOrders = neu.filter((od) => od.typ === 'lieferung' && !canCook && !isStale(od));
+  const readyNeu = neu.filter((od) => !(od.typ === 'lieferung' && !canCook && !isStale(od)));
 
   // All-Day-Counts (aggregiert ueber alle aktiven Orders)
   const allDay = (() => {
@@ -311,14 +313,17 @@ export default function KitchenMonitor({
           {heldOrders.length > 0 && readyNeu.length > 0 && (
             <div style={{ fontSize: 13, fontWeight: 800, color: C.zub, letterSpacing: '.05em', padding: '10px 4px 2px' }}>▶ JETZT KOCHEN</div>
           )}
-          {readyNeu.map((o) => (
-            <Card key={o.id} o={o} now={now} {...sharedCardProps}>
-              <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
-                style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 19, background: C.zub, color: '#fff' }}>
-                ✓ Annehmen · {DEFAULT_PREP} Min
-              </button>
-            </Card>
-          ))}
+          {readyNeu.map((o) => {
+            const overdue = o.typ === 'lieferung' && !canCook; // war 'warten', per Notfall-Timer freigegeben
+            return (
+              <Card key={o.id} o={o} now={now} cookWarn={overdue} {...sharedCardProps}>
+                <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: overdue ? 16 : 19, background: overdue ? C.warnSoft : C.zub, color: '#fff' }}>
+                  {overdue ? '⚠ Wartet zu lange · jetzt kochen!' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
+                </button>
+              </Card>
+            );
+          })}
           {neu.length === 0 && <Empty text="Keine neuen Bestellungen" />}
         </Column>
         <Column title="IN ZUBEREITUNG" count={kochen.length} color={C.zub}>
@@ -449,7 +454,7 @@ function CardHead({ o, big }: { o: Order; big?: boolean }) {
 }
 function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint, cookHold }: {
   o: Order; now: number; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null;
-  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void; cookHold?: boolean;
+  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void; cookHold?: boolean; cookWarn?: boolean;
 }) {
   const tc = typeCfg(o.typ);
   // Timer: in Zubereitung = Countdown zu fertig_am, sonst Alter seit Eingang
@@ -490,10 +495,12 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
         ))}
         {(o.items ?? []).flatMap((it) => it.notiz ? [<div key={it.id + 'n'} style={{ background: C.goldTint, color: C.gold, borderRadius: 8, padding: '4px 9px', fontSize: 14, fontWeight: 600, marginTop: 2 }}>{it.name}: {it.notiz}</div>] : [])}
       </div>
-      <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 40, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: tColor }}>
-        {mode === 'count' ? (over ? `+${fmt(sec)}` : fmt(sec)) : fmt(sec)}
-        <span style={{ fontSize: 13, fontWeight: 600, color: C.t3, marginLeft: 8 }}>{mode === 'count' ? (over ? 'überfällig' : 'bis fertig') : 'seit Eingang'}</span>
-      </div>
+      {o.status !== 'fertig' && (
+        <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 40, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: tColor }}>
+          {mode === 'count' ? (over ? `+${fmt(sec)}` : fmt(sec)) : fmt(sec)}
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.t3, marginLeft: 8 }}>{mode === 'count' ? (over ? 'überfällig' : 'bis fertig') : 'seit Eingang'}</span>
+        </div>
+      )}
       {children}
       {onStorno && (stornoConfirm === o.id ? (
         <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
