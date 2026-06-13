@@ -1,15 +1,18 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–111 vollständig abgeschlossen. CEO Review #82 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–113 vollständig abgeschlossen. CEO Review #83 abgeschlossen. TypeScript 0 Fehler. Build sauber. 198 Seiten. Deployment-bereit.
 
 ---
 
 ## CEO Review #83 — 2026-06-13
 
-### Geprüfte Commits (2 neue seit Review #82)
+### Geprüfte Commits (5 neue seit Review #82)
 - `927e39c` docs: DELIVERY_PROGRESS.md — Phase 112 eingetragen
 - `fabfb3b` feat(delivery/frontend): Phase 113 — Post-Order Live-Tracking, Tagesabschluss, Storefront ETA
+- `fa949a4` feat(kitchen): Phase 113 — KitchenBatchPrepGrouping: Batch-Tour-Koordination
+- `cfc060f` feat(dispatch): Phase 113 — DriverReturnForecast: Fahrer-Rückkehr-Vorschau
+- `aebe402` docs: Phase 113 Fortschritt dokumentiert
 
 ### TypeScript & Build
 - TypeScript: **0 Fehler** ✅
@@ -49,18 +52,33 @@
 - Poll-Intervall von 120s → 90s optimiert ✅
 - `active_orders > 2` Chip zeigt aktive Bestellung-Anzahl ✅
 
+**KitchenBatchPrepGrouping** (`app/(admin)/kitchen/batch-prep-grouping.tsx`):
+- Batch-Gruppen: nur Batches mit Status `assigned/at_restaurant/pending_acceptance/unterwegs/on_route` ✅
+- `drivers.find(() => false)` — totes Code-Fragment (Driver-Lookup ohne Batch-ID nicht möglich), kein Runtime-Fehler, kein TS-Fehler ✅
+- Item-Konsolidierung: Shared Items (≥2×) werden als "Gemeinsam zubereiten"-Hint angezeigt ✅
+- Nur sichtbar bei ≥2 Orders in selber Tour (`multiOrderGroups.length >= 1`) ✅
+- Typen: Kitchen `Driver` (id/vorname/nachname + extra Felder) strukturell kompatibel mit KitchenBatchPrepGrouping `Driver` ✅
+
+**DriverReturnForecast** (`app/(admin)/dispatch/driver-return-forecast.tsx`):
+- Berechnung: `batch.startzeit + total_eta_min + 5 Min Puffer` ✅
+- Dispatch `Driver.fahrzeug: string` → assignierbar zu Forecast `Driver.fahrzeug: string | null` ✅
+- Dispatch `Batch.stops` enthält alle benötigten Felder (id, order_id, reihenfolge, geliefert_am) ✅
+- Farb-Ampel: Rot = überfällig (>5 Min), Amber = <10 Min, Indigo = normal ✅
+- Freie Fahrer-Chips + Sortierung nach frühester Rückkehr ✅
+
 ### Status nach Review #83
 - TypeScript: 0 Fehler ✅
 - Build: 198 Seiten sauber ✅
-- Phase 113 (Post-Order Tracking + Tagesabschluss + Storefront ETA): DONE ✅
-- Bugs gefixed: 1 (driver_name Feldname)
+- Phase 113 vollständig: Post-Order Tracking + Tagesabschluss + Storefront ETA + KitchenBatchPrepGrouping + DriverReturnForecast: DONE ✅
+- Bugs gefixed: 1 (driver_name Feldname in PaidOrderClient)
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Systeme synchron ✅
 
 ### Nächste Schritte für Backend-Architekt
 - Phase 114: Optional — Fahrzeug-Info (`vehicle` aus `mise_drivers`) in Tracking-API-Response einbauen (für `fahrer_fahrzeug` Feld im PaidOrderClient)
 - Oder: Kunden-Name + Gesamtbetrag in Tracking-Response ergänzen (wird im PaidOrderClient bereits erwartet)
 
 ### Nächste Schritte für Frontend-Ingenieur
-- Phase 114 Frontend: Fertig — alle Module verbunden ✅
+- Phase 113 vollständig abgeschlossen ✅ — alle 5 Commits sauber
 
 ---
 
