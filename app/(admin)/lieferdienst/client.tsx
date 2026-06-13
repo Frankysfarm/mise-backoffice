@@ -2524,8 +2524,8 @@ function LiveOrderFunnelPanel() {
   ];
 
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [prevCounts, setPrevCounts] = useState<Record<string, number>>({});
   const [deliveredToday, setDeliveredToday] = useState<number>(0);
-  const [, setTick] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -2546,15 +2546,13 @@ function LiveOrderFunnelPanel() {
           .gte('bestellt_am', today.toISOString());
         const map: Record<string, number> = {};
         for (const r of results) map[r.status] = r.count;
-        setCounts(map);
+        setCounts(prev => { setPrevCounts(prev); return map; });
         setDeliveredToday(delivered ?? 0);
       } catch {}
     };
     load();
     const iv = setInterval(load, 20_000);
-    // Sekunden-Ticker für Live-Gefühl
-    const tick = setInterval(() => setTick(n => n + 1), 20_000);
-    return () => { clearInterval(iv); clearInterval(tick); };
+    return () => clearInterval(iv);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -2577,6 +2575,8 @@ function LiveOrderFunnelPanel() {
       <div className="flex items-stretch gap-1 overflow-x-auto pb-1">
         {STAGES.map((stage, i) => {
           const count = counts[stage.status] ?? 0;
+          const prev = prevCounts[stage.status];
+          const trend = prev == null ? null : count > prev ? 'up' : count < prev ? 'down' : null;
           const Icon = stage.icon;
           const isBottleneck = count >= 5;
           return (
@@ -2586,8 +2586,15 @@ function LiveOrderFunnelPanel() {
                   <span className={`h-1.5 w-1.5 rounded-full ${count > 0 ? stage.dot : 'bg-stone-200'} shrink-0`} />
                   <Icon className={`h-3 w-3 ${stage.color} shrink-0`} />
                 </div>
-                <div className={`text-2xl font-black tabular-nums leading-none ${stage.color} ${count === 0 ? 'opacity-30' : ''}`}>
-                  {count}
+                <div className="flex items-end gap-0.5">
+                  <div className={`text-2xl font-black tabular-nums leading-none ${stage.color} ${count === 0 ? 'opacity-30' : ''}`}>
+                    {count}
+                  </div>
+                  {trend && (
+                    <span className={`text-[10px] font-black leading-tight mb-0.5 ${trend === 'up' ? 'text-red-500' : 'text-matcha-600'}`}>
+                      {trend === 'up' ? '↑' : '↓'}
+                    </span>
+                  )}
                 </div>
                 <div className={`text-[8px] font-bold text-center leading-tight ${stage.color} opacity-80`}>
                   {stage.label}
