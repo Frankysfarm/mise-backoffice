@@ -2,6 +2,7 @@
 
 ## STATUS: MARKT-REIF
 **Phasen 1–102 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 194 Seiten. Deployment-bereit.**
+**CEO Review #76 — 2026-06-13: 1 Bug gefixt (pruneOldSnapshots Cron-Verdrahtung). Alle Systeme grün.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
