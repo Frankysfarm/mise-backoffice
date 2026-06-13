@@ -35,7 +35,8 @@ type Order = {
   fertig_am: string | null; created_at: string; mise_driver_id: string | null; items: Item[];
 };
 type MenuItem = { id: string; name: string; verfuegbar: boolean };
-type Driver = { id: string; name: string; lat: number | null; lng: number | null; state: string; undelivered: number; busy: boolean; returning: boolean };
+type Driver = { id: string; name: string; lat: number | null; lng: number | null; state: string; undelivered: number; busy: boolean; returning: boolean; stale?: boolean };
+type StuckDelivery = { id: string; bestellnummer: string | null; kunde_name: string | null; kunde_telefon: string | null; waitingMin: number; noDriverOnline: boolean };
 
 function typeCfg(typ: string | null) {
   if (typ === 'lieferung') return { label: 'Lieferung', Icon: Truck, color: C.link, tint: '#14233A' };
@@ -72,6 +73,7 @@ export default function KitchenMonitor({
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const returnedRef = useRef<Set<string>>(new Set());
   const [returnBanner, setReturnBanner] = useState<string | null>(null);
+  const [stuck, setStuck] = useState<StuckDelivery[]>([]);
 
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
@@ -83,7 +85,7 @@ export default function KitchenMonitor({
       const fresh = r.orders as Order[];
       // lokale pending "fehlt"-Edits bewahren (Polling ueberschreibt sonst)
       for (const o of fresh) for (const it of (o.items ?? [])) if (pendingMissing.current.has(it.id)) it.pick_missing = true;
-      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'browser');
+      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'browser'); setStuck(((r as any).stuckDeliveries ?? []) as StuckDelivery[]);
     }
     const iv = setInterval(poll, 4000);
     return () => { alive = false; clearInterval(iv); };
@@ -98,7 +100,7 @@ export default function KitchenMonitor({
   const ringing = neu.length > 0 ? neu[0] : null;
   // Koch-Slot: darf gekocht werden, wenn ein Fahrer frei (idle) oder auf dem Rueckweg (letzter Stopp) ist.
   // Kein Fahrer getrackt -> nicht blocken (Abholung/Vor-Ort brauchen eh keinen Fahrer).
-  const canCook = drivers.length === 0 || drivers.some((d) => !d.busy || d.returning);
+  const canCook = drivers.length === 0 || drivers.some((d) => (!d.busy || d.returning) && !d.stale);
   const ringingHold = !!ringing && ringing.typ === 'lieferung' && !canCook;
   const MAX_WAIT_MS = 10 * 60 * 1000; // Notfall: nach 10 Min trotzdem kochen (kein Kunde wartet ewig)
   const isStale = (od: Order) => now - new Date(od.created_at).getTime() > MAX_WAIT_MS;
@@ -114,13 +116,13 @@ export default function KitchenMonitor({
 
   // Alarm (mutebar): heult solange neue Order wartet
   useEffect(() => {
-    if (!ringing || !activated || muted) return;
+    if ((!ringing && stuck.length === 0) || !activated || muted) return;
     let stopped = false; const ctx = audioCtxRef.current; if (!ctx) return;
     try { ctx.resume(); } catch { /* noop */ }
     const play = () => { if (!stopped && ctx) (SOUNDS[soundType] ?? SOUNDS.sirene).play(ctx); };
     play(); const iv = setInterval(play, 950);
     return () => { stopped = true; clearInterval(iv); };
-  }, [ringing?.id, activated, muted, soundType]);
+  }, [ringing?.id, stuck.length, activated, muted, soundType]);
 
   // "Fahrer auf Rueckweg"-Erkennung -> Banner + Gong (einmal pro Fahrer)
   useEffect(() => {
@@ -266,6 +268,19 @@ export default function KitchenMonitor({
         </div>
       </div>
 
+      {/* P1: Stuck-Order-Alarm */}
+      {stuck.length > 0 && (
+        <div style={{ background: C.warnTint, border: `2px solid ${C.warn}`, borderRadius: 12, padding: '14px 18px', margin: '12px 16px 0' }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: C.warn }}>⚠ {stuck.length === 1 ? 'Eine Lieferung hängt fest!' : `${stuck.length} Lieferungen hängen fest!`}</div>
+          {stuck.map((s) => (
+            <div key={s.id} style={{ marginTop: 6, color: C.t1, fontSize: 15 }}>
+              #{String(s.bestellnummer || '').slice(-6)} · seit {s.waitingMin} Min fertig · {s.noDriverOnline ? 'KEIN Fahrer online' : 'Fahrer nimmt nicht an'} — selbst fahren oder Kunde anrufen
+              {s.kunde_telefon && <a href={`tel:${s.kunde_telefon}`} style={{ color: C.link, marginLeft: 8, fontWeight: 700 }}>{s.kunde_telefon}</a>}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Fahrer-auf-Rueckweg-Banner */}
       {returnBanner && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 16px 0', padding: '14px 18px', borderRadius: 14, background: C.zubTint, border: `1px solid ${C.zub}` }}>
@@ -281,7 +296,7 @@ export default function KitchenMonitor({
         <div style={{ display: 'flex', gap: 10, padding: '12px 16px 0', overflowX: 'auto', alignItems: 'center' }}>
           <span style={{ fontSize: 12.5, fontWeight: 700, color: C.t3, letterSpacing: '.05em', whiteSpace: 'nowrap' }}>FAHRER</span>
           {drivers.map((d) => {
-            const st = d.returning ? { t: 'auf Rückweg', c: C.zub } : d.busy ? { t: `unterwegs · ${d.undelivered} offen`, c: C.warnSoft } : { t: 'frei', c: C.t2 };
+            const st = d.stale ? { t: 'kein GPS-Signal', c: C.warn } : d.returning ? { t: 'auf Rückweg', c: C.zub } : d.busy ? { t: `unterwegs · ${d.undelivered} offen`, c: C.warnSoft } : { t: 'frei', c: C.t2 };
             return (
               <div key={d.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${d.returning ? C.zub : C.border}`, borderRadius: 12, padding: '7px 12px', whiteSpace: 'nowrap' }}>
                 <Bike size={16} color={st.c} />

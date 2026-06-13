@@ -55,7 +55,7 @@ export async function getKitchenData(token: string) {
   const dids = [...new Set((dt ?? []).map((x: any) => x.driver_id))];
   let drivers: any[] = [];
   if (dids.length) {
-    const { data: drv } = await svc.from('mise_drivers').select('id, name, state, last_lat, last_lng').in('id', dids).neq('state', 'offline');
+    const { data: drv } = await svc.from('mise_drivers').select('id, name, state, last_lat, last_lng, last_active_at').in('id', dids).neq('state', 'offline');
     const dlist = drv ?? [];
     if (dlist.length) {
       const { data: batches } = await svc.from('mise_delivery_batches')
@@ -66,11 +66,20 @@ export async function getKitchenData(token: string) {
         const myB = (batches ?? []).filter((b: any) => b.driver_id === d.id);
         const undelivered = myB.flatMap((b: any) => (b.stops ?? [])).filter((st: any) => st.type === 'dropoff' && !st.completed_at).length;
         const inProgress = myB.some((b: any) => b.state === 'in_progress');
-        return { id: d.id, name: d.name, lat: d.last_lat, lng: d.last_lng, state: d.state, undelivered, busy: myB.length > 0, returning: inProgress && undelivered <= 1 };
+        const fresh = d.last_active_at && (Date.now() - new Date(d.last_active_at).getTime()) < 180000; // 3 Min Heartbeat-Frische
+        return { id: d.id, name: d.name, lat: d.last_lat, lng: d.last_lng, state: d.state, undelivered, busy: myB.length > 0, returning: inProgress && undelivered <= 1, stale: !fresh };
       });
     }
   }
-  return { orders: orders ?? [], items: items ?? [], drivers, printMethod: (loc as any).print_method ?? 'browser' };
+  // P1: festhaengende Lieferungen (fertig gekocht, >6 Min, kein Fahrer) -> Owner-Alarm
+  const STUCK_MS = 6 * 60_000;
+  const nowMs = Date.now();
+  const anyDriverWorking = drivers.length > 0;
+  const stuckDeliveries = (orders ?? [])
+    .filter((od: any) => od.typ === 'lieferung' && od.status === 'fertig' && !od.mise_driver_id && od.fertig_am && (nowMs - new Date(od.fertig_am).getTime()) > STUCK_MS)
+    .map((od: any) => ({ id: od.id, bestellnummer: od.bestellnummer, kunde_name: od.kunde_name, kunde_telefon: od.kunde_telefon, waitingMin: Math.round((nowMs - new Date(od.fertig_am).getTime()) / 60_000), noDriverOnline: !anyDriverWorking }));
+
+  return { orders: orders ?? [], items: items ?? [], drivers, stuckDeliveries, printMethod: (loc as any).print_method ?? 'browser' };
 }
 
 /** Annehmen: setzt in_zubereitung + Fertig-Zeitpunkt (jetzt + prepMin). */
