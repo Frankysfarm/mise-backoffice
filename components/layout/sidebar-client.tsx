@@ -10,7 +10,7 @@ import {
   ArrowLeft, Store, Clock, Shield, Monitor, Lock, HelpCircle, Phone, History,
   ChevronRight, Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone,
   ShoppingBag, FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
-  FileDown, Star, Zap, Navigation,
+  FileDown, Star, Zap, Navigation, TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Store, Clock, Shield, Monitor, Lock, HelpCircle, Phone, History,
   Upload, Percent, Palette, Globe, Wallet, Gift, Megaphone, ShoppingBag,
   FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
-  FileDown, Star, Zap, Navigation,
+  FileDown, Star, Zap, Navigation, TrendingUp,
 };
 
 export type SidebarItem = {
