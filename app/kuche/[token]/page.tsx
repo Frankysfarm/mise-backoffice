@@ -14,9 +14,9 @@ export default async function Page({ params }: { params: Promise<{ token: string
     .maybeSingle();
   if (!loc) notFound();
 
-  const [{ data: orders }, { data: items }] = await Promise.all([
+  const [{ data: orders }, { data: items }, { data: tenant }] = await Promise.all([
     svc.from('customer_orders')
-      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz, pick_missing)')
+      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, mise_driver_id, items:order_items(id, name, menge, notiz, pick_missing)')
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),
@@ -25,6 +25,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
       .eq('tenant_id', loc.tenant_id)
       .order('name')
       .limit(200),
+    svc.from('tenants').select('name, logo_url, theme_primary').eq('id', loc.tenant_id).maybeSingle(),
   ]);
 
   return (
@@ -33,6 +34,8 @@ export default async function Page({ params }: { params: Promise<{ token: string
       shopName={loc.name}
       initialOrders={(orders ?? []) as any}
       initialItems={(items ?? []) as any}
+      logoUrl={(tenant?.logo_url as string) ?? null}
+      brandColor={(tenant?.theme_primary as string) ?? null}
     />
   );
 }

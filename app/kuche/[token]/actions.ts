@@ -13,7 +13,7 @@ export async function getKitchenData(token: string) {
   const svc = createServiceClient();
   const [{ data: orders }, { data: items }] = await Promise.all([
     svc.from('customer_orders')
-      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz, pick_missing)')
+      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, mise_driver_id, items:order_items(id, name, menge, notiz, pick_missing)')
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),
@@ -42,6 +42,15 @@ export async function markFertig(token: string, orderId: string) {
   const { error } = await svc.from('customer_orders')
     .update({ status: 'fertig', fertig_am: new Date().toISOString() })
     .eq('id', orderId).eq('location_id', loc.id);
+  return error ? { error: error.message } : { ok: true };
+}
+
+/** Recall: fertige Order zurueck in Zubereitung holen (Fehlgriff korrigieren). */
+export async function recallOrder(token: string, orderId: string) {
+  const loc = await locForToken(token);
+  if (!loc) return { error: 'unauth' };
+  const svc = createServiceClient();
+  const { error } = await svc.from('customer_orders').update({ status: 'in_zubereitung' }).eq('id', orderId).eq('location_id', loc.id);
   return error ? { error: error.message } : { ok: true };
 }
 
