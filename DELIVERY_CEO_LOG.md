@@ -7,10 +7,11 @@
 
 ## CEO Review #73 — 2026-06-13
 
-### Geprüfte Commits (3 neue Commits seit Review #72)
+### Geprüfte Commits (4 neue Commits seit Review #72)
 
 | Commit | Feature | Status |
 |--------|---------|--------|
+| `f552e1e` | feat(kitchen): Bestelltyp-Badge + Queue-Frei-Anzeige im Countdown-Grid | ✅ |
 | `b41ae79` | feat(fahrer): Fahrer-Vergütung im Tour-Abschluss-Screen | ✅ |
 | `352f4df` | feat(delivery/frontend): Dispatch ETA-Badges + Storefront Queue-Anzeige | ✅ |
 | `55a9159` | feat(delivery/backend): Phase 99 — Smart Driver Pre-Positioning Engine | ✅ |
@@ -19,6 +20,15 @@
 - TypeScript: 0 Fehler ✅
 - `next build`: ✓ Compiled successfully, 191 Seiten ✅
 - Bugs gefunden: 0 — keine Fixes nötig
+
+### Befund feat(kitchen): Bestelltyp-Badge + Queue-Frei-Anzeige (f552e1e)
+
+**countdown-grid.tsx**:
+- Bestelltyp-Emoji-Badge (🛵/🥡/🍽️) pro Kachel, farbcodiert nach Typ + Dringlichkeit ✅
+- `clearMinutes = maxSecsLeft > 0 ? Math.ceil(maxSecsLeft / 60) : null` — korrekte Edge-Case-Behandlung (leerer Array → `-Infinity > 0 = false → null`) ✅
+- "frei ~X Min" Badge zeigt Küchen-Auslastungshorizont, orange wenn ≤5 Min ✅
+- Fahrer-auf-Weg-Badge ins gleiche `ml-auto`-Container integriert ✅
+- Bugs: 0 ✅
 
 ### Befund Phase 99 (Positioning Engine)
 
