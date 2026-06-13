@@ -22,7 +22,7 @@ type Props = {
 };
 
 const DELIVERY_STEPS = [
-  { status: 'bestätigt',      label: 'Angenommen',  icon: Check },
+  { status: 'bestätigt',      label: 'Wartet auf Annahme',  icon: Check },
   { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
   { status: 'fertig',         label: 'Bereit',      icon: Package },
   { status: 'unterwegs',      label: 'Unterwegs',   icon: Truck },
@@ -30,7 +30,7 @@ const DELIVERY_STEPS = [
 ] as const;
 
 const PICKUP_STEPS = [
-  { status: 'bestätigt',      label: 'Angenommen',  icon: Check },
+  { status: 'bestätigt',      label: 'Wartet auf Annahme',  icon: Check },
   { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
   { status: 'fertig',         label: 'Abholbereit', icon: Package },
   { status: 'abgeholt',       label: 'Abgeholt',    icon: ShoppingBag },
@@ -269,7 +269,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         </h1>
 
         <p className="mt-4 text-base leading-relaxed text-matcha-200">
-          Wir haben deine Bestellung erhalten.
+          Deine Bestellung wartet auf Annahme der Küche.
           {isDelivery
             ? ` In etwa ${etaMinutes} Minuten klingeln wir.`
             : ` In etwa ${etaMinutes} Minuten kannst du abholen.`}

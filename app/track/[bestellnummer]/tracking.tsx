@@ -72,7 +72,7 @@ type DeliveryEvent = {
 };
 
 const STEPS: { status: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { status: 'bestätigt', label: 'Bestätigt', icon: Check },
+  { status: 'bestätigt', label: 'Wartet auf Annahme', icon: Check },
   { status: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat },
   { status: 'fertig', label: 'Fertig', icon: Package },
   { status: 'unterwegs', label: 'Unterwegs', icon: Truck },
