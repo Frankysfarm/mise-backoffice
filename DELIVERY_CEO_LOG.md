@@ -1,7 +1,71 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–119 vollständig abgeschlossen. CEO Review #87 abgeschlossen. TypeScript 0 Fehler. Build sauber. 202 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–120 vollständig abgeschlossen. CEO Review #88 abgeschlossen. TypeScript 0 Fehler. Build sauber. 204 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #88 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #87)
+
+**Commit 090fc39** — chore(delivery): DELIVERY_PROGRESS.md Phase 120 dokumentiert (203 Seiten)
+- Dokumentation vollständig ✅
+
+**Commit 35c5f65** — feat(delivery/frontend): Kitchen TV-Display, Zone-Stats-Dashboard, Tour-Speed-Tracker
+
+#### Kitchen TV-Display (`/kitchen/tv`)
+- `KitchenTVDisplay`: Supabase Realtime-Kanal auf `customer_orders` + `kitchen_timings` ✅
+- Urgency-Logik: `ready_target`-Countdown → Fallback auf `bestellt_am`-Elapsed vs. `geschaetzte_zubereitung_min` ✅
+- 4 Dringlichkeitsstufen (ok/tight/urgent/overdue) mit Farbkodierung + animate-pulse/ping ✅
+- 3-Spalten: Kochend (sortiert nach Dringlichkeit) / Fertig (>10min-Warnung mit "Dispatch!") / Wartend ✅
+- TV-Link in `/kitchen/page.tsx` Header eingebunden ✅
+- Kein Scroll auf TV = Overflow-hidden im main-Container ✅
+
+#### ZoneStatsDashboard (`dispatch/zone-stats-dashboard.tsx`)
+- Berechnet Zonen-Metriken (pendingCount, readyCount, avgWaitMin, activeDrivers) aus Props — kein extra API-Call ✅
+- Health-Klassifikation: good/warn/critical nach Warte-Schwellwerten ✅
+- In `dispatch/client.tsx` korrekt eingebunden nach ActiveTourRail ✅
+- Props werden aus vorhandenem `readyOrders` + `batches` State gemappt — Zero-Overhead ✅
+
+#### TourSpeedTracker (`fahrer/app/tour-speed-tracker.tsx`)
+- Berechnet currentPacePerH, requiredPacePerH, projectedFinishMin aus Tour-Stops ✅
+- 4 Pace-Level: ahead/on-track/behind/at-risk mit farblicher Kodierung ✅
+- 5s Live-Tick via `useLiveTick` ✅
+- Eingebunden in Fahrer-App active-batch-Ansicht ✅
+- `(s as any).angekommen_am` korrekt typgecastet ✅
+
+#### ZonePerformanceKpi (`lieferdienst/zone-performance-kpi.tsx`)
+- Nutzt `/api/delivery/admin/eta-accuracy` — existierende API ✅
+- Recharts BarChart mit Cell-Farbkodierung je Zone ✅
+- Best/Worst-Zone Callout aus berechneten `zoneRows` ✅
+
+### TypeScript-Check
+- `npx tsc --noEmit` → Exit 0 (0 Fehler) ✅
+
+### Build-Check
+- `npx next build` → 204 Seiten, 0 Fehler ✅
+
+### Integrations-Check
+- Kitchen TV ↔ Supabase Realtime: verbunden ✅
+- Kitchen Header → TV-Link: `/kitchen/tv` ✅
+- Dispatch ZoneStats ← readyOrders/batches State: korrekt ✅
+- Fahrer-App TourSpeedTracker ← activeBatch.stops/started_at/total_eta_min: korrekt ✅
+- Lieferdienst ZonePerformanceKpi ← eta-accuracy API: korrekt ✅
+- Sidebar: peak-intelligence, fatigue-monitor, flow-intelligence, geo-demand, tour-analytics alle verlinkt ✅
+
+### Befunde
+- **0 Bugs** — Phase 120 Frontend sauber
+- Alle 4 neuen Komponenten korrekt in bestehende Views integriert
+- Keine TypeScript-Fehler, kein Dead Code, keine unnötigen API-Aufrufe
+
+### Status nach Review #88
+- TypeScript: 0 Fehler ✅
+- Build: 204 Seiten sauber ✅
+- Alle 120 Phasen abgeschlossen ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: vollständig synchron ✅
+- Deutsche Texte: durchgängig ✅
+- **MARKT-REIF** ✅
 
 ---
 
