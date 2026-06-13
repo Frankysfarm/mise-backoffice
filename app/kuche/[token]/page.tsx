@@ -16,7 +16,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
 
   const [{ data: orders }, { data: items }] = await Promise.all([
     svc.from('customer_orders')
-      .select('id, bestellnummer, status, kunde_name, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz)')
+      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz)')
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),

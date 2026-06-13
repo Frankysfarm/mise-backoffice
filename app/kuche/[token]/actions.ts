@@ -13,7 +13,7 @@ export async function getKitchenData(token: string) {
   const svc = createServiceClient();
   const [{ data: orders }, { data: items }] = await Promise.all([
     svc.from('customer_orders')
-      .select('id, bestellnummer, status, kunde_name, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz)')
+      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, items:order_items(id, name, menge, notiz)')
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),
@@ -41,6 +41,17 @@ export async function markFertig(token: string, orderId: string) {
   const svc = createServiceClient();
   const { error } = await svc.from('customer_orders')
     .update({ status: 'fertig', fertig_am: new Date().toISOString() })
+    .eq('id', orderId).eq('location_id', loc.id);
+  return error ? { error: error.message } : { ok: true };
+}
+
+/** Bestellung stornieren. */
+export async function stornoOrder(token: string, orderId: string) {
+  const loc = await locForToken(token);
+  if (!loc) return { error: 'unauth' };
+  const svc = createServiceClient();
+  const { error } = await svc.from('customer_orders')
+    .update({ status: 'storniert', storniert_am: new Date().toISOString() })
     .eq('id', orderId).eq('location_id', loc.id);
   return error ? { error: error.message } : { ok: true };
 }

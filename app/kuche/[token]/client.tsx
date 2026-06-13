@@ -1,17 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getKitchenData, acceptOrder, markFertig, toggleItem } from './actions';
+import { getKitchenData, acceptOrder, markFertig, toggleItem, stornoOrder } from './actions';
 
 type Item = { id: string; name: string; menge: number; notiz: string | null };
 type Order = {
   id: string; bestellnummer: string | null; status: string; kunde_name: string | null;
+  kunde_telefon: string | null; kunde_adresse: string | null;
   typ: string | null; gesamtbetrag: number | null; fertig_am: string | null; created_at: string;
   items: Item[];
 };
 type MenuItem = { id: string; name: string; verfuegbar: boolean };
 
-const PREP_OPTIONS = [10, 15, 20, 25, 30];
+const PREP_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 45, 60];
 
 export default function KitchenMonitor({
   token, shopName, initialOrders, initialItems,
@@ -23,6 +24,7 @@ export default function KitchenMonitor({
   const [soldOutOpen, setSoldOutOpen] = useState(false);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [stornoConfirm, setStornoConfirm] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [activated, setActivated] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -88,6 +90,11 @@ export default function KitchenMonitor({
   async function onFertig(orderId: string) {
     setBusy(orderId);
     await markFertig(token, orderId);
+    await refresh(); setBusy(null);
+  }
+  async function onStorno(orderId: string) {
+    setBusy(orderId); setStornoId(null);
+    await stornoOrder(token, orderId);
     await refresh(); setBusy(null);
   }
   async function onToggle(it: MenuItem) {
@@ -180,7 +187,7 @@ export default function KitchenMonitor({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, padding: 16, alignItems: 'start' }}>
         <Column title="NEU" count={neu.length} color="#E0A82E">
           {neu.map((o) => (
-            <Card key={o.id} o={o}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
               <button onClick={() => setAcceptingId(o.id)} disabled={busy === o.id}
                 style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', background: '#0F9C50', color: '#fff', fontWeight: 800, fontSize: 17, cursor: 'pointer' }}>
                 ✓ Annehmen
@@ -195,7 +202,7 @@ export default function KitchenMonitor({
             const left = o.fertig_am ? Math.round((new Date(o.fertig_am).getTime() - now) / 60000) : null;
             const over = left != null && left < 0;
             return (
-              <Card key={o.id} o={o}>
+              <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
                 {left != null && (
                   <div style={{ textAlign: 'center', marginBottom: 10, fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: over ? '#E5484D' : '#E07C0B' }}>
                     {over ? `+${Math.abs(left)} Min` : `noch ${left} Min`}
@@ -213,7 +220,7 @@ export default function KitchenMonitor({
 
         <Column title="FERTIG" count={fertig.length} color="#0F9C50">
           {fertig.map((o) => (
-            <Card key={o.id} o={o}>
+            <Card key={o.id} o={o} onStorno={onStorno} stornoConfirm={stornoConfirm} setStornoConfirm={setStornoConfirm}>
               <div style={{ textAlign: 'center', padding: '10px 0', color: '#0F9C50', fontWeight: 800, fontSize: 16 }}>✓ Bereit zur Abholung</div>
             </Card>
           ))}
@@ -259,13 +266,20 @@ function Column({ title, count, color, children }: { title: string; count: numbe
   );
 }
 
-function Card({ o, children }: { o: Order; children: React.ReactNode }) {
+function Card({ o, children, onStorno, stornoConfirm, setStornoConfirm }: { o: Order; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null; setStornoConfirm?: (id: string | null) => void }) {
   return (
     <div style={{ background: '#1d2823', borderRadius: 16, padding: 15, boxShadow: '0 2px 12px -6px rgba(0,0,0,.5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
         <span style={{ fontWeight: 800, fontSize: 17, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
         <span style={{ fontSize: 12, color: '#7d9488', fontWeight: 600 }}>{o.typ === 'lieferung' ? '🚗 Lieferung' : o.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</span>
       </div>
+      {(o.kunde_name || o.kunde_telefon) && (
+        <div style={{ fontSize: 12.5, color: '#9fb3a7', marginBottom: 8, lineHeight: 1.4 }}>
+          {o.kunde_name && <div style={{ fontWeight: 700, color: '#cdddd3' }}>{o.kunde_name}</div>}
+          {o.kunde_telefon && <a href={`tel:${o.kunde_telefon}`} style={{ color: '#4aa3ff', textDecoration: 'none' }}>📞 {o.kunde_telefon}</a>}
+          {o.typ === 'lieferung' && o.kunde_adresse && <div>📍 {o.kunde_adresse}</div>}
+        </div>
+      )}
       <div style={{ marginBottom: 12 }}>
         {(o.items ?? []).map((it) => (
           <div key={it.id} style={{ display: 'flex', gap: 8, fontSize: 15.5, padding: '3px 0' }}>
@@ -276,6 +290,16 @@ function Card({ o, children }: { o: Order; children: React.ReactNode }) {
         {(o.items ?? []).length === 0 && <div style={{ color: '#7d9488', fontSize: 14 }}>(keine Positionen)</div>}
       </div>
       {children}
+      {onStorno && (
+        stornoConfirm === o.id ? (
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <button onClick={() => onStorno(o.id)} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: '#E5484D', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Wirklich stornieren</button>
+            <button onClick={() => setStornoConfirm(null)} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: '#243029', color: '#9fb3a7', fontSize: 13, cursor: 'pointer' }}>Nein</button>
+          </div>
+        ) : (
+          <button onClick={() => setStornoConfirm(o.id)} style={{ width: '100%', marginTop: 8, padding: 8, borderRadius: 10, border: 'none', background: 'transparent', color: '#6b7d72', fontSize: 12, cursor: 'pointer' }}>Stornieren</button>
+        )
+      )}
     </div>
   );
 }
