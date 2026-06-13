@@ -23,6 +23,7 @@ import { TourMiniMap } from './tour-mini-map';
 import { SchichtPuls } from './schicht-puls';
 import { TourSpeedTracker } from './tour-speed-tracker';
 import { OpenBatchMap } from './open-batch-map';
+import { OfflineNetworkBanner } from './offline-network-banner';
 
 
 type Driver = {
@@ -1188,6 +1189,7 @@ export function FahrerApp({
       </main>
 
       <UpdateBanner />
+      <OfflineNetworkBanner />
 
       {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
       <PushRegister />

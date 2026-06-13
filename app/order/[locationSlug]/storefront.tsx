@@ -283,6 +283,23 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         })),
       );
 
+      // Adress-Präferenzen speichern (fire-and-forget, damit zukünftige Bestellungen vorausgefüllt werden)
+      if (orderType === 'lieferung' && form.email && form.adresse) {
+        const addressDisplay = [form.adresse, form.plz, form.stadt].filter(Boolean).join(', ');
+        void fetch('/api/delivery/preferences', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: form.email,
+            location_id: location.id,
+            address_display: addressDisplay,
+            floor: form.etage ?? undefined,
+            gate_code: form.tuercode ?? undefined,
+            special_instructions: form.lieferhinweis ?? undefined,
+          }),
+        }).catch(() => null);
+      }
+
       // Voucher-Einlösung bestätigen
       if (voucher) {
         await sb.rpc('confirm_voucher_redemption', {
