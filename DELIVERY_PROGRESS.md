@@ -1,10 +1,18 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–99 abgeschlossen. CEO Review #73 ✅. Build sauber. 0 TypeScript-Fehler. 191 Seiten. Deployment-bereit.**
+**Phasen 1–100 abgeschlossen. CEO Review #73 ✅. Build sauber. 0 TypeScript-Fehler. 192 Seiten. Deployment-bereit.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 100: Delivery Profitability Analytics Engine — 2026-06-13
+- [x] scripts/migrations/060_profitability.sql: delivery_profitability_snapshots Tabelle (revenue_eur/cost_eur/profit_eur/margin_pct als GENERATED ALWAYS stored columns, UNIQUE location_id+snapshot_date, RLS), v_zone_profitability VIEW (P&L pro Lieferzone letzte 30 Tage), v_driver_profitability VIEW (Kosten + Gewinnbeitrag pro Fahrer), v_hourly_profitability VIEW (P&L nach Tagesstunde Berlin-TZ)
+- [x] lib/delivery/profitability.ts: snapshotProfitability() (Tages-Aggregation Revenue+Cost→DB-Upsert), snapshotAllLocations() (Cron-Batch gestern für alle aktiven Locations), getSnapshots() (30/90-Tage-Verlauf), getZoneProfitability() (Zone-Tabelle), getDriverProfitability() (Fahrer-Namen via mise_drivers+employees JOIN), getHourlyProfitability() (Stundenprofil), getRecommendedFees() (Gebühren-Empfehlung: Ziel-Marge 35%, empfohlene Mindestgebühr), getDashboard() (kombinierter Response mit Trend+Vergleich)
+- [x] GET+POST /api/delivery/admin/profitability: Auth-Guard via employees.tenant_id, action=dashboard|trend, manueller Snapshot-Trigger
+- [x] app/(admin)/delivery/profitability/: ProfitabilityClient mit KPI-Karten (Umsatz/Kosten/Gewinn/Marge), SVG-Sparkline 30 Tage, Tabs Zonen-P&L/Fahrer-Kosten/Gebühren-Empfehlungen, Stundenprofil-Balkendiagramm mit Hover-Tooltip, Tages-Verlaufstabelle (letzte 14 Tage)
+- [x] Cron: snapshotProfitability() täglich um 02:00 UTC (isReportTick), profitability_snapshots in Response
+- [x] Sidebar: "Profitabilität (P&L)" mit TrendingUp-Icon unter Loslegen; TrendingUp in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: Compiled successfully ✓ (192 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 99: Smart Driver Pre-Positioning Engine — 2026-06-13
 - [x] scripts/migrations/059_driver_positioning.sql: driver_positioning_suggestions Tabelle (target_zone/target_lat/target_lng/target_label/reason/demand_score/response ENUM pending|accepted|rejected|expired, expires_at), v_positioning_compliance VIEW (acceptance_rate_pct, avg_response_min, 24h-Fenster), 3 Indizes, RLS
 - [x] lib/delivery/positioning.ts: generatePositioningSuggestions() (Prognose-gesteuert: high=nah am Restaurant, medium=Außenzonen-Abdeckung), expireStaleSuggestions(), getActiveSuggestions() (mit Fahrer-Namen + Distanz), getDriverActiveSuggestion(), respondToSuggestion(), getPositioningStats(), getPositioningHistory() (7-Tage-Verlauf), runPositioningAllLocations() (Cron-Batch)
@@ -2922,6 +2930,14 @@ Siehe DELIVERY_CEO_LOG.md
   - Build: Compiled successfully
 - 2026-05-27: Projekt gestartet, Agenten eingerichtet
 
+- 2026-06-13: Backend-Architekt — Phase 100: Delivery Profitability Analytics Engine
+  - scripts/migrations/060_profitability.sql: delivery_profitability_snapshots (GENERATED ALWAYS stored columns profit_eur/margin_pct, UNIQUE location+date, RLS), v_zone_profitability, v_driver_profitability, v_hourly_profitability VIEWs
+  - lib/delivery/profitability.ts: 8 Funktionen (snapshotProfitability, snapshotAllLocations, getSnapshots, getZoneProfitability, getDriverProfitability, getHourlyProfitability, getRecommendedFees mit 35%-Ziel-Marge, getDashboard)
+  - GET+POST /api/delivery/admin/profitability: Auth-Guard, action=dashboard|trend, manueller Snapshot
+  - app/(admin)/delivery/profitability/: ProfitabilityClient (KPI-Karten, SVG-Sparkline, Zonen/Fahrer/Gebühren-Tabs, Stundenprofil-Balkendiagramm, Tages-Tabelle)
+  - Cron: snapshotProfitability() täglich um 02:00 UTC (isReportTick)
+  - Sidebar: "Profitabilität (P&L)" + TrendingUp-Icon in ICON_MAP
+  - Build: npm run build ✓ (192 Seiten, 0 TypeScript-Fehler)
 - 2026-06-12: Backend-Architekt — Phase 96: KI-Tages-Digest + Anomalie-Erkennung
   - scripts/migrations/057_daily_digest.sql: delivery_daily_digests + RLS-Policy + Performance-Index
   - lib/delivery/daily-digest.ts: 7 Funktionen — gatherDailyMetrics() (10 KPI-Dimensionen), detectAnomalies() (8 Metriken, Warning/Critical), streamDailyDigest() (Claude Haiku SSE), saveDailyDigest() (DB + AI-Summary), getDailyDigest(), getDigestHistory(), generateDigestAllLocations()
