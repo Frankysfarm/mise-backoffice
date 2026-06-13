@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, X, Zap } from 'lucide-react';
+import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, X, Zap, Flame } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ItemDetailSheet } from './item-sheet';
 
@@ -151,6 +151,7 @@ export function StorefrontAurora({
   const remainingToMin = Math.max(0, minOrder - total);
   const isOpen = new Date().getHours() < 22;
   const initialsLetter = location.name.charAt(0).toUpperCase();
+  const popularItems = React.useMemo(() => items.filter((i) => i.beliebt && i.verfuegbar !== false), [items]);
 
   function addItem(itemId: string) {
     setCart((prev) => {
@@ -358,6 +359,90 @@ export function StorefrontAurora({
             />
           </label>
         </div>
+
+        {/* === BELIEBTE ARTIKEL (horizontaler Scroll-Strip) === */}
+        {popularItems.length > 0 && !search.trim() && (
+          <section style={{ paddingTop: 32, paddingBottom: 8 }}>
+            <div className="au-container" style={{ paddingBottom: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <Flame size={16} strokeWidth={1.8} style={{ color: 'var(--brand-primary, #4F46E5)', flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.5, marginBottom: 2 }}>Am beliebtesten</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '-0.02em' }}>Das lieben unsere Gäste</div>
+                </div>
+              </div>
+            </div>
+            {/* Horizontaler Scroll-Bereich */}
+            <div style={{
+              display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 16px',
+              scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+            }}>
+              {popularItems.map((item) => {
+                const qty = cart.get(item.id) ?? 0;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => setSheetItem(item)}
+                    style={{
+                      flexShrink: 0, width: 160, borderRadius: 16,
+                      border: '1px solid var(--border, rgba(0,0,0,0.08))',
+                      background: 'var(--surface, #fff)',
+                      overflow: 'hidden', cursor: 'pointer',
+                      scrollSnapAlign: 'start',
+                      boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+                    }}
+                  >
+                    {/* Bild oder Emoji */}
+                    {item.bild_url ? (
+                      <img
+                        src={item.bild_url}
+                        alt={item.name}
+                        style={{ width: '100%', height: 100, objectFit: 'cover', display: 'block' }}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div style={{
+                        width: '100%', height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'var(--surface-2, rgba(0,0,0,0.04))', fontSize: 36,
+                      }}>
+                        🍽️
+                      </div>
+                    )}
+                    <div style={{ padding: '10px 10px 12px' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: 3, lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {item.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--brand-primary, #4F46E5)' }}>
+                          {formatEuro(item.preis)} €
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); if (qty > 0) removeItem(item.id); else addItem(item.id); }}
+                          style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            background: qty > 0 ? 'var(--brand-primary, #4F46E5)' : 'var(--surface-2, rgba(0,0,0,0.06))',
+                            border: 'none', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: qty > 0 ? '#fff' : 'var(--text-primary, #111)',
+                            fontSize: 18, fontWeight: 700, transition: 'background 0.15s',
+                          }}
+                        >
+                          {qty > 0 ? <Minus size={13} strokeWidth={2.5} /> : <Plus size={13} strokeWidth={2.5} />}
+                        </button>
+                      </div>
+                      {qty > 0 && (
+                        <div style={{ marginTop: 4, fontSize: '0.7rem', fontWeight: 700, color: 'var(--brand-primary, #4F46E5)' }}>
+                          {qty}× im Warenkorb
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* === SECTIONS === */}
         {categories.map((cat) => {
