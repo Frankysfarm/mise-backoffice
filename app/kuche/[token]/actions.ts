@@ -47,11 +47,11 @@ export async function getKitchenData(token: string) {
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),
-    svc.from('menu_items').select('id, name, verfuegbar').eq('tenant_id', loc.tenant_id).order('name').limit(200),
+    svc.from('menu_items').select('id, name, verfuegbar').eq('location_id', loc.id).order('name').limit(200),
   ]);
 
   // Online-Fahrer des Tenants + Status (Tracking + "auf Rueckweg")
-  const { data: dt } = await svc.from('mise_driver_tenants').select('driver_id').eq('tenant_id', loc.tenant_id);
+  const { data: dt } = await svc.from('mise_driver_tenants').select('driver_id').eq('location_id', loc.id);
   const dids = [...new Set((dt ?? []).map((x: any) => x.driver_id))];
   let drivers: any[] = [];
   if (dids.length) {
@@ -136,6 +136,6 @@ export async function toggleItem(token: string, itemId: string, verfuegbar: bool
   const loc = await locForToken(token);
   if (!loc) return { error: 'unauth' };
   const svc = createServiceClient();
-  const { error } = await svc.from('menu_items').update({ verfuegbar }).eq('id', itemId).eq('tenant_id', loc.tenant_id);
+  const { error } = await svc.from('menu_items').update({ verfuegbar }).eq('id', itemId).eq('location_id', loc.id);
   return error ? { error: error.message } : { ok: true };
 }

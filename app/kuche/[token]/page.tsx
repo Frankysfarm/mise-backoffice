@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
       .order('created_at', { ascending: true }),
     svc.from('menu_items')
       .select('id, name, verfuegbar')
-      .eq('tenant_id', loc.tenant_id)
+      .eq('location_id', loc.id)
       .order('name')
       .limit(200),
     svc.from('tenants').select('name, logo_url, theme_primary').eq('id', loc.tenant_id).maybeSingle(),
