@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–108 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 196 Seiten. Deployment-bereit.**
+**Phasen 1–109 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 197 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 109 abgeschlossen. Build 197 Seiten sauber.**
 **CEO Review #79 — 2026-06-13: 6 Frontend-Commits + Phase 108 geprüft. 4 Bugs gefixt (TS-Fehler). Alle Systeme grün.**
 **CEO Review #78 — 2026-06-13: Phase 104+105 geprüft. 1 Bug gefixt (aria-label). Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 106+107 abgeschlossen. Build 195 Seiten sauber.**
@@ -9,6 +10,15 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 109: Fahrer-Kommunikations-Log (Push/Broadcast/System-Nachrichten-Tracking) — 2026-06-13
+- [x] scripts/migrations/067_driver_comms_log.sql: driver_communication_log (channel push|broadcast|in_app|system, message_type 9 ENUMs, direction dispatch_to_driver|system|driver_to_dispatch, status sent|delivered|read|failed, title/body/sent_by_name/reference_type/reference_id/metadata JSONB, 4 Indizes, RLS), v_comms_log_stats VIEW (KPIs: total/heute/woche nach Kanal, read_rate_pct/delivery_rate_pct), v_comms_log_driver_summary VIEW (pro-Fahrer: total/today/last_message_at/read_count/push_count/broadcast_count)
+- [x] lib/delivery/comms-log.ts: logCommunication() fire-and-forget (tableExists-Guard, nie blockierend), markCommDelivered/markCommRead(), getCommunicationLog() (paginiert, alle Filter: channel/type/status/driver/datum), getCommLogStats() (aus v_comms_log_stats View), getDriverCommSummaries() (aus v_comms_log_driver_summary View), getHourlyCommVolume() (24h-Stunden-Buckets via UTC-Aggregation), getCommLogDashboard() (kombinierter Response), pruneOldCommsLogs() (Cron-Cleanup >90 Tage), sendDirectDriverMessage() (Push in mise_push_outbox + Log in einem Schritt)
+- [x] GET+POST /api/delivery/admin/comms-log: Auth via employees.tenant_id, GET action=dashboard|log|stats|drivers (log mit Filtern channel/message_type/status/driver_id/from/to/limit/offset), POST action=send_direct|mark_read|mark_delivered
+- [x] app/(admin)/delivery/comms-log/: CommsLogClient mit 4 KPI-Karten (Nachrichten heute/Zustellrate%/Leserate%/Fehler), Stunden-Balkendiagramm (24h UTC-Buckets), Kanal-Übersicht (Push/Broadcast/In-App/System Counts), 3 Tabs: Nachrichten-Log (Filter Kanal+Status+Fahrer mit Reset, aufklappbare MessageRow mit Zeitstempel+Referenz+Metadata), Fahrer-Übersicht (Leserate-Fortschrittsbalken pro Fahrer), Nachricht-senden (Direkt-Push-Formular an ausgewählten Fahrer), Info-Box, 60s Auto-Refresh
+- [x] messaging.ts: sendBroadcast() loggt jetzt fire-and-forget via logCommunication() (channel=broadcast, referenceType=broadcast, metadata={priority, target})
+- [x] Cron: pruneOldCommsLogs(90) täglich 02:00 UTC (isReportTick) → comms_logs_pruned in Response
+- [x] Sidebar: "Kommunikations-Log" mit MessageSquare-Icon unter Loslegen-Gruppe; MessageSquare in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: next build ✓ (197 Seiten, 0 Fehler)
 - [x] Phase 108: Smart Customer Address Intelligence & Delivery Notes Engine — 2026-06-13
 - [x] scripts/migrations/066_address_intelligence.sql: customer_address_preferences (location_id/customer_email/address_hash/address_display/ring_bell/leave_at_door/floor/apartment/gate_code/building_info/special_instructions/use_count, UNIQUE location+email+hash, RLS), delivery_address_issues (issue_type ENUM unreachable/wrong_address/no_answer/access_denied/unsafe/other, resolved/resolved_at, RLS), v_problematic_addresses VIEW (≥2 ungelöste Issues in 90 Tagen, issue_count/affected_orders/issue_types Array), v_address_intelligence_stats VIEW (KPIs: total_saved_addresses/problematic_addresses/issues_today/issues_this_week/pct_with_special_instructions)
 - [x] lib/delivery/address-intelligence.ts: hashAddress() (SHA-256 normalisierte Adresse), getAddressPreferences() (Lookup nach email+hash+locationId), getCustomerAddresses() (alle Adressen eines Kunden), saveAddressPreferences() (Upsert + use_count-Inkrement), getOrderAddressInfo() (bereichert Fahrer-App Stop mit Präferenzen + Quality-Score), recordAddressIssue() (Fahrer-Meldung nach Fehlversuch, Adresse aus Order gelöst), resolveAddressIssue() (Issue als gelöst markieren), getProblematicAddresses() (View-basiert, minIssues konfigurierbar), getRecentIssues() (letztes Issue-Log), getAddressIntelligenceDashboard() (kombinierter Response), getAddressStats() (KPIs aus View), scanProblematicAddressesAllLocations() (Cron-Batch)
