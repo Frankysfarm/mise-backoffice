@@ -227,17 +227,21 @@ function CountdownCard({
           <div className="text-[10px] text-muted-foreground truncate">{order.kunde_name}</div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          {/* Order type badge */}
+          <span className={cn(
+            'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
+            order.typ === 'lieferung'
+              ? isOverdue ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+              : order.typ === 'abholung'
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-purple-100 text-purple-700',
+          )} title={order.typ === 'lieferung' ? 'Lieferung' : order.typ === 'abholung' ? 'Abholung' : 'Tisch'}>
+            {order.typ === 'lieferung' ? '🛵' : order.typ === 'abholung' ? '🥡' : '🍽️'}
+          </span>
           {/* Station badge */}
           <span className={cn('flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-bold', stationMeta.color)}>
             <StationIcon className="h-2.5 w-2.5" />
             {stationMeta.label}
-          </span>
-          {/* Delivery type badge */}
-          <span className={cn(
-            'rounded-full px-1.5 py-0.5 text-[9px] font-bold',
-            isOverdue ? 'bg-red-100 text-red-700' : isUrgent ? 'bg-orange-100 text-orange-700' : 'bg-matcha-100 text-matcha-700',
-          )}>
-            {order.items.length} Pos.
           </span>
         </div>
       </div>
@@ -336,6 +340,10 @@ export function KitchenSmartCountdownGrid({
 
   const activeStations = stationOrder.filter(s => (stationGroups.get(s) ?? []).length > 0);
 
+  // Queue clearance: how many minutes until the last order is done
+  const maxSecsLeft = Math.max(...sorted.map(o => getSecsLeft(o, timingMap.get(o.id))));
+  const clearMinutes = maxSecsLeft > 0 ? Math.ceil(maxSecsLeft / 60) : null;
+
   return (
     <div className="rounded-xl border bg-card p-3 space-y-3">
       {/* Kitchen Health Score Bar */}
@@ -379,14 +387,22 @@ export function KitchenSmartCountdownGrid({
             ⚡ {urgentCount} dringend
           </span>
         )}
-        {driverCount > 0 && (
-          <span className="ml-auto flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[10px] font-black">
-            <Bike className="h-2.5 w-2.5" /> {driverCount} Fahrer auf Weg
-          </span>
-        )}
-        {driverCount === 0 && (
-          <span className="ml-auto text-[10px] text-muted-foreground">Farbe = Dringlichkeit</span>
-        )}
+        <span className="ml-auto flex items-center gap-2">
+          {clearMinutes != null && (
+            <span className={cn(
+              'flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black',
+              clearMinutes <= 5 ? 'bg-orange-100 text-orange-700' : 'bg-matcha-100 text-matcha-700',
+            )} title="Älteste offene Bestellung fertig in">
+              <Clock className="h-2.5 w-2.5" />
+              frei ~{clearMinutes} Min
+            </span>
+          )}
+          {driverCount > 0 && (
+            <span className="flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[10px] font-black">
+              <Bike className="h-2.5 w-2.5" /> {driverCount} Fahrer auf Weg
+            </span>
+          )}
+        </span>
       </div>
 
       {/* Station-grouped grid */}
