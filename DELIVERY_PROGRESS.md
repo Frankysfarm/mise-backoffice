@@ -1,12 +1,22 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–107 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
+**Phasen 1–108 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 196 Seiten. Deployment-bereit.**
 **CEO Review #78 — 2026-06-13: Phase 104+105 geprüft. 1 Bug gefixt (aria-label). Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 106+107 abgeschlossen. Build 195 Seiten sauber.**
+**Backend-Architekt — 2026-06-13: Phase 108 abgeschlossen. Build 196 Seiten sauber.**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 108: Smart Customer Address Intelligence & Delivery Notes Engine — 2026-06-13
+- [x] scripts/migrations/066_address_intelligence.sql: customer_address_preferences (location_id/customer_email/address_hash/address_display/ring_bell/leave_at_door/floor/apartment/gate_code/building_info/special_instructions/use_count, UNIQUE location+email+hash, RLS), delivery_address_issues (issue_type ENUM unreachable/wrong_address/no_answer/access_denied/unsafe/other, resolved/resolved_at, RLS), v_problematic_addresses VIEW (≥2 ungelöste Issues in 90 Tagen, issue_count/affected_orders/issue_types Array), v_address_intelligence_stats VIEW (KPIs: total_saved_addresses/problematic_addresses/issues_today/issues_this_week/pct_with_special_instructions)
+- [x] lib/delivery/address-intelligence.ts: hashAddress() (SHA-256 normalisierte Adresse), getAddressPreferences() (Lookup nach email+hash+locationId), getCustomerAddresses() (alle Adressen eines Kunden), saveAddressPreferences() (Upsert + use_count-Inkrement), getOrderAddressInfo() (bereichert Fahrer-App Stop mit Präferenzen + Quality-Score), recordAddressIssue() (Fahrer-Meldung nach Fehlversuch, Adresse aus Order gelöst), resolveAddressIssue() (Issue als gelöst markieren), getProblematicAddresses() (View-basiert, minIssues konfigurierbar), getRecentIssues() (letztes Issue-Log), getAddressIntelligenceDashboard() (kombinierter Response), getAddressStats() (KPIs aus View), scanProblematicAddressesAllLocations() (Cron-Batch)
+- [x] GET+POST /api/delivery/admin/address-intelligence: Auth via employees.tenant_id, action=dashboard|stats|problematic|issues (GET), action=resolve_issue|record_issue (POST)
+- [x] GET+POST /api/delivery/preferences: Öffentlicher Endpunkt — GET Präferenzen nach email+address_hash, GET action=order (Fahrer-App Stop-Enrichment), POST speichert/aktualisiert Präferenzen
+- [x] app/(admin)/delivery/address-intelligence/: AddressIntelligenceClient mit 4 KPI-Karten (Gespeicherte Adressen/Problem-Adressen/Issues heute/Mit Lieferhinweisen%), 3 Tabs (Problem-Adressen/Issue-Log/So-funktioniert-es), ProblematicAddressRow (aufklappbar, Quality-Score-Badge, Issue-Typen-Chips, Alle-lösen-Button), IssueRow (Typ-Badge/Adresse/Fahrer-Notiz/Zeitstempel/Einzel-Lösen-Button), Info-Panel (6 Feature-Erklärungen mit Icons), 60s Auto-Refresh
+- [x] Cron: scanProblematicAddressesAllLocations() täglich 05:00 UTC (isAddressScanTick) → address_intelligence: { locations, problematic } in Response
+- [x] Sidebar: "Adress-Intelligenz" mit MapPinned-Icon unter Loslegen-Gruppe; MapPinned in sidebar-client.tsx ICON_MAP ergänzt
+- [x] Build: next build ✓ (196 Seiten, 0 Fehler)
 - [x] Phase 107: Live Order Tracking + GeoFencing Backend — 2026-06-13
 - [x] scripts/migrations/065_order_tracking_sessions.sql: order_tracking_sessions (order_id/bestellnummer/started_at/last_ping_at/pings/almost_there_at/arrived_at/user_agent/ip_hash, RLS), v_tracking_session_stats VIEW (tägliche Analytics pro Location), v_live_order_tracking VIEW (Fahrer-Position + Haversine-Distanz + Almost-There-Flag < 300m via LATERAL JOIN auf mise_driver_locations)
 - [x] lib/delivery/live-tracking.ts: computeGeofencing() (Distanz, almostThere <300m, etaMinRemaining via Speed/Fallback, bearingDeg), getOrderTrackingData() (vollständiger Tracking-Payload mit Geofencing), recordTrackingSession() (Analytics fire-and-forget, Session-Ping-Update), getTrackingSessionStats()
