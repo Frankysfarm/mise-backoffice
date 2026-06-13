@@ -451,6 +451,9 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
   const edge = o.status === 'neu' || o.status === 'bestätigt' ? C.neu : o.status === 'in_zubereitung' ? C.zub : C.fertig;
   return (
     <div style={{ background: C.card, borderRadius: 18, padding: 18, borderLeft: `5px solid ${edge}`, border: `1px solid ${C.borderStrong}`, borderLeftWidth: 5, boxShadow: '0 4px 16px -6px rgba(0,0,0,.6)', animation: over ? 'kpul 1.2s ease-in-out infinite' : undefined }}>
+      {cookHold && (
+        <div style={{ background: C.warnTint, color: C.warnSoft, borderRadius: 8, padding: '7px 10px', fontSize: 12.5, fontWeight: 800, marginBottom: 10, textAlign: 'center', letterSpacing: '.02em' }}>⏸ ALLE FAHRER UNTERWEGS — NOCH NICHT KOCHEN</div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontWeight: 800, fontSize: 28, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
