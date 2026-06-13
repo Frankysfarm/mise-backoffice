@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–111 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Phasen 1–112 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 112 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #82 — 2026-06-13: Phase 111 (Frontend + Backend) geprüft. 3 TS-Fehler gefixt. Build 198 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 111 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #81 — 2026-06-13: Phase 110 + 2 Frontend-Commits geprüft. 0 Bugs. Build 198 Seiten sauber. Alle Systeme grün.**
@@ -15,6 +16,12 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 112: Fahrer-Review-Flag Admin-UI + täglicher Cron-Scan — 2026-06-13
+- [x] lib/delivery/review-flags.ts: +checkAllDrivers() — scannt alle (driver_id, location_id)-Paare der letzten 14 Tage, idempotent, 06:00 UTC Cron
+- [x] app/(admin)/lieferdienst/review-flags-panel.tsx: ReviewFlagsPanel (KPI-StatCards, FlagRow mit Aktionen, ManualFlagForm, Doppelfilter Status+Grund)
+- [x] client.tsx: 'reviews' in currentView + ReviewFlagsPanel-View
+- [x] app-sidebar.tsx: Flag-Icon + "Fahrer-Reviews" NavItem
+- [x] cron: checkAllDrivers() täglich 06:00 UTC + review_flag_scan in Response
 - [x] Phase 111: Fahrer-Review-Flag Engine (schlechte Kunden-Ratings triggern automatisch Admin-Review-Flag) — 2026-06-13
 - [x] scripts/migrations/069_driver_review_flags.sql: driver_review_flags-Tabelle (flag_reason low_avg_14d|one_star_burst_7d|manual, review_status open/in_review/resolved/dismissed, UNIQUE-Partial-Index verhindert doppelte offene Flags), v_drivers_needing_review VIEW (Join mit Fahrerdaten + days_open), v_review_flag_stats VIEW (Dashboard-KPIs: open_count, in_review_count, resolved_30d, dismissed_30d, new_7d, avg_flagged_rating)
 - [x] lib/delivery/review-flags.ts: checkAndFlagDriver() (Regel 1: avg<3.0 bei ≥3 Ratings/14d; Regel 2: ≥2 Einzel-Sterne/7d; idempotent via UNIQUE-Index), processRatingReviewCheck() (fire-and-forget nach Rating-Abgabe), getOpenFlags() (Admin-Liste), updateFlagStatus() (open→in_review→resolved/dismissed), createManualFlag() (Admin-Eingriff), getFlagStats() (Dashboard-KPIs)
@@ -2766,6 +2773,13 @@ Siehe DELIVERY_CEO_LOG.md
 - Build: npm run build ✓ (170 Seiten, 0 Fehler)
 
 ## Letzte Änderungen
+- 2026-06-13: Backend-Architekt — Phase 112: Fahrer-Review-Flag Admin-UI + täglicher Cron-Scan
+  - lib/delivery/review-flags.ts: +checkAllDrivers() — distinct (driver_id, location_id)-Paare aus customer_delivery_ratings der letzten 14 Tage, checkAndFlagDriver() für jedes Paar, idempotent
+  - app/(admin)/lieferdienst/review-flags-panel.tsx: ReviewFlagsPanel (350 Zeilen): 6 KPI-StatCards (offen, in_review, neu 7d, gelöst/verworfen 30d, ⌀ Rating geflaggte Fahrer), FlagRow (aufklappbar: Admin-Notiz, Aktionen in_review/resolved/dismissed), ManualFlagForm (Fahrerliste + POST), Doppelfilter Status+Grund
+  - app/(admin)/lieferdienst/client.tsx: 'reviews' in currentView-Typ, ReviewFlagsPanel-Import + View-Rendering
+  - components/lieferdienst/app-sidebar.tsx: Flag-Icon + "Fahrer-Reviews" NavItem (Typ erweitert)
+  - cron: checkAllDrivers() täglich 06:00 UTC, review_flag_scan in JSON-Response
+  - Build: npm run build ✓ (198 Seiten, 0 TypeScript-Fehler)
 - 2026-06-11: Backend-Architekt — Phase 61: Fahrer-Bewerbungs- & Onboarding-Engine
   - scripts/migrations/049_driver_onboarding.sql: driver_applications + driver_onboarding_steps + v_application_overview + v_onboarding_funnel
   - lib/delivery/onboarding.ts: 10 Funktionen (submitApplication, getApplications, getApplicationById, updateApplicationStatus, createDefaultOnboardingSteps, getOnboardingSteps, updateOnboardingStep, linkDriverToApplication, expireStaleApplicationsAllLocations, getOnboardingFunnelStats)
