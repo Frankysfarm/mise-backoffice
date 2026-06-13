@@ -67,6 +67,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/order/') ||
     pathname.startsWith('/t/') ||
     pathname.startsWith('/kuche/') ||
+    pathname.startsWith('/api/print/') ||
     pathname.startsWith('/here/') ||
     pathname.startsWith('/bon/') ||
     pathname.startsWith('/pruefung/') ||

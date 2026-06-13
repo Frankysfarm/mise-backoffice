@@ -3,8 +3,38 @@ import { createServiceClient } from '@/lib/supabase/server';
 
 async function locForToken(token: string) {
   const svc = createServiceClient();
-  const { data } = await svc.from('locations').select('id, tenant_id').eq('kitchen_token', token).maybeSingle();
+  const { data } = await svc.from('locations').select('id, tenant_id, name, print_method').eq('kitchen_token', token).maybeSingle();
   return data;
+}
+
+function bonText(shop: string, o: any, items: any[], prepMin: number): string {
+  const line = '--------------------------------';
+  const L: string[] = ['      ' + (shop || '').toUpperCase(), '      Kuechen-Bon', line];
+  L.push('#' + String(o.bestellnummer || '').slice(-6) + '  ' + new Date().toLocaleString('de-DE'));
+  L.push(String(o.typ || '').toUpperCase());
+  L.push(line);
+  if (o.kunde_name) L.push(String(o.kunde_name));
+  if (o.kunde_telefon) L.push('Tel: ' + o.kunde_telefon);
+  if (o.typ === 'lieferung' && o.kunde_adresse) L.push(String(o.kunde_adresse));
+  L.push(line);
+  for (const it of items) L.push((it.menge || 1) + 'x ' + it.name + (it.notiz ? ' (' + it.notiz + ')' : ''));
+  L.push(line);
+  if (prepMin) L.push('   FERTIG IN ' + prepMin + ' MIN');
+  L.push(''); L.push(''); L.push('');
+  return L.join('\n');
+}
+
+export async function setPrintMethod(token: string, method: string) {
+  const loc = await locForToken(token); if (!loc) return { error: 'unauth' };
+  const svc = createServiceClient();
+  await svc.from('locations').update({ print_method: method }).eq('id', loc.id);
+  return { ok: true };
+}
+export async function testPrint(token: string) {
+  const loc = await locForToken(token); if (!loc) return { error: 'unauth' };
+  const svc = createServiceClient();
+  await svc.from('mise_print_jobs').insert({ location_id: loc.id, payload: bonText((loc as any).name, { bestellnummer: 'TEST00', typ: 'lieferung', kunde_name: 'Test-Kunde' }, [{ menge: 1, name: 'Test-Bon (Drucker OK)', notiz: null }], 0) });
+  return { ok: true };
 }
 
 export async function getKitchenData(token: string) {
@@ -40,7 +70,7 @@ export async function getKitchenData(token: string) {
       });
     }
   }
-  return { orders: orders ?? [], items: items ?? [], drivers };
+  return { orders: orders ?? [], items: items ?? [], drivers, printMethod: (loc as any).print_method ?? 'browser' };
 }
 
 /** Annehmen: setzt in_zubereitung + Fertig-Zeitpunkt (jetzt + prepMin). */
@@ -52,6 +82,12 @@ export async function acceptOrder(token: string, orderId: string, prepMin: numbe
   const { error } = await svc.from('customer_orders')
     .update({ status: 'in_zubereitung', fertig_am: fertigAm })
     .eq('id', orderId).eq('location_id', loc.id);
+  if (!error && (loc as any).print_method === 'cloudprnt') {
+    const { data: ord } = await svc.from('customer_orders')
+      .select('bestellnummer, typ, kunde_name, kunde_telefon, kunde_adresse, items:order_items(name, menge, notiz)')
+      .eq('id', orderId).maybeSingle();
+    if (ord) await svc.from('mise_print_jobs').insert({ location_id: loc.id, payload: bonText((loc as any).name, ord, (ord as any).items ?? [], prepMin) });
+  }
   return error ? { error: error.message } : { ok: true };
 }
 
