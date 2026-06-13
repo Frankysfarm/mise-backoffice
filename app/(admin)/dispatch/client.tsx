@@ -1143,17 +1143,21 @@ export function DispatchBoard({
                 Alles ausgeliefert. Neue Bestellungen erscheinen hier live.
               </div>
             ) : (
-              <div className="divide-y">
-                {readyOrders.map((o) => (
-                  <OrderRow
-                    key={o.id}
-                    order={o}
-                    selected={selected.has(o.id)}
-                    onToggle={() => toggleSelect(o.id)}
-                    onScoreClick={openScorePopover}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Wartezeit-Verteilung: farbkodierte Balken zeigen Urgenz auf einen Blick */}
+                <ReadyOrderWaitHeatmap orders={readyOrders} />
+                <div className="divide-y">
+                  {readyOrders.map((o) => (
+                    <OrderRow
+                      key={o.id}
+                      order={o}
+                      selected={selected.has(o.id)}
+                      onToggle={() => toggleSelect(o.id)}
+                      onScoreClick={openScorePopover}
+                    />
+                  ))}
+                </div>
+              </>
             )}
             {/* Tour-Vorschau: Inline-Zusammenfassung der ausgewählten Bestellungen */}
             {selected.size >= 1 && (
@@ -2244,6 +2248,69 @@ function Metric({ icon, label, value, highlight }: { icon: React.ReactNode; labe
       <div>
         <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
         <div className={cn('font-display text-sm font-bold leading-none', valColor)}>{value}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── ReadyOrderWaitHeatmap ─────────────────────────────────────────────────────
+   Zeigt Wartezeit-Verteilung der fertigen Bestellungen als farbkodierte Balken.
+   Jeder Balken = eine Bestellung, Farbe = Wartedauer.
+────────────────────────────────────────────────────────────────────────────── */
+function ReadyOrderWaitHeatmap({ orders }: { orders: { fertig_am: string | null; bestellnummer: string }[] }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (orders.length === 0) return null;
+
+  const now = Date.now();
+  const buckets = [
+    { label: '<5m',  max: 5,  color: 'bg-matcha-400', text: 'text-matcha-700' },
+    { label: '5-10m', max: 10, color: 'bg-amber-400',  text: 'text-amber-700' },
+    { label: '10-15m',max: 15, color: 'bg-orange-500', text: 'text-orange-700' },
+    { label: '>15m',  max: Infinity, color: 'bg-red-500', text: 'text-red-700' },
+  ];
+
+  const counts = buckets.map((b, i) => {
+    const prev = i > 0 ? buckets[i - 1].max : 0;
+    return orders.filter((o) => {
+      if (!o.fertig_am) return i === 0;
+      const min = (now - new Date(o.fertig_am).getTime()) / 60_000;
+      return min >= prev && min < b.max;
+    }).length;
+  });
+
+  const hasUrgent = counts[2] > 0 || counts[3] > 0;
+
+  return (
+    <div className={cn(
+      'flex items-center gap-3 border-b px-5 py-2',
+      hasUrgent ? 'bg-red-50' : 'bg-muted/30',
+    )}>
+      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">Wartezeit</span>
+      <div className="flex-1 flex items-center gap-1 min-w-0">
+        {orders.map((o) => {
+          const min = o.fertig_am ? (now - new Date(o.fertig_am).getTime()) / 60_000 : 0;
+          const bIdx = min < 5 ? 0 : min < 10 ? 1 : min < 15 ? 2 : 3;
+          const b = buckets[bIdx];
+          return (
+            <div
+              key={o.bestellnummer}
+              className={cn('h-3 w-3 rounded-sm shrink-0', b.color, bIdx >= 2 && 'animate-pulse')}
+              title={`${o.bestellnummer}: ${Math.round(min)} Min warten`}
+            />
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {buckets.map((b, i) => counts[i] > 0 && (
+          <span key={b.label} className={cn('text-[9px] font-black tabular-nums', b.text)}>
+            {counts[i]}×{b.label}
+          </span>
+        ))}
       </div>
     </div>
   );

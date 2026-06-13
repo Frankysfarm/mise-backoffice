@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   ArrowUp, ArrowUpLeft, ArrowUpRight, ArrowLeft, ArrowRight,
   ArrowDown, ArrowDownLeft, ArrowDownRight, RefreshCw,
-  Navigation, ChevronRight, Loader2, MapPin,
+  Navigation, ChevronRight, ChevronDown, Loader2, MapPin, List,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +36,7 @@ interface NavData {
   steps_remaining: number;
   distance_remaining_m: number;
   duration_remaining_s: number;
+  segment?: { steps: NavStep[]; total_dist_m: number; total_dur_s: number };
   deep_links: {
     google: string;
     apple: string;
@@ -111,6 +112,7 @@ export function NaviWidget({
   const [data, setData] = useState<NavData | null>(null);
   const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showAllSteps, setShowAllSteps] = useState(false);
   const lastFetchRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -244,6 +246,48 @@ export function NaviWidget({
               <span className="text-[10px] text-matcha-400 tabular-nums shrink-0">
                 {fmtDistance(next_step.distance_m)}
               </span>
+            </div>
+          )}
+
+          {/* Alle Schritte — aufklappbare Schritt-für-Schritt-Liste */}
+          {data?.segment?.steps && data.segment.steps.length > 2 && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowAllSteps((v) => !v)}
+                className="flex items-center gap-1.5 w-full text-left text-[10px] font-bold text-matcha-400 hover:text-matcha-200 transition py-1"
+              >
+                <List size={10} />
+                {showAllSteps ? 'Schritte ausblenden' : `Alle ${data.segment.steps.length} Schritte`}
+                <ChevronDown size={10} className={cn('ml-auto transition-transform', showAllSteps && 'rotate-180')} />
+              </button>
+              {showAllSteps && (
+                <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+                  {data.segment.steps.map((step, i) => {
+                    const isCurrent = step.index === data.current_step?.index;
+                    return (
+                      <div
+                        key={i}
+                        className={cn(
+                          'flex items-center gap-2 rounded-lg px-2 py-1.5 text-[10px]',
+                          isCurrent
+                            ? 'bg-accent/20 border border-accent/40 text-matcha-100'
+                            : 'bg-matcha-800/30 text-matcha-400',
+                        )}
+                      >
+                        <div className={cn(
+                          'shrink-0 w-5 h-5 rounded-md flex items-center justify-center',
+                          isCurrent ? 'bg-accent' : 'bg-matcha-700',
+                        )}>
+                          <ManeuverIcon maneuver={step.maneuver} size={10} />
+                        </div>
+                        <span className="flex-1 min-w-0 truncate">{step.instruction}</span>
+                        <span className="shrink-0 tabular-nums">{fmtDistance(step.distance_m)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
