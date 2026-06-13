@@ -48,6 +48,7 @@ import { TagesabschlussModal } from './tagesabschluss'
 import { RealtimeFlowChart } from '@/components/lieferdienst/realtime-flow-chart'
 import { SchichtPrognosePanel } from './schicht-prognose'
 import { DeliveryLiveKpiPanel } from './delivery-live-kpi'
+import { TourPerformancePanel } from './tour-performance-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -931,6 +932,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Live-Lieferungs-KPIs: Echte Daten aus dem Delivery-System — Heute geliefert, SLA, Ø Zeit, Zonen */}
               <DeliveryLiveKpiPanel />
+              {/* Tour-Performance-Analyse: 30-Tage-Trend, Zonen-Effizienz, KI-Empfehlung */}
+              <TourPerformancePanel />
               {/* Schicht-KPI-Leiste: Schnellübersicht der wichtigsten Kennzahlen */}
               <ShiftKPIStrip
                 orders={[...orders, ...completedOrders].map(o => ({
