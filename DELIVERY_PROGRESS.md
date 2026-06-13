@@ -1,12 +1,18 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–104 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
+**Phasen 1–105 abgeschlossen. Build sauber. 0 TypeScript-Fehler. 195 Seiten. Deployment-bereit.**
+**CEO Review #78 — 2026-06-13: Phase 104+105 geprüft. 1 Bug gefixt (aria-label). Alle Systeme grün.**
 **CEO Review #77 — 2026-06-13: Phase 103 geprüft. 0 Bugs. Alle Systeme grün.**
-**CEO Review #76 — 2026-06-13: 1 Bug gefixt (pruneOldSnapshots Cron-Verdrahtung).**
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 105: Fahrer-Pickup-Prognose, SLA-Metriken, Stopp-ETA, Schicht-KPI-Banner — 2026-06-13
+- [x] app/(admin)/kitchen/client.tsx: KitchenDriverPickupForecast — 30-Min-Vorschau Fahrer-Rückkehr, Urgency-Stufen now/soon/later, freie-Fahrer-Banner, Auto-Refresh 10s
+- [x] app/(admin)/dispatch/client.tsx: SLA-Pünktlichkeit + ETA-Genauigkeit als farbkodierte Metric-Chips im Toolbar, Metric-Komponente um highlight + string-value erweitert
+- [x] app/fahrer/app/client.tsx: Geschätzte Ankunftszeit (~Min + Uhrzeit) je Stopp in offenen Tour-Karten (clientseitig, keine API nötig)
+- [x] components/lieferdienst/statistics-view.tsx: SchichtKPIBanner — 4-spaltige KPI-Kacheln (Umsatz, Lieferungen, SLA Pünktlichkeit, Ø Lieferzeit), conditional rendering, farbkodierte SLA-Ampel
+- [x] CEO Review #78: 1 Bug gefixt (title→aria-label auf CheckCircle2 in KitchenDriverPickupForecast), 0 weitere Fehler, Build 195 Seiten sauber
 - [x] Phase 104: Smart Predictive Surge Engine & Driver Mobilization — 2026-06-13
 - [x] scripts/migrations/063_surge_prediction.sql: surge_predictions (location_id/surge_window_start/surge_window_end/predicted_intensity low|medium|high/confidence_pct/signals JSONB/broadcasts_sent/actual_peak_orders/was_accurate, RLS), surge_mobilization_events (prediction_id→Cascade/driver_id/notified_at/came_online_at, RLS), v_mobilization_effectiveness VIEW (accuracy_pct/mobilization_rate_pct/avg_response_time_min), v_recent_surge_predictions VIEW (letzte 48h mit notified/responded Fahrer-Counts)
 - [x] lib/delivery/surge-prediction.ts: predictSurgeForLocation() (Velocity-Ratio letzte 30 Min vs. historischer Ø gleiche Stunde+Wochentag 4 Wochen, Intensität LOW/MEDIUM/HIGH, Konfidenz-Formel aus Datenpunkte+Ratio+Peak, Duplikat-Guard 15-min-Fenster, Broadcast an offline Fahrer der letzten 7 Tage via messaging.ts, Mobilisierungs-Events), runSurgePredictionAllLocations() (Cron-Batch alle aktiven Locations), evaluatePastPredictions() (Genauigkeit: actual vs. threshold, was_accurate setzen), trackDriverCameOnline() (Mobilisierungs-Event schließen wenn Fahrer online geht), getRecentPredictions(), getMobilizationStats(), getPredictionDashboard()

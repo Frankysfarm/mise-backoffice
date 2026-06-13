@@ -7222,7 +7222,7 @@ function KitchenDriverPickupForecast({
                   </div>
                 </div>
                 {allReady && ev.urgency !== 'later' && (
-                  <CheckCircle2 className="h-4 w-4 text-matcha-500 shrink-0" title="Alle Bestellungen fertig" />
+                  <CheckCircle2 className="h-4 w-4 text-matcha-500 shrink-0" aria-label="Alle Bestellungen fertig" />
                 )}
               </div>
             );

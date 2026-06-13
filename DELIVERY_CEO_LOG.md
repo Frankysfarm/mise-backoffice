@@ -1,7 +1,94 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–103 vollständig abgeschlossen. CEO Review #77 abgeschlossen. TypeScript 0 Fehler. Build sauber. 194 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–105 vollständig abgeschlossen. CEO Review #78 abgeschlossen. TypeScript 0 Fehler. Build sauber. 195 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #78 — 2026-06-13
+
+### Geprüfte Commits (2 neue Commits seit Review #77)
+- `e8abe11` feat(delivery/backend): Phase 104 — Smart Predictive Surge Engine & Driver Mobilization
+- `aa70fec` feat(delivery/frontend): Phase 105 — Fahrer-Pickup-Prognose, SLA-Metriken, Stopp-ETA, Schicht-KPI-Banner
+
+### TypeScript & Build
+- TypeScript: **1 Fehler gefunden und sofort gefixt** (`title` prop auf Lucide `CheckCircle2` → `aria-label`)
+- `next build`: Kompiliert sauber, **195 Seiten** ✅
+
+### Befund Phase 104 (Backend — Predictive Surge Engine)
+
+**lib/delivery/surge-prediction.ts (495 Zeilen)**:
+- `predictSurgeForLocation()`: Velocity-Ratio letzte 30 Min vs. historischer Ø (Stunde+Wochentag, 4 Wochen), korrekte Logik ✅
+- Intensitätsstufen LOW/MEDIUM/HIGH mit Schwellwerten 1.4/1.8/2.5 — kalibriert ✅
+- `computeConfidence()`: gewichtete Konfidenzformel aus Datenpunkten + Velocity + Peak-Stunde ✅
+- Duplikat-Guard: 15-Min-Fenster verhindert doppelte Vorhersagen ✅
+- Broadcast nur bei MEDIUM/HIGH — korrekte Threshold-Logik ✅
+- `evaluatePastPredictions()`: `was_accurate` Tracking nach Surge-Fenster ✅
+- `trackDriverCameOnline()`: Mobilisierungs-Event schließen wenn Fahrer online geht ✅
+
+**Migration 063** (`scripts/migrations/063_surge_prediction.sql`):
+- `surge_predictions` mit UNIQUE-Guard via Index auf (location_id, surge_window_start) ✅
+- `surge_mobilization_events` mit FK → CASCADE ✅
+- 2 Views: `v_mobilization_effectiveness`, `v_recent_surge_predictions` ✅
+- RLS aktiviert ✅
+
+**API** `GET+POST /api/delivery/admin/surge-prediction`:
+- Auth-Guard über `employees` ✅
+- `resolveLocationId()` fallback via `tenant_id` ✅
+- `action=predict|evaluate` sauber getrennt ✅
+
+**Cron-Integration**:
+- Wired auf `isRatingTick` (alle 10 Min) — korrekte Frequenz ✅
+- `runSurgePredictionAllLocations()` + `evaluatePastPredictions()` beide mit `.catch()` fehlertolerant ✅
+
+**Sidebar**: Radio-Icon + Link zu `/delivery/surge-prediction` ✅
+
+### Befund Phase 105 (Frontend)
+
+**KitchenDriverPickupForecast** (`app/(admin)/kitchen/client.tsx`):
+- 30-Min-Vorschau: iteriert `batches` mit Status `unterwegs|on_route`, berechnet ETA aus `started_at + total_eta_min` ✅
+- Urgency-Stufen: `now` (≤5 Min), `soon` (≤15 Min), `later` — farbkodiert ✅
+- Zeigt freie Fahrer ohne aktive Tour separat — hilfreich für Küchenplanung ✅
+- Rendert `null` wenn kein Fahrer relevant — kein leerer Block ✅
+- Auto-Refresh alle 10s via `setInterval` ✅
+- **Bug gefixt**: `title` prop auf `CheckCircle2` → `aria-label` ✅
+
+**Dispatch SLA/ETA-Chips** (`app/(admin)/dispatch/client.tsx`):
+- `Metric`-Komponente um `highlight` + `value: string|number` erweitert ✅
+- Zeigt SLA-Pünktlichkeit + ETA-Genauigkeit farbkodiert (grün/amber/rot) ✅
+- Nur gerendert wenn `deliveryHealth?.slaOnTimePct != null` ✅
+
+**Stopp-ETA im Fahrer-App** (`app/fahrer/app/client.tsx`):
+- Grobe ETA-Schätzung: 5 Min Pickup + 3 Min/Stopp + anteiliger `geschaetzte_lieferung_min` ✅
+- Kleines Badge: `~{etaMin} Min · ca. {etaTime} Uhr` ✅
+- Keine Backend-Abhängigkeit nötig — rein clientseitig ✅
+
+**SchichtKPIBanner** (`components/lieferdienst/statistics-view.tsx`):
+- 4-spaltig: Umsatz, Lieferungen, SLA Pünktlichkeit, Ø Lieferzeit ✅
+- Conditional rendering wenn `dailyKpis || slaData || deliveryStats` vorhanden ✅
+- Farbkodierte SLA-Kachel (grün/amber/rot) ✅
+
+### Status nach Review #78
+- TypeScript: 0 Fehler ✅ (1 gefixt)
+- Build: 195 Seiten kompiliert sauber ✅
+- Phase 104 (Predictive Surge Engine): DONE ✅
+- Phase 105 (Frontend KPI-UI): DONE ✅
+- Bugs gefixed: 1 (`title` → `aria-label` auf CheckCircle2)
+
+### Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: Fahrer-Pickup-Prognose sieht Batch-ETA aus Dispatch ✅
+- Dispatch: SLA + ETA-Genauigkeit aus `deliveryHealth` sichtbar ✅
+- Fahrer: Per-Stopp-ETA in offenen Tour-Karten ✅
+- Stats/Lieferdienst: SchichtKPIBanner aggregiert Umsatz + SLA + Lieferzeit ✅
+- Surge-Vorhersage: Cron → DB → Admin-Page komplett verdrahtet ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 106: Driver-Rating-Aggregation verbessern (Gewichtung nach Recency)
+2. Phase 107: Storefront Order-Tracking mit Live-Fahrer-Position (GeoFencing)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 106: Surge-Vorhersage-Widget auf Dispatch-Dashboard einbetten
+2. Phase 107: Fahrer-Karte in Storefront-Tracking-Screen (leaflet oder mapbox)
 
 ---
 
