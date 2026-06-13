@@ -111,9 +111,10 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
   }, []);
 
   // Poll tracking API every 30s to update driver position and ETA
+  // Uses bestellnummer endpoint for analytics session recording
   useEffect(() => {
     const pollTracking = () => {
-      fetch(`/api/delivery/orders/${order.order_id}/tracking`)
+      fetch(`/api/delivery/tracking/${order.bestellnummer}`)
         .then((r) => r.ok ? r.json() : null)
         .then((d) => {
           if (!d) return;
