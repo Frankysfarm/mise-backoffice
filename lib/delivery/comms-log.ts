@@ -197,7 +197,7 @@ export async function getCommunicationLog(params: {
   const { data, count } = await q;
 
   const entries: CommLogEntry[] = (data ?? []).map((r) => {
-    const drivers = r.mise_drivers as { name: string } | null;
+    const drivers = (r.mise_drivers as unknown) as { name: string } | null;
     return {
       id:            r.id as string,
       locationId:    r.location_id as string,
