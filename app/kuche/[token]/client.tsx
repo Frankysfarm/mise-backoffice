@@ -471,6 +471,9 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
       {cookHold && (
         <div style={{ background: C.warnTint, color: C.warnSoft, borderRadius: 8, padding: '7px 10px', fontSize: 12.5, fontWeight: 800, marginBottom: 10, textAlign: 'center', letterSpacing: '.02em' }}>⏸ ALLE FAHRER UNTERWEGS — NOCH NICHT KOCHEN</div>
       )}
+      {cookWarn && (
+        <div style={{ background: C.warn, color: '#fff', borderRadius: 8, padding: '7px 10px', fontSize: 12.5, fontWeight: 800, marginBottom: 10, textAlign: 'center', letterSpacing: '.02em' }}>⚠ WARTET ZU LANGE — JETZT KOCHEN</div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontWeight: 800, fontSize: 28, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
