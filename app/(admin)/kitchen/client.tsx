@@ -24,6 +24,7 @@ import { KochstartAlertBand } from './kochstart-alert';
 import { ItemPriorityBoard } from './item-priority-board';
 import { SchichtVelocity } from './schicht-velocity';
 import { PrepAnalyticsCard } from './prep-analytics-card';
+import { OrderUrgencyPanel } from './order-urgency-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -521,6 +522,11 @@ export function KitchenBoard({
       {/* Artikel-Prioritäts-Board: Welche Items jetzt zubereiten? Gruppiert + nach Deadline sortiert */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && !bigDisplay && (
         <ItemPriorityBoard orders={filtered} timings={timings} />
+      )}
+
+      {/* Dringlichkeits-Übersicht: Alle aktiven Bestellungen nach Fertigstellungs-Deadline farbkodiert */}
+      {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length > 0 && (
+        <OrderUrgencyPanel orders={filtered} timings={timings} />
       )}
 
       {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}

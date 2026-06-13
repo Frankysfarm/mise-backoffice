@@ -5,7 +5,7 @@ import { cn, euro } from '@/lib/utils';
 import {
   MapPin, Phone, CheckCircle2, Clock, Navigation,
   AlertTriangle, Banknote, CreditCard, MessageSquare,
-  ChevronDown, ChevronUp, Route,
+  ChevronDown, ChevronUp, Route, Map,
 } from 'lucide-react';
 
 type Stop = {
@@ -85,6 +85,32 @@ function mapsUrl(lat: number | null, lng: number | null, address: string | null)
     return `https://maps.google.com/maps?daddr=${q}`;
   }
   return '#';
+}
+
+function multiStopMapsUrl(stops: Stop[]): string {
+  const pending = stops
+    .filter(s => !s.geliefert_am)
+    .sort((a, b) => a.reihenfolge - b.reihenfolge);
+  if (pending.length === 0) return '#';
+  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (pending.length === 1) {
+    const o = pending[0].order;
+    return mapsUrl(o.kunde_lat, o.kunde_lng, [o.kunde_adresse, o.kunde_plz].filter(Boolean).join(', '));
+  }
+  const last = pending[pending.length - 1].order;
+  const waypoints = pending.slice(0, -1).map(s => {
+    const o = s.order;
+    if (o.kunde_lat != null && o.kunde_lng != null) return `${o.kunde_lat},${o.kunde_lng}`;
+    return encodeURIComponent([o.kunde_adresse, o.kunde_plz].filter(Boolean).join(', '));
+  });
+  const dest = last.kunde_lat != null && last.kunde_lng != null
+    ? `${last.kunde_lat},${last.kunde_lng}`
+    : encodeURIComponent([last.kunde_adresse, last.kunde_plz].filter(Boolean).join(', '));
+
+  if (isIos) {
+    return `maps://maps.apple.com/?daddr=${dest}&dirflg=d`;
+  }
+  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${waypoints.join('|')}&travelmode=bicycling`;
 }
 
 function StopCard({
@@ -282,6 +308,19 @@ export function TourStopsPanel({
           )}
         </div>
       </div>
+
+      {/* Multi-Stop Navigation — alle offenen Stopps in einer Route */}
+      {sorted.filter(s => !s.geliefert_am).length > 1 && (
+        <a
+          href={multiStopMapsUrl(sorted)}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-center gap-2 h-9 w-full rounded-xl border border-accent/30 bg-accent/10 text-accent font-bold text-xs active:scale-[0.98] transition"
+        >
+          <Map className="h-3.5 w-3.5" />
+          Alle {sorted.filter(s => !s.geliefert_am).length} Stopps navigieren
+        </a>
+      )}
 
       {/* Fortschritts-Balken mit Stopp-Markierungen */}
       <div className="relative h-2 rounded-full bg-white/10 overflow-hidden">

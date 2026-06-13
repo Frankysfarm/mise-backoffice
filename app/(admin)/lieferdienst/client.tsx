@@ -52,6 +52,7 @@ import { DeliveryLiveKpiPanel } from './delivery-live-kpi'
 import { TourPerformancePanel } from './tour-performance-panel'
 import { ZonePerformanceKpi } from './zone-performance-kpi'
 import { LiveOpsHeader } from './live-ops-header'
+import { SchichtZielePanel } from './schicht-ziele-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -963,6 +964,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-Ziele: Tagesfortschritt, Lieferquote, SLA-Status */}
+              <SchichtZielePanel locationId={locationId} targetOrders={40} />
               {/* Live-Lieferungs-KPIs: Echte Daten aus dem Delivery-System — Heute geliefert, SLA, Ø Zeit, Zonen */}
               <DeliveryLiveKpiPanel />
               {/* Tour-Performance-Analyse: 30-Tage-Trend, Zonen-Effizienz, KI-Empfehlung */}
