@@ -222,6 +222,9 @@ export function DispatchBoard({
     loading: boolean;
   } | null>(null);
 
+  // Besetzungs-Lücken für die nächsten 12 Stunden
+  const [coverageGaps, setCoverageGaps] = useState<{ hour: string; gap: number }[]>([]);
+
   // BatchDetailModal state
   const [batchDetailId, setBatchDetailId] = useState<string | null>(null);
 
@@ -243,6 +246,22 @@ export function DispatchBoard({
     poll();
     const iv = setInterval(poll, 60_000);
     return () => clearInterval(iv);
+  }, [locations]);
+
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    fetch(`/api/delivery/admin/coverage?location_id=${locationId}&hours=12&gaps_only=true`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (Array.isArray(d?.coverage)) {
+          const gaps = (d.coverage as { slot_start?: string; hour_label?: string; gap: number }[])
+            .filter(c => c.gap < 0)
+            .map(c => ({ hour: c.hour_label ?? c.slot_start ?? '', gap: c.gap }));
+          setCoverageGaps(gaps);
+        }
+      })
+      .catch(() => {});
   }, [locations]);
 
   useEffect(() => {
@@ -755,6 +774,22 @@ export function DispatchBoard({
           <span>{kitchenLoad.active_orders} aktive Bestellungen</span>
           <span className="text-inherit opacity-70">·</span>
           <span>{kitchenLoad.drivers_online} Fahrer online</span>
+        </div>
+      )}
+
+      {/* Besetzungs-Lücken: warnt wenn in den nächsten 12h Fahrer fehlen */}
+      {coverageGaps.length > 0 && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-amber-800 text-sm">
+          <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <span className="font-bold">Besetzungslücken in 12h: </span>
+            {coverageGaps.map((g, i) => (
+              <span key={i} className="inline-flex items-center gap-1 mr-2 text-[11px] font-mono bg-amber-100 rounded px-1.5 py-0.5">
+                {g.hour} <span className="text-red-500">{g.gap}</span>
+              </span>
+            ))}
+            <span className="text-[11px] text-amber-600 ml-1">Fahrer einplanen!</span>
+          </div>
         </div>
       )}
 
