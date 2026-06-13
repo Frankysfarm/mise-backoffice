@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF
-**Phasen 1–110 + Frontend-Batch abgeschlossen. Build sauber. 0 TypeScript-Fehler. 198 Seiten. Deployment-bereit.**
+**Phasen 1–111 abgeschlossen. Build sauber. 198 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-13: Phase 111 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #81 — 2026-06-13: Phase 110 + 2 Frontend-Commits geprüft. 0 Bugs. Build 198 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phase 110 abgeschlossen. Build 198 Seiten sauber.**
 **CEO Review #80 — 2026-06-13: Phase 109 + 2 neue Frontend-Commits geprüft. 1 TS-Fehler gefixt. Integrations-Audit sauber. Build 197 Seiten. Alle Systeme grün.**
@@ -13,6 +14,12 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 111: Fahrer-Review-Flag Engine (schlechte Kunden-Ratings triggern automatisch Admin-Review-Flag) — 2026-06-13
+- [x] scripts/migrations/069_driver_review_flags.sql: driver_review_flags-Tabelle (flag_reason low_avg_14d|one_star_burst_7d|manual, review_status open/in_review/resolved/dismissed, UNIQUE-Partial-Index verhindert doppelte offene Flags), v_drivers_needing_review VIEW (Join mit Fahrerdaten + days_open), v_review_flag_stats VIEW (Dashboard-KPIs: open_count, in_review_count, resolved_30d, dismissed_30d, new_7d, avg_flagged_rating)
+- [x] lib/delivery/review-flags.ts: checkAndFlagDriver() (Regel 1: avg<3.0 bei ≥3 Ratings/14d; Regel 2: ≥2 Einzel-Sterne/7d; idempotent via UNIQUE-Index), processRatingReviewCheck() (fire-and-forget nach Rating-Abgabe), getOpenFlags() (Admin-Liste), updateFlagStatus() (open→in_review→resolved/dismissed), createManualFlag() (Admin-Eingriff), getFlagStats() (Dashboard-KPIs)
+- [x] lib/delivery/satisfaction.ts: processRatingReviewCheck() fire-and-forget nach submitCustomerRating() eingehängt
+- [x] app/api/delivery/reviews/route.ts: GET (Flags + Stats), POST (manueller Flag)
+- [x] app/api/delivery/reviews/[id]/route.ts: PATCH (Status-Änderung durch Admin)
 - [x] Phase 110: Smart Driver Zone Affinity Engine (Zonen-Affinität-Tracking für automatische Fahrerzuweisung) — 2026-06-13
 - [x] scripts/migrations/068_zone_affinity.sql: driver_zone_stats (location_id/driver_id/zone_name A|B|C|D UNIQUE, total_deliveries/on_time_count/avg_delivery_min/last_delivery_at/updated_at, 3 Indizes, RLS), v_zone_affinity_matrix VIEW (Fahrer×Zone-Matrix mit berechneten Affinitäts-Scores 0–100: 60% Routine + 40% Pünktlichkeit), v_zone_coverage_stats VIEW (Zone-Aggregat: drivers_active/total_deliveries/avg_affinity_score/on_time_pct/avg_delivery_min)
 - [x] lib/delivery/zone-affinity.ts: computeAffinityScore() (60% Routine min(deliveries×3,60) + 40% On-Time-Rate), recordZoneDelivery() (fire-and-forget nach Lieferung, Upsert mit Rolling-Avg), getDriverZoneAffinities() (Bulk-Lookup für Dispatch), getZoneAffinityMatrix() (Admin-Matrix via v_zone_affinity_matrix), getZoneCoverageStats() (v_zone_coverage_stats), getZoneAffinityDashboard() (Matrix+Coverage+TopDriverPerZone), refreshZoneAffinityAllLocations() (nachtliches Reconcile-Batch aus Rohdaten)
