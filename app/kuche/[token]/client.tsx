@@ -100,6 +100,8 @@ export default function KitchenMonitor({
   // Kein Fahrer getrackt -> nicht blocken (Abholung/Vor-Ort brauchen eh keinen Fahrer).
   const canCook = drivers.length === 0 || drivers.some((d) => !d.busy || d.returning);
   const ringingHold = !!ringing && ringing.typ === 'lieferung' && !canCook;
+  const heldOrders = neu.filter((od) => od.typ === 'lieferung' && !canCook);
+  const readyNeu = neu.filter((od) => !(od.typ === 'lieferung' && !canCook));
 
   // All-Day-Counts (aggregiert ueber alle aktiven Orders)
   const allDay = (() => {
@@ -295,18 +297,28 @@ export default function KitchenMonitor({
       {/* SPALTEN */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, padding: 16, alignItems: 'start' }}>
         <Column title="NEU" count={neu.length} color={C.neu}>
-          {neu.map((o) => {
-            const hold = o.typ === 'lieferung' && !canCook;
-            return (
-              <Card key={o.id} o={o} now={now} cookHold={hold} {...sharedCardProps}>
-                <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
-                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800,
-                    fontSize: hold ? 15 : 19, background: hold ? C.border : C.zub, color: hold ? C.t2 : '#fff' }}>
-                  {hold ? '⏸ Fahrer unterwegs · trotzdem annehmen' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
-                </button>
-              </Card>
-            );
-          })}
+          {heldOrders.length > 0 && (
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.warnSoft, letterSpacing: '.05em', padding: '0 4px 2px' }}>⏸ WARTET AUF FAHRER</div>
+          )}
+          {heldOrders.map((o) => (
+            <Card key={o.id} o={o} now={now} cookHold {...sharedCardProps}>
+              <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 15, background: C.border, color: C.t2 }}>
+                ⏸ Fahrer unterwegs · trotzdem annehmen
+              </button>
+            </Card>
+          ))}
+          {heldOrders.length > 0 && readyNeu.length > 0 && (
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.zub, letterSpacing: '.05em', padding: '10px 4px 2px' }}>▶ JETZT KOCHEN</div>
+          )}
+          {readyNeu.map((o) => (
+            <Card key={o.id} o={o} now={now} {...sharedCardProps}>
+              <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 19, background: C.zub, color: '#fff' }}>
+                ✓ Annehmen · {DEFAULT_PREP} Min
+              </button>
+            </Card>
+          ))}
           {neu.length === 0 && <Empty text="Keine neuen Bestellungen" />}
         </Column>
         <Column title="IN ZUBEREITUNG" count={kochen.length} color={C.zub}>
