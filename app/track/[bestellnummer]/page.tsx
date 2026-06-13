@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { TrackingView } from './tracking';
 import { PushOptInCard } from '@/components/customer/push-optin';
+import { getOrderProof } from '@/lib/delivery/proof';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,14 @@ export default async function TrackPage({
     supabase.from('order_items').select('name, menge, einzelpreis').eq('order_id', (order as any).order_id),
     svc.from('customer_orders').select('tenant_id,location_id,kunde_telefon,kunde_email,status,tenants(name,logo_url,brand_color),locations(telefon,lat,lng)').eq('id', (order as any).order_id).maybeSingle(),
   ]);
+
+  // Liefernachweis nur abrufen wenn Bestellung bereits zugestellt
+  const rawProof = (order as any).status === 'geliefert'
+    ? await getOrderProof((order as any).order_id as string)
+    : null;
+  const initialProof = rawProof
+    ? { proof_type: rawProof.proofType, photo_url: rawProof.photoUrl, notes: rawProof.notes, created_at: rawProof.createdAt }
+    : null;
 
   const showOptIn = Boolean(
     fullOrder?.tenant_id &&
@@ -53,6 +62,7 @@ export default async function TrackPage({
         restaurantTelefon={(fullOrder as any)?.locations?.telefon ?? null}
         restaurantLat={(fullOrder as any)?.locations?.lat ?? null}
         restaurantLng={(fullOrder as any)?.locations?.lng ?? null}
+        initialProof={initialProof}
       />
     </div>
   );

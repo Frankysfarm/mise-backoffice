@@ -1373,11 +1373,16 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
   }, [driverId]);
 
   const [realEarnings, setRealEarnings] = useState<{ deliveries: number; totalEur: number } | null>(null);
+  const [earningRecords, setEarningRecords] = useState<{ id: string; totalAmount: number; baseAmount: number; kmBonus: number; peakBonus: number; ratingBonus: number; deliveryKm: number; wasPeakTime: boolean; completedAt: string; paidOut: boolean }[]>([]);
+  const [earningsOpen, setEarningsOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/delivery/driver/earnings')
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.today?.deliveries >= 0) setRealEarnings(d.today); })
+      .then(d => {
+        if (d?.today?.deliveries >= 0) setRealEarnings(d.today);
+        if (Array.isArray(d?.records)) setEarningRecords(d.records);
+      })
       .catch(() => {});
   }, []);
 
@@ -1537,6 +1542,62 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
                     </div>
                   );
                 })()}
+              </div>
+            );
+          })()}
+
+          {/* Verdienst-Aufschlüsselung: Letzte Lieferungen mit Bonus-Details */}
+          {earningRecords.length > 0 && (() => {
+            const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+            const todayRecs = earningRecords.filter(r => new Date(r.completedAt) >= todayStart);
+            if (todayRecs.length === 0) return null;
+            return (
+              <div className="mt-3 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                <button
+                  onClick={() => setEarningsOpen(p => !p)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-left"
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-matcha-400">
+                    Verdienst-Details ({todayRecs.length} Lieferungen)
+                  </span>
+                  <span className="text-matcha-400 text-[10px]">{earningsOpen ? '▲' : '▼'}</span>
+                </button>
+                {earningsOpen && (
+                  <div className="border-t border-white/8 divide-y divide-white/5">
+                    {todayRecs.map((r) => (
+                      <div key={r.id} className="flex items-center gap-2 px-3 py-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[11px] text-matcha-200 tabular-nums">
+                            {new Date(r.completedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+                          </div>
+                          <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                            <span className="text-[9px] bg-white/10 rounded px-1.5 py-0.5 text-matcha-300">
+                              {euro(r.baseAmount)} Basis
+                            </span>
+                            {r.kmBonus > 0 && (
+                              <span className="text-[9px] bg-matcha-600/40 rounded px-1.5 py-0.5 text-matcha-200">
+                                +{euro(r.kmBonus)} km ({r.deliveryKm.toFixed(1)}km)
+                              </span>
+                            )}
+                            {r.peakBonus > 0 && (
+                              <span className="text-[9px] bg-amber-500/20 rounded px-1.5 py-0.5 text-amber-300">
+                                +{euro(r.peakBonus)} Peak
+                              </span>
+                            )}
+                            {r.ratingBonus > 0 && (
+                              <span className="text-[9px] bg-blue-500/20 rounded px-1.5 py-0.5 text-blue-300">
+                                +{euro(r.ratingBonus)} Bonus
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className={`text-sm font-black tabular-nums shrink-0 ${r.paidOut ? 'text-accent' : 'text-matcha-300'}`}>
+                          {euro(r.totalAmount)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })()}

@@ -14,6 +14,7 @@ import {
   Package,
   Phone,
   Send,
+  ShieldCheck,
   Truck,
   ShoppingBag,
   MessageCircle,
@@ -84,7 +85,17 @@ function stepIndex(status: string): number {
   return i >= 0 ? i : 0;
 }
 
-export function TrackingView({ order: initial, items, tenant, restaurantTelefon, restaurantLat, restaurantLng }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null; restaurantLat?: number | null; restaurantLng?: number | null }) {
+type DeliveryProof = { proof_type: string; photo_url: string | null; notes: string | null; created_at: string };
+
+const PROOF_LABEL: Record<string, string> = {
+  handed_to_person: 'Persönlich übergeben',
+  left_at_door: 'Vor der Tür abgestellt',
+  neighbour: 'Beim Nachbarn abgegeben',
+  contactless: 'Kontaktlose Lieferung',
+  photo: 'Fotonachweis',
+};
+
+export function TrackingView({ order: initial, items, tenant, restaurantTelefon, restaurantLat, restaurantLng, initialProof }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null; restaurantLat?: number | null; restaurantLng?: number | null; initialProof?: DeliveryProof | null }) {
   const supabase = createClient();
   const [order, setOrder] = useState(initial);
   const [stopsBefore, setStopsBefore] = useState<number | null>(null);
@@ -103,6 +114,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
   const [quickReplySent, setQuickReplySent] = useState<string | null>(null);
   const [etaImproved, setEtaImproved] = useState(false);
   const prevEtaLatestRef = useRef<string | null>(initial.eta_latest);
+  const [deliveryProof, setDeliveryProof] = useState<DeliveryProof | null>(initialProof ?? null);
 
   // Tick every second for live countdowns
   useEffect(() => {
@@ -725,6 +737,38 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
 
         {/* Liefer-Event-Timeline — erscheint sobald erste Events vorhanden */}
         <CustomerEventTimeline events={deliveryEvents} />
+
+        {/* Liefernachweis — erscheint wenn Bestellung zugestellt und Nachweis vorhanden */}
+        {order.status === 'geliefert' && deliveryProof && (
+          <div className="rounded-2xl border border-matcha-200 bg-matcha-50 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="h-4 w-4 text-matcha-600 shrink-0" />
+              <span className="font-display text-sm font-bold text-matcha-800">Liefernachweis</span>
+              <span className="ml-auto text-[10px] text-matcha-500 tabular-nums">
+                {new Date(deliveryProof.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+              </span>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-matcha-900">
+                  {PROOF_LABEL[deliveryProof.proof_type] ?? deliveryProof.proof_type}
+                </div>
+                {deliveryProof.notes && (
+                  <div className="text-xs text-matcha-600 mt-1">{deliveryProof.notes}</div>
+                )}
+              </div>
+              {deliveryProof.photo_url && (
+                <a href={deliveryProof.photo_url} target="_blank" rel="noreferrer" className="shrink-0">
+                  <img
+                    src={deliveryProof.photo_url}
+                    alt="Lieferfoto"
+                    className="h-16 w-16 rounded-lg object-cover border border-matcha-200"
+                  />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Bewertungs-Karte — erscheint nach Lieferung/Abholung */}
         {['geliefert', 'abgeholt'].includes(order.status) && !ratingDismissed && (
