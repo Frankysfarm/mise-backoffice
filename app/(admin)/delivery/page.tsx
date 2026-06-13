@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
-  Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap,
+  Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -114,6 +114,20 @@ export default async function DeliveryOverviewPage() {
           title="Surge-Prognose"
           subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung · Genauigkeitsrate"
           cta="Prognosen ansehen"
+        />
+        <SectionCard
+          href="/delivery/sla"
+          icon={<Activity className="h-5 w-5" />}
+          title="SLA-Bericht"
+          subtitle="On-Time-Rate, Lieferzeitabweichung · Performance nach Fahrer & Zone"
+          cta="SLA ansehen"
+        />
+        <SectionCard
+          href="/delivery/heatmap"
+          icon={<BarChart3 className="h-5 w-5" />}
+          title="Auslastungs-Heatmap"
+          subtitle="Liefervolumen nach Wochentag & Uhrzeit · Stoßzeiten auf einen Blick"
+          cta="Heatmap öffnen"
         />
       </div>
     </>
