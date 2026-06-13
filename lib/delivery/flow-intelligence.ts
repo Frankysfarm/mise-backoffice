@@ -392,13 +392,13 @@ export async function resolveStaleAnomalies(
 ): Promise<number> {
   if (currentType !== 'none') return 0;
   const sb = createServiceClient();
-  const { count } = await sb
+  const { data } = await sb
     .from('flow_anomaly_events')
     .update({ resolved_at: new Date().toISOString() })
     .eq('location_id', locationId)
     .is('resolved_at', null)
-    .select('id', { count: 'exact', head: true });
-  return count ?? 0;
+    .select('id');
+  return data?.length ?? 0;
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────

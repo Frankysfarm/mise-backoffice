@@ -1,7 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–117 vollständig abgeschlossen. CEO Review #85 abgeschlossen. TypeScript 0 Fehler. Build sauber. 200 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–118 vollständig abgeschlossen. CEO Review #86 abgeschlossen. TypeScript 0 Fehler. Build sauber. 201 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #86 — 2026-06-13
+
+### Geprüfte Commits (2 neue seit Review #85)
+- `f060be9` feat(delivery/backend): Phase 118 — Smart Order Flow Intelligence & Anomaly Detector
+- `0e45db0` feat(delivery/frontend): Smart-Timing-Ringe, Tour-Puls, SchichtPuls, Prognose-Dashboard
+
+### TypeScript & Build
+- `npx tsc --noEmit`: **1 Fehler gefunden + sofort gefixt** ✅
+  - `lib/delivery/flow-intelligence.ts:400` — `resolveStaleAnomalies()`: `.update()...select('id', { count: 'exact', head: true })` — `.select()` auf Update-Builder akzeptiert nur 1 Argument. Fix: `.select('id')` + `data?.length ?? 0` statt `count`.
+- Nach Fix: `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → ✓ 201 Seiten, 0 Fehler ✅
+
+### Neue Frontend-Komponenten (Phase 118)
+- `KitchenPrepProgressCards` (app/(admin)/kitchen/prep-progress-cards.tsx): SVG-Fortschrittsringe pro kochender Bestellung (PrepRing mit Urgency-Ampel ok/tight/urgent/overdue), animate-pulse bei überfällig, Sortierung nach Dringlichkeit ✅
+- `DispatchTourHealthStrip` (app/(admin)/dispatch/tour-health-strip.tsx): kompakter Tour-Gesundheitsstreifen, Health-Status pünktlich/knapp/verspätet, Fortschrittsbalken pro Tour, 10s-Tick ✅
+- `SchichtPuls` (app/fahrer/app/schicht-puls.tsx): animierter Puls-Ring für Lieferungen/Stunde mit Wochenvergleich, Gamification-Level spitze/gut/normal/langsam ✅
+- `SchichtPrognosePanel` (app/(admin)/lieferdienst/schicht-prognose.tsx): erweitertes Prognose-Dashboard mit Tagesziel-Balken (800€ / 50 Bestellungen), KPI-Grid (Tempo, Restzeit, Avg. Bestellwert) ✅
+- `LiveWaitBadge` erweitert: Fahrer-Zähler mit Bike-Icon, Rot-Badge bei 0 Fahrern ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: `KitchenPrepProgressCards` in kitchen/client.tsx eingebunden (orders+timings Props korrekt) ✅
+- Dispatch: `DispatchTourHealthStrip` in dispatch/client.tsx eingebunden (batches Props korrekt) ✅
+- Fahrer-App: `SchichtPuls` in fahrer/app/client.tsx mit onlineSinceIso + totalDeliveries + weekHistory ✅
+- Lieferdienst: `SchichtPrognosePanel` in lieferdienst/client.tsx korrekt eingebunden ✅
+- Storefront: `LiveWaitBadge` zeigt Fahrer-Count + 0-Fahrer-Warnung korrekt ✅
+- Flow Intelligence: Backend + Frontend + Cron + Sidebar vollständig verbunden ✅
+
+### Status nach Review #86
+- TypeScript: 0 Fehler (1 gefixt) ✅
+- Build: 201 Seiten sauber ✅
+- Phasen 116, 117, 118: DONE ✅
+- System: MARKT-REIF ✅
 
 ---
 
