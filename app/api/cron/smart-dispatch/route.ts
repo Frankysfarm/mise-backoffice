@@ -43,6 +43,7 @@ import { checkAndAwardChallengesAllLocations } from '@/lib/delivery/challenges';
 import { runPositioningAllLocations } from '@/lib/delivery/positioning';
 import { snapshotAllLocations as snapshotProfitability } from '@/lib/delivery/profitability';
 import { analyzeChurnAllLocations, runReEngagementAllLocations } from '@/lib/delivery/churn-prevention';
+import { takeSnapshotAllLocations as takeHealthSnapshots, pruneOldSnapshots } from '@/lib/delivery/health-observatory';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -92,7 +93,7 @@ export async function GET(req: NextRequest) {
     const isChurnTick   = nowHour === 2 && nowMin < 2;
     const isReEngageTick = nowHour === 4 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -208,6 +209,10 @@ export async function GET(req: NextRequest) {
       isReEngageTick
         ? runReEngagementAllLocations().catch(() => ({ locations: 0, totalEligible: 0, totalSent: 0, totalCredits: 0 }))
         : Promise.resolve(null),
+      // Health-Observatory: operationale KPI-Snapshots alle 10 Min
+      isRatingTick
+        ? takeHealthSnapshots().catch(() => ({ locations: 0, snapshots: 0, errors: 0 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -291,6 +296,7 @@ export async function GET(req: NextRequest) {
       ...(profitabilityResult ? { profitability_snapshots: { locations: profitabilityResult.locations, snapshots: profitabilityResult.snapshots } } : {}),
       ...(churnAnalysisResult ? { churn_analysis: { locations: churnAnalysisResult.locations, analyzed: churnAnalysisResult.totalAnalyzed, upserted: churnAnalysisResult.totalUpserted } } : {}),
       ...(reEngagementResult ? { churn_re_engagement: { locations: reEngagementResult.locations, eligible: reEngagementResult.totalEligible, sent: reEngagementResult.totalSent, credits: reEngagementResult.totalCredits } } : {}),
+      ...(healthObservatoryResult ? { health_observatory: { locations: healthObservatoryResult.locations, snapshots: healthObservatoryResult.snapshots, errors: healthObservatoryResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
