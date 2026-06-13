@@ -347,6 +347,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         orderId: order.id,
         items: cart,
       });
+      // Persist for returning-visitor tracking banner
+      try {
+        localStorage.setItem(`active_order:${location.id}`, JSON.stringify({
+          bestellnummer: order.bestellnummer,
+          orderId: order.id,
+          isDelivery: orderType === 'lieferung',
+          placedAt: Date.now(),
+          etaMs: Date.now() + eta * 60_000,
+        }));
+      } catch {}
       setCart([]);
       setCheckoutOpen(false);
       setCartSheetOpen(false);
@@ -407,6 +417,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         heroImageUrl={heroImageUrl}
         logoUrl={logoUrl}
       />
+
+      {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
+      <ActiveOrderBanner locationId={location.id} />
 
       {/* Live-Lieferzeit-Indikator */}
       {orderType === 'lieferung' && (
@@ -763,6 +776,159 @@ function categoryDescription(name: string): string {
   if (/food/.test(n)) return 'Hausgemacht, ehrlich und mit den besten Zutaten.';
   if (/special/.test(n)) return 'Unsere Signatures — Limited Editions und Saisongäste.';
   return 'Unsere Auswahl, sorgfältig kuratiert.';
+}
+
+/* ------------------------------ ActiveOrderBanner ------------------------------ */
+
+type StoredOrder = {
+  bestellnummer: string;
+  orderId: string;
+  isDelivery: boolean;
+  placedAt: number;
+  etaMs: number;
+};
+
+const TERMINAL_STATUSES = new Set(['geliefert', 'abgeholt', 'abgeschlossen', 'storniert']);
+
+function ActiveOrderBanner({ locationId }: { locationId: string }) {
+  const [stored, setStored] = React.useState<StoredOrder | null>(null);
+  const [status, setStatus] = React.useState<string | null>(null);
+  const [etaMs, setEtaMs] = React.useState<number | null>(null);
+  const [dismissed, setDismissed] = React.useState(false);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+
+  // Load from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(`active_order:${locationId}`);
+      if (!raw) return;
+      const parsed: StoredOrder = JSON.parse(raw);
+      // Drop orders older than 4 hours
+      if (Date.now() - parsed.placedAt > 4 * 60 * 60_000) {
+        localStorage.removeItem(`active_order:${locationId}`);
+        return;
+      }
+      setStored(parsed);
+      setEtaMs(parsed.etaMs);
+    } catch {}
+  }, [locationId]);
+
+  // Poll status every 30s while visible
+  React.useEffect(() => {
+    if (!stored || dismissed) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/orders/${stored.orderId}/tracking`);
+        if (!r.ok || cancelled) return;
+        const d = await r.json();
+        if (cancelled) return;
+        const s = d.status ?? null;
+        setStatus(s);
+        if (d.eta_earliest) setEtaMs(new Date(d.eta_earliest).getTime());
+        // Clear localStorage once delivered
+        if (s && TERMINAL_STATUSES.has(s)) {
+          setTimeout(() => {
+            try { localStorage.removeItem(`active_order:${locationId}`); } catch {}
+          }, 8_000);
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [stored, dismissed, locationId]);
+
+  // Second ticker for live countdown
+  React.useEffect(() => {
+    if (!stored || dismissed) return;
+    const t = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => clearInterval(t);
+  }, [stored, dismissed]);
+
+  if (!stored || dismissed) return null;
+  if (status && TERMINAL_STATUSES.has(status) && nowMs - (stored.placedAt ?? 0) > 10_000) return null;
+
+  const secsLeft = etaMs != null ? Math.max(0, Math.floor((etaMs - nowMs) / 1000)) : null;
+  const minsLeft = secsLeft != null ? Math.floor(secsLeft / 60) : null;
+  const isDelivered = status && TERMINAL_STATUSES.has(status);
+
+  const statusLabel: Record<string, string> = {
+    neu: 'Eingegangen',
+    bestätigt: 'Bestätigt',
+    in_zubereitung: 'Wird zubereitet',
+    fertig: stored.isDelivery ? 'Bereit zur Abholung' : 'Abholbereit',
+    unterwegs: 'Unterwegs zu dir',
+    geliefert: 'Geliefert! 🎉',
+    abgeholt: 'Abgeholt! 🎉',
+    storniert: 'Storniert',
+  };
+  const currentLabel = status ? (statusLabel[status] ?? status) : 'Wird bearbeitet…';
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 md:px-8 mt-3">
+      <div className={cn(
+        'rounded-xl border px-4 py-3 flex items-center gap-3',
+        isDelivered
+          ? 'bg-matcha-50 border-matcha-200'
+          : 'bg-amber-50 border-amber-200',
+      )}>
+        <span className="text-xl shrink-0">{isDelivered ? '✅' : '🛵'}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={cn(
+              'font-bold text-sm',
+              isDelivered ? 'text-matcha-700' : 'text-amber-800',
+            )}>
+              {currentLabel}
+            </span>
+            <span className="text-muted-foreground text-xs">·</span>
+            <span className="text-xs text-muted-foreground font-mono">{stored.bestellnummer}</span>
+            {!isDelivered && secsLeft != null && secsLeft > 0 && minsLeft != null && (
+              <>
+                <span className="text-muted-foreground text-xs">·</span>
+                <span className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums border',
+                  minsLeft <= 5
+                    ? 'bg-matcha-100 border-matcha-300 text-matcha-700'
+                    : 'bg-amber-100 border-amber-300 text-amber-800',
+                )}>
+                  <span className={cn(
+                    'relative flex h-1.5 w-1.5 shrink-0',
+                  )}>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500" />
+                  </span>
+                  {minsLeft > 0 ? `~${minsLeft} Min` : 'Jeden Moment!'}
+                </span>
+              </>
+            )}
+          </div>
+          <div className="mt-0.5 flex items-center gap-2">
+            <a
+              href={`/track/${stored.bestellnummer}`}
+              className={cn(
+                'text-xs font-semibold underline underline-offset-2',
+                isDelivered ? 'text-matcha-600' : 'text-amber-700',
+              )}
+            >
+              Bestellung verfolgen →
+            </a>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setDismissed(true);
+            try { localStorage.removeItem(`active_order:${locationId}`); } catch {}
+          }}
+          className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-black/5 transition"
+          aria-label="Schließen"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ------------------------------ LiveEtaBar ------------------------------ */
