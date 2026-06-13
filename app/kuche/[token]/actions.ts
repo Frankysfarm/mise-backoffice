@@ -19,7 +19,28 @@ export async function getKitchenData(token: string) {
       .order('created_at', { ascending: true }),
     svc.from('menu_items').select('id, name, verfuegbar').eq('tenant_id', loc.tenant_id).order('name').limit(200),
   ]);
-  return { orders: orders ?? [], items: items ?? [] };
+
+  // Online-Fahrer des Tenants + Status (Tracking + "auf Rueckweg")
+  const { data: dt } = await svc.from('mise_driver_tenants').select('driver_id').eq('tenant_id', loc.tenant_id);
+  const dids = [...new Set((dt ?? []).map((x: any) => x.driver_id))];
+  let drivers: any[] = [];
+  if (dids.length) {
+    const { data: drv } = await svc.from('mise_drivers').select('id, name, state, last_lat, last_lng').in('id', dids).neq('state', 'offline');
+    const dlist = drv ?? [];
+    if (dlist.length) {
+      const { data: batches } = await svc.from('mise_delivery_batches')
+        .select('id, driver_id, state, stops:mise_delivery_batch_stops(type, completed_at)')
+        .in('driver_id', dlist.map((d: any) => d.id))
+        .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress']);
+      drivers = dlist.map((d: any) => {
+        const myB = (batches ?? []).filter((b: any) => b.driver_id === d.id);
+        const undelivered = myB.flatMap((b: any) => (b.stops ?? [])).filter((st: any) => st.type === 'dropoff' && !st.completed_at).length;
+        const inProgress = myB.some((b: any) => b.state === 'in_progress');
+        return { id: d.id, name: d.name, lat: d.last_lat, lng: d.last_lng, state: d.state, undelivered, busy: myB.length > 0, returning: inProgress && undelivered <= 1 };
+      });
+    }
+  }
+  return { orders: orders ?? [], items: items ?? [], drivers };
 }
 
 /** Annehmen: setzt in_zubereitung + Fertig-Zeitpunkt (jetzt + prepMin). */

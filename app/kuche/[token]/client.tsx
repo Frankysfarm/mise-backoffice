@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
-  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check,
+  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike,
 } from 'lucide-react';
 import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing } from './actions';
 
@@ -31,6 +31,7 @@ type Order = {
   fertig_am: string | null; created_at: string; mise_driver_id: string | null; items: Item[];
 };
 type MenuItem = { id: string; name: string; verfuegbar: boolean };
+type Driver = { id: string; name: string; lat: number | null; lng: number | null; state: string; undelivered: number; busy: boolean; returning: boolean };
 
 function typeCfg(typ: string | null) {
   if (typ === 'lieferung') return { label: 'Lieferung', Icon: Truck, color: C.link, tint: '#14233A' };
@@ -61,6 +62,9 @@ export default function KitchenMonitor({
   const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const pendingMissing = useRef<Set<string>>(new Set());
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const returnedRef = useRef<Set<string>>(new Set());
+  const [returnBanner, setReturnBanner] = useState<string | null>(null);
 
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
@@ -72,7 +76,7 @@ export default function KitchenMonitor({
       const fresh = r.orders as Order[];
       // lokale pending "fehlt"-Edits bewahren (Polling ueberschreibt sonst)
       for (const o of fresh) for (const it of (o.items ?? [])) if (pendingMissing.current.has(it.id)) it.pick_missing = true;
-      setOrders(fresh); setItems(r.items as MenuItem[]);
+      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]);
     }
     const iv = setInterval(poll, 4000);
     return () => { alive = false; clearInterval(iv); };
@@ -102,6 +106,19 @@ export default function KitchenMonitor({
     play(); const iv = setInterval(play, 950);
     return () => { stopped = true; clearInterval(iv); };
   }, [ringing?.id, activated, muted, soundType]);
+
+  // "Fahrer auf Rueckweg"-Erkennung -> Banner + Gong (einmal pro Fahrer)
+  useEffect(() => {
+    for (const d of drivers) {
+      if (d.returning && !returnedRef.current.has(d.id)) {
+        returnedRef.current.add(d.id);
+        setReturnBanner(d.name);
+        if (!muted && audioCtxRef.current) { try { audioCtxRef.current.resume(); SOUNDS.gong.play(audioCtxRef.current); } catch { /* noop */ } }
+        const nm = d.name; setTimeout(() => setReturnBanner((b) => (b === nm ? null : b)), 12000);
+      }
+      if (!d.returning) returnedRef.current.delete(d.id);
+    }
+  }, [drivers, muted]);
 
   async function refresh() { const r = await getKitchenData(token); if (!('error' in r)) { setOrders(r.orders as Order[]); setItems(r.items as MenuItem[]); } }
   function showToast(text: string, undo: () => void) { setToast({ text, undo }); setTimeout(() => setToast((t) => (t && t.text === text ? null : t)), 5000); }
@@ -227,6 +244,36 @@ export default function KitchenMonitor({
           <IconBtn on={() => { try { document.documentElement.requestFullscreen(); } catch { /* noop */ } }}><Maximize size={20} /></IconBtn>
         </div>
       </div>
+
+      {/* Fahrer-auf-Rueckweg-Banner */}
+      {returnBanner && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 16px 0', padding: '14px 18px', borderRadius: 14, background: C.zubTint, border: `1px solid ${C.zub}` }}>
+          <Truck size={24} color={C.zub} />
+          <span style={{ fontSize: 17, fontWeight: 800, color: C.zub }}>{returnBanner} ist auf dem Rückweg</span>
+          <span style={{ fontSize: 14, color: C.t2 }}>— nächste Bestellung vorbereiten!</span>
+          <button onClick={() => setReturnBanner(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={20} /></button>
+        </div>
+      )}
+
+      {/* Fahrer-Panel (aktive Fahrer + Standort) */}
+      {drivers.length > 0 && (
+        <div style={{ display: 'flex', gap: 10, padding: '12px 16px 0', overflowX: 'auto', alignItems: 'center' }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: C.t3, letterSpacing: '.05em', whiteSpace: 'nowrap' }}>FAHRER</span>
+          {drivers.map((d) => {
+            const st = d.returning ? { t: 'auf Rückweg', c: C.zub } : d.busy ? { t: `unterwegs · ${d.undelivered} offen`, c: C.warnSoft } : { t: 'frei', c: C.t2 };
+            return (
+              <div key={d.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${d.returning ? C.zub : C.border}`, borderRadius: 12, padding: '7px 12px', whiteSpace: 'nowrap' }}>
+                <Bike size={16} color={st.c} />
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{d.name}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: st.c }}>{st.t}</span>
+                {d.lat != null && d.lng != null && (
+                  <a href={`https://www.google.com/maps?q=${d.lat},${d.lng}`} target="_blank" rel="noreferrer" style={{ display: 'flex', color: C.link }}><MapPin size={15} /></a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* SPALTEN */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, padding: 16, alignItems: 'start' }}>
