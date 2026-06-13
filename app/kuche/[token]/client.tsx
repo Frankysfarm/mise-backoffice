@@ -106,6 +106,10 @@ export default function KitchenMonitor({
   const isStale = (od: Order) => now - new Date(od.created_at).getTime() > MAX_WAIT_MS;
   const heldOrders = neu.filter((od) => od.typ === 'lieferung' && !canCook && !isStale(od));
   const readyNeu = neu.filter((od) => !(od.typ === 'lieferung' && !canCook && !isStale(od)));
+  // P2: nur so viele Lieferungen 'jetzt kochen' wie freie Fahrer-Kapazitaet (Soft-Limit, uebersteuerbar)
+  const CAP_BASE_C = 4;
+  const freeSlots = canCook ? Math.max(1, drivers.filter((d) => (!d.busy || d.returning) && !d.stale).reduce((sum, d) => sum + Math.max(0, CAP_BASE_C - d.undelivered), 0)) : 0;
+  const overCapacityIds = new Set<string>(canCook ? readyNeu.filter((od) => od.typ === 'lieferung').slice(freeSlots).map((od) => od.id) : []);
 
   // All-Day-Counts (aggregiert ueber alle aktiven Orders)
   const allDay = (() => {
@@ -330,11 +334,12 @@ export default function KitchenMonitor({
           )}
           {readyNeu.map((o) => {
             const overdue = o.typ === 'lieferung' && !canCook; // war 'warten', per Notfall-Timer freigegeben
+            const dim = overCapacityIds.has(o.id); // ueber Fahrer-Kapazitaet -> erst nach Rueckkehr
             return (
               <Card key={o.id} o={o} now={now} cookWarn={overdue} {...sharedCardProps}>
                 <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
-                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: overdue ? 16 : 19, background: overdue ? C.warnSoft : C.zub, color: '#fff' }}>
-                  {overdue ? '⚠ Wartet zu lange · jetzt kochen!' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
+                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: (overdue || dim) ? 15 : 19, background: dim ? C.border : overdue ? C.warnSoft : C.zub, color: dim ? C.t2 : '#fff' }}>
+                  {dim ? '⏳ Fahrer voll · nach Rückkehr (trotzdem)' : overdue ? '⚠ Wartet zu lange · jetzt kochen!' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
                 </button>
               </Card>
             );

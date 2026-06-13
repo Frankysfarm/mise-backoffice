@@ -134,10 +134,25 @@ export async function stornoOrder(token: string, orderId: string) {
   const loc = await locForToken(token);
   if (!loc) return { error: 'unauth' };
   const svc = createServiceClient();
-  const { error } = await svc.from('customer_orders')
-    .update({ status: 'storniert', storniert_am: new Date().toISOString() })
-    .eq('id', orderId).eq('location_id', loc.id);
-  return error ? { error: error.message } : { ok: true };
+  const nowIso = new Date().toISOString();
+  const { data: ord, error } = await svc.from('customer_orders')
+    .update({ status: 'storniert', storniert_am: nowIso, storniert_von: 'kueche' })
+    .eq('id', orderId).eq('location_id', loc.id)
+    .select('mise_batch_id').maybeSingle();
+  if (error) return { error: error.message };
+  // P4: war die Order schon dispatcht -> Dropoff-Stop neutralisieren, Tour ggf. canceln
+  if (ord?.mise_batch_id) {
+    await svc.from('mise_delivery_batch_stops')
+      .update({ completed_at: nowIso, cancelled: true })
+      .eq('batch_id', ord.mise_batch_id).eq('order_id', orderId).eq('type', 'dropoff');
+    const { data: rest } = await svc.from('mise_delivery_batch_stops')
+      .select('id').eq('batch_id', ord.mise_batch_id).eq('type', 'dropoff').is('completed_at', null);
+    if (!rest || rest.length === 0) {
+      await svc.from('mise_delivery_batches').update({ state: 'cancelled' }).eq('id', ord.mise_batch_id);
+    }
+    await svc.from('customer_orders').update({ mise_batch_id: null }).eq('id', orderId);
+  }
+  return { ok: true };
 }
 
 /** Ausverkauft-Toggle fuer ein Gericht (heute). */
