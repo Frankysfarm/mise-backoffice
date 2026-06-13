@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Bike, Clock, Zap } from 'lucide-react';
+import { Bike, Clock, PauseCircle, Zap } from 'lucide-react';
 
 interface LiveEtaData {
   eta_min: number;
@@ -76,9 +76,24 @@ export function LiveWaitBadge({
     };
   }, [fetchData]);
 
+  const isPaused = data?.queue_signal === 'paused';
   const isBusy = (data?.load ?? 'normal') === 'busy';
   const load = data?.load ?? 'normal';
   const style = LOAD_STYLES[load] ?? LOAD_STYLES.normal;
+
+  if (isPaused) {
+    return (
+      <div className={cn(
+        'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium',
+        'bg-red-600 text-white',
+        className,
+      )}>
+        <PauseCircle className="h-3.5 w-3.5 shrink-0" />
+        <span className="font-bold">Bestellungen pausiert</span>
+        <span className="text-[10px] font-medium opacity-80 hidden sm:inline">Bitte später versuchen</span>
+      </div>
+    );
+  }
 
   // ETA-Berechnung
   const etaMin = data
