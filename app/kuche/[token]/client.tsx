@@ -59,19 +59,20 @@ export default function KitchenMonitor({
     function beep() {
       if (stopped || !ctx) return;
       const t = ctx.currentTime;
-      [880, 1320].forEach((freq, i) => {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.type = 'square'; o.frequency.value = freq;
-        o.connect(g); g.connect(ctx.destination);
-        const s = t + i * 0.18;
-        g.gain.setValueAtTime(0.0001, s);
-        g.gain.exponentialRampToValueAtTime(0.5, s + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, s + 0.16);
-        o.start(s); o.stop(s + 0.17);
-      });
+      const osc = ctx.createOscillator(); const g = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.connect(g); g.connect(ctx.destination);
+      osc.frequency.setValueAtTime(560, t);
+      osc.frequency.linearRampToValueAtTime(1180, t + 0.22);
+      osc.frequency.linearRampToValueAtTime(560, t + 0.44);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.75, t + 0.02);
+      g.gain.setValueAtTime(0.75, t + 0.42);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      osc.start(t); osc.stop(t + 0.5);
     }
     beep();
-    const iv = setInterval(beep, 1100);
+    const iv = setInterval(beep, 750);
     return () => { stopped = true; clearInterval(iv); };
   }, [ringing?.id, activated]);
 
@@ -120,12 +121,12 @@ export default function KitchenMonitor({
     <div style={{ minHeight: '100vh', background: '#0f1411', color: '#fff', fontFamily: 'system-ui, sans-serif' }}>
       {/* ── VOLLBILD-POPUP: neue Bestellung (klingelt bis angenommen) ── */}
       {ringing && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(224,40,40,.18)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'kpulse 1.1s ease-in-out infinite' }}>
-          <style>{'@keyframes kpulse{0%,100%{background:rgba(224,40,40,.12)}50%{background:rgba(224,40,40,.28)}}'}</style>
-          <div style={{ width: 'min(560px, 96vw)', background: '#1d2823', borderRadius: 24, padding: 26, boxShadow: '0 20px 80px -20px #000', border: '2px solid #E5484D' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'kflash .55s steps(1) infinite' }}>
+          <style>{'@keyframes kflash{0%{background:rgba(229,72,77,.6)}50%{background:rgba(229,72,77,.05)}100%{background:rgba(229,72,77,.6)}}@keyframes kshake{0%,100%{transform:translateX(0) scale(1)}15%{transform:translateX(-8px) scale(1.03)}30%{transform:translateX(8px) scale(1.03)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}}@keyframes kblink{0%,49%{opacity:1}50%,100%{opacity:.3}}'}</style>
+          <div style={{ width: 'min(580px, 96vw)', background: '#1d2823', borderRadius: 24, padding: 26, boxShadow: '0 0 0 5px #E5484D, 0 24px 90px -10px #000', animation: 'kshake .55s ease-in-out infinite' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-              <span style={{ fontSize: 30 }}>🔔</span>
-              <span style={{ fontSize: 22, fontWeight: 900, color: '#ff7a7d', letterSpacing: '.02em' }}>NEUE BESTELLUNG</span>
+              <span style={{ fontSize: 38, animation: 'kblink .7s steps(1) infinite' }}>🔔</span>
+              <span style={{ fontSize: 26, fontWeight: 900, color: '#ff5a5e', letterSpacing: '.03em', animation: 'kblink .7s steps(1) infinite' }}>NEUE BESTELLUNG</span>
               {neu.length > 1 && <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 700, color: '#9fb3a7' }}>+{neu.length - 1} weitere</span>}
             </div>
             <div style={{ fontFamily: 'monospace', fontSize: 20, fontWeight: 800, marginBottom: 4 }}>#{(ringing.bestellnummer || '').slice(-4) || '----'} · {ringing.typ === 'lieferung' ? '🚗 Lieferung' : ringing.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</div>
