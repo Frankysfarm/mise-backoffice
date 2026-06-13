@@ -28,6 +28,12 @@
 ### Befund
 **Alle Systeme grün.** 109 Phasen abgeschlossen. Markt-reif.
 
+### Nachtrag Review #80 — 2 weitere Frontend-Commits während Review
+- `3d0eeb8` feat(delivery/frontend): Zone-Abdeckung, Wellen-Detektor, Batch-Alert, Live-Metriken
+- `967c75c` feat(dispatch): TourRouteOverview — kompakte Touren-Karten mit Stopp-Fortschritt
+- TypeScript nach Rebase: **0 Fehler**
+- Build nach Rebase: ✓ **197 Seiten, 0 Fehler** — vollständig sauber
+
 ---
 
 ## CEO Review #79 — 2026-06-13
