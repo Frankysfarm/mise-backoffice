@@ -53,6 +53,7 @@ import { checkAllDrivers } from '@/lib/delivery/review-flags';
 import { scanAndRecordCompletedTours } from '@/lib/delivery/tour-analytics';
 import { snapshotGeoDemandAllLocations } from '@/lib/delivery/geo-demand';
 import { runFlowIntelligenceAllLocations, pruneOldFlowSnapshots } from '@/lib/delivery/flow-intelligence';
+import { snapshotFatigueAllLocations, pruneFatigueSnapshots } from '@/lib/delivery/fatigue-monitor';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest) {
     // Adress-Intelligenz-Scan: täglich um 05:00 UTC
     const isAddressScanTick = nowHour === 5 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -283,6 +284,14 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneOldFlowSnapshots().catch(() => 0)
         : Promise.resolve(null),
+      // Fahrer-Ermüdungsmonitor: alle Online-Fahrer alle 10 Min snapshotten (Phase 119)
+      isRatingTick
+        ? snapshotFatigueAllLocations().catch(() => ({ locations: 0, drivers: 0, atRisk: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Fatigue-Snapshots bereinigen: Snapshots > 30 Tage löschen (täglich 02:00 UTC)
+      isReportTick
+        ? pruneFatigueSnapshots(30).catch(() => 0)
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -379,6 +388,8 @@ export async function GET(req: NextRequest) {
       ...(geoDemandResult ? { geo_demand: { locations: geoDemandResult.locations, plzs: geoDemandResult.plzs, errors: geoDemandResult.errors } } : {}),
       ...(flowIntelligenceResult ? { flow_intelligence: { locations: flowIntelligenceResult.locations, snapshots: flowIntelligenceResult.snapshots, anomalies: flowIntelligenceResult.anomalies, errors: flowIntelligenceResult.errors } } : {}),
       ...(flowSnapshotsPruned ? { flow_snapshots_pruned: flowSnapshotsPruned } : {}),
+      ...(fatigueResult ? { fatigue_monitor: { locations: fatigueResult.locations, drivers: fatigueResult.drivers, at_risk: fatigueResult.atRisk, errors: fatigueResult.errors } } : {}),
+      ...(fatigueSnapshotsPruned ? { fatigue_snapshots_pruned: fatigueSnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
