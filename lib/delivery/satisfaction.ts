@@ -210,6 +210,11 @@ export async function submitCustomerRating(input: SubmitRatingInput): Promise<Su
     }).catch(() => {});
   }
 
+  // Fahrer-Review-Check nach jeder Bewertung, fire-and-forget
+  import('@/lib/delivery/review-flags').then(({ processRatingReviewCheck }) => {
+    processRatingReviewCheck(order.id, order.location_id).catch(() => {});
+  }).catch(() => {});
+
   return { success: true };
 }
 
