@@ -33,7 +33,7 @@ type Batch = {
 function useTick() {
   const [, setT] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setT((n) => n + 1), 10_000);
+    const t = setInterval(() => setT((n) => n + 1), 30_000);
     return () => clearInterval(t);
   }, []);
 }
@@ -41,6 +41,39 @@ function useTick() {
 function etaLabel(iso: string | null | undefined): string {
   if (!iso) return '–';
   return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+}
+
+function StopEtaBadge({ eta_earliest, eta_latest, isDone }: { eta_earliest: string | null; eta_latest: string | null; isDone: boolean }) {
+  if (isDone) return null;
+  if (!eta_earliest) return null;
+  const now = Date.now();
+  const earliestMs = new Date(eta_earliest).getTime();
+  const latestMs = eta_latest ? new Date(eta_latest).getTime() : earliestMs + 10 * 60_000;
+  const minLeft = Math.round((earliestMs - now) / 60_000);
+  const isOverdue = now > latestMs;
+  const isUrgent = !isOverdue && minLeft <= 5;
+  const fmt = etaLabel(eta_earliest);
+
+  if (isOverdue) {
+    const overdueMin = Math.round((now - latestMs) / 60_000);
+    return (
+      <span className="shrink-0 flex items-center gap-0.5 rounded-full bg-red-100 text-red-700 px-1.5 py-0.5 text-[9px] font-black animate-pulse">
+        <AlertTriangle className="h-2.5 w-2.5" />+{overdueMin}m
+      </span>
+    );
+  }
+  if (isUrgent) {
+    return (
+      <span className="shrink-0 flex items-center gap-0.5 rounded-full bg-orange-100 text-orange-700 px-1.5 py-0.5 text-[9px] font-bold">
+        <Clock className="h-2.5 w-2.5" />{minLeft}m · {fmt}
+      </span>
+    );
+  }
+  return (
+    <span className="shrink-0 text-[10px] font-mono tabular-nums text-muted-foreground">
+      {fmt}
+    </span>
+  );
 }
 
 function BatchSequenzCard({ batch }: { batch: Batch }) {
@@ -137,14 +170,11 @@ function BatchSequenzCard({ batch }: { batch: Batch }) {
                     )}>
                       {stop.order?.kunde_name ?? 'Unbekannt'}
                     </div>
-                    {stop.order?.eta_earliest && (
-                      <span className={cn(
-                        'shrink-0 text-[10px] font-mono tabular-nums',
-                        isDone ? 'text-muted-foreground' : 'text-foreground',
-                      )}>
-                        {etaLabel(stop.order.eta_earliest)}
-                      </span>
-                    )}
+                    <StopEtaBadge
+                      eta_earliest={stop.order?.eta_earliest ?? null}
+                      eta_latest={stop.order?.eta_latest ?? null}
+                      isDone={isDone}
+                    />
                   </div>
                   <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
                     <MapPin className="h-2.5 w-2.5 shrink-0" />

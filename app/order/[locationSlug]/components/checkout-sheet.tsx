@@ -552,6 +552,24 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                       </span>
                       <span className="font-semibold text-matcha-900">≈ {arrivalStr} Uhr</span>
                     </div>
+                    {/* Queue + Fahrer-Status: zeige nur wenn Daten vorhanden */}
+                    {(liveEta.active_orders != null || liveEta.drivers_online != null) && (
+                      <div className="mt-2 pt-2 border-t border-current/10 flex items-center gap-3 text-[10px]">
+                        {liveEta.active_orders != null && (
+                          <span className={cn('flex items-center gap-1 font-medium', loadColor.text)}>
+                            🍳 {liveEta.active_orders} {liveEta.active_orders === 1 ? 'Bestellung' : 'Bestellungen'} in Küche
+                          </span>
+                        )}
+                        {liveEta.drivers_online != null && (
+                          <span className={cn(
+                            'flex items-center gap-1 font-bold ml-auto',
+                            liveEta.drivers_online === 0 ? 'text-red-600' : liveEta.drivers_online >= 3 ? 'text-matcha-700' : 'text-amber-700',
+                          )}>
+                            🛵 {liveEta.drivers_online} {liveEta.drivers_online === 1 ? 'Fahrer' : 'Fahrer'} aktiv
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })()}
