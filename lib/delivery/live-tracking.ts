@@ -104,10 +104,7 @@ export async function getOrderTrackingData(
   // Bestellung laden
   const { data: order } = await sb
     .from('customer_orders')
-    .select(
-      'id, bestellnummer, status, typ, eta_earliest, eta_latest, '
-      + 'mise_batch_id, mise_driver_id, location_id, kunde_lat, kunde_lng',
-    )
+    .select('id, bestellnummer, status, typ, eta_earliest, eta_latest, mise_batch_id, mise_driver_id, location_id, kunde_lat, kunde_lng')
     .eq('bestellnummer', bestellnummer)
     .eq('typ', 'lieferung')
     .maybeSingle();
@@ -273,16 +270,17 @@ export async function recordTrackingSession(params: {
     if (params.almostThere) updatePayload.almost_there_at = new Date().toISOString();
     if (params.arrived)     updatePayload.arrived_at      = new Date().toISOString();
 
-    await sb
-      .from('order_tracking_sessions')
-      .update(updatePayload)
-      .eq('id', params.sessionId)
-      .catch(() => {});
+    try {
+      await sb
+        .from('order_tracking_sessions')
+        .update(updatePayload)
+        .eq('id', params.sessionId);
+    } catch {}
 
     // pings++ via separate RPC (non-critical, ignore error if function not deployed)
-    await sb
-      .rpc('increment_tracking_session_pings' as never, { p_session_id: params.sessionId })
-      .catch(() => {});
+    try {
+      await sb.rpc('increment_tracking_session_pings' as never, { p_session_id: params.sessionId });
+    } catch {}
 
     return params.sessionId;
   }

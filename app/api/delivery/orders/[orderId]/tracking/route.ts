@@ -98,6 +98,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     lng: number;
     heading: number | null;
     seconds_stale: number;
+    speed_kmh: number | null;
   } | null = null;
   let driverName: string | null = null;
   let geo = { distanceM: null as number | null, almostThere: false, etaMinRemaining: null as number | null, bearingDeg: null as number | null };
@@ -128,7 +129,7 @@ export async function GET(req: NextRequest, { params }: Params) {
         heading:       (loc.heading as number | null) ?? null,
         seconds_stale: secondsStale,
         speed_kmh:     (loc.speed_kmh as number | null) ?? null,
-      } as typeof driverPosition & { speed_kmh: number | null };
+      };
     }
 
     if (driverRow?.employee_id) {
@@ -146,9 +147,8 @@ export async function GET(req: NextRequest, { params }: Params) {
       : null;
     if (driverPosition && kundePos) {
       const vehicleType = (driverRow?.vehicle as string | null) === 'car' ? 'car' : 'bike';
-      const dp = driverPosition as typeof driverPosition & { speed_kmh: number | null };
       geo = computeGeofencing(
-        { lat: dp.lat, lng: dp.lng, speedKmh: dp.speed_kmh ?? null },
+        { lat: driverPosition.lat, lng: driverPosition.lng, speedKmh: driverPosition.speed_kmh ?? null },
         kundePos,
         vehicleType,
       );

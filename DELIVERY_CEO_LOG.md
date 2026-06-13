@@ -5,6 +5,91 @@
 
 ---
 
+## CEO Review #79 — 2026-06-13
+
+### Geprüfte Commits (6 neue seit Review #78)
+- `2803f2d` feat(delivery/frontend): Navi-Schrittliste + Wartezeit-Heatmap für Dispatch
+- `a4ecbef` feat(lieferdienst): Trend-Indikatoren im Live-Bestellpipeline-Funnel
+- `198fbfe` feat(kitchen/frontend): Aktive-Touren-Footer im TV-Küchendisplay
+- `39169bf` feat(storefront): Aktive-Bestellung-Banner mit Live-ETA
+- `2174fa7` feat(delivery/backend): Phase 108 — Smart Customer Address Intelligence
+- `b342c5e` feat(delivery/frontend): OpsSnapshotPanel + DispatchQueuePanel
+
+### TypeScript & Build
+- TypeScript: **4 Fehler gefunden und sofort gefixt** ✅
+  1. `lib/delivery/live-tracking.ts`: String-Konkatenation in `.select()` → Single-Literal (Supabase-Typ-Inferenz)
+  2. `lib/delivery/live-tracking.ts`: `.catch()` auf Supabase-Builder → `try { await ... } catch {}` (2× gefixt)
+  3. `app/api/delivery/orders/[orderId]/tracking/route.ts`: `speed_kmh` fehlte im `driverPosition`-Typ + redundante `as`-Casts entfernt
+  4. `app/(admin)/lieferdienst/client.tsx`: `{ count }` implizit `any` → expliziter `{ count }: { count: number | null }` Typ
+- `next build`: **196 Seiten, 0 Fehler** ✅
+
+### Befund Phase 108 (Backend — Address Intelligence)
+
+**lib/delivery/address-intelligence.ts (441 Zeilen)**:
+- `hashAddress()`: SHA-256 via Node `crypto` — korrekt, kollisionssicher ✅
+- `getAddressPreferences()` + `saveAddressPreferences()`: Upsert mit `use_count++` — korrekte Logik ✅
+- `getOrderAddressInfo()`: Enrichment für Dispatch-Stops mit Sonderwünschen ✅
+- `recordAddressIssue()` / `resolveAddressIssue()`: Issue-Tracking mit ENUM-Typen ✅
+- `getProblematicAddresses()`: View `v_problematic_addresses` (≥2 Issues/90 Tage) ✅
+- `scanProblematicAddressesAllLocations()`: Cron-Batch täglich 05:00 UTC ✅
+
+**Migration 066**: `customer_address_preferences` + `delivery_address_issues` + 2 Views — RLS aktiviert ✅
+
+**API-Routes**: Auth-Guard auf Admin-Endpunkt, öffentliche Preferences-Route korrekt ✅
+
+**Admin-UI**: 4 KPI-Karten, 3 Tabs (Issues/Problematisch/Info), 60s Auto-Refresh ✅
+
+### Befund Frontend-Commits (2803f2d bis b342c5e)
+
+**NaviWidget + Wartezeit-Heatmap** (Dispatch):
+- Heatmap: Farbkodierung Grün/Amber/Orange/Rot nach Wartezeit — korrekte Logik ✅
+- Urgenz-Eskalation (Puls-Animation ab >10 Min) ✅
+
+**Trend-Indikatoren** (Lieferdienst-Funnel):
+- ↑/↓ Pfeile basierend auf Diff zur vorherigen Poll-Runde ✅
+- Rückstau-↑ in Rot, Entlastung-↓ in Grün — intuitive UX ✅
+
+**Aktive-Touren-Footer** (Kitchen TV):
+- Zeigt Fahrername + Status + Rest-Zeit — sinnvoller für Küchenpersonal ✅
+
+**Aktive-Bestellung-Banner** (Storefront):
+- localStorage-basiert, Auto-Polling 30s, verschwindet nach Lieferung ✅
+- Kein Auth nötig (bestellnummer als Lookup-Key) ✅
+
+**OpsSnapshotPanel** (Lieferdienst-Dashboard):
+- Pollt `/api/delivery/admin/ops-snapshot` alle 30s ✅
+- API-Route existiert ✅
+- KPI-Karten: Queue-Flow, Revenue+Delta, SLA%, Throughput, Fahrer-Status ✅
+
+**DispatchQueuePanel** (Dispatch):
+- Pollt `/api/delivery/admin/dispatch-queue` alle 30s ✅
+- API-Route existiert ✅
+- Score-basierte Prioritätsliste, ScoreBar-Komponente, Boost-Buttons ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen-Footer zeigt aktive Touren → Dispatch-Timing sichtbar ✅
+- Dispatch-Queue zeigt priorisierte Warteschlange + Heatmap ✅
+- OpsSnapshot gibt Echtzeit-Cockpit über alle Systeme ✅
+- Storefront-Banner zeigt aktiven Bestellstatus für Wiederkehr-Kunden ✅
+- Address-Intelligence enrichiert Fahrer-Stops mit Zugangsdaten ✅
+
+### Status nach Review #79
+- TypeScript: **0 Fehler** ✅
+- Build: **196 Seiten sauber** ✅
+- Phase 108 (Address Intelligence): DONE ✅
+- Alle Frontend-Panels: DONE ✅
+- Bugs gefixt: 4
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 109: Fahrer-Kommuikations-Log (SMS/Push-Nachrichten-Tracking zwischen Dispatch und Fahrer)
+2. Oder: Zones-basiertes Dispatch-Routing (automatische Fahrerzuweisung nach Lieferzone)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. OpsSnapshotPanel: At-Risk-Bestellungen klickbar machen (direkter Link zur Bestellung in Dispatch)
+2. Address-Intelligence: Karten-Preview für problematische Adressen
+
+---
+
 ## CEO Review #78 — 2026-06-13
 
 ### Geprüfte Commits (2 neue Commits seit Review #77)

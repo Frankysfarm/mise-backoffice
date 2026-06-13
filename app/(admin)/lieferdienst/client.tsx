@@ -2538,7 +2538,7 @@ function LiveOrderFunnelPanel() {
             supabase.from('customer_orders')
               .select('id', { count: 'exact', head: true })
               .eq('status', s.status)
-              .then(({ count }) => ({ status: s.status, count: count ?? 0 }))
+              .then(({ count }: { count: number | null }) => ({ status: s.status, count: count ?? 0 }))
           )
         );
         const today = new Date(); today.setHours(0, 0, 0, 0);
