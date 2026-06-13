@@ -666,6 +666,9 @@ export function KitchenBoard({
       {/* Phase 94: Echtzeit-Küchen-Zubereitungsgeschwindigkeit */}
       <KitchenPrepSpeedometer orders={filtered} />
 
+      {/* Zubereitungszeit-Lernmodul: p75-Schätzwerte nach Tageszeit (Backend-Lernmodul Phase 131) */}
+      <PrepLearningPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+
       {/* Fahrer-Küchen-Synchronisation: Timing-Abgleich zwischen aktiven Batches und Kochzeiten */}
       {batches.length > 0 && timings.length > 0 && (
         <KitchenHandoffSyncPanel batches={batches} stops={stops} timings={timings} orders={filtered} />
@@ -7509,6 +7512,166 @@ export function KitchenOrderUrgencyRail({ orders, timings }: { orders: Order[]; 
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ PrepLearningPanel ------------------------------ */
+
+type PrepProfileLocal = {
+  hourBucket: number;
+  bucketLabel: string;
+  observations: number;
+  meanPrepMin: number;
+  p75PrepMin: number;
+  p90PrepMin: number;
+  accuracyPct: number;
+};
+
+type PrepLearningData = {
+  summary: {
+    totalObservations: number;
+    avgActualMin: number;
+    avgDeltaMin: number;
+    accuracyPct: number;
+  } | null;
+  profiles: PrepProfileLocal[];
+  currentEstimate: number;
+  defaultFallback: number;
+};
+
+function PrepLearningPanel({ locationId }: { locationId: string | null }) {
+  const [data, setData] = useState<PrepLearningData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [recomputing, setRecomputing] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open || !locationId) return;
+    setLoading(true);
+    fetch(`/api/delivery/admin/prep-learning?location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setData(d ?? null))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [open, locationId]);
+
+  async function recompute() {
+    if (!locationId) return;
+    setRecomputing(true);
+    try {
+      await fetch('/api/delivery/admin/prep-learning', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'recompute', location_id: locationId }),
+      });
+      const r = await fetch(`/api/delivery/admin/prep-learning?location_id=${locationId}`);
+      if (r.ok) setData(await r.json());
+    } catch {}
+    finally { setRecomputing(false); }
+  }
+
+  return (
+    <div className="rounded-xl border bg-card overflow-hidden">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-5 py-3 hover:bg-muted/40 transition"
+      >
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-matcha-600" />
+          <span className="font-display text-sm font-bold uppercase tracking-wider">Zubereitungszeit-Lernmodul</span>
+          {data?.summary && (
+            <span className="rounded-full bg-matcha-100 px-2 py-0.5 text-[10px] font-bold text-matcha-700">
+              {data.summary.totalObservations} Beob. · ~{Math.round(data.currentEstimate)} Min jetzt
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
+
+      {open && (
+        <div className="border-t px-5 py-4 space-y-4">
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Lade Lernprofil…
+            </div>
+          )}
+
+          {!loading && data && (
+            <>
+              <div className="flex items-center gap-4 rounded-xl bg-matcha-50 border border-matcha-200 p-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-matcha-600 text-white font-display text-2xl font-black">
+                  {Math.round(data.currentEstimate)}
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-600">Aktueller p75-Schätzwert</div>
+                  <div className="text-sm text-muted-foreground">
+                    Fallback: {data.defaultFallback} Min · {data.summary ? `${data.summary.totalObservations} Beobachtungen` : 'Keine Daten'}
+                  </div>
+                  {data.summary && (
+                    <div className="flex items-center gap-3 mt-0.5 text-xs">
+                      <span className={cn('font-bold', data.summary.accuracyPct >= 70 ? 'text-matcha-700' : data.summary.accuracyPct >= 50 ? 'text-amber-600' : 'text-red-600')}>
+                        Genauigkeit {Math.round(data.summary.accuracyPct)}%
+                      </span>
+                      <span className="text-muted-foreground">
+                        Ø Δ {data.summary.avgDeltaMin > 0 ? '+' : ''}{data.summary.avgDeltaMin.toFixed(1)} Min
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {data.profiles.length > 0 && (
+                <div>
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Profil je Tageszeit</div>
+                  <div className="space-y-1.5">
+                    {data.profiles.map(p => (
+                      <div key={p.hourBucket} className="flex items-center gap-2">
+                        <span className="w-36 shrink-0 text-[11px] text-muted-foreground truncate">{p.bucketLabel}</span>
+                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full', p.accuracyPct >= 70 ? 'bg-matcha-500' : p.accuracyPct >= 50 ? 'bg-amber-400' : 'bg-red-400')}
+                            style={{ width: `${Math.min(100, (p.p75PrepMin / 30) * 100)}%` }}
+                          />
+                        </div>
+                        <span className="w-14 shrink-0 text-right text-[11px] font-bold tabular-nums">
+                          {p.p75PrepMin.toFixed(1)} Min
+                        </span>
+                        <span className="w-10 shrink-0 text-right text-[9px] text-muted-foreground tabular-nums">
+                          n={p.observations}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {data.profiles.length === 0 && (
+                <div className="text-sm text-muted-foreground text-center py-2">
+                  Noch keine Lernprofile — werden nach den ersten Bestellungen aufgebaut.
+                </div>
+              )}
+
+              <button
+                onClick={recompute}
+                disabled={recomputing}
+                className="inline-flex items-center gap-2 rounded-lg border border-matcha-300 bg-matcha-50 px-3 py-1.5 text-xs font-bold text-matcha-700 hover:bg-matcha-100 disabled:opacity-50 transition"
+              >
+                {recomputing ? <Loader2 className="h-3 w-3 animate-spin" /> : <TrendingUp className="h-3 w-3" />}
+                {recomputing ? 'Neu berechnen…' : 'Profile neu berechnen'}
+              </button>
+            </>
+          )}
+
+          {!loading && !data && locationId && (
+            <div className="text-sm text-muted-foreground">Lernmodul nicht verfügbar.</div>
+          )}
+          {!locationId && (
+            <div className="text-sm text-muted-foreground">Bitte Filiale auswählen.</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
