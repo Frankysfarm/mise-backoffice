@@ -1051,6 +1051,7 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
   const [driversOnline, setDriversOnline] = React.useState<number | null>(null);
   const [signalMessage, setSignalMessage] = React.useState<string | null>(null);
   const [etaExtension, setEtaExtension] = React.useState<number>(0);
+  const [queueSignal, setQueueSignal] = React.useState<string>('normal');
   const [loaded, setLoaded] = React.useState(false);
   const [nowMs, setNowMs] = React.useState(Date.now());
 
@@ -1068,6 +1069,7 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
         if (d.drivers_online != null) setDriversOnline(d.drivers_online);
         setSignalMessage(d.signal_message ?? null);
         setEtaExtension(d.eta_extension_min ?? 0);
+        setQueueSignal(d.queue_signal ?? 'normal');
         setLoaded(true);
       } catch {}
     };
@@ -1168,8 +1170,15 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
                 );
               })()}
             </div>
+            {/* Queue-Signal: Lieferung pausiert */}
+            {queueSignal === 'paused' && (
+              <div className="mt-1 text-xs font-bold rounded-md px-2 py-1 flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-700">
+                <span>🚫</span>
+                <span>{signalMessage ?? 'Lieferung momentan nicht möglich — bitte später versuchen'}</span>
+              </div>
+            )}
             {/* Queue-Signal-Meldung: manuelle Nachricht aus dem Backoffice */}
-            {signalMessage && etaExtension > 0 && (
+            {queueSignal !== 'paused' && signalMessage && etaExtension > 0 && (
               <div className={cn('mt-1 text-xs font-medium rounded-md px-2 py-1 flex items-center gap-1.5', meta.bg, 'border', meta.text)}>
                 <span>⚠️</span>
                 <span>{signalMessage}</span>
