@@ -5,7 +5,7 @@ import {
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
-  Settings, DollarSign, ShieldCheck,
+  Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -286,6 +286,41 @@ export default async function DeliveryOverviewPage() {
           title="Compliance & Zertifizierungen"
           subtitle="Fahrerdokumente · ablaufende Zertifikate · Dispatch-Sperren"
           cta="Compliance prüfen"
+        />
+        <SectionCard
+          href="/delivery/applications"
+          icon={<UserPlus className="h-5 w-5" />}
+          title="Fahrer-Bewerbungen"
+          subtitle="Onboarding-Trichter · Bewerbungen prüfen und genehmigen"
+          cta="Bewerbungen"
+        />
+        <SectionCard
+          href="/delivery/windows"
+          icon={<CalendarClock className="h-5 w-5" />}
+          title="Lieferfenster"
+          subtitle="Zeitslots konfigurieren · Kapazitäten und Buchungen"
+          cta="Fenster verwalten"
+        />
+        <SectionCard
+          href="/delivery/notification-config"
+          icon={<Bell className="h-5 w-5" />}
+          title="Kunden-Push-Konfiguration"
+          subtitle="Webhook, Ereignisse und Versand-Einstellungen"
+          cta="Konfigurieren"
+        />
+        <SectionCard
+          href="/delivery/credit-rules"
+          icon={<BadgePercent className="h-5 w-5" />}
+          title="Gutschrift-Regeln"
+          subtitle="Automatische Gutschriften bei Verspätungen und Zustellproblemen"
+          cta="Regeln anpassen"
+        />
+        <SectionCard
+          href="/delivery/alert-rules"
+          icon={<BellDot className="h-5 w-5" />}
+          title="Alarm-Regeln"
+          subtitle="Schwellwerte für Queue, Fahrer, Küche und ETA konfigurieren"
+          cta="Regeln konfigurieren"
         />
       </div>
     </>
