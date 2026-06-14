@@ -1,7 +1,39 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–172 vollständig abgeschlossen. CEO Review #103 abgeschlossen. 4 Fehler behoben (3 TS + 1 Runtime). Build sauber. 259 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–174 vollständig abgeschlossen. CEO Review #104 abgeschlossen. 0 Fehler. Build sauber. 260 Seiten. Deployment-bereit.
+
+## CEO Review #104 — 2026-06-14
+
+### Geprüfte Commits (seit Review #103)
+- `f5d03e2` feat(delivery/backend): Phase 173 — Fahrer-Geo-Clustering (K-Means Hotspot-Analyse)
+- `2ea53a4` feat(delivery/frontend): Phase 174 — Hotspot-Overlay im Dispatch + Positions-Panel
+
+### Befunde Phase 173 Backend (f5d03e2)
+- **geo-clustering.ts**: Lloyd's K-Means + K-Means++ Init (LCG-RNG deterministisch), 15 Iterationen, Demand-Scores 0–100 normalisiert, zirkulärer Stunden-Avg via sin/cos, haversineKm via `lib/google-maps` korrekt auf 2-Arg Objekt-Signature korrigiert ✅
+- **087_geo_clustering.sql**: `delivery_geo_clusters` UNIQUE (location_id, cluster_idx), RLS, `delivery_geo_cluster_config` UNIQUE location_id, updated_at-Trigger ✅
+- **API** GET+POST `/api/delivery/admin/geo-clustering`: Auth via `employees.location_id`, action=dashboard|clusters|hotspots|compute|save_config|set_label ✅
+- **Admin-UI** `/delivery/geo-clustering`: SVG-Scatter-Plot, ClusterCard mit Score-Bar + Inline-Label-Edit, ConfigPanel, Sidebar Crosshair-Icon ✅
+- **Cron**: `isGeoClusterTick` 04:00 UTC → `computeClustersAllLocations()` ✅
+
+### Befunde Phase 174 Frontend (2ea53a4)
+- **driver-map.tsx**: neuer `HotspotMarker`-Typ + `hotspots`/`showHotspots` Props; Leaflet-Kreise mit Demand-Score-Farbkodierung (rot ≥80, orange ≥60, amber ≥40, grün <40) + Popup korrekt implementiert ✅
+- **driver-positioning-panel.tsx**: Haversine-Berechnung nächster Hotspot pro freiem Fahrer, Demand-Label, Google Maps Navigations-Link, 5-Min-Refresh-Intervall ✅
+- **dispatch/client.tsx**: `LiveDriverMapPanel` lädt Hotspots alle 5 Min, Toggle-Button im Karten-Header; `DriverPositioningPanel` nur sichtbar wenn `freeWithGps.length > 0` — korrekte Logik (`busyIds` via `batches.map(b => b.fahrer_id)`, `ist_online && last_lat && last_lng`) ✅
+- **driver-hotspot-tip.tsx**: Standalone-Fallback, korrekt noch NICHT eingebunden da `PositioningSuggestionBanner` in `fahrer/app/client.tsx:3688` dieselbe Funktion übernimmt ✅
+- **Integration Kitchen↔Dispatch↔Driver↔Storefront**: Dispatch zeigt Hotspot-Overlay auf Leaflet-Karte + Positions-Empfehlung für freie Fahrer; Fahrer-App hat `PositioningSuggestionBanner` (Phase 171+) — vollständig synchron ✅
+
+### Fehler behoben
+- **0 Fehler** — Code korrekt, kein Fix nötig ✅
+
+### Status nach Review #104
+- TypeScript: 0 Fehler ✅
+- Build: 260 Seiten sauber ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: vollständig synchron ✅
+- Phase 173 (Geo-Clustering Backend): DONE ✅
+- Phase 174 (Hotspot-Overlay Frontend): DONE ✅
+
+---
 
 ## CEO Review #103 — 2026-06-14
 
