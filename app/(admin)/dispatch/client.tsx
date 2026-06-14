@@ -86,6 +86,7 @@ import { DispatchTourKpiRing } from './tour-kpi-ring';
 import { TourZeitplanGrid } from './tour-zeitplan';
 import { DriverPositioningPanel } from './driver-positioning-panel';
 import { type HotspotMarker } from './driver-map';
+import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 
 type Driver = {
   employee_id: string;
@@ -822,6 +823,12 @@ export function DispatchBoard({
           </div>
         </div>
       )}
+
+      {/* Geo-Cluster-Empfehlung: Top-Nachfrage-Zone aus Phase 173 K-Means Clustering */}
+      <GeoClusterDispatchTip
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
+        freeDriverCount={onlineDrivers.filter((d) => !batches.some((b) => b.fahrer_id === d.employee_id)).length}
+      />
 
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}
       <DispatchTourKpiRing />

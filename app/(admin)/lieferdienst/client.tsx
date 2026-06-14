@@ -62,6 +62,7 @@ import { EchtzeitCockpit } from './echtzeit-cockpit'
 import { EchtzeitPerformance } from './echtzeit-performance'
 import { SchichtKpiGrid } from './schicht-kpi-grid'
 import { CreditCard } from 'lucide-react'
+import { PushAnalyticsMiniCard } from './push-analytics-mini-card'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -975,6 +976,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Schicht-KPI-Grid: Kompakte Kacheln mit allen wichtigen Schicht-Kennzahlen */}
               <SchichtKpiGrid />
+              {/* Push-Analytics: 7-Tage Kanal-Leistung (Phase 175 — VAPID/WhatsApp/Fahrer) */}
+              <PushAnalyticsMiniCard />
               {/* Liefer-Abonnements Übersicht: MRR, aktive Abos, Ersparnisse */}
               <LieferdienstAboOverview locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}

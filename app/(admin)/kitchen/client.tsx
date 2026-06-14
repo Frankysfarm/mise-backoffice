@@ -36,6 +36,7 @@ import { KitchenEnergyLevelRing } from './energy-level-ring';
 import { KitchenBestellungsReihenfolge } from './bestellungs-reihenfolge';
 import { KitchenSmartKochplan } from './smart-kochplan';
 import { KitchenQuickStatusRing, KitchenFarbStatusBoard } from './quick-status-ring';
+import { KitchenPipelineFunnel } from './pipeline-funnel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -489,6 +490,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Pipeline-Funnel: Bestellungen je Küchen-Phase — Engpass-Erkennung */}
+      <KitchenPipelineFunnel orders={filtered} />
       {/* Schicht-Tempo-Anzeige: Orders/h, Ø Zubereitungszeit, Pünktlichkeit */}
       <KitchenShiftPerformanceBadge locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Schicht-Velocity: Orders/h jetzt vs. letzte Stunde vs. gestern */}
