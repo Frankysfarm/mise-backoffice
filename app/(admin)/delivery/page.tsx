@@ -9,6 +9,7 @@ import {
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
+  Repeat2,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -206,6 +207,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Teste verschiedene Punktemultiplikatoren auf echten Kundendaten" cta="Tests verwalten" />
         <SectionCard href="/delivery/churn-prevention" icon={<UserX className="h-5 w-5" />} title="Kunden-Retention"
           subtitle="RFM-Score · Abwanderungsrisiko · Re-Engagement-Kampagnen · Win-Back" cta="Retention öffnen" />
+        <SectionCard href="/delivery/reorder-engine" icon={<Repeat2 className="h-5 w-5" />} title="Wiederbestellungs-Engine"
+          subtitle="Kunden-Profile · Lieblings-Artikel · Bestellmuster · Wiederbestellrate" cta="Engine öffnen" />
       </SectionGroup>
 
       {/* ── Probleme & Eskalation ────────────────────────────── */}

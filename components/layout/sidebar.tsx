@@ -173,6 +173,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/shift-suggestions',  icon: 'CalendarPlus', label: 'Auto-Schichtvorschläge' },
       { group: 'Loslegen', href: '/delivery/sla-compensation',   icon: 'ShieldCheck',  label: 'SLA Auto-Kompensation' },
       { group: 'Loslegen', href: '/delivery/driver-bonus',       icon: 'Gift',         label: 'Fahrer-Boni' },
+      { group: 'Loslegen', href: '/delivery/reorder-engine',    icon: 'Repeat2',      label: 'Wiederbestellungs-Engine' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

@@ -62,6 +62,7 @@ import { processAutoCompensationsAllLocations } from '@/lib/delivery/sla-compens
 import { evaluateBonusesAllLocations } from '@/lib/delivery/driver-bonus';
 import { sendDailyDigestAllLocations } from '@/lib/delivery/digest-mailer';
 import { sendDriverDailyDigestAllLocations } from '@/lib/delivery/driver-digest-mailer';
+import { buildProfilesAllLocations as buildReorderProfiles, pruneStaleProfiles as pruneReorderProfiles } from '@/lib/delivery/reorder-engine';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -120,8 +121,10 @@ export async function GET(req: NextRequest) {
     const isDigestEmailTick = nowHour === 7 && nowMin < 2;
     // Fahrer-Tagesbericht: täglich 20:00 UTC (nach Schichtende)
     const isDriverDigestTick = nowHour === 20 && nowMin < 2;
+    // Reorder-Profile: täglich um 03:30 UTC (nach Digest-Generierung)
+    const isReorderTick = nowHour === 3 && nowMin >= 28 && nowMin < 32;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -360,6 +363,14 @@ export async function GET(req: NextRequest) {
       isDriverDigestTick
         ? sendDriverDailyDigestAllLocations().catch(() => ({ locations: 0, driversSent: 0, driversSkipped: 0, driversFailed: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Phase 166: Reorder-Profile aufbauen — täglich um 03:30 UTC
+      isReorderTick
+        ? buildReorderProfiles().catch(() => ({ locations: 0, profilesUpserted: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Phase 166: Veraltete Reorder-Profile bereinigen — täglich um 02:00 UTC
+      isReportTick
+        ? pruneReorderProfiles(180).catch(() => 0)
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -471,6 +482,8 @@ export async function GET(req: NextRequest) {
       ...(driverBonusResult ? { driver_bonuses: { locations: driverBonusResult.locations, created: driverBonusResult.bonusesCreated, total_eur: driverBonusResult.totalEurQueued } } : {}),
       ...(digestEmailResult ? { digest_email: { locations: digestEmailResult.locations, sent: digestEmailResult.sent, skipped: digestEmailResult.skipped, failed: digestEmailResult.failed } } : {}),
       ...(driverDigestResult ? { driver_digest: { locations: driverDigestResult.locations, sent: driverDigestResult.driversSent, skipped: driverDigestResult.driversSkipped, failed: driverDigestResult.driversFailed } } : {}),
+      ...(reorderProfilesResult ? { reorder_profiles: { locations: reorderProfilesResult.locations, profiles_upserted: reorderProfilesResult.profilesUpserted, errors: reorderProfilesResult.errors } } : {}),
+      ...(reorderProfilesPruned ? { reorder_profiles_pruned: reorderProfilesPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
