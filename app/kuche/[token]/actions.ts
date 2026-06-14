@@ -79,7 +79,7 @@ export async function getKitchenData(token: string) {
     .filter((od: any) => od.typ === 'lieferung' && od.status === 'fertig' && !od.mise_driver_id && od.fertig_am && (nowMs - new Date(od.fertig_am).getTime()) > STUCK_MS)
     .map((od: any) => ({ id: od.id, bestellnummer: od.bestellnummer, kunde_name: od.kunde_name, kunde_telefon: od.kunde_telefon, waitingMin: Math.round((nowMs - new Date(od.fertig_am).getTime()) / 60_000), noDriverOnline: !anyDriverWorking }));
 
-  return { orders: orders ?? [], items: items ?? [], drivers, stuckDeliveries, printMethod: (loc as any).print_method ?? 'browser' };
+  return { orders: orders ?? [], items: items ?? [], drivers, stuckDeliveries, printMethod: (loc as any).print_method ?? 'off' };
 }
 
 /** Annehmen: setzt in_zubereitung + Fertig-Zeitpunkt (jetzt + prepMin). */

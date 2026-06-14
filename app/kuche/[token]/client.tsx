@@ -61,7 +61,7 @@ export default function KitchenMonitor({
   const [activated, setActivated] = useState(false);
   const [muted, setMuted] = useState(false);
   const [autoPrint, setAutoPrint] = useState(true);
-  const [printMethod, setPrintMethodState] = useState<string>('browser');
+  const [printMethod, setPrintMethodState] = useState<string>('off');
   const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
   const [soundOpen, setSoundOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -85,7 +85,7 @@ export default function KitchenMonitor({
       const fresh = r.orders as Order[];
       // lokale pending "fehlt"-Edits bewahren (Polling ueberschreibt sonst)
       for (const o of fresh) for (const it of (o.items ?? [])) if (pendingMissing.current.has(it.id)) it.pick_missing = true;
-      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'browser'); setStuck(((r as any).stuckDeliveries ?? []) as StuckDelivery[]);
+      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'off'); setStuck(((r as any).stuckDeliveries ?? []) as StuckDelivery[]);
     }
     const iv = setInterval(poll, 4000);
     return () => { alive = false; clearInterval(iv); };
