@@ -183,6 +183,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/rfm-segmentation', icon: 'PieChart',  label: 'Kunden-Segmentierung (RFM)' },
       { group: 'Loslegen', href: '/delivery/feedback-sentiment', icon: 'Smile', label: 'Feedback-Sentiment-Analyse' },
       { group: 'Loslegen', href: '/delivery/vouchers',         icon: 'Ticket',    label: 'Gutscheine & Promo-Codes' },
+      { group: 'Loslegen', href: '/delivery/trip-cost-intelligence', icon: 'Receipt', label: 'Trip-Kosten-Analyse' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

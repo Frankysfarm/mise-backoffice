@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile,
+  Smile, Receipt,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -150,6 +150,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer" cta="Berichte ansehen" />
         <SectionCard href="/delivery/profitability" icon={<TrendingUp className="h-5 w-5" />} title="Profitabilität (P&L)"
           subtitle="Kosten je Lieferung · Marge · Zonen- und Fahrer-P&L" cta="P&L ansehen" />
+        <SectionCard href="/delivery/trip-cost-intelligence" icon={<Receipt className="h-5 w-5" />} title="Trip-Kosten-Analyse"
+          subtitle="Echtzeit-Ökonomie jeder Tour · Fahrerlohn + Kraftstoff + Fixkosten vs. Liefergebühr · Marge pro Fahrer" cta="Kosten analysieren" />
         <SectionCard href="/delivery/tour-analytics" icon={<Route className="h-5 w-5" />} title="Tour-Analytics"
           subtitle="Touren-Performance · Stoppzeiten · Bündelungs-Effizienz" cta="Touren analysieren" />
         <SectionCard href="/delivery/sla" icon={<Activity className="h-5 w-5" />} title="SLA-Bericht"
