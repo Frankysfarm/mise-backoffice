@@ -30,6 +30,7 @@ import { TourAbschlussRechner } from './tour-abschluss-rechner';
 import { SchichtKpiLive } from './schicht-kpi-live';
 import { StopNavCard } from './stop-nav-card';
 import { EtaAmpel } from './eta-ampel';
+import { FahrerTagesZusammenfassung } from './tages-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -1284,6 +1285,18 @@ export function FahrerApp({
 
         {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}
         {!activeBatch && isOnline && <FahrerRankingCard />}
+
+        {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
+        {!activeBatch && isOnline && todayStats && (
+          <FahrerTagesZusammenfassung
+            driverId={driver.id}
+            completedBatches={[]}
+            totalDeliveries={todayStats.deliveries}
+            cashCollected={todayStats.estEarnings}
+            onlineSeit={status?.online_seit ?? null}
+            currentBatchStops={0}
+          />
+        )}
 
         {/* Aktive Challenges */}
         {!activeBatch && isOnline && <ChallengeWidget />}

@@ -80,6 +80,7 @@ import { FahrerZeitplanPanel } from './fahrer-zeitplan';
 import { SlaLivePanel } from './sla-live-panel';
 import { DispatchSchichtUebergabePanel } from './schicht-uebergabe';
 import { DispatchSchichtRing } from './schicht-ring';
+import { DispatchDemandFunnel } from './demand-funnel';
 
 type Driver = {
   employee_id: string;
@@ -1130,6 +1131,9 @@ export function DispatchBoard({
 
       {/* Active Tour Rail — kompakter Überblick aller laufenden Touren */}
       {batches.length > 0 && <ActiveTourRail batches={batches} drivers={drivers} onSelect={setBatchDetailId} />}
+
+      {/* Liefertrichter: Bestellungen von Eingang bis Lieferung mit Konversionsraten */}
+      <DispatchDemandFunnel locationFilter={locationFilter} />
 
       {/* Zonen-Stats-Dashboard: Übersicht aller Zonen mit Bestellungen, Fahrern, Wartezeiten */}
       <ZoneStatsDashboard
