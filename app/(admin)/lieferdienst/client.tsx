@@ -65,6 +65,7 @@ import { CreditCard } from 'lucide-react'
 import { PushAnalyticsMiniCard } from './push-analytics-mini-card'
 import { ProfitKpiStrip } from './profit-kpi-strip'
 import { WochenUmsatzPanel } from './wochen-umsatz-panel'
+import { TagesZielPanel } from './tages-ziel-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -976,6 +977,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Tagesziele: Bestellungen / Umsatz / Lieferungen / Ø Lieferzeit vs. Schicht-Ziele */}
+              <TagesZielPanel orders={orders as any} completedOrders={completedOrders as any} />
               {/* 7-Tage Umsatz & Lieferperformance */}
               <WochenUmsatzPanel />
               {/* Profitabilität KPI-Streifen: Umsatz, Lieferkosten, Marge, Gewinn heute */}

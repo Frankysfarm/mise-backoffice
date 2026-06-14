@@ -40,6 +40,7 @@ import { KitchenQuickStatusRing, KitchenFarbStatusBoard } from './quick-status-r
 import { KitchenPipelineFunnel } from './pipeline-funnel';
 import { KitchenDispatchBridgeStrip } from './dispatch-bridge-strip';
 import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
+import { KitchenBatchKoordinator } from './batch-koordinator';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -505,6 +506,8 @@ export function KitchenBoard({
       <KitchenWaveDetector orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}
       <KitchenDriverPickupWarning batches={batches} drivers={drivers} stops={stops} orders={filtered} />
+      {/* Batch-Koordination: welche Bestellungen in denselben Batch gehören und bis wann fertig sein müssen */}
+      <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
       <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Smart-Kochplan: optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}

@@ -89,6 +89,7 @@ import { type HotspotMarker } from './driver-map';
 import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 import { DispatchProfitStrip } from './profit-strip';
 import { DispatchTourVisualisierung } from './tour-visualisierung';
+import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 
 type Driver = {
   employee_id: string;
@@ -832,6 +833,8 @@ export function DispatchBoard({
         freeDriverCount={onlineDrivers.filter((d) => !batches.some((b) => b.fahrer_id === d.employee_id)).length}
       />
 
+      {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
+      <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}
       <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
