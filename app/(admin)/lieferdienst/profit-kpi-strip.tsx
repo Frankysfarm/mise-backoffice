@@ -12,18 +12,17 @@ import { cn, euro } from '@/lib/utils';
 import { Euro, TrendingUp, Truck, Percent } from 'lucide-react';
 
 type ProfitData = {
-  revenue_eur: number;
-  delivery_costs_eur: number;
-  margin_pct: number;
-  profit_eur: number;
+  revenueEur: number;
+  costEur: number;
+  marginPct: number | null;
+  profitEur: number;
 };
 
-// TODO: wire to real API when available
-const MOCK_DATA: ProfitData = {
-  revenue_eur: 1240.5,
-  delivery_costs_eur: 186.08,
-  margin_pct: 85,
-  profit_eur: 1054.42,
+const FALLBACK: ProfitData = {
+  revenueEur: 0,
+  costEur: 0,
+  marginPct: null,
+  profitEur: 0,
 };
 
 type KpiCard = {
@@ -37,25 +36,25 @@ function buildCards(d: ProfitData): KpiCard[] {
   return [
     {
       label: 'Umsatz heute',
-      value: euro(d.revenue_eur),
+      value: euro(d.revenueEur),
       icon: <Euro className="h-4 w-4" />,
     },
     {
       label: 'Lieferkosten',
-      value: euro(d.delivery_costs_eur),
+      value: euro(d.costEur),
       icon: <Truck className="h-4 w-4" />,
     },
     {
       label: 'Marge',
-      value: `${d.margin_pct.toFixed(1)} %`,
+      value: d.marginPct != null ? `${d.marginPct.toFixed(1)} %` : '—',
       icon: <Percent className="h-4 w-4" />,
-      highlight: d.margin_pct >= 80,
+      highlight: (d.marginPct ?? 0) >= 30,
     },
     {
       label: 'Gewinn heute',
-      value: euro(d.profit_eur),
+      value: euro(d.profitEur),
       icon: <TrendingUp className="h-4 w-4" />,
-      highlight: d.profit_eur > 0,
+      highlight: d.profitEur > 0,
     },
   ];
 }
@@ -71,15 +70,14 @@ export function ProfitKpiStrip({ locationId }: { locationId?: string }) {
         : '/api/delivery/admin/profitability?action=dashboard';
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error('no data');
-      const json = await res.json();
-      if (json.revenue_eur != null) {
-        setData(json as ProfitData);
+      const json = await res.json() as { summary?: ProfitData };
+      if (json.summary?.revenueEur != null) {
+        setData(json.summary);
         return;
       }
       throw new Error('empty');
     } catch {
-      // TODO: wire to real API when available
-      setData(MOCK_DATA);
+      setData(FALLBACK);
     } finally {
       setLoading(false);
     }
@@ -102,7 +100,7 @@ export function ProfitKpiStrip({ locationId }: { locationId?: string }) {
     );
   }
 
-  const cards = buildCards(data ?? MOCK_DATA);
+  const cards = buildCards(data ?? FALLBACK);
 
   return (
     <div className="flex gap-3 flex-wrap sm:flex-nowrap">

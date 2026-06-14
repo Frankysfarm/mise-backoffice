@@ -1,7 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–176 vollständig abgeschlossen. CEO Review #105 abgeschlossen. 0 Fehler. Build sauber. 261 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–177 vollständig abgeschlossen. CEO Review #106 abgeschlossen. 0 Fehler. Build sauber. 262 Seiten. Deployment-bereit.
+
+## CEO Review #106 — 2026-06-14
+
+### Geprüfte Commits (seit Review #105)
+- `f5f8912` feat(delivery/backend): Phase 177 — Push-Notification Scheduling Engine
+- `b9d5273` feat(delivery/frontend): driver-approach-panel, profit-kpi-strip, next-stop-cta
+
+### Phase 177 — Push-Kampagnen Backend
+- `push_campaigns` + `push_campaign_sends` Tabellen: UNIQUE constraints, alle Status-Enums korrekt ✅
+- `getBestSendHours`: 30-Tage WA-Log, sendScore=Volumen×Rate korrekt ✅
+- `executeCampaign`: VAPID via broadcastToLocation, Fahrer via mise_push_outbox, WA-Zählung korrekt ✅
+- `runDueCampaigns`: Best-Time-Guard, isRatingTick alle 10 Min ✅
+- `getCampaignDashboard`: 6 KPI + recentCampaigns + upcomingCampaigns + bestSendHours ✅
+- API /api/delivery/admin/push-campaigns: Auth via employees.location_id ✅
+- `PushCampaignsClient`: 6 KPI-Karten, CreateModal, 3 Tabs, Audience-Picker ✅
+- Sidebar Send-Icon + Push-Kampagnen Link ✅
+
+### Frontend-Komponenten Phase 177+
+- `DriverApproachPanel` (kitchen): Farbampel Grün≤5/Gelb≤15/Rot>15 Min, 30s-Polling, Fallback auf Overview-API mit Mock-Fallback korrekt dokumentiert ✅
+- `ProfitKpiStrip` (lieferdienst): **BUG GEFUNDEN + GEFIXT** — Komponente prüfte `json.revenue_eur` (snake_case), API liefert `summary.revenueEur` (camelCase) → fiel immer auf Stub-Daten zurück. Fix: liest `json.summary.revenueEur` korrekt + MOCK entfernt, FALLBACK mit Nullwerten ersetzt
+- `NextStopCta` (fahrer/app): Google Maps + Apple Maps URLs korrekt gebaut, lat/lng preferred over address ✅
+- `DispatchProfitStrip` (dispatch): Korrekt `d.summary.revenueEur` gelesen (kein Bug) ✅
+- Alle 3 Komponenten korrekt in Parent-Clients eingebunden ✅
+
+### Status
+- TypeScript: 0 Fehler ✅
+- Build: 262 Seiten sauber ✅
+- Bugs gefixt: 1 (ProfitKpiStrip API-Mapping snake_case→camelCase)
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: vollständig synchron ✅
+- Alle Systeme grün ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 178: Fahrer-Onboarding-Flow (Dokumente, Führerschein-Upload, Genehmigungsprozess)
+2. Oder: Customer Loyalty Points System (Punkte sammeln, einlösen, Ablaufdatum)
+3. Oder: Automatische Tour-Optimierung via Routing-API (HERE/OSRM-Integration)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 178: DriverApproachPanel auf echte API konnektieren sobald `pendingOrders` im Overview-API vorhanden
+2. Oder: Push-Kampagnen Preview-Modal (Wie sieht die Nachricht auf iOS/Android aus?)
+3. Oder: Dispatch-Karte mit Echtzeit-Fahrerpositionen (Leaflet + 10s-Refresh)
 
 ## CEO Review #105 — 2026-06-14
 
