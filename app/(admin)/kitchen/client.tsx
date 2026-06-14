@@ -28,6 +28,7 @@ import { PrepAnalyticsCard } from './prep-analytics-card';
 import { OrderUrgencyPanel } from './order-urgency-panel';
 import { KitchenHandoffTimingGauge } from './handoff-timing-gauge';
 import { KitchenReadyWaitAlert } from './ready-wait-alert';
+import { KitchenVorhersagePanel } from './vorhersage-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -688,6 +689,14 @@ export function KitchenBoard({
 
       {/* Phase 94: Echtzeit-Küchen-Zubereitungsgeschwindigkeit */}
       <KitchenPrepSpeedometer orders={filtered} />
+
+      {/* Bestellprognose: Vorhergesagtes Bestellvolumen für die nächsten 2 Stunden */}
+      {!bigDisplay && (
+        <KitchenVorhersagePanel
+          locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter}
+          currentCookingCount={filtered.filter(o => o.status === 'in_zubereitung').length}
+        />
+      )}
 
       {/* Zubereitungszeit-Lernmodul: p75-Schätzwerte nach Tageszeit (Backend-Lernmodul Phase 131) */}
       <PrepLearningPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />

@@ -27,6 +27,7 @@ import { OfflineNetworkBanner } from './offline-network-banner';
 import { TagesabschlussBadge, type TagesabschlussData } from './tagesabschluss-badge';
 import { CashflowTracker } from './cashflow-tracker';
 import { TourAbschlussRechner } from './tour-abschluss-rechner';
+import { SchichtKpiLive } from './schicht-kpi-live';
 
 type Driver = {
   id: string;
@@ -1249,6 +1250,13 @@ export function FahrerApp({
         {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
         {!activeBatch && isOnline && openBatches.length === 0 && (
           <FahrerWarteAnzeige driverId={driver.id} locationId={driver.location_id} />
+        )}
+
+        {/* Schicht-KPI-Live: Stops, Effizienz, km, Ziel — nur wenn online und kein aktiver Batch */}
+        {!activeBatch && isOnline && (
+          <div className="px-4">
+            <SchichtKpiLive driverId={driver.id} onlineSeit={status?.online_seit ?? null} />
+          </div>
         )}
 
         {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}

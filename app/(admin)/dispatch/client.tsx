@@ -76,6 +76,7 @@ import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
 import { DriverReliabilityPanel } from './driver-reliability-panel';
 import { TourBundleBoard } from './tour-bundle-board';
 import { DispatchNächsteZuweisung } from './naechste-zuweisung';
+import { FahrerZeitplanPanel } from './fahrer-zeitplan';
 
 type Driver = {
   employee_id: string;
@@ -1139,6 +1140,9 @@ export function DispatchBoard({
 
       {/* Tour-Bündelung-Effizienz: Stops/km, Zonen-Konzentration, Rückkehr-ETA je Fahrer */}
       {batches.length > 0 && <TourBundleBoard batches={batches} />}
+
+      {/* Fahrer-Zeitplan: Verfügbarkeit und Rückkehr-ETA aller aktiven Fahrer */}
+      <FahrerZeitplanPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
 
       {/* Optimale Nächste Zuweisung: welcher Fahrer passt am besten zur nächsten Bestellung */}
       <DispatchNächsteZuweisung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
