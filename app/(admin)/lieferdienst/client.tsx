@@ -59,6 +59,7 @@ import { StundenUmsatzMatrix } from './stunden-umsatz-matrix'
 import { TagesVerlaufVergleich } from './tages-verlauf-vergleich'
 import { SchichtAnalyticsPanel } from './schicht-analytics-panel'
 import { EchtzeitCockpit } from './echtzeit-cockpit'
+import { CreditCard } from 'lucide-react'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -970,6 +971,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Liefer-Abonnements Übersicht: MRR, aktive Abos, Ersparnisse */}
+              <LieferdienstAboOverview locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}
               <EchtzeitCockpit locationId={locationId} />
               {/* Schicht-Ziele: Tagesfortschritt, Lieferquote, SLA-Status */}
@@ -3361,6 +3364,103 @@ function LieferdienstMonatsvergleich() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ─── Liefer-Abonnement Übersicht ────────────────────────────────────────────
+   Zeigt MRR, aktive Abos, bald ablaufende Abos aus dem Subscription-Dashboard.
+   Nutzt GET /api/delivery/admin/subscriptions?action=dashboard
+   ─────────────────────────────────────────────────────────────────────────── */
+type SubDashboard = {
+  activeCount: number;
+  cancelledCount: number;
+  expiredCount: number;
+  mrrEur: number;
+  totalRevenueEur: number;
+  totalSavingsEur: number;
+  totalDeliveries: number;
+  planCount: number;
+};
+
+function LieferdienstAboOverview({ locationId }: { locationId: string }) {
+  const [data, setData] = useState<SubDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!locationId) return;
+    fetch(`/api/delivery/admin/subscriptions?action=dashboard&location_id=${encodeURIComponent(locationId)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.overview) {
+          setData({
+            activeCount: d.overview.activeCount ?? 0,
+            cancelledCount: d.overview.cancelledCount ?? 0,
+            expiredCount: d.overview.expiredCount ?? 0,
+            mrrEur: d.overview.mrrEur ?? 0,
+            totalRevenueEur: d.overview.totalRevenueEur ?? 0,
+            totalSavingsEur: d.overview.totalSavingsEur ?? 0,
+            totalDeliveries: d.overview.totalDeliveries ?? 0,
+            planCount: d.overview.planCount ?? 0,
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [locationId]);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-stone-200 bg-white p-5">
+        <div className="h-4 w-40 bg-stone-100 rounded animate-pulse mb-3" />
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-14 bg-stone-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || (data.activeCount === 0 && data.planCount === 0)) return null;
+
+  const fmtEur = (v: number) =>
+    v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+  const kpis = [
+    { label: 'Aktive Abos', value: data.activeCount.toString(), color: 'text-matcha-700', bg: 'bg-matcha-50' },
+    { label: 'MRR', value: fmtEur(data.mrrEur), color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Kunden-Ersparnisse', value: fmtEur(data.totalSavingsEur), color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Gratis-Lieferungen', value: data.totalDeliveries.toString(), color: 'text-blue-700', bg: 'bg-blue-50' },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-stone-100">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-matcha-100 text-matcha-700">
+          <CreditCard className="h-4 w-4" />
+        </div>
+        <div>
+          <div className="text-sm font-bold text-char">Liefer-Abonnements</div>
+          <div className="text-xs text-stone-400">{data.planCount} aktiver Plan{data.planCount !== 1 ? 'e' : ''}</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-4">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className={`rounded-xl ${kpi.bg} p-3`}>
+            <div className={`text-lg font-black tabular-nums ${kpi.color}`}>{kpi.value}</div>
+            <div className="text-[10px] font-semibold text-stone-500 mt-0.5">{kpi.label}</div>
+          </div>
+        ))}
+      </div>
+      {data.cancelledCount > 0 && (
+        <div className="px-5 pb-4">
+          <span className="text-[11px] text-stone-400">
+            {data.cancelledCount} Abo{data.cancelledCount !== 1 ? 's' : ''} gekündigt
+            {data.expiredCount > 0 ? ` · ${data.expiredCount} abgelaufen` : ''}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type { CheckoutForm, OrderType, PaymentMethod } from './types';
 import { AddressAutocomplete, type AddressValue } from './address-autocomplete';
+import { SubscriptionTeaser } from './subscription-teaser';
 
 type Props = {
   open: boolean;
@@ -855,6 +856,17 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Liefer-Flatrate Teaser — nur bei Lieferbestellungen mit location_id */}
+              {locationId && (
+                <SubscriptionTeaser
+                  locationId={locationId}
+                  email={email}
+                  customerName={name}
+                  customerPhone={telefon}
+                  orderType={orderType}
+                />
               )}
 
               <div className="text-sm text-matcha-800/70">
