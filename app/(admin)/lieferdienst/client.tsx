@@ -60,6 +60,7 @@ import { TagesVerlaufVergleich } from './tages-verlauf-vergleich'
 import { SchichtAnalyticsPanel } from './schicht-analytics-panel'
 import { EchtzeitCockpit } from './echtzeit-cockpit'
 import { EchtzeitPerformance } from './echtzeit-performance'
+import { SchichtKpiGrid } from './schicht-kpi-grid'
 import { CreditCard } from 'lucide-react'
 
 export function LieferdienstClient() {
@@ -972,6 +973,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-KPI-Grid: Kompakte Kacheln mit allen wichtigen Schicht-Kennzahlen */}
+              <SchichtKpiGrid />
               {/* Liefer-Abonnements Übersicht: MRR, aktive Abos, Ersparnisse */}
               <LieferdienstAboOverview locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}

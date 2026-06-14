@@ -33,6 +33,7 @@ import { EtaAmpel } from './eta-ampel';
 import { FahrerTagesZusammenfassung } from './tages-zusammenfassung';
 import { KundenHistorieKarte } from './kunden-historie-karte';
 import { TourStatusHeader } from './tour-status-header';
+import { FahrerStickyBar } from './fahrer-sticky-bar';
 
 type Driver = {
   id: string;
@@ -527,6 +528,13 @@ export function FahrerApp({
 
   return (
     <>
+    {/* Sticky bottom navigation bar — zeigt immer den nächsten Stop */}
+    {activeBatch && (
+      <FahrerStickyBar
+        stops={activeBatch.stops as any}
+        batchStatus={activeBatch.status}
+      />
+    )}
     <div className="min-h-screen pb-24">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-gradient-to-br from-matcha-900 to-matcha-700 px-4 py-4 border-b border-white/10">

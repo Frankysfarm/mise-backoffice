@@ -35,6 +35,7 @@ import { KitchenDriverPickupWarning } from './driver-pickup-warning';
 import { KitchenEnergyLevelRing } from './energy-level-ring';
 import { KitchenBestellungsReihenfolge } from './bestellungs-reihenfolge';
 import { KitchenSmartKochplan } from './smart-kochplan';
+import { KitchenQuickStatusRing, KitchenFarbStatusBoard } from './quick-status-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -560,6 +561,16 @@ export function KitchenBoard({
 
       {/* Fahrer ↔ Küche Sync: zeigt ob Küche fertig wird wenn Fahrer kommt */}
       {!bigDisplay && <KitchenHandoffTimingGauge />}
+
+      {/* Schnell-Status-Ring: kompakter Ampel-Überblick über alle kochenden Bestellungen */}
+      {filtered.filter(o => o.status === 'in_zubereitung').length > 0 && (
+        <div className="flex items-start gap-4">
+          <KitchenQuickStatusRing orders={filtered} timings={timings} />
+          <div className="flex-1 min-w-0">
+            <KitchenFarbStatusBoard orders={filtered} timings={timings} />
+          </div>
+        </div>
+      )}
 
       {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}
       <KitchenStationColorGrid orders={filtered} timings={timings} />

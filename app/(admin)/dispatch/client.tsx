@@ -82,6 +82,7 @@ import { DispatchSchichtUebergabePanel } from './schicht-uebergabe';
 import { DispatchSchichtRing } from './schicht-ring';
 import { DispatchDemandFunnel } from './demand-funnel';
 import { DispatchTourKpiRing } from './tour-kpi-ring';
+import { TourZeitplanGrid } from './tour-zeitplan';
 
 type Driver = {
   employee_id: string;
@@ -1169,6 +1170,9 @@ export function DispatchBoard({
         drivers={drivers}
         batches={batches}
       />
+
+      {/* Touren-Zeitplan: Visueller Zeitstrahl aller aktiven Touren mit Stop-Fortschritt */}
+      {batches.length > 0 && <TourZeitplanGrid batches={batches as any} />}
 
       {/* Live-Tour-Tracker: kompakte Statuskarten aller aktiven Touren mit Farbkodierung */}
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
