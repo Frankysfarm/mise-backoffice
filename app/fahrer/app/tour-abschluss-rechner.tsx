@@ -8,9 +8,9 @@
  * und Vergleich zum persönlichen Durchschnitt.
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { cn, euro } from '@/lib/utils';
-import { Award, Bike, CheckCircle2, Clock, MapPin, TrendingUp, Zap } from 'lucide-react';
+import { Bike, CheckCircle2, Clock, MapPin, TrendingUp, Zap } from 'lucide-react';
 
 type Stop = {
   reihenfolge: number;
@@ -47,12 +47,6 @@ function estimateEarnings(stops: number, distKm: number | null): number {
 }
 
 export function TourAbschlussRechner({ stops, batchStartedAt, totalDistanceKm, vehicle }: Props) {
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const iv = setInterval(() => setTick((n) => n + 1), 1000);
-    return () => clearInterval(iv);
-  }, []);
-
   const completed = stops.filter((s) => !!s.geliefert_am);
   if (completed.length === 0 || completed.length < stops.length) return null;
 

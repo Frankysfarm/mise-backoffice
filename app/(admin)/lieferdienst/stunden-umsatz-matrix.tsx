@@ -178,7 +178,7 @@ export function StundenUmsatzMatrix() {
           </div>
         )}
 
-        {/* Heatmap Grid — 24 Stunden in 6×4 Layout */}
+        {/* Heatmap Grid — 24 Stunden in 8×3 Layout */}
         <div className="grid grid-cols-8 gap-1">
           {slots.map((slot) => (
             <HeatCell key={slot.hour} slot={slot} maxOrders={maxOrders} />

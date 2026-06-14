@@ -5,6 +5,56 @@
 
 ---
 
+## CEO Review #94 — 2026-06-14
+
+### Geprüfte Commits (1 neuer seit Review #93)
+1. `35914e5` feat(delivery/frontend): Wärme-Alert, Zuweisung, Tour-Bilanz, Stunden-Matrix
+
+### TypeScript-Analyse
+- `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → 251 Seiten, 0 Fehler ✅
+
+### Code-Review der 4 neuen Frontend-Komponenten
+
+**KitchenReadyWaitAlert** (`app/(admin)/kitchen/ready-wait-alert.tsx`):
+- Supabase-Subscription + 20s-Poll für fertige Bestellungen ✅
+- `useTick()` triggert Re-Render alle 5s — korrekt für Warte-Zeit-Anzeige ✅
+- Wärme-Level: grün (<5 Min), amber (5–12 Min), rot (>12 Min) ✅
+- Echtzeit-Farbkodierung korrekt, `animate-pulse` bei kritischen Bestellungen ✅
+
+**DispatchNächsteZuweisung** (`app/(admin)/dispatch/naechste-zuweisung.tsx`):
+- BUG GEFUNDEN & GEFIXT: `locationId={locations[0]?.id ?? null}` ignorierte `locationFilter`.
+  Fix: `locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}`
+  (Alle anderen location-sensitiven Panels im Dispatch nutzen dieses Muster.) ✅
+- 30s-Poll auf `/api/delivery/dispatch/engine?preview=true` ✅
+- Score-Bar, KPI-Grid, Top-Suggestion-Card, Weitere-Fahrer-Liste — korrekte Logik ✅
+
+**TourAbschlussRechner** (`app/fahrer/app/tour-abschluss-rechner.tsx`):
+- BUG GEFIXT: Nutzloser `useState(tick)` + `setInterval(..., 1000)` re-renderte Komponente
+  jede Sekunde, obwohl alle Werte nach Tour-Abschluss fix sind. Entfernt.
+  Gleichzeitig: `useEffect` und `Award`-Import (unbenutzt) bereinigt ✅
+- Earnings-Schätzung: 1.50€/Stopp + 0.20€/km — korrekte Logik ✅
+- `completed.length < stops.length` Guard — nur angezeigt wenn alle Stopps fertig ✅
+
+**StundenUmsatzMatrix** (`app/(admin)/lieferdienst/stunden-umsatz-matrix.tsx`):
+- Kommentar-Fehler behoben: „6×4 Layout" → „8×3 Layout" (grid-cols-8, 24÷8=3 Zeilen) ✅
+- Supabase-Query mit Mock-Fallback bei leeren/fehlerhaften Daten ✅
+- Heatmap + Balkendiagramm + KPI (Peak-Stunde, Gesamt-Umsatz) — korrekte Logik ✅
+
+### Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: Wärme-Alert sichtbar wenn `!bigDisplay` (mobil-freundlich) ✅
+- Dispatch: Zuweisung-Panel respektiert nun korrekten locationFilter ✅
+- Fahrer-App: Tour-Bilanz erscheint nur nach Abschluss aller Stopps ✅
+- Lieferdienst: Stunden-Matrix im Reporting-Bereich ✅
+
+### Nächste Schritte für Backend-Architekt
+- Phase 160: Beliebig — System ist vollständig. Mögliche Erweiterungen:
+  1. Kunden-Bewertungs-Aggregation (Trend über Wochen/Monate)
+  2. Multi-Standort-Vergleichsdashboard
+  3. Abrechnungsexport (CSV/PDF) für Fahrer-Schicht-Lohn
+
+---
+
 ## CEO Review #93 — 2026-06-14
 
 ### Geprüfte Commits (3 neue seit Review #92)

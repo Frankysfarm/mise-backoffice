@@ -1141,7 +1141,7 @@ export function DispatchBoard({
       {batches.length > 0 && <TourBundleBoard batches={batches} />}
 
       {/* Optimale Nächste Zuweisung: welcher Fahrer passt am besten zur nächsten Bestellung */}
-      <DispatchNächsteZuweisung locationId={locations[0]?.id ?? null} />
+      <DispatchNächsteZuweisung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Tour-Gantt: alle aktiven Touren auf 90-Min-Zeitstrahl mit Jetzt-Linie */}
       {batches.length > 0 && <DispatchTourGantt batches={batches} drivers={drivers} />}
