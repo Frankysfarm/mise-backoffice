@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–158 abgeschlossen. CEO Review #93 bestanden. Build sauber. 250 Seiten. Deployment-bereit.**
+**Phasen 1–159 abgeschlossen. CEO Review #93 bestanden. Build sauber. 251 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phase 159 abgeschlossen. Loyalty A/B-Test Admin Dashboard + fehlende Overview-Links (Fahrer-Boni, Loyalty A/B). Build 251 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #93 abgeschlossen. 4 neue Commits geprüft. 0 Bugs. TypeScript 0 Fehler. 4 neue Frontend-Komponenten (HandoffTimingGauge, TourBundleBoard, CashflowTracker, SchichtVergleich). Build 250 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phase 158 abgeschlossen. Fahrer-Bonus/Incentive Engine + Cron-Bug-Fix (Phasen 155–157 Ergebnisse fehlten in Destructuring + Response). Build 250 Seiten sauber.**
 **CEO-Agent — 2026-06-14: Review #92 abgeschlossen. 5 neue Commits geprüft. 3 TS-Bugs gefixt (score-trend-strip, delivery-stats-realtime, sla-compensation). 12 neue Admin-Seiten. Build 237 Seiten sauber. Alle Systeme grün.**
@@ -54,6 +55,13 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 159: Loyalty A/B-Test Admin Dashboard + fehlende Overview-Links — 2026-06-14
+- [x] app/(admin)/delivery/loyalty-ab/page.tsx: Server-Seite mit requireManagerPlus() + location_id Auflösung via employees-Tabelle
+- [x] app/(admin)/delivery/loyalty-ab/client.tsx: LoyaltyAbClient (4 KPI-Karten: Alle Tests/Aktiv/Varianten gesamt/Abgeschlossen, Status-Filter Tabs, TestCard mit aufklappbaren Varianten-Metriken, CreateTestForm mit dynamischen Varianten und Validierung, Info-Box A/B-Mechanismus)
+- [x] TestCard: Expand/Collapse Varianten-Metriken (Kunden/Bestellrate/Ø Bestellwert/Umsatz), Aktions-Buttons je Status (Aktivieren/Pausieren/Fortsetzen/Abschließen/Löschen), Varianten-Summary-Chips
+- [x] CreateTestForm: Dynamische Varianten (add/remove), Punktemultiplikator + Traffic-Anteil pro Variante, 100%-Validierung, API-Fehleranzeige
+- [x] app/(admin)/delivery/page.tsx: Gift+FlaskConical Icons importiert, "Fahrer-Boni" in Finanzen-Sektion, neue Sektion "Loyalty & A/B-Tests" (Loyalty-Programm + A/B-Tests)
+- [x] Build: next build ✓ (251 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 158: Fahrer-Bonus/Incentive Engine + Cron-Bug-Fix — 2026-06-14
 - [x] scripts/migrations/079_driver_bonus.sql: driver_bonus_configs (UNIQUE location+type+period, RLS) + driver_bonus_events (UNIQUE driver+type+period+date, status pending/approved/paid/cancelled, RLS) + v_driver_bonus_summary VIEW + updated_at-Trigger
 - [x] lib/delivery/driver-bonus.ts: getBonusConfigs/upsertBonusConfig/deleteBonusConfig, evaluateBonusesForLocation (3 Bonus-Typen: deliveries_count/on_time_rate/min_rating, UPSERT-Guard gegen Doppel-Bonus), evaluateBonusesAllLocations (Cron-Batch), getBonusEvents/getBonusSummary/getBonusDashboard, updateBonusEventStatus (approve/pay/cancel), issueManualBonus

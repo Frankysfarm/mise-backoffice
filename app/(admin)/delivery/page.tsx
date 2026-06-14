@@ -7,7 +7,7 @@ import {
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
-  LineChart, Gauge, Wrench, Building, Webhook,
+  LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -159,10 +159,20 @@ export default async function DeliveryOverviewPage() {
           subtitle="Basis-Vergütung, km-Satz, Peak-Bonus, Meilensteine" cta="Konfigurieren" />
         <SectionCard href="/delivery/fee-config" icon={<DollarSign className="h-5 w-5" />} title="Zonen-Gebühren"
           subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone" cta="Gebühren" />
+        <SectionCard href="/delivery/driver-bonus" icon={<Gift className="h-5 w-5" />} title="Fahrer-Boni"
+          subtitle="Leistungsboni nach Lieferungen, Pünktlichkeit und Rating" cta="Boni verwalten" />
         <SectionCard href="/delivery/credits" icon={<Ticket className="h-5 w-5" />} title="Kundengutschriften"
           subtitle="Gutschriften nach Verspätungen und Zustellproblemen" cta="Gutschriften" />
         <SectionCard href="/delivery/credit-rules" icon={<BadgePercent className="h-5 w-5" />} title="Gutschrift-Regeln"
           subtitle="Automatische Gutschriften bei Verspätungen konfigurieren" cta="Regeln anpassen" />
+      </SectionGroup>
+
+      {/* ── Loyalty & A/B-Tests ──────────────────────────────── */}
+      <SectionGroup title="Loyalty & A/B-Tests">
+        <SectionCard href="/delivery/loyalty" icon={<Star className="h-5 w-5" />} title="Loyalty-Programm"
+          subtitle="Punkte, Stufen und Einlösung für Stammkunden" cta="Programm verwalten" />
+        <SectionCard href="/delivery/loyalty-ab" icon={<FlaskConical className="h-5 w-5" />} title="A/B-Tests Loyalty"
+          subtitle="Teste verschiedene Punktemultiplikatoren auf echten Kundendaten" cta="Tests verwalten" />
       </SectionGroup>
 
       {/* ── Probleme & Eskalation ────────────────────────────── */}
