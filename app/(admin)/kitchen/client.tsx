@@ -43,6 +43,7 @@ import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
 import { KitchenBatchKoordinator } from './batch-koordinator';
 import { KitchenSchichtPulsRing } from './schicht-pulse-ring';
 import { KitchenSchichtOfenTimer } from './schicht-ofen-timer';
+import { KitchenSmartQueue } from './smart-queue';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -516,6 +517,8 @@ export function KitchenBoard({
       <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Smart-Kochplan: optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}
       <KitchenSmartKochplan orders={filtered} batches={batches} stops={stops} />
+      {/* Smart-Queue: Kochstart-Empfehlung mit Stationslast + Driver-ETA */}
+      <KitchenSmartQueue locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Kochstart-Alert-Band: SOFORT-Warnung wenn Bestellungen jetzt kochen müssen (basierend auf kitchen_timings) */}
       {timings.length > 0 && <KochstartAlertBand orders={filtered} timings={timings} />}
       {/* Timing-Qualitäts-Strip: Echtzeit-Übersicht wie viele kochende Bestellungen im Plan/knapp/überfällig sind */}

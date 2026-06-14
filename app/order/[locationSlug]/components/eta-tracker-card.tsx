@@ -90,8 +90,8 @@ export function EtaTrackerCard({
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
-          const r = payload.new as Record<string, unknown>;
+        (payload: { new: Record<string, unknown> }) => {
+          const r = payload.new;
           if (r.status) setStatus(r.status as string);
           if (r.eta_earliest) setEtaEarliest(r.eta_earliest as string);
           if (r.eta_latest)   setEtaLatest(r.eta_latest as string);
@@ -111,8 +111,9 @@ export function EtaTrackerCard({
       .select('reihenfolge, batch:delivery_batches(fahrer:employees(vorname, nachname))')
       .eq('order_id', orderId)
       .maybeSingle()
-      .then(({ data }) => {
-        const d = data as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then(({ data }: { data: any }) => {
+        const d = data;
         if (d?.batch?.fahrer) {
           setDriverName(`${d.batch.fahrer.vorname} ${d.batch.fahrer.nachname.charAt(0)}.`);
         }

@@ -68,6 +68,7 @@ import { WochenUmsatzPanel } from './wochen-umsatz-panel'
 import { TagesZielPanel } from './tages-ziel-panel'
 import { ZoneErtragPanel } from './zone-ertrag-panel'
 import { SchichtSchnellBar } from './schicht-schnell-bar'
+import { ZoneAmpel } from './zone-ampel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1003,6 +1004,8 @@ export function LieferdienstClient() {
               <DeliveryLiveKpiPanel />
               {/* Tour-Performance-Analyse: 30-Tage-Trend, Zonen-Effizienz, KI-Empfehlung */}
               <TourPerformancePanel />
+              {/* Zonen-Echtzeit-Ampel: ruhig/normal/viel/überlastet je Zone */}
+              <ZoneAmpel locationId={locationId} />
               {/* Zonen-Performance-KPIs: SLA, Ø Lieferzeit, Abweichung je Zone A–D */}
               <ZonePerformanceKpi locationId={locationId} />
               {/* Schicht-KPI-Leiste: Schnellübersicht der wichtigsten Kennzahlen */}

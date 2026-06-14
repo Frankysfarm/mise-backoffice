@@ -148,7 +148,7 @@ export function KitchenSmartQueue({ locationId }: { locationId?: string | null }
       order: o,
       station: detectStation(o.items),
       startInSec: startIn,
-      urgency: startIn <= 0 ? 'now' : startIn <= 180 ? 'soon' : 'later',
+      urgency: (startIn <= 0 ? 'now' : startIn <= 180 ? 'soon' : 'later') as 'now' | 'soon' | 'later',
       driverArrivalMin: eta?.driver_arrival_sec != null ? Math.ceil(eta.driver_arrival_sec / 60) : null,
       driverName: eta?.driver_name ?? null,
     };

@@ -92,6 +92,7 @@ import { DispatchTourVisualisierung } from './tour-visualisierung';
 import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
 import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
+import { DispatchScoreExplainer } from './score-explainer';
 
 type Driver = {
   employee_id: string;
@@ -1577,89 +1578,12 @@ export function DispatchBoard({
               <X className="h-4 w-4" />
             </button>
           </div>
-          {scorePopover.loading ? (
-            <div className="p-8 text-center">
-              <Loader2 className="h-6 w-6 animate-spin mx-auto text-matcha-600" />
-              <div className="mt-2 text-sm text-muted-foreground">Lade Scoring-Daten…</div>
-            </div>
-          ) : !scorePopover.score ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
-              Keine Scoring-Daten vorhanden. Score wird beim nächsten Dispatch-Tick berechnet.
-            </div>
-          ) : (
-            <div className="p-4 space-y-3">
-              {/* Total score gauge */}
-              <div className="flex items-center gap-4 rounded-xl bg-matcha-50 border border-matcha-200 p-3">
-                <div className={cn(
-                  'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl font-display text-2xl font-black',
-                  scorePopover.score.total >= 80 ? 'bg-matcha-600 text-white' :
-                  scorePopover.score.total >= 60 ? 'bg-blue-500 text-white' :
-                  scorePopover.score.total >= 40 ? 'bg-orange-400 text-white' : 'bg-red-500 text-white',
-                )}>
-                  {Math.round(scorePopover.score.total)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Gesamt-Score</div>
-                  {scorePopover.score.driver_name && (
-                    <div className="text-sm font-bold truncate">{scorePopover.score.driver_name}</div>
-                  )}
-                  {scorePopover.score.decision && (
-                    <div className="text-[10px] text-muted-foreground">{scorePopover.score.decision}</div>
-                  )}
-                </div>
-              </div>
-              {/* Radar-Chart — visueller Überblick aller 10 Faktoren */}
-              <div className="flex justify-center py-1">
-                <ScoreRadarChart score={scorePopover.score} />
-              </div>
-
-              {/* 10-factor breakdown */}
-              <div className="space-y-1.5">
-                {([
-                  ['f_distance',    'Distanz',       '📍'],
-                  ['f_load',        'Fahrerlast',     '📦'],
-                  ['f_vehicle',     'Fahrzeugtyp',    '🚲'],
-                  ['f_experience',  'Erfahrung',      '⭐'],
-                  ['f_zone',        'Zonenpassung',   '🗺️'],
-                  ['f_prep_time',   'Küchen-Timing',  '⏱'],
-                  ['f_time_of_day', 'Tageszeit',      '🕐'],
-                  ['f_priority',    'Priorität',      '🔥'],
-                  ['f_bundle_fit',  'Bündelbarkeit',  '🔗'],
-                  ['f_history',     'Historie',       '📊'],
-                ] as [keyof typeof scorePopover.score, string, string][]).map(([key, label, icon]) => {
-                  const val = scorePopover.score![key] as number;
-                  if (val == null) return null;
-                  const pct = Math.min(100, (val / 10) * 100);
-                  return (
-                    <div key={key} className="flex items-center gap-2">
-                      <span className="w-5 text-center text-sm shrink-0">{icon}</span>
-                      <span className="text-[11px] text-muted-foreground w-24 shrink-0">{label}</span>
-                      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={cn(
-                            'h-full rounded-full transition-all',
-                            val >= 8 ? 'bg-matcha-500' : val >= 6 ? 'bg-blue-400' : val >= 4 ? 'bg-orange-400' : 'bg-red-400',
-                          )}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className={cn(
-                        'w-6 text-right text-[11px] font-bold tabular-nums',
-                        val >= 8 ? 'text-matcha-700' : val >= 6 ? 'text-blue-600' : val >= 4 ? 'text-orange-600' : 'text-red-600',
-                      )}>
-                        {val.toFixed(1)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              {scorePopover.score.reason && (
-                <div className="rounded-lg bg-muted/50 px-3 py-2 text-[10px] text-muted-foreground leading-relaxed">
-                  {scorePopover.score.reason}
-                </div>
-              )}
-            </div>
-          )}
+          <DispatchScoreExplainer
+            orderId={scorePopover.orderId}
+            orderNr={scorePopover.bestellnummer}
+            driverName={scorePopover.score?.driver_name ?? null}
+            breakdown={scorePopover.score ?? null}
+          />
         </div>
       </div>
     )}

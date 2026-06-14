@@ -39,6 +39,7 @@ import { TourAbschlussPrognose } from './tour-abschluss-prognose';
 import { NaviWidget } from './navi-widget';
 import { SchichtEinnahmenRing } from './schicht-einnahmen-ring';
 import { TourEffizienzScore } from './tour-effizienz-score';
+import { FahrerRatingHistorie } from './rating-historie';
 
 type Driver = {
   id: string;
@@ -1433,6 +1434,8 @@ export function FahrerApp({
 
         {/* Heutige Stopps-Verlauf — zeitlicher Log der abgeschlossenen Lieferungen */}
         {!activeBatch && <LetzteStoppsLog driverId={driver.id} />}
+        {/* Kunden-Bewertungs-Historie — persönliche Sterne + Trend */}
+        {!activeBatch && <FahrerRatingHistorie driverId={driver.id} />}
 
         {/* Abrechnungsperioden — Lohnzettel-Download */}
         {!activeBatch && <MeineAbrechnungen />}

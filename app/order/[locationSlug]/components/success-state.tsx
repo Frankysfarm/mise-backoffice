@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Copy, Package, Share2, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { PostDeliveryRating } from './post-delivery-rating';
+import { EtaTrackerCard } from './eta-tracker-card';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -568,6 +569,13 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* ETA-Tracker: erweiterter Lieferstatus mit Fahrername + Stop-Position */}
+        {isDelivery && orderId && liveStatus !== 'geliefert' && (
+          <div className="mt-4 w-full">
+            <EtaTrackerCard orderId={orderId} bestellnummer={bestellnummer} initialStatus={liveStatus} />
           </div>
         )}
 
