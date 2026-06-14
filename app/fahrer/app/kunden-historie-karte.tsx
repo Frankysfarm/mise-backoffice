@@ -61,7 +61,7 @@ export function KundenHistorieKarte({ orderId, locationId }: Props) {
         .limit(25);
 
       const count = prev?.length ?? 0;
-      const total = (prev ?? []).reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+      const total = (prev ?? []).reduce((s: number, o: { gesamtbetrag: number | null }) => s + (o.gesamtbetrag ?? 0), 0);
       const lastAt = prev?.[0]?.bestellt_am ?? null;
       const days = lastAt
         ? Math.round((Date.now() - new Date(lastAt).getTime()) / 86_400_000)
