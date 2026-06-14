@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–162 abgeschlossen. CEO Review #96 bestanden. Build sauber. 253 Seiten. Deployment-bereit.**
+**Phasen 1–163 abgeschlossen. CEO Review #96 bestanden. Build sauber. 253 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phase 163 abgeschlossen. Automatischer Tagesbericht per E-Mail an Manager: lib/delivery/digest-mailer.ts (renderDigestEmailHtml, sendDailyDigestEmail, sendDailyDigestAllLocations, Konfig-CRUD, Versand-Log), scripts/migrations/080_digest_email_config.sql (digest_email_config + digest_email_log), API /api/delivery/admin/daily-digest erweitert (emailConfig + emailLog in GET-Response, action=save_email_config + action=send_email in POST), Digest-Client erweitert (EmailConfigPanel mit Toggle/Uhrzeit/KI-Toggle/Empfänger-Verwaltung/Versand-Log/Jetzt-senden-Button), Cron 07:00 UTC → sendDailyDigestAllLocations(). Build 253 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #96 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (SchichtAnalyticsPanel: batchDriverMap explizit Map<string,string> → TS2538 behoben; sort-Parameter als DriverStat → TS7006 behoben). TypeScript 0 Fehler. Build 253 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phase 161 abgeschlossen. Schicht-Kalender (/delivery/shift-calendar) + GET /api/delivery/admin/shift-calendar + lib/delivery/shift-calendar.ts + 15 fehlende Overview-Links ergänzt (Schicht-Kalender, Schicht-Planung, Auto-Vorschläge, Peak-Intelligenz, Bestellfluss, Profitabilität, Tour-Analytics, Menü-Analytics, Geo-Nachfrage, Tages-Digest, Erschöpfungs-Monitor, Kommunikations-Log, SLA-Kompensation, Kunden-Retention, Health-Observatory). Build 253 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #95 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (SchichtKpiLive: now-Dependency in useEffect entfernt, TagesVerlaufVergleich: locationId-Variable statt Literal). TypeScript 0 Fehler. Build 252 Seiten sauber. Alle Systeme grün.**
@@ -60,6 +61,13 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 163: Automatischer Tagesbericht per E-Mail an Manager — 2026-06-14
+- [x] scripts/migrations/080_digest_email_config.sql: digest_email_config (location_id UNIQUE, enabled bool, send_hour_utc 0–23 default 7, include_ai_summary bool, extra_recipients TEXT[], updated_at-Trigger, RLS) + digest_email_log (location_id/digest_date UNIQUE, sent_at/recipients_count/status sent|failed|skipped/error, RLS)
+- [x] lib/delivery/digest-mailer.ts: getDigestEmailConfig() + upsertDigestEmailConfig(), renderDigestEmailHtml() (HTML-Email-Template: Schnellübersicht-Grid, KI-Block, Anomalie-Tabelle, Metriken-Tabelle, Footer), sendDailyDigestEmail() (Konfig-Check, Digest-Lookup, Manager-Emails aus employees WHERE role IN owner|manager|admin + extra_recipients, Versand-Loop, Log), sendDailyDigestAllLocations() (Cron-Batch), getEmailLog()
+- [x] app/api/delivery/admin/daily-digest/route.ts: GET ergänzt um emailConfig + emailLog; POST neu: action=save_email_config (upsertDigestEmailConfig) + action=send_email (sendDailyDigestEmail manuell)
+- [x] app/(admin)/delivery/digest/client.tsx: DigestResponse um emailConfig/emailLog erweitert; EmailConfigPanel (Aktivieren-Toggle, Uhrzeit-Selektor, KI-Toggle, Empfänger-Liste add/remove, Versand-Log letzte 7 Einträge, Speichern + Jetzt-senden-Buttons), EmailConfigPanel unten im DigestClient eingebunden
+- [x] Cron: sendDailyDigestAllLocations() täglich 07:00 UTC (isDigestEmailTick, 4h nach Digest-Generierung) → digest_email: {locations/sent/skipped/failed}
+- [x] Build: next build ✓ (253 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 161: Schicht-Kalender + 15 fehlende Overview-Links — 2026-06-14
 - [x] lib/delivery/shift-calendar.ts: getWeekCalendar(locationId, weekStart?) — 7-Tage-Grid mit WeekCalendar/CalendarDay/CalendarHour/CalendarShift (Coverage-Status ok/low/gap/over/off je Stunde aus coverage_requirements, Fahrer-Lookup aus mise_drivers JOIN, Stunden-Mapping, Summary-KPIs)
 - [x] GET /api/delivery/admin/shift-calendar: Auth-Guard, location_id + week_start Parameter, WeekCalendar-Response
