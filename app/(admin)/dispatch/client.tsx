@@ -75,6 +75,7 @@ import { DispatchScoreTrendStrip } from './score-trend-strip';
 import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
 import { DriverReliabilityPanel } from './driver-reliability-panel';
 import { TourBundleBoard } from './tour-bundle-board';
+import { DispatchNächsteZuweisung } from './naechste-zuweisung';
 
 type Driver = {
   employee_id: string;
@@ -1138,6 +1139,9 @@ export function DispatchBoard({
 
       {/* Tour-Bündelung-Effizienz: Stops/km, Zonen-Konzentration, Rückkehr-ETA je Fahrer */}
       {batches.length > 0 && <TourBundleBoard batches={batches} />}
+
+      {/* Optimale Nächste Zuweisung: welcher Fahrer passt am besten zur nächsten Bestellung */}
+      <DispatchNächsteZuweisung locationId={locations[0]?.id ?? null} />
 
       {/* Tour-Gantt: alle aktiven Touren auf 90-Min-Zeitstrahl mit Jetzt-Linie */}
       {batches.length > 0 && <DispatchTourGantt batches={batches} drivers={drivers} />}

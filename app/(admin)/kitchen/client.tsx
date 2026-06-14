@@ -27,6 +27,7 @@ import { SchichtVelocity } from './schicht-velocity';
 import { PrepAnalyticsCard } from './prep-analytics-card';
 import { OrderUrgencyPanel } from './order-urgency-panel';
 import { KitchenHandoffTimingGauge } from './handoff-timing-gauge';
+import { KitchenReadyWaitAlert } from './ready-wait-alert';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -532,6 +533,9 @@ export function KitchenBoard({
       {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length > 0 && (
         <OrderUrgencyPanel orders={filtered} timings={timings} />
       )}
+
+      {/* Wärme-Risiko-Band: fertige Bestellungen die auf Abholung warten */}
+      {!bigDisplay && <KitchenReadyWaitAlert />}
 
       {/* Fahrer ↔ Küche Sync: zeigt ob Küche fertig wird wenn Fahrer kommt */}
       {!bigDisplay && <KitchenHandoffTimingGauge />}

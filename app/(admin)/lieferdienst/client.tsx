@@ -55,6 +55,7 @@ import { LiveOpsHeader } from './live-ops-header'
 import { DeliveryStatsRealtime } from './delivery-stats-realtime'
 import { SchichtZielePanel } from './schicht-ziele-panel'
 import { SchichtVergleich } from './schicht-vergleich'
+import { StundenUmsatzMatrix } from './stunden-umsatz-matrix'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -995,6 +996,8 @@ export function LieferdienstClient() {
               <OpsSnapshotPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Echtzeit-Liefer-Performance: Heute geliefert, Touren, Ø-ETA, Pünktlichkeit, Score */}
               <DeliveryStatsRealtime />
+              {/* Stunden-Umsatz-Matrix: Heatmap der Bestellungen und Umsätze nach Uhrzeit */}
+              <StundenUmsatzMatrix />
               {/* Schicht-Vergleich: Diese Woche vs. gleicher Wochentag letzte Woche (Supabase-Live-Daten) */}
               <SchichtVergleich locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Schicht-Umsatz-Chart: Stündlicher Umsatz heute + Vergleich gestern */}

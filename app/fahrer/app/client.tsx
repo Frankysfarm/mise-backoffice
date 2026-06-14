@@ -26,7 +26,7 @@ import { OpenBatchMap } from './open-batch-map';
 import { OfflineNetworkBanner } from './offline-network-banner';
 import { TagesabschlussBadge, type TagesabschlussData } from './tagesabschluss-badge';
 import { CashflowTracker } from './cashflow-tracker';
-
+import { TourAbschlussRechner } from './tour-abschluss-rechner';
 
 type Driver = {
   id: string;
@@ -838,6 +838,15 @@ export function FahrerApp({
           )}
           {/* Bargeld-Stops: zeigt welche Stops Bargeld erfordern + Gesamtbetrag */}
           <CashflowTracker stops={activeBatch.stops as any} />
+          {/* Tour-Abschluss-Bilanz: Statistiken + Verdienst-Schätzung nach Tour-Ende */}
+          <div className="px-4">
+            <TourAbschlussRechner
+              stops={activeBatch.stops as any}
+              batchStartedAt={activeBatch.started_at}
+              totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              vehicle={(activeBatch as any).vehicle ?? null}
+            />
+          </div>
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}
