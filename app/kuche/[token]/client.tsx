@@ -472,7 +472,7 @@ function CardHead({ o, big }: { o: Order; big?: boolean }) {
     </div>
   );
 }
-function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint, cookHold }: {
+function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint, cookHold, cookWarn }: {
   o: Order; now: number; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null;
   setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void; cookHold?: boolean; cookWarn?: boolean;
 }) {
