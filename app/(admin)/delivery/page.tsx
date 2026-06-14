@@ -9,7 +9,7 @@ import {
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
-  Repeat2, CreditCard,
+  Repeat2, CreditCard, Coins,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -197,6 +197,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Gutschriften nach Verspätungen und Zustellproblemen" cta="Gutschriften" />
         <SectionCard href="/delivery/credit-rules" icon={<BadgePercent className="h-5 w-5" />} title="Gutschrift-Regeln"
           subtitle="Automatische Gutschriften bei Verspätungen konfigurieren" cta="Regeln anpassen" />
+        <SectionCard href="/delivery/cash-reconciliation" icon={<Coins className="h-5 w-5" />} title="Bargeld-Abrechnung"
+          subtitle="Bar-Übergaben pro Fahrer · Kassenstand · Differenz-Erkennung · Tagesabschluss" cta="Kasse öffnen" />
       </SectionGroup>
 
       {/* ── Loyalty & A/B-Tests ──────────────────────────────── */}

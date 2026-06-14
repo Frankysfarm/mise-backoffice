@@ -64,6 +64,7 @@ import { sendDailyDigestAllLocations } from '@/lib/delivery/digest-mailer';
 import { sendDriverDailyDigestAllLocations } from '@/lib/delivery/driver-digest-mailer';
 import { buildProfilesAllLocations as buildReorderProfiles, pruneStaleProfiles as pruneReorderProfiles } from '@/lib/delivery/reorder-engine';
 import { renewExpiredSubscriptions } from '@/lib/delivery/subscriptions';
+import { reconcileAllLocations as reconcileCashAllLocations } from '@/lib/delivery/cash-reconciliation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -126,8 +127,10 @@ export async function GET(req: NextRequest) {
     const isReorderTick = nowHour === 3 && nowMin >= 28 && nowMin < 32;
     // Subscription-Renewal: täglich um 01:00 UTC (Perioden verlängern)
     const isSubscriptionRenewalTick = nowHour === 1 && nowMin < 2;
+    // Cash-Abgleich: täglich um 23:30 UTC (Tagesabschluss)
+    const isCashReconcileTick = nowHour === 23 && nowMin >= 28 && nowMin < 32;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -378,6 +381,10 @@ export async function GET(req: NextRequest) {
       isSubscriptionRenewalTick
         ? renewExpiredSubscriptions().catch(() => ({ locations: 0, renewed: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Phase 169: Cash-Abgleich — täglich 23:30 UTC (Tagesabschluss)
+      isCashReconcileTick
+        ? reconcileCashAllLocations().catch(() => ({ locations: 0, created: 0, updated: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -492,6 +499,7 @@ export async function GET(req: NextRequest) {
       ...(reorderProfilesResult ? { reorder_profiles: { locations: reorderProfilesResult.locations, profiles_upserted: reorderProfilesResult.profilesUpserted, errors: reorderProfilesResult.errors } } : {}),
       ...(reorderProfilesPruned ? { reorder_profiles_pruned: reorderProfilesPruned } : {}),
       ...(subscriptionRenewalResult ? { subscription_renewal: { locations: subscriptionRenewalResult.locations, renewed: subscriptionRenewalResult.renewed, errors: subscriptionRenewalResult.errors } } : {}),
+      ...(cashReconcileResult ? { cash_reconcile: { locations: cashReconcileResult.locations, created: cashReconcileResult.created, updated: cashReconcileResult.updated, errors: cashReconcileResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
