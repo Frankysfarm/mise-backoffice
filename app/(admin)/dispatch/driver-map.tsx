@@ -35,6 +35,17 @@ export type DriverTrail = {
   points: Array<{ lat: number; lng: number }>;
 };
 
+export type HotspotMarker = {
+  id: string;
+  lat: number;
+  lng: number;
+  radius_km: number;
+  demand_score: number;
+  order_count: number;
+  peak_hour: number | null;
+  label: string | null;
+};
+
 export function DispatchDriverMap({
   drivers,
   orders,
@@ -42,6 +53,8 @@ export function DispatchDriverMap({
   restaurantLat,
   restaurantLng,
   trails,
+  hotspots,
+  showHotspots,
 }: {
   drivers: DriverMarker[];
   orders: OrderMarker[];
@@ -49,12 +62,16 @@ export function DispatchDriverMap({
   restaurantLat?: number | null;
   restaurantLng?: number | null;
   trails?: DriverTrail[];
+  hotspots?: HotspotMarker[];
+  showHotspots?: boolean;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const trailLayerRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hotspotLayerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const leafletRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
@@ -166,6 +183,10 @@ export function DispatchDriverMap({
         L.polyline(latlngs, { color, weight: 3, opacity: 0.55, dashArray: '5,4' }).addTo(trailLayer);
       }
 
+      // Hotspot-Kreise (Geo-Cluster Demand-Zonen)
+      const hotspotLayer = L.layerGroup().addTo(map);
+      hotspotLayerRef.current = hotspotLayer;
+
       setReady(true);
     })();
 
@@ -210,6 +231,36 @@ export function DispatchDriverMap({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [(trails ?? []).map((t) => `${t.driverId}:${t.points.length}`).join('|'), ready]);
+
+  // Hotspot-Kreise aktualisieren
+  useEffect(() => {
+    const layer = hotspotLayerRef.current;
+    const L = leafletRef.current;
+    if (!layer || !L || !ready) return;
+    layer.clearLayers();
+    if (!showHotspots) return;
+    for (const h of (hotspots ?? [])) {
+      const score = h.demand_score;
+      const color = score >= 80 ? '#ef4444' : score >= 60 ? '#f97316' : score >= 40 ? '#f59e0b' : '#22c55e';
+      const radiusM = Math.max(h.radius_km * 1000, 300);
+      const circle = L.circle([h.lat, h.lng], {
+        radius: radiusM,
+        color,
+        fillColor: color,
+        fillOpacity: 0.12,
+        weight: 2,
+        opacity: 0.5,
+        dashArray: '6,4',
+      }).addTo(layer);
+      const peakLabel = h.peak_hour !== null ? ` · Spitze ${h.peak_hour}:00 Uhr` : '';
+      circle.bindPopup(
+        `<b>${h.label ?? `Hotspot #${h.id.slice(0, 4)}`}</b><br/>` +
+        `Score: <b>${Math.round(score)}</b>${peakLabel}<br/>` +
+        `${h.order_count} Bestellungen analysiert`,
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [(hotspots ?? []).map((h) => h.id).join(','), showHotspots, ready]);
 
   return (
     <div ref={mapRef} className="w-full h-full" />

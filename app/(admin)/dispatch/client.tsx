@@ -50,6 +50,7 @@ import {
   Navigation2,
   Gauge,
   Sparkles,
+  Crosshair,
 } from 'lucide-react';
 
 const DispatchDriverMap = dynamic(
@@ -83,6 +84,8 @@ import { DispatchSchichtRing } from './schicht-ring';
 import { DispatchDemandFunnel } from './demand-funnel';
 import { DispatchTourKpiRing } from './tour-kpi-ring';
 import { TourZeitplanGrid } from './tour-zeitplan';
+import { DriverPositioningPanel } from './driver-positioning-panel';
+import { type HotspotMarker } from './driver-map';
 
 type Driver = {
   employee_id: string;
@@ -1330,14 +1333,35 @@ export function DispatchBoard({
           ? locations.find((l) => l.id === locationFilter)
           : locations[0];
         return (
-          <LiveDriverMapPanel
-            drivers={drivers}
-            batches={batches}
-            orders={filteredOrders}
-            restaurantLat={loc?.lat ?? null}
-            restaurantLng={loc?.lng ?? null}
-            locationId={loc?.id ?? null}
-          />
+          <>
+            <LiveDriverMapPanel
+              drivers={drivers}
+              batches={batches}
+              orders={filteredOrders}
+              restaurantLat={loc?.lat ?? null}
+              restaurantLng={loc?.lng ?? null}
+              locationId={loc?.id ?? null}
+            />
+            {/* Positions-Empfehlung für freie Fahrer (Geo-Cluster Hotspots) */}
+            {(() => {
+              const busyIds = new Set(batches.map((b) => b.fahrer_id).filter(Boolean));
+              const freeWithGps = onlineDrivers.filter(
+                (d) => !busyIds.has(d.employee_id) && d.last_lat && d.last_lng,
+              );
+              if (freeWithGps.length === 0) return null;
+              return (
+                <DriverPositioningPanel
+                  locationId={loc?.id ?? null}
+                  freeDrivers={freeWithGps.map((d) => ({
+                    id: d.employee_id,
+                    name: `${d.employee?.vorname ?? ''} ${d.employee?.nachname ?? ''}`.trim(),
+                    lat: d.last_lat!,
+                    lng: d.last_lng!,
+                  }))}
+                />
+              );
+            })()}
+          </>
         );
       })()}
 
@@ -2142,6 +2166,8 @@ function LiveDriverMapPanel({
 }) {
   const [open, setOpen] = useState(false);
   const [trails, setTrails] = useState<import('./driver-map').DriverTrail[]>([]);
+  const [hotspots, setHotspots] = useState<HotspotMarker[]>([]);
+  const [showHotspots, setShowHotspots] = useState(true);
 
   useEffect(() => {
     if (!open || !locationId) return;
@@ -2161,6 +2187,33 @@ function LiveDriverMapPanel({
     };
     load();
     const iv = setInterval(load, 15_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [open, locationId]);
+
+  // Geo-Cluster Hotspots laden (für Karten-Overlay)
+  useEffect(() => {
+    if (!open || !locationId) return;
+    let cancelled = false;
+    const loadHotspots = () => {
+      fetch(`/api/delivery/admin/geo-clustering?action=hotspots&limit=5&location_id=${locationId}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((d: { hotspots?: { id: string; cluster_idx: number; center_lat: number; center_lng: number; radius_km: number; order_count: number; peak_hour: number | null; demand_score: number; label: string | null }[] } | null) => {
+          if (cancelled || !d?.hotspots) return;
+          setHotspots(d.hotspots.map((h) => ({
+            id: h.id,
+            lat: h.center_lat,
+            lng: h.center_lng,
+            radius_km: h.radius_km,
+            demand_score: h.demand_score,
+            order_count: h.order_count,
+            peak_hour: h.peak_hour,
+            label: h.label,
+          })));
+        })
+        .catch(() => {});
+    };
+    loadHotspots();
+    const iv = setInterval(loadHotspots, 5 * 60_000);
     return () => { cancelled = true; clearInterval(iv); };
   }, [open, locationId]);
 
@@ -2227,6 +2280,21 @@ function LiveDriverMapPanel({
               {unassignedMarkers.length} unzugewiesen
             </Badge>
           )}
+          {hotspots.length > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowHotspots((v) => !v); }}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border transition',
+                showHotspots
+                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                  : 'bg-muted text-muted-foreground border-transparent',
+              )}
+              title="Hotspot-Zonen ein/ausblenden"
+            >
+              <Crosshair className="h-2.5 w-2.5" />
+              {hotspots.length} Hotspots
+            </button>
+          )}
           <div className="flex gap-1 ml-1">
             {driverMarkers.map((d) => (
               <span
@@ -2252,6 +2320,8 @@ function LiveDriverMapPanel({
             restaurantLat={restaurantLat}
             restaurantLng={restaurantLng}
             trails={trails}
+            hotspots={hotspots}
+            showHotspots={showHotspots}
           />
         </div>
       )}
