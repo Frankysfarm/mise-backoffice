@@ -4,6 +4,7 @@ import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
+  BellRing, Megaphone, RotateCcw,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -228,6 +229,27 @@ export default async function DeliveryOverviewPage() {
           title="GPS-Fahrerspuren"
           subtitle="Live-Positionen · Fahrspuren der letzten 30 Minuten"
           cta="GPS ansehen"
+        />
+        <SectionCard
+          href="/delivery/notification-log"
+          icon={<BellRing className="h-5 w-5" />}
+          title="Kunden-Benachrichtigungen"
+          subtitle="Gesendete Push/SMS nach Bestellstatus · Erfolgsquote"
+          cta="Log ansehen"
+        />
+        <SectionCard
+          href="/delivery/broadcasts"
+          icon={<Megaphone className="h-5 w-5" />}
+          title="Fahrer-Broadcasts"
+          subtitle="Betriebsnachrichten an alle Fahrer senden"
+          cta="Broadcasts"
+        />
+        <SectionCard
+          href="/delivery/recovery"
+          icon={<RotateCcw className="h-5 w-5" />}
+          title="Tour-Recovery"
+          subtitle="Abgebrochene Touren neu einplanen · Bestellungen retten"
+          cta="Recovery"
         />
       </div>
     </>
