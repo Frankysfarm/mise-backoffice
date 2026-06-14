@@ -71,6 +71,7 @@ import { computePushAnalyticsAllLocations } from '@/lib/delivery/push-analytics'
 import { runDueCampaigns } from '@/lib/delivery/push-campaigns';
 import { buildRfmAllLocations, pruneStaleRfmProfiles } from '@/lib/delivery/rfm-segmentation';
 import { pruneExpiredVouchers } from '@/lib/delivery/vouchers';
+import { processAllUnanalyzedLocations, pruneSentimentData } from '@/lib/delivery/feedback-sentiment';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -139,8 +140,10 @@ export async function GET(req: NextRequest) {
     const isGeoClusterTick = nowHour === 4 && nowMin < 2;
     // RFM-Segmentierung: täglich 04:30 UTC (nach Geo-Clustering)
     const isRfmTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
+    // Feedback-Sentiment-Analyse: täglich 05:30 UTC (nach Address-Scan)
+    const isSentimentTick = nowHour === 5 && nowMin >= 28 && nowMin < 32;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -426,6 +429,14 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneExpiredVouchers().catch(() => 0)
         : Promise.resolve(0),
+      // Phase 181: Feedback-Sentiment-Analyse — täglich 05:30 UTC
+      isSentimentTick
+        ? processAllUnanalyzedLocations().catch(() => null).then(() => ({ ok: true }))
+        : Promise.resolve(null),
+      // Phase 181: Alte Sentiment-Einträge bereinigen (>180 Tage) — täglich 02:00 UTC
+      isReportTick
+        ? pruneSentimentData(180).catch(() => 0)
+        : Promise.resolve(0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -549,6 +560,8 @@ export async function GET(req: NextRequest) {
       ...(rfmResult ? { rfm_segmentation: { locations: rfmResult.locations, profiles_upserted: rfmResult.profilesUpserted, errors: rfmResult.errors } } : {}),
       ...(rfmPruned ? { rfm_profiles_pruned: rfmPruned } : {}),
       ...(vouchersPruned ? { vouchers_pruned: vouchersPruned } : {}),
+      ...(sentimentResult ? { feedback_sentiment: { ok: true } } : {}),
+      ...(sentimentPruned ? { sentiment_pruned: sentimentPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
