@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { DynamicEtaProgress } from '@/app/order/[locationSlug]/components/dynamic-eta-progress';
 import { OrderEtaCountdown } from './order-eta-countdown';
+import { BestellstatusAnimation } from './bestellstatus-animation';
 
 type Order = {
   order_id: string;
@@ -448,6 +449,12 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             typ={order.typ as 'lieferung' | 'abholung'}
           />
         )}
+
+        {/* Phase 191: Animierte Status-Timeline */}
+        <BestellstatusAnimation
+          status={order.status}
+          etaMin={order.geschaetzte_lieferung_min}
+        />
 
         {/* Phase 184: Prominenter Echtzeit-Countdown wenn Fahrer unterwegs und fertig_am fehlt */}
         {order.status === 'unterwegs' && !order.fertig_am && (

@@ -45,6 +45,7 @@ import { KitchenSchichtPulsRing } from './schicht-pulse-ring';
 import { KitchenSchichtOfenTimer } from './schicht-ofen-timer';
 import { KitchenSmartQueue } from './smart-queue';
 import { KitchenDriverArrivalSync } from './driver-arrival-sync';
+import { BatchReadySyncPanel } from './batch-ready-sync';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -518,6 +519,8 @@ export function KitchenBoard({
       <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft-Sync: Farbkodierter Abgleich Zubereitungszeit vs. Fahrerankuft — Risiko sofort sichtbar */}
       <KitchenDriverArrivalSync orders={filtered} drivers={drivers} />
+      {/* Phase 191: Batch-Bereitschafts-Sync — zeigt welche Bestellungen im Batch noch fehlen */}
+      <BatchReadySyncPanel orders={filtered} batches={batches} stops={stops} />
       {/* Smart-Kochplan: optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}
       <KitchenSmartKochplan orders={filtered} batches={batches} stops={stops} />
       {/* Smart-Queue: Kochstart-Empfehlung mit Stationslast + Driver-ETA */}

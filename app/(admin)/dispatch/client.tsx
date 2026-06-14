@@ -94,6 +94,7 @@ import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
 import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
 import { DispatchScoreExplainer } from './score-explainer';
 import { DispatchTourScoreMatrix } from './tour-score-matrix';
+import { KapazitaetsAmpel } from './kapazitaets-ampel';
 
 type Driver = {
   employee_id: string;
@@ -860,6 +861,9 @@ export function DispatchBoard({
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
+
+      {/* Phase 191: Kapazitäts-Ampel — zeigt ob Fahrerkapazität für aktuelle Nachfrage reicht */}
+      <KapazitaetsAmpel drivers={drivers} batches={batches as any} orders={orders as any} />
 
       {/* Phase 185: Fahrer-Verfügbarkeits-Ampel — farbkodierte Übersicht frei/unterwegs/zurück */}
       <FahrerVerfügbarkeitsAmpel drivers={drivers} batches={batches as any} />

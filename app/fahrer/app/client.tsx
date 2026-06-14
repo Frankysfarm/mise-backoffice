@@ -41,6 +41,7 @@ import { SchichtEinnahmenRing } from './schicht-einnahmen-ring';
 import { TourEffizienzScore } from './tour-effizienz-score';
 import { FahrerRatingHistorie } from './rating-historie';
 import { TourEfficiencyTicker } from './tour-efficiency-ticker';
+import { StopTimerRing } from './stop-timer-ring';
 
 type Driver = {
   id: string;
@@ -844,6 +845,20 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 191: Stop-Timer-Ring — zeigt wie lange Fahrer bereits am aktuellen Stop ist */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am && s.angekommen_am);
+            if (!nextStop) return null;
+            return (
+              <div className="px-4">
+                <StopTimerRing
+                  arrivedAt={nextStop.angekommen_am}
+                  expectedDwellSec={90}
+                  stopLabel={nextStop.order.kunde_adresse ?? `Stop ${nextStop.reihenfolge}`}
+                />
+              </div>
+            );
+          })()}
           {/* Next-Stop Navigation CTA — großer daumenfreundlicher Maps-Button */}
           {(() => {
             const nextStop = activeBatch.stops.find(s => !s.geliefert_am);

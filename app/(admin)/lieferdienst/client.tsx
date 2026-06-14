@@ -70,6 +70,7 @@ import { ZoneErtragPanel } from './zone-ertrag-panel'
 import { SchichtSchnellBar } from './schicht-schnell-bar'
 import { ZoneAmpel } from './zone-ampel'
 import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
+import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1007,6 +1008,8 @@ export function LieferdienstClient() {
               <DeliveryLiveKpiPanel />
               {/* Tour-Performance-Analyse: 30-Tage-Trend, Zonen-Effizienz, KI-Empfehlung */}
               <TourPerformancePanel />
+              {/* Phase 191: Nachfrage-Prognose Mini — zeigt erwartete Bestellungen nächste 4h */}
+              <NachfragePrognoseMini locationId={locationId} />
               {/* Zonen-Echtzeit-Ampel: ruhig/normal/viel/überlastet je Zone */}
               <ZoneAmpel locationId={locationId} />
               {/* Zonen-Performance-KPIs: SLA, Ø Lieferzeit, Abweichung je Zone A–D */}
