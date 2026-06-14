@@ -230,7 +230,7 @@ export async function rebuildAllLocations(): Promise<{
   );
 
   // Reset daily impression counters
-  await sb.rpc('reset_upsell_daily_counts').catch(() => null);
+  await Promise.resolve(sb.rpc('reset_upsell_daily_counts')).catch(() => null);
 
   return {
     locations:      locs.length,
@@ -362,11 +362,9 @@ export async function recordImpression(
     converted:      false,
   }));
 
-  const { data } = await sb
-    .from('upsell_impressions')
-    .insert(rows)
-    .select('id')
-    .catch(() => ({ data: null }));
+  const { data } = await Promise.resolve(
+    sb.from('upsell_impressions').insert(rows).select('id'),
+  ).catch(() => ({ data: null }));
 
   // Increment daily + total impression counters on matched rules
   for (const rid of ruleIds) {
@@ -374,17 +372,17 @@ export async function recordImpression(
       .from('upsell_rules')
       .select('impressions_today, total_impressions')
       .eq('id', rid)
-      .maybeSingle()
-      .catch(() => ({ data: null }));
+      .maybeSingle();
     if (rule) {
-      await sb
-        .from('upsell_rules')
-        .update({
-          impressions_today: (rule.impressions_today ?? 0) + 1,
-          total_impressions: (rule.total_impressions ?? 0) + 1,
-        })
-        .eq('id', rid)
-        .catch(() => null);
+      await Promise.resolve(
+        sb
+          .from('upsell_rules')
+          .update({
+            impressions_today: (rule.impressions_today ?? 0) + 1,
+            total_impressions: (rule.total_impressions ?? 0) + 1,
+          })
+          .eq('id', rid),
+      ).catch(() => null);
     }
   }
 
@@ -396,13 +394,14 @@ export async function recordConversion(
   revenueEur: number,
 ): Promise<void> {
   const sb = createServiceClient();
-  const { data: imp } = await sb
-    .from('upsell_impressions')
-    .update({ converted: true, revenue_lift_eur: revenueEur })
-    .eq('id', impressionId)
-    .select('rule_id')
-    .maybeSingle()
-    .catch(() => ({ data: null }));
+  const { data: imp } = await Promise.resolve(
+    sb
+      .from('upsell_impressions')
+      .update({ converted: true, revenue_lift_eur: revenueEur })
+      .eq('id', impressionId)
+      .select('rule_id')
+      .maybeSingle(),
+  ).catch(() => ({ data: null }));
 
   if (imp?.rule_id) {
     // Increment conversion counter on rule directly
