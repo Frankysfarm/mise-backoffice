@@ -73,6 +73,7 @@ import { buildRfmAllLocations, pruneStaleRfmProfiles } from '@/lib/delivery/rfm-
 import { pruneExpiredVouchers } from '@/lib/delivery/vouchers';
 import { processAllUnanalyzedLocations, pruneSentimentData } from '@/lib/delivery/feedback-sentiment';
 import { computeAllLocations as computeTripCosts } from '@/lib/delivery/trip-cost-intelligence';
+import { evaluateAllLocations as evaluateMenuAvailability, refreshDisableCounts } from '@/lib/delivery/menu-availability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -441,6 +442,12 @@ export async function GET(req: NextRequest) {
       // Phase 183: Trip-Kosten-Berechnung — täglich 02:30 UTC (nach Report-Tick, frische Batch-Daten)
       isPeakPatternTick
         ? computeTripCosts().catch(() => ({ locations: 0, computed: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Phase 185: Menü-Verfügbarkeits-Engine — alle 2 Min evaluieren (Queue-basiertes Auto-Disable)
+      evaluateMenuAvailability().catch(() => [] as unknown[]),
+      // Phase 185: 7-Tage-Deaktivierungs-Zähler — täglich 02:00 UTC aktualisieren
+      isReportTick
+        ? refreshDisableCounts().catch(() => null)
         : Promise.resolve(null),
     ]);
 
