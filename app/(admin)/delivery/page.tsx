@@ -9,7 +9,7 @@ import {
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
-  Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot,
+  Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -267,6 +267,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Gamifizierte Anreize · Zeitbegrenzte Delivery-Ziele · Automatische Fortschrittsverfolgung" cta="Challenges verwalten" />
         <SectionCard href="/delivery/positioning" icon={<Navigation2 className="h-5 w-5" />} title="Fahrer-Vorpositionierung"
           subtitle="Smart Pre-Positioning · Idle-Fahrer in Bedarfszonen lenken · Demand-basierte Empfehlungen" cta="Positioning öffnen" />
+        <SectionCard href="/delivery/geo-clustering" icon={<Crosshair className="h-5 w-5" />} title="Geo-Clustering"
+          subtitle="K-Means Hotspot-Analyse · Liefer-Cluster aus Echtdaten · Optimale Fahrer-Positionen" cta="Clustering öffnen" />
       </SectionGroup>
     </>
   );

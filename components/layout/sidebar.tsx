@@ -156,6 +156,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/digest',       icon: 'BookOpen',        label: 'Tages-Digest (KI)' },
       { group: 'Loslegen', href: '/delivery/challenges',   icon: 'Zap',             label: 'Fahrer-Challenges' },
       { group: 'Loslegen', href: '/delivery/positioning',     icon: 'Navigation',      label: 'Fahrer-Positionierung' },
+      { group: 'Loslegen', href: '/delivery/geo-clustering',  icon: 'Crosshair',       label: 'Geo-Clustering (Hotspots)' },
       { group: 'Loslegen', href: '/delivery/profitability',     icon: 'TrendingUp',  label: 'Profitabilität (P&L)' },
       { group: 'Loslegen', href: '/delivery/churn-prevention',    icon: 'UserX',     label: 'Kunden-Retention' },
       { group: 'Loslegen', href: '/delivery/health-observatory', icon: 'Activity',  label: 'System-Health Observatory' },

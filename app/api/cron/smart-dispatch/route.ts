@@ -66,6 +66,7 @@ import { buildProfilesAllLocations as buildReorderProfiles, pruneStaleProfiles a
 import { renewExpiredSubscriptions } from '@/lib/delivery/subscriptions';
 import { reconcileAllLocations as reconcileCashAllLocations } from '@/lib/delivery/cash-reconciliation';
 import { pruneCustomerPushLogs, pruneInactiveSubscriptions } from '@/lib/delivery/customer-web-push';
+import { computeClustersAllLocations } from '@/lib/delivery/geo-clustering';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -130,8 +131,10 @@ export async function GET(req: NextRequest) {
     const isSubscriptionRenewalTick = nowHour === 1 && nowMin < 2;
     // Cash-Abgleich: täglich um 23:30 UTC (Tagesabschluss)
     const isCashReconcileTick = nowHour === 23 && nowMin >= 28 && nowMin < 32;
+    // Geo-Clustering: täglich 04:00 UTC (nach Reorder, gute Datenbasis)
+    const isGeoClusterTick = nowHour === 4 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -393,6 +396,10 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneInactiveSubscriptions(90).catch(() => 0)
         : Promise.resolve(0),
+      // Phase 173: Geo-Clustering — täglich 04:00 UTC
+      isGeoClusterTick
+        ? computeClustersAllLocations().catch(() => ({ locations: 0, clusters_upserted: 0, orders_analyzed: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -510,6 +517,7 @@ export async function GET(req: NextRequest) {
       ...(cashReconcileResult ? { cash_reconcile: { locations: cashReconcileResult.locations, created: cashReconcileResult.created, updated: cashReconcileResult.updated, errors: cashReconcileResult.errors } } : {}),
       ...(customerPushLogsPruned ? { customer_push_logs_pruned: customerPushLogsPruned } : {}),
       ...(customerPushSubsPruned ? { customer_push_subs_pruned: customerPushSubsPruned } : {}),
+      ...(geoClusterResult ? { geo_clustering: { locations: geoClusterResult.locations, clusters_upserted: geoClusterResult.clusters_upserted, orders_analyzed: geoClusterResult.orders_analyzed, errors: geoClusterResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
