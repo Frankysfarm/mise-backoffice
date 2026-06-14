@@ -121,6 +121,30 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('push', (event) => {
   const data = (() => { try { return event.data?.json() ?? {}; } catch { return {}; } })();
+
+  // Kunden-Push (type='customer') — leichtere Notification, kein requireInteraction
+  if (data.type === 'customer') {
+    const title = data.title || '📦 Bestellstatus';
+    const options = {
+      body: data.body || 'Deine Bestellung hat einen neuen Status.',
+      icon: '/mise-icon-192.png',
+      badge: '/mise-icon-192.png',
+      tag: data.tag ?? 'mise-customer',
+      renotify: true,
+      requireInteraction: false,
+      silent: false,
+      vibrate: [200, 100, 200],
+      data: { url: data.url ?? '/order/paid', time: Date.now(), type: 'customer' },
+      actions: [
+        { action: 'open', title: 'Tracking öffnen' },
+        { action: 'dismiss', title: 'Schließen' },
+      ],
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+    return;
+  }
+
+  // Fahrer-Push (Standard)
   const title = data.title || '📦 Neue Tour';
   const options = {
     body: data.body || 'Bestellung fertig zum Abholen',
@@ -142,12 +166,14 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  if (event.action === 'snooze') return;
+  if (event.action === 'snooze' || event.action === 'dismiss') return;
   const url = event.notification.data?.url ?? '/fahrer/app';
+  const isCustomer = event.notification.data?.type === 'customer';
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then((clients) => {
       for (const c of clients) {
-        if (c.url.includes('/fahrer') && 'focus' in c) return c.focus();
+        if (isCustomer && c.url.includes('/order') && 'focus' in c) return c.focus();
+        if (!isCustomer && c.url.includes('/fahrer') && 'focus' in c) return c.focus();
       }
       if (self.clients.openWindow) return self.clients.openWindow(url);
     })

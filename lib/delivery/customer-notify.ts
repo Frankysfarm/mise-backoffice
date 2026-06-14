@@ -106,6 +106,19 @@ export async function recordCustomerEvent(
     enqueueForOrder(orderId, locationId, eventId, eventType, messageDe, metadata),
   ).catch(() => { /* graceful */ });
 
+  // Browser Web Push fire-and-forget (Phase 172)
+  import('./customer-web-push').then(async ({ notifyCustomerViaPush }) => {
+    const { data: order } = await sb()
+      .from('customer_orders')
+      .select('kunde_email, bestellnummer')
+      .eq('id', orderId)
+      .maybeSingle();
+    const email = (order as { kunde_email?: string | null } | null)?.kunde_email;
+    const nr    = (order as { bestellnummer?: string | null } | null)?.bestellnummer;
+    const trackingUrl = nr ? `/order/paid?nr=${encodeURIComponent(nr)}` : undefined;
+    await notifyCustomerViaPush(locationId, orderId, eventType, email ?? undefined, trackingUrl);
+  }).catch(() => { /* graceful */ });
+
   // WhatsApp-Benachrichtigung fire-and-forget — Telefonnummer aus Bestellung holen
   import('./whatsapp-notify').then(async ({ sendWhatsAppNotification }) => {
     const { data: order } = await sb()

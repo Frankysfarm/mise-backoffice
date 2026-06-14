@@ -65,6 +65,7 @@ import { sendDriverDailyDigestAllLocations } from '@/lib/delivery/driver-digest-
 import { buildProfilesAllLocations as buildReorderProfiles, pruneStaleProfiles as pruneReorderProfiles } from '@/lib/delivery/reorder-engine';
 import { renewExpiredSubscriptions } from '@/lib/delivery/subscriptions';
 import { reconcileAllLocations as reconcileCashAllLocations } from '@/lib/delivery/cash-reconciliation';
+import { pruneCustomerPushLogs, pruneInactiveSubscriptions } from '@/lib/delivery/customer-web-push';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -130,7 +131,7 @@ export async function GET(req: NextRequest) {
     // Cash-Abgleich: täglich um 23:30 UTC (Tagesabschluss)
     const isCashReconcileTick = nowHour === 23 && nowMin >= 28 && nowMin < 32;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -385,6 +386,13 @@ export async function GET(req: NextRequest) {
       isCashReconcileTick
         ? reconcileCashAllLocations().catch(() => ({ locations: 0, created: 0, updated: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Phase 172: Customer Web Push — Logs > 30 Tage + inaktive Subs > 90 Tage (täglich 02:00 UTC)
+      isReportTick
+        ? pruneCustomerPushLogs(30).catch(() => 0)
+        : Promise.resolve(0),
+      isReportTick
+        ? pruneInactiveSubscriptions(90).catch(() => 0)
+        : Promise.resolve(0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -500,6 +508,8 @@ export async function GET(req: NextRequest) {
       ...(reorderProfilesPruned ? { reorder_profiles_pruned: reorderProfilesPruned } : {}),
       ...(subscriptionRenewalResult ? { subscription_renewal: { locations: subscriptionRenewalResult.locations, renewed: subscriptionRenewalResult.renewed, errors: subscriptionRenewalResult.errors } } : {}),
       ...(cashReconcileResult ? { cash_reconcile: { locations: cashReconcileResult.locations, created: cashReconcileResult.created, updated: cashReconcileResult.updated, errors: cashReconcileResult.errors } } : {}),
+      ...(customerPushLogsPruned ? { customer_push_logs_pruned: customerPushLogsPruned } : {}),
+      ...(customerPushSubsPruned ? { customer_push_subs_pruned: customerPushSubsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

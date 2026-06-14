@@ -12,7 +12,7 @@ import {
   ShoppingBag, FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
   FileDown, Star, Zap, Navigation, TrendingUp, UserX, Activity, Radio, MapPinned,
   MessageSquare, Map as MapIcon, Waves, Heart, CalendarDays, PieChart, BookCheck,
-  CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot,
+  CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot, BellRing,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +26,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   FolderOpen, ClipboardList, BarChart2, Trophy, Brain, CalendarCheck2,
   FileDown, Star, Zap, Navigation, TrendingUp, UserX, Activity, Radio, MapPinned,
   MessageSquare, MapIcon, Waves, Heart, CalendarDays, PieChart, BookCheck,
-  CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot,
+  CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot, BellRing,
 };
 
 export type SidebarItem = {

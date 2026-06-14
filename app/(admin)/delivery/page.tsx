@@ -251,6 +251,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="KPI-Benchmark zwischen allen Franchise-Standorten" cta="Vergleich ansehen" />
         <SectionCard href="/delivery/whatsapp" icon={<MessageCircle className="h-5 w-5" />} title="WhatsApp-Benachrichtigungen"
           subtitle="Bestell-Status-Updates via WhatsApp · Meta Cloud API oder Twilio · Opt-In-Verwaltung" cta="WhatsApp konfigurieren" />
+        <SectionCard href="/delivery/customer-web-push" icon={<BellRing className="h-5 w-5" />} title="Kunden Browser-Push"
+          subtitle="Native Browser-Push-Benachrichtigungen · VAPID · Lieferstatus-Updates ohne App" cta="Push verwalten" />
         <SectionCard href="/delivery/health-observatory" icon={<HeartPulse className="h-5 w-5" />} title="System-Health-Observatory"
           subtitle="End-to-End-Gesundheits-Score · Datenqualität · Service-Status" cta="Health ansehen" />
         <SectionCard href="/delivery/ops-center" icon={<MonitorDot className="h-5 w-5" />} title="Ops-Cockpit"

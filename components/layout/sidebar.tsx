@@ -176,6 +176,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/reorder-engine',    icon: 'Repeat2',      label: 'Wiederbestellungs-Engine' },
       { group: 'Loslegen', href: '/delivery/subscriptions',     icon: 'CreditCard',   label: 'Liefer-Abonnements' },
       { group: 'Loslegen', href: '/delivery/cash-reconciliation', icon: 'Coins',     label: 'Bargeld-Abrechnung' },
+      { group: 'Loslegen', href: '/delivery/customer-web-push',  icon: 'BellRing',  label: 'Kunden Browser-Push' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
