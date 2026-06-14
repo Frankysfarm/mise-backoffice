@@ -90,6 +90,7 @@ import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 import { DispatchProfitStrip } from './profit-strip';
 import { DispatchTourVisualisierung } from './tour-visualisierung';
 import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
+import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
 
 type Driver = {
   employee_id: string;
@@ -854,6 +855,9 @@ export function DispatchBoard({
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
+
+      {/* Phase 184: SLA Live-Status — Farbkodierter Pünktlichkeitsstatus je aktiver Tour */}
+      <DispatchSLAGaugeStrip batches={batches as any} drivers={drivers} />
 
       {/* Tour-Puls: Kompakter Health-Streifen für alle aktiven Touren */}
       <DispatchTourHealthStrip batches={batches} />

@@ -22,6 +22,7 @@ import {
   X,
 } from 'lucide-react';
 import { DynamicEtaProgress } from '@/app/order/[locationSlug]/components/dynamic-eta-progress';
+import { OrderEtaCountdown } from './order-eta-countdown';
 
 type Order = {
   order_id: string;
@@ -445,6 +446,15 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             etaEarliest={order.eta_earliest}
             etaLatest={order.eta_latest}
             typ={order.typ as 'lieferung' | 'abholung'}
+          />
+        )}
+
+        {/* Phase 184: Prominenter Echtzeit-Countdown wenn Fahrer unterwegs und fertig_am fehlt */}
+        {order.status === 'unterwegs' && !order.fertig_am && (
+          <OrderEtaCountdown
+            etaEarliest={order.eta_earliest}
+            etaLatest={order.eta_latest}
+            status={order.status}
           />
         )}
 

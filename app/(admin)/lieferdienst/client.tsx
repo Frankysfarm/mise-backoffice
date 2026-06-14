@@ -66,6 +66,7 @@ import { PushAnalyticsMiniCard } from './push-analytics-mini-card'
 import { ProfitKpiStrip } from './profit-kpi-strip'
 import { WochenUmsatzPanel } from './wochen-umsatz-panel'
 import { TagesZielPanel } from './tages-ziel-panel'
+import { ZoneErtragPanel } from './zone-ertrag-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1054,6 +1055,8 @@ export function LieferdienstClient() {
               <FahrerTagesZielPanel />
               {/* Zone-Umsatz: Bestellungen + Umsatz nach Lieferzone */}
               <LieferdienstZonenumsatz />
+              {/* Phase 184: Zonen-Ertrag Heute — Live-Umsatz + Ø-Lieferzeit je Lieferzone aus Supabase */}
+              <ZoneErtragPanel />
               {/* Phase 89: Stündlicher Durchsatz-Sparkline */}
               <LieferdienstDurchsatzPanel />
               {/* Schicht-Prognose mit Tagesziel-Vergleich: visuell + KPI-Grid */}

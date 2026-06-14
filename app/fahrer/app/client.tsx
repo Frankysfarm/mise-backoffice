@@ -37,6 +37,7 @@ import { FahrerStickyBar } from './fahrer-sticky-bar';
 import { NextStopCta } from './next-stop-cta';
 import { TourAbschlussPrognose } from './tour-abschluss-prognose';
 import { NaviWidget } from './navi-widget';
+import { SchichtEinnahmenRing } from './schicht-einnahmen-ring';
 
 type Driver = {
   id: string;
@@ -785,6 +786,15 @@ export function FahrerApp({
                     onlineSinceIso={status?.online_seit ?? null}
                     activeBatch={activeBatch}
                     dailyTargetEur={80}
+                  />
+                )}
+
+                {/* Phase 184: Schicht-Einnahmen-Ring — Visueller Donut-Ring für tägliches Einnahmenziel */}
+                {todayStats && todayStats.deliveries > 0 && (
+                  <SchichtEinnahmenRing
+                    deliveries={todayStats.deliveries}
+                    estEarnings={todayStats.estEarnings}
+                    goalEur={80}
                   />
                 )}
 

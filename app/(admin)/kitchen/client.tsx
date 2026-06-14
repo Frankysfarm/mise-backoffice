@@ -41,6 +41,7 @@ import { KitchenPipelineFunnel } from './pipeline-funnel';
 import { KitchenDispatchBridgeStrip } from './dispatch-bridge-strip';
 import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
 import { KitchenBatchKoordinator } from './batch-koordinator';
+import { KitchenSchichtPulsRing } from './schicht-pulse-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -650,6 +651,9 @@ export function KitchenBoard({
 
       {/* Queue-Signal-Steuerung: Bestellfluss pausieren / ETA verlängern */}
       <QueueSignalControl locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+
+      {/* Phase 184: Schicht-Puls-Ring — Bestellungen/Stunde als Donut-Ring mit Ziel-Vergleich */}
+      <KitchenSchichtPulsRing orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
 
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
