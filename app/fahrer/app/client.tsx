@@ -38,6 +38,7 @@ import { NextStopCta } from './next-stop-cta';
 import { TourAbschlussPrognose } from './tour-abschluss-prognose';
 import { NaviWidget } from './navi-widget';
 import { SchichtEinnahmenRing } from './schicht-einnahmen-ring';
+import { TourEffizienzScore } from './tour-effizienz-score';
 
 type Driver = {
   id: string;
@@ -946,6 +947,20 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 185: Tour-Effizienz-Score — ETA-Genauigkeit des letzten abgeschlossenen Stops */}
+          {(() => {
+            const lastDelivered = [...activeBatch.stops]
+              .filter(s => s.geliefert_am)
+              .sort((a, b) => new Date(b.geliefert_am!).getTime() - new Date(a.geliefert_am!).getTime())[0] ?? null;
+            return (
+              <div className="px-4">
+                <TourEffizienzScore
+                  recentlyDeliveredStop={lastDelivered as any}
+                  tourStartedAt={activeBatch.started_at}
+                />
+              </div>
+            );
+          })()}
           {/* Bargeld-Stops: zeigt welche Stops Bargeld erfordern + Gesamtbetrag */}
           <CashflowTracker stops={activeBatch.stops as any} />
           {/* Tour-Abschluss-Bilanz: Statistiken + Verdienst-Schätzung nach Tour-Ende */}

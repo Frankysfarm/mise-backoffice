@@ -91,6 +91,7 @@ import { DispatchProfitStrip } from './profit-strip';
 import { DispatchTourVisualisierung } from './tour-visualisierung';
 import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
+import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
 
 type Driver = {
   employee_id: string;
@@ -856,6 +857,8 @@ export function DispatchBoard({
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
 
+      {/* Phase 185: Fahrer-Verfügbarkeits-Ampel — farbkodierte Übersicht frei/unterwegs/zurück */}
+      <FahrerVerfügbarkeitsAmpel drivers={drivers} batches={batches as any} />
       {/* Phase 184: SLA Live-Status — Farbkodierter Pünktlichkeitsstatus je aktiver Tour */}
       <DispatchSLAGaugeStrip batches={batches as any} drivers={drivers} />
 

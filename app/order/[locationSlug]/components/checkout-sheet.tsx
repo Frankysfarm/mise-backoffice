@@ -19,6 +19,7 @@ import {
 import type { CheckoutForm, OrderType, PaymentMethod } from './types';
 import { AddressAutocomplete, type AddressValue } from './address-autocomplete';
 import { SubscriptionTeaser } from './subscription-teaser';
+import { OrderQueuePulse } from './order-queue-pulse';
 
 type Props = {
   open: boolean;
@@ -872,6 +873,16 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Phase 185: Live ETA im Bezahlen-Schritt — zeigt Wartezeit vor Bestellabgabe */}
+              {locationId && orderType === 'lieferung' && (
+                <OrderQueuePulse
+                  locationId={locationId}
+                  orderType="lieferung"
+                  compact
+                  className="w-full justify-center"
+                />
               )}
 
               {/* Liefer-Flatrate Teaser — nur bei Lieferbestellungen mit location_id */}

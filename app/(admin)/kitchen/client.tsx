@@ -42,6 +42,7 @@ import { KitchenDispatchBridgeStrip } from './dispatch-bridge-strip';
 import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
 import { KitchenBatchKoordinator } from './batch-koordinator';
 import { KitchenSchichtPulsRing } from './schicht-pulse-ring';
+import { KitchenSchichtOfenTimer } from './schicht-ofen-timer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -495,6 +496,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}
+      <KitchenSchichtOfenTimer orders={filtered} completedToday={completedToday} />
       {/* Live-Kochstatus: Farbkodierter Echtzeit-Überblick + dringlichster Countdown */}
       <KitchenLiveKochstatusStrip orders={filtered} timings={timings} />
       {/* Pipeline-Funnel: Bestellungen je Küchen-Phase — Engpass-Erkennung */}
