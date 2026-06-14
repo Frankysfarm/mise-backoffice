@@ -79,6 +79,7 @@ import { DispatchNächsteZuweisung } from './naechste-zuweisung';
 import { FahrerZeitplanPanel } from './fahrer-zeitplan';
 import { SlaLivePanel } from './sla-live-panel';
 import { DispatchSchichtUebergabePanel } from './schicht-uebergabe';
+import { DispatchSchichtRing } from './schicht-ring';
 
 type Driver = {
   employee_id: string;
@@ -828,6 +829,9 @@ export function DispatchBoard({
       {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}
       {/* Dispatch-Score-Trend: stündlicher Verlauf des Ø-Dispatch-Scores heute als Sparkline */}
       <DispatchScoreTrendStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
+      <DispatchSchichtRing batches={batches} />
 
       {/* Tour-Puls: Kompakter Health-Streifen für alle aktiven Touren */}
       <DispatchTourHealthStrip batches={batches} />

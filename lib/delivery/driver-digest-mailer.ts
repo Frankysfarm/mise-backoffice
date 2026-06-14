@@ -199,7 +199,7 @@ async function logDriverDigest(
       status,
       error:        error ?? null,
     }, { onConflict: 'driver_id,digest_date' })
-    .catch(() => {});
+    .then(() => { /* upsert log ok */ });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

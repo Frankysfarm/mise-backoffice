@@ -29,6 +29,7 @@ import { CashflowTracker } from './cashflow-tracker';
 import { TourAbschlussRechner } from './tour-abschluss-rechner';
 import { SchichtKpiLive } from './schicht-kpi-live';
 import { StopNavCard } from './stop-nav-card';
+import { EtaAmpel } from './eta-ampel';
 
 type Driver = {
   id: string;
@@ -793,6 +794,19 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          {/* ETA-Ampel: Schnellstatus ob aktuelle Tour pünktlich ist */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <EtaAmpel
+                etaLatest={(activeBatch.stops.find(s => !s.geliefert_am)?.order as any)?.eta_latest ?? null}
+                etaEarliest={(activeBatch.stops.find(s => !s.geliefert_am)?.order as any)?.eta_earliest ?? null}
+                batchStartedAt={activeBatch.started_at}
+                totalEtaMin={activeBatch.total_eta_min ?? null}
+                stopsTotal={activeBatch.stops.length}
+                stopsCompleted={activeBatch.stops.filter(s => s.geliefert_am).length}
+              />
+            </div>
+          )}
           {/* Nächster Stop — prominente Navigationskarte mit ETA + Betrag */}
           {activeBatch.stops.some(s => !s.geliefert_am) && (
             <div className="px-4">
