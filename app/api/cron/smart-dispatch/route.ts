@@ -68,6 +68,7 @@ import { reconcileAllLocations as reconcileCashAllLocations } from '@/lib/delive
 import { pruneCustomerPushLogs, pruneInactiveSubscriptions } from '@/lib/delivery/customer-web-push';
 import { computeClustersAllLocations } from '@/lib/delivery/geo-clustering';
 import { computePushAnalyticsAllLocations } from '@/lib/delivery/push-analytics';
+import { runDueCampaigns } from '@/lib/delivery/push-campaigns';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -135,7 +136,7 @@ export async function GET(req: NextRequest) {
     // Geo-Clustering: täglich 04:00 UTC (nach Reorder, gute Datenbasis)
     const isGeoClusterTick = nowHour === 4 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -405,6 +406,10 @@ export async function GET(req: NextRequest) {
       isDemandTick
         ? computePushAnalyticsAllLocations().catch(() => ({ locations: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Phase 177: Push-Kampagnen — fällige Kampagnen alle 10 Min prüfen + versenden
+      isRatingTick
+        ? runDueCampaigns().catch(() => ({ executed: 0, totalSent: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -524,6 +529,7 @@ export async function GET(req: NextRequest) {
       ...(customerPushSubsPruned ? { customer_push_subs_pruned: customerPushSubsPruned } : {}),
       ...(geoClusterResult ? { geo_clustering: { locations: geoClusterResult.locations, clusters_upserted: geoClusterResult.clusters_upserted, orders_analyzed: geoClusterResult.orders_analyzed, errors: geoClusterResult.errors } } : {}),
       ...(pushAnalyticsResult ? { push_analytics: { locations: pushAnalyticsResult.locations, errors: pushAnalyticsResult.errors } } : {}),
+      ...(campaignsResult ? { campaigns: { executed: campaignsResult.executed, sent: campaignsResult.totalSent, errors: campaignsResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
