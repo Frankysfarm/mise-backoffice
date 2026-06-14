@@ -57,6 +57,8 @@ import { snapshotFatigueAllLocations, pruneFatigueSnapshots } from '@/lib/delive
 import { snapshotPatternsAllLocations as snapshotPeakPatterns, analyzePeakAllLocations, pruneOldAlerts as prunePeakAlerts } from '@/lib/delivery/peak-intelligence';
 import { snapshotMenuAllLocations, pruneMenuSnapshots } from '@/lib/delivery/menu-analytics';
 import { recomputePrepProfilesAllLocations, prunePrepObservations } from '@/lib/delivery/kitchen-prep-learning';
+import { generateShiftSuggestionsAllLocations, pruneStaleSuggestions } from '@/lib/delivery/shift-suggestions';
+import { processAutoCompensationsAllLocations } from '@/lib/delivery/sla-compensation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -326,6 +328,18 @@ export async function GET(req: NextRequest) {
       // Küchen-Lernkurve: alte Beobachtungen bereinigen > 90 Tage (Phase 127)
       isReportTick
         ? prunePrepObservations(90).catch(() => 0)
+        : Promise.resolve(null),
+      // Phase 156: Auto-Schichtvorschläge täglich 05:00 UTC generieren
+      (nowHour === 5 && nowMin < 2)
+        ? generateShiftSuggestionsAllLocations().catch(() => ({ locations: 0, suggestionsCreated: 0, errors: 1 }))
+        : Promise.resolve(null),
+      // Phase 156: Veraltete pending-Vorschläge täglich bereinigen (02:00 UTC)
+      isReportTick
+        ? pruneStaleSuggestions().catch(() => 0)
+        : Promise.resolve(null),
+      // Phase 157: SLA Auto-Kompensation alle 30 Min prüfen (isDemandTick)
+      isDemandTick
+        ? processAutoCompensationsAllLocations().catch(() => ({ locations: 0, compensated: 0, totalEurIssued: 0, errors: 1 }))
         : Promise.resolve(null),
     ]);
 

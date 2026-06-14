@@ -123,7 +123,19 @@ export async function POST(req: NextRequest) {
     auth.userId,
   );
 
-  return NextResponse.json({ signal }, { status: 200 });
+  // Phase 155: Fahrer bei manueller Signal-Setzung per Push informieren
+  if (signalType !== 'normal') {
+    void import('@/lib/delivery/push-notify').then(({ enqueueQueueSignalPushForLocation }) =>
+      enqueueQueueSignalPushForLocation({
+        locationId:      auth.locationId,
+        signalType:      signalType as 'extended' | 'paused',
+        etaExtensionMin: etaExtensionMin ?? (signalType === 'paused' ? 0 : 10),
+        messageDe:       typeof messageDe === 'string' ? messageDe : null,
+      }).catch(() => {}),
+    ).catch(() => {});
+  }
+
+  return NextResponse.json({ signal, push_queued: signalType !== 'normal' }, { status: 200 });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

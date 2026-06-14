@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–154 abgeschlossen. CEO Review #91 bestanden. Build sauber. 206 Seiten. Deployment-bereit.**
+**Phasen 1–157 abgeschlossen. CEO Review #91 bestanden. Build sauber. 208+ Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phasen 155–157 abgeschlossen. Queue-Signal Push für Fahrer, Auto-Schichtvorschläge Engine, SLA Auto-Kompensation. Build sauber.**
 **CEO-Agent — 2026-06-13: Review #91 abgeschlossen. 15 neue Commits (Phasen 140–154) geprüft. 0 Bugs. TypeScript 0 Fehler. Build 206 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-13: Phasen 137–139 abgeschlossen. Fahrer-App Tagesabschluss-Badge, Dispatch Auslastungs-Heatmap (Stunden×Wochentage + API), Storefront Post-Delivery-Rating-Flow. Build 206 Seiten sauber.**
 **CEO-Agent — 2026-06-13: Review #90 abgeschlossen. 14 neue Phasen (123–136) geprüft. 3 Bugs gefixt (2× TypeScript, 1× Logik-Bug satisfaction/_fallback). Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron. TypeScript 0 Fehler. Build 206 Seiten sauber.**
@@ -50,6 +51,24 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 157: SLA Auto-Kompensation Engine — 2026-06-14
+- [x] scripts/migrations/078_sla_compensation.sql: sla_compensation_events (order_id UNIQUE, delay_min, compensation_eur, credit_id, status issued/failed/skipped, skip_reason) + sla_compensation_config (threshold_min=15, amount_eur=2.00, max_per_customer_month=3, RLS)
+- [x] lib/delivery/sla-compensation.ts: processAutoCompensations() (2h-Fenster, skip bei on-time/Monatslimit, credit via delivery_credits, Event-Log), processAutoCompensationsAllLocations() (Cron-Batch), getCompensationEvents(), getCompensationSummary(), upsertCompConfig()
+- [x] GET+POST+PUT /api/delivery/admin/sla-compensation: Auth via employees.location_id, GET=Events+Summary, POST action=process (manuell), PUT=Konfig-Update
+- [x] app/(admin)/delivery/sla-compensation/: SlaCompensationClient (4 KPI-Karten: Erstattungen/Gesamtbetrag/Ø Verspätung/Status, Konfig-Panel mit Toggle/Schwellenwert/Betrag/Limit, Events-Tabelle mit Status-Badges)
+- [x] Cron: processAutoCompensationsAllLocations() alle 30 Min (isDemandTick) → sla_compensation in Response
+- [x] Sidebar: "SLA Auto-Kompensation" + ShieldCheck-Icon
+- [x] Phase 156: Auto-Schichtvorschläge Engine — 2026-06-14
+- [x] scripts/migrations/077_shift_suggestions.sql: delivery_shift_suggestions (location_id+suggestion_date+start_hour UNIQUE, drivers_needed/scheduled/coverage_gap, expected_orders, confidence, status pending/accepted/ignored/applied, RLS, updated_at-Trigger)
+- [x] lib/delivery/shift-suggestions.ts: generateShiftSuggestions() (4-Wochen-Heatmap, Wochentag+Stunde-Aggregat, Lücken-Block-Erkennung, UPSERT), generateShiftSuggestionsAllLocations() (Cron-Batch), getShiftSuggestions(), updateSuggestionStatus(), pruneStaleSuggestions()
+- [x] GET+POST+PATCH /api/delivery/admin/shift-suggestions: GET=Offene Vorschläge, POST action=generate, PATCH status=accepted|ignored
+- [x] app/(admin)/delivery/shift-suggestions/: ShiftSuggestionsClient (4 KPI-Karten, Filter pending/accepted/all, Datum-Gruppen expandierbar, Annehmen/Ignorieren-Buttons, Konfidenz-Farbcodierung, Lücken-Severity-Badge)
+- [x] Cron: generateShiftSuggestionsAllLocations() täglich 05:00 UTC, pruneStaleSuggestions() täglich 02:00 UTC
+- [x] Sidebar: "Auto-Schichtvorschläge" + CalendarPlus-Icon
+- [x] Phase 155: Queue-Signal Push Notifications für Fahrer — 2026-06-14
+- [x] lib/delivery/push-notify.ts: enqueueQueueSignalPushForLocation() — lädt alle online Fahrer (idle/assigned/at_restaurant/en_route/returning), sendet Push via mise_push_outbox mit signal_type-spezifischem Titel/Body, gibt Anzahl zurück
+- [x] lib/delivery/capacity.ts: evaluateAutoSignal() feuert Push bei 'upgraded' (fire-and-forget via dynamic import), kein Cron-Spam (nur bei echtem Signal-Anstieg)
+- [x] app/api/delivery/admin/queue-signal POST: feuert Push nach manuellem Signal-Set wenn signalType != 'normal', Response: {signal, push_queued: true}
 - [x] Phase 139: Post-Delivery-Bewertungs-Flow — 2026-06-13
 - [x] PostDeliveryRating (app/order/[locationSlug]/components/post-delivery-rating.tsx): Vollbild-Overlay direkt nach Zustellung (status='geliefert'), Stern-Auswahl (1-5) mit Label, 6 Quick-Tags (Schnell/Freundlich/Heiß/Vollständig/Sorgfältig/Pünktlich), Kommentar-Textarea, 3-Step-Flow (Stars→Comment→Done), Token-basierter Submit via /api/delivery/orders/{id}/rate, Danke-Screen mit Celebration-Emoji
 - [x] Integration success-state.tsx: PostDeliveryRating importiert, showPostDeliveryRating State + useEffect (triggered on 'geliefert' einmalig via Ref-Guard), onDismiss setzt ratingSubmitted=true (verhindert Doppel-Rating im InPage-Widget)

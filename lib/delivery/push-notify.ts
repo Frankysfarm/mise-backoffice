@@ -104,3 +104,75 @@ export async function enqueueTourStatusPush(params: TourStatusPushParams): Promi
     console.error('[push-notify] enqueueTourStatusPush fehlgeschlagen:', error.message, { driverId, batchId });
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 155: Queue-Signal Push für alle Online-Fahrer einer Location
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface QueueSignalPushParams {
+  locationId: string;
+  signalType: 'extended' | 'paused';
+  etaExtensionMin: number;
+  messageDe: string | null;
+}
+
+/**
+ * Benachrichtigt alle online Fahrer einer Location über eine Queue-Signal-Änderung.
+ * Wird aufgerufen wenn Signal auf 'paused' oder 'extended' wechselt.
+ * Gibt Anzahl der enqueued Pushes zurück. Fire-and-forget.
+ */
+export async function enqueueQueueSignalPushForLocation(
+  params: QueueSignalPushParams,
+): Promise<number> {
+  const { locationId, signalType, etaExtensionMin, messageDe } = params;
+
+  const { data: drivers, error: dErr } = await sb()
+    .from('mise_drivers')
+    .select('id')
+    .eq('active', true)
+    .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])
+    .limit(100);
+
+  if (dErr || !drivers || drivers.length === 0) return 0;
+
+  const title =
+    signalType === 'paused'
+      ? 'Restaurant pausiert ⏸'
+      : `Erhöhte Wartezeit +${etaExtensionMin} Min ⏳`;
+
+  const body =
+    signalType === 'paused'
+      ? 'Keine neuen Aufträge bis auf Weiteres — bitte auf Zuweisung warten.'
+      : (messageDe ?? `Küche ausgelastet — ETA um ${etaExtensionMin} Minuten verlängert.`);
+
+  const rows = (drivers as { id: string }[]).map((d) => ({
+    driver_id: d.id,
+    type:      'system_update',
+    title,
+    body,
+    sound:    signalType === 'paused' ? 'default' : null,
+    priority:  signalType === 'paused' ? 'high' : 'normal',
+    data: {
+      event:             'queue_signal_changed',
+      signal_type:       signalType,
+      eta_extension_min: etaExtensionMin,
+      location_id:       locationId,
+    },
+  }));
+
+  const { data: inserted, error } = await sb()
+    .from('mise_push_outbox')
+    .insert(rows)
+    .select('id');
+
+  if (error) {
+    console.error('[push-notify] enqueueQueueSignalPushForLocation fehlgeschlagen:', error.message, {
+      locationId,
+      signalType,
+      drivers: drivers.length,
+    });
+    return 0;
+  }
+
+  return inserted?.length ?? 0;
+}

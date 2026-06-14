@@ -259,6 +259,18 @@ export async function evaluateAutoSignal(locationId: string): Promise<AutoEvalRe
       ? 'upgraded'
       : 'downgraded';
 
+  // Phase 155: Fahrer per Push über Signal-Änderung informieren (fire-and-forget)
+  if (action === 'upgraded' && targetSignal !== 'normal') {
+    void import('./push-notify').then(({ enqueueQueueSignalPushForLocation }) =>
+      enqueueQueueSignalPushForLocation({
+        locationId,
+        signalType:        targetSignal as 'extended' | 'paused',
+        etaExtensionMin:   targetEtaExt,
+        messageDe:         null,
+      }).catch(() => {}),
+    ).catch(() => {});
+  }
+
   return { locationId, prevSignal: current.signalType, newSignal: targetSignal, queueDepth, action };
 }
 
