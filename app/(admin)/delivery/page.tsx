@@ -9,7 +9,7 @@ import {
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
-  Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair,
+  Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -255,6 +255,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Native Browser-Push-Benachrichtigungen · VAPID · Lieferstatus-Updates ohne App" cta="Push verwalten" />
         <SectionCard href="/delivery/push-analytics" icon={<Activity className="h-5 w-5" />} title="Push-Analytics"
           subtitle="Kanal-übergreifende Performance · VAPID + WhatsApp + Fahrer-Push · Zustellraten & Event-Aufschlüsselung" cta="Analytics öffnen" />
+        <SectionCard href="/delivery/rfm-segmentation" icon={<PieChart className="h-5 w-5" />} title="Kunden-Segmentierung (RFM)"
+          subtitle="Recency · Frequency · Monetary · 10 Segmente · Champions · At-Risk · Lost · Zielgruppen für Push-Kampagnen" cta="Segmente ansehen" />
         <SectionCard href="/delivery/health-observatory" icon={<HeartPulse className="h-5 w-5" />} title="System-Health-Observatory"
           subtitle="End-to-End-Gesundheits-Score · Datenqualität · Service-Status" cta="Health ansehen" />
         <SectionCard href="/delivery/ops-center" icon={<MonitorDot className="h-5 w-5" />} title="Ops-Cockpit"
