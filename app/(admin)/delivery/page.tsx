@@ -8,7 +8,7 @@ import {
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
-  UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange,
+  UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -118,6 +118,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Fahrer-Ermüdungsscore · Risiko-Alerts · Schutzmaßnahmen" cta="Monitor öffnen" />
         <SectionCard href="/delivery/comms-log" icon={<List className="h-5 w-5" />} title="Kommunikations-Log"
           subtitle="Admin-Nachrichten und Broadcasts an Fahrer · Verlauf" cta="Log ansehen" />
+        <SectionCard href="/delivery/driver-digest" icon={<MailCheck className="h-5 w-5" />} title="Fahrer Tagesabschluss-Mail"
+          subtitle="Personalisierte Tagesberichte per E-Mail · Leistung, Verdienst, Challenges · täglich 20:00 UTC" cta="Konfigurieren" />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}
