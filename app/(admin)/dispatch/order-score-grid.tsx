@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import { cn, euro } from '@/lib/utils';
 import { Clock, MapPin, Package, Target, TrendingUp, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { OrderScoreDetail } from './order-score-detail';
 
 type Order = {
   id: string;
@@ -79,6 +80,7 @@ function ScoreBar({ score }: { score: number | null }) {
 
 export function OrderScoreGrid({ orders }: { orders: Order[] }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const readyOrders = orders.filter(o => o.status === 'fertig');
   if (readyOrders.length === 0) return null;
 
@@ -135,13 +137,17 @@ export function OrderScoreGrid({ orders }: { orders: Order[] }) {
             {sorted.map((order, i) => {
               const zone = order.delivery_zone?.toUpperCase() ?? null;
               const zoneMeta = zone ? ZONE_META[zone] : null;
+              const isExpanded = expandedId === order.id;
               return (
                 <div key={order.id} className={cn(
                   'rounded-lg border px-3 py-2 space-y-1.5',
                   i === 0 ? 'border-matcha-200 bg-matcha-50/50' : 'border-border bg-muted/20',
                 )}>
                   {/* Row header */}
-                  <div className="flex items-center gap-2">
+                  <button
+                    className="w-full flex items-center gap-2 text-left"
+                    onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                  >
                     {i === 0 && (
                       <span className="text-[8px] font-black text-matcha-600 bg-matcha-100 rounded px-1 py-0.5 shrink-0">PRIO</span>
                     )}
@@ -156,8 +162,12 @@ export function OrderScoreGrid({ orders }: { orders: Order[] }) {
                         </span>
                       )}
                       <WaitBadge fertigAm={order.fertig_am} />
+                      {isExpanded
+                        ? <ChevronUp className="h-3 w-3 text-muted-foreground" />
+                        : <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                      }
                     </div>
-                  </div>
+                  </button>
 
                   {/* Score bar */}
                   <ScoreBar score={order.dispatch_score} />
@@ -169,6 +179,11 @@ export function OrderScoreGrid({ orders }: { orders: Order[] }) {
                       <span className="truncate">{order.kunde_adresse}</span>
                       <span className="ml-auto font-bold text-foreground shrink-0">{euro(order.gesamtbetrag)}</span>
                     </div>
+                  )}
+
+                  {/* Expandable score detail */}
+                  {isExpanded && order.dispatch_score != null && (
+                    <OrderScoreDetail totalScore={order.dispatch_score} className="mt-1" />
                   )}
                 </div>
               );
