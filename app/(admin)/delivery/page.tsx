@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
-  Wallet, UserCheck, List, Ticket, XCircle,
+  Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -214,6 +214,20 @@ export default async function DeliveryOverviewPage() {
           title="Liefer-Ereignisse"
           subtitle="Audit-Trail · Dispatch, Touren, Fahrer, ETA-Events"
           cta="Ereignisse"
+        />
+        <SectionCard
+          href="/delivery/incidents"
+          icon={<ShieldAlert className="h-5 w-5" />}
+          title="Vorfälle"
+          subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow"
+          cta="Vorfälle verwalten"
+        />
+        <SectionCard
+          href="/delivery/gps-trails"
+          icon={<MapPinned className="h-5 w-5" />}
+          title="GPS-Fahrerspuren"
+          subtitle="Live-Positionen · Fahrspuren der letzten 30 Minuten"
+          cta="GPS ansehen"
         />
       </div>
     </>
