@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
-  Wallet, UserCheck,
+  Wallet, UserCheck, List, Ticket, XCircle,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -193,6 +193,27 @@ export default async function DeliveryOverviewPage() {
           title="Schichtabdeckung"
           subtitle="Besetzungsplan · Unterdeckungen der nächsten 24h"
           cta="Abdeckung prüfen"
+        />
+        <SectionCard
+          href="/delivery/credits"
+          icon={<Ticket className="h-5 w-5" />}
+          title="Kundengutschriften"
+          subtitle="Gutschriften nach Verspätungen und Zustellproblemen"
+          cta="Gutschriften"
+        />
+        <SectionCard
+          href="/delivery/failed-attempts"
+          icon={<XCircle className="h-5 w-5" />}
+          title="Fehlgeschlagene Zustellungen"
+          subtitle="Nicht zugestellt · Retry-Planung · Auflösung"
+          cta="Versuche verwalten"
+        />
+        <SectionCard
+          href="/delivery/events"
+          icon={<List className="h-5 w-5" />}
+          title="Liefer-Ereignisse"
+          subtitle="Audit-Trail · Dispatch, Touren, Fahrer, ETA-Events"
+          cta="Ereignisse"
         />
       </div>
     </>
