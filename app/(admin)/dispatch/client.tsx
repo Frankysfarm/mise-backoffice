@@ -77,6 +77,7 @@ import { DriverReliabilityPanel } from './driver-reliability-panel';
 import { TourBundleBoard } from './tour-bundle-board';
 import { DispatchNächsteZuweisung } from './naechste-zuweisung';
 import { FahrerZeitplanPanel } from './fahrer-zeitplan';
+import { SlaLivePanel } from './sla-live-panel';
 
 type Driver = {
   employee_id: string;
@@ -1198,6 +1199,9 @@ export function DispatchBoard({
 
       {/* ETA-Genauigkeit heute: Pünktlichkeitsrate + Ø-Abweichung nach Zone */}
       <EtaAccuracyLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Live SLA-Monitor: Pünktlichkeitsrate Schicht + Letzte 30/60 Min + Zone-Aufschlüsselung */}
+      <SlaLivePanel />
 
       {/* Zonen-Kapazitäts-Panel: Bestellungen nach Zone + freie Fahrer */}
       {readyOrders.length > 0 && <ZoneCapacityPanel orders={readyOrders} drivers={drivers} />}

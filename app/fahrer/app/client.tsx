@@ -28,6 +28,7 @@ import { TagesabschlussBadge, type TagesabschlussData } from './tagesabschluss-b
 import { CashflowTracker } from './cashflow-tracker';
 import { TourAbschlussRechner } from './tour-abschluss-rechner';
 import { SchichtKpiLive } from './schicht-kpi-live';
+import { StopNavCard } from './stop-nav-card';
 
 type Driver = {
   id: string;
@@ -792,6 +793,14 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          {/* Nächster Stop — prominente Navigationskarte mit ETA + Betrag */}
+          {activeBatch.stops.some(s => !s.geliefert_am) && (
+            <div className="px-4">
+              <StopNavCard
+                stops={activeBatch.stops as any}
+              />
+            </div>
+          )}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">

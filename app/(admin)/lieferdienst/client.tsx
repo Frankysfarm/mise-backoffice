@@ -57,6 +57,7 @@ import { SchichtZielePanel } from './schicht-ziele-panel'
 import { SchichtVergleich } from './schicht-vergleich'
 import { StundenUmsatzMatrix } from './stunden-umsatz-matrix'
 import { TagesVerlaufVergleich } from './tages-verlauf-vergleich'
+import { SchichtAnalyticsPanel } from './schicht-analytics-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -997,6 +998,8 @@ export function LieferdienstClient() {
               <OpsSnapshotPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Echtzeit-Liefer-Performance: Heute geliefert, Touren, Ø-ETA, Pünktlichkeit, Score */}
               <DeliveryStatsRealtime />
+              {/* Schicht-Analyse: Stündliche Verteilung, Fahrer-Rangliste, Zone-Umsatz */}
+              <SchichtAnalyticsPanel />
               {/* Stunden-Umsatz-Matrix: Heatmap der Bestellungen und Umsätze nach Uhrzeit */}
               <StundenUmsatzMatrix />
               {/* Tages-Verlauf: heute vs. gestern, stündlicher Vergleich */}
