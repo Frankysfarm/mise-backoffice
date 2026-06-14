@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { euro } from '@/lib/utils';
-import { Banknote, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Banknote, CheckCircle2, FileText, RefreshCw } from 'lucide-react';
 
 interface PayoutPeriod {
   id: string;
@@ -228,7 +228,22 @@ export function PayoutsClient({ locationId }: { locationId: string }) {
                         Basis {euro(p.totalBase)} + km {euro(p.totalKmBonus)}{p.totalPeakBonus > 0 ? ` + peak ${euro(p.totalPeakBonus)}` : ''}
                       </div>
                     </td>
-                    <td className="px-4 py-2.5">{statusBadge(p.status)}</td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex items-center gap-2">
+                        {statusBadge(p.status)}
+                        {(p.status === 'approved' || p.status === 'paid') && (
+                          <a
+                            href={`/api/pdf/lohnzettel?period_id=${p.id}&location_id=${locationId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Lohnzettel als PDF"
+                            className="inline-flex items-center gap-1 rounded border border-stone-200 bg-white px-1.5 py-0.5 text-[10px] text-steel hover:bg-stone-50 transition"
+                          >
+                            <FileText className="h-2.5 w-2.5" /> PDF
+                          </a>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

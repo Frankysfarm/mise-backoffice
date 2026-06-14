@@ -139,6 +139,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Vorhersagegenauigkeit · Kalibrierungsfaktoren nach Zone & Zeit" cta="ETA-Bericht" />
         <SectionCard href="/delivery/satisfaction" icon={<Star className="h-5 w-5" />} title="Kundenzufriedenheit"
           subtitle="Bewertungen, Trends und Feedback nach Fahrer" cta="Bewertungen ansehen" />
+        <SectionCard href="/delivery/rating-trends" icon={<LineChart className="h-5 w-5" />} title="Bewertungs-Trends"
+          subtitle="Wöchentliche & monatliche Rating-Aggregation · Fahrer- und Zonen-Vergleich" cta="Trends ansehen" />
         <SectionCard href="/delivery/events" icon={<List className="h-5 w-5" />} title="Liefer-Ereignisse"
           subtitle="Audit-Trail · Dispatch, Touren, Fahrer, ETA-Events" cta="Ereignisse" />
       </SectionGroup>
