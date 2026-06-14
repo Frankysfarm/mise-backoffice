@@ -88,6 +88,7 @@ import { DriverPositioningPanel } from './driver-positioning-panel';
 import { type HotspotMarker } from './driver-map';
 import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 import { DispatchProfitStrip } from './profit-strip';
+import { DispatchTourVisualisierung } from './tour-visualisierung';
 
 type Driver = {
   employee_id: string;
@@ -835,6 +836,8 @@ export function DispatchBoard({
       <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
       <TourEtaStrip batches={batches} drivers={drivers} />
+      {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
+      <DispatchTourVisualisierung batches={batches} />
 
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

@@ -36,6 +36,7 @@ import { TourStatusHeader } from './tour-status-header';
 import { FahrerStickyBar } from './fahrer-sticky-bar';
 import { NextStopCta } from './next-stop-cta';
 import { TourAbschlussPrognose } from './tour-abschluss-prognose';
+import { NaviWidget } from './navi-widget';
 
 type Driver = {
   id: string;
@@ -842,6 +843,29 @@ export function FahrerApp({
                   lng={nextStop.order.kunde_lng ?? null}
                   stopNumber={nextStop.reihenfolge}
                   isCurrentStop={true}
+                />
+              </div>
+            );
+          })()}
+          {/* NaviWidget: Turn-by-Turn Navigation zum nächsten Stopp */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop) return null;
+            const lat = nextStop.order.kunde_lat;
+            const lng = nextStop.order.kunde_lng;
+            if (!lat || !lng || !driverPos) return null;
+            const vehicleRaw = status?.fahrzeug ?? driver.fahrzeug_praeferenz ?? '';
+            const vehicle: 'car' | 'bike' = /fahrrad|bike|rad|velo/i.test(vehicleRaw) ? 'bike' : 'car';
+            return (
+              <div className="px-4">
+                <NaviWidget
+                  batchId={activeBatch.id}
+                  stopIndex={nextStop.reihenfolge}
+                  toLat={lat}
+                  toLng={lng}
+                  vehicle={vehicle}
+                  driverLat={driverPos.lat}
+                  driverLng={driverPos.lng}
                 />
               </div>
             );

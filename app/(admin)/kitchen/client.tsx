@@ -39,6 +39,7 @@ import { KitchenSmartKochplan } from './smart-kochplan';
 import { KitchenQuickStatusRing, KitchenFarbStatusBoard } from './quick-status-ring';
 import { KitchenPipelineFunnel } from './pipeline-funnel';
 import { KitchenDispatchBridgeStrip } from './dispatch-bridge-strip';
+import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -492,6 +493,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Live-Kochstatus: Farbkodierter Echtzeit-Überblick + dringlichster Countdown */}
+      <KitchenLiveKochstatusStrip orders={filtered} timings={timings} />
       {/* Pipeline-Funnel: Bestellungen je Küchen-Phase — Engpass-Erkennung */}
       <KitchenPipelineFunnel orders={filtered} />
       {/* Schicht-Tempo-Anzeige: Orders/h, Ø Zubereitungszeit, Pünktlichkeit */}
