@@ -106,7 +106,7 @@ async function loadAnalytics(supabase: ReturnType<typeof createClient>): Promise
     .gte('created_at', todayStart.toISOString());
 
   const batchIds = (batches ?? []).map((b: any) => b.id);
-  const batchDriverMap = new Map((batches ?? []).map((b: any) => [b.id, b.fahrer_id as string]));
+  const batchDriverMap = new Map<string, string>((batches ?? []).map((b: any) => [b.id as string, b.fahrer_id as string]));
 
   const { data: delivStops } = batchIds.length > 0
     ? await supabase
@@ -139,7 +139,7 @@ async function loadAnalytics(supabase: ReturnType<typeof createClient>): Promise
       nachname: e.nachname,
       deliveries: driverDelivMap[e.id] ?? 0,
       avgMin: null,
-    })).sort((a, b) => b.deliveries - a.deliveries);
+    })).sort((a: DriverStat, b: DriverStat) => b.deliveries - a.deliveries);
   }
 
   return {
