@@ -93,6 +93,7 @@ import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
 import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
 import { DispatchScoreExplainer } from './score-explainer';
+import { DispatchTourScoreMatrix } from './tour-score-matrix';
 
 type Driver = {
   employee_id: string;
@@ -844,6 +845,8 @@ export function DispatchBoard({
       <TourEtaStrip batches={batches} drivers={drivers} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       <DispatchTourVisualisierung batches={batches} />
+      {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
+      <DispatchTourScoreMatrix batches={batches as any} />
 
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

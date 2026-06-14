@@ -40,6 +40,7 @@ import { NaviWidget } from './navi-widget';
 import { SchichtEinnahmenRing } from './schicht-einnahmen-ring';
 import { TourEffizienzScore } from './tour-effizienz-score';
 import { FahrerRatingHistorie } from './rating-historie';
+import { TourEfficiencyTicker } from './tour-efficiency-ticker';
 
 type Driver = {
   id: string;
@@ -924,6 +925,22 @@ export function FahrerApp({
               }))}
               batchStartedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
+          </div>
+          {/* Tour-Effizienz-Ticker: Live-KPI-Streifen — Pünktlichkeit, Ø Stopp-Zeit, Prognose */}
+          <div className="px-4">
+            <TourEfficiencyTicker
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                angekommen_am: (s as any).angekommen_am ?? null,
+                geliefert_am: s.geliefert_am,
+                order: s.order ? {
+                  eta_earliest: (s.order as any).eta_earliest ?? null,
+                  gesamtbetrag: s.order.gesamtbetrag,
+                } : null,
+              }))}
+              batchStartedAt={activeBatch.started_at}
             />
           </div>
           <TourBriefingCard batch={activeBatch as any} />
