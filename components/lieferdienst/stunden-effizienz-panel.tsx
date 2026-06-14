@@ -125,7 +125,7 @@ export function StundenEffizienzPanel({ orders }: Props) {
             tickLine={false}
           />
           <Tooltip
-            formatter={(val: number, name: string) => [
+            formatter={(val: unknown) => [
               tab === 'orders' ? `${val} Bestellungen` : val != null ? `${val} Min` : '—',
               tab === 'orders' ? 'Bestellungen' : 'Ø Zubereitungszeit',
             ]}

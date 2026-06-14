@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Check, ChefHat, Clock, Package, Truck } from 'lucide-react';
+import { Check, ChefHat, Clock, Package, Truck, type LucideIcon } from 'lucide-react';
 
 type OrderStatus = 'bestätigt' | 'in_zubereitung' | 'fertig' | 'unterwegs' | 'geliefert';
 
@@ -19,7 +19,7 @@ interface Props {
 const STAGES: {
   key: OrderStatus;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 }[] = [
   { key: 'bestätigt',      label: 'Bestätigt',   icon: Check    },
   { key: 'in_zubereitung', label: 'Zubereitung', icon: ChefHat  },

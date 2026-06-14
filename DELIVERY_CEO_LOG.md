@@ -1,7 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–178 vollständig abgeschlossen. CEO Review #107 abgeschlossen. 0 Fehler. Build sauber. 263 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–180 vollständig abgeschlossen. CEO Review #108 abgeschlossen. 0 Fehler. Build sauber. 264 Seiten. Deployment-bereit.
+
+## CEO Review #108 — 2026-06-14
+
+### Geprüfte Commits (seit Review #107)
+- `357033d` feat(delivery/backend): Phase 179 — Voucher / Promo-Code Engine
+- `57af20c` feat(delivery/frontend): Phase 180 — Kitchen-Ampel, Tour-Visualisierung, NaviWidget, Statistiken
+
+### Gefundene & gefixte Bugs
+1. **app/order/[locationSlug]/components/dynamic-eta-progress.tsx:22** — `icon` in STAGES als `React.ComponentType<{ size?: number; ... }>` deklariert, aber Lucide Icons haben `size?: string | number` → TS2322 × 5 (alle STAGES-Einträge). Fix: `import { type LucideIcon }` + Typ auf `LucideIcon` geändert.
+2. **components/lieferdienst/stunden-effizienz-panel.tsx:128** — Recharts `Tooltip formatter` erhielt `(val: number, name: string)` → TS2322 da Recharts `ValueType | undefined` erwartet. Fix: `(val: unknown)` → korrekte Signatur.
+3. **DynamicEtaProgress (Phase 180) nicht integriert** — Komponente wurde erstellt aber nirgends eingebunden. Fix: In `app/track/[bestellnummer]/tracking.tsx` integriert — erscheint zwischen Hero-Karte und ETA-Verbesserungs-Banner für alle nicht-stornierten Bestellungen.
+
+### Phase 179 — Voucher/Promo-Code Engine
+- `app/(admin)/delivery/vouchers/` (client.tsx + page.tsx) ✅
+- `app/api/delivery/admin/vouchers/route.ts` ✅
+- `lib/delivery/vouchers.ts` ✅
+- Sidebar-Integration ✅
+
+### Phase 180 — Frontend Multi-Batch
+- `KitchenLiveKochstatusStrip` → kitchen/client.tsx:497 korrekt eingebunden ✅
+- `DispatchTourVisualisierung` → dispatch/client.tsx:840 korrekt nach TourEtaStrip eingebunden ✅
+- `NaviWidget` → fahrer/app/client.tsx:861 korrekt in active-delivery-section eingebunden ✅
+- `DynamicEtaProgress` → **NEU** track/[bestellnummer]/tracking.tsx integriert ✅
+- `StundenEffizienzPanel` → statistics-view.tsx:1286 korrekt eingebunden ✅
+
+### Status
+- TypeScript: 0 Fehler ✅
+- Build: 264 Seiten sauber ✅
+- Kitchen↔Dispatch↔Driver↔Storefront: vollständig synchron ✅
+- Phasen 179+180: sauber integriert ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 181: Fahrer-Onboarding-Flow (Dokumente, Führerschein, Genehmigungsprozess)
+2. Oder: Automatische Tour-Optimierung via Routing-API (HERE/OSRM)
+3. Oder: Kunden-Feedback-Analyse-Engine (Sentiment aus Bewertungstexten)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 181: Voucher-Code-Eingabe im Checkout-Sheet (Storefront)
+2. Oder: Dispatch-Karte mit Echtzeit-Fahrerpositionen (Leaflet + 10s-Refresh)
+3. Oder: Kitchen-Timer-Sound-Alarm wenn Bestellung zu lange wartet
+
+---
 
 ## CEO Review #107 — 2026-06-14
 

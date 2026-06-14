@@ -21,6 +21,7 @@ import {
   Share2,
   X,
 } from 'lucide-react';
+import { DynamicEtaProgress } from '@/app/order/[locationSlug]/components/dynamic-eta-progress';
 
 type Order = {
   order_id: string;
@@ -435,6 +436,17 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             </div>
           )}
         </div>
+
+        {/* Mehrstufige ETA-Fortschrittsanzeige */}
+        {!['storniert'].includes(order.status) && (
+          <DynamicEtaProgress
+            status={order.status}
+            bestelltAm={order.bestellt_am}
+            etaEarliest={order.eta_earliest}
+            etaLatest={order.eta_latest}
+            typ={order.typ as 'lieferung' | 'abholung'}
+          />
+        )}
 
         {/* ETA-Verbesserungs-Banner: animiertes Highlight wenn Lieferzeit kürzer wird */}
         {etaImproved && (
