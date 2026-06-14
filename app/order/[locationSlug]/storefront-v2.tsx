@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X } from 'lucide-react';
+import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X, Clock } from 'lucide-react';
 
 export type V2OrderType = 'lieferung' | 'abholung';
 
@@ -362,6 +362,11 @@ export function StorefrontV2({
             </button>
           </div>
         </header>
+
+        {/* Geteilter Tracking-Link — zeigt Bestellstatus wenn ?track=ORDER_ID in URL */}
+        <SharedTrackingBannerV2 />
+        {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
+        <ActiveOrderBannerV2 locationId={location.id} />
 
         {/* === STICKY CATEGORY BAR === */}
         <nav className="v2-sticky-bar" aria-label="Kategorien">
@@ -867,4 +872,230 @@ function darken(hex: string, amount: number): string {
   const g = Math.max(0, ((num >> 8) & 0xff) - Math.floor(255 * amount));
   const b = Math.max(0, (num & 0xff) - Math.floor(255 * amount));
   return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+}
+
+// ─── SharedTrackingBannerV2 ──────────────────────────────────────────────────
+
+function SharedTrackingBannerV2() {
+  const [orderId, setOrderId] = React.useState<string | null>(null);
+  const [orderData, setOrderData] = React.useState<{
+    status: string; bestellnummer: string; kundeNama: string | null; etaEarliest: string | null;
+  } | null>(null);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+  const [dismissed, setDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = new URLSearchParams(window.location.search).get('track');
+    if (id) setOrderId(id);
+  }, []);
+
+  React.useEffect(() => {
+    if (!orderId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/orders/${orderId}/tracking`);
+        if (!r.ok || cancelled) return;
+        const d = await r.json();
+        if (cancelled) return;
+        setOrderData({ status: d.status, bestellnummer: d.bestellnummer, kundeNama: d.kunde_name ?? null, etaEarliest: d.eta_earliest ?? null });
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    const tick = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => { cancelled = true; clearInterval(iv); clearInterval(tick); };
+  }, [orderId]);
+
+  if (!orderId || dismissed || !orderData) return null;
+
+  const secsLeft = orderData.etaEarliest
+    ? Math.max(0, Math.floor((new Date(orderData.etaEarliest).getTime() - nowMs) / 1000))
+    : null;
+  const minsLeft = secsLeft != null ? Math.floor(secsLeft / 60) : null;
+  const isTerminal = ['geliefert', 'abgeholt', 'storniert'].includes(orderData.status);
+  const statusLabel: Record<string, string> = {
+    neu: 'Eingegangen', bestätigt: 'Bestätigt', in_zubereitung: 'Wird zubereitet',
+    fertig: 'Bereit', unterwegs: 'Unterwegs', geliefert: 'Geliefert 🎉', storniert: 'Storniert',
+  };
+
+  return (
+    <div style={{ padding: '8px 16px 0' }}>
+      <div style={{
+        borderRadius: '0.75rem',
+        border: `1px solid ${isTerminal ? '#a7f3d0' : '#bfdbfe'}`,
+        background: isTerminal ? '#ecfdf5' : '#eff6ff',
+        padding: '0.75rem 1rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+      }}>
+        <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{isTerminal ? '✅' : '📍'}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: isTerminal ? '#065f46' : '#1e40af' }}>
+              {statusLabel[orderData.status] ?? orderData.status}
+            </span>
+            <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>·</span>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>{orderData.bestellnummer}</span>
+            {!isTerminal && minsLeft != null && minsLeft > 0 && (
+              <>
+                <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>·</span>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                  borderRadius: '9999px', background: '#dbeafe', border: '1px solid #bfdbfe',
+                  padding: '0.125rem 0.5rem', fontSize: '0.625rem', fontWeight: 800, color: '#1d4ed8',
+                }}>
+                  <Clock style={{ width: '0.625rem', height: '0.625rem' }} />
+                  {minsLeft} Min
+                </span>
+              </>
+            )}
+          </div>
+          {orderData.kundeNama && (
+            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              für {orderData.kundeNama}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          style={{ height: '1.5rem', width: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}
+          aria-label="Schließen"
+        >
+          <X style={{ width: '0.875rem', height: '0.875rem' }} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── ActiveOrderBannerV2 ─────────────────────────────────────────────────────
+
+type V2StoredOrder = {
+  bestellnummer: string;
+  orderId: string;
+  isDelivery: boolean;
+  placedAt: number;
+  etaMs: number;
+};
+
+const V2_TERMINAL_STATUSES = new Set(['geliefert', 'abgeholt', 'abgeschlossen', 'storniert']);
+
+function ActiveOrderBannerV2({ locationId }: { locationId: string }) {
+  const [stored, setStored] = React.useState<V2StoredOrder | null>(null);
+  const [status, setStatus] = React.useState<string | null>(null);
+  const [etaMs, setEtaMs] = React.useState<number | null>(null);
+  const [dismissed, setDismissed] = React.useState(false);
+  const [nowMs, setNowMs] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(`active_order:${locationId}`);
+      if (!raw) return;
+      const parsed: V2StoredOrder = JSON.parse(raw);
+      if (Date.now() - parsed.placedAt > 4 * 60 * 60_000) {
+        localStorage.removeItem(`active_order:${locationId}`);
+        return;
+      }
+      setStored(parsed);
+      setEtaMs(parsed.etaMs);
+    } catch {}
+  }, [locationId]);
+
+  React.useEffect(() => {
+    if (!stored || dismissed) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await fetch(`/api/delivery/orders/${stored.orderId}/tracking`);
+        if (!r.ok || cancelled) return;
+        const d = await r.json();
+        if (cancelled) return;
+        const s = d.status ?? null;
+        setStatus(s);
+        if (d.eta_earliest) setEtaMs(new Date(d.eta_earliest).getTime());
+        if (s && V2_TERMINAL_STATUSES.has(s)) {
+          setTimeout(() => { try { localStorage.removeItem(`active_order:${locationId}`); } catch {} }, 8_000);
+        }
+      } catch {}
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [stored, dismissed, locationId]);
+
+  React.useEffect(() => {
+    if (!stored || dismissed) return;
+    const t = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => clearInterval(t);
+  }, [stored, dismissed]);
+
+  if (!stored || dismissed) return null;
+  if (status && V2_TERMINAL_STATUSES.has(status) && nowMs - (stored.placedAt ?? 0) > 10_000) return null;
+
+  const secsLeft = etaMs != null ? Math.max(0, Math.floor((etaMs - nowMs) / 1000)) : null;
+  const minsLeft = secsLeft != null ? Math.floor(secsLeft / 60) : null;
+  const isDelivered = status && V2_TERMINAL_STATUSES.has(status);
+  const statusLabel: Record<string, string> = {
+    neu: 'Eingegangen', bestätigt: 'Bestätigt', in_zubereitung: 'Wird zubereitet',
+    fertig: stored.isDelivery ? 'Bereit zur Abholung' : 'Abholbereit',
+    unterwegs: 'Unterwegs zu dir', geliefert: 'Geliefert! 🎉', abgeholt: 'Abgeholt! 🎉', storniert: 'Storniert',
+  };
+  const currentLabel = status ? (statusLabel[status] ?? status) : 'Wird bearbeitet…';
+
+  return (
+    <div style={{ padding: '8px 16px 0' }}>
+      <div style={{
+        borderRadius: '0.75rem',
+        border: `1px solid ${isDelivered ? '#a7f3d0' : '#fde68a'}`,
+        background: isDelivered ? '#ecfdf5' : '#fffbeb',
+        padding: '0.75rem 1rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+      }}>
+        <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{isDelivered ? '✅' : '🛵'}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: isDelivered ? '#065f46' : '#92400e' }}>
+              {currentLabel}
+            </span>
+            <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>·</span>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontFamily: 'monospace' }}>{stored.bestellnummer}</span>
+            {!isDelivered && secsLeft != null && secsLeft > 0 && minsLeft != null && (
+              <>
+                <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>·</span>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                  borderRadius: '9999px',
+                  background: minsLeft <= 5 ? '#d1fae5' : '#fef3c7',
+                  border: `1px solid ${minsLeft <= 5 ? '#6ee7b7' : '#fde68a'}`,
+                  padding: '0.125rem 0.5rem', fontSize: '0.625rem', fontWeight: 800,
+                  color: minsLeft <= 5 ? '#065f46' : '#92400e',
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '9999px', background: '#f59e0b', flexShrink: 0 }} />
+                  {minsLeft > 0 ? `~${minsLeft} Min` : 'Jeden Moment!'}
+                </span>
+              </>
+            )}
+          </div>
+          <a
+            href={`/track/${stored.bestellnummer}`}
+            style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', textDecoration: 'underline', textUnderlineOffset: '2px', marginTop: '0.125rem', display: 'block' }}
+          >
+            Live-Tracking öffnen →
+          </a>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          style={{ height: '1.5rem', width: '1.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}
+          aria-label="Schließen"
+        >
+          <X style={{ width: '0.875rem', height: '0.875rem' }} />
+        </button>
+      </div>
+    </div>
+  );
 }
