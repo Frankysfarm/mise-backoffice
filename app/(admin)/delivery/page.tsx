@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
+  Star, Calendar, Target,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -128,6 +129,34 @@ export default async function DeliveryOverviewPage() {
           title="Auslastungs-Heatmap"
           subtitle="Liefervolumen nach Wochentag & Uhrzeit · Stoßzeiten auf einen Blick"
           cta="Heatmap öffnen"
+        />
+        <SectionCard
+          href="/delivery/driver-leaderboard"
+          icon={<TrendingUp className="h-5 w-5" />}
+          title="Fahrer-Rangliste"
+          subtitle="Touren, Pünktlichkeit, Bewertungen und Verdienst im Vergleich"
+          cta="Rangliste öffnen"
+        />
+        <SectionCard
+          href="/delivery/satisfaction"
+          icon={<Star className="h-5 w-5" />}
+          title="Kundenzufriedenheit"
+          subtitle="Bewertungen, Trends und Feedback nach Fahrer"
+          cta="Bewertungen ansehen"
+        />
+        <SectionCard
+          href="/delivery/scheduled"
+          icon={<Calendar className="h-5 w-5" />}
+          title="Vorbestellungen"
+          subtitle="Geplante Lieferungen · manuelle Freigabe"
+          cta="Vorbestellungen"
+        />
+        <SectionCard
+          href="/delivery/eta-accuracy"
+          icon={<Target className="h-5 w-5" />}
+          title="ETA-Genauigkeit"
+          subtitle="Vorhersagegenauigkeit · Kalibrierungsfaktoren nach Zone & Zeit"
+          cta="ETA-Bericht"
         />
       </div>
     </>
