@@ -78,6 +78,7 @@ import { TourBundleBoard } from './tour-bundle-board';
 import { DispatchNächsteZuweisung } from './naechste-zuweisung';
 import { FahrerZeitplanPanel } from './fahrer-zeitplan';
 import { SlaLivePanel } from './sla-live-panel';
+import { DispatchSchichtUebergabePanel } from './schicht-uebergabe';
 
 type Driver = {
   employee_id: string;
@@ -230,6 +231,9 @@ export function DispatchBoard({
 
   // Besetzungs-Lücken für die nächsten 12 Stunden
   const [coverageGaps, setCoverageGaps] = useState<{ hour: string; gap: number }[]>([]);
+
+  // Phase 162: Schicht-Übergabe Panel
+  const [showSchichtUebergabe, setShowSchichtUebergabe] = useState(false);
 
   // BatchDetailModal state
   const [batchDetailId, setBatchDetailId] = useState<string | null>(null);
@@ -998,6 +1002,19 @@ export function DispatchBoard({
             <Zap className="h-3.5 w-3.5" />
             {dispatchPending ? 'Läuft…' : 'Auto-Dispatch'}
           </button>
+          {/* Phase 162: Schicht-Übergabe */}
+          <button
+            onClick={() => setShowSchichtUebergabe(v => !v)}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
+              showSchichtUebergabe
+                ? 'border-saffron/60 bg-amber-50 text-saffron'
+                : 'border-border bg-card text-muted-foreground hover:bg-muted',
+            )}
+          >
+            <History className="h-3.5 w-3.5" />
+            Übergabe
+          </button>
           <button
             onClick={async () => {
               const locationId = locationFilter !== 'all'
@@ -1053,6 +1070,23 @@ export function DispatchBoard({
           text={aiText}
           loading={aiLoading}
           onClose={() => { setAiPanelOpen(false); setAiText(''); }}
+        />
+      )}
+
+      {/* Phase 162: Schicht-Übergabe Panel */}
+      {showSchichtUebergabe && (
+        <DispatchSchichtUebergabePanel
+          locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
+          drivers={drivers}
+          activeBatches={batches as any}
+          waitingOrders={readyOrders.filter(o => o.status === 'fertig').map(o => ({
+            id: o.id,
+            bestellnummer: o.bestellnummer,
+            kunde_name: o.kunde_name,
+            fertig_am: o.fertig_am,
+            gesamtbetrag: o.gesamtbetrag,
+          }))}
+          onClose={() => setShowSchichtUebergabe(false)}
         />
       )}
 

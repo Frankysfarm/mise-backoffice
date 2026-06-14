@@ -58,6 +58,7 @@ import { SchichtVergleich } from './schicht-vergleich'
 import { StundenUmsatzMatrix } from './stunden-umsatz-matrix'
 import { TagesVerlaufVergleich } from './tages-verlauf-vergleich'
 import { SchichtAnalyticsPanel } from './schicht-analytics-panel'
+import { EchtzeitCockpit } from './echtzeit-cockpit'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -969,6 +970,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}
+              <EchtzeitCockpit locationId={locationId} />
               {/* Schicht-Ziele: Tagesfortschritt, Lieferquote, SLA-Status */}
               <SchichtZielePanel locationId={locationId} targetOrders={40} />
               {/* Live-Lieferungs-KPIs: Echte Daten aus dem Delivery-System — Heute geliefert, SLA, Ø Zeit, Zonen */}

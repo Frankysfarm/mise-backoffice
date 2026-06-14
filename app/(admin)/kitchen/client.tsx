@@ -30,6 +30,7 @@ import { KitchenHandoffTimingGauge } from './handoff-timing-gauge';
 import { KitchenReadyWaitAlert } from './ready-wait-alert';
 import { KitchenVorhersagePanel } from './vorhersage-panel';
 import { KitchenPrepSyncPanel } from './prep-sync-panel';
+import { KitchenBatchSyncStrip } from './batch-sync-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -710,6 +711,11 @@ export function KitchenBoard({
       {/* Küchen→Dispatch Sync: welche Bestellungen warten auf Fahrer, wo droht Timing-Konflikt */}
       {!bigDisplay && (orders.filter(o => ['in_zubereitung', 'bestätigt', 'fertig'].includes(o.status) && o.typ === 'lieferung').length > 0) && (
         <KitchenPrepSyncPanel orders={filtered} batches={batches} stops={stops} drivers={drivers} timings={timings} />
+      )}
+
+      {/* Phase 162: Touren-Küchen-Sync — zeigt ob alle Bestellungen einer Tour fertig sind bevor Fahrer abfährt */}
+      {!bigDisplay && batches.filter(b => b.status !== 'delivered').length > 0 && (
+        <KitchenBatchSyncStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
 
       {/* Phase 105: Fahrer-Pickup-Prognose — wann kommt welcher Fahrer in den nächsten 30 Min? */}
