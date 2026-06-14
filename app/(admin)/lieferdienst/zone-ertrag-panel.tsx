@@ -38,11 +38,11 @@ export function ZoneErtragPanel() {
       .eq('typ', 'lieferung')
       .gte('bestellt_am', today.toISOString())
       .not('delivery_zone', 'is', null)
-      .then(({ data }) => {
+      .then(({ data }: { data: Array<{ delivery_zone: string; gesamtbetrag: number | null; geschaetzte_lieferung_min: number | null }> | null }) => {
         if (!data?.length) { setLoading(false); return; }
 
         const map = new Map<string, { orders: number; revenue: number; times: number[] }>();
-        for (const o of data as Array<{ delivery_zone: string; gesamtbetrag: number | null; geschaetzte_lieferung_min: number | null }>) {
+        for (const o of data) {
           const z = o.delivery_zone.toUpperCase();
           if (!map.has(z)) map.set(z, { orders: 0, revenue: 0, times: [] });
           const row = map.get(z)!;

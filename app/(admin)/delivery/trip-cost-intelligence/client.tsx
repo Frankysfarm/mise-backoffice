@@ -37,6 +37,7 @@ interface DriverProfile {
   driverName: string | null;
   tripsCount: number;
   deliveriesCount: number;
+  totalDistanceKm: number;
   totalCostEur: number;
   totalRevenueEur: number;
   totalMarginEur: number;
