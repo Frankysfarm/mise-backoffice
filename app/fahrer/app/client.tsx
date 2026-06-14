@@ -35,6 +35,7 @@ import { KundenHistorieKarte } from './kunden-historie-karte';
 import { TourStatusHeader } from './tour-status-header';
 import { FahrerStickyBar } from './fahrer-sticky-bar';
 import { NextStopCta } from './next-stop-cta';
+import { TourAbschlussPrognose } from './tour-abschluss-prognose';
 
 type Driver = {
   id: string;
@@ -868,6 +869,14 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Tour-Abschluss-Prognose: Tourende-Schätzung + Verbleibende Stopps mit ETA */}
+          <div className="px-4">
+            <TourAbschlussPrognose
+              stops={activeBatch.stops as any}
+              batchStartedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
+          </div>
           {/* Tour-Tempo-Tracker: aktueller Pace vs. benötigtes Tempo für pünktliche Lieferung */}
           <div className="px-4">
             <TourSpeedTracker

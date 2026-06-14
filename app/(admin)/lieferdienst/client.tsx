@@ -64,6 +64,7 @@ import { SchichtKpiGrid } from './schicht-kpi-grid'
 import { CreditCard } from 'lucide-react'
 import { PushAnalyticsMiniCard } from './push-analytics-mini-card'
 import { ProfitKpiStrip } from './profit-kpi-strip'
+import { WochenUmsatzPanel } from './wochen-umsatz-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -975,6 +976,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* 7-Tage Umsatz & Lieferperformance */}
+              <WochenUmsatzPanel />
               {/* Profitabilität KPI-Streifen: Umsatz, Lieferkosten, Marge, Gewinn heute */}
               <ProfitKpiStrip locationId={locationId} />
               {/* Schicht-KPI-Grid: Kompakte Kacheln mit allen wichtigen Schicht-Kennzahlen */}
