@@ -7,6 +7,7 @@ import {
   AlertTriangle, Banknote, CreditCard, MessageSquare,
   ChevronDown, ChevronUp, Route, Map,
 } from 'lucide-react';
+import { StopArrivalProximity } from './stop-arrival-proximity';
 
 type Stop = {
   id: string;
@@ -385,6 +386,13 @@ export function TourStopsPanel({
                 </span>
               </div>
             )}
+            {/* GPS-Näherungs-Indikator: zeigt Entfernung zum nächsten Stopp + "Angekommen?" Button */}
+            <StopArrivalProximity
+              lat={o.kunde_lat}
+              lng={o.kunde_lng}
+              address={[o.kunde_adresse, o.kunde_plz].filter(Boolean).join(', ')}
+              stopNumber={nextPendingIndex + 1}
+            />
             <a
               href={navUrl}
               target="_blank"

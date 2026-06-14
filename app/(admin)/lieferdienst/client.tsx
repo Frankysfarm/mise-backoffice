@@ -52,6 +52,7 @@ import { DeliveryLiveKpiPanel } from './delivery-live-kpi'
 import { TourPerformancePanel } from './tour-performance-panel'
 import { ZonePerformanceKpi } from './zone-performance-kpi'
 import { LiveOpsHeader } from './live-ops-header'
+import { DeliveryStatsRealtime } from './delivery-stats-realtime'
 import { SchichtZielePanel } from './schicht-ziele-panel'
 
 export function LieferdienstClient() {
@@ -991,6 +992,8 @@ export function LieferdienstClient() {
               <LiveOrderFunnelPanel />
               {/* Live Ops-Cockpit: Queue-Status, Revenue, SLA, Fahrer, At-Risk */}
               <OpsSnapshotPanel locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+              {/* Echtzeit-Liefer-Performance: Heute geliefert, Touren, Ø-ETA, Pünktlichkeit, Score */}
+              <DeliveryStatsRealtime />
               {/* Schicht-Umsatz-Chart: Stündlicher Umsatz heute + Vergleich gestern */}
               <SchichtUmsatzChart locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Schicht-Gesamtscore: gewichteter KPI-Score (neu) */}

@@ -12,6 +12,7 @@ import {
 import { BarChart, Bar, Cell, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { advanceOrder, cancelOrder, updatePrepTime, startCookingNow, markTimingReady, createKitchenTiming } from './actions';
 import { KitchenSmartCountdownGrid } from './countdown-grid';
+import { KitchenTimingQualityStrip } from './timing-quality-strip';
 import { KitchenSmartBatchAlert } from './smart-batch-alert';
 import { KitchenWaveDetector } from './wave-detector';
 import { KitchenCookStartTimer } from './cook-start-timer';
@@ -486,6 +487,8 @@ export function KitchenBoard({
       <KitchenWaveDetector orders={filtered} />
       {/* Kochstart-Alert-Band: SOFORT-Warnung wenn Bestellungen jetzt kochen müssen (basierend auf kitchen_timings) */}
       {timings.length > 0 && <KochstartAlertBand orders={filtered} timings={timings} />}
+      {/* Timing-Qualitäts-Strip: Echtzeit-Übersicht wie viele kochende Bestellungen im Plan/knapp/überfällig sind */}
+      {timings.length > 0 && <KitchenTimingQualityStrip timings={timings} orders={filtered} />}
       {/* Vollbild-Flash: scheduled→cooking Übergang */}
       {cookFlash && <CookNowFlash flash={cookFlash} onDismiss={() => setCookFlash(null)} />}
 

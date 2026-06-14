@@ -384,8 +384,27 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
                   })()}
                 </div>
                 {stopsBefore != null && stopsBefore > 0 && (
-                  <div className="text-[10px] text-matcha-400 mt-0.5">
-                    {stopsBefore === 1 ? '1 Stopp vor dir' : `${stopsBefore} Stopps vor dir`}
+                  <div className="mt-1.5 space-y-1">
+                    <div className="flex items-center gap-1">
+                      {/* Visual queue dots */}
+                      {Array.from({ length: Math.min(stopsBefore + 1, 6) }).map((_, i) => (
+                        <span
+                          key={i}
+                          className={cn(
+                            'h-2 rounded-full transition-all',
+                            i < stopsBefore
+                              ? 'w-2 bg-matcha-400/60'
+                              : 'w-4 bg-accent',
+                          )}
+                        />
+                      ))}
+                      {stopsBefore > 5 && (
+                        <span className="text-[8px] text-matcha-400 ml-0.5">+{stopsBefore - 4}</span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-matcha-400">
+                      {stopsBefore === 1 ? '1 Stopp vor dir' : `${stopsBefore} Stopps vor dir`}
+                    </div>
                   </div>
                 )}
               </div>
