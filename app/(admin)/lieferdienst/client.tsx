@@ -1000,7 +1000,7 @@ export function LieferdienstClient() {
               {/* Stunden-Umsatz-Matrix: Heatmap der Bestellungen und Umsätze nach Uhrzeit */}
               <StundenUmsatzMatrix />
               {/* Tages-Verlauf: heute vs. gestern, stündlicher Vergleich */}
-              <TagesVerlaufVergleich locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+              <TagesVerlaufVergleich locationId={locationId} />
               {/* Schicht-Vergleich: Diese Woche vs. gleicher Wochentag letzte Woche (Supabase-Live-Daten) */}
               <SchichtVergleich locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
               {/* Schicht-Umsatz-Chart: Stündlicher Umsatz heute + Vergleich gestern */}

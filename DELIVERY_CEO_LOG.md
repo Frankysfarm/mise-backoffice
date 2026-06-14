@@ -1,7 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–158 vollständig abgeschlossen. CEO Review #93 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 250 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–160 vollständig abgeschlossen. CEO Review #95 abgeschlossen. 2 Bugs gefixt. TypeScript 0 Fehler. Build sauber. 252 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #95 — 2026-06-14
+
+### Geprüfte Commits (1 neuer seit Review #94)
+1. `1608163` feat(delivery/frontend): Vorhersage-Panel, Fahrer-Zeitplan, Tages-Verlauf, Schicht-KPI
+
+### TypeScript-Analyse
+- `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → 252 Seiten, 0 Fehler ✅
+
+### Code-Review der 4 neuen Frontend-Komponenten
+
+**KitchenVorhersagePanel** (`app/(admin)/kitchen/vorhersage-panel.tsx`, 263 Zeilen):
+- Historische Aggregation (letzte 7 Tage) über Supabase → Stunden-Durchschnitt ✅
+- Gaussian-Fallback-Muster bei Supabase-Fehler ✅
+- Stoßzeit-Banner, PeakBadge, Balkendiagramm 6–23h ✅
+- Integration: `!bigDisplay && <KitchenVorhersagePanel locationId={...} currentCookingCount={...} />` ✅
+
+**FahrerZeitplanPanel** (`app/(admin)/dispatch/fahrer-zeitplan.tsx`, 325 Zeilen):
+- Supabase driver_status (nur online) + join employees für location_id-Filter ✅
+- N+1 Queries (1 pro Fahrer für Batch+Stops) — akzeptabel bei typisch 3–8 Fahrern ✅
+- Supabase Realtime-Channel auf driver_status + batch_stops ✅
+- Sortierung: Freie Fahrer zuerst, dann nach Rückkehr-ETA ✅
+- locationId via `locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')` — korrekt ✅
+
+**TagesVerlaufVergleich** (`app/(admin)/lieferdienst/tages-verlauf-vergleich.tsx`, 254 Zeilen):
+- Parallel-Queries (heute / gestern) via Promise.all ✅
+- 5-Min-Interval-Refresh ✅
+- BUG GEFIXT: `locationId="bb01ae0a-..."` Literal statt Variable `locationId` → auf `{locationId}` geändert ✅
+
+**SchichtKpiLive** (`app/fahrer/app/schicht-kpi-live.tsx`, 259 Zeilen):
+- BUG GEFIXT: `now` war in useEffect-Dependency-Array → triggerte Supabase-Fetch jede Minute nur für `onlineSinceMin`-Update. `onlineSinceMin` aus ShiftKpi-State entfernt, wird jetzt zur Render-Zeit aus Props berechnet. ✅
+- Gamifizierter Ziel-Fortschrittsbalken (STOP_GOALS: 5, 10, 15, 20, 25, 30) ✅
+- 3-Min-Interval-Refresh für KPI-Daten ✅
+- Integration: `<SchichtKpiLive driverId={driver.id} onlineSeit={status?.online_seit ?? null} />` ✅
+
+### Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: VorhersagePanel gibt 2h-Vorhersicht für Küchenplanung ✅
+- Dispatch: FahrerZeitplanPanel hilft Dispatcher bei Vorplanung (kommt bald zurück) ✅
+- Lieferdienst: TagesVerlaufVergleich zeigt heute vs. gestern stündlich ✅
+- Fahrer-App: SchichtKpiLive motiviert Fahrer mit gamifizierten Zielen ✅
+
+### Nächste Schritte für Backend-Architekt
+- System ist vollständig. Optionale Erweiterungen:
+  1. Multi-Standort-Vergleichsdashboard (Franchise-Sicht)
+  2. Automatischer Tagesbericht per E-Mail/Push an Manager
+  3. PWA-Manifest für Fahrer-App (Offline-Fähigkeit)
 
 ---
 

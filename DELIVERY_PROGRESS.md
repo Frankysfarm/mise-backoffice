@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–160 abgeschlossen. CEO Review #94 bestanden. Build sauber. 252 Seiten. Deployment-bereit.**
+**Phasen 1–160 abgeschlossen. CEO Review #95 bestanden. Build sauber. 252 Seiten. Deployment-bereit.**
+**CEO-Agent — 2026-06-14: Review #95 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (SchichtKpiLive: now-Dependency in useEffect entfernt, TagesVerlaufVergleich: locationId-Variable statt Literal). TypeScript 0 Fehler. Build 252 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phase 160 abgeschlossen. Bewertungs-Trends Dashboard (/delivery/rating-trends) + API /api/delivery/admin/rating-trends (wöchentl./monatl. Aggregation, Fahrer/Zonen-Aufschlüsselung, Trend) + Lohnzettel-PDF-Button in Payouts-Admin. Build 252 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #94 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (locationFilter-Ignorierung in DispatchNächsteZuweisung, nutzloser 1s-Tick in TourAbschlussRechner). TypeScript 0 Fehler. Build 251 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phase 159 abgeschlossen. Loyalty A/B-Test Admin Dashboard + fehlende Overview-Links (Fahrer-Boni, Loyalty A/B). Build 251 Seiten sauber. TypeScript 0 Fehler.**

@@ -25,7 +25,6 @@ interface ShiftKpi {
   avgMinPerStop: number | null;
   totalKm: number;
   totalEarnings: number;      // Gesamtumsatz (kein Lohn, nur Info)
-  onlineSinceMin: number | null;
   ordersToday: number;
 }
 
@@ -95,11 +94,6 @@ export function SchichtKpiLive({ driverId, onlineSeit }: Props) {
         // Gesamtumsatz
         const totalEarnings = myStops.reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
 
-        // Online seit
-        const onlineSinceMin = onlineSeit
-          ? Math.floor((now.getTime() - new Date(onlineSeit).getTime()) / 60_000)
-          : null;
-
         // Nächstes Ziel
         const nextGoal = STOP_GOALS.find((g) => g > stopsCompleted) ?? (stopsCompleted + 5);
 
@@ -110,7 +104,6 @@ export function SchichtKpiLive({ driverId, onlineSeit }: Props) {
             avgMinPerStop,
             totalKm,
             totalEarnings,
-            onlineSinceMin,
             ordersToday: stopsCompleted,
           });
         }
@@ -122,9 +115,13 @@ export function SchichtKpiLive({ driverId, onlineSeit }: Props) {
     void load();
     const iv = setInterval(() => void load(), 3 * 60_000);
     return () => { cancelled = true; clearInterval(iv); };
-  }, [driverId, onlineSeit, now]);
+  }, [driverId, onlineSeit]);
 
   if (!kpi) return null;
+
+  const onlineSinceMin = onlineSeit
+    ? Math.floor((now.getTime() - new Date(onlineSeit).getTime()) / 60_000)
+    : null;
 
   const goalProgress = kpi.stopsGoal > 0 ? Math.min(1, kpi.stopsCompleted / kpi.stopsGoal) : 0;
   const stopsToGoal = Math.max(0, kpi.stopsGoal - kpi.stopsCompleted);
@@ -150,11 +147,11 @@ export function SchichtKpiLive({ driverId, onlineSeit }: Props) {
       <div className="flex items-center gap-2">
         <Trophy className="h-4 w-4 text-gold shrink-0" />
         <span className="text-xs font-black uppercase tracking-wider text-matcha-200">Schicht-Stats</span>
-        {kpi.onlineSinceMin != null && (
+        {onlineSinceMin != null && (
           <span className="ml-auto text-[9px] text-matcha-400 tabular-nums">
-            {kpi.onlineSinceMin >= 60
-              ? `${Math.floor(kpi.onlineSinceMin / 60)}h ${kpi.onlineSinceMin % 60}m`
-              : `${kpi.onlineSinceMin}m`} online
+            {onlineSinceMin >= 60
+              ? `${Math.floor(onlineSinceMin / 60)}h ${onlineSinceMin % 60}m`
+              : `${onlineSinceMin}m`} online
           </span>
         )}
       </div>
