@@ -93,6 +93,7 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [lieferhinweis, setLieferhinweis] = React.useState('');
   const [zahlungsart, setZahlungsart] = React.useState<PaymentMethod>('online');
   const [marketingOptin, setMarketingOptin] = React.useState(false);
+  const [whatsappOptin, setWhatsappOptin] = React.useState(false);
 
   // Dynamische Liefergebühr — wird geladen wenn Adress-Koordinaten bekannt
   const [feeQuote, setFeeQuote] = React.useState<{
@@ -364,6 +365,7 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
         lieferhinweis: lieferhinweis || undefined,
         zahlungsart,
         marketing_optin: marketingOptin,
+        whatsapp_optin: whatsappOptin,
       });
     } else {
       setStep((s) => s + 1);
@@ -685,6 +687,20 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                   <span className="text-xs text-matcha-800">
                     Ja, ich möchte gelegentlich Rabatt-Codes und Aktionen per E-Mail bekommen.
                     Kann ich jederzeit widerrufen. <span className="text-matcha-800/60">(optional)</span>
+                  </span>
+                </label>
+              )}
+
+              {telefon.trim().length >= 5 && orderType === 'lieferung' && (
+                <label className="flex items-start gap-3 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={whatsappOptin}
+                    onChange={(e) => setWhatsappOptin(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-black/20 accent-matcha-700"
+                  />
+                  <span className="text-xs text-matcha-800">
+                    WhatsApp-Updates zu meiner Bestellung (Fahrer losgefahren, Ankunft). <span className="text-matcha-800/60">(optional)</span>
                   </span>
                 </label>
               )}

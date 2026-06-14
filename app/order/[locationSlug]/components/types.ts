@@ -72,6 +72,7 @@ export type CheckoutForm = {
   lieferhinweis?: string;
   zahlungsart: PaymentMethod;
   marketing_optin?: boolean;
+  whatsapp_optin?: boolean;
 };
 
 export const DELIVERY_FEE = 2.9;

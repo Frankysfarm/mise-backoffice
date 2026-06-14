@@ -105,6 +105,30 @@ export async function recordCustomerEvent(
   import('./customer-push').then(({ enqueueForOrder }) =>
     enqueueForOrder(orderId, locationId, eventId, eventType, messageDe, metadata),
   ).catch(() => { /* graceful */ });
+
+  // WhatsApp-Benachrichtigung fire-and-forget — Telefonnummer aus Bestellung holen
+  import('./whatsapp-notify').then(async ({ sendWhatsAppNotification }) => {
+    const { data: order } = await sb()
+      .from('customer_orders')
+      .select('kunde_telefon, eta_latest')
+      .eq('id', orderId)
+      .maybeSingle();
+    const phone = (order as { kunde_telefon?: string | null } | null)?.kunde_telefon;
+    if (!phone) return;
+    const etaMin = metadata?.['etaMin'] as number | undefined
+      ?? (order as { eta_latest?: string | null } | null)?.eta_latest
+        ? Math.round((new Date((order as { eta_latest: string }).eta_latest).getTime() - Date.now()) / 60_000)
+        : undefined;
+    await sendWhatsAppNotification({
+      locationId,
+      orderId,
+      phone,
+      eventType,
+      restaurantName: metadata?.['restaurantName'] as string | undefined,
+      etaMin:         etaMin && etaMin > 0 ? etaMin : undefined,
+      driverName:     metadata?.['driverName'] as string | undefined,
+    });
+  }).catch(() => { /* graceful */ });
 }
 
 // ── Lesen ─────────────────────────────────────────────────────────────────────

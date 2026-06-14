@@ -300,6 +300,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         }).catch(() => null);
       }
 
+      // WhatsApp Opt-In speichern (fire-and-forget)
+      if (form.whatsapp_optin && form.telefon && orderType === 'lieferung') {
+        void fetch('/api/delivery/whatsapp-optin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locationId: location.id, phone: form.telefon, optedIn: true }),
+        }).catch(() => null);
+      }
+
       // Voucher-Einlösung bestätigen
       if (voucher) {
         await sb.rpc('confirm_voucher_redemption', {

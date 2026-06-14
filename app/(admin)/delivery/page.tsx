@@ -9,7 +9,7 @@ import {
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
-  Repeat2, CreditCard, Coins,
+  Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -249,8 +249,22 @@ export default async function DeliveryOverviewPage() {
           subtitle="Live-Status aller Standorte · Queue, Touren und Alarme" cta="Alle Standorte" />
         <SectionCard href="/delivery/franchise-compare" icon={<GitCompare className="h-5 w-5" />} title="Standort-Vergleich"
           subtitle="KPI-Benchmark zwischen allen Franchise-Standorten" cta="Vergleich ansehen" />
+        <SectionCard href="/delivery/whatsapp" icon={<MessageCircle className="h-5 w-5" />} title="WhatsApp-Benachrichtigungen"
+          subtitle="Bestell-Status-Updates via WhatsApp · Meta Cloud API oder Twilio · Opt-In-Verwaltung" cta="WhatsApp konfigurieren" />
         <SectionCard href="/delivery/health-observatory" icon={<HeartPulse className="h-5 w-5" />} title="System-Health-Observatory"
           subtitle="End-to-End-Gesundheits-Score · Datenqualität · Service-Status" cta="Health ansehen" />
+        <SectionCard href="/delivery/ops-center" icon={<MonitorDot className="h-5 w-5" />} title="Ops-Cockpit"
+          subtitle="Echtzeit-KPIs: Queue, Fahrer, Alarme, SLA, Umsatz — Aktualisierung alle 30s" cta="Cockpit öffnen" />
+      </SectionGroup>
+
+      {/* ── Qualität & Erfahrung ─────────────────────────────── */}
+      <SectionGroup title="Qualität & Erfahrung">
+        <SectionCard href="/delivery/cdes" icon={<Star className="h-5 w-5" />} title="Erfahrungs-Score (CDES)"
+          subtitle="Ganzheitlicher Qualitäts-Score · ETA-Genauigkeit, Benachrichtigungen, Fahrer-Verlässlichkeit" cta="Score ansehen" />
+        <SectionCard href="/delivery/challenges" icon={<Trophy className="h-5 w-5" />} title="Fahrer-Challenges"
+          subtitle="Gamifizierte Anreize · Zeitbegrenzte Delivery-Ziele · Automatische Fortschrittsverfolgung" cta="Challenges verwalten" />
+        <SectionCard href="/delivery/positioning" icon={<Navigation2 className="h-5 w-5" />} title="Fahrer-Vorpositionierung"
+          subtitle="Smart Pre-Positioning · Idle-Fahrer in Bedarfszonen lenken · Demand-basierte Empfehlungen" cta="Positioning öffnen" />
       </SectionGroup>
     </>
   );
