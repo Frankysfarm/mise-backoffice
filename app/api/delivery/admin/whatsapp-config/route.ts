@@ -18,6 +18,7 @@ import {
   sendWhatsAppNotification,
   handleMetaWebhookStatus,
 } from '@/lib/delivery/whatsapp-notify';
+import type { CustomerEventType } from '@/lib/delivery/customer-notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
       templateCancelled:      body['templateCancelled']      as string | undefined,
       templateDelayed:        body['templateDelayed']        as string | undefined,
       languageCode:           body['languageCode']           as string | undefined,
-      enabledEvents:          body['enabledEvents']          as string[] | undefined,
+      enabledEvents:          body['enabledEvents']          as CustomerEventType[] | undefined,
       optinMode:              body['optinMode']              as 'explicit' | 'implicit' | undefined,
       dailyLimitPerNumber:    body['dailyLimitPerNumber']    as number | undefined,
     });

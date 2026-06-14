@@ -110,7 +110,8 @@ export function DispatchTourKpiRing() {
         .eq('location_id', LOCATION_ID)
         .gte('created_at', todayStart.toISOString());
 
-      const rows = batches ?? [];
+      type BatchRow = { id: string; state: string; total_eta_min: number | null };
+      const rows: BatchRow[] = batches ?? [];
       const completed = rows.filter(b =>
         b.state === 'completed' || b.state === 'delivered',
       ).length;
@@ -122,8 +123,8 @@ export function DispatchTourKpiRing() {
       ).length;
 
       const etaVals = rows
-        .map((b: { total_eta_min: number | null }) => b.total_eta_min)
-        .filter((v: number | null): v is number => v != null);
+        .map(b => b.total_eta_min)
+        .filter((v): v is number => v != null);
       const avgEtaMin =
         etaVals.length > 0
           ? Math.round(etaVals.reduce((s: number, v: number) => s + v, 0) / etaVals.length)
