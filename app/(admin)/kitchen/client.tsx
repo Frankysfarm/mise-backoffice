@@ -559,6 +559,7 @@ export function KitchenBoard({
           orders={filtered}
           batches={batches}
           drivers={drivers}
+          stops={stops}
           timings={timings}
         />
       )}

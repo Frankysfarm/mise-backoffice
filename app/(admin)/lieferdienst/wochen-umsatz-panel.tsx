@@ -139,7 +139,7 @@ export function WochenUmsatzPanel() {
           <BarChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }} barSize={14}>
             <XAxis dataKey="day" tick={{ fontSize: 9, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
             <Tooltip
-              formatter={(v: number) => [euro(v), 'Umsatz']}
+              formatter={(v: unknown) => [euro(Number(v ?? 0)), 'Umsatz']}
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
             />
             <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>

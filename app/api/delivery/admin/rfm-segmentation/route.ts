@@ -11,7 +11,7 @@
  * POST { action: 'prune', days?: number }         → { pruned: number }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import {
   getRfmDashboard,
   getSegmentCustomers,
@@ -26,7 +26,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 async function getLocationId(req: NextRequest): Promise<string | null> {
-  const sb = createServerClient();
+  const sb = createServiceClient();
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
 
