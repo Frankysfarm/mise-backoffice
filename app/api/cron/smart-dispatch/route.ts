@@ -74,6 +74,7 @@ import { pruneExpiredVouchers } from '@/lib/delivery/vouchers';
 import { processAllUnanalyzedLocations, pruneSentimentData } from '@/lib/delivery/feedback-sentiment';
 import { computeAllLocations as computeTripCosts } from '@/lib/delivery/trip-cost-intelligence';
 import { evaluateAllLocations as evaluateMenuAvailability, refreshDisableCounts } from '@/lib/delivery/menu-availability';
+import { rebuildAllLocations as rebuildUpsellPairs } from '@/lib/delivery/smart-upsell';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -144,6 +145,8 @@ export async function GET(req: NextRequest) {
     const isRfmTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
     // Feedback-Sentiment-Analyse: täglich 05:30 UTC (nach Address-Scan)
     const isSentimentTick = nowHour === 5 && nowMin >= 28 && nowMin < 32;
+    // Smart-Upsell-Paare: täglich 04:15 UTC (nach Geo-Clustering, vor RFM)
+    const isUpsellRebuildTick = nowHour === 4 && nowMin >= 14 && nowMin < 18;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -451,6 +454,11 @@ export async function GET(req: NextRequest) {
         : Promise.resolve(null),
     ]);
 
+    // Phase 186: Smart Upsell — Pair-Rebuild täglich 04:15 UTC (nach Geo-Clustering)
+    const upsellRebuildResult = isUpsellRebuildTick
+      ? await rebuildUpsellPairs().catch(() => ({ locations: 0, pairs_upserted: 0, orders_analyzed: 0, errors: 1 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -575,6 +583,7 @@ export async function GET(req: NextRequest) {
       ...(sentimentResult ? { feedback_sentiment: { ok: true } } : {}),
       ...(sentimentPruned ? { sentiment_pruned: sentimentPruned } : {}),
       ...(tripCostResult ? { trip_costs: { locations: tripCostResult.locations, computed: tripCostResult.computed, errors: tripCostResult.errors } } : {}),
+      ...(upsellRebuildResult ? { upsell_pairs: { locations: upsellRebuildResult.locations, pairs_upserted: upsellRebuildResult.pairs_upserted, orders_analyzed: upsellRebuildResult.orders_analyzed, errors: upsellRebuildResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

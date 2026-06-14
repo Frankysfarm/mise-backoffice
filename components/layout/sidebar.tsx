@@ -185,6 +185,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/vouchers',         icon: 'Ticket',    label: 'Gutscheine & Promo-Codes' },
       { group: 'Loslegen', href: '/delivery/trip-cost-intelligence', icon: 'Receipt', label: 'Trip-Kosten-Analyse' },
       { group: 'Loslegen', href: '/delivery/menu-availability',  icon: 'UtensilsCrossed', label: 'Menü-Verfügbarkeit (Live)' },
+      { group: 'Loslegen', href: '/delivery/smart-upsell',      icon: 'Zap',       label: 'Smart Upsells (Market-Basket)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
