@@ -8,6 +8,7 @@ import {
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
+  UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -113,26 +114,48 @@ export default async function DeliveryOverviewPage() {
           subtitle="Betriebsnachrichten an alle Fahrer senden" cta="Broadcasts" />
         <SectionCard href="/delivery/push-stats" icon={<Smartphone className="h-5 w-5" />} title="Push-Statistiken"
           subtitle="Fahrer-Push-Durchsatz · Mise App & Web Push · Ausstehende Pushes" cta="Push-Stats" />
+        <SectionCard href="/delivery/fatigue-monitor" icon={<HeartPulse className="h-5 w-5" />} title="Erschöpfungs-Monitor"
+          subtitle="Fahrer-Ermüdungsscore · Risiko-Alerts · Schutzmaßnahmen" cta="Monitor öffnen" />
+        <SectionCard href="/delivery/comms-log" icon={<List className="h-5 w-5" />} title="Kommunikations-Log"
+          subtitle="Admin-Nachrichten und Broadcasts an Fahrer · Verlauf" cta="Log ansehen" />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}
       <SectionGroup title="Planung & Schichten">
+        <SectionCard href="/delivery/shift-calendar" icon={<CalendarRange className="h-5 w-5" />} title="Schicht-Kalender"
+          subtitle="Wochenübersicht aller Schichten · Coverage-Status · Schichten planen" cta="Kalender öffnen" />
         <SectionCard href="/delivery/coverage" icon={<UserCheck className="h-5 w-5" />} title="Schichtabdeckung"
           subtitle="Besetzungsplan · Unterdeckungen der nächsten 24h" cta="Abdeckung prüfen" />
+        <SectionCard href="/delivery/shift-planner" icon={<Calendar className="h-5 w-5" />} title="Schicht-Planung (7 Tage)"
+          subtitle="Stundengenaue Prognose vs. geplante Fahrer · Gap-Übersicht" cta="Planung ansehen" />
+        <SectionCard href="/delivery/shift-suggestions" icon={<Zap className="h-5 w-5" />} title="Auto-Schichtvorschläge"
+          subtitle="KI-basierte Schichtempfehlungen aus Nachfrageprognose" cta="Vorschläge ansehen" />
         <SectionCard href="/delivery/shift-claims" icon={<ClipboardCheck className="h-5 w-5" />} title="Schicht-Anmeldungen"
           subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen" cta="Anmeldungen prüfen" />
         <SectionCard href="/delivery/windows" icon={<CalendarClock className="h-5 w-5" />} title="Lieferfenster"
           subtitle="Zeitslots konfigurieren · Kapazitäten und Buchungen" cta="Fenster verwalten" />
-        <SectionCard href="/delivery/surge-prediction" icon={<Zap className="h-5 w-5" />} title="Surge-Prognose"
+        <SectionCard href="/delivery/surge-prediction" icon={<Flame className="h-5 w-5" />} title="Surge-Prognose"
           subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung" cta="Prognosen ansehen" />
+        <SectionCard href="/delivery/peak-intelligence" icon={<TrendingUp className="h-5 w-5" />} title="Peak-Tage-Intelligenz"
+          subtitle="Wochentag-Muster · Event-Kalender · Stoßtag-Prognose 14 Tage" cta="Peaks ansehen" />
       </SectionGroup>
 
       {/* ── Analytics & Reports ───────────────────────────────── */}
       <SectionGroup title="Analytics & Reports">
         <SectionCard href="/delivery/reporting" icon={<FileBarChart className="h-5 w-5" />} title="Business-Reporting"
           subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer" cta="Berichte ansehen" />
+        <SectionCard href="/delivery/profitability" icon={<TrendingUp className="h-5 w-5" />} title="Profitabilität (P&L)"
+          subtitle="Kosten je Lieferung · Marge · Zonen- und Fahrer-P&L" cta="P&L ansehen" />
+        <SectionCard href="/delivery/tour-analytics" icon={<Route className="h-5 w-5" />} title="Tour-Analytics"
+          subtitle="Touren-Performance · Stoppzeiten · Bündelungs-Effizienz" cta="Touren analysieren" />
         <SectionCard href="/delivery/sla" icon={<Activity className="h-5 w-5" />} title="SLA-Bericht"
           subtitle="On-Time-Rate, Lieferzeitabweichung · Performance nach Fahrer & Zone" cta="SLA ansehen" />
+        <SectionCard href="/delivery/flow-intelligence" icon={<Zap className="h-5 w-5" />} title="Bestellfluss-Intelligenz"
+          subtitle="Volume-Anomalien · Stornierungsmuster · Fahrerengpässe · Auto-Incidents" cta="Fluss ansehen" />
+        <SectionCard href="/delivery/menu-analytics" icon={<UtensilsCrossed className="h-5 w-5" />} title="Menü-Analytics"
+          subtitle="Beliebteste Artikel · Umsatz-Contribution · Bestell-Trends" cta="Menü analysieren" />
+        <SectionCard href="/delivery/geo-demand" icon={<MapPinOff className="h-5 w-5" />} title="Geo-Nachfrage"
+          subtitle="Nachfragekonzentration nach Postleitzahl · Expansions-Hinweise" cta="Geo-Demand" />
         <SectionCard href="/delivery/heatmap" icon={<BarChart3 className="h-5 w-5" />} title="Auslastungs-Heatmap"
           subtitle="Liefervolumen nach Wochentag & Uhrzeit · Stoßzeiten" cta="Heatmap öffnen" />
         <SectionCard href="/delivery/eta-accuracy" icon={<Target className="h-5 w-5" />} title="ETA-Genauigkeit"
@@ -151,6 +174,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen" cta="KI starten" />
         <SectionCard href="/delivery/ai-forecast" icon={<LineChart className="h-5 w-5" />} title="KI-Nachfrage-Prognose"
           subtitle="Claude prognostiziert Stoßzeiten und Fahrerbedarf" cta="Prognose starten" />
+        <SectionCard href="/delivery/digest" icon={<FileBarChart className="h-5 w-5" />} title="Tages-Digest (KI)"
+          subtitle="Automatische KI-Zusammenfassung der Betriebslage · Anomalie-Erkennung" cta="Digest öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
@@ -163,6 +188,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone" cta="Gebühren" />
         <SectionCard href="/delivery/driver-bonus" icon={<Gift className="h-5 w-5" />} title="Fahrer-Boni"
           subtitle="Leistungsboni nach Lieferungen, Pünktlichkeit und Rating" cta="Boni verwalten" />
+        <SectionCard href="/delivery/sla-compensation" icon={<Activity className="h-5 w-5" />} title="SLA-Auto-Kompensation"
+          subtitle="Automatische Gutschriften bei SLA-Verletzungen · Schwellenwerte" cta="Kompensation" />
         <SectionCard href="/delivery/credits" icon={<Ticket className="h-5 w-5" />} title="Kundengutschriften"
           subtitle="Gutschriften nach Verspätungen und Zustellproblemen" cta="Gutschriften" />
         <SectionCard href="/delivery/credit-rules" icon={<BadgePercent className="h-5 w-5" />} title="Gutschrift-Regeln"
@@ -175,6 +202,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Punkte, Stufen und Einlösung für Stammkunden" cta="Programm verwalten" />
         <SectionCard href="/delivery/loyalty-ab" icon={<FlaskConical className="h-5 w-5" />} title="A/B-Tests Loyalty"
           subtitle="Teste verschiedene Punktemultiplikatoren auf echten Kundendaten" cta="Tests verwalten" />
+        <SectionCard href="/delivery/churn-prevention" icon={<UserX className="h-5 w-5" />} title="Kunden-Retention"
+          subtitle="RFM-Score · Abwanderungsrisiko · Re-Engagement-Kampagnen · Win-Back" cta="Retention öffnen" />
       </SectionGroup>
 
       {/* ── Probleme & Eskalation ────────────────────────────── */}
@@ -209,6 +238,10 @@ export default async function DeliveryOverviewPage() {
           cta={activePlatforms > 0 ? 'Verwalten' : 'Verbinden'} />
         <SectionCard href="/delivery/franchise" icon={<Building className="h-5 w-5" />} title="Franchise-Leitstelle"
           subtitle="Live-Status aller Standorte · Queue, Touren und Alarme" cta="Alle Standorte" />
+        <SectionCard href="/delivery/franchise-compare" icon={<GitCompare className="h-5 w-5" />} title="Standort-Vergleich"
+          subtitle="KPI-Benchmark zwischen allen Franchise-Standorten" cta="Vergleich ansehen" />
+        <SectionCard href="/delivery/health-observatory" icon={<HeartPulse className="h-5 w-5" />} title="System-Health-Observatory"
+          subtitle="End-to-End-Gesundheits-Score · Datenqualität · Service-Status" cta="Health ansehen" />
       </SectionGroup>
     </>
   );
