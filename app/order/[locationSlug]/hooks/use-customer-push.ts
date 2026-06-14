@@ -43,7 +43,7 @@ export function useCustomerPush(params: {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly:      true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as unknown as Uint8Array<ArrayBuffer>,
       });
 
       const subJson = sub.toJSON() as {

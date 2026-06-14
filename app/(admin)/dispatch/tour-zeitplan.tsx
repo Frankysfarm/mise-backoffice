@@ -95,7 +95,7 @@ function TourRow({ batch }: { batch: Batch }) {
   const status = getTourStatus(batch);
   const colors = STATUS_COLORS[status];
   const driverName = batch.fahrer
-    ? `${batch.fahrer.vorname} ${batch.fahrer.nachname[0]}.`
+    ? `${batch.fahrer.vorname} ${batch.fahrer.nachname?.[0] ?? ''}.`
     : '—';
   const returnTime = batch.startzeit && batch.total_eta_min
     ? new Date(new Date(batch.startzeit).getTime() + batch.total_eta_min * 60_000)

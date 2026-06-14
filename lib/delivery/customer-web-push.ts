@@ -224,16 +224,18 @@ async function logPush(
   svc: ReturnType<typeof createServiceClient>,
   params: { locationId: string; subscriptionId: string | null; eventType: string; title: string; body: string; url: string | null; status: string; error?: string },
 ): Promise<void> {
-  await svc.from('customer_web_push_log').insert({
-    location_id:     params.locationId,
-    subscription_id: params.subscriptionId,
-    event_type:      params.eventType,
-    title:           params.title,
-    body:            params.body,
-    url:             params.url,
-    status:          params.status,
-    error:           params.error ?? null,
-  }).then(() => {}).catch(() => {});
+  try {
+    await svc.from('customer_web_push_log').insert({
+      location_id:     params.locationId,
+      subscription_id: params.subscriptionId,
+      event_type:      params.eventType,
+      title:           params.title,
+      body:            params.body,
+      url:             params.url,
+      status:          params.status,
+      error:           params.error ?? null,
+    });
+  } catch { /* fire-and-forget */ }
 }
 
 // ── Öffentliche Versand-API ───────────────────────────────────────────────────
@@ -467,6 +469,6 @@ export async function pruneInactiveSubscriptions(daysOld = 90): Promise<number> 
     .delete()
     .or(`last_used_at.lt.${cutoff},last_used_at.is.null`)
     .lt('created_at', cutoff)
-    .select('id', { count: 'exact', head: true });
-  return (data as null) ?? 0;
+    .select('id');
+  return data?.length ?? 0;
 }
