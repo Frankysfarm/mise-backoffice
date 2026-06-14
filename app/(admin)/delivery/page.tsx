@@ -6,6 +6,7 @@ import {
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
+  Smartphone, FileBarChart, Award,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -321,6 +322,27 @@ export default async function DeliveryOverviewPage() {
           title="Alarm-Regeln"
           subtitle="Schwellwerte für Queue, Fahrer, Küche und ETA konfigurieren"
           cta="Regeln konfigurieren"
+        />
+        <SectionCard
+          href="/delivery/push-stats"
+          icon={<Smartphone className="h-5 w-5" />}
+          title="Push-Statistiken"
+          subtitle="Fahrer-Push-Durchsatz · Mise App & Web Push · Ausstehende Pushes"
+          cta="Push-Stats ansehen"
+        />
+        <SectionCard
+          href="/delivery/driver-reliability"
+          icon={<Award className="h-5 w-5" />}
+          title="Fahrer-Zuverlässigkeit"
+          subtitle="No-Shows, Verspätungen, Frühende · Zuverlässigkeits-Score"
+          cta="Zuverlässigkeit prüfen"
+        />
+        <SectionCard
+          href="/delivery/reporting"
+          icon={<FileBarChart className="h-5 w-5" />}
+          title="Business-Reporting"
+          subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer"
+          cta="Berichte ansehen"
         />
       </div>
     </>
