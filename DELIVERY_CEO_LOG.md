@@ -1,7 +1,77 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–162 vollständig abgeschlossen. CEO Review #96 abgeschlossen. 2 Bugs gefixt. TypeScript 0 Fehler. Build sauber. 253 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–163 vollständig abgeschlossen. CEO Review #97 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 253 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #97 — 2026-06-14
+
+### Geprüfte Commits (3 neue seit Review #96)
+1. `f339e19` feat(delivery/frontend): Phase 162 — Touren-Sync, Schicht-Übergabe, Echtzeit-Cockpit
+2. `fb0c430` feat(delivery/backend): Phase 163 — Tagesbericht E-Mail an Manager
+3. `b094e4d` docs: DELIVERY_PROGRESS.md Phase 163 eingetragen
+
+### TypeScript-Analyse
+- `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → 253 Seiten, 0 Fehler ✅
+
+### Code-Review Phase 162 — 3 neue Frontend-Komponenten
+
+**KitchenBatchSyncStrip** (`app/(admin)/kitchen/batch-sync-strip.tsx`):
+- Lädt aktive Touren (status `created`/`in_transit`) + Küchenstatus aller Bestellungen pro Tour ✅
+- Ampellogik ROT/AMBER/GRÜN korrekt implementiert: pendingOrders = Stops ohne `fertig|unterwegs|geliefert|abgeholt` ✅
+- Progress-Bar + Fahrer-Emoji (bike/car/scooter), 15s-Polling-Interval ✅
+- Integration: eingebunden nach KitchenPrepSyncPanel im Kitchen-Client ✅
+
+**DispatchSchichtUebergabePanel** (`app/(admin)/dispatch/schicht-uebergabe.tsx`):
+- Empfängt `drivers/activeBatches/waitingOrders` als Props (kein eigenständiges Fetching außer KPI-Query) ✅
+- KPI-Grid: Gelieferte Bestellungen, Umsatz, SLA-Quote (farbkodiert), Fahrer online ✅
+- ETA-Countdown per Tour mit Überfällig-Erkennung (negativ → "+MM:SS" in Rot) ✅
+- Übergabe-Checkliste: 4 Go/No-Go-Kriterien (Touren fertig, keine Wartenden, freier Fahrer, SLA≥80%) ✅
+- Integration: per Button in Dispatch-Toolbar schaltbar ✅
+
+**EchtzeitCockpit** (`app/(admin)/lieferdienst/echtzeit-cockpit.tsx`):
+- 6 KPI-Kacheln: Bestellungen (mit geliefert-Sub), Umsatz, In Arbeit, SLA, Fahrer online, Ø ETA ✅
+- `useAnimatedNumber` mit ease-out-cubic für Zähler-Animationen, sauber implementiert ✅
+- Schicht-Fortschrittsbalken (geliefert/total) ✅
+- `avgDeliveryMin` intern immer `null` (bekannte Limitation, benötigt `eta_earliest`-Feld) — Hinweis-Kommentar vorhanden, KPI-Tile zeigt Ø ETA aus API stattdessen → kein UI-Bug ✅
+- 30s-Polling, Demand-Indicator aus `/api/delivery/eta/live` ✅
+
+### Code-Review Phase 163 — E-Mail-Tagesbericht
+
+**lib/delivery/digest-mailer.ts**:
+- `getDigestEmailConfig` / `upsertDigestEmailConfig`: sauberes CRUD auf `digest_email_config` ✅
+- `renderDigestEmailHtml`: Vollständiges HTML-E-Mail-Template (600px, inline-CSS, Schnellübersicht-Grid, KI-Block, Anomalie-Tabelle, Metriken-Tabelle, Footer), XSS-sicheres `esc()` ✅
+- `sendDailyDigestEmail`: prüft Konfig, holt Digest, lädt Manager-Emails (`role IN owner|manager|admin`), sendet via `sendEmail()`-Wrapper (Resend), loggt Versand-Status ✅
+- `sendDailyDigestAllLocations`: Cron-Batch via `Promise.allSettled` ✅
+- `getEmailLog`: Audit-Log letzte N Einträge ✅
+
+**scripts/migrations/080_digest_email_config.sql**:
+- `digest_email_config`: UNIQUE(location_id), RLS, `updated_at`-Trigger ✅
+- `digest_email_log`: UNIQUE(location_id, digest_date), Status-CHECK-Constraint ✅
+
+**Cron-Integration**:
+- `isDigestEmailTick` = `nowHour === 7 && nowMin < 2` → täglich 07:00 UTC ✅
+- `digestEmailResult` korrekt im Destructuring-Array und JSON-Response enthalten ✅
+
+**Digest-Client**:
+- `EmailConfigPanel` mit Toggle, Uhrzeit-Selektor, KI-Toggle, Empfänger-Verwaltung ✅
+- Versand-Log letzte 7 Einträge, Jetzt-senden-Button ✅
+
+### Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: KitchenBatchSyncStrip zeigt Abfahrtsbereitschaft je Tour ✅
+- Dispatch: DispatchSchichtUebergabePanel für saubere Schichtwechsel ✅
+- Lieferdienst: EchtzeitCockpit oben in Stats-Ansicht, 6 KPIs live ✅
+- Manager: Tagesbericht per E-Mail (Resend, opt-in, konfigurierbar je Location) ✅
+
+### Bugs
+**0 Bugs** — Code durchgehend sauber.
+
+### Nächste Schritte für Backend-Architekt / Frontend-Ingenieur
+- System ist vollständig und marktreif.
+- Optional: OrderQueuePulse in Classic/Aurora/V2-Storefronts einheitlich einbinden
+- Optional: Multi-Standort-Franchise-Dashboard (Standort-Vergleich auf Führungsebene)
 
 ---
 
