@@ -26,6 +26,7 @@ import { ItemPriorityBoard } from './item-priority-board';
 import { SchichtVelocity } from './schicht-velocity';
 import { PrepAnalyticsCard } from './prep-analytics-card';
 import { OrderUrgencyPanel } from './order-urgency-panel';
+import { KitchenHandoffTimingGauge } from './handoff-timing-gauge';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -531,6 +532,9 @@ export function KitchenBoard({
       {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length > 0 && (
         <OrderUrgencyPanel orders={filtered} timings={timings} />
       )}
+
+      {/* Fahrer ↔ Küche Sync: zeigt ob Küche fertig wird wenn Fahrer kommt */}
+      {!bigDisplay && <KitchenHandoffTimingGauge />}
 
       {/* Stations-Farb-Raster: kompakte Farbkodierung aller kochenden Bestellungen */}
       <KitchenStationColorGrid orders={filtered} timings={timings} />

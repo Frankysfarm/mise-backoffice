@@ -25,6 +25,7 @@ import { TourSpeedTracker } from './tour-speed-tracker';
 import { OpenBatchMap } from './open-batch-map';
 import { OfflineNetworkBanner } from './offline-network-banner';
 import { TagesabschlussBadge, type TagesabschlussData } from './tagesabschluss-badge';
+import { CashflowTracker } from './cashflow-tracker';
 
 
 type Driver = {
@@ -835,6 +836,8 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Bargeld-Stops: zeigt welche Stops Bargeld erfordern + Gesamtbetrag */}
+          <CashflowTracker stops={activeBatch.stops as any} />
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}

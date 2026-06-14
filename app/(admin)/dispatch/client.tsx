@@ -74,6 +74,7 @@ import { ZoneStatsDashboard } from './zone-stats-dashboard';
 import { DispatchScoreTrendStrip } from './score-trend-strip';
 import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
 import { DriverReliabilityPanel } from './driver-reliability-panel';
+import { TourBundleBoard } from './tour-bundle-board';
 
 type Driver = {
   employee_id: string;
@@ -1134,6 +1135,9 @@ export function DispatchBoard({
 
       {/* Tour-Sequenz: Detaillierte Stopp-für-Stopp-Ansicht aller aktiven Touren */}
       <TourSequenzPanel batches={batches} />
+
+      {/* Tour-Bündelung-Effizienz: Stops/km, Zonen-Konzentration, Rückkehr-ETA je Fahrer */}
+      {batches.length > 0 && <TourBundleBoard batches={batches} />}
 
       {/* Tour-Gantt: alle aktiven Touren auf 90-Min-Zeitstrahl mit Jetzt-Linie */}
       {batches.length > 0 && <DispatchTourGantt batches={batches} drivers={drivers} />}
