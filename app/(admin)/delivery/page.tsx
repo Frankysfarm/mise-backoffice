@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
-  Star, Calendar, Target,
+  Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -157,6 +157,27 @@ export default async function DeliveryOverviewPage() {
           title="ETA-Genauigkeit"
           subtitle="Vorhersagegenauigkeit · Kalibrierungsfaktoren nach Zone & Zeit"
           cta="ETA-Bericht"
+        />
+        <SectionCard
+          href="/delivery/alerts"
+          icon={<AlertTriangle className="h-5 w-5" />}
+          title="Betriebsalarme"
+          subtitle="Aktive Alarme · Queue, Fahrer, Küche, ETA-Genauigkeit"
+          cta="Alarme ansehen"
+        />
+        <SectionCard
+          href="/delivery/delay-monitor"
+          icon={<ClockIcon className="h-5 w-5" />}
+          title="Verzögerungs-Monitor"
+          subtitle="Verspätete Bestellungen · Kompensations-Gutscheine"
+          cta="Monitor öffnen"
+        />
+        <SectionCard
+          href="/delivery/stale-orders"
+          icon={<PackageX className="h-5 w-5" />}
+          title="Feststeckende Bestellungen"
+          subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus"
+          cta="Prüfen"
         />
       </div>
     </>
