@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–157 abgeschlossen. CEO Review #92 bestanden. Build sauber. 237 Seiten. Deployment-bereit.**
+**Phasen 1–158 abgeschlossen. CEO Review #92 bestanden. Build sauber. 250 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phase 158 abgeschlossen. Fahrer-Bonus/Incentive Engine + Cron-Bug-Fix (Phasen 155–157 Ergebnisse fehlten in Destructuring + Response). Build 250 Seiten sauber.**
 **CEO-Agent — 2026-06-14: Review #92 abgeschlossen. 5 neue Commits geprüft. 3 TS-Bugs gefixt (score-trend-strip, delivery-stats-realtime, sla-compensation). 12 neue Admin-Seiten. Build 237 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phasen 155–157 abgeschlossen. Queue-Signal Push für Fahrer, Auto-Schichtvorschläge Engine, SLA Auto-Kompensation. Build sauber.**
 **CEO-Agent — 2026-06-13: Review #91 abgeschlossen. 15 neue Commits (Phasen 140–154) geprüft. 0 Bugs. TypeScript 0 Fehler. Build 206 Seiten sauber. Alle Systeme grün.**
@@ -52,6 +53,15 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 158: Fahrer-Bonus/Incentive Engine + Cron-Bug-Fix — 2026-06-14
+- [x] scripts/migrations/079_driver_bonus.sql: driver_bonus_configs (UNIQUE location+type+period, RLS) + driver_bonus_events (UNIQUE driver+type+period+date, status pending/approved/paid/cancelled, RLS) + v_driver_bonus_summary VIEW + updated_at-Trigger
+- [x] lib/delivery/driver-bonus.ts: getBonusConfigs/upsertBonusConfig/deleteBonusConfig, evaluateBonusesForLocation (3 Bonus-Typen: deliveries_count/on_time_rate/min_rating, UPSERT-Guard gegen Doppel-Bonus), evaluateBonusesAllLocations (Cron-Batch), getBonusEvents/getBonusSummary/getBonusDashboard, updateBonusEventStatus (approve/pay/cancel), issueManualBonus
+- [x] GET+POST+PATCH+DELETE /api/delivery/admin/driver-bonus: Auth via employees.location_id, GET=Dashboard|Events, POST=evaluate|manual_bonus|upsert_config, PATCH=Status-Update (approve/paid/cancelled), DELETE=Config löschen
+- [x] app/(admin)/delivery/driver-bonus/: DriverBonusClient (6 KPI-Karten, 3 Tabs: Events/Fahrer-Übersicht/Bonus-Regeln, Multi-Select Genehmigung, manueller Auswertungs-Button, Konfig-Formular mit Typ/Schwellenwert/Betrag/Periode)
+- [x] Cron Bug-Fix: Phasen 155-157 Ergebnisse fehlten im Destructuring-Array + JSON-Response (shiftSuggestionsResult/shiftSuggestionsPruned/slaCompResult hinzugefügt)
+- [x] Cron: evaluateBonusesAllLocations() täglich 02:00 UTC (isReportTick) → driver_bonuses in Response
+- [x] Sidebar: "Fahrer-Boni" + Gift-Icon unter Loslegen
+- [x] Build: next build ✓ (250 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 157: SLA Auto-Kompensation Engine — 2026-06-14
 - [x] scripts/migrations/078_sla_compensation.sql: sla_compensation_events (order_id UNIQUE, delay_min, compensation_eur, credit_id, status issued/failed/skipped, skip_reason) + sla_compensation_config (threshold_min=15, amount_eur=2.00, max_per_customer_month=3, RLS)
 - [x] lib/delivery/sla-compensation.ts: processAutoCompensations() (2h-Fenster, skip bei on-time/Monatslimit, credit via delivery_credits, Event-Log), processAutoCompensationsAllLocations() (Cron-Batch), getCompensationEvents(), getCompensationSummary(), upsertCompConfig()

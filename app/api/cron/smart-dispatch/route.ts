@@ -59,6 +59,7 @@ import { snapshotMenuAllLocations, pruneMenuSnapshots } from '@/lib/delivery/men
 import { recomputePrepProfilesAllLocations, prunePrepObservations } from '@/lib/delivery/kitchen-prep-learning';
 import { generateShiftSuggestionsAllLocations, pruneStaleSuggestions } from '@/lib/delivery/shift-suggestions';
 import { processAutoCompensationsAllLocations } from '@/lib/delivery/sla-compensation';
+import { evaluateBonusesAllLocations } from '@/lib/delivery/driver-bonus';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest) {
     // Peak-Alert-Analyse: täglich um 06:00 UTC (frühmorgens, für Tagesvorbereitung)
     const isPeakAlertTick = nowHour === 6 && nowMin < 2;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -341,6 +342,10 @@ export async function GET(req: NextRequest) {
       isDemandTick
         ? processAutoCompensationsAllLocations().catch(() => ({ locations: 0, compensated: 0, totalEurIssued: 0, errors: 1 }))
         : Promise.resolve(null),
+      // Phase 158: Fahrer-Boni auswerten — täglich 02:00 UTC
+      isReportTick
+        ? evaluateBonusesAllLocations().catch(() => ({ locations: 0, bonusesCreated: 0, totalEurQueued: 0, errors: 1 }))
+        : Promise.resolve(null),
     ]);
 
     const durationMs = Date.now() - start;
@@ -446,6 +451,10 @@ export async function GET(req: NextRequest) {
       ...(menuSnapshotsPruned ? { menu_snapshots_pruned: menuSnapshotsPruned } : {}),
       ...(prepProfilesResult ? { prep_learning: { locations: prepProfilesResult.locations, profiles_updated: prepProfilesResult.profilesUpdated, errors: prepProfilesResult.errors } } : {}),
       ...(prepObservationsPruned ? { prep_observations_pruned: prepObservationsPruned } : {}),
+      ...(shiftSuggestionsResult ? { shift_suggestions: { locations: shiftSuggestionsResult.locations, created: shiftSuggestionsResult.suggestionsCreated, errors: shiftSuggestionsResult.errors } } : {}),
+      ...(shiftSuggestionsPruned ? { shift_suggestions_pruned: shiftSuggestionsPruned } : {}),
+      ...(slaCompResult ? { sla_compensation: { locations: slaCompResult.locations, compensated: slaCompResult.compensated, total_eur: slaCompResult.totalEurIssued } } : {}),
+      ...(driverBonusResult ? { driver_bonuses: { locations: driverBonusResult.locations, created: driverBonusResult.bonusesCreated, total_eur: driverBonusResult.totalEurQueued } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
