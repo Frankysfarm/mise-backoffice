@@ -9,14 +9,14 @@ type ChannelSummary = {
   sent7d: number;
   delivered7d: number;
   failed7d: number;
-  deliveryRatePct: number;
+  deliveryRatePct: number | null;
 };
 
 type PushDashboard = {
   totalSent7d: number;
   totalDelivered7d: number;
-  overallDeliveryRatePct: number;
-  waReadRatePct: number;
+  overallDeliveryRatePct: number | null;
+  waReadRatePct: number | null;
   vapidActiveSubs: number;
   channels: ChannelSummary[];
 };
@@ -57,14 +57,19 @@ export function PushAnalyticsMiniCard() {
   if (error || !data) return null;
   if (data.totalSent7d === 0 && data.vapidActiveSubs === 0) return null;
 
+  const dr = data.overallDeliveryRatePct;
+  const wr = data.waReadRatePct;
+
   const deliveryColor =
-    data.overallDeliveryRatePct >= 80 ? 'text-matcha-700' :
-    data.overallDeliveryRatePct >= 50 ? 'text-amber-600' :
+    dr === null ? 'text-muted-foreground' :
+    dr >= 80 ? 'text-matcha-700' :
+    dr >= 50 ? 'text-amber-600' :
     'text-red-600';
 
   const waColor =
-    data.waReadRatePct >= 60 ? 'text-matcha-700' :
-    data.waReadRatePct >= 30 ? 'text-amber-600' :
+    wr === null ? 'text-muted-foreground' :
+    wr >= 60 ? 'text-matcha-700' :
+    wr >= 30 ? 'text-amber-600' :
     'text-red-600';
 
   const kpis = [
@@ -76,15 +81,15 @@ export function PushAnalyticsMiniCard() {
     },
     {
       label: 'Zustellrate',
-      value: `${data.overallDeliveryRatePct.toFixed(1)} %`,
+      value: dr !== null ? `${dr.toFixed(1)} %` : '—',
       color: deliveryColor,
-      bg: data.overallDeliveryRatePct >= 80 ? 'bg-matcha-50' : data.overallDeliveryRatePct >= 50 ? 'bg-amber-50' : 'bg-red-50',
+      bg: dr === null ? 'bg-stone-50' : dr >= 80 ? 'bg-matcha-50' : dr >= 50 ? 'bg-amber-50' : 'bg-red-50',
     },
     {
       label: 'WA-Leserate',
-      value: `${data.waReadRatePct.toFixed(1)} %`,
+      value: wr !== null ? `${wr.toFixed(1)} %` : '—',
       color: waColor,
-      bg: data.waReadRatePct >= 60 ? 'bg-matcha-50' : data.waReadRatePct >= 30 ? 'bg-amber-50' : 'bg-red-50',
+      bg: wr === null ? 'bg-stone-50' : wr >= 60 ? 'bg-matcha-50' : wr >= 30 ? 'bg-amber-50' : 'bg-red-50',
     },
     {
       label: 'VAPID-Abos',
@@ -125,35 +130,40 @@ export function PushAnalyticsMiniCard() {
       {/* Kanal-Zeilen */}
       {data.channels.length > 0 && (
         <div className="border-t border-stone-100 divide-y divide-stone-50">
-          {data.channels.map((ch) => (
-            <div key={ch.channel} className="flex items-center gap-3 px-5 py-2">
-              <span className="w-28 shrink-0 text-[11px] font-semibold text-stone-600">
-                {CHANNEL_LABELS[ch.channel] ?? ch.channel}
-              </span>
-              <div className="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
-                <div
-                  className={cn(
-                    'h-full rounded-full transition-all duration-700',
-                    ch.deliveryRatePct >= 80 ? 'bg-matcha-500' :
-                    ch.deliveryRatePct >= 50 ? 'bg-amber-400' :
-                    'bg-red-400',
-                  )}
-                  style={{ width: `${Math.min(100, ch.deliveryRatePct)}%` }}
-                />
+          {data.channels.map((ch) => {
+            const cdr = ch.deliveryRatePct;
+            return (
+              <div key={ch.channel} className="flex items-center gap-3 px-5 py-2">
+                <span className="w-28 shrink-0 text-[11px] font-semibold text-stone-600">
+                  {CHANNEL_LABELS[ch.channel] ?? ch.channel}
+                </span>
+                <div className="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-all duration-700',
+                      cdr === null ? 'bg-stone-300' :
+                      cdr >= 80 ? 'bg-matcha-500' :
+                      cdr >= 50 ? 'bg-amber-400' :
+                      'bg-red-400',
+                    )}
+                    style={{ width: `${cdr !== null ? Math.min(100, cdr) : 0}%` }}
+                  />
+                </div>
+                <span className={cn(
+                  'w-12 shrink-0 text-right text-[11px] font-bold tabular-nums',
+                  cdr === null ? 'text-stone-400' :
+                  cdr >= 80 ? 'text-matcha-700' :
+                  cdr >= 50 ? 'text-amber-600' :
+                  'text-red-600',
+                )}>
+                  {cdr !== null ? `${cdr.toFixed(0)} %` : '—'}
+                </span>
+                <span className="w-16 shrink-0 text-right text-[10px] text-stone-400 tabular-nums">
+                  {ch.sent7d.toLocaleString('de-DE')} versendet
+                </span>
               </div>
-              <span className={cn(
-                'w-12 shrink-0 text-right text-[11px] font-bold tabular-nums',
-                ch.deliveryRatePct >= 80 ? 'text-matcha-700' :
-                ch.deliveryRatePct >= 50 ? 'text-amber-600' :
-                'text-red-600',
-              )}>
-                {ch.deliveryRatePct.toFixed(0)} %
-              </span>
-              <span className="w-16 shrink-0 text-right text-[10px] text-stone-400 tabular-nums">
-                {ch.sent7d.toLocaleString('de-DE')} versendet
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

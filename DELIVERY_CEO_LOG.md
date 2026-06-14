@@ -1,7 +1,57 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–174 vollständig abgeschlossen. CEO Review #104 abgeschlossen. 0 Fehler. Build sauber. 260 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–176 vollständig abgeschlossen. CEO Review #105 abgeschlossen. 0 Fehler. Build sauber. 261 Seiten. Deployment-bereit.
+
+## CEO Review #105 — 2026-06-14
+
+### Geprüfte Commits (seit Review #104)
+- `dbe465b` feat(delivery/backend): Phase 175 — Unified Push Notification Analytics Dashboard
+- `c779c51` feat(delivery/frontend): Phase 176 — Pipeline-Funnel, Push-Analytics-Card, Geo-Cluster-Dispatch-Tip
+- `348e63d` docs(progress): Phase 176 dokumentiert
+
+### Phase 175 — Push Notification Analytics Backend
+- `push_analytics_daily` Tabelle: UNIQUE(location,channel,snapshot_date,event_type), 3 Kanäle (vapid/whatsapp/driver) ✅
+- VAPID-Aggregation: status sent/failed/expired/skipped korrekt differenziert; `delivered = sent - failed - expired` ✅
+- WhatsApp-Aggregation: status pending/sent/delivered/read korrekt; read → delivered+read doppelt gezählt (korrekt) ✅
+- Driver-Push: JOIN via employees.location_id, `sent_at != null → delivered` ✅
+- `getPushAnalyticsDashboard`: trend14d-Matrix korrekt initialisiert, Event-Breakdown top 30 ✅
+- Cron isDemandTick alle 30 Min → computePushAnalyticsAllLocations() ✅
+- GET /api/delivery/admin/push-analytics: Auth via employees.location_id, action=dashboard|compute ✅
+
+### Phase 176 — Frontend-Komponenten
+- `KitchenPipelineFunnel`: 4 Stufen (Offen/Kochend/Fertig/Abgeholt), Engpass-Rot bei ≥3 fertig wartend, Ø-Wartezeit ✅
+- `GeoClusterDispatchTip`: Top-3 Demand-Cluster aus Phase 173 API, 5-Min-Refresh, Google-Maps-Link, freeDriverCount-Badge ✅
+- `PushAnalyticsMiniCard`: 4 KPI-Kacheln + Kanal-Fortschrittsbalken, pollt Phase 175 API ✅
+- Integrationen: KitchenPipelineFunnel in kitchen/client.tsx:494 ✅, GeoClusterDispatchTip in dispatch/client.tsx:828 ✅, PushAnalyticsMiniCard in lieferdienst/client.tsx:980 ✅
+
+### Bug behoben — Null-Safety in PushAnalyticsMiniCard
+- **Root Cause**: `PushDashboard.overallDeliveryRatePct` + `waReadRatePct` als `number` typisiert, API liefert `number | null`
+- **Szenario**: vapidActiveSubs > 0 aber totalSent7d = 0 → overallDeliveryRatePct = null → `.toFixed(1)` crash
+- **Fix**: Typen auf `number | null` korrigiert; `dr?.toFixed(1) ?? '—'` Null-Guard in allen Render-Pfaden
+- **Fix**: ChannelSummary.deliveryRatePct ebenfalls auf `number | null` korrigiert + Channel-Zeilen Null-sicher
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully, 261 Seiten ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen zeigt Küchen-Pipeline-Engpässe (fertige Bestellungen warten auf Dispatch) ✅
+- Dispatch zeigt Geo-Cluster Nachfrage-Hotspots für freie Fahrer-Zuweisung ✅
+- Lieferdienst-Übersicht zeigt Push-Notification Kanal-Performance ✅
+- Push-Analytics-Seite zeigt vollständiges Cross-Channel-Dashboard ✅
+
+### Status nach Review #105
+- TypeScript: 0 Fehler ✅
+- Build: Kompiliert sauber, 261 Seiten ✅
+- Phasen 175 + 176: DONE ✅
+- Bugs gefixed: 1 (Null-Safety PushAnalyticsMiniCard)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 177: Push-Notification Scheduling Engine (geplante Kampagnen, Best-Time-to-Send via historische Öffnungsraten)
+2. Phase 178: Fahrer-Feedback-Kanal (In-App Meldungen: "Adresse nicht gefunden", "Kunde nicht erreichbar" — strukturiert)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 177: Push-Kampagnen-Manager (Zeitplan-Editor, Zielgruppen-Segmentierung, Vorschau)
+2. Phase 178: Fahrer-Feedback-UI (strukturierte Problemmelder-Buttons in fahrer/app)
 
 ## CEO Review #104 — 2026-06-14
 
