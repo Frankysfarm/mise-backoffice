@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
+  Wallet, UserCheck,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -178,6 +179,20 @@ export default async function DeliveryOverviewPage() {
           title="Feststeckende Bestellungen"
           subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus"
           cta="Prüfen"
+        />
+        <SectionCard
+          href="/delivery/payouts"
+          icon={<Wallet className="h-5 w-5" />}
+          title="Fahrer-Abrechnungen"
+          subtitle="Abrechnungsperioden · Genehmigung · Auszahlungsstatus"
+          cta="Abrechnungen"
+        />
+        <SectionCard
+          href="/delivery/coverage"
+          icon={<UserCheck className="h-5 w-5" />}
+          title="Schichtabdeckung"
+          subtitle="Besetzungsplan · Unterdeckungen der nächsten 24h"
+          cta="Abdeckung prüfen"
         />
       </div>
     </>
