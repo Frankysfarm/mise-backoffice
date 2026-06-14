@@ -31,6 +31,7 @@ import { SchichtKpiLive } from './schicht-kpi-live';
 import { StopNavCard } from './stop-nav-card';
 import { EtaAmpel } from './eta-ampel';
 import { FahrerTagesZusammenfassung } from './tages-zusammenfassung';
+import { KundenHistorieKarte } from './kunden-historie-karte';
 
 type Driver = {
   id: string;
@@ -816,6 +817,19 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Kunden-Historie: Stammkunde vs. Neukunde, Bestellanzahl, Ø Wert */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop) return null;
+            return (
+              <div className="px-4">
+                <KundenHistorieKarte
+                  orderId={nextStop.order_id}
+                  locationId={driver.location_id}
+                />
+              </div>
+            );
+          })()}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">

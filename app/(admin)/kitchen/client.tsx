@@ -33,6 +33,7 @@ import { KitchenPrepSyncPanel } from './prep-sync-panel';
 import { KitchenBatchSyncStrip } from './batch-sync-strip';
 import { KitchenDriverPickupWarning } from './driver-pickup-warning';
 import { KitchenEnergyLevelRing } from './energy-level-ring';
+import { KitchenBestellungsReihenfolge } from './bestellungs-reihenfolge';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -547,6 +548,11 @@ export function KitchenBoard({
       {/* Energie-Ring: SVG-Gauge für Küchen-Auslastung (Score 0–100, Grün/Amber/Rot) */}
       {!bigDisplay && (
         <KitchenEnergyLevelRing locationFilter={locationFilter} />
+      )}
+
+      {/* Empfohlene Kochreihenfolge: nummerierte "Was jetzt starten?"-Liste */}
+      {!bigDisplay && (
+        <KitchenBestellungsReihenfolge orders={filtered} timings={timings} />
       )}
 
       {/* Fahrer ↔ Küche Sync: zeigt ob Küche fertig wird wenn Fahrer kommt */}

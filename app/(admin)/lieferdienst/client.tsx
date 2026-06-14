@@ -1015,6 +1015,8 @@ export function LieferdienstClient() {
               <LieferdienstGesamtScore orders={orders} completedOrders={completedOrders} schichtMinutes={schichtMinutes} />
               {/* 7-Tage Wochenübersicht */}
               <LieferdienstWochenvergleich />
+              {/* Monatsvergleich: aktueller Monat vs. Vormonat */}
+              <LieferdienstMonatsvergleich />
               {/* Stunden-Umsatz-Chart: Bestellungen + Umsatz je Stunde heute */}
               <LieferdienstStundenChart />
               {/* Tagesvergleich: heute vs. gestern */}
@@ -3210,6 +3212,155 @@ function LieferZonenPanel({ locationId }: { locationId: string }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---- LieferdienstMonatsvergleich — Phase 168 ---- */
+function LieferdienstMonatsvergleich() {
+  const supabase = createClient();
+  type MonthData = { orders: number; revenue: number; label: string };
+  const [data, setData] = useState<{ current: MonthData; prev: MonthData } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const now   = new Date();
+      const y     = now.getFullYear();
+      const m     = now.getMonth(); // 0-indexed
+
+      const startCurrent = new Date(y, m, 1).toISOString();
+      const startPrev    = new Date(y, m - 1, 1).toISOString();
+      const endPrev      = new Date(y, m, 0, 23, 59, 59).toISOString();
+
+      const [{ data: curr }, { data: prev }] = await Promise.all([
+        supabase
+          .from('customer_orders')
+          .select('gesamtbetrag')
+          .gte('bestellt_am', startCurrent)
+          .in('status', ['fertig', 'geliefert', 'abgeholt']),
+        supabase
+          .from('customer_orders')
+          .select('gesamtbetrag')
+          .gte('bestellt_am', startPrev)
+          .lte('bestellt_am', endPrev)
+          .in('status', ['fertig', 'geliefert', 'abgeholt']),
+      ]);
+
+      const fmtMonth = (date: Date) =>
+        date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+
+      const sum = (rows: { gesamtbetrag: number | null }[] | null) =>
+        (rows ?? []).reduce((s, r) => s + (r.gesamtbetrag ?? 0), 0);
+
+      setData({
+        current: { orders: curr?.length ?? 0, revenue: sum(curr), label: fmtMonth(new Date(y, m, 1)) },
+        prev:    { orders: prev?.length ?? 0, revenue: sum(prev), label: fmtMonth(new Date(y, m - 1, 1)) },
+      });
+      setLoading(false);
+    };
+    load().catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-stone-200 bg-white p-5">
+        <div className="h-4 w-32 bg-stone-100 rounded animate-pulse mb-3" />
+        <div className="space-y-2">
+          <div className="h-5 bg-stone-100 rounded animate-pulse" />
+          <div className="h-5 bg-stone-100 rounded animate-pulse w-3/4" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const maxO = Math.max(data.current.orders, data.prev.orders, 1);
+  const maxR = Math.max(data.current.revenue, data.prev.revenue, 1);
+
+  const ordersGrowth = data.prev.orders > 0
+    ? Math.round(((data.current.orders - data.prev.orders) / data.prev.orders) * 100)
+    : null;
+
+  const fmtEur = (v: number) =>
+    v.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white">
+      <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+        <div>
+          <div className="text-sm font-bold text-char">Monatsvergleich</div>
+          <div className="text-xs text-stone-400">{data.prev.label} → {data.current.label}</div>
+        </div>
+        {ordersGrowth !== null && (
+          <span
+            className={`text-sm font-black px-3 py-1 rounded-full ${
+              ordersGrowth >= 0
+                ? 'bg-matcha-50 text-matcha-700'
+                : 'bg-red-50 text-red-600'
+            }`}
+          >
+            {ordersGrowth >= 0 ? '+' : ''}{ordersGrowth}%
+          </span>
+        )}
+      </div>
+
+      <div className="px-5 py-4 space-y-5">
+        {/* Bestellungen */}
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+            Bestellungen (abgeschlossen)
+          </div>
+          {[
+            { label: data.current.label, val: data.current.orders, max: maxO, color: 'bg-matcha-500', fmt: String },
+            { label: data.prev.label,    val: data.prev.orders,    max: maxO, color: 'bg-stone-300',  fmt: String },
+          ].map((row) => (
+            <div key={row.label} className="flex items-center gap-3 mb-1.5">
+              <div className="w-20 text-[11px] font-bold text-stone-600 truncate leading-tight">
+                {row.label}
+              </div>
+              <div className="flex-1 h-5 rounded-full bg-stone-50 border border-stone-100 overflow-hidden relative">
+                <div
+                  className={`h-full rounded-full ${row.color} transition-all`}
+                  style={{ width: `${(row.val / row.max) * 100}%` }}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-700">
+                  {row.fmt(row.val)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Umsatz */}
+        {data.current.revenue > 0 && (
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+              Umsatz
+            </div>
+            {[
+              { label: data.current.label, val: data.current.revenue, max: maxR, color: 'bg-emerald-500' },
+              { label: data.prev.label,    val: data.prev.revenue,    max: maxR, color: 'bg-stone-300'  },
+            ].map((row) => (
+              <div key={row.label} className="flex items-center gap-3 mb-1.5">
+                <div className="w-20 text-[11px] font-bold text-stone-600 truncate leading-tight">
+                  {row.label}
+                </div>
+                <div className="flex-1 h-5 rounded-full bg-stone-50 border border-stone-100 overflow-hidden relative">
+                  <div
+                    className={`h-full rounded-full ${row.color} transition-all`}
+                    style={{ width: `${(row.val / row.max) * 100}%` }}
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-700">
+                    {fmtEur(row.val)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
