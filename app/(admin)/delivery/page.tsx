@@ -6,7 +6,7 @@ import {
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
-  Smartphone, FileBarChart, Award,
+  Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -343,6 +343,27 @@ export default async function DeliveryOverviewPage() {
           title="Business-Reporting"
           subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer"
           cta="Berichte ansehen"
+        />
+        <SectionCard
+          href="/delivery/trends"
+          icon={<TrendingDown className="h-5 w-5" />}
+          title="Tages-Trends"
+          subtitle="Heute vs. gestern · Bestellungen, Lieferungen und Bewertungen"
+          cta="Trends ansehen"
+        />
+        <SectionCard
+          href="/delivery/shift-claims"
+          icon={<ClipboardCheck className="h-5 w-5" />}
+          title="Schicht-Anmeldungen"
+          subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen"
+          cta="Anmeldungen prüfen"
+        />
+        <SectionCard
+          href="/delivery/ai-assist"
+          icon={<BrainCircuit className="h-5 w-5" />}
+          title="KI-Dispatch-Assistent"
+          subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen"
+          cta="KI starten"
         />
       </div>
     </>
