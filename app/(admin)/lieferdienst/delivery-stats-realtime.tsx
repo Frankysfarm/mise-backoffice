@@ -102,19 +102,19 @@ async function loadStats(supabase: ReturnType<typeof createClient>): Promise<Sta
   // Avg ETA
   const etaMinutes = (toursToday ?? [])
     .map((t: { total_eta_min: number | null }) => t.total_eta_min)
-    .filter((v): v is number => v != null);
+    .filter((v: number | null): v is number => v != null);
   const avgEtaMin =
     etaMinutes.length > 0
-      ? Math.round(etaMinutes.reduce((s, v) => s + v, 0) / etaMinutes.length)
+      ? Math.round(etaMinutes.reduce((s: number, v: number) => s + v, 0) / etaMinutes.length)
       : null;
 
   // Avg dispatch score
   const scoreVals = (scores ?? [])
     .map((s: { total_score: number }) => s.total_score)
-    .filter((v): v is number => v != null);
+    .filter((v: number | null): v is number => v != null);
   const avgScore =
     scoreVals.length > 0
-      ? Math.round(scoreVals.reduce((s, v) => s + v, 0) / scoreVals.length)
+      ? Math.round(scoreVals.reduce((s: number, v: number) => s + v, 0) / scoreVals.length)
       : null;
 
   // On-time %: delivered orders where geliefert_am <= eta_latest

@@ -214,7 +214,7 @@ export async function processAutoCompensations(locationId: string): Promise<Proc
       credit_id:        creditId,
       status,
       error_detail:     errorDetail,
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}, () => {});
 
     if (status === 'issued') {
       result.compensated++;
@@ -359,7 +359,7 @@ async function _logSkip(
     compensation_eur: 0,
     status:           'skipped',
     skip_reason:      reason,
-  }, { onConflict: 'order_id', ignoreDuplicates: true }).then(() => {}).catch(() => {});
+  }, { onConflict: 'order_id', ignoreDuplicates: true }).then(() => {}, () => {});
 }
 
 function _mapEvent(row: Record<string, unknown>): SlaCompEvent {

@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–154 vollständig abgeschlossen. CEO Review #91 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 206 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–157 vollständig abgeschlossen. CEO Review #92 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 237 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #92 — 2026-06-14
+
+### Geprüfte Commits (5 neue seit Review #91)
+1. `8520b88` feat(delivery): Bewerbungen, Lieferfenster, Benachrichtigungsconfig, Gutschrift- und Alarm-Regeln
+2. `4153e6c` feat(delivery/frontend): Smart-Timing, Score-Trend, GPS-Näherung, Live-Stats
+3. `83f0849` feat(delivery): Abrechnungskonfiguration, Zonengebühren und Compliance-Übersicht
+4. `3f424fb` feat(delivery): Kapazitäts-Signal-Steuerung und Dispatch-Queue mit Boost
+5. `87b371e` feat(delivery): Kunden-Benachrichtigungslog, Fahrer-Broadcasts und Tour-Recovery
+
+### TypeScript-Analyse
+- **Vor Fix:** 11 Fehler in 3 Dateien
+- `score-trend-strip.tsx`: Parameter `r` (implizit any aus Supabase-Query), `s`/`v` in reduce (Typ-Propagation)
+- `delivery-stats-realtime.tsx`: Parameter `v` in filter-Predikat, `s`/`v` in reduce (6 Fehler)
+- `sla-compensation.ts`: `.catch()` nicht auf PromiseLike<void> verfügbar (2 Fehler)
+- **Nach Fix:** 0 Fehler ✅
+
+### Fixes durchgeführt
+1. `score-trend-strip.tsx:88` — `(r)` → `(r: { total_score: number | null })` + Reduce explizit typisiert
+2. `delivery-stats-realtime.tsx:105,114` — Filter-Predikat `(v)` → `(v: number | null)` + Reduce explizit typisiert (2×)
+3. `sla-compensation.ts:217,362` — `.then(() => {}).catch(() => {})` → `.then(() => {}, () => {})` (PromiseLike-kompatibel)
+
+### Neue Seiten (12 neue Admin-Seiten, von 208 → 237 Seiten)
+- `/delivery/applications` — Fahrer-Bewerbungs-Funnel (pending/reviewing/approved/rejected)
+- `/delivery/windows` — Lieferzeitfenster-Verwaltung (Standard/Express/Geplant)
+- `/delivery/notification-config` — Kunden-Benachrichtigungs-Konfiguration (Webhook, Events)
+- `/delivery/credit-rules` — Gutschrift-Regelwerk (Verspätung/Fehlzustellung/Manuell)
+- `/delivery/alert-rules` — Alarm-Regeln (Schwellenwerte, Eskalation)
+- `/delivery/compliance` — Fahrer-Zertifikats-Compliance-Übersicht
+- `/delivery/dispatch-queue` — Dispatch-Warteschlange mit Priority-Boost
+- `/delivery/payout-config` — Abrechnungskonfiguration
+- `/delivery/fee-config` — Zonengebühren-Konfiguration
+- `/delivery/recovery` — Tour-Recovery
+- `/delivery/broadcasts` — Fahrer-Broadcasts
+- `/delivery/notification-log` — Kunden-Benachrichtigungslog
+
+### Neue Komponenten
+- `KitchenTimingQualityStrip` — Live-Qualitäts-Monitoring für Koch-Timings (On-Schedule/AtRisk/Late)
+- `DispatchScoreTrendStrip` — Sparkline des Dispatch-Scores der aktuellen Schicht (stündlich)
+- `StopArrivalProximity` — GPS-Haversine-Näherungs-Sensor für Fahrer (Watchposition, ≤50m Anklopf-UI)
+- `DeliveryStatsRealtime` — Live-Stats-Strip in Lieferdienst-Übersicht (ETA, Score, On-Time%)
+
+### Integrations-Audit
+- Kitchen ↔ Timing-Qualität: `KitchenTimingQualityStrip` nutzt vorhandene `timings`-State ✅
+- Dispatch ↔ Score-Trend: `DispatchScoreTrendStrip` mit `locationFilter` integriert ✅
+- Fahrer-App ↔ GPS: `StopArrivalProximity` in `TourStopsPanel` mit `kunde_lat`/`kunde_lng` ✅
+- Alle 12 neuen Admin-Seiten: Sidebar-Links ✅ + API-Routes ✅
+
+### Build-Ergebnis
+- **237 Seiten** (↑ von 208), 0 Fehler ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅
 
 ---
 

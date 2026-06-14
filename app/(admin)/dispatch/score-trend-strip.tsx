@@ -85,9 +85,9 @@ export function DispatchScoreTrendStrip({
       setPoints(buckets);
 
       // Overall avg
-      const allScores = data.map((r) => r.total_score as number);
+      const allScores = data.map((r: { total_score: number | null }) => r.total_score as number);
       if (allScores.length > 0) {
-        setOverallAvg(Math.round(allScores.reduce((s, v) => s + v, 0) / allScores.length));
+        setOverallAvg(Math.round(allScores.reduce((s: number, v: number) => s + v, 0) / allScores.length));
       }
 
       // Previous hour avg vs current hour avg
