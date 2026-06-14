@@ -7,7 +7,7 @@ import {
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
-  LineChart, Gauge, Wrench,
+  LineChart, Gauge, Wrench, Building, Webhook,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -386,6 +386,20 @@ export default async function DeliveryOverviewPage() {
           title="Lieferdienst-Konfiguration"
           subtitle="Dispatch, ETA, Bundling, Zonen und Scoring-Gewichte"
           cta="Konfiguration"
+        />
+        <SectionCard
+          href="/delivery/franchise"
+          icon={<Building className="h-5 w-5" />}
+          title="Franchise-Leitstelle"
+          subtitle="Live-Status aller Standorte · Queue, Touren und Alarme"
+          cta="Alle Standorte"
+        />
+        <SectionCard
+          href="/delivery/webhooks"
+          icon={<Webhook className="h-5 w-5" />}
+          title="Webhooks"
+          subtitle="Liefer-Events an externe Systeme weiterleiten"
+          cta="Webhooks verwalten"
         />
       </div>
     </>
