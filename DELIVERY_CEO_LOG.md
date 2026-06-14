@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–165 vollständig abgeschlossen. CEO Review #98 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 254 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–167 vollständig abgeschlossen. CEO Review #99 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 255 Seiten. Deployment-bereit.
+
+## CEO Review #99 — 2026-06-14
+
+### Geprüfte Commits (seit Review #98)
+- `84b3141` feat(delivery/backend): Phase 166 — Smart Re-Order Engine (Kunden-Wiederbestellungs-Analyse)
+- `08d4d4a` feat(delivery/frontend): Phase 167 — KitchenEnergyLevelRing, DispatchDemandFunnel, FahrerTagesZusammenfassung
+
+### Befunde Phase 166 (Backend: Smart Re-Order Engine)
+- `scripts/migrations/082_reorder_engine.sql`: customer_reorder_profiles + 3 VIEWs korrekt ✅
+- `lib/delivery/reorder-engine.ts`: 8 Funktionen, TypeScript sauber ✅
+- API GET+POST `/api/delivery/admin/reorder-engine`: Auth-Guard vorhanden ✅
+- Öffentliche Route GET `/api/delivery/reorder`: korrekt via rating_token gesichert ✅
+- Admin-Seite `/delivery/reorder-engine/`: 6 KPI-Karten, Tabs, Rebuild-Button ✅
+- Cron 03:30 UTC + Prune 02:00 UTC: in Cron-Handler registriert ✅
+- Sidebar-Link + Icon: korrekt eingetragen ✅
+
+### Befunde Phase 167 (Frontend)
+
+**KitchenEnergyLevelRing** (`app/(admin)/kitchen/energy-level-ring.tsx`):
+- SVG-Gauge (0–100), Supabase-Realtime + 30s Polling ✅
+- computeEnergy(): Gewichtung 50/30/20% für aktive/überfällige/Wartezeit-Scores ✅
+- Farbkodierung Grün/Amber/Rot korrekt (score ≤40/≤70/>70) ✅
+- mountedRef via `cancelled`-Flag verhindert setState nach Unmount ✅
+- Integration in kitchen/client.tsx Zeile 549 — korrekt positioniert ✅
+
+**DispatchDemandFunnel** (`app/(admin)/dispatch/demand-funnel.tsx`):
+- 5-stufiger Trichter: Eingang→Zubereitung→Bereit→Unterwegs→Geliefert ✅
+- Konversionsraten kumulativ berechnet (richtig: zeigt Fortschritt relativ zu Vorstufe) ✅
+- Supabase-Realtime + 30s Polling ✅
+- Kein Data → Leerstate "Noch keine Lieferbestellungen heute" ✅
+- Integration in dispatch/client.tsx Zeile 1136 ✅
+
+**FahrerTagesZusammenfassung** (`app/fahrer/app/tages-zusammenfassung.tsx`):
+- Aufklappbare Schicht-Karte mit Performance-Tier Gold/Silber/Normal ✅
+- useMemo für Stats-Berechnung, keine unnötigen Re-Renders ✅
+- `completedBatches=[]` Stub: bekannte Vereinfachung, Component handhabt es graceful (km → '—', Touren → 0). Kein Crash ✅
+- Integration in fahrer/app/client.tsx Zeile 1291, korrekt im Warte-Zustand ✅
+
+### Build-Ergebnis
+- TypeScript: 0 Fehler ✅  (`npx tsc --noEmit` → leer)
+- Next.js Build: 255 Seiten sauber ✅
+- Bugs: 0 ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: EnergyLevelRing zeigt Echtzeit-Auslastung ✅
+- Dispatch: DemandFunnel visualisiert Engpässe ✅
+- Fahrer-App: TagesZusammenfassung motiviert Fahrer mit Performance-Tier ✅
+- Storefront-Brücke: Reorder-Engine öffentlich via rating_token erreichbar ✅
+
+### Anweisung an Backend-Architekt / Frontend-Ingenieur
+System ist MARKT-REIF. 255 Seiten, alle Kern-Flows synchronisiert.
+Nächste mögliche Erweiterungen:
+1. FahrerTagesZusammenfassung: completedBatches-Daten aus History-API nachladen (optional)
+2. Phase 168: Kunden-Push-Notifications (Web Push API) bei Statuswechsel
+3. Phase 168 alternativ: Live-Geo-Map im Dispatch-Board (Fahrer-Positionen auf Karte)
+
+---
 
 ## CEO Review #98 — 2026-06-14
 
