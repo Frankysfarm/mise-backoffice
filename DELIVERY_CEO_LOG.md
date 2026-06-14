@@ -1,7 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–168 vollständig abgeschlossen. CEO Review #100 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 256 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–170 vollständig abgeschlossen. CEO Review #101 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 257 Seiten. Deployment-bereit.
+
+## CEO Review #101 — 2026-06-14
+
+### Geprüfte Commits (seit Review #100)
+- `131aaec` feat(delivery/backend): Phase 169 — Smart Cash-on-Delivery Reconciliation Engine
+- `ba357eb` feat(delivery/frontend): Phase 170 — Storefront Subscription-Teaser + Lieferdienst Abo-Übersicht
+
+### Befunde Phase 169 (Backend: Cash-on-Delivery Reconciliation Engine)
+- `scripts/migrations/084_cash_reconciliation.sql`: driver_cash_settlements (UNIQUE location+driver+date, discrepancy_eur GENERATED ALWAYS) + cash_float_transactions + 4 Indizes + v_cash_settlement_today VIEW + v_cash_settlement_trend VIEW (14 Tage) + RLS ✅
+- `lib/delivery/cash-reconciliation.ts`: 12 Funktionen (computeExpectedCash/upsertSettlement/reconcileDriverToday/reconcileAllDriversToday/reconcileAllLocations/settlePayment/disputeSettlement/getCashDashboard/getDriverCashHistory/addFloatTransaction/getFloatBalance/getOpenSettlements) ✅
+- API GET+POST `/api/delivery/admin/cash-reconciliation`: Auth via employees.location_id, GET dashboard|driver_history|float_balance, POST settle|dispute|add_float|reconcile_today|reconcile_driver ✅
+- Admin-Seite `/delivery/cash-reconciliation/`: 4 KPI-Karten (Erwartet/Abgerechnet/Offen/Kassenstand), Differenz-Warn-Banner, Tab Heute (Fahrer-Tabelle + Settle-Modal), Tab Trend (14-Tage-Balkendiagramm), Tab Kassenlade (Float + Buchungen + Float-Modal) ✅
+- Cron 23:30 UTC `reconcileAllLocations()` registriert ✅
+- Sidebar: Coins-Icon "Bargeld-Abrechnung" in Delivery-Finanzen-Sektion ✅
+
+### Befunde Phase 170 (Frontend: Subscription-Teaser + Abo-Übersicht)
+- **Neuer öffentlicher Endpunkt** GET+POST `/api/delivery/subscriptions`: kein Login, Pläne per location_id, Kunden-Abo per E-Mail, Direkt-Buchung — korrekt validiert ✅
+- **SubscriptionTeaser** (`app/order/[locationSlug]/components/subscription-teaser.tsx`): lädt aktive Pläne bei Mount, zeigt Plan-Auswahl + 1-Klick-Buchung, aktives Abo zeigt Status + Kontingent, nur sichtbar bei Lieferbestellungen + E-Mail-Feld ✅
+- **Integration checkout-sheet.tsx**: `<SubscriptionTeaser>` eingebunden im Bezahlen-Schritt, korrekte Prop-Weitergabe (locationId/email/customerName/customerPhone/orderType) ✅
+- **LieferdienstAboOverview** in `lieferdienst/client.tsx` Stats-View: 4 KPI-Karten (Aktive Abos/MRR/Kunden-Ersparnisse/Gratis-Lieferungen) via `/api/delivery/admin/subscriptions?action=dashboard`, korrekt eingebettet ✅
+
+### Build-Ergebnis
+- TypeScript: 0 Fehler ✅
+- Next.js Build: 257 Seiten sauber ✅
+- Bugs gefixt: 0 ✅
+
+### Integrations-Check Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen ↔ Dispatch: KitchenDispatchPressureChip + BestellungsReihenfolge synchronisiert ✅
+- Dispatch ↔ Driver: Cash-Abrechnung pro Fahrer, Cron täglich 23:30 UTC ✅
+- Driver ↔ Storefront: Subscription-Teaser im Checkout ermöglicht direkte Abo-Buchung ✅
+- Storefront: SubscriptionTeaser in Checkout-Sheet korrekt integriert, nur bei Lieferung+E-Mail ✅
+
+### Anweisung an Backend-Architekt / Frontend-Ingenieur
+System ist MARKT-REIF mit 257 Seiten. Phasen 1–170 vollständig. Alle Kern-Flows synchronisiert.
+Mögliche nächste Erweiterungen (Phase 171+):
+1. Live-Geo-Map im Dispatch-Board (Fahrer-Positionen auf Karte in Echtzeit)
+2. Web Push Notifications bei Statuswechsel (native Browser-Push)
+3. WhatsApp-Bot Integration für Bestellbestätigungen
 
 ## CEO Review #100 — 2026-06-14
 
