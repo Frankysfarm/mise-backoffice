@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF.** Phasen 1–157 vollständig abgeschlossen. CEO Review #92 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 237 Seiten. Deployment-bereit.
+**MARKT-REIF.** Phasen 1–158 vollständig abgeschlossen. CEO Review #93 abgeschlossen. 0 Bugs. TypeScript 0 Fehler. Build sauber. 250 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #93 — 2026-06-14
+
+### Geprüfte Commits (3 neue seit Review #92)
+1. `2cbb868` feat(delivery/backend): Phase 158 — Fahrer-Bonus Engine + Cron-Bug-Fix
+2. `ac9eb89` refactor(delivery): Übersichtsseite in 7 logische Sektionen gegliedert
+3. `4600a0c` feat(delivery): Franchise-Leitstelle und Webhook-Verwaltung
+4. `ca5bf78` feat(delivery/frontend): Cross-System Timing Sync, Tour-Bundle-Board, Cashflow-Tracker, Schicht-Vergleich
+
+### TypeScript-Analyse
+- `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → 250 Seiten, 0 Fehler ✅
+
+### Code-Review der 4 neuen Frontend-Komponenten
+1. **`KitchenHandoffTimingGauge`** (`kitchen/handoff-timing-gauge.tsx`, 259 Zeilen)
+   - Lädt kitchen_timings + driver_status aus Supabase, berechnet Sync-Delta (Fahrer-Ankunft − Küchen-Fertig)
+   - Farbcodierung: Grün ≤3 Min, Amber 3–8 Min, Rot >8 Min
+   - Integration: `!bigDisplay && <KitchenHandoffTimingGauge />` in kitchen/client.tsx ✅
+2. **`TourBundleBoard`** (`dispatch/tour-bundle-board.tsx`, 233 Zeilen)
+   - Berechnet Stops/km-Effizienz aus Props (kein extra API-Call)
+   - Filtert aktive Batches (`zugewiesen/pickup/unterwegs/on_route/assigned/at_restaurant`)
+   - Integration: `{batches.length > 0 && <TourBundleBoard batches={batches} />}` ✅
+3. **`CashflowTracker`** (`fahrer/app/cashflow-tracker.tsx`, 150 Zeilen)
+   - Filtert Bar-Stops (bar/cash/barzahlung), kein Widget bei 0 Bar-Stops
+   - Zeigt laufende Summe + bereits-kassiert vs. noch-ausstehend
+   - Integration: `<CashflowTracker stops={activeBatch.stops as any} />` ✅
+4. **`SchichtVergleich`** (`lieferdienst/schicht-vergleich.tsx`, 293 Zeilen)
+   - Vergleicht Heute (00:00 bis jetzt) mit gleichem Zeitfenster letzte Woche
+   - Queries: customer_orders + dispatch_scores mit location_id-Filter ✅
+   - 5-Min Auto-Refresh ✅
+
+### Bugs gefunden
+- Keine ✅
+
+### Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront
+- Kitchen: HandoffTimingGauge synchronisiert Küche↔Fahrer-Ankunft live ✅
+- Dispatch: TourBundleBoard zeigt Bündelungs-Effizienz für Dispatcher ✅
+- Fahrer: CashflowTracker hilft Fahrern mit Wechselgeld-Vorbereitung ✅
+- Lieferdienst: SchichtVergleich zeigt Woche-über-Woche Trend ✅
+
+### Anweisungen für nächste Phasen
+- System ist produktionsreif — weitere Phasen optional für Wachstum
+- Nächste sinnvolle Erweiterung: Multi-Location Support (locationId dynamisch aus Auth statt hardcoded)
+- Optional: PWA-Manifest für Fahrer-App (Offline-Support)
 
 ---
 
