@@ -72,337 +72,142 @@ export default async function DeliveryOverviewPage() {
         <KPI icon={<Plug size={14} />}       label="Plattformen aktiv"      value={activePlatforms} />
       </div>
 
-      {/* Sektionen */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <SectionCard
-          href="/drivers"
-          icon={<Users className="h-5 w-5" />}
-          title="Fahrer"
-          subtitle={`${driversCount ?? 0} Fahrer · ${activeDriversCount ?? 0} gerade online`}
-          cta="Fahrer verwalten"
-        />
-        <SectionCard
-          href="/dispatch"
-          icon={<MapPin className="h-5 w-5" />}
-          title="Touren & Dispatch"
-          subtitle={`${openDeliveries ?? 0} Lieferungen offen · Live-Karte`}
-          cta="Touren öffnen"
-          highlight={Boolean(openDeliveries && openDeliveries > 0)}
-        />
-        <SectionCard
-          href="/delivery/platforms"
-          icon={<Plug className="h-5 w-5" />}
-          title="Externe Lieferdienste"
-          subtitle={
-            activePlatforms > 0
-              ? `${activePlatforms} aktiv · Deliverect, Lieferando, Uber, Wolt`
-              : `Noch keine verbunden${waitlistCount ? ` · ${waitlistCount} auf Warteliste` : ''}`
-          }
-          cta={activePlatforms > 0 ? 'Verwalten' : 'Verbinden'}
-        />
-        <SectionCard
-          href="/delivery/zone"
-          icon={<MapPin className="h-5 w-5" />}
-          title="Liefergebiet"
-          subtitle={tenant?.lieferradius_km ? `Radius ${tenant.lieferradius_km} km` : 'Noch nicht definiert'}
-          cta="Radius & Zonen"
-        />
-        <SectionCard
-          href="/delivery/conditions"
-          icon={<Banknote className="h-5 w-5" />}
-          title="Konditionen"
+      {/* ── Live-Betrieb ─────────────────────────────────────── */}
+      <SectionGroup title="Live-Betrieb">
+        <SectionCard href="/dispatch" icon={<MapPin className="h-5 w-5" />} title="Touren & Dispatch"
+          subtitle={`${openDeliveries ?? 0} Lieferungen offen · Live-Karte`} cta="Touren öffnen"
+          highlight={Boolean(openDeliveries && openDeliveries > 0)} />
+        <SectionCard href="/delivery/dispatch-queue" icon={<SlidersHorizontal className="h-5 w-5" />} title="Dispatch-Queue"
+          subtitle="Prioritätsliste offener Bestellungen · Boost und Eskalation" cta="Queue ansehen" />
+        <SectionCard href="/delivery/queue-signal" icon={<Signal className="h-5 w-5" />} title="Kapazitäts-Signal"
+          subtitle="Normal / Surge / Pausiert – Bestellannahme steuern" cta="Signal steuern" />
+        <SectionCard href="/delivery/alerts" icon={<AlertTriangle className="h-5 w-5" />} title="Betriebsalarme"
+          subtitle="Aktive Alarme · Queue, Fahrer, Küche, ETA-Genauigkeit" cta="Alarme ansehen" />
+        <SectionCard href="/delivery/delay-monitor" icon={<ClockIcon className="h-5 w-5" />} title="Verzögerungs-Monitor"
+          subtitle="Verspätete Bestellungen · Kompensations-Gutscheine" cta="Monitor öffnen" />
+        <SectionCard href="/delivery/stale-orders" icon={<PackageX className="h-5 w-5" />} title="Feststeckende Bestellungen"
+          subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus" cta="Prüfen" />
+        <SectionCard href="/delivery/gps-trails" icon={<MapPinned className="h-5 w-5" />} title="GPS-Fahrerspuren"
+          subtitle="Live-Positionen · Fahrspuren der letzten 30 Minuten" cta="GPS ansehen" />
+        <SectionCard href="/delivery/performance" icon={<Gauge className="h-5 w-5" />} title="Fahrer-Performance live"
+          subtitle="Lieferungen heute, Kapazität und aktiver Batch-Status" cta="Performance" />
+        <SectionCard href="/delivery/scheduled" icon={<Calendar className="h-5 w-5" />} title="Vorbestellungen"
+          subtitle="Geplante Lieferungen · manuelle Freigabe" cta="Vorbestellungen" />
+        <SectionCard href="/delivery/trends" icon={<TrendingDown className="h-5 w-5" />} title="Tages-Trends"
+          subtitle="Heute vs. gestern · Bestellungen, Lieferungen und Bewertungen" cta="Trends ansehen" />
+      </SectionGroup>
+
+      {/* ── Fahrer ───────────────────────────────────────────── */}
+      <SectionGroup title="Fahrer">
+        <SectionCard href="/drivers" icon={<Users className="h-5 w-5" />} title="Fahrer-Verwaltung"
+          subtitle={`${driversCount ?? 0} Fahrer · ${activeDriversCount ?? 0} gerade online`} cta="Fahrer verwalten" />
+        <SectionCard href="/delivery/applications" icon={<UserPlus className="h-5 w-5" />} title="Fahrer-Bewerbungen"
+          subtitle="Onboarding-Trichter · Bewerbungen prüfen und genehmigen" cta="Bewerbungen" />
+        <SectionCard href="/delivery/compliance" icon={<ShieldCheck className="h-5 w-5" />} title="Compliance & Zertifizierungen"
+          subtitle="Fahrerdokumente · ablaufende Zertifikate · Dispatch-Sperren" cta="Compliance prüfen" />
+        <SectionCard href="/delivery/driver-leaderboard" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer-Rangliste"
+          subtitle="Touren, Pünktlichkeit, Bewertungen und Verdienst im Vergleich" cta="Rangliste" />
+        <SectionCard href="/delivery/driver-reliability" icon={<Award className="h-5 w-5" />} title="Fahrer-Zuverlässigkeit"
+          subtitle="No-Shows, Verspätungen, Frühende · Zuverlässigkeits-Score" cta="Zuverlässigkeit" />
+        <SectionCard href="/delivery/broadcasts" icon={<Megaphone className="h-5 w-5" />} title="Fahrer-Broadcasts"
+          subtitle="Betriebsnachrichten an alle Fahrer senden" cta="Broadcasts" />
+        <SectionCard href="/delivery/push-stats" icon={<Smartphone className="h-5 w-5" />} title="Push-Statistiken"
+          subtitle="Fahrer-Push-Durchsatz · Mise App & Web Push · Ausstehende Pushes" cta="Push-Stats" />
+      </SectionGroup>
+
+      {/* ── Planung & Schichten ───────────────────────────────── */}
+      <SectionGroup title="Planung & Schichten">
+        <SectionCard href="/delivery/coverage" icon={<UserCheck className="h-5 w-5" />} title="Schichtabdeckung"
+          subtitle="Besetzungsplan · Unterdeckungen der nächsten 24h" cta="Abdeckung prüfen" />
+        <SectionCard href="/delivery/shift-claims" icon={<ClipboardCheck className="h-5 w-5" />} title="Schicht-Anmeldungen"
+          subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen" cta="Anmeldungen prüfen" />
+        <SectionCard href="/delivery/windows" icon={<CalendarClock className="h-5 w-5" />} title="Lieferfenster"
+          subtitle="Zeitslots konfigurieren · Kapazitäten und Buchungen" cta="Fenster verwalten" />
+        <SectionCard href="/delivery/surge-prediction" icon={<Zap className="h-5 w-5" />} title="Surge-Prognose"
+          subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung" cta="Prognosen ansehen" />
+      </SectionGroup>
+
+      {/* ── Analytics & Reports ───────────────────────────────── */}
+      <SectionGroup title="Analytics & Reports">
+        <SectionCard href="/delivery/reporting" icon={<FileBarChart className="h-5 w-5" />} title="Business-Reporting"
+          subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer" cta="Berichte ansehen" />
+        <SectionCard href="/delivery/sla" icon={<Activity className="h-5 w-5" />} title="SLA-Bericht"
+          subtitle="On-Time-Rate, Lieferzeitabweichung · Performance nach Fahrer & Zone" cta="SLA ansehen" />
+        <SectionCard href="/delivery/heatmap" icon={<BarChart3 className="h-5 w-5" />} title="Auslastungs-Heatmap"
+          subtitle="Liefervolumen nach Wochentag & Uhrzeit · Stoßzeiten" cta="Heatmap öffnen" />
+        <SectionCard href="/delivery/eta-accuracy" icon={<Target className="h-5 w-5" />} title="ETA-Genauigkeit"
+          subtitle="Vorhersagegenauigkeit · Kalibrierungsfaktoren nach Zone & Zeit" cta="ETA-Bericht" />
+        <SectionCard href="/delivery/satisfaction" icon={<Star className="h-5 w-5" />} title="Kundenzufriedenheit"
+          subtitle="Bewertungen, Trends und Feedback nach Fahrer" cta="Bewertungen ansehen" />
+        <SectionCard href="/delivery/events" icon={<List className="h-5 w-5" />} title="Liefer-Ereignisse"
+          subtitle="Audit-Trail · Dispatch, Touren, Fahrer, ETA-Events" cta="Ereignisse" />
+      </SectionGroup>
+
+      {/* ── KI-Tools ─────────────────────────────────────────── */}
+      <SectionGroup title="KI-Tools">
+        <SectionCard href="/delivery/ai-assist" icon={<BrainCircuit className="h-5 w-5" />} title="KI-Dispatch-Assistent"
+          subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen" cta="KI starten" />
+        <SectionCard href="/delivery/ai-forecast" icon={<LineChart className="h-5 w-5" />} title="KI-Nachfrage-Prognose"
+          subtitle="Claude prognostiziert Stoßzeiten und Fahrerbedarf" cta="Prognose starten" />
+      </SectionGroup>
+
+      {/* ── Finanzen ─────────────────────────────────────────── */}
+      <SectionGroup title="Finanzen & Vergütung">
+        <SectionCard href="/delivery/payouts" icon={<Wallet className="h-5 w-5" />} title="Fahrer-Abrechnungen"
+          subtitle="Abrechnungsperioden · Genehmigung · Auszahlungsstatus" cta="Abrechnungen" />
+        <SectionCard href="/delivery/payout-config" icon={<Settings className="h-5 w-5" />} title="Abrechnungs-Konfiguration"
+          subtitle="Basis-Vergütung, km-Satz, Peak-Bonus, Meilensteine" cta="Konfigurieren" />
+        <SectionCard href="/delivery/fee-config" icon={<DollarSign className="h-5 w-5" />} title="Zonen-Gebühren"
+          subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone" cta="Gebühren" />
+        <SectionCard href="/delivery/credits" icon={<Ticket className="h-5 w-5" />} title="Kundengutschriften"
+          subtitle="Gutschriften nach Verspätungen und Zustellproblemen" cta="Gutschriften" />
+        <SectionCard href="/delivery/credit-rules" icon={<BadgePercent className="h-5 w-5" />} title="Gutschrift-Regeln"
+          subtitle="Automatische Gutschriften bei Verspätungen konfigurieren" cta="Regeln anpassen" />
+      </SectionGroup>
+
+      {/* ── Probleme & Eskalation ────────────────────────────── */}
+      <SectionGroup title="Probleme & Eskalation">
+        <SectionCard href="/delivery/incidents" icon={<ShieldAlert className="h-5 w-5" />} title="Vorfälle"
+          subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow" cta="Vorfälle verwalten" />
+        <SectionCard href="/delivery/failed-attempts" icon={<XCircle className="h-5 w-5" />} title="Fehlgeschlagene Zustellungen"
+          subtitle="Nicht zugestellt · Retry-Planung · Auflösung" cta="Versuche verwalten" />
+        <SectionCard href="/delivery/recovery" icon={<RotateCcw className="h-5 w-5" />} title="Tour-Recovery"
+          subtitle="Abgebrochene Touren neu einplanen · Bestellungen retten" cta="Recovery" />
+      </SectionGroup>
+
+      {/* ── Konfiguration & System ───────────────────────────── */}
+      <SectionGroup title="Konfiguration & System">
+        <SectionCard href="/delivery/config" icon={<Wrench className="h-5 w-5" />} title="Lieferdienst-Konfiguration"
+          subtitle="Dispatch, ETA, Bundling, Zonen und Scoring-Gewichte" cta="Konfiguration" />
+        <SectionCard href="/delivery/conditions" icon={<Banknote className="h-5 w-5" />} title="Konditionen"
           subtitle={`Liefergebühr ${tenant?.liefergebuehr ? euro(tenant.liefergebuehr) : '—'} · Mindest ${tenant?.mindestbestellwert ? euro(tenant.mindestbestellwert) : '—'}`}
-          cta="Preise & Limits"
-        />
-        <SectionCard
-          href="/delivery/surge-prediction"
-          icon={<Zap className="h-5 w-5" />}
-          title="Surge-Prognose"
-          subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung · Genauigkeitsrate"
-          cta="Prognosen ansehen"
-        />
-        <SectionCard
-          href="/delivery/sla"
-          icon={<Activity className="h-5 w-5" />}
-          title="SLA-Bericht"
-          subtitle="On-Time-Rate, Lieferzeitabweichung · Performance nach Fahrer & Zone"
-          cta="SLA ansehen"
-        />
-        <SectionCard
-          href="/delivery/heatmap"
-          icon={<BarChart3 className="h-5 w-5" />}
-          title="Auslastungs-Heatmap"
-          subtitle="Liefervolumen nach Wochentag & Uhrzeit · Stoßzeiten auf einen Blick"
-          cta="Heatmap öffnen"
-        />
-        <SectionCard
-          href="/delivery/driver-leaderboard"
-          icon={<TrendingUp className="h-5 w-5" />}
-          title="Fahrer-Rangliste"
-          subtitle="Touren, Pünktlichkeit, Bewertungen und Verdienst im Vergleich"
-          cta="Rangliste öffnen"
-        />
-        <SectionCard
-          href="/delivery/satisfaction"
-          icon={<Star className="h-5 w-5" />}
-          title="Kundenzufriedenheit"
-          subtitle="Bewertungen, Trends und Feedback nach Fahrer"
-          cta="Bewertungen ansehen"
-        />
-        <SectionCard
-          href="/delivery/scheduled"
-          icon={<Calendar className="h-5 w-5" />}
-          title="Vorbestellungen"
-          subtitle="Geplante Lieferungen · manuelle Freigabe"
-          cta="Vorbestellungen"
-        />
-        <SectionCard
-          href="/delivery/eta-accuracy"
-          icon={<Target className="h-5 w-5" />}
-          title="ETA-Genauigkeit"
-          subtitle="Vorhersagegenauigkeit · Kalibrierungsfaktoren nach Zone & Zeit"
-          cta="ETA-Bericht"
-        />
-        <SectionCard
-          href="/delivery/alerts"
-          icon={<AlertTriangle className="h-5 w-5" />}
-          title="Betriebsalarme"
-          subtitle="Aktive Alarme · Queue, Fahrer, Küche, ETA-Genauigkeit"
-          cta="Alarme ansehen"
-        />
-        <SectionCard
-          href="/delivery/delay-monitor"
-          icon={<ClockIcon className="h-5 w-5" />}
-          title="Verzögerungs-Monitor"
-          subtitle="Verspätete Bestellungen · Kompensations-Gutscheine"
-          cta="Monitor öffnen"
-        />
-        <SectionCard
-          href="/delivery/stale-orders"
-          icon={<PackageX className="h-5 w-5" />}
-          title="Feststeckende Bestellungen"
-          subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus"
-          cta="Prüfen"
-        />
-        <SectionCard
-          href="/delivery/payouts"
-          icon={<Wallet className="h-5 w-5" />}
-          title="Fahrer-Abrechnungen"
-          subtitle="Abrechnungsperioden · Genehmigung · Auszahlungsstatus"
-          cta="Abrechnungen"
-        />
-        <SectionCard
-          href="/delivery/coverage"
-          icon={<UserCheck className="h-5 w-5" />}
-          title="Schichtabdeckung"
-          subtitle="Besetzungsplan · Unterdeckungen der nächsten 24h"
-          cta="Abdeckung prüfen"
-        />
-        <SectionCard
-          href="/delivery/credits"
-          icon={<Ticket className="h-5 w-5" />}
-          title="Kundengutschriften"
-          subtitle="Gutschriften nach Verspätungen und Zustellproblemen"
-          cta="Gutschriften"
-        />
-        <SectionCard
-          href="/delivery/failed-attempts"
-          icon={<XCircle className="h-5 w-5" />}
-          title="Fehlgeschlagene Zustellungen"
-          subtitle="Nicht zugestellt · Retry-Planung · Auflösung"
-          cta="Versuche verwalten"
-        />
-        <SectionCard
-          href="/delivery/events"
-          icon={<List className="h-5 w-5" />}
-          title="Liefer-Ereignisse"
-          subtitle="Audit-Trail · Dispatch, Touren, Fahrer, ETA-Events"
-          cta="Ereignisse"
-        />
-        <SectionCard
-          href="/delivery/incidents"
-          icon={<ShieldAlert className="h-5 w-5" />}
-          title="Vorfälle"
-          subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow"
-          cta="Vorfälle verwalten"
-        />
-        <SectionCard
-          href="/delivery/gps-trails"
-          icon={<MapPinned className="h-5 w-5" />}
-          title="GPS-Fahrerspuren"
-          subtitle="Live-Positionen · Fahrspuren der letzten 30 Minuten"
-          cta="GPS ansehen"
-        />
-        <SectionCard
-          href="/delivery/notification-log"
-          icon={<BellRing className="h-5 w-5" />}
-          title="Kunden-Benachrichtigungen"
-          subtitle="Gesendete Push/SMS nach Bestellstatus · Erfolgsquote"
-          cta="Log ansehen"
-        />
-        <SectionCard
-          href="/delivery/broadcasts"
-          icon={<Megaphone className="h-5 w-5" />}
-          title="Fahrer-Broadcasts"
-          subtitle="Betriebsnachrichten an alle Fahrer senden"
-          cta="Broadcasts"
-        />
-        <SectionCard
-          href="/delivery/recovery"
-          icon={<RotateCcw className="h-5 w-5" />}
-          title="Tour-Recovery"
-          subtitle="Abgebrochene Touren neu einplanen · Bestellungen retten"
-          cta="Recovery"
-        />
-        <SectionCard
-          href="/delivery/queue-signal"
-          icon={<Signal className="h-5 w-5" />}
-          title="Kapazitäts-Signal"
-          subtitle="Normal / Surge / Pausiert – Bestellannahme steuern"
-          cta="Signal steuern"
-        />
-        <SectionCard
-          href="/delivery/dispatch-queue"
-          icon={<SlidersHorizontal className="h-5 w-5" />}
-          title="Dispatch-Queue"
-          subtitle="Prioritätsliste offener Bestellungen · Boost und Eskalation"
-          cta="Queue ansehen"
-        />
-        <SectionCard
-          href="/delivery/payout-config"
-          icon={<Settings className="h-5 w-5" />}
-          title="Abrechnungs-Konfiguration"
-          subtitle="Basis-Vergütung, km-Satz, Peak-Bonus, Meilensteine"
-          cta="Konfigurieren"
-        />
-        <SectionCard
-          href="/delivery/fee-config"
-          icon={<DollarSign className="h-5 w-5" />}
-          title="Zonen-Gebühren"
-          subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone"
-          cta="Gebühren anpassen"
-        />
-        <SectionCard
-          href="/delivery/compliance"
-          icon={<ShieldCheck className="h-5 w-5" />}
-          title="Compliance & Zertifizierungen"
-          subtitle="Fahrerdokumente · ablaufende Zertifikate · Dispatch-Sperren"
-          cta="Compliance prüfen"
-        />
-        <SectionCard
-          href="/delivery/applications"
-          icon={<UserPlus className="h-5 w-5" />}
-          title="Fahrer-Bewerbungen"
-          subtitle="Onboarding-Trichter · Bewerbungen prüfen und genehmigen"
-          cta="Bewerbungen"
-        />
-        <SectionCard
-          href="/delivery/windows"
-          icon={<CalendarClock className="h-5 w-5" />}
-          title="Lieferfenster"
-          subtitle="Zeitslots konfigurieren · Kapazitäten und Buchungen"
-          cta="Fenster verwalten"
-        />
-        <SectionCard
-          href="/delivery/notification-config"
-          icon={<Bell className="h-5 w-5" />}
-          title="Kunden-Push-Konfiguration"
-          subtitle="Webhook, Ereignisse und Versand-Einstellungen"
-          cta="Konfigurieren"
-        />
-        <SectionCard
-          href="/delivery/credit-rules"
-          icon={<BadgePercent className="h-5 w-5" />}
-          title="Gutschrift-Regeln"
-          subtitle="Automatische Gutschriften bei Verspätungen und Zustellproblemen"
-          cta="Regeln anpassen"
-        />
-        <SectionCard
-          href="/delivery/alert-rules"
-          icon={<BellDot className="h-5 w-5" />}
-          title="Alarm-Regeln"
-          subtitle="Schwellwerte für Queue, Fahrer, Küche und ETA konfigurieren"
-          cta="Regeln konfigurieren"
-        />
-        <SectionCard
-          href="/delivery/push-stats"
-          icon={<Smartphone className="h-5 w-5" />}
-          title="Push-Statistiken"
-          subtitle="Fahrer-Push-Durchsatz · Mise App & Web Push · Ausstehende Pushes"
-          cta="Push-Stats ansehen"
-        />
-        <SectionCard
-          href="/delivery/driver-reliability"
-          icon={<Award className="h-5 w-5" />}
-          title="Fahrer-Zuverlässigkeit"
-          subtitle="No-Shows, Verspätungen, Frühende · Zuverlässigkeits-Score"
-          cta="Zuverlässigkeit prüfen"
-        />
-        <SectionCard
-          href="/delivery/reporting"
-          icon={<FileBarChart className="h-5 w-5" />}
-          title="Business-Reporting"
-          subtitle="Tages- und Perioden-KPIs · Umsatz, Bestellungen und Fahrer"
-          cta="Berichte ansehen"
-        />
-        <SectionCard
-          href="/delivery/trends"
-          icon={<TrendingDown className="h-5 w-5" />}
-          title="Tages-Trends"
-          subtitle="Heute vs. gestern · Bestellungen, Lieferungen und Bewertungen"
-          cta="Trends ansehen"
-        />
-        <SectionCard
-          href="/delivery/shift-claims"
-          icon={<ClipboardCheck className="h-5 w-5" />}
-          title="Schicht-Anmeldungen"
-          subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen"
-          cta="Anmeldungen prüfen"
-        />
-        <SectionCard
-          href="/delivery/ai-assist"
-          icon={<BrainCircuit className="h-5 w-5" />}
-          title="KI-Dispatch-Assistent"
-          subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen"
-          cta="KI starten"
-        />
-        <SectionCard
-          href="/delivery/ai-forecast"
-          icon={<LineChart className="h-5 w-5" />}
-          title="KI-Nachfrage-Prognose"
-          subtitle="Claude prognostiziert Stoßzeiten und Fahrerbedarf"
-          cta="Prognose starten"
-        />
-        <SectionCard
-          href="/delivery/performance"
-          icon={<Gauge className="h-5 w-5" />}
-          title="Fahrer-Performance"
-          subtitle="Live-KPIs: Lieferungen heute, Kapazität und Batch-Status"
-          cta="Performance ansehen"
-        />
-        <SectionCard
-          href="/delivery/config"
-          icon={<Wrench className="h-5 w-5" />}
-          title="Lieferdienst-Konfiguration"
-          subtitle="Dispatch, ETA, Bundling, Zonen und Scoring-Gewichte"
-          cta="Konfiguration"
-        />
-        <SectionCard
-          href="/delivery/franchise"
-          icon={<Building className="h-5 w-5" />}
-          title="Franchise-Leitstelle"
-          subtitle="Live-Status aller Standorte · Queue, Touren und Alarme"
-          cta="Alle Standorte"
-        />
-        <SectionCard
-          href="/delivery/webhooks"
-          icon={<Webhook className="h-5 w-5" />}
-          title="Webhooks"
-          subtitle="Liefer-Events an externe Systeme weiterleiten"
-          cta="Webhooks verwalten"
-        />
-      </div>
+          cta="Preise & Limits" />
+        <SectionCard href="/delivery/zone" icon={<MapPin className="h-5 w-5" />} title="Liefergebiet"
+          subtitle={tenant?.lieferradius_km ? `Radius ${tenant.lieferradius_km} km` : 'Noch nicht definiert'} cta="Radius & Zonen" />
+        <SectionCard href="/delivery/alert-rules" icon={<BellDot className="h-5 w-5" />} title="Alarm-Regeln"
+          subtitle="Schwellwerte für Queue, Fahrer, Küche und ETA konfigurieren" cta="Alarm-Regeln" />
+        <SectionCard href="/delivery/notification-config" icon={<Bell className="h-5 w-5" />} title="Kunden-Push-Konfiguration"
+          subtitle="Webhook, Ereignisse und Versand-Einstellungen" cta="Konfigurieren" />
+        <SectionCard href="/delivery/notification-log" icon={<BellRing className="h-5 w-5" />} title="Kunden-Benachrichtigungen"
+          subtitle="Gesendete Push/SMS nach Bestellstatus · Erfolgsquote" cta="Log ansehen" />
+        <SectionCard href="/delivery/webhooks" icon={<Webhook className="h-5 w-5" />} title="Webhooks"
+          subtitle="Liefer-Events an externe Systeme weiterleiten" cta="Webhooks verwalten" />
+        <SectionCard href="/delivery/platforms" icon={<Plug className="h-5 w-5" />} title="Externe Lieferdienste"
+          subtitle={activePlatforms > 0 ? `${activePlatforms} aktiv · Deliverect, Lieferando, Uber, Wolt` : `Noch keine verbunden${waitlistCount ? ` · ${waitlistCount} auf Warteliste` : ''}`}
+          cta={activePlatforms > 0 ? 'Verwalten' : 'Verbinden'} />
+        <SectionCard href="/delivery/franchise" icon={<Building className="h-5 w-5" />} title="Franchise-Leitstelle"
+          subtitle="Live-Status aller Standorte · Queue, Touren und Alarme" cta="Alle Standorte" />
+      </SectionGroup>
     </>
+  );
+}
+
+function SectionGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3 mb-8">
+      <h2 className="font-display text-base font-bold text-foreground/70 uppercase tracking-widest border-b border-border pb-2">{title}</h2>
+      <div className="grid gap-4 md:grid-cols-2">{children}</div>
+    </div>
   );
 }
 
