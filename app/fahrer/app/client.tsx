@@ -32,6 +32,7 @@ import { StopNavCard } from './stop-nav-card';
 import { EtaAmpel } from './eta-ampel';
 import { FahrerTagesZusammenfassung } from './tages-zusammenfassung';
 import { KundenHistorieKarte } from './kunden-historie-karte';
+import { TourStatusHeader } from './tour-status-header';
 
 type Driver = {
   id: string;
@@ -786,6 +787,8 @@ export function FahrerApp({
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
         {activeBatch && activeBatch.status === 'unterwegs' && (
           <>
+            {/* Tour-Status-Kopf: Fortschrittsbalken + KPIs (Stopps, Elapsed, ETA, Ø/Stopp) */}
+            <TourStatusHeader activeBatch={activeBatch} />
             {/* Tour-Fortschritts-Kopfleiste — mit Live-Sekunden-Countdown */}
             <TourLiveProgressHeader batch={activeBatch as any} />
             {/* Tour-Fortschritts-Ring: visuelle Übersicht Stopps + ETA */}

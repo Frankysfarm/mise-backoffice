@@ -81,6 +81,7 @@ import { SlaLivePanel } from './sla-live-panel';
 import { DispatchSchichtUebergabePanel } from './schicht-uebergabe';
 import { DispatchSchichtRing } from './schicht-ring';
 import { DispatchDemandFunnel } from './demand-funnel';
+import { DispatchTourKpiRing } from './tour-kpi-ring';
 
 type Driver = {
   employee_id: string;
@@ -818,6 +819,8 @@ export function DispatchBoard({
         </div>
       )}
 
+      {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}
+      <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
       <TourEtaStrip batches={batches} drivers={drivers} />
 

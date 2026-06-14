@@ -59,6 +59,7 @@ import { StundenUmsatzMatrix } from './stunden-umsatz-matrix'
 import { TagesVerlaufVergleich } from './tages-verlauf-vergleich'
 import { SchichtAnalyticsPanel } from './schicht-analytics-panel'
 import { EchtzeitCockpit } from './echtzeit-cockpit'
+import { EchtzeitPerformance } from './echtzeit-performance'
 import { CreditCard } from 'lucide-react'
 
 export function LieferdienstClient() {
@@ -975,6 +976,8 @@ export function LieferdienstClient() {
               <LieferdienstAboOverview locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}
               <EchtzeitCockpit locationId={locationId} />
+              {/* Echtzeit-Performance: aktuelle Stunde vs. letzte Stunde — Bestellungen, Fahrer, Ø-Zubereitung, Pünktlichkeit */}
+              <EchtzeitPerformance />
               {/* Schicht-Ziele: Tagesfortschritt, Lieferquote, SLA-Status */}
               <SchichtZielePanel locationId={locationId} targetOrders={40} />
               {/* Live-Lieferungs-KPIs: Echte Daten aus dem Delivery-System — Heute geliefert, SLA, Ø Zeit, Zonen */}
