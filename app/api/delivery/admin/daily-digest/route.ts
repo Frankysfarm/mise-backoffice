@@ -1,11 +1,11 @@
 /**
- * GET  /api/delivery/admin/daily-digest?location_id=...&date=YYYY-MM-DD
- *   → Gespeicherten Digest für ein Datum laden (+ letzte 30 Tage)
+ * GET  /api/delivery/admin/daily-digest?location_id=...&date=YYYY-MM-DD&action=email_config
+ *   → Digest laden, History, E-Mail-Konfig + Log
  *
  * POST /api/delivery/admin/daily-digest
- *   Body: { location_id, date?, stream? }
- *   stream=true  → SSE: Claude-Analyse streamen (Digest wird NICHT gespeichert)
- *   stream=false → Digest berechnen + in DB speichern, JSON zurückgeben
+ *   Body: { location_id, date?, stream? }           → Digest generieren / SSE
+ *   Body: { location_id, action: 'save_email_config', ... } → E-Mail-Konfig speichern
+ *   Body: { location_id, action: 'send_email', date? }      → E-Mail manuell senden
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -17,6 +17,12 @@ import {
   gatherDailyMetrics,
   detectAnomalies,
 } from '@/lib/delivery/daily-digest';
+import {
+  getDigestEmailConfig,
+  upsertDigestEmailConfig,
+  sendDailyDigestEmail,
+  getEmailLog,
+} from '@/lib/delivery/digest-mailer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -36,9 +42,11 @@ export async function GET(req: NextRequest) {
 
   const date = p.get('date') ?? new Date().toISOString().slice(0, 10);
 
-  const [digest, history] = await Promise.all([
+  const [digest, history, emailConfig, emailLog] = await Promise.all([
     getDailyDigest(locationId, date),
     getDigestHistory(locationId, 30),
+    getDigestEmailConfig(locationId).catch(() => null),
+    getEmailLog(locationId, 20).catch(() => []),
   ]);
 
   // Wenn kein Digest in DB, Live-Metriken berechnen (ohne AI-Summary)
@@ -63,6 +71,8 @@ export async function GET(req: NextRequest) {
     liveMetrics,
     history,
     date,
+    emailConfig,
+    emailLog,
   });
 }
 
@@ -80,9 +90,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  let body: { location_id?: string; date?: string; stream?: boolean };
+  let body: {
+    location_id?: string;
+    date?: string;
+    stream?: boolean;
+    action?: string;
+    // email config fields
+    enabled?: boolean;
+    send_hour_utc?: number;
+    include_ai_summary?: boolean;
+    extra_recipients?: string[];
+  };
   try {
-    body = await req.json() as { location_id?: string; date?: string; stream?: boolean };
+    body = await req.json() as typeof body;
   } catch {
     return new Response(JSON.stringify({ error: 'Ungültiges JSON' }), {
       status: 400,
@@ -99,6 +119,35 @@ export async function POST(req: NextRequest) {
   }
 
   const date = body.date ?? new Date().toISOString().slice(0, 10);
+
+  // ── E-Mail-Konfig speichern ───────────────────────────────────────────────
+
+  if (body.action === 'save_email_config') {
+    try {
+      const cfg = await upsertDigestEmailConfig(locationId, {
+        ...(body.enabled !== undefined ? { enabled: body.enabled } : {}),
+        ...(body.send_hour_utc !== undefined ? { sendHourUtc: body.send_hour_utc } : {}),
+        ...(body.include_ai_summary !== undefined ? { includeAiSummary: body.include_ai_summary } : {}),
+        ...(body.extra_recipients !== undefined ? { extraRecipients: body.extra_recipients } : {}),
+      });
+      return NextResponse.json({ ok: true, emailConfig: cfg });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Fehler beim Speichern';
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
+  }
+
+  // ── E-Mail manuell senden ─────────────────────────────────────────────────
+
+  if (body.action === 'send_email') {
+    try {
+      const result = await sendDailyDigestEmail(locationId, body.date);
+      return NextResponse.json({ ok: true, result });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'E-Mail-Fehler';
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
+  }
 
   // ── Streaming-Modus ──────────────────────────────────────────────────────
 

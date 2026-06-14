@@ -5,20 +5,32 @@ import {
   BookOpen, RefreshCw, Sparkles, TrendingUp, TrendingDown,
   Minus, AlertTriangle, CheckCircle2, Clock, Euro, Users,
   Star, Truck, ChefHat, BarChart2, CalendarDays, ChevronDown,
-  ChevronUp,
+  ChevronUp, Mail, Send, Settings, X, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DailyMetrics, DigestAnomaly, DailyDigest, DigestHistoryEntry } from '@/lib/delivery/daily-digest';
+import type { DigestEmailConfig } from '@/lib/delivery/digest-mailer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Typen
 // ─────────────────────────────────────────────────────────────────────────────
+
+interface EmailLogEntry {
+  id: string;
+  digestDate: string;
+  sentAt: string;
+  recipientsCount: number;
+  status: 'sent' | 'failed' | 'skipped';
+  error: string | null;
+}
 
 interface DigestResponse {
   digest: DailyDigest | null;
   liveMetrics: { metrics: DailyMetrics; anomalies: DigestAnomaly[] } | null;
   history: DigestHistoryEntry[];
   date: string;
+  emailConfig: DigestEmailConfig | null;
+  emailLog: EmailLogEntry[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -357,6 +369,281 @@ function HistoryRow({ entry, onClick, isActive }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// EmailConfigPanel
+// ─────────────────────────────────────────────────────────────────────────────
+
+function EmailConfigPanel({
+  locationId,
+  config,
+  emailLog,
+  onSaved,
+}: {
+  locationId: string;
+  config: DigestEmailConfig | null;
+  emailLog: EmailLogEntry[];
+  onSaved: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [enabled, setEnabled] = useState(config?.enabled ?? false);
+  const [sendHour, setSendHour] = useState(config?.sendHourUtc ?? 7);
+  const [includeAi, setIncludeAi] = useState(config?.includeAiSummary ?? true);
+  const [extraEmails, setExtraEmails] = useState<string[]>(config?.extraRecipients ?? []);
+  const [newEmail, setNewEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  // Sync wenn config prop sich ändert
+  useEffect(() => {
+    if (config) {
+      setEnabled(config.enabled);
+      setSendHour(config.sendHourUtc);
+      setIncludeAi(config.includeAiSummary);
+      setExtraEmails(config.extraRecipients);
+    }
+  }, [config]);
+
+  async function saveConfig() {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/delivery/admin/daily-digest', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          location_id: locationId,
+          action: 'save_email_config',
+          enabled,
+          send_hour_utc: sendHour,
+          include_ai_summary: includeAi,
+          extra_recipients: extraEmails,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setMsg('Gespeichert ✓');
+      onSaved();
+    } catch {
+      setMsg('Fehler beim Speichern');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendNow() {
+    setSending(true);
+    setMsg(null);
+    try {
+      const yesterday = new Date();
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const date = yesterday.toISOString().slice(0, 10);
+      const res = await fetch('/api/delivery/admin/daily-digest', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ location_id: locationId, action: 'send_email', date }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json() as { result?: { recipientsCount: number; status: string } };
+      const r = json.result;
+      if (r?.status === 'sent') setMsg(`Gesendet an ${r.recipientsCount} Empfänger ✓`);
+      else if (r?.status === 'skipped') setMsg('Übersprungen — kein Digest oder keine Empfänger');
+      else setMsg('Versand fehlgeschlagen');
+      onSaved();
+    } catch {
+      setMsg('Versandfehler');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function addEmail() {
+    const e = newEmail.trim().toLowerCase();
+    if (!e.includes('@') || extraEmails.includes(e)) return;
+    setExtraEmails([...extraEmails, e]);
+    setNewEmail('');
+  }
+
+  function removeEmail(e: string) {
+    setExtraEmails(extraEmails.filter((x) => x !== e));
+  }
+
+  const lastSent = emailLog[0];
+
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Mail size={14} className="text-indigo-500" />
+          <span className="text-sm font-semibold text-zinc-800">E-Mail-Versand konfigurieren</span>
+          {config?.enabled && (
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+              Aktiv · {config.sendHourUtc}:00 UTC
+            </span>
+          )}
+          {lastSent && (
+            <span className="text-[10px] text-zinc-400">
+              Letzter Versand: {fmtDate(lastSent.digestDate)} —{' '}
+              {lastSent.status === 'sent' ? `${lastSent.recipientsCount} Empfänger` : lastSent.status}
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp size={14} className="text-zinc-400" /> : <ChevronDown size={14} className="text-zinc-400" />}
+      </button>
+
+      {open && (
+        <div className="border-t border-zinc-100 px-4 pb-4 pt-3 space-y-4">
+          {/* Aktivieren */}
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-zinc-700">Täglicher Versand</div>
+              <div className="text-xs text-zinc-400">Bericht automatisch per E-Mail versenden</div>
+            </div>
+            <button
+              onClick={() => setEnabled((v) => !v)}
+              className={cn(
+                'relative h-6 w-11 rounded-full transition-colors',
+                enabled ? 'bg-indigo-600' : 'bg-zinc-300',
+              )}
+            >
+              <span className={cn(
+                'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
+                enabled ? 'translate-x-5' : 'translate-x-0.5',
+              )} />
+            </button>
+          </div>
+
+          {/* Uhrzeit */}
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-zinc-600 w-32 shrink-0">Versandzeit (UTC)</label>
+            <select
+              value={sendHour}
+              onChange={(e) => setSendHour(Number(e.target.value))}
+              className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            >
+              {Array.from({ length: 24 }, (_, i) => (
+                <option key={i} value={i}>{String(i).padStart(2, '0')}:00 UTC</option>
+              ))}
+            </select>
+          </div>
+
+          {/* KI-Zusammenfassung einschließen */}
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-zinc-700">KI-Zusammenfassung einschließen</div>
+              <div className="text-xs text-zinc-400">Claude-Analyse im E-Mail-Body</div>
+            </div>
+            <button
+              onClick={() => setIncludeAi((v) => !v)}
+              className={cn(
+                'relative h-6 w-11 rounded-full transition-colors',
+                includeAi ? 'bg-indigo-600' : 'bg-zinc-300',
+              )}
+            >
+              <span className={cn(
+                'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
+                includeAi ? 'translate-x-5' : 'translate-x-0.5',
+              )} />
+            </button>
+          </div>
+
+          {/* Zusätzliche Empfänger */}
+          <div>
+            <div className="text-sm font-medium text-zinc-700 mb-1">Zusätzliche Empfänger</div>
+            <div className="text-xs text-zinc-400 mb-2">
+              Manager/Admins mit hinterlegter E-Mail erhalten den Bericht automatisch.
+              Hier weitere Adressen ergänzen:
+            </div>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="email"
+                placeholder="email@beispiel.de"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addEmail(); } }}
+                className="flex-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+              <button
+                onClick={addEmail}
+                className="flex items-center gap-1 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200"
+              >
+                <Plus size={12} /> Hinzufügen
+              </button>
+            </div>
+            {extraEmails.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {extraEmails.map((e) => (
+                  <span key={e} className="inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-[11px] text-indigo-700">
+                    {e}
+                    <button onClick={() => removeEmail(e)} className="ml-0.5 hover:text-red-600">
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {msg && (
+            <div className={cn(
+              'rounded-lg px-3 py-2 text-xs font-medium',
+              msg.includes('✓') || msg.includes('Gesendet')
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'bg-amber-50 text-amber-700',
+            )}>
+              {msg}
+            </div>
+          )}
+
+          {/* Aktions-Buttons */}
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={() => void saveConfig()}
+              disabled={saving}
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              <Settings size={12} />
+              {saving ? 'Speichert…' : 'Speichern'}
+            </button>
+            <button
+              onClick={() => void sendNow()}
+              disabled={sending}
+              className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+            >
+              <Send size={12} />
+              {sending ? 'Sendet…' : 'Jetzt senden (Gestern)'}
+            </button>
+          </div>
+
+          {/* Versand-Log */}
+          {emailLog.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wide">Versand-Log</div>
+              <div className="space-y-1">
+                {emailLog.slice(0, 7).map((entry) => (
+                  <div key={entry.id} className="flex items-center gap-2 text-xs text-zinc-600">
+                    <span className={cn(
+                      'rounded-full px-2 py-0.5 font-bold text-[10px]',
+                      entry.status === 'sent' ? 'bg-emerald-100 text-emerald-700' :
+                      entry.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-zinc-100 text-zinc-500',
+                    )}>
+                      {entry.status === 'sent' ? `✓ ${entry.recipientsCount}×` : entry.status}
+                    </span>
+                    <span>{fmtDate(entry.digestDate)}</span>
+                    {entry.error && <span className="text-red-500">{entry.error.slice(0, 50)}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // DigestClient
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -566,6 +853,14 @@ export function DigestClient({ locationId }: { locationId: string }) {
           Kein Digest für {fmtDate(date)} gefunden. Klicke &quot;Digest erstellen&amp; speichern&quot;.
         </div>
       )}
+
+      {/* E-Mail-Versand Konfiguration */}
+      <EmailConfigPanel
+        locationId={locationId}
+        config={data?.emailConfig ?? null}
+        emailLog={data?.emailLog ?? []}
+        onSaved={() => void load(date)}
+      />
     </div>
   );
 }
