@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–165 abgeschlossen. CEO Review #98 bestanden. 0 Bugs. Build sauber. 254 Seiten. Deployment-bereit.**
+**Phasen 1–166 abgeschlossen. CEO Review #98 bestanden. 0 Bugs. Build sauber. 255 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phase 166 abgeschlossen. Smart Re-Order Engine: scripts/migrations/082_reorder_engine.sql (customer_reorder_profiles UNIQUE location+phone, top_items JSONB Top-10, preferred_hour, avg_days_between_orders, RLS; v_reorder_location_stats VIEW; v_reorder_top_items VIEW explodiert JSONB; v_reorder_loyal_customers VIEW), lib/delivery/reorder-engine.ts (buildProfileForCustomer + buildProfilesForLocation + buildProfilesAllLocations Cron-Batch; getReorderSuggestions + getReorderSuggestionsByToken öffentlich via rating_token; getReorderDashboard + getTopReorderCustomers + getTopReorderItems; pruneStaleProfiles), GET+POST /api/delivery/admin/reorder-engine (Auth, dashboard|top_customers|top_items|rebuild|prune), GET /api/delivery/reorder (öffentlich via rating_token für Storefront), app/(admin)/delivery/reorder-engine/ (ReorderEngineClient: 6 KPI-Karten, Tab Artikel-Tabelle mit Balken, Tab Stammkunden aufklappbar mit Lieblings-Artikel-Chips), Cron 03:30 UTC + Prune 02:00 UTC, Sidebar Repeat2-Icon + Overview-Link. Build 255 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #98 abgeschlossen. 1 neuer Commit geprüft (Phase 165 Frontend: KitchenDriverPickupWarning/DispatchSchichtRing/EtaAmpel + driver-digest-mailer TS2551 Fix). 0 Bugs. Integration Kitchen↔Dispatch↔Driver vollständig. TypeScript 0 Fehler. Build 254 Seiten sauber. Alle Systeme grün.**
 **Frontend-Ingenieur — 2026-06-14: Phase 165 abgeschlossen. Kitchen: KitchenDriverPickupWarning (Warn-Banner wenn Fahrer unterwegs aber Bestellungen nicht fertig — Countdown pro Fahrer, Bestellliste mit Koch-Status, rot/amber Dringlichkeit, integriert in kitchen/client.tsx). Dispatch: DispatchSchichtRing (aufklappbarer SVG-Fortschritts-Ring mit Schicht-KPIs: Stops geliefert/gesamt, aktive Touren, Ø Min/Stop, SLA-Quote — Supabase-Tages-Zähler für gelieferte Stops, integriert in dispatch/client.tsx). Fahrer-App: EtaAmpel (3-Licht-Verkehrsampel grün/gelb/rot direkt über StopNavCard, zeigt Pünktlichkeit auf einen Blick ohne volle ETA-Zahlen, Mini-Fortschrittsbalken, integriert in fahrer/app/client.tsx). Fix: driver-digest-mailer.ts TS2551 .catch→.then behoben. Build 254 Seiten sauber. TypeScript 0 Fehler.**
 **Backend-Architekt — 2026-06-14: Phase 164 abgeschlossen. Fahrer Tagesabschluss-E-Mail: lib/delivery/driver-digest-mailer.ts (getDriverDigestConfig/upsertDriverDigestConfig, getTodaySnapshot/getWeekAverage/getRankingPosition/getActiveChallenges/getNextShift, renderDriverDigestHtml, sendDriverDailyDigest/sendDriverDailyDigestAllLocations, Versand-Log), scripts/migrations/081_driver_digest_config.sql (driver_digest_config + driver_digest_log), API /api/delivery/admin/driver-digest (GET config+log, POST save_config/send_now), Admin-Seite /delivery/driver-digest (DriverDigestClient: 4 KPI-Karten, Config-Panel mit Toggle/Uhrzeit/Ranking/Schicht, Send-Log, Jetzt-senden-Button), Cron 20:00 UTC → sendDriverDailyDigestAllLocations(), Overview-Link in Fahrer-Sektion. Build 254 Seiten sauber. TypeScript 0 Fehler.**
@@ -65,6 +66,16 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 166: Smart Re-Order Engine — Kunden-Wiederbestellungs-Analyse — 2026-06-14
+- [x] scripts/migrations/082_reorder_engine.sql: customer_reorder_profiles (location_id+customer_phone UNIQUE, total_orders, total_spent_eur, first/last_order_at, avg_days_between_orders, preferred_hour 0-23 UTC, top_items JSONB [{name,count,revenue_eur}] Top-10, RLS), v_reorder_location_stats VIEW (repeat_rate_pct, avg_orders_per_repeat, avg_lifetime_value, last_computed_at), v_reorder_top_items VIEW (CROSS JOIN LATERAL jsonb_array_elements explodiert JSONB, aggregiert distinct_customers+count+revenue), v_reorder_loyal_customers VIEW (total_orders>=2)
+- [x] lib/delivery/reorder-engine.ts: buildProfileForCustomer() (customer_orders JOIN order_items, Top-10 Artikel nach count, preferredHourFrom UTCHour-Modus, avgDaysBetween Ø Tagesdifferenz, UPSERT onConflict location+phone), buildProfilesForLocation() (alle unique phones, fire-and-forget), buildProfilesAllLocations() (Cron-Batch alle aktiven Locations), getReorderSuggestions(locationId,phone,limit=5) → ReorderSuggestion[], getReorderSuggestionsByToken(ratingToken) (rating_token Lookup → phone/locationId → Suggestions, öffentlich), getReorderDashboard() (3 parallele Queries → stats+topItems+loyalCustomers), getTopReorderCustomers() + getTopReorderItems(), pruneStaleProfiles(180d)
+- [x] GET+POST /api/delivery/admin/reorder-engine: Auth via employees.location_id, GET action=dashboard|top_customers|top_items, POST action=rebuild|rebuild_all|prune
+- [x] GET /api/delivery/reorder: öffentlicher Endpunkt via ?token=<rating_token>, gibt suggestions[] + hasHistory zurück (für Storefront "Order Again"-Sektion)
+- [x] app/(admin)/delivery/reorder-engine/: ReorderEngineClient (6 KPI-Karten: Kunden gesamt/Stammkunden/Wiederbestellrate %/Ø Bestellungen/Tracked Revenue/Ø Kundenwert; Tab Artikel: Tabelle mit Balkenvisualisierung; Tab Kunden: aufklappbar mit Lieblings-Artikel-Chips + bevorzugter Bestellstunde + Ø Tage; Profile-Rebuild-Button), ManagerPlus Auth
+- [x] Cron: buildProfilesAllLocations() täglich 03:30 UTC (isReorderTick) → reorder_profiles in Response; pruneStaleProfiles(180) täglich 02:00 UTC (isReportTick) → reorder_profiles_pruned
+- [x] Sidebar: "Wiederbestellungs-Engine" + Repeat2-Icon in Loslegen-Gruppe; sidebar-client.tsx ICON_MAP um Repeat2 erweitert
+- [x] app/(admin)/delivery/page.tsx: "Wiederbestellungs-Engine" + Repeat2-Icon in Loyalty & A/B-Tests Sektion
+- [x] Build: next build ✓ (255 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 165: Kitchen Fahrer-Warn-Banner, Dispatch Schicht-Ring, Fahrer ETA-Ampel — 2026-06-14
 - [x] app/(admin)/kitchen/driver-pickup-warning.tsx: KitchenDriverPickupWarning (kritischer Warn-Banner wenn Fahrer unterwegs zum Restaurant ist aber Bestellungen noch nicht fertig: Countdown pro Abholung, Bestellliste mit Koch-Status/Artikel, rot/amber/normal Dringlichkeit, animiert wenn überfällig, integriert in kitchen/client.tsx nach KitchenWaveDetector)
 - [x] app/(admin)/dispatch/schicht-ring.tsx: DispatchSchichtRing (aufklappbarer Schicht-Fortschritts-Ring: animierter SVG-Kreis pct abgeschlossener Stops, SLA-Ring, KPI-Grid: Stops geliefert/gesamt/pending/aktiv, Ø Min/Stop, SLA%, Supabase-Live-Tages-Zähler, integriert in dispatch/client.tsx vor TourHealthStrip)
@@ -3268,3 +3279,12 @@ Siehe DELIVERY_CEO_LOG.md
   - KitchenDispatchPressureChip: Toolbar-Chip zeigt fertige Lieferbestellungen die auf Dispatch warten
     Farbampel: grün (1), orange (2–3), rot+pulse (4+) — sofort sichtbar für Küchenpersonal
   - Build: Compiled successfully, 0 TypeScript-Fehler
+- 2026-06-14: Backend-Architekt — Phase 166: Smart Re-Order Engine (Kunden-Wiederbestellungs-Analyse)
+  - scripts/migrations/082_reorder_engine.sql: customer_reorder_profiles + 3 VIEWs (stats/top_items/loyal_customers)
+  - lib/delivery/reorder-engine.ts: 8 Funktionen (buildProfile, buildAll, getReorderSuggestions, getReorderSuggestionsByToken, getDashboard, getTopCustomers, getTopItems, pruneStaleProfiles)
+  - GET+POST /api/delivery/admin/reorder-engine: Dashboard + Rebuild + Prune
+  - GET /api/delivery/reorder: öffentlich via rating_token (Storefront "Order Again")
+  - app/(admin)/delivery/reorder-engine/: 6 KPI-Karten, Artikel-Tab + Kunden-Tab, Rebuild-Button
+  - Cron: 03:30 UTC Rebuild + 02:00 UTC Prune
+  - Sidebar: Repeat2-Icon + Overview-Link
+  - Build: npx next build ✓ (255 Seiten, 0 TypeScript-Fehler)
