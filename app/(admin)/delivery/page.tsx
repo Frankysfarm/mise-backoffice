@@ -5,6 +5,7 @@ import {
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
+  Settings, DollarSign, ShieldCheck,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -264,6 +265,27 @@ export default async function DeliveryOverviewPage() {
           title="Dispatch-Queue"
           subtitle="Prioritätsliste offener Bestellungen · Boost und Eskalation"
           cta="Queue ansehen"
+        />
+        <SectionCard
+          href="/delivery/payout-config"
+          icon={<Settings className="h-5 w-5" />}
+          title="Abrechnungs-Konfiguration"
+          subtitle="Basis-Vergütung, km-Satz, Peak-Bonus, Meilensteine"
+          cta="Konfigurieren"
+        />
+        <SectionCard
+          href="/delivery/fee-config"
+          icon={<DollarSign className="h-5 w-5" />}
+          title="Zonen-Gebühren"
+          subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone"
+          cta="Gebühren anpassen"
+        />
+        <SectionCard
+          href="/delivery/compliance"
+          icon={<ShieldCheck className="h-5 w-5" />}
+          title="Compliance & Zertifizierungen"
+          subtitle="Fahrerdokumente · ablaufende Zertifikate · Dispatch-Sperren"
+          cta="Compliance prüfen"
         />
       </div>
     </>
