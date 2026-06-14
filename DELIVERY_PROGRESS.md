@@ -3406,3 +3406,12 @@ Siehe DELIVERY_CEO_LOG.md
   - Cron: rebuildAllLocations() täglich 04:15 UTC (nach Geo-Clustering, vor RFM)
   - Sidebar: Zap-Icon "Smart Upsells (Market-Basket)" in Loslegen-Gruppe
   - Build: pnpm run build ✓ (268 Seiten, 0 Fehler)
+- 2026-06-14: Backend-Architekt — Phase 190: Smart Referral Program Engine
+  - scripts/migrations/096_referral_program.sql: referral_programs (Programm-Config pro Location, UNIQUE location_id) + referral_codes (individueller Code pro Kunde, UNIQUE code + UNIQUE location+token) + referral_conversions (Konversionen mit Status-Machine pending→delivered→rewarded/expired/cancelled, UNIQUE code+referee) + v_referral_stats VIEW + v_top_referrers VIEW + expire_stale_referral_conversions() SQL-Funktion + 7 Indizes + RLS + updated_at Trigger
+  - lib/delivery/referral-program.ts: 10 Funktionen — getProgram/upsertProgram (Programm-CRUD), getOrCreateReferralCode (auto-generierter 8-stelliger Code ohne O/0/I/1), getReferralCode (Validierung), applyReferralCode (Checkout-Integration, Owner-Check, Duplikat-Guard, Max-Limit, requires_first_order), markConversionDelivered, processReferralConversions (Gutschein-Ausstellung via vouchers-Tabelle für Empfehler + Geworbenen), processAllLocations (Cron-Batch), expireStaleConversions (RPC), getDashboard (4 parallele Queries), getTopReferrers
+  - GET+POST /api/delivery/admin/referral-program: Auth via employees.location_id, GET=dashboard|top-referrers, POST action=upsert_program|process_rewards|expire_stale
+  - GET+POST /api/delivery/referral: Öffentlicher Storefront-Endpoint, GET=Code holen/erstellen, POST action=validate|apply
+  - app/(admin)/delivery/referral-program/: 4 KPI-Karten (Aktive Empfehler/Konversionen/Konversionsrate/Belohnungen), 4 Tabs (Übersicht mit Programm-Config + letzte Konversionen, Top-Empfehler-Tabelle mit Podium, Konversionen-Tabelle mit Status-Badge, Einstellungen mit Toggle + Formular + How-it-works-Box)
+  - Cron: processAllLocations() täglich 04:45 UTC + expireStaleConversions() täglich 02:00 UTC
+  - Sidebar: Gift-Icon "Empfehlungs-Programm" in Loslegen-Gruppe
+  - Build: npm run build ✓ (269 Seiten, 0 TypeScript-Fehler)
