@@ -181,6 +181,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/push-analytics',    icon: 'Activity',  label: 'Push-Analytics (alle Kanäle)' },
       { group: 'Loslegen', href: '/delivery/push-campaigns',   icon: 'Send',      label: 'Push-Kampagnen (Scheduler)' },
       { group: 'Loslegen', href: '/delivery/rfm-segmentation', icon: 'PieChart',  label: 'Kunden-Segmentierung (RFM)' },
+      { group: 'Loslegen', href: '/delivery/vouchers',         icon: 'Ticket',    label: 'Gutscheine & Promo-Codes' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

@@ -70,6 +70,7 @@ import { computeClustersAllLocations } from '@/lib/delivery/geo-clustering';
 import { computePushAnalyticsAllLocations } from '@/lib/delivery/push-analytics';
 import { runDueCampaigns } from '@/lib/delivery/push-campaigns';
 import { buildRfmAllLocations, pruneStaleRfmProfiles } from '@/lib/delivery/rfm-segmentation';
+import { pruneExpiredVouchers } from '@/lib/delivery/vouchers';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -139,7 +140,7 @@ export async function GET(req: NextRequest) {
     // RFM-Segmentierung: täglich 04:30 UTC (nach Geo-Clustering)
     const isRfmTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
 
-    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned] = await Promise.all([
+    const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned] = await Promise.all([
       smartDispatchTick(),
       syncKitchenNotifications(),
       serviceSb.rpc('mark_stale_drivers_offline').then(
@@ -421,6 +422,10 @@ export async function GET(req: NextRequest) {
       isReportTick
         ? pruneStaleRfmProfiles(30).catch(() => 0)
         : Promise.resolve(0),
+      // Phase 179: Abgelaufene Voucher deaktivieren — täglich 02:00 UTC (>90 Tage alt)
+      isReportTick
+        ? pruneExpiredVouchers().catch(() => 0)
+        : Promise.resolve(0),
     ]);
 
     const durationMs = Date.now() - start;
@@ -543,6 +548,7 @@ export async function GET(req: NextRequest) {
       ...(campaignsResult ? { campaigns: { executed: campaignsResult.executed, sent: campaignsResult.totalSent, errors: campaignsResult.errors } } : {}),
       ...(rfmResult ? { rfm_segmentation: { locations: rfmResult.locations, profiles_upserted: rfmResult.profilesUpserted, errors: rfmResult.errors } } : {}),
       ...(rfmPruned ? { rfm_profiles_pruned: rfmPruned } : {}),
+      ...(vouchersPruned ? { vouchers_pruned: vouchersPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
