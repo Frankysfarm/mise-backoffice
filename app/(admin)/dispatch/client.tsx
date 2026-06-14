@@ -87,6 +87,7 @@ import { TourZeitplanGrid } from './tour-zeitplan';
 import { DriverPositioningPanel } from './driver-positioning-panel';
 import { type HotspotMarker } from './driver-map';
 import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
+import { DispatchProfitStrip } from './profit-strip';
 
 type Driver = {
   employee_id: string;
@@ -935,6 +936,9 @@ export function DispatchBoard({
       {overviewStats && (
         <TodayStatsBar stats={overviewStats.today_stats} zoneCounts={overviewStats.zone_counts} />
       )}
+
+      {/* Profitabilitäts-Strip: Umsatz, Kosten, Gewinn, Marge (30-Tage-Sicht, Phase 100) */}
+      <DispatchProfitStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Zonen-Analyse: Wartezeiten je Lieferzone — hebt unter-bediente Zonen hervor */}
       {readyOrders.length > 0 && (

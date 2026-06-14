@@ -34,6 +34,7 @@ import { FahrerTagesZusammenfassung } from './tages-zusammenfassung';
 import { KundenHistorieKarte } from './kunden-historie-karte';
 import { TourStatusHeader } from './tour-status-header';
 import { FahrerStickyBar } from './fahrer-sticky-bar';
+import { NextStopCta } from './next-stop-cta';
 
 type Driver = {
   id: string;
@@ -828,6 +829,22 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Next-Stop Navigation CTA — großer daumenfreundlicher Maps-Button */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop) return null;
+            return (
+              <div className="px-4">
+                <NextStopCta
+                  address={nextStop.order.kunde_adresse ?? null}
+                  lat={nextStop.order.kunde_lat ?? null}
+                  lng={nextStop.order.kunde_lng ?? null}
+                  stopNumber={nextStop.reihenfolge}
+                  isCurrentStop={true}
+                />
+              </div>
+            );
+          })()}
           {/* Kunden-Historie: Stammkunde vs. Neukunde, Bestellanzahl, Ø Wert */}
           {(() => {
             const nextStop = activeBatch.stops.find(s => !s.geliefert_am);

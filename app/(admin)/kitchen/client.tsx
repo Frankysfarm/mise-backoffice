@@ -32,6 +32,7 @@ import { KitchenVorhersagePanel } from './vorhersage-panel';
 import { KitchenPrepSyncPanel } from './prep-sync-panel';
 import { KitchenBatchSyncStrip } from './batch-sync-strip';
 import { KitchenDriverPickupWarning } from './driver-pickup-warning';
+import { DriverApproachPanel } from './driver-approach-panel';
 import { KitchenEnergyLevelRing } from './energy-level-ring';
 import { KitchenBestellungsReihenfolge } from './bestellungs-reihenfolge';
 import { KitchenSmartKochplan } from './smart-kochplan';
@@ -500,6 +501,8 @@ export function KitchenBoard({
       <KitchenWaveDetector orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}
       <KitchenDriverPickupWarning batches={batches} drivers={drivers} stops={stops} orders={filtered} />
+      {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
+      <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Smart-Kochplan: optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}
       <KitchenSmartKochplan orders={filtered} batches={batches} stops={stops} />
       {/* Kochstart-Alert-Band: SOFORT-Warnung wenn Bestellungen jetzt kochen müssen (basierend auf kitchen_timings) */}
