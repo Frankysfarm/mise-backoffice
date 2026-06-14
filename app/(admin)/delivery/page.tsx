@@ -7,6 +7,7 @@ import {
   BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
   Settings, DollarSign, ShieldCheck, UserPlus, CalendarClock, Bell, BadgePercent, BellDot,
   Smartphone, FileBarChart, Award, TrendingDown, ClipboardCheck, BrainCircuit,
+  LineChart, Gauge, Wrench,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -364,6 +365,27 @@ export default async function DeliveryOverviewPage() {
           title="KI-Dispatch-Assistent"
           subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen"
           cta="KI starten"
+        />
+        <SectionCard
+          href="/delivery/ai-forecast"
+          icon={<LineChart className="h-5 w-5" />}
+          title="KI-Nachfrage-Prognose"
+          subtitle="Claude prognostiziert Stoßzeiten und Fahrerbedarf"
+          cta="Prognose starten"
+        />
+        <SectionCard
+          href="/delivery/performance"
+          icon={<Gauge className="h-5 w-5" />}
+          title="Fahrer-Performance"
+          subtitle="Live-KPIs: Lieferungen heute, Kapazität und Batch-Status"
+          cta="Performance ansehen"
+        />
+        <SectionCard
+          href="/delivery/config"
+          icon={<Wrench className="h-5 w-5" />}
+          title="Lieferdienst-Konfiguration"
+          subtitle="Dispatch, ETA, Bundling, Zonen und Scoring-Gewichte"
+          cta="Konfiguration"
         />
       </div>
     </>
