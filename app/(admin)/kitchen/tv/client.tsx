@@ -6,10 +6,10 @@
  * Route: /kitchen/tv
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-import { Bike, CheckCircle2, ChefHat, Clock, Package, Zap } from 'lucide-react';
+import { Bike, CheckCircle2, ChefHat, Clock, Navigation, Package, Timer, Zap } from 'lucide-react';
 
 const LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
 
@@ -57,6 +57,12 @@ type KitchenTiming = {
   ready_target: string | null;
   prep_min: number | null;
   status: string;
+};
+
+type BatchEta = {
+  order_id: string;
+  driver_name: string;
+  eta_sec: number | null;
 };
 
 type UrgencyLevel = 'ok' | 'tight' | 'urgent' | 'overdue';
@@ -147,31 +153,59 @@ export function KitchenTVDisplay({
   const supabase = createClient();
   const [orders, setOrders] = useState(initialOrders);
   const [timings, setTimings] = useState(initialTimings);
+  const [batchEtas, setBatchEtas] = useState<BatchEta[]>([]);
+
+  const refresh = useCallback(async () => {
+    const [{ data: o }, { data: t }, { data: bs }] = await Promise.all([
+      supabase
+        .from('customer_orders')
+        .select('id, bestellnummer, status, typ, kunde_name, bestellt_am, fertig_am, geschaetzte_zubereitung_min, items:order_items(id, name, menge)')
+        .in('status', ['bestätigt', 'in_zubereitung', 'fertig'])
+        .order('bestellt_am', { ascending: true }),
+      supabase
+        .from('kitchen_timings')
+        .select('id, order_id, cook_start_at, ready_target, prep_min, status')
+        .in('status', ['scheduled', 'cooking']),
+      supabase
+        .from('delivery_batch_stops')
+        .select('order_id, batch:delivery_batches(started_at, total_eta_min, fahrer:employees(vorname, nachname))')
+        .in('status', ['pending', 'picked_up'])
+        .limit(50),
+    ]);
+    if (o) setOrders(o as any[]);
+    if (t) setTimings(t as any[]);
+    if (bs) {
+      const etas: BatchEta[] = (bs as any[]).map((s: any) => {
+        const batch = s.batch;
+        let eta_sec: number | null = null;
+        if (batch?.started_at && batch?.total_eta_min != null) {
+          eta_sec = Math.floor(
+            (new Date(batch.started_at).getTime() + batch.total_eta_min * 60_000 - Date.now()) / 1000,
+          );
+        }
+        return {
+          order_id: s.order_id,
+          driver_name: batch?.fahrer
+            ? `${batch.fahrer.vorname} ${batch.fahrer.nachname.charAt(0)}.`
+            : 'Fahrer',
+          eta_sec,
+        };
+      });
+      setBatchEtas(etas);
+    }
+  }, [supabase]);
 
   useEffect(() => {
-    const refresh = async () => {
-      const [{ data: o }, { data: t }] = await Promise.all([
-        supabase
-          .from('customer_orders')
-          .select('id, bestellnummer, status, typ, kunde_name, bestellt_am, fertig_am, geschaetzte_zubereitung_min, items:order_items(id, name, menge)')
-          .in('status', ['bestätigt', 'in_zubereitung', 'fertig'])
-          .order('bestellt_am', { ascending: true }),
-        supabase
-          .from('kitchen_timings')
-          .select('id, order_id, cook_start_at, ready_target, prep_min, status')
-          .in('status', ['scheduled', 'cooking']),
-      ]);
-      if (o) setOrders(o as any[]);
-      if (t) setTimings(t as any[]);
-    };
-
+    refresh();
+    const iv = setInterval(refresh, 30_000);
     const ch = supabase
       .channel('kitchen-tv')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_orders' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'kitchen_timings' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refresh)
       .subscribe();
 
-    return () => { supabase.removeChannel(ch); };
+    return () => { clearInterval(iv); supabase.removeChannel(ch); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -179,7 +213,8 @@ export function KitchenTVDisplay({
   const ready = orders.filter((o) => o.status === 'fertig');
   const accepted = orders.filter((o) => o.status === 'bestätigt');
 
-  const timingMap = new Map(timings.map((t) => [t.order_id, t]));
+  const timingMap  = new Map(timings.map((t) => [t.order_id, t]));
+  const batchEtaMap = new Map(batchEtas.map((e) => [e.order_id, e]));
 
   const cookingWithUrgency = cooking
     .map((o) => ({ order: o, timing: timingMap.get(o.id), urgency: getUrgency(o, timingMap.get(o.id)) }))
@@ -330,34 +365,68 @@ export function KitchenTVDisplay({
                 ? Math.floor((Date.now() - new Date(o.fertig_am).getTime()) / 60_000)
                 : null;
               const tooLong = fertigMin != null && fertigMin > 10;
+              const batchEta = batchEtaMap.get(o.id);
+              const driverEtaMin = batchEta?.eta_sec != null
+                ? Math.max(0, Math.ceil(batchEta.eta_sec / 60))
+                : null;
+              const driverSoon = driverEtaMin !== null && driverEtaMin <= 3;
               return (
                 <div
                   key={o.id}
                   className={cn(
-                    'rounded-2xl border-2 p-4 flex items-center justify-between',
-                    tooLong
+                    'rounded-2xl border-2 overflow-hidden',
+                    driverSoon
+                      ? 'border-purple-500 bg-purple-950 animate-pulse'
+                      : tooLong
                       ? 'border-amber-500 bg-amber-950'
                       : 'border-accent/40 bg-matcha-800',
                   )}
                 >
-                  <div>
-                    <div className="font-black text-2xl">#{o.bestellnummer.slice(-4)}</div>
-                    <div className="text-sm text-matcha-300 truncate max-w-[160px]">{o.kunde_name}</div>
-                    <div className="text-[11px] text-matcha-500 mt-0.5">
-                      {o.typ === 'lieferung' ? '🛵 Lieferung' : '🏃 Abholung'}
+                  <div className="p-4 flex items-center justify-between">
+                    <div>
+                      <div className="font-black text-2xl">#{o.bestellnummer.slice(-4)}</div>
+                      <div className="text-sm text-matcha-300 truncate max-w-[160px]">{o.kunde_name}</div>
+                      <div className="text-[11px] text-matcha-500 mt-0.5">
+                        {o.typ === 'lieferung' ? '🛵 Lieferung' : '🏃 Abholung'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {fertigMin != null && (
+                        <div className={cn('font-mono font-black text-3xl', driverSoon ? 'text-purple-300' : tooLong ? 'text-amber-300' : 'text-accent')}>
+                          {fertigMin}m
+                        </div>
+                      )}
+                      <div className="text-[10px] text-matcha-400 uppercase tracking-wide">wartet</div>
+                      {tooLong && !driverSoon && (
+                        <div className="text-[10px] font-black text-amber-400 animate-pulse mt-0.5">Dispatch!</div>
+                      )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    {fertigMin != null && (
-                      <div className={cn('font-mono font-black text-3xl', tooLong ? 'text-amber-300' : 'text-accent')}>
-                        {fertigMin}m
-                      </div>
-                    )}
-                    <div className="text-[10px] text-matcha-400 uppercase tracking-wide">wartet</div>
-                    {tooLong && (
-                      <div className="text-[10px] font-black text-amber-400 animate-pulse mt-0.5">Dispatch!</div>
-                    )}
-                  </div>
+                  {/* Fahrer-ETA-Streifen */}
+                  {batchEta && (
+                    <div className={cn(
+                      'flex items-center gap-2 px-4 py-2 border-t text-sm',
+                      driverSoon
+                        ? 'border-purple-600 bg-purple-800/60 text-purple-100'
+                        : 'border-white/10 bg-white/5 text-matcha-300',
+                    )}>
+                      {driverSoon
+                        ? <Navigation className="h-4 w-4 text-purple-300 animate-pulse shrink-0" />
+                        : <Bike className="h-4 w-4 shrink-0 opacity-60" />
+                      }
+                      <span className="font-bold truncate max-w-[120px]">{batchEta.driver_name}</span>
+                      {driverEtaMin !== null && (
+                        <span className="ml-auto font-black tabular-nums shrink-0">
+                          {driverSoon ? '⚡ gleich da!' : `~${driverEtaMin} Min`}
+                        </span>
+                      )}
+                      {driverEtaMin === null && (
+                        <span className="ml-auto flex items-center gap-1 text-[11px] opacity-60">
+                          <Timer className="h-3 w-3" /> unterwegs
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
