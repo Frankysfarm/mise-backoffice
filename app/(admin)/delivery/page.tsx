@@ -4,7 +4,7 @@ import {
   Bike, MapPin, Plug, Banknote, Users, ArrowRight, Clock, TrendingUp, Zap, BarChart3, Activity,
   Star, Calendar, Target, AlertTriangle, PackageX, Clock as ClockIcon,
   Wallet, UserCheck, List, Ticket, XCircle, MapPinned, ShieldAlert,
-  BellRing, Megaphone, RotateCcw,
+  BellRing, Megaphone, RotateCcw, Signal, SlidersHorizontal,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -250,6 +250,20 @@ export default async function DeliveryOverviewPage() {
           title="Tour-Recovery"
           subtitle="Abgebrochene Touren neu einplanen · Bestellungen retten"
           cta="Recovery"
+        />
+        <SectionCard
+          href="/delivery/queue-signal"
+          icon={<Signal className="h-5 w-5" />}
+          title="Kapazitäts-Signal"
+          subtitle="Normal / Surge / Pausiert – Bestellannahme steuern"
+          cta="Signal steuern"
+        />
+        <SectionCard
+          href="/delivery/dispatch-queue"
+          icon={<SlidersHorizontal className="h-5 w-5" />}
+          title="Dispatch-Queue"
+          subtitle="Prioritätsliste offener Bestellungen · Boost und Eskalation"
+          cta="Queue ansehen"
         />
       </div>
     </>
