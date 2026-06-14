@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–160 abgeschlossen. CEO Review #95 bestanden. Build sauber. 252 Seiten. Deployment-bereit.**
+**Phasen 1–161 abgeschlossen. CEO Review #95 bestanden. Build sauber. 253 Seiten. Deployment-bereit.**
+**Backend-Architekt — 2026-06-14: Phase 161 abgeschlossen. Schicht-Kalender (/delivery/shift-calendar) + GET /api/delivery/admin/shift-calendar + lib/delivery/shift-calendar.ts + 15 fehlende Overview-Links ergänzt (Schicht-Kalender, Schicht-Planung, Auto-Vorschläge, Peak-Intelligenz, Bestellfluss, Profitabilität, Tour-Analytics, Menü-Analytics, Geo-Nachfrage, Tages-Digest, Erschöpfungs-Monitor, Kommunikations-Log, SLA-Kompensation, Kunden-Retention, Health-Observatory). Build 253 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #95 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (SchichtKpiLive: now-Dependency in useEffect entfernt, TagesVerlaufVergleich: locationId-Variable statt Literal). TypeScript 0 Fehler. Build 252 Seiten sauber. Alle Systeme grün.**
 **Backend-Architekt — 2026-06-14: Phase 160 abgeschlossen. Bewertungs-Trends Dashboard (/delivery/rating-trends) + API /api/delivery/admin/rating-trends (wöchentl./monatl. Aggregation, Fahrer/Zonen-Aufschlüsselung, Trend) + Lohnzettel-PDF-Button in Payouts-Admin. Build 252 Seiten sauber. TypeScript 0 Fehler.**
 **CEO-Agent — 2026-06-14: Review #94 abgeschlossen. 1 neuer Commit geprüft. 2 Bugs gefixt (locationFilter-Ignorierung in DispatchNächsteZuweisung, nutzloser 1s-Tick in TourAbschlussRechner). TypeScript 0 Fehler. Build 251 Seiten sauber. Alle Systeme grün.**
@@ -58,6 +59,13 @@
 
 ## Feature-Status (Auto-Parser)
 <!-- Diese Zeilen werden vom Progress-Dashboard automatisch geparst -->
+- [x] Phase 161: Schicht-Kalender + 15 fehlende Overview-Links — 2026-06-14
+- [x] lib/delivery/shift-calendar.ts: getWeekCalendar(locationId, weekStart?) — 7-Tage-Grid mit WeekCalendar/CalendarDay/CalendarHour/CalendarShift (Coverage-Status ok/low/gap/over/off je Stunde aus coverage_requirements, Fahrer-Lookup aus mise_drivers JOIN, Stunden-Mapping, Summary-KPIs)
+- [x] GET /api/delivery/admin/shift-calendar: Auth-Guard, location_id + week_start Parameter, WeekCalendar-Response
+- [x] app/(admin)/delivery/shift-calendar/page.tsx: requireManagerPlus(), tenant_id → ShiftCalendarClient
+- [x] app/(admin)/delivery/shift-calendar/client.tsx: ShiftCalendarClient — Wochennavigation (←/→/Heute), 5 KPI-Karten (Schichten/Fahrer/Lücken/Ø Coverage/Peak-Bedarf), Kalender-Grid (8–22h × 7 Tage), Coverage-Farbcodierung, Fahrer-Name-Blöcke, Tages-Detailpanel mit Stunden-Grid + Schicht-Liste, "Neue Schicht"-Modal (POST /api/delivery/admin/shifts), Fahrer-Übersicht-Grid
+- [x] app/(admin)/delivery/page.tsx: 15 fehlende Links ergänzt (Schicht-Kalender NEU, Schicht-Planung, Auto-Vorschläge, Peak-Intelligenz, Erschöpfungs-Monitor, Kommunikations-Log in Fahrer; Bestellfluss, Profitabilität, Tour-Analytics, Menü-Analytics, Geo-Nachfrage in Analytics; Tages-Digest in KI; SLA-Kompensation in Finanzen; Kunden-Retention in Loyalty; Standort-Vergleich + Health-Observatory in System)
+- [x] Build: next build ✓ (253 Seiten, 0 TypeScript-Fehler)
 - [x] Phase 159: Loyalty A/B-Test Admin Dashboard + fehlende Overview-Links — 2026-06-14
 - [x] app/(admin)/delivery/loyalty-ab/page.tsx: Server-Seite mit requireManagerPlus() + location_id Auflösung via employees-Tabelle
 - [x] app/(admin)/delivery/loyalty-ab/client.tsx: LoyaltyAbClient (4 KPI-Karten: Alle Tests/Aktiv/Varianten gesamt/Abgeschlossen, Status-Filter Tabs, TestCard mit aufklappbaren Varianten-Metriken, CreateTestForm mit dynamischen Varianten und Validierung, Info-Box A/B-Mechanismus)
