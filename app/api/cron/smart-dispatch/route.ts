@@ -79,6 +79,7 @@ import { processAllLocations as processReferralRewards, expireStaleConversions a
 import { computeCvsAllLocations, pruneStaleScores as pruneCvsScores } from '@/lib/delivery/customer-value-score';
 import { buildStreakOverviewAllLocations } from '@/lib/delivery/driver-streaks';
 import { snapshotAllLocations as snapshotDriverTipsAllLocations } from '@/lib/delivery/tips';
+import { recordForecastAllLocations, fillActualsAllLocations, pruneForecastSnapshots } from '@/lib/delivery/demand-forecast';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -157,6 +158,8 @@ export async function GET(req: NextRequest) {
     const isCvsTick = nowHour === 3 && nowMin >= 44 && nowMin < 48;
     // Driver Tip Snapshots: täglich 01:30 UTC (vor Subscription-Renewal, frische Tagesdaten)
     const isTipSnapshotTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
+    // Demand-Forecast: Record snapshots alle 30 Min + fill actuals täglich 02:15 UTC
+    const isForecastFillTick = nowHour === 2 && nowMin >= 14 && nowMin < 18;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -495,6 +498,17 @@ export async function GET(req: NextRequest) {
       ? await snapshotDriverTipsAllLocations().catch(() => ({ locations: 0, errors: 1, tipsTotal: 0, eurTotal: 0 }))
       : null;
 
+    // Phase 201: Demand-Forecast — Snapshots alle 30 Min, Ist-Werte täglich 02:15 UTC
+    const demandForecastResult = isDemandTick
+      ? await recordForecastAllLocations().catch(() => ({ locations: 0, saved: 0, errors: 1 }))
+      : null;
+    const demandForecastFillResult = isForecastFillTick
+      ? await fillActualsAllLocations().catch(() => ({ locations: 0, filled: 0, errors: 1 }))
+      : null;
+    if (isReportTick) {
+      pruneForecastSnapshots(60).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -624,6 +638,8 @@ export async function GET(req: NextRequest) {
       ...(cvsResult ? { customer_value_scores: { locations: cvsResult.locations, scores_upserted: cvsResult.scoresUpserted, errors: cvsResult.errors } } : {}),
       ...(streakOverview ? { driver_streaks: { locations: streakOverview.locations, active_streakers: streakOverview.active_streakers } } : {}),
       ...(tipSnapshotResult ? { driver_tips: { locations: tipSnapshotResult.locations, tips: tipSnapshotResult.tipsTotal, eur: tipSnapshotResult.eurTotal, errors: tipSnapshotResult.errors } } : {}),
+      ...(demandForecastResult ? { demand_forecast_snapshots: { locations: demandForecastResult.locations, saved: demandForecastResult.saved, errors: demandForecastResult.errors } } : {}),
+      ...(demandForecastFillResult ? { demand_forecast_actuals: { locations: demandForecastFillResult.locations, filled: demandForecastFillResult.filled, errors: demandForecastFillResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

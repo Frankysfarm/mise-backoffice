@@ -182,6 +182,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen" cta="KI starten" />
         <SectionCard href="/delivery/ai-forecast" icon={<LineChart className="h-5 w-5" />} title="KI-Nachfrage-Prognose"
           subtitle="Claude prognostiziert Stoßzeiten und Fahrerbedarf" cta="Prognose starten" />
+        <SectionCard href="/delivery/demand-forecast" icon={<BrainCircuit className="h-5 w-5" />} title="Smart Demand Forecasting"
+          subtitle="Stündliche Prognose-Genauigkeit · Forecast vs. Ist · 7-Tage Wochenraster" cta="Forecasting öffnen" />
         <SectionCard href="/delivery/digest" icon={<FileBarChart className="h-5 w-5" />} title="Tages-Digest (KI)"
           subtitle="Automatische KI-Zusammenfassung der Betriebslage · Anomalie-Erkennung" cta="Digest öffnen" />
       </SectionGroup>

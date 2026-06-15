@@ -49,6 +49,7 @@ import { BatchReadySyncPanel } from './batch-ready-sync';
 import { KitchenFlowPrognose } from './flow-prognose';
 import { KitchenNachfrageSpike } from './nachfrage-spike-panel';
 import { KitchenKapazitaetsAnzeige } from './kapazitaets-anzeige';
+import { DemandForecastChart } from './demand-forecast-chart';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -504,6 +505,8 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
+      {/* Phase 201: Demand-Forecast-Chart — 6h Bestellprognose für Küchen-Vorbereitung */}
+      <DemandForecastChart locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
       <KitchenKapazitaetsAnzeige orders={filtered} timings={timings} />
       {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}

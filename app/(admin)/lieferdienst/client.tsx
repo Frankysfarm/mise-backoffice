@@ -75,6 +75,8 @@ import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
 import { RentabilitaetsTrend } from './rentabilitaets-trend'
 import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
+import { LieferzonenHeatmap } from './lieferzonen-heatmap'
+import { TagesauswertungsBanner } from './tagesauswertungs-banner'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -986,6 +988,10 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 201: Tagesauswertungs-Banner — erscheint ab 20:00 mit Schicht-Zusammenfassung */}
+              <TagesauswertungsBanner locationId={locationId} />
+              {/* Phase 201: Zonen-Heatmap — Liefervolumen nach Zone A/B/C/D */}
+              <LieferzonenHeatmap locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 200: 30-Tage Rentabilitätstrend — Umsatz/Kosten/Marge Zeitreihe */}

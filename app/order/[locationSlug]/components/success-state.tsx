@@ -8,6 +8,7 @@ import { PostDeliveryRating } from './post-delivery-rating';
 import { EtaTrackerCard } from './eta-tracker-card';
 import { FahrerNaehePuls } from './fahrer-naehe-puls';
 import { BestellungStatusBand } from './bestellung-status-band';
+import { FahrerBewertungsDialog } from './fahrer-bewertungs-dialog';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -76,6 +77,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [copiedLink, setCopiedLink] = React.useState(false);
   const [showPostDeliveryRating, setShowPostDeliveryRating] = React.useState(false);
   const postDeliveryTriggeredRef = React.useRef(false);
+  const [showFahrerBewertung, setShowFahrerBewertung] = React.useState(false);
+  const fahrerBewertungTriggeredRef = React.useRef(false);
 
   // Trigger Post-Delivery-Rating wenn Status auf 'geliefert' wechselt (nur einmal)
   React.useEffect(() => {
@@ -84,6 +87,20 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
       setShowPostDeliveryRating(true);
     }
   }, [liveStatus, orderId, ratingSubmitted]);
+
+  // Trigger Fahrer-Bewertungs-Dialog 4s nach PostDeliveryRating, nur wenn Fahrername bekannt
+  React.useEffect(() => {
+    if (
+      liveStatus === 'geliefert' &&
+      orderId &&
+      driverName &&
+      !fahrerBewertungTriggeredRef.current
+    ) {
+      fahrerBewertungTriggeredRef.current = true;
+      const t = setTimeout(() => setShowFahrerBewertung(true), 4_000);
+      return () => clearTimeout(t);
+    }
+  }, [liveStatus, orderId, driverName]);
 
   function shareTrackingLink() {
     if (!orderId) return;
@@ -729,6 +746,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             setShowPostDeliveryRating(false);
             setRatingSubmitted(true);
           }}
+        />
+      )}
+
+      {/* Phase 201: Fahrer-Bewertungs-Dialog — erscheint nach PostDeliveryRating wenn Fahrername bekannt */}
+      {orderId && driverName && !showPostDeliveryRating && (
+        <FahrerBewertungsDialog
+          orderId={orderId}
+          driverName={driverName}
+          triggered={showFahrerBewertung}
+          onDismiss={() => setShowFahrerBewertung(false)}
         />
       )}
     </main>
