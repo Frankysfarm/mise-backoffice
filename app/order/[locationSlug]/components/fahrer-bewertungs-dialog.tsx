@@ -9,7 +9,7 @@
  * Triggered von success-state.tsx wenn liveStatus === 'geliefert' && driverName.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, Star, ThumbsUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,7 +37,7 @@ export function FahrerBewertungsDialog({ orderId, driverName, triggered, onDismi
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const submittedRef = { current: false };
+  const submittedRef = useRef(false);
 
   useEffect(() => {
     if (triggered && !submittedRef.current) {
@@ -76,6 +76,7 @@ export function FahrerBewertungsDialog({ orderId, driverName, triggered, onDismi
     } catch {
       // fire-and-forget — rating loss is acceptable
     } finally {
+      submittedRef.current = true;
       setSubmitting(false);
       setDone(true);
       setTimeout(() => {

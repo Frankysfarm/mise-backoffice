@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–200 vollständig abgeschlossen. CEO Review #117 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 274 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–201 vollständig abgeschlossen. CEO Review #118 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 275 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #118 — 2026-06-15
+
+### Geprüfte Commits (seit Review #117)
+- `6b9d025` feat(delivery/backend): Phase 201 — Smart Demand Forecasting + 5 Frontend-Komponenten
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (275 Seiten)
+
+### Phase 201 Review (Smart Demand Forecasting)
+
+**Backend:**
+- `lib/delivery/demand-forecast.ts`: recordForecastSnapshotsForLocation() UPSERT korrekt (onConflict: location_id+forecast_for_hour, ignoreDuplicates: false — überschreibt expected ohne actual zu löschen) ✅
+- `fillActualsForLocation()`: 30-Min-Cutoff korrekt, slotEnd = slotStart + 3600000ms, accuracy_pct Formel `(1-|actual-expected|/actual)*100` mit Spezialfall actual=0+expected=0→100% ✅
+- `getDemandForecastDashboard()`: 4 parallele Queries, weeklyGrid 7×24 aus accuracyBySlot-Map, recommendedDrivers = ceil(avgActual/3) ✅
+- API GET+POST: Auth via employees.role, 4 actions sauber abgedeckt ✅
+
+**Cron-Integration:**
+- `isDemandTick` (30-Min-Intervall): recordForecastAllLocations() → demand_forecast_snapshots ✅
+- `isForecastFillTick` (02:15 UTC): fillActualsAllLocations() ✅
+- `isReportTick` (02:00 UTC): pruneForecastSnapshots(60) fire-and-forget ✅
+
+**Frontend-Komponenten:**
+- `kitchen/demand-forecast-chart.tsx`: 6h Balkendiagramm, isPeak bei ≥70% des Max, isLow bei dataPoints<3, 30-Min-Poll ✅. Integriert in kitchen/client.tsx nach KitchenNachfrageSpike ✅
+- `lieferdienst/lieferzonen-heatmap.tsx`: Normalisiert response shape (zones/stats/Array), Stub-Fallback bei Fehler, Zones A/B/C/D farbkodiert, 5-Min-Poll ✅. Integriert in lieferdienst/client.tsx Stats-Tab ✅
+- `lieferdienst/tagesauswertungs-banner.tsx`: Nur ab 20:00 Uhr sichtbar, TagesRating aus SLA+Ø-Zeit+Bestellzahl, Wachstums-% vs. gestern, dismiss-Bar ✅. Integriert ✅
+- `demand-forecast/client.tsx`: KundenFeedbackUebersicht 3-Filter ✅
+- Delivery-Overview: SectionCard "Smart Demand Forecasting" mit BrainCircuit-Icon ✅
+
+**Bug gefixt:**
+- `fahrer-bewertungs-dialog.tsx` Zeile 40: `submittedRef` war plain Object `{ current: false }` statt React-Ref. 
+  → Fix: `const submittedRef = useRef(false)` + `useRef` zu Imports ergänzt + `submittedRef.current = true` in submit() gesetzt
+  → Effect-Guard funktioniert jetzt korrekt
+
+### Status nach Review #118
+- TypeScript: 0 Fehler ✅
+- Build: 275 Seiten, Compiled successfully ✅
+- Phase 201 Backend (Demand Forecasting DB+API+Admin): DONE ✅
+- Phase 201 Frontend (5 Komponenten): DONE ✅
+- Bugs gefixt: 1 (useRef statt plain Object in fahrer-bewertungs-dialog.tsx)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 202: Fahrer-Routenoptimierung (mehrere Stops in einer Tour optimal sortieren via Distanz-Matrix)
+2. Oder: Preis-Elastizitäts-Analyse (welche Preisänderungen haben Bestellvolumen beeinflusst)
 
 ---
 
