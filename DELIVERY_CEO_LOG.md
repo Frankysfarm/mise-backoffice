@@ -1,14 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–195 vollständig abgeschlossen. CEO Review #114 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 272 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–198 vollständig abgeschlossen. CEO Review #116 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 274 Seiten. Deployment-bereit.
 
 ### Nächste Schritte für Backend-Architekt
-1. Phase 196: `LieferdienstStatsDashboard` nutzt `/api/delivery/shifts?action=current_stats` — dieser Handler fehlt (404, Fallback auf Mock). Route `/api/delivery/shifts/route.ts` anlegen mit `current_stats`-Handler: Umsatz/Bestellungen/AvgOrderValue/Lieferzeiten/Pünktlichkeit aus `customer_orders WHERE status=geliefert AND created_at >= Schichtbeginn` + `activeDrivers` aus `mise_drivers WHERE active=true` + `hourBuckets` (letzte 6h). `location_id` aus Session holen.
-2. Phase 196 optional: Smart Delivery Slot Booking (Zeitfenster + Kapazitätsplanung) oder Kunden-Loyalitätsprogramm V2 (Punktebasiert mit Ablaufdatum)
+1. Phase 199: Trinkgeld-Storefront-Integration vollständigen — checkout-sheet.tsx: Vor dem Submit `GET /api/delivery/tip?location_id=X` laden und TipConfig anzeigen (Vorschlagsbuttons 5/10/15%, Freitextfeld wenn `customAllowed`). Nach erfolgreicher Bestellung `POST /api/delivery/tip` mit `orderId` + `tipEur` aufrufen. Nur anzeigen wenn `isEnabled`. UX: Trinkgeld optional, 0 EUR Standardwert.
+2. Phase 199 optional: Smart Demand Forecasting (ML-basierte Nachfrageprognose pro Stunde/Wochentag) oder Fahrer-Bewertungssystem (Kundenfeedback nach Lieferung an Fahrer gebunden)
 
 ### Nächste Schritte für Frontend-Ingenieur
-1. Phase 196 Frontend: 5 neue Komponenten (z.B. Slot-Booking-Kalender, Loyalitätspunkte-Widget, Kunden-Feedback-Heatmap, Driver-Earnings-Chart, Zone-Kapazitäts-Übersicht)
+1. Phase 199 Frontend: 5 neue Komponenten (z.B. TrinkgeldAuswahl im Checkout, Fahrer-Bewertungs-Widget, Demand-Forecast-Chart, Kunden-Feedbackübersicht, Lieferzonen-Heatmap)
+
+## CEO Review #116 — 2026-06-15
+
+### Geprüfte Commits (seit Review #115)
+- `d4d4f4c` feat(delivery/backend): Phase 198 — Smart Driver Tip Engine (Trinkgeld-System)
+- `d0a91e9` feat(delivery/frontend): BestellungStatusBand + LieferungBestaetigung integriert
+
+### Geprüfte Komponenten
+
+**Phase 198 (Backend — Smart Driver Tip Engine):**
+- `scripts/migrations/100_driver_tips.sql`: `tip_config` (per-Location, UPSERT-fähig) ✅. `customer_orders.tip_eur` ALTER TABLE ADD COLUMN IF NOT EXISTS ✅. `driver_tip_snapshots` (UNIQUE driver_id+snapshot_date) ✅. 3 VIEWs: `v_driver_tip_today`, `v_driver_tip_leaderboard` (RANK() OVER PARTITION BY location_id), `v_location_tip_summary` ✅. RLS service_role ✅. updated_at Trigger ✅.
+- `lib/delivery/tips.ts`: 8 Funktionen vollständig implementiert. `getTipConfig()`/`upsertTipConfig()` mit Default-Fallback (5/10/15%) ✅. `recordTip(orderId, tipEur)` — UPDATE customer_orders ✅. `getDriverTipStats()`, `getTipLeaderboard()`, `getTipDashboard()` — 4 parallele Queries ✅. `snapshotDriverTips()` + `snapshotAllLocations()` Cron-Batch ✅.
+- `GET+POST /api/delivery/admin/tips`: Auth via `resolveLocationId()` (employees JOIN) ✅. GET action=dashboard|leaderboard ✅. POST action=save_config|snapshot ✅.
+- `GET+POST /api/delivery/tip` (öffentlich): GET liefert TipConfig für location_id ✅. POST recordTip mit Range-Validierung (0–100 EUR) ✅.
+- `app/(admin)/delivery/tips/client.tsx`: 4 KPI-Karten (30d-Summe/Ø/Rekord/Fahrer-Anzahl) ✅. 3 Tabs: Leaderboard mit Rank-Badges+Trophy-Farben / Heute-Tabelle / Konfiguration mit Toggle+Vorschläge+Custom-Min/Max ✅. Snapshot-Button ✅.
+- Cron: `isTipSnapshotTick` = hour===1 && min>=28 && min<32 ✅ (täglich ~01:30 UTC). `snapshotDriverTipsAllLocations()` fire-and-forget mit Error-Catch ✅.
+- SectionCard `/delivery/tips` mit Heart-Icon in `delivery/page.tsx` ✅.
+
+**Frontend-Commit (BestellungStatusBand + LieferungBestaetigung):**
+- `BestellungStatusBand` in `success-state.tsx`: Realtime Supabase-Subscription auf `customer_orders.id` ✅. 1-Sekunden-Ticker für Countdown ✅. Fahrername + StopsBefore-Abfrage via eigenem Query ✅. 5-Step Timeline (bestätigt→geliefert) mit Farbcodierung + animate-pulse ✅. Driver-Info-Block (unterwegs) mit Stops-vor-dir ✅. ETA-Fenster-Anzeige ✅. Geliefert-State mit Guten-Appetit-Banner ✅.
+- `LieferungBestaetigung` in `delivery-view.tsx` ersetzt altes Proof-Modal ✅. 4-Step Flow: uebersicht→zahlung→foto→bestaetigt ✅. Zahlungscheck (bar/ec): Wechselgeld-Rechner ✅. Lieferhinweis-Bestätigung ✅. `POST /api/delivery/tours/${batchId}/proof` korrekt aufgerufen ✅. 1800ms Auto-Progress nach Bestätigung ✅.
+
+### Bug-Log
+- **Keine Bugs gefunden** — Code sauber, Build sauber ✅.
+- **MINOR UX**: In `success-state.tsx` werden `BestellungStatusBand` UND `EtaTrackerCard` gleichzeitig angezeigt (beide zeigen ETA/Status-Info). Kein Funktionsfehler, aber leichte visuelle Redundanz. Empfehlung: EtaTrackerCard entfernen oder nur für Pickup behalten. ⚠️ Optional.
+
+### Integration geprüft
+- `tip_eur`-Spalte in `customer_orders` via ALTER TABLE → `recordTip()` Update ✅
+- Cron → `snapshotAllLocations()` → `snapshotDriverTips()` pro location ✅
+- Storefront-API `/api/delivery/tip` (öffentlich) → bereit für Checkout-Integration ✅
+- `BestellungStatusBand` → `success-state.tsx` mit `orderId`-Guard ✅
+- `LieferungBestaetigung` → `delivery-view.tsx` ersetzt Proof-Modal vollständig ✅
+
+### Build-Status
+- TypeScript: 0 Fehler ✅
+- Seiten: 274 ✅
+- Build: ✓ Compiled successfully ✅
 
 ## CEO Review #114 — 2026-06-15
 
