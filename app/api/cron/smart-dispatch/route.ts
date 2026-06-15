@@ -78,6 +78,7 @@ import { rebuildAllLocations as rebuildUpsellPairs } from '@/lib/delivery/smart-
 import { processAllLocations as processReferralRewards, expireStaleConversions as expireReferralConversions } from '@/lib/delivery/referral-program';
 import { computeCvsAllLocations, pruneStaleScores as pruneCvsScores } from '@/lib/delivery/customer-value-score';
 import { buildStreakOverviewAllLocations } from '@/lib/delivery/driver-streaks';
+import { snapshotAllLocations as snapshotDriverTipsAllLocations } from '@/lib/delivery/tips';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -154,6 +155,8 @@ export async function GET(req: NextRequest) {
     const isReferralRewardTick = nowHour === 4 && nowMin >= 44 && nowMin < 48;
     // Customer Value Score: täglich 03:45 UTC (nach Reorder, vor Geo-Clustering)
     const isCvsTick = nowHour === 3 && nowMin >= 44 && nowMin < 48;
+    // Driver Tip Snapshots: täglich 01:30 UTC (vor Subscription-Renewal, frische Tagesdaten)
+    const isTipSnapshotTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -487,6 +490,11 @@ export async function GET(req: NextRequest) {
       ? await buildStreakOverviewAllLocations().catch(() => ({ locations: 0, active_streakers: 0, errors: 1 }))
       : null;
 
+    // Phase 198: Driver Tip Snapshots — täglich 01:30 UTC
+    const tipSnapshotResult = isTipSnapshotTick
+      ? await snapshotDriverTipsAllLocations().catch(() => ({ locations: 0, errors: 1, tipsTotal: 0, eurTotal: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -615,6 +623,7 @@ export async function GET(req: NextRequest) {
       ...(referralResult ? { referral_rewards: { locations: referralResult.locations, rewarded: referralResult.rewarded, errors: referralResult.errors } } : {}),
       ...(cvsResult ? { customer_value_scores: { locations: cvsResult.locations, scores_upserted: cvsResult.scoresUpserted, errors: cvsResult.errors } } : {}),
       ...(streakOverview ? { driver_streaks: { locations: streakOverview.locations, active_streakers: streakOverview.active_streakers } } : {}),
+      ...(tipSnapshotResult ? { driver_tips: { locations: tipSnapshotResult.locations, tips: tipSnapshotResult.tipsTotal, eur: tipSnapshotResult.eurTotal, errors: tipSnapshotResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

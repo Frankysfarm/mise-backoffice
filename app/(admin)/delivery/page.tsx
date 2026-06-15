@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt,
+  Smile, Receipt, Heart,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -196,6 +196,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone" cta="Gebühren" />
         <SectionCard href="/delivery/driver-bonus" icon={<Gift className="h-5 w-5" />} title="Fahrer-Boni"
           subtitle="Leistungsboni nach Lieferungen, Pünktlichkeit und Rating" cta="Boni verwalten" />
+        <SectionCard href="/delivery/tips" icon={<Heart className="h-5 w-5" />} title="Trinkgeld-System"
+          subtitle="Kundenseitige Trinkgelder · Fahrer-Leaderboard · Konfiguration · Tages-Snapshots" cta="Trinkgeld öffnen" />
         <SectionCard href="/delivery/sla-compensation" icon={<Activity className="h-5 w-5" />} title="SLA-Auto-Kompensation"
           subtitle="Automatische Gutschriften bei SLA-Verletzungen · Schwellenwerte" cta="Kompensation" />
         <SectionCard href="/delivery/credits" icon={<Ticket className="h-5 w-5" />} title="Kundengutschriften"
