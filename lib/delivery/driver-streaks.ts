@@ -453,3 +453,35 @@ export async function buildStreakSummaryForDriver(
     isOnFire:            streak.currentStreak >= 10,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cron-Batch: Alle Locations
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface StreakCronResult {
+  locations: number;
+  active_streakers: number;
+  errors: number;
+}
+
+/**
+ * Liefert einen Snapshot-Überblick für alle Locations (z.B. für Cron-Logs).
+ * Macht keine DB-Schreiboperationen — nur Lesezugriff.
+ */
+export async function buildStreakOverviewAllLocations(): Promise<StreakCronResult> {
+  const sb = createServiceClient();
+
+  const { data: streaks } = await sb
+    .from('driver_streaks')
+    .select('location_id, current_streak')
+    .gt('current_streak', 0);
+
+  if (!streaks) return { locations: 0, active_streakers: 0, errors: 0 };
+
+  const locSet = new Set(streaks.map((s) => s.location_id as string));
+  return {
+    locations: locSet.size,
+    active_streakers: streaks.length,
+    errors: 0,
+  };
+}

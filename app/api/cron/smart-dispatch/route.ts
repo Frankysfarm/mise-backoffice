@@ -77,6 +77,7 @@ import { evaluateAllLocations as evaluateMenuAvailability, refreshDisableCounts 
 import { rebuildAllLocations as rebuildUpsellPairs } from '@/lib/delivery/smart-upsell';
 import { processAllLocations as processReferralRewards, expireStaleConversions as expireReferralConversions } from '@/lib/delivery/referral-program';
 import { computeCvsAllLocations, pruneStaleScores as pruneCvsScores } from '@/lib/delivery/customer-value-score';
+import { buildStreakOverviewAllLocations } from '@/lib/delivery/driver-streaks';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -481,6 +482,11 @@ export async function GET(req: NextRequest) {
       pruneCvsScores(45).catch(() => {});
     }
 
+    // Phase 197: Driver Streak Overview — alle 30 Min (read-only Snapshot für Monitoring)
+    const streakOverview = isDemandTick
+      ? await buildStreakOverviewAllLocations().catch(() => ({ locations: 0, active_streakers: 0, errors: 1 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -608,6 +614,7 @@ export async function GET(req: NextRequest) {
       ...(upsellRebuildResult ? { upsell_pairs: { locations: upsellRebuildResult.locations, pairs_upserted: upsellRebuildResult.pairs_upserted, orders_analyzed: upsellRebuildResult.orders_analyzed, errors: upsellRebuildResult.errors } } : {}),
       ...(referralResult ? { referral_rewards: { locations: referralResult.locations, rewarded: referralResult.rewarded, errors: referralResult.errors } } : {}),
       ...(cvsResult ? { customer_value_scores: { locations: cvsResult.locations, scores_upserted: cvsResult.scoresUpserted, errors: cvsResult.errors } } : {}),
+      ...(streakOverview ? { driver_streaks: { locations: streakOverview.locations, active_streakers: streakOverview.active_streakers } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

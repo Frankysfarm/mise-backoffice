@@ -1,6 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
+**Phasen 1–197 abgeschlossen. Build sauber. 274 Seiten. Deployment-bereit. TypeScript 0 Fehler.**
+**Backend-Architekt — 2026-06-15: Phase 197 abgeschlossen. Live-Ops Command Center + Streak-Cron-Integration: (1) app/(admin)/delivery/live-ops/ — neues Command-Center mit LiveOpsClient: 4 KPI-Karten (Umsatz/Bestellungen/Pünktlichkeit/Fahrer), FlowStatusBanner (5 Anomalie-Typen mit animate-pulse), Aktive-Touren-Panel (TourHealthRow: Fortschrittsbalken, Überzug-Rot/Knapp-Amber/Pünktlich-Grün), Fahrer-Status-Grid (sortiert nach Verfügbarkeit), Streak-Feuer-Panel (Top-5 mit Flammen-Icon + Multiplikator-Badge), Quick-Links-Grid (8 Admin-Shortcuts), Stunden-Chart (6h Balkendiagramm). 30s Auto-Refresh, manuelle Refresh-Taste. APIs: shifts/current_stats + admin/overview + admin/flow-intelligence + admin/driver-streaks?action=leaderboard. (2) Delivery-Overview: Live-Ops Command Center Link mit MonitorDot-Icon in Live-Betrieb-Gruppe (highlight=true). (3) lib/delivery/driver-streaks.ts: buildStreakOverviewAllLocations() Cron-Batch-Funktion (read-only, zählt aktive Streaker über alle Locations). (4) Cron: buildStreakOverviewAllLocations() alle 30 Min (isDemandTick) → driver_streaks in Cron-Response. Build: npx next build ✓ (274 Seiten, 0 TypeScript-Fehler), npx tsc --noEmit ✓ (0 Fehler).**
+
 **Phasen 1–195 abgeschlossen. Build sauber. 272 Seiten. Deployment-bereit. TypeScript 0 Fehler.**
 **CEO Review #114 — 2026-06-15: Phase 195 (Backend: MOV A/B Storefront + Frontend: 5 Komponenten) geprüft. 3 TypeScript-Fehler gefixt (Recharts formatter v: number → v: any in metrics-chart.tsx 2× + lieferdienst-stats-dashboard.tsx 1×). LieferdienstStatsDashboard ruft /api/delivery/shifts?action=current_stats auf (Handler fehlt → 404 + Mock-Fallback) — Fix für Phase 196. Alle anderen Komponenten korrekt integriert und funktional. Build: 272 Seiten sauber. TypeScript 0 Fehler.**
 **Backend-Architekt — 2026-06-15: Phase 195 abgeschlossen. MOV A/B-Test Storefront-Checkout-Integration: (1) GET+POST /api/delivery/mov — öffentlicher Storefront-Endpunkt: GET ruft getActiveMovForCustomer() auf (location_id + customer_hash + zone + fallback_mov), gibt MovForCustomer zurück; POST nimmt recordMovEvent()-Body entgegen und schreibt Impression/Konversions-Event in mov_ab_events; Zonen-Validierung A|B|C|D; Multi-Tenant via location_id; kein Auth erforderlich. (2) checkout-sheet.tsx Integration: movData-State + movImpressedRef; useEffect fetcht MOV-Variante sobald feeQuote.zone + telefon (≥5 Zeichen) bekannt; Impression-Event (converted=false) fire-and-forget beim ersten Laden; effectiveMovEur = movData.movEur ?? feeQuote.min_order_eur ?? 12; effectiveMinOrderMet = total ≥ effectiveMovEur; Mindestbestellwert-Anzeige nutzt effectiveMovEur statt feeQuote.min_order_eur, zeigt A/B-Badge wenn Testvariante aktiv; handleNext feuert Konversions-Event (converted=true) fire-and-forget beim Bestell-Submit wenn testId+variantId vorhanden. Build: 273 Seiten sauber. TypeScript 0 Fehler.**
@@ -3433,3 +3436,16 @@ Siehe DELIVERY_CEO_LOG.md
   - Pünktlichkeit: fertig_am ≤ eta_earliest; Lieferzeit: fertig_am - created_at (Ausreißer >240min gefiltert)
   - Fix: LieferdienstStatsDashboard hatte 404 auf /api/delivery/shifts?action=current_stats — jetzt behoben
   - Build: next build ✓ (0 TypeScript-Fehler, npx tsc --noEmit 0 Fehler)
+- 2026-06-15: Backend-Architekt — Phase 197: Live-Ops Command Center + Streak-Cron-Integration
+  - app/(admin)/delivery/live-ops/page.tsx + client.tsx: Command Center (30s Auto-Refresh)
+    - FlowStatusBanner: 5 Anomalie-Typen (normal/spike/drop/cancellation/failure/driver), animate-pulse
+    - KPI-Band: Umsatz/Bestellungen/Pünktlichkeit/Fahrer (4 Karten)
+    - TourHealthRow: Fortschrittsbalken + Überzug-Rot/Knapp-Amber/Pünktlich-Grün je Tour
+    - Fahrer-Status-Grid: sortiert (unterwegs→online→returning→break→offline), DriverStateBadge
+    - Streak-Feuer-Panel: Top-5 Streaker (Flammen-Icon + Multiplikator-Badge)
+    - Quick-Links-Grid: 8 Admin-Shortcuts
+    - Stunden-Chart: 6h Balkendiagramm aus hourBuckets
+  - app/(admin)/delivery/page.tsx: Live-Ops Link mit MonitorDot + highlight in Live-Betrieb-Gruppe
+  - lib/delivery/driver-streaks.ts: buildStreakOverviewAllLocations() (read-only Cron-Batch)
+  - Cron: buildStreakOverviewAllLocations() alle 30 Min → driver_streaks in Response
+  - Build: npx next build ✓ (274 Seiten), npx tsc --noEmit ✓ (0 Fehler)
