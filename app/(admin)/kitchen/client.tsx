@@ -48,6 +48,7 @@ import { KitchenDriverArrivalSync } from './driver-arrival-sync';
 import { BatchReadySyncPanel } from './batch-ready-sync';
 import { KitchenFlowPrognose } from './flow-prognose';
 import { KitchenNachfrageSpike } from './nachfrage-spike-panel';
+import { KitchenKapazitaetsAnzeige } from './kapazitaets-anzeige';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -503,6 +504,8 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
+      {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
+      <KitchenKapazitaetsAnzeige orders={filtered} timings={timings} />
       {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}
       <KitchenSchichtOfenTimer orders={filtered} completedToday={completedToday} />
       {/* Live-Kochstatus: Farbkodierter Echtzeit-Überblick + dringlichster Countdown */}

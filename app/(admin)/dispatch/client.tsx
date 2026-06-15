@@ -97,6 +97,7 @@ import { DispatchTourScoreMatrix } from './tour-score-matrix';
 import { KapazitaetsAmpel } from './kapazitaets-ampel';
 import { DriverDeckungslücke } from './driver-deckungslücke';
 import { DispatchFahrerEchtzeitRanking } from './fahrer-echtzeit-ranking';
+import { DispatchFahrerErmuedungsStrip } from './fahrer-ermudungs-strip';
 
 type Driver = {
   employee_id: string;
@@ -1226,6 +1227,9 @@ export function DispatchBoard({
 
       {/* Fahrer Echtzeit-Ranking: Score-basierte Bestenliste aktiver Fahrer */}
       <DispatchFahrerEchtzeitRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Fahrer-Ermüdungsmonitor: Echtzeit-Fatigue-Scores aller aktiven Fahrer (Phase 200) */}
+      <DispatchFahrerErmuedungsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Tour-Routen-Übersicht: alle aktiven Touren mit Stopp-Fortschritt und ETA */}
       <TourRouteOverview batches={batches} />

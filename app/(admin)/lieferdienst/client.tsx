@@ -73,6 +73,8 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { RentabilitaetsTrend } from './rentabilitaets-trend'
+import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -986,6 +988,10 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Phase 200: 30-Tage Rentabilitätstrend — Umsatz/Kosten/Marge Zeitreihe */}
+              <RentabilitaetsTrend locationId={locationId} />
+              {/* Phase 200: Trinkgeld-Übersicht — heute gesammelte Tips + Fahrer-Ranking */}
+              <TrinkgeldUebersicht locationId={locationId} />
               {/* Phase 193: Stunden-Umsatz-Ticker — Live-Umsatz der aktuellen Stunde vs. gestern */}
               <StundenUmsatzTicker locationId={locationId} />
               {/* Schicht-Echtzeit-KPI: Sofort-Überblick aktiver Bestellungen, Lieferungen vs. Abholung, Dringlichkeit */}
