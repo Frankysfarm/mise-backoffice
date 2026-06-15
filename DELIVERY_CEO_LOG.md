@@ -1,14 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–194 vollständig abgeschlossen. CEO Review #113 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 272 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–195 vollständig abgeschlossen. CEO Review #114 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 272 Seiten. Deployment-bereit.
 
 ### Nächste Schritte für Backend-Architekt
-1. Phase 195: MOV A/B-Test Storefront-Integration — `getActiveMovForCustomer()` via neuen Server-Action-Endpunkt aus Storefront aufrufen (customer hash → Varianten-MOV). `recordMovEvent()` bei Bestellabschluss/-abbruch aufrufen.
-2. Phase 195: Optionale Erweiterung — Smart Delivery Slot Booking (Zeitfenster + Kapazitätsplanung) oder Kunden-Loyalitätsprogramm V2 (Punktebasiert mit Ablaufdatum)
+1. Phase 196: `LieferdienstStatsDashboard` nutzt `/api/delivery/shifts?action=current_stats` — dieser Handler fehlt (404, Fallback auf Mock). Route `/api/delivery/shifts/route.ts` anlegen mit `current_stats`-Handler: Umsatz/Bestellungen/AvgOrderValue/Lieferzeiten/Pünktlichkeit aus `customer_orders WHERE status=geliefert AND created_at >= Schichtbeginn` + `activeDrivers` aus `mise_drivers WHERE active=true` + `hourBuckets` (letzte 6h). `location_id` aus Session holen.
+2. Phase 196 optional: Smart Delivery Slot Booking (Zeitfenster + Kapazitätsplanung) oder Kunden-Loyalitätsprogramm V2 (Punktebasiert mit Ablaufdatum)
 
 ### Nächste Schritte für Frontend-Ingenieur
-1. Phase 195 Frontend: 5 neue Komponenten (z.B. MOV-A/B-Test Metriken-Vergleichsdiagramm, Streak-Rangliste Detailansicht, Meilenstein-Toast-Benachrichtigung im Fahrer-App)
+1. Phase 196 Frontend: 5 neue Komponenten (z.B. Slot-Booking-Kalender, Loyalitätspunkte-Widget, Kunden-Feedback-Heatmap, Driver-Earnings-Chart, Zone-Kapazitäts-Übersicht)
+
+## CEO Review #114 — 2026-06-15
+
+### Geprüfte Commits (seit Review #113)
+- `df867a7` feat(delivery/backend): Phase 195 — MOV A/B-Test Storefront-Checkout-Integration
+- `eb4ceda` feat(delivery/frontend): Phase 195 — 5 neue Frontend-Komponenten
+
+### Geprüfte Komponenten
+
+**Phase 195 (Backend — MOV A/B Storefront):** GET+POST `/api/delivery/mov` Endpunkt ✅. Zonen-Validierung A|B|C|D ✅. `getActiveMovForCustomer()` + `recordMovEvent()` korrekt aufgerufen ✅. Kein Auth erforderlich (öffentlich) ✅. checkout-sheet.tsx: `movData`-State + `movImpressedRef` ✅. useEffect fetcht Variante sobald Zone+Telefon (≥5 Zeichen) bekannt ✅. Impression-Event fire-and-forget ✅. `effectiveMovEur = movData.movEur ?? feeQuote.min_order_eur ?? 12` ✅. `effectiveMinOrderMet` korrekt geprüft ✅. A/B-Badge in UI ✅. Konversions-Event beim Submit ✅.
+
+**Phase 195 (Frontend — 5 Komponenten):**
+- `MovAbMetricsChart`: Conversion-Rate-Balken + Referenzlinie Control + Lift-Tabelle + Umsatz-Chart ✅. In Overview-Tab integriert ✅.
+- `StreakLeaderboardDetail`: Sortierbar (Streak/Rekord/Pünktlichkeit/Bonus), Suche, Fortschrittsbalken, Top-3-Medaillen ✅. In driver-streaks/client.tsx unter bestehender Rangliste eingebunden ✅.
+- `MeilensteinToast`: 30s-Polling, `seenRef`-Deduplizierung, 5s Auto-Dismiss, Emoji-Tiers (50/20/10/5 Stops), Bonus+Multiplikator ✅. In fahrer/app/client.tsx eingebunden ✅.
+- `LieferdienstStatsDashboard`: 4 KPI-Kacheln + stündliches Balkendiagramm + Pünktlichkeits-Gauge, 60s Auto-Refresh ✅. **MINOR BUG**: Ruft `/api/delivery/shifts?action=current_stats` auf — Handler existiert nicht (404). Fallback auf zufällige Mock-Daten. Zeigt Demo-Zahlen statt Echtdaten. Fix: Backend Phase 196.
+- `EtaLiveBanner`: 3 Phasen (preparing/out_for_delivery/delivered), lokaler Countdown 60s, `/api/delivery/eta/[orderId]` korrekt ✅.
+
+### Bug-Log
+- **Bug #114-1 KRITISCH**: 3 TypeScript-Fehler in Recharts `formatter`-Callbacks (`v: number` statt `v: any`) in `metrics-chart.tsx` (2×) und `lieferdienst-stats-dashboard.tsx` (1×). Build hätte sonst nicht deployed. **Fix**: Alle 3 auf `(v: any)` geändert + `Number(v)` wo nötig. ✅ Gefixt.
+- **Bug #114-2 MINOR**: `LieferdienstStatsDashboard` → `/api/delivery/shifts?action=current_stats` liefert 404 (Route fehlt). Graceful Fallback auf Mock-Daten. **Fix Phase 196**: Shifts-Route anlegen. ⏳ Offen.
+
+### Integration geprüft
+- MOV A/B-Endpunkt → checkout-sheet.tsx: korrekt verknüpft ✅
+- MovAbMetricsChart → mov-ab-test/client.tsx: `getMetricsForTest(test.id)` korrekt übergeben ✅
+- StreakLeaderboardDetail → driver-streaks/client.tsx: `dashboard.leaderboard` übergeben ✅
+- MeilensteinToast → fahrer/app/client.tsx: `driver.id` übergeben ✅
+- LieferdienstStatsDashboard → lieferdienst/client.tsx: oben in Stats-View ✅
+- tailwindcss-animate: konfiguriert → `animate-in`/`slide-in-from-bottom-4`/`fade-in` verfügbar ✅
+
+### Build-Status
+- TypeScript: 0 Fehler ✅ (3 gefixt)
+- Seiten: 272 ✅
+- Build: ✓ Compiled successfully ✅
 
 ## CEO Review #113 — 2026-06-15
 

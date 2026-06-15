@@ -162,7 +162,7 @@ export function LieferdienstStatsDashboard() {
               <BarChart data={hourData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
                 <Tooltip
-                  formatter={(v: number, name: string) => [name === 'orders' ? `${v} Bestellungen` : `€${v.toFixed(0)}`, '']}
+                  formatter={(v: any, name: any) => [name === 'orders' ? `${v} Bestellungen` : `€${Number(v).toFixed(0)}`, '']}
                   labelFormatter={(l) => `${l} Uhr`}
                 />
                 <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={32}>

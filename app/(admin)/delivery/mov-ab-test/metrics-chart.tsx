@@ -45,7 +45,7 @@ export function MovAbMetricsChart({ metrics, testName }: Props) {
             <XAxis dataKey="name" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} unit="%" />
             <Tooltip
-              formatter={(v: number, _name: string, props: any) => [
+              formatter={(v: any, _name: any, props: any) => [
                 `${v}%${props.payload.lift != null ? ` (Lift: ${props.payload.lift > 0 ? '+' : ''}${props.payload.lift.toFixed(1)}%)` : ''}`,
                 'Conversion',
               ]}
@@ -69,7 +69,7 @@ export function MovAbMetricsChart({ metrics, testName }: Props) {
           <BarChart data={revData} margin={{ top: 4, right: 4, left: -4, bottom: 0 }}>
             <XAxis dataKey="name" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} unit="€" />
-            <Tooltip formatter={(v: number) => `€${v.toFixed(2)}`} />
+            <Tooltip formatter={(v: any) => `€${Number(v).toFixed(2)}`} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Bar dataKey="Ø Bestellwert €" radius={[4, 4, 0, 0]} fill="#6366f1" opacity={0.85} />
             <Bar dataKey="Umsatz €" radius={[4, 4, 0, 0]} fill="#10b981" opacity={0.85} />
