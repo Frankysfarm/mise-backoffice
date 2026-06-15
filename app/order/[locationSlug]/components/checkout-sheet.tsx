@@ -96,6 +96,17 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [marketingOptin, setMarketingOptin] = React.useState(false);
   const [whatsappOptin, setWhatsappOptin] = React.useState(false);
 
+  // MOV A/B-Test — effektiver Mindestbestellwert für diesen Kunden
+  const [movData, setMovData] = React.useState<{
+    movEur: number;
+    isTestVariant: boolean;
+    testId: string | null;
+    variantId: string | null;
+    zone: string;
+    customerHash: string;
+  } | null>(null);
+  const movImpressedRef = React.useRef(false);
+
   // Dynamische Liefergebühr — wird geladen wenn Adress-Koordinaten bekannt
   const [feeQuote, setFeeQuote] = React.useState<{
     zone: string; zone_label: string; zone_color: string;
@@ -116,6 +127,56 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
       .then((d) => { if (d?.zone) setFeeQuote(d); })
       .catch(() => null);
   }, [orderType, locationId, address.lat, address.lng, total]);
+
+  // MOV A/B-Test: Variante laden sobald Zone + Telefon bekannt
+  React.useEffect(() => {
+    const zone = feeQuote?.zone;
+    const hash = telefon.trim().replace(/\s/g, '');
+    if (!zone || !locationId || hash.length < 5) {
+      setMovData(null);
+      movImpressedRef.current = false;
+      return;
+    }
+    const fallback = feeQuote?.min_order_eur ?? 12;
+    let cancelled = false;
+    fetch(
+      `/api/delivery/mov?location_id=${encodeURIComponent(locationId)}&customer_hash=${encodeURIComponent(hash)}&zone=${zone}&fallback_mov=${fallback}`,
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { movEur?: number; testId?: string | null; variantId?: string | null; isTestVariant?: boolean } | null) => {
+        if (cancelled || !d) return;
+        const result = {
+          movEur: d.movEur ?? fallback,
+          isTestVariant: d.isTestVariant ?? false,
+          testId: d.testId ?? null,
+          variantId: d.variantId ?? null,
+          zone,
+          customerHash: hash,
+        };
+        setMovData(result);
+        // Impression-Event einmalig aufzeichnen (converted=false)
+        if (d.testId && d.variantId && !movImpressedRef.current) {
+          movImpressedRef.current = true;
+          fetch('/api/delivery/mov', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              testId: d.testId,
+              variantId: d.variantId,
+              locationId,
+              customerHash: hash,
+              zone,
+              orderTotalEur: total,
+              movAppliedEur: d.movEur ?? fallback,
+              converted: false,
+            }),
+          }).catch(() => null);
+        }
+      })
+      .catch(() => null);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feeQuote?.zone, telefon, locationId, feeQuote?.min_order_eur]);
 
   // Live-ETA vom Server holen (Küchenauslastung-basiert)
   const [liveEta, setLiveEta] = React.useState<{
@@ -334,6 +395,10 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
 
   const isLastStep = step === steps.length - 1;
 
+  // Effektiver MOV — aus A/B-Test oder Fallback aus fee-Quote
+  const effectiveMovEur = movData?.movEur ?? feeQuote?.min_order_eur ?? 12;
+  const effectiveMinOrderMet = orderType !== 'lieferung' || total >= effectiveMovEur;
+
   const canAdvance = (() => {
     if (orderType === 'lieferung' && step === 0) {
       if (outOfRange) return false;
@@ -352,6 +417,23 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
 
   const handleNext = () => {
     if (isLastStep) {
+      // MOV A/B-Test Konversions-Event (fire-and-forget)
+      if (movData?.testId && movData?.variantId) {
+        fetch('/api/delivery/mov', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            testId:        movData.testId,
+            variantId:     movData.variantId,
+            locationId,
+            customerHash:  movData.customerHash,
+            zone:          movData.zone,
+            orderTotalEur: total,
+            movAppliedEur: movData.movEur,
+            converted:     true,
+          }),
+        }).catch(() => null);
+      }
       onSubmit({
         name,
         telefon,
@@ -537,9 +619,12 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                       Ab {feeQuote.free_delivery_above_eur.toFixed(2).replace('.', ',')} € kostenlos liefern
                     </div>
                   )}
-                  {!feeQuote.is_min_order_met && (
+                  {!effectiveMinOrderMet && (
                     <div className="text-amber-700 font-medium">
-                      Mindestbestellwert {feeQuote.min_order_eur.toFixed(2).replace('.', ',')} € nicht erreicht
+                      Mindestbestellwert {effectiveMovEur.toFixed(2).replace('.', ',')} € nicht erreicht
+                      {movData?.isTestVariant && (
+                        <span className="ml-1.5 rounded bg-matcha-100 px-1 py-0.5 text-[9px] font-bold text-matcha-600">A/B</span>
+                      )}
                     </div>
                   )}
                 </div>
