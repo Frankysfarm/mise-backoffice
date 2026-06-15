@@ -1,14 +1,40 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–193 vollständig abgeschlossen. CEO Review #112 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 270 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–194 vollständig abgeschlossen. CEO Review #113 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 272 Seiten. Deployment-bereit.
 
 ### Nächste Schritte für Backend-Architekt
-1. Phase 194: Smart Minimum-Order-Value A/B-Testing (Schwellenwerte je Tageszeit + Zone testen)
-2. Phase 194: Fahrer-Incentive Streak-Tracking V2 (Lieferserie mit Bonus-Multiplikator)
+1. Phase 195: MOV A/B-Test Storefront-Integration — `getActiveMovForCustomer()` via neuen Server-Action-Endpunkt aus Storefront aufrufen (customer hash → Varianten-MOV). `recordMovEvent()` bei Bestellabschluss/-abbruch aufrufen.
+2. Phase 195: Optionale Erweiterung — Smart Delivery Slot Booking (Zeitfenster + Kapazitätsplanung) oder Kunden-Loyalitätsprogramm V2 (Punktebasiert mit Ablaufdatum)
 
 ### Nächste Schritte für Frontend-Ingenieur
-1. Phase 194 Frontend: 5 neue Komponenten (z.B. CVS-Tier-Badge im Storefront, Live-Streak-Anzeige im Fahrer-App)
+1. Phase 195 Frontend: 5 neue Komponenten (z.B. MOV-A/B-Test Metriken-Vergleichsdiagramm, Streak-Rangliste Detailansicht, Meilenstein-Toast-Benachrichtigung im Fahrer-App)
+
+## CEO Review #113 — 2026-06-15
+
+### Geprüfte Commits (seit Review #112)
+- `1d87d83` feat(delivery/backend): Phase 194 — MOV A/B-Test Engine + Driver Streak-Tracking V2
+
+### Geprüfte Komponenten
+**Phase 194 (MOV A/B-Test Engine):** mov_ab_tests/variants/assignments/events Tabellen + v_mov_ab_metrics VIEW ✅. createTest/listTests/getTest/updateTestStatus/deleteTest CRUD ✅. getOrAssignVariant() deterministischer Bucket-Hash 0–99 ✅. recordMovEvent() Konversions-Tracking ✅. getTestMetrics() inkl. Lift-vs-Control ✅. getMovAbDashboard() ✅. API GET+POST /api/delivery/admin/mov-ab-test (dashboard/list/get/metrics/create/status/delete) ✅. Admin-UI 4 KPI-Karten + Metriktabelle mit Gewinner-Highlighting + Test-Builder mit Zonen/Tageszeit/Varianten ✅.
+
+**Phase 194 (Fahrer-Streak-Tracking V2):** driver_streaks/events/config + v_driver_streak_leaderboard + v_driver_streak_milestones VIEWs ✅. recordDelivery() Multiplikator-Tiers (5×1.10/10×1.25/20×1.40/50×1.60) ✅. API GET+POST /api/delivery/admin/driver-streaks (dashboard/leaderboard/milestones/driver/events/config/save_config/record) ✅. Admin-UI Rangliste + Meilenstein-Log + konfigurierbarer Tier/Bonus-Editor ✅. StreakBadge im Fahrer-App ✅.
+
+### Bug-Log
+- **Bug #113-1 KRITISCH**: `recordDelivery()` wurde bei Lieferabschluss NICHT aufgerufen — Streak-Tracking lief komplett ins Leere. **Fix**: `app/api/driver-app/orders/[id]/delivered/route.ts` — `location_id` + `eta_latest` aus `customer_orders` selektiert, `wasOnTime = geliefert_am ≤ eta_latest`, `recordDelivery()` fire-and-forget nach Response. ✅ Gefixt.
+
+### Integration geprüft
+- StreakBadge → fahrer/app/client.tsx: `driver.location_id && <StreakBadge driverId={driver.id} locationId={driver.location_id} />` ✅
+- MOV A/B-Test → delivery/page.tsx: SectionCard href=/delivery/mov-ab-test + /delivery/driver-streaks ✅
+- recordDelivery() → driver-app/orders/[id]/delivered/route.ts: fire-and-forget nach Status-Update ✅
+
+### Offen (Phase 195)
+- MOV A/B-Test Storefront-Integration: `getActiveMovForCustomer()` ist server-only, braucht eigenen API-Endpunkt für Storefront-Checkout (customer hash → MOV). `recordMovEvent()` bei Checkout-Abschluss/-Abbruch.
+
+### Build-Status
+- TypeScript: 0 Fehler ✅
+- Seiten: 272 ✅
+- Build: ✓ Compiled successfully ✅
 
 ## CEO Review #112 — 2026-06-15
 
