@@ -11,6 +11,7 @@ import {
   CreditCard,
   Gift,
   Globe,
+  Heart,
   Loader2,
   MapPin,
   User,
@@ -62,6 +63,14 @@ const QUICK_REPLIES = ['An der Tür klingeln', 'Bei Nachbar abgeben', 'Ans Garte
 const MIN_LOYALTY_REDEEM = 100;
 const LOYALTY_REDEEM_RATE = 0.01; // € pro Punkt
 const LOYALTY_MAX_PCT = 0.20;     // max 20 % des Warenkorbs
+
+type TipConfig = {
+  isEnabled: boolean;
+  suggestionsPct: number[];
+  customAllowed: boolean;
+  minTipEur: number;
+  maxTipEur: number;
+};
 
 type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'platinum';
 const TIER_LABEL: Record<LoyaltyTier, string> = {
@@ -238,6 +247,26 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const loyaltyDiscountEur = Math.round(loyaltyMaxPoints * LOYALTY_REDEEM_RATE * 100) / 100;
   const canUseLoyalty = loyaltyMaxPoints >= MIN_LOYALTY_REDEEM;
 
+  // Trinkgeld-Konfiguration
+  const [tipConfig, setTipConfig] = React.useState<TipConfig | null>(null);
+  const [selectedTipEur, setSelectedTipEur] = React.useState<number>(0);
+  const [customTipInput, setCustomTipInput] = React.useState('');
+  const [tipMode, setTipMode] = React.useState<'preset' | 'custom'>('preset');
+
+  // TipConfig laden wenn Bezahlen-Schritt erreicht
+  React.useEffect(() => {
+    if (step !== paymentStepIndex || !locationId) return;
+    let cancelled = false;
+    fetch(`/api/delivery/tip?location_id=${encodeURIComponent(locationId)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { config?: TipConfig } | null) => {
+        if (!cancelled && d?.config?.isEnabled) setTipConfig(d.config);
+      })
+      .catch(() => null);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, locationId]);
+
   // Punkte-Kontostand laden wenn E-Mail bekannt + auf Zahlungsschritt
   React.useEffect(() => {
     if (step !== paymentStepIndex || !email || !locationId) return;
@@ -277,6 +306,10 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
       onLoyaltyChange?.(null);
       setSavedPrefs(null);
       setPrefillApplied(false);
+      setTipConfig(null);
+      setSelectedTipEur(0);
+      setCustomTipInput('');
+      setTipMode('preset');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -434,6 +467,9 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
           }),
         }).catch(() => null);
       }
+      const effectiveTip = tipMode === 'custom'
+        ? Math.max(0, parseFloat(customTipInput.replace(',', '.')) || 0)
+        : selectedTipEur;
       onSubmit({
         name,
         telefon,
@@ -449,6 +485,7 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
         zahlungsart,
         marketing_optin: marketingOptin,
         whatsapp_optin: whatsappOptin,
+        tipEur: effectiveTip > 0 ? effectiveTip : undefined,
       });
     } else {
       setStep((s) => s + 1);
@@ -979,6 +1016,87 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
                   customerPhone={telefon}
                   orderType={orderType}
                 />
+              )}
+
+              {/* Trinkgeld für den Fahrer — nur bei Lieferung + wenn aktiviert */}
+              {tipConfig && orderType === 'lieferung' && (
+                <div className="rounded-2xl border border-dashed border-rose-300/60 bg-rose-50/50 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-600">
+                      Trinkgeld für den Fahrer
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedTipEur(0); setTipMode('preset'); }}
+                      className={cn(
+                        'rounded-full px-3 py-1.5 text-xs font-bold transition border',
+                        selectedTipEur === 0 && tipMode === 'preset'
+                          ? 'border-rose-500 bg-rose-500 text-white'
+                          : 'border-black/10 bg-white text-matcha-800 hover:border-rose-300',
+                      )}
+                    >
+                      Kein Trinkgeld
+                    </button>
+                    {tipConfig.suggestionsPct.map((pct) => {
+                      const amount = Math.round(total * pct) / 100;
+                      const amountStr = amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                      const isActive = tipMode === 'preset' && selectedTipEur === amount;
+                      return (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => { setSelectedTipEur(amount); setTipMode('preset'); }}
+                          className={cn(
+                            'rounded-full px-3 py-1.5 text-xs font-bold transition border',
+                            isActive
+                              ? 'border-rose-500 bg-rose-500 text-white'
+                              : 'border-black/10 bg-white text-matcha-800 hover:border-rose-300',
+                          )}
+                        >
+                          {pct}% · {amountStr} €
+                        </button>
+                      );
+                    })}
+                    {tipConfig.customAllowed && (
+                      <button
+                        type="button"
+                        onClick={() => setTipMode('custom')}
+                        className={cn(
+                          'rounded-full px-3 py-1.5 text-xs font-bold transition border',
+                          tipMode === 'custom'
+                            ? 'border-rose-500 bg-rose-500 text-white'
+                            : 'border-black/10 bg-white text-matcha-800 hover:border-rose-300',
+                        )}
+                      >
+                        Eigener Betrag
+                      </button>
+                    )}
+                  </div>
+                  {tipMode === 'custom' && tipConfig.customAllowed && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={tipConfig.minTipEur}
+                        max={tipConfig.maxTipEur}
+                        step="0.50"
+                        value={customTipInput}
+                        onChange={(e) => setCustomTipInput(e.target.value)}
+                        placeholder={`${tipConfig.minTipEur.toFixed(2).replace('.', ',')} – ${tipConfig.maxTipEur.toFixed(2).replace('.', ',')} €`}
+                        className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-rose-400"
+                      />
+                      <span className="text-sm text-matcha-700 font-medium">€</span>
+                    </div>
+                  )}
+                  {(tipMode === 'preset' && selectedTipEur > 0) && (
+                    <div className="text-[11px] text-rose-600 font-medium flex items-center gap-1">
+                      <Check className="h-3 w-3" />
+                      {selectedTipEur.toLocaleString('de-DE', { minimumFractionDigits: 2 })} € Trinkgeld wird beim Fahrer gutgeschrieben
+                    </div>
+                  )}
+                </div>
               )}
 
               <div className="text-sm text-matcha-800/70">

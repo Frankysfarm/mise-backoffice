@@ -345,6 +345,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         }).catch(() => null);
       }
 
+      // Trinkgeld für Fahrer aufzeichnen (fire-and-forget)
+      if (form.tipEur && form.tipEur > 0) {
+        void fetch('/api/delivery/tip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: order.id, tipEur: form.tipEur, locationId: location.id }),
+        }).catch(() => null);
+      }
+
       // Wenn Online-Zahlung: Stripe-Checkout-Session erstellen + Redirect
       if (form.zahlungsart === 'online' && total > 0) {
         try {
