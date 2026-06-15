@@ -16,7 +16,6 @@ import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
-import { euro } from '@/lib/utils';
 import { Loader2, TrendingDown, TrendingUp, Euro, Calendar } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

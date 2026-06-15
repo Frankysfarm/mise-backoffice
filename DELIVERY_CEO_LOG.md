@@ -1,7 +1,50 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–198 vollständig abgeschlossen. CEO Review #116 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 274 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–200 vollständig abgeschlossen. CEO Review #117 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 274 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #117 — 2026-06-15
+
+### Geprüfte Commits (seit Review #116)
+- `a4baa04` docs: Phase 199 Fortschritt in DELIVERY_PROGRESS.md dokumentiert
+- `929c2f8` feat(delivery/backend): Phase 199 — Trinkgeld-Checkout-Integration
+- `1ff3f37` feat(delivery/frontend): Phase 200 — 4 neue Frontend-Erweiterungen
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (274 Seiten)
+
+### Phase 199 Review (Trinkgeld-Checkout)
+- `types.ts`: `tipEur?: number` zu `CheckoutForm` ✅
+- `checkout-sheet.tsx`: TipConfig via GET /api/delivery/tip geladen, Panel mit Vorschlags-Buttons (rose-Border, Kein-Trinkgeld + dynamische Pct-Buttons), customAllowed Freitextfeld, active-State rose-gefüllt, Bestätigungs-Chip, tipEur in onSubmit ✅
+- `storefront.tsx`: fire-and-forget POST /api/delivery/tip nach Bestellung ✅
+- Integration: GET /api/delivery/tip → checkout-sheet → POST /api/delivery/tip → storefront — vollständig geschlossen ✅
+
+### Phase 200 Review (4 Frontend-Erweiterungen)
+- **KitchenKapazitaetsAnzeige** (`kitchen/kapazitaets-anzeige.tsx`): Station-Detection via Keyword-Matching (GRILL/COLD/FRY/DRINKS), Auslastungs-% gegen `maxSimultaneous=6`, Farbkodierung grün→rot, Überladungswarnung bei ≥95%, nextFreeMin aus `ready_target`, null-Props-sicher ✅. In `kitchen/client.tsx` Zeile 508 korrekt eingebunden ✅
+- **DispatchFahrerErmuedungsStrip** (`dispatch/fahrer-ermudungs-strip.tsx`): Nutzt GET /api/delivery/admin/fatigue-monitor, 4 RiskLevels (low/medium/high/critical), Auto-Expand bei at-risk, 3-Min-Poll, `locationId: string | null` korrekt behandelt ✅. In `dispatch/client.tsx` Zeile 1232 eingebunden ✅
+- **RentabilitaetsTrend** (`lieferdienst/rentabilitaets-trend.tsx`): 30-Tage P&L via GET /api/delivery/admin/profitability?action=trend&days=30, Dual-Line (Umsatz/Kosten) + Marge-% Area, 3 Summary-KPIs, CustomTooltip, shortDate-Formatter ✅. In `lieferdienst/client.tsx` Zeile 992 eingebunden ✅
+- **TrinkgeldUebersicht** (`lieferdienst/trinkgeld-uebersicht.tsx`): **BUG GEFIXT** — Interface hatte falsche Shape (`today.totalEur` statt `summary.tipEurToday`, `drivers[]` statt `todayByDriver[]`). Korrigiert auf echte API-Response-Struktur von `getTipDashboard()`. Rendering null bei `summary.tipEurToday <= 0` ✅. In `lieferdienst/client.tsx` Zeile 994 eingebunden ✅
+
+### Bugs gefixt
+1. **TrinkgeldUebersicht Interface-Mismatch** (`lieferdienst/trinkgeld-uebersicht.tsx`): Component erwartete `{today: {totalEur, ordersWithTip, totalOrders, avgTipEur, tipRatePct}, drivers[]}` — API liefert `{summary: {tipEurToday, tipsToday, avgTipEur30d}, todayByDriver[]}`. Interface + Rendering auf echte API-Shape korrigiert. Ohne Fix: Component renderte immer `null`.
+2. **Unused Import** (`lieferdienst/rentabilitaets-trend.tsx`): `euro` aus `@/lib/utils` importiert aber nie verwendet (eigene `fmtEur`-Funktion wird genutzt). Import entfernt.
+
+### Status nach Review #117
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (274 Seiten)
+- Phase 199 Backend (Trinkgeld-Checkout-Integration): DONE ✅
+- Phase 200 Frontend (Küchen-Kapazität + Ermüdungs-Strip + Rentabilitäts-Trend + Trinkgeld-Übersicht): DONE ✅
+- Bugs gefixt: 2 (Interface-Mismatch + unused import)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 201: Smart Demand Forecasting — Prognose der Bestellnachfrage pro Stunde/Wochentag (historische Daten → ML-Heuristik, Vergleich Forecast vs. Ist)
+2. Optional: Fahrer-Bewertungssystem (Kunden-Feedback nach Lieferung, Sternbewertung + Kommentar gespeichert in DB, Fahrer-Score berechnet)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 201 Frontend: 5 neue Komponenten z.B. DemandForecastChart, FahrerBewertungsDialog (Storefront), KundenFeedbackUebersicht (Admin), LieferzonenHeatmap, TagesauswertungsBanner
 
 ### Nächste Schritte für Backend-Architekt
 1. Phase 199: Trinkgeld-Storefront-Integration vollständigen — checkout-sheet.tsx: Vor dem Submit `GET /api/delivery/tip?location_id=X` laden und TipConfig anzeigen (Vorschlagsbuttons 5/10/15%, Freitextfeld wenn `customAllowed`). Nach erfolgreicher Bestellung `POST /api/delivery/tip` mit `orderId` + `tipEur` aufrufen. Nur anzeigen wenn `isEnabled`. UX: Trinkgeld optional, 0 EUR Standardwert.
