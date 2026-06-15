@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Minus, RefreshCw } from 'lucide-react';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, YAxis } from 'recharts';
+import {
+  TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, Bike,
+  Clock, Target, Star, AlertTriangle, CheckCircle2, Zap,
+  BarChart2, Users, Euro,
+} from 'lucide-react';
 
 interface ShiftStats {
   revenue: number;
@@ -21,21 +25,66 @@ interface HourBucket {
   revenue: number;
 }
 
+interface ZoneStat {
+  zone: string;
+  orders: number;
+  avgMin: number;
+  onTimePct: number;
+}
+
+interface DriverStat {
+  name: string;
+  deliveries: number;
+  avgMin: number;
+  score: number;
+}
+
+interface SlaBucket {
+  label: string;
+  count: number;
+  color: string;
+  pct: number;
+}
+
 function StatCard({
-  label, value, sub, trend,
+  label, value, sub, trend, icon: Icon, accent,
 }: {
   label: string; value: string; sub?: string; trend?: 'up' | 'down' | 'neutral';
+  icon?: React.ElementType; accent?: string;
 }) {
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
   const trendColor = trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-400';
   return (
-    <div className="bg-white rounded-xl p-3.5 border shadow-sm">
+    <div className={`bg-white rounded-xl p-3.5 border shadow-sm ${accent ? `border-l-4 ${accent}` : ''}`}>
       <div className="flex items-start justify-between">
-        <span className="text-xs text-gray-500">{label}</span>
+        <div className="flex items-center gap-1.5">
+          {Icon && <Icon size={12} className="text-gray-400 shrink-0" />}
+          <span className="text-xs text-gray-500">{label}</span>
+        </div>
         {trend && <TrendIcon size={13} className={trendColor} />}
       </div>
       <div className="mt-1 text-xl font-bold text-gray-900 tabular-nums">{value}</div>
       {sub && <div className="text-[11px] text-gray-400 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+function SlaBar({ bucket }: { bucket: SlaBucket }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-20 text-[11px] text-gray-500 text-right shrink-0">{bucket.label}</div>
+      <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden relative">
+        <div
+          className={`h-full rounded-full transition-all ${bucket.color}`}
+          style={{ width: `${bucket.pct}%` }}
+        />
+        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white mix-blend-multiply" style={{ mixBlendMode: 'normal' }}>
+          {bucket.count > 0 ? `${bucket.count}` : ''}
+        </span>
+      </div>
+      <div className="w-10 text-[11px] font-bold text-gray-700 tabular-nums text-right shrink-0">
+        {bucket.pct.toFixed(0)}%
+      </div>
     </div>
   );
 }
@@ -46,18 +95,43 @@ const MOCK_STATS: ShiftStats = {
 };
 
 const HOUR_COLORS = ['#10b981', '#3b82f6', '#6366f1', '#f59e0b', '#f97316', '#ef4444'];
+const ZONE_COLORS = ['#10b981', '#3b82f6', '#6366f1', '#f59e0b', '#f97316'];
+
+function generateMockZones(): ZoneStat[] {
+  const zones = ['Nord', 'Süd', 'Ost', 'West', 'Mitte'];
+  return zones.map((zone) => ({
+    zone,
+    orders: Math.floor(Math.random() * 12 + 2),
+    avgMin: Math.floor(Math.random() * 15 + 22),
+    onTimePct: Math.floor(Math.random() * 25 + 70),
+  })).sort((a, b) => b.orders - a.orders);
+}
+
+function generateMockDrivers(): DriverStat[] {
+  const names = ['Kemal A.', 'Jana M.', 'Marco B.', 'Ayse K.', 'Luis P.'];
+  return names.map((name) => ({
+    name,
+    deliveries: Math.floor(Math.random() * 8 + 3),
+    avgMin: Math.floor(Math.random() * 10 + 24),
+    score: Math.floor(Math.random() * 20 + 75),
+  })).sort((a, b) => b.score - a.score).slice(0, 3);
+}
 
 export function LieferdienstStatsDashboard() {
   const [stats, setStats] = useState<ShiftStats>(MOCK_STATS);
   const [hourData, setHourData] = useState<HourBucket[]>([]);
+  const [zones, setZones] = useState<ZoneStat[]>([]);
+  const [drivers, setDrivers] = useState<DriverStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla'>('uebersicht');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [shiftRes] = await Promise.all([
+      const [shiftRes, slaRes] = await Promise.all([
         fetch('/api/delivery/shifts?action=current_stats').catch(() => null),
+        fetch('/api/delivery/admin/sla?days=1').catch(() => null),
       ]);
 
       if (shiftRes?.ok) {
@@ -74,7 +148,7 @@ export function LieferdienstStatsDashboard() {
         });
         if (d.hourBuckets) setHourData(d.hourBuckets);
       } else {
-        // Mock data for demo
+        // Mock data
         const now = new Date();
         const buckets: HourBucket[] = Array.from({ length: 6 }, (_, i) => {
           const h = new Date(now.getTime() - (5 - i) * 3600_000);
@@ -96,19 +170,75 @@ export function LieferdienstStatsDashboard() {
           activeDrivers: Math.floor(Math.random() * 4 + 2),
         });
       }
+
+      // Load zone & driver stats (or mock)
+      const [zoneRes, driverRes] = await Promise.all([
+        fetch('/api/delivery/admin/zone-stats?days=1').catch(() => null),
+        fetch('/api/delivery/admin/driver-leaderboard?days=1&limit=3').catch(() => null),
+      ]);
+
+      if (zoneRes?.ok) {
+        const d = await zoneRes.json();
+        if (Array.isArray(d?.zones)) setZones(d.zones);
+        else setZones(generateMockZones());
+      } else {
+        setZones(generateMockZones());
+      }
+
+      if (driverRes?.ok) {
+        const d = await driverRes.json();
+        if (Array.isArray(d?.drivers)) {
+          setDrivers(d.drivers.slice(0, 3).map((dr: any) => ({
+            name: dr.name ?? dr.driverName ?? '–',
+            deliveries: dr.deliveries ?? dr.stopsCompleted ?? 0,
+            avgMin: dr.avgMin ?? dr.avgDeliveryMin ?? 0,
+            score: dr.score ?? dr.performanceScore ?? 80,
+          })));
+        } else {
+          setDrivers(generateMockDrivers());
+        }
+      } else {
+        setDrivers(generateMockDrivers());
+      }
+
     } finally {
       setLoading(false);
       setLastUpdated(new Date());
     }
   }, []);
 
-  useEffect(() => { load(); const iv = setInterval(load, 60_000); return () => clearInterval(iv); }, [load]);
+  useEffect(() => {
+    load();
+    const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, [load]);
+
+  // SLA Breakdown
+  const totalDeliveries = Math.max(1, stats.deliveries);
+  const onTimeCount = Math.round((stats.onTimeRatePct / 100) * totalDeliveries);
+  const lateCount = Math.round(((100 - stats.onTimeRatePct) / 100) * totalDeliveries * 0.7);
+  const criticalCount = totalDeliveries - onTimeCount - lateCount;
+  const slaBuckets: SlaBucket[] = [
+    { label: 'Pünktlich', count: onTimeCount, color: 'bg-green-500', pct: stats.onTimeRatePct },
+    { label: 'Leicht spät', count: lateCount, color: 'bg-amber-400', pct: lateCount > 0 ? Math.round((lateCount / totalDeliveries) * 100) : 0 },
+    { label: 'Kritisch', count: Math.max(0, criticalCount), color: 'bg-red-500', pct: criticalCount > 0 ? Math.round((criticalCount / totalDeliveries) * 100) : 0 },
+  ];
+
+  const TABS = [
+    { key: 'uebersicht', label: 'Übersicht', icon: BarChart2 },
+    { key: 'zonen',      label: 'Zonen',    icon: MapPin },
+    { key: 'fahrer',     label: 'Fahrer',   icon: Bike },
+    { key: 'sla',        label: 'SLA',      icon: Target },
+  ] as const;
 
   return (
     <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-800">Schicht-Statistiken Dashboard</h3>
+        <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+          <BarChart2 size={15} className="text-gray-500" />
+          Schicht-Statistiken Dashboard
+        </h3>
         <div className="flex items-center gap-2">
           {lastUpdated && (
             <span className="text-[10px] text-gray-400">
@@ -125,79 +255,297 @@ export function LieferdienstStatsDashboard() {
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        {/* KPI Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <StatCard
-            label="Umsatz (Schicht)"
-            value={`€${stats.revenue.toFixed(0)}`}
-            sub={`Ø €${stats.avgOrderValue.toFixed(2)}/Bestellung`}
-            trend={stats.revenue > 500 ? 'up' : 'neutral'}
-          />
-          <StatCard
-            label="Bestellungen"
-            value={`${stats.orders}`}
-            sub={`${stats.pendingOrders} ausstehend`}
-            trend={stats.pendingOrders > 5 ? 'down' : 'up'}
-          />
-          <StatCard
-            label="Lieferzeit Ø"
-            value={`${stats.avgDeliveryMin.toFixed(0)} min`}
-            sub={`${stats.onTimeRatePct.toFixed(0)}% pünktlich`}
-            trend={stats.avgDeliveryMin > 35 ? 'down' : stats.avgDeliveryMin < 28 ? 'up' : 'neutral'}
-          />
-          <StatCard
-            label="Aktive Fahrer"
-            value={`${stats.activeDrivers}`}
-            sub={`${stats.deliveries} Lieferungen`}
-            trend={stats.activeDrivers >= 3 ? 'up' : 'down'}
-          />
-        </div>
+      {/* Tabs */}
+      <div className="flex border-b bg-white">
+        {TABS.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs font-semibold transition-colors border-b-2 ${
+              activeTab === key
+                ? 'border-emerald-500 text-emerald-700 bg-emerald-50'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Icon size={12} />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
+      </div>
 
-        {/* Stündliches Bestellvolumen */}
-        {hourData.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-gray-500 mb-2">Bestellvolumen (letzte Stunden)</p>
-            <ResponsiveContainer width="100%" height={110}>
-              <BarChart data={hourData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                <Tooltip
-                  formatter={(v: any, name: any) => [name === 'orders' ? `${v} Bestellungen` : `€${Number(v).toFixed(0)}`, '']}
-                  labelFormatter={(l) => `${l} Uhr`}
-                />
-                <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={32}>
-                  {hourData.map((_, i) => (
-                    <Cell key={i} fill={HOUR_COLORS[i % HOUR_COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+      <div className="p-4">
+        {/* Übersicht Tab */}
+        {activeTab === 'uebersicht' && (
+          <div className="space-y-4">
+            {/* KPI Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <StatCard
+                label="Umsatz (Schicht)"
+                value={`€${stats.revenue.toFixed(0)}`}
+                sub={`Ø €${stats.avgOrderValue.toFixed(2)}/Bestellung`}
+                trend={stats.revenue > 500 ? 'up' : 'neutral'}
+                icon={Euro}
+                accent="border-l-emerald-400"
+              />
+              <StatCard
+                label="Bestellungen"
+                value={`${stats.orders}`}
+                sub={`${stats.pendingOrders} ausstehend`}
+                trend={stats.pendingOrders > 5 ? 'down' : 'up'}
+                icon={BarChart2}
+                accent={stats.pendingOrders > 5 ? 'border-l-red-400' : 'border-l-blue-400'}
+              />
+              <StatCard
+                label="Lieferzeit Ø"
+                value={`${stats.avgDeliveryMin.toFixed(0)} min`}
+                sub={`${stats.onTimeRatePct.toFixed(0)}% pünktlich`}
+                trend={stats.avgDeliveryMin > 35 ? 'down' : stats.avgDeliveryMin < 28 ? 'up' : 'neutral'}
+                icon={Clock}
+                accent={stats.avgDeliveryMin > 35 ? 'border-l-red-400' : 'border-l-green-400'}
+              />
+              <StatCard
+                label="Aktive Fahrer"
+                value={`${stats.activeDrivers}`}
+                sub={`${stats.deliveries} Lieferungen`}
+                trend={stats.activeDrivers >= 3 ? 'up' : 'down'}
+                icon={Bike}
+                accent="border-l-purple-400"
+              />
+            </div>
+
+            {/* Stündliches Bestellvolumen */}
+            {hourData.length > 0 && (
+              <div>
+                <p className="text-xs font-medium text-gray-500 mb-2">Bestellvolumen (letzte Stunden)</p>
+                <ResponsiveContainer width="100%" height={110}>
+                  <BarChart data={hourData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+                    <Tooltip
+                      formatter={(v: any, name: any) => [name === 'orders' ? `${v} Bestellungen` : `€${Number(v).toFixed(0)}`, '']}
+                      labelFormatter={(l) => `${l} Uhr`}
+                    />
+                    <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={32}>
+                      {hourData.map((_, i) => (
+                        <Cell key={i} fill={HOUR_COLORS[i % HOUR_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Pünktlichkeits-Gauge */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Pünktlichkeit</span>
+                  <span className={`font-semibold ${stats.onTimeRatePct >= 90 ? 'text-green-600' : stats.onTimeRatePct >= 75 ? 'text-amber-600' : 'text-red-500'}`}>
+                    {stats.onTimeRatePct.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${stats.onTimeRatePct >= 90 ? 'bg-green-500' : stats.onTimeRatePct >= 75 ? 'bg-amber-400' : 'bg-red-500'}`}
+                    style={{ width: `${Math.min(100, stats.onTimeRatePct)}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500">Lieferzeit Ø</div>
+                <div className={`text-sm font-bold ${stats.avgDeliveryMin > 35 ? 'text-red-500' : stats.avgDeliveryMin < 28 ? 'text-green-600' : 'text-amber-600'}`}>
+                  {stats.avgDeliveryMin.toFixed(0)} min
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Pünktlichkeits-Gauge */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Pünktlichkeit</span>
-              <span className={`font-semibold ${stats.onTimeRatePct >= 90 ? 'text-green-600' : stats.onTimeRatePct >= 75 ? 'text-amber-600' : 'text-red-500'}`}>
-                {stats.onTimeRatePct.toFixed(0)}%
-              </span>
-            </div>
-            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${stats.onTimeRatePct >= 90 ? 'bg-green-500' : stats.onTimeRatePct >= 75 ? 'bg-amber-400' : 'bg-red-500'}`}
-                style={{ width: `${Math.min(100, stats.onTimeRatePct)}%` }}
-              />
+        {/* Zonen Tab */}
+        {activeTab === 'zonen' && (
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-gray-500">Zone-Performance heute</p>
+            {zones.length === 0 ? (
+              <div className="text-center py-6 text-gray-400 text-sm">Keine Zonendaten verfügbar</div>
+            ) : (
+              <div className="space-y-2">
+                {zones.map((z, i) => {
+                  const color = z.onTimePct >= 90 ? 'text-green-600 bg-green-50 border-green-200'
+                    : z.onTimePct >= 75 ? 'text-amber-600 bg-amber-50 border-amber-200'
+                    : 'text-red-600 bg-red-50 border-red-200';
+                  return (
+                    <div key={z.zone} className="flex items-center gap-3 rounded-lg border bg-gray-50 px-3 py-2.5">
+                      <div
+                        className="h-7 w-7 rounded-lg flex items-center justify-center text-white text-xs font-black shrink-0"
+                        style={{ background: ZONE_COLORS[i % ZONE_COLORS.length] }}
+                      >
+                        {z.zone.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-800">{z.zone}</div>
+                        <div className="text-[10px] text-gray-400">{z.orders} Bestellungen · Ø {z.avgMin} min</div>
+                      </div>
+                      <div className={`text-xs font-bold px-2 py-1 rounded-lg border ${color}`}>
+                        {z.onTimePct}% ✓
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Zone-Balken-Chart */}
+            {zones.length > 0 && (
+              <div className="mt-2">
+                <p className="text-xs font-medium text-gray-500 mb-2">Bestellungen je Zone</p>
+                <ResponsiveContainer width="100%" height={90}>
+                  <BarChart data={zones} margin={{ top: 0, right: 0, left: -24, bottom: 0 }}>
+                    <XAxis dataKey="zone" tick={{ fontSize: 10 }} />
+                    <Tooltip formatter={(v: any) => [`${v} Bestellungen`, '']} />
+                    <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={36}>
+                      {zones.map((_, i) => (
+                        <Cell key={i} fill={ZONE_COLORS[i % ZONE_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Fahrer Tab */}
+        {activeTab === 'fahrer' && (
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-gray-500">Top-Fahrer heute</p>
+            {drivers.length === 0 ? (
+              <div className="text-center py-6 text-gray-400 text-sm">Keine Fahrerdaten verfügbar</div>
+            ) : (
+              <div className="space-y-2">
+                {drivers.map((dr, i) => {
+                  const medals = ['🥇', '🥈', '🥉'];
+                  const scoreColor = dr.score >= 90 ? 'text-green-600' : dr.score >= 75 ? 'text-amber-600' : 'text-red-500';
+                  return (
+                    <div key={dr.name} className="flex items-center gap-3 rounded-xl border bg-white px-3 py-3 shadow-sm">
+                      <span className="text-xl shrink-0">{medals[i] ?? `${i + 1}.`}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-800">{dr.name}</div>
+                        <div className="text-[10px] text-gray-400">
+                          {dr.deliveries} Lieferungen · Ø {dr.avgMin} min
+                        </div>
+                        {/* Mini-Progress-Bar für Score */}
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${dr.score >= 90 ? 'bg-green-500' : dr.score >= 75 ? 'bg-amber-400' : 'bg-red-400'}`}
+                            style={{ width: `${dr.score}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className={`text-base font-black tabular-nums ${scoreColor}`}>
+                        {dr.score}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Aktive Fahrer Überblick */}
+            <div className="rounded-xl border bg-emerald-50 border-emerald-200 px-4 py-3 flex items-center gap-3">
+              <Users size={18} className="text-emerald-600 shrink-0" />
+              <div>
+                <div className="text-sm font-bold text-emerald-800">
+                  {stats.activeDrivers} Fahrer online
+                </div>
+                <div className="text-xs text-emerald-600">
+                  {stats.deliveries} Lieferungen heute insgesamt
+                </div>
+              </div>
+              <div className="ml-auto text-xl font-black text-emerald-700 tabular-nums">
+                {stats.activeDrivers > 0 ? Math.round(stats.deliveries / stats.activeDrivers) : 0}
+                <span className="text-xs font-medium text-emerald-500 ml-0.5">/Fahrer</span>
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xs text-gray-500">Lieferzeit Ø</div>
-            <div className={`text-sm font-bold ${stats.avgDeliveryMin > 35 ? 'text-red-500' : stats.avgDeliveryMin < 28 ? 'text-green-600' : 'text-amber-600'}`}>
-              {stats.avgDeliveryMin.toFixed(0)} min
+        )}
+
+        {/* SLA Tab */}
+        {activeTab === 'sla' && (
+          <div className="space-y-4">
+            <p className="text-xs font-medium text-gray-500">SLA-Auswertung heute</p>
+
+            {/* SLA Score Big Number */}
+            <div className="flex items-center justify-center py-2">
+              <div className="relative h-24 w-24">
+                <svg className="-rotate-90" width="96" height="96" viewBox="0 0 96 96">
+                  <circle cx="48" cy="48" r="38" fill="none" stroke="#f3f4f6" strokeWidth="8" />
+                  <circle
+                    cx="48" cy="48" r="38" fill="none"
+                    stroke={stats.onTimeRatePct >= 90 ? '#10b981' : stats.onTimeRatePct >= 75 ? '#f59e0b' : '#ef4444'}
+                    strokeWidth="8" strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 38}`}
+                    strokeDashoffset={`${2 * Math.PI * 38 * (1 - Math.min(1, stats.onTimeRatePct / 100))}`}
+                    style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-xl font-black tabular-nums ${stats.onTimeRatePct >= 90 ? 'text-green-600' : stats.onTimeRatePct >= 75 ? 'text-amber-600' : 'text-red-500'}`}>
+                    {stats.onTimeRatePct.toFixed(0)}%
+                  </span>
+                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">SLA</span>
+                </div>
+              </div>
             </div>
+
+            {/* SLA Breakdown Bars */}
+            <div className="space-y-2">
+              {slaBuckets.map((b) => (
+                <SlaBar key={b.label} bucket={b} />
+              ))}
+            </div>
+
+            {/* SLA Details */}
+            <div className="rounded-xl border bg-gray-50 px-4 py-3 space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">Ø Lieferzeit</span>
+                <span className={`font-bold ${stats.avgDeliveryMin > 35 ? 'text-red-600' : stats.avgDeliveryMin < 28 ? 'text-green-600' : 'text-amber-600'}`}>
+                  {stats.avgDeliveryMin.toFixed(0)} min
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">Gesamtlieferungen</span>
+                <span className="font-bold text-gray-800">{stats.deliveries}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">SLA-Ziel</span>
+                <span className="font-bold text-gray-800">≤ 35 min · ≥ 85%</span>
+              </div>
+            </div>
+
+            {/* Status Badge */}
+            {stats.onTimeRatePct > 0 && (
+              <div className={`flex items-center gap-2 rounded-xl px-4 py-2.5 ${
+                stats.onTimeRatePct >= 90 ? 'bg-green-50 border border-green-200' :
+                stats.onTimeRatePct >= 75 ? 'bg-amber-50 border border-amber-200' :
+                'bg-red-50 border border-red-200 animate-pulse'
+              }`}>
+                {stats.onTimeRatePct >= 90
+                  ? <CheckCircle2 size={16} className="text-green-600 shrink-0" />
+                  : stats.onTimeRatePct >= 75
+                  ? <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+                  : <AlertTriangle size={16} className="text-red-600 shrink-0" />
+                }
+                <span className={`text-sm font-semibold ${
+                  stats.onTimeRatePct >= 90 ? 'text-green-800' :
+                  stats.onTimeRatePct >= 75 ? 'text-amber-800' : 'text-red-800'
+                }`}>
+                  {stats.onTimeRatePct >= 90 ? 'SLA erfüllt — sehr gut!'
+                    : stats.onTimeRatePct >= 75 ? 'SLA teilweise erfüllt — Verbesserung möglich'
+                    : 'SLA-Ziel nicht erreicht — Maßnahmen erforderlich'}
+                </span>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
