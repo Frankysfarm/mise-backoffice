@@ -38,6 +38,50 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
+  const action = searchParams.get('action');
+
+  // ── action=hourly_revenue ─────────────────────────────────────
+  if (action === 'hourly_revenue') {
+    const locationId = searchParams.get('location_id');
+    if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+
+    const now = new Date();
+    const currentHourStart  = new Date(now); currentHourStart.setMinutes(0, 0, 0);
+    const lastHourStart     = new Date(currentHourStart); lastHourStart.setHours(lastHourStart.getHours() - 1);
+    const yesterdayHourStart = new Date(currentHourStart); yesterdayHourStart.setDate(yesterdayHourStart.getDate() - 1);
+    const yesterdayHourEnd  = new Date(yesterdayHourStart); yesterdayHourEnd.setHours(yesterdayHourEnd.getHours() + 1);
+
+    const sumRevenue = (rows: { gesamtpreis?: number | null }[] | null) =>
+      (rows ?? []).reduce((acc, r) => acc + (Number(r.gesamtpreis) || 0), 0);
+
+    const [cur, last, yest] = await Promise.all([
+      sb.from('orders')
+        .select('gesamtpreis')
+        .eq('location_id', locationId)
+        .eq('status', 'geliefert')
+        .gte('bestellt_am', currentHourStart.toISOString())
+        .lte('bestellt_am', now.toISOString()),
+      sb.from('orders')
+        .select('gesamtpreis')
+        .eq('location_id', locationId)
+        .eq('status', 'geliefert')
+        .gte('bestellt_am', lastHourStart.toISOString())
+        .lt('bestellt_am', currentHourStart.toISOString()),
+      sb.from('orders')
+        .select('gesamtpreis')
+        .eq('location_id', locationId)
+        .eq('status', 'geliefert')
+        .gte('bestellt_am', yesterdayHourStart.toISOString())
+        .lt('bestellt_am', yesterdayHourEnd.toISOString()),
+    ]);
+
+    return NextResponse.json({
+      currentHourEur:       sumRevenue(cur.data),
+      lastHourEur:          sumRevenue(last.data),
+      yesterdaySameHourEur: sumRevenue(yest.data),
+    });
+  }
+
   const type = searchParams.get('type') ?? 'daily';
 
   // ── type=daily ──────────────────────────────────────────────

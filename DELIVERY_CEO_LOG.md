@@ -1,14 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–192 vollständig abgeschlossen. CEO Review #111 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 270 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–193 vollständig abgeschlossen. CEO Review #112 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 270 Seiten. Deployment-bereit.
 
 ### Nächste Schritte für Backend-Architekt
-1. Phase 193: Weitere Feature-Ausbaustufe (z.B. Smart Minimum-Order-Value A/B-Testing oder Fahrer-Incentive Streak-Tracking V2)
-2. Phase 193: Customer Communication Preferences Dashboard (Kanal-Präferenzen je Kunde)
+1. Phase 194: Smart Minimum-Order-Value A/B-Testing (Schwellenwerte je Tageszeit + Zone testen)
+2. Phase 194: Fahrer-Incentive Streak-Tracking V2 (Lieferserie mit Bonus-Multiplikator)
 
 ### Nächste Schritte für Frontend-Ingenieur
-1. Phase 193 Frontend: 5 neue Komponenten (z.B. CVS-Badge im Storefront, Live-Tier-Anzeige im Dispatch)
+1. Phase 194 Frontend: 5 neue Komponenten (z.B. CVS-Tier-Badge im Storefront, Live-Streak-Anzeige im Fahrer-App)
+
+## CEO Review #112 — 2026-06-15
+
+### Geprüfte Commits (seit Review #111)
+- `ac63bf4` feat(delivery/backend): Phase 192 — Smart Customer Value Score (CVS) Engine
+- `ad39e19` feat(delivery/frontend): Phase 193 — 5 neue Frontend-Komponenten
+
+### Geprüfte Komponenten
+**Phase 192 (CVS Engine):** customer_value_scores Tabelle + RFM-Score-Komponenten + v_cvs_distribution/v_cvs_top_customers VIEWs ✅. computeCvsForLocation() Exponential-Decay-Recency + Perzentil + Batch-Upsert 200er-Chunks ✅. API GET+POST /api/delivery/admin/customer-value-score ✅. Admin-UI 4 KPI-Karten + Tier-Balken + SVG-Gauge ✅. Cron 03:45 UTC ✅.
+
+**Phase 193 (5 Frontend-Komponenten):**
+- KitchenFlowPrognose: 4-Slot (jetzt/+30/+60/+90min) Auslastungs-Prognose aus stündlicher Verteilung heutiger Bestellungen ✅. Balken + Farb-Schwellen 5/10/h ✅. 60s Auto-Refresh ✅.
+- DriverDeckungslücke: frei/unterwegs Grid + Farbbalken + Alert bei 0 freien Fahrern ✅. pendingOrders korrekt auf readyOrders.length ✅. aktueller_batch_id vorhanden im Dispatch Driver-Typ ✅.
+- SchichtPauseReminder: Amber-Banner bei 2,5h (gentle) + Rot-Banner bei 4,5h (urgent) ✅. 30-Min-Dismiss-Reset ✅. Nur im Fahrer-App sichtbar wenn online.
+- FahrerNaehePuls: animate-ping Pulsring + Countdown-Sekunden-Timer ✅. Bedingte Einbindung nur wenn `isDelivery && liveStatus === 'unterwegs'` ✅.
+- StundenUmsatzTicker: **1 Bug gefunden + gefixt** — rief `?action=hourly_revenue` auf, das nicht existierte. Fallback auf Mock-Daten (342,50 €). Fix: `action=hourly_revenue`-Handler in `/api/delivery/admin/reporting/route.ts` ergänzt — 3 parallele Supabase-Queries (laufende Stunde / letzte Stunde / gestern gleiche Stunde) aus `orders WHERE status=geliefert`. Echte Daten ab sofort.
+
+### Bug-Log
+- **Bug #112-1**: StundenUmsatzTicker → reporting API hatte kein `action=hourly_revenue`. Fix: neuer Handler in route.ts, 3-parallele Supabase-Queries. ✅ Gefixt.
+
+### Build-Status
+- TypeScript: 0 Fehler ✅
+- Seiten: 270 ✅
+- Build: ✓ Compiled successfully ✅
 
 ## CEO Review #111 — 2026-06-14
 
