@@ -45,6 +45,7 @@ import { StopTimerRing } from './stop-timer-ring';
 import { SchichtPauseReminder } from './schicht-pause-reminder';
 import { StreakBadge } from './streak-badge';
 import { MeilensteinToast } from './meilenstein-toast';
+import { TourOptBadge } from './tour-opt-badge';
 
 type Driver = {
   id: string;
@@ -930,6 +931,10 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Tour-Opt-Badge: zeigt ob Route optimiert wurde + km-Ersparnis */}
+          <div className="px-4">
+            <TourOptBadge batchId={activeBatch.id} />
+          </div>
           {/* Tour-Abschluss-Prognose: Tourende-Schätzung + Verbleibende Stopps mit ETA */}
           <div className="px-4">
             <TourAbschlussPrognose

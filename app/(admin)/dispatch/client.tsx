@@ -99,6 +99,7 @@ import { DriverDeckungslücke } from './driver-deckungslücke';
 import { DispatchFahrerEchtzeitRanking } from './fahrer-echtzeit-ranking';
 import { DispatchFahrerErmuedungsStrip } from './fahrer-ermudungs-strip';
 import { LieferZonenHeatmap } from './liefer-zonen-heatmap';
+import { DispatchRouteOptSavingsStrip } from './route-opt-savings-strip';
 
 type Driver = {
   employee_id: string;
@@ -857,6 +858,9 @@ export function DispatchBoard({
       <DispatchTourVisualisierung batches={batches} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
+
+      {/* Route-Opt-Savings: Phase-202-Einsparungen — km gespart + Ø-Verbesserung */}
+      <DispatchRouteOptSavingsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
