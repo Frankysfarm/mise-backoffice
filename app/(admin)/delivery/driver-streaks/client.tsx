@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { StreakDashboard, StreakLeaderboardEntry, MultiplierTier, MilestoneBonusTier } from '@/lib/delivery/driver-streaks';
+import { StreakLeaderboardDetail } from './leaderboard-detail';
 
 interface Props { locationId: string; }
 
@@ -166,6 +167,11 @@ export function DriverStreaksClient({ locationId }: Props) {
             </table>
           )}
         </div>
+      )}
+
+      {/* Leaderboard Detail */}
+      {!loading && tab === 'leaderboard' && dashboard?.leaderboard?.length && (
+        <StreakLeaderboardDetail leaderboard={dashboard.leaderboard} />
       )}
 
       {/* Milestones Tab */}

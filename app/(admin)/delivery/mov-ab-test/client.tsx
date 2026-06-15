@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { MovAbDashboard, MovAbTest, MovAbMetrics } from '@/lib/delivery/mov-ab-test';
+import { MovAbMetricsChart } from './metrics-chart';
 
 interface Props { locationId: string; }
 
@@ -146,7 +147,10 @@ export function MovAbTestClient({ locationId }: Props) {
               Noch keine A/B-Tests angelegt. Klicke auf &quot;+ Neuer Test&quot;.
             </div>
           ) : dashboard.tests.filter((t) => t.status === 'active').map((test) => (
-            <MetricsCard key={test.id} test={test} metrics={getMetricsForTest(test.id)} onStatusChange={handleStatusChange} />
+            <div key={test.id} className="space-y-3">
+              <MetricsCard test={test} metrics={getMetricsForTest(test.id)} onStatusChange={handleStatusChange} />
+              <MovAbMetricsChart testName={test.name} metrics={getMetricsForTest(test.id)} />
+            </div>
           ))}
         </div>
       )}
