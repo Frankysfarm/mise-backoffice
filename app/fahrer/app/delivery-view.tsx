@@ -6,6 +6,7 @@ import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2,
 import { euro, cn } from '@/lib/utils';
 import { NaviWidget } from './navi-widget';
 import { TourCompletionScreen } from './tour-completion';
+import { LieferungBestaetigung } from './lieferung-bestaetigung';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
 const FAILED_REASON_LABELS: Record<FailedReason, string> = {
@@ -1538,138 +1539,33 @@ export function DeliveryView({
         </div>
       )}
 
-      {/* Modal: Liefernachweis — Art der Übergabe wählen */}
+      {/* Modal: Liefernachweis — Bestätigung mit Zahlungs- und Hinweis-Check */}
       {proofModalStopId && (() => {
         const proofStop = stops.find((s) => s.id === proofModalStopId);
-        const isBarProof = !proofStop?.order.bezahlt || proofStop?.order.zahlungsart === 'bar';
-        const PROOF_OPTIONS: { key: ProofType; label: string; icon: string }[] = [
-          { key: 'handed_to_person', label: 'Übergeben', icon: '🤝' },
-          { key: 'left_at_door',    label: 'Vor Tür',    icon: '🚪' },
-          { key: 'neighbour',       label: 'Nachbar',    icon: '👥' },
-          { key: 'contactless',     label: 'Kontaktlos', icon: '📦' },
-          { key: 'photo',           label: 'Foto',       icon: '📷' },
-        ];
+        if (!proofStop) return null;
         return (
-          <div className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm" onClick={() => !proofPending && setProofModalStopId(null)}>
-            <div className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
-              <div className="text-center">
-                <CheckCircle2 className="mx-auto mb-2 text-accent" size={28} />
-                <div className="font-display font-bold text-lg">Liefernachweis</div>
-                <p className="text-sm text-matcha-300 mt-1">
-                  {proofStop?.order.kunde_name} — wie wurde zugestellt?
-                </p>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {PROOF_OPTIONS.map(({ key, label, icon }) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setProofType(key);
-                      if (key !== 'photo') { setProofPhotoBlob(null); setProofPhotoPreview(null); }
-                    }}
-                    className={cn(
-                      'rounded-xl py-3 text-[10px] font-bold border flex flex-col items-center gap-1 transition active:scale-[0.97]',
-                      proofType === key
-                        ? 'bg-accent/20 border-accent text-accent'
-                        : 'bg-white/5 border-white/10 text-matcha-300',
-                    )}
-                  >
-                    <span className="text-xl">{icon}</span>
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Foto-Aufnahme: nur wenn 'photo' gewählt */}
-              {proofType === 'photo' && (
-                <div>
-                  <input
-                    ref={proofCameraRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      // Compress via Canvas to max 800px, quality 0.75
-                      const img = new Image();
-                      const objectUrl = URL.createObjectURL(file);
-                      img.onload = () => {
-                        const maxDim = 800;
-                        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-                        const canvas = document.createElement('canvas');
-                        canvas.width = Math.round(img.width * scale);
-                        canvas.height = Math.round(img.height * scale);
-                        const ctx = canvas.getContext('2d')!;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob((blob) => {
-                          if (!blob) return;
-                          setProofPhotoBlob(blob);
-                          setProofPhotoPreview(canvas.toDataURL('image/jpeg', 0.75));
-                        }, 'image/jpeg', 0.75);
-                        URL.revokeObjectURL(objectUrl);
-                      };
-                      img.src = objectUrl;
-                    }}
-                  />
-                  {proofPhotoPreview ? (
-                    <div className="relative rounded-xl overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={proofPhotoPreview} alt="Foto-Vorschau" className="w-full h-40 object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => { setProofPhotoBlob(null); setProofPhotoPreview(null); proofCameraRef.current && (proofCameraRef.current.value = ''); }}
-                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 flex items-center justify-center text-white text-xs font-bold"
-                      >
-                        ✕
-                      </button>
-                      <div className="absolute bottom-0 inset-x-0 py-1.5 bg-black/50 text-[10px] font-bold text-accent text-center flex items-center justify-center gap-1">
-                        <ImageIcon size={10} /> Foto bereit
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => proofCameraRef.current?.click()}
-                      className="w-full h-20 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 flex flex-col items-center justify-center gap-1.5 text-accent/80 hover:bg-accent/10 active:scale-[0.98] transition"
-                    >
-                      <Camera size={22} />
-                      <span className="text-[11px] font-bold">Foto aufnehmen</span>
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-matcha-400 mb-1.5">Notiz (optional)</div>
-                <textarea
-                  value={proofNotes}
-                  onChange={(e) => setProofNotes(e.target.value.slice(0, 200))}
-                  placeholder="z.B. Paket vor Eingangstür abgestellt…"
-                  rows={2}
-                  className="w-full rounded-xl bg-white/8 border border-white/15 text-sm text-white placeholder:text-matcha-500 px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => { setProofModalStopId(null); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
-                  disabled={proofPending}
-                  className="flex-1 h-12 rounded-xl bg-white/10 font-bold text-sm disabled:opacity-40"
-                >
-                  Zurück
-                </button>
-                <button
-                  onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
-                  disabled={proofPending || (proofType === 'photo' && !proofPhotoBlob)}
-                  className="flex-1 h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {proofPending
-                    ? <Loader2 size={16} className="animate-spin" />
-                    : <CheckCircle2 size={16} />}
-                  {proofType === 'photo' && !proofPhotoBlob ? 'Foto fehlt noch' : isBarProof ? 'Kassiert & Zugestellt' : 'Bestätigen'}
-                </button>
-              </div>
+          <div
+            className="fixed inset-0 z-50 flex items-end bg-black/70 backdrop-blur-sm"
+            onClick={() => setProofModalStopId(null)}
+          >
+            <div
+              className="w-full rounded-t-3xl bg-matcha-800 border-t border-white/10 p-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <LieferungBestaetigung
+                stop={proofStop}
+                batchId={batchId}
+                onConfirmed={() => {
+                  setProofModalStopId(null);
+                  markDelivered(proofStop.id);
+                }}
+              />
+              <button
+                onClick={() => setProofModalStopId(null)}
+                className="mt-3 w-full h-10 rounded-xl bg-white/10 text-sm font-bold text-matcha-300"
+              >
+                Abbrechen
+              </button>
             </div>
           </div>
         );

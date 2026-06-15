@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { PostDeliveryRating } from './post-delivery-rating';
 import { EtaTrackerCard } from './eta-tracker-card';
 import { FahrerNaehePuls } from './fahrer-naehe-puls';
+import { BestellungStatusBand } from './bestellung-status-band';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -524,52 +525,17 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </button>
         )}
 
-        {/* Live-Status Mini-Timeline — aktualisiert sich in Echtzeit */}
+        {/* Live-Statusband — Realtime-Fortschritt mit Countdown, Farbcodierung und Fahrer-Info */}
         {orderId && (
-          <div className={cn(
-            'mt-5 w-full rounded-2xl ring-1 ring-white/10 bg-white/5 px-4 py-3 transition-all',
-            statusFlash && 'ring-accent ring-2',
-          )}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-300">Status</span>
-              {statusFlash && (
-                <span className="text-[10px] font-bold text-accent animate-pulse">Aktualisiert!</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1 relative">
-              {/* Track line */}
-              <div className="absolute left-3 right-3 top-3.5 h-0.5 bg-white/10 rounded-full" />
-              <div
-                className="absolute left-3 top-3.5 h-0.5 bg-accent rounded-full transition-all duration-700"
-                style={{ width: `calc(${(activeStep / (STATUS_STEPS.length - 1)) * 100}% - 1.5rem)` }}
-              />
-              {STATUS_STEPS.map((step, i) => {
-                const done = i < activeStep;
-                const current = i === activeStep;
-                const Icon = step.icon;
-                return (
-                  <div key={step.status} className="relative z-10 flex-1 flex flex-col items-center gap-1">
-                    <div className={cn(
-                      'h-7 w-7 rounded-full border-2 flex items-center justify-center transition-all',
-                      done ? 'bg-accent border-accent' :
-                      current ? 'bg-matcha-800 border-accent ring-2 ring-accent/30' :
-                      'bg-matcha-800 border-white/20',
-                    )}>
-                      <Icon className={cn(
-                        'h-3 w-3',
-                        done || current ? 'text-accent' : 'text-matcha-400',
-                      )} />
-                    </div>
-                    <span className={cn(
-                      'text-[8px] font-bold leading-tight text-center',
-                      current ? 'text-accent' : done ? 'text-matcha-200' : 'text-matcha-500',
-                    )}>
-                      {step.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="mt-5 w-full">
+            <BestellungStatusBand
+              orderId={orderId}
+              bestellnummer={bestellnummer}
+              initialStatus={liveStatus}
+              initialEtaEarliest={etaWindow?.earliest ?? null}
+              initialEtaLatest={etaWindow?.latest ?? null}
+              isDelivery={isDelivery}
+            />
           </div>
         )}
 
