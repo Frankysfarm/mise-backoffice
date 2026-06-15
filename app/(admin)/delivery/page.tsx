@@ -156,6 +156,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Echtzeit-Ökonomie jeder Tour · Fahrerlohn + Kraftstoff + Fixkosten vs. Liefergebühr · Marge pro Fahrer" cta="Kosten analysieren" />
         <SectionCard href="/delivery/tour-analytics" icon={<Route className="h-5 w-5" />} title="Tour-Analytics"
           subtitle="Touren-Performance · Stoppzeiten · Bündelungs-Effizienz" cta="Touren analysieren" />
+        <SectionCard href="/delivery/route-optimization" icon={<GitCompare className="h-5 w-5" />} title="Routen-Optimierung"
+          subtitle="2-opt + Google TSP · Distanzeinsparung · Zeitfenster-Compliance · alle 10 Min automatisch" cta="Routen optimieren" />
         <SectionCard href="/delivery/sla" icon={<Activity className="h-5 w-5" />} title="SLA-Bericht"
           subtitle="On-Time-Rate, Lieferzeitabweichung · Performance nach Fahrer & Zone" cta="SLA ansehen" />
         <SectionCard href="/delivery/flow-intelligence" icon={<Zap className="h-5 w-5" />} title="Bestellfluss-Intelligenz"

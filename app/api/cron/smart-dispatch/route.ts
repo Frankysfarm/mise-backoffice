@@ -80,6 +80,7 @@ import { computeCvsAllLocations, pruneStaleScores as pruneCvsScores } from '@/li
 import { buildStreakOverviewAllLocations } from '@/lib/delivery/driver-streaks';
 import { snapshotAllLocations as snapshotDriverTipsAllLocations } from '@/lib/delivery/tips';
 import { recordForecastAllLocations, fillActualsAllLocations, pruneForecastSnapshots } from '@/lib/delivery/demand-forecast';
+import { optimizeAllLocations as optimizeRoutesAllLocations } from '@/lib/delivery/route-optimizer-v2';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -160,6 +161,8 @@ export async function GET(req: NextRequest) {
     const isTipSnapshotTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
     // Demand-Forecast: Record snapshots alle 30 Min + fill actuals täglich 02:15 UTC
     const isForecastFillTick = nowHour === 2 && nowMin >= 14 && nowMin < 18;
+    // Routen-Optimierung: alle 10 Min ausstehende Batches optimieren
+    const isRouteOptimizeTick = isRatingTick;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -509,6 +512,11 @@ export async function GET(req: NextRequest) {
       pruneForecastSnapshots(60).catch(() => {});
     }
 
+    // Phase 202: Routen-Optimierung — alle 10 Min ausstehende Batches optimieren
+    const routeOptResult = isRouteOptimizeTick
+      ? await optimizeRoutesAllLocations().catch(() => ({ locations: 0, processed: 0, optimized: 0, totalKmSaved: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -640,6 +648,7 @@ export async function GET(req: NextRequest) {
       ...(tipSnapshotResult ? { driver_tips: { locations: tipSnapshotResult.locations, tips: tipSnapshotResult.tipsTotal, eur: tipSnapshotResult.eurTotal, errors: tipSnapshotResult.errors } } : {}),
       ...(demandForecastResult ? { demand_forecast_snapshots: { locations: demandForecastResult.locations, saved: demandForecastResult.saved, errors: demandForecastResult.errors } } : {}),
       ...(demandForecastFillResult ? { demand_forecast_actuals: { locations: demandForecastFillResult.locations, filled: demandForecastFillResult.filled, errors: demandForecastFillResult.errors } } : {}),
+      ...(routeOptResult ? { route_optimization: { locations: routeOptResult.locations, optimized: routeOptResult.optimized, km_saved: routeOptResult.totalKmSaved } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
