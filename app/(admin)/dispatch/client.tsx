@@ -98,6 +98,7 @@ import { KapazitaetsAmpel } from './kapazitaets-ampel';
 import { DriverDeckungslücke } from './driver-deckungslücke';
 import { DispatchFahrerEchtzeitRanking } from './fahrer-echtzeit-ranking';
 import { DispatchFahrerErmuedungsStrip } from './fahrer-ermudungs-strip';
+import { LieferZonenHeatmap } from './liefer-zonen-heatmap';
 
 type Driver = {
   employee_id: string;
@@ -1203,6 +1204,9 @@ export function DispatchBoard({
 
       {/* Zonen-Wartezeit-Heatmap: Farbkodierte Wartezeiten je Lieferzone */}
       <ZoneWaitHeatmap orders={readyOrders} />
+
+      {/* Phase 201: Liefer-Zonen-Heatmap — Zone-für-Zone Leistungsraster mit Farbcodierung */}
+      <LieferZonenHeatmap orders={readyOrders} />
 
       {/* Auslastungs-Heatmap: historisches Bestellvolumen Stunden × Wochentage */}
       <AuslastungsHeatmap locationId={locations[0]?.id} />

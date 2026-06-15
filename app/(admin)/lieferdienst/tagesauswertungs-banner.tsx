@@ -2,178 +2,213 @@
 
 /**
  * TagesauswertungsBanner — Phase 201
- * Tagesabschluss-Banner: erscheint ab 20:00 Uhr mit automatischer
- * Zusammenfassung der Schicht (Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit).
- * Zeigt Vergleich zu gestern und eine motivierende Bewertung.
+ * Tagesabschluss-Banner für die Lieferdienst-Ansicht.
+ * Zeigt: Gesamtumsatz, Bestellungen, Ø Lieferzeit, Pünktlichkeit, Fahrer online.
+ * Erscheint automatisch ab 20:00 Uhr (oder manuell ausklappbar).
+ * Nutzt GET /api/delivery/shifts?action=current_stats oder Mock-Daten.
  */
 
 import { useEffect, useState } from 'react';
-import { Award, Star, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  TrendingUp, Award, Clock, Target, Users, ChevronDown, ChevronUp,
+  CheckCircle2, AlertTriangle, Star,
+} from 'lucide-react';
 
-interface DayStats {
+interface ShiftStats {
   revenue: number;
   orders: number;
+  avgOrderValue: number;
   deliveries: number;
-  avgDeliveryMin: number | null;
-  slaRate: number | null;
-  yesterdayRevenue: number | null;
-  yesterdayOrders: number | null;
+  avgDeliveryMin: number;
+  onTimeRatePct: number;
+  pendingOrders: number;
+  activeDrivers: number;
+}
+
+const MOCK_STATS: ShiftStats = {
+  revenue: 0, orders: 0, avgOrderValue: 0, deliveries: 0,
+  avgDeliveryMin: 0, onTimeRatePct: 0, pendingOrders: 0, activeDrivers: 0,
+};
+
+function gradeEmoji(onTimePct: number): { emoji: string; label: string; color: string } {
+  if (onTimePct >= 95) return { emoji: '🏆', label: 'Ausgezeichnet!', color: 'text-amber-600' };
+  if (onTimePct >= 85) return { emoji: '⭐', label: 'Sehr gut', color: 'text-matcha-600' };
+  if (onTimePct >= 75) return { emoji: '👍', label: 'Gut', color: 'text-blue-600' };
+  if (onTimePct >= 60) return { emoji: '⚡', label: 'Ausbaufähig', color: 'text-amber-500' };
+  return { emoji: '⚠️', label: 'Verbesserung nötig', color: 'text-red-500' };
+}
+
+function fmt(v: number) {
+  return v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 }
 
 interface Props {
   locationId: string;
 }
 
-function getTagesRating(stats: DayStats): { emoji: string; label: string; color: string } {
-  const score =
-    (stats.slaRate != null ? (stats.slaRate >= 90 ? 2 : stats.slaRate >= 75 ? 1 : 0) : 1) +
-    (stats.avgDeliveryMin != null ? (stats.avgDeliveryMin <= 25 ? 2 : stats.avgDeliveryMin <= 35 ? 1 : 0) : 1) +
-    (stats.orders >= 20 ? 2 : stats.orders >= 10 ? 1 : 0);
-
-  if (score >= 5) return { emoji: '🏆', label: 'Ausgezeichneter Tag!', color: 'text-amber-700' };
-  if (score >= 3) return { emoji: '⭐', label: 'Guter Tag!', color: 'text-emerald-700' };
-  return { emoji: '📈', label: 'Solider Tag', color: 'text-blue-700' };
-}
-
 export function TagesauswertungsBanner({ locationId }: Props) {
-  const [stats, setStats] = useState<DayStats | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [stats, setStats] = useState<ShiftStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
 
-  const currentHour = new Date().getHours();
-  const showAfterHour = currentHour >= 20;
+  // Auto-öffnen nach 20 Uhr
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 20) setOpen(true);
+  }, []);
 
   useEffect(() => {
-    if (!showAfterHour) { setLoading(false); return; }
+    if (!locationId) return;
+    let mounted = true;
+    setLoading(true);
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    Promise.all([
-      fetch(`/api/delivery/admin/reporting?type=daily&location_id=${locationId}`).then((r) => r.json()),
-    ])
-      .then(([report]) => {
-        const today = report?.today ?? report?.data ?? report;
-        if (!today) return;
-        setStats({
-          revenue:         Number(today.revenue_eur ?? today.revenueEur ?? 0),
-          orders:          Number(today.total_orders ?? today.totalOrders ?? 0),
-          deliveries:      Number(today.delivered ?? today.deliveries ?? 0),
-          avgDeliveryMin:  today.avg_delivery_min ?? today.avgDeliveryMin ?? null,
-          slaRate:         today.sla_rate ?? today.slaRate ?? null,
-          yesterdayRevenue: today.yesterday_revenue_eur ?? today.yesterdayRevenueEur ?? null,
-          yesterdayOrders:  today.yesterday_orders ?? today.yesterdayOrders ?? null,
-        });
+    fetch(`/api/delivery/shifts?action=current_stats&location_id=${locationId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then((d: { stats?: ShiftStats } | null) => {
+        if (mounted && d?.stats) setStats(d.stats);
+        else if (mounted) setStats(MOCK_STATS);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [locationId, showAfterHour]);
+      .catch(() => { if (mounted) setStats(MOCK_STATS); })
+      .finally(() => { if (mounted) setLoading(false); });
 
-  // Don't render before 20:00, if dismissed, or while loading without data
-  if (!showAfterHour || dismissed || (loading && !stats)) return null;
-  if (!loading && !stats) return null;
+    return () => { mounted = false; };
+  }, [locationId, lastRefresh]);
 
-  const rating = stats ? getTagesRating(stats) : null;
-  const revenueGrowth =
-    stats?.yesterdayRevenue && stats.yesterdayRevenue > 0
-      ? ((stats.revenue - stats.yesterdayRevenue) / stats.yesterdayRevenue) * 100
-      : null;
-  const ordersGrowth =
-    stats?.yesterdayOrders && stats.yesterdayOrders > 0
-      ? ((stats.orders - stats.yesterdayOrders) / stats.yesterdayOrders) * 100
-      : null;
+  const grade = stats ? gradeEmoji(stats.onTimeRatePct) : null;
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} Uhr`;
 
   return (
-    <div className="relative rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-amber-50 to-orange-50 p-5 overflow-hidden">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute right-4 top-2 text-6xl opacity-10 select-none">
-        {rating?.emoji ?? '📊'}
-      </div>
-
+    <div className={cn(
+      'rounded-2xl overflow-hidden border transition-all',
+      grade?.color === 'text-amber-600' ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-white' :
+      grade?.color === 'text-matcha-600' ? 'border-matcha-200 bg-gradient-to-br from-matcha-50 to-white' :
+      'border-stone-200 bg-white',
+    )}>
+      {/* Header — immer sichtbar */}
       <button
-        onClick={() => setDismissed(true)}
-        className="absolute right-3 top-3 rounded-full p-1 text-zinc-400 hover:bg-amber-100 hover:text-zinc-600 transition"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
       >
-        <X size={12} />
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'flex h-9 w-9 items-center justify-center rounded-full text-lg',
+            loading ? 'bg-stone-100' : 'bg-white shadow-sm',
+          )}>
+            {loading ? <span className="animate-pulse">⏳</span> : <span>{grade?.emoji ?? '📊'}</span>}
+          </div>
+          <div>
+            <div className="text-sm font-bold text-stone-800">
+              Tagesauswertung — Stand {timeStr}
+            </div>
+            {!loading && stats && (
+              <div className={cn('text-xs font-semibold', grade?.color)}>
+                {grade?.label} · {stats.orders} Bestellungen · {fmt(stats.revenue)}
+              </div>
+            )}
+            {loading && <div className="text-xs text-stone-400 animate-pulse">Lade Schichtdaten…</div>}
+          </div>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
       </button>
 
-      <div className="mb-3 flex items-center gap-2">
-        <Award size={16} className="text-amber-600" />
-        <span className="text-sm font-black text-amber-800">Tagesauswertung</span>
-        {rating && (
-          <span className={cn('text-sm font-bold', rating.color)}>
-            {rating.emoji} {rating.label}
-          </span>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="flex gap-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-12 w-20 animate-pulse rounded-xl bg-amber-100" />
-          ))}
-        </div>
-      ) : stats ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {/* Revenue */}
-          <div className="rounded-xl bg-white/80 p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Umsatz</div>
-            <div className="mt-0.5 text-xl font-black tabular-nums text-zinc-800">
-              {stats.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+      {/* Detail — ausgeklappt */}
+      {open && !loading && stats && (
+        <div className="border-t border-stone-100">
+          {/* KPI Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4">
+            <div className="rounded-xl bg-white border border-stone-100 p-3 text-center">
+              <div className="text-lg font-black tabular-nums text-stone-800">{fmt(stats.revenue)}</div>
+              <div className="text-[10px] text-stone-500 flex items-center justify-center gap-0.5 mt-0.5">
+                <TrendingUp className="h-2.5 w-2.5" />Umsatz
+              </div>
             </div>
-            {revenueGrowth !== null && (
-              <div className={cn('flex items-center gap-0.5 text-[10px] font-bold mt-0.5', revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                {revenueGrowth >= 0 ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-                {revenueGrowth >= 0 ? '+' : ''}{Math.round(revenueGrowth)}% vs. gestern
+            <div className="rounded-xl bg-white border border-stone-100 p-3 text-center">
+              <div className="text-lg font-black tabular-nums text-stone-800">{stats.orders}</div>
+              <div className="text-[10px] text-stone-500 flex items-center justify-center gap-0.5 mt-0.5">
+                <Award className="h-2.5 w-2.5" />Bestellungen
               </div>
-            )}
-          </div>
-
-          {/* Orders */}
-          <div className="rounded-xl bg-white/80 p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Bestellungen</div>
-            <div className="mt-0.5 text-xl font-black tabular-nums text-zinc-800">{stats.orders}</div>
-            {ordersGrowth !== null && (
-              <div className={cn('flex items-center gap-0.5 text-[10px] font-bold mt-0.5', ordersGrowth >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                {ordersGrowth >= 0 ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-                {ordersGrowth >= 0 ? '+' : ''}{Math.round(ordersGrowth)}% vs. gestern
-              </div>
-            )}
-          </div>
-
-          {/* Avg delivery time */}
-          <div className="rounded-xl bg-white/80 p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Ø Lieferzeit</div>
-            <div className="mt-0.5 text-xl font-black tabular-nums text-zinc-800">
-              {stats.avgDeliveryMin !== null ? `${Math.round(stats.avgDeliveryMin)} Min` : '—'}
             </div>
-            {stats.avgDeliveryMin !== null && (
-              <div className={cn('text-[10px] font-bold mt-0.5', stats.avgDeliveryMin <= 25 ? 'text-emerald-600' : stats.avgDeliveryMin <= 35 ? 'text-amber-600' : 'text-red-500')}>
-                {stats.avgDeliveryMin <= 25 ? '🚀 Sehr schnell' : stats.avgDeliveryMin <= 35 ? '✓ Im Ziel' : '⚠ Langsam'}
+            <div className="rounded-xl bg-white border border-stone-100 p-3 text-center">
+              <div className={cn(
+                'text-lg font-black tabular-nums',
+                stats.avgDeliveryMin <= 25 ? 'text-matcha-700' : stats.avgDeliveryMin <= 35 ? 'text-amber-600' : 'text-red-600',
+              )}>
+                {stats.avgDeliveryMin > 0 ? `${Math.round(stats.avgDeliveryMin)} Min` : '—'}
               </div>
-            )}
+              <div className="text-[10px] text-stone-500 flex items-center justify-center gap-0.5 mt-0.5">
+                <Clock className="h-2.5 w-2.5" />Ø Lieferzeit
+              </div>
+            </div>
+            <div className="rounded-xl bg-white border border-stone-100 p-3 text-center">
+              <div className={cn(
+                'text-lg font-black tabular-nums',
+                stats.onTimeRatePct >= 85 ? 'text-matcha-700' : stats.onTimeRatePct >= 70 ? 'text-amber-600' : 'text-red-600',
+              )}>
+                {stats.onTimeRatePct > 0 ? `${Math.round(stats.onTimeRatePct)}%` : '—'}
+              </div>
+              <div className="text-[10px] text-stone-500 flex items-center justify-center gap-0.5 mt-0.5">
+                <Target className="h-2.5 w-2.5" />Pünktlichkeit
+              </div>
+            </div>
           </div>
 
-          {/* SLA rate */}
-          <div className="rounded-xl bg-white/80 p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Pünktlichkeit</div>
-            <div className="mt-0.5 flex items-center gap-1">
-              <span className="text-xl font-black tabular-nums text-zinc-800">
-                {stats.slaRate !== null ? `${Math.round(stats.slaRate)}%` : '—'}
+          {/* Zusatz-KPIs */}
+          <div className="flex flex-wrap gap-3 px-4 pb-4">
+            <div className="flex items-center gap-1.5 rounded-full bg-stone-50 border border-stone-100 px-3 py-1.5">
+              <Users className="h-3 w-3 text-stone-500" />
+              <span className="text-xs text-stone-600 font-semibold">{stats.activeDrivers} Fahrer online</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-stone-50 border border-stone-100 px-3 py-1.5">
+              <Star className="h-3 w-3 text-amber-500" />
+              <span className="text-xs text-stone-600 font-semibold">
+                Ø {stats.avgOrderValue > 0 ? fmt(stats.avgOrderValue) : '—'} / Bestellung
               </span>
-              {stats.slaRate !== null && stats.slaRate >= 90 && (
-                <Star size={14} className="fill-amber-400 text-amber-400" />
-              )}
             </div>
-            {stats.slaRate !== null && (
-              <div className={cn('text-[10px] font-bold mt-0.5', stats.slaRate >= 90 ? 'text-emerald-600' : stats.slaRate >= 75 ? 'text-amber-600' : 'text-red-500')}>
-                {stats.slaRate >= 90 ? '🎯 Ziel erreicht' : stats.slaRate >= 75 ? '~ Knapp verfehlt' : '✗ Unter Ziel'}
+            {stats.pendingOrders > 0 && (
+              <div className="flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1.5">
+                <AlertTriangle className="h-3 w-3 text-amber-500" />
+                <span className="text-xs text-amber-700 font-semibold">{stats.pendingOrders} offen</span>
+              </div>
+            )}
+            {stats.pendingOrders === 0 && stats.orders > 0 && (
+              <div className="flex items-center gap-1.5 rounded-full bg-matcha-50 border border-matcha-200 px-3 py-1.5">
+                <CheckCircle2 className="h-3 w-3 text-matcha-500" />
+                <span className="text-xs text-matcha-700 font-semibold">Alle abgeschlossen</span>
               </div>
             )}
           </div>
+
+          {/* Performance-Nachricht */}
+          <div className={cn(
+            'mx-4 mb-4 rounded-xl p-3 text-xs font-medium',
+            grade?.color === 'text-amber-600' ? 'bg-amber-50 text-amber-800' :
+            grade?.color === 'text-matcha-600' ? 'bg-matcha-50 text-matcha-800' :
+            grade?.color === 'text-blue-600' ? 'bg-blue-50 text-blue-800' :
+            'bg-stone-50 text-stone-700',
+          )}>
+            {grade?.emoji} {grade?.label} —
+            {stats.onTimeRatePct >= 85
+              ? ` Hervorragende Schichtperformance! ${stats.deliveries} Lieferungen erfolgreich abgeschlossen.`
+              : stats.onTimeRatePct >= 70
+              ? ` Gute Leistung, aber es gibt noch Verbesserungspotenzial bei der Pünktlichkeit (Ziel: ≥85%).`
+              : ` Die Pünktlichkeit sollte in der nächsten Schicht verbessert werden. Ziel: ≥85%.`
+            }
+          </div>
+
+          {/* Refresh */}
+          <div className="px-4 pb-3 flex justify-end">
+            <button
+              onClick={() => setLastRefresh(Date.now())}
+              className="text-[10px] text-stone-400 hover:text-stone-600 transition flex items-center gap-1"
+            >
+              <TrendingUp className="h-2.5 w-2.5" />Aktualisieren
+            </button>
+          </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
