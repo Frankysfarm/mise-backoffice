@@ -71,6 +71,7 @@ import { SchichtSchnellBar } from './schicht-schnell-bar'
 import { ZoneAmpel } from './zone-ampel'
 import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
+import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -982,6 +983,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 193: Stunden-Umsatz-Ticker — Live-Umsatz der aktuellen Stunde vs. gestern */}
+              <StundenUmsatzTicker locationId={locationId} />
               {/* Schicht-Echtzeit-KPI: Sofort-Überblick aktiver Bestellungen, Lieferungen vs. Abholung, Dringlichkeit */}
               <SchichtEchtzeitKPI orders={orders as any} />
               {/* Phase 185: Schicht-Schnell-Bar — kompakte Echtzeit-KPI-Leiste */}

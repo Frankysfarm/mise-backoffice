@@ -46,6 +46,7 @@ import { KitchenSchichtOfenTimer } from './schicht-ofen-timer';
 import { KitchenSmartQueue } from './smart-queue';
 import { KitchenDriverArrivalSync } from './driver-arrival-sync';
 import { BatchReadySyncPanel } from './batch-ready-sync';
+import { KitchenFlowPrognose } from './flow-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -503,6 +504,8 @@ export function KitchenBoard({
       <KitchenSchichtOfenTimer orders={filtered} completedToday={completedToday} />
       {/* Live-Kochstatus: Farbkodierter Echtzeit-Überblick + dringlichster Countdown */}
       <KitchenLiveKochstatusStrip orders={filtered} timings={timings} />
+      {/* Phase 193: Flow-Prognose — 4-Slot Küchen-Auslastungs-Vorschau */}
+      <KitchenFlowPrognose orders={filtered} />
       {/* Pipeline-Funnel: Bestellungen je Küchen-Phase — Engpass-Erkennung */}
       <KitchenPipelineFunnel orders={filtered} />
       {/* Schicht-Tempo-Anzeige: Orders/h, Ø Zubereitungszeit, Pünktlichkeit */}

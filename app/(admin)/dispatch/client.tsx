@@ -95,6 +95,7 @@ import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
 import { DispatchScoreExplainer } from './score-explainer';
 import { DispatchTourScoreMatrix } from './tour-score-matrix';
 import { KapazitaetsAmpel } from './kapazitaets-ampel';
+import { DriverDeckungslücke } from './driver-deckungslücke';
 
 type Driver = {
   employee_id: string;
@@ -838,6 +839,11 @@ export function DispatchBoard({
         freeDriverCount={onlineDrivers.filter((d) => !batches.some((b) => b.fahrer_id === d.employee_id)).length}
       />
 
+      {/* Phase 193: Fahrer-Deckungslücke — freie vs. beschäftigte Fahrer mit Alert bei Engpass */}
+      <DriverDeckungslücke
+        drivers={drivers.map((d) => ({ id: d.employee_id, status: { ist_online: d.ist_online, aktueller_batch_id: d.aktueller_batch_id } }))}
+        pendingOrders={readyOrders.length}
+      />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}

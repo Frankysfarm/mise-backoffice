@@ -6,6 +6,7 @@ import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Copy, Package, Shar
 import { createClient } from '@/lib/supabase/client';
 import { PostDeliveryRating } from './post-delivery-rating';
 import { EtaTrackerCard } from './eta-tracker-card';
+import { FahrerNaehePuls } from './fahrer-naehe-puls';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -572,6 +573,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </div>
         )}
 
+        {/* Phase 193: Fahrer-Nähe-Puls — pulsierender Live-Status wenn Fahrer unterwegs */}
+        {isDelivery && liveStatus === 'unterwegs' && (
+          <div className="mt-4 w-full">
+            <FahrerNaehePuls
+              status={liveStatus}
+              etaLatest={etaWindow?.latest ?? null}
+              driverName={driverName}
+            />
+          </div>
+        )}
         {/* ETA-Tracker: erweiterter Lieferstatus mit Fahrername + Stop-Position */}
         {isDelivery && orderId && liveStatus !== 'geliefert' && (
           <div className="mt-4 w-full">
