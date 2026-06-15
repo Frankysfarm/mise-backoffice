@@ -216,6 +216,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Kunden-Profile · Lieblings-Artikel · Bestellmuster · Wiederbestellrate" cta="Engine öffnen" />
         <SectionCard href="/delivery/subscriptions" icon={<CreditCard className="h-5 w-5" />} title="Liefer-Abonnements"
           subtitle="Flatrate-Pläne · Aktive Abos · MRR · Auto-Renewal · Kunden-Ersparnisse" cta="Abos verwalten" />
+        <SectionCard href="/delivery/mov-ab-test" icon={<FlaskConical className="h-5 w-5" />} title="MOV A/B-Test"
+          subtitle="Mindestbestellwert-Experimente je Zone (A/B/C/D) und Tageszeit · Konversionsrate und Ø-Bestellwert vergleichen" cta="Tests verwalten" />
       </SectionGroup>
 
       {/* ── Probleme & Eskalation ────────────────────────────── */}
@@ -274,6 +276,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Ganzheitlicher Qualitäts-Score · ETA-Genauigkeit, Benachrichtigungen, Fahrer-Verlässlichkeit" cta="Score ansehen" />
         <SectionCard href="/delivery/challenges" icon={<Trophy className="h-5 w-5" />} title="Fahrer-Challenges"
           subtitle="Gamifizierte Anreize · Zeitbegrenzte Delivery-Ziele · Automatische Fortschrittsverfolgung" cta="Challenges verwalten" />
+        <SectionCard href="/delivery/driver-streaks" icon={<Flame className="h-5 w-5" />} title="Streak-Tracking V2"
+          subtitle="Pünktlichkeits-Serien · Multiplikator-Boni bei 5/10/20/50 Stops · Meilenstein-Prämien" cta="Streaks ansehen" />
         <SectionCard href="/delivery/positioning" icon={<Navigation2 className="h-5 w-5" />} title="Fahrer-Vorpositionierung"
           subtitle="Smart Pre-Positioning · Idle-Fahrer in Bedarfszonen lenken · Demand-basierte Empfehlungen" cta="Positioning öffnen" />
         <SectionCard href="/delivery/geo-clustering" icon={<Crosshair className="h-5 w-5" />} title="Geo-Clustering"

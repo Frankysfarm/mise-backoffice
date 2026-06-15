@@ -43,6 +43,7 @@ import { FahrerRatingHistorie } from './rating-historie';
 import { TourEfficiencyTicker } from './tour-efficiency-ticker';
 import { StopTimerRing } from './stop-timer-ring';
 import { SchichtPauseReminder } from './schicht-pause-reminder';
+import { StreakBadge } from './streak-badge';
 
 type Driver = {
   id: string;
@@ -807,6 +808,8 @@ export function FahrerApp({
                 <FahrerPauseWidget />
                 {/* Phase 193: Schicht-Pause-Erinnerung — Pflichtpause-Hinweis nach 2,5h / 4,5h */}
                 <SchichtPauseReminder onlineSince={status?.online_seit ?? null} />
+                {/* Phase 194: Streak-Badge — zeigt Pünktlichkeits-Serie + Multiplikator */}
+                {driver.location_id && <StreakBadge driverId={driver.id} locationId={driver.location_id} />}
               </>
             )}
           </section>
