@@ -191,7 +191,7 @@ export function LieferungBestaetigung({ stop, batchId, onConfirmed }: Props) {
             pending ||
             (hasNotes && !notesAck) ||
             (needsCash && o.zahlungsart === 'bar' && !zahlungOk) ||
-            (needsCash && o.zahlungsart === 'ec' && !zahlungOk && o.zahlungsart !== 'bar')
+            (needsCash && o.zahlungsart === 'ec' && !zahlungOk)
           }
           className={cn(
             'w-full h-12 rounded-xl font-black text-sm transition-all active:scale-[0.97] flex items-center justify-center gap-2',
