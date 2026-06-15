@@ -3425,3 +3425,11 @@ Siehe DELIVERY_CEO_LOG.md
   - Cron: processAllLocations() täglich 04:45 UTC + expireStaleConversions() täglich 02:00 UTC
   - Sidebar: Gift-Icon "Empfehlungs-Programm" in Loslegen-Gruppe
   - Build: npm run build ✓ (269 Seiten, 0 TypeScript-Fehler)
+- 2026-06-15: Backend-Architekt — Phase 196: Schicht-KPI-API (current_stats)
+  - app/api/delivery/shifts/route.ts: GET ?action=current_stats
+  - Auth via employees.tenant_id (Superadmin-Override via ?location_id=)
+  - Liefert: revenue, orders, avgOrderValue, deliveries, avgDeliveryMin, onTimeRatePct, pendingOrders, activeDrivers, hourBuckets (letzte 6h)
+  - Datenquellen: customer_orders (typ=lieferung, seit Mitternacht UTC) + mise_drivers (active=true)
+  - Pünktlichkeit: fertig_am ≤ eta_earliest; Lieferzeit: fertig_am - created_at (Ausreißer >240min gefiltert)
+  - Fix: LieferdienstStatsDashboard hatte 404 auf /api/delivery/shifts?action=current_stats — jetzt behoben
+  - Build: next build ✓ (0 TypeScript-Fehler, npx tsc --noEmit 0 Fehler)
