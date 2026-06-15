@@ -2,136 +2,284 @@
 
 /**
  * DemandForecastChart — Phase 201
- * Kompaktes 6h-Balkendiagramm der Bestellprognose für die Küche.
- * Zeigt erwartete Bestellungen + empfohlene Fahrerzahl pro Stunde.
- * Polling alle 30 Min da Forecast-Daten sich selten ändern.
+ * 24-Stunden Nachfrage-Prognose für die Küche:
+ * Balken = historischer Ø der letzten 4 Wochen (gleicher Wochentag)
+ * Linie  = heutige Ist-Werte (vergangene Stunden)
+ * Highlights die nächsten 3 Stunden als "Vorbereitung empfohlen".
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import { Brain, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+import {
+  BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell,
+  ReferenceLine, CartesianGrid,
+} from 'recharts';
+import { TrendingUp, Clock, Zap, AlertTriangle, ChefHat } from 'lucide-react';
 
-interface ForecastSlot {
-  hourLocal: string;
-  expectedOrders: number;
-  confidenceOrders: number;
-  recommendedTargetDrivers: number;
-  dataPoints: number;
+interface HourBucket {
+  hour: number;
+  label: string;
+  hist: number;
+  actual: number | null;
+  isPast: boolean;
+  isCurrent: boolean;
+  isSoon: boolean;
+  isRush: boolean;
 }
 
 interface Props {
   locationId: string | null;
 }
 
-export function DemandForecastChart({ locationId }: Props) {
-  const [slots, setSlots] = useState<ForecastSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalExpected, setTotalExpected] = useState(0);
-  const [peakHour, setPeakHour] = useState<string | null>(null);
+function buildBuckets(
+  histRows: { hour: number; avg_count: number }[],
+  actualRows: { hour: number; count: number }[],
+): HourBucket[] {
+  const now = new Date();
+  const curHour = now.getHours();
+  const histMap = new Map(histRows.map(r => [r.hour, r.avg_count]));
+  const actualMap = new Map(actualRows.map(r => [r.hour, r.count]));
 
-  const load = useCallback(async () => {
-    if (!locationId) { setLoading(false); return; }
-    try {
-      const res = await fetch(
-        `/api/delivery/admin/forecast?location_id=${locationId}&hours=6`,
-      );
-      const json = await res.json();
-      const s: ForecastSlot[] = json.slots ?? [];
-      setSlots(s);
-      setTotalExpected(json.summary?.totalExpectedOrders ?? 0);
-      const peakSlot = s.reduce<ForecastSlot | null>(
-        (best, cur) => (!best || cur.expectedOrders > best.expectedOrders ? cur : best),
-        null,
-      );
-      setPeakHour(peakSlot?.hourLocal ?? null);
-    } catch {
-      // keep stale data
-    } finally {
-      setLoading(false);
-    }
-  }, [locationId]);
+  return Array.from({ length: 24 }, (_, h) => {
+    const hist = histMap.get(h) ?? 0;
+    const actual = h < curHour
+      ? (actualMap.get(h) ?? 0)
+      : h === curHour
+        ? (actualMap.get(h) ?? null)
+        : null;
+    return {
+      hour: h,
+      label: `${String(h).padStart(2, '0')}`,
+      hist: Math.round(hist),
+      actual,
+      isPast: h < curHour,
+      isCurrent: h === curHour,
+      isSoon: h > curHour && h <= curHour + 3,
+      isRush: hist > 5,
+    };
+  });
+}
+
+type CustomTooltipProps = { active?: boolean; payload?: { name: string; value: number }[]; label?: string };
+
+function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-lg border border-stone-200 bg-white shadow-lg p-2.5 text-xs">
+      <div className="font-bold text-stone-700 mb-1">{label}:00 Uhr</div>
+      {payload.map(p => (
+        <div key={p.name} className="flex items-center gap-1.5">
+          <span className={cn(
+            'inline-block w-2 h-2 rounded-full',
+            p.name === 'hist' ? 'bg-matcha-400' : 'bg-amber-400',
+          )} />
+          <span className="text-stone-500">{p.name === 'hist' ? 'Ø 4 Wochen' : 'Heute'}:</span>
+          <span className="font-bold">{p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function KitchenDemandForecastChart({ locationId }: Props) {
+  const supabase = createClient();
+  const [buckets, setBuckets] = useState<HourBucket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [rushHours, setRushHours] = useState<number[]>([]);
 
   useEffect(() => {
-    void load();
-    const id = setInterval(load, 30 * 60_000);
-    return () => clearInterval(id);
-  }, [load]);
+    if (!locationId) { setLoading(false); return; }
+    let mounted = true;
 
-  if (!locationId || (!loading && slots.length === 0)) return null;
+    async function load() {
+      setLoading(true);
+      try {
+        const now = new Date();
+        const todayStart = new Date(now);
+        todayStart.setHours(0, 0, 0, 0);
 
-  const maxOrders = Math.max(...slots.map((s) => s.confidenceOrders), 1);
+        // Heutiger Ist-Wert: Bestellungen dieser Stunden
+        const { data: todayOrders } = await supabase
+          .from('customer_orders')
+          .select('bestellt_am')
+          .eq('location_id', locationId!)
+          .gte('bestellt_am', todayStart.toISOString())
+          .lte('bestellt_am', now.toISOString())
+          .not('status', 'eq', 'storniert');
+
+        const actualMap = new Map<number, number>();
+        for (const o of todayOrders ?? []) {
+          if (!o.bestellt_am) continue;
+          const h = new Date(o.bestellt_am).getHours();
+          actualMap.set(h, (actualMap.get(h) ?? 0) + 1);
+        }
+
+        // 4-Wochen historischer Ø (gleicher Wochentag)
+        const weekday = now.getDay();
+        const fourWeeksAgo = new Date(now.getTime() - 28 * 86_400_000);
+        const { data: histOrders } = await supabase
+          .from('customer_orders')
+          .select('bestellt_am')
+          .eq('location_id', locationId!)
+          .gte('bestellt_am', fourWeeksAgo.toISOString())
+          .lte('bestellt_am', todayStart.toISOString())
+          .not('status', 'eq', 'storniert');
+
+        const histBuckets = new Map<number, number[]>();
+        for (const o of histOrders ?? []) {
+          if (!o.bestellt_am) continue;
+          const d = new Date(o.bestellt_am);
+          if (d.getDay() !== weekday) continue;
+          const h = d.getHours();
+          const arr = histBuckets.get(h) ?? [];
+          arr.push(1);
+          histBuckets.set(h, arr);
+        }
+
+        const histRows = Array.from({ length: 24 }, (_, h) => ({
+          hour: h,
+          avg_count: (histBuckets.get(h)?.length ?? 0) / 4,
+        }));
+        const actualRows = Array.from(actualMap.entries()).map(([hour, count]) => ({ hour, count }));
+
+        if (!mounted) return;
+
+        const b = buildBuckets(histRows, actualRows);
+        setBuckets(b);
+        setRushHours(histRows.filter(r => r.avg_count >= 5).map(r => r.hour));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+    const iv = setInterval(load, 5 * 60_000);
+    return () => { mounted = false; clearInterval(iv); };
+  }, [locationId]);
+
+  if (!locationId) return null;
+
+  const now = new Date();
+  const curHour = now.getHours();
+  const upcomingRush = rushHours.filter(h => h > curHour && h <= curHour + 3);
+  const currentBucket = buckets.find(b => b.isCurrent);
+  const currentActual = currentBucket?.actual ?? 0;
+  const currentHist = currentBucket?.hist ?? 0;
+  const aboveAvg = (currentActual ?? 0) > currentHist;
+
+  const visibleBuckets = buckets.filter(b => b.hour >= Math.max(0, curHour - 3) && b.hour <= Math.min(23, curHour + 6));
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-stone-100 bg-white p-4 animate-pulse">
+        <div className="h-4 w-48 bg-stone-100 rounded mb-4" />
+        <div className="h-32 bg-stone-50 rounded-xl" />
+      </div>
+    );
+  }
+
+  if (buckets.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white p-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-2xl border border-stone-100 bg-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
         <div className="flex items-center gap-2">
-          <Brain size={14} className="text-blue-500" />
-          <span className="text-xs font-bold text-zinc-700">Prognose nächste 6h</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-matcha-100">
+            <TrendingUp className="h-3.5 w-3.5 text-matcha-700" />
+          </div>
+          <div>
+            <div className="text-sm font-bold text-stone-800">Nachfrage-Prognose</div>
+            <div className="text-[10px] text-stone-400">Ø 4 Wochen vs. heute</div>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-zinc-400">
-          {peakHour && (
-            <span className="flex items-center gap-0.5 text-orange-500 font-semibold">
-              <TrendingUp size={9} />
-              Peak: {peakHour}
-            </span>
-          )}
-          <span className="font-semibold text-zinc-500">{totalExpected} erwartet</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-matcha-400" />
+            <span className="text-[10px] text-stone-500">Ø historisch</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400" />
+            <span className="text-[10px] text-stone-500">Heute</span>
+          </div>
         </div>
       </div>
 
-      {loading && slots.length === 0 ? (
-        <div className="flex gap-1 h-16 items-end">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex-1 h-8 animate-pulse rounded-t bg-zinc-100" />
-          ))}
-        </div>
-      ) : (
-        <div className="flex items-end gap-1 h-16">
-          {slots.map((slot) => {
-            const pctExp = Math.max(4, Math.round((slot.expectedOrders / maxOrders) * 100));
-            const pctConf = Math.round((slot.confidenceOrders / maxOrders) * 100);
-            const isPeak = slot.expectedOrders >= maxOrders * 0.7;
-            const isLow = slot.dataPoints < 3;
-            return (
-              <div
-                key={slot.hourLocal}
-                className="group relative flex flex-1 flex-col-reverse items-center"
-                title={`${slot.hourLocal} Uhr — ${slot.expectedOrders} Bestellungen · ${slot.recommendedTargetDrivers} Fahrer`}
-              >
-                <div className="relative w-full flex flex-col-reverse overflow-hidden rounded-t bg-zinc-100 h-12">
-                  <div
-                    className={cn(
-                      'w-full transition-all duration-500',
-                      isPeak ? 'bg-orange-400' : 'bg-blue-400',
-                      isLow && 'opacity-50',
-                    )}
-                    style={{ height: `${pctExp}%` }}
-                  />
-                  {pctConf > pctExp && (
-                    <div
-                      className="absolute w-full border-t border-dashed border-zinc-300/80"
-                      style={{ bottom: `${pctConf}%` }}
-                    />
-                  )}
-                </div>
-                <div className="mt-0.5 flex items-center gap-0.5 text-[8px] text-zinc-400">
-                  <Users size={7} />
-                  {slot.recommendedTargetDrivers}
-                </div>
-                <span className="text-[8px] text-zinc-400">{slot.hourLocal}</span>
-
-                {/* Hover tooltip */}
-                <div className="pointer-events-none absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-10 w-28 rounded-lg border border-zinc-100 bg-white p-1.5 text-[9px] shadow opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="font-bold text-zinc-700">{slot.hourLocal} Uhr</p>
-                  <p className="text-zinc-500">Erwartet: <span className="font-bold text-zinc-700">{slot.expectedOrders}</span></p>
-                  <p className="text-zinc-500">Fahrer: <span className="font-bold text-zinc-700">{slot.recommendedTargetDrivers}</span></p>
-                  {isLow && <p className="text-amber-600 mt-0.5">⚠ Wenig Daten</p>}
-                </div>
-              </div>
-            );
-          })}
+      {/* Alerts */}
+      {upcomingRush.length > 0 && (
+        <div className="flex items-center gap-2 bg-orange-50 border-b border-orange-100 px-4 py-2">
+          <Zap className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+          <span className="text-xs text-orange-700 font-semibold">
+            Rush-Stunden in {upcomingRush.map(h => `${h}:00`).join(', ')} Uhr — Vorbereitung empfohlen!
+          </span>
         </div>
       )}
+
+      {aboveAvg && currentActual > 0 && (
+        <div className="flex items-center gap-2 bg-amber-50 border-b border-amber-100 px-4 py-2">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+          <span className="text-xs text-amber-700 font-semibold">
+            Aktuelle Stunde über Ø ({currentActual} vs. {currentHist} erwartet)
+          </span>
+        </div>
+      )}
+
+      {/* Chart */}
+      <div className="px-3 pt-3 pb-2">
+        <ResponsiveContainer width="100%" height={120}>
+          <BarChart data={visibleBuckets} barGap={2} barCategoryGap="20%">
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 9, fill: '#94a3b8' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip content={<ChartTooltip />} />
+            <ReferenceLine x={String(curHour).padStart(2, '0')} stroke="#6b7280" strokeDasharray="3 3" strokeWidth={1.5} />
+            <Bar dataKey="hist" radius={[3, 3, 0, 0]} maxBarSize={18}>
+              {visibleBuckets.map(b => (
+                <Cell
+                  key={b.hour}
+                  fill={b.isRush ? '#4ade80' : '#bbf7d0'}
+                  opacity={b.isSoon ? 1 : b.isPast ? 0.5 : 0.8}
+                />
+              ))}
+            </Bar>
+            <Bar dataKey="actual" radius={[3, 3, 0, 0]} maxBarSize={18}>
+              {visibleBuckets.map(b => (
+                <Cell
+                  key={b.hour}
+                  fill={b.isCurrent ? '#f59e0b' : '#fcd34d'}
+                  opacity={b.actual !== null ? 1 : 0}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Footer — nächste 3 Rush-Empfehlungen */}
+      <div className="flex gap-2 px-4 pb-3 flex-wrap">
+        {buckets.filter(b => b.isSoon && b.isRush).slice(0, 3).map(b => (
+          <div
+            key={b.hour}
+            className="flex items-center gap-1 rounded-full bg-matcha-50 border border-matcha-200 px-2.5 py-0.5"
+          >
+            <ChefHat className="h-3 w-3 text-matcha-600" />
+            <span className="text-[10px] font-bold text-matcha-700">
+              {b.hour}:00 Uhr — ca. {b.hist} Bestellungen
+            </span>
+          </div>
+        ))}
+        {buckets.filter(b => b.isSoon && b.isRush).length === 0 && (
+          <span className="text-[10px] text-stone-400 flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Nächste 3h: kein Rush erwartet
+          </span>
+        )}
+      </div>
     </div>
   );
 }

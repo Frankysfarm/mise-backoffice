@@ -77,6 +77,7 @@ import { RentabilitaetsTrend } from './rentabilitaets-trend'
 import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
 import { LieferzonenHeatmap } from './lieferzonen-heatmap'
 import { TagesauswertungsBanner } from './tagesauswertungs-banner'
+import { KundenFeedbackUebersicht } from './kunden-feedback-uebersicht'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -992,6 +993,8 @@ export function LieferdienstClient() {
               <TagesauswertungsBanner locationId={locationId} />
               {/* Phase 201: Zonen-Heatmap — Liefervolumen nach Zone A/B/C/D */}
               <LieferzonenHeatmap locationId={locationId} />
+              {/* Phase 201: Kunden-Feedback-Übersicht — Ø Bewertung, positiv-Rate, letzte Kommentare */}
+              <KundenFeedbackUebersicht locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 200: 30-Tage Rentabilitätstrend — Umsatz/Kosten/Marge Zeitreihe */}

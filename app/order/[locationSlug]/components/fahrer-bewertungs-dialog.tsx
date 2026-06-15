@@ -2,54 +2,52 @@
 
 /**
  * FahrerBewertungsDialog — Phase 201
- * Fahrer-spezifischer Bewertungsdialog erscheint nach Lieferung wenn
- * Fahrername bekannt ist. Zeigt Fahrer-Avatar, Quick-Tags und
- * schickt eine Danke-Bewertung an die existing /api/delivery/reviews API.
- *
- * Triggered von success-state.tsx wenn liveStatus === 'geliefert' && driverName.
+ * Fahrer-spezifisches Bewertungsdialog im Storefront nach Zustellung.
+ * Erscheint 5s nach Statuswechsel auf "geliefert", zeigt Fahrername,
+ * 5-Sterne-Skala + 3 schnelle Fahrer-Eigenschaften.
+ * Sendet rating über POST /api/delivery/orders/[orderId]/rate mit driverRating-Tag.
  */
 
-import { useEffect, useRef, useState } from 'react';
-import { Check, Star, ThumbsUp, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Star, X, ThumbsUp, CheckCircle2, Bike } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DRIVER_TAGS = [
-  { id: 'friendly',   emoji: '😊', label: 'Freundlich' },
-  { id: 'fast',       emoji: '⚡', label: 'Schnell' },
-  { id: 'careful',    emoji: '🤝', label: 'Sorgfältig' },
-  { id: 'punctual',   emoji: '⏰', label: 'Pünktlich' },
-  { id: 'contactless',emoji: '📦', label: 'Kontaktlos' },
-  { id: 'polite',     emoji: '🎩', label: 'Höflich' },
+  { id: 'schnell',      emoji: '⚡', label: 'Superschnell' },
+  { id: 'freundlich',   emoji: '😊', label: 'Freundlich' },
+  { id: 'sorgfältig',  emoji: '📦', label: 'Sorgfältig' },
+  { id: 'pünktlich',   emoji: '⏱️', label: 'Pünktlich' },
+  { id: 'kommunikativ', emoji: '💬', label: 'Gute Kommunikation' },
 ];
 
 interface Props {
   orderId: string;
-  driverName: string;
-  /** Triggered from outside when status changes to 'geliefert' */
+  driverName: string | null;
   triggered: boolean;
   onDismiss: () => void;
 }
 
 export function FahrerBewertungsDialog({ orderId, driverName, triggered, onDismiss }: Props) {
   const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState<'rate' | 'tags' | 'done'>('rate');
   const [stars, setStars] = useState(0);
   const [hoverStar, setHoverStar] = useState(0);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-  const submittedRef = useRef(false);
 
   useEffect(() => {
-    if (triggered && !submittedRef.current) {
-      const t = setTimeout(() => setVisible(true), 2_500);
-      return () => clearTimeout(t);
-    }
-  }, [triggered]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!triggered) return;
+    const t = setTimeout(() => setVisible(true), 5000);
+    return () => clearTimeout(t);
+  }, [triggered]);
 
-  if (!visible) return null;
+  const dismiss = useCallback(() => {
+    setVisible(false);
+    setTimeout(onDismiss, 300);
+  }, [onDismiss]);
 
   function toggleTag(id: string) {
-    setSelectedTags((prev) => {
+    setSelectedTags(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -57,146 +55,150 @@ export function FahrerBewertungsDialog({ orderId, driverName, triggered, onDismi
     });
   }
 
-  async function submit() {
-    if (stars === 0 || submitting) return;
+  async function handleSubmit() {
+    if (!stars) return;
     setSubmitting(true);
     try {
-      await fetch('/api/delivery/reviews', {
+      // Hol Rating-Token
+      const tokenRes = await fetch(`/api/delivery/orders/${orderId}/rate`);
+      if (!tokenRes.ok) { setStep('done'); return; }
+      const { token } = await tokenRes.json() as { token?: string };
+      if (!token) { setStep('done'); return; }
+
+      await fetch(`/api/delivery/orders/${orderId}/rate`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          order_id: orderId,
-          stars,
-          tags: [...selectedTags],
-          comment: null,
-          source: 'driver_rating',
-          driver_name: driverName,
+          token,
+          rating: stars,
+          comment: selectedTags.size > 0
+            ? `Fahrerbewertung: ${Array.from(selectedTags).join(', ')}`
+            : undefined,
         }),
       });
-    } catch {
-      // fire-and-forget — rating loss is acceptable
-    } finally {
-      submittedRef.current = true;
+    } catch { /* silent */ } finally {
       setSubmitting(false);
-      setDone(true);
-      setTimeout(() => {
-        setVisible(false);
-        onDismiss();
-      }, 2_000);
+      setStep('done');
+      setTimeout(dismiss, 2500);
     }
   }
 
-  const initials = driverName
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={() => { setVisible(false); onDismiss(); }}
-      />
+    <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/30 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-5 animate-in slide-in-from-bottom-4 duration-300">
 
-      <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
         {/* Close */}
         <button
-          onClick={() => { setVisible(false); onDismiss(); }}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-zinc-400 hover:bg-zinc-100 transition"
+          onClick={dismiss}
+          className="absolute top-4 right-4 text-stone-400 hover:text-stone-600"
+          aria-label="Schließen"
         >
-          <X size={14} />
+          <X className="h-4 w-4" />
         </button>
 
-        {done ? (
-          <div className="flex flex-col items-center gap-3 py-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
-              <Check size={24} className="text-emerald-600" />
-            </div>
-            <p className="text-center font-bold text-zinc-800">Danke für deine Bewertung!</p>
-            <p className="text-center text-sm text-zinc-500">
-              {driverName} freut sich über dein Feedback ❤️
+        {step === 'done' ? (
+          <div className="flex flex-col items-center py-4 gap-3">
+            <CheckCircle2 className="h-10 w-10 text-matcha-500" />
+            <p className="text-base font-bold text-stone-800">Danke für dein Feedback!</p>
+            <p className="text-xs text-stone-500 text-center">
+              Deine Bewertung hilft uns, den Service zu verbessern.
             </p>
           </div>
-        ) : (
+        ) : step === 'rate' ? (
           <>
-            {/* Driver avatar */}
-            <div className="mb-4 flex flex-col items-center gap-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-matcha-400 to-matcha-600 text-xl font-black text-white shadow">
-                {initials}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
+                <Bike className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="text-center">
-                <p className="font-bold text-zinc-800">Bewerte deinen Fahrer</p>
-                <p className="text-sm text-zinc-500">{driverName}</p>
+              <div>
+                <p className="text-sm font-bold text-stone-800">
+                  {driverName ? `Wie war ${driverName.split(' ')[0]}?` : 'Wie war dein Fahrer?'}
+                </p>
+                <p className="text-xs text-stone-400">Bewerte nur den Fahrdienst</p>
               </div>
             </div>
 
-            {/* Stars */}
-            <div className="mb-4 flex justify-center gap-2">
-              {[1, 2, 3, 4, 5].map((s) => (
+            <div className="flex justify-center gap-2 mb-5">
+              {[1, 2, 3, 4, 5].map(s => (
                 <button
                   key={s}
-                  onClick={() => setStars(s)}
                   onMouseEnter={() => setHoverStar(s)}
                   onMouseLeave={() => setHoverStar(0)}
-                  className="transition-transform hover:scale-110"
+                  onClick={() => setStars(s)}
+                  className="transition-transform hover:scale-110 active:scale-95"
                 >
                   <Star
-                    size={32}
                     className={cn(
-                      'transition-colors',
+                      'h-9 w-9 transition-colors',
                       s <= (hoverStar || stars)
                         ? 'fill-amber-400 text-amber-400'
-                        : 'fill-zinc-200 text-zinc-200',
+                        : 'text-stone-200',
                     )}
                   />
                 </button>
               ))}
             </div>
 
-            {/* Quick tags */}
-            {stars > 0 && (
-              <div className="mb-4 flex flex-wrap justify-center gap-2">
-                {DRIVER_TAGS.map((tag) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => toggleTag(tag.id)}
-                    className={cn(
-                      'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold border transition',
-                      selectedTags.has(tag.id)
-                        ? 'border-matcha-500 bg-matcha-50 text-matcha-700'
-                        : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300',
-                    )}
-                  >
-                    <span>{tag.emoji}</span>
-                    {tag.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Submit */}
             <button
-              onClick={submit}
-              disabled={stars === 0 || submitting}
+              disabled={!stars}
+              onClick={() => setStep('tags')}
               className={cn(
-                'w-full flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold transition',
-                stars > 0
-                  ? 'bg-matcha-600 text-white hover:bg-matcha-700'
-                  : 'bg-zinc-100 text-zinc-400 cursor-not-allowed',
+                'w-full rounded-xl py-2.5 text-sm font-bold transition',
+                stars
+                  ? 'bg-matcha-700 text-white hover:bg-matcha-800'
+                  : 'bg-stone-100 text-stone-400 cursor-not-allowed',
               )}
             >
-              <ThumbsUp size={16} />
-              {submitting ? 'Senden…' : 'Bewertung abschicken'}
+              Weiter
             </button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-bold text-stone-800 mb-1">Was hat besonders gepasst?</p>
+            <p className="text-xs text-stone-400 mb-4">Optional — wähle so viele wie du möchtest</p>
 
-            {stars === 0 && (
-              <p className="mt-2 text-center text-[11px] text-zinc-400">
-                Wähle zuerst eine Sternebewertung
-              </p>
-            )}
+            <div className="flex flex-wrap gap-2 mb-5">
+              {DRIVER_TAGS.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => toggleTag(t.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition',
+                    selectedTags.has(t.id)
+                      ? 'border-matcha-500 bg-matcha-50 text-matcha-800'
+                      : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300',
+                  )}
+                >
+                  <span>{t.emoji}</span>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={dismiss}
+                className="flex-1 rounded-xl border border-stone-200 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 transition"
+              >
+                Überspringen
+              </button>
+              <button
+                disabled={submitting}
+                onClick={handleSubmit}
+                className="flex-1 rounded-xl bg-matcha-700 py-2.5 text-sm font-bold text-white hover:bg-matcha-800 disabled:opacity-60 transition flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <span className="animate-pulse">Sende…</span>
+                ) : (
+                  <>
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                    Absenden
+                  </>
+                )}
+              </button>
+            </div>
           </>
         )}
       </div>

@@ -76,9 +76,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const trackingMapInstanceRef = React.useRef<{ map: any; marker: any } | null>(null);
   const [copiedLink, setCopiedLink] = React.useState(false);
   const [showPostDeliveryRating, setShowPostDeliveryRating] = React.useState(false);
-  const postDeliveryTriggeredRef = React.useRef(false);
   const [showFahrerBewertung, setShowFahrerBewertung] = React.useState(false);
   const fahrerBewertungTriggeredRef = React.useRef(false);
+  const postDeliveryTriggeredRef = React.useRef(false);
 
   // Trigger Post-Delivery-Rating wenn Status auf 'geliefert' wechselt (nur einmal)
   React.useEffect(() => {
@@ -88,7 +88,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     }
   }, [liveStatus, orderId, ratingSubmitted]);
 
-  // Trigger Fahrer-Bewertungs-Dialog 4s nach PostDeliveryRating, nur wenn Fahrername bekannt
+  // Phase 201: Fahrer-Bewertungs-Dialog 4s nach PostDeliveryRating, nur wenn Fahrername bekannt
   React.useEffect(() => {
     if (
       liveStatus === 'geliefert' &&
