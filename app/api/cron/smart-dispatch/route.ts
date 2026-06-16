@@ -83,6 +83,7 @@ import { recordForecastAllLocations, fillActualsAllLocations, pruneForecastSnaps
 import { optimizeAllLocations as optimizeRoutesAllLocations } from '@/lib/delivery/route-optimizer-v2';
 import { takeWeatherSnapshotAllLocations, pruneOldWeatherSnapshots } from '@/lib/delivery/weather-intelligence';
 import { computeScoresAllLocations as computeDriverScoresAllLocations } from '@/lib/delivery/driver-score';
+import { snapshotAllLocations as snapshotNetworkHealth, pruneOldNetworkSnapshots } from '@/lib/delivery/network-health';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -534,6 +535,14 @@ export async function GET(req: NextRequest) {
       ? await computeDriverScoresAllLocations('week').catch(() => ({ locations: 0, computed: 0, errors: 1 }))
       : null;
 
+    // Phase 206: Network Health Snapshots — alle 30 Min (isDemandTick)
+    const networkHealthResult = isDemandTick
+      ? await snapshotNetworkHealth().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    if (isReportTick) {
+      pruneOldNetworkSnapshots(90).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -668,6 +677,7 @@ export async function GET(req: NextRequest) {
       ...(routeOptResult ? { route_optimization: { locations: routeOptResult.locations, optimized: routeOptResult.optimized, km_saved: routeOptResult.totalKmSaved } } : {}),
       ...(weatherResult ? { weather_intelligence: { locations: weatherResult.locations, snapshots: weatherResult.snapshots, dangerous: weatherResult.dangerous, errors: weatherResult.errors } } : {}),
       ...(driverScoreResult ? { driver_composite_scores: { locations: driverScoreResult.locations, computed: driverScoreResult.computed, errors: driverScoreResult.errors } } : {}),
+      ...(networkHealthResult ? { network_health: { locations: networkHealthResult.locations, snapshots: networkHealthResult.snapshots, errors: networkHealthResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

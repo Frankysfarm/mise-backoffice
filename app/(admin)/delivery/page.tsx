@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart, CloudRain,
+  Smile, Receipt, Heart, CloudRain, Network,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -190,6 +190,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Automatische KI-Zusammenfassung der Betriebslage · Anomalie-Erkennung" cta="Digest öffnen" />
         <SectionCard href="/delivery/weather-intelligence" icon={<CloudRain className="h-5 w-5" />} title="Wetter-Intelligenz"
           subtitle="Echtzeit-Wetterdaten · Schwierigkeits-Score · ETA-Faktor · Nachfrage-Prognose" cta="Wetter öffnen" />
+        <SectionCard href="/delivery/network-health" icon={<Network className="h-5 w-5" />} title="Netzwerk-Gesundheit"
+          subtitle="7-Faktoren Score (0–100) · Pünktlichkeit · Zufriedenheit · Auslastung · Profitabilität" cta="Score ansehen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
