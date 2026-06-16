@@ -151,6 +151,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/loyalty',          icon: 'Trophy',    label: 'Loyalty-Punkte' },
       { group: 'Loslegen', href: '/delivery/forecast',         icon: 'Brain',     label: 'Nachfrage-Prognose KI' },
       { group: 'Loslegen', href: '/delivery/shift-planner', icon: 'CalendarCheck2', label: 'Besetzungs-Cockpit' },
+      { group: 'Loslegen', href: '/delivery/capacity-planner', icon: 'LayoutGrid', label: 'Kapazitäts-Planer (7 Tage)' },
       { group: 'Loslegen', href: '/delivery/export',       icon: 'FileDown',        label: 'Datenexport (CSV/ZIP)' },
       { group: 'Loslegen', href: '/delivery/cdes',         icon: 'Star',            label: 'Erfahrungs-Score (CDES)' },
       { group: 'Loslegen', href: '/delivery/digest',       icon: 'BookOpen',        label: 'Tages-Digest (KI)' },

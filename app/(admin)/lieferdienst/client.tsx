@@ -82,6 +82,7 @@ import { WetterKpiKarte } from './wetter-kpi-karte'
 import { FahrerPerformanceScore } from './fahrer-performance-score'
 import { ZonenVergleichPanel } from './zonen-vergleich-panel'
 import { SchichtProfitKarte } from './schicht-profit-karte'
+import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -993,6 +994,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 207: Kapazitäts-Wochen-KPI — 7-Tage Besetzungsübersicht + Lücken */}
+              <KapazitaetsWochenKpi locationId={locationId} />
               {/* Phase 206: Schicht-Profit-Karte — Liefergebühren-Umsatz/Kosten/Marge heute */}
               <SchichtProfitKarte locationId={locationId} />
               {/* Phase 205: Fahrer-Performance-Score — Composite 0-100 Score (Pünktlichkeit + Bewertung + Effizienz) */}

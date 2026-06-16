@@ -49,6 +49,7 @@ import { TourOptBadge } from './tour-opt-badge';
 import { FahrerWetterWarnBanner } from './wetter-warn-banner';
 import { FahrerSchichtEinnahmenChart } from './schicht-einnahmen-chart';
 import { FahrerTagesBewertungKarte } from './tages-bewertung-karte';
+import { SchichtBedarfChip } from './schicht-bedarf-chip';
 
 type Driver = {
   id: string;
@@ -823,6 +824,8 @@ export function FahrerApp({
                 {driver.location_id && <StreakBadge driverId={driver.id} locationId={driver.location_id} />}
                 {/* Phase 195: Meilenstein-Toast — Benachrichtigung bei neuen Streak-Meilensteinen */}
                 <MeilensteinToast driverId={driver.id} />
+                {/* Phase 207: Schicht-Bedarf-Chip — zeigt Fahrermangel-Stunden heute */}
+                {driver.location_id && <SchichtBedarfChip locationId={driver.location_id} />}
               </>
             )}
           </section>

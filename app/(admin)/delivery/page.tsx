@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart, CloudRain, Network,
+  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -128,6 +128,8 @@ export default async function DeliveryOverviewPage() {
 
       {/* ── Planung & Schichten ───────────────────────────────── */}
       <SectionGroup title="Planung & Schichten">
+        <SectionCard href="/delivery/capacity-planner" icon={<LayoutGrid className="h-5 w-5" />} title="Kapazitäts-Planer"
+          subtitle="7-Tage Fahrerbesetzung · Nachfragebasierte Empfehlungen · Lücken-Erkennung" cta="Planer öffnen" />
         <SectionCard href="/delivery/shift-calendar" icon={<CalendarRange className="h-5 w-5" />} title="Schicht-Kalender"
           subtitle="Wochenübersicht aller Schichten · Coverage-Status · Schichten planen" cta="Kalender öffnen" />
         <SectionCard href="/delivery/coverage" icon={<UserCheck className="h-5 w-5" />} title="Schichtabdeckung"

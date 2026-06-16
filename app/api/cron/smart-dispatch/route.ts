@@ -84,6 +84,7 @@ import { optimizeAllLocations as optimizeRoutesAllLocations } from '@/lib/delive
 import { takeWeatherSnapshotAllLocations, pruneOldWeatherSnapshots } from '@/lib/delivery/weather-intelligence';
 import { computeScoresAllLocations as computeDriverScoresAllLocations } from '@/lib/delivery/driver-score';
 import { snapshotAllLocations as snapshotNetworkHealth, pruneOldNetworkSnapshots } from '@/lib/delivery/network-health';
+import { generateCapacityPlanAllLocations, pruneOldSlots as pruneCapacitySlots } from '@/lib/delivery/capacity-planner';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -543,6 +544,15 @@ export async function GET(req: NextRequest) {
       pruneOldNetworkSnapshots(90).catch(() => {});
     }
 
+    // Phase 207: Capacity Planner — täglich 02:30 UTC
+    const isCapacityTick = nowHour === 2 && nowMin >= 30 && nowMin < 32;
+    const capacityPlanResult = isCapacityTick
+      ? await generateCapacityPlanAllLocations().catch(() => ({ locations: 0, slotsUpserted: 0, errors: 1 }))
+      : null;
+    if (isCapacityTick) {
+      pruneCapacitySlots(14).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -678,6 +688,7 @@ export async function GET(req: NextRequest) {
       ...(weatherResult ? { weather_intelligence: { locations: weatherResult.locations, snapshots: weatherResult.snapshots, dangerous: weatherResult.dangerous, errors: weatherResult.errors } } : {}),
       ...(driverScoreResult ? { driver_composite_scores: { locations: driverScoreResult.locations, computed: driverScoreResult.computed, errors: driverScoreResult.errors } } : {}),
       ...(networkHealthResult ? { network_health: { locations: networkHealthResult.locations, snapshots: networkHealthResult.snapshots, errors: networkHealthResult.errors } } : {}),
+      ...(capacityPlanResult ? { capacity_plan: { locations: capacityPlanResult.locations, slots_upserted: capacityPlanResult.slotsUpserted, errors: capacityPlanResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

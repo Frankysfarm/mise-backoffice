@@ -54,6 +54,7 @@ import { KitchenHandoffDelayAlert } from './handoff-delay-alert';
 import { KitchenWetterEinflussBanner } from './wetter-einfluss-banner';
 import { KitchenFertigWarteBoard } from './fertig-warte-board';
 import { KitchenPrepZeitVergleich } from './prep-zeit-vergleich';
+import { KapazitaetsVorschau } from './kapazitaets-vorschau';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -783,6 +784,11 @@ export function KitchenBoard({
 
       {/* Phase 206: Ø Zubereitungszeit vs. Ziel — arc gauge */}
       <KitchenPrepZeitVergleich orders={filtered} />
+
+      {/* Phase 207: Fahrer-Kapazitätslücken heute */}
+      {!bigDisplay && (
+        <KapazitaetsVorschau locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
+      )}
 
       {/* Bestellprognose: Vorhergesagtes Bestellvolumen für die nächsten 2 Stunden */}
       {!bigDisplay && (
