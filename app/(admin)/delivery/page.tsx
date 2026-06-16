@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart,
+  Smile, Receipt, Heart, CloudRain,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -188,6 +188,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Stündliche Prognose-Genauigkeit · Forecast vs. Ist · 7-Tage Wochenraster" cta="Forecasting öffnen" />
         <SectionCard href="/delivery/digest" icon={<FileBarChart className="h-5 w-5" />} title="Tages-Digest (KI)"
           subtitle="Automatische KI-Zusammenfassung der Betriebslage · Anomalie-Erkennung" cta="Digest öffnen" />
+        <SectionCard href="/delivery/weather-intelligence" icon={<CloudRain className="h-5 w-5" />} title="Wetter-Intelligenz"
+          subtitle="Echtzeit-Wetterdaten · Schwierigkeits-Score · ETA-Faktor · Nachfrage-Prognose" cta="Wetter öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

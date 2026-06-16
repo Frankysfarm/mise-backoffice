@@ -81,6 +81,7 @@ import { buildStreakOverviewAllLocations } from '@/lib/delivery/driver-streaks';
 import { snapshotAllLocations as snapshotDriverTipsAllLocations } from '@/lib/delivery/tips';
 import { recordForecastAllLocations, fillActualsAllLocations, pruneForecastSnapshots } from '@/lib/delivery/demand-forecast';
 import { optimizeAllLocations as optimizeRoutesAllLocations } from '@/lib/delivery/route-optimizer-v2';
+import { takeWeatherSnapshotAllLocations, pruneOldWeatherSnapshots } from '@/lib/delivery/weather-intelligence';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -163,6 +164,8 @@ export async function GET(req: NextRequest) {
     const isForecastFillTick = nowHour === 2 && nowMin >= 14 && nowMin < 18;
     // Routen-Optimierung: alle 10 Min ausstehende Batches optimieren
     const isRouteOptimizeTick = isRatingTick;
+    // Wetter-Intelligence: alle 30 Min Snapshot + täglich 02:00 UTC Cleanup
+    const isWeatherTick = isDemandTick;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -517,6 +520,14 @@ export async function GET(req: NextRequest) {
       ? await optimizeRoutesAllLocations().catch(() => ({ locations: 0, processed: 0, optimized: 0, totalKmSaved: 0 }))
       : null;
 
+    // Phase 203: Wetter-Intelligence — alle 30 Min Snapshot
+    const weatherResult = isWeatherTick
+      ? await takeWeatherSnapshotAllLocations().catch(() => ({ locations: 0, snapshots: 0, dangerous: 0, errors: 1 }))
+      : null;
+    if (isReportTick) {
+      pruneOldWeatherSnapshots(30).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -649,6 +660,7 @@ export async function GET(req: NextRequest) {
       ...(demandForecastResult ? { demand_forecast_snapshots: { locations: demandForecastResult.locations, saved: demandForecastResult.saved, errors: demandForecastResult.errors } } : {}),
       ...(demandForecastFillResult ? { demand_forecast_actuals: { locations: demandForecastFillResult.locations, filled: demandForecastFillResult.filled, errors: demandForecastFillResult.errors } } : {}),
       ...(routeOptResult ? { route_optimization: { locations: routeOptResult.locations, optimized: routeOptResult.optimized, km_saved: routeOptResult.totalKmSaved } } : {}),
+      ...(weatherResult ? { weather_intelligence: { locations: weatherResult.locations, snapshots: weatherResult.snapshots, dangerous: weatherResult.dangerous, errors: weatherResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
