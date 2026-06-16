@@ -53,6 +53,7 @@ import { KitchenDemandForecastChart } from './demand-forecast-chart';
 import { KitchenHandoffDelayAlert } from './handoff-delay-alert';
 import { KitchenWetterEinflussBanner } from './wetter-einfluss-banner';
 import { KitchenFertigWarteBoard } from './fertig-warte-board';
+import { KitchenPrepZeitVergleich } from './prep-zeit-vergleich';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -779,6 +780,9 @@ export function KitchenBoard({
 
       {/* Phase 94: Echtzeit-Küchen-Zubereitungsgeschwindigkeit */}
       <KitchenPrepSpeedometer orders={filtered} />
+
+      {/* Phase 206: Ø Zubereitungszeit vs. Ziel — arc gauge */}
+      <KitchenPrepZeitVergleich orders={filtered} />
 
       {/* Bestellprognose: Vorhergesagtes Bestellvolumen für die nächsten 2 Stunden */}
       {!bigDisplay && (

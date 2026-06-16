@@ -29,6 +29,7 @@ import { UpsellPopup } from './components/upsell-popup';
 import { DELIVERY_FEE } from './components/types';
 import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinweis';
 import { BestellungFortschrittBand } from './components/bestellung-fortschritt-band';
+import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-shortcut';
 
 type Props = {
   location: Location;
@@ -394,6 +395,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           etaMs: Date.now() + eta * 60_000,
         }));
       } catch {}
+      // Save cart snapshot for "Wieder bestellen" shortcut
+      saveLastCart(location.id, cart);
       setCart([]);
       setCheckoutOpen(false);
       setCartSheetOpen(false);
@@ -580,6 +583,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                   Alle zeigen
                 </button>
               </div>
+            )}
+
+            {/* Phase 206: Letzte Bestellung — Wieder-bestellen-Shortcut */}
+            {!search && activeFilter === 'all' && (
+              <WiederbestellShortcut
+                locationId={location.id}
+                items={items}
+                onAdd={addToCart}
+              />
             )}
 
             {/* Popular */}

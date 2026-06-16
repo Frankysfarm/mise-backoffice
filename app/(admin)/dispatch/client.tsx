@@ -102,6 +102,7 @@ import { LieferZonenHeatmap } from './liefer-zonen-heatmap';
 import { DispatchRouteOptSavingsStrip } from './route-opt-savings-strip';
 import { WetterDispatchAlert } from './wetter-dispatch-alert';
 import { DispatchSchichtZielKpi } from './schicht-ziel-kpi';
+import { DispatchFahrerLastBalken } from './fahrer-last-balken';
 
 type Driver = {
   employee_id: string;
@@ -872,6 +873,8 @@ export function DispatchBoard({
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
       <DriverReliabilityPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 206: Fahrer-Auslastungs-Balken — offene Stops je Fahrer */}
+      <DispatchFahrerLastBalken batches={batches} drivers={drivers} />
 
       {/* Score-Übersicht: Alle wartenden Bestellungen mit Dispatch-Score als Farbbalken */}
       {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}

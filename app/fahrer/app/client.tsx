@@ -48,6 +48,7 @@ import { MeilensteinToast } from './meilenstein-toast';
 import { TourOptBadge } from './tour-opt-badge';
 import { FahrerWetterWarnBanner } from './wetter-warn-banner';
 import { FahrerSchichtEinnahmenChart } from './schicht-einnahmen-chart';
+import { FahrerTagesBewertungKarte } from './tages-bewertung-karte';
 
 type Driver = {
   id: string;
@@ -810,6 +811,9 @@ export function FahrerApp({
 
                 {/* Phase 205: Schicht-Einnahmen-Chart — stündlicher Einnahmenverlauf */}
                 <FahrerSchichtEinnahmenChart driverId={driver.id} />
+
+                {/* Phase 206: Tages-Bewertungskarte — Ø Kundenbewertung letzte 7 Tage */}
+                <FahrerTagesBewertungKarte driverId={driver.id} />
 
                 {/* Pause-Widget — Phase 84 */}
                 <FahrerPauseWidget />
