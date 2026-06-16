@@ -51,6 +51,7 @@ import { KitchenNachfrageSpike } from './nachfrage-spike-panel';
 import { KitchenKapazitaetsAnzeige } from './kapazitaets-anzeige';
 import { KitchenDemandForecastChart } from './demand-forecast-chart';
 import { KitchenHandoffDelayAlert } from './handoff-delay-alert';
+import { KitchenWetterEinflussBanner } from './wetter-einfluss-banner';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -522,6 +523,8 @@ export function KitchenBoard({
       <SchichtVelocity locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Bestellungswellen-Detektor: Alarm wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenWaveDetector orders={filtered} />
+      {/* Wetter-Einfluss-Banner: ETA-Faktor + Warnung bei schlechten Wetterbedingungen */}
+      <KitchenWetterEinflussBanner locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Handoff-Delay-Alert: fertige Lieferbestellungen die zu lange auf Fahrer warten */}
       <KitchenHandoffDelayAlert orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}

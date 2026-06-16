@@ -46,6 +46,7 @@ import { SchichtPauseReminder } from './schicht-pause-reminder';
 import { StreakBadge } from './streak-badge';
 import { MeilensteinToast } from './meilenstein-toast';
 import { TourOptBadge } from './tour-opt-badge';
+import { FahrerWetterWarnBanner } from './wetter-warn-banner';
 
 type Driver = {
   id: string;
@@ -929,6 +930,12 @@ export function FahrerApp({
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
+            </div>
+          )}
+          {/* Wetter-Warn-Banner: Warnung bei gefährlichen oder schwierigen Bedingungen */}
+          {driver.location_id && (
+            <div className="px-4">
+              <FahrerWetterWarnBanner locationId={driver.location_id} />
             </div>
           )}
           {/* Tour-Opt-Badge: zeigt ob Route optimiert wurde + km-Ersparnis */}

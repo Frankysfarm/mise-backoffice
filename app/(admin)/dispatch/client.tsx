@@ -100,6 +100,7 @@ import { DispatchFahrerEchtzeitRanking } from './fahrer-echtzeit-ranking';
 import { DispatchFahrerErmuedungsStrip } from './fahrer-ermudungs-strip';
 import { LieferZonenHeatmap } from './liefer-zonen-heatmap';
 import { DispatchRouteOptSavingsStrip } from './route-opt-savings-strip';
+import { WetterDispatchAlert } from './wetter-dispatch-alert';
 
 type Driver = {
   employee_id: string;
@@ -859,6 +860,8 @@ export function DispatchBoard({
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
 
+      {/* Wetter-Dispatch-Alert: Fahrzeugempfehlung + Schwierigkeitsgrad bei schlechtem Wetter */}
+      <WetterDispatchAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Route-Opt-Savings: Phase-202-Einsparungen — km gespart + Ø-Verbesserung */}
       <DispatchRouteOptSavingsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 

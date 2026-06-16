@@ -78,6 +78,7 @@ import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
 import { LieferzonenHeatmap } from './lieferzonen-heatmap'
 import { TagesauswertungsBanner } from './tagesauswertungs-banner'
 import { KundenFeedbackUebersicht } from './kunden-feedback-uebersicht'
+import { WetterKpiKarte } from './wetter-kpi-karte'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -989,6 +990,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 204: Wetter-KPI-Karte — aktueller Wetter-Einfluss auf Lieferzeiten + Nachfrage */}
+              <WetterKpiKarte locationId={locationId} />
               {/* Phase 201: Tagesauswertungs-Banner — erscheint ab 20:00 mit Schicht-Zusammenfassung */}
               <TagesauswertungsBanner locationId={locationId} />
               {/* Phase 201: Zonen-Heatmap — Liefervolumen nach Zone A/B/C/D */}

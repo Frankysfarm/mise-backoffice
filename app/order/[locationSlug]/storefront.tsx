@@ -27,6 +27,7 @@ import type {
 } from './components/types';
 import { UpsellPopup } from './components/upsell-popup';
 import { DELIVERY_FEE } from './components/types';
+import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinweis';
 
 type Props = {
   location: Location;
@@ -458,6 +459,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
       {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
       <ActiveOrderBanner locationId={location.id} />
+
+      {/* Wetter-Lieferverzug-Hinweis: Kundenhinweis bei schlechtem Wetter */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-3 md:px-8">
+          <WetterLieferverzugHinweis locationId={location.id} />
+        </div>
+      )}
 
       {/* Live-Lieferzeit-Indikator */}
       {orderType === 'lieferung' && (
