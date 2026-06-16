@@ -10,6 +10,7 @@ import { FahrerNaehePuls } from './fahrer-naehe-puls';
 import { BestellungStatusBand } from './bestellung-status-band';
 import { FahrerBewertungsDialog } from './fahrer-bewertungs-dialog';
 import { LivePrepSteps } from './live-prep-steps';
+import { LiveFahrerStatus } from './live-fahrer-status';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -583,6 +584,13 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && liveStatus !== 'geliefert' && (
           <div className="mt-4 w-full">
             <EtaTrackerCard orderId={orderId} bestellnummer={bestellnummer} initialStatus={liveStatus} />
+          </div>
+        )}
+
+        {/* Live-Fahrer-Status: Tracking-Timeline mit Fahrer-Info wenn Fahrer unterwegs */}
+        {isDelivery && orderId && liveStatus === 'unterwegs' && (
+          <div className="mt-4 w-full">
+            <LiveFahrerStatus orderId={orderId} initialStatus={liveStatus} />
           </div>
         )}
 

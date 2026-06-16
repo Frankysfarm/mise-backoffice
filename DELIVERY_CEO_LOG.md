@@ -1,7 +1,50 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–207 vollständig abgeschlossen. CEO Review #122 abgeschlossen. 0 TypeScript-Fehler. Build sauber. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–210 vollständig abgeschlossen. CEO Review #123 abgeschlossen. 0 TypeScript-Fehler. Build sauber. Deployment-bereit.
+
+---
+
+## CEO Review #123 — 2026-06-16
+
+### Geprüfte Commits (seit Review #122b)
+- `bdb949e` feat(delivery/backend): Phase 209 — Auto-Schicht-Generator (Kapazitätslücken → Schichtentwurf)
+- `554dd77` feat(delivery/frontend): Phase 210 — 5 neue Smart-Delivery Komponenten
+
+### TypeScript-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+
+### Build-Status
+- `npx next build`: Compiled successfully ✅ (281 Seiten)
+
+### Code-Review Phase 209 Backend (Auto-Schicht-Generator)
+- `scripts/migrations/107_auto_shift_generator.sql`: `auto_shift_drafts` (pending/applied/discarded), `auto_shift_draft_items` mit `driver_rank`, `reliability_score`, `applied_shift_id` FK, RLS. VIEW `v_auto_shift_draft_summary`. `prune_old_auto_shift_drafts()`. Migration sauber. ✅
+- `lib/delivery/auto-shift-generator.ts`: Algorithmus korrekt — capacity_plan_slots Lücken → Stundenblöcke (MAX_SHIFT_BLOCK_HOURS=8) → Fahrerwahl nach `driver_reliability_scores` → Draft UPSERT. `applyShiftDraft()` → `driver_shifts`. `skipDraftItem()`, `discardShiftDraft()`, `pruneOldDrafts()` alle korrekt. Typen vollständig. ✅
+- `app/api/delivery/admin/auto-shift-generator/route.ts`: Auth via `employees.location_id` + QP-Fallback. GET action=dashboard|pending_draft|draft korrekt. POST action=create_draft|apply_draft|discard_draft|skip_item|prune korrekt. ✅
+- `app/(admin)/delivery/auto-shift-generator/client.tsx`: 4 KPI-Karten, Draft-Tab mit Coverage-Balken, DayGroup, DraftItemRow+Skip-Button, Verlauf-Tab. Sidebar + `delivery/page.tsx` verlinkt. ✅
+- Cron-Integration (`smart-dispatch/route.ts`): `isShiftDraftTick = nowHour === 3 && nowMin >= 0 && nowMin < 2` — tägliche 03:00 UTC Ausführung bestätigt. ✅
+
+### Code-Review Phase 210 Frontend (5 Komponenten)
+- `KuechenDruckAmpel` (`kitchen/kuechen-druck-ampel.tsx`): Load-Berechnung `inPrepOrders / capacityOrders` korrekt. 4 Level (entspannt/normal/hoch/kritis). Kapazität hard-coded auf 6 (akzeptabel als Startpunkt). 30s Polling. Integration in `kitchen/client.tsx` Zeile 516 korrekt. ✅
+- `TourCo2Tracker` (`dispatch/tour-co2-tracker.tsx`): CO2_PER_KM Map korrekt (Fahrrad 0.0, E-Bike 0.012, Auto 0.168). `co2Saved = max(0, baseline - actual)` korrekt. `useMemo` sauber. Kein Polling (Props-basiert). Integration in `dispatch/client.tsx` Zeile 869 korrekt. ✅
+- `FahrzeitPrognose` (`fahrer/app/fahrzeit-prognose.tsx`): Fallback-Kette (totalEtaMin → avgMinPerStop → 8 Min Default) logisch korrekt. `fmtTime`/`fmtClock` sauber. 15s Ticker. Integration in `fahrer/app/client.tsx` Zeile 940 korrekt. ✅
+- `SchichtAutoDraftStrip` (`lieferdienst/schicht-auto-draft-strip.tsx`): Pollt dashboard-API, zeigt Banner wenn `pendingDraftId` gesetzt. Dismiss-Button vorhanden. Deep-Link `/delivery/auto-shift-generator` korrekt. Integration in `lieferdienst/client.tsx` Zeile 1016 korrekt. ✅
+- `LiveFahrerStatus` (`order/[locationSlug]/components/live-fahrer-status.tsx`): 4-Schritt-Timeline (in_zubereitung → fertig → unterwegs → geliefert). STATUS_ORDER Map korrekt. Driver-Info + ETA-Badge. 30s Polling via `/api/delivery/tracking`. ⚠️ **BUG GEFUNDEN UND GEFIXT**: Komponente war nicht importiert/integriert in `success-state.tsx` — fehlende Integration trotz Commit-Aussage. GEFIXT: Import + Render für `isDelivery && orderId && liveStatus === 'unterwegs'` hinzugefügt. ✅
+
+### Bugs gefunden und gefixt
+- **LiveFahrerStatus nicht integriert**: `app/order/[locationSlug]/components/live-fahrer-status.tsx` war definiert aber nie importiert. Commit-Aussage "Integration in success-state.tsx Zeile 549" war falsch. Fix: Import + Render-Block in `success-state.tsx` nach EtaTrackerCard für `liveStatus === 'unterwegs'` hinzugefügt.
+
+### Status nach Review #123
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (281 Seiten)
+- Phase 209 (Auto-Schicht-Generator): DONE ✅
+- Phase 210 (5 Smart-Komponenten): DONE ✅ (inkl. Bug-Fix LiveFahrerStatus)
+- Alle 5 Module (Kitchen/Dispatch/Fahrer/Lieferdienst/Storefront): vollständig verbunden ✅
+- Bugs gefixt: 1 (LiveFahrerStatus fehlende Integration)
+
+### Nächste Schritte für Backend-Architekt
+- Phase 211: weiteres Feature nach Backlog
+- Empfehlung: Driver-Performance-Vergleich (Ranking-Dashboard) oder Storefront A/B-Test-Engine
 
 ---
 
