@@ -1,7 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–204 vollständig abgeschlossen. CEO Review #119 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 277 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–205 vollständig abgeschlossen. CEO Review #120 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 277 Seiten. Deployment-bereit.
+
+---
+
+## CEO Review #120 — 2026-06-16
+
+### Geprüfte Commits (seit Review #119)
+- `f01f6d7` feat(delivery/frontend): Phase 205 — 5 neue Frontend-Erweiterungen
+- `fb7c957` feat(delivery/backend): Phase 205 — Driver Composite Performance Score
+- `3495115` docs: Phase 205 Fortschritt in DELIVERY_PROGRESS.md dokumentiert
+
+### TypeScript-Fixes
+- `app/fahrer/app/schicht-einnahmen-chart.tsx` Zeile 101: `formatter={(v: number) => ...}` → Typen-Annotation entfernt (Recharts `Formatter<ValueType, NameType>` erlaubt `readonly (string|number)[]`). 0 Fehler nach Fix.
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (277 Seiten)
+
+### Code-Review Phase 205 Backend (Driver Composite Performance Score)
+- `lib/delivery/driver-score.ts`: 6-Faktoren-Score korrekt gewichtet (Pünktlichkeit 30 + Bewertung 25 + Effizienz 15 + Zuverlässigkeit 15 + Aktivität 10 + Volumen 5 = 100). Grade-Mapping A+/A/B/C/D sauber implementiert. ✅
+- `app/api/delivery/admin/driver-score/route.ts`: Auth via session + location_id Fallback korrekt. GET (Rangliste) + POST (Berechnung) beide korrekt implementiert. ✅
+- `app/api/cron/smart-dispatch/route.ts`: `computeDriverScoresAllLocations()` täglich 02:00 UTC via `isReportTick` korrekt eingebunden. ✅
+- `scripts/migrations/104_driver_score.sql`: `driver_composite_scores` Tabelle + Views `v_driver_score_leaderboard_week/month` + RLS — Migration vorhanden. ✅
+
+### Code-Review Phase 205 Frontend (5 Komponenten)
+- `KitchenFertigWarteBoard` → korrekt in `kitchen/client.tsx` Zeile 530 (`orders={filtered}`) integriert ✅
+- `DispatchSchichtZielKpi` → korrekt in `dispatch/client.tsx` Zeile 865 mit `locationId` integriert ✅
+- `FahrerSchichtEinnahmenChart` → korrekt in `fahrer/app/client.tsx` Zeile 812 mit `driverId={driver.id}` integriert ✅
+- `BestellungFortschrittBand` → über `ActiveOrderProgressPanel` in `storefront.tsx` Zeile 464 integriert; localStorage-Fallback für `active_order:{locationId}` korrekt mit 4h TTL ✅
+- `ZonenVergleichPanel` + `FahrerPerformanceScore` → beide in `lieferdienst/client.tsx` Stats-View integriert ✅
+
+### Status nach Review #120
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (277 Seiten)
+- Phase 205 Backend (Driver Composite Score): DONE ✅
+- Phase 205 Frontend (5 Komponenten): DONE ✅
+- Bugs gefixt: 1 (TS2322 Recharts Formatter-Typen in schicht-einnahmen-chart.tsx)
+- Alle 5 Module (Kitchen / Dispatch / Fahrer / Lieferdienst / Storefront) verbunden ✅
 
 ---
 

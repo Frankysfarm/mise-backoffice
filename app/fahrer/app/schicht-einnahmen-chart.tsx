@@ -98,7 +98,7 @@ export function FahrerSchichtEinnahmenChart({ driverId }: Props) {
               />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
-                formatter={(v: number) => [euro(v), 'Einnahmen']}
+                formatter={(v) => [typeof v === 'number' ? euro(v) : String(v ?? 0), 'Einnahmen']}
               />
               <Bar dataKey="revenue" radius={[4, 4, 0, 0]} maxBarSize={24}>
                 {buckets.map((b, i) => (
