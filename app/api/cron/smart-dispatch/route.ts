@@ -85,6 +85,7 @@ import { takeWeatherSnapshotAllLocations, pruneOldWeatherSnapshots } from '@/lib
 import { computeScoresAllLocations as computeDriverScoresAllLocations } from '@/lib/delivery/driver-score';
 import { snapshotAllLocations as snapshotNetworkHealth, pruneOldNetworkSnapshots } from '@/lib/delivery/network-health';
 import { generateCapacityPlanAllLocations, pruneOldSlots as pruneCapacitySlots } from '@/lib/delivery/capacity-planner';
+import { pruneOldDrafts as pruneAutoShiftDrafts } from '@/lib/delivery/auto-shift-generator';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -551,6 +552,7 @@ export async function GET(req: NextRequest) {
       : null;
     if (isCapacityTick) {
       pruneCapacitySlots(14).catch(() => {});
+      pruneAutoShiftDrafts(30).catch(() => {});
     }
 
     const durationMs = Date.now() - start;

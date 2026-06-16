@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid,
+  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -138,6 +138,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Stundengenaue Prognose vs. geplante Fahrer · Gap-Übersicht" cta="Planung ansehen" />
         <SectionCard href="/delivery/shift-suggestions" icon={<Zap className="h-5 w-5" />} title="Auto-Schichtvorschläge"
           subtitle="KI-basierte Schichtempfehlungen aus Nachfrageprognose" cta="Vorschläge ansehen" />
+        <SectionCard href="/delivery/auto-shift-generator" icon={<WandSparkles className="h-5 w-5" />} title="Auto-Schicht-Generator"
+          subtitle="Kapazitätslücken → Schichtentwurf → Ein-Klick-Übertrag · Fahrerzuweisung nach Zuverlässigkeit" cta="Generator öffnen" />
         <SectionCard href="/delivery/shift-claims" icon={<ClipboardCheck className="h-5 w-5" />} title="Schicht-Anmeldungen"
           subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen" cta="Anmeldungen prüfen" />
         <SectionCard href="/delivery/windows" icon={<CalendarClock className="h-5 w-5" />} title="Lieferfenster"
