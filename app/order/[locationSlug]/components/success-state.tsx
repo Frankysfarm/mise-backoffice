@@ -9,6 +9,7 @@ import { EtaTrackerCard } from './eta-tracker-card';
 import { FahrerNaehePuls } from './fahrer-naehe-puls';
 import { BestellungStatusBand } from './bestellung-status-band';
 import { FahrerBewertungsDialog } from './fahrer-bewertungs-dialog';
+import { LivePrepSteps } from './live-prep-steps';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -540,6 +541,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               </>
             )}
           </button>
+        )}
+
+        {/* Zubereitungs-Schritte: Live-Fortschritt durch die Vorbereitungsphasen */}
+        {isDelivery && liveStatus !== 'geliefert' && (
+          <div className="mt-5 w-full">
+            <LivePrepSteps
+              currentStatus={liveStatus}
+              orderedAt={null}
+              estimatedReadyMin={etaMinutes > 10 ? Math.round(etaMinutes * 0.5) : null}
+              estimatedDeliveryMin={etaMinutes}
+            />
+          </div>
         )}
 
         {/* Live-Statusband — Realtime-Fortschritt mit Countdown, Farbcodierung und Fahrer-Info */}

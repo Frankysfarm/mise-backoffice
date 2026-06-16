@@ -55,6 +55,7 @@ import { KitchenWetterEinflussBanner } from './wetter-einfluss-banner';
 import { KitchenFertigWarteBoard } from './fertig-warte-board';
 import { KitchenPrepZeitVergleich } from './prep-zeit-vergleich';
 import { KapazitaetsVorschau } from './kapazitaets-vorschau';
+import { KitchenTimerWall } from './timer-wall';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -660,6 +661,11 @@ export function KitchenBoard({
             });
         })()}
       />
+
+      {/* Timer-Wall: Große Countdown-Karten für alle aktiven Bestellungen (TV-Modus) */}
+      {bigDisplay && timings.length > 0 && (
+        <KitchenTimerWall orders={filtered} timings={timings} />
+      )}
 
       {/* 30-Minuten Fertigstellungs-Zeitleiste: alle aktiven Orders auf einem Zeitstrahl */}
       {filtered.filter((o) => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (

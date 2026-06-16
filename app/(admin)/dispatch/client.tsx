@@ -104,6 +104,7 @@ import { WetterDispatchAlert } from './wetter-dispatch-alert';
 import { DispatchSchichtZielKpi } from './schicht-ziel-kpi';
 import { DispatchFahrerLastBalken } from './fahrer-last-balken';
 import { KapazitaetsWarnung } from './kapazitaets-warnung';
+import { ZoneBundlePanel } from './zone-bundle-panel';
 
 type Driver = {
   employee_id: string;
@@ -879,6 +880,11 @@ export function DispatchBoard({
 
       {/* Phase 207: Kapazitäts-Warnung — heutige Fahrerlücken */}
       <KapazitaetsWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+
+      {/* Zonen-Bündelungs-Panel: fertige Bestellungen nach Zone gruppiert mit Bundle-Optimierung */}
+      {readyOrders.filter(o => o.status === 'fertig').length > 0 && (
+        <ZoneBundlePanel orders={readyOrders} />
+      )}
 
       {/* Score-Übersicht: Alle wartenden Bestellungen mit Dispatch-Score als Farbbalken */}
       {readyOrders.length > 0 && <OrderScoreGrid orders={readyOrders} />}

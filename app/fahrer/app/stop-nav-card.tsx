@@ -19,6 +19,7 @@ import {
   AlertTriangle, Banknote, CheckCircle2, ChevronDown, ChevronUp,
   Clock, CreditCard, MapPin, Navigation, Phone,
 } from 'lucide-react';
+import { StopCheckliste } from './stop-checkliste';
 
 type Order = {
   id: string;
@@ -272,6 +273,18 @@ export function StopNavCard({
           <Navigation className="h-5 w-5 shrink-0" />
           Navigieren
         </a>
+
+        {/* Liefer-Checkliste: Pflichtschritte vor der Abgabe */}
+        <StopCheckliste
+          stop={{
+            kunde_name: order.kunde_name,
+            zahlungsart: order.zahlungsart ?? null,
+            bezahlt: order.bezahlt ?? null,
+            gesamtbetrag: order.gesamtbetrag,
+            kunde_notiz: order.kunde_notiz,
+            kunde_lieferhinweis: order.kunde_lieferhinweis,
+          }}
+        />
 
         {/* Abgeliefert Button */}
         {onDelivered && (

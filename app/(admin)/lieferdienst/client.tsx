@@ -83,6 +83,7 @@ import { FahrerPerformanceScore } from './fahrer-performance-score'
 import { ZonenVergleichPanel } from './zonen-vergleich-panel'
 import { SchichtProfitKarte } from './schicht-profit-karte'
 import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
+import { AktivFahrerKacheln } from './aktiv-fahrer-kacheln'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1146,7 +1147,11 @@ export function LieferdienstClient() {
           )}
 
           {currentView === 'drivers' && (
-            <DriversView drivers={drivers} />
+            <div className="p-6 space-y-6">
+              {/* Aktive Fahrer: Live-Kacheln mit GPS-Status, aktueller Tour und verbleibenden Stops */}
+              <AktivFahrerKacheln locationId={locationId} />
+              <DriversView drivers={drivers} />
+            </div>
           )}
 
           {currentView === 'reviews' && (
