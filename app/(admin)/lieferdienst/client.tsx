@@ -79,6 +79,7 @@ import { LieferzonenHeatmap } from './lieferzonen-heatmap'
 import { TagesauswertungsBanner } from './tagesauswertungs-banner'
 import { KundenFeedbackUebersicht } from './kunden-feedback-uebersicht'
 import { WetterKpiKarte } from './wetter-kpi-karte'
+import { FahrerPerformanceScore } from './fahrer-performance-score'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -990,6 +991,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 205: Fahrer-Performance-Score — Composite 0-100 Score (Pünktlichkeit + Bewertung + Effizienz) */}
+              <FahrerPerformanceScore locationId={locationId} />
               {/* Phase 204: Wetter-KPI-Karte — aktueller Wetter-Einfluss auf Lieferzeiten + Nachfrage */}
               <WetterKpiKarte locationId={locationId} />
               {/* Phase 201: Tagesauswertungs-Banner — erscheint ab 20:00 mit Schicht-Zusammenfassung */}

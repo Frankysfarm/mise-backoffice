@@ -82,6 +82,7 @@ import { snapshotAllLocations as snapshotDriverTipsAllLocations } from '@/lib/de
 import { recordForecastAllLocations, fillActualsAllLocations, pruneForecastSnapshots } from '@/lib/delivery/demand-forecast';
 import { optimizeAllLocations as optimizeRoutesAllLocations } from '@/lib/delivery/route-optimizer-v2';
 import { takeWeatherSnapshotAllLocations, pruneOldWeatherSnapshots } from '@/lib/delivery/weather-intelligence';
+import { computeScoresAllLocations as computeDriverScoresAllLocations } from '@/lib/delivery/driver-score';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -528,6 +529,11 @@ export async function GET(req: NextRequest) {
       pruneOldWeatherSnapshots(30).catch(() => {});
     }
 
+    // Phase 205: Driver Composite Scores — täglich 02:00 UTC (nach Performance-Snapshots)
+    const driverScoreResult = isReportTick
+      ? await computeDriverScoresAllLocations('week').catch(() => ({ locations: 0, computed: 0, errors: 1 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -661,6 +667,7 @@ export async function GET(req: NextRequest) {
       ...(demandForecastFillResult ? { demand_forecast_actuals: { locations: demandForecastFillResult.locations, filled: demandForecastFillResult.filled, errors: demandForecastFillResult.errors } } : {}),
       ...(routeOptResult ? { route_optimization: { locations: routeOptResult.locations, optimized: routeOptResult.optimized, km_saved: routeOptResult.totalKmSaved } } : {}),
       ...(weatherResult ? { weather_intelligence: { locations: weatherResult.locations, snapshots: weatherResult.snapshots, dangerous: weatherResult.dangerous, errors: weatherResult.errors } } : {}),
+      ...(driverScoreResult ? { driver_composite_scores: { locations: driverScoreResult.locations, computed: driverScoreResult.computed, errors: driverScoreResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
