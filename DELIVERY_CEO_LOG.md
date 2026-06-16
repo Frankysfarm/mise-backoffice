@@ -1,7 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–206 vollständig abgeschlossen. CEO Review #121 abgeschlossen. 0 TypeScript-Fehler. Build sauber. 278 Seiten. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–207 vollständig abgeschlossen. CEO Review #122 abgeschlossen. 0 TypeScript-Fehler. Build sauber. Deployment-bereit.
+
+---
+
+## CEO Review #122 — 2026-06-16
+
+### Geprüfte Commits (seit Review #121)
+- `fd1e48d` feat(delivery/backend): Phase 207 — Predictive Capacity Planner
+- `acd8f54` docs: Phase 207 Fortschritt in DELIVERY_PROGRESS.md dokumentiert
+
+### TypeScript-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+
+### Build-Status
+- `npx next build`: Compiled successfully ✅ (279 Seiten, 552 Route-Einträge)
+
+### Code-Review Phase 207 Backend (Capacity Planner)
+- `scripts/migrations/106_capacity_planner.sql`: `capacity_plan_slots` mit UNIQUE(location_id, slot_date, hour_of_day), GENERATED COLUMNS `coverage_gap` + `is_overstaffed`, `demand_source` ENUM, `confidence_pct`. Views `v_capacity_week_ahead` (7 Tage) + `v_capacity_gaps_24h` (heute ab aktuelle Stunde). `prune_old_capacity_slots()` SQL-Funktion. Migration vorhanden. ✅
+- `lib/delivery/capacity-planner.ts`: `generateCapacityPlanForLocation()` korrekt — `v_hourly_demand_pattern` × `driver_shifts.planned_start/end` → 7×14 UPSERT-Slots. Formel `ceil(expectedOrders / 2.5)` sauber. `isPeak ≥75%` des historischen Maximums korrekt. `slotStatus()` Helper (ok/understaffed/uncovered) logisch korrekt. `getCapacityDashboard()` — `worstDate`-Berechnung via `Map<date, totalGap>` korrekt. `getCoverageGaps()` liest via `v_capacity_gaps_24h`. `pruneOldSlots()` via RPC korrekt. ✅
+- `app/api/delivery/admin/capacity-planner/route.ts`: Auth via `employees.location_id` + Query-Param Fallback. GET action=dashboard|gaps korrekt. POST action=generate|prune korrekt. Kein doppeltes `ok` Feld. ✅
+- `app/api/cron/smart-dispatch/route.ts`: `isCapacityTick = nowHour === 2 && nowMin >= 30 && nowMin < 32` — tägliche Ausführung 02:30 UTC. `generateCapacityPlanAllLocations()` + `pruneCapacitySlots(14)` beide integriert. `capacity_plan` in Cron-Response korrekt. ✅
+
+### Code-Review Phase 207 Frontend (4 Komponenten)
+- `app/(admin)/delivery/capacity-planner/client.tsx`: WeeklyHeatmap 7×14h mit `statusBg()` (emerald/amber/orange/red) + Tooltip + Legende sauber. 4 KPI-Karten. SummaryBadges korrekt. GapsTable mit Unbesetzt/Unterbesetzt-Badge. 5-Min Auto-Refresh. ✅
+- `KapazitaetsVorschau` → korrekt in `kitchen/client.tsx` Zeile 790 integriert (`locationId={locationFilter === 'all' ? ... : locationFilter}`). 10-Min-Polling. Gibt `null` wenn keine Lücken. ✅
+- `KapazitaetsWarnung` → korrekt in `dispatch/client.tsx` Zeile 881 integriert. Grün wenn OK, amber Unterbesetzung, rot+pulse bei unbesetzten Slots. 5-Min-Polling. ✅
+- `KapazitaetsWochenKpi` → korrekt in `lieferdienst/client.tsx` Zeile 998 integriert. Abdeckungs-Balken + 3 Mini-Kacheln + Vollansicht-Link. 10-Min-Polling. ✅
+- `SchichtBedarfChip` → korrekt in `fahrer/app/client.tsx` Zeile 828 integriert (`driver.location_id`-Guard). Zeigt Fahrerbedarf-Lücken für den Fahrer. 15-Min-Polling. ✅
+- `app/(admin)/delivery/page.tsx`: SectionCard "Kapazitäts-Planer" mit `LayoutGrid`-Icon in Planung & Schichten vorhanden. ✅
+
+### Bugs gefunden und gefixt
+- Keine Fehler gefunden. Code sauber, Typen korrekt, Integrationen vollständig.
+
+### Status nach Review #122
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅
+- Phase 207 (Predictive Capacity Planner): DONE ✅
+- Kitchen ↔ Dispatch ↔ Fahrer-App ↔ Lieferdienst: alle mit Kapazitäts-Planer verbunden ✅
+- Bugs gefixt: 0
+
+### Nächste Schritte für Backend-Architekt
+- Phase 208: weiteres Feature nach Backlog oder Optimierung bestehender Module
+- Empfehlung: Automatisches Shift-Scheduling (Driver-Shift-Generator basierend auf Capacity Plan) — konvertiert Kapazitäts-Lücken direkt in Schichtvorschläge für Manager
 
 ---
 
