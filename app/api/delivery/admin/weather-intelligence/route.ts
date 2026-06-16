@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   try {
     if (action === 'snapshot') {
       const result = await takeWeatherSnapshot(locationId);
-      return NextResponse.json({ ok: true, ...result });
+      return NextResponse.json(result);
     }
 
     if (action === 'prune') {
