@@ -47,6 +47,7 @@ import { StreakBadge } from './streak-badge';
 import { MeilensteinToast } from './meilenstein-toast';
 import { TourOptBadge } from './tour-opt-badge';
 import { FahrerWetterWarnBanner } from './wetter-warn-banner';
+import { FahrerSchichtEinnahmenChart } from './schicht-einnahmen-chart';
 
 type Driver = {
   id: string;
@@ -806,6 +807,9 @@ export function FahrerApp({
                     goalEur={80}
                   />
                 )}
+
+                {/* Phase 205: Schicht-Einnahmen-Chart — stündlicher Einnahmenverlauf */}
+                <FahrerSchichtEinnahmenChart driverId={driver.id} />
 
                 {/* Pause-Widget — Phase 84 */}
                 <FahrerPauseWidget />

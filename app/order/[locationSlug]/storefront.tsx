@@ -28,6 +28,7 @@ import type {
 import { UpsellPopup } from './components/upsell-popup';
 import { DELIVERY_FEE } from './components/types';
 import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinweis';
+import { BestellungFortschrittBand } from './components/bestellung-fortschritt-band';
 
 type Props = {
   location: Location;
@@ -459,6 +460,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
       {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
       <ActiveOrderBanner locationId={location.id} />
+      {/* Phase 205: Fortschritt-Band — visueller Status-Progress mit Countdown */}
+      <ActiveOrderProgressPanel locationId={location.id} />
 
       {/* Wetter-Lieferverzug-Hinweis: Kundenhinweis bei schlechtem Wetter */}
       {orderType === 'lieferung' && (
@@ -909,6 +912,41 @@ function SharedTrackingBanner() {
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------ ActiveOrderProgressPanel ------------------------------ */
+
+function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
+  const [order, setOrder] = React.useState<{ orderId: string; status: string; etaEarliest: string | null; isDelivery: boolean } | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(`active_order:${locationId}`);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed.orderId) return;
+      if (Date.now() - parsed.placedAt > 4 * 60 * 60_000) return;
+      setOrder({
+        orderId: parsed.orderId,
+        status: parsed.status ?? 'bestätigt',
+        etaEarliest: parsed.etaMs ? new Date(parsed.etaMs).toISOString() : null,
+        isDelivery: parsed.isDelivery ?? false,
+      });
+    } catch {}
+  }, [locationId]);
+
+  if (!order) return null;
+  return (
+    <div className="mx-auto max-w-2xl px-4 pt-2">
+      <BestellungFortschrittBand
+        orderId={order.orderId}
+        initialStatus={order.status}
+        etaEarliest={order.etaEarliest}
+        etaLatest={null}
+        isDelivery={order.isDelivery}
+      />
     </div>
   );
 }

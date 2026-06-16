@@ -52,6 +52,7 @@ import { KitchenKapazitaetsAnzeige } from './kapazitaets-anzeige';
 import { KitchenDemandForecastChart } from './demand-forecast-chart';
 import { KitchenHandoffDelayAlert } from './handoff-delay-alert';
 import { KitchenWetterEinflussBanner } from './wetter-einfluss-banner';
+import { KitchenFertigWarteBoard } from './fertig-warte-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -525,6 +526,8 @@ export function KitchenBoard({
       <KitchenWaveDetector orders={filtered} />
       {/* Wetter-Einfluss-Banner: ETA-Faktor + Warnung bei schlechten Wetterbedingungen */}
       <KitchenWetterEinflussBanner locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Fertig-Warte-Board: ready orders sorted by driver wait time with urgency color */}
+      <KitchenFertigWarteBoard orders={filtered} />
       {/* Handoff-Delay-Alert: fertige Lieferbestellungen die zu lange auf Fahrer warten */}
       <KitchenHandoffDelayAlert orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}
