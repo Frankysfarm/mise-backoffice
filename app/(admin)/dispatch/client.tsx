@@ -105,6 +105,7 @@ import { DispatchSchichtZielKpi } from './schicht-ziel-kpi';
 import { DispatchFahrerLastBalken } from './fahrer-last-balken';
 import { KapazitaetsWarnung } from './kapazitaets-warnung';
 import { ZoneBundlePanel } from './zone-bundle-panel';
+import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
 
 type Driver = {
   employee_id: string;
@@ -863,6 +864,22 @@ export function DispatchBoard({
       <DispatchTourVisualisierung batches={batches} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
+      {/* Phase 210: CO₂-Tracker — Emissionseinsparung je aktiver Tour (Fahrrad/E-Bike-Bonus) */}
+      {batches.filter(b => (b.status === 'unterwegs' || b.status === 'on_route') && (b.total_distance_km ?? 0) > 0).length > 0 && (
+        <TourCo2Tracker tours={batches
+          .filter(b => b.status === 'unterwegs' || b.status === 'on_route')
+          .map(b => {
+            const driver = drivers.find(d => d.employee_id === b.fahrer_id);
+            return {
+              id: b.id,
+              driverName: b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Unbekannt',
+              vehicle: driver?.fahrzeug ?? null,
+              distanceKm: b.total_distance_km ?? 0,
+              completedStops: b.stops.filter(s => s.geliefert_am !== null).length,
+              totalStops: b.stops.length,
+            } satisfies Co2TourInput;
+          })} />
+      )}
 
       {/* Schicht-Ziel-KPI: Lieferungen/Umsatz/Pünktlichkeit vs. Tagesziel */}
       <DispatchSchichtZielKpi locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

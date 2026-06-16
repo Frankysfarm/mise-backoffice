@@ -50,6 +50,7 @@ import { FahrerWetterWarnBanner } from './wetter-warn-banner';
 import { FahrerSchichtEinnahmenChart } from './schicht-einnahmen-chart';
 import { FahrerTagesBewertungKarte } from './tages-bewertung-karte';
 import { SchichtBedarfChip } from './schicht-bedarf-chip';
+import { FahrzeitPrognose } from './fahrzeit-prognose';
 
 type Driver = {
   id: string;
@@ -933,6 +934,23 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 210: Fahrzeit-Prognose — verbleibende Zeit + Stopp-Countdown */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrzeitPrognose
+                stops={activeBatch.stops.map(s => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  kunde_name: (s.order as any)?.kunde_name ?? undefined,
+                  kunde_adresse: (s.order as any)?.kunde_adresse ?? null,
+                  angekommen_am: s.angekommen_am,
+                  geliefert_am: s.geliefert_am,
+                }))}
+                startedAt={activeBatch.started_at}
+                totalEtaMin={activeBatch.total_eta_min ?? null}
+              />
+            </div>
+          )}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">

@@ -84,6 +84,7 @@ import { ZonenVergleichPanel } from './zonen-vergleich-panel'
 import { SchichtProfitKarte } from './schicht-profit-karte'
 import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
 import { AktivFahrerKacheln } from './aktiv-fahrer-kacheln'
+import { SchichtAutoDraftStrip } from './schicht-auto-draft-strip'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1011,6 +1012,8 @@ export function LieferdienstClient() {
               <LieferzonenHeatmap locationId={locationId} />
               {/* Phase 201: Kunden-Feedback-Übersicht — Ø Bewertung, positiv-Rate, letzte Kommentare */}
               <KundenFeedbackUebersicht locationId={locationId} />
+              {/* Phase 210: Schicht-Auto-Draft-Strip — ausstehende Schicht-Entwürfe vom Auto-Shift-Generator */}
+              <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 200: 30-Tage Rentabilitätstrend — Umsatz/Kosten/Marge Zeitreihe */}
