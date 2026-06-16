@@ -86,6 +86,7 @@ import { computeScoresAllLocations as computeDriverScoresAllLocations } from '@/
 import { snapshotAllLocations as snapshotNetworkHealth, pruneOldNetworkSnapshots } from '@/lib/delivery/network-health';
 import { generateCapacityPlanAllLocations, pruneOldSlots as pruneCapacitySlots } from '@/lib/delivery/capacity-planner';
 import { pruneOldDrafts as pruneAutoShiftDrafts } from '@/lib/delivery/auto-shift-generator';
+import { pruneOldAmendmentsAllLocations } from '@/lib/delivery/order-amendments';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -555,6 +556,11 @@ export async function GET(req: NextRequest) {
       pruneAutoShiftDrafts(30).catch(() => {});
     }
 
+    // Phase 211: Amendments Cleanup — täglich 02:00 UTC (Einträge > 90 Tage)
+    const amendmentsPruned = isReportTick
+      ? await pruneOldAmendmentsAllLocations(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -691,6 +697,7 @@ export async function GET(req: NextRequest) {
       ...(driverScoreResult ? { driver_composite_scores: { locations: driverScoreResult.locations, computed: driverScoreResult.computed, errors: driverScoreResult.errors } } : {}),
       ...(networkHealthResult ? { network_health: { locations: networkHealthResult.locations, snapshots: networkHealthResult.snapshots, errors: networkHealthResult.errors } } : {}),
       ...(capacityPlanResult ? { capacity_plan: { locations: capacityPlanResult.locations, slots_upserted: capacityPlanResult.slotsUpserted, errors: capacityPlanResult.errors } } : {}),
+      ...(amendmentsPruned ? { amendments_pruned: amendmentsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

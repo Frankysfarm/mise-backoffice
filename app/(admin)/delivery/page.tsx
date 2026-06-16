@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles,
+  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -88,6 +88,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Aktive Alarme · Queue, Fahrer, Küche, ETA-Genauigkeit" cta="Alarme ansehen" />
         <SectionCard href="/delivery/delay-monitor" icon={<ClockIcon className="h-5 w-5" />} title="Verzögerungs-Monitor"
           subtitle="Verspätete Bestellungen · Kompensations-Gutscheine" cta="Monitor öffnen" />
+        <SectionCard href="/delivery/amendments" icon={<FilePen className="h-5 w-5" />} title="Bestellungsänderungen"
+          subtitle="Nachträgliche Änderungen mit Audit-Trail · In-Flight-Erkennung · Dispatch-Impact" cta="Änderungen öffnen" />
         <SectionCard href="/delivery/stale-orders" icon={<PackageX className="h-5 w-5" />} title="Feststeckende Bestellungen"
           subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus" cta="Prüfen" />
         <SectionCard href="/delivery/gps-trails" icon={<MapPinned className="h-5 w-5" />} title="GPS-Fahrerspuren"
