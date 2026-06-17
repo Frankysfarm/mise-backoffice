@@ -1,7 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–211 vollständig abgeschlossen. CEO Review #123 abgeschlossen. 0 TypeScript-Fehler. Build sauber (283 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–211 vollständig abgeschlossen. CEO Review #124 abgeschlossen. 0 TypeScript-Fehler. Build sauber (283 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #124 — 2026-06-17
+
+### Geprüfte Commits (seit Review #123)
+- `021275a` feat(delivery/backend): Phase 211 — Smart Order Amendment Engine
+
+### TypeScript-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+
+### Build-Status
+- `npx next build`: Compiled successfully ✅ (283 Seiten)
+
+### Code-Review Phase 211 Backend (Smart Order Amendment Engine)
+- `scripts/migrations/108_order_amendments.sql`: `order_amendments` (amendment_type CHECK 10 Typen, affected_dispatch, eta_recalculated, delta_eur, batch_id, RLS service_role). 4 Indizes korrekt. 4 Views (v_amendment_type_counts, v_amendments_daily, v_amended_orders_in_flight, v_amendment_summary) — SQL sauber. `prune_old_amendments()` korrekt. ✅
+- `lib/delivery/order-amendments.ts`: `recordAmendment()` (INSERT + logDeliveryEvent). `getAmendmentDashboard()` — 5 parallele Queries korrekt. `getInFlightAmendments()`, `getDailyAmendmentTrend()`, `pruneOldAmendments()`, `pruneOldAmendmentsAllLocations()` alle korrekt. Typen vollständig (AmendmentType, AmendmentRecord, AmendmentDashboard, DailyAmendmentRow). ✅
+- `app/api/delivery/admin/amendments/route.ts`: Auth via `employees.location_id` + QP-Fallback. GET action=dashboard|in_flight|trend|history(order_id) korrekt. POST action=record (Order-Verify, amendmentType+orderId required). ✅
+- `app/(admin)/delivery/amendments/`: `page.tsx` requireManagerPlus + location_id-Auflösung korrekt. `client.tsx` (459 Zeilen) — 4 KPI-Karten, 4 Tabs (Übersicht/In-Flight/Trend/Typen), SVG-Sparkline, 60s Auto-Refresh, TypeBadge mit 10 Farben. ✅
+- Cron-Integration (`smart-dispatch/route.ts`): `pruneOldAmendmentsAllLocations(90)` täglich 02:00 UTC (isReportTick). Response-Key `amendments_pruned` korrekt. ✅
+- Delivery-Overview (`delivery/page.tsx`): SectionCard "Bestellungsänderungen" (FilePen) korrekt eingebunden. ✅
+
+### Bug gefixt
+- **Sidebar fehlte amendments-Eintrag**: `components/layout/sidebar.tsx` — nav-Item `/delivery/amendments` mit Icon `FilePen` hinzugefügt.
+- **FilePen nicht im ICON_MAP**: `components/layout/sidebar-client.tsx` — `FilePen` zu Import + ICON_MAP ergänzt.
+
+### Ergebnis
+- 0 TypeScript-Fehler ✅
+- Build sauber (283 Seiten) ✅
+- Phase 211 vollständig integriert: DB → Backend → API → Frontend → Sidebar → Cron ✅
+- 1 Bug gefixt (fehlender Sidebar-Eintrag + FilePen-Icon)
 
 ---
 

@@ -174,6 +174,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/prep-learning',      icon: 'BookCheck',   label: 'Küchen-Lernkurve' },
       { group: 'Loslegen', href: '/delivery/shift-suggestions',  icon: 'CalendarPlus', label: 'Auto-Schichtvorschläge' },
       { group: 'Loslegen', href: '/delivery/auto-shift-generator', icon: 'WandSparkles', label: 'Auto-Schicht-Generator (Kap→Schicht)' },
+      { group: 'Loslegen', href: '/delivery/amendments',          icon: 'FilePen',      label: 'Bestellungsänderungen' },
       { group: 'Loslegen', href: '/delivery/sla-compensation',   icon: 'ShieldCheck',  label: 'SLA Auto-Kompensation' },
       { group: 'Loslegen', href: '/delivery/driver-bonus',       icon: 'Gift',         label: 'Fahrer-Boni' },
       { group: 'Loslegen', href: '/delivery/reorder-engine',    icon: 'Repeat2',      label: 'Wiederbestellungs-Engine' },
