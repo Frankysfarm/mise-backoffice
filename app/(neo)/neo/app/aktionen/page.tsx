@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-const Card = ({ title, sub, children }: any) => (<div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700 }}>{title}</h3>{sub && <p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2, marginBottom: 14 }}>{sub}</p>}{children}</div>);
+const Card = ({ title, sub, children }: any) => (<div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>{title}</h3>{sub && <p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2, marginBottom: 14 }}>{sub}</p>}{children}</div>);
 export default function Aktionen() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

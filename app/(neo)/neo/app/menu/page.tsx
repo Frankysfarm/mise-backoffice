@@ -28,7 +28,7 @@ export default async function MenuPage() {
       {groups.map((g) => (
         <div key={String(g.id)} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700 }}>{g.name}</h3>
+            <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>{g.name}</h3>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', background: '#F1F5F9', borderRadius: 999, padding: '1px 8px' }}>{g.items.length}</span>
           </div>
           {g.items.map((it: any, i: number) => {
@@ -43,7 +43,7 @@ export default async function MenuPage() {
                   {it.beschreibung && <div style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 520 }}>{it.beschreibung}</div>}
                 </div>
                 <span style={{ fontSize: 11, fontWeight: 700, color: mwst >= 19 ? '#1D4ED8' : '#047857', background: mwst >= 19 ? '#EFF6FF' : '#ECFDF5', borderRadius: 6, padding: '3px 8px' }}>{mwst}% USt</span>
-                <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 14.5, minWidth: 76, textAlign: 'right' }}>{eur(it.preis)}</span>
+                <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14.5, minWidth: 76, textAlign: 'right' }}>{eur(it.preis)}</span>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', background: it.verfuegbar ? '#10B981' : '#EF4444' }} title={it.verfuegbar ? 'verfügbar' : 'ausverkauft'} />
               </div>
             );

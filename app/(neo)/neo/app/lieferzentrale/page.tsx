@@ -27,10 +27,10 @@ export default async function Lieferzentrale() {
       {/* Banner: Link + QR */}
       <div style={{ background: 'linear-gradient(135deg,#312E81,#4338CA)', borderRadius: 18, padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ flex: 1 }}>
-          <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: '-.4px' }}>Lieferzentrale auf dem Tablet öffnen</h3>
+          <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: '-.4px' }}>Lieferzentrale auf dem Tablet öffnen</h3>
           <p style={{ color: '#C7D2FE', fontSize: 13.5, marginTop: 6, marginBottom: 14, maxWidth: 520 }}>Eigenständiges Küchen-Display — auf einem Tablet in der Küche öffnen. Bestellungen poppen auf, klingeln, werden angenommen + an Fahrer übergeben.</p>
           {url ? (
-            <a href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '10px 16px', color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: "'Space Grotesk'" }}>🔗 {url.replace('https://', '')}</a>
+            <a href={url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '10px 16px', color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: "'Space Grotesk', system-ui, sans-serif" }}>🔗 {url.replace('https://', '')}</a>
           ) : (
             <span style={{ color: '#FCA5A5', fontSize: 13 }}>Kein Küchen-Token für diesen Standort.</span>
           )}
@@ -52,14 +52,14 @@ export default async function Lieferzentrale() {
                 {cards.map((o) => (
                   <div key={o.id} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 14 }}>#{String(o.bestellnummer || '').slice(-4) || '----'}</span>
+                      <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14 }}>#{String(o.bestellnummer || '').slice(-4) || '----'}</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>{o.typ === 'lieferung' ? '🚗 Lieferung' : o.typ === 'abholung' ? '🥡 Abholung' : '📍 Vor Ort'}</span>
                     </div>
                     {o.kunde_name && <div style={{ fontSize: 12.5, color: '#475569', marginBottom: 4 }}>{o.kunde_name}</div>}
                     {(o.items ?? []).slice(0, 4).map((it: any, i: number) => (
                       <div key={i} style={{ fontSize: 12.5, color: '#334155' }}><b style={{ color: '#4F46E5' }}>{it.menge}×</b> {it.name}</div>
                     ))}
-                    <div style={{ marginTop: 6, fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 13, color: '#0F172A' }}>{Number(o.gesamtbetrag ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
+                    <div style={{ marginTop: 6, fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 13, color: '#0F172A' }}>{Number(o.gesamtbetrag ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</div>
                   </div>
                 ))}
                 {cards.length === 0 && <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: '16px 0' }}>—</div>}

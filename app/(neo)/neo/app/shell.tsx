@@ -24,7 +24,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <aside className="flex-shrink-0 flex flex-col h-screen" style={{ width: 256, background: '#fff', borderRight: '1px solid #E2E8F0' }}>
         <div className="flex items-center gap-2.5 px-5" style={{ height: 64, borderBottom: '1px solid #F1F5F9' }}>
           <div className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#4F46E5,#312E81)' }}><div style={{ width: 12, height: 12, borderRadius: 4, background: '#fff' }} /></div>
-          <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 19, letterSpacing: '-.5px' }}>mise</span>
+          <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 19, letterSpacing: '-.5px' }}>mise</span>
         </div>
         <div className="px-3.5 pt-3.5 pb-1.5">
           <Link href="/neo" className="flex items-center gap-2.5 cursor-pointer" style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 11, padding: '9px 11px', textDecoration: 'none' }}>
@@ -57,7 +57,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <header className="flex items-center justify-between" style={{ height: 64, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 26px' }}>
           <div>
-            <div style={{ fontFamily: "'Space Grotesk'", fontSize: 19, fontWeight: 700, letterSpacing: '-.4px' }}>{title}</div>
+            <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 19, fontWeight: 700, letterSpacing: '-.4px' }}>{title}</div>
             <div style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 1 }}>{SUBS[active] || ''}</div>
           </div>
           <a href="https://mise-gastro.de/biss-app/frankys-pasta" target="_blank" rel="noreferrer" className="flex items-center gap-1.5" style={{ height: 38, background: '#0F172A', borderRadius: 10, padding: '0 14px', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Shop ansehen</a>

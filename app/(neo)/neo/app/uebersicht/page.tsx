@@ -54,7 +54,7 @@ export default async function Uebersicht() {
         {KPIS.map((k) => (
           <div key={k.label} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: k.bg, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 14, height: 14, borderRadius: 5, background: k.dot }} /></div>
-            <div style={{ fontFamily: "'Space Grotesk'", fontSize: 26, fontWeight: 700, letterSpacing: '-.5px' }}>{k.value}</div>
+            <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: '-.5px' }}>{k.value}</div>
             <div style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>{k.label}</div>
           </div>
         ))}
@@ -62,13 +62,13 @@ export default async function Uebersicht() {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-            <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700 }}>Umsatz · letzte 7 Tage</h3>
+            <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>Umsatz · letzte 7 Tage</h3>
             <span style={{ fontSize: 13, color: '#94A3B8' }}>Gesamt: <span style={{ fontWeight: 700, color: '#334155' }}>{eur(total7)}</span></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 160 }}>
             {days.map((b, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', fontFamily: "'Space Grotesk'" }}>{b.value > 0 ? Math.round(b.value) : ''}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', fontFamily: "'Space Grotesk', system-ui, sans-serif" }}>{b.value > 0 ? Math.round(b.value) : ''}</div>
                 <div style={{ width: '100%', height: Math.max(4, (b.value / maxDay) * 120), background: 'linear-gradient(180deg,#6366F1,#4F46E5)', borderRadius: 8 }} />
                 <div style={{ fontSize: 11.5, color: '#94A3B8' }}>{b.label}</div>
               </div>
@@ -76,13 +76,13 @@ export default async function Uebersicht() {
           </div>
         </div>
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
-          <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Beliebteste Produkte</h3>
+          <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Beliebteste Produkte</h3>
           {top.length === 0 && <div style={{ fontSize: 13, color: '#94A3B8' }}>Noch keine Daten.</div>}
           {top.map(([name, rev], i) => (
             <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < top.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-              <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 13, color: '#94A3B8', width: 16 }}>{i + 1}</span>
+              <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 13, color: '#94A3B8', width: 16 }}>{i + 1}</span>
               <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
-              <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 14 }}>{eur(rev)}</span>
+              <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14 }}>{eur(rev)}</span>
             </div>
           ))}
         </div>

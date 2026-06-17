@@ -16,7 +16,7 @@ export default async function ShopDesign() {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 390px', gap: 20, alignItems: 'start' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Shop-Template wählen</h3>
+          <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Shop-Template wählen</h3>
           <p style={{ fontSize: 12.5, color: '#94A3B8' }}>Wähle das Design deines Online-Shops. Die Bestell-Logik bleibt gleich.</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}>
@@ -24,7 +24,7 @@ export default async function ShopDesign() {
             <div key={tp.key} style={{ background: '#fff', border: tp.key === 'current' ? '2px solid #4F46E5' : '1px solid #E2E8F0', borderRadius: 14, padding: 16, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
               <div style={{ height: 70, borderRadius: 10, background: tp.accent, marginBottom: 12 }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 15 }}>{tp.name}</span>
+                <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 15 }}>{tp.name}</span>
                 {tp.key === 'current' && <span style={{ fontSize: 10.5, fontWeight: 700, color: '#4338CA', background: '#EEF2FF', borderRadius: 999, padding: '2px 8px' }}>{tp.tag}</span>}
               </div>
               {tp.key !== 'current' && <div style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 3 }}>{tp.tag}</div>}

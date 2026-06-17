@@ -18,16 +18,16 @@ export default async function Kunden() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
-        {campaigns.map(([t, c, bg]) => (<div key={t} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><div style={{ width: 36, height: 36, borderRadius: 10, background: bg, marginBottom: 10 }} /><div style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 15 }}>{t}</div><button style={{ marginTop: 10, height: 34, padding: '0 14px', borderRadius: 9, border: 'none', background: c as string, color: '#fff', fontSize: 12.5, fontWeight: 600 }}>Kampagne starten</button></div>))}
+        {campaigns.map(([t, c, bg]) => (<div key={t} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><div style={{ width: 36, height: 36, borderRadius: 10, background: bg, marginBottom: 10 }} /><div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 15 }}>{t}</div><button style={{ marginTop: 10, height: 34, padding: '0 14px', borderRadius: 9, border: 'none', background: c as string, color: '#fff', fontSize: 12.5, fontWeight: 600 }}>Kampagne starten</button></div>))}
       </div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between' }}><h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700 }}>Kunden</h3><span style={{ fontSize: 12.5, color: '#94A3B8' }}>{customers.length} gesamt</span></div>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>Kunden</h3><span style={{ fontSize: 12.5, color: '#94A3B8' }}>{customers.length} gesamt</span></div>
         {customers.slice(0, 50).map((c, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 20px', borderBottom: '1px solid #F1F5F9' }}>
             <span style={{ flex: 1, fontWeight: 600, fontSize: 14 }}>{c.name}</span>
             <span style={{ fontSize: 12.5, color: '#64748B', width: 140 }}>{c.tel}</span>
             <span style={{ fontSize: 12.5, color: '#64748B', width: 90 }}>{c.orders} Best.</span>
-            <span style={{ fontFamily: "'Space Grotesk'", fontWeight: 700, fontSize: 13.5, width: 90, textAlign: 'right' }}>{eur(c.total)}</span>
+            <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 13.5, width: 90, textAlign: 'right' }}>{eur(c.total)}</span>
           </div>
         ))}
         {customers.length === 0 && <div style={{ padding: 30, textAlign: 'center', color: '#94A3B8' }}>Noch keine Kunden.</div>}

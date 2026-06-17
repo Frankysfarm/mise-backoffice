@@ -23,10 +23,10 @@ export default async function Statistik() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
-        {KPIS.map((k) => (<div key={k.l} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><div style={{ fontFamily: "'Space Grotesk'", fontSize: 24, fontWeight: 700 }}>{k.v}</div><div style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>{k.l}</div></div>))}
+        {KPIS.map((k) => (<div key={k.l} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 24, fontWeight: 700 }}>{k.v}</div><div style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>{k.l}</div></div>))}
       </div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)', maxWidth: 480 }}>
-        <h3 style={{ fontFamily: "'Space Grotesk'", fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Zahlungsarten (30 Tage)</h3>
+        <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Zahlungsarten (30 Tage)</h3>
         {pays.map(({ p, n }) => (<div key={p} style={{ marginBottom: 10 }}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}><span style={{ textTransform: 'capitalize', color: '#475569', fontWeight: 600 }}>{p}</span><span style={{ color: '#64748B' }}>{n}×</span></div><div style={{ height: 8, borderRadius: 999, background: '#F1F5F9' }}><div style={{ height: 8, borderRadius: 999, width: `${(n / totalPay) * 100}%`, background: '#4F46E5' }} /></div></div>))}
       </div>
     </div>
