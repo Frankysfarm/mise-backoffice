@@ -1,7 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–211 vollständig abgeschlossen. CEO Review #124 abgeschlossen. 0 TypeScript-Fehler. Build sauber (283 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–213 vollständig abgeschlossen. CEO Review #125 abgeschlossen. 0 TypeScript-Fehler. Build sauber (284 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #125 — 2026-06-17
+
+### Geprüfte Commits (seit Review #124)
+- `953d979` feat(delivery/backend): Phase 212 — Smart Delivery Carbon Footprint Engine
+- `5e40959` feat(delivery/frontend): Phase 213 — 5 neue Smart-Delivery Frontend-Komponenten
+
+### Bug gefixt
+**TS2554 in `lib/delivery/carbon-footprint.ts` Zeile 210:**
+- `logDeliveryEvent(locationId, 'carbon_snapshot', {...})` — 3 Argumente statt 1 Objekt
+- Fix: Korrekte Objekt-Signatur `{ location_id, event_type, payload }` übergeben
+- Zusätzlich: `'carbon_snapshot'` zu `DeliveryEventType` in `lib/delivery/events.ts` hinzugefügt (fehlte im Union-Type)
+
+### Code-Review Phase 212 (Carbon Footprint Engine)
+- `scripts/migrations/109_carbon_footprint.sql`: delivery_co2_snapshots + driver_co2_snapshots korrekt ✅
+- `lib/delivery/carbon-footprint.ts`: CO2-Raten-Map, snapshotCarbonFootprint(), Cron-Batch, Dashboard ✅
+- `/api/delivery/admin/carbon-footprint`: Auth via location_id, GET/POST Actions korrekt ✅
+- `app/(admin)/delivery/carbon-footprint/`: CarbonFootprintClient, 4 Tabs, SVG Gauge ✅
+
+### Code-Review Phase 213 (5 Frontend-Komponenten)
+- `KitchenAmpelTimingGrid`: Countdown-Grid (grün/amber/rot/überfällig), 1s-Tick, Progress-Bar — eingebunden in kitchen/client.tsx Zeile 519 ✅
+- `DispatchTourScoreTimeline`: Score-Ring + StopDots + Restzeit je Tour — eingebunden in dispatch/client.tsx Zeile 867 ✅
+- `StopSchnellPanel`: Navigation + Anruf je Stopp, expandierbar — eingebunden in fahrer/app/client.tsx Zeile 968 ✅
+- `OrderStatusTracker`: Visueller Stepper (5 Phasen) + Polling — eingebunden in storefront-aurora.tsx Zeile 930 (nur bei isDelivery) ✅
+- `SchichtEchtzeitBilanz`: KPI-Grid mit Ampel — eingebunden in lieferdienst/client.tsx Zeile 1001 ✅
+
+### Integration-Prüfung
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront: alle Module verbunden ✅
+- `isDelivery`-Flag in localStorage steuert OrderStatusTracker korrekt ✅
+- `StopSchnellPanel` nutzt `driverPos` für Navigation-Links ✅
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (284 Seiten)
+
+### Nächste Schritte für Agenten
+- Phase 214 kann beginnen: weitere Optimierungen oder neue Module nach Bedarf
 
 ---
 

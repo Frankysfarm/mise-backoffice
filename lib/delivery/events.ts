@@ -34,7 +34,8 @@ export type DeliveryEventType =
   | 'order_released_for_dispatch'
   | 'tour_stop_inserted'
   | 'tour_stop_removed'
-  | 'tour_reoptimized';
+  | 'tour_reoptimized'
+  | 'carbon_snapshot';
 
 export interface DeliveryEvent {
   event_type: DeliveryEventType;

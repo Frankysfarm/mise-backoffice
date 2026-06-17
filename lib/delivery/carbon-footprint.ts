@@ -207,8 +207,10 @@ export async function snapshotCarbonFootprint(
     await sb.from('driver_co2_snapshots').upsert(driverRows, { onConflict: 'driver_id,snapshot_date' });
   }
 
-  await logDeliveryEvent(locationId, 'carbon_snapshot', {
-    date: yesterday, total_tours: totalTours, co2_saved_kg: Math.round(co2SavedKg * 1000) / 1000,
+  await logDeliveryEvent({
+    location_id: locationId,
+    event_type: 'carbon_snapshot',
+    payload: { date: yesterday, total_tours: totalTours, co2_saved_kg: Math.round(co2SavedKg * 1000) / 1000 },
   });
 
   return {
