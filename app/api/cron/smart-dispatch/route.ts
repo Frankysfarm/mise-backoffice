@@ -87,6 +87,7 @@ import { snapshotAllLocations as snapshotNetworkHealth, pruneOldNetworkSnapshots
 import { generateCapacityPlanAllLocations, pruneOldSlots as pruneCapacitySlots } from '@/lib/delivery/capacity-planner';
 import { pruneOldDrafts as pruneAutoShiftDrafts } from '@/lib/delivery/auto-shift-generator';
 import { pruneOldAmendmentsAllLocations } from '@/lib/delivery/order-amendments';
+import { snapshotCarbonAllLocations, pruneCo2Snapshots } from '@/lib/delivery/carbon-footprint';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -157,6 +158,8 @@ export async function GET(req: NextRequest) {
     const isRfmTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
     // Feedback-Sentiment-Analyse: täglich 05:30 UTC (nach Address-Scan)
     const isSentimentTick = nowHour === 5 && nowMin >= 28 && nowMin < 32;
+    // CO₂-Fußabdruck-Snapshot: täglich 05:15 UTC (nach Address-Scan, vor Sentiment)
+    const isCarbonSnapshotTick = nowHour === 5 && nowMin >= 14 && nowMin < 18;
     // Smart-Upsell-Paare: täglich 04:15 UTC (nach Geo-Clustering, vor RFM)
     const isUpsellRebuildTick = nowHour === 4 && nowMin >= 14 && nowMin < 18;
     // Referral-Belohnungen: täglich 04:45 UTC (nach RFM und Upsell)
@@ -561,6 +564,15 @@ export async function GET(req: NextRequest) {
       ? await pruneOldAmendmentsAllLocations(90).catch(() => 0)
       : 0;
 
+    // Phase 212: CO₂-Fußabdruck-Snapshot — täglich 05:15 UTC
+    const carbonSnapshotResult = isCarbonSnapshotTick
+      ? await snapshotCarbonAllLocations().catch(() => null)
+      : null;
+    // Prune CO₂-Snapshots älter als 90 Tage — täglich 02:00 UTC
+    const co2SnapshotsPruned = isReportTick
+      ? await pruneCo2Snapshots(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -698,6 +710,8 @@ export async function GET(req: NextRequest) {
       ...(networkHealthResult ? { network_health: { locations: networkHealthResult.locations, snapshots: networkHealthResult.snapshots, errors: networkHealthResult.errors } } : {}),
       ...(capacityPlanResult ? { capacity_plan: { locations: capacityPlanResult.locations, slots_upserted: capacityPlanResult.slotsUpserted, errors: capacityPlanResult.errors } } : {}),
       ...(amendmentsPruned ? { amendments_pruned: amendmentsPruned } : {}),
+      ...(carbonSnapshotResult ? { carbon_footprint: { locations: carbonSnapshotResult.locations, snapshots: carbonSnapshotResult.snapshots, errors: carbonSnapshotResult.errors } } : {}),
+      ...(co2SnapshotsPruned ? { co2_snapshots_pruned: co2SnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
