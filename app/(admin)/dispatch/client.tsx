@@ -106,6 +106,7 @@ import { DispatchFahrerLastBalken } from './fahrer-last-balken';
 import { KapazitaetsWarnung } from './kapazitaets-warnung';
 import { ZoneBundlePanel } from './zone-bundle-panel';
 import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
+import { DispatchTourScoreTimeline } from './tour-score-timeline';
 
 type Driver = {
   employee_id: string;
@@ -862,6 +863,8 @@ export function DispatchBoard({
       <TourEtaStrip batches={batches} drivers={drivers} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 213: Tour-Score-Timeline — Score + Stopp-Dots + Verbleib je aktiver Tour */}
+      <DispatchTourScoreTimeline batches={batches as any} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
       {/* Phase 210: CO₂-Tracker — Emissionseinsparung je aktiver Tour (Fahrrad/E-Bike-Bonus) */}

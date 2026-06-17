@@ -51,6 +51,7 @@ import { FahrerSchichtEinnahmenChart } from './schicht-einnahmen-chart';
 import { FahrerTagesBewertungKarte } from './tages-bewertung-karte';
 import { SchichtBedarfChip } from './schicht-bedarf-chip';
 import { FahrzeitPrognose } from './fahrzeit-prognose';
+import { StopSchnellPanel } from './stop-schnell-panel';
 
 type Driver = {
   id: string;
@@ -958,6 +959,16 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 213: Stopp-Schnell-Panel — kompakter Schnellzugriff mit Navigation + Anruf je Stopp */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <StopSchnellPanel
+                stops={activeBatch.stops as any}
+                driverLat={driverPos?.lat ?? null}
+                driverLng={driverPos?.lng ?? null}
               />
             </div>
           )}

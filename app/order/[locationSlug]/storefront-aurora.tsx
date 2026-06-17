@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, X, Zap, Flame } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ItemDetailSheet } from './item-sheet';
+import { OrderStatusTracker } from './order-status-tracker';
 
 type LiveEtaLoad = 'quiet' | 'normal' | 'busy';
 
@@ -879,48 +880,60 @@ function AuroraActiveOrderBanner({ locationId }: { locationId: string }) {
   };
 
   return (
-    <div style={{
-      margin: '0 0 8px',
-      padding: '10px 14px',
-      borderRadius: 14,
-      background: 'rgba(74,230,138,0.08)',
-      border: '1px solid rgba(74,230,138,0.25)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10,
-    }}>
-      <span style={{ fontSize: 18, flexShrink: 0 }}>🧾</span>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
-          Bestellung {banner.bestellnummer}
-          {' · '}
-          <span style={{ opacity: 0.7 }}>{statusLabel[banner.status] ?? banner.status}</span>
-        </div>
-        {minsLeft > 0 && (
-          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: 1 }}>
-            <Clock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 3 }} />
-            Noch ca. {minsLeft} Min
+    <div style={{ margin: '0 0 8px' }}>
+      {/* Compact header bar */}
+      <div style={{
+        padding: '10px 14px',
+        borderRadius: 14,
+        background: 'rgba(74,230,138,0.08)',
+        border: '1px solid rgba(74,230,138,0.25)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 8,
+      }}>
+        <span style={{ fontSize: 18, flexShrink: 0 }}>🧾</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+            Bestellung {banner.bestellnummer}
+            {' · '}
+            <span style={{ opacity: 0.7 }}>{statusLabel[banner.status] ?? banner.status}</span>
           </div>
-        )}
+          {minsLeft > 0 && (
+            <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: 1 }}>
+              <Clock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 3 }} />
+              Noch ca. {minsLeft} Min
+            </div>
+          )}
+        </div>
+        <a
+          href={`/track/${banner.bestellnummer}`}
+          style={{
+            fontSize: '0.7rem', fontWeight: 700, flexShrink: 0,
+            padding: '4px 10px', borderRadius: 9999,
+            background: 'rgba(74,230,138,0.15)', color: 'inherit',
+            textDecoration: 'none', border: '1px solid rgba(74,230,138,0.3)',
+          }}
+        >
+          Verfolgen
+        </a>
+        <button
+          onClick={() => setDismissed(true)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, flexShrink: 0, padding: 4 }}
+          aria-label="Schließen"
+        >
+          <X size={14} />
+        </button>
       </div>
-      <a
-        href={`/track/${banner.bestellnummer}`}
-        style={{
-          fontSize: '0.7rem', fontWeight: 700, flexShrink: 0,
-          padding: '4px 10px', borderRadius: 9999,
-          background: 'rgba(74,230,138,0.15)', color: 'inherit',
-          textDecoration: 'none', border: '1px solid rgba(74,230,138,0.3)',
-        }}
-      >
-        Verfolgen
-      </a>
-      <button
-        onClick={() => setDismissed(true)}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, flexShrink: 0, padding: 4 }}
-        aria-label="Schließen"
-      >
-        <X size={14} />
-      </button>
+
+      {/* Phase 213: Rich status tracker — Bestellstatus als visueller Stepper */}
+      {banner.isDelivery && (
+        <OrderStatusTracker
+          orderId={banner.orderId}
+          initialStatus={banner.status}
+          initialEtaMin={minsLeft > 0 ? minsLeft : null}
+        />
+      )}
     </div>
   );
 }

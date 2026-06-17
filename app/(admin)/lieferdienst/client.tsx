@@ -85,6 +85,7 @@ import { SchichtProfitKarte } from './schicht-profit-karte'
 import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
 import { AktivFahrerKacheln } from './aktiv-fahrer-kacheln'
 import { SchichtAutoDraftStrip } from './schicht-auto-draft-strip'
+import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -996,6 +997,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 213: Schicht-Echtzeit-Bilanz — Umsatz, Bestellungen, Pünktlichkeitsrate, Fahrer live */}
+              <SchichtEchtzeitBilanz locationId={locationId} />
               {/* Phase 207: Kapazitäts-Wochen-KPI — 7-Tage Besetzungsübersicht + Lücken */}
               <KapazitaetsWochenKpi locationId={locationId} />
               {/* Phase 206: Schicht-Profit-Karte — Liefergebühren-Umsatz/Kosten/Marge heute */}

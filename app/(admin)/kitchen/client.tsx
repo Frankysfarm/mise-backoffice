@@ -57,6 +57,7 @@ import { KitchenPrepZeitVergleich } from './prep-zeit-vergleich';
 import { KapazitaetsVorschau } from './kapazitaets-vorschau';
 import { KitchenTimerWall } from './timer-wall';
 import { KuechenDruckAmpel } from './kuechen-druck-ampel';
+import { KitchenAmpelTimingGrid } from './ampel-timing-grid';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -514,6 +515,8 @@ export function KitchenBoard({
       <KitchenNachfrageSpike orders={filtered} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 213: Ampel-Timing-Grid — Farbkodiertes Prep-Grid mit Countdown je Bestellung */}
+      {timings.length > 0 && <KitchenAmpelTimingGrid orders={filtered} timings={timings} />}
       {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
       <KitchenKapazitaetsAnzeige orders={filtered} timings={timings} />
       {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}
