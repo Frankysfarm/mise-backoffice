@@ -88,6 +88,7 @@ import { generateCapacityPlanAllLocations, pruneOldSlots as pruneCapacitySlots }
 import { pruneOldDrafts as pruneAutoShiftDrafts } from '@/lib/delivery/auto-shift-generator';
 import { pruneOldAmendmentsAllLocations } from '@/lib/delivery/order-amendments';
 import { snapshotCarbonAllLocations, pruneCo2Snapshots } from '@/lib/delivery/carbon-footprint';
+import { snapshotAllLocations as snapshotQualityScores, pruneOldScores as pruneQualityScores } from '@/lib/delivery/quality-score';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -174,6 +175,8 @@ export async function GET(req: NextRequest) {
     const isRouteOptimizeTick = isRatingTick;
     // Wetter-Intelligence: alle 30 Min Snapshot + täglich 02:00 UTC Cleanup
     const isWeatherTick = isDemandTick;
+    // Quality-Score-Snapshot: täglich 02:45 UTC (nach Report + ETA-Kalibrierung)
+    const isQualityScoreTick = nowHour === 2 && nowMin >= 44 && nowMin < 48;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -573,6 +576,14 @@ export async function GET(req: NextRequest) {
       ? await pruneCo2Snapshots(90).catch(() => 0)
       : 0;
 
+    // Phase 214: Quality Score Snapshot — täglich 02:45 UTC
+    const qualityScoreResult = isQualityScoreTick
+      ? await snapshotQualityScores().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    const qualityScoresPruned = isReportTick
+      ? await pruneQualityScores(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -712,6 +723,8 @@ export async function GET(req: NextRequest) {
       ...(amendmentsPruned ? { amendments_pruned: amendmentsPruned } : {}),
       ...(carbonSnapshotResult ? { carbon_footprint: { locations: carbonSnapshotResult.locations, snapshots: carbonSnapshotResult.snapshots, errors: carbonSnapshotResult.errors } } : {}),
       ...(co2SnapshotsPruned ? { co2_snapshots_pruned: co2SnapshotsPruned } : {}),
+      ...(qualityScoreResult ? { quality_scores: { locations: qualityScoreResult.locations, snapshots: qualityScoreResult.snapshots, errors: qualityScoreResult.errors } } : {}),
+      ...(qualityScoresPruned ? { quality_scores_pruned: qualityScoresPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
