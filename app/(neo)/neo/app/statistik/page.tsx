@@ -1,10 +1,10 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 0 }) + ' €';
 export default async function Statistik() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   const { data } = await supabase.from('customer_orders').select('gesamtbetrag, status, typ, zahlungsart').eq('tenant_id', emp?.tenant_id ?? '').gte('created_at', since);
   const all = (data ?? []) as any[];
@@ -18,7 +18,7 @@ export default async function Statistik() {
     { l: 'Lieferung', v: valid.filter((o) => o.typ === 'lieferung').length + '×' },
     { l: 'Abholung', v: valid.filter((o) => o.typ === 'abholung').length + '×' },
   ];
-  const pays = ['bar', 'stripe', 'karte'].map((p) => ({ p, n: valid.filter((o) => (o.zahlungsart || '') === p).length }));
+  const payMap = new Map<string, number>(); for (const o of valid) { const k = o.zahlungsart || 'offen'; payMap.set(k, (payMap.get(k) ?? 0) + 1); } const pays = [...payMap.entries()].sort((a,b)=>b[1]-a[1]).map(([p, n]) => ({ p, n }));
   const totalPay = Math.max(1, pays.reduce((s, x) => s + x.n, 0));
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

@@ -1,5 +1,5 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const TEMPLATES = [
   { key: 'current', name: 'Euer Shop (aktuell)', tag: 'Aktiv', accent: '#0F9C50' },
@@ -9,7 +9,7 @@ const TEMPLATES = [
 ];
 export default async function ShopDesign() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: t } = await supabase.from('tenants').select('slug').eq('id', emp?.tenant_id ?? '').maybeSingle();
   const shopUrl = t?.slug ? `https://mise-gastro.de/biss-app/${t.slug}` : '';
   return (

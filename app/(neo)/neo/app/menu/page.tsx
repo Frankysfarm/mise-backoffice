@@ -1,11 +1,11 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
 export default async function MenuPage() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const locId = emp?.location_id ?? '';
   const [{ data: cats }, { data: items }] = await Promise.all([
     supabase.from('menu_categories').select('id, name, aktiv, sort_order').eq('location_id', locId).order('sort_order', { ascending: true }),

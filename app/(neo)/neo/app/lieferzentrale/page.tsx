@@ -1,5 +1,5 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import QRCode from 'qrcode';
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ const COLS = [
 
 export default async function Lieferzentrale() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: loc } = await supabase.from('locations').select('id, kitchen_token, name').eq('id', emp?.location_id ?? '').maybeSingle();
   const url = loc?.kitchen_token ? `https://mise-gastro.de/kuche/${loc.kitchen_token}` : '';
   const qr = url ? await QRCode.toDataURL(url, { width: 150, margin: 1, color: { dark: '#0F172A', light: '#FFFFFF' } }) : '';

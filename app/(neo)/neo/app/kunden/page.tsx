@@ -1,10 +1,10 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 export default async function Kunden() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data } = await supabase.from('customer_orders').select('kunde_name, kunde_telefon, gesamtbetrag, created_at').eq('tenant_id', emp?.tenant_id ?? '').neq('status', 'storniert').order('created_at', { ascending: false }).limit(1000);
   const map = new Map<string, { name: string; tel: string; orders: number; total: number; last: string }>();
   for (const o of (data ?? []) as any[]) {

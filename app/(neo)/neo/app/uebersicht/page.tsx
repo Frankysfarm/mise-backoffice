@@ -1,5 +1,5 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 
 const eur = (n: number) => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
@@ -7,7 +7,7 @@ const eur = (n: number) => n.toLocaleString('de-DE', { minimumFractionDigits: 2,
 export default async function Uebersicht() {
   const emp = await getCurrentEmployee();
   const tenantId = emp?.tenant_id ?? '';
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const now = new Date();
   const since7 = new Date(now.getTime() - 7 * 86400000).toISOString();
   const todayStr = now.toISOString().slice(0, 10);
@@ -23,7 +23,7 @@ export default async function Uebersicht() {
   const count = todays.length;
   const revenue = todays.reduce((s: number, o: any) => s + Number(o.gesamtbetrag ?? 0), 0);
   const avg = count ? revenue / count : 0;
-  const activeDrivers = (drv ?? []).filter((d: any) => d.mise_drivers && d.mise_drivers.state && d.mise_drivers.state !== 'offline').length;
+  const activeDrivers = (drv ?? []).map((d: any) => Array.isArray(d.mise_drivers) ? d.mise_drivers[0] : d.mise_drivers).filter((m: any) => m && m.state && m.state !== 'offline').length;
 
   // 7-Tage-Umsatz pro Tag
   const days: { label: string; value: number }[] = [];

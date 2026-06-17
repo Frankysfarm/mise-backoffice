@@ -1,10 +1,10 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import QRCode from 'qrcode';
 export const dynamic = 'force-dynamic';
 export default async function ShopSettings() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: t } = await supabase.from('tenants').select('slug, name').eq('id', emp?.tenant_id ?? '').maybeSingle();
   const shopUrl = t?.slug ? `https://mise-gastro.de/biss-app/${t.slug}` : '';
   const qr = shopUrl ? await QRCode.toDataURL(shopUrl, { width: 170, margin: 1, color: { dark: '#0F172A', light: '#FFFFFF' } }) : '';

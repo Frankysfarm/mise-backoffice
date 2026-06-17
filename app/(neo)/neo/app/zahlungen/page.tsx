@@ -1,5 +1,5 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const DEFAULTS = [
   { method: 'stripe', label: 'Stripe', desc: 'Online-Kartenzahlung, Apple Pay & Google Pay' },
@@ -9,7 +9,7 @@ const DEFAULTS = [
 ];
 export default async function Zahlungen() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data } = await supabase.from('tenant_payment_methods').select('method, label, enabled_lieferung, enabled_abholung, enabled_vor_ort').eq('tenant_id', emp?.tenant_id ?? '');
   const rows = (data ?? []) as any[];
   const list = DEFAULTS.map((d) => { const r = rows.find((x) => x.method === d.method); return { ...d, label: r?.label || d.label, on: r ? !!(r.enabled_lieferung || r.enabled_abholung || r.enabled_vor_ort) : false }; });

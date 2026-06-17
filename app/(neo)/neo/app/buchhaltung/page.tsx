@@ -1,10 +1,10 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 export default async function Buchhaltung() {
   const emp = await getCurrentEmployee();
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const since = new Date(Date.now() - 30 * 86400000).toISOString();
   const { data: items } = await supabase.from('order_items').select('gesamtpreis, mwst_satz, order:customer_orders!inner(tenant_id, status, created_at)').eq('order.tenant_id', emp?.tenant_id ?? '').gte('order.created_at', since).neq('order.status', 'storniert').limit(2000);
   let b7 = 0, b19 = 0;
