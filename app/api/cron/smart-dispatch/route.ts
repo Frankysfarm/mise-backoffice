@@ -90,6 +90,7 @@ import { pruneOldAmendmentsAllLocations } from '@/lib/delivery/order-amendments'
 import { snapshotCarbonAllLocations, pruneCo2Snapshots } from '@/lib/delivery/carbon-footprint';
 import { snapshotAllLocations as snapshotQualityScores, pruneOldScores as pruneQualityScores } from '@/lib/delivery/quality-score';
 import { snapshotAllLocations as snapshotBenchmarks, pruneOldBenchmarks } from '@/lib/delivery/benchmarking';
+import { evaluateIncentivesAllLocations, approveIncentivesAllLocations, pruneOldIncentiveEvents } from '@/lib/delivery/driver-incentives';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -180,6 +181,8 @@ export async function GET(req: NextRequest) {
     const isQualityScoreTick = nowHour === 2 && nowMin >= 44 && nowMin < 48;
     // Benchmark-Snapshot: täglich 03:00 UTC (nach Quality Score)
     const isBenchmarkTick = nowHour === 3 && nowMin >= 0 && nowMin < 4;
+    // Incentive-Approve: täglich 04:00 UTC; Incentive-Evaluate: jeden Tick (Echtzeit)
+    const isIncentiveApproveTick = nowHour === 4 && nowMin >= 0 && nowMin < 4;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -595,6 +598,18 @@ export async function GET(req: NextRequest) {
       ? await pruneOldBenchmarks(90).catch(() => 0)
       : 0;
 
+    // Phase 221: Incentive Evaluation — jeden Tick (Echtzeit, letzte 5 Min)
+    const incentiveEvalResult = await evaluateIncentivesAllLocations()
+      .catch(() => ({ locations: 0, evaluated: 0, earned: 0, errors: 1 }));
+    // Approve pending incentives — täglich 04:00 UTC
+    const incentiveApproved = isIncentiveApproveTick
+      ? await approveIncentivesAllLocations().catch(() => 0)
+      : 0;
+    // Prune old incentive events — täglich 02:00 UTC
+    const incentiveEventsPruned = isReportTick
+      ? await pruneOldIncentiveEvents(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -738,6 +753,9 @@ export async function GET(req: NextRequest) {
       ...(qualityScoresPruned ? { quality_scores_pruned: qualityScoresPruned } : {}),
       ...(benchmarkResult ? { benchmarks: { locations: benchmarkResult.locations, snapshots: benchmarkResult.snapshots, errors: benchmarkResult.errors } } : {}),
       ...(benchmarksPruned ? { benchmarks_pruned: benchmarksPruned } : {}),
+      ...(incentiveEvalResult.earned > 0 ? { incentives: { evaluated: incentiveEvalResult.evaluated, earned: incentiveEvalResult.earned, errors: incentiveEvalResult.errors } } : {}),
+      ...(incentiveApproved ? { incentives_approved: incentiveApproved } : {}),
+      ...(incentiveEventsPruned ? { incentive_events_pruned: incentiveEventsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
