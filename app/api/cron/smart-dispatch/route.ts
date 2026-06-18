@@ -96,6 +96,7 @@ import { snapshotAllLocations as snapshotShiftPredictions, pruneOldPredictions }
 import { snapshotAllLocations as snapshotDriverSatisfaction, pruneOldScores as pruneSatisfactionScores } from '@/lib/delivery/driver-satisfaction';
 import { snapshotAllLocations as snapshotDriverWellbeing, pruneOldSnapshots as pruneWellbeingSnapshots } from '@/lib/delivery/driver-wellbeing';
 import { buildAllLocations as buildCustomerCohorts, pruneOldSnapshots as pruneCohortSnapshots } from '@/lib/delivery/customer-cohorts';
+import { buildAllLocations as buildCapacityForecast, pruneOldForecasts as pruneCapacityForecasts } from '@/lib/delivery/capacity-forecast';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -198,6 +199,8 @@ export async function GET(req: NextRequest) {
     const isWellbeingTick = nowHour === 4 && nowMin < 4;
     // Kunden-Kohortenanalyse: täglich 04:15 UTC (nach Wellbeing, leseintensiv)
     const isCohortTick = nowHour === 4 && nowMin >= 15 && nowMin < 19;
+    // Capacity Forecast: täglich 04:30 UTC (nach Kohortenanalyse, nutzt Vortagesdaten)
+    const isCapacityForecastTick = nowHour === 4 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -664,6 +667,14 @@ export async function GET(req: NextRequest) {
       : null;
     const cohortSnapshotsPruned = isReportTick
       ? await pruneCohortSnapshots(730).catch(() => 0)
+      : 0;
+
+    // Phase 228: Smart Capacity Forecast — täglich 04:30 UTC
+    const capacityForecastResult = isCapacityForecastTick
+      ? await buildCapacityForecast().catch(() => ({ locations: 0, daysForecasted: 0, upserted: 0, errors: 1 }))
+      : null;
+    const capacityForecastsPruned = isReportTick
+      ? await pruneCapacityForecasts(30).catch(() => 0)
       : 0;
 
     const durationMs = Date.now() - start;
