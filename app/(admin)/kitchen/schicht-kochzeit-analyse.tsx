@@ -177,7 +177,7 @@ export function KitchenSchichtKochzeitAnalyse({ orders, timings }: Props) {
             <BarChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
               <XAxis dataKey="name" tick={{ fontSize: 8 }} />
               <Tooltip
-                formatter={(v: number) => [`${v > 0 ? '+' : ''}${v} Min`, 'Abweichung']}
+                formatter={(v: any) => [`${(v as number) > 0 ? '+' : ''}${v} Min`, 'Abweichung']}
                 contentStyle={{ fontSize: 11 }}
               />
               <Bar dataKey="delta" radius={[3, 3, 0, 0]}>
@@ -194,7 +194,7 @@ export function KitchenSchichtKochzeitAnalyse({ orders, timings }: Props) {
       <div className="flex items-center gap-3 text-[9px] text-muted-foreground flex-wrap">
         <span className="flex items-center gap-0.5"><span className="inline-block w-2 h-2 rounded-full bg-matcha-500" /> Pünktlich (≤+2m)</span>
         <span className="flex items-center gap-0.5"><span className="inline-block w-2 h-2 rounded-full bg-amber-500" /> Leicht spät (+3-6m)</span>
-        <span className="flex items-center gap-0.5"><span className="inline-block w-2 h-2 rounded-full bg-red-500" /> Zu spät (>+6m)</span>
+        <span className="flex items-center gap-0.5"><span className="inline-block w-2 h-2 rounded-full bg-red-500" /> Zu spät ({'>'}+6m)</span>
         <span className="flex items-center gap-0.5"><span className="inline-block w-2 h-2 rounded-full bg-blue-500" /> Zu früh</span>
       </div>
     </div>

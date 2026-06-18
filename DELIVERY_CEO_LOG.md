@@ -1,14 +1,90 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–245 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (306 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–246 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (306 Seiten). Deployment-bereit.
 
 ---
 
-## Nächste Schritte für Backend-Architekt (nach Phase 243)
-1. Phase 244: Delivery Cost-per-Order Analyse — Kosten je Bestellung (Fahrerlohn, Kraftstoff, Verpackung) mit Deckungsbeitrag-Rechner per Zone/Schicht/Fahrer
-2. Oder: Smart Reorder-Point Engine — automatische Lagerbestands-Trigger wenn Liefermaterial (Verpackung, Beilagen) unter Schwellwert
-3. Oder: Delivery Hotspot Heatmap v2 — Live-Karte mit tatsächlichen Lieferadressen + Zonen-Überlappung + Empfehlung Zonengrenz-Anpassung
+## Nächste Schritte für Backend-Architekt (nach Phase 246)
+1. Phase 247: Smart Delivery Multi-Location Benchmark Dashboard — Vergleich aller Standorte nach KPIs (Ø Lieferzeit, Marge/Bestellung, Fahrer-Auslastung, Kundenretention)
+2. Oder: Predictive Restock Engine — automatische Bestell-Trigger für Liefermaterial basierend auf Forecast-Daten
+3. Oder: Customer Notification Engine — Push/SMS bei Status-Wechsel, benutzerdefinierte Trigger, Opt-Out-Verwaltung
+
+## Nächste Schritte für Frontend-Ingenieur (nach Phase 246)
+1. Phase 247: Real-time Driver GPS-Tracking Panel — Live-Karte mit Fahrer-Positionen und Tour-Fortschritt (baut auf Leaflet auf)
+2. Oder: Driver Earnings Dashboard — Fahrer-facing Übersicht: Tagesumsatz, Trinkgeld, Bonus, Incentives
+
+---
+
+## CEO Review #144 — 2026-06-18
+
+### Geprüfte Commits (seit Review #143)
+- `4ae2663` feat(delivery/geo-heatmap): Leaflet-Karte ersetzt SVG-Scatter-Plot (Phase 246)
+
+### Build-Status
+- `npx next build`: ✅ Compiled successfully (306 Seiten, 0 Fehler)
+- `npx tsc --noEmit`: ✅ 0 TypeScript-Fehler
+
+### TypeScript-Fehler gefunden + gefixt: 0
+
+### Cleanup
+- **`app/(admin)/delivery/geo-heatmap/client.tsx`** — `SvgMapProps` Interface + `SvgMap()` Komponente (66 Zeilen) als totes Toter Code entfernt — nach der Leaflet-Migration nie mehr aufgerufen ✅
+
+### Code-Review Phase 246 (Leaflet-Karte)
+
+**`app/(admin)/delivery/geo-heatmap/leaflet-map.tsx` — LeafletGeoHeatmap:**
+- `dynamic()` mit `ssr: false` in client.tsx — verhindert SSR-Crash korrekt ✅
+- `@ts-expect-error` für CSS-Import ohne Typ-Declaration — korrekt annotiert ✅
+- Karte initialisieren: `useEffect` mit `mapInstanceRef`-Guard verhindert Doppel-Initialisierung ✅
+- Cleanup-Return: `map.remove()` + Refs auf `null` — Memory-Leak verhindert ✅
+- Marker-Update: `setTimeout(50ms)` als Puffer bis Map fertig ist — pragmatische Lösung ✅
+- `layerGroup.clearLayers()` vor jedem Update — keine Marker-Überlapppung ✅
+- `fitBounds()` mit `try/catch`-Fallback bei leeren Bounds — defensive Implementierung ✅
+- Bestellpunkte als CircleMarker: Radius 6–20px, Farbe Grün→Gelb→Orange→Rot nach Gewicht ✅
+- Fahrerpunkte als CircleMarker: Indigo-Farbe, weiße Umrandung — klar unterscheidbar ✅
+- `suppressHydrationWarning` auf `<div>` — korrekt für dynamische Map-Inhalte ✅
+
+**`app/(admin)/delivery/geo-heatmap/client.tsx` — Integration:**
+- Live-Tab: `LeafletGeoHeatmap` mit `live.orderPoints + live.driverPoints` + `maxWeight` korrekt ✅
+- Historisch-Tab: `LeafletGeoHeatmap` mit `topCells.map(…)` — `Math.max(…, 1)` verhindert Division durch 0 ✅
+- Zonen-Analyse-Tab: unverändert (SVG-Matrix), korrekt ✅
+- `height={380}` Live / `height={320}` Historisch — sauber gestaffelt ✅
+- Lade-Skeleton (`animate-pulse h-96`) während dynamischem Import — gute UX ✅
+
+### Status nach Review #144
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (306 Seiten)
+- Phase 246 (Leaflet-Karte): DONE ✅
+- Phase 247 (GPS-Dashboard + Kochzeit-Analyse + Stopp-Countdown): DONE ✅
+- TypeScript-Fehler gefixt: 2 (beide in schicht-kochzeit-analyse.tsx)
+- Code bereinigt: SvgMap Dead-Code entfernt ✅
+
+### TypeScript-Fehler Phase 247 (gefixt)
+- `app/(admin)/kitchen/schicht-kochzeit-analyse.tsx:197` — `>` direkt in JSX: Fix: `{'>'}` ✅
+- `app/(admin)/kitchen/schicht-kochzeit-analyse.tsx:180` — Recharts `formatter=(v: number)`: Fix: `(v: any)` (Recharts ValueType-Inkompatibilität, wie in Phase 244) ✅
+
+### Code-Review Phase 247 (3 neue Komponenten)
+
+**`app/(admin)/dispatch/realtime-gps-dashboard.tsx` — RealtimeGpsDashboard:**
+- `dynamic()` mit `ssr: false` korrekt für Leaflet ✅
+- 10s-Polling via `setInterval` + `clearInterval` Cleanup ✅
+- `GpsTourMapInner` initialisiert Leaflet nur einmal (Ref-Guard) ✅
+- Fahrer-Marker + Restaurant-Marker + Routen-Polylines korrekt aufgebaut ✅
+- Online/Offline-Status-Badge + KPI-Band (Aktive Touren, Fahrer, Stops) ✅
+- Integration in `dispatch/client.tsx` L974 korrekt (locationId + restaurantLat/Lng) ✅
+
+**`app/(admin)/kitchen/schicht-kochzeit-analyse.tsx` — KitchenSchichtKochzeitAnalyse:**
+- Pünktlichkeitsquote aus `kitchen_timings` (delta = fertig_am – due_at) korrekt berechnet ✅
+- 3-Farb-Kategorisierung (pünktlich/leicht spät/zu spät/zu früh) korrekt ✅
+- Recharts `BarChart` mit `Cell`-Farbkodierung pro Bar korrekt ✅
+- Integration in `kitchen/client.tsx` L550 korrekt ✅
+
+**`app/fahrer/app/naechster-stopp-countdown.tsx` — NaechsterStoppCountdown:**
+- Countdown aus `eta_earliest` mit 1s-Ticker (`useEffect` + `setInterval`) korrekt ✅
+- Distanz-Berechnung via Haversine-Formel (currentLat/Lng → stop.lat/lng) ✅
+- Nächster unerledigter Stop via `stops.find(s => s.type === 'dropoff' && s.order?.status !== 'geliefert')` korrekt ✅
+- Aktions-Buttons (Navigation starten, Kunde anrufen) als `<a href>` korrekt ✅
+- Integration in `fahrer/app/client.tsx` L916 korrekt ✅
 
 ---
 
