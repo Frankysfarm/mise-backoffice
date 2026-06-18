@@ -2,14 +2,53 @@
   "scope": "Neues Backoffice /neo - Produktionsreife",
   "verify": "Docker-Build gruen + alle 11 /neo-Routen != 404/500 + Agent-Review ohne kritische Findings",
   "criteria": [
-    {"id":"build-green","desc":"Build erfolgreich, alle 11 Routen erreichbar","passes":true},
-    {"id":"actions-tenant-scoped","desc":"Server-Actions scopen Mutationen auf Tenant/Location des Users (kein IDOR)","passes":false},
-    {"id":"actions-no-silent-fail","desc":"Server-Actions pruefen Supabase-error + werfen (kein stilles Verschlucken)","passes":false},
-    {"id":"actions-input-validation","desc":"Eingaben validiert (Status-Enum, erlaubte Zonen-Felder)","passes":false},
-    {"id":"pixel-screens","desc":"Alle 11 Screens pixel-genau (5/11: Shell,Uebersicht,Lieferzentrale,Fahrer,Shop-Einstellungen)","passes":false},
-    {"id":"no-dead-buttons","desc":"Keine toten Buttons (verdrahtet oder 'Bald verfuegbar')","passes":false},
-    {"id":"shop-themes","desc":"3 neue Shop-Themes + aktueller als 4.","passes":false},
-    {"id":"swap","desc":"/neo ersetzt alte Admin","passes":false},
-    {"id":"expert-review","desc":"code-reviewer + silent-failure + type-design ohne kritische Findings","passes":false}
+    {
+      "id": "build-green",
+      "desc": "Build erfolgreich, alle 11 Routen erreichbar",
+      "passes": true
+    },
+    {
+      "id": "actions-tenant-scoped",
+      "desc": "Server-Actions scopen Mutationen auf Tenant/Location des Users (kein IDOR)",
+      "passes": true,
+      "evidence": "Commit 44a07bb, Build fertig Port 3300, tenant+location-scoped + error-check + Whitelist"
+    },
+    {
+      "id": "actions-no-silent-fail",
+      "desc": "Server-Actions pruefen Supabase-error + werfen (kein stilles Verschlucken)",
+      "passes": true,
+      "evidence": "Commit 44a07bb, Build fertig Port 3300, tenant+location-scoped + error-check + Whitelist"
+    },
+    {
+      "id": "actions-input-validation",
+      "desc": "Eingaben validiert (Status-Enum, erlaubte Zonen-Felder)",
+      "passes": true,
+      "evidence": "Commit 44a07bb, Build fertig Port 3300, tenant+location-scoped + error-check + Whitelist"
+    },
+    {
+      "id": "pixel-screens",
+      "desc": "Alle 11 Screens pixel-genau (5/11: Shell,Uebersicht,Lieferzentrale,Fahrer,Shop-Einstellungen)",
+      "passes": false
+    },
+    {
+      "id": "no-dead-buttons",
+      "desc": "Keine toten Buttons (verdrahtet oder 'Bald verfuegbar')",
+      "passes": false
+    },
+    {
+      "id": "shop-themes",
+      "desc": "3 neue Shop-Themes + aktueller als 4.",
+      "passes": false
+    },
+    {
+      "id": "swap",
+      "desc": "/neo ersetzt alte Admin",
+      "passes": false
+    },
+    {
+      "id": "expert-review",
+      "desc": "code-reviewer + silent-failure + type-design ohne kritische Findings",
+      "passes": false
+    }
   ]
 }
