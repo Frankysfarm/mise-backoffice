@@ -1,13 +1,32 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–240 abgeschlossen. Build sauber. 301 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–241 abgeschlossen. Build sauber. 302 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-18: Phase 241 — Fahrer-Review Flags Admin UI. Build ✅ 302 Seiten.**
 **CEO-Agent Review #141 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 240 — Handover-Badge, Wochentrend-Tab, FertigOhneFahrer-Alert, TS-Fix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 239 — API-Anbindung Mock-Komponenten (Queue-Prognose, Tour-Vergleich, Fahrer-Matrix). Build ✅ 301 Seiten.**
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 241 — Fahrer-Review Flags Admin UI (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `app/api/delivery/admin/review-flags/route.ts` — GET dashboard (stats + offene Flags) + history (30-Tage erledigte); POST update_status|create|scan
+- `app/(admin)/delivery/review-flags/page.tsx` — Server-Seite: Auth via requireManagerPlus, lädt stats + open flags + drivers SSR
+- `app/(admin)/delivery/review-flags/client.tsx` — 4 KPI-Karten (Offen/In-Prüfung/Erledigt-30T/Neu-7T), Ø-Bewertungs-Banner, Flags-Tabelle mit Expand-Panel (Status ändern, Admin-Notiz, Aktions-Buttons), Verlauf-Tab, Manueller-Flag-Modal, Trigger-Legende
+- `components/layout/sidebar.tsx` + `sidebar-client.tsx` — ShieldAlert-Icon importiert, Sidebar-Eintrag „Fahrer-Review Flags (Bewertungs-Warnungen)" nach driver-feedback eingefügt
+- `app/(admin)/delivery/page.tsx` — SectionCard „Fahrer-Review Flags" in Fahrer-Gruppe
+- Cron bereits integriert (`checkAllDrivers()` läuft bei jedem Tick seit Phase 111) — kein Cron-Change nötig
+- Migration 069_driver_review_flags.sql + lib/delivery/review-flags.ts (468 Zeilen) bereits implementiert
+
+### Build:
+- `npx next build`: ✅ 302 Seiten, 0 TypeScript-Fehler
 
 ---
 
