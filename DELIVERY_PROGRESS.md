@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–243 abgeschlossen. Build sauber. 304 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–244 abgeschlossen. Build sauber. 305 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-18: Phase 244 — Smart Delivery Geo-Heatmap Pro. Build ✅ 305 Seiten.**
 **CEO-Agent Review #142 — 2026-06-18: 5 TS-Fehler gefixt (location-kpi-wall), 1 Logik-Bug gefixt (order-lifecycle resolveContext). Build ✅ 304 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 243 — Location KPI-Wall, Driver Bonus Proximity Panel, Schicht-Bonus-Booster. Build ✅ 304 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 242 — Order Lifecycle Funnel Analysis. Build ✅ 303 Seiten.**
@@ -12,6 +13,26 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 244 — Smart Delivery Geo-Heatmap Pro (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `scripts/migrations/126_geo_heatmap_pro.sql` — `heatmap_snapshots` (UNIQUE location+date_bucket+grid_lat+lng, RLS, 3 Indizes), `v_zone_hour_utilization` VIEW (30T Stunden-Zonen-Ø), `v_heatmap_top_cells` VIEW, `prune_old_heatmap_snapshots(days)` RPC
+- `lib/delivery/geo-heatmap.ts` — 8 Funktionen: `snapshotCurrentDeliveries()` (aktive Lieferungen → 0.01°-Gitter → UPSERT), `snapshotAllLocations()` (Cron-Batch), `getLiveHeatmap()` (Echtzeit: aktive Orders + Fahrer-GPS-Positionen), `getZoneHourlyUtilization()` (30T Ø aus v_zone_hour_utilization), `getHistoricalHeatmap()` (Aggregation aus Snapshots), `exportGeoJSON()` (RFC 7946 FeatureCollection: historical_cell + live_order + live_driver Features), `getDashboard()` (4 parallele Queries), `pruneOldSnapshots()` (RPC-Wrapper)
+- `GET /api/delivery/admin/geo-heatmap` — Auth via employees.location_id, Superadmin-Override, action=dashboard|live|historical|zone-hourly|geojson; GeoJSON mit `Content-Type: application/geo+json` + Download-Header
+- `app/(admin)/delivery/geo-heatmap/page.tsx` — SSR + requireManagerPlus Auth
+- `app/(admin)/delivery/geo-heatmap/client.tsx` — 4 KPI-Karten (Snapshots/Gitterzellen/Live-Bestellungen/Online-Fahrer), 3 Tabs (Live: SVG-Pseudokarte mit Gewicht-kodierten Kreisen + Fahrer-Pins + Zonen-Grid; Historisch: SVG-Karte + Top-100-Tabelle + GeoJSON-Download; Zonen-Analyse: ZoneHourMatrix Zonen-Filter + Wochentag-Filter + 24h-Balkendiagramm), 30s-Auto-Refresh im Live-Tab
+- Cron: `snapshotGeoHeatmap()` alle 30 Min (isDemandTick), `pruneHeatmapSnapshots(60)` täglich isReportTick → `geo_heatmap` + `heatmap_snapshots_pruned` in Response
+- Sidebar: Globe-Icon „Geo-Heatmap Pro (Echtzeit-Liefer-Dichte)" in Loslegen-Gruppe
+- Delivery-Overview: SectionCard „Geo-Heatmap Pro" in KI-Tools-Gruppe (Globe-Import ergänzt)
+
+### Build:
+- `npx next build`: ✅ 305 Seiten, 0 TypeScript-Fehler
+- `npx tsc --noEmit`: ✅ 0 Fehler
 
 ---
 
