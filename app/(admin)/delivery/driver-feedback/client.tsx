@@ -242,8 +242,7 @@ export function DriverFeedbackClient({ locationId, initial }: Props) {
     <div className="flex flex-col min-h-screen bg-background">
       <PageHeader
         title="Fahrer-Feedback Loop"
-        subtitle="Stimmung, Issues und Verbesserungs-Signale aus Fahrer-Feedback"
-        icon={<MessageSquarePlus className="h-5 w-5 text-matcha-700" />}
+        description="Stimmung, Issues und Verbesserungs-Signale aus Fahrer-Feedback"
         actions={
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
             <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />

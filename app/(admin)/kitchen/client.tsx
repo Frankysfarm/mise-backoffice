@@ -1357,7 +1357,7 @@ export function KitchenBoard({
       {/* Phase 233: Zubereitungs-Queue-Monitor mit Urgency-Farbkodierung */}
       {!bigDisplay && <PrepQueueMonitor useMock />}
       {/* Phase 236: Schicht-Timing-Score — Ø Prep-Zeit + Pünktlichkeit + Score-Ring */}
-      {!bigDisplay && <KitchenSchichtTimingScore locationId={locationId} />}
+      {!bigDisplay && <KitchenSchichtTimingScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />}
       {/* Echtzeit-Countdown-Board: farbkodiertes Live-Timing je Bestellung */}
       <KitchenEchtzeitCountdownBoard orders={orders} />
     </div>

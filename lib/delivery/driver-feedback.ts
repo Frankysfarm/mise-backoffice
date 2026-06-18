@@ -303,7 +303,7 @@ export async function aggregateFeedbackAllLocations(): Promise<{
         // Fahrer mit schlechtem Feedback (avg < 3.0, letzte 7 Tage) markieren
         // für das Driver-Wellbeing-System (Signal für Intervention)
         const since = new Date(Date.now() - 7 * 86400_000).toISOString();
-        await supabase.rpc('prune_old_driver_feedback', { days_to_keep: 90 }).catch(() => {});
+        try { await supabase.rpc('prune_old_driver_feedback', { days_to_keep: 90 }); } catch { /* ignore */ }
         // Low-rating drivers: future hook point for wellbeing / retention engine
         await supabase
           .from('driver_feedback_reports')
