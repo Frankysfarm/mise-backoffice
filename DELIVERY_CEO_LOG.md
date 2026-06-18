@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–240 vollständig abgeschlossen. CEO Review #141 abgeschlossen. 0 TypeScript-Fehler. Build sauber (301 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–241 vollständig abgeschlossen. CEO Review #142 abgeschlossen. 0 TypeScript-Fehler. Build sauber (302 Seiten). Deployment-bereit.
 
 ---
 
@@ -8960,6 +8960,72 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Backend-Architekt
 1. Phase 235: Smart Delivery Driver Feedback Loop — Fahrer-Feedback nach Tour automatisch erfassen (Rating, Notiz, Problem-Report), aggregieren, in Driver-Performance-Score einrechnen
 2. Oder: Smart Delivery Zone Rebalancing — Automatisches Umverteilen von Touren/Fahrern zwischen Zonen bei Kapazitäts-Ungleichgewicht
+
+### Nächste Schritte für Frontend-Ingenieur
+1. `BestellungStatusBand` in `success-state.tsx` einbinden (ausstehend seit Review #115)
+2. `LieferungBestaetigung` in `delivery-view.tsx` einbinden (ausstehend seit Review #115)
+3. Handover-Badge auf Dispatch-Dashboard: Anzahl nicht-quittierter Übergaben anzeigen
+
+---
+
+## CEO-Review #142 — 2026-06-18
+
+### Geprüfte Phase: Phase 241 — 5 neue Frontend-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+
+**Build-Status:**
+- `npx next build`: Compiled successfully ✅ (302 Seiten)
+- `npx tsc --noEmit`: 2 TypeScript-Fehler gefunden + gefixt ✅
+
+**TypeScript-Fehler gefixt:**
+- `app/(admin)/delivery/review-flags/client.tsx:193` — `subtitle` Prop existiert nicht auf `PageHeader` → zu `description` geändert ✅
+- `app/(admin)/delivery/review-flags/client.tsx:377` — `unknown` nicht assignierbar zu `ReactNode` bei `h.admin_notes &&` → `!!h.admin_notes && String(h.admin_notes)` ✅
+
+**Code-Review Phase 241 (5 neue Komponenten):**
+
+**1. `KitchenTimingFarbkodierung` (kitchen/timing-farbkodierung.tsx):**
+- Kachel-Raster aller aktiven Bestellungen mit 5-Status-Ampel (pünktlich/knapp/kritisch/überfällig/fertig) ✅
+- Sekunden-Countdown aus `kitchen_timings.ready_target` oder Fallback auf `bestellt_am + geschaetzte_zubereitung_min` ✅
+- animate-pulse für kritisch+überfällig ✅
+- Header-Badges zeigen überfällige/kritische Anzahl ✅
+- Integration in `kitchen/client.tsx` korrekt (wird mit `orders` + `timings` State gefüttert) ✅
+
+**2. `DispatchTourZeitfortschritt` (dispatch/tour-zeitfortschritt.tsx):**
+- Fortschrittsbalken je aktiver Tour mit ETA-Countdown (5s Tick) ✅
+- Sortierung nach ETA aufsteigend (dringendste zuerst) ✅
+- Stop-Dots zeigen Lieferstatus, Überfällig-Markierung rot ✅
+- Fahrername + Zone-Badge ✅
+- Integration in `dispatch/client.tsx` korrekt ✅
+
+**3. `KassenUebersicht` (fahrer/app/kassen-uebersicht.tsx):**
+- Aufklappbare Bargeld-Übersicht, erscheint nur bei Bar-Stops ✅
+- Offene vs. kassierte Beträge klar getrennt ✅
+- Summierung der Gesamtbeträge ✅
+- Integration in `fahrer/app/client.tsx` korrekt ✅
+
+**4. `EtaSekundenCountdown` (order/[locationSlug]/eta-sekunden-countdown.tsx):**
+- Aktiviert sich nur bei Lieferstatus `unterwegs` oder < 10 Min Restzeit ✅
+- Sekunden-Counterclock bis Ankunft, Farbmodus wechselt bei < 5 Min (matcha) und < 60 Sek (emerald+bounce) ✅
+- Fortschrittsbalken relativ zur Gesamt-ETA ✅
+- Integration in `storefront-aurora.tsx` korrekt (etaMin + status Props) ✅
+
+**5. `SchichtEchtzeitAmpel` (lieferdienst/schicht-echtzeit-ampel.tsx):**
+- 3-Farb-Ampel (normal/extended/paused) aus `/api/delivery/eta/live` ✅
+- 30s Polling, Live-KPIs: Aktive Orders + Fahrer online + Ø Lieferzeit ✅
+- Systemlast-Bar mit 4 Stufen (quiet/normal/busy/peak) ✅
+- Defensiver Null-Check bei `signal` (Fallback zu `normal`) ✅
+- Integration in `lieferdienst/client.tsx` korrekt ✅
+
+**Bugs gefunden:** 2 (beide in review-flags/client.tsx, Phase 241 selbst bug-frei) — GEFIXT ✅
+
+### Status nach Review #142
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (302 Seiten)
+- Phase 241 (5 neue Frontend-Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 242: Smart Delivery Geo-Heatmap API — Echtzeit-Heatmap aller Lieferpunkte, Zonen-Auslastung pro Stunde, Export als GeoJSON
+2. Oder: Phase 242: Smart Kunden-Benachrichtigungs-Engine — Push/SMS bei Status-Wechsel, benutzerdefinierte Trigger, Opt-Out-Verwaltung
 
 ### Nächste Schritte für Frontend-Ingenieur
 1. `BestellungStatusBand` in `success-state.tsx` einbinden (ausstehend seit Review #115)

@@ -190,8 +190,7 @@ export function ReviewFlagsClient({ locationId, initialStats, initialFlags, driv
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
       <PageHeader
         title="Fahrer-Review Flags"
-        subtitle="Automatische Qualitätswarnungen bei schlechten Bewertungen · Durchschnitt < 3.0 oder 1-Stern-Burst"
-        icon={<ShieldAlert className="h-6 w-6" />}
+        description="Automatische Qualitätswarnungen bei schlechten Bewertungen · Durchschnitt < 3.0 oder 1-Stern-Burst"
       />
 
       {/* KPI Band */}
@@ -374,8 +373,8 @@ export function ReviewFlagsClient({ locationId, initialStats, initialFlags, driv
               <StatusBadge status={h.review_status as ReviewFlagStatus} />
               <div className="flex-1 min-w-0 text-sm">
                 <ReasonBadge reason={h.flag_reason as string} />
-                {h.admin_notes && (
-                  <span className="text-xs text-muted-foreground ml-2">{h.admin_notes as string}</span>
+                {!!h.admin_notes && (
+                  <span className="text-xs text-muted-foreground ml-2">{String(h.admin_notes)}</span>
                 )}
               </div>
               <span className="text-xs text-muted-foreground whitespace-nowrap">
