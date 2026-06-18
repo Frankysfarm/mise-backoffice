@@ -745,7 +745,7 @@ export function LieferdienstClient() {
           {/* Phase 220: Live-Ops-Stats — 2×3 Grid mit Echtzeit-Betriebskennzahlen */}
           {currentView === 'orders' && (
             <div className="px-6 pt-3">
-              <LiveOpsStats />
+              <LiveOpsStats orders={orders} drivers={drivers} />
             </div>
           )}
           {currentView === 'orders' && (

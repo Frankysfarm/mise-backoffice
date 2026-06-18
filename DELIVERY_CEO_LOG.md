@@ -1,7 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–213 vollständig abgeschlossen. CEO Review #125 abgeschlossen. 0 TypeScript-Fehler. Build sauber (284 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–220 vollständig abgeschlossen. CEO Review #127 abgeschlossen. 0 TypeScript-Fehler. Build sauber (286 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #127 — 2026-06-18
+
+### Geprüfte Commits (seit Review #126)
+- `75a60e7` feat(delivery/backend): Phase 215 — Smart Delivery Benchmarking Engine
+- `0eeae0c` feat(delivery/frontend): Phase 216-220 — Prep-Heatmap, Tour-Score-Strip, Smart-Stop-Navigator, ETA-Widget, Live-Ops-Stats
+
+### Bug gefixt
+**LiveOpsStats (`lieferdienst/live-ops-stats.tsx`) zeigte Fake-Daten:**
+- Komponente verwendete `jitter()`-Funktion mit Math.sin-basiertem Seed — vollständig simulierte Werte
+- Fix: Props `orders: Order[]` und `drivers: Driver[]` hinzugefügt
+- Echte Berechnungen: aktive Bestellungen (Status-Filter), Online-Fahrer (status !== 'offline'), Ø Zubereitungszeit (acceptedAt→doneAt oder estimatedTime), Pünktlichkeitsrate (actual vs estimated), Ø ETA, Tagesumsatz (doneAt >= Tagesbeginn)
+- `lieferdienst/client.tsx` Zeile 748: `<LiveOpsStats orders={orders} drivers={drivers} />` — echte State-Props übergeben
+
+### Code-Review Phase 215 (Benchmarking Engine)
+- `scripts/migrations/111_benchmarking.sql`: `delivery_benchmarks` (GENERATED overall_score/grade, UNIQUE location+date, RANK-View), prune_old_benchmarks() korrekt ✅
+- `lib/delivery/benchmarking.ts`: computeBenchmark() (5 Dim 35+25+20+10+10), snapshotBenchmark() UPSERT, snapshotAllLocations() mit Rank-Backfill, getBenchmarkDashboard(), exportBestPractices(), pruneOldBenchmarks() ✅
+- `/api/delivery/admin/benchmarking/route.ts`: Auth via employees.location_id, GET/POST-Actions korrekt ✅
+- `app/(admin)/delivery/benchmarking/client.tsx`: 4 KPI-Karten, 4 Tabs (Übersicht/Ranking/Trend/Best-Practice), Rang-Medaillen, JSON-Export, 5-Min-Auto-Refresh ✅
+- Cron: snapshotBenchmarks() 03:00 UTC, pruneOldBenchmarks(90) 02:00 UTC ✅
+- Sidebar: BarChart3 + /delivery/benchmarking korrekt ✅
+
+### Code-Review Phase 216-220 Frontend (5 Komponenten)
+- `KitchenPrepHeatmap` (`kitchen/prep-heatmap.tsx`): 7×24 Grid korrekt (getDay() 0=So → Reindex), colorForMinutes() logisch ✅. Integration kitchen/client.tsx Zeile 868 (`!bigDisplay`) ✅
+- `TourLiveScoreStrip` (`dispatch/tour-live-score-strip.tsx`): computeScore() korrekt (elapsed/ETA × 50% + stopsRemaining × 5). Integration dispatch/client.tsx Zeile 930 mit `started_at`-Mapping ✅
+- `SmartStopNavigator` (`fahrer/app/smart-stop-navigator.tsx`): openMaps() iOS/Android-Fallback korrekt, etaLabel() perStop-Berechnung sauber. Integration fahrer/app/client.tsx Zeile 853 ✅
+- `EtaDynamicWidget` (`order/[locationSlug]/eta-dynamic-widget.tsx`): Polling /api/delivery/eta/[orderId] (30s), lokaler 1-Min-Countdown, PHASE_PROGRESS-Map vollständig, API-Endpunkt verifiziert ✅. Integration order-status-tracker.tsx Zeile 176 ✅
+- `LiveOpsStats` (`lieferdienst/live-ops-stats.tsx`): **Bug gefixt** — echte Props statt Fake-Daten ✅
+
+### Integration-Prüfung
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront: alle Module verbunden ✅
+- Benchmarking → Delivery-Overview → Sidebar vollständig verlinkt ✅
+- EtaDynamicWidget nutzt bestehenden /api/delivery/eta/[orderId] Endpunkt ✅
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (286 Seiten)
 
 ---
 

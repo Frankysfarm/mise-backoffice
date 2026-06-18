@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Package, Users, ChefHat, Target, Clock, Euro, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Order } from '@/lib/lieferdienst/orders';
+import type { Driver } from '@/lib/lieferdienst/drivers';
 
 interface StatItem {
   label: string;
@@ -13,80 +15,112 @@ interface StatItem {
   color: string;
 }
 
-function buildStats(seed: number): StatItem[] {
-  const jitter = (base: number, range: number) =>
-    Math.round(base + (Math.sin(seed + base) * range));
+interface Props {
+  orders: Order[];
+  drivers: Driver[];
+}
 
-  const activeOrders = jitter(12, 4);
-  const onlineDrivers = jitter(5, 2);
-  const avgPrep = jitter(18, 5);
-  const onTimeRate = jitter(87, 8);
-  const avgEta = jitter(28, 6);
-  const revenue = jitter(1340, 200);
+function buildStats(orders: Order[], drivers: Driver[]): StatItem[] {
+  const activeOrders = orders.filter(o =>
+    ['pending', 'accepted', 'waiting_customer', 'call_customer'].includes(o.status),
+  ).length;
+
+  const onlineDrivers = drivers.filter(d => d.status !== 'offline').length;
+
+  const prepTimes: number[] = [];
+  for (const o of orders) {
+    if (o.acceptedAt && o.doneAt) {
+      const mins = (new Date(o.doneAt).getTime() - new Date(o.acceptedAt).getTime()) / 60_000;
+      if (mins > 0 && mins < 120) prepTimes.push(mins);
+    } else if (o.estimatedTime) {
+      prepTimes.push(o.estimatedTime);
+    }
+  }
+  const avgPrep = prepTimes.length > 0
+    ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length)
+    : null;
+
+  const etaTimes: number[] = orders
+    .filter(o => o.estimatedTime != null)
+    .map(o => o.estimatedTime as number);
+  const avgEta = etaTimes.length > 0
+    ? Math.round(etaTimes.reduce((a, b) => a + b, 0) / etaTimes.length)
+    : null;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const doneToday = orders.filter(o =>
+    o.status === 'done' &&
+    o.doneAt &&
+    new Date(o.doneAt) >= todayStart,
+  );
+  const onTimeCount = doneToday.filter(o => {
+    if (!o.acceptedAt || !o.doneAt || !o.estimatedTime) return false;
+    const actualMin = (new Date(o.doneAt).getTime() - new Date(o.acceptedAt).getTime()) / 60_000;
+    return actualMin <= o.estimatedTime * 1.1;
+  }).length;
+  const onTimeRate = doneToday.length > 0
+    ? Math.round((onTimeCount / doneToday.length) * 100)
+    : null;
+
+  const revenue = doneToday.reduce((sum, o) => sum + (o.totalAmount ?? 0), 0);
 
   return [
     {
       label: 'Aktive Bestellungen',
       value: String(activeOrders),
       icon: Package,
-      trend: activeOrders > 10 ? 'up' : 'neutral',
-      trendValue: `${activeOrders > 10 ? '+' : ''}${activeOrders - 10}`,
+      trend: activeOrders > 0 ? 'up' : 'neutral',
+      trendValue: activeOrders > 10 ? 'Viel los' : activeOrders > 0 ? 'In Bearbeitung' : 'Ruhig',
       color: 'text-amber-600',
     },
     {
       label: 'Fahrer online',
       value: String(onlineDrivers),
       icon: Users,
-      trend: onlineDrivers >= 5 ? 'up' : 'down',
-      trendValue: onlineDrivers >= 5 ? 'Gut besetzt' : 'Engpass',
-      color: onlineDrivers >= 5 ? 'text-emerald-600' : 'text-red-600',
+      trend: onlineDrivers >= 3 ? 'up' : onlineDrivers > 0 ? 'neutral' : 'down',
+      trendValue: onlineDrivers >= 3 ? 'Gut besetzt' : onlineDrivers > 0 ? 'Knapp' : 'Engpass',
+      color: onlineDrivers >= 3 ? 'text-emerald-600' : 'text-red-600',
     },
     {
       label: 'Ø Zubereitungszeit',
-      value: `${avgPrep} Min`,
+      value: avgPrep != null ? `${avgPrep} Min` : '–',
       icon: ChefHat,
-      trend: avgPrep <= 18 ? 'up' : avgPrep <= 24 ? 'neutral' : 'down',
-      trendValue: avgPrep <= 18 ? 'Schnell' : avgPrep <= 24 ? 'Normal' : 'Langsam',
-      color: avgPrep <= 18 ? 'text-emerald-600' : avgPrep <= 24 ? 'text-amber-600' : 'text-red-600',
+      trend: avgPrep == null ? 'neutral' : avgPrep <= 18 ? 'up' : avgPrep <= 24 ? 'neutral' : 'down',
+      trendValue: avgPrep == null ? 'Keine Daten' : avgPrep <= 18 ? 'Schnell' : avgPrep <= 24 ? 'Normal' : 'Langsam',
+      color: avgPrep == null ? 'text-muted-foreground' : avgPrep <= 18 ? 'text-emerald-600' : avgPrep <= 24 ? 'text-amber-600' : 'text-red-600',
     },
     {
       label: 'Pünktlichkeitsrate',
-      value: `${onTimeRate}%`,
+      value: onTimeRate != null ? `${onTimeRate}%` : '–',
       icon: Target,
-      trend: onTimeRate >= 85 ? 'up' : onTimeRate >= 70 ? 'neutral' : 'down',
-      trendValue: onTimeRate >= 85 ? 'Sehr gut' : onTimeRate >= 70 ? 'Gut' : 'Kritisch',
-      color: onTimeRate >= 85 ? 'text-emerald-600' : onTimeRate >= 70 ? 'text-amber-600' : 'text-red-600',
+      trend: onTimeRate == null ? 'neutral' : onTimeRate >= 85 ? 'up' : onTimeRate >= 70 ? 'neutral' : 'down',
+      trendValue: onTimeRate == null ? 'Keine Daten' : onTimeRate >= 85 ? 'Sehr gut' : onTimeRate >= 70 ? 'Gut' : 'Kritisch',
+      color: onTimeRate == null ? 'text-muted-foreground' : onTimeRate >= 85 ? 'text-emerald-600' : onTimeRate >= 70 ? 'text-amber-600' : 'text-red-600',
     },
     {
       label: 'Ø ETA',
-      value: `${avgEta} Min`,
+      value: avgEta != null ? `${avgEta} Min` : '–',
       icon: Clock,
-      trend: avgEta <= 30 ? 'up' : avgEta <= 40 ? 'neutral' : 'down',
-      trendValue: avgEta <= 30 ? 'Gut' : avgEta <= 40 ? 'Erhöht' : 'Hoch',
-      color: avgEta <= 30 ? 'text-emerald-600' : avgEta <= 40 ? 'text-amber-600' : 'text-red-600',
+      trend: avgEta == null ? 'neutral' : avgEta <= 30 ? 'up' : avgEta <= 40 ? 'neutral' : 'down',
+      trendValue: avgEta == null ? 'Keine Daten' : avgEta <= 30 ? 'Gut' : avgEta <= 40 ? 'Erhöht' : 'Hoch',
+      color: avgEta == null ? 'text-muted-foreground' : avgEta <= 30 ? 'text-emerald-600' : avgEta <= 40 ? 'text-amber-600' : 'text-red-600',
     },
     {
       label: 'Umsatz heute',
-      value: revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }),
+      value: revenue > 0
+        ? revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+        : '–',
       icon: Euro,
-      trend: revenue > 1200 ? 'up' : 'neutral',
-      trendValue: revenue > 1200 ? '+' + Math.round((revenue - 1200) / 12) + '%' : 'Im Plan',
+      trend: revenue > 1200 ? 'up' : revenue > 0 ? 'neutral' : 'neutral',
+      trendValue: revenue > 1200 ? 'Stark' : revenue > 0 ? 'Im Plan' : 'Keine Daten',
       color: 'text-matcha-600',
     },
   ];
 }
 
-export function LiveOpsStats() {
-  const [seed, setSeed] = useState(() => Date.now() / 10_000);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setSeed(Date.now() / 10_000);
-    }, 30_000);
-    return () => clearInterval(iv);
-  }, []);
-
-  const stats = buildStats(seed);
+export function LiveOpsStats({ orders, drivers }: Props) {
+  const stats = useMemo(() => buildStats(orders, drivers), [orders, drivers]);
 
   return (
     <div className="bg-card border rounded-xl p-4">
