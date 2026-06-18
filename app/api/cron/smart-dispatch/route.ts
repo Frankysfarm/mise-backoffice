@@ -98,6 +98,7 @@ import { snapshotAllLocations as snapshotDriverWellbeing, pruneOldSnapshots as p
 import { buildAllLocations as buildCustomerCohorts, pruneOldSnapshots as pruneCohortSnapshots } from '@/lib/delivery/customer-cohorts';
 import { buildAllLocations as buildCapacityForecast, pruneOldForecasts as pruneCapacityForecasts } from '@/lib/delivery/capacity-forecast';
 import { settleAllLocations as settleDeliveryPromises, pruneOldPromises } from '@/lib/delivery/delivery-promise';
+import { buildAllLocations as buildDriverRouteProfiles, pruneOldObservations as pruneRouteObservations } from '@/lib/delivery/driver-route-learning';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -202,6 +203,8 @@ export async function GET(req: NextRequest) {
     const isCohortTick = nowHour === 4 && nowMin >= 15 && nowMin < 19;
     // Capacity Forecast: täglich 04:30 UTC (nach Kohortenanalyse, nutzt Vortagesdaten)
     const isCapacityForecastTick = nowHour === 4 && nowMin >= 30 && nowMin < 34;
+    // Driver Route Learning: täglich 03:45 UTC (nach Retention-Score, leseintensiv)
+    const isRouteLearnTick = nowHour === 3 && nowMin >= 44 && nowMin < 48;
     // Promise Settlement: jede Stunde zur vollen Stunde (Minute 0-3)
     const isPromiseSettleTick = nowMin >= 0 && nowMin < 4;
 
@@ -688,6 +691,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldPromises(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 231: Driver Route Learning — täglich 03:45 UTC
+    const routeLearnResult = isRouteLearnTick
+      ? await buildDriverRouteProfiles().catch(() => ({ locations: 0, profilesUpserted: 0, errors: 1 }))
+      : null;
+    const routeObsPruned = isReportTick
+      ? await pruneRouteObservations(120).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -846,6 +857,8 @@ export async function GET(req: NextRequest) {
       ...(cohortSnapshotsPruned ? { cohort_snapshots_pruned: cohortSnapshotsPruned } : {}),
       ...(promiseSettleResult ? { delivery_promise_settle: { locations: promiseSettleResult.locations, settled: promiseSettleResult.settled, errors: promiseSettleResult.errors } } : {}),
       ...(promisesPruned ? { delivery_promises_pruned: promisesPruned.pruned } : {}),
+      ...(routeLearnResult ? { driver_route_learning: { locations: routeLearnResult.locations, profiles_upserted: routeLearnResult.profilesUpserted, errors: routeLearnResult.errors } } : {}),
+      ...(routeObsPruned ? { route_observations_pruned: routeObsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

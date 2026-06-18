@@ -14,6 +14,7 @@ import {
   MessageSquare, Map as MapIcon, Waves, Heart, CalendarDays, PieChart, BookCheck,
   CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot, BellRing, Crosshair, Send,
   Smile, Users2, CloudRain, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, BarChart3, LineChart, Target,
+  Route,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   MessageSquare, MapIcon, Waves, Heart, CalendarDays, PieChart, BookCheck,
   CalendarPlus, ShieldCheck, Repeat2, Coins, MessageCircle, Navigation2, MonitorDot, BellRing, Crosshair, Send,
   Smile, Users2, CloudRain, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, BarChart3, LineChart, Target,
+  Route,
 };
 
 export type SidebarItem = {
