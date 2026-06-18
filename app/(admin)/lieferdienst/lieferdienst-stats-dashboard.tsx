@@ -125,8 +125,9 @@ export function LieferdienstStatsDashboard() {
   const [drivers, setDrivers] = useState<DriverStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla'>('uebersicht');
+  const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla' | 'trends'>('uebersicht');
   const [realtimePulse, setRealtimePulse] = useState(false);
+  const [weekTrend, setWeekTrend] = useState<{ day: string; orders: number; revenue: number; onTimePct: number }[]>([]);
   const loadRef = useRef<(() => void) | null>(null);
 
   const load = useCallback(async () => {
@@ -204,6 +205,36 @@ export function LieferdienstStatsDashboard() {
         setDrivers(generateMockDrivers());
       }
 
+      // Wochentrend: letzte 7 Tage (mock wenn API nicht verfügbar)
+      const trendRes = await fetch('/api/delivery/admin/reporting?days=7&group=day').catch(() => null);
+      if (trendRes?.ok) {
+        const td = await trendRes.json();
+        if (Array.isArray(td?.data)) {
+          setWeekTrend(td.data.map((row: any) => ({
+            day: row.day ?? row.date ?? '–',
+            orders: row.orders ?? row.total_orders ?? 0,
+            revenue: row.revenue ?? row.total_revenue ?? 0,
+            onTimePct: row.onTimePct ?? row.on_time_pct ?? 0,
+          })));
+        }
+      } else {
+        // Mock: 7 Tage rückwärts
+        const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+        const now = new Date();
+        const dow = now.getDay(); // 0=So
+        const trend = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(now.getTime() - (6 - i) * 86_400_000);
+          const label = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
+          return {
+            day: label,
+            orders: Math.floor(Math.random() * 40 + 20),
+            revenue: Math.random() * 800 + 300,
+            onTimePct: Math.floor(Math.random() * 20 + 75),
+          };
+        });
+        setWeekTrend(trend);
+      }
+
     } finally {
       setLoading(false);
       setLastUpdated(new Date());
@@ -258,6 +289,7 @@ export function LieferdienstStatsDashboard() {
     { key: 'zonen',      label: 'Zonen',    icon: MapPin },
     { key: 'fahrer',     label: 'Fahrer',   icon: Bike },
     { key: 'sla',        label: 'SLA',      icon: Target },
+    { key: 'trends',     label: 'Trend',    icon: TrendingUp },
   ] as const;
 
   return (
@@ -575,6 +607,110 @@ export function LieferdienstStatsDashboard() {
                     : stats.onTimeRatePct >= 75 ? 'SLA teilweise erfüllt — Verbesserung möglich'
                     : 'SLA-Ziel nicht erreicht — Maßnahmen erforderlich'}
                 </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Trends Tab — 7-Tage-Vergleich */}
+        {activeTab === 'trends' && (
+          <div className="space-y-4">
+            <p className="text-xs font-medium text-gray-500">Wochentrend — letzte 7 Tage</p>
+
+            {/* Bestellvolumen-Linie */}
+            {weekTrend.length > 0 && (
+              <>
+                <div>
+                  <p className="text-[11px] text-gray-400 mb-1.5">Bestellungen pro Tag</p>
+                  <ResponsiveContainer width="100%" height={100}>
+                    <LineChart data={weekTrend} margin={{ top: 2, right: 4, left: -24, bottom: 0 }}>
+                      <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip formatter={(v: any) => [`${v}`, 'Bestellungen']} />
+                      <Line
+                        type="monotone" dataKey="orders"
+                        stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: '#10b981' }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Umsatz-Linie */}
+                <div>
+                  <p className="text-[11px] text-gray-400 mb-1.5">Umsatz pro Tag (€)</p>
+                  <ResponsiveContainer width="100%" height={100}>
+                    <LineChart data={weekTrend} margin={{ top: 2, right: 4, left: -16, bottom: 0 }}>
+                      <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `€${v}`} />
+                      <Tooltip formatter={(v: any) => [`€${Number(v).toFixed(0)}`, 'Umsatz']} />
+                      <Line
+                        type="monotone" dataKey="revenue"
+                        stroke="#6366f1" strokeWidth={2} dot={{ r: 3, fill: '#6366f1' }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Pünktlichkeits-Balken */}
+                <div>
+                  <p className="text-[11px] text-gray-400 mb-1.5">Pünktlichkeit % pro Tag</p>
+                  <ResponsiveContainer width="100%" height={80}>
+                    <BarChart data={weekTrend} margin={{ top: 2, right: 4, left: -24, bottom: 0 }}>
+                      <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+                      <Tooltip formatter={(v: any) => [`${v}%`, 'Pünktlich']} />
+                      <Bar dataKey="onTimePct" radius={[3, 3, 0, 0]} maxBarSize={32}>
+                        {weekTrend.map((d, i) => (
+                          <Cell
+                            key={i}
+                            fill={d.onTimePct >= 90 ? '#10b981' : d.onTimePct >= 75 ? '#f59e0b' : '#ef4444'}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* 7-Tage-Zusammenfassung */}
+                {weekTrend.length > 0 && (() => {
+                  const total = weekTrend.reduce((s, d) => s + d.orders, 0);
+                  const avgRev = weekTrend.reduce((s, d) => s + d.revenue, 0) / weekTrend.length;
+                  const avgOnTime = weekTrend.reduce((s, d) => s + d.onTimePct, 0) / weekTrend.length;
+                  const best = [...weekTrend].sort((a, b) => b.orders - a.orders)[0];
+                  return (
+                    <div className="rounded-xl border bg-gray-50 px-4 py-3 space-y-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">7-Tage-Ø</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="text-center">
+                          <div className="text-base font-black text-gray-800 tabular-nums">{Math.round(total / 7)}</div>
+                          <div className="text-[9px] text-gray-400">Bestellungen/Tag</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-base font-black text-gray-800 tabular-nums">€{avgRev.toFixed(0)}</div>
+                          <div className="text-[9px] text-gray-400">Umsatz/Tag</div>
+                        </div>
+                        <div className="text-center">
+                          <div className={`text-base font-black tabular-nums ${avgOnTime >= 90 ? 'text-green-600' : avgOnTime >= 75 ? 'text-amber-600' : 'text-red-500'}`}>
+                            {avgOnTime.toFixed(0)}%
+                          </div>
+                          <div className="text-[9px] text-gray-400">Ø Pünktlich</div>
+                        </div>
+                      </div>
+                      {best && (
+                        <div className="text-[10px] text-gray-500 pt-1 border-t border-gray-200">
+                          Stärkster Tag: <span className="font-bold text-gray-700">{best.day}</span> mit {best.orders} Bestellungen
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </>
+            )}
+
+            {weekTrend.length === 0 && (
+              <div className="flex items-center justify-center py-8 text-gray-400 text-sm">
+                Noch keine Trendendaten verfügbar
               </div>
             )}
           </div>

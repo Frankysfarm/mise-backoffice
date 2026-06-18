@@ -39,6 +39,7 @@ import { KitchenSmartKochplan } from './smart-kochplan';
 import { KitchenQuickStatusRing, KitchenFarbStatusBoard } from './quick-status-ring';
 import { KitchenPipelineFunnel } from './pipeline-funnel';
 import { KitchenDispatchBridgeStrip } from './dispatch-bridge-strip';
+import { KitchenFertigOhneFahrerAlert } from './fertig-ohne-fahrer-alert';
 import { KitchenLiveKochstatusStrip } from './live-kochstatus-strip';
 import { KitchenBatchKoordinator } from './batch-koordinator';
 import { KitchenSchichtPulsRing } from './schicht-pulse-ring';
@@ -626,6 +627,11 @@ export function KitchenBoard({
       {/* Dringlichkeits-Übersicht: Alle aktiven Bestellungen nach Fertigstellungs-Deadline farbkodiert */}
       {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length > 0 && (
         <OrderUrgencyPanel orders={filtered} timings={timings} />
+      )}
+
+      {/* Fertig-aber-kein-Fahrer-Alarm: Bestellungen die fertig sind ohne Fahrerquittung */}
+      {!bigDisplay && (
+        <KitchenFertigOhneFahrerAlert orders={filtered} stops={stops} />
       )}
 
       {/* Küche↔Dispatch Synchronisation: Timing-Konflikt-Anzeige für kochende Lieferungen */}

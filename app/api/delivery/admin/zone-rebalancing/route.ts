@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   if (action === 'dismiss') {
     if (!body.eventId) return NextResponse.json({ error: 'eventId erforderlich' }, { status: 400 });
     const result = await dismissRebalancing(ctx.locationId, body.eventId, body.notes);
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({ ...result });
   }
 
   if (action === 'prune') {

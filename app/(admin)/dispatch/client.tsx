@@ -275,6 +275,7 @@ export function DispatchBoard({
 
   // Phase 162: Schicht-Übergabe Panel
   const [showSchichtUebergabe, setShowSchichtUebergabe] = useState(false);
+  const [unacknowledgedHandovers, setUnacknowledgedHandovers] = useState(0);
 
   // BatchDetailModal state
   const [batchDetailId, setBatchDetailId] = useState<string | null>(null);
@@ -434,6 +435,27 @@ export function DispatchBoard({
     };
     load();
     const iv = setInterval(load, 60_000);
+    return () => clearInterval(iv);
+  }, [locations]);
+
+  // Handover-Badge: nicht-quittierte Schicht-Übergaben zählen
+  useEffect(() => {
+    const locationId = locations[0]?.id;
+    if (!locationId) return;
+    const load = () => {
+      fetch(`/api/delivery/admin/shift-handover?location_id=${locationId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d?.latest && !d.latest.acknowledged_at) {
+            setUnacknowledgedHandovers(1);
+          } else {
+            setUnacknowledgedHandovers(0);
+          }
+        })
+        .catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 300_000);
     return () => clearInterval(iv);
   }, [locations]);
 
@@ -1143,18 +1165,25 @@ export function DispatchBoard({
             <Zap className="h-3.5 w-3.5" />
             {dispatchPending ? 'Läuft…' : 'Auto-Dispatch'}
           </button>
-          {/* Phase 162: Schicht-Übergabe */}
+          {/* Phase 162+234: Schicht-Übergabe mit Ungelesen-Badge */}
           <button
             onClick={() => setShowSchichtUebergabe(v => !v)}
             className={cn(
-              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
+              'relative inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition',
               showSchichtUebergabe
                 ? 'border-saffron/60 bg-amber-50 text-saffron'
-                : 'border-border bg-card text-muted-foreground hover:bg-muted',
+                : unacknowledgedHandovers > 0
+                  ? 'border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                  : 'border-border bg-card text-muted-foreground hover:bg-muted',
             )}
           >
             <History className="h-3.5 w-3.5" />
             Übergabe
+            {unacknowledgedHandovers > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">
+                {unacknowledgedHandovers}
+              </span>
+            )}
           </button>
           <button
             onClick={async () => {
