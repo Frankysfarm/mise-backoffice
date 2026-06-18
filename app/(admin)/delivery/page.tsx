@@ -223,6 +223,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Auto-Kapazitätsanalyse je Zone A/B/C/D · Überbelastung erkennen · Fahrer-Rebalancing per Klick oder automatisch" cta="Zonen öffnen" />
         <SectionCard href="/delivery/order-lifecycle" icon={<GitBranch className="h-5 w-5" />} title="Order Lifecycle Funnel"
           subtitle="4-Stufen-Analyse: Dispatch-Wartezeit → Küche → Abholwartezeit → Fahrzeit · Bottleneck-Erkennung · Stunden- & 7-Tage-Trend" cta="Funnel öffnen" />
+        <SectionCard href="/delivery/location-kpi-wall" icon={<LayoutGrid className="h-5 w-5" />} title="Location KPI-Wall"
+          subtitle="Echtzeit-Kacheln aller Standorte · SLA, Umsatz, Fahrer, Rating · Kritisch-Alerts · 30s-Auto-Refresh" cta="KPI-Wall öffnen" highlight />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

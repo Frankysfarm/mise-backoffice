@@ -66,6 +66,7 @@ import { TourEffizienzAnalyse } from './tour-effizienz-analyse';
 import { TourFeedbackSchnell } from './tour-feedback-schnell';
 import { SchichtKilometerTracker } from './schicht-kilometer-tracker';
 import { KassenUebersicht } from './kassen-uebersicht';
+import { SchichtBonusBooster } from './schicht-bonus-booster';
 
 type Driver = {
   id: string;
@@ -1174,6 +1175,8 @@ export function FahrerApp({
           </div>
           {/* Phase 238: Schicht-Kilometer-Tracker — Gefahrene Kilometer + CO₂-Vergleich */}
           <SchichtKilometerTracker fahrzeug={status?.fahrzeug ?? null} />
+          {/* Phase 243: Schicht-Bonus-Booster — Live-Fortschritt zum nächsten Meilenstein-Bonus */}
+          <SchichtBonusBooster />
           {/* Phase 236: Tour-Feedback-Schnell — Stimmung + Rating nach Tour */}
           {activeBatch.stops.every(s => s.geliefert_am) && (
             <TourFeedbackSchnell
