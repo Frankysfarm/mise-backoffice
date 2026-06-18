@@ -25,7 +25,7 @@ async function resolveContext(req: NextRequest): Promise<{ locationId: string } 
   const { data: emp } = await svc
     .from('employees')
     .select('location_id')
-    .eq('id', user.id)
+    .eq('user_id', user.id)
     .maybeSingle();
 
   if (!emp?.location_id) return null;

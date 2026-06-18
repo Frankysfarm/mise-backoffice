@@ -68,7 +68,7 @@ function LocationCard({ row, totalCompleted }: { row: LocationCompareRow; totalC
             <div className="text-sm font-bold text-white truncate">{row.location_name}</div>
             <div className="text-[10px] text-gray-400 flex items-center gap-1">
               <MapPin className="h-2.5 w-2.5" />
-              {row.city ?? 'Standort'}
+              Standort
             </div>
           </div>
         </div>
@@ -104,16 +104,16 @@ function LocationCard({ row, totalCompleted }: { row: LocationCompareRow; totalC
           <div className="text-[9px] text-gray-500">heute</div>
         </div>
 
-        {/* Aktive Fahrer */}
+        {/* Kochend */}
         <div className="rounded-xl p-2.5 bg-white/5">
           <div className="text-[9px] text-gray-400 uppercase tracking-wider flex items-center gap-1">
-            <Bike className="h-2.5 w-2.5" /> Fahrer
+            <Bike className="h-2.5 w-2.5" /> Kochend
           </div>
           <div className="flex items-end gap-1">
-            <div className="text-lg font-black tabular-nums text-emerald-300">{row.active_drivers}</div>
-            <div className="text-[9px] text-gray-500 mb-0.5">online</div>
+            <div className="text-lg font-black tabular-nums text-emerald-300">{row.cooking_now}</div>
+            <div className="text-[9px] text-gray-500 mb-0.5">in Zub.</div>
           </div>
-          <PulseBar pct={(row.active_drivers / Math.max(row.total_drivers, 1)) * 100} color="bg-emerald-400" />
+          <PulseBar pct={Math.min((row.cooking_now / Math.max(row.cooking_now + row.queue_depth, 1)) * 100, 100)} color="bg-emerald-400" />
         </div>
 
         {/* Bewertung */}
@@ -130,7 +130,7 @@ function LocationCard({ row, totalCompleted }: { row: LocationCompareRow; totalC
       <div className="flex items-center gap-3 text-xs border-t border-white/5 pt-2">
         <div className="flex items-center gap-1 text-blue-300">
           <Zap className="h-3 w-3" />
-          <span className="font-bold">{row.queue_length}</span>
+          <span className="font-bold">{row.queue_depth}</span>
           <span className="text-gray-500">Queue</span>
         </div>
         <div className="flex items-center gap-1 text-purple-300">

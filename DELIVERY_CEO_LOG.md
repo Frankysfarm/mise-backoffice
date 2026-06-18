@@ -1,14 +1,80 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–242 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (303 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–243 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (304 Seiten). Deployment-bereit.
 
 ---
 
-## Nächste Schritte für Backend-Architekt (nach Phase 242)
-1. Phase 243: Smart Delivery Multi-Location Cross-Benchmark — Side-by-Side Vergleich aller Locations (SLA, Umsatz, Qualität, Fahrerstatus) mit Ranking-Board
-2. Oder: Real-time Driver Incentive Booster — KI-gesteuerte Sofortboni wenn Fahrer bestimmte Meilensteine überschreiten (15 Stops/Schicht, 100% Pünktlichkeit)
+## Nächste Schritte für Backend-Architekt (nach Phase 243)
+1. Phase 244: Delivery Cost-per-Order Analyse — Kosten je Bestellung (Fahrerlohn, Kraftstoff, Verpackung) mit Deckungsbeitrag-Rechner per Zone/Schicht/Fahrer
+2. Oder: Smart Reorder-Point Engine — automatische Lagerbestands-Trigger wenn Liefermaterial (Verpackung, Beilagen) unter Schwellwert
 3. Oder: Delivery Hotspot Heatmap v2 — Live-Karte mit tatsächlichen Lieferadressen + Zonen-Überlappung + Empfehlung Zonengrenz-Anpassung
+
+---
+
+## CEO Review #142 — 2026-06-18
+
+### Geprüfte Commits (seit Review #141)
+- `016d317` feat(delivery/backend): Phase 242 — Order Lifecycle Funnel Analysis
+- `0763438` feat(delivery/frontend): Phase 243 — Location KPI-Wall, Driver Bonus Proximity Panel, Schicht-Bonus-Booster
+- `d5e8039` docs: DELIVERY_PROGRESS.md Phase 243 eingetragen (304 Seiten)
+
+### Build-Status
+- `npx next build`: ✅ Compiled successfully (304 Seiten, 0 Fehler)
+- `npx tsc --noEmit`: ✅ 0 TypeScript-Fehler (nach Fixes)
+
+### TypeScript-Fehler gefunden + gefixt: 5 in Phase 243
+
+**`app/(admin)/delivery/location-kpi-wall/client.tsx`:**
+- TS2339 `row.city` — Property existiert nicht in `LocationRealtimeStatus`. Fix: statischer Text 'Standort' ✅
+- TS2339 `row.active_drivers` (×2) — Property existiert nicht. Fix: `row.cooking_now` (Bestellungen in Zubereitung) ✅
+- TS2339 `row.total_drivers` — Property existiert nicht. Fix: Divisor auf `cooking_now + queue_depth` geändert ✅
+- TS2339 `row.queue_length` — Property heißt `queue_depth`. Fix: direkt umbenannt ✅
+
+### Logik-Bug gefunden + gefixt: 1 in Phase 242
+
+**`app/api/delivery/admin/order-lifecycle/route.ts` — `resolveContext()`:**
+- `.eq('id', user.id)` — `employees.id` ist der Primärschlüssel der Tabelle, nicht die Auth-User-ID. Alle anderen Routen nutzen `user_id` oder `auth_user_id`. Fix: `.eq('user_id', user.id)` — ohne diesen Fix würde der `resolveContext` immer `null` zurückgeben und die Route mit 401 fehlschlagen ✅
+
+### Code-Review Phase 242 (Order Lifecycle Funnel Analysis)
+
+**`lib/delivery/order-lifecycle.ts`:**
+- `snapOrderLifecycle()`: Join über `customer_orders + kitchen_timings + mise_batch_stops` korrekt ✅
+- 4 Stufenzeiten (dispatch_wait, kitchen_prep, pickup_wait, drive) via Timestamp-Differenz berechnet ✅
+- `snapCompletedOrders()`: Batch mit Skip bereits gesnappter (UPSERT-Guard) korrekt ✅
+- `getLifecycleDashboard()`: `bottleneckStage`-Erkennung (max stage_pct) korrekt ✅
+- `pruneOldLifecycleSnapshots()`: RPC-Aufruf `prune_old_order_lifecycle_snapshots` korrekt ✅
+
+**`app/(admin)/delivery/order-lifecycle/client.tsx`:**
+- 5 KPI-Karten + 3 Tabs (Funnel/Stunden/Trend) ✅
+- Stacked-Bar-Diagramm mit 4 Farben (purple/amber/blue/emerald) ✅
+- Rebuild-Button + 5-Min-Auto-Refresh ✅
+- Bottleneck-Empfehlung korrekt bedingt gerendert ✅
+
+### Code-Review Phase 243 (Location KPI-Wall + Driver Bonus Proximity + Schicht-Bonus-Booster)
+
+**`app/(admin)/delivery/location-kpi-wall/client.tsx`:**
+- 30s-Auto-Refresh + Countdown-Timer ✅
+- Kritisch-Alerts mit Ampel-Farbe + Pulse-Animation ✅
+- Ranking-Medaillen (🥇🥈🥉) ✅
+- Grid Layout (sm:2 / lg:3 / xl:4 Spalten) ✅
+
+**`app/(admin)/dispatch/driver-bonus-proximity-panel.tsx`:**
+- Filter: nur Fahrer ≤5 Stops von Meilenstein-Bonus ✅
+- SVG ProgressRing mit dynamischer Farbe (blau/amber/grün) ✅
+- 60s-Auto-Refresh, `locationId`-Guard ✅
+
+**`app/fahrer/app/schicht-bonus-booster.tsx`:**
+- Milestone-Burst-Animation via `prevMilestone`-Ref korrekt ✅
+- AnimatedArc SVG mit Farbübergang (Indigo→Amber→Grün) ✅
+- Recent-Events-Strip mit Bonus-Typen-Icons ✅
+- 45s-Auto-Refresh, `cancelled`-Flag für Cleanup korrekt ✅
+
+### Integration
+- `dispatch/client.tsx` — DriverBonusProximityPanel nach Tour-Parallel-Vergleich eingebunden ✅
+- `fahrer/app/client.tsx` — SchichtBonusBooster nach SchichtKilometerTracker eingebunden ✅
+- `sidebar.tsx` — Location KPI-Wall-Link (LayoutGrid-Icon) korrekt ✅
+- `delivery/page.tsx` — SectionCards für beide neuen Features korrekt ✅
 
 ---
 
