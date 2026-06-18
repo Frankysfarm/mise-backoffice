@@ -110,6 +110,7 @@ import { DispatchTourScoreTimeline } from './tour-score-timeline';
 import { TourLiveScoreStrip } from './tour-live-score-strip';
 import { DispatchIncentiveMilestoneStrip } from './incentive-milestone-strip';
 import { DispatchNaechsteTourEmpfehlung } from './naechste-tour-empfehlung';
+import { DispatchReadinessHUD } from './dispatch-readiness-hud';
 
 type Driver = {
   employee_id: string;
@@ -858,6 +859,8 @@ export function DispatchBoard({
         drivers={drivers.map((d) => ({ id: d.employee_id, status: { ist_online: d.ist_online, aktueller_batch_id: d.aktueller_batch_id } }))}
         pendingOrders={readyOrders.length}
       />
+      {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
+      <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}

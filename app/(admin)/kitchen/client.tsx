@@ -61,6 +61,7 @@ import { KitchenAmpelTimingGrid } from './ampel-timing-grid';
 import { KitchenPrepHeatmap } from './prep-heatmap';
 import { KitchenRushHourBand } from './rush-hour-band';
 import { KitchenLivePrepMatrix } from './live-prep-matrix';
+import { KitchenHandoffReadyMatrix } from './handoff-ready-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -546,6 +547,8 @@ export function KitchenBoard({
       <KitchenWetterEinflussBanner locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Fertig-Warte-Board: ready orders sorted by driver wait time with urgency color */}
       <KitchenFertigWarteBoard orders={filtered} />
+      {/* Handoff-Ready-Matrix: Matching fertige Lieferbestellungen × freie Fahrer — Ampel-Übersicht */}
+      <KitchenHandoffReadyMatrix orders={filtered} drivers={drivers} />
       {/* Handoff-Delay-Alert: fertige Lieferbestellungen die zu lange auf Fahrer warten */}
       <KitchenHandoffDelayAlert orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}

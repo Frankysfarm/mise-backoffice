@@ -89,6 +89,7 @@ import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
 import { IncentiveTagesUebersicht } from './incentive-tages-uebersicht'
 import { LiveOpsStats } from './live-ops-stats'
 import { SchichtEchtzeitRangliste } from './schicht-echtzeit-rangliste'
+import { SchichtKpiTopBar } from './schicht-kpi-topbar'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -748,6 +749,12 @@ export function LieferdienstClient() {
           {currentView === 'orders' && (
             <div className="px-6 pt-3">
               <LiveOpsStats orders={orders} drivers={drivers} />
+            </div>
+          )}
+          {/* Schicht-KPI-TopBar: kompakter Live-Streifen mit Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer */}
+          {currentView === 'orders' && (
+            <div className="px-6 pt-2">
+              <SchichtKpiTopBar />
             </div>
           )}
           {currentView === 'orders' && (
