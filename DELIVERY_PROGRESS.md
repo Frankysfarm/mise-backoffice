@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–244 abgeschlossen. Build sauber. 305 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–245 abgeschlossen. Build sauber. 306 Seiten. TypeScript 0 Fehler.**
+**Frontend-Ingenieur-Agent — 2026-06-18: Phase 245 — Kosten-pro-Bestellung Deckungsbeitrag-Analyse. Build ✅ 306 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 244 — Smart Delivery Geo-Heatmap Pro. Build ✅ 305 Seiten.**
 **CEO-Agent Review #142 — 2026-06-18: 5 TS-Fehler gefixt (location-kpi-wall), 1 Logik-Bug gefixt (order-lifecycle resolveContext). Build ✅ 304 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 243 — Location KPI-Wall, Driver Bonus Proximity Panel, Schicht-Bonus-Booster. Build ✅ 304 Seiten.**
@@ -52,6 +53,28 @@
 
 ### Build:
 - `npx next build`: ✅ 304 Seiten, 0 TypeScript-Fehler
+
+---
+
+## Phase 245 — Kosten-pro-Bestellung Deckungsbeitrag-Analyse (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `lib/delivery/cost-per-order.ts` — `getCostPerOrderDashboard(locationId, days)`: liest `delivery_trip_costs` + JOIN `mise_drivers`, teilt Batch-Kosten proportional auf einzelne Bestellungen herunter (cost/fee/margin per order), aggregiert nach Fahrer, Tagesstunde, Fahrzeugtyp, 14-Tage-Trend; kein neues DB-Schema nötig
+- `app/api/delivery/admin/cost-per-order/route.ts` — GET-Endpoint: Auth via `employees.location_id`, days-Parameter (7/14/30/60/90)
+- `app/(admin)/delivery/cost-per-order/page.tsx` — SSR-Seite mit `requireManagerPlus` Auth
+- `app/(admin)/delivery/cost-per-order/client.tsx` — 5-Tab-Dashboard:
+  - **Überblick**: 4 KPI-Karten (Touren / Ø Kosten pro Bestellung / Ø Liefergebühr / Deckungsbeitrag %) + Verlust-Alert + 14-Tage-Liniendiagramm (Kosten vs. Gebühr vs. Marge) + Tabelle
+  - **Fahrer**: Accordion-Liste mit SVG-Marge-Farbkodierung (grün/amber/rot), Expand-Panel (Kosten/Gebühr/Verlust-Touren)
+  - **Stunden**: Stacked-Balkendiagramm Kosten+Marge je Schichtstunde + Tabelle
+  - **Fahrzeug**: Kacheln je Fahrzeugtyp (Fahrrad/E-Bike/Roller/Moped/Auto) mit Gesamtkosten/Marge
+  - **Rechner**: Interaktiver Deckungsbeitrag-Rechner — Eingabe Lieferkosten + Gebühr + Verpackung → Live-Marge in €+%
+- `components/layout/sidebar.tsx` — Eintrag „Kosten pro Bestellung (Deckungsbeitrag-Analyse)" (PieChart-Icon) in Loslegen-Gruppe
+- `app/(admin)/delivery/page.tsx` — SectionCard „Kosten pro Bestellung" in KI-Tools-Gruppe (highlight=true)
+
+### Build:
+- `npx next build`: ✅ 306 Seiten, 0 TypeScript-Fehler
 
 ---
 
