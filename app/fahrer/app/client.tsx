@@ -876,7 +876,7 @@ export function FahrerApp({
           <div className="px-4">
             <TourEffizienzLive
               batch={{
-                id: activeBatch.batch_id,
+                id: activeBatch.id,
                 status: activeBatch.status ?? 'on_route',
                 started_at: activeBatch.started_at,
                 total_eta_min: activeBatch.total_eta_min ?? null,

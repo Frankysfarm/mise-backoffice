@@ -1,7 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–228 vollständig abgeschlossen. CEO Review #133 abgeschlossen. 0 TypeScript-Fehler. Build sauber (294 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–231 vollständig abgeschlossen. CEO Review #136 abgeschlossen. 0 TypeScript-Fehler. Build sauber (296 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #136 — 2026-06-18
+
+### Geprüfte Commits (seit Review #135)
+1. `f5402b5` — feat(delivery/backend): Phase 231 — Smart Driver Route Learning
+2. `9a76af2` — feat(delivery/frontend): Smart-Timing, Score-Visualisierung, Tour-Stops, ETA, Stats-Dashboard erweitert
+
+**Build-Status:**
+- `npx next build`: ✅ Compiled successfully (296 Seiten, 0 Fehler)
+- `npx tsc --noEmit`: ✅ 0 Fehler (nach Bugfixes)
+
+**Bugs gefunden und gefixt: 2**
+1. `app/fahrer/app/client.tsx:879` — TS2339: `activeBatch.batch_id` existiert nicht auf Typ `ActiveBatch` (hat `id`, nicht `batch_id`) → auf `activeBatch.id` geändert ✅
+2. `app/(admin)/lieferdienst/live-erloes-prognose.tsx:54–64` — TS7006: Parameter `r`, `s`, `a`, `b` implizit `any` in `.filter()`, `.reduce()`, `.sort()` Callbacks → `Row`-Typ inline definiert, alle Callbacks explizit annotiert ✅
+
+**Code-Review Phase 231 (Driver Route Learning):**
+- Migration 120: `driver_route_observations` + `driver_route_profiles` + `prune_old_driver_route_observations()` RPC ✅
+- `lib/delivery/driver-route-learning.ts`: recordTourObservations, buildRouteProfiles, getDriverRouteSuggestion, getRouteLearningDashboard, pruneOldObservations ✅
+- API + Dashboard + Cron + Sidebar + Delivery-Overview vollständig integriert ✅
+
+**Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront:** vollständig synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 232: Smart Driver Performance Prediction — ML-basierte Vorhersage Fahrer-Performance auf Basis Route-Learning + historischer Daten
+2. Oder: Real-Time Customer Satisfaction Loop — Post-Delivery Micro-Survey + Echtzeit-Score-Update
 
 ---
 

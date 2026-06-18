@@ -53,8 +53,8 @@
 - **npx tsc --noEmit:** 0 Fehler ✅
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–230 abgeschlossen. CEO Review #135 abgeschlossen. Build sauber. 295 Seiten. TypeScript 0 Fehler.**
-**Backend-Architekt — 2026-06-18: Phase 229 abgeschlossen. Smart Delivery Promise Engine: 7-Faktoren Lieferfenster-Berechnung (Zone + Queue + Fahrer + Wetter + Surge + Peak + Selbst-Kalibrierung), GENERATED accuracy_bucket (early/on_time/late/very_late), stündliche Settle-Cron, Admin-Dashboard mit Gauge + 30-Tage Verlauf + Live-Vorschau je Zone.**
+**Phasen 1–231 abgeschlossen. CEO Review #136 abgeschlossen. Build sauber. 296 Seiten. TypeScript 0 Fehler.**
+**CEO-Agent — 2026-06-18: Review #136 — 2 TypeScript-Fehler gefixt (TS2339 batch_id→id in fahrer/client.tsx + TS7006 implicit any in live-erloes-prognose.tsx). Build ✅ 296 Seiten. 0 Fehler.**
 
 ## Phase 228 — Smart Delivery Capacity Forecasting (DONE ✅)
 

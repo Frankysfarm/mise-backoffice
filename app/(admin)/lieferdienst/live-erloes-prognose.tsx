@@ -51,17 +51,20 @@ export function LiveErloesPrognose({ locationId }: Props) {
       const { data: rows } = await q;
       if (!rows) return;
 
-      const delivered = rows.filter(r =>
+      type Row = { gesamtbetrag: number | null; bestellt_am: string | null; status: string | null };
+      const typedRows = rows as Row[];
+
+      const delivered = typedRows.filter((r: Row) =>
         ['geliefert', 'abgeholt', 'abgeschlossen'].includes(r.status ?? '')
       );
-      const revenueNow = delivered.reduce((s, r) => s + (r.gesamtbetrag ?? 0), 0);
+      const revenueNow = delivered.reduce((s: number, r: Row) => s + (r.gesamtbetrag ?? 0), 0);
       const ordersNow = delivered.length;
       const avgOrderValue = ordersNow > 0 ? revenueNow / ordersNow : 0;
 
       // Find approximate shift start (oldest order today)
-      const oldest = rows
-        .filter(r => r.bestellt_am)
-        .sort((a, b) => new Date(a.bestellt_am!).getTime() - new Date(b.bestellt_am!).getTime())[0];
+      const oldest = typedRows
+        .filter((r: Row) => r.bestellt_am)
+        .sort((a: Row, b: Row) => new Date(a.bestellt_am!).getTime() - new Date(b.bestellt_am!).getTime())[0];
 
       setData({
         revenueNow,
