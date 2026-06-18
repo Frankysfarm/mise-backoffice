@@ -95,6 +95,7 @@ import { snapshotAllLocations as snapshotDriverRetention, pruneOldRetentionScore
 import { snapshotAllLocations as snapshotShiftPredictions, pruneOldPredictions } from '@/lib/delivery/shift-performance-prediction';
 import { snapshotAllLocations as snapshotDriverSatisfaction, pruneOldScores as pruneSatisfactionScores } from '@/lib/delivery/driver-satisfaction';
 import { snapshotAllLocations as snapshotDriverWellbeing, pruneOldSnapshots as pruneWellbeingSnapshots } from '@/lib/delivery/driver-wellbeing';
+import { buildAllLocations as buildCustomerCohorts, pruneOldSnapshots as pruneCohortSnapshots } from '@/lib/delivery/customer-cohorts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -195,6 +196,8 @@ export async function GET(req: NextRequest) {
     const isSatisfactionScoreTick = nowHour === 3 && nowMin >= 45 && nowMin < 49;
     // Fahrer-Wellbeing-Index: täglich 04:00 UTC (nach Satisfaction, nutzt alle Vordaten)
     const isWellbeingTick = nowHour === 4 && nowMin < 4;
+    // Kunden-Kohortenanalyse: täglich 04:15 UTC (nach Wellbeing, leseintensiv)
+    const isCohortTick = nowHour === 4 && nowMin >= 15 && nowMin < 19;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -655,6 +658,14 @@ export async function GET(req: NextRequest) {
       ? await pruneWellbeingSnapshots(90).catch(() => 0)
       : 0;
 
+    // Phase 227: Kunden-Kohortenanalyse — täglich 04:15 UTC
+    const cohortResult = isCohortTick
+      ? await buildCustomerCohorts().catch(() => ({ locations: 0, cohortsBuilt: 0, snapshotsUpserted: 0, errors: 1 }))
+      : null;
+    const cohortSnapshotsPruned = isReportTick
+      ? await pruneCohortSnapshots(730).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -809,6 +820,8 @@ export async function GET(req: NextRequest) {
       ...(satisfactionScoresPruned ? { satisfaction_scores_pruned: satisfactionScoresPruned } : {}),
       ...(wellbeingResult ? { driver_wellbeing: { locations: wellbeingResult.locations, scored: wellbeingResult.scored, errors: wellbeingResult.errors } } : {}),
       ...(wellbeingSnapshotsPruned ? { wellbeing_snapshots_pruned: wellbeingSnapshotsPruned } : {}),
+      ...(cohortResult ? { customer_cohorts: { locations: cohortResult.locations, cohorts_built: cohortResult.cohortsBuilt, snapshots_upserted: cohortResult.snapshotsUpserted, errors: cohortResult.errors } } : {}),
+      ...(cohortSnapshotsPruned ? { cohort_snapshots_pruned: cohortSnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -246,6 +246,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Teste verschiedene Punktemultiplikatoren auf echten Kundendaten" cta="Tests verwalten" />
         <SectionCard href="/delivery/churn-prevention" icon={<UserX className="h-5 w-5" />} title="Kunden-Retention"
           subtitle="RFM-Score · Abwanderungsrisiko · Re-Engagement-Kampagnen · Win-Back" cta="Retention öffnen" />
+        <SectionCard href="/delivery/customer-cohorts" icon={<LineChart className="h-5 w-5" />} title="Kunden-Kohortenanalyse (LTV)"
+          subtitle="Retention-Kurven · Lifetime-Value pro Akquisitions-Kohorte · Heatmap M+1/M+3/M+6 · Beste Kundengruppen identifizieren" cta="Kohorten öffnen" />
         <SectionCard href="/delivery/reorder-engine" icon={<Repeat2 className="h-5 w-5" />} title="Wiederbestellungs-Engine"
           subtitle="Kunden-Profile · Lieblings-Artikel · Bestellmuster · Wiederbestellrate" cta="Engine öffnen" />
         <SectionCard href="/delivery/subscriptions" icon={<CreditCard className="h-5 w-5" />} title="Liefer-Abonnements"

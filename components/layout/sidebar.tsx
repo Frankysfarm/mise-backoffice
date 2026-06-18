@@ -199,6 +199,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/smart-upsell',      icon: 'Zap',       label: 'Smart Upsells (Market-Basket)' },
       { group: 'Loslegen', href: '/delivery/referral-program',  icon: 'Gift',      label: 'Empfehlungs-Programm' },
       { group: 'Loslegen', href: '/delivery/customer-value-score', icon: 'Users2', label: 'Kunden-Wert-Score (CVS)' },
+      { group: 'Loslegen', href: '/delivery/customer-cohorts', icon: 'LineChart', label: 'Kunden-Kohortenanalyse (LTV)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
