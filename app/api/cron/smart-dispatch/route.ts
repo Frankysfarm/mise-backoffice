@@ -102,6 +102,7 @@ import { buildAllLocations as buildDriverRouteProfiles, pruneOldObservations as 
 import { buildPredictionsAllLocations, settleAllLocations as settlePerformancePredictions, pruneOldPredictions as prunePerformancePredictions } from '@/lib/delivery/driver-performance-prediction';
 import { generateHandoverAllLocations, pruneOldHandoverReports } from '@/lib/delivery/shift-handover';
 import { aggregateFeedbackAllLocations, pruneOldFeedback } from '@/lib/delivery/driver-feedback';
+import { snapshotZoneCapacityAllLocations, rebalanceAllLocations, pruneOldSnapshots as pruneZoneSnapshots } from '@/lib/delivery/zone-rebalancing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -737,6 +738,13 @@ export async function GET(req: NextRequest) {
       ? await pruneOldFeedback(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 237: Zone Rebalancing — Snapshot alle 10 Min, Vorschläge alle 10 Min, Prune täglich 02:05 UTC
+    const zoneSnapResult = await snapshotZoneCapacityAllLocations().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }));
+    const zoneRebalResult = await rebalanceAllLocations().catch(() => ({ locations: 0, suggested: 0, errors: 1 }));
+    const zoneSnapshotsPruned = isReportTick
+      ? await pruneZoneSnapshots(30).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -904,6 +912,9 @@ export async function GET(req: NextRequest) {
       ...(handoverPruned ? { handover_reports_pruned: handoverPruned.pruned } : {}),
       ...(feedbackAggResult ? { driver_feedback_aggregate: { locations: feedbackAggResult.locations, errors: feedbackAggResult.errors } } : {}),
       ...(feedbackPruned ? { driver_feedback_pruned: feedbackPruned.pruned } : {}),
+      ...(zoneSnapResult.snapshots > 0 ? { zone_capacity_snapshots: { locations: zoneSnapResult.locations, snapshots: zoneSnapResult.snapshots, errors: zoneSnapResult.errors } } : {}),
+      ...(zoneRebalResult.suggested > 0 ? { zone_rebalancing: { locations: zoneRebalResult.locations, suggested: zoneRebalResult.suggested, errors: zoneRebalResult.errors } } : {}),
+      ...(zoneSnapshotsPruned ? { zone_snapshots_pruned: zoneSnapshotsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck,
+  BookmarkCheck, Shuffle,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -217,6 +217,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="ML · Trend + Momentum + Zuverlässigkeit + Wellbeing + Route-Learning · tägliche Vorhersage + Genauigkeits-Tracking" cta="Prognose öffnen" />
         <SectionCard href="/delivery/shift-handover" icon={<BookmarkCheck className="h-5 w-5" />} title="Schicht-Übergabe"
           subtitle="Auto-Übergabe-Bericht 3×täglich · SLA + Umsatz + Incidents + offene Bestellungen · Quittierung + Notizen" cta="Übergabe öffnen" />
+        <SectionCard href="/delivery/zone-rebalancing" icon={<Shuffle className="h-5 w-5" />} title="Zonen-Umverteilung"
+          subtitle="Auto-Kapazitätsanalyse je Zone A/B/C/D · Überbelastung erkennen · Fahrer-Rebalancing per Klick oder automatisch" cta="Zonen öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
