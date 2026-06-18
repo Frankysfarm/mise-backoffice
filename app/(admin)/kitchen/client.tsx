@@ -59,6 +59,7 @@ import { KitchenTimerWall } from './timer-wall';
 import { KuechenDruckAmpel } from './kuechen-druck-ampel';
 import { KitchenAmpelTimingGrid } from './ampel-timing-grid';
 import { KitchenPrepHeatmap } from './prep-heatmap';
+import { KitchenRushHourBand } from './rush-hour-band';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -514,6 +515,8 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
+      {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}
+      <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 213: Ampel-Timing-Grid — Farbkodiertes Prep-Grid mit Countdown je Bestellung */}

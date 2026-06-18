@@ -53,6 +53,8 @@ import { SchichtBedarfChip } from './schicht-bedarf-chip';
 import { FahrzeitPrognose } from './fahrzeit-prognose';
 import { StopSchnellPanel } from './stop-schnell-panel';
 import { SmartStopNavigator } from './smart-stop-navigator';
+import { FahrerIncentiveLiveStrip } from './incentive-live-strip';
+import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
 
 type Driver = {
   id: string;
@@ -1481,6 +1483,20 @@ export function FahrerApp({
         {!activeBatch && isOnline && (
           <div className="px-4">
             <SchichtKpiLive driverId={driver.id} onlineSeit={status?.online_seit ?? null} />
+          </div>
+        )}
+
+        {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerComebackBonusHinweis isOnline={isOnline} />
+          </div>
+        )}
+
+        {/* Phase 222: Incentive-Live-Strip — heutige Boni + Meilenstein-Fortschritt */}
+        {!activeBatch && isOnline && (
+          <div className="px-4">
+            <FahrerIncentiveLiveStrip />
           </div>
         )}
 

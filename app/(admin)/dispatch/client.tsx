@@ -108,6 +108,7 @@ import { ZoneBundlePanel } from './zone-bundle-panel';
 import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
 import { DispatchTourScoreTimeline } from './tour-score-timeline';
 import { TourLiveScoreStrip } from './tour-live-score-strip';
+import { DispatchIncentiveMilestoneStrip } from './incentive-milestone-strip';
 
 type Driver = {
   employee_id: string;
@@ -928,6 +929,9 @@ export function DispatchBoard({
 
       {/* Phase 217: Live-Score-Strip — alle aktiven Touren auf einen Blick */}
       <TourLiveScoreStrip batches={batches.map(b => ({ ...b, started_at: b.startzeit ?? null }))} />
+
+      {/* Phase 222: Incentive-Milestone-Strip — Fahrer-Bonus-Rangliste + Pool-KPIs */}
+      <DispatchIncentiveMilestoneStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Küchen-Pipeline: Bestellungen die bald fertig werden — für Fahrer-Vorplanung */}
       {pipelineOrders.length > 0 && (

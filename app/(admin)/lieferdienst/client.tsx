@@ -86,6 +86,7 @@ import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
 import { AktivFahrerKacheln } from './aktiv-fahrer-kacheln'
 import { SchichtAutoDraftStrip } from './schicht-auto-draft-strip'
 import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
+import { IncentiveTagesUebersicht } from './incentive-tages-uebersicht'
 import { LiveOpsStats } from './live-ops-stats'
 
 export function LieferdienstClient() {
@@ -1004,6 +1005,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 222: Incentive-Tages-Übersicht — Fahrer-Bonus-Pool, genehmigt/ausstehend, Top-Verdiener */}
+              <IncentiveTagesUebersicht locationId={locationId} />
               {/* Phase 213: Schicht-Echtzeit-Bilanz — Umsatz, Bestellungen, Pünktlichkeitsrate, Fahrer live */}
               <SchichtEchtzeitBilanz locationId={locationId} />
               {/* Phase 207: Kapazitäts-Wochen-KPI — 7-Tage Besetzungsübersicht + Lücken */}
