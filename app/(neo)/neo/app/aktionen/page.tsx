@@ -1,21 +1,27 @@
+import { Soon } from '../_soon';
 export const dynamic = 'force-dynamic';
-const Card = ({ title, sub, children }: any) => (<div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>{title}</h3>{sub && <p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2, marginBottom: 14 }}>{sub}</p>}{children}</div>);
+const IDEAS = ['Happy Hour', '2-für-1 Pizza', 'Gratis Lieferung ab 30€', 'Studenten-Rabatt', 'Mittagsangebot', 'Wochenend-Special'];
 export default function Aktionen() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-        <Card title="Treueprogramm" sub="Jede 5. Bestellung = 1 Gratis-Produkt">
-          <div style={{ display: 'flex', gap: 8 }}>{[1, 2, 3, 4, 5].map((n) => (<div key={n} style={{ flex: 1, aspectRatio: '1', borderRadius: 10, border: '2px dashed #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818CF8', fontWeight: 700 }}>{n === 5 ? '🎁' : n}</div>))}</div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14, fontSize: 13.5, fontWeight: 600, color: '#334155' }}><input type="checkbox" defaultChecked /> Treueprogramm aktiv</label>
-        </Card>
-        <Card title="Gratis-Produkt beim Start" sub="Neukunden wählen 1 Gratis-Artikel">
-          <button style={{ height: 38, padding: '0 16px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', fontSize: 13, fontWeight: 600, color: '#334155' }}>Gratis-Produkt festlegen</button>
-        </Card>
+    <div style={{ maxWidth: 1180 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 38, height: 38, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19 }}>🎁</div><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Kostenloses Produkt</h3></div><span style={{ fontSize: 11, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '3px 9px', borderRadius: 999 }}>Bald</span></div>
+          <p style={{ fontSize: 13.5, color: '#64748B', marginBottom: 14 }}>Jeder Kunde erhält bei seiner Bestellung ein Gratis-Produkt.</p>
+          <Soon style={{ width: '100%', height: 44, border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#fff', fontSize: 14, color: '#475569', fontWeight: 600, cursor: 'pointer', textAlign: 'left', paddingLeft: 12 }}>Gratis-Produkt festlegen…</Soon>
+        </div>
+        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 38, height: 38, borderRadius: 10, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19 }}>⭐</div><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Treueprogramm</h3></div><span style={{ fontSize: 12, fontWeight: 700, color: '#047857', background: '#ECFDF5', padding: '4px 10px', borderRadius: 999 }}>AKTIV</span></div>
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, padding: '14px 16px', marginBottom: 12 }}><div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 15, fontWeight: 700, color: '#0F172A' }}>Jede 5. Bestellung = 1 Gratis-Produkt</div></div>
+          <p style={{ fontSize: 12.5, color: '#94A3B8' }}>Läuft automatisch im Shop. Konfiguration folgt.</p>
+        </div>
       </div>
-      <Card title="Rabattcodes" sub="Zeitlich begrenzte Aktionen">
-        <button style={{ height: 38, padding: '0 16px', borderRadius: 10, border: 'none', background: '#4F46E5', color: '#fff', fontSize: 13, fontWeight: 600, boxShadow: '0 8px 20px rgba(79,70,229,.3)' }}>+ Rabattcode erstellen</button>
-        <div style={{ marginTop: 14, fontSize: 13, color: '#94A3B8' }}>Noch keine Rabattcodes angelegt.</div>
-      </Card>
+      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Rabattcodes</h3><Soon style={{ display: 'flex', alignItems: 'center', gap: 7, height: 38, padding: '0 14px', border: 'none', borderRadius: 10, background: '#0F172A', color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' }}>+ Code erstellen</Soon></div>
+        <div style={{ padding: '24px 22px', textAlign: 'center', color: '#94A3B8', fontSize: 13.5 }}>Noch keine Rabattcodes angelegt.</div>
+      </div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8', letterSpacing: '.3px', marginBottom: 10 }}>WEITERE AKTIONS-IDEEN</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>{IDEAS.map((p) => (<Soon key={p} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', border: '1px solid #E2E8F0', borderRadius: 999, padding: '8px 14px', fontSize: 13, fontWeight: 600, color: '#475569', cursor: 'pointer' }}><span style={{ color: '#4F46E5' }}>+</span>{p}</Soon>))}</div>
     </div>
   );
 }
