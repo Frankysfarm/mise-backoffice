@@ -63,6 +63,22 @@ const config: Config = {
         soft:   '0 4px 16px rgba(26, 58, 42, 0.06), 0 2px 4px rgba(26, 58, 42, 0.04)',
         strong: '0 12px 32px rgba(26, 58, 42, 0.12), 0 4px 8px rgba(26, 58, 42, 0.06)',
       },
+      keyframes: {
+        shimmer: {
+          '0%':   { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        sparkle: {
+          '0%':   { transform: 'scale(0) translateY(0)', opacity: '0' },
+          '40%':  { transform: 'scale(1.2) translateY(-6px)', opacity: '1' },
+          '80%':  { transform: 'scale(0.9) translateY(-10px)', opacity: '0.6' },
+          '100%': { transform: 'scale(0) translateY(-14px)', opacity: '0' },
+        },
+      },
+      animation: {
+        shimmer:  'shimmer 2.4s linear infinite',
+        sparkle:  'sparkle 1.4s ease-out both',
+      },
     },
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],

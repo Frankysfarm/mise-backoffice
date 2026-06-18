@@ -90,6 +90,7 @@ import { IncentiveTagesUebersicht } from './incentive-tages-uebersicht'
 import { LiveOpsStats } from './live-ops-stats'
 import { SchichtEchtzeitRangliste } from './schicht-echtzeit-rangliste'
 import { SchichtKpiTopBar } from './schicht-kpi-topbar'
+import { SchichtVerlaufsKurve } from './schicht-verlaufs-kurve'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1015,6 +1016,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Phase 222: Incentive-Tages-Übersicht — Fahrer-Bonus-Pool, genehmigt/ausstehend, Top-Verdiener */}
               <IncentiveTagesUebersicht locationId={locationId} />
+              {/* Schicht-Verlaufs-Kurve: Dual-Axis Lieferverlauf + Health-Score */}
+              <SchichtVerlaufsKurve locationId={locationId} />
               {/* Phase 213: Schicht-Echtzeit-Bilanz — Umsatz, Bestellungen, Pünktlichkeitsrate, Fahrer live */}
               <SchichtEchtzeitBilanz locationId={locationId} />
               {/* Phase 207: Kapazitäts-Wochen-KPI — 7-Tage Besetzungsübersicht + Lücken */}

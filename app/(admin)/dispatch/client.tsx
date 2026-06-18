@@ -113,6 +113,7 @@ import { DispatchNaechsteTourEmpfehlung } from './naechste-tour-empfehlung';
 import { DispatchReadinessHUD } from './dispatch-readiness-hud';
 import { DispatchFahrerWellbeingStrip } from './fahrer-wellbeing-strip';
 import { DispatchQualityScoreWidget } from './quality-score-widget';
+import { DispatchScoreInsightPanel } from './dispatch-score-insight';
 
 type Driver = {
   employee_id: string;
@@ -865,6 +866,8 @@ export function DispatchBoard({
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
+      {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
+      <DispatchScoreInsightPanel orders={readyOrders} />
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}
       <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}

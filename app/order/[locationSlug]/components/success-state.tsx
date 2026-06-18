@@ -11,6 +11,7 @@ import { BestellungStatusBand } from './bestellung-status-band';
 import { FahrerBewertungsDialog } from './fahrer-bewertungs-dialog';
 import { LivePrepSteps } from './live-prep-steps';
 import { LiveFahrerStatus } from './live-fahrer-status';
+import { BestellungLiveEtaBanner } from './bestellung-live-eta-banner';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -577,6 +578,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               status={liveStatus}
               etaLatest={etaWindow?.latest ?? null}
               driverName={driverName}
+            />
+          </div>
+        )}
+        {/* Live-ETA-Banner: animierter Truck-Fortschritt + Countdown für Kunden */}
+        {isDelivery && orderId && (
+          <div className="mt-4 w-full">
+            <BestellungLiveEtaBanner
+              orderId={orderId}
+              bestellnummer={bestellnummer}
+              etaEarliest={etaWindow?.earliest ?? null}
+              etaLatest={etaWindow?.latest ?? null}
+              status={liveStatus}
             />
           </div>
         )}

@@ -57,6 +57,7 @@ import { FahrerIncentiveLiveStrip } from './incentive-live-strip';
 import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
 import { FahrerRouteQualitaet } from './route-qualitaet';
 import { DriverHotspotTip } from './driver-hotspot-tip';
+import { TourStopEtaPredictor } from './tour-stop-eta-predictor';
 
 type Driver = {
   id: string;
@@ -960,6 +961,16 @@ export function FahrerApp({
                 }))}
                 startedAt={activeBatch.started_at}
                 totalEtaMin={activeBatch.total_eta_min ?? null}
+              />
+            </div>
+          )}
+          {/* Ankunftszeit-Prognose: GPS-basierte ETA für jeden Stopp */}
+          {activeBatch.stops.filter((s: any) => !s.geliefert_am).length > 0 && (
+            <div className="px-4">
+              <TourStopEtaPredictor
+                stops={activeBatch.stops as any}
+                currentSpeed={gpsSpeed}
+                started_at={activeBatch.started_at}
               />
             </div>
           )}

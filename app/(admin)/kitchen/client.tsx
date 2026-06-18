@@ -62,6 +62,7 @@ import { KitchenPrepHeatmap } from './prep-heatmap';
 import { KitchenRushHourBand } from './rush-hour-band';
 import { KitchenLivePrepMatrix } from './live-prep-matrix';
 import { KitchenHandoffReadyMatrix } from './handoff-ready-matrix';
+import { KitchenSmartTimingAssistent } from './smart-timing-assistent';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -654,6 +655,11 @@ export function KitchenBoard({
 
       {/* Kochfortschritt-Ringe: visueller Fortschritt je kochender Bestellung */}
       <KitchenPrepProgressCards orders={filtered} timings={timings} />
+
+      {/* Smart-Timing-Assistent: Priorisierte Kochstart-Liste mit Dringlichkeits-Ampel */}
+      {timings.length > 0 && (
+        <KitchenSmartTimingAssistent orders={filtered} timings={timings} />
+      )}
 
       {/* Smart-Countdown: Kochende Bestellungen mit Farbcodierung nach Dringlichkeit */}
       <KitchenSmartCountdownGrid
