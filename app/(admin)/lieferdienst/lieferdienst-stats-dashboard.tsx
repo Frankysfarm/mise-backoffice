@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, YAxis } from 'recharts';
 import {
   TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, Bike,
   Clock, Target, Star, AlertTriangle, CheckCircle2, Zap,
-  BarChart2, Users, Euro,
+  BarChart2, Users, Euro, Wifi,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface ShiftStats {
   revenue: number;
@@ -125,6 +126,8 @@ export function LieferdienstStatsDashboard() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla'>('uebersicht');
+  const [realtimePulse, setRealtimePulse] = useState(false);
+  const loadRef = useRef<(() => void) | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -208,9 +211,35 @@ export function LieferdienstStatsDashboard() {
   }, []);
 
   useEffect(() => {
+    loadRef.current = load;
+  }, [load]);
+
+  useEffect(() => {
     load();
     const iv = setInterval(load, 60_000);
-    return () => clearInterval(iv);
+
+    // Supabase realtime: Neuberechnung bei neuer abgeschlossener Bestellung
+    const supabase = createClient();
+    const channel = supabase
+      .channel('lieferdienst-stats-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'customer_orders' },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          if (row?.status === 'geliefert' || row?.status === 'abgeschlossen') {
+            setRealtimePulse(true);
+            setTimeout(() => setRealtimePulse(false), 2000);
+            loadRef.current?.();
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(iv);
+      supabase.removeChannel(channel);
+    };
   }, [load]);
 
   // SLA Breakdown
@@ -240,6 +269,10 @@ export function LieferdienstStatsDashboard() {
           Schicht-Statistiken Dashboard
         </h3>
         <div className="flex items-center gap-2">
+          <span className={`flex items-center gap-1 text-[10px] font-bold rounded-full px-2 py-0.5 transition-all duration-500 ${realtimePulse ? 'bg-matcha-100 text-matcha-700' : 'text-gray-400'}`}>
+            <Wifi size={9} className={realtimePulse ? 'text-matcha-600' : 'text-gray-300'} />
+            Live
+          </span>
           {lastUpdated && (
             <span className="text-[10px] text-gray-400">
               {lastUpdated.toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit' })}

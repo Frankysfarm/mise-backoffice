@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Bike, CheckCircle2, Clock, Truck } from 'lucide-react';
+import { Bike, CheckCircle2, Clock, Truck, MapPin, Navigation, AlertTriangle } from 'lucide-react';
 
 type BatchStop = {
   id: string;
@@ -131,6 +131,53 @@ export function DispatchTourVisualisierung({ batches }: Props) {
                   );
                 })}
               </div>
+
+              {/* Aktueller Stop: Adresse + ETA */}
+              {(() => {
+                const activeStop = batchStops.find(
+                  (s, idx) => s.geliefert_am == null && batchStops.slice(0, idx).every((p) => p.geliefert_am != null),
+                );
+                if (!activeStop?.order) return null;
+                const o = activeStop.order;
+                const stopEtaMin =
+                  batch.total_eta_min && batchStops.length > 0
+                    ? Math.round((batch.total_eta_min / batchStops.length) * (batchStops.indexOf(activeStop) + 1 - completedCount))
+                    : null;
+                const etaIso = o.eta_latest ?? o.eta_earliest;
+                const stopSecsLeft = etaIso ? Math.floor((new Date(etaIso).getTime() - Date.now()) / 1000) : null;
+                const isLateStop = stopSecsLeft !== null && stopSecsLeft < -120;
+
+                return (
+                  <div className={cn(
+                    'flex items-start gap-2 rounded-lg border px-2.5 py-2 text-xs',
+                    isLateStop ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200',
+                  )}>
+                    <Navigation size={11} className={cn('shrink-0 mt-0.5', isLateStop ? 'text-red-500' : 'text-blue-500')} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold truncate text-foreground">{o.kunde_name}</div>
+                      {(o.kunde_adresse) && (
+                        <div className="text-[10px] text-muted-foreground truncate">
+                          <MapPin size={8} className="inline mr-0.5" />
+                          {o.kunde_adresse}
+                        </div>
+                      )}
+                    </div>
+                    {(stopSecsLeft !== null || stopEtaMin !== null) && (
+                      <div className={cn(
+                        'shrink-0 font-mono text-[10px] font-black tabular-nums',
+                        isLateStop ? 'text-red-600' : 'text-blue-600',
+                      )}>
+                        {stopSecsLeft !== null
+                          ? stopSecsLeft < 0
+                            ? `+${Math.floor(Math.abs(stopSecsLeft) / 60)}m`
+                            : `${Math.floor(stopSecsLeft / 60)}m`
+                          : `~${stopEtaMin}m`}
+                        {isLateStop && <AlertTriangle size={9} className="inline ml-0.5 text-red-500" />}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Progress-Balken */}
               <div className="h-1 rounded-full bg-muted overflow-hidden">

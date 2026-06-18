@@ -63,6 +63,7 @@ import { KitchenRushHourBand } from './rush-hour-band';
 import { KitchenLivePrepMatrix } from './live-prep-matrix';
 import { KitchenHandoffReadyMatrix } from './handoff-ready-matrix';
 import { KitchenSmartTimingAssistent } from './smart-timing-assistent';
+import { KitchenBatchDeparturePanel } from './batch-departure-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -554,6 +555,8 @@ export function KitchenBoard({
       <KitchenHandoffDelayAlert orders={filtered} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}
       <KitchenDriverPickupWarning batches={batches} drivers={drivers} stops={stops} orders={filtered} />
+      {/* Fahrer-Abfahrts-Panel: zeigt welche Batch-Abfahrten in <20 Min anstehen + welche Bestellungen noch fehlen */}
+      <KitchenBatchDeparturePanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Batch-Koordination: welche Bestellungen in denselben Batch gehören und bis wann fertig sein müssen */}
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}

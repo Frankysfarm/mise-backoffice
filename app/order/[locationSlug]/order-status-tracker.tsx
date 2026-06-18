@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CheckCircle2, ChefHat, Clock, Truck, PackageCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EtaDynamicWidget } from './eta-dynamic-widget';
+import { createClient } from '@/lib/supabase/client';
 
 interface Props {
   orderId: string;
@@ -73,8 +74,30 @@ export function OrderStatusTracker({ orderId, initialStatus, initialEtaMin }: Pr
     }
 
     poll();
-    const iv = setInterval(poll, 30_000);
-    return () => { mounted = false; clearInterval(iv); };
+    const iv = setInterval(poll, 60_000);
+
+    // Supabase realtime: push-Update sobald sich Status ändert
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`order-status-${orderId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
+        (payload) => {
+          if (!mounted) return;
+          const row = payload.new as Record<string, unknown>;
+          if (row?.status) setStatus(row.status as string);
+          if (row?.eta_latest) setEtaMin(etaMinFromIso(row.eta_latest as string));
+          if (row?.eta_earliest) setEtaMin((prev) => prev ?? etaMinFromIso(row.eta_earliest as string));
+        },
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      clearInterval(iv);
+      supabase.removeChannel(channel);
+    };
   }, [orderId]);
 
   // Local ETA countdown

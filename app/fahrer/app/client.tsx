@@ -58,6 +58,7 @@ import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
 import { FahrerRouteQualitaet } from './route-qualitaet';
 import { DriverHotspotTip } from './driver-hotspot-tip';
 import { TourStopEtaPredictor } from './tour-stop-eta-predictor';
+import { ProximityStopAlert } from './proximity-stop-alert';
 
 type Driver = {
   id: string;
@@ -860,6 +861,19 @@ export function FahrerApp({
             batchStartedAt={activeBatch.started_at}
             totalEtaMin={activeBatch.total_eta_min ?? null}
           />
+          {/* Näherungs-Alert: Vibration + Overlay wenn Fahrer <250m vom nächsten Stop */}
+          {(() => {
+            const nextStop = activeBatch.stops.find((s) => !s.geliefert_am);
+            if (!nextStop) return null;
+            return (
+              <ProximityStopAlert
+                nextStopLat={(nextStop.order as any)?.kunde_lat ?? null}
+                nextStopLng={(nextStop.order as any)?.kunde_lng ?? null}
+                nextStopName={(nextStop.order as any)?.kunde_name ?? `Stop ${nextStop.reihenfolge}`}
+                nextStopAddress={(nextStop.order as any)?.kunde_adresse ?? null}
+              />
+            );
+          })()}
           {/* ETA-Ampel: Schnellstatus ob aktuelle Tour pünktlich ist */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
