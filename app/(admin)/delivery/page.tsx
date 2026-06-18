@@ -208,6 +208,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="7-Faktoren Score (0–100) · Pünktlichkeit · Zufriedenheit · Auslastung · Profitabilität" cta="Score ansehen" />
         <SectionCard href="/delivery/capacity-forecast" icon={<TrendingUp className="h-5 w-5" />} title="Smart Capacity Forecasting"
           subtitle="7-Tage Vorhersage · Bestellvolumen + Fahrerauslastung · Trend-Analyse · ML-Konfidenz-Score" cta="Forecast öffnen" />
+        <SectionCard href="/delivery/delivery-promise" icon={<Target className="h-5 w-5" />} title="Lieferversprechen-Engine"
+          subtitle="Dynamische Lieferfenster · Selbst-kalibrierend · Pünktlichkeits-Score · 30-Tage Genauigkeits-Trend" cta="Dashboard öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
