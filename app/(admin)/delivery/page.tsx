@@ -10,7 +10,7 @@ import {
   LineChart, Gauge, Wrench, Building, Webhook, Gift, FlaskConical,
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
-  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal,
+  Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -234,6 +234,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="7×24 Slot-Vorhersage · Historische Bestelldaten · Konfidenz-Score · Fahrerbedarf-Kalkulation" cta="Prognose öffnen" />
         <SectionCard href="/delivery/driver-satisfaction" icon={<Smile className="h-5 w-5" />} title="Fahrer-Zufriedenheits-Score (Live)"
           subtitle="4-Faktoren-Index · Retention 30% · Incentive 25% · Bewertung 25% · Pünktlichkeit 20% · Tier-Klassifikation" cta="Score öffnen" />
+        <SectionCard href="/delivery/driver-wellbeing" icon={<Sparkles className="h-5 w-5" />} title="Fahrer-Wellbeing-Index (Burnout-Prävention)"
+          subtitle="4-Faktoren-Composite · Ermüdung 25% · Zufriedenheit 35% · Retention 25% · Incentive-Health 15% · Interventions-Engine" cta="Wellbeing öffnen" />
       </SectionGroup>
 
       {/* ── Loyalty & A/B-Tests ──────────────────────────────── */}

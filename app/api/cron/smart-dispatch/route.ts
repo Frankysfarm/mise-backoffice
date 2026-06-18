@@ -94,6 +94,7 @@ import { evaluateIncentivesAllLocations, approveIncentivesAllLocations, pruneOld
 import { snapshotAllLocations as snapshotDriverRetention, pruneOldRetentionScores } from '@/lib/delivery/driver-retention';
 import { snapshotAllLocations as snapshotShiftPredictions, pruneOldPredictions } from '@/lib/delivery/shift-performance-prediction';
 import { snapshotAllLocations as snapshotDriverSatisfaction, pruneOldScores as pruneSatisfactionScores } from '@/lib/delivery/driver-satisfaction';
+import { snapshotAllLocations as snapshotDriverWellbeing, pruneOldSnapshots as pruneWellbeingSnapshots } from '@/lib/delivery/driver-wellbeing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -192,6 +193,8 @@ export async function GET(req: NextRequest) {
     const isShiftPredictionTick = nowHour === 3 && nowMin >= 30 && nowMin < 34;
     // Fahrer-Zufriedenheits-Score: täglich 03:45 UTC (nach Shift-Prognose)
     const isSatisfactionScoreTick = nowHour === 3 && nowMin >= 45 && nowMin < 49;
+    // Fahrer-Wellbeing-Index: täglich 04:00 UTC (nach Satisfaction, nutzt alle Vordaten)
+    const isWellbeingTick = nowHour === 4 && nowMin < 4;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -644,6 +647,14 @@ export async function GET(req: NextRequest) {
       ? await pruneSatisfactionScores(90).catch(() => 0)
       : 0;
 
+    // Phase 226: Fahrer-Wellbeing-Index — täglich 04:00 UTC
+    const wellbeingResult = isWellbeingTick
+      ? await snapshotDriverWellbeing().catch(() => ({ locations: 0, scored: 0, errors: 1 }))
+      : null;
+    const wellbeingSnapshotsPruned = isReportTick
+      ? await pruneWellbeingSnapshots(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -796,6 +807,8 @@ export async function GET(req: NextRequest) {
       ...(shiftPredictionsPruned ? { shift_predictions_pruned: shiftPredictionsPruned } : {}),
       ...(satisfactionResult ? { driver_satisfaction: { locations: satisfactionResult.locations, scored: satisfactionResult.scored, errors: satisfactionResult.errors } } : {}),
       ...(satisfactionScoresPruned ? { satisfaction_scores_pruned: satisfactionScoresPruned } : {}),
+      ...(wellbeingResult ? { driver_wellbeing: { locations: wellbeingResult.locations, scored: wellbeingResult.scored, errors: wellbeingResult.errors } } : {}),
+      ...(wellbeingSnapshotsPruned ? { wellbeing_snapshots_pruned: wellbeingSnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
