@@ -230,6 +230,10 @@ export default async function DeliveryOverviewPage() {
           subtitle="Automatische Gutschriften bei Verspätungen konfigurieren" cta="Regeln anpassen" />
         <SectionCard href="/delivery/cash-reconciliation" icon={<Coins className="h-5 w-5" />} title="Bargeld-Abrechnung"
           subtitle="Bar-Übergaben pro Fahrer · Kassenstand · Differenz-Erkennung · Tagesabschluss" cta="Kasse öffnen" />
+        <SectionCard href="/delivery/shift-performance-prediction" icon={<Calendar className="h-5 w-5" />} title="Schicht-Performance-Prognose"
+          subtitle="7×24 Slot-Vorhersage · Historische Bestelldaten · Konfidenz-Score · Fahrerbedarf-Kalkulation" cta="Prognose öffnen" />
+        <SectionCard href="/delivery/driver-satisfaction" icon={<Smile className="h-5 w-5" />} title="Fahrer-Zufriedenheits-Score (Live)"
+          subtitle="4-Faktoren-Index · Retention 30% · Incentive 25% · Bewertung 25% · Pünktlichkeit 20% · Tier-Klassifikation" cta="Score öffnen" />
       </SectionGroup>
 
       {/* ── Loyalty & A/B-Tests ──────────────────────────────── */}
