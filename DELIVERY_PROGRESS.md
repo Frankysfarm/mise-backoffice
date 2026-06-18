@@ -1,5 +1,23 @@
 # Smart Delivery System — Fortschritt
 
+## Phase 229 — Smart Delivery Promise Engine (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `scripts/migrations/119_delivery_promise.sql` — delivery_promises Tabelle (promised_min/max, confidence_score, zone_name, GENERATED accuracy_bucket + miss_by_min, Kontext-Snapshot: queue_depth/available_drivers/weather_factor/surge_active), v_promise_accuracy_daily VIEW (30-Tage tägliche Rollups: early/on_time/late/very_late Counts + on_time_rate_pct + avg_miss_min), v_promise_kpis_7d VIEW, prune_old_delivery_promises() RPC
+- `lib/delivery/delivery-promise.ts` — Core Engine: computePromise() 7-Faktoren (Zone-Basis-ETA + Kitchen-Queue-Overhead 3min/Order + Fahrer-Mangel-Buffer 8min + Peak-Hour-Buffer 5min + Wetter-Faktor + Surge-Erweiterung +10min + 14-Tage Selbst-Kalibrierung 50% Ø-Überlauf max 10min), recordPromise() UPSERT, settlePromise() Abrechnung (promised_at→delivered_at), settleAllPendingPromises() + settleAllLocations() Cron-Batch, getPromiseDashboard() (KPIs + 30-Tage Trend + unsettledCount), pruneOldPromises() Cleanup
+- `app/api/delivery/admin/delivery-promise/route.ts` — Auth via employees.location_id, GET action=dashboard|compute&zone=A-D, POST action=settle_pending|prune
+- `app/(admin)/delivery/delivery-promise/page.tsx` + `client.tsx` — Dashboard: 4 KPI-Karten (Pünktlichkeitsrate/Ø Istlieferzeit/Ø Überschreitung/Sehr spät), SVG-Halbkreis-Gauge A–F Grade, 30-Tage Stacked-Bar Verlauf, Live-Vorschau je Zone A/B/C/D mit Kontext-Anzeige, 7-Tage Detail-Tabelle, 5-Min Auto-Refresh, manueller Settle-Button
+- Cron: settleDeliveryPromises() stündlich (Minute 0–3 UTC) + pruneOldPromises(90) täglich isReportTick
+- Delivery-Overview: SectionCard „Lieferversprechen-Engine" in KI-Tools-Gruppe eingebunden
+
+### Build: ✅ npx next build erfolgreich (295 Seiten, 0 TypeScript-Fehler)
+
+## STATUS: MARKT-REIF + WACHSTUM
+**Phasen 1–229 abgeschlossen. Build sauber. 295 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt — 2026-06-18: Phase 229 abgeschlossen. Smart Delivery Promise Engine: 7-Faktoren Lieferfenster-Berechnung (Zone + Queue + Fahrer + Wetter + Surge + Peak + Selbst-Kalibrierung), GENERATED accuracy_bucket (early/on_time/late/very_late), stündliche Settle-Cron, Admin-Dashboard mit Gauge + 30-Tage Verlauf + Live-Vorschau je Zone.**
+
 ## Phase 228 — Smart Delivery Capacity Forecasting (DONE ✅)
 
 **Datum:** 2026-06-18
