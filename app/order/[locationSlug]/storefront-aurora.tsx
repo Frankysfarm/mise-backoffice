@@ -5,6 +5,7 @@ import { Star, Plus, Minus, ShoppingBag, Search, Store, Truck, Clock, X, Zap, Fl
 import { createClient } from '@/lib/supabase/client';
 import { ItemDetailSheet } from './item-sheet';
 import { OrderStatusTracker } from './order-status-tracker';
+import { EtaSekundenCountdown } from './eta-sekunden-countdown';
 
 type LiveEtaLoad = 'quiet' | 'normal' | 'busy';
 
@@ -932,6 +933,13 @@ function AuroraActiveOrderBanner({ locationId }: { locationId: string }) {
           orderId={banner.orderId}
           initialStatus={banner.status}
           initialEtaMin={minsLeft > 0 ? minsLeft : null}
+        />
+      )}
+      {/* Sekunden-Countdown: Live-Timer wenn Fahrer < 5 Min entfernt ist */}
+      {banner.isDelivery && (
+        <EtaSekundenCountdown
+          etaMin={minsLeft > 0 ? minsLeft : null}
+          status={banner.status}
         />
       )}
     </div>

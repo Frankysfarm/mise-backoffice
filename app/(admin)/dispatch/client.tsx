@@ -120,6 +120,7 @@ import { ZoneQuickBundleAlert } from './zone-quick-bundle-alert';
 import { FahrerVorhersageDashboard } from './fahrer-vorhersage-dashboard';
 import { DispatchZoneErtragsStrip } from './zone-ertrags-strip';
 import { DispatchTourParallelVergleich } from './tour-parallel-vergleich';
+import { DispatchTourZeitfortschritt } from './tour-zeitfortschritt';
 
 type Driver = {
   employee_id: string;
@@ -900,6 +901,8 @@ export function DispatchBoard({
       <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
       <TourEtaStrip batches={batches} drivers={drivers} />
+      {/* Tour-Zeitfortschritt: Farbkodierte ETA-Fortschrittsbalken aller aktiven Touren */}
+      <DispatchTourZeitfortschritt batches={batches} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />

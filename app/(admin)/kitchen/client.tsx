@@ -71,6 +71,7 @@ import { PrepQueueMonitor } from './prep-queue-monitor';
 import { KitchenEchtzeitCountdownBoard } from './echtzeit-countdown-board';
 import { KitchenSchichtTimingScore } from './schicht-timing-score';
 import { KitchenSchichtQueuePrognose } from './schicht-queue-prognose';
+import { KitchenTimingFarbkodierung } from './timing-farbkodierung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -542,6 +543,8 @@ export function KitchenBoard({
       )}
       {/* Phase 213: Ampel-Timing-Grid — Farbkodiertes Prep-Grid mit Countdown je Bestellung */}
       {timings.length > 0 && <KitchenAmpelTimingGrid orders={filtered} timings={timings} />}
+      {/* Timing-Farbkodierung: Kompaktes Kachel-Raster aller aktiven Bestellungen mit Countdown-Labels */}
+      <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
       {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
       <KitchenKapazitaetsAnzeige orders={filtered} timings={timings} />
       {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}

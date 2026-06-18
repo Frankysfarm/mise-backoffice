@@ -65,6 +65,7 @@ import { TourEffizienzLive } from './tour-efficiency-live';
 import { TourEffizienzAnalyse } from './tour-effizienz-analyse';
 import { TourFeedbackSchnell } from './tour-feedback-schnell';
 import { SchichtKilometerTracker } from './schicht-kilometer-tracker';
+import { KassenUebersicht } from './kassen-uebersicht';
 
 type Driver = {
   id: string;
@@ -907,6 +908,8 @@ export function FahrerApp({
               }))}
             />
           </div>
+          {/* Kassen-Übersicht: Bargeld-Stops mit Gesamtbetrag — aufklappbar */}
+          <KassenUebersicht stops={activeBatch.stops as any} />
           {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}
           <SmartStopNavigator
             stops={activeBatch.stops as any}
