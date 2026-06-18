@@ -1,7 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–220 vollständig abgeschlossen. CEO Review #127 abgeschlossen. 0 TypeScript-Fehler. Build sauber (286 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–222 vollständig abgeschlossen. CEO Review #128 abgeschlossen. 0 TypeScript-Fehler. Build sauber (287 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #128 — 2026-06-18
+
+### Geprüfte Commits (seit Review #127)
+- `efadf01` feat(delivery/backend): Phase 221 — Real-time Driver Incentive Engine
+- `67c44b1` feat(delivery/frontend): Phase 222 — Fahrer-Incentive-Frontend (5 Komponenten)
+
+### Bugs
+- **Keine Bugs gefunden.** Alle 5 Komponenten korrekt integriert. 0 TypeScript-Fehler.
+
+### Code-Review Phase 221 (Real-time Driver Incentive Engine)
+- `scripts/migrations/112_driver_incentives.sql`: `driver_incentive_configs` (5 Typen, UNIQUE location+type, RLS), `driver_incentive_events` (UNIQUE driver+order+type, RLS), 2 Views (v_driver_incentive_today, v_driver_incentive_leaderboard mit RANK()), 2 RPCs korrekt ✅
+- `lib/delivery/driver-incentives.ts`: upsertConfig/getConfigs, evaluateDeliveryIncentives() (5 Regeln), evaluateIncentivesForLocation(), Cron-Batch, approvePendingIncentives(), getDriverIncentiveSummary(), getIncentiveDashboard(), pruneOldIncentiveEvents() — vollständig korrekt ✅
+- `/api/delivery/admin/driver-incentives/route.ts`: Auth via employees.location_id, GET (dashboard|configs) + POST (upsert_config|approve|prune) ✅
+- `/api/delivery/driver/incentives/route.ts`: Fahrer-Auth via mise_drivers.auth_user_id, getDriverIncentiveSummary() korrekt ✅
+- `app/(admin)/delivery/driver-incentives/`: 4 KPI-Karten, 3 Tabs (Übersicht/Leaderboard/Regeln), Config-Modal ✅
+
+### Code-Review Phase 222 Frontend (5 Komponenten)
+- `FahrerIncentiveLiveStrip` (`fahrer/app/incentive-live-strip.tsx`): 60s-Polling /api/delivery/driver/incentives, Gesamtbetrag + Pending/Confirmed-Split, Meilenstein-Fortschrittsbalken, letzte 3 Boni mit TYPE_META-Icons, early-return bei eventsToday=0 + kein Meilenstein ✅. Integration fahrer/app/client.tsx Zeile 1499 ✅
+- `FahrerComebackBonusHinweis` (`fahrer/app/comeback-bonus-hinweis.tsx`): Einmalig-Load (kein Polling), comeback_bonus in recentEvents < 5min, Toast-Banner dismissbar, nur wenn isOnline — korrekt ✅. Integration fahrer/app/client.tsx Zeile 1492 ✅
+- `DispatchIncentiveMilestoneStrip` (`dispatch/incentive-milestone-strip.tsx`): 2min-Polling, Pool/Approved/Pending KPIs, Leaderboard-Kacheln (max 8, Rang-Farben gold/silber/bronze), RANK_BG/RANK_COLOR-Hilfsfunktionen sauber ✅. Integration dispatch/client.tsx Zeile 934 ✅
+- `KitchenRushHourBand` (`kitchen/rush-hour-band.tsx`): 1min-Tick für Uhrzeit, 2min-Polling Surge-API (/api/delivery/admin/surge?action=status), isLunch/isDinner 11–14/17–20 korrekt, Surge-Multiplier-Badge — null-rendered außerhalb Stoßzeit/Surge ✅. Integration kitchen/client.tsx Zeile 519 ✅
+- `IncentiveTagesUebersicht` (`lieferdienst/incentive-tages-uebersicht.tsx`): 4 KPI-Karten (Pool/Genehmigt/Ausstehend/Fahrer), Top-Earner-Zeile, 2min-Polling ✅. Integration lieferdienst/client.tsx Zeile 1009 ✅
+
+### Integration-Prüfung
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront: alle Module verbunden ✅
+- Fahrer-facing (incentive-live-strip + comeback-bonus) ↔ /api/delivery/driver/incentives ✅
+- Dispatch + Lieferdienst ↔ /api/delivery/admin/driver-incentives ✅
+- Kitchen ↔ /api/delivery/admin/surge (bestehender Endpunkt) ✅
+
+### Build-Status
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (287 Seiten)
+
+### Nächste Schritte für Agenten
+- Phase 223+ kann beginnen: weitere Module oder Optimierungen nach Bedarf
 
 ---
 
