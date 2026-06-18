@@ -104,6 +104,7 @@ import { generateHandoverAllLocations, pruneOldHandoverReports } from '@/lib/del
 import { aggregateFeedbackAllLocations, pruneOldFeedback } from '@/lib/delivery/driver-feedback';
 import { snapshotZoneCapacityAllLocations, rebalanceAllLocations, pruneOldSnapshots as pruneZoneSnapshots } from '@/lib/delivery/zone-rebalancing';
 import { snapAllLocations as snapOrderLifecycle, pruneOldLifecycleSnapshots } from '@/lib/delivery/order-lifecycle';
+import { snapshotAllLocations as snapshotGeoHeatmap, pruneOldSnapshots as pruneHeatmapSnapshots } from '@/lib/delivery/geo-heatmap';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -756,6 +757,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldLifecycleSnapshots(60).catch(() => 0)
       : 0;
 
+    // Phase 244: Geo-Heatmap Pro — alle 30 Min (isDemandTick), Prune täglich 02:00 UTC
+    const heatmapSnapResult = isDemandTick
+      ? await snapshotGeoHeatmap().catch(() => ({ locations: 0, snapped: 0, cells: 0, errors: 1 }))
+      : null;
+    const heatmapSnapshotsPruned = isReportTick
+      ? await pruneHeatmapSnapshots(60).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -928,6 +937,8 @@ export async function GET(req: NextRequest) {
       ...(zoneSnapshotsPruned ? { zone_snapshots_pruned: zoneSnapshotsPruned.pruned } : {}),
       ...(lifecycleSnapResult ? { order_lifecycle: { locations: lifecycleSnapResult.locations, snapped: lifecycleSnapResult.snapped } } : {}),
       ...(lifecycleSnapshotsPruned ? { lifecycle_snapshots_pruned: lifecycleSnapshotsPruned } : {}),
+      ...(heatmapSnapResult ? { geo_heatmap: { locations: heatmapSnapResult.locations, snapped: heatmapSnapResult.snapped, cells: heatmapSnapResult.cells } } : {}),
+      ...(heatmapSnapshotsPruned ? { heatmap_snapshots_pruned: heatmapSnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

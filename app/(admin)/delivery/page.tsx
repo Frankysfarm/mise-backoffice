@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck, Shuffle, GitBranch,
+  BookmarkCheck, Shuffle, GitBranch, Globe,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -225,6 +225,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="4-Stufen-Analyse: Dispatch-Wartezeit → Küche → Abholwartezeit → Fahrzeit · Bottleneck-Erkennung · Stunden- & 7-Tage-Trend" cta="Funnel öffnen" />
         <SectionCard href="/delivery/location-kpi-wall" icon={<LayoutGrid className="h-5 w-5" />} title="Location KPI-Wall"
           subtitle="Echtzeit-Kacheln aller Standorte · SLA, Umsatz, Fahrer, Rating · Kritisch-Alerts · 30s-Auto-Refresh" cta="KPI-Wall öffnen" highlight />
+        <SectionCard href="/delivery/geo-heatmap" icon={<Globe className="h-5 w-5" />} title="Geo-Heatmap Pro"
+          subtitle="Echtzeit-Liefer-Dichte · Stündliche Zonen-Auslastung · GeoJSON-Export für QGIS / Google Maps" cta="Heatmap öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
