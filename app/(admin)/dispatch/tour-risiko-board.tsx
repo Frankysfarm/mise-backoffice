@@ -27,7 +27,7 @@ type Stop = {
 type Batch = {
   id: string;
   status: string;
-  startzeit: string | null | undefined;
+  startzeit?: string | null;
   total_eta_min: number | null;
   total_distance_km: number | null;
   fahrer: { vorname: string; nachname: string } | null;
