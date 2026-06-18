@@ -202,6 +202,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/customer-cohorts', icon: 'LineChart', label: 'Kunden-Kohortenanalyse (LTV)' },
       { group: 'Loslegen', href: '/delivery/delivery-promise',  icon: 'Target',    label: 'Lieferversprechen-Engine (ETA-Genauigkeit)' },
       { group: 'Loslegen', href: '/delivery/driver-route-learning', icon: 'Route', label: 'Driver Route Learning (PLZ-Proficiency)' },
+      { group: 'Loslegen', href: '/delivery/driver-performance-prediction', icon: 'Brain', label: 'Fahrer-Performance-Prognose (ML)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

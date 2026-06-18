@@ -99,6 +99,7 @@ import { buildAllLocations as buildCustomerCohorts, pruneOldSnapshots as pruneCo
 import { buildAllLocations as buildCapacityForecast, pruneOldForecasts as pruneCapacityForecasts } from '@/lib/delivery/capacity-forecast';
 import { settleAllLocations as settleDeliveryPromises, pruneOldPromises } from '@/lib/delivery/delivery-promise';
 import { buildAllLocations as buildDriverRouteProfiles, pruneOldObservations as pruneRouteObservations } from '@/lib/delivery/driver-route-learning';
+import { buildPredictionsAllLocations, settleAllLocations as settlePerformancePredictions, pruneOldPredictions as prunePerformancePredictions } from '@/lib/delivery/driver-performance-prediction';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -207,6 +208,10 @@ export async function GET(req: NextRequest) {
     const isRouteLearnTick = nowHour === 3 && nowMin >= 44 && nowMin < 48;
     // Promise Settlement: jede Stunde zur vollen Stunde (Minute 0-3)
     const isPromiseSettleTick = nowMin >= 0 && nowMin < 4;
+    // Phase 232: Driver Performance Prediction — täglich 04:00 UTC (nach Wellbeing, alle Daten verfügbar)
+    const isPerfPredictionTick = nowHour === 4 && nowMin >= 0 && nowMin < 4;
+    // Phase 232: Performance Prediction Settle — täglich 02:30 UTC (nach Tagesabschluss)
+    const isPerfPredSettleTick = nowHour === 2 && nowMin >= 28 && nowMin < 32;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -699,6 +704,17 @@ export async function GET(req: NextRequest) {
       ? await pruneRouteObservations(120).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 232: Driver Performance Prediction — täglich 04:00 UTC
+    const perfPredResult = isPerfPredictionTick
+      ? await buildPredictionsAllLocations().catch(() => ({ locations: 0, totalPredicted: 0, totalErrors: 1 }))
+      : null;
+    const perfPredSettled = isPerfPredSettleTick
+      ? await settlePerformancePredictions().catch(() => ({ locations: 0, settled: 0, errors: 0 }))
+      : null;
+    const perfPredPruned = isReportTick
+      ? await prunePerformancePredictions(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -859,6 +875,9 @@ export async function GET(req: NextRequest) {
       ...(promisesPruned ? { delivery_promises_pruned: promisesPruned.pruned } : {}),
       ...(routeLearnResult ? { driver_route_learning: { locations: routeLearnResult.locations, profiles_upserted: routeLearnResult.profilesUpserted, errors: routeLearnResult.errors } } : {}),
       ...(routeObsPruned ? { route_observations_pruned: routeObsPruned.pruned } : {}),
+      ...(perfPredResult ? { driver_perf_prediction: { locations: perfPredResult.locations, predicted: perfPredResult.totalPredicted, errors: perfPredResult.totalErrors } } : {}),
+      ...(perfPredSettled ? { driver_perf_settled: { locations: perfPredSettled.locations, settled: perfPredSettled.settled, errors: perfPredSettled.errors } } : {}),
+      ...(perfPredPruned ? { driver_perf_pred_pruned: perfPredPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

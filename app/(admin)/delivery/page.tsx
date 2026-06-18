@@ -212,6 +212,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Dynamische Lieferfenster · Selbst-kalibrierend · Pünktlichkeits-Score · 30-Tage Genauigkeits-Trend" cta="Dashboard öffnen" />
         <SectionCard href="/delivery/driver-route-learning" icon={<Route className="h-5 w-5" />} title="Driver Route Learning"
           subtitle="Fahrer-PLZ-Proficiency · Routen-Lernkurve · Bester-Fahrer-Empfehlung · täglich aktualisiert" cta="Lernkurve öffnen" />
+        <SectionCard href="/delivery/driver-performance-prediction" icon={<BrainCircuit className="h-5 w-5" />} title="Fahrer-Performance-Prognose"
+          subtitle="ML · Trend + Momentum + Zuverlässigkeit + Wellbeing + Route-Learning · tägliche Vorhersage + Genauigkeits-Tracking" cta="Prognose öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
