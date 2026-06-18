@@ -1,5 +1,22 @@
 # Smart Delivery System — Fortschritt
 
+## Phase 231 — Smart Driver Route Learning (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `scripts/migrations/120_driver_route_learning.sql` — driver_route_observations (raw: driver_id, batch_id, order_id, plz, delivery_zone, lat/lng, delivery_min, on_time, UNIQUE batch_id+order_id, 3 Indizes), driver_route_profiles (aggregiert: driver_id+plz, stop_count, avg_delivery_min, on_time_rate, proficiency_score 0–100, last_delivery_at, UNIQUE location+driver+plz), prune_old_driver_route_observations(days_to_keep=120) RPC
+- `lib/delivery/driver-route-learning.ts` — recordTourObservations() (extrahiert delivered Dropoff-Stops aus mise_delivery_batches, berechnet delivery_min vom ersten Pickup, on_time vs. eta_latest, UPSERT mit ignoreDuplicates), buildRouteProfiles() (90-Tage-Fenster, PLZ-Populationsdurchschnitt als Benchmark, Proficiency: speed 50% + ontime 30% + experience log-scale 20%, chunk-UPSERT 200er-Batches), buildAllLocations() Cron-Batch, getDriverRouteSuggestion() (beste Fahrer für PLZ-Liste, Ø-Score + Coverage-%), getRouteLearningDashboard() (Stats + Top-20-Profile + PLZ-Stats Top-30 + Fahrer-Ranking), pruneOldObservations()
+- `app/api/delivery/admin/driver-route-learning/route.ts` — Auth via employees.location_id + QP-Fallback, GET action=dashboard|suggest&plz=X,Y, POST action=rebuild|prune
+- `app/(admin)/delivery/driver-route-learning/page.tsx` + `client.tsx` — Dashboard: 4 KPI-Karten (Beobachtungen/Aktive Fahrer/Profile gesamt/Ø Proficiency-Score), 3 Tabs (Top Profile / PLZ-Übersicht / Fahrer-Ranking), Score-Balken mit Farbkodierung, 5-Min-Auto-Refresh, manueller Rebuild-Button
+- Cron: buildDriverRouteProfiles() täglich 03:45 UTC + pruneRouteObservations(120) täglich isReportTick
+- Sidebar: Route-Icon + `/delivery/driver-route-learning` Eintrag
+- Delivery-Overview: SectionCard „Driver Route Learning" in KI-Tools-Gruppe
+
+### Build: ✅ 296 Seiten, 0 neue TypeScript-Fehler
+
+---
+
 ## Phase 229 — Smart Delivery Promise Engine (DONE ✅)
 
 **Datum:** 2026-06-18
