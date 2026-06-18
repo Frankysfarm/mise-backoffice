@@ -83,7 +83,7 @@ export function OrderStatusTracker({ orderId, initialStatus, initialEtaMin }: Pr
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           if (!mounted) return;
           const row = payload.new as Record<string, unknown>;
           if (row?.status) setStatus(row.status as string);

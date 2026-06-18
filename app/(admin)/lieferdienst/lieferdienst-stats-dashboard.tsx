@@ -225,7 +225,7 @@ export function LieferdienstStatsDashboard() {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders' },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           const row = payload.new as Record<string, unknown>;
           if (row?.status === 'geliefert' || row?.status === 'abgeschlossen') {
             setRealtimePulse(true);
