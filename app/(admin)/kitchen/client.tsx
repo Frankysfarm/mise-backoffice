@@ -67,6 +67,7 @@ import { KitchenBatchDeparturePanel } from './batch-departure-panel';
 import { KitchenSchichtSchnellstatus } from './schicht-schnellstatus';
 import { KochstartSyncBand } from './kochstart-sync-band';
 import { PrepQueueMonitor } from './prep-queue-monitor';
+import { KitchenEchtzeitCountdownBoard } from './echtzeit-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1354,6 +1355,8 @@ export function KitchenBoard({
 
       {/* Phase 233: Zubereitungs-Queue-Monitor mit Urgency-Farbkodierung */}
       {!bigDisplay && <PrepQueueMonitor useMock />}
+      {/* Echtzeit-Countdown-Board: farbkodiertes Live-Timing je Bestellung */}
+      <KitchenEchtzeitCountdownBoard orders={orders} />
     </div>
   );
 }

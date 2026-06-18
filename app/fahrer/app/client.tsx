@@ -18,6 +18,7 @@ import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
+import { FahrerNaviStrip } from './fahrer-navi-strip';
 import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
 import { SchichtPuls } from './schicht-puls';
@@ -1045,6 +1046,12 @@ export function FahrerApp({
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
+            </div>
+          )}
+          {/* Fahrer-Navi-Strip: Nächster Stop mit Navigation + Telefon */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerNaviStrip stops={activeBatch.stops as any} currentStopIdx={0} />
             </div>
           )}
           {/* Phase 213: Stopp-Schnell-Panel — kompakter Schnellzugriff mit Navigation + Anruf je Stopp */}

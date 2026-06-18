@@ -89,6 +89,7 @@ import { type HotspotMarker } from './driver-map';
 import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 import { DispatchProfitStrip } from './profit-strip';
 import { DispatchTourVisualisierung } from './tour-visualisierung';
+import { DispatchTourStageProgress } from './tour-stage-progress';
 import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
 import { FahrerVerfügbarkeitsAmpel } from './fahrer-verfuegbarkeits-ampel';
@@ -876,6 +877,8 @@ export function DispatchBoard({
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}
       <TourEtaStrip batches={batches} drivers={drivers} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
+      {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
+      <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
       {/* Tour-Risiko-Board: SLA-Risikoanalyse aller aktiven Touren — sortiert nach Kritikalität */}
       <DispatchTourRisikoBoard batches={batches} />

@@ -94,6 +94,7 @@ import { SchichtVerlaufsKurve } from './schicht-verlaufs-kurve'
 import { SchichtAbschlussPrognose } from './schicht-abschluss-prognose'
 import { LiveErloesPrognose } from './live-erloes-prognose'
 import { SchichtKurzauswertung } from './schicht-kurzauswertung'
+import { SchichtLiveKpiPanel } from './schicht-live-kpi-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1043,6 +1044,8 @@ export function LieferdienstClient() {
               <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 233: Schicht-Kurzauswertung — Echtzeit-Vergleich KPIs vs. Ziele */}
               <SchichtKurzauswertung locationId={locationId} />
+              {/* Schicht-Live-KPI-Panel: Echtzeit-KPIs für die aktuelle Schicht */}
+              <SchichtLiveKpiPanel />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}
