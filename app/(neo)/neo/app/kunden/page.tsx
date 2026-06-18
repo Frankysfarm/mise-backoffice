@@ -1,36 +1,35 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
+import { Soon } from '../_soon';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+const CAMP = [{ name: 'E-Mail-Kampagne', desc: 'Newsletter & Angebote', bg: '#EEF2FF', ic: '#4F46E5' }, { name: 'WhatsApp', desc: 'Direkt aufs Handy', bg: '#ECFDF5', ic: '#047857' }, { name: 'SMS', desc: 'Kurz & zuverlässig', bg: '#FEF3C7', ic: '#B45309' }];
 export default async function Kunden() {
   const emp = await getCurrentEmployee();
-  const supabase = createServiceClient();
-  const { data } = await supabase.from('customer_orders').select('kunde_name, kunde_telefon, gesamtbetrag, created_at').eq('tenant_id', emp?.tenant_id ?? '').neq('status', 'storniert').order('created_at', { ascending: false }).limit(1000);
-  const map = new Map<string, { name: string; tel: string; orders: number; total: number; last: string }>();
-  for (const o of (data ?? []) as any[]) {
-    const key = o.kunde_telefon || o.kunde_name || ''; if (!key) continue;
-    const e = map.get(key) || { name: o.kunde_name || '—', tel: o.kunde_telefon || '', orders: 0, total: 0, last: o.created_at };
-    e.orders++; e.total += Number(o.gesamtbetrag ?? 0); if (o.created_at > e.last) e.last = o.created_at;
-    map.set(key, e);
-  }
+  const sb = createServiceClient();
+  const { data } = await sb.from('customer_orders').select('kunde_name, kunde_telefon, kunde_email, gesamtbetrag, created_at').eq('tenant_id', emp?.tenant_id ?? '').neq('status', 'storniert').order('created_at', { ascending: false }).limit(2000);
+  const map = new Map<string, any>();
+  for (const o of (data ?? []) as any[]) { const k = o.kunde_telefon || o.kunde_name; if (!k) continue; const e = map.get(k) || { name: o.kunde_name || '—', email: o.kunde_email || o.kunde_telefon || '', orders: 0, total: 0 }; e.orders++; e.total += Number(o.gesamtbetrag ?? 0); map.set(k, e); }
   const customers = [...map.values()].sort((a, b) => b.total - a.total);
-  const campaigns = [['E-Mail-Kampagne', '#4F46E5', '#EEF2FF'], ['WhatsApp', '#10B981', '#ECFDF5'], ['SMS', '#F59E0B', '#FEF3C7']];
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
-        {campaigns.map(([t, c, bg]) => (<div key={t} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18, boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}><div style={{ width: 36, height: 36, borderRadius: 10, background: bg, marginBottom: 10 }} /><div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 15 }}>{t}</div><button style={{ marginTop: 10, height: 34, padding: '0 14px', borderRadius: 9, border: 'none', background: c as string, color: '#fff', fontSize: 12.5, fontWeight: 600 }}>Kampagne starten</button></div>))}
+    <div style={{ maxWidth: 1180 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 22 }}>
+        {CAMP.map((c) => (<Soon key={c.name} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 13, cursor: 'pointer', textAlign: 'left', width: '100%' }}><div style={{ width: 42, height: 42, borderRadius: 11, background: c.bg, flexShrink: 0 }} /><div style={{ flex: 1 }}><div style={{ fontSize: 14.5, fontWeight: 700, color: '#0F172A' }}>{c.name}</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>{c.desc}</div></div><span style={{ fontSize: 10.5, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '2px 7px', borderRadius: 6 }}>Bald</span></Soon>))}
       </div>
-      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(15,23,42,.05)' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700 }}>Kunden</h3><span style={{ fontSize: 12.5, color: '#94A3B8' }}>{customers.length} gesamt</span></div>
-        {customers.slice(0, 50).map((c, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 20px', borderBottom: '1px solid #F1F5F9' }}>
-            <span style={{ flex: 1, fontWeight: 600, fontSize: 14 }}>{c.name}</span>
-            <span style={{ fontSize: 12.5, color: '#64748B', width: 140 }}>{c.tel}</span>
-            <span style={{ fontSize: 12.5, color: '#64748B', width: 90 }}>{c.orders} Best.</span>
-            <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 13.5, width: 90, textAlign: 'right' }}>{eur(c.total)}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 11, padding: '11px 15px', marginBottom: 18 }}><span style={{ fontSize: 13, color: '#92400E', fontWeight: 600 }}>⚠ Marketing wird nur an Kunden mit ausdrücklicher Einwilligung gesendet.</span></div>
+      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Kunden <span style={{ color: '#94A3B8', fontWeight: 500 }}>· {customers.length}</span></h3></div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 0.7fr 0.9fr 1fr', padding: '11px 22px', background: '#F8FAFC', fontSize: 12, fontWeight: 700, color: '#94A3B8', letterSpacing: '.3px' }}><span>KUNDE</span><span>KONTAKT</span><span>BEST.</span><span>UMSATZ</span><span>STATUS</span></div>
+        {customers.length === 0 && <div style={{ padding: '24px 22px', color: '#94A3B8', fontSize: 13 }}>Noch keine Kunden.</div>}
+        {customers.slice(0, 60).map((c, i) => { const stamm = c.orders >= 3; return (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 0.7fr 0.9fr 1fr', alignItems: 'center', padding: '14px 22px', borderTop: '1px solid #F1F5F9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}><div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#A5B4FC,#6366F1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, flexShrink: 0 }}>{(c.name || '?').slice(0, 2).toUpperCase()}</div><div style={{ minWidth: 0 }}><div style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{c.name}</div></div></div>
+            <span style={{ fontSize: 13, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</span>
+            <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 600, fontSize: 14, color: '#334155' }}>{c.orders}</span>
+            <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{eur(c.total)}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: stamm ? '#047857' : '#64748B', background: stamm ? '#ECFDF5' : '#F1F5F9', padding: '4px 10px', borderRadius: 999, justifySelf: 'start' }}>{stamm ? 'Stammkunde' : 'Neukunde'}</span>
           </div>
-        ))}
-        {customers.length === 0 && <div style={{ padding: 30, textAlign: 'center', color: '#94A3B8' }}>Noch keine Kunden.</div>}
+        ); })}
       </div>
     </div>
   );
