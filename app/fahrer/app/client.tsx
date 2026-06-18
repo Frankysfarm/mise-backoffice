@@ -54,6 +54,7 @@ import { SchichtBedarfChip } from './schicht-bedarf-chip';
 import { FahrzeitPrognose } from './fahrzeit-prognose';
 import { StopSchnellPanel } from './stop-schnell-panel';
 import { SmartStopNavigator } from './smart-stop-navigator';
+import { NaechsterStoppCountdown } from './naechster-stopp-countdown';
 import { FahrerIncentiveLiveStrip } from './incentive-live-strip';
 import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
 import { FahrerRouteQualitaet } from './route-qualitaet';
@@ -911,6 +912,12 @@ export function FahrerApp({
           </div>
           {/* Kassen-Übersicht: Bargeld-Stops mit Gesamtbetrag — aufklappbar */}
           <KassenUebersicht stops={activeBatch.stops as any} />
+          {/* Phase 247: Nächster-Stopp-Countdown — ETA-Fenster + Distanz + Aktions-Buttons */}
+          <NaechsterStoppCountdown
+            stops={activeBatch.stops as any}
+            currentLat={driverPos?.lat ?? null}
+            currentLng={driverPos?.lng ?? null}
+          />
           {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}
           <SmartStopNavigator
             stops={activeBatch.stops as any}

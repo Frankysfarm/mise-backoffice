@@ -13,6 +13,7 @@ import { LivePrepSteps } from './live-prep-steps';
 import { LiveFahrerStatus } from './live-fahrer-status';
 import { BestellungLiveEtaBanner } from './bestellung-live-eta-banner';
 import { LieferversrechenWidget } from './lieferversprechen-widget';
+import { EtaSekundenCountdown } from '../eta-sekunden-countdown';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -501,6 +502,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                   : 'Fahrer ist direkt auf dem Weg zu dir'}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Sekunden-Countdown: kompakter Live-Timer wenn Fahrer unterwegs und < 10 Min */}
+        {isDelivery && liveStatus === 'unterwegs' && (
+          <div className="mt-3 w-full">
+            <EtaSekundenCountdown
+              etaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : null}
+              status={liveStatus}
+            />
           </div>
         )}
 

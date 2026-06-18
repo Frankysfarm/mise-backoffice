@@ -122,6 +122,7 @@ import { DispatchZoneErtragsStrip } from './zone-ertrags-strip';
 import { DispatchTourParallelVergleich } from './tour-parallel-vergleich';
 import { DispatchTourZeitfortschritt } from './tour-zeitfortschritt';
 import { DriverBonusProximityPanel } from './driver-bonus-proximity-panel';
+import { RealtimeGpsDashboard } from './realtime-gps-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -969,6 +970,12 @@ export function DispatchBoard({
       <DispatchTourParallelVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 243: Bonus-Nähe-Panel — Fahrer kurz vor Meilenstein-Bonus */}
       <DriverBonusProximityPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 247: Echtzeit-GPS-Dashboard — self-fetching Leaflet-Karte mit allen Fahrern + Touren */}
+      <RealtimeGpsDashboard
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')}
+        restaurantLat={locations[0]?.lat ?? null}
+        restaurantLng={locations[0]?.lng ?? null}
+      />
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
