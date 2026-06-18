@@ -56,6 +56,7 @@ import { SmartStopNavigator } from './smart-stop-navigator';
 import { FahrerIncentiveLiveStrip } from './incentive-live-strip';
 import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
 import { FahrerRouteQualitaet } from './route-qualitaet';
+import { DriverHotspotTip } from './driver-hotspot-tip';
 
 type Driver = {
   id: string;
@@ -1530,6 +1531,16 @@ export function FahrerApp({
 
         {/* Positionierungs-Empfehlung */}
         {!activeBatch && isOnline && <PositioningSuggestionBanner />}
+
+        {/* Phase 174: Geo-Cluster Hotspot-Tipp — beste Warte-Position bei Leerlauf */}
+        {!activeBatch && isOnline && (
+          <DriverHotspotTip
+            isOnline={isOnline}
+            hasActiveBatch={false}
+            driverPos={driverPos}
+            locationId={driver.location_id}
+          />
+        )}
 
         {/* Offline state */}
         {!isOnline && !activeBatch && (

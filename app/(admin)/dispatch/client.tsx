@@ -111,6 +111,8 @@ import { TourLiveScoreStrip } from './tour-live-score-strip';
 import { DispatchIncentiveMilestoneStrip } from './incentive-milestone-strip';
 import { DispatchNaechsteTourEmpfehlung } from './naechste-tour-empfehlung';
 import { DispatchReadinessHUD } from './dispatch-readiness-hud';
+import { DispatchFahrerWellbeingStrip } from './fahrer-wellbeing-strip';
+import { DispatchQualityScoreWidget } from './quality-score-widget';
 
 type Driver = {
   employee_id: string;
@@ -917,6 +919,9 @@ export function DispatchBoard({
       {/* Dispatch-Score-Trend: stündlicher Verlauf des Ø-Dispatch-Scores heute als Sparkline */}
       <DispatchScoreTrendStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
+      {/* Phase 214: Qualitäts-Score-Widget — Note A–F mit Dimensionsaufschlüsselung für Dispatcher */}
+      <DispatchQualityScoreWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
 
@@ -1297,6 +1302,9 @@ export function DispatchBoard({
 
       {/* Fahrer-Ermüdungsmonitor: Echtzeit-Fatigue-Scores aller aktiven Fahrer (Phase 200) */}
       <DispatchFahrerErmuedungsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 226: Fahrer-Wellbeing-Index — Burnout-Prävention im Dispatch-Board */}
+      <DispatchFahrerWellbeingStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Tour-Routen-Übersicht: alle aktiven Touren mit Stopp-Fortschritt und ETA */}
       <TourRouteOverview batches={batches} />

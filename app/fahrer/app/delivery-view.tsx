@@ -7,6 +7,7 @@ import { euro, cn } from '@/lib/utils';
 import { NaviWidget } from './navi-widget';
 import { TourCompletionScreen } from './tour-completion';
 import { LieferungBestaetigung } from './lieferung-bestaetigung';
+import { StopCheckliste } from './stop-checkliste';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
 const FAILED_REASON_LABELS: Record<FailedReason, string> = {
@@ -831,6 +832,17 @@ export function DeliveryView({
               <span className="text-blue-200 text-[11px] leading-snug">{nextStop.order.kunde_lieferhinweis}</span>
             </div>
           )}
+          {/* Stop-Checkliste: Interaktive Abgabe-Schritte für den Fahrer */}
+          <div className="mt-2">
+            <StopCheckliste
+              kunde_name={nextStop.order.kunde_name}
+              zahlungsart={nextStop.order.zahlungsart ?? null}
+              bezahlt={nextStop.order.bezahlt ?? null}
+              gesamtbetrag={nextStop.order.gesamtbetrag}
+              kunde_notiz={nextStop.order.kunde_notiz ?? null}
+              kunde_lieferhinweis={nextStop.order.kunde_lieferhinweis ?? null}
+            />
+          </div>
           {/* Bestellpositionen: Lieferverifizierung */}
           {(() => {
             const items = orderItems.get(nextStop.order_id);
