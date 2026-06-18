@@ -135,6 +135,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Personalisierte Tagesberichte per E-Mail · Leistung, Verdienst, Challenges · täglich 20:00 UTC" cta="Konfigurieren" />
         <SectionCard href="/delivery/driver-retention" icon={<Users className="h-5 w-5" />} title="Fahrer-Retention Score"
           subtitle="5-Faktoren Abwanderungs-Risiko · Schicht-Frequenz, Trinkgeld, Incentives, Pünktlichkeit, No-Shows · Proaktive Maßnahmen" cta="Retention öffnen" />
+        <SectionCard href="/delivery/review-flags" icon={<ShieldAlert className="h-5 w-5" />} title="Fahrer-Review Flags"
+          subtitle="Automatische Qualitätswarnungen · Durchschnitt &lt; 3.0 oder 1-Stern-Burst · Admin-Workflow mit Notizen" cta="Flags verwalten" />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

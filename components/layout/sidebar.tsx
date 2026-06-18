@@ -205,6 +205,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/driver-performance-prediction', icon: 'Brain', label: 'Fahrer-Performance-Prognose (ML)' },
       { group: 'Loslegen', href: '/delivery/shift-handover',   icon: 'BookmarkCheck',     label: 'Schicht-Übergabe (Handover-Bericht)' },
       { group: 'Loslegen', href: '/delivery/driver-feedback',  icon: 'MessageSquarePlus', label: 'Fahrer-Feedback Loop (Stimmung & Issues)' },
+      { group: 'Loslegen', href: '/delivery/review-flags',    icon: 'ShieldAlert',        label: 'Fahrer-Review Flags (Bewertungs-Warnungen)' },
       { group: 'Loslegen', href: '/delivery/zone-rebalancing', icon: 'Shuffle',            label: 'Zonen-Umverteilung (Auto-Rebalancing)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
