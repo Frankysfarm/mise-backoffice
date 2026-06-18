@@ -1,5 +1,22 @@
 # Smart Delivery System — Fortschritt
 
+## Phase 232 — Smart Driver Performance Prediction (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `scripts/migrations/121_driver_performance_prediction.sql` — driver_performance_predictions (location_id, driver_id, prediction_date DATE, predicted_tours/stops/on_time_rate/avg_min, confidence_score 0–100, performance_tier top|good|average|at_risk, feature_weights JSONB, actual_tours/on_time_rate + accuracy_score retrospektiv, prune_old_performance_predictions(90) RPC)
+- `lib/delivery/driver-performance-prediction.ts` — computePrediction() 5-Faktor-Algorithmus (basis 60%: 30d-Ø; trend 15%: lineare Regression 7 Tage; momentum 10%: 3d-Delta; reliability 10%; wellbeing 5%), confidence_score aus Datenpunkten + Konsistenz-CV + Profil-Vollständigkeit, buildPredictionsForLocation() chunk-UPSERT 100er-Batches, buildPredictionsAllLocations() Cron-Batch, settlePredictions() retroaktiv Ist-Werte + accuracy_score, settleAllLocations(), pruneOldPredictions(90), getPredictionDashboard() mit Accuracy-7d-Stats + Tier-Verteilung
+- `app/api/delivery/admin/driver-performance-prediction/route.ts` — Auth via employees.location_id + QP-Fallback, GET action=dashboard, POST action=rebuild|settle|prune
+- `app/(admin)/delivery/driver-performance-prediction/page.tsx` + `client.tsx` — 4 KPI-Karten (Fahrer/Top-Tier/Risiko/Touren), Accuracy-7d-Panel (Genauigkeit/Fehler/Perfect), SVG-Stacked-Bar Tier-Verteilung 7 Tage, klappbare Driver-Rows mit Feature-Detail (Basis-Touren/Trend/Momentum/Snapshots/Reliability/Wellbeing/Proficiency), 5-Min Auto-Refresh, manueller Rebuild-Button
+- Cron: buildPredictionsAllLocations() täglich 04:00 UTC + settleAllLocations() täglich 02:30 UTC + pruneOldPredictions(90) täglich 02:00 UTC
+- Sidebar: Brain-Icon + /delivery/driver-performance-prediction
+- Delivery-Overview: SectionCard „Fahrer-Performance-Prognose" in KI-Tools-Gruppe
+
+### Build: ✅ 297 Seiten, 0 TypeScript-Fehler
+
+---
+
 ## Phase 231 — Smart Driver Route Learning (DONE ✅)
 
 **Datum:** 2026-06-18
