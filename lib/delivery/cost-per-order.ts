@@ -206,7 +206,7 @@ export async function getCostPerOrderDashboard(
   const hourMap = new Map<number, { trips: number; orders: number; cost: number; fees: number; margin: number }>();
 
   for (const r of rows) {
-    const h = new Date(r.computed_at).getHours();
+    const h = new Date(r.computed_at).getUTCHours();
     const cur = hourMap.get(h) ?? { trips: 0, orders: 0, cost: 0, fees: 0, margin: 0 };
     cur.trips++;
     cur.orders += r.stops_count;

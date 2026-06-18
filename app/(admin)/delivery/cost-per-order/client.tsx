@@ -152,8 +152,9 @@ function HourlyChart({ data }: { data: HourlyOrderCost[] }) {
         <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v) => `${v}€`} />
         <Tooltip
           contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 8 }}
-          formatter={(v: number, name: string) => [
-            `${v?.toFixed(2)} €`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          formatter={(v: any, name: any) => [
+            `${(typeof v === 'number' ? v : Number(v))?.toFixed(2)} €`,
             name === 'cost' ? 'Kosten/Bestellung' : name === 'fee' ? 'Gebühr/Bestellung' : 'Marge/Bestellung',
           ]}
         />
@@ -185,8 +186,9 @@ function TrendChart({ data }: { data: { dateStr: string; avgCostPerOrderEur: num
         <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} tickFormatter={(v) => `${v}€`} />
         <Tooltip
           contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 8 }}
-          formatter={(v: number, name: string) => [
-            `${v?.toFixed(2)} €`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          formatter={(v: any, name: any) => [
+            `${(typeof v === 'number' ? v : Number(v))?.toFixed(2)} €`,
             name === 'cost' ? 'Kosten' : name === 'fee' ? 'Gebühr' : 'Marge',
           ]}
         />

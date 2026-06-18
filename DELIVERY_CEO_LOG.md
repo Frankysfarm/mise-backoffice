@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–243 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (304 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–245 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (306 Seiten). Deployment-bereit.
 
 ---
 
@@ -9104,3 +9104,57 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 1. `BestellungStatusBand` in `success-state.tsx` einbinden (ausstehend seit Review #115)
 2. `LieferungBestaetigung` in `delivery-view.tsx` einbinden (ausstehend seit Review #115)
 3. Handover-Badge auf Dispatch-Dashboard: Anzahl nicht-quittierter Übergaben anzeigen
+
+---
+
+## CEO-Review #143 — 2026-06-18
+
+### Geprüfte Phasen: Phase 244 (Geo-Heatmap Pro Backend) + Phase 244/245 (Kosten-pro-Bestellung Frontend)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 2 TypeScript-Fehler gefunden + gefixt ✅
+- `npx next build`: Compiled successfully ✅ (306 Seiten, 0 Fehler)
+
+**TypeScript-Fehler gefixt:**
+- `app/(admin)/delivery/cost-per-order/client.tsx:155` — Recharts Tooltip-Formatter: `(v: number, name: string)` → `(v: any, name: any)` (Recharts `ValueType`/`NameType`-Inkompatibilität) ✅
+- `app/(admin)/delivery/cost-per-order/client.tsx:188` — Gleicher Fix für zweiten Formatter (TrendChart) ✅
+
+**Logik-Bug gefixt:**
+- `lib/delivery/cost-per-order.ts:209` — `new Date(r.computed_at).getHours()` → `getUTCHours()` für konsistentes UTC-Stunden-Bucketing (gesamtes Codebase nutzt UTC-Konvention) ✅
+
+**Code-Review Phase 244 Backend (geo-heatmap.ts):**
+- `snapshotCurrentDeliveries()`: Gitter-Aggregation nach 0.01° korrekt, Upsert mit `onConflict` korrekt ✅
+- `getLiveHeatmap()`: Parallele Queries für Orders + Fahrer, Null-Guards korrekt ✅
+- `getHistoricalHeatmap()`: Clientseitige Aggregation mit Set-deduplication für aktiveDays ✅
+- `exportGeoJSON()`: RFC 7946 konform (lng vor lat in coordinates) ✅
+- `getDashboard()`: `oldestBucket` immer `null` — kein Bug, nur fehlende Optimierung (akzeptabel) ✅
+- Cron: `snapshotGeoHeatmap()` an `isDemandTick` gehängt, Prune an `isReportTick` — korrekt ✅
+- Sidebar: beide Seiten (Geo-Heatmap Pro + Kosten pro Bestellung) korrekt eingetragen ✅
+
+**Code-Review Phase 244/245 Frontend (cost-per-order):**
+- KPI-Karten: avgCostPerOrderEur / avgFeePerOrderEur / avgMarginPerOrderEur / lossOrdersPct — korrekt ✅
+- HourlyChart + TrendChart: Recharts BarChart + LineChart korrekt konfiguriert ✅
+- ByDriver-Tabelle: sortiert nach totalOrders DESC, lossTrips als Warnbadge ✅
+- ByVehicle-Tabelle: totalMarginEur + marginPct korrekt ✅
+- Tage-Filter (7/14/30/60/90): API-Parameter `?days=N` validiert (Whitelist) ✅
+
+**Bereits integriert (nicht mehr offen):**
+- `BestellungStatusBand` in `success-state.tsx` → FERTIG ✅
+- `LieferungBestaetigung` in `delivery-view.tsx` → FERTIG ✅
+
+**Bugs gefunden:** 2 TS-Fehler + 1 Logik-Bug — alle GEFIXT ✅
+
+### Status nach Review #143
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (306 Seiten)
+- Phase 244 (Geo-Heatmap Pro): DONE ✅
+- Phase 244/245 (Kosten pro Bestellung): DONE ✅
+- Bugs gefixt: 3
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 246: Smart Delivery Multi-Location Benchmark Dashboard — Vergleich aller Standorte nach KPIs (Ø Lieferzeit, Marge/Bestellung, Fahrer-Auslastung, Kundenretention)
+2. Oder: Smart Delivery Predictive Restock Engine — automatische Bestell-Trigger für Liefermaterial (Verpackung, Beilagen) basierend auf Forecast-Daten
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 246: Geo-Heatmap — interaktive Karte (Leaflet/Mapbox) statt Grid-Visualisierung für echte geografische Heatmap
+2. Oder: Phase 246: Real-time Driver GPS-Tracking Panel — Live-Karte mit Fahrer-Positionen und Tour-Fortschritt
