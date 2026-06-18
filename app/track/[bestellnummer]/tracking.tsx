@@ -24,6 +24,7 @@ import {
 import { DynamicEtaProgress } from '@/app/order/[locationSlug]/components/dynamic-eta-progress';
 import { OrderEtaCountdown } from './order-eta-countdown';
 import { BestellstatusAnimation } from './bestellstatus-animation';
+import { DriverApproachCountdown } from './driver-approach-countdown';
 
 type Order = {
   order_id: string;
@@ -464,6 +465,21 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             status={order.status}
           />
         )}
+
+        {/* Fahrer-Ankunfts-Countdown: Live-Distanz + Näherungs-Animation */}
+        <DriverApproachCountdown
+          bestellnummer={order.bestellnummer}
+          initialStatus={order.status}
+          initialDriverLat={order.fahrer_lat}
+          initialDriverLng={order.fahrer_lng}
+          initialKundeLat={order.kunde_lat}
+          initialKundeLng={order.kunde_lng}
+          initialEtaMin={
+            order.eta_latest
+              ? Math.max(0, Math.round((new Date(order.eta_latest).getTime() - Date.now()) / 60_000))
+              : null
+          }
+        />
 
         {/* ETA-Verbesserungs-Banner: animiertes Highlight wenn Lieferzeit kürzer wird */}
         {etaImproved && (

@@ -88,6 +88,7 @@ import { SchichtAutoDraftStrip } from './schicht-auto-draft-strip'
 import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
 import { IncentiveTagesUebersicht } from './incentive-tages-uebersicht'
 import { LiveOpsStats } from './live-ops-stats'
+import { SchichtEchtzeitRangliste } from './schicht-echtzeit-rangliste'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1164,6 +1165,8 @@ export function LieferdienstClient() {
 
           {currentView === 'drivers' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-Echtzeit-Rangliste: Live-Leaderboard der aktiven Fahrer nach Lieferungen */}
+              <SchichtEchtzeitRangliste />
               {/* Aktive Fahrer: Live-Kacheln mit GPS-Status, aktueller Tour und verbleibenden Stops */}
               <AktivFahrerKacheln locationId={locationId} />
               <DriversView drivers={drivers} />

@@ -55,6 +55,7 @@ import { StopSchnellPanel } from './stop-schnell-panel';
 import { SmartStopNavigator } from './smart-stop-navigator';
 import { FahrerIncentiveLiveStrip } from './incentive-live-strip';
 import { FahrerComebackBonusHinweis } from './comeback-bonus-hinweis';
+import { FahrerRouteQualitaet } from './route-qualitaet';
 
 type Driver = {
   id: string;
@@ -987,6 +988,15 @@ export function FahrerApp({
               <FahrerWetterWarnBanner locationId={driver.location_id} />
             </div>
           )}
+          {/* Routen-Qualität: Pünktlichkeit, Distanz, Ø Zeit/Stop */}
+          <div className="px-4">
+            <FahrerRouteQualitaet
+              stops={activeBatch.stops as any}
+              batchStartedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+              totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+            />
+          </div>
           {/* Tour-Opt-Badge: zeigt ob Route optimiert wurde + km-Ersparnis */}
           <div className="px-4">
             <TourOptBadge batchId={activeBatch.id} />

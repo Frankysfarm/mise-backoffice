@@ -109,6 +109,7 @@ import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
 import { DispatchTourScoreTimeline } from './tour-score-timeline';
 import { TourLiveScoreStrip } from './tour-live-score-strip';
 import { DispatchIncentiveMilestoneStrip } from './incentive-milestone-strip';
+import { DispatchNaechsteTourEmpfehlung } from './naechste-tour-empfehlung';
 
 type Driver = {
   employee_id: string;
@@ -995,6 +996,14 @@ export function DispatchBoard({
 
       {/* Nachfrage-Prognose: nächste 6h basierend auf historischem Muster */}
       <DemandForecastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Nächste-Tour-Empfehlung: KI-gestützte Batch-Empfehlung mit Zone-Gruppierung */}
+      {readyOrders.length > 0 && onlineDrivers.length > 0 && (
+        <DispatchNaechsteTourEmpfehlung
+          readyOrders={readyOrders as any}
+          drivers={drivers as any}
+        />
+      )}
 
       {/* Smart-Zuweisung: KI-basierte Fahrer-Empfehlung für die prioritärste wartende Bestellung */}
       {readyOrders.length > 0 && onlineDrivers.length > 0 && (

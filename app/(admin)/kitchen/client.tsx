@@ -60,6 +60,7 @@ import { KuechenDruckAmpel } from './kuechen-druck-ampel';
 import { KitchenAmpelTimingGrid } from './ampel-timing-grid';
 import { KitchenPrepHeatmap } from './prep-heatmap';
 import { KitchenRushHourBand } from './rush-hour-band';
+import { KitchenLivePrepMatrix } from './live-prep-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -519,6 +520,10 @@ export function KitchenBoard({
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Live-Prep-Matrix — Stations-Belegung je aktiver Bestellung mit Countdown */}
+      {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length >= 2 && (
+        <KitchenLivePrepMatrix orders={filtered} timings={timings} />
+      )}
       {/* Phase 213: Ampel-Timing-Grid — Farbkodiertes Prep-Grid mit Countdown je Bestellung */}
       {timings.length > 0 && <KitchenAmpelTimingGrid orders={filtered} timings={timings} />}
       {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
