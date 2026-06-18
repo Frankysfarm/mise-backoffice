@@ -835,12 +835,14 @@ export function DeliveryView({
           {/* Stop-Checkliste: Interaktive Abgabe-Schritte für den Fahrer */}
           <div className="mt-2">
             <StopCheckliste
-              kunde_name={nextStop.order.kunde_name}
-              zahlungsart={nextStop.order.zahlungsart ?? null}
-              bezahlt={nextStop.order.bezahlt ?? null}
-              gesamtbetrag={nextStop.order.gesamtbetrag}
-              kunde_notiz={nextStop.order.kunde_notiz ?? null}
-              kunde_lieferhinweis={nextStop.order.kunde_lieferhinweis ?? null}
+              stop={{
+                kunde_name: nextStop.order.kunde_name,
+                zahlungsart: nextStop.order.zahlungsart ?? null,
+                bezahlt: nextStop.order.bezahlt ?? null,
+                gesamtbetrag: nextStop.order.gesamtbetrag,
+                kunde_notiz: nextStop.order.kunde_notiz ?? null,
+                kunde_lieferhinweis: nextStop.order.kunde_lieferhinweis ?? null,
+              }}
             />
           </div>
           {/* Bestellpositionen: Lieferverifizierung */}
