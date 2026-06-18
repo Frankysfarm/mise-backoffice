@@ -2,19 +2,13 @@
 
 import * as React from 'react';
 
-// Mock — API-Anbindung folgt
 interface HorizonData {
   label: string;
   predicted: number;
 }
 
-function getMockData(): HorizonData[] {
-  const base = Math.floor(Math.random() * 4) + 1;
-  return [
-    { label: '15 Min', predicted: base },
-    { label: '30 Min', predicted: base + Math.floor(Math.random() * 4) + 1 },
-    { label: '45 Min', predicted: base + Math.floor(Math.random() * 6) + 3 },
-  ];
+interface ApiResponse {
+  horizons: Array<{ label: string; minutes: number; predicted: number }>;
 }
 
 function colorClass(count: number): string {
@@ -33,15 +27,41 @@ interface Props {
   locationId: string;
 }
 
-export function KitchenSchichtQueuePrognose({ locationId: _locationId }: Props) {
-  const [data, setData] = React.useState<HorizonData[]>(() => getMockData());
-  const highLoad = data[data.length - 1]?.predicted > 5;
+export function KitchenSchichtQueuePrognose({ locationId }: Props) {
+  const [data, setData] = React.useState<HorizonData[]>([
+    { label: '15 Min', predicted: 0 },
+    { label: '30 Min', predicted: 0 },
+    { label: '45 Min', predicted: 0 },
+  ]);
+  const [loading, setLoading] = React.useState(true);
   const maxCount = 10;
 
+  const load = React.useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/delivery/kitchen/queue-forecast?location_id=${encodeURIComponent(locationId)}`,
+      );
+      if (!res.ok) return;
+      const json: ApiResponse = await res.json();
+      if (json.horizons?.length) {
+        setData(
+          json.horizons.map((h) => ({ label: h.label, predicted: h.predicted })),
+        );
+      }
+    } catch {
+      // Netzwerk-Fehler — bisherige Daten behalten
+    } finally {
+      setLoading(false);
+    }
+  }, [locationId]);
+
   React.useEffect(() => {
-    const iv = setInterval(() => setData(getMockData()), 60_000);
+    void load();
+    const iv = setInterval(() => void load(), 60_000);
     return () => clearInterval(iv);
-  }, []);
+  }, [load]);
+
+  const highLoad = data[data.length - 1]?.predicted > 5;
 
   return (
     <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 mt-4">
@@ -52,6 +72,9 @@ export function KitchenSchichtQueuePrognose({ locationId: _locationId }: Props) 
             <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             Hohe Auslastung erwartet
           </span>
+        )}
+        {loading && (
+          <span className="ml-auto text-xs text-matcha-400">Laden…</span>
         )}
       </div>
 
@@ -65,7 +88,6 @@ export function KitchenSchichtQueuePrognose({ locationId: _locationId }: Props) 
             <span className="text-2xl font-bold leading-none">{horizon.predicted}</span>
             <span className="text-xs opacity-75">Bestellungen</span>
 
-            {/* Sparkline-Balken */}
             <div className="h-2 w-full bg-white/50 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${barColor(horizon.predicted)}`}

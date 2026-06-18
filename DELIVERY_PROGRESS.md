@@ -1,10 +1,27 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–238 abgeschlossen. Build sauber. 301 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–239 abgeschlossen. Build sauber. 301 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-18: Phase 239 — API-Anbindung Mock-Komponenten (Queue-Prognose, Tour-Vergleich, Fahrer-Matrix). Build ✅ 301 Seiten.**
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 239 — API-Anbindung Mock-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `app/api/delivery/kitchen/queue-forecast/route.ts` — GET-Endpoint: Zählt aktive Bestellungen der laufenden Stunde, berechnet Bestellrate (Orders/Min), prognostiziert 15/30/45-Min-Horizonte via Stunden-Rate + historisches Muster (v_hourly_demand_pattern) für Stunden-Überschreitung. Auth: Session-Check. Multi-Tenant: location_id-Filter.
+- `app/api/delivery/dispatch/tour-comparison/route.ts` — GET-Endpoint: Bis zu 4 aktive Touren (pending_acceptance/assigned/at_restaurant/on_route), Fahrername aus mise_drivers, Stops-Fortschritt (dropoff-Stops delivered/total), ETA-Abweichung in Minuten, Effizienz-Score (40% SLA + 40% Fortschritt + 20% ETA-Genauigkeit). Auth: Session-Check.
+- `app/api/delivery/dispatch/driver-matrix/route.ts` — GET-Endpoint: Aktive Schichten (driver_shifts status=active) + Fahrer-State (mise_drivers), Touren-Heute pro Fahrer zählen (mise_delivery_batches ≥ heute-UTC), Auslastung = Touren/8×100%, Status ableiten (Aktiv/Pause/Bereit), Initialen generieren. Auth: Session-Check.
+- `app/(admin)/kitchen/schicht-queue-prognose.tsx` — Mock entfernt, echte API via `useCallback`/`fetch`, Lade-Spinner, Fehlertoleranz (bisherige Daten behalten)
+- `app/(admin)/dispatch/tour-parallel-vergleich.tsx` — Mock entfernt, echte API, Leerzustand "Keine aktiven Touren"
+- `app/(admin)/lieferdienst/fahrer-auslastungs-matrix.tsx` — Mock entfernt, echte API, Leerzustand "Keine aktiven Schichten"
+
+### Build: ✅ 301 Seiten, 0 TypeScript-Fehler
 
 ---
 

@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-// Mock — API-Anbindung folgt
 interface TourData {
   id: string;
   tourNummer: number;
@@ -13,17 +12,8 @@ interface TourData {
   effizienz: number;
 }
 
-function getMockTours(): TourData[] {
-  const names = ['Max M.', 'Jana K.', 'Tom S.', 'Lena B.'];
-  return names.slice(0, 4).map((name, i) => ({
-    id: `tour-${i + 1}`,
-    tourNummer: i + 1,
-    fahrer: name,
-    stopsDone: Math.floor(Math.random() * 5) + 1,
-    stopsTotal: Math.floor(Math.random() * 4) + 5,
-    etaAbweichung: Math.floor(Math.random() * 7) + 2,
-    effizienz: Math.floor(Math.random() * 25) + 72,
-  }));
+interface ApiResponse {
+  tours: TourData[];
 }
 
 function scoreColor(score: number): string {
@@ -42,19 +32,49 @@ interface Props {
   locationId: string;
 }
 
-export function DispatchTourParallelVergleich({ locationId: _locationId }: Props) {
-  const [tours, setTours] = React.useState<TourData[]>(() => getMockTours());
+export function DispatchTourParallelVergleich({ locationId }: Props) {
+  const [tours, setTours] = React.useState<TourData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const load = React.useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/delivery/dispatch/tour-comparison?location_id=${encodeURIComponent(locationId)}`,
+      );
+      if (!res.ok) return;
+      const json: ApiResponse = await res.json();
+      if (Array.isArray(json.tours)) {
+        setTours(json.tours);
+      }
+    } catch {
+      // Netzwerk-Fehler — bisherige Daten behalten
+    } finally {
+      setLoading(false);
+    }
+  }, [locationId]);
 
   React.useEffect(() => {
-    const iv = setInterval(() => setTours(getMockTours()), 30_000);
+    void load();
+    const iv = setInterval(() => void load(), 30_000);
     return () => clearInterval(iv);
-  }, []);
+  }, [load]);
+
+  if (!loading && tours.length === 0) {
+    return (
+      <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 mt-4">
+        <span className="text-sm font-semibold text-matcha-700">Tour-Vergleich</span>
+        <p className="text-xs text-matcha-500 mt-2">Keine aktiven Touren</p>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 mt-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold text-matcha-700">Tour-Vergleich</span>
-        <span className="text-xs text-matcha-500">Aktualisiert alle 30s</span>
+        <span className="text-xs text-matcha-500">
+          {loading ? 'Laden…' : 'Aktualisiert alle 30s'}
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -80,7 +100,6 @@ export function DispatchTourParallelVergleich({ locationId: _locationId }: Props
                 <span>±{tour.etaAbweichung} Min</span>
               </div>
 
-              {/* Fortschrittsbalken Stops */}
               <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${progressBarColor(tour.effizienz)}`}

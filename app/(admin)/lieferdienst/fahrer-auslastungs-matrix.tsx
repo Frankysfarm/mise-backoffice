@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-// Mock — API-Anbindung folgt
 type FahrerStatus = 'Aktiv' | 'Pause' | 'Bereit';
 
 interface FahrerEntry {
@@ -14,24 +13,8 @@ interface FahrerEntry {
   auslastung: number;
 }
 
-function getMockFahrer(): FahrerEntry[] {
-  const drivers = [
-    { name: 'Max Müller', initials: 'MM' },
-    { name: 'Jana Koch', initials: 'JK' },
-    { name: 'Tom Schulz', initials: 'TS' },
-    { name: 'Lena Bauer', initials: 'LB' },
-    { name: 'Erik Vogel', initials: 'EV' },
-    { name: 'Sara Weiß', initials: 'SW' },
-  ];
-  const statuses: FahrerStatus[] = ['Aktiv', 'Pause', 'Bereit'];
-  return drivers.map((d, i) => ({
-    id: `f-${i}`,
-    name: d.name,
-    initials: d.initials,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    toursHeute: Math.floor(Math.random() * 7) + 2,
-    auslastung: Math.floor(Math.random() * 70) + 25,
-  }));
+interface ApiResponse {
+  fahrer: FahrerEntry[];
 }
 
 function auslastungColor(pct: number): string {
@@ -50,23 +33,54 @@ interface Props {
   locationId: string;
 }
 
-export function FahrerAuslastungsMatrix({ locationId: _locationId }: Props) {
-  const [fahrer, setFahrer] = React.useState<FahrerEntry[]>(() => getMockFahrer());
+export function FahrerAuslastungsMatrix({ locationId }: Props) {
+  const [fahrer, setFahrer] = React.useState<FahrerEntry[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const load = React.useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/delivery/dispatch/driver-matrix?location_id=${encodeURIComponent(locationId)}`,
+      );
+      if (!res.ok) return;
+      const json: ApiResponse = await res.json();
+      if (Array.isArray(json.fahrer)) {
+        setFahrer(json.fahrer);
+      }
+    } catch {
+      // Netzwerk-Fehler — bisherige Daten behalten
+    } finally {
+      setLoading(false);
+    }
+  }, [locationId]);
 
   React.useEffect(() => {
-    const iv = setInterval(() => setFahrer(getMockFahrer()), 60_000);
+    void load();
+    const iv = setInterval(() => void load(), 60_000);
     return () => clearInterval(iv);
-  }, []);
+  }, [load]);
 
-  const gesamtAuslastung = Math.round(
-    fahrer.reduce((sum, f) => sum + f.auslastung, 0) / fahrer.length,
-  );
+  if (!loading && fahrer.length === 0) {
+    return (
+      <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 mt-4">
+        <span className="text-sm font-semibold text-matcha-700">Fahrer-Auslastung</span>
+        <p className="text-xs text-matcha-500 mt-2">Keine aktiven Schichten</p>
+      </div>
+    );
+  }
+
+  const gesamtAuslastung =
+    fahrer.length > 0
+      ? Math.round(fahrer.reduce((sum, f) => sum + f.auslastung, 0) / fahrer.length)
+      : 0;
 
   return (
     <div className="rounded-xl border border-matcha-200 bg-matcha-50 p-4 mt-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold text-matcha-700">Fahrer-Auslastung</span>
-        <span className="text-xs text-matcha-500">{fahrer.length} Fahrer</span>
+        <span className="text-xs text-matcha-500">
+          {loading ? 'Laden…' : `${fahrer.length} Fahrer`}
+        </span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
@@ -101,19 +115,20 @@ export function FahrerAuslastungsMatrix({ locationId: _locationId }: Props) {
         ))}
       </div>
 
-      {/* Gesamt-Auslastung */}
-      <div className="rounded-lg border border-matcha-200 bg-white p-3 flex items-center justify-between">
-        <span className="text-xs font-semibold text-matcha-700">Auslastung gesamt</span>
-        <div className="flex items-center gap-2">
-          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${auslastungColor(gesamtAuslastung)}`}
-              style={{ width: `${gesamtAuslastung}%` }}
-            />
+      {fahrer.length > 0 && (
+        <div className="rounded-lg border border-matcha-200 bg-white p-3 flex items-center justify-between">
+          <span className="text-xs font-semibold text-matcha-700">Auslastung gesamt</span>
+          <div className="flex items-center gap-2">
+            <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${auslastungColor(gesamtAuslastung)}`}
+                style={{ width: `${gesamtAuslastung}%` }}
+              />
+            </div>
+            <span className="text-sm font-bold text-gray-700">{gesamtAuslastung}%</span>
           </div>
-          <span className="text-sm font-bold text-gray-700">{gesamtAuslastung}%</span>
         </div>
-      </div>
+      )}
     </div>
   );
 }
