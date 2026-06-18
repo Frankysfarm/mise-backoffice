@@ -11,6 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
+  BookmarkCheck,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -214,6 +215,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Fahrer-PLZ-Proficiency · Routen-Lernkurve · Bester-Fahrer-Empfehlung · täglich aktualisiert" cta="Lernkurve öffnen" />
         <SectionCard href="/delivery/driver-performance-prediction" icon={<BrainCircuit className="h-5 w-5" />} title="Fahrer-Performance-Prognose"
           subtitle="ML · Trend + Momentum + Zuverlässigkeit + Wellbeing + Route-Learning · tägliche Vorhersage + Genauigkeits-Tracking" cta="Prognose öffnen" />
+        <SectionCard href="/delivery/shift-handover" icon={<BookmarkCheck className="h-5 w-5" />} title="Schicht-Übergabe"
+          subtitle="Auto-Übergabe-Bericht 3×täglich · SLA + Umsatz + Incidents + offene Bestellungen · Quittierung + Notizen" cta="Übergabe öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

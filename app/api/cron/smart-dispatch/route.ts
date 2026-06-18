@@ -100,6 +100,7 @@ import { buildAllLocations as buildCapacityForecast, pruneOldForecasts as pruneC
 import { settleAllLocations as settleDeliveryPromises, pruneOldPromises } from '@/lib/delivery/delivery-promise';
 import { buildAllLocations as buildDriverRouteProfiles, pruneOldObservations as pruneRouteObservations } from '@/lib/delivery/driver-route-learning';
 import { buildPredictionsAllLocations, settleAllLocations as settlePerformancePredictions, pruneOldPredictions as prunePerformancePredictions } from '@/lib/delivery/driver-performance-prediction';
+import { generateHandoverAllLocations, pruneOldHandoverReports } from '@/lib/delivery/shift-handover';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -212,6 +213,8 @@ export async function GET(req: NextRequest) {
     const isPerfPredictionTick = nowHour === 4 && nowMin >= 0 && nowMin < 4;
     // Phase 232: Performance Prediction Settle — täglich 02:30 UTC (nach Tagesabschluss)
     const isPerfPredSettleTick = nowHour === 2 && nowMin >= 28 && nowMin < 32;
+    // Phase 234: Shift Handover — täglich 06:00, 14:00, 22:00 UTC (8h-Schicht-Rhythmus)
+    const isHandoverTick = (nowHour === 6 || nowHour === 14 || nowHour === 22) && nowMin < 2;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -715,6 +718,14 @@ export async function GET(req: NextRequest) {
       ? await prunePerformancePredictions(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 234: Shift Handover — 3× täglich (06:00, 14:00, 22:00 UTC)
+    const handoverResult = isHandoverTick
+      ? await generateHandoverAllLocations(8).catch(() => ({ locations: 0, reports: 0, errors: 1 }))
+      : null;
+    const handoverPruned = isReportTick
+      ? await pruneOldHandoverReports(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -878,6 +889,8 @@ export async function GET(req: NextRequest) {
       ...(perfPredResult ? { driver_perf_prediction: { locations: perfPredResult.locations, predicted: perfPredResult.totalPredicted, errors: perfPredResult.totalErrors } } : {}),
       ...(perfPredSettled ? { driver_perf_settled: { locations: perfPredSettled.locations, settled: perfPredSettled.settled, errors: perfPredSettled.errors } } : {}),
       ...(perfPredPruned ? { driver_perf_pred_pruned: perfPredPruned.pruned } : {}),
+      ...(handoverResult ? { shift_handover: { locations: handoverResult.locations, reports: handoverResult.reports, errors: handoverResult.errors } } : {}),
+      ...(handoverPruned ? { handover_reports_pruned: handoverPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
