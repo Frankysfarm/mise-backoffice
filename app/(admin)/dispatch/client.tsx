@@ -116,6 +116,7 @@ import { DispatchQualityScoreWidget } from './quality-score-widget';
 import { DispatchScoreInsightPanel } from './dispatch-score-insight';
 import { DispatchTourRisikoBoard } from './tour-risiko-board';
 import { ZoneQuickBundleAlert } from './zone-quick-bundle-alert';
+import { FahrerVorhersageDashboard } from './fahrer-vorhersage-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -928,6 +929,9 @@ export function DispatchBoard({
 
       {/* Phase 214: Qualitäts-Score-Widget — Note A–F mit Dimensionsaufschlüsselung für Dispatcher */}
       <DispatchQualityScoreWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 233: Fahrer-Performance-Vorhersage — KI-Prognose für heute mit Tier-Einstufung */}
+      <FahrerVorhersageDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />

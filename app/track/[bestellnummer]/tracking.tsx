@@ -26,6 +26,7 @@ import { OrderEtaCountdown } from './order-eta-countdown';
 import { BestellstatusAnimation } from './bestellstatus-animation';
 import { DriverApproachCountdown } from './driver-approach-countdown';
 import { OrderStatusZeitleiste } from '@/app/order/[locationSlug]/components/order-status-zeitleiste';
+import { BestellpositionAnzeige } from './bestellposition-anzeige';
 
 type Order = {
   order_id: string;
@@ -451,6 +452,12 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             typ={order.typ as 'lieferung' | 'abholung'}
           />
         )}
+
+        {/* Phase 233: Warteschlangen-Position bei bestätigten Bestellungen */}
+        <BestellpositionAnzeige
+          orderId={order.order_id}
+          status={order.status}
+        />
 
         {/* Phase 191: Animierte Status-Timeline */}
         <BestellstatusAnimation

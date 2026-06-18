@@ -66,6 +66,7 @@ import { KitchenSmartTimingAssistent } from './smart-timing-assistent';
 import { KitchenBatchDeparturePanel } from './batch-departure-panel';
 import { KitchenSchichtSchnellstatus } from './schicht-schnellstatus';
 import { KochstartSyncBand } from './kochstart-sync-band';
+import { PrepQueueMonitor } from './prep-queue-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1350,6 +1351,9 @@ export function KitchenBoard({
           stops={stops}
         />
       )}
+
+      {/* Phase 233: Zubereitungs-Queue-Monitor mit Urgency-Farbkodierung */}
+      {!bigDisplay && <PrepQueueMonitor useMock />}
     </div>
   );
 }

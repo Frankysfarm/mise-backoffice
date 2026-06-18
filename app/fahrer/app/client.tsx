@@ -61,6 +61,7 @@ import { TourStopEtaPredictor } from './tour-stop-eta-predictor';
 import { ProximityStopAlert } from './proximity-stop-alert';
 import { TourFortschrittsCockpit } from './tour-fortschritts-cockpit';
 import { TourEffizienzLive } from './tour-efficiency-live';
+import { TourEffizienzAnalyse } from './tour-effizienz-analyse';
 
 type Driver = {
   id: string;
@@ -872,6 +873,19 @@ export function FahrerApp({
               totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
             />
           </div>
+          {/* Phase 233: Effizienz-Analyse — Stops/Std vs. persönlicher Durchschnitt + Score */}
+          <div className="px-4">
+            <TourEffizienzAnalyse
+              tour={{
+                stops: activeBatch.stops.length,
+                completedStops: activeBatch.stops.filter(s => s.geliefert_am).length,
+                startedAt: activeBatch.started_at,
+                totalEarnings: (activeBatch as any).total_earnings_eur ?? undefined,
+                distanceKm: (activeBatch as any).total_distance_km ?? undefined,
+              }}
+            />
+          </div>
+
           {/* Tour-Effizienz-Live: Live-Vergleich Fortschritt vs. Zeit — Vorsprung/Rückstand */}
           <div className="px-4">
             <TourEffizienzLive
