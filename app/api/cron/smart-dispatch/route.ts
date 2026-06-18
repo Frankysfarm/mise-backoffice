@@ -91,6 +91,7 @@ import { snapshotCarbonAllLocations, pruneCo2Snapshots } from '@/lib/delivery/ca
 import { snapshotAllLocations as snapshotQualityScores, pruneOldScores as pruneQualityScores } from '@/lib/delivery/quality-score';
 import { snapshotAllLocations as snapshotBenchmarks, pruneOldBenchmarks } from '@/lib/delivery/benchmarking';
 import { evaluateIncentivesAllLocations, approveIncentivesAllLocations, pruneOldIncentiveEvents } from '@/lib/delivery/driver-incentives';
+import { snapshotAllLocations as snapshotDriverRetention, pruneOldRetentionScores } from '@/lib/delivery/driver-retention';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -183,6 +184,8 @@ export async function GET(req: NextRequest) {
     const isBenchmarkTick = nowHour === 3 && nowMin >= 0 && nowMin < 4;
     // Incentive-Approve: täglich 04:00 UTC; Incentive-Evaluate: jeden Tick (Echtzeit)
     const isIncentiveApproveTick = nowHour === 4 && nowMin >= 0 && nowMin < 4;
+    // Driver-Retention-Score: täglich 03:15 UTC (nach Digest, frische Daten)
+    const isRetentionScoreTick = nowHour === 3 && nowMin >= 14 && nowMin < 18;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -610,6 +613,15 @@ export async function GET(req: NextRequest) {
       ? await pruneOldIncentiveEvents(90).catch(() => 0)
       : 0;
 
+    // Phase 223: Driver Retention Score — täglich 03:15 UTC
+    const retentionResult = isRetentionScoreTick
+      ? await snapshotDriverRetention().catch(() => ({ locations: 0, scored: 0, errors: 1 }))
+      : null;
+    // Retention Scores bereinigen (>90 Tage) — täglich 02:00 UTC
+    const retentionScoresPruned = isReportTick
+      ? await pruneOldRetentionScores(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -756,6 +768,8 @@ export async function GET(req: NextRequest) {
       ...(incentiveEvalResult.earned > 0 ? { incentives: { evaluated: incentiveEvalResult.evaluated, earned: incentiveEvalResult.earned, errors: incentiveEvalResult.errors } } : {}),
       ...(incentiveApproved ? { incentives_approved: incentiveApproved } : {}),
       ...(incentiveEventsPruned ? { incentive_events_pruned: incentiveEventsPruned } : {}),
+      ...(retentionResult ? { driver_retention: { locations: retentionResult.locations, scored: retentionResult.scored, errors: retentionResult.errors } } : {}),
+      ...(retentionScoresPruned ? { retention_scores_pruned: retentionScoresPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
