@@ -1,8 +1,24 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–234 abgeschlossen. CEO Review #138 abgeschlossen. Build sauber. 299 Seiten. TypeScript 0 Fehler.**
-**CEO-Agent — 2026-06-18: Review #138 — Phase 234 geprüft, 1 Bug gefixt (TS implicit any in live-driver-tracker.tsx). Build ✅ 299 Seiten.**
+**Phasen 1–235 abgeschlossen. CEO Review #138 abgeschlossen. Build sauber. 300 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-18: Phase 235 — Smart Delivery Driver Feedback Loop. Build ✅ 300 Seiten.**
+
+---
+
+## Phase 235 — Smart Delivery Driver Feedback Loop (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `scripts/migrations/123_driver_feedback.sql` — `driver_feedback_reports` (location_id/driver_id/tour_id/batch_id/rating 1–5/mood enum/issue_types TEXT[]/note/tours_today, UNIQUE(driver_id, tour_id), RLS, `v_driver_feedback_summary` VIEW 30d, `v_feedback_issue_frequency` VIEW 14d, `v_feedback_location_overview` VIEW 7d, `prune_old_driver_feedback()` RPC)
+- `lib/delivery/driver-feedback.ts` — 5 Funktionen: `submitFeedback()` (Fahrer-Feedback nach Tour einreichen, Mood/Rating/IssueTypes validiert), `getDriverFeedbackSummary()` (30d-Aggregat pro Fahrer), `getLocationDashboard()` (4 parallele Queries: Übersicht/Issues/Fahrer-Rows/Letzte Berichte, Driver-Name-Enrichment), `aggregateFeedbackAllLocations()` Cron-Batch, `pruneOldFeedback()` RPC-Wrapper
+- `app/api/delivery/driver/feedback/route.ts` — POST: Feedback einreichen (Validierung Rating/Mood/IssueTypes), GET: eigene 30d-Zusammenfassung (Auth via mise_drivers)
+- `app/api/delivery/admin/driver-feedback/route.ts` — GET: dashboard|driver-summary, POST: action=prune (Auth via employees.location_id)
+- `app/(admin)/delivery/driver-feedback/page.tsx` + `client.tsx` — 4 KPI-Karten (Ø Rating 7d/Berichte gesamt/Positiv-Rate/Schlechte Stimmung), 3 Tabs (Übersicht: Issue-Frequency-Bars + Stimmungs-Balken + Info-Box; Fahrer: Alert-Markierung bei ≥30% negativ + RatingStars; Letzte Berichte: aufklappbare FeedbackCard mit IssueTypes + Notiz), 5-Min-Auto-Refresh
+- Cron: `aggregateFeedbackAllLocations()` täglich 04:30 UTC (isFeedbackAggregateTick), `pruneOldFeedback(90)` täglich isReportTick
+- Sidebar: MessageSquarePlus-Icon „Fahrer-Feedback Loop (Stimmung & Issues)" in Loslegen-Gruppe (ICON_MAP ergänzt)
+- Build: npx next build ✓ (300 Seiten, 0 TypeScript-Fehler)
 
 ---
 

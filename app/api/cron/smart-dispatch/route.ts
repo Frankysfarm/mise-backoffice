@@ -101,6 +101,7 @@ import { settleAllLocations as settleDeliveryPromises, pruneOldPromises } from '
 import { buildAllLocations as buildDriverRouteProfiles, pruneOldObservations as pruneRouteObservations } from '@/lib/delivery/driver-route-learning';
 import { buildPredictionsAllLocations, settleAllLocations as settlePerformancePredictions, pruneOldPredictions as prunePerformancePredictions } from '@/lib/delivery/driver-performance-prediction';
 import { generateHandoverAllLocations, pruneOldHandoverReports } from '@/lib/delivery/shift-handover';
+import { aggregateFeedbackAllLocations, pruneOldFeedback } from '@/lib/delivery/driver-feedback';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -215,6 +216,8 @@ export async function GET(req: NextRequest) {
     const isPerfPredSettleTick = nowHour === 2 && nowMin >= 28 && nowMin < 32;
     // Phase 234: Shift Handover — täglich 06:00, 14:00, 22:00 UTC (8h-Schicht-Rhythmus)
     const isHandoverTick = (nowHour === 6 || nowHour === 14 || nowHour === 22) && nowMin < 2;
+    // Phase 235: Driver Feedback Aggregation — täglich 04:30 UTC
+    const isFeedbackAggregateTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -726,6 +729,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldHandoverReports(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 235: Driver Feedback Aggregation — täglich 04:30 UTC
+    const feedbackAggResult = isFeedbackAggregateTick
+      ? await aggregateFeedbackAllLocations().catch(() => ({ locations: 0, errors: 1 }))
+      : null;
+    const feedbackPruned = isReportTick
+      ? await pruneOldFeedback(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -891,6 +902,8 @@ export async function GET(req: NextRequest) {
       ...(perfPredPruned ? { driver_perf_pred_pruned: perfPredPruned.pruned } : {}),
       ...(handoverResult ? { shift_handover: { locations: handoverResult.locations, reports: handoverResult.reports, errors: handoverResult.errors } } : {}),
       ...(handoverPruned ? { handover_reports_pruned: handoverPruned.pruned } : {}),
+      ...(feedbackAggResult ? { driver_feedback_aggregate: { locations: feedbackAggResult.locations, errors: feedbackAggResult.errors } } : {}),
+      ...(feedbackPruned ? { driver_feedback_pruned: feedbackPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
