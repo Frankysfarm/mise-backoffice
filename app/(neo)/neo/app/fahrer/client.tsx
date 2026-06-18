@@ -1,5 +1,6 @@
 'use client';
 import { zoneAdjust, zoneToggle, zoneAdd } from './actions';
+const run = (fn: () => Promise<void>) => fn().catch((e: any) => alert('Fehler: ' + (e?.message || e)));
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#06B6D4'];
 const Step = ({ on, children }: any) => <div onClick={on} style={{ width: 30, height: 30, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 700, color: '#475569', boxShadow: '0 1px 2px rgba(0,0,0,.06)' }}>{children}</div>;
@@ -21,13 +22,13 @@ export function ZoneTable({ zones }: { zones: any[] }) {
           <Box><Step on={() => zoneAdjust(z.id, 'liefergebuehr', -0.5, 0, 50)}>−</Step><Val color={Number(z.liefergebuehr) === 0 ? '#047857' : '#0F172A'}>{Number(z.liefergebuehr) === 0 ? 'Gratis' : eur(z.liefergebuehr)}</Val><Step on={() => zoneAdjust(z.id, 'liefergebuehr', 0.5, 0, 50)}>+</Step></Box>
           <Box><Step on={() => zoneAdjust(z.id, 'free_ab', -5, 0, 500)}>−</Step><Val color={Number(z.free_ab) === 0 ? '#94A3B8' : '#0F172A'}>{Number(z.free_ab) === 0 ? 'Aus' : eur(z.free_ab)}</Val><Step on={() => zoneAdjust(z.id, 'free_ab', 5, 0, 500)}>+</Step></Box>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <div onClick={() => zoneToggle(z.id, z.aktiv)} style={{ width: 44, height: 26, borderRadius: 999, background: z.aktiv ? '#4F46E5' : '#CBD5E1', position: 'relative', cursor: 'pointer', flexShrink: 0 }}><div style={{ position: 'absolute', top: 3, left: z.aktiv ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.2)', transition: 'left .15s' }} /></div>
+            <div onClick={() => run(() => zoneToggle(z.id, z.aktiv))} style={{ width: 44, height: 26, borderRadius: 999, background: z.aktiv ? '#4F46E5' : '#CBD5E1', position: 'relative', cursor: 'pointer', flexShrink: 0 }}><div style={{ position: 'absolute', top: 3, left: z.aktiv ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.2)', transition: 'left .15s' }} /></div>
           </div>
         </div>
       ))}
     </div>
   );
 }
-export function AddZoneBtn({ tenantId, locId }: { tenantId: string; locId: string }) {
-  return <button onClick={() => zoneAdd(tenantId, locId)} style={{ display: 'flex', alignItems: 'center', gap: 7, height: 40, padding: '0 16px', border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#fff', color: '#4338CA', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}><span dangerouslySetInnerHTML={{ __html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' }} />Zone hinzufügen</button>;
+export function AddZoneBtn() {
+  return <button onClick={() => run(() => zoneAdd())} style={{ display: 'flex', alignItems: 'center', gap: 7, height: 40, padding: '0 16px', border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#fff', color: '#4338CA', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}><span dangerouslySetInnerHTML={{ __html: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>' }} />Zone hinzufügen</button>;
 }

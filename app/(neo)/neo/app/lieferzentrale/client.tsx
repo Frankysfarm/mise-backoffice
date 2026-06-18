@@ -14,7 +14,7 @@ export function CopyBtn({ url }: { url: string }) {
 }
 export function Kanban({ orders }: { orders: any[] }) {
   const [busy, setBusy] = useState<string | null>(null);
-  const act = async (fn: () => Promise<void>, id: string) => { setBusy(id); try { await fn(); } finally { setBusy(null); } };
+  const act = async (fn: () => Promise<void>, id: string) => { setBusy(id); try { await fn(); } catch (e: any) { alert('Fehler: ' + (e?.message || e)); } finally { setBusy(null); } };
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, alignItems: 'start' }}>
       {COLS.map((col) => {

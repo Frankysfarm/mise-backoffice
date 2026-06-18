@@ -8,7 +8,7 @@ export default async function Fahrer() {
   const emp = await getCurrentEmployee();
   const supabase = createServiceClient();
   const [{ data: zones }, { data: dt }] = await Promise.all([
-    supabase.from('delivery_zones').select('id, radius_km_bis, mindestbestellwert, liefergebuehr, free_ab, aktiv').eq('tenant_id', emp?.tenant_id ?? '').order('radius_km_bis', { ascending: true }),
+    supabase.from('delivery_zones').select('id, radius_km_bis, mindestbestellwert, liefergebuehr, free_ab, aktiv').eq('tenant_id', emp?.tenant_id ?? '').eq('location_id', emp?.location_id ?? '').order('radius_km_bis', { ascending: true }),
     supabase.from('mise_driver_tenants').select('mise_drivers(id, name, email, phone, vehicle, max_radius_km, total_deliveries, rating, state)').eq('tenant_id', emp?.tenant_id ?? ''),
   ]);
   const zl = (zones ?? []) as any[];
@@ -20,7 +20,7 @@ export default async function Fahrer() {
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}>
           <div><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Lieferradien &amp; Gebühren</h3><p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2 }}>Pro Zone Mindestbestellwert und Liefergebühr festlegen — gilt automatisch im Shop &amp; an der Kasse.</p></div>
-          <AddZoneBtn tenantId={emp?.tenant_id ?? ''} locId={emp?.location_id ?? ''} />
+          <AddZoneBtn />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 0 }}>
           <div style={{ borderRight: '1px solid #F1F5F9', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFBFC' }}>
