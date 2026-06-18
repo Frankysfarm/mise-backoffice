@@ -115,6 +115,7 @@ import { DispatchFahrerWellbeingStrip } from './fahrer-wellbeing-strip';
 import { DispatchQualityScoreWidget } from './quality-score-widget';
 import { DispatchScoreInsightPanel } from './dispatch-score-insight';
 import { DispatchTourRisikoBoard } from './tour-risiko-board';
+import { ZoneQuickBundleAlert } from './zone-quick-bundle-alert';
 
 type Driver = {
   employee_id: string;
@@ -1657,6 +1658,9 @@ export function DispatchBoard({
           <DeliveryChronikPanel
             locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? null)}
           />
+
+          {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
+          <ZoneQuickBundleAlert orders={orders} />
         </div>
       </div>
     </div>

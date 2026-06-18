@@ -25,6 +25,7 @@ import { DynamicEtaProgress } from '@/app/order/[locationSlug]/components/dynami
 import { OrderEtaCountdown } from './order-eta-countdown';
 import { BestellstatusAnimation } from './bestellstatus-animation';
 import { DriverApproachCountdown } from './driver-approach-countdown';
+import { OrderStatusZeitleiste } from '@/app/order/[locationSlug]/components/order-status-zeitleiste';
 
 type Order = {
   order_id: string;
@@ -463,6 +464,14 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             etaEarliest={order.eta_earliest}
             etaLatest={order.eta_latest}
             status={order.status}
+          />
+        )}
+
+        {/* Bestellverlauf-Zeitleiste: detaillierter Zeitstempel je Statusschritt */}
+        {!['storniert'].includes(order.status) && (
+          <OrderStatusZeitleiste
+            orderId={order.order_id}
+            currentStatus={order.status}
           />
         )}
 

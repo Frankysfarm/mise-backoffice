@@ -60,6 +60,7 @@ import { DriverHotspotTip } from './driver-hotspot-tip';
 import { TourStopEtaPredictor } from './tour-stop-eta-predictor';
 import { ProximityStopAlert } from './proximity-stop-alert';
 import { TourFortschrittsCockpit } from './tour-fortschritts-cockpit';
+import { TourEffizienzLive } from './tour-efficiency-live';
 
 type Driver = {
   id: string;
@@ -869,6 +870,24 @@ export function FahrerApp({
               }))}
               startedAt={activeBatch.started_at}
               totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+            />
+          </div>
+          {/* Tour-Effizienz-Live: Live-Vergleich Fortschritt vs. Zeit — Vorsprung/Rückstand */}
+          <div className="px-4">
+            <TourEffizienzLive
+              batch={{
+                id: activeBatch.batch_id,
+                status: activeBatch.status ?? 'on_route',
+                started_at: activeBatch.started_at,
+                total_eta_min: activeBatch.total_eta_min ?? null,
+                total_distance_km: (activeBatch as any).total_distance_km ?? null,
+              }}
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am,
+              }))}
             />
           </div>
           {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}

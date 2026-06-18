@@ -65,6 +65,7 @@ import { KitchenHandoffReadyMatrix } from './handoff-ready-matrix';
 import { KitchenSmartTimingAssistent } from './smart-timing-assistent';
 import { KitchenBatchDeparturePanel } from './batch-departure-panel';
 import { KitchenSchichtSchnellstatus } from './schicht-schnellstatus';
+import { KochstartSyncBand } from './kochstart-sync-band';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1338,6 +1339,17 @@ export function KitchenBoard({
           );
         })}
       </div>}
+
+      {/* Kochstart-Sync-Band: zeigt welche Bestellungen JETZT starten müssen, synchronisiert mit Fahrer-ETA */}
+      {!bigDisplay && (
+        <KochstartSyncBand
+          orders={orders}
+          timings={timings}
+          drivers={drivers}
+          batches={batches}
+          stops={stops}
+        />
+      )}
     </div>
   );
 }
