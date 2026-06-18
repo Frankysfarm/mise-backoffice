@@ -225,6 +225,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="4-Stufen-Analyse: Dispatch-Wartezeit → Küche → Abholwartezeit → Fahrzeit · Bottleneck-Erkennung · Stunden- & 7-Tage-Trend" cta="Funnel öffnen" />
         <SectionCard href="/delivery/location-kpi-wall" icon={<LayoutGrid className="h-5 w-5" />} title="Location KPI-Wall"
           subtitle="Echtzeit-Kacheln aller Standorte · SLA, Umsatz, Fahrer, Rating · Kritisch-Alerts · 30s-Auto-Refresh" cta="KPI-Wall öffnen" highlight />
+        <SectionCard href="/delivery/cost-per-order" icon={<PieChart className="h-5 w-5" />} title="Kosten pro Bestellung"
+          subtitle="Deckungsbeitrag-Analyse je Lieferung · Aufschlüsselung nach Fahrer, Schicht & Fahrzeug · interaktiver Rechner" cta="Analyse öffnen" highlight />
         <SectionCard href="/delivery/geo-heatmap" icon={<Globe className="h-5 w-5" />} title="Geo-Heatmap Pro"
           subtitle="Echtzeit-Liefer-Dichte · Stündliche Zonen-Auslastung · GeoJSON-Export für QGIS / Google Maps" cta="Heatmap öffnen" />
       </SectionGroup>
