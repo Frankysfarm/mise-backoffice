@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck, Shuffle,
+  BookmarkCheck, Shuffle, GitBranch,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -221,6 +221,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Auto-Übergabe-Bericht 3×täglich · SLA + Umsatz + Incidents + offene Bestellungen · Quittierung + Notizen" cta="Übergabe öffnen" />
         <SectionCard href="/delivery/zone-rebalancing" icon={<Shuffle className="h-5 w-5" />} title="Zonen-Umverteilung"
           subtitle="Auto-Kapazitätsanalyse je Zone A/B/C/D · Überbelastung erkennen · Fahrer-Rebalancing per Klick oder automatisch" cta="Zonen öffnen" />
+        <SectionCard href="/delivery/order-lifecycle" icon={<GitBranch className="h-5 w-5" />} title="Order Lifecycle Funnel"
+          subtitle="4-Stufen-Analyse: Dispatch-Wartezeit → Küche → Abholwartezeit → Fahrzeit · Bottleneck-Erkennung · Stunden- & 7-Tage-Trend" cta="Funnel öffnen" />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

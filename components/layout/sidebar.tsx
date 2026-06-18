@@ -207,6 +207,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/driver-feedback',  icon: 'MessageSquarePlus', label: 'Fahrer-Feedback Loop (Stimmung & Issues)' },
       { group: 'Loslegen', href: '/delivery/review-flags',    icon: 'ShieldAlert',        label: 'Fahrer-Review Flags (Bewertungs-Warnungen)' },
       { group: 'Loslegen', href: '/delivery/zone-rebalancing', icon: 'Shuffle',            label: 'Zonen-Umverteilung (Auto-Rebalancing)' },
+      { group: 'Loslegen', href: '/delivery/order-lifecycle', icon: 'GitBranch',          label: 'Order Lifecycle Funnel (Stufen-Analyse)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },

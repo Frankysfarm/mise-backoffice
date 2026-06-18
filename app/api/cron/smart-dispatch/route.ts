@@ -103,6 +103,7 @@ import { buildPredictionsAllLocations, settleAllLocations as settlePerformancePr
 import { generateHandoverAllLocations, pruneOldHandoverReports } from '@/lib/delivery/shift-handover';
 import { aggregateFeedbackAllLocations, pruneOldFeedback } from '@/lib/delivery/driver-feedback';
 import { snapshotZoneCapacityAllLocations, rebalanceAllLocations, pruneOldSnapshots as pruneZoneSnapshots } from '@/lib/delivery/zone-rebalancing';
+import { snapAllLocations as snapOrderLifecycle, pruneOldLifecycleSnapshots } from '@/lib/delivery/order-lifecycle';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -219,6 +220,8 @@ export async function GET(req: NextRequest) {
     const isHandoverTick = (nowHour === 6 || nowHour === 14 || nowHour === 22) && nowMin < 2;
     // Phase 235: Driver Feedback Aggregation — täglich 04:30 UTC
     const isFeedbackAggregateTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
+    // Phase 242: Order Lifecycle Snap — täglich 02:15 UTC (nach Report-Cache)
+    const isLifecycleSnapTick = nowHour === 2 && nowMin >= 14 && nowMin < 18;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -745,6 +748,14 @@ export async function GET(req: NextRequest) {
       ? await pruneZoneSnapshots(30).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 242: Order Lifecycle Funnel Snap — täglich 02:15 UTC
+    const lifecycleSnapResult = isLifecycleSnapTick
+      ? await snapOrderLifecycle().catch(() => ({ locations: 0, snapped: 0 }))
+      : null;
+    const lifecycleSnapshotsPruned = isReportTick
+      ? await pruneOldLifecycleSnapshots(60).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -915,6 +926,8 @@ export async function GET(req: NextRequest) {
       ...(zoneSnapResult.snapshots > 0 ? { zone_capacity_snapshots: { locations: zoneSnapResult.locations, snapshots: zoneSnapResult.snapshots, errors: zoneSnapResult.errors } } : {}),
       ...(zoneRebalResult.suggested > 0 ? { zone_rebalancing: { locations: zoneRebalResult.locations, suggested: zoneRebalResult.suggested, errors: zoneRebalResult.errors } } : {}),
       ...(zoneSnapshotsPruned ? { zone_snapshots_pruned: zoneSnapshotsPruned.pruned } : {}),
+      ...(lifecycleSnapResult ? { order_lifecycle: { locations: lifecycleSnapResult.locations, snapped: lifecycleSnapResult.snapped } } : {}),
+      ...(lifecycleSnapshotsPruned ? { lifecycle_snapshots_pruned: lifecycleSnapshotsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
