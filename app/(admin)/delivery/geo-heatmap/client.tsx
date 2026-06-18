@@ -3,6 +3,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Download, RefreshCw, MapPin, Users, Layers, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
+
+const LeafletGeoHeatmap = dynamic(
+  () => import('./leaflet-map').then(m => m.LeafletGeoHeatmap),
+  { ssr: false, loading: () => <div className="h-96 rounded-xl bg-muted/30 animate-pulse" /> }
+);
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
 
@@ -377,10 +383,11 @@ export function GeoHeatmapClient({ locationId }: { locationId: string }) {
           <div className="text-[11px] text-muted-foreground">
             Letzte Aktualisierung: {lastRefresh.toLocaleTimeString('de-DE')} · Auto-Refresh alle 30s
           </div>
-          <SvgMap
+          <LeafletGeoHeatmap
             points={live?.orderPoints ?? []}
             drivers={live?.driverPoints ?? []}
             maxWeight={maxWeight}
+            height={380}
           />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {['A', 'B', 'C', 'D'].map(zone => {
@@ -431,9 +438,10 @@ export function GeoHeatmapClient({ locationId }: { locationId: string }) {
               Als GeoJSON laden
             </button>
           </div>
-          <SvgMap
+          <LeafletGeoHeatmap
             points={topCells.map(c => ({ lat: c.lat, lng: c.lng, weight: c.totalOrders, zone: c.zone }))}
             maxWeight={Math.max(...topCells.map(c => c.totalOrders), 1)}
+            height={320}
           />
           <HistoricalTable cells={topCells} />
         </div>
