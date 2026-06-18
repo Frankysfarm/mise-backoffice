@@ -50,7 +50,7 @@ export function LiveDriverTracker({ orderId, initialStatus }: LiveDriverTrackerP
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           if (!cancelled && payload.new?.status) setStatus(payload.new.status as string);
         },
       )
