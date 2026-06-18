@@ -69,6 +69,7 @@ import { KochstartSyncBand } from './kochstart-sync-band';
 import { PrepQueueMonitor } from './prep-queue-monitor';
 import { KitchenEchtzeitCountdownBoard } from './echtzeit-countdown-board';
 import { KitchenSchichtTimingScore } from './schicht-timing-score';
+import { KitchenSchichtQueuePrognose } from './schicht-queue-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1358,6 +1359,8 @@ export function KitchenBoard({
       {!bigDisplay && <PrepQueueMonitor useMock />}
       {/* Phase 236: Schicht-Timing-Score — Ø Prep-Zeit + Pünktlichkeit + Score-Ring */}
       {!bigDisplay && <KitchenSchichtTimingScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />}
+      {/* Phase 238: Schicht-Queue-Prognose — Vorhergesagte Auftragsmenge in 15/30/45 Min */}
+      {!bigDisplay && <KitchenSchichtQueuePrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />}
       {/* Echtzeit-Countdown-Board: farbkodiertes Live-Timing je Bestellung */}
       <KitchenEchtzeitCountdownBoard orders={orders} />
     </div>

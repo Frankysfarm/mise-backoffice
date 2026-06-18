@@ -64,6 +64,7 @@ import { TourFortschrittsCockpit } from './tour-fortschritts-cockpit';
 import { TourEffizienzLive } from './tour-efficiency-live';
 import { TourEffizienzAnalyse } from './tour-effizienz-analyse';
 import { TourFeedbackSchnell } from './tour-feedback-schnell';
+import { SchichtKilometerTracker } from './schicht-kilometer-tracker';
 
 type Driver = {
   id: string;
@@ -1168,6 +1169,8 @@ export function FahrerApp({
               vehicle={(activeBatch as any).vehicle ?? null}
             />
           </div>
+          {/* Phase 238: Schicht-Kilometer-Tracker — Gefahrene Kilometer + CO₂-Vergleich */}
+          <SchichtKilometerTracker fahrzeug={status?.fahrzeug ?? null} />
           {/* Phase 236: Tour-Feedback-Schnell — Stimmung + Rating nach Tour */}
           {activeBatch.stops.every(s => s.geliefert_am) && (
             <TourFeedbackSchnell

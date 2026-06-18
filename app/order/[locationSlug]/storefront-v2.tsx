@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X, Clock } from 'lucide-react';
+import { BestellVertrauensBadge } from './components/bestell-vertrauens-badge';
 
 export type V2OrderType = 'lieferung' | 'abholung';
 
@@ -362,6 +363,9 @@ export function StorefrontV2({
             </button>
           </div>
         </header>
+
+        {/* Phase 238: Vertrauens-Badge — Pünktlichkeit, Lieferzeit, Bewertung */}
+        <BestellVertrauensBadge locationSlug={tenant.slug} />
 
         {/* Geteilter Tracking-Link — zeigt Bestellstatus wenn ?track=ORDER_ID in URL */}
         <SharedTrackingBannerV2 />

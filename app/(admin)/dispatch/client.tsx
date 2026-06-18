@@ -119,6 +119,7 @@ import { DispatchTourRisikoBoard } from './tour-risiko-board';
 import { ZoneQuickBundleAlert } from './zone-quick-bundle-alert';
 import { FahrerVorhersageDashboard } from './fahrer-vorhersage-dashboard';
 import { DispatchZoneErtragsStrip } from './zone-ertrags-strip';
+import { DispatchTourParallelVergleich } from './tour-parallel-vergleich';
 
 type Driver = {
   employee_id: string;
@@ -938,6 +939,8 @@ export function DispatchBoard({
       <FahrerVorhersageDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 236: Zonen-Ertrag-Strip — Pünktlichkeit + Umsatz + Score je Lieferzone */}
       <DispatchZoneErtragsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 238: Tour-Parallel-Vergleich — Side-by-Side-Übersicht aktiver Touren */}
+      <DispatchTourParallelVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
