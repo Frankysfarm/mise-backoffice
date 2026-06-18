@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2, ChefHat, Clock, Truck, PackageCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EtaDynamicWidget } from './eta-dynamic-widget';
 
 interface Props {
   orderId: string;
@@ -89,6 +90,7 @@ export function OrderStatusTracker({ orderId, initialStatus, initialEtaMin }: Pr
   const isDelivered = currentIdx >= 5;
 
   return (
+    <>
     <div className="rounded-2xl border bg-card overflow-hidden">
       {/* ETA Banner */}
       {!isDelivered && etaMin != null && (
@@ -169,5 +171,9 @@ export function OrderStatusTracker({ orderId, initialStatus, initialEtaMin }: Pr
         </div>
       </div>
     </div>
+
+    {/* Phase 219: ETA-Widget — Live-Countdown mit Phasen-Fortschrittsbalken */}
+    <EtaDynamicWidget orderId={orderId} initialEtaMin={etaMin} initialStatus={status} />
+    </>
   );
 }

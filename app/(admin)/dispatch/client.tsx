@@ -107,6 +107,7 @@ import { KapazitaetsWarnung } from './kapazitaets-warnung';
 import { ZoneBundlePanel } from './zone-bundle-panel';
 import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
 import { DispatchTourScoreTimeline } from './tour-score-timeline';
+import { TourLiveScoreStrip } from './tour-live-score-strip';
 
 type Driver = {
   employee_id: string;
@@ -924,6 +925,9 @@ export function DispatchBoard({
 
       {/* Tour-Puls: Kompakter Health-Streifen für alle aktiven Touren */}
       <DispatchTourHealthStrip batches={batches} />
+
+      {/* Phase 217: Live-Score-Strip — alle aktiven Touren auf einen Blick */}
+      <TourLiveScoreStrip batches={batches.map(b => ({ ...b, started_at: b.startzeit ?? null }))} />
 
       {/* Küchen-Pipeline: Bestellungen die bald fertig werden — für Fahrer-Vorplanung */}
       {pipelineOrders.length > 0 && (

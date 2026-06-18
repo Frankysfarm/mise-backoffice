@@ -52,6 +52,7 @@ import { FahrerTagesBewertungKarte } from './tages-bewertung-karte';
 import { SchichtBedarfChip } from './schicht-bedarf-chip';
 import { FahrzeitPrognose } from './fahrzeit-prognose';
 import { StopSchnellPanel } from './stop-schnell-panel';
+import { SmartStopNavigator } from './smart-stop-navigator';
 
 type Driver = {
   id: string;
@@ -848,6 +849,12 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}
+          <SmartStopNavigator
+            stops={activeBatch.stops as any}
+            batchStartedAt={activeBatch.started_at}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
+          />
           {/* ETA-Ampel: Schnellstatus ob aktuelle Tour pünktlich ist */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

@@ -86,6 +86,7 @@ import { KapazitaetsWochenKpi } from './kapazitaets-wochen-kpi'
 import { AktivFahrerKacheln } from './aktiv-fahrer-kacheln'
 import { SchichtAutoDraftStrip } from './schicht-auto-draft-strip'
 import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
+import { LiveOpsStats } from './live-ops-stats'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -739,6 +740,12 @@ export function LieferdienstClient() {
           {currentView === 'orders' && (
             <div className="px-6 pt-3">
               <LiveOpsHeader locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />
+            </div>
+          )}
+          {/* Phase 220: Live-Ops-Stats — 2×3 Grid mit Echtzeit-Betriebskennzahlen */}
+          {currentView === 'orders' && (
+            <div className="px-6 pt-3">
+              <LiveOpsStats />
             </div>
           )}
           {currentView === 'orders' && (

@@ -58,6 +58,7 @@ import { KapazitaetsVorschau } from './kapazitaets-vorschau';
 import { KitchenTimerWall } from './timer-wall';
 import { KuechenDruckAmpel } from './kuechen-druck-ampel';
 import { KitchenAmpelTimingGrid } from './ampel-timing-grid';
+import { KitchenPrepHeatmap } from './prep-heatmap';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -862,6 +863,9 @@ export function KitchenBoard({
 
       {/* Bestellalter-Grid: farbkodierte Chips für alle aktiven Bestellungen */}
       {!bigDisplay && <KitchenOrderAgeGrid orders={filtered} />}
+
+      {/* Phase 216: Zubereitungszeit-Heatmap — Tageszeit vs. Wochentag */}
+      {!bigDisplay && <KitchenPrepHeatmap orders={filtered} />}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
