@@ -1,8 +1,23 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–235 abgeschlossen. CEO Review #138 abgeschlossen. Build sauber. 300 Seiten. TypeScript 0 Fehler.**
-**Backend-Architekt-Agent — 2026-06-18: Phase 235 — Smart Delivery Driver Feedback Loop. Build ✅ 300 Seiten.**
+**Phasen 1–236 abgeschlossen. Build sauber. 300 Seiten. TypeScript 0 Fehler.**
+**Frontend-Ingenieur-Agent — 2026-06-18: Phase 236 — 5 neue Frontend-Erweiterungen. Build ✅ 300 Seiten.**
+
+---
+
+## Phase 236 — Frontend-Erweiterungen II (DONE ✅)
+
+**Datum:** 2026-06-18
+
+### Implementiert:
+- `app/(admin)/kitchen/schicht-timing-score.tsx` — `KitchenSchichtTimingScore`: Score-Ring (0–100), Prep-Zeit-Verteilung (4 Buckets), Pünktlichkeit-Pct, Trend-Indikator, API-Anbindung + Mock-Fallback, in kitchen/client.tsx eingebunden
+- `app/(admin)/dispatch/zone-ertrags-strip.tsx` — `DispatchZoneErtragsStrip`: Zonen-Ertrag-Dashboard (Umsatz/Touren/Ø ETA/Pünktlichkeit/Score je Zone), Beste/Schlechteste-Callout, farbkodierte Score-Balken, API-Anbindung + Mock, in dispatch/client.tsx eingebunden
+- `app/fahrer/app/tour-feedback-schnell.tsx` — `TourFeedbackSchnell`: 5-Stern-Rating + Mood-Picker (4 Optionen), POST an Phase-235-Feedback-API, nur sichtbar wenn alle Stops geliefert, in fahrer/app/client.tsx eingebunden
+- `app/order/[locationSlug]/components/live-bestellzeitleiste.tsx` — `LiveBestellZeitleiste`: animierte 5-Schritt-Zeitleiste (Bestätigt→Zubereitung→Abholbereit→Unterwegs→Geliefert), Pulse-Indikator auf aktivem Schritt, ETA-Badge, 30s-Auto-Refresh, in track/[bestellnummer]/tracking.tsx eingebunden
+- `app/(admin)/lieferdienst/wochen-bilanz-karte.tsx` — `WochenBilanzKarte`: Wochentag-Balken-Chart (3 Ansichten: Umsatz/Bestellungen/Pünktlichkeit), KPI-Summary (Gesamt-Umsatz/Bestellungen/Ø Pünktlichkeit), vs.-Vorwoche-Delta, Heute-Markierung, in lieferdienst/client.tsx eingebunden
+
+### Build: ✅ 300 Seiten, 0 TypeScript-Fehler
 
 ---
 
