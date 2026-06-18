@@ -177,6 +177,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/amendments',          icon: 'FilePen',      label: 'Bestellungsänderungen' },
       { group: 'Loslegen', href: '/delivery/carbon-footprint',   icon: 'Leaf',         label: 'CO₂-Fußabdruck (Nachhaltigkeit)' },
       { group: 'Loslegen', href: '/delivery/quality-score',    icon: 'Medal',        label: 'Qualitäts-Score (Note A–F)' },
+      { group: 'Loslegen', href: '/delivery/benchmarking',    icon: 'BarChart3',    label: 'Benchmark-Analyse (Standort-Vergleich)' },
       { group: 'Loslegen', href: '/delivery/sla-compensation',   icon: 'ShieldCheck',  label: 'SLA Auto-Kompensation' },
       { group: 'Loslegen', href: '/delivery/driver-bonus',       icon: 'Gift',         label: 'Fahrer-Boni' },
       { group: 'Loslegen', href: '/delivery/reorder-engine',    icon: 'Repeat2',      label: 'Wiederbestellungs-Engine' },
