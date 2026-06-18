@@ -59,6 +59,7 @@ import { FahrerRouteQualitaet } from './route-qualitaet';
 import { DriverHotspotTip } from './driver-hotspot-tip';
 import { TourStopEtaPredictor } from './tour-stop-eta-predictor';
 import { ProximityStopAlert } from './proximity-stop-alert';
+import { TourFortschrittsCockpit } from './tour-fortschritts-cockpit';
 
 type Driver = {
   id: string;
@@ -855,6 +856,21 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          {/* Tour-Fortschritts-Cockpit: SVG-Fortschrittsring + Verdienst + Elapsed-Zeit */}
+          <div className="px-4">
+            <TourFortschrittsCockpit
+              stops={activeBatch.stops.map(s => ({
+                geliefert_am: s.geliefert_am,
+                reihenfolge: s.reihenfolge,
+                order: {
+                  bestellnummer: (s.order as any)?.bestellnummer ?? '',
+                  gesamtbetrag: (s.order as any)?.gesamtbetrag ?? 0,
+                },
+              }))}
+              startedAt={activeBatch.started_at}
+              totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+            />
+          </div>
           {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}
           <SmartStopNavigator
             stops={activeBatch.stops as any}

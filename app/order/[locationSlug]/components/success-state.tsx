@@ -12,6 +12,7 @@ import { FahrerBewertungsDialog } from './fahrer-bewertungs-dialog';
 import { LivePrepSteps } from './live-prep-steps';
 import { LiveFahrerStatus } from './live-fahrer-status';
 import { BestellungLiveEtaBanner } from './bestellung-live-eta-banner';
+import { LieferversrechenWidget } from './lieferversprechen-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -430,6 +431,17 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             </div>
           );
         })()}
+
+        {/* Lieferversprechen-Widget: Vertrauensindikator + ETA */}
+        {isDelivery && liveStatus !== 'geliefert' && (
+          <div className="mt-4 w-full">
+            <LieferversrechenWidget
+              etaMin={minsLeft > 0 ? minsLeft : null}
+              status={liveStatus}
+              orderCount={null}
+            />
+          </div>
+        )}
 
         {/* Fahrer-Banner: sichtbar wenn Bestellung unterwegs ist */}
         {isDelivery && liveStatus === 'unterwegs' && (

@@ -64,6 +64,7 @@ import { KitchenLivePrepMatrix } from './live-prep-matrix';
 import { KitchenHandoffReadyMatrix } from './handoff-ready-matrix';
 import { KitchenSmartTimingAssistent } from './smart-timing-assistent';
 import { KitchenBatchDeparturePanel } from './batch-departure-panel';
+import { KitchenSchichtSchnellstatus } from './schicht-schnellstatus';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -523,6 +524,12 @@ export function KitchenBoard({
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}
+      <KitchenSchichtSchnellstatus
+        orders={filtered}
+        completedToday={completedToday ?? 0}
+        activeDriverCount={drivers.filter(d => d.status?.ist_online).length}
+      />
       {/* Live-Prep-Matrix — Stations-Belegung je aktiver Bestellung mit Countdown */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length >= 2 && (
         <KitchenLivePrepMatrix orders={filtered} timings={timings} />

@@ -114,6 +114,7 @@ import { DispatchReadinessHUD } from './dispatch-readiness-hud';
 import { DispatchFahrerWellbeingStrip } from './fahrer-wellbeing-strip';
 import { DispatchQualityScoreWidget } from './quality-score-widget';
 import { DispatchScoreInsightPanel } from './dispatch-score-insight';
+import { DispatchTourRisikoBoard } from './tour-risiko-board';
 
 type Driver = {
   employee_id: string;
@@ -874,6 +875,8 @@ export function DispatchBoard({
       <TourEtaStrip batches={batches} drivers={drivers} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       <DispatchTourVisualisierung batches={batches} />
+      {/* Tour-Risiko-Board: SLA-Risikoanalyse aller aktiven Touren — sortiert nach Kritikalität */}
+      <DispatchTourRisikoBoard batches={batches} />
       {/* Phase 213: Tour-Score-Timeline — Score + Stopp-Dots + Verbleib je aktiver Tour */}
       <DispatchTourScoreTimeline batches={batches as any} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}

@@ -91,6 +91,7 @@ import { LiveOpsStats } from './live-ops-stats'
 import { SchichtEchtzeitRangliste } from './schicht-echtzeit-rangliste'
 import { SchichtKpiTopBar } from './schicht-kpi-topbar'
 import { SchichtVerlaufsKurve } from './schicht-verlaufs-kurve'
+import { SchichtAbschlussPrognose } from './schicht-abschluss-prognose'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1040,6 +1041,8 @@ export function LieferdienstClient() {
               <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Schicht-Abschluss-Prognose: Hochrechnung von Umsatz, Lieferungen und SLA bis Schichtende */}
+              <SchichtAbschlussPrognose />
               {/* Phase 200: 30-Tage Rentabilitätstrend — Umsatz/Kosten/Marge Zeitreihe */}
               <RentabilitaetsTrend locationId={locationId} />
               {/* Phase 200: Trinkgeld-Übersicht — heute gesammelte Tips + Fahrer-Ranking */}
