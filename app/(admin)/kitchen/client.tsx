@@ -68,6 +68,7 @@ import { KitchenSchichtSchnellstatus } from './schicht-schnellstatus';
 import { KochstartSyncBand } from './kochstart-sync-band';
 import { PrepQueueMonitor } from './prep-queue-monitor';
 import { KitchenEchtzeitCountdownBoard } from './echtzeit-countdown-board';
+import { KitchenSchichtTimingScore } from './schicht-timing-score';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1355,6 +1356,8 @@ export function KitchenBoard({
 
       {/* Phase 233: Zubereitungs-Queue-Monitor mit Urgency-Farbkodierung */}
       {!bigDisplay && <PrepQueueMonitor useMock />}
+      {/* Phase 236: Schicht-Timing-Score — Ø Prep-Zeit + Pünktlichkeit + Score-Ring */}
+      {!bigDisplay && <KitchenSchichtTimingScore locationId={locationId} />}
       {/* Echtzeit-Countdown-Board: farbkodiertes Live-Timing je Bestellung */}
       <KitchenEchtzeitCountdownBoard orders={orders} />
     </div>

@@ -27,6 +27,7 @@ import { BestellstatusAnimation } from './bestellstatus-animation';
 import { DriverApproachCountdown } from './driver-approach-countdown';
 import { OrderStatusZeitleiste } from '@/app/order/[locationSlug]/components/order-status-zeitleiste';
 import { BestellpositionAnzeige } from './bestellposition-anzeige';
+import { LiveBestellZeitleiste } from '@/app/order/[locationSlug]/components/live-bestellzeitleiste';
 
 type Order = {
   order_id: string;
@@ -471,6 +472,20 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             etaEarliest={order.eta_earliest}
             etaLatest={order.eta_latest}
             status={order.status}
+          />
+        )}
+
+        {/* Phase 236: Live-Bestell-Zeitleiste — animierte Statusschritte mit ETA */}
+        {!['storniert'].includes(order.status) && (
+          <LiveBestellZeitleiste
+            orderStatus={order.status}
+            etaMin={
+              order.eta_latest
+                ? Math.max(0, Math.round((new Date(order.eta_latest).getTime() - Date.now()) / 60000))
+                : order.geschaetzte_lieferung_min ?? null
+            }
+            updatedAt={order.fahrer_last_update ?? order.bestellt_am}
+            compact={false}
           />
         )}
 

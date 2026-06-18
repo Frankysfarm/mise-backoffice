@@ -63,6 +63,7 @@ import { ProximityStopAlert } from './proximity-stop-alert';
 import { TourFortschrittsCockpit } from './tour-fortschritts-cockpit';
 import { TourEffizienzLive } from './tour-efficiency-live';
 import { TourEffizienzAnalyse } from './tour-effizienz-analyse';
+import { TourFeedbackSchnell } from './tour-feedback-schnell';
 
 type Driver = {
   id: string;
@@ -1167,6 +1168,13 @@ export function FahrerApp({
               vehicle={(activeBatch as any).vehicle ?? null}
             />
           </div>
+          {/* Phase 236: Tour-Feedback-Schnell — Stimmung + Rating nach Tour */}
+          {activeBatch.stops.every(s => s.geliefert_am) && (
+            <TourFeedbackSchnell
+              tourId={activeBatch.id}
+              driverId={driver?.id ?? null}
+            />
+          )}
           <DeliveryView
             batchId={activeBatch.id}
             stops={activeBatch.stops as any}

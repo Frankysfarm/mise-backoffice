@@ -95,6 +95,7 @@ import { SchichtAbschlussPrognose } from './schicht-abschluss-prognose'
 import { LiveErloesPrognose } from './live-erloes-prognose'
 import { SchichtKurzauswertung } from './schicht-kurzauswertung'
 import { SchichtLiveKpiPanel } from './schicht-live-kpi-panel'
+import { WochenBilanzKarte } from './wochen-bilanz-karte'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1044,6 +1045,8 @@ export function LieferdienstClient() {
               <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 233: Schicht-Kurzauswertung — Echtzeit-Vergleich KPIs vs. Ziele */}
               <SchichtKurzauswertung locationId={locationId} />
+              {/* Phase 236: Wochenbilanz-Karte — Umsatz/Bestellungen/Pünktlichkeit nach Wochentag */}
+              <WochenBilanzKarte locationId={locationId} />
               {/* Schicht-Live-KPI-Panel: Echtzeit-KPIs für die aktuelle Schicht */}
               <SchichtLiveKpiPanel />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

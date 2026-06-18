@@ -118,6 +118,7 @@ import { DispatchScoreInsightPanel } from './dispatch-score-insight';
 import { DispatchTourRisikoBoard } from './tour-risiko-board';
 import { ZoneQuickBundleAlert } from './zone-quick-bundle-alert';
 import { FahrerVorhersageDashboard } from './fahrer-vorhersage-dashboard';
+import { DispatchZoneErtragsStrip } from './zone-ertrags-strip';
 
 type Driver = {
   employee_id: string;
@@ -935,6 +936,8 @@ export function DispatchBoard({
 
       {/* Phase 233: Fahrer-Performance-Vorhersage — KI-Prognose für heute mit Tier-Einstufung */}
       <FahrerVorhersageDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 236: Zonen-Ertrag-Strip — Pünktlichkeit + Umsatz + Score je Lieferzone */}
+      <DispatchZoneErtragsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Schicht-Fortschritts-Ring: Makro-Übersicht aller gelieferten Stops + SLA-Quote */}
       <DispatchSchichtRing batches={batches} />
