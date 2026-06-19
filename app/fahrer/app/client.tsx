@@ -80,6 +80,8 @@ import { TourZeitplanFahrer } from './tour-zeitplan-fahrer';
 import { TourNaviHUD } from './tour-navi-hud';
 import { TourPunktlichkeitsCoach } from './tour-punktlichkeits-coach';
 import { TourStopsDetailPanel, type TourStop } from './tour-stop-detail-card';
+import { TourStoppAktionen } from './tour-stopp-aktionen';
+import { TourFortschrittsRing } from './tour-fortschritts-ring';
 
 type Driver = {
   id: string;
@@ -1172,6 +1174,51 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Tour-Fortschritts-Ring: Visueller SVG-Ring mit Stopp-Fortschritt + ETA */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourFortschrittsRing
+                stops={activeBatch.stops.map(s => ({
+                  id: s.id,
+                  geliefert_am: s.geliefert_am,
+                  reihenfolge: s.reihenfolge,
+                }))}
+                batchStartedAt={activeBatch.started_at}
+                totalEtaMin={activeBatch.total_eta_min ?? null}
+              />
+            </div>
+          )}
+          {/* Tour-Stopp-Aktionen: Aktionsbuttons für aktuellen Stopp — Angekommen, Geliefert, Anruf, Navigation */}
+          {activeBatch.stops.length > 0 && (() => {
+            const currentStop = activeBatch.stops.find((s) => !s.geliefert_am);
+            if (!currentStop) return null;
+            return (
+              <div className="px-4">
+                <TourStoppAktionen
+                  stop={{
+                    id: currentStop.id,
+                    reihenfolge: currentStop.reihenfolge,
+                    order: {
+                      bestellnummer: currentStop.order.bestellnummer,
+                      kunde_name: currentStop.order.kunde_name,
+                      kunde_adresse: currentStop.order.kunde_adresse,
+                      kunde_plz: currentStop.order.kunde_plz,
+                      kunde_telefon: currentStop.order.kunde_telefon ?? null,
+                      gesamtbetrag: currentStop.order.gesamtbetrag,
+                      zahlungsart: (currentStop.order as any).zahlungsart ?? null,
+                      bezahlt: (currentStop.order as any).bezahlt ?? null,
+                      kunde_notiz: (currentStop.order as any).kunde_notiz ?? null,
+                      kunde_lieferhinweis: (currentStop.order as any).kunde_lieferhinweis ?? null,
+                    },
+                    geliefert_am: currentStop.geliefert_am,
+                    angekommen_am: (currentStop as any).angekommen_am ?? null,
+                  }}
+                  onMarkDelivered={markDelivered}
+                  pending={pending}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 257: Tour-Fertig-Prognose — wann endet die Tour + Schicht-Vergleich */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">
