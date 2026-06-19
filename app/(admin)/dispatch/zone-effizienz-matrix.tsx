@@ -15,7 +15,7 @@ interface ReadyOrder {
 
 interface BatchStop {
   geliefert_am: string | null;
-  angekommen_am: string | null;
+  angekommen_am?: string | null;
 }
 
 interface Batch {

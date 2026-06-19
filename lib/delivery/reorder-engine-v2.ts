@@ -454,7 +454,7 @@ export async function getReorderSuggestionsV2(
       revenueEur:     item.revenue_eur,
       lastOrderedAt:  item.last_ordered ?? null,
       score:          Math.round(composite * seasonBoost * timeOfDayBoost * dayOfWeekBoost),
-      seasonalBoost,
+      seasonalBoost:  Math.round(seasonBoost * 100) / 100,
       timeOfDayBoost: Math.round(timeOfDayBoost * 100) / 100,
       dayOfWeekBoost: Math.round(dayOfWeekBoost * 100) / 100,
       rank:           idx + 1,
