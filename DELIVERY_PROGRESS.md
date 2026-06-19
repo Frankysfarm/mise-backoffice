@@ -4709,3 +4709,51 @@ Siehe DELIVERY_CEO_LOG.md
 - Cron (`app/api/cron/smart-dispatch/route.ts`): `runBalancerAllLocations()` jeden Tick; `pruneZoneCapacitySnapshots(7)` täglich 05:30 UTC
 
 - Build: npx next build ✓ (323 Seiten), 0 Fehler
+
+---
+
+## Phase 308 — Schichtziele (Shift Goals API) (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+**Behebt ⚠️ aus CEO-Review #169: TagesZielCockpit hatte MOCK-Daten statt echter DB-Werte.**
+
+**`scripts/migrations/149_shift_goals.sql`:**
+- `shift_goals` Tabelle: `location_id UNIQUE` (ein Ziel je Standort), `target_orders`, `target_revenue_eur`, `shift_hours_total`, `shift_start_hour (UTC)`
+- RLS + updated_at Trigger + Index auf location_id
+
+**`lib/delivery/shift-goals.ts`:**
+- `getShiftGoals(locationId)` — Konfiguration lesen (Defaults: 60 Bestellungen, €1500, 8h, Start 10 Uhr UTC)
+- `upsertShiftGoals(locationId, config)` — Konfiguration speichern via upsert
+- `getShiftGoalsDashboard(locationId)` — Konfiguration + Ist-Werte aus `customer_orders`:
+  - Schichtfenster aus `shift_start_hour + shift_hours_total` (aktueller Schicht-Tag UTC)
+  - `actualOrders` (alle Bestellungen im Schichtfenster)
+  - `actualRevenue` (Summe gelieferter/abgeschlossener Bestellungen)
+  - `actualDeliveries` (typ=lieferung + Status geliefert/abgeschlossen)
+  - `avgDeliveryMin` (fertig_am - created_at, Ausreißer >240 min gefiltert)
+  - `onTimePct` (fertig_am ≤ eta_earliest)
+  - `shiftHoursElapsed` (jetzt - Schichtstart, geklammert auf shiftHoursTotal)
+  - `pace` + `projectedOrders` + `projectedRevenue` (Hochrechnung: Ist-Tempo × Schichtlänge)
+
+**`app/api/delivery/admin/shift-goals/route.ts`:**
+- GET ?action=dashboard → `getShiftGoalsDashboard()` (Standard, genutzt von TagesZielCockpit)
+- GET ?action=config → `getShiftGoals()` (nur Konfiguration)
+- POST `{ targetOrders?, targetRevenue?, shiftHoursTotal?, shiftStartHour? }` → upsert + Dashboard zurückgeben
+- Auth via `employees.location_id` (Superadmin-Override via ?location_id=)
+
+**`app/(admin)/delivery/shift-goals/` — Admin-Konfigurationsseite:**
+- 4 KPI-Karten: Bestellungen (Ist/Soll), Umsatz, Lieferungen+Ø-Zeit, Schichtzeit
+- Pace-Banner: Über Plan (emerald) / Im Plan (blau) / Unter Plan (amber) + Prognose-Info
+- 3 Fortschrittsbalken: Bestellungen / Umsatz / Schichtzeit (Farbampel: grün≥90% / gelb≥65% / rot)
+- Konfigurationsformular: Ziel-Bestellungen + Ziel-Umsatz + Schichtdauer + Schichtstart (UTC)
+- "Ziele speichern"-Button + gespeichert-Zeitstempel
+- 60s Auto-Refresh + Supabase-Realtime auf customer_orders
+- Info-Box: Erklärung wie Daten berechnet werden
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Schichtziele" mit Target-Icon + highlight in Planung & Schichten-Gruppe
+
+**TagesZielCockpit fix:** Pollt jetzt `/api/delivery/admin/shift-goals` → liefert echte Daten statt MOCK
+
+- Build: node_modules/.bin/next build ✓ (0 TypeScript-Fehler, 0 Build-Fehler)

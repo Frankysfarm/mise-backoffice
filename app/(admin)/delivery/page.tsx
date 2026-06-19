@@ -173,6 +173,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="KI-Vorhersage für Stoßzeiten · Fahrer-Mobilisierung" cta="Prognosen ansehen" />
         <SectionCard href="/delivery/peak-intelligence" icon={<TrendingUp className="h-5 w-5" />} title="Peak-Tage-Intelligenz"
           subtitle="Wochentag-Muster · Event-Kalender · Stoßtag-Prognose 14 Tage" cta="Peaks ansehen" />
+        <SectionCard href="/delivery/shift-goals" icon={<Target className="h-5 w-5" />} title="Schichtziele"
+          subtitle="Tages-Ziel-Bestellungen, Umsatz und Schichtdauer je Standort konfigurieren · Live im Tagesziel-Cockpit" cta="Ziele konfigurieren" highlight />
       </SectionGroup>
 
       {/* ── Analytics & Reports ───────────────────────────────── */}
