@@ -10449,3 +10449,59 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 273: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 2. Dispatch-ScoreBoard: API-Endpunkt /api/delivery/dispatch/scores erstellen (aktuell nur Mock)
+
+---
+
+## CEO-Review #167 — 2026-06-19
+
+### Geprüfte Phasen: Phase 303+304 (Backend: Status-Push-Bridge + Demand Surge V2) + Phase 305 (Frontend: 5 Smart-Delivery-Komponenten + SSE-Tracking)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (321 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 305):**
+
+**SseTrackingLive (`app/track/[bestellnummer]/sse-tracking-live.tsx`):**
+- EventSource auf `/api/delivery/tracking/[bestellnummer]/stream`, Auto-Reconnect mit mountedRef-Guard ✅
+- Frames: tracking_update/heartbeat/closed, Terminal-States (geliefert/storniert/abgebrochen) stoppen SSE ✅
+- onUpdate-Callback: fahrer_lat/lng/heading + status + eta_earliest/latest + stops_before in Parent-State gemergt ✅
+- Integration in tracking.tsx L451: nur für Liefer-Bestellungen im nicht-terminalen Status ✅
+
+**DispatchSurgeKapazitaetPanel (`app/(admin)/dispatch/surge-kapazitaet-panel.tsx`):**
+- 90s Polling auf `/api/delivery/surge`, topAlert aus activeAlerts (kritischster zuerst) ✅
+- Kapazitätslücke-Heuristik: neededExtra = ceil(surgeExcess / 2), gap = needed - available ✅
+- Integration in dispatch/client.tsx L1014 mit driverStats-Prop ✅
+
+**KitchenDemandSurgeMonitor (`app/(admin)/kitchen/demand-surge-monitor.tsx`):**
+- 60s Polling, Dismiss-Action via POST /api/delivery/surge ✅
+- KITCHEN_ACTION-Map: surge-spezifische Küchenanweisungen nach Severity ✅
+- Lokaler dismissed-State + Backend-Dismiss parallel ✅
+- Integration in kitchen/client.tsx L555 ✅
+
+**FahrerPushStatusKarte (`app/fahrer/app/push-status-karte.tsx`):**
+- Web Notification API Permission-Check + Request-Button ✅
+- 30s Polling auf `/api/delivery/push?orderId=`, Push-Event-Log mit 4 Event-Typen ✅
+- Integration in fahrer/app/client.tsx L1244 ✅
+
+**SurgeAnalysePanel (`app/(admin)/lieferdienst/surge-analyse-panel.tsx`):**
+- 120s Polling + manueller Refresh, Recharts BarChart für Z-Score-Zeitreihe ✅
+- Baseline-Rebuild-Button via POST /api/delivery/surge action=rebuild_baseline ✅
+- Integration in lieferdienst/client.tsx L1048 ✅
+
+**Bugs gefunden:** 0
+**Bugs gefixt:** 0 (saubere Phase)
+
+### Status nach Review #167
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (321 Seiten)
+- Phase 303+304+305: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 306: Surge-Aware Auto-Dispatch — Dispatch-Engine reagiert auf aktive Surge-Alerts (z.B. reduziert Max-Stops, erhöht Puffer-Zeit, bevorzugt verfügbare Fahrer in Surge-Zone)
+2. Oder: Phase 306: Driver Offline Escalation — Automatisches Reassignment wenn Fahrer >10min offline, mit Push an Disponenten
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 306: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. /api/delivery/dispatch/scores Endpunkt implementieren (DispatchLiveScoreBoard fällt noch auf Mock zurück)
