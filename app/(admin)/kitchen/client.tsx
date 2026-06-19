@@ -77,6 +77,7 @@ import { KitchenSchichtKochzeitAnalyse } from './schicht-kochzeit-analyse';
 import { KitchenNeuerFahrerWarning } from './neuer-fahrer-warnung';
 import { KitchenSchichtBurndown } from './schicht-burndown';
 import { KitchenStundenNachfrageStrip } from './stunden-nachfrage-strip';
+import { PrepTicketKacheln } from './prep-ticket-kacheln';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -760,6 +761,11 @@ export function KitchenBoard({
       {/* Phase 255: Stunden-Nachfrage-Strip — Bestelldichte letzte 12h als Mini-Balken + Stoßzeit-Erkennung */}
       {!bigDisplay && (
         <KitchenStundenNachfrageStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
+
+      {/* Phase 257: Prep-Ticket-Kacheln — KDS-Raster aller aktiven Bestellungen ohne Timing-Abhängigkeit */}
+      {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
+        <PrepTicketKacheln orders={filtered} />
       )}
 
       {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}

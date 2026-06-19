@@ -128,6 +128,7 @@ import { DispatchFahrerRampUpStrip } from './fahrer-ramp-up-strip';
 import { TourLieferzeitRangliste } from './tour-lieferzeit-rangliste';
 import { DispatchPerformanceScoreArc } from './performance-score-arc';
 import { SlaBreachDetectorPanel } from './sla-breach-panel';
+import { DispatchWarteAmpel } from './dispatch-warte-ampel';
 
 type Driver = {
   employee_id: string;
@@ -990,6 +991,8 @@ export function DispatchBoard({
       <DispatchFahrerRampUpStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? undefined)} />
       {/* Phase 256: SLA Breach Detector — Echtzeit-Alarm bei überschrittener Lieferzeit (ETA+10min) */}
       <SlaBreachDetectorPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 257: Dispatch-Warte-Ampel — Ampel für fertige Lieferungen die noch nicht dispatcht wurden */}
+      <DispatchWarteAmpel orders={readyOrders} />
 
       {/* Phase 247: Echtzeit-GPS-Dashboard — self-fetching Leaflet-Karte mit allen Fahrern + Touren */}
       <RealtimeGpsDashboard

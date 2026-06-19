@@ -71,6 +71,7 @@ import { SchichtBonusBooster } from './schicht-bonus-booster';
 import { FahrerAnkunftsSignal } from './ankunfts-signal';
 import { FahrerRampUpFortschritt } from './ramp-up-fortschritt';
 import { FahrerRichtungsAnzeige } from './richtungs-anzeige';
+import { TourFertigPrognose } from './tour-fertig-prognose';
 
 type Driver = {
   id: string;
@@ -1088,6 +1089,16 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 257: Tour-Fertig-Prognose — wann endet die Tour + Schicht-Vergleich */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourFertigPrognose
+                stops={activeBatch.stops as any}
+                batchStartedAt={activeBatch.started_at ?? null}
+                shiftEndAt={null}
               />
             </div>
           )}
