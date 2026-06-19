@@ -63,7 +63,6 @@ const STATUS_LABELS: Record<string, { label: string; icon: typeof ChefHat; color
 };
 
 function TicketCard({ order }: { order: Order }) {
-  useTick();
   const min = ageMin(order.bestellt_am);
   const u = urgency(min);
   const s = URGENCY_STYLES[u];
@@ -118,6 +117,8 @@ function TicketCard({ order }: { order: Order }) {
 }
 
 export function PrepTicketKacheln({ orders }: { orders: Order[] }) {
+  useTick();
+
   const active = orders.filter(o =>
     o.status === 'bestätigt' || o.status === 'in_zubereitung',
   );

@@ -1,7 +1,74 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–255 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (311 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–257 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (311 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #151 — 2026-06-19
+
+### Geprüfte Phasen: Phase 256 (SLA Breach Detector) + Phase 257 (PrepTicketKacheln, DispatchWarteAmpel, TourFertigPrognose)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (311 Seiten, 0 Fehler)
+
+**Bugs gefixt:**
+
+1. **`app/api/delivery/admin/sla-breaches/route.ts` — `resolveLocationId` falsche Felder** (KRITISCH)
+   - `.eq('id', user.id)` → `.eq('auth_user_id', user.id)` — korrektes Feld nach Codebase-Standard
+   - `emp?.tenant_id ?? emp?.location_id ?? null` → `emp?.location_id ?? null` — Prioritätslogik war invertiert: tenant_id ist kein location_id und würde keine sla_breaches finden
+   - `select('tenant_id, location_id')` → `select('location_id')` — unnötiges tenant_id-Feld entfernt
+   - **Wirkung:** SlaBreachDetectorPanel zeigte niemals Breaches, da location_id-Query immer leer zurückkam ✅ GEFIXT
+
+2. **`app/(admin)/kitchen/prep-ticket-kacheln.tsx` — N Intervals statt 1** (Performance)
+   - `useTick()` aus jedem `TicketCard` entfernt (N Intervals für N Bestellungen)
+   - `useTick()` in Parent `PrepTicketKacheln` verschoben — ein einziges Interval, triggert Re-Sort alle 10s
+   - **Wirkung:** Dringlichkeits-Sortierung (crit→warn→ok) blieb nach initialem Render statisch, Farbkodierung in einzelnen Kacheln aktualisierte sich, Reihenfolge nicht ✅ GEFIXT
+
+**Code-Review Phase 257:**
+
+**DispatchWarteAmpel (`app/(admin)/dispatch/dispatch-warte-ampel.tsx`):**
+- Ampel-Logik grün/amber/rot nach max. Wartezeit korrekt (0–5/5–15/>15 Min) ✅
+- `useTick()` alle 10s im Parent — reagiert auf Zeitänderungen ✅
+- Filterung `status === 'fertig' && typ === 'lieferung'` — redundant (readyOrders bereits gefiltert), aber defensiv und korrekt ✅
+- Zone-Breakdown nach `delivery_zone` — professionelle Übersicht ✅
+- Integration: `dispatch/client.tsx:995` mit `readyOrders` korrekt eingebunden ✅
+
+**PrepTicketKacheln (`app/(admin)/kitchen/prep-ticket-kacheln.tsx`):**
+- KDS-Raster ohne kitchen_timing-Abhängigkeit — gute Entkopplung ✅
+- Farbkodierung nach Wartezeit (grün <5 / amber 5–12 / rot >12 Min) korrekt ✅
+- Integration: `kitchen/client.tsx:768` mit `filtered`-Orders eingebunden, Type-Kompatibilität ✅
+- Performance-Bug gefixt: 1 Interval (Parent) statt N Intervals (TicketCard) ✅
+
+**TourFertigPrognose (`app/fahrer/app/tour-fertig-prognose.tsx`):**
+- Ø-Zeit-Berechnung aus abgeschlossenen Stops + Fallback 8 Min/Stop ✅
+- Clamp 4–30 Min/Stop verhindert Ausreißer ✅
+- Schicht-Kompatibilitätsprüfung (`shiftEndAt`) korrekt — zeigt Überlauf-Warnung ✅
+- `shiftEndAt={null}` in `client.tsx:1101` — kein Schicht-Vergleich im aktuellen State, aber korrekt falls prop zukünftig befüllt wird ✅
+- Integration: `fahrer/app/client.tsx:1098` mit `activeBatch.stops as any` eingebunden ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- SLA Breach: Cron-Job → detectSlaBreachesAllLocations → sla_breaches Tabelle → SlaBreachDetectorPanel ✅ (nach Fix)
+- PrepTickets: orders State → PrepTicketKacheln → farbkodiert, auto-sort ✅
+- TourPrognose: activeBatch.stops → TourFertigPrognose → Fahrer-App Prognose ✅
+
+**Bugs gefunden:** 2 — ALLE GEFIXT ✅
+
+### Status nach Review #151
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (311 Seiten)
+- Phase 256 + 257: DONE ✅
+- Bugs gefixt: 2 (1 kritisch: SLA-Route location-Feld, 1 Performance: N vs 1 Interval)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 258: StorefrontBestellStatusTimeline — Kunden-seitige Fortschrittsanzeige mit Phasen (Angenommen→Zubereitung→Unterwegs→Geliefert) als horizontale Zeitleiste im Order-Tracking
+2. Oder: Phase 258: DispatchSchichtplan-Kalender — Wochenansicht aller Fahrer-Schichten mit Lücken-Erkennung und Schicht-Stress-Indikator
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 258: Fahrer-Bonus-Trigger API — automatische Bonus-Freischaltung wenn Fahrer Score-Schwelle überschreitet (z.B. 80+ Punkte = +5% Provision diese Woche)
+2. Oder: Phase 258: Multi-Location SLA-Aggregation — standortübergreifendes SLA-Dashboard mit Vergleich und Trend-Pfeilen
 
 ---
 

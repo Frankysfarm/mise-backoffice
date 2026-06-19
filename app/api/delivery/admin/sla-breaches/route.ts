@@ -25,11 +25,11 @@ async function resolveLocationId(sb: Awaited<ReturnType<typeof createClient>>): 
 
   const { data: emp } = await sb
     .from('employees')
-    .select('tenant_id, location_id')
-    .eq('id', user.id)
+    .select('location_id')
+    .eq('auth_user_id', user.id)
     .maybeSingle();
 
-  return emp?.tenant_id ?? emp?.location_id ?? null;
+  return emp?.location_id ?? null;
 }
 
 export async function GET(req: NextRequest) {
