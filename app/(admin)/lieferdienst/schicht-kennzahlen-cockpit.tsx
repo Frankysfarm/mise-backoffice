@@ -9,6 +9,15 @@ import {
 import { cn } from '@/lib/utils';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
+interface OrderRow {
+  status: string;
+  typ: string | null;
+  gesamtbetrag: number | null;
+  bestellt_am: string | null;
+  fertig_am: string | null;
+  geschaetzte_zubereitung_min: number | null;
+}
+
 interface ShiftKPI {
   totalOrders: number;
   completedOrders: number;
@@ -48,10 +57,12 @@ export function SchichtKennzahlenCockpit({ locationId }: { locationId: string })
 
         if (!orders) { setLoading(false); return; }
 
-        const completed = orders.filter((o) =>
+        const typedOrders = orders as OrderRow[];
+
+        const completed = typedOrders.filter((o) =>
           ['fertig', 'geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status),
         );
-        const cancelled = orders.filter((o) =>
+        const cancelled = typedOrders.filter((o) =>
           ['storniert', 'abgebrochen'].includes(o.status),
         );
 
@@ -67,7 +78,7 @@ export function SchichtKennzahlenCockpit({ locationId }: { locationId: string })
         const deliveryMins = completed
           .filter((o) => o.bestellt_am && o.fertig_am)
           .map((o) => {
-            const diff = new Date(o.fertig_am).getTime() - new Date(o.bestellt_am).getTime();
+            const diff = new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime();
             return Math.floor(diff / 60_000);
           })
           .filter((m) => m > 0 && m < 120);
@@ -105,16 +116,16 @@ export function SchichtKennzahlenCockpit({ locationId }: { locationId: string })
           : null;
 
         setKpi({
-          totalOrders: orders.length,
+          totalOrders: typedOrders.length,
           completedOrders: completed.length,
           cancelledOrders: cancelled.length,
           avgPrepMin,
           avgDeliveryMin,
           revenue,
           onTimeRate,
-          deliveryOrders: orders.filter((o) => o.typ === 'lieferung').length,
-          takeawayOrders: orders.filter((o) => o.typ === 'abholung').length,
-          dineInOrders: orders.filter((o) => o.typ === 'vor_ort').length,
+          deliveryOrders: typedOrders.filter((o) => o.typ === 'lieferung').length,
+          takeawayOrders: typedOrders.filter((o) => o.typ === 'abholung').length,
+          dineInOrders: typedOrders.filter((o) => o.typ === 'vor_ort').length,
           hourlyData,
           peakHour,
         });
@@ -283,7 +294,8 @@ export function SchichtKennzahlenCockpit({ locationId }: { locationId: string })
                     />
                     <Tooltip
                       contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                      formatter={(val: number) => [`${val} Bestellungen`, 'Bestellungen']}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any) => [`${val ?? 0} Bestellungen`, 'Bestellungen'] as [string, string]}
                     />
                     <Bar dataKey="orders" radius={[3, 3, 0, 0]}>
                       {kpi.hourlyData.map((h, i) => (

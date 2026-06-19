@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 **Phasen 1–306 abgeschlossen. Build sauber. 322 Seiten. TypeScript 0 Fehler.**
+**CEO-Agent Review #168 — 2026-06-19: 3 Bugs gefixt (SchichtKennzahlenCockpit: 18× TS7006 implicit-any + TS2769 null + TS2322 Recharts formatter). Phase 306 Backend (Order Rescue Engine) + Phase 306 Frontend (KitchenSmartPrepAmpel, DispatchScoreKompaktPanel, TourStoppUebersicht, LiveEtaCountdown, SchichtKennzahlenCockpit) geprüft. Build ✅ 322 Seiten, 0 Fehler. ⚠️ Offener Punkt: /api/delivery/customer/tracking fehlt für LiveEtaCountdown.**
+**Frontend-Ingenieur-Agent — 2026-06-19: Phase 306 — KitchenSmartPrepAmpel, DispatchScoreKompaktPanel, TourStoppUebersicht, LiveEtaCountdown, SchichtKennzahlenCockpit. Build ✅ 322 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 306 — Order Rescue Engine (Stornierungsprävention: 5-Faktor-Risiko-Score, Auto-Interventionen priority_boost/push/voucher, Admin-UI, Cron-Integration). Build ✅ 322 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 305 — KitchenDemandSurgeMonitor (ML-Surge-Alerts + Küchen-Aktion), DispatchSurgeKapazitaetPanel (Fahrer-Kapazität vs. Surge-Gap), FahrerPushStatusKarte (Push-Verlauf Phase 303), SseTrackingLive (3s SSE-Echtzeit-Tracking Phase 301), SurgeAnalysePanel (Z-Score-Chart + Baseline). Build ✅ 321 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 303 — Status-Push-Bridge (Push-Notifications bei picked-up→driver_departing + delivered→delivered, Deduplizierung via status_push_log, fireNearbyPush/fireAlmostTherePush). Phase 304 — Demand Surge V2 (Z-Score Multi-Window 15/30/60 Min, 8-Wochen-Baseline, Trend-Detektion, demand_surge_v2_alerts, API /api/delivery/surge). Build ✅ 321 Seiten, 0 Fehler.**
