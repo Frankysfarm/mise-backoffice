@@ -88,6 +88,7 @@ import { TourRueckkehrAnzeige } from './tour-rueckkehr-anzeige';
 import { SchichtZusammenfassungLive } from './schicht-zusammenfassung-live';
 import { FahrerProblemMeldung } from './fahrer-problem-meldung';
 import { LieferungCheckliste } from './lieferung-checkliste';
+import { FahrerPushStatusKarte } from './push-status-karte';
 
 type Driver = {
   id: string;
@@ -1234,6 +1235,20 @@ export function FahrerApp({
           <div className="px-4">
             <SchichtZusammenfassungLive driverId={driver.id} onlineSince={status?.online_seit ?? null} />
           </div>
+          {/* Phase 305: Push-Status-Karte — Push-Benachrichtigungs-Verlauf für aktive Tour */}
+          {activeBatch.stops.length > 0 && (() => {
+            const firstStop = activeBatch.stops[0];
+            if (!firstStop) return null;
+            return (
+              <div className="px-4">
+                <FahrerPushStatusKarte
+                  orderId={firstStop.order_id}
+                  orderStatus={activeBatch.status}
+                  fahrerId={driver.id}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 301: Lieferungs-Checkliste — Vor-Ankunft-Prüfung: Artikel, Adresse, Zahlung */}
           {(() => {
             const cs = activeBatch.stops.find(s => !s.geliefert_am);

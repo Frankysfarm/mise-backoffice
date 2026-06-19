@@ -30,6 +30,7 @@ import { BestellpositionAnzeige } from './bestellposition-anzeige';
 import { LiveBestellZeitleiste } from '@/app/order/[locationSlug]/components/live-bestellzeitleiste';
 import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nachhaltigkeits-banner';
 import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-progress-card';
+import { SseTrackingLive } from './sse-tracking-live';
 
 type Order = {
   order_id: string;
@@ -444,6 +445,29 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             </div>
           )}
         </div>
+
+        {/* Phase 305: SSE Live-Tracking — 3s Echtzeit-Updates via Server-Sent Events (Phase 301 Backend) */}
+        {order.typ === 'lieferung' && !['geliefert', 'abgeholt', 'storniert'].includes(order.status) && (
+          <SseTrackingLive
+            bestellnummer={order.bestellnummer}
+            initialStatus={order.status}
+            onUpdate={(frame) => {
+              if (frame.driver) {
+                setOrder((prev) => ({
+                  ...prev,
+                  fahrer_lat: frame.driver!.lat ?? prev.fahrer_lat,
+                  fahrer_lng: frame.driver!.lng ?? prev.fahrer_lng,
+                  fahrer_heading: frame.driver!.heading ?? prev.fahrer_heading,
+                  fahrer_last_update: new Date().toISOString(),
+                  ...(frame.status ? { status: frame.status } : {}),
+                  ...(frame.eta_earliest ? { eta_earliest: frame.eta_earliest } : {}),
+                  ...(frame.eta_latest ? { eta_latest: frame.eta_latest } : {}),
+                }));
+                if (frame.stops_before != null) setStopsBefore(frame.stops_before);
+              }
+            }}
+          />
+        )}
 
         {/* Mehrstufige ETA-Fortschrittsanzeige */}
         {!['storniert'].includes(order.status) && (

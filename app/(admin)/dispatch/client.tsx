@@ -143,6 +143,7 @@ import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
 import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
+import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
 
 type Driver = {
   employee_id: string;
@@ -1009,6 +1010,15 @@ export function DispatchBoard({
       {/* Phase 206: Fahrer-Auslastungs-Balken — offene Stops je Fahrer */}
       <DispatchFahrerLastBalken batches={batches} drivers={drivers} />
 
+      {/* Phase 305: Demand-Surge-Kapazitäts-Panel — ML-Surge-Alerts vs. verfügbare Fahrer */}
+      <DispatchSurgeKapazitaetPanel
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')}
+        driverStats={{
+          online: onlineDrivers.length,
+          onTour: onlineDrivers.filter((d) => !!d.aktueller_batch_id).length,
+          available: onlineDrivers.filter((d) => !d.aktueller_batch_id).length,
+        }}
+      />
       {/* Phase 207: Kapazitäts-Warnung — heutige Fahrerlücken */}
       <KapazitaetsWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
 

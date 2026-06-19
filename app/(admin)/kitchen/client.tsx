@@ -94,6 +94,7 @@ import { KitchenDriverReturnKochstart } from './driver-return-kochstart';
 import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
 import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
+import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -549,6 +550,12 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
+      {/* Phase 305: Demand-Surge-Monitor — ML-basierte Nachfragespitzen aus Phase 304 Backend */}
+      {!bigDisplay && (locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenDemandSurgeMonitor
+          locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter}
+        />
+      )}
       {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
