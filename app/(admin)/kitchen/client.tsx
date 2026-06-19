@@ -75,6 +75,7 @@ import { KitchenSchichtQueuePrognose } from './schicht-queue-prognose';
 import { KitchenTimingFarbkodierung } from './timing-farbkodierung';
 import { KitchenSchichtKochzeitAnalyse } from './schicht-kochzeit-analyse';
 import { KitchenNeuerFahrerWarning } from './neuer-fahrer-warnung';
+import { KitchenSchichtBurndown } from './schicht-burndown';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -751,6 +752,9 @@ export function KitchenBoard({
 
       {/* Schicht-Schnappschuss */}
       <KitchenShiftStats orders={filtered} completedToday={completedToday} hourlyData={hourlyData} />
+
+      {/* Schicht-Burndown: Fertigstellungs-Verlauf vs. Ziel-Tempo */}
+      {!bigDisplay && <KitchenSchichtBurndown orders={filtered} completedToday={completedToday} />}
 
       {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}
       <KitchenEfficiencyPanel orders={filtered} />

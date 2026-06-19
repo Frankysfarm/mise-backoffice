@@ -125,6 +125,7 @@ import { DriverBonusProximityPanel } from './driver-bonus-proximity-panel';
 import { RealtimeGpsDashboard } from './realtime-gps-dashboard';
 import { DispatchZuweisungsVorschau } from './zuweisungs-vorschau';
 import { DispatchFahrerRampUpStrip } from './fahrer-ramp-up-strip';
+import { TourLieferzeitRangliste } from './tour-lieferzeit-rangliste';
 
 type Driver = {
   employee_id: string;
@@ -917,6 +918,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Tour-Lieferzeit-Rangliste: Aktive Touren nach Pünktlichkeit sortiert */}
+      <TourLieferzeitRangliste batches={batches as any} />
       {/* Tour-Risiko-Board: SLA-Risikoanalyse aller aktiven Touren — sortiert nach Kritikalität */}
       <DispatchTourRisikoBoard batches={batches} />
       {/* Phase 213: Tour-Score-Timeline — Score + Stopp-Dots + Verbleib je aktiver Tour */}

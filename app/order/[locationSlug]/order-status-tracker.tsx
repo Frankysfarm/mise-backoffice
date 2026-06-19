@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CheckCircle2, ChefHat, Clock, Truck, PackageCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EtaDynamicWidget } from './eta-dynamic-widget';
+import { FahrerAnkunftsCountdown } from './fahrer-ankunfts-countdown';
 import { createClient } from '@/lib/supabase/client';
 
 interface Props {
@@ -197,6 +198,8 @@ export function OrderStatusTracker({ orderId, initialStatus, initialEtaMin }: Pr
 
     {/* Phase 219: ETA-Widget — Live-Countdown mit Phasen-Fortschrittsbalken */}
     <EtaDynamicWidget orderId={orderId} initialEtaMin={etaMin} initialStatus={status} />
+    {/* Fahrer-Ankunfts-Countdown: Sekunden-genau wenn Fahrer < 5 Min entfernt */}
+    <FahrerAnkunftsCountdown etaMin={etaMin} status={status} />
     </>
   );
 }

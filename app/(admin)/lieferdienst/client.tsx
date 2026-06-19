@@ -100,6 +100,7 @@ import { FahrerAuslastungsMatrix } from './fahrer-auslastungs-matrix'
 import { SchichtEchtzeitAmpel } from './schicht-echtzeit-ampel'
 import { ZonenAktivitaetsStrip } from './zonen-aktivitaets-strip'
 import { NachwuchsFahrerPanel } from './nachwuchs-fahrer-panel'
+import { LiveKpiAmpel } from './live-kpi-ampel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1061,6 +1062,8 @@ export function LieferdienstClient() {
               <FahrerAuslastungsMatrix locationId={locationId ?? ''} />
               {/* Schicht-Live-KPI-Panel: Echtzeit-KPIs für die aktuelle Schicht */}
               <SchichtLiveKpiPanel />
+              {/* Live-KPI-Ampel: 4-Metrik Echtzeit-Ampel — ETA, Auslastung, Fahrer, Lieferzeit */}
+              <LiveKpiAmpel locationId={locationId ?? undefined} />
               {/* Schicht-Echtzeit-Ampel: 3-Farb Systemstatus-Anzeige + Lastkennzahlen */}
               <SchichtEchtzeitAmpel locationId={locationId ?? ''} />
               {/* Phase 251: Nachwuchs-Fahrer-Panel — Ramp-Up-Overview neuer Fahrer */}
