@@ -110,6 +110,7 @@ import { computeRampUpAllLocations, pruneOldProfiles as pruneRampUpProfiles } fr
 import { snapshotAllLocations as snapshotPerformanceScores, pruneOldPerformanceScores } from '@/lib/delivery/performance-score';
 import { scanNotificationsAllLocations, pruneOldNotifications } from '@/lib/delivery/notification-center';
 import { detectSlaBreachesAllLocations, pruneOldSlaBreaches } from '@/lib/delivery/sla-breach-detector';
+import { evaluateScoreTriggersAllLocations, pruneOldGrants as pruneScoreGrants } from '@/lib/delivery/driver-score-trigger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -236,6 +237,8 @@ export async function GET(req: NextRequest) {
     const isRampUpTick = nowHour === 2 && nowMin >= 44 && nowMin < 48;
     // Phase 250: Delivery Performance Score — täglich 03:05 UTC (nach Benchmark, frische Profitabilitätsdaten)
     const isPerfScoreTick = nowHour === 3 && nowMin >= 5 && nowMin < 9;
+    // Phase 258: Score-Bonus-Trigger — täglich 03:10 UTC (5 Min nach Driver Score Compute)
+    const isScoreTriggerTick = nowHour === 3 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -821,6 +824,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldSlaBreaches(30).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 258: Score-Bonus-Trigger — täglich 03:10 UTC (nach Driver Score Compute)
+    const scoreTriggerResult = isScoreTriggerTick
+      ? await evaluateScoreTriggersAllLocations().catch(() => ({ locations: 0, grantsCreated: 0, errors: 1 }))
+      : null;
+    const scoreGrantsPruned = isReportTick
+      ? await pruneScoreGrants(90).catch(() => ({ deleted: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1006,6 +1017,8 @@ export async function GET(req: NextRequest) {
       ...(notifPruned ? { notifications_pruned: notifPruned.pruned } : {}),
       sla_breach_detector: { locations: slaBreachResult.locations, detected: slaBreachResult.totalDetected, resolved: slaBreachResult.totalResolved, errors: slaBreachResult.errors },
       ...(slaBreachesPruned ? { sla_breaches_pruned: slaBreachesPruned.pruned } : {}),
+      ...(scoreTriggerResult ? { score_bonus_triggers: { locations: scoreTriggerResult.locations, grants_created: scoreTriggerResult.grantsCreated, errors: scoreTriggerResult.errors } } : {}),
+      ...(scoreGrantsPruned ? { score_grants_pruned: scoreGrantsPruned.deleted } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
