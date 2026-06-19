@@ -114,6 +114,7 @@ import { evaluateScoreTriggersAllLocations, pruneOldGrants as pruneScoreGrants }
 import { rebuildZoneVehicleStatsAllLocations } from '@/lib/delivery/scoring-v2';
 import { snapshotAllLocations as snapshotLocationHealthScores, pruneOldHealthScores } from '@/lib/delivery/location-health-score';
 import { snapshotPunctualityAllLocations, pruneOldProfiles as prunePunctualityProfiles } from '@/lib/delivery/punctuality-coach';
+import { checkAllLocations as checkItemDemandAllLocations, pruneOldAlerts as pruneItemDemandAlerts } from '@/lib/delivery/item-demand-prediction';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -248,6 +249,8 @@ export async function GET(req: NextRequest) {
     const isLocationHealthTick = nowHour === 3 && nowMin >= 15 && nowMin < 19;
     // Phase 268: Fahrer-Pünktlichkeits-Coach — täglich 04:50 UTC (nach allen Driver-Analyse-Ticks)
     const isPunctualityCoachTick = nowHour === 4 && nowMin >= 50 && nowMin < 54;
+    // Phase 270: Item Demand Prediction — täglich 05:00 UTC
+    const isItemDemandTick = nowHour === 5 && nowMin >= 0 && nowMin < 4;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -862,6 +865,14 @@ export async function GET(req: NextRequest) {
       ? await prunePunctualityProfiles(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 270: Item Demand Prediction — täglich 05:00 UTC
+    const itemDemandResult = isItemDemandTick
+      ? await checkItemDemandAllLocations().catch(() => ({ locations: 0, itemsChecked: 0, alertsCreated: 0, alertsResolved: 0, errors: 1 }))
+      : null;
+    const itemDemandAlertsPruned = isReportTick
+      ? await pruneItemDemandAlerts(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1053,6 +1064,8 @@ export async function GET(req: NextRequest) {
       ...(healthScoresPruned ? { health_scores_pruned: healthScoresPruned.pruned } : {}),
       ...(punctualityCoachResult ? { punctuality_coach: { locations: punctualityCoachResult.locations, processed: punctualityCoachResult.processed, saved: punctualityCoachResult.saved, errors: punctualityCoachResult.errors } } : {}),
       ...(punctualityProfilesPruned ? { punctuality_profiles_pruned: punctualityProfilesPruned.pruned } : {}),
+      ...(itemDemandResult ? { item_demand: { locations: itemDemandResult.locations, items_checked: itemDemandResult.itemsChecked, alerts_created: itemDemandResult.alertsCreated, alerts_resolved: itemDemandResult.alertsResolved, errors: itemDemandResult.errors } } : {}),
+      ...(itemDemandAlertsPruned ? { item_demand_alerts_pruned: itemDemandAlertsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
