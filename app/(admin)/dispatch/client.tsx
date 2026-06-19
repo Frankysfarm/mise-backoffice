@@ -139,6 +139,7 @@ import { DispatchZonenlastMatrix } from './zonenlast-matrix';
 import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
 import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
+import { DispatchReturnPredictionLive } from './return-prediction-live';
 
 type Driver = {
   employee_id: string;
@@ -1421,6 +1422,13 @@ export function DispatchBoard({
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (
         <DriverReturnForecast drivers={drivers} batches={batches} />
+      )}
+
+      {/* Phase 275: KI-Rückkehr-Prognose — ML-basiert mit GPS-Konfidenz (Phase-274-API) */}
+      {(locationFilter !== 'all' || locations.length > 0) && (
+        <DispatchReturnPredictionLive
+          locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')}
+        />
       )}
 
       {/* Fahrer Echtzeit-Ranking: Score-basierte Bestenliste aktiver Fahrer */}

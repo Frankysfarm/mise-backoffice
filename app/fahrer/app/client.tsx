@@ -84,6 +84,7 @@ import { TourStoppAktionen } from './tour-stopp-aktionen';
 import { TourFortschrittsRing } from './tour-fortschritts-ring';
 import { TourZielpunktKarte } from './tour-zielpunkt-karte';
 import { TourStoppZeitlinie } from './tour-stopp-zeitlinie';
+import { TourRueckkehrAnzeige } from './tour-rueckkehr-anzeige';
 
 type Driver = {
   id: string;
@@ -1201,6 +1202,12 @@ export function FahrerApp({
                 batchStartedAt={activeBatch.started_at}
                 totalEtaMin={activeBatch.total_eta_min ?? null}
               />
+            </div>
+          )}
+          {/* Phase 275: Rückkehr-Prognose — KI-Vorhersage wann Fahrer wieder an der Basis ist */}
+          {driver.location_id && (
+            <div className="px-4">
+              <TourRueckkehrAnzeige driverId={driver.id} locationId={driver.location_id} />
             </div>
           )}
           {/* Tour-Stopp-Aktionen: Aktionsbuttons für aktuellen Stopp — Angekommen, Geliefert, Anruf, Navigation */}

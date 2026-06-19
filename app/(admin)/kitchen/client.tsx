@@ -90,6 +90,7 @@ import { KitchenSchichtTimingOptimierer } from './schicht-timing-optimierer';
 import { KitchenLiveCookSignal } from './live-cook-signal';
 import { KitchenAuslastungsMonitor } from './auslastungs-monitor';
 import { KitchenFertigkeitsTrend } from './fertigkeits-trend';
+import { KitchenDriverReturnKochstart } from './driver-return-kochstart';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -646,6 +647,8 @@ export function KitchenBoard({
       <KitchenBatchDeparturePanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Batch-Koordination: welche Bestellungen in denselben Batch gehören und bis wann fertig sein müssen */}
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
+      {/* Phase 275: KI-Kochstart-Planung — Rückkehr-Vorhersage → optimaler Kochstart */}
+      <KitchenDriverReturnKochstart locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
       <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft-Sync: Farbkodierter Abgleich Zubereitungszeit vs. Fahrerankuft — Risiko sofort sichtbar */}
