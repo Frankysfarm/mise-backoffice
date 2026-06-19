@@ -67,10 +67,6 @@ export function FahrerRampUpFortschritt({ driverId }: Props) {
 
   const score = profile.rampUpScore;
   const ringDeg = Math.round((score / 100) * 360);
-  const ringStyle =
-    ringDeg <= 180
-      ? `conic-gradient(transparent ${ringDeg}deg, rgba(255,255,255,0.15) ${ringDeg}deg)`
-      : `conic-gradient(transparent 180deg, rgba(255,255,255,0.15) 180deg)`;
 
   return (
     <div className="rounded-2xl bg-white/10 p-4 space-y-4">

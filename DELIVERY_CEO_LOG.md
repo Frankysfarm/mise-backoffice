@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–248 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (307 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–251 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (308 Seiten). Deployment-bereit.
 
 ---
 
@@ -13,6 +13,46 @@
 ## Nächste Schritte für Frontend-Ingenieur (nach Phase 246)
 1. Phase 247: Real-time Driver GPS-Tracking Panel — Live-Karte mit Fahrer-Positionen und Tour-Fortschritt (baut auf Leaflet auf)
 2. Oder: Driver Earnings Dashboard — Fahrer-facing Übersicht: Tagesumsatz, Trinkgeld, Bonus, Incentives
+
+---
+
+## CEO Review #147 — 2026-06-19
+
+### Geprüfte Phase: Phase 251 — 5 neue Frontend-Komponenten (Ramp-Up-Integration)
+
+**Build-Status:**
+- `npx tsc --noEmit`: ✅ 0 TypeScript-Fehler
+- `npx next build`: ✅ Compiled successfully (308 Seiten, 0 Fehler)
+
+**Code-Review Phase 251 Frontend:**
+- `dispatch/fahrer-ramp-up-strip.tsx` (DispatchFahrerRampUpStrip): Neue-Fahrer-Kacheln mit Tier-Badges + 3 KPIs (Neue Fahrer/Coaching nötig/Ø Score), 2-Min Auto-Refresh, korrekt in `dispatch/client.tsx:982` eingebunden ✅
+- `kitchen/neuer-fahrer-warnung.tsx` (KitchenNeuerFahrerWarning): Amber-Alert nur bei struggling/coaching-geflagten Fahrern, automatisch ausgeblendet wenn keine Probleme, korrekt in `kitchen/client.tsx:554` eingebunden ✅
+- `fahrer/app/ramp-up-fortschritt.tsx` (FahrerRampUpFortschritt): Score-Ring (conic-gradient + tier-farbiger Border), 3-Meter-Grid (Lieferungen/Pünktlichkeit/Tag), Coaching-Banner wenn Flag gesetzt, korrekt in `fahrer/app/client.tsx:834` eingebunden ✅
+- `order/[locationSlug]/components/eta-vertrauen-widget.tsx` (EtaVertrauenWidget): 4-Step-Fortschrittsbalken (preparing→dispatched→delivering→delivered) + Confidence-Badge (hoch/mittel/niedrig), Mapping aus liveStatus in `success-state.tsx:622` korrekt ✅
+- `lieferdienst/nachwuchs-fahrer-panel.tsx` (NachwuchsFahrerPanel): 2×2 KPI-Grid + ScoreBar-Liste (bis 6 Fahrer) + Tier-Legende, korrekt in `lieferdienst/client.tsx:1067` eingebunden ✅
+
+**Bugs gefunden + gefixt:**
+- `fahrer/app/ramp-up-fortschritt.tsx:70` — `ringStyle` Variable definiert aber nie verwendet (Dead-Code). Entfernt ✅
+
+**Logik-Prüfung:**
+- `getStepStatus()` in `eta-vertrauen-widget.tsx` — PHASE_ORDER-Index-Vergleich korrekt, done/active/pending-Logik sauber ✅
+- `needsAttention()` in `neuer-fahrer-warnung.tsx` — `struggling || coachingFlag` Bedingung korrekt ✅
+- Auto-Refresh-Intervalle: 2 Min (Dispatch-Strip), 1,5 Min (Kitchen-Warning), 2 Min (Nachwuchs-Panel) — clearInterval sauber in useEffect cleanup ✅
+- EtaVertrauenWidget: `confidence={null}` im success-state (Phase 251 noch keine API-Anbindung) — korrekt, widget zeigt nur Fortschrittsbalken ohne Badge ✅
+
+### Status nach Review #147
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (308 Seiten)
+- Phase 251 (5 neue Komponenten): DONE ✅
+- Bugs gefixt: 1 (Dead-Code ringStyle)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 252: ETA-Vertrauens-API — endpoint `/api/delivery/orders/[id]/eta-confidence` der `confidence: 'hoch'|'mittel'|'niedrig'` zurückgibt (basierend auf historischer Genauigkeit für Standort + Tageszeit + Fahrertyp)
+2. Oder: Phase 252: Driver Ramp-Up Auto-Email — wöchentliche Coaching-Zusammenfassung an Location-Manager (struggling Fahrer, Score-Trends, graduation-nahe Fahrer)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 252: ETA-Widget API-Anbindung — `EtaVertrauenWidget` mit echten Confidence-Daten aus `/api/delivery/orders/[id]/eta-confidence` versorgen (polling alle 30s)
+2. Oder: Phase 252: Fahrer-App Score-History — Score-Verlauf als Sparkline (letzte 7 Tage) im FahrerRampUpFortschritt-Panel
 
 ---
 
