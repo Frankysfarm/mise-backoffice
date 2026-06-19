@@ -97,6 +97,7 @@ import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
 import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
 import { KitchenCookNowPanel } from './cook-now-panel';
+import { KitchenSchichtZielStrip } from './schicht-ziel-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -568,6 +569,8 @@ export function KitchenBoard({
         completedToday={completedToday ?? 0}
         activeDriverCount={drivers.filter(d => d.status?.ist_online).length}
       />
+      {/* Phase 308: Schicht-Ziel-Strip — Küchen-Fortschritt gegen Schichtziel (Bestellungen/Tempo/Pünktlichkeit) */}
+      <KitchenSchichtZielStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenLiveCookSignal orders={filtered} timings={timings} />

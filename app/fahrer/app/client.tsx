@@ -91,6 +91,7 @@ import { FahrerProblemMeldung } from './fahrer-problem-meldung';
 import { LieferungCheckliste } from './lieferung-checkliste';
 import { FahrerPushStatusKarte } from './push-status-karte';
 import { TourStoppUebersicht } from './tour-stopp-uebersicht';
+import { FahrerStopVerificationPanel } from './stop-verification-panel';
 
 type Driver = {
   id: string;
@@ -1010,6 +1011,30 @@ export function FahrerApp({
                   arrivedAt={nextStop.angekommen_am}
                   expectedDwellSec={90}
                   stopLabel={nextStop.order.kunde_adresse ?? `Stop ${nextStop.reihenfolge}`}
+                />
+              </div>
+            );
+          })()}
+          {/* Phase 308: Stop-Verification-Panel — Zustellung bestätigen oder Fehlversuch melden wenn angekommen */}
+          {(() => {
+            const arrivedStop = activeBatch.stops.find(s => !s.geliefert_am && s.angekommen_am);
+            if (!arrivedStop) return null;
+            const idx = activeBatch.stops.filter(s => s.reihenfolge < arrivedStop.reihenfolge).length;
+            return (
+              <div className="px-4">
+                <FahrerStopVerificationPanel
+                  stop={arrivedStop as any}
+                  stopIndex={idx}
+                  totalStops={activeBatch.stops.length}
+                  onDelivered={async (stopId) => { await markDelivered(stopId); }}
+                  onFailedAttempt={async (stopId, reason) => {
+                    await fetch(`/api/delivery/tours/${activeBatch.id}/failed-attempt`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ stopId, reason }),
+                    }).catch(() => {});
+                    await markDelivered(stopId);
+                  }}
                 />
               </div>
             );

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X, Clock } from 'lucide-react';
 import { BestellVertrauensBadge } from './components/bestell-vertrauens-badge';
+import { OrderStatusStepBand } from './components/order-status-step-band';
 
 export type V2OrderType = 'lieferung' | 'abholung';
 
@@ -1100,6 +1101,12 @@ function ActiveOrderBannerV2({ locationId }: { locationId: string }) {
           <X style={{ width: '0.875rem', height: '0.875rem' }} />
         </button>
       </div>
+      {/* Phase 308: Fortschritts-Stepper — zeigt Lieferstatus als visuelle Schritte direkt im Storefront */}
+      {stored.isDelivery && !isDelivered && status && (
+        <div style={{ marginTop: '0.5rem' }}>
+          <OrderStatusStepBand orderId={stored.orderId} initialStatus={status as any} />
+        </div>
+      )}
     </div>
   );
 }

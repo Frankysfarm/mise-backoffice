@@ -146,6 +146,7 @@ import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
 import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
 import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
 import { DispatchTourScoreLivePanel } from './tour-score-live-panel';
+import { DispatchTourStopMatrix } from './tour-stop-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1442,6 +1443,8 @@ export function DispatchBoard({
 
       {/* Live-Tour-Tracker: kompakte Statuskarten aller aktiven Touren mit Farbkodierung */}
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
+      {/* Phase 308: Tour-Stop-Matrix — alle aktiven Touren mit Stop-Fortschritt, ETA-Abweichung, Farbkodierung */}
+      {batches.length > 0 && <DispatchTourStopMatrix batches={batches as any} />}
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (

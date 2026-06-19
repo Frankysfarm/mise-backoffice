@@ -117,6 +117,7 @@ import { SchichtRentabilitaetsAmpel } from './schicht-rentabilitaets-ampel'
 import { SurgeAnalysePanel } from './surge-analyse-panel'
 import { SchichtKennzahlenCockpit } from './schicht-kennzahlen-cockpit'
 import { TagesZielCockpit } from './tages-ziel-cockpit'
+import { SchichtzielKonfigPanel } from './schichtziel-konfig-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1112,6 +1113,8 @@ export function LieferdienstClient() {
               <SchichtKennzahlenCockpit locationId={locationId} />
               {/* Tagesziel-Cockpit: Live-Gauge für Bestellungen, Umsatz und Schichtzeit mit Prognose */}
               <TagesZielCockpit locationId={locationId} />
+              {/* Phase 308: Schichtziel-Konfigurator — Ziele je Standort setzen (Bestellungen, Umsatz, Schichtdauer) */}
+              <SchichtzielKonfigPanel locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
