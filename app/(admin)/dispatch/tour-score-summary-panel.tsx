@@ -10,7 +10,7 @@ interface BatchStop {
   geliefert_am: string | null;
   order: {
     bestellnummer: string;
-    dispatch_score: number | null;
+    dispatch_score?: number | null;
     eta_latest: string | null;
   } | null;
 }

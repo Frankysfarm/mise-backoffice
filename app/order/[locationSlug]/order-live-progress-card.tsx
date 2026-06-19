@@ -162,7 +162,7 @@ export function OrderLiveProgressCard({
           table: 'customer_orders',
           filter: `id=eq.${orderId}`,
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           const row = payload.new as Partial<TrackingData> & { status?: string; eta_min?: number | null };
           if (row.status) setStatus(row.status);
           if ('eta_min' in row) setEtaMin(row.eta_min ?? null);
