@@ -95,6 +95,7 @@ import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
 import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
+import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1487,6 +1488,8 @@ export function KitchenBoard({
       )}
       {/* Phase 301: Kochzeit-Effizienz-Tracker — Ist-vs-Soll Zubereitungszeit + Genauigkeits-Score */}
       {!bigDisplay && <KitchenKochzeitEffizienzTracker orders={filtered} timings={timings} />}
+      {/* Smart Prep-Ampel: Farbkodierte Live-Fortschrittsleisten je aktiver Lieferbestellung */}
+      {!bigDisplay && <KitchenSmartPrepAmpel orders={filtered} timings={timings} />}
     </div>
   );
 }

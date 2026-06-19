@@ -115,6 +115,7 @@ import { RueckkehrPrognoseKacheln } from './rueckkehr-prognose-kacheln'
 import { FahrerPraesenzTracker } from './fahrer-praesenz-tracker'
 import { SchichtRentabilitaetsAmpel } from './schicht-rentabilitaets-ampel'
 import { SurgeAnalysePanel } from './surge-analyse-panel'
+import { SchichtKennzahlenCockpit } from './schicht-kennzahlen-cockpit'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1106,6 +1107,8 @@ export function LieferdienstClient() {
               <SchichtZielErreichtPanel />
               {/* Phase 271: Artikel-Nachfrage-Widget — Lagerampel + Top-Bedarfs-Artikel aus Item-Demand-Prediction */}
               <LieferdienstItemNachfrageWidget locationId={locationId} />
+              {/* Schicht-Kennzahlen-Cockpit: Detaillierte Live-KPIs mit Stunden-Chart + Bestellungstypen */}
+              <SchichtKennzahlenCockpit locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

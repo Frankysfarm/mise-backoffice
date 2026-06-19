@@ -144,6 +144,7 @@ import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
 import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
 import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
+import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
 
 type Driver = {
   employee_id: string;
@@ -942,6 +943,8 @@ export function DispatchBoard({
         dispatch_score: o.dispatch_score,
         delivery_zone: o.delivery_zone,
       }))} />
+      {/* Score-Kompakt-Panel: Rangierte Bestellungen nach Dispatch-Score mit Farbkodierung */}
+      <DispatchScoreKompaktPanel orders={readyOrders} />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}

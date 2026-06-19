@@ -89,6 +89,7 @@ import { SchichtZusammenfassungLive } from './schicht-zusammenfassung-live';
 import { FahrerProblemMeldung } from './fahrer-problem-meldung';
 import { LieferungCheckliste } from './lieferung-checkliste';
 import { FahrerPushStatusKarte } from './push-status-karte';
+import { TourStoppUebersicht } from './tour-stopp-uebersicht';
 
 type Driver = {
   id: string;
@@ -1192,6 +1193,15 @@ export function FahrerApp({
                   window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}`, '_blank');
                 }}
                 onCall={(phone) => { window.open(`tel:${phone}`, '_self'); }}
+              />
+            </div>
+          )}
+          {/* Stopp-Übersicht: Alle Stopps expandierbar mit Fortschrittsbalken + Navigation */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourStoppUebersicht
+                stops={activeBatch.stops as any}
+                currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
               />
             </div>
           )}
