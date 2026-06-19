@@ -82,6 +82,8 @@ import { TourPunktlichkeitsCoach } from './tour-punktlichkeits-coach';
 import { TourStopsDetailPanel, type TourStop } from './tour-stop-detail-card';
 import { TourStoppAktionen } from './tour-stopp-aktionen';
 import { TourFortschrittsRing } from './tour-fortschritts-ring';
+import { TourZielpunktKarte } from './tour-zielpunkt-karte';
+import { TourStoppZeitlinie } from './tour-stopp-zeitlinie';
 
 type Driver = {
   id: string;
@@ -1233,6 +1235,47 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Tour-Zielpunkt-Karte: Nächster Stopp mit Adresse, ETA + Ein-Tap-Navigation */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourZielpunktKarte
+                stops={activeBatch.stops.map(s => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  geliefert_am: s.geliefert_am,
+                  order: s.order
+                    ? {
+                        kunde_name: s.order.kunde_name,
+                        kunde_adresse: s.order.kunde_adresse,
+                        kunde_lat: s.order.kunde_lat,
+                        kunde_lng: s.order.kunde_lng,
+                      }
+                    : null,
+                }))}
+              />
+            </div>
+          )}
+          {/* Tour-Stopp-Zeitlinie: Alle Stopps als vertikale Zeitlinie mit Status + Uhrzeit */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourStoppZeitlinie
+                stops={activeBatch.stops.map(s => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  geliefert_am: s.geliefert_am,
+                  order: s.order
+                    ? {
+                        id: s.order.id,
+                        bestellnummer: s.order.bestellnummer,
+                        kunde_name: s.order.kunde_name,
+                        kunde_adresse: s.order.kunde_adresse,
+                        gesamtbetrag: s.order.gesamtbetrag,
+                      }
+                    : null,
+                }))}
+              />
+            </div>
+          )}
           {/* Phase 257: Tour-Fertig-Prognose — wann endet die Tour + Schicht-Vergleich */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">

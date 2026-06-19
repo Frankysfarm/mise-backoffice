@@ -138,6 +138,7 @@ import { DispatchTourScoreSummaryPanel } from './tour-score-summary-panel';
 import { DispatchZonenlastMatrix } from './zonenlast-matrix';
 import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
+import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 
 type Driver = {
   employee_id: string;
@@ -920,6 +921,8 @@ export function DispatchBoard({
       <DispatchTourRückkehrFenster batches={batches} drivers={drivers} />
       {/* Live-Score-Board: Fahrer-Dispatch-Score-Ranking mit Balken + Farbkodierung */}
       <DispatchLiveScoreBoard />
+      {/* Tour-Zeitabweichung: Soll- vs. Ist-Zeit je aktiver Tour mit Abweichungs-Farbkodierung */}
+      <DispatchTourZeitabweichung />
       {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
       <DispatchScoreInsightPanel orders={readyOrders} />
       {/* Score-Live-Panel: Kompakte Score-Karten mit Gauge + Faktoren für alle fertigen Bestellungen */}

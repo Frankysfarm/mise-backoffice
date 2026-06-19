@@ -88,6 +88,8 @@ import { KitchenZubereitungsZielUhr } from './zubereitungs-ziel-uhr';
 import { KitchenItemDemandAmpel } from './item-demand-ampel';
 import { KitchenSchichtTimingOptimierer } from './schicht-timing-optimierer';
 import { KitchenLiveCookSignal } from './live-cook-signal';
+import { KitchenAuslastungsMonitor } from './auslastungs-monitor';
+import { KitchenFertigkeitsTrend } from './fertigkeits-trend';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -559,6 +561,10 @@ export function KitchenBoard({
       )}
       {/* Schicht-Timing-Optimierer: Wann muss die Küche mit Kochen starten basierend auf Fahrer-ETAs */}
       <KitchenSchichtTimingOptimierer orders={filtered} batches={batches} stops={stops} />
+      {/* Auslastungs-Monitor: Farbkodierte Stations-Kacheln mit Anzahl aktiver Bestellungen + Countdown */}
+      <KitchenAuslastungsMonitor orders={filtered} timings={timings} />
+      {/* Fertigkeits-Trend: Bestellungen fertig je 15-Min-Slot dieser Schicht mit Pace-Vergleich */}
+      <KitchenFertigkeitsTrend orders={filtered} />
       {/* Smart-Flow Board: Farbkodiertes Kachel-Raster aller aktiven Bestellungen mit Countdown */}
       <KitchenSmartOrderFlowBoard orders={filtered} />
       {/* Phase 269: Zubereitungs-Zieluhren — SVG-Ring-Countdown je aktiver Bestellung mit Farbkodierung */}

@@ -110,6 +110,7 @@ import { SchichtKostenErtragBilanz } from './schicht-kosten-ertrag-bilanz'
 import { SchichtZielErreichtPanel } from './schicht-ziel-erreicht-panel'
 import { LieferdienstItemNachfrageWidget } from './item-nachfrage-widget'
 import { SchichtEchtzeitGewinn } from './schicht-echtzeit-gewinn'
+import { SchichtBestelltrendKarte } from './schicht-bestelltrend'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1041,6 +1042,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Echtzeit-Gewinn-Rechner: Revenue − Fahrerkosten − Plattformgebühren = Nettogewinn live */}
               <SchichtEchtzeitGewinn />
+              {/* Bestelltrend-Karte: Stündliches Bestellvolumen dieser Schicht vs. Vorwoche mit Pace-Indikator */}
+              <SchichtBestelltrendKarte locationId={locationId} />
               {/* Phase 260: Schicht-Profil-Karte — Stündliche Verteilung + KPI-Summary der aktuellen Schicht */}
               <SchichtProfilKarte locationId={locationId} />
               {/* Phase 222: Incentive-Tages-Übersicht — Fahrer-Bonus-Pool, genehmigt/ausstehend, Top-Verdiener */}
