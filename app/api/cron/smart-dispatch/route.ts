@@ -112,6 +112,7 @@ import { scanNotificationsAllLocations, pruneOldNotifications } from '@/lib/deli
 import { detectSlaBreachesAllLocations, pruneOldSlaBreaches } from '@/lib/delivery/sla-breach-detector';
 import { evaluateScoreTriggersAllLocations, pruneOldGrants as pruneScoreGrants } from '@/lib/delivery/driver-score-trigger';
 import { rebuildZoneVehicleStatsAllLocations } from '@/lib/delivery/scoring-v2';
+import { snapshotAllLocations as snapshotLocationHealthScores, pruneOldHealthScores } from '@/lib/delivery/location-health-score';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -242,6 +243,8 @@ export async function GET(req: NextRequest) {
     const isScoreTriggerTick = nowHour === 3 && nowMin >= 10 && nowMin < 14;
     // Phase 263: Zone×Fahrzeug-Statistik für ML-Scoring V2 — täglich 04:35 UTC (nach Upsell-Rebuild)
     const isZoneVehicleStatsTick = nowHour === 4 && nowMin >= 34 && nowMin < 38;
+    // Phase 264: Location-Gesundheits-Score — täglich 03:15 UTC (nach Performance Score bei 03:05)
+    const isLocationHealthTick = nowHour === 3 && nowMin >= 15 && nowMin < 19;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -840,6 +843,14 @@ export async function GET(req: NextRequest) {
       ? await rebuildZoneVehicleStatsAllLocations().catch(() => ({ locations: 0, totalRows: 0 }))
       : null;
 
+    // Phase 264: Location-Gesundheits-Score — täglich 03:15 UTC
+    const locationHealthResult = isLocationHealthTick
+      ? await snapshotLocationHealthScores().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    const healthScoresPruned = isReportTick
+      ? await pruneOldHealthScores(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1027,6 +1038,8 @@ export async function GET(req: NextRequest) {
       ...(slaBreachesPruned ? { sla_breaches_pruned: slaBreachesPruned.pruned } : {}),
       ...(scoreTriggerResult ? { score_bonus_triggers: { locations: scoreTriggerResult.locations, grants_created: scoreTriggerResult.grantsCreated, errors: scoreTriggerResult.errors } } : {}),
       ...(scoreGrantsPruned ? { score_grants_pruned: scoreGrantsPruned.deleted } : {}),
+      ...(locationHealthResult ? { location_health_scores: { locations: locationHealthResult.locations, snapshots: locationHealthResult.snapshots, errors: locationHealthResult.errors } } : {}),
+      ...(healthScoresPruned ? { health_scores_pruned: healthScoresPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

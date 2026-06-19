@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–263 abgeschlossen. Build sauber. 313 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–264 abgeschlossen. Build sauber. 314 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 264 — Location-Gesundheits-Score API. Build ✅ 314 Seiten, 0 Fehler.**
 **CEO-Agent Review #155 — 2026-06-19: 2 fehlende API-Endpunkte erstellt (storno_quote + assignment_activity). Phase 263 (ML-Scoring V2 + 5 Frontend-Komponenten) geprüft. Build ✅ 313 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 263 — Smart Dispatch ML-Scoring V2. Build ✅ 313 Seiten, 0 Fehler.**
 **CEO-Agent Review #154 — 2026-06-19: 2 Bugs gefixt (Math.random()-Fallbacks + tote revenueTrend-Variable in stunden-hochrechnung.tsx). Phase 261 (Score-Bonus Admin-Dashboard) + Phase 262 (5 Smart-Delivery-Komponenten) geprüft. Build ✅ 312 Seiten, 0 Fehler.**
@@ -47,6 +48,64 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 264 — Location-Gesundheits-Score API (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `scripts/migrations/135_location_health_score.sql` — 1 Tabelle + 2 Views + 1 RPC:
+  - `location_health_scores` (UNIQUE location+date, RLS): 4 Rohdaten-Felder + 4 Dimension-Scores (0–100) + overall_score + grade + trend + score_delta + weakest_dimension
+  - `v_location_health_latest` VIEW: JOIN auf locations — immer der neueste Snapshot je Location
+  - `v_location_health_ranking` VIEW: RANK() über alle Standorte nach overall_score — Multi-Standort-Vergleich
+  - `prune_old_health_scores(p_days)` RPC: löscht Einträge älter als N Tage
+  - `trg_location_health_scores_updated_at` Trigger: updated_at automatisch
+- `lib/delivery/location-health-score.ts` — 6 Funktionen:
+  - `computeLocationHealthScore(locationId, date?)`: 4-Dimensionen-Berechnung aus DB (parallel):
+    - **Pünktlichkeit (40%)**: fertig_am ≤ eta_earliest → on_time_rate % → Score linear 50%→0, 95%→100
+    - **Fahrerverfügbarkeit (25%)**: driversOnline / driversNeeded (= max(1, offeneOrders/3)) → linear 0→0, ≥1→100
+    - **Stornoquote (20%)**: cancelCount / totalOrders → invertiert, 0%→100, ≥20%→0
+    - **Kundenzufriedenheit (15%)**: avgRating 1–5 → (rating-1)/4 × 100
+    - Gesamt = gewichtete Summe; Grade A+/A/B+/B/C/D/F; weakestDimension wenn <60
+  - `snapshotLocationHealthScore(locationId, date?)`: compute + Vortag-Vergleich (trend up/stable/down bei ≥3 Punkten Differenz) + UPSERT via onConflict
+  - `snapshotAllLocations(date?)`: paralleler Cron-Batch aller aktiven Locations
+  - `getLocationHealthDashboard(locationId)`: parallel latest + 30-Tage-Trend + Multi-Location-Ranking + Empfehlungen
+  - `getLocationHealthTrend(locationId, days)`: historische Dimension-Daten
+  - `pruneOldHealthScores(daysToKeep)`: RPC-Wrapper
+- `app/api/delivery/admin/location-health/route.ts` — GET + POST:
+  - GET `?action=dashboard` → latest + trend + ranking + recommendations
+  - GET `?action=trend&days=30` → historischer Verlauf
+  - POST `action=snapshot` → manueller Snapshot für aktuelle Location
+  - POST `action=snapshot_all` → alle Locations
+  - POST `action=prune` → Cleanup
+  - Auth via employees.location_id (Standard-Pattern)
+  - Graceful Fallback wenn Migration noch nicht ausgeführt
+- `app/(admin)/delivery/location-health/page.tsx` — Server-Seite mit Metadata + requireManagerPlus
+- `app/(admin)/delivery/location-health/client.tsx` — `LocationHealthClient`:
+  - **4 KPI-Karten**: Gesundheits-Score (0–100), Pünktlichkeitsrate, Stornoquote, Kundenbewertung
+  - **Übersicht-Tab**: ScoreArc-Gauge (128px SVG, Farbe nach Score), Grade-Badge, Trend-Pfeil (+/–Delta), 4 DimBars (Balken mit Farb-Gradient + Rohwert), Empfehlungen-Panel (AlertCircle/CheckCircle-Icons), Fahrer-Mini-Cards
+  - **Verlauf-Tab**: Recharts LineChart (5 Linien: Gesamt indigo, Pünktlichkeit grün, Fahrer blau, Storno amber, Rating lila), X-Achse MM-DD, 30-Tage-Fenster, Farb-Legende
+  - **Ranking-Tab**: Tabelle aller Standorte sortiert nach Score, Medaillen-Emoji #1/#2/#3, Grade-Badge, Trend-Icon
+  - 5min Auto-Refresh via Countdown + manueller Snapshot-Button, graceful Migration-Fallback
+- `app/(admin)/delivery/page.tsx` — neue SectionCard "Standort-Gesundheits-Score" mit HeartPulse-Icon + highlight vor Performance Score in Live-Betrieb-Gruppe
+- `app/api/cron/smart-dispatch/route.ts` — Phase 264:
+  - `isLocationHealthTick`: täglich 03:15 UTC (5 Min nach isPerfScoreTick bei 03:05)
+  - `snapshotLocationHealthScores()` → location_health_scores im Response-JSON
+  - `pruneOldHealthScores(90)` täglich isReportTick → health_scores_pruned
+
+### Score-Formel:
+- **40%** Pünktlichkeit: `max(0, min(100, (onTimeRatePct - 50) / 45 × 100))`
+- **25%** Fahrerverfügbarkeit: `min(100, driversOnline / max(1, offeneBestellungen/3) × 100)`
+- **20%** Stornoquote (inv.): `max(0, min(100, (1 - cancelRatePct/20) × 100))`
+- **15%** Kundenzufriedenheit: `max(0, min(100, (avgRating - 1) / 4 × 100))`
+- **Gesamt**: gewichtete Summe → Grade A+(≥92)/A(≥80)/B+(≥70)/B(≥60)/C(≥45)/D(≥30)/F
+- **Trend**: up wenn +3 Punkte vs. Vortag, down wenn -3 Punkte, sonst stable
+
+### Build:
+- `node_modules/.bin/next build`: ✅ Compiled successfully, 314 Seiten (war 313), 0 Fehler
+- Neue Routen: `/delivery/location-health` ƒ + `/api/delivery/admin/location-health` ƒ
 
 ---
 
