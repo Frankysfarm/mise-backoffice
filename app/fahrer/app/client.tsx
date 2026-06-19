@@ -87,6 +87,7 @@ import { TourStoppZeitlinie } from './tour-stopp-zeitlinie';
 import { TourRueckkehrAnzeige } from './tour-rueckkehr-anzeige';
 import { SchichtZusammenfassungLive } from './schicht-zusammenfassung-live';
 import { FahrerProblemMeldung } from './fahrer-problem-meldung';
+import { LieferungCheckliste } from './lieferung-checkliste';
 
 type Driver = {
   id: string;
@@ -211,6 +212,7 @@ export function FahrerApp({
 
   // Peak-Zeit-Erkennung: pollt eta/live zur Erkennung von Surge/Stoßzeiten
   const [peakSignal, setPeakSignal] = useState<{ signal: string; load: string; etaExtension: number } | null>(null);
+  const [showLieferCheckliste, setShowLieferCheckliste] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -1232,6 +1234,31 @@ export function FahrerApp({
           <div className="px-4">
             <SchichtZusammenfassungLive driverId={driver.id} onlineSince={status?.online_seit ?? null} />
           </div>
+          {/* Phase 301: Lieferungs-Checkliste — Vor-Ankunft-Prüfung: Artikel, Adresse, Zahlung */}
+          {(() => {
+            const cs = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!cs) return null;
+            return (
+              <div className="px-4">
+                <button
+                  onClick={() => setShowLieferCheckliste(true)}
+                  className="w-full py-2.5 rounded-xl bg-matcha-900/40 border border-matcha-700/50 text-matcha-300 text-sm font-semibold flex items-center justify-center gap-2 active:opacity-80 transition-opacity"
+                >
+                  <span>✓</span> Vor-Ankunft-Checkliste
+                </button>
+                {showLieferCheckliste && (
+                  <LieferungCheckliste
+                    orderId={cs.order_id}
+                    bestellnummer={cs.order.bestellnummer}
+                    zahlungsart={(cs.order as any).zahlungsart ?? 'online'}
+                    gesamtbetrag={cs.order.gesamtbetrag}
+                    onConfirm={() => setShowLieferCheckliste(false)}
+                    onDismiss={() => setShowLieferCheckliste(false)}
+                  />
+                )}
+              </div>
+            );
+          })()}
           {/* Tour-Stopp-Aktionen: Aktionsbuttons für aktuellen Stopp — Angekommen, Geliefert, Anruf, Navigation */}
           {activeBatch.stops.length > 0 && (() => {
             const currentStop = activeBatch.stops.find((s) => !s.geliefert_am);

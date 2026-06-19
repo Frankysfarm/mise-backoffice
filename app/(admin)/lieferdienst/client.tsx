@@ -113,6 +113,7 @@ import { SchichtEchtzeitGewinn } from './schicht-echtzeit-gewinn'
 import { SchichtBestelltrendKarte } from './schicht-bestelltrend'
 import { RueckkehrPrognoseKacheln } from './rueckkehr-prognose-kacheln'
 import { FahrerPraesenzTracker } from './fahrer-praesenz-tracker'
+import { SchichtRentabilitaetsAmpel } from './schicht-rentabilitaets-ampel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1042,6 +1043,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 301: Schicht-Rentabilitäts-Ampel — Traffic-Light für aktuelle Schicht-Profitabilität */}
+              <SchichtRentabilitaetsAmpel locationId={locationId} />
               {/* Echtzeit-Gewinn-Rechner: Revenue − Fahrerkosten − Plattformgebühren = Nettogewinn live */}
               <SchichtEchtzeitGewinn />
               {/* Phase 275: Fahrer-Rückkehr-Prognose — KI-basierte Return-to-Base Vorhersage mit Konfidenz */}

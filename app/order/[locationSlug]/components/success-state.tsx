@@ -21,6 +21,7 @@ import { BestellungEchtzeitCountdown } from '../bestellung-echtzeit-countdown';
 import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
 import { EtaLiveCountdown } from './eta-live-countdown';
 import { BestellDelayBanner } from '../bestell-delay-banner';
+import { BestellTeilenWidget } from '../bestell-teilen-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -682,6 +683,13 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && liveStatus === 'unterwegs' && (
           <div className="mt-4 w-full">
             <LiveFahrerStatus orderId={orderId} initialStatus={liveStatus} />
+          </div>
+        )}
+
+        {/* Phase 301: Bestell-Teilen-Widget — Link zur Live-Verfolgung teilen */}
+        {isDelivery && (
+          <div className="mt-3 w-full">
+            <BestellTeilenWidget bestellnummer={bestellnummer} locationSlug="" />
           </div>
         )}
 

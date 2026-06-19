@@ -142,6 +142,7 @@ import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
+import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
 
 type Driver = {
   employee_id: string;
@@ -960,6 +961,8 @@ export function DispatchBoard({
       <DispatchItemNachfrageHinweis locationId={locations[0]?.id} />
       {/* Phase 300: Zonen-Score-Ringe — Pünktlichkeitsquote je Lieferzone als SVG-Ring */}
       <DispatchZonenScoreRing batches={batches as any} readyOrders={readyOrders as any} />
+      {/* Phase 301: Zonen-Effizienz-Matrix — ETA + Lieferungen + Distanz je Lieferzone */}
+      <DispatchZoneEffizienzMatrix orders={readyOrders} batches={batches} />
 
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}

@@ -93,6 +93,7 @@ import { KitchenFertigkeitsTrend } from './fertigkeits-trend';
 import { KitchenDriverReturnKochstart } from './driver-return-kochstart';
 import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
 import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
+import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1477,6 +1478,8 @@ export function KitchenBoard({
       {!bigDisplay && filtered.filter(o => o.status === 'bestätigt').length > 0 && (
         <KitchenOptimalKochstart orders={filtered} timings={timings} batches={batches} />
       )}
+      {/* Phase 301: Kochzeit-Effizienz-Tracker — Ist-vs-Soll Zubereitungszeit + Genauigkeits-Score */}
+      {!bigDisplay && <KitchenKochzeitEffizienzTracker orders={filtered} timings={timings} />}
     </div>
   );
 }
