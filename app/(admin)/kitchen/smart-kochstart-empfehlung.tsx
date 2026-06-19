@@ -22,7 +22,7 @@ interface Order {
   id: string;
   bestellnummer: string;
   status: string;
-  bestellt_am: string;
+  bestellt_am: string | null;
   typ?: string;
 }
 

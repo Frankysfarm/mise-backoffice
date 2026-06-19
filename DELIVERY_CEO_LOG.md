@@ -1,7 +1,52 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–276 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (320 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–276 + Phase 277-280 Frontend vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (320 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #164 — 2026-06-19
+
+### Geprüfte Phase: Phase 277-280 Frontend (Smart-Timing, Tour-Gewinn, Schicht-Zusammenfassung, Prognose-Tab)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅ (nach 2 Fixes)
+- `npx next build`: Compiled successfully ✅ (320 Seiten, 0 Fehler)
+
+**Code-Review Phase 277-280 Frontend — 4 neue Komponenten:**
+
+**KitchenSmartKochstartEmpfehlung (`kitchen/smart-kochstart-empfehlung.tsx`):**
+- Berechnet wann Küche mit Kochen starten muss basierend auf Fahrer-ETA aus Batches − Zubereitungszeit ✅
+- 4-Stufen-Ampel: ROT (< 2 Min) / GELB (≤ 5 Min) / GRÜN (> 5 Min) / GRAU (kein Fahrer) ✅
+- Integration in kitchen/client.tsx Zeile 1473 korrekt ✅
+
+**DispatchEchtzeitGewinnPanel (`dispatch/echtzeit-gewinn-panel.tsx`):**
+- Deckungsbeitrag je aktiver Tour (Umsatz − Fahrkosten), Gesamtgewinn der Schicht ✅
+- Integration in dispatch/client.tsx Zeile 1531 korrekt ✅
+
+**SchichtZusammenfassungLive (`fahrer/app/schicht-zusammenfassung-live.tsx`):**
+- Live-KPI-Karte: Lieferungen, Einnahmen, Ø Lieferzeit, Pünktlichkeit + Hochrechnung ✅
+- Integration in fahrer/app/client.tsx Zeile 1216 korrekt ✅
+
+**LieferdienstStatsDashboard Prognose-Tab (Phase 280):**
+- Neuer 6. Tab "Prognose" mit Nachfrage-Forecast für nächste 3h, Kapazitätsempfehlung ✅
+
+**Bugs gefunden und gefixt:**
+1. `kitchen/smart-kochstart-empfehlung.tsx` — `Order.bestellt_am: string` nicht kompatibel mit `kitchen/client.tsx` Order-Typ (`bestellt_am: string | null`) → auf `string | null` geändert ✅
+2. `lieferdienst-stats-dashboard.tsx L764` — Recharts `formatter` Param `name: string` inkompatibel mit `NameType | undefined` → auf `name: unknown` geändert ✅
+
+### Status nach Review #164
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (320 Seiten)
+- Phase 277-280 Frontend: DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 277: Auto-Dispatch-Integration — Assignment Optimizer → automatische Zuweisung wenn Score ≥85 + Fahrer idle
+2. Phase 278: Dispatch Echtzeit-Gewinn Backend-API — Deckungsbeitrag je Tour aus DB (aktuell Frontend mit geschätzten Werten)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 281: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ---
 

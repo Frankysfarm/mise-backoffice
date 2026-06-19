@@ -761,7 +761,7 @@ export function LieferdienstStatsDashboard() {
                     <BarChart data={forecastData} margin={{ top: 2, right: 4, left: -24, bottom: 0 }}>
                       <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
                       <Tooltip
-                        formatter={(v: any, name: string) => [
+                        formatter={(v: any, name: unknown) => [
                           name === 'orders' ? `${v} Bestellungen` : `${Math.round(Number(v) * 100)}% Konfidenz`,
                           name === 'orders' ? 'Prognose' : 'Konfidenz',
                         ]}
