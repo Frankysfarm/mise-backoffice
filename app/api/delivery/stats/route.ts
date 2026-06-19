@@ -15,7 +15,48 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
+  const action = searchParams.get('action');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+
+  // --- Schicht-Pünktlichkeit ---
+  if (action === 'shift_punctuality') {
+    const shiftHours = 8;
+    const now = new Date();
+    const shiftStart = new Date(now.getTime() - shiftHours * 3_600_000).toISOString();
+    const prevShiftStart = new Date(now.getTime() - 2 * shiftHours * 3_600_000).toISOString();
+
+    const [{ data: current }, { data: prev }] = await Promise.all([
+      sb.from('order_lifecycle_snapshots')
+        .select('on_time, total_min')
+        .eq('location_id', locationId)
+        .gte('snapped_at', shiftStart),
+      sb.from('order_lifecycle_snapshots')
+        .select('on_time')
+        .eq('location_id', locationId)
+        .gte('snapped_at', prevShiftStart)
+        .lt('snapped_at', shiftStart),
+    ]);
+
+    const rows = current ?? [];
+    const totalDeliveries = rows.length;
+    const onTimeCount = rows.filter((r) => r.on_time === true).length;
+    const lateCount = totalDeliveries - onTimeCount;
+    const onTimePct = totalDeliveries > 0 ? Math.round((onTimeCount / totalDeliveries) * 100) : null;
+
+    const prevRows = prev ?? [];
+    const prevTotal = prevRows.length;
+    const prevOnTime = prevRows.filter((r) => r.on_time === true).length;
+    const prevShiftPct = prevTotal > 0 ? Math.round((prevOnTime / prevTotal) * 100) : null;
+
+    const lateTimes = rows
+      .filter((r) => r.on_time === false && r.total_min != null)
+      .map((r) => r.total_min as number);
+    const avgDelayMin = lateTimes.length > 0
+      ? Math.round((lateTimes.reduce((s, v) => s + v, 0) / lateTimes.length) * 10) / 10
+      : null;
+
+    return NextResponse.json({ onTimePct, totalDeliveries, onTimeCount, lateCount, prevShiftPct, avgDelayMin });
+  }
 
   const now = new Date();
   const fromStr = searchParams.get('from') ?? new Date(now.getTime() - 7 * 86_400_000).toISOString();

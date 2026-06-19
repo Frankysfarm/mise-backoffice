@@ -1,7 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–268 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–269 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #158 — 2026-06-19
+
+### Geprüfte Phase: Phase 269 — 5 neue Smart-Delivery-Komponenten
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (314 Seiten, 0 Fehler)
+
+**Code-Review Phase 269 Frontend:**
+- `kitchen/zubereitungs-ziel-uhr.tsx` (KitchenZubereitungsZielUhr): SVG-Ring-Timer für aktive Bestellungen (grün/amber/rot nach Zeitanteil), Puls-Animation bei Überfälligkeit, Header-Badge mit Anzahl überfälliger Bestellungen, Integration in kitchen/client.tsx ✅
+- `dispatch/zonenlast-matrix.tsx` (DispatchZonenlastMatrix): Zonen-Last-Matrix mit Kapazitätsstatus (OK/Knapp/Überlastet), proportionale Fahrer-Verteilung, Fortschrittsbalken, AlertTriangle-Puls bei Überlastung, Integration in dispatch/client.tsx ✅
+- `fahrer/app/tour-punktlichkeits-coach.tsx` (TourPunktlichkeitsCoach): Pünktlichkeits-Score (0-100) mit Trend-Icon, API-Anbindung `/api/delivery/admin/punctuality-coach`, expandierbare Coaching-Hints, MOCK-Fallback, Integration in fahrer/app/client.tsx ✅
+- `lieferdienst/schicht-punktlichkeits-ring.tsx` (SchichtPunktlichkeitsRing): Donut-Ring der Schicht-Pünktlichkeit, Vergleich Vorschicht, Ø-Verzögerung, Refresh-Button, Integration in lieferdienst/client.tsx ✅
+- `order/[locationSlug]/bestellung-fortschritt-karte.tsx` (BestellungFortschrittKarte): 5-Stufen-Tracking (Angenommen→Zubereitung→Bereit→Unterwegs→Geliefert), ETA-Countdown, Polling alle 30s, Integration in storefront.tsx ✅
+
+**Bugs gefunden und gefixt:**
+1. `bestellung-fortschritt-karte.tsx:111` — Connector-Linien hatten `position: absolute` ohne `relative`-Elternelement → Linien positionierten sich relativ zum Body statt zum Stepper; Fix: `relative` zum Step-Container + Connector von `w-full mt-[18px]` auf `top-[18px] left-[50%] right-[-50%] -translate-y-px` (Icon-Mitte zu Icon-Mitte) ✅
+2. `app/api/delivery/stats/route.ts` — `action=shift_punctuality` wurde nicht verarbeitet → SchichtPunktlichkeitsRing zeigte immer MOCK-Daten; Fix: neuer Branch `action === 'shift_punctuality'` — Query `order_lifecycle_snapshots` (aktuelle + vorherige 8h-Schicht), berechnet onTimePct/onTimeCount/lateCount/avgDelayMin/prevShiftPct ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+
+**Bugs gefunden:** 2 — ALLE GEFIXT ✅
+
+### Status nach Review #158
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (314 Seiten)
+- Phase 269 (5 neue Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 270: Smart Reorder-Prediction API — ML-basierte Wiederbestellvorhersage pro Artikel (Verbrauchshistorie × Sicherheitsbestand × Lieferzeit) mit Alarm bei kritischem Lagerstand
+2. Oder: Phase 270: Fahrer-Feedback-Terminal API — Post-Tour-Kurzumfrage (3 Fragen, Stern-Rating), anonyme Antworten in Admin-Auswertung
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 270: 5 neue Smart-Delivery-Komponenten (Dispatch-Effizienz-Cockpit, Lager-Alarm-Widget, Reorder-Prognose-Panel, Fahrer-Feedback-Zusammenfassung, KPI-Trend-Vergleich)
 
 ---
 

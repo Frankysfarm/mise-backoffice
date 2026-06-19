@@ -108,10 +108,21 @@ export function BestellungFortschrittKarte({ orderId, bestellnummer, initialStat
             const Icon = step.icon;
 
             return (
-              <div key={step.key} className="flex flex-col items-center flex-1 min-w-0">
+              <div key={step.key} className="relative flex flex-col items-center flex-1 min-w-0">
+                {/* Connector line — drawn from center of this icon to center of next */}
+                {idx < STEPS.length - 1 && (
+                  <div
+                    className={cn(
+                      'absolute top-[18px] left-[50%] right-[-50%] h-0.5 -translate-y-px transition-all duration-700',
+                      done ? colors.line : 'bg-border',
+                    )}
+                    style={{ zIndex: 0 }}
+                  />
+                )}
+
                 {/* Icon circle */}
                 <div className={cn(
-                  'h-9 w-9 rounded-full border-2 flex items-center justify-center transition-all duration-500 z-10',
+                  'relative z-10 h-9 w-9 rounded-full border-2 flex items-center justify-center transition-all duration-500',
                   done ? colors.done :
                   active ? cn(colors.active, 'ring-2 ring-offset-2 ring-current/30') :
                   'bg-muted border-border text-muted-foreground',
@@ -129,17 +140,6 @@ export function BestellungFortschrittKarte({ orderId, bestellnummer, initialStat
                 )}>
                   {step.label}
                 </div>
-
-                {/* Connector line */}
-                {idx < STEPS.length - 1 && (
-                  <div
-                    className={cn(
-                      'absolute h-0.5 w-full mt-[18px] transition-all duration-700',
-                      done ? colors.line : 'bg-border',
-                    )}
-                    style={{ zIndex: 0 }}
-                  />
-                )}
               </div>
             );
           })}
