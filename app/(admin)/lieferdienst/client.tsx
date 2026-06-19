@@ -98,6 +98,7 @@ import { SchichtLiveKpiPanel } from './schicht-live-kpi-panel'
 import { WochenBilanzKarte } from './wochen-bilanz-karte'
 import { FahrerAuslastungsMatrix } from './fahrer-auslastungs-matrix'
 import { SchichtEchtzeitAmpel } from './schicht-echtzeit-ampel'
+import { ZonenAktivitaetsStrip } from './zonen-aktivitaets-strip'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -757,6 +758,12 @@ export function LieferdienstClient() {
           {currentView === 'orders' && (
             <div className="px-6 pt-3">
               <LiveOpsStats orders={orders} drivers={drivers} />
+            </div>
+          )}
+          {/* Phase 249: Zonen-Aktivitäts-Strip — Echtzeit-Ampel je Lieferzone */}
+          {currentView === 'orders' && (
+            <div className="px-6 pt-2">
+              <ZonenAktivitaetsStrip />
             </div>
           )}
           {/* Schicht-KPI-TopBar: kompakter Live-Streifen mit Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer */}

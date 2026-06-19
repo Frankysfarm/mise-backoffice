@@ -123,6 +123,7 @@ import { DispatchTourParallelVergleich } from './tour-parallel-vergleich';
 import { DispatchTourZeitfortschritt } from './tour-zeitfortschritt';
 import { DriverBonusProximityPanel } from './driver-bonus-proximity-panel';
 import { RealtimeGpsDashboard } from './realtime-gps-dashboard';
+import { DispatchZuweisungsVorschau } from './zuweisungs-vorschau';
 
 type Driver = {
   employee_id: string;
@@ -899,6 +900,12 @@ export function DispatchBoard({
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
       <DispatchScoreInsightPanel orders={readyOrders} />
+      {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
+      <DispatchZuweisungsVorschau
+        selectedOrderIds={selected}
+        readyOrders={readyOrders}
+        drivers={drivers}
+      />
       {/* Tour-KPI-Ring: Donut-Chart für Touren-Status heute (abgeschlossen / unterwegs / wartend) */}
       <DispatchTourKpiRing />
       {/* Tour-ETA-Strip: Kompakter Live-Überblick aller aktiven Touren mit Countdown */}

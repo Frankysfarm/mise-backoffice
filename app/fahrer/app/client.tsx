@@ -68,6 +68,7 @@ import { TourFeedbackSchnell } from './tour-feedback-schnell';
 import { SchichtKilometerTracker } from './schicht-kilometer-tracker';
 import { KassenUebersicht } from './kassen-uebersicht';
 import { SchichtBonusBooster } from './schicht-bonus-booster';
+import { FahrerAnkunftsSignal } from './ankunfts-signal';
 
 type Driver = {
   id: string;
@@ -1007,6 +1008,20 @@ export function FahrerApp({
                   vehicle={vehicle}
                   driverLat={driverPos.lat}
                   driverLng={driverPos.lng}
+                />
+              </div>
+            );
+          })()}
+          {/* Phase 249: Ankunfts-Signal — Kunden mit einem Tap über Ankunft informieren */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop) return null;
+            return (
+              <div className="px-4">
+                <FahrerAnkunftsSignal
+                  orderId={nextStop.order_id}
+                  kundeVorname={(nextStop.order as any)?.kunde_name?.split(' ')[0] ?? 'Kunde'}
+                  kundeTelefon={(nextStop.order as any)?.kunde_telefon ?? null}
                 />
               </div>
             );

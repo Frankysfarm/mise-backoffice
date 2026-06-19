@@ -28,6 +28,7 @@ import { DriverApproachCountdown } from './driver-approach-countdown';
 import { OrderStatusZeitleiste } from '@/app/order/[locationSlug]/components/order-status-zeitleiste';
 import { BestellpositionAnzeige } from './bestellposition-anzeige';
 import { LiveBestellZeitleiste } from '@/app/order/[locationSlug]/components/live-bestellzeitleiste';
+import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nachhaltigkeits-banner';
 
 type Order = {
   order_id: string;
@@ -840,6 +841,14 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             <div className="font-display text-xl font-bold">{euro(order.gesamtbetrag)}</div>
           </div>
         </div>
+
+        {/* Phase 249: Nachhaltigkeits-Banner — CO₂-Einsparung bei Fahrrad/E-Bike-Lieferung */}
+        {order.typ === 'lieferung' && order.fahrer_id && (
+          <NachhaltigkeitsBanner
+            orderId={order.order_id}
+            orderStatus={order.status}
+          />
+        )}
 
         {/* Liefer-Event-Timeline — erscheint sobald erste Events vorhanden */}
         <CustomerEventTimeline events={deliveryEvents} />

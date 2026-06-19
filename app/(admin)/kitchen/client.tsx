@@ -19,6 +19,7 @@ import { KitchenCookStartTimer } from './cook-start-timer';
 import { KitchenStationColorGrid } from './station-color-grid';
 import { KitchenBatchPrepGrouping } from './batch-prep-grouping';
 import { KitchenItemComplexityStrip } from './item-complexity-strip';
+import { KitchenItemSyncPanel } from './item-sync-panel';
 import { KitchenShiftPerformanceBadge } from './schicht-performance-badge';
 import { KitchenPrepProgressCards } from './prep-progress-cards';
 import { KochstartAlertBand } from './kochstart-alert';
@@ -829,6 +830,8 @@ export function KitchenBoard({
           drivers={drivers}
         />
       )}
+      {/* Phase 249: Artikel-Sync-Panel — gleiche Artikel in mehreren Orders → Batch-Zubereitung */}
+      <KitchenItemSyncPanel orders={filtered} />
 
       {/* Backlog-Eskalation: Fertige Lieferbestellungen ohne Fahrer */}
       <KitchenDispatchBacklogPanel orders={filtered} />
