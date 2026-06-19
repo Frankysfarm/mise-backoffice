@@ -112,6 +112,7 @@ import { LieferdienstItemNachfrageWidget } from './item-nachfrage-widget'
 import { SchichtEchtzeitGewinn } from './schicht-echtzeit-gewinn'
 import { SchichtBestelltrendKarte } from './schicht-bestelltrend'
 import { RueckkehrPrognoseKacheln } from './rueckkehr-prognose-kacheln'
+import { FahrerPraesenzTracker } from './fahrer-praesenz-tracker'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1246,6 +1247,8 @@ export function LieferdienstClient() {
               <SchichtEchtzeitRangliste />
               {/* Aktive Fahrer: Live-Kacheln mit GPS-Status, aktueller Tour und verbleibenden Stops */}
               <AktivFahrerKacheln locationId={locationId} />
+              {/* Phase 300: Fahrer-Präsenz-Tracker — Live online/offline/unterwegs Status + Kapazitäts-Ampel */}
+              <FahrerPraesenzTracker locationId={locationId} />
               <DriversView drivers={drivers} />
             </div>
           )}

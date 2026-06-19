@@ -92,6 +92,7 @@ import { KitchenAuslastungsMonitor } from './auslastungs-monitor';
 import { KitchenFertigkeitsTrend } from './fertigkeits-trend';
 import { KitchenDriverReturnKochstart } from './driver-return-kochstart';
 import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
+import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1471,6 +1472,11 @@ export function KitchenBoard({
       <KitchenEchtzeitCountdownBoard orders={orders} />
       {/* Phase 277: Smart Kochstart-Empfehlung — wann muss welche Bestellung gestartet werden? */}
       <KitchenSmartKochstartEmpfehlung orders={filtered} batches={batches} timings={timings} />
+
+      {/* Phase 300: Optimaler Kochstart — DIE eine klare Anweisung was jetzt zu kochen ist */}
+      {!bigDisplay && filtered.filter(o => o.status === 'bestätigt').length > 0 && (
+        <KitchenOptimalKochstart orders={filtered} timings={timings} batches={batches} />
+      )}
     </div>
   );
 }

@@ -141,6 +141,7 @@ import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
 import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
+import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
 
 type Driver = {
   employee_id: string;
@@ -957,6 +958,9 @@ export function DispatchBoard({
       <DispatchZonenlastMatrix orders={orders} drivers={drivers} />
       {/* Phase 271: Artikel-Nachfrage-Hinweis — kritische Lager + Top-Bedarfs-Artikel für Dispatch-Planung */}
       <DispatchItemNachfrageHinweis locationId={locations[0]?.id} />
+      {/* Phase 300: Zonen-Score-Ringe — Pünktlichkeitsquote je Lieferzone als SVG-Ring */}
+      <DispatchZonenScoreRing batches={batches as any} readyOrders={readyOrders as any} />
+
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />

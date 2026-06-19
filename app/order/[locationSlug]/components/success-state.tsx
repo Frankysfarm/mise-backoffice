@@ -20,6 +20,7 @@ import { EtaPulseBanner } from '../eta-pulse-banner';
 import { BestellungEchtzeitCountdown } from '../bestellung-echtzeit-countdown';
 import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
 import { EtaLiveCountdown } from './eta-live-countdown';
+import { BestellDelayBanner } from '../bestell-delay-banner';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -681,6 +682,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && liveStatus === 'unterwegs' && (
           <div className="mt-4 w-full">
             <LiveFahrerStatus orderId={orderId} initialStatus={liveStatus} />
+          </div>
+        )}
+
+        {/* Phase 300: Delay-Banner — proaktive Info wenn ETA überschritten */}
+        {isDelivery && orderId && etaWindow && (
+          <div className="mt-3 w-full">
+            <BestellDelayBanner
+              etaLatest={etaWindow.latest}
+              etaEarliest={etaWindow.earliest}
+              status={liveStatus}
+              orderId={orderId}
+            />
           </div>
         )}
 

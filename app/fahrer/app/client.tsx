@@ -86,6 +86,7 @@ import { TourZielpunktKarte } from './tour-zielpunkt-karte';
 import { TourStoppZeitlinie } from './tour-stopp-zeitlinie';
 import { TourRueckkehrAnzeige } from './tour-rueckkehr-anzeige';
 import { SchichtZusammenfassungLive } from './schicht-zusammenfassung-live';
+import { FahrerProblemMeldung } from './fahrer-problem-meldung';
 
 type Driver = {
   id: string;
@@ -1191,6 +1192,22 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 300: Problem-Meldung — Fahrer kann Lieferprobleme schnell an Dispatch melden */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop || !nextStop.angekommen_am) return null;
+            return (
+              <div className="px-4">
+                <FahrerProblemMeldung
+                  orderId={nextStop.order_id}
+                  stopId={nextStop.id}
+                  kundeVorname={(nextStop.order as any)?.kunde_name?.split(' ')[0] ?? 'Kunde'}
+                  kundeTelefon={(nextStop.order as any)?.kunde_telefon ?? null}
+                />
+              </div>
+            );
+          })()}
+
           {/* Tour-Fortschritts-Ring: Visueller SVG-Ring mit Stopp-Fortschritt + ETA */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
