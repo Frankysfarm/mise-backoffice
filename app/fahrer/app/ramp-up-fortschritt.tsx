@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { LineChart, Line, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
 import type { RampUpProfile, RampUpTier } from '@/lib/delivery/driver-ramp-up';
 
@@ -12,6 +13,9 @@ type ApiResponse = {
   ok: boolean;
   profile: RampUpProfile | null;
 };
+
+type HistoryPoint = { date: string; score: number };
+type HistoryResponse = { ok: boolean; history: HistoryPoint[] };
 
 function tierLabelDe(tier: RampUpTier): string {
   switch (tier) {
@@ -43,15 +47,18 @@ function tierTextColor(tier: RampUpTier): string {
 export function FahrerRampUpFortschritt({ driverId }: Props) {
   const [profile, setProfile] = useState<RampUpProfile | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [history, setHistory] = useState<HistoryPoint[]>([]);
 
   useEffect(() => {
     if (!driverId) return;
+    const base = new URL('/api/delivery/admin/driver-ramp-up', window.location.origin);
+    base.searchParams.set('driver_id', driverId);
+
     const load = async () => {
       try {
-        const url = new URL('/api/delivery/admin/driver-ramp-up', window.location.origin);
-        url.searchParams.set('action', 'profile');
-        url.searchParams.set('driver_id', driverId);
-        const res = await fetch(url.toString());
+        const profileUrl = new URL(base.toString());
+        profileUrl.searchParams.set('action', 'profile');
+        const res = await fetch(profileUrl.toString());
         if (!res.ok) return;
         const json = (await res.json()) as ApiResponse;
         if (json.ok && json.profile) setProfile(json.profile);
@@ -60,7 +67,22 @@ export function FahrerRampUpFortschritt({ driverId }: Props) {
         setLoaded(true);
       }
     };
+
+    const loadHistory = async () => {
+      try {
+        const histUrl = new URL(base.toString());
+        histUrl.searchParams.set('action', 'history');
+        const res = await fetch(histUrl.toString());
+        if (!res.ok) return;
+        const json = (await res.json()) as HistoryResponse;
+        if (json.ok && Array.isArray(json.history) && json.history.length > 0) {
+          setHistory(json.history);
+        }
+      } catch {}
+    };
+
     load();
+    loadHistory();
   }, [driverId]);
 
   if (!loaded || !profile) return null;
@@ -142,6 +164,35 @@ export function FahrerRampUpFortschritt({ driverId }: Props) {
           <span className="text-emerald-300 text-xs font-semibold">
             Starke Bindung prognostiziert
           </span>
+        </div>
+      )}
+
+      {history.length >= 2 && (
+        <div className="space-y-1">
+          <p className="text-[10px] text-white/40 uppercase tracking-wide">Score-Verlauf (7 Tage)</p>
+          <div className="h-12 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={history} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
+                <Tooltip
+                  contentStyle={{ background: '#1a1a1a', border: 'none', borderRadius: 8, fontSize: 11 }}
+                  formatter={(val: number) => [`${val}`, 'Score']}
+                  labelFormatter={(label: string) => label.slice(5)}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  dot={false}
+                  strokeWidth={2}
+                  stroke={
+                    profile.rampUpTier === 'graduated' ? '#818cf8'
+                    : profile.rampUpTier === 'promising' ? '#34d399'
+                    : profile.rampUpTier === 'developing' ? '#fbbf24'
+                    : '#f87171'
+                  }
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>

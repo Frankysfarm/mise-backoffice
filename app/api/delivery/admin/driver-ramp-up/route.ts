@@ -1,6 +1,7 @@
 /**
  * GET  /api/delivery/admin/driver-ramp-up                     — Dashboard
  * GET  /api/delivery/admin/driver-ramp-up?action=profile&driver_id=… — Einzelprofil
+ * GET  /api/delivery/admin/driver-ramp-up?action=history&driver_id=… — 7-Tage-Snapshots für Sparkline
  * GET  /api/delivery/admin/driver-ramp-up?action=compute      — Berechnung triggern
  * POST /api/delivery/admin/driver-ramp-up action=flag         — Coaching-Flag setzen
  * POST /api/delivery/admin/driver-ramp-up action=clear_flag   — Flag zurücksetzen
@@ -60,6 +61,37 @@ export async function GET(req: NextRequest) {
     if (!driverId) return NextResponse.json({ error: 'driver_id required' }, { status: 400 });
     const profile = await getRampUpProfile(driverId, ctx.locationId);
     return NextResponse.json({ ok: true, profile });
+  }
+
+  if (action === 'history') {
+    const driverId = req.nextUrl.searchParams.get('driver_id');
+    if (!driverId) return NextResponse.json({ error: 'driver_id required' }, { status: 400 });
+    try {
+      const svc = createServiceClient();
+      const since = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
+      const { data: rows } = await svc
+        .from('driver_performance_snapshots')
+        .select('snapshot_date, stops_completed, on_time_rate, avg_rating')
+        .eq('driver_id', driverId)
+        .eq('location_id', ctx.locationId)
+        .gte('snapshot_date', since)
+        .order('snapshot_date', { ascending: true });
+      const history = (rows ?? []).map((r) => {
+        const onTimeRate = (r.on_time_rate as number | null) ?? 0;
+        const avgRating = (r.avg_rating as number | null) ?? 3;
+        const stops = (r.stops_completed as number | null) ?? 0;
+        const score = Math.round(
+          (onTimeRate * 35) +
+          (Math.min(stops / 10, 1) * 25) +
+          ((avgRating - 1) / 4 * 25) +
+          15,
+        );
+        return { date: r.snapshot_date as string, score: Math.min(100, Math.max(0, score)) };
+      });
+      return NextResponse.json({ ok: true, history });
+    } catch (e) {
+      return NextResponse.json({ error: String(e) }, { status: 500 });
+    }
   }
 
   if (action === 'compute') {

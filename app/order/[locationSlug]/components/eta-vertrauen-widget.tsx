@@ -1,11 +1,15 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+
+type Confidence = 'hoch' | 'mittel' | 'niedrig' | null;
 
 interface Props {
   etaMin: number | null;
-  confidence: 'hoch' | 'mittel' | 'niedrig' | null;
+  confidence: Confidence;
   phase: 'preparing' | 'dispatched' | 'delivering' | 'delivered';
+  orderId?: string;
 }
 
 const STEPS: { key: Props['phase']; label: string }[] = [
@@ -56,7 +60,37 @@ function etaText(etaMin: number | null, phase: Props['phase']): string {
   return `Noch ca. ${etaMin} Min`;
 }
 
-export function EtaVertrauenWidget({ etaMin, confidence, phase }: Props) {
+export function EtaVertrauenWidget({ etaMin, confidence: confidenceProp, phase, orderId }: Props) {
+  const [liveConfidence, setLiveConfidence] = useState<Confidence>(confidenceProp);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    setLiveConfidence(confidenceProp);
+  }, [confidenceProp]);
+
+  useEffect(() => {
+    if (!orderId || phase === 'delivered') return;
+
+    const poll = () => {
+      fetch(`/api/delivery/orders/${orderId}/eta-confidence`, { cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d && d.confidence !== undefined) {
+            setLiveConfidence(d.confidence as Confidence);
+          }
+        })
+        .catch(() => {});
+    };
+
+    poll();
+    timerRef.current = setInterval(poll, 30_000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [orderId, phase]);
+
+  const confidence = liveConfidence;
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 space-y-4">
       <div className="flex items-center justify-between gap-2">

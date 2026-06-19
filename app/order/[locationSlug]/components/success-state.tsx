@@ -623,6 +623,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             <EtaVertrauenWidget
               etaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : 0}
               confidence={null}
+              orderId={orderId}
               phase={
                 liveStatus === 'geliefert' ? 'delivered'
                 : liveStatus === 'unterwegs' ? 'delivering'
