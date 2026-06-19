@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–252 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (308 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–253 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (310 Seiten). Deployment-bereit.
 
 ---
 
@@ -9423,3 +9423,59 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 250: Restock-Engine Material-Budgetplanung — Monatsbudget pro Kategorie, Ist/Soll-Vergleich, Forecast-Warnung
 2. Oder: Phase 250: Delivery Heat Calendar — Bestellungsvolumen pro Stunde/Wochentag als GitHub-Contribution-Style-Heatmap
+
+---
+
+## CEO-Review #149 — 2026-06-19
+
+### Geprüfte Phase: Phase 253 — EtaVertrauenWidget API-Polling + Fahrer Score-Sparkline
+
+**Build-Status:**
+- `npx tsc --noEmit`: 3 TypeScript-Fehler gefunden + gefixt ✅
+- `npx next build`: Compiled successfully ✅ (310 Seiten, 0 Fehler)
+
+**TypeScript-Fehler gefixt:**
+1. `app/api/delivery/admin/performance-score/route.ts:14` — `createClient()` nicht awaited: `const sb = createClient()` → `const sb = await createClient()` (Promise<SupabaseClient> statt SupabaseClient) ✅
+2. `app/fahrer/app/ramp-up-fortschritt.tsx:178` — Recharts `formatter` prop: `(val: number)` → `(val: unknown)` + nullish fallback ✅
+3. `app/fahrer/app/ramp-up-fortschritt.tsx:179` — Recharts `labelFormatter` prop: `(label: string)` → `(label: unknown)` + typeof-Guard ✅
+
+**Code-Review Phase 253:**
+
+**EtaVertrauenWidget (`app/order/[locationSlug]/components/eta-vertrauen-widget.tsx`):**
+- `orderId?: string` prop vorhanden, internes Polling alle 30s auf `/api/delivery/orders/[orderId]/eta-confidence` ✅
+- `clearInterval` cleanup bei Unmount + `phase === 'delivered'` stoppt Polling korrekt ✅
+- `liveConfidence` state überschreibt confidence-prop — keine Zustandskonflikte ✅
+
+**success-state.tsx Integration:**
+- `orderId` prop an `EtaVertrauenWidget` weitergereicht (Zeile 626: `orderId={orderId}`) ✅
+- Rendering-Bedingung `isDelivery && orderId` korrekt ✅
+
+**driver-ramp-up/route.ts — action=history:**
+- 7-Tage-Fenster via `driver_performance_snapshots`, Tages-Score-Berechnung: on_time_rate (0-35) + stops_completed (0-25) + avg_rating (0-25) + Basis-Zuverlässigkeit (15) ✅
+- Clamp 0–100, Datumformat `YYYY-MM-DD`, absteigend sortiert ✅
+
+**FahrerRampUpFortschritt Sparkline:**
+- Recharts LineChart, pollt `action=history` beim Mount ✅
+- Nur gerendert wenn `history.length >= 2` — sinnvolle Mindestdatenbedingung ✅
+- Linienfarbe per Tier (indigo/emerald/amber/rot) konsistent mit Tier-Farbsystem ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- ETA-Vertrauen: Frontend-Polling → Backend computeEtaConfidence → `eta_calibration_factors` DB ✅
+- Driver Ramp-Up: Sparkline → history endpoint → `driver_performance_snapshots` DB ✅
+
+**Bugs gefunden:** 3 TS-Fehler — ALLE GEFIXT ✅
+
+### Status nach Review #149
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (310 Seiten)
+- Phase 253 (EtaVertrauenWidget + Sparkline): DONE ✅
+- Bugs gefixt: 3
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 254: Delivery Notification Center — Push/WhatsApp-Benachrichtigungen für kritische Events (Fahrerverzögerung >10min, Order storniert, ETA-Konfidenz niedrig)
+2. Oder: Phase 254: Multi-Location Performance Dashboard — Live-Ranking aller Standorte mit Score-Deltas und Trend-Pfeilen
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 254: Performance-Score-Widget für Admin-Übersicht — Gauge-Chart + Trendlinie + Standort-Ranking
+2. Oder: Phase 254: Order-Tracking QR-Code-Generator für Storefront — Kunden können Status per QR scannen

@@ -11,7 +11,7 @@ import {
 
 async function resolveLocationId(req: NextRequest): Promise<string | null> {
   const qsLoc = req.nextUrl.searchParams.get('location_id');
-  const sb = createClient();
+  const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
 

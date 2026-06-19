@@ -175,8 +175,8 @@ export function FahrerRampUpFortschritt({ driverId }: Props) {
               <LineChart data={history} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
                 <Tooltip
                   contentStyle={{ background: '#1a1a1a', border: 'none', borderRadius: 8, fontSize: 11 }}
-                  formatter={(val: number) => [`${val}`, 'Score']}
-                  labelFormatter={(label: string) => label.slice(5)}
+                  formatter={(val: unknown) => [`${val ?? ''}`, 'Score']}
+                  labelFormatter={(label: unknown) => typeof label === 'string' ? label.slice(5) : ''}
                 />
                 <Line
                   type="monotone"
