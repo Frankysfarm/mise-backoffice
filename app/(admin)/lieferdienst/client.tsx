@@ -105,6 +105,7 @@ import { DeliveryHeatKalender } from './delivery-heat-kalender'
 import { SchichtProfilKarte } from './schicht-profil-karte'
 import { StundenHochrechnung } from './stunden-hochrechnung'
 import { StornoquotePanel } from './stornoquote-panel'
+import { SchichtKostenErtragBilanz } from './schicht-kosten-ertrag-bilanz'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1080,6 +1081,8 @@ export function LieferdienstClient() {
               <StundenHochrechnung />
               {/* Phase 263: Stornoquote-Panel — Tagesverlauf der Stornos mit Gründen + Umsatz-Verlust */}
               <StornoquotePanel locationId={locationId} />
+              {/* Phase 265: Schicht-Bilanz — Umsatz vs. Fahrerkosten + Deckungsbeitrag-Gauge */}
+              <SchichtKostenErtragBilanz locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}

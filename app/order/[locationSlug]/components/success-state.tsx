@@ -18,6 +18,7 @@ import { EtaVertrauenWidget } from './eta-vertrauen-widget';
 import { ZubereitungsFortschritt } from './zubereitungs-fortschritt';
 import { EtaPulseBanner } from '../eta-pulse-banner';
 import { BestellungEchtzeitCountdown } from '../bestellung-echtzeit-countdown';
+import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -827,6 +828,14 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               </div>
             ) : null}
           </div>
+        )}
+
+        {/* Phase 265: Treuepunkte-Widget — Punkte dieser Bestellung + Gesamtstand + Nächste Stufe */}
+        {cartItems && cartItems.length > 0 && (
+          <LoyaltyPunkteWidget
+            orderTotal={cartItems.reduce((s, c) => s + (c.item.preis + (c.extra_preis ?? 0)) * c.qty, 0)}
+            className="mt-4 w-full"
+          />
         )}
 
         <button

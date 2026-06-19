@@ -76,6 +76,7 @@ import { TourFertigPrognose } from './tour-fertig-prognose';
 import { TourStopNavigator } from './tour-stop-navigator';
 import { TourNavigationsCockpit } from './tour-navigations-cockpit';
 import { FahrerKundenNotizKarte } from './kunden-notiz-karte';
+import { TourZeitplanFahrer } from './tour-zeitplan-fahrer';
 
 type Driver = {
   id: string;
@@ -1139,6 +1140,15 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at ?? null}
                 shiftEndAt={null}
+              />
+            </div>
+          )}
+          {/* Phase 265: Tour-Zeitplan — chronologische Stop-Übersicht mit ETA-Uhrzeiten */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourZeitplanFahrer
+                stops={activeBatch.stops as any}
+                batchStartedAt={activeBatch.started_at ?? null}
               />
             </div>
           )}

@@ -82,6 +82,7 @@ import { KitchenLiveOrderCountdownPanel } from './live-order-countdown-panel';
 import { KitchenTimingAmpelLive } from './timing-ampel-live';
 import { KitchenPickupZeitlinie } from './pickup-zeitlinie';
 import { KitchenWarmhalteWarnung } from './warmhalte-warnung';
+import { KitchenKategorieAuslastung } from './kategorie-auslastung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -608,6 +609,8 @@ export function KitchenBoard({
       <KitchenPickupZeitlinie orders={filtered} batches={batches} stops={stops} />
       {/* Phase 263: Warmhalte-Warnung — Temperatur-Ticker für fertige wartende Lieferbestellungen */}
       <KitchenWarmhalteWarnung orders={filtered} />
+      {/* Phase 265: Kategorie-Auslastung — Artikel-Cluster nach Kategorie für Stationsoptimierung */}
+      <KitchenKategorieAuslastung orders={filtered} />
       {/* Fertig-Warte-Board: ready orders sorted by driver wait time with urgency color */}
       <KitchenFertigWarteBoard orders={filtered} />
       {/* Handoff-Ready-Matrix: Matching fertige Lieferbestellungen × freie Fahrer — Ampel-Übersicht */}

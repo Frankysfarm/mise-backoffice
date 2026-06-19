@@ -133,6 +133,7 @@ import { DispatchWarteAmpel } from './dispatch-warte-ampel';
 import { DispatchScoreLivePanel } from './dispatch-score-live';
 import { DispatchKitchenSyncAlert } from './kitchen-sync-alert';
 import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
+import { DispatchTourRückkehrFenster } from './tour-rueckkehr-fenster';
 
 type Driver = {
   employee_id: string;
@@ -911,6 +912,8 @@ export function DispatchBoard({
       <DispatchKitchenSyncAlert readyOrders={readyOrders} batches={batches} />
       {/* Phase 263: Zuweisungs-Aktivität — Annahmequote + Reaktionszeit-Verlauf der letzten Schicht-Zuweisungen */}
       <DispatchZuweisungsAktivitaet locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 265: Rückkehr-Fenster — Zeitplan wann Fahrer zurückkommen + verbleibende Stops */}
+      <DispatchTourRückkehrFenster batches={batches} drivers={drivers} />
       {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
       <DispatchScoreInsightPanel orders={readyOrders} />
       {/* Score-Live-Panel: Kompakte Score-Karten mit Gauge + Faktoren für alle fertigen Bestellungen */}
