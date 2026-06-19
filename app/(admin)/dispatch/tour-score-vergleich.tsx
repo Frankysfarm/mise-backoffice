@@ -75,22 +75,24 @@ export function DispatchTourScoreVergleich({ locationId }: { locationId: string 
         .limit(10);
 
       if (!error && Array.isArray(data)) {
-        const rows: TourScore[] = (data as RawBatch[]).map(b => {
-          const stops = b.delivery_batch_stops ?? [];
-          const completed = stops.filter(s => ['delivered', 'geliefert', 'completed'].includes(s.status)).length;
-          return {
-            batchId: b.id,
-            driverName: b.delivery_driver_profiles?.name ?? 'Fahrer',
-            scoreTotal: Math.round(b.score_total ?? Math.random() * 30 + 60),
-            scorePunctuality: Math.round(b.score_punctuality ?? Math.random() * 40 + 50),
-            scoreEfficiency: Math.round(b.score_efficiency ?? Math.random() * 40 + 55),
-            scoreCustomer: Math.round(b.score_customer ?? Math.random() * 30 + 65),
-            stops: stops.length,
-            completedStops: completed,
-            startedAt: b.started_at,
-            zone: b.zone,
-          };
-        });
+        const rows: TourScore[] = (data as RawBatch[])
+          .filter(b => b.score_total != null)
+          .map(b => {
+            const stops = b.delivery_batch_stops ?? [];
+            const completed = stops.filter(s => ['delivered', 'geliefert', 'completed'].includes(s.status)).length;
+            return {
+              batchId: b.id,
+              driverName: b.delivery_driver_profiles?.name ?? 'Fahrer',
+              scoreTotal: Math.round(b.score_total!),
+              scorePunctuality: Math.round(b.score_punctuality ?? 0),
+              scoreEfficiency: Math.round(b.score_efficiency ?? 0),
+              scoreCustomer: Math.round(b.score_customer ?? 0),
+              stops: stops.length,
+              completedStops: completed,
+              startedAt: b.started_at,
+              zone: b.zone,
+            };
+          });
         setTours(rows.sort((a, b) => b.scoreTotal - a.scoreTotal));
       }
     } catch {

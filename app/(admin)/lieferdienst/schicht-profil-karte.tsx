@@ -193,7 +193,7 @@ export function SchichtProfilKarte({ locationId }: { locationId: string }) {
                 <BarChart data={buckets} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={16}>
                   <XAxis dataKey="hour" tick={{ fontSize: 9, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number) => chartMode === 'revenue' ? fmtEur(v) : `${v} Bestellungen`}
+                    formatter={(v: unknown) => { const n = typeof v === 'number' ? v : 0; return chartMode === 'revenue' ? fmtEur(n) : `${n} Bestellungen`; }}
                     contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
                   />
                   <Bar dataKey={chartMode} radius={[4, 4, 0, 0]}>

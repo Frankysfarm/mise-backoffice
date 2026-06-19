@@ -147,7 +147,7 @@ export async function getTourCompletionReport(
 
   if (!batchRaw) return null;
 
-  const batch = batchRaw as {
+  const batch = batchRaw as unknown as {
     id: string;
     location_id: string;
     driver_id: string | null;
@@ -188,7 +188,7 @@ export async function getTourCompletionReport(
     } | null;
   };
 
-  const stops: RawStop[] = (stopsRaw ?? []) as RawStop[];
+  const stops: RawStop[] = (stopsRaw ?? []) as unknown as RawStop[];
 
   // Snapshot aus tour_performance_snapshots
   const { data: snap } = await sb
@@ -330,7 +330,7 @@ export async function getDriverTourSummary(
 
   if (!batchRaw) return null;
 
-  const batch = batchRaw as {
+  const batch = batchRaw as unknown as {
     id: string;
     location_id: string;
     driver_id: string | null;
@@ -390,7 +390,7 @@ export async function getDriverTourSummary(
     } | null;
   };
 
-  const stops: RawStop[] = (stopsRes.data ?? []) as RawStop[];
+  const stops: RawStop[] = (stopsRes.data ?? []) as unknown as RawStop[];
   const snap = snapRes.data as {
     bundle_efficiency_score: number | null;
     on_time_stops: number | null;

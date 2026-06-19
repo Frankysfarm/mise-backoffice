@@ -77,11 +77,11 @@ export function EtaPulseBanner({ orderId, initialEtaMin, initialStatus }: EtaPul
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           if (!cancelled) {
-            const row = payload.new as any;
-            if (row?.status) setStatus(row.status);
-            if (row?.eta_min !== undefined) setEtaMin(row.eta_min ?? null);
+            const row = payload.new;
+            if (typeof row?.status === 'string') setStatus(row.status);
+            if ('eta_min' in row) setEtaMin(typeof row.eta_min === 'number' ? row.eta_min : null);
           }
         },
       )
