@@ -18,6 +18,7 @@ import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
+import { TourWazeNav } from './tour-waze-nav';
 import { TourKpiSummary } from './tour-kpi-summary';
 import { FahrerNaviStrip } from './fahrer-navi-strip';
 import { EarningsProgressBar } from './earnings-progress-bar';
@@ -1143,6 +1144,21 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Navi-App-Auswahl: Google Maps, Waze, Apple Maps — Single + Multi-Stop */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourWazeNav
+                stops={activeBatch.stops.map((s: any) => ({
+                  kunde_lat: s.order?.kunde_lat ?? null,
+                  kunde_lng: s.order?.kunde_lng ?? null,
+                  kunde_adresse: s.order?.kunde_adresse ?? null,
+                  kunde_plz: s.order?.kunde_plz ?? null,
+                  geliefert_am: s.geliefert_am ?? null,
+                  reihenfolge: s.reihenfolge ?? 0,
+                }))}
               />
             </div>
           )}

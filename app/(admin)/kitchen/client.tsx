@@ -96,6 +96,7 @@ import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
 import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
+import { KitchenCookNowPanel } from './cook-now-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1490,6 +1491,15 @@ export function KitchenBoard({
       {!bigDisplay && <KitchenKochzeitEffizienzTracker orders={filtered} timings={timings} />}
       {/* Smart Prep-Ampel: Farbkodierte Live-Fortschrittsleisten je aktiver Lieferbestellung */}
       {!bigDisplay && <KitchenSmartPrepAmpel orders={filtered} timings={timings} />}
+      {/* Koch-Jetzt-Panel: Zeigt wann welche Bestellung gestartet werden muss basierend auf Fahrer-ETA */}
+      {!bigDisplay && (
+        <KitchenCookNowPanel
+          orders={filtered as any}
+          batches={batches as any}
+          stops={stops as any}
+          drivers={drivers as any}
+        />
+      )}
     </div>
   );
 }

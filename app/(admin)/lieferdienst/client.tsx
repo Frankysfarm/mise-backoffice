@@ -116,6 +116,7 @@ import { FahrerPraesenzTracker } from './fahrer-praesenz-tracker'
 import { SchichtRentabilitaetsAmpel } from './schicht-rentabilitaets-ampel'
 import { SurgeAnalysePanel } from './surge-analyse-panel'
 import { SchichtKennzahlenCockpit } from './schicht-kennzahlen-cockpit'
+import { TagesZielCockpit } from './tages-ziel-cockpit'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1109,6 +1110,8 @@ export function LieferdienstClient() {
               <LieferdienstItemNachfrageWidget locationId={locationId} />
               {/* Schicht-Kennzahlen-Cockpit: Detaillierte Live-KPIs mit Stunden-Chart + Bestellungstypen */}
               <SchichtKennzahlenCockpit locationId={locationId} />
+              {/* Tagesziel-Cockpit: Live-Gauge für Bestellungen, Umsatz und Schichtzeit mit Prognose */}
+              <TagesZielCockpit locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

@@ -145,6 +145,7 @@ import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
 import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
 import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
 import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
+import { DispatchTourScoreLivePanel } from './tour-score-live-panel';
 
 type Driver = {
   employee_id: string;
@@ -945,6 +946,8 @@ export function DispatchBoard({
       }))} />
       {/* Score-Kompakt-Panel: Rangierte Bestellungen nach Dispatch-Score mit Farbkodierung */}
       <DispatchScoreKompaktPanel orders={readyOrders} />
+      {/* Tour-Score-Live: Echtzeit-Score-Visualisierung je aktiver Tour mit Trend und Breakdown */}
+      <DispatchTourScoreLivePanel />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}
