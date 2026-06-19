@@ -116,6 +116,7 @@ import { snapshotAllLocations as snapshotLocationHealthScores, pruneOldHealthSco
 import { snapshotPunctualityAllLocations, pruneOldProfiles as prunePunctualityProfiles } from '@/lib/delivery/punctuality-coach';
 import { checkAllLocations as checkItemDemandAllLocations, pruneOldAlerts as pruneItemDemandAlerts } from '@/lib/delivery/item-demand-prediction';
 import { pruneSurveysAllLocations } from '@/lib/delivery/tour-terminal-survey';
+import { snapshotAllLocations as snapshotBatchHealth, pruneBatchHealthSnapshots } from '@/lib/delivery/smart-batch-monitor';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -254,6 +255,8 @@ export async function GET(req: NextRequest) {
     const isItemDemandTick = nowHour === 5 && nowMin >= 0 && nowMin < 4;
     // Phase 272: Tour-Terminal-Survey Prune — täglich 05:05 UTC (nach Item-Demand)
     const isSurveyPruneTick = nowHour === 5 && nowMin >= 5 && nowMin < 9;
+    // Phase 273: Batch-Monitor Prune — täglich 05:10 UTC
+    const isBatchMonitorPruneTick = nowHour === 5 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -881,6 +884,12 @@ export async function GET(req: NextRequest) {
       ? await pruneSurveysAllLocations(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 273: Batch-Monitor Snapshot — jeden Tick (Live-Monitoring), Prune täglich 05:10 UTC
+    const batchMonitorResult = await snapshotBatchHealth().catch(() => ({ locations: 0, saved: 0, errors: 0 }));
+    const batchHealthPruned = isBatchMonitorPruneTick
+      ? await pruneBatchHealthSnapshots(14).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1075,6 +1084,8 @@ export async function GET(req: NextRequest) {
       ...(itemDemandResult ? { item_demand: { locations: itemDemandResult.locations, items_checked: itemDemandResult.itemsChecked, alerts_created: itemDemandResult.alertsCreated, alerts_resolved: itemDemandResult.alertsResolved, errors: itemDemandResult.errors } } : {}),
       ...(itemDemandAlertsPruned ? { item_demand_alerts_pruned: itemDemandAlertsPruned.pruned } : {}),
       ...(surveyPruneResult ? { tour_survey_pruned: surveyPruneResult.pruned } : {}),
+      ...(batchMonitorResult.saved > 0 ? { batch_monitor: { locations: batchMonitorResult.locations, saved: batchMonitorResult.saved, errors: batchMonitorResult.errors } } : {}),
+      ...(batchHealthPruned ? { batch_health_pruned: batchHealthPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
