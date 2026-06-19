@@ -10,9 +10,10 @@
 2. Oder: Phase 253: Driver Auto-Email Coaching — wöchentliche Zusammenfassung an Location-Manager (struggling Fahrer, Score-Trends, graduation-nahe Fahrer)
 3. Oder: Phase 253: Multi-Location KPI-Vergleich — Benchmark-Dashboard alle Standorte nach ETA-Genauigkeit, Fahrer-Score, Auslastung
 
-## Nächste Schritte für Frontend-Ingenieur (nach Phase 252)
-1. Phase 253: EtaVertrauenWidget API-Anbindung — echte Confidence-Daten aus `/api/delivery/orders/[id]/eta-confidence` (polling 30s)
-2. Oder: Phase 253: Fahrer-App Score-History — Score-Verlauf als Sparkline (letzte 7 Tage) in FahrerRampUpFortschritt
+## Nächste Schritte für Frontend-Ingenieur (nach Phase 253)
+1. Phase 254: Storefront Live-Tracking-Map — interaktive Fahrer-Position auf Leaflet-Karte in success-state.tsx
+2. Oder: Phase 254: Dispatch Score-Breakdown Tooltip — Detail-Aufschlüsselung (4 Faktoren) beim Hover auf dispatch_score in OrderScoreGrid
+3. Oder: Phase 254: Kitchen Batch-ETA Countdown — Countdown-Anzeige für den geplanten Abfahrtszeitpunkt eines Batches in batch-departure-panel.tsx
 
 ---
 
