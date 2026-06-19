@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       const itemName = body.item_name as string | undefined;
       if (!itemName) return NextResponse.json({ error: 'item_name erforderlich' }, { status: 400 });
       const result = await markAlertOrdered(locationId, itemName);
-      return NextResponse.json({ ok: true, ...result });
+      return NextResponse.json(result);
     }
 
     if (action === 'prune') {

@@ -1,7 +1,55 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–269 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–271 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (315 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #159 — 2026-06-19
+
+### Geprüfte Phasen: Phase 270 (Backend) + Phase 271 (Frontend)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 2 TypeScript-Fehler gefunden + gefixt ✅
+- `npx next build`: Compiled successfully ✅ (315 Seiten, 0 Fehler)
+
+**TypeScript-Fehler gefixt:**
+1. `app/api/delivery/admin/item-demand/route.ts:113` — `{ ok: true, ...result }` duplizierte `ok`-Key, da `markAlertOrdered` bereits `{ ok: boolean }` zurückgibt (TS2783); Fix: `NextResponse.json(result)` direkt ✅
+2. `app/fahrer/app/tour-stop-detail-card.tsx:152` — Innerhalb `stop.status !== 'delivered' && stop.status !== 'failed'`-Block war `stop.status` auf `'pending' | 'arrived'` eingeschränkt, wodurch innerer Check `stop.status !== 'delivered'` unmöglich war (TS2367); Fix: redundante Bedingung entfernt ✅
+
+**Code-Review Phase 270 Backend — Smart Item Demand Prediction API:**
+- Migration 137: `menu_item_stock` + `item_demand_alerts` Tabellen, `v_item_demand_alerts_open` VIEW, `prune_old_demand_alerts` RPC, Trigger für updated_at ✅
+- `lib/delivery/item-demand-prediction.ts`: 7 Funktionen — computeItemDemandProfile (28-Tage-Analyse, DoW-Saisonalität), upsertItemStock (Reorder-Point auto-kalkulation), checkAllItemStocks, getItemDemandDashboard, markAlertOrdered, pruneOldAlerts ✅
+- `app/api/delivery/admin/item-demand/route.ts`: GET (dashboard/alerts/profile) + POST (check/upsert_stock/mark_ordered/prune) ✅
+- Admin-Page mit 4 KPI-Karten, 3 Tabs (Alarme/Lagerbestand/Top-Nachfrage), StockForm-Modal ✅
+- Cron: isItemDemandTick täglich 05:00 UTC, Prune mit isReportTick ✅
+
+**Code-Review Phase 271 Frontend — 5 neue Smart-Delivery-Komponenten:**
+- `kitchen/item-demand-ampel.tsx` (KitchenItemDemandAmpel): Artikel-Lagerampel mit OK/Warnung/Kritisch-KPIs, Alert-Liste mit Tage-bis-leer-Countdown, 60s Auto-Refresh, manueller "Jetzt prüfen"-Button, Integration in kitchen/client.tsx ✅
+- `dispatch/item-nachfrage-hinweis.tsx` (DispatchItemNachfrageHinweis): Aufklappbarer Artikel-Nachfrage-Hint, Top-Bedarfs-Balken + Lager-Alerts, Promise.all für dashboard+alerts, Integration in dispatch/client.tsx ✅
+- `fahrer/app/tour-stop-detail-card.tsx` (TourStopDetailCard + TourStopsDetailPanel): Expandierbare Kunden-Karten je Tour-Stop, Navigation/Anruf/Geliefert/Fehlversuch-Buttons, Gesamtfortschrittsbalken, Integration in fahrer/app/client.tsx ✅
+- `order/[locationSlug]/components/eta-live-countdown.tsx` (EtaLiveCountdown): Sekundengenauer Countdown mit Phasen-Icon (prep/pickup/driving/nearby/delivered), 3-Dringlichkeitsstufen (matcha/amber/blue), 30s-Polling, depleted Progress-Bar, Integration in success-state.tsx ✅
+- `lieferdienst/item-nachfrage-widget.tsx` (LieferdienstItemNachfrageWidget): Kompaktes Lager-Status-Widget, Top-Nachfrage-Balken, Alert-Ampel, Integration in lieferdienst/client.tsx ✅
+
+**Bugs gefunden:** 2 TS-Fehler — ALLE GEFIXT ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- Item-Demand-API verknüpft: Kitchen (Ampel) + Dispatch (Hinweis) + Lieferdienst (Widget) nutzen dasselbe `/api/delivery/admin/item-demand` Backend ✅
+
+### Status nach Review #159
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (315 Seiten)
+- Phase 270 (Smart Item Demand Prediction API): DONE ✅
+- Phase 271 (5 neue Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 272: Fahrer-Feedback-Terminal API — Post-Tour-Kurzumfrage (3 Fragen, Stern-Rating), anonyme Antworten in Admin-Auswertung
+2. Oder: Phase 272: Real-Time Dispatch-Optimierung V2 — ML-basiertes Batch-Routing mit Echtzeit-Nachfrage-Gewichtung
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 272: 5 neue Smart-Delivery-Komponenten (Dispatch-Effizienz-Cockpit, Fahrer-Feedback-Zusammenfassung, KPI-Trend-Vergleich, Lager-Alarm-Widget V2, Reorder-Prognose-Panel)
 
 ---
 

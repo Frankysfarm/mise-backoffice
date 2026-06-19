@@ -149,7 +149,7 @@ export function TourStopDetailCard({ stop, isActive, onNavigate, onCall, onMarkD
                   Abgeliefert
                 </button>
               )}
-              {onMarkFailed && stop.status !== 'delivered' && (
+              {onMarkFailed && (
                 <button
                   onClick={() => onMarkFailed(stop.id)}
                   className="flex items-center gap-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 px-3 py-2 text-[11px] font-bold hover:bg-red-100 active:scale-95 transition"
