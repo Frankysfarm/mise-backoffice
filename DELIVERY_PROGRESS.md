@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–272 abgeschlossen. Build sauber. 316 Seiten. TypeScript 0 Fehler (neue Dateien).**
+**Phasen 1–273 abgeschlossen. Build sauber. 317 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 273 — Dispatch Live Score API + Smart Batch Monitor Engine. Build ✅ 317 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 272 — Fahrer-Feedback-Terminal API. Build TS-Check ✅ 0 neue Fehler.**
 **CEO-Agent Review #159 — 2026-06-19: 2 Bugs gefixt (item-demand route.ts ok-Key-Duplikat + tour-stop-detail-card redundante delivered-Prüfung). Phase 270+271 geprüft. Build ✅ 315 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 271 — KitchenItemDemandAmpel, DispatchItemNachfrageHinweis, TourStopDetailCard+Panel, EtaLiveCountdown, LieferdienstItemNachfrageWidget. Build ✅ 315 Seiten, 0 Fehler.**
@@ -60,6 +61,59 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 273 — Dispatch Live Score API + Smart Batch Monitor Engine (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+**CEO Open Item Fix:**
+- `app/api/delivery/dispatch/scores/route.ts` — GET /api/delivery/dispatch/scores
+  - Fixiert offenen CEO-Review-#160-Punkt: DispatchLiveScoreBoard nutzte bisher immer Mock-Fallback
+  - Auth via employees.location_id (oder ?location_id= Query-Param als Override)
+  - Query: mise_drivers (active=true, state in idle/assigned/at_restaurant/en_route/returning)
+  - Join: driver_composite_scores (letzte 7 Tage, period=week) → Base-Score je Fahrer (Default 70)
+  - Score-Logik: base − (current_capacity/max_capacity)×20 + state_bonus (idle+5, returning+2, assigned±0, at_restaurant−3, en_route−8), Clamp [0,100]
+  - Response: Array { name, vehicle, score } sortiert nach score DESC, max 10 Fahrer
+
+**Neue Engine:**
+- `lib/delivery/smart-batch-monitor.ts` — 6 Funktionen:
+  - `scanBatchHealth(locationId)`: Alle aktiven Batches + Stops aus mise_delivery_batches+mise_batch_stops laden, Stuck-Detection (kein Stop in >15 Min = isStuck, stuckMinutes), ETA-Risiko (batchStart+eta_min×60s < now), Health-Score (100 − 15×stuck − 10×eta_risk, clamp 0–100), healthStatus ok/warning/critical
+  - `snapshotBatchHealth(locationId)`: Scan + Upsert in batch_health_snapshots
+  - `snapshotAllLocations()`: Cron-Batch aller aktiven Locations (parallel)
+  - `getBatchMonitorDashboard(locationId)`: Live-Scan + 24h-Trend aus DB (letzte 288 Snapshots) + Heute-Zähler
+  - `getActiveBatchDetails(locationId)`: Detailliste aktiver Batches mit Stop-Breakdowns
+  - `pruneBatchHealthSnapshots(days?)`: RPC-Wrapper für Cleanup (Default 14 Tage)
+
+- `scripts/migrations/139_smart_batch_monitor.sql`:
+  - `batch_health_snapshots` (UNIQUE location+snapshot_at, RLS, updated_at Trigger): 8 Metrik-Spalten + health_score + health_status
+  - `v_batch_health_latest` VIEW: DISTINCT ON (location_id) — neuester Snapshot je Location mit location_name JOIN
+  - `v_stuck_batches` VIEW: HAVING-Klausel auf mise_delivery_batches+mise_batch_stops — Batches ohne Stop-Fortschritt >15 Min
+  - `prune_old_batch_health_snapshots(p_days)` RPC: SECURITY DEFINER Cleanup
+
+- `app/api/delivery/admin/batch-monitor/route.ts`:
+  - GET action=dashboard|scan|details — Auth via employees.location_id
+  - POST action=snapshot|prune
+
+- `app/(admin)/delivery/batch-monitor/page.tsx` + `client.tsx`:
+  - **4 KPI-Karten**: Aktive Touren (+ offene Stops) / Stuck / ETA-Risiko / Health-Score (farbcodiert)
+  - **Warn-Banner**: critical/warning-Status mit Stuck-Count + ETA-Risk-Count
+  - **24h SVG-Trend-Chart**: Health-Score-Verlauf (grün≥70/amber≥40/rot<40), Zeitachse
+  - **Expandierbare Batch-Karten**: sortiert (Stuck > ETA-Risiko > OK), Fahrzeug-Icon, Fahrername, Alter, Fortschrittsbalken, Stop-Detailliste mit Überfälligkeits-Markierung
+  - 30s Auto-Refresh
+
+- **Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`):
+  - `snapshotBatchHealth()` jeden 2-Min-Tick → dauerhaftes Live-Monitoring
+  - `pruneBatchHealthSnapshots(14)` täglich 05:10 UTC
+  - Response-Key: `batch_monitor` + `batch_health_pruned`
+
+- `app/(admin)/delivery/page.tsx`: SectionCard "Batch-Monitor" (Activity-Icon) in Live-Betrieb-Gruppe + highlight
+
+- TypeScript: 0 Fehler (npx tsc --noEmit ✓)
+- Build: npx next build ✓ (317 Seiten, 0 Fehler)
 
 ---
 
