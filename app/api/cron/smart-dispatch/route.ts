@@ -113,6 +113,7 @@ import { detectSlaBreachesAllLocations, pruneOldSlaBreaches } from '@/lib/delive
 import { evaluateScoreTriggersAllLocations, pruneOldGrants as pruneScoreGrants } from '@/lib/delivery/driver-score-trigger';
 import { rebuildZoneVehicleStatsAllLocations } from '@/lib/delivery/scoring-v2';
 import { snapshotAllLocations as snapshotLocationHealthScores, pruneOldHealthScores } from '@/lib/delivery/location-health-score';
+import { snapshotPunctualityAllLocations, pruneOldProfiles as prunePunctualityProfiles } from '@/lib/delivery/punctuality-coach';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -245,6 +246,8 @@ export async function GET(req: NextRequest) {
     const isZoneVehicleStatsTick = nowHour === 4 && nowMin >= 34 && nowMin < 38;
     // Phase 264: Location-Gesundheits-Score — täglich 03:15 UTC (nach Performance Score bei 03:05)
     const isLocationHealthTick = nowHour === 3 && nowMin >= 15 && nowMin < 19;
+    // Phase 268: Fahrer-Pünktlichkeits-Coach — täglich 04:50 UTC (nach allen Driver-Analyse-Ticks)
+    const isPunctualityCoachTick = nowHour === 4 && nowMin >= 50 && nowMin < 54;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -851,6 +854,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldHealthScores(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 268: Fahrer-Pünktlichkeits-Coach — täglich 04:50 UTC
+    const punctualityCoachResult = isPunctualityCoachTick
+      ? await snapshotPunctualityAllLocations().catch(() => ({ locations: 0, processed: 0, saved: 0, errors: 1 }))
+      : null;
+    const punctualityProfilesPruned = isReportTick
+      ? await prunePunctualityProfiles(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1040,6 +1051,8 @@ export async function GET(req: NextRequest) {
       ...(scoreGrantsPruned ? { score_grants_pruned: scoreGrantsPruned.deleted } : {}),
       ...(locationHealthResult ? { location_health_scores: { locations: locationHealthResult.locations, snapshots: locationHealthResult.snapshots, errors: locationHealthResult.errors } } : {}),
       ...(healthScoresPruned ? { health_scores_pruned: healthScoresPruned.pruned } : {}),
+      ...(punctualityCoachResult ? { punctuality_coach: { locations: punctualityCoachResult.locations, processed: punctualityCoachResult.processed, saved: punctualityCoachResult.saved, errors: punctualityCoachResult.errors } } : {}),
+      ...(punctualityProfilesPruned ? { punctuality_profiles_pruned: punctualityProfilesPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

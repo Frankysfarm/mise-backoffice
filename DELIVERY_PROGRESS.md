@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–267 abgeschlossen. Build sauber. 314 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–268 abgeschlossen. Build sauber. 314 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 268 — Fahrer-Pünktlichkeits-Coach API. Build ✅ 314 Seiten, 0 Fehler.**
 **CEO-Agent Review #157 — 2026-06-19: 2 Bugs gefixt (dispatch_score optionales Feld + payload any-Typ). Phase 266 (Webhook Engine Admin-UI V2) + Phase 267 (5 Komponenten: SmartOrderFlowBoard/TourScoreSummaryPanel/TourNaviHUD/SchichtZielErreichtPanel/OrderLiveProgressCard) geprüft. Build ✅ 314 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 267 — KitchenSmartOrderFlowBoard, DispatchTourScoreSummaryPanel, TourNaviHUD, SchichtZielErreichtPanel, OrderLiveProgressCard. Build ✅ 314 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 266 — Webhook Engine Admin-UI V2 (Tabs: Webhooks/Delivery-Log/Statistiken). Build ✅ 314 Seiten, 0 Fehler.**
@@ -53,6 +54,42 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 268 — Fahrer-Pünktlichkeits-Coach API (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `scripts/migrations/136_punctuality_coach.sql` — 1 Tabelle + 2 Views + 1 RPC + Trigger:
+  - `driver_punctuality_profiles` (UNIQUE location+driver+period_end, RLS): Delay-Ursachen-Analyse pro Fahrer — 5 Stage-Durchschnitte, 3 Delta-Werte (vs. Standort-Baseline), primary_delay_cause, coaching_hints (JSONB), coaching_score (0–100), score_trend (improving/stable/declining)
+  - `v_driver_punctuality_latest` VIEW: DISTINCT ON (location_id, driver_id) — immer neuestes Profil je Fahrer, JOIN auf mise_drivers für name/fahrzeug
+  - `v_driver_punctuality_ranking` VIEW: RANK() über alle Fahrer nach coaching_score je Location — Multi-Fahrer-Vergleich
+  - `prune_old_punctuality_profiles(p_days)` RPC: löscht Einträge älter als N Tage
+  - `_trg_dpp_set_computed_at` Trigger: computed_at automatisch bei UPDATE
+- `lib/delivery/punctuality-coach.ts` — 7 Funktionen + 3 Typen:
+  - `analyzeDriverDelays(locationId, driverId, days)`: Rohdaten-Analyse aus order_lifecycle_snapshots (JOIN über customer_orders → mise_delivery_batches → driver_id), 5 Stage-Durchschnitte, Baseline-Vergleich (location-wide), Delta-Berechnung, Ursachen-Klassifizierung (threshold: >1,5 Min über Baseline = signifikant)
+  - `snapshotDriverCoaching(locationId, driverId, days)`: compute + Vorperioden-Vergleich (score_trend: ±2 Pkt = signifikant) + UPSERT via onConflict
+  - `snapshotAllDriversCoaching(locationId, days)`: parallele Batch-Verarbeitung aller aktiven Fahrer einer Location
+  - `snapshotPunctualityAllLocations(days)`: Cron-Batch aller aktiven Locations (04:50 UTC täglich)
+  - `getPunctualityCoachDashboard(locationId)`: Dashboard mit totalDrivers, driversBelowThreshold (< 75 Pkt), avgCoachingScore, topDriver, needsAttention (max 5 Fahrer)
+  - `getDriverCoachingReport(locationId, driverId, days)`: frisches Snapshot + 10-Perioden-Verlauf + Perzentil-Rang
+  - `pruneOldProfiles(daysToKeep)`: RPC-Wrapper
+  - Coaching-Hints-Logik: Ursachen-spezifische personalisierte Texte (pickup_wait → "melde dich bei Ankunft", driving → "nutze Navi", kitchen → "informiere Dispatcher"), Pünktlichkeits-Feedback (<70%/≥90%)
+  - Score-Formel: onTimeRate − penalty[cause] (none: 0, kitchen: 2, pickup_wait: 8, driving: 10)
+- `app/api/delivery/admin/punctuality-coach/route.ts` — GET + POST:
+  - GET `?action=dashboard` → CoachingDashboard (alle Fahrer der Location)
+  - GET `?action=report&driver_id=X&days=14` → DriverCoachingReport (Einzel-Fahrer, frischer Snapshot + Verlauf + Perzentil)
+  - POST `action=snapshot` → manueller Snapshot (driver_id optional: einzeln oder alle)
+  - location_id auto-resolve via mise_staff JOIN wenn nicht explizit angegeben
+- Cron-Integration in `app/api/cron/smart-dispatch/route.ts`:
+  - Import: `snapshotPunctualityAllLocations`, `pruneOldProfiles as prunePunctualityProfiles`
+  - Tick: `isPunctualityCoachTick` täglich 04:50 UTC (nach allen Driver-Analyse-Ticks)
+  - Prune: täglich mit Report-Tick (isReportTick), 90 Tage
+  - Output im JSON-Response: `punctuality_coach` + `punctuality_profiles_pruned`
+- TypeScript strict: keine `any`, alle Callbacks explizit typisiert, DbProfile/DbBaselineRaw Interfaces
+- Build: npx next build ✓ (314 Seiten, 0 Fehler)
 
 ---
 

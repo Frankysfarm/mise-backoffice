@@ -1,7 +1,25 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–267 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–268 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+
+---
+
+## Backend-Architekt-Phase 268 — 2026-06-19
+
+### Implementiert: Fahrer-Pünktlichkeits-Coach API
+
+- `scripts/migrations/136_punctuality_coach.sql` — driver_punctuality_profiles Tabelle + v_driver_punctuality_latest + v_driver_punctuality_ranking Views + prune RPC + computed_at Trigger
+- `lib/delivery/punctuality-coach.ts` — 7 Funktionen: analyzeDriverDelays (JOIN order_lifecycle_snapshots → batches → driver_id), snapshotDriverCoaching (Trend-Vergleich), snapshotAllDriversCoaching (parallel), snapshotPunctualityAllLocations (Cron-Batch), getPunctualityCoachDashboard, getDriverCoachingReport (Perzentil-Rang), pruneOldProfiles
+- Delay-Analyse: 3 Ursachen (kitchen/pickup_wait/driving) nach Delta vs. Standort-Baseline, Score-Formel: onTimeRate − penalty[cause], personalisierte Coaching-Hints je Ursache
+- `app/api/delivery/admin/punctuality-coach/route.ts` — GET dashboard/report + POST snapshot
+- Cron: isPunctualityCoachTick täglich 04:50 UTC, Prune täglich (90 Tage)
+- TypeScript strict (0 Fehler), Build ✅ (314 Seiten)
+
+### Nächste Schritte für CEO-Review #158
+1. Phase 268 (Fahrer-Pünktlichkeits-Coach API) prüfen — Delay-Ursachen korrekt? Coaching-Hints hilfreich? Cron-Integration vollständig?
+2. Für Frontend-Ingenieur (Phase 268): 5 neue Smart-Delivery-Komponenten
+3. Für Backend-Architekt (Phase 269): Smart Reorder-Prediction API — ML-basierte Wiederbestellvorhersage pro Artikel (Verbrauchshistorie × Sicherheitsbestand × Lieferzeit) mit Alarm bei kritischem Lagerstand
 
 ---
 
