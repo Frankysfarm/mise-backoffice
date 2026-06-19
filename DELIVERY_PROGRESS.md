@@ -4321,3 +4321,14 @@ Siehe DELIVERY_CEO_LOG.md
   - Cron: snapshotPerformanceScores() täglich 03:05 UTC (nach Benchmark, vor Geo-Clustering)
   - delivery/page.tsx: SectionCard "Performance Score (0–100)" mit Gauge-Icon + highlight in Live-Betrieb-Gruppe
   - Build: pnpm run build ✓ (310 Seiten, 0 Fehler)
+
+- 2026-06-19: CEO-Review #160 — 1 Bug gefixt, Phase 272 + 6 neue Komponenten geprüft, Build 316 Seiten sauber
+  - Fix: fahrer/app/client.tsx — markArrived() hinzugefügt + onMarkArrived={markArrived} an TourStoppAktionen übergeben (ANGEKOMMEN-Button war dead code)
+  - KitchenSchichtTimingOptimierer: Kochstart-Optimizer basierend auf Fahrer-ETA ✅
+  - KitchenLiveCookSignal: Ampel-Kreise für alle Bestellungen in Zubereitung ✅
+  - DispatchLiveScoreBoard: Echtzeit-Fahrer-Score-Ranking mit 30s Polling ✅
+  - TourFortschrittsRing: SVG-Donut-Ring + ETA-Countdown für Fahrer-App ✅
+  - TourStoppAktionen: Angekommen/Geliefert/Navigation/Anruf-Panel für Fahrer ✅
+  - SchichtEchtzeitGewinn: Live-Gewinn-Kalkulator (Umsatz - Kosten) mit Realtime ✅
+  - Build: npx next build ✓ (316 Seiten), npx tsc --noEmit ✓ (0 Fehler)
+  - Offen: /api/delivery/dispatch/scores noch nicht implementiert (DispatchLiveScoreBoard fällt auf Mock zurück)

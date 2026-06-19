@@ -10065,3 +10065,64 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 254: Performance-Score-Widget für Admin-Übersicht — Gauge-Chart + Trendlinie + Standort-Ranking
 2. Oder: Phase 254: Order-Tracking QR-Code-Generator für Storefront — Kunden können Status per QR scannen
+
+---
+
+## CEO-Review #160 — 2026-06-19
+
+### Geprüfte Phasen: Phase 272 (Backend) + Frontend-Commit (6 neue Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (316 Seiten, 0 Fehler)
+
+**Neue Komponenten (Frontend-Commit 2ea8aeb):**
+
+**KitchenSchichtTimingOptimierer (`app/(admin)/kitchen/schicht-timing-optimierer.tsx`):**
+- Kochstart-Optimierung basierend auf Fahrer-ETAs: driverArrivalAt aus batch.started_at + total_eta_min ✅
+- cookByAt = driverArrivalAt - prepMin (Default 15 Min), 1-Sekunden-Countdown ✅
+- Urgency-Stufen: ok/soon/now/overdue mit farblicher Kodierung + Expand/Collapse ✅
+- Integration in kitchen/client.tsx korrekt ✅
+
+**KitchenLiveCookSignal (`app/(admin)/kitchen/live-cook-signal.tsx`):**
+- Kompakte Ampel-Kreise für alle Bestellungen in Zubereitung, farblich nach Level ✅
+- Klick auf Kreis → DetailPanel mit Timing-Info und Countdown ✅
+- Sort: overdue→critical→soon→ok, Summary-Bar oben ✅
+- Integration in kitchen/client.tsx korrekt (übergabe von timings-Prop) ✅
+
+**DispatchLiveScoreBoard (`app/(admin)/dispatch/dispatch-live-score-board.tsx`):**
+- 30s Polling auf /api/delivery/dispatch/scores, Fallback auf Mock-Daten ✅
+- Ø Score-Header mit Trend-Pfeil + Ranking Top-5 mit Score-Balken ✅
+- Farbkodierung ≥85=grün, 70-84=amber, <70=rot ✅
+- Integration in dispatch/client.tsx korrekt ✅
+
+**TourFortschrittsRing (`app/fahrer/app/tour-fortschritts-ring.tsx`):**
+- SVG-Donut-Ring mit Stopp-Fortschritt, ETA-Countdown, Überfällig-Rot ✅
+- Cleanup-Interval korrekt, alle Props typisiert ✅
+
+**TourStoppAktionen (`app/fahrer/app/tour-stopp-aktionen.tsx`):**
+- Angekommen + Geliefert-Buttons, Navigation (Google Maps), Anruf-Link ✅
+- Kunden-Notiz, Lieferhinweis, Stopwatch seit Ankunft ✅
+
+**SchichtEchtzeitGewinn (`app/(admin)/lieferdienst/schicht-echtzeit-gewinn.tsx`):**
+- Umsatz/Kosten/Nettogewinn live, Supabase-Realtime auf customer_orders ✅
+- Margin-Fortschrittsbalken mit Ziel 30% ✅
+- Integration in lieferdienst/client.tsx korrekt ✅
+
+**Bug gefunden + gefixt:**
+- `app/fahrer/app/client.tsx`: `onMarkArrived` prop wurde nicht an `TourStoppAktionen` übergeben — ANGEKOMMEN-Button war sichtbar aber funktionslos
+- Fix: `markArrived(stopId)` Funktion hinzugefügt (schreibt `angekommen_am` auf `delivery_batch_stops` + `mise_delivery_batch_stops`) und als `onMarkArrived={markArrived}` weitergereicht ✅
+
+### Status nach Review #160
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (316 Seiten)
+- Phase 272 + 6 neue Frontend-Komponenten: DONE ✅
+- Bugs gefixt: 1 (onMarkArrived fehlte)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 273: Fahrer-Feedback-Terminal — Fahrerbewertungs-API + UI zum Sammeln von Kundenfeedback direkt in der Fahrer-App
+2. Oder: Phase 273: Route-Optimierungs-Engine V2 — ML-gestützte Multi-Stop-Reihenfolge mit Echtzeit-Verkehrsdaten
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 273: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. Dispatch-ScoreBoard: API-Endpunkt /api/delivery/dispatch/scores erstellen (aktuell nur Mock)

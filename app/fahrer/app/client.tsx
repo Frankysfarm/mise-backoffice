@@ -567,6 +567,19 @@ export function FahrerApp({
     });
   }
 
+  async function markArrived(stopId: string) {
+    startTransition(async () => {
+      const now = new Date().toISOString();
+      await supabase.from('delivery_batch_stops')
+        .update({ angekommen_am: now })
+        .eq('id', stopId);
+      await supabase.from('mise_delivery_batch_stops')
+        .update({ angekommen_am: now })
+        .eq('id', stopId);
+      router.refresh();
+    });
+  }
+
   async function logout() {
     await supabase.auth.signOut();
     router.push('/fahrer');
@@ -1214,6 +1227,7 @@ export function FahrerApp({
                     angekommen_am: (currentStop as any).angekommen_am ?? null,
                   }}
                   onMarkDelivered={markDelivered}
+                  onMarkArrived={markArrived}
                   pending={pending}
                 />
               </div>
