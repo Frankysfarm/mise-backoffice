@@ -106,6 +106,7 @@ import { snapshotZoneCapacityAllLocations, rebalanceAllLocations, pruneOldSnapsh
 import { snapAllLocations as snapOrderLifecycle, pruneOldLifecycleSnapshots } from '@/lib/delivery/order-lifecycle';
 import { snapshotAllLocations as snapshotGeoHeatmap, pruneOldSnapshots as pruneHeatmapSnapshots } from '@/lib/delivery/geo-heatmap';
 import { recordUsageAllLocations as recordRestockUsage, checkThresholdsAllLocations as checkRestockThresholds, pruneOldMaterialSnapshots } from '@/lib/delivery/restock-engine';
+import { computeRampUpAllLocations, pruneOldProfiles as pruneRampUpProfiles } from '@/lib/delivery/driver-ramp-up';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -228,6 +229,8 @@ export async function GET(req: NextRequest) {
     const isRestockUsageTick = nowHour === 1 && nowMin >= 14 && nowMin < 18;
     // Phase 248: Restock Threshold Check — täglich 01:30 UTC (nach Usage Recording)
     const isRestockCheckTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
+    // Phase 250: Driver Ramp-Up Intelligence — täglich 02:45 UTC (nach Performance-Snapshots)
+    const isRampUpTick = nowHour === 2 && nowMin >= 44 && nowMin < 48;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -781,6 +784,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldMaterialSnapshots(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 250: Driver Ramp-Up Intelligence — täglich 02:45 UTC
+    const rampUpResult = isRampUpTick
+      ? await computeRampUpAllLocations().catch(() => ({ total: 0, computed: 0, graduated: 0, errors: 1 }))
+      : null;
+    const rampUpPruned = isReportTick
+      ? await pruneRampUpProfiles(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -958,6 +969,8 @@ export async function GET(req: NextRequest) {
       ...(restockUsageResult ? { restock_usage: { locations: restockUsageResult.locations, snapshots: restockUsageResult.snapshots, errors: restockUsageResult.errors } } : {}),
       ...(restockCheckResult ? { restock_alerts: { locations: restockCheckResult.locations, created: restockCheckResult.alerts_created, resolved: restockCheckResult.alerts_resolved } } : {}),
       ...(materialSnapshotsPruned ? { material_snapshots_pruned: materialSnapshotsPruned.pruned } : {}),
+      ...(rampUpResult ? { ramp_up: { locations: rampUpResult.total, computed: rampUpResult.computed, graduated: rampUpResult.graduated, errors: rampUpResult.errors } } : {}),
+      ...(rampUpPruned ? { ramp_up_profiles_pruned: rampUpPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -231,6 +231,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Echtzeit-Liefer-Dichte · Stündliche Zonen-Auslastung · GeoJSON-Export für QGIS / Google Maps" cta="Heatmap öffnen" />
         <SectionCard href="/delivery/restock-engine" icon={<PackageX className="h-5 w-5" />} title="Restock-Engine (Liefermaterial)"
           subtitle="Verbrauchsprognose für Liefertaschen, Boxen & Zubehör · Depletion-Datum · Alarm bei kritischem Bestand · Lieferanteninfo" cta="Restock öffnen" highlight />
+        <SectionCard href="/delivery/driver-ramp-up" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer Ramp-Up Intelligence"
+          subtitle="Neue Fahrer in den ersten 60 Tagen · 4-Faktoren-Score · Struggling/Developing/Promising · Coaching-Flags · Retention-Prognose" cta="Ramp-Up öffnen" highlight />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
