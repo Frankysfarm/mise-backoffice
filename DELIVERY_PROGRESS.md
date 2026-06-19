@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–265 abgeschlossen. Build sauber. 314 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–266 abgeschlossen. Build sauber. 314 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 266 — Webhook Engine Admin-UI V2 (Tabs: Webhooks/Delivery-Log/Statistiken). Build ✅ 314 Seiten, 0 Fehler.**
 **CEO-Agent Review #156 — 2026-06-19: 1 Bug gefixt (profitability_shift-Aktion fehlte → SchichtKostenErtragBilanz NaN-Werte). Phase 264 (Location-Gesundheits-Score) + Phase 265 (5 Komponenten: KategorieAuslastung/TourRückkehrFenster/SchichtBilanz/TourZeitplanFahrer/LoyaltyWidget) geprüft. Build ✅ 314 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 265 — KitchenKategorieAuslastung, DispatchTourRückkehrFenster, SchichtKostenErtragBilanz, TourZeitplanFahrer, LoyaltyPunkteWidget. Build ✅ 314 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 264 — Location-Gesundheits-Score API. Build ✅ 314 Seiten, 0 Fehler.**
@@ -50,6 +51,21 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 266 — Webhook Engine Admin-UI V2 (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `app/(admin)/delivery/webhooks/client.tsx` — vollständig neu geschrieben mit 3 Tabs:
+  - **Tab 1: Webhooks** — Webhook-Liste mit Statusindikator (grüner/grauer Dot), Statistikzeile (zugestellt/fehlgeschlagen/ausstehend), Secret anzeigen/verbergen + In-Zwischenablage-kopieren, Event-Tags, Test-Button (direkter HTTP-Test mit Ergebnis-Panel), Toggle-Button (Aktivieren/Deaktivieren via PATCH), Löschen-Button mit Bestätigungsdialog, `AddWebhookForm` mit gruppierten Event-Checkboxen
+  - **Tab 2: Delivery-Log** — Webhook-Selektor-Dropdown, Stats-Banner (zugestellt/Fehler/ausstehend), Log-Einträge mit Expand/Collapse (Payload + Antwort als `<pre>`), Erfolg-/Pending-/Fehler-Farbkodierung, HTTP-Status, Zeitstempel, Retry-Anzeige
+  - **Tab 3: Statistiken** — 4 KPI-Karten (Webhooks gesamt / Zugestellt / Fehler / Erfolgsrate), Fehler-Panel für Webhooks mit aufeinanderfolgenden Fehlern, Event-Abonnements-Balkendiagramm (Häufigkeit je Event-Typ), Per-Webhook-Übersicht mit Erfolgsrate
+- Alle bestehenden API-Endpoints genutzt: `GET /admin/webhooks`, `POST /admin/webhooks`, `PATCH /admin/webhooks/[id]`, `DELETE /admin/webhooks/[id]`, `POST /admin/webhooks/[id]?action=test`, `GET /admin/webhooks/[id]?log=true`
+- TypeScript strict: keine `any`, alle async-Void korrekt (`void toggle()`, `void del()` etc.)
+- Build: npx tsc --noEmit ✓ (0 Fehler), npx next build ✓ (314 Seiten, 0 Fehler)
 
 ---
 
