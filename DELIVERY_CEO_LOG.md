@@ -1,18 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–251 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (308 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–252 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (308 Seiten). Deployment-bereit.
 
 ---
 
-## Nächste Schritte für Backend-Architekt (nach Phase 246)
-1. Phase 247: Smart Delivery Multi-Location Benchmark Dashboard — Vergleich aller Standorte nach KPIs (Ø Lieferzeit, Marge/Bestellung, Fahrer-Auslastung, Kundenretention)
-2. Oder: Predictive Restock Engine — automatische Bestell-Trigger für Liefermaterial basierend auf Forecast-Daten
-3. Oder: Customer Notification Engine — Push/SMS bei Status-Wechsel, benutzerdefinierte Trigger, Opt-Out-Verwaltung
+## Nächste Schritte für Backend-Architekt (nach Phase 252)
+1. Phase 253: ETA-Widget Polling-Integration — `EtaVertrauenWidget` direkt mit `/api/delivery/orders/[id]/eta-confidence` verbinden (polling alle 30s)
+2. Oder: Phase 253: Driver Auto-Email Coaching — wöchentliche Zusammenfassung an Location-Manager (struggling Fahrer, Score-Trends, graduation-nahe Fahrer)
+3. Oder: Phase 253: Multi-Location KPI-Vergleich — Benchmark-Dashboard alle Standorte nach ETA-Genauigkeit, Fahrer-Score, Auslastung
 
-## Nächste Schritte für Frontend-Ingenieur (nach Phase 246)
-1. Phase 247: Real-time Driver GPS-Tracking Panel — Live-Karte mit Fahrer-Positionen und Tour-Fortschritt (baut auf Leaflet auf)
-2. Oder: Driver Earnings Dashboard — Fahrer-facing Übersicht: Tagesumsatz, Trinkgeld, Bonus, Incentives
+## Nächste Schritte für Frontend-Ingenieur (nach Phase 252)
+1. Phase 253: EtaVertrauenWidget API-Anbindung — echte Confidence-Daten aus `/api/delivery/orders/[id]/eta-confidence` (polling 30s)
+2. Oder: Phase 253: Fahrer-App Score-History — Score-Verlauf als Sparkline (letzte 7 Tage) in FahrerRampUpFortschritt
+
+---
+
+## CEO Review #148 — 2026-06-19
+
+### Geprüfte Phasen: Phase 252 (Backend ETA-Confidence API) + Phase 252 (4 neue Frontend-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: ✅ 0 TypeScript-Fehler (nach 1 Fix)
+- `npx next build`: ✅ Compiled successfully (308 Seiten, 0 Fehler)
+
+**TypeScript-Fehler gefunden + gefixt:**
+- `kitchen/schicht-burndown.tsx:124` — `Tooltip formatter` explizite Typen `(val: number, name: string)` → implizite Typen inferred — Recharts `ValueType` ist `undefined`-bar, Fix: `(val, name)` ohne Annotation ✅
+
+**Code-Review Phase 252 Backend:**
+- `lib/delivery/eta-confidence.ts` — 4-stufige Fallback-Kette (exakt → zone → standort → none) sauber implementiert ✅
+- `classify()` — Schwellwerte 0.85/0.65, min 10 Samples, calibration_factor > 1.3 zieht eine Stufe runter — Logik korrekt ✅
+- Zone/Vehicle Aggregation (Versuch 2+3): gewichteter Mittelwert via `sample_count` — mathematisch korrekt ✅
+- `route.ts` — UUID-Regex-Validierung, terminal_status Kurzschluss, Fahrer via batch_id-Fallback — vollständig ✅
+- `runtime = 'nodejs'` + `force-dynamic` korrekt gesetzt ✅
+
+**Code-Review Phase 252 Frontend:**
+- `kitchen/schicht-burndown.tsx` (KitchenSchichtBurndown): Bar-Chart mit Cell-Farben (grün/amber/grau), ReferenceLine bei Ziel-Tempo, KPI-Grid (Abgeschlossen/pro Stunde/Prognose), clearInterval sauber ✅
+- `dispatch/tour-lieferzeit-rangliste.tsx` (TourLieferzeitRangliste): Sortierung späte→enge→unbekannt→pünktlich, remainMin via stop-ETAs + batch-ETA Fallback, Fortschrittsbalken korrekt ✅
+- `lieferdienst/live-kpi-ampel.tsx` (LiveKpiAmpel): 4-Metrik Ampel (ETA/Auslastung/Fahrer/Ø Lieferzeit), Polling 60s, health-aggregation (rot wins > amber > grün) ✅
+- `order/[locationSlug]/fahrer-ankunfts-countdown.tsx` (FahrerAnkunftsCountdown): Sekunden-Countdown, nur sichtbar bei isEnRoute/isDelivered, < 5 Min zeigt Sekundenanzeige, < 1 Min animiert + animate-pulse ✅
+
+**Integration-Prüfung:**
+- `kitchen/client.tsx:757` → KitchenSchichtBurndown eingebunden ✅
+- `dispatch/client.tsx:922` → TourLieferzeitRangliste eingebunden ✅
+- `lieferdienst/client.tsx:1066` → LiveKpiAmpel eingebunden ✅
+- `order-status-tracker.tsx:202` → FahrerAnkunftsCountdown eingebunden ✅
+- Neue API `/api/delivery/orders/[orderId]/eta-confidence` — neuer Route-Slot, 308 Seiten korrekt ✅
+
+### Status nach Review #148
+- TypeScript: 0 Fehler ✅ (1 gefixt)
+- Build: Compiled successfully ✅ (308 Seiten)
+- Phase 252 Backend (ETA-Confidence API): DONE ✅
+- Phase 252 Frontend (4 neue Echtzeit-Panels): DONE ✅
+- Bugs gefixt: 1 (TS-Fehler Recharts Formatter)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 253: EtaVertrauenWidget API-Polling — direkter Fetch aus dem Widget (alle 30s)
+2. Oder: Phase 253: Coaching Auto-Email — struggling Fahrer wöchentlich an Manager
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 253: EtaVertrauenWidget Anbindung — `confidence` prop von API statt `null`
+2. Oder: Phase 253: Fahrer Score-History Sparkline (7 Tage) in FahrerRampUpFortschritt
 
 ---
 

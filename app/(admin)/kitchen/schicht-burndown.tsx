@@ -121,7 +121,7 @@ export function KitchenSchichtBurndown({ orders, completedToday, shiftStartHour 
             />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8 }}
-              formatter={(val: number, name: string) => [val, name === 'completed' ? 'Fertig' : 'Eingegangen']}
+              formatter={(val, name) => [val, name === 'completed' ? 'Fertig' : 'Eingegangen']}
             />
             <ReferenceLine y={targetPerHour} stroke="#10b981" strokeDasharray="3 3" strokeWidth={1} />
             <Bar dataKey="completed" radius={[3, 3, 0, 0]}>
