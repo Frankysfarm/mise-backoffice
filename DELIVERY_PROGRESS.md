@@ -3943,3 +3943,11 @@ Siehe DELIVERY_CEO_LOG.md
   - Fix 2: review-flags/client.tsx L377 — `unknown &&` → `!!unknown && String()` für ReactNode-Kompatibilität
   - Phase 241 (5 neue Komponenten) alle korrekt integriert: KitchenTimingFarbkodierung, DispatchTourZeitfortschritt, KassenUebersicht, EtaSekundenCountdown, SchichtEchtzeitAmpel
   - Build: npx next build ✓ (302 Seiten), npx tsc --noEmit ✓ (0 Fehler)
+- 2026-06-19: Backend-Architekt — Phase 250: Delivery Performance Score Engine (0–100)
+  - scripts/migrations/129_performance_score.sql: delivery_performance_scores (4 Dimensionen: on_time/satisfaction/utilization/margin, Grade A+–F, UNIQUE location+date, RLS) + v_performance_score_latest + v_performance_score_ranking (RANK()) + prune_old_performance_scores() RPC + 3 Indizes + updated_at Trigger
+  - lib/delivery/performance-score.ts: computePerformanceScore() (35% Pünktlichkeit + 30% Zufriedenheit + 20% Auslastung + 15% Marge), snapshotPerformanceScore(), snapshotAllLocations() Cron-Batch, getPerformanceDashboard() (latest+trend+ranking+recommendations), getPerformanceTrend(), pruneOldPerformanceScores()
+  - GET+POST /api/delivery/admin/performance-score: Auth via employees.location_id, GET=dashboard|trend|all, POST action=snapshot|snapshot_all|prune
+  - app/(admin)/delivery/performance-score/: PerformanceScoreClient (4 KPI-Karten, ScoreArc-Gauge, DimBar-Breakdown, 30-Tage-Trend-Chart mit SVG, Ranking-Tab mit Medaillen, Empfehlungen, 5min Auto-Refresh)
+  - Cron: snapshotPerformanceScores() täglich 03:05 UTC (nach Benchmark, vor Geo-Clustering)
+  - delivery/page.tsx: SectionCard "Performance Score (0–100)" mit Gauge-Icon + highlight in Live-Betrieb-Gruppe
+  - Build: pnpm run build ✓ (310 Seiten, 0 Fehler)
