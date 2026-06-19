@@ -115,6 +115,7 @@ import { rebuildZoneVehicleStatsAllLocations } from '@/lib/delivery/scoring-v2';
 import { snapshotAllLocations as snapshotLocationHealthScores, pruneOldHealthScores } from '@/lib/delivery/location-health-score';
 import { snapshotPunctualityAllLocations, pruneOldProfiles as prunePunctualityProfiles } from '@/lib/delivery/punctuality-coach';
 import { checkAllLocations as checkItemDemandAllLocations, pruneOldAlerts as pruneItemDemandAlerts } from '@/lib/delivery/item-demand-prediction';
+import { pruneSurveysAllLocations } from '@/lib/delivery/tour-terminal-survey';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -251,6 +252,8 @@ export async function GET(req: NextRequest) {
     const isPunctualityCoachTick = nowHour === 4 && nowMin >= 50 && nowMin < 54;
     // Phase 270: Item Demand Prediction — täglich 05:00 UTC
     const isItemDemandTick = nowHour === 5 && nowMin >= 0 && nowMin < 4;
+    // Phase 272: Tour-Terminal-Survey Prune — täglich 05:05 UTC (nach Item-Demand)
+    const isSurveyPruneTick = nowHour === 5 && nowMin >= 5 && nowMin < 9;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -873,6 +876,11 @@ export async function GET(req: NextRequest) {
       ? await pruneItemDemandAlerts(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 272: Tour-Terminal-Survey Prune — täglich 05:05 UTC
+    const surveyPruneResult = isSurveyPruneTick
+      ? await pruneSurveysAllLocations(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1066,6 +1074,7 @@ export async function GET(req: NextRequest) {
       ...(punctualityProfilesPruned ? { punctuality_profiles_pruned: punctualityProfilesPruned.pruned } : {}),
       ...(itemDemandResult ? { item_demand: { locations: itemDemandResult.locations, items_checked: itemDemandResult.itemsChecked, alerts_created: itemDemandResult.alertsCreated, alerts_resolved: itemDemandResult.alertsResolved, errors: itemDemandResult.errors } } : {}),
       ...(itemDemandAlertsPruned ? { item_demand_alerts_pruned: itemDemandAlertsPruned.pruned } : {}),
+      ...(surveyPruneResult ? { tour_survey_pruned: surveyPruneResult.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

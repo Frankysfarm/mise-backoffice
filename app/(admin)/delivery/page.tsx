@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck, Shuffle, GitBranch, Globe,
+  BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -357,6 +357,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Smart Pre-Positioning · Idle-Fahrer in Bedarfszonen lenken · Demand-basierte Empfehlungen" cta="Positioning öffnen" />
         <SectionCard href="/delivery/geo-clustering" icon={<Crosshair className="h-5 w-5" />} title="Geo-Clustering"
           subtitle="K-Means Hotspot-Analyse · Liefer-Cluster aus Echtdaten · Optimale Fahrer-Positionen" cta="Clustering öffnen" />
+        <SectionCard href="/delivery/tour-survey" icon={<MessageSquare className="h-5 w-5" />} title="Fahrer-Feedback-Terminal"
+          subtitle="Anonyme Post-Tour-Kurzumfrage · 3 Fragen · Stern-Rating 1–5 · Küchen- & Kunden-Feedback · 14-Tage-Trend" cta="Auswertung öffnen" highlight />
       </SectionGroup>
     </>
   );
