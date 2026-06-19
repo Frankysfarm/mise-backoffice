@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–273 abgeschlossen. Build sauber. 317 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–274 abgeschlossen. Build sauber. 319 Seiten. TypeScript 0 neue Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 274 — Fahrer-Rückkehr-Vorhersage API (Predictive Return-to-Base Engine). Build ✅ 319 Seiten, 0 neue Fehler.**
 **CEO-Agent Review #161 — 2026-06-19: 2 Bugs gefixt (TourZielpunktKarte useMemo nach return null — React-Hooks-Verletzung + DispatchTourZeitabweichung setLoading fehlte bei API-Erfolg). Phase 272+273 geprüft. Build ✅ 317 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 273 — Dispatch Live Score API + Smart Batch Monitor Engine. Build ✅ 317 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 272 — Fahrer-Feedback-Terminal API. Build TS-Check ✅ 0 neue Fehler.**
@@ -62,6 +63,60 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 274 — Fahrer-Rückkehr-Vorhersage API (Predictive Return-to-Base Engine) (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `scripts/migrations/140_driver_return_prediction.sql` — 1 Tabelle + 2 Views + 1 RPC + Trigger:
+  - `driver_return_predictions` (UNIQUE driver_id+date_trunc('minute', predicted_at), RLS): batch_id, predicted_at, estimated_return_utc, remaining_stops, total_stops, predicted_remaining_km, minutes_until_return, confidence (0–1), method (haversine/returning/fallback)
+  - `v_driver_return_latest` VIEW: DISTINCT ON (driver_id) — neueste Vorhersage je Fahrer mit Fahrer-Infos (name, vehicle, state, location_name)
+  - `v_drivers_returning_soon` VIEW: Fahrer die in den nächsten 15 Min zurückkehren
+  - `prune_old_return_predictions(p_days)` RPC: Cleanup älterer Vorhersagen (Default 3 Tage)
+  - `_trg_drp_updated_at` Trigger: updated_at automatisch bei UPDATE
+
+- `lib/delivery/driver-return-prediction.ts` — 6 Funktionen + 5 Typen:
+  - `predictDriverReturn(driverId, locationId)`: Einzelvorhersage — lädt Fahrer+Batch+Stops, berechnet Fahrzeit per Haversine (bike 18 km/h, car 30 km/h) + 3 Min Stopp-Overhead pro Stop, addiert Rückfahrt zur Location; Konfidenz: 0.8 (GPS < 5 Min), 0.5 (GPS alt), 0.3 (kein GPS); Fahrer ohne Batch = sofort verfügbar; Fahrer im Returning-State = Rückfahrt direkt von letzter GPS-Position; Upsert mit UNIQUE-Constraint (driver_id + Minute)
+  - `predictAllActiveDrivers(locationId)`: Batch-Vorhersage für alle aktiven Fahrer einer Location (state: assigned/at_restaurant/en_route/returning), parallel via Promise.allSettled
+  - `predictAllLocations()`: Cron-Batch aller aktiven Locations parallel
+  - `getReturnPredictionDashboard(locationId)`: v_driver_return_latest Query → 5 KPIs (active, ≤15Min, ≤30Min, avgMin, highConfidence≥0.75) + sortierte Prediction-Liste + returningSoon-Liste
+  - `getDriverReturnPrediction(driverId)`: Einzelfahrer-Letztvorhersage aus View
+  - `pruneOldPredictions(days?)`: RPC-Wrapper (Default 3 Tage)
+
+- `app/api/delivery/admin/return-prediction/route.ts`:
+  - GET `?action=dashboard` → Dashboard (Default)
+  - GET `?action=driver&driver_id=X` → Einzelfahrer-Vorhersage
+  - POST `action=predict` → Einzelvorhersage (driver_id required)
+  - POST `action=predict_all` → Batch-Vorhersage alle Fahrer
+  - POST `action=prune` → Cleanup (days optional)
+  - Auth via employees.location_id (oder ?location_id= Override)
+
+- `app/(admin)/delivery/return-prediction/page.tsx` + `client.tsx` — `ReturnPredictionClient`:
+  - **4 KPI-Karten**: Aktive Fahrer / Rückkehr < 15 Min (highlight) / Ø Rückkehr in Min / Hohe Konfidenz (≥ 75 %)
+  - **Returning-Soon-Banner**: Teal-Karte mit Fahrern < 15 Min — Pre-Assignment sofort möglich
+  - **Jetzt verfügbar**: Grüne Sektion für Fahrer ohne ausstehende Stops
+  - **Fahrer auf Tour**: Liste aller aktiv fahrenden Fahrer mit DriverCard:
+    - Fahrzeug-Icon (Bike/Car), Fahrername, Status-Badge + Konfidenz-Badge + Methoden-Badge
+    - Rückkehr-Uhrzeit (HH:MM) + "in X Min" Countdown
+    - Stop-Fortschrittsbalken (erledigte/Gesamt-Stops) + km-Schätzung
+  - **Empty State**: Fallback-Karte wenn keine aktiven Fahrer
+  - "Neu berechnen"-Button (POST predict_all) + 30s Auto-Refresh
+
+- `app/(admin)/delivery/page.tsx`: SectionCard "Rückkehr-Vorhersage" (RotateCcw-Icon) mit highlight in Fahrer-Gruppe, direkt nach Fahrer-Verwaltung
+
+- **Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`):
+  - Import: `predictAllLocations as predictDriverReturns` + `pruneOldPredictions as pruneReturnPredictions`
+  - Jeden 2-Min-Tick: `predictDriverReturns()` → Live-Vorhersagen für alle aktiven Fahrer aller Locations
+  - Täglich 05:15 UTC: `pruneReturnPredictions(3)` — nur 3-Tage-Retention (Vorhersagen veralten schnell)
+  - Neue Tick-Konstante `isReturnPredictionPruneTick`
+  - Response-Keys: `return_predictions` + `return_predictions_pruned`
+
+- TypeScript: 0 neue Fehler (npx tsc --noEmit zeigt nur pre-existing client.tsx JSX-Umgebungsfehler wie alle anderen Client-Dateien)
+- Build: npx next build ✓ (319 Seiten, 0 Fehler)
 
 ---
 

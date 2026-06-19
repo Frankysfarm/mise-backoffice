@@ -123,6 +123,8 @@ export default async function DeliveryOverviewPage() {
       <SectionGroup title="Fahrer">
         <SectionCard href="/drivers" icon={<Users className="h-5 w-5" />} title="Fahrer-Verwaltung"
           subtitle={`${driversCount ?? 0} Fahrer · ${activeDriversCount ?? 0} gerade online`} cta="Fahrer verwalten" />
+        <SectionCard href="/delivery/return-prediction" icon={<RotateCcw className="h-5 w-5" />} title="Rückkehr-Vorhersage"
+          subtitle="Predictive Return-to-Base · Wann kommt welcher Fahrer zurück · Pre-Assignment-Fenster" cta="Vorhersagen öffnen" highlight />
         <SectionCard href="/delivery/applications" icon={<UserPlus className="h-5 w-5" />} title="Fahrer-Bewerbungen"
           subtitle="Onboarding-Trichter · Bewerbungen prüfen und genehmigen" cta="Bewerbungen" />
         <SectionCard href="/delivery/compliance" icon={<ShieldCheck className="h-5 w-5" />} title="Compliance & Zertifizierungen"
