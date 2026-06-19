@@ -18,6 +18,7 @@ import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
+import { TourKpiSummary } from './tour-kpi-summary';
 import { FahrerNaviStrip } from './fahrer-navi-strip';
 import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
@@ -1081,6 +1082,16 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 currentSpeed={gpsSpeed}
                 started_at={activeBatch.started_at}
+              />
+            </div>
+          )}
+          {/* Tour-KPI-Summary: kompakte Leistungskennzahlen für die aktuelle Tour */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourKpiSummary
+                stops={activeBatch.stops as any}
+                batchStartedAt={activeBatch.started_at}
+                totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
             </div>
           )}

@@ -103,6 +103,7 @@ import { NachwuchsFahrerPanel } from './nachwuchs-fahrer-panel'
 import { LiveKpiAmpel } from './live-kpi-ampel'
 import { DeliveryHeatKalender } from './delivery-heat-kalender'
 import { SchichtProfilKarte } from './schicht-profil-karte'
+import { StundenHochrechnung } from './stunden-hochrechnung'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1074,6 +1075,8 @@ export function LieferdienstClient() {
               <NachwuchsFahrerPanel locationId={locationId ?? undefined} />
               {/* Phase 255: Bestellungs-Heatmap — 7 Tage × 24h GitHub-Style Heatmap der Bestelldichte */}
               <DeliveryHeatKalender locationId={locationId} />
+              {/* Stunden-Hochrechnung: Schicht-Prognose basierend auf aktuellem Tempo — Ziel vs. Prognose Gauge */}
+              <StundenHochrechnung />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}

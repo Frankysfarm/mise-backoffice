@@ -30,6 +30,7 @@ import { DELIVERY_FEE } from './components/types';
 import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinweis';
 import { BestellungFortschrittBand } from './components/bestellung-fortschritt-band';
 import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-shortcut';
+import { WarteschlangenIndikator } from './warteschlangen-indikator';
 
 type Props = {
   location: Location;
@@ -476,6 +477,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Live-Lieferzeit-Indikator */}
       {orderType === 'lieferung' && (
         <LiveEtaBar locationId={location.id} baseEtaMin={deliveryTimeMin} />
+      )}
+
+      {/* Warteschlangen-Indikator: zeigt aktuelle Auslastung + Wartezeit-Schätzung */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <WarteschlangenIndikator locationId={location.id} orderType="lieferung" />
+        </div>
       )}
 
       {/* Quick-Jump: Kategorie-Buttons oben, damit Kunden nicht scrollen müssen */}
