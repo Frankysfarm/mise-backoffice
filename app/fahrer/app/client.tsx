@@ -1028,12 +1028,13 @@ export function FahrerApp({
                   totalStops={activeBatch.stops.length}
                   onDelivered={async (stopId) => { await markDelivered(stopId); }}
                   onFailedAttempt={async (stopId, reason) => {
+                    const failedStop = activeBatch.stops.find((s) => s.id === stopId);
                     await fetch(`/api/delivery/tours/${activeBatch.id}/failed-attempt`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ stopId, reason }),
+                      body: JSON.stringify({ stop_id: stopId, order_id: failedStop?.order_id, reason }),
                     }).catch(() => {});
-                    await markDelivered(stopId);
+                    router.refresh();
                   }}
                 />
               </div>

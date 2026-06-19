@@ -35,7 +35,7 @@ export function KitchenSchichtZielStrip({ locationId }: { locationId?: string | 
       setData({
         targetOrders: d.targetOrders ?? 60,
         actualOrders: d.actualOrders ?? 0,
-        avgPrepMin: d.avgPrepMin ?? 0,
+        avgPrepMin: d.avgDeliveryMin ?? 0,
         onTimePct: d.onTimePct ?? 0,
         pace: d.pace ?? 'on_track',
         projectedOrders: d.projectedOrders ?? 0,
