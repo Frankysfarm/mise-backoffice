@@ -303,6 +303,8 @@ export default async function DeliveryOverviewPage() {
 
       {/* ── Probleme & Eskalation ────────────────────────────── */}
       <SectionGroup title="Probleme & Eskalation">
+        <SectionCard href="/delivery/order-rescue" icon={<ShieldCheck className="h-5 w-5" />} title="Order Rescue Engine"
+          subtitle="Stornierungen proaktiv verhindern · Risiko-Score · Auto-Interventionen · Umsatz schützen" cta="Rescue Engine" highlight />
         <SectionCard href="/delivery/incidents" icon={<ShieldAlert className="h-5 w-5" />} title="Vorfälle"
           subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow" cta="Vorfälle verwalten" />
         <SectionCard href="/delivery/failed-attempts" icon={<XCircle className="h-5 w-5" />} title="Fehlgeschlagene Zustellungen"

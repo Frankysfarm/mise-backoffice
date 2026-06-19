@@ -119,6 +119,7 @@ import { pruneSurveysAllLocations } from '@/lib/delivery/tour-terminal-survey';
 import { snapshotAllLocations as snapshotBatchHealth, pruneBatchHealthSnapshots } from '@/lib/delivery/smart-batch-monitor';
 import { predictAllLocations as predictDriverReturns, pruneOldPredictions as pruneReturnPredictions } from '@/lib/delivery/driver-return-prediction';
 import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions, autoDispatchAllLocations } from '@/lib/delivery/assignment-optimizer';
+import { runRescueAllLocations, pruneOldRescueEvents } from '@/lib/delivery/order-rescue';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -911,6 +912,15 @@ export async function GET(req: NextRequest) {
     // Phase 277: Auto-Dispatch — nach Suggestion-Build prüfen ob Score ≥ 85 + idle Fahrer
     const autoDispatchResult = await autoDispatchAllLocations().catch(() => []);
 
+    // Phase 306: Order Rescue Engine — proaktive Stornierungsprävention (jeden Tick)
+    // runRescueAllLocations() ruft intern trackOutcomes() je Location auf
+    const rescueResult = await runRescueAllLocations().catch(() => ({ locations: 0, rescued: 0 }));
+    // Prune alter Rescue-Events täglich 05:20 UTC
+    const isRescuePruneTick = nowHour === 5 && nowMin >= 20 && nowMin < 24;
+    const rescueEventsPruned = isRescuePruneTick
+      ? await pruneOldRescueEvents(30).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1112,6 +1122,8 @@ export async function GET(req: NextRequest) {
       ...(assignmentResult.length > 0 ? { assignment_optimizer: { locations: assignmentResult.length, suggestions: assignmentResult.reduce((s, r) => s + r.suggestionsCreated, 0) } } : {}),
       ...(assignmentExpired != null ? { assignment_expired: assignmentExpired } : {}),
       ...(autoDispatchResult.some((r) => r.dispatched > 0) ? { auto_dispatch: { locations: autoDispatchResult.length, dispatched: autoDispatchResult.reduce((s, r) => s + r.dispatched, 0), errors: autoDispatchResult.reduce((s, r) => s + r.errors, 0) } } : {}),
+      ...(rescueResult.rescued > 0 ? { order_rescue: { locations: rescueResult.locations, rescued: rescueResult.rescued } } : {}),
+      ...(rescueEventsPruned ? { rescue_events_pruned: rescueEventsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
