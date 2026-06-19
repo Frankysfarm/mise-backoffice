@@ -118,7 +118,7 @@ import { checkAllLocations as checkItemDemandAllLocations, pruneOldAlerts as pru
 import { pruneSurveysAllLocations } from '@/lib/delivery/tour-terminal-survey';
 import { snapshotAllLocations as snapshotBatchHealth, pruneBatchHealthSnapshots } from '@/lib/delivery/smart-batch-monitor';
 import { predictAllLocations as predictDriverReturns, pruneOldPredictions as pruneReturnPredictions } from '@/lib/delivery/driver-return-prediction';
-import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions } from '@/lib/delivery/assignment-optimizer';
+import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions, autoDispatchAllLocations } from '@/lib/delivery/assignment-optimizer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -908,6 +908,9 @@ export async function GET(req: NextRequest) {
       ? await expireOldSuggestions(1).catch(() => 0)
       : null;
 
+    // Phase 277: Auto-Dispatch — nach Suggestion-Build prüfen ob Score ≥ 85 + idle Fahrer
+    const autoDispatchResult = await autoDispatchAllLocations().catch(() => []);
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1108,6 +1111,7 @@ export async function GET(req: NextRequest) {
       ...(returnPredictionsPruned ? { return_predictions_pruned: returnPredictionsPruned.pruned } : {}),
       ...(assignmentResult.length > 0 ? { assignment_optimizer: { locations: assignmentResult.length, suggestions: assignmentResult.reduce((s, r) => s + r.suggestionsCreated, 0) } } : {}),
       ...(assignmentExpired != null ? { assignment_expired: assignmentExpired } : {}),
+      ...(autoDispatchResult.some((r) => r.dispatched > 0) ? { auto_dispatch: { locations: autoDispatchResult.length, dispatched: autoDispatchResult.reduce((s, r) => s + r.dispatched, 0), errors: autoDispatchResult.reduce((s, r) => s + r.errors, 0) } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

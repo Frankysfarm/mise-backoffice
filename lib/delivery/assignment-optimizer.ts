@@ -2,12 +2,14 @@
  * lib/delivery/assignment-optimizer.ts
  *
  * Phase 276 — Live Order Assignment Optimizer
+ * Phase 277 — Auto-Dispatch-Integration (score ≥ 85, Fahrer idle)
  *
  * Erweitert die Standard-Dispatch-Engine um Return-Prediction-Integration:
  *  - Berücksichtigt Fahrer, die in Kürze zurückkehren (Phase 274)
  *  - Erstellt Vorschläge (immediate / pre_assign / standby)
  *  - Score: Distanz 40 % + Auslastung 25 % + Rückkehr-Timing 20 % + Fahrzeug 15 %
  *  - Admin kann Vorschläge annehmen oder verwerfen
+ *  - Auto-Dispatch: Score ≥ 85 + Fahrer idle → automatische Tour-Erstellung
  *
  * Public API:
  *  buildAssignmentSuggestions(locationId)          — Vorschläge generieren + speichern
@@ -30,6 +32,8 @@ const PRE_ASSIGN_THRESHOLD_MIN = 20;
 const MAX_SUGGESTIONS_PER_ORDER = 3;
 /** Mindest-Score für Vorschläge (0–100) */
 const MIN_SCORE_THRESHOLD = 30;
+/** Ab diesem Score wird automatisch dispatcht (Phase 277) */
+const AUTO_DISPATCH_SCORE_THRESHOLD = 85;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -527,4 +531,169 @@ export async function expireOldSuggestions(hoursOld = 1): Promise<number> {
   const { data, error } = await svc.rpc('expire_old_assignment_suggestions', { p_hours: hoursOld });
   if (error) throw new Error(`expire_old_assignment_suggestions failed: ${error.message}`);
   return (data as number) ?? 0;
+}
+
+// ── Phase 277: Auto-Dispatch ──────────────────────────────────────────────────
+
+export interface AutoDispatchResult {
+  locationId: string;
+  dispatched: number;
+  skipped: number;
+  errors: number;
+}
+
+/**
+ * Dispatcht automatisch Bestellungen wenn Score ≥ 85 und Fahrer idle.
+ * Erstellt mise_delivery_batches + mise_delivery_batch_stops,
+ * updated customer_orders und setzt Vorschlag auf auto_dispatched.
+ */
+export async function autoDispatchHighScoreSuggestions(locationId: string): Promise<AutoDispatchResult> {
+  const svc = createServiceClient();
+  let dispatched = 0;
+  let skipped = 0;
+  let errors = 0;
+
+  // 1. Hochscorende immediate-Vorschläge mit idle-Fahrer laden
+  const { data: candidates } = await svc
+    .from('assignment_suggestions')
+    .select(`
+      id, order_id, driver_id, score, reason, distance_km, vehicle,
+      order:customer_orders!order_id(
+        id, location_id, bestellnummer, kunde_lat, kunde_lng, kunde_adresse,
+        status, mise_driver_id, mise_batch_id
+      ),
+      driver:mise_drivers!driver_id(id, name, state, vehicle, last_lat, last_lng, location_id)
+    `)
+    .eq('location_id', locationId)
+    .eq('status', 'pending')
+    .eq('suggestion_type', 'immediate')
+    .gte('score', AUTO_DISPATCH_SCORE_THRESHOLD)
+    .lt('expires_at', new Date(Date.now() + 15 * 60_000).toISOString())  // noch nicht abgelaufen
+    .gt('expires_at', new Date().toISOString())
+    .order('score', { ascending: false });
+
+  if (!candidates || candidates.length === 0) {
+    return { locationId, dispatched: 0, skipped: 0, errors: 0 };
+  }
+
+  // Location-Koordinaten laden
+  const { data: locRow } = await svc
+    .from('locations')
+    .select('id, lat, lng, adresse, plz, stadt, name')
+    .eq('id', locationId)
+    .single();
+
+  const locLat = (locRow as Record<string, unknown> | null)?.lat as number | null ?? null;
+  const locLng = (locRow as Record<string, unknown> | null)?.lng as number | null ?? null;
+  const locName = [(locRow as Record<string, unknown> | null)?.adresse, (locRow as Record<string, unknown> | null)?.plz, (locRow as Record<string, unknown> | null)?.stadt].filter(Boolean).join(', ')
+    || ((locRow as Record<string, unknown> | null)?.name as string | null)
+    || 'Restaurant';
+
+  // De-Duplizierung: pro Bestellung nur den besten Vorschlag dispatchen
+  const processedOrders = new Set<string>();
+
+  for (const raw of (candidates as Record<string, unknown>[])) {
+    const suggestionId = raw.id as string;
+    const order = raw.order as Record<string, unknown> | null;
+    const driver = raw.driver as Record<string, unknown> | null;
+
+    if (!order || !driver) { skipped++; continue; }
+
+    const orderId = order.id as string;
+    const driverId = driver.id as string;
+
+    // Bereits verarbeitet (duplicate suggestion für gleiche Bestellung)
+    if (processedOrders.has(orderId)) { skipped++; continue; }
+
+    // Bestellung bereits zugewiesen
+    if (order.mise_driver_id || order.mise_batch_id) { skipped++; continue; }
+
+    // Fahrer muss idle sein (live-check, nicht nur Vorschlag)
+    if (driver.state !== 'idle') { skipped++; continue; }
+
+    const kundeLat = order.kunde_lat as number | null;
+    const kundeLng = order.kunde_lng as number | null;
+
+    if (!kundeLat || !kundeLng) { skipped++; continue; }
+
+    processedOrders.add(orderId);
+
+    try {
+      // Neue Tour erstellen
+      const { data: newBatch, error: batchErr } = await svc
+        .from('mise_delivery_batches')
+        .insert({
+          driver_id:      driverId,
+          location_id:    locationId,
+          state:          'pending_acceptance',
+          dispatch_score: Number(raw.score),
+          stop_count:     2,
+        })
+        .select('id')
+        .single();
+
+      if (batchErr || !newBatch) {
+        errors++;
+        continue;
+      }
+
+      const batchId = (newBatch as { id: string }).id;
+
+      // Pickup + Dropoff Stops
+      await svc.from('mise_delivery_batch_stops').insert([
+        {
+          batch_id: batchId, order_id: orderId, type: 'pickup', sequence: 0,
+          lat: locLat, lng: locLng, address: locName,
+        },
+        {
+          batch_id: batchId, order_id: orderId, type: 'dropoff', sequence: 1,
+          lat: kundeLat, lng: kundeLng, address: order.kunde_adresse as string | null,
+        },
+      ]);
+
+      // Bestellung updaten
+      await svc
+        .from('customer_orders')
+        .update({ mise_batch_id: batchId, mise_driver_id: driverId })
+        .eq('id', orderId)
+        .is('mise_driver_id', null); // Optimistic-Lock: nur wenn noch nicht vergeben
+
+      // Vorschlag als auto_dispatched markieren
+      await svc
+        .from('assignment_suggestions')
+        .update({ status: 'auto_dispatched', resolved_at: new Date().toISOString() })
+        .eq('id', suggestionId);
+
+      // Andere pending-Vorschläge für diese Bestellung verwerfen
+      await svc
+        .from('assignment_suggestions')
+        .update({ status: 'dismissed', resolved_at: new Date().toISOString() })
+        .eq('order_id', orderId)
+        .eq('status', 'pending')
+        .neq('id', suggestionId);
+
+      dispatched++;
+    } catch {
+      errors++;
+    }
+  }
+
+  return { locationId, dispatched, skipped, errors };
+}
+
+/** Cron-Batch: Auto-Dispatch für alle aktiven Locations */
+export async function autoDispatchAllLocations(): Promise<AutoDispatchResult[]> {
+  const svc = createServiceClient();
+  const { data: locs } = await svc
+    .from('locations')
+    .select('id')
+    .eq('aktiv', true);
+
+  const results = await Promise.allSettled(
+    ((locs ?? []) as { id: string }[]).map((l) => autoDispatchHighScoreSuggestions(l.id)),
+  );
+
+  return results
+    .filter((r): r is PromiseFulfilledResult<AutoDispatchResult> => r.status === 'fulfilled')
+    .map((r) => r.value);
 }

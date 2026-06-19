@@ -19,6 +19,7 @@ import {
   acceptSuggestion,
   dismissSuggestion,
   expireOldSuggestions,
+  autoDispatchHighScoreSuggestions,
 } from '@/lib/delivery/assignment-optimizer';
 
 export const runtime = 'nodejs';
@@ -109,6 +110,12 @@ export async function POST(req: NextRequest) {
       const { data: locs } = await svc.from('locations').select('id').eq('aktiv', true);
       const count = await expireOldSuggestions(1);
       return NextResponse.json({ ok: true, expired: count, locations: (locs ?? []).length });
+    }
+
+    // Phase 277: Manueller Auto-Dispatch-Trigger (Score ≥ 85 + idle Fahrer)
+    if (action === 'auto_dispatch') {
+      const result = await autoDispatchHighScoreSuggestions(locationId);
+      return NextResponse.json({ ok: true, result });
     }
 
     return NextResponse.json({ error: 'Unbekannte Aktion' }, { status: 400 });

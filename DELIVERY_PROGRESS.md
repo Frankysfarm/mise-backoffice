@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–280 abgeschlossen. Build sauber. 320 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–280 + Phase 277 Backend + Phase 278 Backend abgeschlossen. Build sauber. 321 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 277 — Auto-Dispatch-Integration (Score ≥ 85 + idle Fahrer → automatische Tour-Erstellung). Phase 278 — Tour-Profit Backend-API (Deckungsbeitrag je Tour aus DB). Build ✅ 321 Seiten, 0 Fehler.**
 **CEO-Agent Review #164 — 2026-06-19: 2 Bugs gefixt (smart-kochstart-empfehlung.tsx bestellt_am null + lieferdienst-stats formatter unknown). Phase 277-280 Frontend geprüft. Build ✅ 320 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 277-280 — KitchenSmartKochstartEmpfehlung, DispatchEchtzeitGewinnPanel, SchichtZusammenfassungLive, LieferdienstStatsDashboard Prognose-Tab. Build ✅ 320 Seiten.**
 **CEO-Agent Review #163 — 2026-06-19: 0 Bugs. Phase 276 (Live Order Assignment Optimizer) geprüft. Build ✅ 320 Seiten, 0 Fehler.**
@@ -69,6 +70,76 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 277 — Auto-Dispatch-Integration (Score ≥ 85 + idle Fahrer) (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `scripts/migrations/142_auto_dispatch.sql` — 1 Tabelle + 1 View:
+  - `auto_dispatch_log`: Protokoll aller Auto-Dispatch-Versuche (suggestion_id, order_id, driver_id, batch_id, score, distance_km, vehicle, outcome: success/skipped/error, skip_reason)
+  - `v_auto_dispatch_stats` VIEW: Tages-Aggregation der letzten 30 Tage (total_attempts, successful, skipped, errors, avg_score, avg_distance_km)
+
+- `lib/delivery/assignment-optimizer.ts` — 2 neue Exports + Konstante:
+  - `AUTO_DISPATCH_SCORE_THRESHOLD = 85`: Schwellwert für automatischen Dispatch
+  - `autoDispatchHighScoreSuggestions(locationId)`: Kern-Funktion:
+    - Lädt alle `pending` + `immediate` Vorschläge mit Score ≥ 85 aus `assignment_suggestions`
+    - Filter: Noch nicht abgelaufen + Driver `idle` (Live-Check)
+    - De-Duplizierung: pro Bestellung nur der beste Vorschlag
+    - Erstellt `mise_delivery_batches` (state: `pending_acceptance`)
+    - Fügt 2 Stops in `mise_delivery_batch_stops` (pickup + dropoff)
+    - Updated `customer_orders` mit `mise_batch_id` + `mise_driver_id` (optimistic lock via `.is('mise_driver_id', null)`)
+    - Setzt Vorschlag auf `auto_dispatched`, andere pending-Vorschläge derselben Bestellung → `dismissed`
+    - Returns: `{ locationId, dispatched, skipped, errors }`
+  - `autoDispatchAllLocations()`: Cron-Batch für alle aktiven Locations (Promise.allSettled)
+
+- `app/api/delivery/admin/assignment-optimizer/route.ts`:
+  - Neuer POST `action=auto_dispatch` → `autoDispatchHighScoreSuggestions(locationId)` (manueller Trigger)
+
+- `app/api/cron/smart-dispatch/route.ts`:
+  - Import: `autoDispatchAllLocations` aus assignment-optimizer
+  - Jeden 2-Min-Tick: nach `buildAssignmentSuggestions()` → `autoDispatchAllLocations()` (nutzt frisch generierte Vorschläge)
+  - Response-Key `auto_dispatch`: `{ locations, dispatched, errors }` (nur wenn dispatched > 0)
+
+- TypeScript: 0 Fehler (npx tsc --noEmit ✓)
+- Build: npx next build ✓ (321 Seiten, 0 Fehler)
+
+---
+
+## Phase 278 — Dispatch Echtzeit-Gewinn Backend-API (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `lib/delivery/tour-profit.ts` — neue Library:
+  - Typen: `TourProfitItem`, `TourProfitDashboard`, `CostConfig`
+  - `costPerKm(vehicle, cfg)`: Fahrzeugklassen-Kostensatz aus delivery_cost_config
+  - `computeTourProfit(batch, stops, cfg)`: Berechnet je Batch:
+    - Revenue: Σ `gesamtbetrag` aus dropoff-Stops
+    - `costDriverTimeEur`: `(etaMin / 60) × cost_driver_hourly_eur`
+    - `costKmEur`: `total_distance_km × cost_per_km[vehicle]`
+    - `costStopEur`: `stops × (cost_packaging_eur + cost_insurance_per_del)`
+    - `profitEur` + `marginPct`
+  - `getTourProfitDashboard(locationId)`:
+    - Lädt `delivery_cost_config` pro Location (Fallback: DEFAULT_COST_CONFIG)
+    - Lädt aktive Batches (state: pending_acceptance/accepted/at_restaurant/en_route/returning/unterwegs/on_route) + Fahrer-Join
+    - Lädt alle Batch-Stops + Order-Join für Revenue
+    - Session-Totals: aktive Tours + abgeschlossene `delivery_trip_costs` der letzten 12h
+    - Gibt zurück: `activeTours[]`, `sessionTotals` (revenue/cost/profit/margin/completedTours/activeTours), `costConfig`
+
+- `app/api/delivery/admin/tour-profit/route.ts`:
+  - GET → `getTourProfitDashboard(locationId)`
+  - Auth via `employees.location_id` (oder `?location_id=` Override)
+  - Response: `{ ok, locationId, activeTours, sessionTotals, costConfig, generatedAt }`
+
+- **Frontend-Nutzung**: `DispatchEchtzeitGewinnPanel` (Phase 278 Frontend) kann jetzt auf echte DB-Werte via `/api/delivery/admin/tour-profit` umgestellt werden
+
+- TypeScript: 0 Fehler (npx tsc --noEmit ✓)
+- Build: npx next build ✓ (321 Seiten, 0 Fehler)
 
 ---
 
