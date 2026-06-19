@@ -1,7 +1,74 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–257 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (311 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–259 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (311 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #152 — 2026-06-19
+
+### Geprüfte Phasen: Phase 257 (Live-Countdown-Panel, Score-Live-Karten, Stop-Navigator) + Phase 258 (Fahrer-Score-Bonus-Trigger API)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (311 Seiten, 0 Fehler)
+
+**Code-Review Phase 257 — Frontend (3 neue Komponenten):**
+
+**KitchenLiveOrderCountdownPanel (`app/(admin)/kitchen/live-order-countdown-panel.tsx`):**
+- SVG CountdownRing mit korrekter strokeDasharray-Berechnung (arc = circ * secsLeft/totalSecs) ✅
+- Urgency-Levels: ok/watch/urgent/overdue mit Pulsieren bei overdue ✅
+- Fallback ohne timing: bestellt_am + geschaetzte_zubereitung_min als Basis ✅
+- Integration in kitchen/client.tsx: driverETAs werden aus batches/stops korrekt abgeleitet ✅
+- useTick-Pattern für 1s-Neurendering — Ringe und Countdown korrekt live ✅
+
+**DispatchScoreLivePanel (`app/(admin)/dispatch/dispatch-score-live.tsx`):**
+- fertigSec korrekt berechnet: `(Date.now() - new Date(fertig_am).getTime()) / 1000` ✅
+- avgScore: Division durch max(1, Anzahl-mit-Score) — kein Division-by-zero ✅
+- highScore: `(e.score ?? 0) >= 80` — null korrekt als 0 behandelt ✅
+- lowScore: `e.score != null`-Guard — null-Einträge ausgeschlossen ✅
+- Lazy-Loading der Score-Faktoren via click → `/api/delivery/orders/[id]/score` ✅
+- 10s-Tick für fertigSec-Refresh (kein Echtzeit-Overkill) ✅
+
+**TourStopNavigator (`app/fahrer/app/tour-stop-navigator.tsx`):**
+- mapsUrl: GPS-Koordinaten bevorzugt, Fallback auf Adresse, iOS/Android-Weiche ✅
+- EtaCountdown: sekündlicher Tick, overdue-Styling + Pulsieren korrekt ✅
+- pendingStops[0] als nextStop — Reihenfolge nach stops.reihenfolge (vorbereitet) ✅
+- kitchenStatuses: fertig/unterwegs markiert Kitchen-Ready-Chip ✅
+- onMarkDelivered-Callback korrekt weitergereicht ✅
+- Integration in fahrer/app/client.tsx: stops aus activeBatch.stops ✅
+
+**Code-Review Phase 258 — Backend (Score-Bonus-Trigger API):**
+
+**`lib/delivery/driver-score-trigger.ts`:**
+- evaluateScoreTriggersForLocation: aktive Trigger laden → driver_composite_scores → UPSERT Grants idempotent (ignoreDuplicates=true) ✅
+- resolved_eur bei flat_eur direkt befüllt, bei provision_pct durch Client berechnet ✅
+- getScoreTriggerDashboard: 3 parallele Supabase-Queries (triggers, grants, KPIs) via Promise.all ✅
+- updateGrantStatus: approved/paid/cancelled — Berechtigungsprüfung via locationId ✅
+- pruneOldGrants: löscht paid/cancelled älter als N Tage — Cron-sicher ✅
+
+**`app/api/delivery/admin/score-bonus-triggers/route.ts`:**
+- resolveLocationId korrekt: `.eq('auth_user_id', user.id)` — konsistent mit Codebase ✅
+- GET: action=dashboard|triggers|grants|evaluate korrekt geroutet ✅
+- POST: create_trigger, update_trigger, delete_trigger, update_grant, prune, evaluate ✅
+- Cron-Integration: isScoreTriggerTick 03:10 UTC täglich ✅
+
+**Bugs gefunden:** 0 ✅
+
+### Status nach Review #152
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (311 Seiten)
+- Phase 257 (3 Frontend-Komponenten): DONE ✅
+- Phase 258 (Score-Bonus-Trigger API): DONE ✅
+- Bugs gefixt: 0
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 259: Fahrer-Score-Bonus Admin-Dashboard — UI zum Verwalten von Trigger-Configs + Grant-Übersicht mit Approve/Pay-Aktionen
+2. Oder: Phase 259: Tour-Abschluss-Analyse API — Auswertung abgeschlossener Touren (Pünktlichkeit, Km, Stops, Abweichungen)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 259: Score-Bonus-Dashboard Frontend — Trigger-Liste + Grant-Tabelle mit Aktionsbuttons (Approve/Pay/Cancel)
+2. Oder: Phase 259: Fahrer-Tour-Abschluss-Screen — Zusammenfassung nach Tour-Ende (Score, Km, Tipps, Bonus-Vorschau)
 
 ---
 
