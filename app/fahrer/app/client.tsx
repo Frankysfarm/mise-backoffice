@@ -92,6 +92,7 @@ import { LieferungCheckliste } from './lieferung-checkliste';
 import { FahrerPushStatusKarte } from './push-status-karte';
 import { TourStoppUebersicht } from './tour-stopp-uebersicht';
 import { FahrerStopVerificationPanel } from './stop-verification-panel';
+import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
 
 type Driver = {
   id: string;
@@ -1975,6 +1976,13 @@ export function FahrerApp({
 
         {/* Wochen-Ranking — nur sichtbar wenn kein aktiver Batch und online */}
         {!activeBatch && isOnline && <FahrerRankingCard />}
+
+        {/* Phase 309: Dispatch-Nachrichten — Betriebsnachrichten und Alerts vom Dispatch */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerDispatchNachrichten />
+          </div>
+        )}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (

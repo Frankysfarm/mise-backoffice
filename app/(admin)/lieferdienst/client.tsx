@@ -118,6 +118,7 @@ import { SurgeAnalysePanel } from './surge-analyse-panel'
 import { SchichtKennzahlenCockpit } from './schicht-kennzahlen-cockpit'
 import { TagesZielCockpit } from './tages-ziel-cockpit'
 import { SchichtzielKonfigPanel } from './schichtziel-konfig-panel'
+import { PersonalPlanungMatrix } from './personal-planung-matrix'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1115,6 +1116,8 @@ export function LieferdienstClient() {
               <TagesZielCockpit locationId={locationId} />
               {/* Phase 308: Schichtziel-Konfigurator — Ziele je Standort setzen (Bestellungen, Umsatz, Schichtdauer) */}
               <SchichtzielKonfigPanel locationId={locationId} />
+              {/* Phase 309: Personal-Planungs-Matrix — stündliche Nachfrage vs. Fahreranzahl nächste 8h */}
+              <PersonalPlanungMatrix locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

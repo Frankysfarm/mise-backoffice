@@ -147,6 +147,7 @@ import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
 import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
 import { DispatchTourScoreLivePanel } from './tour-score-live-panel';
 import { DispatchTourStopMatrix } from './tour-stop-matrix';
+import { DispatchKapazitaetsPuffer } from './kapazitaets-puffer';
 
 type Driver = {
   employee_id: string;
@@ -1445,6 +1446,8 @@ export function DispatchBoard({
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
       {/* Phase 308: Tour-Stop-Matrix — alle aktiven Touren mit Stop-Fortschritt, ETA-Abweichung, Farbkodierung */}
       {batches.length > 0 && <DispatchTourStopMatrix batches={batches as any} />}
+      {/* Phase 309: Kapazitäts-Puffer — Restkapazität der Lieferflotte in Echtzeit */}
+      <DispatchKapazitaetsPuffer drivers={drivers} pendingOrders={readyOrders.length} />
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (

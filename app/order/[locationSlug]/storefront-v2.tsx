@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ArrowLeft, Share2, Star, Plus, Minus, ShoppingBag, Store, Truck, Search, X, Clock } from 'lucide-react';
 import { BestellVertrauensBadge } from './components/bestell-vertrauens-badge';
 import { OrderStatusStepBand } from './components/order-status-step-band';
+import { LieferzonenStatusKarte } from './components/liefer-zonen-status';
 
 export type V2OrderType = 'lieferung' | 'abholung';
 
@@ -367,6 +368,10 @@ export function StorefrontV2({
 
         {/* Phase 238: Vertrauens-Badge — Pünktlichkeit, Lieferzeit, Bewertung */}
         <BestellVertrauensBadge locationSlug={tenant.slug} />
+        {/* Phase 309: Lieferzone-Status — Verfügbarkeit und ETA-Fenster der aktuellen Zone */}
+        <div style={{ padding: '0 1rem 0.5rem' }}>
+          <LieferzonenStatusKarte locationSlug={tenant.slug} />
+        </div>
 
         {/* Geteilter Tracking-Link — zeigt Bestellstatus wenn ?track=ORDER_ID in URL */}
         <SharedTrackingBannerV2 />
