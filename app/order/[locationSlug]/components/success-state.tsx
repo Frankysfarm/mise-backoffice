@@ -15,6 +15,7 @@ import { BestellungLiveEtaBanner } from './bestellung-live-eta-banner';
 import { LieferversrechenWidget } from './lieferversprechen-widget';
 import { EtaSekundenCountdown } from '../eta-sekunden-countdown';
 import { EtaVertrauenWidget } from './eta-vertrauen-widget';
+import { ZubereitungsFortschritt } from './zubereitungs-fortschritt';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -637,6 +638,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && liveStatus !== 'geliefert' && (
           <div className="mt-4 w-full">
             <EtaTrackerCard orderId={orderId} bestellnummer={bestellnummer} initialStatus={liveStatus} />
+          </div>
+        )}
+
+        {/* Phase 255: Zubereitungs-Fortschritt — Küchenzeit + Fahrzeit als geteilten Fortschrittsbalken */}
+        {isDelivery && (
+          <div className="mt-4 w-full">
+            <ZubereitungsFortschritt
+              prepMin={etaMinutes > 10 ? Math.round(etaMinutes * 0.55) : Math.max(5, etaMinutes - 5)}
+              driveMin={etaMinutes > 10 ? Math.round(etaMinutes * 0.45) : 5}
+              status={liveStatus}
+              orderedAt={null}
+            />
           </div>
         )}
 

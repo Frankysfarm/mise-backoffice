@@ -126,6 +126,7 @@ import { RealtimeGpsDashboard } from './realtime-gps-dashboard';
 import { DispatchZuweisungsVorschau } from './zuweisungs-vorschau';
 import { DispatchFahrerRampUpStrip } from './fahrer-ramp-up-strip';
 import { TourLieferzeitRangliste } from './tour-lieferzeit-rangliste';
+import { DispatchPerformanceScoreArc } from './performance-score-arc';
 
 type Driver = {
   employee_id: string;
@@ -972,6 +973,9 @@ export function DispatchBoard({
 
       {/* Phase 214: Qualitäts-Score-Widget — Note A–F mit Dimensionsaufschlüsselung für Dispatcher */}
       <DispatchQualityScoreWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 255: Performance-Score-Arc — Gesamt-Delivery-Score (0-100) mit Arc-Gauge + Trend + 4 Dimensionen */}
+      <DispatchPerformanceScoreArc locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 233: Fahrer-Performance-Vorhersage — KI-Prognose für heute mit Tier-Einstufung */}
       <FahrerVorhersageDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

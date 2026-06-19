@@ -70,6 +70,7 @@ import { KassenUebersicht } from './kassen-uebersicht';
 import { SchichtBonusBooster } from './schicht-bonus-booster';
 import { FahrerAnkunftsSignal } from './ankunfts-signal';
 import { FahrerRampUpFortschritt } from './ramp-up-fortschritt';
+import { FahrerRichtungsAnzeige } from './richtungs-anzeige';
 
 type Driver = {
   id: string;
@@ -1016,6 +1017,16 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 255: Richtungs-Anzeige — Kompass-Pfeil + Luftlinien-Distanz zum nächsten Stopp */}
+          {driverPos && (
+            <div className="px-4">
+              <FahrerRichtungsAnzeige
+                stops={activeBatch.stops as any}
+                driverLat={driverPos.lat}
+                driverLng={driverPos.lng}
+              />
+            </div>
+          )}
           {/* Phase 249: Ankunfts-Signal — Kunden mit einem Tap über Ankunft informieren */}
           {(() => {
             const nextStop = activeBatch.stops.find(s => !s.geliefert_am);

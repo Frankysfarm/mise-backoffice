@@ -76,6 +76,7 @@ import { KitchenTimingFarbkodierung } from './timing-farbkodierung';
 import { KitchenSchichtKochzeitAnalyse } from './schicht-kochzeit-analyse';
 import { KitchenNeuerFahrerWarning } from './neuer-fahrer-warnung';
 import { KitchenSchichtBurndown } from './schicht-burndown';
+import { KitchenStundenNachfrageStrip } from './stunden-nachfrage-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -755,6 +756,11 @@ export function KitchenBoard({
 
       {/* Schicht-Burndown: Fertigstellungs-Verlauf vs. Ziel-Tempo */}
       {!bigDisplay && <KitchenSchichtBurndown orders={filtered} completedToday={completedToday} />}
+
+      {/* Phase 255: Stunden-Nachfrage-Strip — Bestelldichte letzte 12h als Mini-Balken + Stoßzeit-Erkennung */}
+      {!bigDisplay && (
+        <KitchenStundenNachfrageStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
 
       {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}
       <KitchenEfficiencyPanel orders={filtered} />
