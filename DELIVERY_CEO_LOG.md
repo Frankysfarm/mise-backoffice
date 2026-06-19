@@ -1,7 +1,50 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–264 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–265 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (314 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #156 — 2026-06-19
+
+### Geprüfte Phasen: Phase 264 (Location-Gesundheits-Score API) + Phase 265 (5 Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (314 Seiten, 0 Fehler)
+
+**Code-Review Phase 264 Backend (Location-Gesundheits-Score):**
+- `lib/delivery/location-health-score.ts`: 4-Dimensionen-Score (Pünktlichkeit 40% / Fahrerverfügbarkeit 25% / Storno 20% / Rating 15%), Grade A+–F, weakestDimension, trend up/stable/down ✅
+- `snapshotAllLocations()` Cron-Batch 03:15 UTC + pruneOldHealthScores() täglich ✅
+- `getLocationHealthDashboard()`: parallel latest + 30-Tage-Trend + Multi-Location-Ranking + Empfehlungen ✅
+- `app/(admin)/delivery/location-health/page.tsx` + `client.tsx`: ScoreArc-Gauge + 4 DimBars + Verlauf-LineChart + Multi-Standort-Ranking ✅
+
+**Code-Review Phase 265 Frontend (5 Komponenten):**
+- `KitchenKategorieAuslastung`: Artikel-Cluster nach Kategorie mit Regex-Pattern-Detection, Auslastungsbalken, Hoch-Alert bei ≥4 Artikeln ✅
+- `DispatchTourRückkehrFenster`: Echtzeit-Fenster für Fahrerrückkehr, Ampelstatus (grün <5 Min / gelb 5–20 Min / blau >20 Min), 30s Auto-Refresh ✅
+- `SchichtKostenErtragBilanz`: Umsatz vs. Fahrerkosten + Deckungsbeitrag-Marge als SVG-Halbkreis-Gauge, 2min Polling ✅ (Bug gefixt)
+- `TourZeitplanFahrer`: Chronologische Tour-Zeitlinie mit ETA-Uhrzeiten je Stop, 5s Auto-Refresh ✅
+- `LoyaltyPunkteWidget`: Treuepunkte nach Bestellabschluss, Tier-Progress Bronze→Platin, animierter Slide-In ✅
+- Alle Komponenten korrekt in Kitchen/Dispatch/Lieferdienst/Fahrer-App/Storefront integriert ✅
+
+**Bug gefunden & gefixt:**
+1. `profitability_shift`-Aktion fehlte in `/api/delivery/admin/profitability/route.ts` — `SchichtKostenErtragBilanz` bekam falsche Datenstruktur (`ProfitabilityDashboard` statt `BilanzData`) → NaN-Werte in UI. → `profitability_shift`-Case hinzugefügt: mappt `summary.revenueEur → umsatz`, `costEur → kosten/fahrerpauschale`, `profitEur → marge`, `marginPct → margePct`, `totalOrders → lieferungenAnzahl` ✅
+
+**Bugs gefunden gesamt:** 1 — GEFIXT ✅
+
+### Status nach Review #156
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (314 Seiten)
+- Phase 264 + Phase 265: DONE ✅
+- Bugs gefixt: 1
+
+### Nächste Schritte für Backend-Architekt (Phase 266)
+1. **Delivery Webhook Engine Admin-UI**: Webhook-Liste + Test-Button + Delivery-Log. Die `webhooks.ts` lib + API existieren aus Phase 25, aber die Client-UI für `admin/webhooks` braucht eine moderne Überarbeitung mit Tabs (Webhooks / Delivery-Log / Statistiken)
+2. Oder: **Tour-Archiv & Export**: Abgeschlossene Touren als CSV/PDF exportieren (Datum, Fahrer, Stops, Ø Lieferzeit, Score), Archiv-Seite mit Filterung
+
+### Nächste Schritte für Frontend-Ingenieur (Phase 266)
+1. 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Lieferdienst/Fahrer/Storefront
+2. Vorschlag: Kitchen-Priorisierungsampel (dringende Bestellungen oben), Dispatch-Fahrzeugstatus-Übersicht, Lieferdienst-Stundenplanung, Fahrer-Einnahmen-Dashboard, Storefront-Lieferzonen-Auswahl
 
 ---
 

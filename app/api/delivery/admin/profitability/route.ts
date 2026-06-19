@@ -41,6 +41,19 @@ export async function GET(req: NextRequest) {
     }
 
     const dashboard = await getDashboard(locationId);
+
+    if (action === 'profitability_shift') {
+      const s = dashboard.summary;
+      return NextResponse.json({
+        umsatz:           s.revenueEur,
+        kosten:           s.costEur,
+        marge:            s.profitEur,
+        margePct:         s.marginPct ?? 0,
+        fahrerpauschale:  s.costEur,
+        lieferungenAnzahl: s.totalOrders,
+      });
+    }
+
     return NextResponse.json(dashboard);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
