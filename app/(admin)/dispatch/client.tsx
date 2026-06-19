@@ -110,6 +110,7 @@ import { TourCo2Tracker, type Co2TourInput } from './tour-co2-tracker';
 import { DispatchTourScoreTimeline } from './tour-score-timeline';
 import { TourLiveScoreStrip } from './tour-live-score-strip';
 import { DispatchIncentiveMilestoneStrip } from './incentive-milestone-strip';
+import { DispatchTourScoreVergleich } from './tour-score-vergleich';
 import { DispatchNaechsteTourEmpfehlung } from './naechste-tour-empfehlung';
 import { DispatchReadinessHUD } from './dispatch-readiness-hud';
 import { DispatchFahrerWellbeingStrip } from './fahrer-wellbeing-strip';
@@ -942,6 +943,8 @@ export function DispatchBoard({
       <DispatchTourScoreTimeline batches={batches as any} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
+      {/* Phase 260: Tour-Score-Vergleich — Fahrer-Ranking mit Subscores Pünktlichkeit/Effizienz/Kunde */}
+      {locations[0]?.id && <DispatchTourScoreVergleich locationId={locations[0].id} />}
       {/* Phase 210: CO₂-Tracker — Emissionseinsparung je aktiver Tour (Fahrrad/E-Bike-Bonus) */}
       {batches.filter(b => (b.status === 'unterwegs' || b.status === 'on_route') && (b.total_distance_km ?? 0) > 0).length > 0 && (
         <TourCo2Tracker tours={batches

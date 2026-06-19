@@ -79,6 +79,7 @@ import { KitchenSchichtBurndown } from './schicht-burndown';
 import { KitchenStundenNachfrageStrip } from './stunden-nachfrage-strip';
 import { PrepTicketKacheln } from './prep-ticket-kacheln';
 import { KitchenLiveOrderCountdownPanel } from './live-order-countdown-panel';
+import { KitchenTimingAmpelLive } from './timing-ampel-live';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -575,6 +576,10 @@ export function KitchenBoard({
       />
       {/* Timing-Farbkodierung: Kompaktes Kachel-Raster aller aktiven Bestellungen mit Countdown-Labels */}
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
+      {/* Phase 260: Timing-Ampel Live — Alle aktiven Bestellungen mit Countdown + Farbcodierung */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenTimingAmpelLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      )}
       {/* Phase 247: Schicht-Kochzeit-Analyse — Pünktlichkeitsquote + Abweichungs-Chart */}
       <KitchenSchichtKochzeitAnalyse orders={filtered} timings={timings} />
       {/* Phase 251: Neue Fahrer mit Coaching-Bedarf — Amber-Warnung bei struggling drivers */}

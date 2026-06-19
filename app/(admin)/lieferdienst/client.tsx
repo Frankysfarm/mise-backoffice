@@ -102,6 +102,7 @@ import { ZonenAktivitaetsStrip } from './zonen-aktivitaets-strip'
 import { NachwuchsFahrerPanel } from './nachwuchs-fahrer-panel'
 import { LiveKpiAmpel } from './live-kpi-ampel'
 import { DeliveryHeatKalender } from './delivery-heat-kalender'
+import { SchichtProfilKarte } from './schicht-profil-karte'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1031,6 +1032,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 260: Schicht-Profil-Karte — Stündliche Verteilung + KPI-Summary der aktuellen Schicht */}
+              <SchichtProfilKarte locationId={locationId} />
               {/* Phase 222: Incentive-Tages-Übersicht — Fahrer-Bonus-Pool, genehmigt/ausstehend, Top-Verdiener */}
               <IncentiveTagesUebersicht locationId={locationId} />
               {/* Schicht-Verlaufs-Kurve: Dual-Axis Lieferverlauf + Health-Score */}

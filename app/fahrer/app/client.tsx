@@ -73,6 +73,7 @@ import { FahrerRampUpFortschritt } from './ramp-up-fortschritt';
 import { FahrerRichtungsAnzeige } from './richtungs-anzeige';
 import { TourFertigPrognose } from './tour-fertig-prognose';
 import { TourStopNavigator } from './tour-stop-navigator';
+import { TourNavigationsCockpit } from './tour-navigations-cockpit';
 
 type Driver = {
   id: string;
@@ -1102,6 +1103,12 @@ export function FahrerApp({
                 pending={pending}
                 kitchenStatuses={kitchenStatuses}
               />
+            </div>
+          )}
+          {/* Phase 260: Tour-Navigations-Cockpit — Stop-Liste mit Expand, Anruf, Navigation, ETA */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourNavigationsCockpit driverId={driver.id} batchId={(activeBatch as any).id ?? null} />
             </div>
           )}
           {/* Phase 257: Tour-Fertig-Prognose — wann endet die Tour + Schicht-Vergleich */}

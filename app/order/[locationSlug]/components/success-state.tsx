@@ -16,6 +16,7 @@ import { LieferversrechenWidget } from './lieferversprechen-widget';
 import { EtaSekundenCountdown } from '../eta-sekunden-countdown';
 import { EtaVertrauenWidget } from './eta-vertrauen-widget';
 import { ZubereitungsFortschritt } from './zubereitungs-fortschritt';
+import { EtaPulseBanner } from '../eta-pulse-banner';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -603,6 +604,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               status={liveStatus}
               etaLatest={etaWindow?.latest ?? null}
               driverName={driverName}
+            />
+          </div>
+        )}
+        {/* Phase 260: ETA-Pulse-Banner — pulsierender Echtzeit-Status + Countdown */}
+        {orderId && (
+          <div className="mt-4 w-full">
+            <EtaPulseBanner
+              orderId={orderId}
+              initialEtaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : null}
+              initialStatus={liveStatus}
             />
           </div>
         )}
