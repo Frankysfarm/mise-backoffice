@@ -13,7 +13,7 @@
  * Ampel: 🔴 JETZT starten | 🟡 In X Min starten | 🟢 Noch Zeit
  */
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChefHat, Clock, Zap, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -107,7 +107,7 @@ function calcActions(orders: Order[], timings: Timing[], batches: Batch[]): Cook
     .sort((a, b) => a.startInMin - b.startInMin);
 }
 
-const URGENCY_CONFIG = {
+const URGENCY_CONFIG: Record<Urgency, { bg: string; badge: string; icon: React.ReactElement; label: string; ring: string; pulse: boolean }> = {
   critical: {
     bg: 'bg-red-50 border-red-400',
     badge: 'bg-red-500 text-white',
@@ -129,6 +129,14 @@ const URGENCY_CONFIG = {
     badge: 'bg-matcha-600 text-white',
     icon: <CheckCircle2 size={16} />,
     label: 'GENUG ZEIT',
+    ring: '',
+    pulse: false,
+  },
+  done: {
+    bg: 'bg-gray-50 border-gray-200',
+    badge: 'bg-gray-400 text-white',
+    icon: <CheckCircle2 size={16} />,
+    label: 'FERTIG',
     ring: '',
     pulse: false,
   },
