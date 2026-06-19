@@ -5,6 +5,60 @@
 
 ---
 
+## CEO-Review #163 — 2026-06-19
+
+### Geprüfte Phase: Phase 276 — Live Order Assignment Optimizer
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (320 Seiten, 0 Fehler)
+
+**Code-Review Phase 276 Backend — Live Order Assignment Optimizer:**
+- Migration 141: `assignment_suggestions` (UNIQUE order_id+driver_id, RLS, updated_at Trigger, 4 Indizes), `v_assignment_suggestions_active` (JOIN customer_orders+mise_drivers, nur pending+not expired), `v_assignment_optimizer_summary` (24h-Fenster, GROUP BY location), `expire_old_assignment_suggestions` RPC — korrekt ✅
+- `lib/delivery/assignment-optimizer.ts`: `computeScore()` 4-Faktoren-Modell (Distanz 40%+Auslastung 25%+Timing 20%+Fahrzeug 15%), Summe ≤100, Clamp korrekt ✅
+- Score-Typen: immediate (sofort verfügbar) / pre_assign (≤20 Min Rückkehr) / standby (Reserve) — Typ-Logik konsistent ✅
+- `buildAssignmentSuggestions()`: TOP-3 Fahrer je Bestellung, MIN_SCORE_THRESHOLD=30, alte pending-Vorschläge werden expired, Upsert ON CONFLICT (order_id+driver_id) — korrekt ✅
+- `buildSuggestionsAllLocations()`, `acceptSuggestion()`, `dismissSuggestion()`, `getSuggestionDashboard()`, `getActiveSuggestions()`, `expireOldSuggestions()` — alle 6 Exports vollständig ✅
+- Return-Prediction-Integration: neueste `driver_return_predictions` (max 10 Min alt) per Fahrer via Map — korrekt ✅
+
+**Code-Review Phase 276 Frontend — AssignmentOptimizerClient:**
+- 4 KPI-Karten: Offene Vorschläge / Sofort verfügbar / Bald frei / Ø Score (akzeptiert) ✅
+- 3 Sections: Sofort zuweisen (immediate) / Vorab zuweisen (pre_assign) / Reserve (standby) ✅
+- SuggestionCard: Score-Balken, Typ-Badge, Fahrer-Info (Fahrzeug+Status+Rückkehrzeit), Bestellung (Adresse+Betrag+Distanz), Grund-Text, Konfidenz-Badge, Ablaufzähler, Annehmen/Verwerfen ✅
+- 30s Auto-Refresh + "Neu generieren" Button, Interval-Cleanup korrekt ✅
+
+**API-Route `/api/delivery/admin/assignment-optimizer`:**
+- GET (dashboard/suggestions), POST (generate/accept/dismiss/expire) — vollständig ✅
+- Auth via `employees.location_id` — korrekt ✅
+
+**Cron-Integration (`app/api/cron/smart-dispatch/route.ts`):**
+- `buildSuggestionsAllLocations()` jeden Tick (Zeile 906) ✅
+- `expireOldSuggestions(1)` stündlich (Zeile 908) ✅
+
+**Delivery-Overview Integration:**
+- `delivery/page.tsx`: SectionCard "Zuweisung-Optimizer (KI)" mit Crosshair-Icon ✅
+
+**Beobachtungen / Kleinigkeiten (keine Bugs):**
+- `v_assignment_suggestions_active` enthält kein `resolved_at`-Feld (pending-Vorschläge haben es immer null) — TypeScript-Cast gibt `undefined` statt `null`, nicht sichtbar im UI da resolvedAt nicht gerendert wird ✅
+- `expire`-Action im POST holt `locs`-Count für Response aber nicht für Logik — harmlose Redundanz ✅
+
+**Bugs gefunden:** 0
+
+### Status nach Review #163
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (320 Seiten)
+- Phase 276 (Live Order Assignment Optimizer): DONE ✅
+- Bugs gefixt: 0
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 277: Auto-Dispatch-Integration — Assignment Optimizer → automatische Zuweisung wenn Score ≥85 + Fahrer idle (auto_dispatched Status nutzen)
+2. Oder: Phase 277: Multi-Stop-Batching Optimizer — optimale Batch-Zusammenstellung (2-3 Stops) basierend auf Geo-Proximity
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 277: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+
+---
+
 ## CEO-Review #162 — 2026-06-19
 
 ### Geprüfte Phasen: Phase 274 (Fahrer-Rückkehr-Vorhersage API) + Phase 275 (5 Frontend-Komponenten — KI-Rückkehr-Prognose UI)
