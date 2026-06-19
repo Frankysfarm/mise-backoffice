@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { fireStatusPush } from '@/lib/delivery/status-push-bridge';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,12 +25,18 @@ export async function POST(
     .eq('id', id)
     .eq('mise_driver_id', driverId)
     .in('status', ['fertig'])
-    .select('id, status, mise_driver_id')
+    .select('id, status, mise_driver_id, location_id')
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: 'Order nicht abholbereit / nicht zugewiesen' }, { status: 409 });
 
   await svc.from('mise_drivers').update({ state: 'en_route' }).eq('id', driverId);
+
+  // Phase 303: Push-Benachrichtigung "Deine Bestellung ist unterwegs"
+  if (data.location_id) {
+    fireStatusPush(id, 'unterwegs', data.location_id as string).catch(() => {});
+  }
+
   return NextResponse.json({ ok: true, order: data });
 }

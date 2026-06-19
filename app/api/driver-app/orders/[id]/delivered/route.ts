@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { recordDelivery } from '@/lib/delivery/driver-streaks';
+import { fireStatusPush } from '@/lib/delivery/status-push-bridge';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,9 @@ export async function POST(
       ? deliveredAt <= (data.eta_latest as string)
       : true;
     recordDelivery(data.location_id as string, driverId, id, wasOnTime).catch(() => {});
+
+    // Phase 303: Push-Benachrichtigung "Bestellung geliefert!" + Rating-Request
+    fireStatusPush(id, 'geliefert', data.location_id as string).catch(() => {});
   }
 
   return NextResponse.json({ ok: true, order: data });
