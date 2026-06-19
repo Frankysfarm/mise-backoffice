@@ -120,6 +120,7 @@ import { snapshotAllLocations as snapshotBatchHealth, pruneBatchHealthSnapshots 
 import { predictAllLocations as predictDriverReturns, pruneOldPredictions as pruneReturnPredictions } from '@/lib/delivery/driver-return-prediction';
 import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions, autoDispatchAllLocations } from '@/lib/delivery/assignment-optimizer';
 import { runRescueAllLocations, pruneOldRescueEvents } from '@/lib/delivery/order-rescue';
+import { runBalancerAllLocations, pruneZoneCapacitySnapshots } from '@/lib/delivery/zone-capacity-balancer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -921,6 +922,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldRescueEvents(30).catch(() => 0)
       : null;
 
+    // Phase 307: Zone Capacity Balancer — Zonen-Kapazitäts-Snapshot + Rebalancing-Empfehlungen
+    const balancerResult = await runBalancerAllLocations().catch(() => ({ locations: 0, snapshots: 0, suggestions: 0, errors: 0 }));
+    // Prune alte Zonen-Snapshots täglich 05:30 UTC
+    const isBalancerPruneTick = nowHour === 5 && nowMin >= 30 && nowMin < 34;
+    const balancerSnapshotsPruned = isBalancerPruneTick
+      ? await pruneZoneCapacitySnapshots(7).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1124,6 +1133,8 @@ export async function GET(req: NextRequest) {
       ...(autoDispatchResult.some((r) => r.dispatched > 0) ? { auto_dispatch: { locations: autoDispatchResult.length, dispatched: autoDispatchResult.reduce((s, r) => s + r.dispatched, 0), errors: autoDispatchResult.reduce((s, r) => s + r.errors, 0) } } : {}),
       ...(rescueResult.rescued > 0 ? { order_rescue: { locations: rescueResult.locations, rescued: rescueResult.rescued } } : {}),
       ...(rescueEventsPruned ? { rescue_events_pruned: rescueEventsPruned } : {}),
+      ...(balancerResult.suggestions > 0 ? { zone_balancer: { locations: balancerResult.locations, snapshots: balancerResult.snapshots, suggestions: balancerResult.suggestions } } : {}),
+      ...(balancerSnapshotsPruned ? { zone_snapshots_pruned: balancerSnapshotsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
