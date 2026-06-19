@@ -66,38 +66,19 @@ export function StundenHochrechnung() {
         const hoursRemaining = Math.max(0, shiftEnd - currentHour - now.getMinutes() / 60);
 
         setData({
-          currentHourOrders: d.currentHourOrders ?? Math.floor(Math.random() * 8 + 3),
-          currentHourRevenue: d.currentHourRevenue ?? Math.random() * 150 + 50,
+          currentHourOrders: d.currentHourOrders ?? 0,
+          currentHourRevenue: d.currentHourRevenue ?? 0,
           shiftStartHour: shiftStart,
           shiftEndHour: shiftEnd,
           hoursPassed,
           hoursRemaining,
-          totalOrdersSoFar: d.orders ?? Math.floor(hoursPassed * 6 + Math.random() * 5),
-          totalRevenueSoFar: d.revenue ?? hoursPassed * 120 + Math.random() * 40,
+          totalOrdersSoFar: d.orders ?? 0,
+          totalRevenueSoFar: d.revenue ?? 0,
           targetRevenue: d.targetRevenue ?? 1200,
           targetOrders: d.targetOrders ?? 60,
         });
       } else {
-        const now = new Date();
-        const currentHour = now.getHours();
-        const shiftStart = 10;
-        const shiftEnd = 23;
-        const hoursPassed = Math.max(0.5, currentHour - shiftStart + now.getMinutes() / 60);
-        const hoursRemaining = Math.max(0, shiftEnd - currentHour - now.getMinutes() / 60);
-        const totalOrders = Math.floor(hoursPassed * 5.8 + Math.random() * 4);
-        const totalRevenue = hoursPassed * 115 + Math.random() * 30;
-        setData({
-          currentHourOrders: Math.floor(Math.random() * 7 + 2),
-          currentHourRevenue: Math.random() * 140 + 40,
-          shiftStartHour: shiftStart,
-          shiftEndHour: shiftEnd,
-          hoursPassed,
-          hoursRemaining,
-          totalOrdersSoFar: totalOrders,
-          totalRevenueSoFar: totalRevenue,
-          targetRevenue: 1200,
-          targetOrders: 60,
-        });
+        // API-Fehler: Komponente still halten (kein Random-Mock)
       }
       setLastUpdate(new Date());
     } catch {
@@ -133,7 +114,6 @@ export function StundenHochrechnung() {
     ? Math.round((projectedOrders / data.targetOrders) * 100)
     : null;
 
-  const revenueTrend = revenuePct != null && revenuePct >= 100 ? 'up' : 'down';
   const gaugeColor = (pct: number | null) =>
     pct == null ? '#6b7280' : pct >= 100 ? '#10b981' : pct >= 75 ? '#f59e0b' : '#ef4444';
 
