@@ -99,6 +99,7 @@ import { WochenBilanzKarte } from './wochen-bilanz-karte'
 import { FahrerAuslastungsMatrix } from './fahrer-auslastungs-matrix'
 import { SchichtEchtzeitAmpel } from './schicht-echtzeit-ampel'
 import { ZonenAktivitaetsStrip } from './zonen-aktivitaets-strip'
+import { NachwuchsFahrerPanel } from './nachwuchs-fahrer-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1062,6 +1063,8 @@ export function LieferdienstClient() {
               <SchichtLiveKpiPanel />
               {/* Schicht-Echtzeit-Ampel: 3-Farb Systemstatus-Anzeige + Lastkennzahlen */}
               <SchichtEchtzeitAmpel locationId={locationId ?? ''} />
+              {/* Phase 251: Nachwuchs-Fahrer-Panel — Ramp-Up-Overview neuer Fahrer */}
+              <NachwuchsFahrerPanel locationId={locationId ?? undefined} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}

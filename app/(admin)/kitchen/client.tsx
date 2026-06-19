@@ -74,6 +74,7 @@ import { KitchenSchichtTimingScore } from './schicht-timing-score';
 import { KitchenSchichtQueuePrognose } from './schicht-queue-prognose';
 import { KitchenTimingFarbkodierung } from './timing-farbkodierung';
 import { KitchenSchichtKochzeitAnalyse } from './schicht-kochzeit-analyse';
+import { KitchenNeuerFahrerWarning } from './neuer-fahrer-warnung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -549,6 +550,8 @@ export function KitchenBoard({
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
       {/* Phase 247: Schicht-Kochzeit-Analyse — Pünktlichkeitsquote + Abweichungs-Chart */}
       <KitchenSchichtKochzeitAnalyse orders={filtered} timings={timings} />
+      {/* Phase 251: Neue Fahrer mit Coaching-Bedarf — Amber-Warnung bei struggling drivers */}
+      <KitchenNeuerFahrerWarning locationId={locationFilter === 'all' ? (locations[0]?.id ?? undefined) : locationFilter} />
       {/* Phase 200: Kapazitäts-Auslastung — Live-Anzeige wie viele Prep-Slots belegt sind */}
       <KitchenKapazitaetsAnzeige orders={filtered} timings={timings} />
       {/* Phase 185: Schicht-Ofen-Timer — Produktivitäts-Ring (Orders/h + Schichtdauer) */}

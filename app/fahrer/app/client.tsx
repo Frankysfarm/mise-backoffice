@@ -69,6 +69,7 @@ import { SchichtKilometerTracker } from './schicht-kilometer-tracker';
 import { KassenUebersicht } from './kassen-uebersicht';
 import { SchichtBonusBooster } from './schicht-bonus-booster';
 import { FahrerAnkunftsSignal } from './ankunfts-signal';
+import { FahrerRampUpFortschritt } from './ramp-up-fortschritt';
 
 type Driver = {
   id: string;
@@ -828,6 +829,9 @@ export function FahrerApp({
                     goalEur={80}
                   />
                 )}
+
+                {/* Phase 251: Ramp-Up-Fortschritt — Eigener Onboarding-Score für neue Fahrer */}
+                <FahrerRampUpFortschritt driverId={driver.id} />
 
                 {/* Phase 205: Schicht-Einnahmen-Chart — stündlicher Einnahmenverlauf */}
                 <FahrerSchichtEinnahmenChart driverId={driver.id} />

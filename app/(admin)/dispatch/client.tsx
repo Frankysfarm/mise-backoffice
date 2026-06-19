@@ -124,6 +124,7 @@ import { DispatchTourZeitfortschritt } from './tour-zeitfortschritt';
 import { DriverBonusProximityPanel } from './driver-bonus-proximity-panel';
 import { RealtimeGpsDashboard } from './realtime-gps-dashboard';
 import { DispatchZuweisungsVorschau } from './zuweisungs-vorschau';
+import { DispatchFahrerRampUpStrip } from './fahrer-ramp-up-strip';
 
 type Driver = {
   employee_id: string;
@@ -977,6 +978,9 @@ export function DispatchBoard({
       <DispatchTourParallelVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 243: Bonus-Nähe-Panel — Fahrer kurz vor Meilenstein-Bonus */}
       <DriverBonusProximityPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 251: Neue Fahrer im Onboarding — Tier-Übersicht + Coaching-Alert */}
+      <DispatchFahrerRampUpStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? undefined)} />
+
       {/* Phase 247: Echtzeit-GPS-Dashboard — self-fetching Leaflet-Karte mit allen Fahrern + Touren */}
       <RealtimeGpsDashboard
         locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')}

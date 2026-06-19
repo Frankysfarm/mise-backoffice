@@ -14,6 +14,7 @@ import { LiveFahrerStatus } from './live-fahrer-status';
 import { BestellungLiveEtaBanner } from './bestellung-live-eta-banner';
 import { LieferversrechenWidget } from './lieferversprechen-widget';
 import { EtaSekundenCountdown } from '../eta-sekunden-countdown';
+import { EtaVertrauenWidget } from './eta-vertrauen-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -613,6 +614,21 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               etaEarliest={etaWindow?.earliest ?? null}
               etaLatest={etaWindow?.latest ?? null}
               status={liveStatus}
+            />
+          </div>
+        )}
+        {/* Phase 251: ETA-Vertrauen-Widget — Fortschrittsbalken + Confidence-Badge */}
+        {isDelivery && orderId && (
+          <div className="mt-4 w-full">
+            <EtaVertrauenWidget
+              etaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : 0}
+              confidence={null}
+              phase={
+                liveStatus === 'geliefert' ? 'delivered'
+                : liveStatus === 'unterwegs' ? 'delivering'
+                : liveStatus === 'fertig' ? 'dispatched'
+                : 'preparing'
+              }
             />
           </div>
         )}
