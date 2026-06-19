@@ -136,6 +136,7 @@ import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
 import { DispatchTourRückkehrFenster } from './tour-rueckkehr-fenster';
 import { DispatchTourScoreSummaryPanel } from './tour-score-summary-panel';
 import { DispatchZonenlastMatrix } from './zonenlast-matrix';
+import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 
 type Driver = {
   employee_id: string;
@@ -946,6 +947,8 @@ export function DispatchBoard({
       <DispatchTourScoreSummaryPanel batches={batches} />
       {/* Phase 269: Zonen-Last-Matrix — Bestelllast vs. freie Fahrer je Lieferzone */}
       <DispatchZonenlastMatrix orders={orders} drivers={drivers} />
+      {/* Phase 271: Artikel-Nachfrage-Hinweis — kritische Lager + Top-Bedarfs-Artikel für Dispatch-Planung */}
+      <DispatchItemNachfrageHinweis locationId={locations[0]?.id} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />

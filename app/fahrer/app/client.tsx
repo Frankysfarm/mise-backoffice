@@ -79,6 +79,7 @@ import { FahrerKundenNotizKarte } from './kunden-notiz-karte';
 import { TourZeitplanFahrer } from './tour-zeitplan-fahrer';
 import { TourNaviHUD } from './tour-navi-hud';
 import { TourPunktlichkeitsCoach } from './tour-punktlichkeits-coach';
+import { TourStopsDetailPanel, type TourStop } from './tour-stop-detail-card';
 
 type Driver = {
   id: string;
@@ -1144,6 +1145,30 @@ export function FahrerApp({
               <FahrerKundenNotizKarte
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => s.geliefert_am == null)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 271: Tour-Stop-Detail-Karten — expandierbare Kunden-Info + Aktions-Buttons je Stop */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourStopsDetailPanel
+                stops={activeBatch.stops.map((s, i): TourStop => ({
+                  id: s.id,
+                  stopNumber: s.reihenfolge ?? i + 1,
+                  customerName: s.order?.kunde_name ?? 'Kunde',
+                  address: [s.order?.kunde_adresse, s.order?.kunde_plz].filter(Boolean).join(', ') || 'Adresse unbekannt',
+                  phone: s.order?.kunde_telefon ?? undefined,
+                  notes: s.order?.kunde_notiz ?? s.order?.kunde_lieferhinweis ?? undefined,
+                  itemCount: 1,
+                  status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+                  distanceKm: s.distanz_zum_vorgaenger_m ? s.distanz_zum_vorgaenger_m / 1000 : undefined,
+                }))}
+                activeStopId={activeBatch.stops.find((s) => !s.geliefert_am)?.id}
+                onNavigate={(stop) => {
+                  const q = encodeURIComponent(stop.address);
+                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}`, '_blank');
+                }}
+                onCall={(phone) => { window.open(`tel:${phone}`, '_self'); }}
               />
             </div>
           )}

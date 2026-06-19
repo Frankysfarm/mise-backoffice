@@ -85,6 +85,7 @@ import { KitchenWarmhalteWarnung } from './warmhalte-warnung';
 import { KitchenKategorieAuslastung } from './kategorie-auslastung';
 import { KitchenSmartOrderFlowBoard } from './smart-order-flow-board';
 import { KitchenZubereitungsZielUhr } from './zubereitungs-ziel-uhr';
+import { KitchenItemDemandAmpel } from './item-demand-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -812,6 +813,13 @@ export function KitchenBoard({
       {/* Phase 257: Prep-Ticket-Kacheln — KDS-Raster aller aktiven Bestellungen ohne Timing-Abhängigkeit */}
       {!bigDisplay && filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <PrepTicketKacheln orders={filtered} />
+      )}
+
+      {/* Phase 271: Artikel-Lagerampel — kritische/Warn-Bestand-Alerts mit Tage-bis-leer-Countdown */}
+      {!bigDisplay && (
+        <KitchenItemDemandAmpel
+          locationId={locationFilter === 'all' ? (locations[0]?.id ?? undefined) : (locationFilter ?? undefined)}
+        />
       )}
 
       {/* Küchen-Effizienz: Ist- vs Soll-Zubereitungszeit */}

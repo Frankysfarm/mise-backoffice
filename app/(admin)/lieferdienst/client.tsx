@@ -108,6 +108,7 @@ import { StundenHochrechnung } from './stunden-hochrechnung'
 import { StornoquotePanel } from './stornoquote-panel'
 import { SchichtKostenErtragBilanz } from './schicht-kosten-ertrag-bilanz'
 import { SchichtZielErreichtPanel } from './schicht-ziel-erreicht-panel'
+import { LieferdienstItemNachfrageWidget } from './item-nachfrage-widget'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1087,6 +1088,8 @@ export function LieferdienstClient() {
               <SchichtKostenErtragBilanz locationId={locationId} />
               {/* Phase 267: Schicht-Ziel-Erreicht-Panel — Live-Zieltracking mit 4 KPIs (Bestellungen, Umsatz, Pünktlichkeit, Lieferzeit) */}
               <SchichtZielErreichtPanel />
+              {/* Phase 271: Artikel-Nachfrage-Widget — Lagerampel + Top-Bedarfs-Artikel aus Item-Demand-Prediction */}
+              <LieferdienstItemNachfrageWidget locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

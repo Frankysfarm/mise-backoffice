@@ -19,6 +19,7 @@ import { ZubereitungsFortschritt } from './zubereitungs-fortschritt';
 import { EtaPulseBanner } from '../eta-pulse-banner';
 import { BestellungEchtzeitCountdown } from '../bestellung-echtzeit-countdown';
 import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
+import { EtaLiveCountdown } from './eta-live-countdown';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -680,6 +681,21 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && liveStatus === 'unterwegs' && (
           <div className="mt-4 w-full">
             <LiveFahrerStatus orderId={orderId} initialStatus={liveStatus} />
+          </div>
+        )}
+
+        {/* Phase 271: Live-ETA-Countdown — Sekundengenauer Countdown mit Phasen-Icon und Farbcodierung */}
+        {isDelivery && orderId && liveStatus !== 'geliefert' && (
+          <div className="mt-4 w-full">
+            <EtaLiveCountdown
+              orderId={orderId}
+              initialEtaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : (etaMinutes > 0 ? etaMinutes : undefined)}
+              phase={
+                liveStatus === 'unterwegs' ? 'driving'
+                : liveStatus === 'fertig' ? 'pickup'
+                : 'prep'
+              }
+            />
           </div>
         )}
 
