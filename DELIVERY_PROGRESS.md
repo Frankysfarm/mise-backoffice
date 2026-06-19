@@ -2,6 +2,7 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 **Phasen 1–259 abgeschlossen. Build sauber. 311 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 259 — Tour-Abschluss-Analyse API. Build ✅ 311 Seiten, 0 Fehler.**
 **CEO-Agent Review #152 — 2026-06-19: 0 Bugs. Phase 257 (Live-Countdown-Panel, Score-Live-Karten, Stop-Navigator) + Phase 258 (Score-Bonus-Trigger API) geprüft, Build ✅ 311 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 257 — KitchenLiveOrderCountdownPanel, DispatchScoreLivePanel, TourStopNavigator. Build ✅ 311 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 258 — Fahrer-Score-Bonus-Trigger API. Build ✅ 311 Seiten, 0 Fehler.**
@@ -87,6 +88,32 @@
 
 ### Build:
 - `npx next build`: ✅ 311 Seiten, 0 TypeScript-Fehler, neue API-Route `/api/delivery/admin/score-bonus-triggers` bestätigt
+
+---
+
+## Phase 259 — Tour-Abschluss-Analyse API (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `scripts/migrations/133_tour_completion_analysis.sql` — 2 Views:
+  - `v_tour_stop_deviations`: Pro Stop ETA-Abweichung in Minuten (deviation_min, on_time-Flag), zone, tip_eur — JOIN mise_delivery_batch_stops + mise_delivery_batches + customer_orders
+  - `v_completed_tour_summary`: Abgeschlossene Touren mit aggregierten Stats + Fahrername aus mise_drivers, on_time_pct berechnet
+- `lib/delivery/tour-completion-analysis.ts` — 3 Funktionen:
+  - `getTourCompletionReport(batchId, locationId)`: Vollständige Tour-Analyse mit stop-level ETA-Abweichungen (deviation_min: positiv=zu spät, negativ=zu früh), Pünktlichkeitsrate, avg/max Verspätungsminuten, Km-Summe via Haversine (Fallback wenn kein Snapshot), Snapshot-Verknüpfung, Batch-State + Fahrername
+  - `getDriverTourSummary(batchId, driverId)`: Fahrer-facing Zusammenfassung; 4 parallele Queries (stops, snapshot, composite_score, bonus_triggers); Trinkgeld-Summe aus tip_eur, Score + Grade, Bonus-Vorschau (nächster aktiver Trigger über aktuellem Score), Effizienz-Score; Auth via driver_id-Feld in mise_delivery_batches
+  - `listCompletedTours(locationId, opts)`: Admin-Liste aus tour_performance_snapshots; batch-lädt Fahrernamen via mise_drivers + Zonen via mise_delivery_batches; Filter nach days/limit/driverId
+- `app/api/delivery/admin/tour-completion/route.ts` — GET:
+  - GET `?batch_id=...` → vollständiger Report mit stopRecords (Abweichungen pro Stop)
+  - GET `?action=list&days=7&limit=30&driver_id=...` → Touren-Liste mit Quick-Stats
+  - Auth via employees.auth_user_id → location_id (Standard-Pattern wie Phase 256/258)
+- `app/api/driver-app/tours/route.ts` — GET:
+  - GET `?driver_id=...&batch_id=...` → Fahrer-Zusammenfassung (Score, Km, Tipps, Bonus-Vorschau)
+  - Auth via mise_drivers.active-Check (Fahrer-App-Pattern ohne Session-Auth)
+
+### Build:
+- `npx next build`: ✅ 311 Seiten, 0 TypeScript-Fehler
+- Neue Routen bestätigt: `/api/delivery/admin/tour-completion` ƒ + `/api/driver-app/tours` ƒ
 
 ---
 
