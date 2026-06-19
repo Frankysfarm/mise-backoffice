@@ -57,7 +57,7 @@ function vehicleMeta(v: string): { emoji: string; label: string } {
     case 'e-bike':  return { emoji: '⚡', label: 'E-Bike' };
     case 'fahrrad': return { emoji: '🚲', label: 'Fahrrad' };
     case 'roller':  return { emoji: '🛵', label: 'Roller' };
-    default:        return { emoji: '🚶', label: driver.fahrzeug || 'Unbekannt' };
+    default:        return { emoji: '🚶', label: v || 'Unbekannt' };
   }
 }
 
