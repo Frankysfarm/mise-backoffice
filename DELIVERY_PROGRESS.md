@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–300 + Phase 277+278 Backend abgeschlossen. Build sauber. 321 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–302 abgeschlossen. Build sauber. 321 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 301 — Echtzeit-Kunden-Tracking via SSE (Server-Sent Events, Fahrer-Position live im Browser). Phase 302 — Reorder-Engine V2 (Saisonalität + Wochentag/Tageszeit-Boost + Recency-Decay). Build ✅ 321 Seiten, 0 Fehler.**
 **CEO-Agent Review #165 — 2026-06-19: 1 Bug gefixt (kitchen-optimal-kochstart.tsx URGENCY_CONFIG missing 'done' key → TS7053). Phase 300 (5 Komponenten) + Phase 277+278 (Auto-Dispatch + Tour-Profit) geprüft. Build ✅ 321 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 300 — KitchenOptimalKochstart, DispatchZonenScoreRing, FahrerProblemMeldung, BestellDelayBanner, FahrerPraesenzTracker. Build ✅ 321 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 277 — Auto-Dispatch-Integration (Score ≥ 85 + idle Fahrer → automatische Tour-Erstellung). Phase 278 — Tour-Profit Backend-API (Deckungsbeitrag je Tour aus DB). Build ✅ 321 Seiten, 0 Fehler.**
@@ -72,6 +73,69 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 301 — Echtzeit-Kunden-Tracking via SSE (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `scripts/migrations/143_customer_tracking_sse.sql` — `tracking_sse_sessions` Tabelle + `v_sse_tracking_stats` View:
+  - Protokolliert anonymisierte SSE-Session-Analytics (frames_sent, close_reason, ip_hash[:16])
+  - RLS: Nur Admins der eigenen Location
+  - View: Tages-Aggregation (7 Tage) — total_sessions, completed_to_delivery, avg_session_min
+
+- `lib/delivery/customer-tracking-sse.ts` — Kern-Streaming-Engine:
+  - `createTrackingSseStream(bestellnummer, opts)` — ReadableStream mit 3s Poll-Intervall
+  - 3 SSE-Event-Typen: `tracking_update` (vollständige Fahrer-Position + ETA + Geo), `heartbeat` (alle 15s), `closed` (Terminal-Status oder Timeout nach 2h)
+  - Automatischer Stream-Abschluss bei Status: `geliefert` / `storniert` / `abgebrochen`
+  - Session-Analytics: opened/pinged/closed in DB, fire-and-forget
+  - `getSseTrackingStats(locationId)` — 7-Tage Admin-Statistik
+
+- `app/api/delivery/tracking/[bestellnummer]/stream/route.ts` — SSE Endpoint:
+  - `GET /api/delivery/tracking/[bestellnummer]/stream?ua=mobile`
+  - Kein Auth — bestellnummer als Lookup-Key
+  - Headers: text/event-stream, no-cache, X-Accel-Buffering: no
+
+- `app/api/delivery/admin/tracking-stats/route.ts` — Admin-Statistik-Endpoint
+
+---
+
+## Phase 302 — Smart-Reorder-Engine V2 mit Saisonalität (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `scripts/migrations/144_reorder_v2.sql` — V2-Schema-Erweiterungen:
+  - ALTER TABLE customer_reorder_profiles: +hour_pattern, +day_pattern, +month_pattern, +top_combos, +recency_score, +v2_computed_at
+  - Neue Tabelle `location_seasonal_patterns`: Monatliche Bestellvolumen + Top-Items je Location (12 Monate rückwirkend)
+  - View `v_reorder_v2_scores`: Composite Score 0–100 (40% Frequenz + 30% Recency + 30% Wert)
+
+- `lib/delivery/reorder-engine-v2.ts` — V2 Engine mit 5 Scoring-Faktoren:
+  - **Frequenz-Score**: Basisgewichtung nach Bestellhäufigkeit des Artikels
+  - **Recency-Decay**: 0–1 (1.0 = letzte Bestelling < 7 Tage, 0.05 = > 90 Tage)
+  - **Saisonaler Boost**: Aktueller Monat vs. 12-Monats-Durchschnitt (0.7–1.5×)
+  - **Tageszeit-Boost**: Aktuell-Stunde vs. Kundenprofil-Stundenmuster (+max 50%)
+  - **Wochentag-Boost**: Aktueller Wochentag vs. Tagesverteilung im Profil (+max 40%)
+  - `buildV2ProfileForCustomer/buildV2ProfilesForLocation/buildV2ProfilesAllLocations`
+  - `buildLocationSeasonalPatterns(locationId)` — 12 Monate Saisonmuster berechnen
+  - `getSeasonalBoostFactor(locationId, month)` — Monatlicher Boost-Faktor
+  - `getReorderSuggestionsV2(locationId, phone, n?)` — Scored V2-Empfehlungen
+  - `getReorderSuggestionsV2ByToken(token, n?)` — Öffentlich via Rating-Token
+  - `getReorderDashboardV2(locationId)` — Admin-Dashboard mit Top-Kunden + Saisonmuster
+  - Artikel-Kombinations-Analyse: `top_combos` (häufige Bundles aus Paar-Kombinatorik)
+
+- `app/api/delivery/reorder/v2/route.ts` — Öffentlicher V2-Endpoint:
+  - `GET /api/delivery/reorder/v2?token=<rating_token>&limit=5`
+  - Response: suggestions + seasonal_boost + version='v2'
+
+- `app/api/delivery/admin/reorder-v2/route.ts` — Admin-Endpoints:
+  - GET: Dashboard V2 (topScoredCustomers + seasonalPatterns)
+  - POST: Saisonmuster berechnen
+  - POST?action=build_profiles: V2-Profile aufbauen
 
 ---
 
