@@ -73,6 +73,7 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { SchichtPunktlichkeitsRing } from './schicht-punktlichkeits-ring'
 import { RentabilitaetsTrend } from './rentabilitaets-trend'
 import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
 import { LieferzonenHeatmap } from './lieferzonen-heatmap'
@@ -1088,6 +1089,8 @@ export function LieferdienstClient() {
               <SchichtZielErreichtPanel />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
+              <SchichtPunktlichkeitsRing locationId={locationId} />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}
               <LiveErloesPrognose locationId={locationId} />
               {/* Schicht-Abschluss-Prognose: Hochrechnung von Umsatz, Lieferungen und SLA bis Schichtende */}

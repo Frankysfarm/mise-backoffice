@@ -78,6 +78,7 @@ import { TourNavigationsCockpit } from './tour-navigations-cockpit';
 import { FahrerKundenNotizKarte } from './kunden-notiz-karte';
 import { TourZeitplanFahrer } from './tour-zeitplan-fahrer';
 import { TourNaviHUD } from './tour-navi-hud';
+import { TourPunktlichkeitsCoach } from './tour-punktlichkeits-coach';
 
 type Driver = {
   id: string;
@@ -857,6 +858,8 @@ export function FahrerApp({
                 <MeilensteinToast driverId={driver.id} />
                 {/* Phase 207: Schicht-Bedarf-Chip — zeigt Fahrermangel-Stunden heute */}
                 {driver.location_id && <SchichtBedarfChip locationId={driver.location_id} />}
+                {/* Phase 269: Pünktlichkeits-Coach — Score + Coaching-Hinweise aus 14-Tage-Analyse */}
+                <TourPunktlichkeitsCoach driverId={driver.id} />
               </>
             )}
           </section>

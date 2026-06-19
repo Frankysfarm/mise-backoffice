@@ -31,6 +31,7 @@ import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinw
 import { BestellungFortschrittBand } from './components/bestellung-fortschritt-band';
 import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-shortcut';
 import { WarteschlangenIndikator } from './warteschlangen-indikator';
+import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
 
 type Props = {
   location: Location;
@@ -959,7 +960,7 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
 
   if (!order) return null;
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-2">
+    <div className="mx-auto max-w-2xl px-4 pt-2 space-y-2">
       <BestellungFortschrittBand
         orderId={order.orderId}
         initialStatus={order.status}
@@ -967,6 +968,13 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
         etaLatest={null}
         isDelivery={order.isDelivery}
       />
+      {/* Phase 269: Kompakte Fortschritts-Karte — Schritt-für-Schritt Visualisierung */}
+      {order.isDelivery && (
+        <BestellungFortschrittKarte
+          orderId={order.orderId}
+          initialStatus={order.status}
+        />
+      )}
     </div>
   );
 }

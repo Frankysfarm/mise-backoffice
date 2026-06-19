@@ -84,6 +84,7 @@ import { KitchenPickupZeitlinie } from './pickup-zeitlinie';
 import { KitchenWarmhalteWarnung } from './warmhalte-warnung';
 import { KitchenKategorieAuslastung } from './kategorie-auslastung';
 import { KitchenSmartOrderFlowBoard } from './smart-order-flow-board';
+import { KitchenZubereitungsZielUhr } from './zubereitungs-ziel-uhr';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -551,6 +552,10 @@ export function KitchenBoard({
       />
       {/* Smart-Flow Board: Farbkodiertes Kachel-Raster aller aktiven Bestellungen mit Countdown */}
       <KitchenSmartOrderFlowBoard orders={filtered} />
+      {/* Phase 269: Zubereitungs-Zieluhren — SVG-Ring-Countdown je aktiver Bestellung mit Farbkodierung */}
+      {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
+        <KitchenZubereitungsZielUhr orders={filtered} timings={timings} />
+      )}
       {/* Live-Prep-Matrix — Stations-Belegung je aktiver Bestellung mit Countdown */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length >= 2 && (
         <KitchenLivePrepMatrix orders={filtered} timings={timings} />

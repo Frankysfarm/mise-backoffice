@@ -135,6 +135,7 @@ import { DispatchKitchenSyncAlert } from './kitchen-sync-alert';
 import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
 import { DispatchTourRückkehrFenster } from './tour-rueckkehr-fenster';
 import { DispatchTourScoreSummaryPanel } from './tour-score-summary-panel';
+import { DispatchZonenlastMatrix } from './zonenlast-matrix';
 
 type Driver = {
   employee_id: string;
@@ -943,6 +944,8 @@ export function DispatchBoard({
       <DispatchTourZeitfortschritt batches={batches} />
       {/* Tour-Score-Zusammenfassung: Score-Badge + Fortschrittsbalken + ETA je aktiver Tour */}
       <DispatchTourScoreSummaryPanel batches={batches} />
+      {/* Phase 269: Zonen-Last-Matrix — Bestelllast vs. freie Fahrer je Lieferzone */}
+      <DispatchZonenlastMatrix orders={orders} drivers={drivers} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
