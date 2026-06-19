@@ -105,6 +105,7 @@ import { aggregateFeedbackAllLocations, pruneOldFeedback } from '@/lib/delivery/
 import { snapshotZoneCapacityAllLocations, rebalanceAllLocations, pruneOldSnapshots as pruneZoneSnapshots } from '@/lib/delivery/zone-rebalancing';
 import { snapAllLocations as snapOrderLifecycle, pruneOldLifecycleSnapshots } from '@/lib/delivery/order-lifecycle';
 import { snapshotAllLocations as snapshotGeoHeatmap, pruneOldSnapshots as pruneHeatmapSnapshots } from '@/lib/delivery/geo-heatmap';
+import { recordUsageAllLocations as recordRestockUsage, checkThresholdsAllLocations as checkRestockThresholds, pruneOldMaterialSnapshots } from '@/lib/delivery/restock-engine';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -223,6 +224,10 @@ export async function GET(req: NextRequest) {
     const isFeedbackAggregateTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
     // Phase 242: Order Lifecycle Snap — täglich 02:15 UTC (nach Report-Cache)
     const isLifecycleSnapTick = nowHour === 2 && nowMin >= 14 && nowMin < 18;
+    // Phase 248: Restock Usage Recording — täglich 01:15 UTC (Verbrauch des Vortags erfassen)
+    const isRestockUsageTick = nowHour === 1 && nowMin >= 14 && nowMin < 18;
+    // Phase 248: Restock Threshold Check — täglich 01:30 UTC (nach Usage Recording)
+    const isRestockCheckTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -765,6 +770,17 @@ export async function GET(req: NextRequest) {
       ? await pruneHeatmapSnapshots(60).catch(() => 0)
       : 0;
 
+    // Phase 248: Restock-Engine — Verbrauch täglich 01:15 UTC, Threshold-Check 01:30 UTC
+    const restockUsageResult = isRestockUsageTick
+      ? await recordRestockUsage().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    const restockCheckResult = isRestockCheckTick
+      ? await checkRestockThresholds().catch(() => ({ locations: 0, alerts_created: 0, alerts_resolved: 0, errors: 1 }))
+      : null;
+    const materialSnapshotsPruned = isReportTick
+      ? await pruneOldMaterialSnapshots(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -939,6 +955,9 @@ export async function GET(req: NextRequest) {
       ...(lifecycleSnapshotsPruned ? { lifecycle_snapshots_pruned: lifecycleSnapshotsPruned } : {}),
       ...(heatmapSnapResult ? { geo_heatmap: { locations: heatmapSnapResult.locations, snapped: heatmapSnapResult.snapped, cells: heatmapSnapResult.cells } } : {}),
       ...(heatmapSnapshotsPruned ? { heatmap_snapshots_pruned: heatmapSnapshotsPruned } : {}),
+      ...(restockUsageResult ? { restock_usage: { locations: restockUsageResult.locations, snapshots: restockUsageResult.snapshots, errors: restockUsageResult.errors } } : {}),
+      ...(restockCheckResult ? { restock_alerts: { locations: restockCheckResult.locations, created: restockCheckResult.alerts_created, resolved: restockCheckResult.alerts_resolved } } : {}),
+      ...(materialSnapshotsPruned ? { material_snapshots_pruned: materialSnapshotsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

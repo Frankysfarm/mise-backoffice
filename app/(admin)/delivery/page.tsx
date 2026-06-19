@@ -229,6 +229,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Deckungsbeitrag-Analyse je Lieferung · Aufschlüsselung nach Fahrer, Schicht & Fahrzeug · interaktiver Rechner" cta="Analyse öffnen" highlight />
         <SectionCard href="/delivery/geo-heatmap" icon={<Globe className="h-5 w-5" />} title="Geo-Heatmap Pro"
           subtitle="Echtzeit-Liefer-Dichte · Stündliche Zonen-Auslastung · GeoJSON-Export für QGIS / Google Maps" cta="Heatmap öffnen" />
+        <SectionCard href="/delivery/restock-engine" icon={<PackageX className="h-5 w-5" />} title="Restock-Engine (Liefermaterial)"
+          subtitle="Verbrauchsprognose für Liefertaschen, Boxen & Zubehör · Depletion-Datum · Alarm bei kritischem Bestand · Lieferanteninfo" cta="Restock öffnen" highlight />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

@@ -211,6 +211,7 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Loslegen', href: '/delivery/geo-heatmap',    icon: 'Globe',              label: 'Geo-Heatmap Pro (Echtzeit-Liefer-Dichte)' },
       { group: 'Loslegen', href: '/delivery/location-kpi-wall', icon: 'LayoutGrid',         label: 'Location KPI-Wall (Echtzeit-Standortvergleich)' },
       { group: 'Loslegen', href: '/delivery/cost-per-order',  icon: 'PieChart',            label: 'Kosten pro Bestellung (Deckungsbeitrag-Analyse)' },
+      { group: 'Loslegen', href: '/delivery/restock-engine', icon: 'Package',             label: 'Restock-Engine (Liefermaterial-Prognose)' },
       { group: 'Loslegen', href: '/dispatch',                    icon: 'MapPin',    label: 'Touren & Live-Karte' },
 
       { group: 'Fahrer', href: '/drivers',                    icon: 'Users',     label: 'Fahrer (Dispatch-Ansicht)' },
