@@ -113,6 +113,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Kritische Events in Echtzeit · Fahrerverzögerung, ETA-Konfidenz, Batch-Stuck, SLA-Verletzung" cta="Notifications öffnen" highlight />
         <SectionCard href="/delivery/batch-monitor" icon={<Activity className="h-5 w-5" />} title="Batch-Monitor"
           subtitle="Echtzeit-Überwachung aktiver Touren · Stuck-Detection · ETA-Risiko · Gesundheits-Score (0–100) · 24h-Trend" cta="Monitor öffnen" highlight />
+        <SectionCard href="/delivery/assignment-optimizer" icon={<Crosshair className="h-5 w-5" />} title="Zuweisung-Optimizer (KI)"
+          subtitle="KI-Vorschläge: wer bekommt welche Bestellung · Rückkehr-Prognose-Integration · Sofort/Vorab/Reserve" cta="Optimizer öffnen" highlight />
         <SectionCard href="/delivery/scheduled" icon={<Calendar className="h-5 w-5" />} title="Vorbestellungen"
           subtitle="Geplante Lieferungen · manuelle Freigabe" cta="Vorbestellungen" />
         <SectionCard href="/delivery/trends" icon={<TrendingDown className="h-5 w-5" />} title="Tages-Trends"

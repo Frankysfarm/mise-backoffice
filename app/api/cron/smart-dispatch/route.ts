@@ -118,6 +118,7 @@ import { checkAllLocations as checkItemDemandAllLocations, pruneOldAlerts as pru
 import { pruneSurveysAllLocations } from '@/lib/delivery/tour-terminal-survey';
 import { snapshotAllLocations as snapshotBatchHealth, pruneBatchHealthSnapshots } from '@/lib/delivery/smart-batch-monitor';
 import { predictAllLocations as predictDriverReturns, pruneOldPredictions as pruneReturnPredictions } from '@/lib/delivery/driver-return-prediction';
+import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions } from '@/lib/delivery/assignment-optimizer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -153,6 +154,8 @@ export async function GET(req: NextRequest) {
     // Demand-Snapshot alle 30 Min (Minute :00 oder :30)
     const nowMin = new Date().getUTCMinutes();
     const isDemandTick = nowMin < 2 || (nowMin >= 30 && nowMin < 32);
+    // Stündlicher Tick (jede volle Stunde)
+    const isHourlyTick = nowMin < 2;
 
     // Rating-Tokens alle 10 Min generieren (Minute :00, :10, :20, :30, :40, :50)
     const isRatingTick = nowMin % 10 < 2;
@@ -899,6 +902,12 @@ export async function GET(req: NextRequest) {
       ? await pruneReturnPredictions(3).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 276: Zuweisung-Optimizer — jeden Tick neu generieren (nutzt Return-Predictions), Expire stündlich
+    const assignmentResult = await buildAssignmentSuggestions().catch(() => []);
+    const assignmentExpired = isHourlyTick
+      ? await expireOldSuggestions(1).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1097,6 +1106,8 @@ export async function GET(req: NextRequest) {
       ...(batchHealthPruned ? { batch_health_pruned: batchHealthPruned } : {}),
       ...(returnPredictionResult.predicted > 0 ? { return_predictions: { locations: returnPredictionResult.locations, predicted: returnPredictionResult.predicted, errors: returnPredictionResult.errors } } : {}),
       ...(returnPredictionsPruned ? { return_predictions_pruned: returnPredictionsPruned.pruned } : {}),
+      ...(assignmentResult.length > 0 ? { assignment_optimizer: { locations: assignmentResult.length, suggestions: assignmentResult.reduce((s, r) => s + r.suggestionsCreated, 0) } } : {}),
+      ...(assignmentExpired != null ? { assignment_expired: assignmentExpired } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

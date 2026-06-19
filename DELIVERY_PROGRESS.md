@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–275 abgeschlossen. Build sauber. 319 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–276 abgeschlossen. Build sauber. 320 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 276 — Live Order Assignment Optimizer (KI-Zuweisung mit Rückkehr-Prognose-Integration). Build ✅ 320 Seiten, 0 Fehler.**
 **CEO-Agent Review #162 — 2026-06-19: 2 Bugs gefixt (fahrer-rueckkehr-eta.tsx totes tick-State + tote locationSlug-Prop entfernt). Phase 274+275 geprüft. Build ✅ 319 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 275 — DispatchReturnPredictionLive, KitchenDriverReturnKochstart, RueckkehrPrognoseKacheln, TourRueckkehrAnzeige, FahrerRueckkehrEta. Build ✅ 319 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 274 — Fahrer-Rückkehr-Vorhersage API (Predictive Return-to-Base Engine). Build ✅ 319 Seiten, 0 neue Fehler.**
@@ -65,6 +66,53 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 276 — Live Order Assignment Optimizer (KI-Zuweisung mit Rückkehr-Prognose) (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+
+- `scripts/migrations/141_live_assignment_optimizer.sql` — 1 Tabelle + 2 Views + 1 RPC + Trigger:
+  - `assignment_suggestions` (UNIQUE order_id+driver_id, RLS): suggestion_type (immediate/pre_assign/standby), score 0–100, status (pending/accepted/dismissed/expired/auto_dispatched), predicted_return_utc, minutes_until_return, return_confidence, reason, distance_km, vehicle, expires_at (15 Min), updated_at Trigger
+  - `v_assignment_suggestions_active` VIEW: JOINs customer_orders + mise_drivers für aktive Vorschläge mit Bestell- und Fahrer-Details
+  - `v_assignment_optimizer_summary` VIEW: Aggregation der letzten 24h pro Location (pending/accepted/immediate/pre_assign counts, avg_accepted_score, last_generated_at)
+  - `expire_old_assignment_suggestions(p_hours)` RPC: SECURITY DEFINER Cleanup abgelaufener Vorschläge
+
+- `lib/delivery/assignment-optimizer.ts` — 7 Funktionen:
+  - `buildAssignmentSuggestions(locationId)`: Lädt unzugewiesene Bestellungen + aktive Fahrer + Return-Predictions (max 10 Min alt), berechnet 4-Faktoren-Score (Distanz 40% + Auslastung 25% + Rückkehr-Timing 20% + Fahrzeug 15%), expiriert alte pending-Vorschläge, upserted neue (max 3 je Bestellung, ≥30 Punkte); SuggestionType: immediate (idle/returning, freie Kapazität) / pre_assign (kehrt ≤20 Min zurück) / standby (Reserve)
+  - `buildSuggestionsAllLocations()`: Cron-Batch für alle aktiven Locations (Promise.allSettled)
+  - `acceptSuggestion(id, locationId)`: Status pending→accepted + resolved_at
+  - `dismissSuggestion(id, locationId)`: Status pending→dismissed + resolved_at
+  - `getSuggestionDashboard(locationId)`: v_assignment_optimizer_summary + v_assignment_suggestions_active + Stats (unassigned orders, available drivers, returning drivers); mappt zu OptimizerDashboard
+  - `getActiveSuggestions(locationId)`: Nur aktive Vorschläge aus View
+  - `expireOldSuggestions(hoursOld?)`: RPC-Wrapper (Default 1h)
+
+- `app/api/delivery/admin/assignment-optimizer/route.ts`:
+  - GET action=dashboard (Default) → OptimizerDashboard, action=suggestions → nur aktive Liste
+  - POST action=generate → buildAssignmentSuggestions, accept → acceptSuggestion, dismiss → dismissSuggestion, expire → expireOldSuggestions
+  - Auth via employees.location_id (oder ?location_id= Override)
+
+- `app/(admin)/delivery/assignment-optimizer/page.tsx` + `client.tsx` — `AssignmentOptimizerClient`:
+  - **4 KPI-Karten**: Offene Vorschläge (highlight) / Sofort-verfügbar / Bald-frei / Ø Score (akzeptiert)
+  - **Stats-Banner**: Fahrer verfügbar → offene Bestellungen → zuletzt generiert (timeAgo)
+  - **3 Sections**: Sofort zuweisen (Zap-Icon, grün) / Vorab zuweisen—Bald-frei (Clock, blau) / Reserve (Timer, grau)
+  - **SuggestionCard**: Score-Balken (grün≥75/amber≥50/rot<75), Typ-Badge mit Icon, Fahrzeug-Icon, Fahrer-Details, Adresse, Return-Konfidenz-Badge, Expires-In-Countdown, Annehmen/Verwerfen-Buttons
+  - "Neu generieren"-Button (POST generate), 30s Auto-Refresh
+  - Empty State mit CTA
+
+- **Cron-Integration** (`app/api/cron/smart-dispatch/route.ts`):
+  - `buildAssignmentSuggestions()` jeden 2-Min-Tick (nutzt frische Return-Predictions aus Phase 274)
+  - `expireOldSuggestions(1)` stündlich (isHourlyTick: nowMin < 2)
+  - Neuer Tick: `isHourlyTick = nowMin < 2` (erste 2 Minuten jeder Stunde)
+  - Response-Keys: `assignment_optimizer` + `assignment_expired`
+
+- `app/(admin)/delivery/page.tsx`: SectionCard "Zuweisung-Optimizer (KI)" mit Crosshair-Icon + highlight in Live-Betrieb-Gruppe
+
+- TypeScript: 0 Fehler (npx tsc --noEmit ✓)
+- Build: npx next build ✓ (320 Seiten, 0 Fehler)
 
 ---
 
