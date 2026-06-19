@@ -1,7 +1,70 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–306 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (322 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–307 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (323 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #169 — 2026-06-19
+
+### Geprüfte Phasen: Phase 307 Backend (Customer Tracking API + Zone Capacity Balancer) + Phase 307 Frontend (KitchenCookNowPanel, DispatchTourScoreLivePanel, TourWazeNav, EtaConfidenceCard, TagesZielCockpit)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (323 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 307 Frontend):**
+
+**KitchenCookNowPanel (`app/(admin)/kitchen/cook-now-panel.tsx`):**
+- Farbkodiertes "Wann muss ich kochen?"-Panel basierend auf Fahrer-ETA + Prep-Zeit ✅
+- Integration in kitchen/client.tsx mit orders/batches/stops/drivers Props ✅
+
+**DispatchTourScoreLivePanel (`app/(admin)/dispatch/tour-score-live-panel.tsx`):**
+- Echtzeit-Score-Visualisierung je aktiver Tour via Supabase-Realtime ✅
+- ScoreArc-SVG, Trend-Indikator, Schicht-Summary-Strip ✅
+- Integration in dispatch/client.tsx ✅
+
+**TourWazeNav (`app/fahrer/app/tour-waze-nav.tsx`):**
+- Navi-App-Auswahl (Google Maps, Waze, Apple Maps) mit Multi-Stop-Routing ✅
+- Ein-Tap-Umschaltung für Fahrer ✅
+- Integration in fahrer/app/client.tsx mit korrektem Stop-Mapping ✅
+
+**EtaConfidenceCard (`app/order/[locationSlug]/eta-confidence-card.tsx`):**
+- Live-ETA mit Konfidenzband, Supabase-Realtime + Fortschritts-Stepper ✅
+- Integration in `app/track/[bestellnummer]/tracking.tsx` (Phase 307 Block) ✅
+
+**TagesZielCockpit (`app/(admin)/lieferdienst/tages-ziel-cockpit.tsx`):**
+- Donut-Gauges für Bestellungen/Umsatz/Schichtzeit mit Pace-Indikator ✅
+- Integration in lieferdienst/client.tsx ✅
+- ⚠️ Offener Punkt: `/api/delivery/admin/shift-goals` fehlt → MOCK-Daten
+
+**Bugs gefunden + gefixt: 3**
+
+**Bug #1 — zone-capacity-balancer.ts L172: TS2339 `.catch()` auf PromiseLike**
+- `sb.from(...).insert(rows).then(() => {}).catch(() => {})` — Supabase PromiseLike hat kein `.catch()`
+- Fix: `void Promise.resolve(sb.from(...).insert(rows)).catch(() => {})`
+
+**Bug #2 — EtaConfidenceCard: falsche API-URL `/eta` → 404**
+- Polling-Fallback rief `/api/delivery/orders/${orderId}/eta` auf (existiert nicht)
+- Fix: korrekter Endpunkt `/api/delivery/orders/${orderId}/tracking` ✅
+
+**Bug #3 — EtaConfidenceCard: nicht in Tracking-Seite integriert (Dead Code)**
+- Komponente existierte ohne Import/Verwendung
+- Fix: Integration in `app/track/[bestellnummer]/tracking.tsx` für Lieferbestellungen im nicht-terminalen Status ✅
+
+### Status nach Review #169
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (323 Seiten)
+- Phase 307 Backend + Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront/Tracking: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 308: `/api/delivery/admin/shift-goals` API erstellen — TagesZielCockpit braucht echte Schichtziele (Bestellungen/Umsatz/Schichtzeit) aus DB statt MOCK-Daten
+2. Oder: Phase 308 — Tages-/Schichtziel-Konfigurations-Admin (Ziele je Location setzen + speichern)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 308: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. Schichtziel-Konfiguration als Admin-Panel (Ziele je Location konfigurierbar machen)
 
 ---
 

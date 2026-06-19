@@ -169,7 +169,7 @@ export async function snapZoneCapacity(
     demand_score:   s.demand_score,
     imbalance_flag: s.imbalance_flag,
   }));
-  sb.from('zone_capacity_snapshots').insert(rows).then(() => {}).catch(() => {});
+  void Promise.resolve(sb.from('zone_capacity_snapshots').insert(rows)).catch(() => {});
 
   return snaps;
 }

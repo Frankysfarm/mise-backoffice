@@ -31,6 +31,7 @@ import { LiveBestellZeitleiste } from '@/app/order/[locationSlug]/components/liv
 import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nachhaltigkeits-banner';
 import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-progress-card';
 import { SseTrackingLive } from './sse-tracking-live';
+import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-card';
 
 type Order = {
   order_id: string;
@@ -466,6 +467,18 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
                 if (frame.stops_before != null) setStopsBefore(frame.stops_before);
               }
             }}
+          />
+        )}
+
+        {/* Phase 307: ETA-Konfidenzband — Live-ETA mit Vertrauensindikator + Supabase-Realtime */}
+        {order.typ === 'lieferung' && !['geliefert', 'abgeholt', 'storniert'].includes(order.status) && (
+          <EtaConfidenceCard
+            orderId={order.order_id}
+            orderNumber={order.bestellnummer}
+            initialStatus={order.status}
+            initialEtaEarliest={order.eta_earliest}
+            initialEtaLatest={order.eta_latest}
+            customerName={order.kunde_name}
           />
         )}
 

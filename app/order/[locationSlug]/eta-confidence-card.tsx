@@ -130,7 +130,7 @@ export function EtaConfidenceCard({
     // Poll fallback every 60s
     const pollIv = setInterval(async () => {
       try {
-        const res = await fetch(`/api/delivery/orders/${orderId}/eta`);
+        const res = await fetch(`/api/delivery/orders/${orderId}/tracking`);
         if (res.ok) {
           const d = await res.json();
           if (d.status) setStatus(d.status);
