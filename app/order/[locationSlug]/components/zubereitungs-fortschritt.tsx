@@ -36,6 +36,13 @@ function fmtTime(isoOrMs: string | number | null): string {
 export function ZubereitungsFortschritt({ prepMin, driveMin, status, orderedAt }: Props) {
   const [nowMs, setNowMs] = React.useState(Date.now());
 
+  // Stable start time: parse orderedAt once, or capture mount time as fallback.
+  // Must not recompute on every tick (which would freeze elapsedMin at 1 minute).
+  const startMs = React.useMemo(
+    () => (orderedAt ? new Date(orderedAt).getTime() : Date.now()),
+    [orderedAt],
+  );
+
   React.useEffect(() => {
     const iv = setInterval(() => setNowMs(Date.now()), 10_000);
     return () => clearInterval(iv);
@@ -44,7 +51,6 @@ export function ZubereitungsFortschritt({ prepMin, driveMin, status, orderedAt }
   if (!STATUSES_VISIBLE.includes(status)) return null;
 
   const totalMin = prepMin + driveMin;
-  const startMs = orderedAt ? new Date(orderedAt).getTime() : nowMs - 60_000;
   const elapsedMin = Math.max(0, (nowMs - startMs) / 60_000);
 
   const prepRatio   = prepMin / totalMin;

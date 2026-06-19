@@ -1,7 +1,50 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–253 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (310 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–255 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (311 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #150 — 2026-06-19
+
+### Geprüfte Phase: Phase 255 — 5 neue Frontend-Komponenten
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (311 Seiten, 0 Fehler)
+
+**TypeScript-Fehler gefixt:** 0
+
+**Bug gefixt:**
+- `app/order/[locationSlug]/components/zubereitungs-fortschritt.tsx:47` — `startMs = nowMs - 60_000` wurde bei jedem Timer-Tick neu berechnet → `elapsedMin` blieb konstant auf 1 Minute fixiert, Fortschrittsbalken friert ein. Fix: `startMs` mit `React.useMemo([orderedAt])` stabil halten, Fallback `Date.now()` beim ersten Render ✅
+
+**Code-Review Phase 255:**
+- `kitchen/stunden-nachfrage-strip.tsx` (KitchenStundenNachfrageStrip): 12h-Fenster-Aggregation, Farb-Kodierung nach Intensität (matcha/amber/rot), Stoßzeit-Erkennung bei ≥65% Peak, Refresh 5min. Integration in kitchen/client.tsx nach RampUpStrip ✅
+- `dispatch/performance-score-arc.tsx` (DispatchPerformanceScoreArc): SVG-Arc-Gauge (180°, strokeDasharray korrekt), 4 Dimensionen als DimBar (max-Werte stimmen: 35/30/20/15=100), 7-Tage-Trendlinie, Recommendations-Expand. Integration in dispatch/client.tsx ✅
+- `lieferdienst/delivery-heat-kalender.tsx` (DeliveryHeatKalender): 7×24 Heatmap, DOW-Mapping `(slot.dow + 6) % 7` korrekt (ISO-Montag=0), Mock-Fallback mit realistischen Peak-Mustern, Tooltip bei Hover. Integration in lieferdienst/client.tsx ✅
+- `fahrer/app/richtungs-anzeige.tsx` (FahrerRichtungsAnzeige): Haversine-Distanz + Kompass-Bearing korrekt implementiert, Geräte-Kompass-Kompensation via DeviceOrientationEvent, graceful Fallback wenn kein GPS. Integration in fahrer/client.tsx mit driverPos-Guard ✅
+- `order/[locationSlug]/components/zubereitungs-fortschritt.tsx` (ZubereitungsFortschritt): Prep+Fahrt-Fortschrittsbalken zweigeteilte Visualisierung, `STATUSES_VISIBLE`-Guard, animate-pulse auf aktiver Phase. Integration in success-state.tsx ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- Performance-Score-Arc: Dispatch nutzt `/api/delivery/admin/performance-score` (Phase 254 Backend) ✅
+- Heatmap: nutzt `/api/delivery/admin/demand-forecast` (früherer Backend-Endpoint) ✅
+
+**Bugs gefunden:** 1 — GEFIXT ✅
+
+### Status nach Review #150
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (311 Seiten)
+- Phase 255 (5 neue Frontend-Komponenten): DONE ✅
+- Bugs gefixt: 1 (ZubereitungsFortschritt frozen progress)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 256: Delivery SLA Breach Detector — Echtzeit-Alarm wenn Bestellung die zugesagte Lieferzeit überschreitet (>ETA+10min) mit automatischer Eskalation an Dispatch
+2. Oder: Phase 256: Driver Geofence API — automatische Statusänderung wenn Fahrer Restaurant-Zone verlässt (→ unterwegs) oder Kunden-Zone betritt (→ ankunft nahe)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 256: Dispatch Live-Karte — interaktive Karte mit Fahrer-Pins + Kunden-Adressen + Routen-Overlay (Leaflet oder Google Maps)
+2. Oder: Phase 256: Kitchen Ticket-Display — TV-Modus mit großer Schrift für Köche, Auto-Refresh, Bestelltickets mit Countdown
 
 ---
 
