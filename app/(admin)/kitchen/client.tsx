@@ -91,6 +91,7 @@ import { KitchenLiveCookSignal } from './live-cook-signal';
 import { KitchenAuslastungsMonitor } from './auslastungs-monitor';
 import { KitchenFertigkeitsTrend } from './fertigkeits-trend';
 import { KitchenDriverReturnKochstart } from './driver-return-kochstart';
+import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1468,6 +1469,8 @@ export function KitchenBoard({
       {!bigDisplay && <KitchenSchichtQueuePrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />}
       {/* Echtzeit-Countdown-Board: farbkodiertes Live-Timing je Bestellung */}
       <KitchenEchtzeitCountdownBoard orders={orders} />
+      {/* Phase 277: Smart Kochstart-Empfehlung — wann muss welche Bestellung gestartet werden? */}
+      <KitchenSmartKochstartEmpfehlung orders={filtered} batches={batches} timings={timings} />
     </div>
   );
 }

@@ -85,6 +85,7 @@ import { TourFortschrittsRing } from './tour-fortschritts-ring';
 import { TourZielpunktKarte } from './tour-zielpunkt-karte';
 import { TourStoppZeitlinie } from './tour-stopp-zeitlinie';
 import { TourRueckkehrAnzeige } from './tour-rueckkehr-anzeige';
+import { SchichtZusammenfassungLive } from './schicht-zusammenfassung-live';
 
 type Driver = {
   id: string;
@@ -1210,6 +1211,10 @@ export function FahrerApp({
               <TourRueckkehrAnzeige driverId={driver.id} locationId={driver.location_id} />
             </div>
           )}
+          {/* Phase 280: Schicht-Zusammenfassung Live — Einnahmen, Lieferungen, Pünktlichkeit, Prognose */}
+          <div className="px-4">
+            <SchichtZusammenfassungLive driverId={driver.id} onlineSince={status?.online_seit ?? null} />
+          </div>
           {/* Tour-Stopp-Aktionen: Aktionsbuttons für aktuellen Stopp — Angekommen, Geliefert, Anruf, Navigation */}
           {activeBatch.stops.length > 0 && (() => {
             const currentStop = activeBatch.stops.find((s) => !s.geliefert_am);

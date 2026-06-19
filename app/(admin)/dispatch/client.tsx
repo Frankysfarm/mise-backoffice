@@ -140,6 +140,7 @@ import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
 import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
+import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 
 type Driver = {
   employee_id: string;
@@ -1525,6 +1526,18 @@ export function DispatchBoard({
       {/* Historisches Leaderboard: Wochen-/Monatsranking aus persistenten Snapshots */}
       <DriverHistoricalLeaderboardPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
+      {/* Phase 278: Echtzeit-Gewinn-Monitor — Deckungsbeitrag je aktiver Tour */}
+      {batches.length > 0 && (
+        <DispatchEchtzeitGewinnPanel batches={batches.map(b => ({
+          ...b,
+          startzeit: b.startzeit ?? null,
+          fahrer: b.fahrer ?? null,
+          stops: (b.stops ?? []).map(s => ({
+            ...s,
+            order: s.order ? { bestellnummer: s.order.bestellnummer, gesamtbetrag: (s.order as any).gesamtbetrag } : null,
+          })),
+        }))} />
+      )}
       {/* Tour-Score-Board: priorisierte Liste aktiver Touren nach ETA-Gesundheit */}
       {batches.length > 0 && <DispatchActiveTourScoreBoard batches={batches} drivers={drivers} />}
 
