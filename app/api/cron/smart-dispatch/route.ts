@@ -108,6 +108,7 @@ import { snapshotAllLocations as snapshotGeoHeatmap, pruneOldSnapshots as pruneH
 import { recordUsageAllLocations as recordRestockUsage, checkThresholdsAllLocations as checkRestockThresholds, pruneOldMaterialSnapshots } from '@/lib/delivery/restock-engine';
 import { computeRampUpAllLocations, pruneOldProfiles as pruneRampUpProfiles } from '@/lib/delivery/driver-ramp-up';
 import { snapshotAllLocations as snapshotPerformanceScores, pruneOldPerformanceScores } from '@/lib/delivery/performance-score';
+import { scanNotificationsAllLocations, pruneOldNotifications } from '@/lib/delivery/notification-center';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -803,6 +804,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldPerformanceScores(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 254: Notification Center — jeden Tick scannen
+    const notifScanResult = await scanNotificationsAllLocations().catch(
+      () => ({ locations: 0, totalCreated: 0, totalSkipped: 0, errors: 1 }),
+    );
+    const notifPruned = isReportTick
+      ? await pruneOldNotifications(30).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -984,6 +993,8 @@ export async function GET(req: NextRequest) {
       ...(rampUpPruned ? { ramp_up_profiles_pruned: rampUpPruned.pruned } : {}),
       ...(perfScoreResult ? { performance_scores: { locations: perfScoreResult.locations, snapshots: perfScoreResult.snapshots, errors: perfScoreResult.errors } } : {}),
       ...(perfScoresPruned ? { performance_scores_pruned: perfScoresPruned.pruned } : {}),
+      notification_center: { locations: notifScanResult.locations, created: notifScanResult.totalCreated, errors: notifScanResult.errors },
+      ...(notifPruned ? { notifications_pruned: notifPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

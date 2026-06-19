@@ -107,6 +107,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Lieferungen heute, Kapazität und aktiver Batch-Status" cta="Performance" />
         <SectionCard href="/delivery/live-ops" icon={<MonitorDot className="h-5 w-5" />} title="Live-Ops Command Center"
           subtitle="KPIs · Fahrerstatus · Touren · Bestellfluss auf einen Blick" cta="Command Center" highlight />
+        <SectionCard href="/delivery/notifications" icon={<BellDot className="h-5 w-5" />} title="Notification Center"
+          subtitle="Kritische Events in Echtzeit · Fahrerverzögerung, ETA-Konfidenz, Batch-Stuck, SLA-Verletzung" cta="Notifications öffnen" highlight />
         <SectionCard href="/delivery/scheduled" icon={<Calendar className="h-5 w-5" />} title="Vorbestellungen"
           subtitle="Geplante Lieferungen · manuelle Freigabe" cta="Vorbestellungen" />
         <SectionCard href="/delivery/trends" icon={<TrendingDown className="h-5 w-5" />} title="Tages-Trends"

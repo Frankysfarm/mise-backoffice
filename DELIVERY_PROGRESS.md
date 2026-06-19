@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–253 abgeschlossen. Build sauber. 310 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–254 abgeschlossen. Build sauber. 311 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 254 — Delivery Notification Center. Build ✅ 311 Seiten.**
 **CEO-Agent Review #149 — 2026-06-19: 3 TS-Fehler gefixt (performance-score route fehlender await + 2× Recharts formatter), Phase 253 geprüft, Build ✅ 310 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 253 — EtaVertrauenWidget API-Polling + Fahrer Score-Sparkline. Build ✅ 310 Seiten.**
 **CEO-Agent Review #148 — 2026-06-19: 1 TS-Fehler gefixt (schicht-burndown.tsx Recharts Formatter), Phase 252 Backend + Frontend (4 Panels) geprüft, Build ✅ 308 Seiten, 0 Fehler.**
@@ -3960,6 +3961,14 @@ Siehe DELIVERY_CEO_LOG.md
   - Fix 2: review-flags/client.tsx L377 — `unknown &&` → `!!unknown && String()` für ReactNode-Kompatibilität
   - Phase 241 (5 neue Komponenten) alle korrekt integriert: KitchenTimingFarbkodierung, DispatchTourZeitfortschritt, KassenUebersicht, EtaSekundenCountdown, SchichtEchtzeitAmpel
   - Build: npx next build ✓ (302 Seiten), npx tsc --noEmit ✓ (0 Fehler)
+- 2026-06-19: Backend-Architekt — Phase 254: Delivery Admin Notification Center
+  - scripts/migrations/130_notification_center.sql: delivery_admin_notifications (10 Event-Typen, severity info/warning/critical, dedup_key UNIQUE, JSONB metadata, RLS) + v_admin_notifications_active VIEW + v_admin_notification_summary VIEW + prune_old_admin_notifications() RPC + dismiss_all_notifications() RPC + updated_at Trigger + 3 Indizes
+  - lib/delivery/notification-center.ts: 8 Scanner (driver_delay/>10Min, batch_stuck/>15Min, no_driver_available/>2 offene, eta_confidence_low/<40%, high_cancellation_rate/>20%, driver_offline_mid_tour, sla_breach_imminent/<5Min, kitchen_backlog/>5 fertige), scanNotificationsAllLocations() Cron-Batch, getActiveNotifications(), getNotificationSummary(), markNotificationRead(), dismissNotification(), dismissAllNotifications(), pruneOldNotifications()
+  - GET+POST /api/delivery/admin/notifications: Auth via employees.location_id, GET action=list|summary, POST action=mark_read|dismiss|dismiss_all|scan
+  - app/(admin)/delivery/notifications/: NotificationsClient (4 KPI-Karten, Filter-Buttons all/critical/warning/unread, NotifCard mit Severity-Icon+Farbe+Dismiss+MarkRead, Dismiss-All, Manueller Scan, 30s Auto-Refresh)
+  - Cron: scanNotificationsAllLocations() jeden Tick + pruneOldNotifications(30) täglich 02:00 UTC
+  - delivery/page.tsx: SectionCard "Notification Center" mit BellDot-Icon + highlight in Live-Betrieb-Gruppe
+  - Build: npx next build ✓ (311 Seiten, 0 Fehler), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-06-19: Backend-Architekt — Phase 250: Delivery Performance Score Engine (0–100)
   - scripts/migrations/129_performance_score.sql: delivery_performance_scores (4 Dimensionen: on_time/satisfaction/utilization/margin, Grade A+–F, UNIQUE location+date, RLS) + v_performance_score_latest + v_performance_score_ranking (RANK()) + prune_old_performance_scores() RPC + 3 Indizes + updated_at Trigger
   - lib/delivery/performance-score.ts: computePerformanceScore() (35% Pünktlichkeit + 30% Zufriedenheit + 20% Auslastung + 15% Marge), snapshotPerformanceScore(), snapshotAllLocations() Cron-Batch, getPerformanceDashboard() (latest+trend+ranking+recommendations), getPerformanceTrend(), pruneOldPerformanceScores()
