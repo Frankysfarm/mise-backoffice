@@ -201,6 +201,8 @@ export default async function DeliveryOverviewPage() {
 
       {/* ── KI-Tools ─────────────────────────────────────────── */}
       <SectionGroup title="KI-Tools">
+        <SectionCard href="/delivery/scoring-v2" icon={<BrainCircuit className="h-5 w-5" />} title="Dispatch ML-Scoring V2"
+          subtitle="12-Faktoren Scoring · Wetter + Fahrer-Geschwindigkeit + Zone×Kfz-Erfolgsrate · per Standort konfigurierbar" cta="Scoring konfigurieren" highlight />
         <SectionCard href="/delivery/ai-assist" icon={<BrainCircuit className="h-5 w-5" />} title="KI-Dispatch-Assistent"
           subtitle="Claude analysiert Live-Zustand und liefert Dispatch-Empfehlungen" cta="KI starten" />
         <SectionCard href="/delivery/ai-forecast" icon={<LineChart className="h-5 w-5" />} title="KI-Nachfrage-Prognose"

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–262 abgeschlossen. Build sauber. 312 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–263 abgeschlossen. Build sauber. 313 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 263 — Smart Dispatch ML-Scoring V2. Build ✅ 313 Seiten, 0 Fehler.**
 **CEO-Agent Review #154 — 2026-06-19: 2 Bugs gefixt (Math.random()-Fallbacks + tote revenueTrend-Variable in stunden-hochrechnung.tsx). Phase 261 (Score-Bonus Admin-Dashboard) + Phase 262 (5 Smart-Delivery-Komponenten) geprüft. Build ✅ 312 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 262 — KitchenPickupZeitlinie, DispatchKitchenSyncAlert, StundenHochrechnung, TourKpiSummary, WarteschlangenIndikator. Build ✅ 312 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 261 — Score-Bonus Admin-Dashboard (Trigger-Config + Grant-Genehmigung). Build ✅ 312 Seiten, 0 Fehler.**
@@ -4104,6 +4105,16 @@ Siehe DELIVERY_CEO_LOG.md
   - Fix 2: review-flags/client.tsx L377 — `unknown &&` → `!!unknown && String()` für ReactNode-Kompatibilität
   - Phase 241 (5 neue Komponenten) alle korrekt integriert: KitchenTimingFarbkodierung, DispatchTourZeitfortschritt, KassenUebersicht, EtaSekundenCountdown, SchichtEchtzeitAmpel
   - Build: npx next build ✓ (302 Seiten), npx tsc --noEmit ✓ (0 Fehler)
+- 2026-06-19: Backend-Architekt — Phase 263: Smart Dispatch ML-Scoring V2
+  - scripts/migrations/134_scoring_v2.sql: scoring_v2_configs (12 Gewichte UNIQUE location_id, Feature-Flags use_weather/use_velocity/use_zone_vehicle_stats, is_active Toggle, RLS) + driver_zone_vehicle_stats (zone×vehicle, total_deliveries, on_time_count, avg_delivery_min, success_rate, UNIQUE location+zone+vehicle) + rebuild_zone_vehicle_stats(location_id) SQL-Funktion (30-Tage-Aggregation, upsert on conflict) + v_scoring_v2_overview VIEW
+  - lib/delivery/scoring-v2.ts: ScoringV2Config/DriverScoreInputV2/ScoreBreakdownV2/ZoneVehicleStat Types; getScoringV2Config/upsertScoringV2Config Config-CRUD; scoreDriverV2() 12-Faktoren weighted (Faktoren 11=Wetter-Penalty Bike vs Auto, 12=Velocity deliveries/h); rankDriversV2(); getZoneVehicleStats/rebuildZoneVehicleStats/rebuildZoneVehicleStatsAllLocations; enrichDriversV2() (batch-lädt Weather aus weather_snapshots + Deliveries-today + ShiftActiveMinutes + Zone×Kfz-Rates); getScoringV2Dashboard()
+  - GET+POST /api/delivery/admin/scoring-v2: Auth via employees.location_id, GET action=dashboard|config|stats, POST action=update_config|toggle|rebuild
+  - app/(admin)/delivery/scoring-v2/: ScoringV2Client (4 KPI-Karten, V2-Toggle-Banner, Tabs: Gewichtung (12 Faktoren mit Range-Slider, Summe=100 Validator, Feature-Flag-Checkboxen) + Zone×Fahrzeug-Statistik Tabelle mit Erfolgsraten-Badges + Rebuild-Button)
+  - Cron: isZoneVehicleStatsTick 04:35 UTC → rebuildZoneVehicleStatsAllLocations()
+  - dispatch-engine.ts: V2-Integration — getScoringV2Config() + enrichDriversV2() → rankDriversV2() wenn is_active=true, sonst V1-Fallback
+  - Bugfix: KitchenPickupZeitlinie (Phase 262) TS2719-Fehler — Batch-Typ korrigiert (fahrer_id→driver_id, startzeit→started_at, stops als eigener Prop aus client.tsx state statt eingebettet in Batch)
+  - delivery/page.tsx: SectionCard "Dispatch ML-Scoring V2" mit BrainCircuit-Icon + highlight in KI-Tools-Gruppe
+  - Build: node_modules/.bin/next build ✓ (313 Seiten), npx tsc --noEmit ✓ (0 Fehler)
 - 2026-06-19: Backend-Architekt — Phase 254: Delivery Admin Notification Center
   - scripts/migrations/130_notification_center.sql: delivery_admin_notifications (10 Event-Typen, severity info/warning/critical, dedup_key UNIQUE, JSONB metadata, RLS) + v_admin_notifications_active VIEW + v_admin_notification_summary VIEW + prune_old_admin_notifications() RPC + dismiss_all_notifications() RPC + updated_at Trigger + 3 Indizes
   - lib/delivery/notification-center.ts: 8 Scanner (driver_delay/>10Min, batch_stuck/>15Min, no_driver_available/>2 offene, eta_confidence_low/<40%, high_cancellation_rate/>20%, driver_offline_mid_tour, sla_breach_imminent/<5Min, kitchen_backlog/>5 fertige), scanNotificationsAllLocations() Cron-Batch, getActiveNotifications(), getNotificationSummary(), markNotificationRead(), dismissNotification(), dismissAllNotifications(), pruneOldNotifications()

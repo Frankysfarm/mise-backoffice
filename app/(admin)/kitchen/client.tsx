@@ -604,7 +604,7 @@ export function KitchenBoard({
       {/* Wetter-Einfluss-Banner: ETA-Faktor + Warnung bei schlechten Wetterbedingungen */}
       <KitchenWetterEinflussBanner locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Pickup-Zeitlinie: Abholungs-Timeline für alle fertige Bestellungen mit Wartezeit-Farbcodierung */}
-      <KitchenPickupZeitlinie orders={filtered} batches={batches} />
+      <KitchenPickupZeitlinie orders={filtered} batches={batches} stops={stops} />
       {/* Fertig-Warte-Board: ready orders sorted by driver wait time with urgency color */}
       <KitchenFertigWarteBoard orders={filtered} />
       {/* Handoff-Ready-Matrix: Matching fertige Lieferbestellungen × freie Fahrer — Ampel-Übersicht */}

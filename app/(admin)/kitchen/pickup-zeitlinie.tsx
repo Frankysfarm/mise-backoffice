@@ -17,21 +17,23 @@ type Order = {
 type Batch = {
   id: string;
   status: string;
-  fahrer_id: string | null;
-  startzeit?: string | null;
+  driver_id: string | null;
+  started_at?: string | null;
   total_eta_min?: number | null;
-  fahrer?: { vorname: string; nachname: string } | null;
-  stops: {
-    id: string;
-    order_id: string;
-    reihenfolge: number;
-    geliefert_am: string | null;
-  }[];
+};
+
+type Stop = {
+  id: string;
+  batch_id: string;
+  order_id: string;
+  reihenfolge: number;
+  geliefert_am: string | null;
 };
 
 interface Props {
   orders: Order[];
   batches: Batch[];
+  stops: Stop[];
 }
 
 function useSecondTick() {
@@ -68,7 +70,7 @@ function urgencyIcon(waitMin: number, hasDriver: boolean) {
   return CheckCircle2;
 }
 
-export function KitchenPickupZeitlinie({ orders, batches }: Props) {
+export function KitchenPickupZeitlinie({ orders, batches, stops }: Props) {
   useSecondTick();
 
   const readyOrders = orders.filter(o =>
@@ -77,12 +79,12 @@ export function KitchenPickupZeitlinie({ orders, batches }: Props) {
 
   if (readyOrders.length === 0) return null;
 
+  const batchById = new Map<string, Batch>(batches.map(b => [b.id, b]));
   const orderBatchMap = new Map<string, Batch>();
-  for (const batch of batches) {
-    for (const stop of batch.stops) {
-      if (!stop.geliefert_am) {
-        orderBatchMap.set(stop.order_id, batch);
-      }
+  for (const stop of stops) {
+    if (!stop.geliefert_am) {
+      const batch = batchById.get(stop.batch_id);
+      if (batch) orderBatchMap.set(stop.order_id, batch);
     }
   }
 
@@ -91,10 +93,10 @@ export function KitchenPickupZeitlinie({ orders, batches }: Props) {
       const fertigAt = (order.fertig_am ?? order.fertig_am_str) as string | null;
       const waitMin = waitMinutes(fertigAt);
       const batch = orderBatchMap.get(order.id) ?? null;
-      const hasDriver = batch != null && batch.fahrer_id != null;
-      const driverName = batch?.fahrer ? `${batch.fahrer.vorname} ${batch.fahrer.nachname[0]}.` : null;
-      const etaMin = batch?.startzeit && batch?.total_eta_min != null
-        ? Math.max(0, Math.ceil((new Date(batch.startzeit).getTime() + batch.total_eta_min * 60_000 - Date.now()) / 60_000))
+      const hasDriver = batch != null && batch.driver_id != null;
+      const driverName: string | null = null;
+      const etaMin = batch?.started_at && batch?.total_eta_min != null
+        ? Math.max(0, Math.ceil((new Date(batch.started_at).getTime() + batch.total_eta_min * 60_000 - Date.now()) / 60_000))
         : null;
       return { order, waitMin, batch, hasDriver, driverName, etaMin, fertigAt };
     })

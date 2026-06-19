@@ -30,6 +30,7 @@ import { recordCustomerEvent } from './customer-notify';
 import { markWindowDispatched } from './windows';
 import { sortByPriority } from './queue-intelligence';
 import { getDriverZoneAffinities } from './zone-affinity';
+import { getScoringV2Config, rankDriversV2, enrichDriversV2, type DriverScoreInputV2 } from './scoring-v2';
 import type { ZoneName } from './zones';
 
 // Phase 59: Compliance-blocked drivers are excluded from dispatch
@@ -235,23 +236,59 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   });
   if (nearby.length === 0) return held(`Kein Fahrer im Radius (${radiusFactor > 1 ? `×${radiusFactor} eskaliert` : 'normal'})`);
 
-  // 5) Scoring — load zone affinities (Phase 110) then rank drivers
+  // 5) Scoring — load zone affinities + optionally V2 config
   const nearbyIds = nearby.map((d) => d.id);
-  const zoneAffinities = await getDriverZoneAffinities(nearbyIds, o.location_id).catch(() => ({} as Record<string, Record<string, number>>));
+  const [zoneAffinities, scoringV2Config] = await Promise.all([
+    getDriverZoneAffinities(nearbyIds, o.location_id).catch(() => ({} as Record<string, Record<string, number>>)),
+    getScoringV2Config(o.location_id).catch(() => null),
+  ]);
 
-  const driverInputs: DriverScoreInput[] = nearby.map((d) => ({
-    id: d.id,
-    vehicle: d.vehicle,
-    last_lat: d.last_lat,
-    last_lng: d.last_lng,
-    current_capacity: d.current_capacity,
-    max_capacity: d.max_capacity,
-    total_deliveries: d.total_deliveries,
-    active_batch_id: d.mise_batch_id ?? null,
-    zone_affinity: zoneAffinities[d.id] ?? null,
-  }));
+  let ranked: Array<{ driver: DriverScoreInput; score: import('./scoring').ScoreBreakdown }>;
 
-  const ranked = rankDrivers(driverInputs, orderInput);
+  if (scoringV2Config?.isActive) {
+    // V2: enrich drivers with weather + velocity context
+    const enriched = await enrichDriversV2(nearbyIds, o.location_id, scoringV2Config).catch(
+      () => new Map<string, { weatherDifficulty: number; deliveriesToday: number; shiftActiveMinutes: number; zoneVehicleSuccessRate: Record<string, number> }>(),
+    );
+    const zoneVehicleRates = enriched.get(nearbyIds[0] ?? '')?.zoneVehicleSuccessRate ?? {};
+
+    const driverInputsV2: DriverScoreInputV2[] = nearby.map((d) => {
+      const ctx = enriched.get(d.id);
+      return {
+        id: d.id,
+        vehicle: d.vehicle,
+        last_lat: d.last_lat,
+        last_lng: d.last_lng,
+        current_capacity: d.current_capacity,
+        max_capacity: d.max_capacity,
+        total_deliveries: d.total_deliveries,
+        active_batch_id: d.mise_batch_id ?? null,
+        zone_affinity: zoneAffinities[d.id] ?? null,
+        weather_difficulty: ctx?.weatherDifficulty ?? null,
+        deliveries_today: ctx?.deliveriesToday ?? null,
+        shift_active_minutes: ctx?.shiftActiveMinutes ?? null,
+      };
+    });
+
+    const rankedV2 = rankDriversV2(driverInputsV2, orderInput, scoringV2Config, zoneVehicleRates);
+    // Cast to V1 shape (ScoreBreakdownV2 extends ScoreBreakdown)
+    ranked = rankedV2 as unknown as typeof ranked;
+  } else {
+    // V1 (default)
+    const driverInputs: DriverScoreInput[] = nearby.map((d) => ({
+      id: d.id,
+      vehicle: d.vehicle,
+      last_lat: d.last_lat,
+      last_lng: d.last_lng,
+      current_capacity: d.current_capacity,
+      max_capacity: d.max_capacity,
+      total_deliveries: d.total_deliveries,
+      active_batch_id: d.mise_batch_id ?? null,
+      zone_affinity: zoneAffinities[d.id] ?? null,
+    }));
+    ranked = rankDrivers(driverInputs, orderInput);
+  }
+
   if (ranked.length === 0) return held('Alle Fahrer sind voll');
 
   const best = ranked[0];

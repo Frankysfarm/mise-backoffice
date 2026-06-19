@@ -111,6 +111,7 @@ import { snapshotAllLocations as snapshotPerformanceScores, pruneOldPerformanceS
 import { scanNotificationsAllLocations, pruneOldNotifications } from '@/lib/delivery/notification-center';
 import { detectSlaBreachesAllLocations, pruneOldSlaBreaches } from '@/lib/delivery/sla-breach-detector';
 import { evaluateScoreTriggersAllLocations, pruneOldGrants as pruneScoreGrants } from '@/lib/delivery/driver-score-trigger';
+import { rebuildZoneVehicleStatsAllLocations } from '@/lib/delivery/scoring-v2';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -239,6 +240,8 @@ export async function GET(req: NextRequest) {
     const isPerfScoreTick = nowHour === 3 && nowMin >= 5 && nowMin < 9;
     // Phase 258: Score-Bonus-Trigger — täglich 03:10 UTC (5 Min nach Driver Score Compute)
     const isScoreTriggerTick = nowHour === 3 && nowMin >= 10 && nowMin < 14;
+    // Phase 263: Zone×Fahrzeug-Statistik für ML-Scoring V2 — täglich 04:35 UTC (nach Upsell-Rebuild)
+    const isZoneVehicleStatsTick = nowHour === 4 && nowMin >= 34 && nowMin < 38;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -830,6 +833,11 @@ export async function GET(req: NextRequest) {
       : null;
     const scoreGrantsPruned = isReportTick
       ? await pruneScoreGrants(90).catch(() => ({ deleted: 0 }))
+      : null;
+
+    // Phase 263: Zone×Fahrzeug-Statistik für ML-Scoring V2 — täglich 04:35 UTC
+    const zoneVehicleStatsResult = isZoneVehicleStatsTick
+      ? await rebuildZoneVehicleStatsAllLocations().catch(() => ({ locations: 0, totalRows: 0 }))
       : null;
 
     const durationMs = Date.now() - start;
