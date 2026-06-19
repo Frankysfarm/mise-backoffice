@@ -1,7 +1,10 @@
 'use client';
 import { useState } from 'react';
 const soon = () => alert('Bald verfügbar — diese Funktion kommt in Kürze.');
-export function Soon({ children, style, primary }: { children: React.ReactNode; style?: any; primary?: boolean }) {
+export function Soon({ children, style, primary, href }: { children: React.ReactNode; style?: any; primary?: boolean; href?: string }) {
+  if (href) {
+    return <a href={href} style={{ ...style, textDecoration: 'none', display: style?.display ?? 'inline-flex', alignItems: style?.alignItems ?? 'center', justifyContent: style?.justifyContent ?? 'center' }}>{children}</a>;
+  }
   return <button onClick={soon} title="Bald verfügbar" style={{ ...style, position: 'relative', opacity: 0.92 }}>{children}</button>;
 }
 const PBG = ['#FEF3C7', '#ECFDF5', '#EEF2FF', '#DCFCE7', '#FCE7F3', '#EFF6FF'];
@@ -22,7 +25,7 @@ export function MenuView({ cats, items }: { cats: any[]; items: any[] }) {
             <div style={{ flex: 1 }}>{c.name}</div><span style={{ fontSize: 11.5, color: '#94A3B8', fontWeight: 600 }}>{c.items.length}</span>
           </div>
         ); })}
-        <Soon style={{ width: '100%', marginTop: 8, height: 40, border: '1.5px dashed #CBD5E1', borderRadius: 10, background: 'transparent', color: '#64748B', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}>+ Kategorie</Soon>
+        <Soon href="/menu" style={{ width: '100%', marginTop: 8, height: 40, border: '1.5px dashed #CBD5E1', borderRadius: 10, background: 'transparent', color: '#64748B', fontSize: 13.5, fontWeight: 600, cursor: 'pointer' }}>+ Kategorie</Soon>
       </div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 22px', borderBottom: '1px solid #F1F5F9' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>{active?.name || 'Artikel'}</h3><span style={{ fontSize: 13, color: '#94A3B8' }}>Steuersatz pro Artikel gespeichert</span></div>
@@ -33,7 +36,7 @@ export function MenuView({ cats, items }: { cats: any[]; items: any[] }) {
             <div style={{ flex: 1, minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: 9 }}><span style={{ fontSize: 14.5, fontWeight: 700, color: '#0F172A' }}>{it.name}</span><span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 11, fontWeight: 600, color: '#94A3B8', background: '#F1F5F9', padding: '2px 7px', borderRadius: 6 }}>ART-{String(1001 + idx)}</span>{!it.verfuegbar && <span style={{ fontSize: 11, fontWeight: 700, color: '#DC2626', background: '#FEF2F2', padding: '2px 7px', borderRadius: 6 }}>Ausverkauft</span>}</div>{it.beschreibung && <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 460 }}>{it.beschreibung}</div>}</div>
             <span style={{ background: m >= 19 ? '#EFF6FF' : '#ECFDF5', color: m >= 19 ? '#1D4ED8' : '#047857', fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 8 }}>{m}% USt</span>
             <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 15, color: '#0F172A', width: 70, textAlign: 'right' }}>{eur(it.preis)}</span>
-            <Soon style={{ width: 34, height: 34, border: '1px solid #E2E8F0', borderRadius: 9, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span dangerouslySetInnerHTML={{ __html: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"/></svg>' }} /></Soon>
+            <Soon href="/menu" style={{ width: 34, height: 34, border: '1px solid #E2E8F0', borderRadius: 9, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span dangerouslySetInnerHTML={{ __html: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"/></svg>' }} /></Soon>
           </div>
         ); })}
       </div>

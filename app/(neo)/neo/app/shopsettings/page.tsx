@@ -30,13 +30,13 @@ export default async function ShopSettings() {
           <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 7 }}>Eigene Domain verbinden</div>
           <div style={{ display: 'flex', gap: 10 }}>
             <input placeholder="z. B. shop.restaurantname.de" style={{ flex: 1, height: 44, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 13px', fontSize: 14 }} />
-            <Soon style={{ height: 44, padding: '0 18px', border: 'none', borderRadius: 10, background: '#0F172A', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Verbinden</Soon>
+            <Soon href="/settings/domain" style={{ height: 44, padding: '0 18px', border: 'none', borderRadius: 10, background: '#0F172A', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Verbinden</Soon>
           </div>
         </div>
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 24 }}>
           <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Verfügbarkeit</h3>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0', borderBottom: '1px solid #F1F5F9' }}><div><div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>Shop online</div><div style={{ fontSize: 12.5, color: online ? '#94A3B8' : '#DC2626' }}>{online ? 'Kunden können bestellen' : 'Geschlossen — bis morgen'}</div></div><ShopToggle locId={loc?.id ?? ''} online={online} /></div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0' }}><div><div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>Öffnungszeiten heute</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>Mo–So · 11:00 – 23:00 Uhr</div></div><Soon style={{ fontSize: 13, color: '#4F46E5', fontWeight: 600, cursor: 'pointer', background: 'none', border: 'none' }}>Bearbeiten</Soon></div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0' }}><div><div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>Öffnungszeiten heute</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>Mo–So · 11:00 – 23:00 Uhr</div></div><Soon href="/settings/restaurant" style={{ fontSize: 13, color: '#4F46E5', fontWeight: 600, cursor: 'pointer', background: 'none', border: 'none' }}>Bearbeiten</Soon></div>
         </div>
       </div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 24, textAlign: 'center' }}>

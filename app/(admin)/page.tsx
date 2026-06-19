@@ -117,6 +117,12 @@ export default async function HomePage() {
                 <Store size={12} /> Bestellseite <ArrowUpRight size={10} />
               </Link>
               <Link
+                href="/neo/app/uebersicht"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur border border-white/30 px-3 py-1.5 text-xs hover:bg-white/30 font-semibold"
+              >
+                <Sparkles size={12} /> Neues Backoffice <span className="rounded-full bg-white/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">Beta</span>
+              </Link>
+              <Link
                 href="/modules"
                 className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 px-3 py-1.5 text-xs hover:bg-white/20"
               >
