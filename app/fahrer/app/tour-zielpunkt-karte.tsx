@@ -60,19 +60,21 @@ export function TourZielpunktKarte({ stops, driverLat, driverLng }: Props) {
     [stops],
   );
 
+  // Must be before early return — hooks cannot be called conditionally
+  const distKm = useMemo(() => {
+    if (!nextStop) return null;
+    if (nextStop.distance_km != null) return nextStop.distance_km;
+    const ord = nextStop.order;
+    if (driverLat != null && driverLng != null && ord?.kunde_lat && ord?.kunde_lng) {
+      return haversineKm(driverLat, driverLng, ord.kunde_lat, ord.kunde_lng);
+    }
+    return null;
+  }, [nextStop, driverLat, driverLng]);
+
   if (!nextStop || !nextStop.order) return null;
 
   const { order } = nextStop;
   const etaMin = nextStop.eta_min ?? null;
-
-  const distKm = useMemo(() => {
-    if (nextStop.distance_km != null) return nextStop.distance_km;
-    if (driverLat != null && driverLng != null && order.kunde_lat && order.kunde_lng) {
-      return haversineKm(driverLat, driverLng, order.kunde_lat, order.kunde_lng);
-    }
-    return null;
-  }, [nextStop, driverLat, driverLng, order]);
-
   const style = etaStyle(etaMin);
 
   const mapsUrl = order.kunde_lat && order.kunde_lng

@@ -2,6 +2,7 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 **Phasen 1–273 abgeschlossen. Build sauber. 317 Seiten. TypeScript 0 Fehler.**
+**CEO-Agent Review #161 — 2026-06-19: 2 Bugs gefixt (TourZielpunktKarte useMemo nach return null — React-Hooks-Verletzung + DispatchTourZeitabweichung setLoading fehlte bei API-Erfolg). Phase 272+273 geprüft. Build ✅ 317 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 273 — Dispatch Live Score API + Smart Batch Monitor Engine. Build ✅ 317 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 272 — Fahrer-Feedback-Terminal API. Build TS-Check ✅ 0 neue Fehler.**
 **CEO-Agent Review #159 — 2026-06-19: 2 Bugs gefixt (item-demand route.ts ok-Key-Duplikat + tour-stop-detail-card redundante delivered-Prüfung). Phase 270+271 geprüft. Build ✅ 315 Seiten, 0 Fehler.**

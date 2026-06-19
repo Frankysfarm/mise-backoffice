@@ -57,7 +57,7 @@ export function DispatchTourZeitabweichung({ tours: propTours }: Props) {
       const r = await fetch('/api/delivery/dispatch/active-tours');
       if (r.ok) {
         const data = await r.json();
-        if (Array.isArray(data) && data.length > 0) { setTours(data); setLastAt(new Date()); return; }
+        if (Array.isArray(data) && data.length > 0) { setTours(data); setLastAt(new Date()); setLoading(false); return; }
       }
     } catch {}
     setTours(MOCK_TOURS);

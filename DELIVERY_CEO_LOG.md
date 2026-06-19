@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–271 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (315 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–273 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (317 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #161 — 2026-06-19
+
+### Geprüfte Phasen: Phase 272 (Fahrer-Feedback-Terminal API) + Phase 273 (Dispatch Live Score API + Smart Batch Monitor Engine + 6 Frontend-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (317 Seiten, 0 Fehler)
+
+**Code-Review Phase 272 Backend — Fahrer-Feedback-Terminal API:**
+- Bereits von CEO-Review #160 abgedeckt ✅
+
+**Code-Review Phase 273 Backend:**
+- `app/api/delivery/dispatch/scores/route.ts`: GET-Endpoint für Live-Dispatch-Readiness-Scores — Score-Logik korrekt (composite_score Basis, Lastabzug ×20, Statusbonus, Clamp 0–100). Auth via employees.location_id. ✅
+- `lib/delivery/smart-batch-monitor.ts`: Stuck-Detection >15 Min, ETA-Risiko, Health-Score (100−15×stuck−10×eta_risk). snapshotBatchHealth, getBatchMonitorDashboard, getActiveBatchDetails, pruneBatchHealthSnapshots korrekt implementiert ✅
+- `app/api/delivery/admin/batch-monitor/route.ts`: GET (dashboard/scan/details) + POST (snapshot/prune), Auth korrekt ✅
+- Migration 139: batch_health_snapshots Tabelle, v_batch_health_latest VIEW, v_stuck_batches VIEW, prune_old_batch_health_snapshots RPC ✅
+- Admin-Dashboard batch-monitor: 4 KPI-Karten, 24h-Trend-Chart, expandierbare Batch-Karten, 30s Auto-Refresh ✅
+
+**Code-Review Phase 273 Frontend — 6 neue Smart-Delivery-Komponenten:**
+- `kitchen/auslastungs-monitor.tsx` (KitchenAuslastungsMonitor): Stationen-Kacheln (grün/amber/rot), 1s-Countdown, Gesamtauslastungs-Balken — korrekt ✅
+- `kitchen/fertigkeits-trend.tsx` (KitchenFertigkeitsTrend): 15-Min-Slot-Balken, Trend-Chip, Ziel-Linie — korrekt ✅
+- `dispatch/tour-zeitabweichung.tsx` (DispatchTourZeitabweichung): Soll-/Ist-Zeit je Tour — korrekt ✅
+- `fahrer/app/tour-stopp-zeitlinie.tsx` (TourStoppZeitlinie): Vertikale Zeitlinie mit ✓/→/○ — korrekt ✅
+- `lieferdienst/schicht-bestelltrend.tsx` (SchichtBestelltrendKarte): Stündliches Bestellvolumen mit Vorwoche-Vergleich — korrekt ✅
+- `fahrer/app/tour-zielpunkt-karte.tsx` (TourZielpunktKarte): Kompaktkarte nächster Stopp — 1 Bug gefunden + gefixt ✅
+
+**Bugs gefunden und gefixt:**
+1. `fahrer/app/tour-zielpunkt-karte.tsx` — `useMemo` für `distKm` wurde nach bedingtem `return null` aufgerufen (React Rules of Hooks Verletzung). Fix: `useMemo` vor das `if (!nextStop)` verschoben, null-Check im Hook selbst ✅
+2. `dispatch/tour-zeitabweichung.tsx` — `setLoading(false)` wurde nicht aufgerufen wenn API-Call erfolgreich Daten lieferte → Ladespinner blieb dauerhaft sichtbar. Fix: `setLoading(false)` beim API-Erfolg-Pfad ergänzt ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- Dispatch Live Score API (scores/route.ts) beendet offenen CEO-Punkt aus Review #160 ✅
+- Smart Batch Monitor jetzt im Cron (smart-dispatch) integriert ✅
+
+**Bugs gefunden:** 2 — ALLE GEFIXT ✅
+
+### Status nach Review #161
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (317 Seiten)
+- Phase 272 (Fahrer-Feedback-Terminal API): DONE ✅
+- Phase 273 (Dispatch Live Score + Smart Batch Monitor + 6 Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 274: Real-Time Dispatch-Optimierung V3 — ML-Batch-Routing mit Item-Demand-Gewichtung
+2. Oder: Phase 274: Fahrer-Rückkehr-Vorhersage API (Predictive Return-to-Base Engine)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 274: 5–6 neue Smart-Delivery-Komponenten (Batch-Monitor-Widget im Dispatch, Fahrer-Feedback-Auswertung, Score-Verlauf-Sparkline, Live-Queue-Depth-Balken, Lieferzonen-Health-Status)
 
 ---
 
