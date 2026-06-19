@@ -29,6 +29,7 @@ import { OrderStatusZeitleiste } from '@/app/order/[locationSlug]/components/ord
 import { BestellpositionAnzeige } from './bestellposition-anzeige';
 import { LiveBestellZeitleiste } from '@/app/order/[locationSlug]/components/live-bestellzeitleiste';
 import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nachhaltigkeits-banner';
+import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-progress-card';
 
 type Order = {
   order_id: string;
@@ -476,6 +477,15 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
           />
         )}
 
+        {/* Phase 267: Live-Fortschritts-Karte — animierter Stepper + ETA-Countdown */}
+        {!['storniert'].includes(order.status) && (
+          <OrderLiveProgressCard
+            orderId={order.order_id}
+            bestellnummer={order.bestellnummer}
+            initialStatus={order.status}
+            initialEtaMin={order.geschaetzte_lieferung_min}
+          />
+        )}
         {/* Phase 236: Live-Bestell-Zeitleiste — animierte Statusschritte mit ETA */}
         {!['storniert'].includes(order.status) && (
           <LiveBestellZeitleiste

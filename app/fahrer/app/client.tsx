@@ -77,6 +77,7 @@ import { TourStopNavigator } from './tour-stop-navigator';
 import { TourNavigationsCockpit } from './tour-navigations-cockpit';
 import { FahrerKundenNotizKarte } from './kunden-notiz-karte';
 import { TourZeitplanFahrer } from './tour-zeitplan-fahrer';
+import { TourNaviHUD } from './tour-navi-hud';
 
 type Driver = {
   id: string;
@@ -1093,6 +1094,16 @@ export function FahrerApp({
               <TourKpiSummary
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
+                totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Tour-Navigation-HUD: Nächster Stopp mit Countdown, Distanz, Navigations-Button */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourNaviHUD
+                stops={activeBatch.stops as any}
+                totalEtaMin={(activeBatch as any).total_eta_min ?? null}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
             </div>

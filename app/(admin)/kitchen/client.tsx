@@ -83,6 +83,7 @@ import { KitchenTimingAmpelLive } from './timing-ampel-live';
 import { KitchenPickupZeitlinie } from './pickup-zeitlinie';
 import { KitchenWarmhalteWarnung } from './warmhalte-warnung';
 import { KitchenKategorieAuslastung } from './kategorie-auslastung';
+import { KitchenSmartOrderFlowBoard } from './smart-order-flow-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -548,6 +549,8 @@ export function KitchenBoard({
         completedToday={completedToday ?? 0}
         activeDriverCount={drivers.filter(d => d.status?.ist_online).length}
       />
+      {/* Smart-Flow Board: Farbkodiertes Kachel-Raster aller aktiven Bestellungen mit Countdown */}
+      <KitchenSmartOrderFlowBoard orders={filtered} />
       {/* Live-Prep-Matrix — Stations-Belegung je aktiver Bestellung mit Countdown */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length >= 2 && (
         <KitchenLivePrepMatrix orders={filtered} timings={timings} />

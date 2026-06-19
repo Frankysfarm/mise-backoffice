@@ -134,6 +134,7 @@ import { DispatchScoreLivePanel } from './dispatch-score-live';
 import { DispatchKitchenSyncAlert } from './kitchen-sync-alert';
 import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
 import { DispatchTourRückkehrFenster } from './tour-rueckkehr-fenster';
+import { DispatchTourScoreSummaryPanel } from './tour-score-summary-panel';
 
 type Driver = {
   employee_id: string;
@@ -940,6 +941,8 @@ export function DispatchBoard({
       <TourEtaStrip batches={batches} drivers={drivers} />
       {/* Tour-Zeitfortschritt: Farbkodierte ETA-Fortschrittsbalken aller aktiven Touren */}
       <DispatchTourZeitfortschritt batches={batches} />
+      {/* Tour-Score-Zusammenfassung: Score-Badge + Fortschrittsbalken + ETA je aktiver Tour */}
+      <DispatchTourScoreSummaryPanel batches={batches} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
