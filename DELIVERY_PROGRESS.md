@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–255 abgeschlossen. Build sauber. 311 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–256 abgeschlossen. Build sauber. 312 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 256 — SLA Breach Detector. Build ✅ 312 Seiten.**
 **CEO-Agent Review #150 — 2026-06-19: 1 Bug gefixt (ZubereitungsFortschritt frozen progress — startMs jetzt stabil via useMemo), Phase 255 (5 Komponenten) geprüft, Build ✅ 311 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 255 — KitchenStundenNachfrageStrip, DispatchPerformanceScoreArc, DeliveryHeatKalender, FahrerRichtungsAnzeige, ZubereitungsFortschritt. Build ✅ 311 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 254 — Delivery Notification Center. Build ✅ 311 Seiten.**
@@ -33,6 +34,33 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 256 — Delivery SLA Breach Detector (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `scripts/migrations/131_sla_breach_detector.sql` — `sla_breaches` Tabelle (order_id UNIQUE, severity warning/critical, delay_min, eta_latest_at, escalated_at, resolved_at), 2 Indizes (active breaches / cleanup), RLS, updated_at Trigger
+- `lib/delivery/sla-breach-detector.ts` — 5 Funktionen:
+  - `detectSlaBreachesForLocation(locationId)`: scannt aktive Lieferungen mit `eta_latest < now() - 10min`, upsert in `sla_breaches`, löst Breaches auf wenn Bestellung terminal (geliefert/storniert/abgeschlossen); severity: `warning` (10–24 Min) / `critical` (≥25 Min)
+  - `detectSlaBreachesAllLocations()`: Parallel-Scan aller aktiven Locations
+  - `getSlaBreachDashboard(locationId)`: aktive Breaches sortiert nach delay_min DESC + KPI-Zahlen (total/critical/warning/oldest)
+  - `resolveSlaBreach(breachId, locationId)`: setzt resolved_at (idempotent via location_id Guard)
+  - `pruneOldSlaBreaches(days)`: entfernt aufgelöste Breaches älter als 30 Tage
+- `app/api/delivery/admin/sla-breaches/route.ts` — GET `?action=list|count` / POST `action=resolve|scan`; Auth via employees.tenant_id/location_id
+- `app/(admin)/dispatch/sla-breach-panel.tsx` — `SlaBreachDetectorPanel`: zeigt aktive Breaches nur wenn totalActive > 0; Siren-Icon animiert-pulse; Kritisch-Breaches rot (≥25min), Warnung amber (10–24min); Resolve-Button per Breach; 60s Auto-Refresh; vollständig selbst-fetchend
+- `app/(admin)/dispatch/client.tsx` — `SlaBreachDetectorPanel` nach `DispatchFahrerRampUpStrip` eingebunden
+- `app/api/cron/smart-dispatch/route.ts` — `detectSlaBreachesAllLocations()` jeden Cron-Tick; `pruneOldSlaBreaches(30)` täglich bei isReportTick; beide im Response-JSON
+
+### Schweregrad-Logik:
+- **warning**: ETA um 10–24 Minuten überschritten (Lieferung noch in Gang)
+- **critical**: ETA um ≥25 Minuten überschritten (dringende Dispatch-Eskalation nötig)
+- **Auflösung**: automatisch beim nächsten Cron-Tick sobald Bestellung terminal, oder manuell via Resolve-Button im Panel
+
+### Build:
+- `npx next build`: ✅ 312 Seiten, 0 TypeScript-Fehler
 
 ---
 

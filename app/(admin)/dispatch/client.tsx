@@ -127,6 +127,7 @@ import { DispatchZuweisungsVorschau } from './zuweisungs-vorschau';
 import { DispatchFahrerRampUpStrip } from './fahrer-ramp-up-strip';
 import { TourLieferzeitRangliste } from './tour-lieferzeit-rangliste';
 import { DispatchPerformanceScoreArc } from './performance-score-arc';
+import { SlaBreachDetectorPanel } from './sla-breach-panel';
 
 type Driver = {
   employee_id: string;
@@ -987,6 +988,8 @@ export function DispatchBoard({
       <DriverBonusProximityPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 251: Neue Fahrer im Onboarding — Tier-Übersicht + Coaching-Alert */}
       <DispatchFahrerRampUpStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? undefined)} />
+      {/* Phase 256: SLA Breach Detector — Echtzeit-Alarm bei überschrittener Lieferzeit (ETA+10min) */}
+      <SlaBreachDetectorPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 247: Echtzeit-GPS-Dashboard — self-fetching Leaflet-Karte mit allen Fahrern + Touren */}
       <RealtimeGpsDashboard

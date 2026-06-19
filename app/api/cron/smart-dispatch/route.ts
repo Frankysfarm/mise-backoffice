@@ -109,6 +109,7 @@ import { recordUsageAllLocations as recordRestockUsage, checkThresholdsAllLocati
 import { computeRampUpAllLocations, pruneOldProfiles as pruneRampUpProfiles } from '@/lib/delivery/driver-ramp-up';
 import { snapshotAllLocations as snapshotPerformanceScores, pruneOldPerformanceScores } from '@/lib/delivery/performance-score';
 import { scanNotificationsAllLocations, pruneOldNotifications } from '@/lib/delivery/notification-center';
+import { detectSlaBreachesAllLocations, pruneOldSlaBreaches } from '@/lib/delivery/sla-breach-detector';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -812,6 +813,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldNotifications(30).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 256: SLA Breach Detector — jeden Tick (ETA+10min Überschreitung → Eskalation)
+    const slaBreachResult = await detectSlaBreachesAllLocations().catch(
+      () => ({ locations: 0, totalDetected: 0, totalResolved: 0, errors: 1 }),
+    );
+    const slaBreachesPruned = isReportTick
+      ? await pruneOldSlaBreaches(30).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -995,6 +1004,8 @@ export async function GET(req: NextRequest) {
       ...(perfScoresPruned ? { performance_scores_pruned: perfScoresPruned.pruned } : {}),
       notification_center: { locations: notifScanResult.locations, created: notifScanResult.totalCreated, errors: notifScanResult.errors },
       ...(notifPruned ? { notifications_pruned: notifPruned.pruned } : {}),
+      sla_breach_detector: { locations: slaBreachResult.locations, detected: slaBreachResult.totalDetected, resolved: slaBreachResult.totalResolved, errors: slaBreachResult.errors },
+      ...(slaBreachesPruned ? { sla_breaches_pruned: slaBreachesPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
