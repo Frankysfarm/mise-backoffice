@@ -31,28 +31,21 @@ function StatusPulse({ color }: { color: string }) {
 
 export function FahrerRueckkehrEta({
   bestellnummer,
-  locationSlug,
 }: {
   bestellnummer: string;
-  locationSlug:  string;
 }) {
-  const [data, setData]     = useState<TrackingData | null>(null);
-  const [tick, setTick]     = useState(0);
+  const [data, setData] = useState<TrackingData | null>(null);
 
   useEffect(() => {
     if (!bestellnummer) return;
-    fetch(`/api/delivery/tracking/${encodeURIComponent(bestellnummer)}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setData(d as TrackingData); })
-      .catch(() => {});
-
-    const iv = setInterval(() => {
+    const poll = () => {
       fetch(`/api/delivery/tracking/${encodeURIComponent(bestellnummer)}`)
         .then(r => r.ok ? r.json() : null)
         .then(d => { if (d) setData(d as TrackingData); })
         .catch(() => {});
-      setTick(t => t + 1);
-    }, 30_000);
+    };
+    poll();
+    const iv = setInterval(poll, 30_000);
     return () => clearInterval(iv);
   }, [bestellnummer]);
 

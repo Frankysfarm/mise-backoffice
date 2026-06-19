@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–273 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (317 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–275 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (319 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #162 — 2026-06-19
+
+### Geprüfte Phasen: Phase 274 (Fahrer-Rückkehr-Vorhersage API) + Phase 275 (5 Frontend-Komponenten — KI-Rückkehr-Prognose UI)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (319 Seiten, 0 Fehler)
+
+**Code-Review Phase 274 Backend — Predictive Return-to-Base Engine:**
+- Migration 140: `driver_return_predictions` (UNIQUE driver_id+minute), `v_driver_return_latest`, `v_drivers_returning_soon`, `prune_old_return_predictions` RPC, updated_at Trigger ✅
+- `lib/delivery/driver-return-prediction.ts`: 6 Funktionen korrekt (Haversine-Distanz, Bike 18 km/h / Car 30 km/h, 3 Min/Stop Overhead, GPS-Konfidenz 0.8/0.5/0.3, Upsert mit UNIQUE-Constraint) ✅
+- `app/api/delivery/admin/return-prediction/route.ts`: GET (dashboard/driver) + POST (predict/predict_all/prune), Auth via employees.location_id ✅
+- `app/(admin)/delivery/return-prediction/page.tsx` + `client.tsx`: 4 KPI-Karten, Returning-Soon-Banner, Prediction-Liste ✅
+
+**Code-Review Phase 275 Frontend — 5 neue Smart-Delivery-Komponenten:**
+- `dispatch/return-prediction-live.tsx` (DispatchReturnPredictionLive): ML-Panel KI-Rückkehr-Prognose, GPS-Konfidenz-Badges, KPI-Strip (≤15Min/≤30Min/Ø), Fahrerliste sortiert nach Rückkehrzeit, 30s Auto-Refresh — korrekt ✅
+- `kitchen/driver-return-kochstart.tsx` (KitchenDriverReturnKochstart): Kochstart-Planer (Return − 15 Min Puffer), 3-Stufen-Urgency (now/soon/later), sortiert nach Rückkehrzeit — korrekt ✅
+- `lieferdienst/rueckkehr-prognose-kacheln.tsx` (RueckkehrPrognoseKacheln): 4 KPI-Kacheln + Fahrerliste, Konfidenz-Badges, 60s Auto-Refresh — korrekt ✅
+- `fahrer/app/tour-rueckkehr-anzeige.tsx` (TourRueckkehrAnzeige): SVG-Ring Motivations-Widget, Tour-Fortschritt, Konfidenz-Balken, Überfällig/Returning/Normal-States — korrekt ✅
+- `order/[locationSlug]/components/fahrer-rueckkehr-eta.tsx` (FahrerRueckkehrEta): Kunden-ETA-Ampel mit Live-Puls, 3 Dringlichkeitsstufen (rot/amber/grün) — 1 Bug gefunden + gefixt ✅
+
+**Integration geprüft:**
+- dispatch/client.tsx: DispatchReturnPredictionLive auf Zeile 1429 ✅
+- kitchen/client.tsx: KitchenDriverReturnKochstart auf Zeile 651 ✅
+- lieferdienst/client.tsx: RueckkehrPrognoseKacheln auf Zeile 1047 ✅
+- fahrer/app/client.tsx: TourRueckkehrAnzeige auf Zeile 1210 ✅
+
+**Bug gefunden und gefixt:**
+1. `fahrer-rueckkehr-eta.tsx` — Totes `tick`-State (`useState(0)` + `setTick(t => t + 1)`) nie gelesen, nur gesetzt — Dead State entfernt. Gleichzeitig: redundante Fetch-Logik in erster `useEffect`-Call vs. Interval-Callback konsolidiert zu einer `poll()`-Funktion ✅
+2. `fahrer-rueckkehr-eta.tsx` — `locationSlug`-Prop wurde empfangen aber nie im Component-Body verwendet (tote API-Fläche) — Prop entfernt ✅
+
+**Integration Gesamtsystem:**
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: alle Module verbunden ✅
+- Rückkehr-Vorhersage (Phase 274 API) verknüpft mit: Dispatch (Live-Prognose-Panel) + Kitchen (Kochstart-Planer) + Lieferdienst (KPI-Kacheln) + Fahrer-App (Motivations-Ring) ✅
+
+**Bugs gefunden:** 2 (totes `tick`-State + tote `locationSlug`-Prop) — BEIDE GEFIXT ✅
+
+### Status nach Review #162
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (319 Seiten)
+- Phase 274 (Predictive Return-to-Base API): DONE ✅
+- Phase 275 (5 Rückkehr-Prognose-Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 276: Z.B. Driver Capacity Planning API — Schicht-basierte Kapazitätsplanung mit KI-Bedarfsprognose
+2. Oder: Phase 276: Live Order Assignment Optimizer — Echtzeit-Zuweisung mit Return-Prediction-Integration
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 276: 5–6 neue Smart-Delivery-Komponenten (Return-Prediction in Admin-Dashboard, Schicht-Kapazitäts-Widget, Order-Assignment-Panel, Driver-Auslastungs-Ampel)
 
 ---
 
