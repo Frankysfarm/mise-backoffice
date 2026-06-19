@@ -97,6 +97,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Composite-Note A–F · Pünktlichkeit, Zufriedenheit, SLA, Stornierungen · 30-Tage-Trend" cta="Score ansehen" />
         <SectionCard href="/delivery/benchmarking" icon={<BarChart3 className="h-5 w-5" />} title="Benchmark-Analyse"
           subtitle="Multi-Standort-Vergleich · Qualität/SLA/CO₂/Durchsatz/Effizienz · Best-Practice-Export · Tägliches Ranking" cta="Benchmark ansehen" />
+        <SectionCard href="/delivery/performance-score" icon={<Gauge className="h-5 w-5" />} title="Performance Score (0–100)"
+          subtitle="Aggregierter Standort-Score · Pünktlichkeit, Zufriedenheit, Auslastung, Marge · Note A–F · 30-Tage-Trend" cta="Score ansehen" highlight />
         <SectionCard href="/delivery/stale-orders" icon={<PackageX className="h-5 w-5" />} title="Feststeckende Bestellungen"
           subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus" cta="Prüfen" />
         <SectionCard href="/delivery/gps-trails" icon={<MapPinned className="h-5 w-5" />} title="GPS-Fahrerspuren"

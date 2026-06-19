@@ -107,6 +107,7 @@ import { snapAllLocations as snapOrderLifecycle, pruneOldLifecycleSnapshots } fr
 import { snapshotAllLocations as snapshotGeoHeatmap, pruneOldSnapshots as pruneHeatmapSnapshots } from '@/lib/delivery/geo-heatmap';
 import { recordUsageAllLocations as recordRestockUsage, checkThresholdsAllLocations as checkRestockThresholds, pruneOldMaterialSnapshots } from '@/lib/delivery/restock-engine';
 import { computeRampUpAllLocations, pruneOldProfiles as pruneRampUpProfiles } from '@/lib/delivery/driver-ramp-up';
+import { snapshotAllLocations as snapshotPerformanceScores, pruneOldPerformanceScores } from '@/lib/delivery/performance-score';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -231,6 +232,8 @@ export async function GET(req: NextRequest) {
     const isRestockCheckTick = nowHour === 1 && nowMin >= 28 && nowMin < 32;
     // Phase 250: Driver Ramp-Up Intelligence — täglich 02:45 UTC (nach Performance-Snapshots)
     const isRampUpTick = nowHour === 2 && nowMin >= 44 && nowMin < 48;
+    // Phase 250: Delivery Performance Score — täglich 03:05 UTC (nach Benchmark, frische Profitabilitätsdaten)
+    const isPerfScoreTick = nowHour === 3 && nowMin >= 5 && nowMin < 9;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -792,6 +795,14 @@ export async function GET(req: NextRequest) {
       ? await pruneRampUpProfiles(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 250: Delivery Performance Score — täglich 03:05 UTC
+    const perfScoreResult = isPerfScoreTick
+      ? await snapshotPerformanceScores().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    const perfScoresPruned = isReportTick
+      ? await pruneOldPerformanceScores(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -971,6 +982,8 @@ export async function GET(req: NextRequest) {
       ...(materialSnapshotsPruned ? { material_snapshots_pruned: materialSnapshotsPruned.pruned } : {}),
       ...(rampUpResult ? { ramp_up: { locations: rampUpResult.total, computed: rampUpResult.computed, graduated: rampUpResult.graduated, errors: rampUpResult.errors } } : {}),
       ...(rampUpPruned ? { ramp_up_profiles_pruned: rampUpPruned.pruned } : {}),
+      ...(perfScoreResult ? { performance_scores: { locations: perfScoreResult.locations, snapshots: perfScoreResult.snapshots, errors: perfScoreResult.errors } } : {}),
+      ...(perfScoresPruned ? { performance_scores_pruned: perfScoresPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
