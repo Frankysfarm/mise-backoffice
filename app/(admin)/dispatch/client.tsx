@@ -132,6 +132,7 @@ import { SlaBreachDetectorPanel } from './sla-breach-panel';
 import { DispatchWarteAmpel } from './dispatch-warte-ampel';
 import { DispatchScoreLivePanel } from './dispatch-score-live';
 import { DispatchKitchenSyncAlert } from './kitchen-sync-alert';
+import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
 
 type Driver = {
   employee_id: string;
@@ -908,6 +909,8 @@ export function DispatchBoard({
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Küchen-Sync-Alert: fertige Bestellungen ohne Fahrer-Zuweisung — Kritisch-Markierung nach 5+ Min */}
       <DispatchKitchenSyncAlert readyOrders={readyOrders} batches={batches} />
+      {/* Phase 263: Zuweisungs-Aktivität — Annahmequote + Reaktionszeit-Verlauf der letzten Schicht-Zuweisungen */}
+      <DispatchZuweisungsAktivitaet locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
       <DispatchScoreInsightPanel orders={readyOrders} />
       {/* Score-Live-Panel: Kompakte Score-Karten mit Gauge + Faktoren für alle fertigen Bestellungen */}

@@ -81,6 +81,7 @@ import { PrepTicketKacheln } from './prep-ticket-kacheln';
 import { KitchenLiveOrderCountdownPanel } from './live-order-countdown-panel';
 import { KitchenTimingAmpelLive } from './timing-ampel-live';
 import { KitchenPickupZeitlinie } from './pickup-zeitlinie';
+import { KitchenWarmhalteWarnung } from './warmhalte-warnung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -605,6 +606,8 @@ export function KitchenBoard({
       <KitchenWetterEinflussBanner locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Pickup-Zeitlinie: Abholungs-Timeline für alle fertige Bestellungen mit Wartezeit-Farbcodierung */}
       <KitchenPickupZeitlinie orders={filtered} batches={batches} stops={stops} />
+      {/* Phase 263: Warmhalte-Warnung — Temperatur-Ticker für fertige wartende Lieferbestellungen */}
+      <KitchenWarmhalteWarnung orders={filtered} />
       {/* Fertig-Warte-Board: ready orders sorted by driver wait time with urgency color */}
       <KitchenFertigWarteBoard orders={filtered} />
       {/* Handoff-Ready-Matrix: Matching fertige Lieferbestellungen × freie Fahrer — Ampel-Übersicht */}

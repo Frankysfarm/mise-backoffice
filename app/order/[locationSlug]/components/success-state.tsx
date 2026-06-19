@@ -17,6 +17,7 @@ import { EtaSekundenCountdown } from '../eta-sekunden-countdown';
 import { EtaVertrauenWidget } from './eta-vertrauen-widget';
 import { ZubereitungsFortschritt } from './zubereitungs-fortschritt';
 import { EtaPulseBanner } from '../eta-pulse-banner';
+import { BestellungEchtzeitCountdown } from '../bestellung-echtzeit-countdown';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -514,6 +515,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             <EtaSekundenCountdown
               etaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : null}
               status={liveStatus}
+            />
+          </div>
+        )}
+        {/* Phase 263: Echtzeit-Countdown — Visueller Fortschrittsring + Sekunden-Countdown für unterwegs */}
+        {isDelivery && etaWindow?.latest && (
+          <div className="mt-3 w-full">
+            <BestellungEchtzeitCountdown
+              status={liveStatus}
+              etaIso={etaWindow.latest}
+              driverName={driverName}
             />
           </div>
         )}

@@ -75,6 +75,7 @@ import { FahrerRichtungsAnzeige } from './richtungs-anzeige';
 import { TourFertigPrognose } from './tour-fertig-prognose';
 import { TourStopNavigator } from './tour-stop-navigator';
 import { TourNavigationsCockpit } from './tour-navigations-cockpit';
+import { FahrerKundenNotizKarte } from './kunden-notiz-karte';
 
 type Driver = {
   id: string;
@@ -1120,6 +1121,15 @@ export function FahrerApp({
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
               <TourNavigationsCockpit driverId={driver.id} batchId={(activeBatch as any).id ?? null} />
+            </div>
+          )}
+          {/* Phase 263: Kunden-Notiz-Karte — Lieferhinweise + Sonderanweisungen pro Stop hervorgehoben */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerKundenNotizKarte
+                stops={activeBatch.stops as any}
+                currentStopId={activeBatch.stops.find((s: any) => s.geliefert_am == null)?.id ?? null}
+              />
             </div>
           )}
           {/* Phase 257: Tour-Fertig-Prognose — wann endet die Tour + Schicht-Vergleich */}
