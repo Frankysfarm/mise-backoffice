@@ -34,8 +34,10 @@ type ModuleDefinition = {
 
 const MODULE_DEFINITIONS: Record<ModuleId, ModuleDefinition> = {
   ordering: {
-    entryRoute: '/shop',
+    // Lieferservice-Cockpit = neues /neo-Backoffice (Swap 2026-06-19).
+    entryRoute: '/neo/app/uebersicht',
     routes: [
+      '/neo',
       '/shop', '/shop/design', '/shop/hours', '/shop/payments',
       '/shop/drivers', '/shop/delivery', '/shop/domain', '/shop/qr-design',
       '/menu', '/vouchers', '/recipes',
