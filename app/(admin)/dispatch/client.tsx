@@ -129,6 +129,7 @@ import { TourLieferzeitRangliste } from './tour-lieferzeit-rangliste';
 import { DispatchPerformanceScoreArc } from './performance-score-arc';
 import { SlaBreachDetectorPanel } from './sla-breach-panel';
 import { DispatchWarteAmpel } from './dispatch-warte-ampel';
+import { DispatchScoreLivePanel } from './dispatch-score-live';
 
 type Driver = {
   employee_id: string;
@@ -905,6 +906,18 @@ export function DispatchBoard({
       <DispatchAktionsEmpfehlung orders={readyOrders as any} drivers={drivers} />
       {/* Score-Insight-Panel: Live-Leaderboard wartender Bestellungen nach Dispatch-Score */}
       <DispatchScoreInsightPanel orders={readyOrders} />
+      {/* Score-Live-Panel: Kompakte Score-Karten mit Gauge + Faktoren für alle fertigen Bestellungen */}
+      <DispatchScoreLivePanel orders={readyOrders.map(o => ({
+        id: o.id,
+        bestellnummer: o.bestellnummer,
+        status: o.status,
+        kunde_name: o.kunde_name,
+        kunde_adresse: o.kunde_adresse,
+        gesamtbetrag: o.gesamtbetrag,
+        fertig_am: o.fertig_am,
+        dispatch_score: o.dispatch_score,
+        delivery_zone: o.delivery_zone,
+      }))} />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}

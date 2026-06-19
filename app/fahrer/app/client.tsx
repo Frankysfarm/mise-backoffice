@@ -72,6 +72,7 @@ import { FahrerAnkunftsSignal } from './ankunfts-signal';
 import { FahrerRampUpFortschritt } from './ramp-up-fortschritt';
 import { FahrerRichtungsAnzeige } from './richtungs-anzeige';
 import { TourFertigPrognose } from './tour-fertig-prognose';
+import { TourStopNavigator } from './tour-stop-navigator';
 
 type Driver = {
   id: string;
@@ -1089,6 +1090,17 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Stop-Navigator: Nächster Stopp mit Navigation, Anruf, Geliefert + Fortschrittsbalken */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourStopNavigator
+                stops={activeBatch.stops as any}
+                onMarkDelivered={markDelivered}
+                pending={pending}
+                kitchenStatuses={kitchenStatuses}
               />
             </div>
           )}

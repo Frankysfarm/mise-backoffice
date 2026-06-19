@@ -78,6 +78,7 @@ import { KitchenNeuerFahrerWarning } from './neuer-fahrer-warnung';
 import { KitchenSchichtBurndown } from './schicht-burndown';
 import { KitchenStundenNachfrageStrip } from './stunden-nachfrage-strip';
 import { PrepTicketKacheln } from './prep-ticket-kacheln';
+import { KitchenLiveOrderCountdownPanel } from './live-order-countdown-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -549,6 +550,29 @@ export function KitchenBoard({
       )}
       {/* Phase 213: Ampel-Timing-Grid — Farbkodiertes Prep-Grid mit Countdown je Bestellung */}
       {timings.length > 0 && <KitchenAmpelTimingGrid orders={filtered} timings={timings} />}
+      {/* Live-Countdown-Panel: Alle aktiven Bestellungen mit Urgency-Ring + Fahrer-ETA */}
+      <KitchenLiveOrderCountdownPanel
+        orders={filtered}
+        timings={timings}
+        driverETAs={(() => {
+          const now = Date.now();
+          return batches
+            .filter((b) => b.status === 'unterwegs' || b.status === 'on_route')
+            .flatMap((b) => {
+              const etaMs = b.started_at && b.total_eta_min != null
+                ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+                : null;
+              if (!etaMs) return [];
+              const etaSec = Math.max(0, Math.floor((etaMs - now) / 1000));
+              if (etaSec > 20 * 60) return [];
+              const driver = drivers.find((d) => d.id === b.driver_id);
+              const driverName = driver ? `${driver.vorname} ${driver.nachname[0]}.` : 'Fahrer';
+              return stops
+                .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+                .map((s) => ({ order_id: s.order_id, driver_name: driverName, eta_sec: etaSec }));
+            });
+        })()}
+      />
       {/* Timing-Farbkodierung: Kompaktes Kachel-Raster aller aktiven Bestellungen mit Countdown-Labels */}
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
       {/* Phase 247: Schicht-Kochzeit-Analyse — Pünktlichkeitsquote + Abweichungs-Chart */}
