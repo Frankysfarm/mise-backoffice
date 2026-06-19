@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–260 abgeschlossen. Build sauber. 311 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–261 abgeschlossen. Build sauber. 312 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-19: Phase 261 — Score-Bonus Admin-Dashboard (Trigger-Config + Grant-Genehmigung). Build ✅ 312 Seiten, 0 Fehler.**
 **CEO-Agent Review #153 — 2026-06-19: 6 TS-Fehler gefixt + 1 Math.random()-Bug entfernt. Phase 259 (Tour-Abschluss-Analyse) + Phase 260 (5 Smart-Delivery-Komponenten) geprüft. Build ✅ 311 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 260 — KitchenTimingAmpelLive, DispatchTourScoreVergleich, TourNavigationsCockpit, EtaPulseBanner, SchichtProfilKarte. Build ✅ 311 Seiten.**
 **Backend-Architekt-Agent — 2026-06-19: Phase 259 — Tour-Abschluss-Analyse API. Build ✅ 311 Seiten, 0 Fehler.**
@@ -42,6 +43,34 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 261 — Score-Bonus Admin-Dashboard (DONE ✅)
+
+**Datum:** 2026-06-19
+
+### Implementiert:
+- `app/(admin)/delivery/score-bonus-triggers/page.tsx` — Server-Seite mit Suspense-Fallback
+- `app/(admin)/delivery/score-bonus-triggers/client.tsx` — Vollständiges Admin-UI (`ScoreBonusTriggerClient`):
+  - **4 KPI-Karten**: Aktive Trigger, Ausstehende Grants (+ EUR), Genehmigte Grants (+ EUR), Ausgezahlte Grants (+ EUR)
+  - **Grants-Tab** (Standard-Ansicht):
+    - Status-Filter: Alle / Ausstehend / Genehmigt / Ausgezahlt / Storniert
+    - Tabelle: Checkbox-Auswahl, Fahrer, Trigger-Label, Score, Periode, Bonus (€ oder %), Status-Badge, Datum
+    - Batch-Aktionen auf Auswahl: Genehmigen / Auszahlen / Stornieren
+  - **Trigger-Tab**:
+    - Trigger-Liste: Toggle-Button (Aktiv/Inaktiv), Bearbeiten-Link, Löschen (mit Confirm)
+    - "Trigger erstellen"-Button → Modal
+    - Info-Box: Erklärung des Workflows (Trigger → Grant → Genehmigung → Auszahlung)
+  - **Trigger-Modal** (Erstellen + Bearbeiten):
+    - Felder: Bezeichnung, Score-Schwelle, Bonus-Typ (flat_eur/provision_pct), Betrag, Auszahlungsperiode, Score-Periode, Aktiviert
+    - Validierung: Bezeichnung darf nicht leer sein
+  - **"Jetzt scannen"**: Manueller Trigger-Scan für die aktuelle Location (POST action=evaluate)
+  - 30s Auto-Refresh nicht nötig — Manager-Tool, manuell per Refresh-Button
+- `app/(admin)/delivery/page.tsx`: SectionCard "Score-Bonus-Trigger" mit Target-Icon in Finanzen & Vergütung
+
+### Build:
+- `npx next build`: ✅ Compiled successfully, `/delivery/score-bonus-triggers` + `/api/delivery/admin/score-bonus-triggers` bestätigt, 0 TypeScript-Fehler
 
 ---
 

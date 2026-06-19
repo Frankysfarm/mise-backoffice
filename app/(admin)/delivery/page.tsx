@@ -251,6 +251,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Leistungsboni nach Lieferungen, Pünktlichkeit und Rating" cta="Boni verwalten" />
         <SectionCard href="/delivery/driver-incentives" icon={<Trophy className="h-5 w-5" />} title="Echtzeit-Incentives"
           subtitle="Per-Lieferung Boni bei Surge, Stoßzeiten, Schicht-Meilensteinen und Qualitäts-Score" cta="Incentives" />
+        <SectionCard href="/delivery/score-bonus-triggers" icon={<Target className="h-5 w-5" />} title="Score-Bonus-Trigger"
+          subtitle="Automatische Boni wenn Fahrer-Score Schwellenwerte überschreitet · Trigger-Config · Grant-Genehmigung" cta="Trigger öffnen" />
         <SectionCard href="/delivery/tips" icon={<Heart className="h-5 w-5" />} title="Trinkgeld-System"
           subtitle="Kundenseitige Trinkgelder · Fahrer-Leaderboard · Konfiguration · Tages-Snapshots" cta="Trinkgeld öffnen" />
         <SectionCard href="/delivery/sla-compensation" icon={<Activity className="h-5 w-5" />} title="SLA-Auto-Kompensation"
