@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–262 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (312 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–263 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (313 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #155 — 2026-06-19
+
+### Geprüfte Phasen: Phase 263 — Smart Dispatch ML-Scoring V2 + 5 Frontend-Komponenten
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (313 Seiten, 0 Fehler)
+
+**Code-Review Phase 263 Backend (ML-Scoring V2):**
+- `lib/delivery/scoring-v2.ts`: 12-Faktor scoreDriverV2() mit Wetter-Penalty (wetter_schwierigkeit) + Velocity-Tier (deliveries_today / shift_active_minutes), per-location Gewichts-Konfiguration via scoring_v2_configs ✅
+- `enrichDriversV2()`: batch-Kontext-Loader (wetter, driver stats, zone×vehicle rates) parallel via Promise.all ✅
+- `getScoringV2Config()` mit sinnvollen Defaults (isActive=false → V1-Fallback) ✅
+- GET/POST `/api/delivery/admin/scoring-v2`: update_config, toggle, rebuild korrekt ✅
+- `dispatch-engine.ts`: V2-Integration mit is_active-Guard + V1-Fallback — sicherer Rollout ✅
+- Cron: rebuildZoneVehicleStatsAllLocations() täglich 04:35 UTC ✅
+- `console.warn` bei rebuild-Fehler (Zeile 212): akzeptabel für Cron-Logging ✅
+
+**Code-Review Phase 263 Frontend (5 Komponenten):**
+- `KitchenWarmhalteWarnung`: Temperatur-Ticker für fertige Lieferbestellungen, warm/kühlend/kalt Farbkodierung, 15s Tick-Update, korrekt nach status=fertig + typ=lieferung gefiltert ✅
+- `DispatchZuweisungsAktivitaet`: Annahmequote + Reaktionszeit-Log, useTick(30s) für fmtAgo-Refresh, manueller RefreshCw-Button, graceful empty state ✅
+- `StornoquotePanel`: collapsible, Stunden-BarChart via Recharts, Gründe-Auswertung, Verlust in €, lazy-load nur bei open=true ✅
+- `FahrerKundenNotizKarte`: automatische Hinweis-Typ-Erkennung (klingeln/codeschloss/abstellort/kontaktlos), expandable, Direktanruf-Link, korrekte isActive/isDone-Styling ✅
+- `BestellungEchtzeitCountdown`: SVG ProgressRing, sekündlicher CountdownDisplay, Status-Timeline-Rail, korrekt rendering für alle OrderStatus-Werte ✅
+- Alle 5 Komponenten korrekt integriert (kitchen/dispatch/lieferdienst/fahrer/success-state) ✅
+
+**Bugs gefunden & gefixt:**
+1. `/api/delivery/admin/stats` fehlte — StornoquotePanel war ohne Backend. → Neuer Route-Handler mit storno_quote-Aktion erstellt (DB-Aggregation aus customer_orders) ✅
+2. `/api/delivery/admin/tours` fehlte — DispatchZuweisungsAktivitaet hatte keine Datenquelle. → Neuer Route-Handler mit assignment_activity-Aktion erstellt (mise_delivery_batches) ✅
+
+**Bugs gefunden gesamt:** 2 — BEIDE GEFIXT ✅
+
+### Status nach Review #155
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (313 Seiten)
+- Phase 263 (ML-Scoring V2 + 5 Frontend-Komponenten): DONE ✅
+- Bugs gefixt: 2
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 264: Delivery Webhook Engine — externe Webhooks (POST-Calls) bei Order-Status-Änderungen (created, ready, dispatched, delivered, cancelled) mit konfigurierbaren Endpunkten pro Location und Retry-Logik
+2. Oder: Phase 264: Location-Gesundheits-Score API — aggregierter Standort-Score (0–100) aus Pünktlichkeit + Fahrerverfügbarkeit + Ausfallrate + Stornoquote, historischer Verlauf + Trendpfeile
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 264: Location-Gesundheits-Dashboard — Ampel-Übersicht aller Standorte (Lieferzeit, Ausfallrate, Fahrerverfügbarkeit) mit wöchentlichem Trend
+2. Oder: Phase 264: Fahrer-Onboarding-Checkliste — geführter Einrichtungsflow für neue Fahrer (Profil, Fahrzeug, Bankdaten, Testlieferung)
 
 ---
 
