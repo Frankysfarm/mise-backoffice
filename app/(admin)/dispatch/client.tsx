@@ -174,6 +174,7 @@ import { HeatmapZoneAlert } from './heatmap-zone-alert';
 import { DispatchStandortHealthWidget } from './standort-health-widget';
 import { DispatchFahrerStatusBoard } from './fahrer-status-board';
 import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
+import { DispatchTagesZusammenfassung } from './tages-zusammenfassung';
 
 type Driver = {
   employee_id: string;
@@ -1074,6 +1075,8 @@ export function DispatchBoard({
       <DispatchFahrerStatusBoard drivers={drivers} batches={batches} />
       {/* Phase 350: Engagement-Rangliste — Wochen-Top-5 Fahrer nach Punkten */}
       <DispatchEngagementRanglistePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 351: Tages-Zusammenfassung — Tour-Scores, On-Time-Rate, aktive Fahrer heute */}
+      <DispatchTagesZusammenfassung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}

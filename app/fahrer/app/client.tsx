@@ -115,6 +115,7 @@ import { HeatmapTipp } from './heatmap-tipp';
 import { FahrerStandortHealthBadge } from './standort-health-badge';
 import { TourRewardProgress } from './tour-reward-progress';
 import { FahrerMeinEngagement } from './mein-engagement';
+import { FahrerTourNavigatorPro } from './tour-navigator-pro';
 
 type Driver = {
   id: string;
@@ -1208,6 +1209,23 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 351: Tour-Navigator Pro — Nächster Stopp mit ETA-Countdown, Distanz, Navigation */}
+          {activeBatch.stops.length > 0 && (() => {
+            const nextStop = activeBatch.stops.find((s: any) => !s.geliefert_am && !s.angekommen_am) ?? activeBatch.stops[0];
+            return (
+              <div className="px-4">
+                <FahrerTourNavigatorPro
+                  stop={nextStop ? {
+                    id: nextStop.id,
+                    order: nextStop.order,
+                    reihenfolge: nextStop.reihenfolge,
+                    distanz_zum_vorgaenger_m: nextStop.distanz_zum_vorgaenger_m ?? null,
+                  } : null}
+                  totalStops={activeBatch.stops.length}
+                />
+              </div>
+            );
+          })()}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">
