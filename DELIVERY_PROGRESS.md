@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–313 abgeschlossen. Build sauber. 325 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–314 abgeschlossen. Build sauber. 326 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-20: Phase 314 — Fahrer-Ziel-Engine (Stops/€/Score je Schicht, Live-Fortschritts-Dashboard, Admin-Config, Fahrer-API, stündlicher Cron-Snapshot). Build ✅ 326 Seiten, 0 Fehler.**
 **CEO-Agent Review #172 — 2026-06-20: 3 Bugs gefixt (Recharts Formatter TS2322 in umsatz-pace-panel + umsatz-velocity-strip + umsatz-velocity-dashboard). Phase 312+313 geprüft. Build ✅ 325 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-20: Phase 313 — KitchenUmsatzVelocityStrip, DispatchUmsatzPacePanel, SchichtUmsatzVelocity (Fahrer), BestellPaceIndikator (Storefront), UmsatzVelocityDashboard (Lieferdienst). Build ✅ 325 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 312 — Revenue Velocity Engine (stündliche Umsatz-Snapshots, Heute-vs-Gestern, Schicht-Prognose, 10-Min-Cron). Build ✅ 325 Seiten, 0 Fehler.**
@@ -90,6 +91,59 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 314 — Fahrer-Ziel-Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+- `scripts/migrations/152_driver_shift_goals.sql`:
+  - `driver_shift_goal_configs` — Location-weite Ziele (target_stops, target_earnings_eur, target_score, shift_start_hour, shift_hours_total, UNIQUE location_id, RLS, updated_at Trigger)
+  - `driver_shift_goal_snapshots` — Stündliche Fortschritts-Snapshots je Fahrer (stops_completed, earnings_eur, live_score, shift_pct_elapsed, 3 Pace-Labels, RLS)
+  - `v_driver_shift_goal_latest` VIEW — Neuester Snapshot je Fahrer+Location
+  - `prune_driver_shift_goal_snapshots(days_old)` RPC
+  - Indizes: idx_dsgc_location, idx_dsgs_driver_at, idx_dsgs_location_at
+
+- `lib/delivery/driver-shift-goals.ts`:
+  - `getDriverShiftGoalConfig(locationId)` — Konfiguration mit Defaults (12 Stops, €80, Score 75, Start 10 UTC, 8h)
+  - `upsertDriverShiftGoalConfig(locationId, cfg)` — Admin-Speicherung via upsert
+  - `computeDriverProgress(driverId, locationId, cfg)` — Fortschritt berechnen:
+    - Stops aus `delivery_tour_stops` (status=geliefert, seit Schichtstart)
+    - Verdienst aus `customer_orders.liefergebuehr` (Join via order_id)
+    - Live-Score aus `driver_live_score_snapshots` (letzter Eintrag)
+    - 3 Pace-Labels: `ahead` (≥110% des Soll) / `on_track` (≥85%) / `behind` (<85%)
+    - Overall-Pace aus Durchschnitt der 3 Dimensionen
+  - `snapshotDriverShiftGoals(locationId)` — Alle nicht-offline Fahrer snapshotten
+  - `snapshotDriverShiftGoalsAllLocations()` — Cron-Batch (Promise.allSettled)
+  - `getDriverShiftGoalDashboard(locationId)` — Admin-Dashboard: Config + Shift-Fenster + alle Fahrer-Fortschritte + Summary (4 KPIs)
+  - `getMyShiftGoalProgress(driverId, locationId)` — Fahrer-eigene Ansicht
+  - `pruneDriverShiftGoalSnapshots(days)` — Cleanup via RPC
+
+- `app/api/delivery/admin/driver-shift-goals/route.ts`:
+  - GET ?action=dashboard (default) | config
+  - POST action=update_config | snapshot | prune
+  - Auth via employees.location_id (Superadmin-Override via ?location_id=)
+
+- `app/api/delivery/driver/shift-goals/route.ts`:
+  - GET eigener Schicht-Fortschritt (Auth: eingeloggter Fahrer)
+
+- `app/(admin)/delivery/driver-shift-goals/` — Admin-UI:
+  - 4 KPI-Karten: Aktive Fahrer / Über Plan / Ø Verdienst-Fortschritt / Ø Score-Fortschritt
+  - Schicht-Zeitbalken (Schichtstart–Ende UTC, % abgelaufen)
+  - Tab "Fahrer-Fortschritt": Alle aktiven Fahrer als Karten mit 3 Fortschrittsbalken (Stops/€/Score) + Pace-Badges + Status-Badge (unterwegs/online) + Zusammenfassungs-Chips
+  - Tab "Ziele konfigurieren": Formular für target_stops, target_earnings_eur, target_score, shift_start_hour, shift_hours_total + gespeichert-Zeitstempel
+  - 60s Auto-Refresh
+
+- Cron (`app/api/cron/smart-dispatch/route.ts`):
+  - `snapshotDriverShiftGoalsAllLocations()` stündlich (isHourlyTick)
+  - `pruneDriverShiftGoalSnapshots(7)` täglich 05:30 UTC
+
+- `app/(admin)/delivery/page.tsx`: SectionCard "Fahrer-Schichtziele" mit Target-Icon + highlight in Fahrer-Verwaltung-Gruppe
+
+- Build: next build ✓ (326 Seiten), tsc --noEmit ✓ (0 Fehler)
 
 ---
 
