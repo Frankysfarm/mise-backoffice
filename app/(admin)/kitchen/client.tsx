@@ -119,6 +119,7 @@ import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
 import { KitchenOpsRecoStrip } from './ops-reco-strip';
 import { KitchenStornoAlertStrip } from './storno-alert-strip';
 import { KitchenHeuteArtikelTopliste } from './heute-artikel-topliste';
+import { LieferzonenCheck } from './lieferzone-check';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -632,6 +633,8 @@ export function KitchenBoard({
       <KitchenHeuteArtikelTopliste orders={filtered} />
       {/* Phase 345: Storno-Alert-Strip — Hochriskante Stornierungen die Küche betreffen */}
       <KitchenStornoAlertStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 346: Lieferzonen-Check — Unterversorgte Zonen aus Tour Heatmap */}
+      <LieferzonenCheck locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

@@ -111,6 +111,7 @@ import { FahrerGebuehrenInfo } from './gebuehren-info';
 import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
 import { FahrerStornoInfoBanner } from './storno-info-banner';
 import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
+import { HeatmapTipp } from './heatmap-tipp';
 
 type Driver = {
   id: string;
@@ -1386,6 +1387,12 @@ export function FahrerApp({
           {activeBatch && (
             <div className="px-4">
               <FahrerStornoInfoBanner activeBatch={activeBatch} />
+            </div>
+          )}
+          {/* Phase 346: Heatmap-Tipp — Meistangefahrene Zone der Woche */}
+          {driver?.location_id && (
+            <div className="px-4">
+              <HeatmapTipp locationId={driver.location_id} />
             </div>
           )}
           {/* Phase 343: Schicht-Verdienst-Live — EUR/Stopp, EUR/Std, Schicht-Fortschritt */}

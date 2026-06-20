@@ -12,7 +12,7 @@ import {
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
   BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
-  HandCoins, MapPinCheck, Percent,
+  HandCoins, MapPinCheck, Percent, Layers,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -402,6 +402,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="K-Means Hotspot-Analyse · Liefer-Cluster aus Echtdaten · Optimale Fahrer-Positionen" cta="Clustering öffnen" />
         <SectionCard href="/delivery/tour-survey" icon={<MessageSquare className="h-5 w-5" />} title="Fahrer-Feedback-Terminal"
           subtitle="Anonyme Post-Tour-Kurzumfrage · 3 Fragen · Stern-Rating 1–5 · Küchen- & Kunden-Feedback · 14-Tage-Trend" cta="Auswertung öffnen" highlight />
+        <SectionCard href="/delivery/tour-heatmap" icon={<Layers className="h-5 w-5" />} title="Tour Heatmap Engine"
+          subtitle="Lieferzone-Heatmap aus historischen Touren · Unterversorgungs-Zonen erkennen · 0.01°-Gitter-Kacheln · Effizienz-Analyse" cta="Heatmap öffnen" highlight />
       </SectionGroup>
     </>
   );

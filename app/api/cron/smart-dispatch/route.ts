@@ -138,6 +138,7 @@ import { pruneOldSuggestions as pruneSmartTipSuggestions } from '@/lib/delivery/
 import { pruneOldPricingEvents } from '@/lib/delivery/dynamic-pricing';
 import { runRecsAllLocations, pruneOldRecommendations } from '@/lib/delivery/ops-recommendations';
 import { pruneOldEvents as pruneCancellationGuardEvents } from '@/lib/delivery/cancellation-guard';
+import { computeHeatmapAllLocations, pruneOldTiles as pruneTourHeatmapTiles } from '@/lib/delivery/tour-heatmap';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1093,6 +1094,16 @@ export async function GET(req: NextRequest) {
       ? await pruneCancellationGuardEvents(30).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 346: Tour Heatmap — täglich 04:05 UTC (nach Geo-Clustering 04:00); Prune täglich 06:30 UTC
+    const isTourHeatmapTick = nowHour === 4 && nowMin >= 5 && nowMin < 9;
+    const tourHeatmapResult = isTourHeatmapTick
+      ? await computeHeatmapAllLocations().catch(() => ({ locations: 0, tilesUpserted: 0, ordersAnalyzed: 0, underservedUpserted: 0, errors: 1 }))
+      : null;
+    const isTourHeatmapPruneTick = nowHour === 6 && nowMin >= 30 && nowMin < 34;
+    const tourHeatmapPruned = isTourHeatmapPruneTick
+      ? await pruneTourHeatmapTiles(90).catch(() => 0)
+      : 0;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1322,6 +1333,8 @@ export async function GET(req: NextRequest) {
       ...(opsRecsResult ? { ops_recommendations: { locations: opsRecsResult.locations, errors: opsRecsResult.errors } } : {}),
       ...(opsRecsPruned ? { ops_recommendations_pruned: opsRecsPruned } : {}),
       ...(cancelGuardPruned?.pruned ? { cancellation_guard_pruned: cancelGuardPruned.pruned } : {}),
+      ...(tourHeatmapResult ? { tour_heatmap: { locations: tourHeatmapResult.locations, tiles: tourHeatmapResult.tilesUpserted, underserved: tourHeatmapResult.underservedUpserted } } : {}),
+      ...(tourHeatmapPruned ? { tour_heatmap_pruned: tourHeatmapPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
