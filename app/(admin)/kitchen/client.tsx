@@ -122,6 +122,7 @@ import { KitchenStornoAlertStrip } from './storno-alert-strip';
 import { KitchenHeuteArtikelTopliste } from './heute-artikel-topliste';
 import { LieferzonenCheck } from './lieferzone-check';
 import { KitchenStandortHealthStreifen } from './standort-health-streifen';
+import { KitchenFahrerRisikoMatrix } from './fahrer-risiko-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -742,6 +743,8 @@ export function KitchenBoard({
       <KitchenDriverReturnKochstart locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
       <DriverApproachPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
+      {/* Phase 350: Fahrer-Risiko-Matrix — Welche Bestellungen sind fertig bevor/nach Fahrerankunft? */}
+      <KitchenFahrerRisikoMatrix orders={filtered} timings={timings} batches={batches} stops={stops} drivers={drivers} />
       {/* Fahrer-Ankunft-Sync: Farbkodierter Abgleich Zubereitungszeit vs. Fahrerankuft — Risiko sofort sichtbar */}
       <KitchenDriverArrivalSync orders={filtered} drivers={drivers} />
       {/* Phase 346: Fahrer-Readiness-Sync — zeigt Fahrer im Anflug mit Live-Countdown */}

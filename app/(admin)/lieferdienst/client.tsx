@@ -142,6 +142,7 @@ import { SchichtGewinnRechner } from './schicht-gewinn-rechner'
 import { LieferdienstBestellkanalSplit } from './bestellkanal-split'
 import { HeatmapKpi } from './heatmap-kpi'
 import { LieferdienstStandortHealthCockpit } from './standort-health-cockpit'
+import { LieferdienstTagsBilanz } from './tags-bilanz'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1187,6 +1188,8 @@ export function LieferdienstClient() {
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}
               <SchichtNachrichtenCenter locationId={locationId} />
+              {/* Tages-Bilanz: Umsatz, Bestellungen, Ø Lieferzeit, Fahrerauslastung — live mit Gestern-Vergleich */}
+              {locationId && <LieferdienstTagsBilanz locationId={locationId} />}
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

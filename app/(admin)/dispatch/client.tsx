@@ -172,6 +172,7 @@ import { DispatchOrderWaitingCostPanel } from './order-waiting-cost-panel';
 import { DispatchSchichtBatchBilanz } from './schicht-batch-bilanz';
 import { HeatmapZoneAlert } from './heatmap-zone-alert';
 import { DispatchStandortHealthWidget } from './standort-health-widget';
+import { DispatchFahrerStatusBoard } from './fahrer-status-board';
 
 type Driver = {
   employee_id: string;
@@ -1068,6 +1069,8 @@ export function DispatchBoard({
       {/* Route-Opt-Savings: Phase-202-Einsparungen — km gespart + Ø-Verbesserung */}
       <DispatchRouteOptSavingsStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
+      {/* Fahrer-Status-Board: Alle Online-Fahrer mit Telefon + Statusübersicht auf einen Blick */}
+      <DispatchFahrerStatusBoard drivers={drivers} batches={batches} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
