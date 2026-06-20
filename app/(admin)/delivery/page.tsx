@@ -162,6 +162,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Echtzeit-Bonuspunkte · Peak-Hour-Multiplikator (×2 zur Stoßzeit) · Treue-Streak-Multiplikator · Fahrer-Leaderboard" cta="Engine öffnen" highlight />
         <SectionCard href="/delivery/driver-lending" icon={<ArrowRightLeft className="h-5 w-5" />} title="Cross-Location Fahrer-Ausleihe"
           subtitle="Idle Fahrer von Überschuss-Standorten an Engpass-Standorte ausleihen · Automatische Kandidaten-Erkennung · Haversine-Distanz-Filter" cta="Lending öffnen" highlight />
+        <SectionCard href="/delivery/driver-engagement" icon={<Trophy className="h-5 w-5" />} title="Fahrer-Engagement Engine"
+          subtitle="Gamification · Punkte pro Lieferung/Pünktlichkeit/5★ · 8 Abzeichen · Wöchentliche Rangliste mit Auto-Reset · Bonus-Punkte bei Badge-Unlock" cta="Engagement öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

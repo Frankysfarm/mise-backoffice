@@ -114,6 +114,7 @@ import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
 import { HeatmapTipp } from './heatmap-tipp';
 import { FahrerStandortHealthBadge } from './standort-health-badge';
 import { TourRewardProgress } from './tour-reward-progress';
+import { FahrerMeinEngagement } from './mein-engagement';
 
 type Driver = {
   id: string;
@@ -1420,6 +1421,8 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 350: Mein Engagement — Punkte, Abzeichen, Wochenrang */}
+          <FahrerMeinEngagement driverId={driver?.id ?? null} locationId={driver?.location_id ?? null} />
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />

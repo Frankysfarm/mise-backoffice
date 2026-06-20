@@ -143,6 +143,7 @@ import { LieferdienstBestellkanalSplit } from './bestellkanal-split'
 import { HeatmapKpi } from './heatmap-kpi'
 import { LieferdienstStandortHealthCockpit } from './standort-health-cockpit'
 import { LieferdienstTagsBilanz } from './tags-bilanz'
+import { LieferdienstEngagementWochenPanel } from './engagement-wochen-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1190,6 +1191,8 @@ export function LieferdienstClient() {
               <SchichtNachrichtenCenter locationId={locationId} />
               {/* Tages-Bilanz: Umsatz, Bestellungen, Ø Lieferzeit, Fahrerauslastung — live mit Gestern-Vergleich */}
               {locationId && <LieferdienstTagsBilanz locationId={locationId} />}
+              {/* Phase 350: Engagement-Woche — Top-Fahrer + Punkte/Abzeichen diese Woche */}
+              <LieferdienstEngagementWochenPanel locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

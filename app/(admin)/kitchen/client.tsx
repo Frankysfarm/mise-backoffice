@@ -123,6 +123,7 @@ import { KitchenHeuteArtikelTopliste } from './heute-artikel-topliste';
 import { LieferzonenCheck } from './lieferzone-check';
 import { KitchenStandortHealthStreifen } from './standort-health-streifen';
 import { KitchenFahrerRisikoMatrix } from './fahrer-risiko-matrix';
+import { KitchenEngagementTopStrip } from './engagement-top-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -640,6 +641,8 @@ export function KitchenBoard({
       <LieferzonenCheck locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
       {/* Phase 347: Standort-Gesundheits-Streifen — Note + Trend + schwächste Dimension */}
       <KitchenStandortHealthStreifen locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
+      {/* Phase 350: Engagement-Top-Strip — Wöchentlicher Top-Fahrer */}
+      <KitchenEngagementTopStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

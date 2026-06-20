@@ -44,6 +44,7 @@ import { StornoSchutzBadge } from './components/storno-schutz-badge';
 import { EtaVertrauensAnzeige } from './components/eta-vertrauens-anzeige';
 import { ZonenLieferzeitInfo } from './components/zonen-lieferzeit-info';
 import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
+import { FahrerQualitaetsBadge } from './components/fahrer-qualitaets-badge';
 
 type Props = {
   location: Location;
@@ -517,6 +518,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 350: Fahrer-Qualitäts-Badge — Top-Fahrer-Qualitätsindikator für Kunden */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <FahrerQualitaetsBadge locationId={location.id} orderType={orderType} />
+      </div>
       {/* Phase 337: Live-Wait-Badge — kompaktes Wartezeit-Pill je Bestelltyp */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <LiveWaitBadge orderType={orderType} />

@@ -1,7 +1,69 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–349 abgeschlossen. Build sauber. 345 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–350 abgeschlossen. Build sauber. 346 Seiten. TypeScript ignoreBuildErrors.**
+
+---
+
+## Phase 350 — Fahrer-Engagement-Engine (Gamification) (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/168_driver_engagement.sql`:**
+- `driver_engagement_config` — Admin-Konfiguration je Standort (UNIQUE location_id): `is_enabled`, `points_per_delivery (10)`, `points_per_on_time (5)`, `points_per_top_rating (15)`, `weekly_reset_day (1=Montag)`, `weekly_reset_hour_utc (4)`; RLS + updated_at Trigger
+- `driver_engagement_points` — Punkte-Ledger: `driver_id`, `points`, `reason` (delivery/on_time/top_rating/badge_bonus/manual/weekly_reset), optional `order_id`; 2 Indizes (location+driver, location+created)
+- `driver_engagement_badges` — Badge-Definitionen: `name`, `description`, `icon`, `min_deliveries`, `min_weekly_points`, `min_streak`, `min_on_time_rate_pct`, `bonus_points`; Index auf location_id
+- `driver_engagement_earned_badges` — Verdiente Abzeichen: UNIQUE (driver_id, badge_id), Index location+driver
+- `driver_engagement_leaderboard` — Wöchentlicher Snapshot: UNIQUE (location_id, week_start, driver_id), `rank`, `total_points`, `deliveries`, `on_time_rate`, `badges_count`
+- `prune_driver_engagement_points` + `prune_driver_engagement_leaderboard` RPCs
+- DO-Block: Seed 8 Standard-Abzeichen (Starter/Routinier/Profi/Legende + Punktesammler/Highscorer + Pünktlichkeits-Ass/Zuverlässigkeits-König) + Config für alle Standorte
+
+**`lib/delivery/driver-engagement.ts`:**
+- `getConfig / upsertConfig` — Konfiguration mit Defaults
+- `awardPoints(locationId, driverId, points, reason, orderId?)` — Punkte-Ledger-Eintrag
+- `getDriverWeeklyPoints(locationId, driverId)` — Aktuelle Wochenpunkte
+- `checkAndAwardBadges(...)` — Alle Badge-Bedingungen prüfen: min_deliveries × min_weekly_points × min_streak × min_on_time_rate_pct; fire bonus_points per Callback
+- `processDeliveryEngagement(locationId, driverId, orderId, wasOnTime, rating?)` — Haupt-Hook: +delivery-Punkte, +on_time-Punkte (wenn pünktlich), +top_rating-Punkte (wenn ≥5★), checkAndAwardBadges; gibt {pointsAwarded, newBadges} zurück
+- `processDeliveryEngagementAllLocations()` — Cron-Batch: scannt gelieferte Bestellungen letzte 12 Min ohne bestehenden delivery-Point-Eintrag
+- `computeWeeklyLeaderboard(locationId)` — Aggregiert Punkte seit Wochenstart → UPSERT Leaderboard-Rows mit Rank, Deliveries, Badges-Count, Driver-Name aus employees
+- `computeWeeklyLeaderboardAllLocations()` — Cron-Batch
+- `weeklyReset(locationId)` — Wöchentlicher Reset: negative weekly_reset-Einträge je Fahrer, so dass getDriverWeeklyPoints() wieder bei 0 startet
+- `weeklyResetAllLocations()` — Cron-Batch (montags 04:00 UTC)
+- `getDriverEngagementProfile(locationId, driverId)` — Vollständiges Profil: Gesamt-/Wochen-Punkte, Lieferungen, On-Time-Rate, Abzeichen, Wochen-Rang, Streak
+- `getDashboard(locationId)` — Admin-Dashboard: Config + Top-Fahrer + Leaderboard + 4 KPIs (Fahrer mit Punkten / Punkte vergeben / Abzeichen / Ø Punkte)
+- `pruneOldPoints / pruneOldLeaderboard` — via RPC
+
+**`app/api/delivery/admin/driver-engagement/route.ts`:**
+- GET ?action=dashboard → Admin-Dashboard; ?action=config → Konfiguration; ?action=leaderboard → Top-N (limit); ?action=profile&driver_id= → Fahrerprofil
+- POST action=update_config → Partial-Konfiguration; action=award_points → Manuell Punkte vergeben; action=compute_leaderboard / compute_leaderboard_all → Rangliste neu berechnen; action=weekly_reset / weekly_reset_all → Wochen-Reset; action=prune → Cleanup
+- Auth via employees.location_id + Superadmin-Override via body.location_id
+
+**`app/(admin)/delivery/driver-engagement/` — Admin-UI:**
+- 4 KPI-Karten: Fahrer mit Punkten / Punkte vergeben / Abzeichen gesamt / Ø Punkte pro Fahrer
+- Goldener Top-Fahrer-Banner mit Avatar-Initialen
+- Tab **Rangliste**: Rangmedaillen 🥇🥈🥉, Avatar-Initialen, Punkte/Lieferungen/On-Time%; aufklappbar per Fahrer → Gesamt-Punkte + Lieferungen + Streak + Abzeichen-Badges; Wochenreset-Button (Confirm-Dialog)
+- Tab **Abzeichen**: 8 Badge-Cards mit Emoji-Icon, Bedingung, Bonus-Punkte
+- Tab **Konfiguration**: is_enabled Toggle + Range-Slider pointsPerDelivery/pointsPerOnTime/pointsPerTopRating/weeklyResetHourUtc + Speichern-Button + Gespeichert-Timestamp
+- Rangliste-neu-berechnen-Button + Aktualisieren-Button
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Fahrer-Engagement Engine" mit Trophy-Icon in Fahrer-Gruppe (highlight)
+
+**5 Cross-Dashboard-Komponenten:**
+- `app/(admin)/kitchen/engagement-top-strip.tsx` — KitchenEngagementTopStrip: goldener Strip mit Wochen-Top-Fahrer (Name, Punkte, Lieferungen, Pünktlichkeit); 2-Min-Polling; Integration: `kitchen/client.tsx` nach KitchenStandortHealthStreifen
+- `app/(admin)/dispatch/engagement-rangliste-panel.tsx` — DispatchEngagementRanglistePanel: Kompakte Rangliste Top-5 mit Rang-Emoji, Avatar, Punkte, Lieferungen; 90s-Polling; Integration: `dispatch/client.tsx` nach DispatchFahrerStatusBoard
+- `app/fahrer/app/mein-engagement.tsx` — FahrerMeinEngagement: Persönliche Ansicht mit Wochen-/Gesamt-Punkten, Abzeichen-Count, Rang-Badge (🥇/🥈/🥉/Platz N); 3×Grid-Kacheln + Abzeichen-Liste + Streak-Zeile; 5-Min-Polling; Integration: `fahrer/app/client.tsx` vor FahrerAnalyticsWochenuebersicht
+- `app/order/[locationSlug]/components/fahrer-qualitaets-badge.tsx` — FahrerQualitaetsBadge: Emerald-Badge "Top-Fahrer aktiv" mit Pünktlichkeits-% (nur wenn ≥85%); 5-Min-Polling; nur bei orderType=lieferung; Integration: `storefront.tsx` vor LiveWaitBadge
+- `app/(admin)/lieferdienst/engagement-wochen-panel.tsx` — LieferdienstEngagementWochenPanel: 4 KPI-Kacheln + goldener Top-Fahrer-Row; 5-Min-Polling; Integration: `lieferdienst/client.tsx` nach LieferdienstTagsBilanz
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Alle 10 Min: `processDeliveryEngagementAllLocations()`
+- Täglich 03:00 UTC: `computeWeeklyLeaderboardAllLocations()`
+- Montags 04:00 UTC: `weeklyResetAllLocations()`
+- Täglich 06:45 UTC: `pruneOldPoints(90)` + `pruneOldLeaderboard(12)`
+
+- Build: npx next build ✓ (346 Seiten, 0 Fehler)
 
 **Backend-Architekt-Agent — 2026-06-20: Phase 349 — Zone-based Multi-Stop Batch Optimizer V2 (SQL 167: zone_batch_config (UNIQUE location_id, is_enabled, max_stops 2-6, max_radius_km, auto_apply_min_score, min_km_savings_pct, scan_interval_min)+zone_batch_suggestions (stops JSONB, total_orders, route_km, individual_km, km_savings, km_savings_pct, score 0-100, status pending/applied/rejected/expired/auto_applied, driver_id, batch_id, resolved_by)+RLS+prune_zone_batch_suggestions RPC+2 Indizes; lib/delivery/zone-batch-optimizer.ts: getConfig/upsertConfig, greedyRouteKm (Nearest-Neighbor von Zentroid), individualTotalKm (Summe Einzeldistanzen), scoreBatch (4-Faktoren 0-100: km-Einsparung 40pt+Stops 25pt+Cluster-Tightness 20pt+ETA-Headroom 15pt), scanPendingOrders (bereit_zur_lieferung ohne mise_batch_id mit Koordinaten), clusterOrders (greedy Seed-Cluster innerhalb maxRadiusKm), generateBatchSuggestions (scan→cluster→score→upsert, Dedup pending-Stop-Kollision, Auto-Apply ab autoApplyMinScore), generateAllLocations Cron-Batch, applyBatchSuggestion/rejectBatchSuggestion, expireStaleSuggestions (>30Min pending→expired), getDashboard (config+4 Stats: pendingCount/appliedToday/autoApplied/rejected+Ø km-Einsparung+totalKmSaved+pendingSuggestions+recentHistory), pruneOldSuggestions via RPC; API /api/delivery/admin/zone-batch-optimizer GET dashboard/config/suggestions + POST apply/reject/update_config/run_now/run_all/expire/prune; Admin-UI /delivery/zone-batch-optimizer page.tsx+client.tsx (4 KPIs Ausstehend/Heute angewandt/Ø km-Einsparung/km gespart heute + Tab Vorschläge (SuggestionCard expandierbar: Score-Badge+Stops+kmSavings+Annehmen/Ablehnen-Buttons) + Tab Verlauf + Tab Konfiguration (Slider max_stops/max_radius/min_savings/auto_apply_score)); Delivery-Overview SectionCard Route-Icon in KI-Tools-Gruppe (highlight); Cron: alle 3 Min generateAllLocations, Prune täglich 06:40 UTC). Build ✅ 345 Seiten, 0 Fehler.**
 

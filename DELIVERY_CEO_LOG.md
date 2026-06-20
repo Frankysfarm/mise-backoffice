@@ -1,7 +1,11 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–349 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (345 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–350 vollständig abgeschlossen. Build sauber (346 Seiten). Deployment-bereit.
+
+---
+
+**Backend-Architekt-Agent — 2026-06-20: Phase 350 — Fahrer-Engagement-Engine (Gamification) (SQL 168: driver_engagement_config+driver_engagement_points+driver_engagement_badges+driver_engagement_earned_badges+driver_engagement_leaderboard+2 prune RPCs+Seed 8 Badges; lib/delivery/driver-engagement.ts: getConfig/upsertConfig, awardPoints, checkAndAwardBadges (8-Badge-Prüfung: min_deliveries×min_weekly_points×min_streak×min_on_time_rate), processDeliveryEngagement Haupt-Hook (+delivery/on_time/top_rating-Punkte+BadgeCheck), processDeliveryEngagementAllLocations Cron, computeWeeklyLeaderboard UPSERT Rang+Punkte+Lieferungen+Badges, weeklyReset negative reset-Einträge, getDriverEngagementProfile Vollprofil, getDashboard 4 KPIs; API /api/delivery/admin/driver-engagement GET dashboard/config/leaderboard/profile + POST update_config/award_points/compute_leaderboard/weekly_reset/prune; Admin-UI /delivery/driver-engagement page.tsx+client.tsx (4 KPIs+Top-Fahrer-Banner+Tab Rangliste aufklappbar/Tab Abzeichen 8 Badges/Tab Konfiguration Slider+Toggle); SectionCard in Fahrer-Gruppe (Trophy-Icon+highlight); 5 Komponenten: KitchenEngagementTopStrip (goldener Top-Fahrer-Strip, 2Min)+DispatchEngagementRanglistePanel (Top-5-Rangliste, 90s)+FahrerMeinEngagement (Wochen/Gesamt-Punkte+Abzeichen+Rang, 5Min)+FahrerQualitaetsBadge (Emerald-Badge wenn ≥85% pünktlich, 5Min)+LieferdienstEngagementWochenPanel (4 KPIs+Top-Fahrer-Row, 5Min); Cron: 10Min processDeliveryEngagementAllLocations+03:00 computeWeeklyLeaderboardAllLocations+Montags 04:00 weeklyResetAllLocations+06:45 pruneOldPoints(90)+pruneOldLeaderboard(12)). Build ✅ 346 Seiten, 0 Fehler.**
 
 ---
 

@@ -173,6 +173,7 @@ import { DispatchSchichtBatchBilanz } from './schicht-batch-bilanz';
 import { HeatmapZoneAlert } from './heatmap-zone-alert';
 import { DispatchStandortHealthWidget } from './standort-health-widget';
 import { DispatchFahrerStatusBoard } from './fahrer-status-board';
+import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
 
 type Driver = {
   employee_id: string;
@@ -1071,6 +1072,8 @@ export function DispatchBoard({
 
       {/* Fahrer-Status-Board: Alle Online-Fahrer mit Telefon + Statusübersicht auf einen Blick */}
       <DispatchFahrerStatusBoard drivers={drivers} batches={batches} />
+      {/* Phase 350: Engagement-Rangliste — Wochen-Top-5 Fahrer nach Punkten */}
+      <DispatchEngagementRanglistePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
