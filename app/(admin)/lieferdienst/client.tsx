@@ -126,6 +126,7 @@ import { DelayVorhersageKpi } from './delay-vorhersage-kpi'
 import { DelayRisikoUebersicht } from './delay-risiko-uebersicht'
 import { LieferdienstDelayAlertKpi } from './delay-alert-kpi'
 import { LieferdienstAnalyticsTrendPanel } from './analytics-trend-panel'
+import { SchichtNachrichtenCenter } from './schicht-nachrichten-center'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1139,6 +1140,8 @@ export function LieferdienstClient() {
               {locationId && <LieferdienstDelayAlertKpi locationId={locationId} />}
               {/* Phase 321: Analytics-Trend-Panel — 30-Tage-Trend + Top-Fahrer + Wochenkennzahlen (Phase 320 Backend) */}
               <LieferdienstAnalyticsTrendPanel locationId={locationId} />
+              {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}
+              <SchichtNachrichtenCenter locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

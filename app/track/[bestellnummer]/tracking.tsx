@@ -32,6 +32,7 @@ import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nac
 import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-progress-card';
 import { SseTrackingLive } from './sse-tracking-live';
 import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-card';
+import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-status-mini-tracker';
 
 type Order = {
   order_id: string;
@@ -480,6 +481,20 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             initialEtaLatest={order.eta_latest}
             customerName={order.kunde_name}
           />
+        )}
+
+        {/* Phase 323: Bestell-Status-Mini-Tracker — kompakte 3-Schritt-Fortschrittsanzeige */}
+        {order.typ === 'lieferung' && !['storniert'].includes(order.status) && (
+          <div className="mt-3 px-1">
+            <BestellStatusMiniTracker
+              orderId={order.order_id}
+              initialStage={
+                order.status === 'geliefert' ? 'delivered'
+                : ['unterwegs', 'picked_up', 'driver_departing'].includes(order.status) ? 'on_the_way'
+                : 'preparing'
+              }
+            />
+          </div>
         )}
 
         {/* Mehrstufige ETA-Fortschrittsanzeige */}

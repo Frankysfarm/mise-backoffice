@@ -98,6 +98,7 @@ import { SchichtUmsatzVelocity } from './schicht-umsatz-velocity';
 import { StopSmartCountdown } from './stop-smart-countdown';
 import { FahrerDelayAlertHinweis } from './delay-alert-hinweis';
 import { FahrerAnalyticsWochenuebersicht } from './analytics-wochenuebersicht';
+import { FahrerSchichtAusblick } from './schicht-ausblick';
 
 type Driver = {
   id: string;
@@ -1312,6 +1313,14 @@ export function FahrerApp({
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />
+          </div>
+          {/* Phase 323: Schicht-Ausblick — Einnahmen-Prognose, Effizienz-Indikator, Restzeit */}
+          <div className="px-4">
+            <FahrerSchichtAusblick
+              bisherige_einnahmen={todayStats?.estEarnings}
+              stops_erledigt={todayStats?.deliveries}
+              schicht_start={status?.online_seit ?? undefined}
+            />
           </div>
           {/* Phase 301: Lieferungs-Checkliste — Vor-Ankunft-Prüfung: Artikel, Adresse, Zahlung */}
           {(() => {
