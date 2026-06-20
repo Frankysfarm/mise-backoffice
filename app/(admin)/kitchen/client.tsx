@@ -125,6 +125,7 @@ import { KitchenStandortHealthStreifen } from './standort-health-streifen';
 import { KitchenFahrerRisikoMatrix } from './fahrer-risiko-matrix';
 import { KitchenEngagementTopStrip } from './engagement-top-strip';
 import { KitchenLiveBestellMatrix } from './live-bestell-matrix';
+import { KitchenBatchPickupCountdown } from './batch-pickup-countdown';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -646,6 +647,8 @@ export function KitchenBoard({
       <KitchenEngagementTopStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 351: Live-Bestell-Matrix — Farbkodierte Echtzeit-Übersicht aller aktiven Bestellungen */}
       <KitchenLiveBestellMatrix orders={filtered} timings={timings} />
+      {/* Phase 352: Batch-Abholung Countdown — Countdowns pro aktiver Tour bis Fahrerankunft */}
+      <KitchenBatchPickupCountdown batches={batches} stops={stops} orders={filtered} drivers={drivers} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

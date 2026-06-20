@@ -175,6 +175,7 @@ import { DispatchStandortHealthWidget } from './standort-health-widget';
 import { DispatchFahrerStatusBoard } from './fahrer-status-board';
 import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
 import { DispatchTagesZusammenfassung } from './tages-zusammenfassung';
+import { DispatchOffeneWarteschlange } from './offene-warteschlange';
 
 type Driver = {
   employee_id: string;
@@ -1077,6 +1078,8 @@ export function DispatchBoard({
       <DispatchEngagementRanglistePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 351: Tages-Zusammenfassung — Tour-Scores, On-Time-Rate, aktive Fahrer heute */}
       <DispatchTagesZusammenfassung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Phase 352: Offene Warteschlange — Noch nicht zugewiesene Bestellungen nach Wartezeit sortiert */}
+      <DispatchOffeneWarteschlange locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}

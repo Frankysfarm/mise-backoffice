@@ -116,6 +116,7 @@ import { FahrerStandortHealthBadge } from './standort-health-badge';
 import { TourRewardProgress } from './tour-reward-progress';
 import { FahrerMeinEngagement } from './mein-engagement';
 import { FahrerTourNavigatorPro } from './tour-navigator-pro';
+import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 
 type Driver = {
   id: string;
@@ -1447,6 +1448,10 @@ export function FahrerApp({
           )}
           {/* Phase 350: Mein Engagement — Punkte, Abzeichen, Wochenrang */}
           <FahrerMeinEngagement driverId={driver?.id ?? null} locationId={driver?.location_id ?? null} />
+          {/* Phase 352: Trinkgeld-Live-Tracker — Heute gesammelte Tips, Ø pro Tour, Trinkgeld-Rate */}
+          <div className="px-4">
+            <FahrerTrinkgeldLiveTracker />
+          </div>
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />

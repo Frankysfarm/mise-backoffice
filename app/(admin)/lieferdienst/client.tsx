@@ -145,6 +145,7 @@ import { LieferdienstStandortHealthCockpit } from './standort-health-cockpit'
 import { LieferdienstTagsBilanz } from './tags-bilanz'
 import { LieferdienstEngagementWochenPanel } from './engagement-wochen-panel'
 import { WochenVergleichAnalytik } from './wochen-vergleich-analytik'
+import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-vergleich'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1196,6 +1197,8 @@ export function LieferdienstClient() {
               <LieferdienstEngagementWochenPanel locationId={locationId} />
               {/* Phase 351: Wochenvergleich-Analytik — Bestellungen/Umsatz/Lieferungen diese vs. Vorwoche */}
               <WochenVergleichAnalytik />
+              {/* Phase 352: Fahrer-Leistungsvergleich — Top vs. Bottom Performer Side-by-Side */}
+              <LieferdienstFahrerLeistungsVergleich locationId={locationId ?? undefined} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
