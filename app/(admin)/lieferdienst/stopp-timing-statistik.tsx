@@ -184,7 +184,7 @@ export function StoppTimingStatistik({ locationId }: { locationId?: string | nul
                     />
                     <Tooltip
                       contentStyle={{ fontSize: 11, borderRadius: 8 }}
-                      formatter={(v: number, name: string) => [v, name === 'pünktlich' ? 'Pünktlich' : 'Verspätet']}
+                      formatter={(v: unknown, name: unknown) => [v as number, name === 'pünktlich' ? 'Pünktlich' : 'Verspätet']}
                     />
                     <Bar dataKey="pünktlich" stackId="a" radius={[0, 0, 0, 0]}>
                       {chartData.map((_, i) => <Cell key={i} fill="#65a30d" />)}
