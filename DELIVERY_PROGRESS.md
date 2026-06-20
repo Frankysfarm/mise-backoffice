@@ -1,7 +1,27 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–351 abgeschlossen. Build sauber. 346 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–352 abgeschlossen. Build sauber. 347 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 352 — Batch-Countdown, Warteschlange, Trinkgeld-Tracker, Fahrer-Vergleich (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**4 neue Frontend-Komponenten:**
+
+- **`app/(admin)/kitchen/batch-pickup-countdown.tsx`** — KitchenBatchPickupCountdown: Echtzeit-Countdown pro aktiver Tour bis Fahrerankunft (grün/amber/rot/Überfällig je Restzeit, 1s-Tick useCountdown-Hook, Fortschrittsbalken, Artikel-Status fertig/abgeholt, criticalCount-Badge animate-pulse); Integration: `kitchen/client.tsx` ✅
+- **`app/(admin)/dispatch/offene-warteschlange.tsx`** — DispatchOffeneWarteschlange: Prioritätsliste nicht zugewiesener Bestellungen nach Wartezeit (30s-Polling, Farbampel grün/amber/rot ab 5/15 Min, Zone + Adresse + Betrag, Fallback Mock-Daten, Gesundheits-Badge mit pendingCount+avgWait); Integration: `dispatch/client.tsx` ✅
+- **`app/fahrer/app/trinkgeld-live-tracker.tsx`** — FahrerTrinkgeldLiveTracker: Heute-Total, Ø pro Tour, Bestes Trinkgeld, Trinkgeld-Rate mit Fortschrittsbalken, 60s-Polling, goldener Dark-Mode-Gradient; Integration: `fahrer/app/client.tsx` ✅
+- **`app/(admin)/lieferdienst/fahrer-leistungs-vergleich.tsx`** — LieferdienstFahrerLeistungsVergleich: Top-3 vs. Bottom-3 Fahrer Side-by-Side (Pünktlichkeit, Touren, Ø Zeit, Tips, Score-Balken), Mock-Daten mit API-TODO-Kommentar, 5-Min-Refresh; Integration: `lieferdienst/client.tsx` ✅
+
+**CEO-Agent Review #192 — 0 Bugs:**
+- Alle 4 Komponenten TypeScript-sauber
+- Alle 4 Integrationen korrekt (kitchen/dispatch/fahrer/lieferdienst/client.tsx)
+- Build ✓ 347 Seiten, 0 Fehler, 0 TypeScript-Fehler
 
 ---
 
