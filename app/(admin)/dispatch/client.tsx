@@ -168,6 +168,7 @@ import { DispatchTourSwimlanes } from './tour-swimlanes';
 import { DispatchDriverScorePanel } from './driver-score-panel';
 import { DispatchOpsDecisionPanel } from './ops-decision-panel';
 import { DispatchStornoInterventPanel } from './storno-intervent-panel';
+import { DispatchSchichtBatchBilanz } from './schicht-batch-bilanz';
 
 type Driver = {
   employee_id: string;
@@ -1660,6 +1661,8 @@ export function DispatchBoard({
 
       {/* Phase 343: Ops-Entscheidungs-Panel — Alle Empfehlungen mit Annehmen/Ignorieren */}
       <DispatchOpsDecisionPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 344: Schicht-Batch-Bilanz — Schlüsselkennzahlen aller Batches dieser Schicht */}
+      <DispatchSchichtBatchBilanz batches={batches} />
 
       {/* Phase 345: Storno-Interventions-Panel — Hochriskante Kunden + Voucher-Intervention */}
       <DispatchStornoInterventPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

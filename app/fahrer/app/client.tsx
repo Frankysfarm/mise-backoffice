@@ -110,6 +110,7 @@ import { TourStoppEtaMatrix } from './tour-stopp-eta-matrix';
 import { FahrerGebuehrenInfo } from './gebuehren-info';
 import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
 import { FahrerStornoInfoBanner } from './storno-info-banner';
+import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
 
 type Driver = {
   id: string;
@@ -1399,6 +1400,13 @@ export function FahrerApp({
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />
+          </div>
+          {/* Phase 344: Schicht-Energie-Check — Erschöpfungsindikator + Pausenempfehlung */}
+          <div className="px-4">
+            <FahrerSchichtEnergieCheck
+              onlineSeit={status?.online_seit ?? null}
+              stopsErledigt={todayStats?.deliveries ?? 0}
+            />
           </div>
           {/* Phase 330: Wochen-Rang-Karte — Wochenranking: Rang, Score, Grade, Einnahmen, Prämie */}
           <div className="px-4">
