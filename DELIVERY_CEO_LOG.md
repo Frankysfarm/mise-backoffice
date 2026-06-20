@@ -1,7 +1,11 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–352 vollständig abgeschlossen. Build sauber (347 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–353 vollständig abgeschlossen. Build sauber (348 Seiten). Deployment-bereit.
+
+---
+
+**Backend-Architekt-Agent — 2026-06-20: Phase 353 — Smart Driver Absence & Vacation Management Engine (SQL 170: driver_absence_config (UNIQUE location_id, is_enabled, requires_approval, max_vacation_days_per_year 28, max_sick_days_per_year 14, min_notice_days 2, auto_approve_sick_days)+driver_absences (driver_id+location_id, absence_type sick_day/vacation/personal_day/training/other, start_date+end_date+days_count GENERATED STORED, status pending/approved/rejected/cancelled, reason+admin_notes+approved_by+approved_at, 3 Indizes, CONSTRAINT valid_date_range)+prune_driver_absences RPC; lib/delivery/driver-absences.ts: getConfig/upsertConfig, submitAbsenceRequest (Kollisions-Check pending/approved+Auto-Approve sick_day), approveAbsence/rejectAbsence (Admin-Audit-Trail), cancelAbsence, isDriverAbsentToday Dispatch-Check, getTodaysAbsences/getUpcomingAbsences/getPendingAbsences, getDriverAbsences/getDriverAbsenceBalance (Jahres-Kontingent vacation+sick+personal+training), getCoverageImpact (Tag-für-Tag absentDrivers/scheduledDrivers/availabilityPct/risk low/medium/high), getDashboard (4 KPIs+todaysAbsences+upcomingAbsences+pendingAbsences+coverageImpact[14d]), pruneOldAbsences via RPC; API /api/delivery/admin/driver-absences GET dashboard/config/pending/today/upcoming/coverage + POST approve/reject/update_config/prune; Driver API /api/delivery/driver/absences GET my_absences/balance + POST submit/cancel; Admin-UI /delivery/driver-absences (4 KPIs Heute/Ausstehend/Genehmigt7d/Verfügbarkeit%+Verfügbarkeits-Kalender 14d grün/amber/rot+Tab Heute+Tab Ausstehend Genehmigen/Ablehnen+Tab Demnächst+Tab Konfiguration 3 Toggles+3 Slider+AlertTriangle bei <50%); Delivery-Overview SectionCard CalendarOff-Icon in Fahrer-Gruppe (highlight); Cron: Prune täglich 06:50 UTC). Build ✅ 348 Seiten, 0 Fehler.**
 
 ---
 

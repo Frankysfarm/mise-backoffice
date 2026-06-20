@@ -1,7 +1,57 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–352 abgeschlossen. Build sauber. 347 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–353 abgeschlossen. Build sauber. 348 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 353 — Smart Driver Absence & Vacation Management Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/170_driver_absences.sql`:**
+- `driver_absence_config` — Konfiguration je Standort (UNIQUE location_id): `is_enabled`, `requires_approval`, `max_vacation_days_per_year (28)`, `max_sick_days_per_year (14)`, `min_notice_days (2)`, `auto_approve_sick_days`; RLS + updated_at Trigger; Default-Insert für alle bestehenden Standorte
+- `driver_absences` — Abwesenheits-Einträge: `driver_id`, `location_id`, `absence_type` (sick_day/vacation/personal_day/training/other), `start_date`, `end_date`, `days_count` (GENERATED STORED), `status` (pending/approved/rejected/cancelled), `reason`, `admin_notes`, `approved_by`, `approved_at`; 3 Indizes (location+status, driver+date, location+date); CONSTRAINT valid_date_range; RLS
+- `prune_driver_absences(days_to_keep)` RPC — löscht alte abgeschlossene Einträge
+
+**`lib/delivery/driver-absences.ts`:**
+- `getConfig / upsertConfig` — Konfiguration mit Defaults, Auto-Insert wenn fehlend
+- `submitAbsenceRequest(driverId, locationId, type, startDate, endDate, reason?)` — Einreichen mit Kollisions-Check (Überschneidung pending/approved); Auto-Approve bei sick_day + autoApproveSickDays=true
+- `approveAbsence / rejectAbsence(id, locationId, adminId, adminNotes?)` — Status-Übergänge mit Admin-Audit-Trail (approved_by + approved_at)
+- `cancelAbsence(id, driverId)` — Fahrer storniert eigene Anfrage
+- `isDriverAbsentToday(driverId, locationId)` → boolean — Dispatch-Check
+- `getTodaysAbsences / getUpcomingAbsences(locationId, days=14) / getPendingAbsences` — Abfragen mit JOIN auf mise_drivers (name, vehicle)
+- `getDriverAbsences(driverId, locationId, year)` — Jahres-History eines Fahrers
+- `getDriverAbsenceBalance(driverId, locationId, year?)` — Jahres-Kontingent: vacationUsed/Remaining, sickDaysUsed/Remaining, personalDaysUsed, trainingDaysUsed
+- `getCoverageImpact(locationId, fromDate, toDate)` → CoverageImpact[] — Tag-für-Tag Coverage-Analyse: absentDrivers/scheduledDrivers/availabilityPct/risk (low/medium/high)
+- `getDashboard(locationId)` — todayAbsent + pendingRequests + approvedThisWeek + availabilityPct + todaysAbsences + upcomingAbsences + pendingAbsences + coverageImpact[14 Tage]
+- `pruneOldAbsences(daysToKeep=365)` — via RPC
+
+**`app/api/delivery/admin/driver-absences/route.ts`:**
+- GET ?action=dashboard/config/pending/today/upcoming&days/coverage&from&to
+- POST action=approve/reject (adminNotes) / update_config / prune
+
+**`app/api/delivery/driver/absences/route.ts`:**
+- GET ?action=my_absences&year / balance&year
+- POST action=submit (absence_type, start_date, end_date, reason?) / cancel (id)
+
+**`app/(admin)/delivery/driver-absences/page.tsx + client.tsx`:**
+- 4 KPI-Kacheln: Heute abwesend / Ausstehend / Genehmigt (7 Tage) / Verfügbarkeit %
+- Verfügbarkeits-Kalender (14 Tage): Balken-Heatmap grün/amber/rot mit Wochtag-Labels
+- Tab **Heute**: Abwesenheits-Cards mit Avatar-Initialen, Typ-Badge, Status-Badge, Datumsbereich, aufklappbar mit Grund+Admin-Notiz
+- Tab **Ausstehend**: Cards mit Genehmigen/Ablehnen-Buttons + Admin-Notiz-Textarea; Badge-Zähler am Tab
+- Tab **Demnächst**: Upcoming approved+pending Abwesenheiten 14 Tage
+- Tab **Konfiguration**: 3 Toggles (isEnabled/requiresApproval/autoApproveSickDays) + 3 Slider (maxVacationDays/maxSickDays/minNoticeDays) + Speichern-Button
+- Kritische-Verfügbarkeits-Warnung (AlertTriangle) wenn Tage <50% im Kalender
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Abwesenheits-Manager" mit CalendarOff-Icon in Fahrer-Gruppe (highlight)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 06:50 UTC: `pruneOldAbsences(365)` — Cleanup älterer abgeschlossener Einträge
+
+**Build:** npx next build ✓ (348 Seiten, 0 Fehler, 0 TypeScript-Fehler)
 
 ---
 

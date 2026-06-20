@@ -143,6 +143,7 @@ import { pruneOldRequests as pruneDriverLendingRequests } from '@/lib/delivery/d
 import { generateAllLocations as generateZoneBatchSuggestions, pruneOldSuggestions as pruneZoneBatchSuggestions } from '@/lib/delivery/zone-batch-optimizer';
 import { processDeliveryEngagementAllLocations, computeWeeklyLeaderboardAllLocations, weeklyResetAllLocations, pruneOldPoints as pruneEngagementPoints, pruneOldLeaderboard as pruneEngagementLeaderboard } from '@/lib/delivery/driver-engagement';
 import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/delivery/tour-profit';
+import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1156,6 +1157,12 @@ export async function GET(req: NextRequest) {
       : null;
     const tourProfitPruned = isTourProfitPruneTick
       ? await pruneTourProfitSnapshots(90).catch(() => ({ pruned: 0 }))
+      : null;
+
+    // Phase 353: Driver Absences — Prune täglich 06:50 UTC
+    const isAbsencePruneTick = nowHour === 6 && nowMin === 50;
+    const absencePruned = isAbsencePruneTick
+      ? await pruneOldAbsences(365).catch(() => 0)
       : null;
 
     const durationMs = Date.now() - start;

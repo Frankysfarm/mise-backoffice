@@ -12,7 +12,7 @@ import {
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
   BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
-  HandCoins, MapPinCheck, Percent, Layers, ArrowRightLeft,
+  HandCoins, MapPinCheck, Percent, Layers, ArrowRightLeft, CalendarOff,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -164,6 +164,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Idle Fahrer von Überschuss-Standorten an Engpass-Standorte ausleihen · Automatische Kandidaten-Erkennung · Haversine-Distanz-Filter" cta="Lending öffnen" highlight />
         <SectionCard href="/delivery/driver-engagement" icon={<Trophy className="h-5 w-5" />} title="Fahrer-Engagement Engine"
           subtitle="Gamification · Punkte pro Lieferung/Pünktlichkeit/5★ · 8 Abzeichen · Wöchentliche Rangliste mit Auto-Reset · Bonus-Punkte bei Badge-Unlock" cta="Engagement öffnen" highlight />
+        <SectionCard href="/delivery/driver-absences" icon={<CalendarOff className="h-5 w-5" />} title="Abwesenheits-Manager"
+          subtitle="Urlaub, Krankmeldungen & persönliche Tage · Genehmigungsworkflow · Coverage-Impact-Analyse · Jahres-Kontingent" cta="Abwesenheiten verwalten" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}
