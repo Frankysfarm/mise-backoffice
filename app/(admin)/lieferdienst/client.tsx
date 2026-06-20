@@ -134,6 +134,7 @@ import { SchichtDeltaVergleich } from './schicht-delta-vergleich'
 import { SchichtLiveKapazitaet } from './schicht-live-kapazitaet'
 import LieferdienstFahrerEffizienzScore from './fahrer-effizienz-score'
 import { SchichtLiveStatistik } from './schicht-live-statistik'
+import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1159,6 +1160,8 @@ export function LieferdienstClient() {
               <LieferdienstAnalyticsTrendPanel locationId={locationId} />
               {/* Phase 339: Schicht-Live-Statistik — Live KPI-Grid mit Δ Vortag (Bestellungen/Umsatz/SLA/Zeit) */}
               <SchichtLiveStatistik locationId={locationId} />
+              {/* Phase 340: Schicht-Umsatz-Meter — Umsatz-Fortschrittsbalken, EUR/h Rate + Tagesprognose */}
+              <SchichtUmsatzMeter locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

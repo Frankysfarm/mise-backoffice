@@ -164,6 +164,7 @@ import { DispatchTourRenditeKarte } from './tour-rendite-karte';
 import { DispatchTourRueckkehrBoard } from './tour-rueckkehr-board';
 import DispatchTourProfitLive from './tour-profit-live';
 import { DispatchTourSwimlanes } from './tour-swimlanes';
+import { DispatchDriverScorePanel } from './driver-score-panel';
 
 type Driver = {
   employee_id: string;
@@ -1007,6 +1008,16 @@ export function DispatchBoard({
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Phase 339: Tour-Swimlanes — Swimlane-Ansicht aller aktiven Touren mit Score, Stop-Dots + ETA */}
       <DispatchTourSwimlanes batches={batches as any} />
+      {/* Phase 340: Fahrer-Score-Panel — Ranking aller aktiven Fahrer nach Dispatch-Score mit Stop-Fortschritt */}
+      <DispatchDriverScorePanel
+        drivers={drivers.filter((d) => d.ist_online).map((d) => ({
+          id: d.employee?.id ?? d.employee_id,
+          vorname: d.employee?.vorname ?? '?',
+          nachname: d.employee?.nachname ?? '',
+          driver_score: null,
+        }))}
+        batches={batches.map((b) => ({ ...b, driver_id: b.fahrer_id, started_at: b.startzeit ?? null }))}
+      />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />

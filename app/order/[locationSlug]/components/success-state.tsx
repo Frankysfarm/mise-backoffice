@@ -26,6 +26,7 @@ import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
 import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
 import { BestellPhasenBand } from '../bestell-phasen-band';
 import { EtaLiveRing } from '../eta-live-ring';
+import { BestellPulsStatus } from '../bestell-puls-status';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -399,6 +400,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             etaEarliest={etaWindow?.earliest ?? null}
             etaLatest={etaWindow?.latest ?? null}
             status={liveStatus}
+          />
+        )}
+        {/* Phase 340: Bestell-Puls-Status — Animierter Live-Status mit Phasen-Fortschritt + ETA-Countdown */}
+        {orderId && (
+          <BestellPulsStatus
+            orderId={orderId}
+            bestellnummer={bestellnummer}
+            etaMinutes={etaMinutes}
+            isDelivery={isDelivery}
           />
         )}
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}

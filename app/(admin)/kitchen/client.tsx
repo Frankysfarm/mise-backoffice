@@ -113,6 +113,7 @@ import { KitchenPrepEffizienzLive } from './prep-effizienz-live';
 import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
 import { KitchenSchichtSofortCockpit } from './schicht-sofort-cockpit';
 import { KitchenSmartTimingDashboard } from './smart-timing-dashboard';
+import { KitchenPrepStationBoard } from './prep-station-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -610,6 +611,8 @@ export function KitchenBoard({
       <KitchenSchichtWocheVergleich locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
+      {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
+      <KitchenPrepStationBoard orders={filtered} timings={timings} />
       {/* Phase 332: Prep-Effizienz-Live — Pünktlichkeitsquote + Abweichungs-Chart je Bestellung */}
       <KitchenPrepEffizienzLive orders={filtered} timings={timings} />
       {/* Phase 334: Kochstart-Timing Score — Wie gut trifft die Küche den optimalen Kochstart? */}
