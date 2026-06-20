@@ -1261,9 +1261,9 @@ export function FahrerApp({
           <div className="px-4">
             <TourSchichtBilanz
               activeBatch={activeBatch}
-              todayEarnings={0}
-              todayDeliveries={0}
-              onlineMinutes={0}
+              todayEarnings={todayStats?.estEarnings ?? 0}
+              todayDeliveries={todayStats?.deliveries ?? 0}
+              onlineMinutes={status?.online_seit ? Math.floor((Date.now() - new Date(status.online_seit).getTime()) / 60_000) : 0}
             />
           </div>
           {/* Phase 326: Tour-Kosten-Ertrag — Echtzeit-Einnahmen der aktuellen Tour je Stopp */}

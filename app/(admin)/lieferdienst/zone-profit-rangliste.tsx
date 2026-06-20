@@ -40,7 +40,7 @@ function getMockZones(locationId: string): ZoneRow[] {
       avgDeliveryMin: avgMin,
       slaRate: Math.min(100, slaRate),
       profitScore: Math.min(100, profitScore),
-      trend: i === 0 ? 'up' : i === 2 ? 'down' : 'flat',
+      trend: (i === 0 ? 'up' : i === 2 ? 'down' : 'flat') as ZoneRow['trend'],
     };
   }).sort((a, b) => b.profitScore - a.profitScore);
 }

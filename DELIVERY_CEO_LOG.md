@@ -1,7 +1,79 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–330 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (331 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–332 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (332 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #180 — 2026-06-20
+
+### Geprüfte Phasen: Phase 331 Backend (Smart Zone Revenue Optimizer) + Phase 332 Frontend (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (332 Seiten, 0 Fehler)
+
+**TypeScript-Bug gefixt (1 Fehler in zone-profit-rangliste.tsx):**
+- Zeile 43: `trend: i === 0 ? 'up' : i === 2 ? 'down' : 'flat'` → `as ZoneRow['trend']` Cast ergänzt
+- Ursache: TypeScript inferiert das Ternary als `string` statt als Literal-Union `'up' | 'down' | 'flat'`
+
+**Logik-Bug gefixt (TourSchichtBilanz Props in fahrer/app/client.tsx):**
+- `todayEarnings={0}` → `todayStats?.estEarnings ?? 0`
+- `todayDeliveries={0}` → `todayStats?.deliveries ?? 0`
+- `onlineMinutes={0}` → berechnet aus `status?.online_seit` (wie in anderen Komponenten üblich)
+- Ohne Fix: KPIs zeigten immer 0 obwohl Schicht-Daten vorhanden
+
+**Phase 331 Backend — Smart Zone Revenue Optimizer (korrekt integriert):**
+- SQL 158: `zone_revenue_snapshots` + `zone_revenue_recommendations` + VIEW + prune RPC + RLS ✅
+- `lib/delivery/zone-revenue-optimizer.ts`: 7-Regel-Engine (increase/decrease surcharge/MOV, remove/expand/investigate) ✅
+- API `/api/delivery/admin/zone-revenue-optimizer` (GET dashboard + POST actions) ✅
+- Admin-UI `/delivery/zone-revenue-optimizer`: 4 KPIs + SVG-Margin-Gauge + 30d-MiniBar + Empfehlungen ✅
+- Cron: 02:45 UTC Snapshot + 03:10 UTC Empfehlungen ✅
+- Delivery-Overview-Eintrag vorhanden ✅
+
+**Phase 332 Frontend — 5 neue Komponenten (alle korrekt integriert):**
+
+**KitchenPrepEffizienzLive (`app/(admin)/kitchen/prep-effizienz-live.tsx`):**
+- Live Pünktlichkeitsquote (SLA-%) + Balken-Chart je Bestellung (letzte 90 Min) ✅
+- Berechnung: actual vs. target prep_min aus kitchen_timings + geschaetzte_zubereitung_min ✅
+- 15s-Tick, null-safe, erscheint nur wenn relevante Bestellungen vorhanden ✅
+- Integration in kitchen/client.tsx L608 ✅
+
+**DispatchTourAbschlussForecast (`app/(admin)/dispatch/tour-abschluss-forecast.tsx`):**
+- ETA-Kalkulation per Tour: completedStops/totalStops → speedFactor → remainMin → finishAt ✅
+- Konfidenz-Level (hoch/mittel/niedrig) basierend auf Stopp-Fortschritt ✅
+- Sortierung: Verspätung → leichte Verspätung → pünktlich ✅
+- Integration in dispatch/client.tsx L993 mit `as any` Cast ✅
+
+**TourSchichtBilanz (`app/fahrer/app/tour-schicht-bilanz.tsx`):**
+- Schicht-KPIs (Lieferungen, Umsatz, Lieferungen/h, Ø Bewertung) + Tour-Fortschrittsbalken ✅
+- Tour-Umsatz aus gelieferten Stops kumuliert, ETA-Restzeit ✅
+- Integration in fahrer/app/client.tsx L1262 — Props jetzt mit echten Werten ✅
+
+**EtaEchtzeitTracker (`app/order/[locationSlug]/eta-echtzeit-tracker.tsx`):**
+- SVG-Ring-Countdown + Live-Status-Schritte (poll /api/delivery/tracking alle 30s) ✅
+- Phasen: bestätigt → in_zubereitung → fertig → unterwegs → geliefert ✅
+- Nur bei Lieferung + orderId, sauberer Cleanup ✅
+- Integration in success-state.tsx L631 ✅
+
+**ZoneProfitRangliste (`app/(admin)/lieferdienst/zone-profit-rangliste.tsx`):**
+- Zonen-Ranking nach Score (Umsatz 40% + SLA 40% + Volumen 20%) ✅
+- Fallback auf Mock-Daten wenn API nicht antwortet, Demo-Badge zeigt Mockstatus ✅
+- Integration in lieferdienst/client.tsx L1091 ✅
+
+### Status nach Review #180
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (332 Seiten)
+- Phase 331 Backend + Phase 332 Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 2 (1x TypeScript-Cast zone-profit-rangliste + 1x Logik-Bug TourSchichtBilanz Props)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 333: Driver Geofence Engine — automatische Statusupdates wenn Fahrer in Kunden-Radius einfährt (z.B. 150m → Push "Fahrer ist gleich da")
+2. Oder: Phase 333: Multi-Depot-Routing — optimierte Tourenplanung über mehrere Standorte/Küchen
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 333: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ---
 
