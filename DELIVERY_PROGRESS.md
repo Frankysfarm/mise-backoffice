@@ -5346,3 +5346,41 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 **Cron:** `pruneOldPricingEvents(30)` täglich 06:10 UTC
 
 - Build: npx next build ✓ (339 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 341 — Dynamic Pricing Engine UI: 5 Dashboard-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`app/(admin)/kitchen/preis-signal-streifen.tsx`** — `KitchenPreisSignalStreifen`
+- Surge/Off-Peak-Status-Strip für Küchen-Dashboard
+- Amber-Banner bei Surge (Level: elevated/high/extreme), Violet-Banner bei Off-Peak-Rabatt
+- 60s-Polling via `/api/delivery/admin/dynamic-pricing?action=config` + `/api/delivery/surge`
+- Integration: `kitchen/client.tsx` nach `<KitchenAnalyticsStrip>`
+
+**`app/(admin)/dispatch/pricing-live-panel.tsx`** — `DispatchPricingLivePanel`
+- Live Pricing Stats für Dispatch-Dashboard: Events, Surge-Count, Mehrumsatz (€), Off-Peak-Count
+- 4-Spalten-Grid mit farbkodierten Stat-Cells, Ø-Multiplikator-Badge (rot/amber/grün)
+- 90s-Polling; Integration: `dispatch/client.tsx` nach `<DispatchHandoffSpeedPanel>`
+
+**`app/fahrer/app/gebuehren-info.tsx`** — `FahrerGebuehrenInfo`
+- Gebühren-Transparenz für Fahrer: Stoßzeit (amber) vs. Normaltarif (stone)
+- Zeigt Ø-Multiplikator heute bei aktiven Surge-Events
+- Motivational-Text: "Mehr Bestellungen durch höhere Nachfrage — gute Zeit für maximale Touren!"
+- 2-Min-Polling; Integration: `fahrer/app/client.tsx` nach `<TourRouteTiming>` vor `<FahrerAnalyticsWochenuebersicht>`
+
+**`app/order/[locationSlug]/components/dynamic-pricing-banner.tsx`** — `DynamicPricingBanner`
+- Kunden-Banner: Surge-Hinweis (amber) oder Off-Peak-Rabatt (violet) in der Storefront
+- Prüft `config.customerBannerEnabled` + Surge-Level (elevated/high/extreme)
+- 90s-Polling; nur bei `orderType === 'lieferung'` aktiv
+- Integration: `storefront.tsx` nach `<ServiceStatusBanner>`
+
+**`app/(admin)/lieferdienst/pricing-kompakt.tsx`** — `LieferdienstPricingKompakt`
+- Kompaktes Pricing-Widget mit Netto-Impact-Berechnung (Mehrumsatz − Rabatte)
+- 4 Kennzahlen: Surge-Events, Off-Peak-Events, Surge-Mehreinnahmen, Netto-Impact (grün/rot)
+- 5-Min-Polling; Integration: `lieferdienst/client.tsx` nach `<SchichtLiveStatistik>`
+
+- Build: npx next build ✓ (339 Seiten, 0 TypeScript-Fehler)
