@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–355 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–355 abgeschlossen. Build sauber. 349 Seiten. 0 TypeScript-Fehler.**
 
 ---
 

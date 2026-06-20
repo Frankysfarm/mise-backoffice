@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–353 vollständig abgeschlossen. Build sauber (348 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–355 vollständig abgeschlossen. Build sauber (349 Seiten). Deployment-bereit.
 
 ---
 
@@ -11917,3 +11917,53 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 355: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Lieferdienst/Tracking)
 2. /api/delivery/dispatch/scores Endpunkt implementieren (DispatchLiveScoreBoard nutzt noch Mock-Daten)
+
+---
+
+## CEO-Review #194 — 2026-06-20
+
+### Geprüfte Phasen: Phase 355 (Absence-Aware Dispatch + Tour-Feedback-Loop)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: ✓ Compiled successfully (349 Seiten, 0 Fehler) ✅
+
+**Phase 355 — geprüfte Komponenten:**
+
+**Dispatch-Engine (`lib/delivery/dispatch-engine.ts`):**
+- `loadActiveDrivers()`: Filtert Fahrer mit genehmigter Abwesenheit heute korrekt via `driver_absences` Tabelle ✅
+- Graceful Fallback bei fehlender Tabelle (kein Absturz) ✅
+- Einzelne IN-Query, kein N+1-Problem ✅
+
+**Tour-Feedback-Loop (`lib/delivery/tour-feedback.ts`):**
+- `submitTourFeedback`, `getExistingFeedback`, `getFeedbackDashboard`, `pruneTourFeedback` — vollständig ✅
+
+**APIs:**
+- `/api/delivery/admin/tour-feedback`: GET dashboard + POST prune ✅
+- `/api/delivery/driver/tour-feedback`: GET check existing + POST submit ✅
+
+**5 Frontend-Komponenten Phase 355:**
+- `KitchenAbwesenHeuteStrip`: Amber-Strip, 5-Min-Polling, korrekte Integration kitchen/client.tsx L657 ✅
+- `DispatchTourFeedbackMonitor`: 7-Tage KPIs, Issue-Rates, 3-Min-Polling, dispatch/client.tsx L986 ✅
+- `FahrerTourAbschlussBewertung`: Stern-Picker + Issue-Chips + Doppel-Submit-Schutz, fahrer/app/client.tsx L1737 ✅
+- `LieferdienstAbdeckungsRisikoWidget`: 7-Tage Coverage-Balkendiagramm, 10-Min-Polling, lieferdienst/client.tsx L1187 ✅
+- `TourDeliveredFeedback`: 👍/👎 Kunden-Feedback, track/[bestellnummer]/tracking.tsx L1052 ✅
+
+**Bug gefunden + gefixt: 1**
+1. `app/(admin)/delivery/tour-feedback/` — Seite fehlte komplett! SectionCard in `delivery/page.tsx` L169 verlinkst auf `/delivery/tour-feedback`, aber die Route existierte nicht → 404 für alle Admins. Erstellt: `page.tsx` (Server Component, requireManagerPlus, SSR-Dashboard) + `client.tsx` (TourFeedbackClient: KPI-Kacheln, Issue-Rates-Grid, Balkendiagramm, collapsible Bewertungsliste, 7/14/30-Tage-Umschalter) ✅
+
+### Status nach Review #194
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (349 Seiten)
+- Phase 355: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- /delivery/tour-feedback: jetzt erreichbar ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 356: `/api/delivery/dispatch/scores` Endpunkt implementieren — `DispatchLiveScoreBoard` nutzt noch Mock-Daten
+2. Phase 356: Tour-Feedback-Daten in Dispatch-Batch-Priorisierung einfließen lassen (schwierige Zonen → weniger Stopps pro Tour)
+3. Phase 356: WhatsApp/Push-Benachrichtigung an Fahrer bei Tourbeginn mit Feedback-Request nach Abschluss
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 356: 5 neue Delivery-Komponenten
+2. Verbesserung des `/delivery/tour-feedback` Dashboards: Chart-Verlauf über Zeit (Recharts LineChart)
