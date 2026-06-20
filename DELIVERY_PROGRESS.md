@@ -5088,3 +5088,51 @@ Siehe DELIVERY_CEO_LOG.md
 **TagesZielCockpit fix:** Pollt jetzt `/api/delivery/admin/shift-goals` → liefert echte Daten statt MOCK
 
 - Build: node_modules/.bin/next build ✓ (0 TypeScript-Fehler, 0 Build-Fehler)
+
+---
+
+## Phase 321 — Analytics-Integration Frontend (5 Komponenten) (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + bestehende öffentliche ETA-API.
+
+**`app/(admin)/kitchen/analytics-strip.tsx` — KitchenAnalyticsStrip:**
+- Kompakter Querstreifen für Küchenansicht: SLA%, ø Lieferzeit, Lieferrate, Stornoquote
+- Δ vs. Vortag (grün = besser, rot = schlechter)
+- Farbkodierung: SLA ≥90% → matcha, 70–89% → amber, <70% → rot
+- 5-Minuten-Polling auf `/api/delivery/admin/analytics?action=dashboard`
+- Integration: `kitchen/client.tsx` nach `<KitchenDelayAlertBand>`
+
+**`app/(admin)/dispatch/analytics-wochenvergleich.tsx` — DispatchAnalyticsWochenvergleich:**
+- Wochenvergleichs-Karte für Dispatcher (Diese Woche vs. Vorwoche)
+- Spalten: Lieferungen, SLA-Einhaltung (%), ø Lieferzeit — jeweils mit Δ-Prozent-Pill
+- Trend-Pfeil-Ikonographie (TrendingUp/TrendingDown/Minus)
+- 5-Minuten-Polling; Fallback "Noch keine Wochendaten verfügbar"
+- Integration: `dispatch/client.tsx` nach `<DispatchDelayAlertStatistik>`
+
+**`app/fahrer/app/analytics-wochenuebersicht.tsx` — FahrerAnalyticsWochenuebersicht:**
+- Persönliche Wochenübersicht für den Fahrer: Rang, Score, Lieferungen, ø Zeit
+- Rang-Badge (Gold/Matcha/Grau abhängig von Perzentile)
+- Mini-Balken-Chart: Score-Verlauf letzte 7 Tage (grün/amber/rot je Score)
+- Polling auf `/api/delivery/driver/my-performance?period=week&days=7`
+- Integration: `fahrer/app/client.tsx` nach `<FahrerDelayAlertHinweis>`
+
+**`app/order/[locationSlug]/components/service-status-banner.tsx` — ServiceStatusBanner:**
+- Öffentlicher Echtzeit-Servicequalitäts-Banner für Storefront-Kunden
+- 4 Load-Level: low/normal/elevated/high → unterschiedliche Label, Icons, Farben
+- Zeigt ETA-Minuten aus `/api/delivery/eta/live` (öffentlich, keine Auth)
+- 90s-Polling; Rendert nur wenn Lieferbestellung ausgewählt
+- Integration: `storefront.tsx` vor `<LiveEtaBar>`
+
+**`app/(admin)/lieferdienst/analytics-trend-panel.tsx` — LieferdienstAnalyticsTrendPanel:**
+- Vollständiges Analytics-Panel für Lieferdienst-Cockpit
+- 4 KPI-Chips: SLA%, ø Lieferzeit, Lieferrate, Stornoquote (farbkodiert)
+- 30-Tage-Trend: Recharts LineChart (SLA% + ø Zeit, dual-line)
+- Top-5-Fahrer: Rang-Medaille, Lieferungen, On-Time%, ø Zeit
+- 5-Minuten-Polling + manueller Refresh-Button
+- Integration: `lieferdienst/client.tsx` nach `<LieferdienstDelayAlertKpi>`
+
+- Build: node_modules/.bin/next build ✓ (329 Seiten, 0 Fehler)
