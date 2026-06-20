@@ -143,7 +143,7 @@ function greedyRouteKm(stops: BatchStopCandidate[]): number {
     let bestIdx = 0;
     let bestDist = Infinity;
     for (let i = 0; i < remaining.length; i++) {
-      const d = haversineKm(curLat, curLng, remaining[i].lat, remaining[i].lng);
+      const d = haversineKm({ lat: curLat, lng: curLng }, { lat: remaining[i].lat, lng: remaining[i].lng });
       if (d < bestDist) {
         bestDist = d;
         bestIdx = i;
@@ -162,7 +162,7 @@ function individualTotalKm(stops: BatchStopCandidate[]): number {
   if (stops.length === 0) return 0;
   const centLat = stops.reduce((s, o) => s + o.lat, 0) / stops.length;
   const centLng = stops.reduce((s, o) => s + o.lng, 0) / stops.length;
-  return stops.reduce((sum, stop) => sum + haversineKm(centLat, centLng, stop.lat, stop.lng), 0);
+  return stops.reduce((sum, stop) => sum + haversineKm({ lat: centLat, lng: centLng }, { lat: stop.lat, lng: stop.lng }), 0);
 }
 
 /**
@@ -186,7 +186,7 @@ function scoreBatch(stops: BatchStopCandidate[], routeKm: number, indivKm: numbe
   let maxPairKm = 0;
   for (let i = 0; i < stops.length; i++) {
     for (let j = i + 1; j < stops.length; j++) {
-      const d = haversineKm(stops[i].lat, stops[i].lng, stops[j].lat, stops[j].lng);
+      const d = haversineKm({ lat: stops[i].lat, lng: stops[i].lng }, { lat: stops[j].lat, lng: stops[j].lng });
       if (d > maxPairKm) maxPairKm = d;
     }
   }
@@ -289,7 +289,7 @@ function clusterOrders(
     for (const other of orders) {
       if (other.orderId === seed.orderId) continue;
       if (used.has(other.orderId)) continue;
-      if (haversineKm(seed.lat, seed.lng, other.lat, other.lng) <= maxRadiusKm) {
+      if (haversineKm({ lat: seed.lat, lng: seed.lng }, { lat: other.lat, lng: other.lng }) <= maxRadiusKm) {
         neighbours.push(other);
       }
     }
@@ -299,8 +299,8 @@ function clusterOrders(
     // Build cluster: seed + up to (maxStops-1) closest neighbours
     neighbours.sort(
       (a, b) =>
-        haversineKm(seed.lat, seed.lng, a.lat, a.lng) -
-        haversineKm(seed.lat, seed.lng, b.lat, b.lng),
+        haversineKm({ lat: seed.lat, lng: seed.lng }, { lat: a.lat, lng: a.lng }) -
+        haversineKm({ lat: seed.lat, lng: seed.lng }, { lat: b.lat, lng: b.lng }),
     );
     const cluster = [seed, ...neighbours.slice(0, maxStops - 1)];
     clusters.push(cluster);

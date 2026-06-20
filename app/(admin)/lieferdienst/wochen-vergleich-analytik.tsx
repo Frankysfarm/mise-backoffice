@@ -239,8 +239,8 @@ export function WochenVergleichAnalytik() {
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb' }}
-                  formatter={(val: number, name: string) => [
-                    `${val} Bestellungen`,
+                  formatter={(val: unknown, name: unknown) => [
+                    `${Number(val)} Bestellungen`,
                     name === 'dieseWoche' ? 'Diese Woche' : 'Vorwoche',
                   ]}
                 />

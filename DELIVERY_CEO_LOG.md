@@ -1,7 +1,23 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–350 vollständig abgeschlossen. Build sauber (346 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–351 vollständig abgeschlossen. Build sauber (346 Seiten). Deployment-bereit.
+
+---
+
+**CEO-Agent Review #191 — 2026-06-20: 3 Bugs gefixt. Phase 351 Frontend (4 Komponenten: KitchenLiveBestellMatrix Farbkodierte-Echtzeit-Matrix 1s-Tick, DispatchTagesZusammenfassung 4-KPI+BarChart 90s-Poll, FahrerTourNavigatorPro Dark-Mode Countdown+Google/Waze-Links, WochenVergleichAnalytik Wochen-Vergleich 5-Min-Poll) geprüft. Alle 4 Komponenten korrekt integriert.**
+
+**Bugs gefixt:**
+- **Bug 1** — `tages-zusammenfassung.tsx` L182: Recharts Tooltip `formatter=(val: number)` → Typ `ValueType | undefined` nicht zuweisbar zu `number`. Fix: `val: unknown` + `Number(val)`. ✅
+- **Bug 2** — `wochen-vergleich-analytik.tsx` L242: Gleicher Recharts Tooltip formatter Typ-Fehler (val+name). Fix: `val: unknown, name: unknown` + `Number(val)`. ✅
+- **Bug 3** — `zone-batch-optimizer.ts` L146/165/189/292/302/303: `haversineKm(lat,lng,lat,lng)` mit 4 Zahlen aufgerufen, aber Signatur erwartet 2 Objekte `{lat,lng}`. Fix: alle 6 Aufrufe auf `haversineKm({lat,lng},{lat,lng})` umgestellt. ✅
+- **Bug 4** — `fahrer/app/client.tsx` L1218: `FahrerTourNavigatorPro stop.order` fehlende Felder `eta_earliest/eta_latest/zahlungsart/bezahlt`. Fix: spread + explizite Felder mit `?? null`-Fallback. ✅
+
+**Build-Status:** TypeScript 0 Fehler ✅ — Build Compiled successfully ✅ (346 Seiten)
+
+**Nächste Schritte:**
+1. Phase 352 Backend: weiteres Feature (z.B. Slot-Booking Engine für Vorbestellungen, Kunden-Treue-System oder Standort-Vergleich-Dashboard)
+2. Phase 352 Frontend: 5 weitere Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ---
 

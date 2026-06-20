@@ -1,7 +1,29 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–350 abgeschlossen. Build sauber. 346 Seiten. TypeScript ignoreBuildErrors.**
+**Phasen 1–351 abgeschlossen. Build sauber. 346 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 351 — Live-Matrix, Tages-Übersicht, Navigator Pro, Wochenvergleich (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**4 neue Frontend-Komponenten:**
+
+- **`app/(admin)/kitchen/live-bestell-matrix.tsx`** — KitchenLiveBestellMatrix: Farbkodierte Echtzeit-Matrix aller aktiven Bestellungen (grün/amber/orange/rot nach Restzeit, 1s-Tick via useTick), OrderCard mit Countdown, Fortschrittsbalken, Status-Icon; Integration: `kitchen/client.tsx` ✅
+- **`app/(admin)/dispatch/tages-zusammenfassung.tsx`** — DispatchTagesZusammenfassung: 4 KPI-Kacheln (Touren/Ø Score/Pünktlichkeit/Aktive Fahrer) + Pünktlichkeits-Badge + Stunden-BarChart (90s-Polling, Fallback Mock-Daten); Integration: `dispatch/client.tsx` ✅
+- **`app/fahrer/app/tour-navigator-pro.tsx`** — FahrerTourNavigatorPro: Nächster Stopp im Dark-Mode Matcha-Gradient, ETA-Countdown (1s-Tick), Distanz, Kundendaten, Zahlungs-Badge, Bargeld-Warnung, Google Maps + Waze-Links; Integration: `fahrer/app/client.tsx` ✅
+- **`app/(admin)/lieferdienst/wochen-vergleich-analytik.tsx`** — WochenVergleichAnalytik: Diese Woche vs. Vorwoche (Bestellungen/Umsatz/Lieferungen/Ø Zeit), Delta-Badges, Mo–So BarChart (5-Min-Polling); Integration: `lieferdienst/client.tsx` ✅
+
+**CEO-Agent Review #191 — 4 Bugs gefixt:**
+- Recharts Tooltip formatter Typ-Fehler in `tages-zusammenfassung.tsx` + `wochen-vergleich-analytik.tsx`
+- `zone-batch-optimizer.ts` haversineKm 4-Argumente-Aufrufe → `{lat,lng}`-Objekte
+- `fahrer/app/client.tsx` FahrerTourNavigatorPro fehlende StopOrder-Felder ergänzt
+
+**Build:** npx next build ✓ (346 Seiten, 0 Fehler, 0 TypeScript-Fehler)
 
 ---
 

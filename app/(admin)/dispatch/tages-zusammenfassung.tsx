@@ -179,7 +179,7 @@ export function DispatchTagesZusammenfassung({ locationId }: { locationId: strin
                   tickLine={false}
                 />
                 <Tooltip
-                  formatter={(val: number) => [`${val} Touren`, '']}
+                  formatter={(val: unknown) => [`${Number(val)} Touren`, '']}
                   contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb' }}
                 />
                 <Bar dataKey="touren" radius={[4, 4, 0, 0]}>

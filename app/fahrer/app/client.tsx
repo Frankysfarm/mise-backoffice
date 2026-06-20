@@ -1217,7 +1217,13 @@ export function FahrerApp({
                 <FahrerTourNavigatorPro
                   stop={nextStop ? {
                     id: nextStop.id,
-                    order: nextStop.order,
+                    order: {
+                      ...nextStop.order,
+                      eta_earliest: (nextStop.order as any).eta_earliest ?? null,
+                      eta_latest: (nextStop.order as any).eta_latest ?? null,
+                      zahlungsart: (nextStop.order as any).zahlungsart ?? null,
+                      bezahlt: (nextStop.order as any).bezahlt ?? null,
+                    },
                     reihenfolge: nextStop.reihenfolge,
                     distanz_zum_vorgaenger_m: nextStop.distanz_zum_vorgaenger_m ?? null,
                   } : null}
