@@ -83,7 +83,7 @@ export function TourRewardProgress({
 }: Props) {
   const [open, setOpen] = useState(true);
 
-  const milestones: RewardMilestone[] = [
+  const allMilestones: RewardMilestone[] = [
     {
       id: 'del10',
       label: '10 Lieferungen heute',
@@ -120,7 +120,9 @@ export function TourRewardProgress({
       type: 'revenue',
       achieved: sessionRevenueEur >= 100,
     },
-  ].filter((m) => !m.achieved || m.id === milestones?.find((x) => x.achieved)?.id);
+  ];
+  const firstAchievedId = allMilestones.find((m) => m.achieved)?.id;
+  const milestones = allMilestones.filter((m) => !m.achieved || m.id === firstAchievedId);
 
   const achievedCount = milestones.filter((m) => m.achieved).length;
   const nextMilestone = milestones.find((m) => !m.achieved);
