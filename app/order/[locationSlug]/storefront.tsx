@@ -41,6 +41,7 @@ import LiveWaitBadge from './components/live-wait-badge';
 import { DynamicPricingBanner } from './components/dynamic-pricing-banner';
 import { OpsServiceKapazitaetsBand } from './components/ops-service-kapazitaets-band';
 import { StornoSchutzBadge } from './components/storno-schutz-badge';
+import { EtaVertrauensAnzeige } from './components/eta-vertrauens-anzeige';
 import { ZonenLieferzeitInfo } from './components/zonen-lieferzeit-info';
 import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
 
@@ -506,6 +507,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <StornoSchutzBadge locationId={location.id} orderType={orderType} />
       </div>
+      {/* Phase 348: ETA-Vertrauens-Anzeige — Zuverlässigkeitsstufe der Lieferzeit für Kunden */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <EtaVertrauensAnzeige
+            orderId={location.id}
+            etaMinEarliest={deliveryTimeMin - 3}
+            etaMinLatest={deliveryTimeMin + 5}
+          />
+        </div>
+      )}
       {/* Phase 337: Live-Wait-Badge — kompaktes Wartezeit-Pill je Bestelltyp */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <LiveWaitBadge orderType={orderType} />

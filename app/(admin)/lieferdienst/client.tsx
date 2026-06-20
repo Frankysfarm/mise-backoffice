@@ -138,6 +138,7 @@ import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
 import { LieferdienstPricingKompakt } from './pricing-kompakt'
 import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
 import { LieferdienstStornoRateKarte } from './storno-rate-karte'
+import { SchichtGewinnRechner } from './schicht-gewinn-rechner'
 import { LieferdienstBestellkanalSplit } from './bestellkanal-split'
 import { HeatmapKpi } from './heatmap-kpi'
 import { LieferdienstStandortHealthCockpit } from './standort-health-cockpit'
@@ -1180,6 +1181,8 @@ export function LieferdienstClient() {
               <HeatmapKpi locationId={locationId} />
               {/* Phase 347: Standort-Gesundheits-Cockpit — Score + Dimensionen + Ranking + 7d-Trend */}
               <LieferdienstStandortHealthCockpit locationId={locationId} />
+              {/* Phase 348: Schicht-Gewinn-Rechner — Echtzeit Umsatz/Kosten/Deckungsbeitrag/Marge */}
+              <SchichtGewinnRechner locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

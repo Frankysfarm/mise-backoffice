@@ -168,6 +168,7 @@ import { DispatchTourSwimlanes } from './tour-swimlanes';
 import { DispatchDriverScorePanel } from './driver-score-panel';
 import { DispatchOpsDecisionPanel } from './ops-decision-panel';
 import { DispatchStornoInterventPanel } from './storno-intervent-panel';
+import { DispatchOrderWaitingCostPanel } from './order-waiting-cost-panel';
 import { DispatchSchichtBatchBilanz } from './schicht-batch-bilanz';
 import { HeatmapZoneAlert } from './heatmap-zone-alert';
 import { DispatchStandortHealthWidget } from './standort-health-widget';
@@ -1672,6 +1673,8 @@ export function DispatchBoard({
       <HeatmapZoneAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 347: Standort-Gesundheits-Widget — Score + 4 Dimensionen + Empfehlungen aufklappbar */}
       <DispatchStandortHealthWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Phase 348: Warteschlangen-Kosten-Panel — Dringlichkeit + At-Risk-Revenue je offener Bestellung */}
+      <DispatchOrderWaitingCostPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

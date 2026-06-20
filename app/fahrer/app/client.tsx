@@ -113,6 +113,7 @@ import { FahrerStornoInfoBanner } from './storno-info-banner';
 import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
 import { HeatmapTipp } from './heatmap-tipp';
 import { FahrerStandortHealthBadge } from './standort-health-badge';
+import { TourRewardProgress } from './tour-reward-progress';
 
 type Driver = {
   id: string;
@@ -1399,6 +1400,16 @@ export function FahrerApp({
           {/* Phase 347: Standort-Gesundheits-Badge — Motivierendes Note-Badge für den Fahrer */}
           <div className="px-4">
             <FahrerStandortHealthBadge locationId={driver?.location_id ?? null} />
+          </div>
+          {/* Phase 348: Prämien-Fortschritt — Meilensteine + Live-Progress bis nächstem Bonus */}
+          <div className="px-4">
+            <TourRewardProgress
+              driverId={driver?.id ?? null}
+              sessionDeliveries={todayStats?.deliveries ?? 0}
+              sessionRating={null}
+              streakDays={0}
+              sessionRevenueEur={todayStats?.estEarnings ?? 0}
+            />
           </div>
           {/* Phase 343: Schicht-Verdienst-Live — EUR/Stopp, EUR/Std, Schicht-Fortschritt */}
           {todayStats && todayStats.estEarnings > 0 && (
