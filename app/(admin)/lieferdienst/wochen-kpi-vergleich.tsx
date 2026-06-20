@@ -189,7 +189,7 @@ export function LieferdienstWochenKpiVergleich({ locationId }: { locationId?: st
               <YAxis tick={{ fontSize: 9, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: number) => tab === 'umsatz' ? euro(v) : tab === 'pünktlichkeit' ? `${v}%` : v}
+                formatter={(v) => { const n = Number(v); return tab === 'umsatz' ? euro(n) : tab === 'pünktlichkeit' ? `${n}%` : n; }}
                 labelFormatter={(l, payload) => payload?.[0]?.payload?.date ?? l}
               />
               <Bar dataKey="value" radius={[4, 4, 0, 0]}>

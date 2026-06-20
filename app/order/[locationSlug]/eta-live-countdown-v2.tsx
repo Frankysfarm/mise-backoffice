@@ -88,7 +88,7 @@ export function EtaLiveCountdownV2({ orderId, initialStatus, initialEtaEarliest,
         schema: 'public',
         table: 'customer_orders',
         filter: `id=eq.${orderId}`,
-      }, (payload) => {
+      }, (payload: { new: Record<string, unknown> }) => {
         const r = payload.new as any;
         if (r.status) setStatus(r.status);
         if (r.eta_earliest) setEtaEarliest(r.eta_earliest);

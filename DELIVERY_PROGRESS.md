@@ -5682,3 +5682,75 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - `pruneTourProfitSnapshots(90)` täglich 06:49 UTC (`isTourProfitPruneTick`)
 
 - Build: npx next build ✓ (347 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 353 — Smart Driver Absence & Vacation Management Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/170_driver_absences.sql`:**
+- `driver_absence_config` — Standort-Konfiguration (Quotas pro Typ, Auto-Approve Krankmeldungen)
+- `driver_absences` — Abwesenheitsanträge (sick_day/vacation/personal_day/training/other), GENERATED `days_count`, Status-Workflow pending→approved/rejected/cancelled, `valid_date_range` CONSTRAINT, 3 Indexes, Prune-RPC
+
+**`lib/delivery/driver-absences.ts`:**
+- `submitAbsenceRequest` — Antrag einreichen + Clash-Detection + Auto-Approve bei Krankmeldung
+- `approveAbsence` / `rejectAbsence` — Admin-Workflow mit Audit-Trail
+- `isDriverAbsentToday()` — Dispatch-Integration-Check
+- `getCoverageImpact()` — 14-Tage Tages-Verfügbarkeitsanalyse
+- `getDriverAbsenceBalance()` — Jahres-Kontingent-Tracking
+- `getDashboard()` — 4 KPIs + Coverage-Kalender
+
+**APIs:**
+- `/api/delivery/admin/driver-absences` — GET (dashboard) / POST (approve/reject/prune)
+- `/api/delivery/driver/absences` — GET (eigene Anträge) / POST (einreichen/stornieren)
+
+**Admin-UI `/delivery/driver-absences`:**
+- 4 KPI-Karten + 14-Tage Coverage-Heatmap-Bar
+- 4 Tabs: Heute / Ausstehend / Demnächst / Konfiguration
+- Genehmige/Ablehne-Workflow direkt in der UI
+
+**Cron:** `pruneOldAbsences(365)` täglich 06:50 UTC
+
+- Build: npx next build ✓ (348 Seiten), 0 TypeScript-Fehler
+
+---
+
+## Phase 354 — Frontend: Kitchen Kanban, Dispatch Schicht-Bilanz, Fahrer Stop-Info, Lieferdienst Wochen-KPI, ETA-Countdown V2 (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`app/(admin)/kitchen/prep-flow-kanban.tsx`** — `KitchenPrepFlowKanban`
+- Kanban-Board (Neu→Kochend→Fertig→Unterwegs) mit Echtzeit-Countdowns
+- Urgency-Farbkodierung grün/gelb/rot/pulsend + animiertes Überfällig-Badge
+- Integration: kitchen/client.tsx L654
+
+**`app/(admin)/dispatch/schicht-bilanz-panel.tsx`** — `DispatchSchichtBilanzPanel`
+- Aggregierte Schicht-Statistiken: Touren, Scores, Pünktlichkeitsrate, Top-Fahrer-Ranking, Umsatz
+- Collapsible-UI + Auto-Refresh
+- Integration: dispatch/client.tsx L983
+
+**`app/fahrer/app/kunden-stop-info.tsx`** — `KundenStopInfo`
+- Intelligente Stop-Karte: Kundendaten, Zugangsinfos, Notizen, Zahlung (Bar/Karte/bezahlt), 1-Tap-Navigation
+- Expandierbar je Stop, Fortschrittsleiste oben
+- Integration: fahrer/app/client.tsx L1324
+
+**`app/(admin)/lieferdienst/wochen-kpi-vergleich.tsx`** — `LieferdienstWochenKpiVergleich`
+- 7-Tage Balkendiagramm (Umsatz/Bestellungen/Pünktlichkeit), Tab-Selektor
+- Vorwochenvergleich, Peak-Tag-Markierung
+- Integration: lieferdienst/client.tsx L1226
+
+**`app/order/[locationSlug]/eta-live-countdown-v2.tsx`** — `EtaLiveCountdownV2`
+- SVG-Fortschrittsring mit Countdown-Anzeige, 5-stufiger Status-Flow
+- Supabase-Realtime, Lieferfenster-Anzeige, Geliefert-Bestätigung
+- Integration: track/[bestellnummer]/tracking.tsx L489
+
+**CEO-Review #193: 2 TypeScript-Fehler gefixt:**
+1. Recharts Tooltip-Formatter Typ in wochen-kpi-vergleich.tsx ✅
+2. Supabase Realtime payload Typ in eta-live-countdown-v2.tsx ✅
+
+- Build: npx next build ✓ (348 Seiten), 0 TypeScript-Fehler
