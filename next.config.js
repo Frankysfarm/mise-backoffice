@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   experimental: { typedRoutes: false },
   typescript: { ignoreBuildErrors: true },
-  turbopack: { root: __dirname },
+  turbopack: { root: path.resolve(__dirname) },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

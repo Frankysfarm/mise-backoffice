@@ -108,6 +108,7 @@ import FahrerSchichtPuls from './fahrer-schicht-puls';
 import { TourRouteTiming } from './tour-route-timing';
 import { TourStoppEtaMatrix } from './tour-stopp-eta-matrix';
 import { FahrerGebuehrenInfo } from './gebuehren-info';
+import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
 
 type Driver = {
   id: string;
@@ -1377,6 +1378,15 @@ export function FahrerApp({
           {driver.location_id && (
             <div className="px-4">
               <FahrerGebuehrenInfo locationSlug={driver.location_id} />
+            </div>
+          )}
+          {/* Phase 343: Schicht-Verdienst-Live — EUR/Stopp, EUR/Std, Schicht-Fortschritt */}
+          {todayStats && todayStats.estEarnings > 0 && (
+            <div className="px-4">
+              <FahrerSchichtVerdienstLive
+                earningsEur={todayStats.estEarnings}
+                locationId={driver.location_id ?? null}
+              />
             </div>
           )}
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}

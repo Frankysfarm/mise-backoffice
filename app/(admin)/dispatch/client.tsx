@@ -166,6 +166,7 @@ import { DispatchTourRueckkehrBoard } from './tour-rueckkehr-board';
 import DispatchTourProfitLive from './tour-profit-live';
 import { DispatchTourSwimlanes } from './tour-swimlanes';
 import { DispatchDriverScorePanel } from './driver-score-panel';
+import { DispatchOpsDecisionPanel } from './ops-decision-panel';
 
 type Driver = {
   employee_id: string;
@@ -1655,6 +1656,9 @@ export function DispatchBoard({
 
       {/* Phase 341: Dynamic Pricing Live-Panel — Surge-Events, Mehrumsatz, Off-Peak heute */}
       <DispatchPricingLivePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 343: Ops-Entscheidungs-Panel — Alle Empfehlungen mit Annehmen/Ignorieren */}
+      <DispatchOpsDecisionPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
