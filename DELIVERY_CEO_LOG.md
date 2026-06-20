@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–335 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (334 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–337 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (336 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #183 — 2026-06-20
+
+### Geprüfte Phase: Phase 337 Frontend (KitchenBestellFlussMonitor, DispatchTourProfitLive, FahrerSchichtPuls, LiveWaitBadge, LieferdienstFahrerEffizienzScore)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (336 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 337):**
+
+**KitchenBestellFlussMonitor (`app/(admin)/kitchen/bestell-fluss-monitor.tsx`):**
+- Echtzeit Bestellfluss-Anzeige: Bestellungen/Std + Ø Wartezeit + aktive Batches + Stornoquote ✅
+- Trend-Pfeile (up/flat/down) mit Farbkodierung grün/amber/rot ✅
+- 60s Polling + Offline-Fallback auf Mockdaten ✅
+- Integration in kitchen/client.tsx L617 ✅
+
+**DispatchTourProfitLive (`app/(admin)/dispatch/tour-profit-live.tsx`):**
+- EUR/Stopp + EUR/km + Heute-DB + Δ vs. gestern ✅
+- Grade A/B/C Farbkodierung (A≥€4/Stopp, B≥€3, C<€3) ✅
+- Top-3 Touren nach Deckungsbeitrag ✅
+- Integration in dispatch/client.tsx L1015 ✅
+
+**FahrerSchichtPuls (`app/fahrer/app/fahrer-schicht-puls.tsx`):**
+- Animierter Puls-Indikator, Progress-Balken, KPI-Grid ✅
+- erledigte/verbleibende Stopps + Ø Stopp-Zeit + ETA-Tourende ✅
+- Integration in fahrer/app/client.tsx L852 ✅
+
+**LiveWaitBadge (`app/order/[locationSlug]/components/live-wait-badge.tsx`):**
+- Dynamisches ETA-Pill für Storefront (Lieferung/Abholung) ✅
+- Surge-Erkennung + Pulsender Dot als Live-Verbindungs-Indikator ✅
+- Default export `LiveWaitBadgeSimple` korrekt integriert in storefront.tsx L492 ✅
+
+**LieferdienstFahrerEffizienzScore (`app/(admin)/lieferdienst/fahrer-effizienz-score.tsx`):**
+- Fahrer-Ranking nach Effizienz-Score 0-100 ✅
+- Spalten: Stopps/h + Pünktlichkeit% + Ø Rating + Effizienz-Score mit Fortschrittsbalken ✅
+- Client-side Sortierung per Klick auf Spalten-Header ✅
+- Integration in lieferdienst/client.tsx L1160 ✅
+
+**Bug gefunden + gefixt:**
+- `FahrerSchichtPuls` rief `/api/delivery/driver/shift-status` auf — Endpunkt fehlte komplett
+- Fix: Neuer Route Handler `app/api/delivery/driver/shift-status/route.ts` erstellt
+- Liest `driver_shifts.actual_start` (aktive Schicht) + `delivery_tour_stops` (geliefert vs. pending)
+- Berechnet `avgStopMin` aus `angekommen_am → geliefert_am` Zeitdifferenz (Fallback: 8 Min)
+- 404 bei fehlender Schicht → Komponente zeigt Mockdaten (korrekt)
+
+### Status nach Review #183
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (336 Seiten)
+- Phase 337 (5 Frontend-Komponenten + 1 neuer API-Endpunkt): DONE ✅
+- Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Lieferdienst: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 338: Smart Tip Engine — Kunden-Trinkgeld-Vorschlag basierend auf Lieferpünktlichkeit + Fahrer-Score + Wartezeit
+2. Phase 338: Geofence-basierte Storefront-Öffnungszeiten — Location öffnet/schließt automatisch basierend auf Fahrer-Verfügbarkeit
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 338: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
 
 ---
 
