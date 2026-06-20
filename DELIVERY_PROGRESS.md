@@ -5573,3 +5573,42 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - 5-Min-Polling; Integration: `lieferdienst/client.tsx` nach `<LieferdienstOpsRekoKompakt>`
 
 - Build: node_modules/.bin/next build ✓ (342 Seiten, 0 Fehler)
+
+---
+
+## Phase 346 — Tour Profit Analytics Dashboard (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/169_tour_profit_snapshots.sql`:**
+- `tour_profit_snapshots` — Tages-Gewinn-Snapshots pro Standort: Touren, Lieferungen, Distanz, Umsatz, Kosten, Gewinn, Margin%, Ø Gewinn/Tour, Ø Marge, Ø Trip-Dauer; Zonen-Aufschlüsselung (JSONB: A/B/C/D je Revenue+Cost+Profit+Tours), Fahrzeug-Aufschlüsselung (JSONB: bike/car/ebike/etc.), Top-Fahrer (ID, Name, Profit, Margin%); UNIQUE(location_id, snapshot_date), RLS service_role, updated_at Trigger
+- `prune_tour_profit_snapshots(days_to_keep)` RPC — Cleanup alter Snapshots
+- `v_tour_profit_trend_30d` VIEW — 30-Tage-Trend für schnelle Dashboard-Abfragen
+
+**`lib/delivery/tour-profit.ts`** — Neue Funktionen (Phase 346):
+- `snapshotDailyProfit(locationId, date?)` → `{ snapshotDate, tours, profit }` — Aggregiert `delivery_trip_costs` + `mise_delivery_batches.zone` + `mise_drivers.name` für kompletten Tages-Snapshot; upsert bei Wiederholung
+- `getTourProfitHistory(locationId, days)` → `TourProfitSnapshot[]` — Historische Snapshots lesen
+- `getDriverProfitBreakdown(locationId, days)` → `DriverProfitEntry[]` — Fahrer-Profitranking aus `delivery_trip_costs` (Revenue, Cost, Profit, AvgMargin, sortiert nach Profit)
+- `snapshotTourProfitAllLocations(date?)` → `{ locations, snapshots, errors }` — Cron-Batch für alle aktiven Standorte
+- `pruneTourProfitSnapshots(daysToKeep)` → `{ pruned }` — via RPC
+
+**`app/api/delivery/admin/tour-profit/route.ts`** — Erweitert:
+- GET `?action=live` → Live-Dashboard (existierend: `getTourProfitDashboard`)
+- GET `?action=history&days=30` → Historische Snapshots (neu)
+- GET `?action=drivers&days=30` → Fahrer-Profitranking (neu)
+- POST `action=snapshot` → Manueller Snapshot auslösen (neu)
+
+**`app/(admin)/delivery/tour-profit/`** — Neue Admin-UI (FEHLENDES FRONTEND für bestehende lib):
+- **Tab ⚡ Live-Touren**: KPI-Karten (Schicht-Umsatz, Kosten, Nettogewinn, Marge); expandierbare Tour-Cards mit Fahrer, Fahrzeug, Zone-Badge, Stopp-Fortschritt, Profit-Aufschlüsselung (Fahrzeit/km/Stopppauschalen)
+- **Tab 📈 Verlauf**: Zeitraum-Selektor (7/14/30/60/90T), Mini-Balken-Chart Tagesgewinn, Tabelle mit Datum/Touren/Umsatz/Kosten/Gewinn/Marge/Ø-Tour/Top-Fahrer
+- **Tab 👤 Fahrer**: Ranking-Liste mit Rang-Badge (Gold/Silber/Bronze), Touren/Lieferungen/Distanz, Gesamt-Profit, Ø-Marge
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Tour-Gewinn-Analyse" in Finanzen & Vergütung-Gruppe (highlight, erste Position)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `snapshotTourProfitAllLocations()` täglich 02:45 UTC (`isTourProfitSnapshotTick`)
+- `pruneTourProfitSnapshots(90)` täglich 06:49 UTC (`isTourProfitPruneTick`)
+
+- Build: npx next build ✓ (347 Seiten, 0 TypeScript-Fehler)

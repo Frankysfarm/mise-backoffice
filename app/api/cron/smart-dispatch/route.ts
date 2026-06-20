@@ -142,6 +142,7 @@ import { computeHeatmapAllLocations, pruneOldTiles as pruneTourHeatmapTiles } fr
 import { pruneOldRequests as pruneDriverLendingRequests } from '@/lib/delivery/driver-lending';
 import { generateAllLocations as generateZoneBatchSuggestions, pruneOldSuggestions as pruneZoneBatchSuggestions } from '@/lib/delivery/zone-batch-optimizer';
 import { processDeliveryEngagementAllLocations, computeWeeklyLeaderboardAllLocations, weeklyResetAllLocations, pruneOldPoints as pruneEngagementPoints, pruneOldLeaderboard as pruneEngagementLeaderboard } from '@/lib/delivery/driver-engagement';
+import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/delivery/tour-profit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -312,6 +313,9 @@ export async function GET(req: NextRequest) {
     const isEngagementLeaderboardTick = nowHour === 3 && nowMin < 2;
     const isEngagementWeeklyResetTick = nowHour === 4 && nowMin < 2 && new Date().getUTCDay() === 1;
     const isEngagementPruneTick = nowHour === 6 && nowMin >= 45 && nowMin < 49;
+    // Phase 346: Tour Profit Snapshots — täglich 02:45 UTC; Prune täglich 06:49 UTC
+    const isTourProfitSnapshotTick = nowHour === 2 && nowMin >= 45 && nowMin < 49;
+    const isTourProfitPruneTick = nowHour === 6 && nowMin >= 49 && nowMin < 53;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1146,6 +1150,14 @@ export async function GET(req: NextRequest) {
       ? await pruneEngagementLeaderboard(12).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 346: Tour Profit Snapshots
+    const tourProfitSnapshotResult = isTourProfitSnapshotTick
+      ? await snapshotTourProfitAllLocations().catch(() => ({ locations: 0, snapshots: 0, errors: 0 }))
+      : null;
+    const tourProfitPruned = isTourProfitPruneTick
+      ? await pruneTourProfitSnapshots(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1385,6 +1397,8 @@ export async function GET(req: NextRequest) {
       ...(engagementWeeklyResetResult?.resetDrivers ? { driver_engagement_weekly_reset: { locations: engagementWeeklyResetResult.locations, reset_drivers: engagementWeeklyResetResult.resetDrivers } } : {}),
       ...(engagementPtsPruned?.pruned ? { driver_engagement_points_pruned: engagementPtsPruned.pruned } : {}),
       ...(engagementLbPruned?.pruned ? { driver_engagement_leaderboard_pruned: engagementLbPruned.pruned } : {}),
+      ...(tourProfitSnapshotResult?.snapshots ? { tour_profit_snapshots: { locations: tourProfitSnapshotResult.locations, snapshots: tourProfitSnapshotResult.snapshots, errors: tourProfitSnapshotResult.errors } } : {}),
+      ...(tourProfitPruned?.pruned ? { tour_profit_pruned: tourProfitPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

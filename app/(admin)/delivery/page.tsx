@@ -274,6 +274,8 @@ export default async function DeliveryOverviewPage() {
 
       {/* ── Finanzen ─────────────────────────────────────────── */}
       <SectionGroup title="Finanzen & Vergütung">
+        <SectionCard href="/delivery/tour-profit" icon={<TrendingUp className="h-5 w-5" />} title="Tour-Gewinn-Analyse"
+          subtitle="Deckungsbeitrag je Tour live · 30-Tage-Verlauf · Fahrer-Profitranking · Zonen-Aufschlüsselung" cta="Gewinn ansehen" highlight />
         <SectionCard href="/delivery/payouts" icon={<Wallet className="h-5 w-5" />} title="Fahrer-Abrechnungen"
           subtitle="Abrechnungsperioden · Genehmigung · Auszahlungsstatus" cta="Abrechnungen" />
         <SectionCard href="/delivery/payout-config" icon={<Settings className="h-5 w-5" />} title="Abrechnungs-Konfiguration"
