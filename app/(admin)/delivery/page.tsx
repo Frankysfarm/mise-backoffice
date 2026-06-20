@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare,
+  BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -135,6 +135,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Fahrerdokumente · ablaufende Zertifikate · Dispatch-Sperren" cta="Compliance prüfen" />
         <SectionCard href="/delivery/driver-leaderboard" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer-Rangliste"
           subtitle="Touren, Pünktlichkeit, Bewertungen und Verdienst im Vergleich" cta="Rangliste" />
+        <SectionCard href="/delivery/driver-ranking" icon={<ListOrdered className="h-5 w-5" />} title="Wöchentliches Ranking"
+          subtitle="Automatisches Top-3-Ranking · Prämien-Trigger · 8-Wochen-Verlauf · Score-Basis" cta="Ranking öffnen" highlight />
         <SectionCard href="/delivery/driver-reliability" icon={<Award className="h-5 w-5" />} title="Fahrer-Zuverlässigkeit"
           subtitle="No-Shows, Verspätungen, Frühende · Zuverlässigkeits-Score" cta="Zuverlässigkeit" />
         <SectionCard href="/delivery/broadcasts" icon={<Megaphone className="h-5 w-5" />} title="Fahrer-Broadcasts"
