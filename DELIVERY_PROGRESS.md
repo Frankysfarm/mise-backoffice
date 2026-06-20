@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–315 abgeschlossen. Build sauber. 326 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–316 abgeschlossen. Build sauber. 327 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-20: Phase 316 — Smart Order Delay Prediction Engine (proaktive Verspätungs-Risikoanalyse, 7 Signalfaktoren, Cron, Admin-UI, Outcome-Tracking). Build ✅ 327 Seiten, 0 Fehler.**
 **CEO-Agent Review #173 — 2026-06-20: 1 Bug gefixt (StoppTimingStatistik Recharts TS2322 formatter). Phase 314+315 geprüft. Build ✅ 326 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-20: Phase 315 — KitchenStopArrivalPrognose, DispatchStopAnkunftsMatrix, StopSmartCountdown (Fahrer), StoppTimingStatistik (Lieferdienst) + 3 API-Routen + tour-stop-timing lib. Build ✅ 326 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 314 — Fahrer-Ziel-Engine (Stops/€/Score je Schicht, Live-Fortschritts-Dashboard, Admin-Config, Fahrer-API, stündlicher Cron-Snapshot). Build ✅ 326 Seiten, 0 Fehler.**
@@ -93,6 +94,61 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 316 — Smart Order Delay Prediction Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/153_order_delay_prediction.sql`:**
+- `order_delay_predictions` Tabelle: order_id (FK customer_orders, UNIQUE), location_id, delay_risk_score (0–100), risk_level (low/medium/high/critical), predicted_delay_min, risk_factors JSONB (7 Signalfaktoren), actual_delay_min + settled_at (nachträglich befüllt), RLS, updated_at Trigger, 3 Indizes
+- `v_delay_prediction_accuracy` VIEW: Genauigkeits-Auswertung je risk_level (avg_abs_error_min, actual_late_rate)
+- `v_active_delay_predictions` VIEW: Join mit customer_orders (bestellnummer, status, adresse, eta_earliest, zone)
+- `prune_old_delay_predictions(days_old)` RPC
+
+**`lib/delivery/order-delay-prediction.ts`:**
+- 7 Risiko-Signalfaktoren mit gewichteter Komposition (Gewichte: 25%/15%/15%/10%/15%/15%/5%):
+  1. `kitchenLoad` (25%) — Anzahl pending/in_zubereitung Bestellungen in Echtzeit
+  2. `peakHourScore` (15%) — Stoßzeit-Erkennung (UTC 11–13, 17–20 → 80 Pkt)
+  3. `zoneDistanceScore` (15%) — Zone A=10, B=30, C=65, D=90
+  4. `weatherPenalty` (10%) — dangerous=90, rain/snow=45 aus weather_snapshots
+  5. `orderComplexity` (15%) — estimated_prep_min normiert (5–35 Min → 0–100)
+  6. `driverShortage` (15%) — Invers der idle Fahrer (0 idle = 100 Pkt)
+  7. `historicalLateRate` (5%) — DOW+Stunde Verspätungsrate aus 7-Tage-History
+- `riskLevelFromScore()`: low (<35) / medium (35–54) / high (55–74) / critical (≥75)
+- `predictedDelayFromScore()`: null / +5 / +12 / +22 min
+- `predictOrderDelay(orderId, locationId)` — Einzelprognose mit upsert (UNIQUE order_id)
+- `predictAllPendingOrders(locationId)` — Batch für pending/in_zubereitung/bereit Bestellungen; Skip wenn <5 Min alt
+- `predictAllLocations()` — Cron-Batch (Promise.allSettled)
+- `settleOutcomes(locationId)` — Terminal-Orders abgleichen (fertig_am vs eta_earliest → actual_delay_min)
+- `settleAllLocations()` — Cron-Batch Settlement
+- `getDelayPredictionDashboard(locationId)` — 4 KPI-Summary + active predictions (v_active_delay_predictions) + accuracy (v_delay_prediction_accuracy)
+- `pruneOldDelayPredictions(daysOld)` — via RPC
+
+**`app/api/delivery/admin/order-delay-prediction/route.ts`:**
+- GET ?action=dashboard (default) | active
+- POST action=predict_now | settle | prune
+- Auth: employees.location_id (Superadmin-Override via body.location_id)
+
+**`app/(admin)/delivery/order-delay-prediction/` — Admin-UI:**
+- 4 KPI-Karten: Aktive Prognosen / Kritisch (rot) / Hohes Risiko (orange) / Ø Risiko-Score
+- 2 Sekundär-KPIs: Abgeschlossen heute + Ø tatsächliche Verspätung
+- Tab "Aktive Prognosen": Filter-Buttons (all/critical/high/medium/low) + PredictionCard (Score-Badge + risk_level + Adresse + Expand-Faktoren als FactorBars)
+- Tab "Genauigkeit": Tabelle alle risk_levels mit avg_predicted vs avg_actual vs avg_abs_error + actual_late_rate
+- Action-Buttons: "Jetzt scannen" + "Outcomes abgleichen" + "Alte Einträge löschen"
+- 60s Auto-Refresh
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `predictAllLocations()` jeden Tick (jede 2 Min)
+- `settleAllLocations()` täglich 03:00 UTC (isDelayPredictionSettleTick)
+- `pruneOldDelayPredictions(30)` täglich 05:35 UTC (isDelayPredictionPruneTick)
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Order Delay Prediction" mit Activity-Icon + highlight in Probleme & Eskalation-Gruppe
+
+- Build: next build ✓ (327 Seiten), tsc --noEmit ✓ (0 Fehler)
 
 ---
 
