@@ -26,7 +26,7 @@ const DELIVERY_PHASES = [
   },
   {
     key: 'handoff',
-    label: isDelivery ? 'Abholung' : 'Bereit',
+    label: 'Abholung',
     icon: Package,
     activeStatuses: ['fertig'],
     doneStatuses: ['unterwegs', 'geliefert'],

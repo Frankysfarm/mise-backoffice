@@ -1,7 +1,80 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–332 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (332 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–334 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (334 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #181 — 2026-06-20
+
+### Geprüfte Phasen: Phase 333 Backend (Driver Geofence Engine) + Phase 334 Frontend (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (334 Seiten, 0 Fehler)
+
+**TypeScript-Bug gefixt (bestell-phasen-band.tsx):**
+- Zeile 29: `label: isDelivery ? 'Abholung' : 'Bereit'` in `DELIVERY_PHASES` Array-Konstante auf Modul-Ebene — `isDelivery` existiert dort nicht (ist eine Prop der Komponente)
+- Fix: hardcoded `label: 'Abholung'` — korrekt, weil dieser Array nur für Lieferungen verwendet wird (DELIVERY_PHASES)
+
+**Logik-Bug gefixt (schicht-delta-vergleich.tsx):**
+- Zeilen 68–71: `Math.random()` als Fallback wenn API keine Gestern-Daten liefert → zeigte erfundene Trend-Indikatoren
+- Das `/api/delivery/admin/overview` API liefert keine `yesterdayOrders/yesterdayRevenue/yesterdaySlaRate/yesterdayAvgDeliveryMin` Felder → immer Math.random() Fallback aktiv
+- Fix: Null-sichere Typen (`number | null`) + `—` anzeigen wenn keine Gestern-Daten vorhanden
+- Mock-Fallback im catch-Block entfernt (zeigte hardcodierte Fake-Zahlen)
+
+**Phase 333 Backend — Driver Geofence Engine (korrekt integriert):**
+- SQL 159: `driver_geofence_config` + `driver_geofence_scan_log` + prune RPC + RLS ✅
+- `lib/delivery/driver-geofence.ts`: scanLocationDrivers/scanAllLocations/getGeofenceConfig/upsertGeofenceConfig/getGeofenceDashboard/pruneGeofenceScanLogs ✅
+- Dedup via `status_push_log` (UNIQUE order_id + event_type) ✅
+- Ring 1 (300m → driver_nearby) + Ring 2 (150m → driver_almost_there) ✅
+- `haversineKm` korrekt aus `@/lib/google-maps` importiert (object-Signatur) ✅
+- API `/api/delivery/admin/geofence` (GET dashboard/config + POST save/scan/prune) ✅
+- Admin-UI `/delivery/geofence`: 4 KPIs + SVG-Radius-Visualisierung + Slider-Config + Events-Tabelle ✅
+- Cron-Integration in smart-dispatch/route.ts ✅
+- Delivery-Overview-Eintrag vorhanden ✅
+
+**Phase 334 Frontend — 5 neue Komponenten (alle korrekt integriert):**
+
+**KitchenKochstartOptimierScore (`app/(admin)/kitchen/kochstart-optimier-score.tsx`):**
+- Score 0–100: perfekt/früh/spät basierend auf (fertig_am vs. angekommen_am) ✅
+- 90-Minuten-Fenster, Einzel-Bestellungs-Breakdown mit Mini-Balkengraph ✅
+- SVG-Score-Ring + 3 KPI-Kacheln + Erklärungs-Zeile ✅
+- Integration in kitchen/client.tsx ✅
+
+**DispatchTourRenditeKarte (`app/(admin)/dispatch/tour-rendite-karte.tsx`):**
+- EUR/Stop + EUR/km Rendite-Score je aktiver Tour mit A–D Bewertung ✅
+- Effizienz-Score: 50% EUR/Stop + 30% EUR/km + 20% Auslastung ✅
+- Integration in dispatch/client.tsx ✅
+
+**TourNaechsterStoppInfo (`app/fahrer/app/tour-naechster-stopp-info.tsx`):**
+- Next-Stop-Cockpit: Adresse, Distanz (Haversine), Kundennotiz, Betrag + Navigation/Anruf-Buttons ✅
+- isAtStop-State (angekommen_am gesetzt → amber Gradient) ✅
+- Integration in fahrer/app/client.tsx (locationLat/locationLng Props) ✅
+
+**BestellPhasenBand (`app/order/[locationSlug]/bestell-phasen-band.tsx`):**
+- 3-Phasen-Fortschrittsband (Zubereitung → Abholung → Unterwegs) mit Ping-Animation ✅
+- Phasen-ETA-Schätzung (55%/10%/35% Aufteilung) ✅
+- Integration in success-state.tsx L395 ✅
+
+**SchichtDeltaVergleich (`app/(admin)/lieferdienst/schicht-delta-vergleich.tsx`):**
+- Heute vs. Gestern: Bestellungen/Umsatz/SLA/Lieferzeit — nach Bug-Fix zeigt `—` wenn keine Gestern-Daten ✅
+- 5-Minuten-Polling, Trend-Icons (TrendingUp/Down/Minus) ✅
+- Integration in lieferdienst/client.tsx ✅
+
+### Status nach Review #181
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (334 Seiten)
+- Phase 333 Backend + Phase 334 Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 2 (1x TS-Scope-Bug bestell-phasen-band + 1x Math.random-Fake-Daten schicht-delta-vergleich)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 335: Yesterday-Daten API — `/api/delivery/admin/overview` um `yesterdayOrders/yesterdayRevenue/yesterdaySlaRate/yesterdayAvgDeliveryMin` erweitern (Vergleich gleiche Stunde Vortag via Supabase-Query)
+2. Oder: Phase 335: Driver Offline Escalation — Auto-Reassignment wenn Fahrer >10 Min offline
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 335: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ---
 

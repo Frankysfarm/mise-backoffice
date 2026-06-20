@@ -17,19 +17,19 @@ type DeltaData = {
     avgDeliveryMin: number;
   };
   yesterday: {
-    orders: number;
-    revenueEur: number;
-    slaRate: number;
-    avgDeliveryMin: number;
+    orders: number | null;
+    revenueEur: number | null;
+    slaRate: number | null;
+    avgDeliveryMin: number | null;
   };
 };
 
 type DeltaMetric = {
   label: string;
   todayVal: string;
-  yesterdayVal: string;
-  delta: number;
-  deltaLabel: string;
+  yesterdayVal: string | null;
+  delta: number | null;
+  deltaLabel: string | null;
   unit: string;
   lowerIsBetter?: boolean;
 };
@@ -65,21 +65,20 @@ export function SchichtDeltaVergleich({ locationId }: Props) {
           avgDeliveryMin: d.avgDeliveryMin ?? d.avgTime ?? 0,
         };
         const yesterday = {
-          orders: d.yesterdayOrders ?? Math.round(today.orders * (0.8 + Math.random() * 0.4)),
-          revenueEur: d.yesterdayRevenue ?? Math.round(today.revenueEur * (0.85 + Math.random() * 0.3)),
-          slaRate: d.yesterdaySlaRate ?? Math.max(50, Math.min(100, today.slaRate + (Math.random() * 20 - 10))),
-          avgDeliveryMin: d.yesterdayAvgDeliveryMin ?? Math.max(10, today.avgDeliveryMin + (Math.random() * 8 - 4)),
+          orders: typeof d.yesterdayOrders === 'number' ? d.yesterdayOrders : null,
+          revenueEur: typeof d.yesterdayRevenue === 'number' ? d.yesterdayRevenue : null,
+          slaRate: typeof d.yesterdaySlaRate === 'number' ? d.yesterdaySlaRate : null,
+          avgDeliveryMin: typeof d.yesterdayAvgDeliveryMin === 'number' ? d.yesterdayAvgDeliveryMin : null,
         };
 
         setData({ hour: currentHour, today, yesterday });
         setLastFetch(Date.now());
       } catch {
-        // Mock fallback
         const currentHour = new Date().getHours();
         setData({
           hour: currentHour,
-          today: { orders: 34, revenueEur: 892, slaRate: 87, avgDeliveryMin: 28 },
-          yesterday: { orders: 29, revenueEur: 810, slaRate: 81, avgDeliveryMin: 31 },
+          today: { orders: 0, revenueEur: 0, slaRate: 0, avgDeliveryMin: 0 },
+          yesterday: { orders: null, revenueEur: null, slaRate: null, avgDeliveryMin: null },
         });
         setLastFetch(Date.now());
       } finally {
@@ -108,37 +107,46 @@ export function SchichtDeltaVergleich({ locationId }: Props) {
 
   if (!data) return null;
 
+  const yest = data.yesterday;
   const metrics: DeltaMetric[] = [
     {
       label: 'Bestellungen',
       todayVal: data.today.orders.toString(),
-      yesterdayVal: data.yesterday.orders.toString(),
-      delta: data.today.orders - data.yesterday.orders,
-      deltaLabel: `${data.today.orders > data.yesterday.orders ? '+' : ''}${data.today.orders - data.yesterday.orders}`,
+      yesterdayVal: yest.orders !== null ? yest.orders.toString() : null,
+      delta: yest.orders !== null ? data.today.orders - yest.orders : null,
+      deltaLabel: yest.orders !== null
+        ? `${data.today.orders >= yest.orders ? '+' : ''}${data.today.orders - yest.orders}`
+        : null,
       unit: 'Bst.',
     },
     {
       label: 'Umsatz',
       todayVal: fmtEur(data.today.revenueEur),
-      yesterdayVal: fmtEur(data.yesterday.revenueEur),
-      delta: data.today.revenueEur - data.yesterday.revenueEur,
-      deltaLabel: `${data.today.revenueEur > data.yesterday.revenueEur ? '+' : ''}${Math.round(((data.today.revenueEur - data.yesterday.revenueEur) / Math.max(1, data.yesterday.revenueEur)) * 100)}%`,
+      yesterdayVal: yest.revenueEur !== null ? fmtEur(yest.revenueEur) : null,
+      delta: yest.revenueEur !== null ? data.today.revenueEur - yest.revenueEur : null,
+      deltaLabel: yest.revenueEur !== null
+        ? `${data.today.revenueEur >= yest.revenueEur ? '+' : ''}${Math.round(((data.today.revenueEur - yest.revenueEur) / Math.max(1, yest.revenueEur)) * 100)}%`
+        : null,
       unit: '%',
     },
     {
       label: 'SLA-Rate',
       todayVal: `${Math.round(data.today.slaRate)}%`,
-      yesterdayVal: `${Math.round(data.yesterday.slaRate)}%`,
-      delta: data.today.slaRate - data.yesterday.slaRate,
-      deltaLabel: `${data.today.slaRate > data.yesterday.slaRate ? '+' : ''}${(data.today.slaRate - data.yesterday.slaRate).toFixed(1)}pp`,
+      yesterdayVal: yest.slaRate !== null ? `${Math.round(yest.slaRate)}%` : null,
+      delta: yest.slaRate !== null ? data.today.slaRate - yest.slaRate : null,
+      deltaLabel: yest.slaRate !== null
+        ? `${data.today.slaRate >= yest.slaRate ? '+' : ''}${(data.today.slaRate - yest.slaRate).toFixed(1)}pp`
+        : null,
       unit: 'pp',
     },
     {
       label: 'Ø Lieferzeit',
       todayVal: `${Math.round(data.today.avgDeliveryMin)} Min`,
-      yesterdayVal: `${Math.round(data.yesterday.avgDeliveryMin)} Min`,
-      delta: data.today.avgDeliveryMin - data.yesterday.avgDeliveryMin,
-      deltaLabel: `${data.today.avgDeliveryMin < data.yesterday.avgDeliveryMin ? '' : '+'}${(data.today.avgDeliveryMin - data.yesterday.avgDeliveryMin).toFixed(1)} Min`,
+      yesterdayVal: yest.avgDeliveryMin !== null ? `${Math.round(yest.avgDeliveryMin)} Min` : null,
+      delta: yest.avgDeliveryMin !== null ? data.today.avgDeliveryMin - yest.avgDeliveryMin : null,
+      deltaLabel: yest.avgDeliveryMin !== null
+        ? `${data.today.avgDeliveryMin <= yest.avgDeliveryMin ? '' : '+'}${(data.today.avgDeliveryMin - yest.avgDeliveryMin).toFixed(1)} Min`
+        : null,
       unit: 'Min',
       lowerIsBetter: true,
     },
@@ -159,12 +167,12 @@ export function SchichtDeltaVergleich({ locationId }: Props) {
       {/* Metrics grid */}
       <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
         {metrics.map((m) => {
-          const better = m.lowerIsBetter ? m.delta < 0 : m.delta > 0;
-          const worse = m.lowerIsBetter ? m.delta > 0 : m.delta < 0;
-          const neutral = m.delta === 0;
+          const hasYesterday = m.delta !== null;
+          const better = hasYesterday && (m.lowerIsBetter ? m.delta! < 0 : m.delta! > 0);
+          const worse = hasYesterday && (m.lowerIsBetter ? m.delta! > 0 : m.delta! < 0);
 
-          const deltaColor = better ? 'text-matcha-600' : worse ? 'text-red-600' : 'text-muted-foreground';
-          const deltaBg = better ? 'bg-matcha-50' : worse ? 'bg-red-50' : 'bg-muted/30';
+          const deltaColor = !hasYesterday ? 'text-muted-foreground' : better ? 'text-matcha-600' : worse ? 'text-red-600' : 'text-muted-foreground';
+          const deltaBg = !hasYesterday ? 'bg-muted/20' : better ? 'bg-matcha-50' : worse ? 'bg-red-50' : 'bg-muted/30';
           const DeltaIcon = better ? TrendingUp : worse ? TrendingDown : Minus;
 
           return (
@@ -176,11 +184,11 @@ export function SchichtDeltaVergleich({ locationId }: Props) {
                 {m.todayVal}
               </div>
               <div className="text-[9px] text-muted-foreground mt-0.5">
-                Vortag: {m.yesterdayVal}
+                Vortag: {m.yesterdayVal ?? '—'}
               </div>
               <div className={cn('flex items-center gap-1 mt-1.5', deltaColor)}>
                 <DeltaIcon size={10} />
-                <span className="text-[10px] font-bold tabular-nums">{m.deltaLabel}</span>
+                <span className="text-[10px] font-bold tabular-nums">{m.deltaLabel ?? '—'}</span>
               </div>
             </div>
           );
