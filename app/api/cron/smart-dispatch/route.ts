@@ -121,6 +121,7 @@ import { predictAllLocations as predictDriverReturns, pruneOldPredictions as pru
 import { buildSuggestionsAllLocations as buildAssignmentSuggestions, expireOldSuggestions, autoDispatchAllLocations } from '@/lib/delivery/assignment-optimizer';
 import { runRescueAllLocations, pruneOldRescueEvents } from '@/lib/delivery/order-rescue';
 import { runBalancerAllLocations, pruneZoneCapacitySnapshots } from '@/lib/delivery/zone-capacity-balancer';
+import { saveDriverLiveScoreSnapshotsAllLocations, pruneDriverLiveScoreSnapshots } from '@/lib/delivery/driver-performance-realtime';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -930,6 +931,14 @@ export async function GET(req: NextRequest) {
       ? await pruneZoneCapacitySnapshots(7).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 310: Fahrer-Performance-Echtzeit-Snapshots — alle 10 Min (isRatingTick)
+    const liveScoreSnapshotResult = isRatingTick
+      ? await saveDriverLiveScoreSnapshotsAllLocations().catch(() => ({ locations: 0, snapshots: 0 }))
+      : null;
+    if (isReportTick) {
+      pruneDriverLiveScoreSnapshots().catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1135,6 +1144,7 @@ export async function GET(req: NextRequest) {
       ...(rescueEventsPruned ? { rescue_events_pruned: rescueEventsPruned } : {}),
       ...(balancerResult.suggestions > 0 ? { zone_balancer: { locations: balancerResult.locations, snapshots: balancerResult.snapshots, suggestions: balancerResult.suggestions } } : {}),
       ...(balancerSnapshotsPruned ? { zone_snapshots_pruned: balancerSnapshotsPruned.pruned } : {}),
+      ...(liveScoreSnapshotResult?.snapshots ? { driver_live_scores: { locations: liveScoreSnapshotResult.locations, snapshots: liveScoreSnapshotResult.snapshots } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

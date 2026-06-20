@@ -1,18 +1,21 @@
 /**
  * GET /api/delivery/health?location_id=...
+ * GET /api/delivery/health?location=<slug>
  *
  * System-Health-Check für Monitoring (UptimeRobot, Vercel Analytics, etc.).
  * Kein Auth erforderlich — gibt nur nicht-sensible Aggregatwerte zurück.
  *
+ * Unterstützt ?location=slug für LieferzonenStatusKarte (Storefront).
+ *
  * Response:
  * {
  *   status: 'ok' | 'degraded' | 'down'
- *   checks: {
- *     database:         { ok: boolean }
- *     zones_configured: { ok: boolean; count: number }
- *     drivers_online:   { ok: boolean; count: number }
- *     dispatch_backlog: { ok: boolean; pending: number }  // ok = pending < 20
- *   }
+ *   checks: { ... }
+ *   // Storefront-Felder (wenn location aufgelöst):
+ *   activeDrivers: number
+ *   pendingOrders: number
+ *   etaMin: number
+ *   etaMax: number
  *   timestamp: string (ISO)
  * }
  *
@@ -31,9 +34,26 @@ interface CheckResult {
   [key: string]: unknown;
 }
 
+async function resolveLocationId(sb: ReturnType<typeof createServiceClient>, params: URLSearchParams): Promise<string | null> {
+  const byId   = params.get('location_id');
+  if (byId) return byId;
+
+  const slug = params.get('location');
+  if (!slug) return null;
+
+  const { data } = await sb
+    .from('locations')
+    .select('id')
+    .eq('slug', slug)
+    .eq('active', true)
+    .maybeSingle();
+  return (data?.id as string | null) ?? null;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
+  const sb = createServiceClient();
+  const locationId = await resolveLocationId(sb, searchParams);
 
   const checks: Record<string, CheckResult> = {
     database:         { ok: false },
@@ -42,8 +62,6 @@ export async function GET(req: NextRequest) {
     dispatch_backlog: { ok: true,  pending: 0 },
     shift_coverage:   { ok: true,  uncovered_slots: 0 },
   };
-
-  const sb = createServiceClient();
 
   // 1. DB-Konnektivität
   const { error: pingErr } = await sb.from('delivery_zones').select('id').limit(1);
@@ -103,8 +121,27 @@ export async function GET(req: NextRequest) {
   const criticalOk = checks.database.ok;
   const status     = !criticalOk ? 'down' : allOk ? 'ok' : 'degraded';
 
+  // Storefront-Felder für LieferzonenStatusKarte
+  const activeDrivers = (checks.drivers_online.count as number | undefined) ?? 0;
+  const pendingOrders = (checks.dispatch_backlog.pending as number | undefined) ?? 0;
+
+  // ETA-Schätzung basierend auf Auslastung
+  const loadRatio     = activeDrivers > 0 ? pendingOrders / (activeDrivers * 3) : 1;
+  const etaBase       = 25;
+  const etaBoost      = Math.round(loadRatio * 20);
+  const etaMin        = Math.max(15, etaBase + etaBoost - 5);
+  const etaMax        = etaMin + 15;
+
   return NextResponse.json(
-    { status, checks, timestamp: new Date().toISOString() },
+    {
+      status,
+      checks,
+      activeDrivers,
+      pendingOrders,
+      etaMin,
+      etaMax,
+      timestamp: new Date().toISOString(),
+    },
     { status: status === 'down' ? 503 : 200 },
   );
 }
