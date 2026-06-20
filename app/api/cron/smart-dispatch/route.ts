@@ -125,6 +125,7 @@ import { saveDriverLiveScoreSnapshotsAllLocations, pruneDriverLiveScoreSnapshots
 import { snapshotRevenueVelocityAllLocations, pruneRevenueVelocitySnapshots } from '@/lib/delivery/revenue-velocity';
 import { snapshotDriverShiftGoalsAllLocations, pruneDriverShiftGoalSnapshots } from '@/lib/delivery/driver-shift-goals';
 import { predictAllLocations as predictOrderDelays, settleAllLocations as settleDelayOutcomes, pruneOldDelayPredictions } from '@/lib/delivery/order-delay-prediction';
+import { alertCriticalAllLocations, pruneOldDelayAlerts } from '@/lib/delivery/delay-alert-push';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -278,6 +279,8 @@ export async function GET(req: NextRequest) {
     // Phase 316: Order Delay Prediction — jeden Tick; settle täglich 03:00 UTC; prune täglich 05:35 UTC
     const isDelayPredictionSettleTick = nowHour === 3 && nowMin >= 0 && nowMin < 4;
     const isDelayPredictionPruneTick  = nowHour === 5 && nowMin >= 34 && nowMin < 38;
+    // Phase 318: Delay Alert Push — jeden Tick (proaktiver Kunden-Push bei critical risk); prune täglich 05:40 UTC
+    const isDelayAlertPruneTick = nowHour === 5 && nowMin >= 39 && nowMin < 43;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -976,6 +979,12 @@ export async function GET(req: NextRequest) {
       pruneOldDelayPredictions(30).catch(() => {});
     }
 
+    // Phase 318: Delay Alert Push — jeden Tick (critical risk → Kunden-Push)
+    const delayAlertResult = await alertCriticalAllLocations().catch(() => ({ locations: 0, alerted: 0, errors: 0 }));
+    if (isDelayAlertPruneTick) {
+      pruneOldDelayAlerts(30).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1185,6 +1194,7 @@ export async function GET(req: NextRequest) {
       ...(revenueVelocityResult?.snapshots ? { revenue_velocity: { locations: revenueVelocityResult.locations, snapshots: revenueVelocityResult.snapshots, errors: revenueVelocityResult.errors } } : {}),
       ...(driverShiftGoalResult?.saved ? { driver_shift_goals: { locations: driverShiftGoalResult.locations, saved: driverShiftGoalResult.saved, errors: driverShiftGoalResult.errors } } : {}),
       ...(delayPredictionResult.predicted > 0 ? { order_delay_predictions: { locations: delayPredictionResult.locations, predicted: delayPredictionResult.predicted, errors: delayPredictionResult.errors } } : {}),
+      ...(delayAlertResult.alerted > 0 ? { delay_alert_push: { locations: delayAlertResult.locations, alerted: delayAlertResult.alerted, errors: delayAlertResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
