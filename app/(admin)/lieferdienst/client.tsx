@@ -135,6 +135,7 @@ import { SchichtLiveKapazitaet } from './schicht-live-kapazitaet'
 import LieferdienstFahrerEffizienzScore from './fahrer-effizienz-score'
 import { SchichtLiveStatistik } from './schicht-live-statistik'
 import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
+import { LieferdienstPricingKompakt } from './pricing-kompakt'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1162,6 +1163,8 @@ export function LieferdienstClient() {
               <SchichtLiveStatistik locationId={locationId} />
               {/* Phase 340: Schicht-Umsatz-Meter — Umsatz-Fortschrittsbalken, EUR/h Rate + Tagesprognose */}
               <SchichtUmsatzMeter locationId={locationId} />
+              {/* Phase 341: Dynamic Pricing Kompakt — Surge-Events, Off-Peak, Netto-Impact heute */}
+              <LieferdienstPricingKompakt locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

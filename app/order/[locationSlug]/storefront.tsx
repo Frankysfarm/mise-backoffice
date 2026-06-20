@@ -38,6 +38,7 @@ import { BestellPaceIndikator } from './bestell-pace-indikator';
 import { FahrerNaeheLiveAnzeige } from './fahrer-naehe-live-anzeige';
 import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indikator';
 import LiveWaitBadge from './components/live-wait-badge';
+import { DynamicPricingBanner } from './components/dynamic-pricing-banner';
 
 type Props = {
   location: Location;
@@ -487,6 +488,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <ServiceStatusBanner locationId={location.id} />
         </div>
       )}
+      {/* Phase 341: Dynamic Pricing Banner — Surge-Hinweis / Off-Peak-Rabatt für Kunden */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <DynamicPricingBanner locationId={location.id} orderType={orderType} />
+      </div>
       {/* Phase 337: Live-Wait-Badge — kompaktes Wartezeit-Pill je Bestelltyp */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <LiveWaitBadge orderType={orderType} />

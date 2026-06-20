@@ -107,6 +107,7 @@ import { TourAbschlussSchnellPanel } from './tour-abschluss-schnell-panel';
 import FahrerSchichtPuls from './fahrer-schicht-puls';
 import { TourRouteTiming } from './tour-route-timing';
 import { TourStoppEtaMatrix } from './tour-stopp-eta-matrix';
+import { FahrerGebuehrenInfo } from './gebuehren-info';
 
 type Driver = {
   id: string;
@@ -1372,6 +1373,12 @@ export function FahrerApp({
           })()}
           {/* Phase 319: Delay-Alert-Hinweis — Fahrer wird informiert wenn Kunden Delay-Alert erhalten haben */}
           <FahrerDelayAlertHinweis batchHasCriticalOrder={activeBatch.stops.length > 0} />
+          {/* Phase 341: Gebühren-Info — Dynamic Pricing Status für Fahrer (Surge vs. Normaltarif) */}
+          {driver.location_id && (
+            <div className="px-4">
+              <FahrerGebuehrenInfo locationSlug={driver.location_id} />
+            </div>
+          )}
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />

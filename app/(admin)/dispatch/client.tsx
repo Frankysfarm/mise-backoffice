@@ -142,6 +142,7 @@ import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
+import { DispatchPricingLivePanel } from './pricing-live-panel';
 import { DispatchZoneEffizienzMatrix } from './zone-effizienz-matrix';
 import { DispatchSurgeKapazitaetPanel } from './surge-kapazitaet-panel';
 import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
@@ -1651,6 +1652,9 @@ export function DispatchBoard({
 
       {/* Handoff-Geschwindigkeit: Ø-Zeit von Fertig → Fahrer-Zuweisung */}
       <DispatchHandoffSpeedPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 341: Dynamic Pricing Live-Panel — Surge-Events, Mehrumsatz, Off-Peak heute */}
+      <DispatchPricingLivePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

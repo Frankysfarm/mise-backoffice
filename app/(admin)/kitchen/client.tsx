@@ -113,7 +113,9 @@ import { KitchenPrepEffizienzLive } from './prep-effizienz-live';
 import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
 import { KitchenSchichtSofortCockpit } from './schicht-sofort-cockpit';
 import { KitchenSmartTimingDashboard } from './smart-timing-dashboard';
+
 import { KitchenPrepStationBoard } from './prep-station-board';
+import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -619,6 +621,8 @@ export function KitchenBoard({
       <KitchenKochstartOptimierScore orders={filtered} timings={timings} stops={stops} />
       {/* Phase 321: Analytics-Strip — heutige SLA/Lieferrate/ø Zeit aus Analytics-Dashboard */}
       <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 341: Preis-Signal-Streifen — Dynamic Pricing Status für Küche */}
+      <KitchenPreisSignalStreifen locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}
