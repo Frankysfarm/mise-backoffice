@@ -50,10 +50,21 @@ export async function GET(req: NextRequest) {
   if (!emp?.location_id) return NextResponse.json({ error: 'Keine Location zugewiesen' }, { status: 404 });
   const locationId = emp.location_id as string;
 
-  const [history, rankData] = await Promise.all([
+  const since1h = new Date(Date.now() - 3_600_000).toISOString();
+  const [history, rankData, latestSnapshot] = await Promise.all([
     getDriverHistory(driverId, locationId, days),
     getDriverRank(driverId, locationId, period),
+    svc
+      .from('driver_live_score_snapshots')
+      .select('live_score')
+      .eq('driver_id', driverId)
+      .gte('snapshot_at', since1h)
+      .order('snapshot_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
+
+  const liveScore = (latestSnapshot.data as Record<string, unknown> | null)?.live_score as number | null ?? null;
 
   return NextResponse.json({
     driverId,
@@ -61,6 +72,10 @@ export async function GET(req: NextRequest) {
     period,
     rank:    rankData?.rank  ?? null,
     total:   rankData?.total ?? null,
+    // rankData object for EchtzeitLeistungsAnzeige component
+    rankData: rankData && liveScore !== null
+      ? { rank: rankData.rank, total: rankData.total, score: liveScore }
+      : null,
     history,
   });
 }

@@ -1,7 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–308 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (324 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–311 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (324 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #171 — 2026-06-20
+
+### Geprüfte Phasen: Phase 310 Backend (Fahrer-Performance-Echtzeit-Dashboard) + Phase 311 Frontend (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (324 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 311 Frontend):**
+
+**KitchenSchichtRhythmusMonitor (`app/(admin)/kitchen/schicht-rhythmus-monitor.tsx`):**
+- Bestellfluss letzte 30 Min in 6×5-Min-Slots, Varianz-Ampel (CV-Wert → gleichmäßig/Schübe/Stoß-Betrieb) ✅
+- Reine useMemo-Berechnung, kein API-Aufruf — Props von Client-Seite ✅
+- Gibt null zurück wenn alle Slots leer → kein unnötiger Ladeindikator ✅
+
+**DispatchFahrerLeistungsLive (`app/(admin)/dispatch/fahrer-leistungs-live.tsx`):**
+- 60s Polling auf Phase-310-API `/api/delivery/admin/driver-performance-realtime` ✅
+- Top-6 Fahrer-Ranking mit Score-Balken, Trend-Icon, Stops-heute ✅
+- Bug gefixt: `setLoading((prev) => !prev)` → `setLoading(true)` (toggle-Bug könnte Loading-State fälschlich auf false setzen beim gleichzeitigen Interval-Feuern) ✅
+
+**EchtzeitLeistungsAnzeige (`app/fahrer/app/echtzeit-leistungs-anzeige.tsx`):**
+- Eigener Rang, Live-Score, Top-25%-Badge, Schicht-Wochenvergleich ✅
+- Bug gefixt: API `/api/delivery/driver/my-performance` gab `rank`/`total` flach zurück, KEIN `rankData`-Objekt, KEIN `score`-Feld → Komponente zeigte immer `null` (return null wegen fehlendem rankData) ✅
+- Fix: API erweitert um `rankData: { rank, total, score }` (score aus letztem `driver_live_score_snapshots`-Snapshot der letzten Stunde) ✅
+
+**AktuelleLieferzeitWidget (`app/order/[locationSlug]/aktuelle-lieferzeit-widget.tsx`):**
+- Kunden-sichtbare ETA (etaMin/etaMax) + Fahreranzahl via `/api/delivery/health` ✅
+- Geschwindigkeits-Label (Schnell/Normal/Erhöhte Wartezeit) mit Farbkodierung ✅
+- Korrekte Integration in storefront.tsx ✅
+
+**FahrerPerformanceLive (`app/(admin)/lieferdienst/fahrer-performance-live.tsx`):**
+- Team-Cockpit: 4 KPI-Kacheln + vollständige Fahrer-Ranking-Tabelle ✅
+- 60s Auto-Refresh mit letztem Update-Timestamp ✅
+- Top/Kritisch-Zähler (≥85 / <45) ✅
+
+**Bugs gefunden + gefixt: 2**
+1. `setLoading((prev) => !prev)` in `fahrer-leistungs-live.tsx` → `setLoading(true)` (toggle-Bug)
+2. `/api/delivery/driver/my-performance` fehlte `rankData`-Objekt mit `score`-Feld für `EchtzeitLeistungsAnzeige`
+
+### Status nach Review #171
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (324 Seiten)
+- Phase 310 + 311: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 312: Smart Route Clustering Engine — KI-gestützte Cluster-Bildung für Bestellungen nach Geo-Proximität (Zonen-basiert), Optimierung Tour-Zusamensetzung
+2. Oder: Phase 312: Fahrer-Leistungs-Prognose — ML-Prognose wie viele Stops ein Fahrer in der restlichen Schicht noch schaffen wird
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 312: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. `/api/delivery/dispatch/scores` implementieren (DispatchLiveScoreBoard fällt auf Mock zurück)
 
 ---
 

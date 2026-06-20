@@ -2,6 +2,7 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 **Phasen 1–311 abgeschlossen. Build sauber. 324 Seiten. TypeScript 0 Fehler.**
+**CEO-Agent Review #171 — 2026-06-20: 2 Bugs gefixt (setLoading-Toggle-Bug fahrer-leistungs-live.tsx + fehlendes rankData.score in /api/delivery/driver/my-performance). Phase 310+311 geprüft. Build ✅ 324 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-20: Phase 311 — KitchenSchichtRhythmusMonitor, DispatchFahrerLeistungsLive, EchtzeitLeistungsAnzeige (Fahrer), AktuelleLieferzeitWidget (Storefront), FahrerPerformanceLive (Lieferdienst). Build ✅ 324 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 310 — Fahrer-Performance-Echtzeit-Dashboard (Live-Score 0–100, Woche-vs-Vorwoche-Trend, stündliche Snapshots) + Health-API Fix (?location=slug + activeDrivers/etaMin/etaMax für LieferzonenStatusKarte). Build ✅ 324 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-19: Phase 309 — KitchenPausenFensterKarte, DispatchKapazitaetsPuffer, FahrerDispatchNachrichten, LieferzonenStatusKarte, PersonalPlanungMatrix. Build ✅ 324 Seiten, 0 Fehler.**

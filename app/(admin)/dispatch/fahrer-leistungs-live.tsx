@@ -39,7 +39,7 @@ export function DispatchFahrerLeistungsLive({ locationId }: Props) {
     let cancelled = false;
 
     const load = () => {
-      setLoading((prev) => !prev);
+      setLoading(true);
       fetch(`/api/delivery/admin/driver-performance-realtime?location_id=${encodeURIComponent(locationId)}`)
         .then((r) => r.json())
         .then((d) => {
