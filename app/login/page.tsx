@@ -56,11 +56,11 @@ function LoginScreen() {
 
   function resolveTarget(): string {
     if (mode === 'backoffice') {
-      // Backoffice: Restaurant-Inhaber landet auf Dashboard '/' — dort sieht er
-      // KPIs + alle Module + Schnellzugriffe. Setup-Wizard wird vom Dashboard
-      // selbst gerouted falls Onboarding noch nicht abgeschlossen.
-      if (next && next !== '/start' && !next.startsWith('/pos')) return next;
-      return '/';
+      // Backoffice: Inhaber landet im NEUEN /neo-Backoffice (Lieferservice-Cockpit).
+      // Tiefe Links (z.B. /menu) werden weiterhin geehrt; frischer Login → /neo.
+      // Onboarding wird vom /neo-Layout gerouted (Setup-Wizard falls nicht fertig).
+      if (next && next !== '/' && next !== '/start' && !next.startsWith('/pos')) return next;
+      return '/neo/app/uebersicht';
     }
     if (mode === 'lieferung') return '/pos/inbox';
     if (next.startsWith('/pos/inbox')) return '/pos';
@@ -98,12 +98,12 @@ function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-matcha-900 lg:grid lg:grid-cols-[1fr_minmax(420px,520px)]">
-      {/* ─── Left Panel: Brand Visual ─── */}
-      <div className="hidden lg:flex lg:flex-col lg:justify-between bg-matcha-900 text-white p-12 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 lg:grid lg:grid-cols-[1fr_minmax(420px,520px)]">
+      {/* ─── Left Panel: Brand Visual (Indigo) ─── */}
+      <div className="hidden lg:flex lg:flex-col lg:justify-between bg-gradient-to-br from-indigo-700 via-indigo-900 to-indigo-950 text-white p-12 relative overflow-hidden">
         {/* Decorative blobs */}
-        <div className="pointer-events-none absolute -top-32 -left-32 h-[480px] w-[480px] rounded-full bg-accent opacity-20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-32 h-[420px] w-[420px] rounded-full bg-gold opacity-15 blur-3xl" />
+        <div className="pointer-events-none absolute -top-32 -left-32 h-[480px] w-[480px] rounded-full bg-indigo-400 opacity-25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -right-32 h-[420px] w-[420px] rounded-full bg-violet-400 opacity-20 blur-3xl" />
 
         <div className="relative z-10">
           <Link href="/welcome" className="inline-flex items-center gap-2.5 text-white/95 hover:text-white">
@@ -116,30 +116,30 @@ function LoginScreen() {
         </div>
 
         <div className="relative z-10 max-w-md">
-          <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/30 px-3 py-1 text-[11px] font-bold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider mb-6">
             <Sparkles size={11} /> Das Betriebssystem für dein Restaurant
           </div>
           <h1 className="font-display text-5xl xl:text-6xl font-bold leading-[0.95] tracking-[-0.02em]">
             Schön dich<br />
-            wieder zu <span className="text-accent italic">sehen</span>.
+            wieder zu <span className="text-indigo-300 italic">sehen</span>.
           </h1>
-          <p className="mt-6 text-lg text-matcha-100/90 leading-relaxed">
+          <p className="mt-6 text-lg text-indigo-100/90 leading-relaxed">
             Dienstplan, Kasse, Lieferung, Telefon-KI — alles griffbereit. Log dich ein und mach weiter, wo du aufgehört hast.
           </p>
 
-          <div className="mt-10 flex items-center gap-6 text-sm text-matcha-100/70">
+          <div className="mt-10 flex items-center gap-6 text-sm text-indigo-100/70">
             <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+              <div className="h-1.5 w-1.5 rounded-full bg-indigo-300 animate-pulse" />
               <span>13 Module</span>
             </div>
-            <div className="h-3 w-px bg-matcha-100/20" />
+            <div className="h-3 w-px bg-indigo-100/20" />
             <div>14 Tage gratis</div>
-            <div className="h-3 w-px bg-matcha-100/20" />
+            <div className="h-3 w-px bg-indigo-100/20" />
             <div>Made in Aachen</div>
           </div>
         </div>
 
-        <div className="relative z-10 text-xs text-matcha-100/60">
+        <div className="relative z-10 text-xs text-indigo-100/60">
           © {new Date().getFullYear()} Mise · <a href="/datenschutz" className="hover:text-white">Datenschutz</a> · <a href="/impressum" className="hover:text-white">Impressum</a>
         </div>
       </div>
@@ -148,7 +148,7 @@ function LoginScreen() {
       <div className="flex flex-col justify-center min-h-screen lg:min-h-0 px-6 sm:px-12 py-12 bg-white">
         {/* Mobile logo */}
         <div className="lg:hidden mb-8 flex items-center gap-2">
-          <svg viewBox="0 0 40 40" className="h-7 w-7 text-matcha-900">
+          <svg viewBox="0 0 40 40" className="h-7 w-7 text-indigo-700">
             <circle cx="20" cy="20" r="19" fill="none" stroke="currentColor" strokeWidth="2" />
             <path d="M 11 26 L 11 14 L 16 22 L 20 16 L 24 22 L 29 14 L 29 26" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -160,7 +160,7 @@ function LoginScreen() {
             <h2 className="font-display text-3xl font-bold tracking-tight">Anmelden</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Noch kein Konto?{' '}
-              <Link href="/signup" className="font-semibold text-matcha-700 hover:text-matcha-900 underline-offset-2 hover:underline">
+              <Link href="/signup" className="font-semibold text-indigo-600 hover:text-indigo-800 underline-offset-2 hover:underline">
                 14 Tage gratis testen
               </Link>
             </p>
@@ -197,7 +197,7 @@ function LoginScreen() {
             type="button"
             onClick={() => setScannerOpen(true)}
             disabled={busy || oauthBusy}
-            className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-matcha-900 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-matcha-800 hover:shadow disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+            className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow disabled:opacity-60 disabled:cursor-not-allowed mb-3"
           >
             <QrCode className="h-4 w-4" />
             QR-Code scannen (Schnell-Login)
@@ -237,7 +237,7 @@ function LoginScreen() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="du@restaurant.de"
-                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-3 text-sm placeholder:text-zinc-400 focus:border-matcha-700 focus:outline-none focus:ring-2 focus:ring-matcha-700/20"
+                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-3 text-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ function LoginScreen() {
                 <label htmlFor="password" className="text-xs font-semibold text-zinc-700">Passwort</label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-xs font-medium text-matcha-700 hover:text-matcha-900 underline-offset-2 hover:underline"
+                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 underline-offset-2 hover:underline"
                 >
                   Vergessen?
                 </Link>
@@ -263,7 +263,7 @@ function LoginScreen() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-10 text-sm placeholder:text-zinc-400 focus:border-matcha-700 focus:outline-none focus:ring-2 focus:ring-matcha-700/20"
+                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-10 text-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
                 <button
                   type="button"
@@ -283,13 +283,13 @@ function LoginScreen() {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-1.5 rounded-2xl border-2 border-matcha-200 bg-cream/40 p-1.5">
+            <div className="grid grid-cols-3 gap-1.5 rounded-2xl border-2 border-indigo-200 bg-indigo-50/40 p-1.5">
               <button
                 type="button"
                 onClick={() => setMode('backoffice')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'backoffice' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
+                  mode === 'backoffice' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F3E2}'}</span> Backoffice
@@ -299,7 +299,7 @@ function LoginScreen() {
                 onClick={() => setMode('kasse')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'kasse' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
+                  mode === 'kasse' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F9FE}'}</span> Kasse
@@ -309,7 +309,7 @@ function LoginScreen() {
                 onClick={() => setMode('lieferung')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'lieferung' ? 'bg-matcha-900 text-white shadow-md' : 'text-matcha-700 hover:bg-cream',
+                  mode === 'lieferung' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F6F5}'}</span> Lieferung
@@ -327,8 +327,8 @@ function LoginScreen() {
               type="submit"
               disabled={busy || oauthBusy}
               className={cn(
-                'group flex w-full items-center justify-center gap-2 rounded-xl bg-matcha-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-matcha-900/20 transition-all',
-                'hover:bg-matcha-800 hover:shadow-xl hover:shadow-matcha-900/30',
+                'group flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all',
+                'hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/40',
                 'disabled:opacity-60 disabled:cursor-not-allowed',
               )}
             >
