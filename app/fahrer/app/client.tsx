@@ -104,6 +104,7 @@ import { FahrerWochenRangKarte } from './wochen-rang-karte';
 import { TourSchichtBilanz } from './tour-schicht-bilanz';
 import { TourNaechsterStoppInfo } from './tour-naechster-stopp-info';
 import { TourAbschlussSchnellPanel } from './tour-abschluss-schnell-panel';
+import FahrerSchichtPuls from './fahrer-schicht-puls';
 
 type Driver = {
   id: string;
@@ -847,6 +848,8 @@ export function FahrerApp({
                     weekHistory={rankData?.history ?? []}
                   />
                 )}
+                {/* Phase 337: Fahrer-Schicht-Puls — Stopps erledigt/verbleibend + Schichtdauer */}
+                <FahrerSchichtPuls />
 
                 {/* Schicht-Effizienz: Liefertempo vs. Ziel */}
                 {todayStats && status?.online_seit && (

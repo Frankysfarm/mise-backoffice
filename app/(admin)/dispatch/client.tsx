@@ -162,6 +162,7 @@ import { DispatchWochenRankingPanel } from './wochen-ranking-panel';
 import { DispatchTourAbschlussForecast } from './tour-abschluss-forecast';
 import { DispatchTourRenditeKarte } from './tour-rendite-karte';
 import { DispatchTourRueckkehrBoard } from './tour-rueckkehr-board';
+import DispatchTourProfitLive from './tour-profit-live';
 
 type Driver = {
   employee_id: string;
@@ -1010,6 +1011,8 @@ export function DispatchBoard({
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}
       <DispatchTourRenditeKarte batches={batches as any} />
+      {/* Phase 337: Tour-Profit-Live — Live Touren-Deckungsbeitrag (EUR/Stopp, EUR/km, Δ gestern) */}
+      <DispatchTourProfitLive />
       {/* Tour-Lieferzeit-Rangliste: Aktive Touren nach Pünktlichkeit sortiert */}
       <TourLieferzeitRangliste batches={batches as any} />
       {/* Tour-Risiko-Board: SLA-Risikoanalyse aller aktiven Touren — sortiert nach Kritikalität */}

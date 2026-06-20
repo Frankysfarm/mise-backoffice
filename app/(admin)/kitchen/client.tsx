@@ -105,6 +105,7 @@ import { KitchenStopArrivalPrognose } from './stop-arrival-prognose';
 import { KitchenOrderVerzoegerungsWarnung } from './order-verzoegerungs-warnung';
 import { KitchenDelayAlertBand } from './delay-alert-band';
 import { KitchenAnalyticsStrip } from './analytics-strip';
+import KitchenBestellFlussMonitor from './bestell-fluss-monitor';
 import { KitchenLiveSchichtKpiRing } from './live-schicht-kpi-ring';
 import { KitchenBestellungsTempoMeter } from './bestellungs-tempo-meter';
 import { KitchenSchichtWocheVergleich } from './schicht-woche-vergleich';
@@ -612,6 +613,8 @@ export function KitchenBoard({
       <KitchenKochstartOptimierScore orders={filtered} timings={timings} stops={stops} />
       {/* Phase 321: Analytics-Strip — heutige SLA/Lieferrate/ø Zeit aus Analytics-Dashboard */}
       <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
+      <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}
       <KitchenLiveSchichtKpiRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? undefined) : (locationFilter ?? undefined)} />
       {/* Phase 324: Bestellungs-Tempo-Meter — Echtzeit-Pace vs. Stunden-Ziel mit Tachometer */}

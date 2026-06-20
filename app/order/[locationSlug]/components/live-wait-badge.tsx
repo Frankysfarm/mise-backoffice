@@ -161,3 +161,78 @@ export function LiveWaitBadge({
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Phase 337: Default export — kompaktes Pill-Badge ohne locationId    */
+/* Pollt /api/delivery/eta/live alle 120s, zeigt ~X Min Wartezeit.     */
+/* Farbkodierung: grün ≤20min, amber 20–35min, rot >35min.             */
+/* ------------------------------------------------------------------ */
+
+interface SimpleBadgeData {
+  eta_min: number;
+}
+
+export default function LiveWaitBadgeSimple({ orderType }: { orderType: string }) {
+  const [etaMin, setEtaMin] = React.useState<number | null>(null);
+  const abortRef = React.useRef<AbortController | null>(null);
+
+  const fetchEta = React.useCallback(async () => {
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    try {
+      const res = await fetch('/api/delivery/eta/live', {
+        signal: abortRef.current.signal,
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const json = (await res.json()) as SimpleBadgeData;
+      setEtaMin(json.eta_min ?? null);
+    } catch {
+      // Fallback: keep previous or null → renders default
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchEta();
+    const iv = setInterval(fetchEta, 120_000);
+    return () => {
+      clearInterval(iv);
+      abortRef.current?.abort();
+    };
+  }, [fetchEta]);
+
+  // Display: abholung = ~40% of delivery time, min 10min
+  const rawMin = etaMin ?? 25;
+  const displayMin =
+    orderType === 'abholung'
+      ? Math.max(10, Math.round(rawMin * 0.4))
+      : rawMin;
+
+  const colorClass =
+    displayMin <= 20
+      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+      : displayMin <= 35
+      ? 'bg-amber-100 text-amber-800 border-amber-300'
+      : 'bg-red-100 text-red-800 border-red-300';
+
+  const dotClass =
+    displayMin <= 20
+      ? 'bg-emerald-500'
+      : displayMin <= 35
+      ? 'bg-amber-500'
+      : 'bg-red-500';
+
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-bold',
+      colorClass,
+    )}>
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className={cn('absolute inline-flex h-full w-full animate-ping rounded-full opacity-60', dotClass)} />
+        <span className={cn('relative inline-flex h-2 w-2 rounded-full', dotClass)} />
+      </span>
+      <Clock className="h-3.5 w-3.5 shrink-0" />
+      ~{displayMin} Min
+    </span>
+  );
+}

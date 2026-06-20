@@ -37,6 +37,7 @@ import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
 import { BestellPaceIndikator } from './bestell-pace-indikator';
 import { FahrerNaeheLiveAnzeige } from './fahrer-naehe-live-anzeige';
 import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indikator';
+import LiveWaitBadge from './components/live-wait-badge';
 
 type Props = {
   location: Location;
@@ -486,6 +487,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <ServiceStatusBanner locationId={location.id} />
         </div>
       )}
+      {/* Phase 337: Live-Wait-Badge — kompaktes Wartezeit-Pill je Bestelltyp */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <LiveWaitBadge orderType={orderType} />
+      </div>
       {/* Live-Lieferzeit-Indikator */}
       {orderType === 'lieferung' && (
         <LiveEtaBar locationId={location.id} baseEtaMin={deliveryTimeMin} />
