@@ -94,6 +94,7 @@ import { TourStoppUebersicht } from './tour-stopp-uebersicht';
 import { FahrerStopVerificationPanel } from './stop-verification-panel';
 import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
 import { EchtzeitLeistungsAnzeige } from './echtzeit-leistungs-anzeige';
+import { SchichtUmsatzVelocity } from './schicht-umsatz-velocity';
 
 type Driver = {
   id: string;
@@ -1987,6 +1988,8 @@ export function FahrerApp({
 
         {/* Phase 311: Echtzeit-Leistungs-Anzeige — eigener Live-Score + Rang (Phase-310-API) */}
         {isOnline && <EchtzeitLeistungsAnzeige />}
+        {/* Phase 313: Schicht-Umsatz-Velocity — Umsatz/Stunde Tempo vs. Peak + Prognose */}
+        {isOnline && <SchichtUmsatzVelocity locationId={driver.location_id} />}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (

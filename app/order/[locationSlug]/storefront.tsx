@@ -33,6 +33,7 @@ import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-
 import { WarteschlangenIndikator } from './warteschlangen-indikator';
 import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
 import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
+import { BestellPaceIndikator } from './bestell-pace-indikator';
 
 type Props = {
   location: Location;
@@ -491,6 +492,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <AktuelleLieferzeitWidget locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 313: Bestell-Pace-Indikator — Live-Status (schnell/normal/erhöhte Wartezeit) für Kunden */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <BestellPaceIndikator locationId={location.id} />
         </div>
       )}
 

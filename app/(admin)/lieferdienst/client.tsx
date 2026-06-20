@@ -120,6 +120,7 @@ import { TagesZielCockpit } from './tages-ziel-cockpit'
 import { SchichtzielKonfigPanel } from './schichtziel-konfig-panel'
 import { PersonalPlanungMatrix } from './personal-planung-matrix'
 import { FahrerPerformanceLive } from './fahrer-performance-live'
+import { UmsatzVelocityDashboard } from './umsatz-velocity-dashboard'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1121,6 +1122,8 @@ export function LieferdienstClient() {
               <PersonalPlanungMatrix locationId={locationId} />
               {/* Phase 311: Fahrer-Performance-Live — Live-Score-Ranking aller Fahrer (Phase-310-API) */}
               <FahrerPerformanceLive locationId={locationId} />
+              {/* Phase 313: Umsatz-Velocity-Dashboard — Revenue Velocity Engine (heute/gestern/vorwoche) */}
+              <UmsatzVelocityDashboard locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

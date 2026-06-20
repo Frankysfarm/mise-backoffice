@@ -100,6 +100,7 @@ import { KitchenCookNowPanel } from './cook-now-panel';
 import { KitchenSchichtZielStrip } from './schicht-ziel-strip';
 import { KitchenPausenFensterKarte } from './pausen-fenster-karte';
 import { KitchenSchichtRhythmusMonitor } from './schicht-rhythmus-monitor';
+import { KitchenUmsatzVelocityStrip } from './umsatz-velocity-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -577,6 +578,10 @@ export function KitchenBoard({
       <KitchenPausenFensterKarte orders={filtered} />
       {/* Phase 311: Schicht-Rhythmus-Monitor — Bestellfluss-Analyse letzte 30 Min in 5-Min-Slots */}
       <KitchenSchichtRhythmusMonitor orders={filtered} />
+      {/* Phase 313: Umsatz-Velocity-Strip — Revenue-Velocity mit Heute-vs-Gestern-Chart */}
+      {!bigDisplay && (locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenUmsatzVelocityStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenLiveCookSignal orders={filtered} timings={timings} />
