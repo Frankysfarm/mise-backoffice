@@ -127,6 +127,7 @@ import { snapshotDriverShiftGoalsAllLocations, pruneDriverShiftGoalSnapshots } f
 import { predictAllLocations as predictOrderDelays, settleAllLocations as settleDelayOutcomes, pruneOldDelayPredictions } from '@/lib/delivery/order-delay-prediction';
 import { alertCriticalAllLocations, pruneOldDelayAlerts } from '@/lib/delivery/delay-alert-push';
 import { snapshotAllLocations as snapshotDeliveryAnalytics, pruneOldSnapshots as pruneDeliveryAnalytics } from '@/lib/delivery/delivery-analytics';
+import { autoExpireAllLocations as autoExpireShiftSwaps } from '@/lib/delivery/shift-swap';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -997,6 +998,11 @@ export async function GET(req: NextRequest) {
       pruneDeliveryAnalytics(90).catch(() => {});
     }
 
+    // Phase 324: Shift-Swap — abgelaufene Anfragen schließen (stündlich)
+    const shiftSwapExpireResult = isHourlyTick
+      ? await autoExpireShiftSwaps().catch(() => ({ locations: 0, expired: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1208,6 +1214,7 @@ export async function GET(req: NextRequest) {
       ...(delayPredictionResult.predicted > 0 ? { order_delay_predictions: { locations: delayPredictionResult.locations, predicted: delayPredictionResult.predicted, errors: delayPredictionResult.errors } } : {}),
       ...(delayAlertResult.alerted > 0 ? { delay_alert_push: { locations: delayAlertResult.locations, alerted: delayAlertResult.alerted, errors: delayAlertResult.errors } } : {}),
       ...(deliveryAnalyticsResult ? { delivery_analytics: { locations: deliveryAnalyticsResult.locations, snapshots: deliveryAnalyticsResult.snapshots, errors: deliveryAnalyticsResult.errors } } : {}),
+      ...(shiftSwapExpireResult?.expired ? { shift_swap_expired: shiftSwapExpireResult.expired } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

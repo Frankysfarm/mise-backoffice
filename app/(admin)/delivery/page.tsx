@@ -171,6 +171,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Kapazitätslücken → Schichtentwurf → Ein-Klick-Übertrag · Fahrerzuweisung nach Zuverlässigkeit" cta="Generator öffnen" />
         <SectionCard href="/delivery/shift-claims" icon={<ClipboardCheck className="h-5 w-5" />} title="Schicht-Anmeldungen"
           subtitle="Offene Fahrer-Anmeldungen prüfen und genehmigen" cta="Anmeldungen prüfen" />
+        <SectionCard href="/delivery/shift-swap" icon={<Shuffle className="h-5 w-5" />} title="Schicht-Tausch"
+          subtitle="Peer-to-peer Tausch-Anfragen zwischen Fahrern · Admin-Genehmigung · Limit-Konfiguration" cta="Tausch verwalten" highlight />
         <SectionCard href="/delivery/windows" icon={<CalendarClock className="h-5 w-5" />} title="Lieferfenster"
           subtitle="Zeitslots konfigurieren · Kapazitäten und Buchungen" cta="Fenster verwalten" />
         <SectionCard href="/delivery/surge-prediction" icon={<Flame className="h-5 w-5" />} title="Surge-Prognose"
