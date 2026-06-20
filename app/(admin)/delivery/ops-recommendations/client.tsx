@@ -154,7 +154,7 @@ function RecoCard({
 
       {/* Actions */}
       <div className="flex items-center gap-2 pl-7">
-        {reco.action_label && reco.action_params.path && (
+        {reco.action_label && !!reco.action_params.path && (
           <a
             href={reco.action_params.path as string}
             className="inline-flex items-center gap-1 text-xs font-semibold text-matcha-800 hover:underline"

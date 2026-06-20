@@ -1,7 +1,61 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–341 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (339 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–343 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (341 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #186 — 2026-06-20
+
+### Geprüfte Phasen: Phase 342 Backend (Ops Decision Support Engine) + Phase 343 Frontend (5 Ops-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 1 Fehler gefunden + gefixt → 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (341 Seiten)
+
+**Bug gefunden + gefixt:**
+- `app/(admin)/delivery/ops-recommendations/client.tsx` L157: TS2322 `Type 'unknown' is not assignable to type 'ReactNode'` — `reco.action_params.path` ist `Record<string, unknown>` Wert → in JSX-Kondition als `unknown` interpretiert; Fix: `reco.action_params.path` → `!!reco.action_params.path` (explizites Boolean) ✅
+
+**Neue Komponenten (Phase 343):**
+
+**KitchenOpsRecoStrip** (`app/(admin)/kitchen/ops-reco-strip.tsx`):
+- 60s Polling `/api/delivery/admin/ops-recommendations`, filtert `pending_orders_stale` + `sla_breach_risk`
+- Dismissbarer Strip mit Annehmen/Ignorieren-Buttons, Prioritätsfarbe
+- Integration in kitchen/client.tsx L628 ✅
+
+**DispatchOpsDecisionPanel** (`app/(admin)/dispatch/ops-decision-panel.tsx`):
+- Vollständiges Panel mit allen aktiven Empfehlungen, kollabierbar, 60s Auto-Refresh
+- Annehmen/Ignorieren via POST /api/delivery/admin/ops-recommendations, KPI-Badges
+- Integration in dispatch/client.tsx L1661 ✅
+
+**FahrerSchichtVerdienstLive** (`app/fahrer/app/schicht-verdienst-live.tsx`):
+- Echtzeit P&L: EUR/Stopp, EUR/Std, Schicht-Fortschrittsbalken
+- 30s Polling `/api/delivery/driver/shift-status` (fields: stopsDone/stopsRemaining/avgStopMin/shiftElapsedMin ✅ Match)
+- Integration in fahrer/app/client.tsx L1386 ✅
+
+**LieferdienstOpsRekoKompakt** (`app/(admin)/lieferdienst/ops-reko-kompakt.tsx`):
+- KPI-Raster (Aktiv/Kritisch/Hoch/Erledigt) + Top-Empfehlung Preview
+- Integration in lieferdienst/client.tsx L1170 ✅
+
+**OpsServiceKapazitaetsBand** (`app/order/[locationSlug]/components/ops-service-kapazitaets-band.tsx`):
+- Kunden-seitige Kapazitätsanzeige: Live-ETA, Fahreranzahl, Auslastungsstufe (high/medium/low)
+- Polling `/api/delivery/health?location_id=` (fields: activeDrivers/pendingOrders/etaMin/etaMax ✅ Match)
+- Integration in storefront.tsx L498 ✅
+
+### Status nach Review #186
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (341 Seiten)
+- Phase 342+343: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 1
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 344: Smart Cancellation Guard — automatische Stornierungsprävention (erkennt Kunden mit >1 offener Bestellung, schlägt Voucher-Intervention vor, blockiert Doppelstornierungen)
+2. Oder: Phase 344: Tour Heatmap Engine — Lieferzone-Heatmap aus historischen Touren (Cluster-Analyse, Unterversorgungs-Zonen erkennen, Empfehlung für Fahrerzuteilung)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 344: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. Fokus: Weitere Ops Decision Support Integration — Benachrichtigungs-Center, Alert-History-Panel
 
 ---
 
