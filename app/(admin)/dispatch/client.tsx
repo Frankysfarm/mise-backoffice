@@ -151,6 +151,9 @@ import { DispatchKapazitaetsPuffer } from './kapazitaets-puffer';
 import { DispatchFahrerLeistungsLive } from './fahrer-leistungs-live';
 import { DispatchUmsatzPacePanel } from './umsatz-pace-panel';
 import { DispatchStopAnkunftsMatrix } from './stop-ankunfts-matrix';
+import { DispatchDelayRisikoAmpel } from './delay-risiko-ampel';
+import { DispatchDelayRisikoBestellungen } from './delay-risiko-bestellungen';
+import { DispatchDelayPredictionTrigger } from './delay-prediction-trigger';
 
 type Driver = {
   employee_id: string;
@@ -1457,6 +1460,12 @@ export function DispatchBoard({
       <DispatchUmsatzPacePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 315: Stopp-Ankunfts-Matrix — Echtzeit ETA + Risiko aller aktiven Tour-Stopps */}
       <DispatchStopAnkunftsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 317: Verspätungs-Risiko-Ampel — KI-Delay-Score-Übersicht aller aktiven Bestellungen */}
+      <DispatchDelayRisikoAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 317: Verspätungs-Risiko-Bestellungen — Detail-Liste at-risk Orders mit Faktor-Breakdown */}
+      <DispatchDelayRisikoBestellungen locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 317: Delay-Prediction-Trigger — Manueller KI-Vorhersage-Trigger für Dispatcher */}
+      <DispatchDelayPredictionTrigger locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (
