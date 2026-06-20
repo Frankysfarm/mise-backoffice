@@ -266,6 +266,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="ML-Vorhersage je Menü-Artikel · Lagerstand-Tracking · Reorder-Point-Kalkulation · Alarm bei kritischem Bestand · EOQ" cta="Prognose öffnen" highlight />
         <SectionCard href="/delivery/driver-ramp-up" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer Ramp-Up Intelligence"
           subtitle="Neue Fahrer in den ersten 60 Tagen · 4-Faktoren-Score · Struggling/Developing/Promising · Coaching-Flags · Retention-Prognose" cta="Ramp-Up öffnen" highlight />
+        <SectionCard href="/delivery/zone-batch-optimizer" icon={<Route className="h-5 w-5" />} title="Zone Batch Optimizer"
+          subtitle="Gruppiert Bestellungen automatisch nach Lieferzone · Haversine km-Einsparung · Score 0–100 · Auto-Apply ab Schwelle · 3-Min-Cron" cta="Optimizer öffnen" highlight />
       </SectionGroup>
 
       {/* ── Finanzen ─────────────────────────────────────────── */}

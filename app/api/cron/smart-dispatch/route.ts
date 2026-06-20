@@ -140,6 +140,7 @@ import { runRecsAllLocations, pruneOldRecommendations } from '@/lib/delivery/ops
 import { pruneOldEvents as pruneCancellationGuardEvents } from '@/lib/delivery/cancellation-guard';
 import { computeHeatmapAllLocations, pruneOldTiles as pruneTourHeatmapTiles } from '@/lib/delivery/tour-heatmap';
 import { pruneOldRequests as pruneDriverLendingRequests } from '@/lib/delivery/driver-lending';
+import { generateAllLocations as generateZoneBatchSuggestions, pruneOldSuggestions as pruneZoneBatchSuggestions } from '@/lib/delivery/zone-batch-optimizer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -302,6 +303,9 @@ export async function GET(req: NextRequest) {
     const isIncentiveV2ApproveTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
     // Phase 336: Smart Reorder Notifications — alle 15 Min (Minuten :00, :15, :30, :45)
     const isReorderNotifyTick = nowMin % 15 < 2;
+    // Phase 349: Zone Batch Optimizer — alle 3 Min; Prune täglich 06:40 UTC
+    const isZoneBatchTick = nowMin % 3 < 2;
+    const isZoneBatchPruneTick = nowHour === 6 && nowMin >= 40 && nowMin < 44;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1111,6 +1115,14 @@ export async function GET(req: NextRequest) {
       ? await pruneDriverLendingRequests(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 349: Zone Batch Optimizer — alle 3 Min
+    const zoneBatchResult = isZoneBatchTick
+      ? await generateZoneBatchSuggestions().catch(() => ({ locations: 0, ordersScanned: 0, suggestionsCreated: 0, autoApplied: 0, errors: 0 }))
+      : null;
+    const zoneBatchPruned = isZoneBatchPruneTick
+      ? await pruneZoneBatchSuggestions(30).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1343,6 +1355,8 @@ export async function GET(req: NextRequest) {
       ...(tourHeatmapResult ? { tour_heatmap: { locations: tourHeatmapResult.locations, tiles: tourHeatmapResult.tilesUpserted, underserved: tourHeatmapResult.underservedUpserted } } : {}),
       ...(tourHeatmapPruned ? { tour_heatmap_pruned: tourHeatmapPruned } : {}),
       ...(driverLendingPruned?.pruned ? { driver_lending_pruned: driverLendingPruned.pruned } : {}),
+      ...(zoneBatchResult?.suggestionsCreated ? { zone_batch_optimizer: { locations: zoneBatchResult.locations, orders_scanned: zoneBatchResult.ordersScanned, suggestions: zoneBatchResult.suggestionsCreated, auto_applied: zoneBatchResult.autoApplied } } : {}),
+      ...(zoneBatchPruned?.pruned ? { zone_batch_pruned: zoneBatchPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
