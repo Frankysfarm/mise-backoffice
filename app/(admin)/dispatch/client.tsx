@@ -178,6 +178,7 @@ import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
 import { DispatchTagesZusammenfassung } from './tages-zusammenfassung';
 import { DispatchOffeneWarteschlange } from './offene-warteschlange';
 import { DispatchTourFeedbackMonitor } from './tour-feedback-monitor';
+import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
 
 type Driver = {
   employee_id: string;
@@ -1038,6 +1039,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Echtzeit-Tour-Score-Feed: Live-Effizienz-Ranking aller aktiven Touren mit Trend-Indikatoren */}
+      <DispatchTourScoreLiveFeed batches={batches} />
       {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}

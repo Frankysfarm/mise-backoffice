@@ -148,6 +148,7 @@ import { LieferdienstEngagementWochenPanel } from './engagement-wochen-panel'
 import { WochenVergleichAnalytik } from './wochen-vergleich-analytik'
 import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-vergleich'
 import { LieferdienstAbdeckungsRisikoWidget } from './abdeckungs-risiko-widget'
+import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1203,6 +1204,8 @@ export function LieferdienstClient() {
               <WochenVergleichAnalytik />
               {/* Phase 352: Fahrer-Leistungsvergleich — Top vs. Bottom Performer Side-by-Side */}
               <LieferdienstFahrerLeistungsVergleich locationId={locationId ?? undefined} />
+              {/* Echtzeit-Profit-Cockpit: Live-Gewinnmarge, Umsatz/Std vs. Ziel, Fahrer-Kosten, 6-Stunden-Verlauf */}
+              <EchtzeitProfitCockpit />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

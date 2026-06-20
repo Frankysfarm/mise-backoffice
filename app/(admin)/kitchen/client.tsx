@@ -128,6 +128,7 @@ import { KitchenLiveBestellMatrix } from './live-bestell-matrix';
 import { KitchenBatchPickupCountdown } from './batch-pickup-countdown';
 import { KitchenPrepFlowKanban } from './prep-flow-kanban';
 import { KitchenAbwesenHeuteStrip } from './abwesen-heute-strip';
+import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -754,6 +755,8 @@ export function KitchenBoard({
       <KitchenBatchDeparturePanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Batch-Koordination: welche Bestellungen in denselben Batch gehören und bis wann fertig sein müssen */}
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
+      {/* Batch-Timing-Koordinator: Bestellungen gruppiert nach Fahrer-Batch mit ETA-Countdown und Urgency-Farbkodierung */}
+      <KitchenBatchTimingKoordinator orders={filtered} batches={batches.map(b => ({ ...b, startzeit: (b as any).started_at ?? null, fahrer: (b as any).fahrer ?? null }))} timings={timings} />
       {/* Phase 275: KI-Kochstart-Planung — Rückkehr-Vorhersage → optimaler Kochstart */}
       <KitchenDriverReturnKochstart locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}

@@ -36,6 +36,7 @@ import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-sta
 import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wartezeit-ring';
 import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdown-v2';
 import { TourDeliveredFeedback } from './tour-delivered-feedback';
+import { LiveDeliveryCountdown } from './live-delivery-countdown';
 
 type Order = {
   order_id: string;
@@ -483,6 +484,20 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
               orderType={order.typ}
             />
           </div>
+        )}
+
+        {/* Live-Lieferungs-Countdown: Farbring + Schritt-Stepper für Lieferungsstatus */}
+        {order.typ === 'lieferung' && (
+          <LiveDeliveryCountdown
+            status={order.status}
+            etaEarliest={order.eta_earliest}
+            etaLatest={order.eta_latest}
+            bestellt_am={order.bestellt_am}
+            fertig_am={order.fertig_am}
+            geliefert_am={order.geliefert_am}
+            driverName={order.fahrer_vorname}
+            stopsMeta={stopsBefore != null ? { current: stopsBefore, total: stopsBefore + 1 } : null}
+          />
         )}
 
         {/* ETA-Live-Countdown V2: Visuelle ETA-Anzeige mit Fortschrittsring + Statusflow */}

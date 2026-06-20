@@ -119,6 +119,7 @@ import { FahrerMeinEngagement } from './mein-engagement';
 import { FahrerTourNavigatorPro } from './tour-navigator-pro';
 import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
+import { SmartStopActionCard } from './smart-stop-action-card';
 
 type Driver = {
   id: string;
@@ -1081,6 +1082,27 @@ export function FahrerApp({
                   lng={nextStop.order.kunde_lng ?? null}
                   stopNumber={nextStop.reihenfolge}
                   isCurrentStop={true}
+                />
+              </div>
+            );
+          })()}
+          {/* Smart-Stop-Action-Card: Navi-Kurzwahlen + Kundendaten + große Aktions-Buttons */}
+          {(() => {
+            const currentStop = activeBatch.stops
+              .filter(s => !s.geliefert_am)
+              .sort((a, b) => a.reihenfolge - b.reihenfolge)[0];
+            if (!currentStop?.order) return null;
+            const completedCount = activeBatch.stops.filter(s => s.geliefert_am).length;
+            return (
+              <div className="px-4">
+                <SmartStopActionCard
+                  stop={currentStop as any}
+                  stopIndex={completedCount + 1}
+                  totalStops={activeBatch.stops.length}
+                  driverLat={driverPos?.lat ?? null}
+                  driverLng={driverPos?.lng ?? null}
+                  onMarkArrived={markArrived}
+                  onMarkDelivered={markDelivered}
                 />
               </div>
             );
