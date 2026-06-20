@@ -126,6 +126,7 @@ import { snapshotRevenueVelocityAllLocations, pruneRevenueVelocitySnapshots } fr
 import { snapshotDriverShiftGoalsAllLocations, pruneDriverShiftGoalSnapshots } from '@/lib/delivery/driver-shift-goals';
 import { predictAllLocations as predictOrderDelays, settleAllLocations as settleDelayOutcomes, pruneOldDelayPredictions } from '@/lib/delivery/order-delay-prediction';
 import { alertCriticalAllLocations, pruneOldDelayAlerts } from '@/lib/delivery/delay-alert-push';
+import { snapshotAllLocations as snapshotDeliveryAnalytics, pruneOldSnapshots as pruneDeliveryAnalytics } from '@/lib/delivery/delivery-analytics';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -281,6 +282,9 @@ export async function GET(req: NextRequest) {
     const isDelayPredictionPruneTick  = nowHour === 5 && nowMin >= 34 && nowMin < 38;
     // Phase 318: Delay Alert Push — jeden Tick (proaktiver Kunden-Push bei critical risk); prune täglich 05:40 UTC
     const isDelayAlertPruneTick = nowHour === 5 && nowMin >= 39 && nowMin < 43;
+    // Phase 320: Delivery Analytics Snapshot — täglich 02:05 UTC (nach Report-Cache); prune täglich 05:45 UTC
+    const isDeliveryAnalyticsTick = nowHour === 2 && nowMin >= 5 && nowMin < 9;
+    const isDeliveryAnalyticsPruneTick = nowHour === 5 && nowMin >= 44 && nowMin < 48;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -985,6 +989,14 @@ export async function GET(req: NextRequest) {
       pruneOldDelayAlerts(30).catch(() => {});
     }
 
+    // Phase 320: Delivery Analytics Snapshot — täglich 02:05 UTC
+    const deliveryAnalyticsResult = isDeliveryAnalyticsTick
+      ? await snapshotDeliveryAnalytics().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    if (isDeliveryAnalyticsPruneTick) {
+      pruneDeliveryAnalytics(90).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1195,6 +1207,7 @@ export async function GET(req: NextRequest) {
       ...(driverShiftGoalResult?.saved ? { driver_shift_goals: { locations: driverShiftGoalResult.locations, saved: driverShiftGoalResult.saved, errors: driverShiftGoalResult.errors } } : {}),
       ...(delayPredictionResult.predicted > 0 ? { order_delay_predictions: { locations: delayPredictionResult.locations, predicted: delayPredictionResult.predicted, errors: delayPredictionResult.errors } } : {}),
       ...(delayAlertResult.alerted > 0 ? { delay_alert_push: { locations: delayAlertResult.locations, alerted: delayAlertResult.alerted, errors: delayAlertResult.errors } } : {}),
+      ...(deliveryAnalyticsResult ? { delivery_analytics: { locations: deliveryAnalyticsResult.locations, snapshots: deliveryAnalyticsResult.snapshots, errors: deliveryAnalyticsResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

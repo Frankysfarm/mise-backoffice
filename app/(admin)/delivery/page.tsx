@@ -119,6 +119,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Geplante Lieferungen · manuelle Freigabe" cta="Vorbestellungen" />
         <SectionCard href="/delivery/trends" icon={<TrendingDown className="h-5 w-5" />} title="Tages-Trends"
           subtitle="Heute vs. gestern · Bestellungen, Lieferungen und Bewertungen" cta="Trends ansehen" />
+        <SectionCard href="/delivery/analytics" icon={<BarChart3 className="h-5 w-5" />} title="Delivery Analytics"
+          subtitle="Lieferrate · ø Lieferzeit · SLA-Einhaltung · Top-Fahrer · 30-Tage-Trend" cta="Analytics öffnen" highlight />
       </SectionGroup>
 
       {/* ── Fahrer ───────────────────────────────────────────── */}
