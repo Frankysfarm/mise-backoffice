@@ -756,7 +756,7 @@ export function KitchenBoard({
       {/* Batch-Koordination: welche Bestellungen in denselben Batch gehören und bis wann fertig sein müssen */}
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Batch-Timing-Koordinator: Bestellungen gruppiert nach Fahrer-Batch mit ETA-Countdown und Urgency-Farbkodierung */}
-      <KitchenBatchTimingKoordinator orders={filtered} batches={batches.map(b => ({ ...b, startzeit: (b as any).started_at ?? null, fahrer: (b as any).fahrer ?? null }))} timings={timings} />
+      <KitchenBatchTimingKoordinator orders={filtered} batches={batches.map(b => ({ ...b, fahrer_id: b.driver_id, startzeit: (b as any).started_at ?? null, fahrer: (b as any).fahrer ?? null, stops: stops.filter((s) => (s as any).batch_id === b.id) }))} timings={timings} />
       {/* Phase 275: KI-Kochstart-Planung — Rückkehr-Vorhersage → optimaler Kochstart */}
       <KitchenDriverReturnKochstart locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
