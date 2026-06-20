@@ -11,7 +11,7 @@ import {
   UserX, Flame, Route, HeartPulse, MapPinOff, GitCompare, UtensilsCrossed, CalendarRange, MailCheck,
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
-  BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered,
+  BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -105,6 +105,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Ohne Fahrer seit >10 Min · Eskalationsstatus" cta="Prüfen" />
         <SectionCard href="/delivery/gps-trails" icon={<MapPinned className="h-5 w-5" />} title="GPS-Fahrerspuren"
           subtitle="Live-Positionen · Fahrspuren der letzten 30 Minuten" cta="GPS ansehen" />
+        <SectionCard href="/delivery/geofence" icon={<Radio className="h-5 w-5" />} title="Geofence-Engine"
+          subtitle="Automatische Kunden-Pushes bei Fahrer-Annäherung · Ring 1 (300m) + Ring 2 (150m) · Konfigurierbar" cta="Geofence öffnen" highlight />
         <SectionCard href="/delivery/performance" icon={<Gauge className="h-5 w-5" />} title="Fahrer-Performance live"
           subtitle="Lieferungen heute, Kapazität und aktiver Batch-Status" cta="Performance" />
         <SectionCard href="/delivery/live-ops" icon={<MonitorDot className="h-5 w-5" />} title="Live-Ops Command Center"

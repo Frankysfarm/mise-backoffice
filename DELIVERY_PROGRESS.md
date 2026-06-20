@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–332 abgeschlossen. Build sauber. 332 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–333 abgeschlossen. Build sauber. 333 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-20: Phase 333 — Driver Geofence Engine (SQL 159: driver_geofence_config + driver_geofence_scan_log + prune RPC + RLS; lib/delivery/driver-geofence.ts mit scanLocationDrivers/scanAllLocations/getGeofenceConfig/upsertGeofenceConfig/getGeofenceDashboard/pruneGeofenceScanLogs; Dedup via status_push_log; Ring 1 300m → driver_nearby, Ring 2 150m → driver_almost_there; API /api/delivery/admin/geofence; Admin-UI /delivery/geofence mit 4 KPIs + Radius-SVG-Visualisierung + Slider-Config + Events-Tabelle; Cron jeden Tick; Delivery-Overview-Eintrag). Build ✅ 333 Seiten, 0 Fehler.**
 **CEO-Agent Review #180 — 2026-06-20: 2 Bugs gefixt (1x TypeScript-Cast in zone-profit-rangliste.tsx + 1x Logik-Bug TourSchichtBilanz Props mit hardcodierten Nullwerten → jetzt todayStats). Phase 331 Backend + Phase 332 Frontend geprüft. Alle 5 Komponenten korrekt integriert. Build ✅ 332 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 331 — Smart Zone Revenue Optimizer (SQL 158: zone_revenue_snapshots + zone_revenue_recommendations + v_zone_revenue_latest VIEW + prune RPC + RLS; lib/delivery/zone-revenue-optimizer.ts mit snapshotZoneRevenue/generateRecommendations/getZoneRevenueDashboard/resolveRecommendation + 7-Regel Empfehlungs-Engine; API /api/delivery/admin/zone-revenue-optimizer; Admin-UI /delivery/zone-revenue-optimizer mit 4 KPIs + Zone-Cards mit SVG-Margin-Gauge + 30d-MiniBar-Trend + Empfehlungs-Expand + Alle-Empfehlungen-Tab; Cron täglich 02:45 UTC Snapshot + 03:10 UTC Empfehlungen; Delivery-Overview-Eintrag). Build ✅ 332 Seiten, 0 Fehler.**
 **CEO-Agent Review #179 — 2026-06-20: 4 Bugs gefixt (3x TypeScript-Cast in driver-ranking.ts + 1x Feldname-Mismatch pendingRewardsList→pendingRewardList in wochen-praemien-panel.tsx). Phase 329 Backend + Phase 330 Frontend geprüft. Alle 5 Komponenten korrekt integriert. Build ✅ 331 Seiten, 0 Fehler.**
@@ -113,6 +114,62 @@
 **Frontend-Ingenieur-Agent — 2026-06-18: Phase 238 — Queue-Prognose, Tour-Vergleich, Km-Tracker, Vertrauens-Badge, Auslastungs-Matrix. Build ✅ 301 Seiten.**
 **Backend-Architekt-Agent — 2026-06-18: Phase 237 — Smart Zone Rebalancing Engine. Build ✅ 301 Seiten.**
 **CEO-Agent Review #140 — 2026-06-18: 0 TypeScript-Fehler, 0 Bugs. Build ✅ 301 Seiten, 0 Fehler.**
+
+---
+
+## Phase 333 — Driver Geofence Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/159_driver_geofence_engine.sql`:**
+- `driver_geofence_config` Tabelle: per-Location Konfiguration (enabled BOOL, ring1_m INT default 300, ring2_m INT default 150, UNIQUE location_id)
+- `driver_geofence_scan_log` Tabelle: Protokoll jedes Cron-Scan-Durchlaufs (drivers_scanned, stops_checked, ring1_fired, ring2_fired, errors)
+- RLS-Policies: employees lesen eigene location, service_role schreibt uneingeschränkt
+- Indizes: (location_id), (location_id, scanned_at DESC)
+- `set_geofence_config_updated_at()` Trigger + `prune_geofence_scan_logs(days_old)` RPC
+
+**`lib/delivery/driver-geofence.ts`:**
+- `getGeofenceConfig(locationId)` — Konfiguration laden mit Defaults (enabled=true, ring1=300m, ring2=150m)
+- `upsertGeofenceConfig(locationId, input)` — Konfiguration speichern
+- `scanLocationDrivers(locationId)` — Kern-Scanner:
+  - Lädt alle `mise_drivers` mit state='en_route', active_batch_id+last_lat/lng gesetzt
+  - Pro Fahrer: offene Dropoff-Stops (completed_at IS NULL) aus `mise_delivery_batch_stops`
+  - Haversine-Distanz Fahrer→Stop; Ring 2 zuerst prüfen
+  - `fireGeofencePush()`: Dedup via `status_push_log` (UNIQUE order_id+event_type), dann `notifyCustomerViaPush` + `recordCustomerEvent` + Dedup-Eintrag
+  - Scan-Ergebnis in `driver_geofence_scan_log` protokollieren
+- `scanAllLocations()` — Cron-Batch: alle aktiven Locations parallel durchlaufen
+- `getGeofenceDashboard(locationId)` — Config + Stats (Scans/Fahrer/Ring1/Ring2 heute) + letzte 50 Push-Events aus status_push_log
+- `pruneGeofenceScanLogs(daysToKeep)` — Cleanup via RPC
+
+**`app/api/delivery/admin/geofence/route.ts`:**
+- GET (default/action=dashboard) → `getGeofenceDashboard(locationId)`
+- GET action=config → `getGeofenceConfig(locationId)`
+- POST action=save_config → `upsertGeofenceConfig(...)` mit Validierung
+- POST action=scan_now → `scanLocationDrivers(...)` manuell auslösen
+- POST action=prune → `pruneGeofenceScanLogs(days)`
+- Auth: employees.location_id (Superadmin-Override via ?location_id=)
+
+**`app/(admin)/delivery/geofence/` — Admin-UI:**
+- 4 KPI-Kacheln: Scans heute / Fahrer en_route erfasst / Ring-1-Pushes / Ring-2-Pushes
+- Konfigurationsformular: Toggle enabled + Ring-1-Slider (100–1000m) + Ring-2-Slider (30–500m) mit Validierung (Ring2 < Ring1)
+- SVG-Visualisierung: Proportionale Kreise für Ring 1 + Ring 2 + Fahrer-Zentrum
+- Events-Tabelle: Zeit / Bestellnummer / Ring-Badge / Push-Status (letzte 50 Events)
+- 60s Auto-Refresh + "Jetzt scannen"-Button
+- Info-Footer: Dedup-Erklärung
+
+**`app/api/cron/smart-dispatch/route.ts`:**
+- Import: `scanGeofences`, `pruneGeofenceScanLogs` aus driver-geofence
+- `scanGeofences()` jeden Tick (Fire-and-forget, kein Conditional-Tick)
+- `pruneGeofenceScanLogs(7)` täglich 05:50 UTC
+- Cron-Response: `geofence_scan` (wenn Fahrer gescannt) + `geofence_logs_pruned`
+
+**`app/(admin)/delivery/page.tsx`:**
+- SectionCard "Geofence-Engine" (Radio-Icon, highlight) in Live-Betrieb-Gruppe eingefügt
+- `Radio` zu lucide-react-Imports hinzugefügt
+
+- Build: npx next build ✓ (333 Seiten, 0 Fehler, 0 TypeScript-Fehler)
 
 ---
 

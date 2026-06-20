@@ -130,6 +130,7 @@ import { snapshotAllLocations as snapshotDeliveryAnalytics, pruneOldSnapshots as
 import { autoExpireAllLocations as autoExpireShiftSwaps } from '@/lib/delivery/shift-swap';
 import { computeWeeklyRankingAllLocations, pruneOldRankings as pruneDriverRankings } from '@/lib/delivery/driver-ranking';
 import { snapshotAllLocations as snapshotZoneRevenue, generateRecommendationsAllLocations as generateZoneRevenueRecs, pruneZoneRevenueSnapshots } from '@/lib/delivery/zone-revenue-optimizer';
+import { scanAllLocations as scanGeofences, pruneGeofenceScanLogs } from '@/lib/delivery/driver-geofence';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1027,6 +1028,14 @@ export async function GET(req: NextRequest) {
       ? await pruneZoneRevenueSnapshots(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 333: Driver Geofence Engine — jeden Tick (Position → Push bei Annäherung)
+    const geofenceScanResult = await scanGeofences().catch(() => ({ locations: 0, driversScanned: 0, ring1Fired: 0, ring2Fired: 0, errors: 0 }));
+    // Geofence-Log Prune: täglich 05:50 UTC
+    const isGeofencePruneTick = nowHour === 5 && nowMin >= 50 && nowMin < 54;
+    const geofenceLogsPruned = isGeofencePruneTick
+      ? await pruneGeofenceScanLogs(7).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1244,6 +1253,8 @@ export async function GET(req: NextRequest) {
       ...(zoneRevenueSnapResult ? { zone_revenue_snapshots: { locations: zoneRevenueSnapResult.locations, snapshots: zoneRevenueSnapResult.snapshots, errors: zoneRevenueSnapResult.errors } } : {}),
       ...(zoneRevenueRecsResult ? { zone_revenue_recommendations: { locations: zoneRevenueRecsResult.locations, recs: zoneRevenueRecsResult.recs, errors: zoneRevenueRecsResult.errors } } : {}),
       ...(zoneRevenuePruned ? { zone_revenue_pruned: zoneRevenuePruned.pruned } : {}),
+      ...(geofenceScanResult.driversScanned > 0 ? { geofence_scan: { locations: geofenceScanResult.locations, drivers: geofenceScanResult.driversScanned, ring1: geofenceScanResult.ring1Fired, ring2: geofenceScanResult.ring2Fired } } : {}),
+      ...(geofenceLogsPruned ? { geofence_logs_pruned: geofenceLogsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
