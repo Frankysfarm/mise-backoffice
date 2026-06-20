@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–321 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (329 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–323 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (329 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #177 — 2026-06-20
+
+### Geprüfte Phasen: Phase 322 Backend (Analytics-Export-API CSV+PDF) + Phase 323 Frontend (5 Smart-KPI-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (329 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 323):**
+
+**KitchenLiveSchichtKpiRing (`app/(admin)/kitchen/live-schicht-kpi-ring.tsx`):**
+- SVG-Donut-Ringe für Effizienz/Pünktlichkeit/Durchsatz mit Farbkodierung (grün/gelb/orange/rot) ✅
+- 60s Polling auf `/api/delivery/admin/analytics?action=dashboard`, Fallback auf Mock ✅
+- Integration in kitchen/client.tsx L605 korrekt ✅
+
+**DispatchZonenScoreMatrix (`app/(admin)/dispatch/zonen-score-matrix.tsx`):**
+- 6-Zonen-Raster mit Score-Balken, Delta-Pfeilen, Active-Tours + Ø-Zeit ✅
+- 45s Polling auf `/api/delivery/dispatch/scores`, Fallback auf MOCK_ZONES ✅
+- Integration in dispatch/client.tsx L1477 korrekt ✅
+
+**FahrerSchichtAusblick (`app/fahrer/app/schicht-ausblick.tsx`):**
+- Einnahmen-Prognose basierend auf Schicht-Fortschritt + bisherigen Einnahmen ✅
+- Props: bisherige_einnahmen, stops_erledigt, schicht_start — korrekt berechnet ✅
+- Integration in fahrer/app/client.tsx L1319 korrekt ✅
+
+**BestellStatusMiniTracker (`app/order/[locationSlug]/bestell-status-mini-tracker.tsx`):**
+- 3-Schritt-Fortschrittsbalken (Zubereitung → Unterwegs → Geliefert) ✅
+- 20s Polling auf `/api/delivery/customer/tracking?order_id=`, statusMapping korrekt ✅
+- Integration in tracking.tsx L489 korrekt ✅
+
+**SchichtNachrichtenCenter (`app/(admin)/lieferdienst/schicht-nachrichten-center.tsx`):**
+- Echtzeit-Ereignis-Timeline mit 6 Event-Typen (alert/success/driver/kpi/delay/info) ✅
+- 30s Polling auf `/api/delivery/admin/events?location_id=`, Fallback auf Mock-Events ✅
+- Integration in lieferdienst/client.tsx L1144 korrekt ✅
+
+**Neue Backend-Funktionen (Phase 322):**
+
+**Analytics-Export-API (`app/api/delivery/admin/analytics/export/route.ts`):**
+- GET ?format=csv|pdf&from&to — vollständige Auth-Logik via employees.location_id ✅
+- CSV: UTF-8-BOM, Semikolon-Trennzeichen, Zusammenfassungs-Block ✅
+- PDF: @react-pdf/renderer AnalyticsDocument — A4-Bericht mit KPI-Boxen + Tages-Tabelle ✅
+- Export-Buttons im Admin-UI (analytics/client.tsx) mit Blob-Download + Loading-State ✅
+
+**Bugs gefunden:** 0
+**Bugs gefixt:** 0 (Phase 322+323 sauber)
+
+### Status nach Review #177
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (329 Seiten)
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront ↔ Lieferdienst: synchron ✅
+- Phase 322 Backend + Phase 323 Frontend: DONE ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 324: Auto-Dispatch V2 — Intelligente Fahrerzuweisung mit Score-basiertem Matching + Surge-Awareness
+2. Oder: Phase 324: Driver Earnings Settlement API — Automatische Abrechnung von Fahrer-Provisionen pro Schicht
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 324: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. /api/delivery/dispatch/scores Endpunkt: echte Zonen-Daten liefern (aktuell nur Mock)
 
 ---
 
