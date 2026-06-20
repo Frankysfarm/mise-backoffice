@@ -22,6 +22,7 @@ import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
 import { EtaLiveCountdown } from './eta-live-countdown';
 import { BestellDelayBanner } from '../bestell-delay-banner';
 import { BestellTeilenWidget } from '../bestell-teilen-widget';
+import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -77,6 +78,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   const [statusFlash, setStatusFlash] = React.useState(false);
   const [driverName, setDriverName] = React.useState<string | null>(null);
   const [shared, setShared] = React.useState(false);
+  const [delayBannerDismissed, setDelayBannerDismissed] = React.useState(false);
   const [rating, setRating] = React.useState(0);
   const [ratingHover, setRatingHover] = React.useState(0);
   const [ratingPending, setRatingPending] = React.useState(false);
@@ -704,6 +706,22 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             />
           </div>
         )}
+
+        {/* Phase 319: Verspätungs-Info-Banner — einfache Kunden-Kommunikation bei Delay-Alert */}
+        {isDelivery && !delayBannerDismissed && secsLeft <= 0 &&
+          liveStatus !== 'geliefert' && liveStatus !== 'abgeholt' && etaWindow && (() => {
+            const extraMin = Math.floor((Date.now() - new Date(etaWindow.latest).getTime()) / 60_000);
+            if (extraMin < 1) return null;
+            return (
+              <div className="mt-3 w-full">
+                <VerzoegerungsInfoBanner
+                  estimatedExtraMin={extraMin}
+                  onDismiss={() => setDelayBannerDismissed(true)}
+                />
+              </div>
+            );
+          })()
+        }
 
         {/* Phase 271: Live-ETA-Countdown — Sekundengenauer Countdown mit Phasen-Icon und Farbcodierung */}
         {isDelivery && orderId && liveStatus !== 'geliefert' && (

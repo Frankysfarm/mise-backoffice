@@ -1,7 +1,70 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–317 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (327 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–319 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (328 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #175 — 2026-06-20
+
+### Geprüfte Phasen: Phase 318 Backend (Delay-Aware Customer Push Alert Engine) + Phase 319 Frontend (5 Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (328 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 319):**
+
+**KitchenDelayAlertBand (`app/(admin)/kitchen/delay-alert-band.tsx`):**
+- 90s Polling auf `/api/delivery/admin/delay-alert-push?action=stats` ✅
+- Scan-Now-Button (POST scan_now) direkt auslösbar aus Küche ✅
+- Farbcodierung: urgend (>2 kritisch) → rot, 1-2 kritisch → amber, OK → matcha ✅
+- Integration in kitchen/client.tsx L598 korrekt ✅
+
+**DispatchDelayAlertStatistik (`app/(admin)/dispatch/delay-alert-statistik.tsx`):**
+- 60s Auto-Refresh, zeigt alertsToday + suppressedTotal + criticalActiveNow ✅
+- Scan-Now-Button mit Ergebnis-Feedback (alerted/suppressed/errors) ✅
+- Integration in dispatch/client.tsx L1471 korrekt ✅
+
+**FahrerDelayAlertHinweis (`app/fahrer/app/delay-alert-hinweis.tsx`):**
+- Nur sichtbar wenn `batchHasCriticalOrder && alertsToday > 0` ✅
+- Informiert Fahrer: Kunde wurde benachrichtigt → kein Konflikt bei Übergabe ✅
+- Integration in fahrer/app/client.tsx L1310 korrekt ✅
+
+**LieferdienstDelayAlertKpi (`app/(admin)/lieferdienst/delay-alert-kpi.tsx`):**
+- KPI-Grid: heute gesendet / kritisch aktiv / unterdrückt ✅
+- 120s Auto-Refresh, hasCritical → rotes Highlight ✅
+- Integration in lieferdienst/client.tsx L1138 korrekt ✅
+
+**VerzoegerungsInfoBanner (`app/order/[locationSlug]/verzoegerungs-info-banner.tsx`):**
+- Props-basiert (kein API-Call, keine Admin-Auth nötig) ✅
+- Zeigt Kunden freundliche Verspätungs-Info + schätzt Extra-Minuten ✅
+- **Bug gefunden: Fehlende Integration** — Komponente war nirgends eingebunden
+- **Fix**: Integriert in `success-state.tsx` nach BestellDelayBanner:
+  - Zeigt nur wenn `secsLeft <= 0 && liveStatus nicht terminal && extraMin >= 1` ✅
+  - Dismissable via `onDismiss` → `setDelayBannerDismissed(true)` ✅
+  - Verhindert Doppel-Banner: zeigt sich erst wenn countdown abgelaufen ✅
+
+**Backend-Engine (Phase 318):**
+- `alertCriticalOrders(locationId)`: kritische Prognosen (risk_level=critical) → Push an Kunden ✅
+- Dedup via `delay_push_alerts` Tabelle — kein Spam ✅
+- `getDelayAlertStats()`: Tagesstatistik (alertsToday/suppressedTotal/criticalActiveNow) ✅
+- Cron-Integration für batch-Verarbeitung aller Locations ✅
+
+**Bug gefunden + gefixt:**
+- `VerzoegerungsInfoBanner` war nicht eingebunden — Storefront-Kunden sahen das Banner nie
+- Fix: Integration in `success-state.tsx` mit Dismiss-State und korrekter Trigger-Logik
+
+### Status nach Review #175
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (328 Seiten)
+- Phase 318+319: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Delay-Alert-Pipeline vollständig: Backend scannt → Push an Kunde → Storefront zeigt Banner ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 320: Delivery Analytics Dashboard — aggregierte Lieferkennzahlen (täglicher/wöchentlicher Überblick: Lieferquote, ø-Zeit, SLA-Einhaltung, Top-Fahrer)
+2. Alternativ: Phase 320 — Tour-Optimierung: automatische Stop-Reihenfolge per ML-Score (TSP-Näherung mit Zeitfenstern)
 
 ---
 
