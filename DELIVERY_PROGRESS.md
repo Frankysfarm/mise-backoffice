@@ -1,7 +1,46 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–353 abgeschlossen. Build sauber. 348 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–355 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 355 — Absence-Aware Dispatch + Tour-Feedback-Loop (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`lib/delivery/dispatch-engine.ts` — Abwesenheits-Filter:**
+- `loadActiveDrivers()` schließt Fahrer mit genehmigter Abwesenheit heute automatisch aus
+- Query auf `driver_absences` (status='approved', start_date ≤ heute ≤ end_date) nach Compliance-Block
+- Graceful Fallback wenn Tabelle fehlt; kein N+1 (einzelne IN-Query)
+
+**`scripts/migrations/171_tour_feedback.sql`:**
+- `tour_feedback` — Fahrer-Bewertungen nach Tour-Abschluss: `difficulty_rating`, `traffic_rating`, `customer_rating` (1-5), Issue-Flags (parking/customer/nav/address), `driver_notes`, `overall_score` GENERATED STORED (0.3×difficulty + 0.3×traffic + 0.4×customer); UNIQUE(batch_id, driver_id); 2 Indizes; RLS; `prune_tour_feedback(days_to_keep)` RPC
+
+**`lib/delivery/tour-feedback.ts`:**
+- `submitTourFeedback(input)` — Upsert (batch+driver UNIQUE)
+- `getExistingFeedback(batchId, driverId)` — Check ob schon bewertet
+- `getFeedbackDashboard(locationId, days)` → KPIs + recentFeedbacks mit driver_name JOIN
+- `pruneTourFeedback(daysToKeep)` — via RPC
+
+**APIs:**
+- `/api/delivery/admin/tour-feedback` — GET ?action=dashboard&days=30; POST action=prune
+- `/api/delivery/driver/tour-feedback` — GET ?batch_id&driver_id (check existing); POST (submit)
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/abwesen-heute-strip.tsx` — Amber-Strip: abwesende Fahrer → reduzierte Abholkapazität, 5-Min-Polling
+- `app/(admin)/dispatch/tour-feedback-monitor.tsx` — 7-Tage Bewertungsdurchschnitte + Issue-Rates + neueste Feedbacks, 3-Min-Polling
+- `app/fahrer/app/tour-abschluss-bewertung.tsx` — Stern-Picker + Issue-Chips nach Tour-Abschluss, verhindert Doppel-Submit
+- `app/(admin)/lieferdienst/abdeckungs-risiko-widget.tsx` — 7-Tage Coverage-Balkendiagramm grün/amber/rot, 10-Min-Polling
+- `app/track/[bestellnummer]/tour-delivered-feedback.tsx` — Kunden 👍/👎 nach Lieferung
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Tour-Feedback" in Fahrer-Gruppe
+
+**Cron:** `pruneTourFeedback(90)` täglich 06:55 UTC
+
+- Build: npx next build ✓ (350 Seiten, 0 TypeScript-Fehler)
 
 ---
 
