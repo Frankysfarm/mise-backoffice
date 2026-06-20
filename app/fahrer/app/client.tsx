@@ -105,6 +105,7 @@ import { TourSchichtBilanz } from './tour-schicht-bilanz';
 import { TourNaechsterStoppInfo } from './tour-naechster-stopp-info';
 import { TourAbschlussSchnellPanel } from './tour-abschluss-schnell-panel';
 import FahrerSchichtPuls from './fahrer-schicht-puls';
+import { TourRouteTiming } from './tour-route-timing';
 
 type Driver = {
   id: string;
@@ -1175,6 +1176,16 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 totalEtaMin={(activeBatch as any).total_eta_min ?? null}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 339: Tour-Route-Timing — Vollständige Routen-Übersicht mit ETA je Stopp + Nav */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourRouteTiming
+                stops={activeBatch.stops as any}
+                batchStartedAt={activeBatch.started_at}
+                totalEtaMin={(activeBatch as any).total_eta_min ?? null}
               />
             </div>
           )}

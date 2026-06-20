@@ -25,6 +25,7 @@ import { BestellTeilenWidget } from '../bestell-teilen-widget';
 import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
 import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
 import { BestellPhasenBand } from '../bestell-phasen-band';
+import { EtaLiveRing } from '../eta-live-ring';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -391,6 +392,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </div>
         )}
 
+        {/* Phase 339: ETA-Live-Ring — Animierter SVG-Ring-Countdown mit Sekunden-Präzision */}
+        {isDelivery && orderId && (
+          <EtaLiveRing
+            orderId={orderId}
+            etaEarliest={etaWindow?.earliest ?? null}
+            etaLatest={etaWindow?.latest ?? null}
+            status={liveStatus}
+          />
+        )}
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}
         <BestellPhasenBand status={liveStatus} isDelivery={isDelivery} etaMinutes={etaMinutes} />
 

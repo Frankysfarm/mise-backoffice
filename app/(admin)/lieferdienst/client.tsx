@@ -133,6 +133,7 @@ import { ZoneProfitRangliste } from './zone-profit-rangliste'
 import { SchichtDeltaVergleich } from './schicht-delta-vergleich'
 import { SchichtLiveKapazitaet } from './schicht-live-kapazitaet'
 import LieferdienstFahrerEffizienzScore from './fahrer-effizienz-score'
+import { SchichtLiveStatistik } from './schicht-live-statistik'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1156,6 +1157,8 @@ export function LieferdienstClient() {
               {locationId && <LieferdienstDelayAlertKpi locationId={locationId} />}
               {/* Phase 321: Analytics-Trend-Panel — 30-Tage-Trend + Top-Fahrer + Wochenkennzahlen (Phase 320 Backend) */}
               <LieferdienstAnalyticsTrendPanel locationId={locationId} />
+              {/* Phase 339: Schicht-Live-Statistik — Live KPI-Grid mit Δ Vortag (Bestellungen/Umsatz/SLA/Zeit) */}
+              <SchichtLiveStatistik locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

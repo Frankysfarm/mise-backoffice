@@ -163,6 +163,7 @@ import { DispatchTourAbschlussForecast } from './tour-abschluss-forecast';
 import { DispatchTourRenditeKarte } from './tour-rendite-karte';
 import { DispatchTourRueckkehrBoard } from './tour-rueckkehr-board';
 import DispatchTourProfitLive from './tour-profit-live';
+import { DispatchTourSwimlanes } from './tour-swimlanes';
 
 type Driver = {
   employee_id: string;
@@ -1004,6 +1005,8 @@ export function DispatchBoard({
           lastLng: null,
         }))} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
+      {/* Phase 339: Tour-Swimlanes — Swimlane-Ansicht aller aktiven Touren mit Score, Stop-Dots + ETA */}
+      <DispatchTourSwimlanes batches={batches as any} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
