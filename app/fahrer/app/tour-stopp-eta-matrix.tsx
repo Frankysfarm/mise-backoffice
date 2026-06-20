@@ -50,8 +50,8 @@ function EtaDisplay({ stop, now, baseMs, perStopMin }: {
       </span>
     );
   }
-  if (stop.eta_latest) {
-    const secs = Math.floor((new Date(stop.eta_latest).getTime() - now) / 1000);
+  if (stop.order.eta_latest) {
+    const secs = Math.floor((new Date(stop.order.eta_latest).getTime() - now) / 1000);
     const overdue = secs < 0;
     const tight = secs < 300;
     return (

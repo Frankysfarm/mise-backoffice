@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–339 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (339 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–341 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (339 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #185 — 2026-06-20
+
+### Geprüfte Phasen: Phase 340 Backend (Dynamic Pricing Engine) + Phase 341 Frontend (5 Pricing-Dashboard-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅ (nach 1 Bug-Fix)
+- `npx next build`: Compiled successfully ✅ (339 Seiten, 0 Fehler)
+
+**Bug gefixt:**
+
+**tour-stopp-eta-matrix.tsx TS2339 — eta_latest auf falschem Objekt:**
+- `EtaDisplay`-Funktion griff auf `stop.eta_latest` zu, das es im `Stop`-Typ nicht gibt
+- `eta_latest` ist verschachtelt unter `stop.order.eta_latest` (im nested `order`-Objekt)
+- Fix: `stop.eta_latest` → `stop.order.eta_latest` (2 Zeilen, L53–54)
+
+**Phase 340 — Dynamic Pricing Engine Backend:**
+- `lib/delivery/dynamic-pricing.ts`: SurgeLevel-basierte Multiplikatoren (normal/surge_low/surge_mid/surge_high) + Off-Peak-Rabatt (konfigurierbarer Stunden-Window) + Ereignis-Log + Customer-Banner-Flag
+- API `/api/delivery/admin/dynamic-pricing`: GET config/dashboard/events + POST update_config/toggle/preview/prune
+- Admin-UI `/delivery/dynamic-pricing`: 4 Tabs (Übersicht/Ereignis-Log/Muster/Konfiguration)
+- Nahtlose Integration mit bestehendem Surge-Level aus `/api/delivery/surge`
+
+**Phase 341 — 5 Pricing-Dashboard-Komponenten (alle korrekt integriert):**
+- `KitchenPreisSignalStreifen` → `kitchen/client.tsx:625` — Surge/Off-Peak/Normal-Statusstreifen ✅
+- `DispatchPricingLivePanel` → `dispatch/client.tsx:1657` — 4 Stat-Cells mit Ø-Multiplikator + Revenue ✅
+- `LieferdienstPricingKompakt` → `lieferdienst/client.tsx:1167` — Netto-Impact-Karte ✅
+- `FahrerGebuehrenInfo` → `fahrer/app/client.tsx:1379` — Surge-Hinweis für Fahrer ✅
+- `DynamicPricingBanner` → `storefront.tsx:493` — Kunden-Banner bei Surge/Off-Peak ✅
+- `EtaDynamicWidget` (fase 341 Bonus) korrekt integriert in `order-status-tracker.tsx:200` ✅
+
+**Logik-Check Dynamic Pricing:**
+- `computeDynamicFee`: Surge-Multiplikator × Basis-Gebühr + maxSurchargeEur-Cap ✅
+- Off-Peak: nur wenn `offPeakEnabled` + aktuelle UTC-Stunde im konfigurierten Fenster ✅
+- `customerBannerEnabled`-Flag steuert korrekt den Storefront-Banner ✅
+- DynamicPricingBanner liest Surge-Level von `/api/delivery/surge` — korrekte Quelle ✅
+
+**Integration Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅**
+
+### Status nach Review #185
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (339 Seiten)
+- Phase 340+341: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 342: Smart Delivery Feedback Loop — Automatisches Lernen aus Kunden-Feedback (Bewertungen/Kommentare → Fahrer-Score-Anpassung + Küchen-Timing-Feedback)
+2. Oder: Phase 342: Dynamic Pricing V2 — ML-basierte Preisprognose (Wetterdaten + Wochentag + Saisonalität als Features)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 342: 5 neue Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. EtaDynamicWidget und DynamicEtaProgress in Tracking-Seite vollständig verknüpfen (prüfen ob eta-tracker-card.tsx korrekt eingebunden)
 
 ---
 
