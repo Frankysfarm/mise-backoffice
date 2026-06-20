@@ -28,6 +28,7 @@ import type {
 import { UpsellPopup } from './components/upsell-popup';
 import { DELIVERY_FEE } from './components/types';
 import { WetterLieferverzugHinweis } from './components/wetter-lieferverzug-hinweis';
+import { ServiceStatusBanner } from './components/service-status-banner';
 import { BestellungFortschrittBand } from './components/bestellung-fortschritt-band';
 import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-shortcut';
 import { WarteschlangenIndikator } from './warteschlangen-indikator';
@@ -477,6 +478,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         </div>
       )}
 
+      {/* Phase 321: Service-Status-Banner — öffentlicher Echtzeit-Status für Kunden */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <ServiceStatusBanner locationId={location.id} />
+        </div>
+      )}
       {/* Live-Lieferzeit-Indikator */}
       {orderType === 'lieferung' && (
         <LiveEtaBar locationId={location.id} baseEtaMin={deliveryTimeMin} />

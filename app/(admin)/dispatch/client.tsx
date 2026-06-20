@@ -155,6 +155,7 @@ import { DispatchDelayRisikoAmpel } from './delay-risiko-ampel';
 import { DispatchDelayRisikoBestellungen } from './delay-risiko-bestellungen';
 import { DispatchDelayPredictionTrigger } from './delay-prediction-trigger';
 import { DispatchDelayAlertStatistik } from './delay-alert-statistik';
+import { DispatchAnalyticsWochenvergleich } from './analytics-wochenvergleich';
 
 type Driver = {
   employee_id: string;
@@ -1469,6 +1470,8 @@ export function DispatchBoard({
       <DispatchDelayPredictionTrigger locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 319: Delay-Alert-Statistik — Tagesübersicht Push-Alerts + Scan-Now für Dispatcher */}
       <DispatchDelayAlertStatistik locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 321: Analytics-Wochenvergleich — Diese Woche vs. Vorwoche: Lieferungen, SLA, Ø Zeit */}
+      <DispatchAnalyticsWochenvergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (

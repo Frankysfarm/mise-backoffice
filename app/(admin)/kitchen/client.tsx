@@ -104,6 +104,7 @@ import { KitchenUmsatzVelocityStrip } from './umsatz-velocity-strip';
 import { KitchenStopArrivalPrognose } from './stop-arrival-prognose';
 import { KitchenOrderVerzoegerungsWarnung } from './order-verzoegerungs-warnung';
 import { KitchenDelayAlertBand } from './delay-alert-band';
+import { KitchenAnalyticsStrip } from './analytics-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -597,6 +598,8 @@ export function KitchenBoard({
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenDelayAlertBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
+      {/* Phase 321: Analytics-Strip — heutige SLA/Lieferrate/ø Zeit aus Analytics-Dashboard */}
+      <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenLiveCookSignal orders={filtered} timings={timings} />

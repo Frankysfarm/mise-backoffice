@@ -125,6 +125,7 @@ import { StoppTimingStatistik } from './stopp-timing-statistik'
 import { DelayVorhersageKpi } from './delay-vorhersage-kpi'
 import { DelayRisikoUebersicht } from './delay-risiko-uebersicht'
 import { LieferdienstDelayAlertKpi } from './delay-alert-kpi'
+import { LieferdienstAnalyticsTrendPanel } from './analytics-trend-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1136,6 +1137,8 @@ export function LieferdienstClient() {
               {locationId && <DelayRisikoUebersicht locationId={locationId} />}
               {/* Phase 319: Delay-Alert-KPI — Tagesstatistik der Push-Alerts (Phase 318 Backend) */}
               {locationId && <LieferdienstDelayAlertKpi locationId={locationId} />}
+              {/* Phase 321: Analytics-Trend-Panel — 30-Tage-Trend + Top-Fahrer + Wochenkennzahlen (Phase 320 Backend) */}
+              <LieferdienstAnalyticsTrendPanel locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
