@@ -32,6 +32,7 @@ import { BestellungFortschrittBand } from './components/bestellung-fortschritt-b
 import { WiederbestellShortcut, saveLastCart } from './components/wiederbestell-shortcut';
 import { WarteschlangenIndikator } from './warteschlangen-indikator';
 import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
+import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
 
 type Props = {
   location: Location;
@@ -484,6 +485,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <WarteschlangenIndikator locationId={location.id} orderType="lieferung" />
+        </div>
+      )}
+      {/* Phase 311: Aktuelle Lieferzeit-Widget — Live-ETA + Fahreranzahl vom Health-API */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <AktuelleLieferzeitWidget locationId={location.id} />
         </div>
       )}
 

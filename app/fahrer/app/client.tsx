@@ -93,6 +93,7 @@ import { FahrerPushStatusKarte } from './push-status-karte';
 import { TourStoppUebersicht } from './tour-stopp-uebersicht';
 import { FahrerStopVerificationPanel } from './stop-verification-panel';
 import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
+import { EchtzeitLeistungsAnzeige } from './echtzeit-leistungs-anzeige';
 
 type Driver = {
   id: string;
@@ -1983,6 +1984,9 @@ export function FahrerApp({
             <FahrerDispatchNachrichten />
           </div>
         )}
+
+        {/* Phase 311: Echtzeit-Leistungs-Anzeige — eigener Live-Score + Rang (Phase-310-API) */}
+        {isOnline && <EchtzeitLeistungsAnzeige />}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (

@@ -148,6 +148,7 @@ import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
 import { DispatchTourScoreLivePanel } from './tour-score-live-panel';
 import { DispatchTourStopMatrix } from './tour-stop-matrix';
 import { DispatchKapazitaetsPuffer } from './kapazitaets-puffer';
+import { DispatchFahrerLeistungsLive } from './fahrer-leistungs-live';
 
 type Driver = {
   employee_id: string;
@@ -1448,6 +1449,8 @@ export function DispatchBoard({
       {batches.length > 0 && <DispatchTourStopMatrix batches={batches as any} />}
       {/* Phase 309: Kapazitäts-Puffer — Restkapazität der Lieferflotte in Echtzeit */}
       <DispatchKapazitaetsPuffer drivers={drivers} pendingOrders={readyOrders.length} />
+      {/* Phase 311: Fahrer Live-Score-Rangliste — Live-Score 0–100 je Fahrer (Phase-310-API) */}
+      <DispatchFahrerLeistungsLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (

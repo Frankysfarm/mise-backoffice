@@ -99,6 +99,7 @@ import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
 import { KitchenCookNowPanel } from './cook-now-panel';
 import { KitchenSchichtZielStrip } from './schicht-ziel-strip';
 import { KitchenPausenFensterKarte } from './pausen-fenster-karte';
+import { KitchenSchichtRhythmusMonitor } from './schicht-rhythmus-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -574,6 +575,8 @@ export function KitchenBoard({
       <KitchenSchichtZielStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 309: Pausen-Fenster-Karte — optimale Pausen-Zeitfenster basierend auf Warteschlangenlast */}
       <KitchenPausenFensterKarte orders={filtered} />
+      {/* Phase 311: Schicht-Rhythmus-Monitor — Bestellfluss-Analyse letzte 30 Min in 5-Min-Slots */}
+      <KitchenSchichtRhythmusMonitor orders={filtered} />
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenLiveCookSignal orders={filtered} timings={timings} />
