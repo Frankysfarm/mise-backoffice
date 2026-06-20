@@ -382,6 +382,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="End-to-End-Gesundheits-Score · Datenqualität · Service-Status" cta="Health ansehen" />
         <SectionCard href="/delivery/ops-center" icon={<MonitorDot className="h-5 w-5" />} title="Ops-Cockpit"
           subtitle="Echtzeit-KPIs: Queue, Fahrer, Alarme, SLA, Umsatz — Aktualisierung alle 30s" cta="Cockpit öffnen" />
+        <SectionCard href="/delivery/ops-recommendations" icon={<BrainCircuit className="h-5 w-5" />} title="Ops Decision Support"
+          subtitle="Priorisierte Handlungsempfehlungen aus allen Delivery-Signalen · Fahrermangel, SLA-Risiko, Surge, Revenue-Gap" cta="Empfehlungen ansehen" highlight />
       </SectionGroup>
 
       {/* ── Qualität & Erfahrung ─────────────────────────────── */}

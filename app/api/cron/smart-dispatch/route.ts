@@ -136,6 +136,7 @@ import { scanAllLocations as scanReorderAlerts } from '@/lib/delivery/smart-reor
 import { checkAllLocations as checkGeofenceAutoHours, pruneOldLogs as pruneAutoHoursLogs } from '@/lib/delivery/geofence-auto-hours';
 import { pruneOldSuggestions as pruneSmartTipSuggestions } from '@/lib/delivery/smart-tip-engine';
 import { pruneOldPricingEvents } from '@/lib/delivery/dynamic-pricing';
+import { runRecsAllLocations, pruneOldRecommendations } from '@/lib/delivery/ops-recommendations';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1074,6 +1075,17 @@ export async function GET(req: NextRequest) {
       ? await pruneOldPricingEvents(30).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 342: Ops Decision Support — alle 5 Minuten scannen
+    const isOpsRecsTick = nowMin % 5 < 2;
+    const opsRecsResult = isOpsRecsTick
+      ? await runRecsAllLocations().catch(() => ({ locations: 0, errors: 0 }))
+      : null;
+    // Prune täglich 06:20 UTC
+    const isOpsRecsPruneTick = nowHour === 6 && nowMin >= 20 && nowMin < 24;
+    const opsRecsPruned = isOpsRecsPruneTick
+      ? await pruneOldRecommendations(7).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1300,6 +1312,8 @@ export async function GET(req: NextRequest) {
       ...(autoHoursLogsPruned ? { auto_hours_logs_pruned: autoHoursLogsPruned } : {}),
       ...(smartTipSuggestionsPruned ? { smart_tip_suggestions_pruned: smartTipSuggestionsPruned } : {}),
       ...(dynamicPricingPruned?.pruned ? { dynamic_pricing_pruned: dynamicPricingPruned.pruned } : {}),
+      ...(opsRecsResult ? { ops_recommendations: { locations: opsRecsResult.locations, errors: opsRecsResult.errors } } : {}),
+      ...(opsRecsPruned ? { ops_recommendations_pruned: opsRecsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
