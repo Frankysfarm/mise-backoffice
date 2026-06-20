@@ -1,7 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–313 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (325 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–315 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (326 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #173 — 2026-06-20
+
+### Geprüfte Phasen: Phase 314 Backend (Fahrer-Ziel-Engine) + Phase 315 Frontend+Backend (Tour-Stopp Smart-Timing & Ankunfts-Prognose)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 1 TS-Fehler gefunden + sofort gefixt → 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (326 Seiten, 0 Fehler)
+
+**Neue Dateien (Phase 315):**
+
+**lib/delivery/tour-stop-timing.ts:**
+- Backend-Engine: `getStopTimingMatrix()`, `getDriverNextStopEta()`, `getStopTimingStats()` ✅
+- Statusklassifizierung pending/next/en_route/arrived/delivered/late/at_risk korrekt ✅
+- Supabase-Queries über `createServiceClient` (server-only) ✅
+
+**KitchenStopArrivalPrognose (`app/(admin)/kitchen/stop-arrival-prognose.tsx`):**
+- 45s Polling auf `/api/delivery/admin/stop-timing-matrix`, locationId-Prop korrekt ✅
+- Integration in kitchen/client.tsx L588 mit locationFilter-Prop ✅
+
+**DispatchStopAnkunftsMatrix (`app/(admin)/dispatch/stop-ankunfts-matrix.tsx`):**
+- 30s Polling, vollständige Stopp-Matrix mit Risiko-Farbkodierung ✅
+- ROW_STYLE-Map: alle 7 StopStatus-Werte abgedeckt ✅
+- Integration in dispatch/client.tsx L1459 ✅
+
+**StopSmartCountdown (`app/fahrer/app/stop-smart-countdown.tsx`):**
+- `useCountdown`-Hook: 1s Interval mit sauberem Cleanup bei etaIso-Änderung ✅
+- `HEALTH_STYLE`-Map: alle 4 States inkl. 'unknown' abgedeckt (kein undefined-Crash) ✅
+- Polling 30s mit intervalRef-Cleanup ✅
+- Integration in fahrer/app/client.tsx L1996 mit driverId={driver.id} ✅
+
+**StoppTimingStatistik (`app/(admin)/lieferdienst/stopp-timing-statistik.tsx`):**
+- Recharts BarChart mit stündlichen Pünktlichkeits-Daten ✅
+- **Bug gefixt:** Tooltip-Formatter `(v: number, name: string)` → `(v: unknown, name: unknown)` (TS2322 Recharts Formatter-Typ) ✅
+- Integration in lieferdienst/client.tsx L1129 ✅
+
+**3 API-Routen:**
+- `/api/delivery/admin/stop-timing-matrix`: GET mit locationId-Filter ✅
+- `/api/delivery/admin/stop-timing-stats`: GET mit locationId-Filter ✅
+- `/api/delivery/driver/next-stop-eta`: GET mit driver_id, Date-Serialisierung korrekt ✅
+
+**Bugs gefunden + gefixt:** 1
+- `stopp-timing-statistik.tsx:187` — TS2322: Recharts Tooltip-Formatter mit inkompatiblen Parametertypen → als `unknown` typisiert
+
+### Status nach Review #173
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (326 Seiten)
+- Phase 314 + 315: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 316: Predictive Zone Load Balancer V2 — dynamische Fahrer-Verteilung basierend auf Stop-Timing-Daten
+2. Oder: Phase 316: Fahrer-Coaching-Engine — nach Schichtende automatisch Coaching-Empfehlungen generieren
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 316: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. Basis: Stop-Timing-Matrix-Daten für Visualisierungen nutzen
 
 ---
 
