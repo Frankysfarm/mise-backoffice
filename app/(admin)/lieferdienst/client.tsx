@@ -124,6 +124,7 @@ import { UmsatzVelocityDashboard } from './umsatz-velocity-dashboard'
 import { StoppTimingStatistik } from './stopp-timing-statistik'
 import { DelayVorhersageKpi } from './delay-vorhersage-kpi'
 import { DelayRisikoUebersicht } from './delay-risiko-uebersicht'
+import { LieferdienstDelayAlertKpi } from './delay-alert-kpi'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1133,6 +1134,8 @@ export function LieferdienstClient() {
               {locationId && <DelayVorhersageKpi locationId={locationId} />}
               {/* Phase 317: Verspätungsrisiko-Übersicht — Risikoverteilung + Chart + Modell-Genauigkeitstabelle */}
               {locationId && <DelayRisikoUebersicht locationId={locationId} />}
+              {/* Phase 319: Delay-Alert-KPI — Tagesstatistik der Push-Alerts (Phase 318 Backend) */}
+              {locationId && <LieferdienstDelayAlertKpi locationId={locationId} />}
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

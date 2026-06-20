@@ -96,6 +96,7 @@ import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
 import { EchtzeitLeistungsAnzeige } from './echtzeit-leistungs-anzeige';
 import { SchichtUmsatzVelocity } from './schicht-umsatz-velocity';
 import { StopSmartCountdown } from './stop-smart-countdown';
+import { FahrerDelayAlertHinweis } from './delay-alert-hinweis';
 
 type Driver = {
   id: string;
@@ -1305,6 +1306,8 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 319: Delay-Alert-Hinweis — Fahrer wird informiert wenn Kunden Delay-Alert erhalten haben */}
+          <FahrerDelayAlertHinweis batchHasCriticalOrder={activeBatch.stops.length > 0} />
           {/* Phase 301: Lieferungs-Checkliste — Vor-Ankunft-Prüfung: Artikel, Adresse, Zahlung */}
           {(() => {
             const cs = activeBatch.stops.find(s => !s.geliefert_am);
