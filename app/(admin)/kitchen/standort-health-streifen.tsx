@@ -68,7 +68,8 @@ export function KitchenStandortHealthStreifen({ locationId }: { locationId: stri
 
   if (error || !data?.latest) return null;
 
-  const { overallScore, grade, trend, scoreDelta, weakestDimension, recommendations } = data;
+  const { overallScore, grade, trend, scoreDelta, weakestDimension } = data.latest!;
+  const { recommendations } = data;
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
   const trendColor = trend === 'up' ? 'text-matcha-600' : trend === 'down' ? 'text-red-500' : 'text-stone-400';
 

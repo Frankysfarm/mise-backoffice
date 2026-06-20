@@ -219,7 +219,7 @@ export function LieferdienstStandortHealthCockpit({ locationId }: { locationId: 
               <BarChart data={trendChartData} barSize={16}>
                 <XAxis dataKey="date" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
                 <Tooltip
-                  formatter={(value: number) => [`${value}/100`, 'Score']}
+                  formatter={(value: unknown) => [`${Number(value)}/100`, 'Score']}
                   contentStyle={{ fontSize: 11, padding: '4px 8px' }}
                 />
                 <Bar dataKey="score" radius={[3, 3, 0, 0]}>

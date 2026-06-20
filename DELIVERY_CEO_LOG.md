@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–345 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (342 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–347 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (343 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #188 — 2026-06-20
+
+### Geprüfte Phasen: Phase 346 Backend (Tour Heatmap Engine) + Phase 347 Frontend (5 Standort-Health-Score-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 31 Fehler gefunden + gefixt → 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (343 Seiten, 0 Fehler)
+
+**Bugs gefunden + gefixt:**
+
+**Bug 1** — `app/(admin)/delivery/tour-heatmap/client.tsx` L8: `Map` von lucide-react importiert shadowed den Built-in JS `Map`-Konstruktor → `new Map<string, ...>()` (L140) schlug fehl mit TS7009+TS2558; alle abhängigen `cellMap.values()` + `topCells.map((cell) => ...)` (20+ Fehler) vom Typ `unknown` → Fix: `import { Map as MapIcon, ... }` + JSX-Usage `<Map ...>` → `<MapIcon ...>` ✅
+
+**Bug 2** — `app/(admin)/kitchen/standort-health-streifen.tsx` L71: Destrukturierung aus `data` (Typ `HealthDashboard`) statt aus `data.latest` (Typ `HealthSnapshot`) → `overallScore/grade/trend/scoreDelta/weakestDimension` fehlend (TS2339) → Fix: `const { ...5 Felder } = data.latest!; const { recommendations } = data;` ✅
+
+**Bug 3** — `app/(admin)/lieferdienst/standort-health-cockpit.tsx` L222: Recharts `Tooltip formatter` Parameter `value: number` inkompatibel mit `ValueType | undefined` → Fix: `value: unknown` + `Number(value)` ✅
+
+**Neue Komponenten (Phase 347) — 5 Komponenten:**
+
+**KitchenStandortHealthStreifen** (`app/(admin)/kitchen/standort-health-streifen.tsx`): Kompakter Grade-Streifen (Note + Score/100 + Trend-Pfeil + schwächste Dimension + Top-Empfehlung), 5-Min-Polling `/api/delivery/admin/location-health`, Integration kitchen/client.tsx ✅
+
+**DispatchStandortHealthWidget** (`app/(admin)/dispatch/standort-health-widget.tsx`): Aufklappbares Widget mit 4 Dimensionen als Fortschrittsbalken (Pünktlichkeit 40%/Fahrer 30%/Storno 20%/Rating 10%) + Empfehlungen, Integration dispatch/client.tsx ✅
+
+**FahrerStandortHealthBadge** (`app/fahrer/app/standort-health-badge.tsx`): Motivierendes Note-Badge mit Emoji + Trend, 5-Min-Polling, Integration fahrer/app/client.tsx ✅
+
+**BestellQualitaetsRing** (`app/order/[locationSlug]/components/bestell-qualitaets-ring.tsx`): SVG-Ring Pünktlichkeitsrate als Kunden-Trust-Signal im Storefront, Integration storefront.tsx ✅
+
+**LieferdienstStandortHealthCockpit** (`app/(admin)/lieferdienst/standort-health-cockpit.tsx`): Score + 7d-BarChart-Trend + Ranking + Empfehlungen, Integration lieferdienst/client.tsx ✅
+
+**Phase 346 Backend (Tour Heatmap Engine) geprüft:** tour-heatmap/client.tsx: 4 KPI-Karten (Kacheln/Unterversorgt/ØMin/Verspätungsrate) + 4 Tabs (Unterversorgte Zonen/Top Kacheln/Zonen-Statistik/Konfiguration) + Neu-Berechnen-Button korrekt implementiert. ✅
+
+### Status nach Review #188
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (343 Seiten)
+- Phase 346+347: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 3 (1 Map-Shadow-Bug, 1 Destrukturierungs-Bug, 1 Recharts-Formatter-Bug)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 348: Driver Fatigue Monitor — Erschöpfungserkennung via Schichtdauer + Stop-Frequenz-Abfall + Pausendaten, Auto-Alert + Schicht-Ende-Empfehlung
+2. Phase 348: Review Score Aggregator — Kundenbewertungen aus order_feedback aggregieren, gewichteten Score pro Fahrer + pro Standort, 7d-Trend, Anomalie-Alarm
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 348: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. Dispatch Scores API `/api/delivery/dispatch/scores` implementieren (SchichtBatchBilanz + DispatchLiveScoreBoard fallen auf Mock zurück — offene Aufgabe seit Phase 344)
 
 ---
 

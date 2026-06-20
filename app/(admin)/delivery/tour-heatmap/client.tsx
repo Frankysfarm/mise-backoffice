@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Map, RefreshCw, AlertTriangle, CheckCircle,
+  Map as MapIcon, RefreshCw, AlertTriangle, CheckCircle,
   BarChart3, Settings, Layers, Clock, TrendingDown,
 } from 'lucide-react';
 
@@ -164,7 +164,7 @@ export function TourHeatmapClient() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-indigo-100 rounded-lg">
-            <Map className="h-5 w-5 text-indigo-600" />
+            <MapIcon className="h-5 w-5 text-indigo-600" />
           </div>
           <div>
             <h1 className="text-xl font-bold">Tour Heatmap Engine</h1>
