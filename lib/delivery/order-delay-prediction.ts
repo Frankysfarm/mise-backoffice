@@ -200,21 +200,21 @@ export async function predictOrderDelay(
   const since7d = new Date(now.getTime() - 7 * 86400_000).toISOString();
   const { data: history } = await svc
     .from('customer_orders')
-    .select('fertig_am, eta_earliest, created_at')
+    .select('geliefert_am, eta_latest, created_at')
     .eq('location_id', locationId)
     .eq('typ', 'lieferung')
     .eq('status', 'geliefert')
     .gte('created_at', since7d)
-    .not('fertig_am', 'is', null)
-    .not('eta_earliest', 'is', null)
+    .not('geliefert_am', 'is', null)
+    .not('eta_latest', 'is', null)
     .limit(200);
 
   if (history && history.length > 0) {
-    const matching = (history as Array<{ fertig_am: string; eta_earliest: string; created_at: string }>)
+    const matching = (history as Array<{ geliefert_am: string; eta_latest: string; created_at: string }>)
       .filter(h => new Date(h.created_at).getUTCDay() === dowUtc &&
                    new Date(h.created_at).getUTCHours() === hourUtc);
     if (matching.length >= 3) {
-      const lateCount = matching.filter(h => new Date(h.fertig_am) > new Date(h.eta_earliest)).length;
+      const lateCount = matching.filter(h => new Date(h.geliefert_am) > new Date(h.eta_latest)).length;
       historicalLateRate = Math.round((lateCount / matching.length) * 100);
     }
   }
@@ -363,20 +363,20 @@ export async function settleOutcomes(locationId: string): Promise<SettleResult> 
     try {
       const { data: order } = await svc
         .from('customer_orders')
-        .select('status, fertig_am, eta_earliest')
+        .select('status, geliefert_am, eta_latest')
         .eq('id', p.order_id)
         .maybeSingle();
 
       const ord = order as {
-        status: string; fertig_am: string | null; eta_earliest: string | null;
+        status: string; geliefert_am: string | null; eta_latest: string | null;
       } | null;
 
       if (!ord || !['geliefert', 'storniert', 'abgebrochen'].includes(ord.status)) continue;
 
       let actualDelayMin: number | null = null;
-      if (ord.fertig_am && ord.eta_earliest) {
+      if (ord.geliefert_am && ord.eta_latest) {
         actualDelayMin = Math.round(
-          (new Date(ord.fertig_am).getTime() - new Date(ord.eta_earliest).getTime()) / 60_000,
+          (new Date(ord.geliefert_am).getTime() - new Date(ord.eta_latest).getTime()) / 60_000,
         );
       }
 
