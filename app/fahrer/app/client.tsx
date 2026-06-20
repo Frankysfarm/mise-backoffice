@@ -112,6 +112,7 @@ import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
 import { FahrerStornoInfoBanner } from './storno-info-banner';
 import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
 import { HeatmapTipp } from './heatmap-tipp';
+import { FahrerStandortHealthBadge } from './standort-health-badge';
 
 type Driver = {
   id: string;
@@ -1395,6 +1396,10 @@ export function FahrerApp({
               <HeatmapTipp locationId={driver.location_id} />
             </div>
           )}
+          {/* Phase 347: Standort-Gesundheits-Badge — Motivierendes Note-Badge für den Fahrer */}
+          <div className="px-4">
+            <FahrerStandortHealthBadge locationId={driver?.location_id ?? null} />
+          </div>
           {/* Phase 343: Schicht-Verdienst-Live — EUR/Stopp, EUR/Std, Schicht-Fortschritt */}
           {todayStats && todayStats.estEarnings > 0 && (
             <div className="px-4">

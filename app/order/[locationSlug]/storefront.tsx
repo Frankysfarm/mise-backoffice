@@ -42,6 +42,7 @@ import { DynamicPricingBanner } from './components/dynamic-pricing-banner';
 import { OpsServiceKapazitaetsBand } from './components/ops-service-kapazitaets-band';
 import { StornoSchutzBadge } from './components/storno-schutz-badge';
 import { ZonenLieferzeitInfo } from './components/zonen-lieferzeit-info';
+import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
 
 type Props = {
   location: Location;
@@ -536,6 +537,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <BestellungsKlimaIndikator locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 347: Bestell-Qualitäts-Ring — SVG-Ring Pünktlichkeitsrate + Trust-Signal für Kunden */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <BestellQualitaetsRing locationId={location.id} />
         </div>
       )}
 

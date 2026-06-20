@@ -140,6 +140,7 @@ import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
 import { LieferdienstStornoRateKarte } from './storno-rate-karte'
 import { LieferdienstBestellkanalSplit } from './bestellkanal-split'
 import { HeatmapKpi } from './heatmap-kpi'
+import { LieferdienstStandortHealthCockpit } from './standort-health-cockpit'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1177,6 +1178,8 @@ export function LieferdienstClient() {
               <LieferdienstStornoRateKarte locationId={locationId} />
               {/* Phase 346: Heatmap-KPI — Tour-Heatmap Kompakt-KPIs + Unterversorgungs-Warnung */}
               <HeatmapKpi locationId={locationId} />
+              {/* Phase 347: Standort-Gesundheits-Cockpit — Score + Dimensionen + Ranking + 7d-Trend */}
+              <LieferdienstStandortHealthCockpit locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

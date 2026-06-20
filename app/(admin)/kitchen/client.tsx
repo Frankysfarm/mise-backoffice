@@ -120,6 +120,7 @@ import { KitchenOpsRecoStrip } from './ops-reco-strip';
 import { KitchenStornoAlertStrip } from './storno-alert-strip';
 import { KitchenHeuteArtikelTopliste } from './heute-artikel-topliste';
 import { LieferzonenCheck } from './lieferzone-check';
+import { KitchenStandortHealthStreifen } from './standort-health-streifen';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -635,6 +636,8 @@ export function KitchenBoard({
       <KitchenStornoAlertStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 346: Lieferzonen-Check — Unterversorgte Zonen aus Tour Heatmap */}
       <LieferzonenCheck locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
+      {/* Phase 347: Standort-Gesundheits-Streifen — Note + Trend + schwächste Dimension */}
+      <KitchenStandortHealthStreifen locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

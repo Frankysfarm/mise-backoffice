@@ -170,6 +170,7 @@ import { DispatchOpsDecisionPanel } from './ops-decision-panel';
 import { DispatchStornoInterventPanel } from './storno-intervent-panel';
 import { DispatchSchichtBatchBilanz } from './schicht-batch-bilanz';
 import { HeatmapZoneAlert } from './heatmap-zone-alert';
+import { DispatchStandortHealthWidget } from './standort-health-widget';
 
 type Driver = {
   employee_id: string;
@@ -1669,6 +1670,8 @@ export function DispatchBoard({
       <DispatchStornoInterventPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 346: Heatmap-Zone-Alert — Unterversorgte Zonen kollabierbar */}
       <HeatmapZoneAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Phase 347: Standort-Gesundheits-Widget — Score + 4 Dimensionen + Empfehlungen aufklappbar */}
+      <DispatchStandortHealthWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
