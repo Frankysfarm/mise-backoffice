@@ -100,6 +100,7 @@ import { FahrerDelayAlertHinweis } from './delay-alert-hinweis';
 import { FahrerAnalyticsWochenuebersicht } from './analytics-wochenuebersicht';
 import { FahrerSchichtAusblick } from './schicht-ausblick';
 import { TourKostenErtrag } from './tour-kosten-ertrag';
+import { FahrerWochenRangKarte } from './wochen-rang-karte';
 
 type Driver = {
   id: string;
@@ -1327,6 +1328,10 @@ export function FahrerApp({
           {/* Phase 321: Analytics-Wochenübersicht — persönliche Wochen-Performance, Rang, Score-Trend */}
           <div className="px-4">
             <FahrerAnalyticsWochenuebersicht />
+          </div>
+          {/* Phase 330: Wochen-Rang-Karte — Wochenranking: Rang, Score, Grade, Einnahmen, Prämie */}
+          <div className="px-4">
+            <FahrerWochenRangKarte />
           </div>
           {/* Phase 323: Schicht-Ausblick — Einnahmen-Prognose, Effizienz-Indikator, Restzeit */}
           <div className="px-4">

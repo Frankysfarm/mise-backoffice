@@ -33,6 +33,7 @@ import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-pro
 import { SseTrackingLive } from './sse-tracking-live';
 import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-card';
 import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-status-mini-tracker';
+import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wartezeit-ring';
 
 type Order = {
   order_id: string;
@@ -469,6 +470,17 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
               }
             }}
           />
+        )}
+
+        {/* Phase 330: Live-Wartezeit-Ring — SVG-Countdown-Ring ab Bestellzeitpunkt bis ETA */}
+        {order.typ === 'lieferung' && order.bestellt_am && order.geschaetzte_zubereitung_min && !['geliefert', 'storniert'].includes(order.status) && (
+          <div className="mt-3">
+            <LiveWartezeitRing
+              orderedAt={order.bestellt_am}
+              etaMinutes={order.geschaetzte_zubereitung_min}
+              orderType={order.typ}
+            />
+          </div>
         )}
 
         {/* Phase 307: ETA-Konfidenzband — Live-ETA mit Vertrauensindikator + Supabase-Realtime */}

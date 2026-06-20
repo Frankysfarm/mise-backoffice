@@ -158,6 +158,7 @@ import { DispatchDelayAlertStatistik } from './delay-alert-statistik';
 import { DispatchAnalyticsWochenvergleich } from './analytics-wochenvergleich';
 import { DispatchZonenScoreMatrix } from './zonen-score-matrix';
 import { DispatchFahrerPausenAlert } from './fahrer-pausen-alert';
+import { DispatchWochenRankingPanel } from './wochen-ranking-panel';
 
 type Driver = {
   employee_id: string;
@@ -1474,6 +1475,8 @@ export function DispatchBoard({
       <DispatchDelayAlertStatistik locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 321: Analytics-Wochenvergleich — Diese Woche vs. Vorwoche: Lieferungen, SLA, Ø Zeit */}
       <DispatchAnalyticsWochenvergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 330: Wochen-Ranking-Panel — Top-Fahrer dieser Woche mit Score, Grade und Prämien-Status */}
+      <DispatchWochenRankingPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 323: Zonen-Score-Matrix — Raster aller Zonen mit Score-Balken, aktiven Touren, Ø-Zeit */}
       <DispatchZonenScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? undefined)} />
 
