@@ -149,6 +149,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="5-Faktoren Abwanderungs-Risiko · Schicht-Frequenz, Trinkgeld, Incentives, Pünktlichkeit, No-Shows · Proaktive Maßnahmen" cta="Retention öffnen" />
         <SectionCard href="/delivery/review-flags" icon={<ShieldAlert className="h-5 w-5" />} title="Fahrer-Review Flags"
           subtitle="Automatische Qualitätswarnungen · Durchschnitt &lt; 3.0 oder 1-Stern-Burst · Admin-Workflow mit Notizen" cta="Flags verwalten" />
+        <SectionCard href="/delivery/driver-shift-goals" icon={<Target className="h-5 w-5" />} title="Fahrer-Schichtziele"
+          subtitle="Stops, € und Score-Ziele je Schicht · Live-Fortschritt aller Fahrer · Pace-Ampel (Über Plan / Im Plan / Unter Plan)" cta="Ziele ansehen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

@@ -123,6 +123,7 @@ import { runRescueAllLocations, pruneOldRescueEvents } from '@/lib/delivery/orde
 import { runBalancerAllLocations, pruneZoneCapacitySnapshots } from '@/lib/delivery/zone-capacity-balancer';
 import { saveDriverLiveScoreSnapshotsAllLocations, pruneDriverLiveScoreSnapshots } from '@/lib/delivery/driver-performance-realtime';
 import { snapshotRevenueVelocityAllLocations, pruneRevenueVelocitySnapshots } from '@/lib/delivery/revenue-velocity';
+import { snapshotDriverShiftGoalsAllLocations, pruneDriverShiftGoalSnapshots } from '@/lib/delivery/driver-shift-goals';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -269,6 +270,10 @@ export async function GET(req: NextRequest) {
     const isReturnPredictionPruneTick = nowHour === 5 && nowMin >= 15 && nowMin < 19;
     // Phase 312: Revenue Velocity Snapshot — alle 10 Min (gleicher Takt wie Rating-Tick)
     const isRevenueVelocityTick = isRatingTick;
+    // Phase 314: Fahrer-Schichtziel-Snapshot — stündlich (volle Stunde)
+    const isDriverShiftGoalTick = isHourlyTick;
+    // Phase 314: Fahrer-Schichtziel-Prune — täglich 05:30 UTC
+    const isDriverShiftGoalPruneTick = nowHour === 5 && nowMin >= 28 && nowMin < 32;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -950,6 +955,14 @@ export async function GET(req: NextRequest) {
       pruneRevenueVelocitySnapshots(30).catch(() => {});
     }
 
+    // Phase 314: Fahrer-Schichtziel-Snapshots — stündlich
+    const driverShiftGoalResult = isDriverShiftGoalTick
+      ? await snapshotDriverShiftGoalsAllLocations().catch(() => ({ locations: 0, saved: 0, errors: 0 }))
+      : null;
+    if (isDriverShiftGoalPruneTick) {
+      pruneDriverShiftGoalSnapshots(7).catch(() => {});
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1157,6 +1170,7 @@ export async function GET(req: NextRequest) {
       ...(balancerSnapshotsPruned ? { zone_snapshots_pruned: balancerSnapshotsPruned.pruned } : {}),
       ...(liveScoreSnapshotResult?.snapshots ? { driver_live_scores: { locations: liveScoreSnapshotResult.locations, snapshots: liveScoreSnapshotResult.snapshots } } : {}),
       ...(revenueVelocityResult?.snapshots ? { revenue_velocity: { locations: revenueVelocityResult.locations, snapshots: revenueVelocityResult.snapshots, errors: revenueVelocityResult.errors } } : {}),
+      ...(driverShiftGoalResult?.saved ? { driver_shift_goals: { locations: driverShiftGoalResult.locations, saved: driverShiftGoalResult.saved, errors: driverShiftGoalResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
