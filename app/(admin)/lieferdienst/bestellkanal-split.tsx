@@ -60,8 +60,8 @@ export function LieferdienstBestellkanalSplit({ orders }: Props) {
           <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <XAxis dataKey="name" tick={{ fontSize: 11 }} />
             <Tooltip
-              formatter={(value: number, name: string, props: { payload?: { pct?: number } }) => [
-                `${value} (${props.payload?.pct ?? 0}%)`,
+              formatter={(value: unknown, _name: unknown, props: { payload?: { pct?: number } }) => [
+                `${Number(value)} (${props.payload?.pct ?? 0}%)`,
                 'Bestellungen',
               ]}
             />

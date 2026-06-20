@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–343 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (341 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–345 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (342 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #187 — 2026-06-20
+
+### Geprüfte Phasen: Phase 344 Frontend (5 Komponenten: Topliste/Batch-Bilanz/Energie-Check/Zonen-Info/Bestellkanal-Split) + Phase 344+345 Backend (Smart Cancellation Guard + 5 UI-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 3 Fehler gefunden + gefixt → 0 Fehler ✅
+- `npx next build`: Compiled successfully ✅ (342 Seiten, 0 Fehler)
+
+**Bugs gefunden + gefixt:**
+
+**Bug 1** — `app/(admin)/lieferdienst/bestellkanal-split.tsx` L63: TS2322 Recharts `Tooltip formatter` erwartet `ValueType | undefined` aber Funktion hatte `value: number` → Fix: `value: unknown, _name: unknown` + `Number(value)` ✅
+
+**Bug 2** — `app/fahrer/app/storno-info-banner.tsx` L15: TS2719 `BatchStop.status` war `string` (required) aber `client.tsx`'s `ActiveBatch.stops` hat kein `status`-Feld → Fix: `status?: string` (optional) ✅
+
+**Bug 3** — `lib/delivery/cancellation-guard.ts` (14 Zeilen): `.catch()` existiert nicht auf Supabase `PostgrestBuilder`/`PostgrestFilterBuilder` → alle `.catch()` Chaining entfernt; Supabase gibt Fehler via `{ error }` zurück, kein Exception-Wurf; `loc: any` und `e: any` zu `: { id: string }` bzw. `: { customer_id: string }` typisiert ✅
+
+**Neue Komponenten (Phase 344+345) — 10 Komponenten:**
+
+**HeuteArtikelTopliste** (`app/(admin)/kitchen/heute-artikel-topliste.tsx`): Top-5 meist-bestellte Artikel heute, Recharts BarChart + Rank-Farben, Integration kitchen/client.tsx ✅
+
+**SchichtBatchBilanz** (`app/(admin)/dispatch/schicht-batch-bilanz.tsx`): Schicht-P&L pro Batch (Umsatz/Kosten/Netto), Polling `/api/delivery/dispatch/scores`, Integration dispatch/client.tsx ✅
+
+**FahrerSchichtEnergieCheck** (`app/fahrer/app/schicht-energie-check.tsx`): Erschöpfungsindikator basierend auf Online-Dauer + Stops, Pausenempfehlung mit Niveau-Ampel, Integration fahrer/app/client.tsx ✅
+
+**ZonenLieferzeitInfo** (`app/order/[locationSlug]/components/zonen-lieferzeit-info.tsx`): Zonen-spezifische ETA für Kunden-Storefront, Integration storefront.tsx ✅
+
+**LieferdienstBestellkanalSplit** (`app/(admin)/lieferdienst/bestellkanal-split.tsx`): Direkt/Lieferando/Sonstige Split-Diagramm, Integration lieferdienst/client.tsx ✅
+
+**CancellationGuard-Admin** (`/delivery/cancellation-guard`): Vollständige Admin-Page mit 4 KPIs + Ereignisse + Top-Stornierer + Konfiguration ✅
+
+**KitchenStornoAlertStrip** (`app/(admin)/kitchen/storno-alert-strip.tsx`): Dismissbarer Alert bei high/blocked Events, Integration kitchen/client.tsx ✅
+
+**DispatchStornoInterventPanel** (`app/(admin)/dispatch/storno-intervent-panel.tsx`): Kollabierbar + Voucher-Button, Integration dispatch/client.tsx ✅
+
+**FahrerStornoInfoBanner** (`app/fahrer/app/storno-info-banner.tsx`): Stop-Stornierung Hinweis, Integration fahrer/app/client.tsx ✅
+
+**StornoSchutzBadge** (`app/order/[locationSlug]/components/storno-schutz-badge.tsx`): Stornierungsbedingungen transparent für Kunden, Integration storefront.tsx ✅
+
+**LieferdienstStornoRateKarte** (`app/(admin)/lieferdienst/storno-rate-karte.tsx`): Rate-KPIs + Top-Stornierer, Integration lieferdienst/client.tsx ✅
+
+### Status nach Review #187
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (342 Seiten)
+- Phase 344+345: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 3
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 346: Tour Heatmap Engine — Lieferzone-Heatmap aus historischen Touren (Cluster-Analyse, Unterversorgungs-Zonen erkennen)
+2. Oder: Phase 346: Voucher-Lifecycle-Engine — Voucher-Nutzung tracken, ablaufende Voucher automatisch deaktivieren, Missbrauch-Erkennung
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 346: 5 neue Smart-Delivery-Komponenten für Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst
+2. /api/delivery/dispatch/scores Endpunkt implementieren (SchichtBatchBilanz + DispatchLiveScoreBoard fallen auf Mock zurück)
 
 ---
 

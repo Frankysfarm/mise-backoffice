@@ -12,7 +12,7 @@ import { AlertTriangle, X } from 'lucide-react';
 
 interface BatchStop {
   id: string;
-  status: string;
+  status?: string;
   order_id?: string;
 }
 

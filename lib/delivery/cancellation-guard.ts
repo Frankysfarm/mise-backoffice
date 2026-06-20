@@ -91,8 +91,7 @@ export async function getConfig(locationId: string): Promise<CancellationGuardCo
     .from('cancellation_guard_config')
     .select('*')
     .eq('location_id', locationId)
-    .maybeSingle()
-    .catch(() => ({ data: null }));
+    .maybeSingle();
 
   if (!data) return DEFAULTS;
   return mapConfig(data as Record<string, unknown>);
@@ -116,8 +115,7 @@ export async function upsertConfig(
       voucher_amount_eur: merged.voucherAmountEur,
       block_after_n_cancellations: merged.blockAfterNCancellations,
       block_window_hours: merged.blockWindowHours,
-    }, { onConflict: 'location_id' })
-    .catch(() => {});
+    }, { onConflict: 'location_id' });
 
   return merged;
 }
@@ -142,8 +140,7 @@ export async function checkCancellationRisk(
     .eq('customer_id', customerId)
     .eq('location_id', locationId)
     .in('event_type', ['attempt', 'cancelled_allowed', 'blocked'])
-    .gte('created_at', since24h)
-    .catch(() => ({ data: [] as unknown[] }));
+    .gte('created_at', since24h);
 
   const count24h = (events24h ?? []).length;
 
@@ -159,8 +156,7 @@ export async function checkCancellationRisk(
     .eq('customer_id', customerId)
     .eq('location_id', locationId)
     .eq('event_type', 'blocked')
-    .gte('created_at', sinceBlock)
-    .catch(() => ({ data: [] as unknown[] }));
+    .gte('created_at', sinceBlock);
 
   const blockedCount = (blockedEvents ?? []).length;
 
@@ -218,8 +214,7 @@ export async function recordCancellationEvent(
       cancellation_count_24h: opts.cancellationCount24h ?? 0,
       voucher_code: opts.voucherCode ?? null,
       reason: opts.reason ?? null,
-    })
-    .catch(() => {});
+    });
 }
 
 /** Generiert einen Voucher-Code und loggt die Intervention */
@@ -246,8 +241,7 @@ export async function offerVoucherIntervention(
       min_order_value: 0,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       description: `Stornierungsintervention für Kunde`,
-    })
-    .catch(() => {});
+    });
 
   const risk = await checkCancellationRisk(locationId, customerId, orderId ?? undefined);
   await recordCancellationEvent(locationId, orderId, customerId, 'voucher_offered', risk.riskLevel, {
@@ -269,8 +263,7 @@ export async function getDashboard(locationId: string): Promise<CancellationGuar
       .eq('location_id', locationId)
       .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       .order('created_at', { ascending: false })
-      .limit(100)
-      .catch(() => ({ data: [] as unknown[] })),
+      .limit(100),
   ]);
 
   const events = (eventsResult.data ?? []) as CancellationGuardEvent[];
@@ -311,8 +304,7 @@ export async function getDashboard(locationId: string): Promise<CancellationGuar
 export async function pruneOldEvents(daysToKeep = 30): Promise<{ pruned: number }> {
   const sb = createServiceClient();
   const { data, error } = await sb
-    .rpc('prune_cancellation_guard_events', { days_old: daysToKeep })
-    .catch(() => ({ data: 0, error: null }));
+    .rpc('prune_cancellation_guard_events', { days_old: daysToKeep });
 
   if (error) return { pruned: 0 };
   return { pruned: Number(data ?? 0) };
@@ -323,14 +315,13 @@ export async function runGuardAllLocations(): Promise<{ locations: number; scann
   const { data: locations } = await sb
     .from('locations')
     .select('id')
-    .eq('is_active', true)
-    .catch(() => ({ data: [] as { id: string }[] }));
+    .eq('is_active', true);
 
   let scanned = 0;
   let errors = 0;
 
   const results = await Promise.allSettled(
-    (locations ?? []).map(async (loc) => {
+    (locations ?? []).map(async (loc: { id: string }) => {
       const config = await getConfig(loc.id);
       if (!config.isEnabled) return;
 
@@ -340,10 +331,9 @@ export async function runGuardAllLocations(): Promise<{ locations: number; scann
         .select('customer_id')
         .eq('location_id', loc.id)
         .in('event_type', ['attempt', 'cancelled_allowed'])
-        .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
-        .catch(() => ({ data: [] as { customer_id: string }[] }));
+        .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
 
-      const customerIds = [...new Set((highRiskEvents ?? []).map((e) => e.customer_id).filter(Boolean))];
+      const customerIds = [...new Set((highRiskEvents ?? []).map((e: { customer_id: string }) => e.customer_id).filter(Boolean))];
       scanned += customerIds.length;
     }),
   );
