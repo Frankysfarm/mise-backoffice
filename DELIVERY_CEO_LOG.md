@@ -1,7 +1,52 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–337 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (336 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–339 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (339 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #184 — 2026-06-20
+
+### Geprüfte Phasen: Phase 338 Backend (Smart Tip Engine + Geofence Auto-Hours) + Phase 339 Frontend (Smart Timing Dashboard, Tour-Swimlanes, Route-Timing, ETA-Live-Ring, Schicht-Live-Statistik)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (339 Seiten, 0 Fehler)
+
+**Phase 338 Backend (Smart Tip Engine):**
+- `lib/delivery/smart-tip-engine.ts`: calculateSmartTipSuggestions korrekt — Pünktlichkeit δMin (früh/pünktlich/spät), Fahrer-Score ±5%, roundToHalf + clamp, Low/Mid/High ✅
+- `lib/delivery/smart-tip-engine.ts`: recordSuggestionShown/recordTipChosen/getSmartTipDashboard/pruneOldSuggestions ✅
+- API /api/delivery/admin/smart-tip-engine + /api/delivery/customer/smart-tip korrekt implementiert ✅
+- Admin-UI /delivery/smart-tip-engine 3 Tabs (Übersicht/Letzte Vorschläge/Konfiguration) ✅
+
+**Phase 338 Backend (Geofence Auto-Hours):**
+- `lib/delivery/geofence-auto-hours.ts`: checkAndToggleLocation via Kapazitäts-Signal-Mechanismus ✅
+- Cron-Integration: checkAllLocations jeden Tick ✅
+- Admin-UI /delivery/geofence-auto-hours 3 Tabs ✅
+
+**Phase 339 Frontend:**
+- `KitchenSmartTimingDashboard` → kitchen/client.tsx L612 integriert ✅
+- `DispatchTourSwimlanes` → dispatch/client.tsx L1009 integriert ✅
+- `TourRouteTiming` → fahrer/app/client.tsx L1185 integriert ✅
+- `EtaLiveRing` → success-state.tsx L397 integriert ✅
+- `SchichtLiveStatistik` → lieferdienst/client.tsx L1161 integriert ✅
+
+**Bug gefunden + gefixt:**
+- `lib/delivery/geofence-auto-hours.ts`: `setQueueSignal` wurde ohne `triggerSource = 'auto_hours'` aufgerufen → `isPaused = previousSignal === 'paused' && currentSignal.triggerSource === 'auto_hours'` war immer `false` → Auto-Open nie ausgelöst
+- Fix: beide `setQueueSignal`-Aufrufe (close + open) mit `true, 'auto_hours'` parametriert ✅
+
+### Status nach Review #184
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (339 Seiten)
+- Phase 338+339: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 340: Smart Customer Feedback Loop — Nach Lieferung automatisch Kundenbewertungs-Push + Sterne-Rating speichern, Fahrer-Score beeinflussen
+2. Oder: Phase 340: Dynamic Pricing Engine — Surge-basierte Liefergebühren-Anpassung (Schieberegler Admin-Config + Kunden-Info-Banner)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 340: 5 neue Smart-Delivery-Komponenten für alle 5 Dashboards
 
 ---
 

@@ -186,7 +186,7 @@ export async function checkAndToggleLocation(
       signalType: 'normal',
       etaExtensionMin: 0,
       messageDe: cfg.openMessageDe,
-    });
+    }, true, 'auto_hours');
     action = 'opened';
     newSignal = 'normal';
     reason = `${driversOnline} Fahrer online (min: ${cfg.minDriversToOpen}) → Lieferung geöffnet`;
@@ -199,7 +199,7 @@ export async function checkAndToggleLocation(
       signalType: 'paused',
       etaExtensionMin: 0,
       messageDe: cfg.closeMessageDe,
-    });
+    }, true, 'auto_hours');
     action = 'closed';
     newSignal = 'paused';
     reason = `Nur ${driversOnline}/${cfg.minDriversToOpen} Fahrer online → Lieferung pausiert`;
