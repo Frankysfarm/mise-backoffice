@@ -40,6 +40,7 @@ import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indika
 import LiveWaitBadge from './components/live-wait-badge';
 import { DynamicPricingBanner } from './components/dynamic-pricing-banner';
 import { OpsServiceKapazitaetsBand } from './components/ops-service-kapazitaets-band';
+import { StornoSchutzBadge } from './components/storno-schutz-badge';
 
 type Props = {
   location: Location;
@@ -496,6 +497,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 343: Ops-Service-Kapazitätsband — Live-Lieferkapazität + ETA für Kunden */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <OpsServiceKapazitaetsBand locationId={location.id} orderType={orderType} />
+      </div>
+      {/* Phase 345: Storno-Schutz-Badge — Stornierungsbedingungen transparent anzeigen */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <StornoSchutzBadge locationId={location.id} orderType={orderType} />
       </div>
       {/* Phase 337: Live-Wait-Badge — kompaktes Wartezeit-Pill je Bestelltyp */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

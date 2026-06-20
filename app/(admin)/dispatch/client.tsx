@@ -167,6 +167,7 @@ import DispatchTourProfitLive from './tour-profit-live';
 import { DispatchTourSwimlanes } from './tour-swimlanes';
 import { DispatchDriverScorePanel } from './driver-score-panel';
 import { DispatchOpsDecisionPanel } from './ops-decision-panel';
+import { DispatchStornoInterventPanel } from './storno-intervent-panel';
 
 type Driver = {
   employee_id: string;
@@ -1659,6 +1660,9 @@ export function DispatchBoard({
 
       {/* Phase 343: Ops-Entscheidungs-Panel — Alle Empfehlungen mit Annehmen/Ignorieren */}
       <DispatchOpsDecisionPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 345: Storno-Interventions-Panel — Hochriskante Kunden + Voucher-Intervention */}
+      <DispatchStornoInterventPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

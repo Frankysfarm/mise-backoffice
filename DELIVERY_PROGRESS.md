@@ -1,8 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–343 abgeschlossen. Build sauber. 341 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–345 abgeschlossen. Build sauber. 342 Seiten. TypeScript 0 Fehler.**
 
+**Backend-Architekt-Agent — 2026-06-20: Phase 344+345 — Smart Cancellation Guard + 5 Frontend-Komponenten (SQL 164: cancellation_guard_config+cancellation_guard_events+RLS+prune_cancellation_guard_events RPC+2 Indizes; lib/delivery/cancellation-guard.ts: getConfig/upsertConfig/checkCancellationRisk (3-Stufen Risiko: low/medium/high/blocked, Zähl-Window 1h+24h+Block-Window), recordCancellationEvent, offerVoucherIntervention (auto-Voucher-Code+vouchers-Tabelle), getDashboard (KPIs+recentEvents+topCancellers), pruneOldEvents via RPC, runGuardAllLocations Batch; API /api/delivery/admin/cancellation-guard GET dashboard/config + POST update_config/check_risk/record_event/offer_voucher/prune; Admin-UI /delivery/cancellation-guard 4 KPIs (Versuche/Gesperrt/Voucher/Rate) + Tab Ereignisse (expandierbare EventCards+Voucher-Button) + Tab Top-Stornierer + Tab Konfiguration (Slider Guard AN/AUS+Voucher-Toggle); Delivery-Overview SectionCard in Probleme&Eskalation; Cron: Prune täglich 06:25 UTC; 5 Komponenten: KitchenStornoAlertStrip→kitchen/client.tsx (dismissbarer Alert bei high/blocked Events), DispatchStornoInterventPanel→dispatch/client.tsx (kollabierbar+Voucher-Button), FahrerStornoInfoBanner→fahrer/app/client.tsx (Stop-Stornierung Hinweis), StornoSchutzBadge→storefront.tsx (Stornierungsbedingungen transparent), LieferdienstStornoRateKarte→lieferdienst/client.tsx (Rate-KPIs+Top-Stornierer)). Build ✅ 342 Seiten, 0 Fehler.**
 **CEO-Agent Review #186 — 2026-06-20: 1 Bug gefixt (ops-recommendations/client.tsx L157 TS2322 action_params.path unknown→!!boolean). Phase 342 Backend (Ops Decision Support Engine: 6-Regel generateRecommendations, insertIfNew Dedup, getRecommendationsDashboard, resolveRecommendation, API /api/delivery/admin/ops-recommendations, Admin-UI /delivery/ops-recommendations 4 KPIs + RecoCards + Cron 5Min) + Phase 343 Frontend (5 Komponenten: KitchenOpsRecoStrip→kitchen/client.tsx, DispatchOpsDecisionPanel→dispatch/client.tsx, FahrerSchichtVerdienstLive→fahrer/app/client.tsx, LieferdienstOpsRekoKompakt→lieferdienst/client.tsx, OpsServiceKapazitaetsBand→storefront.tsx) geprüft. Alle 5 Komponenten korrekt integriert, alle API-Felder validiert. Build ✅ 341 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-20: Phase 343 — Ops Decision Support Engine UI-Integration. 5 neue Komponenten. Build ✅ 341 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 342 — Ops Decision Support Engine (SQL 163: ops_recommendations + RLS + prune_ops_recommendations RPC + 2 Indizes; lib/delivery/ops-recommendations.ts: 6-Regel-Engine generateRecommendations (veraltete Bestellungen >25Min / Fahrermangel 0 idle + pendingCount:idleCount >3:1 / SLA-Verstoßrate >30% letzte Stunde / Umsatz <70% unter Schicht-Pace / Surge aktiv + Dynamic Pricing aus / Fahrer offline >10Min auf aktiver Tour), Dedup insertIfNew (kein Duplikat pending type in 1h), getRecommendationsDashboard (prioritätssortiert), resolveRecommendation, runRecsAllLocations, pruneOldRecommendations; API /api/delivery/admin/ops-recommendations GET→dashboard, POST action=resolve|run_now|prune; Admin-UI /delivery/ops-recommendations page.tsx + client.tsx (4 KPI-Karten Aktiv/Kritisch/Hoch/HeuteErledigt, Tab Aktiv mit aufklappbaren RecoCards + Annehmen/Ignorieren-Buttons, Tab Erledigt 24h-Log, 60s Auto-Refresh + manueller Scan-Button); Cron: alle 5 Min runRecsAllLocations, Prune täglich 06:20 UTC; Delivery-Overview-Eintrag in SectionGroup Live-Betrieb). Build ✅ 341 Seiten, 0 Fehler.**
@@ -5389,3 +5390,90 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - 5-Min-Polling; Integration: `lieferdienst/client.tsx` nach `<SchichtLiveStatistik>`
 
 - Build: npx next build ✓ (339 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 344 — Smart Cancellation Guard (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/164_cancellation_guard.sql`:**
+- `cancellation_guard_config` — Admin-Konfiguration je Standort (UNIQUE location_id): `is_enabled`, `max_cancellations_per_hour`, `voucher_enabled`, `voucher_amount_eur`, `block_after_n_cancellations`, `block_window_hours`; RLS + updated_at Trigger
+- `cancellation_guard_events` — Ereignis-Log: `event_type` (attempt/blocked/voucher_offered/voucher_used/cancelled_allowed), `risk_level` (low/medium/high/blocked), `cancellation_count_24h`, `voucher_code`, `reason`; FK customer_orders + locations; 2 Indizes (location+date, customer+date), RLS
+- `prune_cancellation_guard_events(days_old)` RPC
+
+**`lib/delivery/cancellation-guard.ts`:**
+- `getConfig(locationId)` — Konfiguration mit Defaults
+- `upsertConfig(locationId, update)` — Partial-Update via DB-Upsert
+- `checkCancellationRisk(locationId, customerId, orderId?)` — 3-Stufen-Risikoanalyse:
+  - 1h-Fenster: > maxCancellationsPerHour → HIGH + Voucher-Angebot
+  - 24h-Fenster: ≥ ceil(blockAfterN/2) → MEDIUM + Voucher-Angebot
+  - blockWindowHours: ≥ blockAfterNCancellations → BLOCKED
+- `recordCancellationEvent(...)` — Ereignis-Log
+- `offerVoucherIntervention(...)` — generiert Voucher-Code + schreibt in vouchers-Tabelle + loggt Ereignis
+- `getDashboard(locationId)` — KPIs (Versuche/Gesperrt/Voucher/Rate) + recentEvents + topCancellers (Map-Aggregat)
+- `pruneOldEvents(daysToKeep)` — via RPC
+- `runGuardAllLocations()` — Cron-Batch (Promise.allSettled)
+
+**`app/api/delivery/admin/cancellation-guard/route.ts`:**
+- GET ?action=dashboard → KPIs + Ereignis-Log (30 Events)
+- GET ?action=config → Konfiguration
+- POST action=update_config → Partial-Konfiguration speichern
+- POST action=check_risk → Risiko für Kunden prüfen (body: customer_id, order_id?)
+- POST action=record_event → Manuell Ereignis loggen
+- POST action=offer_voucher → Voucher-Intervention (body: customer_id, order_id?)
+- POST action=prune → Cleanup (30 Tage)
+- Auth via employees.location_id + Superadmin-Override via ?location_id=
+
+**`app/(admin)/delivery/cancellation-guard/` — Admin-UI:**
+- 4 KPI-Karten: Versuche heute / Gesperrt / Vouchers angeboten / Blockierungsrate
+- Tab **Ereignisse**: expandierbare EventCards mit Risiko-Badge, Voucher-Anbieten-Button, Customer-ID, 24h-Count
+- Tab **Top-Stornierer**: Rangliste nach Stornierungsanzahl (rot ab 3×, amber ab 2×)
+- Tab **Konfiguration**: Guard-Toggle + MaxCancellationsPerHour + BlockAfterN + BlockWindowHours + Voucher-Toggle + Voucher-Betrag
+- 60s Auto-Refresh + manueller Aktualisieren-Button
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Smart Cancellation Guard" in Probleme & Eskalation-Gruppe (highlight)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):** `pruneCancellationGuardEvents(30)` täglich 06:25 UTC
+
+- Build: npx next build ✓ (342 Seiten), 0 TypeScript-Fehler
+
+---
+
+## Phase 345 — Smart Cancellation Guard UI: 5 Dashboard-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`app/(admin)/kitchen/storno-alert-strip.tsx`** — `KitchenStornoAlertStrip`
+- Dismissbarer Alert-Strip bei high/blocked Events in letzter Stunde
+- Rot (blocked Kunden gesperrt) / Amber (high Risiko) Farbkodierung
+- 60s-Polling via `/api/delivery/admin/cancellation-guard?action=dashboard`
+- Integration: `kitchen/client.tsx` nach `<KitchenOpsRecoStrip>`
+
+**`app/(admin)/dispatch/storno-intervent-panel.tsx`** — `DispatchStornoInterventPanel`
+- Kollabierbare Card mit Top-5 hochriskanten Events
+- Voucher-Intervention-Button: POST offer_voucher → zeigt Voucher-Code nach Erstellung
+- 90s-Polling; nur sichtbar wenn high/blocked Events vorhanden
+- Integration: `dispatch/client.tsx` nach `<DispatchOpsDecisionPanel>`
+
+**`app/fahrer/app/storno-info-banner.tsx`** — `FahrerStornoInfoBanner`
+- Zeigt Amber-Banner wenn Stop-Status failed/cancelled in aktivem Batch
+- Dismiss-Button je Stop-ID; resettet sich nicht bei neuem Batch
+- Integration: `fahrer/app/client.tsx` nach `<FahrerGebuehrenInfo>` vor `<FahrerSchichtVerdienstLive>`
+
+**`app/order/[locationSlug]/components/storno-schutz-badge.tsx`** — `StornoSchutzBadge`
+- Kunden-seitig: zeigt Stornierungsbedingungen transparent (kostenlos/Limit/Voucher-Betrag)
+- Pollt `/api/delivery/admin/cancellation-guard?action=config`; nur bei `orderType === 'lieferung'`
+- Emerald-Badge mit ShieldCheck-Icon; kein Render wenn Guard deaktiviert
+- Integration: `storefront.tsx` nach `<OpsServiceKapazitaetsBand>`
+
+**`app/(admin)/lieferdienst/storno-rate-karte.tsx`** — `LieferdienstStornoRateKarte`
+- Kompaktes Widget: 3 Stat-Cells (Versuche/Gesperrt/Voucher) + Blockierungsrate-Zeile
+- Top-Stornierer als farbige Badges (rot ≥3×, amber sonst)
+- 5-Min-Polling; Integration: `lieferdienst/client.tsx` nach `<LieferdienstOpsRekoKompakt>`
+
+- Build: node_modules/.bin/next build ✓ (342 Seiten, 0 Fehler)

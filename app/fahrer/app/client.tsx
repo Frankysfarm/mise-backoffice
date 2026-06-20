@@ -109,6 +109,7 @@ import { TourRouteTiming } from './tour-route-timing';
 import { TourStoppEtaMatrix } from './tour-stopp-eta-matrix';
 import { FahrerGebuehrenInfo } from './gebuehren-info';
 import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
+import { FahrerStornoInfoBanner } from './storno-info-banner';
 
 type Driver = {
   id: string;
@@ -1378,6 +1379,12 @@ export function FahrerApp({
           {driver.location_id && (
             <div className="px-4">
               <FahrerGebuehrenInfo locationSlug={driver.location_id} />
+            </div>
+          )}
+          {/* Phase 345: Storno-Info-Banner — Info wenn Stop während Tour storniert wurde */}
+          {activeBatch && (
+            <div className="px-4">
+              <FahrerStornoInfoBanner activeBatch={activeBatch} />
             </div>
           )}
           {/* Phase 343: Schicht-Verdienst-Live — EUR/Stopp, EUR/Std, Schicht-Fortschritt */}

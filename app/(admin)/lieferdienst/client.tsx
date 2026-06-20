@@ -137,6 +137,7 @@ import { SchichtLiveStatistik } from './schicht-live-statistik'
 import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
 import { LieferdienstPricingKompakt } from './pricing-kompakt'
 import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
+import { LieferdienstStornoRateKarte } from './storno-rate-karte'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1168,6 +1169,8 @@ export function LieferdienstClient() {
               <LieferdienstPricingKompakt locationId={locationId} />
               {/* Phase 343: Ops-Empfehlungs-Kompakt — Aktive Empfehlungen + KPI-Raster */}
               <LieferdienstOpsRekoKompakt locationId={locationId} />
+              {/* Phase 345: Storno-Rate-Karte — Stornierungsrisiko-KPIs + Top-Stornierer */}
+              <LieferdienstStornoRateKarte locationId={locationId} />
               {/* Phase 337: Fahrer-Effizienz-Score — Top-Fahrer nach Effizienz, sortierbar */}
               <LieferdienstFahrerEffizienzScore />
               {/* Phase 323: Schicht-Nachrichten-Center — Echtzeit-Timeline: Alerts, Fahrer-Updates, KPI-Ereignisse */}

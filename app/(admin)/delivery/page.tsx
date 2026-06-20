@@ -334,6 +334,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Rentabilität per Lieferzone · Zuschlag- & MOV-Empfehlungen · 30-Tage-Trend · Margin-Score" cta="Optimizer öffnen" highlight />
         <SectionCard href="/delivery/reorder-notify" icon={<BellDot className="h-5 w-5" />} title="Smart Reorder Notifications"
           subtitle="Push-Alert bei kritischem Artikelbestand · Dedup-Schutz · 15-Min-Scan · Liefermaterial & Artikel" cta="Alerts ansehen" highlight />
+        <SectionCard href="/delivery/cancellation-guard" icon={<ShieldAlert className="h-5 w-5" />} title="Smart Cancellation Guard"
+          subtitle="Stornierungsmuster erkennen · Risiko-Score · Voucher-Intervention · Sperr-Automatik" cta="Guard öffnen" highlight />
         <SectionCard href="/delivery/incidents" icon={<ShieldAlert className="h-5 w-5" />} title="Vorfälle"
           subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow" cta="Vorfälle verwalten" />
         <SectionCard href="/delivery/failed-attempts" icon={<XCircle className="h-5 w-5" />} title="Fehlgeschlagene Zustellungen"

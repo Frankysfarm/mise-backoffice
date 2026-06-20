@@ -137,6 +137,7 @@ import { checkAllLocations as checkGeofenceAutoHours, pruneOldLogs as pruneAutoH
 import { pruneOldSuggestions as pruneSmartTipSuggestions } from '@/lib/delivery/smart-tip-engine';
 import { pruneOldPricingEvents } from '@/lib/delivery/dynamic-pricing';
 import { runRecsAllLocations, pruneOldRecommendations } from '@/lib/delivery/ops-recommendations';
+import { pruneOldEvents as pruneCancellationGuardEvents } from '@/lib/delivery/cancellation-guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1086,6 +1087,12 @@ export async function GET(req: NextRequest) {
       ? await pruneOldRecommendations(7).catch(() => 0)
       : null;
 
+    // Phase 344: Cancellation Guard Events Prune täglich 06:25 UTC
+    const isCancelGuardPruneTick = nowHour === 6 && nowMin >= 25 && nowMin < 29;
+    const cancelGuardPruned = isCancelGuardPruneTick
+      ? await pruneCancellationGuardEvents(30).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1314,6 +1321,7 @@ export async function GET(req: NextRequest) {
       ...(dynamicPricingPruned?.pruned ? { dynamic_pricing_pruned: dynamicPricingPruned.pruned } : {}),
       ...(opsRecsResult ? { ops_recommendations: { locations: opsRecsResult.locations, errors: opsRecsResult.errors } } : {}),
       ...(opsRecsPruned ? { ops_recommendations_pruned: opsRecsPruned } : {}),
+      ...(cancelGuardPruned?.pruned ? { cancellation_guard_pruned: cancelGuardPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
