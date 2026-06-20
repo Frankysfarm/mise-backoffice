@@ -283,6 +283,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="4-Faktoren-Index · Retention 30% · Incentive 25% · Bewertung 25% · Pünktlichkeit 20% · Tier-Klassifikation" cta="Score öffnen" />
         <SectionCard href="/delivery/driver-wellbeing" icon={<Sparkles className="h-5 w-5" />} title="Fahrer-Wellbeing-Index (Burnout-Prävention)"
           subtitle="4-Faktoren-Composite · Ermüdung 25% · Zufriedenheit 35% · Retention 25% · Incentive-Health 15% · Interventions-Engine" cta="Wellbeing öffnen" />
+        <SectionCard href="/delivery/revenue-velocity" icon={<TrendingUp className="h-5 w-5" />} title="Revenue Velocity"
+          subtitle="Stündliche Umsatz-Snapshots · Heute vs. Gestern · Peak-Velocity · Schicht-Prognose · 10-Min-Cron" cta="Velocity öffnen" highlight />
       </SectionGroup>
 
       {/* ── Loyalty & A/B-Tests ──────────────────────────────── */}
