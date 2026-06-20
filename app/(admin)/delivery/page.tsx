@@ -12,6 +12,7 @@ import {
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
   BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
+  HandCoins, MapPinCheck,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -281,6 +282,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Automatische Boni wenn Fahrer-Score Schwellenwerte überschreitet · Trigger-Config · Grant-Genehmigung" cta="Trigger öffnen" />
         <SectionCard href="/delivery/tips" icon={<Heart className="h-5 w-5" />} title="Trinkgeld-System"
           subtitle="Kundenseitige Trinkgelder · Fahrer-Leaderboard · Konfiguration · Tages-Snapshots" cta="Trinkgeld öffnen" />
+        <SectionCard href="/delivery/smart-tip-engine" icon={<HandCoins className="h-5 w-5" />} title="Smart Tip Engine"
+          subtitle="Dynamische Trinkgeld-Vorschläge basierend auf Pünktlichkeit, Fahrer-Score und Bestellwert · Low/Mid/High · Konversions-Tracking" cta="Smart Tips öffnen" highlight />
         <SectionCard href="/delivery/sla-compensation" icon={<Activity className="h-5 w-5" />} title="SLA-Auto-Kompensation"
           subtitle="Automatische Gutschriften bei SLA-Verletzungen · Schwellenwerte" cta="Kompensation" />
         <SectionCard href="/delivery/credits" icon={<Ticket className="h-5 w-5" />} title="Kundengutschriften"
@@ -348,6 +351,8 @@ export default async function DeliveryOverviewPage() {
           subtitle={tenant?.lieferradius_km ? `Radius ${tenant.lieferradius_km} km` : 'Noch nicht definiert'} cta="Radius & Zonen" />
         <SectionCard href="/delivery/alert-rules" icon={<BellDot className="h-5 w-5" />} title="Alarm-Regeln"
           subtitle="Schwellwerte für Queue, Fahrer, Küche und ETA konfigurieren" cta="Alarm-Regeln" />
+        <SectionCard href="/delivery/geofence-auto-hours" icon={<MapPinCheck className="h-5 w-5" />} title="Geofence Auto-Öffnung"
+          subtitle="Lieferdienst öffnet/schließt automatisch basierend auf Fahrer-Verfügbarkeit · Signal-Mechanismus · 7-Tage-Ereignis-Log" cta="Auto-Hours konfigurieren" highlight />
         <SectionCard href="/delivery/notification-config" icon={<Bell className="h-5 w-5" />} title="Kunden-Push-Konfiguration"
           subtitle="Webhook, Ereignisse und Versand-Einstellungen" cta="Konfigurieren" />
         <SectionCard href="/delivery/notification-log" icon={<BellRing className="h-5 w-5" />} title="Kunden-Benachrichtigungen"

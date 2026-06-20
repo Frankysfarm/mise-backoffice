@@ -133,6 +133,8 @@ import { snapshotAllLocations as snapshotZoneRevenue, generateRecommendationsAll
 import { scanAllLocations as scanGeofences, pruneGeofenceScanLogs } from '@/lib/delivery/driver-geofence';
 import { evaluateRecentDeliveriesAllLocations as evaluateIncentiveV2, approvePointsAllLocations as approveIncentiveV2Points } from '@/lib/delivery/driver-incentive-v2';
 import { scanAllLocations as scanReorderAlerts } from '@/lib/delivery/smart-reorder-notify';
+import { checkAllLocations as checkGeofenceAutoHours, pruneOldLogs as pruneAutoHoursLogs } from '@/lib/delivery/geofence-auto-hours';
+import { pruneOldSuggestions as pruneSmartTipSuggestions } from '@/lib/delivery/smart-tip-engine';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1053,6 +1055,19 @@ export async function GET(req: NextRequest) {
       ? await scanReorderAlerts().catch(() => ({ locations: 0, totalPushed: 0 }))
       : null;
 
+    // Phase 338: Geofence Auto-Hours — jeden Tick
+    const autoHoursResult = await checkGeofenceAutoHours().catch(() => ({ locations: 0, opened: 0, closed: 0, errors: 0 }));
+    // Phase 338: Auto-Hours Log Prune — täglich 05:55 UTC
+    const isAutoHoursPruneTick = nowHour === 5 && nowMin >= 55 && nowMin < 59;
+    const autoHoursLogsPruned = isAutoHoursPruneTick
+      ? await pruneAutoHoursLogs(30).catch(() => 0)
+      : null;
+    // Phase 338: Smart Tip Suggestions Prune — täglich 06:00 UTC
+    const isSmartTipPruneTick = nowHour === 6 && nowMin >= 0 && nowMin < 4;
+    const smartTipSuggestionsPruned = isSmartTipPruneTick
+      ? await pruneSmartTipSuggestions(90).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1275,6 +1290,9 @@ export async function GET(req: NextRequest) {
       ...(incentiveV2Result.totalAwarded > 0 ? { incentive_v2: { locations: incentiveV2Result.locations, awarded: incentiveV2Result.totalAwarded } } : {}),
       ...(incentiveV2ApproveResult ? { incentive_v2_approved: incentiveV2ApproveResult.approved } : {}),
       ...(reorderNotifyResult ? { reorder_notify: { locations: reorderNotifyResult.locations, pushed: reorderNotifyResult.totalPushed } } : {}),
+      ...(autoHoursResult.opened > 0 || autoHoursResult.closed > 0 ? { geofence_auto_hours: { locations: autoHoursResult.locations, opened: autoHoursResult.opened, closed: autoHoursResult.closed } } : {}),
+      ...(autoHoursLogsPruned ? { auto_hours_logs_pruned: autoHoursLogsPruned } : {}),
+      ...(smartTipSuggestionsPruned ? { smart_tip_suggestions_pruned: smartTipSuggestionsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
