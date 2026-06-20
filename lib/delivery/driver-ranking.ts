@@ -434,7 +434,7 @@ export async function getWeeklyRankingDashboard(locationId: string): Promise<Ran
     employees: { name: string | null } | null;
   };
 
-  const currentRanking: WeeklyRankingEntry[] = ((rankingRes.data ?? []) as RawRankRow[]).map((r) => ({
+  const currentRanking: WeeklyRankingEntry[] = ((rankingRes.data ?? []) as unknown as RawRankRow[]).map((r) => ({
     id: r.id,
     locationId,
     driverId: r.driver_id,
@@ -455,7 +455,7 @@ export async function getWeeklyRankingDashboard(locationId: string): Promise<Ran
     isTop3: r.is_top3,
   }));
 
-  const pendingRewardList: RankingReward[] = ((rewardsRes.data ?? []) as RawRewardRow[]).map((r) => ({
+  const pendingRewardList: RankingReward[] = ((rewardsRes.data ?? []) as unknown as RawRewardRow[]).map((r) => ({
     id: r.id,
     locationId,
     driverId: r.driver_id,
@@ -543,7 +543,7 @@ export async function getRankingHistory(locationId: string, weeks = 8): Promise<
     employees: { name: string | null } | null;
   };
 
-  const rows = (data ?? []) as RawRow[];
+  const rows = (data ?? []) as unknown as RawRow[];
   const byWeek = new Map<string, { weekStart: string; weekEnd: string; entries: WeeklyRankingEntry[] }>();
 
   for (const r of rows) {

@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–328 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (330 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–330 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (331 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #179 — 2026-06-20
+
+### Geprüfte Phasen: Phase 329 Backend (Wöchentliche Fahrer-Ranking-Engine + Schicht-ROI-API) + Phase 330 Frontend (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (331 Seiten, 0 Fehler)
+
+**TypeScript-Bugs gefixt (3 Fehler in lib/delivery/driver-ranking.ts):**
+- Zeile 437: `(rankingRes.data ?? []) as RawRankRow[]` → `as unknown as RawRankRow[]`
+- Zeile 458: `(rewardsRes.data ?? []) as RawRewardRow[]` → `as unknown as RawRewardRow[]`
+- Zeile 546: `(data ?? []) as RawRow[]` → `as unknown as RawRow[]`
+- Ursache: Supabase gibt `employees: { name: any }[]` zurück, aber lokale Typen erwarten `{ name: string | null } | null` — direktes as-Cast ohne `unknown` war nicht kompatibel
+
+**Logik-Bug gefixt (1 Fehler in wochen-praemien-panel.tsx):**
+- `data?.pendingRewardsList` → `data?.pendingRewardList` (API gibt `pendingRewardList` ohne abschliessendes "s")
+- Ohne Fix: Prämien-Liste immer leer, obwohl Daten vorhanden
+- Sowohl Typ-Definition als auch Zugriff korrigiert
+
+**Neue Komponenten Phase 330 (alle korrekt integriert):**
+
+**KitchenSchichtWocheVergleich (`app/(admin)/kitchen/schicht-woche-vergleich.tsx`):**
+- Wochenvergleich (SLA-Rate, Ø Lieferzeit, Lieferrate) mit Trend-Pfeilen vs. Vorwoche ✅
+- 5-Min-Polling auf `/api/delivery/admin/analytics`, graceful null-handling ✅
+- Integration in kitchen/client.tsx L605 ✅
+
+**DispatchWochenRankingPanel (`app/(admin)/dispatch/wochen-ranking-panel.tsx`):**
+- Top-5 Fahrer mit Score-Balken, Grade-Badge, Prämien-Status, Ø-Score ✅
+- 5-Min-Polling auf `/api/delivery/admin/driver-ranking?action=dashboard`, Refresh-Button ✅
+- Integration in dispatch/client.tsx L1479 ✅
+
+**FahrerWochenRangKarte (`app/fahrer/app/wochen-rang-karte.tsx`):**
+- Persönliche Rang-Bubble, Score-Ring, Pünktlichkeit, Bewertung, Einnahmen ✅
+- 10-Min-Polling auf `/api/delivery/driver/my-performance?period=week` ✅
+- Integration in fahrer/app/client.tsx L1334 ✅
+
+**LiveWartezeitRing (`app/order/[locationSlug]/components/live-wartezeit-ring.tsx`):**
+- SVG-Countdown-Ring, Farbwechsel grün→amber→rot, 1s-Tick ✅
+- Nur für `orderType === 'lieferung'` und nicht-terminale Status, sauberer Cleanup ✅
+- Integration in tracking.tsx L478 mit Guard `!['geliefert','storniert'].includes(status)` ✅
+
+**LieferdienstWochenPraemienPanel (`app/(admin)/lieferdienst/wochen-praemien-panel.tsx`):**
+- Top-Fahrer-Spotlight, ausstehende Boni, Status-Badges (pending/approved/paid/rejected) ✅
+- Prämien-Summe in €, 5-Min-Polling ✅
+- Integration in lieferdienst/client.tsx L1062 ✅
+
+### Status nach Review #179
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (331 Seiten)
+- Phase 329 Backend + Phase 330 Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Bugs gefixt: 4 (3x TypeScript-Cast + 1x Feldname-Mismatch)
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 331: Driver-Geofence-Engine — automatische Status-Updates wenn Fahrer in Kunden-Radius einfährt
+2. Oder: Phase 331: Multi-Depot-Routing — optimierte Tourenplanung über mehrere Standorte
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 331: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ---
 

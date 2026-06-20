@@ -22,7 +22,7 @@ type RankingDashboard = {
   pendingRewards?: number;
   pendingRewardsEur?: number;
   topDriver?: { name: string | null; score: number; grade: string } | null;
-  pendingRewardsList?: RewardEntry[];
+  pendingRewardList?: RewardEntry[];
 };
 
 const STATUS_CONFIG = {
@@ -65,7 +65,7 @@ export function LieferdienstWochenPraemienPanel({ locationId }: { locationId: st
 
   if (!data && !loading) return null;
 
-  const rewards = data?.pendingRewardsList ?? [];
+  const rewards = data?.pendingRewardList ?? [];
   const hasPending = (data?.pendingRewards ?? 0) > 0;
 
   return (
