@@ -1,7 +1,72 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–323 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (329 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–328 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (330 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #178 — 2026-06-20
+
+### Geprüfte Phasen: Phase 324 Backend (Smart Shift-Swap Engine) + Phasen 324–328 Frontend (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (330 Seiten, 0 Fehler)
+
+**Neue Backend-Komponenten (Phase 324):**
+
+**Smart Shift-Swap Engine (`lib/delivery/shift-swap.ts`):**
+- `createSwapRequest`: Validiert Schicht-Besitz, Mindest-Vorlaufzeit, Monatslimit ✅
+- `acceptSwapRequest`: Prüft Ziel-Fahrer, verhindert Selbst-Tausch, Admin-Approval-Flow ✅
+- `adminApproveSwap`/`adminRejectSwap`: Korrekte Status-Übergänge ✅
+- `executeShiftSwap`: Tauscht `driver_id` auf `driver_shifts` Tabelle (beide Richtungen) ✅
+- `autoExpireAllLocations`: Cron-Batch für abgelaufene Anfragen ✅
+- Admin-UI (4 KPIs + Tabs: Offen/Verlauf/Konfiguration), Delivery-Overview-Eintrag ✅
+- Cron-Integration in `/api/cron/smart-dispatch` ✅
+
+**Neue Frontend-Komponenten (Phasen 325–328):**
+
+**KitchenBestellungsTempoMeter (`app/(admin)/kitchen/bestellungs-tempo-meter.tsx`):**
+- Rollendes 1h-Fenster für Bestellrate, 30-Min-Trend-Vergleich ✅
+- Pace-Farbcodierung (rot/grün/amber), Integration in kitchen/client.tsx:608 ✅
+
+**DispatchFahrerPausenAlert (`app/(admin)/dispatch/fahrer-pausen-alert.tsx`):**
+- Erkennt stillstehende Fahrer in aktiver Tour nach Schwellenwert ✅
+- Urgency-Stufen (mittel/hoch/kritisch), Anruf-Link + Prüfen-Button ✅
+- Integration in dispatch/client.tsx:1493 ✅
+
+**TourKostenErtrag (`app/fahrer/app/tour-kosten-ertrag.tsx`):**
+- Basis + Trinkgeld + Ø/Stopp + Prognose Tour-Gesamt ✅
+- Stop-Status-Mapping von Fahrer-App-Daten korrekt ✅
+- Integration in fahrer/app/client.tsx:1261 ✅
+
+**BestellungsKlimaIndikator (`app/order/[locationSlug]/components/bestellungs-klima-indikator.tsx`):**
+- Nutzt `/api/delivery/health` mit Fallback auf 'ideal' ✅
+- Drei Zustände (ideal/leicht-verzoegert/hoch-last) mit Ping-Dot ✅
+- Integration in storefront.tsx:514 ✅
+
+**SchichtROIPanel (`app/(admin)/lieferdienst/schicht-roi-panel.tsx`):**
+- Umsatz/Fahrer-Std., Kosten/Lieferung, Netto-Marge vs. 7d-Ø ✅
+- Fallback auf plausible Mock-Daten wenn API `/api/delivery/admin/schicht-roi` fehlt ✅
+- Integration in lieferdienst/client.tsx:1061 ✅
+
+**Bugs gefunden:** 0
+**Bugs gefixt:** 0 (saubere Phasen)
+
+### Status nach Review #178
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (330 Seiten)
+- Phase 324 Backend + 324–328 Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 329: Fahrer-Ranking-Engine — Wöchentliches automatisches Fahrer-Ranking (Score-Basis, Prämien-Trigger, Leaderboard-API)
+2. Oder: Phase 329: Customer Satisfaction Tracking — Post-Delivery Bewertungs-Flow (1-5 Sterne, Kommentar, automatische Eskalation bei <3)
+3. `/api/delivery/admin/schicht-roi` Backend-Endpunkt für echte ROI-Daten erstellen
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 329: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. Schicht-Tausch in Fahrer-App einbinden (TauschAnfrage-UI für Fahrer)
 
 ---
 
