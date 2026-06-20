@@ -51,8 +51,8 @@ export function FahrerAnalyticsWochenuebersicht() {
         if (!json) return;
         setData({
           rank: json.rank ?? null,
-          totalDrivers: json.totalDrivers ?? null,
-          liveScore: json.liveScore ?? null,
+          totalDrivers: json.total ?? null,
+          liveScore: (json.rankData?.score ?? null) as number | null,
           history: (json.history ?? []) as HistoryPoint[],
         });
       })

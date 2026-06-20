@@ -179,9 +179,11 @@ export function LieferdienstAnalyticsTrendPanel({ locationId }: { locationId: st
                   />
                   <Tooltip
                     contentStyle={{ fontSize: 11, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8 }}
-                    formatter={(value: number, name: string) =>
-                      name === 'SLA (%)' ? [`${value?.toFixed(1)}%`, name] : [`${value?.toFixed(0)} Min`, name]
-                    }
+                    formatter={(value: unknown, name: unknown) => {
+                      const v = typeof value === 'number' ? value : 0
+                      const n = String(name ?? '')
+                      return n === 'SLA (%)' ? [`${v.toFixed(1)}%`, n] : [`${v.toFixed(0)} Min`, n]
+                    }}
                   />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Line type="monotone" dataKey="sla" name="SLA (%)" stroke="#4d7c0f" strokeWidth={1.5} dot={false} />
