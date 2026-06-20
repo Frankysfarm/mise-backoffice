@@ -73,6 +73,7 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { LieferdienstWochenKpiVergleich } from './wochen-kpi-vergleich'
 import { SchichtPunktlichkeitsRing } from './schicht-punktlichkeits-ring'
 import { RentabilitaetsTrend } from './rentabilitaets-trend'
 import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
@@ -1221,6 +1222,8 @@ export function LieferdienstClient() {
               <TagesZielPanel orders={orders as any} completedOrders={completedOrders as any} />
               {/* 7-Tage Umsatz & Lieferperformance */}
               <WochenUmsatzPanel />
+              {/* Wochen-KPI-Vergleich: Tagesverteilung Umsatz/Bestellungen/Pünktlichkeit vs. Vorwoche */}
+              <LieferdienstWochenKpiVergleich locationId={locationId} />
               {/* Profitabilität KPI-Streifen: Umsatz, Lieferkosten, Marge, Gewinn heute */}
               <ProfitKpiStrip locationId={locationId} />
               {/* Schicht-KPI-Grid: Kompakte Kacheln mit allen wichtigen Schicht-Kennzahlen */}

@@ -126,6 +126,7 @@ import { KitchenFahrerRisikoMatrix } from './fahrer-risiko-matrix';
 import { KitchenEngagementTopStrip } from './engagement-top-strip';
 import { KitchenLiveBestellMatrix } from './live-bestell-matrix';
 import { KitchenBatchPickupCountdown } from './batch-pickup-countdown';
+import { KitchenPrepFlowKanban } from './prep-flow-kanban';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -649,6 +650,8 @@ export function KitchenBoard({
       <KitchenLiveBestellMatrix orders={filtered} timings={timings} />
       {/* Phase 352: Batch-Abholung Countdown — Countdowns pro aktiver Tour bis Fahrerankunft */}
       <KitchenBatchPickupCountdown batches={batches} stops={stops} orders={filtered} drivers={drivers} />
+      {/* Prep-Flow-Kanban: Kanban-Board aller aktiven Bestellungen (Neu → Kochend → Fertig → Unterwegs) */}
+      <KitchenPrepFlowKanban orders={filtered} timings={timings} />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

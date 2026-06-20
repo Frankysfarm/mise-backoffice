@@ -91,6 +91,7 @@ import { FahrerProblemMeldung } from './fahrer-problem-meldung';
 import { LieferungCheckliste } from './lieferung-checkliste';
 import { FahrerPushStatusKarte } from './push-status-karte';
 import { TourStoppUebersicht } from './tour-stopp-uebersicht';
+import { KundenStopInfo } from './kunden-stop-info';
 import { FahrerStopVerificationPanel } from './stop-verification-panel';
 import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
 import { EchtzeitLeistungsAnzeige } from './echtzeit-leistungs-anzeige';
@@ -1312,6 +1313,15 @@ export function FahrerApp({
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
               <TourStoppUebersicht
+                stops={activeBatch.stops as any}
+                currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Kunden-Stop-Info: Detaillierte Kundeninfos je Stop — Notizen, Zugang, Zahlung, Navigation */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <KundenStopInfo
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
               />

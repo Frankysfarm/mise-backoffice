@@ -149,6 +149,7 @@ import { DispatchScoreKompaktPanel } from './score-kompakt-panel';
 import { DispatchTourScoreLivePanel } from './tour-score-live-panel';
 import { DispatchTourStopMatrix } from './tour-stop-matrix';
 import { DispatchKapazitaetsPuffer } from './kapazitaets-puffer';
+import { DispatchSchichtBilanzPanel } from './schicht-bilanz-panel';
 import { DispatchFahrerLeistungsLive } from './fahrer-leistungs-live';
 import { DispatchUmsatzPacePanel } from './umsatz-pace-panel';
 import { DispatchStopAnkunftsMatrix } from './stop-ankunfts-matrix';
@@ -978,6 +979,8 @@ export function DispatchBoard({
       <DispatchScoreKompaktPanel orders={readyOrders} />
       {/* Tour-Score-Live: Echtzeit-Score-Visualisierung je aktiver Tour mit Trend und Breakdown */}
       <DispatchTourScoreLivePanel />
+      {/* Schicht-Bilanz: Aggregierte Schicht-Statistiken — Touren, Scores, Top-Fahrer, Umsatz */}
+      <DispatchSchichtBilanzPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}
