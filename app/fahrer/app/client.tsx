@@ -101,6 +101,7 @@ import { FahrerAnalyticsWochenuebersicht } from './analytics-wochenuebersicht';
 import { FahrerSchichtAusblick } from './schicht-ausblick';
 import { TourKostenErtrag } from './tour-kosten-ertrag';
 import { FahrerWochenRangKarte } from './wochen-rang-karte';
+import { TourSchichtBilanz } from './tour-schicht-bilanz';
 
 type Driver = {
   id: string;
@@ -1256,6 +1257,15 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 332: Tour-Schicht-Bilanz — Schicht-KPIs + Tour-Fortschritt kompakt */}
+          <div className="px-4">
+            <TourSchichtBilanz
+              activeBatch={activeBatch}
+              todayEarnings={0}
+              todayDeliveries={0}
+              onlineMinutes={0}
+            />
+          </div>
           {/* Phase 326: Tour-Kosten-Ertrag — Echtzeit-Einnahmen der aktuellen Tour je Stopp */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

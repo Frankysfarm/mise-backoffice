@@ -159,6 +159,7 @@ import { DispatchAnalyticsWochenvergleich } from './analytics-wochenvergleich';
 import { DispatchZonenScoreMatrix } from './zonen-score-matrix';
 import { DispatchFahrerPausenAlert } from './fahrer-pausen-alert';
 import { DispatchWochenRankingPanel } from './wochen-ranking-panel';
+import { DispatchTourAbschlussForecast } from './tour-abschluss-forecast';
 
 type Driver = {
   employee_id: string;
@@ -988,6 +989,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
+      <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Tour-Lieferzeit-Rangliste: Aktive Touren nach Pünktlichkeit sortiert */}
       <TourLieferzeitRangliste batches={batches as any} />
       {/* Tour-Risiko-Board: SLA-Risikoanalyse aller aktiven Touren — sortiert nach Kritikalität */}

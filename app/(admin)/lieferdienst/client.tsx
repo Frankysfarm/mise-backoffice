@@ -129,6 +129,7 @@ import { LieferdienstAnalyticsTrendPanel } from './analytics-trend-panel'
 import { SchichtNachrichtenCenter } from './schicht-nachrichten-center'
 import { SchichtROIPanel } from './schicht-roi-panel'
 import { LieferdienstWochenPraemienPanel } from './wochen-praemien-panel'
+import { ZoneProfitRangliste } from './zone-profit-rangliste'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1086,6 +1087,8 @@ export function LieferdienstClient() {
               <SchichtProfitKarte locationId={locationId} />
               {/* Phase 205: Fahrer-Performance-Score — Composite 0-100 Score (Pünktlichkeit + Bewertung + Effizienz) */}
               <FahrerPerformanceScore locationId={locationId} />
+              {/* Phase 332: Zonen-Profit-Rangliste — Umsatz/SLA/Volumen Score je Zone */}
+              <ZoneProfitRangliste locationId={locationId} />
               {/* Phase 205: Zonen-Vergleich-Panel — Lieferungen/Zeit/Pünktlichkeit/Umsatz je Zone */}
               <ZonenVergleichPanel />
               {/* Phase 204: Wetter-KPI-Karte — aktueller Wetter-Einfluss auf Lieferzeiten + Nachfrage */}

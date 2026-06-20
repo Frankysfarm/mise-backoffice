@@ -23,6 +23,7 @@ import { EtaLiveCountdown } from './eta-live-countdown';
 import { BestellDelayBanner } from '../bestell-delay-banner';
 import { BestellTeilenWidget } from '../bestell-teilen-widget';
 import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
+import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -621,6 +622,17 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               status={liveStatus}
               etaLatest={etaWindow?.latest ?? null}
               driverName={driverName}
+            />
+          </div>
+        )}
+        {/* Phase 332: ETA-Echtzeit-Tracker — Animated SVG Ring + Live-Status-Schritte */}
+        {orderId && (
+          <div className="mt-4 w-full">
+            <EtaEchtzeitTracker
+              orderId={orderId}
+              etaMin={secsLeft > 0 ? Math.ceil(secsLeft / 60) : etaMinutes}
+              orderType={isDelivery ? 'lieferung' : 'abholung'}
+              bestellnummer={bestellnummer}
             />
           </div>
         )}
