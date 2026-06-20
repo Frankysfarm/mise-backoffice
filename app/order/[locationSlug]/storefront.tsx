@@ -35,6 +35,7 @@ import { WarteschlangenIndikator } from './warteschlangen-indikator';
 import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
 import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
 import { BestellPaceIndikator } from './bestell-pace-indikator';
+import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indikator';
 
 type Props = {
   location: Location;
@@ -505,6 +506,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <BestellPaceIndikator locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 327: Bestellungs-Klima-Indikator — Liefer-Klima-Ampel (ideal/leicht verzögert/hohe Last) */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <BestellungsKlimaIndikator locationId={location.id} />
         </div>
       )}
 

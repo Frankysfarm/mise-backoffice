@@ -106,6 +106,7 @@ import { KitchenOrderVerzoegerungsWarnung } from './order-verzoegerungs-warnung'
 import { KitchenDelayAlertBand } from './delay-alert-band';
 import { KitchenAnalyticsStrip } from './analytics-strip';
 import { KitchenLiveSchichtKpiRing } from './live-schicht-kpi-ring';
+import { KitchenBestellungsTempoMeter } from './bestellungs-tempo-meter';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -603,6 +604,8 @@ export function KitchenBoard({
       <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}
       <KitchenLiveSchichtKpiRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? undefined) : (locationFilter ?? undefined)} />
+      {/* Phase 324: Bestellungs-Tempo-Meter — Echtzeit-Pace vs. Stunden-Ziel mit Tachometer */}
+      <KitchenBestellungsTempoMeter orders={orders} />
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenLiveCookSignal orders={filtered} timings={timings} />

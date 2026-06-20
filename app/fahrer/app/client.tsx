@@ -99,6 +99,7 @@ import { StopSmartCountdown } from './stop-smart-countdown';
 import { FahrerDelayAlertHinweis } from './delay-alert-hinweis';
 import { FahrerAnalyticsWochenuebersicht } from './analytics-wochenuebersicht';
 import { FahrerSchichtAusblick } from './schicht-ausblick';
+import { TourKostenErtrag } from './tour-kosten-ertrag';
 
 type Driver = {
   id: string;
@@ -1251,6 +1252,19 @@ export function FahrerApp({
               <TourStoppUebersicht
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 326: Tour-Kosten-Ertrag — Echtzeit-Einnahmen der aktuellen Tour je Stopp */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourKostenErtrag
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  status: s.geliefert_am ? 'completed' : s.angekommen_am ? 'pending' : 'pending',
+                  trinkgeld: s.order?.trinkgeld ?? 0,
+                  bestellwert: s.order?.gesamtbetrag ?? 0,
+                }))}
               />
             </div>
           )}

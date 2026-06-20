@@ -127,6 +127,7 @@ import { DelayRisikoUebersicht } from './delay-risiko-uebersicht'
 import { LieferdienstDelayAlertKpi } from './delay-alert-kpi'
 import { LieferdienstAnalyticsTrendPanel } from './analytics-trend-panel'
 import { SchichtNachrichtenCenter } from './schicht-nachrichten-center'
+import { SchichtROIPanel } from './schicht-roi-panel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1056,6 +1057,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 328: Schicht-ROI-Panel — Umsatz/Fahrer-Std., Kosten/Lieferung, Netto-Marge vs. 7-Tage-Ø */}
+              <SchichtROIPanel locationId={locationId} />
               {/* Phase 305: Surge-Analyse-Panel — Nachfragespitzen-Analyse mit Z-Score + Trend (Phase 304 Backend) */}
               <SurgeAnalysePanel locationId={locationId} />
               {/* Phase 301: Schicht-Rentabilitäts-Ampel — Traffic-Light für aktuelle Schicht-Profitabilität */}

@@ -157,6 +157,7 @@ import { DispatchDelayPredictionTrigger } from './delay-prediction-trigger';
 import { DispatchDelayAlertStatistik } from './delay-alert-statistik';
 import { DispatchAnalyticsWochenvergleich } from './analytics-wochenvergleich';
 import { DispatchZonenScoreMatrix } from './zonen-score-matrix';
+import { DispatchFahrerPausenAlert } from './fahrer-pausen-alert';
 
 type Driver = {
   employee_id: string;
@@ -1487,6 +1488,9 @@ export function DispatchBoard({
           locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')}
         />
       )}
+
+      {/* Phase 325: Fahrer-Pausen-Alert — Erkennt Fahrer die während aktiver Tour >5 Min stillstehen */}
+      <DispatchFahrerPausenAlert drivers={drivers as any} batches={batches as any} />
 
       {/* Fahrer Echtzeit-Ranking: Score-basierte Bestenliste aktiver Fahrer */}
       <DispatchFahrerEchtzeitRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
