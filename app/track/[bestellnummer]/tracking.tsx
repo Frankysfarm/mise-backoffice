@@ -35,6 +35,7 @@ import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-car
 import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-status-mini-tracker';
 import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wartezeit-ring';
 import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdown-v2';
+import { TourDeliveredFeedback } from './tour-delivered-feedback';
 
 type Order = {
   order_id: string;
@@ -1046,6 +1047,12 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             Fragen? <a href={`tel:${restaurantTelefon}`} className="underline">Anrufen</a> · Antworten in Minuten
           </p>
         )}
+
+        {/* Phase 355: Schnell-Feedback nach Lieferung */}
+        <TourDeliveredFeedback
+          orderId={order.order_id}
+          isDelivered={order.status === 'geliefert'}
+        />
       </main>
 
       {/* Chat Modal */}

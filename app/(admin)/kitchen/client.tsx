@@ -127,6 +127,7 @@ import { KitchenEngagementTopStrip } from './engagement-top-strip';
 import { KitchenLiveBestellMatrix } from './live-bestell-matrix';
 import { KitchenBatchPickupCountdown } from './batch-pickup-countdown';
 import { KitchenPrepFlowKanban } from './prep-flow-kanban';
+import { KitchenAbwesenHeuteStrip } from './abwesen-heute-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -652,6 +653,8 @@ export function KitchenBoard({
       <KitchenBatchPickupCountdown batches={batches} stops={stops} orders={filtered} drivers={drivers} />
       {/* Prep-Flow-Kanban: Kanban-Board aller aktiven Bestellungen (Neu → Kochend → Fertig → Unterwegs) */}
       <KitchenPrepFlowKanban orders={filtered} timings={timings} />
+      {/* Phase 355: Abwesen-Heute-Strip — Abwesende Fahrer heute + Auswirkung auf Abholkapazität */}
+      <KitchenAbwesenHeuteStrip />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

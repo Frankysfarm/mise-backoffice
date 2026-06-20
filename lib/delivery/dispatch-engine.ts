@@ -558,5 +558,23 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
     }
   }
 
+  // Phase 355: Absent drivers (approved absence today) are excluded from dispatch
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const { data: absentRows } = await sb()
+      .from('driver_absences')
+      .select('driver_id')
+      .in('driver_id', drivers.map((d) => d.id))
+      .eq('status', 'approved')
+      .lte('start_date', today)
+      .gte('end_date', today);
+    if (absentRows && absentRows.length > 0) {
+      const absentSet = new Set(absentRows.map((r) => String((r as { driver_id: string }).driver_id)));
+      return drivers.filter((d) => !absentSet.has(d.id));
+    }
+  } catch {
+    // Graceful fallback: if driver_absences table missing, all drivers allowed
+  }
+
   return drivers;
 }

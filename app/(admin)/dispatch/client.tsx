@@ -177,6 +177,7 @@ import { DispatchFahrerStatusBoard } from './fahrer-status-board';
 import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
 import { DispatchTagesZusammenfassung } from './tages-zusammenfassung';
 import { DispatchOffeneWarteschlange } from './offene-warteschlange';
+import { DispatchTourFeedbackMonitor } from './tour-feedback-monitor';
 
 type Driver = {
   employee_id: string;
@@ -981,6 +982,8 @@ export function DispatchBoard({
       <DispatchTourScoreLivePanel />
       {/* Schicht-Bilanz: Aggregierte Schicht-Statistiken — Touren, Scores, Top-Fahrer, Umsatz */}
       <DispatchSchichtBilanzPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 355: Tour-Feedback-Monitor — Aktuelle Fahrer-Bewertungen für Dispatcher */}
+      <DispatchTourFeedbackMonitor />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}

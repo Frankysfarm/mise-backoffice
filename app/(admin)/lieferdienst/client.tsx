@@ -147,6 +147,7 @@ import { LieferdienstTagsBilanz } from './tags-bilanz'
 import { LieferdienstEngagementWochenPanel } from './engagement-wochen-panel'
 import { WochenVergleichAnalytik } from './wochen-vergleich-analytik'
 import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-vergleich'
+import { LieferdienstAbdeckungsRisikoWidget } from './abdeckungs-risiko-widget'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1182,6 +1183,8 @@ export function LieferdienstClient() {
               <LieferdienstBestellkanalSplit orders={orders as any} />
               {/* Phase 345: Storno-Rate-Karte — Stornierungsrisiko-KPIs + Top-Stornierer */}
               <LieferdienstStornoRateKarte locationId={locationId} />
+              {/* Phase 355: Abdeckungs-Risiko-Widget — 7-Tage Fahrer-Coverage basierend auf Abwesenheiten */}
+              <LieferdienstAbdeckungsRisikoWidget />
               {/* Phase 346: Heatmap-KPI — Tour-Heatmap Kompakt-KPIs + Unterversorgungs-Warnung */}
               <HeatmapKpi locationId={locationId} />
               {/* Phase 347: Standort-Gesundheits-Cockpit — Score + Dimensionen + Ranking + 7d-Trend */}

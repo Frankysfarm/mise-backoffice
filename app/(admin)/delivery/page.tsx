@@ -166,6 +166,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Gamification · Punkte pro Lieferung/Pünktlichkeit/5★ · 8 Abzeichen · Wöchentliche Rangliste mit Auto-Reset · Bonus-Punkte bei Badge-Unlock" cta="Engagement öffnen" highlight />
         <SectionCard href="/delivery/driver-absences" icon={<CalendarOff className="h-5 w-5" />} title="Abwesenheits-Manager"
           subtitle="Urlaub, Krankmeldungen & persönliche Tage · Genehmigungsworkflow · Coverage-Impact-Analyse · Jahres-Kontingent" cta="Abwesenheiten verwalten" highlight />
+        <SectionCard href="/delivery/tour-feedback" icon={<Star className="h-5 w-5" />} title="Tour-Feedback"
+          subtitle="Fahrer bewerten abgeschlossene Touren · Schwierigkeit, Verkehr, Kundeninteraktion · Issue-Tracking · 30-Tage-Dashboard" cta="Feedback ansehen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

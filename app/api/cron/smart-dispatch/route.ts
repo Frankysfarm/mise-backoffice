@@ -144,6 +144,7 @@ import { generateAllLocations as generateZoneBatchSuggestions, pruneOldSuggestio
 import { processDeliveryEngagementAllLocations, computeWeeklyLeaderboardAllLocations, weeklyResetAllLocations, pruneOldPoints as pruneEngagementPoints, pruneOldLeaderboard as pruneEngagementLeaderboard } from '@/lib/delivery/driver-engagement';
 import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/delivery/tour-profit';
 import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
+import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1165,6 +1166,12 @@ export async function GET(req: NextRequest) {
       ? await pruneOldAbsences(365).catch(() => 0)
       : null;
 
+    // Phase 355: Tour Feedback — Prune täglich 06:55 UTC
+    const isTourFeedbackPruneTick = nowHour === 6 && nowMin === 55;
+    const tourFeedbackPruned = isTourFeedbackPruneTick
+      ? await pruneTourFeedback(90).catch(() => 0)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1406,6 +1413,7 @@ export async function GET(req: NextRequest) {
       ...(engagementLbPruned?.pruned ? { driver_engagement_leaderboard_pruned: engagementLbPruned.pruned } : {}),
       ...(tourProfitSnapshotResult?.snapshots ? { tour_profit_snapshots: { locations: tourProfitSnapshotResult.locations, snapshots: tourProfitSnapshotResult.snapshots, errors: tourProfitSnapshotResult.errors } } : {}),
       ...(tourProfitPruned?.pruned ? { tour_profit_pruned: tourProfitPruned.pruned } : {}),
+      ...(tourFeedbackPruned !== null ? { tour_feedback_pruned: tourFeedbackPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -118,6 +118,7 @@ import { TourRewardProgress } from './tour-reward-progress';
 import { FahrerMeinEngagement } from './mein-engagement';
 import { FahrerTourNavigatorPro } from './tour-navigator-pro';
 import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
+import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
 
 type Driver = {
   id: string;
@@ -1732,6 +1733,13 @@ export function FahrerApp({
               driverId={driver?.id ?? null}
             />
           )}
+          {/* Phase 355: Tour-Abschluss-Bewertung — Strukturiertes Fahrer-Feedback nach Tour */}
+          <FahrerTourAbschlussBewertung
+            batchId={activeBatch.id}
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            batchState={activeBatch.status}
+          />
           {/* Tour-Abschluss-Schnell-Panel: kompakte Tour-Zusammenfassung wenn alle Stopps geliefert */}
           {activeBatch.stops.every(s => s.geliefert_am) && (
             <div className="px-4">
