@@ -1,7 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–348 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (344 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–349 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (345 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #190 — 2026-06-20
+
+### Geprüfte Phasen: Phase 349 Backend (Zone-based Multi-Stop Batch Optimizer V2) + Phase 349 Frontend (3 neue Komponenten: Fahrer-Risiko-Matrix, Fahrer-Status-Board, Tages-Bilanz)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅
+- `npx next build`: Compiled successfully ✅ (345 Seiten, 0 Fehler)
+
+**Neue Frontend-Komponenten (Phase 349):**
+
+**KitchenFahrerRisikoMatrix** (`app/(admin)/kitchen/fahrer-risiko-matrix.tsx`): Berechnet Risiko (Kritisch/Knapp/OK/Kein Fahrer) für alle aktiven Lieferbestellungen aus Prep-Restzeit × Fahrer-ETA, 5s-Tick via useTick, sortiert kritisch zuerst, Gap-Label "Fahrer X Min zu früh" / "Y Min Puffer", Pulse-Badge bei kritischen Bestellungen, Integration kitchen/client.tsx L125+L747 ✅
+
+**DispatchFahrerStatusBoard** (`app/(admin)/dispatch/fahrer-status-board.tsx`): Scanbares Panel aller Online-Fahrer, Status Frei/Unterwegs/Rückkehr per Farbe (matcha/blau/amber), Stopp-Fortschritt + verbleibende Zeit (rot <5Min/amber <15Min/grün), nächste Adresse, Direkt-Anruf-Button, 30s-Tick, sortiert Unterwegs→Rückkehr→Frei, Integration dispatch/client.tsx L175+L1073 ✅
+
+**LieferdienstTagsBilanz** (`app/(admin)/lieferdienst/tags-bilanz.tsx`): 4 KPI-Kacheln (Umsatz/Bestellungen/Ø Lieferzeit/Fahrer online) mit Gestern-Vergleich aus /api/delivery/admin/analytics?type=week, Trend-Pfeile +/-5% Schwelle, Datenaggregation aus SLA+Overview+ETA-APIs mit Fallback-Chaining, 60s Auto-Refresh + Refresh-Timestamp, Integration lieferdienst/client.tsx L145+L1192 ✅
+
+**Phase 349 Backend — Zone-batch Optimizer V2:** SQL 167 (zone_batch_config + zone_batch_suggestions, JSONB stops, score 0-100, status pending/applied/rejected/expired/auto_applied, RLS, prune RPC), lib/delivery/zone-batch-optimizer.ts (greedyRouteKm Nearest-Neighbor, scoreBatch 4-Faktoren, clusterOrders greedy Seed-Cluster, generateBatchSuggestions scan→cluster→score→upsert+Dedup, Auto-Apply ab autoApplyMinScore, generateAllLocations, expireStaleSuggestions >30Min, getDashboard 4 KPIs, pruneOldSuggestions), API /api/delivery/admin/zone-batch-optimizer GET+POST, Admin-UI /delivery/zone-batch-optimizer (4 KPIs+Tabs Vorschläge/Verlauf/Konfiguration), Cron alle 3Min+Prune 06:40 UTC, Delivery-Overview SectionCard Route-Icon ✅
+
+**Bugs gefunden:** 0
+**Bugs gefixt:** 0 (saubere Phase)
+
+### Status nach Review #190
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (345 Seiten)
+- Phase 349 Backend + Frontend: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront ↔ Lieferdienst: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 350: Fahrer-Engagement-Engine — Gamification-Backend: Punkte, Abzeichen, Streak-Tracking, Rangliste pro Standort, Wochen-Reset
+2. Oder: Phase 350: Storefront Slot-Booking Engine — Vorbestellungen mit Lieferzeitfenster wählen (slot_config + slot_bookings), Admin-UI für Kapazitätsverwaltung
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 350: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. /api/delivery/dispatch/scores Endpunkt implementieren (DispatchLiveScoreBoard fällt noch auf Mock zurück)
 
 ---
 
