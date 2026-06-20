@@ -229,7 +229,7 @@ export function UmsatzVelocityDashboard({ locationId }: { locationId: string | n
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 10, padding: '4px 8px' }}
-                  formatter={(v: number, name: string) => [euroFmt(v), name]}
+                  formatter={(v: unknown, name: unknown) => [euroFmt(v as number), name as string]}
                 />
                 <Legend
                   wrapperStyle={{ fontSize: 10, paddingTop: 4 }}

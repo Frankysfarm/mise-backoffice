@@ -1,7 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–311 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (324 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–313 vollständig abgeschlossen. 0 TypeScript-Fehler. Build sauber (325 Seiten). Deployment-bereit.
+
+---
+
+## CEO-Review #172 — 2026-06-20
+
+### Geprüfte Phasen: Phase 312 Backend (Revenue Velocity Engine) + Phase 313 Frontend (5 Revenue-Velocity-Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 TypeScript-Fehler ✅ (nach Fix)
+- `npx next build`: Compiled successfully ✅ (325 Seiten, 0 Fehler)
+
+**Neue Komponenten (Phase 313 Frontend):**
+
+**KitchenUmsatzVelocityStrip (`app/(admin)/kitchen/umsatz-velocity-strip.tsx`):**
+- Stündlicher Umsatz-Chart (heute vs. gestern), Pace-Label (ahead/on_track/behind) ✅
+- Integration in kitchen/client.tsx ✅
+
+**DispatchUmsatzPacePanel (`app/(admin)/dispatch/umsatz-pace-panel.tsx`):**
+- Mini-LineChart heute vs. gestern, €/h-Velocity, Prognose-Anzeige ✅
+- Integration in dispatch/client.tsx ✅
+
+**SchichtUmsatzVelocity (`app/fahrer/app/schicht-umsatz-velocity.tsx`):**
+- Fahrer-seitig: aktuelle €/h, Schichtprognose, Pace-Badge ✅
+- Integration in fahrer/app/client.tsx L1992 ✅
+
+**BestellPaceIndikator (`app/order/[locationSlug]/bestell-pace-indikator.tsx`):**
+- Storefront-Widget: Umsatz-Tempo sichtbar für Kunden ✅
+- Integration in order/[locationSlug]/storefront.tsx L500 ✅
+
+**UmsatzVelocityDashboard (`app/(admin)/lieferdienst/umsatz-velocity-dashboard.tsx`):**
+- Vollständiges Revenue-Velocity-Dashboard mit Chart, KPIs, Prognose ✅
+- Integration in lieferdienst/client.tsx ✅
+
+**Phase 312 Backend (Revenue Velocity Engine):**
+- `app/api/delivery/admin/revenue-velocity/route.ts` — GET dashboard + POST snapshot/prune ✅
+- Auth via employees.location_id, service-client für Admin-Override ✅
+- `lib/delivery/revenue-velocity` — stündliche Snapshots, Heute-vs-Gestern, Schicht-Prognose ✅
+
+**Bugs gefunden + gefixt: 3**
+1. `app/(admin)/dispatch/umsatz-pace-panel.tsx:161` — Recharts Formatter `(v: number | null)` → `(v: unknown)` + Cast (TS2322)
+2. `app/(admin)/kitchen/umsatz-velocity-strip.tsx:142` — Recharts Formatter `(v: number)` → `(v: unknown)` + Cast (TS2322)
+3. `app/(admin)/lieferdienst/umsatz-velocity-dashboard.tsx:232` — Recharts Formatter `(v: number)` → `(v: unknown)` + Cast (TS2322)
+
+### Status nach Review #172
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (325 Seiten)
+- Phase 312+313: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 314: Fahrer-Ziel-Engine — Schicht-Ziele für Fahrer (Stops, €, Score-Ziel) mit Cron-Berechnung + API
+2. Oder: Phase 314: Multi-Location Revenue Dashboard — Aggregierte Umsatz-Velocity über alle Standorte
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 314: 5 neue Smart-Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
+2. BestellPaceIndikator ausbauen: Preis-Transparenz-Widget für Storefront-Kunden
 
 ---
 

@@ -158,7 +158,7 @@ export function DispatchUmsatzPacePanel({ locationId }: { locationId: string | n
               <XAxis dataKey="h" tick={{ fontSize: 8, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 9, padding: '2px 6px' }}
-                formatter={(v: number | null, name: string) => [v ? euroFmt(v) : '—', name === 'heute' ? 'Heute' : 'Gestern']}
+                formatter={(v: unknown, name: unknown) => [(v as number) ? euroFmt(v as number) : '—', (name as string) === 'heute' ? 'Heute' : 'Gestern']}
               />
               <ReferenceLine y={maxVal * 0.8} stroke="#e5e7eb" strokeDasharray="3 3" />
               <Line dataKey="gestern" stroke="#d1d5db" strokeWidth={1.5} dot={false} />

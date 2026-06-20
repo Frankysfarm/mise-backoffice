@@ -139,7 +139,7 @@ export function KitchenUmsatzVelocityStrip({ locationId }: { locationId: string 
               <XAxis dataKey="h" tick={{ fontSize: 9, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 10, padding: '4px 8px' }}
-                formatter={(v: number, name: string) => [euro(v), name === 'heute' ? 'Heute' : 'Gestern']}
+                formatter={(v: unknown, name: unknown) => [euro(v as number), (name as string) === 'heute' ? 'Heute' : 'Gestern']}
                 labelStyle={{ fontWeight: 600, fontSize: 10 }}
               />
               <Bar dataKey="gestern" fill="#e5e7eb" radius={[2, 2, 0, 0]} maxBarSize={10} />
