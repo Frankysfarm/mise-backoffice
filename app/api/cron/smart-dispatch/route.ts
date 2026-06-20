@@ -129,6 +129,7 @@ import { alertCriticalAllLocations, pruneOldDelayAlerts } from '@/lib/delivery/d
 import { snapshotAllLocations as snapshotDeliveryAnalytics, pruneOldSnapshots as pruneDeliveryAnalytics } from '@/lib/delivery/delivery-analytics';
 import { autoExpireAllLocations as autoExpireShiftSwaps } from '@/lib/delivery/shift-swap';
 import { computeWeeklyRankingAllLocations, pruneOldRankings as pruneDriverRankings } from '@/lib/delivery/driver-ranking';
+import { snapshotAllLocations as snapshotZoneRevenue, generateRecommendationsAllLocations as generateZoneRevenueRecs, pruneZoneRevenueSnapshots } from '@/lib/delivery/zone-revenue-optimizer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1013,6 +1014,19 @@ export async function GET(req: NextRequest) {
       ? await pruneDriverRankings(90).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 331: Zonen-Umsatz-Snapshot (täglich 02:45 UTC) + Empfehlungen (03:10 UTC)
+    const isZoneRevSnapTick = nowHour === 2 && nowMin >= 45 && nowMin < 47;
+    const isZoneRevRecsTick = nowHour === 3 && nowMin >= 10 && nowMin < 12;
+    const zoneRevenueSnapResult = isZoneRevSnapTick
+      ? await snapshotZoneRevenue().catch(() => ({ locations: 0, snapshots: 0, errors: 1 }))
+      : null;
+    const zoneRevenueRecsResult = isZoneRevRecsTick
+      ? await generateZoneRevenueRecs().catch(() => ({ locations: 0, recs: 0, errors: 1 }))
+      : null;
+    const zoneRevenuePruned = isZoneRevSnapTick
+      ? await pruneZoneRevenueSnapshots(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1227,6 +1241,9 @@ export async function GET(req: NextRequest) {
       ...(shiftSwapExpireResult?.expired ? { shift_swap_expired: shiftSwapExpireResult.expired } : {}),
       ...(driverRankingResult ? { driver_weekly_ranking: { locations: driverRankingResult.locations, computed: driverRankingResult.computed, rewards: driverRankingResult.rewardTriggered } } : {}),
       ...(rankingsPruned ? { rankings_pruned: rankingsPruned.pruned } : {}),
+      ...(zoneRevenueSnapResult ? { zone_revenue_snapshots: { locations: zoneRevenueSnapResult.locations, snapshots: zoneRevenueSnapResult.snapshots, errors: zoneRevenueSnapResult.errors } } : {}),
+      ...(zoneRevenueRecsResult ? { zone_revenue_recommendations: { locations: zoneRevenueRecsResult.locations, recs: zoneRevenueRecsResult.recs, errors: zoneRevenueRecsResult.errors } } : {}),
+      ...(zoneRevenuePruned ? { zone_revenue_pruned: zoneRevenuePruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

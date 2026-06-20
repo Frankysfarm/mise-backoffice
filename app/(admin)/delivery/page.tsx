@@ -321,6 +321,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Stornierungen proaktiv verhindern · Risiko-Score · Auto-Interventionen · Umsatz schützen" cta="Rescue Engine" highlight />
         <SectionCard href="/delivery/zone-capacity-balancer" icon={<Shuffle className="h-5 w-5" />} title="Zonen-Kapazitäts-Balancer"
           subtitle="Fahrer-Ungleichgewichte erkennen · Rebalancing-Empfehlungen · Surge-Steuerung" cta="Balancer öffnen" highlight />
+        <SectionCard href="/delivery/zone-revenue-optimizer" icon={<TrendingUp className="h-5 w-5" />} title="Zonen-Umsatz-Optimizer"
+          subtitle="Rentabilität per Lieferzone · Zuschlag- & MOV-Empfehlungen · 30-Tage-Trend · Margin-Score" cta="Optimizer öffnen" highlight />
         <SectionCard href="/delivery/incidents" icon={<ShieldAlert className="h-5 w-5" />} title="Vorfälle"
           subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow" cta="Vorfälle verwalten" />
         <SectionCard href="/delivery/failed-attempts" icon={<XCircle className="h-5 w-5" />} title="Fehlgeschlagene Zustellungen"
