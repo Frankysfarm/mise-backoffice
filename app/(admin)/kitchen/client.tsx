@@ -110,6 +110,7 @@ import { KitchenBestellungsTempoMeter } from './bestellungs-tempo-meter';
 import { KitchenSchichtWocheVergleich } from './schicht-woche-vergleich';
 import { KitchenPrepEffizienzLive } from './prep-effizienz-live';
 import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
+import { KitchenSchichtSofortCockpit } from './schicht-sofort-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -660,6 +661,8 @@ export function KitchenBoard({
             });
         })()}
       />
+      {/* Sofort-Cockpit: Top-5 dringendste Aktionen der Küche jetzt — Kochstart, Abholung, Verzug */}
+      <KitchenSchichtSofortCockpit orders={filtered} timings={timings} />
       {/* Timing-Farbkodierung: Kompaktes Kachel-Raster aller aktiven Bestellungen mit Countdown-Labels */}
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
       {/* Phase 260: Timing-Ampel Live — Alle aktiven Bestellungen mit Countdown + Farbcodierung */}

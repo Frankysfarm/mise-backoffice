@@ -161,6 +161,7 @@ import { DispatchFahrerPausenAlert } from './fahrer-pausen-alert';
 import { DispatchWochenRankingPanel } from './wochen-ranking-panel';
 import { DispatchTourAbschlussForecast } from './tour-abschluss-forecast';
 import { DispatchTourRenditeKarte } from './tour-rendite-karte';
+import { DispatchTourRueckkehrBoard } from './tour-rueckkehr-board';
 
 type Driver = {
   employee_id: string;
@@ -986,6 +987,21 @@ export function DispatchBoard({
       {/* Phase 301: Zonen-Effizienz-Matrix — ETA + Lieferungen + Distanz je Lieferzone */}
       <DispatchZoneEffizienzMatrix orders={readyOrders} batches={batches} />
 
+      {/* Rückkehr-Board: Countdown je aktiver Tour bis erwartetem Fahrer-Return, sortiert nach Dringlichkeit */}
+      <DispatchTourRueckkehrBoard tours={batches
+        .filter(b => b.status === 'unterwegs' || b.status === 'on_route' || b.status === 'aktiv' || b.status === 'assigned')
+        .map(b => ({
+          id: b.id,
+          fahrerId: b.fahrer_id ?? '',
+          fahrerName: b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Fahrer',
+          startzeit: b.startzeit ?? null,
+          totalEtaMin: b.total_eta_min,
+          stopsGesamt: b.stops.length,
+          stopsFertig: b.stops.filter(s => s.geliefert_am != null).length,
+          zone: b.zone,
+          lastLat: null,
+          lastLng: null,
+        }))} />
       {/* Tour-Visualisierung: Stopp-für-Stopp Fortschritt aller aktiven Touren */}
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />

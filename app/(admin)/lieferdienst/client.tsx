@@ -131,6 +131,7 @@ import { SchichtROIPanel } from './schicht-roi-panel'
 import { LieferdienstWochenPraemienPanel } from './wochen-praemien-panel'
 import { ZoneProfitRangliste } from './zone-profit-rangliste'
 import { SchichtDeltaVergleich } from './schicht-delta-vergleich'
+import { SchichtLiveKapazitaet } from './schicht-live-kapazitaet'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1060,6 +1061,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Live-Kapazitäts-Monitor: Auslastungs-Gauge + Engpass-Erkennung in Echtzeit */}
+              <SchichtLiveKapazitaet locationId={locationId} />
               {/* Phase 330: Wochen-Prämien-Panel — Fahrer-Ranking dieser Woche + ausstehende Prämien */}
               <LieferdienstWochenPraemienPanel locationId={locationId} />
               {/* Phase 328: Schicht-ROI-Panel — Umsatz/Fahrer-Std., Kosten/Lieferung, Netto-Marge vs. 7-Tage-Ø */}

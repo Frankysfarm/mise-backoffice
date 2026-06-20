@@ -35,6 +35,7 @@ import { WarteschlangenIndikator } from './warteschlangen-indikator';
 import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
 import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
 import { BestellPaceIndikator } from './bestell-pace-indikator';
+import { FahrerNaeheLiveAnzeige } from './fahrer-naehe-live-anzeige';
 import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indikator';
 
 type Props = {
@@ -1002,6 +1003,10 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
           orderId={order.orderId}
           initialStatus={order.status}
         />
+      )}
+      {/* Fahrer-Nähe-Live-Anzeige: Proximity-Ring + ETA-Countdown wenn Fahrer unterwegs ist */}
+      {order.isDelivery && (
+        <FahrerNaeheLiveAnzeige orderId={order.orderId} />
       )}
     </div>
   );

@@ -103,6 +103,7 @@ import { TourKostenErtrag } from './tour-kosten-ertrag';
 import { FahrerWochenRangKarte } from './wochen-rang-karte';
 import { TourSchichtBilanz } from './tour-schicht-bilanz';
 import { TourNaechsterStoppInfo } from './tour-naechster-stopp-info';
+import { TourAbschlussSchnellPanel } from './tour-abschluss-schnell-panel';
 
 type Driver = {
   id: string;
@@ -1608,6 +1609,12 @@ export function FahrerApp({
               tourId={activeBatch.id}
               driverId={driver?.id ?? null}
             />
+          )}
+          {/* Tour-Abschluss-Schnell-Panel: kompakte Tour-Zusammenfassung wenn alle Stopps geliefert */}
+          {activeBatch.stops.every(s => s.geliefert_am) && (
+            <div className="px-4">
+              <TourAbschlussSchnellPanel tourId={activeBatch.id} />
+            </div>
           )}
           <DeliveryView
             batchId={activeBatch.id}
