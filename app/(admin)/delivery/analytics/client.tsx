@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import {
   RefreshCw, TrendingUp, TrendingDown, Minus,
   Package, Clock, CheckCircle2, XCircle, Euro,
-  Users, ChevronUp, ChevronDown,
+  Users, ChevronUp, ChevronDown, Download, FileText,
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -259,6 +259,7 @@ export function DeliveryAnalyticsClient() {
   const [error, setError]     = useState<string | null>(null);
   const [countdown, setCountdown] = useState(REFRESH_INTERVAL);
   const [snapping, setSnapping]   = useState(false);
+  const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -301,6 +302,27 @@ export function DeliveryAnalyticsClient() {
     }
   };
 
+  const handleExport = async (format: 'csv' | 'pdf') => {
+    setExporting(format);
+    try {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const thirtyAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+      const url = `/api/delivery/admin/analytics/export?format=${format}&from=${thirtyAgo}&to=${yesterday}`;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const filename = res.headers.get('Content-Disposition')?.match(/filename="([^"]+)"/)?.[1]
+        ?? `delivery-analytics.${format}`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setExporting(null);
+    }
+  };
+
   if (loading && !data) {
     return <div className="text-gray-500 text-sm animate-pulse">Lade Analytics…</div>;
   }
@@ -332,6 +354,26 @@ export function DeliveryAnalyticsClient() {
           </Button>
           <Button size="sm" variant="outline" onClick={() => void handleSnapshot()} disabled={snapping}>
             {snapping ? 'Snapshot läuft…' : 'Snapshot jetzt'}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void handleExport('csv')}
+            disabled={exporting !== null}
+            title="Letzte 30 Tage als CSV exportieren"
+          >
+            <Download className={`h-4 w-4 mr-1 ${exporting === 'csv' ? 'animate-bounce' : ''}`} />
+            {exporting === 'csv' ? 'CSV…' : 'CSV'}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void handleExport('pdf')}
+            disabled={exporting !== null}
+            title="Letzte 30 Tage als PDF exportieren"
+          >
+            <FileText className={`h-4 w-4 mr-1 ${exporting === 'pdf' ? 'animate-bounce' : ''}`} />
+            {exporting === 'pdf' ? 'PDF…' : 'PDF'}
           </Button>
         </div>
       </div>

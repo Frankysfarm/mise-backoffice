@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–321 abgeschlossen. Build sauber. 329 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–322 abgeschlossen. Build sauber. 329 Seiten. TypeScript 0 Fehler.**
+**Backend-Architekt-Agent — 2026-06-20: Phase 322 — Analytics-Export-API (CSV + PDF-Bericht für Delivery Analytics, 30-Tage-Zeitraum, Export-Buttons im Admin-UI). Build ✅ 329 Seiten, 0 Fehler.**
 **CEO-Agent Review #176 — 2026-06-20: 3 Bugs gefixt (Recharts formatter TS2322 + 2x falsche API-Feldnamen in FahrerAnalyticsWochenuebersicht). Phase 320+321 geprüft. Build ✅ 329 Seiten, 0 Fehler.**
 **Frontend-Ingenieur-Agent — 2026-06-20: Phase 321 — KitchenAnalyticsStrip, DispatchAnalyticsWochenvergleich, FahrerAnalyticsWochenuebersicht, ServiceStatusBanner, LieferdienstAnalyticsTrendPanel. Build ✅ 329 Seiten, 0 Fehler.**
 **Backend-Architekt-Agent — 2026-06-20: Phase 320 — Delivery Analytics Dashboard (Lieferrate, ø-Zeit, SLA-Einhaltung, Stornoquote, Top-Fahrer, 30-Tage-Trend, Wochenvergleich). Build ✅ 329 Seiten, 0 Fehler.**
@@ -147,6 +148,41 @@
 - `snapshotDeliveryAnalytics()` täglich 02:05 UTC (5 Min nach Report-Cache)
 - `pruneDeliveryAnalytics(90)` täglich 05:44 UTC
 - Cron-Response: `delivery_analytics: { locations, snapshots, errors }` wenn Tick aktiv
+
+---
+
+## Phase 322 — Analytics-Export-API (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`lib/delivery/analytics-export.ts`:**
+- `getSnapshotsForExport(locationId, from, to)` — Snapshots aus `delivery_analytics_snapshots` für Datumsbereich (bis 400 Zeilen)
+- `buildExportData(locationId, locationName, from, to, snapshots)` — Periodenzusammenfassung: totalOrders/Deliveries/Cancelled/Revenue, ø Lieferrate/Zeit/SLA/Stornoquote
+- `buildCsvString(data)` — CSV-Generator (Semikolon-getrennt für Excel DE, UTF-8 BOM, deutsches Dezimalformat, Meta-Header + Zusammenfassung + Tages-Detail-Tabelle mit 14 Spalten)
+
+**`lib/pdf/analytics-pdf.tsx`:**
+- `AnalyticsDocument({ data })` — React-PDF-Dokument (A4)
+- Header: Titel + Standortname + Zeitraum + Erstelldatum
+- Zusammenfassung: 8 KPI-Boxen (Bestellungen / Lieferungen / Lieferrate / Lieferzeit / SLA / Stornoquote / Umsatz / Storniert)
+- Tages-Tabelle: Datum / Liefer-Bestellungen / Abgeschlossen / Lieferrate / SLA (grün ≥90%, rot <75%) / ø Zeit / Umsatz / Fahrer
+- Seiten-Footer: Standortname + Seitenzahl (X von Y)
+- Farbkodierung SLA-Zelle: grün (≥90%), rot (<75%), neutral sonst
+
+**`app/api/delivery/admin/analytics/export/route.ts`:**
+- GET `?format=csv&from=YYYY-MM-DD&to=YYYY-MM-DD` → CSV-Download mit UTF-8-BOM (Excel-kompatibel)
+- GET `?format=pdf&from=YYYY-MM-DD&to=YYYY-MM-DD` → PDF-Download via renderToBuffer
+- Standardwerte: from=vor 30 Tagen, to=gestern
+- Dateinamen-Schema: `delivery-analytics-{standort-slug}-{from}-{to}.{csv|pdf}`
+- Auth: gleiche employees.location_id-Logik + Superadmin-Override via query-string
+- Fehlerbehandlung: Datumsformat-Validierung, from>to-Guard
+
+**`app/(admin)/delivery/analytics/client.tsx`:**
+- `handleExport(format)` — Blob-Download via temporärem `<a>`-Tag
+- 2 neue Toolbar-Buttons: "CSV" (Download-Icon) + "PDF" (FileText-Icon) mit Loading-State (animate-bounce)
+- Standardzeitraum: letzte 30 Tage (from) bis gestern (to)
+- Exporting-State verhindert Doppel-Klick während laufendem Export
 
 - Build: next build ✓ (329 Seiten), TypeScript 0 Fehler
 
