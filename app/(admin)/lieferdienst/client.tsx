@@ -130,6 +130,7 @@ import { SchichtNachrichtenCenter } from './schicht-nachrichten-center'
 import { SchichtROIPanel } from './schicht-roi-panel'
 import { LieferdienstWochenPraemienPanel } from './wochen-praemien-panel'
 import { ZoneProfitRangliste } from './zone-profit-rangliste'
+import { SchichtDeltaVergleich } from './schicht-delta-vergleich'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1089,6 +1090,8 @@ export function LieferdienstClient() {
               <FahrerPerformanceScore locationId={locationId} />
               {/* Phase 332: Zonen-Profit-Rangliste — Umsatz/SLA/Volumen Score je Zone */}
               <ZoneProfitRangliste locationId={locationId} />
+              {/* Phase 334: Schicht-Delta-Vergleich — Heute vs. Gestern selbe Stunde: Bestellungen/Umsatz/SLA */}
+              <SchichtDeltaVergleich locationId={locationId} />
               {/* Phase 205: Zonen-Vergleich-Panel — Lieferungen/Zeit/Pünktlichkeit/Umsatz je Zone */}
               <ZonenVergleichPanel />
               {/* Phase 204: Wetter-KPI-Karte — aktueller Wetter-Einfluss auf Lieferzeiten + Nachfrage */}

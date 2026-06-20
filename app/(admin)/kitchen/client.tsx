@@ -109,6 +109,7 @@ import { KitchenLiveSchichtKpiRing } from './live-schicht-kpi-ring';
 import { KitchenBestellungsTempoMeter } from './bestellungs-tempo-meter';
 import { KitchenSchichtWocheVergleich } from './schicht-woche-vergleich';
 import { KitchenPrepEffizienzLive } from './prep-effizienz-live';
+import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -606,6 +607,8 @@ export function KitchenBoard({
       <KitchenSchichtWocheVergleich locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 332: Prep-Effizienz-Live — Pünktlichkeitsquote + Abweichungs-Chart je Bestellung */}
       <KitchenPrepEffizienzLive orders={filtered} timings={timings} />
+      {/* Phase 334: Kochstart-Timing Score — Wie gut trifft die Küche den optimalen Kochstart? */}
+      <KitchenKochstartOptimierScore orders={filtered} timings={timings} stops={stops} />
       {/* Phase 321: Analytics-Strip — heutige SLA/Lieferrate/ø Zeit aus Analytics-Dashboard */}
       <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

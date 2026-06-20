@@ -24,6 +24,7 @@ import { BestellDelayBanner } from '../bestell-delay-banner';
 import { BestellTeilenWidget } from '../bestell-teilen-widget';
 import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
 import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
+import { BestellPhasenBand } from '../bestell-phasen-band';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -389,6 +390,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             <div className="font-mono text-2xl font-bold tabular-nums text-accent">{countdownStr}</div>
           </div>
         )}
+
+        {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}
+        <BestellPhasenBand status={liveStatus} isDelivery={isDelivery} etaMinutes={etaMinutes} />
 
         {/* ETA-Fenster: zeigt früheste und späteste Ankunftszeit */}
         {etaWindow && (() => {

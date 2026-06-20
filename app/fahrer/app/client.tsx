@@ -102,6 +102,7 @@ import { FahrerSchichtAusblick } from './schicht-ausblick';
 import { TourKostenErtrag } from './tour-kosten-ertrag';
 import { FahrerWochenRangKarte } from './wochen-rang-karte';
 import { TourSchichtBilanz } from './tour-schicht-bilanz';
+import { TourNaechsterStoppInfo } from './tour-naechster-stopp-info';
 
 type Driver = {
   id: string;
@@ -1254,6 +1255,16 @@ export function FahrerApp({
               <TourStoppUebersicht
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 334: Nächster-Stopp-Info — Adresse, Betrag, Notizen, Navigations-Button */}
+          {activeBatch.stops?.length > 0 && (
+            <div className="px-4">
+              <TourNaechsterStoppInfo
+                stops={activeBatch.stops as any}
+                locationLat={null}
+                locationLng={null}
               />
             </div>
           )}
