@@ -95,6 +95,7 @@ import { FahrerStopVerificationPanel } from './stop-verification-panel';
 import { FahrerDispatchNachrichten } from './dispatch-nachrichten';
 import { EchtzeitLeistungsAnzeige } from './echtzeit-leistungs-anzeige';
 import { SchichtUmsatzVelocity } from './schicht-umsatz-velocity';
+import { StopSmartCountdown } from './stop-smart-countdown';
 
 type Driver = {
   id: string;
@@ -1990,6 +1991,10 @@ export function FahrerApp({
         {isOnline && <EchtzeitLeistungsAnzeige />}
         {/* Phase 313: Schicht-Umsatz-Velocity — Umsatz/Stunde Tempo vs. Peak + Prognose */}
         {isOnline && <SchichtUmsatzVelocity locationId={driver.location_id} />}
+        {/* Phase 315: Stop-Smart-Countdown — Echtzeit-Countdown zum nächsten Stopp mit Pünktlichkeits-Ring */}
+        {isOnline && activeBatch && (
+          <StopSmartCountdown driverId={driver.id} />
+        )}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (

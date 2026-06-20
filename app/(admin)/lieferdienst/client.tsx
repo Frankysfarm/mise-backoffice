@@ -121,6 +121,7 @@ import { SchichtzielKonfigPanel } from './schichtziel-konfig-panel'
 import { PersonalPlanungMatrix } from './personal-planung-matrix'
 import { FahrerPerformanceLive } from './fahrer-performance-live'
 import { UmsatzVelocityDashboard } from './umsatz-velocity-dashboard'
+import { StoppTimingStatistik } from './stopp-timing-statistik'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1124,6 +1125,8 @@ export function LieferdienstClient() {
               <FahrerPerformanceLive locationId={locationId} />
               {/* Phase 313: Umsatz-Velocity-Dashboard — Revenue Velocity Engine (heute/gestern/vorwoche) */}
               <UmsatzVelocityDashboard locationId={locationId} />
+              {/* Phase 315: Stopp-Timing-Statistik — Pünktlichkeit, Ø Verzug, Top-Fahrer, stündliches Chart */}
+              <StoppTimingStatistik locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

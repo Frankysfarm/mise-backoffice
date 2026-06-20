@@ -101,6 +101,7 @@ import { KitchenSchichtZielStrip } from './schicht-ziel-strip';
 import { KitchenPausenFensterKarte } from './pausen-fenster-karte';
 import { KitchenSchichtRhythmusMonitor } from './schicht-rhythmus-monitor';
 import { KitchenUmsatzVelocityStrip } from './umsatz-velocity-strip';
+import { KitchenStopArrivalPrognose } from './stop-arrival-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -581,6 +582,10 @@ export function KitchenBoard({
       {/* Phase 313: Umsatz-Velocity-Strip — Revenue-Velocity mit Heute-vs-Gestern-Chart */}
       {!bigDisplay && (locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenUmsatzVelocityStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
+      {/* Phase 315: Stopp-Ankunfts-Prognose — Wann kehren Fahrer zurück? Echtzeit-ETA je aktivem Tour-Stopp */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenStopArrivalPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
       {/* Live-Cook-Signal: Kompakte Ampel-Übersicht für alle kochenden Bestellungen */}
       {filtered.filter(o => ['bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (

@@ -150,6 +150,7 @@ import { DispatchTourStopMatrix } from './tour-stop-matrix';
 import { DispatchKapazitaetsPuffer } from './kapazitaets-puffer';
 import { DispatchFahrerLeistungsLive } from './fahrer-leistungs-live';
 import { DispatchUmsatzPacePanel } from './umsatz-pace-panel';
+import { DispatchStopAnkunftsMatrix } from './stop-ankunfts-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1454,6 +1455,8 @@ export function DispatchBoard({
       <DispatchFahrerLeistungsLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 313: Umsatz-Pace-Panel — Revenue-Velocity + Lieferanteil für Dispatcher */}
       <DispatchUmsatzPacePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 315: Stopp-Ankunfts-Matrix — Echtzeit ETA + Risiko aller aktiven Tour-Stopps */}
+      <DispatchStopAnkunftsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 113: Fahrer-Rückkehr-Vorschau — wann wird welcher Fahrer wieder frei? */}
       {drivers.length > 0 && (
