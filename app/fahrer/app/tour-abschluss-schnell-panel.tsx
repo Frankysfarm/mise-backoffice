@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn, euro } from '@/lib/utils';
 import {
-  CheckCircle2, Clock, Star, Bike, MapPin, TrendingUp, Zap, ChevronRight,
+  CheckCircle2, Clock, Star, Bike, MapPin, TrendingUp, Zap, ChevronRight, type LucideIcon,
 } from 'lucide-react';
 
 interface TourSummary {
@@ -104,7 +104,14 @@ export function TourAbschlussSchnellPanel({ tourId, onNeueSchicht, className }: 
 
   const gesamtEinnahmen = (data.einnahmen ?? 0) + (data.trinkgeld ?? 0);
 
-  const stats = [
+  const stats: Array<{
+    icon: LucideIcon;
+    label: string;
+    value: string | null;
+    customValue?: React.ReactNode;
+    color: string;
+    bg: string;
+  }> = [
     {
       icon: CheckCircle2,
       label: 'Stopps',
@@ -134,7 +141,7 @@ export function TourAbschlussSchnellPanel({ tourId, onNeueSchicht, className }: 
       color: data.pünktlichkeitPct != null && data.pünktlichkeitPct >= 90 ? 'text-emerald-600' : 'text-amber-600',
       bg: 'bg-gray-50',
     },
-  ] as const;
+  ];
 
   return (
     <div className={cn('rounded-2xl bg-card border border-border overflow-hidden shadow-md', className)}>
