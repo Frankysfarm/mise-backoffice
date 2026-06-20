@@ -12,7 +12,7 @@ import {
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
   BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
-  HandCoins, MapPinCheck, Percent, Layers,
+  HandCoins, MapPinCheck, Percent, Layers, ArrowRightLeft,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -160,6 +160,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Stops, € und Score-Ziele je Schicht · Live-Fortschritt aller Fahrer · Pace-Ampel (Über Plan / Im Plan / Unter Plan)" cta="Ziele ansehen" highlight />
         <SectionCard href="/delivery/incentive-v2" icon={<Sparkles className="h-5 w-5" />} title="Incentive Engine V2"
           subtitle="Echtzeit-Bonuspunkte · Peak-Hour-Multiplikator (×2 zur Stoßzeit) · Treue-Streak-Multiplikator · Fahrer-Leaderboard" cta="Engine öffnen" highlight />
+        <SectionCard href="/delivery/driver-lending" icon={<ArrowRightLeft className="h-5 w-5" />} title="Cross-Location Fahrer-Ausleihe"
+          subtitle="Idle Fahrer von Überschuss-Standorten an Engpass-Standorte ausleihen · Automatische Kandidaten-Erkennung · Haversine-Distanz-Filter" cta="Lending öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

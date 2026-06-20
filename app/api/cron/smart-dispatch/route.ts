@@ -139,6 +139,7 @@ import { pruneOldPricingEvents } from '@/lib/delivery/dynamic-pricing';
 import { runRecsAllLocations, pruneOldRecommendations } from '@/lib/delivery/ops-recommendations';
 import { pruneOldEvents as pruneCancellationGuardEvents } from '@/lib/delivery/cancellation-guard';
 import { computeHeatmapAllLocations, pruneOldTiles as pruneTourHeatmapTiles } from '@/lib/delivery/tour-heatmap';
+import { pruneOldRequests as pruneDriverLendingRequests } from '@/lib/delivery/driver-lending';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1104,6 +1105,12 @@ export async function GET(req: NextRequest) {
       ? await pruneTourHeatmapTiles(90).catch(() => 0)
       : 0;
 
+    // Phase 348: Driver Lending — Prune täglich 06:35 UTC
+    const isDriverLendingPruneTick = nowHour === 6 && nowMin >= 35 && nowMin < 39;
+    const driverLendingPruned = isDriverLendingPruneTick
+      ? await pruneDriverLendingRequests(90).catch(() => ({ pruned: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1335,6 +1342,7 @@ export async function GET(req: NextRequest) {
       ...(cancelGuardPruned?.pruned ? { cancellation_guard_pruned: cancelGuardPruned.pruned } : {}),
       ...(tourHeatmapResult ? { tour_heatmap: { locations: tourHeatmapResult.locations, tiles: tourHeatmapResult.tilesUpserted, underserved: tourHeatmapResult.underservedUpserted } } : {}),
       ...(tourHeatmapPruned ? { tour_heatmap_pruned: tourHeatmapPruned } : {}),
+      ...(driverLendingPruned?.pruned ? { driver_lending_pruned: driverLendingPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
