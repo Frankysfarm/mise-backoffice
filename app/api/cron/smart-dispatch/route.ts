@@ -131,6 +131,8 @@ import { autoExpireAllLocations as autoExpireShiftSwaps } from '@/lib/delivery/s
 import { computeWeeklyRankingAllLocations, pruneOldRankings as pruneDriverRankings } from '@/lib/delivery/driver-ranking';
 import { snapshotAllLocations as snapshotZoneRevenue, generateRecommendationsAllLocations as generateZoneRevenueRecs, pruneZoneRevenueSnapshots } from '@/lib/delivery/zone-revenue-optimizer';
 import { scanAllLocations as scanGeofences, pruneGeofenceScanLogs } from '@/lib/delivery/driver-geofence';
+import { evaluateRecentDeliveriesAllLocations as evaluateIncentiveV2, approvePointsAllLocations as approveIncentiveV2Points } from '@/lib/delivery/driver-incentive-v2';
+import { scanAllLocations as scanReorderAlerts } from '@/lib/delivery/smart-reorder-notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -289,6 +291,10 @@ export async function GET(req: NextRequest) {
     // Phase 320: Delivery Analytics Snapshot — täglich 02:05 UTC (nach Report-Cache); prune täglich 05:45 UTC
     const isDeliveryAnalyticsTick = nowHour === 2 && nowMin >= 5 && nowMin < 9;
     const isDeliveryAnalyticsPruneTick = nowHour === 5 && nowMin >= 44 && nowMin < 48;
+    // Phase 336: Driver Incentive V2 — Echtzeit-Punkte jeden Tick; Approve täglich 04:30 UTC
+    const isIncentiveV2ApproveTick = nowHour === 4 && nowMin >= 28 && nowMin < 32;
+    // Phase 336: Smart Reorder Notifications — alle 15 Min (Minuten :00, :15, :30, :45)
+    const isReorderNotifyTick = nowMin % 15 < 2;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1036,6 +1042,17 @@ export async function GET(req: NextRequest) {
       ? await pruneGeofenceScanLogs(7).catch(() => ({ pruned: 0 }))
       : null;
 
+    // Phase 336: Driver Incentive V2 — Echtzeit-Punkte jeden Tick
+    const incentiveV2Result = await evaluateIncentiveV2().catch(() => ({ locations: 0, totalAwarded: 0 }));
+    // Phase 336: Incentive V2 Approve — täglich 04:30 UTC
+    const incentiveV2ApproveResult = isIncentiveV2ApproveTick
+      ? await approveIncentiveV2Points().catch(() => ({ approved: 0 }))
+      : null;
+    // Phase 336: Smart Reorder Notifications — alle 15 Min
+    const reorderNotifyResult = isReorderNotifyTick
+      ? await scanReorderAlerts().catch(() => ({ locations: 0, totalPushed: 0 }))
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1255,6 +1272,9 @@ export async function GET(req: NextRequest) {
       ...(zoneRevenuePruned ? { zone_revenue_pruned: zoneRevenuePruned.pruned } : {}),
       ...(geofenceScanResult.driversScanned > 0 ? { geofence_scan: { locations: geofenceScanResult.locations, drivers: geofenceScanResult.driversScanned, ring1: geofenceScanResult.ring1Fired, ring2: geofenceScanResult.ring2Fired } } : {}),
       ...(geofenceLogsPruned ? { geofence_logs_pruned: geofenceLogsPruned.pruned } : {}),
+      ...(incentiveV2Result.totalAwarded > 0 ? { incentive_v2: { locations: incentiveV2Result.locations, awarded: incentiveV2Result.totalAwarded } } : {}),
+      ...(incentiveV2ApproveResult ? { incentive_v2_approved: incentiveV2ApproveResult.approved } : {}),
+      ...(reorderNotifyResult ? { reorder_notify: { locations: reorderNotifyResult.locations, pushed: reorderNotifyResult.totalPushed } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

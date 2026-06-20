@@ -157,6 +157,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Automatische Qualitätswarnungen · Durchschnitt &lt; 3.0 oder 1-Stern-Burst · Admin-Workflow mit Notizen" cta="Flags verwalten" />
         <SectionCard href="/delivery/driver-shift-goals" icon={<Target className="h-5 w-5" />} title="Fahrer-Schichtziele"
           subtitle="Stops, € und Score-Ziele je Schicht · Live-Fortschritt aller Fahrer · Pace-Ampel (Über Plan / Im Plan / Unter Plan)" cta="Ziele ansehen" highlight />
+        <SectionCard href="/delivery/incentive-v2" icon={<Sparkles className="h-5 w-5" />} title="Incentive Engine V2"
+          subtitle="Echtzeit-Bonuspunkte · Peak-Hour-Multiplikator (×2 zur Stoßzeit) · Treue-Streak-Multiplikator · Fahrer-Leaderboard" cta="Engine öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}
@@ -325,6 +327,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Fahrer-Ungleichgewichte erkennen · Rebalancing-Empfehlungen · Surge-Steuerung" cta="Balancer öffnen" highlight />
         <SectionCard href="/delivery/zone-revenue-optimizer" icon={<TrendingUp className="h-5 w-5" />} title="Zonen-Umsatz-Optimizer"
           subtitle="Rentabilität per Lieferzone · Zuschlag- & MOV-Empfehlungen · 30-Tage-Trend · Margin-Score" cta="Optimizer öffnen" highlight />
+        <SectionCard href="/delivery/reorder-notify" icon={<BellDot className="h-5 w-5" />} title="Smart Reorder Notifications"
+          subtitle="Push-Alert bei kritischem Artikelbestand · Dedup-Schutz · 15-Min-Scan · Liefermaterial & Artikel" cta="Alerts ansehen" highlight />
         <SectionCard href="/delivery/incidents" icon={<ShieldAlert className="h-5 w-5" />} title="Vorfälle"
           subtitle="Bewertungen, Verspätungen, Beschädigungen · Eskalationsworkflow" cta="Vorfälle verwalten" />
         <SectionCard href="/delivery/failed-attempts" icon={<XCircle className="h-5 w-5" />} title="Fehlgeschlagene Zustellungen"
