@@ -12,7 +12,7 @@ import {
   Repeat2, CreditCard, Coins, MessageCircle, Trophy, Navigation2, MonitorDot, Crosshair, PieChart,
   Smile, Receipt, Heart, CloudRain, Network, LayoutGrid, WandSparkles, FilePen, Leaf, Medal, Sparkles,
   BookmarkCheck, Shuffle, GitBranch, Globe, MessageSquare, ListOrdered, Radio,
-  HandCoins, MapPinCheck,
+  HandCoins, MapPinCheck, Percent,
 } from 'lucide-react';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
@@ -274,6 +274,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Basis-Vergütung, km-Satz, Peak-Bonus, Meilensteine" cta="Konfigurieren" />
         <SectionCard href="/delivery/fee-config" icon={<DollarSign className="h-5 w-5" />} title="Zonen-Gebühren"
           subtitle="Liefergebühren, Mindestbestellwerte und Gratis-Schwellen pro Zone" cta="Gebühren" />
+        <SectionCard href="/delivery/dynamic-pricing" icon={<Percent className="h-5 w-5" />} title="Dynamic Pricing Engine"
+          subtitle="Surge-basierte Liefergebühren · Off-Peak-Rabatte · Admin-Multiplikatoren · Ereignis-Log" cta="Pricing öffnen" highlight />
         <SectionCard href="/delivery/driver-bonus" icon={<Gift className="h-5 w-5" />} title="Fahrer-Boni"
           subtitle="Leistungsboni nach Lieferungen, Pünktlichkeit und Rating" cta="Boni verwalten" />
         <SectionCard href="/delivery/driver-incentives" icon={<Trophy className="h-5 w-5" />} title="Echtzeit-Incentives"

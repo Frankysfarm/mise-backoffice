@@ -5304,3 +5304,45 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - Integration: `lieferdienst/client.tsx` nach `<LieferdienstDelayAlertKpi>`
 
 - Build: node_modules/.bin/next build ✓ (329 Seiten, 0 Fehler)
+
+---
+
+## Phase 340 — Dynamic Pricing Engine (DONE ✅)
+
+**Datum:** 2026-06-20
+
+### Implementiert:
+
+**`scripts/migrations/162_dynamic_pricing.sql`:**
+- `dynamic_pricing_configs` — Admin-Konfiguration je Standort (UNIQUE location_id): `is_enabled`, Surge-Multiplikatoren (normal/surge_low/surge_mid/surge_high), `max_surcharge_eur` (Kappen-Limit), Off-Peak-Einstellungen (`off_peak_enabled`, `off_peak_discount_pct`, `off_peak_start_hour`, `off_peak_end_hour`), `customer_banner_enabled` (Transparenz-Flag), RLS service_role, `updated_at` Trigger
+- `dynamic_pricing_events` — Ereignis-Log: `pricing_reason` (normal/surge_low/surge_mid/surge_high/off_peak/off_peak_surge), `base_fee_eur`, `applied_multiplier`, `discount_pct`, `final_fee_eur`, `surge_level`, `hour_utc`, optional `order_id`; 2 Indizes (location+date, order_id), RLS
+- `v_dynamic_pricing_today` VIEW — Tages-Aggregation: events_today, surge_events, off_peak_events, avg_multiplier, extra_revenue_eur, discount_given_eur
+- `prune_dynamic_pricing_events(days_old)` RPC
+
+**`lib/delivery/dynamic-pricing.ts`:**
+- `getDynamicPricingConfig(locationId)` — Konfiguration mit Defaults (isEnabled=false, ×1.0/×1.2/×1.5/×2.0, cap €3, off-peak 10%)
+- `upsertDynamicPricingConfig(locationId, update)` — Partial-Update via DB-Upsert
+- `computeDynamicFee(locationId, baseFeeEur, surgeLevel)` → `DynamicFeeResult` — Kern-Berechnung: Surge-Level → Admin-Multiplikator, Off-Peak-Erkennung, Kappen-Limit, Banner-Text-Generierung
+- `logPricingEvent(locationId, orderId, result)` — fire-and-forget Ereignis-Log
+- `getDynamicPricingDashboard(locationId)` — config + todayStats (aus VIEW) + recentEvents + hourlyPattern (7-Tage-Ø)
+- `getRecentPricingEvents(locationId, limit)` — Ereignis-Log
+- `pruneOldPricingEvents(daysToKeep)` — via RPC
+
+**`app/api/delivery/admin/dynamic-pricing/route.ts`:**
+- GET ?action=config → Konfiguration; ?action=dashboard → Dashboard; ?action=events → Ereignis-Log
+- POST action=toggle → is_enabled umschalten; action=update_config → Partial-Konfiguration speichern; action=preview → Gebühr berechnen ohne DB-Write; action=prune → Cleanup
+
+**`app/(admin)/delivery/dynamic-pricing/` — Admin-UI:**
+- 4 KPI-Karten: Status (AN/AUS), Ø Multiplikator heute, Mehrumsatz Surge, Off-Peak-Rabatte
+- Toggle-Button: Dynamic Pricing AN/AUS (sofort wirksam)
+- Status-Banner wenn deaktiviert
+- Tab **Konfiguration**: Range-Slider für Normal/Surge-Low/Mid/High-Multiplikatoren + Kappen-Limit (€) + Off-Peak (Toggle + Rabatt-% + Start/End-Stunde) + Customer-Banner-Toggle + Speichern-Button
+- Tab **Live-Preview**: Basis-Gebühr + Surge-Level-Selektor → berechnete Finale-Gebühr + Surcharge + Rabatt + Kunden-Banner-Vorschau; stündliches Balken-Chart (7-Tage-Muster)
+- Tab **Ereignis-Log**: aufklappbare Event-Rows mit Pricing-Reason-Badge, Multiplikator, Finale Gebühr, Surge-Level, Stunde
+- 5-Min Auto-Refresh
+
+**`app/(admin)/delivery/page.tsx`:** SectionCard "Dynamic Pricing Engine" in Finanzen & Vergütung-Gruppe (highlight)
+
+**Cron:** `pruneOldPricingEvents(30)` täglich 06:10 UTC
+
+- Build: npx next build ✓ (339 Seiten, 0 TypeScript-Fehler)

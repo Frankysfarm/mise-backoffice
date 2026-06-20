@@ -135,6 +135,7 @@ import { evaluateRecentDeliveriesAllLocations as evaluateIncentiveV2, approvePoi
 import { scanAllLocations as scanReorderAlerts } from '@/lib/delivery/smart-reorder-notify';
 import { checkAllLocations as checkGeofenceAutoHours, pruneOldLogs as pruneAutoHoursLogs } from '@/lib/delivery/geofence-auto-hours';
 import { pruneOldSuggestions as pruneSmartTipSuggestions } from '@/lib/delivery/smart-tip-engine';
+import { pruneOldPricingEvents } from '@/lib/delivery/dynamic-pricing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1067,6 +1068,11 @@ export async function GET(req: NextRequest) {
     const smartTipSuggestionsPruned = isSmartTipPruneTick
       ? await pruneSmartTipSuggestions(90).catch(() => 0)
       : null;
+    // Phase 340: Dynamic Pricing Events Prune — täglich 06:10 UTC
+    const isDynamicPricingPruneTick = nowHour === 6 && nowMin >= 10 && nowMin < 14;
+    const dynamicPricingPruned = isDynamicPricingPruneTick
+      ? await pruneOldPricingEvents(30).catch(() => ({ pruned: 0 }))
+      : null;
 
     const durationMs = Date.now() - start;
     return NextResponse.json({
@@ -1293,6 +1299,7 @@ export async function GET(req: NextRequest) {
       ...(autoHoursResult.opened > 0 || autoHoursResult.closed > 0 ? { geofence_auto_hours: { locations: autoHoursResult.locations, opened: autoHoursResult.opened, closed: autoHoursResult.closed } } : {}),
       ...(autoHoursLogsPruned ? { auto_hours_logs_pruned: autoHoursLogsPruned } : {}),
       ...(smartTipSuggestionsPruned ? { smart_tip_suggestions_pruned: smartTipSuggestionsPruned } : {}),
+      ...(dynamicPricingPruned?.pruned ? { dynamic_pricing_pruned: dynamicPricingPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
