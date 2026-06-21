@@ -1,2 +1,1 @@
-// Wird beim Deploy automatisch ueberschrieben (auto-deploy.sh)
-export const BUILD_VERSION = 'dev';
+export const BUILD_VERSION = 'b98a170 | 21.06 11:30';

@@ -11,13 +11,15 @@ export default async function ShopDesign() {
   const sb = createServiceClient();
   const { data: t } = await sb
     .from('tenants')
-    .select('id, name, slug, storefront_theme_id')
+    .select('id, name, slug, storefront_theme_id, storefront_settings')
     .eq('id', emp?.tenant_id ?? '')
     .maybeSingle();
 
   const shopUrl = t?.slug ? `https://mise-gastro.de/biss-app/${t.slug}` : '';
   const raw = (t?.storefront_theme_id ?? '') as string;
   const current: ThemeId = (VALID as string[]).includes(raw) ? (raw as ThemeId) : 'classic';
+  const settings = (t?.storefront_settings ?? {}) as Record<string, unknown>;
+  const hero = (settings.hero ?? {}) as { enabled?: boolean; badge?: string; title?: string; subtitle?: string; emoji?: string };
 
   return (
     <ShopDesignClient
@@ -25,6 +27,7 @@ export default async function ShopDesign() {
       name={t?.name || 'Mein Shop'}
       shopUrl={shopUrl}
       current={current}
+      hero={hero}
     />
   );
 }

@@ -67,16 +67,30 @@ function Thumb({ id }: { id: ThemeId }) {
   );
 }
 
+type HeroCfg = { enabled?: boolean; badge?: string; title?: string; subtitle?: string; emoji?: string };
+
+// Theme-Defaults für die Platzhalter im Banner-Editor
+const HERO_DEFAULTS: Record<ThemeId, { badge: string; title: string; subtitle: string; emoji: string; hasEmoji: boolean }> = {
+  classic: { badge: '', title: '', subtitle: '', emoji: '', hasEmoji: false },
+  aurora: { badge: 'FRISCH & SCHNELL', title: '(Shop-Name) direkt zu dir', subtitle: '', emoji: '🍝', hasEmoji: true },
+  noir: { badge: 'DAL 2008', title: 'Handgemacht. Jeden Tag.', subtitle: '(Shop-Name) — täglich frisch zubereitet, direkt zu dir.', emoji: '', hasEmoji: false },
+  mercato: { badge: 'HEISS & FRISCH', title: '(Shop-Name)', subtitle: 'direkt zu dir.', emoji: '🍕', hasEmoji: true },
+};
+
+const EMOJI_CHOICES = ['🍕', '🍝', '🍔', '🌮', '🍣', '🥗', '🍜', '🍗', '🧆', '🥙', '🍤', '🍛', '☕', '🍰', '🥐', '🍦'];
+
 export function ShopDesignClient({
   tenantId,
   name,
   shopUrl,
   current,
+  hero,
 }: {
   tenantId: string;
   name: string;
   shopUrl: string;
   current: ThemeId | null;
+  hero?: HeroCfg;
 }) {
   const sb = createClient();
   const [savedTheme, setSavedTheme] = useState<ThemeId>(current ?? 'classic'); // live im Shop
@@ -96,6 +110,36 @@ export function ShopDesignClient({
     const { error } = await sb.from('tenants').update({ name: shopName.trim() }).eq('id', tenantId);
     setSavingName(false);
     if (!error) setStoredName(shopName.trim());
+  }
+
+  // Banner / Hero editierbar (storefront_settings.hero)
+  const [heroEnabled, setHeroEnabled] = useState(hero?.enabled !== false);
+  const [heroBadge, setHeroBadge] = useState(hero?.badge ?? '');
+  const [heroTitle, setHeroTitle] = useState(hero?.title ?? '');
+  const [heroSub, setHeroSub] = useState(hero?.subtitle ?? '');
+  const [heroEmoji, setHeroEmoji] = useState(hero?.emoji ?? '');
+  const [savingHero, setSavingHero] = useState(false);
+  const [heroSavedAt, setHeroSavedAt] = useState<number | null>(null);
+  const heroBaseline = JSON.stringify({ e: hero?.enabled !== false, b: hero?.badge ?? '', t: hero?.title ?? '', s: hero?.subtitle ?? '', m: hero?.emoji ?? '' });
+  const heroCurrent = JSON.stringify({ e: heroEnabled, b: heroBadge, t: heroTitle, s: heroSub, m: heroEmoji });
+  const heroDirty = heroBaseline !== heroCurrent;
+  const heroDefaults = HERO_DEFAULTS[selected] ?? HERO_DEFAULTS.classic;
+  async function saveHero() {
+    if (!heroDirty || savingHero) return;
+    setSavingHero(true);
+    // bestehende storefront_settings lesen und nur hero mergen (andere Keys nicht überschreiben)
+    const { data: row } = await sb.from('tenants').select('storefront_settings').eq('id', tenantId).maybeSingle();
+    const prev = (row?.storefront_settings ?? {}) as Record<string, unknown>;
+    const nextHero: HeroCfg = {
+      enabled: heroEnabled,
+      badge: heroBadge.trim(),
+      title: heroTitle.trim(),
+      subtitle: heroSub.trim(),
+      emoji: heroEmoji.trim(),
+    };
+    const { error } = await sb.from('tenants').update({ storefront_settings: { ...prev, hero: nextHero } }).eq('id', tenantId);
+    setSavingHero(false);
+    if (!error) setHeroSavedAt(Date.now());
   }
 
   // Speichern: übernimmt das AUSGEWÄHLTE Design erst auf Klick in den Live-Shop
@@ -184,6 +228,57 @@ export function ShopDesignClient({
               <button onClick={saveName} disabled={!nameDirty || savingName} style={{ height: 42, padding: '0 16px', borderRadius: 10, border: 'none', background: nameDirty && !savingName ? '#4F46E5' : '#E2E8F0', color: nameDirty && !savingName ? '#fff' : '#94A3B8', fontWeight: 700, fontSize: 13.5, cursor: nameDirty && !savingName ? 'pointer' : 'default' }}>{savingName ? '…' : shopName.trim() === storedName ? '✓' : 'Speichern'}</button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>ℹ Erscheint im Shop-Header. Logo/Hero-Bild unter Shop-Einstellungen, Produktbilder im Menü.</div>
+          </div>
+
+          {/* Banner / Hero-Editor */}
+          <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18, marginTop: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155' }}>Banner oben im Shop</div>
+              <button onClick={() => setHeroEnabled((v) => !v)} style={{ position: 'relative', width: 44, height: 25, borderRadius: 999, border: 'none', cursor: 'pointer', background: heroEnabled ? '#4F46E5' : '#CBD5E1', transition: 'background .15s' }}>
+                <span style={{ position: 'absolute', top: 3, left: heroEnabled ? 22 : 3, width: 19, height: 19, borderRadius: '50%', background: '#fff', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: heroEnabled ? 14 : 0 }}>{heroEnabled ? 'Texte anpassen oder ganz ausblenden.' : 'Banner ist ausgeblendet — der Shop startet direkt mit den Produkten.'}</div>
+
+            {heroEnabled && selected === 'classic' && (
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E', borderRadius: 10, padding: '10px 12px', fontSize: 12, marginBottom: 12 }}>
+                Der „Euer Shop"-Klassiker hat keinen anpassbaren Banner. Wähle Bento, Fresco oder Mercato, um Banner-Text & Motiv zu ändern.
+              </div>
+            )}
+
+            {heroEnabled && selected !== 'classic' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B' }}>
+                  Kleiner Hinweis-Text (Badge)
+                  <input value={heroBadge} onChange={(e) => setHeroBadge(e.target.value)} placeholder={heroDefaults.badge} style={{ marginTop: 5, width: '100%', height: 40, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 12px', fontSize: 13.5, color: '#0F172A', fontWeight: 400 }} />
+                </label>
+                <label style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B' }}>
+                  Überschrift
+                  <input value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder={heroDefaults.title} style={{ marginTop: 5, width: '100%', height: 40, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 12px', fontSize: 13.5, color: '#0F172A', fontWeight: 400 }} />
+                </label>
+                <label style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B' }}>
+                  Unterzeile
+                  <input value={heroSub} onChange={(e) => setHeroSub(e.target.value)} placeholder={heroDefaults.subtitle || '(optional)'} style={{ marginTop: 5, width: '100%', height: 40, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 12px', fontSize: 13.5, color: '#0F172A', fontWeight: 400 }} />
+                </label>
+                {heroDefaults.hasEmoji && (
+                  <div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 6 }}>Banner-Motiv (passend zum Sortiment)</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {EMOJI_CHOICES.map((em) => {
+                        const on = (heroEmoji || heroDefaults.emoji) === em;
+                        return (
+                          <button key={em} onClick={() => setHeroEmoji(em)} style={{ width: 38, height: 38, borderRadius: 10, fontSize: 19, cursor: 'pointer', background: on ? '#EEF2FF' : '#F8FAFC', border: on ? '2px solid #4F46E5' : '1px solid #E2E8F0' }}>{em}</button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button onClick={saveHero} disabled={!heroDirty || savingHero} style={{ marginTop: 14, width: '100%', height: 42, borderRadius: 10, border: 'none', background: heroDirty && !savingHero ? '#4F46E5' : '#E2E8F0', color: heroDirty && !savingHero ? '#fff' : '#94A3B8', fontWeight: 700, fontSize: 13.5, cursor: heroDirty && !savingHero ? 'pointer' : 'default' }}>
+              {savingHero ? 'Speichert…' : heroDirty ? 'Banner speichern' : heroSavedAt ? '✓ Gespeichert' : 'Gespeichert'}
+            </button>
           </div>
         </div>
         <div>
