@@ -135,6 +135,7 @@ import { TourStopNavigationBoard } from './tour-stop-navigation-board';
 import { FahrerSchichtFortschrittsRing } from './schicht-fortschritts-ring';
 import { FahrerStoppZaehlerStrip } from './stopp-zaehler-strip';
 import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
+import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
 
 type Driver = {
   id: string;
@@ -1060,6 +1061,14 @@ export function FahrerApp({
           {/* Phase 370: Stopp-Zähler-Strip — Dot-Fortschrittsleiste mit aktuellem Stopp-Index + Zähler */}
           <div className="px-4">
             <FahrerStoppZaehlerStrip stops={activeBatch.stops} />
+          </div>
+          {/* Phase 372: Tour-Zeitplan-Live — Soll/Ist-Vergleich für Tourverlauf: Stopp- und Zeitfortschritt */}
+          <div className="px-4 mt-3">
+            <FahrerTourZeitplanLive
+              stops={activeBatch.stops as any}
+              startedAt={activeBatch.started_at ?? null}
+              totalEtaMin={(activeBatch as any).total_eta_min ?? null}
+            />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
           <div className="px-4">

@@ -194,6 +194,7 @@ import { DispatchTourScoreCockpit } from './tour-score-cockpit';
 import { DispatchTourKapazitaetsRing } from './tour-kapazitaets-ring';
 import { DispatchZonenAuslastungsMatrix } from './zonen-auslastungs-matrix';
 import { DispatchFahrerRueckkehrMatrix } from './fahrer-rueckkehr-matrix';
+import { DispatchFahrerLastenverteilung } from './fahrer-lastenverteilung';
 
 type Driver = {
   employee_id: string;
@@ -1092,6 +1093,8 @@ export function DispatchBoard({
       <DispatchZonenAuslastungsMatrix batches={batches as any} />
       {/* Phase 371: Fahrer-Rückkehr-Matrix — Erwartete Rückkehrzeiten je aktiver Tour, sortiert nach bald frei */}
       <DispatchFahrerRueckkehrMatrix batches={batches as any} />
+      {/* Phase 372: Fahrer-Lastenverteilung — Balkendiagramm verbleibende Stopps je Fahrer, Ungleichgewicht-Warnung */}
+      <DispatchFahrerLastenverteilung batches={batches as any} />
       {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}
