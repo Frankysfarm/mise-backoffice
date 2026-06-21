@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const origin = req.headers.get('origin') ?? new URL(req.url).origin;
 
   if (!stripeConfigured()) {
-    return NextResponse.redirect(`${origin}/settings/restaurant?stripe_error=not_configured`);
+    return NextResponse.redirect(`${origin}/neo/app/zahlungen?stripe_error=not_configured`);
   }
 
   const supabase = await createClient();
@@ -54,5 +54,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/settings/restaurant?stripe=done`);
+  return NextResponse.redirect(`${origin}/neo/app/zahlungen?stripe=done`);
 }
