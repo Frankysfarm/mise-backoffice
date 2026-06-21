@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–370 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–371 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 371 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Kochzeit-Soll/Ist-Vergleich (Kitchen), Fahrer-Rückkehr-Matrix (Dispatch), Pausen-Empfehlung (Fahrer-App), Bestell-Uhrzeit-Fenster (Storefront), Fahrer-Heute-KPI-Grid (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 370 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Auftrags-Warteschlangen-Zeit (Kitchen), Zonen-Auslastungs-Matrix (Dispatch), Stopp-Zähler-Strip (Fahrer-App), Bestell-Zonen-Hinweis (Storefront), Zonen-Umsatz-Matrix (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -18,6 +20,47 @@
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 371 — 5 neue Smart-Delivery-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`app/(admin)/kitchen/kochzeit-soll-ist-vergleich.tsx`** — `KitchenKochzeitSollIstVergleich`
+- Soll vs. Ist Kochzeiten-Vergleich für alle `in_zubereitung`-Orders
+- Fortschrittsbalken je Order: grün (im Plan) / amber (leicht überfällig) / rot (>5 Min überfällig)
+- 10s-Client-Tick, nutzt `timings.cook_start_at` + `timings.prep_min` (Fallback: `geschaetzte_zubereitung_min`)
+- Ø-Abweichungs-Footer, Überfällig-Badge, max 5 Orders sichtbar (Scroll)
+- Integration: kitchen/client.tsx nach KitchenAuftragsWarteschlangenZeit
+
+**`app/(admin)/dispatch/fahrer-rueckkehr-matrix.tsx`** — `DispatchFahrerRueckkehrMatrix`
+- Alle aktiven Fahrer-Touren mit erwarteter Rückkehrzeit (aus eta_latest letzter Stopp / startzeit + total_eta_min)
+- Sortiert nach kürzester Rückkehrzeit: "bald frei" (≤5 Min grün), "coming" (≤15 Min amber), "far" (grau)
+- Stopp-Fortschrittsbalken + Zone-Badge je Fahrer, 30s-Tick
+- Integration: dispatch/client.tsx nach DispatchZonenAuslastungsMatrix
+
+**`app/fahrer/app/pausen-empfehlung.tsx`** — `FahrerPausenEmpfehlung`
+- Pausen-Empfehlung für Fahrer nach 3+ Stunden Schicht ohne aktive Tour
+- Urgency-Level: low (3h) / medium (4h) / high (6h) — Farbkodierung blau/amber/rot
+- Dismissierbar per ✕-Button, 60s-Tick, nur wenn kein activeBatch
+- Integration: fahrer/app/client.tsx nach Peak-Zeit-Banner im isOnline-Bereich
+
+**`app/order/[locationSlug]/components/bestell-uhrzeit-fenster.tsx`** — `BestellUhrzeitFenster`
+- Zeigt die voraussichtliche Liefer-/Abholzeit als absolute Uhrzeit-Spanne (z.B. "14:32 – 14:47 Uhr")
+- Berechnet ±5-Min-Fenster um etaMinutes, rein prop-basiert, kein API-Call
+- Integration: order/[locationSlug]/components/success-state.tsx nach BestellZonenHinweis
+
+**`app/(admin)/lieferdienst/fahrer-heute-kpi-grid.tsx`** — `LieferdienstFahrerHeuteKpiGrid`
+- Heutige Fahrer-Performance: Stopps, Einnahmen (€), Pünktlichkeitsrate je Fahrer
+- Nutzt GET /api/delivery/admin/driver-performance-realtime, 5-Min-Polling
+- Live-Score-Badge (grün/amber/rot), Fahr-Status-Label (unterwegs/frei)
+- Versteckt wenn alle Fahrer 0 Stopps heute
+- Integration: lieferdienst/client.tsx nach LieferdienstZoneUmsatzMatrix
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

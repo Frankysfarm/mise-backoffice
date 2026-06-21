@@ -33,6 +33,7 @@ import { BestellDetailsKompakt } from './bestell-details-kompakt';
 import { EtaLiveUpdateWidget } from '../eta-live-update-widget';
 import { EtaVerlaufTimeline } from './eta-verlauf-timeline';
 import { BestellZonenHinweis } from './bestell-zonen-hinweis';
+import { BestellUhrzeitFenster } from './bestell-uhrzeit-fenster';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -441,6 +442,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         )}
         {/* Phase 370: Zonen-Hinweis — Zone A/B/C/D Badge + Lieferfenster (nur Lieferbestellungen) */}
         {isDelivery && orderId && <BestellZonenHinweis orderId={orderId} />}
+        {/* Phase 371: Uhrzeit-Fenster — Lieferzeit als absolute Uhrzeitspanne (z.B. 14:32–14:47 Uhr) */}
+        <BestellUhrzeitFenster etaMinutes={etaMinutes} isDelivery={isDelivery} className="mt-2" />
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}
         <BestellPhasenBand status={liveStatus} isDelivery={isDelivery} etaMinutes={etaMinutes} />
 

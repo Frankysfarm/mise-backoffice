@@ -163,6 +163,7 @@ import { LieferdienstTagsZielAmpel } from './tags-ziel-ampel'
 import { LieferdienstGesamtleistungsDashboard } from './gesamtleistungs-dashboard';
 import { LieferdienstStundenEffizienzMatrix } from './stunden-effizienz-matrix';
 import { LieferdienstZoneUmsatzMatrix } from './zone-umsatz-matrix';
+import { LieferdienstFahrerHeuteKpiGrid } from './fahrer-heute-kpi-grid';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1246,6 +1247,8 @@ export function LieferdienstClient() {
               <LieferdienstStundenEffizienzMatrix locationId={locationId ?? null} />
               {/* Phase 370: Zonen-Umsatz-Matrix — Heute-Umsatz nach Zone (Bestellungen/€/Ø-Warenwert) */}
               <LieferdienstZoneUmsatzMatrix locationId={locationId ?? null} />
+              {/* Phase 371: Fahrer-Heute-KPI-Grid — Heutige Stopps, Einnahmen und Pünktlichkeit je Fahrer */}
+              <LieferdienstFahrerHeuteKpiGrid locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

@@ -134,6 +134,7 @@ import { FahrerStopRhythmusMeter } from './stop-rhythmus-meter';
 import { TourStopNavigationBoard } from './tour-stop-navigation-board';
 import { FahrerSchichtFortschrittsRing } from './schicht-fortschritts-ring';
 import { FahrerStoppZaehlerStrip } from './stopp-zaehler-strip';
+import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
 
 type Driver = {
   id: string;
@@ -757,6 +758,14 @@ export function FahrerApp({
                     </div>
                   </div>
                 )}
+
+                {/* Phase 371: Pausen-Empfehlung — Hinweis nach 3+ Stunden Schicht ohne aktive Tour */}
+                <div className="mt-3">
+                  <FahrerPausenEmpfehlung
+                    onlineSeit={status?.online_seit ?? null}
+                    hasActiveBatch={!!activeBatch}
+                  />
+                </div>
 
                 {/* Nächste Schichten — aus offline-bundle */}
                 {upcomingShifts.length > 0 && (
