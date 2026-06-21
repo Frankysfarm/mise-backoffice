@@ -159,6 +159,7 @@ import { autoDetectAllLocations as detectShiftExtensions, recordDailyOvertimeSum
 import { snapshotDailyScoreAllLocations as snapshotDriverScoreDaily, detectScoreDropAlertsAllLocations, pruneOldDailySnapshots as pruneDriverScoreDailySnapshots, pruneOldDropAlerts as pruneDriverScoreDropAlerts } from '@/lib/delivery/driver-score-daily';
 import { snapshotTransparencyAllLocations, pruneTransparencySnapshots } from '@/lib/delivery/transparency-engine';
 import { snapshotOpsHealthAllLocations, pruneOpsHealthSnapshots } from '@/lib/delivery/ops-health-history';
+import { detectLostConnectionsAllLocations, pruneOldHeartbeats as pruneDriverHeartbeats, pruneOldConnectivityEvents } from '@/lib/delivery/driver-heartbeat';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -352,6 +353,8 @@ export async function GET(req: NextRequest) {
     // Phase 392: Ops-Health-History — alle 15 Min Snapshot; prune täglich 07:30 UTC (90 Tage)
     const isOpsHealthSnapshotTick = nowMin % 15 < 2;
     const isOpsHealthPruneTick    = nowHour === 7 && nowMin >= 30 && nowMin < 34;
+    // Phase 394: Driver Heartbeat Connectivity — disconnect-Detection jeden Tick; prune täglich 07:35 UTC
+    const isConnectivityPruneTick = nowHour === 7 && nowMin >= 35 && nowMin < 39;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1359,6 +1362,15 @@ export async function GET(req: NextRequest) {
       ? await pruneOpsHealthSnapshots(90).catch(() => null)
       : null;
 
+    // Phase 394: Driver Heartbeat Connectivity — disconnect-Detection jeden Tick; prune täglich 07:35 UTC
+    const connectivityResult = await detectLostConnectionsAllLocations().catch(() => null);
+    const heartbeatsPruned = isConnectivityPruneTick
+      ? await pruneDriverHeartbeats(3).catch(() => null)
+      : null;
+    const connectivityEventsPruned = isConnectivityPruneTick
+      ? await pruneOldConnectivityEvents(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1628,6 +1640,9 @@ export async function GET(req: NextRequest) {
       ...(transparencyPruned?.pruned ? { transparency_pruned: transparencyPruned.pruned } : {}),
       ...(opsHealthSnapshotResult?.saved ? { ops_health_snapshots: { locations: opsHealthSnapshotResult.locations, saved: opsHealthSnapshotResult.saved, errors: opsHealthSnapshotResult.errors } } : {}),
       ...(opsHealthPruned?.pruned ? { ops_health_pruned: opsHealthPruned.pruned } : {}),
+      ...(connectivityResult?.disconnects ? { connectivity_disconnects: { locations: connectivityResult.locations, detected: connectivityResult.disconnects, errors: connectivityResult.errors } } : {}),
+      ...(heartbeatsPruned ? { heartbeats_pruned: heartbeatsPruned } : {}),
+      ...(connectivityEventsPruned ? { connectivity_events_pruned: connectivityEventsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
