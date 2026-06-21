@@ -155,6 +155,7 @@ import { predictAllActiveTourEndsAllLocations, settleAllCompletedToursAllLocatio
 import { snapshotSchichtRoiDailyAllLocations, pruneSchichtRoiDaily } from '@/lib/delivery/schicht-roi-daily';
 import { snapshotCapacityAllLocations, pruneCapacityEvents } from '@/lib/delivery/driver-capacity-signal';
 import { autoDetectAllLocations as detectShiftExtensions, recordDailyOvertimeSummaryAllLocations, pruneOldRequests as pruneShiftExtensionRequests } from '@/lib/delivery/shift-extension';
+import { snapshotDailyScoreAllLocations as snapshotDriverScoreDaily, detectScoreDropAlertsAllLocations, pruneOldDailySnapshots as pruneDriverScoreDailySnapshots, pruneOldDropAlerts as pruneDriverScoreDropAlerts } from '@/lib/delivery/driver-score-daily';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -338,6 +339,10 @@ export async function GET(req: NextRequest) {
     // Phase 383: Shift Extension — auto-detect every tick; snapshot täglich 23:50 UTC; prune täglich 07:15 UTC
     const isShiftExtensionSnapshotTick = nowHour === 23 && nowMin >= 50 && nowMin < 54;
     const isShiftExtensionPruneTick    = nowHour === 7  && nowMin >= 15 && nowMin < 19;
+    // Phase 385: Driver Score Daily — snapshot täglich 00:20 UTC; drop-detect 10:05 + 16:05 UTC; prune täglich 07:20 UTC
+    const isDriverScoreDailySnapshotTick = nowHour === 0  && nowMin >= 20 && nowMin < 24;
+    const isDriverScoreDropDetectTick    = (nowHour === 10 || nowHour === 16) && nowMin >= 5 && nowMin < 9;
+    const isDriverScoreDailyPruneTick    = nowHour === 7  && nowMin >= 20 && nowMin < 24;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1305,6 +1310,20 @@ export async function GET(req: NextRequest) {
       ? await pruneShiftExtensionRequests(60).catch(() => null)
       : null;
 
+    // Phase 385: Driver Score Daily Snapshots + Drop Alerts
+    const driverScoreDailyResult = isDriverScoreDailySnapshotTick
+      ? await snapshotDriverScoreDaily().catch(() => null)
+      : null;
+    const driverScoreDropResult = isDriverScoreDropDetectTick
+      ? await detectScoreDropAlertsAllLocations().catch(() => null)
+      : null;
+    const driverScoreDailyPruned = isDriverScoreDailyPruneTick
+      ? await pruneDriverScoreDailySnapshots(90).catch(() => null)
+      : null;
+    if (isDriverScoreDailyPruneTick) {
+      await pruneDriverScoreDropAlerts(60).catch(() => null);
+    }
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1566,6 +1585,9 @@ export async function GET(req: NextRequest) {
       ...(shiftExtensionResult?.requestsCreated ? { shift_extension: { locations: shiftExtensionResult.locations, risks: shiftExtensionResult.risksFound, created: shiftExtensionResult.requestsCreated } } : {}),
       ...(shiftExtensionSnapshot?.saved ? { shift_extension_snapshot: { locations: shiftExtensionSnapshot.locations, saved: shiftExtensionSnapshot.saved } } : {}),
       ...(shiftExtensionPruned?.pruned ? { shift_extension_pruned: shiftExtensionPruned.pruned } : {}),
+      ...(driverScoreDailyResult?.saved ? { driver_score_daily: { locations: driverScoreDailyResult.locations, saved: driverScoreDailyResult.saved, errors: driverScoreDailyResult.errors } } : {}),
+      ...(driverScoreDropResult?.alertsCreated ? { driver_score_drop_alerts: { locations: driverScoreDropResult.locations, created: driverScoreDropResult.alertsCreated, checked: driverScoreDropResult.driversChecked } } : {}),
+      ...(driverScoreDailyPruned?.pruned ? { driver_score_daily_pruned: driverScoreDailyPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
