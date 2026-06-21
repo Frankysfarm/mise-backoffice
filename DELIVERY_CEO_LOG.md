@@ -1,7 +1,93 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–374 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–375 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #206 — 2026-06-21
+
+### Geprüfte Phasen: Phase 375 (Frontend + Backend)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+
+**Phase 375 Backend — KitchenHandoffRateTrend + API:**
+
+**`lib/delivery/kitchen-sync.ts`** — HandoffRateDailyRow Interface + 4 Funktionen:
+- `snapshotHandoffRateDaily(locationId, date?)` — korrekte Aggregation, upsert ✅
+- `snapshotHandoffRateDailyAllLocations(date?)` — Cron-Batch ✅
+- `getHandoffRateDailyHistory(locationId, days)` — max 90 Tage Schutz fehlt → akzeptabel (API-Layer begrenzt) ✅
+- `pruneHandoffRateDaily(daysToKeep)` — RPC-Aufruf korrekt ✅
+
+**`app/api/delivery/admin/handoff-rate/route.ts`:**
+- GET history/current korrekt implementiert ✅
+- POST snapshot mit optionalem Date-Parameter ✅
+- Auth via employees.location_id + location_id-Override für Superadmin ✅
+- Kleines Code-Smell: `createServiceClient()` via dynamischen Import (Zeile 55) — funktioniert, aber unnötig; kein Bug ✅
+
+**`app/(admin)/kitchen/handoff-rate-trend.tsx`** — KitchenHandoffRateTrend:
+- Collapsible Recharts LineChart (2 Linien: schnell/verspätet) ✅
+- 14-Tage-Sicht + KPI-Kacheln + Trend-Pfeil ✅
+- Lazy-load (nur wenn open=true) ✅
+- Integration: kitchen/client.tsx nach `<KitchenHandoffRatePanel />` ✅
+
+**Phase 375 Frontend — 5 neue Komponenten:**
+
+**`app/(admin)/kitchen/kommando-zentrale.tsx`** — KitchenKommandoZentrale:
+- Urgency-Klassifizierung korrekt (kritisch/dringend/bald/ok) ✅
+- 1s-Ticker + URGENCY_ORDER-Sort ✅
+- Division-Guard: pct === 0 → return null für Urgency-Bar ✅
+- Integration: kitchen/client.tsx mit `orders={filtered} timings={timings}` ✅
+
+**`app/(admin)/dispatch/tour-score-zentrale.tsx`** — DispatchTourScoreZentrale:
+- computeScore(): Basis 80, -5 pro überfälliger Stopp, +5 wenn alle pünktlich ✅
+- ACTIVE_STATUSES Set korrekt (unterwegs/on_route/assigned/pickup) ✅
+- Progress-Bar: completedStops/totalStops * 100, Guard totalStops > 0 ✅
+- Integration: dispatch/client.tsx mit `batches={batches}` ✅
+
+**`app/(admin)/lieferdienst/tages-kpi-panel.tsx`** — LieferdienstTagesKPIPanel:
+- Holt `/api/delivery/admin/stats?period=today` (Phase 373 Backend vorhanden) ✅
+- Delta-Berechnung: orders_prev + revenue_prev korrekt ✅
+- Return null wenn stats.total_orders === 0 ✅
+- Integration: lieferdienst/client.tsx ✅
+
+**`app/fahrer/app/tour-gps-navigator.tsx`** — TourGPSNavigator:
+- Haversine + Bearing korrekt implementiert ✅
+- "Fast da!" Puls bei distKm < 0.15 km ✅
+- Google Maps + Waze Deep-Links mit GPS-Koordinaten oder Adress-Fallback ✅
+- Integration: fahrer/app/client.tsx mit `stops={activeBatch.stops as any} driverPos={driverPos}` ✅
+
+**`app/order/[locationSlug]/components/bestellung-live-sse-tracker.tsx`** — BestellungLiveSSETracker:
+- SSE via EventSource (`/api/delivery/tracking/${bestellnummer}/stream`) ✅
+- Polling-Fallback alle 30s ✅
+- ETA-Countdown via `etaSetAt` + `etaSnapshot` Refs (live dekrement) ✅
+- Progress-Steps: 5-Stufen korrekt (bestätigt→in_zubereitung→fertig→unterwegs→geliefert) ✅
+- **BUG ENTDECKT + GEFIXT:** Komponente war in `success-state.tsx` NICHT integriert.
+  → Import + Render nach Phase-271-Block hinzugefügt (Zeile ~815, `isDelivery` Guard) ✅
+
+**Bugs gefunden + gefixt: 1**
+- `BestellungLiveSSETracker` war definiert aber nirgends eingebunden → Integration in success-state.tsx ergänzt
+
+**Bekannte Minor-Issues (kein Fix nötig):**
+- `sseConnected` in Polling-Closure veraltet (eslint-disable kommentiert) → ETA wird immer aus Polling geupdated, auch wenn SSE aktiv. Kein falsches Verhalten, nur redundante Updates.
+- Dynamic import `createServiceClient()` in handoff-rate/route.ts → funktioniert korrekt
+
+### Status nach Review #206
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 375 (Backend + Frontend): DONE ✅
+- BestellungLiveSSETracker: integriert in success-state.tsx ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 376: 5 neue Smart-Delivery-Komponenten
+2. Storefront: `BestellungLiveSSETracker` könnte auch auf der `/track/[bestellnummer]`-Seite erscheinen
+3. Fahrer-App: `TourGPSNavigator` könnte Waze-Deep-Link mit Wegpunkten für alle Stops erweitern
+
+### Nächste Schritte für Backend-Architekt
+1. `snapshotHandoffRateDaily`: Cron-Tick-Prüfung in `smart-dispatch/route.ts` — sicherstellen dass `isHandoffRateSnapshotTick` korrekt greift
+2. Track-Seite `/track/[bestellnummer]` — SSE-Endpoint-Response mit `driver_name` erweitern
 
 ---
 

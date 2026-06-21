@@ -36,6 +36,7 @@ import { BestellZonenHinweis } from './bestell-zonen-hinweis';
 import { BestellUhrzeitFenster } from './bestell-uhrzeit-fenster';
 import { BestellZeitSeitBestellung } from './bestell-zeit-seit-bestellung';
 import { BestellStatusLiveBadge } from './bestell-status-live-badge';
+import { BestellungLiveSSETracker } from './bestellung-live-sse-tracker';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -809,6 +810,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
                 : liveStatus === 'fertig' ? 'pickup'
                 : 'prep'
               }
+            />
+          </div>
+        )}
+
+        {/* Phase 375: SSE-Live-Tracker — Echtzeit-Statusverfolgung via SSE + Polling-Fallback */}
+        {isDelivery && (
+          <div className="mt-4 w-full">
+            <BestellungLiveSSETracker
+              bestellnummer={bestellnummer}
+              initialStatus={liveStatus}
             />
           </div>
         )}
