@@ -44,6 +44,7 @@ import { BestellScoreVertrauen } from './bestell-score-vertrauen';
 import { TeamQualitaetsBadge } from './team-qualitaets-badge';
 import { LieferTransparenzBadge } from './liefer-transparenz-badge';
 import { BestellStatusLiveV2 } from '../bestell-status-live-v2';
+import { LieferQualitaetsRing } from './liefer-qualitaets-ring';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -863,6 +864,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && (
           <div className="mt-2 w-full">
             <LieferTransparenzBadge isDelivery={isDelivery} />
+          </div>
+        )}
+        {/* Phase 390: Liefer-Qualitäts-Ring — SVG-Ring Trust-Score + Ø Lieferzeit + Gesamtnote */}
+        {isDelivery && (
+          <div className="mt-2 w-full">
+            <LieferQualitaetsRing isDelivery={isDelivery} />
           </div>
         )}
         {/* Phase 388: Bestell-Status-Live-V2 — 4-Stufen-Pipeline Eingegangen→Zubereitung→Unterwegs→Geliefert */}
