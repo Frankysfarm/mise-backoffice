@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–373 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–374 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 374 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenBestellungsFlowAmpel (3-Phasen-Stauanzeige: Eingang/Zubereitung/Fertig-wartet, Rot-Alert bei Stau), DispatchTourPuenktlichkeitsAmpel (Ampel-Kacheln je aktiver Tour: pünktlich/knapp/verspätet + Stopp-Fortschrittsbalken), FahrerSchichtDauerLive (Schichtdauer-Ticker + Stopps/h Rate, Intensitäts-Farbkodierung grün→amber→rot), BestellStatusLiveBadge (Step-Fortschrittsbalken Eingang→Zubereitung→Fertig→Unterwegs→Geliefert auf Storefront Erfolgsseite), LieferdienstSchichtTempoKpi (Orders/h + Ø Lieferzeit + Pünktlichkeit + aktive Fahrer live mit Trend-Pfeil). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 373 (2026-06-21): Backend — /api/delivery/admin/stats?period=today umfassender Tages-KPI-Handler. Beendet Mock-Fallback in 5 Komponenten (LieferdienstStundenEffizienzMatrix, SchichtLeistungsRadar, SchichtEchtzeitBilanz, SchnellStatistikPanel, SchichtDeltaVergleich). Liefert hourly_volume[], avg_delivery_min, on_time_rate/pct, active_drivers, orders_per_hour, stops_per_hour, topZone, peakHour, revenue, revenue_prev, orders_prev, pendingOrders, cancelledOrders, avgOrderValue. Migration 178: delivery_zone-Spalte auf orders-Tabelle (idempotent). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
