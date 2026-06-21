@@ -122,7 +122,7 @@ export async function detectOvertimeRisk(locationId: string): Promise<OvertimeRi
   const risks: OvertimeRisk[] = [];
 
   for (const shift of shifts) {
-    const driver = shift['mise_drivers'] as Record<string, unknown> | null;
+    const driver = shift['mise_drivers'] as unknown as Record<string, unknown> | null;
     const driverId = shift.driver_id as string;
 
     // Check active batch for this driver
@@ -467,8 +467,8 @@ export async function getOvertimeDashboard(locationId: string): Promise<Overtime
   ]);
 
   const openRequests: ExtensionRequest[] = (openRequestsRes.data ?? []).map((r) => {
-    const drv = r['mise_drivers'] as Record<string, unknown> | null;
-    const shf = r['driver_shifts'] as Record<string, unknown> | null;
+    const drv = r['mise_drivers'] as unknown as Record<string, unknown> | null;
+    const shf = r['driver_shifts'] as unknown as Record<string, unknown> | null;
     return {
       id:            r.id as string,
       locationId:    r.location_id as string,
