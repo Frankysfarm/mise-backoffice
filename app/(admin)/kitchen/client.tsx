@@ -160,6 +160,7 @@ import { KochstartKonfidenzAnzeige } from './kochstart-konfidenz';
 import { KitchenSchichtAuslastungsRing } from './schicht-auslastungs-ring';
 import { KitchenFlowKoordinator } from './flow-koordinator';
 import { KitchenQueueCountdownBoard } from './queue-countdown-board';
+import { KitchenEchtzeitAmpelBoard } from './echtzeit-ampel-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -685,6 +686,10 @@ export function KitchenBoard({
       {/* Phase 393: Queue-Countdown-Board — Alle Bestellungen mit Kochstart in den nächsten 20 Min, farbkodierte Countdown-Uhr */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenQueueCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
+      )}
+      {/* Phase 395: Echtzeit-Ampelboard — Farbkodiertes Countdown-Board für alle aktiven Bestellungen (grün/gelb/rot) */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenEchtzeitAmpelBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       )}
       {/* Phase 364: Bestell-Takt-Meter — Orders/h Rate-Gauge mit Trend vs. Vorjahresstunde */}
       <KitchenBestellTaktMeter orders={filtered} />

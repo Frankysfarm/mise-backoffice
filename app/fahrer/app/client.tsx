@@ -150,6 +150,7 @@ import { TourVerdiensteZielTracker } from './tour-verdienst-ziel-tracker';
 import { SchichtPaceLive } from './schicht-pace-live';
 import { FahrerAktuellerStoppCard } from './aktueller-stopp-card';
 import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
+import { TourNavigationsKompass } from './tour-navigations-kompass';
 
 type Driver = {
   id: string;
@@ -1435,6 +1436,15 @@ export function FahrerApp({
               <NaechsterStopFokus
                 stops={activeBatch.stops as any}
                 totalStops={activeBatch.stops.length}
+              />
+            </div>
+          )}
+          {/* Phase 395: Navigations-Kompass — Smart nächster Stopp mit Navigation, Countdown, Fortschrittsanzeige */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourNavigationsKompass
+                batchId={activeBatch.id}
+                driverId={driver.id}
               />
             </div>
           )}
