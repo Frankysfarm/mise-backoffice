@@ -42,6 +42,7 @@ import { LieferzeitVergleichWidget } from './lieferzeit-vergleich-widget';
 import { LiveStatusTimeline } from './live-status-timeline';
 import { BestellScoreVertrauen } from './bestell-score-vertrauen';
 import { TeamQualitaetsBadge } from './team-qualitaets-badge';
+import { LieferTransparenzBadge } from './liefer-transparenz-badge';
 import { BestellStatusLiveV2 } from '../bestell-status-live-v2';
 
 type CartItem = {
@@ -856,6 +857,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && (
           <div className="mt-2 w-full">
             <TeamQualitaetsBadge />
+          </div>
+        )}
+        {/* Phase 389: Liefer-Transparenz-Badge — Trust-Score + Badge Bronze/Silver/Gold/Platinum */}
+        {isDelivery && (
+          <div className="mt-2 w-full">
+            <LieferTransparenzBadge isDelivery={isDelivery} />
           </div>
         )}
         {/* Phase 388: Bestell-Status-Live-V2 — 4-Stufen-Pipeline Eingegangen→Zubereitung→Unterwegs→Geliefert */}

@@ -1,7 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–388 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–389 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## Phase 389 Backend — Delivery Transparency Engine (2026-06-21)
+
+### Implementiert:
+
+**Migration 186 (`scripts/migrations/186_delivery_transparency.sql`):**
+- `delivery_transparency_snapshots`: UNIQUE(location_id, snapshot_date), trust_score 0–100, badge_level bronze/silver/gold/platinum, 5 Teilbereiche (score_ontime/quality/accuracy/speed/care), öffentliche Kennzahlen (avg_delivery_min, on_time_rate_pct, satisfaction_rate, total_deliveries, orders_last_30d), trust_delta vs. Vortag, previous_badge
+- RLS: service_role full + authenticated read own location + anon read (für Public-API)
+- updated_at-Trigger, `prune_transparency_snapshots(days_to_keep)` RPC, View `v_transparency_trend`
+
+**`lib/delivery/transparency-engine.ts`:**
+- `calculateTransparencyScore(locationId)` — 5 Faktoren: Pünktlichkeit 35% (delivery_performance.on_time_rate), Zufriedenheit 25% (customer_orders.kundenbewertung 1–5 → 0–100), Geschwindigkeit 20% (avg vs. Ziel 30 Min), SLA 12% (sla_breach_events Rate), Storno 8% (Cancel-Rate)
+- `snapshotTransparency(locationId, date?)` — UPSERT mit Vortags-Delta
+- `snapshotTransparencyAllLocations()` — Promise.allSettled Cron-Batch
+- `getTransparencyDashboard(locationId)` — 30-Tage-Trend, weeklyAvg, badgeHistory 14 Tage
+- `getPublicTransparencyProfile(locationId)` — Public-safe: trustScore, badgeLevel, badgeLabel, avgDeliveryMin, onTimeRatePct, ordersLast30d
+- `getBadgeLevel(score)`, `getBadgeLabel(level)` — Platinum ≥90, Gold ≥75, Silver ≥60, Bronze <60
+- `pruneTransparencySnapshots(daysToKeep)` — via RPC
+
+**API `app/api/delivery/admin/transparency/route.ts`:**
+- GET ?location_id → 30-Tage-Dashboard
+- GET ?location_id&action=live → Live-Berechnung ohne Persistenz
+- POST action=snapshot+location_id → manuell
+- POST action=prune → Cleanup
+
+**API `app/api/delivery/public/transparency/route.ts`:**
+- GET ?slug → PublicTransparencyProfile (kein Auth, Slug-Auflösung wie avg-eta)
+
+**Frontend `app/(admin)/lieferdienst/transparenz-dashboard.tsx` — `LieferdienstTransparenzDashboard`:**
+- Collapsibles Dashboard: Badge-Header (Platin/Gold/Silber/Bronze + Score + Delta), 3er-KPI-Grid, 5 Teilbereiche-Bars (grün/amber/rot), Badge-Verlauf 14 Tage, 10-Min-Polling
+- Integration: lieferdienst/client.tsx nach LieferdienstSchichtROITrend
+
+**Frontend `app/order/[locationSlug]/components/liefer-transparenz-badge.tsx` — `LieferTransparenzBadge`:**
+- Storefront: Medal-Icon + Badge-Label + On-Time % + Ø Lieferzeit + Noten-Buchstabe (A+/A/B/C) + Punktzahl
+- Slug aus window.location, 5 Stile je Badge-Level, Fallback-State
+- Integration: success-state.tsx nach TeamQualitaetsBadge, nur isDelivery
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 04:10 UTC: `snapshotTransparencyAllLocations()`
+- Täglich 07:25 UTC: `pruneTransparencySnapshots(365)`
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

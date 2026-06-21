@@ -157,6 +157,7 @@ import { snapshotSchichtRoiDailyAllLocations, pruneSchichtRoiDaily } from '@/lib
 import { snapshotCapacityAllLocations, pruneCapacityEvents } from '@/lib/delivery/driver-capacity-signal';
 import { autoDetectAllLocations as detectShiftExtensions, recordDailyOvertimeSummaryAllLocations, pruneOldRequests as pruneShiftExtensionRequests } from '@/lib/delivery/shift-extension';
 import { snapshotDailyScoreAllLocations as snapshotDriverScoreDaily, detectScoreDropAlertsAllLocations, pruneOldDailySnapshots as pruneDriverScoreDailySnapshots, pruneOldDropAlerts as pruneDriverScoreDropAlerts } from '@/lib/delivery/driver-score-daily';
+import { snapshotTransparencyAllLocations, pruneTransparencySnapshots } from '@/lib/delivery/transparency-engine';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -344,6 +345,9 @@ export async function GET(req: NextRequest) {
     const isDriverScoreDailySnapshotTick = nowHour === 0  && nowMin >= 20 && nowMin < 24;
     const isDriverScoreDropDetectTick    = (nowHour === 10 || nowHour === 16) && nowMin >= 5 && nowMin < 9;
     const isDriverScoreDailyPruneTick    = nowHour === 7  && nowMin >= 20 && nowMin < 24;
+    // Phase 389: Transparency Engine — täglich 04:10 UTC; prune täglich 07:25 UTC (365 Tage)
+    const isTransparencySnapshotTick = nowHour === 4  && nowMin >= 10 && nowMin < 14;
+    const isTransparencyPruneTick    = nowHour === 7  && nowMin >= 25 && nowMin < 29;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1335,6 +1339,14 @@ export async function GET(req: NextRequest) {
       await pruneDriverScoreDropAlerts(60).catch(() => null);
     }
 
+    // Phase 389: Transparency Engine — täglich 04:10 UTC Snapshot; prune 07:25 UTC
+    const transparencySnapshotResult = isTransparencySnapshotTick
+      ? await snapshotTransparencyAllLocations().catch(() => null)
+      : null;
+    const transparencyPruned = isTransparencyPruneTick
+      ? await pruneTransparencySnapshots(365).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1600,6 +1612,8 @@ export async function GET(req: NextRequest) {
       ...(driverScoreDropResult?.alertsCreated ? { driver_score_drop_alerts: { locations: driverScoreDropResult.locations, created: driverScoreDropResult.alertsCreated, checked: driverScoreDropResult.driversChecked } } : {}),
       ...(driverScoreDailyPruned?.pruned ? { driver_score_daily_pruned: driverScoreDailyPruned.pruned } : {}),
       ...(weeklyBenchmarkResult?.locations ? { weekly_benchmarks: { locations: weeklyBenchmarkResult.locations, errors: weeklyBenchmarkResult.errors } } : {}),
+      ...(transparencySnapshotResult?.saved ? { transparency_snapshots: { locations: transparencySnapshotResult.locations, saved: transparencySnapshotResult.saved, errors: transparencySnapshotResult.errors } } : {}),
+      ...(transparencyPruned?.pruned ? { transparency_pruned: transparencyPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
