@@ -179,6 +179,7 @@ import { LieferdienstFahrerScoreEinzeltrend } from './fahrer-score-einzeltrend';
 import { LieferdienstSchichtLiveMetriken } from './schicht-live-metriken';
 import { OpsPulsMonitor } from './ops-puls-monitor';
 import { OpsSchnellCheck } from './ops-schnell-check';
+import { LieferdienstKundenzufriedenheitsPanel } from './kundenzufriedenheits-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1170,6 +1171,8 @@ export function LieferdienstClient() {
               <LieferzonenHeatmap locationId={locationId} />
               {/* Phase 201: Kunden-Feedback-Übersicht — Ø Bewertung, positiv-Rate, letzte Kommentare */}
               <KundenFeedbackUebersicht locationId={locationId} />
+              {/* Kundenzufriedenheits-Panel — Ø Rating, Sternverteilung, NPS, letzte Kommentare (7 Tage) */}
+              <LieferdienstKundenzufriedenheitsPanel />
               {/* Phase 210: Schicht-Auto-Draft-Strip — ausstehende Schicht-Entwürfe vom Auto-Shift-Generator */}
               <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 233: Schicht-Kurzauswertung — Echtzeit-Vergleich KPIs vs. Ziele */}

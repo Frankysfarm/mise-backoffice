@@ -148,6 +148,7 @@ import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
 import { TourVerdiensteZielTracker } from './tour-verdienst-ziel-tracker';
 import { SchichtPaceLive } from './schicht-pace-live';
+import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
 
 type Driver = {
   id: string;
@@ -1426,6 +1427,12 @@ export function FahrerApp({
               batchStartedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
             />
+          )}
+          {/* Zeitfenster-Karte — Lieferzeitfenster aller Stopps mit Farbkodierung und Countdown */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerTourZeitfensterKarte stops={activeBatch.stops as any} />
+            </div>
           )}
           {/* Navi-App-Auswahl: Google Maps, Waze, Apple Maps — Single + Multi-Stop */}
           {activeBatch.stops.length > 0 && (

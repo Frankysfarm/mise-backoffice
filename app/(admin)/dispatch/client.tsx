@@ -207,6 +207,7 @@ import { DispatchFahrerScoreVerlaufChart } from './fahrer-score-verlauf-chart';
 import { DispatchTourStopVerfolger } from './tour-stop-verfolger';
 import { ZoneBündelungsEmpfehlung } from './zone-bündelungs-empfehlung';
 import { DispatchTourEndPrognose } from './tour-end-prognose';
+import { DispatchTourStopStatusMatrix } from './tour-stop-status-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1152,6 +1153,8 @@ export function DispatchBoard({
       <DispatchTourScoreTimeline batches={batches as any} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
+      {/* Tour-Stopp-Status-Matrix: Farbkodierter Echtzeit-Status jedes Stopps aller aktiven Touren */}
+      <DispatchTourStopStatusMatrix batches={batches} />
       {/* Phase 260: Tour-Score-Vergleich — Fahrer-Ranking mit Subscores Pünktlichkeit/Effizienz/Kunde */}
       {locations[0]?.id && <DispatchTourScoreVergleich locationId={locations[0].id} />}
       {/* Phase 210: CO₂-Tracker — Emissionseinsparung je aktiver Tour (Fahrrad/E-Bike-Bonus) */}

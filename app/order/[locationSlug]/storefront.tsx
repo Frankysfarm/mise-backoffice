@@ -46,6 +46,7 @@ import { EtaVertrauensAnzeige } from './components/eta-vertrauens-anzeige';
 import { ZonenLieferzeitInfo } from './components/zonen-lieferzeit-info';
 import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
 import { FahrerQualitaetsBadge } from './components/fahrer-qualitaets-badge';
+import { EtaKonfidenzBanner } from './eta-konfidenz-banner';
 
 type Props = {
   location: Location;
@@ -517,6 +518,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             etaMinEarliest={deliveryTimeMin - 3}
             etaMinLatest={deliveryTimeMin + 5}
           />
+        </div>
+      )}
+      {/* ETA-Konfidenz-Banner — Dynamische Lieferzeit mit Konfidenzintervall und Auslastungsanzeige */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <EtaKonfidenzBanner locationId={location.id} />
         </div>
       )}
       {/* Phase 350: Fahrer-Qualitäts-Badge — Top-Fahrer-Qualitätsindikator für Kunden */}
