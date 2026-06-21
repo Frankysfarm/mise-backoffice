@@ -165,6 +165,7 @@ import { LieferdienstStundenEffizienzMatrix } from './stunden-effizienz-matrix';
 import { LieferdienstZoneUmsatzMatrix } from './zone-umsatz-matrix';
 import { LieferdienstFahrerHeuteKpiGrid } from './fahrer-heute-kpi-grid';
 import { LieferdienstAktuelleTouren } from './aktuelle-touren-uebersicht';
+import { LieferdienstSchichtTempoKpi } from './schicht-tempo-kpi';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1252,6 +1253,8 @@ export function LieferdienstClient() {
               <LieferdienstFahrerHeuteKpiGrid locationId={locationId ?? null} />
               {/* Phase 372: Aktuelle Touren — Live-Übersicht aktiver Touren mit Stopp-Fortschritt, ETA und Statusfarbe */}
               <LieferdienstAktuelleTouren locationId={locationId ?? null} />
+              {/* Phase 374: Schicht-Tempo-KPI — Orders/h + Ø Lieferzeit + Pünktlichkeit + aktive Fahrer live */}
+              <LieferdienstSchichtTempoKpi locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

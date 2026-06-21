@@ -136,6 +136,7 @@ import { FahrerSchichtFortschrittsRing } from './schicht-fortschritts-ring';
 import { FahrerStoppZaehlerStrip } from './stopp-zaehler-strip';
 import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
 import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
+import { FahrerSchichtDauerLive } from './schicht-dauer-live';
 
 type Driver = {
   id: string;
@@ -767,6 +768,15 @@ export function FahrerApp({
                     hasActiveBatch={!!activeBatch}
                   />
                 </div>
+                {/* Phase 374: Schicht-Dauer-Live — Schichtdauer + Stopps/h Rate mit Intensitäts-Farbkodierung */}
+                {status?.online_seit && (
+                  <div className="mt-3">
+                    <FahrerSchichtDauerLive
+                      onlineSeit={status.online_seit}
+                      stopsHeute={todayStats?.deliveries ?? 0}
+                    />
+                  </div>
+                )}
 
                 {/* Nächste Schichten — aus offline-bundle */}
                 {upcomingShifts.length > 0 && (

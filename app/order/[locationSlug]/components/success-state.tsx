@@ -35,6 +35,7 @@ import { EtaVerlaufTimeline } from './eta-verlauf-timeline';
 import { BestellZonenHinweis } from './bestell-zonen-hinweis';
 import { BestellUhrzeitFenster } from './bestell-uhrzeit-fenster';
 import { BestellZeitSeitBestellung } from './bestell-zeit-seit-bestellung';
+import { BestellStatusLiveBadge } from './bestell-status-live-badge';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -447,6 +448,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         <BestellUhrzeitFenster etaMinutes={etaMinutes} isDelivery={isDelivery} className="mt-2" />
         {/* Phase 372: Zeit seit Bestellung — Live-Anzeige wie lange Bestellung schon läuft (grün/amber/rot) */}
         <BestellZeitSeitBestellung status={liveStatus} className="mt-2" />
+        {/* Phase 374: Status-Live-Badge — Visueller Fortschrittsbalken mit Schritten Eingang→Zubereitung→Fertig→Unterwegs→Geliefert */}
+        <BestellStatusLiveBadge status={liveStatus} isDelivery={isDelivery} className="mt-2" />
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}
         <BestellPhasenBand status={liveStatus} isDelivery={isDelivery} etaMinutes={etaMinutes} />
 
