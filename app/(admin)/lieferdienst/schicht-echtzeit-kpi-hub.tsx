@@ -133,29 +133,33 @@ export function SchichtEchtzeitKpiHub({ locationId }: { locationId?: string }) {
     try {
       // Try to fetch from DB, fall back to mock
       const today = new Date().toISOString().slice(0, 10);
-      const { data: orders } = await supabase
+      type OrderRow = { id: string; status: string; gesamtbetrag: number | null; erstellt_am: string; lieferzeit_min: number | null; bewertung_punkte: number | null };
+
+      const { data: ordersRaw } = await supabase
         .from('customer_orders')
         .select('id, status, gesamtbetrag, erstellt_am, lieferzeit_min, bewertung_punkte')
         .gte('erstellt_am', `${today}T00:00:00`)
         .order('erstellt_am', { ascending: false });
+
+      const orders = (ordersRaw ?? []) as OrderRow[];
 
       const { data: drivers } = await supabase
         .from('driver_profiles')
         .select('id, status')
         .in('status', ['verfügbar', 'unterwegs', 'available', 'on_tour']);
 
-      if (orders && orders.length > 0) {
-        const completed = orders.filter(o => ['geliefert', 'delivered', 'completed'].includes(o.status));
-        const active = orders.filter(o => ['bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'].includes(o.status));
-        const cancelled = orders.filter(o => ['storniert', 'cancelled', 'abgebrochen'].includes(o.status));
-        const revenue = completed.reduce((s, o) => s + (Number(o.gesamtbetrag) || 0), 0);
+      if (orders.length > 0) {
+        const completed = orders.filter((o: OrderRow) => ['geliefert', 'delivered', 'completed'].includes(o.status));
+        const active = orders.filter((o: OrderRow) => ['bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'].includes(o.status));
+        const cancelled = orders.filter((o: OrderRow) => ['storniert', 'cancelled', 'abgebrochen'].includes(o.status));
+        const revenue = completed.reduce((s: number, o: OrderRow) => s + (Number(o.gesamtbetrag) || 0), 0);
         const avgValue = completed.length > 0 ? revenue / completed.length : 0;
-        const deliveryTimes = completed.filter(o => o.lieferzeit_min != null).map(o => Number(o.lieferzeit_min));
-        const avgDeliveryMin = deliveryTimes.length > 0 ? deliveryTimes.reduce((a, b) => a + b, 0) / deliveryTimes.length : 28;
-        const onTime = deliveryTimes.filter(t => t <= 35).length;
+        const deliveryTimes = completed.filter((o: OrderRow) => o.lieferzeit_min != null).map((o: OrderRow) => Number(o.lieferzeit_min));
+        const avgDeliveryMin = deliveryTimes.length > 0 ? deliveryTimes.reduce((a: number, b: number) => a + b, 0) / deliveryTimes.length : 28;
+        const onTime = deliveryTimes.filter((t: number) => t <= 35).length;
         const onTimeRatePct = deliveryTimes.length > 0 ? (onTime / deliveryTimes.length) * 100 : 80;
-        const ratings = completed.filter(o => o.bewertung_punkte != null).map(o => Number(o.bewertung_punkte));
-        const avgRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null;
+        const ratings = completed.filter((o: OrderRow) => o.bewertung_punkte != null).map((o: OrderRow) => Number(o.bewertung_punkte));
+        const avgRating = ratings.length > 0 ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length : null;
 
         // Hourly buckets
         const bucketMap = new Map<string, { orders: number; revenue: number }>();
@@ -174,7 +178,7 @@ export function SchichtEchtzeitKpiHub({ locationId }: { locationId?: string }) {
 
         const next: LiveKpi = {
           activeOrders: active.length,
-          pendingOrders: orders.filter(o => o.status === 'neu').length,
+          pendingOrders: orders.filter((o: OrderRow) => o.status === 'neu').length,
           completedToday: completed.length,
           cancelledToday: cancelled.length,
           revenueToday: revenue,
@@ -322,8 +326,8 @@ export function SchichtEchtzeitKpiHub({ locationId }: { locationId?: string }) {
                 <XAxis dataKey="hour" tick={{ fontSize: 9, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ fontSize: 11, padding: '4px 8px', borderRadius: 8 }}
-                  formatter={(v: number, name: string) =>
-                    name === 'orders' ? [`${v} Best.`, 'Bestellungen'] : [`${euro(v)}`, 'Umsatz']
+                  formatter={(v, name) =>
+                    name === 'orders' ? [`${String(v ?? 0)} Best.`, 'Bestellungen'] : [`${euro(Number(v ?? 0))}`, 'Umsatz']
                   }
                 />
                 <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

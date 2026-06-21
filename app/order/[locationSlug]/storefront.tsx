@@ -1016,7 +1016,7 @@ function SharedTrackingBanner() {
 /* ------------------------------ ActiveOrderProgressPanel ------------------------------ */
 
 function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
-  const [order, setOrder] = React.useState<{ orderId: string; status: string; etaEarliest: string | null; isDelivery: boolean } | null>(null);
+  const [order, setOrder] = React.useState<{ orderId: string; bestellnummer?: string; status: string; etaEarliest: string | null; isDelivery: boolean } | null>(null);
 
   React.useEffect(() => {
     try {
@@ -1027,6 +1027,7 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       if (Date.now() - parsed.placedAt > 4 * 60 * 60_000) return;
       setOrder({
         orderId: parsed.orderId,
+        bestellnummer: parsed.bestellnummer ?? undefined,
         status: parsed.status ?? 'bestätigt',
         etaEarliest: parsed.etaMs ? new Date(parsed.etaMs).toISOString() : null,
         isDelivery: parsed.isDelivery ?? false,

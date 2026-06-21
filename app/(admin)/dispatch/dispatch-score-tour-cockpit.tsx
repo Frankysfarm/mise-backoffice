@@ -90,7 +90,7 @@ function ScoreRadar({ breakdown }: { breakdown: ScoreBreakdown }) {
         />
         <Tooltip
           contentStyle={{ fontSize: 11, padding: '4px 8px', borderRadius: 8 }}
-          formatter={(v: number) => [`${v}`, 'Score']}
+          formatter={(v) => [String(v ?? ''), 'Score']}
         />
       </RadarChart>
     </ResponsiveContainer>

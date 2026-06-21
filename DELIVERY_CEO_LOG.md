@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–384 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–385 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #213 — 2026-06-21
+
+### Geprüfte Phasen: Phase 385 (Backend) + Phase 385 (Frontend — 5 neue Komponenten)
+
+**Build-Status:**
+- `npx tsc --noEmit`: ✓ Exit 0 — 0 Fehler ✅
+- `npx next build`: ✓ Compiled successfully (354 Seiten) ✅
+
+**Phase 385 Frontend — 5 neue Smart-Delivery-Komponenten:**
+
+**`KitchenLiveTimingHub` (kitchen/kitchen-live-timing-hub.tsx):**
+- SVG-Ring-Countdown, Smart-Urgency-Levels (ok/knapp/kritisch/ueberfaellig/fertig) ✅
+- Farbkodierte Prioritätssortierung: überfällig zuerst ✅
+- `calcUrgency()` korrekt: Guard `order.status === 'fertig'` verhindert falsche Anzeigen ✅
+- Integration kitchen/client.tsx L783: `orders={filtered} timings={timings}` ✅
+
+**`DispatchScoreTourCockpit` (dispatch/dispatch-score-tour-cockpit.tsx):**
+- Radar-Score-Visualisierung (5 Achsen: Pünktl./Tempo/Bewert./Annahme/Effizienz) ✅
+- Tour-Timeline mit Stop-Status-Dots ✅
+- Fahrer-Ranking mit expandierbaren Cards ✅
+- Integration dispatch/client.tsx L1079: Mapping aus `drivers`-Array korrekt ✅
+
+**`FahrerNavHub` (fahrer/app/fahrer-nav-hub.tsx):**
+- Stop-Fortschrittsband, Kompass-Bearing via Haversine-Formel ✅
+- ETA-Countdown aus `eta_latest`, Navigationsbuttons (Google Maps Deep-Link) ✅
+- `haversineKm()` + `bearing()` mathematisch korrekt implementiert ✅
+- Integration fahrer/app/client.tsx L1373: `stops as any` + `driverPos` ✅
+
+**`SchichtEchtzeitKpiHub` (lieferdienst/schicht-echtzeit-kpi-hub.tsx):**
+- Live-KPIs via Supabase-Polling (30s), On-Time-Gauge, stündliches Balkendiagramm ✅
+- Mock-Fallback wenn keine Daten vorhanden ✅
+- Integration lieferdienst/client.tsx L1284: `locationId={locationId ?? undefined}` ✅
+
+**`EtaLiveTrackerV2` (order/[locationSlug]/eta-live-tracker-v2.tsx):**
+- Phase-Dots (5 Phasen), Fahrer-En-Route-Banner, Echtzeit-Ankunftsuhrzeit ✅
+- Doppelter Polling-Fallback: `/api/delivery/customer/tracking` → `/api/delivery/eta/{id}` ✅
+- Integration storefront.tsx L1060: `orderId`, `initialStatus`, `bestellnummer` ✅
+
+**Bugs gefunden + gefixt: 3 TypeScript-Fehler**
+1. `dispatch-score-tour-cockpit.tsx` L93: Recharts Tooltip-Formatter — expliziter Typparameter zu schmal (`number` → inference via `v => String(v ?? '')`) ✅
+2. `schicht-echtzeit-kpi-hub.tsx` L148–177: Implicit `any` in Supabase-Callbacks — `OrderRow`-Typ definiert, explizit annotiert ✅
+3. `storefront.tsx` L1063: `bestellnummer` fehlte im State-Typ — `bestellnummer?: string` ergänzt + aus localStorage befüllt ✅
+
+### Status nach Review #213
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phasen 1–385: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Alle 5 neuen Komponenten: vollständig integriert, logisch korrekt, 0 Bugs ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 386: 5 neue Smart-Delivery-Komponenten
+2. `DispatchScoreTourCockpit`: Echtdaten aus Driver-Score-Daily-Snapshots (Phase 385 Backend) einbinden
+3. `SchichtEchtzeitKpiHub`: `hourly_volume`-Feld aus `/api/delivery/admin/stats?period=today` statt Supabase-Eigenaggregierung
+
+### Nächste Schritte für Backend-Architekt
+1. Cron-Job: `snapshotDailyScoreAllLocations()` täglich 23:55 Uhr
+2. Cron-Job: `detectScoreDropAlertsAllLocations()` täglich 09:00 Uhr
+3. `/api/delivery/admin/stats` — `hourly_volume`-Array als Feld ergänzen
 
 ---
 
