@@ -79,41 +79,39 @@ export function ShopDesignClient({
   current: ThemeId | null;
 }) {
   const sb = createClient();
-  const [selected, setSelected] = useState<ThemeId>(current ?? 'classic');
-  const [previewTheme, setPreviewTheme] = useState<ThemeId>(current ?? 'classic');
+  const [savedTheme, setSavedTheme] = useState<ThemeId>(current ?? 'classic'); // live im Shop
+  const [selected, setSelected] = useState<ThemeId>(current ?? 'classic');      // nur ausgewählt (Vorschau)
   const [saving, startTransition] = useTransition();
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const dirty = selected !== savedTheme;
 
-  const save = (id: ThemeId) => {
-    if (id === selected || saving) return;
-    setSelected(id);
+  // Speichern: übernimmt das AUSGEWÄHLTE Design erst auf Klick in den Live-Shop
+  const save = () => {
+    if (!dirty || saving) return;
     setErr(null);
+    const id = selected;
     startTransition(async () => {
       const { error } = await sb.from('tenants').update({ storefront_theme_id: id }).eq('id', tenantId);
-      if (error) {
-        setErr(error.message);
-        setSelected(current ?? 'classic');
-      } else {
-        setSavedAt(Date.now());
-        setPreviewTheme(id);
-      }
+      if (error) setErr(error.message);
+      else { setSavedTheme(id); setSavedAt(Date.now()); }
     });
   };
 
-  const previewUrl = shopUrl ? `${shopUrl}?theme=${previewTheme}` : '';
+  const previewUrl = shopUrl ? `${shopUrl}?theme=${selected}` : '';
   const activeName = TEMPLATES.find((t) => t.id === selected)?.name ?? 'Euer Shop';
+  const savedName = TEMPLATES.find((t) => t.id === savedTheme)?.name ?? 'Euer Shop';
 
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
           <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Shop-Design wählen</h3>
-          <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 2 }}>Vier Templates — alle übernehmen automatisch Logo, Farben & Menü. Auswahl wird sofort gespeichert.</p>
+          <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 2 }}>Design auswählen → Vorschau prüfen → <b style={{ color: '#475569' }}>Speichern</b>. Erst dann wird es im Shop übernommen.</p>
         </div>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', background: '#fff', border: '1px solid #E2E8F0', padding: '6px 12px', borderRadius: 999 }}>
-          {saving ? 'Speichert…' : savedAt ? '✓ Gespeichert' : '4 Templates'}
-        </span>
+        <button onClick={save} disabled={!dirty || saving} style={{ height: 42, padding: '0 22px', borderRadius: 11, border: 'none', background: dirty && !saving ? '#4F46E5' : '#E2E8F0', color: dirty && !saving ? '#fff' : '#94A3B8', fontWeight: 700, fontSize: 14, cursor: dirty && !saving ? 'pointer' : 'default', boxShadow: dirty && !saving ? '0 8px 20px rgba(79,70,229,.28)' : 'none' }}>
+          {saving ? 'Speichert…' : dirty ? `„${activeName}" speichern` : savedAt ? '✓ Gespeichert' : 'Gespeichert'}
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
@@ -122,7 +120,7 @@ export function ShopDesignClient({
           return (
             <button
               key={tpl.id}
-              onClick={() => save(tpl.id)}
+              onClick={() => setSelected(tpl.id)}
               style={{
                 background: '#fff',
                 border: on ? '2px solid #4F46E5' : '1px solid #E2E8F0',
@@ -141,9 +139,11 @@ export function ShopDesignClient({
                   <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 14.5, fontWeight: 700, color: '#0F172A' }}>{tpl.name}</div>
                   <div style={{ fontSize: 11.5, color: '#94A3B8', fontWeight: 600 }}>{tpl.tag}</div>
                 </div>
-                {on && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#4338CA', background: '#EEF2FF', padding: '4px 9px', borderRadius: 999 }}>Aktiv</span>
-                )}
+                {savedTheme === tpl.id ? (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#047857', background: '#ECFDF5', padding: '4px 9px', borderRadius: 999 }}>● Live</span>
+                ) : on ? (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '4px 9px', borderRadius: 999 }}>Ausgewählt</span>
+                ) : null}
               </div>
             </button>
           );
@@ -161,8 +161,8 @@ export function ShopDesignClient({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 12, padding: '13px 15px', marginBottom: 18 }}>
             <span style={{ fontSize: 18 }}>⭐</span>
             <div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#3730A3' }}>Template „{activeName}" aktiv</div>
-              <div style={{ fontSize: 12, color: '#6366F1' }}>Übernimmt Logo, Farben & Menü deines Shops</div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: '#3730A3' }}>Live im Shop: „{savedName}"</div>
+              <div style={{ fontSize: 12, color: '#6366F1' }}>{dirty ? `Vorschau zeigt „${activeName}" — oben speichern, um es zu übernehmen` : 'Übernimmt Logo, Farben & Menü deines Shops'}</div>
             </div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18 }}>
