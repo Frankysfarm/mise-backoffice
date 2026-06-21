@@ -210,6 +210,7 @@ import { ZoneBündelungsEmpfehlung } from './zone-bündelungs-empfehlung';
 import { DispatchTourEndPrognose } from './tour-end-prognose';
 import { DispatchTourStopStatusMatrix } from './tour-stop-status-matrix';
 import { DispatchTourZeitliniePanel } from './tour-zeitlinie-panel';
+import { DispatchTourOptimizerPanel } from './tour-optimizer-panel';
 
 type Driver = {
   employee_id: string;
@@ -1161,6 +1162,8 @@ export function DispatchBoard({
       <DispatchTourStopStatusMatrix batches={batches} />
       {/* Phase 395: Tour-Zeitlinie — Horizontale Timeline aller aktiven Touren mit Stopp-Fortschritt und ETA-Farbkodierung */}
       {locations[0]?.id && <DispatchTourZeitliniePanel locationId={locations[0].id} />}
+      {/* Phase 397: Tour-Optimizer-Panel — Score-Anzeige je Tour mit Grade A–D, Pünktlichkeit und Distanz */}
+      <DispatchTourOptimizerPanel batches={batches as any} />
       {/* Phase 260: Tour-Score-Vergleich — Fahrer-Ranking mit Subscores Pünktlichkeit/Effizienz/Kunde */}
       {locations[0]?.id && <DispatchTourScoreVergleich locationId={locations[0].id} />}
       {/* Phase 210: CO₂-Tracker — Emissionseinsparung je aktiver Tour (Fahrrad/E-Bike-Bonus) */}

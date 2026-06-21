@@ -151,6 +151,7 @@ import { SchichtPaceLive } from './schicht-pace-live';
 import { FahrerAktuellerStoppCard } from './aktueller-stopp-card';
 import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
 import { TourNavigationsKompass } from './tour-navigations-kompass';
+import { TourStoppSequenzBoard } from './tour-stopp-sequenz-board';
 
 type Driver = {
   id: string;
@@ -1543,6 +1544,15 @@ export function FahrerApp({
               <TourStoppUebersicht
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 397: Tour-Stopp-Sequenz-Board — Visueller Stopp-Fortschritt mit Timeline, ETA-Fenster und Navigation */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourStoppSequenzBoard
+                stops={activeBatch.stops as any}
+                currentStopIndex={activeBatch.stops.findIndex((s: any) => !s.geliefert_am)}
               />
             </div>
           )}
