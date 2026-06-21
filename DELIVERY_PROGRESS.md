@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–391 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–391 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler. CEO Review #217 abgeschlossen: 6 Bugs in Phase 391 Frontend-Erweiterung gefixt.**
+
+**CEO Review #217 (2026-06-21): 6 Bugs in Phase 391 Frontend-Erweiterung (bb60775) gefixt. KitchenFlowKoordinator: Batch-Feld-Mapping driver_id→fahrer_id + started_at→startzeit in Integration (TS2719). LieferdienstKundenzufriedenheitsPanel: falsche Tabelle ratings→customer_delivery_ratings, Spalte kommentar→comment, fehlendes locationId-Prop + Integration-Prop, 3 TypeScript-any-Fehler. TypeScript: 0 Fehler. Build: ✅ 354 Seiten.**
 
 **Phase 391 (2026-06-21): API-Fixes + 5 neue Smart-Delivery-Komponenten. API-Fix 1: `/api/delivery/driver/shift-goals` gibt jetzt EarningsData-Format zurück (earned/goal/goalLabel/remaining/progressPct/estimatedByEnd/onTrack/nextMilestone/currency) — `TourVerdiensteZielTracker` lädt nicht mehr Mock-Fallback. API-Fix 2: `/api/delivery/admin/zone-batch-optimizer?action=recommendations` neuer Action-Endpoint — transformiert pendingSuggestions zu Zonen-Empfehlungen (zone/orderCount/savings/potentialBundles/urgencyLevel/avgWaitMin); `ZoneBündelungsEmpfehlung`-Komponente nutzt jetzt echte Daten statt Mock. 5 neue Komponenten: `KitchenSchichtAuslastungsRing` (Kitchen: SVG-Ring completedToday/Schichtziel + Hochrechnung Schichtende, 5-Min-Poll `/admin/shift-goals`), `DispatchTourEndPrognose` (Dispatch: Collapsible Fahrer-Rückkehr-Tabelle mit Confidence/Stops/ETA aus `/admin/tour-end-predictions`, 60s-Poll), `SchichtPaceLive` (Fahrer-App: Live-Pace-Karte onTrack/Rückstand + Fortschrittsbalken + Motivationshinweis, 5-Min-Poll shift-goals), `LieferFeedbackPrompt` (Storefront: Sterne-Rating-Prompt nach Bestellung fire-and-forget, nur isDelivery), `OpsSchnellCheck` (Lieferdienst: 5 Health-Ampeln Fahrer/Queue/SLA/Throughput/Alerts aus ops-snapshot, 30s-Poll, collapsible). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 

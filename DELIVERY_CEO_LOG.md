@@ -1,7 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–390 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–391 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #217 — Phase 391 Frontend-Erweiterung (2026-06-21)
+
+### Geprüfte Komponenten (Phase 391 — letzter Commit bb60775):
+
+**`app/(admin)/kitchen/flow-koordinator.tsx` — KitchenFlowKoordinator:**
+- Fahrer-ETA-Berechnung aus aktivem Batch (startzeit + total_eta_min + verbleibende Stops) ✅
+- `computeActions()` rein funktional, keine Side-Effects ✅
+- Level-Priorisierung: jetzt/bald/warten korrekt nach Puffer-Margin ✅
+- 10s-Polling via `setNow`, clearInterval-Cleanup ✅
+- **BUG GEFUNDEN + GEFIXT:** `kitchen/client.tsx` übergibt `batches` mit `driver_id` (Feld-Name), aber `KitchenFlowKoordinator` erwartet `fahrer_id` → `batches.map(b => ({ ...b, fahrer_id: b.driver_id, startzeit: b.started_at }))` gefixt
+- **TS-FEHLER GEFIXT:** TS2719 "Two different Batch types" → Mapping in Integration
+
+**`app/(admin)/dispatch/tour-stop-status-matrix.tsx` — DispatchTourStopStatusMatrix:**
+- `stopHealth()` korrekt: geliefert/offen/verspätet/knapp/pünktlich nach ETA-Latest-Differenz ✅
+- Sortierung nach Dringlichkeit (verspätet → knapp → offen → pünktlich → geliefert) ✅
+- 15s-Polling, clearInterval-Cleanup ✅
+- Integration dispatch/client.tsx ✅
+
+**`app/fahrer/app/tour-zeitfenster-karte.tsx` — FahrerTourZeitfensterKarte:**
+- `computeHealth()` korrekt: verspätet <-5 Min / kritisch <5 Min / knapp <15 Min / ok ✅
+- Sortierung nach `reihenfolge` ✅
+- 10s-Polling, clearInterval-Cleanup ✅
+- Integration fahrer/app/client.tsx mit `as any` Cast (akzeptabel) ✅
+
+**`app/(admin)/lieferdienst/kundenzufriedenheits-panel.tsx` — LieferdienstKundenzufriedenheitsPanel:**
+- **BUG GEFUNDEN + GEFIXT:** Komponente fragte nicht-existente `ratings`-Tabelle ab → korrekte Tabelle `customer_delivery_ratings` (Migration 022) mit `location_id`-Filter
+- **BUG GEFUNDEN + GEFIXT:** Feld `kommentar` → `comment` (korrekte Spalte in customer_delivery_ratings)
+- **BUG GEFUNDEN + GEFIXT:** Komponente hatte kein `locationId`-Prop → `{ locationId: string }` hinzugefügt
+- **BUG GEFUNDEN + GEFIXT:** Integration client.tsx hatte kein `locationId`-Prop → `locationId={locationId}` übergeben
+- **TS-FEHLER GEFIXT (3):** Supabase `.data` implicitly any → explizite Array-Typen
+- 5-Min-Polling, clearInterval-Cleanup ✅
+
+**`app/order/[locationSlug]/eta-konfidenz-banner.tsx` — EtaKonfidenzBanner:**
+- Nutzt `/api/delivery/eta/live` (existiert, korrekte API) ✅
+- `confidence`-Fallback auf `0.7` wenn API kein `confidence` zurückgibt (API liefert dieses Feld nicht — Fallback korrekt) ✅
+- `hasRange`-Guard für `eta_min_low`/`eta_min_high` (optional, korrekt) ✅
+- `mounted`-Flag verhindert setState nach Unmount ✅
+- Integration storefront.tsx mit `isDelivery`/`orderType === 'lieferung'`-Guard ✅
+
+### Bugs gefunden + gefixt: 6
+1. `KitchenFlowKoordinator` Batch-Feld-Name-Mismatch `driver_id` vs `fahrer_id` + `started_at` vs `startzeit` → Mapping in Integration
+2. `LieferdienstKundenzufriedenheitsPanel` falsche Tabelle `ratings` → `customer_delivery_ratings`
+3. `LieferdienstKundenzufriedenheitsPanel` Spalten-Name `kommentar` → `comment`
+4. `LieferdienstKundenzufriedenheitsPanel` fehlendes `locationId`-Prop (kein Multi-Tenant-Filter)
+5. `LieferdienstKundenzufriedenheitsPanel` Integration ohne `locationId` → gefixt
+6. 3 TypeScript implicit-any Fehler in Supabase-Callbacks
+
+### Status nach Review #217
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 391: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- customer_delivery_ratings: korrekt mit location_id verdrahtet ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 392: 5 neue Smart-Delivery-Komponenten
+2. EtaKonfidenzBanner: `confidence`-Feld in `/api/delivery/eta/live` ergänzen (aktuell kein echtes Konfidenz-Signal)
+3. KitchenFlowKoordinator: `as any`-Cast in fahrer/client.tsx bereinigen (eigener Stop-Typ definieren)
 
 ---
 

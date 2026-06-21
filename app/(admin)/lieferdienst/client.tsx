@@ -1172,7 +1172,7 @@ export function LieferdienstClient() {
               {/* Phase 201: Kunden-Feedback-Übersicht — Ø Bewertung, positiv-Rate, letzte Kommentare */}
               <KundenFeedbackUebersicht locationId={locationId} />
               {/* Kundenzufriedenheits-Panel — Ø Rating, Sternverteilung, NPS, letzte Kommentare (7 Tage) */}
-              <LieferdienstKundenzufriedenheitsPanel />
+              <LieferdienstKundenzufriedenheitsPanel locationId={locationId} />
               {/* Phase 210: Schicht-Auto-Draft-Strip — ausstehende Schicht-Entwürfe vom Auto-Shift-Generator */}
               <SchichtAutoDraftStrip locationId={locationId} />
               {/* Phase 233: Schicht-Kurzauswertung — Echtzeit-Vergleich KPIs vs. Ziele */}

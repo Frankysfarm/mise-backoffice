@@ -680,7 +680,7 @@ export function KitchenBoard({
       {/* Phase 363: Queue-Effizienz-Ring — Pünktlichkeitsquote aller aktiven Bestellungen als SVG-Ring mit Trend */}
       <KitchenQueueEffizienzRing orders={filtered} timings={timings} />
       {/* Phase 380: Flow-Koordinator — Fahrer-ETAs + Kochstart-Empfehlung in einer Kachel */}
-      <KitchenFlowKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
+      <KitchenFlowKoordinator orders={filtered} batches={batches.map((b) => ({ ...b, fahrer_id: b.driver_id, startzeit: b.started_at }))} stops={stops} drivers={drivers} />
       {/* Phase 364: Bestell-Takt-Meter — Orders/h Rate-Gauge mit Trend vs. Vorjahresstunde */}
       <KitchenBestellTaktMeter orders={filtered} />
       {/* Phase 364: Batch-Kochstart-Board — optimaler Kochstart pro Fahrer-Tour, Farbkodierung nach Urgency */}

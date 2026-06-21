@@ -22,9 +22,8 @@ interface RatingBucket {
 interface RecentReview {
   id: string;
   rating: number;
-  kommentar: string | null;
+  comment: string | null;
   created_at: string;
-  order_bestellnummer?: string | null;
 }
 
 interface Stats {
@@ -86,7 +85,7 @@ function StarRating({ value }: { value: number }) {
   );
 }
 
-export function LieferdienstKundenzufriedenheitsPanel() {
+export function LieferdienstKundenzufriedenheitsPanel({ locationId }: { locationId: string }) {
   const [stats, setStats] = useState<Stats>(MOCK_STATS);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -101,30 +100,33 @@ export function LieferdienstKundenzufriedenheitsPanel() {
 
       const [currentRes, prevRes, recentRes] = await Promise.all([
         supabase
-          .from('ratings')
-          .select('rating, kommentar, created_at')
+          .from('customer_delivery_ratings')
+          .select('rating, comment, created_at')
+          .eq('location_id', locationId)
           .gte('created_at', since7d),
         supabase
-          .from('ratings')
+          .from('customer_delivery_ratings')
           .select('rating')
+          .eq('location_id', locationId)
           .gte('created_at', since14d)
           .lt('created_at', since7d),
         supabase
-          .from('ratings')
-          .select('id, rating, kommentar, created_at')
+          .from('customer_delivery_ratings')
+          .select('id, rating, comment, created_at')
+          .eq('location_id', locationId)
           .order('created_at', { ascending: false })
           .limit(5),
       ]);
 
-      const current = currentRes.data ?? [];
-      const prev = prevRes.data ?? [];
-      const recent = recentRes.data ?? [];
+      const current = (currentRes.data ?? []) as Array<{ rating: number; comment: string | null; created_at: string }>;
+      const prev = (prevRes.data ?? []) as Array<{ rating: number }>;
+      const recent = (recentRes.data ?? []) as RecentReview[];
 
       const avgCurrent = current.length
-        ? current.reduce((s, r) => s + (r.rating ?? 0), 0) / current.length
+        ? current.reduce((s: number, r) => s + (r.rating ?? 0), 0) / current.length
         : 0;
       const avgPrev = prev.length
-        ? prev.reduce((s, r) => s + (r.rating ?? 0), 0) / prev.length
+        ? prev.reduce((s: number, r) => s + (r.rating ?? 0), 0) / prev.length
         : 0;
       const delta = avgCurrent - avgPrev;
 
@@ -238,8 +240,8 @@ export function LieferdienstKundenzufriedenheitsPanel() {
                       />
                     ))}
                   </div>
-                  {r.kommentar ? (
-                    <p className="text-[11px] text-gray-600 line-clamp-2 flex-1">{r.kommentar}</p>
+                  {r.comment ? (
+                    <p className="text-[11px] text-gray-600 line-clamp-2 flex-1">{r.comment}</p>
                   ) : (
                     <span className="text-[11px] text-gray-400 italic">Kein Kommentar</span>
                   )}
