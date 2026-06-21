@@ -1,7 +1,75 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–378 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–380 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #209 — 2026-06-21
+
+### Geprüfte Phasen: Phase 379 (Backend) + Phase 380 (Frontend)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+- `npx tsc --noEmit`: Exit 0, 0 Fehler ✅
+
+**Phase 379 Backend — Fahrer-Breakdown in stats?period=today:**
+- `/api/delivery/admin/stats?period=today` → `drivers: DriverPerf[]`-Array ergänzt ✅
+- Fahrer-Breakdown: stopsToday, toursToday, avgDeliveryMin, onTimePct, isOnline, vehicle ✅
+
+**Phase 380 Frontend — 5 neue Smart-Delivery-Komponenten:**
+
+**`app/(admin)/kitchen/fertigstellungs-prognose.tsx` — KitchenFertigstellungsPrognose:**
+- Ampel-Farbkodierung (<15/30/30+ Min) korrekt ✅
+- `latestDiff = Math.max(...completions.map(c => c.readyAt))` — kein -Infinity bei leerer Liste möglich, da ACTIVE-Filter + `active.length === 0` Guard ✅
+- Sortierung nach `readyAt` korrekt ✅
+- Integration kitchen/client.tsx nach `KitchenBatchUebersichtCockpit` ✅
+
+**`app/(admin)/dispatch/tour-abholzeitplan.tsx` — DispatchTourAbholZeitplan:**
+- `returnMs = startzeit + total_eta_min * 60000` — Rückkehr-ETA sauber ✅
+- State-Klassifizierung: overdue/soon/enroute/unknown korrekt ✅
+- Sortierung nach `returnMs` mit null-Guard ✅
+- Integration dispatch/client.tsx nach `DispatchTourRealtimeFortschritt` ✅
+
+**`app/fahrer/app/schicht-pacing-guide.tsx` — FahrerSchichtPacingGuide:**
+- `elapsedPct / expectedPct`-Vergleich, gap >10 → ahead, <-10 → behind ✅
+- Division-Guard: `totalStops === 0` Early-Return ✅
+- `etaMin`-Berechnung mit `done > 0` Guard kein Division-by-Zero ✅
+- Dead Code (`void actualRate; void expectedDoneByNow; void expectedRate;`) — harmlos, kein Bug ✅
+- Integration fahrer/app/client.tsx nach `TourStoppListe` ✅
+
+**`app/order/[locationSlug]/components/lieferzeit-vergleich-widget.tsx` — LieferzeitVergleichWidget:**
+- **BUG GEFUNDEN + GEFIXT:** Widget rief `/api/delivery/admin/stats` auf — ein auth-geschützter Admin-Endpunkt. Kunden haben keine Backoffice-Session → immer 401 → Widget zeigte nie etwas ✅
+- **BUG GEFUNDEN + GEFIXT:** API erwartet `location_id` (UUID), Widget sendete nur `slug` → kein Match, immer 400 ✅
+- **Fix:** Neuer öffentlicher Endpunkt `app/api/delivery/public/avg-eta/route.ts` — kein Auth, akzeptiert `slug`, gibt `avg_delivery_min` zurück ✅
+- **Fix:** Widget leitet `slug` aus `window.location.pathname` ab (URL: `/order/<slug>/...`) oder aus `locationSlug`-Prop ✅
+- Build nach Fix: ✓ Compiled successfully (354 Seiten) ✅
+
+**`app/(admin)/lieferdienst/kapazitaets-monitor.tsx` — LieferdienstKapazitaetsMonitor:**
+- `ordersPerDriver = activeOrders / onlineDrivers`-Division-Guard: `onlineDrivers > 0` ✅
+- Ampel-Schwellen: >4 überlastet / >2.5 voll / >1 normal / sonst frei ✅
+- 60s-Polling, `cancelled`-Flag verhindert setState nach Unmount ✅
+- API-Fallback: `d?.pendingOrders ?? d?.today_stats?.pending_orders ?? 0` ✅
+- Integration lieferdienst/client.tsx nach `LieferdienstFahrerTagesPerformance` ✅
+
+**Bugs gefunden + gefixt: 2**
+1. `LieferzeitVergleichWidget`: Rief auth-geschützte Admin-API auf — neuer Public-Endpunkt erstellt ✅
+2. `LieferzeitVergleichWidget`: API-Slug-Parameter-Mismatch (`slug` vs. `location_id`) — Public-Endpunkt nimmt `slug` entgegen ✅
+
+### Status nach Review #209
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 379 + 380: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 381: 5 neue Smart-Delivery-Komponenten
+2. `LieferdienstKapazitaetsMonitor`: Wenn `active_drivers` im API-Response 0 zurückgibt (aber Fahrer tatsächlich online), Supabase Realtime als Alternative zu 60s-Polling erwägen
+3. Storefront: Web Push API bei Statuswechsel (Push-Benachrichtigung wenn Fahrer unterwegs) — noch offen
+
+### Nächste Schritte für Backend-Architekt
+1. Supabase RLS Policy für `delivery_performance`-Tabelle: Anonym-Leserecht für public avg-eta Endpoint prüfen — derzeit nutzt Endpoint den authenticated client (createClient), was bei Supabase anon key funktioniert wenn RLS entsprechend konfiguriert ist
+2. Sicherstellen dass `mise_locations.slug`-Feld existiert (public/avg-eta Fallback-Pfad nutzt dieses Feld)
 
 ---
 

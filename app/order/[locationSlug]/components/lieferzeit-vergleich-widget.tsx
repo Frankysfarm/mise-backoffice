@@ -13,12 +13,15 @@ export function LieferzeitVergleichWidget({ etaMinutes, locationSlug }: Props) {
   const [avgMin, setAvgMin] = useState<number | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams({ period: 'today' });
-    if (locationSlug) params.set('slug', locationSlug);
-    fetch(`/api/delivery/admin/stats?${params}`)
+    // Derive slug from prop, or fall back to URL path segment (/order/<slug>/...)
+    const slug = locationSlug ?? (typeof window !== 'undefined'
+      ? decodeURIComponent(window.location.pathname.split('/').filter(Boolean)[1] ?? '')
+      : '');
+    if (!slug) return;
+    fetch(`/api/delivery/public/avg-eta?slug=${encodeURIComponent(slug)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => {
-        const avg = d?.avg_delivery_min ?? d?.today_stats?.avg_delivery_min ?? null;
+        const avg = d?.avg_delivery_min ?? null;
         if (typeof avg === 'number' && avg > 0) setAvgMin(avg);
       })
       .catch(() => {});

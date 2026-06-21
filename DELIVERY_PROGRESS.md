@@ -6372,6 +6372,51 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 
 ---
 
+## Phase 379 — Backend: Fahrer-Breakdown in stats?period=today ✅ 2026-06-21
+
+**`/api/delivery/admin/stats?period=today`:**
+- `drivers: DriverPerf[]`-Array hinzugefügt (stopsToday, toursToday, avgDeliveryMin, onTimePct, isOnline, vehicle)
+- `LieferdienstFahrerTagesPerformance` nutzt jetzt echte Backend-Daten statt Mock
+
+---
+
+## Phase 380 — Frontend: 5 neue Smart-Delivery-Komponenten ✅ 2026-06-21
+
+**`app/(admin)/kitchen/fertigstellungs-prognose.tsx` — KitchenFertigstellungsPrognose:**
+- Completion-ETA-Liste aller aktiven Bestellungen, sortiert nach ready_target
+- Ampel: <15 Min grün / <30 Min amber / 30+ Min rot
+- "Alle fertig um HH:MM (in X Min)" im Header
+- Integration: kitchen/client.tsx nach `KitchenBatchUebersichtCockpit`
+
+**`app/(admin)/dispatch/tour-abholzeitplan.tsx` — DispatchTourAbholZeitplan:**
+- Rückkehr-Zeitplan aller aktiven Fahrer-Touren (started_at + total_eta_min)
+- Sortiert nach frühester Rückkehr, Ampel-Dot (grün/blau/rot)
+- Integration: dispatch/client.tsx nach `DispatchTourRealtimeFortschritt`
+
+**`app/fahrer/app/schicht-pacing-guide.tsx` — FahrerSchichtPacingGuide:**
+- Schicht-Tempo: Voraus / Im Plan / Rückstand basierend auf Stopps/Elapsed
+- Progress-Bar, Stopps/Elapsed, ETA bis Abschluss
+- Integration: fahrer/app/client.tsx nach `TourStoppListe`
+
+**`app/order/[locationSlug]/components/lieferzeit-vergleich-widget.tsx` — LieferzeitVergleichWidget:**
+- Vergleich ETA vs. Tages-Ø: "15% schneller als heute üblich" oder "Heute etwas länger"
+- Nur bei Differenz >2 Min sichtbar
+- **BUG GEFIXT (CEO Review #209):** Rief geschützte Admin-API auf → neuer Public-Endpunkt
+- Integration: success-state.tsx mit `isDelivery`-Guard
+
+**`app/(admin)/lieferdienst/kapazitaets-monitor.tsx` — LieferdienstKapazitaetsMonitor:**
+- Live-Kapazitäts-Ampel: frei/normal/voll/überlastet (Orders/Fahrer-Ratio)
+- 60s-Polling, Progress-Bar, matcha/blau/amber/rot
+- Integration: lieferdienst/client.tsx nach `LieferdienstFahrerTagesPerformance`
+
+**`app/api/delivery/public/avg-eta/route.ts` — Neuer Public-Endpunkt (CEO #209):**
+- Kein Auth erforderlich — Storefront-Kunden können avg_delivery_min abfragen
+- Akzeptiert `slug`, löst über tenants → mise_locations auf, gibt `avg_delivery_min` zurück
+
+- Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
+
+---
+
 ## Phase 377 — Backend: Schicht-ROI Daily Snapshots + Trend-Dashboard (DONE ✅)
 
 **Datum:** 2026-06-21
