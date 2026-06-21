@@ -85,6 +85,18 @@ export function ShopDesignClient({
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const dirty = selected !== savedTheme;
+  // Shop-Name editierbar
+  const [shopName, setShopName] = useState(name);
+  const [storedName, setStoredName] = useState(name);
+  const [savingName, setSavingName] = useState(false);
+  const nameDirty = shopName.trim().length >= 2 && shopName.trim() !== storedName;
+  async function saveName() {
+    if (!nameDirty || savingName) return;
+    setSavingName(true);
+    const { error } = await sb.from('tenants').update({ name: shopName.trim() }).eq('id', tenantId);
+    setSavingName(false);
+    if (!error) setStoredName(shopName.trim());
+  }
 
   // Speichern: übernimmt das AUSGEWÄHLTE Design erst auf Klick in den Live-Shop
   const save = () => {
@@ -167,8 +179,11 @@ export function ShopDesignClient({
           </div>
           <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 18 }}>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155', marginBottom: 7 }}>Name des Shops</div>
-            <input defaultValue={name} disabled style={{ width: '100%', height: 42, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 13px', fontSize: 14, color: '#64748B', marginBottom: 14, background: '#F8FAFC' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>ℹ Name/Logo/Texte bearbeitest du unter Shop-Einstellungen. Produktbilder im Menü.</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <input value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="z. B. Franky's Pasta" style={{ flex: 1, height: 42, border: '1.5px solid #E2E8F0', borderRadius: 10, padding: '0 13px', fontSize: 14, color: '#0F172A' }} />
+              <button onClick={saveName} disabled={!nameDirty || savingName} style={{ height: 42, padding: '0 16px', borderRadius: 10, border: 'none', background: nameDirty && !savingName ? '#4F46E5' : '#E2E8F0', color: nameDirty && !savingName ? '#fff' : '#94A3B8', fontWeight: 700, fontSize: 13.5, cursor: nameDirty && !savingName ? 'pointer' : 'default' }}>{savingName ? '…' : shopName.trim() === storedName ? '✓' : 'Speichern'}</button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>ℹ Erscheint im Shop-Header. Logo/Hero-Bild unter Shop-Einstellungen, Produktbilder im Menü.</div>
           </div>
         </div>
         <div>
