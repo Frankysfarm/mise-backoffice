@@ -1,7 +1,11 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–355 vollständig abgeschlossen. Build sauber (349 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–356 vollständig abgeschlossen. Build sauber (350 Seiten). Deployment-bereit.
+
+---
+
+**Backend-Architekt-Agent — 2026-06-21: Phase 356 — Zone Difficulty Cache + Feedback-Push nach Tour-Abschluss (SQL 172: zone_difficulty_cache (UNIQUE location_id+zone A/B/C/D, avg_difficulty+avg_traffic, issue_rate_parking/nav/address, stop_count_modifier 0.5–1.0+detour_modifier 0.5–1.0, sample_count, computed_at, RLS, prune_zone_difficulty_cache RPC); lib/delivery/zone-difficulty.ts: getZoneDifficultyModifiers (graceful fallback 1.0), getZoneDifficultyCache, refreshZoneDifficultyCache (tour_feedback JOIN mise_delivery_batches!batch_id(zone) → computeModifiers diff/traffic/issue → upsert), refreshZoneDifficultyCacheAllLocations, enqueueFeedbackRequestPush (fire-and-forget mise_push_outbox type=feedback_request), checkAndSendFeedbackPushes (completed batches 10min–2h old ohne Feedback/Push → send), checkFeedbackPushesAllLocations; lib/delivery/bundling.ts: MAX_DETOUR_KM exportiert, findBundleCandidates+evaluateBundle accept baseDetourKm+effectiveMaxCap; lib/delivery/dispatch-engine.ts: getZoneDifficultyModifiers nach Zone-Klassifikation (best-effort), adjustedDetourKm=MAX_DETOUR_KM×modifier, adjustedMaxCap=floor(4×modifier) → an findBundleCandidates übergeben; API /api/delivery/admin/zone-difficulty GET cache/modifiers + POST refresh; Cron: Zone-Difficulty stündlich refresh + Feedback-Pushes alle 10 Min; 5 Frontend-Komponenten: KitchenZoneSchwierigkeitsStrip (amber/rot bei avgDiff≥3.5, 5-Min-Polling, kitchen L659), ZoneDifficultyDispatchPanel (4 Zone-Karten + Modifier-Bars + Issue-Rates, collapsible, dispatch L990), TourStartFeedbackReminder (dismissbar bei aktiver Tour, fahrer L1759), LieferdienstZoneDifficultyKarte (Schwierigkeits-Balken+Modifier-Hinweise, 10-Min-Polling, lieferdienst L1191), /delivery/zone-difficulty Admin-Dashboard (4 KPIs+Alert-Banner+Zone-Cards+Refresh-Button); SectionCard in delivery/page.tsx. Build ✅ 350 Seiten, 0 TypeScript-Fehler.**
 
 ---
 

@@ -1,7 +1,55 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–355 abgeschlossen. Build sauber. 349 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–356 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 356 — Zone Difficulty Cache + Feedback-Push nach Tour-Abschluss (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`scripts/migrations/172_zone_difficulty_cache.sql`:**
+- `zone_difficulty_cache` — UNIQUE(location_id, zone A/B/C/D); avg_difficulty, avg_traffic, issue_rate_parking/nav/address; `stop_count_modifier` (0.5–1.0) + `detour_modifier` (0.5–1.0) als Dispatch-Modifikatoren; RLS; `prune_zone_difficulty_cache(days_old)` RPC
+
+**`lib/delivery/zone-difficulty.ts`:**
+- `getZoneDifficultyModifiers(locationId)` → ZoneDifficultyMap (graceful fallback 1.0 bei fehlender Tabelle)
+- `getZoneDifficultyCache(locationId)` → vollständige Cache-Einträge für Dashboard
+- `refreshZoneDifficultyCache(locationId, days=14)` — aggregiert tour_feedback nach Zone via mise_delivery_batches!batch_id(zone) JOIN; computeModifiers(avgDiff, avgTraffic, maxIssueRate) → upsert Cache
+- `refreshZoneDifficultyCacheAllLocations(days)` — Cron-Batch Promise.allSettled
+- `enqueueFeedbackRequestPush(driverId, batchId)` — fire-and-forget Push in mise_push_outbox (type='feedback_request')
+- `checkAndSendFeedbackPushes(locationId)` — findet completed Batches (2h ago, min 10min old) ohne Feedback + ohne Push → sendet Feedback-Request
+- `checkFeedbackPushesAllLocations()` — Cron-Batch
+
+**`lib/delivery/bundling.ts`:**
+- `MAX_DETOUR_KM` jetzt exportiert (für Dispatch-Engine Zugriff)
+- `findBundleCandidates()` + `evaluateBundle()`: optional `baseDetourKm` + `effectiveMaxCap` Parameter — ermöglichen Zone-Difficulty-basierte Anpassungen
+
+**`lib/delivery/dispatch-engine.ts`:**
+- Lädt `getZoneDifficultyModifiers(locationId)` nach Zone-Klassifikation (best-effort, catch → null)
+- `adjustedDetourKm = MAX_DETOUR_KM × zoneMod.detourModifier` — schwierige Zonen: kleinerer Detour
+- `adjustedMaxCap = floor(4 × zoneMod.stopCountModifier)` — schwierige Zonen: weniger Stops pro Bundle
+- Beide Werte an `findBundleCandidates()` übergeben
+
+**`app/api/delivery/admin/zone-difficulty/route.ts`:**
+- GET ?action=cache → alle Zone-Cache-Einträge
+- GET ?action=modifiers → Dispatch-Modifikatoren (stopCount + detour)
+- POST { action: 'refresh', days? } → manueller Cache-Refresh
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `refreshZoneDifficultyCacheAllLocations(14)` stündlich (nowMin < 2)
+- `checkFeedbackPushesAllLocations()` alle 10 Min (nowMin % 10 < 2)
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/zone-schwierigkeits-strip.tsx` — Amber/Rot-Strip bei Zonen mit avgDifficulty ≥ 3.5 + sample_count ≥ 3; Kapazitäts-Anpassungs-Hinweis; 5-Min-Polling; Integration: kitchen/client.tsx nach KitchenAbwesenHeuteStrip
+- `app/(admin)/dispatch/zone-difficulty-dispatch-panel.tsx` — Collapsible Zone-Panel mit 4 Zone-Karten (Difficulty, Traffic, Issue-Rates Parken/Nav/Adresse, Bundle-Kap. + Detour-Tol. Bars); Amber-Erklär-Banner bei aktiven Anpassungen; 5-Min-Polling; Integration: dispatch/client.tsx nach DispatchTourFeedbackMonitor
+- `app/fahrer/app/tour-start-feedback-reminder.tsx` — Dismissbarer Feedback-Erinnerungs-Banner bei aktiver Tour (states: assigned/at_restaurant/on_route/en_route); Integration: fahrer/app/client.tsx vor FahrerTourAbschlussBewertung
+- `app/(admin)/lieferdienst/zone-difficulty-karte.tsx` — Kompakte Zone-Karte mit Schwierigkeits-Balkendiagramm (A/B/C/D farbkodiert), Dispatch-Modifier-Hinweise, 10-Min-Polling; Integration: lieferdienst/client.tsx nach LieferdienstAbdeckungsRisikoWidget
+- `app/(admin)/delivery/zone-difficulty/` — Neue Admin-Seite mit page.tsx + client.tsx: 4 KPI-Kacheln (Zonen/Ø Schwierigkeit/Schwierige Zonen/Feedbacks), Alert/CheckCircle-Banner, Zone-Cards (Difficulty+Traffic Bars + 3 Issue-Rate-Cells + Modifier-Boxen + Zeitstempel), manueller Refresh; SectionCard in delivery/page.tsx (highlight)
+
+- Build: node_modules/.bin/next build ✓ (350 Seiten, 0 TypeScript-Fehler)
 
 ---
 
