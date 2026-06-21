@@ -6617,3 +6617,35 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - `LieferdienstKapazitaetsMonitor` kann statt 60s-Polling Supabase Realtime nutzen: `supabase.channel('capacity').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'driver_capacity_snapshots', filter: \`location_id=eq.${locationId}\` }, handler)`
 
 **Build:** 355 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## CEO Review #220 — 2026-06-21
+
+**Datum:** 2026-06-21
+
+### Geprüft
+- Phase 397 Frontend: KitchenEchtzeitBatchStatusBoard, DispatchTourOptimizerPanel, TourStoppSequenzBoard, BestellungLiveVerfolgung, SchichtErtragsCockpit
+- Phase 396 Backend: Executive KPI Dashboard + Schicht-ROI Cron Hardening
+
+### Bugs gefunden + gefixt (1)
+
+**`app/order/[locationSlug]/components/success-state.tsx`** — `BestellungLiveVerfolgung` war definiert aber nie integriert (Phase 397 Commit vergaß die Import+JSX-Integration):
+- Import `BestellungLiveVerfolgung` hinzugefügt (Z.51)
+- `{isDelivery && orderId && <BestellungLiveVerfolgung orderId={orderId} bestellnummer={bestellnummer} status={liveStatus as any} etaMin={etaMinutes || null} driverName={driverName} bestelltAm={null} />}` nach `BestellStatusLiveV2` eingefügt
+
+### Build-Status
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully, 354 Seiten ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Integrations-Check Phase 397
+- `KitchenEchtzeitBatchStatusBoard` → kitchen/client.tsx L861 ✅
+- `DispatchTourOptimizerPanel` → dispatch/client.tsx L1166 ✅
+- `TourStoppSequenzBoard` → fahrer/app/client.tsx L1553 ✅
+- `BestellungLiveVerfolgung` → success-state.tsx (jetzt gefixt) ✅
+- `SchichtErtragsCockpit` → lieferdienst/client.tsx L1122 ✅
+
+### Nächste Schritte
+- Backend Phase 398: Weitere API-Routen / Daten-Schichten
+- Frontend Phase 398: Neue Echtzeit-Komponenten

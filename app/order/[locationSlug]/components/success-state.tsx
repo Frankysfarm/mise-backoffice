@@ -48,6 +48,7 @@ import { LieferQualitaetsRing } from './liefer-qualitaets-ring';
 import { LieferFeedbackPrompt } from './liefer-feedback-prompt';
 import { BestellungEtaLiveBanner } from './bestellung-eta-live-banner';
 import { EtaDetailKarte } from '../eta-detail-karte';
+import { BestellungLiveVerfolgung } from './bestellung-live-verfolgung';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -887,6 +888,20 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {orderId && (
           <div className="mt-3 w-full">
             <BestellStatusLiveV2 orderId={orderId} isDelivery={isDelivery} />
+          </div>
+        )}
+        {/* Phase 397: Bestellung-Live-Verfolgung — 4-Phasen-Timeline mit Fahrer-Info + Live-Countdown */}
+        {isDelivery && orderId && (
+          <div className="mt-3 w-full">
+            <BestellungLiveVerfolgung
+              orderId={orderId}
+              bestellnummer={bestellnummer}
+              status={liveStatus as any}
+              etaMin={etaMinutes || null}
+              driverName={driverName}
+              bestelltAm={null}
+              className="w-full"
+            />
           </div>
         )}
         {/* Phase 391: Liefer-Feedback-Prompt — Kurzes Sterne-Rating nach Bestellung, fire-and-forget Submit */}
