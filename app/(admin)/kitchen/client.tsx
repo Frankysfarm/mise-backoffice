@@ -151,6 +151,7 @@ import { KitchenKommandoZentrale } from './kommando-zentrale';
 import { KitchenBatchUebersichtCockpit } from './batch-uebersicht-cockpit';
 import { KitchenFertigstellungsPrognose } from './fertigstellungs-prognose';
 import { KitchenKochzeitVerteilungsChart } from './kochzeit-verteilungs-chart';
+import { KitchenLiveAmpelBoard } from './kitchen-live-ampel-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -616,6 +617,8 @@ export function KitchenBoard({
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Live-Ampel-Board: Alle aktiven Bestellungen als farbige Kacheln mit Countdown (grün/gelb/rot) */}
+      <KitchenLiveAmpelBoard orders={filtered} timings={timings} />
       {/* Phase 358: Smart-Kochzeit-Board — Alle aktiven Bestellungen mit Countdown, Urgency-Priorisierung, Küchen-Gesundheits-Score */}
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
       {/* Phase 400: Kommando-Zentrale — Echtzeit-Kochpriorisierung mit Farbkodierung */}

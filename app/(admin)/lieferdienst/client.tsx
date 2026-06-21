@@ -171,6 +171,7 @@ import { LieferdienstSchichtROITrend } from './schicht-roi-trend';
 import { LieferdienstFahrerTagesPerformance } from './fahrer-tages-performance';
 import { LieferdienstKapazitaetsMonitor } from './kapazitaets-monitor';
 import { SchichtRenditeCockpit } from './schicht-rendite-cockpit';
+import { ExecutiveKpiBanner } from './executive-kpi-banner';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -816,6 +817,12 @@ export function LieferdienstClient() {
 
         {/* Main Content */}
         <main className="flex-1">
+          {/* Executive-KPI-Banner: Top-Metriken Heute auf einen Blick (Bestellungen, Lieferungen, Fahrer, Ø Zeit, Pünktlichkeit) */}
+          {currentView === 'orders' && (
+            <div className="px-6 pt-3">
+              <ExecutiveKpiBanner locationId={null} />
+            </div>
+          )}
           {/* Live-Metriken: kompakte KPI-Leiste (immer sichtbar im Bestellbereich) */}
           {currentView === 'orders' && (
             <LiveMetricsStrip locationId="bb01ae0a-da47-48b1-b986-3a1201aacc4b" />

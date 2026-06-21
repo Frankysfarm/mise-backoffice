@@ -11,8 +11,6 @@ import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { Bike, CheckCircle2, ChefHat, Clock, Navigation, Package, Timer, Zap } from 'lucide-react';
 
-const LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
-
 type LiveOps = {
   eta_min: number;
   load: 'quiet' | 'normal' | 'busy';
@@ -20,12 +18,13 @@ type LiveOps = {
   drivers_online: number;
 };
 
-function useLiveOps() {
+function useLiveOps(locationId: string | null) {
   const [data, setData] = useState<LiveOps | null>(null);
   useEffect(() => {
+    if (!locationId) return;
     const load = async () => {
       try {
-        const r = await fetch(`/api/delivery/eta/live?location_id=${LOCATION_ID}`);
+        const r = await fetch(`/api/delivery/eta/live?location_id=${locationId}`);
         if (!r.ok) return;
         const d = await r.json();
         setData({ eta_min: d.eta_min ?? 30, load: d.load ?? 'normal', active_orders: d.active_orders ?? 0, drivers_online: d.drivers_online ?? 0 });
@@ -34,8 +33,17 @@ function useLiveOps() {
     load();
     const iv = setInterval(load, 30_000);
     return () => clearInterval(iv);
-  }, []);
+  }, [locationId]);
   return data;
+}
+
+function useLocationId(): string | null {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setId(params.get('location_id'));
+  }, []);
+  return id;
 }
 
 type Order = {
@@ -151,6 +159,7 @@ export function KitchenTVDisplay({
   initialTimings: KitchenTiming[];
 }) {
   const supabase = createClient();
+  const locationId = useLocationId();
   const [orders, setOrders] = useState(initialOrders);
   const [timings, setTimings] = useState(initialTimings);
   const [batchEtas, setBatchEtas] = useState<BatchEta[]>([]);
@@ -225,7 +234,7 @@ export function KitchenTVDisplay({
 
   const overdue = cookingWithUrgency.filter((x) => x.urgency === 'overdue');
   const critical = cookingWithUrgency.filter((x) => x.urgency !== 'ok');
-  const liveOps = useLiveOps();
+  const liveOps = useLiveOps(locationId);
 
   return (
     <div className="min-h-screen bg-matcha-950 text-white flex flex-col select-none">
