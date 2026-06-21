@@ -20,6 +20,7 @@ interface SseFrame {
     seconds_stale: number;
   } | null;
   driver_name?: string | null;
+  driver_vehicle_label?: string | null;
   geo?: {
     distance_m: number | null;
     almost_there: boolean;
@@ -123,6 +124,8 @@ export function SseTrackingLive({ bestellnummer, initialStatus, onUpdate }: Prop
   const etaMin = geo?.eta_min_remaining ?? null;
   const distM = geo?.distance_m ?? null;
   const almostThere = geo?.almost_there ?? false;
+  const driverName = lastFrame?.driver_name ?? null;
+  const vehicleLabel = lastFrame?.driver_vehicle_label ?? null;
 
   // Format distance
   function fmtDist(m: number | null): string {
@@ -212,6 +215,13 @@ export function SseTrackingLive({ bestellnummer, initialStatus, onUpdate }: Prop
           {lastFrame.stops_before != null && lastFrame.stops_before > 0 && (
             <div className="text-xs text-gray-500">
               noch {lastFrame.stops_before} {lastFrame.stops_before === 1 ? 'Stopp' : 'Stopps'} vor dir
+            </div>
+          )}
+
+          {driverName && (
+            <div className="text-xs text-gray-500">
+              Fahrer: <span className="font-medium text-gray-700">{driverName}</span>
+              {vehicleLabel ? ` · ${vehicleLabel}` : ''}
             </div>
           )}
         </div>

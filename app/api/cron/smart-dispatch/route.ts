@@ -151,6 +151,7 @@ import { aggregateTourFeedbackAllLocations, pruneOldFeedbackAggregates } from '@
 import { aggregateTourEfficiencyAllLocations, pruneTourEfficiency } from '@/lib/delivery/tour-efficiency-report';
 import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrderPriorityScores } from '@/lib/delivery/order-priority-engine';
 import { snapshotHandoffRateDailyAllLocations, pruneHandoffRateDaily } from '@/lib/delivery/kitchen-sync';
+import { predictAllActiveTourEndsAllLocations, settleAllCompletedToursAllLocations, pruneTourEndPredictions } from '@/lib/delivery/tour-end-prediction';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -324,6 +325,9 @@ export async function GET(req: NextRequest) {
     // Phase 346: Tour Profit Snapshots — täglich 02:45 UTC; Prune täglich 06:49 UTC
     const isTourProfitSnapshotTick = nowHour === 2 && nowMin >= 45 && nowMin < 49;
     const isTourProfitPruneTick = nowHour === 6 && nowMin >= 49 && nowMin < 53;
+    // Phase 376: Tour-End-Prognosen — jeden Tick (Echtzeit-Forecast aktiver Batches); settle + prune täglich 05:55 UTC
+    const isTourEndPredictionSettleTick = nowHour === 5 && nowMin >= 55 && nowMin < 59;
+    const isTourEndPredictionPruneTick  = nowHour === 5 && nowMin >= 55 && nowMin < 59;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1259,6 +1263,15 @@ export async function GET(req: NextRequest) {
       ? await pruneZoneDifficultyDaily(90).catch(() => null)
       : null;
 
+    // Phase 376: Tour-End-Prognosen — jeden Tick aktualisieren
+    const tourEndPredResult = await predictAllActiveTourEndsAllLocations().catch(() => null);
+    const tourEndSettleResult = isTourEndPredictionSettleTick
+      ? await settleAllCompletedToursAllLocations().catch(() => null)
+      : null;
+    const tourEndPruned = isTourEndPredictionPruneTick
+      ? await pruneTourEndPredictions(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1510,6 +1523,9 @@ export async function GET(req: NextRequest) {
       ...(tourEfficiencyResult?.saved ? { tour_efficiency: { locations: tourEfficiencyResult.locations, saved: tourEfficiencyResult.saved, errors: tourEfficiencyResult.errors } } : {}),
       ...(orderPriorityResult?.scored ? { order_priority_scored: { locations: orderPriorityResult.locations, scored: orderPriorityResult.scored } } : {}),
       ...(handoffRateSnapshotResult?.saved ? { handoff_rate_snapshot: { locations: handoffRateSnapshotResult.locations, saved: handoffRateSnapshotResult.saved, errors: handoffRateSnapshotResult.errors } } : {}),
+      ...(tourEndPredResult?.processed ? { tour_end_predictions: { locations: tourEndPredResult.locations, processed: tourEndPredResult.processed, errors: tourEndPredResult.errors } } : {}),
+      ...(tourEndSettleResult?.settled ? { tour_end_settled: { settled: tourEndSettleResult.settled } } : {}),
+      ...(tourEndPruned?.pruned ? { tour_end_pruned: tourEndPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

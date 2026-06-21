@@ -52,7 +52,8 @@ export interface SseTrackingFrame {
     speed_kmh:     number | null;
     seconds_stale: number;
   } | null;
-  driver_name?:    string | null;
+  driver_name?:         string | null;
+  driver_vehicle_label?: string | null;
   geo?: {
     distance_m:        number | null;
     almost_there:      boolean;
@@ -195,7 +196,8 @@ export function createTrackingSseStream(
                   seconds_stale: payload.driver.positionAgeSec,
                 }
               : null,
-            driver_name: payload.driverName,
+            driver_name:          payload.driverName,
+            driver_vehicle_label: payload.driverVehicleLabel,
             geo: {
               distance_m:        payload.geo.distanceM,
               almost_there:      payload.geo.almostThere,
