@@ -1,9 +1,53 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–358 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–359 abgeschlossen. Build sauber. 351 Seiten. 0 TypeScript-Fehler (Phase 359 Dateien).**
 
-**CEO-Review #197 (2026-06-21): 3 TypeScript-Fehler gefixt (ChartPoint-Index-Signatur, Recharts-Formatter-Typ, Supabase-Payload-Typ). Phase 358 vollständig integiert. Alle Systeme synchron.**
+**Phase 359 (2026-06-21): Driver Score History + Tour Feedback Integration. Migration 174, 7-Faktor-Score (neu: fFeedback 0–5), History-Snapshots, 5 Frontend-Komponenten, Admin-Dashboard /delivery/driver-score, Cron-Integration.**
+
+---
+
+## Phase 359 — Driver Score History + Feedback Integration (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**Migration:**
+- `scripts/migrations/174_driver_score_history.sql`: `f_feedback` Spalte in `driver_composite_scores`, neue `driver_score_history` Tabelle (UUID PK, UNIQUE auf location_id/driver_id/period/period_start, RLS, 2 Indizes), `prune_driver_score_history()` Funktion
+
+**Backend (`lib/delivery/driver-score.ts`):**
+- Neuer 7. Faktor: `f_feedback` (0–5) aus `tour_feedback.customer_rating` (linear 1→0, 5→5), graceful fallback wenn Tabelle nicht existiert
+- `CompositeScoreResult` + `ScoreLeaderboardEntry` erweitert um `fFeedback`
+- `scoreFeedback()` Helper-Funktion
+- compositeScore: `Math.min(100, ...)` mit 7 Faktoren
+- Neue Exports: `DriverScoreHistoryRow`, `snapshotDriverScoreHistory()`, `snapshotDriverScoreHistoryAllLocations()`, `getDriverScoreHistory()`, `pruneDriverScoreHistory()`
+
+**API Route (`app/api/delivery/admin/driver-score/route.ts`):**
+- GET action=`history` → DriverScoreHistoryRow[] (letzte N Wochen, optional driver_id filter)
+- GET action=`detail` → CompositeScoreResult für einen Fahrer
+- GET action=`leaderboard` → bestehend, jetzt default
+- POST action=`snapshot` → History-Snapshot speichern
+
+**Admin-Dashboard (`app/(admin)/delivery/driver-score/`):**
+- `page.tsx`: Server-Component mit requireManagerPlus()
+- `client.tsx`: 3-Tab UI (Rangliste / Score-Verlauf / Feedback-Integration), 4 KPI-Kacheln (Ø Team-Score, Top-Score, Feedback-Rate, Trend), Recharts LineChart Top-5 Fahrer, Zeitraum-Selektor 4/8/12 Wochen, Snapshot + Neu-berechnen Buttons
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/score-verlauf-mini.tsx` — `KitchenScoreVerlaufMini`: Mini-Bar-Chart 4 Wochen Team-Avg, Trend-Pfeil, 10-Min-Polling; Integration: kitchen/client.tsx nach KitchenDriverScoreStrip
+- `app/(admin)/dispatch/driver-feedback-score-panel.tsx` — `DispatchDriverFeedbackScorePanel`: Top-5 Fahrer nach f_feedback, collapsible, 5-Min-Polling; Integration: dispatch/client.tsx nach ZoneDifficultyTrendChart
+- `app/fahrer/app/score-verlauf-chart.tsx` — `FahrerScoreVerlaufChart`: Persönlicher 8-Wochen AreaChart, Matcha-Gradient-Header, Grade-Badges, collapsible; Integration: fahrer/app/client.tsx nach FahrerMeineScoreKarte
+- `app/(admin)/lieferdienst/team-score-trend.tsx` — `LieferdienstTeamScoreTrend`: Team-Avg + Top-25% + Bottom-25% AreaChart 8 Wochen, Verbesserung/Rückgang Badge, 10-Min-Polling; Integration: lieferdienst/client.tsx nach LieferdienstFahrerScoreRangliste
+- `app/order/[locationSlug]/components/driver-vertrauens-badge.tsx` — `DriverVertrauensBadge`: Kunden-seitiges Vertrauenssignal (nur bei Grade A+ / A), grünes Badge mit ShieldCheck; Integration: track/[bestellnummer]/tracking.tsx
+
+**Delivery Page (`app/(admin)/delivery/page.tsx`):**
+- SectionCard für `/delivery/driver-score` im Fahrer-Abschnitt nach Zone-Difficulty
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `snapshotDriverScoreHistoryAllLocations` täglich 02:50 UTC
+- `pruneDriverScoreHistory(365)` täglich 07:10 UTC
+
+**Build:** 351 Seiten, 0 TypeScript-Fehler in Phase 359 Dateien ✅
 
 ---
 
