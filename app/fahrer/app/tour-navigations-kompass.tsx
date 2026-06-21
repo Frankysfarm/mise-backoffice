@@ -150,9 +150,9 @@ export function TourNavigationsKompass({ batchId, driverId }: Props) {
                 <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-black text-zinc-300">
                   {current.order.bestellnummer}
                 </span>
-                {current.order.distanz_zum_vorgaenger_m && (
+                {current.distanz_zum_vorgaenger_m && (
                   <span className="text-[10px] text-zinc-400">
-                    {formatDist(current.order.distanz_zum_vorgaenger_m)}
+                    {formatDist(current.distanz_zum_vorgaenger_m)}
                   </span>
                 )}
                 {current.order.zahlungsart && !current.order.bezahlt && (
