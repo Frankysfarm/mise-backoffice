@@ -603,27 +603,30 @@ export async function snapshotDriverScoreHistory(locationId: string): Promise<{ 
   let saved = 0;
   for (const s of scores) {
     const r = s as Record<string, unknown>;
-    const { error } = await sb
-      .from('driver_score_history')
-      .upsert({
-        location_id:    r.location_id,
-        driver_id:      r.driver_id,
-        period:         r.period ?? 'week',
-        period_start:   r.period_start,
-        composite_score: r.composite_score,
-        grade:          r.grade ?? 'D',
-        f_punctuality:  r.f_punctuality ?? 0,
-        f_rating:       r.f_rating ?? 0,
-        f_efficiency:   r.f_efficiency ?? 0,
-        f_reliability:  r.f_reliability ?? 0,
-        f_activity:     r.f_activity ?? 0,
-        f_volume:       r.f_volume ?? 0,
-        f_feedback:     r.f_feedback ?? 0,
-        data_points:    r.data_points ?? 0,
-        snapshot_at:    new Date().toISOString(),
-      } as Record<string, unknown>, { onConflict: 'location_id,driver_id,period,period_start' })
-      .catch(() => ({ error: null }));
-    if (!error) saved++;
+    let upsertError: unknown = null;
+    try {
+      const result = await sb
+        .from('driver_score_history')
+        .upsert({
+          location_id:    r.location_id,
+          driver_id:      r.driver_id,
+          period:         r.period ?? 'week',
+          period_start:   r.period_start,
+          composite_score: r.composite_score,
+          grade:          r.grade ?? 'D',
+          f_punctuality:  r.f_punctuality ?? 0,
+          f_rating:       r.f_rating ?? 0,
+          f_efficiency:   r.f_efficiency ?? 0,
+          f_reliability:  r.f_reliability ?? 0,
+          f_activity:     r.f_activity ?? 0,
+          f_volume:       r.f_volume ?? 0,
+          f_feedback:     r.f_feedback ?? 0,
+          data_points:    r.data_points ?? 0,
+          snapshot_at:    new Date().toISOString(),
+        } as Record<string, unknown>, { onConflict: 'location_id,driver_id,period,period_start' });
+      upsertError = result.error;
+    } catch { upsertError = true; }
+    if (!upsertError) saved++;
   }
   return { saved };
 }

@@ -1,9 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–359 abgeschlossen. Build sauber. 351 Seiten. 0 TypeScript-Fehler (Phase 359 Dateien).**
+**Phasen 1–359 abgeschlossen. Build sauber. 351 Seiten. 0 TypeScript-Fehler (CEO Review #198 verifiziert).**
 
-**Phase 359 (2026-06-21): Driver Score History + Tour Feedback Integration. Migration 174, 7-Faktor-Score (neu: fFeedback 0–5), History-Snapshots, 5 Frontend-Komponenten, Admin-Dashboard /delivery/driver-score, Cron-Integration.**
+**Phase 359 (2026-06-21): Driver Score History + Tour Feedback Integration. Migration 174, 7-Faktor-Score (neu: fFeedback 0–5), History-Snapshots, 5 Frontend-Komponenten, Admin-Dashboard /delivery/driver-score, Cron-Integration. CEO Review #198: 4 TypeScript-Fehler gefixt (Recharts Tooltip × 3, Supabase upsert .catch() × 1).**
 
 ---
 

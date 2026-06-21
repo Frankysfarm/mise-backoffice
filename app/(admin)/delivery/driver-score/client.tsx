@@ -341,7 +341,7 @@ export function DriverScoreClient({ employeeId }: { employeeId: string }) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="week" tick={{ fontSize: 11 }} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(value: number) => `${value.toFixed(1)}`} />
+                  <Tooltip formatter={(value) => typeof value === 'number' ? `${value.toFixed(1)}` : String(value ?? '')} />
                   <Legend />
                   {top5Ids.map((id: string, i: number) => {
                     const entry = entries.find((e: LeaderboardEntry) => e.driverId === id);

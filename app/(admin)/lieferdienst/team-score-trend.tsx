@@ -110,7 +110,7 @@ export function LieferdienstTeamScoreTrend({ locationId }: { locationId?: string
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="week" tick={{ fontSize: 10 }} />
             <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-            <Tooltip formatter={(value: number) => `${value.toFixed(1)}`} />
+            <Tooltip formatter={(value) => typeof value === 'number' ? `${value.toFixed(1)}` : String(value ?? '')} />
             <Legend wrapperStyle={{ fontSize: '11px' }} />
             <Area type="monotone" dataKey="topAvg" name="Top 25%" stroke="#22c55e" strokeWidth={1.5} fill="url(#teamGrad)" strokeDasharray="4 2" />
             <Area type="monotone" dataKey="teamAvg" name="Team Ø" stroke="#3b82f6" strokeWidth={2} fill="none" />

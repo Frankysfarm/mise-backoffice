@@ -121,7 +121,7 @@ export function FahrerScoreVerlaufChart() {
               </defs>
               <XAxis dataKey="week" tick={{ fontSize: 10 }} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-              <Tooltip formatter={(value: number) => [`${value} Pkt`, 'Score']} />
+              <Tooltip formatter={(value) => [typeof value === 'number' ? `${value} Pkt` : String(value ?? ''), 'Score']} />
               <Area
                 type="monotone"
                 dataKey="score"
