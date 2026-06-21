@@ -140,6 +140,7 @@ import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
 import { FahrerSchichtDauerLive } from './schicht-dauer-live';
 import { TourStoppListe } from './tour-stopp-liste';
 import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
+import { StopDistanzInfo } from './stop-distanz-info';
 
 type Driver = {
   id: string;
@@ -1094,6 +1095,10 @@ export function FahrerApp({
               startedAt={activeBatch.started_at}
               totalStops={activeBatch.stops.length}
             />
+          </div>
+          {/* Phase 382: Stop-Distanz-Info — GPS-basierte Entfernung + ETA zum nächsten Stopp mit Navi-Button */}
+          <div className="px-4 mt-3">
+            <StopDistanzInfo stops={activeBatch.stops as any} />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
           <div className="px-4">

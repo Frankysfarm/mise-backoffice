@@ -39,6 +39,7 @@ import { BestellStatusLiveBadge } from './bestell-status-live-badge';
 import { BestellungLiveSSETracker } from './bestellung-live-sse-tracker';
 import { BestellEtaProgress } from './bestell-eta-progress';
 import { LieferzeitVergleichWidget } from './lieferzeit-vergleich-widget';
+import { LiveStatusTimeline } from './live-status-timeline';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -447,6 +448,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         )}
         {/* Phase 370: Zonen-Hinweis — Zone A/B/C/D Badge + Lieferfenster (nur Lieferbestellungen) */}
         {isDelivery && orderId && <BestellZonenHinweis orderId={orderId} />}
+        {/* Phase 382: Live-Status-Timeline — Vertikale Milestone-Timeline mit Supabase Realtime und Zeitstempeln */}
+        {orderId && <LiveStatusTimeline orderId={orderId} isDelivery={isDelivery} />}
         {/* Phase 371: Uhrzeit-Fenster — Lieferzeit als absolute Uhrzeitspanne (z.B. 14:32–14:47 Uhr) */}
         <BestellUhrzeitFenster etaMinutes={etaMinutes} isDelivery={isDelivery} className="mt-2" />
         {/* Phase 372: Zeit seit Bestellung — Live-Anzeige wie lange Bestellung schon läuft (grün/amber/rot) */}

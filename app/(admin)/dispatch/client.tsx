@@ -199,6 +199,7 @@ import { DispatchTourPuenktlichkeitsAmpel } from './tour-phuenktlichkeits-ampel'
 import { DispatchTourScoreZentrale } from './tour-score-zentrale';
 import { DispatchTourRealtimeFortschritt } from './tour-realtime-fortschritt';
 import { DispatchTourAbholZeitplan } from './tour-abholzeitplan';
+import { DispatchTourFahrerSyncBoard } from './tour-fahrer-sync-board';
 
 type Driver = {
   employee_id: string;
@@ -1081,6 +1082,8 @@ export function DispatchBoard({
       <DispatchTourRealtimeFortschritt batches={batches as any} />
       {/* Phase 380: Tour-Abholzeitplan — Wann kehren aktive Fahrer zurück? Rückkehr-ETA je aktiver Tour */}
       <DispatchTourAbholZeitplan batches={batches} />
+      {/* Phase 382: Fahrer-Tour-Sync-Board — Sync-Status aller aktiven Fahrer: Voraus/Im Plan/Rückstand */}
+      <DispatchTourFahrerSyncBoard drivers={drivers} batches={batches as any} />
       {/* Echtzeit-Tour-Score-Feed: Live-Effizienz-Ranking aller aktiven Touren mit Trend-Indikatoren */}
       <DispatchTourScoreLiveFeed batches={batches} />
       {/* Phase 358: Fahrer-Score-Kacheln — Farbkodierte Score-Karten aller Fahrer mit Rang, Grade, Pünktlichkeit */}
