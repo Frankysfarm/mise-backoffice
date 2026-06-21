@@ -53,7 +53,50 @@ const urgencyStyle = {
   late:     { ring: 'border-red-600',     bg: 'bg-red-100',     text: 'text-red-800',      badge: 'bg-red-700 text-white',       label: 'Überfällig'  },
 };
 
+function CountdownRing({ sec, totalSec, urgency }: { sec: number | null; totalSec: number; urgency: ReturnType<typeof urgencyFromSec> }) {
+  const r = 26;
+  const circ = 2 * Math.PI * r;
+  const style = urgencyStyle[urgency];
+
+  let pct = 0;
+  if (sec !== null && totalSec > 0) {
+    pct = sec < 0 ? 1 : 1 - (sec / totalSec);
+    pct = Math.max(0, Math.min(1, pct));
+  }
+
+  const strokeColor = urgency === 'ok' ? '#2d6b45' : urgency === 'soon' ? '#d97706' : urgency === 'critical' ? '#ea580c' : '#dc2626';
+  const trackColor = '#f3f4f6';
+
+  return (
+    <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+      <svg width="56" height="56" viewBox="0 0 56 56" className="absolute inset-0">
+        <circle cx="28" cy="28" r={r} fill="none" stroke={trackColor} strokeWidth="5" />
+        <circle
+          cx="28" cy="28" r={r} fill="none"
+          stroke={strokeColor} strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={`${circ}`}
+          strokeDashoffset={`${circ * (1 - pct)}`}
+          className="transition-all duration-700"
+          transform="rotate(-90 28 28)"
+        />
+      </svg>
+      <div className={cn('relative flex flex-col items-center justify-center font-mono font-black tabular-nums', style.text)}>
+        {sec !== null ? (
+          <>
+            <span className="text-[9px] leading-none">{sec < 0 ? '⚠' : <Clock className="h-2.5 w-2.5" />}</span>
+            <span className="text-[11px] leading-tight">{fmtMmSs(sec)}</span>
+          </>
+        ) : (
+          <span className="text-[10px] text-muted-foreground">–</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function BatchRow({ entry }: { entry: BatchEntry }) {
+  const totalSec = (entry.eta_min ?? 0) * 60;
   const targetIso = entry.eta_min != null && entry.started_at
     ? new Date(new Date(entry.started_at).getTime() + entry.eta_min * 60_000).toISOString()
     : null;
@@ -64,17 +107,8 @@ function BatchRow({ entry }: { entry: BatchEntry }) {
 
   return (
     <div className={cn('flex items-center gap-3 rounded-xl border px-4 py-3 transition-all', style.ring, style.bg, urgency === 'critical' && 'animate-pulse')}>
-      {/* Countdown ring placeholder */}
-      <div className={cn('flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-2 font-mono font-black tabular-nums', style.ring, style.text)}>
-        {sec !== null ? (
-          <>
-            <span className="text-xs leading-none">{sec < 0 ? '⚠' : <Clock className="h-3 w-3" />}</span>
-            <span className="text-sm leading-tight">{fmtMmSs(sec)}</span>
-          </>
-        ) : (
-          <span className="text-[10px] text-muted-foreground">–</span>
-        )}
-      </div>
+      {/* SVG countdown ring */}
+      <CountdownRing sec={sec} totalSec={totalSec} urgency={urgency} />
 
       {/* Info */}
       <div className="flex-1 min-w-0">

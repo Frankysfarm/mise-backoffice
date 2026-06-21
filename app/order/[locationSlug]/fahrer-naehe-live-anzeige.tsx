@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Bike, MapPin, Clock, Zap, CheckCircle2 } from 'lucide-react';
+import { Bike, MapPin, Clock, Zap, CheckCircle2, Navigation } from 'lucide-react';
 
 interface FahrerNaeheData {
   distanzMeters: number | null;
   etaMinuten: number | null;
   fahrerName: string | null;
   istUnterwegs: boolean;
-  zuletzt: string | null;
+  almostThere: boolean;
+  bearingDeg: number | null;
+  stopsBefore: number | null;
 }
 
 function useDriverProximity(orderId: string | null): FahrerNaeheData | null {
@@ -21,15 +23,18 @@ function useDriverProximity(orderId: string | null): FahrerNaeheData | null {
 
     const load = async () => {
       try {
-        const r = await fetch(`/api/delivery/tracking?order_id=${orderId}`);
+        const r = await fetch(`/api/delivery/orders/${orderId}/tracking`);
         if (!r.ok || !active) return;
         const d = await r.json();
+        const istUnterwegs = ['unterwegs', 'in_progress'].includes(d.status ?? '');
         setData({
-          distanzMeters: d.distance_m ?? null,
-          etaMinuten: d.eta_min ?? null,
+          distanzMeters: d.geo?.distance_m ?? null,
+          etaMinuten: d.geo?.eta_min_remaining ?? null,
           fahrerName: d.driver_name ?? null,
-          istUnterwegs: d.is_on_route ?? false,
-          zuletzt: d.last_update ?? null,
+          istUnterwegs,
+          almostThere: d.geo?.almost_there ?? false,
+          bearingDeg: d.geo?.bearing_deg ?? null,
+          stopsBefore: d.stops_before ?? null,
         });
       } catch {}
     };
@@ -87,7 +92,7 @@ export function FahrerNaeheLiveAnzeige({ orderId, className }: Props) {
     ? Math.max(0, 1 - data.etaMinuten / 20)
     : 0.3;
 
-  const isNearby = data.distanzMeters != null && data.distanzMeters < 500;
+  const isNearby = data.almostThere || (data.distanzMeters != null && data.distanzMeters < 500);
   const isArriving = data.etaMinuten != null && data.etaMinuten <= 2;
 
   return (
@@ -99,13 +104,18 @@ export function FahrerNaeheLiveAnzeige({ orderId, className }: Props) {
       )}>
         <span className={cn(
           'h-2 w-2 rounded-full shrink-0',
-          pulseActive ? 'bg-blue-500' : 'bg-blue-300',
+          pulseActive ? (isNearby ? 'bg-emerald-500' : 'bg-blue-500') : (isNearby ? 'bg-emerald-300' : 'bg-blue-300'),
           'transition-colors duration-300',
         )} />
         <span className="text-xs font-bold text-gray-700 flex-1">
           {isNearby ? 'Fahrer fast da!' : 'Fahrer unterwegs'}
         </span>
-        <span className="text-[10px] text-gray-400">Live</span>
+        {data.stopsBefore != null && data.stopsBefore > 0 && (
+          <span className="text-[10px] text-amber-600 font-bold bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+            {data.stopsBefore} Stop{data.stopsBefore !== 1 ? 's'  : ''} vorher
+          </span>
+        )}
+        <span className="text-[10px] text-gray-400 ml-1">Live</span>
       </div>
 
       <div className="flex items-center gap-4 p-4">
@@ -145,16 +155,28 @@ export function FahrerNaeheLiveAnzeige({ orderId, className }: Props) {
                   <span className="text-xs text-gray-400">bis Lieferung</span>
                 </div>
               )}
-              {data.distanzMeters != null && (
-                <div className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-gray-400 shrink-0" />
-                  <span className="text-xs text-gray-500">
-                    {data.distanzMeters < 1000
-                      ? `${data.distanzMeters.toFixed(0)} m entfernt`
-                      : `${(data.distanzMeters / 1000).toFixed(1)} km entfernt`}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {data.distanzMeters != null && (
+                  <div className="flex items-center gap-1">
+                    <MapPin size={13} className="text-gray-400 shrink-0" />
+                    <span className="text-xs text-gray-500">
+                      {data.distanzMeters < 1000
+                        ? `${Math.round(data.distanzMeters)} m`
+                        : `${(data.distanzMeters / 1000).toFixed(1)} km`}
+                    </span>
+                  </div>
+                )}
+                {data.bearingDeg != null && (
+                  <div className="flex items-center gap-1">
+                    <Navigation
+                      size={13}
+                      className="text-blue-400 shrink-0"
+                      style={{ transform: `rotate(${data.bearingDeg}deg)` }}
+                    />
+                    <span className="text-[10px] text-gray-400">Richtung</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
