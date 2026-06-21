@@ -1,7 +1,76 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–372 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–374 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #205 — 2026-06-21
+
+### Geprüfte Phasen: Phase 373 + 374
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+- `tsc --noEmit`: 0 TypeScript-Fehler (exit code 0) ✅
+
+**Phase 373 — `/api/delivery/admin/stats?period=today`:**
+- Parallele Queries: customer_orders + delivery_performance + mise_drivers ✅
+- hourly_volume[] vorhanden → LieferdienstStundenEffizienzMatrix kein Mock-Fallback mehr ✅
+- snake_case + camelCase Aliase vollständig (backward-kompatibel mit allen Konsumenten) ✅
+- Migration 178: delivery_zone-Spalte idempotent via DO-Block ✅
+
+**Phase 374 — geprüfte Komponenten:**
+
+**`KitchenBestellungsFlowAmpel`:**
+- 3 Status-Sets (`Set<>`) für O(1)-Lookup ✅
+- Guards: count-basierte Farbkodierung (>5 rot, >2 amber), `warn` korrekt ✅
+- `useMemo([orders])` korrekt, keine Seiteneffekte ✅
+- Integration kitchen/client.tsx: `orders={filtered}` ✅
+
+**`DispatchTourPuenktlichkeitsAmpel`:**
+- `computeHealth()`: `usedFraction - doneFraction` als Verspätungs-Delta (>0.3 → verspätet, >0.1 → knapp) ✅
+- Division guard: `total > 0 ? done / total : 0` ✅
+- Sortierung: late → tight → on-time ✅
+- 15s-Ticker via setInterval/clearInterval ✅
+- Integration dispatch/client.tsx korrekt ✅
+
+**`FahrerSchichtDauerLive`:**
+- `Math.max(0, now - startMs)` verhindert negative Dauer ✅
+- `elapsedMin > 0` guard für stopRate (kein Division by Zero) ✅
+- 30s-Ticker, Intensitätsstufen korrekt (6h→high, 3h→medium) ✅
+- Integration fahrer/app/client.tsx: `status.online_seit` + `todayStats.deliveries` korrekt ✅
+
+**`BestellStatusLiveBadge`:**
+- `statusToStep()`: deckt alle bekannten Status-Strings ab (toLowerCase guard) ✅
+- Delivery vs. Pickup korrekt unterschieden (isDelivery-Flag) ✅
+- Kein Polling nötig (Props-getrieben, parent managed state) ✅
+- Integration success-state.tsx: `isDelivery && orderId` guard ✅
+
+**`LieferdienstSchichtTempoKpi`:**
+- **BUG GEFIXT:** `setPrev` innerhalb `setData`-Updater war ein React-Seiteneffekt-Antipattern (Updater-Funktionen müssen pure sein; React StrictMode ruft sie mehrfach auf) ❌→✅
+- Fix: `useRef<StatsResp | null>(null)` als `prevDataRef` → `setPrev(prevDataRef.current)` + `prevDataRef.current = d` vor `setData(d)`
+- Trend-Arrow zeigt jetzt korrekte Werte (up/flat/down) ✅
+- `onTimePct >= 80` → grün, `>= 60` → amber, `< 60` → rot ✅
+- 2-Min-Polling, cancelled-Flag, clearInterval ✅
+
+**Bugs gefunden + gefixt: 1**
+- `LieferdienstSchichtTempoKpi`: `setPrev` als Seiteneffekt in Updater-Funktion → `useRef`-basiertes Tracking ✅
+
+### Status nach Review #205
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 373 + 374: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Alle 5 Komponenten: logisch korrekt, Guards vollständig ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 375: 5 neue Smart-Delivery-Komponenten
+2. Vertiefung: Fahrer-Route-Karte (Leaflet/Mapbox) für Stopp-Navigation
+3. Web Push bei Statuswechsel (Storefront)
+
+### Nächste Schritte für Backend-Architekt
+1. Sicherstellen: `delivery_zone`-Feld in Produktion vorhanden (BestellZonenHinweis + LieferdienstZoneUmsatzMatrix)
+2. Historische handoff_rate persistieren (täglich aggregiert, Trend-Analyse)
 
 ---
 

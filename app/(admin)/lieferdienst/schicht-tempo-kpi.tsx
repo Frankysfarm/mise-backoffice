@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Zap, TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +17,7 @@ export function LieferdienstSchichtTempoKpi({ locationId }: Props) {
   const [data, setData] = useState<StatsResp | null>(null);
   const [prev, setPrev] = useState<StatsResp | null>(null);
   const [loading, setLoading] = useState(true);
+  const prevDataRef = useRef<StatsResp | null>(null);
 
   useEffect(() => {
     if (!locationId) return;
@@ -28,8 +29,9 @@ export function LieferdienstSchichtTempoKpi({ locationId }: Props) {
         if (!r.ok) throw new Error('fail');
         const d: StatsResp = await r.json();
         if (!cancelled) {
-          setPrev(prev => prev ?? d);
-          setData(old => { setPrev(old); return d; });
+          setPrev(prevDataRef.current);
+          prevDataRef.current = d;
+          setData(d);
         }
       } catch {}
       finally { if (!cancelled) setLoading(false); }
