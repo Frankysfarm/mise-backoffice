@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–376 abgeschlossen. CEO Review #206 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–376 abgeschlossen. CEO Review #207 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
 
 **Phase 376 Backend (2026-06-21): Tour-End-Prognosen (Echtzeit-Forecast aktiver Batches) + SSE-Frame-Erweiterung. Migration 180: `tour_end_predictions` Tabelle (UNIQUE batch_id, confidence 0–100, remaining/completed_stops, avg_min_per_stop, predicted_duration_min, driver_id, vehicle, Settlement: settled_at/actual_end_utc/error_min, Prune-RPC, View `v_active_tour_end_predictions`). `lib/delivery/tour-end-prediction.ts`: `predictTourEnd(batchId, locationId)` (Haversine-Distanz-Bonus, Ø-Rhythmus aus abgeschlossenen Stops, Confidence steigt mit Datenbasis), `predictAllActiveTours(locationId)`, `predictAllActiveTourEndsAllLocations()` (Cron), `settleCompletedTours(locationId)` + `settleAllCompletedToursAllLocations()` (Outcome-Auswertung mit error_min), `getTourEndPredictionDashboard(locationId)` (aktive Prognosen + 7-Tage-Accuracy p75), `pruneTourEndPredictions(daysOld)`. API `/api/delivery/admin/tour-end-predictions`: GET dashboard, POST predict_now/settle/prune. Cron: jeden Tick predict + täglich 05:55 UTC settle+prune. SSE-Frame erweitert: `driver_vehicle_label` (Fahrrad/Auto/etc.) jetzt in `SseTrackingFrame` + übertragen. `SseTrackingLive` zeigt Fahrername + Fahrzeugtyp aus SSE-Frame live. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 

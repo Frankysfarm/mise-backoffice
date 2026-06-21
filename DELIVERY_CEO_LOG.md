@@ -1,7 +1,69 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–375 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–376 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #207 — 2026-06-21
+
+### Geprüfte Phasen: Phase 376 (Backend + SSE-Erweiterung + 4 neue Frontend-Komponenten)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+
+**Phase 376 Backend — Tour-End-Prognosen:**
+
+**`lib/delivery/tour-end-prediction.ts`:**
+- `predictTourEnd()`: Haversine-Distanzbonus korrekt berechnet, Confidence-Logik sauber (40→90 %), UPSERT via batch_id ✅
+- Ø-Min/Stopp-Berechnung ab completedStops >= 2, Clamp zwischen 5–20 Min ✅
+- `remainingCount === 0` → auto-settle mit error_min=0 korrekt ✅
+- `settleCompletedTours()`: error_min = predictedEnd − actualEnd (positiv = zu früh, negativ = zu spät) ✅
+- `getTourEndPredictionDashboard()`: p75-Berechnung korrekt (sorted array, Index Math.floor(len*0.75)) ✅
+- `pruneTourEndPredictions()`: via RPC `prune_tour_end_predictions(days_to_keep)` ✅
+
+**`app/api/delivery/admin/tour-end-predictions/route.ts`:**
+- GET ?action=dashboard, POST predict_now/settle/prune — alle korrekt implementiert ✅
+- Auth via employees.location_id + body.location_id-Override ✅
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `predictAllActiveTourEndsAllLocations` jeden Tick ✅
+- `settleAllCompletedToursAllLocations` + `pruneTourEndPredictions(30)` täglich 05:55 UTC ✅
+
+**SSE-Frame-Erweiterung:**
+- `SseTrackingFrame.driver_vehicle_label` korrekt in Interface + Frame-Serialisierung ✅
+- `driverVehicleLabel` kommt aus `live-tracking.ts` → VEHICLE_LABELS-Map ✅
+- `sse-tracking-live.tsx`: zeigt `{driverName} · {vehicleLabel}` live aus SSE-Frame ✅
+
+**Phase 376 Frontend — 4 neue Komponenten:**
+
+**`tour-visualisierung.tsx`** — TourVisualisierung (Dispatch):
+- `calcScore()`: Basis-Scoring sauber, keine Division-by-Zero ✅
+
+**`smart-prep-timing-hub.tsx`** — SmartPrepTimingHub (Kitchen):
+- Stations-Erkennung korrekt, `useMemo` für Performance ✅
+
+**`lieferdienst-stats-dashboard.tsx`** — LieferdienstStatsDashboard:
+- Holt Stats von `/api/delivery/admin/stats?period=today` ✅
+- Recharts Bar+LineChart korrekt integriert ✅
+
+**`tour-stop-navigator.tsx`** — TourStopNavigator (Fahrer-App):
+- ETA-Countdown mit `useTick()` korrekt ✅
+- Zahlungsart-Logik, Navigation-Links (Google Maps/Waze) ✅
+
+**`live-eta-realtime.tsx`** — LiveEtaRealtime (Storefront):
+- 6-Phasen-Konfiguration, Supabase Realtime-Subscription ✅
+
+**Bugs gefunden + gefixt: 0**
+
+**Bekannte Minor-Issues (kein Fix nötig):**
+- Cron `predictAllActiveTourEndsAllLocations` in jedem Tick laufend — bei hohem Batch-Volumen könnte paralleles Promise.allSettled zu Supabase-Raten-Limits führen. Akzeptabel für aktuellen Skalierungsgrad.
+
+### Status nach Review #207
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 376 (Backend + SSE + Frontend): DONE ✅
+- Bugs: 0 ✅
 
 ---
 
