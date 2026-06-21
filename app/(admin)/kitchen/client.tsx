@@ -138,6 +138,7 @@ import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 import { KitchenMultiBatchAbholplan } from './kitchen-multi-batch-abholplan';
 import { KitchenSmartKochzeitBoard } from './smart-kochzeit-board';
 import { KitchenKiAuftragsPriorierung } from './ki-auftragspriorierung';
+import { KitchenQueueEffizienzRing } from './queue-effizienz-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -637,6 +638,8 @@ export function KitchenBoard({
       )}
       {/* Phase 330: Wochen-Vergleich Küche — SLA, ø Lieferzeit, Lieferrate: Diese Woche vs. Vorwoche */}
       <KitchenSchichtWocheVergleich locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 363: Queue-Effizienz-Ring — Pünktlichkeitsquote aller aktiven Bestellungen als SVG-Ring mit Trend */}
+      <KitchenQueueEffizienzRing orders={filtered} timings={timings} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}

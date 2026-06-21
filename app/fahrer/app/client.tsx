@@ -129,6 +129,7 @@ import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 import { TourStoppNavV2 } from './tour-stopp-nav-v2';
 import { FahrerStoppErinnerungsPanel } from './stop-erinnerungs-panel';
+import { NaechsterStoppVorschau } from './naechster-stopp-vorschau';
 
 type Driver = {
   id: string;
@@ -1018,6 +1019,14 @@ export function FahrerApp({
             <TourStoppNavV2
               stops={activeBatch.stops as any}
               startedAt={activeBatch.started_at}
+            />
+          </div>
+          {/* Phase 363: Nächster-Stopp-Vorschau — Kompaktkarte mit ETA, Navigation, Zahlungsart und Kundendaten */}
+          <div className="px-4">
+            <NaechsterStoppVorschau
+              stops={activeBatch.stops as any}
+              driverLat={driverPos?.lat}
+              driverLng={driverPos?.lng}
             />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
