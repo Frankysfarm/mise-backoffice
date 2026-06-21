@@ -183,6 +183,7 @@ import { LieferdienstKundenzufriedenheitsPanel } from './kundenzufriedenheits-pa
 import { LieferdienstLiveStatistikPanel } from './live-statistik-panel';
 import { SchichtStatistikHub } from './schicht-statistik-hub';
 import { SchichtErtragsCockpit } from './schicht-ertrags-cockpit';
+import { DriverOnlineStatusBoard } from './driver-online-status-board';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1118,6 +1119,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 394: Driver-Online-Status-Board — Grid aller Fahrer mit Online/Offline-Status */}
+              {locationId && <DriverOnlineStatusBoard locationId={locationId} />}
               {/* Phase 397: Schicht-Ertrags-Cockpit — Live Umsatz/Ziel-Fortschritt, €/Fahrer, Stornoquote */}
               {locationId && <SchichtErtragsCockpit locationId={locationId} />}
               {/* Phase 395: Schicht-Statistik-Hub — Kompaktes KPI-Dashboard mit Trend-Pfeilen: Umsatz, Bestellungen, Lieferzeit, Pünktlichkeit */}

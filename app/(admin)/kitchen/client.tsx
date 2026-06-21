@@ -162,6 +162,7 @@ import { KitchenFlowKoordinator } from './flow-koordinator';
 import { KitchenQueueCountdownBoard } from './queue-countdown-board';
 import { KitchenEchtzeitAmpelBoard } from './echtzeit-ampel-board';
 import { KitchenEchtzeitBatchStatusBoard } from './echtzeit-batch-status-board';
+import { KitchenSchichtFertigQuote } from './schicht-fertig-quote';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -859,6 +860,8 @@ export function KitchenBoard({
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Phase 397: Echtzeit-Batch-Status-Board — Live-Übersicht aller aktiven Batches mit Urgency-Farbkodierung und ausstehenden Bestellungen */}
       <KitchenEchtzeitBatchStatusBoard batches={batches as any} orders={filtered as any} />
+      {/* Phase 394: Schicht-Fertig-Quote — Anteil fertige Bestellungen der aktuellen Schicht */}
+      <KitchenSchichtFertigQuote locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Batch-Timing-Koordinator: Bestellungen gruppiert nach Fahrer-Batch mit ETA-Countdown und Urgency-Farbkodierung */}
       <KitchenBatchTimingKoordinator orders={filtered} batches={batches.map(b => ({ ...b, fahrer_id: b.driver_id, startzeit: (b as any).started_at ?? null, fahrer: (b as any).fahrer ?? null, stops: stops.filter((s) => (s as any).batch_id === b.id) }))} timings={timings} />
       {/* Phase 360: Multi-Batch-Abholplan — Parallele Fahrer-Abholungen koordinieren + Kollisions-Warnung */}

@@ -152,6 +152,7 @@ import { FahrerAktuellerStoppCard } from './aktueller-stopp-card';
 import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
 import { TourNavigationsKompass } from './tour-navigations-kompass';
 import { TourStoppSequenzBoard } from './tour-stopp-sequenz-board';
+import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
 
 type Driver = {
   id: string;
@@ -1553,6 +1554,16 @@ export function FahrerApp({
               <TourStoppSequenzBoard
                 stops={activeBatch.stops as any}
                 currentStopIndex={activeBatch.stops.findIndex((s: any) => !s.geliefert_am)}
+              />
+            </div>
+          )}
+          {/* Phase 394: Tour-Zeitfenster-Ampel — Verkehrsampel ob Fahrer im Zeitplan liegt */}
+          {(activeBatch as any).total_eta_min && activeBatch.started_at && (
+            <div className="px-4">
+              <TourZeitfensterAmpel
+                batchId={activeBatch.id}
+                totalEtaMin={(activeBatch as any).total_eta_min ?? 60}
+                startedAt={activeBatch.started_at}
               />
             </div>
           )}
