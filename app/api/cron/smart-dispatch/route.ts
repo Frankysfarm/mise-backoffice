@@ -145,7 +145,7 @@ import { processDeliveryEngagementAllLocations, computeWeeklyLeaderboardAllLocat
 import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/delivery/tour-profit';
 import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
-import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations } from '@/lib/delivery/zone-difficulty';
+import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations, snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily } from '@/lib/delivery/zone-difficulty';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1189,6 +1189,17 @@ export async function GET(req: NextRequest) {
     const zoneDiffResult = zoneDifficultyResult.status === 'fulfilled' ? zoneDifficultyResult.value : null;
     const fbPushResult   = feedbackPushResult.status === 'fulfilled'   ? feedbackPushResult.value   : null;
 
+    // Phase 357: Zone Difficulty Daily Snapshot — täglich 01:44 UTC; Prune täglich 07:01 UTC
+    const isZoneDiffDailySnapshotTick = nowHour === 1 && nowMin >= 44 && nowMin < 48;
+    const isZoneDiffDailyPruneTick    = nowHour === 7 && nowMin >= 1  && nowMin < 5;
+
+    const zoneDiffDailySnapshotResult = isZoneDiffDailySnapshotTick
+      ? await snapshotZoneDifficultyDailyAllLocations().catch(() => null)
+      : null;
+    const zoneDiffDailyPruned = isZoneDiffDailyPruneTick
+      ? await pruneZoneDifficultyDaily(90).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1433,6 +1444,8 @@ export async function GET(req: NextRequest) {
       ...(tourFeedbackPruned !== null ? { tour_feedback_pruned: tourFeedbackPruned } : {}),
       ...(zoneDiffResult?.zones ? { zone_difficulty_cache: { locations: zoneDiffResult.locations, zones: zoneDiffResult.zones, errors: zoneDiffResult.errors } } : {}),
       ...(fbPushResult?.sent ? { feedback_pushes_sent: { locations: fbPushResult.locations, sent: fbPushResult.sent } } : {}),
+      ...(zoneDiffDailySnapshotResult?.saved ? { zone_difficulty_daily_snapshot: { locations: zoneDiffDailySnapshotResult.locations, saved: zoneDiffDailySnapshotResult.saved } } : {}),
+      ...(zoneDiffDailyPruned?.pruned ? { zone_difficulty_daily_pruned: zoneDiffDailyPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

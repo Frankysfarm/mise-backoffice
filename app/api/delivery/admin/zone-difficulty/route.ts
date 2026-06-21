@@ -2,9 +2,10 @@
  * GET /api/delivery/admin/zone-difficulty
  *   ?action=cache     — aktueller Cache für alle Zonen
  *   ?action=modifiers — Dispatch-Modifikatoren (stopCount + detour)
+ *   ?action=history&days=30 — Tages-Snapshots für Trend-Chart
  * POST /api/delivery/admin/zone-difficulty
  *   { action: 'refresh', days?: number }  — Cache neu berechnen
- *   { action: 'prune',   days?: number }  — Alte Einträge löschen
+ *   { action: 'snapshot' }                — Tages-Snapshot jetzt schreiben
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -12,6 +13,8 @@ import {
   getZoneDifficultyCache,
   getZoneDifficultyModifiers,
   refreshZoneDifficultyCache,
+  getZoneDifficultyHistory,
+  snapshotZoneDifficultyDaily,
 } from '@/lib/delivery/zone-difficulty';
 
 export const runtime = 'nodejs';
@@ -41,11 +44,18 @@ export async function GET(req: NextRequest) {
   const locationId = await resolveLocationId(req);
   if (!locationId) return NextResponse.json({ error: 'Kein Standort zugeordnet' }, { status: 400 });
 
-  const action = new URL(req.url).searchParams.get('action') ?? 'cache';
+  const url = new URL(req.url);
+  const action = url.searchParams.get('action') ?? 'cache';
 
   if (action === 'modifiers') {
     const modifiers = await getZoneDifficultyModifiers(locationId);
     return NextResponse.json({ ok: true, locationId, modifiers });
+  }
+
+  if (action === 'history') {
+    const days = Math.min(Number(url.searchParams.get('days') ?? 30), 90);
+    const history = await getZoneDifficultyHistory(locationId, days);
+    return NextResponse.json({ ok: true, locationId, days, history });
   }
 
   const cache = await getZoneDifficultyCache(locationId);
@@ -66,6 +76,11 @@ export async function POST(req: NextRequest) {
   if (action === 'refresh') {
     const days = typeof body.days === 'number' ? body.days : 14;
     const result = await refreshZoneDifficultyCache(locationId, days);
+    return NextResponse.json({ ok: true, ...result });
+  }
+
+  if (action === 'snapshot') {
+    const result = await snapshotZoneDifficultyDaily(locationId);
     return NextResponse.json({ ok: true, ...result });
   }
 

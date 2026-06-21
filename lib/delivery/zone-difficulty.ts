@@ -271,3 +271,111 @@ export async function checkFeedbackPushesAllLocations(): Promise<{
   }
   return { locations: (locs ?? []).length, sent, errors };
 }
+
+// ── Zone Difficulty History ───────────────────────────────────────────────────
+
+export interface ZoneDifficultyDailyRow {
+  zone: string;
+  snapshot_date: string;
+  avg_difficulty: number;
+  avg_traffic: number;
+  issue_rate_parking: number;
+  issue_rate_nav: number;
+  issue_rate_address: number;
+  stop_count_modifier: number;
+  detour_modifier: number;
+  sample_count: number;
+}
+
+/**
+ * Schreibt den aktuellen zone_difficulty_cache als Tages-Snapshot in zone_difficulty_daily.
+ * Idempotent: bei Wiederholung wird upserted.
+ */
+export async function snapshotZoneDifficultyDaily(
+  locationId: string,
+): Promise<{ saved: number }> {
+  const svc = createServiceClient();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: cache } = await svc
+    .from('zone_difficulty_cache')
+    .select('zone, avg_difficulty, avg_traffic, issue_rate_parking, issue_rate_nav, issue_rate_address, stop_count_modifier, detour_modifier, sample_count')
+    .eq('location_id', locationId);
+
+  if (!cache || cache.length === 0) return { saved: 0 };
+
+  const rows = (cache as ZoneDifficultyCacheRow[]).map((c) => ({
+    location_id:         locationId,
+    zone:                c.zone,
+    snapshot_date:       today,
+    avg_difficulty:      c.avg_difficulty,
+    avg_traffic:         c.avg_traffic,
+    issue_rate_parking:  c.issue_rate_parking,
+    issue_rate_nav:      c.issue_rate_nav,
+    issue_rate_address:  c.issue_rate_address,
+    stop_count_modifier: c.stop_count_modifier,
+    detour_modifier:     c.detour_modifier,
+    sample_count:        c.sample_count,
+  }));
+
+  const { error } = await svc
+    .from('zone_difficulty_daily')
+    .upsert(rows, { onConflict: 'location_id,zone,snapshot_date' });
+
+  if (error && !error.message.includes('zone_difficulty_daily')) {
+    console.warn('[zone-difficulty] snapshotDaily error:', error.message);
+  }
+  return { saved: error ? 0 : rows.length };
+}
+
+export async function snapshotZoneDifficultyDailyAllLocations(): Promise<{
+  locations: number; saved: number; errors: number;
+}> {
+  const svc = createServiceClient();
+  const { data: locs } = await svc.from('locations').select('id').eq('is_active', true);
+  let saved = 0, errors = 0;
+  const results = await Promise.allSettled(
+    (locs ?? []).map((l) => snapshotZoneDifficultyDaily(l.id as string)),
+  );
+  for (const r of results) {
+    if (r.status === 'fulfilled') saved += r.value.saved;
+    else errors++;
+  }
+  return { locations: (locs ?? []).length, saved, errors };
+}
+
+/**
+ * Liest historische Tages-Snapshots für alle Zonen einer Location.
+ * Graceful fallback auf [] wenn Tabelle noch nicht migriert.
+ */
+export async function getZoneDifficultyHistory(
+  locationId: string,
+  days = 30,
+): Promise<ZoneDifficultyDailyRow[]> {
+  try {
+    const svc = createServiceClient();
+    const since = new Date();
+    since.setUTCDate(since.getUTCDate() - days);
+
+    const { data } = await svc
+      .from('zone_difficulty_daily')
+      .select('zone, snapshot_date, avg_difficulty, avg_traffic, issue_rate_parking, issue_rate_nav, issue_rate_address, stop_count_modifier, detour_modifier, sample_count')
+      .eq('location_id', locationId)
+      .gte('snapshot_date', since.toISOString().slice(0, 10))
+      .order('snapshot_date', { ascending: true });
+
+    return (data ?? []) as ZoneDifficultyDailyRow[];
+  } catch {
+    return [];
+  }
+}
+
+export async function pruneZoneDifficultyDaily(daysToKeep = 90): Promise<{ pruned: number }> {
+  try {
+    const svc = createServiceClient();
+    const { data } = await svc.rpc('prune_zone_difficulty_daily', { days_to_keep: daysToKeep });
+    return { pruned: (data as number | null) ?? 0 };
+  } catch {
+    return { pruned: 0 };
+  }
+}

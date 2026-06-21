@@ -12038,3 +12038,62 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 1. Phase 357: 5 neue Delivery-Komponenten
 2. `/delivery/zone-difficulty` Dashboard: LineChart-Verlauf (Recharts) — Schwierigkeit über Zeit
 3. `/delivery/tour-feedback` Dashboard: ebenfalls Verlaufs-Chart ergänzen
+
+---
+
+## CEO-Review #196 — 2026-06-21
+
+### Geprüfte Phasen: Phase 357 (Zone Difficulty History + Driver Score UI)
+
+**Build-Status:**
+- `node_modules/.bin/next build`: ✓ Compiled successfully (350 Seiten, 0 Fehler) ✅
+
+**Phase 357 — geprüfte Komponenten:**
+
+**Migration `173_zone_difficulty_history.sql`:**
+- `zone_difficulty_daily` UNIQUE(location_id, zone, snapshot_date) ✅
+- `prune_zone_difficulty_daily(days_to_keep)` RPC ✅
+- `v_zone_difficulty_trend_30d` VIEW ✅
+
+**`lib/delivery/zone-difficulty.ts`:**
+- `snapshotZoneDifficultyDaily(locationId)`: graceful fallback bei fehlender Tabelle ✅
+- `snapshotZoneDifficultyDailyAllLocations()`: Promise.allSettled korrekt ✅
+- `getZoneDifficultyHistory(locationId, days)`: try/catch graceful fallback auf [] ✅
+- `pruneZoneDifficultyDaily(daysToKeep)`: via RPC ✅
+
+**`app/api/delivery/admin/zone-difficulty/route.ts`:**
+- GET `?action=history&days=30` → korrekt delegiert an `getZoneDifficultyHistory` ✅
+- POST `action=snapshot` → `snapshotZoneDifficultyDaily` ✅
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `isZoneDiffDailySnapshotTick` 01:44 UTC täglich ✅
+- `isZoneDiffDailyPruneTick` 07:01 UTC täglich ✅
+- Import korrekt: `snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily` ✅
+
+**5 Frontend-Komponenten Phase 357:**
+- `KitchenDriverScoreStrip`: 5-Min-Polling, nur sichtbar bei vorhandenen Scores, korrekte Integration kitchen/client.tsx ✅
+- `ZoneDifficultyTrendChart`: Recharts LineChart 14 Tage, collapsible, 10-Min-Polling, dispatch/client.tsx korrekt ✅
+- `FahrerMeineScoreKarte`: Score + Grade + Rang, 10-Min-Polling, fahrer/app/client.tsx ✅
+- `LieferdienstFahrerScoreRangliste`: Top-5 Ranking, Score-Balken, Grade-Badges, lieferdienst/client.tsx ✅
+- `ZoneDifficultyClient` Update: Tab "Aktuell"/"Verlauf", Zeitraum-Selektor, Recharts LineChart 4 Linien, Leer-Zustand-Handling ✅
+
+**Bugs gefunden + gefixt: 0**
+- Kein einziger Bug. Alle Integrationen vollständig.
+
+### Status nach Review #196
+- TypeScript: 0 neue Fehler (pre-existing tsconfig-Fehler unverändert) ✅
+- Build: Compiled successfully ✅ (350 Seiten)
+- Phase 357: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Zone-Difficulty-History-Loop: Cache → Daily-Snapshot → LineChart-Verlauf ✅
+- `/api/delivery/dispatch/scores`: Live-Daten korrekt (kein Mock mehr) ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 358: Driver-Score-Verlauf — wöchentliche Composite-Score-Snapshots in eigene History-Tabelle (analog zone_difficulty_daily) für Fahrer-Trend-Charts
+2. Phase 358: Dispatch-Engine Feedback-Integration — tour_feedback.overall_score in computeAndSaveScoresForLocation() einfließen lassen
+3. Phase 358: `/delivery/driver-score` Admin-Seite mit Wochen-Score-Verlauf + Recharts LineChart
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 358: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Lieferdienst + Tracking)
+2. `/delivery/tour-feedback` Dashboard: LineChart-Verlauf (Recharts) — Fahrer-Bewertungen über Zeit
+

@@ -120,6 +120,7 @@ import { FahrerTourNavigatorPro } from './tour-navigator-pro';
 import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
 import { TourStartFeedbackReminder } from './tour-start-feedback-reminder';
+import { FahrerMeineScoreKarte } from './meine-score-karte';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 
@@ -1764,6 +1765,8 @@ export function FahrerApp({
               driverId={driver?.id ?? null}
             />
           )}
+          {/* Phase 357: Meine Score-Karte — eigener wöchentlicher Composite-Score und Rang */}
+          <FahrerMeineScoreKarte />
           {/* Phase 356: Tour-Start-Feedback-Reminder — Erinnerung am Tourstart, Feedback zu geben */}
           <TourStartFeedbackReminder
             batchId={activeBatch.id}

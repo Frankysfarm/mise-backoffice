@@ -5843,3 +5843,62 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 2. Supabase Realtime payload Typ in eta-live-countdown-v2.tsx ✅
 
 - Build: npx next build ✓ (348 Seiten), 0 TypeScript-Fehler
+
+---
+
+## Phase 357 — Zone Difficulty History + Driver Score UI (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`scripts/migrations/173_zone_difficulty_history.sql`:**
+- `zone_difficulty_daily` — Tages-Snapshots von zone_difficulty_cache für Trend-Analyse; UNIQUE(location_id, zone, snapshot_date); 2 Indexes; RLS service_role
+- `prune_zone_difficulty_daily(days_to_keep)` RPC — Cleanup alter Snapshots
+- `v_zone_difficulty_trend_30d` VIEW — 30-Tage-Trend-View für schnelle Dashboard-Abfragen
+
+**`lib/delivery/zone-difficulty.ts`** — Neue Funktionen (Phase 357):
+- `snapshotZoneDifficultyDaily(locationId)` → `{ saved }` — Schreibt aktuellen zone_difficulty_cache als Tages-Snapshot; idempotent via upsert
+- `snapshotZoneDifficultyDailyAllLocations()` → `{ locations, saved, errors }` — Cron-Wrapper für alle aktiven Standorte
+- `getZoneDifficultyHistory(locationId, days)` → `ZoneDifficultyDailyRow[]` — Liest historische Snapshots für LineChart; graceful fallback auf [] wenn Tabelle fehlt
+- `pruneZoneDifficultyDaily(daysToKeep)` → `{ pruned }` — via RPC
+
+**`app/api/delivery/admin/zone-difficulty/route.ts`** — Erweitert:
+- GET `?action=history&days=30` → Historische Tages-Snapshots (neu)
+- POST `action=snapshot` → Manueller Snapshot auslösen (neu)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `snapshotZoneDifficultyDailyAllLocations()` täglich 01:44 UTC (`isZoneDiffDailySnapshotTick`)
+- `pruneZoneDifficultyDaily(90)` täglich 07:01 UTC (`isZoneDiffDailyPruneTick`)
+
+**5 Frontend-Komponenten Phase 357:**
+
+**`app/(admin)/kitchen/driver-score-strip.tsx`** — `KitchenDriverScoreStrip`
+- Kompakter Strip: Top-3 Fahrer-Dispatch-Scores mit Farbkodierung (grün/amber/rot)
+- Amber-Warnung wenn Fahrer unter 70 Punkte; nur sichtbar wenn Scores vorhanden
+- 5-Min-Polling via `/api/delivery/dispatch/scores`
+- Integration: `kitchen/client.tsx` nach `<KitchenZoneSchwierigkeitsStrip />`
+
+**`app/(admin)/dispatch/zone-difficulty-trend.tsx`** — `ZoneDifficultyTrendChart`
+- Recharts LineChart: 4 Linien (Zone A/B/C/D) avg_difficulty über 14 Tage
+- Collapsible, X-Achse: Datum, Y-Achse: Schwierigkeit 0–5; 10-Min-Polling
+- Integration: `dispatch/client.tsx` nach `<ZoneDifficultyDispatchPanel />`
+
+**`app/fahrer/app/meine-score-karte.tsx`** — `FahrerMeineScoreKarte`
+- Eigener wöchentlicher Composite-Score: Zahl + Score-Balken + Grade-Badge + Rang im Team
+- Farbkodierung A+/A/B/C/D; 10-Min-Polling via `/api/delivery/driver/my-performance`
+- Integration: `fahrer/app/client.tsx` vor `<TourStartFeedbackReminder />`
+
+**`app/(admin)/lieferdienst/fahrer-score-rangliste.tsx`** — `LieferdienstFahrerScoreRangliste`
+- Top-5 Fahrer-Score-Rangliste (wöchentlicher Composite Score)
+- Rang-Badges (Gold/Silber/Bronze), Score-Balken, Grade-Badge; 10-Min-Polling
+- Integration: `lieferdienst/client.tsx` nach `<LieferdienstZoneDifficultyKarte />`
+
+**`app/(admin)/delivery/zone-difficulty/client.tsx`** — Phase 357 Update
+- +Tab-Navigation: "Aktuell" (bestehend) | "Verlauf 30 Tage" (neu)
+- Verlauf-Tab: Zeitraum-Selektor (14/30/60/90 Tage), Recharts LineChart (4 Zone-Linien)
+- Grüner Leer-Zustand mit Cron-Info wenn noch keine Snapshots vorhanden
+- Zone-Legende (4 Farbkarten unten)
+
+- Build: node_modules/.bin/next build ✓ (350 Seiten, 0 Fehler)
+
