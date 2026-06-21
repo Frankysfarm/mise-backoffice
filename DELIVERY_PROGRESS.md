@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–372 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–373 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 373 (2026-06-21): Backend — /api/delivery/admin/stats?period=today umfassender Tages-KPI-Handler. Beendet Mock-Fallback in 5 Komponenten (LieferdienstStundenEffizienzMatrix, SchichtLeistungsRadar, SchichtEchtzeitBilanz, SchnellStatistikPanel, SchichtDeltaVergleich). Liefert hourly_volume[], avg_delivery_min, on_time_rate/pct, active_drivers, orders_per_hour, stops_per_hour, topZone, peakHour, revenue, revenue_prev, orders_prev, pendingOrders, cancelledOrders, avgOrderValue. Migration 178: delivery_zone-Spalte auf orders-Tabelle (idempotent). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 372 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenFertigAufAbholung (Wartezeit fertige Bestellungen auf Fahrer, grün/amber/rot), DispatchFahrerLastenverteilung (Balkendiagramm verbleibende Stopps + Ungleichgewicht-Warnung), FahrerTourZeitplanLive (Soll/Ist-Vergleich Stopp+Zeit, Im Plan/Knapp/Rückstand), BestellZeitSeitBestellung (Live-Uhr seit Bestellaufgabe auf Erfolgsseite), LieferdienstAktuelleTouren (Live-Tourübersicht 2-Min-Polling). CEO Review #204: 1 Bug gefixt (Endlos-Spinner wenn locationId=null). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -6239,3 +6241,39 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 
 - Build: node_modules/.bin/next build ✓ (350 Seiten, 0 Fehler)
 
+
+---
+
+## Phase 373 — Backend: /api/delivery/admin/stats?period=today (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Problem
+5 Lieferdienst-Komponenten fielen auf Mock-Daten zurück, weil `/api/delivery/admin/stats?period=today` nur `action=storno_quote` kannte und 400 zurückgab.
+
+### Implementiert
+
+**`scripts/migrations/178_orders_delivery_zone.sql`:**
+- `ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_zone TEXT` — idempotent via DO-Block
+- Index `idx_orders_delivery_zone_today` für Zone-Umsatz-Abfragen (nur angelegt wenn Tabelle + Spalte vorhanden)
+
+**`app/api/delivery/admin/stats/route.ts`** — `period=today`-Handler (neu):
+- Parallele Queries: `customer_orders` (heute + gestern), `delivery_performance` (avg_min + on_time), `mise_drivers` (is_online count)
+- `hourly_volume: { hour, count }[]` — stündliche Bestellzählungen für LieferdienstStundenEffizienzMatrix
+- Vollständige KPI-Palette (snake_case + camelCase-Aliase für alle Konsumenten):
+  - `total_orders`, `delivered_orders`, `cancelled_orders`, `pending_orders`
+  - `revenue`, `revenue_prev`, `orders_prev`
+  - `avg_delivery_min`, `on_time_rate`, `on_time_pct`
+  - `active_drivers`, `orders_per_hour`, `stops_per_hour`
+  - `topZone`, `peakHour`, `avgOrderValue`
+  - `orders`, `deliveries`, `revenue_eur`, `activeDrivers`, `avgDeliveryMin`, `onTimeRatePct`, `pendingOrders`, `cancelledOrders`
+  - `schicht_revenue`, `schicht_orders` (gleitende 8h-Schicht)
+
+### Komponenten die jetzt Echtdaten bekommen (Mock-Fallback entfällt):
+1. `LieferdienstStundenEffizienzMatrix` — nutzt `hourly_volume` + `avg_delivery_min`
+2. `SchichtLeistungsRadar` — nutzt `on_time_rate`, `stops_per_hour`, `deliveries`, `revenue_eur`
+3. `SchichtEchtzeitBilanz` — nutzt `revenue`, `orders`, `deliveries`, `activeDrivers`, etc.
+4. `LieferdienstSchnellStatistikPanel` — nutzt `total_orders`, `revenue`, `avg_delivery_min`, etc.
+5. `SchichtDeltaVergleich` — nutzt `/api/delivery/admin/overview` (separates Endpoint, weiterhin OK)
+
+- Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
