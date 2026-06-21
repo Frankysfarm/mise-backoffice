@@ -33,6 +33,7 @@ import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-pro
 import { SseTrackingLive } from './sse-tracking-live';
 import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-card';
 import { BestellEtaQualitaetsAmpel } from '@/app/order/[locationSlug]/bestell-eta-qualitaets-ampel';
+import { DriverVertrauensBadge } from '@/app/order/[locationSlug]/components/driver-vertrauens-badge';
 import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-status-mini-tracker';
 import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wartezeit-ring';
 import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdown-v2';
@@ -803,6 +804,11 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
         {/* Liefer-Warteschlange: visueller Stop-Indikator wenn Fahrer unterwegs */}
         {order.status === 'unterwegs' && stopsBefore != null && stopsBefore > 0 && (
           <DeliveryQueueCard stopsBefore={stopsBefore} etaEarliest={order.eta_earliest} etaLatest={order.eta_latest} />
+        )}
+
+        {/* Phase 359: Driver-Vertrauens-Badge — Trust-Signal für A/A+ Fahrer */}
+        {isDelivery && order.fahrer_id && (
+          <DriverVertrauensBadge driverName={order.fahrer_vorname} driverId={order.fahrer_id} />
         )}
 
         {/* Fahrer zugewiesen — Essen wird gerade abgeholt */}

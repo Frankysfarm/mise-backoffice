@@ -170,6 +170,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Fahrer bewerten abgeschlossene Touren · Schwierigkeit, Verkehr, Kundeninteraktion · Issue-Tracking · 30-Tage-Dashboard" cta="Feedback ansehen" highlight />
         <SectionCard href="/delivery/zone-difficulty" icon={<MapPin className="h-5 w-5" />} title="Zonen-Schwierigkeit"
           subtitle="Feedback-basierte Dispatch-Modifikatoren · Bundle-Kapazität & Detour-Toleranz je Zone · Stündlicher Cache-Refresh" cta="Analyse öffnen" highlight />
+        <SectionCard href="/delivery/driver-score" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer Score-Verlauf"
+          subtitle="Wöchentlicher Composite-Score + Feedback-Integration" cta="Score-Verlauf öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

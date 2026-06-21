@@ -146,6 +146,7 @@ import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/
 import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
 import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations, snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily } from '@/lib/delivery/zone-difficulty';
+import { snapshotDriverScoreHistoryAllLocations, pruneDriverScoreHistory } from '@/lib/delivery/driver-score';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -685,6 +686,16 @@ export async function GET(req: NextRequest) {
     const driverScoreResult = isReportTick
       ? await computeDriverScoresAllLocations('week').catch(() => ({ locations: 0, computed: 0, errors: 1 }))
       : null;
+
+    // Phase 359: Driver Score History Snapshot — täglich 02:50 UTC
+    const isDriverScoreSnapshotTick = nowHour === 2 && nowMin >= 50 && nowMin < 52;
+    const isDriverScoreHistoryPruneTick = nowHour === 7 && nowMin >= 10 && nowMin < 12;
+    const driverScoreHistorySnapshotResult = isDriverScoreSnapshotTick
+      ? await snapshotDriverScoreHistoryAllLocations().catch(() => null)
+      : null;
+    if (isDriverScoreHistoryPruneTick) {
+      pruneDriverScoreHistory(365).catch(() => {});
+    }
 
     // Phase 206: Network Health Snapshots — alle 30 Min (isDemandTick)
     const networkHealthResult = isDemandTick

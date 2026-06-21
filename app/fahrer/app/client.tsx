@@ -121,6 +121,7 @@ import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
 import { TourStartFeedbackReminder } from './tour-start-feedback-reminder';
 import { FahrerMeineScoreKarte } from './meine-score-karte';
+import { FahrerScoreVerlaufChart } from './score-verlauf-chart';
 import { FahrerPeakTagHinweis } from './peak-tag-hinweis';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
@@ -1768,6 +1769,8 @@ export function FahrerApp({
           )}
           {/* Phase 357: Meine Score-Karte — eigener wöchentlicher Composite-Score und Rang */}
           <FahrerMeineScoreKarte />
+          {/* Phase 359: Score-Verlauf-Chart — 8-Wochen persönlicher Score-Verlauf */}
+          <FahrerScoreVerlaufChart />
           {/* Phase 358: Peak-Tag-Hinweis — Vorschau nächster Spitzentage mit Einnahmen-Tipp */}
           <FahrerPeakTagHinweis />
           {/* Phase 356: Tour-Start-Feedback-Reminder — Erinnerung am Tourstart, Feedback zu geben */}

@@ -2,14 +2,16 @@
  * lib/delivery/driver-score.ts
  *
  * Phase 205 — Driver Composite Performance Score Engine
+ * Phase 359 — Driver Score History + Tour Feedback Integration
  *
- * Berechnet einen gewichteten 0–100-Score für jeden Fahrer aus 6 Faktoren:
+ * Berechnet einen gewichteten 0–100-Score für jeden Fahrer aus 7 Faktoren:
  *  1. f_punctuality  (0–30) — On-Time-Rate der letzten N Tage
  *  2. f_rating       (0–25) — Kundenbewertung (avg_rating 1–5)
  *  3. f_efficiency   (0–15) — km pro Lieferung (niedrig = effizient)
  *  4. f_reliability  (0–15) — Schicht-Zuverlässigkeits-Score aus driver_reliability_scores
  *  5. f_activity     (0–10) — Aktive Minuten pro Schicht-Tag
  *  6. f_volume       (0–5)  — Durchschnittliche Stops pro aktivem Tag
+ *  7. f_feedback     (0–5)  — Kunden-Feedback aus tour_feedback (avg customer_rating)
  *
  * Grade-Mapping:
  *  ≥90 → A+, ≥75 → A, ≥60 → B, ≥45 → C, <45 → D
@@ -20,6 +22,10 @@
  *  computeScoresAllLocations()     — Cron-Wrapper
  *  getScoreLeaderboard()           — Rangliste mit Scores laden
  *  getDriverScoreDetail()          — Faktor-Aufschlüsselung für einen Fahrer
+ *  snapshotDriverScoreHistory()    — Wöchentlicher Snapshot in driver_score_history
+ *  snapshotDriverScoreHistoryAllLocations() — Cron-Wrapper für History-Snapshots
+ *  getDriverScoreHistory()         — History-Daten laden
+ *  pruneDriverScoreHistory()       — Alte History-Einträge löschen
  */
 import 'server-only';
 import { createServiceClient } from '@/lib/supabase/server';
@@ -42,6 +48,7 @@ export interface CompositeScoreResult {
   fReliability: number;     // 0–15
   fActivity: number;        // 0–10
   fVolume: number;          // 0–5
+  fFeedback: number;        // 0–5
   dataPoints: number;
 }
 
@@ -60,6 +67,7 @@ export interface ScoreLeaderboardEntry {
   fReliability: number;
   fActivity: number;
   fVolume: number;
+  fFeedback: number;
   dataPoints: number;
   periodStart: string;
 }
@@ -145,6 +153,15 @@ function scoreVolume(avgStopsPerDay: number | null): number {
 }
 
 /**
+ * Berechnet den Feedback-Faktor (0–5) aus dem Kunden-Rating in tour_feedback.
+ * 5.0 → 5, 1.0 → 0 (linear)
+ */
+function scoreFeedback(avgCustomerRating: number | null): number {
+  const r = avgCustomerRating ?? 4.0;
+  return Math.round(Math.min(5, Math.max(0, ((r - 1) / 4) * 5)) * 100) / 100;
+}
+
+/**
  * Berechnet den Composite Score für einen Fahrer aus seinen Performance-Snapshots.
  */
 export async function computeDriverScore(
@@ -224,6 +241,22 @@ export async function computeDriverScore(
     .maybeSingle();
   if (relRow) reliabilityScore = Number((relRow as Record<string, unknown>).score);
 
+  // ── 3b. Feedback-Score aus tour_feedback ─────────────────────────────────────
+  let avgCustomerFeedbackRating: number | null = null;
+  try {
+    const { data: fbRows } = await sb
+      .from('tour_feedback')
+      .select('customer_rating')
+      .eq('driver_id', driverId)
+      .eq('location_id', locationId)
+      .gte('submitted_at', sinceStr)
+      .not('customer_rating', 'is', null);
+    const fbVals = (fbRows ?? []).map((r: { customer_rating: number | null }) => Number(r.customer_rating)).filter((v: number) => v > 0);
+    if (fbVals.length > 0) {
+      avgCustomerFeedbackRating = fbVals.reduce((a: number, b: number) => a + b, 0) / fbVals.length;
+    }
+  } catch { /* graceful: tour_feedback may not exist */ }
+
   // ── 4. Faktoren berechnen ───────────────────────────────────────────────────
   const fPunctuality = scorePunctuality(onTimeRateAvg);
   const fRating      = scoreRating(avgRating);
@@ -231,10 +264,11 @@ export async function computeDriverScore(
   const fReliability = scoreReliability(reliabilityScore);
   const fActivity    = scoreActivity(avgActiveMinPerDay);
   const fVolume      = scoreVolume(avgStopsPerDay);
+  const fFeedback    = scoreFeedback(avgCustomerFeedbackRating);
 
-  const compositeScore = Math.round(
-    (fPunctuality + fRating + fEfficiency + fReliability + fActivity + fVolume) * 100
-  ) / 100;
+  const compositeScore = Math.min(100, Math.round(
+    (fPunctuality + fRating + fEfficiency + fReliability + fActivity + fVolume + fFeedback) * 100
+  ) / 100);
 
   const grade = gradeFromScore(compositeScore);
 
@@ -254,6 +288,7 @@ export async function computeDriverScore(
       f_reliability:   fReliability,
       f_activity:      fActivity,
       f_volume:        fVolume,
+      f_feedback:      fFeedback,
       data_points:     dataPoints,
       computed_at:     new Date().toISOString(),
     } as Record<string, unknown>, { onConflict: 'driver_id,location_id,period,period_start' });
@@ -277,6 +312,7 @@ export async function computeDriverScore(
     fReliability,
     fActivity,
     fVolume,
+    fFeedback,
     dataPoints,
   };
 }
@@ -453,6 +489,9 @@ async function enrichWithNames(
     }
   }
 
+  // suppress unused parameter warning — period is kept for future use
+  void period;
+
   return rows.map((r) => {
     const driverId  = r.driver_id as string;
     const authId    = authIdMap.get(driverId) ?? null;
@@ -477,6 +516,7 @@ async function enrichWithNames(
       fReliability:   Number(r.f_reliability ?? 0),
       fActivity:      Number(r.f_activity ?? 0),
       fVolume:        Number(r.f_volume ?? 0),
+      fFeedback:      Number(r.f_feedback ?? 0),
       dataPoints:     Number(r.data_points ?? 0),
       periodStart:    r.period_start as string ?? '',
     } satisfies ScoreLeaderboardEntry;
@@ -523,6 +563,147 @@ export async function getDriverScoreDetail(
     fReliability:   Number(r.f_reliability),
     fActivity:      Number(r.f_activity),
     fVolume:        Number(r.f_volume),
+    fFeedback:      Number(r.f_feedback ?? 0),
     dataPoints:     Number(r.data_points),
   };
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+
+export interface DriverScoreHistoryRow {
+  id: string;
+  locationId: string;
+  driverId: string;
+  period: ScorePeriod;
+  periodStart: string;
+  compositeScore: number;
+  grade: ScoreGrade;
+  fPunctuality: number;
+  fRating: number;
+  fEfficiency: number;
+  fReliability: number;
+  fActivity: number;
+  fVolume: number;
+  fFeedback: number;
+  dataPoints: number;
+  snapshotAt: string;
+}
+
+export async function snapshotDriverScoreHistory(locationId: string): Promise<{ saved: number }> {
+  const sb = createServiceClient();
+
+  const { data: scores } = await sb
+    .from('driver_composite_scores')
+    .select('*')
+    .eq('location_id', locationId)
+    .eq('period', 'week');
+
+  if (!scores || scores.length === 0) return { saved: 0 };
+
+  let saved = 0;
+  for (const s of scores) {
+    const r = s as Record<string, unknown>;
+    const { error } = await sb
+      .from('driver_score_history')
+      .upsert({
+        location_id:    r.location_id,
+        driver_id:      r.driver_id,
+        period:         r.period ?? 'week',
+        period_start:   r.period_start,
+        composite_score: r.composite_score,
+        grade:          r.grade ?? 'D',
+        f_punctuality:  r.f_punctuality ?? 0,
+        f_rating:       r.f_rating ?? 0,
+        f_efficiency:   r.f_efficiency ?? 0,
+        f_reliability:  r.f_reliability ?? 0,
+        f_activity:     r.f_activity ?? 0,
+        f_volume:       r.f_volume ?? 0,
+        f_feedback:     r.f_feedback ?? 0,
+        data_points:    r.data_points ?? 0,
+        snapshot_at:    new Date().toISOString(),
+      } as Record<string, unknown>, { onConflict: 'location_id,driver_id,period,period_start' })
+      .catch(() => ({ error: null }));
+    if (!error) saved++;
+  }
+  return { saved };
+}
+
+export async function snapshotDriverScoreHistoryAllLocations(): Promise<{ locations: number; saved: number; errors: number }> {
+  const sb = createServiceClient();
+  const { data: locs } = await sb.from('locations').select('id').eq('active', true).limit(50);
+  if (!locs || locs.length === 0) return { locations: 0, saved: 0, errors: 0 };
+
+  let totalSaved = 0;
+  let totalErrors = 0;
+  await Promise.allSettled(
+    locs.map(async (loc: { id: string }) => {
+      try {
+        const r = await snapshotDriverScoreHistory(loc.id as string);
+        totalSaved += r.saved;
+      } catch {
+        totalErrors++;
+      }
+    }),
+  );
+  return { locations: locs.length, saved: totalSaved, errors: totalErrors };
+}
+
+export async function getDriverScoreHistory(
+  locationId: string,
+  weeks = 8,
+  driverIds?: string[],
+): Promise<DriverScoreHistoryRow[]> {
+  const sb = createServiceClient();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - weeks * 7);
+
+  try {
+    let query = sb
+      .from('driver_score_history')
+      .select('*')
+      .eq('location_id', locationId)
+      .eq('period', 'week')
+      .gte('period_start', since.toISOString().slice(0, 10))
+      .order('period_start', { ascending: true });
+
+    if (driverIds && driverIds.length > 0) {
+      query = query.in('driver_id', driverIds);
+    }
+
+    const { data, error } = await query.limit(500);
+    if (error) {
+      if (error.message.includes('driver_score_history')) return [];
+      return [];
+    }
+
+    return (data ?? []).map((r: Record<string, unknown>) => ({
+      id:             r.id as string,
+      locationId:     r.location_id as string,
+      driverId:       r.driver_id as string,
+      period:         (r.period as ScorePeriod) ?? 'week',
+      periodStart:    r.period_start as string,
+      compositeScore: Number(r.composite_score ?? 0),
+      grade:          (r.grade as ScoreGrade) ?? 'D',
+      fPunctuality:   Number(r.f_punctuality ?? 0),
+      fRating:        Number(r.f_rating ?? 0),
+      fEfficiency:    Number(r.f_efficiency ?? 0),
+      fReliability:   Number(r.f_reliability ?? 0),
+      fActivity:      Number(r.f_activity ?? 0),
+      fVolume:        Number(r.f_volume ?? 0),
+      fFeedback:      Number(r.f_feedback ?? 0),
+      dataPoints:     Number(r.data_points ?? 0),
+      snapshotAt:     r.snapshot_at as string,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function pruneDriverScoreHistory(daysToKeep = 365): Promise<number> {
+  try {
+    const { data } = await createServiceClient().rpc('prune_driver_score_history', { days_to_keep: daysToKeep });
+    return (data as number | null) ?? 0;
+  } catch {
+    return 0;
+  }
 }
