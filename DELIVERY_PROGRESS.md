@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–382 abgeschlossen. CEO Review #210 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–383 abgeschlossen. CEO Review #210 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 383 Backend (2026-06-21): Smart Shift Extension & Overtime Alert Engine. Migration 183: `shift_extension_requests` (UNIQUE shift_id+status-Index, status pending/approved/declined/expired, auto_detected-Flag, decided_by/decided_at, updated_at-Trigger), `driver_overtime_summary` (UNIQUE location_id+summary_date, affected_drivers, total/avg_overtime_min, extension_requests, approved_requests, estimated_cost_eur, updated_at-Trigger), RLS service_role full + authenticated read own location auf beiden Tabellen, `prune_shift_extension_requests(days_to_keep)` RPC, View `v_active_extension_requests`. `lib/delivery/shift-extension.ts`: `detectOvertimeRisk(locationId)` (findet Fahrer mit status=active in driver_shifts, planned_end ≤30 Min, + aktive Batch-Stops verbleibend), `autoDetectAndRequestExtensions(locationId)` (erstellt pending-Requests mit 20-Min-Standard-Verlängerung + Grund-Text), `autoDetectAllLocations()` (Cron-Batch, Promise.allSettled), `approveExtensionRequest(requestId, locationId, decidedBy?)` (setzt status=approved + verlängert planned_end auf driver_shifts), `declineExtensionRequest(requestId, locationId, decidedBy?)` (status=declined), `expireStaleRequests(locationId)` (pending-Requests >2h → expired), `recordDailyOvertimeSummary(locationId, date?)` (aggregiert abgeschlossene Schichten actual_end > planned_end + Requests des Tages, schätzt Kosten €12/h, UPSERT), `recordDailyOvertimeSummaryAllLocations()` (Cron-Batch), `getOvertimeDashboard(locationId)` (activeRisks + openRequests + todaySummary + last7DaysSummary + weeklyOvertimeMin + weeklyApprovedReqs), `pruneOldRequests(daysOld?)` (via RPC). API `/api/delivery/admin/shift-extension`: GET ?action=dashboard|risks|requests, POST action=approve|decline|detect|expire|snapshot|prune. Cron: jeden Tick `detectShiftExtensions()`, täglich 23:50 UTC `recordDailyOvertimeSummaryAllLocations()`, täglich 07:15 UTC `pruneShiftExtensionRequests(60)`. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 382 Frontend (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenKochzeitVerteilungsChart (Histogramm <5/5-10/10-15/15-20/20+ Min, Ø-Kochzeit, Schnelle-Küche-Indikator), DispatchTourFahrerSyncBoard (Sync-Status aller aktiven Fahrer: Voraus/Im Plan/Rückstand, Fortschrittsbalken, vergangene Zeit), StopDistanzInfo (GPS-Haversine-Entfernung + ETA zum nächsten Stopp, Google Maps Navi-Button, Urgency-Farbkodierung Fast da/Unterwegs/Weit), LiveStatusTimeline (Vertikale Milestone-Timeline Bestätigt→Zubereitung→Fertig→Unterwegs→Geliefert mit Supabase Realtime + Zeitstempeln), SchichtRenditeCockpit (4 KPIs Umsatz/Lieferungen/€ pro Lieferung/€ pro Fahrer-h, SLA-Ring, Trend vs. Gestern, 2-Min-Polling). CEO-Fix: 9 TypeScript-Fehler in pre-existing + Phase-382-Dateien gefixt (Recharts Formatter value: unknown, NonNullable für optionale Array-Props, payload: { new: Record<string, unknown> } für Supabase Realtime-Callbacks, keyof typeof für State-Style-Lookup, as unknown as Record<string, unknown>[] für Supabase-Cast). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -6461,6 +6463,41 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - Integration: `lieferdienst/client.tsx` nach `<SchichtROIPanel />`
 
 - Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 383 Backend — Smart Shift Extension & Overtime Alert Engine (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert
+
+**Migration 183 (`scripts/migrations/183_shift_extension_alerts.sql`):**
+- `shift_extension_requests`: status pending/approved/declined/expired, auto_detected-Flag, extra_minutes, reason, decided_by/decided_at, RLS service_role + authenticated read own location, `prune_shift_extension_requests(days_to_keep)` RPC, View `v_active_extension_requests`
+- `driver_overtime_summary`: UNIQUE(location_id, summary_date), affected_drivers, total/avg_overtime_min, extension_requests/approved_requests, estimated_cost_eur, updated_at-Trigger, RLS
+
+**`lib/delivery/shift-extension.ts`:**
+- `detectOvertimeRisk(locationId)` — Fahrer mit status=active + planned_end ≤30 Min + verbleibende Batch-Stops → OvertimeRisk[] mit minutesLeft + activeBatchId + hasOpenRequest
+- `autoDetectAndRequestExtensions(locationId)` — erstellt pending-Requests (20 Min Standard) mit Grund-Text, überspringt wenn already pending
+- `autoDetectAllLocations()` — Promise.allSettled Cron-Batch
+- `approveExtensionRequest(requestId, locationId, decidedBy?)` — status=approved + planned_end auf driver_shifts verlängern
+- `declineExtensionRequest(requestId, locationId, decidedBy?)` — status=declined
+- `expireStaleRequests(locationId)` — pending >2h → expired
+- `recordDailyOvertimeSummary(locationId, date?)` — actual_end > planned_end je abgeschlossener Schicht, Kosten-Schätzung €12/h, UPSERT UNIQUE
+- `recordDailyOvertimeSummaryAllLocations()` — Cron-Batch
+- `getOvertimeDashboard(locationId)` — activeRisks + openRequests + todaySummary + last7DaysSummary + weeklyOvertimeMin + weeklyApprovedReqs
+- `pruneOldRequests(daysOld?)` — via RPC prune_shift_extension_requests
+
+**API `app/api/delivery/admin/shift-extension/route.ts`:**
+- GET ?action=dashboard|risks|requests&location_id=...
+- POST action=approve|decline|detect|expire|snapshot|prune
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Jeden Tick: `detectShiftExtensions()` (autoDetectAllLocations)
+- Täglich 23:50 UTC: `recordDailyOvertimeSummaryAllLocations()`
+- Täglich 07:15 UTC: `pruneShiftExtensionRequests(60)`
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

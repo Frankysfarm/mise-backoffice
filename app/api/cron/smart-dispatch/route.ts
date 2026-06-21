@@ -154,6 +154,7 @@ import { snapshotHandoffRateDailyAllLocations, pruneHandoffRateDaily } from '@/l
 import { predictAllActiveTourEndsAllLocations, settleAllCompletedToursAllLocations, pruneTourEndPredictions } from '@/lib/delivery/tour-end-prediction';
 import { snapshotSchichtRoiDailyAllLocations, pruneSchichtRoiDaily } from '@/lib/delivery/schicht-roi-daily';
 import { snapshotCapacityAllLocations, pruneCapacityEvents } from '@/lib/delivery/driver-capacity-signal';
+import { autoDetectAllLocations as detectShiftExtensions, recordDailyOvertimeSummaryAllLocations, pruneOldRequests as pruneShiftExtensionRequests } from '@/lib/delivery/shift-extension';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -334,6 +335,9 @@ export async function GET(req: NextRequest) {
     const isSchichtRoiSnapshotTick = nowHour === 2 && nowMin >= 10 && nowMin < 14;
     const isSchichtRoiPruneTick    = nowHour === 7 && nowMin >= 10 && nowMin < 14;
     const isCapacityPruneTick      = nowHour === 3 && nowMin >= 30 && nowMin < 34;
+    // Phase 383: Shift Extension — auto-detect every tick; snapshot täglich 23:50 UTC; prune täglich 07:15 UTC
+    const isShiftExtensionSnapshotTick = nowHour === 23 && nowMin >= 50 && nowMin < 54;
+    const isShiftExtensionPruneTick    = nowHour === 7  && nowMin >= 15 && nowMin < 19;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1292,6 +1296,15 @@ export async function GET(req: NextRequest) {
       ? await pruneCapacityEvents(14).catch(() => null)
       : null;
 
+    // Phase 383: Shift Extension & Overtime Alerts
+    const shiftExtensionResult = await detectShiftExtensions().catch(() => null);
+    const shiftExtensionSnapshot = isShiftExtensionSnapshotTick
+      ? await recordDailyOvertimeSummaryAllLocations().catch(() => null)
+      : null;
+    const shiftExtensionPruned = isShiftExtensionPruneTick
+      ? await pruneShiftExtensionRequests(60).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1550,6 +1563,9 @@ export async function GET(req: NextRequest) {
       ...(schichtRoiPruned?.pruned ? { schicht_roi_pruned: schichtRoiPruned.pruned } : {}),
       ...(capacitySnapshotResult ? { capacity_snapshots: { locations: capacitySnapshotResult.locations, saved: capacitySnapshotResult.saved, errors: capacitySnapshotResult.errors } } : {}),
       ...(capacityEventsPruned?.pruned ? { capacity_events_pruned: capacityEventsPruned.pruned } : {}),
+      ...(shiftExtensionResult?.requestsCreated ? { shift_extension: { locations: shiftExtensionResult.locations, risks: shiftExtensionResult.risksFound, created: shiftExtensionResult.requestsCreated } } : {}),
+      ...(shiftExtensionSnapshot?.saved ? { shift_extension_snapshot: { locations: shiftExtensionSnapshot.locations, saved: shiftExtensionSnapshot.saved } } : {}),
+      ...(shiftExtensionPruned?.pruned ? { shift_extension_pruned: shiftExtensionPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
