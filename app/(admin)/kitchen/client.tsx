@@ -142,6 +142,7 @@ import { KitchenQueueEffizienzRing } from './queue-effizienz-ring';
 import { KitchenBestellTaktMeter } from './bestell-takt-meter';
 import { KitchenSchichtBatchKochstartBoard } from './schicht-batch-kochstart-board';
 import { KitchenHandoffRatePanel } from './handoff-rate-panel';
+import { KitchenHandoffRateTrend } from './handoff-rate-trend';
 import { KitchenAuftragsWarteschlangenZeit } from './auftrags-warteschlangen-zeit';
 import { KitchenKochzeitSollIstVergleich } from './kochzeit-soll-ist-vergleich';
 import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
@@ -653,6 +654,8 @@ export function KitchenBoard({
       <KitchenSchichtBatchKochstartBoard orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Phase 369: Handoff-Rate-Panel — Wartezeit fertiger Lieferbestellungen auf Fahrer (grün/amber/rot) */}
       <KitchenHandoffRatePanel orders={filtered} />
+      {/* Phase 375: Handoff-Rate-Trend — 30-Tage Trend der Handoff-Wartezeiten als Recharts-LineChart */}
+      <KitchenHandoffRateTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 370: Auftrags-Warteschlangen-Zeit — max/Ø Wartezeit + 4-Bucket-Verteilung für pending/cooking Orders */}
       <KitchenAuftragsWarteschlangenZeit orders={filtered} />
       {/* Phase 371: Kochzeit Soll/Ist — Soll vs. tatsächliche Kochzeit je in-Zubereitung-Order mit Fortschrittsbalken */}

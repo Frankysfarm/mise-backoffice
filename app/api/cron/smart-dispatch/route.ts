@@ -150,6 +150,7 @@ import { snapshotDriverScoreHistoryAllLocations, pruneDriverScoreHistory } from 
 import { aggregateTourFeedbackAllLocations, pruneOldFeedbackAggregates } from '@/lib/delivery/tour-feedback-analytics';
 import { aggregateTourEfficiencyAllLocations, pruneTourEfficiency } from '@/lib/delivery/tour-efficiency-report';
 import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrderPriorityScores } from '@/lib/delivery/order-priority-engine';
+import { snapshotHandoffRateDailyAllLocations, pruneHandoffRateDaily } from '@/lib/delivery/kitchen-sync';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -732,6 +733,16 @@ export async function GET(req: NextRequest) {
     // Phase 362: Order-Priority-Prune — täglich 07:35 UTC
     if (nowHour === 7 && nowMin >= 35 && nowMin < 37) {
       pruneOrderPriorityScores(90).catch(() => {});
+    }
+
+    // Phase 375: Handoff-Rate Tages-Snapshot — täglich 01:55 UTC; Prune 07:38 UTC (180 Tage)
+    const isHandoffRateSnapshotTick = nowHour === 1 && nowMin >= 55 && nowMin < 59;
+    const isHandoffRatePruneTick    = nowHour === 7 && nowMin >= 38 && nowMin < 40;
+    const handoffRateSnapshotResult = isHandoffRateSnapshotTick
+      ? await snapshotHandoffRateDailyAllLocations().catch(() => null)
+      : null;
+    if (isHandoffRatePruneTick) {
+      pruneHandoffRateDaily(180).catch(() => {});
     }
 
     // Phase 206: Network Health Snapshots — alle 30 Min (isDemandTick)
@@ -1498,6 +1509,7 @@ export async function GET(req: NextRequest) {
       ...(feedbackAggMonthResult?.aggregated ? { feedback_agg_month: { locations: feedbackAggMonthResult.locations, aggregated: feedbackAggMonthResult.aggregated } } : {}),
       ...(tourEfficiencyResult?.saved ? { tour_efficiency: { locations: tourEfficiencyResult.locations, saved: tourEfficiencyResult.saved, errors: tourEfficiencyResult.errors } } : {}),
       ...(orderPriorityResult?.scored ? { order_priority_scored: { locations: orderPriorityResult.locations, scored: orderPriorityResult.scored } } : {}),
+      ...(handoffRateSnapshotResult?.saved ? { handoff_rate_snapshot: { locations: handoffRateSnapshotResult.locations, saved: handoffRateSnapshotResult.saved, errors: handoffRateSnapshotResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

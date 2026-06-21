@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–374 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler. CEO-Review #205: 1 Bug gefixt (LieferdienstSchichtTempoKpi Trend-Tracking via useRef).**
+**Phasen 1–375 abgeschlossen. Build sauber. 355 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 375 (2026-06-21): Backend — Historische Handoff-Rate persistieren (täglich aggregiert, Trend-Analyse). Migration 179: `handoff_rate_daily` Tabelle (UNIQUE location_id+snapshot_date, Zählungen quick/ok/late, Zeitstatistiken avg/p50/p75/p95/max, Raten-Pcts, peakWaitHour, Prune-RPC, Trend-View). lib/delivery/kitchen-sync.ts: `snapshotHandoffRateDaily` + `snapshotHandoffRateDailyAllLocations` + `getHandoffRateDailyHistory` + `pruneHandoffRateDaily`. API: /api/delivery/admin/handoff-rate (GET ?action=history|current, POST action=snapshot). Cron: täglich 01:55 UTC Snapshot + 07:38 UTC Prune (180 Tage). Frontend: KitchenHandoffRateTrend (collapsible Recharts-LineChart: schnell/verspätet %, Ø Wartezeit, 14-Tage-Sicht, Ziel-Linie), integriert in kitchen/client.tsx nach KitchenHandoffRatePanel. Build ✅ 355 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 374 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenBestellungsFlowAmpel (3-Phasen-Stauanzeige: Eingang/Zubereitung/Fertig-wartet, Rot-Alert bei Stau), DispatchTourPuenktlichkeitsAmpel (Ampel-Kacheln je aktiver Tour: pünktlich/knapp/verspätet + Stopp-Fortschrittsbalken), FahrerSchichtDauerLive (Schichtdauer-Ticker + Stopps/h Rate, Intensitäts-Farbkodierung grün→amber→rot), BestellStatusLiveBadge (Step-Fortschrittsbalken Eingang→Zubereitung→Fertig→Unterwegs→Geliefert auf Storefront Erfolgsseite), LieferdienstSchichtTempoKpi (Orders/h + Ø Lieferzeit + Pünktlichkeit + aktive Fahrer live mit Trend-Pfeil). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -6243,6 +6245,49 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 
 - Build: node_modules/.bin/next build ✓ (350 Seiten, 0 Fehler)
 
+
+---
+
+## Phase 375 — Backend: Handoff-Rate Tages-Snapshots + Trend-Chart (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert
+
+**`scripts/migrations/179_handoff_rate_daily.sql`:**
+- `handoff_rate_daily` — Tages-Snapshots der Handoff-Wartezeiten (fertig_am → abgeholt_am) je Standort
+- Felder: `total_orders`, `quick_pickups` (<3 Min), `ok_pickups` (3–5 Min), `late_pickups` (>5 Min)
+- Zeitstatistiken: `avg_wait_min`, `p50_wait_min`, `p75_wait_min`, `p95_wait_min`, `max_wait_min`
+- Raten: `quick_rate_pct`, `ok_rate_pct`, `late_rate_pct` — Ziel: late <15%, quick >70%
+- `peak_wait_hour` — Berliner Stunde mit den meisten verspäteten Abholungen
+- UNIQUE(location_id, snapshot_date), RLS service_role, updated_at Trigger
+- `prune_handoff_rate_daily(days_to_keep)` RPC + `v_handoff_rate_trend_30d` VIEW
+
+**`lib/delivery/kitchen-sync.ts`** — Neue Funktionen:
+- `HandoffRateDailyRow` Interface
+- `snapshotHandoffRateDaily(locationId, date?)` — Aggregiert `customer_orders` (typ=lieferung, fertig_am+abgeholt_am), berechnet wait-Statistiken, upsert in handoff_rate_daily
+- `snapshotHandoffRateDailyAllLocations(date?)` — Cron-Batch für alle is_active Standorte
+- `getHandoffRateDailyHistory(locationId, days)` — Liest Snapshots für Trend-Chart
+- `pruneHandoffRateDaily(daysToKeep)` — Cleanup via RPC
+
+**`app/api/delivery/admin/handoff-rate/route.ts`** (neu):
+- GET `?action=history&days=30` → Tages-Snapshots für Chart (max 90 Tage)
+- GET `?action=current` → Live-Berechnung für heute (kein Snapshot, direkte DB-Query)
+- POST `action=snapshot&date=YYYY-MM-DD` → Manuellen Snapshot auslösen
+- Auth via employees.location_id + ?location_id= Superadmin-Override
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `snapshotHandoffRateDailyAllLocations()` täglich 01:55 UTC (`isHandoffRateSnapshotTick`)
+- `pruneHandoffRateDaily(180)` täglich 07:38 UTC (`isHandoffRatePruneTick`)
+
+**`app/(admin)/kitchen/handoff-rate-trend.tsx`** — `KitchenHandoffRateTrend`:
+- Collapsible Recharts-LineChart: 2 Linien (Schnell <3 Min grün, Verspätet >5 Min rot)
+- 14-Tage-Sicht (aus 30-Tage-History), KPI-Kacheln (letzter Tag: 4 Werte)
+- Trend-Pfeil bei lateRatePct (Δ zum Vortag), Ziel-Hinweis: Verspätet <15% / Schnell >70%
+- 10-Min-Polling, nur wenn open=true (lazy load)
+- Integration: kitchen/client.tsx nach `<KitchenHandoffRatePanel orders={filtered} />`
+
+**Build:** 355 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 
