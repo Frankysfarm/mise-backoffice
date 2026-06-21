@@ -46,22 +46,41 @@ export async function GET(req: NextRequest) {
     locationId = loc?.id ?? null;
   }
 
-  if (!locationId) return NextResponse.json({ avg_delivery_min: null });
+  if (!locationId) return NextResponse.json({ avg_delivery_min: null, team_grade: null });
 
   // Heute's Ø Lieferzeit aus delivery_performance
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const { data: rows } = await sb
-    .from('delivery_performance')
-    .select('delivery_min')
-    .eq('location_id', locationId)
-    .gte('recorded_at', todayStart.toISOString())
-    .not('delivery_min', 'is', null);
+  const [{ data: rows }, { data: benchmarkRow }] = await Promise.all([
+    sb
+      .from('delivery_performance')
+      .select('delivery_min')
+      .eq('location_id', locationId)
+      .gte('recorded_at', todayStart.toISOString())
+      .not('delivery_min', 'is', null),
+    sb
+      .from('driver_score_weekly_benchmarks')
+      .select('avg_composite, grade_dist')
+      .eq('location_id', locationId)
+      .order('week_start', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const valid = (rows ?? []).map((r) => r.delivery_min as number).filter((v) => v > 0);
   const avg =
     valid.length > 0 ? Math.round(valid.reduce((s, v) => s + v, 0) / valid.length) : null;
 
-  return NextResponse.json({ avg_delivery_min: avg });
+  // Team grade: majority grade from latest benchmark (A+/A/B/C/D)
+  let teamGrade: string | null = null;
+  let avgScore: number | null = null;
+  if (benchmarkRow) {
+    avgScore = Number(benchmarkRow.avg_composite ?? 0) || null;
+    const dist = (benchmarkRow.grade_dist as Record<string, number> | null) ?? {};
+    const best = (['A+', 'A', 'B', 'C', 'D'] as const).find((g) => (dist[g] ?? 0) > 0) ?? null;
+    teamGrade = best;
+  }
+
+  return NextResponse.json({ avg_delivery_min: avg, team_grade: teamGrade, team_avg_score: avgScore });
 }

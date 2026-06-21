@@ -147,6 +147,7 @@ import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
 import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations, snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily } from '@/lib/delivery/zone-difficulty';
 import { snapshotDriverScoreHistoryAllLocations, pruneDriverScoreHistory } from '@/lib/delivery/driver-score';
+import { snapshotWeeklyBenchmarkAllLocations, pruneOldBenchmarks as pruneWeeklyBenchmarks } from '@/lib/delivery/driver-score-weekly-benchmarks';
 import { aggregateTourFeedbackAllLocations, pruneOldFeedbackAggregates } from '@/lib/delivery/tour-feedback-analytics';
 import { aggregateTourEfficiencyAllLocations, pruneTourEfficiency } from '@/lib/delivery/tour-efficiency-report';
 import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrderPriorityScores } from '@/lib/delivery/order-priority-engine';
@@ -718,6 +719,16 @@ export async function GET(req: NextRequest) {
       : null;
     if (isDriverScoreHistoryPruneTick) {
       pruneDriverScoreHistory(365).catch(() => {});
+    }
+
+    // Phase 387: Driver Score Weekly Benchmarks — täglich 03:00 UTC (nach Score-Snapshot 02:50); Prune 07:12 UTC
+    const isWeeklyBenchmarkTick = nowHour === 3 && nowMin >= 0 && nowMin < 4;
+    const isWeeklyBenchmarkPruneTick = nowHour === 7 && nowMin >= 12 && nowMin < 14;
+    const weeklyBenchmarkResult = isWeeklyBenchmarkTick
+      ? await snapshotWeeklyBenchmarkAllLocations().catch(() => null)
+      : null;
+    if (isWeeklyBenchmarkPruneTick) {
+      pruneWeeklyBenchmarks(365).catch(() => {});
     }
 
     // Phase 360: Tour Feedback Aggregation — täglich 03:20 UTC (Woche + Monat); Prune 07:20 UTC
@@ -1588,6 +1599,7 @@ export async function GET(req: NextRequest) {
       ...(driverScoreDailyResult?.saved ? { driver_score_daily: { locations: driverScoreDailyResult.locations, saved: driverScoreDailyResult.saved, errors: driverScoreDailyResult.errors } } : {}),
       ...(driverScoreDropResult?.alertsCreated ? { driver_score_drop_alerts: { locations: driverScoreDropResult.locations, created: driverScoreDropResult.alertsCreated, checked: driverScoreDropResult.driversChecked } } : {}),
       ...(driverScoreDailyPruned?.pruned ? { driver_score_daily_pruned: driverScoreDailyPruned.pruned } : {}),
+      ...(weeklyBenchmarkResult?.locations ? { weekly_benchmarks: { locations: weeklyBenchmarkResult.locations, errors: weeklyBenchmarkResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

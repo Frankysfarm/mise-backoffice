@@ -41,6 +41,7 @@ import { BestellEtaProgress } from './bestell-eta-progress';
 import { LieferzeitVergleichWidget } from './lieferzeit-vergleich-widget';
 import { LiveStatusTimeline } from './live-status-timeline';
 import { BestellScoreVertrauen } from './bestell-score-vertrauen';
+import { TeamQualitaetsBadge } from './team-qualitaets-badge';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -848,6 +849,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && (
           <div className="mt-3 w-full">
             <BestellScoreVertrauen />
+          </div>
+        )}
+        {/* Phase 387: Team-Qualitäts-Badge — Social-Proof Note des Lieferteams (A/B/etc.) */}
+        {isDelivery && (
+          <div className="mt-2 w-full">
+            <TeamQualitaetsBadge />
           </div>
         )}
 

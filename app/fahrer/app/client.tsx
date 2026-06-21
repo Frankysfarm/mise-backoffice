@@ -144,6 +144,7 @@ import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
+import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 
 type Driver = {
   id: string;
@@ -950,6 +951,10 @@ export function FahrerApp({
                 {/* Phase 386: Tages-Score-Karte — Persönlicher Score, Note, 7-Faktoren-Breakdown */}
                 {driver.location_id && (
                   <FahrerTagesScoreKarte driverId={driver.id} locationId={driver.location_id} />
+                )}
+                {/* Phase 387: Wochen-Score-Verlauf — 8-Wochen Bar-Chart eigener Score mit Motivation */}
+                {driver.location_id && (
+                  <FahrerWochenScoreVerlauf driverId={driver.id} locationId={driver.location_id} />
                 )}
 
                 {/* Phase 205: Schicht-Einnahmen-Chart — stündlicher Einnahmenverlauf */}

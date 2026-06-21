@@ -203,6 +203,7 @@ import { DispatchTourFahrerSyncBoard } from './tour-fahrer-sync-board';
 import { DispatchTourLiveCockpit } from './dispatch-tour-live-cockpit';
 import { DispatchScoreTourCockpit } from './dispatch-score-tour-cockpit';
 import { DispatchScoreDropAlertFeed } from './score-drop-alert-feed';
+import { DispatchFahrerScoreVerlaufChart } from './fahrer-score-verlauf-chart';
 
 type Driver = {
   employee_id: string;
@@ -1106,6 +1107,8 @@ export function DispatchBoard({
       <DispatchTourFahrerSyncBoard drivers={drivers} batches={batches as any} />
       {/* Phase 386: Score-Drop-Alert-Feed — Offene Performance-Alerts mit Quittier-Button */}
       <DispatchScoreDropAlertFeed locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 387: Fahrer Score-Verlauf-Chart — Einzel-Fahrer 8-Wochen-Trend + Benchmark-Overlay */}
+      <DispatchFahrerScoreVerlaufChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Echtzeit-Tour-Score-Feed: Live-Effizienz-Ranking aller aktiven Touren mit Trend-Indikatoren */}
       <DispatchTourScoreLiveFeed batches={batches} />
       {/* Phase 358: Fahrer-Score-Kacheln — Farbkodierte Score-Karten aller Fahrer mit Rang, Grade, Pünktlichkeit */}
