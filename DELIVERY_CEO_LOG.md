@@ -1,7 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–389 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–390 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #216 — Phase 390 (2026-06-21)
+
+### Geprüfte Komponenten (Phase 390):
+
+**`app/(admin)/lieferdienst/ops-puls-monitor.tsx` — OpsPulsMonitor:**
+- 30s-Polling, lazy-load (erst wenn open=true), clearInterval-Cleanup ✅
+- `criticalAlerts > 0` → rote Puls-Animation ✅
+- Korrekte Summierung aller Queue-Stati ✅
+- **BUG GEFUNDEN + GEFIXT:** Falsche Field-Names im OpsSnapshot-Interface:
+  - `queue.in_zubereitung` → `queue.zubereitung` (API-Schlüssel)
+  - `queue.bereit_zur_lieferung` → `queue.bereit` (API-Schlüssel)
+  - `sla.onTimeRate` → `sla.onTimePct` (API-Schlüssel)
+  - `throughput: number | null` → `throughput: { perHourRate, deliveriesLast30min } | null` (API gibt Objekt zurück)
+  - `delays: number` → `delays: { active } | null` (API gibt Objekt zurück)
+
+**`app/(admin)/kitchen/kochstart-konfidenz.tsx` — KochstartKonfidenzAnzeige:**
+- `computeKonfidenz()` rein funktional, keine Side-Effects ✅
+- Score-Klammerung `Math.max(0, Math.min(100, score))` ✅
+- 45s-Polling, lazy-load, clearInterval-Cleanup ✅
+- **BUG GEFUNDEN + GEFIXT:** Gleiche API-Field-Name-Fehler wie OpsPulsMonitor:
+  - `queue.bereit_zur_lieferung` → `queue.bereit`
+  - `queue.in_zubereitung` → `queue.zubereitung`
+  - `throughput: number | null` → `throughput: { perHourRate } | null`
+  - `delays: number` → `delays: { active } | null`
+
+**`app/(admin)/dispatch/zone-bündelungs-empfehlung.tsx` — ZoneBündelungsEmpfehlung:**
+- Fallback-Mock wenn API nicht verfügbar ✅
+- `URGENCY_META`-Fallback für unbekannte Dringlichkeitsstufen ✅
+- 60s-Polling, lazy-load, clearInterval-Cleanup ✅
+- Integration dispatch/client.tsx L1622 ✅
+
+**`app/fahrer/app/tour-verdienst-ziel-tracker.tsx` — TourVerdiensteZielTracker:**
+- `euro()` Lokalisierungsfunktion korrekt ✅
+- Fallback-Mock bei API-Fehler ✅
+- 120s-Polling (2-Min) passend zur Tages-Granularität ✅
+- Integration fahrer/app/client.tsx L1076 ✅
+
+**`app/order/[locationSlug]/components/liefer-qualitaets-ring.tsx` — LieferQualitaetsRing:**
+- SVG-Ring korrekt: Radius 20, Umfang 2πr, dash = (pct/100)*circ ✅
+- BADGE_COLORS-Fallback auf `bronze` wenn unbekannter Badge-Level ✅
+- `cancelled = true` cleanup verhindert setState nach Unmount ✅
+- Integration success-state.tsx L872 mit `isDelivery` Guard ✅
+
+### Bugs gefunden + gefixt: 4 (alle in ops-snapshot API-Feld-Name-Mismatches)
+- `OpsPulsMonitor`: 5 falsche Feld-Namen → gefixt
+- `KochstartKonfidenzAnzeige`: 4 falsche Feld-Namen → gefixt
+
+### Status nach Review #216
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 390: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- ops-snapshot API: korrekt verdrahtet in 2 Komponenten ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 391: 5 neue Smart-Delivery-Komponenten
+2. shift-goals API ausbauen (TourVerdiensteZielTracker nutzt noch Fallback-Mock)
+3. zone-batch-optimizer API ausbauen (ZoneBündelungsEmpfehlung nutzt noch Fallback-Mock)
 
 ---
 

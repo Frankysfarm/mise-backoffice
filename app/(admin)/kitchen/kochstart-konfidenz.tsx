@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { Zap, ChevronDown, ChevronUp, Loader2, Truck, Clock } from 'lucide-react'
 
 interface OpsData {
-  queue: { bereit_zur_lieferung: number; in_zubereitung: number; neu: number }
+  queue: { bereit: number; zubereitung: number; neu: number }
   drivers: { idle: number; active: number; online: number }
-  throughput: number | null
-  delays: number
+  throughput: { perHourRate: number } | null
+  delays: { active: number } | null
 }
 
 type KonfidenzLevel = 'jetzt_kochen' | 'kurz_warten' | 'nicht_kochen'
@@ -19,8 +19,8 @@ function computeKonfidenz(data: OpsData): {
 } {
   const idleDrivers = data.drivers.idle
   const activeDrivers = data.drivers.active
-  const waitingReady = data.queue.bereit_zur_lieferung
-  const inPrep = data.queue.in_zubereitung
+  const waitingReady = data.queue.bereit
+  const inPrep = data.queue.zubereitung
   const reasons: string[] = []
   let score = 100
 
@@ -201,7 +201,7 @@ export function KochstartKonfidenzAnzeige({ locationId }: { locationId: string |
                 </div>
                 <div className="rounded-lg bg-muted/50 p-2 text-center">
                   <div className="text-[10px] text-muted-foreground">Fertig/Warten</div>
-                  <div className="text-lg font-black text-blue-600">{data.queue.bereit_zur_lieferung}</div>
+                  <div className="text-lg font-black text-blue-600">{data.queue.bereit}</div>
                 </div>
               </div>
             </>

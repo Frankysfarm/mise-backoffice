@@ -4,12 +4,12 @@ import { useEffect, useState, useCallback } from 'react'
 import { Activity, ChevronDown, ChevronUp, Loader2, Truck, Clock, AlertTriangle, TrendingUp } from 'lucide-react'
 
 interface OpsSnapshot {
-  queue: { neu: number; in_zubereitung: number; bereit_zur_lieferung: number; unterwegs: number }
+  queue: { neu: number; zubereitung: number; bereit: number; unterwegs: number }
   drivers: { online: number; idle: number; active: number; offline: number }
   alerts: { critical: number; warning: number; info: number }
-  sla: { onTimeRate: number | null; sampleSize: number }
-  throughput: number | null
-  delays: number
+  sla: { onTimePct: number | null; sampleSize: number }
+  throughput: { perHourRate: number; deliveriesLast30min: number } | null
+  delays: { active: number } | null
   generatedAt: string
 }
 
@@ -66,11 +66,11 @@ export function OpsPulsMonitor({ locationId }: { locationId: string | null }) {
   if (!locationId) return null
 
   const activeOrders = data
-    ? data.queue.neu + data.queue.in_zubereitung + data.queue.bereit_zur_lieferung + data.queue.unterwegs
+    ? data.queue.neu + data.queue.zubereitung + data.queue.bereit + data.queue.unterwegs
     : 0
   const availableDrivers = data ? data.drivers.idle + data.drivers.active : 0
   const criticalAlerts = data ? data.alerts.critical : 0
-  const sla = data?.sla.onTimeRate ?? null
+  const sla = data?.sla.onTimePct ?? null
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-4">
@@ -111,8 +111,8 @@ export function OpsPulsMonitor({ locationId }: { locationId: string | null }) {
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { label: 'Neu', value: data.queue.neu, color: 'bg-blue-500/20 text-blue-300' },
-                    { label: 'Küche', value: data.queue.in_zubereitung, color: 'bg-amber-500/20 text-amber-300' },
-                    { label: 'Bereit', value: data.queue.bereit_zur_lieferung, color: 'bg-emerald-500/20 text-emerald-300' },
+                    { label: 'Küche', value: data.queue.zubereitung, color: 'bg-amber-500/20 text-amber-300' },
+                    { label: 'Bereit', value: data.queue.bereit, color: 'bg-emerald-500/20 text-emerald-300' },
                     { label: 'Unterwegs', value: data.queue.unterwegs, color: 'bg-violet-500/20 text-violet-300' },
                   ].map(({ label, value, color }) => (
                     <div key={label} className={`rounded-lg p-2 text-center ${color}`}>
@@ -154,14 +154,14 @@ export function OpsPulsMonitor({ locationId }: { locationId: string | null }) {
                 </div>
                 <div className="rounded-lg bg-white/5 p-2 text-center">
                   <div className="text-[10px] text-white/40 mb-0.5">Durchsatz/h</div>
-                  <div className={`text-sm font-bold tabular-nums ${data.throughput !== null ? pulsColor(data.throughput, [5, 12]) : 'text-white/30'}`}>
-                    {data.throughput !== null ? `${Math.round(data.throughput)}` : '—'}
+                  <div className={`text-sm font-bold tabular-nums ${data.throughput !== null ? pulsColor(data.throughput.perHourRate, [5, 12]) : 'text-white/30'}`}>
+                    {data.throughput !== null ? `${Math.round(data.throughput.perHourRate)}` : '—'}
                   </div>
                 </div>
                 <div className="rounded-lg bg-white/5 p-2 text-center">
                   <div className="text-[10px] text-white/40 mb-0.5">Verspätungen</div>
-                  <div className={`text-sm font-bold tabular-nums ${data.delays === 0 ? 'text-emerald-400' : data.delays < 3 ? 'text-amber-400' : 'text-red-400'}`}>
-                    {data.delays}
+                  <div className={`text-sm font-bold tabular-nums ${(data.delays?.active ?? 0) === 0 ? 'text-emerald-400' : (data.delays?.active ?? 0) < 3 ? 'text-amber-400' : 'text-red-400'}`}>
+                    {data.delays?.active ?? 0}
                   </div>
                 </div>
               </div>
