@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–391 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler. CEO Review #217 abgeschlossen: 6 Bugs in Phase 391 Frontend-Erweiterung gefixt.**
+**Phasen 1–392 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler. CEO Review #217 abgeschlossen: 6 Bugs in Phase 391 Frontend-Erweiterung gefixt.**
+
+**Phase 392 Backend (2026-06-21): ETA Confidence + Ops-Health-History Engine. Fix `/api/delivery/eta/live`: Neue Felder `confidence` (0.0–1.0, aus historischer ETA-Kalibrierung via `computeEtaConfidence()`), `confidence_level` ('hoch'|'mittel'|'niedrig'), `eta_min_low` + `eta_min_high` (Unsicherheitsband ±10/20/35% je Level) — EtaKonfidenzBanner (CEO Review #217 Punkt 2) nutzt jetzt echten Konfidenz-Wert statt hartcodierten 0.7-Fallback. Migration 187: `ops_health_snapshots` (Gesundheits-Score 0–100 = SLA 40% + Driver-Coverage 25% + Queue-Tiefe 20% + Alert-Penalty 15%, Felder: queue_total/neu/zubereitung/bereit/unterwegs, drivers_online/idle/active/offline, alerts_critical/warning, sla_on_time_pct, throughput_per_hour, delays_active, revenue_today_eur, RLS service_role + authenticated read own, `prune_ops_health_snapshots` RPC, View `v_ops_health_hourly`). `lib/delivery/ops-health-history.ts`: `snapshotOpsHealth(locationId)` (11 parallele Queries → Score berechnen → INSERT), `snapshotOpsHealthAllLocations()` (Cron-Batch Promise.allSettled), `getOpsHealthHistory(locationId, hours)` (stündlich aggregierte Trend-Daten für LineChart), `getOpsHealthSummary(locationId)` (currentScore, avg24h, avg7d, worstHour24h, peakQueueDepth24h, criticalAlertCount24h, trend improving/stable/declining), `pruneOpsHealthSnapshots(daysToKeep)` (via RPC). API `/api/delivery/admin/ops-health-history`: GET ?location_id&hours → History, GET ?action=summary → KPI-Summary, POST action=snapshot|prune. Cron: alle 15 Min `snapshotOpsHealthAllLocations()`, täglich 07:30 UTC `pruneOpsHealthSnapshots(90)`. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **CEO Review #217 (2026-06-21): 6 Bugs in Phase 391 Frontend-Erweiterung (bb60775) gefixt. KitchenFlowKoordinator: Batch-Feld-Mapping driver_id→fahrer_id + started_at→startzeit in Integration (TS2719). LieferdienstKundenzufriedenheitsPanel: falsche Tabelle ratings→customer_delivery_ratings, Spalte kommentar→comment, fehlendes locationId-Prop + Integration-Prop, 3 TypeScript-any-Fehler. TypeScript: 0 Fehler. Build: ✅ 354 Seiten.**
 
@@ -60,6 +62,49 @@
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 392 Backend — ETA Confidence + Ops-Health-History Engine (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert
+
+**Fix `app/api/delivery/eta/live/route.ts`** (CEO Review #217 Punkt 2 — EtaKonfidenzBanner):
+- Import `computeEtaConfidence` aus `lib/delivery/eta-confidence.ts`
+- `confidence` (numeric 0.0–1.0): aus `on_time_rate` der Kalibrierungs-Faktoren; Fallback 0.70 wenn keine Daten
+- `confidence_level` ('hoch'|'mittel'|'niedrig'): direkt von `computeEtaConfidence()` zurückgegeben
+- `eta_min_low` / `eta_min_high`: Konfidenz-Band — hoch=±10%, mittel=±20%, niedrig=±35%
+- Fallback-Response enthält ebenfalls `confidence: 0.70, confidence_level: 'mittel'`
+- Location-wide Lookup: `zone: null, vehicle: null` → Fallback-Hierarchie in `computeEtaConfidence`
+
+**`scripts/migrations/187_ops_health_snapshots.sql`:**
+- `ops_health_snapshots`: location_id (FK mise_locations), snapped_at, Queue-Breakdown (total/neu/zubereitung/bereit/unterwegs), Driver-Breakdown (online/idle/active/offline), Alerts (critical/warning/total), SLA (on_time_pct/avg_deviation_min), throughput_per_hour, delays_active, revenue_today_eur, health_score (0–100)
+- RLS: service_role full + authenticated read own location (via user_location_access)
+- `prune_ops_health_snapshots(days_to_keep)` RPC (SECURITY DEFINER)
+- View `v_ops_health_hourly`: stündliche Aggregation der letzten 48h für Trend-Charts
+
+**`lib/delivery/ops-health-history.ts`:**
+- `computeHealthScore()`: SLA 40% + Driver-Coverage 25% + Queue-Tiefe 20% + Alert-Penalty 15%
+- `snapshotOpsHealth(locationId)`: 8 parallele Queries → Score berechnen → INSERT
+- `snapshotOpsHealthAllLocations()`: Cron-Batch, gibt `{ locations, saved, errors }` zurück
+- `getOpsHealthHistory(locationId, hours)`: manuelle stündliche Bucket-Aggregation (keine View-Abhängigkeit)
+- `getOpsHealthSummary(locationId)`: currentScore, avg24h, avg7d, worstHour24h (niedrigster Stunden-Schnitt), peakQueueDepth24h, criticalAlertCount24h, trend (1. vs. 2. Hälfte 24h, ≥5 Punkte Δ)
+- `pruneOpsHealthSnapshots(daysToKeep)`: via `prune_ops_health_snapshots` RPC
+
+**`app/api/delivery/admin/ops-health-history/route.ts`:**
+- GET `?location_id&hours=24` → `{ locationId, hours, history: OpsHealthHourly[] }`
+- GET `?location_id&action=summary` → `OpsHealthSummary`
+- POST `{ action: 'snapshot', location_id }` → manueller Snapshot
+- POST `{ action: 'prune', days_old? }` → Cleanup
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `isOpsHealthSnapshotTick`: `nowMin % 15 < 2` — alle 15 Minuten
+- `isOpsHealthPruneTick`: täglich 07:30 UTC
+- Return-Objekt: `ops_health_snapshots`, `ops_health_pruned`
+
+- Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
 
 ---
 
