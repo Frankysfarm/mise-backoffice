@@ -159,6 +159,7 @@ import { KitchenSchichtKochzeitPrognose } from './schicht-kochzeit-prognose';
 import { KochstartKonfidenzAnzeige } from './kochstart-konfidenz';
 import { KitchenSchichtAuslastungsRing } from './schicht-auslastungs-ring';
 import { KitchenFlowKoordinator } from './flow-koordinator';
+import { KitchenQueueCountdownBoard } from './queue-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -681,6 +682,10 @@ export function KitchenBoard({
       <KitchenQueueEffizienzRing orders={filtered} timings={timings} />
       {/* Phase 380: Flow-Koordinator — Fahrer-ETAs + Kochstart-Empfehlung in einer Kachel */}
       <KitchenFlowKoordinator orders={filtered} batches={batches.map((b) => ({ ...b, fahrer_id: b.driver_id, startzeit: b.started_at }))} stops={stops} drivers={drivers} />
+      {/* Phase 393: Queue-Countdown-Board — Alle Bestellungen mit Kochstart in den nächsten 20 Min, farbkodierte Countdown-Uhr */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenQueueCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
+      )}
       {/* Phase 364: Bestell-Takt-Meter — Orders/h Rate-Gauge mit Trend vs. Vorjahresstunde */}
       <KitchenBestellTaktMeter orders={filtered} />
       {/* Phase 364: Batch-Kochstart-Board — optimaler Kochstart pro Fahrer-Tour, Farbkodierung nach Urgency */}

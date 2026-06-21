@@ -198,6 +198,7 @@ import { DispatchFahrerLastenverteilung } from './fahrer-lastenverteilung';
 import { DispatchTourPuenktlichkeitsAmpel } from './tour-phuenktlichkeits-ampel';
 import { DispatchTourScoreZentrale } from './tour-score-zentrale';
 import { DispatchTourRealtimeFortschritt } from './tour-realtime-fortschritt';
+import { DispatchTourScoreLiveBoard } from './tour-score-live-board';
 import { DispatchTourAbholZeitplan } from './tour-abholzeitplan';
 import { DispatchTourFahrerSyncBoard } from './tour-fahrer-sync-board';
 import { DispatchTourLiveCockpit } from './dispatch-tour-live-cockpit';
@@ -1105,6 +1106,8 @@ export function DispatchBoard({
       <DispatchTourScoreZentrale batches={batches} />
       {/* Phase 378: Echtzeit-Tourfortschritt — Live-Fortschritts-Board je aktiver Tour mit Stop-Dots + ETA */}
       <DispatchTourRealtimeFortschritt batches={batches as any} />
+      {/* Phase 393: Tour-Score-Live-Board — Live-Leaderboard aktiver Tour-Scores mit Fortschrittsbalken + ETA-Badge */}
+      <DispatchTourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 380: Tour-Abholzeitplan — Wann kehren aktive Fahrer zurück? Rückkehr-ETA je aktiver Tour */}
       <DispatchTourAbholZeitplan batches={batches} />
       {/* Phase 382: Fahrer-Tour-Sync-Board — Sync-Status aller aktiven Fahrer: Voraus/Im Plan/Rückstand */}

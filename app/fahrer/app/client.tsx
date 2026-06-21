@@ -148,6 +148,7 @@ import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
 import { TourVerdiensteZielTracker } from './tour-verdienst-ziel-tracker';
 import { SchichtPaceLive } from './schicht-pace-live';
+import { FahrerAktuellerStoppCard } from './aktueller-stopp-card';
 import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
 
 type Driver = {
@@ -1081,6 +1082,33 @@ export function FahrerApp({
           <div className="px-4">
             <SchichtPaceLive driverId={driver.id} />
           </div>
+          {/* Phase 393: Aktueller-Stopp-Karte — Großformatige Stop-Karte mit Adresse, Kasse, Navi-CTA und Bestätigungs-Button */}
+          {(() => {
+            const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!currentStop) return null;
+            return (
+              <div className="px-4">
+                <FahrerAktuellerStoppCard
+                  stop={{
+                    reihenfolge: currentStop.reihenfolge,
+                    order: currentStop.order ? {
+                      bestellnummer: (currentStop.order as any).bestellnummer ?? '',
+                      kunde_name: (currentStop.order as any).kunde_name ?? '',
+                      kunde_adresse: (currentStop.order as any).kunde_adresse ?? null,
+                      kunde_plz: (currentStop.order as any).kunde_plz ?? null,
+                      kunde_telefon: (currentStop.order as any).kunde_telefon ?? null,
+                      gesamtbetrag: (currentStop.order as any).gesamtbetrag ?? 0,
+                      bezahlt: (currentStop.order as any).bezahlt ?? false,
+                      zahlungsart: (currentStop.order as any).zahlungsart ?? 'bar',
+                      kunde_notiz: (currentStop.order as any).kunde_notiz ?? null,
+                    } : null,
+                  }}
+                  totalStops={activeBatch.stops.length}
+                  onComplete={() => markDelivered(currentStop.id)}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 388: Nächster-Stopp-Karte — Große Adressanzeige, Navigations-CTA, Zahlungsart-Badge, Stop-Zähler */}
           <div className="px-4">
             <FahrerTourNaechsterStoppKarte
