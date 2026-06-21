@@ -54,13 +54,15 @@ export function LieferdienstAktuelleTouren({ locationId }: Props) {
     return () => { cancelled = true; clearInterval(iv); };
   }, [locationId]);
 
-  if (!locationId || loading) {
-    return loading ? (
+  if (!locationId) return null;
+
+  if (loading) {
+    return (
       <div className="flex items-center gap-2 rounded-2xl border border-stone-200 bg-white p-5 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         Lade aktive Touren…
       </div>
-    ) : null;
+    );
   }
 
   const active = batches.filter((b) => ACTIVE.includes(b.status));

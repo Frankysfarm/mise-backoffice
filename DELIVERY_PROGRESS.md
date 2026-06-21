@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–371 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–372 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 372 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenFertigAufAbholung (Wartezeit fertige Bestellungen auf Fahrer, grün/amber/rot), DispatchFahrerLastenverteilung (Balkendiagramm verbleibende Stopps + Ungleichgewicht-Warnung), FahrerTourZeitplanLive (Soll/Ist-Vergleich Stopp+Zeit, Im Plan/Knapp/Rückstand), BestellZeitSeitBestellung (Live-Uhr seit Bestellaufgabe auf Erfolgsseite), LieferdienstAktuelleTouren (Live-Tourübersicht 2-Min-Polling). CEO Review #204: 1 Bug gefixt (Endlos-Spinner wenn locationId=null). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 371 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Kochzeit-Soll/Ist-Vergleich (Kitchen), Fahrer-Rückkehr-Matrix (Dispatch), Pausen-Empfehlung (Fahrer-App), Bestell-Uhrzeit-Fenster (Storefront), Fahrer-Heute-KPI-Grid (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 

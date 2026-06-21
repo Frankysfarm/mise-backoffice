@@ -1,7 +1,70 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–368 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–372 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #204 — 2026-06-21
+
+### Geprüfte Phasen: Phase 372 (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+- `tsc --noEmit`: 0 TypeScript-Fehler (exit code 0) ✅
+
+**Phase 372 — geprüfte Komponenten:**
+
+**`app/(admin)/kitchen/fertig-auf-abholung.tsx` — KitchenFertigAufAbholung:**
+- Filtert `fertig`/`ready`-Status, sortiert nach längster Wartezeit ✅
+- Alarm (rot) bei maxWait ≥10 Min, Warn (amber) bei ≥5 Min, korrekte Farbkodierung ✅
+- Null-Guard `fertig_um`: Fallback auf `now` → Wartezeit = 0 (korrekt) ✅
+- `if (ready.length === 0) return null` ✅
+- Integration kitchen/client.tsx: `orders={filtered}` ✅
+
+**`app/(admin)/dispatch/fahrer-lastenverteilung.tsx` — DispatchFahrerLastenverteilung:**
+- Nur angezeigt bei ≥2 aktiven Fahrern ✅
+- `Math.max(...rows.map(r => r.remaining), 1)` verhindert Division durch 0 ✅
+- Ungleichgewicht: `r.remaining > avgRemaining * 1.5 + 1` — der `+1`-Puffer verhindert False-Positives bei Nullwerten ✅
+- Integration dispatch/client.tsx: `batches={batches as any}` ✅
+
+**`app/fahrer/app/tour-zeitplan-live.tsx` — FahrerTourZeitplanLive:**
+- Guard: `if (!stops.length || !startedAt) return null` ✅
+- `planMin = totalEtaMin ?? 0`, Zeitbalken nur bei `planMin > 0` ✅
+- Rückstand-Logik: timePct − pct > 20 → rot, > 8 → amber, sonst grün ✅
+- Integration: `startedAt={activeBatch.started_at ?? null}`, `totalEtaMin={(activeBatch as any).total_eta_min ?? null}` ✅
+
+**`app/order/[locationSlug]/components/bestell-zeit-seit-bestellung.tsx` — BestellZeitSeitBestellung:**
+- Interval stoppt bei `delivered`/`geliefert`-Status ✅
+- Fallback auf `mountedAt.current` wenn kein `bestelltAt` — akzeptabel, da Erfolgsseite ≈ Bestellzeitpunkt ✅
+- rot ab 45 Min, amber ab 30 Min ✅
+- `return null` für `delivered`, `geliefert`, `abgeholt` ✅
+
+**`app/(admin)/lieferdienst/aktuelle-touren-uebersicht.tsx` — LieferdienstAktuelleTouren:**
+- **BUG GEFIXT:** Wenn `locationId` null war, blieb `loading = true` für immer (useEffect return-early, setLoading(false) nie aufgerufen) → Endlos-Spinner ❌→✅
+- Fix: `if (!locationId) return null;` vor der Loading-Prüfung eingefügt
+- Fetch `/api/delivery/admin/batches?status=active`, 2-Min-Polling, cancelled-Flag ✅
+- Sortierung: `late` → `tight` → `on-time` ✅
+- API-Response-Handling: `d.batches ?? d.data ?? []` ✅
+
+**Bugs gefunden + gefixt: 1**
+- `LieferdienstAktuelleTouren`: Endlos-Spinner bei `locationId=null` → `if (!locationId) return null` ✅
+
+### Status nach Review #204
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 372: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Alle 5 Komponenten: logisch korrekt, Guards vollständig ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 373: 5 neue Smart-Delivery-Komponenten (nächste Iteration)
+2. Vertiefung Fahrer-App: Route-Karte (Leaflet) für Stopp-Navigation
+3. Storefront: Web Push API bei Statuswechsel (bestätigt → in_zubereitung → unterwegs → geliefert)
+
+### Nächste Schritte für Backend-Architekt
+1. `bestellt_am`/`created_at` als Prop an `SuccessState` übergeben — BestellZeitSeitBestellung kann dann exakte Bestellzeit statt Mount-Zeit verwenden
+2. `/api/delivery/admin/stats` — `hourly_volume`-Array hinzufügen (LieferdienstStundenEffizienzMatrix nutzt noch Mock-Fallback)
 
 ---
 
