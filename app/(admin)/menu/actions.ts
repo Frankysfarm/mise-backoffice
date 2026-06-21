@@ -72,6 +72,7 @@ export async function createItem(data: {
   tags?: string[];
   beliebt?: boolean;
   verfuegbar?: boolean;
+  option_groups?: any[];
 }) {
   const emp = await getTenantAndLocation();
   if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
@@ -89,6 +90,7 @@ export async function createItem(data: {
     tags: data.tags ?? [],
     beliebt: data.beliebt ?? false,
     verfuegbar: data.verfuegbar ?? true,
+    option_groups: data.option_groups ?? [],
     sort_order: 999,
   });
   if (error) return { ok: false, error: error.message };
@@ -108,12 +110,28 @@ export async function updateItem(id: string, data: Partial<{
   tags: string[];
   beliebt: boolean;
   verfuegbar: boolean;
+  option_groups: any[];
 }>) {
   const svc = createServiceClient();
   const { error } = await svc.from('menu_items').update(data).eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/menu');
   return { ok: true };
+}
+
+// Optionsgruppen auf ALLE Produkte einer Kategorie anwenden (Kategorie-weite Optionen)
+export async function applyOptionGroupsToCategory(categoryId: string, option_groups: any[]) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
+  const svc = createServiceClient();
+  const { error, count } = await svc
+    .from('menu_items')
+    .update({ option_groups }, { count: 'exact' })
+    .eq('location_id', emp.location_id)
+    .eq('category_id', categoryId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/menu');
+  return { ok: true, count: count ?? 0 };
 }
 
 export async function deleteItem(id: string) {

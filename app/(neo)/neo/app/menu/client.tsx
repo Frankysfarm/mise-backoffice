@@ -1,13 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createItem, updateItem, toggleItemAvailable, createCategory } from '@/app/(admin)/menu/actions';
+import { createItem, updateItem, toggleItemAvailable, createCategory, applyOptionGroupsToCategory } from '@/app/(admin)/menu/actions';
 
 const PBG = ['#FEF3C7', '#ECFDF5', '#EEF2FF', '#DCFCE7', '#FCE7F3', '#EFF6FF'];
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 
 type Cat = { id: string; name: string; aktiv?: boolean; sort_order?: number };
-type Item = { id: string; name: string; beschreibung?: string | null; preis: number; mwst_satz?: number | null; verfuegbar: boolean; category_id: string | null; sort_order?: number };
+type OptItem = { id: string; name: string; label: string; priceDelta: number; default?: boolean };
+type OptGroup = { id: string; name: string; type: 'single' | 'multi'; required: boolean; max?: number; options: OptItem[] };
+type Item = { id: string; name: string; beschreibung?: string | null; preis: number; mwst_satz?: number | null; verfuegbar: boolean; beliebt?: boolean; category_id: string | null; sort_order?: number; option_groups?: OptGroup[] | null };
 
 const BTN = (bg: string, color: string): React.CSSProperties => ({ height: 40, padding: '0 16px', border: 'none', borderRadius: 10, background: bg, color, fontSize: 13.5, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7 });
 
@@ -93,16 +95,28 @@ function ItemModal({ mode, item, cats, defaultCat, onClose, onSaved }: { mode: '
   const [catId, setCatId] = useState<string | null>(item?.category_id ?? defaultCat);
   const [mwst, setMwst] = useState<number>(item?.mwst_satz != null ? Math.round(Number(item.mwst_satz)) : 7);
   const [desc, setDesc] = useState(item?.beschreibung ?? '');
+  const [groups, setGroups] = useState<OptGroup[]>(Array.isArray(item?.option_groups) ? (item!.option_groups as OptGroup[]) : []);
+  const [applyCat, setApplyCat] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
   const valid = name.trim().length >= 2 && Number(String(preis).replace(',', '.')) > 0;
 
+  // option_groups bereinigen: nur Gruppen mit Name + ≥1 benannter Option, label=name spiegeln (Shop nutzt label)
+  function cleanGroups(): OptGroup[] {
+    return groups
+      .map((g) => ({ ...g, options: g.options.filter((o) => o.name.trim()).map((o) => ({ ...o, name: o.name.trim(), label: o.name.trim(), priceDelta: Number(o.priceDelta) || 0 })) }))
+      .filter((g) => g.name.trim() && g.options.length > 0)
+      .map((g) => ({ ...g, name: g.name.trim() }));
+  }
+
   async function save() {
     if (!valid) return; setSaving(true); setErr('');
     const p = Number(String(preis).replace(',', '.'));
+    const og = cleanGroups();
     const r = mode === 'create'
-      ? await createItem({ category_id: catId, name: name.trim(), preis: p, mwst_satz: mwst, beschreibung: desc.trim() || undefined, food_type: mwst <= 7 ? 'speise' : 'getraenk' })
-      : await updateItem(item!.id, { category_id: catId, name: name.trim(), preis: p, mwst_satz: mwst, beschreibung: desc.trim() || null });
+      ? await createItem({ category_id: catId, name: name.trim(), preis: p, mwst_satz: mwst, beschreibung: desc.trim() || undefined, food_type: mwst <= 7 ? 'speise' : 'getraenk', option_groups: og })
+      : await updateItem(item!.id, { category_id: catId, name: name.trim(), preis: p, mwst_satz: mwst, beschreibung: desc.trim() || null, option_groups: og });
+    if (r.ok && applyCat && catId) await applyOptionGroupsToCategory(catId, og).catch(() => {});
     if (r.ok) onSaved(); else { setErr(r.error || 'Fehler'); setSaving(false); }
   }
 
@@ -122,6 +136,15 @@ function ItemModal({ mode, item, cats, defaultCat, onClose, onSaved }: { mode: '
           {[7, 19].map((v) => <button key={v} onClick={() => setMwst(v)} style={{ flex: 1, height: 42, borderRadius: 10, border: `1.5px solid ${mwst === v ? '#4F46E5' : '#E2E8F0'}`, background: mwst === v ? '#EEF2FF' : '#fff', color: mwst === v ? '#4338CA' : '#475569', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>{v}% {v === 7 ? '(Speise)' : '(Getränk/vor Ort)'}</button>)}
         </div>
         <label style={L}>Beschreibung (optional)</label><textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2} style={{ ...I, height: 64, padding: '10px 13px', resize: 'none' }} />
+
+        <OptionGroupsEditor groups={groups} setGroups={setGroups} />
+        {groups.length > 0 && catId && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 12.5, color: '#475569', fontWeight: 600, margin: '4px 0 14px', cursor: 'pointer' }}>
+            <input type="checkbox" checked={applyCat} onChange={(e) => setApplyCat(e.target.checked)} style={{ width: 16, height: 16 }} />
+            Diese Optionen auf <b>alle Produkte der Kategorie „{cats.find((c) => c.id === catId)?.name}"</b> anwenden
+          </label>
+        )}
+
         {err && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', borderRadius: 10, padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>{err}</div>}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           <button onClick={onClose} style={{ flex: 1, height: 44, borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', color: '#475569', fontWeight: 700, cursor: 'pointer' }}>Abbrechen</button>
@@ -151,6 +174,68 @@ function CatModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => vo
           <button onClick={onClose} style={{ flex: 1, height: 44, borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', color: '#475569', fontWeight: 700, cursor: 'pointer' }}>Abbrechen</button>
           <button onClick={save} disabled={name.trim().length < 2 || saving} style={{ flex: 1, height: 44, borderRadius: 10, border: 'none', background: name.trim().length >= 2 && !saving ? '#4F46E5' : '#CBD5E1', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>{saving ? '…' : 'Anlegen'}</button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== Optionen / Variationen Editor ===================== */
+let _uidc = 0;
+function uid(prefix: string) { _uidc += 1; return `${prefix}_${Date.now().toString(36)}_${_uidc}`; }
+
+const OPT_PRESETS: { label: string; group: () => OptGroup }[] = [
+  { label: 'Größe', group: () => ({ id: uid('g'), name: 'Größe', type: 'single', required: true, options: [
+    { id: uid('o'), name: 'Klein', label: 'Klein', priceDelta: 0, default: true },
+    { id: uid('o'), name: 'Mittel', label: 'Mittel', priceDelta: 1 },
+    { id: uid('o'), name: 'Groß', label: 'Groß', priceDelta: 2 },
+  ] }) },
+  { label: 'Extras', group: () => ({ id: uid('g'), name: 'Extras', type: 'multi', required: false, max: 5, options: [
+    { id: uid('o'), name: 'Extra Käse', label: 'Extra Käse', priceDelta: 1 },
+    { id: uid('o'), name: 'Extra Soße', label: 'Extra Soße', priceDelta: 0.5 },
+  ] }) },
+  { label: 'Beilage', group: () => ({ id: uid('g'), name: 'Beilage', type: 'single', required: true, options: [
+    { id: uid('o'), name: 'Pommes', label: 'Pommes', priceDelta: 0, default: true },
+    { id: uid('o'), name: 'Salat', label: 'Salat', priceDelta: 0 },
+  ] }) },
+];
+
+function OptionGroupsEditor({ groups, setGroups }: { groups: OptGroup[]; setGroups: (g: OptGroup[]) => void }) {
+  const upd = (gi: number, patch: Partial<OptGroup>) => setGroups(groups.map((g, i) => (i === gi ? { ...g, ...patch } : g)));
+  const updOpt = (gi: number, oi: number, patch: Partial<OptItem>) => setGroups(groups.map((g, i) => i === gi ? { ...g, options: g.options.map((o, j) => (j === oi ? { ...o, ...patch } : o)) } : g));
+  const addGroup = () => setGroups([...groups, { id: uid('g'), name: '', type: 'single', required: false, options: [{ id: uid('o'), name: '', label: '', priceDelta: 0 }] }]);
+  const SI: React.CSSProperties = { height: 36, border: '1.5px solid #E2E8F0', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0F172A' };
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 6 }}>Optionen & Variationen <span style={{ color: '#94A3B8', fontWeight: 500 }}>· z. B. Größe, Extras, Beilage</span></div>
+      {groups.map((g, gi) => (
+        <div key={g.id} style={{ border: '1px solid #E2E8F0', borderRadius: 12, padding: 12, marginBottom: 10, background: '#F8FAFC' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 10 }}>
+            <input value={g.name} onChange={(e) => upd(gi, { name: e.target.value })} placeholder="Gruppenname (z. B. Größe)" style={{ ...SI, flex: 1 }} />
+            <button onClick={() => upd(gi, { type: g.type === 'single' ? 'multi' : 'single' })} title="Auswahltyp" style={{ ...SI, border: 'none', background: '#EEF2FF', color: '#4338CA', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>{g.type === 'single' ? '1 wählbar' : 'Mehrere'}</button>
+            <button onClick={() => setGroups(groups.filter((_, i) => i !== gi))} title="Gruppe löschen" style={{ width: 36, height: 36, border: '1px solid #FECACA', borderRadius: 8, background: '#fff', color: '#DC2626', cursor: 'pointer', flexShrink: 0 }}>×</button>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: '#64748B', fontWeight: 600, marginBottom: 9, cursor: 'pointer' }}>
+            <input type="checkbox" checked={g.required} onChange={(e) => upd(gi, { required: e.target.checked })} /> Pflichtauswahl
+          </label>
+          {g.options.map((o, oi) => (
+            <div key={o.id} style={{ display: 'flex', gap: 7, alignItems: 'center', marginBottom: 6 }}>
+              {g.type === 'single' && <input type="radio" checked={!!o.default} onChange={() => upd(gi, { options: g.options.map((x, j) => ({ ...x, default: j === oi })) })} title="Vorausgewählt" />}
+              <input value={o.name} onChange={(e) => updOpt(gi, oi, { name: e.target.value })} placeholder="Option (z. B. Groß)" style={{ ...SI, flex: 1 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <span style={{ fontSize: 12, color: '#94A3B8' }}>+€</span>
+                <input value={String(o.priceDelta)} onChange={(e) => updOpt(gi, oi, { priceDelta: Number(String(e.target.value).replace(',', '.')) || 0 })} inputMode="decimal" style={{ ...SI, width: 64 }} />
+              </div>
+              <button onClick={() => upd(gi, { options: g.options.filter((_, j) => j !== oi) })} style={{ width: 32, height: 36, border: '1px solid #E2E8F0', borderRadius: 8, background: '#fff', color: '#94A3B8', cursor: 'pointer', flexShrink: 0 }}>×</button>
+            </div>
+          ))}
+          <button onClick={() => upd(gi, { options: [...g.options, { id: uid('o'), name: '', label: '', priceDelta: 0 }] })} style={{ marginTop: 4, height: 32, padding: '0 12px', border: '1px dashed #CBD5E1', borderRadius: 8, background: '#fff', color: '#475569', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>+ Option</button>
+        </div>
+      ))}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+        <button onClick={addGroup} style={{ height: 34, padding: '0 13px', border: '1.5px solid #4F46E5', borderRadius: 9, background: '#fff', color: '#4338CA', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>+ Optionsgruppe</button>
+        {OPT_PRESETS.map((p) => (
+          <button key={p.label} onClick={() => setGroups([...groups, p.group()])} style={{ height: 34, padding: '0 12px', border: '1px solid #E2E8F0', borderRadius: 9, background: '#F8FAFC', color: '#475569', fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}>+ {p.label}</button>
+        ))}
       </div>
     </div>
   );

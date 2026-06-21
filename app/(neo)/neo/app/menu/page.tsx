@@ -8,7 +8,7 @@ export default async function MenuPage() {
   const locId = emp?.location_id ?? '';
   const [{ data: cats }, { data: items }] = await Promise.all([
     supabase.from('menu_categories').select('id, name, aktiv, sort_order').eq('location_id', locId).order('sort_order', { ascending: true }),
-    supabase.from('menu_items').select('id, name, beschreibung, preis, mwst_satz, verfuegbar, category_id, sort_order').eq('location_id', locId).order('sort_order', { ascending: true }),
+    supabase.from('menu_items').select('id, name, beschreibung, preis, mwst_satz, verfuegbar, beliebt, category_id, sort_order, option_groups').eq('location_id', locId).order('sort_order', { ascending: true }),
   ]);
   return (
     <div style={{ maxWidth: 1180 }}>
