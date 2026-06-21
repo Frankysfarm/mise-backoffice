@@ -1,1 +1,1 @@
-export const BUILD_VERSION = 'e939da3 | 21.06 13:00';
+export const BUILD_VERSION = '35a4dbc | 21.06 13:30';

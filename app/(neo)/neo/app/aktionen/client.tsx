@@ -4,18 +4,24 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createVoucher, toggleVoucher, deleteVoucher } from '@/app/(admin)/vouchers/actions';
 
-type Loyalty = { enabled?: boolean; target_stamps?: number; reward_title?: string; reward_text?: string };
+type Loyalty = { enabled?: boolean; target_stamps?: number; reward_title?: string; reward_text?: string; reward_product_ids?: string[]; reward_min_order?: number };
+type RewardProduct = { id: string; name: string; preis: number };
 
-export function LoyaltyEditor({ tenantId, current }: { tenantId: string; current: Loyalty }) {
+export function LoyaltyEditor({ tenantId, current, products = [] }: { tenantId: string; current: Loyalty; products?: RewardProduct[] }) {
   const [enabled, setEnabled] = useState<boolean>(current?.enabled !== false);
   const [threshold, setThreshold] = useState<number>(current?.target_stamps ?? 5);
   const [rewardText, setRewardText] = useState<string>(current?.reward_text ?? '1 Pasta gratis');
+  const [rewardIds, setRewardIds] = useState<string[]>(Array.isArray(current?.reward_product_ids) ? current!.reward_product_ids! : []);
+  const [minOrder, setMinOrder] = useState<string>(current?.reward_min_order ? String(current.reward_min_order) : '');
+  const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   const valid = threshold >= 2 && threshold <= 20 && rewardText.trim().length >= 2;
   const title = `Jede ${threshold}. Bestellung`;
+  const toggleProduct = (id: string) => setRewardIds((xs) => (xs.includes(id) ? xs.filter((x) => x !== id) : [...xs, id]));
+  const shown = products.filter((p) => p.name.toLowerCase().includes(search.trim().toLowerCase()));
 
   async function save() {
     if (!valid || saving) return;
@@ -24,7 +30,8 @@ export function LoyaltyEditor({ tenantId, current }: { tenantId: string; current
     // aktuelle storefront_settings lesen → loyalty mergen → zurückschreiben (kein Clobber)
     const { data, error: readErr } = await sb.from('tenants').select('storefront_settings').eq('id', tenantId).maybeSingle();
     if (readErr) { setErr(readErr.message); setSaving(false); return; }
-    const merged = { ...((data?.storefront_settings as any) || {}), loyalty: { enabled, target_stamps: threshold, reward_title: title, reward_text: rewardText.trim() } };
+    const mo = Number(String(minOrder).replace(',', '.'));
+    const merged = { ...((data?.storefront_settings as any) || {}), loyalty: { enabled, target_stamps: threshold, reward_title: title, reward_text: rewardText.trim(), reward_product_ids: rewardIds, reward_min_order: minOrder && mo > 0 ? mo : 0 } };
     const { error } = await sb.from('tenants').update({ storefront_settings: merged }).eq('id', tenantId);
     setSaving(false);
     if (error) { setErr(error.message); } else { setSavedAt(Date.now()); }
@@ -57,6 +64,33 @@ export function LoyaltyEditor({ tenantId, current }: { tenantId: string; current
           <label style={L}>Belohnung</label>
           <input value={rewardText} onChange={(e) => setRewardText(e.target.value)} placeholder="z. B. 1 Pasta gratis" style={I} />
         </div>
+      </div>
+
+      {/* Gratis-Produkte zur Einlösung */}
+      <div style={{ marginBottom: 14 }}>
+        <label style={L}>Gratis-Produkte zur Auswahl <span style={{ color: '#94A3B8', fontWeight: 500 }}>· {rewardIds.length} gewählt</span></label>
+        <p style={{ fontSize: 12, color: '#94A3B8', margin: '-2px 0 8px' }}>Aus diesen Produkten wählt der Kunde sein Gratis-Produkt, sobald er die {threshold} Bestellungen erreicht hat. Leer = alle Produkte erlaubt.</p>
+        {products.length > 8 && <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Produkt suchen…" style={{ ...I, height: 38, marginBottom: 8 }} />}
+        <div style={{ maxHeight: 196, overflowY: 'auto', border: '1px solid #E2E8F0', borderRadius: 10, padding: 6 }}>
+          {products.length === 0 && <div style={{ padding: 14, textAlign: 'center', color: '#94A3B8', fontSize: 13 }}>Noch keine Produkte im Menü.</div>}
+          {shown.map((p) => {
+            const on = rewardIds.includes(p.id);
+            return (
+              <button key={p.id} onClick={() => toggleProduct(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8, border: 'none', background: on ? '#EEF2FF' : 'transparent', cursor: 'pointer', marginBottom: 2 }}>
+                <span style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${on ? '#4F46E5' : '#CBD5E1'}`, background: on ? '#4F46E5' : '#fff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0 }}>{on ? '✓' : ''}</span>
+                <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: '#0F172A', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                <span style={{ fontSize: 12.5, color: '#94A3B8', flexShrink: 0 }}>{eur(p.preis)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Mindestbestellwert für Einlösung (Anti-Missbrauch, optional) */}
+      <div style={{ marginBottom: 14 }}>
+        <label style={L}>Mindestbestellwert für Einlösung <span style={{ color: '#94A3B8', fontWeight: 500 }}>· optional</span></label>
+        <input value={minOrder} onChange={(e) => setMinOrder(e.target.value)} inputMode="decimal" placeholder="z. B. 15 (leer = kein Mindestwert)" style={I} />
+        <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 6 }}>Verhindert, dass jemand nur das Gratis-Produkt bestellt. Bezieht sich auf den Warenkorb ohne das Gratis-Produkt.</p>
       </div>
 
       {/* Live-Vorschau */}

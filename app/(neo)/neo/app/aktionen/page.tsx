@@ -8,7 +8,9 @@ export default async function Aktionen() {
   const emp = await getCurrentEmployee();
   const sb = createServiceClient();
   const { data: t } = await sb.from('tenants').select('id, storefront_settings').eq('id', emp?.tenant_id ?? '').maybeSingle();
-  const loyalty = ((t?.storefront_settings as any)?.loyalty ?? {}) as { enabled?: boolean; target_stamps?: number; reward_title?: string; reward_text?: string };
+  const loyalty = ((t?.storefront_settings as any)?.loyalty ?? {}) as { enabled?: boolean; target_stamps?: number; reward_title?: string; reward_text?: string; reward_product_ids?: string[]; reward_min_order?: number };
+  const { data: prods } = await sb.from('menu_items').select('id, name, preis').eq('location_id', emp?.location_id ?? '').eq('verfuegbar', true).order('name', { ascending: true });
+  const rewardProducts = (prods ?? []).map((p: any) => ({ id: p.id, name: p.name, preis: Number(p.preis) }));
   const { data: vouchers } = await sb.from('vouchers').select('id, code, typ, wert, min_bestellwert, beschreibung, gueltig_bis, aktiv, nutzungen_aktuell, nutzungen_max').eq('tenant_id', t?.id ?? '').order('created_at', { ascending: false });
   return (
     <div style={{ maxWidth: 1180 }}>
@@ -18,7 +20,7 @@ export default async function Aktionen() {
           <p style={{ fontSize: 13.5, color: '#64748B', marginBottom: 14 }}>Jeder Kunde erhält bei seiner Bestellung ein Gratis-Produkt.</p>
           <Soon href="/loyalty" style={{ width: '100%', height: 44, border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#fff', fontSize: 14, color: '#475569', fontWeight: 600, cursor: 'pointer', textAlign: 'left', paddingLeft: 12 }}>Gratis-Produkt festlegen…</Soon>
         </div>
-        <LoyaltyEditor tenantId={t?.id ?? ''} current={loyalty} />
+        <LoyaltyEditor tenantId={t?.id ?? ''} current={loyalty} products={rewardProducts} />
       </div>
       <VoucherManager vouchers={(vouchers ?? []) as any[]} />
       <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8', letterSpacing: '.3px', marginBottom: 10 }}>WEITERE AKTIONS-IDEEN</div>
