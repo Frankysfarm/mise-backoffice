@@ -1,13 +1,52 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–362 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–363 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 363 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Queue-Effizienz-Ring (Kitchen), Fahrer-Tempo-Matrix (Dispatch), Nächster-Stopp-Vorschau (Fahrer-App), Live-Bestellstatus-Timeline (Storefront), Schicht-Leistungs-Radar (Lieferdienst). CEO Review #200: 1 Bug gefixt (zahlungsart-Logik). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 362 (2026-06-21): KI-Auftrags-Priorisierungs-API (Backend-ML-Score, persistiert), Tour-Effizienz-Report (EUR/Stopp P75-Benchmark täglich aggregiert), Proximity-Ring-GPS-Fix, 5 neue Frontend-Komponenten (Kitchen Heatmap, Dispatch Echtzeit-Belastung, Fahrer Effizienz-Karte, Lieferdienst Effizienz-Report). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 363 — 5 neue Smart-Delivery-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`app/(admin)/kitchen/queue-effizienz-ring.tsx`** — `KitchenQueueEffizienzRing`
+- SVG-Pünktlichkeitsring (0–100%), Trend-Indikator (↑/↓/—), Ø Verzögerungsminuten
+- 5s-Client-Tick, Farbe: grün ≥80% / amber ≥60% / rot <60%
+- Integration: kitchen/client.tsx L642
+
+**`app/(admin)/dispatch/fahrer-tempo-matrix.tsx`** — `DispatchFahrerTempoMatrix`
+- Live Stopps/h je Fahrer (Ziel: 3,5/h), Farbkodierung schnell/normal/langsam
+- 15s-Polling-Tick, Fortschrittsbalken vs. Target, elapsed-Min-Anzeige, Zone-Badge
+- Integration: dispatch/client.tsx L1077
+
+**`app/fahrer/app/naechster-stopp-vorschau.tsx`** — `NaechsterStoppVorschau`
+- Nächster-Stopp-Karte: Kundenname, Adresse, ETA, Distanz, Zahlungsart, Lieferhinweis
+- Google Maps Deep-Link, Anruf-Button, Tour-Fortschrittsbalken
+- Bug gefixt (CEO #200): zahlungsart+bezahlt aus order gelesen, EC-Karte-Label korrekt
+- Integration: fahrer/app/client.tsx L1026
+
+**`app/order/[locationSlug]/components/live-bestellstatus-timeline.tsx`** — `LiveBestellstatusTimeline`
+- 5-Phasen-Timeline (Angenommen→Zubereitung→Bereit→Unterwegs→Geliefert) mit Zeitstempeln
+- Supabase-Realtime postgres_changes UPDATE, animierter Pulse-Dot aktive Phase
+- Integration: order/[locationSlug]/components/success-state.tsx L425
+
+**`app/(admin)/lieferdienst/schicht-leistungs-radar.tsx`** — `SchichtLeistungsRadar`
+- 5D-SVG-Radar: Pünktlichkeit, Effizienz, Kundensterne, Durchsatz, Umsatz-Pace
+- APIs: /api/delivery/admin/stats + /api/delivery/admin/reviews, 5-Min-Polling
+- Graceful Fallback bei API-Fehler, Ø-Score-Badge
+- Integration: lieferdienst/client.tsx L1236
+
+**CEO Review #200:** 1 Bug gefixt (NaechsterStoppVorschau zahlungsart-Logik), 0 TypeScript-Fehler, Build ✅ 354 Seiten
 
 ---
 

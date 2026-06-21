@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–361 vollständig abgeschlossen. Build sauber (352 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–363 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #200 — 2026-06-21
+
+### Geprüfte Phasen: Phase 363 (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 Fehler) ✅
+
+**Phase 363 — geprüfte Komponenten:**
+
+**Kitchen: `KitchenQueueEffizienzRing`**
+- SVG-Ring mit Pünktlichkeitsquote (%), Trend-Indikator (↑/↓/—), Ø Verzögerung ✅
+- 5s-Tick für Live-Berechnung (client-side), keine API-Calls nötig ✅
+- Graceful: `return null` wenn keine aktiven Orders ✅
+- Integration: kitchen/client.tsx L642 korrekt ✅
+
+**Dispatch: `DispatchFahrerTempoMatrix`**
+- Live Stopps/h je Fahrer (TARGET 3,5/h), Farbkodierung schnell/normal/langsam ✅
+- 15s-Polling-Tick, Fortschrittsbalken, elapsed-Zeit-Anzeige ✅
+- Graceful: `return null` wenn keine aktiven Batches ✅
+- Integration: dispatch/client.tsx L1077 korrekt ✅
+
+**Fahrer-App: `NaechsterStoppVorschau`**
+- BUG GEFUNDEN + GEFIXT: `zahlungsart` wurde nicht aus `order`-Objekt gelesen → immer "Bar kassieren" ✅
+- Fix: `zahlungsart` und `bezahlt` zu Stop.order-Typ ergänzt, aus `order.zahlungsart` gelesen ✅
+- Fix: `isCash` berücksichtigt jetzt `order.bezahlt === false` korrekt ✅
+- Fix: EC-Karte-Label "EC-Karte kassieren" vs "Bar kassieren" vs "Bereits bezahlt" ✅
+- Fix: ungenutzter Import `CheckCircle2` entfernt ✅
+- Integration: fahrer/app/client.tsx L1026 korrekt ✅
+
+**Storefront: `LiveBestellstatusTimeline`**
+- 5-Phasen-Timeline mit Supabase-Realtime, Zeitstempel-Anzeige ✅
+- Animierter Pulse-Dot beim aktuellen Status, Connector-Linien farbkodiert ✅
+- `phaseIndex()` robuster Status-Mapper (neu/bestätigt/angenommen → 0, etc.) ✅
+- Integration: order/[locationSlug]/components/success-state.tsx L425 korrekt ✅
+
+**Lieferdienst: `SchichtLeistungsRadar`**
+- 5D-SVG-Radar: Pünktlichkeit, Effizienz, Kundenbewertung, Durchsatz, Umsatz-Pace ✅
+- Normalisierung auf 0–100%, graceful fallback bei API-Fehler ✅
+- 5-Min-Polling, Ladeanimation, Ø-Score-Badge oben rechts ✅
+- Integration: lieferdienst/client.tsx L1236 korrekt ✅
+
+**Bugs gefunden + gefixt: 1**
+1. `NaechsterStoppVorschau`: `zahlungsart` nie aus Order gelesen → immer "Bar kassieren" — GEFIXT ✅
+
+### Status nach Review #200
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 363: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 364: Fahrer-Feedback-Loop — driver_score_weekly_snapshots Tabelle (analog zone_difficulty_daily), wöchentlicher Cron 00:30 UTC Montag, `getDriverScoreHistory(driverId, weeks)` API
+2. Phase 364: Dispatch-Effizienz-Analytics — Aggregation wie viele Batches/Tag pro Zone, Durchschnittliche Tour-Dauer, Peak-Stunden-Identifikation
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 364: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Lieferdienst + Tracking)
+2. `/delivery/driver-score` Admin-Seite: Wochen-Verlauf + Recharts LineChart für Top-5 Fahrer
 
 ---
 

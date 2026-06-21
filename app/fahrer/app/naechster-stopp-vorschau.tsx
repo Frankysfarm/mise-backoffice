@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { MapPin, Phone, Clock, Navigation, CreditCard, Banknote, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, Clock, Navigation, CreditCard, Banknote, AlertCircle } from 'lucide-react';
 
 type Stop = {
   id: string;
@@ -17,6 +17,8 @@ type Stop = {
     kunde_lat: number | null;
     kunde_lng: number | null;
     gesamtbetrag: number;
+    zahlungsart?: string | null;
+    bezahlt?: boolean | null;
     kunde_notiz?: string | null;
     kunde_lieferhinweis?: string | null;
     kunde_telefon?: string | null;
@@ -28,7 +30,6 @@ interface Props {
   stops: Stop[];
   driverLat?: number | null;
   driverLng?: number | null;
-  zahlungsart?: string | null;
 }
 
 function nextStop(stops: Stop[]): Stop | null {
@@ -55,11 +56,12 @@ function mapsUrl(adresse: string, plz: string | null): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${q}`;
 }
 
-export function NaechsterStoppVorschau({ stops, driverLat, driverLng, zahlungsart }: Props) {
+export function NaechsterStoppVorschau({ stops, driverLat, driverLng }: Props) {
   const stop = nextStop(stops);
   if (!stop) return null;
 
   const { order } = stop;
+  const zahlungsart = order.zahlungsart ?? null;
   const completedCount = stops.filter((s) => s.geliefert_am !== null).length;
   const totalCount = stops.length;
   const remaining = totalCount - completedCount;
@@ -75,7 +77,8 @@ export function NaechsterStoppVorschau({ stops, driverLat, driverLng, zahlungsar
     etaMin = etaMinFromDist(distM);
   }
 
-  const isCash = !zahlungsart || zahlungsart === 'bar' || zahlungsart === 'cash';
+  const isCash = (order.bezahlt === false || order.bezahlt == null)
+    && (!zahlungsart || zahlungsart === 'bar' || zahlungsart === 'cash');
   const betrag = (order.gesamtbetrag / 100).toFixed(2).replace('.', ',');
 
   return (
@@ -137,7 +140,9 @@ export function NaechsterStoppVorschau({ stops, driverLat, driverLng, zahlungsar
             ? <Banknote className="h-3.5 w-3.5 text-amber-600 shrink-0" />
             : <CreditCard className="h-3.5 w-3.5 text-matcha-600 shrink-0" />}
           <span className={cn('text-xs font-bold', isCash ? 'text-amber-700' : 'text-matcha-700')}>
-            {isCash ? 'Bar kassieren' : 'Bereits bezahlt'}
+            {isCash
+              ? zahlungsart === 'ec' ? 'EC-Karte kassieren' : 'Bar kassieren'
+              : 'Bereits bezahlt'}
           </span>
           <span className="ml-auto text-sm font-black tabular-nums">
             {betrag} €
