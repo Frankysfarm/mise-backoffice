@@ -152,6 +152,7 @@ import { aggregateTourEfficiencyAllLocations, pruneTourEfficiency } from '@/lib/
 import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrderPriorityScores } from '@/lib/delivery/order-priority-engine';
 import { snapshotHandoffRateDailyAllLocations, pruneHandoffRateDaily } from '@/lib/delivery/kitchen-sync';
 import { predictAllActiveTourEndsAllLocations, settleAllCompletedToursAllLocations, pruneTourEndPredictions } from '@/lib/delivery/tour-end-prediction';
+import { snapshotSchichtRoiDailyAllLocations, pruneSchichtRoiDaily } from '@/lib/delivery/schicht-roi-daily';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -328,6 +329,9 @@ export async function GET(req: NextRequest) {
     // Phase 376: Tour-End-Prognosen — jeden Tick (Echtzeit-Forecast aktiver Batches); settle + prune täglich 05:55 UTC
     const isTourEndPredictionSettleTick = nowHour === 5 && nowMin >= 55 && nowMin < 59;
     const isTourEndPredictionPruneTick  = nowHour === 5 && nowMin >= 55 && nowMin < 59;
+    // Phase 377: Schicht-ROI Daily Snapshots — täglich 02:10 UTC; prune täglich 07:10 UTC
+    const isSchichtRoiSnapshotTick = nowHour === 2 && nowMin >= 10 && nowMin < 14;
+    const isSchichtRoiPruneTick    = nowHour === 7 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1272,6 +1276,14 @@ export async function GET(req: NextRequest) {
       ? await pruneTourEndPredictions(30).catch(() => null)
       : null;
 
+    // Phase 377: Schicht-ROI Daily Snapshots
+    const schichtRoiSnapshotResult = isSchichtRoiSnapshotTick
+      ? await snapshotSchichtRoiDailyAllLocations().catch(() => null)
+      : null;
+    const schichtRoiPruned = isSchichtRoiPruneTick
+      ? await pruneSchichtRoiDaily(180).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1526,6 +1538,8 @@ export async function GET(req: NextRequest) {
       ...(tourEndPredResult?.processed ? { tour_end_predictions: { locations: tourEndPredResult.locations, processed: tourEndPredResult.processed, errors: tourEndPredResult.errors } } : {}),
       ...(tourEndSettleResult?.settled ? { tour_end_settled: { settled: tourEndSettleResult.settled } } : {}),
       ...(tourEndPruned?.pruned ? { tour_end_pruned: tourEndPruned.pruned } : {}),
+      ...(schichtRoiSnapshotResult?.saved ? { schicht_roi_snapshot: { locations: schichtRoiSnapshotResult.locations, saved: schichtRoiSnapshotResult.saved, errors: schichtRoiSnapshotResult.errors } } : {}),
+      ...(schichtRoiPruned?.pruned ? { schicht_roi_pruned: schichtRoiPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

@@ -6365,3 +6365,46 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 5. `SchichtDeltaVergleich` — nutzt `/api/delivery/admin/overview` (separates Endpoint, weiterhin OK)
 
 - Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 377 — Backend: Schicht-ROI Daily Snapshots + Trend-Dashboard (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert
+
+**`scripts/migrations/181_schicht_roi_daily.sql`:**
+- `schicht_roi_daily` — Tages-Snapshots der ROI-Kennzahlen je Standort
+- Felder: `revenue_eur`, `delivery_fee_eur`, `delivery_count`, `avg_order_value_eur`
+- Fahrereinsatz: `active_driver_count`, `active_driver_hours`, `estimated_cost_eur`
+- Berechnete KPIs: `revenue_per_driver_hour`, `cost_per_delivery`, `net_margin_eur`, `net_margin_pct`
+- `peak_hour` — Berliner Stunde mit den meisten Bestellungen
+- UNIQUE(location_id, snapshot_date), RLS service_role + authenticated read, updated_at Trigger
+- `prune_schicht_roi_daily(days_to_keep)` RPC + `v_schicht_roi_trend_30d` VIEW
+
+**`lib/delivery/schicht-roi-daily.ts`** (neu):
+- `snapshotSchichtRoiDaily(locationId, date?)` → `SnapshotResult` — Aggregiert `customer_orders` (bestellart=lieferung) + `driver_shifts` (base_wage_eur × Schichtdauer), berechnet alle KPIs, upsert via UNIQUE-Key
+- `snapshotSchichtRoiDailyAllLocations(date?)` → `AllLocationsResult` — Cron-Batch für alle is_active Standorte
+- `getSchichtRoiHistory(locationId, days)` → `SchichtRoiDailyRow[]` — Trend-Daten für LineChart (max 90 Tage)
+- `pruneSchichtRoiDaily(daysToKeep)` → `{ pruned }` — via RPC
+
+**`app/api/delivery/admin/schicht-roi/route.ts`** — Erweitert:
+- GET `?action=history&days=30` → Tages-Snapshots aus `schicht_roi_daily` (neu)
+- GET `?action=today` (default) → Live-KPIs wie bisher (bestehend)
+- POST `action=snapshot&date=YYYY-MM-DD` → Manuellen Snapshot auslösen (neu)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `snapshotSchichtRoiDailyAllLocations()` täglich 02:10 UTC (`isSchichtRoiSnapshotTick`)
+- `pruneSchichtRoiDaily(180)` täglich 07:10 UTC (`isSchichtRoiPruneTick`)
+
+**`app/(admin)/lieferdienst/schicht-roi-trend.tsx`** — `LieferdienstSchichtROITrend`:
+- Collapsible Recharts-LineChart mit 3-Tab-Auswahl: Netto-Marge % / Umsatz/Stunde / Kosten/Lieferung
+- Zeitraum-Selektor: 14 / 30 / 60 / 90 Tage
+- KPI-Kacheln (letzter Tag): Netto-Marge, Umsatz/Fahrer-Std., Kosten/Lieferung, Umsatz ges.
+- Margin-Delta zum Vortag in der Subtitel-Zeile (PP-Differenz)
+- Leer-Zustand mit Cron-Info wenn noch keine Snapshots vorhanden
+- 10-Min-Polling (lazy: nur wenn open=true)
+- Integration: `lieferdienst/client.tsx` nach `<SchichtROIPanel />`
+
+- Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)

@@ -167,6 +167,7 @@ import { LieferdienstFahrerHeuteKpiGrid } from './fahrer-heute-kpi-grid';
 import { LieferdienstAktuelleTouren } from './aktuelle-touren-uebersicht';
 import { LieferdienstSchichtTempoKpi } from './schicht-tempo-kpi';
 import { LieferdienstTagesKPIPanel } from './tages-kpi-panel';
+import { LieferdienstSchichtROITrend } from './schicht-roi-trend';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1104,6 +1105,8 @@ export function LieferdienstClient() {
               <LieferdienstWochenPraemienPanel locationId={locationId} />
               {/* Phase 328: Schicht-ROI-Panel — Umsatz/Fahrer-Std., Kosten/Lieferung, Netto-Marge vs. 7-Tage-Ø */}
               <SchichtROIPanel locationId={locationId} />
+              {/* Phase 377: Schicht-ROI-Trend — 14/30/60/90-Tage-LineChart Netto-Marge/Umsatz/Kosten aus schicht_roi_daily */}
+              <LieferdienstSchichtROITrend locationId={locationId} />
               {/* Phase 305: Surge-Analyse-Panel — Nachfragespitzen-Analyse mit Z-Score + Trend (Phase 304 Backend) */}
               <SurgeAnalysePanel locationId={locationId} />
               {/* Phase 301: Schicht-Rentabilitäts-Ampel — Traffic-Light für aktuelle Schicht-Profitabilität */}

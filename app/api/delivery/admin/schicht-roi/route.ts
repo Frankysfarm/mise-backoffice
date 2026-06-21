@@ -1,21 +1,26 @@
 /**
  * GET /api/delivery/admin/schicht-roi
  *
- * Echte Schicht-ROI-Daten für SchichtROIPanel:
- * - Umsatz pro Fahrer-Stunde (heute vs. 7d-Ø)
- * - Kosten pro Lieferung (heute vs. 7d-Ø)
- * - Netto-Marge in % (heute vs. 7d-Ø)
+ * ?action=today (default) — Live-KPIs: Umsatz/Stunde, Kosten/Lieferung, Netto-Marge
+ * ?action=history&days=30 — Tages-Snapshots aus schicht_roi_daily (Phase 377)
+ *
+ * POST action=snapshot — Manuellen Tages-Snapshot auslösen
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import {
+  getSchichtRoiHistory,
+  snapshotSchichtRoiDaily,
+} from '@/lib/delivery/schicht-roi-daily';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+async function resolveAuth(req: NextRequest): Promise<{ locationId: string } | null> {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return null;
 
   const { data: emp } = await sb
     .from('employees')
@@ -23,12 +28,44 @@ export async function GET(req: NextRequest) {
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
-  if (!emp?.location_id || !['admin', 'manager', 'dispatcher'].includes(emp.rolle)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
+  if (!emp?.location_id || !['admin', 'manager', 'dispatcher'].includes(emp.rolle)) return null;
 
   const paramLocation = req.nextUrl.searchParams.get('location_id');
-  const locationId = paramLocation ?? emp.location_id;
+  return { locationId: paramLocation ?? emp.location_id };
+}
+
+export async function POST(req: NextRequest) {
+  const auth = await resolveAuth(req);
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  let body: Record<string, unknown> = {};
+  try { body = (await req.json()) as Record<string, unknown>; } catch { /* ok */ }
+
+  const action = String(body.action ?? '');
+  if (action === 'snapshot') {
+    const date = typeof body.date === 'string' ? body.date : undefined;
+    const result = await snapshotSchichtRoiDaily(auth.locationId, date);
+    return NextResponse.json({ ok: true, ...result });
+  }
+
+  return NextResponse.json({ error: 'Unbekannte action' }, { status: 400 });
+}
+
+export async function GET(req: NextRequest) {
+  const auth = await resolveAuth(req);
+  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const action = req.nextUrl.searchParams.get('action') ?? 'today';
+
+  // ── History: Tages-Snapshots aus schicht_roi_daily ─────────────────────────
+  if (action === 'history') {
+    const days = Math.min(90, Math.max(7, Number(req.nextUrl.searchParams.get('days') ?? '30')));
+    const history = await getSchichtRoiHistory(auth.locationId, days);
+    return NextResponse.json({ ok: true, history, days });
+  }
+
+  // ── Live-KPIs (heutiger Tag) ───────────────────────────────────────────────
+  const locationId = auth.locationId;
 
   const svc = createServiceClient();
   const now = new Date();
@@ -124,3 +161,4 @@ export async function GET(req: NextRequest) {
     vergleichMarge7d: hist.nettoMargeProz,
   });
 }
+
