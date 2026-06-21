@@ -162,6 +162,7 @@ import { snapshotOpsHealthAllLocations, pruneOpsHealthSnapshots } from '@/lib/de
 import { detectLostConnectionsAllLocations, pruneOldHeartbeats as pruneDriverHeartbeats, pruneOldConnectivityEvents } from '@/lib/delivery/driver-heartbeat';
 import { snapshotExecutiveKpiAllLocations, pruneExecutiveKpiSnapshots } from '@/lib/delivery/executive-dashboard';
 import { catchupSchichtRoiDailyAllLocations } from '@/lib/delivery/schicht-roi-daily';
+import { snapshotOrderPulseAllLocations, pruneOrderPulseSnapshots } from '@/lib/delivery/order-pulse';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -362,6 +363,9 @@ export async function GET(req: NextRequest) {
     const isExecutiveKpiPruneTick    = nowHour === 7 && nowMin >= 40 && nowMin < 44;
     // Phase 396: Schicht-ROI Gap-Fill (Catch-up für fehlende Tages-Snapshots) — täglich 02:30 UTC
     const isSchichtRoiCatchupTick    = nowHour === 2 && nowMin >= 30 && nowMin < 34;
+    // Phase 398: Order-Pulse — alle 15 Min Snapshot; prune täglich 07:45 UTC (7 Tage)
+    const isOrderPulseSnapshotTick = nowMin % 15 < 2;
+    const isOrderPulsePruneTick    = nowHour === 7 && nowMin >= 45 && nowMin < 49;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1389,6 +1393,14 @@ export async function GET(req: NextRequest) {
       ? await catchupSchichtRoiDailyAllLocations(3).catch(() => null)
       : null;
 
+    // Phase 398: Order-Pulse Snapshots — alle 15 Min; prune täglich 07:45 UTC
+    const orderPulseSnapshotResult = isOrderPulseSnapshotTick
+      ? await snapshotOrderPulseAllLocations().catch(() => null)
+      : null;
+    const orderPulsePruned = isOrderPulsePruneTick
+      ? await pruneOrderPulseSnapshots(7).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1664,6 +1676,8 @@ export async function GET(req: NextRequest) {
       ...(executiveKpiSnapshotResult?.saved ? { executive_kpi_snapshot: { locations: executiveKpiSnapshotResult.locations, saved: executiveKpiSnapshotResult.saved, errors: executiveKpiSnapshotResult.errors } } : {}),
       ...(executiveKpiPruned?.pruned ? { executive_kpi_pruned: executiveKpiPruned.pruned } : {}),
       ...(schichtRoiCatchupResult?.gapsFilled ? { schicht_roi_catchup: { locations: schichtRoiCatchupResult.locations, gaps_filled: schichtRoiCatchupResult.gapsFilled, errors: schichtRoiCatchupResult.errors } } : {}),
+      ...(orderPulseSnapshotResult ? { order_pulse_snapshot: { saved: orderPulseSnapshotResult.saved, errors: orderPulseSnapshotResult.errors } } : {}),
+      ...(orderPulsePruned != null ? { order_pulse_pruned: orderPulsePruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

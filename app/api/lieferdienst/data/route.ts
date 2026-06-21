@@ -1,42 +1,54 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { getSchichtLiveKpis } from '@/lib/delivery/schicht-live';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * GET /api/lieferdienst/data
+ * GET /api/lieferdienst/data?location_id=<uuid>
  *
- * DEV-Modus: kein Auth-Gate. Liefert hartkodiert Frankys-Farm Daten.
- * Wird später auf requireManagerPlus + tenant-aware umgestellt.
+ * Liefert aktive Bestellungen, Fahrer, Menü und Live-Schicht-KPIs.
+ * Fallback auf DEV_LOCATION_ID wenn kein location_id-Parameter übergeben.
  */
-const DEV_TENANT_ID = 'd1522124-4b9b-4362-9d9a-882a6a8621f6';
+const DEV_TENANT_ID   = 'd1522124-4b9b-4362-9d9a-882a6a8621f6';
 const DEV_LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const svc = createServiceClient();
+  const locationId = req.nextUrl.searchParams.get('location_id') ?? DEV_LOCATION_ID;
 
-  const [{ data: orders }, { data: drivers }, { data: menu }] = await Promise.all([
+  const [{ data: orders }, { data: drivers }, { data: menu }, schichtKpis] = await Promise.all([
     svc.from('customer_orders')
       .select('id, bestellnummer, typ, status, kunde_name, kunde_telefon, kunde_adresse, kunde_plz, kunde_stadt, kunde_notiz, gesamtbetrag, bestellt_am, bestaetigt_am, zubereitung_start, fertig_am, fahrer_id, mise_driver_id, tisch_id, items:order_items(id, name, menge, einzelpreis, notiz, extras)')
       .eq('tenant_id', DEV_TENANT_ID)
-      .eq('location_id', DEV_LOCATION_ID)
+      .eq('location_id', locationId)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
       .order('bestellt_am', { ascending: false })
       .limit(100),
     svc.from('mise_drivers')
       .select('id, name, phone, state, active, vehicle, last_position_at')
+      .eq('location_id', locationId)
       .eq('active', true),
     svc.from('menu_items')
       .select('id, name, preis, beschreibung, allergene, category_id, verfuegbar, beliebt, ausverkauft_bis_schicht')
-      .eq('location_id', DEV_LOCATION_ID)
+      .eq('location_id', locationId)
       .order('sort_order_in_category'),
+    getSchichtLiveKpis(locationId).catch(() => null),
   ]);
 
   return NextResponse.json({
-    orders: (orders ?? []).map(mapOrder),
+    orders:  (orders ?? []).map(mapOrder),
     drivers: (drivers ?? []).map(mapDriver),
-    menu: (menu ?? []).map(mapMenuItem),
+    menu:    (menu ?? []).map(mapMenuItem),
+    // Schicht-KPIs für SchichtErtragsCockpit
+    schicht_umsatz:      schichtKpis?.umsatz       ?? 0,
+    schicht_bestellungen: schichtKpis?.bestellungen ?? 0,
+    schicht_lieferungen: schichtKpis?.lieferungen   ?? 0,
+    schicht_stornos:     schichtKpis?.stornos        ?? 0,
+    schicht_start:       schichtKpis?.schichtStart   ?? null,
+    schicht_ziel:        schichtKpis?.umsatzZiel     ?? 800,
+    aktive_fahrer:       schichtKpis?.aktiveFahrer   ?? (drivers ?? []).filter((d: Record<string, unknown>) => d.state !== 'offline').length,
   });
 }
 
