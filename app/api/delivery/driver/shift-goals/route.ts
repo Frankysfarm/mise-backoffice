@@ -2,7 +2,7 @@
  * GET /api/delivery/driver/shift-goals
  *
  * Eigene Schicht-Ziele und Fortschritt für den eingeloggten Fahrer.
- * Gibt aktuellen Fortschritt (Stops / € / Score) inkl. Pace-Label zurück.
+ * Gibt EarningsData zurück (kompatibel mit TourVerdiensteZielTracker).
  *
  * Auth: Fahrer eingeloggt (mise_drivers.auth_user_id = user.id)
  */
@@ -13,6 +13,14 @@ import { getMyShiftGoalProgress } from '@/lib/delivery/driver-shift-goals';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Feste Meilenstein-Stufen: Anteil am Ziel-Verdienst → Bonus-€
+const MILESTONES = [
+  { pct: 0.50, bonus: 2.00, label: 'Halbzeit-Bonus'   },
+  { pct: 0.75, bonus: 3.50, label: 'Bronze-Bonus'      },
+  { pct: 1.00, bonus: 5.00, label: 'Ziel-Bonus'        },
+  { pct: 1.25, bonus: 8.00, label: 'Gold-Bonus'        },
+] as const;
 
 export async function GET() {
   const sb = await createClient();
@@ -42,5 +50,29 @@ export async function GET() {
   const progress = await getMyShiftGoalProgress(driverId, locationId);
   if (!progress) return NextResponse.json({ error: 'Fahrer nicht gefunden' }, { status: 404 });
 
-  return NextResponse.json(progress);
+  const earned = progress.earningsEur;
+  const goal   = progress.targetEarningsEur > 0 ? progress.targetEarningsEur : 80;
+
+  const estimatedByEnd =
+    progress.shiftPctElapsed > 0.05
+      ? Math.round((earned / progress.shiftPctElapsed) * 100) / 100
+      : null;
+
+  const nextMilestone =
+    MILESTONES.find((m) => m.pct * goal > earned) ?? null;
+
+  return NextResponse.json({
+    ok:         true,
+    earned,
+    goal,
+    goalLabel:  'Schicht-Ziel',
+    remaining:  Math.max(0, goal - earned),
+    progressPct: goal > 0 ? (earned / goal) * 100 : 0,
+    estimatedByEnd,
+    onTrack:    progress.overallPace !== 'behind',
+    nextMilestone: nextMilestone
+      ? { amount: nextMilestone.pct * goal, bonus: nextMilestone.bonus, label: nextMilestone.label }
+      : null,
+    currency:   'EUR',
+  });
 }

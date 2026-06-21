@@ -45,6 +45,7 @@ import { TeamQualitaetsBadge } from './team-qualitaets-badge';
 import { LieferTransparenzBadge } from './liefer-transparenz-badge';
 import { BestellStatusLiveV2 } from '../bestell-status-live-v2';
 import { LieferQualitaetsRing } from './liefer-qualitaets-ring';
+import { LieferFeedbackPrompt } from './liefer-feedback-prompt';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -876,6 +877,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {orderId && (
           <div className="mt-3 w-full">
             <BestellStatusLiveV2 orderId={orderId} isDelivery={isDelivery} />
+          </div>
+        )}
+        {/* Phase 391: Liefer-Feedback-Prompt — Kurzes Sterne-Rating nach Bestellung, fire-and-forget Submit */}
+        {orderId && (
+          <div className="mt-3 w-full">
+            <LieferFeedbackPrompt orderId={orderId} isDelivery={isDelivery} />
           </div>
         )}
 

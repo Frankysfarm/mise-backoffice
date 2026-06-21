@@ -58,6 +58,41 @@ export async function GET(req: NextRequest) {
     const dashboard = await getDashboard(locationId);
     return NextResponse.json({ suggestions: dashboard.pendingSuggestions });
   }
+  if (action === 'recommendations') {
+    // Format kompatibel mit ZoneBündelungsEmpfehlung-Komponente
+    const dashboard = await getDashboard(locationId);
+    const recs = dashboard.pendingSuggestions.map((s) => {
+      const address = s.stops[0]?.address ?? '';
+      const zone = address.split(',')[0]?.trim() || 'Unbekannte Zone';
+      const urgencyLevel: 'low' | 'medium' | 'high' =
+        s.score >= 80 ? 'high' : s.score >= 60 ? 'medium' : 'low';
+      const now = Date.now();
+      const avgWaitMin = s.stops.length > 0
+        ? Math.round(
+            s.stops.reduce((acc, stop) => {
+              const diff = stop.eta_latest
+                ? (new Date(stop.eta_latest).getTime() - now) / 60_000
+                : 5;
+              return acc + Math.max(0, diff);
+            }, 0) / s.stops.length,
+          )
+        : 5;
+      return {
+        zone,
+        orderCount:      s.totalOrders,
+        savings:         Math.round(s.kmSavingsPct * 0.3),  // km-Einsparung → geschätzte Minuten
+        potentialBundles: 1,
+        urgencyLevel,
+        avgWaitMin,
+      };
+    });
+    return NextResponse.json({
+      ok: true,
+      recommendations: recs,
+      totalSavingsMin: recs.reduce((s, r) => s + r.savings, 0),
+      generatedAt: new Date().toISOString(),
+    });
+  }
   return NextResponse.json(await getDashboard(locationId));
 }
 

@@ -147,6 +147,7 @@ import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
 import { TourVerdiensteZielTracker } from './tour-verdienst-ziel-tracker';
+import { SchichtPaceLive } from './schicht-pace-live';
 
 type Driver = {
   id: string;
@@ -1074,6 +1075,10 @@ export function FahrerApp({
           {/* Phase 390: Verdienst-Ziel-Tracker — Live-Fortschritt zu Schichtziel + nächster Bonus-Schwelle */}
           <div className="px-4">
             <TourVerdiensteZielTracker driverId={driver.id} />
+          </div>
+          {/* Phase 391: Schicht-Pace-Live — Aktuelle Pace vs. Ziel-Pace, onTrack/Rückstand-Indikator, Motivationshinweis */}
+          <div className="px-4">
+            <SchichtPaceLive driverId={driver.id} />
           </div>
           {/* Phase 388: Nächster-Stopp-Karte — Große Adressanzeige, Navigations-CTA, Zahlungsart-Badge, Stop-Zähler */}
           <div className="px-4">

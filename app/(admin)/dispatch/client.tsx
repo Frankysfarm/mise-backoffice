@@ -206,6 +206,7 @@ import { DispatchScoreDropAlertFeed } from './score-drop-alert-feed';
 import { DispatchFahrerScoreVerlaufChart } from './fahrer-score-verlauf-chart';
 import { DispatchTourStopVerfolger } from './tour-stop-verfolger';
 import { ZoneBündelungsEmpfehlung } from './zone-bündelungs-empfehlung';
+import { DispatchTourEndPrognose } from './tour-end-prognose';
 
 type Driver = {
   employee_id: string;
@@ -1620,6 +1621,8 @@ export function DispatchBoard({
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
       {/* Phase 390: Zonen-Bündelungs-Empfehlung — Welche Bestellungen können in einer Tour gebündelt werden */}
       <ZoneBündelungsEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 391: Tour-End-Prognose — Wann kommt welcher Fahrer zurück? Confidence + verbleibende Stops + ETA */}
+      <DispatchTourEndPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 388: Tour-Stop-Verfolger — Live Stop-Fortschritt, ETA-Rückkehr, Health-Ampel je Tour */}
       <DispatchTourStopVerfolger locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 308: Tour-Stop-Matrix — alle aktiven Touren mit Stop-Fortschritt, ETA-Abweichung, Farbkodierung */}

@@ -178,6 +178,7 @@ import { LieferdienstFahrerScoreTagesRanking } from './fahrer-score-tages-rankin
 import { LieferdienstFahrerScoreEinzeltrend } from './fahrer-score-einzeltrend';
 import { LieferdienstSchichtLiveMetriken } from './schicht-live-metriken';
 import { OpsPulsMonitor } from './ops-puls-monitor';
+import { OpsSchnellCheck } from './ops-schnell-check';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1115,6 +1116,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Phase 390: Ops-Puls-Monitor — Live Küche/Dispatch/Fahrer-Gesundheit in einer Ansicht (30s-Polling) */}
               <OpsPulsMonitor locationId={locationId} />
+              {/* Phase 391: Ops-Schnell-Check — 5 System-Health-Ampeln: Fahrer/Queue/SLA/Throughput/Alerts (30s-Polling) */}
+              <OpsSchnellCheck locationId={locationId} />
               {/* Phase 388: Schicht-Live-Metriken — Heute vs. Gestern: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
               <LieferdienstSchichtLiveMetriken locationId={locationId} />
               {/* Phase 400: Tages-KPI-Panel — Live Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}

@@ -43,7 +43,7 @@ export function ZoneBündelungsEmpfehlung({ locationId }: { locationId: string |
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/delivery/admin/zone-batch-optimizer?location_id=${locationId}`, {
+      const res = await fetch(`/api/delivery/admin/zone-batch-optimizer?action=recommendations&location_id=${locationId}`, {
         cache: 'no-store',
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)

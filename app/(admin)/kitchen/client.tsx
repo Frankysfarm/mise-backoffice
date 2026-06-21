@@ -157,6 +157,7 @@ import { KitchenFahrerScoreAmpelLeiste } from './fahrer-score-ampel-leiste';
 import { KitchenFahrerScoreRisikoBoard } from './fahrer-score-risiko-board';
 import { KitchenSchichtKochzeitPrognose } from './schicht-kochzeit-prognose';
 import { KochstartKonfidenzAnzeige } from './kochstart-konfidenz';
+import { KitchenSchichtAuslastungsRing } from './schicht-auslastungs-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -630,6 +631,11 @@ export function KitchenBoard({
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 390: Kochstart-Konfidenz — Empfehlung ob jetzt kochen basierend auf Fahrer-Verfügbarkeit + Queue */}
       <KochstartKonfidenzAnzeige locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 391: Schicht-Auslastungs-Ring — SVG-Ring: abgeschlossene Bestellungen vs. Schichtziel + Hochrechnung */}
+      <KitchenSchichtAuslastungsRing
+        completedToday={completedToday ?? 0}
+        locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
+      />
       {/* Phase 388: Kochzeit-Prognose — Farbkodierter Countdown je aktiver Bestellung + Überfällig-Zähler */}
       <KitchenSchichtKochzeitPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 378: Batch-Übersicht-Cockpit — Alle aktiven Bestellungen mit Countdown, Progress-Bar + Farbkodierung */}
