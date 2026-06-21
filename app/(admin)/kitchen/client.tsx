@@ -134,6 +134,7 @@ import { KitchenScoreVerlaufMini } from './score-verlauf-mini';
 import { KitchenStandortQualitaetsKarte } from './standort-qualitaets-karte';
 import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 import { KitchenMultiBatchAbholplan } from './kitchen-multi-batch-abholplan';
+import { KitchenSmartKochzeitBoard } from './smart-kochzeit-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -599,6 +600,8 @@ export function KitchenBoard({
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 358: Smart-Kochzeit-Board — Alle aktiven Bestellungen mit Countdown, Urgency-Priorisierung, Küchen-Gesundheits-Score */}
+      <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
       {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}
       <KitchenSchichtSchnellstatus
         orders={filtered}

@@ -125,6 +125,7 @@ import { FahrerScoreVerlaufChart } from './score-verlauf-chart';
 import { FahrerPeakTagHinweis } from './peak-tag-hinweis';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
+import { TourStoppNavV2 } from './tour-stopp-nav-v2';
 
 type Driver = {
   id: string;
@@ -1009,6 +1010,13 @@ export function FahrerApp({
             onMarkDelivered={markDelivered}
             onMarkArrived={markArrived}
           />
+          {/* Phase 358: Tour-Stopp-Navigation V2 — Übersichtliche Stoppnavigation mit Google/Waze/Apple Maps + Nächster-Stopp-Vorschau */}
+          <div className="px-4">
+            <TourStoppNavV2
+              stops={activeBatch.stops as any}
+              startedAt={activeBatch.started_at}
+            />
+          </div>
           {/* Näherungs-Alert: Vibration + Overlay wenn Fahrer <250m vom nächsten Stop */}
           {(() => {
             const nextStop = activeBatch.stops.find((s) => !s.geliefert_am);

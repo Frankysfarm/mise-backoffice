@@ -39,6 +39,7 @@ import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wa
 import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdown-v2';
 import { TourDeliveredFeedback } from './tour-delivered-feedback';
 import { LiveDeliveryCountdown } from './live-delivery-countdown';
+import { LiveTrackingCard } from '@/app/order/[locationSlug]/components/live-tracking-card';
 
 type Order = {
   order_id: string;
@@ -475,6 +476,13 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
               }
             }}
           />
+        )}
+
+        {/* Phase 358: Live-Tracking-Karte — Kompakte Statusanzeige mit Fortschritts-Schritten, Driver-Info, ETA-Countdown */}
+        {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
+          <div className="mt-3">
+            <LiveTrackingCard bestellnummer={order.bestellnummer} />
+          </div>
         )}
 
         {/* Phase 330: Live-Wartezeit-Ring — SVG-Countdown-Ring ab Bestellzeitpunkt bis ETA */}
