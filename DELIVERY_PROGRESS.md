@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–379 abgeschlossen. CEO Review #208 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–381 abgeschlossen. CEO Review #209 bestanden. Build sauber. 355 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 381 Backend (2026-06-21): Driver Capacity Signal — Realtime-Alternative zu 60s-Polling. Migration 182: `mise_locations.slug` (ADD COLUMN IF NOT EXISTS, UNIQUE INDEX, CEO-Anforderung), `delivery_performance` RLS aktiviert (service_role full + authenticated read own location), `driver_capacity_snapshots` (UNIQUE location_id, Upsert-Muster, anon SELECT-Policy für Supabase-Realtime-Subscription vom Frontend, online/total/busy_drivers, pending_orders, active_batches, load_pct, orders_per_driver, capacity_status free/normal/busy/overloaded/unknown), `driver_capacity_events` (stündliche Trendhistorie, prune_driver_capacity_events RPC, View v_capacity_trend_48h). `lib/delivery/driver-capacity-signal.ts`: `snapshotCapacity(locationId)` (Haversine-unabhängig, berechnet aus mise_drivers+mise_delivery_batches+customer_orders, UPSERT + Event-Append), `snapshotCapacityAllLocations()` (Cron-Batch, Promise.allSettled), `getCapacitySnapshot(locationId)`, `getCapacityTrend(locationId, hours)` (stündliche Aggregation, dominanter Status), `pruneCapacityEvents(daysToKeep)`. API `/api/delivery/admin/capacity-signal`: GET Snapshot+Trend, POST action=snapshot|prune. Cron: jeden Tick `snapshotCapacityAllLocations()`, täglich 03:30 UTC pruneCapacityEvents(14). Bug-Fix `app/api/delivery/public/avg-eta`: 1) `createClient()` → `createServiceClient()` (umgeht RLS, kein Auth nötig für Server-Route), 2) Null-Referenz-Bug gefixt (wenn tenant=null aber mise_locations.slug-Fallback greift, wurde danach fälschlicherweise `tenant!.id` verwendet). Build ✅ 355 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 379 Backend (2026-06-21): Fahrer-Breakdown in `/api/delivery/admin/stats?period=today`. Neues `drivers: DriverPerf[]`-Array mit id, name, vehicle, stopsToday, toursToday, avgDeliveryMin, onTimePct, isOnline — aggregiert aus `mise_drivers` + `delivery_performance` + `mise_delivery_batches`. `LieferdienstFahrerTagesPerformance` zeigt jetzt echte Live-Daten statt Mock-Fallback. Gefiltert: nur Fahrer mit Stopps heute oder aktuell online. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -6457,3 +6459,53 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 - Integration: `lieferdienst/client.tsx` nach `<SchichtROIPanel />`
 
 - Build: node_modules/.bin/next build ✓ (354 Seiten, 0 TypeScript-Fehler)
+
+---
+
+## Phase 381 Backend — Driver Capacity Signal + Fixes (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### CEO-Anforderungen umgesetzt:
+
+**1. `mise_locations.slug` (CEO Review #209, Punkt 2):**
+- `ADD COLUMN IF NOT EXISTS slug TEXT` auf `mise_locations`
+- `CREATE UNIQUE INDEX idx_mise_locations_slug` (WHERE slug IS NOT NULL)
+- Wird von `public/avg-eta`-Fallback-Pfad genutzt
+
+**2. Bug-Fix `app/api/delivery/public/avg-eta/route.ts` (CEO Review #209, Punkt 1):**
+- `createClient()` → `createServiceClient()` — Service-Role umgeht RLS, kein Auth-Cookie nötig auf Server-Route
+- Null-Referenz-Bug: bei tenant=null + mise_locations.slug-Fallback wurde danach `tenant!.id` aufgerufen → TypeError. Jetzt korrekter zwei-Pfad-Ablauf: tenant-Pfad, dann slug-Fallback, locationId wird korrekt gesetzt
+
+**3. `delivery_performance` RLS (CEO Review #209, Punkt 1):**
+- `ENABLE ROW LEVEL SECURITY` auf `delivery_performance`
+- Policy `service_role full` (schreibt via Trigger + Backend)
+- Policy `authenticated read own location` (Admin-Dashboards)
+
+### Neues Feature: Driver Capacity Signal Engine
+
+**Migration 182 (`scripts/migrations/182_driver_capacity_snapshots.sql`):**
+- `driver_capacity_snapshots`: UNIQUE location_id, Upsert-Muster, `capacity_status` free/normal/busy/overloaded/unknown, `load_pct`, `orders_per_driver`, anon SELECT-Policy (Supabase Realtime kompatibel)
+- `driver_capacity_events`: stündliche Event-Historik, Prune-RPC, View `v_capacity_trend_48h`
+
+**`lib/delivery/driver-capacity-signal.ts`:**
+- `snapshotCapacity(locationId)` — liest mise_drivers.is_available + aktive Batches + offene Lieferbestellungen, berechnet load_pct + status, UPSERT in driver_capacity_snapshots + INSERT in driver_capacity_events
+- `snapshotCapacityAllLocations()` — Promise.allSettled über alle aktiven Standorte
+- `getCapacitySnapshot(locationId)` — aktuellen State lesen
+- `getCapacityTrend(locationId, hours)` — stündliche Aggregation der letzten N Stunden
+- `pruneCapacityEvents(daysToKeep)` — Cleanup via RPC
+
+**API `app/api/delivery/admin/capacity-signal/route.ts`:**
+- GET `?location_id=<uuid>` → Snapshot + 24h-Trend
+- POST `{ location_id, action: 'snapshot' }` → manueller Snapshot
+- POST `{ action: 'prune', days_old?: number }` → Cleanup
+
+**Cron:**
+- Jeden Tick: `snapshotCapacityAllLocations()` (alle 2 Min → Snapshot aktuell)
+- Täglich 03:30 UTC: `pruneCapacityEvents(14)`
+
+**Frontend-Integration:**
+- `driver_capacity_snapshots` hat anon SELECT-Policy → Frontend kann via Supabase `postgres_changes` subscriben
+- `LieferdienstKapazitaetsMonitor` kann statt 60s-Polling Supabase Realtime nutzen: `supabase.channel('capacity').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'driver_capacity_snapshots', filter: \`location_id=eq.${locationId}\` }, handler)`
+
+**Build:** 355 Seiten, 0 TypeScript-Fehler ✅

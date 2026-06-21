@@ -153,6 +153,7 @@ import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrd
 import { snapshotHandoffRateDailyAllLocations, pruneHandoffRateDaily } from '@/lib/delivery/kitchen-sync';
 import { predictAllActiveTourEndsAllLocations, settleAllCompletedToursAllLocations, pruneTourEndPredictions } from '@/lib/delivery/tour-end-prediction';
 import { snapshotSchichtRoiDailyAllLocations, pruneSchichtRoiDaily } from '@/lib/delivery/schicht-roi-daily';
+import { snapshotCapacityAllLocations, pruneCapacityEvents } from '@/lib/delivery/driver-capacity-signal';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -332,6 +333,7 @@ export async function GET(req: NextRequest) {
     // Phase 377: Schicht-ROI Daily Snapshots — täglich 02:10 UTC; prune täglich 07:10 UTC
     const isSchichtRoiSnapshotTick = nowHour === 2 && nowMin >= 10 && nowMin < 14;
     const isSchichtRoiPruneTick    = nowHour === 7 && nowMin >= 10 && nowMin < 14;
+    const isCapacityPruneTick      = nowHour === 3 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1284,6 +1286,12 @@ export async function GET(req: NextRequest) {
       ? await pruneSchichtRoiDaily(180).catch(() => null)
       : null;
 
+    // Phase 381: Driver Capacity Snapshots (jeden Tick — Realtime-Alternative zu Polling)
+    const capacitySnapshotResult = await snapshotCapacityAllLocations().catch(() => null);
+    const capacityEventsPruned = isCapacityPruneTick
+      ? await pruneCapacityEvents(14).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1540,6 +1548,8 @@ export async function GET(req: NextRequest) {
       ...(tourEndPruned?.pruned ? { tour_end_pruned: tourEndPruned.pruned } : {}),
       ...(schichtRoiSnapshotResult?.saved ? { schicht_roi_snapshot: { locations: schichtRoiSnapshotResult.locations, saved: schichtRoiSnapshotResult.saved, errors: schichtRoiSnapshotResult.errors } } : {}),
       ...(schichtRoiPruned?.pruned ? { schicht_roi_pruned: schichtRoiPruned.pruned } : {}),
+      ...(capacitySnapshotResult ? { capacity_snapshots: { locations: capacitySnapshotResult.locations, saved: capacitySnapshotResult.saved, errors: capacitySnapshotResult.errors } } : {}),
+      ...(capacityEventsPruned?.pruned ? { capacity_events_pruned: capacityEventsPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
