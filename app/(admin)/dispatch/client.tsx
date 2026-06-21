@@ -190,6 +190,7 @@ import { DispatchTourEffizienzCockpit } from './tour-effizienz-cockpit';
 import { DispatchFahrerBelastungsEchtzeit } from './fahrer-belastungs-echtzeit';
 import { DispatchFahrerTempoMatrix } from './fahrer-tempo-matrix';
 import { DispatchTourUrgenzKanal } from './tour-urgenz-kanal';
+import { DispatchTourScoreCockpit } from './tour-score-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1078,6 +1079,10 @@ export function DispatchBoard({
       <DispatchFahrerTempoMatrix batches={batches as any} />
       {/* Phase 364: Tour-Urgenz-Kanal — Live-Urgenz-Breakdown aller aktiven Tour-Stopps (überfällig/kritisch/im Plan) */}
       <DispatchTourUrgenzKanal batches={batches as any} />
+      {/* Phase 365: Tour-Score-Cockpit — Dispatch-Score Breakdown je aktiver Tour mit Fahrer und Effizienz */}
+      {locations[0]?.id && (
+        <DispatchTourScoreCockpit locationId={locations[0].id} />
+      )}
       {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}

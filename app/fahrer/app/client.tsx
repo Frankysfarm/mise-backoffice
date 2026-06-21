@@ -131,6 +131,7 @@ import { TourStoppNavV2 } from './tour-stopp-nav-v2';
 import { FahrerStoppErinnerungsPanel } from './stop-erinnerungs-panel';
 import { NaechsterStoppVorschau } from './naechster-stopp-vorschau';
 import { FahrerStopRhythmusMeter } from './stop-rhythmus-meter';
+import { TourStopNavigationBoard } from './tour-stop-navigation-board';
 
 type Driver = {
   id: string;
@@ -1310,6 +1311,14 @@ export function FahrerApp({
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
             </div>
+          )}
+          {/* Phase 366: Tour-Stop-Navigation-Board — Alle Stopps mit Nav-Button, Payment-Info, ETA */}
+          {activeBatch && (
+            <TourStopNavigationBoard
+              stops={activeBatch.stops}
+              batchStartedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
           )}
           {/* Navi-App-Auswahl: Google Maps, Waze, Apple Maps — Single + Multi-Stop */}
           {activeBatch.stops.length > 0 && (
