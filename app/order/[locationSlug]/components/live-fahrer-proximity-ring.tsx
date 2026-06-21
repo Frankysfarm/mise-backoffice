@@ -4,13 +4,24 @@ import { useEffect, useRef, useState } from 'react';
 import { Bike, MapPin, Clock, CheckCircle2, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Phase 362: Mapping auf tatsächliche API-Antwort von /api/delivery/orders/[orderId]/tracking
 type TrackingData = {
-  driver_lat?: number;
-  driver_lng?: number;
+  status?:      string;
   driver_name?: string;
-  eta_min?: number;
-  distance_m?: number;
-  status?: string;
+  driver?: {
+    lat?:          number;
+    lng?:          number;
+    heading?:      number | null;
+    speed_kmh?:    number | null;
+    seconds_stale?: number;
+  } | null;
+  geo?: {
+    distance_m?:        number | null;
+    almost_there?:      boolean;
+    eta_min_remaining?: number | null;
+    bearing_deg?:       number | null;
+  } | null;
+  stops_before?: number | null;
 };
 
 type Props = {
@@ -103,7 +114,8 @@ export function LiveFahrerProximityRing({ orderId, estimatedMin, orderStatus }: 
   }, [orderId]);
 
   const effectiveStatus = tracking?.status ?? orderStatus;
-  const effectiveEta = tracking?.eta_min ?? estimatedMin;
+  // Phase 362: GPS-Haversine-Distanz + ETA direkt aus geo-Feld der API
+  const effectiveEta = tracking?.geo?.eta_min_remaining ?? estimatedMin;
   const isEnRoute = effectiveStatus === 'unterwegs';
   const isDelivered = effectiveStatus === 'geliefert';
 
@@ -112,20 +124,25 @@ export function LiveFahrerProximityRing({ orderId, estimatedMin, orderStatus }: 
   const stroke = ringStroke(effectiveStatus);
 
   const etaText =
-    effectiveEta != null
-      ? effectiveEta < 2
-        ? 'Gleich da!'
-        : `~${effectiveEta} Min`
-      : null;
+    almostThere
+      ? 'Gleich da!'
+      : effectiveEta != null
+        ? effectiveEta < 2
+          ? 'Gleich da!'
+          : `~${effectiveEta} Min`
+        : null;
 
+  // Phase 362: GPS-basierte Haversine-Distanz aus geo.distance_m
+  const distanceM = tracking?.geo?.distance_m ?? null;
   const distanceText =
-    tracking?.distance_m != null
-      ? tracking.distance_m < 500
+    distanceM != null
+      ? distanceM < 500
         ? '< 500 m entfernt'
-        : `~${Math.round(tracking.distance_m)} m entfernt`
+        : `~${Math.round(distanceM)} m entfernt`
       : null;
 
-  const driverName = tracking?.driver_name ?? null;
+  const almostThere = tracking?.geo?.almost_there ?? false;
+  const driverName  = tracking?.driver_name ?? null;
 
   if (loading) {
     return (

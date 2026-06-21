@@ -148,6 +148,8 @@ import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
 import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations, snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily } from '@/lib/delivery/zone-difficulty';
 import { snapshotDriverScoreHistoryAllLocations, pruneDriverScoreHistory } from '@/lib/delivery/driver-score';
 import { aggregateTourFeedbackAllLocations, pruneOldFeedbackAggregates } from '@/lib/delivery/tour-feedback-analytics';
+import { aggregateTourEfficiencyAllLocations, pruneTourEfficiency } from '@/lib/delivery/tour-efficiency-report';
+import { scoreAndPersistAllLocations as scoreOrderPriorityAllLocations, pruneOrderPriorityScores } from '@/lib/delivery/order-priority-engine';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -710,6 +712,26 @@ export async function GET(req: NextRequest) {
       : null;
     if (isFeedbackAggPruneTick) {
       pruneOldFeedbackAggregates(365).catch(() => {});
+    }
+
+    // Phase 362: Tour-Effizienz-Aggregation — täglich 03:30 UTC; Prune 07:30 UTC
+    const isTourEfficiencyTick = nowHour === 3 && nowMin >= 30 && nowMin < 32;
+    const isTourEfficiencyPruneTick = nowHour === 7 && nowMin >= 30 && nowMin < 32;
+    const tourEfficiencyResult = isTourEfficiencyTick
+      ? await aggregateTourEfficiencyAllLocations().catch(() => null)
+      : null;
+    if (isTourEfficiencyPruneTick) {
+      pruneTourEfficiency(365).catch(() => {});
+    }
+
+    // Phase 362: Order-Priority-Scoring — alle 5 Minuten (nowMin % 5 < 2)
+    const isOrderPriorityTick = nowMin % 5 < 2;
+    const orderPriorityResult = isOrderPriorityTick
+      ? await scoreOrderPriorityAllLocations().catch(() => null)
+      : null;
+    // Phase 362: Order-Priority-Prune — täglich 07:35 UTC
+    if (nowHour === 7 && nowMin >= 35 && nowMin < 37) {
+      pruneOrderPriorityScores(90).catch(() => {});
     }
 
     // Phase 206: Network Health Snapshots — alle 30 Min (isDemandTick)
@@ -1474,6 +1496,8 @@ export async function GET(req: NextRequest) {
       ...(zoneDiffDailyPruned?.pruned ? { zone_difficulty_daily_pruned: zoneDiffDailyPruned.pruned } : {}),
       ...(feedbackAggWeekResult?.aggregated ? { feedback_agg_week: { locations: feedbackAggWeekResult.locations, aggregated: feedbackAggWeekResult.aggregated } } : {}),
       ...(feedbackAggMonthResult?.aggregated ? { feedback_agg_month: { locations: feedbackAggMonthResult.locations, aggregated: feedbackAggMonthResult.aggregated } } : {}),
+      ...(tourEfficiencyResult?.saved ? { tour_efficiency: { locations: tourEfficiencyResult.locations, saved: tourEfficiencyResult.saved, errors: tourEfficiencyResult.errors } } : {}),
+      ...(orderPriorityResult?.scored ? { order_priority_scored: { locations: orderPriorityResult.locations, scored: orderPriorityResult.scored } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

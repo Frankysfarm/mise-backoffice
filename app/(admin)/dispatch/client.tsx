@@ -187,6 +187,7 @@ import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
 import { DispatchFlottenGesundheitsIndex } from './dispatch-flotten-gesundheits-index';
 import { DispatchTourScoreKacheln } from './tour-score-kacheln';
 import { DispatchTourEffizienzCockpit } from './tour-effizienz-cockpit';
+import { DispatchFahrerBelastungsEchtzeit } from './fahrer-belastungs-echtzeit';
 
 type Driver = {
   employee_id: string;
@@ -1069,6 +1070,8 @@ export function DispatchBoard({
       <DispatchTourScoreKacheln locationId={locations[0]?.id ?? null} />
       {/* Phase 361: Tour-Effizienz-Cockpit — EUR/Stopp + Fortschritt + Trend je aktiver Tour */}
       <DispatchTourEffizienzCockpit batches={batches as any} />
+      {/* Phase 362: Fahrer-Belastungs-Echtzeit — aktive Stops je Fahrer (15s-Polling) */}
+      <DispatchFahrerBelastungsEchtzeit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}

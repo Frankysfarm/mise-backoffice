@@ -152,7 +152,8 @@ import { LieferdienstZoneDifficultyKarte } from './zone-difficulty-karte'
 import { LieferdienstFahrerScoreRangliste } from './fahrer-score-rangliste'
 import { LieferdienstTeamScoreTrend } from './team-score-trend'
 import { LieferdienstQualitaetsWochenTrend } from './qualitaets-wochen-trend'
-import { LieferdienstFeedbackManagementReport } from './feedback-management-report'
+import { LieferdienstFeedbackManagementReport } from './feedback-management-report';
+import { LieferdienstTourEffizienzReport } from './tour-effizienz-report';
 import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
 import { LieferdienstTagesExecutive } from './lieferdienst-tages-executive'
 import { LieferdienstSchnellStatistikPanel } from './schnell-statistik-panel'
@@ -1200,6 +1201,8 @@ export function LieferdienstClient() {
               <LieferdienstFahrerScoreRangliste locationId={locationId} />
               {/* Phase 359: Team-Score-Trend — 8-Wochen Team-Score AreaChart */}
               <LieferdienstTeamScoreTrend locationId={locationId} />
+              {/* Phase 362: Tour-Effizienz-Report — EUR/Stopp Trend + Fahrer-Benchmark P75 */}
+              <LieferdienstTourEffizienzReport locationId={locationId} />
               {/* Phase 360: Feedback-Management-Report — 3-Monats-Trend Kundenzufriedenheit */}
               <LieferdienstFeedbackManagementReport locationId={locationId} />
               {/* Phase 358: Qualitäts-Wochen-Trend — 7-Tage Qualitätsscore AreaChart + Schwächen-Hinweis */}

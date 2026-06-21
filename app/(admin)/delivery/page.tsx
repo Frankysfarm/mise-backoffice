@@ -174,6 +174,10 @@ export default async function DeliveryOverviewPage() {
           subtitle="Wöchentlicher Composite-Score + Feedback-Integration" cta="Score-Verlauf öffnen" highlight />
         <SectionCard href="/delivery/tour-feedback-analytics" icon={<BarChart3 className="h-5 w-5" />} title="Feedback Analytics"
           subtitle="Wöchentliche & monatliche Aggregation der Kunden-Bewertungen · Trend-Charts · Top/Coaching-Fahrer · Issue-Raten nach Typ" cta="Analytics öffnen" highlight />
+        <SectionCard href="/delivery/order-priority" icon={<Zap className="h-5 w-5" />} title="KI-Auftrags-Priorisierung"
+          subtitle="Backend-ML-Score (0–100) für alle wartenden Bestellungen · persistierbar · historisierbar · KRITISCH/HOCH/MITTEL/NIEDRIG" cta="Prioritäts-Dashboard öffnen" highlight />
+        <SectionCard href="/delivery/tour-efficiency" icon={<TrendingUp className="h-5 w-5" />} title="Tour-Effizienz Report"
+          subtitle="Tägliche EUR/Stopp-Aggregation · P75-Benchmark · Fahrer-Rangliste · 14-Tage-Trend · Effizienz-Grading A+ bis D" cta="Effizienz öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

@@ -124,6 +124,7 @@ import { FahrerMeineScoreKarte } from './meine-score-karte';
 import { FahrerScoreVerlaufChart } from './score-verlauf-chart';
 import { FahrerPeakTagHinweis } from './peak-tag-hinweis';
 import { FahrerFeedbackMonatsbericht } from './feedback-monatsbericht';
+import { FahrerTourEffizienzKarte } from './tour-effizienz-karte';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 import { TourStoppNavV2 } from './tour-stopp-nav-v2';
@@ -1788,6 +1789,10 @@ export function FahrerApp({
           {/* Phase 360: Feedback-Monatsbericht — persönliche Kunden-Feedback-Zusammenfassung */}
           {driver.location_id && (
             <FahrerFeedbackMonatsbericht driverId={driver.id} locationId={driver.location_id} />
+          )}
+          {/* Phase 362: Tour-Effizienz-Karte — persönlicher EUR/Stopp vs. P75-Benchmark */}
+          {driver.location_id && (
+            <FahrerTourEffizienzKarte driverId={driver.id} locationId={driver.location_id} />
           )}
           {/* Phase 358: Peak-Tag-Hinweis — Vorschau nächster Spitzentage mit Einnahmen-Tipp */}
           <FahrerPeakTagHinweis />
