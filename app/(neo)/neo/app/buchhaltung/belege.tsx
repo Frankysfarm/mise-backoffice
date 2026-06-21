@@ -79,6 +79,7 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
         </div>
         <div style={{ display: 'flex', gap: 9 }}>
           {belege.length > 0 && <button onClick={exportCsv} style={{ height: 42, padding: '0 15px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#334155', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>CSV-Export</button>}
+          <button onClick={() => setDraft({ haendler: '', datum: null, betrag_brutto: 0, mwst_satz: 19, mwst_betrag: 0, netto: 0, kategorie: 'Wareneinsatz', confidence: 1, beleg_url: null })} style={{ height: 42, padding: '0 15px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#334155', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>Manuell</button>
           <button onClick={() => fileRef.current?.click()} disabled={busy} style={{ height: 42, padding: '0 18px', borderRadius: 10, border: 'none', background: busy ? '#C7D2FE' : '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 13.5, cursor: busy ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             {busy ? 'KI liest…' : '📷 Beleg scannen'}
           </button>
