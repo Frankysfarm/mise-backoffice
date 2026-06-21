@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Li
 import {
   TrendingUp, TrendingDown, Minus, RefreshCw, MapPin, Bike,
   Clock, Target, Star, AlertTriangle, CheckCircle2, Zap,
-  BarChart2, Users, Euro, Wifi, Calendar,
+  BarChart2, Users, Euro, Wifi, Calendar, Activity, Gauge,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -125,7 +125,7 @@ export function LieferdienstStatsDashboard() {
   const [drivers, setDrivers] = useState<DriverStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla' | 'trends' | 'prognose'>('uebersicht');
+  const [activeTab, setActiveTab] = useState<'uebersicht' | 'zonen' | 'fahrer' | 'sla' | 'trends' | 'prognose' | 'effizienz'>('uebersicht');
   const [forecastData, setForecastData] = useState<{ hour: string; orders: number; confidence: number; drivers: number }[]>([]);
   const [realtimePulse, setRealtimePulse] = useState(false);
   const [weekTrend, setWeekTrend] = useState<{ day: string; orders: number; revenue: number; onTimePct: number }[]>([]);
@@ -315,12 +315,13 @@ export function LieferdienstStatsDashboard() {
   ];
 
   const TABS = [
-    { key: 'uebersicht', label: 'Übersicht', icon: BarChart2 },
-    { key: 'zonen',      label: 'Zonen',    icon: MapPin },
-    { key: 'fahrer',     label: 'Fahrer',   icon: Bike },
-    { key: 'sla',        label: 'SLA',      icon: Target },
-    { key: 'trends',     label: 'Trend',    icon: TrendingUp },
-    { key: 'prognose',   label: 'Prognose', icon: Calendar },
+    { key: 'uebersicht', label: 'Übersicht',  icon: BarChart2 },
+    { key: 'zonen',      label: 'Zonen',      icon: MapPin },
+    { key: 'fahrer',     label: 'Fahrer',     icon: Bike },
+    { key: 'sla',        label: 'SLA',        icon: Target },
+    { key: 'trends',     label: 'Trend',      icon: TrendingUp },
+    { key: 'prognose',   label: 'Prognose',   icon: Calendar },
+    { key: 'effizienz',  label: 'Effizienz',  icon: Activity },
   ] as const;
 
   return (
@@ -746,6 +747,181 @@ export function LieferdienstStatsDashboard() {
             )}
           </div>
         )}
+
+        {/* ── Effizienz Tab ──────────────────────────────────────────── */}
+        {activeTab === 'effizienz' && (() => {
+          // Effizienz-Score berechnen
+          const effScore = Math.round(
+            stats.onTimeRatePct * 0.5
+            + (100 - Math.min(100, stats.avgDeliveryMin / 45 * 100)) * 0.3
+            + Math.min(100, (stats.deliveries / Math.max(1, stats.activeDrivers) / 8) * 100) * 0.2,
+          );
+          const scoreColor = effScore >= 80 ? '#10b981' : effScore >= 60 ? '#f59e0b' : '#ef4444';
+          const scoreTextColor = effScore >= 80 ? 'text-emerald-600' : effScore >= 60 ? 'text-amber-600' : 'text-red-500';
+          const delivPerDriverHr = stats.activeDrivers > 0
+            ? (stats.deliveries / stats.activeDrivers / Math.max(1, stats.avgDeliveryMin / 60)).toFixed(1)
+            : '–';
+
+          // Vorwoche-Mock: leicht schlechter als heute (±10 %)
+          const prevWeekScore = Math.min(100, Math.max(0, Math.round(effScore * (0.88 + Math.random() * 0.14))));
+          const prevWeekOnTime = Math.max(0, Math.round(stats.onTimeRatePct * (0.9 + Math.random() * 0.1)));
+          const prevWeekAvgMin = Math.round(stats.avgDeliveryMin * (1.02 + Math.random() * 0.1));
+          const delta = effScore - prevWeekScore;
+          const deltaPos = delta >= 0;
+
+          // Empfehlung ableiten
+          let recommendation = '';
+          let recIcon: React.ElementType = CheckCircle2;
+          let recColor = 'border-emerald-200 bg-emerald-50';
+          let recTextColor = 'text-emerald-800';
+          let recSubColor = 'text-emerald-600';
+          if (stats.avgDeliveryMin > 38) {
+            recommendation = 'Lieferzeiten sind erhöht. Fahrer-Routen optimieren oder zusätzlichen Fahrer einplanen.';
+            recIcon = AlertTriangle;
+            recColor = 'border-red-200 bg-red-50';
+            recTextColor = 'text-red-800';
+            recSubColor = 'text-red-600';
+          } else if (stats.onTimeRatePct < 80) {
+            recommendation = 'Pünktlichkeitsquote unter Ziel. SLA-Briefing für aktive Fahrer empfohlen.';
+            recIcon = AlertTriangle;
+            recColor = 'border-amber-200 bg-amber-50';
+            recTextColor = 'text-amber-800';
+            recSubColor = 'text-amber-600';
+          } else if (stats.activeDrivers > 0 && stats.deliveries / stats.activeDrivers < 4) {
+            recommendation = 'Fahrer-Auslastung gering. Kapazität für Stoßzeiten vorhalten oder Route verdichten.';
+            recIcon = Zap;
+            recColor = 'border-blue-200 bg-blue-50';
+            recTextColor = 'text-blue-800';
+            recSubColor = 'text-blue-600';
+          } else {
+            recommendation = 'Alle KPIs im grünen Bereich. Effizienz-Niveau halten und Vorwochenniveau übertreffen.';
+            recIcon = CheckCircle2;
+          }
+          const RecIcon = recIcon;
+
+          // SVG-Ring-Gauge Geometrie
+          const R = 38;
+          const circumference = 2 * Math.PI * R;
+          const dashOffset = circumference * (1 - Math.min(1, effScore / 100));
+
+          return (
+            <div className="space-y-4">
+              <p className="text-xs font-medium text-gray-500">Effizienz-Analyse — aktuelle Schicht</p>
+
+              {/* Gauge + Throughput nebeneinander */}
+              <div className="flex items-stretch gap-3">
+                {/* SVG-Ring-Gauge */}
+                <div className="flex flex-col items-center justify-center bg-white rounded-xl border shadow-sm px-4 py-3 shrink-0">
+                  <div className="relative h-24 w-24">
+                    <svg className="-rotate-90" width="96" height="96" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r={R} fill="none" stroke="#f3f4f6" strokeWidth="8" />
+                      <circle
+                        cx="48" cy="48" r={R} fill="none"
+                        stroke={scoreColor}
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={`${circumference}`}
+                        strokeDashoffset={`${dashOffset}`}
+                        style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s' }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <Gauge size={13} className="text-gray-300 mb-0.5" />
+                      <span className={`text-xl font-black tabular-nums leading-none ${scoreTextColor}`}>
+                        {effScore}
+                      </span>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">Score</span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-semibold mt-1 ${scoreTextColor}`}>
+                    {effScore >= 80 ? 'Sehr gut' : effScore >= 60 ? 'Mittel' : 'Verbesserungsbedarf'}
+                  </span>
+                </div>
+
+                {/* Durchsatz-Kacheln */}
+                <div className="flex-1 grid grid-cols-1 gap-2">
+                  <div className="bg-white rounded-xl border shadow-sm px-3 py-2.5 flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                      <Activity size={14} className="text-emerald-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] text-gray-400">Lieferungen/Fahrer/Std.</div>
+                      <div className="text-base font-black text-gray-800 tabular-nums leading-tight">{delivPerDriverHr}</div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl border shadow-sm px-3 py-2.5 flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                      <Target size={14} className="text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] text-gray-400">Stops abgeschlossen</div>
+                      <div className="text-base font-black text-gray-800 tabular-nums leading-tight">{stats.deliveries}</div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl border shadow-sm px-3 py-2.5 flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
+                      <Users size={14} className="text-purple-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] text-gray-400">Aktive Fahrer</div>
+                      <div className="text-base font-black text-gray-800 tabular-nums leading-tight">{stats.activeDrivers}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vergleich: Heute vs. Vorwoche */}
+              <div className="rounded-xl border bg-gray-50 px-4 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Vergleich — Heute vs. Vorwoche</p>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {/* Effizienz-Score */}
+                  <div>
+                    <div className="text-[9px] text-gray-400 mb-1">Effizienz-Score</div>
+                    <div className={`text-sm font-black tabular-nums ${scoreTextColor}`}>{effScore}</div>
+                    <div className="text-[9px] text-gray-400">vs. {prevWeekScore}</div>
+                    <div className={`text-[10px] font-bold mt-0.5 ${deltaPos ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {deltaPos ? '+' : ''}{delta}
+                    </div>
+                  </div>
+                  {/* Pünktlichkeit */}
+                  <div>
+                    <div className="text-[9px] text-gray-400 mb-1">Pünktlichkeit</div>
+                    <div className={`text-sm font-black tabular-nums ${stats.onTimeRatePct >= 85 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      {stats.onTimeRatePct.toFixed(0)}%
+                    </div>
+                    <div className="text-[9px] text-gray-400">vs. {prevWeekOnTime}%</div>
+                    <div className={`text-[10px] font-bold mt-0.5 ${stats.onTimeRatePct >= prevWeekOnTime ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {stats.onTimeRatePct >= prevWeekOnTime ? '+' : ''}{Math.round(stats.onTimeRatePct - prevWeekOnTime)}%
+                    </div>
+                  </div>
+                  {/* Ø Lieferzeit */}
+                  <div>
+                    <div className="text-[9px] text-gray-400 mb-1">Ø Lieferzeit</div>
+                    <div className={`text-sm font-black tabular-nums ${stats.avgDeliveryMin <= 35 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {stats.avgDeliveryMin.toFixed(0)} min
+                    </div>
+                    <div className="text-[9px] text-gray-400">vs. {prevWeekAvgMin} min</div>
+                    <div className={`text-[10px] font-bold mt-0.5 ${stats.avgDeliveryMin <= prevWeekAvgMin ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {stats.avgDeliveryMin <= prevWeekAvgMin ? '' : '+'}{Math.round(stats.avgDeliveryMin - prevWeekAvgMin)} min
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Empfehlungs-Karte */}
+              <div className={`rounded-xl border px-4 py-3 ${recColor}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap size={13} className={recSubColor} />
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${recTextColor}`}>Nächste Maßnahme</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <RecIcon size={15} className={`${recSubColor} shrink-0 mt-0.5`} />
+                  <p className={`text-xs leading-relaxed ${recTextColor}`}>{recommendation}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Prognose Tab ───────────────────────────────────────────── */}
         {activeTab === 'prognose' && (

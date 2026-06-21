@@ -53,7 +53,7 @@ function EtaCountdown({ iso }: { iso: string }) {
   if (isOverdue)
     return (
       <span className="inline-flex items-center gap-0.5 text-red-400 font-black text-xs animate-pulse">
-        <AlertTriangle size={10} /> +{mm}:{String(ss).padStart(2,'0')}
+        <AlertTriangle size={10} /> +{mm}:{String(ss).padStart(2, '0')}
       </span>
     );
   return (
@@ -61,7 +61,7 @@ function EtaCountdown({ iso }: { iso: string }) {
       'font-mono font-black text-xs tabular-nums',
       isUrgent ? 'text-orange-400 animate-pulse' : 'text-accent',
     )}>
-      {mm}:{String(ss).padStart(2,'0')}
+      {mm}:{String(ss).padStart(2, '0')}
     </span>
   );
 }
@@ -85,16 +85,29 @@ type Props = {
   onMarkDelivered: (stopId: string) => void;
   pending?: boolean;
   kitchenStatuses?: Map<string, string>;
+  onDelivered?: (stopId: string) => void;
+  totalStops?: number;
 };
 
-export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStatuses }: Props) {
+export function TourStopNavigator({
+  stops,
+  onMarkDelivered,
+  pending,
+  kitchenStatuses,
+  onDelivered,
+  totalStops: totalStopsProp,
+}: Props) {
   const pendingStops = stops.filter((s) => !s.geliefert_am);
   const doneStops    = stops.filter((s) => s.geliefert_am);
-  const totalStops   = stops.length;
+  const totalStops   = totalStopsProp ?? stops.length;
   const progress     = totalStops > 0 ? (doneStops.length / totalStops) * 100 : 0;
-  const nextStop     = pendingStops[0] ?? null;
 
   if (stops.length === 0) return null;
+
+  function handleDelivered(stopId: string) {
+    onMarkDelivered(stopId);
+    onDelivered?.(stopId);
+  }
 
   return (
     <div className="space-y-3">
@@ -119,9 +132,13 @@ export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStat
         const kitchenStatus = kitchenStatuses?.get(stop.order_id) ?? null;
         const isKitchenReady = kitchenStatus === 'fertig' || kitchenStatus === 'unterwegs';
         const isCash = (o.zahlungsart ?? '').toLowerCase().includes('bar') || (o.zahlungsart ?? '').toLowerCase().includes('cash');
+        const isCard = !isCash && (o.zahlungsart ?? '').toLowerCase().includes('card') || (o.zahlungsart ?? '').toLowerCase().includes('karte');
         const needsCollection = isCash && !o.bezahlt;
         const navUrl = mapsUrl(o.kunde_lat, o.kunde_lng, o.kunde_adresse ? `${o.kunde_adresse}, ${o.kunde_plz ?? ''}` : null);
         const dist = stop.distanz_zum_vorgaenger_m;
+        // Stop X von Y — position within all pending stops relative to total
+        const globalStopIndex = doneStops.length + idx + 1;
+        const hasDeliveryNotes = !!(o.kunde_notiz || o.kunde_lieferhinweis);
 
         return (
           <div
@@ -133,8 +150,32 @@ export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStat
                 : 'bg-white/5 border-white/10 opacity-75',
             )}
           >
+            {/* Stop X von Y progress indicator */}
+            <div className={cn(
+              'flex items-center gap-1.5 px-4 pt-2.5 pb-0',
+            )}>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalStops }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'rounded-full transition-all',
+                      i < doneStops.length
+                        ? 'h-1.5 w-1.5 bg-accent'
+                        : i === globalStopIndex - 1
+                          ? 'h-1.5 w-4 bg-accent/80'
+                          : 'h-1.5 w-1.5 bg-white/15',
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] font-bold text-matcha-400 ml-auto">
+                Stop {globalStopIndex} von {totalStops}
+              </span>
+            </div>
+
             {/* Stop header */}
-            <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+            <div className="flex items-center gap-2 px-4 pt-2 pb-2">
               <div className={cn(
                 'h-7 w-7 rounded-full flex items-center justify-center text-xs font-black shrink-0',
                 isNext ? 'bg-accent text-matcha-900' : 'bg-white/10 text-matcha-300',
@@ -146,8 +187,16 @@ export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStat
                   <span className="text-[10px] font-black text-matcha-300 font-mono">
                     #{o.bestellnummer}
                   </span>
-                  {isNext && <span className="text-[9px] font-bold text-accent bg-accent/15 rounded-full px-1.5 py-0.5">NÄCHSTER STOP</span>}
-                  {dist && <span className="text-[9px] text-matcha-400">{dist < 1000 ? `${dist}m` : `${(dist/1000).toFixed(1)}km`}</span>}
+                  {isNext && (
+                    <span className="text-[9px] font-bold text-accent bg-accent/15 rounded-full px-1.5 py-0.5">
+                      NÄCHSTER STOP
+                    </span>
+                  )}
+                  {dist && (
+                    <span className="text-[9px] text-matcha-400">
+                      {dist < 1000 ? `${dist}m` : `${(dist / 1000).toFixed(1)}km`}
+                    </span>
+                  )}
                 </div>
                 <div className="font-bold text-white text-sm truncate">{o.kunde_name}</div>
               </div>
@@ -156,7 +205,7 @@ export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStat
             </div>
 
             {/* Address */}
-            <div className="px-4 pb-2">
+            <div className="px-4 pb-2 space-y-1.5">
               {o.kunde_adresse && (
                 <div className="flex items-center gap-1 text-[11px] text-matcha-300">
                   <MapPin size={10} className="shrink-0" />
@@ -164,65 +213,102 @@ export function TourStopNavigator({ stops, onMarkDelivered, pending, kitchenStat
                 </div>
               )}
 
-              {/* Cash collection indicator */}
-              {needsCollection && (
-                <div className="mt-1 inline-flex items-center gap-1 rounded-lg bg-yellow-500/20 border border-yellow-500/30 px-2 py-1 text-[10px] font-bold text-yellow-200">
-                  <Banknote size={10} />
-                  Bargeld kassieren: {euro(o.gesamtbetrag)}
+              {/* Payment status indicator */}
+              {o.zahlungsart && (
+                <div className={cn(
+                  'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold',
+                  isCash
+                    ? needsCollection
+                      ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-200'
+                      : 'bg-green-500/15 border border-green-500/25 text-green-300'
+                    : 'bg-blue-500/15 border border-blue-500/25 text-blue-300',
+                )}>
+                  {isCash ? <Banknote size={11} /> : <CreditCard size={11} />}
+                  {isCash
+                    ? needsCollection
+                      ? `Bargeld kassieren: ${euro(o.gesamtbetrag)}`
+                      : `Bar bezahlt: ${euro(o.gesamtbetrag)}`
+                    : `Karte: ${euro(o.gesamtbetrag)}`}
                 </div>
               )}
 
               {/* Kitchen not ready warning */}
               {!isKitchenReady && kitchenStatus && isNext && (
-                <div className="mt-1 inline-flex items-center gap-1 rounded-lg bg-orange-500/20 border border-orange-500/30 px-2 py-1 text-[10px] font-bold text-orange-200">
+                <div className="inline-flex items-center gap-1 rounded-lg bg-orange-500/20 border border-orange-500/30 px-2 py-1 text-[10px] font-bold text-orange-200">
                   <Clock size={10} />
                   Küche: {kitchenStatus === 'in_zubereitung' ? 'noch in Zubereitung' : kitchenStatus}
                 </div>
               )}
 
-              {/* Notes */}
-              {(o.kunde_notiz || o.kunde_lieferhinweis) && (
-                <div className="mt-1 flex items-start gap-1 text-[10px] text-matcha-300 italic">
-                  <MessageSquare size={9} className="shrink-0 mt-0.5" />
-                  <span className="truncate">{o.kunde_lieferhinweis ?? o.kunde_notiz}</span>
+              {/* Delivery notes callout — highlighted */}
+              {hasDeliveryNotes && (
+                <div className="rounded-xl bg-amber-500/10 border border-amber-400/25 px-3 py-2 flex items-start gap-2">
+                  <MessageSquare size={12} className="shrink-0 mt-0.5 text-amber-300" />
+                  <div className="space-y-0.5 min-w-0">
+                    {o.kunde_lieferhinweis && (
+                      <p className="text-[11px] font-semibold text-amber-200 leading-snug">
+                        {o.kunde_lieferhinweis}
+                      </p>
+                    )}
+                    {o.kunde_notiz && o.kunde_notiz !== o.kunde_lieferhinweis && (
+                      <p className="text-[10px] text-amber-300/80 leading-snug italic">
+                        {o.kunde_notiz}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Action buttons */}
-            {isNext && (
-              <div className="flex gap-2 px-3 pb-3">
-                {/* Navigate */}
+            {/* Quick Actions row — shown for every pending stop */}
+            <div className="flex gap-2 px-3 pb-3">
+              {/* Call button */}
+              {o.kunde_telefon ? (
                 <a
-                  href={navUrl}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-accent text-matcha-900 font-bold text-sm py-3 transition active:scale-[0.97]"
+                  href={`tel:${o.kunde_telefon}`}
+                  className={cn(
+                    'flex items-center justify-center gap-1.5 rounded-xl border font-bold text-sm py-3 transition active:scale-[0.97]',
+                    isNext
+                      ? 'w-12 bg-white/10 border-white/15 text-white hover:bg-white/20'
+                      : 'flex-1 bg-white/5 border-white/10 text-matcha-300',
+                  )}
+                  aria-label="Anrufen"
                 >
-                  <Navigation size={16} />
-                  Navigation
+                  <Phone size={16} />
+                  {!isNext && <span className="text-xs">Anrufen</span>}
                 </a>
+              ) : null}
 
-                {/* Phone */}
-                {o.kunde_telefon && (
-                  <a
-                    href={`tel:${o.kunde_telefon}`}
-                    className="w-12 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-white transition hover:bg-white/20"
-                    aria-label="Anrufen"
-                  >
-                    <Phone size={16} />
-                  </a>
+              {/* Navigate button */}
+              <a
+                href={navUrl}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 rounded-xl font-bold text-sm py-3 transition active:scale-[0.97]',
+                  isNext
+                    ? 'flex-1 bg-accent text-matcha-900'
+                    : 'flex-1 bg-white/8 border border-white/10 text-matcha-200 hover:bg-white/15',
                 )}
+              >
+                <Navigation size={16} />
+                {isNext ? 'Navigation' : 'Karte'}
+              </a>
 
-                {/* Mark delivered */}
-                <button
-                  onClick={() => onMarkDelivered(stop.id)}
-                  disabled={pending}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-matcha-600 hover:bg-matcha-500 text-white font-bold text-sm py-3 transition active:scale-[0.97] disabled:opacity-50"
-                >
-                  <CheckCircle2 size={16} />
-                  Geliefert
-                </button>
-              </div>
-            )}
+              {/* Delivered button */}
+              <button
+                onClick={() => handleDelivered(stop.id)}
+                disabled={pending}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 rounded-xl font-bold text-sm py-3 transition active:scale-[0.97] disabled:opacity-50',
+                  isNext
+                    ? 'flex-1 bg-matcha-600 hover:bg-matcha-500 text-white'
+                    : 'w-12 bg-white/5 border border-white/10 text-matcha-400 hover:bg-matcha-700/40 hover:text-white',
+                )}
+                aria-label="Als geliefert markieren"
+              >
+                <CheckCircle2 size={16} />
+                {isNext && <span>Geliefert</span>}
+              </button>
+            </div>
           </div>
         );
       })}
