@@ -39,6 +39,8 @@ export async function GET(req: NextRequest) {
       { data: yesterdayRows },
       { data: perfRows },
       { data: driverRows },
+      { data: driverPerfRows },
+      { data: batchRows },
     ] = await Promise.all([
       // heutige Lieferbestellungen
       sb.from('customer_orders')
@@ -61,11 +63,25 @@ export async function GET(req: NextRequest) {
         .eq('location_id', locationId)
         .gte('recorded_at', todayStart.toISOString()),
 
-      // aktive Fahrer (online)
+      // alle Fahrer der Location (online + offline) für Fahrer-Breakdown
       sb.from('mise_drivers')
-        .select('id')
+        .select('id, name, vehicle_type, is_online')
         .eq('location_id', locationId)
-        .eq('is_online', true),
+        .eq('active', true),
+
+      // Liefer-Performance heute pro Fahrer
+      sb.from('delivery_performance')
+        .select('driver_id, delivery_min, on_time')
+        .eq('location_id', locationId)
+        .gte('recorded_at', todayStart.toISOString())
+        .not('driver_id', 'is', null),
+
+      // Touren heute pro Fahrer
+      sb.from('mise_delivery_batches')
+        .select('id, driver_id')
+        .eq('location_id', locationId)
+        .gte('created_at', todayStart.toISOString())
+        .not('driver_id', 'is', null),
     ]);
 
     type OrderRow = {
@@ -79,11 +95,57 @@ export async function GET(req: NextRequest) {
     };
 
     type PerfRow = { delivery_min: number | null; on_time: boolean | null; recorded_at: string };
+    type DriverRow = { id: string; name: string | null; vehicle_type: string | null; is_online: boolean | null };
+    type DriverPerfRow = { driver_id: string | null; delivery_min: number | null; on_time: boolean | null };
+    type BatchRow = { id: string; driver_id: string | null };
 
     const orders = (todayRows ?? []) as OrderRow[];
     const yesterday = (yesterdayRows ?? []) as OrderRow[];
     const perf = (perfRows ?? []) as PerfRow[];
-    const activeDrivers = (driverRows ?? []).length;
+    const allDrivers = (driverRows ?? []) as DriverRow[];
+    const activeDrivers = allDrivers.filter(d => d.is_online).length;
+    const driverPerf = (driverPerfRows ?? []) as DriverPerfRow[];
+    const batches = (batchRows ?? []) as BatchRow[];
+
+    // ── Fahrer-Breakdown für LieferdienstFahrerTagesPerformance
+    const driverPerfMap = new Map<string, { mins: number[]; onTimeCount: number; total: number }>();
+    for (const dp of driverPerf) {
+      if (!dp.driver_id) continue;
+      const entry = driverPerfMap.get(dp.driver_id) ?? { mins: [], onTimeCount: 0, total: 0 };
+      entry.total++;
+      if (dp.delivery_min != null && dp.delivery_min > 0) entry.mins.push(dp.delivery_min);
+      if (dp.on_time === true) entry.onTimeCount++;
+      driverPerfMap.set(dp.driver_id, entry);
+    }
+
+    const driverTourMap = new Map<string, number>();
+    for (const b of batches) {
+      if (!b.driver_id) continue;
+      driverTourMap.set(b.driver_id, (driverTourMap.get(b.driver_id) ?? 0) + 1);
+    }
+
+    const driversBreakdown = allDrivers
+      .map(d => {
+        const dp = driverPerfMap.get(d.id);
+        const avgMin =
+          dp && dp.mins.length > 0
+            ? Math.round(dp.mins.reduce((a, b) => a + b, 0) / dp.mins.length)
+            : null;
+        const onTimePct =
+          dp && dp.total > 0 ? Math.round((dp.onTimeCount / dp.total) * 100) : null;
+        return {
+          id: d.id,
+          name: d.name ?? 'Fahrer',
+          vehicle: d.vehicle_type ?? null,
+          stopsToday: dp?.total ?? 0,
+          toursToday: driverTourMap.get(d.id) ?? 0,
+          avgDeliveryMin: avgMin,
+          onTimePct,
+          isOnline: d.is_online ?? false,
+        };
+      })
+      .filter(d => d.stopsToday > 0 || d.isOnline)
+      .sort((a, b) => b.stopsToday - a.stopsToday);
 
     // ── Basis-Zählungen
     const deliveredOrders = orders.filter(
@@ -208,6 +270,9 @@ export async function GET(req: NextRequest) {
       // Schicht-Daten
       schicht_revenue: schichtRevenue,
       schicht_orders: schichtOrders.length,
+
+      // Fahrer-Breakdown je Fahrer (für LieferdienstFahrerTagesPerformance)
+      drivers: driversBreakdown,
     });
   }
 
