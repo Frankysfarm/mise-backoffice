@@ -150,6 +150,7 @@ import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-verglei
 import { LieferdienstAbdeckungsRisikoWidget } from './abdeckungs-risiko-widget'
 import { LieferdienstZoneDifficultyKarte } from './zone-difficulty-karte'
 import { LieferdienstFahrerScoreRangliste } from './fahrer-score-rangliste'
+import { LieferdienstQualitaetsWochenTrend } from './qualitaets-wochen-trend'
 import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
 import { LieferdienstTagesExecutive } from './lieferdienst-tages-executive'
 
@@ -1193,6 +1194,8 @@ export function LieferdienstClient() {
               <LieferdienstZoneDifficultyKarte locationId={locationId} />
               {/* Phase 357: Fahrer-Score-Rangliste — Top-5 wöchentliche Composite-Score Rangliste */}
               <LieferdienstFahrerScoreRangliste locationId={locationId} />
+              {/* Phase 358: Qualitäts-Wochen-Trend — 7-Tage Qualitätsscore AreaChart + Schwächen-Hinweis */}
+              <LieferdienstQualitaetsWochenTrend locationId={locationId} />
               {/* Phase 346: Heatmap-KPI — Tour-Heatmap Kompakt-KPIs + Unterversorgungs-Warnung */}
               <HeatmapKpi locationId={locationId} />
               {/* Phase 347: Standort-Gesundheits-Cockpit — Score + Dimensionen + Ranking + 7d-Trend */}

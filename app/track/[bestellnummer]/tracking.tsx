@@ -32,6 +32,7 @@ import { NachhaltigkeitsBanner } from '@/app/order/[locationSlug]/components/nac
 import { OrderLiveProgressCard } from '@/app/order/[locationSlug]/order-live-progress-card';
 import { SseTrackingLive } from './sse-tracking-live';
 import { EtaConfidenceCard } from '@/app/order/[locationSlug]/eta-confidence-card';
+import { BestellEtaQualitaetsAmpel } from '@/app/order/[locationSlug]/bestell-eta-qualitaets-ampel';
 import { BestellStatusMiniTracker } from '@/app/order/[locationSlug]/bestell-status-mini-tracker';
 import { LiveWartezeitRing } from '@/app/order/[locationSlug]/components/live-wartezeit-ring';
 import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdown-v2';
@@ -508,6 +509,16 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             initialEtaEarliest={order.eta_earliest}
             initialEtaLatest={order.eta_latest}
             initialPrepMin={order.geschaetzte_zubereitung_min}
+          />
+        )}
+
+        {/* Phase 358: ETA-Qualitäts-Ampel — Live-Genauigkeitsindikator mit Zeitfenster-Visualisierung */}
+        {order.typ === 'lieferung' && !['geliefert', 'abgeholt', 'storniert'].includes(order.status) && (
+          <BestellEtaQualitaetsAmpel
+            orderId={order.order_id}
+            etaEarliest={order.eta_earliest}
+            etaLatest={order.eta_latest}
+            status={order.status}
           />
         )}
 

@@ -180,6 +180,7 @@ import { DispatchOffeneWarteschlange } from './offene-warteschlange';
 import { DispatchTourFeedbackMonitor } from './tour-feedback-monitor';
 import { ZoneDifficultyDispatchPanel } from './zone-difficulty-dispatch-panel';
 import { ZoneDifficultyTrendChart } from './zone-difficulty-trend';
+import { DispatchPeakAlertStrip } from './peak-alert-strip';
 import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
 import { DispatchFlottenGesundheitsIndex } from './dispatch-flotten-gesundheits-index';
 
@@ -998,6 +999,8 @@ export function DispatchBoard({
       <ZoneDifficultyDispatchPanel />
       {/* Phase 357: Zone-Difficulty-Trend — 14-Tage LineChart Zonen-Schwierigkeit */}
       <ZoneDifficultyTrendChart />
+      {/* Phase 358: Peak-Alert-Strip — Nächste Spitzentage mit Empfehlungen (Fahrer, Küche früher) */}
+      <DispatchPeakAlertStrip />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}
