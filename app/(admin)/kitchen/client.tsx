@@ -136,6 +136,7 @@ import { KitchenFeedbackTrendMini } from './feedback-trend-mini';
 import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 import { KitchenMultiBatchAbholplan } from './kitchen-multi-batch-abholplan';
 import { KitchenSmartKochzeitBoard } from './smart-kochzeit-board';
+import { KitchenKiAuftragsPriorierung } from './ki-auftragspriorierung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -603,6 +604,8 @@ export function KitchenBoard({
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 358: Smart-Kochzeit-Board — Alle aktiven Bestellungen mit Countdown, Urgency-Priorisierung, Küchen-Gesundheits-Score */}
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
+      {/* Phase 361: KI-Auftrags-Priorierung — Smart-Ranking aller aktiven Bestellungen nach KI-Score */}
+      <KitchenKiAuftragsPriorierung orders={filtered} timings={timings} />
       {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}
       <KitchenSchichtSchnellstatus
         orders={filtered}

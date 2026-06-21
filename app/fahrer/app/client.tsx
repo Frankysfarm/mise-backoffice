@@ -127,6 +127,7 @@ import { FahrerFeedbackMonatsbericht } from './feedback-monatsbericht';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 import { TourStoppNavV2 } from './tour-stopp-nav-v2';
+import { FahrerStoppErinnerungsPanel } from './stop-erinnerungs-panel';
 
 type Driver = {
   id: string;
@@ -1017,6 +1018,10 @@ export function FahrerApp({
               stops={activeBatch.stops as any}
               startedAt={activeBatch.started_at}
             />
+          </div>
+          {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
+          <div className="px-4">
+            <FahrerStoppErinnerungsPanel activeBatch={activeBatch as any} />
           </div>
           {/* Näherungs-Alert: Vibration + Overlay wenn Fahrer <250m vom nächsten Stop */}
           {(() => {

@@ -27,6 +27,7 @@ import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
 import { BestellPhasenBand } from '../bestell-phasen-band';
 import { EtaLiveRing } from '../eta-live-ring';
 import { BestellPulsStatus } from '../bestell-puls-status';
+import { LiveFahrerProximityRing } from './live-fahrer-proximity-ring';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -409,6 +410,14 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             bestellnummer={bestellnummer}
             etaMinutes={etaMinutes}
             isDelivery={isDelivery}
+          />
+        )}
+        {/* Phase 361: Live-Fahrer-Proximity-Ring — Animierter Näherungs-Ring mit Fahrernamen + ETA-Sekunden */}
+        {isDelivery && orderId && (
+          <LiveFahrerProximityRing
+            orderId={orderId}
+            estimatedMin={etaMinutes}
+            orderStatus={liveStatus ?? 'bestätigt'}
           />
         )}
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}

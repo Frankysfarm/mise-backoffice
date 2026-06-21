@@ -156,6 +156,7 @@ import { LieferdienstFeedbackManagementReport } from './feedback-management-repo
 import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
 import { LieferdienstTagesExecutive } from './lieferdienst-tages-executive'
 import { LieferdienstSchnellStatistikPanel } from './schnell-statistik-panel'
+import { LieferdienstEchtzeitBestellKpiGrid } from './echtzeit-bestell-kpi-grid'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1227,6 +1228,8 @@ export function LieferdienstClient() {
               <LieferdienstTagesExecutive locationId={locationId ?? null} />
               {/* Phase 358: Schnell-Statistik-Panel — Umsatz, Bestellungen, Lieferzeit, Bewertung in kompakten Kacheln */}
               <LieferdienstSchnellStatistikPanel locationId={locationId} />
+              {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
+              <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
