@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–378 abgeschlossen. CEO Review #208 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–379 abgeschlossen. CEO Review #208 bestanden. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 379 Backend (2026-06-21): Fahrer-Breakdown in `/api/delivery/admin/stats?period=today`. Neues `drivers: DriverPerf[]`-Array mit id, name, vehicle, stopsToday, toursToday, avgDeliveryMin, onTimePct, isOnline — aggregiert aus `mise_drivers` + `delivery_performance` + `mise_delivery_batches`. `LieferdienstFahrerTagesPerformance` zeigt jetzt echte Live-Daten statt Mock-Fallback. Gefiltert: nur Fahrer mit Stopps heute oder aktuell online. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 378 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KitchenBatchUebersichtCockpit (Echtzeit-Batch-Übersicht, 1s-Ticker, kochend/bereit/wartend + Urgency-Ampel), DispatchTourRealtimeFortschritt (Live-Fortschritts-Board je aktiver Tour: Dot-Progress, ETA-Ampel, Pünktlichkeits-Health), TourStoppListe (Fahrer-App: geordnete Stoppliste, Status-Icons, Navigation-CTA per Maps-Deep-Link, Kundenadresse + Betrag), BestellEtaProgress (Storefront: 5-Schritt-Fortschritt + Live-Countdown). CEO-Fixes: BestellEtaProgress Timer-Bug (useRef statt Date.now()-per-Tick) + Progress-Bar negative Breite (Math.max-Guard). LieferdienstFahrerTagesPerformance (Tages-Matrix je Fahrer: Stopps/Touren/Ø-Lieferzeit/Pünktlichkeit, Note A-D, API-Fallback auf Mock). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
