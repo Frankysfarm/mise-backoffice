@@ -1,7 +1,7 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { Soon } from '../_soon';
-import { LoyaltyEditor } from './client';
+import { LoyaltyEditor, VoucherManager } from './client';
 export const dynamic = 'force-dynamic';
 const IDEAS = ['Happy Hour', '2-für-1 Pizza', 'Gratis Lieferung ab 30€', 'Studenten-Rabatt', 'Mittagsangebot', 'Wochenend-Special'];
 export default async function Aktionen() {
@@ -9,6 +9,7 @@ export default async function Aktionen() {
   const sb = createServiceClient();
   const { data: t } = await sb.from('tenants').select('id, storefront_settings').eq('id', emp?.tenant_id ?? '').maybeSingle();
   const loyalty = ((t?.storefront_settings as any)?.loyalty ?? {}) as { enabled?: boolean; target_stamps?: number; reward_title?: string; reward_text?: string };
+  const { data: vouchers } = await sb.from('vouchers').select('id, code, typ, wert, min_bestellwert, beschreibung, gueltig_bis, aktiv, nutzungen_aktuell, nutzungen_max').eq('tenant_id', t?.id ?? '').order('created_at', { ascending: false });
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
@@ -19,10 +20,7 @@ export default async function Aktionen() {
         </div>
         <LoyaltyEditor tenantId={t?.id ?? ''} current={loyalty} />
       </div>
-      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Rabattcodes</h3><Soon href="/vouchers" style={{ display: 'flex', alignItems: 'center', gap: 7, height: 38, padding: '0 14px', border: 'none', borderRadius: 10, background: '#0F172A', color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' }}>+ Code erstellen</Soon></div>
-        <div style={{ padding: '24px 22px', textAlign: 'center', color: '#94A3B8', fontSize: 13.5 }}>Rabattcodes verwaltest du im Gutschein-Bereich.</div>
-      </div>
+      <VoucherManager vouchers={(vouchers ?? []) as any[]} />
       <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8', letterSpacing: '.3px', marginBottom: 10 }}>WEITERE AKTIONS-IDEEN</div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>{IDEAS.map((p) => (<Soon key={p} href="/loyalty" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', border: '1px solid #E2E8F0', borderRadius: 999, padding: '8px 14px', fontSize: 13, fontWeight: 600, color: '#475569', cursor: 'pointer' }}><span style={{ color: '#4F46E5' }}>+</span>{p}</Soon>))}</div>
     </div>
