@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { Soon } from '../_soon';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-const CAMP = [{ name: 'E-Mail-Kampagne', desc: 'Newsletter & Angebote', bg: '#EEF2FF', ic: '#4F46E5' }, { name: 'WhatsApp', desc: 'Direkt aufs Handy', bg: '#ECFDF5', ic: '#047857' }, { name: 'SMS', desc: 'Kurz & zuverlässig', bg: '#FEF3C7', ic: '#B45309' }];
+const SOON_CH = [{ name: 'WhatsApp', desc: 'Direkt aufs Handy', bg: '#ECFDF5' }, { name: 'SMS', desc: 'Kurz & zuverlässig', bg: '#FEF3C7' }];
 export default async function Kunden() {
   const emp = await getCurrentEmployee();
   const sb = createServiceClient();
@@ -14,7 +15,12 @@ export default async function Kunden() {
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 22 }}>
-        {CAMP.map((c) => (<Soon key={c.name} href="/campaigns" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 13, cursor: 'pointer', textAlign: 'left', width: '100%' }}><div style={{ width: 42, height: 42, borderRadius: 11, background: c.bg, flexShrink: 0 }} /><div style={{ flex: 1 }}><div style={{ fontSize: 14.5, fontWeight: 700, color: '#0F172A' }}>{c.name}</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>{c.desc}</div></div><span style={{ fontSize: 10.5, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '2px 7px', borderRadius: 6 }}>Bald</span></Soon>))}
+        <Link href="/neo/app/kunden/kampagnen" style={{ background: 'linear-gradient(135deg,#4F46E5,#4338CA)', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 13, textDecoration: 'none', width: '100%', boxShadow: '0 8px 20px rgba(79,70,229,.25)' }}>
+          <div style={{ width: 42, height: 42, borderRadius: 11, background: 'rgba(255,255,255,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20 }}>✉️</div>
+          <div style={{ flex: 1 }}><div style={{ fontSize: 14.5, fontWeight: 700, color: '#fff' }}>E-Mail-Kampagne</div><div style={{ fontSize: 12.5, color: '#C7D2FE' }}>Newsletter & Angebote — jetzt senden</div></div>
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: '#fff', background: 'rgba(255,255,255,.2)', padding: '2px 8px', borderRadius: 6 }}>Aktiv →</span>
+        </Link>
+        {SOON_CH.map((c) => (<Soon key={c.name} href="/campaigns" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 14, padding: 16, display: 'flex', alignItems: 'center', gap: 13, cursor: 'pointer', textAlign: 'left', width: '100%' }}><div style={{ width: 42, height: 42, borderRadius: 11, background: c.bg, flexShrink: 0 }} /><div style={{ flex: 1 }}><div style={{ fontSize: 14.5, fontWeight: 700, color: '#0F172A' }}>{c.name}</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>{c.desc}</div></div><span style={{ fontSize: 10.5, fontWeight: 700, color: '#B45309', background: '#FEF3C7', padding: '2px 7px', borderRadius: 6 }}>Bald</span></Soon>))}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 11, padding: '11px 15px', marginBottom: 18 }}><span style={{ fontSize: 13, color: '#92400E', fontWeight: 600 }}>⚠ Marketing wird nur an Kunden mit ausdrücklicher Einwilligung gesendet.</span></div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
