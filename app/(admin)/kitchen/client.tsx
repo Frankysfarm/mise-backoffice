@@ -148,6 +148,7 @@ import { KitchenKochzeitSollIstVergleich } from './kochzeit-soll-ist-vergleich';
 import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
 import { KitchenBestellungsFlowAmpel } from './bestellungs-flow-ampel';
 import { KitchenKommandoZentrale } from './kommando-zentrale';
+import { KitchenBatchUebersichtCockpit } from './batch-uebersicht-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -617,6 +618,8 @@ export function KitchenBoard({
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
       {/* Phase 400: Kommando-Zentrale — Echtzeit-Kochpriorisierung mit Farbkodierung */}
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
+      {/* Phase 378: Batch-Übersicht-Cockpit — Alle aktiven Bestellungen mit Countdown, Progress-Bar + Farbkodierung */}
+      <KitchenBatchUebersichtCockpit orders={filtered} timings={timings} />
       {/* Phase 361: KI-Auftrags-Priorierung — Smart-Ranking aller aktiven Bestellungen nach KI-Score */}
       <KitchenKiAuftragsPriorierung orders={filtered} timings={timings} />
       {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}

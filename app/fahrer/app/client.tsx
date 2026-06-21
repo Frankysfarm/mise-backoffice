@@ -138,6 +138,7 @@ import { FahrerStoppZaehlerStrip } from './stopp-zaehler-strip';
 import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
 import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
 import { FahrerSchichtDauerLive } from './schicht-dauer-live';
+import { TourStoppListe } from './tour-stopp-liste';
 
 type Driver = {
   id: string;
@@ -1080,6 +1081,10 @@ export function FahrerApp({
               startedAt={activeBatch.started_at ?? null}
               totalEtaMin={(activeBatch as any).total_eta_min ?? null}
             />
+          </div>
+          {/* Phase 378: Tour-Stopp-Liste — Geordnete Stoppliste mit Status-Ampel, Navigation-CTA und Kundendaten */}
+          <div className="px-4 mt-3">
+            <TourStoppListe stops={activeBatch.stops as any} />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
           <div className="px-4">

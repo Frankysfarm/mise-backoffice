@@ -37,6 +37,7 @@ import { BestellUhrzeitFenster } from './bestell-uhrzeit-fenster';
 import { BestellZeitSeitBestellung } from './bestell-zeit-seit-bestellung';
 import { BestellStatusLiveBadge } from './bestell-status-live-badge';
 import { BestellungLiveSSETracker } from './bestellung-live-sse-tracker';
+import { BestellEtaProgress } from './bestell-eta-progress';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -820,6 +821,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             <BestellungLiveSSETracker
               bestellnummer={bestellnummer}
               initialStatus={liveStatus}
+            />
+          </div>
+        )}
+
+        {/* Phase 378: ETA-Progress — 5-Schritt-Fortschrittsanzeige mit Live-Countdown */}
+        {isDelivery && (
+          <div className="mt-4 w-full">
+            <BestellEtaProgress
+              status={liveStatus}
+              etaMinutes={etaMinutes}
             />
           </div>
         )}
