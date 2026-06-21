@@ -11971,3 +11971,70 @@ Bei String-Konkatenation (`'...' + '...'`) ist der Typ `string` statt ein Litera
 ### Nächste Schritte für Frontend-Ingenieur
 1. Phase 356: 5 neue Delivery-Komponenten
 2. Verbesserung des `/delivery/tour-feedback` Dashboards: Chart-Verlauf über Zeit (Recharts LineChart)
+
+---
+
+## CEO-Review #195 — 2026-06-21
+
+### Geprüfte Phasen: Phase 356 (Zone Difficulty Cache + Feedback-Push nach Tour)
+
+**Build-Status:**
+- `npx tsc --noEmit`: 0 Fehler ✅
+- `npx next build`: ✓ Compiled successfully (350 Seiten, 0 Fehler) ✅
+
+**Phase 356 — geprüfte Komponenten:**
+
+**`lib/delivery/zone-difficulty.ts`:**
+- `getZoneDifficultyModifiers()`: graceful fallback auf 1.0 wenn Tabelle fehlt ✅
+- `refreshZoneDifficultyCache()`: korrekte Aggregation via tour_feedback JOIN mise_delivery_batches, upsert mit onConflict='location_id,zone' ✅
+- `computeModifiers()`: diffFactor (difficulty 1→1.0, 5→0.70) + trafficPenalty + issuePenalty — korrekte Formel, Clamp 0.50–1.00 ✅
+- `enqueueFeedbackRequestPush()`: fire-and-forget, mise_push_outbox insert mit data.batch_id für spätere Deduplizierung ✅
+- `checkAndSendFeedbackPushes()`: Deduplizierung via feedbackSet + pushedSet — kein Doppel-Push ✅
+- `refreshZoneDifficultyCacheAllLocations()` + `checkFeedbackPushesAllLocations()`: Promise.allSettled korrekt ✅
+
+**`lib/delivery/dispatch-engine.ts`:**
+- `getZoneDifficultyModifiers(locationId)` best-effort nach Zone-Klassifikation ✅
+- `adjustedDetourKm = MAX_DETOUR_KM × zoneMod.detourModifier` ✅
+- `adjustedMaxCap = Math.max(1, Math.floor(4 × zoneMod.stopCountModifier))` ✅
+- Beide Werte korrekt an `findBundleCandidates()` übergeben ✅
+
+**`lib/delivery/bundling.ts`:**
+- `MAX_DETOUR_KM` exportiert ✅
+- `effectiveMaxCap` Parameter respektiert in Kapazitätsprüfung (L103) ✅
+
+**`app/api/delivery/admin/zone-difficulty/route.ts`:**
+- Auth-Check + location_id-Auflösung aus employees ✅
+- GET ?action=cache / ?action=modifiers ✅
+- POST action=refresh korrekt ✅
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `refreshZoneDifficultyCacheAllLocations(14)` stündlich (nowMin < 2) ✅
+- `checkFeedbackPushesAllLocations()` alle 10 Min (nowMin % 10 < 2) ✅
+
+**5 Frontend-Komponenten Phase 356:**
+- `KitchenZoneSchwierigkeitsStrip`: Amber/Rot-Strip bei avgDifficulty ≥ 3.5 + sample_count ≥ 3; 5-Min-Polling; Integration kitchen/client.tsx L662 ✅
+- `ZoneDifficultyDispatchPanel`: Collapsible, 4 Zone-Karten mit Modifier-Bars; hasAdjustments-Banner; 5-Min-Polling; dispatch/client.tsx L997 ✅
+- `TourStartFeedbackReminder`: Dismissbarer Banner, nur bei aktiver Tour (assigned/at_restaurant/on_route/en_route); fahrer/app/client.tsx L1768 ✅
+- `LieferdienstZoneDifficultyKarte`: Balkendiagramm A/B/C/D, kritische Zonen hervorgehoben; 10-Min-Polling; lieferdienst/client.tsx L1192 ✅
+- `/delivery/zone-difficulty` Admin-Seite: page.tsx (SSR, requireManagerPlus) + client.tsx (4 KPIs, Alert/Check-Banner, Zone-Cards, manueller Refresh) ✅
+- SectionCard in delivery/page.tsx L171 korrekt verlinkt ✅
+
+**Bugs gefunden + gefixt: 0**
+- Kein einziger Bug. Alle Logiken korrekt, alle Integrationen vollständig.
+
+### Status nach Review #195
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (350 Seiten)
+- Phase 356: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Zone-Difficulty-Loop vollständig: Feedback → Cache → Dispatch-Modifier → Frontend-Anzeige ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 357: `/api/delivery/dispatch/scores` Endpunkt implementieren — `DispatchLiveScoreBoard` nutzt noch Mock-Daten
+2. Phase 357: Driver-Performance-Score basierend auf tour_feedback.overall_score + Pünktlichkeit aggregieren
+3. Phase 357: Zone-Difficulty-Verlauf über Zeit (täglich gespeichert) für Trend-Analyse
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 357: 5 neue Delivery-Komponenten
+2. `/delivery/zone-difficulty` Dashboard: LineChart-Verlauf (Recharts) — Schwierigkeit über Zeit
+3. `/delivery/tour-feedback` Dashboard: ebenfalls Verlaufs-Chart ergänzen
