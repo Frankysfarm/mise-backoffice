@@ -1,7 +1,61 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–383 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–384 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #212 — 2026-06-21
+
+### Geprüfte Phasen: Phase 384 (Frontend)
+
+**Build-Status:**
+- `npx tsc --noEmit`: ✓ Exit 0 — 0 Fehler ✅
+- `npx next build`: ✓ Compiled successfully (354 Seiten) ✅
+
+**Phase 384 Frontend — 5 neue Smart-Delivery-Komponenten:**
+
+**`KitchenLiveAmpelBoard` (kitchen/kitchen-live-ampel-board.tsx):**
+- Echtzeit-Ampel-Kacheln grün/gelb/rot je aktiver Bestellung ✅
+- Sekundengenauer Countdown, `clearInterval`-Cleanup ✅
+- Integration in KitchenBoard (kitchen/client.tsx) ✅
+
+**Kitchen TV: LOCATION_ID via URL-Parameter konfigurierbar:**
+- `?location_id=…` in tv/client.tsx → dynamische Location ohne Hardcode ✅
+
+**`DispatchTourLiveCockpit` (dispatch/dispatch-tour-live-cockpit.tsx):**
+- Alle aktiven Touren: Fahrer, Stop-Fortschrittsbalken, Dispatch-Score, ETA ✅
+- `clearInterval`-Cleanup ✅
+- Integration in dispatch/client.tsx ✅
+
+**`NaechsterStopFokus` (fahrer/app/naechster-stop-fokus.tsx):**
+- Ultra-fokussierte Ansicht: großer ETA-Countdown, Navigation, Anruf, Kasse ✅
+- `clearInterval`-Cleanup ✅
+- Integration in fahrer/app/client.tsx ✅
+
+**`BestellungLiveTimeline` (order/[locationSlug]/bestellung-live-timeline.tsx):**
+- 4-Phasen-Timeline Bestellt→Küche→Unterwegs→Geliefert mit ETA-Countdown ✅
+- `clearInterval`-Cleanup ✅
+
+**`ExecutiveKpiBanner` (lieferdienst/executive-kpi-banner.tsx):**
+- 7 Live-Metriken: Bestellungen, Lieferungen, Fahrer, Ø Zeit, Pünktlichkeit, Umsatz ✅
+- `clearInterval`-Cleanup ✅
+- Integration in lieferdienst/client.tsx ✅
+
+**Bugs gefunden + gefixt: 0**
+
+### Status nach Review #212
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 384: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 385: ShiftExtension-Dashboard für Dispatch — Überstunden-Risiko-Kacheln + Approve/Decline-Buttons für pending-Requests (API: `/api/delivery/admin/shift-extension`)
+2. Kitchen TV: Weitere LOCATION_ID-Konfiguration testen
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 385: Nächstes Backend-Feature (Vorschlag: Driver Performance Score Daily Snapshots oder Zone-basiertes Routing)
 
 ---
 
