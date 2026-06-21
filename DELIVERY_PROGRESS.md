@@ -1,11 +1,66 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–361 abgeschlossen. Build sauber. 352 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–362 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 362 (2026-06-21): KI-Auftrags-Priorisierungs-API (Backend-ML-Score, persistiert), Tour-Effizienz-Report (EUR/Stopp P75-Benchmark täglich aggregiert), Proximity-Ring-GPS-Fix, 5 neue Frontend-Komponenten (Kitchen Heatmap, Dispatch Echtzeit-Belastung, Fahrer Effizienz-Karte, Lieferdienst Effizienz-Report). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 362 — KI-Auftrags-Priorisierung + Tour-Effizienz-Report + Proximity-Fix (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**Migrationen:**
+- `scripts/migrations/176_order_priority_scores.sql`: `order_priority_scores` Tabelle (UUID PK, location_id+order_id, priority_score 0-100, Breakdown pts_priority/status/zone/wait/escalation/boost, Kontext-Felder order_status/priority/zone/wait_min/dispatch_attempts/was_escalated, dispatch_outcome tracking, RLS, `prune_order_priority_scores(days_old)` RPC)
+- `scripts/migrations/177_tour_efficiency_daily.sql`: `tour_efficiency_daily` (UNIQUE location_id+day_berlin, total_tours/stops/revenue, revenue_per_stop_eur, P25/50/75/90 Perzentile, driver_count, best_driver_id) + `tour_efficiency_driver_daily` (UNIQUE location_id+day+driver, rev_per_stop_eur, on_time_pct, prune RPC)
+
+**Backend (`lib/delivery/order-priority-engine.ts`):**
+- `computePriorityScore(input)` — 6-Faktor-Score: Priorität (0-40) + Status (0-25) + Zone (0-12) + Wartezeit (0-15) + Eskalation (0-20) + Boost (0-50)
+- `scoreAndPersistOrder(input)` — Score berechnen + in order_priority_scores schreiben
+- `scoreAndPersistPendingOrders(locationId)` — Batch aller wartenden Bestellungen (status: neu/bestätigt/in_zubereitung/fertig)
+- `scoreAndPersistAllLocations()` — Cron-Batch Promise.allSettled
+- `recordDispatchOutcome(orderId, outcome)` — Outcome (dispatched/held/escalated/cancelled) an letzten Score hängen
+- `getOrderPriorityDashboard(locationId)` → PriorityDashboard (aktive Aufträge, criticalCount, highCount, avgScore, maxWaitMin)
+- `getOrderScoreHistory(locationId, hours)` → stündliche Aggregation (avgScore, count, criticalCount)
+- `pruneOrderPriorityScores(daysOld)` → via RPC
+
+**Backend (`lib/delivery/tour-efficiency-report.ts`):**
+- `aggregateTourEfficiencyForDay(locationId, dayBerlin?)` — aggregiert alle completed Batches des Tages: revPerStop, P25/50/75/90, pro-Fahrer-Breakdown, best_driver
+- `aggregateTourEfficiencyAllLocations(dayBerlin?)` — Cron-Batch
+- `getTourEfficiencyDashboard(locationId, days)` → EfficiencyDashboard (14-Tage-Trend, Fahrer-Benchmarks, P75, topDriverName)
+- Benchmark-Grading: A+ (≥P75×1.1), A (≥P75), B (≥P75×0.8), C (≥P75×0.6), D
+- `pruneTourEfficiency(daysOld)` → via RPC
+
+**APIs:**
+- `/api/delivery/admin/order-priority`: GET dashboard/history + POST score/outcome/prune
+- `/api/delivery/admin/tour-efficiency-report`: GET dashboard + POST aggregate/prune
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `scoreAndPersistAllLocations` alle 5 Minuten (nowMin % 5 < 2)
+- `aggregateTourEfficiencyAllLocations` täglich 03:30 UTC
+- `pruneTourEfficiency(365)` täglich 07:30 UTC
+- `pruneOrderPriorityScores(90)` täglich 07:35 UTC
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/batch-timing-heatmap.tsx` — `KitchenBatchTimingHeatmap`: stündliche Verzögerungsrate 9-22h als farbkodierte Balken-Heatmap (grün/amber/orange/rot), Peak-Stunde hervorgehoben, aktuell-Stunde blau, 10-Min-Polling; Integration: kitchen/client.tsx nach KitchenFeedbackTrendMini
+- `app/(admin)/dispatch/fahrer-belastungs-echtzeit.tsx` — `DispatchFahrerBelastungsEchtzeit`: aktive Stops je Fahrer (15s-Polling `/api/delivery/admin/drivers`), Balkendiagramm je Fahrer grün/rot, Status-Badges (idle/active/overloaded), KPI-Row (voll/aktiv/frei/online); Integration: dispatch/client.tsx nach DispatchTourEffizienzCockpit
+- `app/fahrer/app/tour-effizienz-karte.tsx` — `FahrerTourEffizienzKarte`: persönlicher EUR/Stopp vs. P75-Benchmark, Trend-Pfeil, Grade-Badge, Coaching-Hinweis bei <−15%, 5-Min-Polling; Integration: fahrer/app/client.tsx
+- `app/(admin)/lieferdienst/tour-effizienz-report.tsx` — `LieferdienstTourEffizienzReport`: 14-Tage AreaChart EUR/Stopp + P75-Linie (amber gestrichelt), 3 KPI-Kacheln, Top-5 Fahrer-Benchmark-Tabelle mit Grade-Badge, 10-Min-Polling; Integration: lieferdienst/client.tsx nach LieferdienstTeamScoreTrend
+- `app/order/[locationSlug]/components/live-fahrer-proximity-ring.tsx` — Proximity-Ring-GPS-Fix: TrackingData auf tatsächliche API-Antwort umgestellt (driver.lat/lng, geo.distance_m, geo.eta_min_remaining, geo.almost_there), etaText nutzt now almostThere-Flag für "Gleich da!"-Anzeige, Haversine-Distanz korrekt aus geo-Feld ausgelesen
+
+**Admin-Seiten:**
+- `/delivery/order-priority` (page.tsx + client.tsx): 4 KPI-Kacheln (Aufträge/KRITISCH/HOCH/Max-Wait), Tabs (Prioritäts-Queue mit Score-Kreis+Label+Status-Chips / 24h Score-Verlauf BarChart mit Farbkodierung), Score-Berechnen-Button
+- `/delivery/tour-efficiency` (page.tsx + client.tsx): 4 KPI-Kacheln (EUR/Stopp/P75/Top-Fahrer/Fahrer-Count), Tabs (N-Tage-Trend AreaChart + P75-ReferenceLine / Fahrer-Benchmark-Tabelle mit Grade-Badges), Zeitraum-Selektor 7/14/30 Tage, Heute-aggregieren-Button
+- `delivery/page.tsx`: 2 neue SectionCards (KI-Auftrags-Priorisierung + Tour-Effizienz Report, beide highlight)
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 
