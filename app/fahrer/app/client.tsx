@@ -145,6 +145,7 @@ import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
+import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
 
 type Driver = {
   id: string;
@@ -1067,6 +1068,13 @@ export function FahrerApp({
             <TourStoppNavV2
               stops={activeBatch.stops as any}
               startedAt={activeBatch.started_at}
+            />
+          </div>
+          {/* Phase 388: Nächster-Stopp-Karte — Große Adressanzeige, Navigations-CTA, Zahlungsart-Badge, Stop-Zähler */}
+          <div className="px-4">
+            <FahrerTourNaechsterStoppKarte
+              driverId={driver.id}
+              activeTourId={activeBatch.id}
             />
           </div>
           {/* Phase 363: Nächster-Stopp-Vorschau — Kompaktkarte mit ETA, Navigation, Zahlungsart und Kundendaten */}

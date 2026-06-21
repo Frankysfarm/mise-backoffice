@@ -155,6 +155,7 @@ import { KitchenLiveAmpelBoard } from './kitchen-live-ampel-board';
 import { KitchenLiveTimingHub } from './kitchen-live-timing-hub';
 import { KitchenFahrerScoreAmpelLeiste } from './fahrer-score-ampel-leiste';
 import { KitchenFahrerScoreRisikoBoard } from './fahrer-score-risiko-board';
+import { KitchenSchichtKochzeitPrognose } from './schicht-kochzeit-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -626,6 +627,8 @@ export function KitchenBoard({
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
       {/* Phase 400: Kommando-Zentrale — Echtzeit-Kochpriorisierung mit Farbkodierung */}
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
+      {/* Phase 388: Kochzeit-Prognose — Farbkodierter Countdown je aktiver Bestellung + Überfällig-Zähler */}
+      <KitchenSchichtKochzeitPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 378: Batch-Übersicht-Cockpit — Alle aktiven Bestellungen mit Countdown, Progress-Bar + Farbkodierung */}
       <KitchenBatchUebersichtCockpit orders={filtered} timings={timings} />
       {/* Phase 380: Fertigstellungs-Prognose — Wann sind alle aktiven Bestellungen fertig? Completion-ETA je Order */}

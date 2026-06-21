@@ -175,6 +175,7 @@ import { SchichtRenditeCockpit } from './schicht-rendite-cockpit';
 import { ExecutiveKpiBanner } from './executive-kpi-banner';
 import { LieferdienstFahrerScoreTagesRanking } from './fahrer-score-tages-ranking';
 import { LieferdienstFahrerScoreEinzeltrend } from './fahrer-score-einzeltrend';
+import { LieferdienstSchichtLiveMetriken } from './schicht-live-metriken';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1110,6 +1111,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 388: Schicht-Live-Metriken — Heute vs. Gestern: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
+              <LieferdienstSchichtLiveMetriken locationId={locationId} />
               {/* Phase 400: Tages-KPI-Panel — Live Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
               <LieferdienstTagesKPIPanel locationId={locationId} />
               {/* Live-Kapazitäts-Monitor: Auslastungs-Gauge + Engpass-Erkennung in Echtzeit */}

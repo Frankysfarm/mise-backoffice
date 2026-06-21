@@ -204,6 +204,7 @@ import { DispatchTourLiveCockpit } from './dispatch-tour-live-cockpit';
 import { DispatchScoreTourCockpit } from './dispatch-score-tour-cockpit';
 import { DispatchScoreDropAlertFeed } from './score-drop-alert-feed';
 import { DispatchFahrerScoreVerlaufChart } from './fahrer-score-verlauf-chart';
+import { DispatchTourStopVerfolger } from './tour-stop-verfolger';
 
 type Driver = {
   employee_id: string;
@@ -1616,6 +1617,8 @@ export function DispatchBoard({
 
       {/* Live-Tour-Tracker: kompakte Statuskarten aller aktiven Touren mit Farbkodierung */}
       {batches.length > 0 && <LiveTourTracker batches={batches} />}
+      {/* Phase 388: Tour-Stop-Verfolger — Live Stop-Fortschritt, ETA-Rückkehr, Health-Ampel je Tour */}
+      <DispatchTourStopVerfolger locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 308: Tour-Stop-Matrix — alle aktiven Touren mit Stop-Fortschritt, ETA-Abweichung, Farbkodierung */}
       {batches.length > 0 && <DispatchTourStopMatrix batches={batches as any} />}
       {/* Phase 309: Kapazitäts-Puffer — Restkapazität der Lieferflotte in Echtzeit */}
