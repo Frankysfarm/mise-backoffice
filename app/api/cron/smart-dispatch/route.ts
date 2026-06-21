@@ -158,6 +158,7 @@ import { snapshotCapacityAllLocations, pruneCapacityEvents } from '@/lib/deliver
 import { autoDetectAllLocations as detectShiftExtensions, recordDailyOvertimeSummaryAllLocations, pruneOldRequests as pruneShiftExtensionRequests } from '@/lib/delivery/shift-extension';
 import { snapshotDailyScoreAllLocations as snapshotDriverScoreDaily, detectScoreDropAlertsAllLocations, pruneOldDailySnapshots as pruneDriverScoreDailySnapshots, pruneOldDropAlerts as pruneDriverScoreDropAlerts } from '@/lib/delivery/driver-score-daily';
 import { snapshotTransparencyAllLocations, pruneTransparencySnapshots } from '@/lib/delivery/transparency-engine';
+import { snapshotOpsHealthAllLocations, pruneOpsHealthSnapshots } from '@/lib/delivery/ops-health-history';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -348,6 +349,9 @@ export async function GET(req: NextRequest) {
     // Phase 389: Transparency Engine — täglich 04:10 UTC; prune täglich 07:25 UTC (365 Tage)
     const isTransparencySnapshotTick = nowHour === 4  && nowMin >= 10 && nowMin < 14;
     const isTransparencyPruneTick    = nowHour === 7  && nowMin >= 25 && nowMin < 29;
+    // Phase 392: Ops-Health-History — alle 15 Min Snapshot; prune täglich 07:30 UTC (90 Tage)
+    const isOpsHealthSnapshotTick = nowMin % 15 < 2;
+    const isOpsHealthPruneTick    = nowHour === 7 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1347,6 +1351,14 @@ export async function GET(req: NextRequest) {
       ? await pruneTransparencySnapshots(365).catch(() => null)
       : null;
 
+    // Phase 392: Ops-Health-History — alle 15 Min Snapshot; prune täglich 07:30 UTC
+    const opsHealthSnapshotResult = isOpsHealthSnapshotTick
+      ? await snapshotOpsHealthAllLocations().catch(() => null)
+      : null;
+    const opsHealthPruned = isOpsHealthPruneTick
+      ? await pruneOpsHealthSnapshots(90).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1614,6 +1626,8 @@ export async function GET(req: NextRequest) {
       ...(weeklyBenchmarkResult?.locations ? { weekly_benchmarks: { locations: weeklyBenchmarkResult.locations, errors: weeklyBenchmarkResult.errors } } : {}),
       ...(transparencySnapshotResult?.saved ? { transparency_snapshots: { locations: transparencySnapshotResult.locations, saved: transparencySnapshotResult.saved, errors: transparencySnapshotResult.errors } } : {}),
       ...(transparencyPruned?.pruned ? { transparency_pruned: transparencyPruned.pruned } : {}),
+      ...(opsHealthSnapshotResult?.saved ? { ops_health_snapshots: { locations: opsHealthSnapshotResult.locations, saved: opsHealthSnapshotResult.saved, errors: opsHealthSnapshotResult.errors } } : {}),
+      ...(opsHealthPruned?.pruned ? { ops_health_pruned: opsHealthPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
