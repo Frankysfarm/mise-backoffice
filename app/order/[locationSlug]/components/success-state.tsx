@@ -40,6 +40,7 @@ import { BestellungLiveSSETracker } from './bestellung-live-sse-tracker';
 import { BestellEtaProgress } from './bestell-eta-progress';
 import { LieferzeitVergleichWidget } from './lieferzeit-vergleich-widget';
 import { LiveStatusTimeline } from './live-status-timeline';
+import { BestellScoreVertrauen } from './bestell-score-vertrauen';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -841,6 +842,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && etaMinutes > 0 && (
           <div className="mt-3 w-full">
             <LieferzeitVergleichWidget etaMinutes={etaMinutes} />
+          </div>
+        )}
+        {/* Phase 386: Vertrauens-Abzeichen — Geprüftes Lieferteam + Ø Lieferzeit als Social Proof */}
+        {isDelivery && (
+          <div className="mt-3 w-full">
+            <BestellScoreVertrauen />
           </div>
         )}
 

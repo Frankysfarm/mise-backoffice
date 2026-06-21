@@ -173,6 +173,7 @@ import { LieferdienstFahrerTagesPerformance } from './fahrer-tages-performance';
 import { LieferdienstKapazitaetsMonitor } from './kapazitaets-monitor';
 import { SchichtRenditeCockpit } from './schicht-rendite-cockpit';
 import { ExecutiveKpiBanner } from './executive-kpi-banner';
+import { LieferdienstFahrerScoreTagesRanking } from './fahrer-score-tages-ranking';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1278,6 +1279,8 @@ export function LieferdienstClient() {
               <LieferdienstKapazitaetsMonitor locationId={locationId ?? null} />
               {/* Phase 382: Schicht-Rendite-Cockpit — 4 KPIs: Umsatz, Lieferungen, €/Lieferung, €/Fahrer-h + SLA */}
               <SchichtRenditeCockpit locationId={locationId ?? null} />
+              {/* Phase 386: Fahrer-Score-Tages-Ranking — Collapsible Leaderboard: Note + Score je Fahrer heute */}
+              <LieferdienstFahrerScoreTagesRanking locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Echtzeit-KPI-Hub: Live Schicht-Kennzahlen mit On-Time-Gauge und stündlichem Chart */}

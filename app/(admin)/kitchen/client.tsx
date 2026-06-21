@@ -153,6 +153,7 @@ import { KitchenFertigstellungsPrognose } from './fertigstellungs-prognose';
 import { KitchenKochzeitVerteilungsChart } from './kochzeit-verteilungs-chart';
 import { KitchenLiveAmpelBoard } from './kitchen-live-ampel-board';
 import { KitchenLiveTimingHub } from './kitchen-live-timing-hub';
+import { KitchenFahrerScoreAmpelLeiste } from './fahrer-score-ampel-leiste';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -781,6 +782,8 @@ export function KitchenBoard({
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
       {/* Live Timing Hub: Erweiterte Countdown-Matrix mit Ring-Visualisierung und Smart-Urgency */}
       <KitchenLiveTimingHub orders={filtered} timings={timings} />
+      {/* Phase 386: Fahrer-Score-Ampel-Leiste — Qualitäts-Badges aller Fahrer für heute */}
+      <KitchenFahrerScoreAmpelLeiste locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 260: Timing-Ampel Live — Alle aktiven Bestellungen mit Countdown + Farbcodierung */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenTimingAmpelLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />

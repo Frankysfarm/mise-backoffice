@@ -143,6 +143,7 @@ import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
 import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
+import { FahrerTagesScoreKarte } from './tages-score-karte';
 
 type Driver = {
   id: string;
@@ -946,6 +947,10 @@ export function FahrerApp({
 
                 {/* Phase 251: Ramp-Up-Fortschritt — Eigener Onboarding-Score für neue Fahrer */}
                 <FahrerRampUpFortschritt driverId={driver.id} />
+                {/* Phase 386: Tages-Score-Karte — Persönlicher Score, Note, 7-Faktoren-Breakdown */}
+                {driver.location_id && (
+                  <FahrerTagesScoreKarte driverId={driver.id} locationId={driver.location_id} />
+                )}
 
                 {/* Phase 205: Schicht-Einnahmen-Chart — stündlicher Einnahmenverlauf */}
                 <FahrerSchichtEinnahmenChart driverId={driver.id} />
