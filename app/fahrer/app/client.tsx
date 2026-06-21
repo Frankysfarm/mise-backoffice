@@ -119,6 +119,7 @@ import { FahrerMeinEngagement } from './mein-engagement';
 import { FahrerTourNavigatorPro } from './tour-navigator-pro';
 import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
+import { TourStartFeedbackReminder } from './tour-start-feedback-reminder';
 import { SmartStopActionCard } from './smart-stop-action-card';
 
 type Driver = {
@@ -1755,6 +1756,11 @@ export function FahrerApp({
               driverId={driver?.id ?? null}
             />
           )}
+          {/* Phase 356: Tour-Start-Feedback-Reminder — Erinnerung am Tourstart, Feedback zu geben */}
+          <TourStartFeedbackReminder
+            batchId={activeBatch.id}
+            batchState={activeBatch.status}
+          />
           {/* Phase 355: Tour-Abschluss-Bewertung — Strukturiertes Fahrer-Feedback nach Tour */}
           <FahrerTourAbschlussBewertung
             batchId={activeBatch.id}

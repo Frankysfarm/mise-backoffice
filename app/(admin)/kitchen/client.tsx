@@ -128,6 +128,7 @@ import { KitchenLiveBestellMatrix } from './live-bestell-matrix';
 import { KitchenBatchPickupCountdown } from './batch-pickup-countdown';
 import { KitchenPrepFlowKanban } from './prep-flow-kanban';
 import { KitchenAbwesenHeuteStrip } from './abwesen-heute-strip';
+import { KitchenZoneSchwierigkeitsStrip } from './zone-schwierigkeits-strip';
 import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 
 /* ------------------------------ Types ------------------------------ */
@@ -656,6 +657,8 @@ export function KitchenBoard({
       <KitchenPrepFlowKanban orders={filtered} timings={timings} />
       {/* Phase 355: Abwesen-Heute-Strip — Abwesende Fahrer heute + Auswirkung auf Abholkapazität */}
       <KitchenAbwesenHeuteStrip />
+      {/* Phase 356: Zone-Schwierigkeits-Strip — Warnung bei schwierigen Lieferzonen (Feedback-basiert) */}
+      <KitchenZoneSchwierigkeitsStrip />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}
       <KitchenBestellFlussMonitor />
       {/* Phase 323: Live-Schicht-KPI-Ring — Effizienz, Pünktlichkeit, Durchsatz als SVG-Ringe */}

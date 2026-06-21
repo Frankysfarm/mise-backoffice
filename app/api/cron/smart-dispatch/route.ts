@@ -145,6 +145,7 @@ import { processDeliveryEngagementAllLocations, computeWeeklyLeaderboardAllLocat
 import { snapshotTourProfitAllLocations, pruneTourProfitSnapshots } from '@/lib/delivery/tour-profit';
 import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
+import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations } from '@/lib/delivery/zone-difficulty';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1172,6 +1173,22 @@ export async function GET(req: NextRequest) {
       ? await pruneTourFeedback(90).catch(() => 0)
       : null;
 
+    // Phase 356: Zone Difficulty Cache — Refresh stündlich; Feedback-Pushes alle 10 Min
+    const isZoneDifficultyRefreshTick = nowMin < 2;
+    const isZoneFeedbackPushTick = nowMin % 10 < 2;
+
+    const [zoneDifficultyResult, feedbackPushResult] = await Promise.allSettled([
+      isZoneDifficultyRefreshTick
+        ? refreshZoneDifficultyCacheAllLocations(14)
+        : Promise.resolve(null),
+      isZoneFeedbackPushTick
+        ? checkFeedbackPushesAllLocations()
+        : Promise.resolve(null),
+    ]);
+
+    const zoneDiffResult = zoneDifficultyResult.status === 'fulfilled' ? zoneDifficultyResult.value : null;
+    const fbPushResult   = feedbackPushResult.status === 'fulfilled'   ? feedbackPushResult.value   : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1414,6 +1431,8 @@ export async function GET(req: NextRequest) {
       ...(tourProfitSnapshotResult?.snapshots ? { tour_profit_snapshots: { locations: tourProfitSnapshotResult.locations, snapshots: tourProfitSnapshotResult.snapshots, errors: tourProfitSnapshotResult.errors } } : {}),
       ...(tourProfitPruned?.pruned ? { tour_profit_pruned: tourProfitPruned.pruned } : {}),
       ...(tourFeedbackPruned !== null ? { tour_feedback_pruned: tourFeedbackPruned } : {}),
+      ...(zoneDiffResult?.zones ? { zone_difficulty_cache: { locations: zoneDiffResult.locations, zones: zoneDiffResult.zones, errors: zoneDiffResult.errors } } : {}),
+      ...(fbPushResult?.sent ? { feedback_pushes_sent: { locations: fbPushResult.locations, sent: fbPushResult.sent } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

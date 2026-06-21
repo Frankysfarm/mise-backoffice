@@ -168,6 +168,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Urlaub, Krankmeldungen & persönliche Tage · Genehmigungsworkflow · Coverage-Impact-Analyse · Jahres-Kontingent" cta="Abwesenheiten verwalten" highlight />
         <SectionCard href="/delivery/tour-feedback" icon={<Star className="h-5 w-5" />} title="Tour-Feedback"
           subtitle="Fahrer bewerten abgeschlossene Touren · Schwierigkeit, Verkehr, Kundeninteraktion · Issue-Tracking · 30-Tage-Dashboard" cta="Feedback ansehen" highlight />
+        <SectionCard href="/delivery/zone-difficulty" icon={<MapPin className="h-5 w-5" />} title="Zonen-Schwierigkeit"
+          subtitle="Feedback-basierte Dispatch-Modifikatoren · Bundle-Kapazität & Detour-Toleranz je Zone · Stündlicher Cache-Refresh" cta="Analyse öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

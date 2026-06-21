@@ -178,6 +178,7 @@ import { DispatchEngagementRanglistePanel } from './engagement-rangliste-panel';
 import { DispatchTagesZusammenfassung } from './tages-zusammenfassung';
 import { DispatchOffeneWarteschlange } from './offene-warteschlange';
 import { DispatchTourFeedbackMonitor } from './tour-feedback-monitor';
+import { ZoneDifficultyDispatchPanel } from './zone-difficulty-dispatch-panel';
 import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
 
 type Driver = {
@@ -985,6 +986,8 @@ export function DispatchBoard({
       <DispatchSchichtBilanzPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 355: Tour-Feedback-Monitor — Aktuelle Fahrer-Bewertungen für Dispatcher */}
       <DispatchTourFeedbackMonitor />
+      {/* Phase 356: Zone-Difficulty-Dispatch-Panel — Dispatch-Modifikatoren basierend auf Feedback */}
+      <ZoneDifficultyDispatchPanel />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
       <DispatchZuweisungsVorschau
         selectedOrderIds={selected}

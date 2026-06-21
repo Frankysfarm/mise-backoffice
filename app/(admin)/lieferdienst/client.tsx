@@ -148,6 +148,7 @@ import { LieferdienstEngagementWochenPanel } from './engagement-wochen-panel'
 import { WochenVergleichAnalytik } from './wochen-vergleich-analytik'
 import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-vergleich'
 import { LieferdienstAbdeckungsRisikoWidget } from './abdeckungs-risiko-widget'
+import { LieferdienstZoneDifficultyKarte } from './zone-difficulty-karte'
 import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
 
 export function LieferdienstClient() {
@@ -1186,6 +1187,8 @@ export function LieferdienstClient() {
               <LieferdienstStornoRateKarte locationId={locationId} />
               {/* Phase 355: Abdeckungs-Risiko-Widget — 7-Tage Fahrer-Coverage basierend auf Abwesenheiten */}
               <LieferdienstAbdeckungsRisikoWidget />
+              {/* Phase 356: Zone-Difficulty-Karte — Zonen-Schwierigkeit basierend auf Tour-Feedback */}
+              <LieferdienstZoneDifficultyKarte locationId={locationId} />
               {/* Phase 346: Heatmap-KPI — Tour-Heatmap Kompakt-KPIs + Unterversorgungs-Warnung */}
               <HeatmapKpi locationId={locationId} />
               {/* Phase 347: Standort-Gesundheits-Cockpit — Score + Dimensionen + Ranking + 7d-Trend */}

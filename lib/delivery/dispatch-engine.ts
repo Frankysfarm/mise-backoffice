@@ -19,7 +19,8 @@ import { createClient as createSupabaseClient, type SupabaseClient } from '@supa
 import { haversineKm, geocode } from '@/lib/google-maps';
 import { classifyZone } from './zones';
 import { scoreDriver, rankDrivers, type DriverScoreInput, type OrderScoreInput } from './scoring';
-import { findBundleCandidates, appendToTour } from './bundling';
+import { findBundleCandidates, appendToTour, MAX_DETOUR_KM } from './bundling';
+import { getZoneDifficultyModifiers } from './zone-difficulty';
 import { optimizeTour } from './tour-optimizer';
 import { calculateEta, updateOrderEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
@@ -212,6 +213,12 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   );
   await sb().from('customer_orders').update({ delivery_zone: zone }).eq('id', o.id);
 
+  // Phase 356: Zone-Schwierigkeits-Modifikatoren laden (best-effort, kein Fehler bei fehlender Tabelle)
+  const zoneDiffMap = await getZoneDifficultyModifiers(o.location_id).catch(() => null);
+  const zoneMod = zoneDiffMap?.[zone];
+  const adjustedDetourKm = MAX_DETOUR_KM * (zoneMod?.detourModifier ?? 1.0);
+  const adjustedMaxCap   = Math.max(1, Math.floor(4 * (zoneMod?.stopCountModifier ?? 1.0)));
+
   // 4) Fahrer-Pool
   const drivers = await loadActiveDrivers(loc.tenant_id);
   if (drivers.length === 0) return held('Kein aktiver Fahrer verfügbar');
@@ -294,7 +301,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   const best = ranked[0];
   const bestScore = best.score;
 
-  // 6) Bündelung prüfen
+  // 6) Bündelung prüfen (mit Zone-Difficulty-Modifikatoren)
   const restaurantAddress = [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name;
   const bundleDecision = await findBundleCandidates(
     best.driver.id,
@@ -302,6 +309,8 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     loc.lng,
     o.kunde_lat!,
     o.kunde_lng!,
+    adjustedDetourKm,
+    adjustedMaxCap,
   );
 
   let batchId: string;

@@ -15,7 +15,7 @@ import 'server-only';
 import { haversineKm } from '@/lib/google-maps';
 import { createServiceClient } from '@/lib/supabase/server';
 
-const MAX_DETOUR_KM = 1.5;
+export const MAX_DETOUR_KM = 1.5;
 const SAME_RESTAURANT_KM = 0.1;
 
 export interface BundleCandidate {
@@ -43,6 +43,8 @@ export async function findBundleCandidates(
   restaurantLng: number,
   newOrderLat: number,
   newOrderLng: number,
+  baseDetourKm = MAX_DETOUR_KM,
+  effectiveMaxCap = 4,
 ): Promise<BundleDecision> {
   const sb = createServiceClient();
 
@@ -65,6 +67,8 @@ export async function findBundleCandidates(
       restaurantLng,
       newOrderLat,
       newOrderLng,
+      baseDetourKm,
+      effectiveMaxCap,
     );
     if (decision.shouldBundle) return decision;
   }
@@ -79,6 +83,8 @@ async function evaluateBundle(
   restaurantLng: number,
   newOrderLat: number,
   newOrderLng: number,
+  baseDetourKm = MAX_DETOUR_KM,
+  effectiveMaxCap = 4,
 ): Promise<BundleDecision> {
   const sb = createServiceClient();
 
@@ -92,10 +98,9 @@ async function evaluateBundle(
     return { shouldBundle: false, candidateBatchId: null, reason: 'Keine Stops im Bundle' };
   }
 
-  // Kapazitätsprüfung
+  // Kapazitätsprüfung (effectiveMaxCap respektiert Zone-Difficulty-Modifier)
   const dropoffs = stops.filter((s) => s.type === 'dropoff');
-  const maxCap = 4; // Default; wird später aus drivers geladen
-  if (dropoffs.length >= maxCap) {
+  if (dropoffs.length >= effectiveMaxCap) {
     return { shouldBundle: false, candidateBatchId: null, reason: 'Tour ist voll' };
   }
 
@@ -121,7 +126,7 @@ async function evaluateBundle(
   );
 
   // Wenn der Fahrer schon unterwegs ist (assigned/at_restaurant) → strengerer Detour-Check
-  const maxDetour = state === 'pending_acceptance' ? MAX_DETOUR_KM : MAX_DETOUR_KM * 0.7;
+  const maxDetour = state === 'pending_acceptance' ? baseDetourKm : baseDetourKm * 0.7;
 
   if (directKm <= maxDetour) {
     return {
