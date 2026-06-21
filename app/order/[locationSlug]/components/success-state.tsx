@@ -38,6 +38,7 @@ import { BestellZeitSeitBestellung } from './bestell-zeit-seit-bestellung';
 import { BestellStatusLiveBadge } from './bestell-status-live-badge';
 import { BestellungLiveSSETracker } from './bestellung-live-sse-tracker';
 import { BestellEtaProgress } from './bestell-eta-progress';
+import { LieferzeitVergleichWidget } from './lieferzeit-vergleich-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -832,6 +833,11 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               status={liveStatus}
               etaMinutes={etaMinutes}
             />
+          </div>
+        )}
+        {isDelivery && etaMinutes > 0 && (
+          <div className="mt-3 w-full">
+            <LieferzeitVergleichWidget etaMinutes={etaMinutes} />
           </div>
         )}
 

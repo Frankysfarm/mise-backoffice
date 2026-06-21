@@ -169,6 +169,7 @@ import { LieferdienstSchichtTempoKpi } from './schicht-tempo-kpi';
 import { LieferdienstTagesKPIPanel } from './tages-kpi-panel';
 import { LieferdienstSchichtROITrend } from './schicht-roi-trend';
 import { LieferdienstFahrerTagesPerformance } from './fahrer-tages-performance';
+import { LieferdienstKapazitaetsMonitor } from './kapazitaets-monitor';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1264,6 +1265,8 @@ export function LieferdienstClient() {
               <LieferdienstSchichtTempoKpi locationId={locationId ?? null} />
               {/* Phase 378: Fahrer-Tages-Performance — Tages-Matrix je Fahrer: Stopps, Touren, Ø Lieferzeit, Pünktlichkeit */}
               <LieferdienstFahrerTagesPerformance locationId={locationId ?? null} />
+              {/* Phase 380: Kapazitäts-Monitor — Live-Ampel: Kapazität frei/Normal/Voll/Überlastet basierend auf Orders/Fahrer */}
+              <LieferdienstKapazitaetsMonitor locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

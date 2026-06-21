@@ -139,6 +139,7 @@ import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
 import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
 import { FahrerSchichtDauerLive } from './schicht-dauer-live';
 import { TourStoppListe } from './tour-stopp-liste';
+import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
 
 type Driver = {
   id: string;
@@ -1085,6 +1086,14 @@ export function FahrerApp({
           {/* Phase 378: Tour-Stopp-Liste — Geordnete Stoppliste mit Status-Ampel, Navigation-CTA und Kundendaten */}
           <div className="px-4 mt-3">
             <TourStoppListe stops={activeBatch.stops as any} />
+          </div>
+          {/* Phase 380: Schicht-Pacing-Guide — Tempo-Anzeige: Voraus/Im Plan/Rückstand basierend auf Stopps/h */}
+          <div className="px-4 mt-3">
+            <FahrerSchichtPacingGuide
+              stops={activeBatch.stops}
+              startedAt={activeBatch.started_at}
+              totalStops={activeBatch.stops.length}
+            />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
           <div className="px-4">

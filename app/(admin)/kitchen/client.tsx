@@ -149,6 +149,7 @@ import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
 import { KitchenBestellungsFlowAmpel } from './bestellungs-flow-ampel';
 import { KitchenKommandoZentrale } from './kommando-zentrale';
 import { KitchenBatchUebersichtCockpit } from './batch-uebersicht-cockpit';
+import { KitchenFertigstellungsPrognose } from './fertigstellungs-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -620,6 +621,8 @@ export function KitchenBoard({
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 378: Batch-Übersicht-Cockpit — Alle aktiven Bestellungen mit Countdown, Progress-Bar + Farbkodierung */}
       <KitchenBatchUebersichtCockpit orders={filtered} timings={timings} />
+      {/* Phase 380: Fertigstellungs-Prognose — Wann sind alle aktiven Bestellungen fertig? Completion-ETA je Order */}
+      <KitchenFertigstellungsPrognose orders={filtered} timings={timings} />
       {/* Phase 361: KI-Auftrags-Priorierung — Smart-Ranking aller aktiven Bestellungen nach KI-Score */}
       <KitchenKiAuftragsPriorierung orders={filtered} timings={timings} />
       {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}
