@@ -1,6 +1,7 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { Soon } from '../_soon';
+import { BelegeManager } from './belege';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 const EXP = [{ name: 'PDF', bg: '#FEF2F2', color: '#DC2626' }, { name: 'XLS', bg: '#ECFDF5', color: '#047857' }, { name: 'CSV', bg: '#F1F5F9', color: '#475569' }, { name: 'DTV', bg: '#EEF2FF', color: '#4F46E5' }, { name: 'LEX', bg: '#FEF3C7', color: '#B45309' }];
@@ -9,9 +10,11 @@ export default async function Buchhaltung() {
   const sb = createServiceClient();
   const now = new Date();
   const since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const [{ data: items }, { data: orders }] = await Promise.all([
+  const sinceDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const [{ data: items }, { data: orders }, { data: belege }] = await Promise.all([
     sb.from('order_items').select('gesamtpreis, mwst_satz, order:customer_orders!inner(tenant_id, status, created_at)').eq('order.tenant_id', emp?.tenant_id ?? '').gte('order.created_at', since).neq('order.status', 'storniert').limit(5000),
     sb.from('customer_orders').select('bestellnummer, created_at, gesamtbetrag, zahlungsart, status, bezahlt').eq('tenant_id', emp?.tenant_id ?? '').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
+    sb.from('belege').select('id, datum, haendler, betrag_brutto, mwst_satz, mwst_betrag, netto, kategorie, status, beleg_url').eq('tenant_id', emp?.tenant_id ?? '').gte('datum', sinceDate).order('datum', { ascending: false }).limit(500),
   ]);
   let b7 = 0, b19 = 0;
   for (const it of (items ?? []) as any[]) { let m = Number(it.mwst_satz ?? 19); if (m < 1) m = m * 100; const v = Number(it.gesamtpreis ?? 0); if (m >= 19) b19 += v; else b7 += v; }
@@ -45,6 +48,7 @@ export default async function Buchhaltung() {
           ))}
         </div>
       </div>
+      <BelegeManager belege={(belege ?? []) as any[]} monat={monat} />
     </div>
   );
 }
