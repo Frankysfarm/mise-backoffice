@@ -1,9 +1,58 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–359 abgeschlossen. Build sauber. 351 Seiten. 0 TypeScript-Fehler (CEO Review #198 verifiziert).**
+**Phasen 1–360 abgeschlossen. Build sauber. 352 Seiten. 0 TypeScript-Fehler.**
 
-**Phase 359 (2026-06-21): Driver Score History + Tour Feedback Integration. Migration 174, 7-Faktor-Score (neu: fFeedback 0–5), History-Snapshots, 5 Frontend-Komponenten, Admin-Dashboard /delivery/driver-score, Cron-Integration. CEO Review #198: 4 TypeScript-Fehler gefixt (Recharts Tooltip × 3, Supabase upsert .catch() × 1).**
+**Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 360 — Tour Feedback Analytics + Dispatch Composite Score Bonus (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**Migration:**
+- `scripts/migrations/175_tour_feedback_aggregates.sql`: `tour_feedback_aggregates` Tabelle (UNIQUE location_id+driver_id+period_type+period_start, avg_difficulty/traffic/customer_rating/overall_score, feedback_count, parking/nav/address/customer_issue_rate, top_zone, RLS, `prune_tour_feedback_aggregates(days_old)` RPC)
+
+**Backend (`lib/delivery/tour-feedback-analytics.ts`):**
+- `aggregateTourFeedbackForLocation(locationId, periodType, referenceDate?)` — aggregiert tour_feedback → driver-level Aggregate pro Woche/Monat + Zone JOIN
+- `aggregateTourFeedbackAllLocations(periodType)` — Cron-Batch Promise.allSettled
+- `getFeedbackManagementReport(locationId, months)` → MonthlyReportEntry[] (location-level monatliche Aggregation)
+- `getDriverFeedbackProfile(locationId, driverId, weeks)` → DriverFeedbackProfileEntry[] (persönliches 8-Wochen-Profil)
+- `getTourFeedbackAnalyticsDashboard(locationId)` → FeedbackAnalyticsDashboard (KPIs + monatlicher Trend + Top/Bottom-Fahrer)
+- `pruneOldFeedbackAggregates(daysOld?)` → via RPC
+
+**Dispatch Engine (`lib/delivery/dispatch-engine.ts`):**
+- `loadCompositeScores(driverIds)` — lädt neueste `driver_composite_scores` parallel zu zoneAffinities (no N+1)
+- `compositeBonus()` — +2.0 für Grade A+ (≥90), +1.0 für Grade A (≥75), 0 für B/C/D
+- Ranked-Liste wird nach Composite-Score-Bonus neu sortiert → High-Score Fahrer bevorzugt in close calls
+
+**API Route (`app/api/delivery/admin/tour-feedback-analytics/route.ts`):**
+- GET ?action=dashboard → FeedbackAnalyticsDashboard
+- GET ?action=report&months=3 → MonthlyReportEntry[]
+- GET ?action=driver_profile&driver_id=...&weeks=8 → DriverFeedbackProfileEntry[]
+- POST action=aggregate (period_type week/month) → AggregateResult
+- POST action=prune (days_old?) → { pruned: number }
+
+**Admin-Dashboard (`app/(admin)/delivery/tour-feedback-analytics/`):**
+- `page.tsx`: Server-Component mit Suspense
+- `client.tsx`: 4 KPI-Kacheln (Ø Zufriedenheit/Bewertungen/Ø Schwierigkeit/Fahrer mit Feedback), Alert-Banner (rot <3.5★ / grün ≥4.5★), 3 Tabs (Übersicht: AreaChart Zufriedenheit+Schwierigkeit, Monatstrend: BarChart Issue-Raten + Tabelle, Fahrer-Rangliste: Top/Coaching-Fahrer), Aggregieren-Button, Zeitraum-Selektor (3/6/12 Monate)
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/feedback-trend-mini.tsx` — `KitchenFeedbackTrendMini`: Ø Kundenzufriedenheit Fortschrittsbalken + Trend-Pfeil, Farbkodierung grün/amber/rot, 5-Min-Poll; Integration: kitchen/client.tsx nach KitchenScoreVerlaufMini
+- `app/(admin)/dispatch/score-zone-match-panel.tsx` — `DispatchScoreZoneMatchPanel`: KPI-Row (Bewertungen/Schwierigkeit/Fahrer), Top-3 Fahrer nach Kundenbewertung, collapsible, 30s-Poll; Integration: dispatch/client.tsx nach DispatchDriverFeedbackScorePanel
+- `app/fahrer/app/feedback-monatsbericht.tsx` — `FahrerFeedbackMonatsbericht`: persönliches 8-Wochen-Balken-Diagramm + KPI-Kacheln + Trend-Banners (Steigerung/Rückgang), collapsible, 5-Min-Poll; Integration: fahrer/app/client.tsx nach FahrerScoreVerlaufChart
+- `app/(admin)/lieferdienst/feedback-management-report.tsx` — `LieferdienstFeedbackManagementReport`: 3-Monats Recharts AreaChart Zufriedenheits-Trend + 3 KPI-Kacheln + Trend-Banners, 10-Min-Poll; Integration: lieferdienst/client.tsx nach LieferdienstTeamScoreTrend
+- `delivery/page.tsx`: SectionCard "Feedback Analytics" (BarChart3) in Fahrer-Gruppe (highlight)
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- `aggregateTourFeedbackAllLocations('week')` täglich 03:20 UTC
+- `aggregateTourFeedbackAllLocations('month')` täglich 03:22 UTC
+- `pruneOldFeedbackAggregates(365)` täglich 07:20 UTC
+
+**Build:** 352 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 
