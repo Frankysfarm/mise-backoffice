@@ -86,7 +86,7 @@ export function DispatchTourAbholZeitplan({ batches }: Props) {
 
       <div className="divide-y divide-stone-100">
         {rows.map(row => {
-          const st = STATE_STYLE[row.state];
+          const st = STATE_STYLE[row.state as keyof typeof STATE_STYLE];
           return (
             <div key={row.id} className="flex items-center gap-3 px-4 py-2.5">
               <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">

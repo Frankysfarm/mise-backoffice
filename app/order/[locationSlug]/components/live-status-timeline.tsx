@@ -76,9 +76,9 @@ export function LiveStatusTimeline({ orderId, isDelivery = true }: Props) {
         schema: 'public',
         table: 'orders',
         filter: `id=eq.${orderId}`,
-      }, payload => {
+      }, (payload: { new: Record<string, unknown> }) => {
         if (cancelled) return;
-        const row = payload.new as Record<string, unknown>;
+        const row = payload.new;
         setStatus(row.status as string);
         setTimestamps(prev => ({
           ...prev,

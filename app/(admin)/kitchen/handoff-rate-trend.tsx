@@ -169,7 +169,7 @@ export function KitchenHandoffRateTrend({ locationId }: Props) {
                     domain={[0, 100]}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) =>
+                    formatter={(value: unknown, name: unknown) =>
                       name === 'avgMin'
                         ? [`${Number(value).toFixed(1)} Min`, 'Ø Wartezeit']
                         : [`${Number(value).toFixed(1)}%`, name === 'schnell' ? 'Schnell (<3 Min)' : 'Verspätet (>5 Min)']

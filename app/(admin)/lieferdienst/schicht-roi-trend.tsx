@@ -217,11 +217,12 @@ export function LieferdienstSchichtROITrend({ locationId }: { locationId: string
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                  formatter={(value: number, name: string) => {
-                    if (name === 'netMarginPct') return [fmtPct(value), 'Marge']
-                    if (name === 'revenuePerHour') return [fmtEur(value), 'Umsatz/h']
-                    if (name === 'costPerDelivery') return [fmtEur(value), 'Kosten/Lief.']
-                    return [value, name]
+                  formatter={(value: unknown, name: unknown) => {
+                    const v = Number(value);
+                    if (name === 'netMarginPct') return [fmtPct(v), 'Marge']
+                    if (name === 'revenuePerHour') return [fmtEur(v), 'Umsatz/h']
+                    if (name === 'costPerDelivery') return [fmtEur(v), 'Kosten/Lief.']
+                    return [String(value), String(name)]
                   }}
                 />
                 {tab === 'margin' && (

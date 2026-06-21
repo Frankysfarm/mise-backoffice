@@ -208,7 +208,7 @@ export function LiveEtaRealtime({ orderId, estimatedMinutes, locationSlug: _loca
           table: 'customer_orders',
           filter: `id=eq.${orderId}`,
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           const row = payload.new as Partial<OrderData & { id: string }>;
           setOrderData((prev) => ({
             status: (row.status as OrderStatus) ?? prev?.status ?? 'bestätigt',

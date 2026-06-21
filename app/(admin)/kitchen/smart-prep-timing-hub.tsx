@@ -71,7 +71,7 @@ type CookEntry = {
   order: Props['orders'][number];
   cookStartInSec: number;   // seconds until cooking should start (negative = overdue)
   prepSec: number;          // total prep duration in seconds
-  driverETA: Props['driverETAs'][number] | null;
+  driverETA: NonNullable<Props['driverETAs']>[number] | null;
   station: PrepStation;
   zone: 'now' | 'upcoming' | 'buffered';
 };

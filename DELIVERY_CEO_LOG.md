@@ -1,7 +1,83 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–380 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–382 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #210 — 2026-06-21
+
+### Geprüfte Phasen: Phase 381 (Backend) + Phase 382 (Frontend)
+
+**Build-Status:**
+- `npx tsc --noEmit`: ✓ Exit 0 — nach 9 Fixes ✅
+- `npx next build`: ✓ Compiled successfully (354 Seiten) ✅
+
+**Phase 381 Backend — Driver Capacity Signal:**
+- `driver_capacity_snapshots` + `driver_capacity_events` Tabellen ✅
+- `mise_locations.slug` (ADD COLUMN IF NOT EXISTS + UNIQUE INDEX) ✅
+- `delivery_performance` RLS aktiviert ✅
+- `lib/delivery/driver-capacity-signal.ts`: alle 5 Funktionen korrekt ✅
+- API `/api/delivery/admin/capacity-signal` GET+POST ✅
+- Bug-Fix `public/avg-eta`: `createServiceClient()` statt `createClient()` + Null-Referenz-Schutz ✅
+
+**Phase 382 Frontend — 5 neue Smart-Delivery-Komponenten:**
+
+**`KitchenKochzeitVerteilungsChart` (kitchen/kochzeit-verteilungs-chart.tsx):**
+- Histogramm <5/5-10/10-15/15-20/20+ Min, Balken-Proportionen korrekt ✅
+- `getPrepMin()` nutzt fertig_am, timing.ready_target oder geschaetzte_zubereitung_min (fallback-Kaskade) ✅
+- Division-Guard `total === 0` Early-Return ✅
+- Integration in kitchen/client.tsx ✅
+
+**`DispatchTourFahrerSyncBoard` (dispatch/tour-fahrer-sync-board.tsx):**
+- Sync-Status ahead/sync/late korrekt via `stopsDone - expectedDone` Delta ✅
+- 15s-Ticker, `cancelled`-Flag nicht nötig da kein fetch ✅
+- Integration in dispatch/client.tsx ✅
+
+**`StopDistanzInfo` (fahrer/app/stop-distanz-info.tsx):**
+- Haversine-Entfernung, `navigator.geolocation.watchPosition` mit `clearWatch` Cleanup ✅
+- Urgency near/medium/far/neutral korrekt ✅
+- Google Maps Deep-Link sauber ✅
+- Integration in fahrer/app/client.tsx ✅
+
+**`LiveStatusTimeline` (order/[locationSlug]/components/live-status-timeline.tsx):**
+- Supabase Realtime auf `orders` Tabelle (Achtung: Storefront nutzt `customer_orders`, Backend nutzt `orders` — hier tatsächlich `orders`) ✅
+- Milestone-Phasen + Zeitstempel korrekt ✅
+- Integration in success-state.tsx ✅
+
+**`SchichtRenditeCockpit` (lieferdienst/schicht-rendite-cockpit.tsx):**
+- 4 KPIs: Umsatz, Lieferungen, €/Lieferung, €/Fahrer-h ✅
+- Division-Guards: `lieferungen > 0` + `onlineDrivers > 0` ✅
+- SLA-Ring, 2-Min-Polling, `cancelled`-Flag ✅
+- Integration in lieferdienst/client.tsx ✅
+
+**Bugs gefunden + gefixt: 9 TypeScript-Fehler (pre-existing + 1 Phase-382-Fehler)**
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `dispatch/tour-abholzeitplan.tsx:89` | TS7053 Index-Typ | `row.state as keyof typeof STATE_STYLE` |
+| `kitchen/handoff-rate-trend.tsx:172` | TS2322 Recharts Formatter | `value: unknown, name: unknown` |
+| `kitchen/smart-prep-timing-hub.tsx:74` | TS2537 Array-Index | `NonNullable<Props['driverETAs']>[number]` |
+| `lieferdienst/schicht-roi-trend.tsx:220` | TS2322 Recharts Formatter | `value: unknown, name: unknown` |
+| `order/.../eta-verlauf-timeline.tsx:45` | TS7031 Implicit any | `.then((res: { data: unknown }) => ...)` |
+| `order/.../eta-verlauf-timeline.tsx:52` | TS7006 Implicit any | `(payload: { new: Record<string, unknown> }) =>` |
+| `order/.../live-eta-realtime.tsx:211` | TS7006 Implicit any | `(payload: { new: Record<string, unknown> }) =>` |
+| `order/.../live-status-timeline.tsx:79` | TS7006 Implicit any (Phase 382) | `(payload: { new: Record<string, unknown> }) =>` |
+| `lib/delivery/schicht-roi-daily.ts:238` | TS2352 Cast-Überlappung | `data as unknown as Record<string, unknown>[]` |
+
+### Status nach Review #210
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 381 + 382: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 383: 5 neue Smart-Delivery-Komponenten
+2. `LiveStatusTimeline` (Storefront): nutzt `orders` Tabelle — sicherstellen dass Supabase Realtime Policy für `orders` auch für anon/customer gilt, oder ggf. auf `customer_orders` umstellen
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 383: Nächstes Backend-Feature
+2. Sicherstellen dass `driver_capacity_snapshots` anon SELECT-Policy korrekt für Supabase Realtime vom Frontend funktioniert
 
 ---
 

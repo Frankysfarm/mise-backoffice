@@ -42,15 +42,15 @@ export function EtaVerlaufTimeline({ orderId, bestellnummer }: Props) {
       .select('status,bestellt_am,fertig_am,geschaetzte_zubereitung_min,eta_earliest,eta_latest')
       .eq('id', orderId)
       .maybeSingle()
-      .then(({ data }) => { if (data) setOrder(data as OrderData); });
+      .then((res: { data: unknown }) => { if (res.data) setOrder(res.data as OrderData); });
 
     const channel = supabase
       .channel(`eta-timeline-${orderId}`)
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
-          if (payload.new) setOrder(payload.new as OrderData);
+        (payload: { new: Record<string, unknown> }) => {
+          if (payload.new) setOrder(payload.new as unknown as OrderData);
         },
       )
       .subscribe();

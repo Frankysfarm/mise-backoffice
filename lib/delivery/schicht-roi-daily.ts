@@ -235,7 +235,7 @@ export async function getSchichtRoiHistory(
 
   if (error || !data) return [];
 
-  return (data as Record<string, unknown>[]).map((r) => ({
+  return (data as unknown as Record<string, unknown>[]).map((r) => ({
     snapshotDate:          r.snapshot_date as string,
     revenueEur:            Number(r.revenue_eur ?? 0),
     deliveryFeeEur:        Number(r.delivery_fee_eur ?? 0),
