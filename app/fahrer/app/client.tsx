@@ -132,6 +132,7 @@ import { FahrerStoppErinnerungsPanel } from './stop-erinnerungs-panel';
 import { NaechsterStoppVorschau } from './naechster-stopp-vorschau';
 import { FahrerStopRhythmusMeter } from './stop-rhythmus-meter';
 import { TourStopNavigationBoard } from './tour-stop-navigation-board';
+import { FahrerSchichtFortschrittsRing } from './schicht-fortschritts-ring';
 
 type Driver = {
   id: string;
@@ -877,6 +878,14 @@ export function FahrerApp({
                 )}
                 {/* Phase 337: Fahrer-Schicht-Puls — Stopps erledigt/verbleibend + Schichtdauer */}
                 <FahrerSchichtPuls />
+                {/* Phase 369: Schicht-Fortschritts-Ring — SVG-Ring Schichtzeit-Nutzung + Einnahmen-Rate */}
+                {status?.online_seit && (
+                  <FahrerSchichtFortschrittsRing
+                    driverName={`${driver.vorname} ${driver.nachname}`}
+                    onlineSeit={status.online_seit}
+                    activeBatch={activeBatch}
+                  />
+                )}
 
                 {/* Schicht-Effizienz: Liefertempo vs. Ziel */}
                 {todayStats && status?.online_seit && (

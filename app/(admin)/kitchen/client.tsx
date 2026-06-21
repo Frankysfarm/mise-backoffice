@@ -141,6 +141,7 @@ import { KitchenKiAuftragsPriorierung } from './ki-auftragspriorierung';
 import { KitchenQueueEffizienzRing } from './queue-effizienz-ring';
 import { KitchenBestellTaktMeter } from './bestell-takt-meter';
 import { KitchenSchichtBatchKochstartBoard } from './schicht-batch-kochstart-board';
+import { KitchenHandoffRatePanel } from './handoff-rate-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -646,6 +647,8 @@ export function KitchenBoard({
       <KitchenBestellTaktMeter orders={filtered} />
       {/* Phase 364: Batch-Kochstart-Board — optimaler Kochstart pro Fahrer-Tour, Farbkodierung nach Urgency */}
       <KitchenSchichtBatchKochstartBoard orders={filtered} batches={batches} stops={stops} drivers={drivers} />
+      {/* Phase 369: Handoff-Rate-Panel — Wartezeit fertiger Lieferbestellungen auf Fahrer (grün/amber/rot) */}
+      <KitchenHandoffRatePanel orders={filtered} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
