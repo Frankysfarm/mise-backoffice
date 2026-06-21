@@ -28,11 +28,11 @@ function fetchTodayStats(locationId: string): Promise<DayStats> {
     .eq('location_id', locationId)
     .gte('bestellt_am', todayStart.toISOString())
     .neq('status', 'storniert')
-    .then(({ data }) => {
+    .then(({ data }: { data: Array<{ gesamtbetrag: number | null }> | null }) => {
       const rows = data ?? [];
       return {
         orderCount: rows.length,
-        revenueEur: rows.reduce((s, r) => s + (r.gesamtbetrag ?? 0), 0),
+        revenueEur: rows.reduce((s: number, r: { gesamtbetrag: number | null }) => s + (r.gesamtbetrag ?? 0), 0),
       };
     });
 }

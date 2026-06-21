@@ -119,6 +119,9 @@ export function LiveFahrerProximityRing({ orderId, estimatedMin, orderStatus }: 
   const isEnRoute = effectiveStatus === 'unterwegs';
   const isDelivered = effectiveStatus === 'geliefert';
 
+  const almostThere = tracking?.geo?.almost_there ?? false;
+  const driverName  = tracking?.driver_name ?? null;
+
   const progress = ringProgress(effectiveStatus);
   const solidDashOffset = RING_CIRC * (1 - progress);
   const stroke = ringStroke(effectiveStatus);
@@ -140,9 +143,6 @@ export function LiveFahrerProximityRing({ orderId, estimatedMin, orderStatus }: 
         ? '< 500 m entfernt'
         : `~${Math.round(distanceM)} m entfernt`
       : null;
-
-  const almostThere = tracking?.geo?.almost_there ?? false;
-  const driverName  = tracking?.driver_name ?? null;
 
   if (loading) {
     return (

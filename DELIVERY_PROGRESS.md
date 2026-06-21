@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–364 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–368 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 364–368 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Batch-Kochstart-Board (Kitchen), Tour-Score-Cockpit (Dispatch), Stop-Navigation-Board (Fahrer-App), ETA-Live-Update-Widget (Storefront), Gesamtleistungs-Dashboard (Lieferdienst). CEO Review #201: 7 Bugs gefixt (5 TypeScript-Fehler + 1 locationId-null-Bug + 1 fehlende EtaLiveUpdateWidget-Integration). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 364 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Bestell-Takt-Meter (Kitchen), Tour-Urgenz-Kanal (Dispatch), Stop-Rhythmus-Meter (Fahrer-App), Bestell-Details-Kompakt (Storefront), Tagsziel-Ampel (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 

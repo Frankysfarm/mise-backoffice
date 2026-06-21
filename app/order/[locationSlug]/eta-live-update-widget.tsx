@@ -43,12 +43,13 @@ export function EtaLiveUpdateWidget({ orderId, initialStatus, initialEtaMin }: P
         schema: 'public',
         table: 'customer_orders',
         filter: `id=eq.${orderId}`,
-      }, (payload) => {
-        const row = payload.new as any;
-        setPhase(mapStatus(row.status ?? ''));
-        if (row.geschaetzte_lieferung_min != null) {
-          setEtaMin(row.geschaetzte_lieferung_min);
-          setCountdown(row.geschaetzte_lieferung_min * 60);
+      }, (payload: { new: Record<string, unknown> }) => {
+        const row = payload.new;
+        setPhase(mapStatus((row.status as string | null | undefined) ?? ''));
+        const etaMin = row.geschaetzte_lieferung_min as number | null | undefined;
+        if (etaMin != null) {
+          setEtaMin(etaMin);
+          setCountdown(etaMin * 60);
         }
       })
       .subscribe();

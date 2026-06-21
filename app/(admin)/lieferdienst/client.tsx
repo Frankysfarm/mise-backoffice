@@ -1239,7 +1239,7 @@ export function LieferdienstClient() {
               {/* Phase 364: Tagsziel-Ampel — Bestellungen + Umsatz vs. Tagesziel mit Fortschrittsbalken */}
               <LieferdienstTagsZielAmpel locationId={locationId ?? null} />
               {/* Phase 367: Gesamtleistungs-Dashboard — 6 KPI-Kacheln: Fahrer, Bestellungen, Lieferzeit, Pünktlichkeit, Umsatz/h, Bewertung */}
-              <LieferdienstGesamtleistungsDashboard locationId={null} />
+              <LieferdienstGesamtleistungsDashboard locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

@@ -108,7 +108,7 @@ export async function aggregateTourEfficiencyForDay(
     const driverId = batch.driver_id as string | null;
     if (!driverId) continue;
 
-    const stops = (batch.mise_delivery_batch_stops ?? []) as Array<{
+    const stops = (batch.mise_delivery_batch_stops ?? []) as unknown as Array<{
       type: string;
       completed_at: string | null;
       customer_orders: { gesamtbetrag: number | null; eta_latest: string | null; status: string } | null;

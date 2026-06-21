@@ -30,6 +30,7 @@ import { BestellPulsStatus } from '../bestell-puls-status';
 import { LiveFahrerProximityRing } from './live-fahrer-proximity-ring';
 import { LiveBestellstatusTimeline } from './live-bestellstatus-timeline';
 import { BestellDetailsKompakt } from './bestell-details-kompakt';
+import { EtaLiveUpdateWidget } from '../eta-live-update-widget';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -424,6 +425,10 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         )}
         {/* Phase 363: Live-Bestellstatus-Timeline — Animierte Milestone-Timeline mit Uhrzeit-Stempeln je Phase */}
         {orderId && <LiveBestellstatusTimeline orderId={orderId} initialStatus={liveStatus} />}
+        {/* Phase 367: ETA-Live-Update-Widget — Echtzeit-Countdown mit Supabase-Subscription, 5-Phasen-Progress */}
+        {isDelivery && orderId && (
+          <EtaLiveUpdateWidget orderId={orderId} initialStatus={liveStatus} initialEtaMin={etaMinutes} />
+        )}
         {/* Phase 364: Bestell-Details-Kompakt — Aufklappbare Artikel-Liste mit Gesamtbetrag */}
         {cartItems && cartItems.length > 0 && (
           <BestellDetailsKompakt cartItems={cartItems} bestellnummer={bestellnummer} />

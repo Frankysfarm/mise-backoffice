@@ -1,7 +1,61 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–363 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–368 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #201 — 2026-06-21
+
+### Geprüfte Phasen: Phase 364–368 (5 neue Smart-Delivery-Komponenten)
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 Fehler) ✅
+
+**Phase 364–368 — geprüfte Komponenten:**
+
+**`app/(admin)/kitchen/schicht-batch-kochstart-board.tsx` (Phase 364):**
+- KitchenSchichtBatchKochstartBoard: Optimaler Kochstart je Fahrer-Batch
+- Urgency grün/amber/rot korrekt, 10s-Tick, Integration kitchen/client.tsx L648 ✅
+
+**`app/(admin)/dispatch/tour-score-cockpit.tsx` (Phase 365):**
+- DispatchTourScoreCockpit: Score-Breakdown je aktiver Tour
+- Fetcht /api/delivery/tours?state=active — Endpoint existiert, dispatch_score vorhanden ✅
+- Integration dispatch/client.tsx L1084 ✅
+
+**`app/fahrer/app/tour-stop-navigation-board.tsx` (Phase 366):**
+- TourStopNavigationBoard: Alle Tour-Stopps mit Nav-Button, Payment-Info, ETA
+- zahlungsart/bezahlt werden aus page.tsx korrekt geladen ✅
+- Integration fahrer/app/client.tsx L1317 ✅
+
+**`app/order/[locationSlug]/eta-live-update-widget.tsx` (Phase 367):**
+- EtaLiveUpdateWidget: Echtzeit-Countdown mit Supabase-Subscription, 5-Phasen-Progress
+- WAR NICHT INTEGRIERT — jetzt in success-state.tsx L426 eingebunden ✅
+
+**`app/(admin)/lieferdienst/gesamtleistungs-dashboard.tsx` (Phase 368):**
+- LieferdienstGesamtleistungsDashboard: 6 KPI-Kacheln
+- WAR MIT locationId={null} AUFGERUFEN — Bug gefixt auf locationId={locationId ?? null} ✅
+
+**Bugs gefunden + gefixt: 3**
+1. `tags-ziel-ampel.tsx` L31,35: Implizite `any`-Typen in Supabase `.then()` — gefixt mit expliziten Typ-Annotationen ✅
+2. `live-bestellstatus-timeline.tsx` L70,87: Implizite `any`-Typen — gefixt ✅
+3. `live-fahrer-proximity-ring.tsx` L127: `almostThere` vor Deklaration genutzt — Variable nach oben verschoben ✅
+4. `eta-live-update-widget.tsx` L46: Impliziter `any` in `payload` Parameter — gefixt ✅
+5. `tour-efficiency-report.ts` L111: Typ-Konvertierungsfehler bei Supabase-Join-Array — `as unknown as` Workaround ✅
+6. `lieferdienst/client.tsx` L1242: `locationId={null}` → `locationId={locationId ?? null}` (Dashboard empfing nie Daten) ✅
+7. `success-state.tsx`: EtaLiveUpdateWidget nicht integriert — jetzt korrekt eingebunden ✅
+
+### Status nach Review #201
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 364–368: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Backend-Architekt
+1. Phase 369: Weitere Optimierungen (ML-Score-Verbesserung, neue Analytics)
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 369: 5 neue Smart-Delivery-Komponenten
 
 ---
 

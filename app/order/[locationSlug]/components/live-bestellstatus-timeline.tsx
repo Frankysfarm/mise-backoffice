@@ -67,7 +67,7 @@ export function LiveBestellstatusTimeline({ orderId, initialStatus }: Props) {
       .select('status, bestellt_am, zubereitung_gestartet_am, fertig_am, abgeholt_am, geliefert_am')
       .eq('id', orderId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data }: { data: { status: string | null; bestellt_am: string | null; zubereitung_gestartet_am: string | null; fertig_am: string | null; abgeholt_am: string | null; geliefert_am: string | null } | null }) => {
         if (!data) return;
         setStatus(data.status ?? 'neu');
         const ts: Partial<Record<Phase, string>> = {};
@@ -84,8 +84,8 @@ export function LiveBestellstatusTimeline({ orderId, initialStatus }: Props) {
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'customer_orders',
         filter: `id=eq.${orderId}`,
-      }, (payload) => {
-        const d = payload.new as Record<string, string | null>;
+      }, (payload: { new: Record<string, string | null> }) => {
+        const d = payload.new;
         setStatus(d.status ?? status);
         setMilestones((prev) => {
           const ts = { ...prev };
