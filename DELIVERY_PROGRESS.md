@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–363 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–364 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 364 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Bestell-Takt-Meter (Kitchen), Tour-Urgenz-Kanal (Dispatch), Stop-Rhythmus-Meter (Fahrer-App), Bestell-Details-Kompakt (Storefront), Tagsziel-Ampel (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 363 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Queue-Effizienz-Ring (Kitchen), Fahrer-Tempo-Matrix (Dispatch), Nächster-Stopp-Vorschau (Fahrer-App), Live-Bestellstatus-Timeline (Storefront), Schicht-Leistungs-Radar (Lieferdienst). CEO Review #200: 1 Bug gefixt (zahlungsart-Logik). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -10,6 +12,45 @@
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 364 — 5 neue Smart-Delivery-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`app/(admin)/kitchen/bestell-takt-meter.tsx`** — `KitchenBestellTaktMeter`
+- Orders/h Rate-Gauge als SVG-Halbkreis-Arc (0–12/h), Farbkodierung grün/amber/rot
+- Zeigt aktuelle Stunde vs. vorherige Stunde (Trend-Pfeil ↑/↓/—)
+- Vollständig client-side aus `orders`-Prop, 10s-Tick, kein API-Call
+- Integration: kitchen/client.tsx nach KitchenQueueEffizienzRing (L642)
+
+**`app/(admin)/dispatch/tour-urgenz-kanal.tsx`** — `DispatchTourUrgenzKanal`
+- Live-Urgenz-Breakdown aller aktiven Tour-Stopps: Überfällig / Kritisch (<10 Min) / Im Plan
+- Berechnet Deadline aus `bestellt_am + geschaetzte_lieferzeit_min`, keine API-Calls
+- Roter Alert-Banner bei überfälligen Stopps, Grid-Layout mit Icons
+- Integration: dispatch/client.tsx nach DispatchFahrerTempoMatrix (L1077)
+
+**`app/fahrer/app/stop-rhythmus-meter.tsx`** — `FahrerStopRhythmusMeter`
+- Ø Minuten pro Stop für aktuelle Tour (Effizienz-Indikator für Fahrer)
+- Fortschrittsbalken geliefert/gesamt, ETA Tourende-Prognose auf Basis Ø-Rhythmus
+- Farbkodierung schnell (≤10 Min/Stop) / normal / langsam, kein API-Call
+- Integration: fahrer/app/client.tsx nach NaechsterStoppVorschau (L1032)
+
+**`app/order/[locationSlug]/components/bestell-details-kompakt.tsx`** — `BestellDetailsKompakt`
+- Aufklappbare Artikel-Zusammenfassung auf der Bestellbestätigungs-Seite
+- Zeigt Artikelname, Menge, Einzelpreis, Gesamtbetrag — keine API-Calls (cartItems-Prop)
+- Integration: order/[locationSlug]/components/success-state.tsx nach LiveBestellstatusTimeline (L425)
+
+**`app/(admin)/lieferdienst/tags-ziel-ampel.tsx`** — `LieferdienstTagsZielAmpel`
+- Tagesziel-Ampel: Bestellungen + Umsatz vs. konfiguriertem Tagesziel (80 Bestellungen / 2.500 €)
+- Supabase-Query auf `orders` für heutigen Tag, 5-Min-Polling
+- Zwei Fortschrittsbalken (Orders + Revenue), Status-Badge (Im Plan / Leicht zurück / Gefährdet)
+- Integration: lieferdienst/client.tsx nach SchichtLeistungsRadar (L1236)
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

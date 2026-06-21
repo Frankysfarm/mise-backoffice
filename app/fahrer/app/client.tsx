@@ -130,6 +130,7 @@ import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 import { TourStoppNavV2 } from './tour-stopp-nav-v2';
 import { FahrerStoppErinnerungsPanel } from './stop-erinnerungs-panel';
 import { NaechsterStoppVorschau } from './naechster-stopp-vorschau';
+import { FahrerStopRhythmusMeter } from './stop-rhythmus-meter';
 
 type Driver = {
   id: string;
@@ -1027,6 +1028,13 @@ export function FahrerApp({
               stops={activeBatch.stops as any}
               driverLat={driverPos?.lat}
               driverLng={driverPos?.lng}
+            />
+          </div>
+          {/* Phase 364: Stop-Rhythmus-Meter — Ø Minuten/Stopp für aktuelle Tour mit Tourende-ETA */}
+          <div className="px-4">
+            <FahrerStopRhythmusMeter
+              stops={activeBatch.stops as any}
+              startedAt={activeBatch.started_at ?? null}
             />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}

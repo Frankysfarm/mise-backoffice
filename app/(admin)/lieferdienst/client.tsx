@@ -159,6 +159,7 @@ import { LieferdienstTagesExecutive } from './lieferdienst-tages-executive'
 import { LieferdienstSchnellStatistikPanel } from './schnell-statistik-panel'
 import { LieferdienstEchtzeitBestellKpiGrid } from './echtzeit-bestell-kpi-grid'
 import { SchichtLeistungsRadar } from './schicht-leistungs-radar'
+import { LieferdienstTagsZielAmpel } from './tags-ziel-ampel'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1234,6 +1235,8 @@ export function LieferdienstClient() {
               <LieferdienstSchnellStatistikPanel locationId={locationId} />
               {/* Phase 363: Schicht-Leistungs-Radar — 5-Dimensionen-Radar: Pünktlichkeit, Effizienz, Bewertung, Durchsatz, Umsatz */}
               {locationId && <SchichtLeistungsRadar locationId={locationId} />}
+              {/* Phase 364: Tagsziel-Ampel — Bestellungen + Umsatz vs. Tagesziel mit Fortschrittsbalken */}
+              <LieferdienstTagsZielAmpel locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
