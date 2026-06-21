@@ -196,6 +196,7 @@ import { DispatchZonenAuslastungsMatrix } from './zonen-auslastungs-matrix';
 import { DispatchFahrerRueckkehrMatrix } from './fahrer-rueckkehr-matrix';
 import { DispatchFahrerLastenverteilung } from './fahrer-lastenverteilung';
 import { DispatchTourPuenktlichkeitsAmpel } from './tour-phuenktlichkeits-ampel';
+import { DispatchTourScoreZentrale } from './tour-score-zentrale';
 
 type Driver = {
   employee_id: string;
@@ -1072,6 +1073,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 400: Tour-Score Zentrale — Live Health + Score aller aktiven Touren */}
+      <DispatchTourScoreZentrale batches={batches} />
       {/* Echtzeit-Tour-Score-Feed: Live-Effizienz-Ranking aller aktiven Touren mit Trend-Indikatoren */}
       <DispatchTourScoreLiveFeed batches={batches} />
       {/* Phase 358: Fahrer-Score-Kacheln — Farbkodierte Score-Karten aller Fahrer mit Rang, Grade, Pünktlichkeit */}

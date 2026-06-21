@@ -147,6 +147,7 @@ import { KitchenAuftragsWarteschlangenZeit } from './auftrags-warteschlangen-zei
 import { KitchenKochzeitSollIstVergleich } from './kochzeit-soll-ist-vergleich';
 import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
 import { KitchenBestellungsFlowAmpel } from './bestellungs-flow-ampel';
+import { KitchenKommandoZentrale } from './kommando-zentrale';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -614,6 +615,8 @@ export function KitchenBoard({
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 358: Smart-Kochzeit-Board — Alle aktiven Bestellungen mit Countdown, Urgency-Priorisierung, Küchen-Gesundheits-Score */}
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
+      {/* Phase 400: Kommando-Zentrale — Echtzeit-Kochpriorisierung mit Farbkodierung */}
+      <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 361: KI-Auftrags-Priorierung — Smart-Ranking aller aktiven Bestellungen nach KI-Score */}
       <KitchenKiAuftragsPriorierung orders={filtered} timings={timings} />
       {/* Schicht-Schnellstatus: Live-Phasen-Überblick + Farbkodierung nach Fertig-Warteschlange */}

@@ -166,6 +166,7 @@ import { LieferdienstZoneUmsatzMatrix } from './zone-umsatz-matrix';
 import { LieferdienstFahrerHeuteKpiGrid } from './fahrer-heute-kpi-grid';
 import { LieferdienstAktuelleTouren } from './aktuelle-touren-uebersicht';
 import { LieferdienstSchichtTempoKpi } from './schicht-tempo-kpi';
+import { LieferdienstTagesKPIPanel } from './tages-kpi-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1095,6 +1096,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 400: Tages-KPI-Panel — Live Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
+              <LieferdienstTagesKPIPanel locationId={locationId} />
               {/* Live-Kapazitäts-Monitor: Auslastungs-Gauge + Engpass-Erkennung in Echtzeit */}
               <SchichtLiveKapazitaet locationId={locationId} />
               {/* Phase 330: Wochen-Prämien-Panel — Fahrer-Ranking dieser Woche + ausstehende Prämien */}

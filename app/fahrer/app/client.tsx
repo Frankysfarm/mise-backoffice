@@ -18,6 +18,7 @@ import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
 import { TourProgressRing } from './tour-ring';
 import { TourStopsPanel } from './tour-stops-panel';
+import { TourGPSNavigator } from './tour-gps-navigator';
 import { TourWazeNav } from './tour-waze-nav';
 import { TourKpiSummary } from './tour-kpi-summary';
 import { FahrerNaviStrip } from './fahrer-navi-strip';
@@ -1344,6 +1345,8 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* GPS-Navigator: zeigt Distanz + Richtung zum nächsten Stopp */}
+          <TourGPSNavigator stops={activeBatch.stops as any} driverPos={driverPos} />
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
           {activeBatch.stops.length > 1 && (
             <div className="px-4">
