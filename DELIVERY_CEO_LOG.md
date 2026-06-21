@@ -1,7 +1,71 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–391 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–393 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #218 — Phase 393 Frontend (2026-06-21)
+
+### Geprüfte Komponenten (Phase 393 — Commit 183982b):
+
+**`app/(admin)/kitchen/queue-countdown-board.tsx` — KitchenQueueCountdownBoard:**
+- API: `/api/delivery/kitchen/queue?location_id=` ✅
+- Filter: nur Einträge mit cook_start_at ≤ 20 Min oder overdue ✅
+- Countdown-Tick via `setTick(n => n + 1)` jede Sekunde → Re-render-Trigger ✅
+- Farbkodierung rot/amber/grün nach Dringlichkeit ✅
+- `getColorClass` + `getTimerColor` korrekt mit overdue-Vorrang ✅
+- Guard: `if (!locationId || locations[0]?.id)` in client.tsx ✅
+- Integration kitchen/client.tsx: locationId mit Fallback `?? ''` ✅
+
+**`app/(admin)/dispatch/tour-score-live-board.tsx` — DispatchTourScoreLiveBoard:**
+- API: `/api/delivery/admin/tour-score-live` (noch nicht implementiert → Mock-Fallback) ✅
+- Mock-Fallback mit `(Demo-Daten)` Badge korrekt ✅
+- ScoreRing SVG: `strokeDashoffset = circ/4` für 12-Uhr-Start ✅
+- `Math.max(tour.stops_total, 1)` verhindert Division-by-zero ✅
+- Sortierung nach Score absteigend ✅
+- Integration dispatch/client.tsx ✅
+
+**`app/fahrer/app/aktueller-stopp-card.tsx` — FahrerAktuellerStoppCard:**
+- Rein präsentational, keine eigenen Fetches ✅
+- `buildAddress()`: filtert null/undefined-Teile sicher ✅
+- Kasse/Bezahlt-Anzeige + KASSIERPFLICHTIG klar unterschieden ✅
+- Navigation: `window.open(maps.google...)` nur wenn Adresse vorhanden ✅
+- `euro()` aus `@/lib/utils` korrekt importiert ✅
+- Integration fahrer/app/client.tsx: `activeBatch.stops.find(s => !s.geliefert_am)` ✅
+- `(currentStop.order as any)` Felder mit `?? ''`/`?? 0`/`?? false`-Defaults ✅
+
+**`app/order/[locationSlug]/components/bestellung-eta-live-banner.tsx` — BestellungEtaLiveBanner:**
+- Supabase Realtime-Subscription auf `customer_orders` ✅
+- 6 Status-States (neu/bestätigt/in_zubereitung/fertig/unterwegs/geliefert) je eigenes Banner ✅
+- Countdown-Tick re-startet bei Status- oder ETA-Änderung (deps: [orderData.status, orderData.eta_latest]) ✅
+- `formatCountdown(0) → '0:00'` sauber ✅
+- **BUG GEFUNDEN + GEFIXT:** Komponente in Phase 393 committed aber NICHT in `success-state.tsx` integriert → Import + JSX-Block nach Phase 367 EtaLiveUpdateWidget eingefügt ✅
+
+**`app/(admin)/lieferdienst/live-statistik-panel.tsx` — LieferdienstLiveStatistikPanel:**
+- API: `/api/delivery/admin/stats` mit Mock-Fallback ✅
+- `stornoPct`: `today.orders > 0 ? ... : '0'` Division-by-zero-sicher ✅
+- `TrendLabel inverted` für Lieferzeit korrekt (niedriger = besser) ✅
+- `KpiCard` sauber als Sub-Komponente ✅
+- Integration lieferdienst/client.tsx: currentView === 'stats' ✅
+
+### Bugs gefunden + gefixt: 1
+- **BestellungEtaLiveBanner nicht in success-state.tsx integriert** → Import + JSX-Block hinzugefügt
+
+### Status nach Review #218
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully (354 Seiten) ✅
+- Phase 393: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 394: 5 neue Smart-Delivery-Komponenten (Kitchen, Dispatch, Fahrer, Storefront, Lieferdienst)
+2. `/api/delivery/admin/tour-score-live` Backend-Endpoint implementieren (DispatchTourScoreLiveBoard nutzt derzeit Mock-Daten)
+3. Storefront: Web Push Notification bei Status-Wechsel (ServiceWorker)
+
+### Nächste Schritte für Backend-Architekt
+1. `/api/delivery/admin/tour-score-live` — Endpoint mit Live-Tour-Scores aus aktiven Batches
+2. `/api/delivery/admin/stats` — `trends`-Felder (Deltas vs. Vortag) ergänzen falls fehlen
 
 ---
 

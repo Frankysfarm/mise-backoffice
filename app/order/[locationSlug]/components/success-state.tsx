@@ -46,6 +46,7 @@ import { LieferTransparenzBadge } from './liefer-transparenz-badge';
 import { BestellStatusLiveV2 } from '../bestell-status-live-v2';
 import { LieferQualitaetsRing } from './liefer-qualitaets-ring';
 import { LieferFeedbackPrompt } from './liefer-feedback-prompt';
+import { BestellungEtaLiveBanner } from './bestellung-eta-live-banner';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -443,6 +444,10 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {/* Phase 367: ETA-Live-Update-Widget — Echtzeit-Countdown mit Supabase-Subscription, 5-Phasen-Progress */}
         {isDelivery && orderId && (
           <EtaLiveUpdateWidget orderId={orderId} initialStatus={liveStatus} initialEtaMin={etaMinutes} />
+        )}
+        {/* Phase 393: Bestellung-ETA-Live-Banner — Status-Banner mit Realtime-Subscription (neu/zubereitung/fertig/unterwegs/geliefert) */}
+        {isDelivery && orderId && (
+          <BestellungEtaLiveBanner orderId={orderId} initialEtaMin={etaMinutes} isDelivery={isDelivery} />
         )}
         {/* Phase 364: Bestell-Details-Kompakt — Aufklappbare Artikel-Liste mit Gesamtbetrag */}
         {cartItems && cartItems.length > 0 && (
