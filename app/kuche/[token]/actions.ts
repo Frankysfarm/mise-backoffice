@@ -125,6 +125,11 @@ export async function markItemMissing(token: string, itemId: string, missing: bo
   const loc = await locForToken(token);
   if (!loc) return { error: 'unauth' };
   const svc = createServiceClient();
+  // Mandanten-Trennung: nur Items der EIGENEN Location dürfen geändert werden (order_items hat keine location_id → über die Order prüfen).
+  const { data: it } = await svc.from('order_items').select('order_id').eq('id', itemId).maybeSingle();
+  if (!it) return { error: 'not_found' };
+  const { data: ord } = await svc.from('customer_orders').select('location_id').eq('id', (it as any).order_id).maybeSingle();
+  if (!ord || (ord as any).location_id !== loc.id) return { error: 'unauth' };
   const { error } = await svc.from('order_items').update({ pick_missing: missing }).eq('id', itemId);
   return error ? { error: error.message } : { ok: true };
 }
