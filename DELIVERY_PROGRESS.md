@@ -1,9 +1,26 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–356 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–358 abgeschlossen. Build sauber. 350 Seiten. 0 TypeScript-Fehler.**
 
-**CEO-Review #195 (2026-06-21): 0 Bugs. Alle Integrationen vollständig. Zone-Difficulty-Loop aktiv.**
+**CEO-Review #197 (2026-06-21): 3 TypeScript-Fehler gefixt (ChartPoint-Index-Signatur, Recharts-Formatter-Typ, Supabase-Payload-Typ). Phase 358 vollständig integiert. Alle Systeme synchron.**
+
+---
+
+## Phase 358 — Qualitätsscore-Dashboard + Peak-Intelligence UI (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**5 Frontend-Komponenten:**
+- `app/(admin)/kitchen/standort-qualitaets-karte.tsx` — Tages-Qualitätsscore (0-100, Note A-F) mit 5-Dimensionen-Bars (Pünktlichkeit 30%/Zufriedenheit 25%/Genauigkeit 20%/SLA 15%/Storno 10%), Delta gg. gestern, Schwächen-Alert; 5-Min-Polling `/api/delivery/admin/quality-score?action=dashboard`; Integration: kitchen/client.tsx
+- `app/(admin)/dispatch/peak-alert-strip.tsx` — Nächste 3 Spitzentag-Alerts (elevated/high/extreme) mit Risiko-Badge, empfohlene Extra-Fahrer, Küche-früher-Minuten, Event-Titel; dismissbar; 15-Min-Polling `/api/delivery/admin/peak-intelligence`; Integration: dispatch/client.tsx
+- `app/(admin)/lieferdienst/qualitaets-wochen-trend.tsx` — 7-Tage Recharts AreaChart + 3 KPI-Kacheln (Heute/Ø Woche/Trend-Delta) + Schwächen-Hinweis-Banner; 10-Min-Polling; Integration: lieferdienst/client.tsx
+- `app/fahrer/app/peak-tag-hinweis.tsx` — Spitzentag-Banner für Fahrer (daysUntil ≤ 3, priorisiert high/extreme) mit Einnahmen-Tipp, Fahrer-Anzahl, Küche-früher; dismissbar; Integration: fahrer/app/client.tsx
+- `app/order/[locationSlug]/bestell-eta-qualitaets-ampel.tsx` — ETA-Genauigkeits-Ampel auf Tracking-Seite (grün/amber/blau) mit Puls-Dot, Status-Label, Zeitfenster-Bar (±Min); Integration: track/[bestellnummer]/tracking.tsx
+
+**Build:** 350 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

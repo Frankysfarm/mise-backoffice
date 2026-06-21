@@ -33,6 +33,7 @@ interface ChartPoint {
   B?: number;
   C?: number;
   D?: number;
+  [key: string]: number | string | undefined;
 }
 
 const ZONE_COLORS: Record<string, string> = {
@@ -131,7 +132,7 @@ export function ZoneDifficultyTrendChart() {
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 10, padding: '4px 8px' }}
-                  formatter={(v: number) => [`${v.toFixed(1)}/5`, '']}
+                  formatter={(v: unknown) => { const n = typeof v === 'number' ? v : undefined; return [n !== undefined ? `${n.toFixed(1)}/5` : '', '']; }}
                 />
                 <Legend
                   iconType="circle"

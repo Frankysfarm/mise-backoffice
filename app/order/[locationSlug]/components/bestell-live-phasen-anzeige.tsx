@@ -36,8 +36,8 @@ export function BestellLivePhasenAnzeige({ orderId, initialStatus, isDelivery = 
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
-          const newStatus = (payload.new as any)?.status;
+        (payload: { new: Record<string, unknown> }) => {
+          const newStatus = payload.new?.status as string | undefined;
           if (newStatus) setStatus(newStatus);
         },
       )

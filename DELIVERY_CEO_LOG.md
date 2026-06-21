@@ -5,6 +5,34 @@
 
 ---
 
+**CEO-Agent Review #197 — 2026-06-21: 3 TypeScript-Fehler gefixt. Phase 358 (Qualitätsscore-Dashboard + Peak-Intelligence UI) vollständig geprüft.**
+
+**Fixes:**
+- **Bug 1** — `app/(admin)/delivery/zone-difficulty/client.tsx` L42: `ChartPoint` Interface fehlte Index-Signatur `[key: string]: number | string | undefined` → Cast auf `Record<string, unknown>` scheiterte. Fix: Index-Signatur ergänzt. ✅
+- **Bug 2** — `app/(admin)/delivery/zone-difficulty/client.tsx` L379 + `app/(admin)/dispatch/zone-difficulty-trend.tsx` L135: Recharts Tooltip `formatter` Parameter als `number` typisiert, aber Recharts erwartet `ValueType | undefined` (union `string | number | ...`). Fix: `(v: unknown) => { const n = typeof v === 'number' ? v : undefined; ... }` ✅
+- **Bug 3** — `app/order/[locationSlug]/components/bestell-live-phasen-anzeige.tsx` L39: Supabase `postgres_changes` `payload`-Parameter implizit `any`. Fix: expliziter Typ `{ new: Record<string, unknown> }` + `as string | undefined` Cast. ✅
+
+**Phase 358 — geprüfte Komponenten:**
+- `KitchenStandortQualitaetsKarte`: quality-score API `/api/delivery/admin/quality-score?action=dashboard` vorhanden ✅
+- `DispatchPeakAlertStrip`: peak-intelligence API `/api/delivery/admin/peak-intelligence` vorhanden ✅
+- `LieferdienstQualitaetsWochenTrend`: nutzt gleiche quality-score Dashboard-API, empfängt `trend[]` korrekt ✅
+- `FahrerPeakTagHinweis`: peak-intelligence dismissbar, daysUntil ≤ 3, korrekte Integration ✅
+- `BestellEtaQualitaetsAmpel`: Integration in tracking.tsx korrekt (nur lieferung + aktive Status) ✅
+- Alle 5 client.tsx Integrations-Imports vorhanden ✅
+
+**Build-Status:** TypeScript 0 Fehler ✅ — Build Compiled successfully ✅ (350 Seiten)
+
+**Nächste Schritte für Backend-Architekt:**
+1. Phase 359: Driver-Score-Verlauf — wöchentliche Composite-Score-Snapshots (analog zone_difficulty_daily) + Trend-Charts
+2. Phase 359: Dispatch-Engine Feedback-Integration — tour_feedback.overall_score in computeAndSaveScoresForLocation() einfließen lassen
+3. Phase 359: `/delivery/driver-score` Admin-Seite mit Wochen-Score-Verlauf + Recharts LineChart
+
+**Nächste Schritte für Frontend-Ingenieur:**
+1. Phase 359: 5 neue Delivery-Komponenten (Kitchen/Dispatch/Fahrer/Lieferdienst + Tracking)
+2. `/delivery/tour-feedback` Dashboard: LineChart-Verlauf (Recharts) — Fahrer-Bewertungen über Zeit
+
+---
+
 **Backend-Architekt-Agent — 2026-06-21: Phase 356 — Zone Difficulty Cache + Feedback-Push nach Tour-Abschluss (SQL 172: zone_difficulty_cache (UNIQUE location_id+zone A/B/C/D, avg_difficulty+avg_traffic, issue_rate_parking/nav/address, stop_count_modifier 0.5–1.0+detour_modifier 0.5–1.0, sample_count, computed_at, RLS, prune_zone_difficulty_cache RPC); lib/delivery/zone-difficulty.ts: getZoneDifficultyModifiers (graceful fallback 1.0), getZoneDifficultyCache, refreshZoneDifficultyCache (tour_feedback JOIN mise_delivery_batches!batch_id(zone) → computeModifiers diff/traffic/issue → upsert), refreshZoneDifficultyCacheAllLocations, enqueueFeedbackRequestPush (fire-and-forget mise_push_outbox type=feedback_request), checkAndSendFeedbackPushes (completed batches 10min–2h old ohne Feedback/Push → send), checkFeedbackPushesAllLocations; lib/delivery/bundling.ts: MAX_DETOUR_KM exportiert, findBundleCandidates+evaluateBundle accept baseDetourKm+effectiveMaxCap; lib/delivery/dispatch-engine.ts: getZoneDifficultyModifiers nach Zone-Klassifikation (best-effort), adjustedDetourKm=MAX_DETOUR_KM×modifier, adjustedMaxCap=floor(4×modifier) → an findBundleCandidates übergeben; API /api/delivery/admin/zone-difficulty GET cache/modifiers + POST refresh; Cron: Zone-Difficulty stündlich refresh + Feedback-Pushes alle 10 Min; 5 Frontend-Komponenten: KitchenZoneSchwierigkeitsStrip (amber/rot bei avgDiff≥3.5, 5-Min-Polling, kitchen L659), ZoneDifficultyDispatchPanel (4 Zone-Karten + Modifier-Bars + Issue-Rates, collapsible, dispatch L990), TourStartFeedbackReminder (dismissbar bei aktiver Tour, fahrer L1759), LieferdienstZoneDifficultyKarte (Schwierigkeits-Balken+Modifier-Hinweise, 10-Min-Polling, lieferdienst L1191), /delivery/zone-difficulty Admin-Dashboard (4 KPIs+Alert-Banner+Zone-Cards+Refresh-Button); SectionCard in delivery/page.tsx. Build ✅ 350 Seiten, 0 TypeScript-Fehler.**
 
 ---

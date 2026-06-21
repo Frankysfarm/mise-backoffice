@@ -44,6 +44,7 @@ interface ChartPoint {
   B?: number;
   C?: number;
   D?: number;
+  [key: string]: number | string | undefined;
 }
 
 const ZONE_LABELS: Record<string, string> = { A: 'Nah', B: 'Mittel', C: 'Weit', D: 'Sehr weit' };
@@ -375,7 +376,7 @@ export function ZoneDifficultyClient() {
                   />
                   <Tooltip
                     contentStyle={{ fontSize: 11, padding: '6px 10px', borderRadius: 8, border: '1px solid #e5e7eb' }}
-                    formatter={(v: number, name: string) => [`${v.toFixed(1)}/5`, `Zone ${name}`]}
+                    formatter={(v: unknown, name: unknown) => { const n = typeof v === 'number' ? v : undefined; return [n !== undefined ? `${n.toFixed(1)}/5` : '', `Zone ${name}`]; }}
                   />
                   <Legend
                     iconType="circle"
