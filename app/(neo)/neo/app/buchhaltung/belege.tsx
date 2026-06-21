@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { saveBeleg } from './actions';
 
 type Beleg = { id: string; datum: string | null; haendler: string | null; betrag_brutto: number; mwst_satz: number; mwst_betrag: number; netto: number; kategorie: string; status: string; beleg_url: string | null };
 const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Reparatur', 'Büro', 'Sonstiges'];
@@ -52,18 +52,13 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
   async function save() {
     if (!draft) return;
     setSaving(true); setErr('');
-    const sb = createClient();
-    const { data: { user } } = await sb.auth.getUser();
-    const { data: emp } = await sb.from('employees').select('tenant_id, location_id').eq('auth_user_id', user?.id ?? '').maybeSingle();
-    if (!emp?.tenant_id) { setErr('Nicht autorisiert'); setSaving(false); return; }
-    const { error } = await sb.from('belege').insert({
-      tenant_id: emp.tenant_id, location_id: emp.location_id ?? null,
-      datum: draft.datum, haendler: draft.haendler.trim() || null, betrag_brutto: draft.betrag_brutto,
+    const r = await saveBeleg({
+      datum: draft.datum, haendler: draft.haendler, betrag_brutto: draft.betrag_brutto,
       mwst_satz: draft.mwst_satz, mwst_betrag: draft.mwst_betrag, netto: draft.netto,
-      kategorie: draft.kategorie, beleg_url: draft.beleg_url, ki_confidence: draft.confidence, status: 'erfasst',
+      kategorie: draft.kategorie, beleg_url: draft.beleg_url, ki_confidence: draft.confidence,
     });
     setSaving(false);
-    if (error) { setErr(error.message); return; }
+    if (!r.ok) { setErr(r.error || 'Fehler'); return; }
     setDraft(null); router.refresh();
   }
 
