@@ -123,6 +123,7 @@ import { TourStartFeedbackReminder } from './tour-start-feedback-reminder';
 import { FahrerMeineScoreKarte } from './meine-score-karte';
 import { FahrerScoreVerlaufChart } from './score-verlauf-chart';
 import { FahrerPeakTagHinweis } from './peak-tag-hinweis';
+import { FahrerFeedbackMonatsbericht } from './feedback-monatsbericht';
 import { SmartStopActionCard } from './smart-stop-action-card';
 import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 import { TourStoppNavV2 } from './tour-stopp-nav-v2';
@@ -1779,6 +1780,10 @@ export function FahrerApp({
           <FahrerMeineScoreKarte />
           {/* Phase 359: Score-Verlauf-Chart — 8-Wochen persönlicher Score-Verlauf */}
           <FahrerScoreVerlaufChart />
+          {/* Phase 360: Feedback-Monatsbericht — persönliche Kunden-Feedback-Zusammenfassung */}
+          {driver.location_id && (
+            <FahrerFeedbackMonatsbericht driverId={driver.id} locationId={driver.location_id} />
+          )}
           {/* Phase 358: Peak-Tag-Hinweis — Vorschau nächster Spitzentage mit Einnahmen-Tipp */}
           <FahrerPeakTagHinweis />
           {/* Phase 356: Tour-Start-Feedback-Reminder — Erinnerung am Tourstart, Feedback zu geben */}

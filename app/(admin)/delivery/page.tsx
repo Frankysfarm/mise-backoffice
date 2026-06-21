@@ -172,6 +172,8 @@ export default async function DeliveryOverviewPage() {
           subtitle="Feedback-basierte Dispatch-Modifikatoren · Bundle-Kapazität & Detour-Toleranz je Zone · Stündlicher Cache-Refresh" cta="Analyse öffnen" highlight />
         <SectionCard href="/delivery/driver-score" icon={<TrendingUp className="h-5 w-5" />} title="Fahrer Score-Verlauf"
           subtitle="Wöchentlicher Composite-Score + Feedback-Integration" cta="Score-Verlauf öffnen" highlight />
+        <SectionCard href="/delivery/tour-feedback-analytics" icon={<BarChart3 className="h-5 w-5" />} title="Feedback Analytics"
+          subtitle="Wöchentliche & monatliche Aggregation der Kunden-Bewertungen · Trend-Charts · Top/Coaching-Fahrer · Issue-Raten nach Typ" cta="Analytics öffnen" highlight />
       </SectionGroup>
 
       {/* ── Planung & Schichten ───────────────────────────────── */}

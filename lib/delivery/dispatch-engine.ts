@@ -243,11 +243,12 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   });
   if (nearby.length === 0) return held(`Kein Fahrer im Radius (${radiusFactor > 1 ? `×${radiusFactor} eskaliert` : 'normal'})`);
 
-  // 5) Scoring — load zone affinities + optionally V2 config
+  // 5) Scoring — load zone affinities + optionally V2 config + composite scores
   const nearbyIds = nearby.map((d) => d.id);
-  const [zoneAffinities, scoringV2Config] = await Promise.all([
+  const [zoneAffinities, scoringV2Config, compositeScoreMap] = await Promise.all([
     getDriverZoneAffinities(nearbyIds, o.location_id).catch(() => ({} as Record<string, Record<string, number>>)),
     getScoringV2Config(o.location_id).catch(() => null),
+    loadCompositeScores(nearbyIds).catch(() => ({} as Record<string, number>)),
   ]);
 
   let ranked: Array<{ driver: DriverScoreInput; score: import('./scoring').ScoreBreakdown }>;
@@ -297,6 +298,20 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   }
 
   if (ranked.length === 0) return held('Alle Fahrer sind voll');
+
+  // Phase 360: Apply composite-score bonus (+2 for A+/≥90, +1 for A/≥75) then re-rank
+  const compositeBonus = (driverId: string): number => {
+    const cs = compositeScoreMap[driverId] ?? 0;
+    if (cs >= 90) return 2.0;
+    if (cs >= 75) return 1.0;
+    return 0;
+  };
+  const hasCompositeData = Object.keys(compositeScoreMap).length > 0;
+  if (hasCompositeData && ranked.length > 1) {
+    ranked = ranked
+      .map((r) => ({ ...r, score: { ...r.score, total: r.score.total + compositeBonus(r.driver.id) } }))
+      .sort((a, b) => b.score.total - a.score.total);
+  }
 
   const best = ranked[0];
   const bestScore = best.score;
@@ -499,6 +514,21 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     score: bestScore.total,
     reason: `${outcome}: Fahrer ${best.driver.id.slice(0, 8)}, Score ${bestScore.total.toFixed(1)}, Zone ${zone}, ${distanceKm.toFixed(1)} km`,
   };
+}
+
+async function loadCompositeScores(driverIds: string[]): Promise<Record<string, number>> {
+  if (driverIds.length === 0) return {};
+  const { data } = await sb()
+    .from('driver_composite_scores')
+    .select('driver_id, composite_score')
+    .in('driver_id', driverIds)
+    .order('period_start', { ascending: false });
+  const map: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const dId = row.driver_id as string;
+    if (!(dId in map)) map[dId] = Number(row.composite_score ?? 0);
+  }
+  return map;
 }
 
 async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {

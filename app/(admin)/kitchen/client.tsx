@@ -132,6 +132,7 @@ import { KitchenZoneSchwierigkeitsStrip } from './zone-schwierigkeits-strip';
 import { KitchenDriverScoreStrip } from './driver-score-strip';
 import { KitchenScoreVerlaufMini } from './score-verlauf-mini';
 import { KitchenStandortQualitaetsKarte } from './standort-qualitaets-karte';
+import { KitchenFeedbackTrendMini } from './feedback-trend-mini';
 import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
 import { KitchenMultiBatchAbholplan } from './kitchen-multi-batch-abholplan';
 import { KitchenSmartKochzeitBoard } from './smart-kochzeit-board';
@@ -670,6 +671,8 @@ export function KitchenBoard({
       <KitchenDriverScoreStrip />
       {/* Phase 359: Score-Verlauf-Mini — 4-Wochen Team-Score-Trend */}
       <KitchenScoreVerlaufMini />
+      {/* Phase 360: Feedback-Trend-Mini — Ø Kundenzufriedenheit aus Tour-Feedback */}
+      <KitchenFeedbackTrendMini />
       {/* Phase 358: Standort-Qualitätskarte — Tages-Qualitätsscore (Pünktlichkeit/Zufriedenheit/SLA) */}
       <KitchenStandortQualitaetsKarte />
       {/* Phase 337: Bestell-Fluss-Monitor — Echtzeit-Durchsatz-Anzeige */}

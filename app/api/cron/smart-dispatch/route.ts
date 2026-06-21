@@ -147,6 +147,7 @@ import { pruneOldAbsences } from '@/lib/delivery/driver-absences';
 import { pruneTourFeedback } from '@/lib/delivery/tour-feedback';
 import { refreshZoneDifficultyCacheAllLocations, checkFeedbackPushesAllLocations, snapshotZoneDifficultyDailyAllLocations, pruneZoneDifficultyDaily } from '@/lib/delivery/zone-difficulty';
 import { snapshotDriverScoreHistoryAllLocations, pruneDriverScoreHistory } from '@/lib/delivery/driver-score';
+import { aggregateTourFeedbackAllLocations, pruneOldFeedbackAggregates } from '@/lib/delivery/tour-feedback-analytics';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -695,6 +696,20 @@ export async function GET(req: NextRequest) {
       : null;
     if (isDriverScoreHistoryPruneTick) {
       pruneDriverScoreHistory(365).catch(() => {});
+    }
+
+    // Phase 360: Tour Feedback Aggregation — täglich 03:20 UTC (Woche + Monat); Prune 07:20 UTC
+    const isFeedbackAggWeekTick  = nowHour === 3 && nowMin >= 20 && nowMin < 22;
+    const isFeedbackAggMonthTick = nowHour === 3 && nowMin >= 22 && nowMin < 24;
+    const isFeedbackAggPruneTick = nowHour === 7 && nowMin >= 20 && nowMin < 22;
+    const feedbackAggWeekResult = isFeedbackAggWeekTick
+      ? await aggregateTourFeedbackAllLocations('week').catch(() => null)
+      : null;
+    const feedbackAggMonthResult = isFeedbackAggMonthTick
+      ? await aggregateTourFeedbackAllLocations('month').catch(() => null)
+      : null;
+    if (isFeedbackAggPruneTick) {
+      pruneOldFeedbackAggregates(365).catch(() => {});
     }
 
     // Phase 206: Network Health Snapshots — alle 30 Min (isDemandTick)
@@ -1457,6 +1472,8 @@ export async function GET(req: NextRequest) {
       ...(fbPushResult?.sent ? { feedback_pushes_sent: { locations: fbPushResult.locations, sent: fbPushResult.sent } } : {}),
       ...(zoneDiffDailySnapshotResult?.saved ? { zone_difficulty_daily_snapshot: { locations: zoneDiffDailySnapshotResult.locations, saved: zoneDiffDailySnapshotResult.saved } } : {}),
       ...(zoneDiffDailyPruned?.pruned ? { zone_difficulty_daily_pruned: zoneDiffDailyPruned.pruned } : {}),
+      ...(feedbackAggWeekResult?.aggregated ? { feedback_agg_week: { locations: feedbackAggWeekResult.locations, aggregated: feedbackAggWeekResult.aggregated } } : {}),
+      ...(feedbackAggMonthResult?.aggregated ? { feedback_agg_month: { locations: feedbackAggMonthResult.locations, aggregated: feedbackAggMonthResult.aggregated } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

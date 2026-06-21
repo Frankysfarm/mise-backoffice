@@ -182,6 +182,7 @@ import { ZoneDifficultyDispatchPanel } from './zone-difficulty-dispatch-panel';
 import { ZoneDifficultyTrendChart } from './zone-difficulty-trend';
 import { DispatchDriverFeedbackScorePanel } from './driver-feedback-score-panel';
 import { DispatchPeakAlertStrip } from './peak-alert-strip';
+import { DispatchScoreZoneMatchPanel } from './score-zone-match-panel';
 import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
 import { DispatchFlottenGesundheitsIndex } from './dispatch-flotten-gesundheits-index';
 import { DispatchTourScoreKacheln } from './tour-score-kacheln';
@@ -1003,6 +1004,8 @@ export function DispatchBoard({
       <ZoneDifficultyTrendChart />
       {/* Phase 359: Fahrer-Feedback-Score-Panel — Top-5 Fahrer nach Feedback-Score */}
       <DispatchDriverFeedbackScorePanel />
+      {/* Phase 360: Score-Zone-Match-Panel — Qualitäts-KPIs + Top-Fahrer nach Kundenbewertung */}
+      <DispatchScoreZoneMatchPanel />
       {/* Phase 358: Peak-Alert-Strip — Nächste Spitzentage mit Empfehlungen (Fahrer, Küche früher) */}
       <DispatchPeakAlertStrip />
       {/* Phase 249: Zuweisungs-Vorschau — Top-3 Fahrer für selektierte Bestellungen */}
