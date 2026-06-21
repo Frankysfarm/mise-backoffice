@@ -142,6 +142,7 @@ import { TourStoppListe } from './tour-stopp-liste';
 import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
 import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
+import { FahrerNavHub } from './fahrer-nav-hub';
 
 type Driver = {
   id: string;
@@ -1367,6 +1368,10 @@ export function FahrerApp({
           })()}
           {/* GPS-Navigator: zeigt Distanz + Richtung zum nächsten Stopp */}
           <TourGPSNavigator stops={activeBatch.stops as any} driverPos={driverPos} />
+          {/* Erweiterter Nav-Hub: Stop-Liste + Kompass + ETA-Countdown + Navigations-Buttons */}
+          <div className="px-4">
+            <FahrerNavHub stops={activeBatch.stops as any} driverPos={driverPos} />
+          </div>
           {/* Nächster-Stop-Fokus: Ultra-fokussierte Karte mit ETA-Countdown + Navigation */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

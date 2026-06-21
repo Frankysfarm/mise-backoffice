@@ -36,6 +36,7 @@ import { BestellungFortschrittKarte } from './bestellung-fortschritt-karte';
 import { AktuelleLieferzeitWidget } from './aktuelle-lieferzeit-widget';
 import { BestellPaceIndikator } from './bestell-pace-indikator';
 import { FahrerNaeheLiveAnzeige } from './fahrer-naehe-live-anzeige';
+import { EtaLiveTrackerV2 } from './eta-live-tracker-v2';
 import { BestellungsKlimaIndikator } from './components/bestellungs-klima-indikator';
 import LiveWaitBadge from './components/live-wait-badge';
 import { DynamicPricingBanner } from './components/dynamic-pricing-banner';
@@ -1053,6 +1054,14 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       {/* Fahrer-Nähe-Live-Anzeige: Proximity-Ring + ETA-Countdown wenn Fahrer unterwegs ist */}
       {order.isDelivery && (
         <FahrerNaeheLiveAnzeige orderId={order.orderId} />
+      )}
+      {/* ETA Live Tracker V2: Erweiterte Live-ETA mit Phase-Dots, Fahrer-Status und Ankunftszeit */}
+      {order.isDelivery && (
+        <EtaLiveTrackerV2
+          orderId={order.orderId}
+          initialStatus={order.status}
+          bestellnummer={order.bestellnummer}
+        />
       )}
     </div>
   );

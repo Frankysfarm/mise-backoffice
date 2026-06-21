@@ -73,6 +73,7 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { SchichtEchtzeitKpiHub } from './schicht-echtzeit-kpi-hub'
 import { LieferdienstWochenKpiVergleich } from './wochen-kpi-vergleich'
 import { SchichtPunktlichkeitsRing } from './schicht-punktlichkeits-ring'
 import { RentabilitaetsTrend } from './rentabilitaets-trend'
@@ -1279,6 +1280,8 @@ export function LieferdienstClient() {
               <SchichtRenditeCockpit locationId={locationId ?? null} />
               {/* Phase 361: Echtzeit-Bestell-KPI-Grid — 8 Live-KPIs mit Trend-Pfeilen und Farbkodierung */}
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
+              {/* Echtzeit-KPI-Hub: Live Schicht-Kennzahlen mit On-Time-Gauge und stündlichem Chart */}
+              <SchichtEchtzeitKpiHub locationId={locationId ?? undefined} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

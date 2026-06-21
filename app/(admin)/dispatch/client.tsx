@@ -201,6 +201,7 @@ import { DispatchTourRealtimeFortschritt } from './tour-realtime-fortschritt';
 import { DispatchTourAbholZeitplan } from './tour-abholzeitplan';
 import { DispatchTourFahrerSyncBoard } from './tour-fahrer-sync-board';
 import { DispatchTourLiveCockpit } from './dispatch-tour-live-cockpit';
+import { DispatchScoreTourCockpit } from './dispatch-score-tour-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1074,6 +1075,21 @@ export function DispatchBoard({
         }))}
         batches={batches.map((b) => ({ ...b, driver_id: b.fahrer_id, started_at: b.startzeit ?? null }))}
       />
+      {/* Score-Tour-Cockpit: Erweiterte Fahrer-Score-Visualisierung mit Tour-Timeline und Radar-Analyse */}
+      <DispatchScoreTourCockpit drivers={drivers.map(d => ({
+        driverId: d.employee_id,
+        driverName: d.employee ? `${d.employee.vorname} ${d.employee.nachname}`.trim() : 'Fahrer',
+        scoreTotal: 70,
+        scoreBreakdown: { punctuality: 70, speed: 70, rating: 70, acceptance: 70, efficiency: 70 },
+        activeTourId: d.aktueller_batch_id ?? null,
+        tourStops: [],
+        activeDeliveries: 0,
+        completedToday: 0,
+        earnedToday: 0,
+        onTimeRatePct: 80,
+        avgDeliveryMin: 28,
+        status: d.ist_online ? (d.aktueller_batch_id ? 'unterwegs' : 'verfügbar') : 'offline',
+      } as const))} />
       {/* Live-Tour-Cockpit: Alle aktiven Touren mit Fahrer, Stops, Score und Echtzeit-ETA */}
       <DispatchTourLiveCockpit batches={batches as any} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}

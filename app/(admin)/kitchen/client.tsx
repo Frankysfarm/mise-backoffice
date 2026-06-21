@@ -152,6 +152,7 @@ import { KitchenBatchUebersichtCockpit } from './batch-uebersicht-cockpit';
 import { KitchenFertigstellungsPrognose } from './fertigstellungs-prognose';
 import { KitchenKochzeitVerteilungsChart } from './kochzeit-verteilungs-chart';
 import { KitchenLiveAmpelBoard } from './kitchen-live-ampel-board';
+import { KitchenLiveTimingHub } from './kitchen-live-timing-hub';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -778,6 +779,8 @@ export function KitchenBoard({
       <KitchenSchichtSofortCockpit orders={filtered} timings={timings} />
       {/* Timing-Farbkodierung: Kompaktes Kachel-Raster aller aktiven Bestellungen mit Countdown-Labels */}
       <KitchenTimingFarbkodierung orders={filtered} timings={timings} />
+      {/* Live Timing Hub: Erweiterte Countdown-Matrix mit Ring-Visualisierung und Smart-Urgency */}
+      <KitchenLiveTimingHub orders={filtered} timings={timings} />
       {/* Phase 260: Timing-Ampel Live — Alle aktiven Bestellungen mit Countdown + Farbcodierung */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenTimingAmpelLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
