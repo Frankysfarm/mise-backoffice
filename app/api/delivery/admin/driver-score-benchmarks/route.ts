@@ -56,5 +56,5 @@ export async function POST(req: NextRequest) {
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
 
   const result = await snapshotWeeklyBenchmark(locationId, body.week_start);
-  return NextResponse.json({ ok: true, ...result });
+  return NextResponse.json(result);
 }
