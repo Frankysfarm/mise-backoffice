@@ -1,7 +1,71 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–376 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–378 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO-Review #208 — 2026-06-21
+
+### Geprüfte Phasen: Phase 377 + Phase 378
+
+**Build-Status:**
+- `npx next build`: ✓ Compiled successfully (354 Seiten, 0 TypeScript-Fehler) ✅
+- `npx tsc --noEmit`: Exit 0, 0 Fehler ✅
+
+**Phase 378 — 5 neue Smart-Delivery-Komponenten:**
+
+**`app/(admin)/kitchen/batch-uebersicht-cockpit.tsx` — KitchenBatchUebersichtCockpit:**
+- 1s-Ticker, Phase-Map (kochend/bereit/wartend) korrekt ✅
+- Urgency-Klassifizierung: <0s → kritisch, <180s → knapp, sonst ok ✅
+- Progress-Bar: `elapsed/totalSecs * 100`, Division-Guard `totalSecs > 0` ✅
+- Sortierung nach Urgency + secsLeft korrekt ✅
+- Integration kitchen/client.tsx nach `KitchenKommandoZentrale` ✅
+
+**`app/(admin)/dispatch/tour-realtime-fortschritt.tsx` — DispatchTourRealtimeFortschritt:**
+- Health-Klassifizierung: eta_latest-Delta + 15%-Puffer auf total_eta_min ✅
+- Dot-Fortschrittsbalken: `completedStops / totalStops` mit Division-Guard `totalStops > 0` ✅
+- Puls-Animation nur wenn Health ≠ 'im-plan' ✅
+- Integration dispatch/client.tsx nach `DispatchTourScoreZentrale` ✅
+- `progress`-Variable berechnet aber nicht genutzt (Dead Code, kein Fehler) — unbedeutend, `noUnusedLocals` nicht aktiv ✅
+
+**`app/fahrer/app/tour-stopp-liste.tsx` — TourStoppListe:**
+- Sortierung nach `reihenfolge`, currentIdx = erstes Stop ohne `geliefert_am` ✅
+- `openNav()`: lat/lng bevorzugt, Adress-Fallback korrekt ✅
+- `isCurrent && !isDone`-Guard für Navigation-CTA ✅
+- Integration fahrer/app/client.tsx (activeBatch.stops as any) vor StoppErinnerungsPanel ✅
+
+**`app/order/[locationSlug]/components/bestell-eta-progress.tsx` — BestellEtaProgress:**
+- **BUG GEFUNDEN + GEFIXT:** `getEtaSecs()` nutzte `Date.now()` als Base per Tick → Countdown zählte nie runter ✅
+- Fix: `useRef<number>` speichert Mount-Zeit einmalig; jeder Tick berechnet `baseRef.current + etaMinutes * 60000 - Date.now()` ✅
+- **BUG GEFUNDEN + GEFIXT:** Progress-Bar-Width konnte negativ werden (`Math.min(100, ...)` ohne untere Grenze) → `Math.max(0, Math.min(100, ...))` ✅
+- Integration success-state.tsx: `isDelivery`-Guard, `status={liveStatus}`, `etaMinutes={etaMinutes}` ✅
+
+**`app/(admin)/lieferdienst/fahrer-tages-performance.tsx` — LieferdienstFahrerTagesPerformance:**
+- Grade-Schema A(≥90%)/B(≥75%)/C(≥60%)/D(<60%) korrekt ✅
+- Division-Guard: `drivers.filter(d => d.avgDeliveryMin !== null).length > 0` ✅
+- API-Fallback auf Mock wenn `json.drivers` nicht vorhanden (graceful degradation) ✅
+- Cancelled-Guard via `if (!locationId) return;` ✅
+- Integration lieferdienst/client.tsx nach `LieferdienstSchichtTempoKpi` ✅
+
+**Bugs gefunden + gefixt: 2**
+1. `BestellEtaProgress`: Timer-Countdown lief nicht runter (useRef-Fix) ✅
+2. `BestellEtaProgress`: Progress-Bar negative Breite möglich (Math.max-Fix) ✅
+
+### Status nach Review #208
+- TypeScript: 0 Fehler ✅
+- Build: Compiled successfully ✅ (354 Seiten)
+- Phase 377 + 378: DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 379: 5 neue Smart-Delivery-Komponenten
+2. `LieferdienstFahrerTagesPerformance`: Backend-Endpunkt liefert noch kein `json.drivers`-Array → Backend-Architekt muss `/api/delivery/admin/stats?period=today` um `drivers`-Feld erweitern
+3. Storefront: Web Push API bei Statuswechsel (Push-Benachrichtigung wenn Fahrer unterwegs)
+
+### Nächste Schritte für Backend-Architekt
+1. `/api/delivery/admin/stats?period=today` → `drivers: DriverPerf[]`-Array hinzufügen (je Fahrer: stopsToday, toursToday, avgDeliveryMin, onTimePct, isOnline, vehicle)
+2. Prüfen ob `dispatch_batches` + `delivery_performance` Join für Fahrer-KPIs vorhanden ist
 
 ---
 

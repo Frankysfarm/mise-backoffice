@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, ChefHat, Clock, Package, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,12 +34,6 @@ interface Props {
   className?: string;
 }
 
-function getEtaSecs(etaMinutes: number, orderedAt?: string | null): number {
-  const base = orderedAt ? new Date(orderedAt).getTime() : Date.now();
-  const target = base + etaMinutes * 60 * 1000;
-  return Math.round((target - Date.now()) / 1000);
-}
-
 function fmtCountdown(secs: number): string {
   if (secs <= 0) return '0:00';
   const m = Math.floor(secs / 60);
@@ -48,14 +42,21 @@ function fmtCountdown(secs: number): string {
 }
 
 export function BestellEtaProgress({ status, etaMinutes, orderedAt, className }: Props) {
-  const [secsLeft, setSecsLeft] = useState(() => getEtaSecs(etaMinutes, orderedAt));
+  // Capture base time once at mount; using Date.now() per-tick would never decrement
+  const baseRef = useRef<number>(orderedAt ? new Date(orderedAt).getTime() : Date.now());
+
+  const computeSecs = () => {
+    const target = baseRef.current + etaMinutes * 60 * 1000;
+    return Math.round((target - Date.now()) / 1000);
+  };
+
+  const [secsLeft, setSecsLeft] = useState(computeSecs);
 
   useEffect(() => {
-    const iv = setInterval(() => {
-      setSecsLeft(getEtaSecs(etaMinutes, orderedAt));
-    }, 1000);
+    const iv = setInterval(() => setSecsLeft(computeSecs()), 1000);
     return () => clearInterval(iv);
-  }, [etaMinutes, orderedAt]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etaMinutes]);
 
   const currentStep = STATUS_STEP[status] ?? 0;
   const isDelivered = status === 'geliefert';
@@ -86,7 +87,7 @@ export function BestellEtaProgress({ status, etaMinutes, orderedAt, className }:
         <div
           className="absolute top-3.5 left-0 h-px bg-matcha-400 mx-7 transition-all duration-700"
           style={{
-            width: `calc(${Math.min(100, ((currentStep - 1) / (STEPS.length - 1)) * 100)}% )`,
+            width: `calc(${Math.max(0, Math.min(100, ((currentStep - 1) / (STEPS.length - 1)) * 100))}% )`,
             right: 'auto',
           }}
         />
