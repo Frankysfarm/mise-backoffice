@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–360 abgeschlossen. Build sauber. 352 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–361 abgeschlossen. Build sauber. 352 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
 
