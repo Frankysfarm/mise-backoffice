@@ -150,6 +150,7 @@ import { LieferdienstFahrerLeistungsVergleich } from './fahrer-leistungs-verglei
 import { LieferdienstAbdeckungsRisikoWidget } from './abdeckungs-risiko-widget'
 import { LieferdienstZoneDifficultyKarte } from './zone-difficulty-karte'
 import { EchtzeitProfitCockpit } from './echtzeit-profit-cockpit'
+import { LieferdienstTagesExecutive } from './lieferdienst-tages-executive'
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1209,6 +1210,8 @@ export function LieferdienstClient() {
               <LieferdienstFahrerLeistungsVergleich locationId={locationId ?? undefined} />
               {/* Echtzeit-Profit-Cockpit: Live-Gewinnmarge, Umsatz/Std vs. Ziel, Fahrer-Kosten, 6-Stunden-Verlauf */}
               <EchtzeitProfitCockpit />
+              {/* Phase 360: Tages-Executive-Brief — Top-5 KPIs Heute vs. Gestern mit Trend-Vergleich */}
+              <LieferdienstTagesExecutive locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

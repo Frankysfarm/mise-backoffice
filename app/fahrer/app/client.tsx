@@ -121,6 +121,7 @@ import { FahrerTrinkgeldLiveTracker } from './trinkgeld-live-tracker';
 import { FahrerTourAbschlussBewertung } from './tour-abschluss-bewertung';
 import { TourStartFeedbackReminder } from './tour-start-feedback-reminder';
 import { SmartStopActionCard } from './smart-stop-action-card';
+import { TourAktuellerStopFokus } from './tour-aktueller-stop-fokus';
 
 type Driver = {
   id: string;
@@ -997,6 +998,13 @@ export function FahrerApp({
             stops={activeBatch.stops as any}
             batchStartedAt={activeBatch.started_at}
             totalEtaMin={activeBatch.total_eta_min ?? null}
+          />
+          {/* Phase 400: Aktueller-Stopp-Fokus — Stop-fokussiertes Panel mit Kundeninfo, Navigation und One-Tap-Aktionen */}
+          <TourAktuellerStopFokus
+            stops={activeBatch.stops as any}
+            batchStartedAt={activeBatch.started_at}
+            onMarkDelivered={markDelivered}
+            onMarkArrived={markArrived}
           />
           {/* Näherungs-Alert: Vibration + Overlay wenn Fahrer <250m vom nächsten Stop */}
           {(() => {

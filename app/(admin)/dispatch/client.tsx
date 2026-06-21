@@ -180,6 +180,7 @@ import { DispatchOffeneWarteschlange } from './offene-warteschlange';
 import { DispatchTourFeedbackMonitor } from './tour-feedback-monitor';
 import { ZoneDifficultyDispatchPanel } from './zone-difficulty-dispatch-panel';
 import { DispatchTourScoreLiveFeed } from './tour-score-live-feed';
+import { DispatchFlottenGesundheitsIndex } from './dispatch-flotten-gesundheits-index';
 
 type Driver = {
   employee_id: string;
@@ -949,6 +950,12 @@ export function DispatchBoard({
       <DriverDeckungslücke
         drivers={drivers.map((d) => ({ id: d.employee_id, status: { ist_online: d.ist_online, aktueller_batch_id: d.aktueller_batch_id } }))}
         pendingOrders={readyOrders.length}
+      />
+      {/* Phase 360: Flotten-Gesundheits-Index — Komposit-Score aus Kapazität, SLA, Auslastung und Wartezeit */}
+      <DispatchFlottenGesundheitsIndex
+        drivers={drivers.map(d => ({ employee_id: d.employee_id, ist_online: d.ist_online, aktueller_batch_id: d.aktueller_batch_id }))}
+        batches={batches}
+        readyOrders={readyOrders}
       />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />

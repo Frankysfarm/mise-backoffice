@@ -130,6 +130,7 @@ import { KitchenPrepFlowKanban } from './prep-flow-kanban';
 import { KitchenAbwesenHeuteStrip } from './abwesen-heute-strip';
 import { KitchenZoneSchwierigkeitsStrip } from './zone-schwierigkeits-strip';
 import { KitchenBatchTimingKoordinator } from './batch-timing-koordinator';
+import { KitchenMultiBatchAbholplan } from './kitchen-multi-batch-abholplan';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -760,6 +761,8 @@ export function KitchenBoard({
       <KitchenBatchKoordinator orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Batch-Timing-Koordinator: Bestellungen gruppiert nach Fahrer-Batch mit ETA-Countdown und Urgency-Farbkodierung */}
       <KitchenBatchTimingKoordinator orders={filtered} batches={batches.map(b => ({ ...b, fahrer_id: b.driver_id, startzeit: (b as any).started_at ?? null, fahrer: (b as any).fahrer ?? null, stops: stops.filter((s) => (s as any).batch_id === b.id) }))} timings={timings} />
+      {/* Phase 360: Multi-Batch-Abholplan — Parallele Fahrer-Abholungen koordinieren + Kollisions-Warnung */}
+      <KitchenMultiBatchAbholplan orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Phase 275: KI-Kochstart-Planung — Rückkehr-Vorhersage → optimaler Kochstart */}
       <KitchenDriverReturnKochstart locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter} />
       {/* Fahrer-Ankunft Farbampel: Ampel-Übersicht welcher Fahrer für fertige Bestellungen kommt und wann */}
