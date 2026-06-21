@@ -192,6 +192,7 @@ import { DispatchFahrerTempoMatrix } from './fahrer-tempo-matrix';
 import { DispatchTourUrgenzKanal } from './tour-urgenz-kanal';
 import { DispatchTourScoreCockpit } from './tour-score-cockpit';
 import { DispatchTourKapazitaetsRing } from './tour-kapazitaets-ring';
+import { DispatchZonenAuslastungsMatrix } from './zonen-auslastungs-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1086,6 +1087,8 @@ export function DispatchBoard({
       )}
       {/* Phase 369: Fahrer-Kapazitäts-Ring — SVG-Donut Fahrer-Auslastung: unterwegs/verfügbar/offline */}
       <DispatchTourKapazitaetsRing batches={batches} drivers={drivers} />
+      {/* Phase 370: Zonen-Auslastungs-Matrix — Aktive Touren + Stopp-Fortschritt je Zone A/B/C/D */}
+      <DispatchZonenAuslastungsMatrix batches={batches as any} />
       {/* Phase 332: Tour-Abschluss-Prognose — ETA-Kalkulation + Konfidenz je aktiver Tour */}
       <DispatchTourAbschlussForecast batches={batches as any} />
       {/* Phase 334: Tour-Rendite-Karte — EUR/Stop + EUR/km Score je aktiver Tour */}

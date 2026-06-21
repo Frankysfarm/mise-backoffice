@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–368 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–370 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+
+**Phase 370 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Auftrags-Warteschlangen-Zeit (Kitchen), Zonen-Auslastungs-Matrix (Dispatch), Stopp-Zähler-Strip (Fahrer-App), Bestell-Zonen-Hinweis (Storefront), Zonen-Umsatz-Matrix (Lieferdienst). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 364–368 (2026-06-21): 5 neue Smart-Delivery-Komponenten. Batch-Kochstart-Board (Kitchen), Tour-Score-Cockpit (Dispatch), Stop-Navigation-Board (Fahrer-App), ETA-Live-Update-Widget (Storefront), Gesamtleistungs-Dashboard (Lieferdienst). CEO Review #201: 7 Bugs gefixt (5 TypeScript-Fehler + 1 locationId-null-Bug + 1 fehlende EtaLiveUpdateWidget-Integration). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
@@ -14,6 +16,45 @@
 **Phase 361 (2026-06-21): 5 neue Smart-Delivery-Komponenten. KI-Auftrags-Priorierung (Kitchen), Tour-Effizienz-Cockpit (Dispatch), Stopp-Erinnerungs-Panel (Fahrer-App), Live-Fahrer-Proximity-Ring (Storefront/Order), Echtzeit-Bestell-KPI-Grid (Lieferdienst). CEO Review #199: 0 Bugs.**
 
 **Phase 360 (2026-06-21): Tour Feedback Analytics + Dispatch Composite Score Bonus. Migration 175, lib/delivery/tour-feedback-analytics.ts, API /api/delivery/admin/tour-feedback-analytics, 5 Frontend-Komponenten, Dispatch-Engine-Update (Composite Score Bonus +2.0/+1.0), Cron 03:20+03:22 UTC.**
+
+---
+
+## Phase 370 — 5 neue Smart-Delivery-Komponenten (DONE ✅)
+
+**Datum:** 2026-06-21
+
+### Implementiert:
+
+**`app/(admin)/kitchen/auftrags-warteschlangen-zeit.tsx`** — `KitchenAuftragsWarteschlangenZeit`
+- Max/Ø Wartezeit für pending/cooking Orders, 4-Bucket-Verteilung (<5 / 5–10 / 10–15 / 15+ Min)
+- 5s-Client-Tick (setInterval), rein aus `orders`-Prop berechnet, kein API-Call
+- Rot-Alert-Kachel bei maxMin ≥15, Amber-Warning bei ≥10
+- Integration: kitchen/client.tsx nach KitchenHandoffRatePanel
+
+**`app/(admin)/dispatch/zonen-auslastungs-matrix.tsx`** — `DispatchZonenAuslastungsMatrix`
+- 4-Spalten-Grid (Zonen A/B/C/D): aktive Touren + Stopp-Fortschritt je Zone
+- Filtert ACTIVE_STATUSES (assigned/on_route/en_route/unterwegs/active), Fortschrittsbalken
+- Versteckt wenn keine aktive Tour, rein prop-basiert
+- Integration: dispatch/client.tsx nach DispatchTourKapazitaetsRing
+
+**`app/fahrer/app/stopp-zaehler-strip.tsx`** — `FahrerStoppZaehlerStrip`
+- Horizontale Dot-Fortschrittsleiste: grün (geliefert) / pulsierend accent (aktuell) / grau (offen)
+- X/Y Zähler-Badge, vollständig Tour-fertig-State, rein prop-basiert aus `activeBatch.stops`
+- Integration: fahrer/app/client.tsx nach FahrerStopRhythmusMeter
+
+**`app/order/[locationSlug]/components/bestell-zonen-hinweis.tsx`** — `BestellZonenHinweis`
+- Zonen-Badge (A/B/C/D) mit zonentypischem Icon (Zap für A, MapPin für B/C/D)
+- Supabase-Query auf `customer_orders`: delivery_zone, eta_earliest, eta_latest
+- Nur für Lieferbestellungen (`isDelivery && orderId`)
+- Integration: order/[locationSlug]/components/success-state.tsx nach EtaVerlaufTimeline
+
+**`app/(admin)/lieferdienst/zone-umsatz-matrix.tsx`** — `LieferdienstZoneUmsatzMatrix`
+- 2×2-Grid: Bestellungen/Umsatz/Ø-Warenwert nach Zone A/B/C/D für heutigen Tag
+- Supabase-Query auf `orders` (location_id, typ=lieferung, aktive Status), 5-Min-Polling
+- Versteckt wenn alle Zonen 0 Bestellungen
+- Integration: lieferdienst/client.tsx nach LieferdienstStundenEffizienzMatrix
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
 
 ---
 

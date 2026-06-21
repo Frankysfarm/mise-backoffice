@@ -133,6 +133,7 @@ import { NaechsterStoppVorschau } from './naechster-stopp-vorschau';
 import { FahrerStopRhythmusMeter } from './stop-rhythmus-meter';
 import { TourStopNavigationBoard } from './tour-stop-navigation-board';
 import { FahrerSchichtFortschrittsRing } from './schicht-fortschritts-ring';
+import { FahrerStoppZaehlerStrip } from './stopp-zaehler-strip';
 
 type Driver = {
   id: string;
@@ -1046,6 +1047,10 @@ export function FahrerApp({
               stops={activeBatch.stops as any}
               startedAt={activeBatch.started_at ?? null}
             />
+          </div>
+          {/* Phase 370: Stopp-Zähler-Strip — Dot-Fortschrittsleiste mit aktuellem Stopp-Index + Zähler */}
+          <div className="px-4">
+            <FahrerStoppZaehlerStrip stops={activeBatch.stops} />
           </div>
           {/* Phase 361: Stopp-Erinnerungs-Panel — Checkliste für aktuellen Stop mit Kundeninfos + Anruf-Button */}
           <div className="px-4">

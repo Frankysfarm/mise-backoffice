@@ -32,6 +32,7 @@ import { LiveBestellstatusTimeline } from './live-bestellstatus-timeline';
 import { BestellDetailsKompakt } from './bestell-details-kompakt';
 import { EtaLiveUpdateWidget } from '../eta-live-update-widget';
 import { EtaVerlaufTimeline } from './eta-verlauf-timeline';
+import { BestellZonenHinweis } from './bestell-zonen-hinweis';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -438,6 +439,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && orderId && (
           <EtaVerlaufTimeline orderId={orderId} bestellnummer={bestellnummer} />
         )}
+        {/* Phase 370: Zonen-Hinweis — Zone A/B/C/D Badge + Lieferfenster (nur Lieferbestellungen) */}
+        {isDelivery && orderId && <BestellZonenHinweis orderId={orderId} />}
         {/* Phase 334: Bestell-Phasen-Band — Fortschrittsanzeige Zubereitung → Abholung → Unterwegs */}
         <BestellPhasenBand status={liveStatus} isDelivery={isDelivery} etaMinutes={etaMinutes} />
 

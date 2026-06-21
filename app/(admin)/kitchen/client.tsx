@@ -142,6 +142,7 @@ import { KitchenQueueEffizienzRing } from './queue-effizienz-ring';
 import { KitchenBestellTaktMeter } from './bestell-takt-meter';
 import { KitchenSchichtBatchKochstartBoard } from './schicht-batch-kochstart-board';
 import { KitchenHandoffRatePanel } from './handoff-rate-panel';
+import { KitchenAuftragsWarteschlangenZeit } from './auftrags-warteschlangen-zeit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -649,6 +650,8 @@ export function KitchenBoard({
       <KitchenSchichtBatchKochstartBoard orders={filtered} batches={batches} stops={stops} drivers={drivers} />
       {/* Phase 369: Handoff-Rate-Panel — Wartezeit fertiger Lieferbestellungen auf Fahrer (grün/amber/rot) */}
       <KitchenHandoffRatePanel orders={filtered} />
+      {/* Phase 370: Auftrags-Warteschlangen-Zeit — max/Ø Wartezeit + 4-Bucket-Verteilung für pending/cooking Orders */}
+      <KitchenAuftragsWarteschlangenZeit orders={filtered} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
