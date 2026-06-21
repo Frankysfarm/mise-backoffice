@@ -260,3 +260,98 @@ export async function pruneSchichtRoiDaily(daysToKeep = 180): Promise<{ pruned: 
   if (error) return { pruned: 0 };
   return { pruned: (data as number | null) ?? 0 };
 }
+
+// ── Gap-Fill Hardening (Phase 396) ────────────────────────────────────────────
+
+export interface GapFillResult {
+  locationId:  string;
+  daysChecked: number;
+  gapsFilled:  number;
+  errors:      number;
+}
+
+export interface GapFillAllLocationsResult {
+  locations:  number;
+  gapsFilled: number;
+  errors:     number;
+}
+
+/**
+ * Prüft die letzten `daysBack` Tage für einen Standort.
+ * Fehlt ein Snapshot, wird er berechnet und in schicht_roi_daily gespeichert.
+ * Jeder Catch-up wird in schicht_roi_gap_fill_log protokolliert.
+ */
+export async function catchupSchichtRoiDaily(
+  locationId: string,
+  daysBack = 3,
+  triggeredBy = 'cron',
+): Promise<GapFillResult> {
+  const svc = createServiceClient();
+  const today = toLocalDate(new Date());
+
+  // Bestehende Snapshots der letzten N Tage laden
+  const dates: string[] = [];
+  for (let i = 1; i <= daysBack; i++) {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - i);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+
+  const { data: existing } = await svc
+    .from('schicht_roi_daily')
+    .select('snapshot_date')
+    .eq('location_id', locationId)
+    .in('snapshot_date', dates);
+
+  const existingSet = new Set((existing ?? []).map((r: { snapshot_date: string }) => r.snapshot_date));
+  const missing = dates.filter(d => !existingSet.has(d) && d < today);
+
+  if (missing.length === 0) return { locationId, daysChecked: daysBack, gapsFilled: 0, errors: 0 };
+
+  let gapsFilled = 0;
+  let errors = 0;
+
+  for (const missingDate of missing) {
+    try {
+      const result = await snapshotSchichtRoiDaily(locationId, missingDate);
+      if (result.saved) {
+        gapsFilled++;
+        // Gap-Fill-Log (idempotent via UNIQUE constraint)
+        await svc.from('schicht_roi_gap_fill_log').upsert(
+          { location_id: locationId, fill_date: missingDate, triggered_by: triggeredBy },
+          { onConflict: 'location_id,fill_date,triggered_by', ignoreDuplicates: true },
+        );
+      }
+    } catch {
+      errors++;
+    }
+  }
+
+  return { locationId, daysChecked: daysBack, gapsFilled, errors };
+}
+
+/**
+ * Catch-up für alle aktiven Standorte — Cron-Batch.
+ */
+export async function catchupSchichtRoiDailyAllLocations(
+  daysBack = 3,
+): Promise<GapFillAllLocationsResult> {
+  const svc = createServiceClient();
+  const { data: locs } = await svc
+    .from('mise_locations')
+    .select('id')
+    .eq('is_active', true);
+
+  if (!locs?.length) return { locations: 0, gapsFilled: 0, errors: 0 };
+
+  const results = await Promise.allSettled(
+    locs.map(l => catchupSchichtRoiDaily(l.id, daysBack)),
+  );
+
+  const gapsFilled = results
+    .filter((r): r is PromiseFulfilledResult<GapFillResult> => r.status === 'fulfilled')
+    .reduce((s, r) => s + r.value.gapsFilled, 0);
+
+  const errors = results.filter(r => r.status === 'rejected').length;
+  return { locations: locs.length, gapsFilled, errors };
+}

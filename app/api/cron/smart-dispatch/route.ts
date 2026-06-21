@@ -160,6 +160,8 @@ import { snapshotDailyScoreAllLocations as snapshotDriverScoreDaily, detectScore
 import { snapshotTransparencyAllLocations, pruneTransparencySnapshots } from '@/lib/delivery/transparency-engine';
 import { snapshotOpsHealthAllLocations, pruneOpsHealthSnapshots } from '@/lib/delivery/ops-health-history';
 import { detectLostConnectionsAllLocations, pruneOldHeartbeats as pruneDriverHeartbeats, pruneOldConnectivityEvents } from '@/lib/delivery/driver-heartbeat';
+import { snapshotExecutiveKpiAllLocations, pruneExecutiveKpiSnapshots } from '@/lib/delivery/executive-dashboard';
+import { catchupSchichtRoiDailyAllLocations } from '@/lib/delivery/schicht-roi-daily';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -355,6 +357,11 @@ export async function GET(req: NextRequest) {
     const isOpsHealthPruneTick    = nowHour === 7 && nowMin >= 30 && nowMin < 34;
     // Phase 394: Driver Heartbeat Connectivity — disconnect-Detection jeden Tick; prune täglich 07:35 UTC
     const isConnectivityPruneTick = nowHour === 7 && nowMin >= 35 && nowMin < 39;
+    // Phase 396: Executive KPI Snapshot — täglich 02:20 UTC; prune täglich 07:40 UTC
+    const isExecutiveKpiSnapshotTick = nowHour === 2 && nowMin >= 20 && nowMin < 24;
+    const isExecutiveKpiPruneTick    = nowHour === 7 && nowMin >= 40 && nowMin < 44;
+    // Phase 396: Schicht-ROI Gap-Fill (Catch-up für fehlende Tages-Snapshots) — täglich 02:30 UTC
+    const isSchichtRoiCatchupTick    = nowHour === 2 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1371,6 +1378,17 @@ export async function GET(req: NextRequest) {
       ? await pruneOldConnectivityEvents(30).catch(() => null)
       : null;
 
+    // Phase 396: Executive KPI Snapshot + Schicht-ROI Gap-Fill
+    const executiveKpiSnapshotResult = isExecutiveKpiSnapshotTick
+      ? await snapshotExecutiveKpiAllLocations().catch(() => null)
+      : null;
+    const executiveKpiPruned = isExecutiveKpiPruneTick
+      ? await pruneExecutiveKpiSnapshots(365).catch(() => null)
+      : null;
+    const schichtRoiCatchupResult = isSchichtRoiCatchupTick
+      ? await catchupSchichtRoiDailyAllLocations(3).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1643,6 +1661,9 @@ export async function GET(req: NextRequest) {
       ...(connectivityResult?.disconnects ? { connectivity_disconnects: { locations: connectivityResult.locations, detected: connectivityResult.disconnects, errors: connectivityResult.errors } } : {}),
       ...(heartbeatsPruned ? { heartbeats_pruned: heartbeatsPruned } : {}),
       ...(connectivityEventsPruned ? { connectivity_events_pruned: connectivityEventsPruned } : {}),
+      ...(executiveKpiSnapshotResult?.saved ? { executive_kpi_snapshot: { locations: executiveKpiSnapshotResult.locations, saved: executiveKpiSnapshotResult.saved, errors: executiveKpiSnapshotResult.errors } } : {}),
+      ...(executiveKpiPruned?.pruned ? { executive_kpi_pruned: executiveKpiPruned.pruned } : {}),
+      ...(schichtRoiCatchupResult?.gapsFilled ? { schicht_roi_catchup: { locations: schichtRoiCatchupResult.locations, gaps_filled: schichtRoiCatchupResult.gapsFilled, errors: schichtRoiCatchupResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
