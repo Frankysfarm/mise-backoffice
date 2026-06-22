@@ -1,7 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–393 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–405 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #225 — Phase 404+405 Frontend+Backend (2026-06-22)
+
+### Commits geprüft:
+- `dede996` — Phase 405 Frontend: 5 neue Komponenten
+- `6cb5628` — Phase 404 Backend: Emergency Capacity Engine
+
+### Geprüfte Komponenten (Phase 405):
+
+**`app/(admin)/kitchen/kochstart-ampel-board.tsx` — KitchenKochstartAmpelBoard:**
+- Ampel-Tabelle aller aktiven Bestellungen nach Kochstart-Dringlichkeit ✅
+- Rot: überfällig/<3Min | Gelb: 3–10 Min | Grün: >10 Min ✅
+- `useTick()` jede Sekunde → Re-render-Trigger ✅
+- `deriveLevel()` korrekt mit timingStatus-Vorrang ✅
+- Integration kitchen/client.tsx: `orders={filtered} timings={timings}` ✅
+
+**`app/(admin)/dispatch/tour-karte-grid.tsx` — DispatchTourKarteGrid:**
+- Raster aller aktiven Touren, schlechteste zuerst ✅
+- `calcScore()`: completionFactor (45%) + timeFactor (55%), Division-by-zero sicher mit `Math.max(etaTotal,1)` ✅
+- ETA-Ampel, Fortschrittsbalken, Fahrzeug-Icon ✅
+- Integration dispatch/client.tsx: `batches={batches as any}` ✅
+
+**`app/fahrer/app/stop-zielkompass.tsx` — FahrerStopZielkompass:**
+- Richtungszeiger (Haversine-Bearing), Distanzberechnung ✅
+- Nav-Links Google Maps/Waze/Apple Maps mit `window.open` ✅
+- Kundennotiz + Lieferhinweis angezeigt ✅
+- `driverPos` null-sicher; `hasCoords` Guard ✅
+- Integration fahrer/app/client.tsx: `driverPos={driverPos} vehicle={status?.fahrzeug}` ✅
+
+**`app/order/[locationSlug]/components/dynamische-eta-band.tsx` — DynamischeEtaBand:**
+- 5-Phasen-Fortschrittsband (bestätigt→geliefert) ✅
+- 30s-Polling `/api/delivery/orders/${orderId}` mit clearInterval-Cleanup ✅
+- `initialStatus`-Fallback, silent catch bei Polling-Fehler ✅
+- Integration success-state.tsx: Import + JSX korrekt ✅
+
+**`app/(admin)/lieferdienst/schicht-echtzeit-kommando.tsx` — SchichtEchtzeitKommando:**
+- Kompakte Kommando-Zentrale: Kapazität, Durchsatz, Top-Alert ✅
+- 60s-Polling mit `Promise.allSettled` für 2 APIs ✅
+- CAPACITY_STYLE-Map für alle 5 Stati ✅
+- Collapsible-Toggle ✅
+- Integration lieferdienst/client.tsx: `locationId={locationId ?? null}` ✅
+
+### Bug gefunden + gefixt: 1
+- **`app/api/cron/smart-dispatch/route.ts` L1714:** `schichtPrognoseAnalyseResult.saved` → Feld existiert nicht in `AllLocationsAnalysisResult` (hat `analyzed`, nicht `saved`) → auf `.analyzed` korrigiert ✅
+
+### Status nach Review #225
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully (354 Seiten) ✅
+- Phase 404 Backend (Emergency Capacity Engine): DONE ✅
+- Phase 405 Frontend (5 Komponenten): DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 406: 5 neue Smart-Delivery-Komponenten (Kitchen, Dispatch, Fahrer, Storefront, Lieferdienst)
+2. Emergency Capacity Frontend: UI für `driver_standby_pool` + `emergency_capacity_events` (Phase 404 Backend wartet auf Visualisierung)
+
+### Nächste Schritte für Backend-Architekt
+1. Emergency Capacity: Webhook/Push-Notification wenn `severity=critical`
+2. `/api/delivery/orders/:id` — `driver_name`-Feld aus aktivem Batch befüllen (für DynamischeEtaBand)
 
 ---
 

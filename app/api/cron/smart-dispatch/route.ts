@@ -1711,7 +1711,7 @@ export async function GET(req: NextRequest) {
       ...(schichtRoiCatchupResult?.gapsFilled ? { schicht_roi_catchup: { locations: schichtRoiCatchupResult.locations, gaps_filled: schichtRoiCatchupResult.gapsFilled, errors: schichtRoiCatchupResult.errors } } : {}),
       ...(orderPulseSnapshotResult ? { order_pulse_snapshot: { saved: orderPulseSnapshotResult.saved, errors: orderPulseSnapshotResult.errors } } : {}),
       ...(orderPulsePruned != null ? { order_pulse_pruned: orderPulsePruned } : {}),
-      ...(schichtPrognoseAnalyseResult?.locations ? { schicht_prognose_analyse: { locations: schichtPrognoseAnalyseResult.locations, saved: schichtPrognoseAnalyseResult.saved, errors: schichtPrognoseAnalyseResult.errors } } : {}),
+      ...(schichtPrognoseAnalyseResult?.locations ? { schicht_prognose_analyse: { locations: schichtPrognoseAnalyseResult.locations, analyzed: schichtPrognoseAnalyseResult.analyzed, errors: schichtPrognoseAnalyseResult.errors } } : {}),
       ...(schichtPrognoseAnalysePruned != null ? { schicht_prognose_analyse_pruned: (schichtPrognoseAnalysePruned as { pruned: number }).pruned } : {}),
       ...(strategicInsightsResult?.locations ? { strategic_insights: { locations: strategicInsightsResult.locations, generated: strategicInsightsResult.generated, errors: strategicInsightsResult.errors } } : {}),
       ...(strategicInsightsPruned != null ? { strategic_insights_pruned: strategicInsightsPruned } : {}),
