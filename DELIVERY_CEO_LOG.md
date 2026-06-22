@@ -14837,3 +14837,65 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 432 Frontend:** FahrerZeugnisPanel + FahrerZeugnisCard — Admin-Übersicht Monatszeugnisse mit Grade-Badge + JSON-Export; Fahrer-App eigene Zeugnisse mit Grade-Ring + KPI-Zusammenfassung. Integration: lieferdienst/client.tsx nach FahrerIncentivePanel + fahrer/app/client.tsx nach FahrerIncentiveWidget.
+
+---
+
+## CEO Review #244 — Phase 432 + 4 neue Cockpit-Komponenten (2026-06-22)
+
+### Geprüfte Commits
+- `fd0795d` feat(delivery/backend): Phase 432 — Fahrer-Leistungs-Zeugnis
+- `4e04ee8` fix(delivery/driver): await createClient() in fahrer-zeugnis driver route
+- `9864aec` feat(delivery/frontend): Phase 425 – 4 neue Live-Cockpit-Komponenten
+
+### Build & TypeScript
+- `npx next build` → **Exit Code 0** ✅
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- Seiten: 359 ✅
+
+### Phase 432 — Fahrer-Leistungs-Zeugnis (Backend + Frontend + Cron)
+**lib/delivery/fahrer-zeugnis.ts**: Engine vollständig — Grade-Berechnung (A+/A/B/C/D, 60% Score + 40% Pünktlichkeit), Score-Trend vs. Vorvormonat, Highlights, Bewertungstext, generateZeugnis/generateZeugnisseForLocation/generateZeugnisseAllLocations/pruneOldZeugnisse. Alle Funktionen korrekt typisiert. ✅
+
+**API admin** (`/api/delivery/admin/fahrer-zeugnis`): GET list, POST generate/generate-all/prune. Korrekte Error-Behandlung. ✅
+
+**API driver** (`/api/delivery/driver/fahrer-zeugnis`): GET eigene Zeugnisse via `await sb.auth.getUser()`. Fix für fehlendes `await createClient()` korrekt. ✅
+
+**Frontend FahrerZeugnisPanel** (`lieferdienst/fahrer-zeugnis-panel.tsx`): Collapsible Manager-Panel, Grade-Badges (farbkodiert), KPI-Grids, JSON-Export. Integration in `lieferdienst/client.tsx:1424` ✅
+
+**Frontend FahrerZeugnisCard** (`fahrer/app/fahrer-zeugnis-card.tsx`): Dunkles Driver-Widget, Grade-Ring, Monat-Tabs, Boni-Banner. Integration in `fahrer/app/client.tsx:758` ✅
+
+**Cron** (`api/cron/smart-dispatch/route.ts:437-1913`): Monatlich 1. des Monats 10:00 UTC generate-all, 10:10 UTC prune(24). Korrekte isZeugnisGenerateTick/isZeugnispruneTick-Logik. ✅
+
+### 4 neue Live-Cockpit-Komponenten
+- `kitchen/fahrer-pickup-eta-anzeige.tsx` (178 Zeilen): Echtzeit-ETA-Countdown je Fahrer für Kochstart-Timing (grün/>10min, amber/5-10min, rot/<5min). Integration: `kitchen/client.tsx` ✅
+- `dispatch/tour-profit-live-ranking.tsx` (178 Zeilen): Live-Ranking aktiver Touren nach Umsatz/h mit Fortschrittsbalken. Integration: `dispatch/client.tsx:1150` ✅
+- `lieferdienst/stunden-performance-matrix.tsx` (196 Zeilen): 24h-Bestellheatmap, aktuelle Stunde hervorgehoben, 5-Min-Polling. Integration: `lieferdienst/client.tsx` ✅
+- `fahrer/app/tour-stopp-fortschritts-leiste.tsx` (183 Zeilen): Horizontale Stop-Kette mit Status-Ampel, ETA-Countdown, Schnell-Aktionen. Integration: `fahrer/app/client.tsx:1059` ✅
+
+### Code-Qualität
+- Keine `@ts-ignore` oder `@ts-expect-error` Kommentare
+- `as any` Casts: nur bei Props-Übergabe (activeBatch.stops as any, batches as any) — konsistent mit bestehendem Codebase-Pattern
+- Keine impliziten any-Typen in neuen Funktionen
+- Alle `createClient()` korrekt mit `await`
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #244
+- Build: 359 Seiten, Exit Code 0 ✅
+- TypeScript: 0 Fehler ✅
+- Phase 432 (Fahrer-Zeugnis): vollständig ✅
+- 4 neue Cockpit-Komponenten: vollständig integriert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 433 Backend:** Liefer-Qualitäts-Index — Automatische Bewertung jeder Lieferung (Pünktlichkeit, Kundenzufriedenheit, Vollständigkeit). Neue Tabelle `liefer_qualitaet` (order_id, driver_id, score 0-100, komponenten JSONB). Engine: `lib/delivery/liefer-qualitaet.ts`. API `GET /api/delivery/admin/liefer-qualitaet`. Aggregation in Schicht-Abschluss-Bericht.
+2. **Phase 434 Backend:** Fahrer-Verfügbarkeits-Kalender — Wochenübersicht verfügbarer Fahrer je Schicht mit Überstunden-Flag und Mindestbesetzungs-Alarm.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 433 Frontend:** LieferQualitaetsIndex-Panel — Admin-Übersicht je Order/Fahrer mit Qualitäts-Score-Heatmap. Fahrer-App: Eigene Qualitäts-Trend-Karte (letzte 30 Touren). Integration: lieferdienst/client.tsx + fahrer/app/client.tsx.
+2. **Phase 434 Frontend:** FahrerVerfügbarkeitsKalender — Wochenkalender-Grid im Admin mit Fahrer-Chips je Schicht, Klick-Drill-Down auf Fahrer-Profil.
