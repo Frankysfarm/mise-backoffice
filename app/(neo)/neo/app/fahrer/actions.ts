@@ -31,3 +31,12 @@ export async function zoneAdd() {
   if (error) throw new Error('Anlegen fehlgeschlagen: ' + error.message);
   revalidatePath('/neo/app/fahrer');
 }
+
+export async function saveLocationCenter(lat: number, lng: number) {
+  const { sb, l } = await ctx();
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return { ok: false, error: 'Ungültige Koordinaten' };
+  const { error } = await sb.from('locations').update({ lat, lng, geocoded_am: new Date().toISOString() }).eq('id', l);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/neo/app/fahrer');
+  return { ok: true };
+}

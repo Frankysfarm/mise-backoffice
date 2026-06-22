@@ -1,20 +1,21 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { ZoneTable, AddZoneBtn, InviteDriverBtn } from './client';
+import { LieferMap } from './liefermap';
 export const dynamic = 'force-dynamic';
-const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#06B6D4'];
 const VEH: Record<string, { l: string; bg: string; c: string }> = { fahrrad: { l: 'Fahrrad', bg: '#ECFDF5', c: '#047857' }, roller: { l: 'Roller', bg: '#FEF3C7', c: '#B45309' }, auto: { l: 'Auto', bg: '#EFF6FF', c: '#1D4ED8' } };
 export default async function Fahrer() {
   const emp = await getCurrentEmployee();
   const supabase = createServiceClient();
-  const [{ data: zones }, { data: dt }] = await Promise.all([
+  const [{ data: zones }, { data: dt }, { data: loc }, { data: ten }] = await Promise.all([
     supabase.from('delivery_zones').select('id, radius_km_bis, mindestbestellwert, liefergebuehr, free_ab, aktiv').eq('tenant_id', emp?.tenant_id ?? '').eq('location_id', emp?.location_id ?? '').order('radius_km_bis', { ascending: true }),
     supabase.from('mise_driver_tenants').select('mise_drivers(id, name, email, phone, vehicle, max_radius_km, total_deliveries, rating, state)').eq('tenant_id', emp?.tenant_id ?? ''),
+    supabase.from('locations').select('lat, lng').eq('id', emp?.location_id ?? '').maybeSingle(),
+    supabase.from('tenants').select('adresse, stadt, plz').eq('id', emp?.tenant_id ?? '').maybeSingle(),
   ]);
   const zl = (zones ?? []) as any[];
   const drivers = ((dt ?? []) as any[]).map((x) => Array.isArray(x.mise_drivers) ? x.mise_drivers[0] : x.mise_drivers).filter(Boolean);
-  const maxKm = Math.max(1, ...zl.map((z) => Number(z.radius_km_bis) || 0));
-  const activeZones = zl.filter((z) => z.aktiv).length;
+  const addr = [ten?.adresse, ten?.plz, ten?.stadt].filter(Boolean).join(' ');
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginBottom: 22 }}>
@@ -22,14 +23,8 @@ export default async function Fahrer() {
           <div><h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Lieferradien &amp; Gebühren</h3><p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2 }}>Pro Zone Mindestbestellwert und Liefergebühr festlegen — gilt automatisch im Shop &amp; an der Kasse.</p></div>
           <AddZoneBtn />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 0 }}>
-          <div style={{ borderRight: '1px solid #F1F5F9', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFBFC' }}>
-            <div style={{ position: 'relative', width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {zl.slice().reverse().map((z, i) => { const d = (Number(z.radius_km_bis) / maxKm) * 200; const ci = zl.length - 1 - i; return (<div key={z.id} style={{ position: 'absolute', width: d, height: d, borderRadius: '50%', border: `2px solid ${COLORS[ci % COLORS.length]}`, opacity: 0.5, background: `${COLORS[ci % COLORS.length]}12` }} />); })}
-              <div style={{ position: 'absolute', width: 30, height: 30, borderRadius: '50%', background: '#15170F', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}><span dangerouslySetInnerHTML={{ __html: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0114 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>' }} /></div>
-            </div>
-            <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 16, textAlign: 'center' }}>Restaurant im Zentrum · {activeZones} aktive Zonen</div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '440px 1fr', gap: 0 }}>
+          <LieferMap center={{ lat: loc?.lat ?? null, lng: loc?.lng ?? null }} address={addr} zones={zl} />
           <ZoneTable zones={zl} />
         </div>
       </div>
