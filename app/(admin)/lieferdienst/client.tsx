@@ -214,6 +214,7 @@ import { LieferdienstPhase422Wochentrend } from './phase422-wochentrend';
 import { ZonenPrognosePanel } from './zonen-prognose-panel';
 import { FahrerAbwesenheitsUebersicht } from './fahrer-abwesenheits-uebersicht';
 import { OpsGesundheitsAmpel } from './ops-gesundheits-ampel';
+import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1404,6 +1405,8 @@ export function LieferdienstClient() {
               <FahrerAbwesenheitsUebersicht locationId={locationId ?? null} />
               {/* Phase 427: Ops-Gesundheits-Ampel — Aggregierter Score (Pünktlichkeit + Stornos + ETA-Genauigkeit) */}
               <OpsGesundheitsAmpel locationId={locationId ?? null} />
+              {/* Phase 428: Schicht-Auslastungs-Optimierer — Wochentag-Empfehlungen (Fahrerzahl + Konfidenz) */}
+              <SchichtOptimierungsPanel locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
