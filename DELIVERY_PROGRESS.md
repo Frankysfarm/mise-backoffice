@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–430 abgeschlossen. Build sauber. 356 Seiten. 0 TypeScript-Fehler. CEO Review #242 bestanden.**
+**Phasen 1–431 abgeschlossen. Build sauber. 357 Seiten. 0 TypeScript-Fehler. CEO Review #242 bestanden.**
+
+**Phase 431 Backend+Frontend (2026-06-22): Fahrer-Incentive-Engine — Zielbasiertes Bonus-System (score/pünktlichkeit/lieferungen) verknüpft mit schicht_abschluss_berichte. Migration 210: fahrer_incentives (UNIQUE location+driver+typ+start, RLS, prune RPC). lib/delivery/fahrer-incentive.ts: evaluateIncentivesAllLocations aggregiert Abschluss-Daten je Zeitraum → ist_wert + erreicht_am. API /admin/fahrer-incentive: GET list, POST create/delete/evaluate/prune. Frontend lieferdienst/fahrer-incentive-panel.tsx (FahrerIncentivePanel): Collapsible Manager-Panel mit Ziel-Formular, Fortschrittsbalken, Bonus-Übersicht. Frontend fahrer/app/fahrer-incentive-widget.tsx (FahrerIncentiveWidget): Driver-Widget mit aktiven Zielen + Fortschrittsbalken. Cron: 09:00 UTC evaluate, 09:05 UTC prune. Build: 357 Seiten, 0 Fehler.**
 
 **CEO Review #242 (2026-06-22): 0 Bugs — Phase 429 (Schicht-Briefing-Engine) + Phase 430 (Schicht-Abschluss-Intelligence) geprüft. Build: ✓ 356 Seiten sauber. TypeScript: 0 Fehler. Schicht-Zyklus vollständig: Briefing → Auslastungs-Optimierung → Abschluss-Bericht.**
 
@@ -7264,3 +7266,69 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | Migration 208 | scripts/migrations/208_schicht_briefings.sql | Supabase | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 431 Backend + Frontend — Fahrer-Incentive-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 210 (`scripts/migrations/210_fahrer_incentive_ziele.sql`):**
+- `fahrer_incentives`: UNIQUE(location_id, driver_id, ziel_typ, zeitraum_start)
+- Felder: ziel_typ CHECK('score','puenktlichkeit','lieferungen'), zielwert, ist_wert, bonus_eur, erreicht_am, zeitraum_start/end, generiert_am
+- RLS: service_role full + authenticated read own location + driver read own
+- `prune_fahrer_incentives(days_old)` Cleanup-RPC
+- Indizes auf (location_id, zeitraum_end) und (driver_id, zeitraum_end)
+
+**`lib/delivery/fahrer-incentive.ts`** — Incentive-Engine:
+- `evaluateIncentivesForLocation(locationId)` — aggregiert schicht_abschluss_berichte je Zeitraum: sum(lieferungen) / avg(pünktlichkeit_pct) / avg(composite_score) → ist_wert; setzt erreicht_am wenn zielwert erreicht (idempotent)
+- `evaluateIncentivesAllLocations()` — Cron-Batch Promise.allSettled
+- `createIncentiveZiel(params)` — Neues Ziel anlegen (UPSERT-safe via UNIQUE)
+- `getIncentivesForLocation(locationId, activeOnly?)` — mit Fahrer-Join (full_name, vehicle_type) + fortschrittPct
+- `getIncentivesForDriver(driverId, locationId)` — Driver-eigene Ziele
+- `deleteIncentiveZiel(id, locationId)` — Löschen mit location_id Guard
+- `pruneOldIncentives(daysOld=90)` — Cleanup via RPC
+
+**`app/api/delivery/admin/fahrer-incentive/route.ts`:**
+- GET `?location_id=...&active_only=true` → Liste mit Fortschritt
+- POST action=create → Neues Ziel (alle Felder required)
+- POST action=delete → Ziel löschen (id + location_id)
+- POST action=evaluate → Ist-Werte neu berechnen
+- POST action=evaluate-all → Cron-Trigger
+- POST action=prune → Cleanup
+
+**`app/(admin)/lieferdienst/fahrer-incentive-panel.tsx`** — `FahrerIncentivePanel`:
+- Collapsible-Panel (violet Trophy-Icon)
+- Header-Badges: X aktiv / Y erreicht
+- Formular (Fahrer-Select + Ziel-Typ + Zielwert + Bonus + Zeitraum Von/Bis)
+- Ziele-Liste: Fortschrittsbalken, Bonus-Betrag, Zeitraum, Ist-Wert vs. Zielwert
+- Grün-Hervorhebung für erreichte Ziele, Datum wann erreicht
+- "Neu berechnen"-Button → POST action=evaluate
+- Integration: lieferdienst/client.tsx nach SchichtAbschlussUebersicht ✅
+
+**`app/fahrer/app/fahrer-incentive-widget.tsx`** — `FahrerIncentiveWidget`:
+- Nur sichtbar wenn mind. 1 aktives Ziel existiert
+- Dark-Mode (violet Gradient), collapsible
+- Ziele mit Fortschrittsbalken (gelb), Bonus-Betrag, Typ-Label
+- Erreichte Ziele mit Datum und gelbem Highlight
+- Integration: fahrer/app/client.tsx nach SchichtAbschlussBericht ✅
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 09:00 UTC: `evaluateFahrerIncentives()` (evaluateIncentivesAllLocations)
+- Täglich 09:05 UTC: `pruneFahrerIncentives(90)` (pruneOldIncentives, 90 Tage)
+
+### Integrations-Checkliste Phase 431
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerIncentivePanel | lieferdienst/fahrer-incentive-panel.tsx | lieferdienst/client.tsx nach SchichtAbschlussUebersicht | ✅ |
+| FahrerIncentiveWidget | fahrer/app/fahrer-incentive-widget.tsx | fahrer/app/client.tsx nach SchichtAbschlussBericht | ✅ |
+| evaluateFahrerIncentives | lib/delivery/fahrer-incentive.ts | Cron 09:00 UTC | ✅ |
+| pruneFahrerIncentives | lib/delivery/fahrer-incentive.ts | Cron 09:05 UTC | ✅ |
+| Migration 210 | scripts/migrations/210_fahrer_incentive_ziele.sql | Supabase | ✅ |
+
+**Build:** 357 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 432 Backend:** Fahrer-Ranking-Prämien — Wöchentliche Top-3-Fahrer-Belohnung basierend auf driver_score_daily_snapshots. Neue Tabelle `fahrer_ranking_praemien` (location_id, driver_id, rang 1-3, woche_von, bonus_eur, ausgezahlt_am). Engine: `lib/delivery/fahrer-ranking-praemien.ts`. Cron montags 09:15 UTC.
