@@ -177,6 +177,7 @@ import { LieferungBestaetigung } from './lieferung-bestaetigung';
 import { TourLieferquote } from './tour-lieferquote';
 import { SchichtBriefingCard } from './schicht-briefing-card';
 import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
+import { FahrerIncentiveWidget } from './fahrer-incentive-widget';
 
 type Driver = {
   id: string;
@@ -744,6 +745,10 @@ export function FahrerApp({
         {/* Phase 430: Schicht-Abschluss — Post-Shift-Bericht (Score, Lieferungen, Verdienst, Tipps) */}
         {driver.location_id && (
           <SchichtAbschlussBericht driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 431: Fahrer-Incentive-Ziele — Bonus-Fortschritt je Zieltyp */}
+        {driver.location_id && (
+          <FahrerIncentiveWidget driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

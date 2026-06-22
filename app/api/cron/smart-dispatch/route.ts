@@ -179,6 +179,7 @@ import { pingUpcomingShiftsAllLocations, pruneOldLogs as pruneFahrerErreichbarke
 import { computeVorschlaegeAllLocations } from '@/lib/delivery/schicht-optimierer';
 import { generateBriefingsAllLocations, pruneOldBriefings } from '@/lib/delivery/schicht-briefing';
 import { generateAbschlussAllLocations, pruneOldBerichte as pruneAbschlussBerichte } from '@/lib/delivery/schicht-abschluss';
+import { evaluateIncentivesAllLocations as evaluateFahrerIncentives, pruneOldIncentives as pruneFahrerIncentives } from '@/lib/delivery/fahrer-incentive';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -428,6 +429,9 @@ export async function GET(req: NextRequest) {
     // Phase 430: Schicht-Abschluss — alle 15 Min generieren; täglich 08:45 UTC prune (60 Tage)
     const isSchichtAbschlussTick      = nowMin % 15 >= 0 && nowMin % 15 < 3;
     const isSchichtAbschlussPruneTick = nowHour === 8 && nowMin >= 45 && nowMin < 49;
+    // Phase 431: Fahrer-Incentive — täglich 09:00 UTC evaluate; täglich 09:05 UTC prune (90 Tage)
+    const isFahrerIncentiveTick      = nowHour === 9 && nowMin >= 0 && nowMin < 4;
+    const isFahrerIncentivePruneTick = nowHour === 9 && nowMin >= 5 && nowMin < 9;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1580,6 +1584,13 @@ export async function GET(req: NextRequest) {
     const schichtAbschlussPruned = isSchichtAbschlussPruneTick
       ? await pruneAbschlussBerichte(60).catch(() => null)
       : null;
+    // Phase 431: Fahrer-Incentive — täglich 09:00 UTC evaluate; täglich 09:05 UTC prune (90 Tage)
+    const fahrerIncentiveResult = isFahrerIncentiveTick
+      ? await evaluateFahrerIncentives().catch(() => null)
+      : null;
+    const fahrerIncentivePruned = isFahrerIncentivePruneTick
+      ? await pruneFahrerIncentives(90).catch(() => null)
+      : null;
 
     const durationMs = Date.now() - start;
     return NextResponse.json({
@@ -1884,6 +1895,8 @@ export async function GET(req: NextRequest) {
       ...(schichtOptimierResult?.locations ? { schicht_auslastungs_optimierer: { locations: schichtOptimierResult.locations, errors: schichtOptimierResult.errors } } : {}),
       ...(schichtBriefingResult ? { schicht_briefing: { locations: schichtBriefingResult.locations, upserted: schichtBriefingResult.upserted, errors: schichtBriefingResult.errors } } : {}),
       ...(schichtBriefingPruned != null ? { schicht_briefing_pruned: schichtBriefingPruned } : {}),
+      ...(fahrerIncentiveResult?.evaluated ? { fahrer_incentive: { locations: fahrerIncentiveResult.locations, evaluated: fahrerIncentiveResult.evaluated, achieved: fahrerIncentiveResult.achieved, errors: fahrerIncentiveResult.errors } } : {}),
+      ...(fahrerIncentivePruned?.pruned ? { fahrer_incentive_pruned: fahrerIncentivePruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

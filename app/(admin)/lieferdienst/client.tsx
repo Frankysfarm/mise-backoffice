@@ -218,6 +218,7 @@ import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel'
 import { SchichtStundenStatistik } from './schicht-stunden-statistik';
 import { SchichtBriefingUebersicht } from './schicht-briefing-uebersicht';
 import { SchichtAbschlussUebersicht } from './schicht-abschluss-uebersicht';
+import { FahrerIncentivePanel } from './fahrer-incentive-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1414,6 +1415,8 @@ export function LieferdienstClient() {
               <SchichtBriefingUebersicht locationId={locationId ?? null} />
               {/* Phase 430: Schicht-Abschluss-Berichte — Post-Shift-Performance je Fahrer (Score, Lieferungen, Verdienst) */}
               <SchichtAbschlussUebersicht locationId={locationId ?? null} />
+              {/* Phase 431: Fahrer-Incentive-Ziele — Zielbasiertes Bonus-System (Score/Pünktlichkeit/Lieferungen) */}
+              <FahrerIncentivePanel locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}
