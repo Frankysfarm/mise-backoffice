@@ -172,6 +172,7 @@ import { computeMatrixAllLocations as computeLiefertreueMatrixAllLocations, prun
 import { computeMatrixAllLocations as computeStornoMusterAllLocations, pruneOldSnapshots as pruneStornoMuster } from '@/lib/delivery/storno-muster-matrix';
 import { computePrognoseAllLocations as computeFahrerPrognoseAllLocations, pruneOldPrognoseSnapshots as pruneFahrerPrognose } from '@/lib/delivery/fahrer-prognose';
 import { computeUmsatzPrognoseAllLocations, pruneOldUmsatzPrognosen } from '@/lib/delivery/umsatz-prognose';
+import { computeTagesMusterAllLocations, pruneOldTagesMuster } from '@/lib/delivery/tages-muster';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -400,6 +401,10 @@ export async function GET(req: NextRequest) {
     // Phase 420: Umsatz-Prognose — täglich 06:00 UTC compute, 07:30 UTC prune (60 Tage)
     const isUmsatzPrognoseTick      = nowHour === 6 && nowMin < 4;
     const isUmsatzPrognosePruneTick = nowHour === 7 && nowMin >= 30 && nowMin < 34;
+
+    // Phase 422: Tages-Muster-Erkennung — täglich 06:10 UTC compute, 08:10 UTC prune (30 Tage)
+    const isTagesMusterTick      = nowHour === 6 && nowMin >= 10 && nowMin < 14;
+    const isTagesMusterPruneTick = nowHour === 8 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1500,6 +1505,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldUmsatzPrognosen(60).catch(() => null)
       : null;
 
+    // Phase 422: Tages-Muster-Erkennung — täglich 06:10 UTC compute, 08:10 UTC prune
+    const tagesMusterResult = isTagesMusterTick
+      ? await computeTagesMusterAllLocations(90).catch(() => null)
+      : null;
+    const tagesMusterPruned = isTagesMusterPruneTick
+      ? await pruneOldTagesMuster(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1792,6 +1805,8 @@ export async function GET(req: NextRequest) {
       ...(fahrerPrognosePruned?.pruned ? { fahrer_prognose_pruned: fahrerPrognosePruned.pruned } : {}),
       ...(umsatzPrognoseResult ? { umsatz_prognose: { locations: umsatzPrognoseResult.locations, upserted: umsatzPrognoseResult.upserted, errors: umsatzPrognoseResult.errors } } : {}),
       ...(umsatzPrognosePruned != null ? { umsatz_prognose_pruned: umsatzPrognosePruned } : {}),
+      ...(tagesMusterResult ? { tages_muster: { locations: tagesMusterResult.locations, upserted: tagesMusterResult.upserted, errors: tagesMusterResult.errors } } : {}),
+      ...(tagesMusterPruned != null ? { tages_muster_pruned: tagesMusterPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

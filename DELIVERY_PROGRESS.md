@@ -6911,3 +6911,60 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | pruneOldUmsatzPrognosen | lib/delivery/umsatz-prognose.ts | Cron 07:30 UTC | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 422 Backend + Frontend — Tages-Muster-Erkennung (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 203 (`scripts/migrations/203_tages_muster_snapshots.sql`):**
+- `tages_muster_snapshots`: UNIQUE(location_id, wochentag, stunde), avg_bestellungen, avg_umsatz_eur, p75_bestellungen, peak_klasse (low/normal/peak/high), basis_tage, berechnet_am
+- RLS: service_role full + authenticated read own location
+- `prune_tages_muster_snapshots(days_old)` Cleanup-RPC
+- Index auf (location_id, wochentag) für schnellen Wochentag-Lookup
+
+**`lib/delivery/tages-muster.ts`** — Daily Pattern Recognition Engine:
+- Algorithmus: order_pulse_snapshots (15-Min-Buckets) → stündliche Aggregation je Kalendertag → Gruppierung nach (Wochentag × UTC-Stunde)
+- Ø Bestellungen, Ø Umsatz EUR, P75 Bestellungen je (Wochentag × Stunde)
+- Peak-Klasse via Z-Score: >+1.4σ=high, >+0.3σ=peak, <-0.6σ=low, sonst=normal
+- Berlin-Zeit-Labels (UTC+2 Näherung) für lesbare Stundenbezeichnungen
+- `computeTagesMuster(locationId, daysBack=90)` — Muster berechnen + UPSERT in Batches
+- `computeTagesMusterAllLocations(daysBack)` — Cron-Batch alle aktiven Standorte (Promise.allSettled)
+- `getTagesMuster(locationId, wochentag?)` — Gespeicherte Muster als TagesMusterTag[] zurückgeben
+- `getTagesMusterPrognose(locationId)` — Heute + Morgen stündlich mit istVergangenheit-Flag
+- `pruneOldTagesMuster(daysOld=30)` — Cleanup via RPC
+
+**`app/api/delivery/admin/tages-muster/route.ts`:**
+- GET `?location_id=<uuid>&action=prognose` → Heute + Morgen stündliche Prognose
+- GET `?location_id=<uuid>&action=muster[&wochentag=0-6]` → Gespeicherte Wochenmuster
+- POST action=compute → Muster für eine Location neu berechnen (90 Tage)
+- POST action=compute-all → Alle Standorte (Cron-Trigger)
+- POST action=prune → Cleanup alter Snapshots
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 06:10 UTC: `computeTagesMusterAllLocations(90)` (90-Tage-Basis aus order_pulse_snapshots)
+- Täglich 08:10 UTC: `pruneOldTagesMuster(30)` (30-Tage-Aufbewahrung)
+
+**`app/(admin)/lieferdienst/tages-muster-panel.tsx`** — `TagesMusterPanel`:
+- 2-Tab-Layout: "Heute & Morgen" + "Wochenmuster"
+- Tab Prognose: KPI-Zeile (Peak-Stunden, Hochbetrieb-Stunde, Ø Tagesumsatz) + 24h-Balken-Chart je Tag (farbkodiert nach Peak-Klasse) + Nächste-6-Stunden-Grid mit Kategorie-Badge
+- Tab Heatmap: 7×24 Heatmap aller Wochentage nach Peak-Intensity + Legende
+- Peak-Farben: low=grau, normal=sky, peak=amber, high=rose
+- "Neu berechnen"-Button → POST action=compute, 10-Min-Polling (lazy: nur wenn open=true)
+- Collapsible-Panel, Loading-Skeleton, Leer-Zustand mit CTA
+- Integration: lieferdienst/client.tsx nach SchichtPulseKpi ✅
+
+### Integrations-Checkliste Phase 422
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| TagesMusterPanel | lieferdienst/tages-muster-panel.tsx | lieferdienst/client.tsx nach SchichtPulseKpi | ✅ |
+| computeTagesMusterAllLocations | lib/delivery/tages-muster.ts | Cron 06:10 UTC | ✅ |
+| pruneOldTagesMuster | lib/delivery/tages-muster.ts | Cron 08:10 UTC | ✅ |
+| Migration 203 | scripts/migrations/203_tages_muster_snapshots.sql | Supabase | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
