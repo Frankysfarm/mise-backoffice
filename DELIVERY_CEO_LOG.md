@@ -1,7 +1,95 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–406 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–409 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #228 — Phase 408 + 409 (2026-06-22)
+
+### Commits geprüft:
+- `004040f` — Phase 408: Kitchen Capacity Dashboard + ML-Export (Backend + Frontend)
+- `0597d84` — Phase 409: 5 neue Frontend-Komponenten (Kitchen, Dispatch, Fahrer, Storefront, Lieferdienst)
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Geprüfte Komponenten (Phase 408):
+
+**`app/(admin)/kitchen/kitchen-capacity-dashboard.tsx` — KitchenCapacityDashboard:**
+- SVG-Gauge 0–100 (farbkodiert: grün/amber/rot/kritisch), `viewBox`-Berechnung korrekt ✅
+- Circuit-Breaker-Panel: Status-Badge, Toggle-Button (POST activate/deactivate), Grund-Anzeige ✅
+- 60s-Polling mit clearInterval-Cleanup ✅
+- Recharts AreaChart 48h-Trend (Ø+Max Score), Referenzlinien bei 60/80 ✅
+- Status-Breakdown letzte 2h (optimal/busy/overloaded), 1h-KPI-Zusammenfassung ✅
+- Integration kitchen/client.tsx: Import + JSX nach KitchenSmartPrepColorboard ✅
+
+**`lib/delivery/kitchen-capacity.ts` (Phase 408 Erweiterungen):**
+- `getMultiLocationCapacityComparison()`: Promise.allSettled aller Standorte, sortiert circuit_open zuerst, dann nach overloadScore absteigend ✅
+- `exportMLFeatures()`: max 720h/5000 Zeilen, Feature-Vektor {hour, dow, capacity_pct, overload_score, ...} für zukünftige ML ✅
+- API-Routen action=all-locations + action=ml-features korrekt verdrahtet ✅
+
+### Geprüfte Komponenten (Phase 409):
+
+**`app/(admin)/kitchen/prep-deadline-matrix.tsx` — KitchenPrepDeadlineMatrix:**
+- calcUrgency() mit `estimatedReadyAt`-Basis und `driverEtaMin`-Fallback ✅
+- Farb-Matrix: critical=rot (≤2Min/0), urgent=amber (≤7Min), ok=grün, done=grau ✅
+- 10s-Interval `setNow()` für Live-Countdown-Update ✅
+- API: `/api/delivery/admin/kitchen-capacity?action=dashboard&location_id=...` ✅
+- Integration kitchen/client.tsx: `locationId` mit Fallback auf erste Location ✅
+
+**`app/(admin)/dispatch/tour-effizienz-scoreboard.tsx` — DispatchTourEffizienzScoreboard:**
+- API: `/api/delivery/admin/tours?action=active`, max 8 Fahrer ✅
+- Score-Balken farbkodiert (≥80 matcha, ≥60 amber, <60 rot) ✅
+- Trend-Indikator ↑/↓ (trendUp: score>70) ✅
+- Ø-Score-Chip im Header, Stopp-Fortschritt ✅
+- Integration dispatch/client.tsx: Import + JSX korrekt ✅
+
+**`app/fahrer/app/tour-stop-impulse-karte.tsx` — TourStopImpulseKarte:**
+- State `confirmed` mit einmaligem Klick-Schutz ✅
+- Waze + Google Maps Direkt-Navigation-Links ✅
+- `isOverdue`-Farbkodierung (rot/matcha), Lieferhinweis-Anzeige ✅
+- Integration fahrer/app/client.tsx: Datenübergabe aus activeBatch.stops korrekt (orderId, address, customerName, phone, notes, stopIndex, totalStops) ✅
+
+**`app/order/[locationSlug]/eta-fortschritts-leiste.tsx` — EtaFortschrittsLeiste:**
+- 5-Phasen: bestellt→zubereitung→abholung→unterwegs→geliefert ✅
+- Aktiver Puls-Dot animiert, abgeschlossene Phasen mit Haken ✅
+- 10s-Interval Tick-Update (stoppt bei `geliefert`) ✅
+- Integration storefront.tsx: Nur bei `isDelivery=true`, Status-Mapping alle Felder korrekt ✅
+
+**`app/(admin)/lieferdienst/tages-kpi-abschluss.tsx` — TagesKpiAbschluss:**
+- 4 KPI-Kacheln (Umsatz, Lieferungen, Ø Lieferzeit, Ø Bewertung) ✅
+- Delta-Badges mit Vorzeichen, TrendIcon (>2/±2/<-2) ✅
+- API: `/api/delivery/admin/stats?days=1`, realistischer Mock-Fallback ✅
+- Lieferzeit-Delta invertiert (−2.1 Min = positiv) ✅
+- Integration lieferdienst/client.tsx: nach DeliveryStatsCompact ✅
+
+### Bugs gefixt: 0
+Alle 5 Phase-409-Komponenten und Phase-408-Erweiterungen korrekt integriert und typisiert. Keine fehlenden Imports, keine Logik-Fehler.
+
+### Integrations-Checkliste Phase 409
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenPrepDeadlineMatrix | kitchen/prep-deadline-matrix.tsx | kitchen/client.tsx | ✅ |
+| DispatchTourEffizienzScoreboard | dispatch/tour-effizienz-scoreboard.tsx | dispatch/client.tsx | ✅ |
+| TourStopImpulseKarte | fahrer/app/tour-stop-impulse-karte.tsx | fahrer/app/client.tsx | ✅ |
+| EtaFortschrittsLeiste | order/[locationSlug]/eta-fortschritts-leiste.tsx | order/[locationSlug]/storefront.tsx | ✅ |
+| TagesKpiAbschluss | lieferdienst/tages-kpi-abschluss.tsx | lieferdienst/client.tsx | ✅ |
+
+### Status nach Review #228
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Architekt
+1. **Phase 410 Backend:** Emergency Capacity Push-Notification (Webhook bei severity=critical → SMS/Push an Disponenten + Standby-Fahrer)
+2. **Phase 410 Backend:** `/api/delivery/orders/:id` — `driver_name` + `driver_phone` aus aktivem Batch befüllen (DynamischeEtaBand braucht Fahrer-Info)
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 410 Frontend:** EmergencyCapacityPanel — Echtzeit-Kachel in lieferdienst/client.tsx: offene Events, Standby-Pool-Größe, Aktivierungs-Button, 7-Tage-Stats. API: `GET /api/delivery/admin/emergency-capacity?location_id=...`
+2. **Phase 411 Frontend:** MultiLocation-Capacity-Overview — Standort-Vergleichs-Grid (Kacheln je Standort: Status, Score, Circuit-Status). API: `GET /api/delivery/admin/kitchen-capacity?action=all-locations`
 
 ---
 
