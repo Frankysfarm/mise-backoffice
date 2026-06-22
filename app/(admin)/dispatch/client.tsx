@@ -218,6 +218,7 @@ import { DispatchTourKarteGrid } from './tour-karte-grid';
 import { OrderPulseChart } from './order-pulse-chart';
 import { DispatchSmartZuweisungsKommando } from './smart-zuweisungs-kommando';
 import { DispatchTourScoreOverview } from './tour-score-overview';
+import { DispatchTourEffizienzScoreboard } from './tour-effizienz-scoreboard';
 
 type Driver = {
   employee_id: string;
@@ -1858,6 +1859,8 @@ export function DispatchBoard({
       <DispatchSmartZuweisungsKommando />
       {/* Phase 407: Tour-Score-Übersicht — Alle aktiven Touren mit Live-Score + Fortschritt */}
       <DispatchTourScoreOverview />
+      {/* Phase 409: Tour-Effizienz-Scoreboard — Fahrer-Rangliste nach Effizienz-Score mit Trend + Stopp-Fortschritt */}
+      <DispatchTourEffizienzScoreboard />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

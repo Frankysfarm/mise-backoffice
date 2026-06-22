@@ -47,6 +47,7 @@ import { ZonenLieferzeitInfo } from './components/zonen-lieferzeit-info';
 import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
 import { FahrerQualitaetsBadge } from './components/fahrer-qualitaets-badge';
 import { EtaKonfidenzBanner } from './eta-konfidenz-banner';
+import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
 
 type Props = {
   location: Location;
@@ -1070,6 +1071,20 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
           initialStatus={order.status}
           bestellnummer={order.bestellnummer}
         />
+      )}
+      {/* Phase 409: ETA-Fortschritts-Leiste — Schritt-für-Schritt Bestellphasen-Visualisierung mit aktivem Puls */}
+      {order.isDelivery && (
+        <div className="mt-4">
+          <EtaFortschrittsLeiste
+            currentPhase={
+              order.status === 'bestätigt' || order.status === 'bestaetigt' ? 'bestellt' :
+              order.status === 'in_zubereitung' ? 'zubereitung' :
+              order.status === 'fertig' ? 'abholung' :
+              order.status === 'in_lieferung' || order.status === 'unterwegs' ? 'unterwegs' :
+              order.status === 'geliefert' ? 'geliefert' : 'bestellt'
+            }
+          />
+        </div>
       )}
     </div>
   );

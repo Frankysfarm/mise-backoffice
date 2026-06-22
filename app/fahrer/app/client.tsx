@@ -158,6 +158,7 @@ import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
 import { FahrerStopZielkompass } from './stop-zielkompass';
 import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
 import { TourStopQuickActions } from './tour-stop-quick-actions';
+import { TourStopImpulseKarte } from './tour-stop-impulse-karte';
 
 type Driver = {
   id: string;
@@ -2534,6 +2535,40 @@ export function FahrerApp({
                 lat={currentStop.order.kunde_lat ?? null}
                 lng={currentStop.order.kunde_lng ?? null}
                 onComplete={() => {
+                  setActiveBatch(prev => prev ? {
+                    ...prev,
+                    stops: prev.stops.map(s => s.id === currentStop.id ? { ...s, geliefert_am: new Date().toISOString() } : s)
+                  } : prev);
+                }}
+              />
+            </div>
+          );
+        })()}
+
+        {/* Phase 409: Tour-Stop-Impulse-Karte — Kompakter Stopp-Überblick mit Navigations-Buttons + Lieferbestätigung */}
+        {isOnline && activeBatch && (() => {
+          const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
+          if (!currentStop) return null;
+          const completedCount = activeBatch.stops.filter(s => s.geliefert_am).length;
+          const address = [currentStop.order.kunde_adresse, currentStop.order.kunde_plz].filter(Boolean).join(', ');
+          return (
+            <div className="px-4 mt-3">
+              <TourStopImpulseKarte
+                stop={{
+                  orderId: currentStop.order.id,
+                  orderNr: currentStop.order.bestellnummer ?? `#${currentStop.order.id.slice(-4)}`,
+                  address,
+                  customerName: currentStop.order.kunde_name ?? 'Kunde',
+                  phone: currentStop.order.kunde_telefon ?? null,
+                  etaMin: null,
+                  timeWindowStart: null,
+                  timeWindowEnd: null,
+                  notes: currentStop.order.kunde_lieferhinweis ?? null,
+                  stopIndex: completedCount + 1,
+                  totalStops: activeBatch.stops.length,
+                  isOverdue: false,
+                }}
+                onConfirm={() => {
                   setActiveBatch(prev => prev ? {
                     ...prev,
                     stops: prev.stops.map(s => s.id === currentStop.id ? { ...s, geliefert_am: new Date().toISOString() } : s)

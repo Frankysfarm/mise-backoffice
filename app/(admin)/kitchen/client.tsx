@@ -169,6 +169,7 @@ import { KitchenKochstartAmpelBoard } from './kochstart-ampel-board';
 import { KitchenEchtzeitBatchKochstartKommando } from './echtzeit-batch-kochstart-kommando';
 import { KitchenSmartPrepColorboard } from './smart-prep-colorboard';
 import { KitchenCapacityDashboard } from './kitchen-capacity-dashboard';
+import { KitchenPrepDeadlineMatrix } from './prep-deadline-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1729,6 +1730,8 @@ export function KitchenBoard({
       <KitchenSmartPrepColorboard />
       {/* Phase 408: Kapazitäts-Dashboard — Live-Score-Gauge, Circuit-Breaker, 48h-Trend */}
       <KitchenCapacityDashboard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 409: Prep-Deadline-Matrix — Farbkodierte Echtzeit-Deadline-Übersicht je Bestellung mit Fahrer-ETA */}
+      <KitchenPrepDeadlineMatrix locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
