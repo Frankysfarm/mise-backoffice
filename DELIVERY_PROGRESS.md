@@ -6787,3 +6787,66 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | exportMLFeatures | lib/delivery/kitchen-capacity.ts | API action=ml-features | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 417 Backend + Frontend — Fahrer-Prognose-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 199 (`scripts/migrations/199_fahrer_prognose_snapshots.sql`):**
+- `fahrer_prognose_snapshots`: UNIQUE(driver_id, location_id), prognose_score 0–100, kategorie elite/gut/durchschnitt/auffällig, 4 Sub-Scores (punctuality/delivery_time/storno/efficiency je 0–100), tours_analyzed, days_analyzed, trend_direction up/stable/down, computed_at
+- RLS: service_role full + authenticated read own location
+- `prune_fahrer_prognose_snapshots(days_old)` Cleanup-RPC
+- View `v_fahrer_prognose_rangliste`: Rang je Standort (ROW_NUMBER OVER location_id ORDER BY prognose_score DESC)
+
+**`lib/delivery/fahrer-prognose.ts`** — ML-ähnlicher Score-Engine:
+- `computeDriverPrognose(driverId, locationId, daysBack=28)` — 4 Sub-Scores aus driver_performance_snapshots berechnen + UPSERT
+  - punctuality_score (35%): avg(on_time_rate) * 100
+  - delivery_time_score (30%): ≤20min→100, ≥50min→0, linear
+  - storno_score (20%): Kundenbewertungs-Proxy (rating 1–5 → 0–100)
+  - efficiency_score (15%): Stops/Tour-Verhältnis (≤1→0, ≥5→100, linear)
+  - Trend: last7d vs prior7d Score-Vergleich → up/stable/down (±5pt Schwelle)
+- `computePrognoseForLocation(locationId, daysBack)` — alle Fahrer einer Location (Promise.allSettled)
+- `computePrognoseAllLocations(daysBack)` — Cron-Batch alle aktiven Standorte
+- `getFahrerPrognoseRangliste(locationId)` — Rangliste mit Fahrer-Namen aus employees-Join
+- `getDriverPrognoseDetail(driverId, locationId)` — Detail für einzelnen Fahrer
+- `pruneOldPrognoseSnapshots(daysOld=90)` — via RPC
+
+**`app/api/delivery/admin/fahrer-prognose/route.ts`:**
+- GET `?location_id=<uuid>` → Rangliste aller Fahrer
+- GET `?location_id=<uuid>&driver_id=<uuid>` → Detail für einen Fahrer
+- POST action=compute → alle Fahrer einer Location neu berechnen
+- POST action=compute-driver → einzelner Fahrer
+- POST action=compute-all → alle Standorte
+- POST action=prune → Cleanup
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 05:40 UTC: `computeFahrerPrognoseAllLocations(28)` (28-Tage-Fenster)
+- Täglich 08:01 UTC: `pruneFahrerPrognose(90)` (90-Tage-Aufbewahrung)
+
+**`app/(admin)/lieferdienst/fahrer-prognose-panel.tsx`** — `FahrerPrognosePanel`:
+- SVG Score-Gauge (0–100) mit Farbkodierung: lila (elite≥80) / grün (gut≥60) / blau (durchschnitt≥40) / rot (auffällig<40)
+- Rang-Spalte, Trend-Icon (up/stable/down), Kategorie-Badge mit Ring
+- Drill-Down je Fahrer: 4 Sub-Score-Balken + Touren-Count + Timestamp
+- Kategorie-Summary im Header (Elite/Gut/Auffällig Counts)
+- Footer: 4-Spalten-Kategorie-Übersicht
+- Neu-berechnen-Button + Refresh, 10-Min-Polling, Loading-Skeleton, Leer-Zustand
+- Integration: lieferdienst/client.tsx nach StornoMusterHeatmap
+
+**`app/fahrer/app/fahrer-prognose-badge.tsx`** — `FahrerPrognoseBadge`:
+- Kompakter Badge: Score 0–100 + Kategorie-Label, dark-mode-kompatibel
+- Toggle-Drill-Down: 4 Mini-Score-Balken + Touren-Count + Datum
+- Integration: fahrer/app/client.tsx nach SchichtStornoHinweis
+
+### Integrations-Checkliste Phase 417
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerPrognosePanel | lieferdienst/fahrer-prognose-panel.tsx | lieferdienst/client.tsx nach StornoMusterHeatmap | ✅ |
+| FahrerPrognoseBadge | fahrer/app/fahrer-prognose-badge.tsx | fahrer/app/client.tsx nach SchichtStornoHinweis | ✅ |
+| computeFahrerPrognoseAllLocations | lib/delivery/fahrer-prognose.ts | Cron 05:40 UTC | ✅ |
+| pruneFahrerPrognose | lib/delivery/fahrer-prognose.ts | Cron 08:01 UTC | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
