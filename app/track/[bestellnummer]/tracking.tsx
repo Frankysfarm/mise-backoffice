@@ -41,6 +41,7 @@ import { TourDeliveredFeedback } from './tour-delivered-feedback';
 import { LiveDeliveryCountdown } from './live-delivery-countdown';
 import { LiveTrackingCard } from '@/app/order/[locationSlug]/components/live-tracking-card';
 import { BestellungEtaLiveTracker } from '@/app/order/[locationSlug]/components/bestellung-eta-live-tracker';
+import { FahrerLiveTracker } from '@/app/order/[locationSlug]/fahrer-live-tracker';
 
 type Order = {
   order_id: string;
@@ -494,6 +495,13 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
               initialStatus={order.status as any}
               typ={order.typ}
             />
+          </div>
+        )}
+
+        {/* Phase 407: Fahrer-Live-Tracker — Kunden-seitige Echtzeit-Verfolgung mit ETA-Countdown + 4-Stufen-Pipeline */}
+        {order.typ === 'lieferung' && order.status === 'unterwegs' && (
+          <div className="mt-3">
+            <FahrerLiveTracker orderId={order.order_id} />
           </div>
         )}
 
