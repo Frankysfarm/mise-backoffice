@@ -6665,3 +6665,48 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 ### Nächste Schritte
 - Backend Phase 398: Weitere API-Routen / Daten-Schichten
 - Frontend Phase 398: Neue Echtzeit-Komponenten
+
+---
+
+## Phase 404 Frontend — OrderPulseChart + SchichtZielOptimizer + StrategicInsightsDashboard ✅ 2026-06-22
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**`app/(admin)/dispatch/order-pulse-chart.tsx` + `app/(admin)/lieferdienst/order-pulse-chart.tsx` — `OrderPulseChart` (Phase 399 Frontend):**
+- Recharts BarChart mit 15-Min-Buckets: Range-Selektor (2h/4h/8h/heute), Metrik-Selektor (Bestellungen/Umsatz/Lieferungen)
+- Farb-Kodierung je Bucket: green/amber/red/neutral via BUCKET_COLORS-Map
+- Footer-KPIs: Aktuelle Rate/h, Prognose nächste Stunde, Peak-Bucket-Label
+- Custom Tooltip: Metrikwert + Delta zum Vorgänger-Bucket + Hourly-Rate
+- 60s-Polling, Lade-Spinner, Leer-Zustand
+- Integration: dispatch/client.tsx nach `DispatchTourScoreLiveBoard` ✅
+- Integration: lieferdienst/client.tsx nach `StundenVerlaufHeute` ✅
+
+**`app/(admin)/lieferdienst/schicht-ziel-optimizer.tsx` — `SchichtZielOptimizer` (Phase 400 Frontend):**
+- Tabelle aller 7 Wochentage: P75-Umsatz + Lieferungen, Trend-Pfeil, Konfidenz-Badge (hoch/mittel/niedrig)
+- Expandable Detail-Zeilen: Reasoning-Text + Median/P75/Basis-Wochen
+- Approve/Decline-Buttons bei status=pending (POST /api/delivery/admin/schicht-ziel-optimizer)
+- Status-Badges: Genehmigt / Abgelehnt / Offen
+- "Neu generieren"-Button → POST action=generate → reload
+- Leer-Zustand mit CTA, Lade-Skeleton
+- Integration: lieferdienst/client.tsx nach `OrderPulseChart` ✅
+
+**`app/(admin)/lieferdienst/strategic-insights-dashboard.tsx` — `StrategicInsightsDashboard` (Phase 403 Frontend):**
+- Summary-Chips im Header: Kritisch/Warnung/Positiv-Count mit farbkodierten Badges
+- InsightCard je unquittierten Insight: Severity-Icon, Kategorie-Label, Impact-Score, Titel + Beschreibung
+- Expandable Empfehlung (ChevronDown toggle)
+- Quittieren-Button → POST action=acknowledge, aktualisiert lokalen State
+- "Mehr anzeigen" Toggle ab >2 Insights
+- 5-Min-Polling, null-Guard bei 0 Insights
+- Integration: lieferdienst/client.tsx nach `SchichtZielOptimizer` ✅
+
+### Integrations-Checkliste Phase 404 Frontend
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| OrderPulseChart | dispatch/order-pulse-chart.tsx | dispatch/client.tsx nach L1146 | ✅ |
+| OrderPulseChart | lieferdienst/order-pulse-chart.tsx | lieferdienst/client.tsx nach L1326 | ✅ |
+| SchichtZielOptimizer | lieferdienst/schicht-ziel-optimizer.tsx | lieferdienst/client.tsx nach OrderPulseChart | ✅ |
+| StrategicInsightsDashboard | lieferdienst/strategic-insights-dashboard.tsx | lieferdienst/client.tsx nach SchichtZielOptimizer | ✅ |
+
+- Build: npx next build ✓ Compiled successfully, 354 Seiten, 0 TypeScript-Fehler ✅

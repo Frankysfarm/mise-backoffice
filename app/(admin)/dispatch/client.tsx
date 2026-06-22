@@ -215,6 +215,7 @@ import { DispatchTourOptimizerPanel } from './tour-optimizer-panel';
 import { DispatchFahrerAuslastungsBoard } from './fahrer-auslastungs-board';
 import { TourRueckkehrOptimierung } from './tour-rueckkehr-optimierung';
 import { DispatchTourKarteGrid } from './tour-karte-grid';
+import { OrderPulseChart } from './order-pulse-chart';
 
 type Driver = {
   employee_id: string;
@@ -1144,6 +1145,8 @@ export function DispatchBoard({
       <DispatchTourRealtimeFortschritt batches={batches as any} />
       {/* Phase 393: Tour-Score-Live-Board — Live-Leaderboard aktiver Tour-Scores mit Fortschrittsbalken + ETA-Badge */}
       <DispatchTourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Phase 399: Order-Pulse-Chart — 15-Min-Bucket-Balkendiagramm mit Trend + Range- und Metrik-Selektor */}
+      <OrderPulseChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 380: Tour-Abholzeitplan — Wann kehren aktive Fahrer zurück? Rückkehr-ETA je aktiver Tour */}
       <DispatchTourAbholZeitplan batches={batches} />
       {/* Phase 382: Fahrer-Tour-Sync-Board — Sync-Status aller aktiven Fahrer: Voraus/Im Plan/Rückstand */}

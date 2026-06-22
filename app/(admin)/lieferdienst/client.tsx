@@ -187,6 +187,9 @@ import { SchichtErtragsCockpit } from './schicht-ertrags-cockpit';
 import { DriverOnlineStatusBoard } from './driver-online-status-board';
 import { StundenVerlaufHeute } from './stunden-verlauf-heute';
 import { SchichtEchtzeitKommando } from './schicht-echtzeit-kommando';
+import { OrderPulseChart } from './order-pulse-chart';
+import { SchichtZielOptimizer } from './schicht-ziel-optimizer';
+import { StrategicInsightsDashboard } from './strategic-insights-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1324,6 +1327,12 @@ export function LieferdienstClient() {
               <SchichtEchtzeitKpiHub locationId={locationId ?? undefined} />
               {/* Phase 403: Stundenverlauf heute — Bestellvolumen stündlich mit aktuellem Trend */}
               <StundenVerlaufHeute locationId={locationId ?? null} />
+              {/* Phase 399: Order-Pulse-Chart — 15-Min-Bucket-Balkendiagramm mit Trend + Range- und Metrik-Selektor */}
+              <OrderPulseChart locationId={locationId ?? null} />
+              {/* Phase 400: Schicht-Ziel-Optimierer — P75-Zielvorschläge je Wochentag mit Approve/Decline */}
+              <SchichtZielOptimizer locationId={locationId ?? null} />
+              {/* Phase 403: Strategic Insights Dashboard — Kritische/Warn-/Positive-Insights mit Quittierung */}
+              <StrategicInsightsDashboard locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
