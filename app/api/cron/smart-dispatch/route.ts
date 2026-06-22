@@ -168,6 +168,8 @@ import { generateStrategicInsightsAllLocations, pruneOldInsights as pruneStrateg
 import { detectEmergencyAllLocations, pruneOldEmergencyEvents } from '@/lib/delivery/emergency-capacity';
 import { snapshotAllLocations as snapshotKitchenCapacityAllLocations, pruneOldSnapshots as pruneKitchenCapacitySnapshots } from '@/lib/delivery/kitchen-capacity';
 import { computeAllBaselinesAllLocations as computeSchichtVergleichBaselines } from '@/lib/delivery/schicht-vergleich';
+import { computeMatrixAllLocations as computeLiefertreueMatrixAllLocations, pruneOldSnapshots as pruneLiefertreueMatrix } from '@/lib/delivery/liefertreue-matrix';
+import { computeMatrixAllLocations as computeStornoMusterAllLocations, pruneOldSnapshots as pruneStornoMuster } from '@/lib/delivery/storno-muster-matrix';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -383,6 +385,12 @@ export async function GET(req: NextRequest) {
     const isKitchenCapacityPruneTick   = nowHour === 8 && nowMin >= 10 && nowMin < 14;
     // Phase 411: Schicht-Vergleich-Baselines — täglich 08:15 UTC (nach Kitchen-Capacity-Prune)
     const isSchichtVergleichBaselineTick = nowHour === 8 && nowMin >= 15 && nowMin < 19;
+    // Phase 415: Liefertreue-Matrix — täglich 05:30 UTC compute, 07:57 UTC prune (30 Tage)
+    const isLiefertreueMatrixTick      = nowHour === 5 && nowMin >= 30 && nowMin < 34;
+    const isLiefertreueMatrixPruneTick = nowHour === 7 && nowMin >= 57 && nowMin < 61;
+    // Phase 415: Storno-Muster-Matrix — täglich 05:35 UTC compute, 07:59 UTC prune (30 Tage)
+    const isStornoMusterTick      = nowHour === 5 && nowMin >= 35 && nowMin < 39;
+    const isStornoMusterPruneTick = nowHour === 7 && nowMin >= 59 && nowMin < 63;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1451,6 +1459,22 @@ export async function GET(req: NextRequest) {
       ? await computeSchichtVergleichBaselines(6).catch(() => null)
       : null;
 
+    // Phase 415: Liefertreue-Matrix — täglich 05:30 UTC compute, 07:57 UTC prune
+    const liefertreueMatrixResult = isLiefertreueMatrixTick
+      ? await computeLiefertreueMatrixAllLocations(8).catch(() => null)
+      : null;
+    const liefertreueMatrixPruned = isLiefertreueMatrixPruneTick
+      ? await pruneLiefertreueMatrix(30).catch(() => null)
+      : null;
+
+    // Phase 415: Storno-Muster-Matrix — täglich 05:35 UTC compute, 07:59 UTC prune
+    const stornoMusterResult = isStornoMusterTick
+      ? await computeStornoMusterAllLocations(8).catch(() => null)
+      : null;
+    const stornoMusterPruned = isStornoMusterPruneTick
+      ? await pruneStornoMuster(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1735,6 +1759,10 @@ export async function GET(req: NextRequest) {
       ...(kitchenCapacityResult ? { kitchen_capacity: { locations: kitchenCapacityResult.locations, saved: kitchenCapacityResult.saved, errors: kitchenCapacityResult.errors, circuit_activated: kitchenCapacityResult.circuitActivated, circuit_deactivated: kitchenCapacityResult.circuitDeactivated } } : {}),
       ...(kitchenCapacityPruned?.pruned ? { kitchen_capacity_pruned: kitchenCapacityPruned.pruned } : {}),
       ...(schichtVergleichBaselineResult?.computed ? { schicht_vergleich_baselines: { locations: schichtVergleichBaselineResult.locations, computed: schichtVergleichBaselineResult.computed, errors: schichtVergleichBaselineResult.errors } } : {}),
+      ...(liefertreueMatrixResult?.succeeded ? { liefertreue_matrix: { locations: liefertreueMatrixResult.locations, succeeded: liefertreueMatrixResult.succeeded, hotspots: liefertreueMatrixResult.hotspots, errors: liefertreueMatrixResult.errors } } : {}),
+      ...(liefertreueMatrixPruned != null ? { liefertreue_matrix_pruned: liefertreueMatrixPruned } : {}),
+      ...(stornoMusterResult?.succeeded ? { storno_muster_matrix: { locations: stornoMusterResult.locations, succeeded: stornoMusterResult.succeeded, hotspots: stornoMusterResult.hotspots, errors: stornoMusterResult.errors } } : {}),
+      ...(stornoMusterPruned != null ? { storno_muster_pruned: stornoMusterPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
