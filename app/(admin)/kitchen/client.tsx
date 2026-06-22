@@ -176,6 +176,7 @@ import { KitchenSchichtBaselineStrip } from './schicht-baseline-strip';
 import { KitchenSmartActionStrip } from './smart-action-strip';
 import { KitchenStornoHotspotStrip } from './storno-hotspot-strip';
 import { WartezeitKuechenAnzeige } from './wartezeit-kuchen-anzeige';
+import { SchichtEngpassMonitor } from './schicht-engpass-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -640,6 +641,10 @@ export function KitchenBoard({
       {/* Phase 419: Wartezeit-Küchen-Anzeige — Ø Prep-Zeit vs. 15-Min-Ziel, Queue, Überfällig */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <WartezeitKuechenAnzeige locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
+      {/* Phase 421: Schicht-Engpass-Monitor — Live-Druck-Indikator + Empfehlungen */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <SchichtEngpassMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />

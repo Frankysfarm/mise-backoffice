@@ -166,6 +166,7 @@ import { SchichtStornoHinweis } from './schicht-storno-hinweis';
 import { FahrerPrognoseBadge } from './fahrer-prognose-badge';
 import { FahrerBewertungsWidget } from './fahrer-bewertungs-widget';
 import { FahrerWartezeitTipp } from './fahrer-wartezeit-tipp';
+import { StoppAbschlussAmpel } from './stopp-abschluss-ampel';
 import { QuickNavKommando } from './quick-nav-kommando';
 
 type Driver = {
@@ -1372,6 +1373,23 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 421: Stopp-Abschluss-Ampel — ETA-Zeitfenster-Ampel für aktuellen Stopp */}
+          {(() => {
+            const nextStop = activeBatch.stops.find(s => !s.geliefert_am);
+            if (!nextStop) return null;
+            const o = nextStop.order as any;
+            if (!o?.eta_latest) return null;
+            return (
+              <div className="px-4">
+                <StoppAbschlussAmpel
+                  etaLatest={o.eta_latest}
+                  etaEarliest={o.eta_earliest ?? null}
+                  stoppeAdresse={o.kunde_adresse ?? null}
+                  onDelivered={() => markDelivered(nextStop.id)}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 249: Ankunfts-Signal — Kunden mit einem Tap über Ankunft informieren */}
           {(() => {
             const nextStop = activeBatch.stops.find(s => !s.geliefert_am);

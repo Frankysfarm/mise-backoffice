@@ -226,6 +226,7 @@ import { DispatchFertigWarteStrip } from './fertig-warte-strip';
 import { DispatchStornoMusterPanel } from './dispatch-storno-muster-panel';
 import { TourTimelineBoard } from './tour-timeline-board';
 import { WartezeitDispatchBoard } from './wartezeit-dispatch-board';
+import { AktiveLieferungLiveBoard } from './aktive-lieferung-live-board';
 
 type Driver = {
   employee_id: string;
@@ -1898,6 +1899,8 @@ export function DispatchBoard({
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 419: Wartezeit-Dispatch-Board — Pipeline-Funnel, Engpass-Ampel, Fahrer-Abholwartezeit */}
       <WartezeitDispatchBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 421: Aktive Lieferung Live-Board — alle aktiven Touren mit ETA-Ampel */}
+      <AktiveLieferungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

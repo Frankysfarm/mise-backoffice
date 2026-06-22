@@ -42,6 +42,7 @@ import { LiveDeliveryCountdown } from './live-delivery-countdown';
 import { LiveTrackingCard } from '@/app/order/[locationSlug]/components/live-tracking-card';
 import { BestellungEtaLiveTracker } from '@/app/order/[locationSlug]/components/bestellung-eta-live-tracker';
 import { FahrerLiveTracker } from '@/app/order/[locationSlug]/fahrer-live-tracker';
+import { BestellEtaKomfortBanner } from '@/app/order/[locationSlug]/bestell-eta-komfort-banner';
 
 type Order = {
   order_id: string;
@@ -538,6 +539,16 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
             initialEtaEarliest={order.eta_earliest}
             initialEtaLatest={order.eta_latest}
             initialPrepMin={order.geschaetzte_zubereitung_min}
+          />
+        )}
+
+        {/* Phase 421: Bestell-ETA-Komfort-Banner — statusabhängige Beruhigungsnachricht + Phasenprogression */}
+        {order.typ === 'lieferung' && !['geliefert', 'abgeholt', 'storniert'].includes(order.status) && (
+          <BestellEtaKomfortBanner
+            status={order.status}
+            restaurantName={tenant?.name ?? null}
+            etaLatest={order.eta_latest ?? null}
+            fahrerVorname={order.fahrer_vorname ?? null}
           />
         )}
 

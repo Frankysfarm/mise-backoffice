@@ -205,6 +205,7 @@ import { FahrerPrognosePanel } from './fahrer-prognose-panel';
 import { KundenFeedbackEnginePanel } from './kunden-feedback-engine-panel';
 import { WartezeitStatsPanel } from './wartezeit-stats-panel';
 import { UmsatzPrognosePanel } from './umsatz-prognose-panel';
+import { SchichtPulseKpi } from './schicht-pulse-kpi';
 import { SchichtLiveKommando } from './schicht-live-kommando';
 
 export function LieferdienstClient() {
@@ -1380,6 +1381,8 @@ export function LieferdienstClient() {
               <WartezeitStatsPanel locationId={locationId ?? null} />
               {/* Phase 420: Umsatz-Prognose — ML-ähnliche 7-Tage-Vorhersage aus schicht_roi_daily */}
               <UmsatzPrognosePanel locationId={locationId ?? null} />
+              {/* Phase 421: Schicht-Pulse-KPI — 4 Echtzeit-KPIs (Bestellungen, Umsatz/h, Fahrer, Pünktlichkeit) */}
+              <SchichtPulseKpi locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
