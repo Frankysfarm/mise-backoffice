@@ -347,7 +347,7 @@ export function ManagementReportPanel({ locationId }: Props) {
                         <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
                         <YAxis hide />
                         <Tooltip
-                          formatter={(v: number) => [fmtEur(v), 'Umsatz']}
+                          formatter={(v) => [fmtEur(typeof v === 'number' ? v : 0), 'Umsatz']}
                           contentStyle={{ fontSize: 12, border: '1px solid #e7e5e4', borderRadius: 8 }}
                         />
                         <Bar dataKey="umsatz" radius={[4, 4, 0, 0]}>

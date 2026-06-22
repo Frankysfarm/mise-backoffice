@@ -1,7 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–425 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–427 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #240 — Phase 426+427 (2026-06-22)
+
+### Commits geprüft
+- `cf6c636` — Phase 426 Backend+Frontend: Fahrer-Erreichbarkeits-Engine
+- `cbec4fb` — Phase 427 Frontend: Cross-System Intelligence Panels (5 Komponenten)
+
+### Technische Prüfung
+- `npx tsc --noEmit` → **2 Fehler gefunden und gefixt** → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (2)
+
+**Bug 1 — management-report-panel.tsx:350 — Recharts Tooltip Formatter Typ-Fehler**
+- **Problem:** `formatter={(v: number) => [fmtEur(v), 'Umsatz']}` — Recharts `Formatter<ValueType, NameType>` erwartet `value: ValueType | undefined`, nicht `number`. TypeScript-Fehler TS2322.
+- **Fix:** `formatter={(v) => [fmtEur(typeof v === 'number' ? v : 0), 'Umsatz']}` — sichere Null-Prüfung.
+- **Datei:** `app/(admin)/lieferdienst/management-report-panel.tsx:350`
+
+**Bug 2 — fahrer/app/client.tsx:1618 — ActiveBatch Typ-Kollision TS2719**
+- **Problem:** `TourLieferquote.tsx` und `client.tsx` definieren beide `interface ActiveBatch` mit inkompatiblen `stops[].order`-Typen. Die `client.tsx`-Version hat `{ id, bestellnummer, kunde_name, ... }`, das Component erwartet `{ eta_earliest?, eta_latest?, geschaetzte_lieferung_min? }` — TypeScript TS2719 "Two different types with this name exist, but they are unrelated."
+- **Fix:** In `tour-lieferquote.tsx` — `interface ActiveBatch` umbenannt zu `TourLieferquoteBatch` (verhindert Namens-Kollision); `Stop.order` erweitert mit `Record<string, unknown> &` (erlaubt zusätzliche Felder der echten Order-Type).
+- **Datei:** `app/fahrer/app/tour-lieferquote.tsx`
+
+### Code-Qualität Phase 426 (Fahrer-Erreichbarkeits-Engine)
+- `lib/delivery/fahrer-erreichbarkeit.ts` (323 Zeilen): UNIQUE-Guard verhindert Doppelpings, `pingUpcomingShifts` scannt 25–35 Min-Fenster, `getDashboard` mit Deduplizierung je Fahrer (neuester Ping), KPI confirmRate 0–1 — solide ✅
+- Migration 206: `fahrer_erreichbarkeit_log` UNIQUE(driver_id+schicht_id+date), RLS, INDEX location_id+gepingt_am DESC, `prune_fahrer_erreichbarkeit_log(30)` RPC ✅
+- API POST ping/ping-all/answer/prune, GET Dashboard + Kompakt-Übersicht — vollständig ✅
+- `FahrerErreichbarkeitsPanel`: collapsible, KPI-Grid (bestätigt/keine Antwort/abgelehnt), Fortschrittsbalken, Fahrer-Liste, Alle-pingen-Button, 3-Min-Polling; Integration: `dispatch/client.tsx` nach KapazitaetsWarnung ✅
+
+### Code-Qualität Phase 427 (Cross-System Intelligence Panels)
+- `KitchenSchichtTempoAmpel` (136 Zeilen): Eingangsrate vs. Fertigstellungsrate (30-Min-Fenster), Ratio-basierte 4-stufige Ampel (schnell≥1.0/stabil≥0.7/langsam≥0.5/kritisch<0.5), 30s-Tick, early-return wenn 0 Aktivität — präzise ✅
+- `DispatchKapazitaetsSchnellPanel` (98 Zeilen): freie Fahrer / aktive Touren / wartende Bestellungen, CapacityState assess()-Logik (ok/knapp/überlastet/idle), stateless — korrekt ✅
+- `TourLieferquote` (111 Zeilen): isOnTime via `eta_latest` → `eta_earliest+5min`-Puffer → true-Fallback, Fortschrittsbalken, Farbkodierung ≥90%/≥70%/<70%, null-return bei leerem Batch — sauber ✅
+- `BestellSchrittLeiste` (97 Zeilen): 6-Phasen-Leiste, Connector-Lines, Pulse-Animation auf aktiver Phase, STATUS_INDEX-Map, `min-w-[340px]` für Mobile-Scroll ✅
+- `OpsGesundheitsAmpel` (190 Zeilen): Gewichteter Score (Pünktlichkeit 40% + ETA-Genauigkeit 40% + Stornorate 20%), weights-Akkumulation verhindert Division-by-zero, 2-Min-Polling, Loading-Skeleton ✅
+- `live-eta-countdown.tsx` — `BestellSchrittLeiste` korrekt integriert (`./components/bestell-schritt-leiste`) ✅
+
+### Integrations-Checkliste Phase 426+427
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerErreichbarkeitsPanel | dispatch/fahrer-erreichbarkeits-panel.tsx | dispatch/client.tsx nach KapazitaetsWarnung | ✅ |
+| KitchenSchichtTempoAmpel | kitchen/schicht-tempo-ampel.tsx | kitchen/client.tsx:1780 (orders prop) | ✅ |
+| DispatchKapazitaetsSchnellPanel | dispatch/dispatch-kapazitaets-schnell-panel.tsx | dispatch/client.tsx:1297 (orders+batches+drivers) | ✅ |
+| TourLieferquote | fahrer/app/tour-lieferquote.tsx | fahrer/app/client.tsx:1618 (activeBatch) | ✅ (CEO-Fix Typ) |
+| BestellSchrittLeiste | order/[locationSlug]/components/bestell-schritt-leiste.tsx | live-eta-countdown.tsx:6+151 | ✅ |
+| OpsGesundheitsAmpel | lieferdienst/ops-gesundheits-ampel.tsx | lieferdienst/client.tsx:1406 (locationId) | ✅ |
+| Migration 206 | scripts/migrations/206_fahrer_erreichbarkeit.sql | fahrer_erreichbarkeit_log + RLS + Prune-RPC | ✅ |
+
+### Status nach Review #240
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 428 Backend:** Schicht-Auslastungs-Optimierer — Automatische Schichtplanung basierend auf Tages-Muster-Prognosen. Neue Tabelle `schicht_auslastungs_vorschlaege` (location_id, datum, stunde, empfohlene_fahrer_anzahl, konfidenz, tages_muster_basis). Engine: `lib/delivery/schicht-optimierer.ts` berechnet via `tages_muster_snapshots`-Daten optimale Fahrerzahl pro Stunde. API `GET /api/delivery/admin/schicht-optimierer?location_id=...`.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 428 Frontend:** SchichtOptimierungsPanel — Wochentag-Picker mit stündlichen Empfehlungen (Fahrerzahl + Konfidenz-Balken), Vergleich Ist-Besetzung vs. Empfehlung, Ampelfarben. Integration in `lieferdienst/client.tsx` nach OpsGesundheitsAmpel. API: `GET /api/delivery/admin/schicht-optimierer?location_id=...`
 
 ---
 

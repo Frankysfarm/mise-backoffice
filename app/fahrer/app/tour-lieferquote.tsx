@@ -13,21 +13,21 @@ import { CheckCircle2, Clock, Package } from 'lucide-react';
 interface Stop {
   geliefert_am: string | null;
   angekommen_am?: string | null;
-  order: {
+  order: Record<string, unknown> & {
     eta_earliest?: string | null;
     eta_latest?: string | null;
     geschaetzte_lieferung_min?: number | null;
   } | null;
 }
 
-interface ActiveBatch {
+interface TourLieferquoteBatch {
   started_at: string | null;
   total_eta_min?: number | null;
   stops: Stop[];
 }
 
 interface Props {
-  activeBatch: ActiveBatch | null;
+  activeBatch: TourLieferquoteBatch | null;
 }
 
 function isOnTime(stop: Stop): boolean {
