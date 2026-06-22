@@ -273,7 +273,7 @@ export async function getKundenzufriedenheitsDashboard(
   }));
 
   // Daily trend
-  const dailyTrend: RatingTrend[] = (dailyTrendRes.data ?? []).map((r) => ({
+  const dailyTrend: RatingTrend[] = (dailyTrendRes.data ?? []).map((r: Record<string, unknown>) => ({
     day:         r.rating_day as string,
     total:       Number(r.total),
     avgRating:   Number(r.avg_rating),

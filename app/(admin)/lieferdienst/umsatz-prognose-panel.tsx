@@ -377,7 +377,7 @@ export function UmsatzPrognosePanel({ locationId }: Props) {
                   <Tooltip content={(props) => (
                     <PrognoseTooltip
                       active={props.active}
-                      payload={props.payload as Array<{ payload: TagesPrognose & { istEur?: number } }>}
+                      payload={props.payload as unknown as Array<{ payload: TagesPrognose & { istEur?: number } }>}
                     />
                   )} />
                   <ReferenceLine
