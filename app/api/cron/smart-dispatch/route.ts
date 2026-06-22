@@ -165,6 +165,7 @@ import { catchupSchichtRoiDailyAllLocations } from '@/lib/delivery/schicht-roi-d
 import { snapshotOrderPulseAllLocations, pruneOrderPulseSnapshots } from '@/lib/delivery/order-pulse';
 import { analyzeWeekAllLocations as analyzeSchichtPrognose, pruneOldAnalyses as pruneSchichtPrognoseAnalyses } from '@/lib/delivery/schicht-prognose-analyse';
 import { generateStrategicInsightsAllLocations, pruneOldInsights as pruneStrategicInsights } from '@/lib/delivery/strategic-insights';
+import { detectEmergencyAllLocations, pruneOldEmergencyEvents } from '@/lib/delivery/emergency-capacity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -374,6 +375,8 @@ export async function GET(req: NextRequest) {
     // Phase 403: Strategic Insights — täglich 05:20 UTC generieren; prune täglich 07:50 UTC (30 Tage)
     const isStrategicInsightsTick      = nowHour === 5 && nowMin >= 20 && nowMin < 24;
     const isStrategicInsightsPruneTick = nowHour === 7 && nowMin >= 50 && nowMin < 54;
+    // Phase 404: Emergency Capacity — jeden Tick Engpass-Erkennung; prune täglich 08:05 UTC (90 Tage)
+    const isEmergencyCapacityPruneTick = nowHour === 8 && nowMin >= 5 && nowMin < 9;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1423,6 +1426,12 @@ export async function GET(req: NextRequest) {
       : null;
     const strategicInsightsPruned = isStrategicInsightsPruneTick
       ? await pruneStrategicInsights(30).catch(() => null)
+      : null;
+
+    // Phase 404: Emergency Capacity — jeden Tick Engpass-Erkennung; prune täglich 08:05 UTC
+    const emergencyCapacityResult = await detectEmergencyAllLocations().catch(() => null);
+    const emergencyCapacityPruned = isEmergencyCapacityPruneTick
+      ? await pruneOldEmergencyEvents(90).catch(() => null)
       : null;
 
     const durationMs = Date.now() - start;
