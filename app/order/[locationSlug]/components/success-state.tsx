@@ -50,6 +50,7 @@ import { BestellungEtaLiveBanner } from './bestellung-eta-live-banner';
 import { EtaDetailKarte } from '../eta-detail-karte';
 import { BestellungLiveVerfolgung } from './bestellung-live-verfolgung';
 import { EtaLiveProgressRing } from './eta-live-progress-ring';
+import { DynamischeEtaBand } from './dynamische-eta-band';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -899,6 +900,18 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               etaMin={etaMinutes}
               placedAt={new Date(Date.now() - (etaMinutes * 60 - secsLeft) * 1000).toISOString()}
               status={liveStatus}
+            />
+          </div>
+        )}
+        {/* Phase 405: Dynamische-ETA-Band — Fließendes Fortschrittsband mit Phasen-Labels und Live-ETA */}
+        {isDelivery && (
+          <div className="mt-3 w-full">
+            <DynamischeEtaBand
+              orderId={orderId}
+              bestellnummer={bestellnummer}
+              initialStatus={liveStatus as any}
+              initialEtaMin={etaMinutes || null}
+              isDelivery={isDelivery}
             />
           </div>
         )}

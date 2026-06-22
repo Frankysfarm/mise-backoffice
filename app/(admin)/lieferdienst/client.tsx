@@ -186,6 +186,7 @@ import { SchichtStatistikKommando } from './schicht-statistik-kommando';
 import { SchichtErtragsCockpit } from './schicht-ertrags-cockpit';
 import { DriverOnlineStatusBoard } from './driver-online-status-board';
 import { StundenVerlaufHeute } from './stunden-verlauf-heute';
+import { SchichtEchtzeitKommando } from './schicht-echtzeit-kommando';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1131,6 +1132,8 @@ export function LieferdienstClient() {
               <SchichtStatistikHub locationId={locationId} />
               {/* Phase 393: Live-Statistik-Panel — KPI-Grid mit Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Stornos */}
               <LieferdienstLiveStatistikPanel locationId={locationId} />
+              {/* Phase 405: Schicht-Echtzeit-Kommando — Kompakte Kommando-Zentrale: Kapazität, Durchsatz, Top-Alert (60s) */}
+              <SchichtEchtzeitKommando locationId={locationId ?? null} />
               {/* Phase 390: Ops-Puls-Monitor — Live Küche/Dispatch/Fahrer-Gesundheit in einer Ansicht (30s-Polling) */}
               <OpsPulsMonitor locationId={locationId} />
               {/* Phase 391: Ops-Schnell-Check — 5 System-Health-Ampeln: Fahrer/Queue/SLA/Throughput/Alerts (30s-Polling) */}

@@ -155,6 +155,7 @@ import { TourStoppSequenzBoard } from './tour-stopp-sequenz-board';
 import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
 import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
 import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
+import { FahrerStopZielkompass } from './stop-zielkompass';
 
 type Driver = {
   id: string;
@@ -1532,6 +1533,16 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 405: Stop-Zielkompass — Richtung, Entfernung, Kundennotiz + Nav-Links für aktuellen Stopp */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerStopZielkompass
+                stops={activeBatch.stops as any}
+                driverPos={driverPos}
+                vehicle={status?.fahrzeug ?? null}
+              />
+            </div>
+          )}
           {/* Stop-Navigator: Nächster Stopp mit Navigation, Anruf, Geliefert + Fortschrittsbalken */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

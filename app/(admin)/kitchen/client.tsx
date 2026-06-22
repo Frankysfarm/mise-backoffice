@@ -165,6 +165,7 @@ import { KitchenEchtzeitAmpelBoard } from './echtzeit-ampel-board';
 import { KitchenEchtzeitBatchStatusBoard } from './echtzeit-batch-status-board';
 import { KitchenSchichtFertigQuote } from './schicht-fertig-quote';
 import { KitchenSmartBatchPrognose } from './smart-batch-prognose';
+import { KitchenKochstartAmpelBoard } from './kochstart-ampel-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -651,6 +652,8 @@ export function KitchenBoard({
       <KitchenSchichtKochzeitPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 378: Batch-Übersicht-Cockpit — Alle aktiven Bestellungen mit Countdown, Progress-Bar + Farbkodierung */}
       <KitchenBatchUebersichtCockpit orders={filtered} timings={timings} />
+      {/* Phase 405: Kochstart-Ampel-Board — Farb-kodierte Übersicht aller Bestellungen nach Kochstart-Dringlichkeit */}
+      <KitchenKochstartAmpelBoard orders={filtered} timings={timings} />
       {/* Phase 380: Fertigstellungs-Prognose — Wann sind alle aktiven Bestellungen fertig? Completion-ETA je Order */}
       <KitchenFertigstellungsPrognose orders={filtered} timings={timings} />
       {/* Phase 382: Kochzeit-Verteilungs-Chart — Histogramm der Zubereitunszeiten: <5/5-10/10-15/15-20/20+ Min */}

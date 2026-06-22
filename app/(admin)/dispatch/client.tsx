@@ -214,6 +214,7 @@ import { DispatchTourZeitliniePanel } from './tour-zeitlinie-panel';
 import { DispatchTourOptimizerPanel } from './tour-optimizer-panel';
 import { DispatchFahrerAuslastungsBoard } from './fahrer-auslastungs-board';
 import { TourRueckkehrOptimierung } from './tour-rueckkehr-optimierung';
+import { DispatchTourKarteGrid } from './tour-karte-grid';
 
 type Driver = {
   employee_id: string;
@@ -1195,6 +1196,8 @@ export function DispatchBoard({
       <DispatchTourStopStatusMatrix batches={batches} />
       {/* Phase 395: Tour-Zeitlinie — Horizontale Timeline aller aktiven Touren mit Stopp-Fortschritt und ETA-Farbkodierung */}
       {locations[0]?.id && <DispatchTourZeitliniePanel locationId={locations[0].id} />}
+      {/* Phase 405: Tour-Karte-Grid — Raster-Übersicht aller aktiven Touren mit Score und Fortschrittsbalken */}
+      <DispatchTourKarteGrid batches={batches as any} />
       {/* Phase 397: Tour-Optimizer-Panel — Score-Anzeige je Tour mit Grade A–D, Pünktlichkeit und Distanz */}
       <DispatchTourOptimizerPanel batches={batches as any} />
       {/* Phase 394: Fahrer-Auslastungs-Board — Horizontale Balken je Fahrer mit Farbkodierung nach Last */}
