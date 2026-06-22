@@ -171,6 +171,9 @@ import { FahrerWartezeitTipp } from './fahrer-wartezeit-tipp';
 import { StoppAbschlussAmpel } from './stopp-abschluss-ampel';
 import { QuickNavKommando } from './quick-nav-kommando';
 import { ZonenHotChip } from './zonen-hot-chip';
+import { StopArrivalProximity } from './stop-arrival-proximity';
+import { TourCompletionScreen } from './tour-completion';
+import { LieferungBestaetigung } from './lieferung-bestaetigung';
 
 type Driver = {
   id: string;
@@ -296,6 +299,8 @@ export function FahrerApp({
   // Peak-Zeit-Erkennung: pollt eta/live zur Erkennung von Surge/Stoßzeiten
   const [peakSignal, setPeakSignal] = useState<{ signal: string; load: string; etaExtension: number } | null>(null);
   const [showLieferCheckliste, setShowLieferCheckliste] = useState(false);
+  const [showLieferungBestaetigung, setShowLieferungBestaetigung] = useState<string | null>(null);
+  const [showTourCompletion, setShowTourCompletion] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -1228,6 +1233,20 @@ export function FahrerApp({
               />
             );
           })()}
+          {/* Phase 425: Stop-Ankunfts-Näherung — GPS-Distanz + Ankunftsbestätigung zum nächsten Stopp */}
+          {(() => {
+            const nextStop = activeBatch.stops.find((s) => !s.geliefert_am);
+            if (!nextStop) return null;
+            return (
+              <StopArrivalProximity
+                lat={(nextStop.order as any)?.kunde_lat ?? null}
+                lng={(nextStop.order as any)?.kunde_lng ?? null}
+                address={(nextStop.order as any)?.kunde_adresse ?? null}
+                stopNumber={nextStop.reihenfolge}
+                onConfirmArrival={() => markArrived(nextStop.id)}
+              />
+            );
+          })()}
           {/* ETA-Ampel: Schnellstatus ob aktuelle Tour pünktlich ist */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
@@ -1285,6 +1304,46 @@ export function FahrerApp({
                     router.refresh();
                   }}
                 />
+              </div>
+            );
+          })()}
+          {/* Phase 425: Lieferungs-Bestätigung — Multi-Schritt Bestätigung: Übersicht → Zahlung → Bestätigt */}
+          {(() => {
+            const arrivedStop = activeBatch.stops.find(s => !s.geliefert_am && s.angekommen_am);
+            if (!arrivedStop) return null;
+            return (
+              <div className="px-4">
+                {showLieferungBestaetigung === arrivedStop.id ? (
+                  <LieferungBestaetigung
+                    stop={{
+                      id: arrivedStop.id,
+                      order_id: arrivedStop.order_id,
+                      reihenfolge: arrivedStop.reihenfolge,
+                      geliefert_am: arrivedStop.geliefert_am,
+                      order: {
+                        bestellnummer: arrivedStop.order.bestellnummer,
+                        kunde_name: arrivedStop.order.kunde_name,
+                        kunde_adresse: arrivedStop.order.kunde_adresse ?? null,
+                        kunde_plz: arrivedStop.order.kunde_plz ?? null,
+                        gesamtbetrag: arrivedStop.order.gesamtbetrag,
+                        zahlungsart: (arrivedStop.order as any).zahlungsart ?? null,
+                        bezahlt: (arrivedStop.order as any).bezahlt ?? null,
+                        kunde_telefon: arrivedStop.order.kunde_telefon ?? null,
+                        kunde_notiz: (arrivedStop.order as any).kunde_notiz ?? null,
+                        kunde_lieferhinweis: (arrivedStop.order as any).kunde_lieferhinweis ?? null,
+                      },
+                    }}
+                    batchId={activeBatch.id}
+                    onConfirmed={() => { setShowLieferungBestaetigung(null); markDelivered(arrivedStop.id); }}
+                  />
+                ) : (
+                  <button
+                    onClick={() => setShowLieferungBestaetigung(arrivedStop.id)}
+                    className="w-full py-3 rounded-xl bg-matcha-600 text-white font-bold text-sm flex items-center justify-center gap-2 active:opacity-80 transition-opacity"
+                  >
+                    <span>✓</span> Lieferung bestätigen
+                  </button>
+                )}
               </div>
             );
           })()}
@@ -2177,6 +2236,31 @@ export function FahrerApp({
           {activeBatch.stops.every(s => s.geliefert_am) && (
             <div className="px-4">
               <TourAbschlussSchnellPanel tourId={activeBatch.id} />
+            </div>
+          )}
+          {/* Phase 425: Tour-Abschluss-Animation — Konfetti + Statistiken wenn alle Stopps zugestellt */}
+          {activeBatch.stops.every(s => s.geliefert_am) && showTourCompletion && (
+            <TourCompletionScreen
+              stats={{
+                stopsCompleted: activeBatch.stops.length,
+                totalBetrag: activeBatch.stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0),
+                elapsedMin: activeBatch.started_at
+                  ? Math.floor((Date.now() - new Date(activeBatch.started_at).getTime()) / 60_000)
+                  : 0,
+                distanceKm: (activeBatch as any).total_distance_km ?? null,
+                estEarnings: todayStats?.estEarnings,
+              }}
+              onContinue={() => setShowTourCompletion(false)}
+            />
+          )}
+          {activeBatch.stops.every(s => s.geliefert_am) && !showTourCompletion && (
+            <div className="px-4">
+              <button
+                onClick={() => setShowTourCompletion(true)}
+                className="w-full py-2 rounded-xl bg-matcha-800/60 border border-matcha-600/40 text-matcha-300 text-xs font-semibold flex items-center justify-center gap-2 active:opacity-80"
+              >
+                🎉 Tour abschließen
+              </button>
             </div>
           )}
           <DeliveryView

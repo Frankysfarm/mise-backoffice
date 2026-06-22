@@ -98,6 +98,7 @@ import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
 import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
+import { KitchenSmartPrepTimingHub } from './smart-prep-timing-hub';
 import { KitchenCookNowPanel } from './cook-now-panel';
 import { KitchenSchichtZielStrip } from './schicht-ziel-strip';
 import { KitchenPausenFensterKarte } from './pausen-fenster-karte';
@@ -1749,6 +1750,31 @@ export function KitchenBoard({
       {!bigDisplay && <KitchenKochzeitEffizienzTracker orders={filtered} timings={timings} />}
       {/* Smart Prep-Ampel: Farbkodierte Live-Fortschrittsleisten je aktiver Lieferbestellung */}
       {!bigDisplay && <KitchenSmartPrepAmpel orders={filtered} timings={timings} />}
+      {/* Phase 425: Smart-Prep-Timing-Hub — Stations-Matrix + Cook-Start-Timing mit Fahrer-ETA-Abgleich */}
+      {!bigDisplay && (
+        <KitchenSmartPrepTimingHub
+          orders={filtered}
+          timings={timings.map(t => ({ order_id: t.order_id, cook_start_at: t.cook_start_at, ready_target: t.ready_target, prep_min: t.prep_min, status: t.status }))}
+          driverETAs={(() => {
+            const now = Date.now();
+            return batches
+              .filter((b) => b.status === 'unterwegs' || b.status === 'on_route')
+              .flatMap((b) => {
+                const etaMs = b.started_at && b.total_eta_min != null
+                  ? new Date(b.started_at).getTime() + b.total_eta_min * 60_000
+                  : null;
+                if (!etaMs) return [];
+                const etaSec = Math.max(0, Math.floor((etaMs - now) / 1000));
+                if (etaSec > 20 * 60) return [];
+                const driver = drivers.find((d) => d.id === b.driver_id);
+                const driverName = driver ? `${driver.vorname} ${driver.nachname[0]}.` : 'Fahrer';
+                return stops
+                  .filter((s) => s.batch_id === b.id && !s.geliefert_am)
+                  .map((s) => ({ order_id: s.order_id, driver_name: driverName, eta_sec: etaSec }));
+              });
+          })()}
+        />
+      )}
       {/* Koch-Jetzt-Panel: Zeigt wann welche Bestellung gestartet werden muss basierend auf Fahrer-ETA */}
       {!bigDisplay && (
         <KitchenCookNowPanel

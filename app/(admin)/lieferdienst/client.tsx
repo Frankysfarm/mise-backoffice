@@ -212,6 +212,7 @@ import { TagesMusterPanel } from './tages-muster-panel';
 import { SchichtLiveKommando } from './schicht-live-kommando';
 import { LieferdienstPhase422Wochentrend } from './phase422-wochentrend';
 import { ZonenPrognosePanel } from './zonen-prognose-panel';
+import { FahrerAbwesenheitsUebersicht } from './fahrer-abwesenheits-uebersicht';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1398,6 +1399,8 @@ export function LieferdienstClient() {
               <HeutePerformanceCockpit locationId={locationId ?? null} />
               {/* Phase 424: Management-Wochenbericht — KPI-Zusammenfassung, Top-Fahrer, Zonen, Trend */}
               <ManagementReportPanel locationId={locationId ?? null} />
+              {/* Phase 425: Fahrer-Abwesenheitsübersicht — Heute + 7-Tage-Kapazitätsplanung + Ausfallrisiko */}
+              <FahrerAbwesenheitsUebersicht locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
