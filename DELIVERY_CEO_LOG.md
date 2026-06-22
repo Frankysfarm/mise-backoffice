@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–405 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–406 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #226 — Phase 406 Frontend (2026-06-22)
+
+### Commits geprüft:
+- `2ea1822` — Phase 406 Frontend: 5 neue Komponenten (Tour-Stopp-Cockpit, Kochstart-Kommando, Score-Kommando, Stop-Quittierung, Aktivitäts-Timeline)
+
+### Geprüfte Komponenten (Phase 406):
+
+**`app/(admin)/dispatch/smart-zuweisungs-kommando.tsx` — DispatchSmartZuweisungsKommando:**
+- Top-5-Fahrer nach Dispatch-Score (`/api/delivery/dispatch/scores`), sortiert absteigend ✅
+- 25s-Polling mit clearInterval-Cleanup ✅
+- Fahrzeug-Emoji via vehicleEmoji(), Score-Badges farbkodiert (80+/60+/<60) ✅
+- Empfehlungs-Label für Platz 1 ✅
+- Integration dispatch/client.tsx: Import + JSX korrekt ✅
+
+**`app/(admin)/kitchen/echtzeit-batch-kochstart-kommando.tsx` — KitchenEchtzeitBatchKochstartKommando:**
+- Filter: Kochstart ≤15 Min oder überfällig, nicht cooking/ready ✅
+- 20s-Polling, sortiert nach cook_start_at ✅
+- Farbkodierung: overdue=rot, ≤5min=amber, sonst grün ✅
+- Badge-Counter im Header ✅
+- Integration kitchen/client.tsx: `locationId` mit Fallback korrekt ✅
+
+**`app/(admin)/lieferdienst/tour-stopp-puenktlichkeits-cockpit.tsx` — LieferdienstTourStoppPünktlichkeitsCockpit:**
+- API: `/api/delivery/admin/stop-timing-matrix?location_id=` ✅
+- 30s-Polling + Supabase Realtime auf `mise_delivery_batch_stops` ✅
+- Summary-Badges: pünktlich/gefährdet/verspätet ✅
+- `if (!data || data.entries.length === 0) return null` — sicher ✅
+- Integration lieferdienst/client.tsx: `locationId={locationId ?? null}` ✅
+
+**`app/fahrer/app/tour-stop-schnell-quittierung.tsx` — TourStopSchnellQuittierung:**
+- State-Machine: idle → arrived → delivered | problem ✅
+- `postStatus()` helper für `arrived`/`delivered`/`problem` mit tourId-Guard ✅
+- Problem-Textarea mit Pflichtfeld-Prüfung vor Submit ✅
+- `if (!currentStop) return null` — sicher ✅
+- Integration fahrer/app/client.tsx: direkt ohne Props ✅
+
+**`app/order/[locationSlug]/bestellung-aktivitaets-timeline.tsx` — BestellungAktivitaetsTimeline:**
+- Vertikale Timeline, API: `/api/delivery/orders/${orderId}/events` ✅
+- 30s-Polling mit clearInterval-Cleanup ✅
+- dotColor() nach event_type-Keyword-Match ✅
+- "Aktuell"-Badge auf neuestem Event ✅
+
+### Bug gefunden + gefixt: 1
+- **`BestellungAktivitaetsTimeline` nicht integriert:** Komponente erstellt aber nirgends importiert/verwendet → in `app/order/[locationSlug]/components/success-state.tsx` nach DynamischeEtaBand eingefügt (L917ff) ✅
+
+### Status nach Review #226
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully (354 Seiten) ✅
+- Phase 406 Frontend (5 Komponenten): DONE ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+
+### Nächste Schritte für Frontend-Ingenieur
+1. Phase 407: 5 neue Smart-Delivery-Komponenten (Kitchen, Dispatch, Fahrer, Storefront, Lieferdienst)
+2. Emergency Capacity Frontend: UI für `driver_standby_pool` + `emergency_capacity_events` (Phase 404 Backend wartet auf Visualisierung)
+
+### Nächste Schritte für Backend-Architekt
+1. Emergency Capacity: Webhook/Push-Notification wenn `severity=critical`
+2. `/api/delivery/orders/:id` — `driver_name`-Feld aus aktivem Batch befüllen (für DynamischeEtaBand)
 
 ---
 

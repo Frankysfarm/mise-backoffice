@@ -51,6 +51,7 @@ import { EtaDetailKarte } from '../eta-detail-karte';
 import { BestellungLiveVerfolgung } from './bestellung-live-verfolgung';
 import { EtaLiveProgressRing } from './eta-live-progress-ring';
 import { DynamischeEtaBand } from './dynamische-eta-band';
+import { BestellungAktivitaetsTimeline } from '../bestellung-aktivitaets-timeline';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -913,6 +914,12 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               initialEtaMin={etaMinutes || null}
               isDelivery={isDelivery}
             />
+          </div>
+        )}
+        {/* Phase 406: Bestellungs-Aktivitäts-Timeline — vertikale Ereignisliste, neueste oben */}
+        {orderId && (
+          <div className="mt-3 w-full">
+            <BestellungAktivitaetsTimeline orderId={orderId} />
           </div>
         )}
         {/* Phase 397: Bestellung-Live-Verfolgung — 4-Phasen-Timeline mit Fahrer-Info + Live-Countdown */}
