@@ -219,6 +219,7 @@ import { OrderPulseChart } from './order-pulse-chart';
 import { DispatchSmartZuweisungsKommando } from './smart-zuweisungs-kommando';
 import { DispatchTourScoreOverview } from './tour-score-overview';
 import { DispatchTourEffizienzScoreboard } from './tour-effizienz-scoreboard';
+import { DispatchPressureLive } from './dispatch-pressure-live';
 
 type Driver = {
   employee_id: string;
@@ -1861,6 +1862,8 @@ export function DispatchBoard({
       <DispatchTourScoreOverview />
       {/* Phase 409: Tour-Effizienz-Scoreboard — Fahrer-Rangliste nach Effizienz-Score mit Trend + Stopp-Fortschritt */}
       <DispatchTourEffizienzScoreboard />
+      {/* Phase 410: Dispatch-Druck-Live — Ampel-Indikator Warteschlange vs. freie Fahrer vs. Küchenstatus */}
+      <DispatchPressureLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

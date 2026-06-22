@@ -159,6 +159,7 @@ import { FahrerStopZielkompass } from './stop-zielkompass';
 import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
 import { TourStopQuickActions } from './tour-stop-quick-actions';
 import { TourStopImpulseKarte } from './tour-stop-impulse-karte';
+import { SchichtEndSummary } from './schicht-end-summary';
 
 type Driver = {
   id: string;
@@ -2588,6 +2589,21 @@ export function FahrerApp({
             cashCollected={todayStats.estEarnings}
             onlineSeit={status?.online_seit ?? null}
             currentBatchStops={0}
+          />
+        )}
+
+        {/* Phase 410: Schicht-End-Summary — Kompaktes Abschluss-Banner mit Umsatz, Lieferungen, Trinkgeld am Schichtende */}
+        {!activeBatch && isOnline && todayStats && (
+          <SchichtEndSummary
+            summary={{
+              revenueEur:      todayStats.estEarnings ?? 0,
+              deliveries:      todayStats.deliveries ?? 0,
+              avgDeliveryMin:  null,
+              tipsEur:         0,
+              bonusEur:        null,
+              isNearEnd:       false,
+              minutesLeft:     null,
+            }}
           />
         )}
 

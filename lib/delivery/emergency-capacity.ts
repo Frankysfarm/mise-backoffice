@@ -174,7 +174,14 @@ export async function detectCapacityEmergency(
     .select()
     .single();
 
-  return newEvent ? mapEvent(newEvent as Record<string, unknown>) : null;
+  const mapped = newEvent ? mapEvent(newEvent as Record<string, unknown>) : null;
+
+  // Dispatcher via Push benachrichtigen (nur bei critical)
+  if (mapped && severity === 'critical') {
+    notifyDispatchersOnCritical(mapped.id, locationId, gap).catch(() => null);
+  }
+
+  return mapped;
 }
 
 export async function detectEmergencyAllLocations(): Promise<{
@@ -421,6 +428,50 @@ export async function getEmergencyDashboard(
       resolutionRate,
     },
   };
+}
+
+// ── Dispatcher-Benachrichtigung ───────────────────────────────────────────────
+
+/**
+ * Benachrichtigt alle Disponenten + Admins einer Location via mise_push_outbox,
+ * wenn ein neues critical-Notfall-Event erkannt wurde.
+ * Fire-and-forget — Fehler werden ignoriert, um den Cron-Tick nicht zu blockieren.
+ */
+export async function notifyDispatchersOnCritical(
+  eventId:    string,
+  locationId: string,
+  gap:        number,
+): Promise<{ notified: number }> {
+  const sb = createServiceClient();
+
+  const { data: employees } = await sb
+    .from('employees')
+    .select('id, vorname, push_token')
+    .eq('location_id', locationId)
+    .in('rolle', ['admin', 'manager', 'dispatcher'])
+    .eq('is_active', true);
+
+  if (!employees?.length) return { notified: 0 };
+
+  const title = `⚠️ Fahrer-Notfall — ${gap} Fahrer fehlen`;
+  const body  = `Kapazitätslücke kritisch. Standby-Pool benachrichtigen oder Schicht anpassen.`;
+
+  const inserts = employees
+    .filter((e) => e.push_token)
+    .map((e) => ({
+      driver_id:   null as string | null,
+      employee_id: e.id as string,
+      type:        'emergency_capacity',
+      title,
+      body,
+      data:        JSON.stringify({ event_id: eventId, location_id: locationId }),
+      sound:       'default',
+    }));
+
+  if (!inserts.length) return { notified: 0 };
+
+  await sb.from('mise_push_outbox').insert(inserts).catch(() => null);
+  return { notified: inserts.length };
 }
 
 // ── Cleanup ───────────────────────────────────────────────────────────────────

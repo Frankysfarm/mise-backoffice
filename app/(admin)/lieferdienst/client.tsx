@@ -193,6 +193,8 @@ import { StrategicInsightsDashboard } from './strategic-insights-dashboard';
 import { LieferdienstTourStoppPünktlichkeitsCockpit } from './tour-stopp-puenktlichkeits-cockpit';
 import { DeliveryStatsCompact } from './delivery-stats-compact'
 import { TagesKpiAbschluss } from './tages-kpi-abschluss';
+import { EmergencyCapacityPanel } from './emergency-capacity-panel';
+import { MultiLocationOverview } from './multi-location-overview';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1342,6 +1344,10 @@ export function LieferdienstClient() {
               <DeliveryStatsCompact locationId={locationId} />
               {/* Phase 409: Tages-KPI-Abschluss — Umsatz, Lieferungen, Ø Lieferzeit, Bewertung vs. gestern */}
               <TagesKpiAbschluss locationId={locationId} />
+              {/* Phase 410: Kapazitäts-Notfall-Panel — Offene Events, Standby-Pool, Severitätsbadges, Lösen-Button */}
+              <EmergencyCapacityPanel locationId={locationId ?? null} />
+              {/* Phase 410: Multi-Standort-Übersicht — CEO-Birds-Eye-View aller Standorte mit Küchen-Kapazitätsstatus */}
+              <MultiLocationOverview />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
