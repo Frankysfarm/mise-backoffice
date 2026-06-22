@@ -14176,3 +14176,63 @@ Alle Phase-415/416-Komponenten korrekt typisiert, integriert und im Cron eingebu
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 417 Frontend:** FahrerPrognosePanel — Rangliste aller aktiven Fahrer mit Prognose-Score (0–100), Trend-Pfeil (↑/→/↓), Kategorie-Badge (Elite=lila/Gut=grün/Durchschnitt=blau/Auffällig=rot), Drill-Down je Fahrer (4 Sub-Scores als Balken). Integration in lieferdienst/client.tsx + fahrer/app/client.tsx. API: `GET /api/delivery/admin/fahrer-prognose?location_id=...`
+
+---
+
+## CEO Review #233 — 2026-06-22
+
+### Commits geprüft
+- `b8c6f73` feat(delivery/frontend): Smart-Timing, Tour-Timeline, Quick-Nav, ETA-Banner, Schicht-KPI
+- `2cbfa07` docs: Phase 417 Fortschritt dokumentiert
+- `2e570bf` feat(delivery/backend+frontend): Phase 417 — Fahrer-Prognose-Engine
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (2)
+
+**Bug 1 — `SchichtLiveKommando` API-Mismatch (Kritisch)**
+- **Problem:** `app/(admin)/lieferdienst/schicht-live-kommando.tsx` fetcht `/api/delivery/stats?scope=shift&location_id=...`, erwartet `{orders_count, revenue_eur, avg_delivery_min, on_time_pct, active_drivers, cancellation_rate_pct, orders_per_hour, top_zone}`. Der bestehende `/api/delivery/stats`-Endpoint hatte keinen `scope=shift`-Handler — gab Fallback-Struktur zurück. Alle 6 KPI-Kacheln zeigten `0`.
+- **Fix:** `app/api/delivery/stats/route.ts` — neuer `scope === 'shift'`-Branch vor dem Default-Handler. Queries `customer_orders` (letzte 8h), `mise_delivery_batches` (aktive Touren), `order_lifecycle_snapshots` (letzte 8h) parallel. Berechnet: orders_count, revenue_eur (exkl. Stornos), avg_delivery_min (aus lifecycles), on_time_pct, active_drivers (distinct fahrer_id aus aktiven Batches), cancellation_rate_pct, orders_per_hour (÷ Schichtdauer), top_zone.
+
+**Bug 2 — TypeScript TS18048 in `dispatch-storno-muster-panel.tsx`**
+- **Problem:** Zeile 216 prüfte `summary?.worstDayOfWeek !== null && summary?.worstHourOfDay !== null`, aber TypeScript erkannte `summary` innerhalb des JSX-Blocks trotzdem als `undefined`-möglich → TS18048 auf Zeilen 219, 221, 222.
+- **Fix:** Bedingung geändert zu `summary != null && summary.worstDayOfWeek !== null && summary.worstHourOfDay !== null` — TypeScript-Narrowing greift jetzt korrekt.
+
+### Code-Qualität Phase 417 Backend (Fahrer-Prognose-Engine)
+- `lib/delivery/fahrer-prognose.ts` (412 Zeilen): Gewichtete Sub-Scores (Pünktlichkeit 35%, Lieferzeit 30%, Storno-Proxy 20%, Effizienz 15%), Trend-Berechnung (letzte 7 vs. vorherige 7 Tage), Promise.allSettled für Batch, UPSERT — solide ✅
+- API `/api/delivery/admin/fahrer-prognose`: GET Rangliste + Detail, POST compute/compute-driver/compute-all/prune — vollständig ✅
+- Cron `smart-dispatch/route.ts`: `computeFahrerPrognoseAllLocations(28)` täglich 05:40 UTC, `pruneFahrerPrognose(90)` täglich 08:01 UTC ✅
+
+### Code-Qualität Phase 417 Frontend
+- `lieferdienst/fahrer-prognose-panel.tsx`: Score-Gauge (SVG-Ring), Kategorie-Badge (Elite/Gut/Durchschnitt/Auffällig), Trend-Pfeil, Drill-Down je Fahrer mit 4 Sub-Score-Bars — professionell ✅
+- `lieferdienst/schicht-live-kommando.tsx` (176 Zeilen): 6 KPI-Kacheln, Farbstatus-Logik, 30s-Polling, Offline-Indikator, Skeleton-Loading — vollständig ✅
+- `dispatch/tour-timeline-board.tsx` (191 Zeilen): Swimlane-Ansicht je Fahrer, Stop-Nodes mit ETA-Countdown, Score-Badge, Verspätungs-Indikator ✅
+- `fahrer/app/quick-nav-kommando.tsx` (147 Zeilen): Google Maps + Waze Deep-Links, Anruf-Button, Zugestellt-Button, Problem-melden; korrekt integriert mit markDelivered-Callback ✅
+- `order/[locationSlug]/eta-live-fortschritt-banner.tsx` (163 Zeilen): 4-Phasen-Stepper, animierte Fortschrittsleiste, 20s-Polling, Fahrrad-Emoji-Indikator ✅
+- Kitchen TV Audio-Alert: Web Audio API Buzz bei überfälligen Bestellungen, NEU-Badge für neue Bestellungen, Fortschrittsbalken je Koch-Karte ✅
+- `next.config.js`: `experimental.typedRoutes` entfernt (Build-Fix) ✅
+
+### Integrations-Checkliste Phase 417
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerPrognosePanel | lieferdienst/fahrer-prognose-panel.tsx | lieferdienst/client.tsx:1373 nach StornoMusterHeatmap | ✅ |
+| SchichtLiveKommando | lieferdienst/schicht-live-kommando.tsx | lieferdienst/client.tsx:1157 | ✅ |
+| TourTimelineBoard | dispatch/tour-timeline-board.tsx | dispatch/client.tsx:1121 mit Batch-Mapping | ✅ |
+| QuickNavKommando | fahrer/app/quick-nav-kommando.tsx | fahrer/app/client.tsx:1315 in Aktiv-Tour | ✅ |
+| EtaLiveFortschrittBanner | order/[locationSlug]/eta-live-fortschritt-banner.tsx | storefront.tsx:1078 isDelivery-Guard | ✅ |
+| Cron Fahrer-Prognose | lib/delivery/fahrer-prognose.ts | smart-dispatch cron:1483 täglich | ✅ |
+| scope=shift API | app/api/delivery/stats/route.ts | neuer Handler für SchichtLiveKommando | ✅ |
+
+### Status nach Review #233
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 418 Backend:** Echtzeit-Kundenzufriedenheits-Score — Post-Delivery-Rating-Engine. Kurz nach Lieferung (5 Min Delay) automatisch Push-Notification mit 1-Klick-Bewertung (1–5 Sterne). `lib/delivery/kunden-feedback-engine.ts` + Migration 200 (`delivery_ratings`: order_id, location_id, rating 1–5, comment TEXT, created_at). Auswertung: Ø-Rating je Fahrer (in fahrer-prognose als stornoScore ersetzen), Ø-Rating je Zone, schlechteste Tageszeit.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 418 Frontend:** KundenzufriedenheitsPanel — Dashboard für Lieferdienst-Admin mit Ø-Rating (1–5 Sterne), Fahrer-Rangliste nach Rating, Zonen-Heatmap. Neuer Mini-Widget in Fahrer-App zur Anzeige der eigenen Bewertung.

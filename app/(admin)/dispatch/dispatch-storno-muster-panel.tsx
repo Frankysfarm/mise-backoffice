@@ -213,7 +213,7 @@ export function DispatchStornoMusterPanel({ locationId }: { locationId: string |
           )}
 
           {/* Worst day/hour info */}
-          {summary?.worstDayOfWeek !== null && summary?.worstHourOfDay !== null && (
+          {summary != null && summary.worstDayOfWeek !== null && summary.worstHourOfDay !== null && (
             <div className="border-t pt-3 text-xs text-muted-foreground">
               Schlechteste Zeit gesamt: <span className="font-bold text-foreground">
                 {DOW_FULL[summary.worstDayOfWeek!]} {summary.worstHourOfDay}:00 Uhr

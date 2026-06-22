@@ -18,6 +18,77 @@ export async function GET(req: NextRequest) {
   const action = searchParams.get('action');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
 
+  // --- Schicht-Live-KPI (scope=shift) — für SchichtLiveKommando ---
+  const scope = searchParams.get('scope');
+  if (scope === 'shift') {
+    const shiftHours = 8;
+    const now = new Date();
+    const shiftStart = new Date(now.getTime() - shiftHours * 3_600_000).toISOString();
+
+    const [{ data: shiftOrders }, { data: activeBatches }, { data: lifecycles }] = await Promise.all([
+      sb.from('customer_orders')
+        .select('id, status, typ, delivery_zone, gesamtpreis, created_at')
+        .eq('location_id', locationId)
+        .gte('created_at', shiftStart),
+      sb.from('mise_delivery_batches')
+        .select('id, fahrer_id')
+        .eq('location_id', locationId)
+        .in('state', ['active', 'assigned']),
+      sb.from('order_lifecycle_snapshots')
+        .select('on_time, total_min')
+        .eq('location_id', locationId)
+        .gte('snapped_at', shiftStart),
+    ]);
+
+    const allOrders = shiftOrders ?? [];
+    const deliveries = allOrders.filter((o) => o.typ === 'lieferung');
+    const cancelled  = allOrders.filter((o) =>
+      (o.status as string) === 'storniert' || (o.status as string) === 'abgebrochen'
+    );
+    const ordersCount = allOrders.length;
+    const revenueEur  = allOrders
+      .filter((o) => !['storniert', 'abgebrochen'].includes(o.status as string))
+      .reduce((s, o) => s + ((o.gesamtpreis as number) ?? 0), 0);
+    const cancelRate  = ordersCount > 0
+      ? Math.round((cancelled.length / ordersCount) * 1000) / 10
+      : 0;
+
+    const lcRows = lifecycles ?? [];
+    const onTimeRows = lcRows.filter((r) => r.on_time !== null);
+    const onTimePct  = onTimeRows.length > 0
+      ? Math.round(onTimeRows.filter((r) => r.on_time === true).length / onTimeRows.length * 100)
+      : 0;
+    const totalMins = lcRows.filter((r) => r.total_min != null).map((r) => r.total_min as number);
+    const avgDeliveryMin = totalMins.length > 0
+      ? Math.round(totalMins.reduce((s, v) => s + v, 0) / totalMins.length)
+      : 0;
+
+    const activeDrivers = new Set((activeBatches ?? []).map((b) => b.fahrer_id).filter(Boolean)).size;
+
+    const shiftDurationH = (now.getTime() - new Date(shiftStart).getTime()) / 3_600_000;
+    const ordersPerHour  = shiftDurationH > 0
+      ? Math.round((ordersCount / shiftDurationH) * 10) / 10
+      : 0;
+
+    const zoneCounts = deliveries.reduce<Record<string, number>>((acc, o) => {
+      const z = (o.delivery_zone as string) ?? 'unknown';
+      acc[z] = (acc[z] ?? 0) + 1;
+      return acc;
+    }, {});
+    const topZone = Object.entries(zoneCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+    return NextResponse.json({
+      orders_count:           ordersCount,
+      revenue_eur:            Math.round(revenueEur * 100) / 100,
+      avg_delivery_min:       avgDeliveryMin,
+      on_time_pct:            onTimePct,
+      active_drivers:         activeDrivers,
+      cancellation_rate_pct:  cancelRate,
+      orders_per_hour:        ordersPerHour,
+      top_zone:               topZone,
+    });
+  }
+
   // --- Schicht-Pünktlichkeit ---
   if (action === 'shift_punctuality') {
     const shiftHours = 8;
