@@ -103,10 +103,9 @@ export function SchichtStatistikKommando() {
       }[];
       const activeDrivers = employees.filter(e => e.status?.ist_online).length;
 
-      const yesterdayOrders = (yesterdayData ?? []).length;
-      const yesterdayRevenue = (yesterdayData ?? [] as { gesamtbetrag: number }[]).reduce(
-        (s, o) => s + (o.gesamtbetrag ?? 0), 0
-      );
+      const yData = (yesterdayData ?? []) as { gesamtbetrag: number }[];
+      const yesterdayOrders = yData.length;
+      const yesterdayRevenue = yData.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
 
       setKpi({
         totalOrders: orders.length,
@@ -142,12 +141,14 @@ export function SchichtStatistikKommando() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function delta(cur: number, prev: number, pct = false): React.ReactNode {
+  function delta(cur: number, prev: number, pct = false, currency = false): React.ReactNode {
     if (prev === 0) return null;
     const diff = cur - prev;
     const label = pct
-      ? `${diff > 0 ? '+' : ''}${diff}%`
-      : `${diff > 0 ? '+' : ''}${diff}`;
+      ? `${diff > 0 ? '+' : ''}${Math.round(diff)}%`
+      : currency
+      ? `${diff > 0 ? '+' : ''}${diff.toFixed(2)} €`
+      : `${diff > 0 ? '+' : ''}${Math.round(diff)}`;
     const positive = diff > 0;
     return (
       <span className={cn(
@@ -185,7 +186,7 @@ export function SchichtStatistikKommando() {
       label: 'Umsatz',
       value: `${kpi.revenue.toFixed(2)} €`,
       sub: `Ø ${(kpi.revenue / Math.max(1, kpi.completedOrders)).toFixed(2)} € / Bestellung`,
-      delta: delta(kpi.revenue, kpi.yesterdayRevenue),
+      delta: delta(kpi.revenue, kpi.yesterdayRevenue, false, true),
       icon: Euro,
       color: 'text-amber-700',
       bg: 'bg-amber-50 border-amber-200',

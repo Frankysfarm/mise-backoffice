@@ -1119,7 +1119,14 @@ export function DispatchBoard({
           zone: o.delivery_zone,
           kunde_name: o.kunde_name,
         }))}
-        batches={batches}
+        batches={batches.map(b => ({
+          id: b.id,
+          status: b.status,
+          driver_id: b.fahrer_id,
+          total_eta_min: b.total_eta_min,
+          total_distance_km: b.total_distance_km,
+          zone: b.zone,
+        }))}
         drivers={drivers.map(d => ({
           id: d.employee_id,
           vorname: d.employee?.vorname ?? '',
