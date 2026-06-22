@@ -174,6 +174,7 @@ import { DriverApproachIntel } from './driver-approach-intel';
 import { KitchenSchichtItemRanking } from './schicht-item-ranking';
 import { KitchenSchichtBaselineStrip } from './schicht-baseline-strip';
 import { KitchenSmartActionStrip } from './smart-action-strip';
+import { KitchenStornoHotspotStrip } from './storno-hotspot-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -630,6 +631,10 @@ export function KitchenBoard({
       {/* Smart-Aktionsstreifen: Top-4 dringendste Bestellungen mit Sofort-Aktionen (Kochen starten / Fertig) */}
       {filtered.filter(o => ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenSmartActionStrip orders={filtered} timings={timings} />
+      )}
+      {/* Phase 416: Storno-Hotspot-Strip — Küchen-relevante Storno-Muster (kueche_verzoegerung) */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenStornoHotspotStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />

@@ -223,6 +223,7 @@ import { DispatchPressureLive } from './dispatch-pressure-live';
 import { DispatchLiveKapazitaetsAlert } from './live-kapazitaets-alert';
 import { DispatchSchichtScoreBadge } from './schicht-score-badge';
 import { DispatchFertigWarteStrip } from './fertig-warte-strip';
+import { DispatchStornoMusterPanel } from './dispatch-storno-muster-panel';
 
 type Driver = {
   employee_id: string;
@@ -1874,6 +1875,8 @@ export function DispatchBoard({
       <DispatchLiveKapazitaetsAlert orders={filteredOrders} drivers={drivers} />
       {/* Phase 412: Schicht-Score-Badge — Komposit-Score vs. 6-Wochen-Baseline + Pünktlichkeits-Delta */}
       <DispatchSchichtScoreBadge locationId={locationFilter !== 'all' ? (locationFilter ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b') : (locations[0]?.id ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b')} />
+      {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
+      <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
