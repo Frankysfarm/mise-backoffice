@@ -195,6 +195,7 @@ import { DeliveryStatsCompact } from './delivery-stats-compact'
 import { TagesKpiAbschluss } from './tages-kpi-abschluss';
 import { EmergencyCapacityPanel } from './emergency-capacity-panel';
 import { MultiLocationOverview } from './multi-location-overview';
+import { SchichtUmsatzKumulativ } from './schicht-umsatz-kumulativ';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1380,6 +1381,8 @@ export function LieferdienstClient() {
               <PushAnalyticsMiniCard />
               {/* Liefer-Abonnements Übersicht: MRR, aktive Abos, Ersparnisse */}
               <LieferdienstAboOverview locationId={locationId} />
+              {/* Phase 410: Kumulativer Schicht-Umsatz — SVG-Verlaufskurve + Trend-Pfeil */}
+              <SchichtUmsatzKumulativ locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}
               <EchtzeitCockpit locationId={locationId} />
               {/* Echtzeit-Performance: aktuelle Stunde vs. letzte Stunde — Bestellungen, Fahrer, Ø-Zubereitung, Pünktlichkeit */}

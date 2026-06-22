@@ -48,6 +48,7 @@ import { BestellQualitaetsRing } from './bestell-qualitaets-ring';
 import { FahrerQualitaetsBadge } from './components/fahrer-qualitaets-badge';
 import { EtaKonfidenzBanner } from './eta-konfidenz-banner';
 import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
+import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
 
 type Props = {
   location: Location;
@@ -1083,6 +1084,15 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
               order.status === 'in_lieferung' || order.status === 'unterwegs' ? 'unterwegs' :
               order.status === 'geliefert' ? 'geliefert' : 'bestellt'
             }
+          />
+        </div>
+      )}
+      {/* Phase 410: Bestell-Echtzeit-Ampel — Kompakte Traffic-Light-Statusanzeige mit Zeitangaben */}
+      {order.isDelivery && (
+        <div className="mt-2">
+          <BestellEchtzeitAmpel
+            orderId={order.orderId}
+            status={order.status}
           />
         </div>
       )}

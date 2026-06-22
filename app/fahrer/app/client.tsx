@@ -160,6 +160,7 @@ import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
 import { TourStopQuickActions } from './tour-stop-quick-actions';
 import { TourStopImpulseKarte } from './tour-stop-impulse-karte';
 import { SchichtEndSummary } from './schicht-end-summary';
+import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
 
 type Driver = {
   id: string;
@@ -1087,6 +1088,10 @@ export function FahrerApp({
           {/* Phase 390: Verdienst-Ziel-Tracker — Live-Fortschritt zu Schichtziel + nächster Bonus-Schwelle */}
           <div className="px-4">
             <TourVerdiensteZielTracker driverId={driver.id} />
+          </div>
+          {/* Phase 410: Tour-Verdienst-Verlauf — Kumulativer Sparkline-Verlauf der Schichtverdienste */}
+          <div className="px-4">
+            <FahrerTourVerdienstVerlauf stops={activeBatch.stops} />
           </div>
           {/* Phase 391: Schicht-Pace-Live — Aktuelle Pace vs. Ziel-Pace, onTrack/Rückstand-Indikator, Motivationshinweis */}
           <div className="px-4">

@@ -171,6 +171,7 @@ import { KitchenSmartPrepColorboard } from './smart-prep-colorboard';
 import { KitchenCapacityDashboard } from './kitchen-capacity-dashboard';
 import { KitchenPrepDeadlineMatrix } from './prep-deadline-matrix';
 import { DriverApproachIntel } from './driver-approach-intel';
+import { KitchenSchichtItemRanking } from './schicht-item-ranking';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1733,8 +1734,10 @@ export function KitchenBoard({
       <KitchenCapacityDashboard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 409: Prep-Deadline-Matrix — Farbkodierte Echtzeit-Deadline-Übersicht je Bestellung mit Fahrer-ETA */}
       <KitchenPrepDeadlineMatrix locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 410: Fahrer-Ankunft-Intel — Welche Fahrer kommen in 5/10/15 Min an der Küche an */}
+      {/* Phase 410a: Fahrer-Ankunft-Intel — Welche Fahrer kommen in 5/10/15 Min an der Küche an */}
       <DriverApproachIntel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 410b: Schicht-Artikel-Ranking — Top-Artikel der Schicht mit Mengenstats */}
+      <KitchenSchichtItemRanking orders={filtered} />
     </div>
   );
 }
