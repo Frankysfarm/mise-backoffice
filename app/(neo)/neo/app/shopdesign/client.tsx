@@ -95,6 +95,7 @@ export function ShopDesignClient({
   const sb = createClient();
   const [savedTheme, setSavedTheme] = useState<ThemeId>(current ?? 'classic'); // live im Shop
   const [selected, setSelected] = useState<ThemeId>(current ?? 'classic');      // nur ausgewählt (Vorschau)
+  const [device, setDevice] = useState<'phone' | 'tablet' | 'desktop'>('phone'); // Geräte-Vorschau
   const [saving, startTransition] = useTransition();
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -282,22 +283,37 @@ export function ShopDesignClient({
           </div>
         </div>
         <div>
+          {(() => {
+            const DEV = { phone: { w: 390, h: 760, label: '📱 Smartphone' }, tablet: { w: 834, h: 760, label: '💻 Tablet' }, desktop: { w: 1280, h: 760, label: '🖥 Desktop' } } as const;
+            const d = DEV[device];
+            const STAGE_W = 560, STAGE_H = 640;
+            const scale = Math.min(STAGE_W / d.w, STAGE_H / d.h, 1);
+            const QA = ['Kategorien voll sichtbar', 'Sticky-Menü sauber', 'Keine überlappenden Elemente', 'Bilder & Texte nicht abgeschnitten', 'Warenkorb funktioniert', 'Checkout funktioniert'];
+            return (
           <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', boxShadow: '0 12px 30px rgba(15,23,42,.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-              <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#FB7185' }} />
-              <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#FBBF24' }} />
-              <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#34D399' }} />
-              <div style={{ flex: 1, marginLeft: 8, height: 26, background: '#fff', border: '1px solid #E2E8F0', borderRadius: 7, display: 'flex', alignItems: 'center', padding: '0 11px', fontSize: 12, color: '#94A3B8' }}>🔒 Vorschau · {activeName}</div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#4F46E5', background: '#EEF2FF', padding: '3px 8px', borderRadius: 6 }}>LIVE-VORSCHAU</span>
+              <div style={{ flex: 1, fontSize: 12, color: '#94A3B8' }}>🔒 Vorschau · {activeName}</div>
+              <div style={{ display: 'flex', gap: 4, background: '#EEF2FF', borderRadius: 9, padding: 3 }}>
+                {(['phone', 'tablet', 'desktop'] as const).map((k) => <button key={k} onClick={() => setDevice(k)} style={{ height: 28, padding: '0 11px', borderRadius: 7, border: 'none', background: device === k ? '#4F46E5' : 'transparent', color: device === k ? '#fff' : '#6366F1', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{DEV[k].label}</button>)}
+              </div>
             </div>
-            <div style={{ height: 660, background: 'radial-gradient(120% 120% at 50% 0%,#1E1B4B,#0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'relative', width: 374, height: 620, background: '#0b0b0c', borderRadius: 48, padding: 11, boxShadow: '0 36px 70px rgba(0,0,0,.55)' }}>
-                <div style={{ width: '100%', height: '100%', borderRadius: 38, overflow: 'hidden', background: '#fff' }}>
-                  {previewUrl ? <iframe key={previewUrl} src={previewUrl} style={{ width: '100%', height: '100%', border: 'none' }} title="Shop-Vorschau" /> : null}
+            <div style={{ height: STAGE_H + 20, background: 'radial-gradient(120% 120% at 50% 0%,#1E1B4B,#0B1120)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ width: d.w, height: d.h, transform: `scale(${scale})`, transformOrigin: 'center', background: '#0b0b0c', borderRadius: device === 'phone' ? 48 : 20, padding: device === 'phone' ? 11 : 8, boxShadow: '0 36px 70px rgba(0,0,0,.55)', flexShrink: 0 }}>
+                <div style={{ width: '100%', height: '100%', borderRadius: device === 'phone' ? 38 : 14, overflow: 'hidden', background: '#fff' }}>
+                  {previewUrl ? <iframe key={previewUrl + device} src={previewUrl} style={{ width: '100%', height: '100%', border: 'none' }} title="Shop-Vorschau" /> : null}
                 </div>
+              </div>
+              <span style={{ position: 'absolute', bottom: 12, left: 14, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>{d.w} × {d.h} px</span>
+            </div>
+            <div style={{ padding: '14px 16px', borderTop: '1px solid #F1F5F9' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#334155', marginBottom: 9 }}>Prüfen vor Veröffentlichung — auf jedem Gerät durchklicken:</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '7px 14px' }}>
+                {QA.map((q) => <div key={q} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: '#475569' }}><span style={{ color: '#10B981', fontWeight: 800 }}>✓</span>{q}</div>)}
               </div>
             </div>
           </div>
+            );
+          })()}
         </div>
       </div>
     </div>
