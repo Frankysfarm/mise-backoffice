@@ -140,6 +140,7 @@ import { FahrerPausenEmpfehlung } from './pausen-empfehlung';
 import { FahrerTourZeitplanLive } from './tour-zeitplan-live';
 import { FahrerSchichtDauerLive } from './schicht-dauer-live';
 import { TourStoppListe } from './tour-stopp-liste';
+import { TourStopCheckliste } from './tour-stop-checkliste';
 import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
 import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
@@ -1184,6 +1185,14 @@ export function FahrerApp({
               stops={activeBatch.stops as any}
               startedAt={activeBatch.started_at ?? null}
               totalEtaMin={(activeBatch as any).total_eta_min ?? null}
+            />
+          </div>
+          {/* Phase 423: Tour-Stop-Checkliste — Mobile-first Checkliste mit Navigations-Button + Schnell-Abschluss */}
+          <div className="px-4 mt-3">
+            <TourStopCheckliste
+              stops={activeBatch.stops as any}
+              totalEtaMin={(activeBatch as any).total_eta_min ?? null}
+              batchStartedAt={activeBatch.started_at ?? null}
             />
           </div>
           {/* Phase 378: Tour-Stopp-Liste — Geordnete Stoppliste mit Status-Ampel, Navigation-CTA und Kundendaten */}

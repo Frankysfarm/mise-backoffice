@@ -43,6 +43,7 @@ import { LiveTrackingCard } from '@/app/order/[locationSlug]/components/live-tra
 import { BestellungEtaLiveTracker } from '@/app/order/[locationSlug]/components/bestellung-eta-live-tracker';
 import { FahrerLiveTracker } from '@/app/order/[locationSlug]/fahrer-live-tracker';
 import { BestellEtaKomfortBanner } from '@/app/order/[locationSlug]/bestell-eta-komfort-banner';
+import { EtaLiveProximityBanner } from '@/app/order/[locationSlug]/eta-live-proximity-banner';
 
 type Order = {
   order_id: string;
@@ -499,6 +500,12 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
           </div>
         )}
 
+        {/* Phase 423: ETA-Live-Proximity-Banner — Kundenansicht mit Countdown, Fahrernähe + Stops-vor-dir */}
+        {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
+          <div className="mt-3">
+            <EtaLiveProximityBanner bestellnummer={order.bestellnummer} />
+          </div>
+        )}
         {/* Phase 407: Fahrer-Live-Tracker — Kunden-seitige Echtzeit-Verfolgung mit ETA-Countdown + 4-Stufen-Pipeline */}
         {order.typ === 'lieferung' && order.status === 'unterwegs' && (
           <div className="mt-3">

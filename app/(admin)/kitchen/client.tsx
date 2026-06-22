@@ -28,6 +28,7 @@ import { SchichtVelocity } from './schicht-velocity';
 import { PrepAnalyticsCard } from './prep-analytics-card';
 import { OrderUrgencyPanel } from './order-urgency-panel';
 import { KitchenHandoffTimingGauge } from './handoff-timing-gauge';
+import { KitchenHandoffTimingBoard } from './handoff-timing-board';
 import { KitchenReadyWaitAlert } from './ready-wait-alert';
 import { KitchenVorhersagePanel } from './vorhersage-panel';
 import { KitchenPrepSyncPanel } from './prep-sync-panel';
@@ -896,6 +897,8 @@ export function KitchenBoard({
       <KitchenHandoffReadyMatrix orders={filtered} drivers={drivers} />
       {/* Handoff-Delay-Alert: fertige Lieferbestellungen die zu lange auf Fahrer warten */}
       <KitchenHandoffDelayAlert orders={filtered} />
+      {/* Phase 423: Handoff-Timing-Board — Prep-Countdown vs. Fahrer-ETA für jede Lieferung */}
+      <KitchenHandoffTimingBoard orders={filtered} timings={timings} batches={batches} stops={stops} />
       {/* Fahrer-Abholungs-Warnung: kritischer Alert wenn Fahrer unterwegs ist aber Bestellungen noch nicht fertig */}
       <KitchenDriverPickupWarning batches={batches} drivers={drivers} stops={stops} orders={filtered} />
       {/* Fahrer-Abfahrts-Panel: zeigt welche Batch-Abfahrten in <20 Min anstehen + welche Bestellungen noch fehlen */}

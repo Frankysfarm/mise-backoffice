@@ -74,6 +74,7 @@ import { SmartAssignmentPanel } from './smart-assignment';
 import { ZoneStatsDashboard } from './zone-stats-dashboard';
 import { DispatchScoreTrendStrip } from './score-trend-strip';
 import { DriverLeaderboardStrip } from './driver-leaderboard-strip';
+import { DispatchScoreLiveLeaderboard } from './score-live-leaderboard';
 import { DriverReliabilityPanel } from './driver-reliability-panel';
 import { TourBundleBoard } from './tour-bundle-board';
 import { DispatchNächsteZuweisung } from './naechste-zuweisung';
@@ -1268,6 +1269,8 @@ export function DispatchBoard({
       <DispatchTagesZusammenfassung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 352: Offene Warteschlange — Noch nicht zugewiesene Bestellungen nach Wartezeit sortiert */}
       <DispatchOffeneWarteschlange locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Phase 423: Live-Score-Rangliste — Echtzeit Fahrer-Score nach Tour-Effizienz */}
+      <DispatchScoreLiveLeaderboard batches={batches} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
