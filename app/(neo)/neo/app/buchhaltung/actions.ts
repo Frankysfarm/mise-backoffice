@@ -3,11 +3,12 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { revalidatePath } from 'next/cache';
 
-const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Reparatur', 'Büro', 'Sonstiges'];
+const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Fahrzeugkosten', 'Reparatur', 'Büro', 'Sonstiges'];
 
 export async function saveBeleg(data: {
   datum: string | null; haendler: string; betrag_brutto: number; mwst_satz: number;
   mwst_betrag: number; netto: number; kategorie: string; beleg_url: string | null; ki_confidence: number;
+  rechnungsnummer?: string; zahlungsart?: string;
 }) {
   const emp = await getCurrentEmployee();
   if (!emp?.tenant_id) return { ok: false, error: 'Nicht autorisiert' };
@@ -19,6 +20,7 @@ export async function saveBeleg(data: {
     betrag_brutto: Number(data.betrag_brutto) || 0, mwst_satz: satz,
     mwst_betrag: Number(data.mwst_betrag) || 0, netto: Number(data.netto) || 0,
     kategorie: KATEGORIEN.includes(data.kategorie) ? data.kategorie : 'Sonstiges',
+    rechnungsnummer: (data.rechnungsnummer || '').trim() || null, zahlungsart: (data.zahlungsart || '').trim() || null,
     beleg_url: data.beleg_url, ki_confidence: data.ki_confidence, status: 'erfasst',
   });
   if (error) return { ok: false, error: error.message };

@@ -3,12 +3,13 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveBeleg } from './actions';
 
-type Beleg = { id: string; datum: string | null; haendler: string | null; betrag_brutto: number; mwst_satz: number; mwst_betrag: number; netto: number; kategorie: string; status: string; beleg_url: string | null };
-const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Reparatur', 'Büro', 'Sonstiges'];
+type Beleg = { id: string; datum: string | null; haendler: string | null; rechnungsnummer?: string | null; zahlungsart?: string | null; betrag_brutto: number; mwst_satz: number; mwst_betrag: number; netto: number; kategorie: string; status: string; beleg_url: string | null };
+const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Fahrzeugkosten', 'Reparatur', 'Büro', 'Sonstiges'];
+const ZAHLARTEN = ['', 'bar', 'karte', 'ueberweisung', 'lastschrift', 'paypal'];
 const KAT_C: Record<string, string> = { Wareneinsatz: '#16A34A', Getränke: '#0891B2', Personal: '#7C3AED', Miete: '#DC2626', Energie: '#D97706', Marketing: '#DB2777', Reparatur: '#64748B', Büro: '#4F46E5', Sonstiges: '#94A3B8' };
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 
-type Draft = { haendler: string; datum: string | null; betrag_brutto: number; mwst_satz: number; mwst_betrag: number; netto: number; kategorie: string; confidence: number; beleg_url: string | null };
+type Draft = { haendler: string; datum: string | null; rechnungsnummer?: string; zahlungsart?: string; betrag_brutto: number; mwst_satz: number; mwst_betrag: number; netto: number; kategorie: string; confidence: number; beleg_url: string | null };
 
 export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: string }) {
   const router = useRouter();
@@ -56,6 +57,7 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
       datum: draft.datum, haendler: draft.haendler, betrag_brutto: draft.betrag_brutto,
       mwst_satz: draft.mwst_satz, mwst_betrag: draft.mwst_betrag, netto: draft.netto,
       kategorie: draft.kategorie, beleg_url: draft.beleg_url, ki_confidence: draft.confidence,
+      rechnungsnummer: draft.rechnungsnummer, zahlungsart: draft.zahlungsart,
     });
     setSaving(false);
     if (!r.ok) { setErr(r.error || 'Fehler'); return; }
@@ -63,8 +65,8 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
   }
 
   function exportCsv() {
-    const head = ['Datum', 'Händler', 'Kategorie', 'Brutto', 'MwSt-Satz', 'MwSt-Betrag', 'Netto'];
-    const rows = belege.map((b) => [b.datum ?? '', (b.haendler ?? '').replace(/;/g, ','), b.kategorie, String(b.betrag_brutto).replace('.', ','), `${b.mwst_satz}%`, String(b.mwst_betrag).replace('.', ','), String(b.netto).replace('.', ',')]);
+    const head = ['Datum', 'Händler', 'Rechnungsnr', 'Kategorie', 'Zahlungsart', 'Brutto', 'MwSt-Satz', 'MwSt-Betrag', 'Netto'];
+    const rows = belege.map((b) => [b.datum ?? '', (b.haendler ?? '').replace(/;/g, ','), (b.rechnungsnummer ?? '').replace(/;/g, ','), b.kategorie, b.zahlungsart ?? '', String(b.betrag_brutto).replace('.', ','), `${b.mwst_satz}%`, String(b.mwst_betrag).replace('.', ','), String(b.netto).replace('.', ',')]);
     const csv = [head, ...rows].map((r) => r.join(';')).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `belege-${monat}.csv`; a.click();
@@ -79,7 +81,7 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
         </div>
         <div style={{ display: 'flex', gap: 9 }}>
           {belege.length > 0 && <button onClick={exportCsv} style={{ height: 42, padding: '0 15px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#334155', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>CSV-Export</button>}
-          <button onClick={() => setDraft({ haendler: '', datum: null, betrag_brutto: 0, mwst_satz: 19, mwst_betrag: 0, netto: 0, kategorie: 'Wareneinsatz', confidence: 1, beleg_url: null })} style={{ height: 42, padding: '0 15px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#334155', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>Manuell</button>
+          <button onClick={() => setDraft({ haendler: '', datum: null, rechnungsnummer: '', zahlungsart: '', betrag_brutto: 0, mwst_satz: 19, mwst_betrag: 0, netto: 0, kategorie: 'Wareneinsatz', confidence: 1, beleg_url: null })} style={{ height: 42, padding: '0 15px', borderRadius: 10, border: '1px solid #E2E8F0', background: '#fff', color: '#334155', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>Manuell</button>
           <button onClick={() => fileRef.current?.click()} disabled={busy} style={{ height: 42, padding: '0 18px', borderRadius: 10, border: 'none', background: busy ? '#C7D2FE' : '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 13.5, cursor: busy ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             {busy ? 'KI liest…' : '📷 Beleg scannen'}
           </button>
@@ -136,8 +138,12 @@ export function BelegeManager({ belege, monat }: { belege: Beleg[]; monat: strin
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 {[19, 7, 0].map((v) => <button key={v} onClick={() => setD({ mwst_satz: v })} style={{ flex: 1, height: 40, borderRadius: 10, border: `1.5px solid ${draft.mwst_satz === v ? '#4F46E5' : '#E2E8F0'}`, background: draft.mwst_satz === v ? '#EEF2FF' : '#fff', color: draft.mwst_satz === v ? '#4338CA' : '#475569', fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>{v}%</button>)}
               </div>
-              <label style={L}>Kategorie</label>
-              <select value={draft.kategorie} onChange={(e) => setD({ kategorie: e.target.value })} style={{ ...I, padding: '0 10px' }}>{KATEGORIEN.map((k) => <option key={k} value={k}>{k}</option>)}</select>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div><label style={L}>Kategorie</label><select value={draft.kategorie} onChange={(e) => setD({ kategorie: e.target.value })} style={{ ...I, padding: '0 10px' }}>{KATEGORIEN.map((k) => <option key={k} value={k}>{k}</option>)}</select></div>
+                <div><label style={L}>Zahlungsart</label><select value={draft.zahlungsart ?? ''} onChange={(e) => setD({ zahlungsart: e.target.value })} style={{ ...I, padding: '0 10px' }}>{ZAHLARTEN.map((z) => <option key={z} value={z}>{z || '—'}</option>)}</select></div>
+              </div>
+              <label style={L}>Rechnungs-/Belegnummer (optional)</label>
+              <input value={draft.rechnungsnummer ?? ''} onChange={(e) => setD({ rechnungsnummer: e.target.value })} placeholder="z. B. RE-2026-0815" style={I} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748B', padding: '6px 2px 14px' }}><span>Netto {eur(draft.netto)}</span><span>enthaltene MwSt {eur(draft.mwst_betrag)}</span></div>
             </>); })()}
             {err && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', borderRadius: 10, padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>{err}</div>}

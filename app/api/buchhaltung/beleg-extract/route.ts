@@ -6,15 +6,15 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MODEL = 'claude-sonnet-4-6';
-const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Reparatur', 'Büro', 'Sonstiges'];
+const KATEGORIEN = ['Wareneinsatz', 'Getränke', 'Personal', 'Miete', 'Energie', 'Marketing', 'Fahrzeugkosten', 'Reparatur', 'Büro', 'Sonstiges'];
 
 const SYSTEM = `Du bist ein Buchhaltungs-Assistent für deutsche Gastronomie. Du liest Belege/Kassenbons/Rechnungen aus Fotos und gibst strukturierte Daten zurück.
-Erkenne: Händler/Lieferant, Belegdatum, Brutto-Gesamtbetrag, enthaltenen MwSt-Satz (meist 7 oder 19), und ordne eine Ausgaben-Kategorie zu aus: ${KATEGORIEN.join(', ')}.
-- Wareneinsatz = Lebensmittel/Zutaten (Metro, Großhandel, Bäcker). Getränke = Getränke-Lieferungen. Energie = Strom/Gas/Wasser. Miete = Miete/Pacht. Marketing = Werbung/Flyer/Ads.
-- Wenn mehrere MwSt-Sätze auf dem Beleg sind, nimm den höheren Hauptsatz. Wenn unklar: 19.
-- Datum im Format YYYY-MM-DD. Betrag als Zahl mit Punkt (z. B. 47.90).
+Erkenne: Händler/Lieferant, Belegdatum, Rechnungs-/Belegnummer, Netto, Steuerbetrag, Brutto-Gesamtbetrag, MwSt-Satz (meist 7 oder 19), Zahlungsart (bar/karte/ueberweisung/lastschrift/paypal), und ordne eine Ausgaben-Kategorie zu aus: ${KATEGORIEN.join(', ')}.
+Buchungsvorschlag-Regeln (Händler → Kategorie): Metro/Selgros/Großmarkt/Bäcker/Rewe/Edeka → Wareneinsatz · Getränkemarkt/Brauerei → Getränke · Tankstelle/Aral/Shell/DKV → Fahrzeugkosten · Amazon/Bürobedarf/Staples → Büro · Stadtwerke/Strom/Gas → Energie · Facebook/Google/Flyer/Druckerei → Marketing.
+- Mehrere MwSt-Sätze: nimm den höheren Hauptsatz. Unklar: 19.
+- Datum YYYY-MM-DD. Beträge als Zahl mit Punkt (z. B. 47.90). rechnungsnummer = null falls keine.
 Antworte AUSSCHLIESSLICH mit gültigem JSON, kein Markdown:
-{"haendler": string, "datum": "YYYY-MM-DD"|null, "betrag_brutto": number, "mwst_satz": 7|19|0, "kategorie": string, "confidence": number}`;
+{"haendler": string, "datum": "YYYY-MM-DD"|null, "rechnungsnummer": string|null, "betrag_brutto": number, "mwst_satz": 7|19|0, "zahlungsart": string|null, "kategorie": string, "confidence": number}`;
 
 function inferMediaType(type: string, name: string): 'image/jpeg' | 'image/png' | 'image/webp' {
   if (type.includes('png') || name.toLowerCase().endsWith('.png')) return 'image/png';
@@ -76,10 +76,12 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     haendler: extracted?.haendler ?? '',
     datum: extracted?.datum ?? null,
+    rechnungsnummer: extracted?.rechnungsnummer ?? '',
     betrag_brutto: brutto,
     mwst_satz: satz,
     mwst_betrag: Math.round(mwst * 100) / 100,
     netto: Math.round((brutto - mwst) * 100) / 100,
+    zahlungsart: extracted?.zahlungsart ?? '',
     kategorie,
     confidence: Number(extracted?.confidence) || 0.7,
     beleg_url,
