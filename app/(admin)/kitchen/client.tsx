@@ -183,6 +183,7 @@ import { SchichtEngpassMonitor } from './schicht-engpass-monitor';
 import { KitchenPhase422PrioritaetsKommando } from './phase422-prioritaets-kommando';
 import { ZonenAuslastungsChip } from './zonen-auslastungs-chip';
 import { KitchenSchichtTempoAmpel } from './schicht-tempo-ampel';
+import { KitchenKochstartSequenzBoard } from './kochstart-sequenz-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -759,6 +760,8 @@ export function KitchenBoard({
       <KitchenFertigAufAbholung orders={filtered} />
       {/* Phase 374: Bestellungs-Flow-Ampel — 3-Phasen-Stauanzeige: Eingang / In Zubereitung / Fertig-wartet */}
       <KitchenBestellungsFlowAmpel orders={filtered} />
+      {/* Kochstart-Sequenz-Board — Optimaler Kochstart-Plan je Bestellung mit Phasen-Ampel und Batch-ETA */}
+      <KitchenKochstartSequenzBoard orders={filtered} batches={batches} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}

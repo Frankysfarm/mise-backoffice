@@ -178,6 +178,7 @@ import { TourLieferquote } from './tour-lieferquote';
 import { SchichtBriefingCard } from './schicht-briefing-card';
 import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
 import { FahrerIncentiveWidget } from './fahrer-incentive-widget';
+import { StopCompass } from './stop-compass';
 
 type Driver = {
   id: string;
@@ -1115,6 +1116,23 @@ export function FahrerApp({
             currentLat={driverPos?.lat ?? null}
             currentLng={driverPos?.lng ?? null}
           />
+          {/* Stop-Kompass — Richtungsanzeige zum nächsten Stop mit Distanz, Kundeninfo und One-Tap-Aktionen */}
+          {(() => {
+            const pendingStops = activeBatch.stops.filter(s => !s.geliefert_am);
+            const current = pendingStops[0] ?? null;
+            const next = pendingStops[1] ?? null;
+            return (
+              <div className="px-4">
+                <StopCompass
+                  currentStop={current as any}
+                  nextStop={next as any}
+                  driverLat={driverPos?.lat}
+                  driverLng={driverPos?.lng}
+                  onComplete={current ? () => markArrived(current.id) : undefined}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 218: Smart-Stop-Navigator — nächster Stop mit Navigation + Kundeninfo */}
           <SmartStopNavigator
             stops={activeBatch.stops as any}

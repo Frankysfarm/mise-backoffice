@@ -232,6 +232,7 @@ import { ZonenNachfrageBadge } from './zonen-nachfrage-badge';
 import { FahrerErreichbarkeitsPanel } from './fahrer-erreichbarkeits-panel';
 import { DispatchKapazitaetsSchnellPanel } from './dispatch-kapazitaets-schnell-panel';
 import { DispatchTourScoreSchnell } from './dispatch-tour-score-schnell';
+import { DispatchTourEffizienzRadar } from './tour-effizienz-radar';
 
 type Driver = {
   employee_id: string;
@@ -1144,6 +1145,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Tour-Effizienz-Radar — Multi-dimensionaler Fahrer-Performance-Radar (Pünktlichkeit, Auslastung, Strecke, Zonen) */}
+      <DispatchTourEffizienzRadar batches={batches} drivers={drivers} />
       {/* Tour-Score-Schnell-Übersicht — Alle aktiven Touren ranked nach Effizienz-Score + ETA */}
       <DispatchTourScoreSchnell batches={batches} />
       {/* Phase 402: Tour-Score-Kommando — Dispatch-Ranking aller fertigen Bestellungen + Tour-Score-Übersicht */}

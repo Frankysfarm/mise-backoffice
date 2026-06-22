@@ -52,6 +52,7 @@ import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
 import { BestellungLiveTimeline } from './bestellung-live-timeline';
 import { EtaLiveFortschrittBanner } from './eta-live-fortschritt-banner';
 import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
+import { OrderJourneyTimeline } from './order-journey-timeline';
 
 type Props = {
   location: Location;
@@ -1133,6 +1134,18 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
           etaLatest={null}
         />
       )}
+      {/* Bestellungs-Reise-Timeline: Visuelle Fortschritts-Steps von Bestätigt bis Geliefert mit ETA-Countdown */}
+      <OrderJourneyTimeline
+        status={order.status as any}
+        bestellt_am={order.placedAt ?? null}
+        geschaetzte_lieferung_min={order.etaMin ?? null}
+        eta_min={
+          order.etaEarliest
+            ? Math.max(0, Math.round((new Date(order.etaEarliest).getTime() - Date.now()) / 60_000))
+            : null
+        }
+        className="mt-3"
+      />
     </div>
   );
 }
