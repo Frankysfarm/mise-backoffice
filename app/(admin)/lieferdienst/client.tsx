@@ -222,6 +222,7 @@ import { FahrerIncentivePanel } from './fahrer-incentive-panel';
 import { FahrerZeugnisPanel } from './fahrer-zeugnis-panel';
 import { LieferQualitaetsPanel } from './liefer-qualitaets-panel';
 import { FahrerVerfuegbarkeitsKalender } from './fahrer-verfuegbarkeits-kalender';
+import { LieferdienstTagesKpiExecutive } from './tages-kpi-executive';
 import { SchichtLiveBilanz } from './schicht-live-bilanz';
 import { StundenPerformanceMatrix } from './stunden-performance-matrix';
 
@@ -1428,6 +1429,8 @@ export function LieferdienstClient() {
               <LieferQualitaetsPanel locationId={locationId ?? null} />
               {/* Phase 434: Fahrer-Verfügbarkeits-Kalender — 7-Tage Wochenübersicht geplanter Schichten + Alarm */}
               <FahrerVerfuegbarkeitsKalender locationId={locationId ?? null} />
+              {/* Phase 435: Tages-KPI-Executive — Alle 8 Tages-KPIs auf einen Blick (Bestellungen, Umsatz, SLA, Fahrer, Bewertung) */}
+              <LieferdienstTagesKpiExecutive locationId={locationId ?? null} />
               {/* Schicht-Live-Bilanz — Kompaktes Echtzeit-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) */}
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

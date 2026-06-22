@@ -234,6 +234,7 @@ import { DispatchKapazitaetsSchnellPanel } from './dispatch-kapazitaets-schnell-
 import { DispatchTourScoreSchnell } from './dispatch-tour-score-schnell';
 import { DispatchTourEffizienzRadar } from './tour-effizienz-radar';
 import { TourProfitLiveRanking } from './tour-profit-live-ranking';
+import { DispatchLieferQualitaetLive } from './liefer-qualitaet-live';
 
 type Driver = {
   employee_id: string;
@@ -1148,6 +1149,8 @@ export function DispatchBoard({
       <DispatchTourVisualisierung batches={batches} />
       {/* Phase 425: Tour-Profit-Ranking — Echtzeit-Rentabilität je aktiver Tour */}
       <TourProfitLiveRanking batches={batches as any} />
+      {/* Phase 435: Liefer-Qualität Live — Heutiger LQI-Score mit Fahrer-Aufschlüsselung und Trend */}
+      <DispatchLieferQualitaetLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Tour-Effizienz-Radar — Multi-dimensionaler Fahrer-Performance-Radar (Pünktlichkeit, Auslastung, Strecke, Zonen) */}
       <DispatchTourEffizienzRadar batches={batches} drivers={drivers} />
       {/* Tour-Score-Schnell-Übersicht — Alle aktiven Touren ranked nach Effizienz-Score + ETA */}

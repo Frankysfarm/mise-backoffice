@@ -182,6 +182,7 @@ import { FahrerZeugnisCard } from './fahrer-zeugnis-card';
 import { QualitaetsTrendKarte } from './qualitaets-trend-karte';
 import { StopCompass } from './stop-compass';
 import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
+import { FahrerStoppTempoAnzeige } from './stopp-tempo-anzeige';
 
 type Driver = {
   id: string;
@@ -1062,6 +1063,12 @@ export function FahrerApp({
         {activeBatch && (
           <div className="px-4">
             <TourStoppFortschrittsLeiste stops={activeBatch.stops as any} onMarkDelivered={markDelivered} onMarkArrived={markArrived} />
+          </div>
+        )}
+        {/* Phase 435: Stopp-Tempo-Anzeige — Live-Ring: Stopps/Stunde Ist vs. Soll mit Farbampel */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerStoppTempoAnzeige stops={activeBatch.stops as any} startedAt={activeBatch.started_at ?? null} />
           </div>
         )}
 

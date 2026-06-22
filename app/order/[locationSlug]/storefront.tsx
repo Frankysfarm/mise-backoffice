@@ -51,6 +51,7 @@ import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
 import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
 import { BestellungLiveTimeline } from './bestellung-live-timeline';
 import { EtaLiveFortschrittBanner } from './eta-live-fortschritt-banner';
+import { BestellPhasenBanner } from './bestell-phasen-banner';
 import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
 import { OrderJourneyTimeline } from './order-journey-timeline';
 
@@ -575,6 +576,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <BestellQualitaetsRing locationId={location.id} />
         </div>
       )}
+      {/* Phase 435: Bestell-Phasen-Banner — Live-Servicequalität-Strip: Fahrer online, ETA, Pünktlichkeit, aktive Lieferungen */}
+      <BestellPhasenBanner locationId={location.id} orderType={orderType} />
 
       {/* Quick-Jump: Kategorie-Buttons oben, damit Kunden nicht scrollen müssen */}
       <div className="bg-surface border-b border-matcha-900/5">

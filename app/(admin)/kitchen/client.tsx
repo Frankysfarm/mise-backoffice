@@ -185,6 +185,7 @@ import { ZonenAuslastungsChip } from './zonen-auslastungs-chip';
 import { KitchenSchichtTempoAmpel } from './schicht-tempo-ampel';
 import { KitchenKochstartSequenzBoard } from './kochstart-sequenz-board';
 import { FahrerPickupEtaAnzeige } from './fahrer-pickup-eta-anzeige';
+import { KitchenPrepZielAmpel } from './prep-ziel-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -642,6 +643,8 @@ export function KitchenBoard({
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}
       <FahrerPickupEtaAnzeige batches={batches.map(b => ({ ...b, fahrer_id: b.driver_id, started_at: b.started_at ?? null, fahrer: (b as any).fahrer ?? null, stops: stops.filter(s => s.batch_id === b.id) }))} orders={filtered} />
+      {/* Phase 435: Prep-Ziel-Ampel — Farbkodierte Echtzeit-Ampel für Aufträge in Zubereitung (Grün/Amber/Rot) */}
+      <KitchenPrepZielAmpel orders={filtered} />
       {/* Phase 423: Zonen-Auslastungs-Chip — morgige Bestellmenge je Zone für Küchen-Kapazitätsplanung */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <ZonenAuslastungsChip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
