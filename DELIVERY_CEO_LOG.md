@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–421 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–423 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #238 — Phase 423 (2026-06-22)
+
+### Commits geprüft
+- `a7f647f` — Phase 423 Backend+Frontend: Zonen-Prognose-Engine (4 Komponenten)
+- `c467a2b` — Phase 423 Frontend: Handoff-Board, Score-Rangliste, Stop-Checkliste, ETA-Proximity, Schicht-Cockpit
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (0)
+Keine Fehler gefunden. Code-Qualität durchgehend hoch.
+
+### Code-Qualität Phase 423 — Zonen-Prognose-Engine
+- `lib/delivery/zonen-prognose.ts`: Exponential-Decay (Half-Life 21d) + MAD×1.28-Konfidenzband + Trend-Erkennung (±5%-Schwelle 14d-Vergleich) — identische Architektur wie Umsatz-Prognose-Engine, solide ✅
+- Migration 204: `zonen_prognose_snapshots` UNIQUE(location_id+zone+datum), RLS, Prune-RPC, Cron 06:20 UTC compute-all / 08:20 UTC prune ✅
+- API `/api/delivery/admin/zonen-prognose`: GET prognose/zone/uebersicht, POST compute/prune ✅
+- `ZonenPrognosePanel` (lieferdienst): Zone-Tabs A/B/C/D, BarChart, Konfidenz-Balken, collapsible ✅
+- `ZonenNachfrageBadge` (dispatch): morgige Zonen-Prognosen mit Trend-Icons, kompakt ✅
+- `ZonenAuslastungsChip` (kitchen): anteilsmäßige Balken je Zone für Kapazitätsplanung ✅
+- `ZonenHotChip` (fahrer): Flame-Icon Top-Zone, sortiert nach Bestellvolumen morgen ✅
+
+### Code-Qualität Phase 423 — Operationale Cockpit-Komponenten
+- `KitchenHandoffTimingBoard` (288 Zeilen): Prep-Countdown vs. Fahrer-ETA Brücke, Gap-Berechnung (driverEtaMin - prepRemainMin), Ampelfarben late/tight/on-time/early, MM:SS-Timer — präzise Logik ✅
+- `DispatchScoreLiveLeaderboard` (264 Zeilen): S/A/B/C/D-Tier-Badges (≥90/75/60/45/unter45), stopsTotal vs. stopsDone Fortschrittsbalken, dispatch_score-fallback auf 50 — korrekt ✅
+- `TourStopCheckliste` (249 Zeilen): Mobile-first, etaLabel-Berechnung sauber, onComplete/onNavigate optional (props nicht übergeben → graceful degradation), keine Bugs ✅
+- `EtaLiveProximityBanner` (202 Zeilen): 30s-Polling `/api/tracking/[bestellnummer]`, STATUS_CONFIG-Map vollständig, calcEtaMinutes-Funktion korrekt, Haversine-Distanz implizit via driver.lat/lng → solide ✅
+- `HeutePerformanceCockpit` (262 Zeilen): Heute-Schicht-KPIs (Umsatz, Lieferungen, Pünktlichkeit, Fahrer, Storno-Rate), delta()-Funktion korrekt (prev=0 → neutral), WoD-Vergleich ✅
+
+### Integrations-Checkliste Phase 423
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenHandoffTimingBoard | kitchen/handoff-timing-board.tsx | kitchen/client.tsx:901 (orders+timings+batches+stops props) | ✅ |
+| DispatchScoreLiveLeaderboard | dispatch/score-live-leaderboard.tsx | dispatch/client.tsx:1273 (batches prop) | ✅ |
+| TourStopCheckliste | fahrer/app/tour-stop-checkliste.tsx | fahrer/app/client.tsx:1192 (stops+totalEtaMin+batchStartedAt) | ✅ |
+| EtaLiveProximityBanner | order/[locationSlug]/eta-live-proximity-banner.tsx | track/[bestellnummer]/tracking.tsx:506 (isDelivery+non-cancelled guard) | ✅ |
+| HeutePerformanceCockpit | lieferdienst/heute-performance-cockpit.tsx | lieferdienst/client.tsx:1397 (locationId prop) | ✅ |
+| ZonenPrognosePanel | lieferdienst/zonen-prognose-panel.tsx | lieferdienst/client.tsx:1395 (locationId prop) | ✅ |
+| ZonenNachfrageBadge | dispatch/zonen-nachfrage-badge.tsx | dispatch/client.tsx:1909 (locationId prop) | ✅ |
+| ZonenAuslastungsChip | kitchen/zonen-auslastungs-chip.tsx | kitchen/client.tsx:640 (locationId prop) | ✅ |
+| ZonenHotChip | fahrer/app/zonen-hot-chip.tsx | fahrer/app/client.tsx:1831 (locationId prop) | ✅ |
+| Migration 204 | scripts/migrations/204_zonen_prognose_snapshots.sql | zonen_prognose_snapshots + RLS + Prune-RPC | ✅ |
+
+### Hinweis: KapazitaetsWarnung
+- `dispatch/kapazitaets-warnung.tsx` nutzt den bestehenden `/api/delivery/admin/capacity-planner?action=gaps`-Endpunkt (nicht eine neue Route) — korrekt, kein separates API-Modul nötig ✅
+
+### Status nach Review #238
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 424 Backend:** Management-Report-Engine — Automatischer Wochenbericht je Standort. Neue Tabelle `management_reports` (location_id, woche_von, woche_bis, umsatz_eur, lieferungen, pünktlichkeit_pct, top_fahrer_id, top_zone, schlechteste_zone, cancellation_rate, avg_delivery_min, vergleich_vorwoche_pct, generiert_am). Engine: `lib/delivery/management-report.ts` aggregiert aus bestehenden Tabellen. API `GET /api/delivery/admin/management-report?location_id=...`. Cron montags 07:00 UTC.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 424 Frontend:** ManagementReportPanel — Lieferdienst-Admin-Dashboard mit Wochen-KPI-Zusammenfassung (Umsatz, Lieferungen, Pünktlichkeit, Trend-Pfeile vs. Vorwoche), Top-Fahrer-Badge, Zonen-Gewinner/Verlierer, PDF-Export-Button. Integration in `lieferdienst/client.tsx` nach HeutePerformanceCockpit. API: `GET /api/delivery/admin/management-report?location_id=...`
 
 ---
 
