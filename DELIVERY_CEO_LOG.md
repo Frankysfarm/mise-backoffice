@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–412 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–420 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #235 — Phase 420 (2026-06-22)
+
+### Commits geprüft:
+- `20f50fe` — Phase 420 Backend+Frontend: Umsatz-Prognose-Engine
+
+### Technische Prüfung
+- `npx tsc --noEmit` → **Exit 0, 0 Fehler** ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+- Route `/api/delivery/admin/umsatz-prognose` korrekt im Build ✅
+
+### Bugs gefixt (0)
+Kein einziger Fehler. Algorithmus, API und Frontend sind sauber implementiert.
+
+### Code-Review Phase 420
+
+**Backend `lib/delivery/umsatz-prognose.ts`:**
+- Exponential-Decay-Gewichtung (Half-Life 21d) korrekt implementiert ✅
+- MAD × 1.28 für 80%-Konfidenzband mathematisch korrekt ✅
+- Konfidenz linear skaliert (Datenpunkte / 52 Wochen, capped 0–1) ✅
+- Trend-Erkennung (letzte 14d vs. vorherige 14d, ±5%-Schwelle) ✅
+- Fallback-Prognose bei 0 gleichem-Wochentag-Daten vorhanden ✅
+- `pruneOldUmsatzPrognosen` via RPC (60d Aufbewahrung) ✅
+
+**API `app/api/delivery/admin/umsatz-prognose/route.ts`:**
+- GET: Prognose + History korrekt getrennt ✅
+- POST: compute/compute-all/prune vollständig ✅
+- Fehlerbehandlung mit deutschen Fehlermeldungen ✅
+
+**Frontend `umsatz-prognose-panel.tsx`:**
+- Heute-KPI-Block mit Konfidenz-Balken ✅
+- 7-Tage-Grid mit Trend-Icons ✅
+- ComposedChart: Ist (grau) + Prognose (grün) + ErrorBar-Overlay ✅
+- 10-Min-Lazy-Polling (nur wenn geöffnet) — effizient ✅
+- Leer-Zustand mit "Jetzt berechnen"-Button ✅
+- Neu-berechnen-Button im Footer ✅
+
+**Cron-Integration `app/api/cron/smart-dispatch/route.ts`:**
+- `umsatzPrognoseResult` + `umsatzPrognosePruned` korrekt im Response-Spread ✅
+- 06:00 UTC compute-all, 07:30 UTC prune ✅
+
+### Integrations-Checkliste Phase 420
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| UmsatzPrognosePanel | lieferdienst/umsatz-prognose-panel.tsx | lieferdienst/client.tsx L1382 | ✅ |
+| Migration 202 | scripts/migrations/202_umsatz_prognose_snapshots.sql | Supabase | ✅ |
+| Cron compute-all | app/api/cron/smart-dispatch/route.ts | 06:00 UTC | ✅ |
+| Cron prune | app/api/cron/smart-dispatch/route.ts | 07:30 UTC | ✅ |
+
+### Status nach Review #235
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend/Frontend-Ingenieur
+- **Phase 421 Backend:** Neue Intelligence-Engine (z.B. Kunden-Segmentierung, Zonen-Profitabilitäts-Prognose, oder Fahrer-Auslastungs-Optimierer)
+- **Phase 421 Frontend:** Dashboard-Komponenten für Phase-421-Backend
 
 ---
 
