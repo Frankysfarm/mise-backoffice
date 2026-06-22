@@ -176,6 +176,8 @@ import { computeTagesMusterAllLocations, pruneOldTagesMuster } from '@/lib/deliv
 import { computeZonenPrognoseAllLocations, pruneOldZonenPrognosen } from '@/lib/delivery/zonen-prognose';
 import { computeManagementReportAllLocations, pruneOldManagementReports } from '@/lib/delivery/management-report';
 import { pingUpcomingShiftsAllLocations, pruneOldLogs as pruneFahrerErreichbarkeit } from '@/lib/delivery/fahrer-erreichbarkeit';
+import { computeVorschlaegeAllLocations } from '@/lib/delivery/schicht-optimierer';
+import { generateBriefingsAllLocations, pruneOldBriefings } from '@/lib/delivery/schicht-briefing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -417,6 +419,11 @@ export async function GET(req: NextRequest) {
     // Phase 426: Fahrer-Erreichbarkeit — alle 5 Min pingen; täglich 08:35 UTC prune (30 Tage)
     const isFahrerErreichbarkeitTick      = nowMin % 5 < 2;
     const isFahrerErreichbarkeitPruneTick = nowHour === 8 && nowMin >= 35 && nowMin < 39;
+    // Phase 428: Schicht-Auslastungs-Optimierer — täglich 06:30 UTC (nach tages-muster 06:10)
+    const isSchichtOptimierTick = nowHour === 6 && nowMin >= 30 && nowMin < 34;
+    // Phase 429: Schicht-Briefing — alle 5 Min generieren; täglich 08:40 UTC prune (30 Tage)
+    const isSchichtBriefingTick      = nowMin % 5 >= 2 && nowMin % 5 < 4;
+    const isSchichtBriefingPruneTick = nowHour === 8 && nowMin >= 40 && nowMin < 44;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1549,6 +1556,19 @@ export async function GET(req: NextRequest) {
       ? await pruneFahrerErreichbarkeit(30).catch(() => null)
       : null;
 
+    // Phase 428: Schicht-Auslastungs-Optimierer — täglich 06:30 UTC
+    const schichtOptimierResult = isSchichtOptimierTick
+      ? await computeVorschlaegeAllLocations().catch(() => null)
+      : null;
+
+    // Phase 429: Schicht-Briefing — alle 5 Min generieren; täglich 08:40 UTC prune
+    const schichtBriefingResult = isSchichtBriefingTick
+      ? await generateBriefingsAllLocations().catch(() => null)
+      : null;
+    const schichtBriefingPruned = isSchichtBriefingPruneTick
+      ? await pruneOldBriefings(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1849,6 +1869,9 @@ export async function GET(req: NextRequest) {
       ...(managementReportPruned != null ? { management_report_pruned: managementReportPruned } : {}),
       ...(fahrerErreichbarkeitResult?.pinged ? { fahrer_erreichbarkeit: { locations: fahrerErreichbarkeitResult.locations, pinged: fahrerErreichbarkeitResult.pinged } } : {}),
       ...(fahrerErreichbarkeitPruned != null ? { fahrer_erreichbarkeit_pruned: fahrerErreichbarkeitPruned } : {}),
+      ...(schichtOptimierResult?.locations ? { schicht_auslastungs_optimierer: { locations: schichtOptimierResult.locations, errors: schichtOptimierResult.errors } } : {}),
+      ...(schichtBriefingResult ? { schicht_briefing: { locations: schichtBriefingResult.locations, upserted: schichtBriefingResult.upserted, errors: schichtBriefingResult.errors } } : {}),
+      ...(schichtBriefingPruned != null ? { schicht_briefing_pruned: schichtBriefingPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

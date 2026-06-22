@@ -7102,3 +7102,163 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | Cron prune | app/api/cron/smart-dispatch/route.ts | 08:20 UTC | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 424 Backend + Frontend — Management-Report-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 205 (`scripts/migrations/205_management_reports.sql`):**
+- `management_reports`: UNIQUE(location_id, woche_von), Wochenbericht je Standort
+- Felder: umsatz_eur, lieferungen, puenktlichkeit_pct, top_fahrer_id/name, top_zone/schlechteste_zone, cancellation_rate, avg_delivery_min, vergleich_vorwoche_pct, generiert_am
+- RLS: service_role full + authenticated read own location
+- `prune_management_reports(weeks_to_keep)` Cleanup-RPC
+
+**`lib/delivery/management-report.ts`** — Wochenbericht-Engine:
+- Aggregiert aus customer_orders + driver_score_daily_snapshots
+- Top-Fahrer (höchster Ø-Composite-Score), Top-Zone/Schlechteste-Zone
+- Vorwochenvergleich Umsatz (%)
+- `computeManagementReport(locationId, weekOffset?)` + `computeManagementReportAllLocations()`
+- `getManagementReports(locationId, limit?)` + `getLatestManagementReport(locationId)`
+- `pruneOldManagementReports(weeksToKeep?)` via RPC
+
+**`app/api/delivery/admin/management-report/route.ts`:** GET/POST vollständig ✅
+**`app/(admin)/lieferdienst/management-report-panel.tsx`** — `ManagementReportPanel`:
+- Wochenbericht-Karte: Umsatz, Lieferungen, Pünktlichkeit, Top-Fahrer, Stornorate
+- Vorwochenvergleich Delta mit Trend-Icon
+- Letzte 4 Wochen collapsible Liste
+- Integration: lieferdienst/client.tsx nach ZonenPrognosePanel ✅
+
+**Cron:** montags 07:00 UTC compute, täglich 08:30 UTC prune (52 Wochen) ✅
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 426 Backend + Frontend — Fahrer-Erreichbarkeits-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 206 (`scripts/migrations/206_fahrer_erreichbarkeit.sql`):**
+- `fahrer_erreichbarkeit_log`: Pings + Antworten je Fahrer × Schicht
+- UNIQUE(driver_id, schicht_id), antwort CHECK IN ('bestätigt','abgelehnt','keine_antwort')
+- RLS + `prune_fahrer_erreichbarkeit_logs(days_old)` Cleanup-RPC
+
+**`lib/delivery/fahrer-erreichbarkeit.ts`** — Ping-Engine (Phase 426):
+- 30 Min vor Schichtbeginn Push-Ping an Fahrer
+- `pingUpcomingShifts(locationId)` + `pingUpcomingShiftsAllLocations()` (alle 5 Min Cron)
+- `recordAnswer(logId, antwort)` — Antwort speichern
+- `getDashboard(locationId)` — Bestätigt/Abgelehnt/KeineAntwort je Schicht
+- `pruneOldLogs(daysOld?)` — Cleanup
+
+**`app/api/delivery/admin/fahrer-erreichbarkeit/route.ts`:** vollständig ✅
+**`app/(admin)/dispatch/fahrer-erreichbarkeits-panel.tsx`** — `FahrerErreichbarkeitsPanel`:
+- Nächste Schicht: Ampel (Bestätigt/Abgelehnt/Ausstehend), Fahrer-Liste mit Status
+- Integration: dispatch/client.tsx ✅
+
+**Cron:** alle 5 Min pingen, täglich 08:35 UTC prune (30 Tage) ✅
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 428 Backend + Frontend — Schicht-Auslastungs-Optimierer (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 207 (`scripts/migrations/207_schicht_auslastungs_vorschlaege.sql`):**
+- `schicht_auslastungs_vorschlaege`: UNIQUE(location_id, wochentag, stunde)
+- Felder: empfohlene_fahrer_anzahl, konfidenz 0–1, tages_muster_basis, avg_bestellungen, peak_klasse
+- RLS: service_role full + authenticated read own location
+
+**`lib/delivery/schicht-optimierer.ts`** — Auslastungs-Optimierer (Phase 428):
+- Algorithmus: tages_muster_snapshots → ceil(avg_bestellungen / 2.5) + 1 Puffer bei 'high'
+- konfidenz = min(1.0, basis_tage / 30)
+- `computeVorschlaege(locationId)` + `computeVorschlaegeAllLocations()`
+- `getVorschlaege(locationId, wochentag?)` + `getVorschlaegeWithIst(locationId)`
+
+**`app/api/delivery/admin/schicht-optimierer/route.ts`:** vollständig ✅
+**`app/(admin)/lieferdienst/schicht-optimierungs-panel.tsx`** — `SchichtOptimierungsPanel`:
+- 7-Wochentag-Grid mit Stunden-Empfehlungen + Konfidenz-Balken
+- Integration: lieferdienst/client.tsx nach OpsGesundheitsAmpel ✅
+**`app/(admin)/kitchen/schicht-auslastungs-ring.tsx`** — `KitchenSchichtAuslastungsRing`:
+- Ring-Chart: Aktuelle Auslastung vs. Empfehlung, Integration: kitchen/client.tsx ✅
+
+**Cron:** täglich 06:30 UTC compute (nach tages-muster 06:10) ✅
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 429 Backend + Frontend — Schicht-Briefing-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 208 (`scripts/migrations/208_schicht_briefings.sql`):**
+- `schicht_briefings`: UNIQUE(driver_id, schicht_datum)
+- Felder: erwartete_bestellungen, spitzenstunde (UTC 0-23), top_zone (A/B/C/D), peak_klasse_schicht (low/normal/peak/high), tipps JSONB[], driver_score 0-100, driver_kategorie (elite/gut/durchschnitt/auffällig), generiert_am, gesehen_am
+- RLS: service_role full + authenticated read own location + driver read own briefing
+- `prune_schicht_briefings(days_old)` Cleanup-RPC
+- Index auf (location_id, schicht_datum) und (driver_id, schicht_datum DESC)
+
+**`lib/delivery/schicht-briefing.ts`** — Briefing-Engine:
+- Algorithmus: driver_shifts (nächste 4h) → tages_muster_snapshots (Wochentag-Muster) → Spitzenstunde + Peak-Klasse + erwartete Bestellungen → fahrer_prognose_snapshots (Score + Kategorie) → zonen_prognose_snapshots (Top-Zone morgen)
+- Dynamische Tipps-Bibliothek: Peak-Klasse-Tips + Spitzenstunde + Zone + Kategorie-Coaching (max. 4 Tips)
+- `generateBriefingForDriver(driverId, locationId)` — Einzelner Fahrer
+- `generateBriefingsForLocation(locationId)` — Alle Fahrer mit Schicht in 4h (Promise.allSettled)
+- `generateBriefingsAllLocations()` — Cron-Batch alle aktiven Standorte
+- `getBriefingForDriver(driverId, locationId, date?)` — Briefing lesen
+- `getTodaysBriefingsForLocation(locationId)` — Alle Briefings heute + Fahrer-Namen via employees-Join
+- `markBriefingSeen(id)` — gesehen_am setzen (nur wenn null → idempotent)
+- `pruneOldBriefings(daysOld=30)` — Cleanup via RPC
+
+**`app/api/delivery/admin/schicht-briefing/route.ts`:**
+- GET `?location_id=...` → Alle Briefings heute
+- GET `?location_id=...&driver_id=...&date=YYYY-MM-DD` → Briefing für einen Fahrer
+- POST action=generate → Alle Fahrer der Location (4h-Lookahead)
+- POST action=generate-driver → Einzelner Fahrer (body: { driver_id })
+- POST action=generate-all → Alle Standorte (Cron-Trigger)
+- POST action=seen → Gesehen-Zeitstempel (body: { id })
+- POST action=prune → Cleanup alter Briefings
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Alle 5 Min (versetzt zu Erreichbarkeits-Ping): `generateBriefingsAllLocations()`
+- Täglich 08:40 UTC: `pruneOldBriefings(30)` (30-Tage-Aufbewahrung)
+- Täglich 06:30 UTC: `computeVorschlaegeAllLocations()` (Phase 428 Cron-Fix)
+
+**`app/fahrer/app/schicht-briefing-card.tsx`** — `SchichtBriefingCard`:
+- Nur sichtbar: Schicht startet in ≤ 90 Min ODER vor ≤ 30 Min gestartet (`isRelevantNow`)
+- Header: Peak-Klasse-Badge (Hochbetrieb/Stoßzeit/Normal/Ruhig) + erwartete Bestellungen + Schichtzeit
+- Collapsible Detail: KPI-3er-Grid (Spitzenstunde / Top-Zone / Fahrer-Score), Kategorie-Badge, Tipps-Liste
+- Automatisch als gesehen markiert beim ersten Öffnen (PATCH via `action=seen`)
+- Dark-mode-kompatibel, dunkel gefärbt nach Peak-Klasse (rose/amber/sky/neutral)
+- Integration: `fahrer/app/client.tsx:735` nach FahrerWartezeitTipp ✅
+
+**`app/(admin)/lieferdienst/schicht-briefing-uebersicht.tsx`** — `SchichtBriefingUebersicht`:
+- Collapsible-Panel (violet ClipboardList-Icon)
+- Header-Badge: X/Y gesehen
+- Fahrer-Liste: Gesehen-Icon (✅ oder ⏰), Name, Schichtzeit, erwartete Bestellungen, Zone-Dot, Score-Badge, Peak-Badge
+- "Jetzt generieren"-Button → POST action=generate, 5-Min-Polling (lazy: nur wenn open=true)
+- Summary: Briefings-Total / Gelesen / Ausstehend
+- Integration: `lieferdienst/client.tsx` nach SchichtOptimierungsPanel ✅
+
+### Integrations-Checkliste Phase 429
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| SchichtBriefingCard | fahrer/app/schicht-briefing-card.tsx | fahrer/app/client.tsx nach FahrerWartezeitTipp | ✅ |
+| SchichtBriefingUebersicht | lieferdienst/schicht-briefing-uebersicht.tsx | lieferdienst/client.tsx nach SchichtOptimierungsPanel | ✅ |
+| generateBriefingsAllLocations | lib/delivery/schicht-briefing.ts | Cron alle 5 Min | ✅ |
+| pruneOldBriefings | lib/delivery/schicht-briefing.ts | Cron 08:40 UTC | ✅ |
+| computeVorschlaegeAllLocations | lib/delivery/schicht-optimierer.ts | Cron 06:30 UTC (Phase 428 Fix) | ✅ |
+| Migration 208 | scripts/migrations/208_schicht_briefings.sql | Supabase | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅

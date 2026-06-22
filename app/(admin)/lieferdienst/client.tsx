@@ -216,6 +216,7 @@ import { FahrerAbwesenheitsUebersicht } from './fahrer-abwesenheits-uebersicht';
 import { OpsGesundheitsAmpel } from './ops-gesundheits-ampel';
 import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel'
 import { SchichtStundenStatistik } from './schicht-stunden-statistik';
+import { SchichtBriefingUebersicht } from './schicht-briefing-uebersicht';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1408,6 +1409,8 @@ export function LieferdienstClient() {
               <OpsGesundheitsAmpel locationId={locationId ?? null} />
               {/* Phase 428: Schicht-Auslastungs-Optimierer — Wochentag-Empfehlungen (Fahrerzahl + Konfidenz) */}
               <SchichtOptimierungsPanel locationId={locationId ?? null} />
+              {/* Phase 429: Schicht-Briefing-Übersicht — Manager-Panel mit Gesehen-Status je Fahrer */}
+              <SchichtBriefingUebersicht locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}
