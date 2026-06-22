@@ -470,7 +470,7 @@ export async function notifyDispatchersOnCritical(
 
   if (!inserts.length) return { notified: 0 };
 
-  await sb.from('mise_push_outbox').insert(inserts).catch(() => null);
+  void sb.from('mise_push_outbox').insert(inserts);
   return { notified: inserts.length };
 }
 

@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–409 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–410 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #229 — Phase 410 (2026-06-22)
+
+### Commits geprüft:
+- `6aeff02` — Phase 410 Backend: Emergency-Push-Notification + /api/delivery/orders/[orderId]
+- `76458f7` — Phase 410 Frontend: 5 neue Echtzeit-Komponenten
+- `9c424bf` — Docs: Phase 410 Fortschritt dokumentiert
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅ (nach 1 Bugfix)
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅ (EXIT:0, clean build)
+
+### Bugs gefixt (2)
+
+**Bug 1 — `lib/delivery/emergency-capacity.ts:473` — TypeScript-Fehler `.catch()` auf PostgrestFilterBuilder:**
+- **Problem:** `await sb.from('mise_push_outbox').insert(inserts).catch(() => null)` — `.catch()` existiert nicht auf dem Supabase `PostgrestFilterBuilder<..., "POST">` Typ. Führte zu `TS2551`-Fehler.
+- **Fix:** Ersetzt durch `void sb.from('mise_push_outbox').insert(inserts)` — korrekt fire-and-forget ohne TypeScript-Fehler.
+
+**Bug 2 — `app/order/[locationSlug]/storefront.tsx:1093` — BestellEchtzeitAmpel ohne Zeitdaten:**
+- **Problem:** `BestellEchtzeitAmpel` wurde mit nur `orderId` und `status` aufgerufen — `bestelltAm` und `etaMin` fehlten. Die Zeitanzeige-Features (vergangene/verbleibende Minuten) waren nicht funktionsfähig, obwohl `placedAt` und `etaMs` in LocalStorage verfügbar sind.
+- **Fix:** `ActiveOrderProgressPanel`-State um `placedAt` (ISO-String) und `etaMin` (Minuten = `(etaMs - placedAt) / 60000`) erweitert; beide Props werden korrekt an `BestellEchtzeitAmpel` übergeben.
+
+### Integrations-Checkliste Phase 410
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenSchichtItemRanking | kitchen/schicht-item-ranking.tsx | kitchen/client.tsx | ✅ |
+| DispatchLiveKapazitaetsAlert | dispatch/live-kapazitaets-alert.tsx | dispatch/client.tsx | ✅ |
+| FahrerTourVerdienstVerlauf | fahrer/app/tour-verdienst-verlauf.tsx | fahrer/app/client.tsx | ✅ |
+| BestellEchtzeitAmpel | order/[locationSlug]/bestell-echtzeit-ampel.tsx | order/[locationSlug]/storefront.tsx | ✅ (Bug gefixt) |
+| SchichtUmsatzKumulativ | lieferdienst/schicht-umsatz-kumulativ.tsx | lieferdienst/client.tsx | ✅ |
+
+### Phase 410 Backend-Prüfung
+- `notifyDispatchersOnCritical()`: employees mit rolle admin/manager/dispatcher + is_active=true abgefragt, Push-Outbox fire-and-forget ✅
+- `GET /api/delivery/orders/[orderId]`: order_id, status, eta, batch_state, stops_before, driver_name/phone (nur bei status=unterwegs) ✅
+- API-Route korrekt dynamisch (`force-dynamic`) ✅
+
+### Status nach Review #229
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 411 Frontend:** Weitere Echtzeit-Komponenten basierend auf bestehenden Backend-APIs — Kapazitäts-Vergleich Multi-Location, ML-Export-Trigger-Panel, erweiterte Schicht-KPIs
 
 ---
 

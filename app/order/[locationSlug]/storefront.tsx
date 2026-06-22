@@ -1025,7 +1025,7 @@ function SharedTrackingBanner() {
 /* ------------------------------ ActiveOrderProgressPanel ------------------------------ */
 
 function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
-  const [order, setOrder] = React.useState<{ orderId: string; bestellnummer?: string; status: string; etaEarliest: string | null; isDelivery: boolean } | null>(null);
+  const [order, setOrder] = React.useState<{ orderId: string; bestellnummer?: string; status: string; etaEarliest: string | null; isDelivery: boolean; placedAt: string | null; etaMin: number | null } | null>(null);
 
   React.useEffect(() => {
     try {
@@ -1034,12 +1034,17 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       const parsed = JSON.parse(raw);
       if (!parsed.orderId) return;
       if (Date.now() - parsed.placedAt > 4 * 60 * 60_000) return;
+      const etaMin = (parsed.placedAt && parsed.etaMs)
+        ? Math.max(1, Math.round((parsed.etaMs - parsed.placedAt) / 60_000))
+        : null;
       setOrder({
         orderId: parsed.orderId,
         bestellnummer: parsed.bestellnummer ?? undefined,
         status: parsed.status ?? 'bestätigt',
         etaEarliest: parsed.etaMs ? new Date(parsed.etaMs).toISOString() : null,
         isDelivery: parsed.isDelivery ?? false,
+        placedAt: parsed.placedAt ? new Date(parsed.placedAt).toISOString() : null,
+        etaMin,
       });
     } catch {}
   }, [locationId]);
@@ -1093,6 +1098,8 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
           <BestellEchtzeitAmpel
             orderId={order.orderId}
             status={order.status}
+            bestelltAm={order.placedAt ?? undefined}
+            etaMin={order.etaMin ?? undefined}
           />
         </div>
       )}
