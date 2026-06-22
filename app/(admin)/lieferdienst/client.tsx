@@ -214,7 +214,8 @@ import { LieferdienstPhase422Wochentrend } from './phase422-wochentrend';
 import { ZonenPrognosePanel } from './zonen-prognose-panel';
 import { FahrerAbwesenheitsUebersicht } from './fahrer-abwesenheits-uebersicht';
 import { OpsGesundheitsAmpel } from './ops-gesundheits-ampel';
-import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel';
+import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel'
+import { SchichtStundenStatistik } from './schicht-stunden-statistik';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1409,6 +1410,8 @@ export function LieferdienstClient() {
               <SchichtOptimierungsPanel locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}
+              <SchichtStundenStatistik />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
               <SchichtPunktlichkeitsRing locationId={locationId} />
               {/* Live-Erlösprognose: aktueller Umsatz + Hochrechnung bis Schichtende auf Basis Bestellrate */}

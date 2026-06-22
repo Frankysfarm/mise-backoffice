@@ -231,6 +231,7 @@ import { AktiveLieferungLiveBoard } from './aktive-lieferung-live-board';
 import { ZonenNachfrageBadge } from './zonen-nachfrage-badge';
 import { FahrerErreichbarkeitsPanel } from './fahrer-erreichbarkeits-panel';
 import { DispatchKapazitaetsSchnellPanel } from './dispatch-kapazitaets-schnell-panel';
+import { DispatchTourScoreSchnell } from './dispatch-tour-score-schnell';
 
 type Driver = {
   employee_id: string;
@@ -1143,6 +1144,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Tour-Score-Schnell-Übersicht — Alle aktiven Touren ranked nach Effizienz-Score + ETA */}
+      <DispatchTourScoreSchnell batches={batches} />
       {/* Phase 402: Tour-Score-Kommando — Dispatch-Ranking aller fertigen Bestellungen + Tour-Score-Übersicht */}
       <DispatchTourScoreKommando
         orders={readyOrders.map(o => ({

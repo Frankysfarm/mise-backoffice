@@ -147,6 +147,7 @@ import { KitchenHandoffRatePanel } from './handoff-rate-panel';
 import { KitchenHandoffRateTrend } from './handoff-rate-trend';
 import { KitchenAuftragsWarteschlangenZeit } from './auftrags-warteschlangen-zeit';
 import { KitchenKochzeitSollIstVergleich } from './kochzeit-soll-ist-vergleich';
+import { KitchenKochzeitCockpit } from './kitchen-kochzeit-cockpit';
 import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
 import { KitchenBestellungsFlowAmpel } from './bestellungs-flow-ampel';
 import { KitchenSmartTimingHub } from './smart-timing-hub';
@@ -677,6 +678,8 @@ export function KitchenBoard({
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
+      {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}
+      <KitchenKochzeitCockpit orders={filtered} timings={timings} />
       {/* Phase 403: Smart-Batch-Prognose — Countdown + Urgency-Farbkodierung je Bestellung */}
       <KitchenSmartBatchPrognose orders={filtered} timings={timings} />
       {/* Phase 390: Kochstart-Konfidenz — Empfehlung ob jetzt kochen basierend auf Fahrer-Verfügbarkeit + Queue */}
