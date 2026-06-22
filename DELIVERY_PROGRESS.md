@@ -6968,3 +6968,46 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | Migration 203 | scripts/migrations/203_tages_muster_snapshots.sql | Supabase | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 422 Frontend — Smart-Timing, Multi-Nav, Live-Karte, Wochentrend (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**`app/(admin)/kitchen/phase422-prioritaets-kommando.tsx`** — `KitchenPhase422PrioritaetsKommando`:
+- Top-6 Bestellungen nach Urgency (readyAt-Countdown) sortiert, 1s-Tick
+- Farbkodierung: rot (überfällig) / amber (< 3 Min) / grün (OK), MM:SS-Anzeige
+- Überfällig/Kritisch/OK Badge im Header, Items-Preview, Status-Label
+- Integration: `kitchen/client.tsx:635` direkt nach vorhandenen Action-Strips
+
+**`app/fahrer/app/navi-app-wahl.tsx`** — `NaviAppWahl`:
+- Google Maps, Waze, Apple Maps (iOS-only via User-Agent), HERE Maps Deep-Links
+- compact=false: 2×2-Grid mit großen Tap-Targets; compact=true: Horizontal-Reihe
+- Integration: `fahrer/app/client.tsx:2001` nach FahrerNaviStrip für aktiven Stopp
+
+**`app/order/[locationSlug]/storefront-fahrer-karte.tsx`** — `StorefrontFahrerKarte`:
+- Leaflet dynamic import, Fahrer-Moped-Icon mit Heading-Richtungspfeil + Ping-Animation
+- destLat/destLng-Marker (📍), Haversine-Distanzberechnung in m/km
+- 30s-Polling + Supabase Realtime-Channel auf `customer_orders`
+- Nur sichtbar wenn `status ∈ {fertig, unterwegs}` und Fahrer-Koordinaten vorhanden
+- **CEO-Fix:** Import + Integration in `storefront.tsx` nach `EtaLiveFortschrittBanner` nachgetragen
+
+**`app/(admin)/lieferdienst/phase422-wochentrend.tsx`** — `LieferdienstPhase422Wochentrend`:
+- 3-KPI-Grid: Gesamtbestellungen (WoW-Delta), Pünktlichkeit% (vs. 80%-Ziel), Ø Lieferzeit
+- BarChart: Bestellvolumen / Tag (letzter Tag grün, Rest blau)
+- LineChart: Pünktlichkeit % / Tag (domain 60–100)
+- Supabase-Live-Abfrage auf `customer_orders` (letzte 7 Tage, typ=lieferung); MOCK-Fallback
+- Integration: `lieferdienst/client.tsx:1391` nach TagesMusterPanel
+
+### Integrations-Checkliste Phase 422
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenPhase422PrioritaetsKommando | kitchen/phase422-prioritaets-kommando.tsx | kitchen/client.tsx:635 | ✅ |
+| NaviAppWahl | fahrer/app/navi-app-wahl.tsx | fahrer/app/client.tsx:2001 | ✅ |
+| StorefrontFahrerKarte | order/[locationSlug]/storefront-fahrer-karte.tsx | storefront.tsx nach EtaLiveFortschrittBanner | ✅ |
+| LieferdienstPhase422Wochentrend | lieferdienst/phase422-wochentrend.tsx | lieferdienst/client.tsx:1391 | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅

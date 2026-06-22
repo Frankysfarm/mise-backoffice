@@ -14395,3 +14395,56 @@ Beide Phasen 418 und 419 sind korrekt typisiert, vollständig integriert und bau
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 420 Frontend:** UmsatzPrognosePanel — Lieferdienst-Admin-Dashboard mit Tagesvorhersage (erwarteter Umsatz + Konfidenz-Balken + Range), 7-Tage-Vorschau-Chart (Recharts-BarChart), Trend-Indikator. Integration in lieferdienst/client.tsx nach WartezeitStatsPanel. API: `GET /api/delivery/admin/umsatz-prognose?location_id=...`
+
+---
+
+## CEO Review #237 — Phase 422 (2026-06-22)
+
+### Commits geprüft
+- `88c250c` feat(delivery/backend): Phase 422 — Tages-Muster-Erkennung (Daily Pattern Recognition)
+- `1dbba6c` feat(delivery/frontend): Phase 422 — Smart-Timing, Multi-Nav, Live-Karte, Wochentrend
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bug gefixt (1)
+
+**Bug 1 — StorefrontFahrerKarte nicht integriert**
+- **Problem:** `app/order/[locationSlug]/storefront-fahrer-karte.tsx` war vollständig implementiert, aber weder importiert noch in `storefront.tsx` eingebunden. Die Leaflet-Live-Karte war für Kunden unsichtbar.
+- **Fix:** Import `StorefrontFahrerKarte` in `storefront.tsx` ergänzt + Block nach `EtaLiveFortschrittBanner` eingefügt (nur wenn `order.isDelivery && status fertig/unterwegs`).
+- **Datei:** `app/order/[locationSlug]/storefront.tsx`
+
+### Code-Qualität Phase 422 Backend (Tages-Muster-Erkennung)
+- `lib/delivery/tages-muster.ts` (421 Zeilen): Z-Score Peak-Klassifikation (low/normal/peak/high) aus `order_pulse_snapshots`, stündliche Aggregation je Wochentag × UTC-Stunde, Berlin-Zeit-Labels, 5 Public-API-Funktionen — solide ✅
+- Migration 203: `tages_muster_snapshots` UNIQUE(location_id, wochentag, stunde), RLS, Cleanup-RPC `prune_tages_muster_snapshots(days_old)`, Index auf (location_id, wochentag) ✅
+- API `/api/delivery/admin/tages-muster`: GET prognose/muster, POST compute/compute-all/prune — vollständig ✅
+- Cron: 06:10 UTC `computeTagesMusterAllLocations(90)`, 08:10 UTC `pruneOldTagesMuster(30)` ✅
+
+### Code-Qualität Phase 422 Frontend
+- `lieferdienst/phase422-wochentrend.tsx` (233 Zeilen): 3-KPI-Grid (Bestellungen/Pünktlichkeit/Lieferzeit), BarChart (Bestellvolumen/Tag) + LineChart (Pünktlichkeit%), Supabase-Live-Daten mit MOCK-Fallback, WoW-Delta-Berechnung — professionell ✅
+- `kitchen/phase422-prioritaets-kommando.tsx` (169 Zeilen): Top-6 urgency-sorted nach readyAt-Countdown, MM:SS-Timer mit 1s-Tick, Farbkodierung rot/amber/grün, Überfällig-Badge, Items-Preview — vollständig ✅
+- `fahrer/app/navi-app-wahl.tsx` (157 Zeilen): Google Maps + Waze + Apple Maps (iOS-only) + HERE Maps Deep-Links, compact-Modus (horizontal), full-Modus (2×2 Grid), iOS-User-Agent-Detection, Launched-State-Feedback — korrekt ✅
+- `order/[locationSlug]/storefront-fahrer-karte.tsx` (218 Zeilen): Leaflet dynamic import, Fahrer-Moped-Icon mit Heading-Richtungspfeil, Ping-Animation, destLat/destLng-Marker, Haversine-Distanzberechnung, 30s-Polling + Supabase Realtime-Channel — qualitativ hochwertig ✅
+- `lieferdienst/tages-muster-panel.tsx` (456 Zeilen): 2-Tab (Prognose + Heatmap), 24h-Balken-Chart farbkodiert, Nächste-6-Stunden-Grid, 7×24 Heatmap Peak-Intensity, Legende — komplett ✅
+
+### Integrations-Checkliste Phase 422
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| LieferdienstPhase422Wochentrend | lieferdienst/phase422-wochentrend.tsx | lieferdienst/client.tsx:1391 nach TagesMusterPanel | ✅ |
+| KitchenPhase422PrioritaetsKommando | kitchen/phase422-prioritaets-kommando.tsx | kitchen/client.tsx:635 (orders+timings props) | ✅ |
+| NaviAppWahl | fahrer/app/navi-app-wahl.tsx | fahrer/app/client.tsx:2001 nach FahrerNaviStrip | ✅ |
+| StorefrontFahrerKarte | order/[locationSlug]/storefront-fahrer-karte.tsx | storefront.tsx nach EtaLiveFortschrittBanner | ✅ (CEO-Fix) |
+| TagesMusterPanel | lieferdienst/tages-muster-panel.tsx | lieferdienst/client.tsx | ✅ |
+
+### Status nach Review #237
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 423 Backend:** Echtzeit-Kapazitäts-Warnsystem — Automatische Warnung wenn Lieferkapazität unter Schwellenwert fällt. Neue Tabelle `kapazitaets_warnungen` (location_id, warntyp: driver_shortage/kitchen_overload/zone_gap, schwere: low/medium/high, ausgelöst_am, quittiert_am). Engine: `lib/delivery/kapazitaets-warnung.ts` berechnet täglich online Fahrer vs. Bestellvolumen aus `order_pulse_snapshots` + `driver_shifts`. API `GET /api/delivery/admin/kapazitaets-warnung?location_id=...`. Cron alle 15 Min.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 423 Frontend:** KapazitaetsWarnPanel — Echtzeit-Dashboard im Dispatch-View mit Ampel-Anzeige (grün/gelb/rot), aktive Warnungen-Liste, Quittier-Button je Warnung. Integration in `dispatch/client.tsx` nach `WartezeitDispatchBoard`. API: `GET /api/delivery/admin/kapazitaets-warnung?location_id=...`.

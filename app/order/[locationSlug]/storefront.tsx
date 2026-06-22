@@ -51,6 +51,7 @@ import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
 import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
 import { BestellungLiveTimeline } from './bestellung-live-timeline';
 import { EtaLiveFortschrittBanner } from './eta-live-fortschritt-banner';
+import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
 
 type Props = {
   location: Location;
@@ -1081,6 +1082,13 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
             initialEtaMin={order.etaMin ?? null}
           />
         </div>
+      )}
+      {/* Phase 422: Fahrer-Live-Karte — Leaflet-Karte mit Fahrer-Position + ETA wenn Status fertig/unterwegs */}
+      {order.isDelivery && (
+        <StorefrontFahrerKarte
+          orderId={order.orderId}
+          className="mt-3"
+        />
       )}
       {/* ETA Live Tracker V2: Erweiterte Live-ETA mit Phase-Dots, Fahrer-Status und Ankunftszeit */}
       {order.isDelivery && (
