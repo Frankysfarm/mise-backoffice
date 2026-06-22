@@ -202,6 +202,7 @@ import { SchichtAlarmZentrale } from './schicht-alarm-zentrale';
 import { LiefertreueMatrixHeatmap } from './liefertreue-matrix-heatmap';
 import { StornoMusterHeatmap } from './storno-muster-heatmap';
 import { FahrerPrognosePanel } from './fahrer-prognose-panel';
+import { KundenFeedbackEnginePanel } from './kunden-feedback-engine-panel';
 import { SchichtLiveKommando } from './schicht-live-kommando';
 
 export function LieferdienstClient() {
@@ -1371,6 +1372,8 @@ export function LieferdienstClient() {
               <StornoMusterHeatmap locationId={locationId ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'} />
               {/* Phase 417: Fahrer-Prognose-Rangliste — ML-Score je Fahrer (Pünktlichkeit · Lieferzeit · Bewertung · Effizienz) */}
               <FahrerPrognosePanel locationId={locationId ?? null} />
+              {/* Phase 418: Kunden-Feedback-Engine — Ø-Rating, Fahrer-Rangliste, Zonen-Heatmap, Tageszeit-Analyse */}
+              <KundenFeedbackEnginePanel locationId={locationId ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

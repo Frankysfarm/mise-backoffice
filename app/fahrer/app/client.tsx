@@ -164,6 +164,7 @@ import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
 import { FahrerBatterieAnzeige } from './batterie-anzeige';
 import { SchichtStornoHinweis } from './schicht-storno-hinweis';
 import { FahrerPrognoseBadge } from './fahrer-prognose-badge';
+import { FahrerBewertungsWidget } from './fahrer-bewertungs-widget';
 import { QuickNavKommando } from './quick-nav-kommando';
 
 type Driver = {
@@ -714,6 +715,10 @@ export function FahrerApp({
         {/* Phase 417: Fahrer-Prognose-Badge — Eigener Performance-Score + 4 Sub-Scores */}
         {isOnline && driver.location_id && (
           <FahrerPrognoseBadge driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 418: Fahrer-Bewertungs-Widget — Eigene Kundenbewertung (Ø-Sterne, Trend, Positiv/Negativ) */}
+        {isOnline && driver.location_id && (
+          <FahrerBewertungsWidget driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}
