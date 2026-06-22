@@ -202,6 +202,7 @@ import { SchichtAlarmZentrale } from './schicht-alarm-zentrale';
 import { LiefertreueMatrixHeatmap } from './liefertreue-matrix-heatmap';
 import { StornoMusterHeatmap } from './storno-muster-heatmap';
 import { FahrerPrognosePanel } from './fahrer-prognose-panel';
+import { SchichtLiveKommando } from './schicht-live-kommando';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1152,6 +1153,8 @@ export function LieferdienstClient() {
               <LieferdienstLiveStatistikPanel locationId={locationId} />
               {/* Phase 405: Schicht-Echtzeit-Kommando — Kompakte Kommando-Zentrale: Kapazität, Durchsatz, Top-Alert (60s) */}
               <SchichtEchtzeitKommando locationId={locationId ?? null} />
+              {/* Schicht-Live-Kommando: 6 KPI-Kacheln (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}
+              <SchichtLiveKommando locationId={locationId ?? null} />
               {/* Phase 390: Ops-Puls-Monitor — Live Küche/Dispatch/Fahrer-Gesundheit in einer Ansicht (30s-Polling) */}
               <OpsPulsMonitor locationId={locationId} />
               {/* Phase 391: Ops-Schnell-Check — 5 System-Health-Ampeln: Fahrer/Queue/SLA/Throughput/Alerts (30s-Polling) */}

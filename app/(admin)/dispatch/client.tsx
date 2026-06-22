@@ -224,6 +224,7 @@ import { DispatchLiveKapazitaetsAlert } from './live-kapazitaets-alert';
 import { DispatchSchichtScoreBadge } from './schicht-score-badge';
 import { DispatchFertigWarteStrip } from './fertig-warte-strip';
 import { DispatchStornoMusterPanel } from './dispatch-storno-muster-panel';
+import { TourTimelineBoard } from './tour-timeline-board';
 
 type Driver = {
   employee_id: string;
@@ -1116,6 +1117,23 @@ export function DispatchBoard({
       } as const))} />
       {/* Live-Tour-Cockpit: Alle aktiven Touren mit Fahrer, Stops, Score und Echtzeit-ETA */}
       <DispatchTourLiveCockpit batches={batches as any} />
+      {/* Tour-Timeline-Board: Swimlane-Ansicht mit Stop-Nodes, ETA-Countdown + Score je Fahrer */}
+      <TourTimelineBoard batches={batches.map(b => ({
+        ...b,
+        started_at: b.startzeit ?? null,
+        score: null,
+        fahrer: b.fahrer ? { vorname: b.fahrer.vorname, nachname: b.fahrer.nachname } : null,
+        stops: b.stops.map(s => ({
+          ...s,
+          angekommen_am: null,
+          order: s.order ? {
+            bestellnummer: s.order.bestellnummer,
+            kunde_name: s.order.kunde_name,
+            kunde_adresse: s.order.kunde_adresse ?? null,
+            eta_earliest: s.order.eta_earliest ?? null,
+          } : null,
+        })),
+      }))} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />

@@ -164,6 +164,7 @@ import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
 import { FahrerBatterieAnzeige } from './batterie-anzeige';
 import { SchichtStornoHinweis } from './schicht-storno-hinweis';
 import { FahrerPrognoseBadge } from './fahrer-prognose-badge';
+import { QuickNavKommando } from './quick-nav-kommando';
 
 type Driver = {
   id: string;
@@ -1298,6 +1299,32 @@ export function FahrerApp({
                   driverLng={driverPos?.lng ?? null}
                   onMarkArrived={markArrived}
                   onMarkDelivered={markDelivered}
+                />
+              </div>
+            );
+          })()}
+          {/* Quick-Nav-Kommando: Große Tasten für Navigation + Anrufen + Zugestellt */}
+          {(() => {
+            const currentStop = activeBatch.stops
+              .filter(s => !s.geliefert_am)
+              .sort((a, b) => a.reihenfolge - b.reihenfolge)[0];
+            if (!currentStop?.order) return null;
+            const o = currentStop.order as any;
+            return (
+              <div className="px-4 mt-2">
+                <QuickNavKommando
+                  stop={{
+                    adresse: o.kunde_adresse ?? null,
+                    plz: o.kunde_plz ?? null,
+                    klingelname: o.klingelname ?? null,
+                    etage: o.etage ?? null,
+                    notiz: o.kunde_lieferhinweis ?? o.kunde_notiz ?? null,
+                    telefon: o.kunde_telefon ?? null,
+                    bestellnummer: o.bestellnummer ?? '',
+                    kundeName: o.kunde_name ?? 'Kunde',
+                  }}
+                  onDelivered={() => markDelivered(currentStop.id)}
+                  onProblem={() => {}}
                 />
               </div>
             );

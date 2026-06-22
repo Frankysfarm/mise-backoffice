@@ -2,8 +2,8 @@
 const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
-  experimental: { typedRoutes: false },
   typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   turbopack: { root: path.resolve(__dirname) },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',

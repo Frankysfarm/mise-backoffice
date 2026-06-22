@@ -6,7 +6,7 @@
  * Route: /kitchen/tv
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { Bike, CheckCircle2, ChefHat, Clock, Navigation, Package, Timer, Zap } from 'lucide-react';
@@ -44,6 +44,54 @@ function useLocationId(): string | null {
     setId(params.get('location_id'));
   }, []);
   return id;
+}
+
+/**
+ * useAudioAlert — plays a short buzz via Web Audio API whenever the overdue
+ * count increases.  No external dependencies; works in any modern browser.
+ */
+function useAudioAlert(overdueCount: number) {
+  const prevCountRef = useRef<number>(overdueCount);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const beep = useCallback(() => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+
+      // Two-tone alert: descending beep pair
+      const tones = [880, 660];
+      tones.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+        const startAt = ctx.currentTime + i * 0.18;
+        gain.gain.setValueAtTime(0, startAt);
+        gain.gain.linearRampToValueAtTime(0.25, startAt + 0.02);
+        gain.gain.setValueAtTime(0.25, startAt + 0.12);
+        gain.gain.linearRampToValueAtTime(0, startAt + 0.17);
+
+        osc.start(startAt);
+        osc.stop(startAt + 0.18);
+      });
+    } catch {
+      // AudioContext blocked or unavailable — fail silently
+    }
+  }, []);
+
+  useEffect(() => {
+    if (overdueCount > prevCountRef.current) {
+      beep();
+    }
+    prevCountRef.current = overdueCount;
+  }, [overdueCount, beep]);
 }
 
 type Order = {
@@ -95,6 +143,68 @@ function getUrgency(order: Order, timing: KitchenTiming | undefined): UrgencyLev
   if (ratio > 0.9) return 'urgent';
   if (ratio > 0.7) return 'tight';
   return 'ok';
+}
+
+/**
+ * CookingProgressBar — thin strip showing elapsed/total prep time.
+ * Clamped to 100 %; turns red once overdue.
+ */
+function CookingProgressBar({
+  timing,
+  order,
+  urgency,
+}: {
+  timing: KitchenTiming | undefined;
+  order: Order;
+  urgency: UrgencyLevel;
+}) {
+  const [pct, setPct] = useState(0);
+
+  useEffect(() => {
+    const calc = () => {
+      const now = Date.now();
+      let elapsed = 0;
+      let total = 1;
+
+      if (timing?.cook_start_at && timing?.ready_target) {
+        const start = new Date(timing.cook_start_at).getTime();
+        const end = new Date(timing.ready_target).getTime();
+        total = end - start;
+        elapsed = now - start;
+      } else if (timing?.cook_start_at && timing?.prep_min) {
+        const start = new Date(timing.cook_start_at).getTime();
+        total = timing.prep_min * 60_000;
+        elapsed = now - start;
+      } else if (order.bestellt_am) {
+        const start = new Date(order.bestellt_am).getTime();
+        const prepMs = (order.geschaetzte_zubereitung_min ?? 15) * 60_000;
+        total = prepMs;
+        elapsed = now - start;
+      }
+
+      const raw = total > 0 ? (elapsed / total) * 100 : 0;
+      setPct(Math.min(100, Math.max(0, raw)));
+    };
+
+    calc();
+    const iv = setInterval(calc, 1000);
+    return () => clearInterval(iv);
+  }, [timing, order]);
+
+  const barColor =
+    urgency === 'overdue' ? 'bg-red-400' :
+    urgency === 'urgent'  ? 'bg-orange-400' :
+    urgency === 'tight'   ? 'bg-amber-400' :
+    'bg-matcha-400';
+
+  return (
+    <div className="h-1 w-full bg-black/30">
+      <div
+        className={cn('h-full transition-all duration-1000', barColor)}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
 }
 
 function CountdownDisplay({ readyTarget, prepMin, startedAt }: {
@@ -169,7 +279,7 @@ export function KitchenTVDisplay({
       supabase
         .from('customer_orders')
         .select('id, bestellnummer, status, typ, kunde_name, bestellt_am, fertig_am, geschaetzte_zubereitung_min, items:order_items(id, name, menge)')
-        .in('status', ['bestätigt', 'in_zubereitung', 'fertig'])
+        .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
         .order('bestellt_am', { ascending: true }),
       supabase
         .from('kitchen_timings')
@@ -218,9 +328,9 @@ export function KitchenTVDisplay({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cooking = orders.filter((o) => o.status === 'in_zubereitung');
-  const ready = orders.filter((o) => o.status === 'fertig');
-  const accepted = orders.filter((o) => o.status === 'bestätigt');
+  const cooking  = orders.filter((o) => o.status === 'in_zubereitung');
+  const ready    = orders.filter((o) => o.status === 'fertig');
+  const accepted = orders.filter((o) => o.status === 'bestätigt' || o.status === 'neu');
 
   const timingMap  = new Map(timings.map((t) => [t.order_id, t]));
   const batchEtaMap = new Map(batchEtas.map((e) => [e.order_id, e]));
@@ -232,9 +342,11 @@ export function KitchenTVDisplay({
       return rankU[a.urgency] - rankU[b.urgency];
     });
 
-  const overdue = cookingWithUrgency.filter((x) => x.urgency === 'overdue');
-  const critical = cookingWithUrgency.filter((x) => x.urgency !== 'ok');
-  const liveOps = useLiveOps(locationId);
+  const overdue  = cookingWithUrgency.filter((x) => x.urgency === 'overdue');
+  const liveOps  = useLiveOps(locationId);
+
+  // Audio alert: beep whenever a new order goes overdue
+  useAudioAlert(overdue.length);
 
   return (
     <div className="min-h-screen bg-matcha-950 text-white flex flex-col select-none">
@@ -339,6 +451,8 @@ export function KitchenTVDisplay({
                       </div>
                     </div>
                   </div>
+                  {/* Progress bar: thin strip at bottom of card header */}
+                  <CookingProgressBar timing={timing} order={o} urgency={urgency} />
                   <div className="px-4 py-2">
                     <div className="flex flex-wrap gap-1.5">
                       {items.slice(0, 4).map((it, i) => (
@@ -448,7 +562,7 @@ export function KitchenTVDisplay({
           </div>
         </section>
 
-        {/* WARTEND */}
+        {/* WARTEND — includes 'neu' and 'bestätigt' orders */}
         <section className="p-6 overflow-y-auto">
           <div className="flex items-center gap-2 mb-5">
             <Clock className="h-5 w-5 text-blue-400" />
@@ -458,13 +572,29 @@ export function KitchenTVDisplay({
           </div>
           <div className="space-y-2">
             {accepted.map((o) => {
+              const isNeu = o.status === 'neu';
               const waitMin = o.bestellt_am
                 ? Math.floor((Date.now() - new Date(o.bestellt_am).getTime()) / 60_000)
                 : null;
               return (
-                <div key={o.id} className="rounded-xl border border-blue-900 bg-blue-950/40 px-4 py-3 flex items-center justify-between">
+                <div
+                  key={o.id}
+                  className={cn(
+                    'rounded-xl border px-4 py-3 flex items-center justify-between',
+                    isNeu
+                      ? 'border-blue-500 bg-blue-900/60'
+                      : 'border-blue-900 bg-blue-950/40',
+                  )}
+                >
                   <div>
-                    <div className="font-black text-lg">#{o.bestellnummer.slice(-4)}</div>
+                    <div className="flex items-center gap-2">
+                      {isNeu && (
+                        <span className="text-[10px] font-black bg-blue-500 text-white rounded px-1.5 py-0.5 uppercase tracking-widest shrink-0">
+                          NEU
+                        </span>
+                      )}
+                      <div className="font-black text-lg">#{o.bestellnummer.slice(-4)}</div>
+                    </div>
                     <div className="text-[11px] text-blue-300 truncate max-w-[140px]">{o.kunde_name}</div>
                   </div>
                   <div className="text-right">

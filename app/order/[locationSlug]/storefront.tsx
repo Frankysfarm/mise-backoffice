@@ -50,6 +50,7 @@ import { EtaKonfidenzBanner } from './eta-konfidenz-banner';
 import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
 import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
 import { BestellungLiveTimeline } from './bestellung-live-timeline';
+import { EtaLiveFortschrittBanner } from './eta-live-fortschritt-banner';
 
 type Props = {
   location: Location;
@@ -1070,6 +1071,16 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       {/* Fahrer-Nähe-Live-Anzeige: Proximity-Ring + ETA-Countdown wenn Fahrer unterwegs ist */}
       {order.isDelivery && (
         <FahrerNaeheLiveAnzeige orderId={order.orderId} />
+      )}
+      {/* ETA-Live-Fortschritt-Banner: Animierter Stepper + Countdown-Bar + Fahrrad-Indikator */}
+      {order.isDelivery && (
+        <div className="mt-3">
+          <EtaLiveFortschrittBanner
+            orderId={order.orderId}
+            initialStatus={order.status}
+            initialEtaMin={order.etaMin ?? null}
+          />
+        </div>
       )}
       {/* ETA Live Tracker V2: Erweiterte Live-ETA mit Phase-Dots, Fahrer-Status und Ankunftszeit */}
       {order.isDelivery && (
