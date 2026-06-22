@@ -167,6 +167,7 @@ import { analyzeWeekAllLocations as analyzeSchichtPrognose, pruneOldAnalyses as 
 import { generateStrategicInsightsAllLocations, pruneOldInsights as pruneStrategicInsights } from '@/lib/delivery/strategic-insights';
 import { detectEmergencyAllLocations, pruneOldEmergencyEvents } from '@/lib/delivery/emergency-capacity';
 import { snapshotAllLocations as snapshotKitchenCapacityAllLocations, pruneOldSnapshots as pruneKitchenCapacitySnapshots } from '@/lib/delivery/kitchen-capacity';
+import { computeAllBaselinesAllLocations as computeSchichtVergleichBaselines } from '@/lib/delivery/schicht-vergleich';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -380,6 +381,8 @@ export async function GET(req: NextRequest) {
     const isEmergencyCapacityPruneTick = nowHour === 8 && nowMin >= 5 && nowMin < 9;
     // Phase 407: Kitchen Capacity Intelligence — jeden Tick Snapshot; prune täglich 08:10 UTC (7 Tage)
     const isKitchenCapacityPruneTick   = nowHour === 8 && nowMin >= 10 && nowMin < 14;
+    // Phase 411: Schicht-Vergleich-Baselines — täglich 08:15 UTC (nach Kitchen-Capacity-Prune)
+    const isSchichtVergleichBaselineTick = nowHour === 8 && nowMin >= 15 && nowMin < 19;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1443,6 +1446,11 @@ export async function GET(req: NextRequest) {
       ? await pruneKitchenCapacitySnapshots(7).catch(() => null)
       : null;
 
+    // Phase 411: Schicht-Vergleich-Baselines — täglich 08:15 UTC
+    const schichtVergleichBaselineResult = isSchichtVergleichBaselineTick
+      ? await computeSchichtVergleichBaselines(6).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1726,6 +1734,7 @@ export async function GET(req: NextRequest) {
       ...(strategicInsightsPruned != null ? { strategic_insights_pruned: strategicInsightsPruned } : {}),
       ...(kitchenCapacityResult ? { kitchen_capacity: { locations: kitchenCapacityResult.locations, saved: kitchenCapacityResult.saved, errors: kitchenCapacityResult.errors, circuit_activated: kitchenCapacityResult.circuitActivated, circuit_deactivated: kitchenCapacityResult.circuitDeactivated } } : {}),
       ...(kitchenCapacityPruned?.pruned ? { kitchen_capacity_pruned: kitchenCapacityPruned.pruned } : {}),
+      ...(schichtVergleichBaselineResult?.computed ? { schicht_vergleich_baselines: { locations: schichtVergleichBaselineResult.locations, computed: schichtVergleichBaselineResult.computed, errors: schichtVergleichBaselineResult.errors } } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
