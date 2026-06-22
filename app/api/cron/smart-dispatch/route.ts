@@ -171,6 +171,7 @@ import { computeAllBaselinesAllLocations as computeSchichtVergleichBaselines } f
 import { computeMatrixAllLocations as computeLiefertreueMatrixAllLocations, pruneOldSnapshots as pruneLiefertreueMatrix } from '@/lib/delivery/liefertreue-matrix';
 import { computeMatrixAllLocations as computeStornoMusterAllLocations, pruneOldSnapshots as pruneStornoMuster } from '@/lib/delivery/storno-muster-matrix';
 import { computePrognoseAllLocations as computeFahrerPrognoseAllLocations, pruneOldPrognoseSnapshots as pruneFahrerPrognose } from '@/lib/delivery/fahrer-prognose';
+import { computeUmsatzPrognoseAllLocations, pruneOldUmsatzPrognosen } from '@/lib/delivery/umsatz-prognose';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -395,6 +396,10 @@ export async function GET(req: NextRequest) {
     // Phase 417: Fahrer-Prognose — täglich 05:40 UTC compute, 08:01 UTC prune (90 Tage)
     const isFahrerPrognoseTick      = nowHour === 5 && nowMin >= 40 && nowMin < 44;
     const isFahrerPrognosePruneTick = nowHour === 8 && nowMin >= 1 && nowMin < 5;
+
+    // Phase 420: Umsatz-Prognose — täglich 06:00 UTC compute, 07:30 UTC prune (60 Tage)
+    const isUmsatzPrognoseTick      = nowHour === 6 && nowMin < 4;
+    const isUmsatzPrognosePruneTick = nowHour === 7 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1487,6 +1492,14 @@ export async function GET(req: NextRequest) {
       ? await pruneFahrerPrognose(90).catch(() => null)
       : null;
 
+    // Phase 420: Umsatz-Prognose-Engine — täglich 06:00 UTC compute, 07:30 UTC prune
+    const umsatzPrognoseResult = isUmsatzPrognoseTick
+      ? await computeUmsatzPrognoseAllLocations(90).catch(() => null)
+      : null;
+    const umsatzPrognosePruned = isUmsatzPrognosePruneTick
+      ? await pruneOldUmsatzPrognosen(60).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1777,6 +1790,8 @@ export async function GET(req: NextRequest) {
       ...(stornoMusterPruned != null ? { storno_muster_pruned: stornoMusterPruned } : {}),
       ...(fahrerPrognoseResult?.computed ? { fahrer_prognose: { locations: fahrerPrognoseResult.locations, computed: fahrerPrognoseResult.computed, errors: fahrerPrognoseResult.errors } } : {}),
       ...(fahrerPrognosePruned?.pruned ? { fahrer_prognose_pruned: fahrerPrognosePruned.pruned } : {}),
+      ...(umsatzPrognoseResult ? { umsatz_prognose: { locations: umsatzPrognoseResult.locations, upserted: umsatzPrognoseResult.upserted, errors: umsatzPrognoseResult.errors } } : {}),
+      ...(umsatzPrognosePruned != null ? { umsatz_prognose_pruned: umsatzPrognosePruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

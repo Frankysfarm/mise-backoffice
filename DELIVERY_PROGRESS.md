@@ -6855,3 +6855,56 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | pruneFahrerPrognose | lib/delivery/fahrer-prognose.ts | Cron 08:01 UTC | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 420 Backend + Frontend — Umsatz-Prognose-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 202 (`scripts/migrations/202_umsatz_prognose_snapshots.sql`):**
+- `umsatz_prognose_snapshots`: UNIQUE(location_id, prognose_datum, prognose_typ), erwarteter_umsatz_eur, konfidenz 0–1, range_low/high_eur, basis_snapshots, trend_richtung up/stable/down, wochentag, avg_umsatz_letzter_monat, berechnet_am
+- RLS: service_role full + authenticated read own location
+- `prune_umsatz_prognose_snapshots(days_old)` Cleanup-RPC
+
+**`lib/delivery/umsatz-prognose.ts`** — ML-ähnliche Prognose-Engine:
+- Algorithmus: schicht_roi_daily Historien → Wochentag-Gruppierung + Exponential-Decay-Gewichtung (Half-Life 21 Tage)
+- Konfidenz: Anzahl Datenpunkte / 52 (max. 1 Jahr Wochentage), capped 0–1
+- 80%-Konfidenzband: Median-Absolute-Deviation × 1.28
+- Trend: Ø letzte 2 Wochen vs. vorherige 2 Wochen (>5% = up, <-5% = down)
+- `computeUmsatzPrognose(locationId, daysBack=90)` — Heute + 6 Tage berechnen + UPSERT
+- `computeUmsatzPrognoseAllLocations(daysBack)` — Cron-Batch alle aktiven Standorte (Promise.allSettled)
+- `getUmsatzPrognose(locationId)` — Gespeicherte 7-Tage-Prognosen laden
+- `getUmsatzPrognoseHistory(locationId, days)` — schicht_roi_daily Historien für Chart
+- `pruneOldUmsatzPrognosen(daysOld=60)` — Cleanup via RPC
+
+**`app/api/delivery/admin/umsatz-prognose/route.ts`:**
+- GET `?location_id=<uuid>` → 7-Tage-Prognose (aus DB, vorberechnet)
+- GET `?location_id=<uuid>&action=history&days=30` → Historische Ist-Daten
+- POST action=compute → Jetzt neu berechnen + UPSERT
+- POST action=compute-all → Alle Standorte neu berechnen (Cron-Trigger)
+- POST action=prune → Alte Prognosen löschen
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 06:00 UTC: `computeUmsatzPrognoseAllLocations(90)` (90-Tage-Basis)
+- Täglich 07:30 UTC: `pruneOldUmsatzPrognosen(60)` (60-Tage-Aufbewahrung)
+
+**`app/(admin)/lieferdienst/umsatz-prognose-panel.tsx`** — `UmsatzPrognosePanel`:
+- Großer Heute-KPI: erwarteter Umsatz + Konfidenz-Badge (hoch/mittel/niedrig) + Trend-Icon + 80%-Konfidenzband
+- Konfidenz-Fortschrittsbalken (0–100%)
+- 7-Tage-Grid: Wochentag + Kompakt-Umsatz + Trend-Icon je Tag, Gesamt-7-Tage-Summe im Footer
+- ComposedChart (Recharts): Letzte 14 Ist-Tage (grau) + 7 Prognose-Tage (grün) mit ErrorBar-Overlay
+- "Neu berechnen"-Button → POST action=compute, 10-Min-Polling (lazy: nur wenn open=true)
+- Collapsible-Panel, Loading-Skeleton, Leer-Zustand mit CTA
+- Integration: lieferdienst/client.tsx nach WartezeitStatsPanel ✅
+
+### Integrations-Checkliste Phase 420
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| UmsatzPrognosePanel | lieferdienst/umsatz-prognose-panel.tsx | lieferdienst/client.tsx nach WartezeitStatsPanel | ✅ |
+| computeUmsatzPrognoseAllLocations | lib/delivery/umsatz-prognose.ts | Cron 06:00 UTC | ✅ |
+| pruneOldUmsatzPrognosen | lib/delivery/umsatz-prognose.ts | Cron 07:30 UTC | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
