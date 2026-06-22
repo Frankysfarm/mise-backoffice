@@ -104,7 +104,12 @@ export function SchichtLiveBilanz() {
           .eq('ist_online', true),
       ]);
 
-      const orders = ordersRes.data ?? [];
+      type OrderRow = {
+        id: string; status: string; gesamtbetrag: number | null;
+        bestellt_am: string | null; fertig_am: string | null;
+        delivered_at: string | null; geschaetzte_lieferung_min: number | null;
+      };
+      const orders = (ordersRes.data ?? []) as OrderRow[];
       const now = Date.now();
       const schichtDauerMin = Math.floor((now - shiftStart.getTime()) / 60_000);
 

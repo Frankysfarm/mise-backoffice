@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
-  const sb   = createClient();
+  const sb   = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 

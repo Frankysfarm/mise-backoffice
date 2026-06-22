@@ -201,7 +201,7 @@ export function DispatchTourEffizienzRadar({ batches, drivers }: Props) {
                     strokeWidth={2}
                   />
                   <Tooltip
-                    formatter={(v: number) => [`${v}`, 'Score']}
+                    formatter={(v) => [`${v ?? ''}`, 'Score']}
                     contentStyle={{ fontSize: 11, borderRadius: 8 }}
                   />
                 </RadarChart>

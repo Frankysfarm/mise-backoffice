@@ -14788,3 +14788,52 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 432 Frontend:** FahrerZeugnisPanel — Admin-Übersicht aller Monatszeugnisse mit Grade-Badge, Download-Button (JSON-Export). FahrerZeugnisCard in fahrer/app — eigene Zeugnisse, Grade-Ring, KPI-Zusammenfassung. Integration: lieferdienst/client.tsx nach FahrerIncentivePanel + fahrer/app/client.tsx nach FahrerIncentiveWidget.
+
+---
+
+## CEO Review #243 Addendum — 5 neue Frontend-Komponenten (2026-06-22)
+
+### Commit geprüft
+- `3988ffc` feat(delivery/frontend): 5 neue Komponenten für Kitchen, Dispatch, Fahrer, Storefront und Lieferdienst
+
+### TypeScript-Fehler gefixt (3)
+
+**Bug 1 — TourEffizienzRadar Recharts Formatter** (`dispatch/tour-effizienz-radar.tsx:204`)
+- Problem: `formatter={(v: number) => ...}` — Recharts Formatter erwartet `ValueType | undefined`, nicht `number`
+- Fix: `formatter={(v) => [\`${v ?? ''}\`, 'Score']}` (Typ-Inferenz statt explizitem number)
+
+**Bug 2 — SchichtLiveBilanz implizite any-Typen** (`lieferdienst/schicht-live-bilanz.tsx:111,114,115,119,125,127,132`)
+- Problem: `ordersRes.data ?? []` — Supabase-Client-Response-Typ löst sich nicht auf typisiertes Array auf
+- Fix: `type OrderRow = {...}; const orders = (ordersRes.data ?? []) as OrderRow[];` — alle 8 Callback-Parameter inferiert korrekt
+
+**Bug 3 — Driver Schicht-Abschluss Route fehlendes await** (`api/delivery/driver/schicht-abschluss/route.ts:12`)
+- Problem: `createClient()` ist async (gibt Promise<SupabaseClient> zurück), `sb.auth` existiert nicht auf Promise
+- Fix: `const sb = await createClient();`
+
+### Code-Qualität der 5 neuen Komponenten
+- `kitchen/kochstart-sequenz-board.tsx` (184 Zeilen): Batch-sequenzierter Kochstart-Plan mit Phasen-Ampel (jetzt/bald/warten) ✅
+- `dispatch/tour-effizienz-radar.tsx` (249 Zeilen): Multi-dimensionaler Fahrer-Performance-Radar (Recharts RadarChart) ✅
+- `fahrer/app/stop-compass.tsx` (205 Zeilen): Kompass-Navigation zum nächsten Stop mit Distanz und One-Tap-Aktionen ✅
+- `order/[locationSlug]/order-journey-timeline.tsx` (161 Zeilen): Visuelle Bestellungs-Reise-Timeline mit Live-ETA-Countdown ✅
+- `lieferdienst/schicht-live-bilanz.tsx` (267 Zeilen): Echtzeit-Schicht-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) ✅
+
+### Integrations-Checkliste neue Komponenten
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KochstartSequenzBoard | kitchen/kochstart-sequenz-board.tsx | kitchen/client.tsx | ✅ |
+| TourEffizienzRadar | dispatch/tour-effizienz-radar.tsx | dispatch/client.tsx | ✅ |
+| StopCompass | fahrer/app/stop-compass.tsx | fahrer/app/client.tsx | ✅ |
+| OrderJourneyTimeline | order/[locationSlug]/order-journey-timeline.tsx | storefront.tsx | ✅ |
+| SchichtLiveBilanz | lieferdienst/schicht-live-bilanz.tsx | lieferdienst/client.tsx | ✅ |
+
+### Status nach Review #243 (gesamt)
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 357 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 432 Backend:** Fahrer-Leistungs-Zeugnis — Monatliches Zeugnis je Fahrer basierend auf schicht_abschluss_berichte. Neue Tabelle `fahrer_zeugnisse` (driver_id, location_id, monat, grade, daten JSONB, erstellt_am). Engine: `lib/delivery/fahrer-zeugnis.ts`. API `GET /api/delivery/admin/fahrer-zeugnis`. Cron 1. des Monats 10:00 UTC.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 432 Frontend:** FahrerZeugnisPanel + FahrerZeugnisCard — Admin-Übersicht Monatszeugnisse mit Grade-Badge + JSON-Export; Fahrer-App eigene Zeugnisse mit Grade-Ring + KPI-Zusammenfassung. Integration: lieferdienst/client.tsx nach FahrerIncentivePanel + fahrer/app/client.tsx nach FahrerIncentiveWidget.
