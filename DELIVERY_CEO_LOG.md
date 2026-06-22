@@ -14899,3 +14899,80 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 433 Frontend:** LieferQualitaetsIndex-Panel — Admin-Übersicht je Order/Fahrer mit Qualitäts-Score-Heatmap. Fahrer-App: Eigene Qualitäts-Trend-Karte (letzte 30 Touren). Integration: lieferdienst/client.tsx + fahrer/app/client.tsx.
 2. **Phase 434 Frontend:** FahrerVerfügbarkeitsKalender — Wochenkalender-Grid im Admin mit Fahrer-Chips je Schicht, Klick-Drill-Down auf Fahrer-Profil.
+
+---
+
+## CEO Review #245 — Phasen 433+434+435 geprüft (2026-06-22)
+
+### Geprüfte Commits
+- `568fe71` feat(delivery/backend): Phase 433+434 — Liefer-Qualitäts-Index + Fahrer-Verfügbarkeits-Kalender
+- `cd7ba9b` feat(delivery/frontend): Phase 435 — 5 neue Live-Cockpit-Komponenten
+
+### Build & TypeScript
+- `npx next build` → **Exit Code 0** ✅
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- Seiten: **362** ✅
+
+### Phase 433 — Liefer-Qualitäts-Index (Backend + Frontend)
+**Migration 212** (`scripts/migrations/212_liefer_qualitaet.sql`): Tabelle `liefer_qualitaet` (UNIQUE order_id, score 0–100, komponenten JSONB, RLS für service_role + admin + driver). ✅
+
+**lib/delivery/liefer-qualitaet.ts**: Score-Engine vollständig — Pünktlichkeit 40% (max(0,100−minLate×5)), Vollständigkeit 30% (100/0), Zufriedenheit 30% (rating/5×100, default 70 wenn kein Feedback). Alle Typen explizit. ✅
+
+**API admin** (`/api/delivery/admin/liefer-qualitaet`): GET list/aggregat, POST compute/compute-all/prune. ✅
+
+**API driver** (`/api/delivery/driver/liefer-qualitaet`): GET eigene Daten via auth.getUser(). ✅
+
+**Frontend LieferQualitaetsPanel** (`lieferdienst/liefer-qualitaets-panel.tsx`): Collapsible Heatmap-Panel (7-Tage, Fahrer×Datum, Farbkodierung). Integration: `lieferdienst/client.tsx:1429` ✅
+
+**Frontend QualitaetsTrendKarte** (`fahrer/app/qualitaets-trend-karte.tsx`): Dunkles Driver-Widget, 20-Touren Balken-Chart. Integration: `fahrer/app/client.tsx:764` ✅
+
+**Cron** (`api/cron/smart-dispatch/route.ts:442–443`): täglich 09:30 UTC compute-all, 09:35 UTC prune. `isLieferQualitaetTick` + `isLieferQualitaetPruneTick` korrekt. ✅
+
+### Phase 434 — Fahrer-Verfügbarkeits-Kalender (Backend + Frontend)
+**lib/delivery/fahrer-verfuegbarkeit.ts**: Live-Abfrage aus `driver_shifts` — 7 Tage voraus, Überstunden-Flag (>8h), Mindestbesetzungs-Alarm (<2 Fahrer), Wochentag-Label auf Deutsch. Kein neues DB-Table. ✅
+
+**API admin** (`/api/delivery/admin/fahrer-verfuegbarkeit`): GET location_id + days. ✅
+
+**Frontend FahrerVerfuegbarkeitsKalender** (`lieferdienst/fahrer-verfuegbarkeits-kalender.tsx`): 7-Tage Kalender-Grid — Fahrer-Chips, Alarm-Badge, Überstunden-Flag, Drill-Down. Integration: `lieferdienst/client.tsx:1431` ✅
+
+### Phase 435 — 5 neue Live-Cockpit-Komponenten
+**KitchenPrepZielAmpel** (`kitchen/prep-ziel-ampel.tsx`, 198 Zeilen): Farbampel für Aufträge in Zubereitung (Grün/>25%, Amber/0–25%, Rot/überfällig), 30s Polling, sortiert nach Dringlichkeit. Integration: `kitchen/client.tsx:647` ✅
+
+**DispatchLieferQualitaetLive** (`dispatch/liefer-qualitaet-live.tsx`, 253 Zeilen): Heutiger LQI-Score mit Letter-Grade (A+–D), Trend-Pfeil vs. Vortag, Komponenten-Balken, 5-Min-Polling. Integration: `dispatch/client.tsx:1153` ✅
+
+**FahrerStoppTempoAnzeige** (`fahrer/app/stopp-tempo-anzeige.tsx`, 173 Zeilen): SVG-Ring-Chart Stopps/Stunde Ist vs. Soll, Farbampel (Grün/Amber/Rot), Delta-Badge, Fortschrittsbalken. Integration: `fahrer/app/client.tsx:1071` ✅
+
+**BestellPhasenBanner** (`order/[locationSlug]/bestell-phasen-banner.tsx`, 188 Zeilen): Scrollbarer Badge-Strip für Kunden (Fahrer online, Ø-ETA, Pünktlichkeit%, aktive Lieferungen), Live-Ping-Dot, AbortController für saubere Cleanup. Integration: `storefront.tsx:580` ✅
+
+**LieferdienstTagesKpiExecutive** (`lieferdienst/tages-kpi-executive.tsx`, 291 Zeilen): 8-Kacheln Executive-Dashboard (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Aktive Fahrer, Stornoquote, Lieferungen, Ø Bewertung), farbkodierte Schwellenwerte, 3-Min-Polling, Skeleton-Loader. Integration: `lieferdienst/client.tsx:1433` ✅
+
+### Code-Qualität
+- Keine `@ts-ignore` oder `@ts-expect-error` Kommentare
+- `as any` Casts: nur `activeBatch.stops as any` (konsistent mit bestehendem Pattern)
+- Alle fetch-Fehler korrekt behandelt (silent ignore / AbortError handling)
+- AbortController in BestellPhasenBanner korrekt per `useCallback` + `useRef` ✅
+- `cancelledRef` / `mounted.current` Pattern konsistent in allen neuen Hooks ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #245
+- Build: 362 Seiten, Exit Code 0 ✅
+- TypeScript: 0 Fehler ✅
+- Phase 433 (Liefer-Qualitäts-Index): vollständig ✅
+- Phase 434 (Fahrer-Verfügbarkeits-Kalender): vollständig ✅
+- Phase 435 (5 Cockpit-Komponenten): vollständig integriert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 436 Backend:** Automatische Nachbestellungs-Engine — Trigger-basiertes Auffüllen von Lagerbeständen unter Mindestmenge. Neue Tabelle `nachbestellungen` (location_id, artikel_id, menge, status, ausgelöst_am). Engine: `lib/delivery/nachbestellungs-engine.ts`. API `GET/POST /api/delivery/admin/nachbestellungen`. Cron täglich 06:00 UTC.
+2. **Phase 437 Backend:** Kundenbindungs-Score — Automatische Berechnung je Kunde (Bestellfrequenz, Ø-Bestellwert, letzte Bestellung, Stornoquote). Engine: `lib/delivery/kundenbindung.ts`. Tabelle `kunden_scores` (customer_id, score 0–100, segmentierung ENUM: champion/loyal/at_risk/lost). API admin GET.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 436 Frontend:** NachbestellungsPanel — Admin-Übersicht offener Nachbestellungen mit Status-Badge (ausstehend/bestellt/geliefert), Mengen-Input, Bestätigungs-Button. Integration: lieferdienst/client.tsx.
+2. **Phase 437 Frontend:** KundenbindungsRadar — Admin-Cockpit (Segmentierungs-Kuchendiagramm champion/loyal/at_risk/lost), Top-10 Kunden nach Score, At-Risk-Alert-Liste. Integration: lieferdienst/client.tsx.
