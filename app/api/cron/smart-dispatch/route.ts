@@ -180,6 +180,7 @@ import { computeVorschlaegeAllLocations } from '@/lib/delivery/schicht-optimiere
 import { generateBriefingsAllLocations, pruneOldBriefings } from '@/lib/delivery/schicht-briefing';
 import { generateAbschlussAllLocations, pruneOldBerichte as pruneAbschlussBerichte } from '@/lib/delivery/schicht-abschluss';
 import { evaluateIncentivesAllLocations as evaluateFahrerIncentives, pruneOldIncentives as pruneFahrerIncentives } from '@/lib/delivery/fahrer-incentive';
+import { generateZeugnisseAllLocations, pruneOldZeugnisse } from '@/lib/delivery/fahrer-zeugnis';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -223,6 +224,7 @@ export async function GET(req: NextRequest) {
 
     // Report-Cache täglich um 02:00 UTC (Tag-Report + Wochen-Report für alle Locations)
     const nowHour       = new Date().getUTCHours();
+    const nowDay        = new Date().getUTCDate();
     const isReportTick  = nowHour === 2 && nowMin < 2;
     // Daily digest: täglich um 03:00 UTC (nach Report-Cache bei 02:00)
     const isDigestTick = nowHour === 3 && nowMin < 2;
@@ -432,6 +434,9 @@ export async function GET(req: NextRequest) {
     // Phase 431: Fahrer-Incentive — täglich 09:00 UTC evaluate; täglich 09:05 UTC prune (90 Tage)
     const isFahrerIncentiveTick      = nowHour === 9 && nowMin >= 0 && nowMin < 4;
     const isFahrerIncentivePruneTick = nowHour === 9 && nowMin >= 5 && nowMin < 9;
+    // Phase 432: Fahrer-Zeugnis — monatlich am 1. des Monats 10:00 UTC; prune 10:10 UTC (24 Monate)
+    const isZeugnisGenerateTick = nowDay === 1 && nowHour === 10 && nowMin >= 0 && nowMin < 4;
+    const isZeugnispruneTick    = nowDay === 1 && nowHour === 10 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1591,6 +1596,13 @@ export async function GET(req: NextRequest) {
     const fahrerIncentivePruned = isFahrerIncentivePruneTick
       ? await pruneFahrerIncentives(90).catch(() => null)
       : null;
+    // Phase 432: Fahrer-Zeugnis — monatlich 1. des Monats 10:00 UTC; prune 10:10 UTC (24 Monate)
+    const fahrerZeugnisResult = isZeugnisGenerateTick
+      ? await generateZeugnisseAllLocations().catch(() => null)
+      : null;
+    const fahrerZeugnispruned = isZeugnispruneTick
+      ? await pruneOldZeugnisse(24).catch(() => null)
+      : null;
 
     const durationMs = Date.now() - start;
     return NextResponse.json({
@@ -1897,6 +1909,8 @@ export async function GET(req: NextRequest) {
       ...(schichtBriefingPruned != null ? { schicht_briefing_pruned: schichtBriefingPruned } : {}),
       ...(fahrerIncentiveResult?.evaluated ? { fahrer_incentive: { locations: fahrerIncentiveResult.locations, evaluated: fahrerIncentiveResult.evaluated, achieved: fahrerIncentiveResult.achieved, errors: fahrerIncentiveResult.errors } } : {}),
       ...(fahrerIncentivePruned?.pruned ? { fahrer_incentive_pruned: fahrerIncentivePruned.pruned } : {}),
+      ...(fahrerZeugnisResult ? { fahrer_zeugnis: { locations: fahrerZeugnisResult.length, upserted: fahrerZeugnisResult.reduce((s, r) => s + r.upserted, 0), errors: fahrerZeugnisResult.reduce((s, r) => s + r.errors, 0) } } : {}),
+      ...(fahrerZeugnispruned != null ? { fahrer_zeugnis_pruned: fahrerZeugnispruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

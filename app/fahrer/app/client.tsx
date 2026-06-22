@@ -178,6 +178,7 @@ import { TourLieferquote } from './tour-lieferquote';
 import { SchichtBriefingCard } from './schicht-briefing-card';
 import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
 import { FahrerIncentiveWidget } from './fahrer-incentive-widget';
+import { FahrerZeugnisCard } from './fahrer-zeugnis-card';
 import { StopCompass } from './stop-compass';
 
 type Driver = {
@@ -750,6 +751,10 @@ export function FahrerApp({
         {/* Phase 431: Fahrer-Incentive-Ziele — Bonus-Fortschritt je Zieltyp */}
         {driver.location_id && (
           <FahrerIncentiveWidget driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 432: Fahrer-Leistungszeugnis — Monatliche Bewertung (Grade, Score, KPIs, Trend) */}
+        {driver.location_id && (
+          <FahrerZeugnisCard driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}
