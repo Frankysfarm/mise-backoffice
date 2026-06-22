@@ -181,6 +181,7 @@ import { WartezeitKuechenAnzeige } from './wartezeit-kuchen-anzeige';
 import { SchichtEngpassMonitor } from './schicht-engpass-monitor';
 import { KitchenPhase422PrioritaetsKommando } from './phase422-prioritaets-kommando';
 import { ZonenAuslastungsChip } from './zonen-auslastungs-chip';
+import { KitchenSchichtTempoAmpel } from './schicht-tempo-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1775,6 +1776,8 @@ export function KitchenBoard({
           })()}
         />
       )}
+      {/* Phase 427: Schicht-Tempo-Ampel — Eingangsrate vs. Fertigstellungsrate (letzte 30 Min) */}
+      <KitchenSchichtTempoAmpel orders={filtered} />
       {/* Koch-Jetzt-Panel: Zeigt wann welche Bestellung gestartet werden muss basierend auf Fahrer-ETA */}
       {!bigDisplay && (
         <KitchenCookNowPanel

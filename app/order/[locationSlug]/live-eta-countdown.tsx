@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Clock, MapPin, CheckCircle2, Loader2, Bike } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BestellSchrittLeiste } from './components/bestell-schritt-leiste';
 
 interface Props {
   orderId: string;
@@ -145,32 +146,9 @@ export function LiveEtaCountdown({ orderId, locationId, initialStatus, initialEt
         </div>
       )}
 
-      {/* Phase steps */}
-      <div className="px-5 pb-4">
-        <div className="flex items-center justify-between">
-          {Object.entries(PHASE_CONFIG)
-            .filter(([key]) => key !== 'neu')
-            .map(([key, cfg], i, arr) => {
-              const isCurrentOrPast = Object.keys(PHASE_CONFIG).indexOf(status) >=
-                Object.keys(PHASE_CONFIG).indexOf(key);
-              return (
-                <div key={key} className="flex flex-col items-center gap-0.5 flex-1">
-                  <div
-                    className={cn(
-                      'h-1.5 w-1.5 rounded-full transition-all',
-                      isCurrentOrPast ? cfg.color : 'bg-stone-200',
-                    )}
-                  />
-                  <span className={cn(
-                    'text-[8px] font-semibold text-center leading-tight',
-                    isCurrentOrPast ? 'text-stone-700' : 'text-stone-300',
-                  )}>
-                    {cfg.emoji}
-                  </span>
-                </div>
-              );
-            })}
-        </div>
+      {/* Phase 427: Schritt-Leiste — Klare Bestellphasen-Anzeige */}
+      <div className="px-4 pb-4">
+        <BestellSchrittLeiste status={status} />
       </div>
     </div>
   );

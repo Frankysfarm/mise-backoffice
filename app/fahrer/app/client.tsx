@@ -174,6 +174,7 @@ import { ZonenHotChip } from './zonen-hot-chip';
 import { StopArrivalProximity } from './stop-arrival-proximity';
 import { TourCompletionScreen } from './tour-completion';
 import { LieferungBestaetigung } from './lieferung-bestaetigung';
+import { TourLieferquote } from './tour-lieferquote';
 
 type Driver = {
   id: string;
@@ -1609,6 +1610,12 @@ export function FahrerApp({
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
               />
+            </div>
+          )}
+          {/* Phase 427: Tour-Lieferquote — Pünktlichkeitsquote + Fortschrittsbalken der aktuellen Tour */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourLieferquote activeBatch={activeBatch} />
             </div>
           )}
           {/* Phase 402: Sequenz-Navigator-Pro — Übersichtliche Schritt-für-Schritt Navigation */}

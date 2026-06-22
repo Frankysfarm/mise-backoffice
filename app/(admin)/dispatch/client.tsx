@@ -230,6 +230,7 @@ import { WartezeitDispatchBoard } from './wartezeit-dispatch-board';
 import { AktiveLieferungLiveBoard } from './aktive-lieferung-live-board';
 import { ZonenNachfrageBadge } from './zonen-nachfrage-badge';
 import { FahrerErreichbarkeitsPanel } from './fahrer-erreichbarkeits-panel';
+import { DispatchKapazitaetsSchnellPanel } from './dispatch-kapazitaets-schnell-panel';
 
 type Driver = {
   employee_id: string;
@@ -1292,6 +1293,8 @@ export function DispatchBoard({
       <KapazitaetsWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 426: Fahrer-Erreichbarkeits-Panel — Ping-Status vor Schichtbeginn */}
       <FahrerErreichbarkeitsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 427: Kapazitäts-Schnell-Panel — Aktive Touren / Wartende Bestellungen / Freie Fahrer */}
+      <DispatchKapazitaetsSchnellPanel orders={readyOrders} batches={batches} drivers={drivers} />
 
       {/* Zonen-Bündelungs-Panel: fertige Bestellungen nach Zone gruppiert mit Bundle-Optimierung */}
       {readyOrders.filter(o => o.status === 'fertig').length > 0 && (
