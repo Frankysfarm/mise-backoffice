@@ -208,6 +208,7 @@ import { UmsatzPrognosePanel } from './umsatz-prognose-panel';
 import { SchichtPulseKpi } from './schicht-pulse-kpi';
 import { TagesMusterPanel } from './tages-muster-panel';
 import { SchichtLiveKommando } from './schicht-live-kommando';
+import { LieferdienstPhase422Wochentrend } from './phase422-wochentrend';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1386,6 +1387,8 @@ export function LieferdienstClient() {
               <SchichtPulseKpi locationId={locationId ?? null} />
               {/* Phase 422: Tages-Muster-Erkennung — stündliche Peak-Muster je Wochentag + Heatmap */}
               <TagesMusterPanel locationId={locationId ?? null} />
+              {/* Phase 422: 7-Tage Wochentrend — Bestellvolumen + Pünktlichkeit mit Tagesvergleich */}
+              <LieferdienstPhase422Wochentrend />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

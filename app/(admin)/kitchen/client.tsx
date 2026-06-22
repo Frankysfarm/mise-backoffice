@@ -177,6 +177,7 @@ import { KitchenSmartActionStrip } from './smart-action-strip';
 import { KitchenStornoHotspotStrip } from './storno-hotspot-strip';
 import { WartezeitKuechenAnzeige } from './wartezeit-kuchen-anzeige';
 import { SchichtEngpassMonitor } from './schicht-engpass-monitor';
+import { KitchenPhase422PrioritaetsKommando } from './phase422-prioritaets-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -630,6 +631,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
+      <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Smart-Aktionsstreifen: Top-4 dringendste Bestellungen mit Sofort-Aktionen (Kochen starten / Fertig) */}
       {filtered.filter(o => ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenSmartActionStrip orders={filtered} timings={timings} />

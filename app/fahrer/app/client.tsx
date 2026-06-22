@@ -22,6 +22,7 @@ import { TourGPSNavigator } from './tour-gps-navigator';
 import { TourWazeNav } from './tour-waze-nav';
 import { TourKpiSummary } from './tour-kpi-summary';
 import { FahrerNaviStrip } from './fahrer-navi-strip';
+import { NaviAppWahl } from './navi-app-wahl';
 import { EarningsProgressBar } from './earnings-progress-bar';
 import { TourMiniMap } from './tour-mini-map';
 import { SchichtPuls } from './schicht-puls';
@@ -1989,6 +1990,23 @@ export function FahrerApp({
               <FahrerNaviStrip stops={activeBatch.stops as any} currentStopIdx={0} />
             </div>
           )}
+          {/* Phase 422: Multi-App Navigation — Google Maps, Waze, Apple Maps, HERE */}
+          {activeBatch.stops.length > 0 && (() => {
+            const nextStop = (activeBatch.stops as any[])
+              .sort((a: any, b: any) => a.reihenfolge - b.reihenfolge)
+              .find((s: any) => !s.geliefert_am);
+            if (!nextStop?.order) return null;
+            return (
+              <div className="px-4">
+                <NaviAppWahl
+                  lat={nextStop.order.kunde_lat ?? null}
+                  lng={nextStop.order.kunde_lng ?? null}
+                  adresse={nextStop.order.kunde_adresse ?? null}
+                  compact={false}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 213: Stopp-Schnell-Panel — kompakter Schnellzugriff mit Navigation + Anruf je Stopp */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
