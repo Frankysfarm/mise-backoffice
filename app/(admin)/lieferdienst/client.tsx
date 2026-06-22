@@ -221,6 +221,7 @@ import { SchichtAbschlussUebersicht } from './schicht-abschluss-uebersicht';
 import { FahrerIncentivePanel } from './fahrer-incentive-panel';
 import { FahrerZeugnisPanel } from './fahrer-zeugnis-panel';
 import { SchichtLiveBilanz } from './schicht-live-bilanz';
+import { StundenPerformanceMatrix } from './stunden-performance-matrix';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1425,6 +1426,8 @@ export function LieferdienstClient() {
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Phase 425: Stunden-Performance-Matrix — 24h-Bestellverteilung als Heatmap */}
+              <StundenPerformanceMatrix locationId={locationId} />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}
               <SchichtStundenStatistik />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

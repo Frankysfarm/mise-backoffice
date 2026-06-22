@@ -184,6 +184,7 @@ import { KitchenPhase422PrioritaetsKommando } from './phase422-prioritaets-komma
 import { ZonenAuslastungsChip } from './zonen-auslastungs-chip';
 import { KitchenSchichtTempoAmpel } from './schicht-tempo-ampel';
 import { KitchenKochstartSequenzBoard } from './kochstart-sequenz-board';
+import { FahrerPickupEtaAnzeige } from './fahrer-pickup-eta-anzeige';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -639,6 +640,8 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
+      {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}
+      <FahrerPickupEtaAnzeige batches={batches.map(b => ({ ...b, fahrer_id: b.driver_id, started_at: b.started_at ?? null, fahrer: (b as any).fahrer ?? null, stops: stops.filter(s => s.batch_id === b.id) }))} orders={filtered} />
       {/* Phase 423: Zonen-Auslastungs-Chip — morgige Bestellmenge je Zone für Küchen-Kapazitätsplanung */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <ZonenAuslastungsChip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />

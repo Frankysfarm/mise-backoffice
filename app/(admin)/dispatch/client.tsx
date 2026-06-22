@@ -233,6 +233,7 @@ import { FahrerErreichbarkeitsPanel } from './fahrer-erreichbarkeits-panel';
 import { DispatchKapazitaetsSchnellPanel } from './dispatch-kapazitaets-schnell-panel';
 import { DispatchTourScoreSchnell } from './dispatch-tour-score-schnell';
 import { DispatchTourEffizienzRadar } from './tour-effizienz-radar';
+import { TourProfitLiveRanking } from './tour-profit-live-ranking';
 
 type Driver = {
   employee_id: string;
@@ -1145,6 +1146,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 425: Tour-Profit-Ranking — Echtzeit-Rentabilität je aktiver Tour */}
+      <TourProfitLiveRanking batches={batches as any} />
       {/* Tour-Effizienz-Radar — Multi-dimensionaler Fahrer-Performance-Radar (Pünktlichkeit, Auslastung, Strecke, Zonen) */}
       <DispatchTourEffizienzRadar batches={batches} drivers={drivers} />
       {/* Tour-Score-Schnell-Übersicht — Alle aktiven Touren ranked nach Effizienz-Score + ETA */}

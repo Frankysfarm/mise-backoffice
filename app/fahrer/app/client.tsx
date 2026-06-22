@@ -180,6 +180,7 @@ import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
 import { FahrerIncentiveWidget } from './fahrer-incentive-widget';
 import { FahrerZeugnisCard } from './fahrer-zeugnis-card';
 import { StopCompass } from './stop-compass';
+import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
 
 type Driver = {
   id: string;
@@ -1050,6 +1051,13 @@ export function FahrerApp({
               </>
             )}
           </section>
+        )}
+
+        {/* Phase 425: Tour-Stopp-Fortschritts-Leiste — Horizontale Stop-Kette mit Live-Status und Aktions-Buttons */}
+        {activeBatch && (
+          <div className="px-4">
+            <TourStoppFortschrittsLeiste stops={activeBatch.stops as any} onMarkDelivered={markDelivered} onMarkArrived={markArrived} />
+          </div>
         )}
 
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
