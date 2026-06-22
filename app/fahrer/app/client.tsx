@@ -176,6 +176,7 @@ import { TourCompletionScreen } from './tour-completion';
 import { LieferungBestaetigung } from './lieferung-bestaetigung';
 import { TourLieferquote } from './tour-lieferquote';
 import { SchichtBriefingCard } from './schicht-briefing-card';
+import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
 
 type Driver = {
   id: string;
@@ -739,6 +740,10 @@ export function FahrerApp({
         {/* Phase 429: Schicht-Briefing — personalisiertes Pre-Shift-Briefing */}
         {driver.location_id && (
           <SchichtBriefingCard driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 430: Schicht-Abschluss — Post-Shift-Bericht (Score, Lieferungen, Verdienst, Tipps) */}
+        {driver.location_id && (
+          <SchichtAbschlussBericht driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

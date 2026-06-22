@@ -217,6 +217,7 @@ import { OpsGesundheitsAmpel } from './ops-gesundheits-ampel';
 import { SchichtOptimierungsPanel } from './schicht-optimierungs-panel'
 import { SchichtStundenStatistik } from './schicht-stunden-statistik';
 import { SchichtBriefingUebersicht } from './schicht-briefing-uebersicht';
+import { SchichtAbschlussUebersicht } from './schicht-abschluss-uebersicht';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1411,6 +1412,8 @@ export function LieferdienstClient() {
               <SchichtOptimierungsPanel locationId={locationId ?? null} />
               {/* Phase 429: Schicht-Briefing-Übersicht — Manager-Panel mit Gesehen-Status je Fahrer */}
               <SchichtBriefingUebersicht locationId={locationId ?? null} />
+              {/* Phase 430: Schicht-Abschluss-Berichte — Post-Shift-Performance je Fahrer (Score, Lieferungen, Verdienst) */}
+              <SchichtAbschlussUebersicht locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}

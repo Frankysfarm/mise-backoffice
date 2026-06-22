@@ -178,6 +178,7 @@ import { computeManagementReportAllLocations, pruneOldManagementReports } from '
 import { pingUpcomingShiftsAllLocations, pruneOldLogs as pruneFahrerErreichbarkeit } from '@/lib/delivery/fahrer-erreichbarkeit';
 import { computeVorschlaegeAllLocations } from '@/lib/delivery/schicht-optimierer';
 import { generateBriefingsAllLocations, pruneOldBriefings } from '@/lib/delivery/schicht-briefing';
+import { generateAbschlussAllLocations, pruneOldBerichte as pruneAbschlussBerichte } from '@/lib/delivery/schicht-abschluss';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -424,6 +425,9 @@ export async function GET(req: NextRequest) {
     // Phase 429: Schicht-Briefing — alle 5 Min generieren; täglich 08:40 UTC prune (30 Tage)
     const isSchichtBriefingTick      = nowMin % 5 >= 2 && nowMin % 5 < 4;
     const isSchichtBriefingPruneTick = nowHour === 8 && nowMin >= 40 && nowMin < 44;
+    // Phase 430: Schicht-Abschluss — alle 15 Min generieren; täglich 08:45 UTC prune (60 Tage)
+    const isSchichtAbschlussTick      = nowMin % 15 >= 0 && nowMin % 15 < 3;
+    const isSchichtAbschlussPruneTick = nowHour === 8 && nowMin >= 45 && nowMin < 49;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1567,6 +1571,14 @@ export async function GET(req: NextRequest) {
       : null;
     const schichtBriefingPruned = isSchichtBriefingPruneTick
       ? await pruneOldBriefings(30).catch(() => null)
+      : null;
+
+    // Phase 430: Schicht-Abschluss — alle 15 Min generieren; täglich 08:45 UTC prune (60 Tage)
+    const schichtAbschlussResult = isSchichtAbschlussTick
+      ? await generateAbschlussAllLocations().catch(() => null)
+      : null;
+    const schichtAbschlussPruned = isSchichtAbschlussPruneTick
+      ? await pruneAbschlussBerichte(60).catch(() => null)
       : null;
 
     const durationMs = Date.now() - start;
