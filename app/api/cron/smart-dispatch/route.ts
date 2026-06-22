@@ -174,6 +174,7 @@ import { computePrognoseAllLocations as computeFahrerPrognoseAllLocations, prune
 import { computeUmsatzPrognoseAllLocations, pruneOldUmsatzPrognosen } from '@/lib/delivery/umsatz-prognose';
 import { computeTagesMusterAllLocations, pruneOldTagesMuster } from '@/lib/delivery/tages-muster';
 import { computeZonenPrognoseAllLocations, pruneOldZonenPrognosen } from '@/lib/delivery/zonen-prognose';
+import { computeManagementReportAllLocations, pruneOldManagementReports } from '@/lib/delivery/management-report';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -409,6 +410,9 @@ export async function GET(req: NextRequest) {
     const isZonenPrognoseTick      = nowHour === 6 && nowMin >= 20 && nowMin < 24;
     const isZonenPrognosePruneTick = nowHour === 8 && nowMin >= 20 && nowMin < 24;
     const isTagesMusterPruneTick = nowHour === 8 && nowMin >= 10 && nowMin < 14;
+    // Phase 424: Management-Report — montags 07:00 UTC compute, täglich 08:30 UTC prune (52 Wochen)
+    const isManagementReportTick      = nowHour === 7 && nowMin < 4 && new Date().getUTCDay() === 1;
+    const isManagementReportPruneTick = nowHour === 8 && nowMin >= 30 && nowMin < 34;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1525,6 +1529,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldZonenPrognosen(60).catch(() => null)
       : null;
 
+    // Phase 424: Management-Report — montags 07:00 UTC compute, täglich 08:30 UTC prune
+    const managementReportResult = isManagementReportTick
+      ? await computeManagementReportAllLocations(1).catch(() => null)
+      : null;
+    const managementReportPruned = isManagementReportPruneTick
+      ? await pruneOldManagementReports(52).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1821,6 +1833,8 @@ export async function GET(req: NextRequest) {
       ...(tagesMusterPruned != null ? { tages_muster_pruned: tagesMusterPruned } : {}),
       ...(zonenPrognoseResult ? { zonen_prognose: { locations: zonenPrognoseResult.locations, upserted: zonenPrognoseResult.upserted, errors: zonenPrognoseResult.errors } } : {}),
       ...(zonenPrognosePruned != null ? { zonen_prognose_pruned: zonenPrognosePruned } : {}),
+      ...(managementReportResult ? { management_report: { locations: managementReportResult.locations, computed: managementReportResult.computed, errors: managementReportResult.errors } } : {}),
+      ...(managementReportPruned != null ? { management_report_pruned: managementReportPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

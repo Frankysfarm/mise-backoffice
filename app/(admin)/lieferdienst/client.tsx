@@ -92,6 +92,7 @@ import { SchichtEchtzeitBilanz } from './schicht-echtzeit-bilanz'
 import { IncentiveTagesUebersicht } from './incentive-tages-uebersicht'
 import { LiveOpsStats } from './live-ops-stats'
 import { HeutePerformanceCockpit } from './heute-performance-cockpit'
+import { ManagementReportPanel } from './management-report-panel'
 import { SchichtEchtzeitRangliste } from './schicht-echtzeit-rangliste'
 import { SchichtKpiTopBar } from './schicht-kpi-topbar'
 import { SchichtVerlaufsKurve } from './schicht-verlaufs-kurve'
@@ -1395,6 +1396,8 @@ export function LieferdienstClient() {
               <ZonenPrognosePanel locationId={locationId ?? null} />
               {/* Phase 423: Heute-Performance-Cockpit — Schicht-KPIs mit Pünktlichkeit, Umsatz, Fahrer */}
               <HeutePerformanceCockpit locationId={locationId ?? null} />
+              {/* Phase 424: Management-Wochenbericht — KPI-Zusammenfassung, Top-Fahrer, Zonen, Trend */}
+              <ManagementReportPanel locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}
