@@ -173,6 +173,7 @@ import { KitchenPrepDeadlineMatrix } from './prep-deadline-matrix';
 import { DriverApproachIntel } from './driver-approach-intel';
 import { KitchenSchichtItemRanking } from './schicht-item-ranking';
 import { KitchenSchichtBaselineStrip } from './schicht-baseline-strip';
+import { KitchenSmartActionStrip } from './smart-action-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -626,6 +627,10 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Smart-Aktionsstreifen: Top-4 dringendste Bestellungen mit Sofort-Aktionen (Kochen starten / Fertig) */}
+      {filtered.filter(o => ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
+        <KitchenSmartActionStrip orders={filtered} timings={timings} />
+      )}
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
       {/* Phase 305: Demand-Surge-Monitor — ML-basierte Nachfragespitzen aus Phase 304 Backend */}
