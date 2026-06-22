@@ -89,6 +89,7 @@ import { type HotspotMarker } from './driver-map';
 import { GeoClusterDispatchTip } from './geo-cluster-dispatch-tip';
 import { DispatchProfitStrip } from './profit-strip';
 import { DispatchTourVisualisierung } from './tour-visualisierung';
+import { DispatchTourScoreKommando } from './tour-score-kommando';
 import { DispatchTourStageProgress } from './tour-stage-progress';
 import { DispatchAktionsEmpfehlung } from './aktions-empfehlung';
 import { DispatchSLAGaugeStrip } from './sla-gauge-strip';
@@ -1105,6 +1106,27 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 402: Tour-Score-Kommando — Dispatch-Ranking aller fertigen Bestellungen + Tour-Score-Übersicht */}
+      <DispatchTourScoreKommando
+        orders={readyOrders.map(o => ({
+          id: o.id,
+          bestellnummer: o.bestellnummer,
+          status: o.status,
+          gesamtbetrag: o.gesamtbetrag,
+          bestellt_am: o.fertig_am,
+          eta_earliest: o.eta_earliest,
+          eta_latest: o.eta_latest,
+          zone: o.delivery_zone,
+          kunde_name: o.kunde_name,
+        }))}
+        batches={batches}
+        drivers={drivers.map(d => ({
+          id: d.employee_id,
+          vorname: d.employee?.vorname ?? '',
+          nachname: d.employee?.nachname ?? '',
+          status: { ist_online: d.ist_online, aktueller_batch_id: d.aktueller_batch_id },
+        }))}
+      />
       {/* Phase 400: Tour-Score Zentrale — Live Health + Score aller aktiven Touren */}
       <DispatchTourScoreZentrale batches={batches} />
       {/* Phase 378: Echtzeit-Tourfortschritt — Live-Fortschritts-Board je aktiver Tour mit Stop-Dots + ETA */}

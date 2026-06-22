@@ -147,6 +147,7 @@ import { KitchenAuftragsWarteschlangenZeit } from './auftrags-warteschlangen-zei
 import { KitchenKochzeitSollIstVergleich } from './kochzeit-soll-ist-vergleich';
 import { KitchenFertigAufAbholung } from './fertig-auf-abholung';
 import { KitchenBestellungsFlowAmpel } from './bestellungs-flow-ampel';
+import { KitchenSmartTimingHub } from './smart-timing-hub';
 import { KitchenKommandoZentrale } from './kommando-zentrale';
 import { KitchenBatchUebersichtCockpit } from './batch-uebersicht-cockpit';
 import { KitchenFertigstellungsPrognose } from './fertigstellungs-prognose';
@@ -634,6 +635,8 @@ export function KitchenBoard({
       <KitchenSmartKochzeitBoard orders={filtered} timings={timings} />
       {/* Phase 400: Kommando-Zentrale — Echtzeit-Kochpriorisierung mit Farbkodierung */}
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
+      {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
+      <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Phase 390: Kochstart-Konfidenz — Empfehlung ob jetzt kochen basierend auf Fahrer-Verfügbarkeit + Queue */}
       <KochstartKonfidenzAnzeige locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 391: Schicht-Auslastungs-Ring — SVG-Ring: abgeschlossene Bestellungen vs. Schichtziel + Hochrechnung */}

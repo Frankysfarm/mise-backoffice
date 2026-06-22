@@ -40,6 +40,7 @@ import { EtaLiveCountdownV2 } from '@/app/order/[locationSlug]/eta-live-countdow
 import { TourDeliveredFeedback } from './tour-delivered-feedback';
 import { LiveDeliveryCountdown } from './live-delivery-countdown';
 import { LiveTrackingCard } from '@/app/order/[locationSlug]/components/live-tracking-card';
+import { BestellungEtaLiveTracker } from '@/app/order/[locationSlug]/components/bestellung-eta-live-tracker';
 
 type Order = {
   order_id: string;
@@ -482,6 +483,17 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
         {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
           <div className="mt-3">
             <LiveTrackingCard bestellnummer={order.bestellnummer} />
+          </div>
+        )}
+        {/* Phase 402: ETA-Live-Tracker — Animierter Fortschritts-Stepper mit Echtzeit-Countdown + Fahrer-Info */}
+        {!['storniert', 'abgebrochen'].includes(order.status) && (
+          <div className="mt-3">
+            <BestellungEtaLiveTracker
+              orderId={order.order_id}
+              bestellnummer={order.bestellnummer}
+              initialStatus={order.status as any}
+              typ={order.typ}
+            />
           </div>
         )}
 

@@ -153,6 +153,7 @@ import { FahrerTourZeitfensterKarte } from './tour-zeitfenster-karte';
 import { TourNavigationsKompass } from './tour-navigations-kompass';
 import { TourStoppSequenzBoard } from './tour-stopp-sequenz-board';
 import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
+import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
 
 type Driver = {
   id: string;
@@ -1457,6 +1458,16 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 402: Sequenz-Navigator-Pro — Übersichtliche Schritt-für-Schritt Navigation */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourSequenzNavigatorPro
+                stops={activeBatch.stops as any}
+                tourStartedAt={activeBatch.started_at}
+                totalEtaMin={activeBatch.total_eta_min ?? null}
               />
             </div>
           )}
