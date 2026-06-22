@@ -23,6 +23,7 @@ interface StundeVorschlag {
   avg_bestellungen:        number;
   peak_klasse:             string | null;
   ist_fahrer:              number;
+  berechnet_am?:           string;
 }
 
 interface VorschlaegeTag {

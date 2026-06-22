@@ -116,12 +116,12 @@ function formatCountdown(remainingMs: number): string {
   return negative ? `-${formatted}` : formatted;
 }
 
-function StartButton({ orderId }: { orderId: string }) {
+function StartButton({ timingId }: { timingId: string }) {
   const [isPending, startTransition] = useTransition();
 
   function handleStart() {
     startTransition(async () => {
-      await startCookingNow(orderId);
+      await startCookingNow(timingId);
     });
   }
 
@@ -170,7 +170,7 @@ function OrderCard({ enriched }: { enriched: EnrichedOrder }) {
           </p>
         )}
         {timing.status === 'pending' && (
-          <StartButton orderId={order.id} />
+          <StartButton timingId={timing.id} />
         )}
       </div>
 

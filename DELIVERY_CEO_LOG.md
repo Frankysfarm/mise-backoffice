@@ -1,7 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–427 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–428 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #241 — Phase 428 + neue Cockpit-Komponenten (2026-06-22)
+
+### Commits geprüft
+- `43a25aa` feat(delivery/backend): Phase 428 Schicht-Auslastungs-Optimierer
+- `f045d58` docs: Phase 428 Fortschritt aktualisiert
+- `cc364e1` feat(delivery/frontend): neue Cockpit-Komponenten für Kitchen, Dispatch & Lieferdienst
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅ (nach 2 Fixes)
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (2)
+
+**Bug 1 — KitchenKochzeitCockpit: falsche ID bei startCookingNow**
+- **Problem:** `StartButton` rief `startCookingNow(order.id)` auf, aber die Server Action `startCookingNow(timingId)` erwartet die ID aus `kitchen_timings`, nicht die Order-ID. Der "Jetzt starten"-Button hätte stumm versagt (kein Timing gefunden → kein Update).
+- **Fix:** `StartButton` prop von `orderId` auf `timingId` umbenannt; `OrderCard` übergibt nun korrekt `timing.id`.
+- **Datei:** `app/(admin)/kitchen/kitchen-kochzeit-cockpit.tsx`
+
+**Bug 2 — SchichtOptimierungsPanel: fehlendes `berechnet_am`-Feld im Interface**
+- **Problem:** TypeScript-Fehler: `Property 'berechnet_am' does not exist on type 'StundeVorschlag'` — das Interface war unvollständig, obwohl das Backend das Feld liefert.
+- **Fix:** `berechnet_am?: string` zur `StundeVorschlag`-Interface hinzugefügt.
+- **Datei:** `app/(admin)/lieferdienst/schicht-optimierungs-panel.tsx`
+
+### Code-Qualität Phase 428 Backend (Schicht-Auslastungs-Optimierer)
+- `lib/delivery/schicht-optimierer.ts`: `computeEmpfohlen()` — ceil(avg/2.5)+1 bei high-Peak, max(1,...) Mindest-Fahrer; `computeKonfidenz()` — min(1.0, basis/30×1000/1000) Rundung sauber; UPSERT in Batches à 168 (7×24); `getVorschlaegeWithIst()` — Stunden-Coverage-Map aus `driver_shifts` (planned_start→planned_end) — korrekt ✅
+- Migration 207: `schicht_auslastungs_vorschlaege` UNIQUE(location_id, wochentag, stunde), CHECK peak_klasse IN ('low','normal','peak','high'), konfidenz CHECK 0≤x≤1, RLS service_role full + authenticated read own location ✅
+- API `GET /api/delivery/admin/schicht-optimierer` + `POST action=compute|compute-all` — vollständig ✅
+
+### Code-Qualität neue Cockpit-Komponenten
+- `KitchenKochzeitCockpit` (290 Zeilen): 1s-Tick-Timer, urgency-Sort (overdue→urgent→tight→ok→done), `calcUrgency()` sauber, formatCountdown() mit negativ-Präfix — qualitativ hochwertig ✅ (Bug1 gefixt)
+- `DispatchTourScoreSchnell` (191 Zeilen): Score aus 3 Komponenten (Abschlussrate×40 + Zeiteffizienz×40 + Zonen-Bonus×20), 30s-Update, Top-6-Ranking — solide ✅
+- `SchichtStundenStatistik` (321 Zeilen): Dual-Bar-Chart (Bestellungen + Umsatz/100), 60s-Polling, Mock-Fallback bei API-Fehler, locationIdRef-Pattern gegen stale closures — korrekt ✅
+
+### Integrations-Checkliste Phase 428 + neue Cockpits
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| SchichtOptimierungsPanel | lieferdienst/schicht-optimierungs-panel.tsx | lieferdienst/client.tsx:1410 nach OpsGesundheitsAmpel | ✅ |
+| SchichtStundenStatistik | lieferdienst/schicht-stunden-statistik.tsx | lieferdienst/client.tsx:1414 nach SchichtOptimierungsPanel | ✅ |
+| KitchenKochzeitCockpit | kitchen/kitchen-kochzeit-cockpit.tsx | kitchen/client.tsx:682 nach KitchenSmartTimingHub | ✅ |
+| DispatchTourScoreSchnell | dispatch/dispatch-tour-score-schnell.tsx | dispatch/client.tsx:1148 nach DispatchTourVisualisierung | ✅ |
+| Migration 207 | scripts/migrations/207_schicht_auslastungs_optimierer.sql | schicht_auslastungs_vorschlaege | ✅ |
+
+### Status nach Review #241
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 429 Backend:** Fahrer-Optimierungs-Score — Aggregierter Score je Fahrer (Pünktlichkeit + Stops/h + Kundenbewertung + Storno-Rate). `lib/delivery/fahrer-optimierungs-score.ts` + Migration 208 (`fahrer_optimierungs_scores`: UNIQUE driver_id+datum, score 0–100, komponenten jsonb, rang integer, trend up/stable/down). API `GET /api/delivery/admin/fahrer-optimierungs-score?location_id=...`. Cron täglich 07:00 UTC.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 429 Frontend:** FahrerOptimierungsScorePanel — Lieferdienst-Admin mit Rangliste aller Fahrer (Score-Balken, Rang-Badge, Trend-Pfeil, Komponenten-Aufschlüsselung). Integration in `lieferdienst/client.tsx` nach `SchichtStundenStatistik`. API: `GET /api/delivery/admin/fahrer-optimierungs-score?location_id=...`
 
 ---
 
