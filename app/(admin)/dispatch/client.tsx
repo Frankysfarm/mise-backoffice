@@ -225,6 +225,7 @@ import { DispatchSchichtScoreBadge } from './schicht-score-badge';
 import { DispatchFertigWarteStrip } from './fertig-warte-strip';
 import { DispatchStornoMusterPanel } from './dispatch-storno-muster-panel';
 import { TourTimelineBoard } from './tour-timeline-board';
+import { WartezeitDispatchBoard } from './wartezeit-dispatch-board';
 
 type Driver = {
   employee_id: string;
@@ -1895,6 +1896,8 @@ export function DispatchBoard({
       <DispatchSchichtScoreBadge locationId={locationFilter !== 'all' ? (locationFilter ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b') : (locations[0]?.id ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b')} />
       {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 419: Wartezeit-Dispatch-Board — Pipeline-Funnel, Engpass-Ampel, Fahrer-Abholwartezeit */}
+      <WartezeitDispatchBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

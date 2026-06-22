@@ -165,6 +165,7 @@ import { FahrerBatterieAnzeige } from './batterie-anzeige';
 import { SchichtStornoHinweis } from './schicht-storno-hinweis';
 import { FahrerPrognoseBadge } from './fahrer-prognose-badge';
 import { FahrerBewertungsWidget } from './fahrer-bewertungs-widget';
+import { FahrerWartezeitTipp } from './fahrer-wartezeit-tipp';
 import { QuickNavKommando } from './quick-nav-kommando';
 
 type Driver = {
@@ -719,6 +720,10 @@ export function FahrerApp({
         {/* Phase 418: Fahrer-Bewertungs-Widget — Eigene Kundenbewertung (Ø-Sterne, Trend, Positiv/Negativ) */}
         {isOnline && driver.location_id && (
           <FahrerBewertungsWidget driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 419: Fahrer-Wartezeit-Tipp — Küchen-Wartezeit + Hinweis zur Abholoptimierung */}
+        {isOnline && driver.location_id && (
+          <FahrerWartezeitTipp driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

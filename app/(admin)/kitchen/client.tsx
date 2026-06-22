@@ -175,6 +175,7 @@ import { KitchenSchichtItemRanking } from './schicht-item-ranking';
 import { KitchenSchichtBaselineStrip } from './schicht-baseline-strip';
 import { KitchenSmartActionStrip } from './smart-action-strip';
 import { KitchenStornoHotspotStrip } from './storno-hotspot-strip';
+import { WartezeitKuechenAnzeige } from './wartezeit-kuchen-anzeige';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -635,6 +636,10 @@ export function KitchenBoard({
       {/* Phase 416: Storno-Hotspot-Strip — Küchen-relevante Storno-Muster (kueche_verzoegerung) */}
       {(locationFilter !== 'all' || locations[0]?.id) && (
         <KitchenStornoHotspotStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
+      {/* Phase 419: Wartezeit-Küchen-Anzeige — Ø Prep-Zeit vs. 15-Min-Ziel, Queue, Überfällig */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <WartezeitKuechenAnzeige locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       )}
       {/* Nachfrage-Spike Erkennung: Surge-Warnung wenn ≥3 Bestellungen in 5 Min eintreffen */}
       <KitchenNachfrageSpike orders={filtered} />
