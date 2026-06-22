@@ -14741,3 +14741,50 @@ Beide Phasen 429 und 430 sind korrekt typisiert, vollständig integriert und bau
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 431 Frontend:** FahrerIncentivePanel — Admin-Dashboard für Ziel-Verwaltung und Bonus-Übersicht. Fahrer-App Widget `fahrer-incentive-widget.tsx` zeigt aktuelle Ziele + Fortschrittsbalken. Integration: lieferdienst/client.tsx nach SchichtAbschlussUebersicht + fahrer/app/client.tsx nach SchichtAbschlussBericht. API: `GET /api/delivery/admin/fahrer-incentive?location_id=...`.
+
+---
+
+## CEO Review #243 — Phase 431 (2026-06-22)
+
+### Commits geprüft
+- `ab40dc9` docs: DELIVERY_PROGRESS.md Phase 431 dokumentiert
+- `828ef01` feat(delivery/backend): Phase 431 — Fahrer-Incentive-Engine
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 357 Seiten (+1 gegenüber Review #242) ✅
+
+### Bugs gefixt (0)
+Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
+
+### Code-Qualität Phase 431 Backend (Fahrer-Incentive-Engine)
+- `lib/delivery/fahrer-incentive.ts` (318 Zeilen): Zielbasiertes Bonus-System (score/pünktlichkeit/lieferungen); aggregiert ist_wert aus schicht_abschluss_berichte je Fahrer + Zeitraum; UPSERT + erreicht_am wenn zielwert erreicht. Public API: evaluateIncentivesAllLocations / getIncentivesForLocation / getIncentivesForDriver / createIncentiveZiel / pruneOldIncentives ✅
+- Migration 210: `fahrer_incentives` UNIQUE(location_id, driver_id, ziel_typ, zeitraum_start), RLS, prune RPC ✅
+- API `/api/delivery/admin/fahrer-incentive` (88 Zeilen): GET list/driver; POST create/delete/evaluate/prune ✅
+- Cron Phase 431: isFahrerIncentiveTick (09:00–09:04 UTC) + isFahrerIncentivePruneTick (09:05–09:08 UTC) — korrekt ✅
+
+### Code-Qualität Phase 431 Frontend
+- `lieferdienst/fahrer-incentive-panel.tsx` (376 Zeilen): Collapsible Manager-Panel — Ziel-Formular (Typ/Zielwert/Bonus/Zeitraum), Fahrerliste mit Fortschrittsbalken, Bonus-Übersicht, Neu-berechnen-Button ✅
+- `fahrer/app/fahrer-incentive-widget.tsx` (165 Zeilen): Driver-Widget — aktive Ziele + Fortschrittsbalken, farbkodiert (grün bei Erreichen), 10-Min-Polling ✅
+- Integration: lieferdienst/client.tsx:221+1419 (FahrerIncentivePanel) + fahrer/app/client.tsx:180+751 (FahrerIncentiveWidget) ✅
+
+### Integrations-Checkliste Phase 431
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerIncentivePanel | lieferdienst/fahrer-incentive-panel.tsx | lieferdienst/client.tsx:1419 | ✅ |
+| FahrerIncentiveWidget | fahrer/app/fahrer-incentive-widget.tsx | fahrer/app/client.tsx:751 | ✅ |
+| Migration 210 | scripts/migrations/210_fahrer_incentive_ziele.sql | fahrer_incentives-Tabelle + RLS | ✅ |
+| Cron Phase 431 | app/api/cron/smart-dispatch/route.ts:1589,1592 | evaluateFahrerIncentives + pruneFahrerIncentives | ✅ |
+
+### Status nach Review #243
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 357 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+- Incentive-Zyklus vollständig: Zieldefinition → Evaluate (09:00 UTC) → Prune (09:05 UTC) ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 432 Backend:** Fahrer-Leistungs-Zeugnis — Monatliches PDF-Zeugnis je Fahrer basierend auf schicht_abschluss_berichte. Enthält: Gesamtbewertung (Grade), Lieferungen, Pünktlichkeitsrate, Score-Trend, Top-Zonen, erzielte Boni. Neue Tabelle `fahrer_zeugnisse` (driver_id, location_id, monat, grade, daten JSONB, erstellt_am). Engine: `lib/delivery/fahrer-zeugnis.ts`. API `GET /api/delivery/admin/fahrer-zeugnis`. Cron monatlich 1. des Monats 10:00 UTC.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 432 Frontend:** FahrerZeugnisPanel — Admin-Übersicht aller Monatszeugnisse mit Grade-Badge, Download-Button (JSON-Export). FahrerZeugnisCard in fahrer/app — eigene Zeugnisse, Grade-Ring, KPI-Zusammenfassung. Integration: lieferdienst/client.tsx nach FahrerIncentivePanel + fahrer/app/client.tsx nach FahrerIncentiveWidget.
