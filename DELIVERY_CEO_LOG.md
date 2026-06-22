@@ -14236,3 +14236,62 @@ Alle Phase-415/416-Komponenten korrekt typisiert, integriert und im Cron eingebu
 
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 418 Frontend:** KundenzufriedenheitsPanel — Dashboard für Lieferdienst-Admin mit Ø-Rating (1–5 Sterne), Fahrer-Rangliste nach Rating, Zonen-Heatmap. Neuer Mini-Widget in Fahrer-App zur Anzeige der eigenen Bewertung.
+
+---
+
+## CEO Review #234 — Phase 418+419 (2026-06-22)
+
+### Commits geprüft
+- `1790a77` feat(delivery/backend+frontend): Phase 418 — Kunden-Feedback-Engine + FahrerBewertungsWidget
+- `5fed93b` feat(delivery/frontend): Phase 419 — Wartezeit-Analyse-Engine
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (0)
+Beide Phasen 418 und 419 sind korrekt typisiert, vollständig integriert und bauen fehlerfrei. Kein Logik-Fehler, kein TypeScript-Fehler, kein Integrationsfehler gefunden.
+
+### Code-Qualität Phase 418 Backend (Kunden-Feedback-Engine)
+- `lib/delivery/kunden-feedback-engine.ts` (432 Zeilen): Gewichtete Rating-KPIs (avgRating, positivePct, negativePct), TrendDirection (up/stable/down basierend auf 7-Tage vs. Vorwoche Delta), 5 Public-API-Funktionen, qualityLabel-Klassifikation (excellent≥4.5/good≥4.0/fair≥3.5/poor≥3.0/critical<3.0), Promise.allSettled-Pattern — sauber ✅
+- Migration 200: SQL-Views `v_zone_rating_summary`, `v_tageszeit_rating`, `v_driver_rating_rangliste`, RPC `get_rating_daily_trend` — konsistente Naming-Konvention ✅
+- API `/api/delivery/admin/kunden-feedback-engine`: GET Dashboard/driver-rangliste/zone-heatmap/tageszeit + Fahrer-Eigenbewertung via driver_id-Param — vollständig ✅
+
+### Code-Qualität Phase 418 Frontend
+- `lieferdienst/kunden-feedback-engine-panel.tsx` (452 Zeilen): 4-KPI-Grid, 3 Tabs (Fahrer/Zonen/Tageszeit), Highlight-Chips, 5-Min-Polling, collapsible — professionell ✅
+- `fahrer/app/fahrer-bewertungs-widget.tsx` (111 Zeilen): Mini-Widget im dunklen Stil, Farbkodierung nach Rating-Schwellen, TrendIcon+Delta, 10-Min-Polling, null-return bei fehlenden Daten — kompakt und korrekt ✅
+
+### Code-Qualität Phase 419 Backend (Wartezeit-Analyse-Engine)
+- `lib/delivery/wartezeit-analyse.ts` (353 Zeilen): Engpass-Identifikation (kueche/abholung/zustellung/keine) via deltaMin-Vergleich, 4 Public-API-Funktionen, Ampel-Logik (gruen/gelb/rot), Anteil-Berechnung je Phase am Gesamt — solide ✅
+- Migration 201: SQL-Views `v_wartezeit_stunden`, `v_wartezeit_tage`, `v_wartezeit_fahrer` — liest sauber aus `order_lifecycle_snapshots` ✅
+- API `/api/delivery/admin/wartezeit-analyse`: GET default/trend/fahrer/kueche mit korrektem Switch — vollständig ✅
+
+### Code-Qualität Phase 419 Frontend
+- `kitchen/wartezeit-kuchen-anzeige.tsx` (150 Zeilen): Ampel-Kachel mit 3-Metrik (Ø Prep, Queue, Überfällig), 60s-Polling ✅
+- `dispatch/wartezeit-dispatch-board.tsx` (315 Zeilen): Pipeline-Funnel 3 Phasen mit Anteil-Balken, Engpass-Banner + Handlungsempfehlung, Fahrer-Tab, 2-Min-Polling, collapsible ✅
+- `lieferdienst/wartezeit-stats-panel.tsx` (363 Zeilen): 4-KPI-Kacheln, 7-Tage-Balken-Trend, Fahrer-Rangliste, 5-Min-Polling, collapsible ✅
+- `fahrer/app/fahrer-wartezeit-tipp.tsx` (132 Zeilen): Nur sichtbar wenn Küche gelb/rot oder Queue≥3, dismissable, TrendIcon, personalisierter Tipp — smart und sparsam ✅
+
+### Integrations-Checkliste Phase 418+419
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KundenFeedbackEnginePanel | lieferdienst/kunden-feedback-engine-panel.tsx | lieferdienst/client.tsx:1377 nach FahrerPrognosePanel | ✅ |
+| FahrerBewertungsWidget | fahrer/app/fahrer-bewertungs-widget.tsx | fahrer/app/client.tsx:722 nach FahrerPrognoseBadge | ✅ |
+| WartezeitKuechenAnzeige | kitchen/wartezeit-kuchen-anzeige.tsx | kitchen/client.tsx:640 nach KitchenStornoHotspotStrip | ✅ |
+| WartezeitDispatchBoard | dispatch/wartezeit-dispatch-board.tsx | dispatch/client.tsx:1900 nach DispatchStornoMusterPanel | ✅ |
+| WartezeitStatsPanel | lieferdienst/wartezeit-stats-panel.tsx | lieferdienst/client.tsx:1379 nach KundenFeedbackEnginePanel | ✅ |
+| FahrerWartezeitTipp | fahrer/app/fahrer-wartezeit-tipp.tsx | fahrer/app/client.tsx:724 nach FahrerBewertungsWidget | ✅ |
+| Migration 200 | scripts/migrations/200_kunden_feedback_engine.sql | Neue Tabelle customer_delivery_ratings + Views + RPC | ✅ |
+| Migration 201 | scripts/migrations/201_wartezeit_analyse.sql | Views v_wartezeit_stunden/tage/fahrer | ✅ |
+
+### Status nach Review #234
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 420 Backend:** Umsatz-Prognose-Engine — ML-ähnliche Vorhersage des Tages-/Wochenumsatzes basierend auf historischen schicht_roi_daily-Daten. `lib/delivery/umsatz-prognose.ts` + Migration 202 (`umsatz_prognose_snapshots`: UNIQUE location_id+prognose_datum+prognose_typ, felder: erwarteter_umsatz_eur, konfidenz 0–1, range_low/high, basis_snapshots, trend_richtung up/stable/down, berechnet_am). API `GET /api/delivery/admin/umsatz-prognose?location_id=...` (heutige Prognose + nächste 7 Tage). Cron täglich 06:00 UTC.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 420 Frontend:** UmsatzPrognosePanel — Lieferdienst-Admin-Dashboard mit Tagesvorhersage (erwarteter Umsatz + Konfidenz-Balken + Range), 7-Tage-Vorschau-Chart (Recharts-BarChart), Trend-Indikator. Integration in lieferdienst/client.tsx nach WartezeitStatsPanel. API: `GET /api/delivery/admin/umsatz-prognose?location_id=...`
