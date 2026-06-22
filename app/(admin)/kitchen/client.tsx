@@ -167,6 +167,7 @@ import { KitchenSchichtFertigQuote } from './schicht-fertig-quote';
 import { KitchenSmartBatchPrognose } from './smart-batch-prognose';
 import { KitchenKochstartAmpelBoard } from './kochstart-ampel-board';
 import { KitchenEchtzeitBatchKochstartKommando } from './echtzeit-batch-kochstart-kommando';
+import { KitchenSmartPrepColorboard } from './smart-prep-colorboard';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1723,6 +1724,8 @@ export function KitchenBoard({
       )}
       {/* Phase 406: Echtzeit-Batch-Kochstart-Kommando — Fällige Kochstarts mit Countdown und Dringlichkeit */}
       {locationFilter && <KitchenEchtzeitBatchKochstartKommando locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />}
+      {/* Phase 407: Smart-Prep-Colorboard — Farbkodierte Echtzeit-Zubereitungsübersicht mit Countdown-Timern */}
+      <KitchenSmartPrepColorboard />
     </div>
   );
 }

@@ -191,6 +191,7 @@ import { OrderPulseChart } from './order-pulse-chart';
 import { SchichtZielOptimizer } from './schicht-ziel-optimizer';
 import { StrategicInsightsDashboard } from './strategic-insights-dashboard';
 import { LieferdienstTourStoppPünktlichkeitsCockpit } from './tour-stopp-puenktlichkeits-cockpit';
+import { DeliveryStatsCompact } from './delivery-stats-compact';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1336,6 +1337,8 @@ export function LieferdienstClient() {
               <StrategicInsightsDashboard locationId={locationId ?? null} />
               {/* Phase 406: Tour-Stopp-Pünktlichkeits-Cockpit — Live-Übersicht aller aktiven Stopp-ETAs mit Farbkodierung */}
               <LieferdienstTourStoppPünktlichkeitsCockpit locationId={locationId ?? null} />
+              {/* Phase 407: Kompakt-Statistiken-Dashboard — Heute-KPIs + Trends vs. Gestern */}
+              <DeliveryStatsCompact locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

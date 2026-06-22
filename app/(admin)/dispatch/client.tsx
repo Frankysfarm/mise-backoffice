@@ -217,6 +217,7 @@ import { TourRueckkehrOptimierung } from './tour-rueckkehr-optimierung';
 import { DispatchTourKarteGrid } from './tour-karte-grid';
 import { OrderPulseChart } from './order-pulse-chart';
 import { DispatchSmartZuweisungsKommando } from './smart-zuweisungs-kommando';
+import { DispatchTourScoreOverview } from './tour-score-overview';
 
 type Driver = {
   employee_id: string;
@@ -1855,6 +1856,8 @@ export function DispatchBoard({
       <DispatchOrderWaitingCostPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 406: Smart-Zuweisungs-Score-Kommando — Top-Fahrer nach Score mit Empfehlung */}
       <DispatchSmartZuweisungsKommando />
+      {/* Phase 407: Tour-Score-Übersicht — Alle aktiven Touren mit Live-Score + Fortschritt */}
+      <DispatchTourScoreOverview />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

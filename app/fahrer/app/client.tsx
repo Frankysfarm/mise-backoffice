@@ -157,6 +157,7 @@ import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
 import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
 import { FahrerStopZielkompass } from './stop-zielkompass';
 import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
+import { TourStopQuickActions } from './tour-stop-quick-actions';
 
 type Driver = {
   id: string;
@@ -2517,6 +2518,31 @@ export function FahrerApp({
             <TourStopSchnellQuittierung />
           </div>
         )}
+        {/* Phase 407: Tour-Stop-Quick-Actions — Navigation + Kontakt + Lieferung quittieren */}
+        {isOnline && activeBatch && (() => {
+          const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
+          if (!currentStop) return null;
+          const address = [currentStop.order.kunde_adresse, currentStop.order.kunde_plz].filter(Boolean).join(', ');
+          return (
+            <div className="px-4 mt-3">
+              <TourStopQuickActions
+                tourId={activeBatch.id}
+                stopId={currentStop.id}
+                stopAddress={address}
+                customerName={currentStop.order.kunde_name}
+                customerPhone={currentStop.order.kunde_telefon ?? null}
+                lat={currentStop.order.kunde_lat ?? null}
+                lng={currentStop.order.kunde_lng ?? null}
+                onComplete={() => {
+                  setActiveBatch(prev => prev ? {
+                    ...prev,
+                    stops: prev.stops.map(s => s.id === currentStop.id ? { ...s, geliefert_am: new Date().toISOString() } : s)
+                  } : prev);
+                }}
+              />
+            </div>
+          );
+        })()}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (
