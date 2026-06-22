@@ -56,6 +56,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/fahrer' ||
     pathname.startsWith('/fahrer/') ||
     pathname === '/manifest.json' ||
+    pathname === '/mais.webmanifest' ||
     pathname === '/sw.js' ||
     pathname === '/sw-customer.js' ||
     pathname.startsWith('/api/push/') ||
