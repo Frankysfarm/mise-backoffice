@@ -163,6 +163,8 @@ import { detectLostConnectionsAllLocations, pruneOldHeartbeats as pruneDriverHea
 import { snapshotExecutiveKpiAllLocations, pruneExecutiveKpiSnapshots } from '@/lib/delivery/executive-dashboard';
 import { catchupSchichtRoiDailyAllLocations } from '@/lib/delivery/schicht-roi-daily';
 import { snapshotOrderPulseAllLocations, pruneOrderPulseSnapshots } from '@/lib/delivery/order-pulse';
+import { analyzeWeekAllLocations as analyzeSchichtPrognose, pruneOldAnalyses as pruneSchichtPrognoseAnalyses } from '@/lib/delivery/schicht-prognose-analyse';
+import { generateStrategicInsightsAllLocations, pruneOldInsights as pruneStrategicInsights } from '@/lib/delivery/strategic-insights';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -366,6 +368,12 @@ export async function GET(req: NextRequest) {
     // Phase 398: Order-Pulse — alle 15 Min Snapshot; prune täglich 07:45 UTC (7 Tage)
     const isOrderPulseSnapshotTick = nowMin % 15 < 2;
     const isOrderPulsePruneTick    = nowHour === 7 && nowMin >= 45 && nowMin < 49;
+    // Phase 401: Schicht-Prognose-Genauigkeit — montags 03:00 UTC analysieren; täglich 08:00 UTC prune (365 Tage)
+    const isSchichtPrognoseAnalyseTick = nowHour === 3 && nowMin < 2 && new Date().getUTCDay() === 1;
+    const isSchichtPrognoseAnalysePruneTick = nowHour === 8 && nowMin < 2;
+    // Phase 403: Strategic Insights — täglich 05:20 UTC generieren; prune täglich 07:50 UTC (30 Tage)
+    const isStrategicInsightsTick      = nowHour === 5 && nowMin >= 20 && nowMin < 24;
+    const isStrategicInsightsPruneTick = nowHour === 7 && nowMin >= 50 && nowMin < 54;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1401,6 +1409,22 @@ export async function GET(req: NextRequest) {
       ? await pruneOrderPulseSnapshots(7).catch(() => null)
       : null;
 
+    // Phase 401: Schicht-Prognose-Genauigkeit — montags 03:00 UTC; prune täglich 08:00 UTC
+    const schichtPrognoseAnalyseResult = isSchichtPrognoseAnalyseTick
+      ? await analyzeSchichtPrognose().catch(() => null)
+      : null;
+    const schichtPrognoseAnalysePruned = isSchichtPrognoseAnalysePruneTick
+      ? await pruneSchichtPrognoseAnalyses(365).catch(() => null)
+      : null;
+
+    // Phase 403: Strategic Insights — täglich 05:20 UTC; prune täglich 07:50 UTC
+    const strategicInsightsResult = isStrategicInsightsTick
+      ? await generateStrategicInsightsAllLocations().catch(() => null)
+      : null;
+    const strategicInsightsPruned = isStrategicInsightsPruneTick
+      ? await pruneStrategicInsights(30).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1678,6 +1702,10 @@ export async function GET(req: NextRequest) {
       ...(schichtRoiCatchupResult?.gapsFilled ? { schicht_roi_catchup: { locations: schichtRoiCatchupResult.locations, gaps_filled: schichtRoiCatchupResult.gapsFilled, errors: schichtRoiCatchupResult.errors } } : {}),
       ...(orderPulseSnapshotResult ? { order_pulse_snapshot: { saved: orderPulseSnapshotResult.saved, errors: orderPulseSnapshotResult.errors } } : {}),
       ...(orderPulsePruned != null ? { order_pulse_pruned: orderPulsePruned } : {}),
+      ...(schichtPrognoseAnalyseResult?.locations ? { schicht_prognose_analyse: { locations: schichtPrognoseAnalyseResult.locations, saved: schichtPrognoseAnalyseResult.saved, errors: schichtPrognoseAnalyseResult.errors } } : {}),
+      ...(schichtPrognoseAnalysePruned != null ? { schicht_prognose_analyse_pruned: (schichtPrognoseAnalysePruned as { pruned: number }).pruned } : {}),
+      ...(strategicInsightsResult?.locations ? { strategic_insights: { locations: strategicInsightsResult.locations, generated: strategicInsightsResult.generated, errors: strategicInsightsResult.errors } } : {}),
+      ...(strategicInsightsPruned != null ? { strategic_insights_pruned: strategicInsightsPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
