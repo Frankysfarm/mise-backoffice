@@ -2,6 +2,8 @@
  * GET  /api/delivery/admin/kitchen-capacity
  *   ?location_id=<uuid>&action=dashboard|trend|circuit-breaker-state
  *   ?location_id=<uuid>&action=trend&hours=24
+ *   ?action=all-locations   — Multi-Location-Vergleich (kein location_id nötig)
+ *   ?location_id=<uuid>&action=ml-features&hours=168
  *
  * POST /api/delivery/admin/kitchen-capacity
  *   { action: 'snapshot', location_id }
@@ -19,6 +21,8 @@ import {
   activateCircuitBreaker,
   deactivateCircuitBreaker,
   pruneOldSnapshots,
+  getMultiLocationCapacityComparison,
+  exportMLFeatures,
 } from '@/lib/delivery/kitchen-capacity';
 
 export const runtime = 'nodejs';
@@ -43,7 +47,14 @@ async function resolveLocationId(req: NextRequest): Promise<string | null> {
 
 export async function GET(req: NextRequest) {
   try {
-    const action     = req.nextUrl.searchParams.get('action') ?? 'dashboard';
+    const action = req.nextUrl.searchParams.get('action') ?? 'dashboard';
+
+    // Multi-Location Vergleich braucht keine location_id
+    if (action === 'all-locations') {
+      const cards = await getMultiLocationCapacityComparison();
+      return NextResponse.json({ cards, generatedAt: new Date().toISOString() });
+    }
+
     const locationId = await resolveLocationId(req);
 
     if (!locationId) {
@@ -64,6 +75,12 @@ export async function GET(req: NextRequest) {
     if (action === 'circuit-breaker-state') {
       const state = await getCircuitBreakerState(locationId);
       return NextResponse.json({ locationId, circuitBreaker: state });
+    }
+
+    if (action === 'ml-features') {
+      const hours = parseInt(req.nextUrl.searchParams.get('hours') ?? '168', 10);
+      const features = await exportMLFeatures(locationId, Math.min(hours, 720));
+      return NextResponse.json({ locationId, rows: features.length, features });
     }
 
     return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });

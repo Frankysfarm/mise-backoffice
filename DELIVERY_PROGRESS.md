@@ -6714,3 +6714,61 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | StrategicInsightsDashboard | lieferdienst/strategic-insights-dashboard.tsx | lieferdienst/client.tsx nach SchichtZielOptimizer | ✅ |
 
 - Build: npx next build ✓ Compiled successfully, 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 408 — Backend + Frontend: Kitchen Capacity Dashboard (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Backend Phase 408
+
+**`lib/delivery/kitchen-capacity.ts`** — 2 neue Funktionen:
+
+**`getMultiLocationCapacityComparison()`** → `LocationCapacityCard[]`:
+- Parallel-Abfrage aller aktiven Standorte
+- Aktuellster Snapshot je Standort: overloadScore, status, circuitActive, activeOrders, readyOrders, snapshotAge (Sekunden)
+- Sortierung: circuit_open-Standorte zuerst, dann overloadScore desc
+- Rückgabe: `LocationCapacityCard[]` (locationId, locationName, overloadScore, status, circuitActive, activeOrders, readyOrders, snapshotAge)
+
+**`exportMLFeatures(locationId, hours?)`** → `MLFeatureRow[]`:
+- Exportiert Feature-Vektoren aus `mise_kitchen_capacity_snapshots` für zukünftige ML-Integration
+- Features: capturedAt, hourOfDay (UTC), dayOfWeek, activeOrders, readyOrders, ordersLastHour, avgPrepMin, maxPrepMin, prepOverrunCount, capacityPct, overloadScore
+- Labels: statusLabel, circuitActive
+- Max 5000 Zeilen, max 720h (30 Tage) Fenster
+
+**`app/api/delivery/admin/kitchen-capacity/route.ts`** — 2 neue GET-Actions:
+- `action=all-locations` — Multi-Location Kapazitätsvergleich (kein location_id nötig)
+- `action=ml-features&hours=168` — ML-Feature-Export für KI-Training (7 Tage default, max 30 Tage)
+
+### Frontend Phase 408
+
+**`app/(admin)/kitchen/kitchen-capacity-dashboard.tsx`** — `KitchenCapacityDashboard`:
+
+**Komponenten-Beschreibung:**
+- SVG-Gauge: Überlas-Score 0–100 mit Farbkodierung (grün <30, amber 30–60, rot 60–80, lila 80+)
+- 4 KPI-Kacheln: Aktive Bestellungen, Fertig wartend, Eingang letzte Stunde, Ø Prep-Zeit
+- Circuit-Breaker-Panel: Status-Badge, Countdown bis Auto-Deaktivierung, Manuell aktivieren/deaktivieren
+- Status-Breakdown letzte 2h: gestapelte Balken (optimal/busy/overloaded/circuit_open)
+- Recharts AreaChart: Überlas-Score letzte 48h (Ø + Max, 2 Referenzlinien bei 30+60)
+- "Letzte Stunde"-KPIs: Ø Score, Max Score, Überlast-Ticks / Snapshots, Ø Auslastung
+- 60s-Polling (lazy: nur wenn open=true), Manuelles Refresh, Letzter-Fetch-Timestamp
+- Collapsible wie alle anderen Dashboard-Panels
+
+**API-Calls:**
+- `GET /api/delivery/admin/kitchen-capacity?action=dashboard&location_id=...`
+- `GET /api/delivery/admin/kitchen-capacity?action=trend&hours=48&location_id=...`
+- `POST /api/delivery/admin/kitchen-capacity` mit action=activate/deactivate-circuit-breaker
+
+**Integration: `app/(admin)/kitchen/client.tsx`:**
+- Import `KitchenCapacityDashboard` nach `KitchenSmartPrepColorboard` (Zeile 171)
+- JSX nach `<KitchenSmartPrepColorboard />` mit `locationId`-Prop (Zeile 1731)
+
+### Integrations-Checkliste Phase 408
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenCapacityDashboard | kitchen/kitchen-capacity-dashboard.tsx | kitchen/client.tsx nach KitchenSmartPrepColorboard | ✅ |
+| getMultiLocationCapacityComparison | lib/delivery/kitchen-capacity.ts | API action=all-locations | ✅ |
+| exportMLFeatures | lib/delivery/kitchen-capacity.ts | API action=ml-features | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅

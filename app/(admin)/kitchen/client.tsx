@@ -168,6 +168,7 @@ import { KitchenSmartBatchPrognose } from './smart-batch-prognose';
 import { KitchenKochstartAmpelBoard } from './kochstart-ampel-board';
 import { KitchenEchtzeitBatchKochstartKommando } from './echtzeit-batch-kochstart-kommando';
 import { KitchenSmartPrepColorboard } from './smart-prep-colorboard';
+import { KitchenCapacityDashboard } from './kitchen-capacity-dashboard';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1726,6 +1727,8 @@ export function KitchenBoard({
       {locationFilter && <KitchenEchtzeitBatchKochstartKommando locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />}
       {/* Phase 407: Smart-Prep-Colorboard — Farbkodierte Echtzeit-Zubereitungsübersicht mit Countdown-Timern */}
       <KitchenSmartPrepColorboard />
+      {/* Phase 408: Kapazitäts-Dashboard — Live-Score-Gauge, Circuit-Breaker, 48h-Trend */}
+      <KitchenCapacityDashboard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

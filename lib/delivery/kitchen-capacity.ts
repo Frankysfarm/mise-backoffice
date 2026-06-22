@@ -622,3 +622,119 @@ export async function pruneOldSnapshots(
   if (error) throw new Error(`[kitchen-capacity] pruneOldSnapshots: ${error.message}`);
   return { pruned: (data as number | null) ?? 0 };
 }
+
+// ── 9. Multi-Location Vergleich ───────────────────────────────────────────────
+
+export interface LocationCapacityCard {
+  locationId:    string;
+  locationName:  string | null;
+  overloadScore: number;
+  status:        KitchenStatus;
+  circuitActive: boolean;
+  activeOrders:  number;
+  readyOrders:   number;
+  snapshotAge:   number; // Sekunden seit letztem Snapshot
+}
+
+export async function getMultiLocationCapacityComparison(): Promise<LocationCapacityCard[]> {
+  const sb = createServiceClient();
+
+  const { data: locs } = await sb
+    .from('mise_locations')
+    .select('id, name')
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+    .limit(50);
+
+  const locations = (locs ?? []) as { id: string; name: string | null }[];
+
+  const cards = await Promise.all(
+    locations.map(async ({ id, name }): Promise<LocationCapacityCard> => {
+      const { data: snap } = await sb
+        .from('mise_kitchen_capacity_snapshots')
+        .select('overload_score, status, circuit_active, active_orders, ready_orders, captured_at')
+        .eq('location_id', id)
+        .order('captured_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const now = Date.now();
+      const age = snap?.captured_at
+        ? Math.floor((now - new Date(snap.captured_at as string).getTime()) / 1000)
+        : 9999;
+
+      return {
+        locationId:    id,
+        locationName:  name,
+        overloadScore: snap ? Number(snap.overload_score ?? 0) : 0,
+        status:        (snap?.status as KitchenStatus | undefined) ?? 'optimal',
+        circuitActive: (snap?.circuit_active as boolean | undefined) ?? false,
+        activeOrders:  snap ? Number(snap.active_orders ?? 0) : 0,
+        readyOrders:   snap ? Number(snap.ready_orders ?? 0) : 0,
+        snapshotAge:   age,
+      };
+    }),
+  );
+
+  // Sortierung: circuit_open zuerst, dann nach overloadScore desc
+  return cards.sort((a, b) => {
+    if (a.circuitActive && !b.circuitActive) return -1;
+    if (!a.circuitActive && b.circuitActive) return 1;
+    return b.overloadScore - a.overloadScore;
+  });
+}
+
+// ── 10. ML Feature Export ─────────────────────────────────────────────────────
+
+export interface MLFeatureRow {
+  capturedAt:         string;
+  hourOfDay:          number;
+  dayOfWeek:          number;
+  activeOrders:       number;
+  readyOrders:        number;
+  ordersLastHour:     number;
+  avgPrepMin:         number;
+  maxPrepMin:         number;
+  prepOverrunCount:   number;
+  capacityPct:        number;
+  overloadScore:      number;
+  // Labels (what we want to predict in future)
+  statusLabel:        string; // optimal/busy/overloaded/circuit_open
+  circuitActive:      boolean;
+}
+
+export async function exportMLFeatures(
+  locationId: string,
+  hours: number = 168, // 7 Tage default
+): Promise<MLFeatureRow[]> {
+  const sb = createServiceClient();
+  const since = new Date(Date.now() - hours * 60 * 60_000).toISOString();
+
+  const { data } = await sb
+    .from('mise_kitchen_capacity_snapshots')
+    .select('*')
+    .eq('location_id', locationId)
+    .gte('captured_at', since)
+    .order('captured_at', { ascending: true })
+    .limit(5000);
+
+  type SnapRow = Record<string, unknown>;
+  return ((data ?? []) as SnapRow[]).map((r) => {
+    const ts = new Date(r.captured_at as string);
+    return {
+      capturedAt:       r.captured_at as string,
+      hourOfDay:        ts.getUTCHours(),
+      dayOfWeek:        ts.getUTCDay(),
+      activeOrders:     Number(r.active_orders ?? 0),
+      readyOrders:      Number(r.ready_orders ?? 0),
+      ordersLastHour:   Number(r.orders_last_hour ?? 0),
+      avgPrepMin:       Number(r.avg_prep_min ?? 18),
+      maxPrepMin:       Number(r.max_prep_min ?? 18),
+      prepOverrunCount: Number(r.prep_overrun_count ?? 0),
+      capacityPct:      Number(r.capacity_pct ?? 0),
+      overloadScore:    Number(r.overload_score ?? 0),
+      statusLabel:      (r.status as string | null) ?? 'optimal',
+      circuitActive:    (r.circuit_active as boolean | null) ?? false,
+    };
+  });
+}
