@@ -163,6 +163,7 @@ import { SchichtEndSummary } from './schicht-end-summary';
 import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
 import { FahrerBatterieAnzeige } from './batterie-anzeige';
 import { SchichtStornoHinweis } from './schicht-storno-hinweis';
+import { FahrerPrognoseBadge } from './fahrer-prognose-badge';
 
 type Driver = {
   id: string;
@@ -708,6 +709,10 @@ export function FahrerApp({
         {/* Phase 416: Storno-Hinweis — Awareness wenn aktuelle Stunde ein bekannter Hotspot ist */}
         {isOnline && driver.location_id && (
           <SchichtStornoHinweis locationId={driver.location_id} />
+        )}
+        {/* Phase 417: Fahrer-Prognose-Badge — Eigener Performance-Score + 4 Sub-Scores */}
+        {isOnline && driver.location_id && (
+          <FahrerPrognoseBadge driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}
