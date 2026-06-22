@@ -2,7 +2,16 @@ import Shell from './shell';
 import { redirect } from 'next/navigation';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
+import { PwaSetup } from './pwa-setup';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap';
+
+// MAIS-PWA: eigenes Manifest (Owner-App) für die /neo-Routen
+export const metadata = {
+  manifest: '/mais.webmanifest',
+  appleWebApp: { capable: true, title: 'MAIS', statusBarStyle: 'default' as const },
+};
+export const viewport = { themeColor: '#4F46E5', width: 'device-width', initialScale: 1, viewportFit: 'cover' as const };
+
 export default async function NeoAppLayout({ children }: { children: React.ReactNode }) {
   const emp = await getCurrentEmployee();
   if (!emp?.tenant_id) redirect('/start');
@@ -14,5 +23,5 @@ export default async function NeoAppLayout({ children }: { children: React.React
   // Onboarding-Guard (wie altes Dashboard): neuer Tenant ohne abgeschlossenen Wizard → Setup
   if (t && !t.wizard_completed_at && !t.wizard_skipped_at) redirect('/setup-wizard');
   const shopUrl = t?.slug ? `https://mise-gastro.de/biss-app/${t.slug}` : '#';
-  return (<><link href={FONTS} rel="stylesheet" /><Shell newCount={count ?? 0} tenantName={t?.name ?? 'Mein Shop'} shopUrl={shopUrl}>{children}</Shell></>);
+  return (<><link href={FONTS} rel="stylesheet" /><link rel="apple-touch-icon" href="/icon-192.png" /><PwaSetup /><Shell newCount={count ?? 0} tenantName={t?.name ?? 'Mein Shop'} shopUrl={shopUrl}>{children}</Shell></>);
 }
