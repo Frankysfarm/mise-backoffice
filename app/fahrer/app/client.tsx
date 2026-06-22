@@ -161,6 +161,7 @@ import { TourStopQuickActions } from './tour-stop-quick-actions';
 import { TourStopImpulseKarte } from './tour-stop-impulse-karte';
 import { SchichtEndSummary } from './schicht-end-summary';
 import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
+import { FahrerBatterieAnzeige } from './batterie-anzeige';
 
 type Driver = {
   id: string;
@@ -701,6 +702,9 @@ export function FahrerApp({
       </header>
 
       <main className="px-4 py-6 space-y-5">
+        {/* Batterie-Anzeige: Warnung bei niedrigem Akkustand + Strom-Sparmodus */}
+        <FahrerBatterieAnzeige />
+
         {/* Betriebsnachrichten vom Dispatch */}
         {visibleBroadcasts.map(b => (
           <div

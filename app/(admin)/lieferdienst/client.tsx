@@ -198,6 +198,7 @@ import { MultiLocationOverview } from './multi-location-overview';
 import { SchichtUmsatzKumulativ } from './schicht-umsatz-kumulativ';
 import { SchichtVergleichEnginePanel } from './schicht-vergleich-engine';
 import { SchichtDowTrendChart } from './schicht-dow-trend';
+import { SchichtAlarmZentrale } from './schicht-alarm-zentrale';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1133,6 +1134,9 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-Alarm-Zentrale: Echtzeit-Alerts für SLA-Risiken, Küchen-Rückstau und hängende Lieferungen */}
+              <SchichtAlarmZentrale locationId={locationId ?? null} />
+
               {/* Phase 394: Driver-Online-Status-Board — Grid aller Fahrer mit Online/Offline-Status */}
               {locationId && <DriverOnlineStatusBoard locationId={locationId} />}
               {/* Phase 397: Schicht-Ertrags-Cockpit — Live Umsatz/Ziel-Fortschritt, €/Fahrer, Stornoquote */}

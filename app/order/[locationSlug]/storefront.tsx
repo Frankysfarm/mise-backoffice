@@ -49,6 +49,7 @@ import { FahrerQualitaetsBadge } from './components/fahrer-qualitaets-badge';
 import { EtaKonfidenzBanner } from './eta-konfidenz-banner';
 import { EtaFortschrittsLeiste } from './eta-fortschritts-leiste';
 import { BestellEchtzeitAmpel } from './bestell-echtzeit-ampel';
+import { BestellungLiveTimeline } from './bestellung-live-timeline';
 
 type Props = {
   location: Location;
@@ -1102,6 +1103,16 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
             etaMin={order.etaMin ?? undefined}
           />
         </div>
+      )}
+      {/* Live-Timeline: Alle Phasen von Bestellung bis Lieferung mit Zeitstempeln + ETA-Countdown */}
+      {order.isDelivery && (
+        <BestellungLiveTimeline
+          orderId={order.orderId}
+          initialStatus={order.status}
+          bestelltAm={order.placedAt ?? null}
+          etaEarliest={order.etaEarliest ?? null}
+          etaLatest={null}
+        />
       )}
     </div>
   );

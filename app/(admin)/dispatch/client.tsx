@@ -222,6 +222,7 @@ import { DispatchTourEffizienzScoreboard } from './tour-effizienz-scoreboard';
 import { DispatchPressureLive } from './dispatch-pressure-live';
 import { DispatchLiveKapazitaetsAlert } from './live-kapazitaets-alert';
 import { DispatchSchichtScoreBadge } from './schicht-score-badge';
+import { DispatchFertigWarteStrip } from './fertig-warte-strip';
 
 type Driver = {
   employee_id: string;
@@ -1603,6 +1604,9 @@ export function DispatchBoard({
 
       {/* Live-GPS-Puls: Echtzeit-Geschwindigkeit + Signal-Status aller aktiven Fahrer */}
       {batches.length > 0 && <LiveDriverPulseStrip batches={batches} drivers={drivers} />}
+
+      {/* Fertig-Warte-Strip: Wartezeit-Transparenz für küchen-fertige Bestellungen ohne Fahrer */}
+      {readyOrders.length > 0 && <DispatchFertigWarteStrip orders={readyOrders} />}
 
       {/* Quick-Assign: beste Bestellung → nächster freier Fahrer mit einem Klick */}
       <DispatchQuickAssignBar
