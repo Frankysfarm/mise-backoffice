@@ -179,6 +179,7 @@ import { SchichtBriefingCard } from './schicht-briefing-card';
 import { SchichtAbschlussBericht } from './schicht-abschluss-bericht';
 import { FahrerIncentiveWidget } from './fahrer-incentive-widget';
 import { FahrerZeugnisCard } from './fahrer-zeugnis-card';
+import { QualitaetsTrendKarte } from './qualitaets-trend-karte';
 import { StopCompass } from './stop-compass';
 import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
 
@@ -756,6 +757,10 @@ export function FahrerApp({
         {/* Phase 432: Fahrer-Leistungszeugnis — Monatliche Bewertung (Grade, Score, KPIs, Trend) */}
         {driver.location_id && (
           <FahrerZeugnisCard driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 433: Liefer-Qualitäts-Trend — Letzte 30 Touren Score-Chart (Pünktlichkeit/Vollständigkeit/Zufriedenheit) */}
+        {driver.location_id && (
+          <QualitaetsTrendKarte driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

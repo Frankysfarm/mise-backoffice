@@ -181,6 +181,7 @@ import { generateBriefingsAllLocations, pruneOldBriefings } from '@/lib/delivery
 import { generateAbschlussAllLocations, pruneOldBerichte as pruneAbschlussBerichte } from '@/lib/delivery/schicht-abschluss';
 import { evaluateIncentivesAllLocations as evaluateFahrerIncentives, pruneOldIncentives as pruneFahrerIncentives } from '@/lib/delivery/fahrer-incentive';
 import { generateZeugnisseAllLocations, pruneOldZeugnisse } from '@/lib/delivery/fahrer-zeugnis';
+import { computeQualitaetAllLocations, pruneOldQualitaet } from '@/lib/delivery/liefer-qualitaet';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -437,6 +438,9 @@ export async function GET(req: NextRequest) {
     // Phase 432: Fahrer-Zeugnis — monatlich am 1. des Monats 10:00 UTC; prune 10:10 UTC (24 Monate)
     const isZeugnisGenerateTick = nowDay === 1 && nowHour === 10 && nowMin >= 0 && nowMin < 4;
     const isZeugnispruneTick    = nowDay === 1 && nowHour === 10 && nowMin >= 10 && nowMin < 14;
+    // Phase 433: Liefer-Qualitäts-Index — täglich 09:30 UTC compute-all; täglich 09:35 UTC prune (90 Tage)
+    const isLieferQualitaetTick      = nowHour === 9 && nowMin >= 30 && nowMin < 34;
+    const isLieferQualitaetPruneTick = nowHour === 9 && nowMin >= 35 && nowMin < 39;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1603,6 +1607,13 @@ export async function GET(req: NextRequest) {
     const fahrerZeugnispruned = isZeugnispruneTick
       ? await pruneOldZeugnisse(24).catch(() => null)
       : null;
+    // Phase 433: Liefer-Qualitäts-Index — täglich 09:30 UTC compute-all; täglich 09:35 UTC prune (90 Tage)
+    const lieferQualitaetResult = isLieferQualitaetTick
+      ? await computeQualitaetAllLocations().catch(() => null)
+      : null;
+    const lieferQualitaetPruned = isLieferQualitaetPruneTick
+      ? await pruneOldQualitaet(90).catch(() => null)
+      : null;
 
     const durationMs = Date.now() - start;
     return NextResponse.json({
@@ -1911,6 +1922,8 @@ export async function GET(req: NextRequest) {
       ...(fahrerIncentivePruned?.pruned ? { fahrer_incentive_pruned: fahrerIncentivePruned.pruned } : {}),
       ...(fahrerZeugnisResult ? { fahrer_zeugnis: { locations: fahrerZeugnisResult.length, upserted: fahrerZeugnisResult.reduce((s, r) => s + r.upserted, 0), errors: fahrerZeugnisResult.reduce((s, r) => s + r.errors, 0) } } : {}),
       ...(fahrerZeugnispruned != null ? { fahrer_zeugnis_pruned: fahrerZeugnispruned } : {}),
+      ...(lieferQualitaetResult ? { liefer_qualitaet: { locations: lieferQualitaetResult.length, upserted: lieferQualitaetResult.reduce((s, r) => s + r.upserted, 0), errors: lieferQualitaetResult.reduce((s, r) => s + r.errors, 0) } } : {}),
+      ...(lieferQualitaetPruned != null ? { liefer_qualitaet_pruned: lieferQualitaetPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
