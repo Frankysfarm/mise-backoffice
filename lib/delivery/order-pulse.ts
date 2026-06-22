@@ -254,3 +254,182 @@ export async function pruneOrderPulseSnapshots(daysToKeep: number = 7): Promise<
   const { data } = await svc.rpc('prune_order_pulse_snapshots', { days_to_keep: daysToKeep });
   return (data as number | null) ?? 0;
 }
+
+// ── Chart-Erweiterung (Phase 399) ─────────────────────────────────────────────
+
+export type ChartRange = '2h' | '4h' | '8h' | 'today';
+export type ChartMetric = 'orders' | 'revenue' | 'deliveries';
+export type BucketColor = 'green' | 'amber' | 'red' | 'neutral';
+
+export interface ChartBucket extends PulseBucket {
+  movingAvg:     number;    // 3-Bucket gleitender Durchschnitt (orderCount)
+  deltaFromPrev: number;    // Differenz zum Vorgänger-Bucket
+  color:         BucketColor;
+  hourlyRate:    number;    // hochgerechnete Bestellungen/Stunde
+}
+
+export interface OrderPulseChartData {
+  locationId:       string;
+  range:            ChartRange;
+  metric:           ChartMetric;
+  buckets:          ChartBucket[];
+  overallTrend:     PulseTrend;
+  avgRate:          number;    // Ø Bestellungen/h über gesamte Range
+  peakBucketLabel:  string | null;
+  currentRate:      number;
+  nextHourForecast: number;
+  totalInRange:     number;
+}
+
+/** Lädt historische Snapshots + Live-Daten und gibt chart-ready Buckets zurück. */
+export async function getOrderPulseChartData(
+  locationId: string,
+  range: ChartRange = '2h',
+  metric: ChartMetric = 'orders',
+): Promise<OrderPulseChartData> {
+  const svc  = createServiceClient();
+  const now  = new Date();
+
+  // Wie viele Stunden zurück?
+  let hoursBack: number;
+  if (range === '2h')    hoursBack = 2;
+  else if (range === '4h') hoursBack = 4;
+  else if (range === '8h') hoursBack = 8;
+  else {
+    // 'today': Berliner Mitternacht bis jetzt
+    const { from } = todayRangeUtc();
+    hoursBack = (now.getTime() - new Date(from).getTime()) / 3_600_000;
+  }
+
+  const rangeStart = new Date(now.getTime() - hoursBack * 3_600_000);
+  const bucketCount = Math.ceil(hoursBack * 4);  // 15-Min-Buckets
+
+  // Schritt 1: Buckets aus order_pulse_snapshots (historisch — bereits persistiert)
+  const { data: snapRows } = await svc
+    .from('order_pulse_snapshots')
+    .select('bucket_start, order_count, revenue_eur, delivery_count')
+    .eq('location_id', locationId)
+    .gte('bucket_start', rangeStart.toISOString())
+    .lt('bucket_start', floorTo15Min(now).toISOString())
+    .order('bucket_start', { ascending: true });
+
+  type SnapRow = { bucket_start: string; order_count: number; revenue_eur: number; delivery_count: number };
+  const snaps = (snapRows ?? []) as SnapRow[];
+
+  // Schritt 2: Aktuellen (laufenden) Bucket live aus customer_orders
+  const currentBucketStart = floorTo15Min(now);
+  const { data: liveRows } = await svc
+    .from('customer_orders')
+    .select('gesamtbetrag, bestellart')
+    .eq('location_id', locationId)
+    .neq('status', 'storniert')
+    .gte('bestellt_am', currentBucketStart.toISOString())
+    .lte('bestellt_am', now.toISOString());
+
+  type LiveRow = { gesamtbetrag: number | null; bestellart: string | null };
+  const liveData = (liveRows ?? []) as LiveRow[];
+
+  const liveSnap: SnapRow = {
+    bucket_start:   currentBucketStart.toISOString(),
+    order_count:    liveData.length,
+    revenue_eur:    liveData.reduce((s, r) => s + (r.gesamtbetrag ?? 0), 0),
+    delivery_count: liveData.filter(r => r.bestellart === 'lieferung').length,
+  };
+
+  // Schritt 3: Vollständige Bucket-Timeline aufbauen (lückenlose Slots)
+  const allBucketKeys: string[] = [];
+  for (let i = bucketCount - 1; i >= 0; i--) {
+    const t = new Date(floorTo15Min(now).getTime() - i * 15 * 60_000);
+    allBucketKeys.push(t.toISOString());
+  }
+
+  const snapMap = new Map<string, SnapRow>();
+  for (const s of snaps) snapMap.set(new Date(s.bucket_start).toISOString(), s);
+  snapMap.set(liveSnap.bucket_start, liveSnap);
+
+  const rawBuckets: PulseBucket[] = allBucketKeys.map(key => {
+    const s = snapMap.get(key);
+    return {
+      bucketStart:   key,
+      bucketLabel:   berlinLabel(key),
+      orderCount:    s?.order_count    ?? 0,
+      revenueEur:    s ? Math.round(Number(s.revenue_eur) * 100) / 100 : 0,
+      deliveryCount: s?.delivery_count ?? 0,
+    };
+  });
+
+  // Schritt 4: Chart-Metriken berechnen
+  function metricValue(b: PulseBucket): number {
+    if (metric === 'revenue')    return b.revenueEur;
+    if (metric === 'deliveries') return b.deliveryCount;
+    return b.orderCount;
+  }
+
+  const chartBuckets: ChartBucket[] = rawBuckets.map((b, idx) => {
+    // 3-Bucket gleitender Durchschnitt
+    const window = rawBuckets.slice(Math.max(0, idx - 2), idx + 1);
+    const movingAvg = Math.round(
+      (window.reduce((s, w) => s + metricValue(w), 0) / window.length) * 10,
+    ) / 10;
+
+    const prev = idx > 0 ? metricValue(rawBuckets[idx - 1]) : 0;
+    const curr = metricValue(b);
+    const deltaFromPrev = curr - prev;
+
+    // Farbe: ggü. movingAvg
+    let color: BucketColor = 'neutral';
+    if (movingAvg > 0) {
+      const ratio = curr / movingAvg;
+      if (ratio >= 1.2)      color = 'green';
+      else if (ratio >= 0.8) color = 'neutral';
+      else if (ratio >= 0.5) color = 'amber';
+      else                   color = 'red';
+    } else if (curr > 0) {
+      color = 'green';
+    }
+
+    return { ...b, movingAvg, deltaFromPrev, color, hourlyRate: curr * 4 };
+  });
+
+  // Schritt 5: Gesamt-Trend + Forecast
+  const last4 = chartBuckets.slice(-4);
+  const first2Avg = (last4[0]?.orderCount ?? 0 + (last4[1]?.orderCount ?? 0)) / 2;
+  const last2Avg  = ((last4[2]?.orderCount ?? 0) + (last4[3]?.orderCount ?? 0)) / 2;
+
+  let overallTrend: PulseTrend = 'inaktiv';
+  if (first2Avg + last2Avg === 0) {
+    overallTrend = 'inaktiv';
+  } else if (last2Avg >= first2Avg * 1.2) {
+    overallTrend = 'beschleunigend';
+  } else if (last2Avg <= first2Avg * 0.8) {
+    overallTrend = 'abkühlend';
+  } else {
+    overallTrend = 'stabil';
+  }
+
+  const currentRate      = (chartBuckets[chartBuckets.length - 1]?.orderCount ?? 0) * 4;
+  const nextHourForecast = Math.round(last2Avg * 4);
+  const totalInRange     = rawBuckets.reduce((s, b) => s + b.orderCount, 0);
+  const avgRate          = Math.round((totalInRange / hoursBack) * 10) / 10;
+
+  let peakBucketLabel: string | null = null;
+  let peakVal = 0;
+  for (const b of chartBuckets) {
+    const v = metricValue(b);
+    if (v > peakVal) { peakVal = v; peakBucketLabel = b.bucketLabel; }
+  }
+  if (peakVal === 0) peakBucketLabel = null;
+
+  return {
+    locationId,
+    range,
+    metric,
+    buckets:          chartBuckets,
+    overallTrend,
+    avgRate,
+    peakBucketLabel,
+    currentRate,
+    nextHourForecast,
+    totalInRange,
+  };
+}

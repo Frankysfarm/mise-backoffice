@@ -2,6 +2,9 @@
  * GET  /api/delivery/admin/order-pulse
  *      → Order-Pulse: 15-Min-Buckets, Trend, Hochrechnung nächste Stunde
  *
+ * GET  /api/delivery/admin/order-pulse?action=chart&range=4h&metric=orders
+ *      → Chart-ready Buckets mit movingAvg, deltaFromPrev, color (Phase 399)
+ *
  * POST /api/delivery/admin/order-pulse
  *      body: { action: 'snapshot' }  → Cron: aktuellen Bucket in DB schreiben
  *      body: { action: 'prune', days?: number } → Alte Snapshots löschen
@@ -12,9 +15,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
   getOrderPulse,
+  getOrderPulseChartData,
   snapshotOrderPulse,
   snapshotOrderPulseAllLocations,
   pruneOrderPulseSnapshots,
+  type ChartRange,
+  type ChartMetric,
 } from '@/lib/delivery/order-pulse';
 
 export const runtime = 'nodejs';
@@ -44,7 +50,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const action = req.nextUrl.searchParams.get('action') ?? 'pulse';
+
   try {
+    if (action === 'chart') {
+      const rawRange  = req.nextUrl.searchParams.get('range')  ?? '2h';
+      const rawMetric = req.nextUrl.searchParams.get('metric') ?? 'orders';
+
+      const validRanges:  ChartRange[]  = ['2h', '4h', '8h', 'today'];
+      const validMetrics: ChartMetric[] = ['orders', 'revenue', 'deliveries'];
+
+      const range:  ChartRange  = validRanges.includes(rawRange  as ChartRange)  ? rawRange  as ChartRange  : '2h';
+      const metric: ChartMetric = validMetrics.includes(rawMetric as ChartMetric) ? rawMetric as ChartMetric : 'orders';
+
+      const chart = await getOrderPulseChartData(locationId, range, metric);
+      return NextResponse.json(chart);
+    }
+
     const pulse = await getOrderPulse(locationId);
     return NextResponse.json(pulse);
   } catch (err) {
