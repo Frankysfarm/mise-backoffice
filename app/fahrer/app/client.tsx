@@ -156,6 +156,7 @@ import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
 import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
 import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
 import { FahrerStopZielkompass } from './stop-zielkompass';
+import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
 
 type Driver = {
   id: string;
@@ -2509,6 +2510,12 @@ export function FahrerApp({
         {/* Phase 315: Stop-Smart-Countdown — Echtzeit-Countdown zum nächsten Stopp mit Pünktlichkeits-Ring */}
         {isOnline && activeBatch && (
           <StopSmartCountdown driverId={driver.id} />
+        )}
+        {/* Phase 406: Tour-Stop-Schnell-Quittierung — Aktueller Stopp quittieren mit 3 Quick-Actions */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <TourStopSchnellQuittierung />
+          </div>
         )}
 
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}

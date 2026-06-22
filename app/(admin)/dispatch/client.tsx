@@ -216,6 +216,7 @@ import { DispatchFahrerAuslastungsBoard } from './fahrer-auslastungs-board';
 import { TourRueckkehrOptimierung } from './tour-rueckkehr-optimierung';
 import { DispatchTourKarteGrid } from './tour-karte-grid';
 import { OrderPulseChart } from './order-pulse-chart';
+import { DispatchSmartZuweisungsKommando } from './smart-zuweisungs-kommando';
 
 type Driver = {
   employee_id: string;
@@ -1852,6 +1853,8 @@ export function DispatchBoard({
       <DispatchStandortHealthWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 348: Warteschlangen-Kosten-Panel — Dringlichkeit + At-Risk-Revenue je offener Bestellung */}
       <DispatchOrderWaitingCostPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 406: Smart-Zuweisungs-Score-Kommando — Top-Fahrer nach Score mit Empfehlung */}
+      <DispatchSmartZuweisungsKommando />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
