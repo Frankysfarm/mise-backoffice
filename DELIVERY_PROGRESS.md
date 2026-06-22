@@ -2,6 +2,7 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 **Phasen 1–400 Backend abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**CEO Review #222 (2026-06-22): 2 Bugs gefixt (order-pulse.ts — Operator-Precedence + falsche Metrik-Aggregation). Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 399 Backend (2026-06-22): Order-Pulse-Visualisierung API — Chart-Ready Extension. `lib/delivery/order-pulse.ts` erweitert: `getOrderPulseChartData(locationId, range, metric)` — lädt historische `order_pulse_snapshots` für gewünschten Zeitraum (2h/4h/8h/today) + aktuellen Live-Bucket aus `customer_orders`, baut lückenlose Bucket-Timeline, berechnet je Bucket `movingAvg` (3-Bucket gleitend), `deltaFromPrev` (Differenz zum Vorgänger), `color` ('green'/'amber'/'red'/'neutral' relativ zu movingAvg), `hourlyRate` (×4 Hochrechnung). Gibt `ChartBucket[]` + `overallTrend`/`avgRate`/`peakBucketLabel`/`currentRate`/`nextHourForecast`/`totalInRange` zurück. Metric-Selektor: orders/revenue/deliveries steuert movingAvg/delta/color/peak. API `/api/delivery/admin/order-pulse` GET `?action=chart&range=4h&metric=orders` → `OrderPulseChartData` (neu). Bestehender GET ohne Parameter bleibt unverändert. Exportierte Typen: `ChartRange`, `ChartMetric`, `ChartBucket`, `BucketColor`, `OrderPulseChartData`. Build ✅ 354 Seiten, 0 TypeScript-Fehler.**
 

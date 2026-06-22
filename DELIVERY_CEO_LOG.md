@@ -13577,3 +13577,48 @@ Keine Bugs. Alle 5 Phase-394-Komponenten sauber integriert.
 ### Nächste Phasen für Frontend-Ingenieur
 1. Phase 399 Frontend: OrderPulseChart (Dispatch/Lieferdienst: 15-Min-Bucket-Balkendiagramm mit Trend-Indikator + stündliche Hochrechnung)
 2. Phase 400 Frontend: SchichtZielOptimizer (Lieferdienst Admin: Wochentag-Ziel-Editor + Vorschau historischer Performance)
+
+---
+
+## CEO Review #222 — 2026-06-22
+
+### Geprüft
+- Phase 399 Backend: Order-Pulse Chart API (`getOrderPulseChartData` + GET ?action=chart)
+- Phase 400 Backend: Schicht-Ziel-Optimierer (`schicht-ziel-optimizer.ts` + API + Migration 191)
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (2)
+
+**`lib/delivery/order-pulse.ts` L396 — Operator-Precedence-Bug in `first2Avg`:**
+- **Problem:** `(last4[0]?.orderCount ?? 0 + (last4[1]?.orderCount ?? 0)) / 2` — `+` hat höhere Priorität als `??`, daher wurde `0 + last4[1]` zuerst berechnet. `first2Avg` summierte nie beide Buckets korrekt; Trend-Richtung war falsch.
+- **Fix:** `((last4[0]?.orderCount ?? 0) + (last4[1]?.orderCount ?? 0)) / 2` — explizite Klammerung.
+
+**`lib/delivery/order-pulse.ts` L410-413 — Falsche Metrik in Aggregat-Werten:**
+- **Problem:** `currentRate`, `nextHourForecast`, `totalInRange`, `avgRate` verwendeten immer `orderCount` — unabhängig vom `metric`-Parameter (`orders`/`revenue`/`deliveries`). Bei Auswahl von `revenue` oder `deliveries` lieferten alle Aggregat-Felder Bestellzahlen statt den gewählten Metrikwert.
+- **Fix:** Alle vier Aggregat-Werte nutzen jetzt `metricValue(b)` (closure über `metric`-Parameter). `overallTrend` bleibt absichtlich orderCount-basiert (allgemeiner Aktivitätsindikator).
+
+### Integrations-Checkliste Phase 399/400 Backend
+| Endpunkt | Datei | Status |
+|---|---|---|
+| GET /api/delivery/admin/order-pulse?action=chart | order-pulse/route.ts | ✅ |
+| GET/POST /api/delivery/admin/schicht-ziel-optimizer | schicht-ziel-optimizer/route.ts | ✅ |
+| Migration 191: schicht_ziel_vorschlaege | supabase/migrations/191_*.sql | ✅ |
+| lib/delivery/order-pulse.ts: getOrderPulseChartData | lib/delivery/order-pulse.ts | ✅ (2 Bugs gefixt) |
+| lib/delivery/schicht-ziel-optimizer.ts | lib/delivery/schicht-ziel-optimizer.ts | ✅ |
+
+### Frontend-Status Phase 399/400
+- Keine Frontend-Komponenten für Phase 399/400 vorhanden — Backend-only Phase ✅ (erwartet)
+- Frontend-Phase 399: OrderPulseChart → noch zu implementieren
+- Frontend-Phase 400: SchichtZielOptimizer → noch zu implementieren
+
+### Status nach Review #222
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 399 Frontend:** `OrderPulseChart` — Dispatch + Lieferdienst: Balkendiagramm 15-Min-Buckets mit Trend-Indikator, Farb-Kodierung (green/amber/red/neutral), Range-Selektor (2h/4h/8h/heute), Metrik-Selektor (Bestellungen/Umsatz/Lieferungen). API: `GET /api/delivery/admin/order-pulse?action=chart&range=4h&metric=orders`
+2. **Phase 400 Frontend:** `SchichtZielOptimizer` — Lieferdienst Admin: Tabelle aller 7 Wochentage mit P75-Vorschlag, Konfidenz-Badge, Trend-Pfeil, Approve/Decline-Buttons. API: `GET + POST /api/delivery/admin/schicht-ziel-optimizer`

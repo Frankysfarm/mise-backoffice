@@ -393,7 +393,8 @@ export async function getOrderPulseChartData(
 
   // Schritt 5: Gesamt-Trend + Forecast
   const last4 = chartBuckets.slice(-4);
-  const first2Avg = (last4[0]?.orderCount ?? 0 + (last4[1]?.orderCount ?? 0)) / 2;
+  // Trend immer anhand orderCount (allgemeine Aktivität), unabhängig vom metric-Selektor
+  const first2Avg = ((last4[0]?.orderCount ?? 0) + (last4[1]?.orderCount ?? 0)) / 2;
   const last2Avg  = ((last4[2]?.orderCount ?? 0) + (last4[3]?.orderCount ?? 0)) / 2;
 
   let overallTrend: PulseTrend = 'inaktiv';
@@ -407,10 +408,13 @@ export async function getOrderPulseChartData(
     overallTrend = 'stabil';
   }
 
-  const currentRate      = (chartBuckets[chartBuckets.length - 1]?.orderCount ?? 0) * 4;
-  const nextHourForecast = Math.round(last2Avg * 4);
-  const totalInRange     = rawBuckets.reduce((s, b) => s + b.orderCount, 0);
-  const avgRate          = Math.round((totalInRange / hoursBack) * 10) / 10;
+  // Aggregat-Metriken respektieren den metric-Selektor
+  const lastBucket        = chartBuckets[chartBuckets.length - 1];
+  const last2MetricAvg    = ((last4[2] ? metricValue(last4[2]) : 0) + (last4[3] ? metricValue(last4[3]) : 0)) / 2;
+  const currentRate       = (lastBucket ? metricValue(lastBucket) : 0) * 4;
+  const nextHourForecast  = Math.round(last2MetricAvg * 4);
+  const totalInRange      = rawBuckets.reduce((s, b) => s + metricValue(b), 0);
+  const avgRate           = Math.round((totalInRange / hoursBack) * 10) / 10;
 
   let peakBucketLabel: string | null = null;
   let peakVal = 0;
