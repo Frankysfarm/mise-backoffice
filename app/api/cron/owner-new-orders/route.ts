@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const key = req.headers.get('x-cron-key') || new URL(req.url).searchParams.get('key');
   if (!process.env.CRON_KEY || key !== process.env.CRON_KEY) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
-  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, priv = process.env.VAPID_PRIVATE_KEY;
+  const pub = (process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY), priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return NextResponse.json({ ok: false, error: 'VAPID not configured' }, { status: 503 });
   webpush.setVapidDetails(process.env.VAPID_CONTACT ?? 'mailto:ops@mise-gastro.de', pub, priv);
 

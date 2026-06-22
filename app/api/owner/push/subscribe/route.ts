@@ -3,7 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 
 export async function GET() {
-  const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const key = (process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
   if (!key) return NextResponse.json({ ok: false, error: 'VAPID not configured' }, { status: 503 });
   return NextResponse.json({ ok: true, publicKey: key });
 }
