@@ -178,6 +178,7 @@ import { KitchenStornoHotspotStrip } from './storno-hotspot-strip';
 import { WartezeitKuechenAnzeige } from './wartezeit-kuchen-anzeige';
 import { SchichtEngpassMonitor } from './schicht-engpass-monitor';
 import { KitchenPhase422PrioritaetsKommando } from './phase422-prioritaets-kommando';
+import { ZonenAuslastungsChip } from './zonen-auslastungs-chip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -633,6 +634,10 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
+      {/* Phase 423: Zonen-Auslastungs-Chip — morgige Bestellmenge je Zone für Küchen-Kapazitätsplanung */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <ZonenAuslastungsChip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      )}
       {/* Smart-Aktionsstreifen: Top-4 dringendste Bestellungen mit Sofort-Aktionen (Kochen starten / Fertig) */}
       {filtered.filter(o => ['neu', 'bestätigt', 'in_zubereitung'].includes(o.status)).length > 0 && (
         <KitchenSmartActionStrip orders={filtered} timings={timings} />

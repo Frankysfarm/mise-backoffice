@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–421 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–423 abgeschlossen. Build sauber. 354 Seiten. 0 TypeScript-Fehler.**
 
 **CEO Review #236 (2026-06-22): TypeScript Exit 0 ✅, Build 354 Seiten ✅, 2 Bugs gefixt (umsatz-prognose-panel.tsx TooltipPayload readonly cast → unknown-Doppel-Cast; kunden-feedback-engine.ts implizit any auf RPC-Map-Parameter → Record<string, unknown>). Phase 421 (Echtzeit-Monitoring-Erweiterungen: SchichtEngpassMonitor/AktiveLieferungLiveBoard/SchichtPulseKpi/StoppAbschlussAmpel/BestellEtaKomfortBanner) vollständig geprüft. Alle 5 Komponenten integriert. Nächste Phase: 422.**
 **CEO Review #235 (2026-06-22): TypeScript Exit 0 ✅, Build 354 Seiten ✅, 0 Bugs. Phase 420 (Umsatz-Prognose-Engine) vollständig geprüft. Algorithmus (Exponential-Decay + MAD-Konfidenzband) korrekt, API sauber, UmsatzPrognosePanel in lieferdienst/client.tsx L1382 integriert, Cron compute-all 06:00 UTC + prune 07:30 UTC aktiv. Nächste Phase: 421 (neue Intelligence-Engine).**
@@ -7009,5 +7009,84 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 | NaviAppWahl | fahrer/app/navi-app-wahl.tsx | fahrer/app/client.tsx:2001 | ✅ |
 | StorefrontFahrerKarte | order/[locationSlug]/storefront-fahrer-karte.tsx | storefront.tsx nach EtaLiveFortschrittBanner | ✅ |
 | LieferdienstPhase422Wochentrend | lieferdienst/phase422-wochentrend.tsx | lieferdienst/client.tsx:1391 | ✅ |
+
+**Build:** 354 Seiten, 0 TypeScript-Fehler ✅
+
+---
+
+## Phase 423 Backend + Frontend — Zonen-Prognose-Engine (DONE ✅)
+
+**Datum:** 2026-06-22
+
+### Implementiert
+
+**Migration 204 (`scripts/migrations/204_zonen_prognose_snapshots.sql`):**
+- `zonen_prognose_snapshots`: UNIQUE(location_id, zone, prognose_datum), zone CHECK IN ('A','B','C','D'), expected_orders/revenue_eur/fee_eur, expected_margin_pct, confidence (0–1), range_low/high_eur, basis_snapshots, trend_richtung (up/stable/down), wochentag, berechnet_am
+- Index auf (location_id, prognose_datum) und (location_id, zone) für schnellen Lookup
+- RLS: service_role full + authenticated read own location
+- `prune_zonen_prognose_snapshots(days_old)` Cleanup-RPC (60-Tage-Standard)
+
+**`lib/delivery/zonen-prognose.ts`** — Zone Profitability Forecast Engine:
+- Datenbasis: `zone_revenue_snapshots` (Phase 331, zone-revenue-optimizer.ts)
+- Algorithmus: Gleiche Exponential-Decay-Gewichtung wie umsatz-prognose.ts (Half-Life 21 Tage), aber pro (zone × Wochentag)
+- MAD × 1.28 für 80%-Konfidenzband je Zone
+- Konfidenz: min(1, snapshots/52), Trend: letzte 14d vs. vorherige 14d
+- 7 Tage × bis zu 4 Zonen = bis zu 28 UPSERT-Zeilen je Compute-Lauf
+- `computeZonenPrognose(locationId, daysBack=90)` — 7-Tage-Forecast + UPSERT
+- `computeZonenPrognoseAllLocations(daysBack)` — Cron-Batch (Promise.allSettled)
+- `getZonenPrognose(locationId, zone?)` — Gespeicherte Prognosen (7 Tage, alle/eine Zone)
+- `getZonenPrognoseUebersicht(locationId)` — Kompakt-Übersicht: Morgen-Prognose + 7d-Summe
+- `pruneOldZonenPrognosen(daysOld=60)` — Cleanup via RPC
+
+**`app/api/delivery/admin/zonen-prognose/route.ts`:**
+- GET `?location_id=<uuid>` → 7-Tage-Prognose alle Zonen
+- GET `?location_id=<uuid>&zone=A` → Prognose für Zone A
+- GET `?location_id=<uuid>&action=uebersicht` → Kompakt-Übersicht (Morgen + 7d-Summe)
+- POST action=compute → Prognose für eine Location neu berechnen (90 Tage)
+- POST action=compute-all → Alle Standorte (Cron-Trigger)
+- POST action=prune → Cleanup alter Snapshots
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 06:20 UTC: `computeZonenPrognoseAllLocations(90)`
+- Täglich 08:20 UTC: `pruneOldZonenPrognosen(60)`
+
+**Frontend (4 Komponenten):**
+
+**`app/(admin)/lieferdienst/zonen-prognose-panel.tsx`** — `ZonenPrognosePanel`:
+- Collapsible-Panel mit MapPin-Icon (violet)
+- KPI-Reihe: 7-Tage-Gesamt, Stärkste Zone, Morgen-Gesamt
+- Zone-Tabs (A/B/C/D) mit 7-Tage-Umsatz-Summe je Tab
+- Aktive Zone: BarChart (7-Tage, Zonen-Farbkodierung: matcha/sky/amber/rose), Morgen-Highlight-Block mit Konfidenz-Balken, 7-Tage-Detail-Liste mit KonfidenzBalken
+- Leer-Zustand mit "Jetzt berechnen"-CTA, 10-Min-Lazy-Polling
+- Integration: `lieferdienst/client.tsx` nach LieferdienstPhase422Wochentrend ✅
+
+**`app/(admin)/dispatch/zonen-nachfrage-badge.tsx`** — `ZonenNachfrageBadge`:
+- Kompakte Badge-Reihe: Zone + Farb-Dot + Umsatz-Prognose Morgen + Bestellanzahl + Trend-Icon
+- 5-Min-Polling, stille Fehler (Dispatch nicht blockieren)
+- Integration: `dispatch/client.tsx` nach AktiveLieferungLiveBoard ✅
+
+**`app/(admin)/kitchen/zonen-auslastungs-chip.tsx`** — `ZonenAuslastungsChip`:
+- Horizontale Progress-Bar-Reihe je Zone (Anteil der Bestellmenge morgen)
+- Farbkodierte Balken (matcha/sky/amber/rose), Hot-Zone-Hinweis
+- Integration: `kitchen/client.tsx` nach KitchenPhase422PrioritaetsKommando ✅
+
+**`app/fahrer/app/zonen-hot-chip.tsx`** — `ZonenHotChip`:
+- Farbige Zone-Chips (heiß/normal) sortiert nach erwartetem Bestellvolumen morgen
+- Flame-Icon für Top-Zone, Hinweis "Zone X ist morgen stärkste Zone"
+- Integration: `fahrer/app/client.tsx` nach HeatmapTipp ✅
+
+**Bugfix (Phase 422 Regression):**
+- `phase422-wochentrend.tsx:193+218` — Recharts `formatter={(v: number) => ...}` → `formatter={(v) => [Number(v ?? 0), ...]}` (gleicher Muster wie Phase 412 Fix)
+
+### Integrations-Checkliste Phase 423
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| ZonenPrognosePanel | lieferdienst/zonen-prognose-panel.tsx | lieferdienst/client.tsx nach Phase422Wochentrend | ✅ |
+| ZonenNachfrageBadge | dispatch/zonen-nachfrage-badge.tsx | dispatch/client.tsx nach AktiveLieferungLiveBoard | ✅ |
+| ZonenAuslastungsChip | kitchen/zonen-auslastungs-chip.tsx | kitchen/client.tsx nach Phase422PrioritaetsKommando | ✅ |
+| ZonenHotChip | fahrer/app/zonen-hot-chip.tsx | fahrer/app/client.tsx nach HeatmapTipp | ✅ |
+| Migration 204 | scripts/migrations/204_zonen_prognose_snapshots.sql | Supabase | ✅ |
+| Cron compute-all | app/api/cron/smart-dispatch/route.ts | 06:20 UTC | ✅ |
+| Cron prune | app/api/cron/smart-dispatch/route.ts | 08:20 UTC | ✅ |
 
 **Build:** 354 Seiten, 0 TypeScript-Fehler ✅

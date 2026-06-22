@@ -227,6 +227,7 @@ import { DispatchStornoMusterPanel } from './dispatch-storno-muster-panel';
 import { TourTimelineBoard } from './tour-timeline-board';
 import { WartezeitDispatchBoard } from './wartezeit-dispatch-board';
 import { AktiveLieferungLiveBoard } from './aktive-lieferung-live-board';
+import { ZonenNachfrageBadge } from './zonen-nachfrage-badge';
 
 type Driver = {
   employee_id: string;
@@ -1901,6 +1902,8 @@ export function DispatchBoard({
       <WartezeitDispatchBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 421: Aktive Lieferung Live-Board — alle aktiven Touren mit ETA-Ampel */}
       <AktiveLieferungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 423: Zonen-Nachfrage-Badge — morgige Prognose je Zone aus zone_revenue_snapshots */}
+      <ZonenNachfrageBadge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

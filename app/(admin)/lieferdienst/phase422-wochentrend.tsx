@@ -190,7 +190,7 @@ export function LieferdienstPhase422Wochentrend() {
             <XAxis dataKey="tag" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb', padding: '6px 10px' }}
-              formatter={(v: number) => [`${v} Bestellungen`, '']}
+              formatter={(v) => [`${Number(v ?? 0)} Bestellungen`, '']}
             />
             <Bar dataKey="bestellungen" radius={[4, 4, 0, 0]}>
               {data.map((d, i) => (
@@ -215,7 +215,7 @@ export function LieferdienstPhase422Wochentrend() {
             <YAxis domain={[60, 100]} tick={{ fontSize: 9, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb', padding: '6px 10px' }}
-              formatter={(v: number) => [`${v}%`, 'Pünktlich']}
+              formatter={(v) => [`${Number(v ?? 0)}%`, 'Pünktlich']}
             />
             <Line
               type="monotone"

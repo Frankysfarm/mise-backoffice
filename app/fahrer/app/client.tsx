@@ -169,6 +169,7 @@ import { FahrerBewertungsWidget } from './fahrer-bewertungs-widget';
 import { FahrerWartezeitTipp } from './fahrer-wartezeit-tipp';
 import { StoppAbschlussAmpel } from './stopp-abschluss-ampel';
 import { QuickNavKommando } from './quick-nav-kommando';
+import { ZonenHotChip } from './zonen-hot-chip';
 
 type Driver = {
   id: string;
@@ -1813,6 +1814,12 @@ export function FahrerApp({
           {driver?.location_id && (
             <div className="px-4">
               <HeatmapTipp locationId={driver.location_id} />
+            </div>
+          )}
+          {/* Phase 423: Zonen-Hot-Chip — Welche Zonen morgen besonders viele Bestellungen erwarten */}
+          {driver?.location_id && (
+            <div className="px-4">
+              <ZonenHotChip locationId={driver.location_id} />
             </div>
           )}
           {/* Phase 347: Standort-Gesundheits-Badge — Motivierendes Note-Badge für den Fahrer */}

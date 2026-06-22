@@ -173,6 +173,7 @@ import { computeMatrixAllLocations as computeStornoMusterAllLocations, pruneOldS
 import { computePrognoseAllLocations as computeFahrerPrognoseAllLocations, pruneOldPrognoseSnapshots as pruneFahrerPrognose } from '@/lib/delivery/fahrer-prognose';
 import { computeUmsatzPrognoseAllLocations, pruneOldUmsatzPrognosen } from '@/lib/delivery/umsatz-prognose';
 import { computeTagesMusterAllLocations, pruneOldTagesMuster } from '@/lib/delivery/tages-muster';
+import { computeZonenPrognoseAllLocations, pruneOldZonenPrognosen } from '@/lib/delivery/zonen-prognose';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -404,6 +405,9 @@ export async function GET(req: NextRequest) {
 
     // Phase 422: Tages-Muster-Erkennung — täglich 06:10 UTC compute, 08:10 UTC prune (30 Tage)
     const isTagesMusterTick      = nowHour === 6 && nowMin >= 10 && nowMin < 14;
+    // Phase 423: Zonen-Prognose — täglich 06:20 UTC compute, 08:20 UTC prune
+    const isZonenPrognoseTick      = nowHour === 6 && nowMin >= 20 && nowMin < 24;
+    const isZonenPrognosePruneTick = nowHour === 8 && nowMin >= 20 && nowMin < 24;
     const isTagesMusterPruneTick = nowHour === 8 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
@@ -1513,6 +1517,14 @@ export async function GET(req: NextRequest) {
       ? await pruneOldTagesMuster(30).catch(() => null)
       : null;
 
+    // Phase 423: Zonen-Prognose — täglich 06:20 UTC compute, 08:20 UTC prune
+    const zonenPrognoseResult = isZonenPrognoseTick
+      ? await computeZonenPrognoseAllLocations(90).catch(() => null)
+      : null;
+    const zonenPrognosePruned = isZonenPrognosePruneTick
+      ? await pruneOldZonenPrognosen(60).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1807,6 +1819,8 @@ export async function GET(req: NextRequest) {
       ...(umsatzPrognosePruned != null ? { umsatz_prognose_pruned: umsatzPrognosePruned } : {}),
       ...(tagesMusterResult ? { tages_muster: { locations: tagesMusterResult.locations, upserted: tagesMusterResult.upserted, errors: tagesMusterResult.errors } } : {}),
       ...(tagesMusterPruned != null ? { tages_muster_pruned: tagesMusterPruned } : {}),
+      ...(zonenPrognoseResult ? { zonen_prognose: { locations: zonenPrognoseResult.locations, upserted: zonenPrognoseResult.upserted, errors: zonenPrognoseResult.errors } } : {}),
+      ...(zonenPrognosePruned != null ? { zonen_prognose_pruned: zonenPrognosePruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
