@@ -185,6 +185,7 @@ import { SchichtStatistikHub } from './schicht-statistik-hub';
 import { SchichtStatistikKommando } from './schicht-statistik-kommando';
 import { SchichtErtragsCockpit } from './schicht-ertrags-cockpit';
 import { DriverOnlineStatusBoard } from './driver-online-status-board';
+import { StundenVerlaufHeute } from './stunden-verlauf-heute';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1318,6 +1319,8 @@ export function LieferdienstClient() {
               <LieferdienstEchtzeitBestellKpiGrid locationId={locationId ?? null} />
               {/* Echtzeit-KPI-Hub: Live Schicht-Kennzahlen mit On-Time-Gauge und stündlichem Chart */}
               <SchichtEchtzeitKpiHub locationId={locationId ?? undefined} />
+              {/* Phase 403: Stundenverlauf heute — Bestellvolumen stündlich mit aktuellem Trend */}
+              <StundenVerlaufHeute locationId={locationId ?? null} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

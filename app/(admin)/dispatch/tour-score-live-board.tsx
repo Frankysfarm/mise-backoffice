@@ -18,12 +18,6 @@ interface Props {
   locationId: string;
 }
 
-const MOCK_TOURS: TourEntry[] = [
-  { tour_id: 'mock-1', driver_name: 'Max Müller', score: 88, stops_done: 4, stops_total: 6, eta_min: 12, on_time: true },
-  { tour_id: 'mock-2', driver_name: 'Anna Schmidt', score: 72, stops_done: 2, stops_total: 5, eta_min: 25, on_time: false },
-  { tour_id: 'mock-3', driver_name: 'Tom Wagner', score: 55, stops_done: 1, stops_total: 4, eta_min: null, on_time: false },
-];
-
 function getScoreColor(score: number): string {
   if (score >= 80) return 'text-emerald-600';
   if (score >= 60) return 'text-amber-600';
@@ -69,7 +63,7 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export function DispatchTourScoreLiveBoard({ locationId }: Props) {
-  const [tours, setTours] = useState<TourEntry[]>(MOCK_TOURS);
+  const [tours, setTours] = useState<TourEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -82,15 +76,28 @@ export function DispatchTourScoreLiveBoard({ locationId }: Props) {
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
       if (!data.tours || data.tours.length === 0) {
-        setTours(MOCK_TOURS);
+        setTours([]);
         setError(false);
       } else {
-        const sorted = [...data.tours].sort((a: TourEntry, b: TourEntry) => b.score - a.score);
+        const mapped: TourEntry[] = data.tours.map((t: {
+          batchId: string; driverName: string; score: number;
+          stopsCompleted: number; stopsTotal: number;
+          avgDeliveryMin: number | null; onTimePct: number;
+        }) => ({
+          tour_id: t.batchId,
+          driver_name: t.driverName,
+          score: t.score,
+          stops_done: t.stopsCompleted,
+          stops_total: t.stopsTotal,
+          eta_min: t.avgDeliveryMin,
+          on_time: t.onTimePct >= 80,
+        }));
+        const sorted = [...mapped].sort((a, b) => b.score - a.score);
         setTours(sorted);
         setError(false);
       }
     } catch {
-      setTours(MOCK_TOURS);
+      setTours([]);
       setError(true);
     } finally {
       setLoading(false);
@@ -110,13 +117,15 @@ export function DispatchTourScoreLiveBoard({ locationId }: Props) {
         <Trophy className="w-4 h-4 text-amber-500" />
         <h2 className="text-sm font-semibold text-stone-700">Tour-Score Live</h2>
         {error && (
-          <span className="ml-2 text-xs text-amber-500">(Demo-Daten)</span>
+          <span className="ml-2 text-xs text-red-500">⚠ Fehler</span>
         )}
         <span className="ml-auto text-xs text-stone-400">{tours.length} aktive Touren</span>
       </div>
 
       {loading ? (
-        <div className="p-6 text-center text-sm text-stone-400">Lade...</div>
+        <div className="p-6 text-center text-sm text-stone-400">Lade…</div>
+      ) : error ? (
+        <div className="p-6 text-center text-sm text-amber-500">Verbindungsfehler – bitte neu laden</div>
       ) : tours.length === 0 ? (
         <div className="p-6 text-center text-sm text-stone-400">Keine aktiven Touren</div>
       ) : (

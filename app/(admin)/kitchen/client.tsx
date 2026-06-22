@@ -164,6 +164,7 @@ import { KitchenQueueCountdownBoard } from './queue-countdown-board';
 import { KitchenEchtzeitAmpelBoard } from './echtzeit-ampel-board';
 import { KitchenEchtzeitBatchStatusBoard } from './echtzeit-batch-status-board';
 import { KitchenSchichtFertigQuote } from './schicht-fertig-quote';
+import { KitchenSmartBatchPrognose } from './smart-batch-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -637,6 +638,8 @@ export function KitchenBoard({
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
+      {/* Phase 403: Smart-Batch-Prognose — Countdown + Urgency-Farbkodierung je Bestellung */}
+      <KitchenSmartBatchPrognose orders={filtered} timings={timings} />
       {/* Phase 390: Kochstart-Konfidenz — Empfehlung ob jetzt kochen basierend auf Fahrer-Verfügbarkeit + Queue */}
       <KochstartKonfidenzAnzeige locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 391: Schicht-Auslastungs-Ring — SVG-Ring: abgeschlossene Bestellungen vs. Schichtziel + Hochrechnung */}

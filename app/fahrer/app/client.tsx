@@ -154,6 +154,7 @@ import { TourNavigationsKompass } from './tour-navigations-kompass';
 import { TourStoppSequenzBoard } from './tour-stopp-sequenz-board';
 import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
 import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
+import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
 
 type Driver = {
   id: string;
@@ -1500,6 +1501,37 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 403: Stopp-Schnell-Kommando — Schnell-Aktions-Karte für aktuellen Stopp */}
+          {activeBatch.stops.length > 0 && (() => {
+            const nextStop = activeBatch.stops.find((s: any) => s.geliefert_am == null);
+            if (!nextStop) return null;
+            const stopIndex = activeBatch.stops.indexOf(nextStop);
+            return (
+              <div className="px-4">
+                <FahrerStoppSchnellKommando
+                  stop={{
+                    id: nextStop.id,
+                    bestellnummer: nextStop.order?.bestellnummer ?? '?',
+                    kunde_name: nextStop.order?.kunde_name ?? 'Kunde',
+                    kunde_adresse: nextStop.order?.kunde_adresse ?? null,
+                    kunde_lat: nextStop.order?.kunde_lat ?? null,
+                    kunde_lng: nextStop.order?.kunde_lng ?? null,
+                    kunde_telefon: nextStop.order?.kunde_telefon ?? null,
+                    gesamtbetrag: nextStop.order?.gesamtbetrag ?? 0,
+                    zahlungsart: (nextStop.order as any)?.zahlungsart ?? null,
+                    bezahlt: (nextStop.order as any)?.bezahlt ?? null,
+                    kunde_notiz: nextStop.order?.kunde_notiz ?? null,
+                    kunde_lieferhinweis: nextStop.order?.kunde_lieferhinweis ?? null,
+                  }}
+                  stopNumber={stopIndex + 1}
+                  totalStops={activeBatch.stops.length}
+                  onComplete={() => markDelivered(nextStop.id)}
+                  onProblem={() => {}}
+                  disabled={pending}
+                />
+              </div>
+            );
+          })()}
           {/* Stop-Navigator: Nächster Stopp mit Navigation, Anruf, Geliefert + Fortschrittsbalken */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

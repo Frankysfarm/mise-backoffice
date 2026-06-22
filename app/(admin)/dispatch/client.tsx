@@ -213,6 +213,7 @@ import { DispatchTourStopStatusMatrix } from './tour-stop-status-matrix';
 import { DispatchTourZeitliniePanel } from './tour-zeitlinie-panel';
 import { DispatchTourOptimizerPanel } from './tour-optimizer-panel';
 import { DispatchFahrerAuslastungsBoard } from './fahrer-auslastungs-board';
+import { TourRueckkehrOptimierung } from './tour-rueckkehr-optimierung';
 
 type Driver = {
   employee_id: string;
@@ -1058,6 +1059,8 @@ export function DispatchBoard({
       {/* Phase 301: Zonen-Effizienz-Matrix — ETA + Lieferungen + Distanz je Lieferzone */}
       <DispatchZoneEffizienzMatrix orders={readyOrders} batches={batches} />
 
+      {/* Phase 403: Rückkehr-Optimierung — Wer steht wann wieder zur Verfügung? */}
+      <TourRueckkehrOptimierung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Rückkehr-Board: Countdown je aktiver Tour bis erwartetem Fahrer-Return, sortiert nach Dringlichkeit */}
       <DispatchTourRueckkehrBoard tours={batches
         .filter(b => b.status === 'unterwegs' || b.status === 'on_route' || b.status === 'aktiv' || b.status === 'assigned')
