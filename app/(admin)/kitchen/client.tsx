@@ -172,6 +172,7 @@ import { KitchenCapacityDashboard } from './kitchen-capacity-dashboard';
 import { KitchenPrepDeadlineMatrix } from './prep-deadline-matrix';
 import { DriverApproachIntel } from './driver-approach-intel';
 import { KitchenSchichtItemRanking } from './schicht-item-ranking';
+import { KitchenSchichtBaselineStrip } from './schicht-baseline-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1738,6 +1739,8 @@ export function KitchenBoard({
       <DriverApproachIntel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 410b: Schicht-Artikel-Ranking — Top-Artikel der Schicht mit Mengenstats */}
       <KitchenSchichtItemRanking orders={filtered} />
+      {/* Phase 412: Schicht-Baseline-Strip — Komposit-Score + isOnTrack vs. 6-Wochen-Baseline */}
+      <KitchenSchichtBaselineStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

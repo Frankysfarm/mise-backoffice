@@ -196,6 +196,8 @@ import { TagesKpiAbschluss } from './tages-kpi-abschluss';
 import { EmergencyCapacityPanel } from './emergency-capacity-panel';
 import { MultiLocationOverview } from './multi-location-overview';
 import { SchichtUmsatzKumulativ } from './schicht-umsatz-kumulativ';
+import { SchichtVergleichEnginePanel } from './schicht-vergleich-engine';
+import { SchichtDowTrendChart } from './schicht-dow-trend';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1349,6 +1351,10 @@ export function LieferdienstClient() {
               <EmergencyCapacityPanel locationId={locationId ?? null} />
               {/* Phase 410: Multi-Standort-Übersicht — CEO-Birds-Eye-View aller Standorte mit Küchen-Kapazitätsstatus */}
               <MultiLocationOverview />
+              {/* Phase 412: Schicht-Vergleichs-Engine — Komposit-Score vs. 6-Wochen-Baseline */}
+              <SchichtVergleichEnginePanel locationId={locationId ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'} />
+              {/* Phase 412: DOW-Trend-Chart — historischer Wochentags-Verlauf (8 Wochen) */}
+              <SchichtDowTrendChart locationId={locationId ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b'} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 269: Pünktlichkeits-Ring — Donut-Chart Pünktlichkeitsrate aktueller Schicht + Trend */}

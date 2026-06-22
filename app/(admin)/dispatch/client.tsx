@@ -221,6 +221,7 @@ import { DispatchTourScoreOverview } from './tour-score-overview';
 import { DispatchTourEffizienzScoreboard } from './tour-effizienz-scoreboard';
 import { DispatchPressureLive } from './dispatch-pressure-live';
 import { DispatchLiveKapazitaetsAlert } from './live-kapazitaets-alert';
+import { DispatchSchichtScoreBadge } from './schicht-score-badge';
 
 type Driver = {
   employee_id: string;
@@ -1867,6 +1868,8 @@ export function DispatchBoard({
       <DispatchPressureLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 410b: Live-Kapazitäts-Alert — Echtzeit-Ampel für Fahrer-zu-Bestell-Ratio */}
       <DispatchLiveKapazitaetsAlert orders={filteredOrders} drivers={drivers} />
+      {/* Phase 412: Schicht-Score-Badge — Komposit-Score vs. 6-Wochen-Baseline + Pünktlichkeits-Delta */}
+      <DispatchSchichtScoreBadge locationId={locationFilter !== 'all' ? (locationFilter ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b') : (locations[0]?.id ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b')} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
