@@ -166,6 +166,7 @@ import { snapshotOrderPulseAllLocations, pruneOrderPulseSnapshots } from '@/lib/
 import { analyzeWeekAllLocations as analyzeSchichtPrognose, pruneOldAnalyses as pruneSchichtPrognoseAnalyses } from '@/lib/delivery/schicht-prognose-analyse';
 import { generateStrategicInsightsAllLocations, pruneOldInsights as pruneStrategicInsights } from '@/lib/delivery/strategic-insights';
 import { detectEmergencyAllLocations, pruneOldEmergencyEvents } from '@/lib/delivery/emergency-capacity';
+import { snapshotAllLocations as snapshotKitchenCapacityAllLocations, pruneOldSnapshots as pruneKitchenCapacitySnapshots } from '@/lib/delivery/kitchen-capacity';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -377,6 +378,8 @@ export async function GET(req: NextRequest) {
     const isStrategicInsightsPruneTick = nowHour === 7 && nowMin >= 50 && nowMin < 54;
     // Phase 404: Emergency Capacity — jeden Tick Engpass-Erkennung; prune täglich 08:05 UTC (90 Tage)
     const isEmergencyCapacityPruneTick = nowHour === 8 && nowMin >= 5 && nowMin < 9;
+    // Phase 407: Kitchen Capacity Intelligence — jeden Tick Snapshot; prune täglich 08:10 UTC (7 Tage)
+    const isKitchenCapacityPruneTick   = nowHour === 8 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1434,6 +1437,12 @@ export async function GET(req: NextRequest) {
       ? await pruneOldEmergencyEvents(90).catch(() => null)
       : null;
 
+    // Phase 407: Kitchen Capacity Intelligence — jeden Tick Snapshot; prune täglich 08:10 UTC
+    const kitchenCapacityResult = await snapshotKitchenCapacityAllLocations().catch(() => null);
+    const kitchenCapacityPruned = isKitchenCapacityPruneTick
+      ? await pruneKitchenCapacitySnapshots(7).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1715,6 +1724,8 @@ export async function GET(req: NextRequest) {
       ...(schichtPrognoseAnalysePruned != null ? { schicht_prognose_analyse_pruned: (schichtPrognoseAnalysePruned as { pruned: number }).pruned } : {}),
       ...(strategicInsightsResult?.locations ? { strategic_insights: { locations: strategicInsightsResult.locations, generated: strategicInsightsResult.generated, errors: strategicInsightsResult.errors } } : {}),
       ...(strategicInsightsPruned != null ? { strategic_insights_pruned: strategicInsightsPruned } : {}),
+      ...(kitchenCapacityResult ? { kitchen_capacity: { locations: kitchenCapacityResult.locations, saved: kitchenCapacityResult.saved, errors: kitchenCapacityResult.errors, circuit_activated: kitchenCapacityResult.circuitActivated, circuit_deactivated: kitchenCapacityResult.circuitDeactivated } } : {}),
+      ...(kitchenCapacityPruned?.pruned ? { kitchen_capacity_pruned: kitchenCapacityPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
