@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–423 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–425 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #239 — Phase 424+425 (2026-06-22)
+
+### Commits geprüft
+- `e123942` — Phase 424 Backend: Management-Report-Engine + ManagementReportPanel
+- `5301d1e` — docs: Phase 424 abgeschlossen
+- `ba2e47f` — Phase 425 Frontend: Smart-Prep-Timing-Hub, Tour-Abschluss, Abwesenheitsübersicht
+
+### Technische Prüfung
+- `npx tsc --noEmit` → Exit 0 ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (0)
+Keine Fehler gefunden. Alle 5 neuen Dateien (1360 Zeilen) korrekt typisiert, vollständig integriert und build-sauber.
+
+### Code-Qualität Phase 424 (Management-Report-Engine)
+- `lib/delivery/management-report.ts`: Wochenbericht-Engine mit Aggregation aus bestehenden Tabellen ✅
+- Migration 204: `management_reports` UNIQUE(location_id+woche_von), Cron montags 07:00 UTC ✅
+- API `/api/delivery/admin/management-report`: GET Wochenbericht + Verlauf ✅
+- `ManagementReportPanel` (lieferdienst): Wochen-KPI-Grid, Trend-Pfeile vs. Vorwoche, Top-Fahrer-Badge, Zonen-Gewinner/Verlierer, collapsible ✅
+
+### Code-Qualität Phase 425 Frontend (5 Komponenten)
+- `kitchen/smart-prep-timing-hub.tsx` (580 Zeilen): Stations-Matrix (Grill/Kalt/Frittiert/Getränke/Mixed) via Keyword-Detection, Cook-Start-Timing gegen Fahrer-ETA (2-min Buffer), Zone-Klassifikation (now/upcoming/buffered), MAX_STATIONS=6 Kapazitätsmodell, 1s-Tick Live-Countdown — ausgereifte Logik ✅
+- `fahrer/app/stop-arrival-proximity.tsx` (113 Zeilen): GPS-Haversine-Distanz zum nächsten Stopp via `navigator.geolocation.watchPosition`, Auto-Ankunft bei <50m, manueller Confirm-Button — korrekte Geolocation-API-Nutzung ✅
+- `fahrer/app/lieferung-bestaetigung.tsx` (217 Zeilen): Multi-Schritt-Flow (Übersicht→Zahlung Bar/EC→Bestätigt), POST `/api/delivery/tours/{id}/proof`, Dismiss nach 1.8s ✅
+- `fahrer/app/tour-completion.tsx` (200 Zeilen): Konfetti-Animation (28 Partikel, 6 Farben, CSS confetti-fall), CompletionStats (stopsCompleted/totalBetrag/elapsedMin/distanceKm/estEarnings), Toggle "Tour abschließen" ✅
+- `lieferdienst/fahrer-abwesenheits-uebersicht.tsx` (250 Zeilen): 5-Tage-Kapazitätsraster (coverage_pct, Farbkodierung ok/low/critical), Heute-Abwesenheiten (Status-Badge), 7-Tage-Liste, parallele API-Calls, collapsible, lazy load ✅
+
+### Integrations-Checkliste Phase 425
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenSmartPrepTimingHub | kitchen/smart-prep-timing-hub.tsx | kitchen/client.tsx:1755 (orders+timings+driverETAs abgeleitet aus batches/stops/drivers) | ✅ |
+| StopArrivalProximity | fahrer/app/stop-arrival-proximity.tsx | fahrer/app/client.tsx:1241 (lat/lng/address/stopNumber/onConfirmArrival) | ✅ |
+| LieferungBestaetigung | fahrer/app/lieferung-bestaetigung.tsx | fahrer/app/client.tsx:1317 (vollständiger stop-Daten-Block + batchId + onConfirmed→markDelivered) | ✅ |
+| TourCompletionScreen | fahrer/app/tour-completion.tsx | fahrer/app/client.tsx:2243 (stats-Objekt korrekt berechnet, showTourCompletion-State) | ✅ |
+| FahrerAbwesenheitsUebersicht | lieferdienst/fahrer-abwesenheits-uebersicht.tsx | lieferdienst/client.tsx:1403 (locationId prop) | ✅ |
+
+### driverETAs Ableitung (Phase 425 Kitchen)
+Die `KitchenSmartPrepTimingHub`-Integration leitet `driverETAs` korrekt aus `batches`-Array ab: Filter auf `unterwegs|on_route`, ETA-Berechnung via `started_at + total_eta_min×60_000`, Fahrername aus `drivers.find(d.id === b.driver_id)`, Stops-Mapping via `stops.filter(s.batch_id === b.id && !s.geliefert_am)` — identisches Pattern wie bestehende KitchenLiveOrderCountdownPanel-Integration ✅
+
+### Status nach Review #239
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 426 Backend:** Fahrer-Erreichbarkeits-Engine — Automatisches Pingen von Fahrern vor Schichtbeginn via SMS/Push. Neue Tabelle `fahrer_erreichbarkeit_log` (driver_id, schicht_id, gepingt_am, antwort: 'bestätigt'|'abgelehnt'|'keine_antwort', kanal: 'push'|'sms'). Engine: `lib/delivery/fahrer-erreichbarkeit.ts` triggert 30min vor Schichtstart. API `GET /api/delivery/admin/fahrer-erreichbarkeit?location_id=...`.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 426 Frontend:** FahrerErreichbarkeitsPanel — Dispatch-Dashboard-Erweiterung: Übersicht welche Fahrer für die nächste Schicht bestätigt haben, Ampel-Status (grün=bestätigt/gelb=keine Antwort/rot=abgelehnt), "Alle pingen"-Button. Integration in `dispatch/client.tsx` nach `KapazitaetsWarnPanel`. API: `GET /api/delivery/admin/fahrer-erreichbarkeit?location_id=...`.
 
 ---
 
