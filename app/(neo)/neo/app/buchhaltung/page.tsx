@@ -2,6 +2,7 @@ import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { Soon } from '../_soon';
 import { BelegeManager } from './belege';
+import { KontoauszugManager } from './kontoauszug';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 const EXP = [{ name: 'PDF', bg: '#FEF2F2', color: '#DC2626' }, { name: 'XLS', bg: '#ECFDF5', color: '#047857' }, { name: 'CSV', bg: '#F1F5F9', color: '#475569' }, { name: 'DTV', bg: '#EEF2FF', color: '#4F46E5' }, { name: 'LEX', bg: '#FEF3C7', color: '#B45309' }];
@@ -16,6 +17,12 @@ export default async function Buchhaltung() {
     sb.from('customer_orders').select('bestellnummer, created_at, gesamtbetrag, zahlungsart, status, bezahlt').eq('tenant_id', emp?.tenant_id ?? '').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
     sb.from('belege').select('id, datum, haendler, betrag_brutto, mwst_satz, mwst_betrag, netto, kategorie, status, beleg_url').eq('tenant_id', emp?.tenant_id ?? '').gte('datum', sinceDate).order('datum', { ascending: false }).limit(500),
   ]);
+  const [{ data: banktx }, { data: belegLinks }] = await Promise.all([
+    sb.from('bank_transactions').select('id, buchungstag, betrag, richtung, verwendungszweck, gegenpartei, beleg_id, matched_auto').eq('tenant_id', emp?.tenant_id ?? '').order('buchungstag', { ascending: false }).limit(300),
+    sb.from('bank_transactions').select('beleg_id').eq('tenant_id', emp?.tenant_id ?? '').not('beleg_id', 'is', null),
+  ]);
+  const linkedBelege = new Set((belegLinks ?? []).map((r: any) => r.beleg_id));
+  const unmatchedBelege = (belege ?? []).filter((b: any) => !linkedBelege.has(b.id)).length;
   let b7 = 0, b19 = 0;
   for (const it of (items ?? []) as any[]) { let m = Number(it.mwst_satz ?? 19); if (m < 1) m = m * 100; const v = Number(it.gesamtpreis ?? 0); if (m >= 19) b19 += v; else b7 += v; }
   const tax7 = b7 - b7 / 1.07, tax19 = b19 - b19 / 1.19, brutto = b7 + b19, netto = brutto - tax7 - tax19;
@@ -49,6 +56,7 @@ export default async function Buchhaltung() {
         </div>
       </div>
       <BelegeManager belege={(belege ?? []) as any[]} monat={monat} />
+      <KontoauszugManager transactions={(banktx ?? []) as any[]} unmatchedBelege={unmatchedBelege} />
     </div>
   );
 }
