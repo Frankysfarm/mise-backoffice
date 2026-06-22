@@ -1,7 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–410 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–412 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #230 — Phase 412 (2026-06-22)
+
+### Commits geprüft:
+- `3d8dc46` — Phase 411 Backend: Schicht-Vergleichs-Engine mit rollenden 6-Wochen-Baselines
+- `c1e404f` — Phase 412 Frontend: Schicht-Vergleichs-Engine Dashboard
+- `8e37f74` — Docs: Phase 412 Fortschritt dokumentiert
+
+### Technische Prüfung
+- `npx tsc --noEmit` → **2 Fehler gefunden und gefixt** ✅
+- `npx next build` → ✓ Compiled successfully, 354 Seiten ✅
+
+### Bugs gefixt (2)
+
+**1. `app/(admin)/lieferdienst/schicht-dow-trend.tsx:133` — Tooltip Formatter Typfehler:**
+- **Problem:** `formatter={(v: number) => ...}` — Recharts `Formatter` erwartet `ValueType | undefined`, aber `number` schließt `undefined` aus. TypeScript Fehler TS2322.
+- **Fix:** `formatter={(v) => [cfg.format(Number(v ?? 0)), cfg.label]}` — `v` untypisiert (implizit `ValueType`), sicheres Casting mit `Number(v ?? 0)`.
+
+**2. `lib/delivery/schicht-vergleich.ts:476` — Null-Guard auf `baseline` fehlt:**
+- **Problem:** `baseline?.avgOnTimePct !== null` prüft nur `avgOnTimePct`, aber danach wird `baseline.avgOnTimePct` ohne `?` dereferenziert, obwohl `baseline` selbst `null` sein kann. TypeScript Fehler TS18047.
+- **Fix:** Explizite `baseline != null`-Prüfung in der Bedingung ergänzt; `?? 0` Fallback entfernt (unnötig nach korrekter Guard-Logik).
+
+### Integrations-Checkliste Phase 412 Frontend
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| SchichtVergleichEnginePanel | lieferdienst/schicht-vergleich-engine.tsx | lieferdienst/client.tsx | ✅ |
+| SchichtDowTrendChart | lieferdienst/schicht-dow-trend.tsx | lieferdienst/client.tsx | ✅ |
+| KitchenSchichtBaselineStrip | kitchen/schicht-baseline-strip.tsx | kitchen/client.tsx | ✅ |
+| DispatchSchichtScoreBadge | dispatch/schicht-score-badge.tsx | dispatch/client.tsx | ✅ |
+
+### Status nach Review #230
+- Kitchen ↔ Dispatch ↔ Driver ↔ Storefront: synchron ✅
+- Build: 354 Seiten sauber ✅
+- TypeScript: 0 Fehler ✅
+- DELIVERY_PROGRESS.md: aktualisiert ✅
+
+### Nächste Phasen für Frontend-Ingenieur
+- **Phase 413 Backend:** Weitere Datenschicht-Erweiterung oder neue Intelligence Engine
+- **Phase 413 Frontend:** Komponenten basierend auf Phase 413 Backend-API
 
 ---
 

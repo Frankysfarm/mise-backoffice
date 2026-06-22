@@ -472,8 +472,8 @@ export async function getSchichtVergleich(locationId: string): Promise<SchichtVe
     lieferungenPct: deltaPct(lieferungen, baseline?.avgLieferungen ?? null),
     deliveryMinPct: deltaPct(today.avgDeliveryMin, baseline?.avgDeliveryMin ?? null),
     onTimePtsDiff:
-      today.onTimePct !== null && baseline?.avgOnTimePct !== null
-        ? today.onTimePct - (baseline.avgOnTimePct ?? 0)
+      today.onTimePct !== null && baseline != null && baseline.avgOnTimePct !== null
+        ? today.onTimePct - baseline.avgOnTimePct
         : null,
   };
 

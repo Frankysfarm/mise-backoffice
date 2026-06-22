@@ -130,7 +130,7 @@ export function SchichtDowTrendChart({ locationId }: { locationId: string }) {
             />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
-              formatter={(v: number) => [cfg.format(v), cfg.label]}
+              formatter={(v) => [cfg.format(Number(v ?? 0)), cfg.label]}
             />
             {avg !== null && (
               <ReferenceLine
