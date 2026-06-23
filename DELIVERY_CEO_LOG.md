@@ -1,7 +1,71 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–458 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–460 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #253 — Phase 459+460: EchtzeitKommandoZentrale + StorefrontLiveWartezeitRing (2026-06-23)
+
+### Commits geprüft
+- `dc0ea65` feat(delivery/backend+frontend): Phase 459+460 — Echtzeit-Kommandozentrale + Wartezeit-Ring
+- `f2dad4e` docs(delivery): DELIVERY_PROGRESS.md — Phase 459+460 dokumentiert
+- `d94deb3` feat(delivery/frontend): Phase 459+460 — DispatchEchtzeitKommandoZentrale + StorefrontLiveWartezeitRing
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **Exit Code 0, 0 Fehler** ✅ (nach 1 Bug-Fix)
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+
+### Bug gefixt in Review #253
+
+#### Bug — Recharts Formatter-Typ in tages-kpi-cockpit.tsx
+**Datei:** `app/(admin)/lieferdienst/tages-kpi-cockpit.tsx:207`
+**Problem:** `formatter={(val: number, name: string) => ...}` — explizite `number`-Annotation auf `val` inkompatibel mit Recharts `ValueType | undefined`.
+**Fix:** Typ-Annotationen entfernt, `Number(val)` für sichere Konvertierung: `formatter={(val, name) => name === "orders" ? [\`${Number(val)} Bestellungen\`, ...] : [euro(Number(val)), ...]}`.
+
+### Phase 459 — DispatchEchtzeitKommandoZentrale
+**echtzeit-kommando-zentrale.tsx** — 5-Kachel Hero-Section (Aktive Touren, Offene Bestellungen, Fahrer online/gesamt, Ø Score, Bestellungen heute) ✅
+- Auslastungs-Fortschrittsbalken (grün/amber/rot je Auslastung) ✅
+- Live-Polling 60s via `/api/delivery/admin/driver-score?action=live` ✅
+- Grüner Matcha-Header mit Puls-Dot ✅
+- Props aus Dispatch-State: onlineFahrerCount, gesamtFahrerCount, aktiveTourenCount, offeneBestellungenCount ✅
+- Integration: dispatch/client.tsx ganz oben ✅
+
+**driver-score API action=live:** Mappt ScoreLeaderboard auf DriverScore[]-Format für Hub ✅
+- sub_scores: punctuality/completion/customer_rating/efficiency korrekt berechnet ✅
+
+**fahrer-score-performance-hub.tsx:** Fetch auf `?action=live` umgestellt (kein Mock) ✅
+
+### Phase 460 — LiveWartezeitRing + StorefrontLiveWartezeitRing
+**components/live-wartezeit-ring.tsx** (orderedAt-basiert): orderedAt-Feld zu orderSuccess-State hinzugefügt ✅
+**live-wartezeit-ring.tsx** (StorefrontLiveWartezeitRing — orderId-basiert): SVG-Kreisring mit 1s-Countdown, 60s-API-Polling via `/api/delivery/eta` ✅
+- Farbe matcha→amber→rot je Restzeit ✅
+- Fehler-Fallback auf Prop-Wert (silencer catch) ✅
+- Integration: storefront.tsx:479 — beide Ringe ergänzen sich ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #253
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 459+460: alle Komponenten vollständig + integriert ✅
+- 1 Bug gefixt: Recharts-Formatter-Typ in tages-kpi-cockpit.tsx ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 461 Backend:** API `GET /api/delivery/admin/zone-kapazitaet` — Live-Kapazitätsauslastung je Zone: aktive Fahrer in Zone / max. Fahrer-Kapazität, durchschnittliche Tour-Dauer je Zone aus heutigen Touren, Überlastungs-Score. Response: `ZoneKapazitaet[]` mit `zone_id, zone_name, fahrer_aktiv, fahrer_max, auslastung_pct, avg_tour_min, status: 'ok'|'warning'|'critical'`.
+2. **Phase 462 Backend:** API `GET /api/delivery/admin/schicht-prognose` — Prognose für das Schichtende: verbleibende Bestellungen, aktueller Durchsatz (Bestellungen/Stunde), prognostiziertes Schichtende-Uhrzeit, Staffing-Empfehlung (mehr/weniger Fahrer nötig). Response: `SchichtPrognose` mit ETA bis Schichtabschluss und Empfehlungs-Text.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 461 Frontend:** DispatchZoneKapazitaetGrid — Grid-Übersicht aller Zonen mit Auslastungsbalken, Fahrer-Anzahl, Ø-Tour-Dauer, Status-Badge (ok/warning/critical). Live-Polling 30s. Integration: dispatch/client.tsx.
+2. **Phase 462 Frontend:** KitchenSchichtPrognosePanel — Kompaktes Panel mit verbleibenden Bestellungen, Durchsatz/Stunde, prognostiziertem Fertig-Zeitpunkt, Staffing-Empfehlung-Badge. Integration: kitchen/client.tsx.
 
 ---
 

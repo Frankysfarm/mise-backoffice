@@ -204,8 +204,8 @@ function HourlyChart({ data }: { data: HourlyBucket[] }) {
             tickLine={false}
           />
           <Tooltip
-            formatter={(val: number, name: string) =>
-              name === "orders" ? [`${val} Bestellungen`, "Bestellungen"] : [euro(val), "Umsatz"]
+            formatter={(val, name) =>
+              name === "orders" ? [`${Number(val)} Bestellungen`, "Bestellungen"] : [euro(Number(val)), "Umsatz"]
             }
             contentStyle={{
               borderRadius: "10px",
