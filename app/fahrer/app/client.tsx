@@ -201,6 +201,7 @@ import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
 import { TourStoppOptimierung } from './tour-stopp-optimierung';
 import { TourStopKommando } from './tour-stop-kommando';
 import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
+import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
 
 type Driver = {
   id: string;
@@ -1417,6 +1418,30 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 492: Tour-Live-Schritt-Cockpit — Aktueller Stopp mit Navi/Anruf/Bestätigen-Buttons + Stopp-Sequenz */}
+          <div className="px-4 mt-3">
+            <TourLiveSchrittCockpit
+              stops={(activeBatch.stops as any[]).map((s: any, idx: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? idx + 1,
+                status: s.geliefert_am ? 'completed' : idx === 0 ? 'current' : 'pending',
+                address: s.order?.kunde_adresse ?? s.kunde_adresse ?? '–',
+                customerName: s.order?.kunde_name ?? s.kunde_name ?? '–',
+                customerPhone: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                orderValue: s.order?.gesamtbetrag ?? s.gesamtbetrag ?? 0,
+                paymentMethod: s.order?.zahlungsart ?? s.zahlungsart ?? 'karte',
+                notes: s.order?.kunde_lieferhinweis ?? s.kunde_lieferhinweis ?? null,
+                etaMin: null,
+              }))}
+              tourStartedAt={activeBatch.started_at}
+              totalStops={activeBatch.stops.length}
+              onNavigate={(address) => {
+                const encoded = encodeURIComponent(address);
+                window.open(`https://maps.google.com/?q=${encoded}`, '_blank');
+              }}
+              onCall={(phone) => { window.location.href = `tel:${phone}`; }}
+            />
+          </div>
           {/* Phase 378: Tour-Stopp-Liste — Geordnete Stoppliste mit Status-Ampel, Navigation-CTA und Kundendaten */}
           <div className="px-4 mt-3">
             <TourStoppListe stops={activeBatch.stops as any} />

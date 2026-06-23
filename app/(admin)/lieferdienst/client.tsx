@@ -246,6 +246,7 @@ import { SchichtAbschlussBericht } from './schicht-abschluss-bericht-generator';
 import { SchichtKpiErweitert } from './schicht-kpi-erweitert';
 import { LieferdienstKennzahlenHub } from './kennzahlen-hub';
 import { SchichtFahrerEinnahmenRanking } from './schicht-fahrer-einnahmen-ranking';
+import { SchichtPulsLive } from './schicht-puls-live';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1404,6 +1405,8 @@ export function LieferdienstClient() {
               <DeliveryStatsCompact locationId={locationId} />
               {/* Phase 409: Tages-KPI-Abschluss — Umsatz, Lieferungen, Ø Lieferzeit, Bewertung vs. gestern */}
               <TagesKpiAbschluss locationId={locationId} />
+              {/* Phase 493: Schicht-Puls-Live — Echtzeit-Bestellfeed + Live-Stats-Strip mit Supabase-Kanal */}
+              <SchichtPulsLive locationId={locationId ?? null} />
               {/* Phase 410: Kapazitäts-Notfall-Panel — Offene Events, Standby-Pool, Severitätsbadges, Lösen-Button */}
               <EmergencyCapacityPanel locationId={locationId ?? null} />
               {/* Phase 410: Multi-Standort-Übersicht — CEO-Birds-Eye-View aller Standorte mit Küchen-Kapazitätsstatus */}

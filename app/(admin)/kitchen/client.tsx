@@ -204,6 +204,7 @@ import { KitchenKapazitaetsAlert } from './kitchen-capacity-alert';
 import { KitchenKochstartEntscheidung } from './kitchen-kochstart-entscheidung';
 import { KitchenKapazitaetsConfig } from './kitchen-kapazitaets-config';
 import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
+import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -816,6 +817,12 @@ export function KitchenBoard({
       <KitchenKochstartOptimierScore orders={filtered} timings={timings} stops={stops} />
       {/* Phase 321: Analytics-Strip — heutige SLA/Lieferrate/ø Zeit aus Analytics-Dashboard */}
       <KitchenAnalyticsStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 490: Küchen-Dispatch-Bridge — Fertige Bestellungen vs. Fahrer-ETAs: Hold/Ready/Urgent-Signal */}
+      <KitchenDispatchBridgePanel
+        orders={filtered}
+        batches={batches.map((b) => ({ id: b.id, driver_id: b.driver_id, status: b.status, started_at: b.started_at, total_eta_min: b.total_eta_min }))}
+        drivers={drivers}
+      />
       {/* Phase 341: Preis-Signal-Streifen — Dynamic Pricing Status für Küche */}
       <KitchenPreisSignalStreifen locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 343: Ops-Empfehlungs-Strip — Kritische Ops-Empfehlungen mit Dismiss-Funktion */}

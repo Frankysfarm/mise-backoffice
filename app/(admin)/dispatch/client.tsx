@@ -261,6 +261,7 @@ import { DispatchFahrerVerfuegbarkeitsSignalPanel } from './fahrer-verfuegbarkei
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
+import { DispatchZoneActionBoard } from './zone-action-board';
 
 type Driver = {
   employee_id: string;
@@ -976,6 +977,11 @@ export function DispatchBoard({
         </div>
       )}
 
+      {/* Phase 491: Zonen-Aktions-Board — 4-Zonen-Matrix: fertige Bestellungen, Wartezeit, Fahrer, Empfohlene Aktion */}
+      <DispatchZoneActionBoard
+        orders={readyOrders}
+        batches={batches.map((b) => ({ id: b.id, status: b.status, zone: b.zone, fahrer_id: b.fahrer_id }))}
+      />
       {/* Küchen-Auslastungs-Chip: live ETA + Surge-Indikator */}
       {kitchenLoad && (
         <div className={cn(
