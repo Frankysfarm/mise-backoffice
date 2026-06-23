@@ -52,6 +52,7 @@ import { BestellungLiveVerfolgung } from './bestellung-live-verfolgung';
 import { EtaLiveProgressRing } from './eta-live-progress-ring';
 import { DynamischeEtaBand } from './dynamische-eta-band';
 import { BestellungAktivitaetsTimeline } from '../bestellung-aktivitaets-timeline';
+import { BestellPhaseCountdown } from './bestell-phase-countdown';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -920,6 +921,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {orderId && (
           <div className="mt-3 w-full">
             <BestellungAktivitaetsTimeline orderId={orderId} />
+          </div>
+        )}
+        {/* Phase 440: BestellPhaseCountdown — Animierter Phasen-Countdown Küche→Unterwegs→Geliefert */}
+        {isDelivery && bestellnummer && (
+          <div className="mt-3 w-full">
+            <BestellPhaseCountdown
+              bestellnummer={bestellnummer}
+              initialEtaMin={etaMinutes > 0 ? etaMinutes : null}
+              initialStatus={liveStatus}
+            />
           </div>
         )}
         {/* Phase 397: Bestellung-Live-Verfolgung — 4-Phasen-Timeline mit Fahrer-Info + Live-Countdown */}

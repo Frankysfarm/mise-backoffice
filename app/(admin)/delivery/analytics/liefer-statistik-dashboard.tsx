@@ -148,13 +148,16 @@ export function LieferstatistikDashboard({ locationId: locationIdProp }: Props) 
   useEffect(() => {
     if (locationIdProp) { setLocationId(locationIdProp); return; }
     const sb = createClient();
-    sb.auth.getUser().then(({ data: { user } }) => {
+    sb.auth.getUser().then((res: { data: { user: { id: string } | null }; error: unknown }) => {
+      const user = res.data.user;
       if (!user) return;
       sb.from('employees')
         .select('location_id')
         .eq('auth_user_id', user.id)
         .maybeSingle()
-        .then(({ data }) => { if (data?.location_id) setLocationId(data.location_id as string); });
+        .then((r: { data: { location_id: string } | null; error: unknown }) => {
+          if (r.data?.location_id) setLocationId(r.data.location_id as string);
+        });
     });
   }, [locationIdProp]);
 
@@ -169,13 +172,23 @@ export function LieferstatistikDashboard({ locationId: locationIdProp }: Props) 
         const today = todayISO();
         const sevenDaysAgo = daysAgoISO(7);
 
+        type OrderRow = {
+          id: string;
+          bestellt_am: string | null;
+          gesamtbetrag: number | null;
+          status: string | null;
+          typ: string | null;
+          zahlungsart: string | null;
+          delivery_zone: string | null;
+        };
+
         // Fetch last 8 days of orders (for 7-day trend + today)
         const { data: orders } = await sb
           .from('customer_orders')
           .select('id,bestellt_am,gesamtbetrag,status,typ,zahlungsart,delivery_zone')
           .eq('location_id', locationId)
           .gte('bestellt_am', sevenDaysAgo + 'T00:00:00')
-          .order('bestellt_am', { ascending: true });
+          .order('bestellt_am', { ascending: true }) as { data: OrderRow[] | null };
 
         if (!orders) { setLoading(false); return; }
 
@@ -321,8 +334,8 @@ export function LieferstatistikDashboard({ locationId: locationIdProp }: Props) 
             <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 9, fill: '#888' }} tickFormatter={(v) => `€${v}`} />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8 }}
-              formatter={(val: number, name: string) =>
-                name === 'Umsatz' ? [fmtEur(val), name] : [val, name]
+              formatter={(val, name) =>
+                name === 'Umsatz' ? [fmtEur(Number(val)), name] : [val, name]
               }
             />
             <Bar yAxisId="left" dataKey="orders" name="Bestellungen" radius={[3, 3, 0, 0]}>

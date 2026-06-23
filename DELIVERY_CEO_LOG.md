@@ -1,7 +1,7 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–428 vollständig abgeschlossen. Build sauber (354 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–440 vollständig abgeschlossen. Build sauber (366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
 
 ---
 
@@ -15128,3 +15128,97 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 - `npx next build` → 364 Seiten, Exit Code 0 ✅
 - Push: erfolgreich ✅
 
+
+---
+
+## CEO Review #248 — Phase 440: 5 neue Komponenten geprüft, 3 Bugs gefixt (2026-06-23)
+
+### Commits geprüft
+- `feat(delivery/frontend): Phase 440 — 5 neue Komponenten (Kitchen/Dispatch/Fahrer/Lieferdienst/Storefront)`
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **0 Fehler** ✅ (nach 3 Bug-Fixes)
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+- Seiten: **366** ✅
+
+### Phase 440 Komponenten — Code-Qualität
+
+**KitchenZonenKochstartSynchro** (`kitchen/zonen-kochstart-synchro.tsx`)
+- Gruppiert aktive Bestellungen nach Lieferzone, berechnet syncGap (Max–Min readyIn)
+- Farbkodierung synced/tight/critical/waiting korrekt ✅
+- Integration: `kitchen/client.tsx:784` ✅
+
+**DispatchFahrerWochenScore** (`dispatch/fahrer-wochen-score.tsx`)
+- 7-Tage Heatmap-Matrix je Fahrer, Trend-Berechnung (letzte 3 Tage vs. erste 3 Tage)
+- Mock-Fallback für fehlende API ✅
+- Integration: `dispatch/client.tsx:1167` ✅
+
+**TourKompletierungsPrognose** (`fahrer/app/tour-kompletierungs-prognose.tsx`)
+- Ø-Zeit aus abgeschlossenen Stopps (mind. 2 Stopps), fallback 8 Min
+- Farbkodierung grün/gelb/rot je Verspätung ✅
+- Integration: `fahrer/app/client.tsx:2140` ✅
+
+**SchichtMargenAnalyse** (`lieferdienst/schicht-margen-analyse.tsx`)
+- Break-Even-Analyse, Netto-Marge, Kostenstruktur-Balken
+- Mock-Fallback für fehlende API ✅
+- Integration: `lieferdienst/client.tsx:1448` ✅
+
+**BestellPhaseCountdown** (`order/[locationSlug]/components/bestell-phase-countdown.tsx`)
+- Animierter Phasen-Countdown (Küche→Unterwegs→Ankunft→Geliefert), Polling 30s
+- **BUG:** Komponente erstellt aber NICHT importiert/integriert → GEFIXT ✅
+- Integration nach Fix: `success-state.tsx` nach Phase 406 Block ✅
+
+### Bugs gefixt in Review #248
+
+#### Bug 1 — BestellPhaseCountdown nicht integriert
+**Problem:** `app/order/[locationSlug]/components/bestell-phase-countdown.tsx` wurde erstellt aber in keiner Parent-Komponente importiert → tote Komponente, nie angezeigt.
+**Fix:** Import + Render in `success-state.tsx` nach Phase 406 Block:
+```tsx
+{isDelivery && bestellnummer && (
+  <div className="mt-3 w-full">
+    <BestellPhaseCountdown
+      bestellnummer={bestellnummer}
+      initialEtaMin={etaMinutes > 0 ? etaMinutes : null}
+      initialStatus={liveStatus}
+    />
+  </div>
+)}
+```
+
+#### Bug 2 — TS7031 Implicit any in LieferstatistikDashboard
+**Datei:** `app/(admin)/delivery/analytics/liefer-statistik-dashboard.tsx`
+**Problem:** `auth.getUser().then(({ data: { user } })` und `maybeSingle().then(({ data })` — destrukturierte Parameter ohne Typ-Annotation; TypeScript konnte Supabase-Rückgabetypen nicht inferieren.
+**Fix:** Umgestellt auf nicht-destrukturierende Callbacks mit expliziten Inline-Typen.
+
+#### Bug 3 — TS2783 Doppelter `ok`-Key + Recharts Formatter-Typ
+**Datei 1:** `app/api/delivery/admin/einnahmen-trichter/route.ts:44+50`
+**Problem:** `{ ok: result.ok, ...result }` und `{ ok: true, ...result }` — `ok` zweimal spezifiziert (result enthält bereits `ok`-Feld).
+**Fix:** Zeile 44: `NextResponse.json(result)` direkt; Zeile 50: `ok:true` → `success:true`.
+
+**Datei 2:** `liefer-statistik-dashboard.tsx:324`
+**Problem:** Recharts `formatter` Callback-Parameter mit expliziter `number`-Annotation — inkompatibel mit Recharts-Typ `ValueType | undefined`.
+**Fix:** Parameter-Annotation entfernt, `fmtEur(Number(val))` für sichere Konvertierung.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #248
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 440: alle 5 Komponenten vollständig + integriert ✅
+- 3 Bugs gefixt: Integration-Bug + 2 TS-Fehler ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 441 Backend:** API `GET /api/delivery/admin/fahrer-wochen-score` — 7-Tage Aggregation aus `delivery_tours`/`tour_stops` per Fahrer (Pünktlichkeit %, Touren-Anzahl, Ø-Score 0–100). Response: `DriverRow[]` mit `days: DayScore[]`.
+2. **Phase 442 Backend:** API `GET /api/delivery/admin/schicht-marge` — Live-Analyse aus heutigen Schichten (`driver_shifts`): Fahrlohn (Stunden×Stundenpreis), Plattformkosten (0.80/Bestellung), Liefergebühren, Netto-Marge, Break-Even-Bestellungen. Response: `MargenData`.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 441 Frontend:** DispatchTourAbschlussPrognose — Prognostizierter Abschluss der aktiven Tour je Fahrer, basierend auf verbleibenden Stopps × Ø-Zeit aus bisherigen Stopps. Alert wenn Prognose > Schichtende. Integration: dispatch/client.tsx.
+2. **Phase 442 Frontend:** KitchenRushHourHeatmap — 7×24 Heatmap (Wochentag × Stunde) der Bestellhäufigkeit, berechnet aus customer_orders der letzten 30 Tage. Integration: kitchen/client.tsx.

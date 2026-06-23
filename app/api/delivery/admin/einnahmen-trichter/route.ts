@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
       if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
       const datum = body.datum as string | undefined;
       const result = await computeSnapshot(locationId, datum);
-      return NextResponse.json({ ok: result.ok, ...result });
+      return NextResponse.json(result);
     }
 
     if (action === 'compute-all') {
       const datum  = body.datum as string | undefined;
       const result = await computeAllLocations(datum);
-      return NextResponse.json({ ok: true, ...result });
+      return NextResponse.json({ success: true, ...result });
     }
 
     if (action === 'prune') {
