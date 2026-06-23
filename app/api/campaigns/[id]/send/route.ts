@@ -20,12 +20,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { data: campaign } = await svc.from('email_campaigns').select('*').eq('id', id).eq('tenant_id', emp.tenant_id).single();
   if (!campaign) return NextResponse.json({ error: 'Kampagne nicht gefunden' }, { status: 404 });
 
+  // Doppelsende-Sperre (Mail-Safety): nur EIN Versand pro Kampagne. Atomar 'entwurf/fehler' → 'versand' beanspruchen.
+  const { data: claimed } = await svc.from('email_campaigns').update({ status: 'versand' }).eq('id', id).in('status', ['entwurf', 'fehler']).select('id');
+  if (!claimed || claimed.length === 0) {
+    return NextResponse.json({ error: 'Diese Kampagne wird bereits gesendet oder wurde schon versendet.' }, { status: 409 });
+  }
+  const resetDraft = async () => { await svc.from('email_campaigns').update({ status: 'entwurf' }).eq('id', id); };
+
   const { data: tenant } = await svc
     .from('tenants')
     .select('resend_api_key, resend_from_email, resend_from_name, name, slug')
     .eq('id', emp.tenant_id).single();
 
   if (!tenant?.resend_api_key || !tenant.resend_from_email) {
+    await resetDraft();
     return NextResponse.json({ error: 'Resend nicht konfiguriert' }, { status: 400 });
   }
 
@@ -38,14 +46,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const emails = ((audience as any[]) ?? []).map((a) => a.email).filter(Boolean) as string[];
 
   if (emails.length === 0) {
+    await resetDraft();
     return NextResponse.json({ error: 'Keine Empfänger' }, { status: 400 });
   }
 
-  // Update Status
-  await svc.from('email_campaigns').update({
-    status: 'versand',
-    empfaenger_count: emails.length,
-  }).eq('id', id);
+  await svc.from('email_campaigns').update({ empfaenger_count: emails.length }).eq('id', id);
 
   const resend = new Resend(tenant.resend_api_key);
   const origin = new URL(req.url).origin;
