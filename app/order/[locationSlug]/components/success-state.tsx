@@ -23,6 +23,7 @@ import { LoyaltyPunkteWidget } from '../loyalty-punkte-widget';
 import { EtaLiveCountdown } from './eta-live-countdown';
 import { BestellDelayBanner } from '../bestell-delay-banner';
 import { BestellTeilenWidget } from '../bestell-teilen-widget';
+import { TrackingLinkRefreshWidget } from '../tracking-link-refresh-widget';
 import { VerzoegerungsInfoBanner } from '../verzoegerungs-info-banner';
 import { EtaEchtzeitTracker } from '../eta-echtzeit-tracker';
 import { BestellPhasenBand } from '../bestell-phasen-band';
@@ -796,6 +797,8 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {isDelivery && (
           <div className="mt-3 w-full">
             <BestellTeilenWidget bestellnummer={bestellnummer} locationSlug="" />
+            {/* Phase 486: Tracking-Link-Refresh-Widget — Erneut senden */}
+            <TrackingLinkRefreshWidget orderId={orderId} liveStatus={liveStatus} className="mt-2" />
           </div>
         )}
 

@@ -1,9 +1,106 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–489 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–492 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 486 Backend — Storefront-Tracking-Token-Refresh-API
+
+**`app/api/delivery/customer/refresh-tracking/route.ts`:**
+- POST `{ order_id }` → `{ ok, trackingUrl, orderId }`
+- Findet Bestellung in customer_orders; 404 wenn nicht gefunden
+- 400 wenn status = 'geliefert' oder 'cancelled' (bereits abgeschlossen)
+- Generiert neuen randomBytes(12).hex Token → UPDATE customer_orders.rating_token
+- trackingUrl = `${NEXT_PUBLIC_APP_URL}/track/${token}`
+- Public endpoint, kein Auth erforderlich
+
+### Phase 486 Frontend — TrackingLinkRefreshWidget
+
+**`app/order/[locationSlug]/tracking-link-refresh-widget.tsx`** — `TrackingLinkRefreshWidget`:
+- Props: `orderId`, `liveStatus`, `className?`
+- Nur sichtbar wenn liveStatus ≠ 'geliefert' / 'abgeholt'
+- Button "Tracking-Link erneut senden" mit RefreshCw Icon
+- State: sent/loading/error
+- Nach Erfolg: CheckCircle2 + "Link wurde gesendet" in Matcha-Grün
+- Integration: success-state.tsx nach BestellTeilenWidget ✅
+
+### Phase 487 Backend — Dispatch-Prioritäts-Override-API
+
+**`app/api/delivery/admin/order-priority-override/route.ts`:**
+- POST `{ order_id, priority: 'hoch'|'mittel'|'niedrig', note?, location_id? }` → Upsert in order_priority_overrides
+  - Validierung: priority in ['hoch','mittel','niedrig'], order_id pflicht
+  - Auth: Admin via createClient
+- GET `?order_id=...` → Single Override; `?location_id=...` → alle Overrides der Location
+- DELETE `?order_id=...` → Löscht Override
+
+### Phase 487 Migration
+
+**`scripts/migrations/221_order_priority_overrides.sql`:**
+- Tabelle `order_priority_overrides` mit UUID PK, UNIQUE(order_id)
+- Felder: order_id, location_id, priority CHECK, note, created_by, created_at, updated_at
+- RLS Tenant-Isolation, Indexes auf location + order
+
+### Phase 487 Frontend — DispatchOrderPriorityOverrideBadge
+
+**`app/(admin)/dispatch/order-priority-override-badge.tsx`** — `DispatchOrderPriorityOverrideBadge`:
+- Props: orderId, locationId, currentPriority?, className?
+- Clickbarer Badge: hoch=rot, mittel=amber, niedrig=blau, default=grau "Normal"
+- Absolut-positioniertes Dropdown (z-50): 3 Priority-Buttons + optionales Notiz-Textarea (120 Zeichen)
+- Setzen-Button (POST) + Zurücksetzen-Button (DELETE)
+- Fetch Override on Mount via GET
+
+### Phase 488 Backend — Driver-Availability-Signal-API
+
+**`app/api/delivery/admin/driver-availability-signal/route.ts`:**
+- POST `{ driver_id, signal: 'available'|'break'|'end', note?, location_id? }` → `{ ok, state, driver }`
+  - Mappt: available→available, break→break, end→offline
+  - UPDATE mise_drivers.state + INSERT driver_availability_signals
+- GET `?location_id=...` → alle Fahrer + aktuellen State + letztes Signal
+  - In-Memory Deduplication: letztes Signal je Fahrer
+
+### Phase 488 Migration
+
+**`scripts/migrations/222_driver_availability_signals.sql`:**
+- Tabelle `driver_availability_signals` mit UUID PK
+- Felder: driver_id (→mise_drivers), location_id (→locations), signal CHECK, note, created_at
+- RLS Tenant-Isolation, Indexes auf driver + location
+
+### Phase 488 Frontend — DispatchFahrerVerfuegbarkeitsSignalPanel
+
+**`app/(admin)/dispatch/fahrer-verfuegbarkeits-signal-panel.tsx`** — `DispatchFahrerVerfuegbarkeitsSignalPanel`:
+- Collapsible Card: "Fahrer-Verfügbarkeit" + Radio-Icon
+- Liste aller Fahrer: Name + Vehicle-Icon + State-Badge (available=matcha/break=amber/offline=grau)
+- Letztes Signal + Zeitstempel (timeAgo Helper)
+- 3 Quick-Action-Buttons pro Fahrer: "Verfügbar" / "Pause" / "Ende" → POST
+- 30s Auto-Refresh
+- Integration: dispatch/client.tsx nach DispatchFahrerRueckkehrPrognosePanel ✅
+
+### Integrations-Checkliste Phase 486–492
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| TrackingLinkRefreshWidget | order/[locationSlug]/tracking-link-refresh-widget.tsx | success-state.tsx nach BestellTeilenWidget | ✅ |
+| DispatchOrderPriorityOverrideBadge | dispatch/order-priority-override-badge.tsx | Per-Order Badge (kein globaler Panel) | ✅ |
+| DispatchFahrerVerfuegbarkeitsSignalPanel | dispatch/fahrer-verfuegbarkeits-signal-panel.tsx | dispatch/client.tsx nach FahrerRueckkehrPrognosePanel | ✅ |
+| refresh-tracking API | app/api/delivery/customer/refresh-tracking/route.ts | Neu (Public POST) | ✅ |
+| order-priority-override API | app/api/delivery/admin/order-priority-override/route.ts | Neu (POST+GET+DELETE) | ✅ |
+| driver-availability-signal API | app/api/delivery/admin/driver-availability-signal/route.ts | Neu (POST+GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 493 Backend:** Storefront-ETA-Confidence-Score — GET /api/delivery/customer/eta-confidence?order_id=...: Konfidenz-Wert 0–100 für ETA-Genauigkeit + Erklärung (Faktoren: Küchenlast, Fahrer-GPS, Zonenhistorie).
+2. **Phase 493 Frontend:** EtaKonfidenzBadge — Inline Badge in success-state nach EtaSekundenCountdown: Zeigt Konfidenz als Balken + "Sehr pünktlich" / "Ungefähr" / "Variabel".
+3. **Phase 494 Backend:** Tour-Kapazitäts-Warnsignal — GET /api/delivery/admin/tour-capacity-warning?location_id=...: Warnt wenn aktive Touren > Schwellwert oder Ø-Stops/Tour zu hoch.
+4. **Phase 494 Frontend:** DispatchTourKapazitaetsWarnung — Alert-Banner im Dispatch-Dashboard wenn Kapazitätsgrenze überschritten.
+5. **Phase 495 Backend:** Fahrer-Score-Zusammenfassung-API — GET /api/delivery/admin/driver-score-summary?driver_id=...: Kombinierter Score aus Pünktlichkeit + Kundenbewertung + GPS-Aktivität.
 CEO Review #260 (2026-06-23): Phase 480–482 + Frontend Smart-Timing/Tour-Sequenz/Stop-Kommando/Live-Tracking geprüft — 0 Bugs. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 480–482 — Fahrer-Zonen-Affinität-Matrix, Fahrer-Rückkehr-Prognose, Küchen-Kapazitäts-Alert. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 

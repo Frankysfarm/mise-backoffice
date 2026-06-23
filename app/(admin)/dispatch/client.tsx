@@ -257,6 +257,7 @@ import { DispatchZonenKapazitaetsRadar } from './zonen-kapazitaets-radar';
 import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
 import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets-matrix';
 import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
+import { DispatchFahrerVerfuegbarkeitsSignalPanel } from './fahrer-verfuegbarkeits-signal-panel';
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
@@ -2024,6 +2025,8 @@ export function DispatchBoard({
       <DispatchFahrerZonenAffinitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 481: Fahrer-Rückkehr-Prognose — Live-Kacheln: wann kommt welcher Fahrer zurück + Restkapazität */}
       <DispatchFahrerRueckkehrPrognosePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 488: Fahrer-Verfügbarkeits-Signal — Live-Verfügbarkeit + Quick-Actions */}
+      <DispatchFahrerVerfuegbarkeitsSignalPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
