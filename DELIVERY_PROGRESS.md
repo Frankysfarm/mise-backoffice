@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–442 abgeschlossen. Build sauber. 368 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–442 abgeschlossen. Build sauber. 366 Seiten. 0 TypeScript-Fehler.**
 
 **Phase 441+442 Backend (2026-06-23): Fahrer-Wochen-Score-API + Schicht-Marge-API — app/api/delivery/admin/fahrer-wochen-score/route.ts: GET ?location_id → DriverRow[] — aggregiert driver_score_daily_snapshots (composite_score, f_punctuality 0–30 → 0–100% skaliert) + schicht_abschluss_berichte (lieferungen_gesamt, puenktlichkeits_pct) + mise_drivers(name) für letzte 7 Tage; Trend-Berechnung letzte 3 Tage vs. erste 4 Tage (>4 Punkte Delta = up/down). app/api/delivery/admin/schicht-marge/route.ts: GET ?location_id → MargenData — Live-Analyse aus driver_shifts (active/completed heute) × STUNDEN_LOHN=13.50€ + customer_orders (gesamtbetrag, liefergebuehr) + PLATTFORM_KOSTEN=0.80€/Bestellung; Gestern-Vergleich für Trend (>3% Delta); Break-Even = Gesamtkosten ÷ Gebühr/Bestellung. Frontend-Komponenten DispatchFahrerWochenScore + SchichtMargenAnalyse waren bereits integriert mit Mock-Fallback — jetzt live mit echten Daten. Build: 366 Seiten, 0 Fehler.**
 
