@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–493 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–500 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #264 — Phase 500 geprüft, 0 Bugs, Build 366 Seiten sauber (2026-06-23)
+
+### Commits geprüft
+- `4d3c9f1` — Phase 500: KochstartCockpit, StrategyPanel, NaechsterStoppNav, LiveEtaBanner, StatistikenDashboard
+- `089c7f2` — Docs: DELIVERY_PROGRESS.md Phase 494–495 Update
+
+### Build-Status
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- `npx next build` → **366 Seiten, Exit 0** ✅
+
+### Phase 500 — 5 Komponenten geprüft
+
+**KitchenPhase500KochstartCockpit** (`kitchen/phase500-kochstart-cockpit.tsx`)
+- Ampel-Klassifizierung (urgent/warning/ok/done/waiting) korrekt implementiert ✅
+- Priorisierung nach `urgencyPriority` (niedrigste = dringendste) korrekt ✅
+- Integration: `kitchen/client.tsx:831` — Props `orders={filtered}` + `timings={timings}` ✅
+
+**DispatchPhase500StrategyPanel** (`dispatch/phase500-strategy-panel.tsx`)
+- `strategy-action.ts` als Server-Action vorhanden, schreibt `dispatch_strategy` in `tenants`-Tabelle ✅
+- Tour-Score-Berechnung (60% Pünktlichkeit + 40% Fortschritt) sauber ✅
+- SVG-Ring korrekt — Farbkodierung grün/amber/rot nach Score ✅
+- Integration: `dispatch/client.tsx:2048` — Batch-Mapping korrekt mit `startzeit` → `started_at` ✅
+
+**FahrerPhase500NaechsterStoppNav** (`fahrer/app/phase500-naechster-stopp-nav.tsx`)
+- Deep-Link-Generierung für Google/Apple/Waze mit `encodeURIComponent` korrekt ✅
+- ETA-Countdown via `useCountdown` Hook, 1s-Intervall ✅
+- Integration: `fahrer/app/client.tsx:1860` mit `stops={activeBatch.stops as any}` ✅
+
+**Phase500LiveEtaBanner** (`order/[locationSlug]/phase500-live-eta-banner.tsx`)
+- Import-Pfad via `@/app/order/[locationSlug]/phase500-live-eta-banner` ✅
+- Integration: `track/[bestellnummer]/tracking.tsx:507` — nur bei `typ=lieferung` + nicht storniert ✅
+
+**LieferdienstPhase500StatistikenDashboard** (`lieferdienst/phase500-statistiken-dashboard.tsx`)
+- Client-side Supabase-Query: `customer_orders` gefiltert nach `location_id`, `typ=lieferung`, heute ✅
+- Sparkline Stundenverlauf (letzte 8h) korrekt implementiert ✅
+- 120s Auto-Refresh, silent-fail bei Fehler ✅
+- Hinweis: `drivers`/`setDrivers` State deklariert aber nicht befüllt — tote Variable, kein Fehler, kein Block
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Anweisungen für nächste Phasen
+1. **Phase 501 Backend:** ETA-Confidence-Score-API — GET /api/delivery/admin/eta-confidence-score?location_id=...: Konfidenz 0–100 je aktiver Tour (Faktoren: Küchenlast, GPS-Frische, Zonenhistorie, verbleibende Stopps).
+2. **Phase 501 Frontend:** DispatchEtaKonfidenzLeiste — Farbige Balkenleiste je Tour im Dispatch. Integration nach StrategyPanel.
+3. **Phase 502 Backend:** Schicht-Abschluss-Report-API — Vollständige KPI-Auswertung (Umsatz, SLA, Fahrer-Scores, Top-Zone).
+4. **Phase 502 Frontend:** DispatchSchichtAbschlussReport — Aufklappbare Karte zum Schichtende.
+5. **Phase 503 Backend:** Zonen-SLA-Vergleich-API — SLA je Zone, 7 Tage, pünktlich/zu spät/kritisch.
 
 ---
 
