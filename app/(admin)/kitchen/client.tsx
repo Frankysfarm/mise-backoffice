@@ -189,6 +189,7 @@ import { FahrerPickupEtaAnzeige } from './fahrer-pickup-eta-anzeige';
 import { KitchenPrepZielAmpel } from './prep-ziel-ampel';
 import { KochstartKommandozentrale } from './kochstart-kommandozentrale';
 import { KitchenRushHourHeatmap } from './rush-hour-heatmap';
+import { KitchenSmartKochstartLiveMatrix } from './smart-kochstart-live-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -676,6 +677,8 @@ export function KitchenBoard({
           locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : locationFilter}
         />
       )}
+      {/* Phase 450: Smart-Kochstart-Live-Matrix — Alle aktiven Bestellungen nach Urgency sortiert, Countdown-Ringe + Farbkodierung + Schnell-Aktionen */}
+      <KitchenSmartKochstartLiveMatrix orders={filtered} timings={timings} />
       {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}

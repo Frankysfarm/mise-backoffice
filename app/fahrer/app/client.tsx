@@ -185,6 +185,7 @@ import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
 import { FahrerStoppTempoAnzeige } from './stopp-tempo-anzeige';
 import { TourKompaktKommando } from './tour-kompakt-kommando';
 import { TourKompletierungsPrognose } from './tour-kompletierungs-prognose';
+import { TourStoppPrioritaetsNavigator } from './tour-stopp-prioritaets-navigator';
 
 type Driver = {
   id: string;
@@ -1061,6 +1062,10 @@ export function FahrerApp({
           </section>
         )}
 
+        {/* Phase 452: Tour-Stopp-Prioritäts-Navigator — Alle Stops in Reihenfolge mit Next-Stop hervorgehoben, Navigation-Button + ETA-Countdown */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <TourStoppPrioritaetsNavigator activeBatch={activeBatch as any} />
+        )}
         {/* Phase 425: Tour-Stopp-Fortschritts-Leiste — Horizontale Stop-Kette mit Live-Status und Aktions-Buttons */}
         {activeBatch && (
           <div className="px-4">

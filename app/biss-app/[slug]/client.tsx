@@ -103,7 +103,7 @@ function CartDrawer({ cart, items, tenant, orderType, onClose, onCheckout }: {
 
 function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
   cart: CartMap; items: Item[]; tenant: Tenant; location: Location;
-  onBack: () => void; onSuccess: (orderId: string) => void;
+  onBack: () => void; onSuccess: (orderId: string, bestellnummer: string) => void;
 }) {
   const [form, setForm] = useState({ name: '', phone: '', address: '', payment: 'bar' as 'bar' | 'karte', type: 'lieferung' as 'lieferung' | 'abholung' });
   const [loading, setLoading] = useState(false);
@@ -130,7 +130,7 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      onSuccess(data.id ?? data.order_id ?? data.orderId);
+      onSuccess(data.id ?? data.order_id ?? data.orderId, data.bestellnummer ?? '');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Fehler beim Bestellen');
     } finally {
@@ -187,61 +187,120 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
   );
 }
 
-function OrderSuccess({ orderId, onClose }: { orderId: string; onClose: () => void }) {
+function EtaCountdown({ etaLatest }: { etaLatest: string }) {
+  const [secs, setSecs] = useState(() => Math.max(0, Math.round((new Date(etaLatest).getTime() - Date.now()) / 1000)));
+  useEffect(() => {
+    const t = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  if (secs <= 0) return <span className="font-bold text-matcha-700">Jeden Moment!</span>;
+  return <span className="font-bold text-matcha-700 tabular-nums">{m}:{String(s).padStart(2, '0')} Min</span>;
+}
+
+function OrderSuccess({ orderId, bestellnummer, onClose }: { orderId: string; bestellnummer: string; onClose: () => void }) {
   const [status, setStatus] = useState<string>('eingegangen');
-  const [eta, setEta] = useState<{ eta_earliest?: string; eta_latest?: string } | null>(null);
+  const [eta, setEta] = useState<{ eta_earliest?: string; eta_latest?: string; driver_name?: string | null; stops_before?: number } | null>(null);
   const steps = ['eingegangen', 'bestaetigt', 'zubereitung', 'unterwegs', 'geliefert'];
   const stepLabels: Record<string, string> = { eingegangen: 'Eingegangen', bestaetigt: 'Bestätigt', zubereitung: 'In Zubereitung', unterwegs: 'Unterwegs', geliefert: 'Geliefert' };
+  const statusMap: Record<string, string> = {
+    neu: 'eingegangen', bestätigt: 'bestaetigt', in_zubereitung: 'zubereitung',
+    fertig: 'zubereitung', unterwegs: 'unterwegs', geliefert: 'geliefert',
+  };
   const curIdx = steps.indexOf(status);
 
   useEffect(() => {
     const sb = createClient();
-    const channel = sb.channel(`order-${orderId}`)
+    const channel = sb.channel(`biss-order-${orderId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` }, (payload: { new?: { status?: string } }) => {
-        if (payload.new?.status) setStatus(payload.new.status);
+        const raw = payload.new?.status;
+        if (raw) setStatus(statusMap[raw] ?? raw);
       })
       .subscribe();
-    const poll = setInterval(async () => {
+    const poll = async () => {
       try {
         const res = await fetch(`/api/delivery/orders/${orderId}`);
         if (res.ok) {
           const d = await res.json();
-          if (d.status) setStatus(d.status);
-          if (d.eta_earliest || d.eta_latest) setEta(d);
+          if (d.status) setStatus(statusMap[d.status] ?? d.status);
+          if (d.eta_earliest || d.eta_latest) setEta({ eta_earliest: d.eta_earliest, eta_latest: d.eta_latest, driver_name: d.driver_name ?? null, stops_before: d.stops_before ?? 0 });
         }
       } catch {}
-    }, 20000);
-    return () => { sb.removeChannel(channel); clearInterval(poll); };
+    };
+    poll();
+    const iv = setInterval(poll, 15000);
+    return () => { sb.removeChannel(channel); clearInterval(iv); };
   }, [orderId]);
+
+  const trackUrl = bestellnummer ? `/track/${bestellnummer}` : null;
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
       <div className="max-w-lg mx-auto p-6 text-center">
         <div className="w-16 h-16 bg-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
         <h2 className="text-2xl font-bold text-matcha-700 mb-1">Bestellung aufgegeben!</h2>
-        <p className="text-gray-500 text-sm mb-6">Bestellnummer: <span className="font-mono font-semibold">{orderId.slice(0, 8).toUpperCase()}</span></p>
-        <div className="relative mb-8">
+        {bestellnummer && (
+          <p className="text-gray-500 text-sm mb-2">Bestellnummer: <span className="font-mono font-semibold text-gray-800">#{bestellnummer}</span></p>
+        )}
+
+        {/* Live-Tracking Link */}
+        {trackUrl && status !== 'geliefert' && (
+          <a href={trackUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-2 mb-5 px-4 py-2 bg-matcha-50 border border-matcha-200 text-matcha-700 rounded-xl text-sm font-semibold hover:bg-matcha-100 transition-colors">
+            <span className="w-2 h-2 rounded-full bg-matcha-500 animate-pulse" />
+            Live-Tracking öffnen
+          </a>
+        )}
+
+        {/* Status Steps */}
+        <div className="relative mb-6">
           <div className="flex justify-between relative z-10">
             {steps.map((s, i) => (
               <div key={s} className="flex flex-col items-center gap-1 flex-1">
-                <div className={cn('w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors',
+                <div className={cn('w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all',
                   i < curIdx ? 'bg-matcha-600 border-matcha-600 text-white' :
-                  i === curIdx ? 'bg-white border-matcha-600 text-matcha-700' :
+                  i === curIdx ? 'bg-white border-matcha-600 text-matcha-700 shadow-md' :
                   'bg-white border-gray-200 text-gray-300')}>
                   {i < curIdx ? '✓' : i + 1}
                 </div>
-                <span className={cn('text-[10px] text-center leading-tight', i <= curIdx ? 'text-matcha-700 font-semibold' : 'text-gray-300')}>{stepLabels[s]}</span>
+                <span className={cn('text-[9px] text-center leading-tight', i <= curIdx ? 'text-matcha-700 font-semibold' : 'text-gray-300')}>{stepLabels[s]}</span>
               </div>
             ))}
           </div>
           <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100 -z-0">
-            <div className="h-full bg-matcha-600 transition-all duration-500" style={{ width: `${Math.max(0, curIdx / (steps.length - 1)) * 100}%` }} />
+            <div className="h-full bg-matcha-600 transition-all duration-700" style={{ width: `${Math.max(0, curIdx / (steps.length - 1)) * 100}%` }} />
           </div>
         </div>
-        {eta?.eta_latest && (
-          <p className="text-sm text-gray-600 mb-4">Voraussichtliche Ankunft: <strong>{new Date(eta.eta_latest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</strong></p>
+
+        {/* ETA + Driver Info */}
+        {eta?.eta_latest && status !== 'geliefert' && (
+          <div className="bg-matcha-50 rounded-xl p-4 mb-4 text-left">
+            <p className="text-xs text-matcha-600 font-semibold mb-1 uppercase tracking-wide">Voraussichtliche Ankunft</p>
+            <p className="text-lg font-bold text-matcha-800">
+              {new Date(eta.eta_latest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+              {' — '}
+              <EtaCountdown etaLatest={eta.eta_latest} />
+            </p>
+            {eta.driver_name && (
+              <p className="text-sm text-gray-600 mt-1">Fahrer: <span className="font-semibold">{eta.driver_name}</span></p>
+            )}
+            {typeof eta.stops_before === 'number' && eta.stops_before > 0 && (
+              <p className="text-xs text-amber-600 mt-1">{eta.stops_before} Lieferung{eta.stops_before > 1 ? 'en' : ''} vor dir</p>
+            )}
+          </div>
         )}
-        <button onClick={onClose} className="mt-4 px-6 py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 transition-colors">Neue Bestellung</button>
+
+        {status === 'geliefert' && (
+          <div className="bg-matcha-50 rounded-xl p-4 mb-4">
+            <p className="text-matcha-700 font-bold text-lg">Guten Appetit!</p>
+            <p className="text-matcha-600 text-sm">Deine Bestellung wurde geliefert.</p>
+          </div>
+        )}
+
+        <button onClick={onClose} className="mt-2 px-6 py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 transition-colors">
+          Neue Bestellung
+        </button>
       </div>
     </div>
   );
@@ -257,6 +316,7 @@ export function BissStorefront({ location, tenant, categories, items }: {
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [bestellnummer, setBestellnummer] = useState<string>('');
   const [orderType, setOrderType] = useState<'lieferung' | 'abholung'>('lieferung');
   const catRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -290,8 +350,8 @@ export function BissStorefront({ location, tenant, categories, items }: {
     catRefs.current[catId]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  if (orderId) return <OrderSuccess orderId={orderId} onClose={() => { setOrderId(null); setCart(new Map()); }} />;
-  if (showCheckout) return <CheckoutForm cart={cart} items={items} tenant={tenant} location={location} onBack={() => setShowCheckout(false)} onSuccess={id => { setShowCheckout(false); setOrderId(id); }} />;
+  if (orderId) return <OrderSuccess orderId={orderId} bestellnummer={bestellnummer} onClose={() => { setOrderId(null); setBestellnummer(''); setCart(new Map()); }} />;
+  if (showCheckout) return <CheckoutForm cart={cart} items={items} tenant={tenant} location={location} onBack={() => setShowCheckout(false)} onSuccess={(id, bn) => { setShowCheckout(false); setOrderId(id); setBestellnummer(bn); }} />;
 
   return (
     <div className="min-h-screen bg-gray-50 font-body pb-28">

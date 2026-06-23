@@ -230,6 +230,7 @@ import { EinnahmenTrichterPanel } from './einnahmen-trichter-panel';
 import { SchichtLiveBilanz } from './schicht-live-bilanz';
 import { StundenPerformanceMatrix } from './stunden-performance-matrix';
 import { SchichtMargenAnalyse } from './schicht-margen-analyse';
+import { LieferdienstExecutiveKpiKommando } from './executive-kpi-kommando';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1165,6 +1166,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 453: Executive-KPI-Kommando — Konsolidiertes Tages-Dashboard: Bestellungen, Umsatz, Lieferzeit, SLA, Fahrer, Storno */}
+              <LieferdienstExecutiveKpiKommando locationId={locationId ?? null} />
               {/* Schicht-Alarm-Zentrale: Echtzeit-Alerts für SLA-Risiken, Küchen-Rückstau und hängende Lieferungen */}
               <SchichtAlarmZentrale locationId={locationId ?? null} />
 
