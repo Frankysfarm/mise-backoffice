@@ -25,8 +25,8 @@ export default async function ShopSettings() {
   const closed = !!(loc?.geschlossen_bis && new Date(loc.geschlossen_bis) > new Date());
   const online = !closed;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, maxWidth: 1180, alignItems: 'start' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 24, maxWidth: 1180, alignItems: 'start' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
         <DomainManager subdomain={subdomain} customDomain={(t as any)?.custom_domain ?? null} status={domStatus} errorMsg={(t as any)?.custom_domain_error ?? null} serverIp={SERVER_IP} registrarConfigured={registrarConfigured} />
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 24 }}>
           <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Verfügbarkeit</h3>
