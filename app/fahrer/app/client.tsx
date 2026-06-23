@@ -189,6 +189,7 @@ import { TourStoppPrioritaetsNavigator } from './tour-stopp-prioritaets-navigato
 import { TourStoppNavigationsHub } from './tour-stopp-navigations-hub';
 import { FahrerSchichtStatusStrip } from './fahrer-schicht-status-strip';
 import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
+import { TourHeimkehrCountdown } from './tour-heimkehr-countdown';
 
 type Driver = {
   id: string;
@@ -1105,6 +1106,16 @@ export function FahrerApp({
         {activeBatch && (
           <div className="px-4">
             <FahrerStoppTempoAnzeige stops={activeBatch.stops as any} startedAt={activeBatch.started_at ?? null} />
+          </div>
+        )}
+        {/* Phase 461: Heimkehr-Countdown — Verbleibende Zeit bis Tourende mit Fortschrittsbalken */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <div className="px-4">
+            <TourHeimkehrCountdown
+              stops={activeBatch.stops}
+              startedAt={activeBatch.started_at ?? null}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
           </div>
         )}
 

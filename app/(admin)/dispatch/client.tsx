@@ -243,6 +243,7 @@ import { DispatchTourAktuelleUebersicht } from './tour-aktuelle-uebersicht';
 import { DispatchFahrerEtaKommando } from './fahrer-eta-kommando';
 import { DispatchFahrerScorePerformanceHub } from './fahrer-score-performance-hub';
 import { DispatchEchtzeitKommandoZentrale } from './echtzeit-kommando-zentrale';
+import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 
 type Driver = {
   employee_id: string;
@@ -1954,6 +1955,10 @@ export function DispatchBoard({
       <DispatchSchichtScoreBadge locationId={locationFilter !== 'all' ? (locationFilter ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b') : (locations[0]?.id ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b')} />
       {/* Phase 458: Fahrer-Score-Performance-Hub — Echtzeit-Score aller Fahrer mit Sub-Scores + Aktiv-Tour-Info */}
       <DispatchFahrerScorePerformanceHub />
+      {/* Phase 461: GPS-Signal-Alert — Fahrer mit veralteten GPS-Daten (>3 Min) werden hervorgehoben */}
+      {drivers.filter(d => d.aktueller_batch_id !== null).length > 0 && (
+        <DispatchGpsStalenessAlert drivers={drivers as any} />
+      )}
       {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 419: Wartezeit-Dispatch-Board — Pipeline-Funnel, Engpass-Ampel, Fahrer-Abholwartezeit */}

@@ -192,6 +192,7 @@ import { KitchenRushHourHeatmap } from './rush-hour-heatmap';
 import { KitchenSmartKochstartLiveMatrix } from './smart-kochstart-live-matrix';
 import { KitchenOrderKomplexitaetsAmpel } from './order-komplexitaets-ampel';
 import { KitchenSmartFarbkodierungCockpit } from './smart-farbkodierung-cockpit';
+import { KitchenOnTimeQuoteRing } from './on-time-quote-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1839,6 +1840,8 @@ export function KitchenBoard({
       <KitchenSchichtBaselineStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 458: Smart-Farbkodierung-Cockpit — kompaktes Kachel-Raster aller aktiven Bestellungen nach Urgency-Farbe */}
       <KitchenSmartFarbkodierungCockpit orders={filtered} timings={timings} />
+      {/* Phase 461: Pünktlichkeitsquote-Ring — On-Time-Completion-Rate der letzten 60 Min als SVG-Donut */}
+      <KitchenOnTimeQuoteRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

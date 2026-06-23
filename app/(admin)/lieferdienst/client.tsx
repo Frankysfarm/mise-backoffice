@@ -235,6 +235,7 @@ import { LieferdienstExecutiveKpiKommando } from './executive-kpi-kommando';
 import { KapazitaetsPrognosePanel } from './kapazitaets-prognose-panel';
 import { ZoneLiveHeatmapPanel } from './zone-live-heatmap-panel';
 import { LieferdienstTagesKpiCockpit } from './tages-kpi-cockpit';
+import { SchichtTempoVelocity } from './schicht-tempo-velocity';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1463,6 +1464,8 @@ export function LieferdienstClient() {
               <LieferdienstStatsDashboard />
               {/* Phase 458: Tages-KPI-Cockpit — Umsatz, Bestellungen, Abbruchrate, Hourly-Chart, Top-Zonen */}
               <LieferdienstTagesKpiCockpit locationId={locationId} />
+              {/* Phase 461: Schicht-Tempo-Velocity — Bestellungen/Stunde mit 6h-Balkendiagramm + Trend */}
+              <SchichtTempoVelocity locationId={locationId} />
               {/* Phase 425: Stunden-Performance-Matrix — 24h-Bestellverteilung als Heatmap */}
               <StundenPerformanceMatrix locationId={locationId} />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}

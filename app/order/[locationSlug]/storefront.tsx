@@ -57,6 +57,7 @@ import { OrderJourneyTimeline } from './order-journey-timeline';
 import { EtaDynamicLivePanel } from './eta-dynamic-live-panel';
 import { LiveWartezeitRing } from './components/live-wartezeit-ring';
 import { StorefrontLiveWartezeitRing } from './live-wartezeit-ring';
+import { LiveTrackingPulse } from './live-tracking-pulse';
 
 type Props = {
   location: Location;
@@ -481,6 +482,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <StorefrontLiveWartezeitRing
               orderId={orderSuccess.orderId}
               etaMinutes={orderSuccess.eta}
+              locationId={location.id}
+            />
+          </div>
+        )}
+        {/* Phase 461: Live-Tracking-Pulse — animierte 5-Phasen-Timeline mit Supabase-Realtime */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-6 max-w-lg mx-auto">
+            <LiveTrackingPulse
+              orderId={orderSuccess.orderId}
               locationId={location.id}
             />
           </div>
