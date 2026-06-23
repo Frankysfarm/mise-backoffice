@@ -19,12 +19,14 @@ export async function GET(req: NextRequest) {
     .eq('status', 'neu').is('owner_pushed_at', null).gte('created_at', since).limit(50);
   let sent = 0;
   for (const o of (orders ?? []) as any[]) {
-    if (!o.tenant_id) { await svc.from('customer_orders').update({ owner_pushed_at: new Date().toISOString() }).eq('id', o.id); continue; }
+    // Atomar beanspruchen: nur wenn owner_pushed_at noch NULL — verhindert Doppel-Push bei überlappenden Cron-Läufen
+    const { data: claimed } = await svc.from('customer_orders').update({ owner_pushed_at: new Date().toISOString() }).eq('id', o.id).is('owner_pushed_at', null).select('id');
+    if (!claimed || claimed.length === 0) continue; // schon von parallelem Lauf beansprucht
+    if (!o.tenant_id) continue;
     const { data: subs } = await svc.from('owner_push_subscriptions').select('endpoint, p256dh_key, auth_key').eq('tenant_id', o.tenant_id);
     const betrag = Number(o.gesamtbetrag ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 });
     const payload = JSON.stringify({ title: '🛎 Neue Bestellung', body: `#${String(o.bestellnummer ?? '').slice(-5)} · ${betrag} € · ${o.typ === 'abholung' ? 'Abholung' : 'Lieferung'}${o.kunde_name ? ' · ' + o.kunde_name : ''}`, url: '/neo/app/lieferzentrale', tag: `order-${o.id}`, urgent: true });
     await Promise.allSettled((subs ?? []).map((s: any) => webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh_key, auth: s.auth_key } }, payload).catch(() => {})));
-    await svc.from('customer_orders').update({ owner_pushed_at: new Date().toISOString() }).eq('id', o.id);
     sent++;
   }
   return NextResponse.json({ ok: true, pushed: sent });

@@ -34,25 +34,31 @@ export async function createCategory(data: { name: string; icon?: string; sort_o
 }
 
 export async function updateCategory(id: string, data: { name?: string; icon?: string; sort_order?: number; aktiv?: boolean }) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
   const svc = createServiceClient();
-  const { error } = await svc.from('menu_categories').update(data).eq('id', id);
+  const { error } = await svc.from('menu_categories').update(data).eq('id', id).eq('location_id', emp.location_id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/menu');
   return { ok: true };
 }
 
 export async function reorderCategories(ids: string[]) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
   const svc = createServiceClient();
   await Promise.all(
-    ids.map((id, i) => svc.from('menu_categories').update({ sort_order: i }).eq('id', id)),
+    ids.map((id, i) => svc.from('menu_categories').update({ sort_order: i }).eq('id', id).eq('location_id', emp.location_id)),
   );
   revalidatePath('/menu');
   return { ok: true };
 }
 
 export async function deleteCategory(id: string) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
   const svc = createServiceClient();
-  const { error } = await svc.from('menu_categories').delete().eq('id', id);
+  const { error } = await svc.from('menu_categories').delete().eq('id', id).eq('location_id', emp.location_id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/menu');
   return { ok: true };
@@ -112,8 +118,10 @@ export async function updateItem(id: string, data: Partial<{
   verfuegbar: boolean;
   option_groups: any[];
 }>) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
   const svc = createServiceClient();
-  const { error } = await svc.from('menu_items').update(data).eq('id', id);
+  const { error } = await svc.from('menu_items').update(data).eq('id', id).eq('location_id', emp.location_id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/menu');
   return { ok: true };
@@ -135,8 +143,10 @@ export async function applyOptionGroupsToCategory(categoryId: string, option_gro
 }
 
 export async function deleteItem(id: string) {
+  const emp = await getTenantAndLocation();
+  if (!emp?.location_id) return { ok: false, error: 'Kein Standort' };
   const svc = createServiceClient();
-  const { error } = await svc.from('menu_items').delete().eq('id', id);
+  const { error } = await svc.from('menu_items').delete().eq('id', id).eq('location_id', emp.location_id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/menu');
   return { ok: true };

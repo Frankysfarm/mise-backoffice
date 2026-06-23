@@ -42,15 +42,17 @@ export async function GET(req: NextRequest) {
 
     // Wenn Stripe fertig: Online-Zahlung automatisch für alle Order-Typen aktivieren
     if (acc.charges_enabled) {
+      // upsert statt update: Neukunde, der die Online-Zahlung nie manuell antippte, hat noch keine stripe-Zeile
       await svc
         .from('tenant_payment_methods')
-        .update({
+        .upsert({
+          tenant_id: employee.tenant_id,
+          method: 'stripe',
+          label: 'Online-Zahlung',
           enabled_lieferung: true,
           enabled_abholung: true,
           enabled_vor_ort: false,
-        })
-        .eq('tenant_id', employee.tenant_id)
-        .eq('method', 'stripe');
+        }, { onConflict: 'tenant_id,method' });
     }
   }
 

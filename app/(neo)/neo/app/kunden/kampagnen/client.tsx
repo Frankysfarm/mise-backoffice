@@ -16,7 +16,9 @@ const AUDIENCES: { id: keyof Counts; label: string; desc: string }[] = [
 const STATUS_C: Record<string, { c: string; b: string; t: string }> = {
   entwurf: { c: '#64748B', b: '#F1F5F9', t: 'Entwurf' },
   versendet: { c: '#047857', b: '#ECFDF5', t: 'Versendet' },
+  gesendet: { c: '#047857', b: '#ECFDF5', t: 'Versendet' }, // send-route schreibt 'gesendet'
   sendet: { c: '#B45309', b: '#FEF3C7', t: 'Wird gesendet' },
+  versand: { c: '#B45309', b: '#FEF3C7', t: 'Wird gesendet' }, // send-route Zwischenstatus
   fehler: { c: '#DC2626', b: '#FEF2F2', t: 'Fehler' },
 };
 

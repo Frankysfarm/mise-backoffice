@@ -15,7 +15,7 @@ export default async function Buchhaltung() {
   const [{ data: items }, { data: orders }, { data: belege }] = await Promise.all([
     sb.from('order_items').select('gesamtpreis, mwst_satz, order:customer_orders!inner(tenant_id, status, created_at)').eq('order.tenant_id', emp?.tenant_id ?? '').gte('order.created_at', since).neq('order.status', 'storniert').limit(5000),
     sb.from('customer_orders').select('bestellnummer, created_at, gesamtbetrag, zahlungsart, status, bezahlt').eq('tenant_id', emp?.tenant_id ?? '').gte('created_at', since).order('created_at', { ascending: false }).limit(20),
-    sb.from('belege').select('id, datum, haendler, rechnungsnummer, zahlungsart, betrag_brutto, mwst_satz, mwst_betrag, netto, kategorie, status, beleg_url').eq('tenant_id', emp?.tenant_id ?? '').gte('datum', sinceDate).order('datum', { ascending: false }).limit(500),
+    sb.from('belege').select('id, datum, haendler, rechnungsnummer, zahlungsart, betrag_brutto, mwst_satz, mwst_betrag, netto, kategorie, status, beleg_url').eq('tenant_id', emp?.tenant_id ?? '').or(`datum.gte.${sinceDate},datum.is.null`).order('datum', { ascending: false, nullsFirst: false }).limit(500),
   ]);
   const [{ data: banktx }, { data: belegLinks }] = await Promise.all([
     sb.from('bank_transactions').select('id, buchungstag, betrag, richtung, verwendungszweck, gegenpartei, beleg_id, matched_auto').eq('tenant_id', emp?.tenant_id ?? '').order('buchungstag', { ascending: false }).limit(300),
@@ -39,7 +39,8 @@ export default async function Buchhaltung() {
   const gewinn = netto - (ausgabenBrutto - vorsteuer);
   const warnings: { level: 'rot' | 'gelb'; text: string }[] = [];
   // Fehlende Belege: Konto-Ausgabe ohne zugeordneten Beleg
-  const fehlBel = tx.filter((t) => t.richtung === 'ausgabe' && !t.beleg_id);
+  // nur Ausgaben des aktuellen Monats ohne Beleg (konsistent mit der Monats-GuV)
+  const fehlBel = tx.filter((t) => t.richtung === 'ausgabe' && !t.beleg_id && (!t.buchungstag || t.buchungstag >= sinceDate));
   if (fehlBel.length) warnings.push({ level: 'rot', text: `${fehlBel.length} Konto-Ausgabe(n) ohne Beleg (${eur(fehlBel.reduce((s, t) => s + Number(t.betrag || 0), 0))}) — Beleg scannen oder zuordnen.` });
   // Doppelte Buchung: gleicher Händler + Betrag + Datum
   const seen = new Map<string, number>();
