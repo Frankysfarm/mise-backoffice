@@ -30,10 +30,18 @@
 - Frontend (`kitchen-kapazitaets-config.tsx`): Collapsible Card, Range-Slider 1–30, Alert-Vorschau, Zeitstempel ✅
 - Integration: `kitchen/client.tsx` Zeile 205+1874 korrekt ✅
 
+### Phase 485–489 Frontend (commit 0a4ac9e, während Review gemergt)
+- **KitchenSchichtWochenStats** (`kitchen/schicht-wochen-stats.tsx`): Heute vs. Ø 7 Tage, Trend-Pfeile. Integration: `kitchen/client.tsx:663` ✅
+- **DispatchZonenbilanzKarte** (`dispatch/zonen-bilanz-karte.tsx`): Beste/schlechteste Zone, Score + Balken-Viz. Integration: `dispatch/client.tsx:1232` ✅
+- **FahrerTrinkgeldPrognose** (`fahrer/app/fahrer-trinkgeld-prognose.tsx`): Trinkgeld-Schätzung je Tour (1,20€/Stopp). Integration: `fahrer/app/client.tsx:1425` ✅
+- **BestellTeilenWidget** (`order/[locationSlug]/bestell-teilen-widget.tsx`): WhatsApp/Native/Copy-Link. Integration: `storefront.tsx:635` ✅
+- **SchichtFahrerEinnahmenRanking** (`lieferdienst/schicht-fahrer-einnahmen-ranking.tsx`): Top-5 Fahrer nach Umsatz. Integration: `lieferdienst/client.tsx:1484` ✅
+
 ### System-Synchronisation
 - BewertungsWidget erscheint nach Lieferung in Storefront ✅
 - Batch-Reassign in Dispatch-Recovery-Panel integriert ✅
 - Küchen-Kapazitäts-Threshold über Config-Panel einstellbar ✅
+- 5 neue Analyse-Komponenten (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst) integriert ✅
 
 ---
 
