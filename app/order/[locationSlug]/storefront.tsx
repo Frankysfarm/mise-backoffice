@@ -54,6 +54,7 @@ import { EtaLiveFortschrittBanner } from './eta-live-fortschritt-banner';
 import { BestellPhasenBanner } from './bestell-phasen-banner';
 import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
 import { OrderJourneyTimeline } from './order-journey-timeline';
+import { EtaDynamicLivePanel } from './eta-dynamic-live-panel';
 
 type Props = {
   location: Location;
@@ -440,15 +441,27 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   /* ---------------- success screen ---------------- */
   if (orderSuccess) {
     return (
-      <SuccessState
-        bestellnummer={orderSuccess.bestellnummer}
-        name={orderSuccess.name}
-        etaMinutes={orderSuccess.eta}
-        isDelivery={orderSuccess.type === 'lieferung'}
-        onNewOrder={() => setOrderSuccess(null)}
-        orderId={orderSuccess.orderId}
-        cartItems={orderSuccess.items}
-      />
+      <div>
+        <SuccessState
+          bestellnummer={orderSuccess.bestellnummer}
+          name={orderSuccess.name}
+          etaMinutes={orderSuccess.eta}
+          isDelivery={orderSuccess.type === 'lieferung'}
+          onNewOrder={() => setOrderSuccess(null)}
+          orderId={orderSuccess.orderId}
+          cartItems={orderSuccess.items}
+        />
+        {/* Phase 458: Dynamische ETA-Anzeige mit Live-Fahrer-Status */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-6 max-w-lg mx-auto">
+            <EtaDynamicLivePanel
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              bestellnummer={orderSuccess.bestellnummer}
+            />
+          </div>
+        )}
+      </div>
     );
   }
 

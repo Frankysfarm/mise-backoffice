@@ -188,6 +188,7 @@ import { TourKompletierungsPrognose } from './tour-kompletierungs-prognose';
 import { TourStoppPrioritaetsNavigator } from './tour-stopp-prioritaets-navigator';
 import { TourStoppNavigationsHub } from './tour-stopp-navigations-hub';
 import { FahrerSchichtStatusStrip } from './fahrer-schicht-status-strip';
+import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
 
 type Driver = {
   id: string;
@@ -1074,6 +1075,32 @@ export function FahrerApp({
             <TourStoppFortschrittsLeiste stops={activeBatch.stops as any} onMarkDelivered={markDelivered} onMarkArrived={markArrived} />
           </div>
         )}
+        {/* Phase 458: Tour-Stopp-Fokus-Hub — Hero-Kachel für aktuellen Stop mit Navigation + alle Stops im Strip */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (() => {
+          const pendingStops = activeBatch.stops.filter(s => !s.geliefert_am);
+          const currentStopIndex = activeBatch.stops.findIndex(s => !s.geliefert_am);
+          const mappedStops = activeBatch.stops.map(s => ({
+            id: s.id,
+            sequence: s.reihenfolge,
+            status: s.geliefert_am ? 'delivered' as const : s.angekommen_am ? 'arrived' as const : 'pending' as const,
+            address: [s.order.kunde_adresse, s.order.kunde_plz].filter(Boolean).join(', '),
+            customer_name: s.order.kunde_name,
+            order_id: s.order_id,
+            bestellnummer: s.order.bestellnummer,
+            lat: s.order.kunde_lat,
+            lng: s.order.kunde_lng,
+          }));
+          if (pendingStops.length === 0) return null;
+          return (
+            <div className="px-4">
+              <TourStoppFokusHub
+                stops={mappedStops}
+                currentStopIndex={currentStopIndex >= 0 ? currentStopIndex : 0}
+                onMarkDelivered={markDelivered}
+              />
+            </div>
+          );
+        })()}
         {/* Phase 435: Stopp-Tempo-Anzeige — Live-Ring: Stopps/Stunde Ist vs. Soll mit Farbampel */}
         {activeBatch && (
           <div className="px-4">

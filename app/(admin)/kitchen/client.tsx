@@ -191,6 +191,7 @@ import { KochstartKommandozentrale } from './kochstart-kommandozentrale';
 import { KitchenRushHourHeatmap } from './rush-hour-heatmap';
 import { KitchenSmartKochstartLiveMatrix } from './smart-kochstart-live-matrix';
 import { KitchenOrderKomplexitaetsAmpel } from './order-komplexitaets-ampel';
+import { KitchenSmartFarbkodierungCockpit } from './smart-farbkodierung-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1836,6 +1837,8 @@ export function KitchenBoard({
       <KitchenSchichtItemRanking orders={filtered} />
       {/* Phase 412: Schicht-Baseline-Strip — Komposit-Score + isOnTrack vs. 6-Wochen-Baseline */}
       <KitchenSchichtBaselineStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 458: Smart-Farbkodierung-Cockpit — kompaktes Kachel-Raster aller aktiven Bestellungen nach Urgency-Farbe */}
+      <KitchenSmartFarbkodierungCockpit orders={filtered} timings={timings} />
     </div>
   );
 }

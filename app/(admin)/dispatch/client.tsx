@@ -241,6 +241,7 @@ import { DispatchTourAbschlussPrognose } from './tour-abschluss-prognose';
 import { DispatchFahrerTagesBilanz } from './fahrer-tages-bilanz';
 import { DispatchTourAktuelleUebersicht } from './tour-aktuelle-uebersicht';
 import { DispatchFahrerEtaKommando } from './fahrer-eta-kommando';
+import { DispatchFahrerScorePerformanceHub } from './fahrer-score-performance-hub';
 
 type Driver = {
   employee_id: string;
@@ -1942,6 +1943,8 @@ export function DispatchBoard({
       <DispatchLiveKapazitaetsAlert orders={filteredOrders} drivers={drivers} />
       {/* Phase 412: Schicht-Score-Badge — Komposit-Score vs. 6-Wochen-Baseline + Pünktlichkeits-Delta */}
       <DispatchSchichtScoreBadge locationId={locationFilter !== 'all' ? (locationFilter ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b') : (locations[0]?.id ?? 'bb01ae0a-da47-48b1-b986-3a1201aacc4b')} />
+      {/* Phase 458: Fahrer-Score-Performance-Hub — Echtzeit-Score aller Fahrer mit Sub-Scores + Aktiv-Tour-Info */}
+      <DispatchFahrerScorePerformanceHub />
       {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 419: Wartezeit-Dispatch-Board — Pipeline-Funnel, Engpass-Ampel, Fahrer-Abholwartezeit */}
