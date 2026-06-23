@@ -39,6 +39,7 @@ import {
   Megaphone,
   X,
   RotateCcw,
+  ArrowRightLeft,
   CheckCircle2,
   XCircle,
   Trash2,
@@ -257,6 +258,7 @@ import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
 import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets-matrix';
 import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
+import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 
 type Driver = {
   employee_id: string;
@@ -374,6 +376,9 @@ export function DispatchBoard({
     id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null;
   }[]>([]);
   const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
+
+  // Phase 484: Batch-Reassign-Dialog
+  const [reassignBatch, setReassignBatch] = useState<{ id: string; driverId: string | null; driverName: string } | null>(null);
 
   // KI-Dispatch-Assistent
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
@@ -2016,6 +2021,24 @@ export function DispatchBoard({
       <DispatchFahrerZonenAffinitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 481: Fahrer-Rückkehr-Prognose — Live-Kacheln: wann kommt welcher Fahrer zurück + Restkapazität */}
       <DispatchFahrerRueckkehrPrognosePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
+      <DispatchBatchReassignDialog
+        open={!!reassignBatch}
+        onClose={() => setReassignBatch(null)}
+        batchId={reassignBatch?.id ?? null}
+        currentDriverId={reassignBatch?.driverId ?? null}
+        currentDriverName={reassignBatch?.driverName}
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
+        onReassigned={(newDriverId, newDriverName) => {
+          setBatches((prev) => prev.map((b) =>
+            b.id === reassignBatch?.id
+              ? { ...b, fahrer_id: newDriverId, fahrer: { vorname: newDriverName, nachname: '' } }
+              : b,
+          ));
+          setReassignBatch(null);
+        }}
+      />
       {/* Phase 479: Tour-Nächste-Stopp-Matrix — Alle aktiven Touren mit nächstem Stopp + ETA-Ampel */}
       <DispatchTourNaechsteStoppMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 465: Benchmark-Verlauf-Chart — 28-Tage Trend je Metrik als Liniendiagramm */}
@@ -2059,6 +2082,7 @@ export function DispatchBoard({
         recoveryEvents={recoveryEvents}
         recoveryPending={recoveryPending}
         onRecover={triggerRecovery}
+        onReassign={(batchId, driverId, driverName) => setReassignBatch({ id: batchId, driverId, driverName })}
       />
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
@@ -7188,11 +7212,13 @@ function RecoveryPanel({
   recoveryEvents,
   recoveryPending,
   onRecover,
+  onReassign,
 }: {
   batches: Batch[];
   recoveryEvents: { id: string; batch_id: string; triggered_at: string; recovery_type: string; success: boolean; error_message: string | null }[];
   recoveryPending: string | null;
   onRecover: (batchId: string) => void;
+  onReassign?: (batchId: string, driverId: string | null, driverName: string) => void;
 }) {
   const [showHistory, setShowHistory] = useState(false);
   const recoverableBatches = batches.filter((b) => RECOVERABLE_STATUSES.includes(b.status));
@@ -7239,14 +7265,23 @@ function RecoveryPanel({
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => onRecover(b.id)}
-                  disabled={isBusy || recoveryPending !== null}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50 transition shrink-0"
-                >
-                  {isBusy ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
-                  Wiederherstellen
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={() => onRecover(b.id)}
+                    disabled={isBusy || recoveryPending !== null}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50 transition"
+                  >
+                    {isBusy ? <Loader2 size={11} className="animate-spin" /> : <RotateCcw size={11} />}
+                    Wiederherstellen
+                  </button>
+                  <button
+                    onClick={() => onReassign?.(b.id, b.fahrer_id ?? null, driverName ?? 'Unbekannt')}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-matcha-300 bg-matcha-50 px-3 py-1.5 text-xs font-bold text-matcha-800 hover:bg-matcha-100 transition"
+                  >
+                    <ArrowRightLeft size={11} />
+                    Neu besetzen
+                  </button>
+                </div>
               </div>
             );
           })}

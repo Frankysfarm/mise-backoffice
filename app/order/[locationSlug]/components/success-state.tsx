@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { ArrowRight, Check, ChefHat, ChevronDown, ChevronUp, Copy, Package, Share2, ShoppingBag, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { PostDeliveryRating } from './post-delivery-rating';
+import { BewertungsWidgetStorefront } from '../bewertungs-widget-storefront';
 import { EtaTrackerCard } from './eta-tracker-card';
 import { FahrerNaehePuls } from './fahrer-naehe-puls';
 import { BestellungStatusBand } from './bestellung-status-band';
@@ -1114,6 +1115,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         {cartItems && cartItems.length > 0 && (
           <LoyaltyPunkteWidget
             orderTotal={cartItems.reduce((s, c) => s + (c.item.preis + (c.extra_preis ?? 0)) * c.qty, 0)}
+            className="mt-4 w-full"
+          />
+        )}
+
+        {/* Phase 483: Bewertungs-Widget Storefront — Inline 5-Sterne nach Lieferung */}
+        {orderId && liveStatus === 'geliefert' && !ratingSubmitted && (
+          <BewertungsWidgetStorefront
+            orderId={orderId}
+            triggered
             className="mt-4 w-full"
           />
         )}

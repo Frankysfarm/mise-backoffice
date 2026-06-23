@@ -1,9 +1,102 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–482 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–485 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #260 (2026-06-23): Phase 480–482 + Frontend Smart-Timing/Tour-Sequenz/Stop-Kommando/Live-Tracking geprüft — 0 Bugs. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 480–482 — Fahrer-Zonen-Affinität-Matrix, Fahrer-Rückkehr-Prognose, Küchen-Kapazitäts-Alert. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 483–485 — Bewertungs-Widget, Batch-Reassign, Küchen-Config (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 483 Backend — Rating-Request-Trigger-API
+
+**`app/api/delivery/admin/rating-request-trigger/route.ts`:**
+- POST `{ order_id, location_id? }` → `{ ok, ratingUrl, token }`
+- Generiert/holt Rating-Token via `generateRatingToken` aus satisfaction.ts
+- Feuert `rating_request` Customer-Notify-Event mit ratingUrl + token in metadata
+- Validierung: order_id pflicht, location_id aus Order falls nicht übergeben
+- Auth: eingeloggte Admin-User via createClient
+
+### Phase 483 Frontend — BewertungsWidgetStorefront
+
+**`app/order/[locationSlug]/bewertungs-widget-storefront.tsx`** — `BewertungsWidgetStorefront`:
+- Inline 5-Sterne-Bewertungs-Widget für die Bestellbestätigung
+- Nutzt POST /api/delivery/customer/rating (Phase 478 API)
+- Props: orderId, ratingToken?, triggered, className
+- Quick-Tags: Schnell / Heiß & frisch / Freundlich / Vollständig
+- Animiertes Danke-Widget (CheckCircle2 + fade-in) nach Absenden
+- Star-Hover mit Label-Anzeige (Leider enttäuscht → Ausgezeichnet!)
+- Integration: `success-state.tsx` nach LoyaltyPunkteWidget — zeigt wenn liveStatus=geliefert && !ratingSubmitted ✅
+
+### Phase 484 Backend — Batch-Reassign-API
+
+**`app/api/delivery/admin/batch-reassign/route.ts`:**
+- POST `{ batch_id, new_driver_id, location_id? }` → Batch neubesetzen
+  - Validiert Batch-Status (nicht completed/cancelled)
+  - Prüft neuer Fahrer aktiv (mise_drivers.active=true)
+  - Update mise_delivery_batches.driver_id + mise_delivery_batch_stops (pending Stops)
+  - Update mise_drivers.mise_batch_id: alt=null, neu=batch_id
+  - Push-Benachrichtigung an alten + neuen Fahrer via enqueueTourStatusPush (type=tour_updated)
+  - Multi-Tenant: location_id aus Batch falls nicht übergeben
+- GET `?location_id=...` → verfügbare Fahrer mit name/vehicle/state/hasActiveBatch/rating/totalDeliveries
+
+### Phase 484 Frontend — DispatchBatchReassignDialog
+
+**`app/(admin)/dispatch/batch-reassign-dialog.tsx`** — `DispatchBatchReassignDialog`:
+- Dialog/Modal für Tour-Neubesetzung
+- Lädt verfügbare Fahrer via GET /api/delivery/admin/batch-reassign
+- Fahrer-Liste: Name + Frei/Aktive-Tour-Badge + Stern-Rating + Lieferanzahl + Fahrzeug-Icon (Bike/Car)
+- Ausgewählter Fahrer: matcha-Ring + UserCheck Icon
+- Bestätigen-Button: zeigt Namen des gewählten Fahrers
+- Danke-Bestätigung nach Reassign (1.5s auto-close)
+- Integration: dispatch/client.tsx
+  - Import hinzugefügt
+  - State `reassignBatch` + Setter
+  - RecoveryPanel erhält `onReassign` Prop → "Neu besetzen" Button neben "Wiederherstellen"
+  - ArrowRightLeft aus lucide-react importiert
+  - DispatchBatchReassignDialog nach DispatchFahrerRueckkehrPrognosePanel ✅
+
+### Phase 485 Backend — Küchen-Kapazitäts-Config-API
+
+**`app/api/delivery/admin/kitchen-capacity-config/route.ts`:**
+- GET `?location_id=...` → `{ key, value, isCustom, default: 8, updatedAt }`
+  - Liest `delivery_config` (key=kitchen_max_concurrent_orders), Default: 8
+- PATCH `{ location_id, value }` → Upsert in delivery_config (onConflict: location_id,key)
+  - Validierung: value 1–100
+- DELETE `?location_id=...` → Löscht Custom-Eintrag, Default wird aktiv
+
+### Phase 485 Frontend — KitchenKapazitaetsConfig
+
+**`app/(admin)/kitchen/kitchen-kapazitaets-config.tsx`** — `KitchenKapazitaetsConfig`:
+- Collapsible Card (Settings-Icon + aktueller Wert im Header)
+- Zeigt aktuellen Schwellwert: Zahl-Input + Range-Slider (1–30 visuell)
+- Alert-Vorschau: OK-Bereich / Warnung / Kritisch mit berechneten Grenzen
+- Speichern (PATCH) + Zurücksetzen auf Standard (DELETE, nur wenn isCustom)
+- Zuletzt-geändert Zeitstempel
+- Integration: kitchen/client.tsx nach KitchenKapazitaetsAlert ✅
+
+### Integrations-Checkliste Phase 483–485
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| BewertungsWidgetStorefront | order/[locationSlug]/bewertungs-widget-storefront.tsx | success-state.tsx nach LoyaltyPunkteWidget | ✅ |
+| DispatchBatchReassignDialog | dispatch/batch-reassign-dialog.tsx | dispatch/client.tsx + RecoveryPanel | ✅ |
+| KitchenKapazitaetsConfig | kitchen/kitchen-kapazitaets-config.tsx | kitchen/client.tsx nach KapazitaetsAlert | ✅ |
+| rating-request-trigger API | app/api/delivery/admin/rating-request-trigger/route.ts | Neu | ✅ |
+| batch-reassign API | app/api/delivery/admin/batch-reassign/route.ts | Neu (POST+GET) | ✅ |
+| kitchen-capacity-config API | app/api/delivery/admin/kitchen-capacity-config/route.ts | Neu (GET+PATCH+DELETE) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 486 Backend:** Storefront-Tracking-Token-Refresh — POST /api/delivery/customer/refresh-tracking: Erneuert abgelaufenen Tracking-Link für eine Bestellnummer. Für Kunden die den Link verloren haben.
+2. **Phase 486 Frontend:** TrackingLinkRefreshWidget — Button "Tracking-Link erneut senden" in paid-page wenn Bestellung noch aktiv ist (Status ≠ geliefert). Sendet Rating-Request-Trigger gleichzeitig.
+3. **Phase 487 Backend:** Dispatch-Prioritäts-Override — POST /api/delivery/admin/order-priority-override: Setzt order_priority manuell (hoch/mittel/niedrig) + optional Notiz. Überschreibt Score-Berechnung für diese Bestellung.
+4. **Phase 487 Frontend:** DispatchOrderPriorityBadge — Clickable Priority-Badge auf Bestellungen in der Dispatch-Queue. Opens inline Dropdown (hoch/mittel/niedrig) + Notiz-Feld.
+5. **Phase 488 Backend:** Driver-Availability-Signal-API — GET/POST /api/delivery/admin/driver-availability: Fahrer signalisiert Verfügbarkeit / Pause / Ende. Schreibt driver_availability_log + update state in mise_drivers.
 
 ---
 

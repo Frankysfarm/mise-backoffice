@@ -202,6 +202,7 @@ import { KitchenBestellEingangsTicker } from './bestell-eingangs-ticker';
 import { KitchenFahrerKochStartSync } from './fahrer-kochstart-sync';
 import { KitchenKapazitaetsAlert } from './kitchen-capacity-alert';
 import { KitchenKochstartEntscheidung } from './kitchen-kochstart-entscheidung';
+import { KitchenKapazitaetsConfig } from './kitchen-kapazitaets-config';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1869,6 +1870,8 @@ export function KitchenBoard({
       <KitchenFahrerKochStartSync locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 482: Küchen-Kapazitäts-Alert — Warnung wenn >Schwellwert Bestellungen gleichzeitig in Zubereitung */}
       <KitchenKapazitaetsAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 485: Küchen-Kapazitäts-Config — Schwellwert für kitchen_max_concurrent_orders konfigurieren */}
+      <KitchenKapazitaetsConfig locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
