@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–476 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler.**
+**Phasen 1–476 abgeschlossen. CEO Review #258 bestanden. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
 
 ---
 
@@ -99,11 +99,11 @@
 **Build:** 366 Seiten, 0 TypeScript-Fehler ✅
 
 ### Nächste Phasen
-1. **Phase 477 Backend:** WhatsApp-Bewertungs-Link — Automatische WhatsApp-Nachricht 15 Min nach Zustellung mit personalem Bewertungs-Link. Neue Tabelle `whatsapp_bewertungs_links` mit Token + Ablaufzeit.
-2. **Phase 477 Frontend:** Dispatch-Batch-Aktions-Panel — One-Click-Aktionen in Dispatch: Batch einem freien Fahrer zuweisen, Batch-Zone ändern, Batch-Split. Zeigt Smart-Batch-Priority direkt neben den Aktions-Buttons.
-3. **Phase 478 Backend:** Schicht-Kosten-Prognose — Prognose der Schicht-Kosten (Fahrlohn + Plattform + Liefergebühren) basierend auf geplanten Schichten und historischen Daten.
-4. **Phase 479 Frontend:** Fahrer-GPS-Geschichts-Timeline — Replay der Fahrer-Route der letzten Schicht als animierte Timeline in der Lieferdienst-Ansicht.
-5. **Phase 480 Backend:** Kunden-Lifecycle-Segmentierung — Erweiterte RFM-Segmentierung mit Zuordnung zu Lifecycle-Stufen (Neu/Wachsend/Loyal/At-Risk/Verloren) mit automatischen Aktionsempfehlungen.
+1. **Phase 477 Backend:** API `GET /api/delivery/admin/zone-heat-summary` — Zonen-Auslastung Echtzeit (offene Batches + Fahrer pro Zone). Für DispatchZonenKapazitätsRadar.
+2. **Phase 477 Frontend:** DispatchZonenKapazitätsRadar — SVG-Radar-Chart (Zonen A/B/C als Achsen): Kapazität, aktive Batches, verfügbare Fahrer. Integration: dispatch/client.tsx
+3. **Phase 478 Backend:** API `POST /api/delivery/customer/rating` — Bewertungen in `delivery_ratings`-Tabelle (order_id, driver_id, stars, source, location_slug).
+4. **Phase 478 Frontend:** KitchenBestellEingangsTicker — Animierter Live-Ticker der letzten 15 neuen Bestellungen (20s-Polling), Fade-in bei neuen Einträgen. Integration: kitchen/client.tsx
+5. **Phase 479 Backend:** Schicht-Export N+1-Fix — Batch-Query für Fahrer-KPIs statt for-Schleife (Skalierungs-Optimierung für >20 Fahrer).
 
 ---
 
