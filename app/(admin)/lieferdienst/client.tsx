@@ -225,6 +225,8 @@ import { FahrerVerfuegbarkeitsKalender } from './fahrer-verfuegbarkeits-kalender
 import { LieferdienstTagesKpiExecutive } from './tages-kpi-executive';
 import { NachbestellungsPanel } from './nachbestellungs-panel';
 import { KundenbindungsRadar } from './kundenbindungs-radar';
+import { WiederkaufPrognosenPanel } from './wiederkauf-prognosen-panel';
+import { EinnahmenTrichterPanel } from './einnahmen-trichter-panel';
 import { SchichtLiveBilanz } from './schicht-live-bilanz';
 import { StundenPerformanceMatrix } from './stunden-performance-matrix';
 
@@ -1437,6 +1439,10 @@ export function LieferdienstClient() {
               <NachbestellungsPanel locationId={locationId ?? null} />
               {/* Phase 437: Kundenbindungs-Radar — Segmentierung champion/loyal/at_risk/lost + Top-10 + Risiko-Liste */}
               <KundenbindungsRadar locationId={locationId ?? null} />
+              {/* Phase 438: Wiederkauf-Prognosen — p30/p60/p90 Wiederkaufwahrscheinlichkeit je Kunde */}
+              <WiederkaufPrognosenPanel locationId={locationId ?? null} />
+              {/* Phase 439: Einnahmen-Trichter — Konversionsanalyse Eingegangen→Küche→Unterwegs→Geliefert */}
+              <EinnahmenTrichterPanel locationId={locationId ?? null} />
               {/* Schicht-Live-Bilanz — Kompaktes Echtzeit-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) */}
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
