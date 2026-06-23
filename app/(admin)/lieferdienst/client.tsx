@@ -245,6 +245,7 @@ import { SchichtExport } from './schicht-export';
 import { SchichtAbschlussBericht } from './schicht-abschluss-bericht-generator';
 import { SchichtKpiErweitert } from './schicht-kpi-erweitert';
 import { LieferdienstKennzahlenHub } from './kennzahlen-hub';
+import { SchichtFahrerEinnahmenRanking } from './schicht-fahrer-einnahmen-ranking';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1479,6 +1480,8 @@ export function LieferdienstClient() {
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}
+              <SchichtFahrerEinnahmenRanking locationId={locationId} />
               {/* Phase 480: Kennzahlen-Hub — Echtzeit-KPIs: Umsatz, Bestellungen, Lieferquote, Fahrer, Stundenverteilung */}
               <LieferdienstKennzahlenHub locationId={locationId} />
               {/* Phase 476: Schicht-Abschluss-Bericht-Generator — KPI-Bericht mit Vorwochenvergleich + CSV-Export */}

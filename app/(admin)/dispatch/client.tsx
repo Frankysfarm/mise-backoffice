@@ -259,6 +259,7 @@ import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets
 import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
+import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
 
 type Driver = {
   employee_id: string;
@@ -1227,6 +1228,8 @@ export function DispatchBoard({
       <DispatchFahrerWochenScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 441: Tour-Abschluss-Prognose — Verbleibende Stopps × Ø-Zeit → voraussichtliches Tourende je Fahrer, Alert bei Verspätung */}
       <DispatchTourAbschlussPrognose batches={batches as any} />
+      {/* Phase 486: Zonen-Bilanz-Karte — Beste vs. schlechteste Lieferzone heute (Ø-Zeit, Pünktlichkeit, Score) */}
+      <DispatchZonenbilanzKarte locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 443: Fahrer-Tages-Bilanz — Heutige Performance-Rangliste aller Fahrer (Touren, Pünktlichkeit, Einnahmen) */}
       <DispatchFahrerTagesBilanz locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Tour-Effizienz-Radar — Multi-dimensionaler Fahrer-Performance-Radar (Pünktlichkeit, Auslastung, Strecke, Zonen) */}

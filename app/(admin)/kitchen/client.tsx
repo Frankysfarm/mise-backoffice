@@ -203,6 +203,7 @@ import { KitchenFahrerKochStartSync } from './fahrer-kochstart-sync';
 import { KitchenKapazitaetsAlert } from './kitchen-capacity-alert';
 import { KitchenKochstartEntscheidung } from './kitchen-kochstart-entscheidung';
 import { KitchenKapazitaetsConfig } from './kitchen-kapazitaets-config';
+import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -658,6 +659,8 @@ export function KitchenBoard({
       <KitchenUrgencyTicker orders={filtered} />
       {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
+      {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}
+      <KitchenSchichtWochenStats orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}

@@ -68,6 +68,7 @@ import { BestellungEtaStatusRing } from './bestellung-eta-status-ring';
 import { LiveDriverTracker } from './live-driver-tracker';
 import { EtaLiveRing } from './eta-live-ring';
 import { FahrerAnkunftsCountdown } from './fahrer-ankunfts-countdown';
+import { BestellTeilenWidget } from './bestell-teilen-widget';
 import { BestellungEchtzeitCountdown } from './bestellung-echtzeit-countdown';
 import { EtaConfidenceCard } from './eta-confidence-card';
 import { VerzoegerungsInfoBanner } from './verzoegerungs-info-banner';
@@ -625,6 +626,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <FahrerAnkunftsCountdown
               etaMin={orderSuccess.eta}
               status="bestätigt"
+            />
+          </div>
+        )}
+        {/* Phase 488: Bestellung teilen — WhatsApp + Native Share + Copy-Link zum Tracking */}
+        {orderSuccess.bestellnummer && (
+          <div className="px-4 pb-6 max-w-lg mx-auto">
+            <BestellTeilenWidget
+              bestellnummer={orderSuccess.bestellnummer}
+              locationSlug={location.id}
             />
           </div>
         )}

@@ -200,6 +200,7 @@ import { OfflineSyncManager } from './offline-sync-manager';
 import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
 import { TourStoppOptimierung } from './tour-stopp-optimierung';
 import { TourStopKommando } from './tour-stop-kommando';
+import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
 
 type Driver = {
   id: string;
@@ -1420,6 +1421,11 @@ export function FahrerApp({
           <div className="px-4 mt-3">
             <TourStoppListe stops={activeBatch.stops as any} />
           </div>
+          {/* Phase 487: Trinkgeld-Prognose — Geschätzte Trinkgelder dieser Tour (abgeschl. + verbleib. Stops × Ø-Rate) */}
+          <FahrerTrinkgeldPrognose
+            completedStops={activeBatch.stops.filter((s) => !!s.geliefert_am).length}
+            remainingStops={activeBatch.stops.filter((s) => !s.geliefert_am).length}
+          />
           {/* Phase 380: Schicht-Pacing-Guide — Tempo-Anzeige: Voraus/Im Plan/Rückstand basierend auf Stopps/h */}
           <div className="px-4 mt-3">
             <FahrerSchichtPacingGuide
