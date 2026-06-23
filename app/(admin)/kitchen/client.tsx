@@ -186,6 +186,7 @@ import { KitchenSchichtTempoAmpel } from './schicht-tempo-ampel';
 import { KitchenKochstartSequenzBoard } from './kochstart-sequenz-board';
 import { FahrerPickupEtaAnzeige } from './fahrer-pickup-eta-anzeige';
 import { KitchenPrepZielAmpel } from './prep-ziel-ampel';
+import { KochstartKommandozentrale } from './kochstart-kommandozentrale';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -768,6 +769,16 @@ export function KitchenBoard({
       <KitchenBestellungsFlowAmpel orders={filtered} />
       {/* Kochstart-Sequenz-Board — Optimaler Kochstart-Plan je Bestellung mit Phasen-Ampel und Batch-ETA */}
       <KitchenKochstartSequenzBoard orders={filtered} batches={batches} />
+      {/* Kochstart-Kommandozentrale — Unified: Countdown-Ring + Farbkodierung + Jetzt-starten-Aktionen */}
+      <KochstartKommandozentrale
+        orders={filtered}
+        timings={timings}
+        batches={batches}
+        stops={stops}
+        drivers={drivers}
+        onStartCooking={(id) => startCookingNow(id)}
+        onMarkReady={(id) => markTimingReady(id)}
+      />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
