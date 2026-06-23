@@ -205,6 +205,7 @@ import { KitchenKochstartEntscheidung } from './kitchen-kochstart-entscheidung';
 import { KitchenKapazitaetsConfig } from './kitchen-kapazitaets-config';
 import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
 import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
+import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -658,6 +659,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Schicht-Endstand: Kumulierte Schicht-KPIs (Pünktlichkeit, ø Prep-Zeit, Storno-Rate) */}
+      <KitchenSchichtEndstand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}

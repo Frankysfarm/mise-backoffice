@@ -202,6 +202,7 @@ import { TourStoppOptimierung } from './tour-stopp-optimierung';
 import { TourStopKommando } from './tour-stop-kommando';
 import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
 import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
+import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
 
 type Driver = {
   id: string;
@@ -794,6 +795,10 @@ export function FahrerApp({
         <FahrerOfflineSyncBanner />
         {/* Phase 474b: Offline-Sync-Manager — Lokale Queue + Auto-Sync + Retry-Logik */}
         <OfflineSyncManager />
+        {/* Tour-Stopp-Sofort-Kommando: Fokus-Karte für den aktuellen Stopp mit 1-Tap Navigation und Anruf */}
+        {activeBatch && (
+          <TourStoppSofortKommando batch={activeBatch} />
+        )}
         {/* Phase 474c: Tour-Stopp-Sequenz-Pro — Geordnete Stopp-Liste mit Navigation + Abschluss-Aktionen */}
         <TourStoppSequenzPro />
         {/* Phase 476: Tour-Stopp-Optimierung — Optimierte Stopp-Reihenfolge nach Proximity mit ETA je Stopp */}

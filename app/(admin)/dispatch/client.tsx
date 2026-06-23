@@ -263,6 +263,7 @@ import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
 import { DispatchZoneActionBoard } from './zone-action-board';
+import { DispatchFahrerFunkBoard } from './dispatch-fahrer-funk-board';
 
 type Driver = {
   employee_id: string;
@@ -912,6 +913,8 @@ export function DispatchBoard({
         aktiveTourenCount={batches.filter(b => b.status === 'unterwegs').length}
         offeneBestellungenCount={readyOrders.length}
       />
+      {/* Fahrer-Funk-Board: Live-Status aller Fahrer mit Anruf-Buttons und GPS-Freshe-Anzeige */}
+      <DispatchFahrerFunkBoard drivers={drivers} batches={batches} />
       {/* Neue Bestellung — kurzer Flash wenn neue Ready-Bestellung eintrifft */}
       {newOrderFlash && (
         <div className="flex items-center gap-3 rounded-xl border-2 border-matcha-400 bg-matcha-50 px-4 py-3 shadow-md animate-in slide-in-from-top-2 duration-300">

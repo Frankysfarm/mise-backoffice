@@ -247,6 +247,7 @@ import { SchichtKpiErweitert } from './schicht-kpi-erweitert';
 import { LieferdienstKennzahlenHub } from './kennzahlen-hub';
 import { SchichtFahrerEinnahmenRanking } from './schicht-fahrer-einnahmen-ranking';
 import { SchichtPulsLive } from './schicht-puls-live';
+import { LieferZonenProfitMatrix } from './liefer-zonen-profit-matrix';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1182,6 +1183,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Zonen-Rentabilitäts-Matrix: Umsatz, Bestellungen, Lieferzeit und SLA je Zone */}
+              <LieferZonenProfitMatrix locationId={locationId} />
               {/* Phase 471: Schicht-Schnell-Status — 6 KPI-Kacheln auf einen Blick: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno */}
               <LieferdienstSchichtSchnellStatus locationId={locationId ?? null} />
               {/* Phase 453: Executive-KPI-Kommando — Konsolidiertes Tages-Dashboard: Bestellungen, Umsatz, Lieferzeit, SLA, Fahrer, Storno */}
