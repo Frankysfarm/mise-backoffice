@@ -191,6 +191,7 @@ import { FahrerSchichtStatusStrip } from './fahrer-schicht-status-strip';
 import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
 import { TourHeimkehrCountdown } from './tour-heimkehr-countdown';
 import { StopAbschlussSchnellPanel } from './stop-abschluss-schnell-panel';
+import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
 
 type Driver = {
   id: string;
@@ -770,6 +771,10 @@ export function FahrerApp({
         {/* Phase 433: Liefer-Qualitäts-Trend — Letzte 30 Touren Score-Chart (Pünktlichkeit/Vollständigkeit/Zufriedenheit) */}
         {driver.location_id && (
           <QualitaetsTrendKarte driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 464: Fahrer-Selbst-Bewertung — Tagesschicht 1–5 Sterne + Stimmung + Kommentar */}
+        {driver.location_id && (
+          <FahrerSelbstBewertung driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

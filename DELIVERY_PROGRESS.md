@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–462 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler.**
+**Phasen 1–464 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler.**
+
+**Phase 463+464 Backend+Frontend (2026-06-23): Schicht-Leistungs-Benchmark + Fahrer-Selbst-Bewertung — Migration 217 (schicht_benchmarks: location_id/schicht_datum/benchmark_typ UNIQUE, 5 Typen: bestellungen/umsatz_eur/puenktlichkeit_pct/composite_score/avg_delivery_min, RLS + prune_schicht_benchmarks RPC); Migration 218 (fahrer_selbst_bewertungen: driver_id/schicht_datum UNIQUE, sterne 1–5 + stimmung + kommentar, RLS driver read+write own); lib/delivery/schicht-benchmark.ts (computeBenchmarks: 4-Wochen-Ø gleicher Wochentag aus customer_orders + schicht_abschluss_berichte → ist_wert/benchmark_wert/abweichung_pct; MetrikBenchmark mit Trend stark_besser/besser/neutral/schlechter/stark_schlechter; SchichtBenchmarkSummary mit gesamtTrend; computeBenchmarksAllLocations/getBenchmarks/pruneOldBenchmarks); app/api/delivery/admin/schicht-benchmark/route.ts (GET ?location_id&date → Benchmarks lesen; POST action=compute/compute-all/prune); app/(admin)/dispatch/schicht-benchmark-card.tsx (DispatchSchichtBenchmarkCard: 5-Metriken-Tabelle mit TrendIcons + Abweichungs-%; Gesamt-Badge stark/besser/neutral/schwächer/schwach; 10-Min-Auto-Refresh; Lazy-Compute wenn keine Daten; Integration dispatch/client.tsx nach DispatchTourEtaAbschlussMatrix); app/fahrer/app/fahrer-selbst-bewertung.tsx (FahrerSelbstBewertung: 5-Sterne-Rating + 5 Stimmungs-Buttons emoji + Freitext-Textarea; zeigt bestehende Bewertung für heute; POST /api/delivery/driver/selbst-bewertung; Integration fahrer/app/client.tsx nach QualitaetsTrendKarte); app/api/delivery/driver/selbst-bewertung/route.ts (GET heutige Bewertung; POST UPSERT); Cron: täglich 09:50 UTC computeBenchmarksAllLocations; täglich 09:55 UTC pruneSchichtBenchmarks(60). Build: 366 Seiten, 0 TypeScript-Fehler.**
 
 **Phase 461+462 Frontend (2026-06-23): 10 neue Smart-Delivery-Komponenten — KitchenOnTimeQuoteRing (SVG-Donut-Ring Pünktlichkeitsquote letzte 60 Min, Integration kitchen/client.tsx); DispatchGpsStalenessAlert (Alert für Fahrer mit veralteten GPS-Daten >3 Min, Integration dispatch/client.tsx); TourHeimkehrCountdown (Animierter Countdown bis Tourende, Integration fahrer/app/client.tsx); SchichtTempoVelocity (Bestellungen/Stunde Balkendiagramm + Trend-Indikator via Recharts, Integration lieferdienst/client.tsx); LiveTrackingPulse (5-Phasen animierte Timeline Storefront-Bestellstatus mit Supabase Realtime, Integration storefront.tsx); KitchenBatchAbholbereitBoard (Alert fertige Bestellungen auf Fahrerabholung wartend, Integration kitchen/client.tsx); DispatchTourEtaAbschlussMatrix (Tabellarische ETA+Ankunftszeit aller aktiven Touren, Integration dispatch/client.tsx); StopAbschlussSchnellPanel (2-Tap Stop-Abschluss mit Navi+Anruf für Fahrer-App, Integration fahrer/app/client.tsx); FahrerAuslastungsCockpit (Live-Auslastungs-Dashboard Online-Fahrer, Integration lieferdienst/client.tsx); BestellungEmpfangsBestaetigung (Animierte Eingangsbestätigung mit ETA-Ring, Integration storefront.tsx). CEO Review #254: 5 Bugs gefixt (3× implicit any + 1× Recharts Formatter + 1× Supabase Callback), Build Exit 0, TypeScript Exit 0.**
 
@@ -7424,3 +7426,87 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 1. **Phase 461 Backend:** Schicht-Leistungs-Benchmark — Vergleich heutiger Schicht vs. Durchschnitt der letzten 4 Wochen (Bestellungen, Umsatz, Pünktlichkeit, Score). Neue Tabelle `schicht_benchmarks` (location_id, schicht_datum, benchmark_typ, ist_wert, benchmark_wert, abweichung_pct). Engine: `lib/delivery/schicht-benchmark.ts`. API: `GET /api/delivery/admin/schicht-benchmark`.
 2. **Phase 461 Frontend:** DispatchSchichtBenchmarkCard — Kompakte Vergleichs-Karte in Dispatch: heute vs. 4-Wochen-Ø mit Trend-Pfeilen. Integration: dispatch/client.tsx.
 3. **Phase 462 Frontend:** FahrerSelbstBewertungsWidget — Fahrer bewertet eigene Schicht (1–5 Sterne + Freitext). Speichert in `schicht_abschluss_berichte`. Integration: fahrer/app/client.tsx.
+
+---
+
+## Phase 463 Backend + Phase 464 Frontend — Schicht-Leistungs-Benchmark + Fahrer-Selbst-Bewertung (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 463 Backend — Schicht-Leistungs-Benchmark
+
+**Migration 217 (`scripts/migrations/217_schicht_benchmarks.sql`):**
+- `schicht_benchmarks`: UNIQUE(location_id, schicht_datum, benchmark_typ)
+- benchmark_typ: CHECK('bestellungen','umsatz_eur','puenktlichkeit_pct','composite_score','avg_delivery_min')
+- Felder: ist_wert, benchmark_wert (4-Wochen-Ø), abweichung_pct, wochen_referenz
+- RLS: service_role full + authenticated read own location
+- `prune_schicht_benchmarks(days_old)` Cleanup-RPC
+
+**`lib/delivery/schicht-benchmark.ts`** — Benchmark-Engine:
+- Datenquellen: customer_orders (Bestellungen/Umsatz heute) + schicht_abschluss_berichte (KPIs)
+- Historische Referenz: gleicher Wochentag, letzte 4 Wochen (vergleichsDaten-Array)
+- MetrikBenchmark mit Trend: stark_besser/besser/neutral/schlechter/stark_schlechter (+/- 5% / +/- 15% Schwellen)
+- avg_delivery_min: invertiert (niedriger = besser)
+- `computeBenchmarks(locationId, datum?)` → upsert 5 Metriken
+- `computeBenchmarksAllLocations()` → Cron-Batch Promise.allSettled
+- `getBenchmarks(locationId, datum?)` → SchichtBenchmarkSummary mit gesamtTrend
+- `pruneOldBenchmarks(daysOld=60)` → Cleanup via RPC
+
+**`app/api/delivery/admin/schicht-benchmark/route.ts`:**
+- GET `?location_id=...&date=YYYY-MM-DD` → Benchmarks lesen
+- POST action=compute → Berechne für Location
+- POST action=compute-all → Alle Standorte (Cron-Trigger)
+- POST action=prune → Cleanup
+
+**Cron (`app/api/cron/smart-dispatch/route.ts`):**
+- Täglich 09:50 UTC: `computeBenchmarksAllLocations()` (schicht_benchmark_tick)
+- Täglich 09:55 UTC: `pruneSchichtBenchmarks(60)` (60-Tage-Aufbewahrung)
+
+### Phase 463 Frontend — DispatchSchichtBenchmarkCard
+
+**`app/(admin)/dispatch/schicht-benchmark-card.tsx`** — `DispatchSchichtBenchmarkCard`:
+- 5-Metriken-Tabelle: Bestellungen / Umsatz / Pünktlichkeit / Fahrer-Score / Ø Lieferzeit
+- Pro Zeile: Trend-Icon (TrendingUp/Down/Minus) + Ist-Wert + Ø-Benchmark + Abweichungs-%
+- Gesamt-Badge: ★ Stark / ▲ Besser / – Neutral / ▼ Schwächer / ↓ Schwach
+- 10-Min-Auto-Refresh via setInterval
+- Lazy-Compute: Falls keine Daten → "Berechnen"-Button → POST action=compute + reload
+- Integration: `dispatch/client.tsx` nach DispatchTourEtaAbschlussMatrix ✅
+
+### Phase 464 Frontend — FahrerSelbst-Bewertung
+
+**Migration 218 (`scripts/migrations/218_fahrer_selbst_bewertungen.sql`):**
+- `fahrer_selbst_bewertungen`: UNIQUE(driver_id, schicht_datum)
+- Felder: sterne 1–5 (CHECK), stimmung ('super'/'gut'/'okay'/'muede'/'schwer'), kommentar text
+- RLS: service_role full + authenticated read own location + driver read+write own
+- `prune_fahrer_selbst_bewertungen(days_old=90)` Cleanup-RPC
+
+**`app/api/delivery/driver/selbst-bewertung/route.ts`:**
+- GET `?driver_id=...&location_id=...` → Heutige Bewertung (oder null)
+- POST `{ driver_id, location_id, sterne, stimmung?, kommentar? }` → UPSERT für heute
+
+**`app/fahrer/app/fahrer-selbst-bewertung.tsx`** — `FahrerSelbstBewertung`:
+- Sichtbar: immer nach Schicht-Abschluss (am Ende der Driver-Section)
+- Falls heute bereits bewertet: zeigt vorhandene Sterne + Stimmungs-Emoji + Kommentar (read-only)
+- 5-Sterne-Rating (animiert mit scale-110 hover)
+- 5 Stimmungs-Buttons: 🚀 Super / 😊 Gut / 😐 Okay / 😴 Müde / 😓 Schwer
+- Freitext-Textarea (max 300 Zeichen, optional)
+- Submit → POST /api/delivery/driver/selbst-bewertung → Erfolg zeigt gespeicherte Bewertung
+- Dark-mode Violet-Gradient-Design, collapsible
+- Integration: `fahrer/app/client.tsx` nach QualitaetsTrendKarte ✅
+
+### Integrations-Checkliste Phase 463+464
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchSchichtBenchmarkCard | dispatch/schicht-benchmark-card.tsx | dispatch/client.tsx nach DispatchTourEtaAbschlussMatrix | ✅ |
+| FahrerSelbstBewertung | fahrer/app/fahrer-selbst-bewertung.tsx | fahrer/app/client.tsx nach QualitaetsTrendKarte | ✅ |
+| computeBenchmarksAllLocations | lib/delivery/schicht-benchmark.ts | Cron 09:50 UTC | ✅ |
+| pruneSchichtBenchmarks | lib/delivery/schicht-benchmark.ts | Cron 09:55 UTC | ✅ |
+| Migration 217 | scripts/migrations/217_schicht_benchmarks.sql | Supabase | ✅ |
+| Migration 218 | scripts/migrations/218_fahrer_selbst_bewertungen.sql | Supabase | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 465 Backend:** Schicht-Benchmark-Verlauf — Historische Benchmark-Ergebnisse (letzte 4 Wochen) je Location. API: `GET /api/delivery/admin/schicht-benchmark?history=true`. Frontend: DispatchBenchmarkVerlaufChart in Dispatch.
+2. **Phase 465 Frontend:** Selbst-Bewertungs-Übersicht im Admin (Lieferdienst) — Tages-Übersicht aller Fahrer-Selbstbewertungen mit Durchschnitt + Stimmungsverteilung.
+3. **Phase 466 Backend:** Fahrer-Pünktlichkeits-Coach — Automatische Tipps wenn Pünktlichkeit < 80% (basierend auf schicht_abschluss_berichte). Speichert in `fahrer_coaching_hinweise`.
