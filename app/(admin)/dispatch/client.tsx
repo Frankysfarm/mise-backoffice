@@ -258,6 +258,7 @@ import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
 import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets-matrix';
 import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
 import { DispatchFahrerVerfuegbarkeitsSignalPanel } from './fahrer-verfuegbarkeits-signal-panel';
+import { DispatchOrderPriorityOverrideBadge } from './order-priority-override-badge';
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
@@ -3536,6 +3537,8 @@ function OrderRow({
               order.dispatch_score >= 80 ? 'bg-orange-500' : 'bg-amber-400',
             )} title={`Score: ${Math.round(order.dispatch_score)}`} />
           )}
+          {/* Phase 487: Manueller Prioritäts-Override je Bestellung */}
+          <DispatchOrderPriorityOverrideBadge orderId={order.id} locationId={order.location_id} />
         </div>
         <div className="mt-1 flex items-center gap-2">
           <span className="font-semibold">{order.kunde_name}</span>

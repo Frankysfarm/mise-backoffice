@@ -1,7 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–482 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–492 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #262 — Phase 486–492 geprüft, 1 Integration-Bug gefixt, Build 366 Seiten sauber (2026-06-23)
+
+### Commits geprüft
+- `c6398c5` — Phase 486–492: Tracking-Refresh, Priority-Override, Driver-Availability-Signal
+
+### Build-Status
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- `npx next build` → **366 Seiten, Exit 0** ✅
+
+### Phase 486 — refresh-tracking API + TrackingLinkRefreshWidget
+- API (`refresh-tracking/route.ts`): Public endpoint, randomBytes Token-Regenerierung, Status-Guard (geliefert/cancelled → 400) ✅
+- Frontend (`tracking-link-refresh-widget.tsx`): Loading/sent/error States, CheckCircle2-Success in Grün ✅
+- Integration: `success-state.tsx` Zeile 801 korrekt ✅
+
+### Phase 487 — order-priority-override API + DispatchOrderPriorityOverrideBadge
+- API (`order-priority-override/route.ts`): POST/GET/DELETE, Upsert mit onConflict='order_id', Auth-Guard ✅
+- Frontend (`order-priority-override-badge.tsx`): Dropdown hoch/mittel/niedrig + Notiz, Click-outside-close ✅
+- **Bug gefixt:** `DispatchOrderPriorityOverrideBadge` war NICHT in dispatch/client.tsx integriert → jetzt in `OrderRow` nach Urgency-Ring eingebaut (Zeile ~3534) ✅
+
+### Phase 488 — driver-availability-signal API + DispatchFahrerVerfuegbarkeitsSignalPanel
+- API (`driver-availability-signal/route.ts`): POST (signal→state update + Log-Insert), GET (alle Fahrer + letztes Signal), Non-fatal insert-Fehler korrekt behandelt ✅
+- Frontend (`fahrer-verfuegbarkeits-signal-panel.tsx`): Collapsible Card, 30s Auto-Refresh, Quick-Actions (Verfügbar/Pause/Ende) ✅
+- Integration: `dispatch/client.tsx` Zeile 2029 korrekt ✅
+
+### Gesamt-Fazit
+- 0 TypeScript-Fehler, 366 Seiten, Exit 0
+- 1 fehlende Integration gefunden und gefixt (PriorityOverrideBadge in OrderRow)
+- Alle 3 neuen Backend-APIs sauber, alle Frontends korrekt integriert
 
 ---
 
