@@ -33,7 +33,7 @@ export async function disconnectDomain() {
   if (!emp?.tenant_id) return { ok: false, error: 'Nicht autorisiert' };
   const svc = createServiceClient();
   const { error } = await svc.from('tenants').update({
-    custom_domain: null, custom_domain_status: 'none', custom_domain_error: null, custom_domain_verified_at: null,
+    custom_domain: null, custom_domain_status: null, custom_domain_error: null, custom_domain_verified_at: null,
   }).eq('id', emp.tenant_id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/neo/app/shopsettings');

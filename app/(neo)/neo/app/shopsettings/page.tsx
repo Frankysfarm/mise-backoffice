@@ -14,7 +14,10 @@ export default async function ShopSettings() {
     supabase.from('locations').select('id, geschlossen_bis').eq('id', emp?.location_id ?? '').maybeSingle(),
   ]);
   const registrarConfigured = getRegistrar().isConfigured();
-  const domStatus = (['none', 'pending', 'verified', 'error'].includes((t as any)?.custom_domain_status) ? (t as any).custom_domain_status : 'none') as 'none' | 'pending' | 'verified' | 'error';
+  // DB-Status (pending|dns_ok|provisioning|active|error|null) → UI-State
+  const rawDom = (t as any)?.custom_domain_status as string | null;
+  const domStatus: 'none' | 'pending' | 'active' | 'error' =
+    rawDom === 'active' ? 'active' : rawDom === 'error' ? 'error' : ['pending', 'dns_ok', 'provisioning'].includes(rawDom ?? '') ? 'pending' : 'none';
   const slug = t?.slug || '';
   const shopUrl = slug ? `https://mise-gastro.de/biss-app/${slug}` : '';
   const subdomain = slug ? `${slug}.mise-gastro.de` : 'mise-gastro.de';

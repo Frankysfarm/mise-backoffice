@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { connectDomain, disconnectDomain, checkDomain, buyDomain } from './domain-actions';
 
-type Status = 'none' | 'pending' | 'verified' | 'error';
+type Status = 'none' | 'pending' | 'active' | 'error';
 type CheckRes = { domain: string; available: boolean; priceCents: number | null; premium?: boolean };
 const eur = (c: number | null) => c == null ? '–' : (c / 100).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
 
@@ -26,7 +26,7 @@ export function DomainManager({ subdomain, customDomain, status, errorMsg, serve
   const [results, setResults] = useState<CheckRes[] | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const connected = status === 'verified';
+  const connected = status === 'active';
   const pending = status === 'pending';
 
   async function onConnect() {

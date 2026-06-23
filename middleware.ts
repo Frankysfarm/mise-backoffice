@@ -21,7 +21,7 @@ async function resolveTenantSlug(host: string): Promise<string | null> {
       .from('tenants')
       .select('slug')
       .eq('custom_domain', cleanHost)
-      .eq('custom_domain_status', 'verified')
+      .eq('custom_domain_status', 'active')
       .maybeSingle();
     if (data?.slug) {
       domainCache.set(cleanHost, { slug: data.slug, expires: now + 60_000 });
