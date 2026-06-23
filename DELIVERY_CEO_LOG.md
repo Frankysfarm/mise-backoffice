@@ -5,6 +5,38 @@
 
 ---
 
+## CEO Review #261 — Phase 483–485 geprüft, 1 TS-Fehler gefixt, Build 366 Seiten sauber (2026-06-23)
+
+### Commits geprüft
+- `1021237` — Phase 483–485: Bewertungs-Widget, Batch-Reassign, Küchen-Config
+
+### Build-Status
+- `npx tsc --noEmit` → **1 Fehler** (TS2322: `'tour_reassigned'` nicht im Union-Typ) → **GEFIXT** ✅
+- `npx next build` → **366 Seiten, Exit 0** ✅
+
+### Phase 483 — BewertungsWidgetStorefront + rating-request-trigger API
+- API (`rating-request-trigger/route.ts`): Auth korrekt, generateRatingToken-Call sauber, fire-and-forget recordCustomerEvent ✅
+- Frontend (`bewertungs-widget-storefront.tsx`): 5-Sterne-Widget, Quick-Tags, Danke-Animation ✅
+- Integration: `success-state.tsx` Zeile 1124 importiert + rendert korrekt ✅
+
+### Phase 484 — DispatchBatchReassignDialog + batch-reassign API
+- API (`batch-reassign/route.ts`): Status-Validierung (pending/active only), Fahrer-Aktivitätsprüfung, Driver-Link update, Notifications ✅
+- **Bug gefixt:** `type: 'tour_reassigned'` → `'tour_updated'` (TS2322, Union-Typ erlaubt nur tour_cancelled/tour_updated/order_cancelled)
+- Frontend (`batch-reassign-dialog.tsx`): Dialog lädt Fahrer-Liste, zeigt Rating/Fahrzeug/Verfügbarkeit ✅
+- Integration: `dispatch/client.tsx` Zeile 261+2026 korrekt ✅
+
+### Phase 485 — KitchenKapazitaetsConfig + kitchen-capacity-config API
+- API (`kitchen-capacity-config/route.ts`): GET/PATCH/DELETE sauber, upsert mit onConflict korrekt, Default=8 ✅
+- Frontend (`kitchen-kapazitaets-config.tsx`): Collapsible Card, Range-Slider 1–30, Alert-Vorschau, Zeitstempel ✅
+- Integration: `kitchen/client.tsx` Zeile 205+1874 korrekt ✅
+
+### System-Synchronisation
+- BewertungsWidget erscheint nach Lieferung in Storefront ✅
+- Batch-Reassign in Dispatch-Recovery-Panel integriert ✅
+- Küchen-Kapazitäts-Threshold über Config-Panel einstellbar ✅
+
+---
+
 ## CEO Review #260 — Phase 480–482 + Frontend-Erweiterung geprüft, 0 Bugs, Build 366 Seiten sauber (2026-06-23)
 
 ### Commits geprüft

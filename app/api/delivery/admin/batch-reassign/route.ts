@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
       batchId:  batch_id,
       title:    'Neue Tour zugewiesen',
       body:     `Du hast eine Tour${zoneSuffix} von ${oldDriverName} übernommen.`,
-      type:     'tour_reassigned',
+      type:     'tour_updated',
     }).catch(() => { /* graceful */ });
   }).catch(() => { /* graceful */ });
 
