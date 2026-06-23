@@ -15037,3 +15037,79 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 ### Nächste Phasen für Backend-Ingenieur
 1. **Phase 438 Backend:** Liefergebiet-Optimierer — Automatische Analyse profitabler vs. unrentabler Lieferzonen basierend auf Lieferkosten/Bestellwert-Ratio. Neue Tabelle `zone_profitability_snapshots` (location_id, zone_name, orders_count, avg_order_value, avg_delivery_cost, profit_margin, empfehlung CHECK('expand','keep','reduce','close')). Engine: `lib/delivery/zone-profitability-analyzer.ts`. API admin GET. Cron täglich 07:00 UTC.
 2. **Phase 439 Backend:** Schicht-Lücken-Detektor — Erkennt unbesetzte Stunden im Schichtplan (Lücken zwischen Schichten > 30 Min, unter Mindestbesetzung). Engine ohne neue Tabelle — reine Live-Analyse aus `driver_shifts`. API: `GET /api/delivery/admin/schicht-luecken`. Push-Alert wenn Lücke > 2h.
+
+---
+
+## CEO Review #247 — Phase 436+437 + Storefront Biss-App geprüft (2026-06-23)
+
+### Commits geprüft
+- `feat(delivery/frontend): Storefront biss-app + Build-Fix`
+- `feat(delivery/backend): Phase 436+437 — Nachbestellungs-Engine + Kundenbindungs-Score` (Review #246 bestätigt)
+
+### Build & TypeScript
+- `npx next build` → **Exit Code 0** ✅
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- Seiten: **364** ✅
+
+### Storefront Biss-App — /biss-app/[slug]/
+
+**Architektur:** SSR-Seite lädt Location+Tenant+Kategorien+Items via `createServiceClient()`. Client-Komponente `BissStorefront` erhält alle Daten als Props (kein clientseitiger Supabase-Fetch für Menü). ✅
+
+**EtaBadge:** Dynamisch farbcodiert (grün/gelb/rot), Live-Poll alle 60s via `GET /api/delivery/eta`. ✅
+
+**ItemCard + Kategorie-Bar:** Sticky Nav, Smooth-Scroll per Anker, Beliebt-Badge. ✅
+
+**CartDrawer:** Artikel+Menge+Liefergebühr+Gesamt, Checkout-Button öffnet CheckoutForm. ✅
+
+**CheckoutForm:** Lieferung/Abholung, Zahlungsart bar/karte, POST → `/api/delivery/orders`. ✅ (Endpoint jetzt erstellt)
+
+**OrderSuccess + Realtime:** Supabase Postgres-Changes Subscription + 20s-Polling-Fallback. ✅ (URL-Bug gefixt: war `/status`, jetzt korrekt)
+
+**Token-Handler:** `/biss-app/t/[token]` löst Order-ID oder Short-Link zu Tenant-Slug auf → Redirect. ✅
+
+### Bugs gefixt in Review #247
+
+#### Bug 1 — TypeScript TS7006: `payload` implicitly has `any` type
+**Datei:** `app/biss-app/[slug]/client.tsx:200`
+**Problem:** Supabase Realtime `postgres_changes` callback-Parameter `payload` ohne expliziten Typ.
+**Fix:** `(payload: { new?: { status?: string } })` explizit annotiert.
+
+#### Bug 2 — Fehlender POST-Endpoint `/api/delivery/orders`
+**Problem:** `CheckoutForm` rief `POST /api/delivery/orders` auf, aber das Route-File `app/api/delivery/orders/route.ts` existierte nicht → jede Bestellung vom Storefront schlug mit 404 fehl.
+**Fix:** `app/api/delivery/orders/route.ts` neu erstellt. Validierung: `location_id`, `items`, `customer.name/phone`. Insert in `customer_orders` (typ, status='neu', quelle='storefront') + `order_items`. Rollback auf Fehler. Response 201 `{ id, order_id, bestellnummer, status }`.
+
+#### Bug 3 — Falscher Polling-URL `/api/delivery/orders/[id]/status`
+**Problem:** `OrderSuccess` pollte `/api/delivery/orders/${orderId}/status` — dieser Sub-Pfad existiert nicht. Existierender Endpunkt ist `GET /api/delivery/orders/[orderId]`.
+**Fix:** URL-Segment `/status` entfernt → korrekt `/api/delivery/orders/${orderId}`.
+
+### Code-Qualität Storefront
+- Mobile-first, Matcha-Theme konsistent ✅
+- Deutsche Texte durchgängig ✅
+- Multi-Tenant: alle DB-Queries mit `location_id` gefiltert ✅
+- Kein `any` (außer schmale Tenant-Cast in page.tsx — akzeptabel da proprietäre DB-Shape) ✅
+- Checkout-Rollback bei order_items-Fehler verhindert Phantom-Bestellungen ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ (neu verdrahtet) |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #247
+- Build: 364 Seiten, Exit Code 0 ✅
+- TypeScript: 0 Fehler ✅
+- Storefront: vollständig integriert ✅
+- Phasen 436+437: bestätigt ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 438 Backend:** Liefergebiet-Optimierer — Analyse profitabler vs. unrentabler Lieferzonen (orders_count, avg_order_value, avg_delivery_cost, profit_margin). Tabelle `zone_profitability_snapshots`. Engine `lib/delivery/zone-profitability-analyzer.ts`. API `GET /api/delivery/admin/zone-profitability`. Cron täglich 07:00 UTC.
+2. **Phase 439 Backend:** Schicht-Lücken-Detektor — Reine Live-Analyse aus `driver_shifts`. Lücken > 30 Min zwischen Schichten. API `GET /api/delivery/admin/schicht-luecken`. Push-Alert wenn Lücke > 2h.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 438 Frontend:** ZoneProfitabilityPanel — Admin-Cockpit mit Profitabilitäts-Heatmap pro Zone. Expand/Keep/Reduce/Close Empfehlungs-Badge. Integration: lieferdienst/client.tsx.
+2. **Phase 439 Frontend:** SchichtLueckenMonitor — Live-Übersicht unbesetzter Stunden, sortiert nach Lücken-Größe. Alert-Badge wenn Lücke > 2h. Integration: lieferdienst/client.tsx.
+

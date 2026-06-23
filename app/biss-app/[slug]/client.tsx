@@ -197,13 +197,13 @@ function OrderSuccess({ orderId, onClose }: { orderId: string; onClose: () => vo
   useEffect(() => {
     const sb = createClient();
     const channel = sb.channel(`order-${orderId}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` }, payload => {
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` }, (payload: { new?: { status?: string } }) => {
         if (payload.new?.status) setStatus(payload.new.status);
       })
       .subscribe();
     const poll = setInterval(async () => {
       try {
-        const res = await fetch(`/api/delivery/orders/${orderId}/status`);
+        const res = await fetch(`/api/delivery/orders/${orderId}`);
         if (res.ok) {
           const d = await res.json();
           if (d.status) setStatus(d.status);
