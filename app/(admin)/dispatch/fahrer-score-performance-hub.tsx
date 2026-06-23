@@ -255,7 +255,7 @@ export function DispatchFahrerScorePerformanceHub() {
     setLoading(true);
     try {
       const [scoresRes, toursRes] = await Promise.allSettled([
-        fetch('/api/delivery/admin/driver-score'),
+        fetch('/api/delivery/admin/driver-score?action=live'),
         fetch('/api/delivery/admin/tours'),
       ]);
 

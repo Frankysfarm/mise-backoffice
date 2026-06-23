@@ -55,6 +55,7 @@ import { BestellPhasenBanner } from './bestell-phasen-banner';
 import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
 import { OrderJourneyTimeline } from './order-journey-timeline';
 import { EtaDynamicLivePanel } from './eta-dynamic-live-panel';
+import { LiveWartezeitRing } from './components/live-wartezeit-ring';
 
 type Props = {
   location: Location;
@@ -90,6 +91,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
     type: OrderType;
     orderId: string;
     items: CartItem[];
+    orderedAt: string;
   } | null>(null);
 
   const [activeSectionId, setActiveSectionId] = React.useState<string | null>(null);
@@ -409,6 +411,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         type: orderType,
         orderId: order.id,
         items: cart,
+        orderedAt: new Date().toISOString(),
       });
       // Persist for returning-visitor tracking banner
       try {
@@ -458,6 +461,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               locationId={location.id}
               bestellnummer={orderSuccess.bestellnummer}
+            />
+          </div>
+        )}
+        {/* Phase 460: Animierter Warte-Ring — visueller Kreisfortschritt */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <LiveWartezeitRing
+              orderedAt={orderSuccess.orderedAt}
+              etaMinutes={orderSuccess.eta}
+              orderType={orderSuccess.type}
             />
           </div>
         )}

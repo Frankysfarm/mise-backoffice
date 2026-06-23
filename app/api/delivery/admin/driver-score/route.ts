@@ -67,6 +67,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ detail, generated_at: new Date().toISOString() });
   }
 
+  // action=live → DriverScore[] format for DispatchFahrerScorePerformanceHub
+  if (action === 'live') {
+    const entries = await getScoreLeaderboard(locationId, 'week', 20);
+    const live = entries.map((e) => ({
+      driver_id: e.driverId,
+      driver_name: e.driverName ?? 'Unbekannt',
+      score: Math.round(e.compositeScore),
+      sub_scores: {
+        punctuality: Math.round((e.fPunctuality / 30) * 100),
+        completion: Math.round(((e.fActivity + e.fVolume) / 15) * 100),
+        customer_rating: Math.round(((e.fRating / 25) * 4 + 1) * 10) / 10,
+        efficiency: Math.round((e.fEfficiency / 15) * 100),
+      },
+    }));
+    return NextResponse.json(live);
+  }
+
   // default: leaderboard
   const period = (searchParams.get('period') ?? 'week') as ScorePeriod;
   if (!['week', 'month'].includes(period)) {

@@ -242,6 +242,7 @@ import { DispatchFahrerTagesBilanz } from './fahrer-tages-bilanz';
 import { DispatchTourAktuelleUebersicht } from './tour-aktuelle-uebersicht';
 import { DispatchFahrerEtaKommando } from './fahrer-eta-kommando';
 import { DispatchFahrerScorePerformanceHub } from './fahrer-score-performance-hub';
+import { DispatchEchtzeitKommandoZentrale } from './echtzeit-kommando-zentrale';
 
 type Driver = {
   employee_id: string;
@@ -880,6 +881,14 @@ export function DispatchBoard({
     <>
     <DispatchBrowserNotifier batches={batches} orders={readyOrders} />
     <div className="space-y-6">
+      {/* Phase 459: Echtzeit-Kommandozentrale — Hero-Übersicht ganz oben */}
+      <DispatchEchtzeitKommandoZentrale
+        locationId={locations[0]?.id ?? null}
+        onlineFahrerCount={onlineDrivers.length}
+        gesamtFahrerCount={drivers.length}
+        aktiveTourenCount={batches.filter(b => b.status === 'unterwegs').length}
+        offeneBestellungenCount={readyOrders.length}
+      />
       {/* Neue Bestellung — kurzer Flash wenn neue Ready-Bestellung eintrifft */}
       {newOrderFlash && (
         <div className="flex items-center gap-3 rounded-xl border-2 border-matcha-400 bg-matcha-50 px-4 py-3 shadow-md animate-in slide-in-from-top-2 duration-300">
