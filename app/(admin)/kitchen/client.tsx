@@ -188,6 +188,7 @@ import { KitchenKochstartSequenzBoard } from './kochstart-sequenz-board';
 import { FahrerPickupEtaAnzeige } from './fahrer-pickup-eta-anzeige';
 import { KitchenPrepZielAmpel } from './prep-ziel-ampel';
 import { KochstartKommandozentrale } from './kochstart-kommandozentrale';
+import { KitchenRushHourHeatmap } from './rush-hour-heatmap';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -782,6 +783,8 @@ export function KitchenBoard({
       />
       {/* Phase 440: Zonen-Kochstart-Synchro — Synchronisierte Kochstarts je Lieferzone, reduziert Fahrer-Wartezeit */}
       <KitchenZonenKochstartSynchro orders={filtered} timings={timings} />
+      {/* Phase 442: Rush-Hour-Heatmap — 7×17h Bestellfrequenz-Matrix (Wochentag × Stunde) aus 30-Tage-Basis */}
+      <KitchenRushHourHeatmap locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
