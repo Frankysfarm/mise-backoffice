@@ -190,6 +190,7 @@ import { TourStoppNavigationsHub } from './tour-stopp-navigations-hub';
 import { FahrerSchichtStatusStrip } from './fahrer-schicht-status-strip';
 import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
 import { TourHeimkehrCountdown } from './tour-heimkehr-countdown';
+import { StopAbschlussSchnellPanel } from './stop-abschluss-schnell-panel';
 
 type Driver = {
   id: string;
@@ -1118,6 +1119,29 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 462: Stop-Abschluss-Schnell-Panel — Aktueller Stop mit Navi + Anruf + 2-Tap Zugestellt */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (() => {
+          const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
+          if (!currentStop) return null;
+          return (
+            <div className="px-4">
+              <StopAbschlussSchnellPanel
+                stop={{
+                  id: currentStop.id,
+                  sequence: currentStop.reihenfolge,
+                  address: [currentStop.order.kunde_adresse, currentStop.order.kunde_plz].filter(Boolean).join(', '),
+                  customer_name: currentStop.order.kunde_name,
+                  order_id: currentStop.order_id,
+                  bestellnummer: currentStop.order.bestellnummer,
+                  lat: currentStop.order.kunde_lat,
+                  lng: currentStop.order.kunde_lng,
+                  customer_phone: (currentStop.order as any).kunde_telefon ?? null,
+                }}
+                onMarkDelivered={markDelivered}
+              />
+            </div>
+          );
+        })()}
 
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
         {activeBatch && activeBatch.status === 'unterwegs' && (

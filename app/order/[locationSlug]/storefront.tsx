@@ -58,6 +58,7 @@ import { EtaDynamicLivePanel } from './eta-dynamic-live-panel';
 import { LiveWartezeitRing } from './components/live-wartezeit-ring';
 import { StorefrontLiveWartezeitRing } from './live-wartezeit-ring';
 import { LiveTrackingPulse } from './live-tracking-pulse';
+import { BestellungEmpfangsBestaetigung } from './bestellung-empfangs-bestaetigung';
 
 type Props = {
   location: Location;
@@ -495,6 +496,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             />
           </div>
         )}
+        {/* Phase 462: Empfangsbestätigung — animierte Eingangsbestätigung mit ETA + Sterne */}
+        <div className="px-4 pb-8 max-w-lg mx-auto">
+          <BestellungEmpfangsBestaetigung
+            bestellnummer={orderSuccess.bestellnummer}
+            name={orderSuccess.name}
+            etaMinutes={orderSuccess.eta}
+            isDelivery={orderSuccess.type === 'lieferung'}
+          />
+        </div>
       </div>
     );
   }

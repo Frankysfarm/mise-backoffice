@@ -193,6 +193,7 @@ import { KitchenSmartKochstartLiveMatrix } from './smart-kochstart-live-matrix';
 import { KitchenOrderKomplexitaetsAmpel } from './order-komplexitaets-ampel';
 import { KitchenSmartFarbkodierungCockpit } from './smart-farbkodierung-cockpit';
 import { KitchenOnTimeQuoteRing } from './on-time-quote-ring';
+import { KitchenBatchAbholbereitBoard } from './batch-abholbereit-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1842,6 +1843,8 @@ export function KitchenBoard({
       <KitchenSmartFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 461: Pünktlichkeitsquote-Ring — On-Time-Completion-Rate der letzten 60 Min als SVG-Donut */}
       <KitchenOnTimeQuoteRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 462: Batch-Abholbereit-Board — Fertige Bestellungen die noch auf Abholung warten */}
+      <KitchenBatchAbholbereitBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

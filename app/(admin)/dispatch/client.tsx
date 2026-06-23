@@ -244,6 +244,7 @@ import { DispatchFahrerEtaKommando } from './fahrer-eta-kommando';
 import { DispatchFahrerScorePerformanceHub } from './fahrer-score-performance-hub';
 import { DispatchEchtzeitKommandoZentrale } from './echtzeit-kommando-zentrale';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
+import { DispatchTourEtaAbschlussMatrix } from './tour-eta-abschluss-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1958,6 +1959,10 @@ export function DispatchBoard({
       {/* Phase 461: GPS-Signal-Alert — Fahrer mit veralteten GPS-Daten (>3 Min) werden hervorgehoben */}
       {drivers.filter(d => d.aktueller_batch_id !== null).length > 0 && (
         <DispatchGpsStalenessAlert drivers={drivers as any} />
+      )}
+      {/* Phase 462: Tour-ETA-Abschluss-Matrix — Tabellarische Übersicht aller Touren mit ETA + Ankunftszeit */}
+      {batches.filter(b => ['unterwegs','on_route','gestartet'].includes(b.status)).length > 0 && (
+        <DispatchTourEtaAbschlussMatrix batches={batches as any} />
       )}
       {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
