@@ -254,6 +254,8 @@ import { DispatchTourRueckkehrMatrix } from './tour-rueckkehr-matrix';
 import { DispatchFahrzeugTrackingOverlay } from './fahrzeug-tracking-overlay';
 import { DispatchZonenKapazitaetsRadar } from './zonen-kapazitaets-radar';
 import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
+import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets-matrix';
+import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
 
 type Driver = {
   employee_id: string;
@@ -1985,6 +1987,10 @@ export function DispatchBoard({
       <DispatchFahrzeugTrackingOverlay locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 477: Zonen-Kapazitäts-Radar — SVG-Radar: offene Batches + Fahrer pro Zone A/B/C/D */}
       <DispatchZonenKapazitaetsRadar locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 480: Fahrer-Zonen-Affinität-Matrix — Fahrer × Zonen A/B/C/D Affinitäts-Score + Empfehlung */}
+      <DispatchFahrerZonenAffinitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 481: Fahrer-Rückkehr-Prognose — Live-Kacheln: wann kommt welcher Fahrer zurück + Restkapazität */}
+      <DispatchFahrerRueckkehrPrognosePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 479: Tour-Nächste-Stopp-Matrix — Alle aktiven Touren mit nächstem Stopp + ETA-Ampel */}
       <DispatchTourNaechsteStoppMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 465: Benchmark-Verlauf-Chart — 28-Tage Trend je Metrik als Liniendiagramm */}

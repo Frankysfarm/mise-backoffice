@@ -1,8 +1,96 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–479 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
-CEO Review #259 (2026-06-23): 2 TS-Fehler in kitchen/bestell-eingangs-ticker.tsx + kitchen/fahrer-kochstart-sync.tsx gefixt. TypeScript sauber.
+**Phasen 1–482 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Agent (2026-06-23): Phase 480–482 — Fahrer-Zonen-Affinität-Matrix, Fahrer-Rückkehr-Prognose, Küchen-Kapazitäts-Alert. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 480–482 — Zonen-Affinität-Matrix, Rückkehr-Prognose, Küchen-Alert (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 480 Backend — Fahrer-Zonen-Affinität-API
+
+**`app/api/delivery/admin/fahrer-zonen-affinitaet/route.ts`:**
+- GET `?location_id=...` → FahrerZonenAffinitaetRow[] + topDriverPerZone
+- Kombinierter Score 0–100: 50% Affinitäts-Score (driver_zone_stats) + 30% Kundenbewertung (customer_delivery_ratings × zone) + 20% Pünktlichkeits-Bonus
+- Rating-Join: customer_delivery_ratings → customer_orders.delivery_zone → Aggregation je Fahrer×Zone
+- Empfehlung: Zone mit höchstem Combined-Score je Fahrer
+- Multi-Tenant: ALLE Queries filtern location_id
+- Sortierung: nach totalDeliveries desc
+
+### Phase 480 Frontend — DispatchFahrerZonenAffinitätsMatrix
+
+**`app/(admin)/dispatch/fahrer-zonen-affinitaets-matrix.tsx`** — `DispatchFahrerZonenAffinitaetsMatrix`:
+- Tabelle: Fahrer × Zonen A/B/C/D mit Affinitäts-Score + Stern-Rating + Lieferanzahl
+- Farbkodierung: ≥70 = matcha / ≥40 = amber / <40 = grau
+- Top-Driver-per-Zone Zusammenfassung oben als farbige Pills (Zone A matcha / B blau / C amber / D rot)
+- Empfohlene Zone je Fahrer als grüne Ring-Markierung + Badge
+- ScoreCell: combinedScore + Lieferanzahl + Ø-Sterne falls vorhanden
+- Collapsible, 60s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchZonenKapazitaetsRadar ✅
+
+### Phase 481 Backend — Fahrer-Rückkehr-Prognose-API
+
+**`app/api/delivery/admin/fahrer-rueckkehr-prognose/route.ts`:**
+- GET `?location_id=...` → FahrerRueckkehrPrognose[] sortiert nach minutesUntilReturn
+- Basis: bestehende driver-return-prediction engine (getReturnPredictionDashboard)
+- Neu: `residualCapacity` — geschätzte zusätzliche Stops im nächsten 60-Min-Fenster nach Rückkehr (Bike: 2/h, Car: 3/h)
+- Urgency: soon (≤5 Min) / coming (≤20 Min) / later (>20 Min)
+- Summary: activeDrivers, returningWithin15Min, returningWithin30Min, avgMinutesUntilReturn
+
+### Phase 481 Frontend — DispatchFahrerRückkehrPrognosePanel
+
+**`app/(admin)/dispatch/fahrer-rueckkehr-prognose-panel.tsx`** — `DispatchFahrerRueckkehrPrognosePanel`:
+- Live-Kacheln je Fahrer: SVG-Rückkehr-Ring (Countdown-Visualization) + Name + Restzeit + Stops
+- ReturnRing: SVG-Kreis mit Fortschritt (0-60 Min), Farbe grün/amber/grau nach Dringlichkeit
+- ConfidenceDots: 3 Punkte (0-3) für Konfidenz-Level
+- Residual-Capacity Badge: "+N Stops Restkapazität" falls >0
+- Fahrzeug-Icon (Bike/Car)
+- Grid 1-2 Spalten responsive
+- 45s Auto-Refresh, Collapsible mit Rückkehr-Summary
+- Integration: `dispatch/client.tsx` nach DispatchFahrerZonenAffinitaetsMatrix ✅
+
+### Phase 482 Backend — Küchen-Kapazitäts-Alert-API
+
+**`app/api/delivery/admin/kitchen-capacity-alert/route.ts`:**
+- GET `?location_id=...` → { alertLevel, currentCount, threshold, pct, longestWaitMin, orders[] }
+- Zählt Bestellungen mit status in ('in_zubereitung', 'preparing', 'bestätigt', 'confirmed') letzte 3h
+- Schwellwert aus delivery_config (key: kitchen_max_concurrent_orders), Default: 8
+- Alert-Level: ok (≤75% Schwellwert) / warning (75–100%) / critical (>100%)
+- Bestellliste mit waitMin je Bestellung
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 482 Frontend — KitchenKapazitaetsAlert
+
+**`app/(admin)/kitchen/kitchen-capacity-alert.tsx`** — `KitchenKapazitaetsAlert`:
+- Alert-Banner: unsichtbar bei OK, amber bei warning, rot+pulsierend bei critical
+- Fortschrittsbalken: currentCount / threshold × 100%
+- Bestellliste (nur bei critical): Bestellnummern-Chips farbkodiert (>25 Min = rot, sonst amber)
+- Auto-Dismiss per X-Button; Re-Show bei Level-Eskalation
+- Longest-Wait-Hinweis ab 15 Min
+- 30s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach KitchenFahrerKochStartSync ✅
+
+### Integrations-Checkliste Phase 480–482
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchFahrerZonenAffinitaetsMatrix | dispatch/fahrer-zonen-affinitaets-matrix.tsx | dispatch/client.tsx nach ZonenKapazitaetsRadar | ✅ |
+| DispatchFahrerRueckkehrPrognosePanel | dispatch/fahrer-rueckkehr-prognose-panel.tsx | dispatch/client.tsx nach ZonenAffinitaetsMatrix | ✅ |
+| KitchenKapazitaetsAlert | kitchen/kitchen-capacity-alert.tsx | kitchen/client.tsx nach FahrerKochStartSync | ✅ |
+| fahrer-zonen-affinitaet API | app/api/delivery/admin/fahrer-zonen-affinitaet/route.ts | Neu | ✅ |
+| fahrer-rueckkehr-prognose API | app/api/delivery/admin/fahrer-rueckkehr-prognose/route.ts | Neu | ✅ |
+| kitchen-capacity-alert API | app/api/delivery/admin/kitchen-capacity-alert/route.ts | Neu | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 483 Backend:** Storefront Bewertungs-Widget — Token-Link an Kunden nach Lieferung → POST /api/delivery/customer/rating. Customer-Notify event `rating_request` mit Link.
+2. **Phase 483 Frontend:** BewertungsWidgetStorefront — 5-Sterne Inline-Bewertung in Bestellbestätigung (nutzt Phase 478 API). Animiertes Widget mit Danke-Bestätigung.
+3. **Phase 484 Backend:** Batch-Reassign-API — POST /api/delivery/admin/batch-reassign: Batch einem anderen verfügbaren Fahrer zuweisen. Benachrichtigung an neuen + alten Fahrer.
+4. **Phase 484 Frontend:** DispatchBatchReassignDialog — Modal zum Neubesetzen einer Tour. Zeigt verfügbare Fahrer + Score. Integration dispatch/client.tsx.
+5. **Phase 485 Backend:** Kitchen-Kapazitäts-Schwellwert-Config — CRUD für delivery_config key `kitchen_max_concurrent_orders`. API: GET/POST /api/delivery/admin/config?key=kitchen_max_concurrent_orders.
 
 ---
 

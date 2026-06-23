@@ -200,6 +200,7 @@ import { KitchenSmartBatchPriorisierung } from './smart-batch-priorisierung';
 import { KitchenOrderTimingProAnzeige } from './order-timing-pro-anzeige';
 import { KitchenBestellEingangsTicker } from './bestell-eingangs-ticker';
 import { KitchenFahrerKochStartSync } from './fahrer-kochstart-sync';
+import { KitchenKapazitaetsAlert } from './kitchen-capacity-alert';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1863,6 +1864,8 @@ export function KitchenBoard({
       <KitchenBestellEingangsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 480: Fahrer-Kochstart-Sync — Optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}
       <KitchenFahrerKochStartSync locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 482: Küchen-Kapazitäts-Alert — Warnung wenn >Schwellwert Bestellungen gleichzeitig in Zubereitung */}
+      <KitchenKapazitaetsAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
