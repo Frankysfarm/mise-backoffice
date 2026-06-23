@@ -246,6 +246,7 @@ import { DispatchEchtzeitKommandoZentrale } from './echtzeit-kommando-zentrale';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchTourEtaAbschlussMatrix } from './tour-eta-abschluss-matrix';
 import { DispatchSchichtBenchmarkCard } from './schicht-benchmark-card';
+import { DispatchTourStopFortschrittLive } from './tour-stop-fortschritt-live';
 
 type Driver = {
   employee_id: string;
@@ -1967,6 +1968,8 @@ export function DispatchBoard({
       )}
       {/* Phase 463: Schicht-Benchmark-Card — Heute vs. 4-Wochen-Ø (Bestellungen, Umsatz, Pünktlichkeit, Score, Lieferzeit) */}
       <DispatchSchichtBenchmarkCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 463: Tour-Stop-Fortschritt-Live — Stop-Punkte + Balken für alle aktiven Touren */}
+      <DispatchTourStopFortschrittLive batches={batches as any} />
       {/* Phase 416: Storno-Muster-Panel — Dispatch-Perspektive: kein_fahrer + zone_problem Hotspots */}
       <DispatchStornoMusterPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 419: Wartezeit-Dispatch-Board — Pipeline-Funnel, Engpass-Ampel, Fahrer-Abholwartezeit */}

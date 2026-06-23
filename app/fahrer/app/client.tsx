@@ -192,6 +192,7 @@ import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
 import { TourHeimkehrCountdown } from './tour-heimkehr-countdown';
 import { StopAbschlussSchnellPanel } from './stop-abschluss-schnell-panel';
 import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
+import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
 
 type Driver = {
   id: string;
@@ -1147,6 +1148,21 @@ export function FahrerApp({
             </div>
           );
         })()}
+
+        {/* Phase 463: Nächster-Stopp-ETA-Ring — Countdown-Ring + Adresse für den nächsten Stopp */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <div className="px-4">
+            <NaechsterStoppEtaRing
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                kunde_name: s.order.kunde_name,
+                kunde_adresse: [s.order.kunde_adresse, s.order.kunde_plz].filter(Boolean).join(', ') || null,
+                geliefert_am: s.geliefert_am,
+                sequence: s.reihenfolge,
+              }))}
+            />
+          </div>
+        )}
 
         {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
         {activeBatch && activeBatch.status === 'unterwegs' && (

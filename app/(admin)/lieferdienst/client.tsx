@@ -237,6 +237,7 @@ import { ZoneLiveHeatmapPanel } from './zone-live-heatmap-panel';
 import { LieferdienstTagesKpiCockpit } from './tages-kpi-cockpit';
 import { SchichtTempoVelocity } from './schicht-tempo-velocity';
 import { FahrerAuslastungsCockpit } from './fahrer-auslastungs-cockpit';
+import { SchichtOnTimeRing } from './schicht-on-time-ring';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1469,6 +1470,8 @@ export function LieferdienstClient() {
               <SchichtTempoVelocity locationId={locationId} />
               {/* Phase 462: Fahrer-Auslastungs-Cockpit — Live-Auslastung aller Online-Fahrer mit Stop-Details */}
               <FahrerAuslastungsCockpit locationId={locationId} />
+              {/* Phase 463: Schicht-Pünktlichkeitsring — On-Time-Rate letzte 2h als SVG-Donut mit Trend */}
+              <SchichtOnTimeRing locationId={locationId} />
               {/* Phase 425: Stunden-Performance-Matrix — 24h-Bestellverteilung als Heatmap */}
               <StundenPerformanceMatrix locationId={locationId} />
               {/* Stündliche Statistik — Echtzeit-Balkendiagramm Bestellungen & Umsatz je Stunde + KPI-Grid */}

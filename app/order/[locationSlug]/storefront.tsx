@@ -59,6 +59,7 @@ import { LiveWartezeitRing } from './components/live-wartezeit-ring';
 import { StorefrontLiveWartezeitRing } from './live-wartezeit-ring';
 import { LiveTrackingPulse } from './live-tracking-pulse';
 import { BestellungEmpfangsBestaetigung } from './bestellung-empfangs-bestaetigung';
+import { BestPhaseTimer } from './bestell-phase-timer';
 
 type Props = {
   location: Location;
@@ -493,6 +494,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <LiveTrackingPulse
               orderId={orderSuccess.orderId}
               locationId={location.id}
+            />
+          </div>
+        )}
+        {/* Phase 463: Phase-Timer — Live-Countdown der aktuellen Bestellphase */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <BestPhaseTimer
+              orderId={orderSuccess.orderId}
+              estimatedMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
             />
           </div>
         )}

@@ -194,6 +194,7 @@ import { KitchenOrderKomplexitaetsAmpel } from './order-komplexitaets-ampel';
 import { KitchenSmartFarbkodierungCockpit } from './smart-farbkodierung-cockpit';
 import { KitchenOnTimeQuoteRing } from './on-time-quote-ring';
 import { KitchenBatchAbholbereitBoard } from './batch-abholbereit-board';
+import { KitchenKochzeitSollIstAmpel } from './kochzeit-soll-ist-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1845,6 +1846,8 @@ export function KitchenBoard({
       <KitchenOnTimeQuoteRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 462: Batch-Abholbereit-Board — Fertige Bestellungen die noch auf Abholung warten */}
       <KitchenBatchAbholbereitBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 463: Kochzeit-Soll-Ist-Ampel — Ø Abweichung Ist-Kochzeit vs. Zielzeit letzte 90 Min */}
+      <KitchenKochzeitSollIstAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
