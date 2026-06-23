@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { LieferstatistikDashboard } from './liefer-statistik-dashboard';
 import type {
   AnalyticsDashboard,
   AnalyticsSnapshot,
@@ -455,6 +456,12 @@ export function DeliveryAnalyticsClient() {
           <TopDriversTable drivers={topDrivers} />
         </Card>
       </div>
+
+      {/* Liefer-Statistiken: Segmentierung nach Zone/Typ/Zahlung */}
+      <Card className="bg-gray-900 border-gray-700/50 p-5">
+        <h3 className="text-white font-semibold mb-4">Liefer-Statistiken — Segmentanalyse</h3>
+        <LieferstatistikDashboard />
+      </Card>
     </div>
   );
 }
