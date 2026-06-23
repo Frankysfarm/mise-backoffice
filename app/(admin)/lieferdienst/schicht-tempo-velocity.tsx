@@ -114,7 +114,7 @@ export function SchichtTempoVelocity({ locationId }: Props) {
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb' }}
               labelStyle={{ fontWeight: 700 }}
-              formatter={(val: number) => [`${val} Bestellungen`, 'Lieferungen']}
+              formatter={(val) => [`${Number(val)} Bestellungen`, 'Lieferungen']}
             />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {buckets.map((b, i) => (

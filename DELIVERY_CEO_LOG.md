@@ -1,7 +1,79 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–460 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–462 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #254 — Phase 461+462: 10 neue Smart-Delivery-Komponenten geprüft, 5 Bugs gefixt (2026-06-23)
+
+### Commits geprüft
+- `a88832b` feat(delivery/frontend): Phase 461 — 5 neue Smart-Delivery-Komponenten
+- `291dbd9` feat(delivery/frontend): Phase 462 — 5 weitere Smart-Delivery-Komponenten
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **Exit Code 0, 0 Fehler** ✅ (nach 5 Bug-Fixes)
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+
+### Bugs gefixt in Review #254
+
+#### Bug 1 — TS7006 Implicit any in batch-abholbereit-board.tsx
+**Datei:** `app/(admin)/kitchen/batch-abholbereit-board.tsx:49`
+**Problem:** `(data ?? []).map((r) => ...)` — `r` implizit `any`, da Supabase-Query mit `delivery_zone` nicht vollständig in generierten Types vorhanden.
+**Fix:** Inline-Typ-Annotation: `(r: { id: string; bestellnummer: string; fertig_am: string | null; delivery_zone: string | null })`.
+
+#### Bug 2+3 — TS7006 Implicit any in fahrer-auslastungs-cockpit.tsx
+**Datei:** `app/(admin)/lieferdienst/fahrer-auslastungs-cockpit.tsx:50,54`
+**Problem:** `drivers.filter((d) => ...)` + `online.map(async (d) => ...)` — `d` implizit `any` durch Supabase Join-Query mit `employee:employees(...)`.
+**Fix:** `RawDriver`-Typ lokal definiert, `(drivers as RawDriver[]).filter(...)` — beide Parameter automatisch typisiert.
+
+#### Bug 4 — TS2322 Recharts Formatter-Typ in schicht-tempo-velocity.tsx
+**Datei:** `app/(admin)/lieferdienst/schicht-tempo-velocity.tsx:117`
+**Problem:** `formatter={(val: number) => ...}` — `: number`-Annotation inkompatibel mit Recharts `ValueType | undefined`.
+**Fix:** Typ-Annotation entfernt, `Number(val)` für sichere Konvertierung.
+
+#### Bug 5 — TS7006 Implicit any in live-tracking-pulse.tsx
+**Datei:** `app/order/[locationSlug]/live-tracking-pulse.tsx:49`
+**Problem:** Supabase `postgres_changes`-Callback `(payload) => ...` — `payload` implizit `any`.
+**Fix:** `(payload: { new: Record<string, unknown> }) => ...` — konservative Typisierung, cast-kompatibel mit bestehendem `payload.new as { status?: string }`.
+
+### Phase 461 Komponenten
+**KitchenOnTimeQuoteRing** (`kitchen/on-time-quote-ring.tsx`): SVG-Donut-Ring Pünktlichkeitsquote letzte 60 Min ✅ — Integration: kitchen/client.tsx ✅
+**DispatchGpsStalenessAlert** (`dispatch/gps-staleness-alert.tsx`): Alert für Fahrer mit veralteten GPS-Daten (>3 Min) ✅ — Integration: dispatch/client.tsx ✅
+**TourHeimkehrCountdown** (`fahrer/app/tour-heimkehr-countdown.tsx`): Animierter Countdown bis Tourende für Fahrer-App ✅ — Integration: fahrer/app/client.tsx ✅
+**SchichtTempoVelocity** (`lieferdienst/schicht-tempo-velocity.tsx`): Bestellungen/Stunde Balkendiagramm + Trend-Indikator ✅ — Integration: lieferdienst/client.tsx ✅
+**LiveTrackingPulse** (`live-tracking-pulse.tsx`): 5-Phasen animierte Timeline für Storefront-Bestellstatus ✅ — Integration: storefront.tsx ✅
+
+### Phase 462 Komponenten
+**KitchenBatchAbholbereitBoard** (`kitchen/batch-abholbereit-board.tsx`): Alert für fertige Bestellungen die auf Fahrer warten ✅ — Integration: kitchen/client.tsx ✅
+**DispatchTourEtaAbschlussMatrix** (`dispatch/tour-eta-abschluss-matrix.tsx`): Tabellarische ETA+Ankunftszeit aller aktiven Touren ✅ — Integration: dispatch/client.tsx ✅
+**StopAbschlussSchnellPanel** (`fahrer/app/stop-abschluss-schnell-panel.tsx`): 2-Tap Abschluss-Panel mit Navi+Anruf für Fahrer-App ✅ — Integration: fahrer/app/client.tsx ✅
+**FahrerAuslastungsCockpit** (`lieferdienst/fahrer-auslastungs-cockpit.tsx`): Live-Auslastungs-Dashboard aller Online-Fahrer ✅ — Integration: lieferdienst/client.tsx ✅
+**BestellungEmpfangsBestaetigung** (`storefront/bestellung-empfangs-bestaetigung.tsx`): Animierte Eingangsbestätigung mit ETA-Ring ✅ — Integration: storefront.tsx ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #254
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 461+462: alle 10 Komponenten vollständig + integriert ✅
+- 5 Bugs gefixt: 3× implicit any + 1× Recharts Formatter + 1× Supabase Callback ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 463 Backend:** API `GET /api/delivery/admin/gps-positions` — Aggregierte GPS-Positionen aller Fahrer der Location: letzte bekannte Position (lat/lng/timestamp) aus `delivery_driver_positions` oder `mise_delivery_batches`. Response: `GpsPosition[]` mit `driver_id, driver_name, lat, lng, updated_at, staleness_min`. Für DispatchGpsStalenessAlert Echtzeitdaten.
+2. **Phase 464 Backend:** API `GET /api/delivery/admin/on-time-stats?minutes=60` — Pünktlichkeitsanalyse letzte N Minuten: abgeschlossene Lieferungen, davon pünktlich (geliefert_am ≤ eta_deadline), zu spät (gap_min > 0), Pünktlichkeits-Quote (%). Response: `OnTimeStats` mit `total, onTime, late, quotePct, avgDelayMin`.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 463 Frontend:** DispatchFahrerGpsKarte — Leaflet/Google-Maps-Embed mit allen Online-Fahrern als farbige Pins (grün=aktiv/amber=stale/rot=offline), Click → Fahrer-Detail. Polling 30s. Integration: dispatch/client.tsx.
+2. **Phase 464 Frontend:** KitchenEchtzeit-Bestell-Ticker — Horizontaler Laufband-Ticker neuer Bestellungen via Supabase Realtime (INSERT auf customer_orders), zeigt Bestellnummer + Zone + Artikel-Anzahl, automatische Ausblendung nach 30s. Integration: kitchen/client.tsx.
 
 ---
 

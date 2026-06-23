@@ -46,7 +46,7 @@ export function KitchenBatchAbholbereitBoard({ locationId }: Props) {
       if (!mountedRef.current) return;
       const now = Date.now();
       setOrders(
-        (data ?? []).map((r) => ({
+        (data ?? []).map((r: { id: string; bestellnummer: string; fertig_am: string | null; delivery_zone: string | null }) => ({
           id: r.id,
           bestellnummer: r.bestellnummer,
           fertig_am: r.fertig_am,

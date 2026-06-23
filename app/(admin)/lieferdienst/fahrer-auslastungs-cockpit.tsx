@@ -47,7 +47,8 @@ export function FahrerAuslastungsCockpit({ locationId }: Props) {
 
       if (!mountedRef.current || !drivers) return;
 
-      const online = drivers.filter((d) => d.ist_online);
+      type RawDriver = { id: string; ist_online: boolean; fahrzeug: string; aktueller_batch_id: string | null; employee: { vorname: string; nachname: string } | null };
+      const online = (drivers as RawDriver[]).filter((d) => d.ist_online);
 
       // Get active stops for each driver with active batch
       const driverLoads: DriverLoad[] = await Promise.all(

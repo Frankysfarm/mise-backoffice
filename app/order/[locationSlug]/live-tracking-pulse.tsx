@@ -46,7 +46,7 @@ export function LiveTrackingPulse({ orderId, locationId }: Props) {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           const st = (payload.new as { status?: string })?.status;
           if (st) setPhase(statusToPhase(st));
         },
