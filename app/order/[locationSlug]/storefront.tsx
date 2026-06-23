@@ -60,6 +60,7 @@ import { StorefrontLiveWartezeitRing } from './live-wartezeit-ring';
 import { LiveTrackingPulse } from './live-tracking-pulse';
 import { BestellungEmpfangsBestaetigung } from './bestellung-empfangs-bestaetigung';
 import { BestPhaseTimer } from './bestell-phase-timer';
+import { LiveOrderKompass } from './live-order-kompass';
 
 type Props = {
   location: Location;
@@ -503,6 +504,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <BestPhaseTimer
               orderId={orderSuccess.orderId}
               estimatedMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+            />
+          </div>
+        )}
+        {/* Phase 470: Live-Order-Kompass — Stufen-Tracker mit Fahrernamen + ETA-Countdown */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <LiveOrderKompass
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              estimatedMinutes={orderSuccess.eta}
             />
           </div>
         )}

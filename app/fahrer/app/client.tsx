@@ -194,6 +194,7 @@ import { StopAbschlussSchnellPanel } from './stop-abschluss-schnell-panel';
 import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
 import { FahrerCoachingWidget } from './fahrer-coaching-widget';
 import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
+import { FahrerStopAktionsPanel } from './fahrer-stop-aktions-panel';
 
 type Driver = {
   id: string;
@@ -1325,6 +1326,14 @@ export function FahrerApp({
           <div className="px-4">
             <NaechsterStoppVorschau
               stops={activeBatch.stops as any}
+              driverLat={driverPos?.lat}
+              driverLng={driverPos?.lng}
+            />
+          </div>
+          {/* Phase 469: Stop-Aktions-Panel — Navigation + Kundenkontakt + Nächster-Stopp-Vorschau für aktuellen Stopp */}
+          <div className="px-4">
+            <FahrerStopAktionsPanel
+              activeBatch={activeBatch as any}
               driverLat={driverPos?.lat}
               driverLng={driverPos?.lng}
             />

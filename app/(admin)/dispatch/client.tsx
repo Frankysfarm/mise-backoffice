@@ -248,6 +248,7 @@ import { DispatchTourEtaAbschlussMatrix } from './tour-eta-abschluss-matrix';
 import { DispatchSchichtBenchmarkCard } from './schicht-benchmark-card';
 import { DispatchBenchmarkVerlaufChart } from './benchmark-verlauf-chart';
 import { DispatchTourStopFortschrittLive } from './tour-stop-fortschritt-live';
+import { DispatchTourRueckkehrMatrix } from './tour-rueckkehr-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1919,6 +1920,8 @@ export function DispatchBoard({
       )}
       {/* Tour-Score-Board: priorisierte Liste aktiver Touren nach ETA-Gesundheit */}
       {batches.length > 0 && <DispatchActiveTourScoreBoard batches={batches} drivers={drivers} />}
+      {/* Phase 468: Fahrer-Rückkehr-Matrix — Wann kommt welcher Fahrer zurück + Stopp-Fortschritt */}
+      {batches.length > 0 && <DispatchTourRueckkehrMatrix batches={batches as any} drivers={drivers as any} stops={stops as any} />}
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}

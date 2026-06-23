@@ -240,6 +240,7 @@ import { LieferdienstTagesKpiCockpit } from './tages-kpi-cockpit';
 import { SchichtTempoVelocity } from './schicht-tempo-velocity';
 import { FahrerAuslastungsCockpit } from './fahrer-auslastungs-cockpit';
 import { SchichtOnTimeRing } from './schicht-on-time-ring';
+import { LieferdienstSchichtSchnellStatus } from './schicht-schnell-status';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1175,6 +1176,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 471: Schicht-Schnell-Status — 6 KPI-Kacheln auf einen Blick: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno */}
+              <LieferdienstSchichtSchnellStatus locationId={locationId ?? null} />
               {/* Phase 453: Executive-KPI-Kommando — Konsolidiertes Tages-Dashboard: Bestellungen, Umsatz, Lieferzeit, SLA, Fahrer, Storno */}
               <LieferdienstExecutiveKpiKommando locationId={locationId ?? null} />
               {/* Schicht-Alarm-Zentrale: Echtzeit-Alerts für SLA-Risiken, Küchen-Rückstau und hängende Lieferungen */}
