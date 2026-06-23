@@ -56,6 +56,7 @@ import { DynamischeEtaBand } from './dynamische-eta-band';
 import { BestellungAktivitaetsTimeline } from '../bestellung-aktivitaets-timeline';
 import { BestellPhaseCountdown } from './bestell-phase-countdown';
 import { LieferStageLiveTracker } from './liefer-stage-live-tracker';
+import { BestellEtaLiveLeiste } from '../bestell-eta-live-leiste';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -944,6 +945,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             bestellnummer={bestellnummer}
             initialEtaMin={etaMinutes > 0 ? etaMinutes : null}
             initialStatus={liveStatus}
+          />
+        )}
+        {/* Phase 493: BestellEtaLiveLeiste — Dynamische ETA-Leiste mit Phasen + Fahrer-Näherungs-Indikator */}
+        {isDelivery && (
+          <BestellEtaLiveLeiste
+            orderId={orderId}
+            initialStatus={liveStatus}
+            initialEtaMin={etaMinutes > 0 ? etaMinutes : null}
+            bestelltAm={new Date().toISOString()}
+            className="mt-3 w-full"
           />
         )}
         {/* Phase 397: Bestellung-Live-Verfolgung — 4-Phasen-Timeline mit Fahrer-Info + Live-Countdown */}
