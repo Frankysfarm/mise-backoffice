@@ -56,6 +56,7 @@ import { StorefrontFahrerKarte } from './storefront-fahrer-karte';
 import { OrderJourneyTimeline } from './order-journey-timeline';
 import { EtaDynamicLivePanel } from './eta-dynamic-live-panel';
 import { LiveWartezeitRing } from './components/live-wartezeit-ring';
+import { StorefrontLiveWartezeitRing } from './live-wartezeit-ring';
 
 type Props = {
   location: Location;
@@ -471,6 +472,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderedAt={orderSuccess.orderedAt}
               etaMinutes={orderSuccess.eta}
               orderType={orderSuccess.type}
+            />
+          </div>
+        )}
+        {/* Phase 460: SVG-Countdown-Ring mit Live-API-Polling */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.eta > 0 && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <StorefrontLiveWartezeitRing
+              orderId={orderSuccess.orderId}
+              etaMinutes={orderSuccess.eta}
+              locationId={location.id}
             />
           </div>
         )}
