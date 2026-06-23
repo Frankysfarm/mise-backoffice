@@ -7512,3 +7512,85 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 1. **Phase 465 Backend:** Schicht-Benchmark-Verlauf — Historische Benchmark-Ergebnisse (letzte 4 Wochen) je Location. API: `GET /api/delivery/admin/schicht-benchmark?history=true`. Frontend: DispatchBenchmarkVerlaufChart in Dispatch.
 2. **Phase 465 Frontend:** Selbst-Bewertungs-Übersicht im Admin (Lieferdienst) — Tages-Übersicht aller Fahrer-Selbstbewertungen mit Durchschnitt + Stimmungsverteilung.
 3. **Phase 466 Backend:** Fahrer-Pünktlichkeits-Coach — Automatische Tipps wenn Pünktlichkeit < 80% (basierend auf schicht_abschluss_berichte). Speichert in `fahrer_coaching_hinweise`.
+
+---
+
+## Phase 467-471 Frontend — 5 neue Smart-Delivery-Komponenten
+
+### Phase 467 — KitchenFahrerKochSyncPanel
+
+**`app/(admin)/kitchen/fahrer-koch-sync-panel.tsx`** — `KitchenFahrerKochSyncPanel`:
+- Zeigt Zeitlücke (Gap in Min) zwischen Koch-Fertigzeit und Fahrer-ETA je aktiver Bestellung
+- Dringlichkeits-Zustände: `'perfect' | 'short-wait' | 'long-wait' | 'early-driver' | 'unknown'`
+- Gap-Formel: `gapMin = Math.round((cookReadyMs - driverEtaMs) / 60_000)`
+- Farbkodierung: Rot >10 Min Warten | Amber 3-10 Min | Grün perfekt (-3 bis 3) | Blau Fahrer früh (<-3)
+- Live-Ticker alle 1s, sortiert nach schlechtesten Werten zuerst
+- Collapsible mit ChevronDown/Up
+- Integration: `kitchen/client.tsx` am Ende ✅
+
+### Phase 468 — DispatchTourRueckkehrMatrix
+
+**`app/(admin)/dispatch/tour-rueckkehr-matrix.tsx`** — `DispatchTourRueckkehrMatrix`:
+- Matrix: Wann kommt welcher aktive Fahrer zurück zur Basis?
+- Dringlichkeits-Stufen: `'soon' | 'mid' | 'far' | 'unknown'`
+  - soon = ≤5 Min (grün), mid = ≤15 Min (amber), far = >15 Min (grau)
+- Zeigt: Fahrername, Stop-Fortschrittsbalken, Rückkehr-Zeit HH:MM, Verbleibende Minuten, Badge
+- Aktive Batch-Status: `['pickup', 'unterwegs', 'assigned', 'at_restaurant', 'on_route', 'pending_acceptance']`
+- 30s Auto-Refresh, sortiert nach frühester Rückkehr zuerst
+- Integration: `dispatch/client.tsx` nach DispatchActiveTourScoreBoard ✅
+
+### Phase 469 — FahrerStopAktionsPanel
+
+**`app/fahrer/app/fahrer-stop-aktions-panel.tsx`** — `FahrerStopAktionsPanel`:
+- Fokussiertes Aktions-Panel für den aktuellen Liefer-Stopp
+- Zeigt: Stopp-Nr./Gesamt, Kundenname (groß), Adresse, Navigations-Buttons, Telefon, Notizen, Nächster-Stopp-Vorschau
+- 3-Wege Navigation via Deep-Links:
+  - Google Maps: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+  - Waze: `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+  - Apple Maps: `maps://maps.apple.com/?daddr=${lat},${lng}`
+- Fallback auf Adress-String wenn keine Koordinaten vorhanden
+- Amber-Box für Kundennotizen/Lieferhinweise
+- Dark Mobile-First Design (bg-gray-800, bg-matcha-900)
+- Integration: `fahrer/app/client.tsx` nach NaechsterStoppVorschau ✅
+
+### Phase 470 — LiveOrderKompass
+
+**`app/order/[locationSlug]/live-order-kompass.tsx`** — `LiveOrderKompass`:
+- 5-Stufen Bestellstatus-Kompass für Kunden
+- Stufen: Empfangen (neu/bestätigt) → Wird zubereitet → Fertig → Wird geliefert → Geliefert
+- Polling `/api/delivery/customer/tracking?order_id=${orderId}` alle 30s
+- API-Antwort: `{ status: string, eta_min: number | null, driver_name: string | null }`
+- Icons je Stufe: Package / ChefHat / Package / Bike / Check
+- Farben: grau → amber → blau → matcha-grün → matcha-grün
+- ETA-Countdown + Fahrername wenn verfügbar
+- Integration: `order/[locationSlug]/storefront.tsx` im Erfolgs-Screen (nur bei Lieferung) ✅
+
+### Phase 471 — LieferdienstSchichtSchnellStatus
+
+**`app/(admin)/lieferdienst/schicht-schnell-status.tsx`** — `LieferdienstSchichtSchnellStatus`:
+- 6 KPI-Kacheln auf einen Blick für Schicht-Übersicht
+- KPIs: Bestellungen (📦) / Umsatz (💶) / Ø Lieferzeit (⏱️) / Pünktlichkeit (✅) / Aktive Fahrer (🚴) / Stornoquote (❌)
+- Polling `/api/delivery/admin/overview?location_id=${locationId}&period=today` alle 60s
+- Pünktlichkeits-Farbkodierung: ≥85% grün / 70-85% amber / <70% rot
+- Collapsible mit ChevronDown/Up-Toggle
+- Lade-Skeleton: 6 animierte Pulse-Kacheln
+- TrendIcon-Helper: TrendingUp/Down/Minus
+- Integration: `lieferdienst/client.tsx` als ERSTES Element in Stats-Ansicht ✅
+
+### Integrations-Checkliste Phase 467-471
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenFahrerKochSyncPanel | kitchen/fahrer-koch-sync-panel.tsx | kitchen/client.tsx Ende | ✅ |
+| DispatchTourRueckkehrMatrix | dispatch/tour-rueckkehr-matrix.tsx | dispatch/client.tsx nach TourScoreBoard | ✅ |
+| FahrerStopAktionsPanel | fahrer/app/fahrer-stop-aktions-panel.tsx | fahrer/app/client.tsx nach NaechsterStoppVorschau | ✅ |
+| LiveOrderKompass | order/[locationSlug]/live-order-kompass.tsx | storefront.tsx Erfolgs-Screen | ✅ |
+| LieferdienstSchichtSchnellStatus | lieferdienst/schicht-schnell-status.tsx | lieferdienst/client.tsx Stats-Ansicht oben | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 472 Kitchen:** Smart-Batch-Priorisierung — Automatische Priorisierung von Batches basierend auf Wartezeit + Fahrer-Verfügbarkeit
+2. **Phase 473 Dispatch:** Echtzeit-Fahrzeug-Tracking-Overlay — Live-Karte mit Fahrerpositionen und Routen-Visualisierung
+3. **Phase 474 Fahrer-App:** Offline-Modus + Sync — Lokale Zwischenspeicherung wenn kein Netz + automatische Synchronisation
+4. **Phase 475 Storefront:** Bewertungs-Flow nach Lieferung — Automatischer Prompt für Sterne-Bewertung nach Zustellung
+5. **Phase 476 Lieferdienst:** Schicht-Abschluss-Bericht-Generator — PDF/Export der Schicht-KPIs mit Trend-Vergleich
