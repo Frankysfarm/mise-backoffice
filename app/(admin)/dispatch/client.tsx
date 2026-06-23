@@ -266,6 +266,7 @@ import { DispatchZoneActionBoard } from './zone-action-board';
 import { DispatchFahrerFunkBoard } from './dispatch-fahrer-funk-board';
 import { DispatchTourKapazitaetsWarnung } from './tour-kapazitaets-warnung';
 import { DispatchFahrerScoreSummaryCard } from './fahrer-score-summary-card';
+import { DispatchPhase500StrategyPanel } from './phase500-strategy-panel';
 
 type Driver = {
   employee_id: string;
@@ -2043,6 +2044,16 @@ export function DispatchBoard({
       <DispatchTourKapazitaetsWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 495: Fahrer-Score-Zusammenfassung — Pünktlichkeit + Bewertung + GPS + Engagement */}
       <DispatchFahrerScoreSummaryCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 500: Strategy-Panel — Dispatch-Strategie (Speed/Balance/Spar) + Tour-Gesundheits-Score */}
+      <DispatchPhase500StrategyPanel
+        batches={batches.map(b => ({
+          id: b.id,
+          status: b.status,
+          total_eta_min: b.total_eta_min,
+          started_at: b.startzeit ?? null,
+          stops: b.stops.map(s => ({ geliefert_am: s.geliefert_am })),
+        }))}
+      />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

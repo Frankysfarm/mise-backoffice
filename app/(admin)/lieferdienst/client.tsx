@@ -248,6 +248,7 @@ import { LieferdienstKennzahlenHub } from './kennzahlen-hub';
 import { SchichtFahrerEinnahmenRanking } from './schicht-fahrer-einnahmen-ranking';
 import { SchichtPulsLive } from './schicht-puls-live';
 import { LieferZonenProfitMatrix } from './liefer-zonen-profit-matrix';
+import { LieferdienstPhase500StatistikenDashboard } from './phase500-statistiken-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1630,6 +1631,8 @@ export function LieferdienstClient() {
               <>
                 <LiveDeliveryStatusBar />
                 <StatisticsView orders={orders} completedOrders={completedOrders} />
+                {/* Phase 500: Statistiken-Dashboard — Umsatz, Bestellungen, Stornoquote, Stundenverlauf, Peak-Analyse */}
+                <LieferdienstPhase500StatistikenDashboard locationId={locationId} />
               </>
             </div>
           )}

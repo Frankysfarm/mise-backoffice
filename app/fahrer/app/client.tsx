@@ -203,6 +203,7 @@ import { TourStopKommando } from './tour-stop-kommando';
 import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
 import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
 import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
+import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav';
 
 type Driver = {
   id: string;
@@ -1851,6 +1852,12 @@ export function FahrerApp({
                 batchId={activeBatch.id}
                 driverId={driver.id}
               />
+            </div>
+          )}
+          {/* Phase 500: Nächster-Stopp-Navigator — One-Tap Navigation + Countdown + Kundendaten + ETA */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase500NaechsterStoppNav stops={activeBatch.stops as any} />
             </div>
           )}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}
