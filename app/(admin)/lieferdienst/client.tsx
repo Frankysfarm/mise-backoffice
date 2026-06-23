@@ -229,6 +229,7 @@ import { WiederkaufPrognosenPanel } from './wiederkauf-prognosen-panel';
 import { EinnahmenTrichterPanel } from './einnahmen-trichter-panel';
 import { SchichtLiveBilanz } from './schicht-live-bilanz';
 import { StundenPerformanceMatrix } from './stunden-performance-matrix';
+import { SchichtMargenAnalyse } from './schicht-margen-analyse';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1443,6 +1444,8 @@ export function LieferdienstClient() {
               <WiederkaufPrognosenPanel locationId={locationId ?? null} />
               {/* Phase 439: Einnahmen-Trichter — Konversionsanalyse Eingegangen→Küche→Unterwegs→Geliefert */}
               <EinnahmenTrichterPanel locationId={locationId ?? null} />
+              {/* Phase 440: Schicht-Margen-Analyse — Kosten/Bestellung, Break-Even, Netto-Marge je Schicht */}
+              <SchichtMargenAnalyse locationId={locationId ?? null} />
               {/* Schicht-Live-Bilanz — Kompaktes Echtzeit-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) */}
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

@@ -116,6 +116,7 @@ import { KitchenPrepEffizienzLive } from './prep-effizienz-live';
 import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
 import { KitchenSchichtSofortCockpit } from './schicht-sofort-cockpit';
 import { KitchenSmartTimingDashboard } from './smart-timing-dashboard';
+import { KitchenZonenKochstartSynchro } from './zonen-kochstart-synchro';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -779,6 +780,8 @@ export function KitchenBoard({
         onStartCooking={(id) => startCookingNow(id)}
         onMarkReady={(id) => markTimingReady(id)}
       />
+      {/* Phase 440: Zonen-Kochstart-Synchro — Synchronisierte Kochstarts je Lieferzone, reduziert Fahrer-Wartezeit */}
+      <KitchenZonenKochstartSynchro orders={filtered} timings={timings} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}

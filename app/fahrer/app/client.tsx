@@ -184,6 +184,7 @@ import { StopCompass } from './stop-compass';
 import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
 import { FahrerStoppTempoAnzeige } from './stopp-tempo-anzeige';
 import { TourKompaktKommando } from './tour-kompakt-kommando';
+import { TourKompletierungsPrognose } from './tour-kompletierungs-prognose';
 
 type Driver = {
   id: string;
@@ -2130,6 +2131,23 @@ export function FahrerApp({
                       }
                     : null,
                 }))}
+              />
+            </div>
+          )}
+          {/* Phase 440: Tour-Kompletierungs-Prognose — präzise ETA aller verbleibenden Stopps mit Ø-Stopp-Zeit */}
+          {activeBatch.stops.length > 1 && (
+            <div className="px-4">
+              <TourKompletierungsPrognose
+                stops={activeBatch.stops.map(s => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge,
+                  geliefert_am: s.geliefert_am,
+                  eta_min: (s as any).eta_min ?? null,
+                  order: s.order
+                    ? { id: s.order.id, bestellnummer: s.order.bestellnummer, kunde_name: s.order.kunde_name }
+                    : null,
+                }))}
+                tourStart={activeBatch.started_at ?? null}
               />
             </div>
           )}
