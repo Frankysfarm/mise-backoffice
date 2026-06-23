@@ -64,6 +64,7 @@ import { LiveOrderKompass } from './live-order-kompass';
 import { BewertungsErinnerung } from './bestell-bewertungs-erinnerung';
 import { BewertungsFlow } from './bewertungs-flow';
 import { OrderLiveStatusPanel } from './order-live-status-panel';
+import { BestellungEtaStatusRing } from './bestellung-eta-status-ring';
 
 type Props = {
   location: Location;
@@ -517,6 +518,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               locationId={location.id}
               estimatedMinutes={orderSuccess.eta}
+            />
+          </div>
+        )}
+        {/* Phase 478: ETA-Status-Ring — SVG-Ring mit Phasen-Stepper, Echtzeit-Supabase-Updates */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <BestellungEtaStatusRing
+              orderId={orderSuccess.orderId}
+              initialStatus="bestätigt"
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : undefined}
             />
           </div>
         )}

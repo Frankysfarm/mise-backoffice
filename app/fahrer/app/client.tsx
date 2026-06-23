@@ -198,6 +198,7 @@ import { FahrerStopAktionsPanel } from './fahrer-stop-aktions-panel';
 import { FahrerOfflineSyncBanner } from './offline-sync-banner';
 import { OfflineSyncManager } from './offline-sync-manager';
 import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
+import { TourStoppOptimierung } from './tour-stopp-optimierung';
 
 type Driver = {
   id: string;
@@ -792,6 +793,14 @@ export function FahrerApp({
         <OfflineSyncManager />
         {/* Phase 474c: Tour-Stopp-Sequenz-Pro — Geordnete Stopp-Liste mit Navigation + Abschluss-Aktionen */}
         <TourStoppSequenzPro />
+        {/* Phase 476: Tour-Stopp-Optimierung — Optimierte Stopp-Reihenfolge nach Proximity mit ETA je Stopp */}
+        {activeBatch && (
+          <TourStoppOptimierung
+            stops={activeBatch.stops as any}
+            driverLat={driverPos?.lat ?? null}
+            driverLng={driverPos?.lng ?? null}
+          />
+        )}
 
         {/* Betriebsnachrichten vom Dispatch */}
         {visibleBroadcasts.map(b => (

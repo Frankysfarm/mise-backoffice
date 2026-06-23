@@ -199,6 +199,7 @@ import { KitchenFahrerKochSyncPanel } from './fahrer-koch-sync-panel';
 import { KitchenSmartBatchPriorisierung } from './smart-batch-priorisierung';
 import { KitchenOrderTimingProAnzeige } from './order-timing-pro-anzeige';
 import { KitchenBestellEingangsTicker } from './bestell-eingangs-ticker';
+import { KitchenFahrerKochStartSync } from './fahrer-kochstart-sync';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1860,6 +1861,8 @@ export function KitchenBoard({
       <KitchenOrderTimingProAnzeige />
       {/* Phase 478: Bestell-Eingangs-Ticker — Animierter Live-Ticker der letzten 15 neuen Bestellungen */}
       <KitchenBestellEingangsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 480: Fahrer-Kochstart-Sync — Optimaler Kochstart je Bestellung basierend auf Fahrer-ETA */}
+      <KitchenFahrerKochStartSync locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

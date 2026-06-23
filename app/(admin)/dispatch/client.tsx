@@ -253,6 +253,7 @@ import { DispatchTourStopFortschrittLive } from './tour-stop-fortschritt-live';
 import { DispatchTourRueckkehrMatrix } from './tour-rueckkehr-matrix';
 import { DispatchFahrzeugTrackingOverlay } from './fahrzeug-tracking-overlay';
 import { DispatchZonenKapazitaetsRadar } from './zonen-kapazitaets-radar';
+import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1984,6 +1985,8 @@ export function DispatchBoard({
       <DispatchFahrzeugTrackingOverlay locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 477: Zonen-Kapazitäts-Radar — SVG-Radar: offene Batches + Fahrer pro Zone A/B/C/D */}
       <DispatchZonenKapazitaetsRadar locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 479: Tour-Nächste-Stopp-Matrix — Alle aktiven Touren mit nächstem Stopp + ETA-Ampel */}
+      <DispatchTourNaechsteStoppMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 465: Benchmark-Verlauf-Chart — 28-Tage Trend je Metrik als Liniendiagramm */}
       <DispatchBenchmarkVerlaufChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 463: Tour-Stop-Fortschritt-Live — Stop-Punkte + Balken für alle aktiven Touren */}
