@@ -67,10 +67,10 @@ export async function GET(req: NextRequest) {
     snapshot_date: string;
     composite_score: number;
     f_punctuality: number;
-    mise_drivers: { name: string | null } | null;
+    mise_drivers: { name: string | null }[] | null;
   };
 
-  const snaps = (snapRows ?? []) as SnapRow[];
+  const snaps = (snapRows ?? []) as unknown as SnapRow[];
 
   // Fetch schicht_abschluss_berichte for deliveries per driver per day
   const { data: berichtRows } = await svc
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
   // Group snaps by driver
   const byDriver = new Map<string, { name: string; snaps: SnapRow[] }>();
   for (const snap of snaps) {
-    const drvName = (snap.mise_drivers as { name: string | null } | null)?.name ?? 'Unbekannt';
+    const drvName = (Array.isArray(snap.mise_drivers) ? snap.mise_drivers[0] : snap.mise_drivers)?.name ?? 'Unbekannt';
     if (!byDriver.has(snap.driver_id)) {
       byDriver.set(snap.driver_id, { name: drvName, snaps: [] });
     }

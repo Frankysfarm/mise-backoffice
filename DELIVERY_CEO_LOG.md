@@ -1,7 +1,77 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–442 vollständig abgeschlossen. Build sauber (366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–453 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #250 — Phase 443+450–453: Smart Timing, Tour Tracking, Live ETA, Executive KPIs (2026-06-23)
+
+### Commits geprüft
+- `e520397` feat(delivery/backend+frontend): Phase 443 — Fahrer-Tages-Bilanz + Live-Leistungsvergleich
+- `09aba21` feat(delivery/frontend): smart timing, tour tracking, live ETA & executive KPIs (Phase 450–453)
+
+### Build & TypeScript
+- **BUG GEFUNDEN & GEFIXT:** `fahrer-wochen-score/route.ts:73` — TS2352: Supabase gibt `mise_drivers` als Array `{ name: any }[]` zurück, aber `SnapRow`-Typ erwartete `{ name: string | null } | null` → Typ auf `{ name: string | null }[] | null` korrigiert + `as unknown as SnapRow[]` Cast + Zeile 95 auf `Array.isArray` Abfrage umgestellt.
+- `npx tsc --noEmit` → **0 Fehler** ✅ (nach Fix)
+- `npx next build` → **Exit Code 0** ✅
+
+### Phase 450–453 Komponenten — Code-Qualität
+
+**KitchenSmartKochstartLiveMatrix** (`kitchen/smart-kochstart-live-matrix.tsx`)
+- Urgency-Sortierung: ueberfaellig → kritisch → bald → ok → fertig ✅
+- MiniProgressRing SVG mit echtem stroke-dasharray ✅
+- Schnell-Aktionen: startCookingNow / markTimingReady Server-Actions ✅
+- Farbkodierung 5 Stufen korrekt ✅
+- Integration: `kitchen/client.tsx` nach KitchenRushHourHeatmap ✅
+
+**DispatchTourAktuelleUebersicht** (`dispatch/tour-aktuelle-uebersicht.tsx`)
+- Realtime via Supabase channel (`mise_delivery_batches` + `mise_delivery_batch_stops`) ✅
+- ScoreBar-Komponente mit Farbkodierung ≥80/≥60/<60 ✅
+- ElapsedTime live-Ticker (1s Interval) ✅
+- Integration: `dispatch/client.tsx` nach DispatchTourAbschlussPrognose ✅
+
+**TourStoppPrioritaetsNavigator** (`fahrer/app/tour-stopp-prioritaets-navigator.tsx`)
+- NextStop grüne Karte prominent, Navigation-Button + Anruf-Link ✅
+- EtaChip mit 30s Refresh-Interval ✅
+- Kassier-Info (Bar/Karte) + Lieferhinweise ✅
+- Integration: `fahrer/app/client.tsx:1062` bei `status === 'unterwegs'` ✅
+
+**LieferdienstExecutiveKpiKommando** (`lieferdienst/executive-kpi-kommando.tsx`)
+- 7 KPI-Kacheln: Bestellungen, Umsatz, Ø Lieferzeit, SLA-Quote, Fahrer online, Letzte Stunde, Stornoquote ✅
+- Parallele Supabase-Queries (Promise.all mit 6 gleichzeitigen Anfragen) ✅
+- Trend-Pfeile (up/down/neutral) ✅
+- 60s Auto-Refresh ✅
+- Integration: `lieferdienst/client.tsx` nach ExecutiveKpiKommando ✅
+
+**BISS-App OrderSuccess** (`biss-app/[slug]/client.tsx`)
+- bestellnummer jetzt als zweites onSuccess-Argument propagiert ✅
+- Live-Tracking-Link `/track/{bestellnummer}` ✅
+- EtaCountdown-Komponente (1s Countdown) ✅
+- Fahrer-Name + Stops-before in ETA-Daten ✅
+- statusMap normalisiert DB-Werte auf interne Step-Namen ✅
+
+### Bug gefixt in Review #250
+
+**TS2352 — fahrer-wochen-score/route.ts:73**
+- **Problem:** Supabase-Join auf `mise_drivers(name)` gibt `{ name: any }[]` zurück (Array), aber `SnapRow`-Interface definierte `mise_drivers: { name: string | null } | null` (single object). TypeScript konnte den Cast ablehnen.
+- **Fix:** `SnapRow.mise_drivers` → `{ name: string | null }[] | null`; Cast: `as unknown as SnapRow[]`; Zugriff Zeile 95: `Array.isArray(snap.mise_drivers) ? snap.mise_drivers[0] : snap.mise_drivers`.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| BISS-App ↔ Track-Page | ✅ |
+| Executive KPI ↔ Supabase | ✅ |
+
+### Status nach Review #250
+- Build: **Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅ (1 Bug gefixt)
+- Phasen 450–453: alle 5 Komponenten vollständig + integriert ✅
+- Kitchen ↔ Dispatch ↔ Driver ↔ BISS-Storefront synchron ✅
 
 ---
 
