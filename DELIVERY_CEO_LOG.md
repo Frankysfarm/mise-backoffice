@@ -1,7 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–471 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–479 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #259 — Phase 477–479 + Frontend-Fixes geprüft, 2 TS-Fehler gefixt (2026-06-23)
+
+### Commits geprüft
+- `545ff8c` — Smart-Timing, Tour-Matrix, ETA-Ring, Kennzahlen-Hub (Frontend Phase 480–484)
+- `bcd34a4` — Zonen-Radar, Rating-API, Ticker, N+1-Fix (Phase 477–479)
+
+### Build-Status
+- Next.js Build: **366 Seiten, Exit 0** ✅
+- TypeScript `tsc --noEmit`: **0 Fehler nach Fixes** ✅
+
+### Bugs gefixt in Review #259
+
+#### Bug 1 — TS7006 Implicit any in KitchenBestellEingangsTicker
+**Datei:** `app/(admin)/kitchen/bestell-eingangs-ticker.tsx:69`
+**Problem:** `data.map((o) => ...)` — Parameter `o` implizit `any`, da Supabase-Query-Rückgabetyp nicht inferierbar.
+**Fix:** Expliziter Cast `(data as { id: string; bestellnummer: string | null; ... }[]).map((o) => ...)`.
+
+#### Bug 2 — TS2322 Null nicht zuweisbar zu string in FahrerKochstartSync
+**Datei:** `app/(admin)/kitchen/fahrer-kochstart-sync.tsx:88`
+**Problem:** `etaData` als `Record<string, { driverName: string; etaMin: number }>` typisiert, aber `p.driverName ?? null` liefert `string | null`.
+**Fix:** Typ auf `driverName: string | null` erweitert.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Zonen-Radar ↔ Dispatch | ✅ |
+| Kunden-Rating-API ↔ Storefront | ✅ |
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 480 Backend:** API `GET /api/delivery/admin/fahrer-rückkehr-prognose` — Prognose der Rückkehrzeit je aktiver Fahrer aus letzten Tour-Stop-Zeiten
+2. **Phase 481 Backend:** API `POST /api/delivery/admin/batch-reassign` — Batch einem anderen verfügbaren Fahrer neu zuweisen
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 480 Frontend:** KitchenBestellEingangsTicker Erweiterung — Filter nach Status, Tonalarm bei neuen Bestellungen
+2. **Phase 481 Frontend:** DispatchFahrerRückkehrPrognose — Live-Kacheln mit geschätzter Rückkehrzeit + Restkapazität
 
 ---
 

@@ -85,7 +85,7 @@ export function KitchenFahrerKochStartSync({
       .not('aktueller_batch_id', 'is', null);
 
     // Fetch ETA data from API
-    let etaData: Record<string, { driverName: string; etaMin: number }> = {};
+    let etaData: Record<string, { driverName: string | null; etaMin: number }> = {};
     try {
       const res = await fetch(`/api/delivery/admin/overview?location_id=${locationId}`, { cache: 'no-store' });
       if (res.ok) {

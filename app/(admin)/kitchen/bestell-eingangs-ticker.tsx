@@ -66,7 +66,7 @@ export function KitchenBestellEingangsTicker({
 
     if (!data) return;
 
-    const newRows: IncomingOrder[] = data.map((o) => ({
+    const newRows: IncomingOrder[] = (data as { id: string; bestellnummer: string | null; gesamtpreis: number | null; bestellt_am: string; status: string }[]).map((o) => ({
       id: o.id as string,
       bestellnummer: o.bestellnummer as string | null,
       gesamtpreis: o.gesamtpreis != null ? Number(o.gesamtpreis) : null,
