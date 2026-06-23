@@ -233,6 +233,7 @@ import { StundenPerformanceMatrix } from './stunden-performance-matrix';
 import { SchichtMargenAnalyse } from './schicht-margen-analyse';
 import { LieferdienstExecutiveKpiKommando } from './executive-kpi-kommando';
 import { KapazitaetsPrognosePanel } from './kapazitaets-prognose-panel';
+import { ZoneLiveHeatmapPanel } from './zone-live-heatmap-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1453,6 +1454,8 @@ export function LieferdienstClient() {
               <SchichtMargenAnalyse locationId={locationId ?? null} />
               {/* Phase 454: Kapazitäts-Prognose — 4h Lookahead: erwartete Bestellungen vs. geplante Fahrer mit Severity-Ampel */}
               <KapazitaetsPrognosePanel locationId={locationId ?? null} />
+              {/* Phase 456: Zonen Live-Heatmap — Echtzeit-Auslastung je Lieferzone A/B/C/D (60s-Refresh) */}
+              <ZoneLiveHeatmapPanel locationId={locationId ?? null} />
               {/* Schicht-Live-Bilanz — Kompaktes Echtzeit-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) */}
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}

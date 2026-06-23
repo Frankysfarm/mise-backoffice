@@ -187,6 +187,7 @@ import { TourKompaktKommando } from './tour-kompakt-kommando';
 import { TourKompletierungsPrognose } from './tour-kompletierungs-prognose';
 import { TourStoppPrioritaetsNavigator } from './tour-stopp-prioritaets-navigator';
 import { TourStoppNavigationsHub } from './tour-stopp-navigations-hub';
+import { FahrerSchichtStatusStrip } from './fahrer-schicht-status-strip';
 
 type Driver = {
   id: string;
@@ -2924,6 +2925,11 @@ export function FahrerApp({
 
         {/* Tour-Stopp-Navigations-Hub — Unified Navigation für aktiven und verbleibende Stopps */}
         {activeBatch && activeBatch.status === 'unterwegs' && <TourStoppNavigationsHub />}
+
+        {/* Phase 457: Schicht-Status-Streifen — Start/Ende + Fortschrittsbalken + verbleibende Zeit */}
+        {isOnline && (
+          <FahrerSchichtStatusStrip upcomingShifts={upcomingShifts} />
+        )}
 
         {/* Phase 174: Geo-Cluster Hotspot-Tipp — beste Warte-Position bei Leerlauf */}
         {!activeBatch && isOnline && (
