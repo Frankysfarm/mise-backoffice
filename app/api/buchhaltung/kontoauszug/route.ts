@@ -41,10 +41,16 @@ function parseCsv(text: string): Tx[] {
   let hi = lines.findIndex((l) => /buchung|datum|betrag|valuta/i.test(l));
   if (hi < 0) hi = 0;
   const head = split(lines[hi]).map((h) => h.toLowerCase());
-  const col = (...keys: string[]) => head.findIndex((h) => keys.some((k) => h.includes(k)));
-  const iDate = col('buchungstag', 'buchung', 'datum', 'valuta');
+  // Priorität: exakter Treffer > startsWith > includes — verhindert dass "buchungstext" die "buchungstag"-Spalte klaut
+  const col = (...keys: string[]) => {
+    for (const k of keys) { const i = head.findIndex((h) => h === k); if (i >= 0) return i; }
+    for (const k of keys) { const i = head.findIndex((h) => h.startsWith(k)); if (i >= 0) return i; }
+    for (const k of keys) { const i = head.findIndex((h) => h.includes(k)); if (i >= 0) return i; }
+    return -1;
+  };
+  const iDate = col('buchungstag', 'buchungsdatum', 'valutadatum', 'valuta', 'datum');
   const iAmt = col('betrag', 'umsatz', 'amount');
-  const iZweck = col('verwendungszweck', 'buchungstext', 'vwz', 'beschreibung', 'description');
+  const iZweck = col('verwendungszweck', 'vwz', 'buchungstext', 'beschreibung', 'description');
   const iName = col('beguenstigter', 'begünstigter', 'zahlungspflichtiger', 'name', 'auftraggeber', 'empfänger', 'empfaenger');
   const out: Tx[] = [];
   for (let i = hi + 1; i < lines.length; i++) {

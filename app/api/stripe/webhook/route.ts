@@ -44,13 +44,17 @@ export async function POST(req: NextRequest) {
       const obj = event.data.object as any;
       const orderId = obj.metadata?.order_id ?? null;
       if (orderId) {
-        await svc
+        // Online-Order war 'wartet_auf_zahlung' (nicht in der Küche) → bei Zahlung atomar auf 'neu'+bezahlt
+        // promoten, damit sie in die Küche kommt UND der Loyalty-Trigger (braucht status IN (neu,…)) greift.
+        const { data: promoted } = await svc
           .from('customer_orders')
-          .update({
-            bezahlt: true,
-            stripe_payment_id: obj.id,
-          })
-          .eq('id', orderId);
+          .update({ bezahlt: true, stripe_payment_id: obj.id, status: 'neu' })
+          .eq('id', orderId).eq('status', 'wartet_auf_zahlung')
+          .select('id');
+        // Fallback: war die Order nicht im Warte-Status (z. B. Altbestand), nur bezahlt markieren
+        if (!promoted || promoted.length === 0) {
+          await svc.from('customer_orders').update({ bezahlt: true, stripe_payment_id: obj.id }).eq('id', orderId);
+        }
       }
       break;
     }

@@ -55,8 +55,9 @@ export default async function Uebersicht({ searchParams }: { searchParams: Promi
     { label: 'Aktive Fahrer', value: String(activeDrivers), icon: I_TRUCK, iconBg: '#F5F3FF', delta: 'live', dc: { c: '#1D4ED8', b: '#EFF6FF' } },
   ];
   // Chart-Buckets: bis 14 Tage täglich, sonst gleichmäßig gruppiert (max 14 Balken)
-  const nBuckets = Math.min(daysBack, 14);
-  const bucketDays = Math.ceil(daysBack / nBuckets);
+  // Bucket-Breite zuerst, dann Anzahl daraus ableiten → Buckets decken exakt den Zeitraum (keine leeren Balken vor winStart)
+  const bucketDays = Math.ceil(daysBack / Math.min(daysBack, 14));
+  const nBuckets = Math.ceil(daysBack / bucketDays);
   const days: { day: string; value: number }[] = [];
   for (let b = nBuckets - 1; b >= 0; b--) {
     const bEnd = new Date(startOfToday.getTime() + dayMs - b * bucketDays * dayMs);
