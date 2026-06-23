@@ -15113,3 +15113,18 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 1. **Phase 438 Frontend:** ZoneProfitabilityPanel — Admin-Cockpit mit Profitabilitäts-Heatmap pro Zone. Expand/Keep/Reduce/Close Empfehlungs-Badge. Integration: lieferdienst/client.tsx.
 2. **Phase 439 Frontend:** SchichtLueckenMonitor — Live-Übersicht unbesetzter Stunden, sortiert nach Lücken-Größe. Alert-Badge wenn Lücke > 2h. Integration: lieferdienst/client.tsx.
 
+
+---
+
+## CEO Review #247 — Nachtrag: 3 neue Frontend-Komponenten (2026-06-23)
+
+### Commits nach Rebase
+- `feat(delivery/kitchen): KochstartKommandozentrale` — SVG-Countdown-Ring pro Bestellung, shouldCookNow-Logik (Fahrer-ETA ≤ Zubereitungszeit+2min), Jetzt-starten/Fertig-Buttons, Kitchen-Health-Score 0–100%. Integration: kitchen/client.tsx. ✅
+- `feat(delivery/dispatch): DispatchTourScoreKarte` — Horizontale Score-Kacheln pro aktiver Tour, Stop-Progress-Dots (geliefert/aktuell/überfällig/ausstehend), SVG-Arc-Gauge Tour-Score, ETA-Countdown. Integration: dispatch/client.tsx. ✅
+- `feat(delivery/fahrer): TourKompaktKommando` — Mobile-first Nächste-3-Stops-Panel (urgency-sortiert), 1-Tap Google Maps Navi, Fertig-Button, Überfällig-Alert. Integration: fahrer/app/client.tsx. ✅
+
+### Build nach Rebase
+- `npx tsc --noEmit` → 0 Fehler ✅
+- `npx next build` → 364 Seiten, Exit Code 0 ✅
+- Push: erfolgreich ✅
+
