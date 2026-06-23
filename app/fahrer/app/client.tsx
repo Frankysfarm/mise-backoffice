@@ -183,6 +183,7 @@ import { QualitaetsTrendKarte } from './qualitaets-trend-karte';
 import { StopCompass } from './stop-compass';
 import { TourStoppFortschrittsLeiste } from './tour-stopp-fortschritts-leiste';
 import { FahrerStoppTempoAnzeige } from './stopp-tempo-anzeige';
+import { TourKompaktKommando } from './tour-kompakt-kommando';
 
 type Driver = {
   id: string;
@@ -1764,6 +1765,33 @@ export function FahrerApp({
                 onMarkDelivered={markDelivered}
                 pending={pending}
                 kitchenStatuses={kitchenStatuses}
+              />
+            </div>
+          )}
+          {/* Tour-Kompakt-Kommando — nächste 3 Stops, urgency-sortiert, 1-Tap Navi + Fertig */}
+          {activeBatch.stops.filter((s: any) => !s.geliefert_am).length > 0 && (
+            <div className="px-4">
+              <TourKompaktKommando
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  order_id: s.order_id,
+                  reihenfolge: s.reihenfolge ?? 0,
+                  geliefert_am: s.geliefert_am ?? null,
+                  order: s.order ? {
+                    bestellnummer: s.order.bestellnummer,
+                    kunde_name: s.order.kunde_name,
+                    kunde_adresse: s.order.kunde_adresse ?? null,
+                    kunde_plz: s.order.kunde_plz ?? null,
+                    kunde_stadt: s.order.kunde_stadt ?? null,
+                    kunde_lat: s.order.kunde_lat ?? null,
+                    kunde_lng: s.order.kunde_lng ?? null,
+                    eta_latest: s.order.eta_latest ?? null,
+                    zahlungsart: s.order.zahlungsart ?? null,
+                    gesamtbetrag: s.order.gesamtbetrag ?? null,
+                  } : null,
+                }))}
+                onDeliver={(stopId) => markDelivered(stopId)}
+                deliverLoading={pending ? activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null : null}
               />
             </div>
           )}
