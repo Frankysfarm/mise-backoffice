@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
     const createdMs = b.created_at ? new Date(b.created_at).getTime() : now;
     const waitMin = Math.round((now - createdMs) / 60_000);
     const driverAssigned = !!b.driver_id;
-    const driverName = (b.drivers as { name: string } | null)?.name ?? null;
+    const driverName = (b.drivers as unknown as { name: string } | null)?.name ?? null;
 
     // Count orders associated with this batch
     const orderCount = 1; // will be enriched below

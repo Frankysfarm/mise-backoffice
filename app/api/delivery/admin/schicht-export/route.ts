@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
   const driverKpis: DriverKpi[] = [];
   for (const driverId of driverIds) {
     const shift = shifts?.find((s) => s.driver_id === driverId);
-    const driverName = (shift?.drivers as { name: string } | null)?.name ?? driverId.slice(0, 8);
+    const driverName = (shift?.drivers as unknown as { name: string } | null)?.name ?? driverId.slice(0, 8);
 
     // Count completed deliveries by this driver
     const { data: dBatches } = await sb
