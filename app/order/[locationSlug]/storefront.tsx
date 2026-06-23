@@ -62,6 +62,8 @@ import { BestellungEmpfangsBestaetigung } from './bestellung-empfangs-bestaetigu
 import { BestPhaseTimer } from './bestell-phase-timer';
 import { LiveOrderKompass } from './live-order-kompass';
 import { BewertungsErinnerung } from './bestell-bewertungs-erinnerung';
+import { BewertungsFlow } from './bewertungs-flow';
+import { OrderLiveStatusPanel } from './order-live-status-panel';
 
 type Props = {
   location: Location;
@@ -538,6 +540,25 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             }
             locationSlug={location.id}
           />
+        )}
+        {/* Phase 475b: Bewertungs-Flow — sofortiger Rating-Prompt mit Sterne-Auswahl + Kommentar */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-8 max-w-lg mx-auto">
+            <BewertungsFlow
+              orderId={orderSuccess.orderId}
+              bestellnummer={orderSuccess.bestellnummer}
+            />
+          </div>
+        )}
+        {/* Phase 475c: Order-Live-Status-Panel — Live-Status-Tracker mit Phasen-Stepper + Countdown */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-6 max-w-lg mx-auto">
+            <OrderLiveStatusPanel
+              orderId={orderSuccess.orderId}
+              bestellnummer={orderSuccess.bestellnummer}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            />
+          </div>
         )}
       </div>
     );

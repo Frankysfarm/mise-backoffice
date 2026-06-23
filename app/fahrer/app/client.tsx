@@ -196,6 +196,8 @@ import { FahrerCoachingWidget } from './fahrer-coaching-widget';
 import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
 import { FahrerStopAktionsPanel } from './fahrer-stop-aktions-panel';
 import { FahrerOfflineSyncBanner } from './offline-sync-banner';
+import { OfflineSyncManager } from './offline-sync-manager';
+import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
 
 type Driver = {
   id: string;
@@ -786,6 +788,10 @@ export function FahrerApp({
         )}
         {/* Phase 474: Offline-Sync-Banner — Zeigt Offline-Status + ausstehende Aktionen + Auto-Replay */}
         <FahrerOfflineSyncBanner />
+        {/* Phase 474b: Offline-Sync-Manager — Lokale Queue + Auto-Sync + Retry-Logik */}
+        <OfflineSyncManager />
+        {/* Phase 474c: Tour-Stopp-Sequenz-Pro — Geordnete Stopp-Liste mit Navigation + Abschluss-Aktionen */}
+        <TourStoppSequenzPro />
 
         {/* Betriebsnachrichten vom Dispatch */}
         {visibleBroadcasts.map(b => (

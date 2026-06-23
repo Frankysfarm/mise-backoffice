@@ -242,6 +242,8 @@ import { FahrerAuslastungsCockpit } from './fahrer-auslastungs-cockpit';
 import { SchichtOnTimeRing } from './schicht-on-time-ring';
 import { LieferdienstSchichtSchnellStatus } from './schicht-schnell-status';
 import { SchichtExport } from './schicht-export';
+import { SchichtAbschlussBericht } from './schicht-abschluss-bericht-generator';
+import { SchichtKpiErweitert } from './schicht-kpi-erweitert';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1476,6 +1478,10 @@ export function LieferdienstClient() {
               <SchichtLiveBilanz />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Phase 476: Schicht-Abschluss-Bericht-Generator — KPI-Bericht mit Vorwochenvergleich + CSV-Export */}
+              <SchichtAbschlussBericht />
+              {/* Phase 476b: Schicht-KPI-Erweitert — 6-KPI-Kacheln mit Sparklines, Zielvergleich + Trend */}
+              <SchichtKpiErweitert />
               {/* Phase 458: Tages-KPI-Cockpit — Umsatz, Bestellungen, Abbruchrate, Hourly-Chart, Top-Zonen */}
               <LieferdienstTagesKpiCockpit locationId={locationId} />
               {/* Phase 461: Schicht-Tempo-Velocity — Bestellungen/Stunde mit 6h-Balkendiagramm + Trend */}
