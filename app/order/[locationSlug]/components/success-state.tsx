@@ -53,6 +53,7 @@ import { EtaLiveProgressRing } from './eta-live-progress-ring';
 import { DynamischeEtaBand } from './dynamische-eta-band';
 import { BestellungAktivitaetsTimeline } from '../bestellung-aktivitaets-timeline';
 import { BestellPhaseCountdown } from './bestell-phase-countdown';
+import { LieferStageLiveTracker } from './liefer-stage-live-tracker';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -932,6 +933,14 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
               initialStatus={liveStatus}
             />
           </div>
+        )}
+        {/* LieferStageLiveTracker — Animierter Live-Lieferstatus mit 4 Phasen + ETA-Countdown */}
+        {isDelivery && (
+          <LieferStageLiveTracker
+            bestellnummer={bestellnummer}
+            initialEtaMin={etaMinutes > 0 ? etaMinutes : null}
+            initialStatus={liveStatus}
+          />
         )}
         {/* Phase 397: Bestellung-Live-Verfolgung — 4-Phasen-Timeline mit Fahrer-Info + Live-Countdown */}
         {isDelivery && orderId && (

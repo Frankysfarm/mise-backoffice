@@ -190,6 +190,7 @@ import { KitchenPrepZielAmpel } from './prep-ziel-ampel';
 import { KochstartKommandozentrale } from './kochstart-kommandozentrale';
 import { KitchenRushHourHeatmap } from './rush-hour-heatmap';
 import { KitchenSmartKochstartLiveMatrix } from './smart-kochstart-live-matrix';
+import { KitchenOrderKomplexitaetsAmpel } from './order-komplexitaets-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1259,6 +1260,8 @@ export function KitchenBoard({
 
       {/* Zubereitungszeit-Lernmodul: p75-Schätzwerte nach Tageszeit (Backend-Lernmodul Phase 131) */}
       <PrepLearningPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+
+      <KitchenOrderKomplexitaetsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
 
       {/* Fahrer-Küchen-Synchronisation: Timing-Abgleich zwischen aktiven Batches und Kochzeiten */}
       {batches.length > 0 && timings.length > 0 && (

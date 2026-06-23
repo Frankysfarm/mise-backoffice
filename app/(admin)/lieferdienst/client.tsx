@@ -77,6 +77,7 @@ import { SchichtEchtzeitKpiHub } from './schicht-echtzeit-kpi-hub'
 import { LieferdienstWochenKpiVergleich } from './wochen-kpi-vergleich'
 import { SchichtPunktlichkeitsRing } from './schicht-punktlichkeits-ring'
 import { RentabilitaetsTrend } from './rentabilitaets-trend'
+import { SchichtErgebnisKommando } from './schicht-ergebnis-kommando'
 import { TrinkgeldUebersicht } from './trinkgeld-uebersicht'
 import { LieferzonenHeatmap } from './lieferzonen-heatmap'
 import { TagesauswertungsBanner } from './tagesauswertungs-banner'
@@ -1490,6 +1491,8 @@ export function LieferdienstClient() {
               <PushAnalyticsMiniCard />
               {/* Liefer-Abonnements Übersicht: MRR, aktive Abos, Ersparnisse */}
               <LieferdienstAboOverview locationId={locationId} />
+              {/* Schicht-Ergebnis-Kommando: heutige KPIs auf einen Blick — Bestellungen, Umsatz, Lieferzeit, Fahrer, Stornoquote, Top-Zone */}
+              <SchichtErgebnisKommando locationId={locationId} />
               {/* Phase 410: Kumulativer Schicht-Umsatz — SVG-Verlaufskurve + Trend-Pfeil */}
               <SchichtUmsatzKumulativ locationId={locationId} />
               {/* Phase 162: Echtzeit-Cockpit — kompakte 6-KPI-Übersicht mit Animations-Countern */}

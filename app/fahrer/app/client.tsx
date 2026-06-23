@@ -186,6 +186,7 @@ import { FahrerStoppTempoAnzeige } from './stopp-tempo-anzeige';
 import { TourKompaktKommando } from './tour-kompakt-kommando';
 import { TourKompletierungsPrognose } from './tour-kompletierungs-prognose';
 import { TourStoppPrioritaetsNavigator } from './tour-stopp-prioritaets-navigator';
+import { TourStoppNavigationsHub } from './tour-stopp-navigations-hub';
 
 type Driver = {
   id: string;
@@ -2920,6 +2921,9 @@ export function FahrerApp({
 
         {/* Positionierungs-Empfehlung */}
         {!activeBatch && isOnline && <PositioningSuggestionBanner />}
+
+        {/* Tour-Stopp-Navigations-Hub — Unified Navigation für aktiven und verbleibende Stopps */}
+        {activeBatch && activeBatch.status === 'unterwegs' && <TourStoppNavigationsHub />}
 
         {/* Phase 174: Geo-Cluster Hotspot-Tipp — beste Warte-Position bei Leerlauf */}
         {!activeBatch && isOnline && (

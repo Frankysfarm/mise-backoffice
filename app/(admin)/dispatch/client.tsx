@@ -240,6 +240,7 @@ import { DispatchFahrerWochenScore } from './fahrer-wochen-score';
 import { DispatchTourAbschlussPrognose } from './tour-abschluss-prognose';
 import { DispatchFahrerTagesBilanz } from './fahrer-tages-bilanz';
 import { DispatchTourAktuelleUebersicht } from './tour-aktuelle-uebersicht';
+import { DispatchFahrerEtaKommando } from './fahrer-eta-kommando';
 
 type Driver = {
   employee_id: string;
@@ -1132,6 +1133,7 @@ export function DispatchBoard({
       } as const))} />
       {/* Phase 451: Tour-Aktuelle-Übersicht — Kompakte Echtzeit-Karten aller aktiven Touren mit Score, Fortschritt + Stop-Liste */}
       <DispatchTourAktuelleUebersicht locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <DispatchFahrerEtaKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Live-Tour-Cockpit: Alle aktiven Touren mit Fahrer, Stops, Score und Echtzeit-ETA */}
       <DispatchTourLiveCockpit batches={batches as any} />
       {/* Tour-Timeline-Board: Swimlane-Ansicht mit Stop-Nodes, ETA-Countdown + Score je Fahrer */}
