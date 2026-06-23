@@ -1,7 +1,74 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–466 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–471 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #257 — Phase 467–471: 5 neue Smart-Delivery-Komponenten geprüft, 1 Bug gefixt (2026-06-23)
+
+### Commits geprüft
+- `feat(delivery/frontend): Phase 467-471 — 5 neue Smart-Delivery-Komponenten`
+- `docs: Phase 467-471 in DELIVERY_PROGRESS.md dokumentiert`
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **1 Fehler gefunden + gefixt**, danach **0 Fehler** ✅
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+
+### Phase 467–471 Komponenten — Code-Qualität
+
+**KitchenFahrerKochSyncPanel** (`kitchen/fahrer-koch-sync-panel.tsx`)
+- Echtzeit-Sync zwischen Koch-Fertigzeit und Fahrer-ETA je Bestellung ✅
+- Farbkodierung Gap grün/amber/rot/blau korrekt ✅
+- Integration: `kitchen/client.tsx:1853` ✅
+
+**DispatchTourRueckkehrMatrix** (`dispatch/tour-rueckkehr-matrix.tsx`)
+- Matrix wann Fahrer zurückkommt, Stopp-Fortschrittsbalken, Rückkehr-Uhrzeit, Urgency-Badge ✅
+- Props: batches + drivers + stops (StopItem[]) ✅
+- Integration: `dispatch/client.tsx:1924` (nach Bug-Fix) ✅
+
+**FahrerStopAktionsPanel** (`fahrer/app/fahrer-stop-aktions-panel.tsx`)
+- Stop-Aktions-Panel mit Kundenname, Google/Waze/Apple Maps Deep-Links, Anruf, Lieferhinweis ✅
+- Integration: `fahrer/app/client.tsx:1335` ✅
+
+**LiveOrderKompass** (`order/[locationSlug]/live-order-kompass.tsx`)
+- 5-Stufen Bestellkompass (animiert), Live-ETA, Fahrername, 30s-Polling ✅
+- Integration: `storefront.tsx:513` ✅
+
+**LieferdienstSchichtSchnellStatus** (`lieferdienst/schicht-schnell-status.tsx`)
+- 6-Kachel Schnellstatus: Bestellungen/Umsatz/Ø Lieferzeit/Pünktlichkeit/Fahrer/Storno, 60s-Refresh ✅
+- Integration: `lieferdienst/client.tsx:1180` ✅
+
+### Bug gefixt in Review #257
+
+#### Bug 1 — `stops` undefiniert in dispatch/client.tsx
+**Datei:** `app/(admin)/dispatch/client.tsx:1924`
+**Problem:** `DispatchTourRueckkehrMatrix` erwartete `stops: StopItem[]` als eigenes Prop, aber `stops` existiert nicht als Variable im DispatchBoard — die Stop-Daten sind nested in `batch.stops`.
+**Fix:** `stops={batches.flatMap(b => (b.stops ?? []).map(s => ({ ...s, batch_id: b.id, angekommen_am: null }))) as any}`
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #257
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 467–471: alle 5 Komponenten vollständig integriert ✅
+- 1 Bug gefixt: `stops` Scope-Fehler dispatch/client.tsx ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 472 Backend:** API `GET /api/delivery/admin/fahrer-rueckkehr-prognose?location_id` — Aggregiert aus aktiven `mise_delivery_batches` + `tour_stops` für jeden Fahrer: Verbleibende Stopps, Ø-Zeit pro Stopp aus abgeschlossenen Stopps, prognostizierte Rückkehrzeit. Response: `FahrerRueckkehrRow[]`.
+2. **Phase 473 Backend:** API `GET /api/delivery/driver/stopp-details?batch_id&stop_id` — Detailinfo für einen Stop (Kundenname, Adresse, Lieferhinweise, Telefon, Bestelldetails) für den FahrerStopAktionsPanel.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 472 Frontend:** DispatchFahrerAuslastungsRing — SVG-Donut-Ring je Fahrer: Kapazität (aktive Stopps / Max-Stopps), Live-Update, Farbkodierung nach Auslastung. Integration: dispatch/client.tsx.
+2. **Phase 473 Frontend:** KitchenBestellEingangsTicker — Live-Ticker neuer Bestellungen (letzte 60 Min), animiertes Erscheinen neue Bestellungen, Sortierung nach Eingang. Integration: kitchen/client.tsx.
 
 ---
 

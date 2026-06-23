@@ -1921,7 +1921,7 @@ export function DispatchBoard({
       {/* Tour-Score-Board: priorisierte Liste aktiver Touren nach ETA-Gesundheit */}
       {batches.length > 0 && <DispatchActiveTourScoreBoard batches={batches} drivers={drivers} />}
       {/* Phase 468: Fahrer-Rückkehr-Matrix — Wann kommt welcher Fahrer zurück + Stopp-Fortschritt */}
-      {batches.length > 0 && <DispatchTourRueckkehrMatrix batches={batches as any} drivers={drivers as any} stops={stops as any} />}
+      {batches.length > 0 && <DispatchTourRueckkehrMatrix batches={batches as any} drivers={drivers as any} stops={batches.flatMap(b => (b.stops ?? []).map(s => ({ ...s, batch_id: b.id, angekommen_am: null }))) as any} />}
 
       {/* Tour-Visualisierung: alle laufenden Touren im Überblick mit Stopp-Details */}
       {batches.length > 0 && <TourVisualizationPanel batches={batches} drivers={drivers} readyOrders={readyOrders} />}
