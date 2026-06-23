@@ -1,13 +1,80 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–493 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–495 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Agent (2026-06-23): Phase 494–495 — Tour-Kapazitäts-Warnung + Fahrer-Score-Summary. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #263 (2026-06-23): Phase 490–493 geprüft — 1 Integration-Bug gefixt (BestellEtaLiveLeiste fehlte in SuccessState), Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Frontend-Agent (2026-06-23): Phase 490–493 — KitchenSchichtEndstand, DispatchFahrerFunkBoard, TourStoppSofortKommando, LieferZonenProfitMatrix, BestellEtaLiveLeiste. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gefixt (PriorityOverrideBadge fehlte in OrderRow), Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 494–495 — Tour-Kapazitäts-Warnung + Fahrer-Score-Summary (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 494 Backend — Tour-Kapazitäts-Warnsignal-API
+
+**`app/api/delivery/admin/tour-capacity-warning/route.ts`:**
+- GET `?location_id=...` → `{ ok, alertLevel, activeTours, tourThreshold, tourPct, avgStopsPerTour, stopsThreshold, totalPendingStops, warnings, tours }`
+- Schwellwerte aus delivery_config: `max_concurrent_tours` (Default: 8), `max_stops_per_tour` (Default: 6)
+- Alert-Level: ok / warning (≥75% Kapazität) / critical (>Schwellwert oder Ø Stopps überschritten)
+- Warnt auch wenn einzelne Touren > stopsThreshold offene Stopps haben
+- Gibt Tour-Detail-Liste mit pendingStops aus mise_delivery_batch_stops
+
+### Phase 494 Frontend — DispatchTourKapazitaetsWarnung
+
+**`app/(admin)/dispatch/tour-kapazitaets-warnung.tsx`** — `DispatchTourKapazitaetsWarnung`:
+- Props: `locationId`
+- Nur sichtbar wenn alertLevel = warning oder critical (bei ok versteckt)
+- Alert-Banner mit Level-Farbgebung (amber/rot), Kapazitäts-Fortschrittsbalken
+- 3 KPI-Kacheln: Aktive Touren / Ø Stopps/Tour / Offene Stopps
+- Aufklappbare Tour-Detail-Liste mit Überlast-Markierung (⚡ Überlastet)
+- 45s Auto-Refresh
+- Integration: dispatch/client.tsx nach DispatchFahrerVerfuegbarkeitsSignalPanel ✅
+
+### Phase 495 Backend — Fahrer-Score-Zusammenfassung-API
+
+**`app/api/delivery/admin/driver-score-summary/route.ts`:**
+- GET `?driver_id=...&location_id=...` → Single-Driver-Score
+- GET `?action=all&location_id=...` → Alle aktiven Fahrer, nach Score absteigend sortiert
+- Composite-Score: 35% Pünktlichkeit + 30% Kundenbewertung + 20% GPS-Aktivität + 15% Engagement
+- Pünktlichkeit: delivered_at ≤ promised_delivery_at in letzten 30 Tagen
+- GPS-Aktivität: Frische des letzten driver_gps_events Eintrags
+- Trend: Aus letzten 2 driver_score_history Einträgen (up/stable/down)
+- Grade: A (≥90) / B (≥75) / C (≥60) / D (≥45) / F (<45)
+
+### Phase 495 Frontend — DispatchFahrerScoreSummaryCard
+
+**`app/(admin)/dispatch/fahrer-score-summary-card.tsx`** — `DispatchFahrerScoreSummaryCard`:
+- Props: `locationId`
+- Header: Durchschnittsscore + Grade-Verteilung (A×n / B×n / ...)
+- Farbbalken (Grade-Anteile) unterhalb Header
+- Kollabierbare Fahrerliste sortiert nach Score
+- Pro Fahrer: Grade-Badge (farbig), Mini-Score-Balken, Status-Badge (Verfügbar/Pause/Offline)
+- Aufklapp-Detail: Sub-Score-Balken (Pünktlichkeit/Rating/GPS/Engagement) + KPI-Grid (Lieferungen, Ø Zeit, Trend, letztes GPS)
+- 60s Auto-Refresh
+- Integration: dispatch/client.tsx nach DispatchTourKapazitaetsWarnung ✅
+
+### Integrations-Checkliste Phase 494–495
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchTourKapazitaetsWarnung | dispatch/tour-kapazitaets-warnung.tsx | dispatch/client.tsx nach FahrerVerfuegbarkeitsSignalPanel | ✅ |
+| DispatchFahrerScoreSummaryCard | dispatch/fahrer-score-summary-card.tsx | dispatch/client.tsx nach TourKapazitaetsWarnung | ✅ |
+| tour-capacity-warning API | app/api/delivery/admin/tour-capacity-warning/route.ts | Neu (GET) | ✅ |
+| driver-score-summary API | app/api/delivery/admin/driver-score-summary/route.ts | Neu (GET, single+all) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 496 Backend:** ETA-Confidence-Score — GET /api/delivery/admin/eta-confidence-score?location_id=...: Konfidenz 0–100 für ETA-Genauigkeit je aktiver Tour (Faktoren: Küchenlast, GPS-Frische, Zonenhistorie, Stopps verbleibend).
+2. **Phase 496 Frontend:** DispatchEtaKonfidenzLeiste — Zeigt ETA-Konfidenz je Tour als farbige Balkenleiste im Dispatch-Dashboard.
+3. **Phase 497 Backend:** Schicht-Abschluss-Report-API — GET /api/delivery/admin/schicht-abschluss-report?location_id=...: Vollständiger KPI-Report für abgeschlossene Schicht (Umsatz, Bestellungen, ø Lieferzeit, SLA, Fahrer-Scores, Top-Zone).
+4. **Phase 497 Frontend:** DispatchSchichtAbschlussReport — Vollständige Schicht-Auswertung zum Ende der Schicht als aufklappbare Karte.
+5. **Phase 498 Backend:** Zonen-SLA-Vergleich-API — GET /api/delivery/admin/zonen-sla-vergleich?location_id=...: SLA-Einhaltung je Zone im Vergleich (pünktlich/zu spät/kritisch) für letzte 7 Tage.
 
 ---
 
