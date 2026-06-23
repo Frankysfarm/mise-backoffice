@@ -1,7 +1,8 @@
 /**
  * GET  /api/delivery/admin/driver-leaderboard
- *   ?location_id=...&period=today|week|month&limit=20
+ *   ?location_id=...&period=today|week|month&limit=20[&format=compare]
  *   → LeaderboardEntry[] + meta
+ *   → format=compare: { top: DriverMetrics[], bottom: DriverMetrics[] }
  *
  * POST /api/delivery/admin/driver-leaderboard
  *   body: { location_id, date? (ISO YYYY-MM-DD) }
@@ -53,6 +54,31 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(searchParams.get('limit') ?? 20), 50);
 
   const entries = await getLeaderboard(locationId, period, limit);
+
+  const format = searchParams.get('format');
+  if (format === 'compare') {
+    const maxStops    = entries.reduce((m, e) => Math.max(m, e.stopsCompleted), 1);
+    const maxEarnings = entries.reduce((m, e) => Math.max(m, e.earningsEur), 0.01);
+
+    const withScore = entries.map(e => {
+      const onTimePct   = Math.round((e.onTimeRate ?? 0) * 100);
+      const toursPct    = Math.round((e.stopsCompleted / maxStops) * 100);
+      const earningsPct = Math.round((e.earningsEur / maxEarnings) * 100);
+      const score       = Math.round(onTimePct * 0.5 + toursPct * 0.3 + earningsPct * 0.2);
+      return {
+        name:       e.driverName ?? 'Unbekannt',
+        deliveries: e.stopsCompleted,
+        onTimePct,
+        avgMinutes: Math.round(e.avgDeliveryMin ?? 0),
+        tipsEur:    Math.round(e.earningsEur * 100) / 100,
+        score,
+      };
+    }).sort((a, b) => b.score - a.score);
+
+    const top    = withScore.slice(0, 3);
+    const bottom = withScore.length > 3 ? [...withScore].reverse().slice(0, 3) : [];
+    return NextResponse.json({ top, bottom });
+  }
 
   return NextResponse.json({
     period,

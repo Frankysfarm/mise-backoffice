@@ -69,20 +69,28 @@ export function LieferdienstFahrerLeistungsVergleich({ locationId }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const load = () => {
-      // TODO: Replace with real API once /api/delivery/admin/driver-leaderboard is available
-      // fetch(`/api/delivery/admin/driver-leaderboard?location_id=${locationId}&today=true`)
-      //   .then(r => r.json())
-      //   .then(d => { setTop(d.top); setBottom(d.bottom); })
-      //   .catch(() => { setTop(MOCK_TOP); setBottom(MOCK_BOT); })
-      //   .finally(() => setLoading(false));
-      setTop(MOCK_TOP);
-      setBottom(MOCK_BOT);
-      setLoading(false);
+      if (!locationId) {
+        setTop(MOCK_TOP);
+        setBottom(MOCK_BOT);
+        setLoading(false);
+        return;
+      }
+      fetch(`/api/delivery/admin/driver-leaderboard?location_id=${encodeURIComponent(locationId)}&period=today&format=compare&limit=6`)
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then((d: { top: DriverMetrics[]; bottom: DriverMetrics[] }) => {
+          if (!cancelled) {
+            setTop(d.top.length > 0 ? d.top : MOCK_TOP);
+            setBottom(d.bottom.length > 0 ? d.bottom : MOCK_BOT);
+          }
+        })
+        .catch(() => { if (!cancelled) { setTop(MOCK_TOP); setBottom(MOCK_BOT); } })
+        .finally(() => { if (!cancelled) setLoading(false); });
     };
     load();
     const id = setInterval(load, 5 * 60_000);
-    return () => clearInterval(id);
+    return () => { cancelled = true; clearInterval(id); };
   }, [locationId]);
 
   if (loading) {
@@ -99,7 +107,7 @@ export function LieferdienstFahrerLeistungsVergleich({ locationId }: Props) {
       <div className="flex items-center gap-2 px-4 py-3 border-b">
         <Users className="h-4 w-4 text-matcha-600 shrink-0" />
         <span className="text-xs font-bold uppercase tracking-wider">Fahrer-Leistungsvergleich</span>
-        <span className="ml-auto text-[10px] text-muted-foreground">Heute · Mock-Daten</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">Heute · 5-Min-Refresh</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">

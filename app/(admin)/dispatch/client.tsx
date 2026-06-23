@@ -238,6 +238,7 @@ import { DispatchLieferQualitaetLive } from './liefer-qualitaet-live';
 import { DispatchTourScoreKarte } from './dispatch-tour-score-karte';
 import { DispatchFahrerWochenScore } from './fahrer-wochen-score';
 import { DispatchTourAbschlussPrognose } from './tour-abschluss-prognose';
+import { DispatchFahrerTagesBilanz } from './fahrer-tages-bilanz';
 
 type Driver = {
   employee_id: string;
@@ -1168,6 +1169,8 @@ export function DispatchBoard({
       <DispatchFahrerWochenScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 441: Tour-Abschluss-Prognose — Verbleibende Stopps × Ø-Zeit → voraussichtliches Tourende je Fahrer, Alert bei Verspätung */}
       <DispatchTourAbschlussPrognose batches={batches as any} />
+      {/* Phase 443: Fahrer-Tages-Bilanz — Heutige Performance-Rangliste aller Fahrer (Touren, Pünktlichkeit, Einnahmen) */}
+      <DispatchFahrerTagesBilanz locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Tour-Effizienz-Radar — Multi-dimensionaler Fahrer-Performance-Radar (Pünktlichkeit, Auslastung, Strecke, Zonen) */}
       <DispatchTourEffizienzRadar batches={batches} drivers={drivers} />
       {/* Tour-Score-Schnell-Übersicht — Alle aktiven Touren ranked nach Effizienz-Score + ETA */}
