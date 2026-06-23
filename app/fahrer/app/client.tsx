@@ -192,6 +192,7 @@ import { TourStoppFokusHub } from './tour-stopp-fokus-hub';
 import { TourHeimkehrCountdown } from './tour-heimkehr-countdown';
 import { StopAbschlussSchnellPanel } from './stop-abschluss-schnell-panel';
 import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
+import { FahrerCoachingWidget } from './fahrer-coaching-widget';
 import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
 
 type Driver = {
@@ -776,6 +777,10 @@ export function FahrerApp({
         {/* Phase 464: Fahrer-Selbst-Bewertung — Tagesschicht 1–5 Sterne + Stimmung + Kommentar */}
         {driver.location_id && (
           <FahrerSelbstBewertung driverId={driver.id} locationId={driver.location_id} />
+        )}
+        {/* Phase 466: Fahrer-Pünktlichkeits-Coach — Automatische Coaching-Hinweise bei Pünktlichkeit < 80% */}
+        {driver.location_id && (
+          <FahrerCoachingWidget driverId={driver.id} locationId={driver.location_id} />
         )}
 
         {/* Betriebsnachrichten vom Dispatch */}

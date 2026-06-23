@@ -220,6 +220,8 @@ import { SchichtStundenStatistik } from './schicht-stunden-statistik';
 import { SchichtBriefingUebersicht } from './schicht-briefing-uebersicht';
 import { SchichtAbschlussUebersicht } from './schicht-abschluss-uebersicht';
 import { FahrerIncentivePanel } from './fahrer-incentive-panel';
+import { SelbstBewertungsUebersicht } from './selbst-bewertungs-uebersicht';
+import { FahrerCoachingPanel } from './fahrer-coaching-panel';
 import { FahrerZeugnisPanel } from './fahrer-zeugnis-panel';
 import { LieferQualitaetsPanel } from './liefer-qualitaets-panel';
 import { FahrerVerfuegbarkeitsKalender } from './fahrer-verfuegbarkeits-kalender';
@@ -1438,6 +1440,10 @@ export function LieferdienstClient() {
               <SchichtAbschlussUebersicht locationId={locationId ?? null} />
               {/* Phase 431: Fahrer-Incentive-Ziele — Zielbasiertes Bonus-System (Score/Pünktlichkeit/Lieferungen) */}
               <FahrerIncentivePanel locationId={locationId ?? null} />
+              {/* Phase 465: Fahrer-Selbstbewertungs-Übersicht — Tages-Übersicht aller Fahrer-Selbstbewertungen mit Ø-Sternen + Stimmungsverteilung */}
+              <SelbstBewertungsUebersicht locationId={locationId ?? null} />
+              {/* Phase 466: Fahrer-Pünktlichkeits-Coaching — Automatische Hinweise bei Pünktlichkeit < 80% (kritisch/warnung/info) */}
+              <FahrerCoachingPanel locationId={locationId ?? null} />
               {/* Phase 432: Fahrer-Leistungszeugnisse — Monatliche Bewertung (Grade A+–D, KPIs, Score-Trend, Export) */}
               <FahrerZeugnisPanel locationId={locationId ?? null} />
               {/* Phase 433: Liefer-Qualitäts-Index — 7-Tage Score-Heatmap (Pünktlichkeit/Vollständigkeit/Zufriedenheit) */}

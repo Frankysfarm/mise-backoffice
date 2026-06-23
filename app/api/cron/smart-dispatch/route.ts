@@ -185,6 +185,7 @@ import { computeQualitaetAllLocations, pruneOldQualitaet } from '@/lib/delivery/
 import { scanAndCreateAllLocations as scanNachbestellungen, pruneOldNachbestellungen } from '@/lib/delivery/nachbestellungs-engine';
 import { computeAllLocations as computeKundenbindung, pruneOldScores as pruneKundenbindung } from '@/lib/delivery/kundenbindung';
 import { computeBenchmarksAllLocations, pruneOldBenchmarks as pruneSchichtBenchmarks } from '@/lib/delivery/schicht-benchmark';
+import { generateCoachingAllLocations, pruneOldCoaching as pruneCoachingHinweise } from '@/lib/delivery/fahrer-coach';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -453,6 +454,9 @@ export async function GET(req: NextRequest) {
     // Phase 463: Schicht-Benchmark — täglich 09:50 UTC compute; täglich 09:55 UTC prune (60 Tage)
     const isSchichtBenchmarkTick      = nowHour === 9 && nowMin >= 50 && nowMin < 54;
     const isSchichtBenchmarkPruneTick = nowHour === 9 && nowMin >= 55 && nowMin < 59;
+    // Phase 466: Fahrer-Coaching — täglich 10:05 UTC generate; täglich 10:10 UTC prune (60 Tage)
+    const isFahrerCoachingTick      = nowHour === 10 && nowMin >= 5 && nowMin < 9;
+    const isFahrerCoachingPruneTick = nowHour === 10 && nowMin >= 10 && nowMin < 14;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1648,6 +1652,14 @@ export async function GET(req: NextRequest) {
       ? await pruneSchichtBenchmarks(60).catch(() => null)
       : null;
 
+    // Phase 466: Fahrer-Coaching — täglich 10:05 UTC
+    const fahrerCoachingResult = isFahrerCoachingTick
+      ? await generateCoachingAllLocations().catch(() => null)
+      : null;
+    const fahrerCoachingPruned = isFahrerCoachingPruneTick
+      ? await pruneCoachingHinweise(60).catch(() => null)
+      : null;
+
     const durationMs = Date.now() - start;
     return NextResponse.json({
       ok: true,
@@ -1963,6 +1975,8 @@ export async function GET(req: NextRequest) {
       ...(kundenbindungPruned != null ? { kundenbindung_pruned: kundenbindungPruned } : {}),
       ...(schichtBenchmarkResult ? { schicht_benchmark: { locations: schichtBenchmarkResult.locations, computed: schichtBenchmarkResult.computed, errors: schichtBenchmarkResult.errors } } : {}),
       ...(schichtBenchmarkPruned?.pruned != null ? { schicht_benchmark_pruned: schichtBenchmarkPruned.pruned } : {}),
+      ...(fahrerCoachingResult ? { fahrer_coaching: { locations: fahrerCoachingResult.locations, generated: fahrerCoachingResult.generated, errors: fahrerCoachingResult.errors } } : {}),
+      ...(fahrerCoachingPruned?.pruned != null ? { fahrer_coaching_pruned: fahrerCoachingPruned.pruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

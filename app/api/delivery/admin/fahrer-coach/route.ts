@@ -1,21 +1,22 @@
 /**
- * GET  /api/delivery/admin/schicht-benchmark?location_id=...&date=YYYY-MM-DD
- *      → Benchmarks für eine Location (heute oder angegebenes Datum)
+ * GET  /api/delivery/admin/fahrer-coach?location_id=...&date=YYYY-MM-DD
+ *      → Coaching-Hinweise für eine Location (heute oder angegebenes Datum)
  *
- * POST /api/delivery/admin/schicht-benchmark
- *      action=compute          → Berechnet Benchmarks für Location (heute)
- *      action=compute-all      → Alle Standorte (Cron-Trigger)
- *      action=prune            → Alte Benchmarks löschen
+ * POST /api/delivery/admin/fahrer-coach
+ *      action=generate      → Hinweise für Location generieren
+ *      action=generate-all  → Alle Standorte (Cron-Trigger)
+ *      action=seen          → Hinweis als gesehen markieren { id }
+ *      action=prune         → Alte Hinweise löschen
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
-  computeBenchmarks,
-  computeBenchmarksAllLocations,
-  getBenchmarks,
-  getBenchmarkHistory,
-  pruneOldBenchmarks,
-} from '@/lib/delivery/schicht-benchmark';
+  generateCoachingForLocation,
+  generateCoachingAllLocations,
+  getCoachingForLocation,
+  markCoachingGesehen,
+  pruneOldCoaching,
+} from '@/lib/delivery/fahrer-coach';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -40,16 +41,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const locationId = searchParams.get('location_id') ?? emp.location_id;
     const date = searchParams.get('date') ?? undefined;
-    const history = searchParams.get('history') === 'true';
-    const daysBack = Math.min(90, Math.max(7, Number(searchParams.get('days') ?? 28)));
 
-    if (history) {
-      const verlauf = await getBenchmarkHistory(locationId, daysBack);
-      return NextResponse.json({ ok: true, verlauf });
-    }
-
-    const benchmarks = await getBenchmarks(locationId, date);
-    return NextResponse.json({ ok: true, benchmarks });
+    const hinweise = await getCoachingForLocation(locationId, date);
+    return NextResponse.json({ ok: true, hinweise });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
   }
@@ -65,22 +59,29 @@ export async function POST(req: NextRequest) {
       action?: string;
       location_id?: string;
       date?: string;
+      id?: string;
     };
     const action = body.action;
     const locationId = body.location_id ?? emp.location_id;
 
-    if (action === 'compute') {
-      const result = await computeBenchmarks(locationId, body.date);
+    if (action === 'generate') {
+      const result = await generateCoachingForLocation(locationId, body.date);
       return NextResponse.json({ ok: true, result });
     }
 
-    if (action === 'compute-all') {
-      const result = await computeBenchmarksAllLocations(body.date);
+    if (action === 'generate-all') {
+      const result = await generateCoachingAllLocations(body.date);
       return NextResponse.json({ ok: true, result });
+    }
+
+    if (action === 'seen') {
+      if (!body.id) return NextResponse.json({ ok: false, error: 'id required' }, { status: 400 });
+      await markCoachingGesehen(body.id);
+      return NextResponse.json({ ok: true });
     }
 
     if (action === 'prune') {
-      const result = await pruneOldBenchmarks(60);
+      const result = await pruneOldCoaching(60);
       return NextResponse.json({ ok: true, ...result });
     }
 

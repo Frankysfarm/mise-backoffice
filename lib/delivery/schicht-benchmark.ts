@@ -384,3 +384,48 @@ export async function pruneOldBenchmarks(daysOld = 60): Promise<{ pruned: number
   const { data } = await supabase.rpc('prune_schicht_benchmarks', { days_old: daysOld });
   return { pruned: (data as number) ?? 0 };
 }
+
+// ── Phase 465: Benchmark-Verlauf ───────────────────────────────────────────────
+
+export interface BenchmarkVerlaufTag {
+  datum:         string;
+  bestellungen:  number | null;
+  umsatzEur:     number | null;
+  puenktlichkeit: number | null;
+  compositeScore: number | null;
+  avgDeliveryMin: number | null;
+}
+
+export async function getBenchmarkHistory(
+  locationId: string,
+  daysBack = 28,
+): Promise<BenchmarkVerlaufTag[]> {
+  const supabase = createServiceClient();
+  const since = isoDate(new Date(Date.now() - daysBack * 86_400_000));
+
+  const { data: rows } = await supabase
+    .from('schicht_benchmarks')
+    .select('schicht_datum, benchmark_typ, ist_wert')
+    .eq('location_id', locationId)
+    .gte('schicht_datum', since)
+    .order('schicht_datum', { ascending: true });
+
+  if (!rows?.length) return [];
+
+  const byDate = new Map<string, BenchmarkVerlaufTag>();
+  for (const r of rows) {
+    const d = r.schicht_datum as string;
+    if (!byDate.has(d)) {
+      byDate.set(d, { datum: d, bestellungen: null, umsatzEur: null, puenktlichkeit: null, compositeScore: null, avgDeliveryMin: null });
+    }
+    const entry = byDate.get(d)!;
+    const val = r.ist_wert !== null ? Number(r.ist_wert) : null;
+    if (r.benchmark_typ === 'bestellungen')      entry.bestellungen   = val;
+    if (r.benchmark_typ === 'umsatz_eur')        entry.umsatzEur      = val;
+    if (r.benchmark_typ === 'puenktlichkeit_pct') entry.puenktlichkeit = val;
+    if (r.benchmark_typ === 'composite_score')   entry.compositeScore  = val;
+    if (r.benchmark_typ === 'avg_delivery_min')  entry.avgDeliveryMin  = val;
+  }
+
+  return Array.from(byDate.values());
+}
