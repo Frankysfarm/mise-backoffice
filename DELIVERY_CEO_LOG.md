@@ -1,7 +1,78 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–464 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–466 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #256 — Phase 465+466: Benchmark-Verlauf + Selbstbewertungs-Übersicht + Pünktlichkeits-Coach geprüft, 1 Bug gefixt (2026-06-23)
+
+### Commits geprüft
+- `feat(delivery/backend): Phase 465+466 — Benchmark-Verlauf, Selbstbewertungs-Übersicht, Pünktlichkeits-Coach`
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **1 Fehler gefunden + gefixt**, danach **0 Fehler** ✅
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+
+### Phase 465+466 Komponenten — Code-Qualität
+
+**DispatchBenchmarkVerlaufChart** (`dispatch/benchmark-verlauf-chart.tsx`)
+- 28-Tage Recharts-LineChart mit 4-Metrik-Toggle (Bestellungen/Pünktlichkeit/Score/Ø Lieferzeit)
+- Collapsible, fetcht `?history=true&days=28` korrekt ✅
+- Integration: `dispatch/client.tsx:1973` ✅
+
+**SelbstBewertungsUebersicht** (`lieferdienst/selbst-bewertungs-uebersicht.tsx`)
+- Sterne-Ø-Badge, Stimmungsverteilung mit Progress-Balken, Datum-Filter
+- Korrekte API-Anbindung `/api/delivery/admin/selbst-bewertung` ✅
+- Integration: `lieferdienst/client.tsx:1444` ✅
+
+**FahrerCoachingPanel** (`lieferdienst/fahrer-coaching-panel.tsx`)
+- kritisch/warnung/info Gruppen mit Dot, Generieren-Button
+- Integration: `lieferdienst/client.tsx:1446` ✅
+
+**FahrerCoachingWidget** (`fahrer/app/fahrer-coaching-widget.tsx`)
+- Kategorie-Badge, Progress-Balken, Auto-Gesehen beim Öffnen
+- Integration: `fahrer/app/client.tsx:783` ✅
+
+**lib/delivery/fahrer-coach.ts**
+- generateCoachingForLocation mit Trend-Analyse (steigend/sinkend/stabil) ✅
+- buildHinweise: Kategorie-basierte Tipps (bis 4 Stück) ✅
+- UPSERT-Logik mit UNIQUE driver_id+schicht_datum korrekt ✅
+
+**lib/delivery/schicht-benchmark.ts: getBenchmarkHistory**
+- 28-Tage Pivot-Map je Datum (5 Metriken) ✅
+- Sauber ohne N+1-Problem ✅
+
+### Bug gefixt in Review #256
+
+#### Bug 1 — Recharts Formatter Implicit `number` Typ
+**Datei:** `app/(admin)/dispatch/benchmark-verlauf-chart.tsx:107`
+**Problem:** `formatter={(val: number) => ...}` — Recharts-Typ ist `ValueType | undefined`, `number`-Annotation inkompatibel.
+**Fix:** `formatter={(val) => [\`${Number(val)}${metrik.unit}\`, metrik.label]}`
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #256
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 465+466: alle 4 Komponenten + 2 Backends vollständig integriert ✅
+- 1 Bug gefixt: Recharts Formatter Typ ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 467 Backend:** Erweiterung des Coaching-Systems — Wochenziel-Tracking: Fahrer sieht Wochenziel (Ø Pünktlichkeit %) mit Fortschritt über die letzten 7 Tage, API `GET /api/delivery/driver/coaching-wochenziel?driver_id&location_id`.
+2. **Phase 468 Backend:** Coaching-Effektivitäts-Report — Aggregiert wie viele Fahrer nach Coaching-Hinweis die Pünktlichkeit verbessert haben. API `GET /api/delivery/admin/coaching-effektivitaet?location_id`.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 467 Frontend:** DispatchCoachingEffektivitaetsChart — Chart-Ansicht wie viele Fahrer nach Coaching verbessert haben, Säulendiagramm je Woche. Integration: dispatch/client.tsx.
+2. **Phase 468 Frontend:** FahrerWochenzielCard — Zeigt dem Fahrer sein Wochenziel mit animiertem Fortschrittsring und Prognose ob Ziel erreichbar. Integration: fahrer/app/client.tsx.
 
 ---
 

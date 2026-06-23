@@ -104,7 +104,7 @@ export function DispatchBenchmarkVerlaufChart({ locationId }: Props) {
                     contentStyle={{ backgroundColor: '#1c1917', border: '1px solid #44403c', borderRadius: 6 }}
                     labelStyle={{ color: '#d6d3d1', fontSize: 11 }}
                     itemStyle={{ color: metrik.color, fontSize: 11 }}
-                    formatter={(val: number) => [`${val}${metrik.unit}`, metrik.label]}
+                    formatter={(val) => [`${Number(val)}${metrik.unit}`, metrik.label]}
                   />
                   <Line
                     type="monotone"
