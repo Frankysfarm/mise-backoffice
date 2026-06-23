@@ -1,7 +1,105 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–462 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–464 vollständig abgeschlossen. Build sauber (Exit 0). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #255 — Phase 463+464: 7 neue Komponenten + 2 Backends geprüft, 0 Bugs (2026-06-23)
+
+### Commits geprüft
+- `feat(delivery/backend+frontend): Phase 463+464 — Schicht-Benchmark + Fahrer-Selbst-Bewertung`
+- `feat(delivery/frontend): Phase 463 — 5 neue Smart-Delivery-Komponenten`
+
+### Build & TypeScript
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- `npx next build` → **366 Seiten, Exit Code 0** ✅
+
+### Phase 463 Frontend — 5 Komponenten
+
+**KitchenKochzeitSollIstAmpel** (`kitchen/kochzeit-soll-ist-ampel.tsx`)
+- Soll-Ist-Kochzeitabweichung letzte 90 Min, 3-spaltige Ampel (Soll/Δ/Ist)
+- Ampelfarben matcha/amber/rot je deltaMin ≤1/≤4/>4 korrekt ✅
+- Fortschrittsbalken pctInTime, critOver-Zählung sauber ✅
+- Integration: `kitchen/client.tsx:1850` ✅
+
+**DispatchTourStopFortschrittLive** (`dispatch/tour-stop-fortschritt-live.tsx`)
+- Stop-Punkte-Visualisierung aller aktiven Touren, Health-Ampel gut/knapp/spät
+- Fortschrittspunkte mit Puls-Animation für aktuellen Stop korrekt ✅
+- `batches as any` sicher — Dispatch-State hat gleiche Struktur ✅
+- Integration: `dispatch/client.tsx:1972` ✅
+
+**NaechsterStoppEtaRing** (`fahrer/app/naechster-stopp-eta-ring.tsx`)
+- SVG-Countdown-Ring (r=36) für nächsten Fahrer-Stopp mit Adresse + Lieferfenster
+- isLate/isUrgent-Logik sauber, formatCountdown korrekt ✅
+- Integration: `fahrer/app/client.tsx:1155` ✅
+
+**BestPhaseTimer** (`order/[locationSlug]/bestell-phase-timer.tsx`)
+- Live-Phasen-Timer (zubereitung/unterwegs/geliefert), Supabase Realtime
+- Fortschrittsbalken nur in Zubereitungsphase, isOverdue-Markierung ✅
+- Integration: `storefront.tsx:503` mit orderId + estimatedMin ✅
+
+**SchichtOnTimeRing** (`lieferdienst/schicht-on-time-ring.tsx`)
+- SVG-Donut (r=40) Pünktlichkeitsquote letzte 2h vs. Vorperiode
+- Trend up/down/stable (±5%-Schwelle), Ziel-Badge ≥85%/≥70%/<70% ✅
+- mountedRef-Cleanup sauber implementiert ✅
+- Integration: `lieferdienst/client.tsx:1474` ✅
+
+### Phase 463 Backend — Schicht-Benchmark
+
+**lib/delivery/schicht-benchmark.ts**
+- computeBenchmarks: 4-Wochen-Ø gleicher Wochentag → 5 Metriken ✅
+- getBenchmarks / pruneOldBenchmarks sauber ✅
+
+**app/api/delivery/admin/schicht-benchmark/route.ts**
+- GET ?location_id&date → Benchmarks lesen ✅
+- POST action=compute/compute-all/prune korrekt ✅
+
+**DispatchSchichtBenchmarkCard** (`dispatch/schicht-benchmark-card.tsx`)
+- 5-Metriken-Tabelle mit TrendIcons + Abweichungs-%, Gesamt-Badge
+- Lazy-Compute wenn keine Daten, 10-Min-Auto-Refresh ✅
+- Integration: `dispatch/client.tsx:1970` nach DispatchTourEtaAbschlussMatrix ✅
+
+### Phase 464 Backend+Frontend — Fahrer-Selbst-Bewertung
+
+**app/api/delivery/driver/selbst-bewertung/route.ts**
+- GET heutige Bewertung per driver_id+location_id ✅
+- POST UPSERT mit sterne+stimmung+kommentar ✅
+
+**FahrerSelbstBewertung** (`fahrer/app/fahrer-selbst-bewertung.tsx`)
+- 5-Sterne-Rating + 5 Stimmungs-Buttons emoji + Freitext
+- alreadyToday-Check zeigt bestehende Bewertung, kein Re-Submit möglich ✅
+- Violet-Dark-Mode-Design passend zur Fahrer-App ✅
+- Integration: `fahrer/app/client.tsx:778` nach QualitaetsTrendKarte ✅
+
+### Bugs gefixt in Review #255
+**Keine Bugs.** Alle 7 Komponenten + 2 APIs sind korrekt implementiert und integriert.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #255
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 463: 5 Frontend-Komponenten vollständig + integriert ✅
+- Phase 463 Backend: Schicht-Benchmark-System vollständig ✅
+- Phase 464: Fahrer-Selbst-Bewertung vollständig ✅
+- 0 Bugs gefunden ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 465 Backend:** API `GET /api/delivery/admin/kochzeit-sollwerte` — Soll-Zeiten je Kategorie aus `menu_items` (Ø `geschaetzte_zubereitung_min`) + Tracking der Ist-Zeiten aus `customer_orders`. Response: `{ category: string; sollMin: number; istMin: number; delta: number }[]`.
+2. **Phase 466 Backend:** API `GET /api/delivery/admin/tour-stop-details?batch_id=...` — Detaillierte Stop-Daten (kunde_name, kunde_adresse, geplante_ankunft, geliefert_am, sequence) aus `tour_stops` JOIN `delivery_batches`. Pagination per batch_id.
+
+### Nächste Phasen für Frontend-Ingenieur
+1. **Phase 465 Frontend:** KitchenKategorieKochzeitMatrix — Tabelle aller Kategorien mit Soll/Ist/Δ-Kochzeit, Ampelfarben je Abweichung, Trend-7-Tage. Integration: kitchen/client.tsx.
+2. **Phase 466 Frontend:** DispatchFahrerEchtzeit-GpsKarte — Mini-Karte mit Fahrer-Pins (Leaflet/static), Touren-Routen eingezeichnet, Auto-Update 30s. Integration: dispatch/client.tsx.
 
 ---
 
