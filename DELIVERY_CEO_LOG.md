@@ -5,10 +5,11 @@
 
 ---
 
-## CEO Review #260 — Phase 480–482 geprüft, 0 Bugs, Build 366 Seiten sauber (2026-06-23)
+## CEO Review #260 — Phase 480–482 + Frontend-Erweiterung geprüft, 0 Bugs, Build 366 Seiten sauber (2026-06-23)
 
 ### Commits geprüft
 - `5fdf062` — Phase 480–482: Zonen-Affinität-Matrix, Rückkehr-Prognose, Küchen-Kapazitäts-Alert
+- `6b63bbe` — Smart-Timing, Tour-Sequenz, Stop-Kommando, Live-Tracking (Frontend)
 
 ### Build-Status
 - `npx next build` → **366 Seiten, Exit 0** ✅
@@ -22,6 +23,24 @@
 - topDriverPerZone-Aggregation: Best-Score per Zone sortiert ✅
 - Multi-Tenant: alle Queries mit `.eq('location_id', locationId)` ✅
 - Doppelter Import (createClient + createServiceClient in einer Zeile each) ist gültiges TypeScript ✅
+
+**DispatchTourSequenzLive** (`dispatch/dispatch-tour-sequenz-live.tsx`)
+- Prop-basiert (kein eigener API-Call) — nutzt bestehende Batch/Stop/Driver-Props ✅
+- Stop-Kette mit Farb-Status: geliefert grün / unterwegs puls-blau / ausstehend grau ✅
+- ETA + verbleibende Stops je Fahrer ✅
+- Integration: dispatch/client.tsx Zeile 1181 ✅
+
+**KitchenKochstartEntscheidung** (`kitchen/kitchen-kochstart-entscheidung.tsx`)
+- Urgency-Farbkodierung: critical=rot-pulse / urgent=orange / soon=gelb / ok=grün ✅
+- Prop-basiert (orders + timings) — kein eigener API-Call ✅
+- Integration: kitchen/client.tsx Zeile 659 ✅
+
+**TourStopKommando** (`fahrer/app/tour-stop-kommando.tsx`)
+- Checkliste + Navigation-CTA + Zahlungshinweis ✅
+- Integration: fahrer/app/client.tsx Zeile 1396 ✅
+
+**LiveDriverTracker** + Echtzeit-Storefront-Komponenten (`order/[locationSlug]/storefront.tsx`)
+- Integration nach Bestellabschluss für Echtzeit-Lieferverfolgung ✅
 
 **DispatchFahrerZonenAffinitaetsMatrix** (`dispatch/fahrer-zonen-affinitaets-matrix.tsx`)
 - Tabelle Fahrer×Zone mit ScoreCell: combinedScore + Lieferanzahl + Ø-Sterne ✅
