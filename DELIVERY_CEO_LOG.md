@@ -1,7 +1,80 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–479 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–482 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+
+---
+
+## CEO Review #260 — Phase 480–482 geprüft, 0 Bugs, Build 366 Seiten sauber (2026-06-23)
+
+### Commits geprüft
+- `5fdf062` — Phase 480–482: Zonen-Affinität-Matrix, Rückkehr-Prognose, Küchen-Kapazitäts-Alert
+
+### Build-Status
+- `npx next build` → **366 Seiten, Exit 0** ✅
+- `npx tsc --noEmit` → **0 Fehler** ✅
+
+### Phase 480–482 Code-Qualität
+
+**fahrer-zonen-affinitaet API** (`app/api/delivery/admin/fahrer-zonen-affinitaet/route.ts`)
+- Score-Formel korrekt: 50% Affinität (familiarity 60% + performance 40% × 0.5) + 30% Rating + 20% Pünktlichkeit ✅
+- Rating-Join: customer_delivery_ratings → order_id → customer_orders.delivery_zone korrekt implementiert ✅
+- topDriverPerZone-Aggregation: Best-Score per Zone sortiert ✅
+- Multi-Tenant: alle Queries mit `.eq('location_id', locationId)` ✅
+- Doppelter Import (createClient + createServiceClient in einer Zeile each) ist gültiges TypeScript ✅
+
+**DispatchFahrerZonenAffinitaetsMatrix** (`dispatch/fahrer-zonen-affinitaets-matrix.tsx`)
+- Tabelle Fahrer×Zone mit ScoreCell: combinedScore + Lieferanzahl + Ø-Sterne ✅
+- Farbkodierung: ≥70 matcha / ≥40 amber / <40 grau ✅
+- Top-Driver-per-Zone Pills oben ✅
+- isBest Ring-Markierung + grünes ✓ Badge ✅
+- Collapsible, 60s Auto-Refresh ✅
+- Integration: dispatch/client.tsx Zeile 1991 ✅
+
+**fahrer-rueckkehr-prognose API** (`app/api/delivery/admin/fahrer-rueckkehr-prognose/route.ts`)
+- Nutzt getReturnPredictionDashboard korrekt ✅
+- Typen stimmen mit lib/delivery/driver-return-prediction.ts überein (driverVehicle, driverName, batchId, etc.) ✅
+- residualCapacity: bike=2/h, car=3/h, korrekte Fenster-Berechnung ✅
+- Urgency: soon ≤5 / coming ≤20 / later >20 ✅
+
+**DispatchFahrerRueckkehrPrognosePanel** (`dispatch/fahrer-rueckkehr-prognose-panel.tsx`)
+- ReturnRing SVG: pct = 1 - min/60, Farbe grün/amber/grau, rotate-90 ✅
+- ConfidenceDots: round(confidence × 3) korrekt ✅
+- ResidualCapacity Badge mit Zap-Icon ✅
+- 45s Auto-Refresh, Collapsible ✅
+- Integration: dispatch/client.tsx Zeile 1993 ✅
+
+**kitchen-capacity-alert API** (`app/api/delivery/admin/kitchen-capacity-alert/route.ts`)
+- Schwellwert aus delivery_config, Default 8 ✅
+- alert-Level: ok ≤75% / warning 75-100% / critical >100% ✅
+- longestWaitMin korrekt mit Math.max() ✅
+- satisfies KitchenCapacityAlertResponse für Typ-Sicherheit ✅
+
+**KitchenKapazitaetsAlert** (`kitchen/kitchen-capacity-alert.tsx`)
+- Auto-Dismiss + Re-Show bei Level-Eskalation via prevLevel.current ✅
+- Animate-pulse nur bei critical ✅
+- Bestellliste erst ab critical, max 10 Chips ✅
+- Kapazitätsbalken mit min(pct, 100)% overflow-safe ✅
+- 30s Auto-Refresh ✅
+- Integration: kitchen/client.tsx Zeile 1868 ✅
+
+### Integrations-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Zonen-Affinität ↔ Dispatch | ✅ |
+| Rückkehr-Prognose ↔ Dispatch | ✅ |
+| Kapazitäts-Alert ↔ Kitchen | ✅ |
+
+### Nächste Phasen (Empfehlung)
+1. **Phase 483 Backend:** Storefront Bewertungs-Widget Token — POST /api/delivery/customer/rating + rating_request Event mit Link an Kunden
+2. **Phase 483 Frontend:** BewertungsWidgetStorefront — 5-Sterne Inline-Widget in Bestellbestätigung
+3. **Phase 484 Backend:** Batch-Reassign-API — POST /api/delivery/admin/batch-reassign, Benachrichtigung an alten + neuen Fahrer
+4. **Phase 484 Frontend:** DispatchBatchReassignDialog — Modal mit verfügbaren Fahrern + Score
+5. **Phase 485:** Kitchen-Kapazitäts-Schwellwert-Config CRUD (GET/POST /api/delivery/admin/config)
 
 ---
 
