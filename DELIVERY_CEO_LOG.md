@@ -14976,3 +14976,64 @@ Phase 431 ist korrekt typisiert, vollständig integriert und baut fehlerfrei.
 ### Nächste Phasen für Frontend-Ingenieur
 1. **Phase 436 Frontend:** NachbestellungsPanel — Admin-Übersicht offener Nachbestellungen mit Status-Badge (ausstehend/bestellt/geliefert), Mengen-Input, Bestätigungs-Button. Integration: lieferdienst/client.tsx.
 2. **Phase 437 Frontend:** KundenbindungsRadar — Admin-Cockpit (Segmentierungs-Kuchendiagramm champion/loyal/at_risk/lost), Top-10 Kunden nach Score, At-Risk-Alert-Liste. Integration: lieferdienst/client.tsx.
+
+---
+
+## CEO Review #246 — Phasen 436+437 geprüft (2026-06-23)
+
+### Geprüfte Commits
+- `feat(delivery/backend): Phase 436+437 — Nachbestellungs-Engine + Kundenbindungs-Score`
+
+### Build & TypeScript
+- `npx next build` → **Exit Code 0** ✅
+- `npx tsc --noEmit` → **0 Fehler** ✅
+- Seiten: **364** ✅
+
+### Phase 436 — Automatische Nachbestellungs-Engine
+
+**Migration 213** (`scripts/migrations/213_nachbestellungen.sql`): Tabelle `nachbestellungen` (UNIQUE nicht auf Row-Ebene — App prüft Duplikate; status CHECK ausstehend/bestellt/geliefert; RLS service_role + admin read/write; prune_nachbestellungen RPC). ✅
+
+**lib/delivery/nachbestellungs-engine.ts**: `scanAndCreate(locationId)` — filtert `delivery_materials` mit `current_stock < min_stock_level`, prüft laufende ausstehende Bestellung (skip-Duplikate), erstellt neue `nachbestellungen` mit `reorder_qty`-Menge (Fallback: min_stock×2). `updateStatus` setzt bestellt_am/geliefert_am Timestamps. `scanAndCreateAllLocations()` Cron-Batch. `pruneOldNachbestellungen(180)` löscht gelieferte Einträge. ✅
+
+**API** (`/api/delivery/admin/nachbestellungen`): GET list+status-filter, POST scan/scan-all/update-status/prune. ✅
+
+**Frontend NachbestellungsPanel** (`lieferdienst/nachbestellungs-panel.tsx`): Collapsible orange Panel — Filter-Tabs (Alle/Ausstehend/Bestellt/Geliefert), Artikel-Name+Einheit, Bestand vs. Mindestmenge, Status-Badges mit Icons (Clock/ShoppingCart/PackageCheck), Aktions-Buttons (→Bestellt / →Geliefert), Cron-Scan-Button, Loading-Skeleton. Integration: `lieferdienst/client.tsx:1437` ✅
+
+**Cron** (`api/cron/smart-dispatch/route.ts`): täglich 06:00 UTC scan-all, 06:05 UTC prune(180d). `isNachbestellungTick` + `isNachbestellungPruneTick` korrekt. ✅
+
+### Phase 437 — Kundenbindungs-Score
+
+**Migration 214** (`scripts/migrations/214_kunden_scores.sql`): Tabelle `kunden_scores` (UNIQUE location_id+kunde_telefon, score 0–100, segmentierung CHECK champion/loyal/at_risk/lost, bestellfrequenz, avg_bestellwert, letzte_bestellung, stornorate, bestellungen_total; RLS service_role + admin; prune_kunden_scores RPC). ✅
+
+**lib/delivery/kundenbindung.ts**: Score-Algo aus `customer_orders` (365d Lookback): Recency 30% (≤7d→100, ≥90d→0, linear), Frequenz 30% (≥8/Mo→100, <0.5→0), Bestellwert 25% (≥50€→100, <5€→0), Storno-Güte 15% (0%→100, ≥20%→0). Segmentierung: champion≥75/loyal≥50/at_risk≥25/lost<25. Chunk-Upsert 500 Rows. `getDashboard` aggregiert segmentStats+topKunden+atRiskKunden. `computeAllLocations()` Cron-Batch. ✅
+
+**API** (`/api/delivery/admin/kundenbindung`): GET dashboard/scores/segment-stats, POST compute/compute-all/prune. ✅
+
+**Frontend KundenbindungsRadar** (`lieferdienst/kundenbindungs-radar.tsx`): Collapsible violet Panel — SVG-Pie-Chart nativ (4 Segmente, kein externes Chart-Package), Segment-KPI-Grid (4 Kacheln: Count+Ø Score), Top-10 Kunden Tabelle (Score/Bestellungen/Ø Wert/Letzte Bestellung), At-Risk Kunden Alert-Liste (max 10), Neu-berechnen-Button. Integration: `lieferdienst/client.tsx:1439` ✅
+
+**Cron** (`api/cron/smart-dispatch/route.ts`): täglich 09:40 UTC compute-all, 09:45 UTC prune(90d). `isKundenbindungTick` + `isKundenbindungPruneTick` korrekt. ✅
+
+### Code-Qualität
+- Keine `@ts-ignore` oder `any` Casts
+- Alle TypeScript-Typen explizit
+- Alle fetch-Fehler mit `catch(()=>{})` behandelt
+- Multi-Tenant: alle Queries mit `location_id` gefiltert
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #246
+- Build: 364 Seiten, Exit Code 0 ✅
+- TypeScript: 0 Fehler ✅
+- Phase 436 (Nachbestellungs-Engine): vollständig ✅
+- Phase 437 (Kundenbindungs-Score): vollständig ✅
+
+### Nächste Phasen für Backend-Ingenieur
+1. **Phase 438 Backend:** Liefergebiet-Optimierer — Automatische Analyse profitabler vs. unrentabler Lieferzonen basierend auf Lieferkosten/Bestellwert-Ratio. Neue Tabelle `zone_profitability_snapshots` (location_id, zone_name, orders_count, avg_order_value, avg_delivery_cost, profit_margin, empfehlung CHECK('expand','keep','reduce','close')). Engine: `lib/delivery/zone-profitability-analyzer.ts`. API admin GET. Cron täglich 07:00 UTC.
+2. **Phase 439 Backend:** Schicht-Lücken-Detektor — Erkennt unbesetzte Stunden im Schichtplan (Lücken zwischen Schichten > 30 Min, unter Mindestbesetzung). Engine ohne neue Tabelle — reine Live-Analyse aus `driver_shifts`. API: `GET /api/delivery/admin/schicht-luecken`. Push-Alert wenn Lücke > 2h.

@@ -182,6 +182,8 @@ import { generateAbschlussAllLocations, pruneOldBerichte as pruneAbschlussBerich
 import { evaluateIncentivesAllLocations as evaluateFahrerIncentives, pruneOldIncentives as pruneFahrerIncentives } from '@/lib/delivery/fahrer-incentive';
 import { generateZeugnisseAllLocations, pruneOldZeugnisse } from '@/lib/delivery/fahrer-zeugnis';
 import { computeQualitaetAllLocations, pruneOldQualitaet } from '@/lib/delivery/liefer-qualitaet';
+import { scanAndCreateAllLocations as scanNachbestellungen, pruneOldNachbestellungen } from '@/lib/delivery/nachbestellungs-engine';
+import { computeAllLocations as computeKundenbindung, pruneOldScores as pruneKundenbindung } from '@/lib/delivery/kundenbindung';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -441,6 +443,12 @@ export async function GET(req: NextRequest) {
     // Phase 433: Liefer-Qualitäts-Index — täglich 09:30 UTC compute-all; täglich 09:35 UTC prune (90 Tage)
     const isLieferQualitaetTick      = nowHour === 9 && nowMin >= 30 && nowMin < 34;
     const isLieferQualitaetPruneTick = nowHour === 9 && nowMin >= 35 && nowMin < 39;
+    // Phase 436: Nachbestellungs-Engine — täglich 06:00 UTC scan; täglich 06:05 UTC prune (180 Tage)
+    const isNachbestellungTick      = nowHour === 6 && nowMin >= 0 && nowMin < 4;
+    const isNachbestellungPruneTick = nowHour === 6 && nowMin >= 5 && nowMin < 9;
+    // Phase 437: Kundenbindungs-Score — täglich 09:40 UTC compute; täglich 09:45 UTC prune (90 Tage)
+    const isKundenbindungTick       = nowHour === 9 && nowMin >= 40 && nowMin < 44;
+    const isKundenbindungPruneTick  = nowHour === 9 && nowMin >= 45 && nowMin < 49;
 
     const [dispatchResult, kitchenResult, staleResult, etaResult, shiftResult, demandResult, alertResult, recoveryResult, ratingTokensGenerated, delayResult, scheduleResult, webhookResult, reportCacheResult, etaCalibResult, surgeResult, windowResult, missedWindows, retryResult, queueSignalResult, creditsResult, broadcastsResult, customerPushResult, incidentsCreated, driverPerfResult, complianceResult, onboardingResult, slaEscalationResult, loyaltyExpireResult, navCachePruned, noShowResult, cdesResult, digestResult, challengeResult, positioningResult, profitabilityResult, churnAnalysisResult, reEngagementResult, healthObservatoryResult, healthSnapshotsPruned, surgePredictionResult, surgeEvalResult, ratingRecencyResult, addressScanResult, commsLogsPruned, zoneAffinityResult, reviewFlagScanResult, tourAnalyticsResult, geoDemandResult, flowIntelligenceResult, flowSnapshotsPruned, fatigueResult, fatigueSnapshotsPruned, peakPatternResult, peakAlertResult, peakAlertsPruned, menuSnapshotResult, menuSnapshotsPruned, prepProfilesResult, prepObservationsPruned, shiftSuggestionsResult, shiftSuggestionsPruned, slaCompResult, driverBonusResult, digestEmailResult, driverDigestResult, reorderProfilesResult, reorderProfilesPruned, subscriptionRenewalResult, cashReconcileResult, customerPushLogsPruned, customerPushSubsPruned, geoClusterResult, pushAnalyticsResult, campaignsResult, rfmResult, rfmPruned, vouchersPruned, sentimentResult, sentimentPruned, tripCostResult] = await Promise.all([
       smartDispatchTick(),
@@ -1614,6 +1622,20 @@ export async function GET(req: NextRequest) {
     const lieferQualitaetPruned = isLieferQualitaetPruneTick
       ? await pruneOldQualitaet(90).catch(() => null)
       : null;
+    // Phase 436: Nachbestellungs-Engine — täglich 06:00 UTC scan; 06:05 prune
+    const nachbestellungResult = isNachbestellungTick
+      ? await scanNachbestellungen().catch(() => null)
+      : null;
+    const nachbestellungPruned = isNachbestellungPruneTick
+      ? await pruneOldNachbestellungen(180).catch(() => null)
+      : null;
+    // Phase 437: Kundenbindungs-Score — täglich 09:40 UTC compute; 09:45 prune
+    const kundenbindungResult = isKundenbindungTick
+      ? await computeKundenbindung().catch(() => null)
+      : null;
+    const kundenbindungPruned = isKundenbindungPruneTick
+      ? await pruneKundenbindung(90).catch(() => null)
+      : null;
 
     const durationMs = Date.now() - start;
     return NextResponse.json({
@@ -1924,6 +1946,10 @@ export async function GET(req: NextRequest) {
       ...(fahrerZeugnispruned != null ? { fahrer_zeugnis_pruned: fahrerZeugnispruned } : {}),
       ...(lieferQualitaetResult ? { liefer_qualitaet: { locations: lieferQualitaetResult.length, upserted: lieferQualitaetResult.reduce((s, r) => s + r.upserted, 0), errors: lieferQualitaetResult.reduce((s, r) => s + r.errors, 0) } } : {}),
       ...(lieferQualitaetPruned != null ? { liefer_qualitaet_pruned: lieferQualitaetPruned } : {}),
+      ...(nachbestellungResult ? { nachbestellungen: { locations: nachbestellungResult.locations, created: nachbestellungResult.created, errors: nachbestellungResult.errors } } : {}),
+      ...(nachbestellungPruned != null ? { nachbestellungen_pruned: nachbestellungPruned } : {}),
+      ...(kundenbindungResult ? { kundenbindung: { locations: kundenbindungResult.length, upserted: kundenbindungResult.reduce((s, r) => s + r.upserted, 0), errors: kundenbindungResult.reduce((s, r) => s + r.errors, 0) } } : {}),
+      ...(kundenbindungPruned != null ? { kundenbindung_pruned: kundenbindungPruned } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
