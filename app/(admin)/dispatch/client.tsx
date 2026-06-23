@@ -264,6 +264,8 @@ import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
 import { DispatchZoneActionBoard } from './zone-action-board';
 import { DispatchFahrerFunkBoard } from './dispatch-fahrer-funk-board';
+import { DispatchTourKapazitaetsWarnung } from './tour-kapazitaets-warnung';
+import { DispatchFahrerScoreSummaryCard } from './fahrer-score-summary-card';
 
 type Driver = {
   employee_id: string;
@@ -2037,6 +2039,10 @@ export function DispatchBoard({
       <DispatchFahrerRueckkehrPrognosePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 488: Fahrer-Verfügbarkeits-Signal — Live-Verfügbarkeit + Quick-Actions */}
       <DispatchFahrerVerfuegbarkeitsSignalPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 494: Tour-Kapazitäts-Warnung — Alert-Banner bei Überlastung aktiver Touren */}
+      <DispatchTourKapazitaetsWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 495: Fahrer-Score-Zusammenfassung — Pünktlichkeit + Bewertung + GPS + Engagement */}
+      <DispatchFahrerScoreSummaryCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
