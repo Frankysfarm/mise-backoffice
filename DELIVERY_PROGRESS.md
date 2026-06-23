@@ -7368,3 +7368,55 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 
 ### Nächste Phasen für Backend-Ingenieur
 1. **Phase 432 Backend:** Fahrer-Ranking-Prämien — Wöchentliche Top-3-Fahrer-Belohnung basierend auf driver_score_daily_snapshots. Neue Tabelle `fahrer_ranking_praemien` (location_id, driver_id, rang 1-3, woche_von, bonus_eur, ausgezahlt_am). Engine: `lib/delivery/fahrer-ranking-praemien.ts`. Cron montags 09:15 UTC.
+
+---
+
+## Phase 459 Backend + Frontend + Phase 460 Frontend — Echtzeit-Kommandozentrale + Wartezeit-Ring (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 459 Backend — Driver-Score Live-Endpoint
+
+**`app/api/delivery/admin/driver-score/route.ts`:**
+- Neuer `action=live` → gibt `DriverScore[]` in Hub-Format zurück
+  (driver_id, driver_name, score, sub_scores: { punctuality, completion, customer_rating, efficiency })
+- Konvertiert bestehende `ScoreLeaderboardEntry[]` in das vom Frontend erwartete Format:
+  - punctuality: fPunctuality/30 × 100
+  - completion: (fActivity + fVolume)/15 × 100
+  - customer_rating: (fRating/25) × 4 + 1 (skaliert auf 1–5)
+  - efficiency: fEfficiency/15 × 100
+- `DispatchFahrerScorePerformanceHub` auf `?action=live` umgestellt (kein Mock-Fallback mehr)
+
+### Phase 459 Frontend — DispatchEchtzeitKommandoZentrale
+
+**`app/(admin)/dispatch/echtzeit-kommando-zentrale.tsx`** — `DispatchEchtzeitKommandoZentrale`:
+- 5-Kachel Hero-Section: Aktive Touren, Offen/Bereit, Fahrer online/gesamt, Ø Fahrer-Score, Bestellungen heute
+- Fahrer-Auslastungs-Fortschrittsbalken (grün/amber/rot)
+- Live-Polling 60s für Score + Stats, Props-Update für Tour/Fahrer-Counts
+- Grüner Matcha-Gradient-Header mit Live-Puls-Dot
+- Farbkodierte Kacheln: rot wenn kritisch (>5 offene Bestellungen, >90% Auslastung)
+- Integration: `dispatch/client.tsx` ganz oben (erste Komponente nach `<div className="space-y-6">`) ✅
+
+### Phase 460 Frontend — StorefrontLiveWartezeit-Ring
+
+**`app/order/[locationSlug]/components/live-wartezeit-ring.tsx`** (bereits vorhanden):
+- Animierter SVG-Kreisfortschritt, Restzeit in Minuten, Farbwechsel grün→amber→rot
+- 1s-Tick via setInterval, sauberes Cleanup
+
+**`app/order/[locationSlug]/storefront.tsx`:**
+- `orderSuccess`-State um `orderedAt: string` erweitert (ISO-Timestamp beim Bestellen)
+- `LiveWartezeitRing` importiert + nach `EtaDynamicLivePanel` integriert (nur bei Lieferungen)
+
+### Integrations-Checkliste Phase 459+460
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| action=live | driver-score/route.ts | DispatchFahrerScorePerformanceHub | ✅ |
+| DispatchEchtzeitKommandoZentrale | dispatch/echtzeit-kommando-zentrale.tsx | dispatch/client.tsx top | ✅ |
+| LiveWartezeitRing | components/live-wartezeit-ring.tsx | storefront.tsx nach EtaDynamicLivePanel | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 461 Backend:** Schicht-Leistungs-Benchmark — Vergleich heutiger Schicht vs. Durchschnitt der letzten 4 Wochen (Bestellungen, Umsatz, Pünktlichkeit, Score). Neue Tabelle `schicht_benchmarks` (location_id, schicht_datum, benchmark_typ, ist_wert, benchmark_wert, abweichung_pct). Engine: `lib/delivery/schicht-benchmark.ts`. API: `GET /api/delivery/admin/schicht-benchmark`.
+2. **Phase 461 Frontend:** DispatchSchichtBenchmarkCard — Kompakte Vergleichs-Karte in Dispatch: heute vs. 4-Wochen-Ø mit Trend-Pfeilen. Integration: dispatch/client.tsx.
+3. **Phase 462 Frontend:** FahrerSelbstBewertungsWidget — Fahrer bewertet eigene Schicht (1–5 Sterne + Freitext). Speichert in `schicht_abschluss_berichte`. Integration: fahrer/app/client.tsx.
