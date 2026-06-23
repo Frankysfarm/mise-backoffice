@@ -198,6 +198,7 @@ import { KitchenKochzeitSollIstAmpel } from './kochzeit-soll-ist-ampel';
 import { KitchenFahrerKochSyncPanel } from './fahrer-koch-sync-panel';
 import { KitchenSmartBatchPriorisierung } from './smart-batch-priorisierung';
 import { KitchenOrderTimingProAnzeige } from './order-timing-pro-anzeige';
+import { KitchenBestellEingangsTicker } from './bestell-eingangs-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1857,6 +1858,8 @@ export function KitchenBoard({
       <KitchenSmartBatchPriorisierung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 472b: Order-Timing-Pro-Anzeige — Echtzeit-Countdown aller aktiven Bestellungen mit Priorität */}
       <KitchenOrderTimingProAnzeige />
+      {/* Phase 478: Bestell-Eingangs-Ticker — Animierter Live-Ticker der letzten 15 neuen Bestellungen */}
+      <KitchenBestellEingangsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

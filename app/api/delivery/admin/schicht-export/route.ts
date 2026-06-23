@@ -129,42 +129,55 @@ export async function GET(req: NextRequest) {
 
   const driverIds = [...new Set((shifts ?? []).map((s) => s.driver_id as string))];
 
-  const driverKpis: DriverKpi[] = [];
-  for (const driverId of driverIds) {
+  // Phase 479: Batch-Query statt N+1 for-Schleife
+  const [batchesRes, tipsRes] = await Promise.all([
+    driverIds.length > 0
+      ? sb
+          .from('delivery_batches')
+          .select('driver_id')
+          .in('driver_id', driverIds)
+          .eq('location_id', locationId)
+          .eq('status', 'abgeschlossen')
+          .gte('created_at', dayStart)
+          .lte('created_at', dayEnd)
+      : Promise.resolve({ data: [] }),
+    driverIds.length > 0
+      ? sb
+          .from('driver_tips')
+          .select('driver_id, amount_eur')
+          .in('driver_id', driverIds)
+          .gte('created_at', dayStart)
+          .lte('created_at', dayEnd)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const deliveriesMap = new Map<string, number>();
+  for (const b of batchesRes.data ?? []) {
+    const did = b.driver_id as string;
+    deliveriesMap.set(did, (deliveriesMap.get(did) ?? 0) + 1);
+  }
+
+  const tipsMap = new Map<string, number>();
+  for (const t of tipsRes.data ?? []) {
+    const did = t.driver_id as string;
+    tipsMap.set(did, (tipsMap.get(did) ?? 0) + (Number(t.amount_eur) || 0));
+  }
+
+  const driverKpis: DriverKpi[] = driverIds.map((driverId) => {
     const shift = shifts?.find((s) => s.driver_id === driverId);
     const driverName = (shift?.drivers as unknown as { name: string } | null)?.name ?? driverId.slice(0, 8);
+    const deliveries = deliveriesMap.get(driverId) ?? 0;
+    const totalTips = tipsMap.get(driverId) ?? 0;
 
-    // Count completed deliveries by this driver
-    const { data: dBatches } = await sb
-      .from('delivery_batches')
-      .select('id')
-      .eq('driver_id', driverId)
-      .eq('location_id', locationId)
-      .eq('status', 'abgeschlossen')
-      .gte('created_at', dayStart)
-      .lte('created_at', dayEnd);
-
-    const deliveries = dBatches?.length ?? 0;
-
-    // Tips
-    const { data: tips } = await sb
-      .from('driver_tips')
-      .select('amount_eur')
-      .eq('driver_id', driverId)
-      .gte('created_at', dayStart)
-      .lte('created_at', dayEnd);
-
-    const totalTips = (tips ?? []).reduce((sum, t) => sum + (Number(t.amount_eur) || 0), 0);
-
-    driverKpis.push({
+    return {
       driver_id: driverId,
       driver_name: driverName,
       deliveries,
       avg_delivery_min: avgDeliveryMin !== null ? Math.round(avgDeliveryMin * 10) / 10 : null,
       on_time_pct: punctualityPct !== null ? Math.round(punctualityPct * 10) / 10 : null,
       total_tips_eur: Math.round(totalTips * 100) / 100,
-    });
-  }
+    };
+  });
 
   const report: SchichtExportReport = {
     location_id: locationId,

@@ -1,7 +1,84 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–476 abgeschlossen. CEO Review #258 bestanden. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–479 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+
+---
+
+## Phase 477–479 — Zonen-Radar, Kunden-Rating-API, Ticker + N+1-Fix (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 477 Backend — Zonen-Kapazitäts-API
+
+**`app/api/delivery/admin/zone-heat-summary/route.ts`:**
+- GET `?location_id=...` → ZoneHeatEntry[] für Zonen A/B/C/D
+- Felder: openBatches, activeBatches, driversInZone, capacityPct
+- Drei parallele Supabase-Queries: offene Batches + aktive Batches + aktive Schichten
+- Multi-Tenant: ALLE Queries filtern location_id
+- Fahrer-Verteilung: occupiedDrivers aus aktiven Batches, freePerZone gleichverteilt
+- capacityPct = openBatches / max(1, active + drivers) × 100
+
+### Phase 477 Frontend — DispatchZonenKapazitätsRadar
+
+**`app/(admin)/dispatch/zonen-kapazitaets-radar.tsx`** — `DispatchZonenKapazitaetsRadar`:
+- SVG-Radar-Chart (4 Zonen A/B/C/D als Achsen): Kapazitäts-Auslastung in %
+- Gitter-Ringe bei 25/50/75/100%, Achsen-Linien, Daten-Polygon + farbige Dots
+- Polar-Koordinaten-Helper `polarToXY()` für saubere SVG-Mathematik
+- Pro-Zone Balkenzeile: Auslastungs-%, openBatches (↑), driversInZone (🚴)
+- Farbkodierung: ≥80% rot / ≥50% amber / <50% matcha-grün
+- Gesamt-Badges: Fahrer aktiv / verfügbar / offen / aktiv
+- 30s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchFahrzeugTrackingOverlay ✅
+
+### Phase 478 Backend — Kunden-Bewertungs-API
+
+**`app/api/delivery/customer/rating/route.ts`:**
+- POST `{ order_id, stars, driver_id?, comment?, rating_token?, location_id? }` → UPSERT in `customer_delivery_ratings`
+- GET `?order_id=...` → vorhandene Bewertung (oder null)
+- Validierung: stars 1–5, order_id vorhanden
+- Token-Validierung: falls order.rating_token gesetzt, muss rating_token übereinstimmen
+- Nutzt `createServiceClient` (kein Auth-Guard, öffentlicher Endpunkt für Kunden-Links)
+- location_id aus Bestellung wenn nicht übergeben
+- UNIQUE on order_id → sicheres UPSERT (idx_cdr_order_unique)
+
+### Phase 478 Frontend — KitchenBestellEingangsTicker
+
+**`app/(admin)/kitchen/bestell-eingangs-ticker.tsx`** — `KitchenBestellEingangsTicker`:
+- Animierter Live-Ticker der letzten 15 aktiven Bestellungen (letzte 3h, ohne storniert/geliefert)
+- 20s Polling via Supabase Client
+- Fade-in Animation für neue Einträge (isNew-State + 1.2s Timeout-Reset)
+- Pro Zeile: Bestellnummer (Mono), Zeit-Ago (s/m/h), Status-Badge, Preis
+- Pulsierender blauer Dot für neu erkannte Bestellungen
+- Status-Farbkodierung: neu=blau / bestätigt=matcha / in_zubereitung=amber / fertig=matcha-500
+- Collapsible mit ChevronDown/Up
+- Integration: `kitchen/client.tsx` nach KitchenOrderTimingProAnzeige ✅
+
+### Phase 479 Backend — Schicht-Export N+1-Fix
+
+**`app/api/delivery/admin/schicht-export/route.ts`:**
+- Vorher: for-Schleife pro Fahrer → 2×N Supabase-Queries (N = Fahrer-Anzahl)
+- Nachher: 2 parallele Batch-Queries mit `.in('driver_id', driverIds)` via `Promise.all`
+- `deliveriesMap` + `tipsMap`: Map<driver_id, count/sum>
+- Skaliert sauber für >20 Fahrer ohne Latenz-Explosion
+
+### Integrations-Checkliste Phase 477–479
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchZonenKapazitätsRadar | dispatch/zonen-kapazitaets-radar.tsx | dispatch/client.tsx nach FahrzeugTrackingOverlay | ✅ |
+| KitchenBestellEingangsTicker | kitchen/bestell-eingangs-ticker.tsx | kitchen/client.tsx nach OrderTimingProAnzeige | ✅ |
+| zone-heat-summary API | app/api/delivery/admin/zone-heat-summary/route.ts | Neu | ✅ |
+| customer/rating API | app/api/delivery/customer/rating/route.ts | Neu | ✅ |
+| Schicht-Export N+1-Fix | app/api/delivery/admin/schicht-export/route.ts | Batch-Query | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 480 Backend:** Fahrer-Zonen-Affinität — Welche Fahrer liefern am besten in welche Zone? Score aus abgeschlossenen Batches (Pünktlichkeit × Bewertung je Zone). Engine: `lib/delivery/zone-affinity.ts` (erweitern). API: `GET /api/delivery/admin/fahrer-zonen-affinitaet`.
+2. **Phase 480 Frontend:** DispatchFahrerZonenAffinitätsMatrix — Tabelle: Fahrer × Zonen A/B/C/D mit Affinitäts-Score + Empfehlung. Integration: dispatch/client.tsx.
+3. **Phase 481 Backend:** Storefront Bewertungs-Widget — Nach Lieferung: Token-Link an Kunden → Sterne-Bewertung → POST /api/delivery/customer/rating. Customer-Notify verbinden.
+4. **Phase 481 Frontend:** BewertungsWidgetStorefront — 5-Sterne Inline-Bewertung in der Bestellbestätigung (nutzt Phase 478 API).
+5. **Phase 482 Backend:** Küchen-Kapazitäts-Warnung — Alert wenn >N offene Bestellungen in Zubereitung gleichzeitig. Schwellwert aus delivery_config. API: GET /api/delivery/admin/kitchen-capacity-alert.
 
 ---
 
