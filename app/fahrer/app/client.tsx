@@ -199,6 +199,7 @@ import { FahrerOfflineSyncBanner } from './offline-sync-banner';
 import { OfflineSyncManager } from './offline-sync-manager';
 import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
 import { TourStoppOptimierung } from './tour-stopp-optimierung';
+import { TourStopKommando } from './tour-stop-kommando';
 
 type Driver = {
   id: string;
@@ -1383,6 +1384,38 @@ export function FahrerApp({
               batchStartedAt={activeBatch.started_at ?? null}
             />
           </div>
+          {/* Tour-Stop-Kommando: Vollständige Stopp-Kommando-Zentrale mit Checkliste + Navi + Fertig-Button */}
+          {(() => {
+            const nextStop = activeBatch.stops.find((s) => !s.geliefert_am);
+            if (!nextStop) return null;
+            const o = nextStop.order as any;
+            if (!o) return null;
+            const doneCount = activeBatch.stops.filter((s) => !!s.geliefert_am).length;
+            return (
+              <div className="px-4 mt-3">
+                <TourStopKommando
+                  stop={{
+                    stopNr: doneCount + 1,
+                    totalStops: activeBatch.stops.length,
+                    kundeName: o.kunde_name ?? 'Kunde',
+                    adresse: o.kunde_adresse ?? null,
+                    plz: o.kunde_plz ?? null,
+                    lat: o.kunde_lat ?? null,
+                    lng: o.kunde_lng ?? null,
+                    gesamtbetrag: o.gesamtbetrag ?? 0,
+                    zahlungsart: o.zahlungsart ?? null,
+                    bezahlt: o.bezahlt ?? null,
+                    kundeNotiz: o.kunde_notiz ?? null,
+                    kundeHinweis: o.kunde_lieferhinweis ?? null,
+                    telefon: o.kunde_telefon ?? null,
+                    etaLabel: o.eta_latest
+                      ? `ETA ${new Date(o.eta_latest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`
+                      : null,
+                  }}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 378: Tour-Stopp-Liste — Geordnete Stoppliste mit Status-Ampel, Navigation-CTA und Kundendaten */}
           <div className="px-4 mt-3">
             <TourStoppListe stops={activeBatch.stops as any} />

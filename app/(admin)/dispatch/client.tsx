@@ -256,6 +256,7 @@ import { DispatchZonenKapazitaetsRadar } from './zonen-kapazitaets-radar';
 import { DispatchTourNaechsteStoppMatrix } from './tour-naechste-stopp-matrix';
 import { DispatchFahrerZonenAffinitaetsMatrix } from './fahrer-zonen-affinitaets-matrix';
 import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognose-panel';
+import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 
 type Driver = {
   employee_id: string;
@@ -1176,6 +1177,30 @@ export function DispatchBoard({
           } : null,
         })),
       }))} />
+      {/* Tour-Sequenz-Live: Stop-für-Stop Echtzeit-Kette aller aktiven Touren mit Farbkodierung */}
+      <DispatchTourSequenzLive
+        batches={batches.map(b => ({
+          ...b,
+          startzeit: b.startzeit ?? null,
+          stops: b.stops.map(s => ({
+            ...s,
+            order: s.order ? {
+              bestellnummer: s.order.bestellnummer,
+              kunde_name: s.order.kunde_name,
+              kunde_adresse: s.order.kunde_adresse ?? null,
+              eta_earliest: s.order.eta_earliest ?? null,
+              eta_latest: s.order.eta_latest ?? null,
+            } : null,
+          })),
+        }))}
+        drivers={drivers.map(d => ({
+          employee_id: d.employee_id,
+          ist_online: d.ist_online,
+          fahrzeug: d.fahrzeug,
+          aktueller_batch_id: d.aktueller_batch_id,
+          employee: d.employee ? { id: d.employee.id, vorname: d.employee.vorname, nachname: d.employee.nachname } : null,
+        }))}
+      />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />

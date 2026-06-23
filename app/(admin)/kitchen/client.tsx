@@ -201,6 +201,7 @@ import { KitchenOrderTimingProAnzeige } from './order-timing-pro-anzeige';
 import { KitchenBestellEingangsTicker } from './bestell-eingangs-ticker';
 import { KitchenFahrerKochStartSync } from './fahrer-kochstart-sync';
 import { KitchenKapazitaetsAlert } from './kitchen-capacity-alert';
+import { KitchenKochstartEntscheidung } from './kitchen-kochstart-entscheidung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -654,6 +655,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}
+      <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}

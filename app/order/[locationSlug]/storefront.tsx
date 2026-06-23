@@ -65,6 +65,12 @@ import { BewertungsErinnerung } from './bestell-bewertungs-erinnerung';
 import { BewertungsFlow } from './bewertungs-flow';
 import { OrderLiveStatusPanel } from './order-live-status-panel';
 import { BestellungEtaStatusRing } from './bestellung-eta-status-ring';
+import { LiveDriverTracker } from './live-driver-tracker';
+import { EtaLiveRing } from './eta-live-ring';
+import { FahrerAnkunftsCountdown } from './fahrer-ankunfts-countdown';
+import { BestellungEchtzeitCountdown } from './bestellung-echtzeit-countdown';
+import { EtaConfidenceCard } from './eta-confidence-card';
+import { VerzoegerungsInfoBanner } from './verzoegerungs-info-banner';
 
 type Props = {
   location: Location;
@@ -568,6 +574,57 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               bestellnummer={orderSuccess.bestellnummer}
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            />
+          </div>
+        )}
+        {/* Phase 480: Live-Fahrer-Tracker — GPS-Proximity-Ring + Fahrerinfo wenn unterwegs */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-6 max-w-lg mx-auto">
+            <LiveDriverTracker
+              orderId={orderSuccess.orderId}
+              initialStatus="bestätigt"
+            />
+          </div>
+        )}
+        {/* Phase 481: ETA-Live-Ring — SVG-Countdown-Ring mit Phasen-Status */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <EtaLiveRing
+              orderId={orderSuccess.orderId}
+              status="bestätigt"
+            />
+          </div>
+        )}
+        {/* Phase 482: ETA-Konfidenz-Karte — Supabase-Realtime ETA mit Step-Stepper */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <EtaConfidenceCard
+              orderId={orderSuccess.orderId}
+              orderNumber={orderSuccess.bestellnummer}
+              initialStatus="bestätigt"
+              customerName={orderSuccess.name}
+            />
+          </div>
+        )}
+        {/* Phase 483: Echtzeit-Countdown — Phasen-Stepper mit Sekunden-Countdown */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <BestellungEchtzeitCountdown
+              status="bestätigt"
+              etaIso={
+                orderSuccess.orderedAt && orderSuccess.eta > 0
+                  ? new Date(new Date(orderSuccess.orderedAt).getTime() + orderSuccess.eta * 60_000).toISOString()
+                  : null
+              }
+            />
+          </div>
+        )}
+        {/* Phase 484: Fahrer-Ankunfts-Countdown — zeigt Countdown wenn Fahrer ≤5 Min entfernt */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.eta > 0 && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <FahrerAnkunftsCountdown
+              etaMin={orderSuccess.eta}
+              status="bestätigt"
             />
           </div>
         )}
