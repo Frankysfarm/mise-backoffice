@@ -196,6 +196,7 @@ import { KitchenOnTimeQuoteRing } from './on-time-quote-ring';
 import { KitchenBatchAbholbereitBoard } from './batch-abholbereit-board';
 import { KitchenKochzeitSollIstAmpel } from './kochzeit-soll-ist-ampel';
 import { KitchenFahrerKochSyncPanel } from './fahrer-koch-sync-panel';
+import { KitchenSmartBatchPriorisierung } from './smart-batch-priorisierung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1851,6 +1852,8 @@ export function KitchenBoard({
       <KitchenKochzeitSollIstAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 467: Fahrer-Koch-Sync — Zeitlücke zwischen Koch-Fertigzeit und Fahrer-ETA je Bestellung */}
       <KitchenFahrerKochSyncPanel orders={filtered} timings={timings} batches={batches} stops={stops} />
+      {/* Phase 472: Smart-Batch-Priorisierung — Automatische Priorisierung offener Batches (Wartezeit + Fahrer + Zone) */}
+      <KitchenSmartBatchPriorisierung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

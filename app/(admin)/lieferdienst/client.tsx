@@ -241,6 +241,7 @@ import { SchichtTempoVelocity } from './schicht-tempo-velocity';
 import { FahrerAuslastungsCockpit } from './fahrer-auslastungs-cockpit';
 import { SchichtOnTimeRing } from './schicht-on-time-ring';
 import { LieferdienstSchichtSchnellStatus } from './schicht-schnell-status';
+import { SchichtExport } from './schicht-export';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1465,6 +1466,8 @@ export function LieferdienstClient() {
               <EinnahmenTrichterPanel locationId={locationId ?? null} />
               {/* Phase 440: Schicht-Margen-Analyse — Kosten/Bestellung, Break-Even, Netto-Marge je Schicht */}
               <SchichtMargenAnalyse locationId={locationId ?? null} />
+              {/* Phase 476: Schicht-Abschluss-Bericht-Export — CSV-Download + Vorschau der tagesspezifischen KPIs */}
+              <SchichtExport locationId={locationId ?? null} />
               {/* Phase 454: Kapazitäts-Prognose — 4h Lookahead: erwartete Bestellungen vs. geplante Fahrer mit Severity-Ampel */}
               <KapazitaetsPrognosePanel locationId={locationId ?? null} />
               {/* Phase 456: Zonen Live-Heatmap — Echtzeit-Auslastung je Lieferzone A/B/C/D (60s-Refresh) */}

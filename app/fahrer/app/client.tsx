@@ -195,6 +195,7 @@ import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
 import { FahrerCoachingWidget } from './fahrer-coaching-widget';
 import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
 import { FahrerStopAktionsPanel } from './fahrer-stop-aktions-panel';
+import { FahrerOfflineSyncBanner } from './offline-sync-banner';
 
 type Driver = {
   id: string;
@@ -783,6 +784,8 @@ export function FahrerApp({
         {driver.location_id && (
           <FahrerCoachingWidget driverId={driver.id} locationId={driver.location_id} />
         )}
+        {/* Phase 474: Offline-Sync-Banner — Zeigt Offline-Status + ausstehende Aktionen + Auto-Replay */}
+        <FahrerOfflineSyncBanner />
 
         {/* Betriebsnachrichten vom Dispatch */}
         {visibleBroadcasts.map(b => (

@@ -1,7 +1,112 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–471 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. CEO Reviews #256+#257: 2 Bugs gefixt (Recharts Formatter Typ + stops Scope-Fehler dispatch/client.tsx).**
+**Phasen 1–476 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler.**
+
+---
+
+## Phase 472–476 — 5 neue Smart-Delivery-Module (DONE ✅)
+
+**Datum:** 2026-06-23
+
+### Phase 472 Backend — Smart-Batch-Priorisierungs-API
+
+**`app/api/delivery/admin/smart-batch-priority/route.ts`:**
+- GET `?location_id=...` → Priorisierte Liste offener Batches
+- Score-Formel: `min(waitMin * 2, 50) + (kein Fahrer ? 30 : 0) + zonePriorityBonus(A=20/B=12/C=6)`
+- Prioritäts-Level: kritisch (≥60) / dringend (≥30) / normal (<30)
+- Batch-Stop-Count Anreicherung via tour_stops Aggregation
+- Sortierung: höchster Score zuerst
+
+**Migration 220 (`scripts/migrations/220_smart_batch_priority.sql`):**
+- Index `idx_delivery_batches_location_open_status` für offene Batches je Location + createdAt
+- Index `idx_tour_stops_batch_id` für Stop-Count-Abfragen
+
+### Phase 472 Frontend — KitchenSmartBatchPriorisierung
+
+**`app/(admin)/kitchen/smart-batch-priorisierung.tsx`** — `KitchenSmartBatchPriorisierung`:
+- Priorisierte Batch-Liste mit Dringlichkeits-Badges (KRITISCH/DRINGEND/NORMAL)
+- Farbkodierung: rot (kritisch) / amber (dringend) / grau (normal)
+- Pro Batch: Zone-Ring, Bestellnummer, Wartezeit, Fahrer-Status, Prio-Score
+- 30s Auto-Refresh, Collapsible
+- Integration: `kitchen/client.tsx` nach KitchenFahrerKochSyncPanel ✅
+
+### Phase 473 Frontend — DispatchFahrzeugTrackingOverlay
+
+**`app/(admin)/dispatch/fahrzeug-tracking-overlay.tsx`** — `DispatchFahrzeugTrackingOverlay`:
+- Relative-Koordinaten-Karte (kein externer Map-Provider) mit Fahrerpositionen
+- GPS-Marker: initialer Buchstabe + farbkodiert nach Batch-Status (unterwegs=grün/pickup=amber/idle=grau)
+- Hover-Tooltip: Fahrername, Inaktivität in Min, Geschwindigkeit km/h
+- Staleness-Indikator: <120s = aktiv (Wifi-Icon), ≥120s = inaktiv (WifiOff-Icon)
+- 15s Auto-Refresh, Collapsible
+- Integration: `dispatch/client.tsx` nach DispatchSchichtBenchmarkCard ✅
+
+### Phase 474 Frontend — FahrerOfflineSyncBanner
+
+**`app/fahrer/app/offline-sync-banner.tsx`** — `FahrerOfflineSyncBanner`:
+- Erkennt Offline-Status via `navigator.onLine` + window events (online/offline)
+- Offline-Queue in localStorage (MISE_OFFLINE_QUEUE): URL + Method + Body + Headers
+- Exponentielles Replay beim Reconnect: alle Items sequenziell durchgehen
+- 3 Zustände: Offline (orange) / Ausstehende Aktionen (amber + Sync-Button) / Sync-Ergebnis (grün/rot)
+- `addToOfflineQueue(url, method, body, headers)` exportierte Helper-Funktion für andere Komponenten
+- Auto-Replay 500ms nach Reconnect
+- Integration: `fahrer/app/client.tsx` nach FahrerCoachingWidget ✅
+
+### Phase 475 Frontend — BewertungsErinnerung
+
+**`app/order/[locationSlug]/bestell-bewertungs-erinnerung.tsx`** — `BewertungsErinnerung`:
+- Floating-Toast (bottom-right) mit 15-Min-Verzögerung nach Lieferung
+- Prüft localStorage (MISE_ORDER_RATED) ob bereits bewertet → kein Doppel-Prompt
+- 5-Sterne-Rating mit Hover-Animation + Beschriftungen
+- Sendet via POST /api/delivery/customer/rating (bestehender Endpoint)
+- Nach Submit: localStorage markieren + Auto-Dismiss nach 2.5s
+- Delivery-Zeitpunkt: orderedAt + eta_min berechnet (falls keine echte deliveredAt)
+- Dismissable mit X-Button
+- Integration: `order/[locationSlug]/storefront.tsx` Erfolgs-Screen (nur Lieferung) ✅
+
+### Phase 476 Backend — Schicht-Export-API
+
+**`app/api/delivery/admin/schicht-export/route.ts`:**
+- GET `?location_id=...&date=YYYY-MM-DD&format=json|csv`
+- JSON-Report: summary (Bestellungen, Umsatz, Avg-Lieferzeit, Pünktlichkeit, Fahrer, Stornoquote) + drivers[] + hourly[]
+- CSV-Export: 3 Sektionen (Zusammenfassung / Fahrer-KPIs / Stündliche Verteilung) als direkter Download
+- Pünktlichkeit: tatsächliche Lieferzeit vs. geschätzte + 5 Min Toleranz
+- Stornoquote: cancelled/storniert vs. Gesamt-Bestellungen
+- Fahrer-KPIs: Lieferungen, Trinkgeld aus driver_tips, Pünktlichkeitsrate
+
+### Phase 476 Frontend — SchichtExport
+
+**`app/(admin)/lieferdienst/schicht-export.tsx`** — `SchichtExport`:
+- Datum-Picker + "Vorschau laden"-Button + "CSV herunterladen"-Button
+- Live-Preview: 4-KPI-Grid (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit) + Fahrer-Tabelle
+- Fahrer-Tabelle: TrendIcon je Metrik (TrendingUp/Down/Minus), Pünktlichkeit-Farbkodierung
+- CSV-Download: Blob + ObjectURL, filename = schicht-bericht-YYYY-MM-DD.csv
+- Generierungs-Timestamp in der Vorschau
+- Integration: `lieferdienst/client.tsx` nach SchichtMargenAnalyse ✅
+
+### Integrations-Checkliste Phase 472–476
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenSmartBatchPriorisierung | kitchen/smart-batch-priorisierung.tsx | kitchen/client.tsx nach KitchenFahrerKochSyncPanel | ✅ |
+| DispatchFahrzeugTrackingOverlay | dispatch/fahrzeug-tracking-overlay.tsx | dispatch/client.tsx nach DispatchSchichtBenchmarkCard | ✅ |
+| FahrerOfflineSyncBanner | fahrer/app/offline-sync-banner.tsx | fahrer/app/client.tsx nach FahrerCoachingWidget | ✅ |
+| BewertungsErinnerung | order/[locationSlug]/bestell-bewertungs-erinnerung.tsx | storefront.tsx Erfolgs-Screen | ✅ |
+| SchichtExport | lieferdienst/schicht-export.tsx | lieferdienst/client.tsx nach SchichtMargenAnalyse | ✅ |
+| schicht-export API | app/api/delivery/admin/schicht-export/route.ts | Schicht-Export-Endpoint | ✅ |
+| smart-batch-priority API | app/api/delivery/admin/smart-batch-priority/route.ts | Batch-Prio-Endpoint | ✅ |
+| Migration 220 | scripts/migrations/220_smart_batch_priority.sql | Supabase | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 477 Backend:** WhatsApp-Bewertungs-Link — Automatische WhatsApp-Nachricht 15 Min nach Zustellung mit personalem Bewertungs-Link. Neue Tabelle `whatsapp_bewertungs_links` mit Token + Ablaufzeit.
+2. **Phase 477 Frontend:** Dispatch-Batch-Aktions-Panel — One-Click-Aktionen in Dispatch: Batch einem freien Fahrer zuweisen, Batch-Zone ändern, Batch-Split. Zeigt Smart-Batch-Priority direkt neben den Aktions-Buttons.
+3. **Phase 478 Backend:** Schicht-Kosten-Prognose — Prognose der Schicht-Kosten (Fahrlohn + Plattform + Liefergebühren) basierend auf geplanten Schichten und historischen Daten.
+4. **Phase 479 Frontend:** Fahrer-GPS-Geschichts-Timeline — Replay der Fahrer-Route der letzten Schicht als animierte Timeline in der Lieferdienst-Ansicht.
+5. **Phase 480 Backend:** Kunden-Lifecycle-Segmentierung — Erweiterte RFM-Segmentierung mit Zuordnung zu Lifecycle-Stufen (Neu/Wachsend/Loyal/At-Risk/Verloren) mit automatischen Aktionsempfehlungen.
+
+---
+
 
 **Phase 465+466 Backend+Frontend (2026-06-23): Benchmark-Verlauf + Selbstbewertungs-Übersicht + Pünktlichkeits-Coach — lib/delivery/schicht-benchmark.ts: getBenchmarkHistory(locationId, daysBack=28) → BenchmarkVerlaufTag[] (28-Tage-Reihe je Datum: bestellungen/umsatzEur/puenktlichkeit/compositeScore/avgDeliveryMin); app/api/delivery/admin/schicht-benchmark/route.ts: GET ?history=true&days=28 → { verlauf: BenchmarkVerlaufTag[] }; app/(admin)/dispatch/benchmark-verlauf-chart.tsx (DispatchBenchmarkVerlaufChart): 4-Metrik-Toggle (Bestellungen/Pünktlichkeit/Score/Ø Lieferzeit), Recharts-LineChart 28 Tage, collapsible, Integration dispatch/client.tsx nach DispatchSchichtBenchmarkCard); app/api/delivery/admin/selbst-bewertung/route.ts: GET ?location_id&date → entries[]+stats (avgSterne/total/stimmungen-Map); app/(admin)/lieferdienst/selbst-bewertungs-uebersicht.tsx (SelbstBewertungsUebersicht): Sterne-Ø-Badge, Stimmungsverteilung mit Progress-Balken, Fahrer-Liste mit Kommentaren, Datum-Filter, Integration lieferdienst/client.tsx nach FahrerIncentivePanel); Migration 219 (fahrer_coaching_hinweise: driver_id/schicht_datum UNIQUE, puenktlichkeit_pct/ziel_pct/hinweise JSONB[]/kategorie kritisch|warnung|info/gesehen_am, RLS + prune_fahrer_coaching_hinweise RPC); lib/delivery/fahrer-coach.ts (generateCoachingForLocation: schicht_abschluss_berichte letzte 7 Tage → Trend steigend/sinkend/stabil → buildHinweise bis 4 Tipps → UPSERT; generateCoachingAllLocations/getCoachingForLocation/getCoachingForDriver/markCoachingGesehen/pruneOldCoaching); app/api/delivery/admin/fahrer-coach/route.ts (GET → getCoachingForLocation; POST action=generate/generate-all/seen/prune); app/api/delivery/driver/coaching/route.ts (GET driver_id+location_id → getCoachingForDriver; POST action=seen); app/(admin)/lieferdienst/fahrer-coaching-panel.tsx (FahrerCoachingPanel: kritisch/warnung/info-Gruppen mit Dot, Fortschrittsbalken, Hinweise, Gesehen-Status, Generieren-Button, Integration lieferdienst/client.tsx nach SelbstBewertungsUebersicht); app/fahrer/app/fahrer-coaching-widget.tsx (FahrerCoachingWidget: Kategorie-Badge kritisch/warnung/gut, Progress-Balken, Hinweise, Auto-Gesehen beim Öffnen, Integration fahrer/app/client.tsx nach FahrerSelbstBewertung); Cron: täglich 10:05 UTC generateCoachingAllLocations; täglich 10:10 UTC pruneCoachingHinweise(60). Build: 0 TypeScript-Fehler, Exit 0.**
 

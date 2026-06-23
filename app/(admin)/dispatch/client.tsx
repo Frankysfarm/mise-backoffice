@@ -249,6 +249,7 @@ import { DispatchSchichtBenchmarkCard } from './schicht-benchmark-card';
 import { DispatchBenchmarkVerlaufChart } from './benchmark-verlauf-chart';
 import { DispatchTourStopFortschrittLive } from './tour-stop-fortschritt-live';
 import { DispatchTourRueckkehrMatrix } from './tour-rueckkehr-matrix';
+import { DispatchFahrzeugTrackingOverlay } from './fahrzeug-tracking-overlay';
 
 type Driver = {
   employee_id: string;
@@ -1972,6 +1973,8 @@ export function DispatchBoard({
       )}
       {/* Phase 463: Schicht-Benchmark-Card — Heute vs. 4-Wochen-Ø (Bestellungen, Umsatz, Pünktlichkeit, Score, Lieferzeit) */}
       <DispatchSchichtBenchmarkCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 473: Fahrzeug-Tracking-Overlay — Live-Karte mit Fahrerpositionen + GPS-Staleness */}
+      <DispatchFahrzeugTrackingOverlay locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 465: Benchmark-Verlauf-Chart — 28-Tage Trend je Metrik als Liniendiagramm */}
       <DispatchBenchmarkVerlaufChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 463: Tour-Stop-Fortschritt-Live — Stop-Punkte + Balken für alle aktiven Touren */}

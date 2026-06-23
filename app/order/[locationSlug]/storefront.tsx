@@ -61,6 +61,7 @@ import { LiveTrackingPulse } from './live-tracking-pulse';
 import { BestellungEmpfangsBestaetigung } from './bestellung-empfangs-bestaetigung';
 import { BestPhaseTimer } from './bestell-phase-timer';
 import { LiveOrderKompass } from './live-order-kompass';
+import { BewertungsErinnerung } from './bestell-bewertungs-erinnerung';
 
 type Props = {
   location: Location;
@@ -526,6 +527,18 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             isDelivery={orderSuccess.type === 'lieferung'}
           />
         </div>
+        {/* Phase 475: Bewertungs-Erinnerung — Floating-Toast 15 Min nach Lieferung */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <BewertungsErinnerung
+            orderId={orderSuccess.orderId}
+            deliveredAt={
+              orderSuccess.orderedAt && orderSuccess.eta > 0
+                ? new Date(new Date(orderSuccess.orderedAt).getTime() + orderSuccess.eta * 60_000).toISOString()
+                : null
+            }
+            locationSlug={location.id}
+          />
+        )}
       </div>
     );
   }
