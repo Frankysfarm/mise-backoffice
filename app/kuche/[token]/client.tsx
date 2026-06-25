@@ -148,7 +148,8 @@ export default function KitchenMonitor({
     setBusy(orderId); setAcceptingId(null);
     const ord = orders.find((o) => o.id === orderId);
     await acceptOrder(token, orderId, prepMin);
-    if (autoPrint && printMethod !== 'cloudprnt' && ord) printBon(ord, prepMin);
+    // Auto-Druck läuft NUR über einen echten Drucker (cloudprnt) — serverseitig in acceptOrder, ganz ohne Browser-Dialog.
+    // Beim Annehmen wird KEIN Browser-Druckfenster mehr geöffnet. Bon manuell über das Drucker-Symbol auf der Karte druckbar.
     await refresh(); setBusy(null);
   }
   async function onFertig(orderId: string) {

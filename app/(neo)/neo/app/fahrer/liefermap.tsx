@@ -94,9 +94,10 @@ export function LieferMap({ center, address, zones }: { center: { lat: number | 
       const c = L.circle([p.lat, p.lng], { radius: (Number(z.radius_km_bis) || 0) * 1000, color: col, weight: 2, fillColor: col, fillOpacity: 0.08 }).addTo(map);
       circlesRef.current.push(c);
     });
-    if (sorted.length && hasCenter) {
-      const big = L.circle([p.lat, p.lng], { radius: maxKm * 1000 }).getBounds();
-      try { map.fitBounds(big, { padding: [20, 20], maxZoom: 14 }); } catch { /* */ }
+    if (sorted.length && hasCenter && circlesRef.current[0]) {
+      // fitBounds auf den GRÖSSTEN bereits hinzugefügten Kreis (sorted desc → erster Eintrag).
+      // Ein nicht-hinzugefügter L.circle().getBounds() crasht (kein _map → layerPointToLatLng undefined).
+      try { map.fitBounds(circlesRef.current[0].getBounds(), { padding: [20, 20], maxZoom: 14 }); } catch { /* */ }
     }
   }
 

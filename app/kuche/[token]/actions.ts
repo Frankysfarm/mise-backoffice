@@ -1,5 +1,6 @@
 'use server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { enqueueTourStatusPush } from '@/lib/delivery/push-notify';
 
 async function locForToken(token: string) {
   const svc = createServiceClient();
@@ -143,8 +144,19 @@ export async function stornoOrder(token: string, orderId: string) {
   const { data: ord, error } = await svc.from('customer_orders')
     .update({ status: 'storniert', storniert_am: nowIso, storniert_von: 'kueche' })
     .eq('id', orderId).eq('location_id', loc.id)
-    .select('mise_batch_id').maybeSingle();
+    .select('mise_batch_id, mise_driver_id, bestellnummer').maybeSingle();
   if (error) return { error: error.message };
+  // War schon ein Fahrer zugewiesen → Fahrer per Push informieren (er sieht "storniert" + Order fällt aus seiner Liste).
+  if (ord?.mise_driver_id) {
+    await enqueueTourStatusPush({
+      driverId: ord.mise_driver_id,
+      batchId: ord.mise_batch_id ?? '',
+      title: 'Bestellung storniert',
+      body: `Bestellung #${String(ord.bestellnummer || '').slice(-6)} wurde storniert — bitte nicht ausliefern.`,
+      type: 'order_cancelled',
+      data: { order_id: orderId },
+    }).catch(() => {});
+  }
   // P4: war die Order schon dispatcht -> Dropoff-Stop neutralisieren, Tour ggf. canceln
   if (ord?.mise_batch_id) {
     await svc.from('mise_delivery_batch_stops')

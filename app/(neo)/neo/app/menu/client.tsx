@@ -146,7 +146,7 @@ function ItemModal({ mode, item, cats, defaultCat, onClose, onSaved }: { mode: '
         )}
 
         {err && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', borderRadius: 10, padding: '8px 12px', fontSize: 13, marginBottom: 12 }}>{err}</div>}
-        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+        <div style={{ display: 'flex', gap: 10, position: 'sticky', bottom: 0, background: '#fff', borderTop: '1px solid #F1F5F9', margin: '8px -24px -24px', padding: '12px 24px', zIndex: 1 }}>
           <button onClick={onClose} style={{ flex: 1, height: 44, borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', color: '#475569', fontWeight: 700, cursor: 'pointer' }}>Abbrechen</button>
           <button onClick={save} disabled={!valid || saving} style={{ flex: 2, height: 44, borderRadius: 10, border: 'none', background: valid && !saving ? '#4F46E5' : '#CBD5E1', color: '#fff', fontWeight: 700, cursor: valid && !saving ? 'pointer' : 'not-allowed' }}>{saving ? 'Speichert…' : mode === 'create' ? 'Anlegen' : 'Speichern'}</button>
         </div>

@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   const { data: stops } = await c
     .from('mise_delivery_batch_stops')
     .select(
-      'id,batch_id,order_id,type,sequence,lat,lng,address,eta_min,arrived_at,completed_at,pick_verification,delivery_proof,issue_type,issue_detail',
+      'id,batch_id,order_id,type,sequence,lat,lng,address,eta_min,arrived_at,completed_at,cancelled,pick_verification,delivery_proof,issue_type,issue_detail',
     )
     .eq('batch_id', batch.id)
     .order('sequence', { ascending: true });
@@ -101,11 +101,19 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // Stornierte Bestellungen + abgebrochene Stops NICHT mehr an den Fahrer ausliefern → sie verschwinden aus der App.
+  const visibleStops = enrichedStops.filter((s) => !(s as any).cancelled && s.order && s.order.status !== 'storniert');
+
+  // Bleibt keine auszuliefernde Bestellung übrig → keine aktive Tour mehr.
+  if (visibleStops.length === 0) {
+    return NextResponse.json({ ok: true, active: null });
+  }
+
   return NextResponse.json({
     ok: true,
     active: {
       batch,
-      stops: enrichedStops,
+      stops: visibleStops,
     },
   });
 }
