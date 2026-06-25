@@ -83,7 +83,123 @@ function renderByTemplate(
   if (template === 'order_confirmation') {
     return orderConfirmationHtml(data as any, ctx);
   }
+  if (template === 'delivery_unterwegs') {
+    return deliveryUnterwegsHtml(data as any, ctx);
+  }
+  if (template === 'delivery_delivered') {
+    return deliveryDeliveredHtml(data as any, ctx);
+  }
   return `<p>${JSON.stringify(data)}</p>`;
+}
+
+/**
+ * Gemeinsames E-Mail-Grundgerüst (Brand-Header + weiße Card + Footer).
+ * inner = HTML der Inhalts-Zeilen (jeweils als <tr><td>…</td></tr>).
+ */
+function emailShell(
+  ctx: { tenant: any },
+  opts: { icon: string; title: string; eyebrow: string; bestellnummer: string; inner: string; footerNote?: string },
+): string {
+  const themeColor = ctx.tenant.theme_primary ?? '#14532d';
+  const accentColor = ctx.tenant.theme_accent ?? '#4ae68a';
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${opts.title}</title></head>
+<body style="margin:0; padding:0; background:#f5f2ed; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; color:#1a1a1a;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f2ed; padding:40px 20px;">
+<tr><td align="center">
+<table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0" style="max-width:560px; background:#ffffff; border-radius:20px; overflow:hidden;">
+  <tr><td style="background: linear-gradient(135deg, ${themeColor} 0%, ${themeColor}dd 100%); padding:40px; color:#ffffff;">
+    <div style="font-size:11px; letter-spacing:3px; text-transform:uppercase; opacity:0.7;">${opts.eyebrow}</div>
+    <div style="font-size:32px; margin-top:12px;">${opts.icon}</div>
+    <h1 style="margin:8px 0 0; font-size:28px; font-weight:800; letter-spacing:-0.5px;">${opts.title}</h1>
+    <div style="margin-top:8px; font-family:monospace; font-size:13px; color:${accentColor}; letter-spacing:2px;">
+      #${opts.bestellnummer}
+    </div>
+  </td></tr>
+${opts.inner}
+  <tr><td style="padding:24px 40px; background:#f5f5f5; font-size:11px; color:#999; text-align:center; line-height:1.6;">
+    Gesendet von <strong>${ctx.tenant.name}</strong>${opts.footerNote ? ' · ' + opts.footerNote : ''}<br>
+    Diese E-Mail bekommst du weil du bei uns bestellt hast — keine Werbung.
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+/** Status-Mail: Fahrer unterwegs (nur Lieferung). */
+function deliveryUnterwegsHtml(
+  data: { bestellnummer: string; kunde_name?: string; typ?: string },
+  ctx: { origin: string; tenant: any },
+): string {
+  const themeColor = ctx.tenant.theme_primary ?? '#14532d';
+  const firstName = (data.kunde_name ?? '').split(' ')[0] || 'du';
+  const trackUrl = `${ctx.origin}/track/${data.bestellnummer}`;
+  const inner = `
+  <tr><td style="padding:32px 40px 8px; font-size:16px; line-height:1.6; color:#333;">
+    Hey ${firstName}, gute Nachrichten — <strong>${ctx.tenant.name}</strong> hat deine Bestellung
+    auf den Weg gebracht. Ein Fahrer ist gerade unterwegs zu dir. 🛵
+  </td></tr>
+  <tr><td style="padding:8px 40px 4px; font-size:14px; line-height:1.6; color:#666;">
+    Bitte halte dich bereit — es kann gleich klingeln.
+  </td></tr>
+  <tr><td style="padding:16px 40px 32px; text-align:center;">
+    <a href="${trackUrl}" style="display:inline-block; background:${themeColor}; color:#ffffff; text-decoration:none; padding:16px 32px; border-radius:12px; font-weight:bold; font-size:15px;">
+      Lieferung live verfolgen →
+    </a>
+  </td></tr>`;
+  return emailShell(ctx, { icon: '🛵', eyebrow: ctx.tenant.name, title: 'Unterwegs zu dir', bestellnummer: data.bestellnummer, inner });
+}
+
+/** Status-Mail: geliefert/abgeholt + Bewertungs-Anfrage. */
+function deliveryDeliveredHtml(
+  data: { bestellnummer: string; kunde_name?: string; typ?: string; rating_token?: string },
+  ctx: { origin: string; tenant: any },
+): string {
+  const themeColor = ctx.tenant.theme_primary ?? '#14532d';
+  const accentColor = ctx.tenant.theme_accent ?? '#4ae68a';
+  const firstName = (data.kunde_name ?? '').split(' ')[0] || 'du';
+  const isPickup = data.typ === 'abholung';
+  const lead = isPickup
+    ? `Danke, dass du bei <strong>${ctx.tenant.name}</strong> abgeholt hast! Wir hoffen, es schmeckt.`
+    : `Deine Bestellung von <strong>${ctx.tenant.name}</strong> ist angekommen. Guten Appetit! 🍝`;
+
+  // Bewertungs-Block nur wenn Token vorhanden (Link auf öffentliche /rate-Seite)
+  let ratingBlock = '';
+  if (data.rating_token) {
+    const rateUrl = `${ctx.origin}/rate/${data.rating_token}`;
+    const stars = [1, 2, 3, 4, 5].map((n) =>
+      `<a href="${rateUrl}" style="text-decoration:none; font-size:30px; color:${accentColor}; padding:0 3px;">★</a>`
+    ).join('');
+    ratingBlock = `
+  <tr><td style="padding:8px 40px 4px; text-align:center;">
+    <div style="border-top:1px solid #eee; padding-top:24px;">
+      <div style="font-size:15px; font-weight:bold; color:#1a1a1a;">Wie war's?</div>
+      <div style="font-size:13px; color:#777; margin-top:4px;">Deine Bewertung hilft uns, besser zu werden.</div>
+      <div style="margin:16px 0 4px;">${stars}</div>
+    </div>
+  </td></tr>
+  <tr><td style="padding:8px 40px 32px; text-align:center;">
+    <a href="${rateUrl}" style="display:inline-block; background:${themeColor}; color:#ffffff; text-decoration:none; padding:14px 30px; border-radius:12px; font-weight:bold; font-size:15px;">
+      Jetzt bewerten →
+    </a>
+  </td></tr>`;
+  } else {
+    ratingBlock = `<tr><td style="padding:8px 40px 32px;"></td></tr>`;
+  }
+
+  const inner = `
+  <tr><td style="padding:32px 40px 8px; font-size:16px; line-height:1.6; color:#333;">
+    Hey ${firstName}, ${lead}
+  </td></tr>${ratingBlock}`;
+  return emailShell(ctx, {
+    icon: '✅',
+    eyebrow: ctx.tenant.name,
+    title: isPickup ? 'Abgeholt — danke!' : 'Geliefert — guten Appetit!',
+    bestellnummer: data.bestellnummer,
+    inner,
+  });
 }
 
 function orderConfirmationHtml(

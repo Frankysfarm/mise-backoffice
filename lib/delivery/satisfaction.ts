@@ -198,6 +198,11 @@ export async function submitCustomerRating(input: SubmitRatingInput): Promise<Su
     return { success: false, error: 'Bewertung konnte nicht gespeichert werden.' };
   }
 
+  // Fahrer-Durchschnittsbewertung neu berechnen, damit das ★ im Backoffice aktuell ist (fire-and-forget)
+  if (driverId) {
+    recomputeDriverRating(driverId).catch(() => {});
+  }
+
   // Auto-Incident für schlechte Bewertungen (≤2 Sterne), fire-and-forget
   if (input.rating <= 2) {
     import('@/lib/delivery/incidents').then(({ createIncidentFromRating }) => {

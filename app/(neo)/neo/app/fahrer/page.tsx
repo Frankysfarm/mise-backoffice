@@ -2,6 +2,7 @@ import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { ZoneTable, AddZoneBtn, InviteDriverBtn } from './client';
 import { LieferMap } from './liefermap';
+import { getSatisfactionSummary } from '@/lib/delivery/satisfaction';
 export const dynamic = 'force-dynamic';
 const VEH: Record<string, { l: string; bg: string; c: string }> = { fahrrad: { l: 'Fahrrad', bg: '#ECFDF5', c: '#047857' }, roller: { l: 'Roller', bg: '#FEF3C7', c: '#B45309' }, auto: { l: 'Auto', bg: '#EFF6FF', c: '#1D4ED8' } };
 export default async function Fahrer() {
@@ -16,6 +17,8 @@ export default async function Fahrer() {
   const zl = (zones ?? []) as any[];
   const drivers = ((dt ?? []) as any[]).map((x) => Array.isArray(x.mise_drivers) ? x.mise_drivers[0] : x.mise_drivers).filter(Boolean);
   const addr = [ten?.adresse, ten?.plz, ten?.stadt].filter(Boolean).join(' ');
+  const sat = emp?.location_id ? await getSatisfactionSummary(emp.location_id, 30) : null;
+  const fmtDay = (iso: string) => { try { const d = new Date(iso); return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }); } catch { return ''; } };
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginBottom: 22 }}>
@@ -45,6 +48,37 @@ export default async function Fahrer() {
             <div><span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: on ? '#ECFDF5' : '#F1F5F9', color: on ? '#047857' : '#94A3B8', fontSize: 12.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: on ? '#10B981' : '#CBD5E1' }} />{on ? 'Online' : 'Offline'}</span></div>
           </div>
         ); })}
+      </div>
+
+      <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden', marginTop: 22 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid #F1F5F9' }}>
+          <div>
+            <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A' }}>Kundenbewertungen <span style={{ color: '#94A3B8', fontWeight: 500 }}>· letzte 30 Tage</span></h3>
+            <p style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2 }}>Kunden bewerten nach jeder Lieferung per E-Mail-Link — hier siehst du das Feedback.</p>
+          </div>
+          {sat && sat.totalRatings > 0 && (
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 26, fontWeight: 700, color: '#0F172A', lineHeight: 1 }}>★ {sat.avgRating.toFixed(1)}</div>
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>{sat.totalRatings} {sat.totalRatings === 1 ? 'Bewertung' : 'Bewertungen'} · {sat.positiveRate}% positiv</div>
+            </div>
+          )}
+        </div>
+        {(!sat || sat.totalRatings === 0) ? (
+          <div style={{ padding: '28px 22px', color: '#94A3B8', fontSize: 13 }}>Noch keine Bewertungen. Sobald Lieferungen abgeschlossen sind, bekommen Kunden automatisch eine Bewertungs-E-Mail.</div>
+        ) : (
+          <div>
+            {sat.recentComments.length === 0 && (
+              <div style={{ padding: '20px 22px', color: '#94A3B8', fontSize: 13 }}>Bewertungen vorhanden, aber noch keine Kommentare.</div>
+            )}
+            {sat.recentComments.map((c, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 22px', borderTop: i === 0 ? 'none' : '1px solid #F1F5F9' }}>
+                <span style={{ color: c.rating >= 4 ? '#F59E0B' : c.rating <= 2 ? '#EF4444' : '#94A3B8', fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap', minWidth: 56 }}>{'★'.repeat(c.rating)}<span style={{ color: '#E2E8F0' }}>{'★'.repeat(5 - c.rating)}</span></span>
+                <span style={{ fontSize: 13.5, color: '#334155', lineHeight: 1.5, flex: 1 }}>{c.comment}</span>
+                <span style={{ fontSize: 12, color: '#94A3B8', whiteSpace: 'nowrap' }}>{fmtDay(c.createdAt)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

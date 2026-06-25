@@ -66,6 +66,8 @@ export async function updateSession(request: NextRequest) {
     pathname === '/api/pos/backup/worm' ||
     pathname.startsWith('/fahrer-icon') ||
     pathname.startsWith('/track/') ||
+    pathname.startsWith('/rate/') ||
+    pathname.startsWith('/api/delivery/orders/') ||
     pathname.startsWith('/order/') ||
     pathname.startsWith('/t/') ||
     pathname.startsWith('/kuche/') ||
