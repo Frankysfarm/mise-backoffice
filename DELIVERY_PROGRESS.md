@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–500 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–503 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-25): Phase 501–503 — ETA-Konfidenz-Score, Schicht-Abschluss-Report, Zonen-SLA-Vergleich. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #265 (2026-06-24): Phase 500 re-verifiziert — 0 Bugs, alle 5 Komponenten vollständig integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler. MARKT-REIF bestätigt.
 CEO Review #264 (2026-06-23): Phase 500 geprüft — 0 Bugs, alle 5 Komponenten vollständig integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Frontend-Agent (2026-06-23): Phase 500 — KochstartCockpit, StrategyPanel, NaechsterStoppNav, LiveEtaBanner, StatistikenDashboard. Build 366 Seiten, Exit 0, 0 TS-Fehler.
@@ -12,6 +13,95 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 501–503 — ETA-Konfidenz, Schicht-Abschluss-Report, Zonen-SLA-Vergleich (DONE ✅)
+
+**Datum:** 2026-06-25
+
+### Phase 501 Backend — ETA-Confidence-Score-API
+
+**`app/api/delivery/admin/eta-confidence-score/route.ts`:**
+- GET `?location_id=...` → `{ ok, tours: TourEtaConfidence[] }`
+- Konfidenz 0–100 je aktiver Tour aus 4 Faktoren:
+  - Küchenlast (20 Punkte): offene Bestellungen in Küche ≤2→20 / ≤5→14 / ≤10→8 / >10→3
+  - GPS-Frische (25 Punkte): Alter letztes driver_gps_events ≤1m→25 / ≤3m→20 / ≤7m→12 / ≤15m→6 / >15m→2
+  - Zonen-Pünktlichkeit (25 Punkte): historische SLA-Rate der Zone (30 Tage) ≥90%→25 / ≥80%→20 / ≥70%→14 / ≥60%→8 / <60%→3
+  - Verbleibende Stopps (30 Punkte): 0→30 / 1→28 / 2→22 / 3→15 / ≤5→8 / >5→3
+- Label: sehr-hoch (≥85) / hoch (≥70) / mittel (≥50) / niedrig (≥25) / unbekannt
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 501 Frontend — DispatchEtaKonfidenzLeiste
+
+**`app/(admin)/dispatch/eta-konfidenz-leiste.tsx`** — `DispatchEtaKonfidenzLeiste`:
+- Props: `locationId`
+- Je aktiver Tour: Konfidenz-Balken (farbkodiert nach Label), Fahrername + Zone, Score XX%
+- Sub-Faktoren: Küche X/20, GPS X/25 (Alter), Zone X/25 (Pkt%), Stopps X/30 (rest/total)
+- Farben: sehr-hoch=matcha / hoch=blau / mittel=amber / niedrig=rot / unbekannt=grau
+- 45s Auto-Refresh, Lade-Skeleton
+- Integration: `dispatch/client.tsx` nach DispatchPhase501KapazitaetsMatrix ✅
+
+### Phase 502 Backend — Schicht-Abschluss-Report-API
+
+**`app/api/delivery/admin/schicht-abschluss-report/route.ts`:**
+- GET `?location_id=...&date=YYYY-MM-DD` → `{ ok, report: SchichtAbschlussReport }`
+- Datenquellen: customer_orders + mise_drivers
+- KPIs: umsatzGesamt, umsatzLiefergebuehren, bestellungenGesamt/Geliefert/Storniert, stornoquotePct
+- Performance: avgLieferzeitMin, slaPct (pünktlich/gesamt mit promised_delivery_at)
+- Geographie: topZone (meiste Bestellungen), peakHour (meiste Bestellungen diese Stunde)
+- Fahrer-Liste: toursAbgeschlossen + avgDeliveryMin + punctualityPct je Fahrer
+- Default date = heute (UTC)
+
+### Phase 502 Frontend — DispatchSchichtAbschlussReport
+
+**`app/(admin)/dispatch/schicht-abschluss-report.tsx`** — `DispatchSchichtAbschlussReport`:
+- Props: `locationId`
+- Collapsible Karte (Standard zugeklappt, öffnet bei Klick)
+- KPI-Grid (2×3): Bestellungen / Umsatz / Ø Lieferzeit / SLA / Stornoquote / Fahrer
+- Top-Zone (matcha) + Peak-Stunde (amber) als Highlight-Boxen
+- Fahrer-Liste: Name, Lieferungen, Ø Zeit, Pünktlichkeit%
+- Indigo-Gradient Header, kein Auto-Refresh (einmalig beim Mount)
+- Integration: `dispatch/client.tsx` nach DispatchEtaKonfidenzLeiste ✅
+
+### Phase 503 Backend — Zonen-SLA-Vergleich-API
+
+**`app/api/delivery/admin/zonen-sla-vergleich/route.ts`:**
+- GET `?location_id=...&days=7` → `{ ok, zones: ZoneSlaEntry[], generatedAt }`
+- je Zone: totalOrders, deliveredOrders, onTimeOrders, lateOrders, slaPct, avgDeliveryMin
+- Status: gut (≥85%) / mittel (≥70%) / kritisch (<70%)
+- Sortiert nach slaPct aufsteigend (kritischste Zone zuerst)
+- days-Parameter: 3/7/14/30 (max 90)
+
+### Phase 503 Frontend — LieferdienstZonenSlaVergleichPanel
+
+**`app/(admin)/lieferdienst/zonen-sla-vergleich-panel.tsx`** — `LieferdienstZonenSlaVergleichPanel`:
+- Props: `locationId`
+- Periode-Selector: 3T / 7T / 14T / 30T (Button-Gruppe)
+- Je Zone: Farbiger SLA-Balken + Status-Badge (Gut/Mittel/Kritisch)
+- Kennzahlen je Zone: Bestellungen / pünktlich (matcha) / zu spät (rot) / Ø Lieferzeit
+- Header rot wenn kritische Zonen vorhanden (Count-Badge)
+- 120s Auto-Refresh, nur sichtbar wenn Zonen vorhanden
+- Integration: `lieferdienst/client.tsx` nach Phase501StundenAnalyse ✅
+
+### Integrations-Checkliste Phase 501–503
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchEtaKonfidenzLeiste | dispatch/eta-konfidenz-leiste.tsx | dispatch/client.tsx nach Phase501KapazitaetsMatrix | ✅ |
+| DispatchSchichtAbschlussReport | dispatch/schicht-abschluss-report.tsx | dispatch/client.tsx nach EtaKonfidenzLeiste | ✅ |
+| LieferdienstZonenSlaVergleichPanel | lieferdienst/zonen-sla-vergleich-panel.tsx | lieferdienst/client.tsx nach Phase501StundenAnalyse | ✅ |
+| eta-confidence-score API | app/api/delivery/admin/eta-confidence-score/route.ts | Neu (GET) | ✅ |
+| schicht-abschluss-report API | app/api/delivery/admin/schicht-abschluss-report/route.ts | Neu (GET) | ✅ |
+| zonen-sla-vergleich API | app/api/delivery/admin/zonen-sla-vergleich/route.ts | Neu (GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 504 Kitchen:** Schicht-Kochziel-Ampel — Live-Tracking ob die Küche das Tages-Lieferziel erreicht (z.B. 80 Bestellungen bis Schichtende), Fortschrittsbalken + ETA.
+2. **Phase 504 Dispatch:** Fahrer-Einsatz-Effizienz-Matrix — Wieviele Bestellungen liefert jeder Fahrer pro Stunde (heute)? Farbcodierung nach Effizienz vs. Durchschnitt.
+3. **Phase 505 Backend:** GPS-Staleness-Monitor-API — GET /api/delivery/admin/gps-staleness: Liste aller Online-Fahrer mit GPS-Alter, Alert wenn >5 Min kein Update.
+4. **Phase 505 Frontend:** DispatchGpsStalenessAlert — Warnt wenn Fahrer-GPS veraltete Daten hat (>5 Min), rotes Alert-Banner mit Fahrerliste.
+5. **Phase 506 Backend:** Kitchen-Batch-Zeitplan-API — GET /api/delivery/admin/kitchen-batch-schedule: Für alle heute geplanten Batches den optimalen Kochstart berechnen (Batch-ETA minus Zubereitungszeit).
 
 ---
 
