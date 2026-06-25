@@ -4,13 +4,14 @@ import QRCode from 'qrcode';
 import { ShopToggle, QrButtons } from './client';
 import { Soon } from '../_soon';
 import { DomainManager } from './domain-manager';
+import { EmailVersand } from './email-manager';
 import { getRegistrar, SERVER_IP } from '@/lib/domains/registrar';
 export const dynamic = 'force-dynamic';
 export default async function ShopSettings() {
   const emp = await getCurrentEmployee();
   const supabase = createServiceClient();
   const [{ data: t }, { data: loc }] = await Promise.all([
-    supabase.from('tenants').select('name, slug, custom_domain, custom_domain_status, custom_domain_error').eq('id', emp?.tenant_id ?? '').maybeSingle(),
+    supabase.from('tenants').select('name, slug, custom_domain, custom_domain_status, custom_domain_error, resend_api_key, resend_from_email, resend_from_name, resend_verified_at').eq('id', emp?.tenant_id ?? '').maybeSingle(),
     supabase.from('locations').select('id, geschlossen_bis').eq('id', emp?.location_id ?? '').maybeSingle(),
   ]);
   const registrarConfigured = getRegistrar().isConfigured();
@@ -33,6 +34,7 @@ export default async function ShopSettings() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0', borderBottom: '1px solid #F1F5F9' }}><div><div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>Shop online</div><div style={{ fontSize: 12.5, color: online ? '#94A3B8' : '#DC2626' }}>{online ? 'Kunden können bestellen' : 'Geschlossen — bis morgen'}</div></div><ShopToggle locId={loc?.id ?? ''} online={online} /></div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 0' }}><div><div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>Öffnungszeiten heute</div><div style={{ fontSize: 12.5, color: '#94A3B8' }}>Mo–So · 11:00 – 23:00 Uhr</div></div><Soon href="/settings/restaurant" style={{ fontSize: 13, color: '#4F46E5', fontWeight: 600, cursor: 'pointer', background: 'none', border: 'none' }}>Bearbeiten</Soon></div>
         </div>
+        <EmailVersand hasKey={!!(t as any)?.resend_api_key} fromEmail={(t as any)?.resend_from_email ?? ''} fromName={(t as any)?.resend_from_name ?? ''} verified={!!(t as any)?.resend_verified_at} />
       </div>
       <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 24, textAlign: 'center' }}>
         <h3 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>QR-Code</h3>
