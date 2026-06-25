@@ -207,6 +207,7 @@ import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
 import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
+import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -829,6 +830,8 @@ export function KitchenBoard({
       />
       {/* Phase 500: Kochstart-Cockpit — Priorisierte Echtzeit-Kacheln aller Bestellungen mit Countdown + Farbkodierung + Smart-Empfehlung */}
       <KitchenPhase500KochstartCockpit orders={filtered} timings={timings} />
+      {/* Phase 501: Abholbereitschafts-Board — Fertige Bestellungen + Wartezeit-Ampel (grün/amber/rot) */}
+      <KitchenPhase501AbholbereitschaftsBoard orders={filtered} drivers={drivers} batches={batches} stops={stops} />
       {/* Phase 341: Preis-Signal-Streifen — Dynamic Pricing Status für Küche */}
       <KitchenPreisSignalStreifen locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 343: Ops-Empfehlungs-Strip — Kritische Ops-Empfehlungen mit Dismiss-Funktion */}

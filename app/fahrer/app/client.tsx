@@ -204,6 +204,7 @@ import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
 import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
 import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
 import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav';
+import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
 
 type Driver = {
   id: string;
@@ -2976,6 +2977,12 @@ export function FahrerApp({
           <FahrerWarteAnzeige driverId={driver.id} locationId={driver.location_id} />
         )}
 
+        {/* Phase 501: Live-Verdienst-Tracker — Tagesverdienst, Trinkgeld, Schichtziel-Fortschrittsbalken */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase501LiveVerdienst driverId={driver.id} />
+          </div>
+        )}
         {/* Schicht-KPI-Live: Stops, Effizienz, km, Ziel — nur wenn online und kein aktiver Batch */}
         {!activeBatch && isOnline && (
           <div className="px-4">
