@@ -2,9 +2,9 @@ import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import { BelegeManager } from './belege';
 import { KontoauszugManager } from './kontoauszug';
+import { ExportBar } from './export-bar';
 export const dynamic = 'force-dynamic';
 const eur = (n: number) => Number(n ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-const expGhost = { display: 'flex', alignItems: 'center', gap: 7, height: 42, padding: '0 15px', border: '1px solid #E2E8F0', borderRadius: 10, background: '#fff', color: '#334155', fontSize: 13.5, fontWeight: 700, textDecoration: 'none', cursor: 'pointer' } as const;
 export default async function Buchhaltung() {
   const emp = await getCurrentEmployee();
   const sb = createServiceClient();
@@ -22,8 +22,6 @@ export default async function Buchhaltung() {
   ]);
   const linkedBelege = new Set((belegLinks ?? []).map((r: any) => r.beleg_id));
   const unmatchedBelege = (belege ?? []).filter((b: any) => !linkedBelege.has(b.id)).length;
-  const monatParam = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const expBase = `/api/buchhaltung/export?monat=${monatParam}`;
   let b7 = 0, b19 = 0;
   for (const it of (items ?? []) as any[]) { let m = Number(it.mwst_satz ?? 19); if (m < 1) m = m * 100; const v = Number(it.gesamtpreis ?? 0); if (m >= 19) b19 += v; else b7 += v; }
   const tax7 = b7 - b7 / 1.07, tax19 = b19 - b19 / 1.19, brutto = b7 + b19, netto = brutto - tax7 - tax19;
@@ -57,11 +55,7 @@ export default async function Buchhaltung() {
     <div style={{ maxWidth: 1180 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
         <span style={{ fontSize: 13, color: '#94A3B8' }}>Jede Bestellung trägt eine eindeutige Bestellnummer.</span>
-        <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', alignItems: 'center' }}>
-          <a href={`${expBase}&format=zip`} style={{ display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 18px', borderRadius: 10, background: '#4F46E5', color: '#fff', fontSize: 13.5, fontWeight: 700, textDecoration: 'none' }}>📦 Steuerberater-Paket (ZIP)</a>
-          <a href={`${expBase}&format=belege-csv`} style={expGhost}>Belege (CSV)</a>
-          <a href={`${expBase}&format=bank-csv`} style={expGhost}>Bank (CSV)</a>
-        </div>
+        <ExportBar />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 20, alignItems: 'start' }}>
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 16, padding: 22 }}>
