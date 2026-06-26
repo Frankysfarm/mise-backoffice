@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   // Max 50 pending Emails pro Run
   const { data: pending } = await svc
     .from('email_outbox')
-    .select('*, tenant:tenants(name, slug, theme_primary, theme_accent, resend_api_key, resend_from_email, resend_from_name)')
+    .select('*, tenant:tenants(name, slug, theme_primary, theme_accent, resend_api_key, resend_from_email, resend_from_name, adresse, stadt, plz)')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .limit(50);
@@ -88,6 +88,9 @@ function renderByTemplate(
   }
   if (template === 'delivery_delivered') {
     return deliveryDeliveredHtml(data as any, ctx);
+  }
+  if (template === 'delivery_abholbereit') {
+    return deliveryAbholbereitHtml(data as any, ctx);
   }
   return `<p>${JSON.stringify(data)}</p>`;
 }
@@ -200,6 +203,35 @@ function deliveryDeliveredHtml(
     bestellnummer: data.bestellnummer,
     inner,
   });
+}
+
+/** Status-Mail: Abholung bereit (typ=abholung, status=fertig). */
+function deliveryAbholbereitHtml(
+  data: { bestellnummer: string; kunde_name?: string },
+  ctx: { origin: string; tenant: any },
+): string {
+  const themeColor = ctx.tenant.theme_primary ?? '#14532d';
+  const firstName = (data.kunde_name ?? '').split(' ')[0] || 'du';
+  const adresse = [ctx.tenant.adresse, [ctx.tenant.plz, ctx.tenant.stadt].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const adrBlock = adresse ? `
+  <tr><td style="padding:0 40px 8px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f5f5; border-radius:12px; padding:18px;">
+      <tr><td>
+        <div style="font-size:11px; color:#888; letter-spacing:2px; text-transform:uppercase;">Abholadresse</div>
+        <div style="font-size:15px; font-weight:bold; margin-top:5px; color:#1a1a1a;">${ctx.tenant.name}</div>
+        <div style="font-size:14px; color:#444; margin-top:2px;">${adresse}</div>
+      </td></tr>
+    </table>
+  </td></tr>` : '';
+  const inner = `
+  <tr><td style="padding:32px 40px 8px; font-size:16px; line-height:1.6; color:#333;">
+    Hey ${firstName}, deine Bestellung bei <strong>${ctx.tenant.name}</strong> ist <strong>fertig und kann abgeholt werden</strong>. 🛍️
+  </td></tr>
+  <tr><td style="padding:4px 40px 16px; font-size:14px; line-height:1.6; color:#666;">
+    Am besten gleich kommen, solange es frisch und warm ist.
+  </td></tr>${adrBlock}
+  <tr><td style="padding:16px 40px 32px;"></td></tr>`;
+  return emailShell(ctx, { icon: '🛍️', eyebrow: ctx.tenant.name, title: 'Bereit zur Abholung', bestellnummer: data.bestellnummer, inner });
 }
 
 function orderConfirmationHtml(
