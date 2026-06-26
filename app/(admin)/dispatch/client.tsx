@@ -272,6 +272,8 @@ import { DispatchSchichtAbschlussReport } from './schicht-abschluss-report';
 import { DispatchFahrerEinsatzEffizienz } from './fahrer-einsatz-effizienz';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
+import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
+import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 
 type Driver = {
   employee_id: string;
@@ -2055,6 +2057,10 @@ export function DispatchBoard({
       <DispatchFahrerEinsatzEffizienz locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 505: GPS-Staleness-Alert — Warnung bei veralteten GPS-Signalen */}
       <DispatchGpsStalenessAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 507: Fahrer-Auslastungs-Timeline — 24h-Zeitleiste aller Fahrer-Schichten und Touren */}
+      <DispatchFahrerAuslastungsTimeline locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 509: Fahrer-Effizienz-Ranking — Rankt Fahrer nach Bestellungen/Stunde mit 7-Tage-Trend */}
+      <DispatchDriverEfficiencyRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 500: Strategy-Panel — Dispatch-Strategie (Speed/Balance/Spar) + Tour-Gesundheits-Score */}
       <DispatchPhase500StrategyPanel
         batches={batches.map(b => ({

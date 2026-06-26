@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–506 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–509 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-26): Phase 507–509 — Batch-Fertigstellungs-Prognose, Fahrer-Auslastungs-Timeline, Order-Wave-Detector, Fahrer-Effizienz-Ranking. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-26): Phase 504–506 — Kochziel-Ampel, Fahrer-Einsatz-Effizienz, GPS-Staleness-Monitor, Batch-Kochzeitplan. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-25): Phase 501–503 — ETA-Konfidenz-Score, Schicht-Abschluss-Report, Zonen-SLA-Vergleich. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #265 (2026-06-24): Phase 500 re-verifiziert — 0 Bugs, alle 5 Komponenten vollständig integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler. MARKT-REIF bestätigt.
@@ -96,12 +97,106 @@ Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Ba
 
 **Build:** 366 Seiten, 0 TypeScript-Fehler ✅
 
+---
+
+## Phase 507–509 — Batch-Prognose, Auslastungs-Timeline, Wave-Detector, Effizienz-Ranking (DONE ✅)
+
+**Datum:** 2026-06-26
+
+### Phase 507 Backend — Kitchen-Batch-Fertigstellungs-Prognose-API
+
+**`app/api/delivery/admin/kitchen-batch-readiness/route.ts`:**
+- GET `?location_id=...` → `{ ok, batches: BatchReadiness[], alertCount, generatedAt }`
+- Liest delivery_batches / driver_tours (Fallback) mit Status pending/assigned/pickup/in_progress
+- Berechnet Puffer: minutesUntilEta − remainingPrepMin (prepTime aus kitchen_timings, default 15)
+- status: 'alert' (Puffer < 0) / 'tight' (0–3 Min) / 'ok' (>3 Min) / 'unknown'
+- Sortiert nach status: alert → tight → ok → unknown
+
+### Phase 507 Frontend — KitchenBatchFertigstellungsPrognose
+
+**`app/(admin)/kitchen/batch-fertigstellungs-prognose.tsx`:**
+- Rotes Alert-Banner wenn alertCount > 0 (animiert)
+- Pro Batch: Status-Badge (Zu spät/Knapp/Rechtzeitig), Fahrername, ETA-Zeit, Puffer in Min
+- 30s Auto-Refresh, null wenn keine Batches
+- Integration: `kitchen/client.tsx` nach Phase502TimingKommando ✅
+
+### Phase 507 Backend — Fahrer-Auslastungs-Timeline-API
+
+**`app/api/delivery/admin/fahrer-auslastungs-timeline/route.ts`:**
+- GET `?location_id=...` → `{ ok, drivers: DriverTimeline[], hourLabels, generatedAt }`
+- Je Fahrer: Schicht-Slots (aus driver_shifts) + Tour-Slots (aus driver_tours) auf 24h-Achse
+- Berechnet totalShiftHours, totalTourHours, utilizationPct
+- Filtert: nur Fahrer mit Slots oder is_online=true, sortiert nach Auslastung absteigend
+
+### Phase 507 Frontend — DispatchFahrerAuslastungsTimeline
+
+**`app/(admin)/dispatch/fahrer-auslastungs-timeline.tsx`:**
+- SVG-freie 24h-Zeitleiste: CSS-Positionierung (left/width in %) auf relative div
+- Grau = Schicht-Hintergrund, Matcha = Tour-Overlay, Roter Strich = aktuelle Uhrzeit
+- Stunden-Achse: 06 08 10 12 14 16 18 20 22
+- Auslastungs-% je Fahrer (rot ≥80% / amber ≥60% / grün)
+- 60s Auto-Refresh, collapsible
+- Integration: `dispatch/client.tsx` nach DispatchGpsStalenessAlert ✅
+
+### Phase 508 Backend — Order-Wave-Detector-API
+
+**`app/api/delivery/admin/order-wave-detector/route.ts`:**
+- GET `?location_id=...` → `{ ok, data: WaveData, generatedAt }`
+- ordersLast30Min: customer_orders (nicht storniert) letzten 30 Min
+- avgRatePerHour: gleiche 30-Min-Fenster der letzten 7 Tage gemittelt × 2 (extrapoliert auf 1h)
+- multiplier: currentRate / avgRate
+- level: 'normal' / 'elevated' (×1.4) / 'rush' (×2) / 'extreme' (×3)
+- etaAbklingMin: 20 / 45 / 60 Min je Level
+- peakHour: stärkste Stunde der letzten 7 Tage
+
+### Phase 508 Frontend — KitchenOrderWaveAlert
+
+**`app/(admin)/kitchen/order-wave-alert.tsx`:**
+- Null bei level='normal' — kein Banner wenn alles ruhig
+- Amber-Banner bei 'elevated', Orange bei 'rush', Rot-Banner (pulsierend) bei 'extreme'
+- Zeigt: Rate/h, Ø Rate/h, Multiplikator, ETA für Abklingen
+- 60s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach KitchenBatchFertigstellungsPrognose ✅
+
+### Phase 509 Backend — Driver-Efficiency-Ranking-API
+
+**`app/api/delivery/admin/driver-efficiency-ranking/route.ts`:**
+- GET `?location_id=...` → `{ ok, drivers: DriverRankEntry[], avgOrdersPerHour, generatedAt }`
+- ordersPerHourToday: heutige 'geliefert'-Bestellungen / Schicht-Stunden heute
+- ordersPerHourAvg7d: letzte 7 Tage (ohne heute)
+- trendDelta = heute − 7d-Ø; trend: 'up' (>0.3) / 'down' (<-0.3) / 'stable'
+- Sortiert nach ordersPerHourToday desc; nur Fahrer mit Aktivität oder is_online=true
+
+### Phase 509 Frontend — DispatchDriverEfficiencyRanking
+
+**`app/(admin)/dispatch/driver-efficiency-ranking.tsx`:**
+- Rang-Tabelle mit #1/#2/#3 in Gold/Silber/Bronze
+- Spalten: Rang / Fahrer (Online-Dot) / Bestellungen / Stunden / Best./Std. / 7d-Ø / Trend-Pfeil
+- Farbkodierung: Matcha wenn ≥120% Ø, Rot wenn <80% Ø
+- Trend-Icons: TrendingUp/Minus/TrendingDown + Delta-Wert
+- 90s Auto-Refresh, collapsible
+- Integration: `dispatch/client.tsx` nach DispatchFahrerAuslastungsTimeline ✅
+
+### Integrations-Checkliste Phase 507–509
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenBatchFertigstellungsPrognose | kitchen/batch-fertigstellungs-prognose.tsx | kitchen/client.tsx nach Phase502TimingKommando | ✅ |
+| KitchenOrderWaveAlert | kitchen/order-wave-alert.tsx | kitchen/client.tsx nach BatchFertigstellungsPrognose | ✅ |
+| DispatchFahrerAuslastungsTimeline | dispatch/fahrer-auslastungs-timeline.tsx | dispatch/client.tsx nach GpsStalenessAlert | ✅ |
+| DispatchDriverEfficiencyRanking | dispatch/driver-efficiency-ranking.tsx | dispatch/client.tsx nach FahrerAuslastungsTimeline | ✅ |
+| kitchen-batch-readiness API | app/api/delivery/admin/kitchen-batch-readiness/route.ts | Neu (GET) | ✅ |
+| fahrer-auslastungs-timeline API | app/api/delivery/admin/fahrer-auslastungs-timeline/route.ts | Neu (GET) | ✅ |
+| order-wave-detector API | app/api/delivery/admin/order-wave-detector/route.ts | Neu (GET) | ✅ |
+| driver-efficiency-ranking API | app/api/delivery/admin/driver-efficiency-ranking/route.ts | Neu (GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
 ### Nächste Phasen
-1. **Phase 507 Kitchen:** Batch-Fertigstellungs-Prognose — Wird ein Batch rechtzeitig für den Fahrer fertig? Alert wenn Kochzeit > verfügbare Zeit bis Fahrer-Ankunft.
-2. **Phase 507 Dispatch:** Fahrer-Auslastungs-Timeline — Zeitleiste (24h) der heutigen Fahrer-Schichten mit Pausen + aktiven Touren + freien Fenstern.
-3. **Phase 508 Backend:** Bestellungs-Wellenmuster-Erkennung — Erkennt Rush-Perioden in Echtzeit aus der Rate neuer Bestellungen. API: GET /api/delivery/admin/order-wave-detector. Alert wenn Rate > 2× Durchschnitt der letzten 7 Tage.
-4. **Phase 508 Frontend:** KitchenOrderWaveAlert — Amber/Red-Banner in Kitchen wenn Rush erkannt wird, zeigt ETA für Abklingen der Welle.
-5. **Phase 509 Backend:** Multi-Fahrer-Tour-Effizienz-Ranking — Rankt Fahrer nach Effizienz (Bestellungen/Stunde) mit 7-Tage-Trend. API: GET /api/delivery/admin/driver-efficiency-ranking.
+1. **Phase 510 Kitchen:** Bestellungs-Wellen-Verlauf — 24h-Histogramm der stündlichen Bestellraten (heute vs. Ø letzter 7 Tage). API: GET /api/delivery/admin/order-wave-history. Frontend: KitchenWellenVerlaufChart in Kitchen.
+2. **Phase 510 Dispatch:** Tour-Abschluss-Prognose pro Fahrer — Wann kommt jeder aktive Fahrer zurück? ETA = aktuell verbleibende Stopps × Ø Stopp-Zeit aus bisherigen Stopps + Rückweg. Frontend: DispatchTourAbschlussPrognose.
+3. **Phase 511 Backend:** Fahrer-Pünktlichkeits-Heatmap — 7×24-Matrix (Wochentag × Stunde) der Pünktlichkeits-Rate je Fahrer aus tour_stops-Daten. API: GET /api/delivery/admin/driver-punctuality-heatmap.
+4. **Phase 511 Frontend:** DispatchFahrerPünktlichkeitsHeatmap — Farbige 7×24-Heatmap (grün=pünktlich / rot=verspätet) je Fahrer, collapsible.
+5. **Phase 512 Backend:** Küchen-Rückstand-Monitor — Wie viele Bestellungen warten länger als X Min auf Fertigstellung? Alert wenn >N Bestellungen im Rückstand. API: GET /api/delivery/admin/kitchen-backlog-monitor.
 
 ---
 

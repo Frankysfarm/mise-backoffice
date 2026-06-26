@@ -211,6 +211,8 @@ import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitsc
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
 import { KitchenBatchZeitplan } from './kitchen-batch-zeitplan';
 import { KitchenPhase502TimingKommando } from './phase502-timing-kommando';
+import { KitchenBatchFertigstellungsPrognose } from './batch-fertigstellungs-prognose';
+import { KitchenOrderWaveAlert } from './order-wave-alert';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1900,6 +1902,10 @@ export function KitchenBoard({
       <KitchenKapazitaetsConfig locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 502: Timing-Kommando — Echtzeit-Countdown + Farbkodierung aller aktiven Bestellungen mit Smart-Timing */}
       <KitchenPhase502TimingKommando orders={filtered} timings={timings} />
+      {/* Phase 507: Batch-Fertigstellungs-Prognose — Wird ein Batch rechtzeitig für den Fahrer fertig? */}
+      <KitchenBatchFertigstellungsPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 508: Order-Wave-Alert — Amber/Red-Banner bei Rush-Erkennung */}
+      <KitchenOrderWaveAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
