@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–503 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–506 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-26): Phase 504–506 — Kochziel-Ampel, Fahrer-Einsatz-Effizienz, GPS-Staleness-Monitor, Batch-Kochzeitplan. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-25): Phase 501–503 — ETA-Konfidenz-Score, Schicht-Abschluss-Report, Zonen-SLA-Vergleich. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #265 (2026-06-24): Phase 500 re-verifiziert — 0 Bugs, alle 5 Komponenten vollständig integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler. MARKT-REIF bestätigt.
 CEO Review #264 (2026-06-23): Phase 500 geprüft — 0 Bugs, alle 5 Komponenten vollständig integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
@@ -13,6 +14,94 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 504–506 — Kochziel-Ampel, Fahrer-Einsatz-Effizienz, GPS-Staleness, Batch-Zeitplan (DONE ✅)
+
+**Datum:** 2026-06-26
+
+### Phase 504 Backend — Schicht-Kochziel-Ampel-API
+
+**`app/api/delivery/admin/kitchen-kochziel-ampel/route.ts`:**
+- GET `?location_id=...&ziel=80` → `{ ok, data: KochzielData }`
+- Zählt heutige Bestellungen (status != 'storniert'), errechnet Prognose bis Schichtende (22:00 UTC)
+- status: 'uebertroffen' (aktuell >= ziel) / 'auf-kurs' (prognose >= ziel*0.9) / 'hinter-plan' / 'kritisch'
+- Felder: ziel, aktuelleBestellungen, stundenVerbleibend, prognosenBestellungen, erreichbarkeit_pct
+
+### Phase 504 Frontend — KitchenSchichtKochzielAmpel
+
+**`app/(admin)/kitchen/schicht-kochziel-ampel.tsx`:**
+- Fortschrittsbalken (Breite = aktuell/ziel %) mit Statusfarbe (matcha/amber/rot)
+- Prognose + Status-Badge + Stunden verbleibend
+- 60s Auto-Refresh, Lade-Skeleton
+- Integration: `kitchen/client.tsx` nach KitchenSmartBatchPriorisierung ✅
+
+### Phase 504 Backend — Fahrer-Einsatz-Effizienz-API
+
+**`app/api/delivery/admin/fahrer-einsatz-effizienz/route.ts`:**
+- GET `?location_id=...` → `{ ok, drivers: DriverEff[], avgOrdersPerHour }`
+- Online-Fahrer (mise_drivers is_online=true), Bestellungen heute (status=geliefert), Stunden aktiv aus driver_shifts
+- status: 'hoch' (>= avg*1.2) / 'normal' / 'niedrig'
+
+### Phase 504 Frontend — DispatchFahrerEinsatzEffizienz
+
+**`app/(admin)/dispatch/fahrer-einsatz-effizienz.tsx`:**
+- Tabelle: Fahrername / Bestellungen / Stunden aktiv / Bestellungen/Std / Status-Badge
+- Ø-Zeile als Footer, 90s Refresh
+- Integration: `dispatch/client.tsx` nach DispatchSchichtAbschlussReport ✅
+
+### Phase 505 Backend — GPS-Staleness-Monitor-API
+
+**`app/api/delivery/admin/gps-staleness/route.ts`:**
+- GET `?location_id=...` → `{ ok, drivers: GpsDriver[], staleCount, criticalCount, totalOnlineCount }`
+- Prüft GPS-Alter je Online-Fahrer (driver_gps_events): fresh (≤2m) / stale (≤5m) / critical (>5m) / unknown
+- Sortiert: critical → stale → unknown → fresh
+
+### Phase 505 Frontend — DispatchGpsStalenessAlert
+
+**`app/(admin)/dispatch/gps-staleness-alert.tsx`** (umgebaut von Props auf API):
+- Rotes Banner bei criticalCount > 0, Amber bei staleCount > 0, null wenn alles fresh
+- Zeigt betroffene Fahrernamen mit GPS-Alter in Minuten
+- 30s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchFahrerEinsatzEffizienz ✅
+
+### Phase 506 Backend — Kitchen-Batch-Zeitplan-API
+
+**`app/api/delivery/admin/kitchen-batch-schedule/route.ts`:**
+- GET `?location_id=...` → `{ ok, schedule: BatchSchedule[] }`
+- Liest delivery_batches (Fallback: driver_tours) mit Status pending/assigned/pickup
+- Berechnet optimalKochstart = batch_eta_at − prepTimeMin (default 15, aus kitchen_timings)
+- minutesUntilKochstart: negativ = überfällig, 0–5 = urgent, >5 = geplant
+
+### Phase 506 Frontend — KitchenBatchZeitplan
+
+**`app/(admin)/kitchen/kitchen-batch-zeitplan.tsx`:**
+- Tabelle: Fahrer / ETA / Kochstart-Uhrzeit / Minuten bis Kochstart
+- Urgency-Farben: überfällig=rot / 0-5m=amber / >5m=matcha
+- 30s Refresh, null wenn kein Schedule
+- Integration: `kitchen/client.tsx` nach KitchenSchichtKochzielAmpel ✅
+
+### Integrations-Checkliste Phase 504–506
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenSchichtKochzielAmpel | kitchen/schicht-kochziel-ampel.tsx | kitchen/client.tsx nach SmartBatchPriorisierung | ✅ |
+| KitchenBatchZeitplan | kitchen/kitchen-batch-zeitplan.tsx | kitchen/client.tsx nach SchichtKochzielAmpel | ✅ |
+| DispatchFahrerEinsatzEffizienz | dispatch/fahrer-einsatz-effizienz.tsx | dispatch/client.tsx nach SchichtAbschlussReport | ✅ |
+| DispatchGpsStalenessAlert | dispatch/gps-staleness-alert.tsx | dispatch/client.tsx nach FahrerEinsatzEffizienz | ✅ |
+| kitchen-kochziel-ampel API | app/api/delivery/admin/kitchen-kochziel-ampel/route.ts | Neu (GET) | ✅ |
+| fahrer-einsatz-effizienz API | app/api/delivery/admin/fahrer-einsatz-effizienz/route.ts | Neu (GET) | ✅ |
+| gps-staleness API | app/api/delivery/admin/gps-staleness/route.ts | Neu (GET) | ✅ |
+| kitchen-batch-schedule API | app/api/delivery/admin/kitchen-batch-schedule/route.ts | Neu (GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 507 Kitchen:** Batch-Fertigstellungs-Prognose — Wird ein Batch rechtzeitig für den Fahrer fertig? Alert wenn Kochzeit > verfügbare Zeit bis Fahrer-Ankunft.
+2. **Phase 507 Dispatch:** Fahrer-Auslastungs-Timeline — Zeitleiste (24h) der heutigen Fahrer-Schichten mit Pausen + aktiven Touren + freien Fenstern.
+3. **Phase 508 Backend:** Bestellungs-Wellenmuster-Erkennung — Erkennt Rush-Perioden in Echtzeit aus der Rate neuer Bestellungen. API: GET /api/delivery/admin/order-wave-detector. Alert wenn Rate > 2× Durchschnitt der letzten 7 Tage.
+4. **Phase 508 Frontend:** KitchenOrderWaveAlert — Amber/Red-Banner in Kitchen wenn Rush erkannt wird, zeigt ETA für Abklingen der Welle.
+5. **Phase 509 Backend:** Multi-Fahrer-Tour-Effizienz-Ranking — Rankt Fahrer nach Effizienz (Bestellungen/Stunde) mit 7-Tage-Trend. API: GET /api/delivery/admin/driver-efficiency-ranking.
 
 ---
 

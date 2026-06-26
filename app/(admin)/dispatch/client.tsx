@@ -246,7 +246,6 @@ import { DispatchFahrerScorePerformanceHub } from './fahrer-score-performance-hu
 import { DispatchEchtzeitFahrzeugTracking } from './echtzeit-fahrzeug-tracking';
 import { DispatchTourLiveScoreKpi } from './tour-live-score-kpi';
 import { DispatchEchtzeitKommandoZentrale } from './echtzeit-kommando-zentrale';
-import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchTourEtaAbschlussMatrix } from './tour-eta-abschluss-matrix';
 import { DispatchSchichtBenchmarkCard } from './schicht-benchmark-card';
 import { DispatchBenchmarkVerlaufChart } from './benchmark-verlauf-chart';
@@ -270,6 +269,8 @@ import { DispatchPhase500StrategyPanel } from './phase500-strategy-panel';
 import { DispatchPhase501KapazitaetsMatrix } from './phase501-kapazitaets-matrix';
 import { DispatchEtaKonfidenzLeiste } from './eta-konfidenz-leiste';
 import { DispatchSchichtAbschlussReport } from './schicht-abschluss-report';
+import { DispatchFahrerEinsatzEffizienz } from './fahrer-einsatz-effizienz';
+import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 
 type Driver = {
   employee_id: string;
@@ -2023,10 +2024,6 @@ export function DispatchBoard({
       <DispatchEchtzeitFahrzeugTracking />
       {/* Phase 473b: Tour-Live-Score-KPI — Score-Ringe + Kennzahlen für alle aktiven Touren */}
       <DispatchTourLiveScoreKpi />
-      {/* Phase 461: GPS-Signal-Alert — Fahrer mit veralteten GPS-Daten (>3 Min) werden hervorgehoben */}
-      {drivers.filter(d => d.aktueller_batch_id !== null).length > 0 && (
-        <DispatchGpsStalenessAlert drivers={drivers as any} />
-      )}
       {/* Phase 462: Tour-ETA-Abschluss-Matrix — Tabellarische Übersicht aller Touren mit ETA + Ankunftszeit */}
       {batches.filter(b => ['unterwegs','on_route','gestartet'].includes(b.status)).length > 0 && (
         <DispatchTourEtaAbschlussMatrix batches={batches as any} />
@@ -2053,6 +2050,10 @@ export function DispatchBoard({
       <DispatchEtaKonfidenzLeiste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 502: Schicht-Abschluss-Report — Vollständige KPI-Auswertung (Umsatz/SLA/Fahrer/Top-Zone) */}
       <DispatchSchichtAbschlussReport locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 504: Fahrer-Einsatz-Effizienz — Bestellungen pro Stunde je online Fahrer */}
+      <DispatchFahrerEinsatzEffizienz locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 505: GPS-Staleness-Alert — Warnung bei veralteten GPS-Signalen */}
+      <DispatchGpsStalenessAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 500: Strategy-Panel — Dispatch-Strategie (Speed/Balance/Spar) + Tour-Gesundheits-Score */}
       <DispatchPhase500StrategyPanel
         batches={batches.map(b => ({

@@ -208,6 +208,8 @@ import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
+import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
+import { KitchenBatchZeitplan } from './kitchen-batch-zeitplan';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1881,6 +1883,10 @@ export function KitchenBoard({
       <KitchenFahrerKochSyncPanel orders={filtered} timings={timings} batches={batches} stops={stops} />
       {/* Phase 472: Smart-Batch-Priorisierung — Automatische Priorisierung offener Batches (Wartezeit + Fahrer + Zone) */}
       <KitchenSmartBatchPriorisierung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 504: Schicht-Kochziel-Ampel — Prüft ob das Tages-Bestellungsziel erreichbar ist */}
+      <KitchenSchichtKochzielAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 506: Kitchen-Batch-Zeitplan — Optimaler Kochstart je Batch basierend auf Fahrer-ETA */}
+      <KitchenBatchZeitplan locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 472b: Order-Timing-Pro-Anzeige — Echtzeit-Countdown aller aktiven Bestellungen mit Priorität */}
       <KitchenOrderTimingProAnzeige />
       {/* Phase 478: Bestell-Eingangs-Ticker — Animierter Live-Ticker der letzten 15 neuen Bestellungen */}
