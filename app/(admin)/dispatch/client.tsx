@@ -271,6 +271,7 @@ import { DispatchEtaKonfidenzLeiste } from './eta-konfidenz-leiste';
 import { DispatchSchichtAbschlussReport } from './schicht-abschluss-report';
 import { DispatchFahrerEinsatzEffizienz } from './fahrer-einsatz-effizienz';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
+import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
 
 type Driver = {
   employee_id: string;
@@ -2064,6 +2065,8 @@ export function DispatchBoard({
           stops: b.stops.map(s => ({ geliefert_am: s.geliefert_am })),
         }))}
       />
+      {/* Phase 502: Tour-Score-Board — Aktive Touren mit Score-Visualisierung + Stop-Fortschritt */}
+      <DispatchPhase502TourScoreBoard batches={batches} orders={readyOrders} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

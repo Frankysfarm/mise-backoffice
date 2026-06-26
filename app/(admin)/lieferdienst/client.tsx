@@ -251,6 +251,7 @@ import { LieferZonenProfitMatrix } from './liefer-zonen-profit-matrix';
 import { LieferdienstPhase500StatistikenDashboard } from './phase500-statistiken-dashboard';
 import { LieferdienstPhase501StundenAnalyse } from './phase501-stunden-analyse';
 import { LieferdienstZonenSlaVergleichPanel } from './zonen-sla-vergleich-panel';
+import { LieferdienstPhase502StatistikKommando } from './phase502-statistik-kommando';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1639,6 +1640,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase501StundenAnalyse locationId={locationId} />
                 {/* Phase 503: Zonen-SLA-Vergleich — SLA-Einhaltung je Zone (3/7/14/30 Tage, pünktlich/mittel/kritisch) */}
                 <LieferdienstZonenSlaVergleichPanel locationId={locationId} />
+                {/* Phase 502: Statistik-Kommando — Tages-KPIs, Stundenverlauf, Zonen-Performance, Fahrer-Ranking */}
+                <LieferdienstPhase502StatistikKommando locationId={locationId} />
               </>
             </div>
           )}

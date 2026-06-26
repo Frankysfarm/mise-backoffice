@@ -210,6 +210,7 @@ import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
 import { KitchenBatchZeitplan } from './kitchen-batch-zeitplan';
+import { KitchenPhase502TimingKommando } from './phase502-timing-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1897,6 +1898,8 @@ export function KitchenBoard({
       <KitchenKapazitaetsAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 485: Küchen-Kapazitäts-Config — Schwellwert für kitchen_max_concurrent_orders konfigurieren */}
       <KitchenKapazitaetsConfig locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 502: Timing-Kommando — Echtzeit-Countdown + Farbkodierung aller aktiven Bestellungen mit Smart-Timing */}
+      <KitchenPhase502TimingKommando orders={filtered} timings={timings} />
     </div>
   );
 }

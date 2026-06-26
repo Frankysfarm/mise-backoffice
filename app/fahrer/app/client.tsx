@@ -205,6 +205,7 @@ import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
 import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
 import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav';
 import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
+import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigator';
 
 type Driver = {
   id: string;
@@ -2981,6 +2982,32 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase501LiveVerdienst driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 502: Tour-Stopp-Navigator — Alle Stopps mit Navigation, ETA-Ampel, Kundendaten + Sofort-Aktionen */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase502TourStoppNavigator
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                order_id: s.order_id,
+                reihenfolge: s.reihenfolge,
+                angekommen_am: s.angekommen_am,
+                geliefert_am: s.geliefert_am,
+                order: s.order ? {
+                  bestellnummer: s.order.bestellnummer,
+                  kunde_name: s.order.kunde_name,
+                  kunde_adresse: s.order.kunde_adresse,
+                  kunde_telefon: s.order.kunde_telefon ?? null,
+                  kunde_notiz: s.order.kunde_notiz ?? null,
+                  kunde_lieferhinweis: s.order.kunde_lieferhinweis ?? null,
+                  gesamtbetrag: s.order.gesamtbetrag,
+                  zahlungsart: 'karte',
+                  eta_earliest: null,
+                  eta_latest: null,
+                } : null,
+              }))}
+            />
           </div>
         )}
         {/* Schicht-KPI-Live: Stops, Effizienz, km, Ziel — nur wenn online und kein aktiver Batch */}
