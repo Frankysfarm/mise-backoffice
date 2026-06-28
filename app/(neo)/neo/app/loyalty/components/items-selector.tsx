@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { LoyaltyProgramItem } from '@/lib/loyalty/types';
 
 interface MenuItem {
@@ -16,6 +17,31 @@ interface ItemsSelectorProps {
   menuItems: MenuItem[];
   selectedItems: LoyaltyProgramItem[];
   onSelectionChange: (itemId: string) => void;
+}
+
+/** Format a raw category_id slug into a human-readable label.
+ *  "cat-pizza" → "Pizza", "cat-soft-drinks" → "Soft Drinks", UUID → as-is */
+function formatCategoryName(categoryId: string): string {
+  // Strip common prefixes
+  const stripped = categoryId
+    .replace(/^cat-/i, '')
+    .replace(/^category-/i, '');
+
+  // Check if it still looks like a UUID – show as-is
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (uuidPattern.test(stripped) || uuidPattern.test(categoryId)) {
+    return categoryId;
+  }
+
+  // Convert hyphens/underscores to spaces and capitalise each word
+  return stripped
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** Format price as "€12.50" (prefix, dot separator) */
+function formatPrice(price: number): string {
+  return `€${price.toFixed(2)}`;
 }
 
 export function ItemsSelector({
@@ -49,18 +75,6 @@ export function ItemsSelector({
     });
   }, [menuItems]);
 
-  // Format price as EUR with 2 decimals
-  const formatPrice = (price: number): string => {
-    return price.toLocaleString('de-DE', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
-
-  const handleCheckboxChange = (itemId: string) => {
-    onSelectionChange(itemId);
-  };
-
   if (menuItems.length === 0) {
     return (
       <div className="p-6 text-center text-gray-500">
@@ -80,7 +94,7 @@ export function ItemsSelector({
           {categoryId !== '__uncategorized__' && (
             <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
               <h3 className="text-sm font-semibold text-gray-700">
-                {categoryId}
+                {formatCategoryName(categoryId)}
               </h3>
             </div>
           )}
@@ -92,12 +106,10 @@ export function ItemsSelector({
                   key={item.id}
                   className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     id={`item-${item.id}`}
                     checked={isSelected}
-                    onChange={() => handleCheckboxChange(item.id)}
-                    className="w-5 h-5 rounded border-gray-300 text-blue-600 cursor-pointer"
+                    onCheckedChange={() => onSelectionChange(item.id)}
                   />
                   <label
                     htmlFor={`item-${item.id}`}
@@ -108,7 +120,7 @@ export function ItemsSelector({
                         {item.name}
                       </span>
                       <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
-                        {formatPrice(item.preis)} €
+                        {formatPrice(item.preis)}
                       </span>
                     </div>
                     {item.beschreibung && (
