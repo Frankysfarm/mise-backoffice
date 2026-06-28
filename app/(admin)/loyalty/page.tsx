@@ -23,7 +23,7 @@ export default async function LoyaltyPage() {
   if (!tenantId) tenantId = DEV_TENANT_ID;
 
   const { data: programs } = await svc
-    .from('loyalty_programs')
+    .from('loyalty_stamp_programs')
     .select('id,title,description,trigger_text,threshold,reward_text,emoji,active,sort_order')
     .eq('tenant_id', tenantId)
     .order('sort_order', { ascending: true });

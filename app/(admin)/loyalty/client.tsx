@@ -34,7 +34,7 @@ export function LoyaltyClient({ initialPrograms, tenantId }: { initialPrograms: 
   async function save(p: Program) {
     if (p.id === 'new') {
       const { data, error } = await sb
-        .from('loyalty_programs')
+        .from('loyalty_stamp_programs')
         .insert({
           tenant_id: tenantId,
           title: p.title.trim(),
@@ -52,7 +52,7 @@ export function LoyaltyClient({ initialPrograms, tenantId }: { initialPrograms: 
       setPrograms((prev) => [...prev, data as Program]);
     } else {
       const { error } = await sb
-        .from('loyalty_programs')
+        .from('loyalty_stamp_programs')
         .update({
           title: p.title.trim(),
           description: p.description.trim(),
@@ -72,14 +72,14 @@ export function LoyaltyClient({ initialPrograms, tenantId }: { initialPrograms: 
 
   async function remove(id: string) {
     if (!confirm('Bonus-Programm wirklich löschen?')) return;
-    const { error } = await sb.from('loyalty_programs').delete().eq('id', id);
+    const { error } = await sb.from('loyalty_stamp_programs').delete().eq('id', id);
     if (error) return alert(error.message);
     setPrograms((prev) => prev.filter((p) => p.id !== id));
   }
 
   async function toggleActive(p: Program) {
     const newActive = !p.active;
-    const { error } = await sb.from('loyalty_programs').update({ active: newActive }).eq('id', p.id);
+    const { error } = await sb.from('loyalty_stamp_programs').update({ active: newActive }).eq('id', p.id);
     if (error) return alert(error.message);
     setPrograms((prev) => prev.map((x) => (x.id === p.id ? { ...x, active: newActive } : x)));
   }
