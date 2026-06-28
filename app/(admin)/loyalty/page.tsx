@@ -1,32 +1,55 @@
-import { redirect } from 'next/navigation';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
-import { LoyaltyClient } from './client';
+import { createServerClient } from '@/lib/supabase/server';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
-export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Bonus-Programme · Mise' };
-
-const DEV_TENANT_ID = 'd1522124-4b9b-4362-9d9a-882a6a8621f6';
-
-export default async function LoyaltyPage() {
-  const sb = await createClient();
-  const svc = createServiceClient();
-
-  const { data: { user } } = await sb.auth.getUser();
-  let tenantId: string | null = null;
-  if (user) {
-    const { data: emp } = await sb.from('employees')
-      .select('tenant_id')
-      .eq('auth_user_id', user.id)
-      .maybeSingle();
-    tenantId = emp?.tenant_id ?? null;
+export default async function LoyaltyProgramsPage() {
+  const svc = createServerClient();
+  const { data: { user } } = await svc.auth.getUser();
+  
+  if (!user?.id) {
+    return <div>Unauthorized</div>;
   }
-  if (!tenantId) tenantId = DEV_TENANT_ID;
+
+  const { data: employee } = await svc
+    .from('employees')
+    .select('tenant_id')
+    .eq('auth_user_id', user.id)
+    .single();
 
   const { data: programs } = await svc
-    .from('loyalty_stamp_programs')
-    .select('id,title,description,trigger_text,threshold,reward_text,emoji,active,sort_order')
-    .eq('tenant_id', tenantId)
-    .order('sort_order', { ascending: true });
+    .from('loyalty_programs')
+    .select('*')
+    .eq('tenant_id', employee?.tenant_id || '')
+    .order('created_at', { ascending: false });
 
-  return <LoyaltyClient initialPrograms={(programs as any) ?? []} tenantId={tenantId} />;
+  return (
+    <div className=container mx-auto p-4>
+      <div className=flex justify-between items-center mb-6>
+        <h1 className=text-3xl font-bold>Bonusprogramme</h1>
+        <Link href=/admin/loyalty/new>
+          <Button>Neues Programm</Button>
+        </Link>
+      </div>
+
+      {!programs || programs.length === 0 ? (
+        <p className=text-gray-500>Noch kein Bonusprogramm erstellt.</p>
+      ) : (
+        <div className=space-y-2>
+          {programs.map(prog => (
+            <div key={prog.id} className=p-4 border rounded flex justify-between items-center>
+              <div>
+                <h3 className=font-semibold>{prog.name}</h3>
+                <p className=text-sm text-gray-500>
+                  {prog.is_active ? '✓ Aktiv' : '○ Inaktiv'}
+                </p>
+              </div>
+              <Link href={`/admin/loyalty/${prog.id}`}>
+                <Button variant=outline>Bearbeiten</Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
