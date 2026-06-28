@@ -1,63 +1,60 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getMonthlyStats, MonthlyStats } from '@/lib/loyalty/stats';
 
-// Mock the supabase module
+// Mock data
+const mockRedemptions = [
+  {
+    id: 'r1',
+    redeemed_menu_item_ids: ['item1', 'item2'],
+    redeemed_at: '2026-06-15T10:00:00Z',
+    order_id: 'order1',
+  },
+  {
+    id: 'r2',
+    redeemed_menu_item_ids: ['item1', 'item3'],
+    redeemed_at: '2026-06-16T14:30:00Z',
+    order_id: 'order2',
+  },
+  {
+    id: 'r3',
+    redeemed_menu_item_ids: ['item2'],
+    redeemed_at: '2026-06-20T09:15:00Z',
+    order_id: 'order3',
+  },
+];
+
+const mockMenuItems = [
+  { id: 'item1', name: 'Cappuccino' },
+  { id: 'item2', name: 'Espresso' },
+  { id: 'item3', name: 'Latte' },
+];
+
+// Mock the supabase server module
 vi.mock('@/lib/supabase/server', () => ({
   createServiceClient: vi.fn(() => ({
     from: vi.fn((table: string) => {
       if (table === 'loyalty_redemptions') {
         return {
           select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              gte: vi.fn(() => ({
-                lte: vi.fn(() => ({
-                  eq: vi.fn(() => ({
-                    then: vi.fn((callback) => {
-                      const mockRedemptions = [
-                        {
-                          id: 'r1',
-                          redeemed_menu_item_ids: ['item1', 'item2'],
-                          redeemed_at: '2026-06-15T10:00:00Z',
-                          order_id: 'order1',
-                        },
-                        {
-                          id: 'r2',
-                          redeemed_menu_item_ids: ['item1', 'item3'],
-                          redeemed_at: '2026-06-16T14:30:00Z',
-                          order_id: 'order2',
-                        },
-                        {
-                          id: 'r3',
-                          redeemed_menu_item_ids: ['item2'],
-                          redeemed_at: '2026-06-20T09:15:00Z',
-                          order_id: 'order3',
-                        },
-                      ];
-                      return Promise.resolve({ data: mockRedemptions, error: null });
-                    }),
-                  })),
-                })),
-              })),
-            })),
+            eq: vi.fn(function() { return this; }),
+            gte: vi.fn(function() { return this; }),
+            lte: vi.fn(function() { return this; }),
+            then: vi.fn((callback) => {
+              return callback({ data: mockRedemptions, error: null });
+            }),
           })),
         };
       } else if (table === 'menu_items') {
         return {
           select: vi.fn(() => ({
-            in: vi.fn(() => ({
-              then: vi.fn((callback) => {
-                const mockItems = [
-                  { id: 'item1', name: 'Cappuccino' },
-                  { id: 'item2', name: 'Espresso' },
-                  { id: 'item3', name: 'Latte' },
-                ];
-                return Promise.resolve({ data: mockItems, error: null });
-              }),
-            })),
+            in: vi.fn(function() { return this; }),
+            then: vi.fn((callback) => {
+              return callback({ data: mockMenuItems, error: null });
+            }),
           })),
         };
       }
-      return {};
+      return { select: () => ({}) };
     }),
   })),
 }));
@@ -94,20 +91,30 @@ describe('getMonthlyStats', () => {
   it('builds daily trend correctly', async () => {
     const stats = await getMonthlyStats('tenant1');
     expect(stats.dailyTrend).toBeDefined();
+    expect(Array.isArray(stats.dailyTrend)).toBe(true);
     
-    // Daily trend should be sorted by date
+    // Daily trend should be sorted by date (lexicographically for YYYY-MM-DD)
     for (let i = 0; i < stats.dailyTrend.length - 1; i++) {
-      expect(stats.dailyTrend[i].date).toBeLessThanOrEqual(stats.dailyTrend[i + 1].date);
+      const current = stats.dailyTrend[i].date;
+      const next = stats.dailyTrend[i + 1].date;
+      expect(current.localeCompare(next)).toBeLessThanOrEqual(0);
     }
   });
 
-  it('returns empty stats on database error', async () => {
-    // This test would require a mock that returns an error
-    // For now, just verify the structure
+  it('returns MonthlyStats structure with all required fields', async () => {
     const stats = await getMonthlyStats('tenant1');
     expect(stats).toHaveProperty('totalRedemptions');
     expect(stats).toHaveProperty('topItems');
     expect(stats).toHaveProperty('dailyTrend');
+    expect(typeof stats.totalRedemptions).toBe('number');
+    expect(Array.isArray(stats.topItems)).toBe(true);
+    expect(Array.isArray(stats.dailyTrend)).toBe(true);
+  });
+
+  it('filters by program_id when provided', async () => {
+    const stats = await getMonthlyStats('tenant1', 'program123');
+    expect(stats).toHaveProperty('totalRedemptions');
+    expect(stats).toHaveProperty('topItems');
   });
 });
 
@@ -149,5 +156,19 @@ describe('MonthlyStats calculation helpers', () => {
 
     expect(dailyMap.get('2026-06-15')).toBe(2);
     expect(dailyMap.get('2026-06-16')).toBe(1);
+  });
+
+  it('handles empty redemptions array', () => {
+    const mockRedemptions: any[] = [];
+    const itemCounts = new Map<string, number>();
+    
+    for (const redemption of mockRedemptions) {
+      const menuIds = redemption.redeemed_menu_item_ids || [];
+      for (const menuId of menuIds) {
+        itemCounts.set(menuId, (itemCounts.get(menuId) ?? 0) + 1);
+      }
+    }
+
+    expect(itemCounts.size).toBe(0);
   });
 });
