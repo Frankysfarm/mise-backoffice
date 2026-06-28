@@ -3,7 +3,8 @@
 import { use, useState, useEffect } from "react";
 import { ItemsSelector } from "../components/items-selector";
 import { RulesEditor } from "../components/rules-editor";
-import { LoyaltyProgramItem, LoyaltyProgramRule } from "@/lib/loyalty/types";
+import { TimeWindowEditor } from "../components/time-window-editor";
+import { LoyaltyProgramItem, LoyaltyProgramRule, TimeWindow } from "@/lib/loyalty/types";
 
 interface MenuItem {
   id: string;
@@ -23,6 +24,8 @@ export default function LoyaltyProgramPage(props: LoyaltyProgramPageProps) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<LoyaltyProgramItem[]>([]);
   const [rules, setRules] = useState<LoyaltyProgramRule[]>([]);
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
+  const [timeWindows, setTimeWindows] = useState<TimeWindow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -118,8 +121,52 @@ export default function LoyaltyProgramPage(props: LoyaltyProgramPageProps) {
       );
       if (!res.ok) throw new Error("Failed to delete rule");
       setRules((prev) => prev.filter((rule) => rule.id !== ruleId));
+      if (selectedRuleId === ruleId) {
+        setSelectedRuleId(null);
+        setTimeWindows([]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  const handleSelectRuleForTimeWindows = (ruleId: string) => {
+    setSelectedRuleId(ruleId);
+    const rule = rules.find((r) => r.id === ruleId);
+    if (rule?.time_windows) {
+      setTimeWindows(rule.time_windows);
+    } else {
+      setTimeWindows([]);
+    }
+  };
+
+  const handleTimeWindowsChange = async (updatedWindows: TimeWindow[]) => {
+    setTimeWindows(updatedWindows);
+
+    // Update the rule with new time windows
+    if (selectedRuleId) {
+      try {
+        const res = await fetch(
+          `/api/loyalty/programs/${params.programId}/rules/${selectedRuleId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ time_windows: updatedWindows }),
+          }
+        );
+        if (!res.ok) throw new Error("Failed to update time windows");
+
+        // Update the rule in local state
+        setRules((prev) =>
+          prev.map((rule) =>
+            rule.id === selectedRuleId
+              ? { ...rule, time_windows: updatedWindows }
+              : rule
+          )
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      }
     }
   };
 
@@ -155,6 +202,15 @@ export default function LoyaltyProgramPage(props: LoyaltyProgramPageProps) {
           onDeleteRule={handleDeleteRule}
         />
       </div>
+
+      {selectedRuleId && (
+        <div className="mb-8">
+          <TimeWindowEditor
+            timeWindows={timeWindows}
+            onTimeWindowsChange={handleTimeWindowsChange}
+          />
+        </div>
+      )}
 
       <div>
         <div className="mb-4">
