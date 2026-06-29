@@ -213,6 +213,8 @@ import { KitchenBatchZeitplan } from './kitchen-batch-zeitplan';
 import { KitchenPhase502TimingKommando } from './phase502-timing-kommando';
 import { KitchenBatchFertigstellungsPrognose } from './batch-fertigstellungs-prognose';
 import { KitchenOrderWaveAlert } from './order-wave-alert';
+import { KitchenWellenVerlaufChart } from './wellen-verlauf-chart';
+import { KitchenBacklogMonitor } from './kitchen-backlog-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1906,6 +1908,10 @@ export function KitchenBoard({
       <KitchenBatchFertigstellungsPrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 508: Order-Wave-Alert — Amber/Red-Banner bei Rush-Erkennung */}
       <KitchenOrderWaveAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 510: Wellenverlauf-Chart — 24h-Histogramm heute vs. Ø 7 Tage */}
+      <KitchenWellenVerlaufChart locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 512: Backlog-Monitor — Alert bei >3 Bestellungen >20 Min in Zubereitung */}
+      <KitchenBacklogMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

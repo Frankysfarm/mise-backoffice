@@ -274,6 +274,8 @@ import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
+import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
+import { DispatchFahrerPuenktlichkeitsHeatmap } from './fahrer-puenktlichkeits-heatmap';
 
 type Driver = {
   employee_id: string;
@@ -2061,6 +2063,10 @@ export function DispatchBoard({
       <DispatchFahrerAuslastungsTimeline locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 509: Fahrer-Effizienz-Ranking — Rankt Fahrer nach Bestellungen/Stunde mit 7-Tage-Trend */}
       <DispatchDriverEfficiencyRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 510: Tour-Rückkehr-Prognose — ETA je aktiver Fahrer aus Stopps × Ø-Stopp-Zeit + Rückweg */}
+      <DispatchTourRueckkehrPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 511: Pünktlichkeits-Heatmap — 7×24 Matrix je Fahrer aus 30-Tage-Daten */}
+      <DispatchFahrerPuenktlichkeitsHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 500: Strategy-Panel — Dispatch-Strategie (Speed/Balance/Spar) + Tour-Gesundheits-Score */}
       <DispatchPhase500StrategyPanel
         batches={batches.map(b => ({

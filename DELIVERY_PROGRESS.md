@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–509 abgeschlossen. Build sauber. Exit 0. 366 Seiten. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–512 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-29): Phase 510–512 — Wellenverlauf-Chart, Fahrer-Rückkehr-Prognose API, Pünktlichkeits-Heatmap, Backlog-Monitor. Build sauber, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-26): Phase 507–509 — Batch-Fertigstellungs-Prognose, Fahrer-Auslastungs-Timeline, Order-Wave-Detector, Fahrer-Effizienz-Ranking. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-26): Phase 504–506 — Kochziel-Ampel, Fahrer-Einsatz-Effizienz, GPS-Staleness-Monitor, Batch-Kochzeitplan. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-25): Phase 501–503 — ETA-Konfidenz-Score, Schicht-Abschluss-Report, Zonen-SLA-Vergleich. Build 366 Seiten, Exit 0, 0 TS-Fehler.
@@ -15,6 +16,116 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 510–512 — Wellenverlauf, Tour-Rückkehr-Prognose, Pünktlichkeits-Heatmap, Backlog-Monitor (DONE ✅)
+
+**Datum:** 2026-06-29
+
+### Phase 510 Backend — Order-Wave-History-API
+
+**`app/api/delivery/admin/order-wave-history/route.ts`:**
+- GET `?location_id=...` → `{ ok, hours: HourBucket[], peakHourToday, peakHourAvg, totalToday, totalAvg, generatedAt }`
+- HourBucket: `{ hour, todayCount, avgCount, ratio }` für alle 24h
+- todayCount: nicht-stornierte Bestellungen der laufenden Stunde
+- avgCount: Durchschnitt gleicher Stunde über letzte 7 Tage (÷7)
+- ratio: todayCount / max(1, avgCount)
+- peakHourToday/peakHourAvg: Stunde mit höchstem Count (null wenn leer)
+
+### Phase 510 Frontend — KitchenWellenVerlaufChart
+
+**`app/(admin)/kitchen/wellen-verlauf-chart.tsx`** — `KitchenWellenVerlaufChart`:
+- Collapsible (Standard zugeklappt) mit BarChart3-Icon + Gesamtcount heute/Ø in Header
+- Dual-Balken-Histogramm: Stunden 06–23, grauer Ø-Balken + blauer Heute-Balken, Peak-Stunde dunkler
+- Orange-Überlagerung wenn ratio >1.4 (Rush-Signal)
+- Stunden-Achse mit Beschriftung bei geraden Stunden
+- Summary-Zeile: Heute gesamt / Ø 7 Tage / Trend %
+- 120s Auto-Refresh, Legende mit Farbkodierung
+- Integration: `kitchen/client.tsx` nach KitchenOrderWaveAlert ✅
+
+### Phase 510 Backend — Tour-Abschluss-Prognose-API
+
+**`app/api/delivery/admin/tour-abschluss-prognose/route.ts`:**
+- GET `?location_id=...` → `{ ok, drivers: TourAbschlussEntry[], generatedAt }`
+- TourAbschlussEntry: driverId, driverName, vehicle, completedStops, pendingStops, avgStopMinutes, estimatedReturnMinutes, estimatedReturnAt, urgency
+- Lädt aktive Batches (unterwegs/pickup/on_route/at_restaurant/assigned)
+- Ø Stopp-Zeit aus abgeschlossenen Stopps (arrived_at→departed_at), Fallback 8 Min
+- ETA = pendingStops × avgStopMin + 5 Min Rückweg-Puffer
+- Urgency: soon (≤5 Min) / coming (≤20 Min) / later (>20 Min)
+- Sortiert nach estimatedReturnMinutes asc
+
+### Phase 510 Frontend — DispatchTourRueckkehrPrognose
+
+**`app/(admin)/dispatch/tour-rueckkehr-prognose.tsx`** — `DispatchTourRueckkehrPrognose`:
+- Collapsible Card mit Clock-Icon
+- Pro Fahrer: Fahrzeug-Icon (Bike/Car), Name, Urgency-Badge, Stop-Fortschrittsbalken
+- ETA-Uhrzeit + Restminuten rechtsbündig
+- Grün (soon) / Amber (coming) / Grau (later) Farbkodierung
+- 45s Auto-Refresh, versteckt wenn keine aktiven Fahrer
+- Integration: `dispatch/client.tsx` nach DispatchDriverEfficiencyRanking ✅
+
+### Phase 511 Backend — Fahrer-Pünktlichkeits-Heatmap-API
+
+**`app/api/delivery/admin/driver-punctuality-heatmap/route.ts`:**
+- GET `?location_id=...&driver_id=...` → `{ ok, drivers: DriverHeatmap[], generatedAt }`
+- DriverHeatmap: driverId, driverName, totalDeliveries, overallPct, cells (7×24 HeatCell)
+- HeatCell: dow (0–6), hour (0–23), total, onTime, pct (null wenn total=0)
+- Basis: abgeschlossene Batches letzte 30 Tage → mise_delivery_batch_stops
+- Pünktlich: arrived_at ≤ expected_arrival_at + 5 Min Toleranz
+- Sortiert nach overallPct desc; Fahrer ohne Daten übersprungen
+
+### Phase 511 Frontend — DispatchFahrerPuenktlichkeitsHeatmap
+
+**`app/(admin)/dispatch/fahrer-puenktlichkeits-heatmap.tsx`** — `DispatchFahrerPuenktlichkeitsHeatmap`:
+- Collapsible mit Grid3X3-Icon + Ø-Pünktlichkeit in Header
+- Pro Fahrer: Aufklappbare 7×24-Heatmap (Wochentage × Stunden 06–22)
+- Farbskala: grün ≥90% / grün-hell ≥75% / amber ≥60% / orange ≥40% / rot <40% / grau keine Daten
+- Hover-Tooltip: Wochentag Stunde, onTime/total, Prozent
+- Fahrer-Header: Name + Gesamt-Pct-Badge + Lieferanzahl
+- Legende mit Farbkodierung + "30-Tage-Historik" Label
+- 300s Auto-Refresh (historische Daten ändern sich selten)
+- Integration: `dispatch/client.tsx` nach DispatchTourRueckkehrPrognose ✅
+
+### Phase 512 Backend — Kitchen-Backlog-Monitor-API
+
+**`app/api/delivery/admin/kitchen-backlog-monitor/route.ts`:**
+- GET `?location_id=...&threshold_min=20&alert_count=3` → `{ ok, data: BacklogData, generatedAt }`
+- BacklogData: alertLevel, backlogCount, thresholdMin, alertCountThreshold, longestWaitMin, totalInPrep, orders[]
+- alertLevel: ok (backlog < alertCount) / warning (≥ alertCount) / critical (≥ 2×alertCount)
+- Betrachtet Bestellungen mit Status in_zubereitung/preparing/bestätigt/confirmed letzte 3h
+- Sortiert nach waitMinutes desc, gibt max. 10 Bestellungen zurück
+
+### Phase 512 Frontend — KitchenBacklogMonitor
+
+**`app/(admin)/kitchen/kitchen-backlog-monitor.tsx`** — `KitchenBacklogMonitor`:
+- Versteckt bei alertLevel=ok; Amber bei warning; Rot-pulsierend bei critical
+- Zeigt: backlogCount + longestWaitMin, Fortschrittsbalken (backlog/alertThreshold×2)
+- Bei critical: Bestellnummer-Chips farbkodiert (>30 Min rot / sonst amber)
+- X-Button zum Schließen (Dismiss); Re-Show wenn Level eskaliert (z.B. warning→critical)
+- 30s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach KitchenWellenVerlaufChart ✅
+
+### Integrations-Checkliste Phase 510–512
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenWellenVerlaufChart | kitchen/wellen-verlauf-chart.tsx | kitchen/client.tsx nach OrderWaveAlert | ✅ |
+| KitchenBacklogMonitor | kitchen/kitchen-backlog-monitor.tsx | kitchen/client.tsx nach WellenVerlaufChart | ✅ |
+| DispatchTourRueckkehrPrognose | dispatch/tour-rueckkehr-prognose.tsx | dispatch/client.tsx nach DriverEfficiencyRanking | ✅ |
+| DispatchFahrerPuenktlichkeitsHeatmap | dispatch/fahrer-puenktlichkeits-heatmap.tsx | dispatch/client.tsx nach TourRueckkehrPrognose | ✅ |
+| order-wave-history API | app/api/delivery/admin/order-wave-history/route.ts | Neu (GET) | ✅ |
+| tour-abschluss-prognose API | app/api/delivery/admin/tour-abschluss-prognose/route.ts | Neu (GET) | ✅ |
+| driver-punctuality-heatmap API | app/api/delivery/admin/driver-punctuality-heatmap/route.ts | Neu (GET) | ✅ |
+| kitchen-backlog-monitor API | app/api/delivery/admin/kitchen-backlog-monitor/route.ts | Neu (GET) | ✅ |
+
+**Build:** 0 TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 513 Backend:** Schicht-Kapazitäts-Prognose — Vorausschau für die nächsten 4h: Bestellvolumen-Prognose + Fahrer-Verfügbarkeit + Küchenlast. API: GET /api/delivery/admin/schicht-kapazitaets-prognose.
+2. **Phase 513 Frontend:** DispatchKapazitaetsPrognose — 4h-Vorschau-Karte mit Balken (erwartet vs. verfügbare Kapazität), Ampel-Bewertung.
+3. **Phase 514 Backend:** Storno-Analyse-Engine — Welche Bestellungen werden storniert und warum? Muster aus letzten 30 Tagen. API: GET /api/delivery/admin/storno-analyse.
+4. **Phase 514 Frontend:** LieferdienstStornoAnalysePanel — Storno-Rate je Stunde/Zone/Grund als Kacheln. Integration: lieferdienst/client.tsx.
+5. **Phase 515 Backend:** Fahrer-Chat-Broadcast — POST /api/delivery/admin/driver-broadcast: Nachricht an alle/bestimmte Fahrer senden (Push + SMS). Integration: messaging.ts.
 
 ---
 
