@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–512 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–515 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-29): Phase 513–515 — Schicht-Kapazitäts-Prognose (4h), Storno-Analyse-Engine, Fahrer-Broadcast. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-29): Phase 510–512 — Wellenverlauf-Chart, Fahrer-Rückkehr-Prognose API, Pünktlichkeits-Heatmap, Backlog-Monitor. Build sauber, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-26): Phase 507–509 — Batch-Fertigstellungs-Prognose, Fahrer-Auslastungs-Timeline, Order-Wave-Detector, Fahrer-Effizienz-Ranking. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-26): Phase 504–506 — Kochziel-Ampel, Fahrer-Einsatz-Effizienz, GPS-Staleness-Monitor, Batch-Kochzeitplan. Build 366 Seiten, Exit 0, 0 TS-Fehler.
@@ -8571,3 +8572,88 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 474 Fahrer-App:** Offline-Modus + Sync — Lokale Zwischenspeicherung wenn kein Netz + automatische Synchronisation
 4. **Phase 475 Storefront:** Bewertungs-Flow nach Lieferung — Automatischer Prompt für Sterne-Bewertung nach Zustellung
 5. **Phase 476 Lieferdienst:** Schicht-Abschluss-Bericht-Generator — PDF/Export der Schicht-KPIs mit Trend-Vergleich
+
+---
+
+## Phase 513–515 — Kapazitäts-Prognose, Storno-Analyse, Fahrer-Broadcast (DONE ✅)
+
+**Datum:** 2026-06-29
+
+### Phase 513 Backend — Schicht-Kapazitäts-Prognose-API
+
+**`app/api/delivery/admin/schicht-kapazitaets-prognose/route.ts`:**
+- GET `?location_id=...` → `{ ok, slots: CapacitySlot[], summary: CapacitySummary, generatedAt }`
+- 4h-Vorausschau: nächste 4 UTC-Stunden (inkl. aktuelle)
+- Online-Fahrer: GPS-Events der letzten 5 Min, dedupliziert
+- Erwartete Bestellungen: Ø gleicher Wochentag aus letzten 4 Wochen je Stunde
+- Level-Bewertung: ok / tight (≥2.5 Bestellungen/Fahrer) / critical (≥4 oder 0 Fahrer) / idle (<0.5)
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 513 Frontend — DispatchKapazitaetsPrognose
+
+**`app/(admin)/dispatch/kapazitaets-prognose.tsx`** — `DispatchKapazitaetsPrognose`:
+- Props: `locationId`
+- Summary-Row: Fahrer online / Bestellungen erwartet / Bestellungen-pro-Fahrer-Ø
+- 4-Spalten Balken-Chart: je Slot mit Höhe = Anteil am Maxwert, Farbkodierung nach Level
+- Level-Icons: AlertTriangle (kritisch) / TrendingUp (eng) / CheckCircle (ok) / Minus (ruhig)
+- 120s Auto-Refresh, Lade-Skeleton
+- Integration: `dispatch/client.tsx` nach DispatchFahrerPuenktlichkeitsHeatmap ✅
+
+### Phase 514 Backend — Storno-Analyse-API
+
+**`app/api/delivery/admin/storno-analyse/route.ts`:**
+- GET `?location_id=...&days=30` → `{ ok, data: StornoAnalyseData, generatedAt }`
+- Gesamt-Rate, Peak-Storno-Stunde (min 5 Bestellungen), schlechteste Zone
+- byHour: 24h-Buckets mit stornoCount / totalCount / stornoRate
+- byZone: je Lieferzone mit stornoRate, sortiert nach Rate absteigend
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 514 Frontend — LieferdienstStornoAnalysePanel
+
+**`app/(admin)/lieferdienst/storno-analyse-panel.tsx`** — `LieferdienstStornoAnalysePanel`:
+- Props: `locationId`
+- 3 KPI-Kacheln: Gesamt-Rate / Peak-Stunde / Schlechteste Zone
+- Farbkodierung: ≥15% rot / ≥8% amber / ≥3% gelb / <3% matcha-grün
+- Collapsible Detail: Top-5 Stunden + Top-5 Zonen je mit Fortschrittsbalken
+- Integration: `lieferdienst/client.tsx` nach LieferdienstPhase502StatistikKommando ✅
+
+### Phase 515 Backend — Fahrer-Broadcast-API
+
+**`app/api/delivery/admin/driver-broadcast/route.ts`:**
+- POST `{ location_id, message, driver_ids?, priority? }` → `{ ok, sentCount, results }`
+- Ziel-Fahrer: GPS-Events der letzten 30 Min (alle online) oder explizite driver_ids
+- Nachrichten-Insert in `driver_messages` Tabelle (location_id, driver_id, message, priority, sent_at, read)
+- BroadcastResult: driverId / driverName / status (sent/offline/failed)
+- GET: Liste letzte 24h Dispatch-Broadcasts für Standort (max 50)
+
+### Phase 515 Frontend — DispatchFahrerBroadcastPanel
+
+**`app/(admin)/dispatch/fahrer-broadcast-panel.tsx`** — `DispatchFahrerBroadcastPanel`:
+- Props: `locationId`
+- Collapsible Panel mit Radio-Icon
+- Priority-Toggle: Normal (blau) / Dringend (rot)
+- Textarea max 500 Zeichen mit Zeichenzähler
+- Sende-Button: Farbe je Priority, disabled während Senden
+- Ergebnis-Anzeige: Fahrerliste mit Status (Gesendet/Offline/Fehler)
+- Integration: `dispatch/client.tsx` nach DispatchKapazitaetsPrognose ✅
+
+### Integrations-Checkliste Phase 513–515
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchKapazitaetsPrognose | dispatch/kapazitaets-prognose.tsx | dispatch/client.tsx nach PuenktlichkeitsHeatmap | ✅ |
+| LieferdienstStornoAnalysePanel | lieferdienst/storno-analyse-panel.tsx | lieferdienst/client.tsx nach Phase502StatistikKommando | ✅ |
+| DispatchFahrerBroadcastPanel | dispatch/fahrer-broadcast-panel.tsx | dispatch/client.tsx nach KapazitaetsPrognose | ✅ |
+| schicht-kapazitaets-prognose API | app/api/delivery/admin/schicht-kapazitaets-prognose/route.ts | Neu (GET) | ✅ |
+| storno-analyse API | app/api/delivery/admin/storno-analyse/route.ts | Neu (GET) | ✅ |
+| driver-broadcast API | app/api/delivery/admin/driver-broadcast/route.ts | Neu (POST + GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 516 Backend:** Fahrer-Pausenempfehlung-Engine — Automatische Pausenempfehlungen für Fahrer basierend auf aktiver Schichtdauer (>3h → Kurz-Pause, >6h → Mittag). API: GET /api/delivery/driver/pausen-empfehlung?driver_id=...
+2. **Phase 516 Frontend:** FahrerPausenEmpfehlung — Gelber Hinweis-Banner in Fahrer-App wenn Pause empfohlen. Integration: fahrer/app/client.tsx.
+3. **Phase 517 Backend:** Echtzeit-Bestellfluss-Monitor — Aktuelle Bestellrate (Bestellungen/h) vs. Kapazität (verfügbare Fahrer × Durchsatz). Alert wenn Verhältnis >80%. API: GET /api/delivery/admin/bestellfluss-monitor.
+4. **Phase 517 Frontend:** KitchenBestellflussMonitor — Live-Gauge in Kitchen-View: Aktuelle Rate vs. Kapazität. Integration: kitchen/client.tsx.
+5. **Phase 518 Backend:** Tour-Effizienz-Echtzeit-API — Für jede aktive Tour: Ø km/Lieferung, Ø Min/Stop, Profitabilität (Liefergebühren – Fahrerkosten). API: GET /api/delivery/admin/tour-effizienz-realtime.
+
+---

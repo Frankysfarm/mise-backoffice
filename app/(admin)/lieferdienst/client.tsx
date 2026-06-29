@@ -252,6 +252,7 @@ import { LieferdienstPhase500StatistikenDashboard } from './phase500-statistiken
 import { LieferdienstPhase501StundenAnalyse } from './phase501-stunden-analyse';
 import { LieferdienstZonenSlaVergleichPanel } from './zonen-sla-vergleich-panel';
 import { LieferdienstPhase502StatistikKommando } from './phase502-statistik-kommando';
+import { LieferdienstStornoAnalysePanel } from './storno-analyse-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1642,6 +1643,8 @@ export function LieferdienstClient() {
                 <LieferdienstZonenSlaVergleichPanel locationId={locationId} />
                 {/* Phase 502: Statistik-Kommando — Tages-KPIs, Stundenverlauf, Zonen-Performance, Fahrer-Ranking */}
                 <LieferdienstPhase502StatistikKommando locationId={locationId} />
+                {/* Phase 514: Storno-Analyse — Stornierungsmuster je Stunde/Zone aus 30 Tagen */}
+                <LieferdienstStornoAnalysePanel locationId={locationId} />
               </>
             </div>
           )}
