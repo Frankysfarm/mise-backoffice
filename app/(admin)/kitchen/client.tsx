@@ -217,6 +217,7 @@ import { KitchenWellenVerlaufChart } from './wellen-verlauf-chart';
 import { KitchenBacklogMonitor } from './kitchen-backlog-monitor';
 import { KitchenEchtzeitStoppuhrTafel } from './echtzeit-stoppuhr-tafel';
 import { KitchenHandoffWartezeitMonitor } from './handoff-wartezeit-monitor';
+import { KitchenStationsEffizienz } from './kitchen-stations-effizienz';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1918,6 +1919,8 @@ export function KitchenBoard({
       <KitchenBacklogMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 519: Handoff-Wartezeit-Monitor — Bestellungen fertig, aber noch nicht abgeholt */}
       <KitchenHandoffWartezeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
+      {/* Phase 524: Stations-Effizienz — Grill/Kalt/Getränke Auslastung + Ist vs. Soll-Zeit */}
+      <KitchenStationsEffizienz locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

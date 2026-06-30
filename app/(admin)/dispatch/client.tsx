@@ -278,6 +278,8 @@ import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
 import { DispatchFahrerPuenktlichkeitsHeatmap } from './fahrer-puenktlichkeits-heatmap';
 import { DispatchKapazitaetsPrognose } from './kapazitaets-prognose';
 import { DispatchFahrerBroadcastPanel } from './fahrer-broadcast-panel';
+import { DispatchZonenAuslastungLive } from './zonen-auslastung-live';
+import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
 
 type Driver = {
   employee_id: string;
@@ -2069,6 +2071,10 @@ export function DispatchBoard({
       <DispatchTourRueckkehrPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 511: Pünktlichkeits-Heatmap — 7×24 Matrix je Fahrer aus 30-Tage-Daten */}
       <DispatchFahrerPuenktlichkeitsHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 522: Zonen-Auslastung Live — Bestellungen + freie Fahrer je Zone, Ampel */}
+      <DispatchZonenAuslastungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 523: Fahrer-Aktivitäts-Protokoll — Event-Log aller Fahrer heute + Fahrer-Übersicht */}
+      <DispatchFahrerAktivitaetsLog locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
