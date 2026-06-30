@@ -280,6 +280,7 @@ import { DispatchKapazitaetsPrognose } from './kapazitaets-prognose';
 import { DispatchFahrerBroadcastPanel } from './fahrer-broadcast-panel';
 import { DispatchZonenAuslastungLive } from './zonen-auslastung-live';
 import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
+import { DispatchZoneSaturation } from './zone-saturation';
 
 type Driver = {
   employee_id: string;
@@ -2075,6 +2076,8 @@ export function DispatchBoard({
       <DispatchZonenAuslastungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 523: Fahrer-Aktivitäts-Protokoll — Event-Log aller Fahrer heute + Fahrer-Übersicht */}
       <DispatchFahrerAktivitaetsLog locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 525: Zonen-Sättigung — Heute vs. historischer Ø je Zone */}
+      <DispatchZoneSaturation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

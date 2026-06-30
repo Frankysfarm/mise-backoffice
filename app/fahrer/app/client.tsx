@@ -196,6 +196,7 @@ import { FahrerSelbstBewertung } from './fahrer-selbst-bewertung';
 import { FahrerCoachingWidget } from './fahrer-coaching-widget';
 import { NaechsterStoppEtaRing } from './naechster-stopp-eta-ring';
 import { FahrerStopAktionsPanel } from './fahrer-stop-aktions-panel';
+import { FahrerErholungsTracker } from './erholungs-tracker';
 import { FahrerOfflineSyncBanner } from './offline-sync-banner';
 import { OfflineSyncManager } from './offline-sync-manager';
 import { TourStoppSequenzPro } from './tour-stopp-sequenz-pro';
@@ -904,6 +905,14 @@ export function FahrerApp({
                   <FahrerPausenEmpfehlung
                     onlineSeit={status?.online_seit ?? null}
                     hasActiveBatch={!!activeBatch}
+                  />
+                </div>
+                {/* Phase 527: Erholungs-Tracker — Aktivzeit vs. Pausen, Ermüdungsindikator */}
+                <div className="mt-3">
+                  <FahrerErholungsTracker
+                    driverId={driver.id}
+                    locationId={driver.location_id ?? null}
+                    onlineSeit={status?.online_seit ?? null}
                   />
                 </div>
                 {/* Phase 374: Schicht-Dauer-Live — Schichtdauer + Stopps/h Rate mit Intensitäts-Farbkodierung */}

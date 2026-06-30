@@ -218,6 +218,7 @@ import { KitchenBacklogMonitor } from './kitchen-backlog-monitor';
 import { KitchenEchtzeitStoppuhrTafel } from './echtzeit-stoppuhr-tafel';
 import { KitchenHandoffWartezeitMonitor } from './handoff-wartezeit-monitor';
 import { KitchenStationsEffizienz } from './kitchen-stations-effizienz';
+import { KitchenPrioritaetsBoard } from './kitchen-prioritaets-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1921,6 +1922,8 @@ export function KitchenBoard({
       <KitchenHandoffWartezeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
       {/* Phase 524: Stations-Effizienz — Grill/Kalt/Getränke Auslastung + Ist vs. Soll-Zeit */}
       <KitchenStationsEffizienz locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 526: Küchen-Prioritäts-Board — Score-basierte Priorisierung aktiver Bestellungen */}
+      <KitchenPrioritaetsBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
