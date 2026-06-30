@@ -215,6 +215,7 @@ import { KitchenBatchFertigstellungsPrognose } from './batch-fertigstellungs-pro
 import { KitchenOrderWaveAlert } from './order-wave-alert';
 import { KitchenWellenVerlaufChart } from './wellen-verlauf-chart';
 import { KitchenBacklogMonitor } from './kitchen-backlog-monitor';
+import { KitchenEchtzeitStoppuhrTafel } from './echtzeit-stoppuhr-tafel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -714,6 +715,8 @@ export function KitchenBoard({
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}
       <KuechenDruckAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 517: Echtzeit-Stoppuhr-Tafel — Farbkodierte Stoppuhr für alle aktiven Bestellungen (grün/amber/rot) */}
+      <KitchenEchtzeitStoppuhrTafel orders={filtered} />
       {/* Live-Ampel-Board: Alle aktiven Bestellungen als farbige Kacheln mit Countdown (grün/gelb/rot) */}
       <KitchenLiveAmpelBoard orders={filtered} timings={timings} />
       {/* Phase 358: Smart-Kochzeit-Board — Alle aktiven Bestellungen mit Countdown, Urgency-Priorisierung, Küchen-Gesundheits-Score */}

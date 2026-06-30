@@ -206,6 +206,7 @@ import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
 import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav';
 import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
 import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigator';
+import { FahrerPhase503StoppDetailsKommando } from './phase503-stopp-details-kommando';
 
 type Driver = {
   id: string;
@@ -3007,6 +3008,37 @@ export function FahrerApp({
                   eta_latest: null,
                 } : null,
               }))}
+            />
+          </div>
+        )}
+        {/* Phase 518 (503): Stopp-Details-Kommando — Ultra-fokussierte Stopp-Karte mit Navigation, Zahlung, ETA, Notizen */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase503StoppDetailsKommando
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                geliefert_am: s.geliefert_am,
+                angekommen_am: s.angekommen_am,
+                distanz_zum_vorgaenger_m: (s as any).distanz_zum_vorgaenger_m ?? null,
+                order: s.order ? {
+                  id: s.order_id,
+                  bestellnummer: s.order.bestellnummer,
+                  kunde_name: s.order.kunde_name,
+                  kunde_adresse: s.order.kunde_adresse,
+                  kunde_plz: (s.order as any).kunde_plz ?? null,
+                  kunde_stadt: (s.order as any).kunde_stadt ?? null,
+                  kunde_telefon: (s.order as any).kunde_telefon ?? null,
+                  kunde_notiz: (s.order as any).kunde_notiz ?? null,
+                  kunde_lieferhinweis: (s.order as any).kunde_lieferhinweis ?? null,
+                  gesamtbetrag: s.order.gesamtbetrag,
+                  zahlungsart: (s.order as any).zahlungsart ?? 'karte',
+                  bezahlt: (s.order as any).bezahlt ?? true,
+                  eta_earliest: (s.order as any).eta_earliest ?? null,
+                  eta_latest: (s.order as any).eta_latest ?? null,
+                } : null,
+              }))}
+              totalStops={activeBatch.stops.length}
             />
           </div>
         )}

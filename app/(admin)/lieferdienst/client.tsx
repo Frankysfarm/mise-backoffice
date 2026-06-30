@@ -253,6 +253,7 @@ import { LieferdienstPhase501StundenAnalyse } from './phase501-stunden-analyse';
 import { LieferdienstZonenSlaVergleichPanel } from './zonen-sla-vergleich-panel';
 import { LieferdienstPhase502StatistikKommando } from './phase502-statistik-kommando';
 import { LieferdienstStornoAnalysePanel } from './storno-analyse-panel';
+import { LieferdienstWochenTrendAnalyse } from './wochen-trend-analyse-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1645,6 +1646,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase502StatistikKommando locationId={locationId} />
                 {/* Phase 514: Storno-Analyse — Stornierungsmuster je Stunde/Zone aus 30 Tagen */}
                 <LieferdienstStornoAnalysePanel locationId={locationId} />
+                {/* Phase 516: Wochen-Trend-Analyse — 7-Tage vs. Vorwoche: Bestellungen, Umsatz, Tages-Kacheln */}
+                <LieferdienstWochenTrendAnalyse locationId={locationId} />
               </>
             </div>
           )}
