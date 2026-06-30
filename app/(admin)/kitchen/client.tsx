@@ -216,6 +216,7 @@ import { KitchenOrderWaveAlert } from './order-wave-alert';
 import { KitchenWellenVerlaufChart } from './wellen-verlauf-chart';
 import { KitchenBacklogMonitor } from './kitchen-backlog-monitor';
 import { KitchenEchtzeitStoppuhrTafel } from './echtzeit-stoppuhr-tafel';
+import { KitchenHandoffWartezeitMonitor } from './handoff-wartezeit-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1915,6 +1916,8 @@ export function KitchenBoard({
       <KitchenWellenVerlaufChart locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 512: Backlog-Monitor — Alert bei >3 Bestellungen >20 Min in Zubereitung */}
       <KitchenBacklogMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 519: Handoff-Wartezeit-Monitor — Bestellungen fertig, aber noch nicht abgeholt */}
+      <KitchenHandoffWartezeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? '') : (locationFilter ?? '')} />
     </div>
   );
 }

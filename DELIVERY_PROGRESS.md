@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–518 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–521 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-06-30): Phase 519–521 — Küchen-Handoff-Wartezeit-Monitor, Bestellfrequenz-Heatmap (7×24), Fahrer-Tageseinnahmen-Karte. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Frontend-Ingenieur-Agent (2026-06-30): Phase 516–518 — Wochen-Trend-Analyse, Kitchen-Stoppuhr-Tafel (Farbkodierung), Fahrer-Stopp-Details-Kommando. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-29): Phase 513–515 — Schicht-Kapazitäts-Prognose (4h), Storno-Analyse-Engine, Fahrer-Broadcast. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-29): Phase 510–512 — Wellenverlauf-Chart, Fahrer-Rückkehr-Prognose API, Pünktlichkeits-Heatmap, Backlog-Monitor. Build sauber, Exit 0, 0 TS-Fehler.
@@ -18,6 +19,97 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 519–521 — Handoff-Monitor, Frequenz-Heatmap, Fahrer-Einnahmen (DONE ✅)
+
+**Datum:** 2026-06-30
+
+### Phase 519 Backend — Küchen-Handoff-Wartezeit-Monitor-API
+
+**`app/api/delivery/admin/kitchen-handoff-monitor/route.ts`:**
+- GET `?location_id=...&threshold_min=10` → `{ ok, data: HandoffData, generatedAt }`
+- HandoffData: alertLevel (ok/warning/critical), waitingCount, longestWaitMin, thresholdMin, avgWaitMin, orders[]
+- Betrachtet Bestellungen mit Status fertig/ready/bereit/pickup_ready der letzten 2h
+- alertLevel: ok (longestWait < threshold) / warning (≥ threshold) / critical (≥ 2× threshold)
+- HandoffOrder: orderId, bestellnummer, kundeName, fertigSeitMin, status
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 519 Frontend — KitchenHandoffWartezeitMonitor
+
+**`app/(admin)/kitchen/handoff-wartezeit-monitor.tsx`** — `KitchenHandoffWartezeitMonitor`:
+- Versteckt bei alertLevel=ok; Amber bei warning; Rot-pulsierend bei critical
+- Zeigt: Anzahl wartende Bestellungen + längste Wartezeit + Ø Wartezeit
+- Bestellnummer-Chips farbkodiert (>2×threshold rot / sonst amber)
+- X-Button zum Schließen (Dismiss); Re-Show wenn Level eskaliert auf critical
+- 30s Auto-Refresh
+- Zusatz: `KitchenHandoffStatusChip` — Kompakt-Inline-Badge für Header
+- Integration: `kitchen/client.tsx` nach KitchenBacklogMonitor ✅
+
+### Phase 520 Backend — Bestellfrequenz-Heatmap-API
+
+**`app/api/delivery/admin/order-frequency-heatmap/route.ts`:**
+- GET `?location_id=...&weeks=8` → `{ ok, data: FrequencyData, generatedAt }`
+- FrequencyData: cells (7×24 FrequencyCell), peakCell, weekdayTotals, hourTotals, basisWeeks
+- FrequencyCell: dow (0–6), hour (0–23), avgOrders, peakClass (low/normal/peak/high)
+- peakClass basiert auf Verhältnis zum Max-Zell-Durchschnitt
+- weekdayTotals: pro Wochentag Gesamt-Ø-Tagesbestellungen
+- hourTotals: pro Stunde Gesamt-Ø über alle Wochentage
+- Multi-Tenant: alle Queries filtern location_id, storniert ausgeschlossen
+
+### Phase 520 Frontend — LieferdienstOrderFrequenzHeatmap
+
+**`app/(admin)/lieferdienst/order-frequenz-heatmap.tsx`** — `LieferdienstOrderFrequenzHeatmap`:
+- Collapsible Panel mit BarChart3-Icon
+- 7×24 Tabellen-Heatmap: Wochentage × Stunden 06–23
+- Farbskala: low=grau / normal=blau-hell / peak=blau-mittel / high=blau-kräftig
+- Hover-Tooltip je Zelle: Wochentag Stunde + Ø Bestellungen
+- Ø/Tag-Spalte rechts, Stunden-Achse oben
+- Legende + Peak-Info-Zeile ("Stärkste Stunde: Mo 19:00 (Ø 8.3)")
+- 5-Min-Auto-Refresh (historische Daten)
+- Integration: `lieferdienst/client.tsx` nach LieferdienstWochenTrendAnalyse ✅
+
+### Phase 521 Backend — Fahrer-Tageseinnahmen-API
+
+**`app/api/delivery/driver/tages-einnahmen/route.ts`:**
+- GET `?driver_id=...` → `{ ok, data: TagesEinnahmenData, generatedAt }`
+- TagesEinnahmenData: driverName, heute (lieferungen/trinkgeldEur/basisEur/bonusEur/totalEur)
+- gestern (lieferungen/totalEur), deltaEur, deltaLieferungen, stunden[], aktivSeitMin
+- EinnahmenStunde: hour, lieferungen, trinkgeldEur, basisEur, totalEur
+- Lädt heutige/gestrige abgeschlossene Batches: tip_eur + driver_pay_eur + bonus_eur
+- Stop-Count aus mise_delivery_batch_stops (geliefert_am nicht null)
+- aktivSeitMin: erste GPS-Event heute bis jetzt
+- Multi-Tenant: driver_id-basierter Zugriff
+
+### Phase 521 Frontend — FahrerTagesEinnahmenKarte
+
+**`app/fahrer/app/tages-einnahmen-karte.tsx`** — `FahrerTagesEinnahmenKarte`:
+- Collapsible Karte mit Euro-Icon (grün)
+- Header: Gesamtbetrag heute + Trend vs. gestern (TrendingUp/Down)
+- Immer sichtbar: Lieferanzahl + Delta-EUR vs. gestern + Aktiv-seit
+- Expanded: 3-Kacheln (Basis/Trinkgeld/Bonus), stündliche Balken, Vergleich gestern
+- 2-Min-Auto-Refresh, Lade-Skeleton
+- Integration: `fahrer/app/client.tsx` nach FahrerSchichtVerdienstLive ✅
+
+### Integrations-Checkliste Phase 519–521
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenHandoffWartezeitMonitor | kitchen/handoff-wartezeit-monitor.tsx | kitchen/client.tsx nach KitchenBacklogMonitor | ✅ |
+| LieferdienstOrderFrequenzHeatmap | lieferdienst/order-frequenz-heatmap.tsx | lieferdienst/client.tsx nach WochenTrendAnalyse | ✅ |
+| FahrerTagesEinnahmenKarte | fahrer/app/tages-einnahmen-karte.tsx | fahrer/app/client.tsx nach FahrerSchichtVerdienstLive | ✅ |
+| kitchen-handoff-monitor API | app/api/delivery/admin/kitchen-handoff-monitor/route.ts | Neu (GET) | ✅ |
+| order-frequency-heatmap API | app/api/delivery/admin/order-frequency-heatmap/route.ts | Neu (GET) | ✅ |
+| tages-einnahmen API | app/api/delivery/driver/tages-einnahmen/route.ts | Neu (GET) | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 522 Backend:** Zonen-Auslastungs-Echtzeitmonitor — Wie viele Bestellungen in jeder Zone gerade aktiv/wartend? Verhältnis zu verfügbaren Fahrern je Zone. API: GET /api/delivery/admin/zonen-auslastung-realtime.
+2. **Phase 522 Frontend:** DispatchZonenAuslastungLive — Live-Grid aller Zonen: aktive Bestellungen, verfügbare Fahrer, Auslastungs-Ampel. Integration: dispatch/client.tsx.
+3. **Phase 523 Backend:** Fahrer-Aktivitäts-Protokoll — Vollständiges Protokoll aller Fahrer-Events heute (Tour gestartet, Stopp erreicht, Geliefert, Pause). API: GET /api/delivery/admin/fahrer-aktivitaets-log.
+4. **Phase 523 Frontend:** DispatchFahrerAktivitaetsLog — Timeline-Ansicht aller Fahrer-Events. Integration: dispatch/client.tsx.
+5. **Phase 524 Backend:** Küchen-Stations-Effizienz — Welche Stationstypen (Grill/Kalt/Getränke) sind aktuell überlastet? Basis: geschätzte Zubereitung vs. tatsächliche Zeit. API: GET /api/delivery/admin/kitchen-stations-effizienz.
 
 ---
 

@@ -4,6 +4,9 @@ const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
   experimental: { typedRoutes: false },
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

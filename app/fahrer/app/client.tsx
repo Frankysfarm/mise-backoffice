@@ -112,6 +112,7 @@ import { TourRouteTiming } from './tour-route-timing';
 import { TourStoppEtaMatrix } from './tour-stopp-eta-matrix';
 import { FahrerGebuehrenInfo } from './gebuehren-info';
 import { FahrerSchichtVerdienstLive } from './schicht-verdienst-live';
+import { FahrerTagesEinnahmenKarte } from './tages-einnahmen-karte';
 import { FahrerStornoInfoBanner } from './storno-info-banner';
 import { FahrerSchichtEnergieCheck } from './schicht-energie-check';
 import { HeatmapTipp } from './heatmap-tipp';
@@ -2208,6 +2209,10 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 521: Tageseinnahmen-Karte — Basis/Trinkgeld/Bonus + stündliche Balken + Delta zu gestern */}
+          <div className="px-4">
+            <FahrerTagesEinnahmenKarte driverId={driver.id} />
+          </div>
           {/* Phase 350: Mein Engagement — Punkte, Abzeichen, Wochenrang */}
           <FahrerMeinEngagement driverId={driver?.id ?? null} locationId={driver?.location_id ?? null} />
           {/* Phase 352: Trinkgeld-Live-Tracker — Heute gesammelte Tips, Ø pro Tour, Trinkgeld-Rate */}
