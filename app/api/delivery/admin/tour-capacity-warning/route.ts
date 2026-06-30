@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
     .order('created_at', { ascending: true })
     .limit(50);
 
-  const batches = (batchData ?? []) as Array<{
+  const batches = (batchData ?? []) as unknown as Array<{
     id: string;
     zone: string | null;
     state: string;

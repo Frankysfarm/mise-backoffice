@@ -142,7 +142,10 @@ export async function GET(req: NextRequest) {
   const kuechenScore = kitchenLoad <= 2 ? 20 : kitchenLoad <= 5 ? 14 : kitchenLoad <= 10 ? 8 : 3;
 
   const tours: TourEtaConfidence[] = batches.map((batch) => {
-    const driver = batch.driver as { name: string | null } | null;
+    const driverRaw = batch.driver as unknown;
+    const driver = Array.isArray(driverRaw)
+      ? (driverRaw[0] as { name: string | null } | undefined) ?? null
+      : (driverRaw as { name: string | null } | null);
     const driverName = driver?.name ?? null;
     const batchStops = (stops ?? []).filter((s) => s.batch_id === batch.id);
     const remaining = batchStops.filter((s) => s.status !== 'delivered' && s.status !== 'geliefert' && s.status !== 'failed').length;

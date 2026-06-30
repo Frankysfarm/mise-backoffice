@@ -122,36 +122,38 @@ export function LieferdienstPhase500StatistikenDashboard({ locationId }: Props) 
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        const { data: orders } = await supabase
+        type OrderItem = { id: string; status: string | null; gesamtbetrag: number | null; bestellt_am: string | null; };
+        const { data: rawOrders } = await supabase
           .from('customer_orders')
           .select('id, status, gesamtbetrag, bestellt_am, geschaetzte_zubereitung_min, typ')
           .eq('location_id', locationId)
           .eq('typ', 'lieferung')
           .gte('bestellt_am', todayStart.toISOString())
           .order('bestellt_am', { ascending: true });
+        const orders = (rawOrders ?? []) as OrderItem[];
 
-        if (!orders?.length) { setLoading(false); return; }
+        if (!orders.length) { setLoading(false); return; }
 
         const total = orders.length;
-        const delivered = orders.filter(o => ['geliefert', 'abgeholt'].includes(o.status)).length;
-        const cancelled = orders.filter(o => o.status === 'storniert').length;
+        const delivered = orders.filter((o: OrderItem) => ['geliefert', 'abgeholt'].includes(o.status ?? '')).length;
+        const cancelled = orders.filter((o: OrderItem) => o.status === 'storniert').length;
         const revenue = orders
-          .filter(o => ['geliefert', 'abgeholt'].includes(o.status))
-          .reduce((s, o) => s + ((o as { gesamtbetrag?: number }).gesamtbetrag ?? 0), 0);
+          .filter((o: OrderItem) => ['geliefert', 'abgeholt'].includes(o.status ?? ''))
+          .reduce((s: number, o: OrderItem) => s + (o.gesamtbetrag ?? 0), 0);
 
         // Stunden-Buckets (letzte 8h)
         const nowH = new Date().getHours();
         const buckets: HourBucket[] = [];
         for (let i = 7; i >= 0; i--) {
           const h = (nowH - i + 24) % 24;
-          const inHour = orders.filter(o => {
+          const inHour = orders.filter((o: OrderItem) => {
             if (!o.bestellt_am) return false;
             return new Date(o.bestellt_am).getHours() === h;
           });
           buckets.push({
             hour: h,
             count: inHour.length,
-            revenue: inHour.reduce((s, o) => s + ((o as { gesamtbetrag?: number }).gesamtbetrag ?? 0), 0),
+            revenue: inHour.reduce((s: number, o: OrderItem) => s + (o.gesamtbetrag ?? 0), 0),
           });
         }
 

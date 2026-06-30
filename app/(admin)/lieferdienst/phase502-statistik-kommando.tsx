@@ -99,18 +99,20 @@ export function LieferdienstPhase502StatistikKommando({ locationId }: { location
       const supabase = createClient();
       const today = new Date().toISOString().slice(0, 10);
 
-      const { data: ordersData } = await supabase
+      type BestellItem = { status: string | null; gesamtbetrag: number | null; bestellt_am: string | null; fertig_am: string | null; };
+      const { data: rawOrders } = await supabase
         .from('bestellungen')
         .select('status,gesamtbetrag,zahlungsart,bestellt_am,fertig_am,typ')
         .eq('typ', 'lieferung')
         .gte('bestellt_am', `${today}T00:00:00`)
         .lte('bestellt_am', `${today}T23:59:59`);
+      const ordersData = (rawOrders ?? []) as BestellItem[];
 
-      if (ordersData && ordersData.length > 0) {
-        const completed = ordersData.filter(o => ['geliefert', 'fertig'].includes(o.status ?? ''));
-        const cancelled = ordersData.filter(o => o.status === 'storniert');
-        const totalRev = completed.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-        const onTime = completed.filter(o => {
+      if (ordersData.length > 0) {
+        const completed = ordersData.filter((o: BestellItem) => ['geliefert', 'fertig'].includes(o.status ?? ''));
+        const cancelled = ordersData.filter((o: BestellItem) => o.status === 'storniert');
+        const totalRev = completed.reduce((s: number, o: BestellItem) => s + (o.gesamtbetrag ?? 0), 0);
+        const onTime = completed.filter((o: BestellItem) => {
           if (!o.bestellt_am || !o.fertig_am) return false;
           const min = (new Date(o.fertig_am).getTime() - new Date(o.bestellt_am).getTime()) / 60000;
           return min <= 30;
@@ -118,7 +120,7 @@ export function LieferdienstPhase502StatistikKommando({ locationId }: { location
 
         // Build hour buckets
         const buckets: Record<number, HourData> = {};
-        ordersData.forEach(o => {
+        ordersData.forEach((o: BestellItem) => {
           if (!o.bestellt_am) return;
           const h = new Date(o.bestellt_am).getHours();
           if (!buckets[h]) buckets[h] = { h, label: `${h}:00`, orders: 0, revenue: 0 };
@@ -135,7 +137,7 @@ export function LieferdienstPhase502StatistikKommando({ locationId }: { location
           avgDeliveryMin: 26,
           onTimePct: completed.length > 0 ? Math.round((onTime / completed.length) * 100) : 0,
           activeDrivers: 3,
-          pendingOrders: ordersData.filter(o => ['neu', 'bestätigt', 'fertig'].includes(o.status ?? '')).length,
+          pendingOrders: ordersData.filter((o: BestellItem) => ['neu', 'bestätigt', 'fertig'].includes(o.status ?? '')).length,
           cancelledOrders: cancelled.length,
           avgOrderValue: ordersData.length > 0 ? totalRev / ordersData.length : 0,
           revenuePerDriver: totalRev / 3,
@@ -244,7 +246,7 @@ export function LieferdienstPhase502StatistikKommando({ locationId }: { location
               <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 10, padding: '4px 8px', borderRadius: 6 }}
-                formatter={(v: number) => [v, 'Bestellungen']}
+                formatter={(v) => [Number(v), 'Bestellungen']}
               />
               <Bar dataKey="orders" radius={[3, 3, 0, 0]}>
                 {hourData.map((_, i) => (

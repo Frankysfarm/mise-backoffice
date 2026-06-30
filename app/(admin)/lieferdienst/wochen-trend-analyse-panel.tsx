@@ -180,7 +180,7 @@ export function LieferdienstWochenTrendAnalyse({ locationId }: Props) {
                 <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#78716c' }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb', padding: '6px 10px' }}
-                  formatter={(value: number, name: string) => [value, name === 'dieseWoche' ? 'Diese Woche' : 'Vorwoche']}
+                  formatter={(value, name) => [Number(value), name === 'dieseWoche' ? 'Diese Woche' : 'Vorwoche']}
                 />
                 <Bar dataKey="vorwoche" fill="#d1d5db" radius={[3, 3, 0, 0]} name="Vorwoche" />
                 <Bar dataKey="dieseWoche" radius={[3, 3, 0, 0]} name="Diese Woche">
