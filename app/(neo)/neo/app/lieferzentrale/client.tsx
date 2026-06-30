@@ -28,20 +28,67 @@ export function Kanban({ orders }: { orders: any[] }) {
             {cards.map((o) => {
               const liefer = o.typ === 'lieferung';
               const paid = !!o.bezahlt;
+              const hasVoucher = o.voucher_rabatt > 0;
+              const hasReward = o.reward_items_count > 0;
               return (
                 <div key={o.id} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: 13, marginBottom: 10, boxShadow: '0 1px 2px rgba(15,23,42,.04)', opacity: busy === o.id ? .5 : 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
                     <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 13, color: '#0F172A' }}>#{String(o.bestellnummer || '').slice(-4) || '----'}</span>
                     <span style={{ fontSize: 11, fontWeight: 700, color: liefer ? '#1D4ED8' : '#047857', background: liefer ? '#EFF6FF' : '#ECFDF5', borderRadius: 6, padding: '2px 7px' }}>{liefer ? 'Lieferung' : 'Abholung'}</span>
                   </div>
+
+                  {/* Rabatt-Badge */}
+                  {hasVoucher && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FEF9C3', border: '1px solid #FDE047', borderRadius: 8, padding: '5px 9px', marginBottom: 8 }}>
+                      <span style={{ fontSize: 13 }}>🏷️</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: '#854D0E' }}>
+                        -{eur(o.voucher_rabatt)} Rabatt
+                        {o.voucher_code ? <span style={{ fontFamily: 'monospace', marginLeft: 4, opacity: .75 }}>{o.voucher_code}</span> : null}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Gratis-Produkt-Badge */}
+                  {hasReward && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 8, padding: '5px 9px', marginBottom: 8 }}>
+                      <span style={{ fontSize: 13 }}>🎁</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: '#166534' }}>
+                        {o.reward_items_count === 1 ? '1 Gratis-Produkt' : `${o.reward_items_count}× Gratis-Produkt`} (Treueprogramm)
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Item-Liste */}
                   <div style={{ marginBottom: 10 }}>
-                    {(o.items ?? []).slice(0, 4).map((li: any, i: number) => (<div key={i} style={{ display: 'flex', gap: 7, fontSize: 13, color: '#475569', marginBottom: 2 }}><span style={{ fontWeight: 700, color: '#4F46E5' }}>{li.menge}×</span><span>{li.name}</span></div>))}
+                    {(o.items ?? []).slice(0, 5).map((li: any, i: number) => {
+                      const isGratis = li.einzelpreis === 0 || (li.notiz && li.notiz.toLowerCase().includes('gratis'));
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#475569', marginBottom: 2 }}>
+                          <span style={{ fontWeight: 700, color: isGratis ? '#16A34A' : '#4F46E5', minWidth: 20 }}>{li.menge}×</span>
+                          <span style={{ flex: 1 }}>{li.name}</span>
+                          {isGratis && <span style={{ fontSize: 10, fontWeight: 800, color: '#16A34A', background: '#DCFCE7', borderRadius: 4, padding: '1px 5px', flexShrink: 0 }}>GRATIS</span>}
+                        </div>
+                      );
+                    })}
+                    {(o.items ?? []).length > 5 && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>+{o.items.length - 5} weitere</div>}
                   </div>
+
+                  {/* Preis-Zeile */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 9, borderTop: '1px solid #F1F5F9', marginBottom: 11 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: paid ? '#10B981' : '#F59E0B' }} /><span style={{ fontSize: 12, color: '#64748B' }}>{paid ? 'Bezahlt' : 'Offen'}</span></div>
-                    <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{eur(o.gesamtbetrag)}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: paid ? '#10B981' : '#F59E0B' }} />
+                      <span style={{ fontSize: 12, color: '#64748B' }}>{paid ? 'Bezahlt' : 'Offen'}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                      {hasVoucher && o.zwischensumme > 0 && (
+                        <span style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>{eur(o.zwischensumme)}</span>
+                      )}
+                      <span style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{eur(o.gesamtbetrag)}</span>
+                    </div>
                   </div>
-                  {o.kunde_name && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, fontSize: 12, color: '#94A3B8' }}><span>{o.kunde_name}</span></div>}
+
+                  {o.kunde_name && <div style={{ marginBottom: 10, fontSize: 12, color: '#94A3B8' }}>{o.kunde_name}</div>}
+
                   <div style={{ display: 'flex', gap: 7 }}>
                     {col.canReject && <button disabled={busy === o.id} onClick={() => act(() => rejectOrder(o.id), o.id)} style={{ width: 38, height: 36, border: '1px solid #FECACA', background: '#FEF2F2', borderRadius: 9, color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span dangerouslySetInnerHTML={{ __html: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' }} /></button>}
                     <button disabled={busy === o.id} onClick={() => act(() => advanceOrder(o.id, col.next), o.id)} style={{ flex: 1, height: 36, border: 'none', borderRadius: 9, background: col.btnBg, color: col.btnColor, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{col.btn}</button>

@@ -17,7 +17,7 @@ const ICONS: Record<string, string> = {
 };
 const NAV: { label: string; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['fahrer', 'Fahrer']] },
-  { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['zahlungen', 'Zahlungen']] },
+  { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
 const META: Record<string, [string, string]> = {

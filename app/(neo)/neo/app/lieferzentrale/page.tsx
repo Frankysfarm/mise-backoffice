@@ -9,7 +9,13 @@ export default async function Lieferzentrale() {
   const { data: loc } = await supabase.from('locations').select('id, kitchen_token').eq('id', emp?.location_id ?? '').maybeSingle();
   const url = loc?.kitchen_token ? `https://mise-gastro.de/kuche/${loc.kitchen_token}` : '';
   const qr = url ? await QRCode.toDataURL(url, { width: 108, margin: 0, color: { dark: '#0F172A', light: '#FFFFFF' } }) : '';
-  const { data: orders } = await supabase.from('customer_orders').select('id, bestellnummer, status, typ, gesamtbetrag, bezahlt, kunde_name, items:order_items(name, menge)').eq('location_id', loc?.id ?? '').in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs']).order('created_at', { ascending: true }).limit(80);
+  const { data: orders } = await supabase
+    .from('customer_orders')
+    .select('id, bestellnummer, status, typ, gesamtbetrag, zwischensumme, bezahlt, kunde_name, voucher_code, voucher_rabatt, reward_items_count, items:order_items(name, menge, einzelpreis, notiz)')
+    .eq('location_id', loc?.id ?? '')
+    .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
+    .order('created_at', { ascending: true })
+    .limit(80);
   const list = (orders ?? []) as any[];
   const open = list.length;
   return (
