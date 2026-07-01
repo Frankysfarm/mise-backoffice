@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–527 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–530 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-07-01): Phase 528–530 — Tour-Routen-Effizienz, Bestell-Wellen-Prognose, Fahrer-Komfort-Score. Build Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 525–527 — Zonen-Sättigung, Küchen-Prioritäts-Board, Fahrer-Erholungs-Tracker. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 522–524 — Zonen-Auslastung-Live, Fahrer-Aktivitäts-Protokoll, Küchen-Stations-Effizienz. Build sauber, Exit 0, 0 TS-Fehler.
 CEO Review #266 (2026-06-30): Phase 519–521 geprüft — 18 TS-Fehler in 5 Dateien gefixt (implicit any + Recharts formatter + Supabase-Join-Cast), Build 366 Seiten, Exit 0, 0 TS-Fehler. MARKT-REIF bestätigt.
@@ -22,6 +23,92 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 528–530 — Tour-Routen-Effizienz, Bestell-Wellen-Prognose, Fahrer-Komfort-Score (DONE ✅)
+
+**Datum:** 2026-07-01
+
+### Phase 528 Backend — Tour-Reihenfolge-Optimierungs-Score API
+
+**`app/api/delivery/admin/tour-route-efficiency/route.ts`:**
+- GET `?location_id=...` → `{ ok, tours: TourRouteEfficiency[], summary: RouteSummary, generatedAt }`
+- TourRouteEfficiency: tourId, driverName, zone, stopCount, currentDistKm, optimalDistKm, efficiencyPct, alertLevel, status
+- alertLevel: optimal (≥90%) / acceptable (≥75%) / suboptimal (≥60%) / poor (<60%)
+- Haversine-Distanz zwischen Stopp-Koordinaten (kunde_lat/lng aus customer_orders)
+- Nearest-Neighbour-Heuristik für optimale Reihenfolge ab erstem Stopp
+- efficiencyPct = optimalDistKm ÷ currentDistKm × 100 (max 100)
+- Pending Stops sortiert nach sort_order aus mise_delivery_batch_stops
+- RouteSummary: activeTours, avgEfficiencyPct, poorTours, totalCurrentDistKm, totalOptimalDistKm
+- Multi-Tenant: alle Queries filtern location_id
+
+### Phase 528 Frontend — DispatchTourRouteEfficiency
+
+**`app/(admin)/dispatch/tour-route-efficiency.tsx`** — `DispatchTourRouteEfficiency`:
+- Props: `locationId`
+- Collapsible Card mit Route-Icon (indigo/rot je Alert-Status)
+- Alert-Banner wenn poorTours > 0 (rot, mit Anzahl betroffener Touren)
+- 3-KPI-Header: Aktive Touren / Ø Effizienz / Gesamt-Distanz
+- Tour-Liste (sortiert aufsteigend nach Effizienz): Fahrername + Zone + Badge + Ist/Optimal-Distanz + Einsparpotenzial
+- Effizienz-Balken farbkodiert: grün=optimal / blau=akzeptabel / amber=suboptimal / rot=schlecht
+- Check-/Alert-Icon je Tour
+- 60s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchZoneSaturation ✅
+
+### Phase 529 Backend — Bestellungs-Wellen-Prognose API
+
+**`app/api/delivery/admin/order-wave-forecast/route.ts`:**
+- GET `?location_id=...` → `{ ok, slots: WaveSlot[], summary: WaveSummary, generatedAt }`
+- WaveSlot: slotStart, slotEnd, hourLabel, expectedOrders, historicAvg, confidence, intensity
+- intensity: low (<3) / medium (3–7) / high (8–14) / peak (≥15)
+- 8 Slots × 30 Min = 4h Vorausschau ab nächster voller halben Stunde
+- Basis: gleicher Wochentag der letzten 4 Wochen (Lieferbestellungen, nicht storniert)
+- confidence = Anteil der Wochen mit Bestelldaten im Slot (0–100%)
+- WaveSummary: peakSlot, peakExpected, totalExpected4h, highSlots
+- Multi-Tenant: location_id-Filter
+
+### Phase 529 Frontend — KitchenOrderWaveForecast
+
+**`app/(admin)/kitchen/kitchen-order-wave-forecast.tsx`** — `KitchenOrderWaveForecast`:
+- Props: `locationId`
+- Collapsible Card mit Waves-Icon (teal/orange je Peak-Status)
+- 3-KPI-Header: Gesamt-Bestellungen 4h / Peak-Slot + Menge / Hoch-Slots
+- Balken-Diagramm (SVG-frei, flex-based) mit 8 Balken + Werte über Balken + Zeit-Label darunter
+- Slot-Tabelle: Zeit + Balken + Bestellanzahl + Intensitäts-Badge + Konfidenz-Prozent
+- Farbkodierung: blau=ruhig / amber=normal / orange=viel / rot=peak
+- 120s Auto-Refresh, 0 Slots → ausgeblendet
+- Integration: `kitchen/client.tsx` nach KitchenPrioritaetsBoard ✅
+
+### Phase 530 Backend — Fahrer-Komfort-Score API
+
+**`app/api/delivery/driver/komfort-score/route.ts`:**
+- GET `?driver_id=...&location_id=...` → `{ ok, driverId, driverName, komfortScore, scoreLabel, factors, recommendation, generatedAt }`
+- scoreLabel: sehr_gut (≥80) / gut (≥60) / mittel (≥40) / schlecht (<40)
+- Faktoren: Selbstbewertung (0–30), Kundenbewertung (0–40), Schicht-Malus (0–30)
+  - Selbstbewertung: Heute aktuellste driver_feedback.rating (1–5 → 0–30)
+  - Kundenbewertung: Ø customer_orders.driver_rating heute (1–5 → 0–40)
+  - Schicht-Malus: linear ab 4h, max -30 bei 8h+
+- recommendation: Sprache je scoreLabel + Schichtlänge
+- Multi-Tenant: driver validiert via location_id
+
+### Integrations-Checkliste Phase 528–530
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchTourRouteEfficiency | dispatch/tour-route-efficiency.tsx | dispatch/client.tsx nach DispatchZoneSaturation | ✅ |
+| KitchenOrderWaveForecast | kitchen/kitchen-order-wave-forecast.tsx | kitchen/client.tsx nach KitchenPrioritaetsBoard | ✅ |
+| tour-route-efficiency API | app/api/delivery/admin/tour-route-efficiency/route.ts | Neu (GET) | ✅ |
+| order-wave-forecast API | app/api/delivery/admin/order-wave-forecast/route.ts | Neu (GET) | ✅ |
+| komfort-score API | app/api/delivery/driver/komfort-score/route.ts | Neu (GET) | ✅ |
+
+**Build:** Exit 0, 0 TS-Fehler ✅
+
+### Nächste Phasen
+1. **Phase 531 Backend:** Lieferzone-Performance-Delta — Vergleich der aktuellen Wochen-SLA je Zone vs. Vorwoche. API: GET /api/delivery/admin/zone-performance-delta.
+2. **Phase 531 Frontend:** DispatchZonePerformanceDelta — Trendpfeile + Delta-Werte je Zone. Integration: dispatch/client.tsx.
+3. **Phase 532 Backend:** Küchen-Backlog-Prognose — Wie lange bis der aktuelle Backlog abgearbeitet ist? Basis: Durchsatz letzte 30 Min × offene Bestellungen. API: GET /api/delivery/admin/kitchen-backlog-forecast.
+4. **Phase 532 Frontend:** KitchenBacklogForecast — Countdown + Ampel für Küche. Integration: kitchen/client.tsx.
+5. **Phase 533 Backend:** Fahrer-Strecken-Analyse — Gefahrene km je Fahrer heute + Ø je Lieferung + Effizienz vs. Zonen-Distanz-Soll. API: GET /api/delivery/admin/driver-distance-analysis.
 
 ---
 

@@ -219,6 +219,7 @@ import { KitchenEchtzeitStoppuhrTafel } from './echtzeit-stoppuhr-tafel';
 import { KitchenHandoffWartezeitMonitor } from './handoff-wartezeit-monitor';
 import { KitchenStationsEffizienz } from './kitchen-stations-effizienz';
 import { KitchenPrioritaetsBoard } from './kitchen-prioritaets-board';
+import { KitchenOrderWaveForecast } from './kitchen-order-wave-forecast';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1924,6 +1925,8 @@ export function KitchenBoard({
       <KitchenStationsEffizienz locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 526: Küchen-Prioritäts-Board — Score-basierte Priorisierung aktiver Bestellungen */}
       <KitchenPrioritaetsBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 529: Bestell-Wellen-Prognose — 4h-Vorschau auf erwartete Bestellvolumen */}
+      <KitchenOrderWaveForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

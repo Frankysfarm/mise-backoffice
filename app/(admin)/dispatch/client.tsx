@@ -281,6 +281,7 @@ import { DispatchFahrerBroadcastPanel } from './fahrer-broadcast-panel';
 import { DispatchZonenAuslastungLive } from './zonen-auslastung-live';
 import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
 import { DispatchZoneSaturation } from './zone-saturation';
+import { DispatchTourRouteEfficiency } from './tour-route-efficiency';
 
 type Driver = {
   employee_id: string;
@@ -2078,6 +2079,8 @@ export function DispatchBoard({
       <DispatchFahrerAktivitaetsLog locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 525: Zonen-Sättigung — Heute vs. historischer Ø je Zone */}
       <DispatchZoneSaturation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 528: Tour-Routen-Effizienz — Optimierungsgrad der Stop-Reihenfolge je aktiver Tour */}
+      <DispatchTourRouteEfficiency locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
