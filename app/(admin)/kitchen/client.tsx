@@ -220,6 +220,7 @@ import { KitchenHandoffWartezeitMonitor } from './handoff-wartezeit-monitor';
 import { KitchenStationsEffizienz } from './kitchen-stations-effizienz';
 import { KitchenPrioritaetsBoard } from './kitchen-prioritaets-board';
 import { KitchenOrderWaveForecast } from './kitchen-order-wave-forecast';
+import { KitchenBatchCountdown } from './kitchen-batch-countdown';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1927,6 +1928,8 @@ export function KitchenBoard({
       <KitchenPrioritaetsBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 529: Bestell-Wellen-Prognose — 4h-Vorschau auf erwartete Bestellvolumen */}
       <KitchenOrderWaveForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 533: Batch-Fertigstellungs-Countdown — aktive Batches mit Restzeit + Überfälligkeits-Alert */}
+      <KitchenBatchCountdown locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

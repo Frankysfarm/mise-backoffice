@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–530 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–533 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-07-01): Phase 531–533 — Tour-Abschluss-Prognose, Zonen-Qualitäts-Score, Küchen-Batch-Countdown. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-07-01): Phase 528–530 — Tour-Routen-Effizienz, Bestell-Wellen-Prognose, Fahrer-Komfort-Score. Build Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 525–527 — Zonen-Sättigung, Küchen-Prioritäts-Board, Fahrer-Erholungs-Tracker. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 522–524 — Zonen-Auslastung-Live, Fahrer-Aktivitäts-Protokoll, Küchen-Stations-Effizienz. Build sauber, Exit 0, 0 TS-Fehler.
@@ -23,6 +24,89 @@ CEO Review #262 (2026-06-23): Phase 486–492 geprüft — 1 Integration-Bug gef
 Backend-Agent (2026-06-23): Phase 486–492 — Tracking-Token-Refresh, Priority-Override, Driver-Availability-Signal. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 CEO Review #261 (2026-06-23): Phase 483–489 geprüft — 1 TS-Fehler gefixt (tour_reassigned→tour_updated), alle 5 neuen Frontends integriert, Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Agent (2026-06-23): Phase 483–485 — Bewertungs-Widget-Storefront, Batch-Reassign-Dialog, Küchen-Kapazitäts-Config. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+
+---
+
+## Phase 531–533 — Tour-Abschluss-Prognose, Zonen-Qualitäts-Score, Küchen-Batch-Countdown (DONE ✅)
+
+**Datum:** 2026-07-01
+
+### Phase 531 Backend — Tour-Abschluss-Prognose API
+
+**`app/api/delivery/admin/tour-completion-forecast/route.ts`:**
+- GET `?location_id=...` → `{ ok, tours: TourCompletionForecast[], summary: TourForecastSummary, generatedAt }`
+- TourCompletionForecast: tourId, driverName, zone, stopsCompleted, stopsTotal, elapsedMin, avgMinPerStop, forecastCompleteAt, forecastRemainingMin, confidenceLevel, progressPct
+- confidenceLevel: high (≥5 Stopps), medium (2–4), low (<2)
+- Ø Min/Stopp = elapsedMin ÷ stopsCompleted → × verbleibende Stopps = forecastRemainingMin
+- TourForecastSummary: activeTours, avgRemainingMin, soonestCompleteAt, latestCompleteAt
+- Multi-Tenant: location_id-Filter, Status = 'unterwegs'
+
+### Phase 531 Frontend — DispatchTourCompletionForecast
+
+**`app/(admin)/dispatch/tour-completion-forecast.tsx`** — `DispatchTourCompletionForecast`:
+- Props: `locationId`
+- Collapsible Card mit Timer-Icon (indigo)
+- 3-KPI-Header: Aktive Touren / Ø Verbleibend Min / Erste Rückkehr (Uhrzeit)
+- Tour-Liste sortiert nach kürzester Restzeit: Fortschrittsbalken + ETA-Badge + Konfidenz-Chip
+- Farbkodierung: grün=≤10 Min / amber=≤20 Min / normal=mehr
+- 60s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchTourRouteEfficiency ✅
+
+### Phase 532 Backend — Zonen-Qualitäts-Score API
+
+**`app/api/delivery/admin/zone-quality-score/route.ts`:**
+- GET `?location_id=...` → `{ ok, zones: ZoneQualityScore[], summary: ZoneQualitySummary, generatedAt }`
+- ZoneQualityScore: zone, deliveryCount, avgDeliveryMinutes, slaCompliancePct, avgCustomerRating, timingScore (0–40), ratingScore (0–35), slaScore (0–25), qualityScore (0–100), qualityLabel
+- qualityLabel: excellent (≥80) / good (≥60) / average (≥40) / poor (<40)
+- Timing-Score: ≤30 Min=40, ≤45=30, ≤60=20, >60=10
+- Rating-Score: (avg-1)/4 × 35 (linear 1–5 Sterne)
+- SLA-Score: compliancePct ÷ 100 × 25
+- Basis: heutige abgeschlossene Lieferungen (status='delivered')
+- ZoneQualitySummary: topZone, bottomZone, avgQualityScore, totalDeliveries
+
+### Phase 532 Frontend — LieferdienstZoneQualityScoreKarte
+
+**`app/(admin)/lieferdienst/zone-quality-score-karte.tsx`** — `LieferdienstZoneQualityScoreKarte`:
+- Props: `locationId`
+- Collapsible Card mit Trophy-Icon (gelb)
+- 3-KPI-Header: Ø Score / Beste Zone / Lieferungen heute
+- Medaillen (🥇🥈🥉) für Top-3-Zonen
+- Zone-Karten mit Score-Balken + Sub-Scores (Timing/Bewertung/SLA mit Icons)
+- Farbkodierung: grün=excellent / blau=gut / amber=mittel / rot=schwach
+- 90s Auto-Refresh
+- Integration: `lieferdienst/client.tsx` nach LieferdienstOrderFrequenzHeatmap ✅
+
+### Phase 533 Backend — Küchen-Batch-Countdown API
+
+**`app/api/delivery/admin/kitchen-batch-countdown/route.ts`:**
+- GET `?location_id=...` → `{ ok, batches: KitchenBatchCountdown[], summary: BatchCountdownSummary, generatedAt }`
+- KitchenBatchCountdown: batchId, zone, ordersCount, startedAt, estimatedPrepMin, elapsedMin, remainingMin, urgency, status, driverName
+- urgency: on_track (>5 Min verbleibend) / due_soon (1–5 Min) / overdue (≤0 Min)
+- estimatedPrepMin = max(12, ordersCount × prepTimePerOrder aus tenants.prep_time_minutes, default 8)
+- Batches in Status 'vorbereitung' und 'bereit', sortiert: overdue → due_soon → on_track
+- BatchCountdownSummary: activeBatches, overdueCount, dueSoonCount, avgRemainingMin
+
+### Phase 533 Frontend — KitchenBatchCountdown
+
+**`app/(admin)/kitchen/kitchen-batch-countdown.tsx`** — `KitchenBatchCountdown`:
+- Props: `locationId`
+- Collapsible Card mit Timer-Icon (rot wenn überfällig, amber wenn aktiv)
+- Alert-Banner wenn overdueCount > 0 (rot, "X Batches überfällig — Fahrer wartet!")
+- 3-KPI-Header: Aktive Batches / Kritisch (overdue+due_soon) / Ø Restzeit
+- Batch-Liste: Zone + Badges + Fortschrittsbalken (elapsed/estimated) + Restzeit-Countdown
+- Farbkodierung: rot=overdue / amber=due_soon / grün=on_track
+- 30s Auto-Refresh (kürzestes Interval = höchste Dringlichkeit)
+- Integration: `kitchen/client.tsx` nach KitchenOrderWaveForecast ✅
+
+### Integrations-Checkliste Phase 531–533
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| DispatchTourCompletionForecast | dispatch/tour-completion-forecast.tsx | dispatch/client.tsx nach DispatchTourRouteEfficiency | ✅ |
+| LieferdienstZoneQualityScoreKarte | lieferdienst/zone-quality-score-karte.tsx | lieferdienst/client.tsx nach LieferdienstOrderFrequenzHeatmap | ✅ |
+| KitchenBatchCountdown | kitchen/kitchen-batch-countdown.tsx | kitchen/client.tsx nach KitchenOrderWaveForecast | ✅ |
+| tour-completion-forecast API | app/api/delivery/admin/tour-completion-forecast/route.ts | Neu (GET) | ✅ |
+| zone-quality-score API | app/api/delivery/admin/zone-quality-score/route.ts | Neu (GET) | ✅ |
+| kitchen-batch-countdown API | app/api/delivery/admin/kitchen-batch-countdown/route.ts | Neu (GET) | ✅ |
 
 ---
 

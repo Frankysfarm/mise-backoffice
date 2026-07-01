@@ -255,6 +255,7 @@ import { LieferdienstPhase502StatistikKommando } from './phase502-statistik-komm
 import { LieferdienstStornoAnalysePanel } from './storno-analyse-panel';
 import { LieferdienstWochenTrendAnalyse } from './wochen-trend-analyse-panel';
 import { LieferdienstOrderFrequenzHeatmap } from './order-frequenz-heatmap';
+import { LieferdienstZoneQualityScoreKarte } from './zone-quality-score-karte';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1651,6 +1652,8 @@ export function LieferdienstClient() {
                 <LieferdienstWochenTrendAnalyse locationId={locationId} />
                 {/* Phase 520: Bestellfrequenz-Heatmap — 7×24 Wochentag × Stunde Bestellmuster */}
                 <LieferdienstOrderFrequenzHeatmap locationId={locationId} />
+                {/* Phase 532: Zonen-Qualitäts-Score — Timing + Bewertung + SLA je Zone */}
+                <LieferdienstZoneQualityScoreKarte locationId={locationId} />
               </>
             </div>
           )}

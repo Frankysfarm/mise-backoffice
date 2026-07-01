@@ -282,6 +282,7 @@ import { DispatchZonenAuslastungLive } from './zonen-auslastung-live';
 import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
 import { DispatchZoneSaturation } from './zone-saturation';
 import { DispatchTourRouteEfficiency } from './tour-route-efficiency';
+import { DispatchTourCompletionForecast } from './tour-completion-forecast';
 
 type Driver = {
   employee_id: string;
@@ -2081,6 +2082,8 @@ export function DispatchBoard({
       <DispatchZoneSaturation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 528: Tour-Routen-Effizienz — Optimierungsgrad der Stop-Reihenfolge je aktiver Tour */}
       <DispatchTourRouteEfficiency locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 531: Tour-Abschluss-Prognose — ETA für aktive Touren basierend auf Ø Stopp-Zeit */}
+      <DispatchTourCompletionForecast locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
