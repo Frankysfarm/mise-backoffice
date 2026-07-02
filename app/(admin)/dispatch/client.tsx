@@ -283,6 +283,7 @@ import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
 import { DispatchZoneSaturation } from './zone-saturation';
 import { DispatchTourRouteEfficiency } from './tour-route-efficiency';
 import { DispatchTourCompletionForecast } from './tour-completion-forecast';
+import { DispatchTourEffizienzRealtimePanel } from './tour-effizienz-realtime-panel';
 
 type Driver = {
   employee_id: string;
@@ -2088,6 +2089,8 @@ export function DispatchBoard({
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
       <DispatchFahrerBroadcastPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 518: Tour-Effizienz-Echtzeit — km/Lieferung, Min/Stop, Profit je aktiver Tour */}
+      <DispatchTourEffizienzRealtimePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 500: Strategy-Panel — Dispatch-Strategie (Speed/Balance/Spar) + Tour-Gesundheits-Score */}
       <DispatchPhase500StrategyPanel
         batches={batches.map(b => ({
