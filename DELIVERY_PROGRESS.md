@@ -1,8 +1,79 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–533 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
-Backend-Architekt-Agent (2026-07-01): Phase 531–533 — Tour-Abschluss-Prognose, Zonen-Qualitäts-Score, Küchen-Batch-Countdown. Build 366 Seiten, Exit 0, 0 TS-Fehler.
+**Phasen 1–518 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Backend-Architekt-Agent (2026-07-02): Phase 516–518 — Pausen-API, Bestellfluss-Monitor, Tour-Effizienz-Echtzeit. Build 0 TS-Fehler, Exit 0.
+
+---
+
+## Phase 516–518 — Pausen-API, Bestellfluss-Monitor, Tour-Effizienz-Echtzeit (DONE ✅)
+
+**Datum:** 2026-07-02
+
+### Phase 516 Backend — Fahrer-Pausenempfehlung-API
+
+**`app/api/delivery/driver/pausen-empfehlung/route.ts`:**
+- GET `?driver_id=<uuid>` → `{ ok, empfehlung, schichtMinuten }`
+- Liest aktive Schicht aus `driver_shifts` (actual_start / started_at)
+- Schwellwerte: >3h → kurze Pause (hinweis/warnung), >6h → Mittagspause (warnung/kritisch)
+- Fallback: Auth-User → employees → driver_id
+- PausenEmpfehlung: `{ typ, title, text, dringlichkeit, schichtMinuten }`
+- Hinweis: Frontend `FahrerPausenEmpfehlung` aus Phase 371 bereits integriert (Props-basiert)
+
+### Phase 517 Backend + Frontend — Echtzeit-Bestellfluss-Monitor
+
+**`app/api/delivery/admin/bestellfluss-monitor/route.ts`:**
+- GET `?location_id=<uuid>` → `{ ok, currentRatePerHour, capacityPerHour, utilizationPct, alertLevel, onlineDrivers, history, generatedAt }`
+- Online-Fahrer: GPS-Events der letzten 5 Min, dedupliziert
+- Bestellrate: Bestellungen letzte 60 Min
+- Kapazität: onlineDrivers × 3 Bestellungen/Fahrer/Stunde
+- AlertLevel: `'ok' | 'busy' | 'critical'` (>80% / >100%)
+- History: 6×10-Min-Slots der letzten Stunde
+
+**`app/(admin)/kitchen/bestellfluss-monitor-panel.tsx`** — `KitchenBestellflussMonitorPanel`:
+- 3-KPI-Grid: Bestellungen/h / Fahrer online / Auslastung%
+- Horizontaler Gauge-Balken (grün/amber/rot je Level)
+- 60-Min-Balken-History (6 Slots)
+- Alert-Badge + Warn-Text bei busy/critical
+- Collapsible, 60s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach Phase 533 KitchenBatchCountdown ✅
+
+### Phase 518 Backend + Frontend — Tour-Effizienz-Echtzeit
+
+**`app/api/delivery/admin/tour-effizienz-realtime/route.ts`:**
+- GET `?location_id=<uuid>` → `{ ok, touren: TourEffizienzRow[], generatedAt }`
+- Je aktiver Tour: batchId, driverName, stopsGesamt, stopsDone, avgMinProStop, estimatedKm, kmProLieferung, liefergebuehrenEur, fahrerKostenEur, profitEur, elapsedMin
+- GPS-Distanz: Haversine-Formel über driver_gps_events (Ausreißer >50km/Segment ignoriert)
+- Fahrerkosten: 0,20 €/km + 10 €/h
+- Multi-Tenant: alle Queries filtern location_id
+
+**`app/(admin)/dispatch/tour-effizienz-realtime-panel.tsx`** — `DispatchTourEffizienzRealtimePanel`:
+- Tabellarische Echtzeit-Übersicht: Fahrer / Stops / km/Lief. / Min/Stop / Profit
+- Profit-Badge mit TrendingUp/Down/Minus-Icon (grün/rot)
+- Min/Stop Farbkodierung: ≤5 Min grün / ≤10 Min amber / >10 Min rot
+- Collapsible mit ChevronDown/Up
+- 60s Auto-Refresh, Lade-Skeleton
+- Integration: `dispatch/client.tsx` nach Phase 515 FahrerBroadcastPanel ✅
+
+### Integrations-Checkliste Phase 516–518
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| pausen-empfehlung API | app/api/delivery/driver/pausen-empfehlung/route.ts | Neu (GET) | ✅ |
+| KitchenBestellflussMonitorPanel | kitchen/bestellfluss-monitor-panel.tsx | kitchen/client.tsx nach Phase 533 | ✅ |
+| bestellfluss-monitor API | app/api/delivery/admin/bestellfluss-monitor/route.ts | Neu (GET) | ✅ |
+| DispatchTourEffizienzRealtimePanel | dispatch/tour-effizienz-realtime-panel.tsx | dispatch/client.tsx nach Phase 515 | ✅ |
+| tour-effizienz-realtime API | app/api/delivery/admin/tour-effizienz-realtime/route.ts | Neu (GET) | ✅ |
+
+**Build:** 0 TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 519 Backend:** Handoff-Wartezeit-Analyse — Wie lange warten fertige Bestellungen auf Abholung? Alert wenn >10 Min. API: GET /api/delivery/admin/handoff-wartezeit
+2. **Phase 520 Backend:** Fahrer-Routenoptimierung-Score — Wie optimal ist die aktuelle Stopp-Reihenfolge? Score 0–100 je Tour. API: GET /api/delivery/admin/route-opt-score
+3. **Phase 521 Frontend (Kitchen):** Echtzeit-Kapazitäts-Warnung — Farbiges Banner wenn Küche überlastet (>80% aller Stationen beschäftigt). Basiert auf kitchen_capacity_alerts.
+4. **Phase 522 Frontend (Dispatch):** Fahrer-Effizienz-Rangliste — Live-Ranking aller Fahrer nach Tour-Effizienz-Score (km/Lief. × Pünktlichkeit × Stops/h).
+5. **Phase 523 Backend:** Bestell-Muster-Lern-Engine — Lernt Bestell-Peaks je Wochentag/Stunde für intelligentere Kapazitätsplanung. Speichert in tages_muster_snapshots.
+
+---
 Backend-Architekt-Agent (2026-07-01): Phase 528–530 — Tour-Routen-Effizienz, Bestell-Wellen-Prognose, Fahrer-Komfort-Score. Build Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 525–527 — Zonen-Sättigung, Küchen-Prioritäts-Board, Fahrer-Erholungs-Tracker. Build 366 Seiten, Exit 0, 0 TS-Fehler.
 Backend-Architekt-Agent (2026-06-30): Phase 522–524 — Zonen-Auslastung-Live, Fahrer-Aktivitäts-Protokoll, Küchen-Stations-Effizienz. Build sauber, Exit 0, 0 TS-Fehler.
