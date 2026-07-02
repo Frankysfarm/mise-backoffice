@@ -257,6 +257,7 @@ import { LieferdienstStornoAnalysePanel } from './storno-analyse-panel';
 import { LieferdienstWochenTrendAnalyse } from './wochen-trend-analyse-panel';
 import { LieferdienstOrderFrequenzHeatmap } from './order-frequenz-heatmap';
 import { LieferdienstZoneQualityScoreKarte } from './zone-quality-score-karte';
+import { LieferdienstSchichtKpiMatrix } from './schicht-kpi-matrix';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1657,6 +1658,8 @@ export function LieferdienstClient() {
                 <LieferdienstZoneQualityScoreKarte locationId={locationId} />
                 {/* Phase 536: Schicht-Spitzen-Analyse — Stündliche Nachfrageprognose + Fahrer-Besetzungsempfehlung */}
                 <SchichtSpitzenAnalyse locationId={locationId} />
+                {/* Phase 540: Schicht-KPI-Matrix — 6 Echtzeit-KPIs in 2×3 Kacheln: Umsatz, Lieferungen, Pünktlichkeit, Ø Lieferzeit, Fahrer, Storno */}
+                <LieferdienstSchichtKpiMatrix locationId={locationId} />
               </>
             </div>
           )}

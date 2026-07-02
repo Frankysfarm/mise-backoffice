@@ -46,6 +46,7 @@ import { BestellEtaKomfortBanner } from '@/app/order/[locationSlug]/bestell-eta-
 import { EtaLiveProximityBanner } from '@/app/order/[locationSlug]/eta-live-proximity-banner';
 import { Phase500LiveEtaBanner } from '@/app/order/[locationSlug]/phase500-live-eta-banner';
 import { Phase501BestellPhasenKompass } from '@/app/order/[locationSlug]/phase501-bestell-phasen-kompass';
+import { BestellPhasenTimeline } from '@/app/order/[locationSlug]/bestell-phasen-timeline';
 
 type Order = {
   order_id: string;
@@ -502,6 +503,16 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
           </div>
         )}
 
+        {/* Phase 541: Bestell-Phasen-Timeline — Vertikale Fortschrittsleiste mit Check-Markierungen je Bestellphase */}
+        {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
+          <div className="mt-3">
+            <BestellPhasenTimeline
+              status={order.status}
+              etaMin={order.eta_latest ? Math.max(0, Math.round((new Date(order.eta_latest).getTime() - Date.now()) / 60_000)) : null}
+              orderedAt={order.bestellt_am}
+            />
+          </div>
+        )}
         {/* Phase 501: Bestell-Phasen-Kompass — 5-Stufen animierter Kompass (Bestellt→Zubereitung→Fertig→Unterwegs→Geliefert) */}
         {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
           <div className="mt-3">

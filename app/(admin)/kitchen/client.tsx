@@ -223,6 +223,7 @@ import { KitchenOrderWaveForecast } from './kitchen-order-wave-forecast';
 import { KitchenBatchCountdown } from './kitchen-batch-countdown';
 import { KitchenBestellungsPulsStrip } from './bestell-puls-strip';
 import { KitchenBestellflussMonitorPanel } from './bestellfluss-monitor-panel';
+import { KitchenQueueKapazitaetsBoard } from './queue-kapazitaets-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1936,6 +1937,8 @@ export function KitchenBoard({
       {filtered.length > 0 && <KitchenBestellungsPulsStrip orders={filtered} />}
       {/* Phase 517: Bestellfluss-Monitor — Aktuelle Bestellrate vs. Fahrerkapazität mit Alert */}
       <KitchenBestellflussMonitorPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 537: Queue-Kapazitäts-Board — Live-Warteschlangen-Status mit Auslastungs-Ampel + Überfällig-Zähler */}
+      <KitchenQueueKapazitaetsBoard orders={filtered} timings={timings} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

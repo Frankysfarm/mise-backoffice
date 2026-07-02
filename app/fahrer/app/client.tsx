@@ -209,6 +209,7 @@ import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav'
 import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
 import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigator';
 import { FahrerPhase503StoppDetailsKommando } from './phase503-stopp-details-kommando';
+import { FahrerSchichtErtragsMeter } from './schicht-ertrag-meter';
 
 type Driver = {
   id: string;
@@ -2993,6 +2994,12 @@ export function FahrerApp({
           <FahrerWarteAnzeige driverId={driver.id} locationId={driver.location_id} />
         )}
 
+        {/* Phase 539: Schicht-Ertrag-Meter — Einnahmen-Bogen mit Ziel-Fortschritt + Projektions-Prognose */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerSchichtErtragsMeter driverId={driver.id} goalEur={80} />
+          </div>
+        )}
         {/* Phase 501: Live-Verdienst-Tracker — Tagesverdienst, Trinkgeld, Schichtziel-Fortschrittsbalken */}
         {isOnline && (
           <div className="px-4">
