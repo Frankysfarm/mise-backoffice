@@ -258,6 +258,7 @@ import { LieferdienstWochenTrendAnalyse } from './wochen-trend-analyse-panel';
 import { LieferdienstOrderFrequenzHeatmap } from './order-frequenz-heatmap';
 import { LieferdienstZoneQualityScoreKarte } from './zone-quality-score-karte';
 import { LieferdienstSchichtKpiMatrix } from './schicht-kpi-matrix';
+import { LieferdienstTagesUmsatzTracker } from './tages-umsatz-tracker';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1660,6 +1661,8 @@ export function LieferdienstClient() {
                 <SchichtSpitzenAnalyse locationId={locationId} />
                 {/* Phase 540: Schicht-KPI-Matrix — 6 Echtzeit-KPIs in 2×3 Kacheln: Umsatz, Lieferungen, Pünktlichkeit, Ø Lieferzeit, Fahrer, Storno */}
                 <LieferdienstSchichtKpiMatrix locationId={locationId} />
+                {/* Phase 544: Tages-Umsatz-Tracker — Intraday-Umsatz vs. Vortag + Stundenverlauf + Prognose */}
+                <LieferdienstTagesUmsatzTracker locationId={locationId} />
               </>
             </div>
           )}

@@ -224,6 +224,7 @@ import { KitchenBatchCountdown } from './kitchen-batch-countdown';
 import { KitchenBestellungsPulsStrip } from './bestell-puls-strip';
 import { KitchenBestellflussMonitorPanel } from './bestellfluss-monitor-panel';
 import { KitchenQueueKapazitaetsBoard } from './queue-kapazitaets-board';
+import { KitchenProduktivitaetsScore } from './kuechen-produktivitaets-score';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1939,6 +1940,8 @@ export function KitchenBoard({
       <KitchenBestellflussMonitorPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 537: Queue-Kapazitäts-Board — Live-Warteschlangen-Status mit Auslastungs-Ampel + Überfällig-Zähler */}
       <KitchenQueueKapazitaetsBoard orders={filtered} timings={timings} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 542: Küchen-Produktivitäts-Score — Durchsatz + Queue-Gesundheit + Pünktlichkeit als Score 0–100 */}
+      <KitchenProduktivitaetsScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–536 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+**Phasen 1–544 abgeschlossen. Build sauber. Exit 0. 366 Seiten.**
+Backend-Architekt-Agent (2026-07-02): Phase 537–541 (Frontend-Agent), Phase 542–544 (Backend) — Küchen-Produktivitäts-Score, Zonen-Bestelldruck-Monitor, Tages-Umsatz-Tracker. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
 
 - [x] Smart-Timing-Anzeige
@@ -19,6 +20,136 @@ Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (K
 - [x] Touren-Übersicht
 - [x] Fahrer-Management
 - [x] Statistiken-Dashboard
+
+---
+
+## Phase 537–544 — Queue-Board, Tour-Summary, KPI-Matrix, Ertrag-Meter, Phasen-Timeline + Backend 3×API (DONE ✅)
+
+**Datum:** 2026-07-02
+
+### Phase 537 Frontend (Kitchen) — Queue-Kapazitäts-Board
+**`app/(admin)/kitchen/queue-kapazitaets-board.tsx`** — `KitchenQueueKapazitaetsBoard`:
+- Props: `orders: OrderSummary[]`, `timings?: TimingSummary[]`, `locationId?`
+- Auslastungs-Ampel: idle/normal/busy/critical nach Auftragsanzahl
+- Fortschrittsbalken Küchen-Kapazität (0–8 Aufträge = 100%)
+- 3 Slots: Wartend / In Zubereitung / Überfällig
+- Überfällig-Badge (>8 Min in Warteschlange ohne Kochstart)
+- 10s Auto-Tick, ausgeblendet wenn idle
+- Integration: `kitchen/client.tsx` nach KitchenBestellflussMonitorPanel ✅
+
+### Phase 538 Frontend (Dispatch) — Aktive-Tour-Summary
+**`app/(admin)/dispatch/aktive-tour-summary.tsx`** — `DispatchAktiveTourSummary`:
+- Props: `batches: Batch[]`, `drivers?: Driver[]`
+- Gesundheits-Score je Tour: ok/tight/late nach remainMin
+- Fortschrittsbalken + Badge + Restzeit-Anzeige
+- Sortiert: late → tight → ok
+- Collapsible mit Bike-Icon, 15s Auto-Tick
+- Integration: `dispatch/client.tsx` nach DispatchFahrerRueckkehrCountdown ✅
+
+### Phase 539 Frontend (Fahrer-App) — Schicht-Ertrag-Meter
+**`app/fahrer/app/schicht-ertrag-meter.tsx`** — `SchichtErtragMeter`:
+- Fetcht `/api/delivery/driver/earnings?driver_id=...`
+- Einnahmen-Bogen mit Ziel-Fortschritt + Projektions-Prognose
+- Integration: `fahrer/app/client.tsx` ✅
+
+### Phase 540 Frontend (Lieferdienst) — Schicht-KPI-Matrix
+**`app/(admin)/lieferdienst/schicht-kpi-matrix.tsx`** — `LieferdienstSchichtKpiMatrix`:
+- Fetcht `/api/delivery/admin/sla?location_id=...&days=1`
+- 6 Echtzeit-KPIs in 2×3 Kacheln: Umsatz / Lieferungen / Pünktlichkeit / Ø Lieferzeit / Fahrer / Storno
+- Mock-Fallback wenn keine Daten
+- 90s Auto-Refresh
+- Integration: `lieferdienst/client.tsx` nach SchichtSpitzenAnalyse ✅
+
+### Phase 541 Frontend (Storefront) — Bestell-Phasen-Timeline
+**`app/order/[locationSlug]/bestell-phasen-timeline.tsx`** — `BestellPhasenTimeline`:
+- Props: `status, etaMin?, orderedAt?, className?`
+- Vertikale Fortschrittsleiste: Bestellt → Bestätigt → In Zubereitung → Unterwegs → Geliefert
+- Check-Markierungen für abgeschlossene Phasen
+- Integration: `app/track/[bestellnummer]/tracking.tsx` ✅
+
+### Phase 542 Backend — Küchen-Produktivitäts-Score API
+**`app/api/delivery/admin/kuechen-produktivitaets-score/route.ts`:**
+- GET `?location_id=...` → `{ ok, score, label, factors, trend, recommendation, generatedAt }`
+- Score 0–100: Durchsatz (0–40) + Queue-Health (0–30) + Pünktlichkeit (0–30)
+- Durchsatz: Bestellungen letzte 60 Min vs. historischer Schnitt (gleiche Stunde, 7 Tage)
+- Queue-Health: Anteil überfälliger Bestellungen (>8 Min wartend)
+- Pünktlichkeit: tatsaechlich ≤ geschaetzt×1,1 für fertige Bestellungen
+- label: exzellent/gut/mittel/schwach
+- trend: up/down/flat vs. vorherige Stunde
+- recommendation: kontextbezogene Handlungsempfehlung
+
+**`app/(admin)/kitchen/kuechen-produktivitaets-score.tsx`** — `KitchenProduktivitaetsScore`:
+- Props: `locationId?`
+- Collapsible Card mit Gauge-Icon
+- Haupt-Score-Balken + 3 Sub-Score-Balken
+- 3 KPI-Chips: Aufträge/h / Überfällig / Pünktlichkeit%
+- Empfehlung-Banner (rot wenn schwach/überfällig)
+- 60s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach KitchenQueueKapazitaetsBoard ✅
+
+### Phase 543 Backend — Zonen-Bestelldruck-Monitor API
+**`app/api/delivery/admin/zonen-bestelldruck/route.ts`:**
+- GET `?location_id=...` → `{ ok, zones: ZoneBestelldruckRow[], summary, generatedAt }`
+- ZoneBestelldruckRow: zone, openOrders, activeDrivers, pressureRatio, alertLevel, avgWaitMin
+- pressureRatio = openOrders ÷ max(1, activeDrivers)
+- alertLevel: ok (<1,5) / elevated (<3) / high (<5) / critical (≥5)
+- Offene Bestellungen: customer_orders status=neu/bestätigt letzten 4h
+- Aktive Fahrer: delivery_batches aktive Status
+- Summary: criticalZones[], highZones[], overallLevel
+- Multi-Tenant: location_id-Filter
+
+**`app/(admin)/dispatch/zonen-bestelldruck.tsx`** — `DispatchZonenBestelldruckMonitor`:
+- Props: `locationId?`
+- Collapsible mit Flame-Icon (rot bei kritisch)
+- Critical-Alert-Banner wenn Zonen kritisch
+- Zone-Karten: Druck-Ratio + Alert-Badge + Fortschrittsbalken + Warte-Info
+- Farbkodierung: grün/blau/amber/rot je Alert-Level
+- 30s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchAktiveTourSummary ✅
+
+### Phase 544 Backend — Tages-Umsatz-Tracker API
+**`app/api/delivery/admin/tages-umsatz-tracker/route.ts`:**
+- GET `?location_id=...` → `{ ok, umsatzHeute, umsatzGestern, trendPct, projektionTagesende, stunden, generatedAt }`
+- umsatzHeute: Summe gesamtbetrag aller Lieferbestellungen heute (nicht storniert)
+- umsatzGestern: Gleicher Zeitraum gestern (bis zur aktuellen Uhrzeit)
+- trendPct: (heute - gestern) / gestern × 100
+- projektionTagesende: Ø letzter 2h × verbleibende Stunden bis 22 Uhr
+- stunden: Stundenbuckets 10–22 Uhr mit Umsatz + Bestellanzahl + isCurrent-Flag
+- Parallel-Queries für heute + gestern
+
+**`app/(admin)/lieferdienst/tages-umsatz-tracker.tsx`** — `LieferdienstTagesUmsatzTracker`:
+- Props: `locationId?`
+- Collapsible mit Euro-Icon (emerald)
+- 3-KPI-Grid: Heute / Gestern / Prognose
+- Trend-Badge mit +/- Prozent vs. Vortag
+- Stunden-Balken-Diagramm 10–22 Uhr (aktuelle Stunde grün)
+- Hover-Tooltip: Uhrzeit + Umsatz + Bestellanzahl
+- 120s Auto-Refresh
+- Integration: `lieferdienst/client.tsx` nach LieferdienstSchichtKpiMatrix ✅
+
+### Integrations-Checkliste Phase 537–544
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenQueueKapazitaetsBoard | kitchen/queue-kapazitaets-board.tsx | kitchen/client.tsx nach BestellflussMonitorPanel | ✅ |
+| DispatchAktiveTourSummary | dispatch/aktive-tour-summary.tsx | dispatch/client.tsx nach FahrerRueckkehrCountdown | ✅ |
+| SchichtErtragMeter | fahrer/app/schicht-ertrag-meter.tsx | fahrer/app/client.tsx | ✅ |
+| LieferdienstSchichtKpiMatrix | lieferdienst/schicht-kpi-matrix.tsx | lieferdienst/client.tsx nach SchichtSpitzenAnalyse | ✅ |
+| BestellPhasenTimeline | order/[locationSlug]/bestell-phasen-timeline.tsx | track/[bestellnummer]/tracking.tsx | ✅ |
+| kuechen-produktivitaets-score API | app/api/delivery/admin/kuechen-produktivitaets-score/route.ts | Neu (GET) | ✅ |
+| KitchenProduktivitaetsScore | kitchen/kuechen-produktivitaets-score.tsx | kitchen/client.tsx nach QueueKapazitaetsBoard | ✅ |
+| zonen-bestelldruck API | app/api/delivery/admin/zonen-bestelldruck/route.ts | Neu (GET) | ✅ |
+| DispatchZonenBestelldruckMonitor | dispatch/zonen-bestelldruck.tsx | dispatch/client.tsx nach AktiveTourSummary | ✅ |
+| tages-umsatz-tracker API | app/api/delivery/admin/tages-umsatz-tracker/route.ts | Neu (GET) | ✅ |
+| LieferdienstTagesUmsatzTracker | lieferdienst/tages-umsatz-tracker.tsx | lieferdienst/client.tsx nach SchichtKpiMatrix | ✅ |
+
+**Build:** 366 Seiten, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 545 Backend:** Fahrer-Verfügbarkeits-Prognose — Vorhersage wie viele Fahrer die nächsten 4h verfügbar sind, basierend auf geplanten Schichten. API: GET /api/delivery/admin/fahrer-verfuegbarkeits-prognose
+2. **Phase 546 Backend:** Küchen-Backlog-Klarierungszeit — Wie lange braucht die Küche, um den aktuellen Rückstand aufzuarbeiten? Basis: Ø Zubereitungszeit × offene Aufträge. API: GET /api/delivery/admin/kuechen-backlog-klarierung
+3. **Phase 547 Frontend (Kitchen):** EchtZeit-Kapazitäts-Ampel — Farbiges 3-Stufen-Banner (grün/amber/rot) wenn Küche überlastet. Basis: Kombination aus Produktivitäts-Score + Queue-Depth.
+4. **Phase 548 Frontend (Dispatch):** Zonen-Einsatz-Empfehlung — Empfiehlt wo Fahrer als nächstes eingesetzt werden sollten. Basis: Zonen-Bestelldruck + verfügbare Fahrer.
+5. **Phase 549 Frontend (Lieferdienst):** Wochenend-Peak-Warnung — Alert wenn historische Daten Wochenend-Peak vorhersagen und Kapazität nicht ausreicht.
 
 ---
 
