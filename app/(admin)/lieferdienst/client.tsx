@@ -197,6 +197,7 @@ import { LieferdienstTourStoppPünktlichkeitsCockpit } from './tour-stopp-puenkt
 import { DeliveryStatsCompact } from './delivery-stats-compact'
 import { TagesKpiAbschluss } from './tages-kpi-abschluss';
 import { EmergencyCapacityPanel } from './emergency-capacity-panel';
+import { SchichtSpitzenAnalyse } from './schicht-spitzen-analyse';
 import { MultiLocationOverview } from './multi-location-overview';
 import { SchichtUmsatzKumulativ } from './schicht-umsatz-kumulativ';
 import { SchichtVergleichEnginePanel } from './schicht-vergleich-engine';
@@ -1654,6 +1655,8 @@ export function LieferdienstClient() {
                 <LieferdienstOrderFrequenzHeatmap locationId={locationId} />
                 {/* Phase 532: Zonen-Qualitäts-Score — Timing + Bewertung + SLA je Zone */}
                 <LieferdienstZoneQualityScoreKarte locationId={locationId} />
+                {/* Phase 536: Schicht-Spitzen-Analyse — Stündliche Nachfrageprognose + Fahrer-Besetzungsempfehlung */}
+                <SchichtSpitzenAnalyse locationId={locationId} />
               </>
             </div>
           )}

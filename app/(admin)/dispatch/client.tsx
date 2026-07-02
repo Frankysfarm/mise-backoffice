@@ -283,6 +283,7 @@ import { DispatchFahrerAktivitaetsLog } from './fahrer-aktivitaets-log';
 import { DispatchZoneSaturation } from './zone-saturation';
 import { DispatchTourRouteEfficiency } from './tour-route-efficiency';
 import { DispatchTourCompletionForecast } from './tour-completion-forecast';
+import { DispatchFahrerRueckkehrCountdown } from './fahrer-rueckkehr-countdown';
 import { DispatchTourEffizienzRealtimePanel } from './tour-effizienz-realtime-panel';
 
 type Driver = {
@@ -2085,6 +2086,8 @@ export function DispatchBoard({
       <DispatchTourRouteEfficiency locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 531: Tour-Abschluss-Prognose — ETA für aktive Touren basierend auf Ø Stopp-Zeit */}
       <DispatchTourCompletionForecast locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 535: Fahrer-Rückkehr-Countdown — sortiertes Rückkehr-Board je Fahrer (grün/amber nach ETA) */}
+      <DispatchFahrerRueckkehrCountdown batches={batches} drivers={drivers} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

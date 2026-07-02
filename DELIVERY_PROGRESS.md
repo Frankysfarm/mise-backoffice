@@ -1,8 +1,73 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–518 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
-Backend-Architekt-Agent (2026-07-02): Phase 516–518 — Pausen-API, Bestellfluss-Monitor, Tour-Effizienz-Echtzeit. Build 0 TS-Fehler, Exit 0.
+**Phasen 1–536 abgeschlossen. Build sauber. Exit 0. 0 TypeScript-Fehler. 0 Bugs.**
+Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
+
+- [x] Smart-Timing-Anzeige
+- [x] Countdown bis Fahrer
+- [x] Farbcodierung Grün/Gelb/Rot
+- [x] Realtime Updates
+- [x] Tour-Übersicht mit Stops
+- [x] Karten-Ansicht
+- [x] Navigation-Links
+- [x] GPS-Tracking
+- [x] Dynamische ETA-Anzeige
+- [x] Live-Tracking Fahrer
+- [x] Realtime Status
+- [x] Zonen-Konfiguration
+- [x] Touren-Übersicht
+- [x] Fahrer-Management
+- [x] Statistiken-Dashboard
+
+---
+
+## Phase 534–536 — Bestell-Puls-Strip, Fahrer-Rückkehr-Countdown, Schicht-Spitzen-Analyse (DONE ✅)
+
+**Datum:** 2026-07-02
+
+### Phase 534 Frontend (Kitchen) — Bestell-Puls-Strip
+
+**`app/(admin)/kitchen/bestell-puls-strip.tsx`** — `KitchenBestellungsPulsStrip`:
+- Props: `orders: Order[]`
+- Live-Puls-Dot (animierend grün/amber/rot nach Auslastung)
+- Bestellrate/h aus 5-Min-Sliding-Window × 12
+- Trend-Pfeil (TrendingUp/Down/Minus) vs. vorheriger Wert
+- Anzahl Bestellungen in Zubereitung + Ø Prep-Zeit
+- Statuslabel: Hochbetrieb / Normalbetrieb / Ruhig
+- Integration: `kitchen/client.tsx` nach KitchenBatchCountdown ✅
+
+### Phase 535 Frontend (Dispatch) — Fahrer-Rückkehr-Countdown
+
+**`app/(admin)/dispatch/fahrer-rueckkehr-countdown.tsx`** — `DispatchFahrerRueckkehrCountdown`:
+- Props: `batches: Batch[]`, `drivers?: any[]`
+- Sortierte Liste aktiver Fahrer nach Rückkehr-ETA (kürzeste zuerst)
+- Farbkodierung: grün=≤5 Min / amber=≤15 Min / normal=mehr
+- Kachel je Fahrer: Name + Zone + Stopps offen + ETA-Uhrzeit + Restminuten
+- Collapsible Card mit Home-Icon
+- "Bald"-Badge im Header bei Fahrern ≤15 Min Rückkehr
+- 30s Tick via useEffect
+- Integration: `dispatch/client.tsx` nach DispatchTourCompletionForecast ✅
+
+### Phase 536 Frontend (Lieferdienst) — Schicht-Spitzen-Analyse
+
+**`app/(admin)/lieferdienst/schicht-spitzen-analyse.tsx`** — `SchichtSpitzenAnalyse`:
+- Props: `locationId: string | null`
+- Fetcht `/api/delivery/admin/tages-muster?wochentag=<DOW>`, Mock-Fallback wenn leer
+- Balkendiagramm 10–22 Uhr (Recharts BarChart): violet=aktuell / amber=Stoßzeit / grün=normal
+- 3 KPI-Kacheln: Stoßzeiten / Max-Fahrer / Jetzt-Rate
+- Empfehlung-Panel: Fahrer-Besetzung je Stoßzeit-Stunde (≥N Fahrer)
+- Collapsible mit TrendingUp-Icon (violet)
+- Mock-Daten ohne API: stündliche Schätzung 10–22 Uhr
+- 60s-Tick zur Aktualisierung der isCurrent-Markierung
+- Integration: `lieferdienst/client.tsx` nach LieferdienstZoneQualityScoreKarte ✅
+
+### Integrations-Checkliste Phase 534–536
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenBestellungsPulsStrip | kitchen/bestell-puls-strip.tsx | kitchen/client.tsx nach KitchenBatchCountdown | ✅ |
+| DispatchFahrerRueckkehrCountdown | dispatch/fahrer-rueckkehr-countdown.tsx | dispatch/client.tsx nach DispatchTourCompletionForecast | ✅ |
+| SchichtSpitzenAnalyse | lieferdienst/schicht-spitzen-analyse.tsx | lieferdienst/client.tsx nach LieferdienstZoneQualityScoreKarte | ✅ |
 
 ---
 
