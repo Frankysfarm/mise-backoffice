@@ -72,6 +72,7 @@ import { BestellTeilenWidget } from './bestell-teilen-widget';
 import { BestellungEchtzeitCountdown } from './bestellung-echtzeit-countdown';
 import { EtaConfidenceCard } from './eta-confidence-card';
 import { VerzoegerungsInfoBanner } from './verzoegerungs-info-banner';
+import { LiveEtaFahrerPanel } from './live-eta-fahrer-panel';
 
 type Props = {
   location: Location;
@@ -515,6 +516,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <BestPhaseTimer
               orderId={orderSuccess.orderId}
               estimatedMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+            />
+          </div>
+        )}
+        {/* Phase 551: Live-ETA-Fahrer-Panel — Dynamische ETA + Phase-Timeline + Progress-Ring */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <LiveEtaFahrerPanel
+              orderId={orderSuccess.orderId}
+              phase="bestätigt"
+              etaMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+              progressPct={orderSuccess.eta > 0 ? Math.max(5, Math.min(95, (1 - orderSuccess.eta / 45) * 100)) : 10}
             />
           </div>
         )}

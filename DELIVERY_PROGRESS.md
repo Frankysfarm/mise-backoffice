@@ -9377,3 +9377,109 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 5. **Phase 518 Backend:** Tour-Effizienz-Echtzeit-API — Für jede aktive Tour: Ø km/Lieferung, Ø Min/Stop, Profitabilität (Liefergebühren – Fahrerkosten). API: GET /api/delivery/admin/tour-effizienz-realtime.
 
 ---
+
+## Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz, Peak-Warnung, Tour-Stopp-Nav, Live-ETA (DONE ✅)
+
+**Datum:** 2026-07-03
+
+### Phase 545 Backend — Fahrer-Verfügbarkeits-Prognose-API
+
+**`app/api/delivery/admin/fahrer-verfuegbarkeits-prognose/route.ts`:**
+- GET `?location_id=...` → `{ ok, slots: AvailabilitySlot[], summary: AvailabilitySummary, generatedAt }`
+- 4h-Vorausschau: nächste 4 Stunden in 1h-Slots
+- Online-Fahrer: GPS-Events letzte 5 Min, dedupliziert
+- Geplante Fahrer: Schichten die den Slot überdecken (aus `schichten`-Tabelle)
+- Available = max(planned, online) je Slot
+- Level: kritisch (0) / niedrig (1) / ausreichend (2-3) / gut (4+)
+- Alert-Level: kritisch/niedrig/ok je Gesamt-Minimum
+
+### Phase 546 Backend — Küchen-Backlog-Klarierungszeit-API
+
+**`app/api/delivery/admin/kuechen-backlog-klarierung/route.ts`:**
+- GET `?location_id=...` → `{ ok, data: BacklogData, generatedAt }`
+- Offene Bestellungen (neu, bestätigt, in_zubereitung)
+- Ø Prep-Zeit aus kitchen_timings oder Fallback auf geschaetzte_zubereitung_min
+- Klarierungszeit = Ø Prep × offene Aufträge / Kapazitätsfaktor (2 Stationen)
+- Überfällige Zählung (>5 Min über Zielzeit)
+- Urgency: niedrig/mittel/hoch/kritisch + Empfehlung
+- Empfehlung bei kritisch: Extra-Station oder Annahme-Stopp
+
+### Phase 547 Frontend (Kitchen) — EchtZeit-Kapazitäts-Ampel
+
+**`app/(admin)/kitchen/echtzeit-kapazitaets-ampel.tsx`** — `KitchenEchtzeitKapazitaetsAmpel`:
+- Props: `locationId`
+- 3-stufige Farbkodierung: matcha-grün / blau / amber / rot nach Urgency
+- Animierter Puls-Dot bei hoch/kritisch (animate-ping)
+- Zeigt: Urgency-Label, Klarierungszeit-Badge, Überfällig-Zähler
+- Kompaktes Banner-Format (keine Card) — immer sichtbar
+- 30s Auto-Refresh
+- Integration: `kitchen/client.tsx` nach KitchenProduktivitaetsScore ✅
+
+### Phase 548 Frontend (Dispatch) — Zonen-Einsatz-Empfehlung
+
+**`app/(admin)/dispatch/zonen-einsatz-empfehlung.tsx`** — `DispatchZonenEinsatzEmpfehlung`:
+- Props: `locationId`
+- Kombiniert Zonen-Bestelldruck (Phase 543) + Fahrer-Verfügbarkeits-Prognose (Phase 545)
+- Top-4 kritische/hohe Zonen nach Druck-Ratio sortiert mit Prioritätsnummer
+- Fahrer-Summary-Row: Jetzt online + nächste Stunde verfügbar
+- Collapsible Card mit Urgent-Counter im Header
+- 60s Auto-Refresh
+- Integration: `dispatch/client.tsx` nach DispatchZonenBestelldruckMonitor ✅
+
+### Phase 549 Frontend (Lieferdienst) — Wochenend-Peak-Warnung
+
+**`app/(admin)/lieferdienst/wochenend-peak-warnung.tsx`** — `LieferdienstWochenenPeakWarnung`:
+- Props: `locationId`
+- Nur angezeigt an Wochenenden (Fr/Sa/So) oder bei Kapazitätsproblem
+- 4-Level-Warnsystem: none/niedrig/hoch/kritisch
+- Summary-Kacheln: Jetzt online / Ø 4h-Prognose / Min. verfügbar
+- Stunden-Balken-Chart der nächsten 4h mit Level-Farbcodierung
+- Konkrete Empfehlung bei hoch/kritisch
+- Farbiger Header passend zum Warn-Level
+- 120s Auto-Refresh
+- Integration: `lieferdienst/client.tsx` nach LieferdienstTagesUmsatzTracker ✅
+
+### Phase 550 Frontend (Fahrer-App) — Tour-Stopp-Schnell-Navigator
+
+**`app/fahrer/app/tour-stopp-schnell-nav.tsx`** — `TourStoppSchnellNav`:
+- Props: `stops, currentStopId, onNavigate, onConfirmDelivery, onCallCustomer`
+- Sortierte Stopp-Liste mit Position-Badge + Done/Current/Pending State
+- Progress-Bar über alle Stopps (X/Y fertig)
+- Tap-to-expand je Stopp: Bestell-Details + 3 Action-Buttons (Navigieren/Anrufen/Geliefert)
+- ETA je Stopp wenn vorhanden
+- Mobile-first: große Tap-Targets, kompaktes Design
+- Navigations-Button öffnet Google Maps mit Adresse
+- Integration: `fahrer/app/client.tsx` nach FahrerPhase503StoppDetailsKommando ✅
+
+### Phase 551 Frontend (Storefront) — Live-ETA-Fahrer-Panel
+
+**`app/order/[locationSlug]/live-eta-fahrer-panel.tsx`** — `LiveEtaFahrerPanel`:
+- Props: `orderId, phase, etaMin, driverName, progressPct`
+- Dunkler Header mit großer ETA-Zahl + Progress-Ring (SVG, grün/weiß)
+- 5-Phasen-Timeline: Bestätigt → In Zubereitung → Fertig → Unterwegs → Geliefert
+- Visueller Fortschritt: Linie + Punkte mit Check-Icons für abgeschlossene Phasen
+- ETA count-down: läuft lokal jede Minute runter
+- Delivered-State: Grüner Header, 100% Ring, ✓-Zeichen
+- Integration: `storefront.tsx` im Erfolgs-Screen vor LiveOrderKompass ✅
+
+### Integrations-Checkliste Phase 545–551
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| FahrerVerfuegbarkeitPrognose API | api/delivery/admin/fahrer-verfuegbarkeits-prognose/route.ts | Neu (GET) | ✅ |
+| KuechenBacklogKlaerung API | api/delivery/admin/kuechen-backlog-klarierung/route.ts | Neu (GET) | ✅ |
+| KitchenEchtzeitKapazitaetsAmpel | kitchen/echtzeit-kapazitaets-ampel.tsx | kitchen/client.tsx nach ProduktivitaetsScore | ✅ |
+| DispatchZonenEinsatzEmpfehlung | dispatch/zonen-einsatz-empfehlung.tsx | dispatch/client.tsx nach ZonenBestelldruckMonitor | ✅ |
+| LieferdienstWochenenPeakWarnung | lieferdienst/wochenend-peak-warnung.tsx | lieferdienst/client.tsx nach TagesUmsatzTracker | ✅ |
+| TourStoppSchnellNav | fahrer/app/tour-stopp-schnell-nav.tsx | fahrer/app/client.tsx nach Phase503 | ✅ |
+| LiveEtaFahrerPanel | order/[locationSlug]/live-eta-fahrer-panel.tsx | storefront.tsx im Erfolgs-Screen | ✅ |
+
+**Build:** 366 Seiten, 0 TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 552 Backend:** Schicht-Rentabilitäts-API — Echtzeitberechnung Umsatz minus Fahrerkosten minus Fixkosten je Schicht. GET /api/delivery/admin/schicht-rentabilitaet
+2. **Phase 553 Backend:** Kunden-Wartezeit-Tracker — Ø Wartezeit aktueller Kunden (Bestellung bis Lieferung) mit Alert bei >45 Min. GET /api/delivery/admin/kunden-wartezeit-live
+3. **Phase 554 Frontend (Kitchen):** Batch-Koordinations-Cockpit — Übersicht aller aktiven Batches mit Kochstart-Status, Fahrer-ETA, Handoff-Ampel in einem Panel.
+4. **Phase 555 Frontend (Dispatch):** Echtzeit-SLA-Breach-Detector — Zeigt Touren, bei denen SLA-Verletzung droht (ETA > versprochene Zeit). Alert + Handlungsempfehlung.
+5. **Phase 556 Frontend (Storefront):** Wetter-Verzögerungshinweis — Automatischer Banner wenn schlechtes Wetter erwartet wird und Lieferzeit erhöht ist.
+
+---

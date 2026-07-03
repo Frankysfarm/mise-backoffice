@@ -210,6 +210,7 @@ import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
 import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigator';
 import { FahrerPhase503StoppDetailsKommando } from './phase503-stopp-details-kommando';
 import { FahrerSchichtErtragsMeter } from './schicht-ertrag-meter';
+import { TourStoppSchnellNav } from './tour-stopp-schnell-nav';
 
 type Driver = {
   id: string;
@@ -3060,6 +3061,31 @@ export function FahrerApp({
                 } : null,
               }))}
               totalStops={activeBatch.stops.length}
+            />
+          </div>
+        )}
+        {/* Phase 550: Tour-Stopp-Schnell-Nav — Alle Stopps mit Status, ETA, Navigation, Bestätigung */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <TourStoppSchnellNav
+              stops={activeBatch.stops.map((s, i) => ({
+                id: s.id,
+                position: s.reihenfolge ?? i + 1,
+                adresse: s.order?.kunde_adresse ?? '',
+                plz: (s.order as any)?.kunde_plz ?? null,
+                bestellnummer: s.order?.bestellnummer ?? '',
+                kunde_name: s.order?.kunde_name ?? 'Kunde',
+                kunde_telefon: (s.order as any)?.kunde_telefon ?? null,
+                gesamtbetrag: s.order?.gesamtbetrag ?? undefined,
+                zahlungsart: (s.order as any)?.zahlungsart ?? undefined,
+                geliefert_am: s.geliefert_am ?? null,
+                notiz: (s.order as any)?.kunde_notiz ?? null,
+              }))}
+              onNavigate={(stop) => {
+                const addr = encodeURIComponent(stop.adresse + (stop.plz ? ` ${stop.plz}` : ''));
+                window.open(`https://maps.google.com/maps?q=${addr}`, '_blank');
+              }}
+              onCallCustomer={(phone) => window.open(`tel:${phone}`)}
             />
           </div>
         )}

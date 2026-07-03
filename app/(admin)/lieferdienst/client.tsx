@@ -259,6 +259,7 @@ import { LieferdienstOrderFrequenzHeatmap } from './order-frequenz-heatmap';
 import { LieferdienstZoneQualityScoreKarte } from './zone-quality-score-karte';
 import { LieferdienstSchichtKpiMatrix } from './schicht-kpi-matrix';
 import { LieferdienstTagesUmsatzTracker } from './tages-umsatz-tracker';
+import { LieferdienstWochenenPeakWarnung } from './wochenend-peak-warnung';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1663,6 +1664,8 @@ export function LieferdienstClient() {
                 <LieferdienstSchichtKpiMatrix locationId={locationId} />
                 {/* Phase 544: Tages-Umsatz-Tracker — Intraday-Umsatz vs. Vortag + Stundenverlauf + Prognose */}
                 <LieferdienstTagesUmsatzTracker locationId={locationId} />
+                {/* Phase 549: Wochenend-Peak-Warnung — Kapazitäts-Alert wenn Wochenend-Peak erwartet wird */}
+                <LieferdienstWochenenPeakWarnung locationId={locationId} />
               </>
             </div>
           )}

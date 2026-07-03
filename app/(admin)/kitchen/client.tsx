@@ -225,6 +225,7 @@ import { KitchenBestellungsPulsStrip } from './bestell-puls-strip';
 import { KitchenBestellflussMonitorPanel } from './bestellfluss-monitor-panel';
 import { KitchenQueueKapazitaetsBoard } from './queue-kapazitaets-board';
 import { KitchenProduktivitaetsScore } from './kuechen-produktivitaets-score';
+import { KitchenEchtzeitKapazitaetsAmpel } from './echtzeit-kapazitaets-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1942,6 +1943,8 @@ export function KitchenBoard({
       <KitchenQueueKapazitaetsBoard orders={filtered} timings={timings} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 542: Küchen-Produktivitäts-Score — Durchsatz + Queue-Gesundheit + Pünktlichkeit als Score 0–100 */}
       <KitchenProduktivitaetsScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 547: EchtZeit-Kapazitäts-Ampel — Farbkodierung Küchen-Last aus Backlog-Klarierungszeit */}
+      <KitchenEchtzeitKapazitaetsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

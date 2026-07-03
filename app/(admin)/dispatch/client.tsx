@@ -287,6 +287,7 @@ import { DispatchFahrerRueckkehrCountdown } from './fahrer-rueckkehr-countdown';
 import { DispatchTourEffizienzRealtimePanel } from './tour-effizienz-realtime-panel';
 import { DispatchAktiveTourSummary } from './aktive-tour-summary';
 import { DispatchZonenBestelldruckMonitor } from './zonen-bestelldruck';
+import { DispatchZonenEinsatzEmpfehlung } from './zonen-einsatz-empfehlung';
 
 type Driver = {
   employee_id: string;
@@ -2094,6 +2095,8 @@ export function DispatchBoard({
       <DispatchAktiveTourSummary batches={batches} drivers={drivers} />
       {/* Phase 543: Zonen-Bestelldruck — Verhältnis offene Bestellungen zu Fahrern je Zone mit Alert-Levels */}
       <DispatchZonenBestelldruckMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 548: Zonen-Einsatz-Empfehlung — Optimale Fahrer-Zuteilung basierend auf Zonen-Druck + Verfügbarkeit */}
+      <DispatchZonenEinsatzEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
