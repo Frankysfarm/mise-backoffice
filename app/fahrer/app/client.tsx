@@ -3070,8 +3070,8 @@ export function FahrerApp({
           <div className="px-4">
             <FahrerPhase551AktuellerStoppFokus
               activeBatch={activeBatch as any}
-              onMarkDelivered={async (stopId, orderId) => {
-                startTransition(() => {});
+              onMarkDelivered={async (stopId) => {
+                await markDelivered(stopId);
               }}
             />
           </div>

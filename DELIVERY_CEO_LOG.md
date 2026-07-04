@@ -1,7 +1,81 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–521 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). 0 TypeScript-Fehler. Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–553 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #267 — Phase 545–553 geprüft, 1 Bug gefixt, Build 366 Seiten sauber (2026-07-04)
+
+### Commits geprüft
+- `9f1ace8` — Phase 549–553: Kochziel-Kommando, Tour-Effizienz-Matrix, Stopp-Fokus, Kennzahlen-Hub
+- `ef3abbc` — Phase 545–551: Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel
+- `d4e6edc` — Phase 542–544: Küchen-Produktivitäts-Score, Zonen-Bestelldruck, Tages-Umsatz-Tracker
+
+### Build-Status
+- `npx next build` → **366 Seiten, Exit 0** ✅
+- TypeScript ignoriert im Build (ignoreBuildErrors: true) — pre-existing condition
+
+### Neue Komponenten verifiziert
+
+#### Phase 545 (Backend) — `/api/delivery/admin/fahrer-verfuegbarkeits-prognose`
+- 4h-Vorausschau: GPS-Online + geplante Schichten je Stunden-Slot
+- Verwendet von: `zonen-einsatz-empfehlung.tsx` + `wochenend-peak-warnung.tsx` ✅
+
+#### Phase 546 (Backend) — `/api/delivery/admin/kuechen-backlog-klarierung`
+- Berechnet Klarierungszeit: Ø Prep-Zeit × offene Aufträge / Kapazitätsfaktor
+- Verwendet von: `echtzeit-kapazitaets-ampel.tsx` ✅
+
+#### Phase 547 (Frontend Kitchen) — `echtzeit-kapazitaets-ampel.tsx`
+- 4-Stufen-Banner: matcha/blau/amber/rot + Puls bei Überlastung ✅
+
+#### Phase 548 (Frontend Dispatch) — `zonen-einsatz-empfehlung.tsx`
+- Kombiniert Zonen-Bestelldruck + Fahrer-Verfügbarkeit, Top-4 Prioritätszonen ✅
+
+#### Phase 549 (Frontend Lieferdienst) — `wochenend-peak-warnung.tsx`
+- Wochenend-Kapazitäts-Alert Fr/Sa/So mit Stunden-Balken-Chart ✅
+
+#### Phase 549 (Frontend Kitchen) — `phase549-kochziel-kommando.tsx`
+- Top-3 dringendste Bestellungen, Sekundengenau, Ein-Tap Kochstart/Fertig ✅
+- Integration `kitchen/client.tsx:1950` mit echten `onStartCooking`/`onMarkReady` Callbacks ✅
+
+#### Phase 549 (Frontend Dispatch) — `phase549-tour-live-effizienz-matrix.tsx`
+- Kompakte Matrix aller aktiven Touren, Pünktlichkeitsampel, Fortschrittsbalken ✅
+
+#### Phase 550 (Frontend Fahrer-App) — `tour-stopp-schnell-nav.tsx`
+- Mobile-first Stopp-Liste, Tap-to-expand, Navigation/Anruf/Geliefert ✅
+
+#### Phase 551 (Frontend Fahrer-App) — `phase551-aktueller-stopp-fokus.tsx`
+- Ultra-fokussierte Karte: Adresse, Zahlung, Navigation, ETA-Countdown ✅
+
+#### Phase 551 (Frontend Storefront) — `live-eta-fahrer-panel.tsx`
+- SVG-Progress-Ring + 5-Phasen-Timeline auf Erfolgs-Screen ✅
+
+#### Phase 553 (Frontend Lieferdienst) — `phase553-echtzeit-kennzahlen-hub.tsx`
+- Live-Dashboard mit 8 KPI-Kacheln, Polling alle 60s, Supabase-Fallback ✅
+
+### Bug gefixt
+
+#### Bug — Leere onMarkDelivered-Callback in Phase 551 (fahrer/app/client.tsx:3073)
+**Problem:** `onMarkDelivered={async (stopId, orderId) => { startTransition(() => {}); }}` — Callback war leer, Lieferung-Abschluss-Button hatte keine Wirkung.
+**Fix:** Auf echten `markDelivered(stopId)` umgebaut, der Supabase-Update (batch_stops + customer_orders) auslöst.
+
+### Integration-Matrix
+| System | Status |
+|---|---|
+| Kitchen Phase547+549 | ✅ integriert in kitchen/client.tsx |
+| Dispatch Phase548+549 | ✅ integriert in dispatch/client.tsx |
+| Fahrer Phase550+551 | ✅ integriert in fahrer/app/client.tsx |
+| Lieferdienst Phase549+553 | ✅ integriert in lieferdienst/client.tsx |
+| Storefront Phase551 | ✅ integriert in storefront.tsx |
+| Backend APIs Phase545+546 | ✅ Routes vorhanden, von Frontend genutzt |
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+
+### Nächste Phasen für Agents
+- Phase 554+ Backend: weitere Echtzeit-Analytics-APIs
+- Phase 554+ Frontend: weitere Dashboard-Erweiterungen
 
 ---
 
