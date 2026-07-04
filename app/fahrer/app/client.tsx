@@ -211,6 +211,7 @@ import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigato
 import { FahrerPhase503StoppDetailsKommando } from './phase503-stopp-details-kommando';
 import { FahrerSchichtErtragsMeter } from './schicht-ertrag-meter';
 import { TourStoppSchnellNav } from './tour-stopp-schnell-nav';
+import { FahrerPhase551AktuellerStoppFokus } from './phase551-aktueller-stopp-fokus';
 
 type Driver = {
   id: string;
@@ -3061,6 +3062,17 @@ export function FahrerApp({
                 } : null,
               }))}
               totalStops={activeBatch.stops.length}
+            />
+          </div>
+        )}
+        {/* Phase 551: Aktueller-Stopp-Fokus — Fokussierte Karte mit Adresse, Zahlung, Navigation, Abschluss */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase551AktuellerStoppFokus
+              activeBatch={activeBatch as any}
+              onMarkDelivered={async (stopId, orderId) => {
+                startTransition(() => {});
+              }}
             />
           </div>
         )}

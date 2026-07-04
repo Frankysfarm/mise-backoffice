@@ -260,6 +260,7 @@ import { LieferdienstZoneQualityScoreKarte } from './zone-quality-score-karte';
 import { LieferdienstSchichtKpiMatrix } from './schicht-kpi-matrix';
 import { LieferdienstTagesUmsatzTracker } from './tages-umsatz-tracker';
 import { LieferdienstWochenenPeakWarnung } from './wochenend-peak-warnung';
+import { LieferdienstPhase553EchtzeitKennzahlenHub } from './phase553-echtzeit-kennzahlen-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1666,6 +1667,8 @@ export function LieferdienstClient() {
                 <LieferdienstTagesUmsatzTracker locationId={locationId} />
                 {/* Phase 549: Wochenend-Peak-Warnung — Kapazitäts-Alert wenn Wochenend-Peak erwartet wird */}
                 <LieferdienstWochenenPeakWarnung locationId={locationId} />
+                {/* Phase 553: Echtzeit-Kennzahlen-Hub — Live KPIs: Bestellungen, Umsatz, Fahrer, Pünktlichkeit */}
+                <LieferdienstPhase553EchtzeitKennzahlenHub locationId={locationId} />
               </>
             </div>
           )}

@@ -226,6 +226,7 @@ import { KitchenBestellflussMonitorPanel } from './bestellfluss-monitor-panel';
 import { KitchenQueueKapazitaetsBoard } from './queue-kapazitaets-board';
 import { KitchenProduktivitaetsScore } from './kuechen-produktivitaets-score';
 import { KitchenEchtzeitKapazitaetsAmpel } from './echtzeit-kapazitaets-ampel';
+import { KitchenPhase549KochzielKommando } from './phase549-kochziel-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1945,6 +1946,19 @@ export function KitchenBoard({
       <KitchenProduktivitaetsScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 547: EchtZeit-Kapazitäts-Ampel — Farbkodierung Küchen-Last aus Backlog-Klarierungszeit */}
       <KitchenEchtzeitKapazitaetsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 549: Kochziel-Kommando — Top-4 dringendste aktive Bestellungen mit Countdown + Sofort-Aktionen */}
+      <KitchenPhase549KochzielKommando
+        orders={filtered}
+        timings={timings}
+        onStartCooking={async (orderId) => {
+          const t = timings.find(ti => ti.order_id === orderId);
+          if (t) await startCookingNow(t.id);
+        }}
+        onMarkReady={async (orderId) => {
+          const t = timings.find(ti => ti.order_id === orderId);
+          if (t) await markTimingReady(t.id);
+        }}
+      />
     </div>
   );
 }
