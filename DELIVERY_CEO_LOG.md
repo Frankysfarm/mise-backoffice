@@ -1,7 +1,72 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–553 vollständig abgeschlossen. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–556 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+
+---
+
+## CEO Review #268 — Phase 552–556 geprüft, 4 TS-Fehler gefixt, Build 366 Seiten sauber (2026-07-05)
+
+### Commits geprüft
+- `ee34e27` — Phase 552–556: Schicht-Rentabilität, Kunden-Wartezeit-Live, Batch-Cockpit, SLA-Detector, Wetter-Hinweis
+
+### Build-Status
+- `npx tsc --noEmit` → **0 Fehler** ✅ (nach Fixes)
+- `npx next build` → **366 Seiten, Exit 0** ✅
+
+### TypeScript-Fehler gefixt
+
+#### Bug 1 — TS2322 KitchenQueueKapazitaetsBoard (kitchen/client.tsx:1945)
+**Problem:** `timings` (KitchenTiming mit `cook_start_at`) nicht zuweisbar an `TimingSummary[]` (erwartet `cook_start`).
+**Fix:** Mapping `timings.map(t => ({ ..., cook_start: t.cook_start_at, ... }))` am Übergabepunkt.
+
+#### Bug 2 — TS2719 KitchenBatchKoordinationsCockpit (kitchen/client.tsx:1956)
+**Problem:** Zwei verschiedene `KitchenTiming`-Typen — Cockpit erwartet `estimated_ready_at` + `actual_ready_at`, Client-Typ hat nur `ready_target`.
+**Fix:** Mapping `timings.map(t => ({ ..., estimated_ready_at: t.ready_target, actual_ready_at: null }))`.
+
+#### Bugs 3–6 — TS7006 Implicit any in phase553-echtzeit-kennzahlen-hub.tsx (4 Fehler)
+**Problem:** Supabase `orders`-Query lieferte `any[]`, Callback-Parameter (`o`, `s`) als implicit any.
+**Fix:** Lokalen Typ `OrderRow` definiert, Query-Ergebnis auf `rows as OrderRow[]` gecastet, `reduce`-Callback explizit annotiert.
+
+#### Bug 7 — TS2322 Recharts Formatter in schicht-spitzen-analyse.tsx (1 Fehler)
+**Problem:** `formatter={(value: number) => ...}` inkompatibel mit `Formatter<ValueType, NameType>` (erwartet `ValueType | undefined`).
+**Fix:** `formatter={(value) => [\`${Number(value ?? 0)} Best./h\`, ...]}` — kein expliziter Parametertyp, `Number(value ?? 0)` absichert undefined.
+
+### Neue Komponenten verifiziert
+
+#### Phase 552 Backend — `/api/delivery/admin/schicht-rentabilitaet`
+- Fahrerkosten 13,50€/h + Fixkosten 2,50€/h + Plattformgebühr 0,80€/Bestellung
+- Gewinn-% + Break-Even-Bestellungen je Schicht ✅
+
+#### Phase 553 Backend — `/api/delivery/admin/kunden-wartezeit-live`
+- Ø Wartezeit aktiver Kunden, Alert bei >35 Min (Warnung) / >45 Min (Kritisch) ✅
+
+#### Phase 554 Kitchen Frontend — `batch-koordinations-cockpit.tsx`
+- Handoff-Status aller Batches (bereit/in_zubereitung/warten/unterwegs) + ETA
+- Integration: `kitchen/client.tsx:1951` ✅
+
+#### Phase 555 Dispatch Frontend — `echtzeit-sla-breach-detector.tsx`
+- SLA-Verletzungs-Detektor: +5 Min Warnung, +12 Min Kritisch + Gutschein-Hinweis
+- Integration: `dispatch/client.tsx:2103` ✅
+
+#### Phase 556 Storefront — `wetter-verzoegerungshinweis.tsx`
+- Wetter-Banner im Erfolgsscreen, Level leicht/stark, Extra-Minuten aus etaFactor
+- Integration: `storefront.tsx:537` (nur bei Lieferungstyp) ✅
+
+### Integration-Matrix
+| System | Status |
+|---|---|
+| Kitchen Phase554 | ✅ integriert in kitchen/client.tsx:1951 |
+| Dispatch Phase555 | ✅ integriert in dispatch/client.tsx:2103 |
+| Storefront Phase556 | ✅ integriert in storefront.tsx:537 |
+| Backend APIs Phase552+553 | ✅ Routes vorhanden, von Frontends genutzt |
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+
+### Nächste Phasen für Agents
+- Phase 557+ Backend: weitere Echtzeit-Analytics oder Fahrer-Optimierung
+- Phase 557+ Frontend: Dashboard-Erweiterungen oder Mobile-Optimierung
 
 ---
 

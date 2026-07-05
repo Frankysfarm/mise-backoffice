@@ -170,7 +170,7 @@ export function SchichtSpitzenAnalyse({ locationId }: Props) {
                   interval={1}
                 />
                 <Tooltip
-                  formatter={(value: number) => [`${value} Best./h`, 'Erwartete Bestellungen']}
+                  formatter={(value) => [`${Number(value ?? 0)} Best./h`, 'Erwartete Bestellungen']}
                   contentStyle={{ fontSize: 11, borderRadius: 8 }}
                 />
                 <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

@@ -1942,7 +1942,7 @@ export function KitchenBoard({
       {/* Phase 517: Bestellfluss-Monitor — Aktuelle Bestellrate vs. Fahrerkapazität mit Alert */}
       <KitchenBestellflussMonitorPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 537: Queue-Kapazitäts-Board — Live-Warteschlangen-Status mit Auslastungs-Ampel + Überfällig-Zähler */}
-      <KitchenQueueKapazitaetsBoard orders={filtered} timings={timings} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenQueueKapazitaetsBoard orders={filtered} timings={timings.map(t => ({ order_id: t.order_id, status: t.status, cook_start: t.cook_start_at, ready_target: t.ready_target }))} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 542: Küchen-Produktivitäts-Score — Durchsatz + Queue-Gesundheit + Pünktlichkeit als Score 0–100 */}
       <KitchenProduktivitaetsScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 547: EchtZeit-Kapazitäts-Ampel — Farbkodierung Küchen-Last aus Backlog-Klarierungszeit */}
@@ -1953,7 +1953,7 @@ export function KitchenBoard({
         stops={stops}
         orders={filtered}
         drivers={drivers}
-        timings={timings}
+        timings={timings.map(t => ({ id: t.id, order_id: t.order_id, cook_start_at: t.cook_start_at, estimated_ready_at: t.ready_target, actual_ready_at: null }))}
       />
       {/* Phase 549: Kochziel-Kommando — Top-4 dringendste aktive Bestellungen mit Countdown + Sofort-Aktionen */}
       <KitchenPhase549KochzielKommando

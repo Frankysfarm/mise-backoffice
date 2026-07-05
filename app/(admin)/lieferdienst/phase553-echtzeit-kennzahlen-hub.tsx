@@ -104,6 +104,7 @@ export function LieferdienstPhase553EchtzeitKennzahlenHub({ locationId }: Props)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      type OrderRow = { id: string; status: string; gesamtbetrag: number | null; fertig_am: string | null; bestellt_am: string | null };
       const { data: orders } = await supabase
         .from('orders')
         .select('id, status, gesamtbetrag, fertig_am, bestellt_am')
@@ -112,13 +113,14 @@ export function LieferdienstPhase553EchtzeitKennzahlenHub({ locationId }: Props)
         .in('typ', ['lieferung', 'delivery']);
 
       if (orders) {
-        const delivered = orders.filter(o => ['geliefert', 'abgeholt'].includes(o.status));
-        const cancelled = orders.filter(o => ['storniert', 'abgebrochen'].includes(o.status));
-        const revenue = delivered.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-        const activeCnt = orders.filter(o => ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length;
+        const rows = orders as OrderRow[];
+        const delivered = rows.filter(o => ['geliefert', 'abgeholt'].includes(o.status));
+        const cancelled = rows.filter(o => ['storniert', 'abgebrochen'].includes(o.status));
+        const revenue = delivered.reduce((s: number, o: OrderRow) => s + (o.gesamtbetrag ?? 0), 0);
+        const activeCnt = rows.filter(o => ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)).length;
 
         setData({
-          ordersToday: orders.length,
+          ordersToday: rows.length,
           delivered: delivered.length,
           cancelled: cancelled.length,
           revenueToday: revenue,
