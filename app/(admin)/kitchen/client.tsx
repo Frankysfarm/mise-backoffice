@@ -227,6 +227,7 @@ import { KitchenQueueKapazitaetsBoard } from './queue-kapazitaets-board';
 import { KitchenProduktivitaetsScore } from './kuechen-produktivitaets-score';
 import { KitchenEchtzeitKapazitaetsAmpel } from './echtzeit-kapazitaets-ampel';
 import { KitchenPhase549KochzielKommando } from './phase549-kochziel-kommando';
+import { KitchenBatchKoordinationsCockpit } from './batch-koordinations-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1946,6 +1947,14 @@ export function KitchenBoard({
       <KitchenProduktivitaetsScore locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 547: EchtZeit-Kapazitäts-Ampel — Farbkodierung Küchen-Last aus Backlog-Klarierungszeit */}
       <KitchenEchtzeitKapazitaetsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 554: Batch-Koordinations-Cockpit — Alle aktiven Batches mit Kochstart-Status, Fahrer-ETA, Handoff-Ampel */}
+      <KitchenBatchKoordinationsCockpit
+        batches={batches}
+        stops={stops}
+        orders={filtered}
+        drivers={drivers}
+        timings={timings}
+      />
       {/* Phase 549: Kochziel-Kommando — Top-4 dringendste aktive Bestellungen mit Countdown + Sofort-Aktionen */}
       <KitchenPhase549KochzielKommando
         orders={filtered}

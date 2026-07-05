@@ -289,6 +289,7 @@ import { DispatchAktiveTourSummary } from './aktive-tour-summary';
 import { DispatchZonenBestelldruckMonitor } from './zonen-bestelldruck';
 import { DispatchZonenEinsatzEmpfehlung } from './zonen-einsatz-empfehlung';
 import { DispatchPhase549TourLiveEffizienzMatrix } from './phase549-tour-live-effizienz-matrix';
+import { DispatchEchtzeitSLABreachDetector } from './echtzeit-sla-breach-detector';
 
 type Driver = {
   employee_id: string;
@@ -2098,6 +2099,11 @@ export function DispatchBoard({
       <DispatchZonenBestelldruckMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 548: Zonen-Einsatz-Empfehlung — Optimale Fahrer-Zuteilung basierend auf Zonen-Druck + Verfügbarkeit */}
       <DispatchZonenEinsatzEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 555: Echtzeit-SLA-Breach-Detector — Touren bei denen SLA-Verletzung droht + Handlungsempfehlung */}
+      <DispatchEchtzeitSLABreachDetector
+        batches={batches as any}
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
+      />
       {/* Phase 549: Tour-Live-Effizienz-Matrix — Alle aktiven Touren mit Pünktlichkeit, Stopp-Fortschritt + Pace */}
       <DispatchPhase549TourLiveEffizienzMatrix batches={batches as any} drivers={drivers} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}

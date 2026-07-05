@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–553 abgeschlossen. Build sauber. Exit 0. 366 Seiten.**
+**Phasen 1–556 abgeschlossen. Build sauber. Exit 0. 366+ Seiten.**
+Backend-Architekt-Agent (2026-07-05): Phase 552–556 — Schicht-Rentabilitäts-API, Kunden-Wartezeit-Live, Batch-Koordinations-Cockpit (Kitchen), SLA-Breach-Detector (Dispatch), Wetter-Verzögerungshinweis (Storefront). Build Exit 0.
 CEO-Agent (2026-07-04): Phase 545–553 geprüft — 1 Bug gefixt (leere onMarkDelivered-Callback), Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-04): Phase 549–553 — Kochziel-Kommando, Tour-Effizienz-Matrix, Stopp-Fokus, Kennzahlen-Hub. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-03): Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel. Build 366 Seiten, Exit 0.
@@ -9486,3 +9487,80 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 5. **Phase 556 Frontend (Storefront):** Wetter-Verzögerungshinweis — Automatischer Banner wenn schlechtes Wetter erwartet wird und Lieferzeit erhöht ist.
 
 ---
+
+---
+
+## Phase 552–556 — Schicht-Rentabilität, Kunden-Wartezeit, Batch-Cockpit, SLA-Detector, Wetter-Hinweis (DONE ✅)
+
+### Phase 552 Backend — Schicht-Rentabilitäts-API
+
+**`app/api/delivery/admin/schicht-rentabilitaet/route.ts`:**
+- GET `?location_id=...` → `{ ok, shifts: ShiftRentabilitaet[], summary: RentabilitaetSummary, generatedAt }`
+- Je Schicht: Fahrerkosten (13.50 €/h), Fixkosten (2.50 €/h), Plattformgebühren (0.80 €/Bestellung)
+- Gewinn = Liefergebühren − Fahrerkosten − Fixkosten − Plattformgebühren
+- Break-Even-Bestellungen je Schicht
+- Summary: warningLevel ok/niedrig/kritisch wenn Ø-Marge <5% / <−10%
+
+### Phase 553 Backend — Kunden-Wartezeit-Tracker
+
+**`app/api/delivery/admin/kunden-wartezeit-live/route.ts`:**
+- GET `?location_id=...` → `{ ok, data: WartezeitData, generatedAt }`
+- Ø Wartezeit aktiver Bestellungen (Bestellung bis jetzt) + abgeschlossener (bis Lieferung)
+- Alert-Level: ok (<35 Min) / warnung (>35 Min) / kritisch (>45 Min)
+- Zählt Bestellungen >30 Min und >45 Min separat
+- 4h-Rückblick, alle Nicht-storniert-Bestellungen
+- Empfehlung: Zusatz-Fahrer / Push-Info / Beobachten
+
+### Phase 554 Frontend (Kitchen) — Batch-Koordinations-Cockpit
+
+**`app/(admin)/kitchen/batch-koordinations-cockpit.tsx`** — `KitchenBatchKoordinationsCockpit`:
+- Props: `batches, stops, orders, drivers, timings`
+- Zeigt alle aktiven Batches (außer abgeschlossen)
+- Handoff-Status: bereit (alle fertig) / in_zubereitung / warten (noch nicht gestartet) / unterwegs
+- Farbkodierung: matcha-grün / amber / blau / slate
+- Sortierung: bereit zuerst, unterwegs zuletzt
+- Expandierbar: offene Bestellungen mit estimated_ready_at Countdown
+- ETA-Anzeige wenn batch gestartet
+- Integration: `kitchen/client.tsx` nach KitchenEchtzeitKapazitaetsAmpel ✅
+
+### Phase 555 Frontend (Dispatch) — Echtzeit-SLA-Breach-Detector
+
+**`app/(admin)/dispatch/echtzeit-sla-breach-detector.tsx`** — `DispatchEchtzeitSLABreachDetector`:
+- Props: `batches, locationId`
+- Berechnet Verzögerung = (elapsedMin + remainingETA) − versprochene Zeit (Default 35 Min)
+- Warnung ab +5 Min, Kritisch ab +12 Min Verzögerung
+- Sortiert nach Verzögerung (kritischste zuerst)
+- Collapsible Card mit Kritisch/Warnung Badge im Header
+- Empfehlung je Level: Gutschein / Push-Info / Im Plan
+- Integration: `dispatch/client.tsx` vor Phase549TourLiveEffizienzMatrix ✅
+
+### Phase 556 Frontend (Storefront) — Wetter-Verzögerungshinweis
+
+**`app/order/[locationSlug]/wetter-verzoegerungshinweis.tsx`** — `WetterVerzoegerungshinweis`:
+- Props: `locationId, etaMin?`
+- Nutzt `/api/delivery/admin/weather-intelligence?action=dashboard`
+- Level: none (etaFactor <1.08) / leicht / stark (isDangerous oder etaFactor ≥1.25)
+- Berechnet Extra-Minuten: (etaFactor − 1) × baseMin
+- Wetter-Icon je Bedingung: Regen / Schnee / Gewitter / Wind
+- Zeigt Windgeschwindigkeit wenn >30 km/h
+- 10-Min Auto-Refresh
+- Integration: `storefront.tsx` im Erfolgs-Screen nach LiveEtaFahrerPanel ✅
+
+### Integrations-Checkliste Phase 552–556
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| SchichtRentabilitaet API | api/delivery/admin/schicht-rentabilitaet/route.ts | Neu (GET) | ✅ |
+| KundenWartezeitLive API | api/delivery/admin/kunden-wartezeit-live/route.ts | Neu (GET) | ✅ |
+| KitchenBatchKoordinationsCockpit | kitchen/batch-koordinations-cockpit.tsx | kitchen/client.tsx nach EchtzeitKapazitaetsAmpel | ✅ |
+| DispatchEchtzeitSLABreachDetector | dispatch/echtzeit-sla-breach-detector.tsx | dispatch/client.tsx vor Phase549Matrix | ✅ |
+| WetterVerzoegerungshinweis | order/[locationSlug]/wetter-verzoegerungshinweis.tsx | storefront.tsx nach LiveEtaFahrerPanel | ✅ |
+
+**Build:** Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 557 Backend:** Fahrer-Routen-Effizienz-API — Ø km/Bestellung + Leerfahrten-Quote je Fahrer. GET /api/delivery/admin/fahrer-routen-effizienz
+2. **Phase 558 Backend:** Schicht-Kapazitäts-Auslastungs-API — Wie voll ist die aktuelle Schicht im Verhältnis zu Bestellvolumen? GET /api/delivery/admin/schicht-kapazitaets-auslastung
+3. **Phase 559 Frontend (Kitchen):** Echtzeit-Prioritäts-Matrix — Live-Kacheln der Top-6 dringendsten Bestellungen nach kombinierten Faktoren (Wartezeit, Fahrer-ETA, Zone).
+4. **Phase 560 Frontend (Dispatch):** Fahrer-Kapazitäts-Ring — Donut-Ring der aktuellen Auslastung (unterwegs/frei/offline) mit Alert wenn <20% verfügbar.
+5. **Phase 561 Frontend (Lieferdienst):** Gewinn-Verlust-Ampel — Live P&L-Anzeige der aktuellen Schicht mit Trend (besser/schlechter als gestern).
+
