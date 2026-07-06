@@ -261,6 +261,7 @@ import { LieferdienstSchichtKpiMatrix } from './schicht-kpi-matrix';
 import { LieferdienstTagesUmsatzTracker } from './tages-umsatz-tracker';
 import { LieferdienstWochenenPeakWarnung } from './wochenend-peak-warnung';
 import { LieferdienstPhase553EchtzeitKennzahlenHub } from './phase553-echtzeit-kennzahlen-hub';
+import { LieferdienstPhase554SchichtErtragCockpit } from './phase554-schicht-ertrag-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1669,6 +1670,8 @@ export function LieferdienstClient() {
                 <LieferdienstWochenenPeakWarnung locationId={locationId} />
                 {/* Phase 553: Echtzeit-Kennzahlen-Hub — Live KPIs: Bestellungen, Umsatz, Fahrer, Pünktlichkeit */}
                 <LieferdienstPhase553EchtzeitKennzahlenHub locationId={locationId} />
+                {/* Phase 554: Schicht-Ertrag-Cockpit — Umsatz, Ø/Lieferung, Trinkgeld, Kosten, Netto-Ertrag */}
+                <LieferdienstPhase554SchichtErtragCockpit locationId={locationId} />
               </>
             </div>
           )}

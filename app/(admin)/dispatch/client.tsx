@@ -290,6 +290,7 @@ import { DispatchZonenBestelldruckMonitor } from './zonen-bestelldruck';
 import { DispatchZonenEinsatzEmpfehlung } from './zonen-einsatz-empfehlung';
 import { DispatchPhase549TourLiveEffizienzMatrix } from './phase549-tour-live-effizienz-matrix';
 import { DispatchEchtzeitSLABreachDetector } from './echtzeit-sla-breach-detector';
+import { DispatchPhase556FahrerScorePuls } from './phase556-fahrer-score-puls';
 
 type Driver = {
   employee_id: string;
@@ -2106,6 +2107,8 @@ export function DispatchBoard({
       />
       {/* Phase 549: Tour-Live-Effizienz-Matrix — Alle aktiven Touren mit Pünktlichkeit, Stopp-Fortschritt + Pace */}
       <DispatchPhase549TourLiveEffizienzMatrix batches={batches as any} drivers={drivers} />
+      {/* Phase 556: Fahrer-Score-Puls-Board — Live-Score je aktivem Fahrer, farbkodiert, schlechtester zuerst */}
+      <DispatchPhase556FahrerScorePuls drivers={drivers} batches={batches as any} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

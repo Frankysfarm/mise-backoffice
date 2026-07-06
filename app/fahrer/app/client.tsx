@@ -212,6 +212,7 @@ import { FahrerPhase503StoppDetailsKommando } from './phase503-stopp-details-kom
 import { FahrerSchichtErtragsMeter } from './schicht-ertrag-meter';
 import { TourStoppSchnellNav } from './tour-stopp-schnell-nav';
 import { FahrerPhase551AktuellerStoppFokus } from './phase551-aktueller-stopp-fokus';
+import { FahrerPhase552SchichtTempoAmpel } from './phase552-schicht-tempo-ampel';
 
 type Driver = {
   id: string;
@@ -3073,6 +3074,15 @@ export function FahrerApp({
               onMarkDelivered={async (stopId) => {
                 await markDelivered(stopId);
               }}
+            />
+          </div>
+        )}
+        {/* Phase 552: Schicht-Tempo-Ampel — Pace-Tracking vs. Einnahmen-Ziel mit Farbampel */}
+        {status?.ist_online && (
+          <div className="px-4">
+            <FahrerPhase552SchichtTempoAmpel
+              activeBatch={activeBatch as any}
+              schichtStart={status?.online_seit ?? null}
             />
           </div>
         )}
