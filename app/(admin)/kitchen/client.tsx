@@ -229,6 +229,7 @@ import { KitchenEchtzeitKapazitaetsAmpel } from './echtzeit-kapazitaets-ampel';
 import { KitchenPhase549KochzielKommando } from './phase549-kochziel-kommando';
 import { KitchenBatchKoordinationsCockpit } from './batch-koordinations-cockpit';
 import { KitchenPhase557KochstatusLiveIndex } from './phase557-kochstatus-live-index';
+import { KitchenPhase561ParallelOptimierer } from './phase561-parallel-optimierer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1971,6 +1972,8 @@ export function KitchenBoard({
       />
       {/* Phase 557: Kochstatus-Live-Index — Farbkachel-Raster aller aktiven Bestellungen nach Dringlichkeit */}
       <KitchenPhase557KochstatusLiveIndex orders={filtered} timings={timings} />
+      {/* Phase 561: Parallel-Optimierer — Stations-Gruppierung + gleichzeitige Zubereitung maximieren */}
+      <KitchenPhase561ParallelOptimierer orders={filtered} timings={timings} />
     </div>
   );
 }

@@ -291,6 +291,7 @@ import { DispatchZonenEinsatzEmpfehlung } from './zonen-einsatz-empfehlung';
 import { DispatchPhase549TourLiveEffizienzMatrix } from './phase549-tour-live-effizienz-matrix';
 import { DispatchEchtzeitSLABreachDetector } from './echtzeit-sla-breach-detector';
 import { DispatchPhase556FahrerScorePuls } from './phase556-fahrer-score-puls';
+import { DispatchPhase558StornoProaktivPanel } from './phase558-storno-praevention';
 
 type Driver = {
   employee_id: string;
@@ -2109,6 +2110,8 @@ export function DispatchBoard({
       <DispatchPhase549TourLiveEffizienzMatrix batches={batches as any} drivers={drivers} />
       {/* Phase 556: Fahrer-Score-Puls-Board — Live-Score je aktivem Fahrer, farbkodiert, schlechtester zuerst */}
       <DispatchPhase556FahrerScorePuls drivers={drivers} batches={batches as any} />
+      {/* Phase 558: Storno-Prävention — At-Risk-Bestellungen nahe SLA-Grenze mit Handlungsempfehlung */}
+      <DispatchPhase558StornoProaktivPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

@@ -262,6 +262,7 @@ import { LieferdienstTagesUmsatzTracker } from './tages-umsatz-tracker';
 import { LieferdienstWochenenPeakWarnung } from './wochenend-peak-warnung';
 import { LieferdienstPhase553EchtzeitKennzahlenHub } from './phase553-echtzeit-kennzahlen-hub';
 import { LieferdienstPhase554SchichtErtragCockpit } from './phase554-schicht-ertrag-cockpit';
+import { LieferdienstPhase562FahrerPausenDashboard } from './phase562-fahrer-pausen-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1672,6 +1673,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase553EchtzeitKennzahlenHub locationId={locationId} />
                 {/* Phase 554: Schicht-Ertrag-Cockpit — Umsatz, Ø/Lieferung, Trinkgeld, Kosten, Netto-Ertrag */}
                 <LieferdienstPhase554SchichtErtragCockpit locationId={locationId} />
+                {/* Phase 562: Fahrer-Pausen-Dashboard — Pausen-Empfehlung je aktivem Fahrer nach Schichtdauer + Touren */}
+                <LieferdienstPhase562FahrerPausenDashboard locationId={locationId} />
               </>
             </div>
           )}
