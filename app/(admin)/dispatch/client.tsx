@@ -262,6 +262,7 @@ import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
 import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
 import { DispatchZoneActionBoard } from './zone-action-board';
+import { DispatchPhase564TourScoreAmpel } from './phase564-tour-score-ampel';
 import { DispatchFahrerFunkBoard } from './dispatch-fahrer-funk-board';
 import { DispatchTourKapazitaetsWarnung } from './tour-kapazitaets-warnung';
 import { DispatchFahrerScoreSummaryCard } from './fahrer-score-summary-card';
@@ -2112,6 +2113,8 @@ export function DispatchBoard({
       <DispatchPhase556FahrerScorePuls drivers={drivers} batches={batches as any} />
       {/* Phase 558: Storno-Prävention — At-Risk-Bestellungen nahe SLA-Grenze mit Handlungsempfehlung */}
       <DispatchPhase558StornoProaktivPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 564: Tour-Score-Ampel — Echtzeit-Effizienz-Score je aktiver Tour, farbkodiert nach Tier */}
+      <DispatchPhase564TourScoreAmpel batches={batches as any} drivers={drivers} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

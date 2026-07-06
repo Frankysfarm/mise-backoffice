@@ -230,6 +230,7 @@ import { KitchenPhase549KochzielKommando } from './phase549-kochziel-kommando';
 import { KitchenBatchKoordinationsCockpit } from './batch-koordinations-cockpit';
 import { KitchenPhase557KochstatusLiveIndex } from './phase557-kochstatus-live-index';
 import { KitchenPhase561ParallelOptimierer } from './phase561-parallel-optimierer';
+import { KitchenPhase563PrepTimingGrid } from './phase563-prep-timing-grid';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1974,6 +1975,8 @@ export function KitchenBoard({
       <KitchenPhase557KochstatusLiveIndex orders={filtered} timings={timings} />
       {/* Phase 561: Parallel-Optimierer — Stations-Gruppierung + gleichzeitige Zubereitung maximieren */}
       <KitchenPhase561ParallelOptimierer orders={filtered} timings={timings} />
+      {/* Phase 563: Prep-Timing Grid — Farbkodierter Countdown je aktiver Bestellung nach Dringlichkeit */}
+      <KitchenPhase563PrepTimingGrid orders={filtered} timings={timings} />
     </div>
   );
 }

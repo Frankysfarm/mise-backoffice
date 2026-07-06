@@ -213,6 +213,7 @@ import { FahrerSchichtErtragsMeter } from './schicht-ertrag-meter';
 import { TourStoppSchnellNav } from './tour-stopp-schnell-nav';
 import { FahrerPhase551AktuellerStoppFokus } from './phase551-aktueller-stopp-fokus';
 import { FahrerPhase552SchichtTempoAmpel } from './phase552-schicht-tempo-ampel';
+import { FahrerPhase565TourHeimkehrInfo } from './phase565-tour-heimkehr-info';
 
 type Driver = {
   id: string;
@@ -3110,6 +3111,13 @@ export function FahrerApp({
               onCallCustomer={(phone) => window.open(`tel:${phone}`)}
             />
           </div>
+        )}
+        {/* Phase 565: Tour-Heimkehr-Info — Abschluss-Karte mit Rückfahrt-Navigation wenn alle Stopps geliefert */}
+        {activeBatch && (
+          <FahrerPhase565TourHeimkehrInfo
+            activeBatch={activeBatch as any}
+            driver={driver as any}
+          />
         )}
         {/* Schicht-KPI-Live: Stops, Effizienz, km, Ziel — nur wenn online und kein aktiver Batch */}
         {!activeBatch && isOnline && (

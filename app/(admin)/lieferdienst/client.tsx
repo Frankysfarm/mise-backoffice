@@ -263,6 +263,7 @@ import { LieferdienstWochenenPeakWarnung } from './wochenend-peak-warnung';
 import { LieferdienstPhase553EchtzeitKennzahlenHub } from './phase553-echtzeit-kennzahlen-hub';
 import { LieferdienstPhase554SchichtErtragCockpit } from './phase554-schicht-ertrag-cockpit';
 import { LieferdienstPhase562FahrerPausenDashboard } from './phase562-fahrer-pausen-dashboard';
+import { LieferdienstPhase567SchichtKpiLivePanel } from './phase567-schicht-kpi-live-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1675,6 +1676,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase554SchichtErtragCockpit locationId={locationId} />
                 {/* Phase 562: Fahrer-Pausen-Dashboard — Pausen-Empfehlung je aktivem Fahrer nach Schichtdauer + Touren */}
                 <LieferdienstPhase562FahrerPausenDashboard locationId={locationId} />
+                {/* Phase 567: Schicht-KPI-Live-Panel — 6 Echtzeit-KPIs: Bestellungen, Prepzeit, Pünktlichkeit, Fahrer, Umsatz, Storno */}
+                <LieferdienstPhase567SchichtKpiLivePanel locationId={locationId} />
               </>
             </div>
           )}
