@@ -237,6 +237,8 @@ import { KitchenPhase579BestellKomplexitaetsPrognose } from './phase579-bestell-
 import { KitchenPhase584VerspaetungsAlarmPanel } from './phase584-verspaetungs-alarm-panel';
 import { KitchenPhase590SmartTimingColorBoard } from './phase590-smart-timing-color-board';
 import { KitchenPhase595CountdownAmpelHub } from './phase595-countdown-ampel-hub';
+import { KitchenPhase589WarteschlangenAmpel } from './phase589-warteschlangen-ampel';
+import { KitchenPhase599StationAuslastungsRing } from './phase599-station-auslastungs-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1998,6 +2000,10 @@ export function KitchenBoard({
       <KitchenPhase590SmartTimingColorBoard orders={filtered} />
       {/* Phase 595: Countdown-Ampel-Hub — Kompaktes 3-Spalten-Ampelsystem mit Echtzeit-Zähler */}
       <KitchenPhase595CountdownAmpelHub orders={filtered} />
+      {/* Phase 589: Bestellungs-Warteschlangen-Ampel — grün/gelb/rot je Warteschlangenlänge */}
+      <KitchenPhase589WarteschlangenAmpel orders={filtered} />
+      {/* Phase 599: Station-Auslastungs-Ring — SVG-Ring je Küchen-Station mit % Auslastung */}
+      <KitchenPhase599StationAuslastungsRing orders={filtered as any} />
     </div>
   );
 }

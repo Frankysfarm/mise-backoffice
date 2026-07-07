@@ -274,6 +274,7 @@ import { DispatchFahrerEinsatzEffizienz } from './fahrer-einsatz-effizienz';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
 import { DispatchPhase590TourScoreVisualisierung } from './phase590-tour-score-visualisierung';
+import { DispatchPhase598FahrerKpiCard } from './phase598-fahrer-kpi-card';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2151,6 +2152,8 @@ export function DispatchBoard({
       <DispatchPhase502TourScoreBoard batches={batches} orders={readyOrders} />
       {/* Phase 590: Tour-Score-Visualisierung — Score-Gauge + Fortschrittsring + Health-Ampel je Tour */}
       <DispatchPhase590TourScoreVisualisierung batches={batches as any} />
+      {/* Phase 598: Echtzeit-Fahrer-KPI-Card — Score + Touren + Ø Lieferzeit je Fahrer heute */}
+      <DispatchPhase598FahrerKpiCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

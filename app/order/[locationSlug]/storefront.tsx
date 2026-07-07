@@ -79,6 +79,7 @@ import { Storefront571LiveEtaMegaPanel } from './phase571-live-eta-mega-panel';
 import { Phase576BestellFortschrittsRing } from './phase576-bestell-fortschritts-ring';
 import { Phase582KuechenstatusBadge } from './phase582-kuechenstatus-badge';
 import { Phase587BestellEtaKomfortBanner } from './phase587-bestell-eta-komfort-banner';
+import { Phase597KuechenauslastungsBanner } from './phase597-kuechenauslastungs-banner';
 
 type Props = {
   location: Location;
@@ -750,6 +751,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <Phase582KuechenstatusBadge locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 597: Küchen-Auslastungs-Infobanner — warnt Kunden bei hoher Küchen-Auslastung */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase597KuechenauslastungsBanner locationId={location.id} />
         </div>
       )}
       {/* Wetter-Lieferverzug-Hinweis: Kundenhinweis bei schlechtem Wetter */}
