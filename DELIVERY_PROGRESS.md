@@ -9648,3 +9648,84 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 4. **Phase 560 Frontend (Dispatch):** Fahrer-Kapazitäts-Ring — Donut-Ring der aktuellen Auslastung (unterwegs/frei/offline) mit Alert wenn <20% verfügbar.
 5. **Phase 561 Frontend (Lieferdienst):** Gewinn-Verlust-Ampel — Live P&L-Anzeige der aktuellen Schicht mit Trend (besser/schlechter als gestern).
 
+
+---
+
+## Phase 573–577 — Tempo-Board, Rückkehr-Optimierung, Effizienz-Cockpit, Fortschritts-Ring, Storno-Monitor (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 573 Kitchen — Echtzeit-Bestellungs-Tempo-Board
+
+**`app/(admin)/kitchen/phase573-bestell-tempo-board.tsx`** — `KitchenPhase573BestellTempoBoard`:
+- Props: `orders`
+- Bestellrate/h (letzte 60 Min) + Vergleich vorherige Stunde + Prognose aus letzten 15 Min
+- Farbkodierung: grün <8/h (ruhig), amber 8–15/h (normal), rot >15/h (Rush-Alert!)
+- 15-Min-Bucket Balkendiagramm für Verlauf (letzte 60 Min)
+- Rush-Alert mit Zap-Icon wenn >15/h
+- 30s Ticker
+- Integration: `kitchen/client.tsx` nach KitchenPhase568HandoffWarteKommando ✅
+
+### Phase 574 Dispatch — Fahrer-Rückkehr-Optimierungs-Panel
+
+**`app/(admin)/dispatch/phase574-fahrer-rueckkehr-optimierung.tsx`** — `DispatchPhase574FahrerRueckkehrOptimierung`:
+- Props: `batches, drivers`
+- Alle unterwegs-Fahrer sortiert nach Rückkehr-ETA (verbleibende Stopps × 8 Min + 5 Min)
+- Prioritätsnummer-Badge: 1=schnellste Rückkehr
+- Farbkodierung: grün ≤10 Min, amber ≤20 Min, slate >20 Min
+- Alert wenn alle Fahrer noch ≥20 Min unterwegs (Kapazitätsengpass!)
+- Sofort-verfügbare Fahrer (online, kein aktiver Batch) als Chip-Leiste
+- 20s Ticker
+- Integration: `dispatch/client.tsx` nach DispatchPhase569TourStoppSequenzLive ✅
+
+### Phase 575 Fahrer-App — Schicht-Effizienz-Cockpit
+
+**`app/fahrer/app/phase575-schicht-effizienz-cockpit.tsx`** — `FahrerPhase575SchichtEffizienzCockpit`:
+- Props: `currentShiftStart?, totalDelivered?, targetPerHour?`
+- 3-Kachel-Grid: Lieferrate/h, Ø Stopp-Zeit, Pünktlichkeits-Rate
+- Ziel-Vergleich: Lieferrate ≥4/h, Stopp-Zeit ≤6 Min, Pünktlichkeit ≥85%
+- Gesamt-Score-Badge (X/3 Ziele) grün/amber/rot
+- Schichtdauer in Stunden + Lieferungen gesamt
+- 60s Auto-Refresh
+- Integration: `fahrer/app/client.tsx` nach SchichtKpiLive ✅
+
+### Phase 576 Storefront — Bestellstatus-Fortschritts-Ring
+
+**`app/order/[locationSlug]/phase576-bestell-fortschritts-ring.tsx`** — `Phase576BestellFortschrittsRing`:
+- Props: `orderStatus?, etaMin?, orderedAt?`
+- Animierter SVG-Ring (Radius 48, CIRCUMFERENCE) mit Prozentanzeige
+- 5-Phasen-Mapping: bestätigt 15% → in_zubereitung 35% → fertig 60% → unterwegs 80% → geliefert 100%
+- Fortschritts-Dots + Verbindungslinien unter dem Ring
+- ETA-Countdown lokal (30s Intervall) wenn orderedAt gegeben
+- Geliefert-State: grüner Ring + CheckCircle-Icon
+- Integration: `storefront.tsx` nach Storefront571LiveEtaMegaPanel ✅
+
+### Phase 577 Lieferdienst — Schicht-Storno-Monitor
+
+**`app/(admin)/lieferdienst/phase577-schicht-storno-monitor.tsx`** — `LieferdienstPhase577SchichtStornoMonitor`:
+- Props: `locationId`
+- Nutzt bestehende `/api/delivery/admin/storno-analyse` API
+- Zeigt: Storno-Rate %, Stornos heute, Gesamtbestellungen heute
+- Alert-Banner wenn Rate >5% (rote Hervorhebung + Puls-Badge)
+- Trend-Pill: steigend/fallend vs. Vorperiode mit TrendingUp/Down-Icon
+- Letzte 5 Stornos mit Bestellnummer, Zeitstempel, Betrag
+- 60s Auto-Refresh
+- Integration: `lieferdienst/client.tsx` nach LieferdienstPhase572LiveStatsHub ✅
+
+### Integrations-Checkliste Phase 573–577
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenPhase573BestellTempoBoard | kitchen/phase573-bestell-tempo-board.tsx | kitchen/client.tsx nach Phase568 | ✅ |
+| DispatchPhase574FahrerRueckkehrOptimierung | dispatch/phase574-fahrer-rueckkehr-optimierung.tsx | dispatch/client.tsx nach Phase569 | ✅ |
+| FahrerPhase575SchichtEffizienzCockpit | fahrer/app/phase575-schicht-effizienz-cockpit.tsx | fahrer/app/client.tsx nach SchichtKpiLive | ✅ |
+| Phase576BestellFortschrittsRing | order/[locationSlug]/phase576-bestell-fortschritts-ring.tsx | storefront.tsx nach Phase571 | ✅ |
+| LieferdienstPhase577SchichtStornoMonitor | lieferdienst/phase577-schicht-storno-monitor.tsx | lieferdienst/client.tsx nach Phase572 | ✅ |
+
+**Build:** 366 Seiten, 0 neue TypeScript-Fehler, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 578 Backend:** Touren-Effizienz-Aggregat-API — Tages-Aggregation aller abgeschlossenen Touren: Ø km/Lieferung, Ø Min/Stopp, Ø Score 0–100, Gesamtumsatz. GET /api/delivery/admin/touren-effizienz-aggregat
+2. **Phase 579 Kitchen:** Bestellungs-Komplexitäts-Prognose — Live-Einschätzung der Küchenbelastung durch Artikel-Komplexität (einfach/mittel/komplex). Alert wenn viele komplexe Bestellungen parallel.
+3. **Phase 580 Dispatch:** Zone-Demand-Heatmap-Live — Mini-Heatmap der Zonen nach aktuellem Bestelldruck, farbkodiert (grün/gelb/rot), aktualisiert alle 60s.
+4. **Phase 581 Fahrer-App:** Schicht-Zielerreichungs-Fortschrittsring — Animierter Ring für das Tagesziel (z.B. 20 Lieferungen), mit Live-Fortschritt.
+5. **Phase 582 Storefront:** Küchenstatus-Live-Badge — Kleines Badge in der Storefront das den aktuellen Küchenstatus signalisiert (normal/busy/peak).
