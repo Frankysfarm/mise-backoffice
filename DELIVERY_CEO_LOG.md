@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–596 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–604 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 367 Seiten). Deployment-bereit.
+
+## CEO Review #275 — Phase 600–604 (2026-07-07)
+
+**Befund: 1 Bug gefixt. Build: 367 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 600–604
+
+**Phase 600 Backend — Tour-Effizienz-Snapshot-API** (`api/delivery/admin/tour-effizienz-snapshot/route.ts`):
+- Stündliche Effizienz-KPIs je Filiale (km/Lieferung, Min/Stop, Touren) ✅
+- Verwendet von Phase 602 Dispatch-Balancer ✅
+
+**Phase 601 Kitchen — Prep-Lern-Status** (`kitchen/phase601-prep-lern-status.tsx`):
+- Brain-Icon + Genauigkeit 0–100%, Trend improving/stable/declining ✅
+- Nutzt `/api/delivery/admin/analytics` für Ø Prep-Zeit-Ableitung ✅
+- Integration: `kitchen/client.tsx` ✅
+
+**Phase 602 Dispatch — Zonen-Kapazitäts-Balancer** (`dispatch/phase602-zonen-kapazitaets-balancer.tsx`):
+- Über-/Unterkapazitäts-Erkennung je Zone A/B/C/D ✅
+- Umverteilungsempfehlung mit AlertTriangle-Icon ✅
+- Integration: `dispatch/client.tsx` nach Phase598 ✅
+
+**Phase 603 Fahrer-App — Schicht-Abschluss-Zusammenfassung** (`fahrer/app/phase603-schicht-abschluss-zusammenfassung.tsx`):
+- KPI-Grid: Touren/km/Lieferungen/Trinkgeld/Ø Bewertung nach Schicht ✅
+- Integration: `fahrer/app/client.tsx` nach SchichtAbschlussBericht ✅
+
+**Phase 604 Storefront — Fahrer-Profil-Vorschau** (`order/[locationSlug]/phase604-fahrer-profil-vorschau.tsx`):
+- Zeigt Fahrer-Name, Ø Bewertung, Touren diesen Monat + ETA für Kunden ✅
+- Integration: `storefront.tsx` bei aktiver Lieferung ✅
+
+### Bug gefixt in Review #275
+
+**KRITISCH GEFIXT: Fehlende API `driver-preview`**
+- Phase 604 rief `/api/delivery/tracking/${orderId}/driver-preview` auf
+- Dieser Endpunkt existierte **nicht** → Component zeigte nie Fahrer-Profil
+- Erstellt: `app/api/delivery/tracking/[bestellnummer]/driver-preview/route.ts`
+- Lookup per UUID oder Bestellnummer, gibt Name/avgRating/toursThisMonth/etaMin/vehicle zurück
+- Fallback für avg_rating: zuerst `mise_drivers.rating`, dann `driver_payout_periods.avg_rating`
+
+### Seiten-Korrektur
+- Docs meldeten "370 Seiten" — tatsächlicher Build: **367 Seiten** (API-Routes sind dynamic, zählen nicht zur Static-Seitenzahl)
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Phase 604 driver-preview API | ✅ gefixt |
+
+### Status nach Review #275
+- Build: **367 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 600–604: alle 5 Komponenten + fehlende API erstellt ✅
+- 1 Bug gefixt (fehlende driver-preview Route) ✅
+
+### Nächste Phasen für Backend/Frontend-Agenten
+- Phase 605+: weitere Feature-Erweiterungen nach Bedarf
+
+---
 
 ## CEO Review #274 — Phase 590–596 (2026-07-07)
 
