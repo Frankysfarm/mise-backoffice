@@ -239,6 +239,7 @@ import { KitchenPhase590SmartTimingColorBoard } from './phase590-smart-timing-co
 import { KitchenPhase595CountdownAmpelHub } from './phase595-countdown-ampel-hub';
 import { KitchenPhase589WarteschlangenAmpel } from './phase589-warteschlangen-ampel';
 import { KitchenPhase599StationAuslastungsRing } from './phase599-station-auslastungs-ring';
+import { KitchenPhase601PrepLernStatus } from './phase601-prep-lern-status';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2004,6 +2005,12 @@ export function KitchenBoard({
       <KitchenPhase589WarteschlangenAmpel orders={filtered} />
       {/* Phase 599: Station-Auslastungs-Ring — SVG-Ring je Küchen-Station mit % Auslastung */}
       <KitchenPhase599StationAuslastungsRing orders={filtered as any} />
+      {/* Phase 601: Prep-Lern-Status-Panel — Fortschritt des Küchen-Lernmodells (Genauigkeit, Ø Prep-Zeit, Trend) */}
+      {(locationFilter !== 'all' || locations[0]?.id) && (
+        <KitchenPhase601PrepLernStatus
+          locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
+        />
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   experimental: { typedRoutes: false },
   turbopack: {
-    root: path.resolve(__dirname),
+    root: __dirname,
   },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',

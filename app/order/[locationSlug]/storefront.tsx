@@ -80,6 +80,7 @@ import { Phase576BestellFortschrittsRing } from './phase576-bestell-fortschritts
 import { Phase582KuechenstatusBadge } from './phase582-kuechenstatus-badge';
 import { Phase587BestellEtaKomfortBanner } from './phase587-bestell-eta-komfort-banner';
 import { Phase597KuechenauslastungsBanner } from './phase597-kuechenauslastungs-banner';
+import { Phase604FahrerProfilVorschau } from './phase604-fahrer-profil-vorschau';
 
 type Props = {
   location: Location;
@@ -1353,6 +1354,15 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
             orderId={order.orderId}
             initialStatus={order.status}
             initialEtaMin={order.etaMin ?? null}
+          />
+        </div>
+      )}
+      {/* Phase 604: Fahrer-Profil-Vorschau — kurze Info über den kommenden Fahrer (Name + Ø Bewertung + ETA) */}
+      {order.isDelivery && (order.status === 'fertig' || order.status === 'in_lieferung' || order.status === 'unterwegs') && (
+        <div className="mt-3">
+          <Phase604FahrerProfilVorschau
+            orderId={order.orderId}
+            locationId={location.id}
           />
         </div>
       )}

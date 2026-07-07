@@ -220,6 +220,7 @@ import { FahrerPhase581SchichtZielFortschrittsring } from './phase581-schicht-zi
 import { FahrerPhase586StoppNavigatorKarte } from './phase586-stopp-navigator-karte';
 import { FahrerPhase591TourStoppLiveNav } from './phase591-tour-stopp-live-nav';
 import { FahrerPhase596SchichtNavHub } from './phase596-schicht-nav-hub';
+import { FahrerPhase603SchichtAbschlussZusammenfassung } from './phase603-schicht-abschluss-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -3178,6 +3179,13 @@ export function FahrerApp({
               driverId={driver.id}
               activeBatch={activeBatch as any}
             />
+          </div>
+        )}
+
+        {/* Phase 603: Schicht-Abschluss-Zusammenfassung — Touren, km, Lieferungen, Trinkgeld, Ø Bewertung */}
+        {isOnline && !activeBatch && (
+          <div className="px-4">
+            <FahrerPhase603SchichtAbschlussZusammenfassung driverId={driver.id} />
           </div>
         )}
 
