@@ -280,6 +280,8 @@ import { DispatchPhase607TourUmsatzUebersicht } from './phase607-tour-umsatz-ueb
 import { DispatchPhase612KuechenStatusOverlay } from './phase612-kuechen-status-overlay';
 import { DispatchPhase617FahrerRueckkehrZeitplan } from './phase617-fahrer-rueckkehr-zeitplan';
 import { DispatchPhase622ZonenNachfrageVorschau } from './phase622-zonen-nachfrage-vorschau';
+import { DispatchPhase625FahrerTagesleistungVergleich } from './phase625-fahrer-tagesleistung-vergleich';
+import { DispatchPhase627FahrerauslastungsHeatmap } from './phase627-fahrerauslastungs-heatmap';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2169,6 +2171,10 @@ export function DispatchBoard({
       <DispatchPhase617FahrerRueckkehrZeitplan locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 622: Zonen-Nachfrage-Vorschau — Mini-Chart je Zone: aktuelle Rate + 2h-Prognose */}
       <DispatchPhase622ZonenNachfrageVorschau locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 625: Fahrer-Tagesleistung-Vergleich — Heute vs. 30-Tage-Ø je Fahrer */}
+      <DispatchPhase625FahrerTagesleistungVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 627: Fahrerauslastungs-Heatmap — 24h-Stunden × Fahrer-Matrix */}
+      <DispatchPhase627FahrerauslastungsHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

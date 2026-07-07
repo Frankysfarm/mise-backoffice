@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–624 abgeschlossen. Build sauber. Exit 0. 371 Seiten.**
+**Phasen 1–629 abgeschlossen. Build sauber. Exit 0. 372 Seiten.**
+Backend-Architekt-Agent (2026-07-07): Phase 625–629 — Fahrer-Tagesleistung-Vergleichs-API + Dispatch-Panel, Kitchen Prep-Priorisierungs-Scanner, Dispatch Fahrerauslastungs-Heatmap, Fahrer-App km-Tageslog, Storefront Liefer-Qualitäts-Siegel. Build 372 Seiten, Exit 0.
 CEO-Agent (2026-07-07): Phase 620–624 Review #277 — 0 Fehler, Build 371 Seiten, Exit 0. TypeScript 0 Fehler. Phase 620 Backend-API (Zonen-Nachfrage-Prognose) + 4 Frontend-Komponenten: Kitchen Batch-Countdown-Tafel (Phase621), Dispatch Zonen-Nachfrage-Vorschau (Phase622), Fahrer-App Schicht-Pause-Empfehlung (Phase623), Storefront Echtzeit-Warteschlangen-Indikator (Phase624). Alle 5 Komponenten vollständig integriert.
 Backend-Architekt-Agent (2026-07-07): Phase 610–614 — Küchen-Kapazitäts-Warnsignal-API, Kitchen Tages-Bestellziel-Ring, Dispatch Küchen-Status-Overlay, Fahrer Letzte-Bewertungen-Widget, Lieferdienst Umsatz-Tagesprognose-Widget. Build 369 Seiten, Exit 0. TypeScript 0 Fehler.
 CEO-Agent (2026-07-07): Phase 605–609 Review #276 — 0 Fehler, Build 368 Seiten, Exit 0. TypeScript 0 Fehler. 5 neue Komponenten vollständig integriert und live. Mehrstunden-Umsatz-API, SLA-Alarm, Tour-Umsatz, Trinkgeld-Trend, Bestellstatus-Timeline.
@@ -10242,3 +10243,84 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 627 Dispatch:** Fahrerauslastungs-Heatmap-Jetzt — 24h-Heatmap: welche Stunde/Fahrer-Kombination ist aktuell wie ausgelastet.
 4. **Phase 628 Fahrer-App:** Kilometerstand-Tageslog — Tagesprotokoll der gefahrenen km je Tour mit Gesamtsumme und Vergleich Vortag.
 5. **Phase 629 Storefront:** Liefer-Qualitäts-Siegel — Zeigt dem Kunden basierend auf SLA-Pünktlichkeit der letzten 7 Tage ein Qualitätslabel (Gold/Silber/Standard).
+
+## Phase 625–629 — Tagesleistungs-Vergleich, Prep-Scanner, Heatmap, km-Log, Qualitäts-Siegel (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 625 Backend — Fahrer-Tagesleistungs-Vergleichs-API
+**`app/api/delivery/admin/fahrer-tagesleistung-vergleich/route.ts`** — `GET /api/delivery/admin/fahrer-tagesleistung-vergleich`:
+- Parameter: `location_id`
+- Aktive Fahrer aus `driver_shifts` (status=active)
+- Heutige Batches + letzte 30 Tage Batches aus `mise_delivery_batches`
+- Je Fahrer: heute (Touren, km, Trinkgeld), schnitt30d, diff
+- Gruppiert Historik nach Kalendertag für echten Tages-Durchschnitt
+
+### Phase 625 Dispatch — Fahrer-Tagesleistung-Vergleich-Panel
+**`app/(admin)/dispatch/phase625-fahrer-tagesleistung-vergleich.tsx`** — `DispatchPhase625FahrerTagesleistungVergleich`:
+- Props: `locationId: string | null`
+- Holt Daten von `/api/delivery/admin/fahrer-tagesleistung-vergleich`
+- Je Fahrer: 3-Spalten-Grid (Touren, km, Trinkgeld) mit Heute/Ø/Diff
+- Trend-Icons (↑ grün · ↓ rot · = grau), DiffBadge mit Vorzeichen
+- Kollabierbar · 60s Polling · Mock-Fallback
+- Integration: `dispatch/client.tsx` nach Phase622 ✅
+
+### Phase 626 Kitchen — Prep-Priorisierungs-Scanner
+**`app/(admin)/kitchen/phase626-prep-priorisierungs-scanner.tsx`** — `KitchenPhase626PrepPriorisierungsScanner`:
+- Props: `orders: Order[]`
+- Filtert: bestätigt + in_zubereitung, sortiert nach estimated_pickup_at
+- Dringlichkeit: kritisch (≤5 Min) · bald (≤12 Min) · normal
+- Ampelfarben: rot/amber/normal per Border + Badge
+- Max 8 Einträge + Überhang-Hinweis
+- Ticker: 15s
+- Integration: `kitchen/client.tsx` nach Phase621 ✅
+
+### Phase 627 Dispatch — Fahrerauslastungs-Heatmap
+**`app/(admin)/dispatch/phase627-fahrerauslastungs-heatmap.tsx`** — `DispatchPhase627FahrerauslastungsHeatmap`:
+- Props: `locationId: string | null`
+- 24h-Grid 08:00–23:00 × aktive Fahrer
+- Jetzige Stunde: live-Auslastung aus Schicht-API; Vergangenheit + Zukunft: deterministische Simulation
+- Farbskala: grau (<25%) · grün · amber · orange · rot (≥90%)
+- Ring-Highlight für aktuelle Stunde
+- Legende · overflow-x: auto für schmale Screens
+- 60s Polling · Mock-Fallback mit 4 Fahrern
+- Integration: `dispatch/client.tsx` nach Phase625 ✅
+
+### Phase 628 Fahrer-App — km-Tageslog
+**`app/fahrer/app/phase628-km-tageslog.tsx`** — `FahrerPhase628KmTageslog`:
+- Props: `driverId: string`
+- Ruft `/api/delivery/driver/earnings` ab, filtert auf heute
+- 3er-Vergleich: Heute (km) · Vortag (km) · Differenz + TrendIcon
+- Liste aller Touren heute mit km + Abschlusszeit
+- TrendingUp/Down/Minus Farbkodierung
+- 2min Polling · Mock-Fallback
+- Integration: `fahrer/app/client.tsx` nach Phase623 ✅
+
+### Phase 629 Storefront — Liefer-Qualitäts-Siegel
+**`app/order/[locationSlug]/phase629-liefer-qualitaets-siegel.tsx`** — `Phase629LieferQualitaetsSiegel`:
+- Props: `locationId: string`
+- Ruft `/api/delivery/admin/sla-snapshot` ab
+- Klassifizierung: Gold ≥95% · Silber ≥85% · Standard <85%
+- Kompaktes Siegel-Badge (Icon + Label + Pünktlichkeits-%)
+- 5min Polling · Mock-Fallback Gold
+- Integration: `storefront.tsx` nach Phase624 ✅
+
+### Integrations-Checkliste Phase 625–629
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Fahrer-Tagesleistung-API | api/delivery/admin/fahrer-tagesleistung-vergleich/route.ts | Neu (GET) | ✅ |
+| DispatchPhase625FahrerTagesleistungVergleich | dispatch/phase625-fahrer-tagesleistung-vergleich.tsx | dispatch/client.tsx nach Phase622 | ✅ |
+| KitchenPhase626PrepPriorisierungsScanner | kitchen/phase626-prep-priorisierungs-scanner.tsx | kitchen/client.tsx nach Phase621 | ✅ |
+| DispatchPhase627FahrerauslastungsHeatmap | dispatch/phase627-fahrerauslastungs-heatmap.tsx | dispatch/client.tsx nach Phase625 | ✅ |
+| FahrerPhase628KmTageslog | fahrer/app/phase628-km-tageslog.tsx | fahrer/app/client.tsx nach Phase623 | ✅ |
+| Phase629LieferQualitaetsSiegel | order/[locationSlug]/phase629-liefer-qualitaets-siegel.tsx | storefront.tsx nach Phase624 | ✅ |
+
+**Build:** 372 Seiten, Exit 0 ✅
+**TypeScript:** 0 neue Fehler (alle pre-existing, ignoreBuildErrors: true) ✅
+
+### Nächste Phasen
+1. **Phase 630 Backend:** Schicht-Profitabilitäts-API — je aktiver Schicht: Lieferlohn, Kosten, Einnahmen, Netto-Marge in Echtzeit.
+2. **Phase 631 Kitchen:** Bestellungs-Herkunfts-Mix — Donut-Chart: Lieferung / Abholung / Vor-Ort Anteil heute.
+3. **Phase 632 Dispatch:** Fahrer-km-Effizienz-Ranking — Rangliste der Fahrer nach km/Lieferung (niedrig = effizient).
+4. **Phase 633 Fahrer-App:** Tour-Nachbereitung-Dialog — nach Tour-Abschluss: km eingeben, Feedback geben, Bonus anzeigen.
+5. **Phase 634 Storefront:** Bestellhistorie-Kurzansicht — „Du hast hier schon X Mal bestellt" mit letzter Bestellung.

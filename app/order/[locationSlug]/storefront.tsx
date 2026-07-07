@@ -83,6 +83,7 @@ import { Phase597KuechenauslastungsBanner } from './phase597-kuechenauslastungs-
 import { Phase604FahrerProfilVorschau } from './phase604-fahrer-profil-vorschau';
 import { Phase609BestellstatusTimeline } from './phase609-bestellstatus-timeline';
 import { Phase624WarteschlangenIndikator } from './phase624-warteschlangen-indikator';
+import { Phase629LieferQualitaetsSiegel } from './phase629-liefer-qualitaets-siegel';
 
 type Props = {
   location: Location;
@@ -1342,6 +1343,8 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 624: Echtzeit-Warteschlangen-Indikator — aktuelle Küchenauslastung als Wartezeit */}
       {order.isDelivery && <Phase624WarteschlangenIndikator locationId={location.id} />}
+      {/* Phase 629: Liefer-Qualitäts-Siegel — Gold/Silber/Standard basierend auf 7-Tage SLA */}
+      {order.isDelivery && <Phase629LieferQualitaetsSiegel locationId={location.id} />}
       {/* Phase 269: Kompakte Fortschritts-Karte — Schritt-für-Schritt Visualisierung */}
       {order.isDelivery && (
         <BestellungFortschrittKarte

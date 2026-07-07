@@ -225,6 +225,7 @@ import { FahrerPhase608TrinkgeldTrendWidget } from './phase608-trinkgeld-trend-w
 import { FahrerPhase613LetzteBewertungenWidget } from './phase613-letzte-bewertungen-widget';
 import { FahrerPhase618TagesEinnahmenDifferenz } from './phase618-tages-einnahmen-differenz';
 import { FahrerPhase623PauseEmpfehlung } from './phase623-pause-empfehlung';
+import { FahrerPhase628KmTageslog } from './phase628-km-tageslog';
 
 type Driver = {
   id: string;
@@ -3214,6 +3215,13 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase623PauseEmpfehlung driverId={driver.id} locationId={null} />
+          </div>
+        )}
+
+        {/* Phase 628: km-Tageslog — gefahrene km je Tour + Vergleich Vortag */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase628KmTageslog driverId={driver.id} />
           </div>
         )}
 

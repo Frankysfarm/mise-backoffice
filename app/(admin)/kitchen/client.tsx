@@ -244,6 +244,7 @@ import { KitchenPhase606DringendeBestellungenAlarm } from './phase606-dringende-
 import { KitchenPhase611TagesBestellzielRing } from './phase611-tages-bestellziel-ring';
 import { KitchenPhase616WellenAlarmStrip } from './phase616-wellen-alarm-strip';
 import { KitchenPhase621BatchCountdownTafel } from './phase621-batch-countdown-tafel';
+import { KitchenPhase626PrepPriorisierungsScanner } from './phase626-prep-priorisierungs-scanner';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2023,6 +2024,8 @@ export function KitchenBoard({
       <KitchenPhase616WellenAlarmStrip orders={filtered as any} />
       {/* Phase 621: Batch-Countdown-Tafel — gemeinsamer Countdown für Batch-Bestellungen je Fahrer */}
       <KitchenPhase621BatchCountdownTafel orders={filtered as any} />
+      {/* Phase 626: Prep-Priorisierungs-Scanner — Bestellungen nach Abholzeitpunkt sortiert */}
+      <KitchenPhase626PrepPriorisierungsScanner orders={filtered as any} />
     </div>
   );
 }
