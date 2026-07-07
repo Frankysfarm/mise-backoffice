@@ -296,6 +296,7 @@ import { DispatchPhase558StornoProaktivPanel } from './phase558-storno-praeventi
 import { DispatchPhase569TourStoppSequenzLive } from './phase569-tour-stopp-sequenz-live';
 import { DispatchPhase574FahrerRueckkehrOptimierung } from './phase574-fahrer-rueckkehr-optimierung';
 import { DispatchPhase580ZoneDemandHeatmap } from './phase580-zone-demand-heatmap';
+import { DispatchPhase585FahrerLastBalance } from './phase585-fahrer-last-balance';
 
 type Driver = {
   employee_id: string;
@@ -2126,6 +2127,9 @@ export function DispatchBoard({
       {/* Phase 580: Zone-Demand-Heatmap-Live — Mini-Heatmap der Zonen nach aktuellem Bestelldruck */}
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <DispatchPhase580ZoneDemandHeatmap orders={orders as any} batches={batches as any} />
+      {/* Phase 585: Fahrer-Last-Balance-Kommando — Ungleichgewicht erkennen, Umverteilung empfehlen */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <DispatchPhase585FahrerLastBalance batches={batches as any} drivers={drivers as any} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}

@@ -217,6 +217,7 @@ import { FahrerPhase565TourHeimkehrInfo } from './phase565-tour-heimkehr-info';
 import { FahrerPhase570TourAktivKommando } from './phase570-tour-aktiv-kommando';
 import { FahrerPhase575SchichtEffizienzCockpit } from './phase575-schicht-effizienz-cockpit';
 import { FahrerPhase581SchichtZielFortschrittsring } from './phase581-schicht-ziel-fortschrittsring';
+import { FahrerPhase586StoppNavigatorKarte } from './phase586-stopp-navigator-karte';
 
 type Driver = {
   id: string;
@@ -3148,6 +3149,13 @@ export function FahrerApp({
             <FahrerPhase581SchichtZielFortschrittsring
               currentShiftStart={status?.online_seit ?? null}
             />
+          </div>
+        )}
+
+        {/* Phase 586: Einzel-Stopp-Navigator-Karte — Kartenansicht nächster Stopp mit Adresse */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <FahrerPhase586StoppNavigatorKarte stops={activeBatch.stops as any} />
           </div>
         )}
 

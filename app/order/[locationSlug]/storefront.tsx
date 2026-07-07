@@ -78,6 +78,7 @@ import { Phase566LiveTrackingStrip } from './components/phase566-live-tracking-s
 import { Storefront571LiveEtaMegaPanel } from './phase571-live-eta-mega-panel';
 import { Phase576BestellFortschrittsRing } from './phase576-bestell-fortschritts-ring';
 import { Phase582KuechenstatusBadge } from './phase582-kuechenstatus-badge';
+import { Phase587BestellEtaKomfortBanner } from './phase587-bestell-eta-komfort-banner';
 
 type Props = {
   location: Location;
@@ -682,6 +683,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <FahrerAnkunftsCountdown
               etaMin={orderSuccess.eta}
               status="bestätigt"
+            />
+          </div>
+        )}
+        {/* Phase 587: Bestell-ETA-Komfort-Banner v2 — Küchen- und Fahrerphase getrennt */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.eta > 0 && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase587BestellEtaKomfortBanner
+              etaMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+              orderedAt={orderSuccess.orderedAt}
             />
           </div>
         )}

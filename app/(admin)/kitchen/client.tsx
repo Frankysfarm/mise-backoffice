@@ -234,6 +234,7 @@ import { KitchenPhase563PrepTimingGrid } from './phase563-prep-timing-grid';
 import { KitchenPhase568HandoffWarteKommando } from './phase568-handoff-warte-kommando';
 import { KitchenPhase573BestellTempoBoard } from './phase573-bestell-tempo-board';
 import { KitchenPhase579BestellKomplexitaetsPrognose } from './phase579-bestell-komplexitaets-prognose';
+import { KitchenPhase584VerspaetungsAlarmPanel } from './phase584-verspaetungs-alarm-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1989,6 +1990,8 @@ export function KitchenBoard({
       <KitchenPhase573BestellTempoBoard orders={filtered} />
       {/* Phase 579: Bestellungs-Komplexitäts-Prognose — Küchenbelastung durch Artikel-Komplexität */}
       <KitchenPhase579BestellKomplexitaetsPrognose orders={filtered} />
+      {/* Phase 584: Live-Verspätungs-Alarm-Panel — Bestellungen >20 Min in Zubereitung */}
+      <KitchenPhase584VerspaetungsAlarmPanel orders={filtered} />
     </div>
   );
 }
