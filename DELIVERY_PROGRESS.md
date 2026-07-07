@@ -9810,3 +9810,84 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 4. **Phase 586 Fahrer-App:** Einzel-Stopp-Navigator-Karte — Kartenansicht des nächsten Stopps mit Adresse + Abstand.
 5. **Phase 587 Storefront:** Bestell-ETA-Komfort-Banner v2 — Erweiterter ETA-Banner mit Küchen- und Fahrerphase getrennt ausgewiesen.
 
+
+---
+
+## Phase 583–587 — Zonen-Snapshot-API, Verspätungs-Alarm, Last-Balance, Stopp-Navigator, ETA-Banner v2 (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 583 Backend — Zonen-Auslastungs-Snapshot-API
+
+**`app/api/delivery/admin/zonen-auslastung-snapshot/route.ts`** — GET /api/delivery/admin/zonen-auslastung-snapshot:
+- Stündliche Auslastung der Zonen A/B/C/D: aktive Touren + offene Bestellungen je Zone
+- Level-Berechnung: idle (0) / low (1–2) / medium (3–5) / high (6–8) / critical (9+)
+- auslastungPct relativ zum maximal belasteten Zone
+- Multi-Tenant: filtert location_id, resolveLocationId via Auth
+- Response: `{ ok, zones: ZoneSnapshot[], totalActive, totalPending, generatedAt }`
+
+### Phase 584 Kitchen — Live-Verspätungs-Alarm-Panel
+
+**`app/(admin)/kitchen/phase584-verspaetungs-alarm-panel.tsx`** — `KitchenPhase584VerspaetungsAlarmPanel`:
+- Props: `orders, thresholdMin=20`
+- Alle Bestellungen (in_zubereitung, delivery-Typ) die länger als 20 Min in Zubereitung sind
+- Kritisch-Badge bei >30 Min (thresholdMin + 10)
+- Eskalations-Button je Bestellung (state-tracked, disabled nach Klick)
+- Sortierung: längstes zuerst
+- 30s Ticker
+- Integration: `kitchen/client.tsx` nach KitchenPhase579BestellKomplexitaetsPrognose ✅
+
+### Phase 585 Dispatch — Fahrer-Last-Balance-Kommando
+
+**`app/(admin)/dispatch/phase585-fahrer-last-balance.tsx`** — `DispatchPhase585FahrerLastBalance`:
+- Props: `batches, drivers`
+- Offene Stopps je aktivem Fahrer + Batch-Anzahl mit Fortschrittsbalken
+- Alert + Umverteilungs-Empfehlung wenn Δ (max-min offene Stopps) > 3
+- Farbkodierung: Schwerst-belasteter amber, Leichtester grün
+- Online-Fahrer mit 0 Stopps ebenfalls sichtbar
+- 30s Ticker
+- Integration: `dispatch/client.tsx` nach DispatchPhase580ZoneDemandHeatmap ✅
+
+### Phase 586 Fahrer-App — Einzel-Stopp-Navigator-Karte
+
+**`app/fahrer/app/phase586-stopp-navigator-karte.tsx`** — `FahrerPhase586StoppNavigatorKarte`:
+- Props: `stops, currentLat?, currentLng?`
+- Nächster pending Stopp nach sequence_number
+- Adressblock: Kundenname + Adresse + ETA-Minuten (km ÷ 0.5 km/Min)
+- Haversine-Distanz wenn lat/lng vorhanden
+- Google Maps Deep-Link + Telefon-Button (tel:)
+- Entfernungs-Fortschrittsbalken (Skala 0–10 km)
+- 60s Auto-Refresh
+- Integration: `fahrer/app/client.tsx` nach FahrerPhase581SchichtZielFortschrittsring ✅
+
+### Phase 587 Storefront — Bestell-ETA-Komfort-Banner v2
+
+**`app/order/[locationSlug]/phase587-bestell-eta-komfort-banner.tsx`** — `Phase587BestellEtaKomfortBanner`:
+- Props: `orderStatus?, etaMin?, orderedAt?, kitchenMin?, deliveryMin?`
+- 4-Phasen-Schritt-Anzeige: Bestätigt → Küche → Unterwegs → Geliefert
+- Aktive Phase animiert (pulse), abgeschlossene Phasen grün
+- ETA-Countdown: totalEta − elapsed in Min
+- Fortschrittsbalken oben (% aus elapsed/totalEta)
+- Getrennte Küchen- und Fahrerphase-ETA im Breakdown
+- Geliefert-State: grüner Block mit CheckCircle
+- 30s Ticker
+- Integration: `storefront.tsx` nach FahrerAnkunftsCountdown ✅
+
+### Integrations-Checkliste Phase 583–587
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Zonen-Auslastungs-Snapshot API | api/delivery/admin/zonen-auslastung-snapshot/route.ts | Neu (GET) | ✅ |
+| KitchenPhase584VerspaetungsAlarmPanel | kitchen/phase584-verspaetungs-alarm-panel.tsx | kitchen/client.tsx nach Phase579 | ✅ |
+| DispatchPhase585FahrerLastBalance | dispatch/phase585-fahrer-last-balance.tsx | dispatch/client.tsx nach Phase580 | ✅ |
+| FahrerPhase586StoppNavigatorKarte | fahrer/app/phase586-stopp-navigator-karte.tsx | fahrer/app/client.tsx nach Phase581 | ✅ |
+| Phase587BestellEtaKomfortBanner | order/[locationSlug]/phase587-bestell-eta-komfort-banner.tsx | storefront.tsx nach FahrerAnkunftsCountdown | ✅ |
+
+**Build:** Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 588 Backend:** Fahrer-Schicht-Auslastungs-API — Aktuelle Schicht: Auslastung %, freie Kapazität, Prognose bis Schichtende. GET /api/delivery/admin/fahrer-schicht-auslastung
+2. **Phase 589 Kitchen:** Bestellungs-Warteschlangen-Ampel — Ampelsystem für die Küchenwarteschlange: grün (<5 Bestellungen), gelb (5–9), rot (≥10).
+3. **Phase 590 Dispatch:** Zonen-Prioritäts-Rebalancer — Wenn Zone A kritisch und Zone D idle: Fahrerempfehlung für Umverteilung.
+4. **Phase 591 Fahrer-App:** Schicht-Abschluss-Prognose — Wann endet meine Schicht voraussichtlich? Basierend auf verbleibenden Stopps + Ø-Zeit.
+5. **Phase 592 Storefront:** Küchen-Auslastungs-Infobanner — Zeigt Kunden wenn die Küche aktuell sehr ausgelastet ist (+5-10 Min Wartezeit).
+
