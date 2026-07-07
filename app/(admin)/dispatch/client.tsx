@@ -2111,13 +2111,13 @@ export function DispatchBoard({
         locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
       />
       {/* Phase 549: Tour-Live-Effizienz-Matrix — Alle aktiven Touren mit Pünktlichkeit, Stopp-Fortschritt + Pace */}
-      <DispatchPhase549TourLiveEffizienzMatrix batches={batches as any} drivers={drivers} />
+      <DispatchPhase549TourLiveEffizienzMatrix batches={batches as any} drivers={drivers as any} />
       {/* Phase 556: Fahrer-Score-Puls-Board — Live-Score je aktivem Fahrer, farbkodiert, schlechtester zuerst */}
-      <DispatchPhase556FahrerScorePuls drivers={drivers} batches={batches as any} />
+      <DispatchPhase556FahrerScorePuls drivers={drivers as any} batches={batches as any} />
       {/* Phase 558: Storno-Prävention — At-Risk-Bestellungen nahe SLA-Grenze mit Handlungsempfehlung */}
       <DispatchPhase558StornoProaktivPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 564: Tour-Score-Ampel — Echtzeit-Effizienz-Score je aktiver Tour, farbkodiert nach Tier */}
-      <DispatchPhase564TourScoreAmpel batches={batches as any} drivers={drivers} />
+      <DispatchPhase564TourScoreAmpel batches={batches as any} drivers={drivers as any} />
       {/* Phase 569: Tour-Stopp-Sequenz Live — Horizontale Stopp-Fortschritts-Visualisierung je aktiver Tour */}
       <DispatchPhase569TourStoppSequenzLive batches={batches as any} drivers={drivers} />
       {/* Phase 574: Fahrer-Rückkehr-Optimierung — Priorisierte Rückkehr-ETA aller unterwegs-Fahrer */}

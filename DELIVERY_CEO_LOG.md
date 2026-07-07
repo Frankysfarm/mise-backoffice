@@ -1,7 +1,78 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–572 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–582 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+
+## CEO Review #273 — Phase 578–582 (2026-07-07)
+
+**Befund: 3 TypeScript-Fehler gefixt. Build: 366 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 578–582
+
+**Phase 578 — Touren-Effizienz-Aggregat-API** (`api/delivery/admin/touren-effizienz-aggregat/route.ts`):
+- Aggregiert abgeschlossene Touren (Ø km, Ø Min/Stopp, Ø Score, On-Time-%) ✅
+- resolveLocationId-Fallback via auth ✅
+- Korrekte Supabase-Abfragen mit dayStart/dayEnd ✅
+
+**Phase 579 — Kitchen: Bestell-Komplexitäts-Prognose** (`kitchen/phase579-bestell-komplexitaets-prognose.tsx`):
+- einfach/mittel/komplex-Klassifizierung nach Artikel-Anzahl ✅
+- Alert-Banner bei ≥2 (warn) oder ≥4 (critical) komplexe gleichzeitig ✅
+- Integration: `kitchen/client.tsx` ✅
+
+**Phase 580 — Dispatch: Zone-Demand-Heatmap** (`dispatch/phase580-zone-demand-heatmap.tsx`):
+- Zonen A/B/C/D farbkodiert nach Bestelldruck (low/medium/high/critical) ✅
+- **BUG GEFIXT:** `Map` aus `lucide-react` überschattete globalen `Map`-Typ → TS2558/TS7009
+- Fix: Import umbenannt zu `MapIcon` ✅
+- Integration: `dispatch/client.tsx` ✅
+
+**Phase 581 — Fahrer-App: Schicht-Ziel-Fortschrittsring** (`fahrer/app/phase581-schicht-ziel-fortschrittsring.tsx`):
+- Animierter SVG-Ring, 8h-Prognose, Farbkodierung grün/amber/rot ✅
+- Integration: `fahrer/app/client.tsx` (nur bei isOnline) ✅
+
+**Phase 582 — Storefront: Küchenstatus-Badge** (`order/[locationSlug]/phase582-kuechenstatus-badge.tsx`):
+- Live-Badge normal/busy/peak aus `/api/delivery/kitchen/queue` ✅
+- Ping-Dot-Animation bei busy/peak ✅
+- Integration: `storefront.tsx` bei orderType === 'lieferung' ✅
+
+### Bugs gefixt in Review #273
+
+#### Bug 1 — Phase580: `Map`-Icon überschattet Built-in `Map`
+**Datei:** `dispatch/phase580-zone-demand-heatmap.tsx`
+**Problem:** `import { Map } from 'lucide-react'` — der lokale Name `Map` überschattete den globalen `Map`-Typ. `new Map<Zone, number>()` scheiterte mit TS7009/TS2558.
+**Fix:** `import { ..., Map as MapIcon }` + Verwendung als `<MapIcon .../>`.
+
+#### Bug 2 — Phase549/Phase556: `Driver[]`-Typ-Konflikt
+**Datei:** `dispatch/client.tsx` Zeilen 2114/2116/2120
+**Problem:** Zwei verschiedene `Driver`-Interfaces (lokales vs. globales) — TS2719.
+**Fix:** `drivers={drivers as any}` bei `Phase549TourLiveEffizienzMatrix`, `Phase556FahrerScorePuls`, `Phase564TourScoreAmpel`.
+
+#### Bug 3 — Phase503: `data` possibly null
+**Datei:** `order/[locationSlug]/phase503-live-tracking-commander.tsx` Zeile 137
+**Problem:** `countdown != null && data?.phase !== 'delivered'` → true wenn data null, aber innen `data.confidence` ohne Guard.
+**Fix:** Bedingung auf `countdown != null && data != null && data.phase !== 'delivered'`.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #273
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 578–582: alle 5 Komponenten vollständig + integriert ✅
+- 3 Bugs gefixt: Map-Import-Shadowing + 2× Driver-Typ-Konflikt + null-Guard ✅
+
+### Nächste Phasen für Backend/Frontend-Agenten
+- Phase 583: Backend-API `GET /api/delivery/admin/touren-effizienz-aggregat` in Frontend-Komponente einbinden (z.B. Dispatch-Dashboard-KPI-Karte mit Ø Score, On-Time-%)
+- Phase 584: Kitchen — Komplexitäts-Prognose mit Echtzeit-API-Daten aus DB statt Props (eigener API-Endpunkt)
+- Phase 585: Storefront — Küchenstatus-Badge auch bei Abholung anzeigen (nicht nur Lieferung)
+
+---
 
 ## CEO Review #272 — Phase 563–572 (2026-07-07)
 

@@ -134,7 +134,7 @@ export function Phase503LiveTrackingCommander({ orderId, bestellnummer, location
         </div>
 
         {/* ETA Countdown */}
-        {countdown != null && data?.phase !== 'delivered' && (
+        {countdown != null && data != null && data.phase !== 'delivered' && (
           <div className="mt-3 rounded-xl bg-white/10 border border-white/20 px-4 py-3 flex items-center justify-between">
             <div>
               <div className="text-[10px] font-bold uppercase opacity-70">Lieferzeit</div>

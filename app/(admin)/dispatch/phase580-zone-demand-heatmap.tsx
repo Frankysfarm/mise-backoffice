@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Map } from 'lucide-react';
+import { ChevronDown, ChevronUp, Map as MapIcon } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -122,7 +122,7 @@ export function DispatchPhase580ZoneDemandHeatmap({ orders = [], batches = [] }:
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition"
       >
         <div className="flex items-center gap-2">
-          <Map className="h-4 w-4 text-matcha-600" />
+          <MapIcon className="h-4 w-4 text-matcha-600" />
           <span className="font-display text-sm font-bold uppercase tracking-wider">Zonen-Demand Live</span>
           {hotZone.demand > 0 && (
             <Badge className={cn('text-[10px] px-2 py-0.5', LEVEL_CFG[hotZone.level].barColor.replace('bg-', 'bg-'), 'text-white')}>
