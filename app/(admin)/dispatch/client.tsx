@@ -277,6 +277,7 @@ import { DispatchPhase590TourScoreVisualisierung } from './phase590-tour-score-v
 import { DispatchPhase598FahrerKpiCard } from './phase598-fahrer-kpi-card';
 import { DispatchPhase602ZonenKapazitaetsBalancer } from './phase602-zonen-kapazitaets-balancer';
 import { DispatchPhase607TourUmsatzUebersicht } from './phase607-tour-umsatz-uebersicht';
+import { DispatchPhase612KuechenStatusOverlay } from './phase612-kuechen-status-overlay';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2160,6 +2161,8 @@ export function DispatchBoard({
       <DispatchPhase602ZonenKapazitaetsBalancer locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 607: Tour-Umsatz-Übersicht — Umsatz je aktiver Tour, sortiert nach Wert */}
       <DispatchPhase607TourUmsatzUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 612: Küchen-Status-Overlay — Küchenlast-Signal (grün/gelb/rot) + Prognose-Wartezeit für Dispatch-Sicht */}
+      <DispatchPhase612KuechenStatusOverlay locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

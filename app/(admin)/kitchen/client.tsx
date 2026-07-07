@@ -241,6 +241,7 @@ import { KitchenPhase589WarteschlangenAmpel } from './phase589-warteschlangen-am
 import { KitchenPhase599StationAuslastungsRing } from './phase599-station-auslastungs-ring';
 import { KitchenPhase601PrepLernStatus } from './phase601-prep-lern-status';
 import { KitchenPhase606DringendeBestellungenAlarm } from './phase606-dringende-bestellungen-alarm';
+import { KitchenPhase611TagesBestellzielRing } from './phase611-tages-bestellziel-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2014,6 +2015,8 @@ export function KitchenBoard({
       )}
       {/* Phase 606: Dringende-Bestellungen-Alarm — SLA-Warnung bei Bestellungen kurz vor oder über Zeitlimit */}
       <KitchenPhase606DringendeBestellungenAlarm orders={filtered as any} />
+      {/* Phase 611: Tages-Bestellziel-Fortschritts-Ring — Kreisring: erledigte Bestellungen heute vs. Tagesziel */}
+      <KitchenPhase611TagesBestellzielRing orders={filtered as any} />
     </div>
   );
 }

@@ -222,6 +222,7 @@ import { FahrerPhase591TourStoppLiveNav } from './phase591-tour-stopp-live-nav';
 import { FahrerPhase596SchichtNavHub } from './phase596-schicht-nav-hub';
 import { FahrerPhase603SchichtAbschlussZusammenfassung } from './phase603-schicht-abschluss-zusammenfassung';
 import { FahrerPhase608TrinkgeldTrendWidget } from './phase608-trinkgeld-trend-widget';
+import { FahrerPhase613LetzteBewertungenWidget } from './phase613-letzte-bewertungen-widget';
 
 type Driver = {
   id: string;
@@ -3193,6 +3194,12 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase608TrinkgeldTrendWidget driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 613: Letzte-Bewertungen-Widget — Letzte 3 Kundenbewertungen mit Sternen und Kommentar */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase613LetzteBewertungenWidget driverId={driver.id} />
           </div>
         )}
 

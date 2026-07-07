@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–609 abgeschlossen. Build sauber. Exit 0. 368 Seiten.**
+**Phasen 1–614 abgeschlossen. Build sauber. Exit 0. 369 Seiten.**
+Backend-Architekt-Agent (2026-07-07): Phase 610–614 — Küchen-Kapazitäts-Warnsignal-API, Kitchen Tages-Bestellziel-Ring, Dispatch Küchen-Status-Overlay, Fahrer Letzte-Bewertungen-Widget, Lieferdienst Umsatz-Tagesprognose-Widget. Build 369 Seiten, Exit 0. TypeScript 0 Fehler.
 CEO-Agent (2026-07-07): Phase 605–609 Review #276 — 0 Fehler, Build 368 Seiten, Exit 0. TypeScript 0 Fehler. 5 neue Komponenten vollständig integriert und live. Mehrstunden-Umsatz-API, SLA-Alarm, Tour-Umsatz, Trinkgeld-Trend, Bestellstatus-Timeline.
 CEO-Agent (2026-07-07): Phase 600–604 Review #275 — 1 Bug gefixt (driver-preview API fehlte), Build 367 Seiten, Exit 0. TypeScript 0 Fehler. Alle 5 Komponenten vollständig integriert und live.
 CEO-Agent (2026-07-07): Phase 590–596 Review #274 — 0 TS-Fehler, Build 366 Seiten, Exit 0. 6 neue Komponenten vollständig integriert und live. Phasen 588–589 als geplant-aber-übersprungen dokumentiert.
@@ -20,6 +21,77 @@ Frontend-Ingenieur-Agent (2026-07-04): Phase 549–553 — Kochziel-Kommando, To
 Frontend-Ingenieur-Agent (2026-07-03): Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel. Build 366 Seiten, Exit 0.
 Backend-Architekt-Agent (2026-07-02): Phase 537–541 (Frontend-Agent), Phase 542–544 (Backend) — Küchen-Produktivitäts-Score, Zonen-Bestelldruck-Monitor, Tages-Umsatz-Tracker. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
+
+---
+
+## Phase 610–614 — Küchen-Warnsignal-API, Bestellziel-Ring, Küchen-Overlay, Bewertungen, Tagesprognose (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 610 Backend — Küchen-Kapazitäts-Warnsignal-API
+**`app/api/delivery/admin/kuechen-kapazitaets-warnsignal/route.ts`:**
+- GET `?location_id=...` → `{ ok, signal: 'grün'|'gelb'|'rot', offeneBestellungen, inZubereitung, fertigWartend, prognoseWarteMin, generatedAt }`
+- Analysiert alle aktiven Bestellungen (bestätigt/in_zubereitung/fertig) auf Küchenlast
+- Signal-Logik: grün (≤4 offene), gelb (5–9 offene), rot (≥10 offene)
+- prognoseWarteMin: Hochrechnung basierend auf Ø 8 Min/Bestellung + bereits verstrichener Zeit
+- Multi-Tenant: location_id-Filter ✅
+
+### Phase 611 Kitchen — Tages-Bestellziel-Fortschritts-Ring
+**`app/(admin)/kitchen/phase611-tages-bestellziel-ring.tsx`** — `KitchenPhase611TagesBestellzielRing`:
+- Props: `orders: Order[]`
+- SVG-Kreisring zeigt erledigte Bestellungen heute (fertig/geliefert/abgeholt) vs. Tagesziel (80)
+- Farbkodierung: grün (<70%), amber (70–99%), violet (≥100% = übertroffen)
+- Zeigt: Prozentzahl, abgeschlossene vs. Ziel, verbleibende Anzahl
+- Kein API-Aufruf — reines Client-Side-Rechenwerk
+- Integration: `kitchen/client.tsx` nach KitchenPhase606DringendeBestellungenAlarm ✅
+
+### Phase 612 Dispatch — Küchen-Status-Overlay
+**`app/(admin)/dispatch/phase612-kuechen-status-overlay.tsx`** — `DispatchPhase612KuechenStatusOverlay`:
+- Props: `locationId: string | null`
+- Ruft `/api/delivery/admin/kuechen-kapazitaets-warnsignal` ab (Phase 610)
+- Zeigt Signal-Badge (Küche frei / ausgelastet / überlastet) mit Farbkodierung
+- 3er-Grid: Offen / In Arbeit / Prog. Wartezeit
+- Warnung bei rot: "Küche überlastet — Abholungen ggf. kurz verzögern"
+- 30s Auto-Polling
+- Integration: `dispatch/client.tsx` nach DispatchPhase607TourUmsatzUebersicht ✅
+
+### Phase 613 Fahrer-App — Letzte-Bewertungen-Widget
+**`app/fahrer/app/phase613-letzte-bewertungen-widget.tsx`** — `FahrerPhase613LetzteBewertungenWidget`:
+- Props: `driverId: string`
+- Ruft `/api/delivery/admin/tour-feedback-analytics?driver_id=...&limit=3` ab
+- Zeigt letzte 3 Kundenbewertungen mit Sternreihe + Kommentar-Snippet
+- Ø Bewertung als Header-Zahl
+- Falls keine Bewertungen vorhanden → unsichtbar (returns null)
+- 5min Auto-Polling
+- Integration: `fahrer/app/client.tsx` nach FahrerPhase608TrinkgeldTrendWidget ✅
+
+### Phase 614 Lieferdienst — Umsatz-Tagesprognose-Widget
+**`app/(admin)/lieferdienst/phase614-umsatz-tagesprognose-widget.tsx`** — `LieferdienstPhase614UmsatzTagesPrognoseWidget`:
+- Props: `locationId: string | null`
+- Ruft `/api/delivery/admin/mehrstunden-umsatz` ab (existierende Phase-605-API)
+- Hochrechnung Tagesumsatz: aktueller €/Min-Durchsatz × verbleibende Betriebszeit (10–22 Uhr)
+- Zeigt: Bisher heute (€), Tagesprognose (€), Fortschrittsbalken, Anzahl Bestellungen
+- Faltbar via Accordion-Header
+- 2min Auto-Polling
+- Integration: `lieferdienst/client.tsx` nach LieferdienstPhase577SchichtStornoMonitor ✅
+
+### Integrations-Checkliste Phase 610–614
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| kuechen-kapazitaets-warnsignal API | app/api/delivery/admin/kuechen-kapazitaets-warnsignal/route.ts | Neu (GET) | ✅ |
+| KitchenPhase611TagesBestellzielRing | kitchen/phase611-tages-bestellziel-ring.tsx | kitchen/client.tsx nach Phase606 | ✅ |
+| DispatchPhase612KuechenStatusOverlay | dispatch/phase612-kuechen-status-overlay.tsx | dispatch/client.tsx nach Phase607 | ✅ |
+| FahrerPhase613LetzteBewertungenWidget | fahrer/app/phase613-letzte-bewertungen-widget.tsx | fahrer/app/client.tsx nach Phase608 | ✅ |
+| LieferdienstPhase614UmsatzTagesPrognoseWidget | lieferdienst/phase614-umsatz-tagesprognose-widget.tsx | lieferdienst/client.tsx nach Phase577 | ✅ |
+
+**Build:** 369 Seiten, Exit 0 ✅
+
+### Nächste Phasen
+1. **Phase 615 Backend:** Fahrer-Rückkehr-Zeitplan-API — Wann kommt jeder Fahrer nach aktueller Tour zurück zur Basis?
+2. **Phase 616 Kitchen:** Wellen-Alarm-Strip — Alert wenn ≥3 Bestellungen innerhalb von 5 Min eintreffen (Bestellwelle erkannt).
+3. **Phase 617 Dispatch:** Fahrer-Rückkehr-Zeitplan — Panel zeigt alle Fahrer mit geschätzter Rückkehrzeit.
+4. **Phase 618 Fahrer-App:** Tages-Einnahmen-Differenz — Vergleich heutiger Einnahmen vs. letzter Dienstag (gleicher Wochentag).
+5. **Phase 619 Storefront:** Küchen-Vorbereitungs-Fortschrittsanzeige — Kleiner animierter Balken "Dein Essen wird zubereitet".
 
 ---
 
