@@ -77,6 +77,7 @@ import { WetterVerzoegerungshinweis } from './wetter-verzoegerungshinweis';
 import { Phase566LiveTrackingStrip } from './components/phase566-live-tracking-strip';
 import { Storefront571LiveEtaMegaPanel } from './phase571-live-eta-mega-panel';
 import { Phase576BestellFortschrittsRing } from './phase576-bestell-fortschritts-ring';
+import { Phase582KuechenstatusBadge } from './phase582-kuechenstatus-badge';
 
 type Props = {
   location: Location;
@@ -735,6 +736,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 205: Fortschritt-Band — visueller Status-Progress mit Countdown */}
       <ActiveOrderProgressPanel locationId={location.id} />
 
+      {/* Phase 582: Küchenstatus-Live-Badge — Signalisiert Küchenstatus für Kunden */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase582KuechenstatusBadge locationId={location.id} />
+        </div>
+      )}
       {/* Wetter-Lieferverzug-Hinweis: Kundenhinweis bei schlechtem Wetter */}
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-3 md:px-8">

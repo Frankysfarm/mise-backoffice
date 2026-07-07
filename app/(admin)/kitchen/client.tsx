@@ -233,6 +233,7 @@ import { KitchenPhase561ParallelOptimierer } from './phase561-parallel-optimiere
 import { KitchenPhase563PrepTimingGrid } from './phase563-prep-timing-grid';
 import { KitchenPhase568HandoffWarteKommando } from './phase568-handoff-warte-kommando';
 import { KitchenPhase573BestellTempoBoard } from './phase573-bestell-tempo-board';
+import { KitchenPhase579BestellKomplexitaetsPrognose } from './phase579-bestell-komplexitaets-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1986,6 +1987,8 @@ export function KitchenBoard({
       />
       {/* Phase 573: Bestellungs-Tempo-Board — Bestellrate/h + Verlauf + Rush-Alert */}
       <KitchenPhase573BestellTempoBoard orders={filtered} />
+      {/* Phase 579: Bestellungs-Komplexitäts-Prognose — Küchenbelastung durch Artikel-Komplexität */}
+      <KitchenPhase579BestellKomplexitaetsPrognose orders={filtered} />
     </div>
   );
 }

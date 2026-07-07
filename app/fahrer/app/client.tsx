@@ -216,6 +216,7 @@ import { FahrerPhase552SchichtTempoAmpel } from './phase552-schicht-tempo-ampel'
 import { FahrerPhase565TourHeimkehrInfo } from './phase565-tour-heimkehr-info';
 import { FahrerPhase570TourAktivKommando } from './phase570-tour-aktiv-kommando';
 import { FahrerPhase575SchichtEffizienzCockpit } from './phase575-schicht-effizienz-cockpit';
+import { FahrerPhase581SchichtZielFortschrittsring } from './phase581-schicht-ziel-fortschrittsring';
 
 type Driver = {
   id: string;
@@ -3137,6 +3138,14 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase575SchichtEffizienzCockpit
+              currentShiftStart={status?.online_seit ?? null}
+            />
+          </div>
+        )}
+        {/* Phase 581: Schicht-Zielerreichungs-Fortschrittsring — Animierter Ring für Tagesziel */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase581SchichtZielFortschrittsring
               currentShiftStart={status?.online_seit ?? null}
             />
           </div>

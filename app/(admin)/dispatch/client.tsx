@@ -295,6 +295,7 @@ import { DispatchPhase556FahrerScorePuls } from './phase556-fahrer-score-puls';
 import { DispatchPhase558StornoProaktivPanel } from './phase558-storno-praevention';
 import { DispatchPhase569TourStoppSequenzLive } from './phase569-tour-stopp-sequenz-live';
 import { DispatchPhase574FahrerRueckkehrOptimierung } from './phase574-fahrer-rueckkehr-optimierung';
+import { DispatchPhase580ZoneDemandHeatmap } from './phase580-zone-demand-heatmap';
 
 type Driver = {
   employee_id: string;
@@ -2122,6 +2123,9 @@ export function DispatchBoard({
       {/* Phase 574: Fahrer-Rückkehr-Optimierung — Priorisierte Rückkehr-ETA aller unterwegs-Fahrer */}
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <DispatchPhase574FahrerRueckkehrOptimierung batches={batches as any} drivers={drivers as any} />
+      {/* Phase 580: Zone-Demand-Heatmap-Live — Mini-Heatmap der Zonen nach aktuellem Bestelldruck */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <DispatchPhase580ZoneDemandHeatmap orders={orders as any} batches={batches as any} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
