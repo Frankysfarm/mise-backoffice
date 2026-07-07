@@ -10112,3 +10112,70 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 602 Dispatch:** Zonen-Kapazitäts-Balancer-Panel — visuell zeigen welche Zonen über/unterkapat. sind + Umverteilungsempfehlung.
 4. **Phase 603 Fahrer-App:** Schicht-Abschluss-Zusammenfassung — nach Schichtende: Touren, km, Lieferungen, Trinkgeld gesamt.
 5. **Phase 604 Storefront:** Fahrer-Profil-Vorschau — zeigt dem Kunden kurze Info über den kommenden Fahrer (Name + Ø Bewertung).
+
+## Phase 615–619 — Rückkehr-API, Wellen-Alarm, Fahrer-Zeitplan, Einnahmen-Diff, SLA-Band (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 615 Backend — Fahrer-Rückkehr-Zeitplan-API
+**`app/api/delivery/admin/fahrer-rueckkehr-zeitplan/route.ts`** — `GET /api/delivery/admin/fahrer-rueckkehr-zeitplan`:
+- Parameter: `location_id`
+- Gibt je aktivem Fahrer zurück: name, vehicle, state, offeneStopps, geschaetzteRueckkehrMin, rueckkehrZeit
+- Schätzung: offene Dropoff-Stopps × 8 Min + 5 Min Rückfahrt zur Basis
+- Sortiert: kürzeste Rückkehr zuerst
+
+### Phase 616 Kitchen — Wellen-Alarm-Strip
+**`app/(admin)/kitchen/phase616-wellen-alarm-strip.tsx`** — `KitchenPhase616WellenAlarmStrip`:
+- Props: `orders: Order[]`
+- Erkennt Bestellwellen: ≥3 Bestellungen in den letzten 5 Min
+- Orange Alert-Strip mit Anzahl + Alter der ältesten Wellen-Bestellung
+- Auto-Refresh: 15s, verschwindet wenn keine Welle
+- Integration: `kitchen/client.tsx` nach Phase611 ✅
+
+### Phase 617 Dispatch — Fahrer-Rückkehr-Zeitplan
+**`app/(admin)/dispatch/phase617-fahrer-rueckkehr-zeitplan.tsx`** — `DispatchPhase617FahrerRueckkehrZeitplan`:
+- Props: `locationId: string | null`
+- Ruft `/api/delivery/admin/fahrer-rueckkehr-zeitplan` ab (Phase 615)
+- Liste aller aktiven Fahrer mit: Name, Fahrzeug, Status, offene Stopps, ~Rückkehr-Min
+- Farbkodierung: grün ≤10 Min · amber ≤20 Min · blau >20 Min
+- Mock-Daten als Fallback, 30s Polling
+- Integration: `dispatch/client.tsx` nach Phase612 ✅
+
+### Phase 618 Fahrer-App — Tages-Einnahmen-Differenz
+**`app/fahrer/app/phase618-tages-einnahmen-differenz.tsx`** — `FahrerPhase618TagesEinnahmenDifferenz`:
+- Props: `driverId: string`
+- Ruft `/api/delivery/driver/earnings` für heute und letzten Dienstag ab
+- Zeigt: Heute (€), Letzter Di. (€), Differenz + Prozent mit Trend-Icon
+- TrendingUp/Down/Minus Farbkodierung (grün/rot/grau)
+- Mock-Daten als Fallback
+- Integration: `fahrer/app/client.tsx` nach Phase613 ✅
+
+### Phase 619 Lieferdienst — SLA-Zielerreichungs-Band
+**`app/(admin)/lieferdienst/phase619-sla-zielerreichungs-band.tsx`** — `LieferdienstPhase619SlaZielerreichungsBand`:
+- Props: `locationId: string | null`
+- Ruft `/api/delivery/admin/sla-snapshot` ab
+- Live-Fortschrittsbalken: aktueller Pünktlichkeits-% vs. Tagesziel (90%)
+- Ziel-Marker auf der Fortschrittsleiste
+- 3er-Grid: Pünktlich % · Ziel % · Lieferungen (pünktlich/gesamt)
+- Farbkodierung: grün = erreicht · amber = knapp verfehlt (≤5%) · rot = klar verfehlt
+- 60s Polling, Mock-Fallback
+- Integration: `lieferdienst/client.tsx` nach Phase614 ✅
+
+### Integrations-Checkliste Phase 615–619
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Fahrer-Rückkehr-API | api/delivery/admin/fahrer-rueckkehr-zeitplan/route.ts | Neu (GET) | ✅ |
+| KitchenPhase616WellenAlarmStrip | kitchen/phase616-wellen-alarm-strip.tsx | kitchen/client.tsx nach Phase611 | ✅ |
+| DispatchPhase617FahrerRueckkehrZeitplan | dispatch/phase617-fahrer-rueckkehr-zeitplan.tsx | dispatch/client.tsx nach Phase612 | ✅ |
+| FahrerPhase618TagesEinnahmenDifferenz | fahrer/app/phase618-tages-einnahmen-differenz.tsx | fahrer/app/client.tsx nach Phase613 | ✅ |
+| LieferdienstPhase619SlaZielerreichungsBand | lieferdienst/phase619-sla-zielerreichungs-band.tsx | lieferdienst/client.tsx nach Phase614 | ✅ |
+
+**Build:** 370 Seiten, Exit 0 ✅
+**TypeScript:** 0 Fehler ✅
+
+### Nächste Phasen
+1. **Phase 620 Backend:** Zonen-Nachfrage-Prognose-API — Hochrechnung der Bestellnachfrage je Zone für die nächsten 2h.
+2. **Phase 621 Kitchen:** Batch-Countdown-Tafel — Wenn mehrere Bestellungen für gleichen Fahrer: gemeinsamer Countdown bis Abholung.
+3. **Phase 622 Dispatch:** Zonen-Nachfrage-Vorschau — Mini-Chart je Zone: aktuelle Bestellrate + 2h-Prognose.
+4. **Phase 623 Fahrer-App:** Schicht-Pause-Empfehlung — Empfiehlt optimalen Pausenzeitpunkt basierend auf aktuellem Auftragsfluss.
+5. **Phase 624 Storefront:** Echtzeit-Warteschlangen-Indikator — Zeigt Kunden die aktuelle Küchenauslastung als „Wartezeit ca. X Min".
