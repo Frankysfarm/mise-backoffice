@@ -9973,3 +9973,68 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 597 Storefront:** Küchen-Auslastungs-Infobanner — warnt Kunden bei hoher Küchen-Auslastung (+5-10 Min).
 4. **Phase 598 Dispatch:** Echtzeit-Fahrer-KPI-Card — Score + Touren + Ø Lieferzeit je Fahrer heute.
 5. **Phase 599 Kitchen:** Station-Auslastungs-Ring — SVG-Ring je Küchen-Station mit % Auslastung.
+
+
+---
+
+## Phase 588–599 — Schicht-Auslastung, Warteschlangen-Ampel, Küchen-Banner, Fahrer-KPI, Station-Ringe (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 588 Backend — Fahrer-Schicht-Auslastungs-API
+**`app/api/delivery/admin/fahrer-schicht-auslastung/route.ts`** — `GET /api/delivery/admin/fahrer-schicht-auslastung`:
+- Parameter: `location_id`
+- Gibt je aktivem Fahrer zurück: Auslastung %, verbleibende Min, Lieferungen heute, aktive Touren, Prognose bis Schichtende
+- Aggregat: totalActiveDrivers, freiKapazitaet, avgAuslastungPct
+
+### Phase 589 Kitchen — Bestellungs-Warteschlangen-Ampel
+**`app/(admin)/kitchen/phase589-warteschlangen-ampel.tsx`** — `KitchenPhase589WarteschlangenAmpel`:
+- Props: `orders: Order[]`
+- Zählt aktive Bestellungen (bestätigt + in_zubereitung)
+- Grün < 5 · Gelb 5–9 · Rot ≥ 10
+- Drei-Ampel-Punkte-Visualisierung + Status-Badge
+- Integration: `kitchen/client.tsx` nach Phase595 ✅
+
+### Phase 597 Storefront — Küchen-Auslastungs-Infobanner
+**`app/order/[locationSlug]/phase597-kuechenauslastungs-banner.tsx`** — `Phase597KuechenauslastungsBanner`:
+- Props: `locationId: string`
+- Ruft `/api/delivery/kitchen/queue` ab, klassifiziert Auslastung
+- Zeigt Infobanner nur bei busy/peak (+5–10 Min Wartezeit Hinweis)
+- Ticker: 90s, silenter Fehler-Fallback
+- Integration: `storefront.tsx` nach Phase582 ✅
+
+### Phase 598 Dispatch — Echtzeit-Fahrer-KPI-Card
+**`app/(admin)/dispatch/phase598-fahrer-kpi-card.tsx`** — `DispatchPhase598FahrerKpiCard`:
+- Props: `locationId: string | null`
+- Holt Daten von `/api/delivery/admin/fahrer-schicht-auslastung`
+- Je Fahrer: Auslastungs-Bar, Lieferungen heute, aktive Touren, Prognose
+- Kollabierbar · Ticker: 30s
+- Integration: `dispatch/client.tsx` nach Phase590 ✅
+
+### Phase 599 Kitchen — Station-Auslastungs-Ring
+**`app/(admin)/kitchen/phase599-station-auslastungs-ring.tsx`** — `KitchenPhase599StationAuslastungsRing`:
+- Props: `orders: Order[]`
+- 5 Stationen: Grill 🥩 · Friteuse 🍟 · Salat 🥗 · Getränke 🥤 · Sonstiges 🍽️
+- SVG-Fortschrittsring je Station (0–100% relativ zu Kapazität 5)
+- Ampelfarben: grün < 60% · amber 60–89% · rot ≥ 90%
+- Ticker: 3s
+- Integration: `kitchen/client.tsx` nach Phase589 ✅
+
+### Integrations-Checkliste Phase 588–599
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Fahrer-Schicht-Auslastungs-API | api/delivery/admin/fahrer-schicht-auslastung/route.ts | Neu (GET) | ✅ |
+| KitchenPhase589WarteschlangenAmpel | kitchen/phase589-warteschlangen-ampel.tsx | kitchen/client.tsx nach Phase595 | ✅ |
+| Phase597KuechenauslastungsBanner | order/[locationSlug]/phase597-kuechenauslastungs-banner.tsx | storefront.tsx nach Phase582 | ✅ |
+| DispatchPhase598FahrerKpiCard | dispatch/phase598-fahrer-kpi-card.tsx | dispatch/client.tsx nach Phase590 | ✅ |
+| KitchenPhase599StationAuslastungsRing | kitchen/phase599-station-auslastungs-ring.tsx | kitchen/client.tsx nach Phase589 | ✅ |
+
+**Build:** 367 Seiten, Exit 0 ✅
+**TypeScript:** 0 Fehler ✅
+
+### Nächste Phasen
+1. **Phase 600 Backend:** Tour-Effizienz-Snapshot-API — stündliche Effizienz-KPIs je Filiale (km/Lieferung, Min/Stop, Ø Score).
+2. **Phase 601 Kitchen:** Prep-Lern-Status-Panel — zeigt Fortschritt des KitchenPrepLearning-Moduls (Profil-Alter, Genauigkeit, Trend).
+3. **Phase 602 Dispatch:** Zonen-Kapazitäts-Balancer-Panel — visuell zeigen welche Zonen über/unterkapat. sind + Umverteilungsempfehlung.
+4. **Phase 603 Fahrer-App:** Schicht-Abschluss-Zusammenfassung — nach Schichtende: Touren, km, Lieferungen, Trinkgeld gesamt.
+5. **Phase 604 Storefront:** Fahrer-Profil-Vorschau — zeigt dem Kunden kurze Info über den kommenden Fahrer (Name + Ø Bewertung).
