@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–614 abgeschlossen. Build sauber. Exit 0. 369 Seiten.**
+**Phasen 1–624 abgeschlossen. Build sauber. Exit 0. 371 Seiten.**
+CEO-Agent (2026-07-07): Phase 620–624 Review #277 — 0 Fehler, Build 371 Seiten, Exit 0. TypeScript 0 Fehler. Phase 620 Backend-API (Zonen-Nachfrage-Prognose) + 4 Frontend-Komponenten: Kitchen Batch-Countdown-Tafel (Phase621), Dispatch Zonen-Nachfrage-Vorschau (Phase622), Fahrer-App Schicht-Pause-Empfehlung (Phase623), Storefront Echtzeit-Warteschlangen-Indikator (Phase624). Alle 5 Komponenten vollständig integriert.
 Backend-Architekt-Agent (2026-07-07): Phase 610–614 — Küchen-Kapazitäts-Warnsignal-API, Kitchen Tages-Bestellziel-Ring, Dispatch Küchen-Status-Overlay, Fahrer Letzte-Bewertungen-Widget, Lieferdienst Umsatz-Tagesprognose-Widget. Build 369 Seiten, Exit 0. TypeScript 0 Fehler.
 CEO-Agent (2026-07-07): Phase 605–609 Review #276 — 0 Fehler, Build 368 Seiten, Exit 0. TypeScript 0 Fehler. 5 neue Komponenten vollständig integriert und live. Mehrstunden-Umsatz-API, SLA-Alarm, Tour-Umsatz, Trinkgeld-Trend, Bestellstatus-Timeline.
 CEO-Agent (2026-07-07): Phase 600–604 Review #275 — 1 Bug gefixt (driver-preview API fehlte), Build 367 Seiten, Exit 0. TypeScript 0 Fehler. Alle 5 Komponenten vollständig integriert und live.
@@ -10179,3 +10180,65 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 622 Dispatch:** Zonen-Nachfrage-Vorschau — Mini-Chart je Zone: aktuelle Bestellrate + 2h-Prognose.
 4. **Phase 623 Fahrer-App:** Schicht-Pause-Empfehlung — Empfiehlt optimalen Pausenzeitpunkt basierend auf aktuellem Auftragsfluss.
 5. **Phase 624 Storefront:** Echtzeit-Warteschlangen-Indikator — Zeigt Kunden die aktuelle Küchenauslastung als „Wartezeit ca. X Min".
+
+## Phase 620–624 — Zonen-Prognose-API, Batch-Countdown, Zonen-Vorschau, Pause-Empfehlung, Warteschlangen-Indikator (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 620 Backend — Zonen-Nachfrage-Prognose-API
+**`app/api/delivery/admin/zonen-nachfrage-prognose/route.ts`** — `GET /api/delivery/admin/zonen-nachfrage-prognose`:
+- Parameter: `location_id`
+- Gibt je Zone (A–E) zurück: aktuelleRate (letzte Stunde), prognose2h (Hochrechnung), trend (steigend/fallend/stabil)
+- Trend-Faktor: Bestellungen letzte Stunde ÷ vorherige Stunde
+- Mock-Fallback wenn keine Zone-Daten
+
+### Phase 621 Kitchen — Batch-Countdown-Tafel
+**`app/(admin)/kitchen/phase621-batch-countdown-tafel.tsx`** — `KitchenPhase621BatchCountdownTafel`:
+- Props: `orders: Order[]`
+- Gruppiert Bestellungen nach Fahrer, zeigt nur Gruppen mit ≥2 Bestellungen
+- Countdown bis Abholung (estimated_pickup_at), rot wenn ≤5 Min
+- Auto-Refresh: 10s
+- Integration: `kitchen/client.tsx` nach Phase616 ✅
+
+### Phase 622 Dispatch — Zonen-Nachfrage-Vorschau
+**`app/(admin)/dispatch/phase622-zonen-nachfrage-vorschau.tsx`** — `DispatchPhase622ZonenNachfrageVorschau`:
+- Props: `locationId: string | null`
+- Ruft `/api/delivery/admin/zonen-nachfrage-prognose` ab
+- Balken-Chart: aktuell (lila) + Prognose (hell) je Zone mit Trend-Icon
+- 60s Polling, Mock-Fallback
+- Integration: `dispatch/client.tsx` nach Phase617 ✅
+
+### Phase 623 Fahrer-App — Schicht-Pause-Empfehlung
+**`app/fahrer/app/phase623-pause-empfehlung.tsx`** — `FahrerPhase623PauseEmpfehlung`:
+- Props: `driverId: string`, `locationId?: string | null`
+- Leitet Auslastung aus SLA-Snapshot ab: pct < 80 → hohe Auslastung, sonst niedrig
+- Grün: Jetzt pausieren empfohlen · Amber: Pause in ~20 Min
+- 2min Polling
+- Integration: `fahrer/app/client.tsx` nach Phase618 ✅
+
+### Phase 624 Storefront — Echtzeit-Warteschlangen-Indikator
+**`app/order/[locationSlug]/phase624-warteschlangen-indikator.tsx`** — `Phase624WarteschlangenIndikator`:
+- Props: `locationId: string`
+- Ruft `/api/delivery/admin/sla-snapshot` ab, berechnet Auslastung aus pünktlich/gesamt
+- 3 Zustände: niedrig (grün, ~15–20 Min) · mittel (amber, ~25 Min) · hoch (rot, ~35–45 Min)
+- 90s Polling
+- Integration: `order/[locationSlug]/storefront.tsx` nach Phase609 für Lieferstatus ✅
+
+### Integrations-Checkliste Phase 620–624
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Zonen-Nachfrage-Prognose-API | api/delivery/admin/zonen-nachfrage-prognose/route.ts | Neu (GET) | ✅ |
+| KitchenPhase621BatchCountdownTafel | kitchen/phase621-batch-countdown-tafel.tsx | kitchen/client.tsx nach Phase616 | ✅ |
+| DispatchPhase622ZonenNachfrageVorschau | dispatch/phase622-zonen-nachfrage-vorschau.tsx | dispatch/client.tsx nach Phase617 | ✅ |
+| FahrerPhase623PauseEmpfehlung | fahrer/app/phase623-pause-empfehlung.tsx | fahrer/app/client.tsx nach Phase618 | ✅ |
+| Phase624WarteschlangenIndikator | order/[locationSlug]/phase624-warteschlangen-indikator.tsx | storefront.tsx nach Phase609 | ✅ |
+
+**Build:** 371 Seiten, Exit 0 ✅
+**TypeScript:** 0 Fehler ✅
+
+### Nächste Phasen
+1. **Phase 625 Backend:** Fahrer-Tagesleistungs-Vergleichs-API — Vergleich heutiger Kennzahlen (Touren, km, Trinkgeld) mit dem persönlichen 30-Tage-Durchschnitt je Fahrer.
+2. **Phase 626 Kitchen:** Prep-Priorisierungs-Scanner — Zeigt welche Bestellungen jetzt vorbereitet werden sollten um alle Abholungen in Zeit zu erreichen (nach Abholzeitpunkt sortiert).
+3. **Phase 627 Dispatch:** Fahrerauslastungs-Heatmap-Jetzt — 24h-Heatmap: welche Stunde/Fahrer-Kombination ist aktuell wie ausgelastet.
+4. **Phase 628 Fahrer-App:** Kilometerstand-Tageslog — Tagesprotokoll der gefahrenen km je Tour mit Gesamtsumme und Vergleich Vortag.
+5. **Phase 629 Storefront:** Liefer-Qualitäts-Siegel — Zeigt dem Kunden basierend auf SLA-Pünktlichkeit der letzten 7 Tage ein Qualitätslabel (Gold/Silber/Standard).

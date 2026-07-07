@@ -279,6 +279,7 @@ import { DispatchPhase602ZonenKapazitaetsBalancer } from './phase602-zonen-kapaz
 import { DispatchPhase607TourUmsatzUebersicht } from './phase607-tour-umsatz-uebersicht';
 import { DispatchPhase612KuechenStatusOverlay } from './phase612-kuechen-status-overlay';
 import { DispatchPhase617FahrerRueckkehrZeitplan } from './phase617-fahrer-rueckkehr-zeitplan';
+import { DispatchPhase622ZonenNachfrageVorschau } from './phase622-zonen-nachfrage-vorschau';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2166,6 +2167,8 @@ export function DispatchBoard({
       <DispatchPhase612KuechenStatusOverlay locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 617: Fahrer-Rückkehr-Zeitplan — Alle aktiven Fahrer mit geschätzter Rückkehrzeit zur Basis */}
       <DispatchPhase617FahrerRueckkehrZeitplan locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 622: Zonen-Nachfrage-Vorschau — Mini-Chart je Zone: aktuelle Rate + 2h-Prognose */}
+      <DispatchPhase622ZonenNachfrageVorschau locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

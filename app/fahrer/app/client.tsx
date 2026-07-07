@@ -224,6 +224,7 @@ import { FahrerPhase603SchichtAbschlussZusammenfassung } from './phase603-schich
 import { FahrerPhase608TrinkgeldTrendWidget } from './phase608-trinkgeld-trend-widget';
 import { FahrerPhase613LetzteBewertungenWidget } from './phase613-letzte-bewertungen-widget';
 import { FahrerPhase618TagesEinnahmenDifferenz } from './phase618-tages-einnahmen-differenz';
+import { FahrerPhase623PauseEmpfehlung } from './phase623-pause-empfehlung';
 
 type Driver = {
   id: string;
@@ -3207,6 +3208,12 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase618TagesEinnahmenDifferenz driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 623: Schicht-Pause-Empfehlung — optimalen Pausenzeitpunkt basierend auf Auftragsfluss */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase623PauseEmpfehlung driverId={driver.id} locationId={null} />
           </div>
         )}
 
