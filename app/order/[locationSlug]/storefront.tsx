@@ -84,6 +84,8 @@ import { Phase604FahrerProfilVorschau } from './phase604-fahrer-profil-vorschau'
 import { Phase609BestellstatusTimeline } from './phase609-bestellstatus-timeline';
 import { Phase624WarteschlangenIndikator } from './phase624-warteschlangen-indikator';
 import { Phase629LieferQualitaetsSiegel } from './phase629-liefer-qualitaets-siegel';
+import { Phase630DynamischeEtaAnzeige } from './phase630-dynamische-eta-anzeige';
+import { Phase631LiveTrackingWidget } from './phase631-live-tracking-widget';
 
 type Props = {
   location: Location;
@@ -1345,6 +1347,18 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       {order.isDelivery && <Phase624WarteschlangenIndikator locationId={location.id} />}
       {/* Phase 629: Liefer-Qualitäts-Siegel — Gold/Silber/Standard basierend auf 7-Tage SLA */}
       {order.isDelivery && <Phase629LieferQualitaetsSiegel locationId={location.id} />}
+      {/* Phase 630: Dynamische ETA-Anzeige — Kreisring-Countdown mit Statusanzeige und Live-Fortschritt */}
+      {order.isDelivery && (
+        <Phase630DynamischeEtaAnzeige
+          orderId={order.orderId}
+          status={order.status}
+          initialEtaMin={(order as any).etaMin ?? null}
+        />
+      )}
+      {/* Phase 631: Live-Tracking-Widget — Fahrer GPS-Tracking mit Sonar-Puls und ETA */}
+      {order.isDelivery && (
+        <Phase631LiveTrackingWidget orderId={order.orderId} locationId={location.id} />
+      )}
       {/* Phase 269: Kompakte Fortschritts-Karte — Schritt-für-Schritt Visualisierung */}
       {order.isDelivery && (
         <BestellungFortschrittKarte

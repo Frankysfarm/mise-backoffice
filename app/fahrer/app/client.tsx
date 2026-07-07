@@ -226,6 +226,8 @@ import { FahrerPhase613LetzteBewertungenWidget } from './phase613-letzte-bewertu
 import { FahrerPhase618TagesEinnahmenDifferenz } from './phase618-tages-einnahmen-differenz';
 import { FahrerPhase623PauseEmpfehlung } from './phase623-pause-empfehlung';
 import { FahrerPhase628KmTageslog } from './phase628-km-tageslog';
+import { FahrerPhase629TourStoppNavigatorPro } from './phase629-tour-stopp-navigator-pro';
+import { FahrerPhase630NavigationLiveCockpit } from './phase630-navigation-live-cockpit';
 
 type Driver = {
   id: string;
@@ -3224,6 +3226,28 @@ export function FahrerApp({
             <FahrerPhase628KmTageslog driverId={driver.id} />
           </div>
         )}
+
+        {/* Phase 629: Tour-Stopp-Navigator Pro — Stopp-für-Stopp Übersicht mit nächstem Stop-Fokus */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <FahrerPhase629TourStoppNavigatorPro driverId={driver.id} batchId={activeBatch.id} />
+          </div>
+        )}
+
+        {/* Phase 630: Navigation Live-Cockpit — Google Maps / Waze Direktlink + ETA-Anzeige */}
+        {isOnline && activeBatch && (() => {
+          const ns630 = activeBatch.stops.find((s: any) => !s.geliefert_am);
+          if (!ns630) return null;
+          return (
+            <div className="px-4">
+              <FahrerPhase630NavigationLiveCockpit
+                driverId={driver.id}
+                nextStopAddress={(ns630.order as any)?.kunde_adresse ?? null}
+                etaMin={null}
+              />
+            </div>
+          );
+        })()}
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

@@ -269,6 +269,8 @@ import { LieferdienstPhase577SchichtStornoMonitor } from './phase577-schicht-sto
 import { LieferdienstPhase614UmsatzTagesPrognoseWidget } from './phase614-umsatz-tagesprognose-widget';
 import { LieferdienstPhase619SlaZielerreichungsBand } from './phase619-sla-zielerreichungs-band';
 import { LieferdienstPhase505SchichtStatistikenDashboard } from './phase505-schicht-statistiken-dashboard';
+import { LieferdienstPhase620StatistikenDashboard } from './phase620-statistiken-dashboard';
+import { LieferdienstPhase621EchtzeitSchichtStats } from './phase621-echtzeit-schicht-stats';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1693,6 +1695,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase614UmsatzTagesPrognoseWidget locationId={locationId} />
                 {/* Phase 619: SLA-Zielerreichungs-Band — Live-Fortschrittsbalken Pünktlichkeits-SLA vs. Tagesziel */}
                 <LieferdienstPhase619SlaZielerreichungsBand locationId={locationId} />
+                {/* Phase 620: Statistiken-Dashboard — KPI-Kacheln: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
+                <LieferdienstPhase620StatistikenDashboard locationId={locationId ?? null} />
+                {/* Phase 621: Echtzeit-Schicht-Stats — Bestellrate letzte Stunde, Trend vs. Vorherige Stunde */}
+                <LieferdienstPhase621EchtzeitSchichtStats locationId={locationId ?? null} />
               </>
             </div>
           )}

@@ -282,6 +282,8 @@ import { DispatchPhase617FahrerRueckkehrZeitplan } from './phase617-fahrer-rueck
 import { DispatchPhase622ZonenNachfrageVorschau } from './phase622-zonen-nachfrage-vorschau';
 import { DispatchPhase625FahrerTagesleistungVergleich } from './phase625-fahrer-tagesleistung-vergleich';
 import { DispatchPhase627FahrerauslastungsHeatmap } from './phase627-fahrerauslastungs-heatmap';
+import { DispatchPhase629ScoreAnzeigeCockpit } from './phase629-score-anzeige-cockpit';
+import { DispatchPhase630TourVisualisierungsPanel } from './phase630-tour-visualisierungs-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2175,6 +2177,10 @@ export function DispatchBoard({
       <DispatchPhase625FahrerTagesleistungVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 627: Fahrerauslastungs-Heatmap — 24h-Stunden × Fahrer-Matrix */}
       <DispatchPhase627FahrerauslastungsHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 629: Score-Anzeige-Cockpit — Fahrer-Score-Leaderboard mit Trend und Pünktlichkeit */}
+      <DispatchPhase629ScoreAnzeigeCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 630: Tour-Visualisierungs-Panel — Stopp-für-Stopp Fortschrittsvisualisierung je Tour */}
+      <DispatchPhase630TourVisualisierungsPanel batches={batches as any} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
