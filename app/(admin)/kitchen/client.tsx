@@ -242,6 +242,7 @@ import { KitchenPhase599StationAuslastungsRing } from './phase599-station-auslas
 import { KitchenPhase601PrepLernStatus } from './phase601-prep-lern-status';
 import { KitchenPhase606DringendeBestellungenAlarm } from './phase606-dringende-bestellungen-alarm';
 import { KitchenPhase611TagesBestellzielRing } from './phase611-tages-bestellziel-ring';
+import { KitchenPhase616WellenAlarmStrip } from './phase616-wellen-alarm-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2017,6 +2018,8 @@ export function KitchenBoard({
       <KitchenPhase606DringendeBestellungenAlarm orders={filtered as any} />
       {/* Phase 611: Tages-Bestellziel-Fortschritts-Ring — Kreisring: erledigte Bestellungen heute vs. Tagesziel */}
       <KitchenPhase611TagesBestellzielRing orders={filtered as any} />
+      {/* Phase 616: Wellen-Alarm-Strip — Alert bei ≥3 Bestellungen innerhalb 5 Min (Bestellwelle) */}
+      <KitchenPhase616WellenAlarmStrip orders={filtered as any} />
     </div>
   );
 }

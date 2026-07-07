@@ -223,6 +223,7 @@ import { FahrerPhase596SchichtNavHub } from './phase596-schicht-nav-hub';
 import { FahrerPhase603SchichtAbschlussZusammenfassung } from './phase603-schicht-abschluss-zusammenfassung';
 import { FahrerPhase608TrinkgeldTrendWidget } from './phase608-trinkgeld-trend-widget';
 import { FahrerPhase613LetzteBewertungenWidget } from './phase613-letzte-bewertungen-widget';
+import { FahrerPhase618TagesEinnahmenDifferenz } from './phase618-tages-einnahmen-differenz';
 
 type Driver = {
   id: string;
@@ -3200,6 +3201,12 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase613LetzteBewertungenWidget driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 618: Tages-Einnahmen-Differenz — Heute vs. letzten Dienstag mit Trend-Indikator */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase618TagesEinnahmenDifferenz driverId={driver.id} />
           </div>
         )}
 
