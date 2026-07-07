@@ -214,6 +214,7 @@ import { TourStoppSchnellNav } from './tour-stopp-schnell-nav';
 import { FahrerPhase551AktuellerStoppFokus } from './phase551-aktueller-stopp-fokus';
 import { FahrerPhase552SchichtTempoAmpel } from './phase552-schicht-tempo-ampel';
 import { FahrerPhase565TourHeimkehrInfo } from './phase565-tour-heimkehr-info';
+import { FahrerPhase570TourAktivKommando } from './phase570-tour-aktiv-kommando';
 
 type Driver = {
   id: string;
@@ -3118,6 +3119,12 @@ export function FahrerApp({
             activeBatch={activeBatch as any}
             driver={driver as any}
           />
+        )}
+        {/* Phase 570: Tour-Aktiv-Kommando — Stopp-Sequenz + Navigation + ETA in einem Kommando-Panel */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <div className="px-4">
+            <FahrerPhase570TourAktivKommando activeBatch={activeBatch as any} />
+          </div>
         )}
         {/* Schicht-KPI-Live: Stops, Effizienz, km, Ziel — nur wenn online und kein aktiver Batch */}
         {!activeBatch && isOnline && (

@@ -293,6 +293,7 @@ import { DispatchPhase549TourLiveEffizienzMatrix } from './phase549-tour-live-ef
 import { DispatchEchtzeitSLABreachDetector } from './echtzeit-sla-breach-detector';
 import { DispatchPhase556FahrerScorePuls } from './phase556-fahrer-score-puls';
 import { DispatchPhase558StornoProaktivPanel } from './phase558-storno-praevention';
+import { DispatchPhase569TourStoppSequenzLive } from './phase569-tour-stopp-sequenz-live';
 
 type Driver = {
   employee_id: string;
@@ -2115,6 +2116,8 @@ export function DispatchBoard({
       <DispatchPhase558StornoProaktivPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 564: Tour-Score-Ampel — Echtzeit-Effizienz-Score je aktiver Tour, farbkodiert nach Tier */}
       <DispatchPhase564TourScoreAmpel batches={batches as any} drivers={drivers} />
+      {/* Phase 569: Tour-Stopp-Sequenz Live — Horizontale Stopp-Fortschritts-Visualisierung je aktiver Tour */}
+      <DispatchPhase569TourStoppSequenzLive batches={batches as any} drivers={drivers} />
       {/* Phase 513: Kapazitäts-Prognose — 4h-Vorausschau */}
       <DispatchKapazitaetsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 515: Fahrer-Broadcast — Nachricht an alle Fahrer */}
