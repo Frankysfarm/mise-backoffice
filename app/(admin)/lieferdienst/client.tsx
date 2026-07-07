@@ -266,6 +266,7 @@ import { LieferdienstPhase562FahrerPausenDashboard } from './phase562-fahrer-pau
 import { LieferdienstPhase567SchichtKpiLivePanel } from './phase567-schicht-kpi-live-panel';
 import { LieferdienstPhase572LiveStatsHub } from './phase572-live-stats-hub';
 import { LieferdienstPhase577SchichtStornoMonitor } from './phase577-schicht-storno-monitor';
+import { LieferdienstPhase505SchichtStatistikenDashboard } from './phase505-schicht-statistiken-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1656,6 +1657,8 @@ export function LieferdienstClient() {
                 <LieferdienstZonenSlaVergleichPanel locationId={locationId} />
                 {/* Phase 502: Statistik-Kommando — Tages-KPIs, Stundenverlauf, Zonen-Performance, Fahrer-Ranking */}
                 <LieferdienstPhase502StatistikKommando locationId={locationId} />
+                {/* Phase 505: Schicht-Statistiken-Dashboard — KPI-Grid + Stunden-Balken + Zonen-Pünktlichkeit */}
+                <LieferdienstPhase505SchichtStatistikenDashboard locationId={locationId} />
                 {/* Phase 514: Storno-Analyse — Stornierungsmuster je Stunde/Zone aus 30 Tagen */}
                 <LieferdienstStornoAnalysePanel locationId={locationId} />
                 {/* Phase 516: Wochen-Trend-Analyse — 7-Tage vs. Vorwoche: Bestellungen, Umsatz, Tages-Kacheln */}

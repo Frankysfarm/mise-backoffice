@@ -235,6 +235,8 @@ import { KitchenPhase568HandoffWarteKommando } from './phase568-handoff-warte-ko
 import { KitchenPhase573BestellTempoBoard } from './phase573-bestell-tempo-board';
 import { KitchenPhase579BestellKomplexitaetsPrognose } from './phase579-bestell-komplexitaets-prognose';
 import { KitchenPhase584VerspaetungsAlarmPanel } from './phase584-verspaetungs-alarm-panel';
+import { KitchenPhase590SmartTimingColorBoard } from './phase590-smart-timing-color-board';
+import { KitchenPhase595CountdownAmpelHub } from './phase595-countdown-ampel-hub';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1992,6 +1994,10 @@ export function KitchenBoard({
       <KitchenPhase579BestellKomplexitaetsPrognose orders={filtered} />
       {/* Phase 584: Live-Verspätungs-Alarm-Panel — Bestellungen >20 Min in Zubereitung */}
       <KitchenPhase584VerspaetungsAlarmPanel orders={filtered} />
+      {/* Phase 590: Smart-Timing-Color-Board — Farbkodiertes Raster aktiver Bestellungen (Grün/Gelb/Rot) */}
+      <KitchenPhase590SmartTimingColorBoard orders={filtered} />
+      {/* Phase 595: Countdown-Ampel-Hub — Kompaktes 3-Spalten-Ampelsystem mit Echtzeit-Zähler */}
+      <KitchenPhase595CountdownAmpelHub orders={filtered} />
     </div>
   );
 }

@@ -218,6 +218,8 @@ import { FahrerPhase570TourAktivKommando } from './phase570-tour-aktiv-kommando'
 import { FahrerPhase575SchichtEffizienzCockpit } from './phase575-schicht-effizienz-cockpit';
 import { FahrerPhase581SchichtZielFortschrittsring } from './phase581-schicht-ziel-fortschrittsring';
 import { FahrerPhase586StoppNavigatorKarte } from './phase586-stopp-navigator-karte';
+import { FahrerPhase591TourStoppLiveNav } from './phase591-tour-stopp-live-nav';
+import { FahrerPhase596SchichtNavHub } from './phase596-schicht-nav-hub';
 
 type Driver = {
   id: string;
@@ -3156,6 +3158,26 @@ export function FahrerApp({
         {isOnline && activeBatch && (
           <div className="px-4">
             <FahrerPhase586StoppNavigatorKarte stops={activeBatch.stops as any} />
+          </div>
+        )}
+
+        {/* Phase 591: Tour-Stopp-Live-Nav — Nächster Stopp prominent mit Google-Maps-Link + Stopp-Liste */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <FahrerPhase591TourStoppLiveNav
+              stops={activeBatch.stops as any}
+              batchStatus={activeBatch.status}
+            />
+          </div>
+        )}
+
+        {/* Phase 596: Schicht-Nav-Hub — Fortschrittsring + ETA-Anzeige + Tour-Status */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase596SchichtNavHub
+              driverId={driver.id}
+              activeBatch={activeBatch as any}
+            />
           </div>
         )}
 

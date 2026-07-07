@@ -273,6 +273,7 @@ import { DispatchSchichtAbschlussReport } from './schicht-abschluss-report';
 import { DispatchFahrerEinsatzEffizienz } from './fahrer-einsatz-effizienz';
 import { DispatchGpsStalenessAlert } from './gps-staleness-alert';
 import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
+import { DispatchPhase590TourScoreVisualisierung } from './phase590-tour-score-visualisierung';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2148,6 +2149,8 @@ export function DispatchBoard({
       />
       {/* Phase 502: Tour-Score-Board — Aktive Touren mit Score-Visualisierung + Stop-Fortschritt */}
       <DispatchPhase502TourScoreBoard batches={batches} orders={readyOrders} />
+      {/* Phase 590: Tour-Score-Visualisierung — Score-Gauge + Fortschrittsring + Health-Ampel je Tour */}
+      <DispatchPhase590TourScoreVisualisierung batches={batches as any} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
