@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–604 abgeschlossen. Build sauber. Exit 0. 370 Seiten.**
+**Phasen 1–609 abgeschlossen. Build sauber. Exit 0. 368 Seiten.**
 CEO-Agent (2026-07-07): Phase 590–596 Review #274 — 0 TS-Fehler, Build 366 Seiten, Exit 0. 6 neue Komponenten vollständig integriert und live. Phasen 588–589 als geplant-aber-übersprungen dokumentiert.
 Frontend-Ingenieur-Agent (2026-07-07): Phase 590–596 — Kitchen Smart-Timing-Color-Board + Countdown-Ampel-Hub, Dispatch Tour-Score-Visualisierung, Fahrer-App Tour-Stopp-Live-Nav + Schicht-Nav-Hub, Lieferdienst Schicht-Statistiken-Dashboard (Phase505). Build Exit 0.
 Backend-Architekt-Agent (2026-07-07): Phase 578–582 — Touren-Effizienz-Aggregat-API, Kitchen Komplexitäts-Prognose, Dispatch Zone-Demand-Heatmap, Fahrer-Schicht-Zielerreichungsring, Storefront Küchenstatus-Badge. Build 366 Seiten, Exit 0. TypeScript 0 Fehler.
@@ -10038,3 +10038,68 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 602 Dispatch:** Zonen-Kapazitäts-Balancer-Panel — visuell zeigen welche Zonen über/unterkapat. sind + Umverteilungsempfehlung.
 4. **Phase 603 Fahrer-App:** Schicht-Abschluss-Zusammenfassung — nach Schichtende: Touren, km, Lieferungen, Trinkgeld gesamt.
 5. **Phase 604 Storefront:** Fahrer-Profil-Vorschau — zeigt dem Kunden kurze Info über den kommenden Fahrer (Name + Ø Bewertung).
+
+---
+
+## Phase 605–609 — Mehrstunden-Umsatz-API, SLA-Alarm, Tour-Umsatz, Trinkgeld-Trend, Bestellstatus-Timeline (DONE ✅)
+
+**Datum:** 2026-07-07
+
+### Phase 605 Backend — Mehrstunden-Umsatz-Tracker-API
+**`app/api/delivery/admin/mehrstunden-umsatz/route.ts`** — `GET /api/delivery/admin/mehrstunden-umsatz`:
+- Parameter: `location_id`
+- Aggregiert stündlichen Umsatz + Bestellanzahl vs. Prognose (180 € Standard) für heute
+- Gibt zurück: `hours[]` (hour, label, umsatz, anzahl, prognose) + summary (totalUmsatz, totalAnzahl, gesamtPrognose, abweichungPct)
+
+### Phase 606 Kitchen — Dringende-Bestellungen-Alarm-Karte
+**`app/(admin)/kitchen/phase606-dringende-bestellungen-alarm.tsx`** — `KitchenPhase606DringendeBestellungenAlarm`:
+- Props: `orders: Order[]`
+- SLA-Grenzen: bestätigt 10 Min · in_zubereitung 20 Min · fertig 30 Min
+- Zeigt kritisch (SLA-überschritten, rot) und beinahe (< 3 Min verbleibend, amber) getrennt
+- 10-Sekunden-Ticker, versteckt sich wenn alle im Zeitrahmen
+- Integration: `kitchen/client.tsx` nach Phase 601 ✅
+
+### Phase 607 Dispatch — Tour-Umsatz-Übersicht
+**`app/(admin)/dispatch/phase607-tour-umsatz-uebersicht.tsx`** — `DispatchPhase607TourUmsatzUebersicht`:
+- Props: `locationId: string | null`
+- Holt Daten von `/api/delivery/admin/tour-analytics`, Fallback auf Mock-Daten
+- Zeigt je Tour: Fortschrittsbalken (Stops), Umsatz (€), Status (aktiv/abgeschlossen), Fahrername
+- Sortiert nach Umsatz, kollabierbar, 60-Sekunden-Ticker
+- Integration: `dispatch/client.tsx` nach Phase 602 ✅
+
+### Phase 608 Fahrer-App — Trinkgeld-Trend-Widget
+**`app/fahrer/app/phase608-trinkgeld-trend-widget.tsx`** — `FahrerPhase608TrinkgeldTrendWidget`:
+- Props: `driverId: string`
+- Holt `/api/delivery/driver/my-performance?period=today` + yesterday
+- 3-Spalten-Vergleich: Heute / Gestern / Ø 7 Tage
+- Trendpfeil (↑/↓/–) + Delta zu gestern + Delta zu Schnitt
+- 5-Minuten-Ticker, versteckt sich wenn 0 Trinkgeld auf beiden Tagen
+- Integration: `fahrer/app/client.tsx` nach Phase 603, sichtbar wenn isOnline ✅
+
+### Phase 609 Storefront — Bestellstatus-Timeline
+**`app/order/[locationSlug]/phase609-bestellstatus-timeline.tsx`** — `Phase609BestellstatusTimeline`:
+- Props: `status: string`, `isDelivery: boolean`
+- 4 Stufen (Abholung): Bestätigt → In Zubereitung → Fertig → Abgeholt
+- 5 Stufen (Lieferung): Bestätigt → In Zubereitung → Fertig → Unterwegs → Geliefert
+- Animierte Fortschrittslinie + Icon-Kreise (aktiv pulsierend) + Substatus-Text
+- Keine Polling nötig — rendert deterministisch aus Status-Prop
+- Integration: `storefront.tsx` vor Phase 269 BestellungFortschrittKarte ✅
+
+### Integrations-Checkliste Phase 605–609
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Mehrstunden-Umsatz-API | api/delivery/admin/mehrstunden-umsatz/route.ts | Neu (GET) | ✅ |
+| KitchenPhase606DringendeBestellungenAlarm | kitchen/phase606-dringende-bestellungen-alarm.tsx | kitchen/client.tsx nach Phase601 | ✅ |
+| DispatchPhase607TourUmsatzUebersicht | dispatch/phase607-tour-umsatz-uebersicht.tsx | dispatch/client.tsx nach Phase602 | ✅ |
+| FahrerPhase608TrinkgeldTrendWidget | fahrer/app/phase608-trinkgeld-trend-widget.tsx | fahrer/app/client.tsx nach Phase603 | ✅ |
+| Phase609BestellstatusTimeline | order/[locationSlug]/phase609-bestellstatus-timeline.tsx | storefront.tsx vor Phase269 | ✅ |
+
+**Build:** 368 Seiten, Exit 0 ✅
+**TypeScript:** 0 Fehler ✅
+
+### Nächste Phasen
+1. **Phase 610 Backend:** Storno-Analyse-Snapshot-API — Storno-Rate je Standort mit Grund-Aufschlüsselung (zu spät, Qualitätsproblem, Duplikat).
+2. **Phase 611 Kitchen:** Automatische-Batch-Priorisierung — Panel das pending Bestellungen nach Komplexität + ETA + Wartezeit re-priorisiert und Empfehlung ausgibt.
+3. **Phase 612 Dispatch:** Aktive-Touren-Karten-Übersicht — Karten-Grid je aktiver Tour (Fahrername, Stops, ETAs, Score-Ampel).
+4. **Phase 613 Fahrer-App:** Letzte-Bewertungen-Feed — Zeigt die letzten 5 Kundenbewertungen mit Sternwertung + optionalem Kommentar.
+5. **Phase 614 Storefront:** Smart-Upsell-Banner — Zeigt Artikel-Vorschläge die andere Kunden mit der gleichen Bestellung noch hinzugefügt haben.
