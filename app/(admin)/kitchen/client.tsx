@@ -240,6 +240,7 @@ import { KitchenPhase595CountdownAmpelHub } from './phase595-countdown-ampel-hub
 import { KitchenPhase589WarteschlangenAmpel } from './phase589-warteschlangen-ampel';
 import { KitchenPhase599StationAuslastungsRing } from './phase599-station-auslastungs-ring';
 import { KitchenPhase601PrepLernStatus } from './phase601-prep-lern-status';
+import { KitchenPhase606DringendeBestellungenAlarm } from './phase606-dringende-bestellungen-alarm';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2011,6 +2012,8 @@ export function KitchenBoard({
           locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
         />
       )}
+      {/* Phase 606: Dringende-Bestellungen-Alarm — SLA-Warnung bei Bestellungen kurz vor oder über Zeitlimit */}
+      <KitchenPhase606DringendeBestellungenAlarm orders={filtered as any} />
     </div>
   );
 }

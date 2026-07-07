@@ -81,6 +81,7 @@ import { Phase582KuechenstatusBadge } from './phase582-kuechenstatus-badge';
 import { Phase587BestellEtaKomfortBanner } from './phase587-bestell-eta-komfort-banner';
 import { Phase597KuechenauslastungsBanner } from './phase597-kuechenauslastungs-banner';
 import { Phase604FahrerProfilVorschau } from './phase604-fahrer-profil-vorschau';
+import { Phase609BestellstatusTimeline } from './phase609-bestellstatus-timeline';
 
 type Props = {
   location: Location;
@@ -1336,6 +1337,8 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
         etaLatest={null}
         isDelivery={order.isDelivery}
       />
+      {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
+      <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 269: Kompakte Fortschritts-Karte — Schritt-für-Schritt Visualisierung */}
       {order.isDelivery && (
         <BestellungFortschrittKarte

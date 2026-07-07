@@ -276,6 +276,7 @@ import { DispatchPhase502TourScoreBoard } from './phase502-tour-score-board';
 import { DispatchPhase590TourScoreVisualisierung } from './phase590-tour-score-visualisierung';
 import { DispatchPhase598FahrerKpiCard } from './phase598-fahrer-kpi-card';
 import { DispatchPhase602ZonenKapazitaetsBalancer } from './phase602-zonen-kapazitaets-balancer';
+import { DispatchPhase607TourUmsatzUebersicht } from './phase607-tour-umsatz-uebersicht';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2157,6 +2158,8 @@ export function DispatchBoard({
       <DispatchPhase598FahrerKpiCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 602: Zonen-Kapazitäts-Balancer — Visuelle Über-/Unterkapazitäts-Erkennung je Zone + Umverteilungsempfehlung */}
       <DispatchPhase602ZonenKapazitaetsBalancer locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 607: Tour-Umsatz-Übersicht — Umsatz je aktiver Tour, sortiert nach Wert */}
+      <DispatchPhase607TourUmsatzUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

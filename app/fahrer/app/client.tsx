@@ -221,6 +221,7 @@ import { FahrerPhase586StoppNavigatorKarte } from './phase586-stopp-navigator-ka
 import { FahrerPhase591TourStoppLiveNav } from './phase591-tour-stopp-live-nav';
 import { FahrerPhase596SchichtNavHub } from './phase596-schicht-nav-hub';
 import { FahrerPhase603SchichtAbschlussZusammenfassung } from './phase603-schicht-abschluss-zusammenfassung';
+import { FahrerPhase608TrinkgeldTrendWidget } from './phase608-trinkgeld-trend-widget';
 
 type Driver = {
   id: string;
@@ -3186,6 +3187,12 @@ export function FahrerApp({
         {isOnline && !activeBatch && (
           <div className="px-4">
             <FahrerPhase603SchichtAbschlussZusammenfassung driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 608: Trinkgeld-Trend-Widget — Trinkgeld heute vs. gestern vs. 7-Tage-Ø mit Trendpfeil */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase608TrinkgeldTrendWidget driverId={driver.id} />
           </div>
         )}
 
