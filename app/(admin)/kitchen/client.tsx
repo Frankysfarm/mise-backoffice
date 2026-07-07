@@ -232,6 +232,7 @@ import { KitchenPhase557KochstatusLiveIndex } from './phase557-kochstatus-live-i
 import { KitchenPhase561ParallelOptimierer } from './phase561-parallel-optimierer';
 import { KitchenPhase563PrepTimingGrid } from './phase563-prep-timing-grid';
 import { KitchenPhase568HandoffWarteKommando } from './phase568-handoff-warte-kommando';
+import { KitchenPhase573BestellTempoBoard } from './phase573-bestell-tempo-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1983,6 +1984,8 @@ export function KitchenBoard({
         orders={filtered}
         drivers={drivers as any}
       />
+      {/* Phase 573: Bestellungs-Tempo-Board — Bestellrate/h + Verlauf + Rush-Alert */}
+      <KitchenPhase573BestellTempoBoard orders={filtered} />
     </div>
   );
 }

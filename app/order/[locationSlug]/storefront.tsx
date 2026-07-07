@@ -76,6 +76,7 @@ import { LiveEtaFahrerPanel } from './live-eta-fahrer-panel';
 import { WetterVerzoegerungshinweis } from './wetter-verzoegerungshinweis';
 import { Phase566LiveTrackingStrip } from './components/phase566-live-tracking-strip';
 import { Storefront571LiveEtaMegaPanel } from './phase571-live-eta-mega-panel';
+import { Phase576BestellFortschrittsRing } from './phase576-bestell-fortschritts-ring';
 
 type Props = {
   location: Location;
@@ -558,6 +559,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <Storefront571LiveEtaMegaPanel
               locationId={location.id}
               orderStatus="bestätigt"
+              orderedAt={orderSuccess.orderedAt}
+            />
+          </div>
+        )}
+        {/* Phase 576: Bestellstatus-Fortschritts-Ring — Animierter SVG-Ring mit Phasen-Stepper */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-3 max-w-lg mx-auto">
+            <Phase576BestellFortschrittsRing
+              orderStatus="bestätigt"
+              etaMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
               orderedAt={orderSuccess.orderedAt}
             />
           </div>

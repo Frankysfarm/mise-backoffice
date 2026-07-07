@@ -215,6 +215,7 @@ import { FahrerPhase551AktuellerStoppFokus } from './phase551-aktueller-stopp-fo
 import { FahrerPhase552SchichtTempoAmpel } from './phase552-schicht-tempo-ampel';
 import { FahrerPhase565TourHeimkehrInfo } from './phase565-tour-heimkehr-info';
 import { FahrerPhase570TourAktivKommando } from './phase570-tour-aktiv-kommando';
+import { FahrerPhase575SchichtEffizienzCockpit } from './phase575-schicht-effizienz-cockpit';
 
 type Driver = {
   id: string;
@@ -3130,6 +3131,14 @@ export function FahrerApp({
         {!activeBatch && isOnline && (
           <div className="px-4">
             <SchichtKpiLive driverId={driver.id} onlineSeit={status?.online_seit ?? null} />
+          </div>
+        )}
+        {/* Phase 575: Schicht-Effizienz-Cockpit — Lieferrate/h, Ø Stopp-Zeit, Pünktlichkeit vs. Ziel */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase575SchichtEffizienzCockpit
+              currentShiftStart={status?.online_seit ?? null}
+            />
           </div>
         )}
 

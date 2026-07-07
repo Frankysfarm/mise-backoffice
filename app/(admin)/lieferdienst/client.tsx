@@ -265,6 +265,7 @@ import { LieferdienstPhase554SchichtErtragCockpit } from './phase554-schicht-ert
 import { LieferdienstPhase562FahrerPausenDashboard } from './phase562-fahrer-pausen-dashboard';
 import { LieferdienstPhase567SchichtKpiLivePanel } from './phase567-schicht-kpi-live-panel';
 import { LieferdienstPhase572LiveStatsHub } from './phase572-live-stats-hub';
+import { LieferdienstPhase577SchichtStornoMonitor } from './phase577-schicht-storno-monitor';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1681,6 +1682,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase567SchichtKpiLivePanel locationId={locationId} />
                 {/* Phase 572: Live-Stats-Hub — Kompaktes KPI-Dashboard mit Lieferungen, On-Time-Rate, Ø Lieferzeit, Fahrer, Umsatz */}
                 <LieferdienstPhase572LiveStatsHub locationId={locationId} />
+                {/* Phase 577: Schicht-Storno-Monitor — Live Storno-Rate, Trend, letzte 5 Stornos, Alert >5% */}
+                <LieferdienstPhase577SchichtStornoMonitor locationId={locationId} />
               </>
             </div>
           )}
