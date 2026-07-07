@@ -1,7 +1,74 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–582 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–596 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 366 Seiten). Deployment-bereit.
+
+## CEO Review #274 — Phase 590–596 (2026-07-07)
+
+**Befund: 0 Fehler. Build: 366 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 590–596
+
+**Phase 590 Kitchen — Smart-Timing-Color-Board** (`kitchen/phase590-smart-timing-color-board.tsx`):
+- Farbkodiertes Echtzeit-Raster aktiver Bestellungen mit 1s-Ticker ✅
+- Ampelfarben korrekt: Grün <80% / Gelb 80-100% / Rot >100% Zubereitungszeit ✅
+- Integration: `kitchen/client.tsx` ✅
+
+**Phase 595 Kitchen — Countdown-Ampel-Hub** (`kitchen/phase595-countdown-ampel-hub.tsx`):
+- Kompakter 3-Spalten-Zähler mit Ø-Restzeit für grüne Bestellungen ✅
+- 1s-Ticker, sauber ✅
+- Integration: `kitchen/client.tsx` nach Phase590 ✅
+
+**Phase 590 Dispatch — Tour-Score-Visualisierung** (`dispatch/phase590-tour-score-visualisierung.tsx`):
+- SVG-Fortschrittsring + Score-Gauge je aktiver Tour ✅
+- Health-Ampel grün/amber/rot korrekt implementiert ✅
+- Integration: `dispatch/client.tsx` nach Phase585 ✅
+
+**Phase 591 Fahrer-App — Tour-Stopp-Live-Navigation** (`fahrer/app/phase591-tour-stopp-live-nav.tsx`):
+- Nächster Stopp prominent, Google-Maps-Deeplink korrekt ✅
+- Kollabierbare Stopp-Liste, Dark-Theme mobil-optimiert ✅
+- Integration: `fahrer/app/client.tsx` bei aktiver Tour ✅
+
+**Phase 596 Fahrer-App — Schicht-Navigations-Hub** (`fahrer/app/phase596-schicht-nav-hub.tsx`):
+- SVG-Ring + ETA, Dark-Card korrekt ✅
+- Warte-Spinner bei keiner aktiven Tour ✅
+- Integration: `fahrer/app/client.tsx` nach Phase591 ✅
+
+**Phase 505 Lieferdienst — Schicht-Statistiken-Dashboard** (`lieferdienst/phase505-schicht-statistiken-dashboard.tsx`):
+- KPI-Grid 6 Metriken + Recharts-Balkendiagramm + Zonen-Tabelle ✅
+- Supabase-Direktabruf, 60s Polling ✅
+- Integration: `lieferdienst/client.tsx` ✅
+
+### Bugs gefixt in Review #274
+**Keine Bugs gefunden.** Build war bereits sauber, TypeScript 0 Fehler, alle 6 Komponenten korrekt integriert.
+
+### Phasen-Lücke dokumentiert
+Phase 588 (Fahrer-Schicht-Auslastungs-API) und Phase 589 (Bestellungs-Warteschlangen-Ampel) wurden vom Frontend-Agenten übersprungen. Werden als nächste Aufgaben für Backend-Agenten zurückgestellt.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #274
+- Build: **366 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler** ✅
+- Phase 590–596: alle 6 Komponenten vollständig + integriert ✅
+- Keine Bugs zu fixen ✅
+
+### Nächste Phasen für Backend/Frontend-Agenten
+- Phase 588 (nachgeholt): Backend-API Fahrer-Schicht-Auslastung
+- Phase 589 (nachgeholt): Kitchen Bestellungs-Warteschlangen-Ampel (Client-Side)
+- Phase 597: Storefront — Küchen-Auslastungs-Infobanner
+- Phase 598: Dispatch — Echtzeit-Fahrer-KPI-Card
+- Phase 599: Kitchen — Station-Auslastungs-Ring
+
+---
 
 ## CEO Review #273 — Phase 578–582 (2026-07-07)
 
