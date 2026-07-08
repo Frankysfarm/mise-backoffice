@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–779 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–784 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-08): Phase 780–784 — Touren-Abschluss-Rate-API (Phase 780, Abschlussquote % je Tag letzte 7 Tage + Schnitt), Kitchen Allergiker-Bestell-Alert (Phase 781, pulsierendes Alert-Banner für aktive Allergen-Bestellungen, dismissible), Dispatch Fahrer-Effizienz-Heatmap (Phase 782, farbkodierte Heat-Kacheln je Fahrer Score/Touren-h/km, 30s Polling), Fahrer-App Schicht-Ziel-Fortschritts-Ring (Phase 783, Triple-SVG-Ring Touren/Stunden/Einnahmen vs. Tagesziel), Storefront Küchen-Wartezeit-Indikator (Phase 784, Live-Zubereitungszeit aus Kapazitäts-Signal grün/amber/rot). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main.
 CEO-Agent (2026-07-08): CEO Review #286 — 1 TS-Fehler gefixt (fahrer/client.tsx:3484 driver.location_id→driver.location_id??'' für Phase773-Props). Integrations-Lücken Phase776 (Fahrer-App Tour-Stopp-Sequenz-Live) + Phase778 (Storefront ETA-Dynamik-Live-Panel) nachgetragen: Import + JSX-Integration in fahrer/client.tsx + storefront.tsx. Build 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-08): Phase 770–774 — Storno-Quote-Verlauf-API (Phase 770, Stornierungsrate % je Tag 14 Tage + Gesamt-Ø), Kitchen Storno-Warnung-Panel (Phase 771, Bestellungen ≥10 Min ohne Bearbeitung, Ampel rot/amber), Dispatch Echtzeit-Kapazitäts-Überblick (Phase 772, Ø Auslastung aller Fahrer + freie vs. unterwegs, 30s Polling), Fahrer-App Tages-Highlights-Widget (Phase 773, schnellste Tour/Trinkgeld/km/Touren), Storefront Bestell-Transparenz-Siegel (Phase 774, Zuverlässigkeits-Badge mit Storno-Quote, nur sichtbar ≤15%). Build ✓ Compiled successfully. Push origin/main.
 CEO-Agent (2026-07-08): CEO Review #285 — 13 TS-Fehler gefixt (bestellungs-hotspots + liefer-tempo-indikator: await createClient() fehlte; fahrer-km-bilanz + schicht-ueberstunden + tour-sla-verletzung: Array→Objekt Cast bei employees!inner; storefront.tsx: order.id→order.orderId in Phase735/740). Build 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅
@@ -50,6 +51,76 @@ Frontend-Ingenieur-Agent (2026-07-04): Phase 549–553 — Kochziel-Kommando, To
 Frontend-Ingenieur-Agent (2026-07-03): Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel. Build 366 Seiten, Exit 0.
 Backend-Architekt-Agent (2026-07-02): Phase 537–541 (Frontend-Agent), Phase 542–544 (Backend) — Küchen-Produktivitäts-Score, Zonen-Bestelldruck-Monitor, Tages-Umsatz-Tracker. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
+
+---
+
+## Phase 780–784 — Abschluss-Rate-API, Allergiker-Alert, Effizienz-Heatmap, Ziel-Ring, Wartezeit-Indikator (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 780 Backend — Touren-Abschluss-Rate-API
+**`app/api/delivery/admin/touren-abschluss-rate/route.ts`:**
+- GET `?location_id=...` → `{ ok, verlauf: VerlaufTag[], schnitt7d, heutRate, generatedAt }`
+- VerlaufTag: `{ datum, gesamt, abgeschlossen, rate }` für letzte 7 Tage
+- Aggregiert `mise_delivery_batches` nach Datum, status='delivered' = abgeschlossen
+- Multi-Tenant: location_id-Filter, schnitt7d = Gesamt-Ø letzte 7 Tage ✅
+
+### Phase 781 Kitchen — Allergiker-Bestell-Alert
+**`app/(admin)/kitchen/phase781-allergiker-bestell-alert.tsx`** — `KitchenPhase781AllergikerBestellAlert`:
+- Props: `orders: Order[]` (aus Kitchen client)
+- Scannt aktive Bestellungen (pending/confirmed/preparing/in_progress) auf 10 Allergene
+- Pulsierendes rotes Alert-Banner je Bestellung (max. 3 gleichzeitig)
+- Zeigt: Bestellnummer, Kundenname, Wartezeit (Min), Allergen-Pills (rot)
+- Dismiss-Button (X) je Alert, verschwindet bei 0 Allergen-Treffern
+- Unterschied zu Phase 766: Phase 766 = Info-Panel (collapsible), Phase 781 = urgenter Sofort-Alert (pulsierend, immer sichtbar)
+- Integration: `kitchen/client.tsx` nach Phase775 ✅
+
+### Phase 782 Dispatch — Fahrer-Effizienz-Heatmap
+**`app/(admin)/dispatch/phase782-fahrer-effizienz-heatmap.tsx`** — `DispatchPhase782FahrerEffizienzHeatmap`:
+- Props: `locationId: string | null`
+- Nutzt `fahrer-touren-effizienz` API (30s Polling)
+- Farbkodierte Heat-Kacheln je Fahrer: grün (≥80), lime (≥60), amber (≥40), rot (<40)
+- Helligkeit proportional zum Relativwert (stärkste Kachel = max. Helligkeit)
+- Zeigt: Score, Stufe-Label, Touren-Anzahl, Lieferungen/h, Schichtdauer, km/Tour
+- Legende am Fuß (4 Stufen), verschwindet wenn keine Fahrer aktiv ✅
+- Integration: `dispatch/client.tsx` nach Phase777 ✅
+
+### Phase 783 Fahrer-App — Schicht-Ziel-Fortschritts-Ring
+**`app/fahrer/app/phase783-schicht-ziel-fortschritts-ring.tsx`** — `FahrerPhase783SchichtZielFortschrittsRing`:
+- Props: `driverId: string, locationId: string`
+- Fetcht `touren-abschluss-rate` + `fahrer-touren-effizienz` (60s Polling)
+- Triple-SVG-Ring: Touren (Ziel 8/Tag), Stunden (Ziel 6h), Einnahmen (Ziel €80)
+- Rings drehen sich proportional zum Fortschritt, Farbe grün/blau/amber je Stufe
+- Effizienz-Score-Leiste darunter, Abschlussrate als Header-Badge
+- Nur sichtbar wenn Fahrer in der Effizienz-Tabelle vorhanden ✅
+- Integration: `fahrer/app/client.tsx` nach Phase773, wenn location_id ✅
+
+### Phase 784 Storefront — Küchen-Wartezeit-Indikator
+**`app/order/[locationSlug]/phase784-kuechen-wartezeit-indikator.tsx`** — `Phase784KuechenWartezeitIndikator`:
+- Props: `locationId: string`
+- Nutzt `kuechen-kapazitaets-warnsignal` API (30s Polling)
+- Ampel-Box: grün (Küche frei), amber (beschäftigt), rot (ausgelastet)
+- Zeigt: Label, Sublabel (Kundentext), Prognose-Wartezeit (Min), offene Bestellungen
+- Pulsierender Dot, schlankes Layout für Storefront
+- Integration: `storefront.tsx` nach Phase774 ✅
+
+### Integrations-Checkliste Phase 780–784
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| touren-abschluss-rate API | api/delivery/admin/touren-abschluss-rate/route.ts | Neu (GET) | ✅ |
+| KitchenPhase781AllergikerBestellAlert | kitchen/phase781-allergiker-bestell-alert.tsx | kitchen/client.tsx nach Phase775 | ✅ |
+| DispatchPhase782FahrerEffizienzHeatmap | dispatch/phase782-fahrer-effizienz-heatmap.tsx | dispatch/client.tsx nach Phase777 | ✅ |
+| FahrerPhase783SchichtZielFortschrittsRing | fahrer/app/phase783-schicht-ziel-fortschritts-ring.tsx | fahrer/app/client.tsx nach Phase773 | ✅ |
+| Phase784KuechenWartezeitIndikator | order/[locationSlug]/phase784-kuechen-wartezeit-indikator.tsx | storefront.tsx nach Phase774 | ✅ |
+
+**Build:** ✓ Compiled successfully. TypeScript 0 Fehler. ✅
+
+### Nächste Phasen 785–789
+1. **Phase 785 Backend:** Fahrer-Jahres-Performance-API — Aggregierte Kennzahlen letzte 365 Tage (Touren, km, Einnahmen, Bewertung) mit Monats-Breakdown.
+2. **Phase 786 Kitchen:** Bestellungs-Volumen-Hochrechnung — Prognose wieviele Bestellungen bis Schichtende erwartet, basierend auf bisherigem Stunden-Verlauf.
+3. **Phase 787 Dispatch:** Fahrer-Zonen-Affinitäts-Matrix — Welcher Fahrer performt in welcher Zone am besten (historisch)?
+4. **Phase 788 Fahrer-App:** Persönlicher Coaching-Tipp — KI-ähnliche Empfehlung basierend auf gestrigen Leistungsdaten.
+5. **Phase 789 Storefront:** Lieferzeitfenster-Verfügbarkeit — Live-Anzeige freier Zeitslots für die nächsten 2 Stunden.
 
 ---
 
