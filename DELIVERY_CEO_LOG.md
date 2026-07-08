@@ -1,7 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–640 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–653 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 373 Seiten). Deployment-bereit.
+
+## CEO Review #280 — Phase 641–653 + Frontend Phase 654–658 (2026-07-08)
+
+**Befund: 6 TS-Fehler gefixt. Build: 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte & gefixte Fehler
+
+#### Bug 1 — `live-metriken-leiste.tsx`: `eta_earliest` fehlte in Supabase-Select
+- `onTimePct`-Berechnung war immer null, weil `eta_earliest` nicht aus DB gelesen wurde
+- Fix: `eta_earliest` zu `.select()` hinzugefügt ✅
+
+#### Bug 2–6 — `live-metriken-leiste.tsx`: `undefined` in `trend()`-Aufrufen
+- `prevSnap?.orders` etc. sind `number | undefined`, aber `trend()` erwartet `number | null`
+- Fix: Alle 5 Aufrufe mit `?? null` normalisiert ✅
+
+#### Bug 7 — `bestell-echtzeit-pfad.tsx`: Implicit-any im Supabase-Realtime-Callback
+- `(payload) => { const r = payload.new as any; }` → impliziter any-Typ auf `payload`
+- Fix: Expliziter Typ `(payload: { new: Record<string, unknown> })` + `typeof r.status === 'string'`-Guard ✅
+
+### Integrationen Phase 646–653 geprüft
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Kundenbewertungs-Aggregations-API | api/delivery/admin/kundenbewertungs-aggregation/route.ts | Neu GET-API | ✅ |
+| Phase650KundenbewertungsWidget | order/[locationSlug]/phase650-kundenbewertungs-widget.tsx | storefront.tsx | ✅ |
+| KitchenPhase651TagesAuslastungsPrognose | kitchen/phase651-tages-auslastungs-prognose.tsx | kitchen/client.tsx | ✅ |
+| DispatchPhase652FahrerLiveStatusPanel | dispatch/phase652-fahrer-live-status-panel.tsx | dispatch/client.tsx | ✅ |
+| FahrerPhase653SchichtStornoWarnung | fahrer/app/phase653-schicht-storno-warnung.tsx | fahrer/app/client.tsx (guarded) | ✅ |
+
+### Integrationen Phase 654–658 Frontend (letzter Commit) geprüft
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| KitchenPrepFlussRace | kitchen/prep-fluss-race.tsx | kitchen/client.tsx | ✅ |
+| DispatchZoneBundleScore | dispatch/zone-bundle-score.tsx | dispatch/client.tsx | ✅ |
+| TourNavFokusKarte | fahrer/app/tour-nav-fokus-karte.tsx | fahrer/app/client.tsx | ✅ |
+| LieferdienstLiveMetrikenLeiste | lieferdienst/live-metriken-leiste.tsx | lieferdienst/client.tsx | ✅ |
+| BestellungEchtzeitPfad | order/[locationSlug]/bestell-echtzeit-pfad.tsx | success-state.tsx | ✅ |
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Backend APIs | ✅ |
+
+### Nächste Phasen (Empfehlung)
+1. **Phase 654 Backend:** Schicht-Bilanz-Export-API — PDF/CSV-Download der Tagesschicht-Zusammenfassung je Fahrer
+2. **Phase 655 Kitchen:** Prep-Rückstand-Alert — Warnung wenn aktive Bestellungen länger als Prognose+20% in Zubereitung
+3. **Phase 656 Dispatch:** Zone-Effizienz-Rangliste — Vergleich der Lieferzonen nach Umsatz/Aufwand
+4. **Phase 657 Fahrer-App:** Tourpause-Empfehlung-Pro — Smarte Pausenempfehlung mit Nächstem-Hotspot-Tipp
+5. **Phase 658 Storefront:** Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Ø-Wartezeit und Rating
 
 ## CEO Review #279 — Phase 631–640 (2026-07-08)
 

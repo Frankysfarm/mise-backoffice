@@ -57,9 +57,9 @@ export function BestellungEchtzeitPfad({ orderId, initialStatus = 'bestätigt', 
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'customer_orders', filter: `id=eq.${orderId}` },
-        (payload) => {
-          const r = payload.new as any;
-          if (r.status) setStatus(r.status);
+        (payload: { new: Record<string, unknown> }) => {
+          const r = payload.new;
+          if (typeof r.status === 'string') setStatus(r.status);
         },
       )
       .subscribe();

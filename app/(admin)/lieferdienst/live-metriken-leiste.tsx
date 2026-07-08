@@ -44,7 +44,7 @@ export function LieferdienstLiveMetrikenLeiste({ locationId }: { locationId?: st
 
         const baseQuery = supabase
           .from('customer_orders')
-          .select('id, gesamtbetrag, status, lieferung_abgeschlossen_am, fertig_am, typ')
+          .select('id, gesamtbetrag, status, lieferung_abgeschlossen_am, fertig_am, typ, eta_earliest')
           .gte('bestellt_am', today.toISOString())
           .in('status', ['geliefert', 'abgeholt', 'abgeschlossen', 'fertig', 'unterwegs', 'in_zubereitung', 'bestätigt', 'neu']);
 
@@ -110,35 +110,35 @@ export function LieferdienstLiveMetrikenLeiste({ locationId }: { locationId?: st
       label: 'Lieferungen',
       value: String(snap.orders),
       subValue: snap.pendingOrders > 0 ? `+${snap.pendingOrders} offen` : undefined,
-      trend: trend(snap.orders, prevSnap?.orders),
+      trend: trend(snap.orders, prevSnap?.orders ?? null),
       color: 'matcha',
       icon: <Package className="h-4 w-4" />,
     },
     {
       label: 'Umsatz',
       value: snap.revenue.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €',
-      trend: trend(snap.revenue, prevSnap?.revenue),
+      trend: trend(snap.revenue, prevSnap?.revenue ?? null),
       color: 'emerald',
       icon: <Euro className="h-4 w-4" />,
     },
     {
       label: 'Ø Lieferzeit',
       value: snap.avgDeliveryMin != null ? `${snap.avgDeliveryMin} Min` : '—',
-      trend: trend(snap.avgDeliveryMin, prevSnap?.avgDeliveryMin, true),
+      trend: trend(snap.avgDeliveryMin ?? null, prevSnap?.avgDeliveryMin ?? null, true),
       color: snap.avgDeliveryMin != null && snap.avgDeliveryMin > 35 ? 'red' : snap.avgDeliveryMin != null && snap.avgDeliveryMin > 25 ? 'amber' : 'matcha',
       icon: <Clock className="h-4 w-4" />,
     },
     {
       label: 'Pünktlich',
       value: snap.onTimePct != null ? `${snap.onTimePct}%` : '—',
-      trend: trend(snap.onTimePct, prevSnap?.onTimePct),
+      trend: trend(snap.onTimePct ?? null, prevSnap?.onTimePct ?? null),
       color: snap.onTimePct != null && snap.onTimePct < 70 ? 'red' : snap.onTimePct != null && snap.onTimePct < 85 ? 'amber' : 'matcha',
       icon: <Target className="h-4 w-4" />,
     },
     {
       label: 'Fahrer online',
       value: String(snap.activeDrivers),
-      trend: trend(snap.activeDrivers, prevSnap?.activeDrivers),
+      trend: trend(snap.activeDrivers, prevSnap?.activeDrivers ?? null),
       color: snap.activeDrivers === 0 ? 'red' : snap.activeDrivers < 2 ? 'amber' : 'blue',
       icon: <Bike className="h-4 w-4" />,
     },
