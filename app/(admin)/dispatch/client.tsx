@@ -303,6 +303,7 @@ import { DispatchPhase693WochenPerformancePanel } from './phase693-wochen-perfor
 import { DispatchPhase698SchichtBilanzDashboard } from './phase698-schicht-bilanz-dashboard';
 import { DispatchPhase703FahrerAuslastungsScore } from './phase703-fahrer-auslastungs-score';
 import { DispatchPhase708EchtzeitStornoAlarm } from './phase708-echtzeit-storno-alarm';
+import { DispatchPhase713FahrerKarteInfobox } from './phase713-fahrer-karte-infobox';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2241,6 +2242,8 @@ export function DispatchBoard({
       <DispatchPhase703FahrerAuslastungsScore locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 708: Echtzeit-Storno-Alarm — Sofortige Warnung bei ≥3 Stornos in 15 Min */}
       <DispatchPhase708EchtzeitStornoAlarm locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 713: Fahrer-Karte-Infobox — Fahrer auswählen und Details anzeigen (GPS, Stops, Schicht) */}
+      <DispatchPhase713FahrerKarteInfobox locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

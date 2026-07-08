@@ -267,6 +267,7 @@ import { KitchenPhase692TagesabschlussWidget } from './phase692-tagesabschluss-w
 import { KitchenPhase697BestellflussAmpel } from './phase697-bestellfluss-ampel';
 import { KitchenPhase702SpitzenzeitVorbereitungAlert } from './phase702-spitzenzeit-vorbereitung-alert';
 import { KitchenPhase707ZubereitungsStauMonitor } from './phase707-zubereitungs-stau-monitor';
+import { KitchenPhase712MenuRotationsEmpfehlung } from './phase712-menu-rotations-empfehlung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2092,6 +2093,8 @@ export function KitchenBoard({
       <KitchenPhase702SpitzenzeitVorbereitungAlert orders={filtered as any} />
       {/* Phase 707: Zubereitungs-Stau-Monitor — Gerichte in Bestellungen >20 Min hervorgehoben */}
       <KitchenPhase707ZubereitungsStauMonitor orders={filtered as any} />
+      {/* Phase 712: Menü-Rotations-Empfehlung — Depriorisierungsvorschläge nach Effizienz-Score */}
+      <KitchenPhase712MenuRotationsEmpfehlung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

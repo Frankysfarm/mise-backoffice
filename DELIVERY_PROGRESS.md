@@ -11265,3 +11265,57 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 713 Dispatch:** Live-Fahrer-Karte-Infobox — Popup auf Karte: Fahrer-Name, aktuelle Tour-Stops, Schichtdauer.
 4. **Phase 714 Fahrer-App:** Nächster-Stop-Countdown — Countdown bis nächste Lieferung inkl. Navigations-Button.
 5. **Phase 715 Storefront:** Bestseller-Highlight — Top-3 Gerichte der letzten 7 Tage mit "Beliebt"-Badge.
+
+---
+
+## Batch 711-715 — 2026-07-08
+
+### Phase 711 — Zonen-Rentabilitäts-API (Backend)
+**Datei:** `app/api/delivery/admin/zonen-rentabilitaet/route.ts`
+**Params:** `location_id, tage` (default 30, max 90)
+**Logik:** Deckungsbeitrag = Einnahmen − Kraftstoff(0.18€/km) − Zeitkosten(12€/h)
+**Response:** `{ zonen: ZoneRentabilitaet[], tage }` sortiert nach db_eur ↓
+**Bewertung:** profitabel (DB-Marge ≥30%), neutral (≥0%), verlust (<0%)
+
+### Phase 712 — Menü-Rotations-Empfehlung (Kitchen)
+**Dateien:**
+- `app/(admin)/kitchen/phase712-menu-rotations-empfehlung.tsx`
+- `app/api/delivery/admin/menu-rotations-empfehlung/route.ts`
+**Props:** `locationId: string | null`
+**Effizienz-Score:** bestellungen_heute / avg_zubereitungszeit × 10
+**Empfehlung:** depriorisieren (<20), beobachten (<40), ok (≥40)
+**Collapsible (default zu); 10-Min Polling; zeigt Count der depriorisierten Gerichte**
+**Integration:** `kitchen/client.tsx` nach Phase 707
+
+### Phase 713 — Fahrer-Karte-Infobox (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase713-fahrer-karte-infobox.tsx`
+**Props:** `locationId: string | null`
+**UI:** Liste aller aktiven Fahrer; Klick → Detail-Popup mit GPS/Stops/Schichtdauer
+**API:** Nutzt bestehende /admin/fahrer-live-status; Mock-Fallback mit Status-Badges
+**30s Polling; Collapsible (default offen)**
+**Integration:** `dispatch/client.tsx` nach Phase 708
+
+### Phase 714 — Nächster-Stop-Countdown (Fahrer-App)
+**Dateien:**
+- `app/fahrer/app/phase714-naechster-stop-countdown.tsx`
+- `app/api/delivery/driver/naechster-stop/route.ts`
+**Props:** `driverId, isOnline`
+**UI:** Großer Countdown in Minuten, Fortschrittsbalken, Kundenname+Adresse, Navigations-Button
+**API:** Findet nächsten pending delivery_stop für aktiven Batch des Fahrers
+**10s Tick für Countdown; 30s API-Poll; rot wenn ≤3 Min; nur wenn isOnline**
+**Integration:** `fahrer/app/client.tsx` nach Phase 709, nur wenn isOnline
+
+### Phase 715 — Bestseller-Highlight (Storefront)
+**Datei:** `app/order/[locationSlug]/phase715-bestseller-highlight.tsx`
+**Props:** `locationId, tage?` (default 7), `topN?` (default 3)
+**UI:** Top-3 Gerichte mit 🥇🥈🥉 Emoji, Bestellanzahl als Indigo-Badge
+**API:** Nutzt /admin/item-demand (items oder top_items); 30-Min Polling
+**Nur sichtbar wenn Daten vorhanden; vor Phase 650 (Bewertungs-Widget)**
+**Integration:** `storefront.tsx` vor Phase 650
+
+### Nächste Phasen für Ingenieur
+1. **Phase 716 Backend:** Fahrer-Bonus-Trigger-API — Automatische Bonus-Berechnung wenn Fahrer Tagesziel erreicht.
+2. **Phase 717 Kitchen:** Batch-Countdown-Ampel — Zeigt für jeden Batch die Zeit bis Küchen-Deadline in Ampelfarben.
+3. **Phase 718 Dispatch:** Zonen-Rentabilitäts-Panel — Visualisierung der Phase 711 API als Dispatch-Panel.
+4. **Phase 719 Fahrer-App:** GPS-Genauigkeits-Warnung — Warnt wenn GPS-Signal schwach oder veraltet (>60s).
+5. **Phase 720 Storefront:** Echzeit-Warteschlangen-Anzeige — "X Bestellungen vor dir in der Küche."
