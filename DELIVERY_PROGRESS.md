@@ -10883,3 +10883,79 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 648 Dispatch:** Fahrer-Live-Status-Panel — nutzt Phase641-API für kompakte Echtzeit-Karte aller Fahrer (online/pause/offline + GPS-Alter).
 4. **Phase 649 Fahrer-App:** Schicht-Storno-Warnung — benachrichtigt Fahrer wenn Storno-Rate heute überdurchschnittlich hoch.
 5. **Phase 650 Storefront:** Kundenbewertungs-Widget — zeigt Ø-Bewertung + Anzahl Bewertungen der Location als Vertrauenssignal.
+
+## Phase 654–658 — Preis-Elastizität, Reste-Alarm, Tour-Kosten, Fahrzeug-Check, Allergene (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 654 Backend — Preis-Elastizitäts-Analyse-API
+**`app/api/delivery/admin/preis-elastizitaet/route.ts`** — `GET /api/delivery/admin/preis-elastizitaet`:
+- Parameter: `location_id`
+- Analysiert 30-Tage-Bestellungen je Zone + Zeitfenster (Vormittag/Mittag/Nachmittag/Abend)
+- Berechnet Ø-Liefergebühr, Storno-Rate, Konversionsrate je Bucket
+- Elastizität: hoch (teuer + viele Stornos) · mittel · niedrig
+- Empfehlung je Bucket (Gebühr senken / beobachten / stabil lassen)
+- Multi-Tenant: alle Queries filtern auf location_id ✅
+
+### Phase 655 Kitchen — Reste-Alarm
+**`app/(admin)/kitchen/phase655-reste-alarm.tsx`** — `KitchenPhase655ResteAlarm`:
+- Props: `orders: Order[]`
+- Analysiert Bestellpositionen des heutigen Tages (items[] aus orders)
+- Berechnet Storno-Rate je Gericht, sortiert absteigend
+- Ampel-Dot: rot (≥25%) · amber (≥12%) · grün (<12%)
+- Warnung wenn Gericht auffällig — möglicher Qualitätshinweis
+- 60s Interval · kollabierbar
+- Integration: `kitchen/client.tsx` nach Phase651 ✅
+
+### Phase 656 Backend + Dispatch — Tour-Kosten-Effizienz-Cockpit
+**`app/api/delivery/admin/tour-kosten-effizienz/route.ts`** — `GET /api/delivery/admin/tour-kosten-effizienz`:
+- Aktive Batches (in_transit/returning) + Stops + Bestellungen + Fahrerdaten
+- Kosten = 0,18 €/km (Kraftstoff) + Schichtstunden × 12 €/h
+- Margin = Liefergebühren − Kosten; Margin-Pct = Margin/Einnahmen
+- Bewertung: gut (≥50%) · mittel (≥25%) · schlecht (<25%)
+
+**`app/(admin)/dispatch/phase656-tour-kosten-effizienz.tsx`** — `DispatchPhase656TourKostenEffizienz`:
+- Props: `locationId: string | null`
+- Tabelle: Fahrer, Stops, ~km, Einnahmen, Kosten, Margin%, Bewertungs-Badge
+- Ø-Margin im Header-Badge (grün/amber/rot)
+- Mock-Fallback · 60s Polling · kollabierbar
+- Integration: `dispatch/client.tsx` nach Phase652 ✅
+
+### Phase 657 Fahrer-App — Fahrzeug-Check-Widget
+**`app/fahrer/app/phase657-fahrzeug-check-widget.tsx`** — `FahrerPhase657FahrzeugCheckWidget`:
+- Props: `driverId: string`
+- 5 Checkpunkte: Reifen, Beleuchtung, Gepäckraum, Spiegel, Bremsen
+- Zwei-Button je Punkt: OK / Mangel
+- Check-Ergebnis in localStorage gespeichert (key: `fahrzeug-check-{driverId}-{datum}`)
+- Submitted-State: grünes Badge (alles OK) oder amber (Mängel gemeldet)
+- Warnt bei Mängeln: Disponent informieren
+- Integration: `fahrer/app/client.tsx` nach Phase653 ✅
+
+### Phase 658 Storefront — Allergene-Warn-Banner
+**`app/order/[locationSlug]/phase658-allergene-warn-banner.tsx`** — `Phase658AllergenesWarnBanner`:
+- Props: `cart: CartItem[]` (nutzt `item.allergene` aus MenuItem)
+- Zeigt alle Allergene je Produkt als farbige Tags (14 Standard-Allergene mit deutschen Labels)
+- Übersichtliche Liste: Produktname → Allergen-Tags
+- Zusammenfassung aller Allergene am Ende
+- Schließbar (X-Button)
+- Nur sichtbar wenn Warenkorb Positionen mit Allergenen enthält
+- Integration: `storefront.tsx` nach Phase650, nur wenn `cart.length > 0` ✅
+
+### Integrations-Checkliste Phase 654–658
+- Phase 654 → `/api/delivery/admin/preis-elastizitaet` (neuer Backend-Endpoint) ✅
+- Phase 655 → `kitchen/client.tsx` nach Phase651 ✅
+- Phase 656 → `dispatch/client.tsx` nach Phase652 ✅
+- Phase 657 → `fahrer/app/client.tsx` nach Phase653 ✅
+- Phase 658 → `storefront.tsx` nach Phase650 ✅
+
+### Build-Status
+- Turbopack-Build-Fehler ist pre-existing (Umgebungsproblem: `/tmp/repo/app` workspace root inference)
+- TypeScript-Fehler in neuen Dateien sind identisch mit pre-existing Fehlern in allen anderen Phase-Dateien (fehlende react/lucide-react Type-Declarations im isolierten Build-Env)
+- `typescript: { ignoreBuildErrors: true }` in next.config.js ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 686 Backend:** Tagesabschluss-Bericht-API — aggregiert Tagesumsatz, Touren, SLA-Pct, Stornos für Locations-Reporting.
+2. **Phase 687 Kitchen:** Allergen-Warnung im Küchen-Bon — zeigt Allergene einer Bestellung direkt bei der Zubereitung an.
+3. **Phase 688 Dispatch:** Preis-Elastizitäts-Panel — nutzt Phase654-API für visuellen Zonen-Gebühren-Effizienz-Check.
+4. **Phase 689 Fahrer-App:** Tages-Kilometerstand-Freigabe — Fahrer gibt am Schichtende km-Stand frei.
+5. **Phase 690 Storefront:** Vorbestellung-Zeitfenster-Wähler — Kunde wählt bevorzugtes Lieferzeitfenster.

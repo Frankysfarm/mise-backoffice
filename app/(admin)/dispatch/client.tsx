@@ -289,6 +289,7 @@ import { DispatchPhase638FahrerErreichbarkeitsMatrix } from './phase638-fahrer-e
 import { DispatchPhase643ZonenErloeesVergleichPanel } from './phase643-zonen-erloes-vergleich-panel';
 import { DispatchPhase647TourScoreLiveCockpit } from './phase647-tour-score-live-cockpit';
 import { DispatchPhase652FahrerLiveStatusPanel } from './phase652-fahrer-live-status-panel';
+import { DispatchPhase656TourKostenEffizienz } from './phase656-tour-kosten-effizienz';
 import { DispatchPhase661ZoneEffizienzRangliste } from './phase661-zone-effizienz-rangliste';
 import { DispatchPhase666BatchRueckkehrPrognose } from './phase666-batch-rueckkehr-prognose';
 import { DispatchPhase671FahrerVerfuegbarkeitsAmpel } from './phase671-fahrer-verfuegbarkeits-ampel';
@@ -2206,6 +2207,8 @@ export function DispatchBoard({
       <DispatchPhase647TourScoreLiveCockpit batches={batches as any} />
       {/* Phase 652: Fahrer-Live-Status-Panel — Kompakte Echtzeit-Übersicht aller Fahrer (online/pause/offline + GPS-Alter) */}
       <DispatchPhase652FahrerLiveStatusPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 656: Tour-Kosten-Effizienz-Cockpit — Kosten je Tour (Kraftstoff + Zeit) vs. Einnahmen als Margin */}
+      <DispatchPhase656TourKostenEffizienz locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 661: Zone-Effizienz-Rangliste — Vergleich der Lieferzonen nach Erlös/Lieferung */}
       <DispatchPhase661ZoneEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 666: Tour-Rückkehr-Prognose — Für jede aktive Tour geschätzte Rückkehrzeit */}

@@ -91,6 +91,7 @@ import { Phase640LieferzeitTransparenzWidget } from './phase640-lieferzeit-trans
 import { Phase645BewertungsAufforderungsBanner } from './phase645-bewertungs-aufforderungs-banner';
 import { Phase649LiveLieferzeitIndikator } from './phase649-live-lieferzeit-indikator';
 import { Phase650KundenbewertungsWidget } from './phase650-kundenbewertungs-widget';
+import { Phase658AllergenesWarnBanner } from './phase658-allergene-warn-banner';
 import { Phase663KuechenVertrauenBadge } from './phase663-kuechen-vertrauen-badge';
 import { Phase668BestellStatusAmpel } from './phase668-bestell-status-ampel';
 import { Phase673ZonenLieferzeit } from './phase673-zonen-lieferzeit';
@@ -1357,6 +1358,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
       <Phase650KundenbewertungsWidget locationId={locationId} />
+      {/* Phase 658: Allergene-Warn-Banner — Allergene aus Warenkorbpositionen klar hervorgehoben */}
+      {cart.length > 0 && <Phase658AllergenesWarnBanner cart={cart as any} />}
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

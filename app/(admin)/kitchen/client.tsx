@@ -253,6 +253,7 @@ import { KitchenPhase637TagesStornoUebersicht } from './phase637-tages-storno-ue
 import { KitchenPhase642SchichtTempoAmpel } from './phase642-schicht-tempo-ampel';
 import { KitchenPhase646SmartZubereitungsZeitwacher } from './phase646-smart-zubereitungs-zeitwacher';
 import { KitchenPhase651TagesAuslastungsPrognose } from './phase651-tages-auslastungs-prognose';
+import { KitchenPhase655ResteAlarm } from './phase655-reste-alarm';
 import { KitchenPhase660PrepRueckstandAlert } from './phase660-prep-rueckstand-alert';
 import { KitchenPhase665DringlichkeitsQueue } from './phase665-dringlichkeits-queue';
 import { KitchenPhase670SchichtEndePrognose } from './phase670-schicht-ende-prognose';
@@ -2057,6 +2058,8 @@ export function KitchenBoard({
       <KitchenPhase646SmartZubereitungsZeitwacher orders={filtered as any} />
       {/* Phase 651: Tages-Auslastungs-Prognose — Stündliche Bestellmenge + 2h-Prognose */}
       <KitchenPhase651TagesAuslastungsPrognose orders={filtered as any} />
+      {/* Phase 655: Reste-Alarm — Gerichte mit erhöhter Storno-Rate (Qualitätshinweis) */}
+      <KitchenPhase655ResteAlarm orders={filtered as any} />
       {/* Phase 660: Prep-Rückstand-Alert — Bestellungen >20% über Zubereitungsprognose */}
       <KitchenPhase660PrepRueckstandAlert orders={filtered as any} timings={timings as any} />
       {/* Phase 665: Dringlichkeits-Queue — Bestellungen sortiert nach Dringlichkeit + SLA-Score */}
