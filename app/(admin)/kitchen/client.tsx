@@ -276,6 +276,7 @@ import { KitchenPhase737StoppEffizienzMonitor } from './phase737-stopp-effizienz
 import { KitchenPhase742BestellungsPrioritaetsAmpel } from './phase742-bestellungs-prioritaets-ampel';
 import { KitchenPhase747BestellungsCluster } from './phase747-bestellungs-cluster';
 import { KitchenPhase752LiveBestellzaehler } from './phase752-live-bestellzaehler';
+import { KitchenPhase757ZonenBestellaufkommen } from './phase757-zonen-bestellaufkommen';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2119,6 +2120,8 @@ export function KitchenBoard({
       <KitchenPhase747BestellungsCluster orders={filtered as any} />
       {/* Phase 752: Live-Bestellzähler — Großes animiertes Display aktiver/fertiger Bestellungen */}
       <KitchenPhase752LiveBestellzaehler orders={filtered as any} />
+      {/* Phase 757: Zonen-Bestellaufkommen — Balken-Heatmap aktiver Bestellungen je Zone */}
+      <KitchenPhase757ZonenBestellaufkommen locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

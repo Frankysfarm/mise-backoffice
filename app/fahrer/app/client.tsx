@@ -257,6 +257,7 @@ import { FahrerPhase739TrinkgeldRangliste } from './phase739-trinkgeld-rangliste
 import { FahrerPhase744SchichtUeberstundenWarnung } from './phase744-schicht-ueberstunden-warnung';
 import { FahrerPhase749KmTagesTracker } from './phase749-km-tages-tracker';
 import { FahrerPhase754SlaAlarmWidget } from './phase754-sla-alarm-widget';
+import { FahrerPhase759TagesEinnahmenCockpit } from './phase759-tages-einnahmen-cockpit';
 
 type Driver = {
   id: string;
@@ -3446,6 +3447,10 @@ export function FahrerApp({
             <FahrerPhase754SlaAlarmWidget driverId={driver.id} isOnline={isOnline} />
           </div>
         )}
+        {/* Phase 759: Tages-Einnahmen-Cockpit — Touren-€ + Trinkgeld + Prognose + Ziel-Fortschrittsbar */}
+        <div className="px-4">
+          <FahrerPhase759TagesEinnahmenCockpit driverId={driver.id} />
+        </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

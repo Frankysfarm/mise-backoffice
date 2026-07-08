@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–755 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+**Phasen 1–760 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+Backend-Architekt-Agent (2026-07-08): Phase 756–760 — Bestellverlauf-Heute-API (stündl. Bestellzahlen + SLA-Verletzungszähler), Kitchen Zonen-Bestellaufkommen (Balken-Heatmap je Zone), Dispatch Tour-SLA-Verletzungs-Panel (roter Alarm bei >45 Min), Fahrer-App Tages-Einnahmen-Cockpit (Touren+Trinkgeld+Prognose+Fortschrittsbar), Storefront Bestellverlauf-Anzeige (Balkendiagramm Stunden). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 751–755 — Tour-SLA-Verletzungs-API (Touren >45 Min sortiert), Kitchen Live-Bestellzähler (animiertes Zahlen-Display + Balken), Dispatch Fahrer-km-Bilanz-Panel (Trend-Icon + Delta vs. Vorwoche), Fahrer-App SLA-Alarm-Widget (Roter Alarm bei >45 Min), Storefront Liefergebühr-Countdown (dismissbarer Rabatt-Timer). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 746–750 — Fahrer-km-Bilanz-API (Gesamt-km heute vs. Vorwoche je Fahrer), Kitchen Bestellungs-Cluster (Zeitslot-Balken mit dringlich-Flag), Dispatch Schicht-Überstunden-Panel (aus Phase 741 API, collapsible), Fahrer-App km-Tages-Tracker (Fortschrittsbar + Ø km/Tour), Storefront Kapazitäts-Ring (SVG-Donut grün/amber/orange/rot). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 741–745 — Schicht-Überstunden-API (>8h Fahrer hervorgehoben), Kitchen Prioritäts-Ampel (VIP+kritische Bestellungen rot/amber), Dispatch Zonen-Überlastungs-Alarm (Best./Fahrer-Ratio >5x), Fahrer-App Überstunden-Warnung (Amber-Banner ab >8h), Storefront Bestellstatus-Leiste (visuelle Schritte mit Emojis). Build ✓. Push origin/main.
