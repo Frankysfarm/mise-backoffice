@@ -287,6 +287,7 @@ import { FahrerPhase850TourStoppNavPro } from './phase850-tour-stopp-nav-pro';
 import { FahrerPhase854SchichtEnergieCoach } from './phase854-schicht-energie-coach';
 import { FahrerPhase859NaviEtaVergleich } from './phase859-navi-eta-vergleich';
 import { FahrerPhase863SchichtStoppStatistik } from './phase863-schicht-stopp-statistik';
+import { FahrerPhase869FahrTippsCoach } from './phase869-fahr-tipps-coach';
 
 type Driver = {
   id: string;
@@ -3663,6 +3664,8 @@ export function FahrerApp({
 
         {/* Phase 863: Schicht-Stopp-Statistik — Stopp-Anzahl, Ø-Zeit/Stopp, Effizienz-Balken heute */}
         <FahrerPhase863SchichtStoppStatistik driverId={driver.id} />
+        {/* Phase 869: Fahr-Tipps-Coach — Adaptive Schicht-Tipps je nach Auftragslage (Pause, Zone, Effizienz, Sicherheit) */}
+        <FahrerPhase869FahrTippsCoach driverId={driver.id} locationId={driver.location_id ?? null} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />

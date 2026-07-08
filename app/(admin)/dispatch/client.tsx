@@ -341,6 +341,7 @@ import { DispatchPhase849TourScoreRadar } from './phase849-tour-score-radar';
 import { DispatchPhase853TourenAbdeckungsKarte } from './phase853-touren-abdeckungs-karte';
 import { DispatchPhase858FahrerAuslastungsHeatmapLive } from './phase858-fahrer-auslastungs-heatmap-live';
 import { DispatchPhase862TourEffizienzKommando } from './phase862-tour-effizienz-kommando';
+import { DispatchPhase868EinsatzEffizienzRanking } from './phase868-einsatz-effizienz-ranking';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2362,6 +2363,8 @@ export function DispatchBoard({
         batches={batches.map(b => ({ ...b, stops: (b as any).stops ?? [] }))}
         drivers={drivers}
       />
+      {/* Phase 868: Einsatz-Effizienz-Ranking — Ranking aller Fahrer heute nach Stopps/h + Pünktlichkeit + Bewertung */}
+      <DispatchPhase868EinsatzEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
