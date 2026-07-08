@@ -128,6 +128,7 @@ import { Phase799BestellhistorieSchnellansicht } from './phase799-bestellhistori
 import { Phase804LieferVersprechenSiegel } from './phase804-liefer-versprechen-siegel';
 import { Phase813KundenTreuepunkte } from './phase813-kunden-treuepunkte';
 import { Phase818KuechenStatusBadge } from './phase818-kuechen-status-badge';
+import { Phase823FahrerProfilCard } from './phase823-fahrer-profil-card';
 
 type Props = {
   location: Location;
@@ -1472,6 +1473,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase813KundenTreuepunkte locationId={locationId} orderId={order.orderId ?? null} />
       {/* Phase 818: Echtzeit-Küchenstatus-Badge — Grün/Amber/Rot + Schätz-Wartezeit */}
       <Phase818KuechenStatusBadge locationId={locationId} />
+      {/* Phase 823: Fahrer-Profil-Card — Anonymisiertes Fahrerprofil mit Bewertung + ETA während Lieferung */}
+      <Phase823FahrerProfilCard orderId={order.orderId ?? null} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

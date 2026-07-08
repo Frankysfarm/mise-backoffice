@@ -283,6 +283,7 @@ import { LieferdienstPhase765SchichtTagesvergleich } from './phase765-schicht-ta
 import { LieferdienstPhase779SchichtStatsCockpit } from './phase779-schicht-stats-cockpit';
 import { LieferdienstPhase813StatistikenKompaktHub } from './phase813-statistiken-kompakt-hub';
 import { LieferdienstPhase814FahrerPerformanceRangliste } from './phase814-fahrer-performance-rangliste';
+import { LieferdienstPhase819UmsatzVelocityCockpit } from './phase819-umsatz-velocity-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1533,6 +1534,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase813StatistikenKompaktHub />
               {/* Phase 814: Fahrer-Performance-Rangliste — Top-5 Fahrer kombinierter Score letzte 7 Tage */}
               <LieferdienstPhase814FahrerPerformanceRangliste locationId={locationId ?? null} />
+              {/* Phase 819: Umsatz-Velocity-Cockpit — €/Stunde live + Vergleich Vortag + Tagesprognose */}
+              <LieferdienstPhase819UmsatzVelocityCockpit locationId={locationId ?? null} />
               {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}
               <SchichtFahrerEinnahmenRanking locationId={locationId} />
               {/* Phase 480: Kennzahlen-Hub — Echtzeit-KPIs: Umsatz, Bestellungen, Lieferquote, Fahrer, Stundenverteilung */}

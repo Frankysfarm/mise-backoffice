@@ -292,6 +292,7 @@ import { KitchenPhase806SmartTimingFarbskala } from './phase806-smart-timing-far
 import { KitchenPhase810ZubereitungszeitTrend } from './phase810-zubereitungszeit-trend';
 import { KitchenPhase813SmartLiveCountdownBoard } from './phase813-smart-live-countdown-board';
 import { KitchenPhase815BatchAuslastungsAmpel } from './phase815-batch-auslastungs-ampel';
+import { KitchenPhase820PrepPrioritaetsScore } from './phase820-prep-prioritaets-score';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -755,6 +756,8 @@ export function KitchenBoard({
       <KitchenPhase813SmartLiveCountdownBoard orders={filtered} timings={timings} />
       {/* Phase 815: Batch-Auslastungs-Ampel — Aktive Batches vs. Kapazität, Ampel grün/amber/rot */}
       <KitchenPhase815BatchAuslastungsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 820: Prep-Prioritäts-Score — Echtzeit-Score je aktiver Bestellung (0-100), sortiert nach Dringlichkeit */}
+      <KitchenPhase820PrepPrioritaetsScore orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}
