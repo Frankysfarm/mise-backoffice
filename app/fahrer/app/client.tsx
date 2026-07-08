@@ -236,6 +236,7 @@ import { FahrerPhase648TourStoppLiveKommando } from './phase648-tour-stopp-live-
 import { FahrerPhase653SchichtStornoWarnung } from './phase653-schicht-storno-warnung';
 import { FahrerPhase662TourpauseEmpfehlungPro } from './phase662-tourpause-empfehlung-pro';
 import { FahrerPhase667TagesEinnahmenPrognose } from './phase667-tages-einnahmen-prognose';
+import { FahrerPhase672TourQualitaetsScore } from './phase672-tour-qualitaets-score';
 
 type Driver = {
   id: string;
@@ -3312,6 +3313,12 @@ export function FahrerApp({
         {isOnline && driver.location_id && (
           <div className="px-4">
             <FahrerPhase667TagesEinnahmenPrognose driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 672: Tour-Qualitäts-Score — Effizienz + Kundenbewertung kombiniert */}
+        {isOnline && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase672TourQualitaetsScore driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

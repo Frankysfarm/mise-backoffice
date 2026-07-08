@@ -93,6 +93,7 @@ import { Phase649LiveLieferzeitIndikator } from './phase649-live-lieferzeit-indi
 import { Phase650KundenbewertungsWidget } from './phase650-kundenbewertungs-widget';
 import { Phase663KuechenVertrauenBadge } from './phase663-kuechen-vertrauen-badge';
 import { Phase668BestellStatusAmpel } from './phase668-bestell-status-ampel';
+import { Phase673ZonenLieferzeit } from './phase673-zonen-lieferzeit';
 
 type Props = {
   location: Location;
@@ -1356,6 +1357,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
       <Phase668BestellStatusAmpel locationId={locationId} />
+      {/* Phase 673: Zonen-Lieferzeit-Differenzierung — ETAs je Lieferzone A/B/C/D */}
+      <Phase673ZonenLieferzeit locationId={locationId} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}
