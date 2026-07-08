@@ -330,6 +330,8 @@ import { DispatchPhase813TourScoreLiveKompakt } from './phase813-tour-score-live
 import { DispatchPhase816TourCompletionRate } from './phase816-tour-completion-rate';
 import { DispatchPhase821ZonenEffizienzMatrix } from './phase821-zonen-effizienz-matrix';
 import { DispatchPhase826FahrerzuteilungEmpfehlung } from './phase826-fahrerzuteilung-empfehlung';
+import { DispatchPhase827ScoreAnzeigeLiveCockpit } from './phase827-score-anzeige-live-cockpit';
+import { DispatchPhase828TourVisualisierungsCockpit } from './phase828-tour-visualisierungs-cockpit';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2322,6 +2324,10 @@ export function DispatchBoard({
       <DispatchPhase821ZonenEffizienzMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 826: KI-Fahrerzuteilungs-Empfehlung — Beste Fahrer-Zone-Kombination basierend auf historischem Score */}
       <DispatchPhase826FahrerzuteilungEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 827: Score-Anzeige Live Cockpit — Fahrer-Score-Ranking mit Trend-Indikatoren */}
+      <DispatchPhase827ScoreAnzeigeLiveCockpit drivers={drivers} />
+      {/* Phase 828: Tour-Visualisierungs-Cockpit — Live Stopp-Fortschritt je aktiver Tour mit Fortschrittsbalken */}
+      <DispatchPhase828TourVisualisierungsCockpit batches={batches} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

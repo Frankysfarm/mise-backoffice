@@ -275,6 +275,8 @@ import { FahrerPhase813TourStopsHub } from './phase813-tour-stops-hub';
 import { FahrerPhase817NavigationsEffizienz } from './phase817-navigations-effizienz';
 import { FahrerPhase822SchichtScoreCockpit } from './phase822-schicht-score-cockpit';
 import { FahrerPhase827TagesEinnahmenBreakdown } from './phase827-tages-einnahmen-breakdown';
+import { FahrerPhase828TourStoppNavigatorHub } from './phase828-tour-stopp-navigator-hub';
+import { FahrerPhase829NavigationLiveCockpit } from './phase829-navigation-live-cockpit';
 
 type Driver = {
   id: string;
@@ -3561,6 +3563,44 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase827TagesEinnahmenBreakdown driverId={driver.id} />
         </div>
+
+        {/* Phase 828: Tour-Stopp-Navigator Hub — Alle Stopps mit Status, Adresse, ETA + Navigationsbutton */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase828TourStoppNavigatorHub
+              stops={activeBatch.stops.map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                order_id: s.order_id,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                kunde_name: s.order?.kunde_name ?? null,
+                kunde_adresse: s.order?.kunde_adresse ?? null,
+                eta_min: null,
+              }))}
+            />
+          </div>
+        )}
+
+        {/* Phase 829: Navigation Live Cockpit — ETA, Tempo, Distanz zum nächsten Stopp */}
+        {activeBatch && (() => {
+          const nextStop = activeBatch.stops.find((s: any) => !s.geliefert_am);
+          const completedCount = activeBatch.stops.filter((s: any) => !!s.geliefert_am).length;
+          return (
+            <div className="px-4">
+              <FahrerPhase829NavigationLiveCockpit
+                currentStop={nextStop ? {
+                  id: nextStop.id,
+                  reihenfolge: nextStop.reihenfolge,
+                  kunde_adresse: (nextStop as any).order?.kunde_adresse ?? null,
+                  eta_min: null,
+                } : null}
+                totalStops={activeBatch.stops.length}
+                completedStops={completedCount}
+              />
+            </div>
+          );
+        })()}
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (
