@@ -113,6 +113,7 @@ import { Phase735FeedbackEinladung } from './phase735-feedback-einladung';
 import { Phase740FahrerNaehe } from './phase740-fahrer-naehe-anzeige';
 import { Phase745BestellstatusLeiste } from './phase745-bestellstatus-leiste';
 import { Phase750KapazitaetsRing } from './phase750-kapazitaets-ring';
+import { Phase755LiefergebuehrCountdown } from './phase755-liefergebuehr-countdown';
 
 type Props = {
   location: Location;
@@ -1408,6 +1409,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase745BestellstatusLeiste status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 750: Kapazitäts-Ring — SVG-Donut-Ring mit Küchen-Auslastung und Farb-Feedback */}
       <Phase750KapazitaetsRing locationId={locationId} />
+      {/* Phase 755: Liefergebühr-Countdown — Zeitlich begrenzte Liefergebühr-Reduktion mit Ablauf-Timer */}
+      <Phase755LiefergebuehrCountdown locationId={locationId} isDelivery={order.isDelivery} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

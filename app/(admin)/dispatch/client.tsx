@@ -311,6 +311,7 @@ import { DispatchPhase733FahrerRueckkehrPrognosePanel } from './phase733-fahrer-
 import { DispatchPhase738FahrerPauseEmpfehlung } from './phase738-fahrer-pause-empfehlung';
 import { DispatchPhase743ZonenUeberlastungsAlarm } from './phase743-zonen-ueberlastungs-alarm';
 import { DispatchPhase748SchichtUeberstundenPanel } from './phase748-schicht-ueberstunden-panel';
+import { DispatchPhase753FahrerKmBilanzPanel } from './phase753-fahrer-km-bilanz-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2265,6 +2266,8 @@ export function DispatchBoard({
       <DispatchPhase743ZonenUeberlastungsAlarm locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 748: Schicht-Überstunden-Panel — Fahrer mit >8h Schicht und Überstunden-Minuten */}
       <DispatchPhase748SchichtUeberstundenPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 753: Fahrer-km-Bilanz-Panel — Heute vs. Vorwoche je Fahrer mit Trend-Icon */}
+      <DispatchPhase753FahrerKmBilanzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

@@ -256,6 +256,7 @@ import { FahrerPhase734StreakAnzeige } from './phase734-streak-anzeige';
 import { FahrerPhase739TrinkgeldRangliste } from './phase739-trinkgeld-rangliste';
 import { FahrerPhase744SchichtUeberstundenWarnung } from './phase744-schicht-ueberstunden-warnung';
 import { FahrerPhase749KmTagesTracker } from './phase749-km-tages-tracker';
+import { FahrerPhase754SlaAlarmWidget } from './phase754-sla-alarm-widget';
 
 type Driver = {
   id: string;
@@ -3439,6 +3440,12 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase749KmTagesTracker driverId={driver.id} />
         </div>
+        {/* Phase 754: SLA-Alarm-Widget — Roter Alarm wenn aktive Tour >45 Min SLA überschreitet */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase754SlaAlarmWidget driverId={driver.id} isOnline={isOnline} />
+          </div>
+        )}
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (
