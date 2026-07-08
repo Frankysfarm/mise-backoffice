@@ -317,6 +317,7 @@ import { DispatchPhase758FahrerAuslastungsMatrix } from './phase758-fahrer-ausla
 import { DispatchPhase762FahrerEchtzeitRanking } from './phase762-fahrer-echtzeit-ranking';
 import { DispatchPhase763ZonenErtragsStreifen } from './phase763-zonen-ertrags-streifen';
 import { DispatchPhase767FahrerBewertungsPanel } from './phase767-fahrer-bewertungs-panel';
+import { DispatchPhase772EchtzeitKapazitaetsUeberblick } from './phase772-echtzeit-kapazitaets-ueberblick';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2283,6 +2284,8 @@ export function DispatchBoard({
       <DispatchPhase763ZonenErtragsStreifen locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 767: Fahrer-Bewertungs-Panel — Ø-Rating je Fahrer der letzten N Tage mit Sterne-Anzeige */}
       <DispatchPhase767FahrerBewertungsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 772: Echtzeit-Kapazitäts-Überblick — Ø Auslastung + freie vs. unterwegs Fahrer */}
+      <DispatchPhase772EchtzeitKapazitaetsUeberblick locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

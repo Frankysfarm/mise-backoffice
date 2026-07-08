@@ -281,6 +281,7 @@ import { KitchenPhase757WarteschlangenPriorisierung } from './phase757-warteschl
 import { KitchenPhase761SchnellstatusBand } from './phase761-schnellstatus-band';
 import { KitchenPhase762BestellungsKomplexitaetsTacho } from './phase762-bestellungs-komplexitaets-tacho';
 import { KitchenPhase766AllergenenMonitor } from './phase766-allergenen-monitor';
+import { KitchenPhase771StornoWarnungPanel } from './phase771-storno-warnung-panel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2134,6 +2135,8 @@ export function KitchenBoard({
       <KitchenPhase762BestellungsKomplexitaetsTacho orders={filtered as any} />
       {/* Phase 766: Allergenen-Monitor — Aktive Bestellungen mit bekannten Allergenen in Notizen/Artikeln */}
       <KitchenPhase766AllergenenMonitor orders={filtered as any} />
+      {/* Phase 771: Storno-Warnung-Panel — Bestellungen mit ≥10 Min Wartezeit ohne Bearbeitung */}
+      <KitchenPhase771StornoWarnungPanel orders={filtered as any} />
     </div>
   );
 }

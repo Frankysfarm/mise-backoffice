@@ -262,6 +262,7 @@ import { FahrerPhase759LiveEinnahmenTicker } from './phase759-live-einnahmen-tic
 import { FahrerPhase763LiveStoppFortschritt } from './phase763-live-stopp-fortschritt';
 import { FahrerPhase764StundenVerdienstMuster } from './phase764-stunden-verdienst-muster';
 import { FahrerPhase768EigeneBewertung } from './phase768-eigene-bewertung';
+import { FahrerPhase773TagesHighlightsWidget } from './phase773-tages-highlights-widget';
 
 type Driver = {
   id: string;
@@ -3477,6 +3478,10 @@ export function FahrerApp({
         {/* Phase 768: Eigene-Bewertung — Ø-Rating, Sterne, Tagesverlauf der letzten 14 Tage */}
         <div className="px-4">
           <FahrerPhase768EigeneBewertung driverId={driver.id} />
+        </div>
+        {/* Phase 773: Tages-Highlights-Widget — schnellste Tour, Trinkgeld, km, Touren heute */}
+        <div className="px-4">
+          <FahrerPhase773TagesHighlightsWidget driverId={driver.id} locationId={driver.location_id} />
         </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
