@@ -272,6 +272,7 @@ import { FahrerPhase803WetterAuswirkungsHinweis } from './phase803-wetter-auswir
 import { FahrerPhase808TourStoppNavigatorUltimate } from './phase808-tour-stopp-navigator-ultimate';
 import { FahrerPhase812TagesVerdienstHochrechnung } from './phase812-tages-verdienst-hochrechnung';
 import { FahrerPhase813TourStopsHub } from './phase813-tour-stops-hub';
+import { FahrerPhase817NavigationsEffizienz } from './phase817-navigations-effizienz';
 
 type Driver = {
   id: string;
@@ -3542,6 +3543,11 @@ export function FahrerApp({
         {/* Phase 812: Tages-Verdienst-Hochrechnung — Aktueller Verdienst + Prognose bis Schichtende */}
         <div className="px-4">
           <FahrerPhase812TagesVerdienstHochrechnung driverId={driver.id} locationId={driver.location_id} />
+        </div>
+
+        {/* Phase 817: Navigations-Effizienz-Score — GPS-Direktweg vs. tatsächlich gefahrene km */}
+        <div className="px-4">
+          <FahrerPhase817NavigationsEffizienz driverId={driver.id} locationId={driver.location_id ?? null} />
         </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
