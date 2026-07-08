@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
       : startMs + STANDARD_SCHICHT_H * 3_600_000;
     const ueberstundenMin = Math.max(0, Math.floor((now - geplanteEndeMs) / 60_000));
 
-    const emp = s.employees as { vorname: string; nachname: string } | null;
+    const emps = s.employees as unknown as { vorname: string; nachname: string }[] | null;
+    const emp = Array.isArray(emps) ? emps[0] ?? null : null;
     const name = emp ? `${emp.vorname} ${emp.nachname}` : 'Unbekannt';
 
     return {

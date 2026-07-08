@@ -31,7 +31,8 @@ export async function GET(req: NextRequest) {
   const verletzungen = (batches ?? []).map((b) => {
     const startMs = new Date(b.created_at as string).getTime();
     const dauerMin = Math.floor((now - startMs) / 60_000);
-    const emp = b.employees as { vorname: string; nachname: string } | null;
+    const emps = b.employees as unknown as { vorname: string; nachname: string }[] | null;
+    const emp = Array.isArray(emps) ? emps[0] ?? null : null;
     return {
       batch_id: b.id,
       driver_name: emp ? `${emp.vorname} ${emp.nachname}` : 'Unbekannt',

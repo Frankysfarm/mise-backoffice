@@ -46,7 +46,8 @@ export async function GET(req: NextRequest) {
 
   const heuteMap = new Map<string, { km: number; name: string }>();
   for (const b of heuteData ?? []) {
-    const emp = b.employees as { vorname: string; nachname: string } | null;
+    const emps = b.employees as unknown as { vorname: string; nachname: string }[] | null;
+    const emp = Array.isArray(emps) ? emps[0] ?? null : null;
     const name = emp ? `${emp.vorname} ${emp.nachname}` : 'Unbekannt';
     const prev = heuteMap.get(b.driver_id) ?? { km: 0, name };
     prev.km += b.distance_km ?? 0;

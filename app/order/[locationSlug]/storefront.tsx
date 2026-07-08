@@ -1407,9 +1407,9 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 730: Liefer-Zonen-Badge — Zone, Lieferzeit und Gebühr als farbiges Badge */}
       {order.isDelivery && <Phase730LieferZonenBadge locationId={locationId} />}
       {/* Phase 735: Feedback-Einladung nach Lieferung — Sternbewertung 3s nach Statuswechsel zu geliefert */}
-      <Phase735FeedbackEinladung locationId={locationId} bestellungId={order.id} status={order.status} />
+      <Phase735FeedbackEinladung locationId={locationId} bestellungId={order.orderId} status={order.status} />
       {/* Phase 740: Fahrer-Nähe-Anzeige — Entfernung + ETA wenn Fahrer unterwegs zur Lieferadresse */}
-      {order.isDelivery && <Phase740FahrerNaehe locationId={locationId} bestellungId={order.id} status={order.status} />}
+      {order.isDelivery && <Phase740FahrerNaehe locationId={locationId} bestellungId={order.orderId} status={order.status} />}
       {/* Phase 745: Bestellstatus-Leiste — Visuelle Fortschrittsleiste mit Schritt-Emojis */}
       <Phase745BestellstatusLeiste status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 750: Kapazitäts-Ring — SVG-Donut-Ring mit Küchen-Auslastung und Farb-Feedback */}

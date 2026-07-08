@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ ok: false, error: 'location_id required' }, { status: 400 });
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const now = new Date();
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
@@ -23,11 +23,12 @@ export async function GET(req: NextRequest) {
     .not('delivered_at', 'is', null)
     .gte('created_at', sevenDaysAgo.toISOString());
 
-  const orders = data ?? [];
+  type OrderRow = { created_at: string; delivered_at: string | null; estimated_delivery_at: string | null };
+  const orders: OrderRow[] = (data as OrderRow[] | null) ?? [];
   const todayOrders = orders.filter((o) => new Date(o.created_at) >= todayStart);
   const vergangeneOrders = orders.filter((o) => new Date(o.created_at) < todayStart);
 
-  function durchschnittMinuten(liste: typeof orders): number | null {
+  function durchschnittMinuten(liste: OrderRow[]): number | null {
     const zeiten = liste
       .filter((o) => o.delivered_at && o.created_at)
       .map((o) => (new Date(o.delivered_at!).getTime() - new Date(o.created_at).getTime()) / 60_000);

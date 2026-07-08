@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ ok: false, error: 'location_id required' }, { status: 400 });
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const now = new Date();
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
