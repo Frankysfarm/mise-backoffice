@@ -322,6 +322,7 @@ import { DispatchPhase777TourLiveScoreMatrix } from './phase777-tour-live-score-
 import { DispatchPhase782FahrerEffizienzHeatmap } from './phase782-fahrer-effizienz-heatmap';
 import { DispatchPhase786TourScoreLivePanel } from './phase786-tour-score-live-panel';
 import { DispatchPhase792FahrerZonenAffinitaetsMatrix } from './phase792-fahrer-zonen-affinitaets-matrix';
+import { DispatchPhase797TourStornoPraevention } from './phase797-tour-storno-praevention';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2298,6 +2299,8 @@ export function DispatchBoard({
       <DispatchPhase786TourScoreLivePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 792: Fahrer-Zonen-Affinitäts-Matrix — Historische Zonen-Stärken je Fahrer (7d, combined score) */}
       <DispatchPhase792FahrerZonenAffinitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 797: Tour-Storno-Präventions-Monitor — Alert bei Touren mit >30 Min Wartezeit ohne Fahrer-Kontakt */}
+      <DispatchPhase797TourStornoPraevention locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

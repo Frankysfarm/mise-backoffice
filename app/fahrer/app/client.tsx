@@ -267,6 +267,7 @@ import { Phase776TourStoppSequenzLive } from './phase776-tour-stopp-sequenz-live
 import { FahrerPhase783SchichtZielFortschrittsRing } from './phase783-schicht-ziel-fortschritts-ring';
 import { FahrerPhase787TourStoppLiveKompass } from './phase787-tour-stopp-live-kompass';
 import { FahrerPhase793SchichtCoachTipp } from './phase793-schicht-coach-tipp';
+import { FahrerPhase798EigeneStornoBilanz } from './phase798-eigene-storno-bilanz';
 
 type Driver = {
   id: string;
@@ -3499,6 +3500,10 @@ export function FahrerApp({
             <FahrerPhase793SchichtCoachTipp driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
+        {/* Phase 798: Eigene-Storno-Bilanz — Stornos dieser Schicht + Vergleich mit Schicht-Ø */}
+        <div className="px-4">
+          <FahrerPhase798EigeneStornoBilanz driverId={driver.id} locationId={driver.location_id} />
+        </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (

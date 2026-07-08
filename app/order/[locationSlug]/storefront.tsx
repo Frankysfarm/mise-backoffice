@@ -124,6 +124,7 @@ import { Phase778EtaDynamikLivePanel } from './phase778-eta-dynamik-live-panel';
 import { Phase784KuechenWartezeitIndikator } from './phase784-kuechen-wartezeit-indikator';
 import { Phase785DynamischeEtaLive } from './phase785-dynamische-eta-live';
 import { Phase794WartezeitVorhersageBanner } from './phase794-wartezeit-vorhersage-banner';
+import { Phase799BestellhistorieSchnellansicht } from './phase799-bestellhistorie-schnellansicht';
 
 type Props = {
   location: Location;
@@ -1457,6 +1458,11 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase784KuechenWartezeitIndikator locationId={locationId} />
       {/* Phase 794: Wartezeit-Vorhersage-Banner — Dynamische Erwartungssteuerung via Küchen-Auslastung (grün/amber/rot) */}
       <Phase794WartezeitVorhersageBanner locationId={locationId} />
+      {/* Phase 799: Bestellhistorie-Schnellansicht — Letzte 3 Bestellungen aus LocalStorage */}
+      <Phase799BestellhistorieSchnellansicht
+        locationSlug={location.id}
+        currentOrderId={order.orderId ?? null}
+      />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
