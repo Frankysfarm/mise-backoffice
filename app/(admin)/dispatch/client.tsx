@@ -312,7 +312,7 @@ import { DispatchPhase738FahrerPauseEmpfehlung } from './phase738-fahrer-pause-e
 import { DispatchPhase743ZonenUeberlastungsAlarm } from './phase743-zonen-ueberlastungs-alarm';
 import { DispatchPhase748SchichtUeberstundenPanel } from './phase748-schicht-ueberstunden-panel';
 import { DispatchPhase753FahrerKmBilanzPanel } from './phase753-fahrer-km-bilanz-panel';
-import { DispatchPhase758TourSlaPanelVerletzung } from './phase758-tour-sla-verletzungs-panel';
+import { DispatchPhase758FahrerAuslastungsMatrix } from './phase758-fahrer-auslastungs-matrix';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2269,8 +2269,8 @@ export function DispatchBoard({
       <DispatchPhase748SchichtUeberstundenPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 753: Fahrer-km-Bilanz-Panel — Heute vs. Vorwoche je Fahrer mit Trend-Icon */}
       <DispatchPhase753FahrerKmBilanzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-      {/* Phase 758: Tour-SLA-Verletzungs-Panel — Touren >45 Min als roter Alarm mit Fahrername */}
-      <DispatchPhase758TourSlaPanelVerletzung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 758: Fahrer-Auslastungs-Matrix — Auslastungsbalken je Fahrer, frei/mittel/aktiv/voll */}
+      <DispatchPhase758FahrerAuslastungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

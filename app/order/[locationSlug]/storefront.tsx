@@ -114,7 +114,7 @@ import { Phase740FahrerNaehe } from './phase740-fahrer-naehe-anzeige';
 import { Phase745BestellstatusLeiste } from './phase745-bestellstatus-leiste';
 import { Phase750KapazitaetsRing } from './phase750-kapazitaets-ring';
 import { Phase755LiefergebuehrCountdown } from './phase755-liefergebuehr-countdown';
-import { Phase760BestellverlaufAnzeige } from './phase760-bestellverlauf-anzeige';
+import { Phase760BestellFortschrittsTracker } from './phase760-bestell-fortschritts-tracker';
 
 type Props = {
   location: Location;
@@ -1412,8 +1412,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase750KapazitaetsRing locationId={locationId} />
       {/* Phase 755: Liefergebühr-Countdown — Zeitlich begrenzte Liefergebühr-Reduktion mit Ablauf-Timer */}
       <Phase755LiefergebuehrCountdown locationId={locationId} isDelivery={order.isDelivery} />
-      {/* Phase 760: Bestellverlauf-Anzeige — Stündliches Balkendiagramm heutiger Bestellungen */}
-      <Phase760BestellverlaufAnzeige locationId={locationId} />
+      {/* Phase 760: Bestell-Fortschritts-Tracker — Visueller Schritt-für-Schritt Status mit Verbindungslinien */}
+      <Phase760BestellFortschrittsTracker status={order.status} createdAt={order.placedAt ?? undefined} estimatedMinutes={deliveryTimeMin} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
