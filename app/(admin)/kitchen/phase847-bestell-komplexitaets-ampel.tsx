@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 type Order = {
   id: string;
-  items?: Array<{ quantity?: number; extras?: unknown[] }>;
+  items?: Array<{ quantity?: number; extras?: unknown }>;
 };
 
 interface ComplexityData {
