@@ -68,17 +68,18 @@ export function LieferdienstPhase620StatistikenDashboard({ locationId }: Props) 
       try {
         const today = new Date(); today.setHours(0, 0, 0, 0);
 
-        const { data: orders, count } = await supabase
+        const { data: ordersRaw, count } = await supabase
           .from('customer_orders')
           .select('gesamtbetrag, status, bestellt_am, geschaetzte_lieferzeit_min', { count: 'exact' })
           .eq('location_id', locationId)
           .gte('bestellt_am', today.toISOString())
           .limit(200);
 
-        if (!orders) {
+        if (!ordersRaw) {
           setStats(MOCK_STATS);
           return;
         }
+        const orders: Array<{ gesamtbetrag: number | null; status: string | null; bestellt_am: string | null; geschaetzte_lieferzeit_min: number | null }> = ordersRaw;
 
         const heuteUmsatz = orders
           .filter((o) => !['storniert', 'abgebrochen'].includes(o.status ?? ''))

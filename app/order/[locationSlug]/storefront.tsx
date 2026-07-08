@@ -1344,9 +1344,9 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 624: Echtzeit-Warteschlangen-Indikator — aktuelle Küchenauslastung als Wartezeit */}
-      {order.isDelivery && <Phase624WarteschlangenIndikator locationId={location.id} />}
+      {order.isDelivery && <Phase624WarteschlangenIndikator locationId={locationId} />}
       {/* Phase 629: Liefer-Qualitäts-Siegel — Gold/Silber/Standard basierend auf 7-Tage SLA */}
-      {order.isDelivery && <Phase629LieferQualitaetsSiegel locationId={location.id} />}
+      {order.isDelivery && <Phase629LieferQualitaetsSiegel locationId={locationId} />}
       {/* Phase 630: Dynamische ETA-Anzeige — Kreisring-Countdown mit Statusanzeige und Live-Fortschritt */}
       {order.isDelivery && (
         <Phase630DynamischeEtaAnzeige
@@ -1357,7 +1357,7 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       )}
       {/* Phase 631: Live-Tracking-Widget — Fahrer GPS-Tracking mit Sonar-Puls und ETA */}
       {order.isDelivery && (
-        <Phase631LiveTrackingWidget orderId={order.orderId} locationId={location.id} />
+        <Phase631LiveTrackingWidget orderId={order.orderId} locationId={locationId} />
       )}
       {/* Phase 269: Kompakte Fortschritts-Karte — Schritt-für-Schritt Visualisierung */}
       {order.isDelivery && (
@@ -1385,7 +1385,7 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
         <div className="mt-3">
           <Phase604FahrerProfilVorschau
             orderId={order.orderId}
-            locationId={location.id}
+            locationId={locationId}
           />
         </div>
       )}

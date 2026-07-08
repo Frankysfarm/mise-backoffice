@@ -68,8 +68,9 @@ export function LieferdienstPhase505SchichtStatistikenDashboard({
         .gte('bestellt_am', todayStr);
       if (locationId) ordersQ = ordersQ.eq('location_id', locationId);
 
-      const { data: orders } = await ordersQ;
-      if (!orders) return;
+      const { data: ordersRaw } = await ordersQ;
+      if (!ordersRaw) return;
+      const orders: Array<{ id: string; gesamtbetrag: number | null; status: string; bestellt_am: string | null; geliefert_am: string | null; delivery_zone: string | null; location_id: string | null }> = ordersRaw;
 
       const totalOrders = orders.length;
       const totalRevenue = orders.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
@@ -261,9 +262,10 @@ export function LieferdienstPhase505SchichtStatistikenDashboard({
                 <BarChart data={stats.hourBuckets} barCategoryGap="25%">
                   <XAxis dataKey="label" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number, name: string) => [
-                      name === 'orders' ? `${v} Bestellungen` : `${v.toLocaleString('de-DE')} €`,
-                    ]}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={((v: unknown, name: string | number) => [
+                      name === 'orders' ? `${Number(v ?? 0)} Bestellungen` : `${Number(v ?? 0).toLocaleString('de-DE')} €`,
+                    ]) as any}
                     contentStyle={{ fontSize: 10 }}
                   />
                   <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

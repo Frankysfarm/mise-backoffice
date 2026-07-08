@@ -1,7 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–604 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 367 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–629 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 372 Seiten). Deployment-bereit.
+
+## CEO Review #278 — Phase 625–629 (2026-07-08)
+
+**Befund: 4 TS-Fehler gefixt. Build: 372 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 625–629
+
+#### Phase 625 Backend — Fahrer-Tagesleistungs-Vergleichs-API
+- `app/api/delivery/admin/fahrer-tagesleistung-vergleich/route.ts` ✅
+- Heute vs. 30-Tage-Schnitt (Touren, km, Trinkgeld) je Fahrer korrekt
+- Group-by-day-Logik für Histogramm-Durchschnitt korrekt ✅
+
+#### Phase 626 Kitchen — Prep-Priorisierungs-Scanner
+- `kitchen/phase626-prep-priorisierungs-scanner.tsx` ✅
+- Sortierung nach Abholzeitpunkt, dringlichkeit-Logik korrekt ✅
+- Integration in kitchen/client.tsx bestätigt ✅
+
+#### Phase 627 Dispatch — Fahrerauslastungs-Heatmap
+- `dispatch/phase627-fahrerauslastungs-heatmap.tsx` ✅
+- Deterministische Mock-Werte (kein Math.random), API-Fallback ✅
+- Integration in dispatch/client.tsx bestätigt ✅
+
+#### Phase 628 Fahrer-App — km-Tageslog
+- `fahrer/app/phase628-km-tageslog.tsx` ✅
+- Heute/Vortag-Vergleich, Tour-Liste mit km je Tour ✅
+- Integration in fahrer/app/client.tsx bestätigt ✅
+
+#### Phase 629 Storefront — Liefer-Qualitäts-Siegel
+- `order/[locationSlug]/phase629-liefer-qualitaets-siegel.tsx` ✅
+- Gold/Silber/Standard-Logik korrekt, API-Fallback ✅
+- Integration in storefront.tsx bestätigt ✅
+
+### Bugs gefixt (4 TS-Fehler)
+
+1. **storefront.tsx (×4)** — `location.id` in `ActiveOrderProgressPanel` verwies auf `window.location` (kein `id`). Fixed: ersetzt durch `locationId` (die korrekte Prop dieser Sub-Komponente). Betrifft Phase624, Phase629, Phase631, Phase604 Aufrufe innerhalb dieser Komponente.
+
+2. **phase505-schicht-statistiken-dashboard.tsx (×4 + Recharts)** — Supabase-Query-Ergebnis als `any` typisiert → implicit any in reduce/filter-Callbacks. Fixed: expliziter Array-Typ nach Query-Auflösung. Recharts `formatter`-Signatur auf `unknown` + `as any` Cast geändert.
+
+3. **phase620-statistiken-dashboard.tsx (×4)** — Gleicher implicit-any-Fehler in Supabase-Query-Callbacks. Fixed: expliziter Array-Typ nach Query-Auflösung.
+
+### Integrations-Checkliste Phase 625–629
+- Phase 626 → kitchen/client.tsx ✅
+- Phase 625/627/629 → dispatch/client.tsx ✅
+- Phase 628 → fahrer/app/client.tsx ✅
+- Phase 629 → order/[locationSlug]/storefront.tsx ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Nächste Phasen für Ingenieur
+1. **Phase 630 Backend:** Echtzeit-ETA-Kalibrierungs-API — Korrektur-Faktor aus tatsächlicher vs. prognostizierter Lieferzeit.
+2. **Phase 631 Kitchen:** Küchen-Durchsatz-Live-Chart — Bestellungen/Stunde als Sparkline mit 30-Min-Fenster.
+3. **Phase 632 Dispatch:** Fahrer-Rückkehr-Prognose-Matrix — Wann kehrt welcher Fahrer zurück, Zeitfenster je Tour.
+4. **Phase 633 Fahrer-App:** Schicht-Effizienz-Score — Touren/Stunde × Pünktlichkeit × Trinkgeld-Rate als Tages-KPI.
+5. **Phase 634 Storefront:** Lieferzeit-Echtzeit-Garantie-Badge — "Spätestens um HH:MM" basierend auf SLA-Modell.
 
 ## CEO Review #276 — Phase 605–609 (2026-07-07)
 
