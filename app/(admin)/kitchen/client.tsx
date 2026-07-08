@@ -283,6 +283,7 @@ import { KitchenPhase762BestellungsKomplexitaetsTacho } from './phase762-bestell
 import { KitchenPhase766AllergenenMonitor } from './phase766-allergenen-monitor';
 import { KitchenPhase771StornoWarnungPanel } from './phase771-storno-warnung-panel';
 import { KitchenPhase775SchichtTaktCockpit } from './phase775-schicht-takt-cockpit';
+import { KitchenPhase781AllergikerBestellAlert } from './phase781-allergiker-bestell-alert';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2140,6 +2141,8 @@ export function KitchenBoard({
       <KitchenPhase771StornoWarnungPanel orders={filtered as any} />
       {/* Phase 775: Schicht-Takt-Cockpit — Live-Durchsatz (Bestellungen/Std), Queue-Auslastung, Ampelfarbe + Countdown älteste Bestellung */}
       <KitchenPhase775SchichtTaktCockpit orders={filtered as any} />
+      {/* Phase 781: Allergiker-Bestell-Alert — Pulsierendes Alert-Banner bei aktiven Allergen-Bestellungen */}
+      <KitchenPhase781AllergikerBestellAlert orders={filtered as any} />
     </div>
   );
 }

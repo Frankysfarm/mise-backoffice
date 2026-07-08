@@ -264,6 +264,7 @@ import { FahrerPhase764StundenVerdienstMuster } from './phase764-stunden-verdien
 import { FahrerPhase768EigeneBewertung } from './phase768-eigene-bewertung';
 import { FahrerPhase773TagesHighlightsWidget } from './phase773-tages-highlights-widget';
 import { Phase776TourStoppSequenzLive } from './phase776-tour-stopp-sequenz-live';
+import { FahrerPhase783SchichtZielFortschrittsRing } from './phase783-schicht-ziel-fortschritts-ring';
 
 type Driver = {
   id: string;
@@ -3484,6 +3485,12 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase773TagesHighlightsWidget driverId={driver.id} locationId={driver.location_id ?? ''} />
         </div>
+        {/* Phase 783: Schicht-Ziel-Fortschritts-Ring — SVG-Ringe für Touren/Stunden/Einnahmen-Ziel heute */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase783SchichtZielFortschrittsRing driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (
