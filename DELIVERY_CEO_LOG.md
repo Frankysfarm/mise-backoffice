@@ -17564,3 +17564,50 @@ Alle 5 Importe + Render-Calls in Client-Dateien vorhanden und korrekt parametrie
 3. **Phase 728 Dispatch:** Fahrerkommunikations-Log — Chronologische Notizen/Nachrichten je Fahrer-Schicht.
 4. **Phase 729 Fahrer-App:** Offline-Modus-Indikator — Visueller Hinweis + Retry wenn keine Verbindung.
 5. **Phase 730 Storefront:** Liefergebühr-Rechner-Widget — Dynamische Gebührenberechnung je Adresse (Zone A/B/C).
+
+---
+
+## CEO Review #291 — Phasen 819–823 geprüft + Backend-Fix (2026-07-08)
+
+### Commit-Stand
+- `6ad20296` feat(delivery/frontend): Phasen 819-823 — Umsatz-Velocity, Prep-Score, Zonen-Matrix, Schicht-Score, Fahrer-Profil
+
+### Befund: Frontend vollständig, Backend-Route fehlte
+
+**Frontend-Komponenten geprüft:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 819 | Lieferdienst | `LieferdienstPhase819UmsatzVelocityCockpit` | ✅ Eingebunden in `client.tsx:1538` |
+| 820 | Kitchen | `KitchenPhase820PrepPrioritaetsScore` | ✅ Eingebunden in `client.tsx:760`, Props `orders+timings` korrekt |
+| 821 | Dispatch | `DispatchPhase821ZonenEffizienzMatrix` | ✅ Eingebunden in `client.tsx:2321`, 90s-Polling |
+| 822 | Fahrer | `FahrerPhase822SchichtScoreCockpit` | ✅ Eingebunden in `client.tsx:3556`, SVG-Ring-Visualisierung |
+| 823 | Storefront | `Phase823FahrerProfilCard` | ✅ Eingebunden in `storefront.tsx:1477` |
+
+**Bug gefunden und gefixt:**
+- Phase 823 rief `/api/delivery/driver/public-profile?order_id=...` auf — Route fehlte komplett
+- **Fix:** `app/api/delivery/driver/public-profile/route.ts` neu erstellt
+  - Lädt Fahrer-Vorname, `vehicle_type`, `total_deliveries` aus `mise_drivers`
+  - Berechnet Ø Bewertung aus letzten 90 Lieferungen via `customer_orders.driver_rating`
+  - Gibt ETA aus `customer_orders.eta_minutes` zurück
+  - Sicherheit: Nur sichtbar wenn Status `unterwegs`/`in_delivery`/`dispatched`/`abgeholt`
+  - Felder validiert gegen existierende API-Pattern (Zone-Quality-Score, komfort-score, etc.)
+
+### Build-Ergebnis
+**✓ Compiled successfully — 373 Seiten, Exit Code 0, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen für Ingenieur
+1. **Phase 824 Backend:** Schicht-Effizienz-API — Umsatz/Stunde je Fahrer-Schicht + Benchmark Vortag.
+2. **Phase 825 Kitchen:** Zutaten-Engpass-Frühwarnung — Score basierend auf aktuellen Batch-Läufen vs. Lagerbestand.
+3. **Phase 826 Dispatch:** Fahrerzuteilungs-Empfehlung-KI — Beste Fahrer-Zone-Kombination basierend auf historischem Score.
+4. **Phase 827 Fahrer-App:** Tages-Einnahmen-Breakdown — Auflistung je Tour: Grundbetrag + Trinkgeld + Bonus.
+5. **Phase 828 Storefront:** Live-Bewertungs-Prompt — Sofort-Bewertungs-Modal nach Lieferung abgeschlossen.
