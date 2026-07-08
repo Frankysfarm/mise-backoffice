@@ -106,6 +106,7 @@ import { Phase700BestellbestaetigungCountdown } from './phase700-bestellbestaeti
 import { Phase705LiveLieferstatusEmoji } from './phase705-live-lieferstatus-emoji';
 import { Phase710WartezeitIndikator } from './phase710-wartezeit-indikator';
 import { Phase715BestsellerHighlight } from './phase715-bestseller-highlight';
+import { Phase720WarteschlangenAnzeige } from './phase720-warteschlangen-anzeige';
 
 type Props = {
   location: Location;
@@ -1382,6 +1383,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       )}
       {/* Phase 715: Bestseller-Highlight — Top-3 Gerichte der letzten 7 Tage mit Rang-Emoji */}
       <Phase715BestsellerHighlight locationId={locationId} />
+      {/* Phase 720: Warteschlangen-Anzeige — "X Bestellungen vor dir in der Küche" bei hoher Last */}
+      <Phase720WarteschlangenAnzeige locationId={locationId} />
       {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
       <Phase650KundenbewertungsWidget locationId={locationId} />
       {/* Phase 658: Allergene-Warn-Banner — Allergene aus Warenkorbpositionen klar hervorgehoben */}

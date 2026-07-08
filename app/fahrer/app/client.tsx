@@ -249,6 +249,7 @@ import { FahrerPhase699PauseTimerWidget } from './phase699-pause-timer-widget';
 import { FahrerPhase704NaechsteTourVorabInfo } from './phase704-naechste-tour-vorab-info';
 import { FahrerPhase709TagesBilanzZusammenfassung } from './phase709-tages-bilanz-zusammenfassung';
 import { FahrerPhase714NaechsterStopCountdown } from './phase714-naechster-stop-countdown';
+import { FahrerPhase719GpsGenauigkeitsWarnung } from './phase719-gps-genauigkeits-warnung';
 
 type Driver = {
   id: string;
@@ -3400,6 +3401,12 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase714NaechsterStopCountdown driverId={driver.id} isOnline={isOnline} />
+          </div>
+        )}
+        {/* Phase 719: GPS-Genauigkeits-Warnung — Warnt wenn GPS schwach (>50m) oder veraltet (>60s) */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase719GpsGenauigkeitsWarnung isOnline={isOnline} />
           </div>
         )}
 

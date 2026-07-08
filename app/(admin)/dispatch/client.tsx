@@ -304,6 +304,7 @@ import { DispatchPhase698SchichtBilanzDashboard } from './phase698-schicht-bilan
 import { DispatchPhase703FahrerAuslastungsScore } from './phase703-fahrer-auslastungs-score';
 import { DispatchPhase708EchtzeitStornoAlarm } from './phase708-echtzeit-storno-alarm';
 import { DispatchPhase713FahrerKarteInfobox } from './phase713-fahrer-karte-infobox';
+import { DispatchPhase718ZonenRentabilitaetsPanel } from './phase718-zonen-rentabilitaets-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2244,6 +2245,8 @@ export function DispatchBoard({
       <DispatchPhase708EchtzeitStornoAlarm locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 713: Fahrer-Karte-Infobox — Fahrer auswählen und Details anzeigen (GPS, Stops, Schicht) */}
       <DispatchPhase713FahrerKarteInfobox locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 718: Zonen-Rentabilitäts-Panel — DB-Marge je Lieferzone (30 Tage) als Balken-Tabelle */}
+      <DispatchPhase718ZonenRentabilitaetsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

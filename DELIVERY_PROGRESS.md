@@ -11319,3 +11319,52 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 718 Dispatch:** Zonen-Rentabilitäts-Panel — Visualisierung der Phase 711 API als Dispatch-Panel.
 4. **Phase 719 Fahrer-App:** GPS-Genauigkeits-Warnung — Warnt wenn GPS-Signal schwach oder veraltet (>60s).
 5. **Phase 720 Storefront:** Echzeit-Warteschlangen-Anzeige — "X Bestellungen vor dir in der Küche."
+
+---
+
+## Batch 716-720 — 2026-07-08
+
+### Phase 716 — Fahrer-Bonus-Trigger-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-bonus-trigger/route.ts`
+**GET:** Liefert Fahrer die ≥8 Touren heute haben und noch keinen Bonus_type='bonus' erhalten haben
+**POST:** Fügt driver_tips Eintrag mit type='bonus', amount=5 €, reason ein
+**Response GET:** `{ eligible: FahrerBonus[], tagesziel, bonus_eur }`
+**Response POST:** `{ success, driver_id, bonus_eur }`
+
+### Phase 717 — Batch-Countdown-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase717-batch-countdown-ampel.tsx`
+**Props:** `orders: Order[], deadlineMinuten?` (default 25)
+**UI:** Kompakte Chips mit Ampelpunkt (grün/amber/rot-pulsend) + MM:SS Countdown
+**Sortierung:** Kürzeste Restzeit zuerst; 5s-Tick; max 10 Batches angezeigt**
+**Integration:** `kitchen/client.tsx` nach Phase 712
+
+### Phase 718 — Zonen-Rentabilitäts-Panel (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase718-zonen-rentabilitaets-panel.tsx`
+**Props:** `locationId: string | null`
+**Daten:** Phase 711 API `/admin/zonen-rentabilitaet`
+**UI:** Tabellenzeilen mit DB-Marge-Balken + profitabel/neutral/verlust Badge
+**Verlust-Zonen-Count im Header; Collapsible (default zu); 10-Min Polling**
+**Integration:** `dispatch/client.tsx` nach Phase 713
+
+### Phase 719 — GPS-Genauigkeits-Warnung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase719-gps-genauigkeits-warnung.tsx`
+**Props:** `isOnline: boolean`
+**Logik:** navigator.geolocation.watchPosition; Warnung wenn accuracy > 50m oder Signal > 60s alt
+**UI:** Amber (schwach) oder Rot (kritisch/Fehler) Banner mit Genauigkeitsanzeige ±Xm
+**Rein client-seitig, kein API-Call; nur sichtbar wenn isOnline und Problem erkannt**
+**Integration:** `fahrer/app/client.tsx` nach Phase 714, nur wenn isOnline
+
+### Phase 720 — Warteschlangen-Anzeige (Storefront)
+**Datei:** `app/order/[locationSlug]/phase720-warteschlangen-anzeige.tsx`
+**Props:** `locationId: string | null`
+**Logik:** Ruft /admin/kunden-wartezeit-live auf; zeigt "X Bestellungen vor dir" wenn ≥3
+**Farben:** Blau (<8) / Amber (≥8 Bestellungen = viel); 90s Polling**
+**Nur sichtbar wenn ≥3 Bestellungen in Küche; nach Phase 715 (Bestseller)**
+**Integration:** `storefront.tsx` nach Phase 715
+
+### Nächste Phasen für Ingenieur
+1. **Phase 721 Backend:** Tages-Zonen-Vergleich-API — Vergleich: Heute vs. Vorwoche je Zone (Umsatz, Stornos, SLA).
+2. **Phase 722 Kitchen:** Küchen-Effizienz-Score-Anzeige — Live-Score (Bestellungen/Stunde) vs. Ziel.
+3. **Phase 723 Dispatch:** Bonus-Trigger-Panel — Admin kann berechtigen Fahrern Bonus per Button auszahlen.
+4. **Phase 724 Fahrer-App:** Schicht-Ende-Bestätigung — Fahrer bestätigt Schichtende mit finaler km-Eingabe.
+5. **Phase 725 Storefront:** Aktions-Banner — Zeitlich begrenzte Aktion (z.B. "Bis 20 Uhr: Gratis Lieferung").
