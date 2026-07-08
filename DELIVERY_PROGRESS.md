@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–808 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–813 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-08): Phase 809–813 — Liefergebiet-Auslastungs-API (Phase 809, Bestelldichte je Zone A/B/C/D in Echtzeit, Überlastungs-Alarm >120% Kapazität, Fahrer-Tracking), Kitchen Zubereitungszeit-Trend-Widget (Phase 810, Ø Zubereitungszeit je Stunde heute vs. gestern, Ampel grün/amber/rot, 30s-Polling), Dispatch Fahrer-Verfügbarkeits-Prognose (Phase 811, ETA-basiert wann welcher Fahrer frei, Stopp-Countdown, 30s-Polling), Fahrer-App Tages-Verdienst-Hochrechnung (Phase 812, Bisher-Verdienst + Prognose bis Schichtende auf Basis Ø/Stunde, Tagesziel-Fortschrittsbalken, 60s-Update), Storefront Kunden-Treuepunkte-Anzeige (Phase 813, 10P/Bestellung + Bronze/Silber/Gold/Platin-Stufen, Einlöse-Button 100P=1€, localStorage). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-08): CEO Review #289 — 0 TS-Fehler. Build ✓ Compiled successfully. Alle 4 Phasen 806-808 + Lieferdienst-Phase795 vollständig integriert und live. Phase806 Kitchen Smart-Timing-Farbskala (Farb-Grid pünktlich/spät/kritisch/überfällig, 20s Polling) ✅, Phase807 Dispatch Tour-Live-Fortschritt (Tab-View Stopps + Score-Bar + ETA, 60s Polling) ✅, Phase808 Fahrer Tour-Stopp-Navigator-Ultimate (Hero-Stopp + Google-Maps-Deeplink, Statusbadges) ✅, Lieferdienst-Phase795 Statistiken-Live-Cockpit (6-KPI-Grid + Stunden-Balken-Chart, 30s Polling) ✅. Alle client.tsx-Importe + JSX-Integration bestätigt. Nächste Phasen 809-813 definiert. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phase 806–808 + Lieferdienst 795 — Kitchen Smart-Timing-Farbskala (Phase806, farbkodiertes Order-Timing-Grid grün/amber/rot/puls, 20s Live-Update), Dispatch Tour-Live-Fortschritt (Phase807, Tab-basierte Tour-Stopp-Visualisierung + Score-Bar + ETA je Stopp, 60s Polling), Fahrer Tour-Stopp-Navigator-Ultimate (Phase808, vollständige Nav-Ansicht mit aktiv-Stopp-Hero + Statusbadges + Google-Maps-Deeplink), Lieferdienst Statistiken-Live-Cockpit (Phase795, 6-KPI-Grid + stündliches Balkendiagramm für Schicht-Überblick, 30s Polling). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-08): Phase 800–804 — Fahrer-Score-Verlauf-API (Phase 800, Tages-Scores 14d je Fahrer, Pünktlichkeit 40%+Bewertung 40%+Storno 20%, Trend steigend/fallend/stabil), Kitchen Zubereitungs-Engpass-Alarm (Phase 801, Alarm >5 Bestellungen >15 Min in Vorbereitung, kritisch ab 10, 30s-Polling), Dispatch Fahrer-Kontakt-Log (Phase 802, letzte 10 Kontakte mit Uhrzeit+Kanal+Ergebnis, 2-Min-Update), Fahrer-App Wetter-Auswirkungs-Hinweis (Phase 803, Wetterbedingung + ETA-Aufschlag +0–20 Min, dismissbar), Storefront Liefer-Versprechen-Siegel (Phase 804, Gold/Silber/Bronze-Siegel, Pünktlichkeit%+Ø-Bewertung letzte 7d, liefer-versprechen API). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
@@ -59,6 +60,55 @@ Frontend-Ingenieur-Agent (2026-07-04): Phase 549–553 — Kochziel-Kommando, To
 Frontend-Ingenieur-Agent (2026-07-03): Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel. Build 366 Seiten, Exit 0.
 Backend-Architekt-Agent (2026-07-02): Phase 537–541 (Frontend-Agent), Phase 542–544 (Backend) — Küchen-Produktivitäts-Score, Zonen-Bestelldruck-Monitor, Tages-Umsatz-Tracker. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
+
+---
+
+## Phase 809–813 — Liefergebiet-Auslastung, Zubereitungszeit-Trend, Fahrer-Verfügbarkeit, Verdienst-Hochrechnung, Treuepunkte (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 809 Backend — Liefergebiet-Auslastungs-API
+**`app/api/delivery/admin/liefergebiet-auslastung/route.ts`:**
+- GET `?location_id=...` → `{ zonen: ZoneAuslastung[], alarm: boolean, generatedAt }`
+- Bestelldichte je Zone A/B/C/D: aktive Bestellungen letzte 2h + aktive Fahrer
+- Kapazitäten: A=5, B=8, C=6, D=4 — Auslastung% = aktive/kapazität×100
+- Status: ok (<80%), hoch (80–119%), kritisch (≥120%) — alarm=true wenn irgendeine Zone kritisch ✅
+
+### Phase 810 Kitchen — Zubereitungszeit-Trend-Widget
+**`app/(admin)/kitchen/phase810-zubereitungszeit-trend.tsx`** — `KitchenPhase810ZubereitungszeitTrend`:
+- Props: `locationId: string | null`
+- Ø Zubereitungszeit heute vs. gestern je Stunde (parallele Balken blau/grau)
+- Ampel grün/amber/rot basierend auf aktuellem Prognose-Wartewert
+- Trend-Delta (heute − gestern) je Stunde angezeigt
+- 30s-Update, nutzt `kuechen-kapazitaets-warnsignal` API
+- Integration: `kitchen/client.tsx` nach Phase 806 ✅
+
+### Phase 811 Dispatch — Fahrer-Verfügbarkeits-Prognose
+**`app/(admin)/dispatch/phase811-fahrer-verfuegbarkeits-prognose.tsx`** — `DispatchPhase811FahrerVerfuegbarkeitsPrognose`:
+- Props: `locationId: string | null`
+- Zeigt jeden Fahrer mit Status frei/unterwegs/pause + ETA bis Verfügbarkeit
+- KPI-Grid: sofort frei / unterwegs / nächst frei in Minuten
+- ETA basiert auf verbleibenden Stopps × 5 Min/Stopp
+- 30s-Update, nutzt `active-tours` + `drivers` APIs
+- Integration: `dispatch/client.tsx` nach Phase 807 ✅
+
+### Phase 812 Fahrer-App — Tages-Verdienst-Hochrechnung
+**`app/fahrer/app/phase812-tages-verdienst-hochrechnung.tsx`** — `FahrerPhase812TagesVerdienstHochrechnung`:
+- Props: `driverId: string`, `locationId?: string | null`
+- Bisher-Verdienst (Touren×3,50€ + km×0,30€ + Trinkgeld) + Prognose bis Schichtende
+- Tagesziel 80€ — Fortschrittsbalken grün wenn erreicht, amber wenn darunter
+- Ø/Stunde als Berechnungsbasis für Prognose
+- 60s-Update, nutzt `driver/schicht-bilanz` API
+- Integration: `fahrer/client.tsx` nach Phase 808 ✅
+
+### Phase 813 Storefront — Kunden-Treuepunkte-Anzeige
+**`app/order/[locationSlug]/phase813-kunden-treuepunkte.tsx`** — `Phase813KundenTreuepunkte`:
+- Props: `locationId: string`, `orderId?: string | null`
+- 10 Punkte pro Bestellung — localStorage je locationId
+- Stufen: Bronze (0+) / Silber (200+) / Gold (500+) / Platin (1000+) — farbkodiert
+- Stufenfortschrittsbalken + Einlöse-Button ab 100P (100P = 1,00€ Rabatt)
+- Collapsible-Widget mit Stufenübersicht-Grid
+- Integration: `storefront.tsx` nach Phase 804 ✅
 
 ---
 

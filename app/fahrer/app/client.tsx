@@ -270,6 +270,7 @@ import { FahrerPhase793SchichtCoachTipp } from './phase793-schicht-coach-tipp';
 import { FahrerPhase798EigeneStornoBilanz } from './phase798-eigene-storno-bilanz';
 import { FahrerPhase803WetterAuswirkungsHinweis } from './phase803-wetter-auswirkungs-hinweis';
 import { FahrerPhase808TourStoppNavigatorUltimate } from './phase808-tour-stopp-navigator-ultimate';
+import { FahrerPhase812TagesVerdienstHochrechnung } from './phase812-tages-verdienst-hochrechnung';
 
 type Driver = {
   id: string;
@@ -3514,6 +3515,10 @@ export function FahrerApp({
         {/* Phase 808: Tour-Stopp-Navigator Ultimate — Vollständige Tour-Navigation mit aktivem Stopp-Hero */}
         <div className="px-4">
           <FahrerPhase808TourStoppNavigatorUltimate locationId={driver.location_id} driverId={driver.id} />
+        </div>
+        {/* Phase 812: Tages-Verdienst-Hochrechnung — Aktueller Verdienst + Prognose bis Schichtende */}
+        <div className="px-4">
+          <FahrerPhase812TagesVerdienstHochrechnung driverId={driver.id} locationId={driver.location_id} />
         </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}

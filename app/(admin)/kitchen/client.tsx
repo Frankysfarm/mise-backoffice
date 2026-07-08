@@ -289,6 +289,7 @@ import { KitchenPhase791BestellungsVolumenHochrechnung } from './phase791-bestel
 import { KitchenPhase796KuechenAuslastungsTacho } from './phase796-kuechen-auslastungs-tacho';
 import { KitchenPhase801ZubereitungsEngpassAlarm } from './phase801-zubereitungs-engpass-alarm';
 import { KitchenPhase806SmartTimingFarbskala } from './phase806-smart-timing-farbskala';
+import { KitchenPhase810ZubereitungszeitTrend } from './phase810-zubereitungszeit-trend';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2158,6 +2159,8 @@ export function KitchenBoard({
       <KitchenPhase801ZubereitungsEngpassAlarm locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 806: Smart-Timing Farbskala — Farbcodierung pünktlich/leicht spät/kritisch/überfällig */}
       <KitchenPhase806SmartTimingFarbskala locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 810: Zubereitungszeit-Trend — Ø Zubereitungszeit je Stunde heute vs. gestern, Ampel-Kodierung */}
+      <KitchenPhase810ZubereitungszeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
