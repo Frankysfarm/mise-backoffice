@@ -271,6 +271,7 @@ import { LieferdienstPhase619SlaZielerreichungsBand } from './phase619-sla-ziele
 import { LieferdienstPhase505SchichtStatistikenDashboard } from './phase505-schicht-statistiken-dashboard';
 import { LieferdienstPhase620StatistikenDashboard } from './phase620-statistiken-dashboard';
 import { LieferdienstPhase621EchtzeitSchichtStats } from './phase621-echtzeit-schicht-stats';
+import { LieferdienstPhase622StatistikenLiveHub } from './phase622-statistiken-live-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1699,6 +1700,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase620StatistikenDashboard locationId={locationId ?? null} />
                 {/* Phase 621: Echtzeit-Schicht-Stats — Bestellrate letzte Stunde, Trend vs. Vorherige Stunde */}
                 <LieferdienstPhase621EchtzeitSchichtStats locationId={locationId ?? null} />
+                {/* Phase 622: Statistiken-Live-Hub — KPI-Kacheln mit Trend: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
+                <LieferdienstPhase622StatistikenLiveHub locationId={locationId ?? null} />
               </>
             </div>
           )}

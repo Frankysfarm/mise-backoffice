@@ -287,6 +287,7 @@ import { DispatchPhase630TourVisualisierungsPanel } from './phase630-tour-visual
 import { DispatchPhase631FahrerKmEffizienzRanking } from './phase631-fahrer-km-effizienz-ranking';
 import { DispatchPhase638FahrerErreichbarkeitsMatrix } from './phase638-fahrer-erreichbarkeits-matrix';
 import { DispatchPhase643ZonenErloeesVergleichPanel } from './phase643-zonen-erloes-vergleich-panel';
+import { DispatchPhase647TourScoreLiveCockpit } from './phase647-tour-score-live-cockpit';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2190,6 +2191,8 @@ export function DispatchBoard({
       <DispatchPhase638FahrerErreichbarkeitsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 643: Zonen-Erlös-Vergleich-Panel — Balkendiagramm Einnahmen je Zone heute */}
       <DispatchPhase643ZonenErloeesVergleichPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 647: Tour-Score-Live-Cockpit — Score A/B/C/D je aktiver Tour, sortiert nach Effizienz */}
+      <DispatchPhase647TourScoreLiveCockpit batches={batches as any} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

@@ -231,6 +231,7 @@ import { FahrerPhase630NavigationLiveCockpit } from './phase630-navigation-live-
 import { FahrerPhase631TourNachbereitungDialog } from './phase631-tour-nachbereitung-dialog';
 import { FahrerPhase639SchichtBilanzVorschau } from './phase639-schicht-bilanz-vorschau';
 import { FahrerPhase644NaechsterStopEntfernung } from './phase644-naechster-stop-entfernung';
+import { FahrerPhase648TourStoppLiveKommando } from './phase648-tour-stopp-live-kommando';
 
 type Driver = {
   id: string;
@@ -3270,6 +3271,13 @@ export function FahrerApp({
         {isOnline && activeBatch && (
           <div className="px-4">
             <FahrerPhase644NaechsterStopEntfernung driverId={driver.id} />
+          </div>
+        )}
+
+        {/* Phase 648: Tour-Stopp-Live-Kommando — Aktueller Stopp mit Navigation + Stopp-Bestätigung */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <FahrerPhase648TourStoppLiveKommando driverId={driver.id} />
           </div>
         )}
 
