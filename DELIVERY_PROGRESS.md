@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–740 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+**Phasen 1–745 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+Backend-Architekt-Agent (2026-07-08): Phase 741–745 — Schicht-Überstunden-API (>8h Fahrer hervorgehoben), Kitchen Prioritäts-Ampel (VIP+kritische Bestellungen rot/amber), Dispatch Zonen-Überlastungs-Alarm (Best./Fahrer-Ratio >5x), Fahrer-App Überstunden-Warnung (Amber-Banner ab >8h), Storefront Bestellstatus-Leiste (visuelle Schritte mit Emojis). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 736–740 — Trinkgeld-Prognose-API (Ø Trinkgeld je Zone+Stunde 7 Tage), Kitchen Stopp-Effizienz-Monitor (Items/Min + Ø-Prep-Zeit + aktive/wartende), Dispatch Fahrer-Pause-Empfehlung (>2h ohne Pause, 5-Min-Polling), Fahrer-App Trinkgeld-Rangliste (Top-5 + eigene Position hervorgehoben), Storefront Fahrer-Nähe-Anzeige (Entfernung+ETA 30s wenn in_lieferung). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 731–735 — Fahrer-Streak-API (aufeinanderfolgende Tage + Touren-Meilensteine), Kitchen Kunden-Feedback-Live (letzte Bewertungen Ø-Rating 2-Min), Dispatch Fahrer-Rückkehr-Prognose-Panel (Haversine ETA alle aktiven Fahrer 30s), Fahrer-App Streak-Anzeige (Flammen-Icon + Meilenstein-Fortschrittsbar), Storefront Feedback-Einladung (Sternbewertung 3s nach Lieferung). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 726–730 — Fahrer-Rückkehr-Prognose-V2-API (Haversine+5min/Stop), Kitchen Tages-Menü-Highlights (Top-5 mit Effizienz-Score), Dispatch Tages-Zonen-Vergleich-Panel (Trend vs. Vorwoche), Fahrer-App Fahrten-Chronik (letzte 10 Touren: Zeit/km/Stops/Einnahmen), Storefront Liefer-Zonen-Badge (Zone/Lieferzeit/Gebühr farbkodiert). Build ✓. Push origin/main.

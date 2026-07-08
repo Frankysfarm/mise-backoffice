@@ -111,6 +111,7 @@ import { Phase725AktionsBanner } from './phase725-aktions-banner';
 import { Phase730LieferZonenBadge } from './phase730-liefer-zonen-badge';
 import { Phase735FeedbackEinladung } from './phase735-feedback-einladung';
 import { Phase740FahrerNaehe } from './phase740-fahrer-naehe-anzeige';
+import { Phase745BestellstatusLeiste } from './phase745-bestellstatus-leiste';
 
 type Props = {
   location: Location;
@@ -1402,6 +1403,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase735FeedbackEinladung locationId={locationId} bestellungId={order.id} status={order.status} />
       {/* Phase 740: Fahrer-Nähe-Anzeige — Entfernung + ETA wenn Fahrer unterwegs zur Lieferadresse */}
       {order.isDelivery && <Phase740FahrerNaehe locationId={locationId} bestellungId={order.id} status={order.status} />}
+      {/* Phase 745: Bestellstatus-Leiste — Visuelle Fortschrittsleiste mit Schritt-Emojis */}
+      <Phase745BestellstatusLeiste status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
