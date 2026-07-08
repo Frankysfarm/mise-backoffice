@@ -337,6 +337,7 @@ import { DispatchPhase832ZuweisungLiveCockpit } from './phase832-zuweisung-live-
 import { DispatchPhase839FahrerRueckkehrUebersicht } from './phase839-fahrer-rueckkehr-uebersicht';
 import { DispatchPhase843ZonenEngpassMonitor } from './phase843-zonen-engpass-monitor';
 import { DispatchPhase848FahrerEinsatzHeatmap } from './phase848-fahrer-einsatz-heatmap';
+import { DispatchPhase849TourScoreRadar } from './phase849-tour-score-radar';
 import { DispatchPhase853TourenAbdeckungsKarte } from './phase853-touren-abdeckungs-karte';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
@@ -2347,6 +2348,8 @@ export function DispatchBoard({
       <DispatchPhase843ZonenEngpassMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 848: Fahrer-Einsatz-Heatmap — 24h-Heatmap welche Stunden welche Fahrer aktiv, Basis Schichtplanung */}
       <DispatchPhase848FahrerEinsatzHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 849: Tour-Score Radar — Echtzeit Score pro Fahrer: Fortschritt + Pünktlichkeit + Effizienz, Ranking */}
+      <DispatchPhase849TourScoreRadar locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 853: Touren-Abdeckungs-Karte — SVG-Karte aller Lieferzonen mit Auslastung + Wartezeit-Farbkodierung */}
       <DispatchPhase853TourenAbdeckungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 

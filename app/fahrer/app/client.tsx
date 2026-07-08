@@ -283,6 +283,7 @@ import { FahrerPhase834TourLiveKommando } from './phase834-tour-live-kommando';
 import { FahrerPhase835SchichtBilanzCockpit } from './phase835-schicht-bilanz-cockpit';
 import { FahrerPhase844SchichtZusammenfassung } from './phase844-schicht-zusammenfassung';
 import { FahrerPhase849StreckenEffizienzFeedback } from './phase849-strecken-effizienz-feedback';
+import { FahrerPhase850TourStoppNavPro } from './phase850-tour-stopp-nav-pro';
 import { FahrerPhase854SchichtEnergieCoach } from './phase854-schicht-energie-coach';
 
 type Driver = {
@@ -3657,6 +3658,17 @@ export function FahrerApp({
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+
+        {/* Phase 850: Tour-Stopp Navigator Pro — Alle Stopps mit Navi-Button, ETA-Ampel, Fortschritt-Leiste */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase850TourStoppNavPro
+              driverId={driver.id}
+              activeBatchId={activeBatch.id}
+              stops={activeBatch.stops as any}
+            />
+          </div>
+        )}
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (
