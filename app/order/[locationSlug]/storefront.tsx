@@ -129,6 +129,7 @@ import { Phase804LieferVersprechenSiegel } from './phase804-liefer-versprechen-s
 import { Phase813KundenTreuepunkte } from './phase813-kunden-treuepunkte';
 import { Phase818KuechenStatusBadge } from './phase818-kuechen-status-badge';
 import { Phase823FahrerProfilCard } from './phase823-fahrer-profil-card';
+import { Phase828LiveBewertungsPrompt } from './phase828-live-bewertungs-prompt';
 
 type Props = {
   location: Location;
@@ -1475,6 +1476,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase818KuechenStatusBadge locationId={locationId} />
       {/* Phase 823: Fahrer-Profil-Card — Anonymisiertes Fahrerprofil mit Bewertung + ETA während Lieferung */}
       <Phase823FahrerProfilCard orderId={order.orderId ?? null} />
+      {/* Phase 828: Live-Bewertungs-Prompt — Sofort-Bewertungs-Modal nach Lieferung abgeschlossen */}
+      <Phase828LiveBewertungsPrompt orderId={order.orderId ?? null} locationId={locationId} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

@@ -329,6 +329,7 @@ import { DispatchPhase811FahrerVerfuegbarkeitsPrognose } from './phase811-fahrer
 import { DispatchPhase813TourScoreLiveKompakt } from './phase813-tour-score-live-kompakt';
 import { DispatchPhase816TourCompletionRate } from './phase816-tour-completion-rate';
 import { DispatchPhase821ZonenEffizienzMatrix } from './phase821-zonen-effizienz-matrix';
+import { DispatchPhase826FahrerzuteilungEmpfehlung } from './phase826-fahrerzuteilung-empfehlung';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2319,6 +2320,8 @@ export function DispatchBoard({
       <DispatchPhase816TourCompletionRate locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 821: Zonen-Effizienz-Matrix — Ø Lieferzeit, Pünktlichkeit, Score je Zone */}
       <DispatchPhase821ZonenEffizienzMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 826: KI-Fahrerzuteilungs-Empfehlung — Beste Fahrer-Zone-Kombination basierend auf historischem Score */}
+      <DispatchPhase826FahrerzuteilungEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

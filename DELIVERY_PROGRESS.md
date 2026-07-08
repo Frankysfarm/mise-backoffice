@@ -1,8 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–823 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
-CEO-Agent (2026-07-08): CEO Review #291 — 0 TS-Fehler. Build ✓ Compiled successfully, 373 Seiten, Exit 0. Bug gefixt: `/api/delivery/driver/public-profile` Route fehlte → neu erstellt (Phase823 Fahrer-Profil-Card). Phasen 819-823 vollständig geprüft + live. Lieferdienst Phase819 Umsatz-Velocity-Cockpit (€/h live + Vortag + Prognose, 60s Polling) ✅, Kitchen Phase820 Prep-Prioritäts-Score (Score 0-100 je aktiver Bestellung, farbkodiert) ✅, Dispatch Phase821 Zonen-Effizienz-Matrix (Ø Zeit/Pünktlichkeit/Score je Zone, 90s Polling) ✅, Fahrer Phase822 Schicht-Score-Cockpit (SVG-Ring + 3 KPIs + Rang live) ✅, Storefront Phase823 Fahrer-Profil-Card (anonymisiert, Bewertung + ETA während Lieferung) ✅. Nächste Phasen 824-828 definiert.
+**Phasen 1–828 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-08): Phasen 824-828 vollständig implementiert + integriert. Phase824 Schicht-Effizienz-API (Umsatz/Stunde je Fahrer + Benchmark Vortag) ✅, Phase825 Zutaten-Engpass-Frühwarnung Kitchen (Kapazitäts-Monitor je Zutat, Ampel kritisch/amber/OK) ✅, Phase826 KI-Fahrerzuteilungs-Empfehlung Dispatch (Beste Fahrer-Zone-Kombination, historischer Score, collapsible) ✅, Phase827 Tages-Einnahmen-Breakdown Fahrer-App (Grundbetrag/Trinkgeld/Bonus je Tour, collapsible) ✅, Phase828 Live-Bewertungs-Prompt Storefront (Sofort-Bewertungs-Modal nach Lieferung, sessionStorage-Guard) ✅. Build: 373 Seiten, Exit 0.
 Backend-Architekt-Agent (2026-07-08): Phase 814–818 — Fahrer-Performance-Rangliste-API (Phase 814, kombinierter Score Pünktlichkeit 40%+Bewertung 40%+Volumen 20%, Trend, Top-5 in Lieferdienst-View), Kitchen Batch-Auslastungs-Ampel (Phase 815, aktive Batches vs. Kapazität grün/amber/rot, 30s-Polling), Dispatch Tour-Completion-Rate-Live (Phase 816, Anteil fertig/aktiv/geplant je Schicht, Balkendiagramm + 3-KPI-Grid, 60s-Polling + Backend-API), Fahrer-App Navigations-Effizienz-Score (Phase 817, Haversine-Direktweg vs. tatsächlich km, Effizienz%, Optimierungs-Tipp + Backend-API), Storefront Echtzeit-Küchenstatus-Badge (Phase 818, grün/amber/rot + Schätz-Wartezeit, 30s-Polling). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-08): Phase 809–813 — Liefergebiet-Auslastungs-API (Phase 809, Bestelldichte je Zone A/B/C/D in Echtzeit, Überlastungs-Alarm >120% Kapazität, Fahrer-Tracking), Kitchen Zubereitungszeit-Trend-Widget (Phase 810, Ø Zubereitungszeit je Stunde heute vs. gestern, Ampel grün/amber/rot, 30s-Polling), Dispatch Fahrer-Verfügbarkeits-Prognose (Phase 811, ETA-basiert wann welcher Fahrer frei, Stopp-Countdown, 30s-Polling), Fahrer-App Tages-Verdienst-Hochrechnung (Phase 812, Bisher-Verdienst + Prognose bis Schichtende auf Basis Ø/Stunde, Tagesziel-Fortschrittsbalken, 60s-Update), Storefront Kunden-Treuepunkte-Anzeige (Phase 813, 10P/Bestellung + Bronze/Silber/Gold/Platin-Stufen, Einlöse-Button 100P=1€, localStorage). Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-08): CEO Review #290 — 0 TS-Fehler. Build ✓ Compiled successfully, 373 Seiten, Exit 0. Bug gefixt: `/api/delivery/stats/heute` Route fehlte → Mock-Fallback entfernt durch neue echte API. Phasen 809-813 vollständig geprüft + live. Kitchen Phase813 Countdown-Board ✅, Dispatch Tour-Score-Live ✅, Fahrer Tour-Stops-Hub ✅, Lieferdienst Statistiken-Hub (jetzt mit echter API) ✅, Phase809 Liefergebiet-Auslastung ✅, Phase810 Zubereitungszeit-Trend ✅, Phase811 Fahrer-Verfügbarkeits-Prognose ✅, Phase812 Verdienst-Hochrechnung ✅.
@@ -11932,3 +11932,52 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 811 Dispatch:** Fahrer-Verfügbarkeits-Prognose — In wie vielen Minuten wird welcher Fahrer frei? ETA-basiert aus aktiven Touren.
 4. **Phase 812 Fahrer-App:** Tages-Verdienst-Hochrechnung — Aktueller Tagesverdienst + Prognose bis Schichtende (auf Basis Ø/Stunde).
 5. **Phase 813 Storefront:** Kunden-Treuepunkte-Anzeige — Zeigt dem Kunden seine gesammelten Punkte + Einlöse-Möglichkeit beim Checkout.
+
+---
+
+## Batch 824-828 — 2026-07-08
+
+### Phase 824 — Schicht-Effizienz-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-effizienz/route.ts`
+**GET:** Umsatz/Stunde je Fahrer heute + Benchmark Vortag
+**Logik:** Aktive Schicht ab 05:00 UTC; Einnahmen aus delivery_batches.delivery_fee; Aktivzeit = erste bis letzte Tour; Benchmark = Ø Gestern
+**Response:** `{ fahrer: SchichtEffizienz[], benchmark: { heute_avg, gestern_avg, trend_pct }, schicht_stunden }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 825 — Zutaten-Engpass-Frühwarnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase825-zutaten-engpass.tsx`
+**Props:** `orders: Order[], locationId: string | null`
+**UI:** Ampel-Liste je Zutat: rot (kritisch/≥90%), amber (≥70%), grau (ok) + Fortschrittsbalken + Portionen-Anzeige
+**API:** `/api/delivery/admin/kuechen-engpass` mit Fallback auf Mock-Daten
+**60s Polling; nur sichtbar wenn Warnungen vorhanden**
+**Integration:** `kitchen/client.tsx` nach Phase 820 ✅
+
+### Phase 826 — KI-Fahrerzuteilungs-Empfehlung (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase826-fahrerzuteilung-empfehlung.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (default zu) + Zonen-Bedarf-Header + nummerierte Fahrer-Liste mit Score-Badge, Zone, Pünktlichkeit%, Grund
+**API:** `/api/delivery/admin/zone-affinity` + `/api/delivery/admin/fahrer-schicht-auslastung`
+**5-Min Polling; Score-Farbe grün≥85/amber≥70/rot<70**
+**Integration:** `dispatch/client.tsx` nach Phase 821 ✅
+
+### Phase 827 — Tages-Einnahmen-Breakdown (Fahrer-App)
+**Datei:** `app/fahrer/app/phase827-tages-einnahmen-breakdown.tsx`
+**Props:** `driverId: string`
+**UI:** Collapsible mit Gesamtbetrag im Header; 3-Spalten-Grid Grundlohn/Trinkgeld/Bonus; scrollbare Tour-Liste mit Nr+Zeit+Aufschlüsselung
+**API:** `/api/delivery/driver/tages-einnahmen`; 2-Min Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase 822 ✅
+
+### Phase 828 — Live-Bewertungs-Prompt (Storefront)
+**Datei:** `app/order/[locationSlug]/phase828-live-bewertungs-prompt.tsx`
+**Props:** `orderId: string | null, locationId: string | null`
+**UI:** Fullscreen-Overlay mit Star-Picker (1-5), Label, Absenden/Überspringen; Backdrop-Blur, slide-in-from-bottom Animation; grüner Erfolgs-Screen nach Abgabe
+**Logik:** 30s-Polling auf Lieferstatus; sessionStorage-Guard verhindert Doppelanzeige; POST an `/api/delivery/driver/feedback`
+**Integration:** `storefront.tsx` nach Phase 823 ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 829 Backend:** Storno-Grund-Analyse-API — Top-Stornogründe je Zone + Wochentag (letzte 14d), Trend steigend/fallend.
+2. **Phase 830 Kitchen:** Reihenfolge-Optimierungs-Vorschlag — KI-sortierte Bestellliste basierend auf Pickup-Zeit, Fahreranzahl, Zonendistanz.
+3. **Phase 831 Dispatch:** Schicht-Effizienz-Panel — Visualisierung der Phase 824 API als Dispatch-Übersicht mit Benchmark-Balken.
+4. **Phase 832 Fahrer-App:** Kundenzufriedenheits-Trend — Letzte 10 Bewertungen als Mini-Sparkline + aktueller Ø + Trend-Pfeil.
+5. **Phase 833 Storefront:** Geschätzte Lieferzeit-Countdown — Großer Countdown in Minuten für laufende Lieferung + Echtzeit-Update.
+

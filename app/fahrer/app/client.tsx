@@ -274,6 +274,7 @@ import { FahrerPhase812TagesVerdienstHochrechnung } from './phase812-tages-verdi
 import { FahrerPhase813TourStopsHub } from './phase813-tour-stops-hub';
 import { FahrerPhase817NavigationsEffizienz } from './phase817-navigations-effizienz';
 import { FahrerPhase822SchichtScoreCockpit } from './phase822-schicht-score-cockpit';
+import { FahrerPhase827TagesEinnahmenBreakdown } from './phase827-tages-einnahmen-breakdown';
 
 type Driver = {
   id: string;
@@ -3554,6 +3555,11 @@ export function FahrerApp({
         {/* Phase 822: Schicht-Score-Cockpit — Live Score Pünktlichkeit/Bewertung/Volumen mit Ring-Visualisierung */}
         <div className="px-4">
           <FahrerPhase822SchichtScoreCockpit driverId={driver.id} locationId={driver.location_id ?? null} />
+        </div>
+
+        {/* Phase 827: Tages-Einnahmen-Breakdown — Auflistung je Tour: Grundbetrag + Trinkgeld + Bonus */}
+        <div className="px-4">
+          <FahrerPhase827TagesEinnahmenBreakdown driverId={driver.id} />
         </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
