@@ -11213,3 +11213,55 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 708 Dispatch:** Echtzeit-Storno-Alarm — Sofortige Warnung bei ungewöhnlicher Stornoquote in letzten 15 Min.
 4. **Phase 709 Fahrer-App:** Tages-Bilanz-Zusammenfassung — Abschluss-Bericht nach Schichtende (Touren, km, Einnahmen).
 5. **Phase 710 Storefront:** Wartezeit-Indikator mit Küchenlast — "Küche hat gerade viel zu tun — +5 Min."
+
+---
+
+## Batch 706-710 — 2026-07-08
+
+### Phase 706 — Kunden-Trinkgeld-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/trinkgeld-analyse/route.ts`
+**Params:** `location_id, tage` (default 30, max 90)
+**Logik:** Aggregiert driver_tips per Fahrer und per Zone; Storno-Rate, Ø Trinkgeld, Trinkgeld-Rate-Pct
+**Response:** `{ fahrer: FahrerTrinkgeld[], zonen: ZoneTrinkgeld[], tage }`
+**Sortierung:** fahrer nach trinkgeld_total ↓, zonen nach trinkgeld_total ↓
+
+### Phase 707 — Zubereitungs-Stau-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase707-zubereitungs-stau-monitor.tsx`
+**Props:** `orders: Order[], schwelleMinuten?: number` (default 20)
+**Logik:** Zählt Gerichte in confirmed/preparing Bestellungen älter als Schwelle; zeigt Rückstand mit ×Anzahl + Min
+**UI:** Rotes Banner mit Top-5 Stau-Gerichten; nur sichtbar wenn Stau vorhanden
+**Integration:** `kitchen/client.tsx` nach Phase 702
+
+### Phase 708 — Echtzeit-Storno-Alarm (Dispatch)
+**Dateien:**
+- `app/(admin)/dispatch/phase708-echtzeit-storno-alarm.tsx`
+- `app/api/delivery/admin/echtzeit-storno-alarm/route.ts`
+**Props:** `locationId, schwelle?` (default 3)
+**Alarm:** ≥3 Stornos oder ≥25% Rate in 15 Min → rotes pulsierendes Banner
+**API:** Zählt cancelled orders in letzten 15 Min gegen alle orders
+**1-Min Polling; nur sichtbar wenn Alarm ausgelöst**
+**Integration:** `dispatch/client.tsx` nach Phase 703
+
+### Phase 709 — Tages-Bilanz-Zusammenfassung (Fahrer-App)
+**Dateien:**
+- `app/fahrer/app/phase709-tages-bilanz-zusammenfassung.tsx`
+- `app/api/delivery/driver/tages-bilanz/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** 3-Spalten (Touren/km/Ø-Min) + Einnahmen/Trinkgeld Karten + Gesamt-Reihe
+**API:** Aggregiert delivery_batches + driver_tips ab 05:00 UTC heute; 0.80 €/Stop Einnahmen
+**Collapsible (default zu), 5-Min Polling**
+**Integration:** `fahrer/app/client.tsx` nach Phase 704
+
+### Phase 710 — Wartezeit-Indikator mit Küchenlast (Storefront)
+**Datei:** `app/order/[locationSlug]/phase710-wartezeit-indikator.tsx`
+**Props:** `locationId, basisEtaMinuten?` (default 30)
+**Logik:** Ruft kuechen-kapazitaets-warnsignal auf; ≥90% → +10 Min (rot), ≥75% → +5 Min (amber)
+**Nur sichtbar wenn Verzögerung > 0 und isDelivery; 2-Min Polling**
+**Integration:** `storefront.tsx` nach Phase 695 (isDelivery guard)
+
+### Nächste Phasen für Ingenieur
+1. **Phase 711 Backend:** Zonen-Rentabilitäts-API — Deckungsbeitrag pro Lieferzone (Einnahmen - Kraftstoff - Zeitkosten).
+2. **Phase 712 Kitchen:** Menü-Rotations-Empfehlung — Welche Gerichte sollten heute depriorisiert werden (hohe Zubereitungszeit vs. Bestellvolumen)?
+3. **Phase 713 Dispatch:** Live-Fahrer-Karte-Infobox — Popup auf Karte: Fahrer-Name, aktuelle Tour-Stops, Schichtdauer.
+4. **Phase 714 Fahrer-App:** Nächster-Stop-Countdown — Countdown bis nächste Lieferung inkl. Navigations-Button.
+5. **Phase 715 Storefront:** Bestseller-Highlight — Top-3 Gerichte der letzten 7 Tage mit "Beliebt"-Badge.

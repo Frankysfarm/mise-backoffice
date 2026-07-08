@@ -246,6 +246,7 @@ import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
 import { FahrerPhase694WochenEinnahmenCockpit } from './phase694-wochen-einnahmen-cockpit';
 import { FahrerPhase699PauseTimerWidget } from './phase699-pause-timer-widget';
 import { FahrerPhase704NaechsteTourVorabInfo } from './phase704-naechste-tour-vorab-info';
+import { FahrerPhase709TagesBilanzZusammenfassung } from './phase709-tages-bilanz-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -3382,6 +3383,10 @@ export function FahrerApp({
             <FahrerPhase704NaechsteTourVorabInfo driverId={driver.id} isOnline={isOnline} />
           </div>
         )}
+        {/* Phase 709: Tages-Bilanz-Zusammenfassung — Touren/km/Einnahmen/Trinkgeld der heutigen Schicht */}
+        <div className="px-4">
+          <FahrerPhase709TagesBilanzZusammenfassung driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

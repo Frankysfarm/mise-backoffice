@@ -301,6 +301,7 @@ import { DispatchPhase688PreisElastizitaetPanel } from './phase688-preis-elastiz
 import { DispatchPhase693WochenPerformancePanel } from './phase693-wochen-performance-panel';
 import { DispatchPhase698SchichtBilanzDashboard } from './phase698-schicht-bilanz-dashboard';
 import { DispatchPhase703FahrerAuslastungsScore } from './phase703-fahrer-auslastungs-score';
+import { DispatchPhase708EchtzeitStornoAlarm } from './phase708-echtzeit-storno-alarm';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2235,6 +2236,8 @@ export function DispatchBoard({
       <DispatchPhase698SchichtBilanzDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 703: Fahrer-Auslastungs-Score — Auslastungsgrad 0-100% je Fahrer, Balken-Visualisierung */}
       <DispatchPhase703FahrerAuslastungsScore locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 708: Echtzeit-Storno-Alarm — Sofortige Warnung bei ≥3 Stornos in 15 Min */}
+      <DispatchPhase708EchtzeitStornoAlarm locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
