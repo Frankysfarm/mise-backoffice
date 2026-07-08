@@ -283,6 +283,7 @@ import { FahrerPhase834TourLiveKommando } from './phase834-tour-live-kommando';
 import { FahrerPhase835SchichtBilanzCockpit } from './phase835-schicht-bilanz-cockpit';
 import { FahrerPhase844SchichtZusammenfassung } from './phase844-schicht-zusammenfassung';
 import { FahrerPhase849StreckenEffizienzFeedback } from './phase849-strecken-effizienz-feedback';
+import { FahrerPhase854SchichtEnergieCoach } from './phase854-schicht-energie-coach';
 
 type Driver = {
   id: string;
@@ -3647,6 +3648,11 @@ export function FahrerApp({
         {/* Phase 849: Strecken-Effizienz-Feedback — letzte Tour: Optimal vs. Gefahren, Score 0-100, Tipp */}
         <div className="px-4">
           <FahrerPhase849StreckenEffizienzFeedback driverId={driver.id} locationId={driver.location_id ?? null} />
+        </div>
+
+        {/* Phase 854: Schicht-Energie-Coach — Pausenempfehlung + Wasser + Bonus-Sprint basierend auf Schichtdauer + Tempo */}
+        <div className="px-4">
+          <FahrerPhase854SchichtEnergieCoach driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}

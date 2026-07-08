@@ -1,20 +1,62 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–850 abgeschlossen. Build sauber. ✓ Compiled successfully. 373 Seiten. TypeScript 0 Fehler. CEO Review #296 ✓.**
+**Phasen 1–855 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler. CEO Review #296 ✓.**
+Backend-Architekt-Agent (2026-07-08): Phasen 851–855 vollständig implementiert + integriert. Phase851 Tages-Umsatz-Prognose-API Backend (stündliche Hochrechnung mit Wochentag-Vergleich 4 Wochen, Konfidenz-Intervall ±12–25%, Trend-Faktor, eigene API GET /api/delivery/admin/tages-umsatz-prognose) ✅, Phase852 Parallel-Koch-Optimierer Live Kitchen (Erkennt Bestellungen mit gleichen Artikeln, Gruppen-Darstellung, Zeitersparnis-Berechnung, client-seitig ohne API) ✅, Phase853 Touren-Abdeckungs-Karte Dispatch (SVG-Zonenkarte A/B/C/D mit Ellipsen, Farbkodierung ok/busy/überlastet, Touren/Kapazität/Wartezeit je Zone, 60s-Polling) ✅, Phase854 Schicht-Energie-Coach Fahrer-App (Energieanzeige 0–100, adaptive Empfehlungen: Pause/Wasser/kurze-Pause/Bonus-Sprint/Weiter-so, 5-Min-Polling) ✅, Phase855 Liefer-ETA-Vertrauens-Band Storefront (Frühest/Wahrscheinlich/Spätestens Fenster, Konfidenz-Farbe, visuelles Band mit Marker, Pünktlichkeits-Badge) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phasen 846–850 vollständig implementiert + integriert. Phase846 Fahrer-Produktivitäts-Benchmark Lieferdienst (Rang + Ø-Abweichung: Stopps/h, Pünktlichkeit, Bewertung, 5-Min-Polling, eigene API GET /api/delivery/admin/produktivitaets-benchmark) ✅, Phase847 Bestellungs-Komplexitäts-Ampel Kitchen (Score 0–100, Artikel/Extras/Großmengen KPI-Grid, Warn-Banner bei hoher Last, clientseitig berechnet aus aktiven Bestellungen) ✅, Phase848 Fahrer-Einsatz-Heatmap 24h Dispatch (Matcha-Farbskala je Stunde je Fahrer, Legende, 10-Min-Polling, eigene API GET /api/delivery/admin/fahrer-einsatz-heatmap) ✅, Phase849 Strecken-Effizienz-Feedback Fahrer-App (letzte Tour Optimal vs. Gefahren km, Score 0–100, Tipp zur Verbesserung, Wochen-Ø, eigene API GET /api/delivery/admin/strecken-effizienz mit Nearest-Neighbor-Haversine) ✅, Phase850 Küchen-Transparenz-Timeline Storefront (5 Stages: Warteschlange→Zubereitung→Bereit→Unterwegs→Geliefert, Timestamps, ETA, 30s-Polling, eigene API GET /api/delivery/order/kuechen-timeline) ✅. Build ✓ Compiled successfully 373 Seiten. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-08): Phasen 841–845 vollständig implementiert + integriert. Phase841 Fahrer-Routen-Optimierungs-API Backend (GET /api/delivery/admin/routen-optimierung?tour_id, Nearest-Neighbor-Algorithmus Haversine, Zeitersparnis savings_km + savings_min vs. Originalreihenfolge) ✅, Phase842 Artikel-Trend-Widget Kitchen (Top-8 Artikel heute vs. Vorwoche, delta_pct Ampel grün/amber/rot, Mini-Balken, 15-Min-Polling, eigene API) ✅, Phase843 Zonen-Engpass-Monitor Dispatch (A/B/C/D Ampel: Bestellungen vs. freie Fahrer je Zone, rot=Engpass, 30s-Polling, eigene API) ✅, Phase844 Schicht-Zusammenfassung Fahrer-App (Endabrechnung Touren/Stopps/km/Einnahmen/Trinkgeld/Ø-Bewertung/Stornos, erscheint nur wenn isOnline=false, eigene API) ✅, Phase845 Nachhaltigkeits-Badge Storefront (CO2-Ersparnis durch Bündelung: Batching-Faktor + eingesparte Fahrten + Baum-Äquivalent, eigene API) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-08): CEO Review #295 — 3 TS-Fehler gefixt (Phase840-Scope-Fehler, Recharts-Formatter-Typ, Driver-Typ-Konflikt Phase832). Build ✓ 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-08): Phasen 836–840 vollständig implementiert + integriert. Phase836 Storno-Grund-Analyse-Panel Lieferdienst (TopGründe-Tabelle 14d/7d/Trend + Zonen-Balkendiagramm grün/amber/rot + Wochentag-Heatmap, 5-Min-Polling, verwendet Phase829-API) ✅, Phase837 Fahrer-Touren-Replay-API Backend (GET /api/delivery/admin/touren-replay?driver_id&date, Haversine-km, ETA-Delta, Bewertung je Tour+Stopp, Gesamt-Aggregat) ✅, Phase838 Bestellungs-Peak-Vorhersage Kitchen (Wochentag-Stunden-Muster 4-Wochen, nächster Peak + Countdown, Ampel grün/amber/rot, 10-Min-Polling, eigene API) ✅, Phase839 Fahrer-Rückkehr-Übersicht Live Dispatch (Haversine-km + Stop-Count → ETA, sortiert nach frühester Rückkehr, 30s-Polling, eigene API) ✅, Phase840 Bestell-Anlass-Auswahl Storefront (Emoji-Picker Geburtstag/Büro/Familie/etc., Anlass als Notiz in kunde_notiz, nur vor Bestellung sichtbar) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phasen 831–835 + Storefront-Integration 829/830 vollständig implementiert. Phase831 KI-Kochstart-Empfehlung Kitchen (dringend/jetzt/warten je Bestellung, 30s-Polling) ✅, Phase832 Zuweisung-Live-Cockpit Dispatch (Score-Kacheln + Override-Button, 45s-Polling) ✅, Phase833 Tour-Effizienz-Live Fahrer-App (Stopps/h + km/Stopp + Trinkgeld-Rate + Vortag-Vergleich, 60s-Polling) ✅, Phase834 Lieferstatus-Transparenz Storefront (Küche+Fahrt+Puffer Aufschlüsselung + Pünktlichkeitsrate) ✅, Phase835 Schicht-Abschluss-Cockpit Lieferdienst (Score 0-100 + 4-KPI-Grid + Tagesvergleich, 2-Min-Polling) ✅. Storefront Phase829 + Phase830 integriert. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 
-## Nächste Phasen 851–855
+## Phase 851–855 — Umsatz-Prognose, Parallel-Koch, Zonen-Karte, Energie-Coach, ETA-Band (DONE ✅)
 
-1. **Phase 851 Backend:** Tages-Umsatz-Prognose-API — Prognostiziert Tagesumsatz basierend auf Wochentag + bisheriger Stundenverlauf. Gibt Prognose + Konfidenz-Intervall aus.
-2. **Phase 852 Kitchen:** Parallel-Koch-Optimierer Live — Zeigt welche Bestellungen gleichzeitig vorbereitet werden können (gleiche Artikel, ähnliche Zubereitungszeiten). Verbessert Durchsatz.
-3. **Phase 853 Dispatch:** Touren-Abdeckungs-Karte — Visuelle Karte (SVG/HTML) der aktiven Lieferzonen mit Farbkodierung nach Auslastung und Wartezeiten.
-4. **Phase 854 Fahrer-App:** Schicht-Energie-Coach — Empfiehlt Pausen basierend auf Schichtdauer, Stoppanzahl, Tempo. Adaptive Hinweise: Wasser, Pause, Bonus-Sprint.
-5. **Phase 855 Storefront:** Liefer-ETA-Vertrauens-Band — Zeigt Frühestes / Wahrscheinliches / Spätestes Lieferfenster als visuelles Band. Nutzt historische Pünktlichkeitsdaten.
+**Datum:** 2026-07-08
+
+### Phase 851 — Tages-Umsatz-Prognose-API (Backend)
+**Datei:** `app/api/delivery/admin/tages-umsatz-prognose/route.ts`
+**GET:** Prognostiziert Tagesumsatz basierend auf aktuellem Stundenverlauf + historischem Wochentag-Vergleich (4 Wochen)
+**Logik:** Stündliche Aggregation heute, Ø gleicher Wochentag letzte 4 Wochen, Trend-Faktor = heute÷historisch, Restanteil × Trend × HistAvg
+**Response:** `{ umsatz_bis_jetzt, prognose_gesamt, konfidenz_min, konfidenz_max, historisch_avg, trend_faktor, trend_label, stunden[] }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 852 — Parallel-Koch-Optimierer Live (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase852-parallel-koch-optimierer.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible (default zu) + Gruppen-Liste (Bestellungen mit gleichen Artikeln) + Zeitersparnis-Badge + gemeinsame Artikel als Chips
+**Logik:** Client-seitig, Schnittmengen-Berechnung je Bestellungspaar, sortiert nach Ersparnis
+**Integration:** `kitchen/client.tsx` nach Phase 847 ✅
+
+### Phase 853 — Touren-Abdeckungs-Karte (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase853-touren-abdeckungs-karte.tsx`
+**Props:** `locationId: string | null`
+**UI:** SVG Ellipsen-Karte (Zone A innen → D außen), Farbkodierung grün/amber/rot, Zonen-Stats-Grid (Touren/Kapazität/Wartezeit), 60s-Polling
+**API:** `/api/delivery/admin/zonen-auslastung` mit MOCK-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase 848 ✅
+
+### Phase 854 — Schicht-Energie-Coach (Fahrer-App)
+**Datei:** `app/fahrer/app/phase854-schicht-energie-coach.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Energie-Balken 0–100 + Batterie-Icon + adaptive Empfehlung (Pause/Wasser/Sprint/Weiter-so) + 3-KPI-Grid (Schichtdauer/Touren/Stopps/h)
+**API:** `/api/delivery/admin/schicht-effizienz` mit Fallback-Schätzung, 5-Min-Polling, nur wenn isOnline
+**Integration:** `fahrer/app/client.tsx` nach Phase 849 ✅
+
+### Phase 855 — Liefer-ETA-Vertrauens-Band (Storefront)
+**Datei:** `app/order/[locationSlug]/phase855-liefer-eta-vertrauens-band.tsx`
+**Props:** `orderId: string | null, locationId: string | null`
+**UI:** Große ETA-Zahl (wahrscheinlich) + visuelles Band (Frühest→Spätestens) mit Konfidenz-Marker + Pünktlichkeits-Badge
+**API:** `/api/delivery/admin/fahrer-rueckkehr-praezisions-eta` mit MOCK-Fallback, 60s-Polling
+**Integration:** `storefront.tsx` nach Phase 850 ✅
+
+---
+
+## Nächste Phasen 856–860
+
+1. **Phase 856 Backend:** Schicht-ROI-Analyse-API — Einnahmen ÷ Kosten je Fahrerschicht (Lohn + km-Kosten), ROI-Score 0–100.
+2. **Phase 857 Kitchen:** Bestellungs-Bundles-Visualisierung — Zeigt welche Bestellungen als Bundle (gleicher Batch) gemeinsam vorbereitet werden.
+3. **Phase 858 Dispatch:** Fahrer-Auslastungs-Heatmap Live — Wer ist gerade wie ausgelastet? Farbkodierte Live-Ansicht aller aktiven Fahrer.
+4. **Phase 859 Fahrer-App:** Navigation-ETA-Vergleich — Vergleicht Navi-ETA mit Mise-ETA; zeigt Abweichung + Grund (Stau, Baustelle).
+5. **Phase 860 Storefront:** Bestellungs-Ankunfts-Konfetti — Feier-Animation wenn Lieferung als "geliefert" markiert wird.
 
 ## Phase 846–850 — Benchmark, Komplexität, Heatmap, Strecken-Effizienz, Küchen-Timeline (DONE ✅)
 

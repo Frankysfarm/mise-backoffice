@@ -301,6 +301,7 @@ import { KitchenPhase831KochstartKiEmpfehlung } from './phase831-kochstart-ki-em
 import { KitchenPhase838PeakVorhersage } from './phase838-peak-vorhersage';
 import { KitchenPhase842ArtikelTrend } from './phase842-artikel-trend';
 import { KitchenPhase847BestellKomplexitaetsAmpel } from './phase847-bestell-komplexitaets-ampel';
+import { KitchenPhase852ParallelKochOptimierer } from './phase852-parallel-koch-optimierer';
 import { KitchenPrepCountdownAmpel } from './prep-countdown-ampel';
 
 /* ------------------------------ Types ------------------------------ */
@@ -783,6 +784,8 @@ export function KitchenBoard({
       <KitchenPhase842ArtikelTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 847: Bestellungs-Komplexitäts-Ampel — Score 0-100, Ampel grün/amber/rot, KPI-Grid, Warn-Banner */}
       <KitchenPhase847BestellKomplexitaetsAmpel orders={filtered} />
+      {/* Phase 852: Parallel-Koch-Optimierer — Zeigt welche Bestellungen gleichzeitig zubereitet werden können */}
+      <KitchenPhase852ParallelKochOptimierer orders={filtered} />
       {/* Prep-Countdown-Ampel: Echtzeit-Countdown aller aktiven Bestellungen mit 4-Farb-Ampel — überfällig/kritisch/bald/OK */}
       <KitchenPrepCountdownAmpel orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}

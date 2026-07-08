@@ -137,6 +137,7 @@ import { StorefrontPhase834LieferstatusTransparenz } from './phase834-lieferstat
 import { Phase840BestAnlass } from './phase840-bestell-anlass';
 import { Phase845NachhaltigkeitsBadge } from './phase845-nachhaltigkeits-badge';
 import { Phase850KuechenTransparenzTimeline } from './phase850-kuechen-transparenz-timeline';
+import { Phase855LieferEtaVertrauensBand } from './phase855-liefer-eta-vertrauens-band';
 
 type Props = {
   location: Location;
@@ -1478,6 +1479,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       />
       {/* Phase 850: Küchen-Transparenz-Timeline — Live-Fortschritt durch Küche: Warteschlange→Zubereitung→Bereit→Unterwegs→Geliefert */}
       <Phase850KuechenTransparenzTimeline orderId={order.orderId ?? null} locationId={locationId} />
+      {/* Phase 855: Liefer-ETA-Vertrauens-Band — Frühestes/Wahrscheinliches/Spätestes Lieferfenster mit Konfidenz + Pünktlichkeitsdaten */}
+      <Phase855LieferEtaVertrauensBand orderId={order.orderId ?? null} locationId={locationId} />
       {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
       <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
