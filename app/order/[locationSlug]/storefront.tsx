@@ -134,6 +134,7 @@ import { Phase833LieferzeitCountdown } from './phase833-lieferzeit-countdown';
 import { StorefrontPhase829DynamischeEtaLivePanel } from './phase829-dynamische-eta-live-panel';
 import { StorefrontPhase830LiveTrackingPanel } from './phase830-live-tracking-panel';
 import { StorefrontPhase834LieferstatusTransparenz } from './phase834-lieferstatus-transparenz';
+import { Phase840BestAnlass } from './phase840-bestell-anlass';
 
 type Props = {
   location: Location;
@@ -176,6 +177,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
   const [detailItem, setDetailItem] = React.useState<MenuItem | null>(null);
   const [detailNotiz, setDetailNotiz] = React.useState('');
+  const [anlass, setAnlass] = React.useState('');
 
   // Voucher-Code aus URL auto-einlösen (z.B. ?code=THX-ABC123 vom Bon-QR)
   React.useEffect(() => {
@@ -365,7 +367,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           kunde_etage: form.etage ?? null,
           kunde_tuer_code: form.tuercode ?? null,
           kunde_lieferhinweis: form.lieferhinweis ?? null,
-          kunde_notiz: form.lieferhinweis ?? null,
+          kunde_notiz: [form.lieferhinweis, anlass].filter(Boolean).join(' · ') || null,
           zwischensumme: subtotal,
           liefergebuehr: deliveryFee,
           gesamtbetrag: total,
@@ -1474,6 +1476,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
       <Phase804LieferVersprechenSiegel locationId={locationId} />
+      {/* Phase 840: Bestell-Anlass-Auswahl — Optionaler Anlass (Geburtstag, Büro, etc.) als Emoji-Picker */}
+      {!order.orderId && <Phase840BestAnlass value={anlass} onChange={setAnlass} />}
       {/* Phase 813: Kunden-Treuepunkte — Gesammelte Punkte + Einlöse-Möglichkeit beim Checkout */}
       <Phase813KundenTreuepunkte locationId={locationId} orderId={order.orderId ?? null} />
       {/* Phase 818: Echtzeit-Küchenstatus-Badge — Grün/Amber/Rot + Schätz-Wartezeit */}

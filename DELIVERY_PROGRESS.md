@@ -1,10 +1,74 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–835 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–840 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-08): Phasen 836–840 vollständig implementiert + integriert. Phase836 Storno-Grund-Analyse-Panel Lieferdienst (TopGründe-Tabelle 14d/7d/Trend + Zonen-Balkendiagramm grün/amber/rot + Wochentag-Heatmap, 5-Min-Polling, verwendet Phase829-API) ✅, Phase837 Fahrer-Touren-Replay-API Backend (GET /api/delivery/admin/touren-replay?driver_id&date, Haversine-km, ETA-Delta, Bewertung je Tour+Stopp, Gesamt-Aggregat) ✅, Phase838 Bestellungs-Peak-Vorhersage Kitchen (Wochentag-Stunden-Muster 4-Wochen, nächster Peak + Countdown, Ampel grün/amber/rot, 10-Min-Polling, eigene API) ✅, Phase839 Fahrer-Rückkehr-Übersicht Live Dispatch (Haversine-km + Stop-Count → ETA, sortiert nach frühester Rückkehr, 30s-Polling, eigene API) ✅, Phase840 Bestell-Anlass-Auswahl Storefront (Emoji-Picker Geburtstag/Büro/Familie/etc., Anlass als Notiz in kunde_notiz, nur vor Bestellung sichtbar) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phasen 831–835 + Storefront-Integration 829/830 vollständig implementiert. Phase831 KI-Kochstart-Empfehlung Kitchen (dringend/jetzt/warten je Bestellung, 30s-Polling) ✅, Phase832 Zuweisung-Live-Cockpit Dispatch (Score-Kacheln + Override-Button, 45s-Polling) ✅, Phase833 Tour-Effizienz-Live Fahrer-App (Stopps/h + km/Stopp + Trinkgeld-Rate + Vortag-Vergleich, 60s-Polling) ✅, Phase834 Lieferstatus-Transparenz Storefront (Küche+Fahrt+Puffer Aufschlüsselung + Pünktlichkeitsrate) ✅, Phase835 Schicht-Abschluss-Cockpit Lieferdienst (Score 0-100 + 4-KPI-Grid + Tagesvergleich, 2-Min-Polling) ✅. Storefront Phase829 + Phase830 integriert. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 
-## Nächste Phasen 836–840
+## Nächste Phasen 841–845
+
+1. **Phase 841 Backend:** Fahrer-Routen-Optimierungs-API — Optimale Stop-Reihenfolge je Tour via Nearest-Neighbor-Algorithmus (Haversine), gibt Zeitersparnis vs. Originalreihenfolge aus.
+2. **Phase 842 Kitchen:** Gericht-Populärität-Trend-Widget — Zeigt welche Artikel heute im Vergleich zur letzten Woche stärker/schwächer bestellt werden. Ampel + Mini-Balken, 15-Min-Polling.
+3. **Phase 843 Dispatch:** Zonen-Engpass-Monitor Live — Zeigt welche Lieferzonen aktuell unterbesetzt sind (Bestellungen ohne freien Fahrer), Ampel, 30s-Polling.
+4. **Phase 844 Fahrer-App:** Schicht-Zusammenfassung-Widget — Kompakte Endabrechnung: Touren, km, Einnahmen, Ø-Bewertung, Stornos. Erscheint wenn `is_online=false` gesetzt wird.
+5. **Phase 845 Storefront:** Liefer-Nachhaltigkeits-Badge — Zeigt CO2-Ersparnisse der heutigen Liefertouren vs. Einzelfahrten (Batching-Faktor). Gamification-Element.
+
+## Phase 836–840 — Storno-Analyse, Touren-Replay, Peak-Vorhersage, Rückkehr-Live, Bestell-Anlass (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 836 Lieferdienst — Storno-Grund-Analyse-Panel
+**`app/(admin)/lieferdienst/phase836-storno-grund-analyse-panel.tsx`** — `LieferdienstPhase836StornoGrundAnalysePanel`:
+- Props: `locationId: string | null`
+- Collapsible Panel mit 3 Bereichen:
+  1. TopGründe-Tabelle: Grund / 14d-Count / 7d-Count / Trend-Icon (steigend=rot, fallend=grün, stabil=grau)
+  2. Zonen-Storno-Rate Balkendiagramm: Zone A/B/C/D, Breite proportional zur Rate, Farbe grün/amber/rot
+  3. Wochentag-Heatmap: 7 Kacheln Mo–So, Farbe nach Rate
+- 5-Min-Polling auf `/api/delivery/admin/storno-grund-analyse` (Phase829-API)
+- Integration: `lieferdienst/client.tsx` nach Phase835 ✅
+
+### Phase 837 Backend — Fahrer-Touren-Replay-API
+**`app/api/delivery/admin/touren-replay/route.ts`:**
+- GET `?driver_id=X&date=YYYY-MM-DD&location_id=...`
+- Lädt alle Batches eines Fahrers an einem Tag + Stopps + Orders
+- Je Tour: Stopps-Liste mit ETA-Delta (tatsächlich − geschätzt), Fahrerbewertung, km (Haversine)
+- Gesamt-Aggregat: Touren, Stopps, km, Ø-ETA-Delta, Ø-Bewertung
+- Multi-Tenant: location_id-Filter ✅
+
+### Phase 838 Kitchen — Bestellungs-Peak-Vorhersage
+**`app/api/delivery/admin/peak-vorhersage/route.ts`** (neu):
+- GET `?location_id=...` → analysiert 4-Wochen-Stunden-Muster nach Wochentag
+- Gibt nächsten Peak-Slot der nächsten 8h + bis_peak_min + Ampel zurück
+
+**`app/(admin)/kitchen/phase838-peak-vorhersage.tsx`** — `KitchenPhase838PeakVorhersage`:
+- Props: `locationId: string | null`
+- Ampel grün/amber/rot (grün=ruhig, amber=bald Peak <90 Min, rot=Peak jetzt <30 Min)
+- Pulsierender Dot + Countdown-Anzeige + Volumen-Fortschrittsbalken
+- 10-Min-Polling
+- Integration: `kitchen/client.tsx` nach Phase831 ✅
+
+### Phase 839 Dispatch — Fahrer-Rückkehr-Übersicht Live
+**`app/api/delivery/admin/fahrer-rueckkehr-uebersicht/route.ts`** (neu):
+- GET `?location_id=...` → alle Online-Fahrer mit aktiver Tour
+- ETA = aktive Stopps × 5 Min + Haversine-Rückfahrt (30 km/h) zum Hub
+- Status: unterwegs / letzter_stopp / fast_zurueck
+- Sortiert nach frühester Rückkehr
+
+**`app/(admin)/dispatch/phase839-fahrer-rueckkehr-uebersicht.tsx`** — `DispatchPhase839FahrerRueckkehrUebersicht`:
+- Props: `locationId: string | null`
+- Rangliste aller unterwegs-Fahrer: Name / Status-Badge / Stopps / Rückkehr-ETA / Uhrzeit / km
+- Mock-Fallback für Demo, 30s-Polling
+- Integration: `dispatch/client.tsx` nach Phase832 ✅
+
+### Phase 840 Storefront — Bestell-Anlass-Auswahl
+**`app/order/[locationSlug]/phase840-bestell-anlass.tsx`** — `Phase840BestAnlass`:
+- Props: `value: string`, `onChange: (anlass: string) => void`
+- 7 Emoji-Chips: Geburtstag 🎂 / Büro 🏢 / Familie 👨‍👩‍👧 / Freunde 🍕 / Feier 🎉 / Date Night ❤️ / Selbst 📦
+- Toggle-Selektion: erneuter Klick hebt Auswahl auf, Reset-Button erscheint
+- Kein Pflichtfeld — Optional-Label + Vorschau des gespeicherten Textes
+- In `storefront.tsx`: `anlass`-State + Merge in `kunde_notiz` beim `placeOrder`, Widget nur vor Bestellabgabe sichtbar ✅
+
+## Nächste Phasen (836–840)
 
 1. **Phase 836 Lieferdienst-Admin:** Storno-Grund-Analyse-Panel (Frontend zu Phase829-API) — Tabelle TopGründe (Grund, 14d-Count, 7d-Count, Trend-Icon), Zonen-Storno-Rate als Balkendiagramm (grün/amber/rot), Wochentag-Heatmap. Collapsible, 5-Min-Polling. In `lieferdienst/client.tsx` einbinden.
 2. **Phase 837 Backend:** Fahrer-Touren-Replay-API — `GET /api/delivery/admin/touren-replay?driver_id=X&date=YYYY-MM-DD` gibt alle Touren eines Tages mit Stopps, km, ETA-Delta, Bewertung. Basis für tägliche Nachbesprechung.

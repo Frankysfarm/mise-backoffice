@@ -286,6 +286,7 @@ import { LieferdienstPhase814FahrerPerformanceRangliste } from './phase814-fahre
 import { LieferdienstPhase819UmsatzVelocityCockpit } from './phase819-umsatz-velocity-cockpit';
 import { LieferdienstPhase820StatistikenErweitertesDashboard } from './phase820-statistiken-erweitertes-dashboard';
 import { LieferdienstPhase835SchichtAbschlussCockpit } from './phase835-schicht-abschluss-cockpit';
+import { LieferdienstPhase836StornoGrundAnalysePanel } from './phase836-storno-grund-analyse-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1542,6 +1543,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase820StatistikenErweitertesDashboard locationId={locationId ?? null} />
               {/* Phase 835: Schicht-Abschluss-Cockpit — Vollständige Schicht-Zusammenfassung + Score + Tagesvergleich */}
               <LieferdienstPhase835SchichtAbschlussCockpit locationId={locationId ?? null} />
+              {/* Phase 836: Storno-Grund-Analyse-Panel — Top-Gründe Tabelle + Zonen-Balkendiagramm + Wochentag-Heatmap */}
+              <LieferdienstPhase836StornoGrundAnalysePanel locationId={locationId ?? null} />
               {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}
               <SchichtFahrerEinnahmenRanking locationId={locationId} />
               {/* Phase 480: Kennzahlen-Hub — Echtzeit-KPIs: Umsatz, Bestellungen, Lieferquote, Fahrer, Stundenverteilung */}

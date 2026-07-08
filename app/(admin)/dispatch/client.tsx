@@ -334,6 +334,7 @@ import { DispatchPhase827ScoreAnzeigeLiveCockpit } from './phase827-score-anzeig
 import { DispatchPhase828TourVisualisierungsCockpit } from './phase828-tour-visualisierungs-cockpit';
 import { DispatchPhase831SchichtEffizienzPanel } from './phase831-schicht-effizienz-panel';
 import { DispatchPhase832ZuweisungLiveCockpit } from './phase832-zuweisung-live-cockpit';
+import { DispatchPhase839FahrerRueckkehrUebersicht } from './phase839-fahrer-rueckkehr-uebersicht';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2334,6 +2335,8 @@ export function DispatchBoard({
       <DispatchPhase831SchichtEffizienzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 832: Zuweisung Live-Cockpit — Score-basierte Fahrerzuweisung mit Override-Option, 45s Polling */}
       <DispatchPhase832ZuweisungLiveCockpit drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 839: Fahrer-Rückkehr-Übersicht Live — Alle Fahrer unterwegs mit ETA, sortiert nach frühester Rückkehr */}
+      <DispatchPhase839FahrerRueckkehrUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
