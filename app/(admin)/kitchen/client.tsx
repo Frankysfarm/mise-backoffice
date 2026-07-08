@@ -285,6 +285,7 @@ import { KitchenPhase771StornoWarnungPanel } from './phase771-storno-warnung-pan
 import { KitchenPhase775SchichtTaktCockpit } from './phase775-schicht-takt-cockpit';
 import { KitchenPhase781AllergikerBestellAlert } from './phase781-allergiker-bestell-alert';
 import { KitchenPhase785SmartCountdownCockpit } from './phase785-smart-countdown-timing-cockpit';
+import { KitchenPhase791BestellungsVolumenHochrechnung } from './phase791-bestellungs-volumen-hochrechnung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2146,6 +2147,8 @@ export function KitchenBoard({
       <KitchenPhase781AllergikerBestellAlert orders={filtered as any} />
       {/* Phase 785: Smart Countdown Timing Cockpit — Batch-Countdowns mit Farbkodierung (grün/amber/rot) */}
       <KitchenPhase785SmartCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 791: Bestellungs-Volumen-Hochrechnung — Prognose Bestellmenge bis Schichtende basierend auf Stunden-Verlauf */}
+      <KitchenPhase791BestellungsVolumenHochrechnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

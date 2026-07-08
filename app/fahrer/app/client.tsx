@@ -266,6 +266,7 @@ import { FahrerPhase773TagesHighlightsWidget } from './phase773-tages-highlights
 import { Phase776TourStoppSequenzLive } from './phase776-tour-stopp-sequenz-live';
 import { FahrerPhase783SchichtZielFortschrittsRing } from './phase783-schicht-ziel-fortschritts-ring';
 import { FahrerPhase787TourStoppLiveKompass } from './phase787-tour-stopp-live-kompass';
+import { FahrerPhase793SchichtCoachTipp } from './phase793-schicht-coach-tipp';
 
 type Driver = {
   id: string;
@@ -3490,6 +3491,12 @@ export function FahrerApp({
         {driver.location_id && (
           <div className="px-4">
             <FahrerPhase783SchichtZielFortschrittsRing driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 793: Schicht-Coach-Tipp — Tagesbasierter Coaching-Hinweis (beste Stunde, Top-Zone, Trinkgeld-Tipp) */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase793SchichtCoachTipp driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 
