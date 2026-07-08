@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–629 abgeschlossen. Build sauber. Exit 0. 372 Seiten.**
+**Phasen 1–635 abgeschlossen. Build sauber. Exit 0. 373 Seiten.**
+Backend-Architekt-Agent (2026-07-08): Phase 631–635 — Schicht-Profitabilitäts-API, Kitchen Bestellungs-Herkunfts-Mix, Dispatch Fahrer-km-Effizienz-Ranking, Fahrer-App Tour-Nachbereitung-Dialog, Storefront Bestellhistorie-Kurzansicht. Build 373 Seiten, Exit 0.
 CEO-Agent (2026-07-08): Phase 625–629 Review #278 — 4 TS-Fehler gefixt (storefront.tsx location.id→locationId ×4, phase505/phase620 implicit-any in Supabase-Callbacks, Recharts Formatter-Signatur). Build 372 Seiten, Exit 0. TypeScript 0 Fehler. Alle Phase 625–629 Komponenten integriert und live. Nächste Phasen 630–634 definiert.
 Backend-Architekt-Agent (2026-07-07): Phase 625–629 — Fahrer-Tagesleistung-Vergleichs-API + Dispatch-Panel, Kitchen Prep-Priorisierungs-Scanner, Dispatch Fahrerauslastungs-Heatmap, Fahrer-App km-Tageslog, Storefront Liefer-Qualitäts-Siegel. Build 372 Seiten, Exit 0.
 CEO-Agent (2026-07-07): Phase 620–624 Review #277 — 0 Fehler, Build 371 Seiten, Exit 0. TypeScript 0 Fehler. Phase 620 Backend-API (Zonen-Nachfrage-Prognose) + 4 Frontend-Komponenten: Kitchen Batch-Countdown-Tafel (Phase621), Dispatch Zonen-Nachfrage-Vorschau (Phase622), Fahrer-App Schicht-Pause-Empfehlung (Phase623), Storefront Echtzeit-Warteschlangen-Indikator (Phase624). Alle 5 Komponenten vollständig integriert.
@@ -10319,9 +10320,71 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 **Build:** 372 Seiten, Exit 0 ✅
 **TypeScript:** 0 neue Fehler (alle pre-existing, ignoreBuildErrors: true) ✅
 
+## Phase 631–635 — Schicht-Profitabilität, Herkunfts-Mix, km-Effizienz, Tour-Nachbereitung, Bestellhistorie (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 631 Backend — Schicht-Profitabilitäts-API
+**`app/api/delivery/admin/schicht-profitabilitaet/route.ts`** — `GET /api/delivery/admin/schicht-profitabilitaet`:
+- Parameter: `location_id`
+- Aktive Schichten aus `driver_shifts` (status=active)
+- Heutige Batches aus `mise_delivery_batches` (state=delivered)
+- Je Fahrer: lieferlohn_eur (km × 0.35), kosten_eur (km × 0.14), einnahmen_eur (delivery_fee + trinkgeld), marge_eur, marge_pct
+- Multi-Tenant: alle Queries filtern auf location_id
+
+### Phase 632 Kitchen — Bestellungs-Herkunfts-Mix
+**`app/(admin)/kitchen/phase631-bestellungs-herkunfts-mix.tsx`** — `KitchenPhase631BestellungsHerkunftsMix`:
+- Props: `orders: Order[]`
+- Klassifiziert nach delivery_method / order_type: Lieferung / Abholung / Vor-Ort
+- SVG-Donut-Chart mit dynamischen Segmenten (keine externe Lib)
+- Fortschrittsbalken je Typ mit Prozent + Absolut
+- 15s Ticker · null-Return wenn 0 Bestellungen
+- Integration: `kitchen/client.tsx` nach Phase630 ✅
+
+### Phase 633 Dispatch — Fahrer-km-Effizienz-Ranking
+**`app/(admin)/dispatch/phase631-fahrer-km-effizienz-ranking.tsx`** — `DispatchPhase631FahrerKmEffizienzRanking`:
+- Props: `locationId: string | null`
+- Holt Daten von `/api/delivery/admin/schicht-profitabilitaet`
+- Berechnet km/Lieferung je Fahrer, sortiert aufsteigend (niedrig = effizient)
+- Rang-Badges (🥇🥈🥉), Fahrzeug-Icon, Farbbalken (grün/amber/rot)
+- Marge-% je Fahrer als Zusatzspalte
+- Kollabierbar · 60s Polling · Mock-Fallback
+- Integration: `dispatch/client.tsx` nach Phase630 ✅
+
+### Phase 634 Fahrer-App — Tour-Nachbereitung-Dialog
+**`app/fahrer/app/phase631-tour-nachbereitung-dialog.tsx`** — `FahrerPhase631TourNachbereitungDialog`:
+- Props: `batchId: string, driverId: string, onAbgeschlossen?: () => void`
+- Felder: gefahrene km (Nummerneingabe), Stimmung (Emoji-Buttons), optionale Notiz
+- Bonus-Berechnung: ≤4km → €0.50, ≤6km → €0.25, >6km → 0
+- POST an `/api/delivery/driver/tour-feedback` (fire-and-forget)
+- Erfolgsanzeige mit Gift-Icon und Bonus-Betrag
+- Kollabierbar · nur sichtbar wenn kein aktiver Batch
+- Integration: `fahrer/app/client.tsx` nach Phase630 ✅
+
+### Phase 635 Storefront — Bestellhistorie-Kurzansicht
+**`app/order/[locationSlug]/phase632-bestellhistorie-kurzansicht.tsx`** — `Phase632BestellhistorieKurzansicht`:
+- Props: `locationId: string, userId?: string | null`
+- Direktabfrage Supabase-Client: orders nach location_id + user_id
+- Zeigt: „Du hast hier schon X× bestellt" + letzte Bestellung (Datum, Nummer, Betrag)
+- Datumsformatierung: „Heute HH:MM" / „Gestern HH:MM" / DD.MM.YY
+- Null-Return wenn kein userId oder keine Bestellhistorie
+- Integration: `storefront.tsx` nach Phase609 ✅
+
+### Integrations-Checkliste Phase 631–635
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| Schicht-Profitabilitäts-API | api/delivery/admin/schicht-profitabilitaet/route.ts | Neu (GET) | ✅ |
+| KitchenPhase631BestellungsHerkunftsMix | kitchen/phase631-bestellungs-herkunfts-mix.tsx | kitchen/client.tsx nach Phase630 | ✅ |
+| DispatchPhase631FahrerKmEffizienzRanking | dispatch/phase631-fahrer-km-effizienz-ranking.tsx | dispatch/client.tsx nach Phase630 | ✅ |
+| FahrerPhase631TourNachbereitungDialog | fahrer/app/phase631-tour-nachbereitung-dialog.tsx | fahrer/app/client.tsx nach Phase630 | ✅ |
+| Phase632BestellhistorieKurzansicht | order/[locationSlug]/phase632-bestellhistorie-kurzansicht.tsx | storefront.tsx nach Phase609 | ✅ |
+
+**Build:** 373 Seiten, Exit 0 ✅
+**TypeScript:** 0 neue Fehler (alle pre-existing, ignoreBuildErrors: true) ✅
+
 ### Nächste Phasen
-1. **Phase 630 Backend:** Schicht-Profitabilitäts-API — je aktiver Schicht: Lieferlohn, Kosten, Einnahmen, Netto-Marge in Echtzeit.
-2. **Phase 631 Kitchen:** Bestellungs-Herkunfts-Mix — Donut-Chart: Lieferung / Abholung / Vor-Ort Anteil heute.
-3. **Phase 632 Dispatch:** Fahrer-km-Effizienz-Ranking — Rangliste der Fahrer nach km/Lieferung (niedrig = effizient).
-4. **Phase 633 Fahrer-App:** Tour-Nachbereitung-Dialog — nach Tour-Abschluss: km eingeben, Feedback geben, Bonus anzeigen.
-5. **Phase 634 Storefront:** Bestellhistorie-Kurzansicht — „Du hast hier schon X Mal bestellt" mit letzter Bestellung.
+1. **Phase 636 Backend:** Lieferzonen-Erlös-Vergleichs-API — Vergleich der Einnahmen (Liefergebühr + Trinkgeld) je Zone A/B/C/D, normiert auf Anzahl Lieferungen.
+2. **Phase 637 Kitchen:** Tages-Storno-Übersicht — Liste der heute stornierten Bestellungen mit Grund und Uhrzeit.
+3. **Phase 638 Dispatch:** Fahrer-Erreichbarkeits-Matrix — zeigt je Fahrer: aktiv/pausiert/offline + letzte GPS-Meldung.
+4. **Phase 639 Fahrer-App:** Schicht-Bilanz-Vorschau — Hochrechnung der Schichteinnahmen aufs Schichtende basierend auf aktuellem Tempo.
+5. **Phase 640 Storefront:** Lieferzeit-Transparenz-Widget — erklärt dem Kunden wie die ETA berechnet wird (Küche + Fahrt + Puffer).

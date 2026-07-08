@@ -228,6 +228,7 @@ import { FahrerPhase623PauseEmpfehlung } from './phase623-pause-empfehlung';
 import { FahrerPhase628KmTageslog } from './phase628-km-tageslog';
 import { FahrerPhase629TourStoppNavigatorPro } from './phase629-tour-stopp-navigator-pro';
 import { FahrerPhase630NavigationLiveCockpit } from './phase630-navigation-live-cockpit';
+import { FahrerPhase631TourNachbereitungDialog } from './phase631-tour-nachbereitung-dialog';
 
 type Driver = {
   id: string;
@@ -3248,6 +3249,13 @@ export function FahrerApp({
             </div>
           );
         })()}
+
+        {/* Phase 631: Tour-Nachbereitung-Dialog — km eingeben, Feedback, Bonus nach Tour */}
+        {isOnline && !activeBatch && (
+          <div className="px-4">
+            <FahrerPhase631TourNachbereitungDialog batchId="last" driverId={driver.id} />
+          </div>
+        )}
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

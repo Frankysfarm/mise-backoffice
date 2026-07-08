@@ -247,6 +247,7 @@ import { KitchenPhase621BatchCountdownTafel } from './phase621-batch-countdown-t
 import { KitchenPhase626PrepPriorisierungsScanner } from './phase626-prep-priorisierungs-scanner';
 import { KitchenPhase629SmartTimingCockpit } from './phase629-smart-timing-cockpit';
 import { KitchenPhase630CountdownFarbkodierung } from './phase630-countdown-farbkodierung';
+import { KitchenPhase631BestellungsHerkunftsMix } from './phase631-bestellungs-herkunfts-mix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2032,6 +2033,8 @@ export function KitchenBoard({
       <KitchenPhase629SmartTimingCockpit orders={filtered as any} />
       {/* Phase 630: Live-Countdown-Farbkodierung — Sekundengenauer Countdown je Bestellung mit Ampelfarben */}
       <KitchenPhase630CountdownFarbkodierung orders={filtered as any} />
+      {/* Phase 631: Bestellungs-Herkunfts-Mix — Donut-Chart Lieferung/Abholung/Vor-Ort heute */}
+      <KitchenPhase631BestellungsHerkunftsMix orders={filtered as any} />
     </div>
   );
 }

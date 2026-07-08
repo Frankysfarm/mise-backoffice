@@ -284,6 +284,7 @@ import { DispatchPhase625FahrerTagesleistungVergleich } from './phase625-fahrer-
 import { DispatchPhase627FahrerauslastungsHeatmap } from './phase627-fahrerauslastungs-heatmap';
 import { DispatchPhase629ScoreAnzeigeCockpit } from './phase629-score-anzeige-cockpit';
 import { DispatchPhase630TourVisualisierungsPanel } from './phase630-tour-visualisierungs-panel';
+import { DispatchPhase631FahrerKmEffizienzRanking } from './phase631-fahrer-km-effizienz-ranking';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2181,6 +2182,8 @@ export function DispatchBoard({
       <DispatchPhase629ScoreAnzeigeCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 630: Tour-Visualisierungs-Panel — Stopp-für-Stopp Fortschrittsvisualisierung je Tour */}
       <DispatchPhase630TourVisualisierungsPanel batches={batches as any} />
+      {/* Phase 631: Fahrer-km-Effizienz-Ranking — Rangliste nach km/Lieferung mit Marge */}
+      <DispatchPhase631FahrerKmEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
