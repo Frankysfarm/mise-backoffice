@@ -306,6 +306,7 @@ import { DispatchPhase708EchtzeitStornoAlarm } from './phase708-echtzeit-storno-
 import { DispatchPhase713FahrerKarteInfobox } from './phase713-fahrer-karte-infobox';
 import { DispatchPhase718ZonenRentabilitaetsPanel } from './phase718-zonen-rentabilitaets-panel';
 import { DispatchPhase723BonusTriggerPanel } from './phase723-bonus-trigger-panel';
+import { DispatchPhase728TagesZonenVergleichPanel } from './phase728-tages-zonen-vergleich-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2250,6 +2251,8 @@ export function DispatchBoard({
       <DispatchPhase718ZonenRentabilitaetsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 723: Bonus-Trigger-Panel — Fahrer mit Tagesziel per Klick Bonus auszahlen */}
       <DispatchPhase723BonusTriggerPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 728: Tages-Zonen-Vergleich-Panel — Heute vs. Vorwoche je Zone als Tabelle */}
+      <DispatchPhase728TagesZonenVergleichPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

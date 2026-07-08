@@ -108,6 +108,7 @@ import { Phase710WartezeitIndikator } from './phase710-wartezeit-indikator';
 import { Phase715BestsellerHighlight } from './phase715-bestseller-highlight';
 import { Phase720WarteschlangenAnzeige } from './phase720-warteschlangen-anzeige';
 import { Phase725AktionsBanner } from './phase725-aktions-banner';
+import { Phase730LieferZonenBadge } from './phase730-liefer-zonen-badge';
 
 type Props = {
   location: Location;
@@ -1396,6 +1397,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && <Phase695LiefergebuehrTransparenz basisGebuehr={DELIVERY_FEE} zonenZuschlag={tenantDeliveryFee > DELIVERY_FEE ? tenantDeliveryFee - DELIVERY_FEE : 0} />}
       {/* Phase 710: Wartezeit-Indikator mit Küchenlast — Zeigt +5/+10 Min bei hoher Küchenauslastung */}
       {order.isDelivery && <Phase710WartezeitIndikator locationId={location.id} basisEtaMinuten={deliveryTimeMin} />}
+      {/* Phase 730: Liefer-Zonen-Badge — Zone, Lieferzeit und Gebühr als farbiges Badge */}
+      {order.isDelivery && <Phase730LieferZonenBadge locationId={location.id} />}
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
