@@ -258,7 +258,9 @@ import { FahrerPhase744SchichtUeberstundenWarnung } from './phase744-schicht-ueb
 import { FahrerPhase749KmTagesTracker } from './phase749-km-tages-tracker';
 import { FahrerPhase754SlaAlarmWidget } from './phase754-sla-alarm-widget';
 import { FahrerPhase759TagesEinnahmenCockpit } from './phase759-tages-einnahmen-cockpit';
+import { FahrerPhase759LiveEinnahmenTicker } from './phase759-live-einnahmen-ticker';
 import { FahrerPhase763LiveStoppFortschritt } from './phase763-live-stopp-fortschritt';
+import { FahrerPhase764StundenVerdienstMuster } from './phase764-stunden-verdienst-muster';
 
 type Driver = {
   id: string;
@@ -3452,10 +3454,22 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase759TagesEinnahmenCockpit driverId={driver.id} />
         </div>
+        {/* Phase 759: Live-Einnahmen-Ticker — Ø Tageseinnahmen aus 30d + SVG-Ring Zielfortschritt */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase759LiveEinnahmenTicker driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
         {/* Phase 763: Live-Stopp-Fortschritt — Aktueller Stopp: Adresse, Entfernung, ETA + Navigations-Button */}
         {isOnline && (
           <div className="px-4">
             <FahrerPhase763LiveStoppFortschritt driverId={driver.id} isOnline={isOnline} />
+          </div>
+        )}
+        {/* Phase 764: Stunden-Verdienst-Muster — Wann verdiene ich am meisten? Balken je Stunde */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase764StundenVerdienstMuster driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

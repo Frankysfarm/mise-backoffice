@@ -115,7 +115,9 @@ import { Phase745BestellstatusLeiste } from './phase745-bestellstatus-leiste';
 import { Phase750KapazitaetsRing } from './phase750-kapazitaets-ring';
 import { Phase755LiefergebuehrCountdown } from './phase755-liefergebuehr-countdown';
 import { Phase760BestellverlaufAnzeige } from './phase760-bestellverlauf-anzeige';
+import { Phase760BestellFortschrittsTracker } from './phase760-bestell-fortschritts-tracker';
 import { Phase764EtaKonfidenzWidget } from './phase764-eta-konfidenz-widget';
+import { Phase765LieferSchnelligkeitsIndikator } from './phase765-liefer-schnelligkeits-indikator';
 
 type Props = {
   location: Location;
@@ -1415,8 +1417,12 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase755LiefergebuehrCountdown locationId={locationId} isDelivery={order.isDelivery} />
       {/* Phase 760: Bestellverlauf-Anzeige — Stündliches Balkendiagramm heutiger Bestellungen */}
       <Phase760BestellverlaufAnzeige locationId={locationId} />
+      {/* Phase 760: Bestell-Fortschritts-Tracker — Visueller Schritt-für-Schritt Status mit Verbindungslinien */}
+      <Phase760BestellFortschrittsTracker status={order.status} createdAt={order.placedAt ?? undefined} estimatedMinutes={deliveryTimeMin} />
       {/* Phase 764: ETA-Konfidenz-Widget — Präzisions-Ring grün/amber/rot mit Varianz-Angabe */}
       <Phase764EtaKonfidenzWidget locationId={locationId} />
+      {/* Phase 765: Liefer-Schnelligkeits-Indikator — Heute schneller/langsamer als üblich? */}
+      {order.isDelivery && <Phase765LieferSchnelligkeitsIndikator locationId={locationId} />}
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

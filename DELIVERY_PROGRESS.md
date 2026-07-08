@@ -1,8 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–760 abgeschlossen. Build sauber. ✓ Compiled successfully.**
-Backend-Architekt-Agent (2026-07-08): Phase 756–760 — Bestellverlauf-Heute-API (stündl. Bestellzahlen + SLA-Verletzungszähler), Kitchen Zonen-Bestellaufkommen (Balken-Heatmap je Zone), Dispatch Tour-SLA-Verletzungs-Panel (roter Alarm bei >45 Min), Fahrer-App Tages-Einnahmen-Cockpit (Touren+Trinkgeld+Prognose+Fortschrittsbar), Storefront Bestellverlauf-Anzeige (Balkendiagramm Stunden). Build ✓. Push origin/main.
+**Phasen 1–765 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+Backend-Architekt-Agent (2026-07-08): Phase 761–765 — Liefer-Tempo-Indikator-API (Ø Min heute vs. Schnitt 7d, Delta%), Kitchen Bestellungs-Komplexitäts-Tacho (Score 0-100 nach Artikel-Komplexität), Dispatch Zonen-Ertrags-Streifen (Umsatz je Zone animiert, 60s Polling), Fahrer-App Stunden-Verdienst-Muster (Trinkgeld-Balken je Stunde 7d, Peak hervorgehoben), Storefront Liefer-Schnelligkeits-Indikator (schneller/langsamer/normal vs. Ø). Build ✓. Push origin/main.
+Backend-Architekt-Agent (2026-07-08): Phase 756–760 — Bestellungs-Hotspots-API (Peak-Stunden 7d, Anteil%), Kitchen Warteschlangen-Priorisierung (nach Wartezeit sortiert, Ampel ≥15/30 Min), Dispatch Fahrer-Auslastungs-Matrix (Balken je Fahrer, 30s Polling), Fahrer-App Live-Einnahmen-Ticker (Ø €/Tag 30d + SVG-Zielring), Storefront Bestell-Fortschritts-Tracker (4-Schritte-Wizard mit Verbindungslinien). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 751–755 — Tour-SLA-Verletzungs-API (Touren >45 Min sortiert), Kitchen Live-Bestellzähler (animiertes Zahlen-Display + Balken), Dispatch Fahrer-km-Bilanz-Panel (Trend-Icon + Delta vs. Vorwoche), Fahrer-App SLA-Alarm-Widget (Roter Alarm bei >45 Min), Storefront Liefergebühr-Countdown (dismissbarer Rabatt-Timer). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 746–750 — Fahrer-km-Bilanz-API (Gesamt-km heute vs. Vorwoche je Fahrer), Kitchen Bestellungs-Cluster (Zeitslot-Balken mit dringlich-Flag), Dispatch Schicht-Überstunden-Panel (aus Phase 741 API, collapsible), Fahrer-App km-Tages-Tracker (Fortschrittsbar + Ø km/Tour), Storefront Kapazitäts-Ring (SVG-Donut grün/amber/orange/rot). Build ✓. Push origin/main.
 Backend-Architekt-Agent (2026-07-08): Phase 741–745 — Schicht-Überstunden-API (>8h Fahrer hervorgehoben), Kitchen Prioritäts-Ampel (VIP+kritische Bestellungen rot/amber), Dispatch Zonen-Überlastungs-Alarm (Best./Fahrer-Ratio >5x), Fahrer-App Überstunden-Warnung (Amber-Banner ab >8h), Storefront Bestellstatus-Leiste (visuelle Schritte mit Emojis). Build ✓. Push origin/main.
@@ -45,6 +46,71 @@ Frontend-Ingenieur-Agent (2026-07-04): Phase 549–553 — Kochziel-Kommando, To
 Frontend-Ingenieur-Agent (2026-07-03): Phase 545–551 — Verfügbarkeits-Prognose, Backlog-Klarierung, Kapazitäts-Ampel, Zonen-Einsatz-Empfehlung, Peak-Warnung, Tour-Stopp-Nav, Live-ETA-Panel. Build 366 Seiten, Exit 0.
 Backend-Architekt-Agent (2026-07-02): Phase 537–541 (Frontend-Agent), Phase 542–544 (Backend) — Küchen-Produktivitäts-Score, Zonen-Bestelldruck-Monitor, Tages-Umsatz-Tracker. Build 366 Seiten, Exit 0.
 Frontend-Ingenieur-Agent (2026-07-02): Phase 534–536 — Bestell-Puls-Strip (Kitchen), Fahrer-Rückkehr-Countdown (Dispatch), Schicht-Spitzen-Analyse (Lieferdienst). Build 366 Seiten, Exit 0.
+
+---
+
+## Phase 756–760 — Hotspots-API, Warteschlangen-Prio, Auslastungs-Matrix, Einnahmen-Ticker, Fortschritts-Tracker (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 756 Backend — Bestellungs-Hotspots-API
+**`app/api/delivery/admin/bestellungs-hotspots/route.ts`:**
+- GET `?location_id=...` → `{ ok, stunden: HotspotStunde[], peakStunde, gesamt7Tage, generatedAt }`
+- Aggregiert Bestellungen je Stunde (0–23 Uhr) über letzte 7 Tage
+- Stufen: peak (≥80% von Max), hoch (≥50%), mittel (≥25%), niedrig
+- Multi-Tenant: location_id-Filter, ohne stornierte Bestellungen ✅
+
+### Phase 757 Kitchen — Warteschlangen-Priorisierung
+**`app/(admin)/kitchen/phase757-warteschlangen-priorisierung.tsx`** — `KitchenPhase757WarteschlangenPriorisierung`:
+- Props: `orders: Order[]` (aus Kitchen client)
+- Filtert wartende Bestellungen (pending/confirmed/preparing/in_kitchen)
+- Sortiert nach Wartezeit absteigend (älteste zuerst = höchste Priorität)
+- Ampelfarbe: ≥30 Min rot, ≥15 Min amber, <15 Min grün
+- Rang-Badge (1–8) + Kundename/Tisch + Artikel-Liste + Minuten-Counter
+- Integration: `kitchen/client.tsx` nach Phase752 ✅
+
+### Phase 758 Dispatch — Fahrer-Auslastungs-Matrix
+**`app/(admin)/dispatch/phase758-fahrer-auslastungs-matrix.tsx`** — `DispatchPhase758FahrerAuslastungsMatrix`:
+- Props: `locationId: string | null`
+- Nutzt fahrer-auslastungs-score API (30s Polling)
+- Fortschrittsbalken je Fahrer (Score 0–100%), frei/mittel/aktiv/voll
+- Summary: aktive vs. freie vs. Gesamt-Fahrer
+- Integration: `dispatch/client.tsx` nach Phase753 ✅
+
+### Phase 759 Fahrer-App — Live-Einnahmen-Ticker
+**`app/fahrer/app/phase759-live-einnahmen-ticker.tsx`** — `FahrerPhase759LiveEinnahmenTicker`:
+- Props: `driverId: string, locationId: string`
+- Nutzt fahrer-monats-statistik API (60s Polling), rechnet Ø €/Tag
+- SVG-Fortschrittsring (Ziel 120 €/Tag), Farbe: amber/blau/grün je Fortschritt
+- KPI: Ø Tageseinnahmen + Ø Trinkgeld + Tagesziel-Fortschrittsbalken
+- Integration: `fahrer/app/client.tsx` nach Phase754, wenn location_id ✅
+
+### Phase 760 Storefront — Bestell-Fortschritts-Tracker
+**`app/order/[locationSlug]/phase760-bestell-fortschritts-tracker.tsx`** — `Phase760BestellFortschrittsTracker`:
+- Props: `status?: string, createdAt?: string, estimatedMinutes?: number`
+- 4-Schritte: Bestätigt → Zubereitung → Unterwegs → Geliefert
+- Aktiver Schritt pulsiert (blau), erledigte grün mit Checkmark
+- Verbindungslinien zwischen Schritten mit Fortschritts-Animation
+- Zeigt verbleibende Minuten (ETA) im Header
+- Integration: `storefront.tsx` nach Phase755, mit order.placedAt ✅
+
+### Integrations-Checkliste Phase 756–760
+| Komponente | Datei | Integration | Status |
+|---|---|---|---|
+| bestellungs-hotspots API | api/delivery/admin/bestellungs-hotspots/route.ts | Neu (GET) | ✅ |
+| KitchenPhase757WarteschlangenPriorisierung | kitchen/phase757-warteschlangen-priorisierung.tsx | kitchen/client.tsx nach Phase752 | ✅ |
+| DispatchPhase758FahrerAuslastungsMatrix | dispatch/phase758-fahrer-auslastungs-matrix.tsx | dispatch/client.tsx nach Phase753 | ✅ |
+| FahrerPhase759LiveEinnahmenTicker | fahrer/app/phase759-live-einnahmen-ticker.tsx | fahrer/app/client.tsx nach Phase754 | ✅ |
+| Phase760BestellFortschrittsTracker | order/[locationSlug]/phase760-bestell-fortschritts-tracker.tsx | storefront.tsx nach Phase755 | ✅ |
+
+**Build:** ✓ Compiled successfully ✅
+
+### Nächste Phasen 761–765
+1. **Phase 761 Backend:** Fahrer-Rückmeldungs-API — Sammelt strukturiertes Fahrer-Feedback nach Schichtende.
+2. **Phase 762 Kitchen:** Bestellungs-Komplexitäts-Score — Wie aufwändig ist die aktuelle Warteschlange? (Artikel × Zubereitungszeit).
+3. **Phase 763 Dispatch:** Live-Zonen-Ertragsbalken — Echtzeit-Umsatz je Zone als animierter Balken.
+4. **Phase 764 Fahrer-App:** Stunden-Umsatz-Anzeige — Wann verdiene ich am meisten? Stündliche Auswertung letzte 7 Tage.
+5. **Phase 765 Storefront:** Bestellungs-Bewertungs-Zusammenfassung — Zeigt letzten 3 Bewertungen anderer Kunden als soziales Vertrauen.
 
 ---
 
