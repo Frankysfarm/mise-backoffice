@@ -296,6 +296,7 @@ import { KitchenPhase820PrepPrioritaetsScore } from './phase820-prep-prioritaets
 import { KitchenPhase825ZutatenEngpass } from './phase825-zutaten-engpass';
 import { KitchenPhase826SmartTimingCockpitLive } from './phase826-smart-timing-cockpit-live';
 import { KitchenPhase827FarbkodierungsCountdownBoard } from './phase827-farbkodierungs-countdown-board';
+import { KitchenPhase830ReihenfolgeOptimierung } from './phase830-reihenfolge-optimierung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -767,6 +768,8 @@ export function KitchenBoard({
       <KitchenPhase826SmartTimingCockpitLive orders={filtered} timings={timings} />
       {/* Phase 827: Farbkodierungs-Countdown-Board — Countdown-Kacheln Grün/Gelb/Orange/Rot je Restzeit */}
       <KitchenPhase827FarbkodierungsCountdownBoard orders={filtered} timings={timings} />
+      {/* Phase 830: KI-Reihenfolge-Optimierung — Score-sortierte Bestellliste nach Dringlichkeit, Zone, Fahrerangebot */}
+      <KitchenPhase830ReihenfolgeOptimierung orders={filtered} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}

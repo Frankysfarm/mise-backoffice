@@ -332,6 +332,7 @@ import { DispatchPhase821ZonenEffizienzMatrix } from './phase821-zonen-effizienz
 import { DispatchPhase826FahrerzuteilungEmpfehlung } from './phase826-fahrerzuteilung-empfehlung';
 import { DispatchPhase827ScoreAnzeigeLiveCockpit } from './phase827-score-anzeige-live-cockpit';
 import { DispatchPhase828TourVisualisierungsCockpit } from './phase828-tour-visualisierungs-cockpit';
+import { DispatchPhase831SchichtEffizienzPanel } from './phase831-schicht-effizienz-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2328,6 +2329,8 @@ export function DispatchBoard({
       <DispatchPhase827ScoreAnzeigeLiveCockpit drivers={drivers} />
       {/* Phase 828: Tour-Visualisierungs-Cockpit — Live Stopp-Fortschritt je aktiver Tour mit Fortschrittsbalken */}
       <DispatchPhase828TourVisualisierungsCockpit batches={batches} />
+      {/* Phase 831: Schicht-Effizienz-Panel — Umsatz/h je Fahrer + Benchmark Vortag als Balkendiagramm */}
+      <DispatchPhase831SchichtEffizienzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

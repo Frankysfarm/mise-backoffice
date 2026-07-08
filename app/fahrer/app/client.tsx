@@ -277,6 +277,7 @@ import { FahrerPhase822SchichtScoreCockpit } from './phase822-schicht-score-cock
 import { FahrerPhase827TagesEinnahmenBreakdown } from './phase827-tages-einnahmen-breakdown';
 import { FahrerPhase828TourStoppNavigatorHub } from './phase828-tour-stopp-navigator-hub';
 import { FahrerPhase829NavigationLiveCockpit } from './phase829-navigation-live-cockpit';
+import { FahrerPhase832KundenzufriedenheitsTrend } from './phase832-kundenzufriedenheits-trend';
 
 type Driver = {
   id: string;
@@ -3562,6 +3563,11 @@ export function FahrerApp({
         {/* Phase 827: Tages-Einnahmen-Breakdown — Auflistung je Tour: Grundbetrag + Trinkgeld + Bonus */}
         <div className="px-4">
           <FahrerPhase827TagesEinnahmenBreakdown driverId={driver.id} />
+        </div>
+
+        {/* Phase 832: Kundenzufriedenheits-Trend — Letzte 10 Bewertungen als Mini-Sparkline + Ø + Trend-Pfeil */}
+        <div className="px-4">
+          <FahrerPhase832KundenzufriedenheitsTrend driverId={driver.id} locationId={driver.location_id ?? null} />
         </div>
 
         {/* Phase 828: Tour-Stopp-Navigator Hub — Alle Stopps mit Status, Adresse, ETA + Navigationsbutton */}

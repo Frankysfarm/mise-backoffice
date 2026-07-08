@@ -130,6 +130,7 @@ import { Phase813KundenTreuepunkte } from './phase813-kunden-treuepunkte';
 import { Phase818KuechenStatusBadge } from './phase818-kuechen-status-badge';
 import { Phase823FahrerProfilCard } from './phase823-fahrer-profil-card';
 import { Phase828LiveBewertungsPrompt } from './phase828-live-bewertungs-prompt';
+import { Phase833LieferzeitCountdown } from './phase833-lieferzeit-countdown';
 
 type Props = {
   location: Location;
@@ -1478,6 +1479,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase823FahrerProfilCard orderId={order.orderId ?? null} />
       {/* Phase 828: Live-Bewertungs-Prompt — Sofort-Bewertungs-Modal nach Lieferung abgeschlossen */}
       <Phase828LiveBewertungsPrompt orderId={order.orderId ?? null} locationId={locationId} />
+      {/* Phase 833: Lieferzeit-Countdown — Großer Countdown in Minuten für laufende Lieferung + Echtzeit-Update */}
+      <Phase833LieferzeitCountdown
+        orderId={order.orderId ?? null}
+        etaEarliest={order.etaEarliest}
+        status={order.status}
+        isDelivery={order.isDelivery}
+      />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
