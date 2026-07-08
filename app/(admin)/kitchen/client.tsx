@@ -769,7 +769,6 @@ export function KitchenBoard({
       <KitchenPhase826SmartTimingCockpitLive orders={filtered} timings={timings} />
       {/* Phase 827: Farbkodierungs-Countdown-Board — Countdown-Kacheln Grün/Gelb/Orange/Rot je Restzeit */}
       <KitchenPhase827FarbkodierungsCountdownBoard orders={filtered} timings={timings} />
-<<<<<<< HEAD
       {/* Phase 830: KI-Reihenfolge-Optimierung — Score-sortierte Bestellliste nach Dringlichkeit, Zone, Fahrerangebot */}
       <KitchenPhase830ReihenfolgeOptimierung orders={filtered} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 831: KI-Kochstart-Empfehlung — KI-basierte Empfehlung wann welche Bestellung gestartet werden soll */}
