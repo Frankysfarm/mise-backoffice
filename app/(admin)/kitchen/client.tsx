@@ -299,6 +299,7 @@ import { KitchenPhase827FarbkodierungsCountdownBoard } from './phase827-farbkodi
 import { KitchenPhase830ReihenfolgeOptimierung } from './phase830-reihenfolge-optimierung';
 import { KitchenPhase831KochstartKiEmpfehlung } from './phase831-kochstart-ki-empfehlung';
 import { KitchenPhase838PeakVorhersage } from './phase838-peak-vorhersage';
+import { KitchenPrepCountdownAmpel } from './prep-countdown-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -776,6 +777,8 @@ export function KitchenBoard({
       <KitchenPhase831KochstartKiEmpfehlung orders={filtered} timings={timings} />
       {/* Phase 838: Peak-Vorhersage — Wann kommt die nächste Rush Hour? Ampel + Countdown, 10-Min-Polling */}
       <KitchenPhase838PeakVorhersage locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Prep-Countdown-Ampel: Echtzeit-Countdown aller aktiven Bestellungen mit 4-Farb-Ampel — überfällig/kritisch/bald/OK */}
+      <KitchenPrepCountdownAmpel orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}

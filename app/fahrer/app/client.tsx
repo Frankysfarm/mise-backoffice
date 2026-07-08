@@ -279,6 +279,8 @@ import { FahrerPhase828TourStoppNavigatorHub } from './phase828-tour-stopp-navig
 import { FahrerPhase829NavigationLiveCockpit } from './phase829-navigation-live-cockpit';
 import { FahrerPhase832KundenzufriedenheitsTrend } from './phase832-kundenzufriedenheits-trend';
 import { FahrerPhase833TourEffizienzLive } from './phase833-tour-effizienz-live';
+import { FahrerPhase834TourLiveKommando } from './phase834-tour-live-kommando';
+import { FahrerPhase835SchichtBilanzCockpit } from './phase835-schicht-bilanz-cockpit';
 
 type Driver = {
   id: string;
@@ -3612,6 +3614,32 @@ export function FahrerApp({
         {/* Phase 833: Tour-Effizienz Live — Echtzeit-Score: Stopps/h, km/Stopp, Trinkgeld-Rate, Vergleich Vortag */}
         <div className="px-4">
           <FahrerPhase833TourEffizienzLive driverId={driver.id} locationId={driver.location_id ?? null} />
+        </div>
+
+        {/* Phase 834: Tour-Live-Kommando — Alle Stopps mit Farb-ETA, Navi-Button, Countdown, Pünktlichkeitsampel */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase834TourLiveKommando
+              stops={activeBatch.stops.map((s: any) => ({
+                id: s.id,
+                stopp_nr: s.stopp_nr ?? 0,
+                adresse: s.adresse ?? s.address ?? '',
+                kunde_name: s.kunde_name ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                geschaetzte_ankunft: s.geschaetzte_ankunft ?? null,
+                soll_ankunft: s.soll_ankunft ?? null,
+              }))}
+              driverLat={null}
+              driverLng={null}
+            />
+          </div>
+        )}
+
+        {/* Phase 835: Schicht-Bilanz-Cockpit — Verdienst/Ziel-Fortschritt, Prognose, Trinkgeld, Stundensatz */}
+        <div className="px-4">
+          <FahrerPhase835SchichtBilanzCockpit driverId={driver.id} locationId={driver.location_id ?? null} />
         </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}

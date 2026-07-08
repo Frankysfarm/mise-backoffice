@@ -360,6 +360,7 @@ import { DispatchPhase574FahrerRueckkehrOptimierung } from './phase574-fahrer-ru
 import { DispatchPhase580ZoneDemandHeatmap } from './phase580-zone-demand-heatmap';
 import { DispatchPhase585FahrerLastBalance } from './phase585-fahrer-last-balance';
 import { DispatchZoneBundleScore } from './zone-bundle-score';
+import { DispatchTourScoreDistribution } from './tour-score-distribution';
 
 type Driver = {
   employee_id: string;
@@ -1429,6 +1430,8 @@ export function DispatchBoard({
       <DispatchTourScoreTimeline batches={batches as any} />
       {/* Tour-Score-Matrix: Health-Score je aktiver Tour — Worst-first Sortierung */}
       <DispatchTourScoreMatrix batches={batches as any} />
+      {/* Tour-Score-Verteilung: Kreisdiagramm-Score je Fahrer — pünktlich/ETA-Delta/Abschlussrate */}
+      <DispatchTourScoreDistribution locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Tour-Stopp-Status-Matrix: Farbkodierter Echtzeit-Status jedes Stopps aller aktiven Touren */}
       <DispatchTourStopStatusMatrix batches={batches} />
       {/* Phase 395: Tour-Zeitlinie — Horizontale Timeline aller aktiven Touren mit Stopp-Fortschritt und ETA-Farbkodierung */}

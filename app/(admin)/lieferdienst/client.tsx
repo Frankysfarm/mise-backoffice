@@ -73,6 +73,7 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { StatistikLiveHub } from './statistik-live-hub'
 import { LieferdienstPhase789SchichtStatistikCockpit } from './phase789-schicht-statistiken-cockpit'
 import { LieferdienstPhase790AbbruchTrendPanel } from './phase790-abbruch-trend-panel'
 import { LieferdienstPhase795StatistikenLiveCockpit } from './phase795-statistiken-live-cockpit'
@@ -1527,6 +1528,8 @@ export function LieferdienstClient() {
               <LieferdienstLiveMetrikenLeiste locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Statistik Live-Hub: Aggregierte KPIs (Bestellungen, Umsatz, ETA, Fahrer, Storno, Bewertung) + Stundenverlauf-Chart */}
+              <StatistikLiveHub locationId={locationId} />
               {/* Phase 789: Schicht-Statistiken-Cockpit — Live KPI-Dashboard mit Trend-Vergleich Vortag */}
               <LieferdienstPhase789SchichtStatistikCockpit locationId={locationId ?? null} />
               {/* Phase 790: Abbruch-Trend-Panel — Stornierungsrate je Wochentag + Stunde, Hotspot-Erkennung */}
