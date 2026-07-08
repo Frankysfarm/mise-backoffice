@@ -237,6 +237,7 @@ import { FahrerPhase653SchichtStornoWarnung } from './phase653-schicht-storno-wa
 import { FahrerPhase662TourpauseEmpfehlungPro } from './phase662-tourpause-empfehlung-pro';
 import { FahrerPhase667TagesEinnahmenPrognose } from './phase667-tages-einnahmen-prognose';
 import { FahrerPhase672TourQualitaetsScore } from './phase672-tour-qualitaets-score';
+import { FahrerPhase677SchichtAbschlussScreen } from './phase677-schicht-abschluss-screen';
 
 type Driver = {
   id: string;
@@ -3319,6 +3320,12 @@ export function FahrerApp({
         {isOnline && driver.location_id && (
           <div className="px-4">
             <FahrerPhase672TourQualitaetsScore driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 677: Schicht-Abschluss-Screen — Zusammenfassung Score + Einnahmen + Touren beim Schichtende */}
+        {!isOnline && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase677SchichtAbschlussScreen driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

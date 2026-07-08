@@ -256,6 +256,7 @@ import { KitchenPhase651TagesAuslastungsPrognose } from './phase651-tages-auslas
 import { KitchenPhase660PrepRueckstandAlert } from './phase660-prep-rueckstand-alert';
 import { KitchenPhase665DringlichkeitsQueue } from './phase665-dringlichkeits-queue';
 import { KitchenPhase670SchichtEndePrognose } from './phase670-schicht-ende-prognose';
+import { KitchenPhase675AuslastungsHeatmap } from './phase675-auslastungs-heatmap';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2059,6 +2060,8 @@ export function KitchenBoard({
       <KitchenPhase665DringlichkeitsQueue locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 670: Schicht-Ende-Prognose — Wann ist die Küche heute fertig? */}
       <KitchenPhase670SchichtEndePrognose locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 675: Auslastungs-Heatmap — Welche Stunden waren heute am stärksten? */}
+      <KitchenPhase675AuslastungsHeatmap orders={filtered as any} />
     </div>
   );
 }

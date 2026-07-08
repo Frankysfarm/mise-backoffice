@@ -292,6 +292,7 @@ import { DispatchPhase652FahrerLiveStatusPanel } from './phase652-fahrer-live-st
 import { DispatchPhase661ZoneEffizienzRangliste } from './phase661-zone-effizienz-rangliste';
 import { DispatchPhase666BatchRueckkehrPrognose } from './phase666-batch-rueckkehr-prognose';
 import { DispatchPhase671FahrerVerfuegbarkeitsAmpel } from './phase671-fahrer-verfuegbarkeits-ampel';
+import { DispatchPhase676NaechsteTourEmpfehlung } from './phase676-naechste-tour-empfehlung';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2208,6 +2209,8 @@ export function DispatchBoard({
       <DispatchPhase666BatchRueckkehrPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 671: Fahrer-Verfügbarkeits-Ampel — Wer ist frei, wer kommt wann zurück? */}
       <DispatchPhase671FahrerVerfuegbarkeitsAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 676: Optimale-Nächste-Tour-Empfehlung — Welcher Fahrer sollte die nächste Tour übernehmen? */}
+      <DispatchPhase676NaechsteTourEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
