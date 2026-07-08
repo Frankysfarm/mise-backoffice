@@ -229,6 +229,7 @@ import { FahrerPhase628KmTageslog } from './phase628-km-tageslog';
 import { FahrerPhase629TourStoppNavigatorPro } from './phase629-tour-stopp-navigator-pro';
 import { FahrerPhase630NavigationLiveCockpit } from './phase630-navigation-live-cockpit';
 import { FahrerPhase631TourNachbereitungDialog } from './phase631-tour-nachbereitung-dialog';
+import { FahrerPhase639SchichtBilanzVorschau } from './phase639-schicht-bilanz-vorschau';
 
 type Driver = {
   id: string;
@@ -3254,6 +3255,13 @@ export function FahrerApp({
         {isOnline && !activeBatch && (
           <div className="px-4">
             <FahrerPhase631TourNachbereitungDialog batchId="last" driverId={driver.id} />
+          </div>
+        )}
+
+        {/* Phase 639: Schicht-Bilanz-Vorschau — Hochrechnung Verdienst bis Schichtende */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase639SchichtBilanzVorschau driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

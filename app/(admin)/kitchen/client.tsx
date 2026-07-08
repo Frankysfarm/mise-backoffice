@@ -248,6 +248,7 @@ import { KitchenPhase626PrepPriorisierungsScanner } from './phase626-prep-priori
 import { KitchenPhase629SmartTimingCockpit } from './phase629-smart-timing-cockpit';
 import { KitchenPhase630CountdownFarbkodierung } from './phase630-countdown-farbkodierung';
 import { KitchenPhase631BestellungsHerkunftsMix } from './phase631-bestellungs-herkunfts-mix';
+import { KitchenPhase637TagesStornoUebersicht } from './phase637-tages-storno-uebersicht';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2035,6 +2036,8 @@ export function KitchenBoard({
       <KitchenPhase630CountdownFarbkodierung orders={filtered as any} />
       {/* Phase 631: Bestellungs-Herkunfts-Mix — Donut-Chart Lieferung/Abholung/Vor-Ort heute */}
       <KitchenPhase631BestellungsHerkunftsMix orders={filtered as any} />
+      {/* Phase 637: Tages-Storno-Übersicht — Kollabierbare Liste stornierter Bestellungen mit Grund */}
+      <KitchenPhase637TagesStornoUebersicht orders={filtered as any} />
     </div>
   );
 }

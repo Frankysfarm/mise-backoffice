@@ -87,6 +87,7 @@ import { Phase629LieferQualitaetsSiegel } from './phase629-liefer-qualitaets-sie
 import { Phase630DynamischeEtaAnzeige } from './phase630-dynamische-eta-anzeige';
 import { Phase631LiveTrackingWidget } from './phase631-live-tracking-widget';
 import { Phase632BestellhistorieKurzansicht } from './phase632-bestellhistorie-kurzansicht';
+import { Phase640LieferzeitTransparenzWidget } from './phase640-lieferzeit-transparenz-widget';
 
 type Props = {
   location: Location;
@@ -1346,6 +1347,10 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={location.id} />
+      {/* Phase 640: Lieferzeit-Transparenz-Widget — Erklärt ETA-Berechnung (Küche + Fahrt + Puffer) */}
+      {order.isDelivery && (
+        <Phase640LieferzeitTransparenzWidget deliveryTimeMin={deliveryTimeMin} />
+      )}
       {/* Phase 624: Echtzeit-Warteschlangen-Indikator — aktuelle Küchenauslastung als Wartezeit */}
       {order.isDelivery && <Phase624WarteschlangenIndikator locationId={locationId} />}
       {/* Phase 629: Liefer-Qualitäts-Siegel — Gold/Silber/Standard basierend auf 7-Tage SLA */}
