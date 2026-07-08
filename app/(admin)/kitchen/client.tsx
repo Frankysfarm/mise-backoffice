@@ -284,6 +284,7 @@ import { KitchenPhase766AllergenenMonitor } from './phase766-allergenen-monitor'
 import { KitchenPhase771StornoWarnungPanel } from './phase771-storno-warnung-panel';
 import { KitchenPhase775SchichtTaktCockpit } from './phase775-schicht-takt-cockpit';
 import { KitchenPhase781AllergikerBestellAlert } from './phase781-allergiker-bestell-alert';
+import { KitchenPhase785SmartCountdownCockpit } from './phase785-smart-countdown-timing-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2143,6 +2144,8 @@ export function KitchenBoard({
       <KitchenPhase775SchichtTaktCockpit orders={filtered as any} />
       {/* Phase 781: Allergiker-Bestell-Alert — Pulsierendes Alert-Banner bei aktiven Allergen-Bestellungen */}
       <KitchenPhase781AllergikerBestellAlert orders={filtered as any} />
+      {/* Phase 785: Smart Countdown Timing Cockpit — Batch-Countdowns mit Farbkodierung (grün/amber/rot) */}
+      <KitchenPhase785SmartCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

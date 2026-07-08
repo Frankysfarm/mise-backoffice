@@ -122,6 +122,7 @@ import { Phase769KuechenVertrauenSeal } from './phase769-kuechen-vertrauen-seal'
 import { Phase774BestellTransparenzSiegel } from './phase774-bestell-transparenz-siegel';
 import { Phase778EtaDynamikLivePanel } from './phase778-eta-dynamik-live-panel';
 import { Phase784KuechenWartezeitIndikator } from './phase784-kuechen-wartezeit-indikator';
+import { Phase785DynamischeEtaLive } from './phase785-dynamische-eta-live';
 
 type Props = {
   location: Location;
@@ -646,6 +647,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               initialStatus="bestätigt"
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : undefined}
+            />
+          </div>
+        )}
+        {/* Phase 785: Dynamische ETA Live — Phasen-Timeline mit Live-Status-Updates für Kunden */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase785DynamischeEtaLive
+              orderId={orderSuccess.orderId}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
             />
           </div>
         )}

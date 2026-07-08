@@ -265,6 +265,7 @@ import { FahrerPhase768EigeneBewertung } from './phase768-eigene-bewertung';
 import { FahrerPhase773TagesHighlightsWidget } from './phase773-tages-highlights-widget';
 import { Phase776TourStoppSequenzLive } from './phase776-tour-stopp-sequenz-live';
 import { FahrerPhase783SchichtZielFortschrittsRing } from './phase783-schicht-ziel-fortschritts-ring';
+import { FahrerPhase787TourStoppLiveKompass } from './phase787-tour-stopp-live-kompass';
 
 type Driver = {
   id: string;
@@ -3498,6 +3499,32 @@ export function FahrerApp({
             <Phase776TourStoppSequenzLive
               stops={activeBatch.stops as any}
               currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+            />
+          </div>
+        )}
+
+        {/* Phase 787: Tour-Stopp Live-Kompass — Alle Stopps mit Navigation, ETA und Zustellbestätigung */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase787TourStoppLiveKompass
+              stops={activeBatch.stops.map((s: any, idx: number) => ({
+                id: s.id,
+                stopp_nr: s.stopp_nr ?? idx + 1,
+                adresse: s.adresse ?? s.address ?? '',
+                stadtteil: s.stadtteil ?? s.district ?? null,
+                kunde_name: s.kunde_name ?? s.customer_name ?? null,
+                kunde_telefon: s.kunde_telefon ?? s.customer_phone ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                eta_min: s.eta_min ?? null,
+                distanz_km: s.distanz_km ?? s.distance_km ?? null,
+                notiz: s.notiz ?? s.note ?? null,
+                order_id: s.order_id ?? null,
+                bestellnummer: s.bestellnummer ?? null,
+              }))}
+              onNavigate={(stop) => {
+                const addr = encodeURIComponent(stop.adresse);
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${addr}`, '_blank');
+              }}
             />
           </div>
         )}
