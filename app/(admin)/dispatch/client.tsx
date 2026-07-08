@@ -326,6 +326,7 @@ import { DispatchPhase797TourStornoPraevention } from './phase797-tour-storno-pr
 import { DispatchPhase802FahrerKontaktLog } from './phase802-fahrer-kontakt-log';
 import { DispatchPhase807TourLiveFortschritt } from './phase807-tour-live-fortschritt';
 import { DispatchPhase811FahrerVerfuegbarkeitsPrognose } from './phase811-fahrer-verfuegbarkeits-prognose';
+import { DispatchPhase813TourScoreLiveKompakt } from './phase813-tour-score-live-kompakt';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2310,6 +2311,8 @@ export function DispatchBoard({
       <DispatchPhase807TourLiveFortschritt locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 811: Fahrer-Verfügbarkeits-Prognose — In wie vielen Minuten wird welcher Fahrer frei? */}
       <DispatchPhase811FahrerVerfuegbarkeitsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 813: Tour-Score Live Kompakt — Farbkodierte Score-Ringe für alle aktiven Touren */}
+      <DispatchPhase813TourScoreLiveKompakt batches={batches} drivers={drivers} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

@@ -281,6 +281,7 @@ import { LieferdienstPhase624SchichtKpiCommander } from './phase624-schicht-kpi-
 import { LieferdienstPhase695StatistikenDashboard } from './phase695-statistiken-dashboard';
 import { LieferdienstPhase765SchichtTagesvergleich } from './phase765-schicht-tagesvergleich';
 import { LieferdienstPhase779SchichtStatsCockpit } from './phase779-schicht-stats-cockpit';
+import { LieferdienstPhase813StatistikenKompaktHub } from './phase813-statistiken-kompakt-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1527,6 +1528,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase790AbbruchTrendPanel locationId={locationId ?? null} />
               {/* Phase 795: Statistiken-Live-Cockpit — KPI-Grid + Stunden-Balkendiagramm für Tages-Überblick */}
               <LieferdienstPhase795StatistikenLiveCockpit locationId={locationId ?? null} />
+              {/* Phase 813: Statistiken-Kompakt-Hub — 6-KPI-Kacheln mit Trend-Indikatoren vs. Vortag */}
+              <LieferdienstPhase813StatistikenKompaktHub />
               {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}
               <SchichtFahrerEinnahmenRanking locationId={locationId} />
               {/* Phase 480: Kennzahlen-Hub — Echtzeit-KPIs: Umsatz, Bestellungen, Lieferquote, Fahrer, Stundenverteilung */}

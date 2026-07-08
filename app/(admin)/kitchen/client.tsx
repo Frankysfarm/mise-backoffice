@@ -290,6 +290,7 @@ import { KitchenPhase796KuechenAuslastungsTacho } from './phase796-kuechen-ausla
 import { KitchenPhase801ZubereitungsEngpassAlarm } from './phase801-zubereitungs-engpass-alarm';
 import { KitchenPhase806SmartTimingFarbskala } from './phase806-smart-timing-farbskala';
 import { KitchenPhase810ZubereitungszeitTrend } from './phase810-zubereitungszeit-trend';
+import { KitchenPhase813SmartLiveCountdownBoard } from './phase813-smart-live-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -749,6 +750,8 @@ export function KitchenBoard({
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}
       <KitchenSchichtWochenStats orders={filtered} timings={timings} />
+      {/* Phase 813: Smart Live Countdown Board — Farbkodierter Echtzeit-Countdown je aktiver Bestellung */}
+      <KitchenPhase813SmartLiveCountdownBoard orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}
       <KitchenPhase422PrioritaetsKommando orders={filtered} timings={timings} />
       {/* Phase 425: Fahrer-Pickup-ETA — Echtzeit-Ankunftszeit je aktivem Fahrer für Kochstart-Timing */}

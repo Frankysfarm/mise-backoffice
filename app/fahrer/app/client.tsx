@@ -271,6 +271,7 @@ import { FahrerPhase798EigeneStornoBilanz } from './phase798-eigene-storno-bilan
 import { FahrerPhase803WetterAuswirkungsHinweis } from './phase803-wetter-auswirkungs-hinweis';
 import { FahrerPhase808TourStoppNavigatorUltimate } from './phase808-tour-stopp-navigator-ultimate';
 import { FahrerPhase812TagesVerdienstHochrechnung } from './phase812-tages-verdienst-hochrechnung';
+import { FahrerPhase813TourStopsHub } from './phase813-tour-stops-hub';
 
 type Driver = {
   id: string;
@@ -3516,6 +3517,28 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase808TourStoppNavigatorUltimate locationId={driver.location_id} driverId={driver.id} />
         </div>
+        {/* Phase 813: Tour Stops Hub — Übersicht aller Stopp mit Farbstatus und Navigations-Schnellzugriff */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase813TourStopsHub
+              stops={activeBatch.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                angekommen_am: s.angekommen_am,
+                geliefert_am: s.geliefert_am,
+                order: {
+                  bestellnummer: s.order.bestellnummer,
+                  kunde_name: s.order.kunde_name,
+                  kunde_adresse: s.order.kunde_adresse,
+                  eta_earliest: (s.order as any).eta_earliest ?? null,
+                  eta_latest: (s.order as any).eta_latest ?? null,
+                },
+              }))}
+              driverLat={driverPos?.lat ?? null}
+              driverLng={driverPos?.lng ?? null}
+            />
+          </div>
+        )}
         {/* Phase 812: Tages-Verdienst-Hochrechnung — Aktueller Verdienst + Prognose bis Schichtende */}
         <div className="px-4">
           <FahrerPhase812TagesVerdienstHochrechnung driverId={driver.id} locationId={driver.location_id} />
