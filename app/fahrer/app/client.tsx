@@ -238,6 +238,7 @@ import { FahrerPhase662TourpauseEmpfehlungPro } from './phase662-tourpause-empfe
 import { FahrerPhase667TagesEinnahmenPrognose } from './phase667-tages-einnahmen-prognose';
 import { FahrerPhase672TourQualitaetsScore } from './phase672-tour-qualitaets-score';
 import { FahrerPhase677SchichtAbschlussScreen } from './phase677-schicht-abschluss-screen';
+import { FahrerPhase682WochenZielFortschrittsring } from './phase682-wochenziel-fortschrittsring';
 
 type Driver = {
   id: string;
@@ -3326,6 +3327,12 @@ export function FahrerApp({
         {!isOnline && driver.location_id && (
           <div className="px-4">
             <FahrerPhase677SchichtAbschlussScreen driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 682: Wochenziel-Fortschrittsring — Wöchentliches Lieferziel mit SVG-Fortschrittsring */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase682WochenZielFortschrittsring driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

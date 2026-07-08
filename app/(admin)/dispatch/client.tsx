@@ -293,6 +293,7 @@ import { DispatchPhase661ZoneEffizienzRangliste } from './phase661-zone-effizien
 import { DispatchPhase666BatchRueckkehrPrognose } from './phase666-batch-rueckkehr-prognose';
 import { DispatchPhase671FahrerVerfuegbarkeitsAmpel } from './phase671-fahrer-verfuegbarkeits-ampel';
 import { DispatchPhase676NaechsteTourEmpfehlung } from './phase676-naechste-tour-empfehlung';
+import { DispatchPhase681MultiZonenUeberblick } from './phase681-multi-zonen-ueberblick';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2211,6 +2212,8 @@ export function DispatchBoard({
       <DispatchPhase671FahrerVerfuegbarkeitsAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 676: Optimale-Nächste-Tour-Empfehlung — Welcher Fahrer sollte die nächste Tour übernehmen? */}
       <DispatchPhase676NaechsteTourEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 681: Multi-Zonen-Effizienz-Überblick — Alle aktiven Zonen: Fahrerzahl, offene Touren, ETA-Avg */}
+      <DispatchPhase681MultiZonenUeberblick locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

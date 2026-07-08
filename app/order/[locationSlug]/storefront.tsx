@@ -95,6 +95,7 @@ import { Phase663KuechenVertrauenBadge } from './phase663-kuechen-vertrauen-badg
 import { Phase668BestellStatusAmpel } from './phase668-bestell-status-ampel';
 import { Phase673ZonenLieferzeit } from './phase673-zonen-lieferzeit';
 import { Phase678VorbestellungSlot } from './phase678-vorbestellung-slot';
+import { Phase683LieferQualitaetsVersprechen } from './phase683-liefer-qualitaets-versprechen';
 
 type Props = {
   location: Location;
@@ -1362,6 +1363,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase673ZonenLieferzeit locationId={locationId} />
       {/* Phase 678: Vorbestellungs-Slotauswahl — Lieferzeit 30/60/90 Min im Voraus buchen */}
       <Phase678VorbestellungSlot locationId={locationId} />
+      {/* Phase 683: Liefer-Qualitäts-Versprechen — Ø Bewertung + Pünktlichkeit + Küchenstatus live */}
+      <Phase683LieferQualitaetsVersprechen locationId={locationId} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}
