@@ -107,6 +107,7 @@ import { Phase705LiveLieferstatusEmoji } from './phase705-live-lieferstatus-emoj
 import { Phase710WartezeitIndikator } from './phase710-wartezeit-indikator';
 import { Phase715BestsellerHighlight } from './phase715-bestseller-highlight';
 import { Phase720WarteschlangenAnzeige } from './phase720-warteschlangen-anzeige';
+import { Phase725AktionsBanner } from './phase725-aktions-banner';
 
 type Props = {
   location: Location;
@@ -1381,6 +1382,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           isDelivery={order.isDelivery}
         />
       )}
+      {/* Phase 725: Aktions-Banner — Zeitlich begrenzte Aktion (dismissable, zählt Restzeit) */}
+      <Phase725AktionsBanner locationId={locationId} />
       {/* Phase 715: Bestseller-Highlight — Top-3 Gerichte der letzten 7 Tage mit Rang-Emoji */}
       <Phase715BestsellerHighlight locationId={locationId} />
       {/* Phase 720: Warteschlangen-Anzeige — "X Bestellungen vor dir in der Küche" bei hoher Last */}

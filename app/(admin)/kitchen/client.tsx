@@ -269,6 +269,7 @@ import { KitchenPhase702SpitzenzeitVorbereitungAlert } from './phase702-spitzenz
 import { KitchenPhase707ZubereitungsStauMonitor } from './phase707-zubereitungs-stau-monitor';
 import { KitchenPhase712MenuRotationsEmpfehlung } from './phase712-menu-rotations-empfehlung';
 import { KitchenPhase717BatchCountdownAmpel } from './phase717-batch-countdown-ampel';
+import { KitchenPhase722KuechenEffizienzScore } from './phase722-kuechen-effizienz-score';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2098,6 +2099,8 @@ export function KitchenBoard({
       <KitchenPhase712MenuRotationsEmpfehlung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 717: Batch-Countdown-Ampel — Countdown bis Küchen-Deadline je aktiver Bestellung (5s-Tick) */}
       <KitchenPhase717BatchCountdownAmpel orders={filtered as any} />
+      {/* Phase 722: Küchen-Effizienz-Score — Live-Score Bestellungen/Std vs. Ziel als Ampel-Balken */}
+      <KitchenPhase722KuechenEffizienzScore orders={filtered as any} />
     </div>
   );
 }

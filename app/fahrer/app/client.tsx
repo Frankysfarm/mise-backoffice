@@ -250,6 +250,7 @@ import { FahrerPhase704NaechsteTourVorabInfo } from './phase704-naechste-tour-vo
 import { FahrerPhase709TagesBilanzZusammenfassung } from './phase709-tages-bilanz-zusammenfassung';
 import { FahrerPhase714NaechsterStopCountdown } from './phase714-naechster-stop-countdown';
 import { FahrerPhase719GpsGenauigkeitsWarnung } from './phase719-gps-genauigkeits-warnung';
+import { FahrerPhase724SchichtEndeBestaetigung } from './phase724-schicht-ende-bestaetigung';
 
 type Driver = {
   id: string;
@@ -3409,6 +3410,10 @@ export function FahrerApp({
             <FahrerPhase719GpsGenauigkeitsWarnung isOnline={isOnline} />
           </div>
         )}
+        {/* Phase 724: Schicht-Ende-Bestätigung — Fahrer gibt Km-Stand und bestätigt Schichtende */}
+        <div className="px-4">
+          <FahrerPhase724SchichtEndeBestaetigung driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

@@ -11368,3 +11368,53 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 723 Dispatch:** Bonus-Trigger-Panel — Admin kann berechtigen Fahrern Bonus per Button auszahlen.
 4. **Phase 724 Fahrer-App:** Schicht-Ende-Bestätigung — Fahrer bestätigt Schichtende mit finaler km-Eingabe.
 5. **Phase 725 Storefront:** Aktions-Banner — Zeitlich begrenzte Aktion (z.B. "Bis 20 Uhr: Gratis Lieferung").
+
+---
+
+## Batch 721-725 — 2026-07-08
+
+### Phase 721 — Tages-Zonen-Vergleich-API (Backend)
+**Datei:** `app/api/delivery/admin/tages-zonen-vergleich/route.ts`
+**Logik:** Vergleicht heutige Batches je Zone mit gleicher Wochentag der Vorwoche
+**Metriken:** Umsatz, Bestellungen, Storno-Rate, Trend (besser/gleich/schlechter)
+**Response:** `{ zonen: ZonVergleich[] }` sortiert nach heute_umsatz ↓
+
+### Phase 722 — Küchen-Effizienz-Score (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase722-kuechen-effizienz-score.tsx`
+**Props:** `orders: Order[], zielProStunde?` (default 12)
+**UI:** Horizontaler Effizienz-Balken (grün/amber/rot) + Score%, Bestellungen/Std, Ø Zubereitungszeit
+**Inline-kompaktes Design; 30s-Tick**
+**Integration:** `kitchen/client.tsx` nach Phase 717
+
+### Phase 723 — Bonus-Trigger-Panel (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase723-bonus-trigger-panel.tsx`
+**Props:** `locationId: string | null`
+**UI:** Liste berechtigter Fahrer + "+5 €"-Button pro Fahrer; nach Klick "✓ Ausgezahlt"
+**POST an Phase 716 API; optimistisch ausgezahlt-State; 5-Min Polling**
+**Collapsible (default zu)**
+**Integration:** `dispatch/client.tsx` nach Phase 718
+
+### Phase 724 — Schicht-Ende-Bestätigung (Fahrer-App)
+**Dateien:**
+- `app/fahrer/app/phase724-schicht-ende-bestaetigung.tsx`
+- `app/api/delivery/driver/schicht-ende/route.ts`
+**Props:** `driverId, isOnline, onSchichtEnde?`
+**UI:** Toggelbar; zeigt Tages-Bilanz-Zusammenfassung + km-Ende-Input + roter Confirm-Button
+**API POST:** Setzt driver_shifts.status='completed', speichert km_ende und ended_at
+**Nach Bestätigung: grünes "Schicht beendet" Banner**
+**Integration:** `fahrer/app/client.tsx` nach Phase 719
+
+### Phase 725 — Aktions-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase725-aktions-banner.tsx`
+**Props:** `locationId: string | null`
+**Logik:** Ruft /admin/scheduled?type=aktion auf; erstes nicht-abgelaufenes Aktionselement
+**UI:** Dismissbares Banner mit Farbe (emerald/amber/red/indigo), Titel, Beschreibung, Restzeit-Countdown
+**5-Min Polling; Mock (Gratis-Lieferung) wenn kein locationId**
+**Integration:** `storefront.tsx` vor Phase 715 (Bestseller)
+
+### Nächste Phasen für Ingenieur
+1. **Phase 726 Backend:** Fahrer-Rück­kehr-Prognose-V2 — Verbesserte ETA wann Fahrer an Basis zurück ist (GPS-Distanz + Stoppanzahl).
+2. **Phase 727 Kitchen:** Tages-Menü-Highlights — Admin kann 3 Tages-Empfehlungen setzen; Küchen-Display zeigt diese oben.
+3. **Phase 728 Dispatch:** Tages-Zonen-Vergleich-Panel — Visualisierung der Phase 721 API als Dispatch-Tabelle.
+4. **Phase 729 Fahrer-App:** Fahrten-Chronik — Liste der letzten 10 Touren mit Zeit, km, Einnahmen.
+5. **Phase 730 Storefront:** Liefer-Karte-Vorschau — Zeigt auf Miniaturbild der Google-Maps-Karte die Lieferzone des Kunden.
