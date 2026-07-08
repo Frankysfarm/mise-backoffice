@@ -101,6 +101,7 @@ import { Phase684DynamischeEtaAnzeige } from './phase684-dynamische-eta-anzeige'
 import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commander';
 import { Phase690LieferzeitfensterWaehler } from './phase690-lieferzeitfenster-waehler';
 import { Phase695LiefergebuehrTransparenz } from './phase695-liefergebuehr-transparenz';
+import { Phase700BestellbestaetigungCountdown } from './phase700-bestellbestaetigung-countdown';
 
 type Props = {
   location: Location;
@@ -1358,6 +1359,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       />
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
+      {/* Phase 700: Bestellbestätigungs-Countdown — Animierter Countdown bis Lieferzeit nach Bestellabgabe */}
+      {order.placedAt && order.etaMin && !['delivered', 'cancelled'].includes(order.status ?? '') && (
+        <Phase700BestellbestaetigungCountdown
+          etaMinuten={order.etaMin}
+          bestelltAt={order.placedAt}
+          isDelivery={order.isDelivery}
+        />
+      )}
       {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
       <Phase650KundenbewertungsWidget locationId={locationId} />
       {/* Phase 658: Allergene-Warn-Banner — Allergene aus Warenkorbpositionen klar hervorgehoben */}

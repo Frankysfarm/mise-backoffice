@@ -244,6 +244,7 @@ import { FahrerPhase683TourStoppNavigatorLive } from './phase683-tour-stopp-navi
 import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-cockpit';
 import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
 import { FahrerPhase694WochenEinnahmenCockpit } from './phase694-wochen-einnahmen-cockpit';
+import { FahrerPhase699PauseTimerWidget } from './phase699-pause-timer-widget';
 
 type Driver = {
   id: string;
@@ -3367,6 +3368,13 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase694WochenEinnahmenCockpit driverId={driver.id} />
         </div>
+
+        {/* Phase 699: Pause-Timer-Widget — Pause starten mit 15-Min-Countdown und Überziehs-Alarm */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase699PauseTimerWidget driverId={driver.id} />
+          </div>
+        )}
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

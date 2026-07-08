@@ -263,6 +263,7 @@ import { KitchenPhase684SmartCountdownFarbkodierung } from './phase684-smart-cou
 import { KitchenPhase685PrepStationAuslastungsBoard } from './phase685-prep-station-auslastungs-board';
 import { KitchenPhase687AllergenBonAnzeige } from './phase687-allergen-bon-anzeige';
 import { KitchenPhase692TagesabschlussWidget } from './phase692-tagesabschluss-widget';
+import { KitchenPhase697BestellflussAmpel } from './phase697-bestellfluss-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2080,6 +2081,8 @@ export function KitchenBoard({
       <KitchenPhase687AllergenBonAnzeige orders={filtered as any} />
       {/* Phase 692: Tagesabschluss-Widget — EOD-Übersicht: Umsatz, SLA, Top-Artikel */}
       <KitchenPhase692TagesabschlussWidget locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 697: Bestellfluss-Ampel — Live-Bestellrate (Bestellungen/Std) als Ampel */}
+      <KitchenPhase697BestellflussAmpel orders={filtered as any} />
     </div>
   );
 }
