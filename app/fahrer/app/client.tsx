@@ -234,6 +234,7 @@ import { FahrerPhase639SchichtBilanzVorschau } from './phase639-schicht-bilanz-v
 import { FahrerPhase644NaechsterStopEntfernung } from './phase644-naechster-stop-entfernung';
 import { FahrerPhase648TourStoppLiveKommando } from './phase648-tour-stopp-live-kommando';
 import { FahrerPhase653SchichtStornoWarnung } from './phase653-schicht-storno-warnung';
+import { FahrerPhase662TourpauseEmpfehlungPro } from './phase662-tourpause-empfehlung-pro';
 
 type Driver = {
   id: string;
@@ -3296,6 +3297,13 @@ export function FahrerApp({
         {isOnline && driver.location_id && (
           <div className="px-4">
             <FahrerPhase653SchichtStornoWarnung locationId={driver.location_id} />
+          </div>
+        )}
+
+        {/* Phase 662: Tourpause-Empfehlung-Pro — Smarte Pausenempfehlung mit Hotspot-Tipp */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase662TourpauseEmpfehlungPro driverId={driver.id} />
           </div>
         )}
 

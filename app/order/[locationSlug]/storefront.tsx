@@ -91,6 +91,7 @@ import { Phase640LieferzeitTransparenzWidget } from './phase640-lieferzeit-trans
 import { Phase645BewertungsAufforderungsBanner } from './phase645-bewertungs-aufforderungs-banner';
 import { Phase649LiveLieferzeitIndikator } from './phase649-live-lieferzeit-indikator';
 import { Phase650KundenbewertungsWidget } from './phase650-kundenbewertungs-widget';
+import { Phase663KuechenVertrauenBadge } from './phase663-kuechen-vertrauen-badge';
 
 type Props = {
   location: Location;
@@ -1350,6 +1351,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
       <Phase650KundenbewertungsWidget locationId={locationId} />
+      {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
+      <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}
