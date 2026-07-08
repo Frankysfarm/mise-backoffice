@@ -17326,3 +17326,83 @@ Alle 5 Importe + Render-Calls in Client-Dateien vorhanden und korrekt parametrie
 3. **Phase 627 Dispatch:** Fahrerauslastungs-Heatmap-Jetzt — 24h-Stunden × Fahrer-Matrix.
 4. **Phase 628 Fahrer-App:** Kilometerstand-Tageslog — km je Tour + Gesamtsumme + Vortags-Vergleich.
 5. **Phase 629 Storefront:** Liefer-Qualitäts-Siegel — Gold/Silber/Standard basierend auf 7-Tage SLA-Pünktlichkeit.
+
+
+---
+
+## CEO Review #284 (aktualisiert) — Phase 706–725 geprüft + Bugs gefixt (2026-07-08)
+
+### Neuer Commit-Stand (nach Pull)
+- `fdcd715e` feat(delivery/phases721-725): Zonen-Vergleich, Effizienz-Score, Bonus-Panel, Schicht-Ende, Aktions-Banner
+- `90bbcba7` feat(delivery/phases716-720): Bonus-Trigger, Batch-Ampel, Zonen-Panel, GPS-Warnung, Warteschlange
+- `a719aeab` feat(delivery/phases711-715): Zonen-Rentabilität, Menü-Rotation, Fahrer-Infobox, Stop-Countdown, Bestseller
+
+### TypeScript-Befund und Fixes
+
+**Gefunden: 5 Fehler → alle gefixt → Exit 0** ✅
+
+#### Fix 1: `phase695-statistiken-dashboard.tsx:111-113,154` — implizite `any`-Typen in reduce/filter
+- Parameter `s`, `o` in `.reduce()` und `.filter()` explizit getypt
+- Formatter-Callback: `val: number` → `val: unknown` + `Number(val)` (Recharts Typ-Kompatibilität)
+
+#### Fix 2: `app/api/delivery/driver/schicht-ende/route.ts:40` — `.catch()` auf Supabase-Builder
+- `PostgrestBuilder` hat keine `.catch()`-Methode
+- Fix: `try { await sb.insert(...) } catch { /* ignore */ }`
+
+#### Fix 3: `storefront.tsx:1371-1372` — `number|null` statt `number|undefined`
+- `order.etaMin` und `order.placedAt` sind `number|null` / `string|null`
+- Fix: `?? undefined` hinzugefügt für Phase705-Props
+
+#### Fix 4: `storefront.tsx:1394-1396` — `cart`, `tenantDeliveryFee` außerhalb Scope
+- Phase658 + Phase695 waren in `ActiveOrderProgressPanel` eingebettet
+- Diese Variablen existieren nur in `Storefront`-Scope → Komponenten entfernt
+- Phase658/695 verbleiben im Checkout-Flow (korrekte Position)
+
+#### Fix 5: `storefront.tsx:1398` — `location.id` in `ActiveOrderProgressPanel`
+- `location` nicht in Scope; Prop heißt `locationId`
+- Fix: `location.id` → `locationId`
+
+### Build nach Fixes
+**373 Seiten, Exit 0** ✅
+
+### Integrations-Prüfung Phase 711–725
+| Phase | Modul | Client-Integration |
+|---|---|---|
+| 712 | Kitchen — Menü-Rotations-Empfehlung | `kitchen/client.tsx:2099` ✅ |
+| 717 | Kitchen — Batch-Countdown-Ampel | `kitchen/client.tsx:2101` ✅ |
+| 722 | Kitchen — Küchen-Effizienz-Score | `kitchen/client.tsx:2103` ✅ |
+| 713 | Dispatch — Fahrer-Karte-Infobox | `dispatch/client.tsx:2248` ✅ |
+| 718 | Dispatch — Zonen-Rentabilitäts-Panel | `dispatch/client.tsx:2250` ✅ |
+| 723 | Dispatch — Bonus-Trigger-Panel | `dispatch/client.tsx:2252` ✅ |
+| 714 | Fahrer — Nächster-Stop-Countdown | `fahrer/client.tsx:3404` ✅ |
+| 719 | Fahrer — GPS-Genauigkeits-Warnung | `fahrer/client.tsx:3410` ✅ |
+| 724 | Fahrer — Schicht-Ende-Bestätigung | `fahrer/client.tsx:3415` ✅ |
+| 715 | Storefront — Bestseller-Highlight | `storefront.tsx:1388` ✅ |
+| 720 | Storefront — Warteschlangen-Anzeige | `storefront.tsx:1390` ✅ |
+| 725 | Storefront — Aktions-Banner | `storefront.tsx:1386` ✅ |
+| 711 | Backend — Zonen-Rentabilitäts-API | `app/api/delivery/admin/zonen-rentabilitaet/` ✅ |
+| 716 | Backend — Bonus-Trigger-API | `app/api/delivery/admin/fahrer-bonus-trigger/` ✅ |
+| 721 | Backend — Tages-Zonen-Vergleich-API | `app/api/delivery/admin/tages-zonen-vergleich/` ✅ |
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Status nach Review #284
+- Build: **373 Seiten, Exit Code 0** ✅
+- TypeScript: **0 Fehler (nach 5 Fixes)** ✅
+- Phase 706–725: vollständig geprüft + integriert ✅
+- Bugs gefixt und committed ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 726 Backend:** Echtzeit-Lieferzonen-Heatmap-API — Bestelldichte je Zone in den letzten 2h.
+2. **Phase 727 Kitchen:** Ingredient-Verbrauchs-Alarm — Warnung wenn Zutaten für Top-Gerichte knapp werden.
+3. **Phase 728 Dispatch:** Fahrerkommunikations-Log — Chronologische Notizen/Nachrichten je Fahrer-Schicht.
+4. **Phase 729 Fahrer-App:** Offline-Modus-Indikator — Visueller Hinweis + Retry wenn keine Verbindung.
+5. **Phase 730 Storefront:** Liefergebühr-Rechner-Widget — Dynamische Gebührenberechnung je Adresse (Zone A/B/C).
