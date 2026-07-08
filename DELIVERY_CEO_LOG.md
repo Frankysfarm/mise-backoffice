@@ -1,7 +1,70 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–653 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 373 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–668 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 373 Seiten). Deployment-bereit.
+
+## CEO Review #281 — Phase 664–668 (2026-07-08)
+
+**Befund: 0 TS-Fehler. Build: 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 664–668
+
+#### Phase 664 Backend — Bestellungs-Dringlichkeits-API
+- `app/api/delivery/admin/bestellungs-dringlichkeit/route.ts` ✅
+- Score-Algorithmus korrekt: Zeitdruck (0–50) + Status-Faktor (0–30) + SLA-Überschreitung (0–20)
+- SLA-Grenze 45 Min, Dringlichkeitsstufen niedrig/mittel/hoch/kritisch korrekt ✅
+- Empfehlungstexte vollständig und korrekt deutsch ✅
+
+#### Phase 665 Kitchen — Dringlichkeits-Queue
+- `app/(admin)/kitchen/phase665-dringlichkeits-queue.tsx` ✅
+- Ruft `/api/delivery/admin/bestellungs-dringlichkeit` ab, 30s Polling ✅
+- Farbkodierung (rot/orange/amber/slate) konsistent mit Score ✅
+- Integration in `kitchen/client.tsx:2058` bestätigt ✅
+- Flammen-Icon pulsiert bei kritischen Bestellungen ✅
+
+#### Phase 666 Dispatch — Batch-Rückkehr-Prognose
+- `app/api/delivery/admin/batch-rueckkehr-prognose/route.ts` ✅
+- Prognose-Formel: verbleibende Stopps × min/Stopp-Avg + 5 Min Puffer ✅
+- Fallback-Wert 7 Min/Stopp wenn keine erledigten Stopps vorhanden ✅
+- max(minProStoppAvg, 20) verhindert Extremwerte ✅
+- `app/(admin)/dispatch/phase666-batch-rueckkehr-prognose.tsx` ✅
+- Fortschrittsbalken + Status-Badges (Unterwegs/Kommt bald/Zurück) ✅
+- Integration in `dispatch/client.tsx:2207` bestätigt ✅
+
+#### Phase 667 Fahrer-App — Tages-Einnahmen-Prognose
+- `app/api/delivery/admin/fahrer-einnahmen-tag/route.ts` ✅
+- Liest driver_shifts (aktive Schicht) + mise_delivery_batches (heutige delivered Touren) ✅
+- Schichtdauer korrekt berechnet (now − shift.started_at) ✅
+- `app/fahrer/app/phase667-tages-einnahmen-prognose.tsx` ✅
+- Prognose nur angezeigt wenn Schicht ≥5 Min — korrekte Guard-Logik ✅
+- 120s Polling (sinnvoll für Einnahmen-Daten) ✅
+- Bedingte Einbindung `isOnline && driver.location_id` in `fahrer/app/client.tsx:3314` ✅
+
+#### Phase 668 Storefront — Bestell-Status-Ampel
+- `app/order/[locationSlug]/phase668-bestell-status-ampel.tsx` ✅
+- Nutzt bestehende `kuechen-kapazitaets-warnsignal` API (Phase 610) — korrekte Wiederverwendung ✅
+- API liefert `ok`, `signal` (grün/gelb/rot), `offeneBestellungen`, `prognoseWarteMin` ✅
+- Ampel-Dot mit animate-ping — professionelles Live-Feedback ✅
+- Integration in `storefront.tsx:1358` (ActiveOrderProgressPanel) bestätigt ✅
+- 60s Polling angemessen für Storefront ✅
+
+### System-Synchronisation Phase 664–668
+| System | Status |
+|---|---|
+| Kitchen Dringlichkeits-Queue ↔ Bestellungs-Dringlichkeit-API | ✅ |
+| Dispatch Rückkehr-Prognose ↔ Batch-Rückkehr-Prognose-API | ✅ |
+| Fahrer Einnahmen-Prognose ↔ Fahrer-Einnahmen-Tag-API | ✅ |
+| Storefront Bestell-Ampel ↔ Küchen-Kapazitäts-Warnsignal-API | ✅ |
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+
+### Nächste Phasen (Empfehlung für Backend-Architekt-Agent)
+1. **Phase 669 Backend:** Fahrer-Bewertungs-Aggregation-API — Ø-Sterne, Ø Trinkgeld, Top-Kommentare je Fahrer
+2. **Phase 670 Kitchen:** Multi-Order-Timer — Countdown je aktiver Bestellung, Farbwechsel ab 5 Min
+3. **Phase 671 Dispatch:** Zonen-Kapazitäts-Forecast — Vorhersage der Lieferkapazität für nächste 2h je Zone
+4. **Phase 672 Fahrer-App:** Strecken-Effizienz-Karte — Visualisierung eigener Touren mit km-Score
+5. **Phase 673 Storefront:** Personalisiertsr ETA-Ring — Animierter Ring mit Countdown basierend auf Live-ETA
 
 ## CEO Review #280 — Phase 641–653 + Frontend Phase 654–658 (2026-07-08)
 
