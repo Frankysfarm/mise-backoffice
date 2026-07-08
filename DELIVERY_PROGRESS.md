@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–865 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler. CEO Review #298 ✓.**
+**Phasen 1–870 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler. CEO Review #298 ✓.**
+Backend-Architekt-Agent (2026-07-08): Phasen 866–870 vollständig implementiert + integriert. Phase866 Fahrer-Kosten-Effizienz-API Backend (Kosten/Lieferung + Kosten/km + Ertrag-Kosten-Verhältnis EKV 0–200 je Fahrer, GET /api/delivery/admin/fahrer-kosten-effizienz, multi-tenant) ✅, Phase867 Zutaten-Vorschau-Board Kitchen (Aggregierter Artikel-Bedarf aller aktiven Bestellungen als Balkenranking, rot≥10/amber≥5/grün, client-seitig ohne API, kitchen/client.tsx:800) ✅, Phase868 Einsatz-Effizienz-Ranking Dispatch (Podium-Ranking aller Fahrer heute nach EKV-Score + Stopps/h + Pünktlichkeit + Bewertung, 3-Min-Polling, dispatch/client.tsx:2368) ✅, Phase869 Fahr-Tipps-Coach Fahrer-App (Collapsible mit 3 adaptiven Tipps je Schichtlage: Pause/Zone/Effizienz/Sicherheit, 5-Min-Polling, schicht-briefing API Fallback auf Mock-Pool, fahrer/client.tsx:3669) ✅, Phase870 Küchen-Kapazität-Banner Storefront (Dismissbares amber/rot Banner bei Auslastung ≥70%/≥90%, mit geschätzter Startzeit, kitchen-capacity API, storefront.tsx:1497) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phasen 861–865 vollständig implementiert + integriert. Phase861 ZubereitungszeitTrend Kitchen (Ø Prep-Zeit je Stunde heute, 3-Farb-Ampel grün/amber/rot, Gestern-Vergleich, Trend-Pfeil, 2-Min-Polling, kitchen/client.tsx:797) ✅, Phase862 TourEffizienzKommando Dispatch (Echtzeit-Ranking aller aktiven Touren nach Score 0–100, Fortschrittsbalken, Stopps/Elapsed, client-seitig, dispatch/client.tsx:2360) ✅, Phase863 SchichtStoppStatistik Fahrer-App (3-KPI-Grid Stopps/Ø-Zeit/Effizienz%, Schnellster/Langsamster Stopp, 2-Min-Polling, fahrer/client.tsx:3665) ✅, Phase864 LieferstatusFortschritt Storefront (5-Schritt Progress-Bar Bestellt→Küche→Fertig→Unterwegs→Geliefert, Verbindungslinie, 20s-Polling, storefront.tsx:1493) ✅, Phase865 WochenZielDashboard Lieferdienst (4-KPI Wochenziele Umsatz/Bestellungen/Pünktlichkeit/Lieferzeit, Fortschrittsbalken + Trend, 5-Min-Polling, lieferdienst/client.tsx:1559) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-08): Phasen 856–860 vollständig implementiert + integriert. Phase856 Fahrer-ROI-Score-API Backend (Einnahmen ÷ Lohn+km-Kosten je Fahrerschicht, ROI-Score 0–100, GET /api/delivery/admin/fahrer-roi-score) ✅, Phase857 Bundle-Visualisierung Kitchen (Farbkodierte Batch-Gruppen, Bestellungen die gemeinsam vorbereitet werden, Zonen-Farbkodierung A/B/C/D, client-seitig) ✅, Phase858 Fahrer-Auslastungs-Heatmap Live Dispatch (Live-Balken frei/aktiv/überlastet je Fahrer, 30s-Polling, fahrer-schicht-auslastung API) ✅, Phase859 Navi-ETA-Vergleich Fahrer-App (Mise-ETA vs. Navi-ETA Gegenüberstellung, Abweichung + Grund bei >5 Min, 60s-Polling) ✅, Phase860 Ankunfts-Konfetti Storefront (Canvas-Konfetti-Animation + Erfolgs-Overlay wenn status=geliefert, sessionStorage-Guard) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-08): Phasen 851–855 vollständig implementiert + integriert. Phase851 Tages-Umsatz-Prognose-API Backend (stündliche Hochrechnung mit Wochentag-Vergleich 4 Wochen, Konfidenz-Intervall ±12–25%, Trend-Faktor, eigene API GET /api/delivery/admin/tages-umsatz-prognose) ✅, Phase852 Parallel-Koch-Optimierer Live Kitchen (Erkennt Bestellungen mit gleichen Artikeln, Gruppen-Darstellung, Zeitersparnis-Berechnung, client-seitig ohne API) ✅, Phase853 Touren-Abdeckungs-Karte Dispatch (SVG-Zonenkarte A/B/C/D mit Ellipsen, Farbkodierung ok/busy/überlastet, Touren/Kapazität/Wartezeit je Zone, 60s-Polling) ✅, Phase854 Schicht-Energie-Coach Fahrer-App (Energieanzeige 0–100, adaptive Empfehlungen: Pause/Wasser/kurze-Pause/Bonus-Sprint/Weiter-so, 5-Min-Polling) ✅, Phase855 Liefer-ETA-Vertrauens-Band Storefront (Frühest/Wahrscheinlich/Spätestens Fenster, Konfidenz-Farbe, visuelles Band mit Marker, Pünktlichkeits-Badge) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
@@ -12190,4 +12191,51 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 836 Dispatch:** Fahrer-Rückkehr-Radar — Wann kommt welcher Fahrer zurück? ETA-Liste mit Stopp-Verbleib.
 4. **Phase 837 Fahrer-App:** Schicht-Ziel-Speedometer — SVG-Gauge Touren heute vs. Tagesziel + Hochrechnung ob Ziel erreichbar.
 5. **Phase 838 Storefront:** Bestellstatus-Puls — Pulsierendes Status-Icon + Farbring je Phase (grün=fertig, blau=unterwegs, amber=zubereitung).
+
+---
+
+## Batch 866-870 — 2026-07-08
+
+### Phase 866 — Fahrer-Kosten-Effizienz-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-kosten-effizienz/route.ts`
+**GET:** Kosten/Lieferung + Kosten/km + Ertrag-Kosten-Verhältnis (EKV 0–200) je Fahrer heute
+**Logik:** Lohn 13€/h × aktive Schichtstunden + 0,30€/km × gefahrene km = Gesamtkosten; EKV = Einnahmen÷Kosten×100
+**Response:** `{ fahrer: FahrerKosten[], avg_kosten_pro_lieferung, avg_ekv, generatedAt }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 867 — Zutaten-Vorschau-Board (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase867-zutaten-vorschau-board.tsx`
+**Props:** `orders: Order[], locationId: string | null`
+**UI:** Balkenranking der aggregierten Artikel-Portionen aus allen aktiven Bestellungen; rot≥10/amber≥5/matcha<5; Top-10
+**Client-seitig berechnet; nur sichtbar wenn Bestellungen vorhanden**
+**Integration:** `kitchen/client.tsx` nach Phase 861 ✅
+
+### Phase 868 — Einsatz-Effizienz-Ranking (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase868-einsatz-effizienz-ranking.tsx`
+**Props:** `locationId: string | null`
+**UI:** Podium-Liste mit 🥇🥈🥉 + Stopps/h + Pünktlichkeit% + EKV-Score-Badge grün/amber/rot
+**API:** `/api/delivery/admin/fahrer-kosten-effizienz`, 3-Min-Polling; Fallback auf Mock
+**Integration:** `dispatch/client.tsx` nach Phase 862 ✅
+
+### Phase 869 — Fahr-Tipps-Coach (Fahrer-App)
+**Datei:** `app/fahrer/app/phase869-fahr-tipps-coach.tsx`
+**Props:** `driverId: string, locationId?: string | null`
+**UI:** Collapsible mit 3 adaptiven Tipps; 4 Kategorien: Pause (blau) / Zone (matcha) / Effizienz (amber) / Sicherheit (rot)
+**API:** `/api/delivery/admin/schicht-briefing` Fallback auf vordefinierter Tipp-Pool (8 Tipps)
+**5-Min-Polling; nur sichtbar wenn Tipps vorhanden**
+**Integration:** `fahrer/app/client.tsx` nach Phase 863 ✅
+
+### Phase 870 — Küchen-Kapazität-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase870-kuechen-kapazitaet-banner.tsx`
+**Props:** `locationId: string | null`
+**UI:** Dismissbares Banner amber (≥70%) oder rot (≥90%) mit Auslastungs-% + geschätzter Startzeit bei Vollauslastung
+**API:** `/api/delivery/admin/kitchen-capacity`, 2-Min-Polling; Fallback auf Mock
+**Integration:** `storefront.tsx` nach Phase 864 ✅
+
+### Nächste Phasen 871–875 (für Ingenieur)
+1. **Phase 871 Backend:** Lieferzonen-Erlös-Trend-API — Tages-Erlös je Zone A/B/C/D letzte 7 Tage als Trend-Chart-Daten.
+2. **Phase 872 Kitchen:** Batch-Auslastungs-Ampel — Wie viele gleichzeitige Batches in Zubereitung vs. Küchen-Kapazität?
+3. **Phase 873 Dispatch:** Fahrer-Tages-Protokoll — Chronologische Timeline aller Events je Fahrer heute (Start/Stop/Tour/Pause).
+4. **Phase 874 Fahrer-App:** Touren-Karten-Minimap — SVG-Visualisierung der heutigen Lieferstopps auf vereinfachter Stadtkarte.
+5. **Phase 875 Storefront:** Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker "Bestellung #123 bestätigt" mit Konfetti-Burst.
 
