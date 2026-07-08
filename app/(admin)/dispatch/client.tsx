@@ -286,6 +286,7 @@ import { DispatchPhase629ScoreAnzeigeCockpit } from './phase629-score-anzeige-co
 import { DispatchPhase630TourVisualisierungsPanel } from './phase630-tour-visualisierungs-panel';
 import { DispatchPhase631FahrerKmEffizienzRanking } from './phase631-fahrer-km-effizienz-ranking';
 import { DispatchPhase638FahrerErreichbarkeitsMatrix } from './phase638-fahrer-erreichbarkeits-matrix';
+import { DispatchPhase643ZonenErloeesVergleichPanel } from './phase643-zonen-erloes-vergleich-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2187,6 +2188,8 @@ export function DispatchBoard({
       <DispatchPhase631FahrerKmEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 638: Fahrer-Erreichbarkeits-Matrix — aktiv/pausiert/offline + letzte GPS-Meldung */}
       <DispatchPhase638FahrerErreichbarkeitsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 643: Zonen-Erlös-Vergleich-Panel — Balkendiagramm Einnahmen je Zone heute */}
+      <DispatchPhase643ZonenErloeesVergleichPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

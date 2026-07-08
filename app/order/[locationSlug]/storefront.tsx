@@ -88,6 +88,7 @@ import { Phase630DynamischeEtaAnzeige } from './phase630-dynamische-eta-anzeige'
 import { Phase631LiveTrackingWidget } from './phase631-live-tracking-widget';
 import { Phase632BestellhistorieKurzansicht } from './phase632-bestellhistorie-kurzansicht';
 import { Phase640LieferzeitTransparenzWidget } from './phase640-lieferzeit-transparenz-widget';
+import { Phase645BewertungsAufforderungsBanner } from './phase645-bewertungs-aufforderungs-banner';
 
 type Props = {
   location: Location;
@@ -1347,6 +1348,10 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
+      {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}
+      {order.isDelivery && order.status === 'delivered' && (
+        <Phase645BewertungsAufforderungsBanner locationId={locationId} orderId={order.orderId} />
+      )}
       {/* Phase 640: Lieferzeit-Transparenz-Widget — Erklärt ETA-Berechnung (Küche + Fahrt + Puffer) */}
       {order.isDelivery && (
         <Phase640LieferzeitTransparenzWidget deliveryTimeMin={deliveryTimeMin} />
