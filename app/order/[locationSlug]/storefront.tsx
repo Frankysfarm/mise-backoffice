@@ -118,6 +118,7 @@ import { Phase760BestellverlaufAnzeige } from './phase760-bestellverlauf-anzeige
 import { Phase760BestellFortschrittsTracker } from './phase760-bestell-fortschritts-tracker';
 import { Phase764EtaKonfidenzWidget } from './phase764-eta-konfidenz-widget';
 import { Phase765LieferSchnelligkeitsIndikator } from './phase765-liefer-schnelligkeits-indikator';
+import { Phase769KuechenVertrauenSeal } from './phase769-kuechen-vertrauen-seal';
 
 type Props = {
   location: Location;
@@ -1423,6 +1424,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase764EtaKonfidenzWidget locationId={locationId} />
       {/* Phase 765: Liefer-Schnelligkeits-Indikator — Heute schneller/langsamer als üblich? */}
       {order.isDelivery && <Phase765LieferSchnelligkeitsIndikator locationId={locationId} />}
+      {/* Phase 769: Küchen-Vertrauen-Seal — Animiertes Bewertungs-Siegel mit Ø-Kundenbewertung */}
+      <Phase769KuechenVertrauenSeal locationId={locationId} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

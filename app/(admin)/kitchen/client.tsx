@@ -280,6 +280,7 @@ import { KitchenPhase757ZonenBestellaufkommen } from './phase757-zonen-bestellau
 import { KitchenPhase757WarteschlangenPriorisierung } from './phase757-warteschlangen-priorisierung';
 import { KitchenPhase761SchnellstatusBand } from './phase761-schnellstatus-band';
 import { KitchenPhase762BestellungsKomplexitaetsTacho } from './phase762-bestellungs-komplexitaets-tacho';
+import { KitchenPhase766AllergenenMonitor } from './phase766-allergenen-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2131,6 +2132,8 @@ export function KitchenBoard({
       <KitchenPhase761SchnellstatusBand orders={filtered as any} />
       {/* Phase 762: Küchen-Komplexitäts-Tacho — Score 0-100 basierend auf Artikel-Komplexität × Menge */}
       <KitchenPhase762BestellungsKomplexitaetsTacho orders={filtered as any} />
+      {/* Phase 766: Allergenen-Monitor — Aktive Bestellungen mit bekannten Allergenen in Notizen/Artikeln */}
+      <KitchenPhase766AllergenenMonitor orders={filtered as any} />
     </div>
   );
 }
