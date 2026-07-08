@@ -339,6 +339,7 @@ import { DispatchPhase843ZonenEngpassMonitor } from './phase843-zonen-engpass-mo
 import { DispatchPhase848FahrerEinsatzHeatmap } from './phase848-fahrer-einsatz-heatmap';
 import { DispatchPhase849TourScoreRadar } from './phase849-tour-score-radar';
 import { DispatchPhase853TourenAbdeckungsKarte } from './phase853-touren-abdeckungs-karte';
+import { DispatchPhase858FahrerAuslastungsHeatmapLive } from './phase858-fahrer-auslastungs-heatmap-live';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2352,6 +2353,8 @@ export function DispatchBoard({
       <DispatchPhase849TourScoreRadar locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 853: Touren-Abdeckungs-Karte — SVG-Karte aller Lieferzonen mit Auslastung + Wartezeit-Farbkodierung */}
       <DispatchPhase853TourenAbdeckungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 858: Fahrer-Auslastungs-Heatmap Live — Farbkodierte Live-Balken je Fahrer: frei/aktiv/überlastet, 30s-Polling */}
+      <DispatchPhase858FahrerAuslastungsHeatmapLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

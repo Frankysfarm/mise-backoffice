@@ -139,6 +139,7 @@ import { Phase845NachhaltigkeitsBadge } from './phase845-nachhaltigkeits-badge';
 import { Phase850KuechenTransparenzTimeline } from './phase850-kuechen-transparenz-timeline';
 import { StorefrontPhase851LiveEtaKommando } from './phase851-live-eta-kommando';
 import { Phase855LieferEtaVertrauensBand } from './phase855-liefer-eta-vertrauens-band';
+import { Phase860AnkunftsKonfetti } from './phase860-ankunfts-konfetti';
 
 type Props = {
   location: Location;
@@ -1484,6 +1485,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <StorefrontPhase851LiveEtaKommando orderId={order.orderId ?? null} />
       {/* Phase 855: Liefer-ETA-Vertrauens-Band — Frühestes/Wahrscheinliches/Spätestes Lieferfenster mit Konfidenz + Pünktlichkeitsdaten */}
       <Phase855LieferEtaVertrauensBand orderId={order.orderId ?? null} locationId={locationId} />
+      {/* Phase 860: Ankunfts-Konfetti — Canvas-Konfetti-Animation + Erfolgs-Overlay wenn Lieferung als 'geliefert' markiert wird */}
+      <Phase860AnkunftsKonfetti orderId={order.orderId ?? null} status={order.status ?? null} />
       {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
       <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
