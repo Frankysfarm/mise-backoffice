@@ -262,6 +262,7 @@ import { KitchenPhase680MenuAuslastungsScore } from './phase680-menu-auslastungs
 import { KitchenPhase684SmartCountdownFarbkodierung } from './phase684-smart-countdown-farbkodierung';
 import { KitchenPhase685PrepStationAuslastungsBoard } from './phase685-prep-station-auslastungs-board';
 import { KitchenPhase687AllergenBonAnzeige } from './phase687-allergen-bon-anzeige';
+import { KitchenPhase691SmartTimingCockpit } from './phase691-smart-timing-cockpit';
 import { KitchenPhase692TagesabschlussWidget } from './phase692-tagesabschluss-widget';
 import { KitchenPhase697BestellflussAmpel } from './phase697-bestellfluss-ampel';
 import { KitchenPhase702SpitzenzeitVorbereitungAlert } from './phase702-spitzenzeit-vorbereitung-alert';
@@ -2081,6 +2082,8 @@ export function KitchenBoard({
       <KitchenPhase685PrepStationAuslastungsBoard orders={filtered as any} />
       {/* Phase 687: Allergen-Bon-Anzeige — Allergene aktiver Bestellungen für Küchen-Zubereitung */}
       <KitchenPhase687AllergenBonAnzeige orders={filtered as any} />
+      {/* Phase 691: Smart-Timing-Cockpit — Unified Countdown + Farbkodierung aller aktiven Bestellungen */}
+      <KitchenPhase691SmartTimingCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 692: Tagesabschluss-Widget — EOD-Übersicht: Umsatz, SLA, Top-Artikel */}
       <KitchenPhase692TagesabschlussWidget locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 697: Bestellfluss-Ampel — Live-Bestellrate (Bestellungen/Std) als Ampel */}

@@ -243,6 +243,7 @@ import { FahrerPhase682WochenZielFortschrittsring } from './phase682-wochenziel-
 import { FahrerPhase683TourStoppNavigatorLive } from './phase683-tour-stopp-navigator-live';
 import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-cockpit';
 import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
+import { FahrerPhase693TourStoppNavigator } from './phase693-tour-stopp-navigator';
 import { FahrerPhase694WochenEinnahmenCockpit } from './phase694-wochen-einnahmen-cockpit';
 import { FahrerPhase699PauseTimerWidget } from './phase699-pause-timer-widget';
 import { FahrerPhase704NaechsteTourVorabInfo } from './phase704-naechste-tour-vorab-info';
@@ -3365,6 +3366,13 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase689KmStandFreigabe driverId={driver.id} isOnline={isOnline} />
         </div>
+
+        {/* Phase 693: Tour-Stopp-Navigator — Alle Tour-Stops mit Adressen, ETA und Navigation-Buttons */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase693TourStoppNavigator stops={activeBatch.stops as any} />
+          </div>
+        )}
 
         {/* Phase 694: Wochen-Einnahmen-Cockpit — Aktuelle Woche vs. Vorwoche (Einnahmen, Touren, Trinkgeld) */}
         <div className="px-4">

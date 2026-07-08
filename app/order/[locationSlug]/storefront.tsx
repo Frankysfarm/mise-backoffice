@@ -100,6 +100,7 @@ import { Phase683LieferQualitaetsVersprechen } from './phase683-liefer-qualitaet
 import { Phase684DynamischeEtaAnzeige } from './phase684-dynamische-eta-anzeige';
 import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commander';
 import { Phase690LieferzeitfensterWaehler } from './phase690-lieferzeitfenster-waehler';
+import { StorefrontPhase694LiveEtaTracking } from './phase694-live-eta-tracking';
 import { Phase695LiefergebuehrTransparenz } from './phase695-liefergebuehr-transparenz';
 import { Phase700BestellbestaetigungCountdown } from './phase700-bestellbestaetigung-countdown';
 import { Phase705LiveLieferstatusEmoji } from './phase705-live-lieferstatus-emoji';
@@ -1405,6 +1406,15 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 685: Live-Tracking-Commander — Kompaktes Live-Tracking mit Fahrer-Puls und ETA-Countdown */}
       {order.isDelivery && order.orderId && order.status === 'on_route' && (
         <Phase685LiveTrackingCommander orderId={order.orderId} locationId={locationId} />
+      )}
+      {/* Phase 694: Live-ETA-Tracking — Dynamische ETA-Anzeige mit Countdown-Ring und Bestellphasen-Timeline */}
+      {order.isDelivery && order.orderId && !['storniert', 'cancelled'].includes(order.status ?? '') && (
+        <StorefrontPhase694LiveEtaTracking
+          orderId={order.orderId}
+          status={order.status ?? ''}
+          etaEarliest={order.etaEarliest ?? null}
+          etaLatest={null}
+        />
       )}
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />

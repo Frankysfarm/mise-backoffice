@@ -298,6 +298,7 @@ import { DispatchPhase681MultiZonenUeberblick } from './phase681-multi-zonen-ueb
 import { DispatchPhase684TourScoreLiveAnzeige } from './phase684-tour-score-live-anzeige';
 import { DispatchPhase685TourVisualisierungsBoard } from './phase685-tour-visualisierungs-board';
 import { DispatchPhase688PreisElastizitaetPanel } from './phase688-preis-elastizitaet-panel';
+import { DispatchPhase692TourScoreVisualisierung } from './phase692-tour-score-visualisierung';
 import { DispatchPhase693WochenPerformancePanel } from './phase693-wochen-performance-panel';
 import { DispatchPhase698SchichtBilanzDashboard } from './phase698-schicht-bilanz-dashboard';
 import { DispatchPhase703FahrerAuslastungsScore } from './phase703-fahrer-auslastungs-score';
@@ -2230,6 +2231,8 @@ export function DispatchBoard({
       <DispatchPhase685TourVisualisierungsBoard batches={batches as any} stops={[] as any} drivers={drivers as any} />
       {/* Phase 688: Preis-Elastizitäts-Panel — Zonen-Gebühren-Effizienz basierend auf 30-Tage-Daten */}
       <DispatchPhase688PreisElastizitaetPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 692: Tour-Score-Visualisierung — Score-Balken + Tour-Fortschritts-Timeline je aktiver Tour */}
+      <DispatchPhase692TourScoreVisualisierung batches={batches as any} />
       {/* Phase 693: Wochen-Performance-Panel — Woche vs. Vorwoche: Umsatz/Touren/SLA/Stornos */}
       <DispatchPhase693WochenPerformancePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 698: Schicht-Bilanz-Dashboard — Live-Kosten/Einnahmen/Margin der laufenden Schicht */}
