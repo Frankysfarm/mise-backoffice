@@ -242,6 +242,7 @@ import { FahrerPhase677SchichtAbschlussScreen } from './phase677-schicht-abschlu
 import { FahrerPhase682WochenZielFortschrittsring } from './phase682-wochenziel-fortschrittsring';
 import { FahrerPhase683TourStoppNavigatorLive } from './phase683-tour-stopp-navigator-live';
 import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-cockpit';
+import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
 
 type Driver = {
   id: string;
@@ -3355,6 +3356,11 @@ export function FahrerApp({
             <FahrerPhase684NavigationLiveCockpit driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
+
+        {/* Phase 689: Kilometerstand-Freigabe — Fahrer gibt am Schichtende km-Stand frei */}
+        <div className="px-4">
+          <FahrerPhase689KmStandFreigabe driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

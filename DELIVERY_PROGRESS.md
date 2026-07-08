@@ -10959,3 +10959,72 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 688 Dispatch:** Preis-Elastizitäts-Panel — nutzt Phase654-API für visuellen Zonen-Gebühren-Effizienz-Check.
 4. **Phase 689 Fahrer-App:** Tages-Kilometerstand-Freigabe — Fahrer gibt am Schichtende km-Stand frei.
 5. **Phase 690 Storefront:** Vorbestellung-Zeitfenster-Wähler — Kunde wählt bevorzugtes Lieferzeitfenster.
+
+## Phase 686–690 — Tagesabschluss, Allergen-Bon, Preis-Panel, KM-Freigabe, Zeitfenster-Wähler (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 686 Backend — Tagesabschluss-Bericht-API
+**`app/api/delivery/admin/tagesabschluss-bericht/route.ts`** — `GET /api/delivery/admin/tagesabschluss-bericht`:
+- Parameter: `location_id`
+- Aggregiert heutige Bestellungen: Umsatz, Lieferungen, Abholungen, Stornos, Touren
+- SLA-Pct: Anteil pünktlich gelieferter Bestellungen (completed_at ≤ promised_at)
+- Avg Lieferzeit in Minuten
+- Top-5-Artikel nach Bestellmenge
+- Multi-Tenant: alle Queries filtern auf location_id ✅
+
+### Phase 687 Kitchen — Allergen-Bon-Anzeige
+**`app/(admin)/kitchen/phase687-allergen-bon-anzeige.tsx`** — `KitchenPhase687AllergenBonAnzeige`:
+- Props: `orders: Order[]`
+- Filtert aktive Bestellungen (confirmed/preparing) mit Allergenen in items[]
+- Zeigt je Bestellung: Nummer + Positionen mit deutschen Allergen-Tags
+- Roter Warn-Banner + AlertTriangle Icon
+- Kompakte rote Tag-Chips je Allergen
+- Nur sichtbar wenn Allergen-Bestellungen aktiv
+- Integration: `kitchen/client.tsx` nach Phase685 ✅
+
+### Phase 688 Dispatch — Preis-Elastizitäts-Panel
+**`app/(admin)/dispatch/phase688-preis-elastizitaet-panel.tsx`** — `DispatchPhase688PreisElastizitaetPanel`:
+- Props: `locationId: string | null`
+- Ruft Phase654-API (`/api/delivery/admin/preis-elastizitaet`) ab
+- Tabelle: Zone, Zeitfenster, Ø Gebühr, Konversionsrate, Elastizitäts-Badge
+- Badge: niedrig (grün/TrendingUp) · mittel (amber/Minus) · hoch (rot/TrendingDown)
+- Empfehlungen für "hoch"-Zonen als rote Hinweisboxen
+- Kollabierbar (standardmäßig zugeklappt) · einmalig beim Mount geladen
+- Integration: `dispatch/client.tsx` nach Phase685 ✅
+
+### Phase 689 Fahrer-App — Kilometerstand-Freigabe
+**`app/fahrer/app/phase689-km-stand-freigabe.tsx`** — `FahrerPhase689KmStandFreigabe`:
+- Props: `driverId: string, isOnline: boolean`
+- Zwei Input-Felder: Start-km und Ende-km
+- Berechnet gefahrene Strecke automatisch
+- Persistenz in localStorage (key: `km-stand-freigabe-{driverId}-{datum}`)
+- Submitted-State: grüner Badge mit km-Zusammenfassung
+- Nur sichtbar wenn `isOnline || submitted`
+- Integration: `fahrer/app/client.tsx` nach Phase684 ✅
+
+### Phase 690 Storefront — Lieferzeitfenster-Wähler
+**`app/order/[locationSlug]/phase690-lieferzeitfenster-waehler.tsx`** — `Phase690LieferzeitfensterWaehler`:
+- Props: `deliveryTimeMin?: number, onSelect?: (id: string | null) => void`
+- Interne State-Verwaltung für selectedZeitfenster
+- Generiert verfügbare Zeitfenster ab frühestmöglicher Lieferzeit
+- 7 Slots von 11:00 bis 21:00, 1h-Fenster
+- Nicht-verfügbare Slots gefiltert (vor frühestmöglicher ETA)
+- Ausgewählt: Indigo-Hervorhebung + Ändern/Entfernen-Option
+- Fallback: "Keine Zeitfenster mehr heute" wenn alle abgelaufen
+- Nur gerendert wenn `order.isDelivery`
+- Integration: `storefront.tsx` nach Phase678 ✅
+
+### Integrations-Checkliste Phase 686–690
+- Phase 686 → `/api/delivery/admin/tagesabschluss-bericht` (neuer Backend-Endpoint) ✅
+- Phase 687 → `kitchen/client.tsx` nach Phase685 ✅
+- Phase 688 → `dispatch/client.tsx` nach Phase685 ✅
+- Phase 689 → `fahrer/app/client.tsx` nach Phase684 ✅
+- Phase 690 → `storefront.tsx` nach Phase678, nur wenn `order.isDelivery` ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 691 Backend:** Wochen-Performance-Vergleichs-API — Vergleich aktuelle Woche vs. Vorwoche (Umsatz, Touren, SLA).
+2. **Phase 692 Kitchen:** Tagesabschluss-Zusammenfassung-Widget — Nutzt Phase686-API für Küchen-EOD-Übersicht.
+3. **Phase 693 Dispatch:** Wochen-Performance-Panel — Dispatch-seitige Auswertung Week-on-Week.
+4. **Phase 694 Fahrer-App:** Wochen-Einnahmen-Cockpit — Fahrer sieht Einnahmen aktuelle Woche vs. Vorwoche.
+5. **Phase 695 Storefront:** Liefergebühr-Transparenz — Aufschlüsselung der Liefergebühr (Basis + Zonen-Zuschlag) im Checkout.

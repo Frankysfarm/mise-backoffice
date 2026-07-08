@@ -99,6 +99,7 @@ import { Phase678VorbestellungSlot } from './phase678-vorbestellung-slot';
 import { Phase683LieferQualitaetsVersprechen } from './phase683-liefer-qualitaets-versprechen';
 import { Phase684DynamischeEtaAnzeige } from './phase684-dynamische-eta-anzeige';
 import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commander';
+import { Phase690LieferzeitfensterWaehler } from './phase690-lieferzeitfenster-waehler';
 
 type Props = {
   location: Location;
@@ -1368,6 +1369,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase673ZonenLieferzeit locationId={locationId} />
       {/* Phase 678: Vorbestellungs-Slotauswahl — Lieferzeit 30/60/90 Min im Voraus buchen */}
       <Phase678VorbestellungSlot locationId={locationId} />
+      {/* Phase 690: Lieferzeitfenster-Wähler — Kunde wählt bevorzugtes Lieferzeitfenster */}
+      {order.isDelivery && <Phase690LieferzeitfensterWaehler deliveryTimeMin={deliveryTimeMin} />}
       {/* Phase 683: Liefer-Qualitäts-Versprechen — Ø Bewertung + Pünktlichkeit + Küchenstatus live */}
       <Phase683LieferQualitaetsVersprechen locationId={locationId} />
       {/* Phase 684: Dynamische ETA-Anzeige — Live-ETA mit Konfidenzband und Phasen-Indikator */}

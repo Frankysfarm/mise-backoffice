@@ -261,6 +261,7 @@ import { KitchenPhase675AuslastungsHeatmap } from './phase675-auslastungs-heatma
 import { KitchenPhase680MenuAuslastungsScore } from './phase680-menu-auslastungs-score';
 import { KitchenPhase684SmartCountdownFarbkodierung } from './phase684-smart-countdown-farbkodierung';
 import { KitchenPhase685PrepStationAuslastungsBoard } from './phase685-prep-station-auslastungs-board';
+import { KitchenPhase687AllergenBonAnzeige } from './phase687-allergen-bon-anzeige';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2074,6 +2075,8 @@ export function KitchenBoard({
       <KitchenPhase684SmartCountdownFarbkodierung orders={filtered as any} timings={timings as any} />
       {/* Phase 685: Prep-Station Auslastungs-Board — Farbkodierte Auslastung je Zubereitungsstation */}
       <KitchenPhase685PrepStationAuslastungsBoard orders={filtered as any} />
+      {/* Phase 687: Allergen-Bon-Anzeige — Allergene aktiver Bestellungen für Küchen-Zubereitung */}
+      <KitchenPhase687AllergenBonAnzeige orders={filtered as any} />
     </div>
   );
 }
