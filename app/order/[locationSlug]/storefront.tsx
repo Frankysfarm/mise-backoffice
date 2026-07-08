@@ -131,6 +131,9 @@ import { Phase818KuechenStatusBadge } from './phase818-kuechen-status-badge';
 import { Phase823FahrerProfilCard } from './phase823-fahrer-profil-card';
 import { Phase828LiveBewertungsPrompt } from './phase828-live-bewertungs-prompt';
 import { Phase833LieferzeitCountdown } from './phase833-lieferzeit-countdown';
+import { StorefrontPhase829DynamischeEtaLivePanel } from './phase829-dynamische-eta-live-panel';
+import { StorefrontPhase830LiveTrackingPanel } from './phase830-live-tracking-panel';
+import { StorefrontPhase834LieferstatusTransparenz } from './phase834-lieferstatus-transparenz';
 
 type Props = {
   location: Location;
@@ -1482,9 +1485,34 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 833: Lieferzeit-Countdown — Großer Countdown in Minuten für laufende Lieferung + Echtzeit-Update */}
       <Phase833LieferzeitCountdown
         orderId={order.orderId ?? null}
-        etaEarliest={order.etaEarliest}
+        etaEarliest={order.etaEarliest ?? null}
         status={order.status}
         isDelivery={order.isDelivery}
+      />
+      {/* Phase 829: Dynamische ETA Live-Panel — Große ETA-Zahl + Konfidenz + Phasen-Timeline, 30s Polling */}
+      {order.isDelivery && order.orderId && !['geliefert', 'cancelled'].includes(order.status ?? '') && (
+        <StorefrontPhase829DynamischeEtaLivePanel
+          orderId={order.orderId}
+          bestellnummer={order.bestellnummer}
+          baseEtaMin={(order as any).etaMin ?? null}
+          status={order.status}
+        />
+      )}
+      {/* Phase 830: Live-Tracking-Panel — Fahrer-Status + ETA + Fortschritts-Timeline, 20s Polling */}
+      {order.isDelivery && order.orderId && !['geliefert', 'storniert'].includes(order.status ?? '') && (
+        <StorefrontPhase830LiveTrackingPanel
+          orderId={order.orderId}
+          status={order.status}
+          fahrerName={(order as any).fahrerName ?? null}
+          etaMin={(order as any).etaMin ?? null}
+        />
+      )}
+      {/* Phase 834: Lieferstatus-Transparenz — Aufschlüsselung Küche + Fahrt + Puffer + Pünktlichkeitsrate */}
+      <StorefrontPhase834LieferstatusTransparenz
+        orderId={order.orderId ?? null}
+        locationId={locationId}
+        deliveryTimeMin={deliveryTimeMin}
+        status={order.status}
       />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
