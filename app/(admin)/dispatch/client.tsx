@@ -2363,8 +2363,8 @@ export function DispatchBoard({
       {/* Phase 862: Tour-Effizienz-Kommando — Echtzeit-Effizienz-Ranking aller aktiven Touren mit Score + Stopp-Fortschritt */}
       <DispatchPhase862TourEffizienzKommando
         locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
-        batches={batches.map(b => ({ ...b, stops: (b as any).stops ?? [] }))}
-        drivers={drivers}
+        batches={batches.map(b => ({ ...b, driver_id: b.fahrer_id, started_at: b.startzeit ?? null, stops: (b as any).stops ?? [] }))}
+        drivers={drivers.map(d => ({ id: d.employee_id, vorname: d.employee?.vorname ?? '', nachname: d.employee?.nachname ?? '' }))}
       />
       {/* Phase 868: Einsatz-Effizienz-Ranking — Ranking aller Fahrer heute nach Stopps/h + Pünktlichkeit + Bewertung */}
       <DispatchPhase868EinsatzEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

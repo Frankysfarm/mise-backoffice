@@ -768,7 +768,7 @@ export function KitchenBoard({
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}
       <KitchenSchichtWochenStats orders={filtered} timings={timings} />
       {/* Smart Live Kochstart-Kommando: Kompakte Echtzeit-Kochstart-Zentrale mit Farbkodierung */}
-      <KitchenSmartLiveKochstartKommando orders={filtered} timings={timings} />
+      <KitchenSmartLiveKochstartKommando orders={filtered as any} timings={timings as any} />
       {/* Phase 813: Smart Live Countdown Board — Farbkodierter Echtzeit-Countdown je aktiver Bestellung */}
       <KitchenPhase813SmartLiveCountdownBoard orders={filtered} timings={timings} />
       {/* Phase 815: Batch-Auslastungs-Ampel — Aktive Batches vs. Kapazität, Ampel grün/amber/rot */}
