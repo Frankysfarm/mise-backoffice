@@ -288,6 +288,7 @@ import { FahrerPhase854SchichtEnergieCoach } from './phase854-schicht-energie-co
 import { FahrerPhase859NaviEtaVergleich } from './phase859-navi-eta-vergleich';
 import { FahrerPhase863SchichtStoppStatistik } from './phase863-schicht-stopp-statistik';
 import { FahrerPhase869FahrTippsCoach } from './phase869-fahr-tipps-coach';
+import { TourStoppLiveNavigator } from './tour-stopp-live-navigator';
 
 type Driver = {
   id: string;
@@ -880,6 +881,13 @@ export function FahrerApp({
         <FahrerOfflineSyncBanner />
         {/* Phase 474b: Offline-Sync-Manager — Lokale Queue + Auto-Sync + Retry-Logik */}
         <OfflineSyncManager />
+        {/* Tour-Stopp-Live-Navigator: Kompakter Live-Navigator für aktuellen Stop mit Navi + Anruf */}
+        {activeBatch && (
+          <TourStoppLiveNavigator
+            stops={activeBatch.stops as any}
+            currentStopIndex={activeBatch.stops.findIndex((s: any) => !s.geliefert_am)}
+          />
+        )}
         {/* Tour-Nav-Fokus-Karte: Übersichtliche Navigations-Karte mit Nächstem Stopp, Distanz und 1-Tap Links */}
         {activeBatch && (
           <TourNavFokusKarte

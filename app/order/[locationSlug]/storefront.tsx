@@ -142,6 +142,7 @@ import { Phase855LieferEtaVertrauensBand } from './phase855-liefer-eta-vertrauen
 import { Phase860AnkunftsKonfetti } from './phase860-ankunfts-konfetti';
 import { Phase864LieferstatusFortschritt } from './phase864-lieferstatus-fortschritt';
 import { Phase870KuechenKapazitaetBanner } from './phase870-kuechen-kapazitaet-banner';
+import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 
 type Props = {
   location: Location;
@@ -902,6 +903,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <WarteschlangenIndikator locationId={location.id} orderType="lieferung" />
+        </div>
+      )}
+      {/* Bestellungs-ETA-Vorschau-Band — Live-ETA-Schätzung vor Bestellaufgabe mit Surge-Indikator */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <BestellungsEtaVorschauBand locationId={location.id} deliveryTimeMin={deliveryTimeMin ?? 30} />
         </div>
       )}
       {/* Phase 311: Aktuelle Lieferzeit-Widget — Live-ETA + Fahreranzahl vom Health-API */}

@@ -307,6 +307,7 @@ import { KitchenPhase857BundleVisualisierung } from './phase857-bundle-visualisi
 import { KitchenPhase861ZubereitungszeitTrend } from './phase861-zubereitungszeit-trend';
 import { KitchenPhase867ZutatenVorschauBoard } from './phase867-zutaten-vorschau-board';
 import { KitchenPrepCountdownAmpel } from './prep-countdown-ampel';
+import { KitchenSmartLiveKochstartKommando } from './smart-live-kochstart-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -766,6 +767,8 @@ export function KitchenBoard({
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}
       <KitchenSchichtWochenStats orders={filtered} timings={timings} />
+      {/* Smart Live Kochstart-Kommando: Kompakte Echtzeit-Kochstart-Zentrale mit Farbkodierung */}
+      <KitchenSmartLiveKochstartKommando orders={filtered} timings={timings} />
       {/* Phase 813: Smart Live Countdown Board — Farbkodierter Echtzeit-Countdown je aktiver Bestellung */}
       <KitchenPhase813SmartLiveCountdownBoard orders={filtered} timings={timings} />
       {/* Phase 815: Batch-Auslastungs-Ampel — Aktive Batches vs. Kapazität, Ampel grün/amber/rot */}

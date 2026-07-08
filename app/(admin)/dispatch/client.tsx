@@ -368,6 +368,7 @@ import { DispatchPhase580ZoneDemandHeatmap } from './phase580-zone-demand-heatma
 import { DispatchPhase585FahrerLastBalance } from './phase585-fahrer-last-balance';
 import { DispatchZoneBundleScore } from './zone-bundle-score';
 import { DispatchTourScoreDistribution } from './tour-score-distribution';
+import { DispatchTourScoreLiveHub } from './tour-score-live-hub';
 
 type Driver = {
   employee_id: string;
@@ -1162,6 +1163,8 @@ export function DispatchBoard({
         batches={batches}
         readyOrders={readyOrders}
       />
+      {/* Tour-Score-Live-Hub: Echtzeit-Score-Cockpit aller aktiven Touren mit SVG-Arcs */}
+      <DispatchTourScoreLiveHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

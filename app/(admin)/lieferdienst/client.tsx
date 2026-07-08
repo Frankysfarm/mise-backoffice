@@ -291,6 +291,7 @@ import { LieferdienstPhase836StornoGrundAnalysePanel } from './phase836-storno-g
 import { LieferdienstPhase846ProduktivitaetsBenchmark } from './phase846-produktivitaets-benchmark';
 import { LieferdienstPhase847StatistikExecutive } from './phase847-statistik-executive';
 import { LieferdienstPhase865WochenZielDashboard } from './phase865-wochenziel-dashboard';
+import { TagesStatsExecutive } from './tages-stats-executive';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1529,6 +1530,8 @@ export function LieferdienstClient() {
               <SchichtLiveBilanz />
               {/* Live-Metriken-Leiste — Kompakte KPI-Kacheln: Lieferungen, Umsatz, Ø-Zeit, Pünktlichkeit, Fahrer */}
               <LieferdienstLiveMetrikenLeiste locationId={locationId} />
+              {/* Tages-Stats-Executive — Kompaktes Executive-Dashboard mit 6 KPIs + Stunden-Balkendiagramm */}
+              {locationId && <TagesStatsExecutive locationId={locationId} />}
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Statistik Live-Hub: Aggregierte KPIs (Bestellungen, Umsatz, ETA, Fahrer, Storno, Bewertung) + Stundenverlauf-Chart */}
