@@ -140,6 +140,7 @@ import { Phase850KuechenTransparenzTimeline } from './phase850-kuechen-transpare
 import { StorefrontPhase851LiveEtaKommando } from './phase851-live-eta-kommando';
 import { Phase855LieferEtaVertrauensBand } from './phase855-liefer-eta-vertrauens-band';
 import { Phase860AnkunftsKonfetti } from './phase860-ankunfts-konfetti';
+import { Phase864LieferstatusFortschritt } from './phase864-lieferstatus-fortschritt';
 
 type Props = {
   location: Location;
@@ -1485,8 +1486,12 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <StorefrontPhase851LiveEtaKommando orderId={order.orderId ?? null} />
       {/* Phase 855: Liefer-ETA-Vertrauens-Band — Frühestes/Wahrscheinliches/Spätestes Lieferfenster mit Konfidenz + Pünktlichkeitsdaten */}
       <Phase855LieferEtaVertrauensBand orderId={order.orderId ?? null} locationId={locationId} />
-      {/* Phase 860: Ankunfts-Konfetti — Canvas-Konfetti-Animation + Erfolgs-Overlay wenn Lieferung als 'geliefert' markiert wird */}
+      {/* Phase 860: Ankunfts-Konfetti — Canvas-Konfetti + Overlay-Banner bei status=geliefert */}
       <Phase860AnkunftsKonfetti orderId={order.orderId ?? null} status={order.status ?? null} />
+      {/* Phase 864: Lieferstatus-Fortschrittsleiste — Visuelle Schritte Bestellt→Küche→Fertig→Unterwegs→Geliefert mit Echtzeit-Update */}
+      {order.isDelivery && (
+        <Phase864LieferstatusFortschritt orderId={order.orderId ?? null} currentStatus={order.status ?? null} />
+      )}
       {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
       <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}

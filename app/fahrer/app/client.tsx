@@ -286,6 +286,7 @@ import { FahrerPhase849StreckenEffizienzFeedback } from './phase849-strecken-eff
 import { FahrerPhase850TourStoppNavPro } from './phase850-tour-stopp-nav-pro';
 import { FahrerPhase854SchichtEnergieCoach } from './phase854-schicht-energie-coach';
 import { FahrerPhase859NaviEtaVergleich } from './phase859-navi-eta-vergleich';
+import { FahrerPhase863SchichtStoppStatistik } from './phase863-schicht-stopp-statistik';
 
 type Driver = {
   id: string;
@@ -3656,10 +3657,12 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase854SchichtEnergieCoach driverId={driver.id} isOnline={isOnline} />
         </div>
-        {/* Phase 859: Navi-ETA-Vergleich — Vergleicht Mise-ETA vs. Navi-ETA, zeigt Abweichung + Grund bei >5 Min Differenz */}
-        <div className="px-4">
-          <FahrerPhase859NaviEtaVergleich driverId={driver.id} isOnline={isOnline} />
-        </div>
+
+        {/* Phase 859: Navi-ETA-Vergleich — Mise-ETA vs. Navi-ETA, Delta bei >5 Min Abweichung */}
+        <FahrerPhase859NaviEtaVergleich driverId={driver.id} isOnline={isOnline} />
+
+        {/* Phase 863: Schicht-Stopp-Statistik — Stopp-Anzahl, Ø-Zeit/Stopp, Effizienz-Balken heute */}
+        <FahrerPhase863SchichtStoppStatistik driverId={driver.id} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
