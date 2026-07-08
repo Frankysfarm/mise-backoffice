@@ -753,7 +753,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Aktive Bestellung — wiederkehrender Kunde sieht Live-Status-Banner */}
       <ActiveOrderBanner locationId={location.id} />
       {/* Phase 205: Fortschritt-Band — visueller Status-Progress mit Countdown */}
-      <ActiveOrderProgressPanel locationId={location.id} />
+      <ActiveOrderProgressPanel locationId={location.id} deliveryTimeMin={deliveryTimeMin} />
 
       {/* Phase 582: Küchenstatus-Live-Badge — Signalisiert Küchenstatus für Kunden */}
       {orderType === 'lieferung' && (
@@ -1308,7 +1308,7 @@ function SharedTrackingBanner() {
 
 /* ------------------------------ ActiveOrderProgressPanel ------------------------------ */
 
-function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
+function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locationId: string; deliveryTimeMin?: number }) {
   const [order, setOrder] = React.useState<{ orderId: string; bestellnummer?: string; status: string; etaEarliest: string | null; isDelivery: boolean; placedAt: string | null; etaMin: number | null } | null>(null);
 
   React.useEffect(() => {
@@ -1346,7 +1346,7 @@ function ActiveOrderProgressPanel({ locationId }: { locationId: string }) {
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
-      <Phase632BestellhistorieKurzansicht locationId={location.id} />
+      <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 640: Lieferzeit-Transparenz-Widget — Erklärt ETA-Berechnung (Küche + Fahrt + Puffer) */}
       {order.isDelivery && (
         <Phase640LieferzeitTransparenzWidget deliveryTimeMin={deliveryTimeMin} />

@@ -140,7 +140,7 @@ export function DispatchPhase638FahrerErreichbarkeitsMatrix({ locationId }: Prop
           })}
         </div>
       )}
-      {/* Hinweis: API /api/delivery/admin/fahrer-erreichbarkeit noch nicht vorhanden → Mock-Daten */}
+      {/* API /api/delivery/admin/fahrer-erreichbarkeit vorhanden seit Phase 426 */}
     </div>
   );
 }

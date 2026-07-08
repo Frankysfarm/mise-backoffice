@@ -1,7 +1,89 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–629 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0, 372 Seiten). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–640 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (Exit 0). Deployment-bereit.
+
+## CEO Review #279 — Phase 631–640 (2026-07-08)
+
+**Befund: 2 TS-Fehler gefixt. Build: Exit 0. TypeScript 0 Fehler. ✅**
+
+### Geprüfte Komponenten Phase 631–640
+
+#### Phase 631 Backend — Schicht-Profitabilitäts-API
+- `app/api/delivery/admin/schicht-profitabilitaet/route.ts` ✅
+- Korrekte Kostenrechnung: lieferlohn (€/km × Rate), kosten (Kraftstoff), marge (einnahmen − kosten) ✅
+- Alle aktiven Schichten, nur heutige Batches — Logik korrekt ✅
+
+#### Phase 631 Kitchen — Bestellungs-Herkunfts-Mix
+- `kitchen/phase631-bestellungs-herkunfts-mix.tsx` ✅
+- SVG-Donut-Chart mit korrekten strokeDashoffset-Berechnungen ✅
+- Klassifizierung delivery/pickup/vor_ort korrekt und vollständig ✅
+- Integration in kitchen/client.tsx bestätigt ✅
+
+#### Phase 631 Dispatch — Fahrer-km-Effizienz-Ranking
+- `dispatch/phase631-fahrer-km-effizienz-ranking.tsx` ✅
+- Mock-Daten korrekt, API-Fallback vorhanden ✅
+- Integration in dispatch/client.tsx bestätigt ✅
+
+#### Phase 631 Fahrer-App — Tour-Nachbereitung-Dialog
+- `fahrer/app/phase631-tour-nachbereitung-dialog.tsx` ✅
+- Integration in fahrer/app/client.tsx bestätigt ✅
+
+#### Phase 636 Backend — Zonen-Erlös-Vergleichs-API
+- `app/api/delivery/admin/zonen-erloes-vergleich/route.ts` ✅
+- Aggregation je Zone: liefergebühr + trinkgeld, erlös/Lieferung ✅
+- Nur heutige delivered batches, Sort nach erlös_pro_lieferung ✅
+
+#### Phase 637 Kitchen — Tages-Storno-Übersicht
+- `kitchen/phase637-tages-storno-uebersicht.tsx` ✅
+- Filtert cancelled/storniert/canceled, nutzt cancelled_at ?? created_at ✅
+- Collapsible UI, alle deutschen Storno-Gründe übersetzt ✅
+- Integration in kitchen/client.tsx bestätigt ✅
+
+#### Phase 638 Dispatch — Fahrer-Erreichbarkeits-Matrix
+- `dispatch/phase638-fahrer-erreichbarkeits-matrix.tsx` ✅
+- Nutzt `/api/delivery/admin/fahrer-erreichbarkeit` (existiert seit Phase 426) ✅
+- Irreführenden Kommentar korrigiert ✅
+- Integration in dispatch/client.tsx bestätigt ✅
+
+#### Phase 639 Fahrer-App — Schicht-Bilanz-Vorschau
+- `fahrer/app/phase639-schicht-bilanz-vorschau.tsx` ✅
+- Hochrechnung auf Schichtende nur nach ≥5 Min Laufzeit — korrekte Logik ✅
+- Prognose-Fortschrittsbalken korrekt ✅
+- Integration in fahrer/app/client.tsx bestätigt ✅
+
+#### Phase 640 Storefront — Lieferzeit-Transparenz-Widget
+- `order/[locationSlug]/phase640-lieferzeit-transparenz-widget.tsx` ✅
+- Aufschlüsselung: 45% Küche + 40% Fahrt + Rest Puffer (korrekte Proportionen) ✅
+- Collapsible, SVG-Balken-Visualisierung, dark mode ✅
+- Integration in storefront.tsx (ActiveOrderProgressPanel) bestätigt ✅
+
+### Bugs gefixt (2 TS-Fehler)
+
+1. **storefront.tsx (Zeile 1349)** — `location.id` in `ActiveOrderProgressPanel` verwies auf `window.location` (kein `.id`). Fixed: ersetzt durch `locationId` (die korrekte Prop der inneren Funktion).
+
+2. **storefront.tsx (Zeile 1352)** — `deliveryTimeMin` nicht im Scope von `ActiveOrderProgressPanel`. Fixed: Prop `deliveryTimeMin?: number = 35` zu `ActiveOrderProgressPanel` hinzugefügt + Callsite aktualisiert.
+
+### Integrations-Checkliste Phase 631–640
+- Phase 631/637 → kitchen/client.tsx ✅
+- Phase 631/638 → dispatch/client.tsx ✅
+- Phase 631/639 → fahrer/app/client.tsx ✅
+- Phase 636/640 → order/[locationSlug]/storefront.tsx ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Nächste Phasen für Ingenieur
+1. **Phase 641 Backend:** Echtzeit-SLA-Tracking-API — Live-Abweichung zwischen versprochener und tatsächlicher Lieferzeit je Fahrer/Zone.
+2. **Phase 642 Kitchen:** Rüstzeit-Varianz-Monitor — Zeigt Schwankungen in der Vorbereitungszeit je Gericht als Heatmap.
+3. **Phase 643 Dispatch:** Auto-Rebalancing-Vorschlag — KI-basierter Vorschlag wenn Zonen-Ungleichgewicht erkannt.
+4. **Phase 644 Fahrer-App:** Eco-Score Widget — CO₂-Effizienz pro Tour basierend auf Fahrzeugtyp + km.
+5. **Phase 645 Storefront:** Trinkgeld-Empfehlungs-UI — 10%/15%/20% Buttons mit Fahrer-Profil-Snippet.
 
 ## CEO Review #278 — Phase 625–629 (2026-07-08)
 
