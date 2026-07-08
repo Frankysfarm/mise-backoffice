@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
   const fahrerMap = new Map<string, { name: string; ratings: number[]; tage: Map<string, number[]> }>();
 
   for (const f of feedbacks ?? []) {
-    const emp = f.employees as { vorname: string; nachname: string } | null;
+    const emps = f.employees as unknown as { vorname: string; nachname: string }[] | null;
+    const emp = Array.isArray(emps) ? emps[0] ?? null : null;
     const name = emp ? `${emp.vorname} ${emp.nachname}` : 'Unbekannt';
     const dayStr = (f.created_at as string).slice(0, 10);
     const rating = Number(f.rating);
