@@ -308,6 +308,7 @@ import { DispatchPhase718ZonenRentabilitaetsPanel } from './phase718-zonen-renta
 import { DispatchPhase723BonusTriggerPanel } from './phase723-bonus-trigger-panel';
 import { DispatchPhase728TagesZonenVergleichPanel } from './phase728-tages-zonen-vergleich-panel';
 import { DispatchPhase733FahrerRueckkehrPrognosePanel } from './phase733-fahrer-rueckkehr-prognose-panel';
+import { DispatchPhase738FahrerPauseEmpfehlung } from './phase738-fahrer-pause-empfehlung';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2256,6 +2257,8 @@ export function DispatchBoard({
       <DispatchPhase728TagesZonenVergleichPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 733: Fahrer-Rückkehr-Prognose-Panel — ETA aller aktiven Fahrer via Haversine-GPS */}
       <DispatchPhase733FahrerRueckkehrPrognosePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 738: Fahrer-Pause-Empfehlung — Hinweis bei Fahrern ohne Pause seit >2h */}
+      <DispatchPhase738FahrerPauseEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

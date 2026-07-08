@@ -272,6 +272,7 @@ import { KitchenPhase717BatchCountdownAmpel } from './phase717-batch-countdown-a
 import { KitchenPhase722KuechenEffizienzScore } from './phase722-kuechen-effizienz-score';
 import { KitchenPhase727TagesMenuHighlights } from './phase727-tages-menu-highlights';
 import { KitchenPhase732KundenFeedbackLive } from './phase732-kunden-feedback-live';
+import { KitchenPhase737StoppEffizienzMonitor } from './phase737-stopp-effizienz-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2107,6 +2108,8 @@ export function KitchenBoard({
       <KitchenPhase727TagesMenuHighlights locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 732: Kunden-Feedback Live — Letzte Kundenbewertungen mit Sternzahl und Kommentar */}
       <KitchenPhase732KundenFeedbackLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 737: Stopp-Effizienz-Monitor — Items/Min + Ø-Prep-Zeit + aktive/wartende Bestellungen */}
+      <KitchenPhase737StoppEffizienzMonitor orders={filtered as any} />
     </div>
   );
 }

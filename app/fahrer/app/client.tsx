@@ -253,6 +253,7 @@ import { FahrerPhase719GpsGenauigkeitsWarnung } from './phase719-gps-genauigkeit
 import { FahrerPhase724SchichtEndeBestaetigung } from './phase724-schicht-ende-bestaetigung';
 import { FahrerPhase729FahrtenChronik } from './phase729-fahrten-chronik';
 import { FahrerPhase734StreakAnzeige } from './phase734-streak-anzeige';
+import { FahrerPhase739TrinkgeldRangliste } from './phase739-trinkgeld-rangliste';
 
 type Driver = {
   id: string;
@@ -3423,6 +3424,10 @@ export function FahrerApp({
         {/* Phase 734: Streak-Anzeige — Aufeinanderfolgende Tage + Touren-Meilensteine */}
         <div className="px-4">
           <FahrerPhase734StreakAnzeige driverId={driver.id} />
+        </div>
+        {/* Phase 739: Trinkgeld-Rangliste — Top-Fahrer nach Trinkgeld heute */}
+        <div className="px-4">
+          <FahrerPhase739TrinkgeldRangliste driverId={driver.id} locationId={driver.location_id} />
         </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
