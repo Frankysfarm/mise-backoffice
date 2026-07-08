@@ -313,6 +313,7 @@ import { DispatchPhase569TourStoppSequenzLive } from './phase569-tour-stopp-sequ
 import { DispatchPhase574FahrerRueckkehrOptimierung } from './phase574-fahrer-rueckkehr-optimierung';
 import { DispatchPhase580ZoneDemandHeatmap } from './phase580-zone-demand-heatmap';
 import { DispatchPhase585FahrerLastBalance } from './phase585-fahrer-last-balance';
+import { DispatchZoneBundleScore } from './zone-bundle-score';
 
 type Driver = {
   employee_id: string;
@@ -1270,6 +1271,8 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Zonen-Bundle-Score — Empfehlung: welche Bestellungen lohnt sich zusammen zu bündeln */}
+      <DispatchZoneBundleScore orders={readyOrders} />
       {/* Tour-Score-Karte: horizontale Score-Kacheln — Stop-Dots + Arc-Gauge + ETA-Countdown */}
       <DispatchTourScoreKarte
         batches={batches as any}

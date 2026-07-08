@@ -57,6 +57,7 @@ import { BestellungAktivitaetsTimeline } from '../bestellung-aktivitaets-timelin
 import { BestellPhaseCountdown } from './bestell-phase-countdown';
 import { LieferStageLiveTracker } from './liefer-stage-live-tracker';
 import { BestellEtaLiveLeiste } from '../bestell-eta-live-leiste';
+import { BestellungEchtzeitPfad } from '../bestell-echtzeit-pfad';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -856,6 +857,16 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
           </div>
         )}
 
+        {/* Echtzeit-Pfad — Animierter Fortschritts-Pfad durch Bestell-Phasen mit Live-Countdown */}
+        {isDelivery && orderId && (
+          <div className="mt-4 w-full">
+            <BestellungEchtzeitPfad
+              orderId={orderId}
+              initialStatus={liveStatus}
+              initialEtaMin={etaMinutes}
+            />
+          </div>
+        )}
         {/* Phase 378: ETA-Progress — 5-Schritt-Fortschrittsanzeige mit Live-Countdown */}
         {isDelivery && (
           <div className="mt-4 w-full">

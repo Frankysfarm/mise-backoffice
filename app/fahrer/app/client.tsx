@@ -205,6 +205,7 @@ import { TourStopKommando } from './tour-stop-kommando';
 import { FahrerTrinkgeldPrognose } from './fahrer-trinkgeld-prognose';
 import { TourLiveSchrittCockpit } from './tour-live-schritt-cockpit';
 import { TourStoppSofortKommando } from './tour-stopp-sofort-kommando';
+import { TourNavFokusKarte } from './tour-nav-fokus-karte';
 import { FahrerPhase500NaechsterStoppNav } from './phase500-naechster-stopp-nav';
 import { FahrerPhase501LiveVerdienst } from './phase501-live-verdienst';
 import { FahrerPhase502TourStoppNavigator } from './phase502-tour-stopp-navigator';
@@ -825,6 +826,15 @@ export function FahrerApp({
         <FahrerOfflineSyncBanner />
         {/* Phase 474b: Offline-Sync-Manager — Lokale Queue + Auto-Sync + Retry-Logik */}
         <OfflineSyncManager />
+        {/* Tour-Nav-Fokus-Karte: Übersichtliche Navigations-Karte mit Nächstem Stopp, Distanz und 1-Tap Links */}
+        {activeBatch && (
+          <TourNavFokusKarte
+            stops={activeBatch.stops as any}
+            driverLat={driverPos?.lat ?? null}
+            driverLng={driverPos?.lng ?? null}
+            batchStartedAt={activeBatch.started_at}
+          />
+        )}
         {/* Tour-Stopp-Sofort-Kommando: Fokus-Karte für den aktuellen Stopp mit 1-Tap Navigation und Anruf */}
         {activeBatch && (
           <TourStoppSofortKommando batch={activeBatch} />

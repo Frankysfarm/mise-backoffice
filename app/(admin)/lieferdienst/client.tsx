@@ -73,6 +73,7 @@ import { SchichtEchtzeitKPI } from './schicht-echtzeit-kpi'
 import { NachfragePrognoseMini } from './nachfrage-prognose-mini'
 import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
+import { LieferdienstLiveMetrikenLeiste } from './live-metriken-leiste'
 import { SchichtEchtzeitKpiHub } from './schicht-echtzeit-kpi-hub'
 import { LieferdienstWochenKpiVergleich } from './wochen-kpi-vergleich'
 import { SchichtPunktlichkeitsRing } from './schicht-punktlichkeits-ring'
@@ -1508,6 +1509,8 @@ export function LieferdienstClient() {
               <ZoneLiveHeatmapPanel locationId={locationId ?? null} />
               {/* Schicht-Live-Bilanz — Kompaktes Echtzeit-KPI-Cockpit (Umsatz, SLA, Fahrer, Lieferzeit) */}
               <SchichtLiveBilanz />
+              {/* Live-Metriken-Leiste — Kompakte KPI-Kacheln: Lieferungen, Umsatz, Ø-Zeit, Pünktlichkeit, Fahrer */}
+              <LieferdienstLiveMetrikenLeiste locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}

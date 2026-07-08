@@ -117,6 +117,7 @@ import { KitchenKochstartOptimierScore } from './kochstart-optimier-score';
 import { KitchenSchichtSofortCockpit } from './schicht-sofort-cockpit';
 import { KitchenSmartTimingDashboard } from './smart-timing-dashboard';
 import { KitchenZonenKochstartSynchro } from './zonen-kochstart-synchro';
+import { KitchenPrepFlussRace } from './prep-fluss-race';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -858,6 +859,8 @@ export function KitchenBoard({
       <KitchenZonenKochstartSynchro orders={filtered} timings={timings} />
       {/* Phase 442: Rush-Hour-Heatmap — 7×17h Bestellfrequenz-Matrix (Wochentag × Stunde) aus 30-Tage-Basis */}
       <KitchenRushHourHeatmap locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Prep-Fluss-Race — Rennbalken-Ansicht: aktive Bestellungen nach Dringlichkeit sortiert mit Live-Countdown */}
+      <KitchenPrepFlussRace orders={filtered} timings={timings} />
       {/* Phase 339: Smart-Timing-Dashboard — Alle aktiven Bestellungen mit Countdown-Ringen, Farbkodierung und Urgency-Sortierung */}
       <KitchenSmartTimingDashboard orders={filtered} timings={timings} />
       {/* Phase 340: Stations-Board — Aktive Bestellungen nach Prep-Station (Heiß/Kalt/Getränke/Verpackung) mit Countdown */}
