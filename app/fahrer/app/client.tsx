@@ -278,6 +278,7 @@ import { FahrerPhase827TagesEinnahmenBreakdown } from './phase827-tages-einnahme
 import { FahrerPhase828TourStoppNavigatorHub } from './phase828-tour-stopp-navigator-hub';
 import { FahrerPhase829NavigationLiveCockpit } from './phase829-navigation-live-cockpit';
 import { FahrerPhase832KundenzufriedenheitsTrend } from './phase832-kundenzufriedenheits-trend';
+import { FahrerPhase833TourEffizienzLive } from './phase833-tour-effizienz-live';
 
 type Driver = {
   id: string;
@@ -3607,6 +3608,11 @@ export function FahrerApp({
             </div>
           );
         })()}
+
+        {/* Phase 833: Tour-Effizienz Live — Echtzeit-Score: Stopps/h, km/Stopp, Trinkgeld-Rate, Vergleich Vortag */}
+        <div className="px-4">
+          <FahrerPhase833TourEffizienzLive driverId={driver.id} locationId={driver.location_id ?? null} />
+        </div>
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (
