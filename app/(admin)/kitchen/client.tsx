@@ -254,6 +254,7 @@ import { KitchenPhase642SchichtTempoAmpel } from './phase642-schicht-tempo-ampel
 import { KitchenPhase646SmartZubereitungsZeitwacher } from './phase646-smart-zubereitungs-zeitwacher';
 import { KitchenPhase651TagesAuslastungsPrognose } from './phase651-tages-auslastungs-prognose';
 import { KitchenPhase660PrepRueckstandAlert } from './phase660-prep-rueckstand-alert';
+import { KitchenPhase665DringlichkeitsQueue } from './phase665-dringlichkeits-queue';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2053,6 +2054,8 @@ export function KitchenBoard({
       <KitchenPhase651TagesAuslastungsPrognose orders={filtered as any} />
       {/* Phase 660: Prep-Rückstand-Alert — Bestellungen >20% über Zubereitungsprognose */}
       <KitchenPhase660PrepRueckstandAlert orders={filtered as any} timings={timings as any} />
+      {/* Phase 665: Dringlichkeits-Queue — Bestellungen sortiert nach Dringlichkeit + SLA-Score */}
+      <KitchenPhase665DringlichkeitsQueue locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

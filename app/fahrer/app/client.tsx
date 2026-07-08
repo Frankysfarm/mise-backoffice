@@ -235,6 +235,7 @@ import { FahrerPhase644NaechsterStopEntfernung } from './phase644-naechster-stop
 import { FahrerPhase648TourStoppLiveKommando } from './phase648-tour-stopp-live-kommando';
 import { FahrerPhase653SchichtStornoWarnung } from './phase653-schicht-storno-warnung';
 import { FahrerPhase662TourpauseEmpfehlungPro } from './phase662-tourpause-empfehlung-pro';
+import { FahrerPhase667TagesEinnahmenPrognose } from './phase667-tages-einnahmen-prognose';
 
 type Driver = {
   id: string;
@@ -3304,6 +3305,13 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase662TourpauseEmpfehlungPro driverId={driver.id} />
+          </div>
+        )}
+
+        {/* Phase 667: Tages-Einnahmen-Prognose — Hochrechnung Tagesverdienst basierend auf aktuellem Tempo */}
+        {isOnline && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase667TagesEinnahmenPrognose driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 
