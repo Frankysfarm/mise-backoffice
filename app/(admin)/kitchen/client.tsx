@@ -274,6 +274,7 @@ import { KitchenPhase727TagesMenuHighlights } from './phase727-tages-menu-highli
 import { KitchenPhase732KundenFeedbackLive } from './phase732-kunden-feedback-live';
 import { KitchenPhase737StoppEffizienzMonitor } from './phase737-stopp-effizienz-monitor';
 import { KitchenPhase742BestellungsPrioritaetsAmpel } from './phase742-bestellungs-prioritaets-ampel';
+import { KitchenPhase747BestellungsCluster } from './phase747-bestellungs-cluster';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2113,6 +2114,8 @@ export function KitchenBoard({
       <KitchenPhase737StoppEffizienzMonitor orders={filtered as any} />
       {/* Phase 742: Bestellungs-Prioritäts-Ampel — VIP und zeitkritische Bestellungen rot/amber hervorgehoben */}
       <KitchenPhase742BestellungsPrioritaetsAmpel orders={filtered as any} />
+      {/* Phase 747: Bestellungs-Cluster — Bestellungen nach Abholzeit-Slots gruppiert als Balken */}
+      <KitchenPhase747BestellungsCluster orders={filtered as any} />
     </div>
   );
 }

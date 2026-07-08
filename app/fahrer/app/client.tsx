@@ -255,6 +255,7 @@ import { FahrerPhase729FahrtenChronik } from './phase729-fahrten-chronik';
 import { FahrerPhase734StreakAnzeige } from './phase734-streak-anzeige';
 import { FahrerPhase739TrinkgeldRangliste } from './phase739-trinkgeld-rangliste';
 import { FahrerPhase744SchichtUeberstundenWarnung } from './phase744-schicht-ueberstunden-warnung';
+import { FahrerPhase749KmTagesTracker } from './phase749-km-tages-tracker';
 
 type Driver = {
   id: string;
@@ -3433,6 +3434,10 @@ export function FahrerApp({
         {/* Phase 744: Schicht-Überstunden-Warnung — Amber-Banner wenn Schicht >8h */}
         <div className="px-4">
           <FahrerPhase744SchichtUeberstundenWarnung driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 749: km-Tages-Tracker — Fortschrittsbar km-Heute vs. 80km-Ziel + Ø km/Tour */}
+        <div className="px-4">
+          <FahrerPhase749KmTagesTracker driverId={driver.id} />
         </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}

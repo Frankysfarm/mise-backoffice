@@ -310,6 +310,7 @@ import { DispatchPhase728TagesZonenVergleichPanel } from './phase728-tages-zonen
 import { DispatchPhase733FahrerRueckkehrPrognosePanel } from './phase733-fahrer-rueckkehr-prognose-panel';
 import { DispatchPhase738FahrerPauseEmpfehlung } from './phase738-fahrer-pause-empfehlung';
 import { DispatchPhase743ZonenUeberlastungsAlarm } from './phase743-zonen-ueberlastungs-alarm';
+import { DispatchPhase748SchichtUeberstundenPanel } from './phase748-schicht-ueberstunden-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2262,6 +2263,8 @@ export function DispatchBoard({
       <DispatchPhase738FahrerPauseEmpfehlung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 743: Zonen-Überlastungs-Alarm — Alarm wenn Bestellungen/Fahrer-Ratio >5x in einer Zone */}
       <DispatchPhase743ZonenUeberlastungsAlarm locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 748: Schicht-Überstunden-Panel — Fahrer mit >8h Schicht und Überstunden-Minuten */}
+      <DispatchPhase748SchichtUeberstundenPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
