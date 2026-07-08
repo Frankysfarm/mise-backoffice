@@ -277,6 +277,7 @@ import { KitchenPhase742BestellungsPrioritaetsAmpel } from './phase742-bestellun
 import { KitchenPhase747BestellungsCluster } from './phase747-bestellungs-cluster';
 import { KitchenPhase752LiveBestellzaehler } from './phase752-live-bestellzaehler';
 import { KitchenPhase757ZonenBestellaufkommen } from './phase757-zonen-bestellaufkommen';
+import { KitchenPhase761SchnellstatusBand } from './phase761-schnellstatus-band';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2122,6 +2123,8 @@ export function KitchenBoard({
       <KitchenPhase752LiveBestellzaehler orders={filtered as any} />
       {/* Phase 757: Zonen-Bestellaufkommen — Balken-Heatmap aktiver Bestellungen je Zone */}
       <KitchenPhase757ZonenBestellaufkommen locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 761: Schnellstatus-Band — Grün/Amber/Rot Ampel aller aktiven Bestellungen nach Alter */}
+      <KitchenPhase761SchnellstatusBand orders={filtered as any} />
     </div>
   );
 }

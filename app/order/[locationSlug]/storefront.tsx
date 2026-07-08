@@ -115,6 +115,7 @@ import { Phase745BestellstatusLeiste } from './phase745-bestellstatus-leiste';
 import { Phase750KapazitaetsRing } from './phase750-kapazitaets-ring';
 import { Phase755LiefergebuehrCountdown } from './phase755-liefergebuehr-countdown';
 import { Phase760BestellverlaufAnzeige } from './phase760-bestellverlauf-anzeige';
+import { Phase764EtaKonfidenzWidget } from './phase764-eta-konfidenz-widget';
 
 type Props = {
   location: Location;
@@ -1414,6 +1415,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase755LiefergebuehrCountdown locationId={locationId} isDelivery={order.isDelivery} />
       {/* Phase 760: Bestellverlauf-Anzeige — Stündliches Balkendiagramm heutiger Bestellungen */}
       <Phase760BestellverlaufAnzeige locationId={locationId} />
+      {/* Phase 764: ETA-Konfidenz-Widget — Präzisions-Ring grün/amber/rot mit Varianz-Angabe */}
+      <Phase764EtaKonfidenzWidget locationId={locationId} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

@@ -313,6 +313,7 @@ import { DispatchPhase743ZonenUeberlastungsAlarm } from './phase743-zonen-ueberl
 import { DispatchPhase748SchichtUeberstundenPanel } from './phase748-schicht-ueberstunden-panel';
 import { DispatchPhase753FahrerKmBilanzPanel } from './phase753-fahrer-km-bilanz-panel';
 import { DispatchPhase758TourSlaPanelVerletzung } from './phase758-tour-sla-verletzungs-panel';
+import { DispatchPhase762FahrerEchtzeitRanking } from './phase762-fahrer-echtzeit-ranking';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2271,6 +2272,8 @@ export function DispatchBoard({
       <DispatchPhase753FahrerKmBilanzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 758: Tour-SLA-Verletzungs-Panel — Touren >45 Min als roter Alarm mit Fahrername */}
       <DispatchPhase758TourSlaPanelVerletzung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 762: Fahrer-Echtzeit-Ranking — Top-5 Fahrer nach Touren+Score als Rangliste mit Ampel */}
+      <DispatchPhase762FahrerEchtzeitRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
