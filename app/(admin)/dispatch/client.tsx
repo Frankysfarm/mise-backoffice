@@ -324,6 +324,7 @@ import { DispatchPhase786TourScoreLivePanel } from './phase786-tour-score-live-p
 import { DispatchPhase792FahrerZonenAffinitaetsMatrix } from './phase792-fahrer-zonen-affinitaets-matrix';
 import { DispatchPhase797TourStornoPraevention } from './phase797-tour-storno-praevention';
 import { DispatchPhase802FahrerKontaktLog } from './phase802-fahrer-kontakt-log';
+import { DispatchPhase807TourLiveFortschritt } from './phase807-tour-live-fortschritt';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2304,6 +2305,8 @@ export function DispatchBoard({
       <DispatchPhase797TourStornoPraevention locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 802: Fahrer-Kontakt-Log — Letzte 10 Dispatch→Fahrer-Kontakte mit Uhrzeit und Kanal */}
       <DispatchPhase802FahrerKontaktLog locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 807: Tour-Live-Fortschritt — Stopp-Visualisierung mit Score und ETA pro Tour */}
+      <DispatchPhase807TourLiveFortschritt locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

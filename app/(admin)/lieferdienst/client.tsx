@@ -75,6 +75,7 @@ import { StundenUmsatzTicker } from './stunden-umsatz-ticker'
 import { LieferdienstStatsDashboard } from './lieferdienst-stats-dashboard'
 import { LieferdienstPhase789SchichtStatistikCockpit } from './phase789-schicht-statistiken-cockpit'
 import { LieferdienstPhase790AbbruchTrendPanel } from './phase790-abbruch-trend-panel'
+import { LieferdienstPhase795StatistikenLiveCockpit } from './phase795-statistiken-live-cockpit'
 import { LieferdienstLiveMetrikenLeiste } from './live-metriken-leiste'
 import { SchichtEchtzeitKpiHub } from './schicht-echtzeit-kpi-hub'
 import { LieferdienstWochenKpiVergleich } from './wochen-kpi-vergleich'
@@ -1524,6 +1525,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase789SchichtStatistikCockpit locationId={locationId ?? null} />
               {/* Phase 790: Abbruch-Trend-Panel — Stornierungsrate je Wochentag + Stunde, Hotspot-Erkennung */}
               <LieferdienstPhase790AbbruchTrendPanel locationId={locationId ?? null} />
+              {/* Phase 795: Statistiken-Live-Cockpit — KPI-Grid + Stunden-Balkendiagramm für Tages-Überblick */}
+              <LieferdienstPhase795StatistikenLiveCockpit locationId={locationId ?? null} />
               {/* Phase 489: Top-Fahrer Einnahmen-Ranking — Top-5 Fahrer nach Umsatz-Beitrag der heutigen Schicht */}
               <SchichtFahrerEinnahmenRanking locationId={locationId} />
               {/* Phase 480: Kennzahlen-Hub — Echtzeit-KPIs: Umsatz, Bestellungen, Lieferquote, Fahrer, Stundenverteilung */}
