@@ -100,6 +100,7 @@ import { Phase683LieferQualitaetsVersprechen } from './phase683-liefer-qualitaet
 import { Phase684DynamischeEtaAnzeige } from './phase684-dynamische-eta-anzeige';
 import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commander';
 import { Phase690LieferzeitfensterWaehler } from './phase690-lieferzeitfenster-waehler';
+import { Phase695LiefergebuehrTransparenz } from './phase695-liefergebuehr-transparenz';
 
 type Props = {
   location: Location;
@@ -1361,6 +1362,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase650KundenbewertungsWidget locationId={locationId} />
       {/* Phase 658: Allergene-Warn-Banner — Allergene aus Warenkorbpositionen klar hervorgehoben */}
       {cart.length > 0 && <Phase658AllergenesWarnBanner cart={cart as any} />}
+      {/* Phase 695: Liefergebühr-Transparenz — Aufschlüsselung Basis + Zonen-Zuschlag im Checkout */}
+      {order.isDelivery && <Phase695LiefergebuehrTransparenz basisGebuehr={DELIVERY_FEE} zonenZuschlag={tenantDeliveryFee > DELIVERY_FEE ? tenantDeliveryFee - DELIVERY_FEE : 0} />}
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

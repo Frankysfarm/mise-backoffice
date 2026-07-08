@@ -243,6 +243,7 @@ import { FahrerPhase682WochenZielFortschrittsring } from './phase682-wochenziel-
 import { FahrerPhase683TourStoppNavigatorLive } from './phase683-tour-stopp-navigator-live';
 import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-cockpit';
 import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
+import { FahrerPhase694WochenEinnahmenCockpit } from './phase694-wochen-einnahmen-cockpit';
 
 type Driver = {
   id: string;
@@ -3360,6 +3361,11 @@ export function FahrerApp({
         {/* Phase 689: Kilometerstand-Freigabe — Fahrer gibt am Schichtende km-Stand frei */}
         <div className="px-4">
           <FahrerPhase689KmStandFreigabe driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 694: Wochen-Einnahmen-Cockpit — Aktuelle Woche vs. Vorwoche (Einnahmen, Touren, Trinkgeld) */}
+        <div className="px-4">
+          <FahrerPhase694WochenEinnahmenCockpit driverId={driver.id} />
         </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}

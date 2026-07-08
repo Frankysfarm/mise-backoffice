@@ -298,6 +298,7 @@ import { DispatchPhase681MultiZonenUeberblick } from './phase681-multi-zonen-ueb
 import { DispatchPhase684TourScoreLiveAnzeige } from './phase684-tour-score-live-anzeige';
 import { DispatchPhase685TourVisualisierungsBoard } from './phase685-tour-visualisierungs-board';
 import { DispatchPhase688PreisElastizitaetPanel } from './phase688-preis-elastizitaet-panel';
+import { DispatchPhase693WochenPerformancePanel } from './phase693-wochen-performance-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2226,6 +2227,8 @@ export function DispatchBoard({
       <DispatchPhase685TourVisualisierungsBoard batches={batches as any} stops={[] as any} drivers={drivers as any} />
       {/* Phase 688: Preis-Elastizitäts-Panel — Zonen-Gebühren-Effizienz basierend auf 30-Tage-Daten */}
       <DispatchPhase688PreisElastizitaetPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 693: Wochen-Performance-Panel — Woche vs. Vorwoche: Umsatz/Touren/SLA/Stornos */}
+      <DispatchPhase693WochenPerformancePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

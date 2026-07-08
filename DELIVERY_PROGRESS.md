@@ -11028,3 +11028,60 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 693 Dispatch:** Wochen-Performance-Panel — Dispatch-seitige Auswertung Week-on-Week.
 4. **Phase 694 Fahrer-App:** Wochen-Einnahmen-Cockpit — Fahrer sieht Einnahmen aktuelle Woche vs. Vorwoche.
 5. **Phase 695 Storefront:** Liefergebühr-Transparenz — Aufschlüsselung der Liefergebühr (Basis + Zonen-Zuschlag) im Checkout.
+
+## Phase 691–695 — Wochen-Vergleich, Tagesabschluss-Kitchen, Dispatch-Woche, Fahrer-Einnahmen, Gebühr-Transparenz (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 691 Backend — Wochen-Performance-Vergleichs-API
+**`app/api/delivery/admin/wochen-performance-vergleich/route.ts`** — `GET /api/delivery/admin/wochen-performance-vergleich`:
+- Vergleicht Montag–Heute mit gleicher Zeitspanne Vorwoche
+- Kennzahlen: Umsatz, Bestellungen, Touren, Storno-Rate, SLA-Pct, Avg Lieferzeit
+- Delta-Pct je Kennzahl berechnet
+- Multi-Tenant: alle Queries filtern auf location_id ✅
+
+### Phase 692 Kitchen — Tagesabschluss-Zusammenfassung-Widget
+**`app/(admin)/kitchen/phase692-tagesabschluss-widget.tsx`** — `KitchenPhase692TagesabschlussWidget`:
+- Props: `locationId: string | null`
+- Ruft Phase686-API (`/api/delivery/admin/tagesabschluss-bericht`) ab
+- Zeigt: Umsatz, Bestellungen (Lief/Abh), Touren, SLA%, Ø Lieferzeit, Storno-Rate
+- Grüne OK-Box wenn SLA ≥ 85%, Amber-Warnung darunter
+- Top-Artikel-Liste (Rang 1–5)
+- Kollabierbar (standardmäßig zugeklappt) · 5-Min Polling
+- Integration: `kitchen/client.tsx` nach Phase687 ✅
+
+### Phase 693 Dispatch — Wochen-Performance-Panel
+**`app/(admin)/dispatch/phase693-wochen-performance-panel.tsx`** — `DispatchPhase693WochenPerformancePanel`:
+- Props: `locationId: string | null`
+- Ruft Phase691-API ab, vergleicht Woche vs. Vorwoche
+- Tabellenzeilen: Umsatz, Bestellungen, Touren, Storno-Rate, SLA-Pct
+- DeltaBadge: grün (positiv) · rot (negativ) · mit Inversions-Flag für Storno
+- Header: "↑ Besser als letzte Woche" / "↓ Schwächer" / "= Vergleichbar"
+- Kollabierbar · einmalig beim Mount geladen
+- Integration: `dispatch/client.tsx` nach Phase688 ✅
+
+### Phase 694 Fahrer-App — Wochen-Einnahmen-Cockpit
+**`app/fahrer/app/phase694-wochen-einnahmen-cockpit.tsx`** — `FahrerPhase694WochenEinnahmenCockpit`:
+- Props: `driverId: string`
+- Ruft `/api/delivery/driver/wochen-einnahmen?driver_id=` ab (mit Mock-Fallback)
+- Dreiteilige Ansicht: Diese Woche / Trend-Icon+Pct / Vorwoche
+- Einnahmen + Touren-Anzahl je Woche
+- Trinkgeld-Vergleich in separater Zeile
+- Kollabierbar · 10-Min Interval
+- Integration: `fahrer/app/client.tsx` nach Phase689 ✅
+
+### Phase 695 Storefront — Liefergebühr-Transparenz
+**`app/order/[locationSlug]/phase695-liefergebuehr-transparenz.tsx`** — `Phase695LiefergebuehrTransparenz`:
+- Props: `basisGebuehr, zonenZuschlag?, zone?, distanzKm?`
+- Akkordeon: geschlossen zeigt nur Gesamtgebühr, geöffnet zeigt Aufschlüsselung
+- Basis + Zonen-Zuschlag (wenn >0) + Entfernung (wenn bekannt) + Gesamtsumme
+- Hinweistext zu Zonen-Zuschlag
+- Nur sichtbar wenn Gesamtgebühr > 0 und `order.isDelivery`
+- Integration: `storefront.tsx` nach Phase658 ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 696 Backend:** Fahrer-Wochen-Einnahmen-API — Liefereinnahmen + Trinkgeld diese Woche vs. Vorwoche je Fahrer.
+2. **Phase 697 Kitchen:** Live-Bestellfluss-Ampel — Zeigt aktuelle Bestellrate (Bestellungen/Std) mit Ampel Grün/Gelb/Rot.
+3. **Phase 698 Dispatch:** Schicht-Bilanz-Dashboard — Kosten- und Einnahmen-Übersicht für laufende Schicht gesamt.
+4. **Phase 699 Fahrer-App:** Pause-Timer-Widget — Fahrer startet Pause, sieht Ablauf-Countdown.
+5. **Phase 700 Storefront:** Bestellbestätigungs-Countdown — Animierter Countdown bis zur erwarteten Lieferzeit nach Bestellabgabe.
