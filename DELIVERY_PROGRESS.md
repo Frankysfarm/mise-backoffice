@@ -11159,3 +11159,57 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 703 Dispatch:** Fahrer-Auslastungs-Score — Wie ausgelastet ist jeder Fahrer? Score 0-100%.
 4. **Phase 704 Fahrer-App:** Nächste-Tour-Vorab-Info — Wenn neue Batch voraus, zeigt Fahrer die nächsten Stops bevor er zurückkehrt.
 5. **Phase 705 Storefront:** Live-Lieferstatus-Emoji — Dynamische Emoji-Animation je Lieferstatus.
+
+---
+
+## Batch 701-705 — 2026-07-08
+
+### Phase 701 — Schicht-Bilanz-Live-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-bilanz/route.ts`
+**Zweck:** Echtzeit-Kosten/Einnahmen für die laufende Schicht (heute ab 05:00 UTC).
+**Kosten-Modell:** Kraftstoff 0.18 €/km + Schichtkosten aktive_fahrer × Std × 12 €
+**Einnahmen:** delivery_fee aller completed/assigned/in_progress Batches heute
+**Response:** `{ schicht_start, einnahmen_eur, kosten_eur, margin_eur, margin_pct, touren_abgeschlossen, touren_aktiv, aktive_fahrer, umsatz_pro_stunde }`
+**Verwendet von:** Phase 698 (Schicht-Bilanz-Dashboard im Dispatch)
+
+### Phase 702 — Spitzenzeit-Vorbereitung-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase702-spitzenzeit-vorbereitung-alert.tsx`
+**Props:** `orders: Order[], zielProStunde?: number` (default 10)
+**Logik:** Historisches Stunden-Profil (HISTORISCH_PROFIL) erkennt Spitzenzeiten ≥14/Std; warnt 30 Min vorher
+**Farben:** Blau (>30 Min), Amber (≤30 Min), Rot (≤15 Min / jetzt)
+**Integration:** `kitchen/client.tsx` nach Phase 697
+
+### Phase 703 — Fahrer-Auslastungs-Score (Dispatch)
+**Dateien:**
+- `app/(admin)/dispatch/phase703-fahrer-auslastungs-score.tsx`
+- `app/api/delivery/admin/fahrer-auslastungs-score/route.ts`
+**Props:** `locationId: string | null`
+**Score-Formel:** min(100, touren_heute / 8 × 100)
+**UI:** Fortschrittsbalken grün/amber/rot + "unterwegs" Badge, 90s Polling
+**API:** Aggregiert delivery_batches + drivers je locationId, sortiert Score ↓
+**Integration:** `dispatch/client.tsx` nach Phase 698
+
+### Phase 704 — Nächste-Tour-Vorab-Info (Fahrer-App)
+**Dateien:**
+- `app/fahrer/app/phase704-naechste-tour-vorab-info.tsx`
+- `app/api/delivery/driver/naechste-tour/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**Logik:** Zeigt nächste assigned Batch (noch nicht gestartet) mit Stops, km, ETA-Minuten
+**API:** delivery_batches (status=assigned) + delivery_stops + orders per driver
+**30s Polling; nur sichtbar wenn isOnline**
+**Integration:** `fahrer/app/client.tsx` nach Phase 699, nur wenn isOnline
+
+### Phase 705 — Live-Lieferstatus-Emoji (Storefront)
+**Datei:** `app/order/[locationSlug]/phase705-live-lieferstatus-emoji.tsx`
+**Props:** `status, isDelivery, etaMinuten?, bestelltAt?`
+**Logik:** Emoji + Label + Sublabel je Status; pending/preparing/on_route pulsieren animiert
+**Statuses:** pending ⏳, confirmed ✅, preparing 👨‍🍳, ready 🚀/🛎️, on_route 🛵, delivered 🎉, cancelled ❌
+**Verbleibende Minuten** werden live berechnet wenn ETA vorhanden
+**Integration:** `storefront.tsx` vor Phase 609 (Bestellstatus-Timeline)
+
+### Nächste Phasen für Ingenieur
+1. **Phase 706 Backend:** Kunden-Trinkgeld-Analyse-API — Welche Fahrer erhalten die meisten Trinkgelder und in welchen Zonen?
+2. **Phase 707 Kitchen:** Zubereitungs-Stau-Monitor — Zeigt welche Gerichte gerade Rückstand haben.
+3. **Phase 708 Dispatch:** Echtzeit-Storno-Alarm — Sofortige Warnung bei ungewöhnlicher Stornoquote in letzten 15 Min.
+4. **Phase 709 Fahrer-App:** Tages-Bilanz-Zusammenfassung — Abschluss-Bericht nach Schichtende (Touren, km, Einnahmen).
+5. **Phase 710 Storefront:** Wartezeit-Indikator mit Küchenlast — "Küche hat gerade viel zu tun — +5 Min."

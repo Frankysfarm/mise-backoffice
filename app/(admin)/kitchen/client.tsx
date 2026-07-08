@@ -264,6 +264,7 @@ import { KitchenPhase685PrepStationAuslastungsBoard } from './phase685-prep-stat
 import { KitchenPhase687AllergenBonAnzeige } from './phase687-allergen-bon-anzeige';
 import { KitchenPhase692TagesabschlussWidget } from './phase692-tagesabschluss-widget';
 import { KitchenPhase697BestellflussAmpel } from './phase697-bestellfluss-ampel';
+import { KitchenPhase702SpitzenzeitVorbereitungAlert } from './phase702-spitzenzeit-vorbereitung-alert';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2083,6 +2084,8 @@ export function KitchenBoard({
       <KitchenPhase692TagesabschlussWidget locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 697: Bestellfluss-Ampel — Live-Bestellrate (Bestellungen/Std) als Ampel */}
       <KitchenPhase697BestellflussAmpel orders={filtered as any} />
+      {/* Phase 702: Spitzenzeit-Vorbereitung-Alert — Warnt Küche 30 Min vor prognostizierter Spitzenzeit */}
+      <KitchenPhase702SpitzenzeitVorbereitungAlert orders={filtered as any} />
     </div>
   );
 }

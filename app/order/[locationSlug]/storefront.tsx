@@ -102,6 +102,7 @@ import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commande
 import { Phase690LieferzeitfensterWaehler } from './phase690-lieferzeitfenster-waehler';
 import { Phase695LiefergebuehrTransparenz } from './phase695-liefergebuehr-transparenz';
 import { Phase700BestellbestaetigungCountdown } from './phase700-bestellbestaetigung-countdown';
+import { Phase705LiveLieferstatusEmoji } from './phase705-live-lieferstatus-emoji';
 
 type Props = {
   location: Location;
@@ -1357,6 +1358,15 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         etaLatest={null}
         isDelivery={order.isDelivery}
       />
+      {/* Phase 705: Live-Lieferstatus-Emoji — Dynamische Emoji-Animation je Lieferstatus */}
+      {order.status && (
+        <Phase705LiveLieferstatusEmoji
+          status={order.status}
+          isDelivery={order.isDelivery}
+          etaMinuten={order.etaMin}
+          bestelltAt={order.placedAt}
+        />
+      )}
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
       {/* Phase 700: Bestellbestätigungs-Countdown — Animierter Countdown bis Lieferzeit nach Bestellabgabe */}

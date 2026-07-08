@@ -300,6 +300,7 @@ import { DispatchPhase685TourVisualisierungsBoard } from './phase685-tour-visual
 import { DispatchPhase688PreisElastizitaetPanel } from './phase688-preis-elastizitaet-panel';
 import { DispatchPhase693WochenPerformancePanel } from './phase693-wochen-performance-panel';
 import { DispatchPhase698SchichtBilanzDashboard } from './phase698-schicht-bilanz-dashboard';
+import { DispatchPhase703FahrerAuslastungsScore } from './phase703-fahrer-auslastungs-score';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2232,6 +2233,8 @@ export function DispatchBoard({
       <DispatchPhase693WochenPerformancePanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 698: Schicht-Bilanz-Dashboard — Live-Kosten/Einnahmen/Margin der laufenden Schicht */}
       <DispatchPhase698SchichtBilanzDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 703: Fahrer-Auslastungs-Score — Auslastungsgrad 0-100% je Fahrer, Balken-Visualisierung */}
+      <DispatchPhase703FahrerAuslastungsScore locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

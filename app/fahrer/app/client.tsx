@@ -245,6 +245,7 @@ import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-
 import { FahrerPhase689KmStandFreigabe } from './phase689-km-stand-freigabe';
 import { FahrerPhase694WochenEinnahmenCockpit } from './phase694-wochen-einnahmen-cockpit';
 import { FahrerPhase699PauseTimerWidget } from './phase699-pause-timer-widget';
+import { FahrerPhase704NaechsteTourVorabInfo } from './phase704-naechste-tour-vorab-info';
 
 type Driver = {
   id: string;
@@ -3373,6 +3374,12 @@ export function FahrerApp({
         {isOnline && (
           <div className="px-4">
             <FahrerPhase699PauseTimerWidget driverId={driver.id} />
+          </div>
+        )}
+        {/* Phase 704: Nächste-Tour-Vorab-Info — Kommende Stops und Route vor Rückkehr anzeigen */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase704NaechsteTourVorabInfo driverId={driver.id} isOnline={isOnline} />
           </div>
         )}
 
