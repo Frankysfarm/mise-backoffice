@@ -277,6 +277,7 @@ import { LieferdienstPhase623TagesStatistikenDashboard } from './phase623-tages-
 import { LieferdienstPhase624SchichtKpiCommander } from './phase624-schicht-kpi-commander';
 import { LieferdienstPhase695StatistikenDashboard } from './phase695-statistiken-dashboard';
 import { LieferdienstPhase765SchichtTagesvergleich } from './phase765-schicht-tagesvergleich';
+import { LieferdienstPhase779SchichtStatsCockpit } from './phase779-schicht-stats-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1717,6 +1718,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase695StatistikenDashboard locationId={locationId ?? null} />
                 {/* Phase 765: Schicht-Tagesvergleich — Heute vs. gestern: Umsatz, Touren, Trinkgeld */}
                 <LieferdienstPhase765SchichtTagesvergleich locationId={locationId ?? null} />
+                {/* Phase 779: Schicht-Statistiken-Cockpit — KPI-Grid: Umsatz, Bestellungen, Pünktlichkeit, Bewertung */}
+                <LieferdienstPhase779SchichtStatsCockpit locationId={locationId ?? null} />
               </>
             </div>
           )}

@@ -282,6 +282,7 @@ import { KitchenPhase761SchnellstatusBand } from './phase761-schnellstatus-band'
 import { KitchenPhase762BestellungsKomplexitaetsTacho } from './phase762-bestellungs-komplexitaets-tacho';
 import { KitchenPhase766AllergenenMonitor } from './phase766-allergenen-monitor';
 import { KitchenPhase771StornoWarnungPanel } from './phase771-storno-warnung-panel';
+import { KitchenPhase775SchichtTaktCockpit } from './phase775-schicht-takt-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2137,6 +2138,8 @@ export function KitchenBoard({
       <KitchenPhase766AllergenenMonitor orders={filtered as any} />
       {/* Phase 771: Storno-Warnung-Panel — Bestellungen mit ≥10 Min Wartezeit ohne Bearbeitung */}
       <KitchenPhase771StornoWarnungPanel orders={filtered as any} />
+      {/* Phase 775: Schicht-Takt-Cockpit — Live-Durchsatz (Bestellungen/Std), Queue-Auslastung, Ampelfarbe + Countdown älteste Bestellung */}
+      <KitchenPhase775SchichtTaktCockpit orders={filtered as any} />
     </div>
   );
 }

@@ -318,6 +318,7 @@ import { DispatchPhase762FahrerEchtzeitRanking } from './phase762-fahrer-echtzei
 import { DispatchPhase763ZonenErtragsStreifen } from './phase763-zonen-ertrags-streifen';
 import { DispatchPhase767FahrerBewertungsPanel } from './phase767-fahrer-bewertungs-panel';
 import { DispatchPhase772EchtzeitKapazitaetsUeberblick } from './phase772-echtzeit-kapazitaets-ueberblick';
+import { DispatchPhase777TourLiveScoreMatrix } from './phase777-tour-live-score-matrix';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2286,6 +2287,8 @@ export function DispatchBoard({
       <DispatchPhase767FahrerBewertungsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 772: Echtzeit-Kapazitäts-Überblick — Ø Auslastung + freie vs. unterwegs Fahrer */}
       <DispatchPhase772EchtzeitKapazitaetsUeberblick locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 777: Tour Live-Score-Matrix — Echtzeit-Score (0-100) + Stern-Rating für jede aktive Tour */}
+      <DispatchPhase777TourLiveScoreMatrix batches={batches as any} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
