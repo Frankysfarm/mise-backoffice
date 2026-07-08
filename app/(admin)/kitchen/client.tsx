@@ -251,6 +251,7 @@ import { KitchenPhase631BestellungsHerkunftsMix } from './phase631-bestellungs-h
 import { KitchenPhase637TagesStornoUebersicht } from './phase637-tages-storno-uebersicht';
 import { KitchenPhase642SchichtTempoAmpel } from './phase642-schicht-tempo-ampel';
 import { KitchenPhase646SmartZubereitungsZeitwacher } from './phase646-smart-zubereitungs-zeitwacher';
+import { KitchenPhase651TagesAuslastungsPrognose } from './phase651-tages-auslastungs-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2044,6 +2045,8 @@ export function KitchenBoard({
       <KitchenPhase642SchichtTempoAmpel orders={filtered as any} />
       {/* Phase 646: Smart-Zubereitungs-Zeitwächter — Farbkodierter Live-Timer je aktiver Bestellung */}
       <KitchenPhase646SmartZubereitungsZeitwacher orders={filtered as any} />
+      {/* Phase 651: Tages-Auslastungs-Prognose — Stündliche Bestellmenge + 2h-Prognose */}
+      <KitchenPhase651TagesAuslastungsPrognose orders={filtered as any} />
     </div>
   );
 }

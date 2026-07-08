@@ -90,6 +90,7 @@ import { Phase632BestellhistorieKurzansicht } from './phase632-bestellhistorie-k
 import { Phase640LieferzeitTransparenzWidget } from './phase640-lieferzeit-transparenz-widget';
 import { Phase645BewertungsAufforderungsBanner } from './phase645-bewertungs-aufforderungs-banner';
 import { Phase649LiveLieferzeitIndikator } from './phase649-live-lieferzeit-indikator';
+import { Phase650KundenbewertungsWidget } from './phase650-kundenbewertungs-widget';
 
 type Props = {
   location: Location;
@@ -1347,6 +1348,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       />
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
       <Phase609BestellstatusTimeline status={order.status} isDelivery={order.isDelivery} />
+      {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
+      <Phase650KundenbewertungsWidget locationId={locationId} />
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}

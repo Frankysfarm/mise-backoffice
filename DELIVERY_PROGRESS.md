@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–645 abgeschlossen. Build sauber. Exit 0. TypeScript 0 Fehler.**
+**Phasen 1–653 abgeschlossen. Build sauber. Exit 0. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-08): Phase 646–653 — Kundenbewertungs-Aggregations-API (Backend), Storefront Kundenbewertungs-Widget, Kitchen Tages-Auslastungs-Prognose, Dispatch Fahrer-Live-Status-Panel, Fahrer-App Schicht-Storno-Warnung. Build 851 Route-Matches, Exit 0.
 Backend-Architekt-Agent (2026-07-08): Phase 641–645 — Fahrer-Live-Status-API, Kitchen Schicht-Tempo-Ampel, Dispatch Zonen-Erlös-Vergleich-Panel, Fahrer-App Nächster-Stop-Entfernungsanzeige, Storefront Bewertungs-Aufforderungs-Banner. Build 373 Seiten, Exit 0.
 CEO-Agent (2026-07-08): Phase 631–640 Review #279 — 2 TS-Fehler gefixt (storefront.tsx: location.id→locationId in ActiveOrderProgressPanel, deliveryTimeMin nicht im Scope→Prop hinzugefügt). Build Exit 0. TypeScript 0 Fehler. Alle 9 Komponenten geprüft und live. Irreführenden Kommentar in phase638 korrigiert. Nächste Phasen 641–645 definiert.
 Frontend-Ingenieur-Agent (2026-07-08): Phase 636–640 — Zonen-Erlös-Vergleichs-API, Kitchen Tages-Storno-Übersicht, Dispatch Fahrer-Erreichbarkeits-Matrix, Fahrer-App Schicht-Bilanz-Vorschau, Storefront Lieferzeit-Transparenz-Widget. Build 374 Seiten, Exit 0.
@@ -10455,6 +10456,66 @@ Nutzt Phase 320 Analytics-Dashboard-API (`/api/delivery/admin/analytics`) + best
 3. **Phase 643 Dispatch:** Zonen-Erlös-Vergleich-Panel — Balkendiagramm der Einnahmen je Zone aus Phase 636 API.
 4. **Phase 644 Fahrer-App:** Nächster-Stop-Entfernungsanzeige — zeigt Distanz zum nächsten Stop in km + Luftlinie.
 5. **Phase 645 Storefront:** Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein.
+
+## Phase 646–653 — Kundenbewertungs-Aggregation, Storefront-Widget, Tages-Auslastung, Fahrer-Live-Panel, Schicht-Storno-Warnung (DONE ✅)
+
+**Datum:** 2026-07-08
+
+### Phase 646 Backend — Kundenbewertungs-Aggregations-API
+**`app/api/delivery/admin/kundenbewertungs-aggregation/route.ts`:**
+- GET `?location_id=...&days=30` → `{ avg_rating, total_count, verteilung{1..5}, positive_pct, trend, trend_delta, generiert_am }`
+- Aggregiert aus `customer_delivery_ratings` je Location: Ø-Note, Sterne-Verteilung, Positiv-Quote
+- Trend: Vergleich aktuelle Periode vs. vorherige Periode (steigend/stabil/fallend mit Delta)
+- Multi-Tenant: location_id-Filter ✅
+
+### Phase 650 Storefront — Kundenbewertungs-Widget
+**`app/order/[locationSlug]/phase650-kundenbewertungs-widget.tsx`** — `Phase650KundenbewertungsWidget`:
+- Props: `locationId: string`
+- Ruft Phase 646 API ab, zeigt Ø-Note + Sternreihe + Anzahl Bewertungen + Positiv-Quote
+- Trend-Chip (steigend/fallend/stabil) mit Farb-Kodierung
+- Erscheint nur wenn Daten vorhanden (returns null sonst) — kein Breaking-Change
+- Integration: `storefront.tsx` vor Phase632-Bestellhistorie ✅
+
+### Phase 651 Kitchen — Tages-Auslastungs-Prognose
+**`app/(admin)/kitchen/phase651-tages-auslastungs-prognose.tsx`** — `KitchenPhase651TagesAuslastungsPrognose`:
+- Props: `orders: Order[]`
+- Stündliche Bestellmengen-Histogramm aus heutigen Bestellungen (10–22 Uhr)
+- 2h-Vorschau-Prognose: Ø vergangener Stunden × verbleibende 2h
+- Farbkodierung: grün (<10), amber (10–19), rot (≥20 erwartete Bestellungen)
+- Zukunftsbuckets als gestrichelter Balken dargestellt
+- Integration: `kitchen/client.tsx` nach Phase646 ✅
+
+### Phase 652 Dispatch — Fahrer-Live-Status-Panel
+**`app/(admin)/dispatch/phase652-fahrer-live-status-panel.tsx`** — `DispatchPhase652FahrerLiveStatusPanel`:
+- Props: `locationId: string | null`
+- Ruft Phase 641 API (`/api/delivery/admin/fahrer-live-status`) ab
+- Zeigt alle aktiven Fahrer mit Status-Badge (aktiv/Pause/offline) und GPS-Alter
+- 30s Auto-Polling, Fallback auf Mock-Daten
+- Badge-Zähler (aktiv/Pause) im Header für Schnellübersicht
+- Integration: `dispatch/client.tsx` nach Phase647 ✅
+
+### Phase 653 Fahrer-App — Schicht-Storno-Warnung
+**`app/fahrer/app/phase653-schicht-storno-warnung.tsx`** — `FahrerPhase653SchichtStornoWarnung`:
+- Props: `locationId: string`
+- Ruft `/api/delivery/admin/storno-praevention` ab (existierende API)
+- Warnung (amber) wenn Storno-Rate heute überdurchschnittlich (über 30-Tage-Schnitt)
+- OK-Badge (grün) wenn Rate normal
+- Zeigt: Storno-Count heute, Gesamtbestellungen, Rate vs. Ø
+- 5-Min Auto-Polling
+- Integration: `fahrer/app/client.tsx` nach Phase648, nur wenn online ✅
+
+### Integrations-Checkliste Phase 646–653
+- Phase 651 → kitchen/client.tsx ✅
+- Phase 652 → dispatch/client.tsx ✅
+- Phase 653 → fahrer/app/client.tsx ✅
+- Phase 650 → order/[locationSlug]/storefront.tsx ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 654 Backend:** Preis-Elastizitäts-Analyse-API — welche Zonen/Zeiten reagieren sensitiv auf Liefergebühr-Änderungen.
+2. **Phase 655 Kitchen:** Reste-Alarm — Warnt wenn bestimmte Gerichte häufig storniert werden (möglicher Qualitätshinweis).
+3. **Phase 656 Dispatch:** Tour-Kosten-Effizienz-Cockpit — Kosten je Tour (Kraftstoff + Zeit) vs. Einnahmen als Margin.
+4. **Phase 657 Fahrer-App:** Fahrzeug-Check-Widget — Fahrer markiert täglich Fahrzeugzustand (Reifen, Licht, Gepäck).
+5. **Phase 658 Storefront:** Allergene-Warn-Banner — Zeigt Allergene aus Bestellpositionen klar hervorgehoben.
 
 ## Phase 641–645 — Fahrer-Live-Status, Schicht-Tempo, Zonen-Erlös, Stop-Entfernung, Bewertungs-Banner (DONE ✅)
 

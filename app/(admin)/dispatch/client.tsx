@@ -288,6 +288,7 @@ import { DispatchPhase631FahrerKmEffizienzRanking } from './phase631-fahrer-km-e
 import { DispatchPhase638FahrerErreichbarkeitsMatrix } from './phase638-fahrer-erreichbarkeits-matrix';
 import { DispatchPhase643ZonenErloeesVergleichPanel } from './phase643-zonen-erloes-vergleich-panel';
 import { DispatchPhase647TourScoreLiveCockpit } from './phase647-tour-score-live-cockpit';
+import { DispatchPhase652FahrerLiveStatusPanel } from './phase652-fahrer-live-status-panel';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2193,6 +2194,8 @@ export function DispatchBoard({
       <DispatchPhase643ZonenErloeesVergleichPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 647: Tour-Score-Live-Cockpit — Score A/B/C/D je aktiver Tour, sortiert nach Effizienz */}
       <DispatchPhase647TourScoreLiveCockpit batches={batches as any} />
+      {/* Phase 652: Fahrer-Live-Status-Panel — Kompakte Echtzeit-Übersicht aller Fahrer (online/pause/offline + GPS-Alter) */}
+      <DispatchPhase652FahrerLiveStatusPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

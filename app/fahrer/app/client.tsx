@@ -232,6 +232,7 @@ import { FahrerPhase631TourNachbereitungDialog } from './phase631-tour-nachberei
 import { FahrerPhase639SchichtBilanzVorschau } from './phase639-schicht-bilanz-vorschau';
 import { FahrerPhase644NaechsterStopEntfernung } from './phase644-naechster-stop-entfernung';
 import { FahrerPhase648TourStoppLiveKommando } from './phase648-tour-stopp-live-kommando';
+import { FahrerPhase653SchichtStornoWarnung } from './phase653-schicht-storno-warnung';
 
 type Driver = {
   id: string;
@@ -3278,6 +3279,13 @@ export function FahrerApp({
         {isOnline && activeBatch && (
           <div className="px-4">
             <FahrerPhase648TourStoppLiveKommando driverId={driver.id} />
+          </div>
+        )}
+
+        {/* Phase 653: Schicht-Storno-Warnung — Alert wenn Storno-Rate heute überdurchschnittlich */}
+        {isOnline && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase653SchichtStornoWarnung locationId={driver.location_id} />
           </div>
         )}
 
