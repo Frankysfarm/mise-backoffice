@@ -252,6 +252,7 @@ import { FahrerPhase714NaechsterStopCountdown } from './phase714-naechster-stop-
 import { FahrerPhase719GpsGenauigkeitsWarnung } from './phase719-gps-genauigkeits-warnung';
 import { FahrerPhase724SchichtEndeBestaetigung } from './phase724-schicht-ende-bestaetigung';
 import { FahrerPhase729FahrtenChronik } from './phase729-fahrten-chronik';
+import { FahrerPhase734StreakAnzeige } from './phase734-streak-anzeige';
 
 type Driver = {
   id: string;
@@ -3418,6 +3419,10 @@ export function FahrerApp({
         {/* Phase 729: Fahrten-Chronik — Letzte 10 abgeschlossene Touren mit Zeit, km, Stops, Einnahmen */}
         <div className="px-4">
           <FahrerPhase729FahrtenChronik driverId={driver.id} />
+        </div>
+        {/* Phase 734: Streak-Anzeige — Aufeinanderfolgende Tage + Touren-Meilensteine */}
+        <div className="px-4">
+          <FahrerPhase734StreakAnzeige driverId={driver.id} />
         </div>
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
