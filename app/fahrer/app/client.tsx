@@ -263,6 +263,7 @@ import { FahrerPhase763LiveStoppFortschritt } from './phase763-live-stopp-fortsc
 import { FahrerPhase764StundenVerdienstMuster } from './phase764-stunden-verdienst-muster';
 import { FahrerPhase768EigeneBewertung } from './phase768-eigene-bewertung';
 import { FahrerPhase773TagesHighlightsWidget } from './phase773-tages-highlights-widget';
+import { Phase776TourStoppSequenzLive } from './phase776-tour-stopp-sequenz-live';
 
 type Driver = {
   id: string;
@@ -3481,8 +3482,18 @@ export function FahrerApp({
         </div>
         {/* Phase 773: Tages-Highlights-Widget — schnellste Tour, Trinkgeld, km, Touren heute */}
         <div className="px-4">
-          <FahrerPhase773TagesHighlightsWidget driverId={driver.id} locationId={driver.location_id} />
+          <FahrerPhase773TagesHighlightsWidget driverId={driver.id} locationId={driver.location_id ?? ''} />
         </div>
+
+        {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <Phase776TourStoppSequenzLive
+              stops={activeBatch.stops as any}
+              currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+            />
+          </div>
+        )}
 
         {/* Phase 222: Comeback-Bonus-Hinweis — Toast wenn Fahrer nach Pause Bonus erhält */}
         {isOnline && (

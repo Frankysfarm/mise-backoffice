@@ -120,6 +120,7 @@ import { Phase764EtaKonfidenzWidget } from './phase764-eta-konfidenz-widget';
 import { Phase765LieferSchnelligkeitsIndikator } from './phase765-liefer-schnelligkeits-indikator';
 import { Phase769KuechenVertrauenSeal } from './phase769-kuechen-vertrauen-seal';
 import { Phase774BestellTransparenzSiegel } from './phase774-bestell-transparenz-siegel';
+import { Phase778EtaDynamikLivePanel } from './phase778-eta-dynamik-live-panel';
 
 type Props = {
   location: Location;
@@ -518,6 +519,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 778: ETA-Dynamik-Live-Panel — Phasen-Timeline mit Echtzeit-ETA und Fahrer-Infos */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase778EtaDynamikLivePanel
+              orderId={orderSuccess.orderId}
+              status="bestätigt"
+              estimatedMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+              orderedAt={orderSuccess.orderedAt}
+            />
+          </div>
+        )}
         {/* Phase 458: Dynamische ETA-Anzeige mit Live-Fahrer-Status */}
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-6 max-w-lg mx-auto">
