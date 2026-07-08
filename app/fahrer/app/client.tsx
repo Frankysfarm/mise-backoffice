@@ -281,6 +281,7 @@ import { FahrerPhase832KundenzufriedenheitsTrend } from './phase832-kundenzufrie
 import { FahrerPhase833TourEffizienzLive } from './phase833-tour-effizienz-live';
 import { FahrerPhase834TourLiveKommando } from './phase834-tour-live-kommando';
 import { FahrerPhase835SchichtBilanzCockpit } from './phase835-schicht-bilanz-cockpit';
+import { FahrerPhase844SchichtZusammenfassung } from './phase844-schicht-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -3641,6 +3642,9 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase835SchichtBilanzCockpit driverId={driver.id} locationId={driver.location_id ?? null} />
         </div>
+
+        {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
+        <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
 
         {/* Phase 776: Tour-Stopp-Sequenz-Live — visuelle Stopp-Liste mit ETA und Navigations-Button */}
         {activeBatch && activeBatch.stops.length > 0 && (

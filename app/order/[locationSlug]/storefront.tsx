@@ -135,6 +135,7 @@ import { StorefrontPhase829DynamischeEtaLivePanel } from './phase829-dynamische-
 import { StorefrontPhase830LiveTrackingPanel } from './phase830-live-tracking-panel';
 import { StorefrontPhase834LieferstatusTransparenz } from './phase834-lieferstatus-transparenz';
 import { Phase840BestAnlass } from './phase840-bestell-anlass';
+import { Phase845NachhaltigkeitsBadge } from './phase845-nachhaltigkeits-badge';
 
 type Props = {
   location: Location;
@@ -1474,6 +1475,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         locationSlug={locationId}
         currentOrderId={order.orderId ?? null}
       />
+      {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
+      <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
       <Phase804LieferVersprechenSiegel locationId={locationId} />
       {/* Phase 813: Kunden-Treuepunkte — Gesammelte Punkte + Einlöse-Möglichkeit beim Checkout */}

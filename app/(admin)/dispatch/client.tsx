@@ -335,6 +335,7 @@ import { DispatchPhase828TourVisualisierungsCockpit } from './phase828-tour-visu
 import { DispatchPhase831SchichtEffizienzPanel } from './phase831-schicht-effizienz-panel';
 import { DispatchPhase832ZuweisungLiveCockpit } from './phase832-zuweisung-live-cockpit';
 import { DispatchPhase839FahrerRueckkehrUebersicht } from './phase839-fahrer-rueckkehr-uebersicht';
+import { DispatchPhase843ZonenEngpassMonitor } from './phase843-zonen-engpass-monitor';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2340,6 +2341,8 @@ export function DispatchBoard({
       <DispatchPhase832ZuweisungLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 839: Fahrer-Rückkehr-Übersicht Live — Alle Fahrer unterwegs mit ETA, sortiert nach frühester Rückkehr */}
       <DispatchPhase839FahrerRueckkehrUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 843: Zonen-Engpass-Monitor — Welche Zonen sind unterbesetzt? Ampel A/B/C/D, 30s-Polling */}
+      <DispatchPhase843ZonenEngpassMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
