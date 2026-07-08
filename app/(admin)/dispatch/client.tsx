@@ -2217,9 +2217,9 @@ export function DispatchBoard({
       {/* Phase 681: Multi-Zonen-Effizienz-Überblick — Alle aktiven Zonen: Fahrerzahl, offene Touren, ETA-Avg */}
       <DispatchPhase681MultiZonenUeberblick locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 684: Tour-Score Live-Anzeige — Live-Score aktiver Touren als farbkodierte Kacheln */}
-      <DispatchPhase684TourScoreLiveAnzeige batches={batches as any} drivers={drivers as any} stops={stops as any} />
+      <DispatchPhase684TourScoreLiveAnzeige batches={batches as any} drivers={drivers as any} stops={[] as any} />
       {/* Phase 685: Tour-Visualisierungs-Board — Swimlane-Ansicht aller aktiven Touren mit Stopp-Fortschritt */}
-      <DispatchPhase685TourVisualisierungsBoard batches={batches as any} stops={stops as any} drivers={drivers as any} />
+      <DispatchPhase685TourVisualisierungsBoard batches={batches as any} stops={[] as any} drivers={drivers as any} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
