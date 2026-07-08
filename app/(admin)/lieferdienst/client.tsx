@@ -273,6 +273,8 @@ import { LieferdienstPhase505SchichtStatistikenDashboard } from './phase505-schi
 import { LieferdienstPhase620StatistikenDashboard } from './phase620-statistiken-dashboard';
 import { LieferdienstPhase621EchtzeitSchichtStats } from './phase621-echtzeit-schicht-stats';
 import { LieferdienstPhase622StatistikenLiveHub } from './phase622-statistiken-live-hub';
+import { LieferdienstPhase623TagesStatistikenDashboard } from './phase623-tages-statistiken-dashboard';
+import { LieferdienstPhase624SchichtKpiCommander } from './phase624-schicht-kpi-commander';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1705,6 +1707,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase621EchtzeitSchichtStats locationId={locationId ?? null} />
                 {/* Phase 622: Statistiken-Live-Hub — KPI-Kacheln mit Trend: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit */}
                 <LieferdienstPhase622StatistikenLiveHub locationId={locationId ?? null} />
+                {/* Phase 623: Tages-Statistiken-Dashboard — Übersichtliches Dashboard mit heutigen Lieferkennzahlen */}
+                <LieferdienstPhase623TagesStatistikenDashboard locationId={locationId ?? null} />
+                {/* Phase 624: Schicht-KPI-Commander — Echtzeit-Schicht-Kennzahlen: Umsatz, Touren, Auslastungsampel */}
+                <LieferdienstPhase624SchichtKpiCommander locationId={locationId ?? null} />
               </>
             </div>
           )}

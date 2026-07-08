@@ -258,6 +258,8 @@ import { KitchenPhase665DringlichkeitsQueue } from './phase665-dringlichkeits-qu
 import { KitchenPhase670SchichtEndePrognose } from './phase670-schicht-ende-prognose';
 import { KitchenPhase675AuslastungsHeatmap } from './phase675-auslastungs-heatmap';
 import { KitchenPhase680MenuAuslastungsScore } from './phase680-menu-auslastungs-score';
+import { KitchenPhase684SmartCountdownFarbkodierung } from './phase684-smart-countdown-farbkodierung';
+import { KitchenPhase685PrepStationAuslastungsBoard } from './phase685-prep-station-auslastungs-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2065,6 +2067,10 @@ export function KitchenBoard({
       <KitchenPhase675AuslastungsHeatmap orders={filtered as any} />
       {/* Phase 680: Menü-Auslastungs-Score — Welche Menüpunkte heute am häufigsten bestellt */}
       <KitchenPhase680MenuAuslastungsScore orders={filtered as any} />
+      {/* Phase 684: Smart-Countdown mit Farbkodierung — Echtzeit-Countdown je Bestellung (Grün/Amber/Rot/Überfällig) */}
+      <KitchenPhase684SmartCountdownFarbkodierung orders={filtered as any} timings={timings as any} />
+      {/* Phase 685: Prep-Station Auslastungs-Board — Farbkodierte Auslastung je Zubereitungsstation */}
+      <KitchenPhase685PrepStationAuslastungsBoard orders={filtered as any} />
     </div>
   );
 }

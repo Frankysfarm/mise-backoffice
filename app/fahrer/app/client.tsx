@@ -239,6 +239,8 @@ import { FahrerPhase667TagesEinnahmenPrognose } from './phase667-tages-einnahmen
 import { FahrerPhase672TourQualitaetsScore } from './phase672-tour-qualitaets-score';
 import { FahrerPhase677SchichtAbschlussScreen } from './phase677-schicht-abschluss-screen';
 import { FahrerPhase682WochenZielFortschrittsring } from './phase682-wochenziel-fortschrittsring';
+import { FahrerPhase683TourStoppNavigatorLive } from './phase683-tour-stopp-navigator-live';
+import { FahrerPhase684NavigationLiveCockpit } from './phase684-navigation-live-cockpit';
 
 type Driver = {
   id: string;
@@ -3333,6 +3335,18 @@ export function FahrerApp({
         {driver.location_id && (
           <div className="px-4">
             <FahrerPhase682WochenZielFortschrittsring driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 683: Tour-Stopp-Navigator Live — Alle Stopps der laufenden Tour mit Status + Navi-Button */}
+        {activeBatch && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase683TourStoppNavigatorLive driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 684: Navigation Live Cockpit — Nächster Stopp mit Adresse, ETA-Countdown + Navi-App-Buttons */}
+        {activeBatch && driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase684NavigationLiveCockpit driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 

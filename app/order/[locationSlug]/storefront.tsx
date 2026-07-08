@@ -96,6 +96,8 @@ import { Phase668BestellStatusAmpel } from './phase668-bestell-status-ampel';
 import { Phase673ZonenLieferzeit } from './phase673-zonen-lieferzeit';
 import { Phase678VorbestellungSlot } from './phase678-vorbestellung-slot';
 import { Phase683LieferQualitaetsVersprechen } from './phase683-liefer-qualitaets-versprechen';
+import { Phase684DynamischeEtaAnzeige } from './phase684-dynamische-eta-anzeige';
+import { Phase685LiveTrackingCommander } from './phase685-live-tracking-commander';
 
 type Props = {
   location: Location;
@@ -1365,6 +1367,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase678VorbestellungSlot locationId={locationId} />
       {/* Phase 683: Liefer-Qualitäts-Versprechen — Ø Bewertung + Pünktlichkeit + Küchenstatus live */}
       <Phase683LieferQualitaetsVersprechen locationId={locationId} />
+      {/* Phase 684: Dynamische ETA-Anzeige — Live-ETA mit Konfidenzband und Phasen-Indikator */}
+      {order.isDelivery && order.orderId && !['delivered', 'cancelled'].includes(order.status ?? '') && (
+        <Phase684DynamischeEtaAnzeige orderId={order.orderId} locationId={locationId} />
+      )}
+      {/* Phase 685: Live-Tracking-Commander — Kompaktes Live-Tracking mit Fahrer-Puls und ETA-Countdown */}
+      {order.isDelivery && order.orderId && order.status === 'on_route' && (
+        <Phase685LiveTrackingCommander orderId={order.orderId} locationId={locationId} />
+      )}
       {/* Phase 632: Bestellhistorie-Kurzansicht — Zeigt Anzahl vergangener Bestellungen und letzte Bestellung */}
       <Phase632BestellhistorieKurzansicht locationId={locationId} />
       {/* Phase 645: Bewertungs-Aufforderungs-Banner — erscheint nach Lieferung, lädt zur Bewertung ein */}
