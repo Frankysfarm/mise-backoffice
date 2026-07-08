@@ -277,6 +277,7 @@ import { KitchenPhase742BestellungsPrioritaetsAmpel } from './phase742-bestellun
 import { KitchenPhase747BestellungsCluster } from './phase747-bestellungs-cluster';
 import { KitchenPhase752LiveBestellzaehler } from './phase752-live-bestellzaehler';
 import { KitchenPhase757WarteschlangenPriorisierung } from './phase757-warteschlangen-priorisierung';
+import { KitchenPhase762BestellungsKomplexitaetsTacho } from './phase762-bestellungs-komplexitaets-tacho';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2122,6 +2123,8 @@ export function KitchenBoard({
       <KitchenPhase752LiveBestellzaehler orders={filtered as any} />
       {/* Phase 757: Warteschlangen-Priorisierung — Offene Bestellungen nach Wartezeit, Ampelfarbe ab 15/30 Min */}
       <KitchenPhase757WarteschlangenPriorisierung orders={filtered as any} />
+      {/* Phase 762: Küchen-Komplexitäts-Tacho — Score 0-100 basierend auf Artikel-Komplexität × Menge */}
+      <KitchenPhase762BestellungsKomplexitaetsTacho orders={filtered as any} />
     </div>
   );
 }

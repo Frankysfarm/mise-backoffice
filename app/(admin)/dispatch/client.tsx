@@ -313,6 +313,7 @@ import { DispatchPhase743ZonenUeberlastungsAlarm } from './phase743-zonen-ueberl
 import { DispatchPhase748SchichtUeberstundenPanel } from './phase748-schicht-ueberstunden-panel';
 import { DispatchPhase753FahrerKmBilanzPanel } from './phase753-fahrer-km-bilanz-panel';
 import { DispatchPhase758FahrerAuslastungsMatrix } from './phase758-fahrer-auslastungs-matrix';
+import { DispatchPhase763ZonenErtragsStreifen } from './phase763-zonen-ertrags-streifen';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2271,6 +2272,8 @@ export function DispatchBoard({
       <DispatchPhase753FahrerKmBilanzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 758: Fahrer-Auslastungs-Matrix — Auslastungsbalken je Fahrer, frei/mittel/aktiv/voll */}
       <DispatchPhase758FahrerAuslastungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 763: Zonen-Ertrags-Streifen — Umsatz je Zone heute als animierter Balken */}
+      <DispatchPhase763ZonenErtragsStreifen locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

@@ -258,6 +258,7 @@ import { FahrerPhase744SchichtUeberstundenWarnung } from './phase744-schicht-ueb
 import { FahrerPhase749KmTagesTracker } from './phase749-km-tages-tracker';
 import { FahrerPhase754SlaAlarmWidget } from './phase754-sla-alarm-widget';
 import { FahrerPhase759LiveEinnahmenTicker } from './phase759-live-einnahmen-ticker';
+import { FahrerPhase764StundenVerdienstMuster } from './phase764-stunden-verdienst-muster';
 
 type Driver = {
   id: string;
@@ -3451,6 +3452,12 @@ export function FahrerApp({
         {driver.location_id && (
           <div className="px-4">
             <FahrerPhase759LiveEinnahmenTicker driverId={driver.id} locationId={driver.location_id} />
+          </div>
+        )}
+        {/* Phase 764: Stunden-Verdienst-Muster — Wann verdiene ich am meisten? Balken je Stunde */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase764StundenVerdienstMuster driverId={driver.id} locationId={driver.location_id} />
           </div>
         )}
 
