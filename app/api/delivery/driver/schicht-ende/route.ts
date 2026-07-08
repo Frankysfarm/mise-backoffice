@@ -32,12 +32,14 @@ export async function POST(req: NextRequest) {
 
   if (!shift) {
     // No active shift found — just log the km reading
-    await sb.from('driver_km_logs').insert({
-      driver_id,
-      km_stand: km_ende,
-      type: 'ende',
-      logged_at: new Date().toISOString(),
-    }).throwOnError().catch(() => null);
+    try {
+      await sb.from('driver_km_logs').insert({
+        driver_id,
+        km_stand: km_ende,
+        type: 'ende',
+        logged_at: new Date().toISOString(),
+      });
+    } catch { /* ignore km log errors */ }
 
     return NextResponse.json({ success: true, message: 'Keine aktive Schicht gefunden, km gespeichert' });
   }

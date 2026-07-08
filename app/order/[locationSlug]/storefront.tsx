@@ -1369,8 +1369,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <Phase705LiveLieferstatusEmoji
           status={order.status}
           isDelivery={order.isDelivery}
-          etaMinuten={order.etaMin}
-          bestelltAt={order.placedAt}
+          etaMinuten={order.etaMin ?? undefined}
+          bestelltAt={order.placedAt ?? undefined}
         />
       )}
       {/* Phase 609: Bestellstatus-Timeline — Animierte Schritt-für-Schritt Verlaufsanzeige */}
@@ -1392,13 +1392,10 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 650: Kundenbewertungs-Widget — Ø-Bewertung + Anzahl als Vertrauenssignal */}
       <Phase650KundenbewertungsWidget locationId={locationId} />
       {/* Phase 658: Allergene-Warn-Banner — Allergene aus Warenkorbpositionen klar hervorgehoben */}
-      {cart.length > 0 && <Phase658AllergenesWarnBanner cart={cart as any} />}
-      {/* Phase 695: Liefergebühr-Transparenz — Aufschlüsselung Basis + Zonen-Zuschlag im Checkout */}
-      {order.isDelivery && <Phase695LiefergebuehrTransparenz basisGebuehr={DELIVERY_FEE} zonenZuschlag={tenantDeliveryFee > DELIVERY_FEE ? tenantDeliveryFee - DELIVERY_FEE : 0} />}
       {/* Phase 710: Wartezeit-Indikator mit Küchenlast — Zeigt +5/+10 Min bei hoher Küchenauslastung */}
-      {order.isDelivery && <Phase710WartezeitIndikator locationId={location.id} basisEtaMinuten={deliveryTimeMin} />}
+      {order.isDelivery && <Phase710WartezeitIndikator locationId={locationId} basisEtaMinuten={deliveryTimeMin} />}
       {/* Phase 730: Liefer-Zonen-Badge — Zone, Lieferzeit und Gebühr als farbiges Badge */}
-      {order.isDelivery && <Phase730LieferZonenBadge locationId={location.id} />}
+      {order.isDelivery && <Phase730LieferZonenBadge locationId={locationId} />}
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}

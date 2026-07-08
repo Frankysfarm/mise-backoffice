@@ -108,9 +108,9 @@ export function LieferdienstPhase695StatistikenDashboard({
 
         if (todayOrders) {
           ordersToday = todayOrders.length;
-          revenueToday = todayOrders.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-          completedToday = todayOrders.filter(o => o.status === 'geliefert').length;
-          cancelCount = todayOrders.filter(o => o.status === 'storniert').length;
+          revenueToday = todayOrders.reduce((s: number, o: { gesamtbetrag?: number | null }) => s + (o.gesamtbetrag ?? 0), 0);
+          completedToday = todayOrders.filter((o: { status?: string | null }) => o.status === 'geliefert').length;
+          cancelCount = todayOrders.filter((o: { status?: string | null }) => o.status === 'storniert').length;
         }
 
         const { data: activeDrivers } = await sb
@@ -151,7 +151,7 @@ export function LieferdienstPhase695StatistikenDashboard({
           points.push({
             label: days[d.getDay() === 0 ? 6 : d.getDay() - 1],
             orders: data?.length ?? 0,
-            revenue: data?.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0) ?? 0,
+            revenue: data?.reduce((s: number, o: { gesamtbetrag?: number | null }) => s + (o.gesamtbetrag ?? 0), 0) ?? 0,
           });
         }
         setTrend(points);
@@ -301,11 +301,12 @@ export function LieferdienstPhase695StatistikenDashboard({
                     <XAxis dataKey="label" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                     <Tooltip
                       contentStyle={{ fontSize: 10, borderRadius: 8 }}
-                      formatter={(val: number) =>
-                        view === 'revenue'
-                          ? [val.toLocaleString('de-DE') + ' €', 'Umsatz']
-                          : [val.toString(), 'Bestellungen']
-                      }
+                      formatter={(val: unknown) => {
+                        const n = Number(val);
+                        return view === 'revenue'
+                          ? [n.toLocaleString('de-DE') + ' €', 'Umsatz']
+                          : [n.toString(), 'Bestellungen'];
+                      }}
                     />
                     <Bar dataKey={view} radius={[4, 4, 0, 0]}>
                       {trendData.map((_, i) => (
