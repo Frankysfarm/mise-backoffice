@@ -336,6 +336,7 @@ import { DispatchPhase831SchichtEffizienzPanel } from './phase831-schicht-effizi
 import { DispatchPhase832ZuweisungLiveCockpit } from './phase832-zuweisung-live-cockpit';
 import { DispatchPhase839FahrerRueckkehrUebersicht } from './phase839-fahrer-rueckkehr-uebersicht';
 import { DispatchPhase843ZonenEngpassMonitor } from './phase843-zonen-engpass-monitor';
+import { DispatchPhase848FahrerEinsatzHeatmap } from './phase848-fahrer-einsatz-heatmap';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2343,6 +2344,8 @@ export function DispatchBoard({
       <DispatchPhase839FahrerRueckkehrUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 843: Zonen-Engpass-Monitor — Welche Zonen sind unterbesetzt? Ampel A/B/C/D, 30s-Polling */}
       <DispatchPhase843ZonenEngpassMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 848: Fahrer-Einsatz-Heatmap — 24h-Heatmap welche Stunden welche Fahrer aktiv, Basis Schichtplanung */}
+      <DispatchPhase848FahrerEinsatzHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
