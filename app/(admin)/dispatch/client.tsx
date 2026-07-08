@@ -323,6 +323,7 @@ import { DispatchPhase782FahrerEffizienzHeatmap } from './phase782-fahrer-effizi
 import { DispatchPhase786TourScoreLivePanel } from './phase786-tour-score-live-panel';
 import { DispatchPhase792FahrerZonenAffinitaetsMatrix } from './phase792-fahrer-zonen-affinitaets-matrix';
 import { DispatchPhase797TourStornoPraevention } from './phase797-tour-storno-praevention';
+import { DispatchPhase802FahrerKontaktLog } from './phase802-fahrer-kontakt-log';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2301,6 +2302,8 @@ export function DispatchBoard({
       <DispatchPhase792FahrerZonenAffinitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 797: Tour-Storno-Präventions-Monitor — Alert bei Touren mit >30 Min Wartezeit ohne Fahrer-Kontakt */}
       <DispatchPhase797TourStornoPraevention locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 802: Fahrer-Kontakt-Log — Letzte 10 Dispatch→Fahrer-Kontakte mit Uhrzeit und Kanal */}
+      <DispatchPhase802FahrerKontaktLog locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog

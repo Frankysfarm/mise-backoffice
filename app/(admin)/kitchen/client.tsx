@@ -287,6 +287,7 @@ import { KitchenPhase781AllergikerBestellAlert } from './phase781-allergiker-bes
 import { KitchenPhase785SmartCountdownCockpit } from './phase785-smart-countdown-timing-cockpit';
 import { KitchenPhase791BestellungsVolumenHochrechnung } from './phase791-bestellungs-volumen-hochrechnung';
 import { KitchenPhase796KuechenAuslastungsTacho } from './phase796-kuechen-auslastungs-tacho';
+import { KitchenPhase801ZubereitungsEngpassAlarm } from './phase801-zubereitungs-engpass-alarm';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2152,6 +2153,8 @@ export function KitchenBoard({
       <KitchenPhase791BestellungsVolumenHochrechnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 796: Küchen-Auslastungs-Tachometer — SVG-Gauge 0–100% mit Farbübergang grün/amber/rot */}
       <KitchenPhase796KuechenAuslastungsTacho locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 801: Zubereitungs-Engpass-Alarm — Warnung bei >5 Bestellungen >15 Min in Vorbereitung */}
+      <KitchenPhase801ZubereitungsEngpassAlarm locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

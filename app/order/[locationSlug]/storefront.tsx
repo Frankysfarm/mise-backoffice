@@ -125,6 +125,7 @@ import { Phase784KuechenWartezeitIndikator } from './phase784-kuechen-wartezeit-
 import { Phase785DynamischeEtaLive } from './phase785-dynamische-eta-live';
 import { Phase794WartezeitVorhersageBanner } from './phase794-wartezeit-vorhersage-banner';
 import { Phase799BestellhistorieSchnellansicht } from './phase799-bestellhistorie-schnellansicht';
+import { Phase804LieferVersprechenSiegel } from './phase804-liefer-versprechen-siegel';
 
 type Props = {
   location: Location;
@@ -1463,6 +1464,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         locationSlug={location.id}
         currentOrderId={order.orderId ?? null}
       />
+      {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
+      <Phase804LieferVersprechenSiegel locationId={locationId} />
       {/* Phase 663: Küchen-Vertrauen-Badge — Live-Qualitäts-Siegel mit Rating und Küchenauslastung */}
       <Phase663KuechenVertrauenBadge locationId={locationId} />
       {/* Phase 668: Bestell-Status-Ampel — Kompakte Echtzeit-Küchenauslastungsanzeige als Ampel */}
