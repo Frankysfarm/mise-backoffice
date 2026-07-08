@@ -114,7 +114,7 @@ export function StorefrontPhase830LiveTrackingPanel({ orderId, status, fahrerNam
       </div>
 
       {/* ETA + Distanz */}
-      {data.status !== 'geliefert' && (
+      {(data.status as string) !== 'geliefert' && (
         <div className="grid grid-cols-2 divide-x divide-stone-100 border-b border-stone-100 bg-white">
           <div className="px-4 py-3 text-center">
             <div className="flex items-center justify-center gap-1 mb-0.5">

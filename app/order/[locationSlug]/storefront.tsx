@@ -1465,7 +1465,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase794WartezeitVorhersageBanner locationId={locationId} />
       {/* Phase 799: Bestellhistorie-Schnellansicht — Letzte 3 Bestellungen aus LocalStorage */}
       <Phase799BestellhistorieSchnellansicht
-        locationSlug={location.id}
+        locationSlug={locationId}
         currentOrderId={order.orderId ?? null}
       />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}

@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 interface Order {
   id: string;
   status: string;
-  items?: { name: string; quantity: number }[];
 }
 
 interface Props {
