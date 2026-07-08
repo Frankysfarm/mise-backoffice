@@ -12,7 +12,7 @@ interface Driver {
 }
 
 interface Props {
-  drivers: Driver[];
+  drivers?: Driver[];
   locationId: string | null;
 }
 
@@ -47,7 +47,7 @@ function confLabel(c: ZuweisungsVorschlag['confidence']) {
   }
 }
 
-export function DispatchPhase832ZuweisungLiveCockpit({ drivers, locationId }: Props) {
+export function DispatchPhase832ZuweisungLiveCockpit({ drivers = [], locationId }: Props) {
   const [vorschlaege, setVorschlaege] = useState<ZuweisungsVorschlag[]>([]);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(true);

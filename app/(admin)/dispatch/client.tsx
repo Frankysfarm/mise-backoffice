@@ -2337,7 +2337,7 @@ export function DispatchBoard({
       {/* Phase 831: Schicht-Effizienz-Panel — Umsatz/h je Fahrer + Benchmark Vortag als Balkendiagramm */}
       <DispatchPhase831SchichtEffizienzPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 832: Zuweisung Live-Cockpit — Score-basierte Fahrerzuweisung mit Override-Option, 45s Polling */}
-      <DispatchPhase832ZuweisungLiveCockpit drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      <DispatchPhase832ZuweisungLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 839: Fahrer-Rückkehr-Übersicht Live — Alle Fahrer unterwegs mit ETA, sortiert nach frühester Rückkehr */}
       <DispatchPhase839FahrerRueckkehrUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 

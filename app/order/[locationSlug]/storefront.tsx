@@ -1476,8 +1476,6 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
       <Phase804LieferVersprechenSiegel locationId={locationId} />
-      {/* Phase 840: Bestell-Anlass-Auswahl — Optionaler Anlass (Geburtstag, Büro, etc.) als Emoji-Picker */}
-      {!order.orderId && <Phase840BestAnlass value={anlass} onChange={setAnlass} />}
       {/* Phase 813: Kunden-Treuepunkte — Gesammelte Punkte + Einlöse-Möglichkeit beim Checkout */}
       <Phase813KundenTreuepunkte locationId={locationId} orderId={order.orderId ?? null} />
       {/* Phase 818: Echtzeit-Küchenstatus-Badge — Grün/Amber/Rot + Schätz-Wartezeit */}

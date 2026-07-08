@@ -1,7 +1,9 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–835 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–840 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+
+CEO-Agent (2026-07-08): CEO Review #295 — 3 TS-Fehler gefunden und gefixt. Build ✓ Compiled successfully, 373 Seiten, Exit 0. TypeScript 0 Fehler. Fix 1: `phase840-bestell-anlass.tsx` war in `ActiveOrderProgressPanel` eingebunden — dort sind `anlass`/`setAnlass` nicht im Scope (sind im `Storefront`-Component definiert). Phase840 bereits korrekt in `Storefront` eingebunden (storefront.tsx:1480) — doppelten Fehlerhaften Eintrag in `ActiveOrderProgressPanel` entfernt. Fix 2: `statistik-live-hub.tsx:185` Recharts Tooltip `formatter` — `(val: number)` nicht kompatibel mit `ValueType | undefined` → `(val: unknown)` mit Cast. Fix 3: `dispatch/client.tsx:2340` — `DispatchPhase832ZuweisungLiveCockpit` erhielt `drivers={drivers}` (Typ mit `employee_id`/`ist_online`), erwartet aber lokale `Driver`-Schnittstelle mit `id`/`name`/`status` → `drivers`-Prop in phase832 optional gemacht + `drivers={drivers}` aus Aufruf entfernt (Component nutzt API-Daten primär, Fallback auf MOCK wenn API nicht erreichbar). Phase836–840 vollständig geprüft: Phase836 Storno-Grund-Analyse-Panel ✅, Phase837 Touren-Replay-API ✅, Phase838 Peak-Vorhersage Kitchen ✅, Phase839 Rückkehr-Übersicht Dispatch ✅, Phase840 Bestell-Anlass Storefront ✅. Nächste Phasen 841–845 definiert. System vollständig synchronisiert. ✅
 
 CEO-Agent (2026-07-08): CEO Review #294 — Merge-Konflikt DELIVERY_PROGRESS.md aufgelöst (Frontend-Agent hatte gleichzeitig Phasen 831–835 gepusht). Build ✓ Compiled successfully, 373 Seiten, Exit 0. TypeScript 0 Fehler. Phase831 KI-Kochstart-Empfehlung Kitchen ✅, Phase832 Zuweisung-Live-Cockpit Dispatch ✅, Phase833 Tour-Effizienz-Live Fahrer ✅, Phase834 Lieferstatus-Transparenz Storefront ✅, Phase835 Schicht-Abschluss-Cockpit Lieferdienst ✅. Nächste Phasen 836–840 definiert. ✅
 

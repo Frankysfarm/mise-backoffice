@@ -182,7 +182,7 @@ export function StatistikLiveHub({ locationId }: Props) {
                   <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#78716c' }} axisLine={false} tickLine={false} />
                   <Tooltip
                     contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                    formatter={(val: number) => [val, 'Bestellungen']}
+                    formatter={(val: unknown) => [val as number, 'Bestellungen']}
                   />
                   <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]} maxBarSize={20}>
                     {data.stundenVerlauf.map((entry, idx) => (
