@@ -147,6 +147,7 @@ import { SchichtLiveStatistik } from './schicht-live-statistik'
 import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
 import { LieferdienstSchichtLiveExecutive } from './schicht-live-executive'
 import { LieferdienstSofortAktionsPanel } from './sofort-aktions-panel'
+import { LieferdienstFahrerSchichtGrid } from './fahrer-schicht-grid'
 import { LieferdienstPricingKompakt } from './pricing-kompakt'
 import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
 import { LieferdienstStornoRateKarte } from './storno-rate-karte'
@@ -1800,6 +1801,8 @@ export function LieferdienstClient() {
 
           {currentView === 'drivers' && (
             <div className="p-6 space-y-6">
+              {/* Phase 916: Fahrer-Schicht-Grid — Kompaktes Karten-Grid aller aktiven Fahrer mit Schicht-KPIs */}
+              <LieferdienstFahrerSchichtGrid locationId={locationId} />
               {/* Schicht-Echtzeit-Rangliste: Live-Leaderboard der aktiven Fahrer nach Lieferungen */}
               <SchichtEchtzeitRangliste />
               {/* Aktive Fahrer: Live-Kacheln mit GPS-Status, aktueller Tour und verbleibenden Stops */}
