@@ -149,6 +149,7 @@ import { FahrerNavHub } from './fahrer-nav-hub';
 import { TourStoppCountdownRing } from './tour-stopp-countdown-ring';
 import { TourKassenRadar } from './tour-kassen-radar';
 import { KundenKontaktSchnell } from './kunden-kontakt-schnell';
+import { FahrerPhase915TourStoppNavigatorPro } from './phase915-tour-stopp-navigator-pro';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
@@ -2093,6 +2094,26 @@ export function FahrerApp({
                     kunde_adresse: s.order.kunde_adresse ?? null,
                   } : null,
                 }))}
+              />
+            </div>
+          )}
+          {/* Phase 915 Pro: Tour-Stopp-Navigator-Pro — Stop-Karten, Fortschrittsbalken, Schnellzugriff Navigation/Anruf */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase915TourStoppNavigatorPro
+                stops={activeBatch.stops
+                  .filter((s: any) => s.order)
+                  .map((s: any, i: number) => ({
+                    id: s.id,
+                    order_number: s.order?.bestellnummer ?? `#${s.id.slice(-4)}`,
+                    address: s.order?.kunde_adresse ?? '',
+                    customer_name: s.order?.kunde_name ?? undefined,
+                    customer_phone: s.order?.kunde_telefon ?? undefined,
+                    eta_min: 5 + i * 7,
+                    status: s.geliefert_am ? 'completed' : i === activeBatch.stops.filter((x: any) => !x.geliefert_am).indexOf(s) && !s.geliefert_am ? 'current' : 'pending',
+                    position: s.reihenfolge ?? i + 1,
+                    notes: s.order?.notiz ?? undefined,
+                  }))}
               />
             </div>
           )}

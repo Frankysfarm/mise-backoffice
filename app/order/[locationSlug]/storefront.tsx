@@ -150,6 +150,7 @@ import { Phase893LieferzeitKomfortBanner } from './phase893-lieferzeit-komfort-b
 import { Phase898LiveBestellZaehler } from './phase898-live-bestell-zaehler';
 import { Phase903LieferQualitaetsSiegel } from './phase903-liefer-qualitaets-siegel';
 import { Phase915LieferantenTransparenzWidget } from './phase915-lieferanten-transparenz-widget';
+import { StorefrontPhase916EtaLiveTrackingPro } from './phase916-eta-live-tracking-pro';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1538,6 +1539,19 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase903LieferQualitaetsSiegel locationId={locationId} isDelivery={order.isDelivery} />
       {/* Phase 915: Lieferanten-Transparenz-Widget — Name + Fahrzeug + Bewertung des Fahrers nach Dispatch */}
       {order.isDelivery && <Phase915LieferantenTransparenzWidget orderId={order.orderId ?? null} status={order.status ?? null} />}
+      {/* Phase 916: ETA-Live-Tracking-Pro — 4-Phasen-Timeline, Sekunden-Countdown, Fahrer-Distanz */}
+      {order.isDelivery && order.orderId && order.status && !['storniert', 'cancelled', 'geliefert', 'delivered'].includes(order.status) && (
+        <StorefrontPhase916EtaLiveTrackingPro
+          orderId={order.orderId}
+          initialEtaMin={order.etaEarliest ?? 28}
+          initialPhase={
+            order.status === 'in_zubereitung' ? 'cooking'
+              : order.status === 'fertig' ? 'ready'
+              : order.status === 'unterwegs' || order.status === 'dispatched' || order.status === 'in_delivery' ? 'picked_up'
+              : 'confirmed'
+          }
+        />
+      )}
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
       {order.isDelivery && order.status && !['storniert', 'cancelled'].includes(order.status) && (
         <EtaLiveKommando

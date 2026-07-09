@@ -1,7 +1,58 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–910 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–917 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+
+---
+
+## CEO Review #306 — 2026-07-09
+
+### Commits geprüft (seit Review #305)
+- `baf4d23f` feat(delivery/frontend): Phase 915 — Kunden-Kontakt-Schnell
+- `1312f2c9` feat(delivery/frontend): Phase 916 — Fahrer-Schicht-Grid
+- `fccb72f9` feat(delivery/frontend): Phase 917 — Küchen-Überlastungs-Frühwarnung
+- `943b4cde` feat(delivery/backend): Phasen 911–915 (bereits in Review #305 geprüft)
+- `027a2c21` feat(delivery/frontend): Smart-Timing, Tour-Navigation, Statistiken, ETA-Tracking
+
+### Prüfung Phase 915–917 + neue Komponenten
+
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 915 Kunden-Kontakt | Fahrer-App | `KundenKontaktSchnell` — 1-Tap Anruf + 4 SMS-Vorlagen, tel:/sms: URIs | ✅ integriert `fahrer/app/client.tsx:151+2082` |
+| 916 Fahrer-Grid | Lieferdienst | `LieferdienstFahrerSchichtGrid` — Grid aller aktiven Fahrer, 30s-Polling, Status-Badge, Mock-Fallback | ✅ integriert `lieferdienst/client.tsx:1808` |
+| 917 Überlastung | Kitchen | `KitchenUeberlastungsFruehwarnung` — Alert ab 75% Kapazität, Kritisch ab 100%, auto-hide bei ok | ✅ integriert `kitchen/client.tsx:779` |
+| 913 Smart-Timing | Kitchen | `KitchenPhase913SmartCountdownTimingPro` — Farbkodiertes Countdown-Grid, 10s-Polling | ✅ integriert `kitchen/client.tsx:885` |
+| 914 Tour-Score-Nav | Dispatch | `DispatchPhase914TourScoreLiveNavigation` — Score+Navigation-Panel, 30s-Polling | ✅ integriert `dispatch/client.tsx:1205` |
+| 901 Statistiken | Lieferdienst | `LieferdienstPhase901StatistikenEchtzeitDashboard` — 6-KPI-Grid, Stundenverlauf, Donut | ✅ integriert `lieferdienst/client.tsx:1549` |
+| 915 Pro Navigator | Fahrer-App | `FahrerPhase915TourStoppNavigatorPro` — Stop-Karten, Fortschrittsbalken, Schnellzugriff | **Bug gefixt: nicht integriert → jetzt integriert** |
+| 916 ETA-Pro | Storefront | `StorefrontPhase916EtaLiveTrackingPro` — 4-Phasen-Timeline, Sekunden-Countdown | **Bug gefixt: nicht integriert → jetzt integriert** |
+
+### Bugs gefunden und gefixt
+
+**Bug 1 — `FahrerPhase915TourStoppNavigatorPro` nicht integriert:**
+Komponente `phase915-tour-stopp-navigator-pro.tsx` existierte, wurde aber nie in `fahrer/app/client.tsx` importiert oder gerendert. Fix: Import ergänzt (L152) und Render nach `KundenKontaktSchnell` (nach L2098) mit `activeBatch.stops`-Mapping auf `Stop[]`-Interface.
+
+**Bug 2 — `StorefrontPhase916EtaLiveTrackingPro` nicht integriert:**
+Komponente `phase916-eta-live-tracking-pro.tsx` existierte, wurde aber nie in `storefront.tsx` importiert oder gerendert. Fix: Import ergänzt (L153) und Render nach `Phase915LieferantenTransparenzWidget` (nach L1541), sichtbar bei aktiven Lieferungen (nicht storniert/geliefert), Status-Mapping auf `OrderPhase`.
+
+### Build-Ergebnis
+**✓ Compiled successfully — 373 Seiten, Exit 0, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Alle Phasen 915–917 integriert | ✅ |
+
+### Nächste Phasen für Ingenieur
+1. **Phase 918 Backend:** Kunden-Wiederkauf-Segmente-API — Kunden nach RFM-Cluster segmentieren.
+2. **Phase 919 Kitchen:** Kühlketten-Alarm-Widget — Warnung bei Kühlartikel >20 Min in Zubereitung.
+3. **Phase 920 Dispatch:** Fahrer-Bonus-Cockpit — Live-Übersicht aller Fahrer mit Bonus-Stand aus Phase911-API.
+4. **Phase 921 Fahrer-App:** Monats-Rangliste — Fahrers Rang im Monatsvergleich mit Top-3.
+5. **Phase 922 Storefront:** Bestellmengen-Empfehlung — "Andere bestellen oft auch X".
 
 ---
 
