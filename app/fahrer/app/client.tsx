@@ -317,6 +317,7 @@ import { FahrerPhase961SchichtGewinnHochrechnung } from './phase961-schicht-gewi
 import { FahrerPhase964TourReihenfolgeVorschlag } from './phase964-tour-reihenfolge-vorschlag';
 import { FahrerPhase969KundenkommentarVorschau } from './phase969-kundenkommentar-vorschau';
 import { FahrerPhase974NaechsterStoppUltraNavigator } from './phase974-naechster-stopp-ultra-navigator';
+import { FahrerPhase979SchichtEnergiePrognose } from './phase979-schicht-energie-prognose';
 
 type Driver = {
   id: string;
@@ -3875,6 +3876,8 @@ export function FahrerApp({
         <FahrerPhase959SchichtAbschlussProtokoll driverId={driver.id} isOnline={isOnline} />
         {/* Phase 961: Schicht-Gewinn-Hochrechnung — Live-Prognose Schicht-Verdienst + Trinkgeld-Schätzung + Stunden-Verlauf */}
         <FahrerPhase961SchichtGewinnHochrechnung driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 979: Schicht-Energie-Prognose — Energie-Level + Pausen-Empfehlung basierend auf Intensität + Schichtdauer */}
+        <FahrerPhase979SchichtEnergiePrognose driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />

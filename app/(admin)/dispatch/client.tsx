@@ -399,6 +399,7 @@ import { DispatchPhase958ZonenAuslastungBoard } from './phase958-zonen-auslastun
 import { DispatchPhase963SchichtKapazitaetsPlaner } from './phase963-schicht-kapazitaets-planer';
 import { DispatchPhase968TourKostenAnalyse } from './phase968-tour-kosten-analyse';
 import { DispatchPhase973SchichtProfitabilitaetsCockpit } from './phase973-schicht-profitabilitaets-cockpit';
+import { DispatchPhase978TourZusammenlegungsVorschlag } from './phase978-tour-zusammenlegungs-vorschlag';
 
 type Driver = {
   employee_id: string;
@@ -1249,6 +1250,8 @@ export function DispatchBoard({
       <DispatchPhase968TourKostenAnalyse locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 973: Schicht-Profitabilitäts-Cockpit — Echtzeit P&L je aktiver Schicht (Umsatz - Löhne - Kraftstoff - Plattformkosten) */}
       <DispatchPhase973SchichtProfitabilitaetsCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 978: Tour-Zusammenlegungs-Vorschlag — Identifiziert effiziente Tour-Paare für Zusammenlegung (gleiche Zone + km-Ersparnis) */}
+      <DispatchPhase978TourZusammenlegungsVorschlag locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
