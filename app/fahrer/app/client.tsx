@@ -147,6 +147,7 @@ import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
 import { TourStoppCountdownRing } from './tour-stopp-countdown-ring';
+import { TourKassenRadar } from './tour-kassen-radar';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
@@ -2057,6 +2058,25 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 911: Tour-Kassen-Radar — Bargeld-Übersicht je Stopp mit Kassier-Fortschritt und Restbetrag */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <TourKassenRadar
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? null,
+                  geliefert_am: s.geliefert_am ?? null,
+                  order: s.order ? {
+                    bestellnummer: s.order.bestellnummer,
+                    kunde_name: s.order.kunde_name,
+                    gesamtbetrag: s.order.gesamtbetrag ?? 0,
+                    zahlungsart: s.order.zahlungsart ?? null,
+                    bezahlt: s.order.bezahlt ?? null,
+                  } : null,
+                }))}
+              />
+            </div>
+          )}
           {/* Phase 427: Tour-Lieferquote — Pünktlichkeitsquote + Fortschrittsbalken der aktuellen Tour */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

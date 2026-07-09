@@ -144,6 +144,7 @@ import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
 import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
 import { DispatchTourZeitachseLive } from './tour-zeitachse-live';
+import { DispatchWarteAlarmPanel } from './warte-alarm-panel';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
@@ -1384,6 +1385,20 @@ export function DispatchBoard({
             }))}
         />
       )}
+      {/* Phase 912: Warte-Alarm-Panel — Automatische Alerts bei überfälligen Bestellungen je Phase */}
+      <DispatchWarteAlarmPanel
+        orders={[...readyOrders, ...batches.flatMap(b => b.stops.map(s => s.order).filter(Boolean))]
+          .filter((o): o is NonNullable<typeof o> => !!o)
+          .map(o => ({
+            id: (o as any).id ?? '',
+            bestellnummer: (o as any).bestellnummer,
+            status: (o as any).status ?? 'neu',
+            bestellt_am: (o as any).bestellt_am ?? null,
+            fertig_am: (o as any).fertig_am ?? null,
+            kunde_name: (o as any).kunde_name,
+            zone: (o as any).delivery_zone ?? (o as any).zone ?? null,
+          }))}
+      />
       {/* Zonen-Bundle-Score — Empfehlung: welche Bestellungen lohnt sich zusammen zu bündeln */}
       <DispatchZoneBundleScore orders={readyOrders} />
       {/* Tour-Score-Karte: horizontale Score-Kacheln — Stop-Dots + Arc-Gauge + ETA-Countdown */}
