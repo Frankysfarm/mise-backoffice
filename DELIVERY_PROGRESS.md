@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–917 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–922 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-09): Phasen 918–922 vollständig implementiert + integriert. Phase918 Kunden-Wiederkauf-Segmente-API Backend (RFM-Cluster Champions/Loyale/Potenzielle/Gefährdete/Verlorene, Wiederkauf-Wahrscheinlichkeit 8–92%, Empfehlung je Segment, multi-tenant, GET /admin/kunden-wiederkauf-segmente) ✅, Phase919 Kühlketten-Alarm-Widget Kitchen (Warnung bei Kühlartikeln >20 Min in Zubereitung, client-seitig Keyword-Matching, Warn/Kritisch amber/rot, kitchen/client.tsx vor Phase917) ✅, Phase920 Fahrer-Bonus-Cockpit Dispatch (Live-Übersicht aller Fahrer mit Bonus-Stand aus Phase911-API, 3-Min-Polling, KPI-Row Touren/Pünktlichkeit/Bewertung, Gesamt-Bonus-Footer, dispatch/client.tsx nach Phase914) ✅, Phase921 Monats-Rangliste Fahrer-App (Rang im Monatsvergleich + Top-3-Fahrer, Backend-API /driver/monats-rangliste, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase914) ✅, Phase922 Bestellmengen-Empfehlung Storefront ("Andere bestellen oft auch X", Cross-Sell aus co-occurrence letzter 30 Tage, Backend-API /admin/bestellmengen-empfehlung, +Hinzufügen CTA, storefront.tsx nach Phase888 wenn cart.length>0) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #306 — Phasen 915–917 + Smart-Timing-Commit geprüft. 2 Bugs gefixt: FahrerPhase915TourStoppNavigatorPro nicht integriert (fahrer/app/client.tsx Import + Render nach KundenKontaktSchnell) + StorefrontPhase916EtaLiveTrackingPro nicht integriert (storefront.tsx Import + Render nach Phase915LieferantenTransparenzWidget mit Status-Mapping). Alle anderen Komponenten korrekt integriert: KundenKontaktSchnell, LieferdienstFahrerSchichtGrid, KitchenUeberlastungsFruehwarnung, KitchenPhase913SmartCountdownTimingPro, DispatchPhase914TourScoreLiveNavigation, LieferdienstPhase901StatistikenEchtzeitDashboard. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 911–915 vollständig implementiert + integriert. Phase911 Fahrer-Bonus-Berechnung-API Backend (automatische Bonus-Ermittlung je Schicht: Pünktlichkeit ≥90%/≥95% +2€/+3€, Touren ≥8/≥10 +1€/+2€, Bewertung ≥4.5/≥4.8 +1€/+2€, multi-tenant, GET /api/delivery/admin/fahrer-bonus-berechnung) ✅, Phase912 Batch-Effizienz-Score-Live Kitchen (Echtzeit-Score 0–100 je laufendem Batch: Bündelungs-Bonus + Alter-Malus + Artikel-Penalty, Collapsible, Empfehlung je Batch, client-seitig, kitchen/client.tsx nach Phase912) ✅, Phase913 Zonen-Priorisierungs-Override Dispatch (Manuelle Priorisierung A/B/C/D hoch/normal/niedrig, API GET+POST /admin/zonen-priorisierungs-override + InMemory-Fallback, dispatch/client.tsx nach Phase901) ✅, Phase914 Schicht-Abschluss-Highlight Fahrer-App (Score-Ring-SVG + 4-KPI-Grid + Top-3-Momente: schnellste Tour/bestes Trinkgeld/Pünktlichkeit, isOnline=false-Guard, fahrer/app/client.tsx nach Phase902) ✅, Phase915 Lieferanten-Transparenz-Widget Storefront (Name + Fahrzeug + Sterne-Bewertung + Lieferungen-Anzahl des zugewiesenen Fahrers, visible bei dispatched/in_delivery/unterwegs, storefront.tsx nach Phase903) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 899–903 vollständig implementiert + integriert. Phase899 Bestellungen-Heute-API Backend (Tagesbestellzähler + aktive Bestellungen jetzt, GET /api/delivery/admin/bestellungen-heute, multi-tenant location_id) ✅, Phase901 Zone-Abdeckungs-Matrix Dispatch (2×2-Grid A/B/C/D grün/amber/rot nach Fahrer-Abdeckung, Alert bei unabgedeckter Zone, 90s-Polling, eigene API /admin/zone-abdeckungs-matrix, dispatch/client.tsx nach Phase900) ✅, Phase902 Fahrer-Ziel-Fortschritt-Bar Fahrer-App (3-Balken Touren/Km/Einkommen vs. Tagesziel, Hochrechnung, Ziel-Erreicht-Banner, 5-Min-Polling, fahrer/app/client.tsx nach Phase897) ✅, Phase903 Liefer-Qualitäts-Siegel Storefront (Pünktlichkeits-% Siegel nur bei ≥85% + ≥10 Lieferungen, TOP-Badge ≥95%, /api/delivery/admin/liefer-qualitaet, storefront.tsx nach Phase898) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
@@ -60,12 +61,51 @@ Frontend-Ingenieur-Agent (2026-07-08): Phasen 831–835 + Storefront-Integration
 **API:** `GET /api/delivery/driver/public-profile?order_id=...` mit Mock-Fallback
 **Integration:** `storefront.tsx` nach Phase903 ✅
 
-### Nächste Phasen 916–920 (für nächsten Agenten)
-1. **Phase 916 Backend:** Kunden-Wiederkauf-Segmente-API — Kunden nach RFM-Cluster segmentieren + Wiederkauf-Wahrscheinlichkeit je Segment.
-2. **Phase 917 Kitchen:** Kühlketten-Alarm-Widget — Warnung wenn Bestellungen mit Kühlartikel zu lange in Zubereitung (>20 Min).
-3. **Phase 918 Dispatch:** Fahrer-Bonus-Cockpit — Live-Übersicht aller Fahrer mit aktuellem Bonus-Stand aus Phase911-API.
-4. **Phase 919 Fahrer-App:** Monats-Rangliste — Fahrers Rang im Monatsvergleich mit Top-3-Fahrern und eigenem Rang.
-5. **Phase 920 Storefront:** Bestellmengen-Empfehlung — Hinweis "Andere Kunden bestellen oft auch X" nach Artikel-Hinzufügen.
+### Nächste Phasen 923–927 (für nächsten Agenten)
+1. **Phase 923 Backend:** Lieferdienst-Umsatz-Split-API — Umsatz aufgeteilt nach Lieferung/Abholung/Vor-Ort je Filiale + Trend.
+2. **Phase 924 Kitchen:** Rezept-Vereinfachungs-Hinweis — Warnt wenn gleicher Artikel in >3 aktiven Bestellungen und schlägt Parallel-Kochen vor.
+3. **Phase 925 Dispatch:** Tour-Nachfass-Board — Alle heute abgeschlossenen Touren mit Score + Abweichung + Feedback-Status.
+4. **Phase 926 Fahrer-App:** Kraftstoff-Tracker — Tägliches km-Log + geschätzte Kraftstoffkosten je Schicht.
+5. **Phase 927 Storefront:** Live-Wartezeit-Indikator — Echtzeit-Ampel wie lang aktuell Bestellungen brauchen.
+
+---
+
+## Batch 918–922 — 2026-07-09
+
+### Phase 918 — Kunden-Wiederkauf-Segmente-API (Backend)
+**Datei:** `app/api/delivery/admin/kunden-wiederkauf-segmente/route.ts`
+**GET:** RFM-Cluster (Recency/Frequency/Monetary) aus letzten 90 Tagen Bestellungen
+**Segmente:** Champions (≤14d, ≥4 Bestellungen) / Loyale / Potenzielle / Gefährdete / Verlorene
+**Response:** `{ segmente[{name, kunden_count, wiederkauf_pct, avg_bestellungen, avg_umsatz_eur, avg_tage_seit_letzter, empfehlung}], gesamt_kunden }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 919 — Kühlketten-Alarm-Widget (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase919-kuehlketten-alarm.tsx`
+**Props:** `orders: Order[]` (mit items/artikel array)
+**UI:** Warn-Panel amber/rot — listet Bestellungen mit Kühlpflichtigen Artikeln (Keyword-Matching: Joghurt/Lachs/Eis/etc.) die >20 Min in Zubereitung sind; Kritisch-Alert bei >30 Min
+**Logik:** Client-seitig, Keyword-Matching auf item.name, minutenInZubereitung aus zubereitung_start/started_at
+**Integration:** `kitchen/client.tsx` vor KitchenUeberlastungsFruehwarnung (Phase917) ✅
+
+### Phase 920 — Fahrer-Bonus-Cockpit (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase920-fahrer-bonus-cockpit.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Panel — je Fahrer Bonus-Badge (+X€/kein Bonus) + KPI-Row (Touren/Pünktlichkeit/Bewertung) + Bonus-Gründe-Chips; Gesamt-Bonus-Footer; 3-Min-Polling
+**API:** `GET /api/delivery/admin/fahrer-bonus-berechnung` (Phase911-API), MOCK-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase914 ✅
+
+### Phase 921 — Monats-Rangliste (Fahrer-App)
+**Datei:** `app/fahrer/app/phase921-monats-rangliste.tsx` + `app/api/delivery/driver/monats-rangliste/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Nur wenn isOnline=true — Hero-Kachel mit eigenem Rang + Medal-Top-3-Liste + eigener Rang wenn >3; 10-Min-Polling
+**API:** Backend: Monats-Aggregation aller Fahrer gleicher Filiale + Ranking nach Touren×2 + Pünktlichkeit×0.5
+**Integration:** `fahrer/app/client.tsx` nach Phase914 ✅
+
+### Phase 922 — Bestellmengen-Empfehlung (Storefront)
+**Datei:** `app/order/[locationSlug]/phase922-bestellmengen-empfehlung.tsx` + `app/api/delivery/admin/bestellmengen-empfehlung/route.ts`
+**Props:** `locationId: string | null, currentItemNames: string[], onAddSuggestion?: (name: string) => void`
+**UI:** Collapsible Cross-Sell-Panel mit Top-5 co-occurring Artikeln, +Hinzufügen CTA, dismissbar; nur sichtbar wenn cart.length>0
+**API:** Backend: co-occurrence Analyse letzter 30 Tage — Bestellungen die aktuelle Artikel enthalten → häufigste Mitbestellungen
+**Integration:** `storefront.tsx` nach Phase888 (wenn cart.length>0) ✅
 
 ---
 
