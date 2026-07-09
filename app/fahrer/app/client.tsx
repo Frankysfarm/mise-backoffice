@@ -290,6 +290,7 @@ import { FahrerPhase863SchichtStoppStatistik } from './phase863-schicht-stopp-st
 import { FahrerPhase869FahrTippsCoach } from './phase869-fahr-tipps-coach';
 import { FahrerPhase874TourenKartenMinimap } from './phase874-touren-karten-minimap';
 import { TourStoppLiveNavigator } from './tour-stopp-live-navigator';
+import { FahrerPhase876TourNaechsterStoppUltra } from './phase876-tour-naechster-stopp-ultra';
 
 type Driver = {
   id: string;
@@ -1962,6 +1963,12 @@ export function FahrerApp({
                 batchId={activeBatch.id}
                 driverId={driver.id}
               />
+            </div>
+          )}
+          {/* Phase 876: Tour Nächster Stopp Ultra — Ultra-kompakte Next-Stop Karte mit Navigation + ETA */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase876TourNaechsterStoppUltra stops={activeBatch.stops as any} />
             </div>
           )}
           {/* Phase 500: Nächster-Stopp-Navigator — One-Tap Navigation + Countdown + Kundendaten + ETA */}

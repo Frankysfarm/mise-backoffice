@@ -292,6 +292,7 @@ import { LieferdienstPhase846ProduktivitaetsBenchmark } from './phase846-produkt
 import { LieferdienstPhase847StatistikExecutive } from './phase847-statistik-executive';
 import { LieferdienstPhase865WochenZielDashboard } from './phase865-wochenziel-dashboard';
 import { TagesStatsExecutive } from './tages-stats-executive';
+import { LieferdienstPhase877SchichtLiveExecutive } from './phase877-schicht-live-executive';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1532,6 +1533,8 @@ export function LieferdienstClient() {
               <LieferdienstLiveMetrikenLeiste locationId={locationId} />
               {/* Tages-Stats-Executive — Kompaktes Executive-Dashboard mit 6 KPIs + Stunden-Balkendiagramm */}
               {locationId && <TagesStatsExecutive locationId={locationId} />}
+              {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
+              <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Statistik Live-Hub: Aggregierte KPIs (Bestellungen, Umsatz, ETA, Fahrer, Storno, Bewertung) + Stundenverlauf-Chart */}
