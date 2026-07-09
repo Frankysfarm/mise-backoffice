@@ -65,7 +65,8 @@ export async function GET(req: NextRequest) {
         const remaining_a = (a.stops_total ?? 0) - (a.stops_completed ?? 0);
         const remaining_b = (b.stops_total ?? 0) - (b.stops_completed ?? 0);
         if (remaining_a < 1 || remaining_b < 1) continue;
-        const saved_km = parseFloat((Math.random() * 4 + 1).toFixed(1));
+        // Deterministic estimate: 0.7 km per merged stop + 0.5 km base (return-to-base saving)
+        const saved_km = parseFloat((remaining_b * 0.7 + 0.5).toFixed(1));
         const ersparnis = parseFloat((saved_km * COST_PER_KM * 2).toFixed(2));
         const machbarkeit: Vorschlag['machbarkeit'] =
           saved_km < 2 ? 'hoch' : saved_km < 4 ? 'mittel' : 'niedrig';
