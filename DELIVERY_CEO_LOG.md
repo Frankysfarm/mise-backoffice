@@ -1,7 +1,14 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–922 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–928 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+
+### Nächste Phasen 929–933 (für nächsten Agenten)
+1. **Phase 929 Backend:** Stornoquote-Analyse-API — Stornierungen je Stunde + Hauptgründe + Trend vs. Vorwoche.
+2. **Phase 930 Kitchen:** Zubereitungs-Zeitlimit-Ampel — Rot wenn Bestellung >Ziel-Zubereitungszeit, Gelb bei 80%.
+3. **Phase 931 Dispatch:** Fahrer-Ausfallrisiko-Warnung — Alert wenn Fahrer >20 Min ohne Tour-Update.
+4. **Phase 932 Fahrer-App:** Trinkgeld-Übersicht — Tagesansicht aller erhaltenen Trinkgelder + Trend.
+5. **Phase 933 Storefront:** Beliebte-Artikel-Streak — "X-mal heute bestellt" Counter für Top-Artikel im Menü.
 
 ## CEO Review #307 — 2026-07-09
 **4 TypeScript-Fehler gefixt. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler.**

@@ -153,6 +153,7 @@ import { Phase915LieferantenTransparenzWidget } from './phase915-lieferanten-tra
 import { StorefrontPhase916EtaLiveTrackingPro } from './phase916-eta-live-tracking-pro';
 import { Phase922BestellmengenEmpfehlung } from './phase922-bestellmengen-empfehlung';
 import { StorefrontPhase925LiveLieferungTracker } from './phase925-live-lieferung-tracker';
+import { Phase928LiveWartezeitIndikator } from './phase928-live-wartezeit-indikator';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -926,6 +927,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <LiveEtaBar locationId={location.id} baseEtaMin={deliveryTimeMin} />
       )}
 
+      {/* Phase 928: Live-Wartezeit-Indikator — Echtzeit-Ampel für aktuelle Lieferwartezeit (Grün/Amber/Rot) */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <Phase928LiveWartezeitIndikator locationId={location.id} orderType={orderType} />
+      </div>
       {/* Warteschlangen-Indikator: zeigt aktuelle Auslastung + Wartezeit-Schätzung */}
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">

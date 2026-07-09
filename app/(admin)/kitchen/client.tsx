@@ -217,6 +217,7 @@ import { KitchenSchichtKpiZusammenfassung } from './schicht-kpi-zusammenfassung'
 import { KitchenProduktionsPulsmesser } from './produktions-pulsmesser';
 import { KitchenUeberlastungsFruehwarnung } from './ueberlastungs-fruehwarnung';
 import { KitchenPhase919KuehlkettenAlarm } from './phase919-kuehlketten-alarm';
+import { KitchenPhase924RezeptVereinfachungsHinweis } from './phase924-rezept-vereinfachungs-hinweis';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
@@ -777,6 +778,13 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 924: Rezept-Vereinfachungs-Hinweis — Parallel-Kochen wenn gleicher Artikel in >3 Bestellungen */}
+      <KitchenPhase924RezeptVereinfachungsHinweis orders={orders.map(o => ({
+        id: o.id,
+        bestellnummer: (o as any).bestellnummer ?? null,
+        status: o.status,
+        items: (o as any).items ?? (o as any).artikel ?? [],
+      }))} />
       {/* Phase 919: Kühlketten-Alarm — Warnung bei Kühlartikeln >20 Min in Zubereitung */}
       <KitchenPhase919KuehlkettenAlarm orders={orders.map(o => ({
         id: o.id,
