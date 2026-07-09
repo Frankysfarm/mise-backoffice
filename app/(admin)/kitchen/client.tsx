@@ -332,6 +332,7 @@ import { KitchenPhase937KuechenTemperaturWarnung } from './phase937-kuechen-temp
 import { KitchenPhase942BestellrueckstandAmpel } from './phase942-bestellrueckstand-ampel';
 import { KitchenPhase947ParallelKochMonitor } from './phase947-parallel-koch-monitor';
 import { KitchenPhase952SmartTimingFarbkodierung } from './phase952-smart-timing-farbkodierung';
+import { KitchenPhase956AuslastungsPrognoseBoard } from './phase956-auslastungs-prognose-board';
 import { KitchenPhase957BatchPrioritaetsAmpel } from './phase957-batch-prioritaets-ampel';
 
 /* ------------------------------ Types ------------------------------ */
@@ -925,6 +926,8 @@ export function KitchenBoard({
       <KitchenPhase957BatchPrioritaetsAmpel orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
       <KitchenPhase952SmartTimingFarbkodierung orders={filtered as any} />
+      {/* Phase 956: Küchen-Auslastungs-Prognose-Board — Geschätzter Küchendruck je 10-Min-Slot (nächste 30 Min) mit Farbkodierung */}
+      <KitchenPhase956AuslastungsPrognoseBoard orders={filtered as any} />
       {/* Phase 913: Smart Countdown Timing Pro — Farbkodiertes Echtzeit-Countdown-Grid (Grün/Gelb/Rot) für alle aktiven Bestellungen */}
       <KitchenPhase913SmartCountdownTimingPro orders={filtered as any} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}

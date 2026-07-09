@@ -161,6 +161,7 @@ import { Phase945TreuepunkteVorschau } from './phase945-treuepunkte-vorschau';
 import { Phase950AllergenSchnellfilter } from './phase950-allergen-schnellfilter';
 import { Phase955LiveEtaFahrerTracking } from './phase955-live-eta-fahrer-tracking';
 import { Phase960ProduktVerfuegbarkeitsLoader, VerfuegbarkeitsBadge } from './phase960-produktverfuegbarkeits-indikator';
+import { Phase962LieferQualitaetsBadge } from './phase962-liefer-qualitaets-badge';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -577,6 +578,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <Phase955LiveEtaFahrerTracking orderId={orderSuccess.orderId} initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 25} />
           </div>
         )}
+        {/* Phase 960: Liefer-Qualitäts-Badge — Bewertungs-Sterne + Pünktlichkeitsquote + Ø-Lieferzeit als Vertrauensbadge */}
+        <div className="px-4 pb-4 max-w-lg mx-auto">
+          <Phase962LieferQualitaetsBadge locationId={location.id} />
+        </div>
         {/* Phase 778: ETA-Dynamik-Live-Panel — Phasen-Timeline mit Echtzeit-ETA und Fahrer-Infos */}
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
