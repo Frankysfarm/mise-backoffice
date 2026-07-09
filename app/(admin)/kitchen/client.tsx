@@ -345,6 +345,7 @@ import { KitchenPhase992BatchFertigstellungsCountdownPro } from './phase992-batc
 import { KitchenPhase997KochstationAuslastungsBoard } from './phase997-kochstation-auslastungs-board';
 import { KitchenPhase1001SmartTimingFarbkodierungPro } from './phase1001-smart-timing-farbkodierung-pro';
 import { KitchenPhase1003BestellkomplexitaetWartezeit } from './phase1003-bestellkomplexitaet-wartezeit';
+import { KitchenPhase1002BestellrhythmusCockpit } from './phase1002-bestellrhythmus-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -955,6 +956,8 @@ export function KitchenBoard({
       <KitchenPhase1001SmartTimingFarbkodierungPro orders={filtered as any} />
       {/* Phase 1003: Bestellkomplexitäts-Wartezeit-Prognose — Restwartezeit je Bestellung basierend auf Artikel-Komplexität */}
       <KitchenPhase1003BestellkomplexitaetWartezeit orders={filtered as any} />
+      {/* Phase 1002: Bestellrhythmus-Cockpit — Live-Balkendiagramm Bestelldurchsatz je 5-Min-Slot (letzte 30 Min) */}
+      <KitchenPhase1002BestellrhythmusCockpit orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
       <KitchenPhase952SmartTimingFarbkodierung orders={filtered as any} />
       {/* Phase 956: Küchen-Auslastungs-Prognose-Board — Geschätzter Küchendruck je 10-Min-Slot (nächste 30 Min) mit Farbkodierung */}

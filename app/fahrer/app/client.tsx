@@ -324,6 +324,7 @@ import { FahrerPhase994KundenKontaktSchnellPanel } from './phase994-kunden-konta
 import { FahrerPhase999SchichtAbschlussHighlightScreen } from './phase999-schicht-abschluss-highlight-screen';
 import { FahrerPhase1001TourStoppNavigatorFinal } from './phase1001-tour-stopp-navigator-final';
 import { FahrerPhase1005VerdienstZielTracker } from './phase1005-verdienst-ziel-tracker';
+import { FahrerPhase1002GpsNaviKommando } from './phase1002-gps-navi-kommando';
 
 type Driver = {
   id: string;
@@ -3896,6 +3897,8 @@ export function FahrerApp({
         {isOnline && <FahrerPhase1001TourStoppNavigatorFinal stopps={[]} />}
         {/* Phase 1005: Verdienst-Ziel-Tracker — SVG-Fortschrittsbalken Tagesverdienst vs. Schichtziel (120€) */}
         <FahrerPhase1005VerdienstZielTracker driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1002: GPS-Navi-Kommando — Live-GPS-Navigationszentrale mit Google/Waze/Apple Maps + ETA + Ablieferungs-Bestätigung */}
+        {isOnline && <FahrerPhase1002GpsNaviKommando />}
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
