@@ -157,6 +157,7 @@ import { Phase928LiveWartezeitIndikator } from './phase928-live-wartezeit-indika
 import { Phase930DynamischeEtaLive } from './phase930-dynamische-eta-live';
 import { Phase935BestellstatusAmpel } from './phase935-bestellstatus-ampel';
 import { Phase940BestellzusammenfassungWidget } from './phase940-bestellzusammenfassung-widget';
+import { Phase945TreuepunkteVorschau } from './phase945-treuepunkte-vorschau';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -896,6 +897,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             etaMin={deliveryTimeMin}
             isDelivery={orderType === 'lieferung'}
           />
+        </div>
+      )}
+      {/* Phase 945: Treuepunkte-Vorschau — Wie viele Punkte sammelt der Kunde mit dieser Bestellung */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase945TreuepunkteVorschau cart={cart} locationId={location.id} />
         </div>
       )}
       {/* Phase 341: Dynamic Pricing Banner — Surge-Hinweis / Off-Peak-Rabatt für Kunden */}
