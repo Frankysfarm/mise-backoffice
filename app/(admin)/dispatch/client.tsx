@@ -392,6 +392,7 @@ import { DispatchPhase935TourEffizienzLiveBoard } from './phase935-tour-effizien
 import { DispatchPhase938SchichtUebergabeCockpit } from './phase938-schicht-uebergabe-cockpit';
 import { DispatchPhase943FahrerErreichbarkeitsPanel } from './phase943-fahrer-erreichbarkeits-panel';
 import { DispatchPhase948ZonenErtragDashboard } from './phase948-zonen-ertrag-dashboard';
+import { DispatchPhase953TourScoreVisualisierung } from './phase953-tour-score-visualisierung';
 
 type Driver = {
   employee_id: string;
@@ -1230,6 +1231,8 @@ export function DispatchBoard({
       <DispatchPhase943FahrerErreichbarkeitsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 948: Zonen-Ertrag-Dashboard — Balken-Chart je Zone A/B/C/D mit Umsatz + Pünktlichkeit + Trend */}
       <DispatchPhase948ZonenErtragDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 953: Tour-Score-Visualisierung — Score-Ring + Sub-Scores (Pünktlichkeit/Effizienz/Bewertung) je aktiver Tour */}
+      <DispatchPhase953TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

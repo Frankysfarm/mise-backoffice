@@ -159,6 +159,7 @@ import { Phase935BestellstatusAmpel } from './phase935-bestellstatus-ampel';
 import { Phase940BestellzusammenfassungWidget } from './phase940-bestellzusammenfassung-widget';
 import { Phase945TreuepunkteVorschau } from './phase945-treuepunkte-vorschau';
 import { Phase950AllergenSchnellfilter } from './phase950-allergen-schnellfilter';
+import { Phase955LiveEtaFahrerTracking } from './phase955-live-eta-fahrer-tracking';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -566,6 +567,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 955: Live-ETA Fahrer-Tracking — Dynamischer Countdown-Ring + Fahrer-Name + Tour-Phase + Nähe-Puls */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase955LiveEtaFahrerTracking orderId={orderSuccess.orderId} initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 25} />
+          </div>
+        )}
         {/* Phase 778: ETA-Dynamik-Live-Panel — Phasen-Timeline mit Echtzeit-ETA und Fahrer-Infos */}
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-4 max-w-lg mx-auto">

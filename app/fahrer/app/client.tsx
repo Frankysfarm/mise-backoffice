@@ -311,6 +311,7 @@ import { FahrerPhase934TourLernkurve } from './phase934-tour-lernkurve';
 import { FahrerPhase935TourLiveKommando } from './phase935-tour-live-kommando';
 import { FahrerPhase939KundenzufriedenheitsVerlauf } from './phase939-kundenzufriedenheits-verlauf';
 import { FahrerPhase944SchichtEnergieRing } from './phase944-schicht-energie-ring';
+import { FahrerPhase949TourStoppLiveNavigator } from './phase949-tour-stopp-live-navigator';
 
 type Driver = {
   id: string;
@@ -3850,6 +3851,8 @@ export function FahrerApp({
         <FahrerPhase939KundenzufriedenheitsVerlauf driverId={driver.id} isOnline={isOnline} />
         {/* Phase 944: Schicht-Energie-Ring — SVG-Ring der verbleibenden Schichtenergie basierend auf Stopps + Dauer + Pausen */}
         <FahrerPhase944SchichtEnergieRing driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 949: Tour-Stopp-Live-Navigator — Alle Tour-Stops mit Status, ETA, Navigation-Deeplink und Kunden-Telefon */}
+        <FahrerPhase949TourStoppLiveNavigator driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
