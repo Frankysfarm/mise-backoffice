@@ -371,6 +371,7 @@ import { DispatchZoneBundleScore } from './zone-bundle-score';
 import { DispatchTourScoreDistribution } from './tour-score-distribution';
 import { DispatchTourScoreLiveHub } from './tour-score-live-hub';
 import { DispatchPhase878TourScoreLiveUebersicht } from './phase878-tour-score-live-uebersicht';
+import { DispatchPhase879TourScoreVisualisierung } from './phase879-tour-score-visualisierung';
 import { DispatchPhase881ZonenNachfrageHeatmapLive } from './phase881-zonen-nachfrage-heatmap-live';
 
 type Driver = {
@@ -1168,6 +1169,8 @@ export function DispatchBoard({
       />
       {/* Phase 878: Tour Score Live-Übersicht — alle aktiven Touren mit Score-Balken + Stop-Fortschritt */}
       <DispatchPhase878TourScoreLiveUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 879: Tour-Score-Visualisierung — Fahrer-Score als Arc-Diagramm mit Pünktlichkeit + Effizienz-Balken */}
+      <DispatchPhase879TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 881: Zonen-Nachfrage-Heatmap Live — Echtzeit-Bestelldichte pro Zone A/B/C/D als farbkodiertes Grid */}
       <DispatchPhase881ZonenNachfrageHeatmapLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Score-Live-Hub: Echtzeit-Score-Cockpit aller aktiven Touren mit SVG-Arcs */}

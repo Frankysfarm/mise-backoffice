@@ -291,6 +291,7 @@ import { FahrerPhase869FahrTippsCoach } from './phase869-fahr-tipps-coach';
 import { FahrerPhase874TourenKartenMinimap } from './phase874-touren-karten-minimap';
 import { TourStoppLiveNavigator } from './tour-stopp-live-navigator';
 import { FahrerPhase876TourNaechsterStoppUltra } from './phase876-tour-naechster-stopp-ultra';
+import { FahrerPhase877TourStoppNavigatorLive, type TourStoppLive } from './phase877-tour-stopp-navigator-live';
 import { FahrerPhase882SchichtEnergieplan } from './phase882-schicht-energieplan';
 
 type Driver = {
@@ -1970,6 +1971,14 @@ export function FahrerApp({
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
               <FahrerPhase876TourNaechsterStoppUltra stops={activeBatch.stops as any} />
+            </div>
+          )}
+          {/* Phase 877: Tour-Stopp-Navigator Live — Vollständige Stopp-Liste mit Navigation, Fortschrittsbalken + Zugestellt-Button */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase877TourStoppNavigatorLive
+                stops={(activeBatch.stops as unknown as TourStoppLive[])}
+              />
             </div>
           )}
           {/* Phase 500: Nächster-Stopp-Navigator — One-Tap Navigation + Countdown + Kundendaten + ETA */}

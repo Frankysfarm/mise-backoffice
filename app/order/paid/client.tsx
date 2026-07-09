@@ -7,6 +7,7 @@ import {
   ArrowRight, Share2, Phone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { StorefrontPhase876DynamischeEtaLiveTracking } from '../[locationSlug]/phase876-dynamische-eta-live-tracking';
 
 type OrderStatus =
   | 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig'
@@ -162,6 +163,13 @@ export function PaidOrderClient({
         {bon && (
           <div className="mt-3 text-center font-mono text-xs text-matcha-400 tracking-widest">
             #{bon.replace(/^FF-/, '')}
+          </div>
+        )}
+
+        {/* Phase 876: Dynamische ETA Live-Tracking — Phasen-Kompass + Fahrer-Proximity + Countdown */}
+        {bon && !isTerminal && (
+          <div className="mt-5">
+            <StorefrontPhase876DynamischeEtaLiveTracking orderId={bon} initialEtaMin={etaMins} />
           </div>
         )}
 
