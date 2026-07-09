@@ -166,6 +166,7 @@ import { Phase965BestellzahlCountdown } from './phase965-bestellzahl-countdown';
 import { Phase970LieferzonenVisualisierung } from './phase970-lieferzonen-visualisierung';
 import { StorefrontPhase975DynamischeEtaLiveKommando } from './phase975-dynamische-eta-live-kommando';
 import { Phase980LiveKochTransparenzWidget } from './phase980-live-koch-transparenz-widget';
+import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-banner';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1636,6 +1637,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <Phase980LiveKochTransparenzWidget
           orderId={order.orderId ?? null}
           status={order.status ?? null}
+        />
+      )}
+      {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
+      {order.isDelivery && (
+        <Phase985LiveEtaTrackingBanner
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          etaMinutes={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+          className="mx-4 mb-4"
         />
       )}
       {/* Phase 864: Lieferstatus-Fortschrittsleiste — Visuelle Schritte Bestellt→Küche→Fertig→Unterwegs→Geliefert mit Echtzeit-Update */}
