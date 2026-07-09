@@ -936,10 +936,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
-      {/* Phase 1047: Warenkorb-Upsell-Widget — Zusatzartikel empfehlen wenn Warenkorb < Mindestbestellwert × 1.2 */}
-      {cart.length > 0 && (
+      {/* Phase 1047: Warenkorb-Upsell-Widget — Empfiehlt Zusatzartikel wenn Warenkorb < Mindestbestellwert + 20% */}
+      {cart.length > 0 && subtotal < minOrder * 1.2 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
-          <Phase1047WarenkorbUpsellWidget locationId={location.id} cart={cart} />
+          <Phase1047WarenkorbUpsellWidget
+            subtotal={subtotal}
+            minOrder={minOrder}
+            locationId={location.id}
+          />
         </div>
       )}
       {/* Phase 940: Bestellzusammenfassung-Widget — Kompakte Inline-Zusammenfassung: Artikel + Gesamtpreis + ETA vor Bestellabschluss */}

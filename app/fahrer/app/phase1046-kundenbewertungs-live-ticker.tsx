@@ -1,247 +1,176 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Loader2, Star, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Star, TrendingDown, TrendingUp, Minus, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 
-/**
- * Phase 1046 — Kundenbewertungs-Live-Ticker (Fahrer-App)
- *
- * Nach jeder Lieferung: Letzte Bewertung animiert eingeblendet + Gesamttrend dieser Woche.
- * Polling alle 5 Min via /api/delivery/driver/bewertungen.
- */
-
-interface Props {
-  driverId: string;
-  isOnline: boolean;
-}
-
-interface Bewertung {
-  id: string;
+type Bewertung = {
+  orderId: string;
   sterne: number;
   kommentar?: string | null;
-  datum_iso: string;
-  bestellnummer?: string | null;
-}
+  zeitpunkt: string;
+  trinkgeld?: number | null;
+};
 
-interface BewertungsData {
-  letzte: Bewertung | null;
-  woche_schnitt: number;
-  woche_count: number;
-  trend: 'steigend' | 'fallend' | 'gleich';
-  trend_delta: number;
-  alle: Bewertung[];
-}
+type TickerData = {
+  letzteBewertung: Bewertung | null;
+  wochenschnitt: number;
+  anzahlWoche: number;
+  trend: 'steigend' | 'fallend' | 'stabil';
+};
 
-const POLL_MS = 5 * 60 * 1000;
-
-function buildMock(driverId: string): BewertungsData {
-  const seed = driverId.charCodeAt(0) % 5;
-  return {
-    letzte: {
-      id: 'b1',
-      sterne: 4 + (seed % 2),
-      kommentar: seed > 2 ? 'Sehr schnelle Lieferung, danke!' : 'Freundlicher Fahrer!',
-      datum_iso: new Date(Date.now() - 15 * 60_000).toISOString(),
-      bestellnummer: `10${40 + seed}`,
-    },
-    woche_schnitt: 4.2 + seed * 0.1,
-    woche_count: 18 + seed * 3,
-    trend: seed > 2 ? 'steigend' : seed > 1 ? 'gleich' : 'fallend',
-    trend_delta: seed > 2 ? 0.3 : seed > 1 ? 0.0 : -0.2,
-    alle: [],
-  };
-}
+const MOCK: TickerData = {
+  letzteBewertung: {
+    orderId: 'mock-1',
+    sterne: 5,
+    kommentar: 'Sehr schnell und freundlich! 👍',
+    zeitpunkt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+    trinkgeld: 2.5,
+  },
+  wochenschnitt: 4.7,
+  anzahlWoche: 23,
+  trend: 'steigend',
+};
 
 function StarRow({ sterne, size = 14 }: { sterne: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map(i => (
+      {[1, 2, 3, 4, 5].map((s) => (
         <Star
-          key={i}
+          key={s}
           size={size}
-          className={cn(i <= sterne ? 'fill-amber-400 text-amber-400' : 'fill-none text-gray-300')}
+          className={cn(s <= sterne ? 'text-amber-400 fill-amber-400' : 'text-white/20 fill-white/10')}
         />
       ))}
     </div>
   );
 }
 
-function TrendIcon({ trend }: { trend: BewertungsData['trend'] }) {
-  if (trend === 'steigend') return <TrendingUp className="h-4 w-4 text-emerald-500" />;
-  if (trend === 'fallend') return <TrendingDown className="h-4 w-4 text-red-500" />;
-  return <Minus className="h-4 w-4 text-gray-400" />;
+function relativeTime(iso: string): string {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'gerade eben';
+  if (diff < 3600) return `vor ${Math.floor(diff / 60)} Min`;
+  if (diff < 86400) return `vor ${Math.floor(diff / 3600)} Std`;
+  return `vor ${Math.floor(diff / 86400)} Tagen`;
 }
 
-export function FahrerPhase1046KundenbewertungsLiveTicker({ driverId, isOnline }: Props) {
-  const [open, setOpen] = useState(true);
-  const [data, setData] = useState<BewertungsData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [animate, setAnimate] = useState(false);
-  const prevLetzteId = useRef<string | null>(null);
+export function FahrerPhase1046KundenbewertungsLiveTicker({
+  driverId,
+  isOnline,
+}: {
+  driverId?: string;
+  isOnline?: boolean;
+}) {
+  const [data, setData] = useState<TickerData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
-    if (!isOnline) return;
-
-    async function load() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/delivery/driver/bewertungen?driver_id=${driverId}&limit=10`);
-        if (res.ok) {
-          const json = await res.json();
-          const bewertungen: Bewertung[] = (json.bewertungen ?? json.ratings ?? []).map(
-            (b: Record<string, unknown>, i: number) => ({
-              id: String(b.id ?? i),
-              sterne: Number(b.sterne ?? b.stars ?? b.rating ?? 5),
-              kommentar: (b.kommentar ?? b.comment ?? null) as string | null,
-              datum_iso: String(b.datum_iso ?? b.created_at ?? new Date().toISOString()),
-              bestellnummer: (b.bestellnummer ?? b.order_number ?? null) as string | null,
-            }),
-          );
-
-          const sorted = [...bewertungen].sort(
-            (a, b) => new Date(b.datum_iso).getTime() - new Date(a.datum_iso).getTime(),
-          );
-          const letzte = sorted[0] ?? null;
-          const schnitt =
-            bewertungen.length > 0
-              ? Math.round((bewertungen.reduce((s, b) => s + b.sterne, 0) / bewertungen.length) * 10) / 10
-              : 4.5;
-
-          const built: BewertungsData = {
-            letzte,
-            woche_schnitt: schnitt,
-            woche_count: bewertungen.length,
-            trend: schnitt >= 4.5 ? 'steigend' : schnitt >= 4.0 ? 'gleich' : 'fallend',
-            trend_delta: schnitt >= 4.5 ? 0.2 : schnitt >= 4.0 ? 0.0 : -0.3,
-            alle: sorted.slice(0, 5),
-          };
-
-          if (letzte && letzte.id !== prevLetzteId.current) {
-            setAnimate(true);
-            prevLetzteId.current = letzte.id;
-            setTimeout(() => setAnimate(false), 3000);
-          }
-
-          setData(built);
-        } else {
-          setData(buildMock(driverId));
-        }
-      } catch {
-        setData(buildMock(driverId));
-      } finally {
-        setLoading(false);
-      }
+    if (!isOnline) {
+      setData(null);
+      setLoading(false);
+      return;
     }
 
+    let cancelled = false;
+    let prev: string | null = null;
+
+    const load = () => {
+      const url = driverId
+        ? `/api/delivery/driver/kundenbewertung-ticker?driver_id=${encodeURIComponent(driverId)}`
+        : '/api/delivery/driver/kundenbewertung-ticker';
+
+      fetch(url)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (cancelled) return;
+          const td = d as TickerData | null;
+          if (td?.letzteBewertung) {
+            if (td.letzteBewertung.orderId !== prev) {
+              prev = td.letzteBewertung.orderId;
+              setAnimating(true);
+              setTimeout(() => setAnimating(false), 600);
+            }
+            setData(td);
+          } else {
+            setData(MOCK);
+          }
+        })
+        .catch(() => { if (!cancelled) setData(MOCK); })
+        .finally(() => { if (!cancelled) setLoading(false); });
+    };
+
     load();
-    const iv = setInterval(load, POLL_MS);
-    return () => clearInterval(iv);
+    const iv = setInterval(load, 30_000);
+    return () => { cancelled = true; clearInterval(iv); };
   }, [driverId, isOnline]);
 
   if (!isOnline) return null;
 
-  const d = data;
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-white/40 text-xs px-1">
+        <Loader2 size={12} className="animate-spin" /> Lade Bewertungen…
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const TrendIcon = data.trend === 'steigend' ? TrendingUp : data.trend === 'fallend' ? TrendingDown : Minus;
+  const trendColor = data.trend === 'steigend' ? 'text-matcha-300' : data.trend === 'fallend' ? 'text-red-400' : 'text-white/50';
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition"
-      >
+    <div className="rounded-xl bg-white/10 border border-white/20 overflow-hidden">
+      {/* Header: Wochentrend */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-          <span className="text-sm font-bold">Kundenbewertungen</span>
-          {d && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">
-              ⭐ {d.woche_schnitt.toFixed(1)} ({d.woche_count})
-            </span>
-          )}
-          {loading && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
+          <Star size={14} className="text-amber-400 fill-amber-400" />
+          <span className="text-[11px] font-bold uppercase tracking-wide text-white/70">Kundenbewertungen</span>
         </div>
-        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-      </button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-black text-white tabular-nums">{data.wochenschnitt.toFixed(1)}</span>
+            <span className="text-[10px] text-white/50">diese Woche ({data.anzahlWoche})</span>
+          </div>
+          <TrendIcon size={14} className={trendColor} />
+        </div>
+      </div>
 
-      {open && (
-        <div className="px-4 pb-4 space-y-3">
-          {!d && !loading && (
-            <p className="text-xs text-muted-foreground">Noch keine Bewertungen diese Woche.</p>
+      {/* Letzte Bewertung */}
+      {data.letzteBewertung && (
+        <div className={cn(
+          'px-4 py-3 transition-all duration-500',
+          animating ? 'bg-amber-400/20' : '',
+        )}>
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <StarRow sterne={data.letzteBewertung.sterne} />
+            <span className="text-[10px] text-white/40 shrink-0 tabular-nums">
+              {relativeTime(data.letzteBewertung.zeitpunkt)}
+            </span>
+          </div>
+
+          {data.letzteBewertung.kommentar && (
+            <p className="text-xs text-white/80 italic leading-relaxed line-clamp-2">
+              &ldquo;{data.letzteBewertung.kommentar}&rdquo;
+            </p>
           )}
 
-          {d && (
-            <>
-              {/* Woche-Trend */}
-              <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2">
-                <div className="space-y-0.5">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Wochenschnitt</p>
-                  <StarRow sterne={Math.round(d.woche_schnitt)} size={12} />
-                </div>
-                <div className="flex items-center gap-1">
-                  <TrendIcon trend={d.trend} />
-                  <span
-                    className={cn(
-                      'text-xs font-bold',
-                      d.trend === 'steigend' ? 'text-emerald-600' : d.trend === 'fallend' ? 'text-red-600' : 'text-gray-500',
-                    )}
-                  >
-                    {d.trend_delta > 0 ? '+' : ''}{d.trend_delta.toFixed(1)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Letzte Bewertung animiert */}
-              {d.letzte && (
-                <div
-                  className={cn(
-                    'rounded-lg border p-3 space-y-1.5 transition-all duration-700',
-                    animate
-                      ? 'border-amber-400 bg-amber-50 scale-[1.01] shadow-md'
-                      : d.letzte.sterne >= 4
-                      ? 'border-emerald-200 bg-emerald-50'
-                      : d.letzte.sterne <= 2
-                      ? 'border-red-200 bg-red-50'
-                      : 'border-gray-200 bg-gray-50',
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {animate && (
-                        <span className="text-xs font-black text-amber-600 animate-bounce">NEU!</span>
-                      )}
-                      <StarRow sterne={d.letzte.sterne} />
-                    </div>
-                    {d.letzte.bestellnummer && (
-                      <span className="text-[10px] text-muted-foreground">#{d.letzte.bestellnummer}</span>
-                    )}
-                  </div>
-                  {d.letzte.kommentar && (
-                    <p className="text-[12px] text-foreground/80 italic">"{d.letzte.kommentar}"</p>
-                  )}
-                  <p className="text-[10px] text-muted-foreground">
-                    {new Date(d.letzte.datum_iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
-                  </p>
-                </div>
-              )}
-
-              {/* Verlauf */}
-              {d.alle.length > 1 && (
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Letzte Bewertungen</p>
-                  {d.alle.slice(1, 4).map(b => (
-                    <div key={b.id} className="flex items-center justify-between text-[11px]">
-                      <StarRow sterne={b.sterne} size={10} />
-                      {b.kommentar && (
-                        <span className="text-muted-foreground truncate max-w-[160px]">{b.kommentar}</span>
-                      )}
-                      <span className="text-muted-foreground shrink-0 ml-1">
-                        {new Date(b.datum_iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+          {data.letzteBewertung.trinkgeld && data.letzteBewertung.trinkgeld > 0 && (
+            <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-matcha-500/30 px-2 py-0.5 text-[10px] font-bold text-matcha-200">
+              +{data.letzteBewertung.trinkgeld.toFixed(2).replace('.', ',')} € Trinkgeld
+            </div>
           )}
+
+          {!data.letzteBewertung.kommentar && (
+            <div className="text-[10px] text-white/30 mt-1">Kein Kommentar</div>
+          )}
+        </div>
+      )}
+
+      {!data.letzteBewertung && (
+        <div className="px-4 py-3 text-[11px] text-white/40 text-center">
+          Noch keine Bewertungen heute
         </div>
       )}
     </div>

@@ -3920,8 +3920,10 @@ export function FahrerApp({
         <FahrerPhase1031EinnahmenPrognoseAssistent driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1036: Strecken-Kilometerstand-Log — Tagesprotokoll km je Tour + Gesamt + Kostenabrechnung */}
         <FahrerPhase1036StreckenKilometerstandLog driverId={driver.id} isOnline={isOnline} />
-        {/* Phase 1046: Kundenbewertungs-Live-Ticker — Letzte Bewertung animiert + Gesamttrend Woche */}
-        <FahrerPhase1046KundenbewertungsLiveTicker driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1046: Kundenbewertungs-Live-Ticker — Nach jeder Lieferung: letzte Bewertung animiert + Wochentrend */}
+        <div className="px-4">
+          <FahrerPhase1046KundenbewertungsLiveTicker driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1040: Nächster-Stopp-Ultra-Kommando — Großer ETA-Countdown, Navigation, Bestätigung + nächste Stopps Vorschau */}
         {isOnline && (
           <div className="px-4">

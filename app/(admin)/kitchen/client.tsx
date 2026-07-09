@@ -979,6 +979,8 @@ export function KitchenBoard({
       <KitchenPhase1029BestellKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1040: Live-Bestellstatus-Kommandozentrale — Alle aktiven Bestellungen mit Farbkodierung und Countdown */}
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1044: Allergen-Eskalations-Flow — Kritische Allergen-Bestellungen automatisch weiterleiten + Küchenleiter-Bestätigung */}
+      <KitchenPhase1044AllergenEskalationsFlow orders={filtered as any} />
       {/* Phase 1034: Allergen-Tages-Zusammenfassung — Häufigste Allergene heute mit Trend vs. Vorwoche */}
       <KitchenPhase1034AllergenTagesZusammenfassung orders={filtered as any} />
       {/* Phase 1044: Allergen-Eskalations-Flow — Komplexe Allergen-Bestellungen → Küchenleiter mit Acknowledge-Button */}
