@@ -357,6 +357,11 @@ import { KitchenPhase1040LiveBestellstatusKommandozentrale } from './phase1040-l
 import { KitchenPhase1044AllergenEskalationsFlow } from './phase1044-allergen-eskalations-flow';
 import { KitchenPhase1049WarteschlangenOptimierer } from './phase1049-warteschlangen-optimierer';
 import { KitchenPhase1054WartezeItSlaMonitor } from './phase1054-wartezeit-sla-monitor';
+import { KitchenPhase1058SmartFarbkodierungsCountdownWall } from './phase1058-smart-farbkodierungs-countdown-wall';
+import { KitchenPhase1059ParallelZubereitungsKarte } from './phase1059-parallel-zubereitungs-karte';
+import { KitchenPhase1060KochstationZeitstrahl } from './phase1060-kochstation-zeitstrahl';
+import { KitchenPhase1061SmartTimingSchichtRing } from './phase1061-smart-timing-schicht-ring';
+import { KitchenPhase1062PrepEngpassFruehwarner } from './phase1062-prep-engpass-fruehwarner';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -981,6 +986,16 @@ export function KitchenBoard({
       <KitchenPhase1029BestellKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1040: Live-Bestellstatus-Kommandozentrale — Alle aktiven Bestellungen mit Farbkodierung und Countdown */}
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}
+      <KitchenPhase1062PrepEngpassFruehwarner orders={filtered as any} />
+      {/* Phase 1061: Smart-Timing-Schicht-Ring — Ampelring für Schicht-Performance mit Drill-Down */}
+      <KitchenPhase1061SmartTimingSchichtRing orders={filtered as any} />
+      {/* Phase 1060: Kochstation-Zeitstrahl — Vorhersage je Station nächste 30 Min */}
+      <KitchenPhase1060KochstationZeitstrahl orders={filtered as any} />
+      {/* Phase 1059: Parallel-Zubereitung-Karte — Stationsauslastung + Konflikterkennung */}
+      <KitchenPhase1059ParallelZubereitungsKarte orders={filtered as any} />
+      {/* Phase 1058: Smart-Farbkodierungs-Countdown-Wall — Live-Grid aller aktiven Bestellungen mit Ampel-Countdown */}
+      <KitchenPhase1058SmartFarbkodierungsCountdownWall orders={filtered as any} />
       {/* Phase 1054: Wartezeit-SLA-Monitor — Alert wenn >25% SLA-Kochzeit überschritten + Drill-Down je Station */}
       <KitchenPhase1054WartezeItSlaMonitor orders={filtered as any} />
       {/* Phase 1049: Warteschlangen-Optimierer — Parallel-Startvorschläge ohne Stationskonflikt + Zeitersparnis-Prognose */}

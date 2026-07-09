@@ -418,6 +418,11 @@ import { DispatchPhase1040TourScoreEchtzeitUebersicht } from './phase1040-tour-s
 import { DispatchPhase1045FahrerSchichtPrognosBoard } from './phase1045-fahrer-schicht-prognose-board';
 import { DispatchPhase1050ZonenAuslastungsPrognose } from './phase1050-zonen-auslastungs-prognose';
 import { DispatchPhase1055FahrerKostenEffizienzBoard } from './phase1055-fahrer-kosten-effizienz-board';
+import { DispatchPhase1058TourScoreLiveVisualisierungPro } from './phase1058-tour-score-live-visualisierung-pro';
+import { DispatchPhase1059FahrerProfitabilitaetsMatrix } from './phase1059-fahrer-profitabilitaets-matrix';
+import { DispatchPhase1060ZonenBestelldruckLive } from './phase1060-zonen-bestelldruck-live';
+import { DispatchPhase1061TourStopFortschrittsAmpel } from './phase1061-tour-stop-fortschritts-ampel';
+import { DispatchPhase1062SmartDispatchScoreKommando } from './phase1062-smart-dispatch-score-kommando';
 
 type Driver = {
   employee_id: string;
@@ -1296,6 +1301,16 @@ export function DispatchBoard({
       <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1040: Tour-Score-Echtzeit-Übersicht — Alle aktiven Touren mit Score-Ring, Stopp-Fortschritt und Tour-Visualisierung */}
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}
+      <DispatchPhase1062SmartDispatchScoreKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1061: Tour-Stop-Fortschritts-Ampel — Alle laufenden Touren on-track/knapp/verspätet */}
+      <DispatchPhase1061TourStopFortschrittsAmpel batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1060: Zonen-Bestelldruck-Live — Live-Heatmap der Zonennachfrage mit Farbkodierung */}
+      <DispatchPhase1060ZonenBestelldruckLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1059: Fahrer-Profitabilitäts-Matrix — Gewinn je Fahrer heute mit Trend-Ampel */}
+      <DispatchPhase1059FahrerProfitabilitaetsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1058: Tour-Score-Live-Visualisierung-Pro — Alle aktiven Touren als animierte Score-Karten mit ETA-Balken */}
+      <DispatchPhase1058TourScoreLiveVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1055: Fahrer-Kosten-Effizienz-Board — Kosten je Lieferung je Fahrer heute + Ranking vs. Team-Ø */}
       <DispatchPhase1055FahrerKostenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1050: Zonen-Auslastungs-Prognose — Vorhersage Lieferzonenauslastung nächste 2h basierend auf Bestelldichte + Wochenmuster */}

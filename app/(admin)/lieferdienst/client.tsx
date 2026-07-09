@@ -312,6 +312,11 @@ import { LieferdienstPhase980StatistikenKpiHub } from './phase980-statistiken-kp
 import { LieferdienstPhase985StatistikGesamtdashboard } from './phase985-statistik-gesamtdashboard';
 import { LieferdienstPhase990StatistikenExecutiveHub } from './phase990-statistiken-executive-hub';
 import { LieferdienstPhase995SchichtExecutiveLiveHub } from './phase995-schicht-executive-live-hub';
+import { LieferdienstPhase1000EchtzeitUmsatzDashboard } from './phase1000-echtzeit-umsatz-dashboard';
+import { LieferdienstPhase1001SchichtKpiExecutiveLive } from './phase1001-schicht-kpi-executive-live';
+import { LieferdienstPhase1002FahrerLeistungsRankingLive } from './phase1002-fahrer-leistungs-ranking-live';
+import { LieferdienstPhase1003LieferQualitaetsScoreboard } from './phase1003-liefer-qualitaets-scoreboard';
+import { LieferdienstPhase1004TagesStatistikenKomplett } from './phase1004-tages-statistiken-komplett';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1580,6 +1585,16 @@ export function LieferdienstClient() {
               <LieferdienstPhase975WochenStatistikTrend locationId={locationId ?? null} />
               {/* Phase 980: Statistiken-KPI-Hub — 6 Kern-KPIs (Umsatz/Bestellungen/Lieferzeit/Pünktlichkeit/Storno/★) + Trend vs. Vortag */}
               <LieferdienstPhase980StatistikenKpiHub locationId={locationId ?? null} />
+              {/* Phase 1004: Tages-Statistiken-Komplett — Vollständige Schichtauswertung mit Charts und Top-Artikel */}
+              <LieferdienstPhase1004TagesStatistikenKomplett locationId={locationId ?? null} />
+              {/* Phase 1003: Liefer-Qualitäts-Scoreboard — Pünktlichkeit, Bewertungen, SLA, Storno als Ampeln */}
+              <LieferdienstPhase1003LieferQualitaetsScoreboard locationId={locationId ?? null} />
+              {/* Phase 1002: Fahrer-Leistungs-Ranking-Live — Live-Ranking aller aktiven Fahrer nach Effizienz-Score */}
+              <LieferdienstPhase1002FahrerLeistungsRankingLive locationId={locationId ?? null} />
+              {/* Phase 1001: Schicht-KPI-Executive-Live — Alle wichtigen KPIs auf einen Blick + Trend-Pfeile */}
+              <LieferdienstPhase1001SchichtKpiExecutiveLive locationId={locationId ?? null} />
+              {/* Phase 1000: Echtzeit-Umsatz-Dashboard — Umsatz heute vs. Vorwoche vs. Ziel mit Live-Ticker */}
+              <LieferdienstPhase1000EchtzeitUmsatzDashboard locationId={locationId ?? null} />
               {/* Phase 985: Statistik-Gesamtdashboard — 8 KPIs + Trend-Ampeln + Top-Fahrer + Zonen + Stunden-Verlauf */}
               <LieferdienstPhase985StatistikGesamtdashboard locationId={locationId ?? null} />
               {/* Phase 995: Schicht-Executive-Live-Hub — Umsatz, Bestellungen, Fahrer, Pünktlichkeit + Ziel-Fortschritt in Echtzeit */}
