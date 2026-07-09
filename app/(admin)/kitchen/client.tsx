@@ -213,6 +213,7 @@ import { KitchenKapazitaetsConfig } from './kitchen-kapazitaets-config';
 import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
 import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
+import { KitchenSchichtKpiZusammenfassung } from './schicht-kpi-zusammenfassung';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
@@ -770,6 +771,8 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 908: Schicht-KPI-Zusammenfassung — Echtzeit-Score-Gauge + 4 KPI-Kacheln + Storno-Warnung */}
+      <KitchenSchichtKpiZusammenfassung orders={orders} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Schicht-Endstand: Kumulierte Schicht-KPIs (Pünktlichkeit, ø Prep-Zeit, Storno-Rate) */}
       <KitchenSchichtEndstand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}

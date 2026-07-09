@@ -143,6 +143,7 @@ import { DispatchZonenlastMatrix } from './zonenlast-matrix';
 import { DispatchItemNachfrageHinweis } from './item-nachfrage-hinweis';
 import { DispatchLiveScoreBoard } from './dispatch-live-score-board';
 import { DispatchTourZeitabweichung } from './tour-zeitabweichung';
+import { DispatchTourZeitachseLive } from './tour-zeitachse-live';
 import { DispatchReturnPredictionLive } from './return-prediction-live';
 import { DispatchEchtzeitGewinnPanel } from './echtzeit-gewinn-panel';
 import { DispatchZonenScoreRing } from './dispatch-zonen-score-ring';
@@ -1358,6 +1359,31 @@ export function DispatchBoard({
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
+      {/* Phase 909: Tour-Zeitachse Live — Interaktive Stop-Timeline je aktiver Tour mit Fortschrittsbalken */}
+      {batches.filter(b => b.status === 'unterwegs' || b.status === 'aktiv').length > 0 && (
+        <DispatchTourZeitachseLive
+          tours={batches
+            .filter(b => b.status === 'unterwegs' || b.status === 'aktiv')
+            .map(b => ({
+              id: b.id,
+              fahrerId: b.fahrer_id ?? '',
+              fahrerName: b.fahrer ? `${b.fahrer.vorname} ${b.fahrer.nachname}` : 'Fahrer',
+              zone: b.zone,
+              startedAt: b.startzeit ?? null,
+              totalStops: b.stops.length,
+              completedStops: b.stops.filter(s => s.geliefert_am !== null).length,
+              currentStopIdx: b.stops.findIndex(s => s.geliefert_am === null),
+              totalEtaMin: b.total_eta_min,
+              stops: b.stops.map(s => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                geliefert_am: s.geliefert_am,
+                bestellnummer: s.order?.bestellnummer,
+                adresse: s.order?.kunde_adresse ?? undefined,
+              })),
+            }))}
+        />
+      )}
       {/* Zonen-Bundle-Score — Empfehlung: welche Bestellungen lohnt sich zusammen zu bündeln */}
       <DispatchZoneBundleScore orders={readyOrders} />
       {/* Tour-Score-Karte: horizontale Score-Kacheln — Stop-Dots + Arc-Gauge + ETA-Countdown */}
