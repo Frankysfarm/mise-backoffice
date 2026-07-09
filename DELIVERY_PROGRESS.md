@@ -32,6 +32,52 @@ CEO-Agent (2026-07-09): CEO Review #309 — 4 TS-Fehler in Frontend-phase935-Com
 Backend-Architekt-Agent (2026-07-09): Phasen 931–935 vollständig implementiert + integriert. Phase931 Kunden-Loyalitäts-Trend-API Backend (GET /admin/kunden-loyalitaets-trend, Neue vs. wiederkehrende Kunden je Tag letzte 14 Tage, Wiederkehrrate % + Trend, multi-tenant) + LieferdienstPhase931LoyalitaetsTrend Lieferdienst (Balken-Chart Neu/Stammkunden 7d + 3-KPI-Grid + Trend-Badge, 10-Min-Polling, lieferdienst/client.tsx nach Phase930) ✅, Phase932 Küchen-Durchsatz-Monitor Kitchen (Bestellungen/h + Stunden-Histogramm + Peak-Stunde + Hochrechnung bis Schichtende, client-seitig, kitchen/client.tsx nach Phase930) ✅, Phase933 Live-Fahrer-Kapazitäts-Gauge Dispatch (GET /admin/fahrer-kapazitaet-live, Frei/Aktiv/Überlastet/Offline + SVG-Halbkreis-Gauge Kapazitäts-%, Alert <20%, 60s-Polling, dispatch/client.tsx nach Phase930) ✅, Phase934 Tour-Lernkurve Fahrer-App (GET /driver/lernkurve, Effizienz-Wachstum 4 Wochen: Stopps/h + Pünktlichkeit% + Score + Level Einsteiger→Experte, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase930) ✅, Phase935 Bestellstatus-Ampel Storefront (Grün/Amber/Rot + pulsierendes Icon je Bestellstatus, 30s-Polling Tracking-API, storefront.tsx vor Phase930DynamischeEtaLive) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #308 — 1 TS-Fehler gefixt (umsatz-split/route.ts aggregiere-Parameter). Build ✓ 373 Seiten. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 923–928 vollständig implementiert + integriert. Phase923 Umsatz-Split-API Backend (GET /admin/umsatz-split, Lieferung/Abholung/Vor-Ort Anteil in % + Trend vs. Vorperiode, multi-tenant, 30-Tage-Default) ✅ + LieferdienstPhase923UmsatzSplitDashboard Lieferdienst (Balken-Split + Trendpfeile, 10-Min-Polling, lieferdienst/client.tsx vor Phase925) ✅, Phase924 Rezept-Vereinfachungs-Hinweis Kitchen (client-seitig, Warnung bei identischem Artikel in >3 aktiven Bestellungen, Parallel-Koch-Empfehlung, dismissbar, kitchen/client.tsx vor Phase919) ✅, Phase926 Tour-Nachfass-Board Dispatch (alle heute abgeschlossenen Touren mit Score + ETA-Abweichung + Feedback-Status, Backend GET /admin/abgeschlossene-touren, 5-Min-Polling, dispatch/client.tsx nach Phase925) ✅, Phase927 Kraftstoff-Tracker Fahrer-App (7-Tage km-Log + Liter + Kosten je Schicht, Backend GET /driver/kraftstoff-log, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase925) ✅, Phase928 Live-Wartezeit-Indikator Storefront (Echtzeit-Ampel Grün/Amber/Rot aus kunden-wartezeit-live-API, pulsierender Punkt, 2-Min-Polling, storefront.tsx vor WarteschlangenIndikator) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
+---
+
+## Batch 1043–1047 — 2026-07-09
+
+### Phase 1043 — Bestellwert-Optimierungs-API (Backend)
+**Datei:** `app/api/delivery/storefront/bestellwert-optimierung/route.ts`
+**GET:** `?location_id=<uuid>&cart_total=<num>&min_order=<num>` — Empfohlene Zusatzartikel (Getränke/Dessert/Beilagen) wenn Warenkorb < MinOrder × 1,2
+**Logik:** Bestseller-Analyse letzte 200 gelieferte Bestellungen; Kategorie-Filter Getränke/Dessert/Beilagen; Sortierung nach Bestellhäufigkeit; Supabase customer_orders.items + Mock-Fallback (Cola, Wasser, Tiramisu, Brownie, Knoblauchbrot)
+**Response:** `{ empfehlungen[]: { id, name, preis, kategorie, bestellungen }, mindestbestellwert, schwelle, location_id, generiert_am }`
+
+### Phase 1044 — Allergen-Eskalations-Flow (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1044-allergen-eskalations-flow.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; je Bestellung: Rang + Bestellnummer + Stufe-Badge kritisch/hoch + Allergen-Tags (ALLERGEN_LABELS A–R) + betroffene Artikel (max 3); Acknowledge-Button matcha; Header-Badge unbestätigt+kritisch pulsierend; Leer-State = null
+**Logik:** client-seitig useMemo; Keyword-Matching erdnuss/nuss/gluten/fisch/ei/soja/sellerie/sesam + item.allergies[]; KRITISCHE_ALLERGENE = {E,H,B,R}; sortiert kritisch→hoch→acked; acked-Set React-State
+**Integration:** `kitchen/client.tsx` nach Phase1040 ✅
+
+### Phase 1045 — Fahrer-Schicht-Prognose-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1045-fahrer-schicht-prognose-board.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Stunden-Balkendiagramm 11–18 Uhr: Eingeplant-Balken (matcha/amber/rot je Status) + Mindestbesetzungs-Strich; je Slot: bestätigt/eingeplant + StatusBadge OK/Eng/Lücke pulsierend; Lücken-Alert; 5-Min-Polling
+**API:** GET `/api/delivery/admin/schicht-forecast`; Mock-Fallback (8 Slots 11–18 Uhr)
+**Integration:** `dispatch/client.tsx` nach Phase1040 ✅
+
+### Phase 1046 — Kundenbewertungs-Live-Ticker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1046-kundenbewertungs-live-ticker.tsx`
+**Props:** `driverId?: string, isOnline?: boolean`
+**UI:** Zweiteiliger Block: Header mit Wochenschnitt + Anzahl + TrendIcon (steigend/fallend/stabil); Body letzte Bewertung mit StarRow + Relativzeit + Kommentar kursiv + Trinkgeld-Badge matcha; Animations-Flash amber bei neuer Bewertung; isOnline-Guard
+**Logik:** 30s-Polling; Animations-Trigger wenn letzteBewertung.orderId wechselt; Mock-Fallback (5★, Kommentar, 2,50€ Trinkgeld)
+**API:** GET `/api/delivery/driver/kundenbewertung-ticker?driver_id=<id>`
+**Integration:** `fahrer/app/client.tsx` nach Phase1040 ✅
+
+### Phase 1047 — Warenkorb-Upsell-Widget (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1047-warenkorb-upsell-widget.tsx`
+**Props:** `subtotal: number, minOrder: number, locationId: string, onAddItem?: (item) => void`
+**UI:** Amber-Border-Card; ShoppingBag-Header + Fehlbetrag bis Schwelle + X-Dismiss; 4 Empfehlungs-Buttons (+ hinzufügen / ✓ hinzugefügt); Fortschrittsbalken cartTotal/Schwelle; nur sichtbar wenn 0 < subtotal < schwelle
+**Logik:** schwelle = minOrder × 1,2; addedIds-Set; dismissed-State; fetcht Phase1043-API; Trigger bei visible-Wechsel
+**Integration:** `storefront.tsx` nach Phase922 ✅
+
+### Nächste Phasen 1048–1052 (für nächsten Agenten)
+1. **Phase 1048 Backend:** Kunden-Segment-Analyse-API — Segmentierung aller Kunden in High-Value/Regular/Churn-Risk basierend auf Bestellfrequenz, Gesamtumsatz und Tagen seit letzter Bestellung (GET /api/delivery/admin/kunden-segmente).
+2. **Phase 1049 Kitchen:** Zubereitungs-Warteschlangen-Optimierer — Schlägt vor welche wartenden Bestellungen parallel gestartet werden können ohne Stationskonflikt, mit Zeitersparnis-Prognose in Minuten.
+3. **Phase 1050 Dispatch:** Zonen-Auslastungs-Prognose-Board — Vorhersage der Lieferzonenauslastung für die nächsten 2 Stunden basierend auf aktueller Bestelldichte + historischen Wochentag-Mustern.
+4. **Phase 1051 Fahrer-App:** Routen-Effizienz-Feedback — Echtzeit-Score wie effizient die aktuelle Tour vs. optimaler Reihenfolge läuft (% Effizienz, eingesparte km, CO₂-Bilanz), aktualisiert je Stopp.
+5. **Phase 1052 Storefront:** Warenkorb-Merkzettel-Widget — Kunden können Artikel auf einen Merkzettel setzen ("Beim nächsten Mal bestellen"), mit localStorage-Persistenz + Einzel-Klick-Übernahme in Warenkorb.
+
 ## Batch 1023–1027 — 2026-07-09
 
 ### Phase 1023 — Schicht-Spitzenzeit-Analyse-API (Backend)
