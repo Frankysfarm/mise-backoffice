@@ -168,6 +168,7 @@ import { StorefrontPhase975DynamischeEtaLiveKommando } from './phase975-dynamisc
 import { Phase980LiveKochTransparenzWidget } from './phase980-live-koch-transparenz-widget';
 import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-banner';
 import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
+import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1643,6 +1644,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 990: Fahrer-Annäherungs-Radar — Radar-Alert wenn Fahrer < 500m entfernt + Echtzeit-Entfernungsanzeige */}
       {order.isDelivery && (
         <Phase990FahrerAnnaeherungsRadar
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          className="mx-4 mb-4"
+        />
+      )}
+      {/* Phase 995: Echtzeit-Küchen-Transparenz-Widget — "Ihr Essen wird zubereitet" + animiertes Koch-Icon + Batch-Fortschritt */}
+      {order.isDelivery && (
+        <Phase995EchtzeitKuechenTransparenzWidget
           orderId={order.orderId ?? null}
           status={order.status ?? null}
           className="mx-4 mb-4"

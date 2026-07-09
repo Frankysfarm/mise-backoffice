@@ -13091,3 +13091,48 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 993 Dispatch:** Fahrer-Status-Matrix — Kompakte Grid-Ansicht aller Fahrer: Online/Pause/Offline + Zone + verbleibende Stopps + ETR.
 4. **Phase 994 Fahrer-App:** Kunden-Kontakt-Schnell-Panel — 1-Tap Anruf/SMS-Button + Klingelhinweis + Notiz-Anzeige je aktivem Stopp.
 5. **Phase 995 Storefront:** Echtzeit-Küchen-Transparenz-Widget — Live-Ansicht "Ihr Essen wird gerade zubereitet" mit animiertem Koch-Icon + Batch-Fortschritt.
+
+---
+
+## Batch 991–995 — 2026-07-09
+
+### Phase 991 — Zonen-Abdeckungs-Lücken-API (Backend)
+**Datei:** `app/api/delivery/admin/zonen-abdeckungs-luecken/route.ts`
+**GET:** Echtzeit-Erkennung von Zonen ohne aktiven Fahrer + Wartezeit-Prognose für unbesetzte Zonen.
+**Logik:** Aktive Fahrer per Zone aus `delivery_batches` (dispatched/unterwegs/in_delivery/abgeholt); offene Bestellungen aus `customer_orders`; ETW = 20 Min + Bestellungen × 4 wenn keine Fahrer; Fallback Mock
+**Response:** `{ zonen[], luecken_gesamt, location_id, generiert_am }`
+**Multi-Tenant:** `location_id` auf jedem Query ✅
+
+### Phase 992 — Batch-Fertigstellungs-Countdown-Pro (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase992-batch-fertigstellungs-countdown-pro.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible Card; Kapazitäts-Ampel (Überlastet/Angespannt/Entspannt); ETA-SVG-Ring je aktiver Bestellung (Grün/Amber/Rot); Sekunden-Countdown Mono; max 64px-Scrollcontainer
+**Logik:** `getSecondsLeft()` via `created_at + prep_time_minutes`; 1s-Interval; rein client-seitig
+**Integration:** `kitchen/client.tsx` nach Phase 987 ✅
+
+### Phase 993 — Fahrer-Status-Matrix (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase993-fahrer-status-matrix.tsx` + `app/api/delivery/admin/fahrer-status-matrix/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card; responsive Grid (1–3 Spalten); Status-Dot-Badge (Grün/Amber/Grau); Zone + Stopps + ETR je Kachel; 90s-Polling
+**API:** `driver_shifts + delivery_batches + mise_drivers`; ETR = verbleibende Stopps × 7 Min; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase 988 ✅
+
+### Phase 994 — Kunden-Kontakt-Schnell-Panel (Fahrer-App)
+**Datei:** `app/fahrer/app/phase994-kunden-kontakt-schnell-panel.tsx`
+**Props:** `customerPhone?, customerName?, deliveryNote?, hasDoorbell?, floor?`
+**UI:** 3 Tap-Buttons (Anrufen via tel:, SMS via sms:, Klingeln); Etagen-Anzeige; Notiz-Banner amber; "Kein Klingelknopf"-Warnung rot; rein statisch aus Props
+**Integration:** `fahrer/app/client.tsx` nach Phase 989, nur wenn `isOnline` ✅
+
+### Phase 995 — Echtzeit-Küchen-Transparenz-Widget (Storefront)
+**Datei:** `app/order/[locationSlug]/phase995-echtzeit-kuechen-transparenz-widget.tsx`
+**Props:** `orderId: string | null, status: string | null`
+**UI:** Animiertes Flammen-Koch-Icon (500ms-Toggle); Fortschrittsbalken (Grün/Amber/Orange); Batch-Dot-Grid (grau→grün); ETA-Hinweis; nur sichtbar bei Status confirmed/preparing/assigned
+**API:** `/api/delivery/tracking?order_id=...` (30s-Polling); Fallback Mock; Flammen-Tick jede Sekunde
+**Integration:** `storefront.tsx` nach Phase 990 ✅
+
+### Nächste Phasen 996–1000 (für Ingenieur)
+1. **Phase 996 Backend:** Echtzeit-Bestelldichte-API — Bestellungen je 15-Min-Slot der letzten 4 Stunden + Trend (steigend/fallend/peak).
+2. **Phase 997 Kitchen:** Kochstation-Auslastungs-Board — Live-Auslastung je Kochstation (Grill/Friteuse/Salat/Pasta) basierend auf aktiven Bestellungen.
+3. **Phase 998 Dispatch:** Zone-Wartezeit-Live-Matrix — Echtzeit-Wartezeit-Prognose je Zone A/B/C/D mit Ampel-Farbkodierung + Trend.
+4. **Phase 999 Fahrer-App:** Schicht-Abschluss-Highlight-Screen — Animierter Abschluss-Screen mit Tages-Score, Top-Stat, Streak-Badge.
+5. **Phase 1000 Storefront:** Live-Bestellstatus-Timeline Pro — Interaktive Timeline aller Phasen (Bestellt→Küche→Fertig→Unterwegs→Geliefert) mit Echtzeit-Dots.

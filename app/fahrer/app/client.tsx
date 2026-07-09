@@ -320,6 +320,7 @@ import { FahrerPhase974NaechsterStoppUltraNavigator } from './phase974-naechster
 import { FahrerPhase979SchichtEnergiePrognose } from './phase979-schicht-energie-prognose';
 import { FahrerPhase984TourStoppNavigationLive } from './phase984-tour-stopp-navigation-live';
 import { FahrerPhase989SchichtZielFortschrittsRing } from './phase989-schicht-ziel-fortschritts-ring';
+import { FahrerPhase994KundenKontaktSchnellPanel } from './phase994-kunden-kontakt-schnell-panel';
 
 type Driver = {
   id: string;
@@ -3884,6 +3885,8 @@ export function FahrerApp({
         <FahrerPhase984TourStoppNavigationLive driverId={driver.id} isOnline={isOnline} />
         {/* Phase 989: Schicht-Ziel-Fortschritts-Ring — SVG-Ring Touren/Km/Einkommen vs. Tagesziel */}
         <FahrerPhase989SchichtZielFortschrittsRing driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 994: Kunden-Kontakt-Schnell-Panel — 1-Tap Anruf/SMS/Klingeln + Notiz-Anzeige je aktivem Stopp */}
+        {isOnline && <FahrerPhase994KundenKontaktSchnellPanel />}
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
