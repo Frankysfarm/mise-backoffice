@@ -34,7 +34,7 @@ export function Phase903LieferQualitaetsSiegel({ locationId, isDelivery = true }
 
     async function load() {
       try {
-        const res = await fetch(`/api/delivery/admin/liefer-qualitaet?location_id=${locationId}`);
+        const res = await fetch(`/api/delivery/admin/liefer-qualitaet-siegel?location_id=${locationId}`);
         if (!cancelled && res.ok) {
           const json = await res.json();
           setData({
