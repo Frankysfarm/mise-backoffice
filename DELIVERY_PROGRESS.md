@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1006 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–1011 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-09): Phasen 1007–1011 vollständig implementiert + integriert. Phase1007 Bestellaufkommen-Heatmap-API Backend (GET /api/delivery/admin/bestellaufkommen-heatmap, 7×24-Matrix Bestelldichte je Wochentag+Stunde letzte 4 Wochen, peak_day+peak_hour, Supabase+Mock) ✅, Phase1008 Zubereitungs-Parallelitäts-Monitor Kitchen (Alert wenn >3 Bestellungen dieselbe Kochstation gleichzeitig brauchen, 5 Stationen Grill/Friteuse/Pasta/Salat/Suppe, Balken+ÜBERLASTET-Badge, client-seitig useMemo, kitchen/client.tsx nach Phase1002) ✅, Phase1009 Tour-Effizienz-Live-Ranking Dispatch (Echtzeit-Ranking aller aktiven Touren nach €/km, Rang-Emojis 🥇🥈🥉, Defizit-Alert, 90s-Polling, GET /api/delivery/admin/tour-effizienz-ranking, dispatch/client.tsx nach Phase1002) ✅, Phase1010 Pausen-Empfehlung-Optimierer Fahrer-App (Pause-Empfehlung basierend auf Schichtdauer+Energie-Score, 3 Typen pause/kurz/keine, Energie-Balken, rein client-seitig, fahrer/app/client.tsx nach Phase1005) ✅, Phase1011 Bestellabbruch-Prävention-Banner Storefront (erscheint nach >3 Min im Checkout ohne Abschluss, rotierendes Motivations-Banner mit ETA + Social-Proof, X-Button zum Schließen, storefront.tsx vor CheckoutSheet) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO Review #317 (2026-07-09): Phasen 1002–1006 geprüft. 1 TS-Fehler gefixt: storefront.tsx:1663 `location.id` → `locationId` (Scope-Bug: Code innerhalb `ActiveOrderProgressPanel` referenzierte Prop `location` aus äußerem `Storefront`-Scope, TypeScript hat es korrekt als DOM-`Location` aufgelöst, kein `.id`). Build ✓ 373 Seiten. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 1002–1006 vollständig implementiert + integriert. Phase1002 Echtzeit-Storno-Rate-API Backend (GET /api/delivery/admin/storno-rate-live, Storno-Rate % je Stunde heute + Trend steigend/fallend/stabil + Top-Gründe, Status normal/erhoht/kritisch, Supabase customer_orders+Mock) ✅, Phase1003 Bestellkomplexitäts-Wartezeit-Prognose Kitchen (Restwartezeit je aktiver Bestellung basierend auf Artikel-Anzahl+Komplex-Keywords, Ampel Dringend<3Min/Bald<8Min/OK, client-seitig useMemo, kitchen/client.tsx nach Phase1001) ✅, Phase1004 Fahrer-Rückkehr-Prognose-Board Dispatch (Rückkehrzeit je aktiver Fahrer nach verbleibenden Stopps, urgency soon/coming/later, 2-Min-Polling, bestehende /fahrer-rueckkehr-prognose API, dispatch/client.tsx nach Phase1001) ✅, Phase1005 Verdienst-Ziel-Tracker Fahrer-App (SVG-Fortschrittsbalken Tagesverdienst vs. 120€-Ziel, KPI-Grid Umsatz/Trinkgeld/Stopps, Motivations-Banner, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase1001) ✅, Phase1006 Live-Küchen-Auslastungs-Anzeige Storefront + Backend GET /api/delivery/admin/kuechen-auslastung-live (Ampel Niedrig/Normal/Hoch/Peak + Auslastungs-Balken + erwartete Wartezeit, 3-Min-Polling, storefront.tsx vor Phase1000) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO Review #316 (2026-07-09): Phasen 975+1001 geprüft. Build ✓ 373 Seiten. TypeScript 0 Fehler. 2 fehlende Backend-APIs implementiert: GET /api/delivery/admin/dispatch-score-tour-cockpit + GET /api/delivery/analytics/weekly-stats. Alle Module vollständig verbunden. Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron. ✅
@@ -13225,3 +13226,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **UI:** Farbiger Header (Farbe je aktiver Phase) + Live-Dot + Countdown; Vertikale Timeline mit 5 Phasen (Bestellt/Küche/Fertig/Unterwegs/Geliefert); abgeschlossene=CheckCircle/aktive=pulsierend/zukünftige=ausgegraut; Geliefert-State mit Guten-Appetit-Card
 **Logik:** client-seitig; statusToPhaseIndex-Mapping; Sekunden-Countdown via useEffect; 30s-Polling `/api/delivery/tracking`; kein Render bei !isDelivery
 **Integration:** `storefront.tsx` nach Phase995 (nur bei isDelivery) ✅
+
+---
+
+## Batch 1007–1011 — 2026-07-09
+
+### Phase 1007 — Bestellaufkommen-Heatmap-API (Backend)
+**Datei:** `app/api/delivery/admin/bestellaufkommen-heatmap/route.ts`
+**GET:** `?location_id=<uuid>` — 7×24-Matrix (Wochentag × Stunde) mit Bestellanzahl letzte 4 Wochen + peak_day + peak_hour
+**Logik:** customer_orders.created_at → Bucket nach weekday+hour; Mock mit Sinus-Welle + Weekend-Boost; Fallback
+**Response:** `{ matrix[], peak_value, peak_day, peak_hour, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1008 — Zubereitungs-Parallelitäts-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1008-zubereitungs-parallelitaet.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; 5 Stationen (Grill🔥/Friteuse🍟/Pasta🍝/Salat🥗/Suppe🍲); Auslastungsbalken + ÜBERLASTET-Badge (rot, pulsierend) wenn count > Kapazität; sortiert nach Auslastung
+**Logik:** Keyword-Matching auf item.name; Kapazitäten: Grill×3, Friteuse×3, Pasta×3, Salat×4, Suppe×3; rein client-seitig useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1002 ✅
+
+### Phase 1009 — Tour-Effizienz-Live-Ranking (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1009-tour-effizienz-live-ranking.tsx` + `app/api/delivery/admin/tour-effizienz-ranking/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Rang-Emojis 🥇🥈🥉; je Tour: Fahrername + Zone + €/km + Marge% + Defizit-Alert (rot); Effizienz-Badge Top/Gut/Mittel/Schwach; 90s-Polling
+**API:** delivery_batches + mise_drivers + customer_orders → km×0,30€+Lohn→Kosten, €/km-Ranking; Defizit-Alert wenn Marge <0; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase1002 ✅
+
+### Phase 1010 — Pausen-Empfehlung-Optimierer (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1010-pausen-empfehlung.tsx`
+**Props:** `schichtDauerMin: number, stoppsHeute: number, isOnline: boolean`
+**UI:** Karte mit Urgency-Farbkodierung (rot/amber/blau); Empfehlungs-Icon + Dauer + Grund; Energie-Score-Balken; Schichtdauer + Stopps-Anzeige; null wenn typ='keine' oder !isOnline
+**Logik:** energieScore = 100 - (schichtMin/480)×60 - stopps×3; Schwellwerte: Pause≥6h+E<40, Pause≥4h+E<60, Kurz≥8Stopps+E<70; rein client-seitig
+**Integration:** `fahrer/app/client.tsx` nach Phase1005 ✅
+
+### Phase 1011 — Bestellabbruch-Prävention-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1011-bestellabbruch-praevention.tsx`
+**Props:** `checkoutOpen: boolean, etaMinuten?: number`
+**UI:** Fixierter Banner (bottom-20, Matcha-Farben); rotierendes Motivations-Banner alle 6s (4 Nachrichten); ETA + Warenkorb-gesichert-Hinweis; X-Button zum Schließen; slide-in-from-bottom Animation
+**Logik:** setTimeout(3 Min) wenn checkoutOpen=true; dismissed-State verhindert Wiedererscheinen in selber Checkout-Session; Rotation via setInterval(6s)
+**Integration:** `storefront.tsx` vor CheckoutSheet ✅
+
+### Nächste Phasen 1012–1016 (für Ingenieur)
+1. **Phase 1012 Backend:** Fahrerzuteilungs-Effizienz-API — Wie gut werden Fahrer historisch Zonen zugeteilt? Score je Fahrer-Zonen-Kombination.
+2. **Phase 1013 Kitchen:** Zutaten-Verbrauchs-Prognose-Board — Prognose welche Zutaten in den nächsten 2h ausgehen könnten basierend auf Bestellrhythmus.
+3. **Phase 1014 Dispatch:** Echtzeit-Tour-Kilometerstand-Board — Live km-Zähler je aktiver Tour + Tages-km-Summe + Reichweite-Warnung bei E-Fahrzeugen.
+4. **Phase 1015 Fahrer-App:** Schicht-Wetter-Warnung — Warnung bei schlechtem Wetter (Regen/Eis/Sturm) mit Sicherheitshinweis + verlängerte ETA-Empfehlung.
+5. **Phase 1016 Storefront:** Bestellstatus-Confetti-Animation — Konfetti-Explosion wenn Bestellung als "geliefert" markiert wird.

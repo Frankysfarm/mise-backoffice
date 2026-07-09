@@ -407,6 +407,7 @@ import { DispatchPhase998ZoneWartezeitLiveMatrix } from './phase998-zone-warteze
 import { DispatchPhase1001TourScoreVisualisierungPro } from './phase1001-tour-score-visualisierung-pro';
 import { DispatchPhase1004FahrerRueckkehrPrognose } from './phase1004-fahrer-rueckkehr-prognose';
 import { DispatchPhase1002TourEtaSequenzBoard } from './phase1002-tour-eta-sequenz-board';
+import { DispatchPhase1009TourEffizienzLiveRanking } from './phase1009-tour-effizienz-live-ranking';
 
 type Driver = {
   employee_id: string;
@@ -1273,6 +1274,8 @@ export function DispatchBoard({
       <DispatchPhase1004FahrerRueckkehrPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1002: Tour-ETA-Sequenz-Board — Echtzeit-Stopp-Zeitachse je Tour mit ETA + Verspätungs-Ampel */}
       <DispatchPhase1002TourEtaSequenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1009: Tour-Effizienz-Live-Ranking — Echtzeit-Ranking aller Touren nach €/km + Defizit-Alert */}
+      <DispatchPhase1009TourEffizienzLiveRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

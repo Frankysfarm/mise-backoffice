@@ -171,6 +171,7 @@ import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-
 import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
+import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1358,6 +1359,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           addItemWithExtras(detailItem, qty, extras, notiz, extraPreis);
           closeDetail();
         }}
+      />
+
+      {/* Phase 1011: Bestellabbruch-Prävention-Banner — erscheint nach >3 Min im Checkout ohne Abschluss */}
+      <StorefrontPhase1011BestellabbruchPraevention
+        checkoutOpen={checkoutOpen}
+        etaMinuten={deliveryTimeMin ?? 30}
       />
 
       {/* Checkout */}

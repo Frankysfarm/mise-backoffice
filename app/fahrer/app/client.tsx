@@ -325,6 +325,7 @@ import { FahrerPhase999SchichtAbschlussHighlightScreen } from './phase999-schich
 import { FahrerPhase1001TourStoppNavigatorFinal } from './phase1001-tour-stopp-navigator-final';
 import { FahrerPhase1005VerdienstZielTracker } from './phase1005-verdienst-ziel-tracker';
 import { FahrerPhase1002GpsNaviKommando } from './phase1002-gps-navi-kommando';
+import { FahrerPhase1010PausenEmpfehlung } from './phase1010-pausen-empfehlung';
 
 type Driver = {
   id: string;
@@ -3897,6 +3898,12 @@ export function FahrerApp({
         {isOnline && <FahrerPhase1001TourStoppNavigatorFinal stopps={[]} />}
         {/* Phase 1005: Verdienst-Ziel-Tracker — SVG-Fortschrittsbalken Tagesverdienst vs. Schichtziel (120€) */}
         <FahrerPhase1005VerdienstZielTracker driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1010: Pausen-Empfehlung-Optimierer — Optimale Pausenzeit basierend auf Schichtdauer + Energie-Score */}
+        <FahrerPhase1010PausenEmpfehlung
+          schichtDauerMin={status?.online_seit ? Math.floor((Date.now() - new Date(status.online_seit).getTime()) / 60_000) : 0}
+          stoppsHeute={todayStats?.deliveries ?? 0}
+          isOnline={isOnline}
+        />
         {/* Phase 1002: GPS-Navi-Kommando — Live-GPS-Navigationszentrale mit Google/Waze/Apple Maps + ETA + Ablieferungs-Bestätigung */}
         {isOnline && <FahrerPhase1002GpsNaviKommando />}
 
