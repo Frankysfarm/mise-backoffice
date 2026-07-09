@@ -416,6 +416,7 @@ import { DispatchPhase1030SchichtSpitzenzeitKommando } from './phase1030-schicht
 import { DispatchPhase1035FahrerAusfallrisiko } from './phase1035-fahrer-ausfallrisiko-monitor';
 import { DispatchPhase1040TourScoreEchtzeitUebersicht } from './phase1040-tour-score-echtzeit-uebersicht';
 import { DispatchPhase1045FahrerSchichtPrognosBoard } from './phase1045-fahrer-schicht-prognose-board';
+import { DispatchPhase1050ZonenAuslastungsPrognose } from './phase1050-zonen-auslastungs-prognose';
 
 type Driver = {
   employee_id: string;
@@ -1294,6 +1295,8 @@ export function DispatchBoard({
       <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1040: Tour-Score-Echtzeit-Übersicht — Alle aktiven Touren mit Score-Ring, Stopp-Fortschritt und Tour-Visualisierung */}
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1050: Zonen-Auslastungs-Prognose — Vorhersage Lieferzonenauslastung nächste 2h basierend auf Bestelldichte + Wochenmuster */}
+      <DispatchPhase1050ZonenAuslastungsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1045: Fahrer-Schicht-Prognose-Board — Visualisierung eingeplante Fahrer vs. Mindestbesetzung je Stunde */}
       <DispatchPhase1045FahrerSchichtPrognosBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1035: Fahrer-Ausfallrisiko-Monitor — Frühwarnung welche Fahrer heute wahrscheinlich nicht erscheinen */}

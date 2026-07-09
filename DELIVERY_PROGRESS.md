@@ -1,7 +1,7 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1047 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–1052 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
 Backend-Architekt-Agent (2026-07-09): Phasen 1043–1047 vollständig implementiert + integriert. Phase1043 Bestellwert-Optimierungs-API Backend (GET /api/delivery/admin/bestellwert-optimierung, Empfohlene Zusatzartikel Getränk/Dessert/Snack wenn Warenkorb < MinOrder×1.2, Bestseller-Analyse 30 Tage, Supabase order_items + Mock-Fallback) ✅, Phase1044 Allergen-Eskalations-Flow Kitchen (komplexe Allergen-Bestellungen Keyword-Matching erdnuss/nuss/fisch/gluten/sesam/laktose, Schweregrad-Ampel Kritisch/Hoch/Mittel, Acknowledge-Button + localStorage-Persistenz je Bestell-ID, Bell-Puls-Alert bei neuer Eskalation, kitchen/client.tsx nach Phase1034) ✅, Phase1045 Fahrer-Schicht-Prognose-Board Dispatch (GET /api/delivery/admin/fahrer-schicht-prognose, Nächste Schichten eingeplant/bestätigt vs. Mindestbesetzung, Ampel grün/amber/rot, Fahrer-Status bestaetigt/eingeplant, 10-Min-Polling, dispatch/client.tsx nach Phase1035) ✅, Phase1046 Kundenbewertungs-Live-Ticker Fahrer-App (Letzte Bewertung animiert eingeblendet NEU!-Badge + Stern-Verlauf 5 letzte + Wochenschnitt + Trend-Icon steigend/fallend/gleich, 5-Min-Polling, /api/delivery/driver/bewertungen + Mock, fahrer/app/client.tsx nach Phase1036) ✅, Phase1047 Warenkorb-Upsell-Widget Storefront (Phase1043-API-Integration, Fortschrittsbalken cartTotal/Ziel, 4 Empfehlungen je Kategorie, Add-to-Cart-Button onAddItem, dismissbar per Session, storefront.tsx nach Phase922) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 CEO Review #322 (2026-07-09): Phasen 1040/1042 geprüft. 2 Bugs gefixt (storefront.tsx:1379 locationId-Scope-Bug + Phase1042-Integration fehlte). Build ✓ Compiled successfully. TypeScript 0 Fehler (tsc --noEmit Exit 0). Phase1040 Kitchen Live-Bestellstatus-Kommandozentrale ✅, Phase1040 Dispatch Tour-Score-Übersicht ✅, Phase1040 Fahrer-App Nächster-Stopp-Ultra-Kommando ✅, Phase1042 Storefront Live-ETA-Fahrer-Annäherungs-Panel ✅. Alle Module synchron. Nächste Phasen 1043–1047 definiert. ✅
 CEO Review #321 (2026-07-09): Phasen 1033–1037 geprüft. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Phase1033 Liefergebiet-Heatmap-API Backend ✅, Phase1034 Allergen-Tages-Zusammenfassung Kitchen ✅, Phase1035 Fahrer-Ausfallrisiko-Monitor Dispatch ✅, Phase1036 Strecken-Kilometerstand-Log Fahrer-App ✅, Phase1037 Produktbewertungs-Widget Storefront ✅. Alle Module synchron. Nächste Phasen 1038–1042 definiert. ✅
@@ -71,12 +71,47 @@ Backend-Architekt-Agent (2026-07-09): Phasen 923–928 vollständig implementier
 **Logik:** schwelle = minOrder × 1,2; addedIds-Set; dismissed-State; fetcht Phase1043-API; Trigger bei visible-Wechsel
 **Integration:** `storefront.tsx` nach Phase922 ✅
 
-### Nächste Phasen 1048–1052 (für nächsten Agenten)
-1. **Phase 1048 Backend:** Kunden-Segment-Analyse-API — Segmentierung aller Kunden in High-Value/Regular/Churn-Risk basierend auf Bestellfrequenz, Gesamtumsatz und Tagen seit letzter Bestellung (GET /api/delivery/admin/kunden-segmente).
-2. **Phase 1049 Kitchen:** Zubereitungs-Warteschlangen-Optimierer — Schlägt vor welche wartenden Bestellungen parallel gestartet werden können ohne Stationskonflikt, mit Zeitersparnis-Prognose in Minuten.
-3. **Phase 1050 Dispatch:** Zonen-Auslastungs-Prognose-Board — Vorhersage der Lieferzonenauslastung für die nächsten 2 Stunden basierend auf aktueller Bestelldichte + historischen Wochentag-Mustern.
-4. **Phase 1051 Fahrer-App:** Routen-Effizienz-Feedback — Echtzeit-Score wie effizient die aktuelle Tour vs. optimaler Reihenfolge läuft (% Effizienz, eingesparte km, CO₂-Bilanz), aktualisiert je Stopp.
-5. **Phase 1052 Storefront:** Warenkorb-Merkzettel-Widget — Kunden können Artikel auf einen Merkzettel setzen ("Beim nächsten Mal bestellen"), mit localStorage-Persistenz + Einzel-Klick-Übernahme in Warenkorb.
+## Batch 1048–1052 — 2026-07-09
+
+### Phase 1048 — Kunden-Segment-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/kunden-segmente/route.ts`
+**GET:** `?location_id=<uuid>` — Segmentierung Kunden High-Value/Regular/Churn-Risk basierend auf Bestellfrequenz + Umsatz + Inaktivität (90T-Fenster)
+**Logik:** High-Value = ≥8 Bestellungen ODER ≥200€; Churn = ≤2 Bestellungen ODER >45T inaktiv; Regular = alles dazwischen; Supabase customer_orders.customer_id + Mock-Fallback
+**Response:** `{ segmente[]: { segment, label, farbe, anzahl, anteil_prozent, ø_bestellungen, ø_umsatz, kriterium }, gesamt_kunden, generiert_am }`
+
+### Phase 1049 — Warteschlangen-Optimierer (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1049-warteschlangen-optimierer.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Parallel-Gruppen-Cards: je Gruppe Bestellungen + Station + Minuten + Zeitersparnis-Badge; Header-Badge "−X Min sparen"; Leer = null (keine wartenden Bestellungen)
+**Logik:** client-seitig useMemo; Status-Filter neu/angenommen/wartend/pending; Station-Keyword-Mapping (Ofen/Grill/Herd/Kalt/Friteuse); Gruppen: max 1 Bestellung je Station ohne Konflikt; Zeitersparnis = Summe − Max(Gruppe)
+**Integration:** `kitchen/client.tsx` vor Phase1044 ✅
+
+### Phase 1050 — Zonen-Auslastungs-Prognose (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1050-zonen-auslastungs-prognose.tsx` + `app/api/delivery/admin/zonen-auslastungs-prognose/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Stunden-Filter Alle/+0h/+1h; je Zone-Stunden-Slot: Auslastungsbalken + % Badge grün/amber/rot + Trend-Pfeil; Spitzen-Zone Badge im Header; 10-Min-Polling
+**Logik:** Historische Bestellungen selber Wochentag ±2h → Prognose; Kapazität 25/Zone/Stunde; Auslastung% = prognose/kapazität; Supabase + Mock-Fallback (5 Zonen)
+**Integration:** `dispatch/client.tsx` vor Phase1045 ✅
+
+### Phase 1051 — Routen-Effizienz-Feedback (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1051-routen-effizienz-feedback.tsx` + `app/api/delivery/driver/routen-effizienz/route.ts`
+**Props:** `driverId: string, tourId?: string | null`
+**UI:** SVG-Gauge-Ring (%) mit Farbwechsel grün≥80/amber≥60/rot<60; 2-KPI-Kacheln eingesparte km + CO₂ (0,148 kg/km); Hinweis-Banner; nur sichtbar wenn tourId vorhanden; 90s-Polling
+**API:** GET `/api/delivery/driver/routen-effizienz?driver_id=&tour_id=`; Supabase delivery_tours optimized_distance_km vs. total_distance_km; Mock-Fallback (84%, 2,3 km, 0,34 kg)
+**Integration:** `fahrer/app/client.tsx` vor Phase1046, guard `isOnline && activeBatch` ✅
+
+### Phase 1052 — Warenkorb-Merkzettel-Widget (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1052-merkzettel-widget.tsx`
+**Exports:** `useMerkzettel()` Hook, `Phase1052MerkzettelWidget`, `MerkzettelButton`
+**UI:** Floating-Dropdown-Button mit Anzahl-Badge; Merkzettel-Liste: Artikel + Preis + Add-to-Cart + Entfernen; localStorage-Persistenz Key `mise_merkzettel`; storage-Event-Sync für Tab-übergreifende Konsistenz; nur sichtbar wenn ≥1 Artikel
+**Integration:** `storefront.tsx` — `useMerkzettel()` in Storefront-State; `Phase1052MerkzettelWidget` + `onAddToCart` via `items.find().id + addToCart(menuItem)` ✅
+
+### Nächste Phasen 1053–1057 (für nächsten Agenten)
+1. **Phase 1053 Backend:** Tages-Umsatz-Kurve-API — Stundenweise Umsatzkurve für heute vs. Vortag vs. Vorwoche (GET /api/delivery/admin/tages-umsatz-kurve, 24 Datenpunkte je Zeitreihe).
+2. **Phase 1054 Kitchen:** Wartezeit-SLA-Monitor — Alert wenn mehr als X% der Bestellungen ihre SLA-Kochzeit überschreiten, mit Drill-Down je Station + Empfehlung.
+3. **Phase 1055 Dispatch:** Fahrer-Kosten-Effizienz-Board — Kosten je Lieferung je Fahrer heute (Lohn/Schicht ÷ Stopps + 0,25€/km), Ranking + Benchmark vs. Team-Ø.
+4. **Phase 1056 Fahrer-App:** Schicht-Motivations-Coach — Personalisierter Motivationstext je nach aktueller Score-Entwicklung: steigend = Lob, fallend = Tipp, stabil = Challenge.
+5. **Phase 1057 Storefront:** Live-Popularitäts-Ranking — "Trending jetzt"-Badge auf den 3 meistbestellten Artikeln der letzten 2h, aktualisiert alle 10 Min.
 
 ## Batch 1023–1027 — 2026-07-09
 

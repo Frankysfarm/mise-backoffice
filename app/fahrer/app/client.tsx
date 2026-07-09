@@ -334,6 +334,7 @@ import { FahrerPhase1031EinnahmenPrognoseAssistent } from './phase1031-einnahmen
 import { FahrerPhase1036StreckenKilometerstandLog } from './phase1036-strecken-kilometerstand-log';
 import { FahrerPhase1040NaechsterStoppUltraKommando } from './phase1040-naechster-stopp-ultra-kommando';
 import { FahrerPhase1046KundenbewertungsLiveTicker } from './phase1046-kundenbewertungs-live-ticker';
+import { FahrerPhase1051RoutenEffizienzFeedback } from './phase1051-routen-effizienz-feedback';
 
 type Driver = {
   id: string;
@@ -3920,6 +3921,12 @@ export function FahrerApp({
         <FahrerPhase1031EinnahmenPrognoseAssistent driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1036: Strecken-Kilometerstand-Log — Tagesprotokoll km je Tour + Gesamt + Kostenabrechnung */}
         <FahrerPhase1036StreckenKilometerstandLog driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1051: Routen-Effizienz-Feedback — Echtzeit-Score Effizienz aktuelle Tour vs. Optimum + eingesparte km + CO₂-Bilanz */}
+        {isOnline && activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1051RoutenEffizienzFeedback driverId={driver.id} tourId={activeBatch.id} />
+          </div>
+        )}
         {/* Phase 1046: Kundenbewertungs-Live-Ticker — Nach jeder Lieferung: letzte Bewertung animiert + Wochentrend */}
         <div className="px-4">
           <FahrerPhase1046KundenbewertungsLiveTicker driverId={driver.id} isOnline={isOnline} />

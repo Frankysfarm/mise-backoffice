@@ -182,6 +182,7 @@ import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erw
 import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktbewertungs-widget';
 import { Phase1042LiveEtaFahrerAnnaeherungsPanel } from './phase1042-live-eta-fahrer-annaeherungs-panel';
 import { Phase1047WarenkorbUpsellWidget } from './phase1047-warenkorb-upsell-widget';
+import { useMerkzettel, Phase1052MerkzettelWidget } from './phase1052-merkzettel-widget';
 
 type Props = {
   location: Location;
@@ -242,6 +243,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const [search, setSearch] = React.useState('');
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'beliebt' | 'vegan' | 'under10'>('all');
   const [allergenFilter, setAllergenFilter] = React.useState<string | null>(null);
+  // Phase 1052: Merkzettel — localStorage-persistente Wunschliste
+  const merkzettel = useMerkzettel();
   // Phase 960: Produktverfügbarkeits-Map item_id → status
   const [verfuegbarkeitsMap, setVerfuegbarkeitsMap] = React.useState<Map<string, 'verfuegbar' | 'wenige_uebrig' | 'ausverkauft'>>(new Map());
   const itemIds = React.useMemo(() => items.map((i) => i.id), [items]);
@@ -936,6 +939,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8 flex justify-end">
+        <Phase1052MerkzettelWidget
+          merkzettel={merkzettel}
+          onAddToCart={(merkItem) => {
+            const menuItem = items.find((i) => i.id === merkItem.id);
+            if (menuItem) addToCart(menuItem);
+          }}
+        />
+      </div>
       {/* Phase 1047: Warenkorb-Upsell-Widget — Empfiehlt Zusatzartikel wenn Warenkorb < Mindestbestellwert + 20% */}
       {cart.length > 0 && subtotal < minOrder * 1.2 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

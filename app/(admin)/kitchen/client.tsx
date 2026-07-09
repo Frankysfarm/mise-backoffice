@@ -355,6 +355,7 @@ import { KitchenPhase1029BestellKomplexitaetsHeatmap } from './phase1029-bestell
 import { KitchenPhase1034AllergenTagesZusammenfassung } from './phase1034-allergen-tages-zusammenfassung';
 import { KitchenPhase1040LiveBestellstatusKommandozentrale } from './phase1040-live-bestellstatus-kommandozentrale';
 import { KitchenPhase1044AllergenEskalationsFlow } from './phase1044-allergen-eskalations-flow';
+import { KitchenPhase1049WarteschlangenOptimierer } from './phase1049-warteschlangen-optimierer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -979,6 +980,8 @@ export function KitchenBoard({
       <KitchenPhase1029BestellKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1040: Live-Bestellstatus-Kommandozentrale — Alle aktiven Bestellungen mit Farbkodierung und Countdown */}
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1049: Warteschlangen-Optimierer — Parallel-Startvorschläge ohne Stationskonflikt + Zeitersparnis-Prognose */}
+      <KitchenPhase1049WarteschlangenOptimierer orders={filtered as any} />
       {/* Phase 1044: Allergen-Eskalations-Flow — Kritische Allergen-Bestellungen automatisch weiterleiten + Küchenleiter-Bestätigung */}
       <KitchenPhase1044AllergenEskalationsFlow orders={filtered as any} />
       {/* Phase 1034: Allergen-Tages-Zusammenfassung — Häufigste Allergene heute mit Trend vs. Vorwoche */}
