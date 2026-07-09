@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id') ?? '';
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Aktive Fahrer heute
     const heute = new Date().toISOString().slice(0, 10);
@@ -116,11 +116,15 @@ export async function GET(req: NextRequest) {
     const fehlendeFahrer = alleGeplant
       .filter((s: { status?: string }) => !['aktiv', 'active', 'gestartet'].includes(s.status ?? ''))
       .slice(0, 5)
-      .map((s: { drivers?: { name?: string; zone_assignment?: string } }) => ({
-        name: (s.drivers as { name?: string; zone_assignment?: string } | null)?.name ?? 'Unbekannt',
-        geplante_stopps: 6,
-        zone: (s.drivers as { name?: string; zone_assignment?: string } | null)?.zone_assignment ?? null,
-      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((s: any) => {
+        const drv = Array.isArray(s.drivers) ? s.drivers[0] : s.drivers;
+        return {
+          name: drv?.name ?? 'Unbekannt',
+          geplante_stopps: 6,
+          zone: drv?.zone_assignment ?? null,
+        };
+      });
 
     const result: AbwesenheitsImpact = {
       fahrer_verfuegbar: verfuegbar,

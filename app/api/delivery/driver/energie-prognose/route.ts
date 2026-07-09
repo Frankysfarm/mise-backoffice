@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   const driverId = searchParams.get('driver_id') ?? '';
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const heute = new Date().toISOString().slice(0, 10);
     const now = new Date();
 

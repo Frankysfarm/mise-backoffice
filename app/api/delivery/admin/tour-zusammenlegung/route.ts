@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id') ?? '';
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const heute = new Date().toISOString().slice(0, 10);
 
     // Aktive Touren mit Fahrer + Zone
@@ -97,8 +97,8 @@ export async function GET(req: NextRequest) {
         // Nur gleiche Zone
         if (!a.zone || a.zone !== b.zone) continue;
 
-        const aStopps = (a.mise_delivery_stops ?? []).filter((s) => !['geliefert', 'abgeschlossen'].includes(s.status ?? ''));
-        const bStopps = (b.mise_delivery_stops ?? []).filter((s) => !['geliefert', 'abgeschlossen'].includes(s.status ?? ''));
+        const aStopps = (a.mise_delivery_stops ?? []).filter((s: { status?: string }) => !['geliefert', 'abgeschlossen'].includes(s.status ?? ''));
+        const bStopps = (b.mise_delivery_stops ?? []).filter((s: { status?: string }) => !['geliefert', 'abgeschlossen'].includes(s.status ?? ''));
 
         // Nur wenn zusammen ≤8 Stopps (handhabbar)
         if (aStopps.length + bStopps.length > 8) continue;

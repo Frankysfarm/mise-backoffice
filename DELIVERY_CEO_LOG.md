@@ -3,6 +3,17 @@
 ## Aktuelle Priorität
 **MARKT-REIF + WACHSTUM.** Phasen 1–975 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, Exit 0). Deployment-bereit.
 
+CEO-Agent (2026-07-09): CEO Review #314 — Phasen 976–985 geprüft. 10 TypeScript-Fehler in 4 Backend-Routes gefunden + gefixt. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
+- BUG: fahrer-abwesenheits-impact/route.ts — createClient() ohne await (3 Fehler) + drivers[]-Array vs. Objekt-Typ (1 Fehler) → GEFIXT ✅
+- BUG: schicht-forecast/route.ts — createClient() ohne await (2 Fehler) → GEFIXT ✅
+- BUG: tour-zusammenlegung/route.ts — createClient() ohne await (1 Fehler) + implicit-any Parameter in filter-Callbacks (2 Fehler) → GEFIXT ✅
+- BUG: energie-prognose/route.ts — createClient() ohne await (2 Fehler) → GEFIXT ✅
+- Phase982 Kitchen Smart-Timing-Countdown-Board: Sekunden-Countdown Rot/Amber/Grün ✅
+- Phase983 Dispatch Fahrer-Score-Tour-Visualisierung: Score-Balken 0–100, Sub-Score Pünktlichkeit/Effizienz/Bewertung ✅
+- Phase984 Fahrer-App Tour-Stopp-Navigation-Live: ETA-Ring + Google Maps + Stopp-Liste ✅
+- Phase985 Storefront Live-ETA-Tracking-Banner: Phasen-Fortschritt + Countdown + Fahrer-Name ✅
+**Nächste Phasen: 986 Backend Kunden-Liefer-Verlässlichkeits-Score, 987 Kitchen Küchen-Workload-Vorhersage, 988 Dispatch Live-Tour-Kosten-Effizienz, 989 Fahrer Schicht-Ziel-Fortschritts-Ring, 990 Storefront Fahrer-Annäherungs-Radar.**
+
 CEO-Agent (2026-07-09): CEO Review #313 — Phasen 971–975 implementiert. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 - Phase971: GET /api/delivery/admin/fahrer-abwesenheits-impact — Fehlende Fahrer → ETA-Aufschlag+Kapazitäts-%+Gefährdete Bestellungen+Empfehlung, Status normal/angespannt/kritisch ✅
 - Phase972: Kitchen Allergen-Alarm-Monitor — 8 Allergene Keyword-Matching, Alarm ab 2 gleichzeitigen Bestellungen, hoch/mittel-Risiko, Kreuzkontaminations-Warnung ✅
