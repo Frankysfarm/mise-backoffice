@@ -291,6 +291,7 @@ import { FahrerPhase869FahrTippsCoach } from './phase869-fahr-tipps-coach';
 import { FahrerPhase874TourenKartenMinimap } from './phase874-touren-karten-minimap';
 import { TourStoppLiveNavigator } from './tour-stopp-live-navigator';
 import { FahrerPhase876TourNaechsterStoppUltra } from './phase876-tour-naechster-stopp-ultra';
+import { FahrerPhase882SchichtEnergieplan } from './phase882-schicht-energieplan';
 
 type Driver = {
   id: string;
@@ -3684,6 +3685,8 @@ export function FahrerApp({
         <FahrerPhase869FahrTippsCoach driverId={driver.id} locationId={driver.location_id ?? null} />
         {/* Phase 874: Touren-Karten-Minimap — SVG-Visualisierung aller heutigen Lieferstopps auf vereinfachter Karte */}
         <FahrerPhase874TourenKartenMinimap driverId={driver.id} locationId={driver.location_id ?? null} />
+        {/* Phase 882: Schicht-Energieplan — Empfohlene Pausenzeiten + Energie-Anzeige basierend auf Schichtlänge + Stopps */}
+        <FahrerPhase882SchichtEnergieplan driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />

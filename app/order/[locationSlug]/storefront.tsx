@@ -144,6 +144,7 @@ import { Phase864LieferstatusFortschritt } from './phase864-lieferstatus-fortsch
 import { Phase870KuechenKapazitaetBanner } from './phase870-kuechen-kapazitaet-banner';
 import { Phase875BestellungsBestaetigungsTicker } from './phase875-bestellungs-bestaetigung-ticker';
 import { EtaLiveKommando } from './eta-live-kommando';
+import { Phase883BewertungsIncentiveBanner } from './phase883-bewertungs-incentive-banner';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 
 type Props = {
@@ -1506,6 +1507,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase870KuechenKapazitaetBanner locationId={locationId} />
       {/* Phase 875: Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker mit Konfetti-Burst nach Bestelleingang */}
       <Phase875BestellungsBestaetigungsTicker orderId={order.orderId ?? null} orderNumber={order.bestellnummer ?? null} status={order.status ?? null} />
+      {/* Phase 883: Bewertungs-Incentive-Banner — Gamification-Banner nach Lieferung: Punkte für Bewertung vergeben */}
+      <Phase883BewertungsIncentiveBanner orderId={order.orderId ?? null} status={order.status ?? null} />
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
       {order.isDelivery && order.status && !['storniert', 'cancelled'].includes(order.status) && (
         <EtaLiveKommando

@@ -119,6 +119,7 @@ import { KitchenSmartTimingDashboard } from './smart-timing-dashboard';
 import { KitchenZonenKochstartSynchro } from './zonen-kochstart-synchro';
 import { KitchenPrepFlussRace } from './prep-fluss-race';
 import { KitchenPhase875SmartKochstartPriorisierung } from './phase875-smart-kochstart-priorisierung';
+import { KitchenPhase880SmartBatchKonfigurator } from './phase880-smart-batch-konfigurator';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -857,6 +858,8 @@ export function KitchenBoard({
       <KitchenKommandoZentrale orders={filtered} timings={timings} />
       {/* Phase 875: Smart Kochstart-Priorisierung — kombiniert Fahrer-ETA mit Küchen-Restzeit */}
       <KitchenPhase875SmartKochstartPriorisierung orders={filtered} timings={timings} />
+      {/* Phase 880: Smart-Batch-Konfigurator — Editor für Batch-Größen + KI-Empfehlung je Tageszeit */}
+      <KitchenPhase880SmartBatchKonfigurator locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}
