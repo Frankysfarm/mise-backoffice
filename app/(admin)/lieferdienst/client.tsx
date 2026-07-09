@@ -146,6 +146,7 @@ import LieferdienstFahrerEffizienzScore from './fahrer-effizienz-score'
 import { SchichtLiveStatistik } from './schicht-live-statistik'
 import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
 import { LieferdienstSchichtLiveExecutive } from './schicht-live-executive'
+import { LieferdienstSofortAktionsPanel } from './sofort-aktions-panel'
 import { LieferdienstPricingKompakt } from './pricing-kompakt'
 import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
 import { LieferdienstStornoRateKarte } from './storno-rate-karte'
@@ -1231,6 +1232,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 914: Sofort-Aktions-Panel — Priorisierte Handlungsempfehlungen für Manager: kritische Probleme zuerst */}
+              <LieferdienstSofortAktionsPanel locationId={locationId} />
               {/* Schicht-Live-Executive: 360°-KPI-Dashboard mit Bestellverlauf-Chart, Trend-Pfeilen und Live-Update */}
               <LieferdienstSchichtLiveExecutive locationId={locationId} />
               {/* Zonen-Rentabilitäts-Matrix: Umsatz, Bestellungen, Lieferzeit und SLA je Zone */}
