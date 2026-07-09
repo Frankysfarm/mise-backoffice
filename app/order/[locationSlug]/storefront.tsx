@@ -154,6 +154,7 @@ import { StorefrontPhase916EtaLiveTrackingPro } from './phase916-eta-live-tracki
 import { Phase922BestellmengenEmpfehlung } from './phase922-bestellmengen-empfehlung';
 import { StorefrontPhase925LiveLieferungTracker } from './phase925-live-lieferung-tracker';
 import { Phase928LiveWartezeitIndikator } from './phase928-live-wartezeit-indikator';
+import { Phase930DynamischeEtaLive } from './phase930-dynamische-eta-live';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1574,6 +1575,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderId={order.orderId}
           status={order.status}
           initialEtaMin={order.etaMin ?? 30}
+        />
+      )}
+      {/* Phase 930: Dynamische ETA Live — Echtzeit-Phasenverlauf (Bestätigt→Zubereitung→Fertig→Unterwegs→Geliefert) mit Supabase Realtime */}
+      {order.isDelivery && order.orderId && (
+        <Phase930DynamischeEtaLive
+          orderId={order.orderId}
+          initialStatus={order.status ?? 'neu'}
+          initialEtaMin={order.etaMin ?? null}
         />
       )}
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}

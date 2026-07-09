@@ -301,6 +301,7 @@ import { LieferdienstPhase900SchichtExecutiveDashboard } from './phase900-schich
 import { LieferdienstPhase901StatistikenEchtzeitDashboard } from './phase901-statistiken-echtzeit-dashboard';
 import { LieferdienstPhase925StatistikenExecutiveHub } from './phase925-statistiken-executive-hub';
 import { LieferdienstPhase923UmsatzSplitDashboard } from './phase923-umsatz-split-dashboard';
+import { LieferdienstPhase930StatistikCockpitPro } from './phase930-statistiken-cockpit-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1553,6 +1554,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase923UmsatzSplitDashboard locationId={locationId ?? null} />
               {/* Phase 925: Statistiken Executive Hub — 6 Live-KPIs mit Vortag-Delta + Stunden-Sparkline + Top-Fahrer-Rangliste */}
               <LieferdienstPhase925StatistikenExecutiveHub locationId={locationId ?? null} />
+              {/* Phase 930: Statistiken-Cockpit Pro — Echtzeit-KPI-Grid (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Stornos) mit Gauge-Balken */}
+              <LieferdienstPhase930StatistikCockpitPro />
               {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
               <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 878: Statistiken Live-Dashboard — Tages-KPIs mit Delta-Vergleich Vortag + Lieferzeit-Verteilung */}

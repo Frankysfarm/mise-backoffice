@@ -306,6 +306,7 @@ import { FahrerPhase914SchichtAbschlussHighlight } from './phase914-schicht-absc
 import { FahrerPhase921MonatsRangliste } from './phase921-monats-rangliste';
 import { FahrerPhase925TourStoppNavigationsCockpit } from './phase925-tour-stopp-navigations-cockpit';
 import { FahrerPhase927KraftstoffTracker } from './phase927-kraftstoff-tracker';
+import { FahrerPhase930TourStoppNavigatorUltimate } from './phase930-tour-stopp-navigator-ultimate';
 
 type Driver = {
   id: string;
@@ -3835,6 +3836,8 @@ export function FahrerApp({
         <FahrerPhase925TourStoppNavigationsCockpit driverId={driver.id} isOnline={isOnline} />
         {/* Phase 927: Kraftstoff-Tracker — Tägliches km-Log + Kraftstoffkosten je Schicht (7-Tage-Verlauf) */}
         <FahrerPhase927KraftstoffTracker driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 930: Tour-Stopp-Navigator Ultimate — Alle Tour-Stops mit Navi-Button, Telefon-Direktwahl, Fortschrittsbalken, Notiz-Alerts */}
+        <FahrerPhase930TourStoppNavigatorUltimate activeBatch={activeBatch} driverPos={driverPos} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
