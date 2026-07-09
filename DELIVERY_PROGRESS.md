@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1022 abgeschlossen. Build sauber. ✓ Compiled successfully. 373 Seiten.**
+**Phasen 1–1027 abgeschlossen. Build sauber. ✓ Compiled successfully.**
+Backend-Architekt-Agent (2026-07-09): Phasen 1023–1027 vollständig implementiert + integriert. Phase1023 Schicht-Spitzenzeit-Analyse-API Backend (GET /api/delivery/admin/schicht-spitzenzeit-analyse, Peak-Stunden je Wochentag Mo–So + Mindestbesetzung je Slot, 4-Wochen-Aggregat, Supabase customer_orders + Mock-Fallback, WochentagAnalyse mit StundenSlots + intensitaet + spitzenzeit_global) ✅, Phase1024 Küchen-Priorisierungs-Assistent Kitchen (Empfohlene Startreihenfolge für wartende Bestellungen nach ETA-Dringlichkeit sofort/bald/normal + Kochstation-Zuordnung Keyword-Matching, client-seitig useMemo, Rang-Nr + Grund-Text + Minuten-bis-Deadline, kitchen/client.tsx nach Phase1019) ✅, Phase1025 Fahrer-Zuverlässigkeits-Dashboard Dispatch (Visualisierung Phase1018-API: Rang-Emojis 🥇🥈🥉 + Score-Balken 0–100 + Sub-Score-Grid Pünktlichkeit/Abbruch-Inv/Pausen-Einhaltung + Trend-Pfeile + Team-Ø-Footer, 5-Min-Polling, dispatch/client.tsx nach Phase1020) ✅, Phase1026 Wetter-Einfluss-Anzeige Fahrer-App (Wetter-KPI-Grid Zustand/Temperatur/Wind/Niederschlag/Sichtweite + ETA-Aufschlag + Sicherheits-Tipps bei Vorsicht/Gefahr, 15-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase1021) ✅, Phase1027 Kunden-Stammkunden-Badge Storefront ("Willkommen zurück!"-Banner mit letzter Bestellung + Treuepunkte-Fortschrittsbalken, dismissbar 24h, localStorage-Persistenz, storefront.tsx nach Phase1022) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 CEO Review #319 (2026-07-09): Phasen 1017–1022 + neuer Frontend-Commit (Phasen 990/1016/1018/1022) geprüft. 1 TS-Fehler gefixt: phase990-statistiken-executive-hub.tsx XAxis-Import fehlte (TS2304). Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. System MARKT-REIF. Nächste Phasen 1023–1027 definiert. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 1017–1022 vollständig implementiert + integriert. Phase1017 ETA-Dynamisch-Live-Kommando Storefront (Konfidenz-Ampel + 4-Phasen-Timeline Küche→Verpackt→Fahrer→Geliefert + Fahrer-Annäherungs-Indikator + Sekunden-Countdown, 30s-Polling, storefront.tsx nach Phase1011) ✅, Phase1018 Fahrer-Zuverlässigkeits-Score-API Backend (GET /api/delivery/admin/fahrer-zuverlaessigkeits-score, Score 0–100 Schichtpünktlichkeit 35%+Abbruchrate-Invers 35%+Pausen-Einhaltung 30%, Status sehr_gut/gut/mittel/schlecht, Trend, Supabase driver_shifts+mise_delivery_stops+Mock) ✅, Phase1019 Küchen-Kapazitäts-Zustands-Ring Kitchen (SVG-Ring 0–100% Auslastung, Grün<60%/Amber60–85%/Rot>85%, Empfehlung bei Überlastung, client-seitig useMemo, kitchen/client.tsx nach Phase1013) ✅, Phase1020 Tour-Umsatz-Performance-Board Dispatch (Live-Umsatz je aktiver Tour vs. Tages-Ziel 50€/Tour, Balken gut/ok/schlecht, Gesamt-Footer, 90s-Polling, dispatch/client.tsx nach Phase1012) ✅, Phase1021 Schicht-Start-Assistent Fahrer-App (Vorbereitungs-Checkliste 4 Punkte + Bestellprognose-Balken nächste Stunden, nur wenn isOnline=false, 10-Min-Polling, fahrer/app/client.tsx) ✅, Phase1022 Bewertungs-Schnell-Widget Storefront (1–5-Sterne kompakt nach Lieferung, erscheint 2 Min nach status=geliefert, Schnell-Gründe bei ≥4 Sternen, localStorage-Persistenz, storefront.tsx) ✅. Build ✓ Compiled successfully 373 Seiten. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 1007–1011 vollständig implementiert + integriert. Phase1007 Bestellaufkommen-Heatmap-API Backend (GET /api/delivery/admin/bestellaufkommen-heatmap, 7×24-Matrix Bestelldichte je Wochentag+Stunde letzte 4 Wochen, peak_day+peak_hour, Supabase+Mock) ✅, Phase1008 Zubereitungs-Parallelitäts-Monitor Kitchen (Alert wenn >3 Bestellungen dieselbe Kochstation gleichzeitig brauchen, 5 Stationen Grill/Friteuse/Pasta/Salat/Suppe, Balken+ÜBERLASTET-Badge, client-seitig useMemo, kitchen/client.tsx nach Phase1002) ✅, Phase1009 Tour-Effizienz-Live-Ranking Dispatch (Echtzeit-Ranking aller aktiven Touren nach €/km, Rang-Emojis 🥇🥈🥉, Defizit-Alert, 90s-Polling, GET /api/delivery/admin/tour-effizienz-ranking, dispatch/client.tsx nach Phase1002) ✅, Phase1010 Pausen-Empfehlung-Optimierer Fahrer-App (Pause-Empfehlung basierend auf Schichtdauer+Energie-Score, 3 Typen pause/kurz/keine, Energie-Balken, rein client-seitig, fahrer/app/client.tsx nach Phase1005) ✅, Phase1011 Bestellabbruch-Prävention-Banner Storefront (erscheint nach >3 Min im Checkout ohne Abschluss, rotierendes Motivations-Banner mit ETA + Social-Proof, X-Button zum Schließen, storefront.tsx vor CheckoutSheet) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
@@ -26,6 +27,51 @@ CEO-Agent (2026-07-09): CEO Review #309 — 4 TS-Fehler in Frontend-phase935-Com
 Backend-Architekt-Agent (2026-07-09): Phasen 931–935 vollständig implementiert + integriert. Phase931 Kunden-Loyalitäts-Trend-API Backend (GET /admin/kunden-loyalitaets-trend, Neue vs. wiederkehrende Kunden je Tag letzte 14 Tage, Wiederkehrrate % + Trend, multi-tenant) + LieferdienstPhase931LoyalitaetsTrend Lieferdienst (Balken-Chart Neu/Stammkunden 7d + 3-KPI-Grid + Trend-Badge, 10-Min-Polling, lieferdienst/client.tsx nach Phase930) ✅, Phase932 Küchen-Durchsatz-Monitor Kitchen (Bestellungen/h + Stunden-Histogramm + Peak-Stunde + Hochrechnung bis Schichtende, client-seitig, kitchen/client.tsx nach Phase930) ✅, Phase933 Live-Fahrer-Kapazitäts-Gauge Dispatch (GET /admin/fahrer-kapazitaet-live, Frei/Aktiv/Überlastet/Offline + SVG-Halbkreis-Gauge Kapazitäts-%, Alert <20%, 60s-Polling, dispatch/client.tsx nach Phase930) ✅, Phase934 Tour-Lernkurve Fahrer-App (GET /driver/lernkurve, Effizienz-Wachstum 4 Wochen: Stopps/h + Pünktlichkeit% + Score + Level Einsteiger→Experte, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase930) ✅, Phase935 Bestellstatus-Ampel Storefront (Grün/Amber/Rot + pulsierendes Icon je Bestellstatus, 30s-Polling Tracking-API, storefront.tsx vor Phase930DynamischeEtaLive) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #308 — 1 TS-Fehler gefixt (umsatz-split/route.ts aggregiere-Parameter). Build ✓ 373 Seiten. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 923–928 vollständig implementiert + integriert. Phase923 Umsatz-Split-API Backend (GET /admin/umsatz-split, Lieferung/Abholung/Vor-Ort Anteil in % + Trend vs. Vorperiode, multi-tenant, 30-Tage-Default) ✅ + LieferdienstPhase923UmsatzSplitDashboard Lieferdienst (Balken-Split + Trendpfeile, 10-Min-Polling, lieferdienst/client.tsx vor Phase925) ✅, Phase924 Rezept-Vereinfachungs-Hinweis Kitchen (client-seitig, Warnung bei identischem Artikel in >3 aktiven Bestellungen, Parallel-Koch-Empfehlung, dismissbar, kitchen/client.tsx vor Phase919) ✅, Phase926 Tour-Nachfass-Board Dispatch (alle heute abgeschlossenen Touren mit Score + ETA-Abweichung + Feedback-Status, Backend GET /admin/abgeschlossene-touren, 5-Min-Polling, dispatch/client.tsx nach Phase925) ✅, Phase927 Kraftstoff-Tracker Fahrer-App (7-Tage km-Log + Liter + Kosten je Schicht, Backend GET /driver/kraftstoff-log, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase925) ✅, Phase928 Live-Wartezeit-Indikator Storefront (Echtzeit-Ampel Grün/Amber/Rot aus kunden-wartezeit-live-API, pulsierender Punkt, 2-Min-Polling, storefront.tsx vor WarteschlangenIndikator) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
+## Batch 1023–1027 — 2026-07-09
+
+### Phase 1023 — Schicht-Spitzenzeit-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-spitzenzeit-analyse/route.ts`
+**GET:** `?location_id=<uuid>` — Peak-Stunden je Wochentag Mo–So + Mindestbesetzung für Stoßzeiten
+**Logik:** 4-Wochen-Aggregat customer_orders; Wochentag-Faktor + StundenSlots 10–22 Uhr; Mindestbesetzung = ⌈avg/5⌉; intensitaet niedrig/mittel/hoch/sehr_hoch; spitzenzeit_global; Supabase+Mock
+**Response:** `{ wochentage[]: { tag, tag_index, peak_stunde, peak_bestellungen, mindestbesetzung_peak, slots[], intensitaet }, spitzenzeit_global, generiert_am }`
+
+### Phase 1024 — Küchen-Priorisierungs-Assistent (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1024-kuechen-priorisierungs-assistent.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; je Bestellung: Rang-Nr + Bestellnummer + Kochstation-Emoji + Dringlichkeits-Badge sofort/bald/normal + Grund-Text + Deadline-Countdown + Artikel-Anzahl; Sofort-Count-Badge im Header; Leer-State wenn keine wartenden
+**Logik:** client-seitig useMemo; filtert status=neu/bestätigt/confirmed/new; Deadline aus promised_at/created_at+35Min; Dringlichkeit sofort<8Min/bald<18Min/normal; Kochstation Keyword-Matching 5 Stationen; sortiert nach Priorität; max 8
+**Integration:** `kitchen/client.tsx` nach Phase1019 ✅
+
+### Phase 1025 — Fahrer-Zuverlässigkeits-Dashboard (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1025-fahrer-zuverlaessigkeits-dashboard.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; je Fahrer sortiert nach Score: Rang-Emoji 🥇🥈🥉 + Score-Balken 0–100 (matcha/blau/amber/rot) + Trend-Icon + Sub-Score-Grid Pünktlichkeit/Abbruch-Inv/Pausen-Einhaltung je mit eigenem Balken; Team-Ø-Footer; Handlungsbedarf-Badge bei schlecht; 5-Min-Polling
+**API:** GET `/api/delivery/admin/fahrer-zuverlaessigkeits-score` (Phase1018); Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase1020 ✅
+
+### Phase 1026 — Wetter-Einfluss-Anzeige (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1026-wetter-einfluss-anzeige.tsx`
+**Props:** `driverId: string, isOnline: boolean, locationId?: string | null`
+**UI:** Collapsible; Wetter-Icon + Sicherheitslevel-Badge; 2-Kachel-Grid Wetter/ETA-Aufschlag; 3er-Grid Wind/Niederschlag/Sichtweite; Sicherheits-Tipps-Liste bei Vorsicht/Gefahr; 15-Min-Polling; isOnline-Guard
+**API:** GET `/api/delivery/driver/wetter-einfluss`; Mock-Fallback (regen, +7 Min)
+**Integration:** `fahrer/app/client.tsx` nach Phase1021 ✅
+
+### Phase 1027 — Kunden-Stammkunden-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1027-stammkunden-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** "Willkommen zurück!"-Banner mit Herz-Icon + Vorname; letzte Bestellung relativ + Betrag; Treuepunkte-Fortschrittsbalken amber + Punkte-bis-nächste-Belohnung; X-Button dismissbar
+**Logik:** localStorage 24h-Persistenz; nur sichtbar wenn ist_stammkunde=true; 5-Min-Polling; API-Fallback Mock
+**Integration:** `storefront.tsx` nach Phase1022 ✅
+
+### Nächste Phasen 1028–1032 (für nächsten Agenten)
+1. **Phase 1028 Backend:** Kunden-Wiederkehr-Prognose-API — Wahrscheinlichkeit dass ein Kunde in den nächsten 7 Tagen wieder bestellt, basierend auf Bestell-Frequenz + letzter Bestellung.
+2. **Phase 1029 Kitchen:** Bestellungs-Komplexitäts-Heatmap — Visuelle Darstellung welche Tagesstunden besonders komplexe Bestellungen produzieren (Artikel-Anzahl × Komplexitäts-Score).
+3. **Phase 1030 Dispatch:** Schicht-Spitzenzeit-Kommando — Visualisierung der Phase1023-API im Dispatch: Welcher Wochentag braucht wann wie viele Fahrer.
+4. **Phase 1031 Fahrer-App:** Einnahmen-Prognose-Assistent — Prognose Tageseinnahmen basierend auf bisheriger Schicht + Wochentag-Faktor + aktueller Bestelldichte.
+5. **Phase 1032 Storefront:** Lieferzeit-Erwartungs-Manager — Zeigt dem Kunden vor Bestellabschluss eine realistische ETA-Range basierend auf aktueller Auslastung.
+
+---
+
 ## Batch 1017–1022 — 2026-07-09
 
 ### Phase 1017 — ETA-Dynamisch-Live-Kommando (Storefront) — Nachträgliche Integration
