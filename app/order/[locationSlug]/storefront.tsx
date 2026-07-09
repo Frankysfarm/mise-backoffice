@@ -151,6 +151,7 @@ import { Phase898LiveBestellZaehler } from './phase898-live-bestell-zaehler';
 import { Phase903LieferQualitaetsSiegel } from './phase903-liefer-qualitaets-siegel';
 import { Phase915LieferantenTransparenzWidget } from './phase915-lieferanten-transparenz-widget';
 import { StorefrontPhase916EtaLiveTrackingPro } from './phase916-eta-live-tracking-pro';
+import { Phase922BestellmengenEmpfehlung } from './phase922-bestellmengen-empfehlung';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -870,6 +871,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <Phase888LieferPreisTransparenz locationId={location.id} isDelivery={orderType === 'lieferung'} />
+        </div>
+      )}
+      {/* Phase 922: Bestellmengen-Empfehlung — "Andere bestellen oft auch X" Cross-Sell wenn Warenkorb befüllt */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase922BestellmengenEmpfehlung
+            locationId={location.id}
+            currentItemNames={cart.map(c => c.item.name ?? '').filter(Boolean)}
+          />
         </div>
       )}
       {/* Phase 341: Dynamic Pricing Banner — Surge-Hinweis / Off-Peak-Rabatt für Kunden */}
