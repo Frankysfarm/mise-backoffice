@@ -415,6 +415,7 @@ import { DispatchPhase1025FahrerZuverlaessigkeitsDashboard } from './phase1025-f
 import { DispatchPhase1030SchichtSpitzenzeitKommando } from './phase1030-schicht-spitzenzeit-kommando';
 import { DispatchPhase1035FahrerAusfallrisiko } from './phase1035-fahrer-ausfallrisiko-monitor';
 import { DispatchPhase1040TourScoreEchtzeitUebersicht } from './phase1040-tour-score-echtzeit-uebersicht';
+import { DispatchPhase1045FahrerSchichtPrognoseBoard } from './phase1045-fahrer-schicht-prognose-board';
 
 type Driver = {
   employee_id: string;
@@ -1295,6 +1296,8 @@ export function DispatchBoard({
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1035: Fahrer-Ausfallrisiko-Monitor — Frühwarnung welche Fahrer heute wahrscheinlich nicht erscheinen */}
       <DispatchPhase1035FahrerAusfallrisiko locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1045: Fahrer-Schicht-Prognose-Board — Nächste Schichten eingeplant vs. Mindestbesetzung mit Ampel */}
+      <DispatchPhase1045FahrerSchichtPrognoseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1016: Tour-Stopp-Live-Cockpit — Alle aktiven Touren mit Stopp-Sequenz, ETA-Ampel, Score-Balken und Nächstem-Stopp-Karte */}
       <DispatchPhase1016TourStoppLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}

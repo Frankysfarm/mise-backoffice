@@ -181,6 +181,7 @@ import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
 import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erwartungs-manager';
 import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktbewertungs-widget';
 import { Phase1042LiveEtaFahrerAnnaeherungsPanel } from './phase1042-live-eta-fahrer-annaeherungs-panel';
+import { Phase1047WarenkorbUpsellWidget } from './phase1047-warenkorb-upsell-widget';
 
 type Props = {
   location: Location;
@@ -933,6 +934,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             locationId={location.id}
             currentItemNames={cart.map(c => c.item.name ?? '').filter(Boolean)}
           />
+        </div>
+      )}
+      {/* Phase 1047: Warenkorb-Upsell-Widget — Zusatzartikel empfehlen wenn Warenkorb < Mindestbestellwert × 1.2 */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1047WarenkorbUpsellWidget locationId={location.id} cart={cart} />
         </div>
       )}
       {/* Phase 940: Bestellzusammenfassung-Widget — Kompakte Inline-Zusammenfassung: Artikel + Gesamtpreis + ETA vor Bestellabschluss */}

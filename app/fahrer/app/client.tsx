@@ -333,6 +333,7 @@ import { FahrerPhase1018SmartTourNavigationsHub } from './phase1018-smart-tour-n
 import { FahrerPhase1031EinnahmenPrognoseAssistent } from './phase1031-einnahmen-prognose-assistent';
 import { FahrerPhase1036StreckenKilometerstandLog } from './phase1036-strecken-kilometerstand-log';
 import { FahrerPhase1040NaechsterStoppUltraKommando } from './phase1040-naechster-stopp-ultra-kommando';
+import { FahrerPhase1046KundenbewertungsLiveTicker } from './phase1046-kundenbewertungs-live-ticker';
 
 type Driver = {
   id: string;
@@ -3919,6 +3920,8 @@ export function FahrerApp({
         <FahrerPhase1031EinnahmenPrognoseAssistent driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1036: Strecken-Kilometerstand-Log — Tagesprotokoll km je Tour + Gesamt + Kostenabrechnung */}
         <FahrerPhase1036StreckenKilometerstandLog driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1046: Kundenbewertungs-Live-Ticker — Letzte Bewertung animiert + Gesamttrend Woche */}
+        <FahrerPhase1046KundenbewertungsLiveTicker driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1040: Nächster-Stopp-Ultra-Kommando — Großer ETA-Countdown, Navigation, Bestätigung + nächste Stopps Vorschau */}
         {isOnline && (
           <div className="px-4">

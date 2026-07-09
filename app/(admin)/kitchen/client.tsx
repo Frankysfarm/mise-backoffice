@@ -354,6 +354,7 @@ import { KitchenPhase1024PriorisierungsAssistent } from './phase1024-kuechen-pri
 import { KitchenPhase1029BestellKomplexitaetsHeatmap } from './phase1029-bestell-komplexitaets-heatmap';
 import { KitchenPhase1034AllergenTagesZusammenfassung } from './phase1034-allergen-tages-zusammenfassung';
 import { KitchenPhase1040LiveBestellstatusKommandozentrale } from './phase1040-live-bestellstatus-kommandozentrale';
+import { KitchenPhase1044AllergenEskalationsFlow } from './phase1044-allergen-eskalations-flow';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -980,6 +981,8 @@ export function KitchenBoard({
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1034: Allergen-Tages-Zusammenfassung — Häufigste Allergene heute mit Trend vs. Vorwoche */}
       <KitchenPhase1034AllergenTagesZusammenfassung orders={filtered as any} />
+      {/* Phase 1044: Allergen-Eskalations-Flow — Komplexe Allergen-Bestellungen → Küchenleiter mit Acknowledge-Button */}
+      <KitchenPhase1044AllergenEskalationsFlow orders={filtered as any} />
       {/* Phase 1018: Batch-Kochstart-Kommando — Bestellungen nach Station gruppiert mit farbkodiertem Kochstart-Signal (Grill/Friteuse/Salat/Pasta) */}
       <KitchenPhase1018BatchKochstartKommando orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
