@@ -328,6 +328,7 @@ import { FahrerPhase1002GpsNaviKommando } from './phase1002-gps-navi-kommando';
 import { FahrerPhase1010PausenEmpfehlung } from './phase1010-pausen-empfehlung';
 import { FahrerPhase1015TourStopsNavigationsHub } from './phase1015-tour-stops-navigations-hub';
 import { FahrerPhase1021SchichtStartAssistent } from './phase1021-schicht-start-assistent';
+import { FahrerPhase1018SmartTourNavigationsHub } from './phase1018-smart-tour-navigations-hub';
 
 type Driver = {
   id: string;
@@ -3915,6 +3916,16 @@ export function FahrerApp({
         {isOnline && activeBatch && activeBatch.stops.length > 0 && (
           <div className="px-4">
             <FahrerPhase1015TourStopsNavigationsHub
+              stops={activeBatch.stops as any}
+              driverId={driver.id}
+              activeBatchId={activeBatch.id}
+            />
+          </div>
+        )}
+        {/* Phase 1018: Smart Tour Navigations-Hub — Nächster Stopp mit ETA-Ring + 1-Tap Navigation + Stopp-Liste + Bestätigen-Button */}
+        {isOnline && activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1018SmartTourNavigationsHub
               stops={activeBatch.stops as any}
               driverId={driver.id}
               activeBatchId={activeBatch.id}

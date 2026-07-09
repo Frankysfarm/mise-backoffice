@@ -176,6 +176,7 @@ import { EtaDynamischLiveKommando } from './phase1017-eta-dynamisch-live-kommand
 import { Phase1022BewertungsSchnellWidget } from './phase1022-bewertungs-schnell-widget';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
+import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live-tracking-kommando';
 
 type Props = {
   location: Location;
@@ -1674,6 +1675,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderId={order.orderId}
           locationId={locationId}
           className="mx-4 mb-4"
+        />
+      )}
+      {/* Phase 1022: ETA-Live-Tracking-Kommando — Sekunden-Countdown + Phasen-Fortschritt + Fahrer-Name + ETA-Konfidenz */}
+      {order.isDelivery && (
+        <StorefrontPhase1022EtaLiveTrackingKommando
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          etaMinutes={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+          className="mx-4 mb-3"
         />
       )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}

@@ -310,6 +310,7 @@ import { LieferdienstPhase970TagesStatistikenCockpit } from './phase970-tages-st
 import { LieferdienstPhase975WochenStatistikTrend } from './phase975-wochen-statistik-trend';
 import { LieferdienstPhase980StatistikenKpiHub } from './phase980-statistiken-kpi-hub';
 import { LieferdienstPhase985StatistikGesamtdashboard } from './phase985-statistik-gesamtdashboard';
+import { LieferdienstPhase990StatistikenExecutiveHub } from './phase990-statistiken-executive-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1580,6 +1581,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase980StatistikenKpiHub locationId={locationId ?? null} />
               {/* Phase 985: Statistik-Gesamtdashboard — 8 KPIs + Trend-Ampeln + Top-Fahrer + Zonen + Stunden-Verlauf */}
               <LieferdienstPhase985StatistikGesamtdashboard locationId={locationId ?? null} />
+              {/* Phase 990: Statistiken-Executive-Hub — 6 Kern-KPIs mit 7-Tage-Trend + Top-Fahrer Rangliste + Stunden-Durchsatz */}
+              <LieferdienstPhase990StatistikenExecutiveHub locationId={locationId ?? null} />
               {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
               <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 878: Statistiken Live-Dashboard — Tages-KPIs mit Delta-Vergleich Vortag + Lieferzeit-Verteilung */}
