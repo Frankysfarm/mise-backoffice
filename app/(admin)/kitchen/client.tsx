@@ -332,6 +332,7 @@ import { KitchenPhase937KuechenTemperaturWarnung } from './phase937-kuechen-temp
 import { KitchenPhase942BestellrueckstandAmpel } from './phase942-bestellrueckstand-ampel';
 import { KitchenPhase947ParallelKochMonitor } from './phase947-parallel-koch-monitor';
 import { KitchenPhase952SmartTimingFarbkodierung } from './phase952-smart-timing-farbkodierung';
+import { KitchenPhase957BatchPrioritaetsAmpel } from './phase957-batch-prioritaets-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -920,6 +921,8 @@ export function KitchenBoard({
       <KitchenPhase942BestellrueckstandAmpel orders={filtered as any} />
       {/* Phase 947: Parallel-Koch-Monitor — Artikel in Zubereitung vs. Küchen-Kapazität (Burner-Slots) */}
       <KitchenPhase947ParallelKochMonitor orders={filtered as any} />
+      {/* Phase 957: Batch-Prioritäts-Ampel — Automatische Priorisierung nach Lieferzeit-Deadline (grün/amber/rot) */}
+      <KitchenPhase957BatchPrioritaetsAmpel orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
       <KitchenPhase952SmartTimingFarbkodierung orders={filtered as any} />
       {/* Phase 913: Smart Countdown Timing Pro — Farbkodiertes Echtzeit-Countdown-Grid (Grün/Gelb/Rot) für alle aktiven Bestellungen */}

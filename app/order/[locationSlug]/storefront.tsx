@@ -160,6 +160,7 @@ import { Phase940BestellzusammenfassungWidget } from './phase940-bestellzusammen
 import { Phase945TreuepunkteVorschau } from './phase945-treuepunkte-vorschau';
 import { Phase950AllergenSchnellfilter } from './phase950-allergen-schnellfilter';
 import { Phase955LiveEtaFahrerTracking } from './phase955-live-eta-fahrer-tracking';
+import { Phase960ProduktVerfuegbarkeitsLoader, VerfuegbarkeitsBadge } from './phase960-produktverfuegbarkeits-indikator';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -222,6 +223,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const [search, setSearch] = React.useState('');
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'beliebt' | 'vegan' | 'under10'>('all');
   const [allergenFilter, setAllergenFilter] = React.useState<string | null>(null);
+  // Phase 960: Produktverfügbarkeits-Map item_id → status
+  const [verfuegbarkeitsMap, setVerfuegbarkeitsMap] = React.useState<Map<string, 'verfuegbar' | 'wenige_uebrig' | 'ausverkauft'>>(new Map());
+  const itemIds = React.useMemo(() => items.map((i) => i.id), [items]);
 
   const filteredItems = React.useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -827,6 +831,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   /* ---------------- main ---------------- */
   return (
     <div data-storefront-theme={themeId} dir={locale === 'ar' ? 'rtl' : 'ltr'} className="min-h-screen bg-surface storefront-root">
+      {/* Phase 960: Produktverfügbarkeits-Loader — silent, rendert nichts */}
+      <Phase960ProduktVerfuegbarkeitsLoader
+        locationId={location.id}
+        itemIds={itemIds}
+        onUpdate={setVerfuegbarkeitsMap}
+      />
+
       {/* Skip to content */}
       <a
         href="#menu"
@@ -1176,18 +1187,28 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                   </div>
 
                   <div className="grid grid-cols-2 gap-x-3 gap-y-4 md:gap-x-4 lg:grid-cols-3">
-                    {catItems.map((item) => (
-                      <MenuItemCard
-                        key={item.id}
-                        item={item}
-                        category={cat}
-                        qty={getQty(item.id)}
-                        onAdd={() => addToCart(item)}
-                        onRemove={() => removeFromCart(item.id)}
-                        onOpenDetail={() => openDetail(item)}
-                        themeId={themeId as any}
-                      />
-                    ))}
+                    {catItems.map((item) => {
+                      const verfStatus = verfuegbarkeitsMap.get(item.id);
+                      return (
+                        <div key={item.id} className="relative">
+                          {/* Phase 960: Verfügbarkeits-Badge oben links */}
+                          {verfStatus && verfStatus !== 'verfuegbar' && (
+                            <div className="absolute left-2 top-2 z-10">
+                              <VerfuegbarkeitsBadge status={verfStatus} />
+                            </div>
+                          )}
+                          <MenuItemCard
+                            item={item}
+                            category={cat}
+                            qty={getQty(item.id)}
+                            onAdd={() => addToCart(item)}
+                            onRemove={() => removeFromCart(item.id)}
+                            onOpenDetail={() => openDetail(item)}
+                            themeId={themeId as any}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
               );
