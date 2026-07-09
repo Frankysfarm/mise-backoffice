@@ -104,11 +104,11 @@ export function KitchenPhase935SmartWellenKochplan({ orders, timings = [] }: Pro
     else planned.push(item);
   }
 
-  const waves: Wave[] = [
-    { label: 'Jetzt fertigstellen', status: 'jetzt', orders: now, batchEfficiency: Math.max(60, Math.min(100, 60 + now.length * 8)) },
-    { label: 'Bald bereit', status: 'bald', orders: soon, batchEfficiency: Math.max(70, Math.min(100, 70 + soon.length * 5)) },
-    { label: 'In Vorbereitung', status: 'geplant', orders: planned, batchEfficiency: Math.max(80, Math.min(100, 80 + planned.length * 3)) },
-  ].filter(w => w.orders.length > 0);
+  const waves: Wave[] = ([
+    { label: 'Jetzt fertigstellen', status: 'jetzt' as WaveStatus, orders: now, batchEfficiency: Math.max(60, Math.min(100, 60 + now.length * 8)) },
+    { label: 'Bald bereit', status: 'bald' as WaveStatus, orders: soon, batchEfficiency: Math.max(70, Math.min(100, 70 + soon.length * 5)) },
+    { label: 'In Vorbereitung', status: 'geplant' as WaveStatus, orders: planned, batchEfficiency: Math.max(80, Math.min(100, 80 + planned.length * 3)) },
+  ] as Wave[]).filter(w => w.orders.length > 0);
 
   const totalOverdue = enriched.filter(e => e.urgency === 'ueberfaellig').length;
   const overallHealth = totalOverdue === 0

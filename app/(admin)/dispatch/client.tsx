@@ -1220,7 +1220,7 @@ export function DispatchBoard({
       {/* Phase 933: Live-Fahrer-Kapazitäts-Gauge — Frei/Aktiv/Überlastet/Offline Fahrer + Kapazitäts-% Gauge + Alert <20% */}
       <DispatchPhase933FahrerKapazitaetGauge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 935: Tour-Effizienz-Live-Board — Score-Ring + Fortschritt + nächster Stopp + Farb-Klassifizierung je aktiver Tour */}
-      <DispatchPhase935TourEffizienzLiveBoard batches={batches} />
+      <DispatchPhase935TourEffizienzLiveBoard batches={batches as any} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

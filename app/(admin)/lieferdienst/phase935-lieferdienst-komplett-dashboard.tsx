@@ -104,12 +104,23 @@ export function LieferdienstPhase935KomplettDashboard({ locationId }: Props) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const { data: orders } = await supabase
+        type OrderRow = {
+          id: string;
+          gesamtbetrag: number | null;
+          status: string;
+          bestellt_am: string | null;
+          geliefert_am: string | null;
+          fertig_am: string | null;
+          bewertung_stern: number | null;
+        };
+
+        const { data: ordersRaw } = await supabase
           .from('orders')
           .select('id, gesamtbetrag, status, bestellt_am, geliefert_am, fertig_am, bewertung_stern')
           .eq('location_id', locationId)
           .gte('bestellt_am', today.toISOString())
           .neq('status', 'storniert');
+        const orders = ordersRaw as OrderRow[] | null;
 
         if (!orders || !mounted) {
           if (mounted) { setData(genMockData()); setLoading(false); }
@@ -117,31 +128,31 @@ export function LieferdienstPhase935KomplettDashboard({ locationId }: Props) {
         }
 
         const totalOrders = orders.length;
-        const totalRevenue = orders.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+        const totalRevenue = orders.reduce((s: number, o: OrderRow) => s + (o.gesamtbetrag ?? 0), 0);
 
         const deliveryTimes = orders
-          .filter(o => o.bestellt_am && o.geliefert_am)
-          .map(o => (new Date(o.geliefert_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000);
+          .filter((o: OrderRow) => o.bestellt_am && o.geliefert_am)
+          .map((o: OrderRow) => (new Date(o.geliefert_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000);
         const avgDeliveryMin = deliveryTimes.length > 0
-          ? Math.round(deliveryTimes.reduce((a, b) => a + b, 0) / deliveryTimes.length)
+          ? Math.round(deliveryTimes.reduce((a: number, b: number) => a + b, 0) / deliveryTimes.length)
           : 0;
 
-        const onTimeCount = orders.filter(o => {
+        const onTimeCount = orders.filter((o: OrderRow) => {
           if (!o.bestellt_am || !o.geliefert_am) return false;
           const min = (new Date(o.geliefert_am).getTime() - new Date(o.bestellt_am).getTime()) / 60_000;
           return min <= 45;
         }).length;
         const onTimeRate = totalOrders > 0 ? Math.round((onTimeCount / totalOrders) * 100) : 100;
 
-        const ratedOrders = orders.filter(o => o.bewertung_stern);
+        const ratedOrders = orders.filter((o: OrderRow) => o.bewertung_stern);
         const avgRating = ratedOrders.length > 0
-          ? ratedOrders.reduce((s, o) => s + (o.bewertung_stern ?? 0), 0) / ratedOrders.length
+          ? ratedOrders.reduce((s: number, o: OrderRow) => s + (o.bewertung_stern ?? 0), 0) / ratedOrders.length
           : 0;
 
         const currentHour = new Date().getHours();
         const hourlyOrders = Array.from({ length: 12 }, (_, i) => {
           const h = Math.max(0, currentHour - 11 + i);
-          const count = orders.filter(o => {
+          const count = orders.filter((o: OrderRow) => {
             if (!o.bestellt_am) return false;
             return new Date(o.bestellt_am).getHours() === h;
           }).length;
@@ -309,7 +320,7 @@ export function LieferdienstPhase935KomplettDashboard({ locationId }: Props) {
               />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
-                formatter={(v: number) => [`${v} Bestellungen`, '']}
+                formatter={(v: unknown) => [`${v} Bestellungen`, ''] as [string, string]}
               />
               <Bar dataKey="orders" radius={[3, 3, 0, 0]} maxBarSize={24}>
                 {data.hourlyOrders.map((entry, idx) => (
