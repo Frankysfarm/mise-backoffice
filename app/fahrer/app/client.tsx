@@ -337,6 +337,7 @@ import { FahrerPhase1046KundenbewertungsLiveTicker } from './phase1046-kundenbew
 import { FahrerPhase1051RoutenEffizienzFeedback } from './phase1051-routen-effizienz-feedback';
 import { FahrerPhase1056SchichtMotivationsCoach } from './phase1056-schicht-motivations-coach';
 import { FahrerPhase1066TrinkgeldAnalyseDashboard } from './phase1066-trinkgeld-analyse-dashboard';
+import { FahrerPhase1071KundenKontaktSchnellPanelV2 } from './phase1071-kunden-kontakt-schnell-panel-v2';
 
 type Driver = {
   id: string;
@@ -2114,6 +2115,20 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 1071: Kunden-Kontakt-Schnell-Panel v2 — 1-Tap Anruf + Nachricht + Klingeln + Nicht-Erreicht-Meldung */}
+          {activeBatch.stops.filter((s: any) => !s.geliefert_am).length > 0 && (() => {
+            const nextS = activeBatch.stops.find((s: any) => !s.geliefert_am);
+            const idx = activeBatch.stops.indexOf(nextS) + 1;
+            return (
+              <div className="px-4">
+                <FahrerPhase1071KundenKontaktSchnellPanelV2
+                  kundenName={(nextS as any)?.order?.kunde_name ?? null}
+                  kundenTelefon={(nextS as any)?.order?.kunde_telefon ?? null}
+                  stoppNr={idx}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 915: Kunden-Kontakt-Schnell — 1-Tap Anruf + 4 SMS-Vorlagen für den nächsten Kunden */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

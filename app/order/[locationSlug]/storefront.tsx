@@ -185,6 +185,7 @@ import { Phase1047WarenkorbUpsellWidget } from './phase1047-warenkorb-upsell-wid
 import { useMerkzettel, Phase1052MerkzettelWidget } from './phase1052-merkzettel-widget';
 import { Phase1057TrendingBanner } from './phase1057-live-popularitaets-ranking';
 import { Phase1067EchtzeitLieferstatusKarte } from './phase1067-echtzeit-lieferstatus-karte';
+import { Phase1072BestellhistorieWidget } from './phase1072-bestellhistorie-widget';
 
 type Props = {
   location: Location;
@@ -947,6 +948,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1072: Bestellhistorie-Widget — Letzte 3 Bestellungen des Nutzers in kompakter Timeline + Wiederholen-Button */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <Phase1072BestellhistorieWidget locationSlug={location.id} />
+      </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}

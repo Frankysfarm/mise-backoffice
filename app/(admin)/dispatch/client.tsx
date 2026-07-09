@@ -424,6 +424,7 @@ import { DispatchPhase1060ZonenBestelldruckLive } from './phase1060-zonen-bestel
 import { DispatchPhase1061TourStopFortschrittsAmpel } from './phase1061-tour-stop-fortschritts-ampel';
 import { DispatchPhase1062SmartDispatchScoreKommando } from './phase1062-smart-dispatch-score-kommando';
 import { DispatchPhase1065SpaetTourRisikoMonitor } from './phase1065-spaet-tour-risiko-monitor';
+import { DispatchPhase1070TourKostenoptimierung } from './phase1070-tour-kostenoptimierung';
 
 type Driver = {
   employee_id: string;
@@ -1302,6 +1303,8 @@ export function DispatchBoard({
       <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1040: Tour-Score-Echtzeit-Übersicht — Alle aktiven Touren mit Score-Ring, Stopp-Fortschritt und Tour-Visualisierung */}
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1070: Tour-Kostenoptimierung — Vorschlag welche Touren zusammengelegt werden können */}
+      <DispatchPhase1070TourKostenoptimierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
       <DispatchPhase1065SpaetTourRisikoMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}
