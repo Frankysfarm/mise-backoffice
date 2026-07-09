@@ -261,7 +261,7 @@ export function LieferdienstSchichtLiveExecutive({ locationId }: Props) {
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 10, border: '1px solid #e7e5e4', borderRadius: 8, padding: '4px 8px' }}
-                  formatter={(v: number) => [`${v} Bestellungen`, '']}
+                  formatter={(v: unknown) => [`${v} Bestellungen`, ''] as [string, string]}
                 />
                 <Bar dataKey="count" radius={[3, 3, 0, 0]} maxBarSize={24}>
                   {data.stundenverlauf.map((entry, i) => (

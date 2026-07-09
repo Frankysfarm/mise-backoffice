@@ -172,7 +172,7 @@ export function LieferdienstPhase901StatistikenEchtzeitDashboard({ locationId }:
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 8 }}
-                  formatter={(v: number) => [v, 'Bestellungen']}
+                  formatter={(v: unknown) => [String(v), 'Bestellungen'] as [string, string]}
                 />
                 <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]} maxBarSize={24}>
                   {data.stundenverlauf.map((entry, i) => (

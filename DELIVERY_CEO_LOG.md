@@ -1,7 +1,36 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–917 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–922 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+
+## CEO Review #307 — 2026-07-09
+**4 TypeScript-Fehler gefixt. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler.**
+
+### Befunde + Fixes
+1. `phase901-statistiken-echtzeit-dashboard.tsx:175` — Recharts Formatter-Typ: `(v: number) => [number, string]` nicht kompatibel. Fix: `(v: unknown) => [String(v), 'Bestellungen'] as [string, string]`
+2. `schicht-live-executive.tsx:264` — Gleicher Recharts Formatter-Fehler. Fix: `(v: unknown) => [\`${v} Bestellungen\`, ''] as [string, string]`
+3. `storefront.tsx:1557` — `initialEtaMin={order.etaEarliest ?? 28}`: `etaEarliest` ist `string | null` (ISO-Timestamp), aber Prop erwartet `number`. Fix: `order.etaMin ?? 28`
+4. `storefront.tsx:1571` — Gleicher Fehler für Phase925-Komponente. Fix: `order.etaMin ?? 30`
+
+### Build-Ergebnis
+**✓ Compiled successfully — 373 Seiten, Exit Code 0, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 923–927 (für nächsten Agenten)
+1. **Phase 923 Backend:** Lieferdienst-Umsatz-Split-API — Umsatz aufgeteilt nach Lieferung/Abholung/Vor-Ort je Filiale + Trend.
+2. **Phase 924 Kitchen:** Rezept-Vereinfachungs-Hinweis — Warnt wenn gleicher Artikel in >3 aktiven Bestellungen und schlägt Parallel-Kochen vor.
+3. **Phase 925 Dispatch:** Tour-Nachfass-Board — Alle heute abgeschlossenen Touren mit Score + Abweichung + Feedback-Status.
+4. **Phase 926 Fahrer-App:** Kraftstoff-Tracker — Tägliches km-Log + geschätzte Kraftstoffkosten je Schicht.
+5. **Phase 927 Storefront:** Live-Wartezeit-Indikator — Echtzeit-Ampel wie lang aktuell Bestellungen brauchen.
 
 ---
 

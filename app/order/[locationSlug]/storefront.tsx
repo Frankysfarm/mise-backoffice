@@ -1554,7 +1554,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && order.orderId && order.status && !['storniert', 'cancelled', 'geliefert', 'delivered'].includes(order.status) && (
         <StorefrontPhase916EtaLiveTrackingPro
           orderId={order.orderId}
-          initialEtaMin={order.etaEarliest ?? 28}
+          initialEtaMin={order.etaMin ?? 28}
           initialPhase={
             order.status === 'in_zubereitung' ? 'cooking'
               : order.status === 'fertig' ? 'ready'
@@ -1568,7 +1568,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <StorefrontPhase925LiveLieferungTracker
           orderId={order.orderId}
           status={order.status}
-          initialEtaMin={order.etaEarliest ?? 30}
+          initialEtaMin={order.etaMin ?? 30}
         />
       )}
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
