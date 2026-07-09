@@ -326,6 +326,7 @@ import { FahrerPhase1001TourStoppNavigatorFinal } from './phase1001-tour-stopp-n
 import { FahrerPhase1005VerdienstZielTracker } from './phase1005-verdienst-ziel-tracker';
 import { FahrerPhase1002GpsNaviKommando } from './phase1002-gps-navi-kommando';
 import { FahrerPhase1010PausenEmpfehlung } from './phase1010-pausen-empfehlung';
+import { FahrerPhase1015TourStopsNavigationsHub } from './phase1015-tour-stops-navigations-hub';
 
 type Driver = {
   id: string;
@@ -3906,6 +3907,17 @@ export function FahrerApp({
         />
         {/* Phase 1002: GPS-Navi-Kommando — Live-GPS-Navigationszentrale mit Google/Waze/Apple Maps + ETA + Ablieferungs-Bestätigung */}
         {isOnline && <FahrerPhase1002GpsNaviKommando />}
+
+        {/* Phase 1015: Tour-Stops-Navigations-Hub — Nächster Stopp prominent + vollständige Stopp-Liste + Navigation + Kunden-Info */}
+        {isOnline && activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1015TourStopsNavigationsHub
+              stops={activeBatch.stops as any}
+              driverId={driver.id}
+              activeBatchId={activeBatch.id}
+            />
+          </div>
+        )}
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
