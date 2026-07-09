@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
     return 'vor_ort';
   }
 
-  function aggregiere(list: typeof orders) {
+  function aggregiere(list: NonNullable<typeof orders>) {
     const map: Record<Typ, { umsatz: number; count: number }> = {
       lieferung: { umsatz: 0, count: 0 },
       abholung: { umsatz: 0, count: 0 },
