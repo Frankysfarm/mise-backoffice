@@ -417,6 +417,7 @@ import { DispatchPhase1035FahrerAusfallrisiko } from './phase1035-fahrer-ausfall
 import { DispatchPhase1040TourScoreEchtzeitUebersicht } from './phase1040-tour-score-echtzeit-uebersicht';
 import { DispatchPhase1045FahrerSchichtPrognosBoard } from './phase1045-fahrer-schicht-prognose-board';
 import { DispatchPhase1050ZonenAuslastungsPrognose } from './phase1050-zonen-auslastungs-prognose';
+import { DispatchPhase1055FahrerKostenEffizienzBoard } from './phase1055-fahrer-kosten-effizienz-board';
 
 type Driver = {
   employee_id: string;
@@ -1295,6 +1296,8 @@ export function DispatchBoard({
       <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1040: Tour-Score-Echtzeit-Übersicht — Alle aktiven Touren mit Score-Ring, Stopp-Fortschritt und Tour-Visualisierung */}
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1055: Fahrer-Kosten-Effizienz-Board — Kosten je Lieferung je Fahrer heute + Ranking vs. Team-Ø */}
+      <DispatchPhase1055FahrerKostenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1050: Zonen-Auslastungs-Prognose — Vorhersage Lieferzonenauslastung nächste 2h basierend auf Bestelldichte + Wochenmuster */}
       <DispatchPhase1050ZonenAuslastungsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1045: Fahrer-Schicht-Prognose-Board — Visualisierung eingeplante Fahrer vs. Mindestbesetzung je Stunde */}

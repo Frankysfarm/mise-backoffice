@@ -356,6 +356,7 @@ import { KitchenPhase1034AllergenTagesZusammenfassung } from './phase1034-allerg
 import { KitchenPhase1040LiveBestellstatusKommandozentrale } from './phase1040-live-bestellstatus-kommandozentrale';
 import { KitchenPhase1044AllergenEskalationsFlow } from './phase1044-allergen-eskalations-flow';
 import { KitchenPhase1049WarteschlangenOptimierer } from './phase1049-warteschlangen-optimierer';
+import { KitchenPhase1054WartezeItSlaMonitor } from './phase1054-wartezeit-sla-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -980,6 +981,8 @@ export function KitchenBoard({
       <KitchenPhase1029BestellKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1040: Live-Bestellstatus-Kommandozentrale — Alle aktiven Bestellungen mit Farbkodierung und Countdown */}
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1054: Wartezeit-SLA-Monitor — Alert wenn >25% SLA-Kochzeit überschritten + Drill-Down je Station */}
+      <KitchenPhase1054WartezeItSlaMonitor orders={filtered as any} />
       {/* Phase 1049: Warteschlangen-Optimierer — Parallel-Startvorschläge ohne Stationskonflikt + Zeitersparnis-Prognose */}
       <KitchenPhase1049WarteschlangenOptimierer orders={filtered as any} />
       {/* Phase 1044: Allergen-Eskalations-Flow — Kritische Allergen-Bestellungen automatisch weiterleiten + Küchenleiter-Bestätigung */}

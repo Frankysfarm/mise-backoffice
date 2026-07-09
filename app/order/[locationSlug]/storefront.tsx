@@ -183,6 +183,7 @@ import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktb
 import { Phase1042LiveEtaFahrerAnnaeherungsPanel } from './phase1042-live-eta-fahrer-annaeherungs-panel';
 import { Phase1047WarenkorbUpsellWidget } from './phase1047-warenkorb-upsell-widget';
 import { useMerkzettel, Phase1052MerkzettelWidget } from './phase1052-merkzettel-widget';
+import { Phase1057TrendingBanner } from './phase1057-live-popularitaets-ranking';
 
 type Props = {
   location: Location;
@@ -939,6 +940,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
+      <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8 flex justify-end">
         <Phase1052MerkzettelWidget
