@@ -57,9 +57,11 @@ export async function GET(req: NextRequest) {
     .lt('geliefert_am', todayStart.toISOString())
     .in('status', ['geliefert', 'delivered', 'abgeschlossen']);
 
-  const stops = todayStops ?? [];
+  type StopRow = { id: string; geliefert_am: string | null; eta_planned: string | null; pünktlich: boolean | null };
+  type PrevStopRow = { id: string; pünktlich: boolean | null };
+  const stops = (todayStops ?? []) as unknown as StopRow[];
   const ratingList = (ratings ?? []).map(r => r.driver_rating as number).filter(Boolean);
-  const prevStops = prevWeekStops ?? [];
+  const prevStops = (prevWeekStops ?? []) as unknown as PrevStopRow[];
 
   // Efficiency: stops / shift hours
   const shiftStartMs = shiftData?.started_at
