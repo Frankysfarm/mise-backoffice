@@ -311,6 +311,7 @@ import { LieferdienstPhase975WochenStatistikTrend } from './phase975-wochen-stat
 import { LieferdienstPhase980StatistikenKpiHub } from './phase980-statistiken-kpi-hub';
 import { LieferdienstPhase985StatistikGesamtdashboard } from './phase985-statistik-gesamtdashboard';
 import { LieferdienstPhase990StatistikenExecutiveHub } from './phase990-statistiken-executive-hub';
+import { LieferdienstPhase995SchichtExecutiveLiveHub } from './phase995-schicht-executive-live-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1581,6 +1582,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase980StatistikenKpiHub locationId={locationId ?? null} />
               {/* Phase 985: Statistik-Gesamtdashboard — 8 KPIs + Trend-Ampeln + Top-Fahrer + Zonen + Stunden-Verlauf */}
               <LieferdienstPhase985StatistikGesamtdashboard locationId={locationId ?? null} />
+              {/* Phase 995: Schicht-Executive-Live-Hub — Umsatz, Bestellungen, Fahrer, Pünktlichkeit + Ziel-Fortschritt in Echtzeit */}
+              <LieferdienstPhase995SchichtExecutiveLiveHub locationId={locationId ?? null} />
               {/* Phase 990: Statistiken-Executive-Hub — 6 Kern-KPIs mit 7-Tage-Trend + Top-Fahrer Rangliste + Stunden-Durchsatz */}
               <LieferdienstPhase990StatistikenExecutiveHub locationId={locationId ?? null} />
               {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
