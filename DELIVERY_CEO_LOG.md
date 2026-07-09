@@ -1,7 +1,41 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1032 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 373 Seiten). Deployment-bereit. Nächste Phasen: 1033–1037.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1042 vollständig abgeschlossen. Build sauber (✓ Compiled successfully). Deployment-bereit. Nächste Phasen: 1043–1047.
+
+## CEO Review #322 — 2026-07-09
+
+### Befund
+- Commit `65cad246` (Phasen 1040/1042 Frontend) vollständig geprüft
+- **Build:** `next build` — **✓ Compiled successfully, TypeScript 0 Fehler** ✅
+- **2 Bugs gefixt:**
+  - storefront.tsx:1379 `locationId={locationId}` → `locationId={location.id}` (undefinierter Name in Storefront-Scope, gleicher Bug-Typ wie CEO #317)
+  - Phase1042 Integration fehlte komplett in storefront.tsx — Import + Render nachgetragen (inside `ActiveOrderProgressPanel`-Scope → `locationId` statt `location.id` verwendet)
+- Alle 4 Phasen 1040/1042 korrekt implementiert und integriert:
+  - Phase1040 Kitchen: Live-Bestellstatus-Kommandozentrale (Farbkodierte Countdown-Anzeige, 20s-Polling, /kitchen/queue-API, kitchen/client.tsx) ✅
+  - Phase1040 Dispatch: Tour-Score-Echtzeit-Übersicht (Score-Ring + Stopp-Fortschrittsbalken, Supabase Realtime + 30s Fallback, dispatch/client.tsx) ✅
+  - Phase1040 Fahrer-App: Nächster-Stopp-Ultra-Kommando (ETA-Ring + 1-Tap Navigation + Kunden-Anruf, fahrer/app/client.tsx) ✅
+  - Phase1042 Storefront: Live-ETA-Fahrer-Annäherungs-Panel (Phasen-Timeline + ETA-Ring + Proximity-Dot, storefront.tsx) ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1043–1047
+1. **Phase 1043 Backend:** Bestellwert-Optimierungs-API — Empfohlene Zusatzartikel (Getränk/Dessert) wenn Warenkorb < Mindestbestellwert + 20%, basierend auf Bestseller-Analyse.
+2. **Phase 1044 Kitchen:** Allergen-Eskalations-Flow — Automatische Weiterleitung komplexer Allergen-Bestellungen an Küchenleiter mit Acknowledge-Button.
+3. **Phase 1045 Dispatch:** Fahrer-Schicht-Prognose-Board — Visualisierung wieviele Fahrer für die nächste Schicht eingeplant sind vs. Mindestbesetzung.
+4. **Phase 1046 Fahrer-App:** Kundenbewertungs-Live-Ticker — Nach jeder Lieferung: letzte Bewertung animiert eingeblendet + Gesamttrend Woche.
+5. **Phase 1047 Storefront:** Warenkorb-Upsell-Widget — Empfiehlt Zusatzartikel (Getränk/Dessert) wenn Warenkorb < Mindestbestellwert + 20%, basierend auf Phase1043-API.
 
 ## CEO Review #320 — 2026-07-09
 

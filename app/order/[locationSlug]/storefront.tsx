@@ -180,6 +180,7 @@ import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live
 import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
 import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erwartungs-manager';
 import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktbewertungs-widget';
+import { Phase1042LiveEtaFahrerAnnaeherungsPanel } from './phase1042-live-eta-fahrer-annaeherungs-panel';
 
 type Props = {
   location: Location;
@@ -1376,7 +1377,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1032: Lieferzeit-Erwartungs-Manager — Realistische ETA-Range vor Bestellabschluss basierend auf aktueller Auslastung */}
       {checkoutOpen && (
         <Phase1032LieferzeitErwartungsManager
-          locationId={locationId}
+          locationId={location.id}
           isDelivery={orderType === 'lieferung'}
           className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-[60] mx-4 mb-2"
         />
@@ -1743,6 +1744,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderId={order.orderId ?? null}
           status={order.status ?? null}
           className="mx-4 mb-4"
+        />
+      )}
+      {/* Phase 1042: Live-ETA-Fahrer-Annäherungs-Panel — Phasen-Timeline + ETA-Ring + Proximity-Dot */}
+      {order.isDelivery && order.orderId && order.status && !['geliefert', 'delivered', 'storniert', 'cancelled'].includes(order.status) && (
+        <Phase1042LiveEtaFahrerAnnaeherungsPanel
+          orderId={order.orderId}
+          locationId={locationId}
         />
       )}
       {/* Phase 1027: Kunden-Stammkunden-Badge — "Willkommen zurück!" Banner mit letzter Bestellung + Treuepunkte */}
