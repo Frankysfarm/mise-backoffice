@@ -146,6 +146,7 @@ import { FahrerSchichtPacingGuide } from './schicht-pacing-guide';
 import { StopDistanzInfo } from './stop-distanz-info';
 import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
+import { TourStoppCountdownRing } from './tour-stopp-countdown-ring';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
@@ -2027,6 +2028,35 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 910: Tour-Stopp-Countdown-Ring — SVG-Ring-Countdown-Timer mit Sekundengenauem ETA je Stopp */}
+          {activeBatch.stops.length > 0 && (() => {
+            const nextStop = activeBatch.stops.find((s: any) => s.geliefert_am == null);
+            if (!nextStop) return null;
+            const stopIndex = activeBatch.stops.indexOf(nextStop);
+            const etaMin = activeBatch.started_at && (activeBatch as any).total_eta_min != null
+              ? Math.max(0, Math.round(
+                  (activeBatch as any).total_eta_min
+                  - (Date.now() - new Date(activeBatch.started_at).getTime()) / 60000
+                  + stopIndex * 4
+                ))
+              : null;
+            return (
+              <div className="px-4">
+                <TourStoppCountdownRing
+                  etaMin={etaMin}
+                  stopNummer={nextStop.reihenfolge ?? stopIndex + 1}
+                  gesamtStops={activeBatch.stops.length}
+                  adresse={nextStop.order?.kunde_adresse ?? ''}
+                  kundeVorname={nextStop.order?.kunde_name?.split(' ')[0] ?? 'Kunde'}
+                  distanzKm={nextStop.distanz_zum_vorgaenger_m ? nextStop.distanz_zum_vorgaenger_m / 1000 : null}
+                  onNavigate={() => {
+                    const addr = encodeURIComponent(nextStop.order?.kunde_adresse ?? '');
+                    window.open(`https://maps.google.com/?q=${addr}`, '_blank');
+                  }}
+                />
+              </div>
+            );
+          })()}
           {/* Phase 427: Tour-Lieferquote — Pünktlichkeitsquote + Fortschrittsbalken der aktuellen Tour */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
