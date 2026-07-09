@@ -308,6 +308,7 @@ import { FahrerPhase925TourStoppNavigationsCockpit } from './phase925-tour-stopp
 import { FahrerPhase927KraftstoffTracker } from './phase927-kraftstoff-tracker';
 import { FahrerPhase930TourStoppNavigatorUltimate } from './phase930-tour-stopp-navigator-ultimate';
 import { FahrerPhase934TourLernkurve } from './phase934-tour-lernkurve';
+import { FahrerPhase935TourLiveKommando } from './phase935-tour-live-kommando';
 
 type Driver = {
   id: string;
@@ -3841,6 +3842,8 @@ export function FahrerApp({
         <FahrerPhase930TourStoppNavigatorUltimate activeBatch={activeBatch} driverPos={driverPos} />
         {/* Phase 934: Tour-Lernkurve — Effizienz-Wachstum 4 Wochen: Stopps/h + Pünktlichkeit + Level (Einsteiger→Experte) */}
         <FahrerPhase934TourLernkurve driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 935: Tour-Live-Kommando — Stopp-by-Stopp Kommandozentrale: Aktueller Stopp-Fokus, 1-Tap Navigation, Anruf, Geliefert-Button + Expandable Stop-Liste */}
+        <FahrerPhase935TourLiveKommando activeBatch={activeBatch} driverPos={driverPos} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
