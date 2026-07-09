@@ -13371,3 +13371,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 1014 Dispatch:** Echtzeit-Tour-Kilometerstand-Board — Live km-Zähler je aktiver Tour + Tages-km-Summe + Reichweite-Warnung bei E-Fahrzeugen.
 4. **Phase 1015 Fahrer-App:** Schicht-Wetter-Warnung — Warnung bei schlechtem Wetter (Regen/Eis/Sturm) mit Sicherheitshinweis + verlängerte ETA-Empfehlung.
 5. **Phase 1016 Storefront:** Bestellstatus-Confetti-Animation — Konfetti-Explosion wenn Bestellung als "geliefert" markiert wird.
+
+---
+
+## Batch 1033–1037 — 2026-07-09
+
+### Phase 1033 — Liefergebiet-Heatmap-API (Backend)
+**Datei:** `app/api/delivery/admin/liefergebiet-heatmap/route.ts`
+**GET:** `?location_id=<uuid>` — Umsatzdichte je PLZ/Zone letzte 30 Tage; Intensität peak/hoch/mittel/niedrig; pct_of_peak je Zone
+**Logik:** customer_orders.delivery_zone → Aggregation Bestellungen + Umsatz je Zone; Sort nach Umsatz; Peak-Normierung; Mock 4 Zonen A–D
+**Response:** `{ zonen[], peak_zone, gesamt_umsatz, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1034 — Allergen-Tages-Zusammenfassung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1034-allergen-tages-zusammenfassung.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible Card; 7 Allergene (Gluten🌾/Laktose🥛/Nüsse🥜/Ei🥚/Fisch🐟/Sellerie🌿/Soja🫘); Balken + Trend-Icon (steigend/fallend/gleich) + Vorwoche-Zähler; Alert-Badge bei steigendem Trend
+**Logik:** Keyword-Matching auf item.name; Heute-Filter (Mitternacht); Vorwoche-Gleich-Zeit-Filter; rein client-seitig useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1029 ✅
+
+### Phase 1035 — Fahrer-Ausfallrisiko-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1035-fahrer-ausfallrisiko-monitor.tsx` + `app/api/delivery/admin/fahrer-ausfallrisiko/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card; je Fahrer: Level-Badge (Kritisch/Hoch/Mittel) + Risiko-% + Balken + Absenzrate + Letzte-Schicht-Tage + Empfehlung; Kritisch-Alert-Badge pulsierend; 5-Min-Polling
+**API:** driver_shifts letzte 30 Tage → Absenzrate + letzteSchichtTage → Risiko-Score; Schwellwerte 70/45/20 für kritisch/hoch/mittel; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase1030 ✅
+
+### Phase 1036 — Strecken-Kilometerstand-Log (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1036-strecken-kilometerstand-log.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** 2-Kachel-Summary (km + Erstattung €); Fortschrittsbalken vs. 80km-Tagesziel; Tour-Liste (Nummer + Uhrzeit + Stopps + km + €); 10-Min-Polling
+**Logik:** Nutzt `/api/delivery/driver/fahrten-chronik`; filtert datum='Heute'; Erstattung 0,30€/km; isOnline-Guard; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1031 ✅
+
+### Phase 1037 — Produktbewertungs-Widget (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1037-produktbewertungs-widget.tsx` + `app/api/delivery/order/item-bewertung/route.ts`
+**Props:** `orderId: string | null, status: string | null`
+**UI:** 1–5-Sterne-Hover je Artikel + Bewertungs-Label + optionaler Kommentar-Textarea + Submit-Button; nur bei Status geliefert/delivered; X-Dismiss; Bestätigungs-State nach Submit
+**API:** POST → order_item_ratings (Fallback: driver_rating); Sicherheits-Check Status geliefert; Supabase + Best-Effort-Fallback
+**Integration:** `storefront.tsx` vor Phase1027 ✅
+
+### Nächste Phasen 1038–1042 (für Ingenieur)
+1. **Phase 1038 Backend:** Fahrer-Gesundheits-Index-API — Score je Fahrer basierend auf Pünktlichkeit, Bewertung, Effizienz + Benchmark vs. Team-Ø.
+2. **Phase 1039 Kitchen:** Zutaten-Verbrauchs-Prognose — Prognose welche Zutaten in den nächsten 2h knapp werden basierend auf Bestellrhythmus.
+3. **Phase 1040 Dispatch:** Schicht-Lücken-Warnung — Alert wenn für eine kommende Stunde weniger Fahrer als Mindestbesetzung aktiv.
+4. **Phase 1041 Fahrer-App:** Live-Bewertungs-Feedback-Stream — Nach jeder Lieferung: letzte Kunden-Bewertung anzeigen + Gesamttrend.
+5. **Phase 1042 Storefront:** Warenkorbwert-Optimierer — Empfiehlt Zusatzartikel (Getränk/Dessert) wenn Warenkorb < Mindestbestellwert + 20%.
