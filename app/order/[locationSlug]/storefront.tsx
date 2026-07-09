@@ -156,6 +156,7 @@ import { StorefrontPhase925LiveLieferungTracker } from './phase925-live-lieferun
 import { Phase928LiveWartezeitIndikator } from './phase928-live-wartezeit-indikator';
 import { Phase930DynamischeEtaLive } from './phase930-dynamische-eta-live';
 import { Phase935BestellstatusAmpel } from './phase935-bestellstatus-ampel';
+import { Phase940BestellzusammenfassungWidget } from './phase940-bestellzusammenfassung-widget';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -883,6 +884,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <Phase922BestellmengenEmpfehlung
             locationId={location.id}
             currentItemNames={cart.map(c => c.item.name ?? '').filter(Boolean)}
+          />
+        </div>
+      )}
+      {/* Phase 940: Bestellzusammenfassung-Widget — Kompakte Inline-Zusammenfassung: Artikel + Gesamtpreis + ETA vor Bestellabschluss */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase940BestellzusammenfassungWidget
+            cart={cart}
+            locationId={location.id}
+            etaMin={deliveryTimeMin}
+            isDelivery={orderType === 'lieferung'}
           />
         </div>
       )}

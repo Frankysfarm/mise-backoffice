@@ -389,6 +389,7 @@ import { DispatchPhase926TourNachfassBoard } from './phase926-tour-nachfass-boar
 import { DispatchPhase930TourVizPro } from './phase930-tour-viz-pro';
 import { DispatchPhase933FahrerKapazitaetGauge } from './phase933-fahrer-kapazitaet-gauge';
 import { DispatchPhase935TourEffizienzLiveBoard } from './phase935-tour-effizienz-live-board';
+import { DispatchPhase938SchichtUebergabeCockpit } from './phase938-schicht-uebergabe-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1221,6 +1222,8 @@ export function DispatchBoard({
       <DispatchPhase933FahrerKapazitaetGauge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 935: Tour-Effizienz-Live-Board — Score-Ring + Fortschritt + nächster Stopp + Farb-Klassifizierung je aktiver Tour */}
       <DispatchPhase935TourEffizienzLiveBoard batches={batches as any} />
+      {/* Phase 938: Schicht-Übergabe-Cockpit — Strukturierte Übergabe-Checkliste: offene Touren, wartende Bestellungen, Fahrer-Status */}
+      <DispatchPhase938SchichtUebergabeCockpit batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
