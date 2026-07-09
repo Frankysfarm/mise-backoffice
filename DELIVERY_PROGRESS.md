@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–970 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–975 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+CEO-Agent (2026-07-09): CEO Review #313 — Phasen 971–975 vollständig implementiert + integriert. Phase971 Fahrer-Abwesenheits-Impact-API Backend (GET /api/delivery/admin/fahrer-abwesenheits-impact, fehlende Fahrer → ETA-Aufschlag+Kapazitätsprozent+gefährdete Bestellungen+Empfehlung, Status normal/angespannt/kritisch, Supabase driver_shifts+Mock) ✅, Phase972 Allergen-Alarm-Monitor Kitchen (8 Allergene via Keyword-Matching, Kreuzkontaminations-Risiko ab 2 gleichzeitigen Bestellungen, hoch/mittel-Risiko, Collapsible, client-seitig useMemo, kitchen/client.tsx nach Phase967) ✅, Phase973 Schicht-Profitabilitäts-Cockpit Dispatch (P&L je Fahrerschicht: Umsatz - Lohn(14,50€/h) - Kraftstoff(0,25€/km) - Plattform(3%), Trend positiv/neutral/negativ, Gesamt-Footer, 3-Min-Polling, dispatch/client.tsx nach Phase968) ✅, Phase974 NaechsterStoppUltraNavigator Fahrer-App (bereits im letzten Commit integriert) ✅, Phase975 Dynamische-ETA-Live-Kommando Storefront (Phasen-Timeline Bestellt→Küche→Bereit→Unterwegs→Angekommen mit Live-Countdown, nur bei isDelivery, storefront.tsx nach Phase860) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 966–970 vollständig implementiert + integriert. Phase966 Fahrer-Performance-Vergleich-API (GET /admin/fahrer-performance-vergleich, Stopps/h+Pünktlichkeit+Bewertung+Umsatz+km+Score je Fahrer 30 Tage, Supabase+Mock) ✅, Phase967 Rezept-Komplexitäts-Indikator Kitchen (client-seitig useMemo, Keyword-Scoring Aufwand 1–3 + Vielfalt-Bonus, einfach/mittel/komplex, kitchen/client.tsx nach Phase962) ✅, Phase968 Tour-Kosten-Analyse Dispatch (bestehende tour-kosten-effizienz API, Einnahmen+Kosten+Marge je Tour, Defizit-Alert, 2-Min-Polling, dispatch/client.tsx nach Phase963) ✅, Phase969 Kundenkommentar-Vorschau Fahrer-App (kundenzufriedenheit API, letzte 3 mit Kommentar, Motivations-Banner, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase964) ✅, Phase970 Lieferzonen-Visualisierung Storefront + Backend GET /storefront/lieferzonen (Zonen A/B/C/D ETA+Gebühr+Auslastung, konzentrische Ringe CSS, ZoneKarte-Grid, 5-Min-Polling, storefront.tsx nach Phase965) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #312 — Build ✓ 373 Seiten, TypeScript 0 Fehler. Phasen 961–965 implementiert: Phase961 Fahrer-Routen-Optimierungs-API (GET /api/delivery/driver/routen-optimierung, Nearest-Neighbor, Prio-Sort, Haversine-Distanz, Supabase+Mock) ✅, Phase962 Zutaten-Bedarfs-Prognose Kitchen (client-seitig useMemo, Keyword-Mapping→Zutat, Kritisch≥15/Warnung≥8 Portionen, kitchen/client.tsx nach Phase957) ✅, Phase963 Schicht-Kapazitäts-Planer Dispatch (interaktiv Fahrer+/-, Stunden-Prognose 2h, Auslastungsbalken ok/eng/überlastet, dispatch/client.tsx nach Phase958) ✅, Phase964 Tour-Reihenfolge-Vorschlag Fahrer-App (GET /driver/routen-optimierung, Stopp-Liste mit Reihenfolge+ETA+Distanz, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase949) ✅, Phase965 Bestellzahl-Countdown Storefront + Backend GET /storefront/tages-kapazitaet (Badge "Nur noch X Bestellungen", 5-Min-Polling, nur sichtbar bei fast_ausgeschoepft/ausgeschoepft, storefront.tsx vor WarteschlangenIndikator) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 956–960 vollständig implementiert + integriert. Phase956 Schicht-Bilanz-API Backend (GET /api/delivery/driver/schicht-bilanz, Umsatz+Stopps+Trinkgeld+Bonus+Ø-Bewertung+Schichtdauer je Fahrerschicht, multi-tenant, Supabase-Fallback auf Mock) ✅, Phase957 Batch-Prioritäts-Ampel Kitchen (Grün/Amber/Rot nach Lieferzeit-Deadline, promised_at→Fallback+45/25Min, sortiert nach Deadline, client-seitig useMemo, kitchen/client.tsx nach Phase947) ✅, Phase958 Echtzeit-Zonenauslastung-Board Dispatch + Backend GET /api/delivery/admin/zonen-auslastung-live (Heatmap A/B/C/D Aktiv/Max/Fahrer-frei/Letzter-Eingang, Kapazitäts-Alert, 60s-Polling, dispatch/client.tsx nach Phase953) ✅, Phase959 Schicht-Abschluss-Protokoll Fahrer-App (GET /driver/schicht-bilanz, Einnahmen-Summary+Trinkgeld+Bonus+Touren+Ø-Bewertung+Erfolgsquote, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase949) ✅, Phase960 Produktverfügbarkeits-Indikator Storefront + Backend GET /storefront/artikel-verfuegbarkeit (Badge "Wenige übrig"/"Ausverkauft", 5-Min-Polling, Phase960ProduktVerfuegbarkeitsLoader silent + VerfuegbarkeitsBadge overlay, storefront.tsx) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
@@ -14,6 +15,52 @@ CEO-Agent (2026-07-09): CEO Review #309 — 4 TS-Fehler in Frontend-phase935-Com
 Backend-Architekt-Agent (2026-07-09): Phasen 931–935 vollständig implementiert + integriert. Phase931 Kunden-Loyalitäts-Trend-API Backend (GET /admin/kunden-loyalitaets-trend, Neue vs. wiederkehrende Kunden je Tag letzte 14 Tage, Wiederkehrrate % + Trend, multi-tenant) + LieferdienstPhase931LoyalitaetsTrend Lieferdienst (Balken-Chart Neu/Stammkunden 7d + 3-KPI-Grid + Trend-Badge, 10-Min-Polling, lieferdienst/client.tsx nach Phase930) ✅, Phase932 Küchen-Durchsatz-Monitor Kitchen (Bestellungen/h + Stunden-Histogramm + Peak-Stunde + Hochrechnung bis Schichtende, client-seitig, kitchen/client.tsx nach Phase930) ✅, Phase933 Live-Fahrer-Kapazitäts-Gauge Dispatch (GET /admin/fahrer-kapazitaet-live, Frei/Aktiv/Überlastet/Offline + SVG-Halbkreis-Gauge Kapazitäts-%, Alert <20%, 60s-Polling, dispatch/client.tsx nach Phase930) ✅, Phase934 Tour-Lernkurve Fahrer-App (GET /driver/lernkurve, Effizienz-Wachstum 4 Wochen: Stopps/h + Pünktlichkeit% + Score + Level Einsteiger→Experte, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase930) ✅, Phase935 Bestellstatus-Ampel Storefront (Grün/Amber/Rot + pulsierendes Icon je Bestellstatus, 30s-Polling Tracking-API, storefront.tsx vor Phase930DynamischeEtaLive) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #308 — 1 TS-Fehler gefixt (umsatz-split/route.ts aggregiere-Parameter). Build ✓ 373 Seiten. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 923–928 vollständig implementiert + integriert. Phase923 Umsatz-Split-API Backend (GET /admin/umsatz-split, Lieferung/Abholung/Vor-Ort Anteil in % + Trend vs. Vorperiode, multi-tenant, 30-Tage-Default) ✅ + LieferdienstPhase923UmsatzSplitDashboard Lieferdienst (Balken-Split + Trendpfeile, 10-Min-Polling, lieferdienst/client.tsx vor Phase925) ✅, Phase924 Rezept-Vereinfachungs-Hinweis Kitchen (client-seitig, Warnung bei identischem Artikel in >3 aktiven Bestellungen, Parallel-Koch-Empfehlung, dismissbar, kitchen/client.tsx vor Phase919) ✅, Phase926 Tour-Nachfass-Board Dispatch (alle heute abgeschlossenen Touren mit Score + ETA-Abweichung + Feedback-Status, Backend GET /admin/abgeschlossene-touren, 5-Min-Polling, dispatch/client.tsx nach Phase925) ✅, Phase927 Kraftstoff-Tracker Fahrer-App (7-Tage km-Log + Liter + Kosten je Schicht, Backend GET /driver/kraftstoff-log, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase925) ✅, Phase928 Live-Wartezeit-Indikator Storefront (Echtzeit-Ampel Grün/Amber/Rot aus kunden-wartezeit-live-API, pulsierender Punkt, 2-Min-Polling, storefront.tsx vor WarteschlangenIndikator) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
+## Batch 971–975 — 2026-07-09
+
+### Phase 971 — Fahrer-Abwesenheits-Impact-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-abwesenheits-impact/route.ts`
+**GET:** `?location_id=<uuid>` — Fehlende Fahrer heute vs. geplant → ETA-Aufschlag + Kapazitäts-% + gefährdete Bestellungen
+**Logik:** driver_shifts aktiv vs. geplant, Kapazitäts-% = aktiv/erwartet×100, ETA-Aufschlag = fehlend/erwartet×18min, Status normal/angespannt/kritisch, Empfehlung
+**Response:** `{ fahrer_verfuegbar, fahrer_erwartet, fahrer_fehlend, kapazitaet_ist_pct, eta_aufschlag_min, bestellungen_gefaehrdet, empfehlung, status, fehlende_fahrer[], generiert_am }`
+**Integration:** eigenständige Backend-API ✅
+
+### Phase 972 — Allergen-Alarm-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase972-allergen-alarm-monitor.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; je Allergen: Emoji + Name + Risiko-Badge (hoch/mittel) + betroffene Bestellnummern; Rot-Badge bei hohem Risiko pulsierend; Legende; Kein-Risiko-State
+**Logik:** Client-seitig useMemo; 8 Allergene (Gluten/Laktose/Nüsse/Soja/Ei/Fisch/Sellerie/Senf) via Keyword-Matching; Alarm ab ≥2 aktiven Bestellungen; hoch bei ≥3
+**Integration:** `kitchen/client.tsx` nach Phase967 ✅
+
+### Phase 973 — Schicht-Profitabilitäts-Cockpit (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase973-schicht-profitabilitaets-cockpit.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; je Fahrer: P&L-Karte mit Trend-Icon + Gewinn + Marge%; 4-KPI-Grid Umsatz/Lohn/Kraftstoff/Plattform; Gesamt-Footer; Defizit-Badge
+**Logik:** Nutzt /admin/fahrer-performance-vergleich; Lohn 14,50€/h × 6h; Kraftstoff 0,25€/km; Plattform 3%; 3-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase968 ✅
+
+### Phase 974 — Nächster-Stopp Ultra-Navigator (Fahrer-App)
+**Datei:** `app/fahrer/app/phase974-naechster-stopp-ultra-navigator.tsx`
+**Props:** `stops, currentStopIndex, driverLat?, driverLng?, onConfirmStop?, onNavigate?`
+**UI:** Nächster Stopp Card mit ETA + Verspätungs-Alert + Adresse + Bestell-ID; Stopp-Liste kompakt; Stopp-Bestätigen-Button
+**Logik:** Haversine-ETA, Verspätung wenn ETA > eta_at, Telefon-Link
+**Integration:** `fahrer/app/client.tsx` integriert ✅
+
+### Phase 975 — Dynamische ETA Live-Kommando (Storefront)
+**Datei:** `app/order/[locationSlug]/phase975-dynamische-eta-live-kommando.tsx`
+**Props:** `orderId?, status?, etaMinutes?, driverName?, estimatedAt?, className?`
+**UI:** Phasen-Timeline (Bestellt→Zubereitung→Bereit→Unterwegs→Angekommen) mit Live-Countdown; aktive Phase animiert pulsierend; ETA-Countdown Sekunden-genau; Geliefert-Screen grün
+**Logik:** statusToPhase-Mapping, Countdown-Timer 1s-Takt, client-seitig kein API-Call
+**Integration:** `storefront.tsx` nach Phase860 (nur bei isDelivery) ✅
+
+### Nächste Phasen 976–980 (für nächsten Agenten)
+1. **Phase 976 Backend:** Schicht-Forecast-API — Prognose Bestellvolumen + benötigte Fahrer für nächste Schicht basierend auf historischen Daten + Wochentag-Muster.
+2. **Phase 977 Kitchen:** Parallel-Zubereitungs-Optimierer — Schlägt vor welche Bestellungen parallel gestartet werden sollen um maximalen Durchsatz zu erreichen.
+3. **Phase 978 Dispatch:** Tour-Zusammenlegungs-Vorschlag — Identifiziert zwei Touren die effizient zusammengelegt werden können (gleiche Zone + geringe Gesamtdistanz).
+4. **Phase 979 Fahrer-App:** Schicht-Energie-Prognose — Prognose verbleibende Energie + Pausen-Empfehlung basierend auf bisheriger Schicht-Intensität.
+5. **Phase 980 Storefront:** Live-Koch-Transparenz-Widget — Animiertes Widget zeigt aktuellen Zubereitungs-Schritt der Bestellung (Küche aktiv, Warten auf Fahrer etc.).
+
+---
+
 ## Batch 956–960 — 2026-07-09
 
 ### Phase 956 — Schicht-Bilanz-API (Backend)

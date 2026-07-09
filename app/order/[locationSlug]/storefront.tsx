@@ -164,6 +164,7 @@ import { Phase960ProduktVerfuegbarkeitsLoader, VerfuegbarkeitsBadge } from './ph
 import { Phase962LieferQualitaetsBadge } from './phase962-liefer-qualitaets-badge';
 import { Phase965BestellzahlCountdown } from './phase965-bestellzahl-countdown';
 import { Phase970LieferzonenVisualisierung } from './phase970-lieferzonen-visualisierung';
+import { StorefrontPhase975DynamischeEtaLiveKommando } from './phase975-dynamische-eta-live-kommando';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1619,6 +1620,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase855LieferEtaVertrauensBand orderId={order.orderId ?? null} locationId={locationId} />
       {/* Phase 860: Ankunfts-Konfetti — Canvas-Konfetti + Overlay-Banner bei status=geliefert */}
       <Phase860AnkunftsKonfetti orderId={order.orderId ?? null} status={order.status ?? null} />
+      {/* Phase 975: Dynamische ETA Live-Kommando — Phasen-Timeline mit Live-Countdown + Puls-Animation je Status */}
+      {order.isDelivery && (
+        <StorefrontPhase975DynamischeEtaLiveKommando
+          orderId={order.orderId ?? undefined}
+          status={order.status ?? undefined}
+          etaMinutes={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+          estimatedAt={(order as any).estimated_at ?? null}
+        />
+      )}
       {/* Phase 864: Lieferstatus-Fortschrittsleiste — Visuelle Schritte Bestellt→Küche→Fertig→Unterwegs→Geliefert mit Echtzeit-Update */}
       {order.isDelivery && (
         <Phase864LieferstatusFortschritt orderId={order.orderId ?? null} currentStatus={order.status ?? null} />
