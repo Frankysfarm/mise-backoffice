@@ -169,6 +169,7 @@ import { Phase980LiveKochTransparenzWidget } from './phase980-live-koch-transpar
 import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-banner';
 import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
 import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
+import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1654,6 +1655,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <Phase995EchtzeitKuechenTransparenzWidget
           orderId={order.orderId ?? null}
           status={order.status ?? null}
+          className="mx-4 mb-4"
+        />
+      )}
+      {/* Phase 1000: Live-Bestellstatus-Timeline Pro — Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert + Sekunden-Countdown */}
+      {order.isDelivery && (
+        <Phase1000LiveBestellstatusTimelinePro
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          etaMinutes={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
           className="mx-4 mb-4"
         />
       )}

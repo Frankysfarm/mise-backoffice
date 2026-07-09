@@ -342,6 +342,7 @@ import { KitchenPhase977ParallelZubereitungsOptimierer } from './phase977-parall
 import { KitchenPhase982SmartTimingCountdownBoard } from './phase982-smart-timing-countdown-board';
 import { KitchenPhase987KuechenWorkloadVorhersage } from './phase987-kuechen-workload-vorhersage';
 import { KitchenPhase992BatchFertigstellungsCountdownPro } from './phase992-batch-fertigstellungs-countdown-pro';
+import { KitchenPhase997KochstationAuslastungsBoard } from './phase997-kochstation-auslastungs-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -946,6 +947,8 @@ export function KitchenBoard({
       <KitchenPhase987KuechenWorkloadVorhersage orders={filtered as any} />
       {/* Phase 992: Batch-Fertigstellungs-Countdown-Pro — Farbkodierter Batch-Countdown mit ETA-Ring je Bestellung */}
       <KitchenPhase992BatchFertigstellungsCountdownPro orders={filtered as any} />
+      {/* Phase 997: Kochstation-Auslastungs-Board — Live-Auslastung je Station (Grill/Friteuse/Salat/Pasta) */}
+      <KitchenPhase997KochstationAuslastungsBoard orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
       <KitchenPhase952SmartTimingFarbkodierung orders={filtered as any} />
       {/* Phase 956: Küchen-Auslastungs-Prognose-Board — Geschätzter Küchendruck je 10-Min-Slot (nächste 30 Min) mit Farbkodierung */}
