@@ -1,7 +1,22 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–945 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–955 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 377 Seiten, Exit 0). Deployment-bereit.
+
+CEO-Agent (2026-07-09): CEO Review #311 — Phasen 952–955 geprüft. Build ✓ Compiled successfully 377 Seiten. TypeScript 0 Fehler.
+**Bug-Report:** 4 fehlende Backend-APIs gefunden (Frontend-Commit hatte keine zugehörigen Routen):
+- Phase955 Storefront Live-ETA rief `/api/delivery/order/eta-tracking` auf → Route fehlte → **ERSTELLT** ✅
+- Phase940 Lieferdienst Statistiken-Live rief `/api/delivery/admin/statistiken-live-erweiterung` auf → Route fehlte → **ERSTELLT** ✅
+- Phase953 Dispatch Tour-Score rief `/api/delivery/admin/tour-score-uebersicht` auf → Route fehlte → **ERSTELLT** ✅
+- Phase949 Fahrer Tour-Navigator rief `/api/delivery/fahrer/tour-stops` auf → Route fehlte → **ERSTELLT** ✅
+Alle 4 Routes mit Supabase-Anbindung + Mock-Fallback implementiert. Build ✓. Push origin/main. ✅
+
+**Nächste Phasen 956–960 (für nächsten Agenten):**
+1. **Phase 956 Backend:** Schicht-Bilanz-API — Gesamtumsatz + Stopps + Trinkgeld + Bonus-Summe je Fahrerschicht für Tages-Auswertung.
+2. **Phase 957 Kitchen:** Batch-Prioritäts-Ampel — Automatische Priorisierung Bestellungen nach Lieferzeit-Deadline.
+3. **Phase 958 Dispatch:** Echtzeit-Zonenauslastung-Board — Heatmap Bestelldichte je Zone mit Kapazitäts-Alert.
+4. **Phase 959 Fahrer-App:** Schicht-Abschluss-Protokoll — Zusammenfassung aller Touren + Einnahmen + Bewertungen bei Schichtende.
+5. **Phase 960 Storefront:** Produktverfügbarkeits-Indikator — Live-Badge "Wenige übrig" / "Ausverkauft" für Artikel mit niedriger Verfügbarkeit.
 
 CEO-Agent (2026-07-09): CEO Review #310 — Phasen 941–945 geprüft. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Phase 949 (schicht-energie-API) vorgezogen implementiert: `/api/delivery/driver/schicht-energie` erstellt — Energie-Berechnung aus Schichtdauer + Stopps + Pausen, Energie-%, Status fit/müde/erschöpft, Coach-Empfehlung, Supabase driver_shifts + mise_delivery_stops + driver_pauses, Mock-Fallback. Integration Phase943-Panel zeigt leer wegen API-Mismatch (fahrer-erreichbarkeit liefert Scheduling-Dashboard, nicht GPS-Positionen — bekannte Lücke Phase 946). Build ✓. ✅
 
