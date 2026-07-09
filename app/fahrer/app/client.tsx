@@ -330,6 +330,7 @@ import { FahrerPhase1015TourStopsNavigationsHub } from './phase1015-tour-stops-n
 import { FahrerPhase1021SchichtStartAssistent } from './phase1021-schicht-start-assistent';
 import { FahrerPhase1026WetterEinflussAnzeige } from './phase1026-wetter-einfluss-anzeige';
 import { FahrerPhase1018SmartTourNavigationsHub } from './phase1018-smart-tour-navigations-hub';
+import { FahrerPhase1031EinnahmenPrognoseAssistent } from './phase1031-einnahmen-prognose-assistent';
 
 type Driver = {
   id: string;
@@ -3912,6 +3913,8 @@ export function FahrerApp({
         <FahrerPhase1021SchichtStartAssistent driverId={driver.id} isOnline={isOnline} locationId={driver.location_id ?? null} />
         {/* Phase 1026: Wetter-Einfluss-Anzeige — Aktuelles Wetter + ETA-Aufschlag + Sicherheits-Tipps */}
         <FahrerPhase1026WetterEinflussAnzeige driverId={driver.id} isOnline={isOnline} locationId={driver.location_id ?? null} />
+        {/* Phase 1031: Einnahmen-Prognose-Assistent — Prognose Tageseinnahmen basierend auf Schicht + Wochentag + Bestelldichte */}
+        <FahrerPhase1031EinnahmenPrognoseAssistent driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1002: GPS-Navi-Kommando — Live-GPS-Navigationszentrale mit Google/Waze/Apple Maps + ETA + Ablieferungs-Bestätigung */}
         {isOnline && <FahrerPhase1002GpsNaviKommando />}
 

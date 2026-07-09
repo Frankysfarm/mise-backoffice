@@ -412,6 +412,7 @@ import { DispatchPhase1012TourScoreVisualisierungLive } from './phase1012-tour-s
 import { DispatchPhase1020TourUmsatzPerformance } from './phase1020-tour-umsatz-performance';
 import { DispatchPhase1016TourStoppLiveCockpit } from './phase1016-tour-stop-live-cockpit';
 import { DispatchPhase1025FahrerZuverlaessigkeitsDashboard } from './phase1025-fahrer-zuverlaessigkeits-dashboard';
+import { DispatchPhase1030SchichtSpitzenzeitKommando } from './phase1030-schicht-spitzenzeit-kommando';
 
 type Driver = {
   employee_id: string;
@@ -1286,6 +1287,8 @@ export function DispatchBoard({
       <DispatchPhase1020TourUmsatzPerformance locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1025: Fahrer-Zuverlässigkeits-Dashboard — Score-Rang + Trend-Pfeile + Sub-Scores je Fahrer */}
       <DispatchPhase1025FahrerZuverlaessigkeitsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1030: Schicht-Spitzenzeit-Kommando — Wochentag-Spitzenzeiten + Mindestbesetzung visualisiert */}
+      <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1016: Tour-Stopp-Live-Cockpit — Alle aktiven Touren mit Stopp-Sequenz, ETA-Ampel, Score-Balken und Nächstem-Stopp-Karte */}
       <DispatchPhase1016TourStoppLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}

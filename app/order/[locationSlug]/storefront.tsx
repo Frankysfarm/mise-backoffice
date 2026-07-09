@@ -178,6 +178,7 @@ import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live-tracking-kommando';
 import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
+import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erwartungs-manager';
 
 type Props = {
   location: Location;
@@ -1370,6 +1371,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         checkoutOpen={checkoutOpen}
         etaMinuten={deliveryTimeMin ?? 30}
       />
+
+      {/* Phase 1032: Lieferzeit-Erwartungs-Manager — Realistische ETA-Range vor Bestellabschluss basierend auf aktueller Auslastung */}
+      {checkoutOpen && (
+        <Phase1032LieferzeitErwartungsManager
+          locationId={locationId}
+          isDelivery={orderType === 'lieferung'}
+          className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-[60] mx-4 mb-2"
+        />
+      )}
 
       {/* Checkout */}
       <CheckoutSheet
