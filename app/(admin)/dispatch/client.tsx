@@ -409,6 +409,7 @@ import { DispatchPhase1004FahrerRueckkehrPrognose } from './phase1004-fahrer-rue
 import { DispatchPhase1002TourEtaSequenzBoard } from './phase1002-tour-eta-sequenz-board';
 import { DispatchPhase1009TourEffizienzLiveRanking } from './phase1009-tour-effizienz-live-ranking';
 import { DispatchPhase1012TourScoreVisualisierungLive } from './phase1012-tour-score-visualisierung-live';
+import { DispatchPhase1020TourUmsatzPerformance } from './phase1020-tour-umsatz-performance';
 
 type Driver = {
   employee_id: string;
@@ -1279,6 +1280,8 @@ export function DispatchBoard({
       <DispatchPhase1009TourEffizienzLiveRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1012: Tour-Score-Visualisierung Live — Score-Gauge + Trend + SLA-Ampel je aktiver Tour */}
       <DispatchPhase1012TourScoreVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1020: Tour-Umsatz-Performance-Board — Live-Umsatz je aktiver Tour vs. Tages-Ziel + Trend */}
+      <DispatchPhase1020TourUmsatzPerformance locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

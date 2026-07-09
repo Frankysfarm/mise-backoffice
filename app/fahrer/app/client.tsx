@@ -327,6 +327,7 @@ import { FahrerPhase1005VerdienstZielTracker } from './phase1005-verdienst-ziel-
 import { FahrerPhase1002GpsNaviKommando } from './phase1002-gps-navi-kommando';
 import { FahrerPhase1010PausenEmpfehlung } from './phase1010-pausen-empfehlung';
 import { FahrerPhase1015TourStopsNavigationsHub } from './phase1015-tour-stops-navigations-hub';
+import { FahrerPhase1021SchichtStartAssistent } from './phase1021-schicht-start-assistent';
 
 type Driver = {
   id: string;
@@ -3905,6 +3906,8 @@ export function FahrerApp({
           stoppsHeute={todayStats?.deliveries ?? 0}
           isOnline={isOnline}
         />
+        {/* Phase 1021: Schicht-Start-Assistent — Vorbereitungs-Checkliste + Bestellprognose (nur wenn offline) */}
+        <FahrerPhase1021SchichtStartAssistent driverId={driver.id} isOnline={isOnline} locationId={driver.location_id ?? null} />
         {/* Phase 1002: GPS-Navi-Kommando — Live-GPS-Navigationszentrale mit Google/Waze/Apple Maps + ETA + Ablieferungs-Bestätigung */}
         {isOnline && <FahrerPhase1002GpsNaviKommando />}
 

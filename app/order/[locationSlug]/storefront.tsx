@@ -172,6 +172,8 @@ import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-ku
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
+import { EtaDynamischLiveKommando } from './phase1017-eta-dynamisch-live-kommando';
+import { Phase1022BewertungsSchnellWidget } from './phase1022-bewertungs-schnell-widget';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1666,6 +1668,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           className="mx-4 mb-4"
         />
       )}
+      {/* Phase 1017: Dynamische ETA-Live-Kommando — Konfidenz-Ampel + Phasen-Timeline + Fahrer-Annäherung + Countdown */}
+      {order.isDelivery && order.orderId && !['geliefert', 'delivered', 'storniert', 'cancelled'].includes(order.status ?? '') && (
+        <EtaDynamischLiveKommando
+          orderId={order.orderId}
+          locationId={locationId}
+          className="mx-4 mb-4"
+        />
+      )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
       <StorefrontPhase1006KuechenAuslastungsAnzeige locationId={locationId} className="mx-4 mb-3" />
       {/* Phase 1000: Live-Bestellstatus-Timeline Pro — Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert + Sekunden-Countdown */}
@@ -1696,6 +1706,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase870KuechenKapazitaetBanner locationId={locationId} />
       {/* Phase 875: Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker mit Konfetti-Burst nach Bestelleingang */}
       <Phase875BestellungsBestaetigungsTicker orderId={order.orderId ?? null} orderNumber={order.bestellnummer ?? null} status={order.status ?? null} />
+      {/* Phase 1022: Bewertungs-Schnell-Widget — Kompakte 1–5-Sterne-Bewertung direkt nach Lieferung */}
+      {order.isDelivery && (
+        <Phase1022BewertungsSchnellWidget
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          className="mx-4 mb-4"
+        />
+      )}
       {/* Phase 883: Bewertungs-Incentive-Banner — Gamification-Banner nach Lieferung: Punkte für Bewertung vergeben */}
       <Phase883BewertungsIncentiveBanner orderId={order.orderId ?? null} status={order.status ?? null} />
       {/* Phase 893: Lieferzeit-Komfort-Banner — Zeigt ETA vs. 7-Tage-Ø: schneller/langsamer als normal (dismissbar) */}
