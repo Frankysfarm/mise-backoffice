@@ -316,6 +316,7 @@ import { FahrerPhase959SchichtAbschlussProtokoll } from './phase959-schicht-absc
 import { FahrerPhase961SchichtGewinnHochrechnung } from './phase961-schicht-gewinn-hochrechnung';
 import { FahrerPhase964TourReihenfolgeVorschlag } from './phase964-tour-reihenfolge-vorschlag';
 import { FahrerPhase969KundenkommentarVorschau } from './phase969-kundenkommentar-vorschau';
+import { FahrerPhase974NaechsterStoppUltraNavigator } from './phase974-naechster-stopp-ultra-navigator';
 
 type Driver = {
   id: string;
@@ -3861,6 +3862,15 @@ export function FahrerApp({
         <FahrerPhase964TourReihenfolgeVorschlag driverId={driver.id} isOnline={isOnline} />
         {/* Phase 969: Kundenkommentar-Vorschau — Letzte 3 Kunden-Kommentare der Schicht als Motivations-Widget */}
         <FahrerPhase969KundenkommentarVorschau driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 974: Nächster-Stopp-Ultra-Navigator — Prominente Stopp-Karte mit Navigation + Abliefern-Button */}
+        {activeBatch && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase974NaechsterStoppUltraNavigator
+              stops={activeBatch.stops as any}
+              currentStopIndex={activeBatch.stops.findIndex((s: any) => !['geliefert','abgeholt','abgeschlossen'].includes(s.status ?? ''))}
+            />
+          </div>
+        )}
         {/* Phase 959: Schicht-Abschluss-Protokoll — Zusammenfassung Touren + Einnahmen + Bewertungen bei Schichtende */}
         <FahrerPhase959SchichtAbschlussProtokoll driverId={driver.id} isOnline={isOnline} />
         {/* Phase 961: Schicht-Gewinn-Hochrechnung — Live-Prognose Schicht-Verdienst + Trinkgeld-Schätzung + Stunden-Verlauf */}

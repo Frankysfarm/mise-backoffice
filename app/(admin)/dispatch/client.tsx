@@ -346,6 +346,7 @@ import { DispatchPhase858FahrerAuslastungsHeatmapLive } from './phase858-fahrer-
 import { DispatchPhase862TourEffizienzKommando } from './phase862-tour-effizienz-kommando';
 import { DispatchPhase868EinsatzEffizienzRanking } from './phase868-einsatz-effizienz-ranking';
 import { DispatchPhase873FahrerTagesProtokoll } from './phase873-fahrer-tages-protokoll';
+import { DispatchPhase878TourScoreLiveKarte } from './phase878-tour-score-live-karte';
 import { DispatchFahrerAuslastungsTimeline } from './fahrer-auslastungs-timeline';
 import { DispatchDriverEfficiencyRanking } from './driver-efficiency-ranking';
 import { DispatchTourRueckkehrPrognose } from './tour-rueckkehr-prognose';
@@ -2491,6 +2492,8 @@ export function DispatchBoard({
       <DispatchPhase868EinsatzEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 873: Fahrer-Tages-Protokoll — Chronologische Timeline aller Events je Fahrer heute */}
       <DispatchPhase873FahrerTagesProtokoll locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 878: Tour-Score-Live-Karte — Alle aktiven Touren mit Score-Meter + Pünktlichkeitsampel */}
+      <DispatchPhase878TourScoreLiveKarte batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
       <DispatchBatchReassignDialog
