@@ -145,6 +145,7 @@ import { SchichtLiveKapazitaet } from './schicht-live-kapazitaet'
 import LieferdienstFahrerEffizienzScore from './fahrer-effizienz-score'
 import { SchichtLiveStatistik } from './schicht-live-statistik'
 import { SchichtUmsatzMeter } from './schicht-umsatz-meter'
+import { LieferdienstSchichtLiveExecutive } from './schicht-live-executive'
 import { LieferdienstPricingKompakt } from './pricing-kompakt'
 import { LieferdienstOpsRekoKompakt } from './ops-reko-kompakt'
 import { LieferdienstStornoRateKarte } from './storno-rate-karte'
@@ -1230,6 +1231,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Schicht-Live-Executive: 360°-KPI-Dashboard mit Bestellverlauf-Chart, Trend-Pfeilen und Live-Update */}
+              <LieferdienstSchichtLiveExecutive locationId={locationId} />
               {/* Zonen-Rentabilitäts-Matrix: Umsatz, Bestellungen, Lieferzeit und SLA je Zone */}
               <LieferZonenProfitMatrix locationId={locationId} />
               {/* Phase 471: Schicht-Schnell-Status — 6 KPI-Kacheln auf einen Blick: Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno */}

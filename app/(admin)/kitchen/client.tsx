@@ -97,6 +97,7 @@ import { KitchenSmartKochstartEmpfehlung } from './smart-kochstart-empfehlung';
 import { KitchenOptimalKochstart } from './kitchen-optimal-kochstart';
 import { KitchenKochzeitEffizienzTracker } from './kochzeit-effizienz-tracker';
 import { KitchenDemandSurgeMonitor } from './demand-surge-monitor';
+import { KitchenRushWaveRadar } from './rush-wave-radar';
 import { KitchenSmartPrepAmpel } from './smart-prep-ampel';
 import { KitchenSmartPrepTimingHub } from './smart-prep-timing-hub';
 import { KitchenCookNowPanel } from './cook-now-panel';
@@ -853,6 +854,8 @@ export function KitchenBoard({
       )}
       {/* Phase 450: Smart-Kochstart-Live-Matrix — Alle aktiven Bestellungen nach Urgency sortiert, Countdown-Ringe + Farbkodierung + Schnell-Aktionen */}
       <KitchenSmartKochstartLiveMatrix orders={filtered} timings={timings} />
+      {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}
+      <KitchenRushWaveRadar locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}

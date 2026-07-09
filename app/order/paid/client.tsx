@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StorefrontPhase876DynamischeEtaLiveTracking } from '../[locationSlug]/phase876-dynamische-eta-live-tracking';
+import { LiveEtaCountdownBanner } from '../[locationSlug]/live-eta-countdown-banner';
 
 type OrderStatus =
   | 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig'
@@ -166,6 +167,21 @@ export function PaidOrderClient({
           </div>
         )}
 
+        {/* Phase 904: Live-ETA-Countdown-Banner — Animierter Schritt-Progress + Sekundengenauer Countdown */}
+        {order && !isTerminal && (
+          <div className="mt-5">
+            <LiveEtaCountdownBanner
+              status={status as any}
+              etaEarliest={order.eta_earliest}
+              etaLatest={order.eta_latest}
+              geschaetzteZubereitungMin={null}
+              geschaetztelieferungMin={null}
+              fahrerVorname={order.fahrer_vorname}
+              fahrerFahrzeug={order.fahrer_fahrzeug}
+              typ="lieferung"
+            />
+          </div>
+        )}
         {/* Phase 876: Dynamische ETA Live-Tracking — Phasen-Kompass + Fahrer-Proximity + Countdown */}
         {bon && !isTerminal && (
           <div className="mt-5">

@@ -134,6 +134,7 @@ import { DispatchPerformanceScoreArc } from './performance-score-arc';
 import { SlaBreachDetectorPanel } from './sla-breach-panel';
 import { DispatchWarteAmpel } from './dispatch-warte-ampel';
 import { DispatchScoreLivePanel } from './dispatch-score-live';
+import { DispatchFahrerEchtzeitMatrix } from './fahrer-echtzeit-matrix';
 import { DispatchKitchenSyncAlert } from './kitchen-sync-alert';
 import { DispatchZuweisungsAktivitaet } from './zuweisung-aktivitaet';
 import { DispatchTourRückkehrFenster } from './tour-rueckkehr-fenster';
@@ -1515,6 +1516,8 @@ export function DispatchBoard({
       <DispatchTagesZusammenfassung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 352: Offene Warteschlange — Noch nicht zugewiesene Bestellungen nach Wartezeit sortiert */}
       <DispatchOffeneWarteschlange locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
+      {/* Fahrer Echtzeit-Matrix: Sortierbare Live-Übersicht aller Fahrer mit Score, ETA-Treue, Touren */}
+      <DispatchFahrerEchtzeitMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 423: Live-Score-Rangliste — Echtzeit Fahrer-Score nach Tour-Effizienz */}
       <DispatchScoreLiveLeaderboard batches={batches} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
