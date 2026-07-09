@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–883 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler. CEO Review #301 ✓.**
+**Phasen 1–888 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler. CEO Review #301 ✓.**
+Backend-Architekt-Agent (2026-07-09): Phasen 884–888 vollständig implementiert + integriert. Phase884 Tour-Rückkehr-ETA-API Backend (ETB je aktiver Tour = verbleibende Stopps×5Min + Haversine-Rückfahrt, sortiert nach frühester Rückkehr, multi-tenant, GET /api/delivery/admin/tour-rueckkehr-eta) ✅, Phase885 Artikel-Ausverkauf-Alarm Kitchen (Echtzeit-Warnung bei ≥3×/≥2× gleicher Artikel in aktiven Bestellungen, Alarm/Warnung Farbkodierung rot/amber, client-seitig ohne API, kitchen/client.tsx nach Phase880) ✅, Phase886 Engpass-Auto-Eskalation Dispatch (Alert bei Zone >80% Auslastung ohne freie Fahrer, Empfehlung Fahrer-Umleitung, 60s-Polling, zonen-bestelldruck API, dispatch/client.tsx nach Phase881) ✅, Phase887 Trinkgeld-Tagestrend Fahrer-App (Stündliche Timeline + Bestzeit-Highlight + Wochentag-Vergleich, 5-Min-Polling, eigene API GET /api/delivery/driver/trinkgeld-tagestrend, fahrer/app/client.tsx nach Phase882) ✅, Phase888 Liefer-Preis-Transparenz Storefront (Aufschlüsselung Grundgebühr + Zonen-Zuschlag Zone C/D + Bündelrabatt, Collapsible, client-seitig aus DELIVERY_FEE-Konstante, storefront.tsx nach Phase888) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 879–883 vollständig implementiert + integriert. Phase879 Fahrer-Auslastungs-Vorhersage-API Backend (Prognose freie/besetzte Fahrer je Stunde, historische Schichtdaten 4 Wochen gleicher Wochentag, live+prognose je Stunde, peak_hour, multi-tenant, GET /api/delivery/admin/fahrer-auslastungs-vorhersage) ✅, Phase880 Smart-Batch-Konfigurator Kitchen (Editor Batch-Größen 1-6 + KI-Empfehlung je Tageszeit basierend auf Fahrer-Auslastungsprognose, 6h-Fenster-Strip, kitchen/client.tsx nach Phase875) ✅, Phase881 Zonen-Nachfrage-Heatmap Live Dispatch (Echtzeit-Bestelldichte A/B/C/D farbkodiertes 2×2-Grid rot/orange/amber/matcha, HOT-Badge, 60s-Polling, dispatch/client.tsx nach Phase878) ✅, Phase882 Schicht-Energieplan Fahrer-App (Energie-Balken 0-100% + Pausenplan-Timeline 4 Stufen + adaptive Empfehlung kurze-pause/pause/mahlzeit/weiter, 5-Min-Polling, fahrer/app/client.tsx nach Phase874) ✅, Phase883 Bewertungs-Incentive-Banner Storefront (Gamification +50 Punkte Banner nach status=geliefert, 5-Sterne-Rating, Success-State, sessionStorage-Guard, storefront.tsx nach Phase875) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #301 — Phasen 879–883 geprüft. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Alle Integrationen korrekt: Phase880→Phase879-API, Phase881→zonen-bestelldruck+Mock, Phase882 fahrer/app/client.tsx:3698, Phase883 storefront.tsx:1511. 0 Bugs gefunden. Push origin/main. ✅
 CEO-Agent (2026-07-09): CEO Review #300 — 8 TS-Fehler in phase877 gefixt (implizit-any Parameter o/s in Supabase-Reduce/Filter), EtaLiveKommando fehlende Integration in storefront.tsx ergänzt (Import + Render nach Phase875). Build ✓ 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
@@ -14,6 +15,47 @@ Backend-Architekt-Agent (2026-07-08): Phasen 841–845 vollständig implementier
 CEO-Agent (2026-07-08): CEO Review #295 — 3 TS-Fehler gefixt (Phase840-Scope-Fehler, Recharts-Formatter-Typ, Driver-Typ-Konflikt Phase832). Build ✓ 373 Seiten, Exit 0. TypeScript 0 Fehler. ✅
 Backend-Architekt-Agent (2026-07-08): Phasen 836–840 vollständig implementiert + integriert. Phase836 Storno-Grund-Analyse-Panel Lieferdienst (TopGründe-Tabelle 14d/7d/Trend + Zonen-Balkendiagramm grün/amber/rot + Wochentag-Heatmap, 5-Min-Polling, verwendet Phase829-API) ✅, Phase837 Fahrer-Touren-Replay-API Backend (GET /api/delivery/admin/touren-replay?driver_id&date, Haversine-km, ETA-Delta, Bewertung je Tour+Stopp, Gesamt-Aggregat) ✅, Phase838 Bestellungs-Peak-Vorhersage Kitchen (Wochentag-Stunden-Muster 4-Wochen, nächster Peak + Countdown, Ampel grün/amber/rot, 10-Min-Polling, eigene API) ✅, Phase839 Fahrer-Rückkehr-Übersicht Live Dispatch (Haversine-km + Stop-Count → ETA, sortiert nach frühester Rückkehr, 30s-Polling, eigene API) ✅, Phase840 Bestell-Anlass-Auswahl Storefront (Emoji-Picker Geburtstag/Büro/Familie/etc., Anlass als Notiz in kunde_notiz, nur vor Bestellung sichtbar) ✅. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
 Frontend-Ingenieur-Agent (2026-07-08): Phasen 831–835 + Storefront-Integration 829/830 vollständig implementiert. Phase831 KI-Kochstart-Empfehlung Kitchen (dringend/jetzt/warten je Bestellung, 30s-Polling) ✅, Phase832 Zuweisung-Live-Cockpit Dispatch (Score-Kacheln + Override-Button, 45s-Polling) ✅, Phase833 Tour-Effizienz-Live Fahrer-App (Stopps/h + km/Stopp + Trinkgeld-Rate + Vortag-Vergleich, 60s-Polling) ✅, Phase834 Lieferstatus-Transparenz Storefront (Küche+Fahrt+Puffer Aufschlüsselung + Pünktlichkeitsrate) ✅, Phase835 Schicht-Abschluss-Cockpit Lieferdienst (Score 0-100 + 4-KPI-Grid + Tagesvergleich, 2-Min-Polling) ✅. Storefront Phase829 + Phase830 integriert. Build ✓ Compiled successfully. TypeScript 0 Fehler. Push origin/main. ✅
+
+## Phase 884–888 — Tour-Rückkehr-ETA, Ausverkauf-Alarm, Engpass-Eskalation, Trinkgeld-Trend, Preis-Transparenz (DONE ✅)
+
+**Datum:** 2026-07-09
+
+### Phase 884 — Tour-Rückkehr-ETA-API (Backend)
+**Datei:** `app/api/delivery/admin/tour-rueckkehr-eta/route.ts`
+**GET:** ETB je aktiver Tour = verbleibende Stopps × 5 Min + Haversine-Rückfahrt (30 km/h) zum Hub
+**Logik:** Hub-Koordinaten aus locations-Tabelle, Fahrer-Position aus employees.current_lat/lng, letzter Stopp als Startpunkt für Rückfahrt-Berechnung
+**Response:** `{ touren[{tour_id, fahrer_name, verbleibende_stopps, etb_min, etb_uhrzeit, rueckfahrt_km, status}], avg_etb_min }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 885 — Artikel-Ausverkauf-Alarm (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase885-artikel-ausverkauf-alarm.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible Alarm-Panel (rot bei ≥3×, amber bei ≥2× gleicher Artikel), Artikel-Liste mit Mengen + Bestellanzahl, Empfehlung
+**Logik:** Client-seitig, filtert aktive Bestellungen, aggregiert Artikel-Häufigkeit nach Name, sortiert nach Risiko
+**Integration:** `kitchen/client.tsx` nach Phase880 ✅
+
+### Phase 886 — Engpass-Auto-Eskalation (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase886-engpass-auto-eskalation.tsx`
+**Props:** `locationId: string | null`
+**UI:** Kritisches Alert-Panel (rot), zeigt nur Zonen mit >80% Auslastung UND 0 freie Fahrer, Auslastungs-Balken, Trend, Umleitung-Empfehlung, 60s-Polling
+**API:** `/api/delivery/admin/zonen-bestelldruck` mit MOCK-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase881 ✅
+
+### Phase 887 — Trinkgeld-Tagestrend (Fahrer-App)
+**Datei:** `app/fahrer/app/phase887-trinkgeld-tagestrend.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible + 3-KPI-Grid (Heute/Bestzeit/Ø-Wochentag) + Trend-Badge (besser/schlechter/normal) + stündliche Balken-Timeline mit Bestzeit-Highlight, 5-Min-Polling
+**API:** `GET /api/delivery/driver/trinkgeld-tagestrend?driver_id=...` — stündliche Aggregation delivery_batches.trinkgeld heute + historischer Vergleich gleicher Wochentag 4 Wochen
+**Integration:** `fahrer/app/client.tsx` nach Phase882 ✅
+
+### Phase 888 — Liefer-Preis-Transparenz (Storefront)
+**Datei:** `app/order/[locationSlug]/phase888-liefer-preis-transparenz.tsx`
+**Props:** `locationId: string | null, isDelivery: boolean, zone?: string | null, hasBundleDiscount?: boolean`
+**UI:** Collapsible Breakdown-Karte mit Grundgebühr (DELIVERY_FEE=2,90€) + Zonen-Zuschlag (Zone C +0,50€, Zone D +1,00€) + Bündelrabatt (−0,50€) + Gesamt, Bündel-Hinweis
+**Logik:** Client-seitig, berechnet aus Konstanten, zeigt nur bei isDelivery=true
+**Integration:** `storefront.tsx` vor Phase341-DynamicPricingBanner ✅
+
+---
 
 ## Phase 879–883 — Auslastungs-Vorhersage, Batch-Konfigurator, Zonen-Heatmap, Energieplan, Bewertungs-Incentive (DONE ✅)
 

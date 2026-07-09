@@ -373,6 +373,7 @@ import { DispatchTourScoreLiveHub } from './tour-score-live-hub';
 import { DispatchPhase878TourScoreLiveUebersicht } from './phase878-tour-score-live-uebersicht';
 import { DispatchPhase879TourScoreVisualisierung } from './phase879-tour-score-visualisierung';
 import { DispatchPhase881ZonenNachfrageHeatmapLive } from './phase881-zonen-nachfrage-heatmap-live';
+import { DispatchPhase886EngpassAutoEskalation } from './phase886-engpass-auto-eskalation';
 
 type Driver = {
   employee_id: string;
@@ -1173,6 +1174,8 @@ export function DispatchBoard({
       <DispatchPhase879TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 881: Zonen-Nachfrage-Heatmap Live — Echtzeit-Bestelldichte pro Zone A/B/C/D als farbkodiertes Grid */}
       <DispatchPhase881ZonenNachfrageHeatmapLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 886: Engpass-Auto-Eskalation — Alert bei Zone >80% Auslastung ohne freie Fahrer */}
+      <DispatchPhase886EngpassAutoEskalation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Score-Live-Hub: Echtzeit-Score-Cockpit aller aktiven Touren mit SVG-Arcs */}
       <DispatchTourScoreLiveHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}

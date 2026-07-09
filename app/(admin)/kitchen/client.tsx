@@ -120,6 +120,7 @@ import { KitchenZonenKochstartSynchro } from './zonen-kochstart-synchro';
 import { KitchenPrepFlussRace } from './prep-fluss-race';
 import { KitchenPhase875SmartKochstartPriorisierung } from './phase875-smart-kochstart-priorisierung';
 import { KitchenPhase880SmartBatchKonfigurator } from './phase880-smart-batch-konfigurator';
+import { KitchenPhase885ArtikelAusverkaufAlarm } from './phase885-artikel-ausverkauf-alarm';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -863,6 +864,8 @@ export function KitchenBoard({
       <KitchenPhase875SmartKochstartPriorisierung orders={filtered} timings={timings} />
       {/* Phase 880: Smart-Batch-Konfigurator — Editor für Batch-Größen + KI-Empfehlung je Tageszeit */}
       <KitchenPhase880SmartBatchKonfigurator locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 885: Artikel-Ausverkauf-Alarm — Echtzeit-Warnung bei hoher Nachfrage gleicher Artikel in aktiven Bestellungen */}
+      <KitchenPhase885ArtikelAusverkaufAlarm orders={filtered as any} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}

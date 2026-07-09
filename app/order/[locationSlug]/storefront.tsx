@@ -145,6 +145,7 @@ import { Phase870KuechenKapazitaetBanner } from './phase870-kuechen-kapazitaet-b
 import { Phase875BestellungsBestaetigungsTicker } from './phase875-bestellungs-bestaetigung-ticker';
 import { EtaLiveKommando } from './eta-live-kommando';
 import { Phase883BewertungsIncentiveBanner } from './phase883-bewertungs-incentive-banner';
+import { Phase888LieferPreisTransparenz } from './phase888-liefer-preis-transparenz';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 
 type Props = {
@@ -857,6 +858,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <ServiceStatusBanner locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 888: Liefer-Preis-Transparenz — Aufschlüsselung Grundgebühr + Zonen-Zuschlag + Bündelrabatt */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase888LieferPreisTransparenz locationId={location.id} isDelivery={orderType === 'lieferung'} />
         </div>
       )}
       {/* Phase 341: Dynamic Pricing Banner — Surge-Hinweis / Off-Peak-Rabatt für Kunden */}
