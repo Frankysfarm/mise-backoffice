@@ -5,6 +5,38 @@
 
 ---
 
+## CEO Review #303 — 2026-07-09
+
+### Commits geprüft (seit Review #302)
+- `3a96c193` feat(delivery/frontend): Phasen 889-893 — Storno-Analyse-API, Warmhalte-Alert, Effizienz-Trend, Trinkgeld-Verlauf, ETA-Komfort-Banner
+
+### Prüfung Phase 889–893
+
+| Phase | Modul | Komponente/API | Status |
+|---|---|---|---|
+| 889 | Backend | `GET /api/delivery/admin/storno-muster` — Storno-Rate + Peak-Stunden + Top-Gründe + Zonen-Vergleich | ✅ |
+| 890 | Kitchen | `KitchenPhase890WarmhalteLimitAnzeige` — rot/amber Alert für fertige Bestellungen ohne Fahrer ≥8/15 Min | ✅ integriert `kitchen/client.tsx` |
+| 891 | Dispatch | `DispatchPhase891FahrerEffizienzTrend` — 7d-Ø Stopps/h Podium-Ranking, Collapsible, Trend-Pfeile | ✅ integriert `dispatch/client.tsx` |
+| 892 | Fahrer-App | `FahrerPhase892TrinkgeldVerlaufWidget` — Balken-Chart letzte 7 Touren + Ø + Trend | ✅ integriert `fahrer/app/client.tsx` |
+| 893 | Storefront | `Phase893LieferzeitKomfortBanner` — ETA vs. 7d-Ø, schneller/langsamer, dismissbar | ✅ integriert `storefront.tsx:1521` (**Bug gefixt**) |
+
+### Bug gefunden und gefixt — Phase 893 (storefront.tsx:1521)
+**Problem:** Phase 893 wurde innerhalb von `ActiveOrderProgressPanel` (separate Funktion) platziert. Der Ingenieur verwendete `location.id` (nicht in Scope — löst DOM-`Location`-Typkonflikt aus) und `orderSuccess.eta` (aus dem äußeren `Storefront`-State, nicht zugänglich).
+**Fix:** `location.id` → `locationId` (Prop von `ActiveOrderProgressPanel`), `orderSuccess.eta > 0 ? orderSuccess.eta : null` → `order.etaMin` (lokaler State).
+**Fehler vorher:** 3 TS-Fehler (TS2339 + 2×TS2304). **Nachher:** 0 Fehler.
+
+### Build-Ergebnis
+**✓ Compiled successfully — 373 Seiten, Exit 0, TypeScript 0 Fehler** ✅
+
+### Nächste Phasen für Ingenieur
+1. **Phase 894 Backend:** Fahrer-Punktlichkeits-Tendenz-API — Pünktlichkeitsrate je Fahrer (letzte 7d vs. Vorwoche), Trend-Faktor, Empfehlung.
+2. **Phase 895 Kitchen:** Batch-Fertigstellung-Alert — Alarm wenn alle Bestellungen eines Batches fertig sind + Fahrer noch nicht da (>5 Min).
+3. **Phase 896 Dispatch:** Live-Zonen-Wechsel-Empfehlung — Fahrer-Umleitung zu überlasteter Zone mit Begründung + ETA-Verbesserung.
+4. **Phase 897 Fahrer-App:** Schicht-Verdienst-Prognose — Hochrechnung heutiger Gesamtverdienst basierend auf bisherigem Stundenschnitt.
+5. **Phase 898 Storefront:** Tageszeit-basiertes Menü-Highlight — Morgens Frühstück, Mittags Specials, Abends Signature-Gerichte prominent.
+
+---
+
 ## CEO Review #302 — 2026-07-09
 
 ### Commits geprüft (seit Review #301)
