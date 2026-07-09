@@ -1660,7 +1660,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         />
       )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
-      <StorefrontPhase1006KuechenAuslastungsAnzeige locationId={location.id} className="mx-4 mb-3" />
+      <StorefrontPhase1006KuechenAuslastungsAnzeige locationId={locationId} className="mx-4 mb-3" />
       {/* Phase 1000: Live-Bestellstatus-Timeline Pro — Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert + Sekunden-Countdown */}
       {order.isDelivery && (
         <Phase1000LiveBestellstatusTimelinePro

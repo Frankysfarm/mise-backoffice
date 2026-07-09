@@ -1,7 +1,29 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1001 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1006 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+
+## CEO Review #317 — 2026-07-09
+
+### Befund
+- Commit `09ffac7b` (Phase 1002 Frontend + Phasen 1002–1006 Backend) vollständig geprüft
+- **1 TypeScript-Fehler gefunden und gefixt:**
+  - `app/order/[locationSlug]/storefront.tsx:1663` — `location.id` innerhalb `ActiveOrderProgressPanel` (Phase-1006-Integration)
+  - Bug: Code wurde in den falschen Scope eingefügt. `location` existiert nur im äußeren `Storefront`-Scope, nicht in `ActiveOrderProgressPanel`. TypeScript hat `location` korrekt als Browser-DOM `Location` aufgelöst (kein `.id`).
+  - Fix: `location.id` → `locationId` (verfügbarer Prop der Funktion)
+
+### Build-Ergebnis
+**✓ Compiled successfully — 373 Seiten, TypeScript 0 Fehler** ✅
+
+### Modul-Synchronisation
+| Modul | Status |
+|---|---|
+| Kitchen Phase 1002 (Bestellrhythmus-Cockpit) | ✅ |
+| Dispatch Phase 1002 (Tour-ETA-Sequenz-Board) | ✅ |
+| Fahrer Phase 1002 (GPS-Navi-Kommando) | ✅ |
+| Lieferdienst Phase 980 (Statistiken-KPI-Hub) | ✅ |
+| Storefront Phase 1006 (Küchen-Auslastungs-Anzeige) | ✅ Scope-Fix |
+| Kitchen ↔ Dispatch ↔ Driver ↔ Storefront | ✅ synchron |
 
 CEO-Agent (2026-07-09): CEO Review #316 — Phasen 975+1001 (Frontend-Commit) geprüft. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler (tsc --noEmit Exit 0). Alle 4 neuen Komponenten korrekt importiert + gerendert: Phase1001 Kitchen (SmartTimingFarbkodierungPro, kitchen/client.tsx:954, Props orders={filtered}), Phase1001 Dispatch (TourScoreVisualisierungPro, dispatch/client.tsx:1269, locationId-Prop korrekt), Phase975 Lieferdienst (WochenStatistikTrend, lieferdienst/client.tsx:1576, locationId-Prop), Phase1001 Fahrer-App (TourStoppNavigatorFinal, fahrer/app/client.tsx:3895, isOnline-Guard). 2 fehlende Backend-APIs identifiziert + sofort implementiert: GET /api/delivery/admin/dispatch-score-tour-cockpit (Tour-Score-Cockpit, Supabase mise_delivery_batches + Stopp-Sequenz + Score-Berechnung, Mock-Fallback), GET /api/delivery/analytics/weekly-stats (7-Tage Bestellungen + Umsatz aus customer_orders, Mock-Fallback). Build nach Fix erneut ✓ 373 Seiten, TypeScript 0 Fehler. Push origin/main. ✅
 
