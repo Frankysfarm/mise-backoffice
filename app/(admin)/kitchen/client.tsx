@@ -121,6 +121,7 @@ import { KitchenPrepFlussRace } from './prep-fluss-race';
 import { KitchenPhase875SmartKochstartPriorisierung } from './phase875-smart-kochstart-priorisierung';
 import { KitchenPhase880SmartBatchKonfigurator } from './phase880-smart-batch-konfigurator';
 import { KitchenPhase885ArtikelAusverkaufAlarm } from './phase885-artikel-ausverkauf-alarm';
+import { KitchenPhase890WarmhalteLimitAnzeige } from './phase890-warmhalte-limit-anzeige';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -866,6 +867,8 @@ export function KitchenBoard({
       <KitchenPhase880SmartBatchKonfigurator locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 885: Artikel-Ausverkauf-Alarm — Echtzeit-Warnung bei hoher Nachfrage gleicher Artikel in aktiven Bestellungen */}
       <KitchenPhase885ArtikelAusverkaufAlarm orders={filtered as any} />
+      {/* Phase 890: Warmhalte-Limit-Anzeige — Alert für fertige Bestellungen ≥8 Min ohne Fahrer (amber) / ≥15 Min (rot) */}
+      <KitchenPhase890WarmhalteLimitAnzeige orders={filtered} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}

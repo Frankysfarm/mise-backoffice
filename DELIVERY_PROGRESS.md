@@ -12370,3 +12370,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 4. **Phase 879 Fahrer-App:** Schicht-Wetter-Widget — Aktuelles Wetter + Temperatur als kompaktes Badge mit Regen-Warnung.
 5. **Phase 880 Storefront:** Live-Aktivitäts-Indikator — "X weitere Kunden bestellen gerade" als Social-Proof-Badge.
 
+
+---
+
+## Batch 889-893 — 2026-07-09
+
+### Phase 889 — Storno-Muster-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/storno-muster/route.ts`
+**GET:** Stornierungsrate letzte 24h, Peak-Stunden, Top-5-Gründe, Zonen-Vergleich A/B/C/D
+**Logik:** Aggregiert `status in (storniert, cancelled)` nach Stunde + Zone + Grund; strukturierter Fallback Mock
+**Response:** `{ total_bestellungen, total_storniert, rate, peak_hour, peak_anzahl, top_reasons[], by_zone[], stunden[], generatedAt }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 890 — Warmhalte-Limit-Anzeige (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase890-warmhalte-limit-anzeige.tsx`
+**Props:** `orders: Order[]`
+**UI:** Alert-Card für Bestellungen mit status='fertig' die ≥8 Min warten; amber ≥8 Min, rot ≥15 Min mit Puls-Animation; sortiert nach Wartezeit absteigend
+**Client-seitig via useMemo; kein API-Aufruf**
+**Integration:** `kitchen/client.tsx` nach Phase885 ✅
+
+### Phase 891 — Fahrer-Effizienz-Trend (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase891-fahrer-effizienz-trend.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card; Summary-Strip (Top + Letzter Fahrer) immer sichtbar; Expanded: Podium 🥇🥈🥉 mit Balken-Bar + Stopps/h + Delta-% + 7d-Ø + Touren heute; 5-Min-Polling
+**API:** `/api/delivery/admin/driver-performance?mode=trend`, Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase886 ✅
+
+### Phase 892 — Trinkgeld-Verlauf-Widget (Fahrer-App)
+**Datei:** `app/fahrer/app/phase892-trinkgeld-verlauf-widget.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Glassmorphism-Card; 2-KPI-Grid (Ø/Gesamt); Balken-Chart letzte 7 Touren (gelb=überdurchschnittlich/matcha=normal/blau=unterdurchschnittlich); Trend-Indikator up/down/stable; gestrichelte Ø-Linie; 10-Min-Polling
+**API:** `/api/delivery/driver/tip-history?limit=7`, Fallback Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase887 ✅
+
+### Phase 893 — Lieferzeit-Komfort-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase893-lieferzeit-komfort-banner.tsx`
+**Props:** `locationId: string, currentEtaMin?: number | null`
+**UI:** Slide-in-Banner matcha=schneller / amber=langsamer; Delta-% Badge + ETA-Vergleich; sessionStorage-Guard 30 Min; nur sichtbar wenn |delta| ≥10%; dismissbar
+**API:** `/api/delivery/eta?mode=komfort`, Fallback Mock (avg=32 Min)
+**Integration:** `storefront.tsx` nach Phase883 (nur bei isDelivery) ✅
+
+### Nächste Phasen 894–898 (für Ingenieur)
+1. **Phase 894 Backend:** Tour-Auslastungs-Kapazitäts-API — Aktive Touren vs. maximale gleichzeitige Kapazität; Auslastung 0–100% + Trend.
+2. **Phase 895 Kitchen:** Bestellungs-Wellen-Radar — Erkennt Bestellungswellen (≥3 neue Bestellungen in 5 Min) und warnt die Küche.
+3. **Phase 896 Dispatch:** Fahrer-Rückkehr-Countdown — Countdown-Liste wann jeder aktive Fahrer zurückkehrt (ETR basierend auf Stopps + Haversine).
+4. **Phase 897 Fahrer-App:** Schicht-Score-Cockpit — Gesamtscore 0–100 aus Pünktlichkeit + Stopps/h + Bewertung mit Tages-Trend.
+5. **Phase 898 Storefront:** Live-Bestell-Zähler — "Schon X Bestellungen heute von diesem Standort" als Social-Proof-Strip.
