@@ -179,6 +179,7 @@ import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live-tracking-kommando';
 import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
 import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erwartungs-manager';
+import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktbewertungs-widget';
 
 type Props = {
   location: Location;
@@ -1731,6 +1732,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 1022: Bewertungs-Schnell-Widget — Kompakte 1–5-Sterne-Bewertung direkt nach Lieferung */}
       {order.isDelivery && (
         <Phase1022BewertungsSchnellWidget
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          className="mx-4 mb-4"
+        />
+      )}
+      {/* Phase 1037: Produktbewertungs-Widget — 1–5-Sterne-Bewertung je Artikel nach Lieferung + Kommentar */}
+      {order.isDelivery && (
+        <StorefrontPhase1037ProduktbewertungsWidget
           orderId={order.orderId ?? null}
           status={order.status ?? null}
           className="mx-4 mb-4"
