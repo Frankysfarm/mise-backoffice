@@ -18,7 +18,7 @@ import {
   Euro, Package, Clock, Target, XCircle, Star,
   ChevronDown, ChevronUp, Loader2, Trophy,
 } from 'lucide-react';
-import { BarChart, Bar, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { BarChart, Bar, Cell, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 
 interface KpiRow {
   label: string;
