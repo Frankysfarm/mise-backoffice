@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1001 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–1006 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-09): Phasen 1002–1006 vollständig implementiert + integriert. Phase1002 Echtzeit-Storno-Rate-API Backend (GET /api/delivery/admin/storno-rate-live, Storno-Rate % je Stunde heute + Trend steigend/fallend/stabil + Top-Gründe, Status normal/erhoht/kritisch, Supabase customer_orders+Mock) ✅, Phase1003 Bestellkomplexitäts-Wartezeit-Prognose Kitchen (Restwartezeit je aktiver Bestellung basierend auf Artikel-Anzahl+Komplex-Keywords, Ampel Dringend<3Min/Bald<8Min/OK, client-seitig useMemo, kitchen/client.tsx nach Phase1001) ✅, Phase1004 Fahrer-Rückkehr-Prognose-Board Dispatch (Rückkehrzeit je aktiver Fahrer nach verbleibenden Stopps, urgency soon/coming/later, 2-Min-Polling, bestehende /fahrer-rueckkehr-prognose API, dispatch/client.tsx nach Phase1001) ✅, Phase1005 Verdienst-Ziel-Tracker Fahrer-App (SVG-Fortschrittsbalken Tagesverdienst vs. 120€-Ziel, KPI-Grid Umsatz/Trinkgeld/Stopps, Motivations-Banner, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase1001) ✅, Phase1006 Live-Küchen-Auslastungs-Anzeige Storefront + Backend GET /api/delivery/admin/kuechen-auslastung-live (Ampel Niedrig/Normal/Hoch/Peak + Auslastungs-Balken + erwartete Wartezeit, 3-Min-Polling, storefront.tsx vor Phase1000) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO Review #316 (2026-07-09): Phasen 975+1001 geprüft. Build ✓ 373 Seiten. TypeScript 0 Fehler. 2 fehlende Backend-APIs implementiert: GET /api/delivery/admin/dispatch-score-tour-cockpit + GET /api/delivery/analytics/weekly-stats. Alle Module vollständig verbunden. Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron. ✅
 Backend-Architekt-Agent (2026-07-09): Phasen 996–1000 vollständig implementiert + integriert. Phase996 Echtzeit-Bestelldichte-API Backend (GET /api/delivery/admin/bestelldichte-live, Bestellungen je 15-Min-Slot letzte 4h + Trend steigend/fallend/peak/stabil, Supabase+Mock) ✅, Phase997 Kochstation-Auslastungs-Board Kitchen (Live-Auslastung je Station Grill/Friteuse/Salat/Pasta/Suppe, Balkendiagramm + Ampel-Badge überlastet/hoch/mittel/niedrig, client-seitig useMemo, kitchen/client.tsx nach Phase992) ✅, Phase998 Zone-Wartezeit-Live-Matrix Dispatch (Echtzeit-Wartezeit-Prognose je Zone A/B/C/D, Ampel-Farbkodierung + Trend-Icons + Balken, 90s-Polling, dispatch/client.tsx nach Phase993) ✅, Phase999 Schicht-Abschluss-Highlight-Screen Fahrer-App (Animierter Abschluss-Screen mit SVG-Score-Ring + Tages-Score-Grade + Streak-Badge + KPI-Grid Einnahmen/Dauer/Stopps/Bewertung, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase994) ✅, Phase1000 Live-Bestellstatus-Timeline Pro Storefront (Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert mit Echtzeit-Dots, Sekunden-Countdown, aktive Phase pulsierend, 30s-Polling, storefront.tsx nach Phase995) ✅. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 CEO Review #315 (2026-07-09): Phasen 991–995 geprüft. Build ✓ Compiled successfully. TypeScript 0 Fehler. Alle 5 Phasen korrekt integriert — 2 neue Backend-APIs (fahrer-status-matrix, zonen-abdeckungs-luecken), 1 Kitchen-Komponente, 1 Dispatch-Komponente, 1 Fahrer-App-Panel, 1 Storefront-Widget. Nächste Phasen 996–1000 definiert.
@@ -13139,6 +13140,51 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 998 Dispatch:** Zone-Wartezeit-Live-Matrix — Echtzeit-Wartezeit-Prognose je Zone A/B/C/D mit Ampel-Farbkodierung + Trend.
 4. **Phase 999 Fahrer-App:** Schicht-Abschluss-Highlight-Screen — Animierter Abschluss-Screen mit Tages-Score, Top-Stat, Streak-Badge.
 5. **Phase 1000 Storefront:** Live-Bestellstatus-Timeline Pro — Interaktive Timeline aller Phasen (Bestellt→Küche→Fertig→Unterwegs→Geliefert) mit Echtzeit-Dots.
+
+---
+
+## Batch 1002–1006 — 2026-07-09
+
+### Phase 1002 — Echtzeit-Storno-Rate-API (Backend)
+**Datei:** `app/api/delivery/admin/storno-rate-live/route.ts`
+**GET:** `?location_id=<uuid>` — Storno-Rate % je Stunde heute + Trend + Top-Gründe + Status normal/erhoht/kritisch
+**Logik:** customer_orders.status cancelled/storniert/canceled/abgebrochen; Stunden-Buckets; Trend letzter 2h vs. vorherige 2h; Gründe aus cancellation_reason
+**Response:** `{ storno_heute, gesamt_heute, storno_rate_pct, trend, stunden[], top_gruende[], status, location_id, generiert_am }`
+
+### Phase 1003 — Bestellkomplexitäts-Wartezeit-Prognose (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1003-bestellkomplexitaet-wartezeit.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; je aktiver Bestellung: Restzeit-Zahl (Min) + Bestell-Nr. + Artikelanzahl + Ampel-Badge Dringend/Bald/OK; sortiert nach Restzeit; max 12; Dringend-Alert im Header
+**Logik:** client-seitig useMemo; schätzeWartezeit = 8 + Artikel×2 + Komplex-Bonus 6 - Einfach-Rabatt 3 - vergangene Min; Schwellwerte: Dringend ≤3 Min / Bald ≤8 Min / OK ≥8 Min
+**Integration:** `kitchen/client.tsx` nach Phase1001 ✅
+
+### Phase 1004 — Fahrer-Rückkehr-Prognose-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1004-fahrer-rueckkehr-prognose.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; je Fahrer: Rückkehr-Min (groß) + Name + verbleibende Stopps + Badge Bald frei/Unterwegs/Noch lang; Bald-frei-Badge im Header; 2-Min-Polling
+**API:** Bestehende `/api/delivery/admin/fahrer-rueckkehr-prognose`; Response-Format `{ prognosen[]: { driverId, driverName, minutesUntilReturn, remainingStops, urgency } }`; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1001 ✅
+
+### Phase 1005 — Verdienst-Ziel-Tracker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1005-verdienst-ziel-tracker.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Gradient-Karte + Tagesziel 120€ + Tagesverdienst (Umsatz+Trinkgeld+Bonus) + SVG-Fortschrittsbalken grün/amber/blau + % + Motivations-Text + KPI-Grid Umsatz/Trinkgeld/Stopps; Ziel-erreicht-Banner
+**Logik:** nutzt `/api/delivery/driver/schicht-bilanz`; 10-Min-Polling; isOnline-Guard
+**Integration:** `fahrer/app/client.tsx` nach Phase1001 ✅
+
+### Phase 1006 — Live-Küchen-Auslastungs-Anzeige (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1006-kuechen-auslastungs-anzeige.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Ampel-Banner (niedrig=grün/normal=blau/hoch=amber/peak=rot) + pulsierender Dot + Auslastungs-% + Balken + erwartete Wartezeit; 3-Min-Polling
+**Backend:** `app/api/delivery/admin/kuechen-auslastung-live/route.ts` — aktive Bestellungen in letzter Stunde / MAX 20 → Auslastung %; Mock-Fallback
+**Integration:** `storefront.tsx` vor Phase1000 ✅
+
+### Nächste Phasen 1007–1011 (für nächsten Agenten)
+1. **Phase 1007 Backend:** Bestellaufkommen-Heatmap-API — Stündliche Bestelldichte je Wochentag letzte 4 Wochen als 7×24-Matrix.
+2. **Phase 1008 Kitchen:** Zubereitsungs-Parallelitäts-Monitor — Alert wenn >3 Bestellungen die selbe Kochstation gleichzeitig brauchen.
+3. **Phase 1009 Dispatch:** Tour-Effizienz-Live-Ranking — Echtzeit-Ranking aller aktiven Touren nach km/Umsatz-Marge, Defizit-Alert.
+4. **Phase 1010 Fahrer-App:** Pausen-Empfehlung-Optimierer — Empfiehlt optimale Pausenzeit basierend auf Auslastung + Schichtdauer + Energie.
+5. **Phase 1011 Storefront:** Bestellabbruch-Prävention-Banner — Erscheint wenn Kunde >3 Min im Checkout ohne Abschluss ist.
 
 ---
 
