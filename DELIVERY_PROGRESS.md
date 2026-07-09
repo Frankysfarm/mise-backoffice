@@ -12418,3 +12418,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 896 Dispatch:** Fahrer-Rückkehr-Countdown — Countdown-Liste wann jeder aktive Fahrer zurückkehrt (ETR basierend auf Stopps + Haversine).
 4. **Phase 897 Fahrer-App:** Schicht-Score-Cockpit — Gesamtscore 0–100 aus Pünktlichkeit + Stopps/h + Bewertung mit Tages-Trend.
 5. **Phase 898 Storefront:** Live-Bestell-Zähler — "Schon X Bestellungen heute von diesem Standort" als Social-Proof-Strip.
+
+---
+
+## Batch 894-898 — 2026-07-09
+
+### Phase 894 — Tour-Auslastungs-Kapazitäts-API (Backend)
+**Datei:** `app/api/delivery/admin/tour-auslastungs-kapazitaet/route.ts`
+**GET:** Aktive Touren vs. maximale gleichzeitige Kapazität; Auslastung 0–100% + Trend (steigend/fallend/stabil)
+**Logik:** Aktive Touren aus `delivery_batches` status=unterwegs/in_delivery/dispatched; max_kapazitaet = online Fahrer; Trend-Vergleich letzte 30 Min vs. davor; abgeschlossene Touren letzte 1h/2h
+**Response:** `{ aktive_touren, max_kapazitaet, auslastung_pct, trend, abgeschlossen_letzte_1h, abgeschlossen_letzte_2h, fahrer_online, generatedAt }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 895 — Bestellungs-Wellen-Radar (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase895-bestellungs-wellen-radar.tsx`
+**Props:** `orders: Order[]`
+**UI:** Alert-Card amber (≥3 in 5 Min) oder rot (≥6 in 5 Min) mit Puls-Animierung; Älteste/Neueste Bestellzeit; Intensitäts-Fortschrittsbalken; Schwellen-Hinweis
+**Logik:** Client-seitig via useMemo; Fenster 5 Min; Schwelle WAVE_THRESHOLD=3
+**Integration:** `kitchen/client.tsx` nach Phase 890 ✅
+
+### Phase 896 — Fahrer-Rückkehr-Countdown (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase896-fahrer-rueckkehr-countdown.tsx` + `app/api/delivery/admin/fahrer-rueckkehr-countdown/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card; sortierte Liste nach ETR (Grün ≤5 Min / Amber ≤12 Min / Blau länger); Fahrzeug-Emoji + Zone + Stopp-Fortschritt + ETR-Badge
+**API:** `/api/delivery/admin/fahrer-rueckkehr-countdown`; ETR = verbleibende Stopps × 7 Min Ø; 90s-Polling; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase 891 ✅
+
+### Phase 897 — Schicht-Score-Cockpit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase897-schicht-score-cockpit.tsx` + `app/api/delivery/driver/schicht-score/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** SVG-Ring-Score (grün≥80/amber≥60/rot<60) + 3 Sub-Score-Balken Pünktlichkeit/Effizienz/Bewertung + KPI-Grid (Stopps, Stopps/h, Ø-Bewertung, Vorwoche) + Trend-Pfeil
+**Score:** Pünktlichkeit 40% + Effizienz 35% + Bewertung 25%; 5-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase 892 ✅
+
+### Phase 898 — Live-Bestell-Zähler (Storefront)
+**Datei:** `app/order/[locationSlug]/phase898-live-bestell-zaehler.tsx`
+**Props:** `locationId: string | null`
+**UI:** Social-Proof-Strip matcha (normal) oder amber+🔥 (≥50 Bestellungen); Pulsierender grüner Dot wenn aktive Bestellungen; Nur sichtbar wenn ≥5 Bestellungen heute
+**API:** `/api/delivery/admin/bestellungen-heute`; Fallback Mock (24 Bestellungen); 5-Min-Polling
+**Integration:** `storefront.tsx` nach Phase 893 ✅
+
+### Nächste Phasen 899–903 (für Ingenieur)
+1. **Phase 899 Backend:** Bestellungen-Heute-API — Tagesbestellzähler je Standort + aktive Bestellungen jetzt.
+2. **Phase 900 Kitchen:** Batch-Fertigstellungs-Prognose — Wann wird der nächste Batch fertig? Countdown + Konfidenz.
+3. **Phase 901 Dispatch:** Zone-Abdeckungs-Matrix — Welche Zonen A/B/C/D sind aktuell abgedeckt vs. unterbesetzt?
+4. **Phase 902 Fahrer-App:** Fahrer-Ziel-Fortschritt-Bar — Täglicher Fortschritt: Touren/Ziel + Km/Ziel + Einkommen/Ziel.
+5. **Phase 903 Storefront:** Liefer-Qualitäts-Siegel — Dynamisches Siegel "Pünktlich in X% aller Lieferungen" + Icon.

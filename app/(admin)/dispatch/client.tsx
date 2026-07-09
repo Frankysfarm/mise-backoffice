@@ -375,6 +375,7 @@ import { DispatchPhase879TourScoreVisualisierung } from './phase879-tour-score-v
 import { DispatchPhase881ZonenNachfrageHeatmapLive } from './phase881-zonen-nachfrage-heatmap-live';
 import { DispatchPhase886EngpassAutoEskalation } from './phase886-engpass-auto-eskalation';
 import { DispatchPhase891FahrerEffizienzTrend } from './phase891-fahrer-effizienz-trend';
+import { DispatchPhase896FahrerRueckkehrCountdown } from './phase896-fahrer-rueckkehr-countdown';
 
 type Driver = {
   employee_id: string;
@@ -1179,6 +1180,8 @@ export function DispatchBoard({
       <DispatchPhase886EngpassAutoEskalation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 891: Fahrer-Effizienz-Trend — 7-Tage Stopps/h-Trend je Fahrer mit Podium-Ranking + Trend-Pfeilen */}
       <DispatchPhase891FahrerEffizienzTrend locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 896: Fahrer-Rückkehr-Countdown — ETR je aktivem Fahrer basierend auf verbleibenden Stopps */}
+      <DispatchPhase896FahrerRueckkehrCountdown locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Score-Live-Hub: Echtzeit-Score-Cockpit aller aktiven Touren mit SVG-Arcs */}
       <DispatchTourScoreLiveHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
