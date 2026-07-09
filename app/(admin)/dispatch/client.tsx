@@ -382,6 +382,7 @@ import { DispatchPhase896FahrerRueckkehrCountdown } from './phase896-fahrer-ruec
 import { DispatchPhase900TourScoreCockpit } from './phase900-tour-score-cockpit';
 import { DispatchPhase901ZoneAbdeckungsMatrix } from './phase901-zone-abdeckungs-matrix';
 import { DispatchPhase913ZonenPriorisierungsOverride } from './phase913-zonen-priorisierungs-override';
+import { DispatchPhase914TourScoreLiveNavigation } from './phase914-tour-score-live-navigation';
 
 type Driver = {
   employee_id: string;
@@ -1200,6 +1201,8 @@ export function DispatchBoard({
       <DispatchPhase901ZoneAbdeckungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 913: Zonen-Priorisierungs-Override — Manuelle Priorisierung Zone A/B/C/D bei Engpass */}
       <DispatchPhase913ZonenPriorisierungsOverride locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 914: Tour Score Live Navigation — Kombiniertes Score- und Navigations-Panel für alle aktiven Touren mit ETA */}
+      <DispatchPhase914TourScoreLiveNavigation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

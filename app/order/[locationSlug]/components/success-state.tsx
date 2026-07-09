@@ -58,6 +58,7 @@ import { BestellPhaseCountdown } from './bestell-phase-countdown';
 import { LieferStageLiveTracker } from './liefer-stage-live-tracker';
 import { BestellEtaLiveLeiste } from '../bestell-eta-live-leiste';
 import { BestellungEchtzeitPfad } from '../bestell-echtzeit-pfad';
+import { StorefrontPhase916EtaLiveTrackingPro } from '../phase916-eta-live-tracking-pro';
 
 type CartItem = {
   item: { name: string; preis: number };
@@ -1179,6 +1180,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             setShowPostDeliveryRating(false);
             setRatingSubmitted(true);
           }}
+        />
+      )}
+
+      {/* Phase 916: ETA Live Tracking Pro — Dynamische ETA-Timeline mit Countdown + Fahrer-Nähe + Küchen-Fortschritt */}
+      {isDelivery && (
+        <StorefrontPhase916EtaLiveTrackingPro
+          orderId={orderId}
+          initialEtaMin={etaMinutes}
+          driverName={driverName ?? undefined}
         />
       )}
 
