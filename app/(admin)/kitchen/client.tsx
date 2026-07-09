@@ -215,6 +215,7 @@ import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
 import { KitchenSchichtKpiZusammenfassung } from './schicht-kpi-zusammenfassung';
 import { KitchenProduktionsPulsmesser } from './produktions-pulsmesser';
+import { KitchenUeberlastungsFruehwarnung } from './ueberlastungs-fruehwarnung';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
@@ -772,6 +773,15 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 917: Überlastungs-Frühwarnung — Alert bei >75% Küchen-Kapazität mit Auslastungsbalken + Empfehlung */}
+      <KitchenUeberlastungsFruehwarnung
+        orders={orders.map(o => ({
+          id: o.id,
+          status: o.status,
+          bestellt_am: (o as any).bestellt_am ?? null,
+          fertig_am: (o as any).fertig_am ?? null,
+        }))}
+      />
       {/* Phase 913: Produktions-Pulsmesser — Halbkreis-Tacho der Bestelldurchsatzrate + Trend + Ø Zubereitungszeit */}
       <KitchenProduktionsPulsmesser
         orders={orders.map(o => ({
