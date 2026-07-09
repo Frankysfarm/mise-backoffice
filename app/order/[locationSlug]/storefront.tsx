@@ -148,6 +148,7 @@ import { Phase883BewertungsIncentiveBanner } from './phase883-bewertungs-incenti
 import { Phase888LieferPreisTransparenz } from './phase888-liefer-preis-transparenz';
 import { Phase893LieferzeitKomfortBanner } from './phase893-lieferzeit-komfort-banner';
 import { Phase898LiveBestellZaehler } from './phase898-live-bestell-zaehler';
+import { Phase903LieferQualitaetsSiegel } from './phase903-liefer-qualitaets-siegel';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1532,6 +1533,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && <Phase893LieferzeitKomfortBanner locationId={locationId} currentEtaMin={order.etaMin} />}
       {/* Phase 898: Live-Bestell-Zähler — Social-Proof-Strip "Schon X Bestellungen heute" */}
       <Phase898LiveBestellZaehler locationId={locationId} />
+      {/* Phase 903: Liefer-Qualitäts-Siegel — Pünktlichkeits-% als Vertrauenssignal für Kunden */}
+      <Phase903LieferQualitaetsSiegel locationId={locationId} isDelivery={order.isDelivery} />
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
       {order.isDelivery && order.status && !['storniert', 'cancelled'].includes(order.status) && (
         <EtaLiveKommando

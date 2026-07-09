@@ -377,6 +377,7 @@ import { DispatchPhase886EngpassAutoEskalation } from './phase886-engpass-auto-e
 import { DispatchPhase891FahrerEffizienzTrend } from './phase891-fahrer-effizienz-trend';
 import { DispatchPhase896FahrerRueckkehrCountdown } from './phase896-fahrer-rueckkehr-countdown';
 import { DispatchPhase900TourScoreCockpit } from './phase900-tour-score-cockpit';
+import { DispatchPhase901ZoneAbdeckungsMatrix } from './phase901-zone-abdeckungs-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1191,6 +1192,8 @@ export function DispatchBoard({
         drivers={drivers.map(d => ({ id: d.employee_id, name: (d as any).name ?? d.employee_id }))}
         stops={batches.flatMap(b => (b.stops ?? []).map((s: any) => ({ batch_id: b.id, geliefert_am: s.geliefert_am ?? null, completed_at: s.completed_at ?? null })))}
       />
+      {/* Phase 901: Zone-Abdeckungs-Matrix — Welche Zonen A/B/C/D sind aktiv abgedeckt vs. unterbesetzt */}
+      <DispatchPhase901ZoneAbdeckungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

@@ -297,6 +297,7 @@ import { FahrerPhase887TrinkgeldTagestrend } from './phase887-trinkgeld-tagestre
 import { FahrerPhase892TrinkgeldVerlaufWidget } from './phase892-trinkgeld-verlauf-widget';
 import { FahrerPhase897SchichtScoreCockpit } from './phase897-schicht-score-cockpit';
 import { FahrerPhase900TourStopsPrioritaet } from './phase900-tour-stops-prioritaet';
+import { FahrerPhase902ZielFortschrittBar } from './phase902-fahrer-ziel-fortschritt-bar';
 
 type Driver = {
   id: string;
@@ -3731,6 +3732,8 @@ export function FahrerApp({
         <FahrerPhase892TrinkgeldVerlaufWidget driverId={driver.id} isOnline={isOnline} />
         {/* Phase 897: Schicht-Score-Cockpit — Gesamtscore 0–100 aus Pünktlichkeit + Stopps/h + Bewertung + Tages-Trend */}
         <FahrerPhase897SchichtScoreCockpit driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 902: Fahrer-Ziel-Fortschritt-Bar — Täglicher Fortschritt: Touren/Ziel + Km/Ziel + Einkommen/Ziel */}
+        <FahrerPhase902ZielFortschrittBar driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
