@@ -91,16 +91,19 @@ export function LieferdienstPhase877SchichtLiveExecutive({ locationId }: Props) 
 
         if (!mounted || !orders) return;
 
-        const delivered = orders.filter((o) => o.status === 'geliefert');
+        type OrderRow = { status: string; gesamtbetrag: number | null; lieferzeit_min: number | null; fahrer_id: string | null };
+        const typedOrders = orders as OrderRow[];
+
+        const delivered = typedOrders.filter((o) => o.status === 'geliefert');
         const onTime = delivered.filter((o) => (o.lieferzeit_min ?? 99) <= 35);
         const avgMin =
           delivered.length > 0
-            ? Math.round(delivered.reduce((s, o) => s + (o.lieferzeit_min ?? 30), 0) / delivered.length)
+            ? Math.round(delivered.reduce((s: number, o) => s + (o.lieferzeit_min ?? 30), 0) / delivered.length)
             : null;
-        const revenue = orders.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+        const revenue = typedOrders.reduce((s: number, o) => s + (o.gesamtbetrag ?? 0), 0);
 
         // Driver counts
-        const driverIds = [...new Set(orders.map((o) => o.fahrer_id).filter(Boolean))];
+        const driverIds = [...new Set(typedOrders.map((o) => o.fahrer_id).filter(Boolean))];
         const deliveriesByDriver: Record<string, number> = {};
         delivered.forEach((o) => {
           if (o.fahrer_id) deliveriesByDriver[o.fahrer_id] = (deliveriesByDriver[o.fahrer_id] ?? 0) + 1;

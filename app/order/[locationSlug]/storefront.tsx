@@ -143,6 +143,7 @@ import { Phase860AnkunftsKonfetti } from './phase860-ankunfts-konfetti';
 import { Phase864LieferstatusFortschritt } from './phase864-lieferstatus-fortschritt';
 import { Phase870KuechenKapazitaetBanner } from './phase870-kuechen-kapazitaet-banner';
 import { Phase875BestellungsBestaetigungsTicker } from './phase875-bestellungs-bestaetigung-ticker';
+import { EtaLiveKommando } from './eta-live-kommando';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 
 type Props = {
@@ -1505,6 +1506,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       <Phase870KuechenKapazitaetBanner locationId={locationId} />
       {/* Phase 875: Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker mit Konfetti-Burst nach Bestelleingang */}
       <Phase875BestellungsBestaetigungsTicker orderId={order.orderId ?? null} orderNumber={order.bestellnummer ?? null} status={order.status ?? null} />
+      {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
+      {order.isDelivery && order.status && !['storniert', 'cancelled'].includes(order.status) && (
+        <EtaLiveKommando
+          status={order.status}
+          etaEarliest={order.etaEarliest ?? null}
+          etaLatest={null}
+          bestellnummer={order.bestellnummer}
+          sticky={false}
+        />
+      )}
       {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
       <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}
