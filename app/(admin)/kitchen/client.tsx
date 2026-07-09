@@ -323,6 +323,7 @@ import { KitchenSmartLiveKochstartKommando } from './smart-live-kochstart-komman
 import { KitchenPhase900SmartPrepSteuerstand } from './phase900-smart-prep-steuerstand';
 import { KitchenPhase912BatchEffizienzScoreLive } from './phase912-batch-effizienz-score-live';
 import { KitchenPhase913SmartCountdownTimingPro } from './phase913-smart-countdown-timing-pro';
+import { KitchenPhase925LiveKochstartOptimierer } from './phase925-live-kochstart-optimierer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -890,6 +891,8 @@ export function KitchenBoard({
       <KitchenSmartKochstartLiveMatrix orders={filtered} timings={timings} />
       {/* Phase 912: Batch-Effizienz-Score-Live — Echtzeit-Score je laufendem Batch (0-100) + Empfehlung */}
       <KitchenPhase912BatchEffizienzScoreLive orders={filtered} />
+      {/* Phase 925: Live-Kochstart-Optimierer — Smart-Timing Ampel (Grün/Gelb/Rot) für alle aktiven Bestellungen mit Countdown */}
+      <KitchenPhase925LiveKochstartOptimierer orders={filtered} />
       {/* Phase 913: Smart Countdown Timing Pro — Farbkodiertes Echtzeit-Countdown-Grid (Grün/Gelb/Rot) für alle aktiven Bestellungen */}
       <KitchenPhase913SmartCountdownTimingPro orders={filtered as any} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}

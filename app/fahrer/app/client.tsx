@@ -304,6 +304,7 @@ import { FahrerPhase900TourStopsPrioritaet } from './phase900-tour-stops-priorit
 import { FahrerPhase902ZielFortschrittBar } from './phase902-fahrer-ziel-fortschritt-bar';
 import { FahrerPhase914SchichtAbschlussHighlight } from './phase914-schicht-abschluss-highlight';
 import { FahrerPhase921MonatsRangliste } from './phase921-monats-rangliste';
+import { FahrerPhase925TourStoppNavigationsCockpit } from './phase925-tour-stopp-navigations-cockpit';
 
 type Driver = {
   id: string;
@@ -3829,6 +3830,8 @@ export function FahrerApp({
         <FahrerPhase914SchichtAbschlussHighlight driverId={driver.id} isOnline={isOnline} />
         {/* Phase 921: Monats-Rangliste — Fahrers Rang im Monatsvergleich + Top-3-Fahrer */}
         <FahrerPhase921MonatsRangliste driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 925: Tour-Stopp-Navigations-Cockpit — Alle Stopps mit Status-Ampel, ETA, 1-Klick Navi-Button */}
+        <FahrerPhase925TourStoppNavigationsCockpit driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />

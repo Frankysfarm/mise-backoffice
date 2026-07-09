@@ -299,6 +299,7 @@ import { LieferdienstPhase877SchichtLiveExecutive } from './phase877-schicht-liv
 import { LieferdienstPhase878StatistikenLiveDashboard } from './phase878-statistiken-live-dashboard';
 import { LieferdienstPhase900SchichtExecutiveDashboard } from './phase900-schicht-executive-dashboard';
 import { LieferdienstPhase901StatistikenEchtzeitDashboard } from './phase901-statistiken-echtzeit-dashboard';
+import { LieferdienstPhase925StatistikenExecutiveHub } from './phase925-statistiken-executive-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1547,6 +1548,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase900SchichtExecutiveDashboard locationId={locationId} />
               {/* Phase 901: Statistiken Echtzeit-Dashboard — 6-KPI-Grid + Stundenverlauf + Pünktlichkeits-Ring + Lieferzeit-Cockpit */}
               <LieferdienstPhase901StatistikenEchtzeitDashboard locationId={locationId ?? null} />
+              {/* Phase 925: Statistiken Executive Hub — 6 Live-KPIs mit Vortag-Delta + Stunden-Sparkline + Top-Fahrer-Rangliste */}
+              <LieferdienstPhase925StatistikenExecutiveHub locationId={locationId ?? null} />
               {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
               <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 878: Statistiken Live-Dashboard — Tages-KPIs mit Delta-Vergleich Vortag + Lieferzeit-Verteilung */}

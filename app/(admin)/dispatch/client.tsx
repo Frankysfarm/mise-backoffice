@@ -384,6 +384,7 @@ import { DispatchPhase901ZoneAbdeckungsMatrix } from './phase901-zone-abdeckungs
 import { DispatchPhase913ZonenPriorisierungsOverride } from './phase913-zonen-priorisierungs-override';
 import { DispatchPhase914TourScoreLiveNavigation } from './phase914-tour-score-live-navigation';
 import { DispatchPhase920FahrerBonusCockpit } from './phase920-fahrer-bonus-cockpit';
+import { DispatchPhase925TourEffizienzLiveCockpit } from './phase925-tour-effizienz-live-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1206,6 +1207,8 @@ export function DispatchBoard({
       <DispatchPhase914TourScoreLiveNavigation locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 920: Fahrer-Bonus-Cockpit — Live-Übersicht aller Fahrer mit aktuellem Bonus-Stand aus Phase-911-API */}
       <DispatchPhase920FahrerBonusCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 925: Tour-Effizienz-Live-Cockpit — Score-Balken je aktiver Tour (Pünktlichkeit, km-Effizienz, Trend) mit Farbkodierung */}
+      <DispatchPhase925TourEffizienzLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

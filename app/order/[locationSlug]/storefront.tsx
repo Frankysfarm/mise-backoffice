@@ -152,6 +152,7 @@ import { Phase903LieferQualitaetsSiegel } from './phase903-liefer-qualitaets-sie
 import { Phase915LieferantenTransparenzWidget } from './phase915-lieferanten-transparenz-widget';
 import { StorefrontPhase916EtaLiveTrackingPro } from './phase916-eta-live-tracking-pro';
 import { Phase922BestellmengenEmpfehlung } from './phase922-bestellmengen-empfehlung';
+import { StorefrontPhase925LiveLieferungTracker } from './phase925-live-lieferung-tracker';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1560,6 +1561,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
               : order.status === 'unterwegs' || order.status === 'dispatched' || order.status === 'in_delivery' ? 'picked_up'
               : 'confirmed'
           }
+        />
+      )}
+      {/* Phase 925: Live-Lieferung-Tracker — 4-Phasen-Fortschrittsanzeige mit ETA-Countdown und Farbkodierung für Kunden */}
+      {order.isDelivery && order.orderId && order.status && !['storniert', 'cancelled', 'geliefert', 'delivered'].includes(order.status) && (
+        <StorefrontPhase925LiveLieferungTracker
+          orderId={order.orderId}
+          status={order.status}
+          initialEtaMin={order.etaEarliest ?? 30}
         />
       )}
       {/* EtaLiveKommando: Sticky ETA-Zeitleiste mit 5-Schritt-Progress und Live-Countdown für Kunden (Phase878-Gruppe) */}
