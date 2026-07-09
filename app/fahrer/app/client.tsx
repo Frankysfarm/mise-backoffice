@@ -301,6 +301,7 @@ import { FahrerPhase892TrinkgeldVerlaufWidget } from './phase892-trinkgeld-verla
 import { FahrerPhase897SchichtScoreCockpit } from './phase897-schicht-score-cockpit';
 import { FahrerPhase900TourStopsPrioritaet } from './phase900-tour-stops-prioritaet';
 import { FahrerPhase902ZielFortschrittBar } from './phase902-fahrer-ziel-fortschritt-bar';
+import { FahrerPhase914SchichtAbschlussHighlight } from './phase914-schicht-abschluss-highlight';
 
 type Driver = {
   id: string;
@@ -3802,6 +3803,8 @@ export function FahrerApp({
         <FahrerPhase897SchichtScoreCockpit driverId={driver.id} isOnline={isOnline} />
         {/* Phase 902: Fahrer-Ziel-Fortschritt-Bar — Täglicher Fortschritt: Touren/Ziel + Km/Ziel + Einkommen/Ziel */}
         <FahrerPhase902ZielFortschrittBar driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 914: Schicht-Abschluss-Highlight — Score-Reveal + Top-3-Momente (Schnellste Tour, Bestes Trinkgeld, Pünktlichkeit) */}
+        <FahrerPhase914SchichtAbschlussHighlight driverId={driver.id} isOnline={isOnline} />
 
         {/* Phase 844: Schicht-Zusammenfassung — Kompakte Endabrechnung beim Abmelden: Touren, km, Einnahmen, Ø-Bewertung, Stornos */}
         <FahrerPhase844SchichtZusammenfassung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />

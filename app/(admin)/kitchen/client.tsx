@@ -320,6 +320,7 @@ import { KitchenPhase878SmartTimingLiveDashboard } from './phase878-smart-timing
 import { KitchenPrepCountdownAmpel } from './prep-countdown-ampel';
 import { KitchenSmartLiveKochstartKommando } from './smart-live-kochstart-kommando';
 import { KitchenPhase900SmartPrepSteuerstand } from './phase900-smart-prep-steuerstand';
+import { KitchenPhase912BatchEffizienzScoreLive } from './phase912-batch-effizienz-score-live';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -877,6 +878,8 @@ export function KitchenBoard({
       )}
       {/* Phase 450: Smart-Kochstart-Live-Matrix — Alle aktiven Bestellungen nach Urgency sortiert, Countdown-Ringe + Farbkodierung + Schnell-Aktionen */}
       <KitchenSmartKochstartLiveMatrix orders={filtered} timings={timings} />
+      {/* Phase 912: Batch-Effizienz-Score-Live — Echtzeit-Score je laufendem Batch (0-100) + Empfehlung */}
+      <KitchenPhase912BatchEffizienzScoreLive orders={filtered} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}
       <KitchenRushWaveRadar locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}

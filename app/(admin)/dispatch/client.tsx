@@ -381,6 +381,7 @@ import { DispatchPhase891FahrerEffizienzTrend } from './phase891-fahrer-effizien
 import { DispatchPhase896FahrerRueckkehrCountdown } from './phase896-fahrer-rueckkehr-countdown';
 import { DispatchPhase900TourScoreCockpit } from './phase900-tour-score-cockpit';
 import { DispatchPhase901ZoneAbdeckungsMatrix } from './phase901-zone-abdeckungs-matrix';
+import { DispatchPhase913ZonenPriorisierungsOverride } from './phase913-zonen-priorisierungs-override';
 
 type Driver = {
   employee_id: string;
@@ -1197,6 +1198,8 @@ export function DispatchBoard({
       />
       {/* Phase 901: Zone-Abdeckungs-Matrix — Welche Zonen A/B/C/D sind aktiv abgedeckt vs. unterbesetzt */}
       <DispatchPhase901ZoneAbdeckungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 913: Zonen-Priorisierungs-Override — Manuelle Priorisierung Zone A/B/C/D bei Engpass */}
+      <DispatchPhase913ZonenPriorisierungsOverride locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
