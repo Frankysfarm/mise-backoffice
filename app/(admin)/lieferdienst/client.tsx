@@ -294,6 +294,7 @@ import { LieferdienstPhase865WochenZielDashboard } from './phase865-wochenziel-d
 import { TagesStatsExecutive } from './tages-stats-executive';
 import { LieferdienstPhase877SchichtLiveExecutive } from './phase877-schicht-live-executive';
 import { LieferdienstPhase878StatistikenLiveDashboard } from './phase878-statistiken-live-dashboard';
+import { LieferdienstPhase900SchichtExecutiveDashboard } from './phase900-schicht-executive-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1534,6 +1535,8 @@ export function LieferdienstClient() {
               <LieferdienstLiveMetrikenLeiste locationId={locationId} />
               {/* Tages-Stats-Executive — Kompaktes Executive-Dashboard mit 6 KPIs + Stunden-Balkendiagramm */}
               {locationId && <TagesStatsExecutive locationId={locationId} />}
+              {/* Phase 900: Schicht Executive Dashboard — Umsatz-Fortschritt + KPI-Grid + Pünktlichkeit */}
+              <LieferdienstPhase900SchichtExecutiveDashboard locationId={locationId} />
               {/* Phase 877: Schicht Live-Executive — Echtzeit-Zusammenfassung KPIs + Top-Fahrer */}
               <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 878: Statistiken Live-Dashboard — Tages-KPIs mit Delta-Vergleich Vortag + Lieferzeit-Verteilung */}

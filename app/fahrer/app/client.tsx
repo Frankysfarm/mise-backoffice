@@ -296,6 +296,7 @@ import { FahrerPhase882SchichtEnergieplan } from './phase882-schicht-energieplan
 import { FahrerPhase887TrinkgeldTagestrend } from './phase887-trinkgeld-tagestrend';
 import { FahrerPhase892TrinkgeldVerlaufWidget } from './phase892-trinkgeld-verlauf-widget';
 import { FahrerPhase897SchichtScoreCockpit } from './phase897-schicht-score-cockpit';
+import { FahrerPhase900TourStopsPrioritaet } from './phase900-tour-stops-prioritaet';
 
 type Driver = {
   id: string;
@@ -1997,6 +1998,31 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 900: Tour-Stops-Priorität — Kompakte Sequenz-Karte aller Stops mit Navigation + ETA */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase900TourStopsPrioritaet
+                stops={activeBatch.stops.map((s, idx) => ({
+                  id: s.id,
+                  sequence: s.reihenfolge ?? idx + 1,
+                  address: s.order.kunde_adresse ?? '',
+                  customer_name: s.order.kunde_name,
+                  order_number: s.order.bestellnummer,
+                  done: s.geliefert_am != null,
+                  notes: s.order.kunde_lieferhinweis ?? s.order.kunde_notiz ?? null,
+                  lat: s.order.kunde_lat,
+                  lng: s.order.kunde_lng,
+                  eta_min: activeBatch.started_at && activeBatch.total_eta_min != null
+                    ? Math.max(0, Math.round(
+                        activeBatch.total_eta_min
+                        - (Date.now() - new Date(activeBatch.started_at).getTime()) / 60000
+                        + idx * 5
+                      ))
+                    : null,
+                }))}
               />
             </div>
           )}

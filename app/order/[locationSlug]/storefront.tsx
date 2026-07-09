@@ -149,6 +149,7 @@ import { Phase888LieferPreisTransparenz } from './phase888-liefer-preis-transpar
 import { Phase893LieferzeitKomfortBanner } from './phase893-lieferzeit-komfort-banner';
 import { Phase898LiveBestellZaehler } from './phase898-live-bestell-zaehler';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
+import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
 type Props = {
   location: Location;
@@ -1469,6 +1470,15 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && <Phase710WartezeitIndikator locationId={locationId} basisEtaMinuten={deliveryTimeMin} />}
       {/* Phase 730: Liefer-Zonen-Badge — Zone, Lieferzeit und Gebühr als farbiges Badge */}
       {order.isDelivery && <Phase730LieferZonenBadge locationId={locationId} />}
+      {/* Phase 900: Live ETA Tracker — Dynamische ETA + Lieferphasen-Fortschritt mit Countdown */}
+      {order.isDelivery && (
+        <LiveEtaTracker900
+          orderId={order.orderId}
+          orderStatus={order.status}
+          etaMin={order.etaMin ?? null}
+          locationName={(location as any)?.name ?? null}
+        />
+      )}
       {/* Phase 735: Feedback-Einladung nach Lieferung — Sternbewertung 3s nach Statuswechsel zu geliefert */}
       <Phase735FeedbackEinladung locationId={locationId} bestellungId={order.orderId} status={order.status} />
       {/* Phase 740: Fahrer-Nähe-Anzeige — Entfernung + ETA wenn Fahrer unterwegs zur Lieferadresse */}

@@ -376,6 +376,7 @@ import { DispatchPhase881ZonenNachfrageHeatmapLive } from './phase881-zonen-nach
 import { DispatchPhase886EngpassAutoEskalation } from './phase886-engpass-auto-eskalation';
 import { DispatchPhase891FahrerEffizienzTrend } from './phase891-fahrer-effizienz-trend';
 import { DispatchPhase896FahrerRueckkehrCountdown } from './phase896-fahrer-rueckkehr-countdown';
+import { DispatchPhase900TourScoreCockpit } from './phase900-tour-score-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1184,6 +1185,12 @@ export function DispatchBoard({
       <DispatchPhase896FahrerRueckkehrCountdown locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Score-Live-Hub: Echtzeit-Score-Cockpit aller aktiven Touren mit SVG-Arcs */}
       <DispatchTourScoreLiveHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 900: Tour-Score-Cockpit — Kompaktes Score-Board aller aktiven Touren mit Gesundheits-Ampel */}
+      <DispatchPhase900TourScoreCockpit
+        batches={batches as any}
+        drivers={drivers.map(d => ({ id: d.employee_id, name: (d as any).name ?? d.employee_id }))}
+        stops={batches.flatMap(b => (b.stops ?? []).map((s: any) => ({ batch_id: b.id, geliefert_am: s.geliefert_am ?? null, completed_at: s.completed_at ?? null })))}
+      />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
