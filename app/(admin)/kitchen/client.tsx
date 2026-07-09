@@ -214,6 +214,7 @@ import { KitchenSchichtWochenStats } from './schicht-wochen-stats';
 import { KitchenDispatchBridgePanel } from './kitchen-dispatch-bridge';
 import { KitchenSchichtEndstand } from './kitchen-schicht-endstand';
 import { KitchenSchichtKpiZusammenfassung } from './schicht-kpi-zusammenfassung';
+import { KitchenProduktionsPulsmesser } from './produktions-pulsmesser';
 import { KitchenPhase500KochstartCockpit } from './phase500-kochstart-cockpit';
 import { KitchenPhase501AbholbereitschaftsBoard } from './phase501-abholbereitschaft-board';
 import { KitchenSchichtKochzielAmpel } from './schicht-kochziel-ampel';
@@ -771,6 +772,15 @@ export function KitchenBoard({
       {/* Browser-Benachrichtigungen: neue Bestellungen + kritisch überfällige */}
       <KitchenWebNotifier orders={filtered} audio={audio} />
       <KitchenUrgencyTicker orders={filtered} />
+      {/* Phase 913: Produktions-Pulsmesser — Halbkreis-Tacho der Bestelldurchsatzrate + Trend + Ø Zubereitungszeit */}
+      <KitchenProduktionsPulsmesser
+        orders={orders.map(o => ({
+          id: o.id,
+          fertig_am: (o as any).fertig_am ?? null,
+          zubereitung_start: (o as any).zubereitung_start ?? (o as any).started_at ?? null,
+          status: o.status,
+        }))}
+      />
       {/* Phase 908: Schicht-KPI-Zusammenfassung — Echtzeit-Score-Gauge + 4 KPI-Kacheln + Storno-Warnung */}
       <KitchenSchichtKpiZusammenfassung orders={orders} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Schicht-Endstand: Kumulierte Schicht-KPIs (Pünktlichkeit, ø Prep-Zeit, Storno-Rate) */}
