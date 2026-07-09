@@ -362,6 +362,7 @@ import { KitchenPhase1059ParallelZubereitungsKarte } from './phase1059-parallel-
 import { KitchenPhase1060KochstationZeitstrahl } from './phase1060-kochstation-zeitstrahl';
 import { KitchenPhase1061SmartTimingSchichtRing } from './phase1061-smart-timing-schicht-ring';
 import { KitchenPhase1062PrepEngpassFruehwarner } from './phase1062-prep-engpass-fruehwarner';
+import { KitchenPhase1064BatchOptimierungsAssistent } from './phase1064-batch-optimierungs-assistent';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -986,6 +987,8 @@ export function KitchenBoard({
       <KitchenPhase1029BestellKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1040: Live-Bestellstatus-Kommandozentrale — Alle aktiven Bestellungen mit Farbkodierung und Countdown */}
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
+      <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}
       <KitchenPhase1062PrepEngpassFruehwarner orders={filtered as any} />
       {/* Phase 1061: Smart-Timing-Schicht-Ring — Ampelring für Schicht-Performance mit Drill-Down */}

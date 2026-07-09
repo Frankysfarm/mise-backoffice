@@ -336,6 +336,7 @@ import { FahrerPhase1040NaechsterStoppUltraKommando } from './phase1040-naechste
 import { FahrerPhase1046KundenbewertungsLiveTicker } from './phase1046-kundenbewertungs-live-ticker';
 import { FahrerPhase1051RoutenEffizienzFeedback } from './phase1051-routen-effizienz-feedback';
 import { FahrerPhase1056SchichtMotivationsCoach } from './phase1056-schicht-motivations-coach';
+import { FahrerPhase1066TrinkgeldAnalyseDashboard } from './phase1066-trinkgeld-analyse-dashboard';
 
 type Driver = {
   id: string;
@@ -3922,6 +3923,10 @@ export function FahrerApp({
         <FahrerPhase1031EinnahmenPrognoseAssistent driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1036: Strecken-Kilometerstand-Log — Tagesprotokoll km je Tour + Gesamt + Kostenabrechnung */}
         <FahrerPhase1036StreckenKilometerstandLog driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1066: Trinkgeld-Analyse-Dashboard — Trinkgeld je Tour, Ø, Trend */}
+        <div className="px-4">
+          <FahrerPhase1066TrinkgeldAnalyseDashboard driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1056: Schicht-Motivations-Coach — Personalisierter Motivationstext je nach Score-Entwicklung steigend/stabil/fallend */}
         <div className="px-4">
           <FahrerPhase1056SchichtMotivationsCoach driverId={driver.id} isOnline={isOnline} />

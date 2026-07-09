@@ -184,6 +184,7 @@ import { Phase1042LiveEtaFahrerAnnaeherungsPanel } from './phase1042-live-eta-fa
 import { Phase1047WarenkorbUpsellWidget } from './phase1047-warenkorb-upsell-widget';
 import { useMerkzettel, Phase1052MerkzettelWidget } from './phase1052-merkzettel-widget';
 import { Phase1057TrendingBanner } from './phase1057-live-popularitaets-ranking';
+import { Phase1067EchtzeitLieferstatusKarte } from './phase1067-echtzeit-lieferstatus-karte';
 
 type Props = {
   location: Location;
@@ -594,6 +595,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 1067: Echtzeit-Lieferstatus-Karte — Visuelle Karte mit Fahrer-Position + ETA-Countdown */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1067EchtzeitLieferstatusKarte orderId={orderSuccess.orderId} status="dispatched" />
+          </div>
+        )}
         {/* Phase 955: Live-ETA Fahrer-Tracking — Dynamischer Countdown-Ring + Fahrer-Name + Tour-Phase + Nähe-Puls */}
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-4 max-w-lg mx-auto">

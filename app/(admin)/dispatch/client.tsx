@@ -423,6 +423,7 @@ import { DispatchPhase1059FahrerProfitabilitaetsMatrix } from './phase1059-fahre
 import { DispatchPhase1060ZonenBestelldruckLive } from './phase1060-zonen-bestelldruck-live';
 import { DispatchPhase1061TourStopFortschrittsAmpel } from './phase1061-tour-stop-fortschritts-ampel';
 import { DispatchPhase1062SmartDispatchScoreKommando } from './phase1062-smart-dispatch-score-kommando';
+import { DispatchPhase1065SpaetTourRisikoMonitor } from './phase1065-spaet-tour-risiko-monitor';
 
 type Driver = {
   employee_id: string;
@@ -1301,6 +1302,8 @@ export function DispatchBoard({
       <DispatchPhase1030SchichtSpitzenzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1040: Tour-Score-Echtzeit-Übersicht — Alle aktiven Touren mit Score-Ring, Stopp-Fortschritt und Tour-Visualisierung */}
       <DispatchPhase1040TourScoreEchtzeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
+      <DispatchPhase1065SpaetTourRisikoMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}
       <DispatchPhase1062SmartDispatchScoreKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1061: Tour-Stop-Fortschritts-Ampel — Alle laufenden Touren on-track/knapp/verspätet */}
