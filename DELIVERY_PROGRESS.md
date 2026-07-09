@@ -13046,3 +13046,48 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 901 Dispatch:** Zone-Abdeckungs-Matrix — Welche Zonen A/B/C/D sind aktuell abgedeckt vs. unterbesetzt?
 4. **Phase 902 Fahrer-App:** Fahrer-Ziel-Fortschritt-Bar — Täglicher Fortschritt: Touren/Ziel + Km/Ziel + Einkommen/Ziel.
 5. **Phase 903 Storefront:** Liefer-Qualitäts-Siegel — Dynamisches Siegel "Pünktlich in X% aller Lieferungen" + Icon.
+
+---
+
+## Batch 986–990 — 2026-07-09
+
+### Phase 986 — Kunden-Liefer-Verlässlichkeits-Score (Backend)
+**Datei:** `app/api/delivery/admin/liefer-verlasslichkeits-score/route.ts`
+**GET:** Score 0–100 je Zone A/B/C/D basierend auf: Pünktlichkeit (40 Pkt) + inverse Abbruchrate (30 Pkt) + ETA-Genauigkeit (30 Pkt); Zeitraum letzte 7 Tage
+**Logik:** Aggregiert `customer_orders` nach Zone; Pünktlich = actual ≤ ETA + 5 Min; ETA-Abweichung ∅ |actual - promised|; Bewertung sehr_gut/gut/mittel/schlecht; Fallback Mock
+**Response:** `{ zonen[], gesamt_score, location_id, zeitraum_tage, generiert_am }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 987 — Küchen-Workload-Vorhersage (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase987-kuechen-workload-vorhersage.tsx`
+**Props:** `orders: Order[]`
+**UI:** 3 Slots à 10 Min (nächste 30 Min); Prognose-Balken + Intensitäts-Label (Peak/Hoch/Mittel/Niedrig) + Farbe; Flame-Alert wenn Peak erwartet
+**Logik:** Blend historisches Stunden-Profil × Wochentag-Faktor + beobachteter Echtzeit-Rhythmus; rein client-seitig
+**Integration:** `kitchen/client.tsx` nach Phase 982 ✅
+
+### Phase 988 — Live-Tour-Kosten-Effizienz (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase988-live-tour-kosten-effizienz.tsx` + `app/api/delivery/admin/tour-kosten-live/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card; Summary-Strip (Umsatz/Kosten/Marge); Tour-Liste mit Marge-Farbkodierung + Defizit-Alert-Badge; 90s-Polling
+**Logik:** Kosten = km × 0,30€ + Schichtdauer × 13€/h; Alert wenn Marge < 15%; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase 983 ✅
+
+### Phase 989 — Schicht-Ziel-Fortschritts-Ring (Fahrer-App)
+**Datei:** `app/fahrer/app/phase989-schicht-ziel-fortschritts-ring.tsx` + `app/api/delivery/driver/schicht-ziele/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** 3 SVG-Ringe (grün/blau/amber) für Touren/Km/Einkommen vs. Tagesziel; Motivations-Banner bei 100%; Rest-Anzeige; 5-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase 984 ✅
+
+### Phase 990 — Fahrer-Annäherungs-Radar (Storefront)
+**Datei:** `app/order/[locationSlug]/phase990-fahrer-annaeherungs-radar.tsx`
+**Props:** `orderId: string | null, status: string | null`
+**UI:** Radar-Puls-Animation wenn Fahrer < 500m; Entfernungsanzeige (m); Fahrername + ETA; "Gleich da!"-Hinweis bei < 100m; pulsierender Ring
+**API:** `/api/delivery/tracking?order_id=...` (bereits vorhanden); 15s-Polling; nur aktive Lieferstatus
+**Integration:** `storefront.tsx` vor Phase 985 ✅
+
+### Nächste Phasen 991–995 (für Ingenieur)
+1. **Phase 991 Backend:** Zonen-Abdeckungs-Lücken-API — Echtzeit-Erkennung von Zonen ohne aktiven Fahrer + Wartezeit-Prognose für unbesetzte Zonen.
+2. **Phase 992 Kitchen:** Batch-Fertigstellungs-Countdown-Pro — Farbkodierter Batch-Countdown mit ETA-Ring je Bestellung + Küchen-Kapazitäts-Ampel.
+3. **Phase 993 Dispatch:** Fahrer-Status-Matrix — Kompakte Grid-Ansicht aller Fahrer: Online/Pause/Offline + Zone + verbleibende Stopps + ETR.
+4. **Phase 994 Fahrer-App:** Kunden-Kontakt-Schnell-Panel — 1-Tap Anruf/SMS-Button + Klingelhinweis + Notiz-Anzeige je aktivem Stopp.
+5. **Phase 995 Storefront:** Echtzeit-Küchen-Transparenz-Widget — Live-Ansicht "Ihr Essen wird gerade zubereitet" mit animiertem Koch-Icon + Batch-Fortschritt.

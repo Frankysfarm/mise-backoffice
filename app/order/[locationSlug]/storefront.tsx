@@ -167,6 +167,7 @@ import { Phase970LieferzonenVisualisierung } from './phase970-lieferzonen-visual
 import { StorefrontPhase975DynamischeEtaLiveKommando } from './phase975-dynamische-eta-live-kommando';
 import { Phase980LiveKochTransparenzWidget } from './phase980-live-koch-transparenz-widget';
 import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-banner';
+import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1637,6 +1638,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <Phase980LiveKochTransparenzWidget
           orderId={order.orderId ?? null}
           status={order.status ?? null}
+        />
+      )}
+      {/* Phase 990: Fahrer-Annäherungs-Radar — Radar-Alert wenn Fahrer < 500m entfernt + Echtzeit-Entfernungsanzeige */}
+      {order.isDelivery && (
+        <Phase990FahrerAnnaeherungsRadar
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          className="mx-4 mb-4"
         />
       )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
