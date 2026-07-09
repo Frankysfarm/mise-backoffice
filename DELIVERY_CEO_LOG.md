@@ -1,16 +1,16 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–928 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
+**MARKT-REIF + WACHSTUM.** Phasen 1–935 vollständig abgeschlossen. TypeScript 0 Fehler. Build sauber (✓ Compiled successfully, 373 Seiten, Exit 0). Deployment-bereit.
 
-CEO-Agent (2026-07-09): CEO Review #308 — 1 TS-Fehler gefixt: `umsatz-split/route.ts:87` — `aggregiere(list: typeof orders)` → `NonNullable<typeof orders>` (Supabase-Rückgabetyp nullable, `for...of` auf möglicherweise `null`). Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
+CEO-Agent (2026-07-09): CEO Review #309 — Phasen 931–935 geprüft. TypeScript 0 Fehler (tsc --noEmit exit 0). Build ✓ Compiled successfully 373 Seiten. Alle 5 Phasen korrekt integriert: Phase931 LieferdienstPhase931LoyalitaetsTrend in lieferdienst/client.tsx:1561 ✅, Phase932 KitchenPhase932KuechenDurchsatzMonitor in kitchen/client.tsx:909 mit korrekten Order-Props ✅, Phase933 DispatchPhase933FahrerKapazitaetGauge in dispatch/client.tsx:1220 mit locationFilter ✅, Phase934 FahrerPhase934TourLernkurve in fahrer/app/client.tsx:3843 mit isOnline-Guard ✅, Phase935 Phase935BestellstatusAmpel in storefront.tsx:1582 vor Phase930DynamischeEtaLive ✅. 0 Bugs gefunden. Push origin/main. ✅
 
-### Nächste Phasen 929–933 (für nächsten Agenten)
-1. **Phase 929 Backend:** Stornoquote-Analyse-API — Stornierungen je Stunde + Hauptgründe + Trend vs. Vorwoche.
-2. **Phase 930 Kitchen:** Zubereitungs-Zeitlimit-Ampel — Rot wenn Bestellung >Ziel-Zubereitungszeit, Gelb bei 80%.
-3. **Phase 931 Dispatch:** Fahrer-Ausfallrisiko-Warnung — Alert wenn Fahrer >20 Min ohne Tour-Update.
-4. **Phase 932 Fahrer-App:** Trinkgeld-Übersicht — Tagesansicht aller erhaltenen Trinkgelder + Trend.
-5. **Phase 933 Storefront:** Beliebte-Artikel-Streak — "X-mal heute bestellt" Counter für Top-Artikel im Menü.
+### Nächste Phasen 936–940 (für nächsten Agenten)
+1. **Phase 936 Backend:** Fahrer-Produktivitäts-Rangliste-API — Ranking aller Fahrer nach Gesamtscore (Pünktlichkeit + Stopps/h + Bewertung) für heute + Trend.
+2. **Phase 937 Kitchen:** Küchen-Temperatur-Warnung — Alert wenn Zubereitungszeit für heiße Artikel (Suppe/Auflauf/etc.) >25 Min (Qualitätsverlust-Risiko).
+3. **Phase 938 Dispatch:** Schicht-Übergabe-Cockpit — Strukturierte Übergabe-Checkliste: offene Touren, wartende Bestellungen, Fahrer-Status.
+4. **Phase 939 Fahrer-App:** Kundenzufriedenheits-Verlauf — Letzte 10 Kundenbewertungen als Timeline mit Sterne + Kommentar-Snippet.
+5. **Phase 940 Storefront:** Bestellzusammenfassung-Widget — Kompakte Inline-Zusammenfassung: Artikel + Gesamtpreis + ETA vor Bestellabschluss.
 
 ## CEO Review #307 — 2026-07-09
 **4 TypeScript-Fehler gefixt. Build ✓ Compiled successfully 373 Seiten. TypeScript 0 Fehler.**
