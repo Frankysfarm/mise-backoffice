@@ -350,6 +350,7 @@ import { KitchenPhase1008ZubereitungsParallelitaet } from './phase1008-zubereitu
 import { KitchenPhase1013SmartTimingKommandoLive } from './phase1013-smart-timing-kommando-live';
 import { KitchenPhase1019KapazitaetsRing } from './phase1019-kuechen-kapazitaets-ring';
 import { KitchenPhase1018BatchKochstartKommando } from './phase1018-batch-kochstart-kommando';
+import { KitchenPhase1024PriorisierungsAssistent } from './phase1024-kuechen-priorisierungs-assistent';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -968,6 +969,8 @@ export function KitchenBoard({
       <KitchenPhase1013SmartTimingKommandoLive orders={filtered as any} />
       {/* Phase 1019: Küchen-Kapazitäts-Zustands-Ring — SVG-Ring 0–100% Auslastung + Empfehlung bei Überlastung */}
       <KitchenPhase1019KapazitaetsRing orders={filtered as any} />
+      {/* Phase 1024: Küchen-Priorisierungs-Assistent — Empfohlene Startreihenfolge nach ETA-Dringlichkeit + Kochstation */}
+      <KitchenPhase1024PriorisierungsAssistent orders={filtered as any} />
       {/* Phase 1018: Batch-Kochstart-Kommando — Bestellungen nach Station gruppiert mit farbkodiertem Kochstart-Signal (Grill/Friteuse/Salat/Pasta) */}
       <KitchenPhase1018BatchKochstartKommando orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}

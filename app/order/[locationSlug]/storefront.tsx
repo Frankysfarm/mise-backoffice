@@ -177,6 +177,7 @@ import { Phase1022BewertungsSchnellWidget } from './phase1022-bewertungs-schnell
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live-tracking-kommando';
+import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
 
 type Props = {
   location: Location;
@@ -1725,6 +1726,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           className="mx-4 mb-4"
         />
       )}
+      {/* Phase 1027: Kunden-Stammkunden-Badge — "Willkommen zurück!" Banner mit letzter Bestellung + Treuepunkte */}
+      <Phase1027StammkundenBadge locationId={locationId} className="mx-4 mb-4" />
       {/* Phase 883: Bewertungs-Incentive-Banner — Gamification-Banner nach Lieferung: Punkte für Bewertung vergeben */}
       <Phase883BewertungsIncentiveBanner orderId={order.orderId ?? null} status={order.status ?? null} />
       {/* Phase 893: Lieferzeit-Komfort-Banner — Zeigt ETA vs. 7-Tage-Ø: schneller/langsamer als normal (dismissbar) */}
