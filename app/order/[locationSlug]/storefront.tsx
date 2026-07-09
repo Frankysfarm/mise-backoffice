@@ -170,6 +170,7 @@ import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-bann
 import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
 import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
+import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1658,6 +1659,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           className="mx-4 mb-4"
         />
       )}
+      {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
+      <StorefrontPhase1006KuechenAuslastungsAnzeige locationId={location.id} className="mx-4 mb-3" />
       {/* Phase 1000: Live-Bestellstatus-Timeline Pro — Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert + Sekunden-Countdown */}
       {order.isDelivery && (
         <Phase1000LiveBestellstatusTimelinePro
