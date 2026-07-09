@@ -395,6 +395,7 @@ import { DispatchPhase948ZonenErtragDashboard } from './phase948-zonen-ertrag-da
 import { DispatchPhase953TourScoreVisualisierung } from './phase953-tour-score-visualisierung';
 import { DispatchPhase957FahrerEffizienzMatrix } from './phase957-fahrer-effizienz-matrix';
 import { DispatchPhase958ZonenAuslastungBoard } from './phase958-zonen-auslastung-board';
+import { DispatchPhase963SchichtKapazitaetsPlaner } from './phase963-schicht-kapazitaets-planer';
 
 type Driver = {
   employee_id: string;
@@ -1239,6 +1240,8 @@ export function DispatchBoard({
       <DispatchPhase957FahrerEffizienzMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 958: Echtzeit-Zonenauslastung-Board — Heatmap Bestelldichte je Zone A/B/C/D mit Kapazitäts-Alert */}
       <DispatchPhase958ZonenAuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 963: Schicht-Kapazitäts-Planer — Interaktives Board Fahrer +/- + Kapazitätsprognose nächste 2h */}
+      <DispatchPhase963SchichtKapazitaetsPlaner locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}
