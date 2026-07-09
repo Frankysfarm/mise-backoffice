@@ -335,6 +335,7 @@ import { KitchenPhase952SmartTimingFarbkodierung } from './phase952-smart-timing
 import { KitchenPhase956AuslastungsPrognoseBoard } from './phase956-auslastungs-prognose-board';
 import { KitchenPhase957BatchPrioritaetsAmpel } from './phase957-batch-prioritaets-ampel';
 import { KitchenPhase962ZutatenBedarfsPrognose } from './phase962-zutaten-bedarfs-prognose';
+import { KitchenPhase967RezeptKomplexitaetsIndikator } from './phase967-rezept-komplexitaets-indikator';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -927,6 +928,8 @@ export function KitchenBoard({
       <KitchenPhase957BatchPrioritaetsAmpel orders={filtered as any} />
       {/* Phase 962: Zutaten-Bedarfs-Prognose — Vorausschauende Bedarfswarnung je Zutat basierend auf aktiven Bestellungen */}
       <KitchenPhase962ZutatenBedarfsPrognose orders={filtered as any} />
+      {/* Phase 967: Rezept-Komplexitäts-Indikator — Zubereitungs-Komplexität je aktiver Bestellung (einfach/mittel/komplex) */}
+      <KitchenPhase967RezeptKomplexitaetsIndikator orders={filtered as any} />
       {/* Phase 952: Smart-Timing-Farbkodierung — Alle aktiven Bestellungen als farbkodierte Kacheln mit Live-Countdown (grün/gelb/rot) */}
       <KitchenPhase952SmartTimingFarbkodierung orders={filtered as any} />
       {/* Phase 956: Küchen-Auslastungs-Prognose-Board — Geschätzter Küchendruck je 10-Min-Slot (nächste 30 Min) mit Farbkodierung */}

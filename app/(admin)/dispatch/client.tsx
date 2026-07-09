@@ -396,6 +396,7 @@ import { DispatchPhase953TourScoreVisualisierung } from './phase953-tour-score-v
 import { DispatchPhase957FahrerEffizienzMatrix } from './phase957-fahrer-effizienz-matrix';
 import { DispatchPhase958ZonenAuslastungBoard } from './phase958-zonen-auslastung-board';
 import { DispatchPhase963SchichtKapazitaetsPlaner } from './phase963-schicht-kapazitaets-planer';
+import { DispatchPhase968TourKostenAnalyse } from './phase968-tour-kosten-analyse';
 
 type Driver = {
   employee_id: string;
@@ -1242,6 +1243,8 @@ export function DispatchBoard({
       <DispatchPhase958ZonenAuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 963: Schicht-Kapazitäts-Planer — Interaktives Board Fahrer +/- + Kapazitätsprognose nächste 2h */}
       <DispatchPhase963SchichtKapazitaetsPlaner locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 968: Tour-Kosten-Analyse — Echtzeit Kraftstoff + Fahrerlohn + km-Kosten je laufender Tour */}
+      <DispatchPhase968TourKostenAnalyse locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

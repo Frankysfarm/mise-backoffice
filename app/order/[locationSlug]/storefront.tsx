@@ -163,6 +163,7 @@ import { Phase955LiveEtaFahrerTracking } from './phase955-live-eta-fahrer-tracki
 import { Phase960ProduktVerfuegbarkeitsLoader, VerfuegbarkeitsBadge } from './phase960-produktverfuegbarkeits-indikator';
 import { Phase962LieferQualitaetsBadge } from './phase962-liefer-qualitaets-badge';
 import { Phase965BestellzahlCountdown } from './phase965-bestellzahl-countdown';
+import { Phase970LieferzonenVisualisierung } from './phase970-lieferzonen-visualisierung';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -987,6 +988,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderType === 'lieferung' && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <Phase965BestellzahlCountdown locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 970: Lieferzonen-Visualisierung — Interaktive Übersicht Zonen A/B/C/D mit ETA + Liefergebühr */}
+      {orderType === 'lieferung' && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase970LieferzonenVisualisierung locationId={location.id} />
         </div>
       )}
       {/* Warteschlangen-Indikator: zeigt aktuelle Auslastung + Wartezeit-Schätzung */}
