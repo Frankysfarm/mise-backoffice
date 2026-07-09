@@ -63,7 +63,7 @@ export function DispatchPhase943FahrerErreichbarkeitsPanel({ locationId }: Props
     async function load() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/delivery/admin/fahrer-erreichbarkeit?location_id=${locationId}`);
+        const res = await fetch(`/api/delivery/admin/fahrer-live-position?location_id=${locationId}`);
         if (!cancelled) setData(res.ok ? await res.json() : MOCK);
       } catch {
         if (!cancelled) setData(MOCK);

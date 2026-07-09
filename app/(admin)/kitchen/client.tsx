@@ -330,6 +330,7 @@ import { KitchenPhase932KuechenDurchsatzMonitor } from './phase932-kuechen-durch
 import { KitchenPhase935SmartWellenKochplan } from './phase935-smart-wellen-kochplan';
 import { KitchenPhase937KuechenTemperaturWarnung } from './phase937-kuechen-temperatur-warnung';
 import { KitchenPhase942BestellrueckstandAmpel } from './phase942-bestellrueckstand-ampel';
+import { KitchenPhase947ParallelKochMonitor } from './phase947-parallel-koch-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -916,6 +917,8 @@ export function KitchenBoard({
       <KitchenPhase937KuechenTemperaturWarnung orders={filtered} />
       {/* Phase 942: Bestellrückstand-Ampel — Alert wenn Bestellungen >10 Min warten ohne Kochstart */}
       <KitchenPhase942BestellrueckstandAmpel orders={filtered as any} />
+      {/* Phase 947: Parallel-Koch-Monitor — Artikel in Zubereitung vs. Küchen-Kapazität (Burner-Slots) */}
+      <KitchenPhase947ParallelKochMonitor orders={filtered as any} />
       {/* Phase 913: Smart Countdown Timing Pro — Farbkodiertes Echtzeit-Countdown-Grid (Grün/Gelb/Rot) für alle aktiven Bestellungen */}
       <KitchenPhase913SmartCountdownTimingPro orders={filtered as any} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}

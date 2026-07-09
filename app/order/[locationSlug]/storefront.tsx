@@ -158,6 +158,7 @@ import { Phase930DynamischeEtaLive } from './phase930-dynamische-eta-live';
 import { Phase935BestellstatusAmpel } from './phase935-bestellstatus-ampel';
 import { Phase940BestellzusammenfassungWidget } from './phase940-bestellzusammenfassung-widget';
 import { Phase945TreuepunkteVorschau } from './phase945-treuepunkte-vorschau';
+import { Phase950AllergenSchnellfilter } from './phase950-allergen-schnellfilter';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -219,6 +220,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   /* ---------------- search + filter ---------------- */
   const [search, setSearch] = React.useState('');
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'beliebt' | 'vegan' | 'under10'>('all');
+  const [allergenFilter, setAllergenFilter] = React.useState<string | null>(null);
 
   const filteredItems = React.useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -230,9 +232,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       if (activeFilter === 'beliebt' && !i.beliebt) return false;
       if (activeFilter === 'vegan' && !(i.tags ?? []).includes('vegan')) return false;
       if (activeFilter === 'under10' && i.preis >= 10) return false;
+      // Phase 950: Allergen-Filter — zeige nur Artikel ohne das gewählte Allergen
+      if (allergenFilter) {
+        const allergens = (i.allergene ?? []).map((a) => a.toLowerCase());
+        if (allergens.includes(allergenFilter)) return false;
+      }
       return true;
     });
-  }, [items, search, activeFilter]);
+  }, [items, search, activeFilter, allergenFilter]);
 
   /* ---------------- derived ---------------- */
   const popular = React.useMemo(() => filteredItems.filter((i) => i.beliebt), [filteredItems]);
@@ -1079,10 +1086,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                   </button>
                 ))}
               </div>
+              {/* Phase 950: Allergen-Schnellfilter — Gluten/Laktose/Nüsse/Soja/Ei aus Speisekarte ausblenden */}
+              <div className="mt-1.5">
+                <Phase950AllergenSchnellfilter
+                  activeAllergen={allergenFilter}
+                  onAllergenChange={setAllergenFilter}
+                />
+              </div>
             </div>
 
             {/* No results */}
-            {filteredItems.length === 0 && (search || activeFilter !== 'all') && (
+            {filteredItems.length === 0 && (search || activeFilter !== 'all' || allergenFilter !== null) && (
               <div className="rounded-3xl bg-matcha-50 p-8 text-center">
                 <div className="text-4xl mb-2">🔍</div>
                 <div className="font-display text-lg font-bold text-matcha-900">Nichts gefunden</div>
@@ -1090,7 +1104,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                   Andere Suche oder Filter entfernen.
                 </div>
                 <button
-                  onClick={() => { setSearch(''); setActiveFilter('all'); }}
+                  onClick={() => { setSearch(''); setActiveFilter('all'); setAllergenFilter(null); }}
                   className="mt-4 inline-flex h-10 items-center rounded-full bg-matcha-900 px-4 text-sm font-bold text-matcha-50"
                 >
                   Alle zeigen
