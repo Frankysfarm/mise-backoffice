@@ -387,6 +387,7 @@ import { DispatchPhase920FahrerBonusCockpit } from './phase920-fahrer-bonus-cock
 import { DispatchPhase925TourEffizienzLiveCockpit } from './phase925-tour-effizienz-live-cockpit';
 import { DispatchPhase926TourNachfassBoard } from './phase926-tour-nachfass-board';
 import { DispatchPhase930TourVizPro } from './phase930-tour-viz-pro';
+import { DispatchPhase933FahrerKapazitaetGauge } from './phase933-fahrer-kapazitaet-gauge';
 
 type Driver = {
   employee_id: string;
@@ -1215,6 +1216,8 @@ export function DispatchBoard({
       <DispatchPhase926TourNachfassBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 930: Tour-Visualisierung Pro — Interaktive Timeline aller aktiven Touren mit Stop-Status, ETA, Score */}
       <DispatchPhase930TourVizPro batches={batches} />
+      {/* Phase 933: Live-Fahrer-Kapazitäts-Gauge — Frei/Aktiv/Überlastet/Offline Fahrer + Kapazitäts-% Gauge + Alert <20% */}
+      <DispatchPhase933FahrerKapazitaetGauge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Dispatch-Readiness-HUD: Ampel-Übersicht — fertige Bestellungen × freie Fahrer × aktive Touren */}
       <DispatchReadinessHUD orders={readyOrders} drivers={drivers} batches={batches} />
       {/* Aktions-Empfehlung: Smart Dispatch-Vorschlag — bester Fahrer für wartende Bestellungen mit Score */}

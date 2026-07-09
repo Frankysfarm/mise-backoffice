@@ -326,6 +326,7 @@ import { KitchenPhase912BatchEffizienzScoreLive } from './phase912-batch-effizie
 import { KitchenPhase913SmartCountdownTimingPro } from './phase913-smart-countdown-timing-pro';
 import { KitchenPhase925LiveKochstartOptimierer } from './phase925-live-kochstart-optimierer';
 import { KitchenPhase930SmartTimingPro } from './phase930-smart-timing-pro';
+import { KitchenPhase932KuechenDurchsatzMonitor } from './phase932-kuechen-durchsatz-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -904,6 +905,8 @@ export function KitchenBoard({
       <KitchenPhase925LiveKochstartOptimierer orders={filtered} />
       {/* Phase 930: Smart-Timing Pro — Farbkodiertes Countdown-Grid (Grün/Amber/Orange/Rot) aller aktiven Bestellungen mit Progress-Bar */}
       <KitchenPhase930SmartTimingPro orders={filtered} timings={timings} />
+      {/* Phase 932: Küchen-Durchsatz-Monitor — Bestellungen/h + Stunden-Histogramm + Peak-Stunde + Hochrechnung (client-seitig) */}
+      <KitchenPhase932KuechenDurchsatzMonitor orders={filtered.map(o => ({ id: o.id, bestellt_am: (o as { bestellt_am?: string | null }).bestellt_am ?? null, status: o.status }))} />
       {/* Phase 913: Smart Countdown Timing Pro — Farbkodiertes Echtzeit-Countdown-Grid (Grün/Gelb/Rot) für alle aktiven Bestellungen */}
       <KitchenPhase913SmartCountdownTimingPro orders={filtered as any} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}

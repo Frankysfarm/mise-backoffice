@@ -155,6 +155,7 @@ import { Phase922BestellmengenEmpfehlung } from './phase922-bestellmengen-empfeh
 import { StorefrontPhase925LiveLieferungTracker } from './phase925-live-lieferung-tracker';
 import { Phase928LiveWartezeitIndikator } from './phase928-live-wartezeit-indikator';
 import { Phase930DynamischeEtaLive } from './phase930-dynamische-eta-live';
+import { Phase935BestellstatusAmpel } from './phase935-bestellstatus-ampel';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 
@@ -1577,6 +1578,12 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           initialEtaMin={order.etaMin ?? 30}
         />
       )}
+      {/* Phase 935: Bestellstatus-Ampel — Kompakte Grün/Amber/Rot Ampel + pulsierendes Icon je Status (30s-Polling) */}
+      <Phase935BestellstatusAmpel
+        orderId={order.orderId ?? null}
+        status={order.status ?? null}
+        isDelivery={order.isDelivery}
+      />
       {/* Phase 930: Dynamische ETA Live — Echtzeit-Phasenverlauf (Bestätigt→Zubereitung→Fertig→Unterwegs→Geliefert) mit Supabase Realtime */}
       {order.isDelivery && order.orderId && (
         <Phase930DynamischeEtaLive
