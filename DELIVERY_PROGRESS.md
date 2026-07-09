@@ -13503,3 +13503,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 1040 Dispatch:** Schicht-Lücken-Warnung — Alert wenn für eine kommende Stunde weniger Fahrer als Mindestbesetzung aktiv.
 4. **Phase 1041 Fahrer-App:** Live-Bewertungs-Feedback-Stream — Nach jeder Lieferung: letzte Kunden-Bewertung anzeigen + Gesamttrend.
 5. **Phase 1042 Storefront:** Warenkorbwert-Optimierer — Empfiehlt Zusatzartikel (Getränk/Dessert) wenn Warenkorb < Mindestbestellwert + 20%.
+
+---
+
+## Batch 1063–1067 — 2026-07-09
+
+### Phase 1063 — Lieferzonen-Auslastungs-Index (Backend)
+**Datei:** `app/api/delivery/admin/lieferzonen-auslastungs-index/route.ts`
+**GET:** `?location_id=<uuid>` — Kapazitätsindex 0–100 je Zone A–D; offene Bestellungen vs. aktive Fahrer; Status ok/angespannt/kritisch/keine_fahrer; Empfehlung je Zone; gesamt_index + kritische_anzahl
+**Logik:** customer_orders.in(pending/confirmed/…) × delivery_zone + mise_drivers.in(online/…) × zone → kapazitaets_index = max(0, 100-(ratio-1)×50); OPTIMAL_BPF=3; Supabase + Mock
+**Response:** `{ zonen[], gesamt_index, kritische_zonen, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1064 — Batch-Optimierungs-Assistent (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1064-batch-optimierungs-assistent.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible Card teal; je Batch: Station + Anzahl Bestellungen + Zeitersparnis-Badge + Liste der Bestellnummern mit Artikeln; Gesamt-Zeitersparnis Header; nur wenn ≥1 Batch sinnvoll
+**Logik:** useMemo Keyword-Matching → Station; groupiert wartende Bestellungen (pending/neu/angenommen); Batch = ≥2 Bestellungen je Station; Zeitersparnis (n-1)×3.5 Min; rein client-seitig
+**Integration:** `kitchen/client.tsx` vor Phase1062 ✅
+
+### Phase 1065 — Spät-Tour-Risiko-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1065-spaet-tour-risiko-monitor.tsx` + `app/api/delivery/admin/spaet-tour-risiko/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible Card orange; je Tour: Fahrername + Stopps + ETA + Verzoegerung_min + Risiko-Badge (Kritisch/Hoch/Mittel pulsierend) + Zone + Schichtende-in-Min; kritische_anzahl Header-Badge; 90s-Polling
+**API:** mise_delivery_batches × mise_drivers.shift_start → schichtende_in_min = (shift_start+8h-jetzt)/60; verzoegerung = max(0, eta-schichtende); 3-Level-Risiko 45/20/5; Fallback Mock
+**Integration:** `dispatch/client.tsx` vor Phase1062 ✅
+
+### Phase 1066 — Trinkgeld-Analyse-Dashboard (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1066-trinkgeld-analyse-dashboard.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Card gelb; 3 KPI-Kacheln (Gesamt heute / Ø je Tour / Trend-Icon); Tour-Liste mit Uhrzeit + Nr + Bewertungs-Sterne + Betrag; beste-Tour-Zeile; 10-Min-Polling; isOnline-Guard; null wenn !isOnline
+**Logik:** fahrten-chronik API Heute-Filter; trinkgeld-Feld je Fahrt; Trend: letzte-3-Ø vs. erste-3-Ø ±0.3€; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` vor Phase1056 ✅
+
+### Phase 1067 — Echtzeit-Lieferstatus-Karte (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1067-echtzeit-lieferstatus-karte.tsx`
+**Props:** `orderId?: string | null, status?: string | null`
+**UI:** Card blau; SVG-animierter Pfad Küche→Kunde mit fahrendem 🛵-Icon; Fortschritts-% Balken; ETA Sekunden-Countdown (30s-Polling /api/delivery/tracking); Fahrername; nur bei aktiven Statuses dispatched/en_route/unterwegs/…
+**Logik:** useTracking hook 30s-Polling; progress aus elapsed/totalEst; useEffect Sekunden-Countdown; null wenn !isActive || !orderId
+**Integration:** `storefront.tsx` vor Phase955 ✅
+
+### Nächste Phasen 1068–1072 (für Ingenieur)
+1. **Phase 1068 Backend:** Fahrerschicht-Produktivitäts-Benchmark — Vergleich Stopps/Stunde je Fahrer vs. Team-Ø + historischer Verlauf.
+2. **Phase 1069 Kitchen:** Wartezeit-Heatmap nach Tageszeit — Welche Stunden produzieren die längsten Zubereitungszeiten + Empfehlung Personalbesetzung.
+3. **Phase 1070 Dispatch:** Tour-Kostenoptimierung-Vorschlag — Welche Touren können zusammengelegt werden um Fahrtkosten zu senken.
+4. **Phase 1071 Fahrer-App:** Kunden-Kontakt-Schnell-Panel v2 — 1-Tap Anruf + Nachricht + Klingeln-Not-reached-Meldung, geräuschlos ohne manuelle Eingabe.
+5. **Phase 1072 Storefront:** Bestellhistorie-Widget — Letzte 3 Bestellungen des Nutzers in kompakter Timeline, Wiederholen-Button.
