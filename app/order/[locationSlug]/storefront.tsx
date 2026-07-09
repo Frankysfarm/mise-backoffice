@@ -142,6 +142,7 @@ import { Phase855LieferEtaVertrauensBand } from './phase855-liefer-eta-vertrauen
 import { Phase860AnkunftsKonfetti } from './phase860-ankunfts-konfetti';
 import { Phase864LieferstatusFortschritt } from './phase864-lieferstatus-fortschritt';
 import { Phase870KuechenKapazitaetBanner } from './phase870-kuechen-kapazitaet-banner';
+import { Phase875BestellungsBestaetigungsTicker } from './phase875-bestellungs-bestaetigung-ticker';
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 
 type Props = {
@@ -1502,6 +1503,8 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       )}
       {/* Phase 870: Küchen-Kapazität-Banner — Dismissbares Banner bei Küchen-Auslastung ≥70% mit geschätzter Startzeit */}
       <Phase870KuechenKapazitaetBanner locationId={locationId} />
+      {/* Phase 875: Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker mit Konfetti-Burst nach Bestelleingang */}
+      <Phase875BestellungsBestaetigungsTicker orderId={order.orderId ?? null} orderNumber={order.bestellnummer ?? null} status={order.status ?? null} />
       {/* Phase 845: Nachhaltigkeits-Badge — CO2-Ersparnisse durch Touren-Bündelung (Gamification) */}
       <Phase845NachhaltigkeitsBadge locationId={locationId} />
       {/* Phase 804: Liefer-Versprechen-Siegel — Dynamisches Vertrauens-Badge (Pünktlichkeit + Bewertung letzte 7d) */}

@@ -306,6 +306,7 @@ import { KitchenPhase852ParallelKochOptimierer } from './phase852-parallel-koch-
 import { KitchenPhase857BundleVisualisierung } from './phase857-bundle-visualisierung';
 import { KitchenPhase861ZubereitungszeitTrend } from './phase861-zubereitungszeit-trend';
 import { KitchenPhase867ZutatenVorschauBoard } from './phase867-zutaten-vorschau-board';
+import { KitchenPhase872BatchAuslastungsAmpel } from './phase872-batch-auslastungs-ampel';
 import { KitchenPrepCountdownAmpel } from './prep-countdown-ampel';
 import { KitchenSmartLiveKochstartKommando } from './smart-live-kochstart-kommando';
 
@@ -801,6 +802,8 @@ export function KitchenBoard({
       <KitchenPhase861ZubereitungszeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 867: Zutaten-Vorschau-Board — Aggregierter Artikel-Bedarf aller aktiven Bestellungen als Balkenranking */}
       <KitchenPhase867ZutatenVorschauBoard orders={filtered} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 872: Batch-Auslastungs-Ampel — Gleichzeitige Batches in Zubereitung vs. Küchen-Kapazität, Ampel grün/amber/rot */}
+      <KitchenPhase872BatchAuslastungsAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Prep-Countdown-Ampel: Echtzeit-Countdown aller aktiven Bestellungen mit 4-Farb-Ampel — überfällig/kritisch/bald/OK */}
       <KitchenPrepCountdownAmpel orders={filtered} timings={timings} />
       {/* Phase 422: Prioritäts-Kommando — Top-6 dringendste Bestellungen als Farbkacheln mit Countdown */}

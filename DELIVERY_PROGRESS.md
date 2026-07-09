@@ -12239,3 +12239,48 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 4. **Phase 874 Fahrer-App:** Touren-Karten-Minimap — SVG-Visualisierung der heutigen Lieferstopps auf vereinfachter Stadtkarte.
 5. **Phase 875 Storefront:** Bestellungs-Bestätigungs-Ticker — Animierter Eingangsticker "Bestellung #123 bestätigt" mit Konfetti-Burst.
 
+---
+
+## Batch 871-875 — 2026-07-09
+
+### Phase 871 — Lieferzonen-Erlös-Trend-API (Backend)
+**Datei:** `app/api/delivery/admin/lieferzonen-erloes-trend/route.ts`
+**GET:** Tages-Erlös je Zone A/B/C/D letzte 7 Tage als Trend-Chart-JSON
+**Logik:** Aggregiert `delivery_fee` aus `delivery_stops` nach Zone + Datum; Trend-Richtung (steigend/fallend/stabil) 3-Tage-Vergleich; Gesamtsummen je Zone
+**Response:** `{ trend[], totals, trendRichtung, generatedAt }`
+**Multi-Tenant: location_id auf jedem Query**
+
+### Phase 872 — Batch-Auslastungs-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase872-batch-auslastungs-ampel.tsx`
+**Props:** `locationId: string | null`
+**UI:** Ampel-Card (grün/amber/rot) mit Auslastungs-% + Fortschrittsbalken + Batch-Dots-Grid (aktiv vs. frei)
+**API:** `/api/delivery/admin/kitchen-capacity`, 1-Min-Polling; Fallback auf Mock
+**Integration:** `kitchen/client.tsx` nach Phase 867 ✅
+
+### Phase 873 — Fahrer-Tages-Protokoll (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase873-fahrer-tages-protokoll.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible je Fahrer — chronologische Timeline mit farbigen Dots: Schicht-Start/Stop, Tour-Start/Ende, Pause
+**API:** `/api/delivery/admin/fahrer-tages-protokoll`, 2-Min-Polling; Fallback auf Mock
+**Integration:** `dispatch/client.tsx` nach Phase 868 ✅
+
+### Phase 874 — Touren-Karten-Minimap (Fahrer-App)
+**Datei:** `app/fahrer/app/phase874-touren-karten-minimap.tsx`
+**Props:** `driverId: string, locationId?: string | null`
+**UI:** SVG-Minimap (280×160) mit projizierten lat/lng-Stopp-Dots (grün=geliefert, blau=ausstehend, rot=fehlgeschlagen) + gestrichelter Route-Polyline + Sequenz-Nummern
+**API:** `/api/delivery/driver/stops-today`, 2-Min-Polling; Fallback auf Mock-Cluster
+**Integration:** `fahrer/app/client.tsx` nach Phase 869 ✅
+
+### Phase 875 — Bestellungs-Bestätigungs-Ticker (Storefront)
+**Datei:** `app/order/[locationSlug]/phase875-bestellungs-bestaetigung-ticker.tsx`
+**Props:** `orderId: string | null, orderNumber?: string | number | null, status: string | null`
+**UI:** Slide-in-Banner mit Konfetti-Burst (28 Partikel, 5 Farben) bei Bestelleingang; grünes Checkmark + Bestell-Nr; sessionStorage-Guard verhindert Doppelanzeige; Auto-hide nach 4,5s
+**Integration:** `storefront.tsx` nach Phase 870 ✅
+
+### Nächste Phasen 876–880 (für Ingenieur)
+1. **Phase 876 Backend:** Fahrer-Pausen-Analyse-API — Pausen je Fahrer heute: Anzahl, Gesamtdauer, Ø-Pausen-Länge vs. Schicht-Länge.
+2. **Phase 877 Kitchen:** Zutaten-Warn-Schwelle — Alert wenn ein Artikel ≥15 Portionen in aktiven Bestellungen gebündelt ist.
+3. **Phase 878 Dispatch:** Echtzeit-Zone-Abdeckungs-Status — Zeigt ob alle Zonen A/B/C/D aktiv abgedeckt sind oder Lücken bestehen.
+4. **Phase 879 Fahrer-App:** Schicht-Wetter-Widget — Aktuelles Wetter + Temperatur als kompaktes Badge mit Regen-Warnung.
+5. **Phase 880 Storefront:** Live-Aktivitäts-Indikator — "X weitere Kunden bestellen gerade" als Social-Proof-Badge.
+
