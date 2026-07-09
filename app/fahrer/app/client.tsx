@@ -148,6 +148,7 @@ import { NaechsterStopFokus } from './naechster-stop-fokus';
 import { FahrerNavHub } from './fahrer-nav-hub';
 import { TourStoppCountdownRing } from './tour-stopp-countdown-ring';
 import { TourKassenRadar } from './tour-kassen-radar';
+import { KundenKontaktSchnell } from './kunden-kontakt-schnell';
 import { FahrerTagesScoreKarte } from './tages-score-karte';
 import { FahrerWochenScoreVerlauf } from './wochen-score-verlauf';
 import { FahrerTourNaechsterStoppKarte } from './tour-naechster-stopp-karte';
@@ -2072,6 +2073,23 @@ export function FahrerApp({
                     gesamtbetrag: s.order.gesamtbetrag ?? 0,
                     zahlungsart: s.order.zahlungsart ?? null,
                     bezahlt: s.order.bezahlt ?? null,
+                  } : null,
+                }))}
+              />
+            </div>
+          )}
+          {/* Phase 915: Kunden-Kontakt-Schnell — 1-Tap Anruf + 4 SMS-Vorlagen für den nächsten Kunden */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <KundenKontaktSchnell
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? null,
+                  geliefert_am: s.geliefert_am ?? null,
+                  order: s.order ? {
+                    kunde_name: s.order.kunde_name,
+                    kunde_telefon: s.order.kunde_telefon ?? null,
+                    kunde_adresse: s.order.kunde_adresse ?? null,
                   } : null,
                 }))}
               />
