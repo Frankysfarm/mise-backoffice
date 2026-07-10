@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils';
 import { StorefrontPhase876DynamischeEtaLiveTracking } from '../[locationSlug]/phase876-dynamische-eta-live-tracking';
 import { LiveEtaCountdownBanner } from '../[locationSlug]/live-eta-countdown-banner';
+import { OrderPhase1090DynamischeEtaLiveV2 } from '../[locationSlug]/phase1090-dynamische-eta-live-v2';
 
 type OrderStatus =
   | 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig'
@@ -23,6 +24,7 @@ type TrackData = {
   fahrer_vorname: string | null;
   fahrer_fahrzeug: string | null;
   gesamtbetrag?: number | null;
+  location_id?: string | null;
 };
 
 const STEPS: { status: OrderStatus[]; label: string; icon: React.ElementType }[] = [
@@ -92,6 +94,7 @@ export function PaidOrderClient({
           fahrer_vorname: d.driver_name ?? null,
           fahrer_fahrzeug: d.fahrer_fahrzeug ?? null,
           gesamtbetrag: d.gesamtbetrag ?? null,
+          location_id: d.location_id ?? null,
         });
       } catch { /* ignore */ }
     };
@@ -186,6 +189,17 @@ export function PaidOrderClient({
         {bon && !isTerminal && (
           <div className="mt-5">
             <StorefrontPhase876DynamischeEtaLiveTracking orderId={bon} initialEtaMin={etaMins} />
+          </div>
+        )}
+
+        {/* Phase 1090: Dynamische ETA Live V2 — Konfidenz-Ring + Schrittfortschritt + Auslastungsanzeige */}
+        {!isTerminal && (
+          <div className="mt-4">
+            <OrderPhase1090DynamischeEtaLiveV2
+              locationId={order?.location_id ?? undefined}
+              orderId={bon ?? undefined}
+              className="border-white/10 bg-white/5 text-white"
+            />
           </div>
         )}
 

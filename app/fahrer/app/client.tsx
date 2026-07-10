@@ -342,6 +342,7 @@ import { FahrerPhase1076LiveTourKartenMinimap } from './phase1076-live-tour-kart
 import { FahrerPhase1081SchichtAbschlussStatistikScreen } from './phase1081-schicht-abschluss-statistik-screen';
 import { FahrerPhase1086NaechsterStoppNavigationCard } from './phase1086-naechster-stopp-navigation-card';
 import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stopp-smart-navigator-hub';
+import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigator-cockpit';
 
 type Driver = {
   id: string;
@@ -4231,6 +4232,13 @@ export function FahrerApp({
               batchId={activeBatch.id}
             />
           </div>
+        )}
+
+        {/* Phase 1090: Stopp-Navigator Cockpit — Fokussierter Navi-Hub: aktuelle Adresse, Google Maps / Waze, Quick-Actions */}
+        {activeBatch && (
+          <FahrerPhase1090StoppNavigatorCockpit
+            stops={activeBatch.stops as any}
+          />
         )}
 
         {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}
