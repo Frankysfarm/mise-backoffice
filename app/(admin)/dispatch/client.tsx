@@ -427,6 +427,7 @@ import { DispatchPhase1065SpaetTourRisikoMonitor } from './phase1065-spaet-tour-
 import { DispatchPhase1070TourKostenoptimierung } from './phase1070-tour-kostenoptimierung';
 import { DispatchPhase1075FahrerWochenbilanzCard } from './phase1075-fahrer-wochenbilanz-card';
 import { DispatchPhase1080LiveFahrerstatusUebersicht } from './phase1080-live-fahrerstatus-uebersicht';
+import { DispatchPhase1085FahrerzuteilungVorschlag } from './phase1085-fahrerzuteilung-vorschlag';
 
 type Driver = {
   employee_id: string;
@@ -1311,6 +1312,8 @@ export function DispatchBoard({
       <DispatchPhase1075FahrerWochenbilanzCard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1080: Live-Fahrerstatus-Übersicht — Echtzeit-Board online/tour/pause/offline + Verfügbarkeits-Score */}
       <DispatchPhase1080LiveFahrerstatusUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1085: Fahrerzuteilung-Vorschlag — Bester Fahrer für nächste Bestellung nach Zone + Auslastung + Bewertung */}
+      <DispatchPhase1085FahrerzuteilungVorschlag locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
       <DispatchPhase1065SpaetTourRisikoMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}
