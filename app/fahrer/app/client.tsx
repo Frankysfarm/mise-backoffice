@@ -345,6 +345,7 @@ import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stop
 import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigator-cockpit';
 import { FahrerPhase1091TourAbschlussSelfieCheck } from './phase1091-tour-abschluss-selfie-check';
 import { FahrerPhase1096KilometerstandQuittung } from './phase1096-kilometerstand-quittung';
+import { FahrerPhase1101LiveKundenbewertung } from './phase1101-live-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -4260,6 +4261,11 @@ export function FahrerApp({
             <FahrerPhase1096KilometerstandQuittung driverId={driver.id} isOnline={isOnline} />
           </div>
         )}
+
+        {/* Phase 1101: Live-Kundenbewertung-Vorschau — Letzte 3 Bewertungen der Schicht + Trend */}
+        <div className="px-4">
+          <FahrerPhase1101LiveKundenbewertung driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}
         {!isOnline && !activeBatch && (
