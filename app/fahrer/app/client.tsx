@@ -341,6 +341,7 @@ import { FahrerPhase1071KundenKontaktSchnellPanelV2 } from './phase1071-kunden-k
 import { FahrerPhase1076LiveTourKartenMinimap } from './phase1076-live-tour-karten-minimap';
 import { FahrerPhase1081SchichtAbschlussStatistikScreen } from './phase1081-schicht-abschluss-statistik-screen';
 import { FahrerPhase1086NaechsterStoppNavigationCard } from './phase1086-naechster-stopp-navigation-card';
+import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stopp-smart-navigator-hub';
 
 type Driver = {
   id: string;
@@ -4218,6 +4219,16 @@ export function FahrerApp({
               stops={activeBatch.stops as any}
               batchStartedAt={activeBatch.started_at}
               isOnline={isOnline}
+            />
+          </div>
+        )}
+
+        {/* Phase 1087: Tour-Stopp Smart-Navigator Hub — Alle Stops priorisiert + Countdown + Navi-CTA + Abschluss-Button */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1087TourStoppSmartNavigatorHub
+              stops={activeBatch.stops as any}
+              batchId={activeBatch.id}
             />
           </div>
         )}

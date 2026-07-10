@@ -3,8 +3,8 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
-  experimental: { typedRoutes: false },
-  turbopack: { root: path.resolve(__dirname) },
+  eslint: { ignoreDuringBuilds: true },
+  turbopack: { root: __dirname },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

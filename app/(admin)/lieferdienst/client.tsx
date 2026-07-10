@@ -317,6 +317,7 @@ import { LieferdienstPhase1001SchichtKpiExecutiveLive } from './phase1001-schich
 import { LieferdienstPhase1002FahrerLeistungsRankingLive } from './phase1002-fahrer-leistungs-ranking-live';
 import { LieferdienstPhase1003LieferQualitaetsScoreboard } from './phase1003-liefer-qualitaets-scoreboard';
 import { LieferdienstPhase1004TagesStatistikenKomplett } from './phase1004-tages-statistiken-komplett';
+import { LieferdienstPhase1005StatistikenEchtzeitCockpit } from './phase1005-statistiken-echtzeit-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1587,6 +1588,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase980StatistikenKpiHub locationId={locationId ?? null} />
               {/* Phase 1004: Tages-Statistiken-Komplett — Vollständige Schichtauswertung mit Charts und Top-Artikel */}
               <LieferdienstPhase1004TagesStatistikenKomplett locationId={locationId ?? null} />
+              {/* Phase 1005: Statistiken Echtzeit-Cockpit — KPIs, SLA-Ampel, Stundenkurve, Fahrer-Rangliste */}
+              <LieferdienstPhase1005StatistikenEchtzeitCockpit />
               {/* Phase 1003: Liefer-Qualitäts-Scoreboard — Pünktlichkeit, Bewertungen, SLA, Storno als Ampeln */}
               <LieferdienstPhase1003LieferQualitaetsScoreboard locationId={locationId ?? null} />
               {/* Phase 1002: Fahrer-Leistungs-Ranking-Live — Live-Ranking aller aktiven Fahrer nach Effizienz-Score */}

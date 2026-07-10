@@ -125,6 +125,7 @@ import { KitchenPhase885ArtikelAusverkaufAlarm } from './phase885-artikel-ausver
 import { KitchenPhase890WarmhalteLimitAnzeige } from './phase890-warmhalte-limit-anzeige';
 import { KitchenPhase895BestellungsWellenRadar } from './phase895-bestellungs-wellen-radar';
 import { KitchenPhase900SmartKochstartKommandozentrale } from './phase900-smart-kochstart-kommandozentrale';
+import { KitchenPhase1085SmartCountdownFarbkodierungCockpit } from './phase1085-smart-countdown-farbkodierung-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1058,6 +1059,8 @@ export function KitchenBoard({
       <KitchenPhase895BestellungsWellenRadar orders={filtered as any} />
       {/* Phase 900: Smart-Kochstart-Kommandozentrale — Farbkodierte Countdown-Übersicht mit Sofort-Start-Aktion */}
       <KitchenPhase900SmartKochstartKommandozentrale orders={filtered} timings={timings} />
+      {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
+      <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}
