@@ -26,7 +26,7 @@ const ALLERGENE = [
   { key: 'laktose',  label: 'Laktose',        emoji: '🥛', schwere: 'warnung' as Schwere,  keywords: ['käse', 'sahne', 'butter', 'milch', 'joghurt', 'creme', 'cream', 'quark', 'mozarella', 'parmesan'] },
   { key: 'ei',       label: 'Ei',             emoji: '🥚', schwere: 'warnung' as Schwere,  keywords: ['ei', 'mayo', 'mayonnaise', 'omelette', 'rührei', 'spiegelei', 'frittata'] },
   { key: 'soja',     label: 'Soja',           emoji: '🫘', schwere: 'hinweis' as Schwere,  keywords: ['soja', 'tofu', 'edamame', 'miso', 'teriyaki'] },
-  { key: 'sellerie', label: 'Sellerie',       emoji: '🌿', schwere: 'hinweis' as Schwere,  keywords: ['sellerie', 'suppe', 'brühe', 'eintopf'] },
+  { key: 'sellerie', label: 'Sellerie',       emoji: '🌿', schwere: 'hinweis' as Schwere,  keywords: ['sellerie', 'selleriesalat', 'selleriesuppe', 'knollensellerie', 'staudensellerie'] },
 ];
 
 const ZWEI_STUNDEN = 2 * 3600_000;

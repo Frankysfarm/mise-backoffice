@@ -1,15 +1,22 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1077 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–1082 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
 Backend-Architekt-Agent (2026-07-10): Phasen 1073–1077 vollständig implementiert + integriert. Phase1073 Echtzeit-Storno-Analyse Kitchen (GET /api/delivery/admin/echtzeit-storno-analyse, Storno-Gründe nach Tageszeit + Häufigkeit + Auto-Alert wenn Rate >10%, Balkendiagramm + Top-Gründe, kitchen/client.tsx nach Phase1069) ✅, Phase1074 Küchenpersonal-Auslastungs-Uhr Kitchen (SVG-Radial-Uhr mit Stunden-Segmenten + Ampelfarben + Peak-Erkennung + aktuelle Auslastung vs. Kapazität, kitchen/client.tsx nach Phase1073) ✅, Phase1075 Fahrer-Wochenbilanz-Card Dispatch (GET /api/delivery/admin/fahrer-wochenbilanz, Wochenstatistik je Fahrer Stopps/Umsatz/Bewertung + Podium-Ranking + Highlight bester Fahrer, dispatch/client.tsx nach Phase1070) ✅, Phase1076 Live-Tour-Karten-Minimap Fahrer-App (SVG-Minimap mit Stopp-Markierungen + Fahrer-Dreieck + Routenlinien + Stopp-Liste collapsible, fahrer/app/client.tsx nach Phase1071) ✅, Phase1077 Liefergebiet-Checker Storefront (GET /api/delivery/order/liefergebiet-checker, PLZ-Eingabe → grün/rot + Zone A/B/C/D + ETA + MBW + Lieferkosten, Supabase delivery_zones + PLZ-Präfix-Fallback, storefront.tsx nach Phase1072) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 
-### Nächste Phasen 1078–1082 (für Ingenieur)
-1. **Phase 1078 Backend:** Fahrer-Routen-Effizienz-Index — km je Stopp je Fahrer + Trend-Vergleich Vorwoche + Ranking.
-2. **Phase 1079 Kitchen:** Allergiker-Tages-Alert-Board — Alle Bestellungen mit Allergen-Flags der letzten 2h + Farbampel nach Schwere.
-3. **Phase 1080 Dispatch:** Live-Fahrerstatus-Übersicht — Echtzeit-Board aller Fahrer (online/pause/tour/offline) + Verfügbarkeits-Score.
-4. **Phase 1081 Fahrer-App:** Schicht-Abschluss-Statistik-Screen — Tages-Summary mit Stopps/Umsatz/km/Trinkgeld + Motivations-Badge.
-5. **Phase 1082 Storefront:** Bestellstatus-Push-Opt-In-Banner — Banner für Browser-Push-Benachrichtigungen bei Statusänderungen.
+### Abgeschlossene Phasen 1078–1082 ✅
+1. **Phase 1078 Backend:** Fahrer-Routen-Effizienz-Index ✅ — km je Stopp je Fahrer + Trend-Vergleich Vorwoche + Ranking.
+2. **Phase 1079 Kitchen:** Allergiker-Tages-Alert-Board ✅ — Alle Bestellungen mit Allergen-Flags der letzten 2h + Farbampel nach Schwere. (Bug gefixt: Sellerie-Keywords präzisiert)
+3. **Phase 1080 Dispatch:** Live-Fahrerstatus-Übersicht ✅ — Echtzeit-Board aller Fahrer (online/pause/tour/offline) + Verfügbarkeits-Score.
+4. **Phase 1081 Fahrer-App:** Schicht-Abschluss-Statistik-Screen ✅ — Tages-Summary mit Stopps/Umsatz/km/Trinkgeld + Motivations-Badge.
+5. **Phase 1082 Storefront:** Bestellstatus-Push-Opt-In-Banner ✅ — Banner für Browser-Push-Benachrichtigungen bei Statusänderungen.
+
+### Nächste Phasen 1083–1087 (für Ingenieur)
+1. **Phase 1083 Backend:** Echtzeit-Durchschnittsliefer-zeit-Monitor — Gleitender Ø-Lieferzeit je Zone der letzten 1h, verglichen mit SLA-Ziel (30 Min), Alert wenn >20% Überschreitung.
+2. **Phase 1084 Kitchen:** Rückstand-Alarm — Bestellungen in Zubereitung die länger als Prep-Ziel warten + Eskalations-Level nach Wartezeit.
+3. **Phase 1085 Dispatch:** Fahrerzuteilung-Vorschlag — Bester verfügbarer Fahrer für nächste Bestellung (Zone + Auslastung + Bewertung).
+4. **Phase 1086 Fahrer-App:** Nächster-Stopp-Navigation-Card — Adresse + Karten-Link + Klingel/Etage-Info + Timer seit Pickup.
+5. **Phase 1087 Storefront:** Bewertungs-Erinnerung — After-Delivery-Overlay 2h nach Lieferung mit 1-Klick-Sterne-Bewertung.
 
 Frontend-Ingenieur-Agent (2026-07-09): Phasen 1068–1072 vollständig implementiert + integriert. Phase1068 Fahrerschicht-Produktivitäts-Benchmark-API Backend (GET /api/delivery/admin/fahrerschicht-produktivitaets-benchmark, Stopps/h je Fahrer vs. Team-Ø + Delta-% + Trend besser/gleich/schlechter + historischer Verlauf, Supabase mise_drivers+mise_delivery_batches+Mock) ✅, Phase1069 Wartezeit-Heatmap-Tageszeit Kitchen (Farbkodierte Balken-Heatmap je Stunde ≥20Min=Rot/≥15=Orange/≥10=Amber/OK=Grün + Personalempfehlung + Peak-Stunde, GET /api/delivery/admin/wartezeit-heatmap-tageszeit, kitchen/client.tsx vor Phase1064) ✅, Phase1070 Tour-Kostenoptimierung-Vorschlag Dispatch (Zusammenlegungsvorschläge für Touren gleicher Zone + Ersparnis €/km-Kalkulation + Machbarkeit-Ampel hoch/mittel/niedrig, GET /api/delivery/admin/tour-kostenoptimierung, dispatch/client.tsx vor Phase1065) ✅, Phase1071 Kunden-Kontakt-Schnell-Panel v2 Fahrer-App (1-Tap Anruf/Nachricht/Klingeln-Buttons + "Nicht-Erreicht"-Meldung an Dispatch + State-Tracking, fahrer/app/client.tsx) ✅, Phase1072 Bestellhistorie-Widget Storefront (Letzte 3 Bestellungen in kompakter Timeline + Datum-Format + Wiederholen-Button + collapsible, GET /api/delivery/order/bestellhistorie, storefront.tsx vor Phase1057) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 
