@@ -430,6 +430,7 @@ import { DispatchPhase1080LiveFahrerstatusUebersicht } from './phase1080-live-fa
 import { DispatchPhase1085FahrerzuteilungVorschlag } from './phase1085-fahrerzuteilung-vorschlag';
 import { DispatchPhase1086TourScoreLiveVisualisierung } from './phase1086-tour-score-live-visualisierung';
 import { DispatchPhase1090TourScoreLiveBoard } from './phase1090-tour-score-live-board';
+import { DispatchPhase1093FahrerPauseKoordinator } from './phase1093-fahrerpause-koordinator';
 
 type Driver = {
   employee_id: string;
@@ -1320,6 +1321,8 @@ export function DispatchBoard({
       <DispatchPhase1086TourScoreLiveVisualisierung batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1090: Tour-Score Live-Board — Fahrer-Rangliste mit Score-Balken, aktiver Tour + Punktlichkeit */}
       <DispatchPhase1090TourScoreLiveBoard drivers={drivers as any} batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1093 (1090): Fahrerpause-Koordinator — Koordiniert Pausen so dass min. 2 Fahrer je Zone aktiv bleiben */}
+      <DispatchPhase1093FahrerPauseKoordinator locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
       <DispatchPhase1065SpaetTourRisikoMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}

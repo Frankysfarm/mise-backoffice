@@ -343,6 +343,7 @@ import { FahrerPhase1081SchichtAbschlussStatistikScreen } from './phase1081-schi
 import { FahrerPhase1086NaechsterStoppNavigationCard } from './phase1086-naechster-stopp-navigation-card';
 import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stopp-smart-navigator-hub';
 import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigator-cockpit';
+import { FahrerPhase1091TourAbschlussSelfieCheck } from './phase1091-tour-abschluss-selfie-check';
 
 type Driver = {
   id: string;
@@ -4239,6 +4240,17 @@ export function FahrerApp({
           <FahrerPhase1090StoppNavigatorCockpit
             stops={activeBatch.stops as any}
           />
+        )}
+
+        {/* Phase 1091: Tour-Abschluss-Selfie-Check — Selfie-Prompt für Schicht-Ende-Protokoll nach letzter Lieferung */}
+        {activeBatch && isOnline && activeBatch.stops.length > 0 && (activeBatch.stops as any[]).every((s: any) => s.geliefert_am) && (
+          <div className="px-4">
+            <FahrerPhase1091TourAbschlussSelfieCheck
+              driverId={driver.id}
+              batchId={activeBatch.id}
+              isOnline={isOnline}
+            />
+          </div>
         )}
 
         {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}

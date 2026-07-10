@@ -189,6 +189,7 @@ import { Phase1072BestellhistorieWidget } from './phase1072-bestellhistorie-widg
 import { Phase1077LiefergebietChecker } from './phase1077-liefergebiet-checker';
 import { Phase1082PushOptInBanner } from './phase1082-push-opt-in-banner';
 import { Phase1087BewertungsErinnerung } from './phase1087-bewertungs-erinnerung';
+import { Phase1092GruppenBestellungsBanner } from './phase1092-gruppen-bestellungs-banner';
 
 type Props = {
   location: Location;
@@ -1423,6 +1424,11 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           closeDetail();
         }}
       />
+
+      {/* Phase 1092: Gruppen-Bestellungs-Banner — Hinweis bei ≥3 Artikeln im Warenkorb + Rabattcode-Hinweis */}
+      <div className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-[55] px-4 mb-[5.5rem]">
+        <Phase1092GruppenBestellungsBanner cart={cart as any} />
+      </div>
 
       {/* Phase 1011: Bestellabbruch-Prävention-Banner — erscheint nach >3 Min im Checkout ohne Abschluss */}
       <StorefrontPhase1011BestellabbruchPraevention

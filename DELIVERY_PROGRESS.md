@@ -13617,9 +13617,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **Logik:** setTimeout(2h − elapsed seit orderedAt); POST /api/delivery/order/item-bewertung; localStorage-Guard verhindert Doppelwertung; null wenn dismissed
 **Integration:** `storefront.tsx` nach Phase1082 ✅
 
-### Nächste Phasen 1088–1092 (für Ingenieur)
-1. **Phase 1088 Backend:** Lieferdichter-Zeitfenster-API — Welche 30-Min-Slots haben historisch die höchste Bestelldichte + Empfehlung Fahrerverstärkung.
-2. **Phase 1089 Kitchen:** Kunden-Allergenprofil-Warnung — Bei bekannten Stammkunden: Allergen-Historie aus letzten 5 Bestellungen anzeigen.
-3. **Phase 1090 Dispatch:** Fahrerpause-Koordinator — Koordiniert Pausen so dass min. 2 Fahrer je Zone immer aktiv bleiben.
-4. **Phase 1091 Fahrer-App:** Tour-Abschluss-Selfie-Check — Nach letzter Lieferung: Kurzes Selfie-Prompt für Schicht-Ende-Protokoll.
-5. **Phase 1092 Storefront:** Gruppen-Bestellungs-Banner — Hinweis wenn ≥3 Artikel vom selben Tisch/Zimmer bestellt werden + Rabattcode-Hinweis.
+---
+
+## Batch 1088–1092 — 2026-07-10
+
+### Phase 1088 — Lieferdichter-Zeitfenster-API (Backend)
+**Datei:** `app/api/delivery/admin/lieferdichter-zeitfenster/route.ts`
+**GET:** `?location_id=<uuid>` — 48 Slots (24h × 2, je 30 Min) mit Bestellanzahl letzte 4 Wochen; Intensität peak/hoch/mittel/niedrig; empfehlung_verstaerkung wenn >75% des Peaks; peak_slot + peak_bestellungen
+**Logik:** customer_orders.created_at → UTC-Stunde+Minute-Bucket; weekday-normalisiert auf 4 Wochen; Schwellwerte 90/60/30% für peak/hoch/mittel; Supabase + Sinus-Mock
+**Response:** `{ slots[], peak_slot, peak_bestellungen, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1089 — Kunden-Allergenprofil-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1089-kunden-allergenprofil-warnung.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible rose; je Stammkunde: Name + Bestellanzahl + Allergen-Badges (7 Farben je Allergen); nur bei aktiven Bestellungen; null wenn keine Stammkunden mit Allergenen
+**Logik:** Stammkunde = ≥2 Bestellungen; letzte 5 Orders → Allergen-Extraktion (strukturiert + Keyword-Fallback); nur Kunden mit aktiver Bestellung (ACTIVE_STATUSES); Gruppierung nach telefon/name
+**Integration:** `kitchen/client.tsx` nach Phase1084 ✅
+
+### Phase 1090/1093 — Fahrerpause-Koordinator (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1093-fahrerpause-koordinator.tsx` + `app/api/delivery/admin/fahrerpause-koordinator/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible teal/amber/rot (je nach Kritikalität); Zonen-Status-Row (aktiv/auf-Pause/Minimum-Erfüllt); je Fahrer: Name + Zone + Schichtdauer + letzte-Pause-Zeit + Empfehlung-Badge; Zone-unter-Minimum pulsierend; 5-Min-Polling
+**API:** mise_drivers.online/on_tour/returning → schicht_dauer_min + letzte_pause; pause_moeglich wenn Zone noch ≥2 Fahrer nach Pause; 3 Level: sofort/empfohlen/keine; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase1090-TourScoreBoard ✅
+
+### Phase 1091 — Tour-Abschluss-Selfie-Check (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1091-tour-abschluss-selfie-check.tsx` + `app/api/delivery/driver/selfie-check/route.ts`
+**Props:** `driverId: string, batchId: string, isOnline: boolean, onConfirmed?: () => void`
+**UI:** Kamera-Öffnen-Button + Datei-Upload-Fallback + Überspringen; Live-Kamera-Vorschau (videoRef) + Snapshot (canvasRef); Vorschau-State mit Bestätigen/Wiederholen; Done/Skipped-States; isOnline-Guard
+**API:** POST selfie-check → driver_shift_checks Best-Effort; gibt immer 200 zurück
+**Logik:** erscheint wenn activeBatch.stops.every(s => s.geliefert_am) — alle Stopps geliefert; getUserMedia mit facingMode:'user'; Fallback auf file input mit capture='user'
+**Integration:** `fahrer/app/client.tsx` vor Phase1081 (wenn activeBatch + alle Stopps geliefert) ✅
+
+### Phase 1092 — Gruppen-Bestellungs-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1092-gruppen-bestellungs-banner.tsx`
+**Props:** `cart: CartItem[], minItems?: number, rabattCode?: string | null`
+**UI:** Fixierter Banner (z-55, bottom); violet-Farbschema; Users-Icon + rotierender Motivationstext (alle 5s, 3 Nachrichten); Rabattcode-Chip wenn vorhanden, sonst Tipp-Text; X-Dismiss; slide-in-from-bottom Animation
+**Logik:** isGruppe wenn totalQty ≥ 3; Dismissed-Reset wenn totalQty < 3; rein client-seitig
+**Integration:** `storefront.tsx` vor Phase1011 (Bestellabbruch-Prävention) ✅
+
+### Nächste Phasen 1093–1097 (für Ingenieur)
+1. **Phase 1093 Backend:** Schicht-Produktivitäts-Benchmark-API — Stopps/Stunde je Fahrer vs. Team-Ø + historischer 7-Tage-Verlauf.
+2. **Phase 1094 Kitchen:** Tages-Zubereitung-Zeitplan — Prognose welche Bestellungen in den nächsten 30 Min eintreffen + empfohlene Vorabzubereitung.
+3. **Phase 1095 Dispatch:** Zonen-Abdeckungs-Garantie-Monitor — Echtzeit-Alert wenn eine Zone komplett unabgedeckt ist (0 Fahrer).
+4. **Phase 1096 Fahrer-App:** Kilometerstand-Quittung-Generator — PDF-ähnliche Übersicht der heutigen Fahrten als Nachweis für Erstattung.
+5. **Phase 1097 Storefront:** Erst-Bestellung-Bonus-Banner — Sonderangebot für Neukunden (erste Bestellung) mit Countdown + Code.
