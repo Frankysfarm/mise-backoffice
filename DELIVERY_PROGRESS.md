@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1082 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–1087 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-10): Phasen 1083–1087 vollständig implementiert + integriert. Phase1083 Echtzeit-Durchschnittsliefer-zeit-Monitor Backend (GET /api/delivery/admin/durchschnittsliefer-zeit, gleitender Ø-Lieferzeit je Zone letzte 1h, SLA-Ziel 30 Min, Alert >20%, Supabase+Mock) ✅, Phase1084 Rückstand-Alarm Kitchen (3-Level Kritisch/Hoch/Verzögert, Schwellwerte 30/20/15 Min, Timer, kitchen/client.tsx nach Phase1079) ✅, Phase1085 Fahrerzuteilung-Vorschlag Dispatch (API + Frontend, Score Zone+Auslastung+Bewertung, match_level optimal/gut/akzeptabel, 90s-Polling, dispatch/client.tsx nach Phase1080) ✅, Phase1086 Nächster-Stopp-Navigation-Card Fahrer-App (Adresse+Maps-Link+Klingel/Etage-Extraktion+Timer, fahrer/app/client.tsx bei activeBatch) ✅, Phase1087 Bewertungs-Erinnerung Storefront (Overlay 2h nach Bestellaufgabe, 1–5-Sterne, POST item-bewertung, localStorage-Guard, storefront.tsx nach Phase1082) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
+
 Backend-Architekt-Agent (2026-07-10): Phasen 1073–1077 vollständig implementiert + integriert. Phase1073 Echtzeit-Storno-Analyse Kitchen (GET /api/delivery/admin/echtzeit-storno-analyse, Storno-Gründe nach Tageszeit + Häufigkeit + Auto-Alert wenn Rate >10%, Balkendiagramm + Top-Gründe, kitchen/client.tsx nach Phase1069) ✅, Phase1074 Küchenpersonal-Auslastungs-Uhr Kitchen (SVG-Radial-Uhr mit Stunden-Segmenten + Ampelfarben + Peak-Erkennung + aktuelle Auslastung vs. Kapazität, kitchen/client.tsx nach Phase1073) ✅, Phase1075 Fahrer-Wochenbilanz-Card Dispatch (GET /api/delivery/admin/fahrer-wochenbilanz, Wochenstatistik je Fahrer Stopps/Umsatz/Bewertung + Podium-Ranking + Highlight bester Fahrer, dispatch/client.tsx nach Phase1070) ✅, Phase1076 Live-Tour-Karten-Minimap Fahrer-App (SVG-Minimap mit Stopp-Markierungen + Fahrer-Dreieck + Routenlinien + Stopp-Liste collapsible, fahrer/app/client.tsx nach Phase1071) ✅, Phase1077 Liefergebiet-Checker Storefront (GET /api/delivery/order/liefergebiet-checker, PLZ-Eingabe → grün/rot + Zone A/B/C/D + ETA + MBW + Lieferkosten, Supabase delivery_zones + PLZ-Präfix-Fallback, storefront.tsx nach Phase1072) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 
 ### Abgeschlossene Phasen 1078–1082 ✅
@@ -13575,3 +13577,49 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 1070 Dispatch:** Tour-Kostenoptimierung-Vorschlag — Welche Touren können zusammengelegt werden um Fahrtkosten zu senken.
 4. **Phase 1071 Fahrer-App:** Kunden-Kontakt-Schnell-Panel v2 — 1-Tap Anruf + Nachricht + Klingeln-Not-reached-Meldung, geräuschlos ohne manuelle Eingabe.
 5. **Phase 1072 Storefront:** Bestellhistorie-Widget — Letzte 3 Bestellungen des Nutzers in kompakter Timeline, Wiederholen-Button.
+
+---
+
+## Batch 1083–1087 — 2026-07-10
+
+### Phase 1083 — Echtzeit-Durchschnittsliefer-zeit-Monitor (Backend)
+**Datei:** `app/api/delivery/admin/durchschnittsliefer-zeit/route.ts`
+**GET:** `?location_id=<uuid>` — gleitender Ø-Lieferzeit je Zone letzte 1h vs. SLA-Ziel 30 Min; Alert wenn >20% Überschreitung
+**Logik:** customer_orders.delivered_at−created_at → Ø je delivery_zone letzte 1h; status ok/warnung/kritisch (>SLA*1.0/>SLA*1.4); sla_erfullt_pct; Mock 4 Zonen A–D
+**Response:** `{ zonen[], gesamt_avg_min, alert_zonen, sla_ziel_min, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1084 — Rückstand-Alarm (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1084-rueckstand-alarm.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; sortiert nach Wartezeit absteigend; je Bestellung: Bestellnr + Level-Badge (Kritisch pulsierend/Hoch/Verzögert) + Timer-Min (groß) + Artikel-Preview; Header-Badge Kritisch×/Hoch× + max Wartezeit
+**Logik:** PREP_STATUSES Keyword-Filter; getLevel: ≥30=Kritisch, ≥20=Hoch, ≥15=Verzögert; rein client-seitig useMemo; null wenn keine Verzögerungen
+**Integration:** `kitchen/client.tsx` nach Phase1079 ✅
+
+### Phase 1085 — Fahrerzuteilung-Vorschlag (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1085-fahrerzuteilung-vorschlag.tsx` + `app/api/delivery/admin/fahrerzuteilung-vorschlag/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible emerald; Rang-Emojis 🥇🥈🥉; je Fahrer: Name + match_level-Badge (Optimal/Gut/Akzeptabel) + Zone + Bewertungs-Sterne + Score-Punkte + Grund-Text; offene-Bestellungen + naechste-Zone Header; 90s-Polling
+**API:** mise_drivers.online/returning + customer_orders.confirmed → Score = Zone-Match(30/10) + (rating-3)×10 − aktiveTour×20; Top-5; Fallback Mock
+**Integration:** `dispatch/client.tsx` nach Phase1080 ✅
+
+### Phase 1086 — Nächster-Stopp-Navigation-Card (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1086-naechster-stopp-navigation-card.tsx`
+**Props:** `stops: Stop[], batchStartedAt: string | null, isOnline: boolean`
+**UI:** Blauer Header mit Stopp-Nr + Elapsed-Timer (MM:SS); Kunden-Name + Bestellnr; Adresse mit MapPin; Klingel/Etage-Extraktion aus kunde_notiz/kunde_lieferhinweis; Hinweis-Box wenn kein Extract; Google-Maps-Link-Button
+**Logik:** firstUndeliveredStop; Regex-Extraktion Etage+Klingel; mapsLink lat/lng oder Textsuche; useEffect Sekunden-Ticker; null wenn !isOnline || !nextStop
+**Integration:** `fahrer/app/client.tsx` bei activeBatch (vor Phase1081) ✅
+
+### Phase 1087 — Bewertungs-Erinnerung (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1087-bewertungs-erinnerung.tsx`
+**Props:** `orderId: string | null, orderedAt?: string | null`
+**UI:** Fullscreen-Overlay (backdrop-blur); 1–5-Sterne Hover-Animation; Label (Schlecht/Ausbaufähig/Okay/Gut/Ausgezeichnet); Bestätigungs-Zustand mit 🎉 + Schließen-Button; X-Dismiss; slide-in-from-bottom Animation
+**Logik:** setTimeout(2h − elapsed seit orderedAt); POST /api/delivery/order/item-bewertung; localStorage-Guard verhindert Doppelwertung; null wenn dismissed
+**Integration:** `storefront.tsx` nach Phase1082 ✅
+
+### Nächste Phasen 1088–1092 (für Ingenieur)
+1. **Phase 1088 Backend:** Lieferdichter-Zeitfenster-API — Welche 30-Min-Slots haben historisch die höchste Bestelldichte + Empfehlung Fahrerverstärkung.
+2. **Phase 1089 Kitchen:** Kunden-Allergenprofil-Warnung — Bei bekannten Stammkunden: Allergen-Historie aus letzten 5 Bestellungen anzeigen.
+3. **Phase 1090 Dispatch:** Fahrerpause-Koordinator — Koordiniert Pausen so dass min. 2 Fahrer je Zone immer aktiv bleiben.
+4. **Phase 1091 Fahrer-App:** Tour-Abschluss-Selfie-Check — Nach letzter Lieferung: Kurzes Selfie-Prompt für Schicht-Ende-Protokoll.
+5. **Phase 1092 Storefront:** Gruppen-Bestellungs-Banner — Hinweis wenn ≥3 Artikel vom selben Tisch/Zimmer bestellt werden + Rabattcode-Hinweis.
