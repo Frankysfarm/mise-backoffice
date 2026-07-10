@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1087 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–1097 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-10): Phasen 1093–1097 vollständig implementiert + integriert. Phase1093 Schicht-Produktivitäts-Benchmark-API Backend (GET /api/delivery/admin/schicht-produktivitaets-benchmark, Stopps/Stunde je Fahrer vs. Team-Ø + Delta-% + Trend + historischer 7-Tage-Verlauf, Supabase mise_drivers+mise_delivery_stops+driver_shifts+Mock) ✅, Phase1094 Tages-Zubereitung-Zeitplan Kitchen (Prognose nächste Bestellungen in 30 Min + Vorabzubereitung-Hinweise per Keyword-Matching Ofen/Grill/Friteuse/Pasta/Suppe etc., sortiert nach ETA, client-seitig useMemo, kitchen/client.tsx nach Phase1089) ✅, Phase1095 Zonen-Abdeckungs-Garantie-Monitor Dispatch (Echtzeit-Alert wenn Zone 0 Fahrer aktiv, 4-Zonen-Grid A/B/C/D mit ok/kritisch/unabgedeckt Ampel, 60s-Polling, fahrer-live-position API, dispatch/client.tsx nach Phase1093) ✅, Phase1096 Kilometerstand-Quittung-Generator Fahrer-App (Druckbare Fahrtenübersicht je Tour Zone/km/Stopps/Erstattung 0,30€/km + Gesamt-Footer + Print/PDF-Button, schicht-bilanz API + Mock, fahrer/app/client.tsx wenn isOnline) ✅, Phase1097 Erst-Bestellung-Bonus-Banner Storefront (15-Min-Countdown + Rabattcode WILLKOMMEN5 + Copy-Button + localStorage-Guard nur Neukunden, client-seitig, storefront.tsx nach Phase1092) ✅. Build ✓ Compiled successfully 378 Seiten. Push origin/main. ✅
+
 Backend-Architekt-Agent (2026-07-10): Phasen 1083–1087 vollständig implementiert + integriert. Phase1083 Echtzeit-Durchschnittsliefer-zeit-Monitor Backend (GET /api/delivery/admin/durchschnittsliefer-zeit, gleitender Ø-Lieferzeit je Zone letzte 1h, SLA-Ziel 30 Min, Alert >20%, Supabase+Mock) ✅, Phase1084 Rückstand-Alarm Kitchen (3-Level Kritisch/Hoch/Verzögert, Schwellwerte 30/20/15 Min, Timer, kitchen/client.tsx nach Phase1079) ✅, Phase1085 Fahrerzuteilung-Vorschlag Dispatch (API + Frontend, Score Zone+Auslastung+Bewertung, match_level optimal/gut/akzeptabel, 90s-Polling, dispatch/client.tsx nach Phase1080) ✅, Phase1086 Nächster-Stopp-Navigation-Card Fahrer-App (Adresse+Maps-Link+Klingel/Etage-Extraktion+Timer, fahrer/app/client.tsx bei activeBatch) ✅, Phase1087 Bewertungs-Erinnerung Storefront (Overlay 2h nach Bestellaufgabe, 1–5-Sterne, POST item-bewertung, localStorage-Guard, storefront.tsx nach Phase1082) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 
 Backend-Architekt-Agent (2026-07-10): Phasen 1073–1077 vollständig implementiert + integriert. Phase1073 Echtzeit-Storno-Analyse Kitchen (GET /api/delivery/admin/echtzeit-storno-analyse, Storno-Gründe nach Tageszeit + Häufigkeit + Auto-Alert wenn Rate >10%, Balkendiagramm + Top-Gründe, kitchen/client.tsx nach Phase1069) ✅, Phase1074 Küchenpersonal-Auslastungs-Uhr Kitchen (SVG-Radial-Uhr mit Stunden-Segmenten + Ampelfarben + Peak-Erkennung + aktuelle Auslastung vs. Kapazität, kitchen/client.tsx nach Phase1073) ✅, Phase1075 Fahrer-Wochenbilanz-Card Dispatch (GET /api/delivery/admin/fahrer-wochenbilanz, Wochenstatistik je Fahrer Stopps/Umsatz/Bewertung + Podium-Ranking + Highlight bester Fahrer, dispatch/client.tsx nach Phase1070) ✅, Phase1076 Live-Tour-Karten-Minimap Fahrer-App (SVG-Minimap mit Stopp-Markierungen + Fahrer-Dreieck + Routenlinien + Stopp-Liste collapsible, fahrer/app/client.tsx nach Phase1071) ✅, Phase1077 Liefergebiet-Checker Storefront (GET /api/delivery/order/liefergebiet-checker, PLZ-Eingabe → grün/rot + Zone A/B/C/D + ETA + MBW + Lieferkosten, Supabase delivery_zones + PLZ-Präfix-Fallback, storefront.tsx nach Phase1072) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
@@ -13616,6 +13618,51 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **UI:** Fullscreen-Overlay (backdrop-blur); 1–5-Sterne Hover-Animation; Label (Schlecht/Ausbaufähig/Okay/Gut/Ausgezeichnet); Bestätigungs-Zustand mit 🎉 + Schließen-Button; X-Dismiss; slide-in-from-bottom Animation
 **Logik:** setTimeout(2h − elapsed seit orderedAt); POST /api/delivery/order/item-bewertung; localStorage-Guard verhindert Doppelwertung; null wenn dismissed
 **Integration:** `storefront.tsx` nach Phase1082 ✅
+
+---
+
+## Batch 1093–1097 — 2026-07-10
+
+### Phase 1093 — Schicht-Produktivitäts-Benchmark-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-produktivitaets-benchmark/route.ts`
+**GET:** `?location_id=<uuid>` — Stopps/Stunde je Fahrer heute vs. Team-Ø + Delta-% + 7-Tage-Verlauf
+**Logik:** mise_drivers (aktive) + mise_delivery_stops (letzte 7d) + driver_shifts (Schichtdauer heute); stopps/h = stopps_heute / schicht_stunden; Team-Ø Mittelwert; delta_pct = ((fahrer-avg)/avg)×100; Trend besser/gleich/schlechter vs. Vortag
+**Response:** `{ fahrer[]: { fahrer_id, name, stopps_pro_stunde_heute, team_durchschnitt, delta_pct, trend, verlauf_7d[], rang }, team_durchschnitt, location_id, generiert_am }`
+
+### Phase 1094 — Tages-Zubereitung-Zeitplan (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1094-tages-zubereitung-zeitplan.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; je ausstehende Bestellung: ETA-Timer + Dringlichkeit sofort/bald/geplant + Artikel-Liste + Vorabzubereitung-Badges; pulsierender SOFORT-Badge im Header wenn ETA ≤10 Min; null wenn keine wartenden
+**Logik:** client-seitig useMemo; filtert PENDING_STATUSES; ETA aus promised_at oder created_at+35Min; 8 Prep-Hint-Regeln Keyword-Matching (Ofen/Grill/Friteuse/Pasta/Suppe/Salat/Burger/Dessert/Reis); sortiert nach ETA
+**Integration:** `kitchen/client.tsx` nach Phase1089 ✅
+
+### Phase 1095 — Zonen-Abdeckungs-Garantie-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1095-zonen-abdeckungs-garantie.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; rot pulsierend wenn unabgedeckte Zone; Alert-Banner "Zone X FREI — Fahrer entsenden!"; 2×2-Grid Zonen A/B/C/D mit Fahrer-Anzahl + Status ok/kritisch/unabgedeckt + Fahrernamen; 60s-Polling
+**Logik:** nutzt fahrer-live-position API → deriving zone-coverage client-seitig; unabgedeckt=0 aktiv/kritisch=1 aktiv; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1093 ✅
+
+### Phase 1096 — Kilometerstand-Quittung-Generator (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1096-kilometerstand-quittung.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible; Print-Bereich mit Tabelle Tour-ID/Zone/Start/Ende/km/Stopps/€; Gesamt-Footer; Erstattungssatz 0,30€/km; Print-Button (window.print()) + Aktualisieren-Button; isOnline-Guard
+**API:** GET `/api/delivery/driver/schicht-bilanz` + Mock-Fallback (3 Touren, 42km, 12,60€)
+**Integration:** `fahrer/app/client.tsx` wenn isOnline, vor Phase1081 ✅
+
+### Phase 1097 — Erst-Bestellung-Bonus-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1097-erstbestellung-bonus-banner.tsx`
+**Props:** `locationId: string, rabattCode?: string, rabattBetrag?: number`
+**UI:** Fixed bottom Banner; violet Farbschema; Gift-Icon + Kopieren-Button für Code WILLKOMMEN5; 15-Min-Countdown-Timer; localStorage-Guard `mise_erstbestellung_dismissed`; nur sichtbar für Neukunden ohne prior-order localStorage
+**Logik:** isFirstTimeUser() prüft localStorage-Flags; Countdown läuft ab → Banner verschwindet; rein client-seitig
+**Integration:** `storefront.tsx` nach Phase1092 ✅
+
+### Nächste Phasen 1098–1102 (für Ingenieur)
+1. **Phase 1098 Backend:** Lieferketten-Engpass-API — Prognose ob Artikel in den nächsten 2h aufgebraucht sein könnten (Bestellrate × Lagerbestand).
+2. **Phase 1099 Kitchen:** Zubereitungs-Lernfortschritt — Zeigt wie gut das Küchenteam die Zeitvorgaben einhält + Verbesserung vs. Vorwoche.
+3. **Phase 1100 Dispatch:** Kapazitäts-Planungs-Empfehlung — Basierend auf historischen Daten: Empfehlung wie viele Fahrer für die nächste Stunde eingeplant werden sollten.
+4. **Phase 1101 Fahrer-App:** Trinkgeld-Verteilungs-Übersicht — Wöchentliche Trinkgeld-Statistik mit Tages-Balken + bester Tag + Ø pro Tour.
+5. **Phase 1102 Storefront:** Live-Menü-Kategorien-Navigation — Sticky Kategorie-Pills die beim Scrollen mitspringen + Smooth-Scroll zu Sektion.
 
 ---
 

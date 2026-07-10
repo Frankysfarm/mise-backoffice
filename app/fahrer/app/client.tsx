@@ -344,6 +344,7 @@ import { FahrerPhase1086NaechsterStoppNavigationCard } from './phase1086-naechst
 import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stopp-smart-navigator-hub';
 import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigator-cockpit';
 import { FahrerPhase1091TourAbschlussSelfieCheck } from './phase1091-tour-abschluss-selfie-check';
+import { FahrerPhase1096KilometerstandQuittung } from './phase1096-kilometerstand-quittung';
 
 type Driver = {
   id: string;
@@ -4250,6 +4251,13 @@ export function FahrerApp({
               batchId={activeBatch.id}
               isOnline={isOnline}
             />
+          </div>
+        )}
+
+        {/* Phase 1096: Kilometerstand-Quittung-Generator — PDF-ähnliche Fahrtenübersicht für Erstattungsnachweis */}
+        {isOnline && (
+          <div className="px-4">
+            <FahrerPhase1096KilometerstandQuittung driverId={driver.id} isOnline={isOnline} />
           </div>
         )}
 

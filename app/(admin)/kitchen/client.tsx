@@ -371,6 +371,7 @@ import { KitchenPhase1074KuechenPersonalAuslastungsUhr } from './phase1074-kuech
 import { KitchenPhase1079AllergikerTagesAlertBoard } from './phase1079-allergiker-tages-alert-board';
 import { KitchenPhase1084RueckstandAlarm } from './phase1084-rueckstand-alarm';
 import { KitchenPhase1089KundenAllergenprofil } from './phase1089-kunden-allergenprofil-warnung';
+import { KitchenPhase1094TagesZubereitungZeitplan } from './phase1094-tages-zubereitung-zeitplan';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1007,6 +1008,8 @@ export function KitchenBoard({
       <KitchenPhase1084RueckstandAlarm orders={filtered as any} />
       {/* Phase 1089: Stammkunden-Allergen-Profile — Allergen-Historie aus letzten 5 Bestellungen je Stammkunde */}
       <KitchenPhase1089KundenAllergenprofil orders={filtered as any} />
+      {/* Phase 1094: Tages-Zubereitung-Zeitplan — Prognose nächste 30 Min + empfohlene Vorabzubereitung */}
+      <KitchenPhase1094TagesZubereitungZeitplan orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}

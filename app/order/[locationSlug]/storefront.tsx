@@ -190,6 +190,7 @@ import { Phase1077LiefergebietChecker } from './phase1077-liefergebiet-checker';
 import { Phase1082PushOptInBanner } from './phase1082-push-opt-in-banner';
 import { Phase1087BewertungsErinnerung } from './phase1087-bewertungs-erinnerung';
 import { Phase1092GruppenBestellungsBanner } from './phase1092-gruppen-bestellungs-banner';
+import { Phase1097ErstbestellungBonusBanner } from './phase1097-erstbestellung-bonus-banner';
 
 type Props = {
   location: Location;
@@ -1429,6 +1430,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-[55] px-4 mb-[5.5rem]">
         <Phase1092GruppenBestellungsBanner cart={cart as any} />
       </div>
+
+      {/* Phase 1097: Erst-Bestellung-Bonus-Banner — Sonderangebot Neukunden mit 5€-Rabatt + Countdown + Code */}
+      <Phase1097ErstbestellungBonusBanner locationId={location.id} />
 
       {/* Phase 1011: Bestellabbruch-Prävention-Banner — erscheint nach >3 Min im Checkout ohne Abschluss */}
       <StorefrontPhase1011BestellabbruchPraevention
