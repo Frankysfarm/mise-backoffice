@@ -187,6 +187,7 @@ import { Phase1057TrendingBanner } from './phase1057-live-popularitaets-ranking'
 import { Phase1067EchtzeitLieferstatusKarte } from './phase1067-echtzeit-lieferstatus-karte';
 import { Phase1072BestellhistorieWidget } from './phase1072-bestellhistorie-widget';
 import { Phase1077LiefergebietChecker } from './phase1077-liefergebiet-checker';
+import { Phase1082PushOptInBanner } from './phase1082-push-opt-in-banner';
 
 type Props = {
   location: Location;
@@ -601,6 +602,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase1067EchtzeitLieferstatusKarte orderId={orderSuccess.orderId} status="dispatched" />
+          </div>
+        )}
+        {/* Phase 1082: Push-Opt-In-Banner — Browser-Push-Benachrichtigungen bei Statusänderungen */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-2 max-w-lg mx-auto">
+            <Phase1082PushOptInBanner orderId={orderSuccess.orderId} status="confirmed" />
           </div>
         )}
         {/* Phase 955: Live-ETA Fahrer-Tracking — Dynamischer Countdown-Ring + Fahrer-Name + Tour-Phase + Nähe-Puls */}

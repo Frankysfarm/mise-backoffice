@@ -366,6 +366,7 @@ import { KitchenPhase1064BatchOptimierungsAssistent } from './phase1064-batch-op
 import { KitchenPhase1069WartezeitHeatmapTageszeit } from './phase1069-wartezeit-heatmap-tageszeit';
 import { KitchenPhase1073EchtzeitStornoAnalyse } from './phase1073-echtzeit-storno-analyse';
 import { KitchenPhase1074KuechenPersonalAuslastungsUhr } from './phase1074-kuechen-personal-auslastungs-uhr';
+import { KitchenPhase1079AllergikerTagesAlertBoard } from './phase1079-allergiker-tages-alert-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -996,6 +997,8 @@ export function KitchenBoard({
       <KitchenPhase1073EchtzeitStornoAnalyse locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1074: Küchenpersonal-Auslastungs-Uhr — SVG-Uhr für Schicht-Peak-Zeiten + aktuelle Auslastung vs. Kapazität */}
       <KitchenPhase1074KuechenPersonalAuslastungsUhr locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1079: Allergiker-Tages-Alert-Board — Bestellungen mit Allergen-Flags letzte 2h + Farbampel nach Schwere */}
+      <KitchenPhase1079AllergikerTagesAlertBoard orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}

@@ -339,6 +339,7 @@ import { FahrerPhase1056SchichtMotivationsCoach } from './phase1056-schicht-moti
 import { FahrerPhase1066TrinkgeldAnalyseDashboard } from './phase1066-trinkgeld-analyse-dashboard';
 import { FahrerPhase1071KundenKontaktSchnellPanelV2 } from './phase1071-kunden-kontakt-schnell-panel-v2';
 import { FahrerPhase1076LiveTourKartenMinimap } from './phase1076-live-tour-karten-minimap';
+import { FahrerPhase1081SchichtAbschlussStatistikScreen } from './phase1081-schicht-abschluss-statistik-screen';
 
 type Driver = {
   id: string;
@@ -4207,6 +4208,13 @@ export function FahrerApp({
             <Power className="h-12 w-12 text-matcha-300 mx-auto mb-2 opacity-40" />
             <div className="text-matcha-200">Du bist offline. Geh online, um Touren anzunehmen.</div>
           </section>
+        )}
+
+        {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}
+        {!isOnline && !activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1081SchichtAbschlussStatistikScreen driverId={driver.id} isOnline={isOnline} />
+          </div>
         )}
 
         {/* Tagesabschluss-Badge: persistente Schicht-Zusammenfassung nach Schichtende */}
