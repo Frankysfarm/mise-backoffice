@@ -338,6 +338,7 @@ import { FahrerPhase1051RoutenEffizienzFeedback } from './phase1051-routen-effiz
 import { FahrerPhase1056SchichtMotivationsCoach } from './phase1056-schicht-motivations-coach';
 import { FahrerPhase1066TrinkgeldAnalyseDashboard } from './phase1066-trinkgeld-analyse-dashboard';
 import { FahrerPhase1071KundenKontaktSchnellPanelV2 } from './phase1071-kunden-kontakt-schnell-panel-v2';
+import { FahrerPhase1076LiveTourKartenMinimap } from './phase1076-live-tour-karten-minimap';
 
 type Driver = {
   id: string;
@@ -2129,6 +2130,21 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Phase 1076: Live-Tour-Karten-Minimap — Kompakte SVG-Karte mit Stopp-Markierungen + Fahrer-Position */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <FahrerPhase1076LiveTourKartenMinimap
+                stopps={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? null,
+                  geliefert_am: s.geliefert_am ?? null,
+                  adresse: s.order?.kunde_adresse ?? null,
+                  lat: s.order?.lieferung_lat ?? null,
+                  lng: s.order?.lieferung_lng ?? null,
+                }))}
+              />
+            </div>
+          )}
           {/* Phase 915: Kunden-Kontakt-Schnell — 1-Tap Anruf + 4 SMS-Vorlagen für den nächsten Kunden */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

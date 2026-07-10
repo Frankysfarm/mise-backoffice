@@ -186,6 +186,7 @@ import { useMerkzettel, Phase1052MerkzettelWidget } from './phase1052-merkzettel
 import { Phase1057TrendingBanner } from './phase1057-live-popularitaets-ranking';
 import { Phase1067EchtzeitLieferstatusKarte } from './phase1067-echtzeit-lieferstatus-karte';
 import { Phase1072BestellhistorieWidget } from './phase1072-bestellhistorie-widget';
+import { Phase1077LiefergebietChecker } from './phase1077-liefergebiet-checker';
 
 type Props = {
   location: Location;
@@ -951,6 +952,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1072: Bestellhistorie-Widget — Letzte 3 Bestellungen des Nutzers in kompakter Timeline + Wiederholen-Button */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <Phase1072BestellhistorieWidget locationSlug={location.id} />
+      </div>
+      {/* Phase 1077: Liefergebiet-Checker — PLZ eingeben → grün/rot Lieferbarkeit + ETA-Schätzung */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <Phase1077LiefergebietChecker locationSlug={location.id} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

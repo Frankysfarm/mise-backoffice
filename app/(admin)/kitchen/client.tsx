@@ -364,6 +364,8 @@ import { KitchenPhase1061SmartTimingSchichtRing } from './phase1061-smart-timing
 import { KitchenPhase1062PrepEngpassFruehwarner } from './phase1062-prep-engpass-fruehwarner';
 import { KitchenPhase1064BatchOptimierungsAssistent } from './phase1064-batch-optimierungs-assistent';
 import { KitchenPhase1069WartezeitHeatmapTageszeit } from './phase1069-wartezeit-heatmap-tageszeit';
+import { KitchenPhase1073EchtzeitStornoAnalyse } from './phase1073-echtzeit-storno-analyse';
+import { KitchenPhase1074KuechenPersonalAuslastungsUhr } from './phase1074-kuechen-personal-auslastungs-uhr';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -990,6 +992,10 @@ export function KitchenBoard({
       <KitchenPhase1040LiveBestellstatusKommandozentrale locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1069: Wartezeit-Heatmap Tageszeit — Welche Stunden produzieren die längsten Zubereitungszeiten + Personalempfehlung */}
       <KitchenPhase1069WartezeitHeatmapTageszeit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1073: Echtzeit-Storno-Analyse — Storno-Gründe nach Tageszeit + Häufigkeit + Alert wenn Rate >10% */}
+      <KitchenPhase1073EchtzeitStornoAnalyse locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1074: Küchenpersonal-Auslastungs-Uhr — SVG-Uhr für Schicht-Peak-Zeiten + aktuelle Auslastung vs. Kapazität */}
+      <KitchenPhase1074KuechenPersonalAuslastungsUhr locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}
