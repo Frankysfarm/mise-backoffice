@@ -346,6 +346,7 @@ import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigato
 import { FahrerPhase1091TourAbschlussSelfieCheck } from './phase1091-tour-abschluss-selfie-check';
 import { FahrerPhase1096KilometerstandQuittung } from './phase1096-kilometerstand-quittung';
 import { FahrerPhase1101LiveKundenbewertung } from './phase1101-live-kundenbewertung';
+import { FahrerPhase1106TrinkgeldWochenUebersicht } from './phase1106-trinkgeld-wochen-uebersicht';
 
 type Driver = {
   id: string;
@@ -4265,6 +4266,11 @@ export function FahrerApp({
         {/* Phase 1101: Live-Kundenbewertung-Vorschau — Letzte 3 Bewertungen der Schicht + Trend */}
         <div className="px-4">
           <FahrerPhase1101LiveKundenbewertung driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1106: Trinkgeld-Wochen-Übersicht — Wöchentliche Trinkgeld-Statistik mit Tages-Balken + bester Tag + Ø/Tour */}
+        <div className="px-4">
+          <FahrerPhase1106TrinkgeldWochenUebersicht driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}

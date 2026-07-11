@@ -192,6 +192,7 @@ import { Phase1087BewertungsErinnerung } from './phase1087-bewertungs-erinnerung
 import { Phase1092GruppenBestellungsBanner } from './phase1092-gruppen-bestellungs-banner';
 import { Phase1097ErstbestellungBonusBanner } from './phase1097-erstbestellung-bonus-banner';
 import { Phase1102NaechsteLieferfenster } from './phase1102-naechste-lieferfenster';
+import { Phase1107KategorieSchnellnavigation } from './phase1107-kategorie-schnellnavigation';
 
 type Props = {
   location: Location;
@@ -1439,6 +1440,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="px-4 py-2">
         <Phase1102NaechsteLieferfenster locationId={location.id} />
       </div>
+
+      {/* Phase 1107: Kategorie-Schnellnavigation — Floating Grid-Overlay aller Kategorien mit Icon + Artikelanzahl + Smooth-Scroll */}
+      <Phase1107KategorieSchnellnavigation
+        categories={categories}
+        items={items}
+        onJump={scrollToSection}
+        hasPopular={popular.length > 0}
+        themeId={themeId as 'classic' | 'bold' | 'minimal' | 'farmhouse' | 'urban' | 'aurora'}
+      />
 
       {/* Phase 1011: Bestellabbruch-Prävention-Banner — erscheint nach >3 Min im Checkout ohne Abschluss */}
       <StorefrontPhase1011BestellabbruchPraevention

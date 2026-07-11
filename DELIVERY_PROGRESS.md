@@ -1,7 +1,8 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1102 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+**Phasen 1–1107 abgeschlossen. Build sauber. ✓ Compiled successfully. 378 Seiten. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-11): Phasen 1103–1107 vollständig implementiert + integriert. Phase1103 Lieferketten-Engpass-Prognose-API Backend (GET /api/delivery/admin/lieferketten-engpass, Bestellrate×Lagerbestand → Engpass-Prognose je Artikel, Risiko kritisch/hoch/mittel/ok, Stunden-bis-Engpass, Empfehlung, Supabase customer_orders+inventory_items+Mock) ✅, Phase1104 Zubereitungs-Lernfortschritt Kitchen (geplante vs. tatsächliche Zubereitungszeiten + Einhaltungsquote + Trend besser/gleich/schlechter + letzte 5 Bestellungen, client-seitig useMemo, kitchen/client.tsx nach Phase1099) ✅, Phase1105 Kapazitäts-Planungs-Empfehlung Dispatch (API /api/delivery/admin/kapazitaets-planung, Prognose Bestellanzahl nächste 2 Stunden × historische Daten × 1 Fahrer/4,5 Bestellungen, Empfehlung +X Fahrer einplanen, level kritisch/warnung/ok, 5-Min-Polling, dispatch/client.tsx nach Phase1100) ✅, Phase1106 Trinkgeld-Wochen-Übersicht Fahrer-App (API /api/delivery/driver/trinkgeld-wochen-uebersicht, Tages-Balken Mo–So + bester Tag + Ø/Tour + Gesamt-€, mise_delivery_stops.tip_eur + Mock, fahrer/app/client.tsx nach Phase1101) ✅, Phase1107 Kategorie-Schnellnavigation Storefront (Floating FAB + Grid-Overlay aller Kategorien mit Icon+Artikelanzahl + Smooth-Scroll + Schließen-Geste, 6 Theme-Paletten, storefront.tsx nach Phase1102) ✅. Build ✓ Compiled successfully 378 Seiten. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-10): Phasen 1098–1102 vollständig implementiert + integriert. Phase1098 Fahrer-Reaktionszeit-Monitor-API Backend (GET /api/delivery/admin/fahrer-reaktionszeit-monitor, Ø Zeit Auftragszuweisung→Pickup je Fahrer vs. Team-Ø + SLA-Ziel 5 Min + Rang, Supabase mise_drivers+mise_delivery_stops+Mock) ✅, Phase1099 Prioritäts-Warteschlangen-Matrix Kitchen (Score je offener Bestellung nach ETA-Dringlichkeit+Wartezeit+Bestellwert, Ampel kritisch/hoch/mittel/niedrig, client-seitig useMemo, kitchen/client.tsx nach Phase1094) ✅, Phase1100 Schicht-Endzeit-Warnung Dispatch (Alert Fahrer <15 Min=kritisch/<30 Min=warnung bis Schichtende + offene Stops + Empfehlung umrouten, 60s-Polling, API+Mock, dispatch/client.tsx nach Phase1095) ✅, Phase1101 Live-Kundenbewertung-Vorschau Fahrer-App (Letzte 3 Bewertungen der Schicht + Ø-Score + Trend besser/gleich/schlechter, 3-Min-Polling, API driver/live-kundenbewertung+Mock, fahrer/app/client.tsx) ✅, Phase1102 Nächste-Lieferfenster-Anzeige Storefront (3 Zeitfenster jetzt/+30min/+60min mit ETA-Range + Empfohlen-Badge + Dismiss, API public/naechste-lieferfenster mit Kapazitäts-Schätzung, storefront.tsx nach Phase1097) ✅. Build ✓ Compiled successfully 378 Seiten. Push origin/main. ✅
 Backend-Architekt-Agent (2026-07-10): Phasen 1093–1097 vollständig implementiert + integriert. Phase1093 Schicht-Produktivitäts-Benchmark-API Backend (GET /api/delivery/admin/schicht-produktivitaets-benchmark, Stopps/Stunde je Fahrer vs. Team-Ø + Delta-% + Trend + historischer 7-Tage-Verlauf, Supabase mise_drivers+mise_delivery_stops+driver_shifts+Mock) ✅, Phase1094 Tages-Zubereitung-Zeitplan Kitchen (Prognose nächste Bestellungen in 30 Min + Vorabzubereitung-Hinweise per Keyword-Matching Ofen/Grill/Friteuse/Pasta/Suppe etc., sortiert nach ETA, client-seitig useMemo, kitchen/client.tsx nach Phase1089) ✅, Phase1095 Zonen-Abdeckungs-Garantie-Monitor Dispatch (Echtzeit-Alert wenn Zone 0 Fahrer aktiv, 4-Zonen-Grid A/B/C/D mit ok/kritisch/unabgedeckt Ampel, 60s-Polling, fahrer-live-position API, dispatch/client.tsx nach Phase1093) ✅, Phase1096 Kilometerstand-Quittung-Generator Fahrer-App (Druckbare Fahrtenübersicht je Tour Zone/km/Stopps/Erstattung 0,30€/km + Gesamt-Footer + Print/PDF-Button, schicht-bilanz API + Mock, fahrer/app/client.tsx wenn isOnline) ✅, Phase1097 Erst-Bestellung-Bonus-Banner Storefront (15-Min-Countdown + Rabattcode WILLKOMMEN5 + Copy-Button + localStorage-Guard nur Neukunden, client-seitig, storefront.tsx nach Phase1092) ✅. Build ✓ Compiled successfully 378 Seiten. Push origin/main. ✅
 
@@ -13658,7 +13659,50 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **Logik:** isFirstTimeUser() prüft localStorage-Flags; Countdown läuft ab → Banner verschwindet; rein client-seitig
 **Integration:** `storefront.tsx` nach Phase1092 ✅
 
-### Nächste Phasen 1098–1102 (für Ingenieur)
+### Batch 1103–1107 — 2026-07-11 ✅
+
+### Phase 1103 — Lieferketten-Engpass-Prognose-API (Backend)
+**Datei:** `app/api/delivery/admin/lieferketten-engpass/route.ts`
+**GET:** `?location_id=<uuid>` — Bestellrate letzte 2h je Artikel × geschätzter Lagerbestand → Stunden-bis-Engpass; Risiko kritisch/hoch/mittel/ok; Empfehlung pro Artikel
+**Logik:** customer_orders.items → Artikel-Frequenz; inventory_items für echten Lagerbestand (Fallback: 2×count); Supabase + Mock
+**Response:** `{ artikel[], kritische_anzahl, location_id, generiert_am }`
+
+### Phase 1104 — Zubereitungs-Lernfortschritt (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1104-zubereitungs-lernfortschritt.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible emerald/orange je nach Trend; Einhaltungsquote-Fortschrittsbalken; Trend-Pfeil besser/gleich/schlechter; letzte 5 abgeschlossene Bestellungen mit Zeitbalken + Abweichung
+**Logik:** DONE_STATUSES; confirmed_at→ready_at = tatsächliche Zeit; Ziel 15 Min; Einhaltung = actual ≤ Ziel×1,1; Trend: erste vs. zweite Hälfte; client-seitig useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1099 ✅
+
+### Phase 1105 — Kapazitäts-Planungs-Empfehlung (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1105-kapazitaets-planung.tsx` + `app/api/delivery/admin/kapazitaets-planung/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible rot/amber/weiß je Level; 2 StundCards (nächste + übernächste Stunde) mit Prognose/Empfohlen/Online + +X-Fahrer-Alert; 5-Min-Polling
+**API:** customer_orders letzte 4 Wochen → weekday+Stunden-Bucket → Ø/Woche; 1 Fahrer/4,5 Bestellungen; mise_drivers.online für Ist-Stand
+**Integration:** `dispatch/client.tsx` nach Phase1100 ✅
+
+### Phase 1106 — Trinkgeld-Wochen-Übersicht (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1106-trinkgeld-wochen-uebersicht.tsx` + `app/api/delivery/driver/trinkgeld-wochen-uebersicht/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible gelb; Gesamt/Ø-Tour/Bester-Tag Pills; 7-Tage-Balkendiagramm Mo–So; bester Tag in Gold hervorgehoben; isOnline-Guard
+**API:** mise_delivery_stops.tip_eur seit Montag; UTC-Wochentag-Bucket; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1101 ✅
+
+### Phase 1107 — Kategorie-Schnellnavigation (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1107-kategorie-schnellnavigation.tsx`
+**Props:** `categories, items, onJump, hasPopular?, themeId?`
+**UI:** Floating FAB (LayoutGrid-Icon); Bottom-Sheet-Overlay mit 3×N-Grid aller Kategorien; je Kategorie: Emoji-Icon + Name + Artikel-Anzahl-Badge; Tap → Smooth-Scroll + Overlay schließt; 6 Theme-Paletten (classic/bold/minimal/farmhouse/urban/aurora)
+**Logik:** nur wenn ≥4 Kategorien; items.beliebt für "Beliebt"-Chip; Backdrop-Click schließt; rein client-seitig
+**Integration:** `storefront.tsx` nach Phase1102 ✅
+
+### Nächste Phasen 1108–1112 (für Ingenieur)
+1. **Phase 1108 Backend:** Fahrer-Effizienz-Score-Verlauf-API — Täglicher Score-Verlauf je Fahrer (letzte 14 Tage): km/Tour + Stopps/h + Pünktlichkeit, normalisiert auf 0–100.
+2. **Phase 1109 Kitchen:** Artikel-Popularitäts-Vorschau — Top-5 meistbestellte Artikel der aktuellen Schicht + Trend-Pfeil vs. Vortag.
+3. **Phase 1110 Dispatch:** Fahrer-Rückkehr-Koordinator — Wann kommen Fahrer von aktiven Touren zurück? ETA-Balken + empfohlene Neuzuteilung.
+4. **Phase 1111 Fahrer-App:** Kunden-Feedback-Chronik — Letzte 10 Kundenbewertungen mit Kommentar + Sterne + Bestelldatum scrollbar.
+5. **Phase 1112 Storefront:** Wartezeit-Fortschritts-Ring — Visueller Kreisring der anzeigt wie weit die Lieferung fortgeschritten ist (0–100%).
+
+### Nächste Phasen 1098–1102 (für Ingenieur) [ABGESCHLOSSEN als 1103–1107]
 1. **Phase 1098 Backend:** Lieferketten-Engpass-API — Prognose ob Artikel in den nächsten 2h aufgebraucht sein könnten (Bestellrate × Lagerbestand).
 2. **Phase 1099 Kitchen:** Zubereitungs-Lernfortschritt — Zeigt wie gut das Küchenteam die Zeitvorgaben einhält + Verbesserung vs. Vorwoche.
 3. **Phase 1100 Dispatch:** Kapazitäts-Planungs-Empfehlung — Basierend auf historischen Daten: Empfehlung wie viele Fahrer für die nächste Stunde eingeplant werden sollten.

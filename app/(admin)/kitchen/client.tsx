@@ -373,6 +373,7 @@ import { KitchenPhase1084RueckstandAlarm } from './phase1084-rueckstand-alarm';
 import { KitchenPhase1089KundenAllergenprofil } from './phase1089-kunden-allergenprofil-warnung';
 import { KitchenPhase1094TagesZubereitungZeitplan } from './phase1094-tages-zubereitung-zeitplan';
 import { KitchenPhase1099PrioritaetsWarteschlange } from './phase1099-prioritaets-warteschlange';
+import { KitchenPhase1104ZubereitungsLernfortschritt } from './phase1104-zubereitungs-lernfortschritt';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1013,6 +1014,8 @@ export function KitchenBoard({
       <KitchenPhase1094TagesZubereitungZeitplan orders={filtered as any} />
       {/* Phase 1099: Prioritäts-Warteschlangen-Matrix — Welche Bestellungen zuerst bearbeiten nach ETA-Dringlichkeit */}
       <KitchenPhase1099PrioritaetsWarteschlange orders={filtered as any} />
+      {/* Phase 1104: Zubereitungs-Lernfortschritt — Vergleich geplante vs. tatsächliche Zubereitungszeiten + Trend */}
+      <KitchenPhase1104ZubereitungsLernfortschritt orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}
