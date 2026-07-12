@@ -196,6 +196,7 @@ import { Phase1107KategorieSchnellnavigation } from './phase1107-kategorie-schne
 import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortschritts-ring';
 import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-bestellt';
 import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
+import { LiveEtaTracker } from './live-eta-tracker';
 
 type Props = {
   location: Location;
@@ -1725,6 +1726,14 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderStatus={order.status}
           etaMin={order.etaMin ?? null}
           locationName={(location as any)?.name ?? null}
+        />
+      )}
+      {/* Phase 1126: Live-ETA-Tracker — Echtzeit-Countdown + Phasen-Timeline mit Surge-Hinweis */}
+      {order.isDelivery && (
+        <LiveEtaTracker
+          bestellnummer={order.orderId}
+          locationId={locationId}
+          initialEtaMin={order.etaMin ?? 30}
         />
       )}
       {/* Phase 735: Feedback-Einladung nach Lieferung — Sternbewertung 3s nach Statuswechsel zu geliefert */}
