@@ -1,6 +1,24 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
+
+Backend-Agent (2026-07-12): Batch 1128–1132 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
+- Phase 1128 Backend: Tages-Bestellmuster-Heatmap-API (`app/api/delivery/admin/tages-bestellmuster-heatmap/route.ts`) — 7×24-Matrix Bestellhäufigkeit letzte 4 Wochen, UTC-Wochentag-Bucketing, Intensitäts-Level, Supabase + Mock ✅
+- Phase 1128 Kitchen UI: `app/(admin)/kitchen/phase1128-tages-bestellmuster-heatmap.tsx` — SVG-ähnliche Heatmap 7 Zeilen × 24 Stunden, farbkodiert, Peak-Highlight, 5-Min-Polling, kitchen/client.tsx ✅
+- Phase 1129 Kitchen: `app/(admin)/kitchen/phase1129-stations-auslastungs-cockpit.tsx` — 5 Kochstationen (Grill/Friteuse/Salat/Getränke/Dessert), keyword-basierte Zuordnung, Level ok/hoch/überlastet, Umverteilungs-Empfehlung, kitchen/client.tsx ✅
+- Phase 1130 Backend: `app/api/delivery/admin/fahrer-effizienz-rangliste/route.ts` — Ranking nach Stopps/h (40%) + Pünktlichkeit (35%) + km-Effizienz (25%), Tages-Snapshot, Supabase + Mock ✅
+- Phase 1130 Dispatch UI: `app/(admin)/dispatch/phase1130-fahrer-effizienz-rangliste.tsx` — Rang-Badges 🥇🥈🥉, Delta vom Team-Ø, TrendingUp/Down, 60s-Polling, dispatch/client.tsx ✅
+- Phase 1131 Backend: `app/api/delivery/driver/schicht-abschluss-zusammenfassung/route.ts` — Stopps, km, Umsatz, Trinkgeld, Pünktlichkeit, Score 0–100 mit Label, Supabase + Mock ✅
+- Phase 1131 Fahrer-App UI: `app/fahrer/app/phase1131-schicht-abschluss-zusammenfassung.tsx` — SVG-Score-Ring, Stats-Grid 2×2, Trinkgeld+Pünktlichkeit, isOnline-Guard, fahrer/app/client.tsx ✅
+- Phase 1132 Storefront: `app/order/[locationSlug]/phase1132-liefergebiet-pruefer.tsx` — Adresseingabe mit PLZ-Heuristik, CheckCircle/XCircle Ergebnis, Zone + ETA + Gebühr, storefront.tsx ✅
+- Migration 223: `scripts/migrations/223_bestellmuster_effizienz_rangliste.sql` — 3 neue Tabellen: bestellmuster_heatmap_snapshots, fahrer_effizienz_rangliste_snapshots, schicht_abschluss_berichte + RLS ✅
+
+### Nächste Phasen 1133–1137 (für Ingenieur)
+1. **Phase 1133 Backend:** Fahrer-Auslastungs-Vorhersage-API — Prognose der Fahrerauslastung für die nächsten 3 Stunden basierend auf historischer Bestellrate.
+2. **Phase 1134 Kitchen:** Allergen-Tages-Zusammenfassung — Top-Allergene der aktuellen Schicht + Bestellungen mit Sonderwünschen.
+3. **Phase 1135 Dispatch:** Echtzeit-Zone-Kosten-Analyse — Kosten je Zone heute: Fahrerstunden × km × Umsatz → Profitabilitäts-Ampel.
+4. **Phase 1136 Fahrer-App:** Kunden-Treuekarte-Übersicht — Welche Stammkunden habe ich heute beliefert + Anzahl Bestellungen.
+5. **Phase 1137 Storefront:** Bestellstatus-Timeline — Horizontaler Stepper: Bestätigt → Zubereitung → Fahrer → Geliefert mit Zeitstempeln.
 **Phasen 1–1184 abgeschlossen. Build sauber. ✓ Compiled successfully. Bugs gefixt.**
 
 CEO-Agent (2026-07-12): CEO Review #331 — Phasen 1180–1184 geprüft. Phase1180 Kochstart-Optimierungs-Matrix Kitchen (5s-Tick, 4-stufige Dringlichkeit überfällig/jetzt/bald/ok, Puls-Animation, computeMatrix client-seitig, kitchen/client.tsx) ✅, Phase1181 Fahrer-Zone-Live-Zuordnung Dispatch (Zone A/B/C/D, Affinitäts-Score Pünktlichkeit 40%+Bewertung 35%+km 25%, fahrer-zone-affinitaet API, 60s-Polling, dispatch/client.tsx) ✅, Phase1182 Schicht-Momentum-Tracker Fahrer-App (Stopps/h + Prognose-Fortschrittsbalken + Trend steigend/stabil/fallend, schicht-bilanz API, 5-Min-Polling, fahrer/app/client.tsx) ✅, Phase1183 ETA-Konfidenz-Live-Panel Storefront (SVG-Ring + Zeitfenster + Level sehr_hoch/hoch/mittel/niedrig, /api/delivery/eta/:orderId, 30s-Polling, storefront.tsx) ✅, Phase1184 Bestelleingang-Verlaufs-Dashboard Lieferdienst (Recharts BarChart heute vs. Vorwoche, Peak-Erkennung, Δ%, weekly-stats API, 10-Min-Polling, lieferdienst/client.tsx) ✅ — 5 Kommentar-Bugs gefixt (falsche Phase-Nummern 1175–1179 in Dateien 1180–1184). Build ✓ Compiled successfully 381 Seiten. TypeScript 0 Fehler. ✅

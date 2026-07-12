@@ -197,6 +197,7 @@ import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortsc
 import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-bestellt';
 import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
 import { Phase1127BestellzeitOptimierer } from './phase1127-bestellzeit-optimierer';
+import { Phase1132LiefergebietPruefer } from './phase1132-liefergebiet-pruefer';
 import { LiveEtaTracker } from './live-eta-tracker';
 import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnell-reorder';
 import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
@@ -1144,6 +1145,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <Phase1127BestellzeitOptimierer locationId={location.id} cartEmpty={cart.length === 0} />
         </div>
       )}
+      {/* Phase 1132: Liefergebiet-Prüfer — Adresseingabe + Lieferbarkeit + ETA + Gebühr */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <Phase1132LiefergebietPruefer locationId={location.id} />
+      </div>
       {/* Phase 940: Bestellzusammenfassung-Widget — Kompakte Inline-Zusammenfassung: Artikel + Gesamtpreis + ETA vor Bestellabschluss */}
       {cart.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

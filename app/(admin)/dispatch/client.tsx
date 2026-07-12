@@ -439,6 +439,7 @@ import { DispatchPhase1115ZonenFahrerOptimierungsBoard } from './phase1115-zonen
 import { DispatchPhase1120SchichtKostenUebersicht } from './phase1120-schicht-kosten-uebersicht';
 import { DispatchPhase1124TourScoreVisualisierungPro } from './phase1124-tour-score-visualisierung-pro';
 import { DispatchPhase1125FahrerNetzHeatmap } from './phase1125-fahrer-netz-heatmap';
+import { DispatchPhase1130FahrerEffizienzRangliste } from './phase1130-fahrer-effizienz-rangliste';
 import { DispatchPhase1131NachtSchichtPlanung } from './phase1131-nacht-schicht-planung';
 import { DispatchPhase1136LiveZonenStatus } from './phase1136-live-zonen-status';
 import { DispatchPhase1141FahrerCheckInMonitor } from './phase1141-fahrer-checkin-monitor';
@@ -1356,6 +1357,8 @@ export function DispatchBoard({
       <DispatchPhase1124TourScoreVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1125: Fahrer-Netz-Heatmap — SVG-Karte aktiver Fahrer je Zone A/B/C/D als Auslastungs-Punkte */}
       <DispatchPhase1125FahrerNetzHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1130: Fahrer-Effizienz-Rangliste — Ranking nach Stopps/h + km-Effizienz + Pünktlichkeit */}
+      <DispatchPhase1130FahrerEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1131: Nacht-Schicht-Planung — Übersicht kommende 12h: Fahrerverfügbarkeit, Bestellprognose, empfohlene Besetzung */}
       <DispatchPhase1131NachtSchichtPlanung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1136: Live-Zonen-Status — Echtzeit-Übersicht Zonen A–D: Fahrer-Anzahl + Auslastungs-Ampel + SVG-Ring */}

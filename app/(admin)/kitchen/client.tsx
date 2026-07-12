@@ -380,6 +380,8 @@ import { KitchenPhase1119KuehenstatusAmpel } from './phase1119-kuechenstatus-amp
 import { KitchenPhase1124BestellungsBurstWarnung } from './phase1124-bestellungs-burst-warnung';
 import { KitchenPhase1123SmartTimingCountdownBoard } from './phase1123-smart-timing-countdown-board';
 import { KitchenPhase1130ZutatenSchwundWarnung } from './phase1130-zutaten-schwund-warnung';
+import { KitchenPhase1128TagesBestellmusterHeatmap } from './phase1128-tages-bestellmuster-heatmap';
+import { KitchenPhase1129StationsAuslastungsCockpit } from './phase1129-stations-auslastungs-cockpit';
 import { KitchenPhase1135BestellungsPrioritaetBoard } from './phase1135-bestellungs-prioritaet-board';
 import { KitchenPhase1140ZutatenVerbrauchTagesverlauf } from './phase1140-zutaten-verbrauch-tagesverlauf';
 import { KitchenPhase1144KochRueckstandAmpel } from './phase1144-kochrueckstand-ampel';
@@ -1040,6 +1042,10 @@ export function KitchenBoard({
       <KitchenPhase1119KuehenstatusAmpel orders={filtered as any} />
       {/* Phase 1124: Bestellungs-Burst-Warnung — Alert wenn ≥5 Bestellungen in 5 Min + Vorabzubereitung je Artikel */}
       <KitchenPhase1124BestellungsBurstWarnung orders={filtered as any} />
+      {/* Phase 1128: Tages-Bestellmuster-Heatmap — 7×24-Matrix Bestellhäufigkeit nach Wochentag+Stunde */}
+      <KitchenPhase1128TagesBestellmusterHeatmap locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1129: Stations-Auslastungs-Cockpit — Live-Balken je Kochstation + Umverteilungs-Empfehlung */}
+      <KitchenPhase1129StationsAuslastungsCockpit orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}
