@@ -213,6 +213,7 @@ import { Phase1183EtaKonfidenzLivePanel } from './phase1183-eta-konfidenz-live-p
 import { Phase1184EtaLiveTrackingBoard } from './phase1184-eta-live-tracking-board';
 import { Phase1192BewertungsAufforderung } from './phase1192-bewertungs-aufforderung';
 import { Phase1197RabattschwellenBanner } from './phase1197-rabattschwellen-banner';
+import { Phase1202WarteschlangenPosition } from './phase1202-warteschlangen-position';
 
 type Props = {
   location: Location;
@@ -720,6 +721,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase1184EtaLiveTrackingBoard orderId={orderSuccess.orderId} locationId={location.id} />
+          </div>
+        )}
+        {/* Phase 1202: Echtzeit-Warteschlangen-Position — "Du bist Bestellung #3 in der Warteschlange" wenn Küche ausgelastet */}
+        {orderSuccess.orderId && (
+          <div className="px-4 pb-2 max-w-lg mx-auto">
+            <Phase1202WarteschlangenPosition orderId={orderSuccess.orderId} locationId={location.id} />
           </div>
         )}
         {/* Phase 1192: Bewertungs-Aufforderung — Auto-Panel nach Lieferung mit 5-Sterne-Bewertung + Kommentar */}

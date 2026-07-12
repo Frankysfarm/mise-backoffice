@@ -367,6 +367,7 @@ import { FahrerPhase1182SchichtMomentumTracker } from './phase1182-schicht-momen
 import { FahrerPhase1187TourStoppNavigationsCockpit } from './phase1187-tour-stopp-navigations-cockpit';
 import { FahrerPhase1191SchichtTrinkgeldTracker } from './phase1191-schicht-trinkgeld-tracker';
 import { FahrerPhase1196RoutenEffizienzBadge } from './phase1196-routen-effizienz-badge';
+import { FahrerPhase1201TagesKmLiveTracker } from './phase1201-tages-km-live-tracker';
 
 type Driver = {
   id: string;
@@ -4389,6 +4390,11 @@ export function FahrerApp({
         {/* Phase 1196: Routen-Effizienz-Badge — km/Stopp vs. Team-Ø + Platin/Gold/Silber/Bronze */}
         <div className="px-4">
           <FahrerPhase1196RoutenEffizienzBadge driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1201: Tages-km-Live-Tracker — Kumulierte km + Balken vs. Durchschnitt + CO2-Fußabdruck */}
+        <div className="px-4">
+          <FahrerPhase1201TagesKmLiveTracker driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1182: Schicht-Momentum-Tracker — Live Stopps/Stunde + Hochrechnung Tagesende-Verdienst */}
