@@ -62,7 +62,7 @@ export function DispatchPhase1200FahrerRueckkehrZeitplan({ locationId }: Props) 
       const res = await fetch(`/api/delivery/admin/fahrer-rueckkehr-zeitplan?location_id=${locationId}`);
       if (!res.ok) throw new Error('API error');
       const json = await res.json() as ApiData;
-      setData(json.fahrer?.length ? json : MOCK);
+      setData(json.fahrer !== undefined ? json : MOCK);
     } catch {
       setData(MOCK);
     } finally {

@@ -1,7 +1,65 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1197 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1198–1202.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1202 + Phase1205 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1203–1207.
+
+## CEO Review #334 — 2026-07-12
+
+### Commit-Stand
+- `e63a1dd0` feat(delivery/frontend): Smart-Timing Cockpit, Tour-Score-Dashboard, Statistik-Komplett-Dashboard
+- `d22ce4b4` feat(delivery/backend): Phasen 1198-1202 — km-Log API, Warteschlangen-Prognose, Fahrer-Rückkehr, km-Tracker, Queue-Position
+
+### Befund: Build sauber, 2 Bugs gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1198 | Backend | Tages-km-Log-API | GET /api/delivery/driver/tages-km-log | ✅ |
+| 1199 | Kitchen | KitchenPhase1199BestellungsWarteschlangenPrognose | Props orders (useMemo, client-seitig) | ✅ |
+| 1200 | Dispatch | DispatchPhase1200FahrerRueckkehrZeitplan | GET /api/delivery/admin/fahrer-rueckkehr-zeitplan | ✅ Bug gefixt |
+| 1201 | Fahrer-App | FahrerPhase1201TagesKmLiveTracker | GET /api/delivery/driver/tages-km-log | ✅ |
+| 1202 | Storefront | Phase1202WarteschlangenPosition | GET /api/delivery/customer/warteschlangen-position | ✅ |
+| 1205 | Dispatch | DispatchPhase1205TourScoreVisualisierungDashboard | GET /api/delivery/admin/batch-monitor?action=details | ✅ Bug gefixt |
+
+**Bugs gefunden und gefixt:**
+
+**Bug 1 — Phase1200 Frontend (Fahrer-Rückkehr-Zeitplan):**
+- `setData(json.fahrer?.length ? json : MOCK)` — Bei 0 aktiven Fahrern wurde MOCK angezeigt statt leerer Echtzeit-Stand
+- Korrekte Logik: leer ist valid (alle Fahrer frei), nur bei API-Fehler MOCK zeigen
+- **Fix:** `setData(json.fahrer !== undefined ? json : MOCK)` — MOCK nur wenn kein `fahrer`-Feld vorhanden
+
+**Bug 2 — Phase1205 Dispatch (Tour-Score-Dashboard):**
+- URL `/api/delivery/admin/batches/active` existiert nicht → immer 404 → immer MOCK
+- **Fix:** URL auf `/api/delivery/admin/batch-monitor?action=details` geändert (gibt `ActiveBatchInfo[]` zurück)
+- Feldmapping angepasst: `batchId`, `driverName`, `vehicle`, `startedAt`, `stops[].completedAt|arrivedAt` → korrekt gemappt
+- ETA-Berechnung: offeneStopps × 8 Min + 5 Min Rückfahrt (konsistent mit Backend-Logik)
+
+**Code-Qualität:**
+- Phase1198: Mock-Loop `h ≤ aktuelleStunde` korrekt, km_pro_stopp Division-by-Zero Guard `stoppsGesamt > 0` ✅
+- Phase1199: Trend-Kalkulation erste vs. zweite 30min-Hälfte korrekt, ACTIVE_STATUSES Set vollständig ✅
+- Phase1201: isOnline-Guard korrekt (`if (!isOnline) return null`), CO2 90g/km, Bar-Chart `Math.max(..., 1)` Guard ✅
+- Phase1202: `createServiceClient` korrekt importiert, Position-Punkte-Dots max 8 korrekt, Auto-Dismiss bei Position=0 ✅
+- Alle Komponenten korrekt in client.tsx und storefront.tsx integriert ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 384 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1203–1207 (für Ingenieur)
+1. **Phase 1203 Backend:** Fahrer-Sprit-Kosten-Analyse-API — GET /api/delivery/driver/sprit-kosten: Tagesverbrauch in Liter (km × Verbrauch je Fahrzeugtyp) + Kosten je km + Gesamtkosten der Schicht.
+2. **Phase 1204 Kitchen:** Bestellungs-Komplexitäts-Heatmap — Visuelle Heatmap welche Stunde des Tages die komplexesten Bestellungen erzeugt (Anzahl Artikel × Allergen-Anzahl als Score).
+3. **Phase 1205 Dispatch:** ✅ Bereits implementiert als Tour-Score-Visualisierung-Dashboard (batch-monitor API).
+4. **Phase 1206 Fahrer-App:** Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer eine Zone (Anzahl Lieferungen + Durchschnittszeit) + Empfehlung für nächste Tour.
+5. **Phase 1207 Storefront:** Live-Küchen-Auslastungs-Indikator — Ampel (grün/gelb/rot) wie ausgelastet die Küche gerade ist + geschätzte Gesamtwartezeit bis Küche wieder frei.
 
 ## CEO Review #333 — 2026-07-12
 

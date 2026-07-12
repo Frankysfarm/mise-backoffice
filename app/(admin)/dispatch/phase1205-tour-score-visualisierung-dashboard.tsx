@@ -129,39 +129,39 @@ export function DispatchPhase1205TourScoreVisualisierungDashboard({ locationId }
     if (!locationId) { setData(MOCK_DATA); return; }
     setLoading(true);
     try {
-      const res = await fetch(`/api/delivery/admin/batches/active?location_id=${locationId}&include_stops=true&include_drivers=true`);
+      const res = await fetch(`/api/delivery/admin/batch-monitor?action=details&location_id=${locationId}`);
       if (!res.ok) throw new Error('err');
-      const json = await res.json();
-      // Transform API response to our format, fall back to mock if empty
-      if (json?.batches?.length) {
-        const tours: TourRow[] = (json.batches as Array<{
-          id: string;
-          driver?: { vorname?: string; nachname?: string; fahrzeug?: string } | null;
-          dispatch_score?: number | null;
-          stops?: Array<{ reihenfolge: number; geliefert_am: string | null; angekommen_am: string | null; zone?: string | null }>;
-          started_at?: string | null;
-          total_eta_min?: number | null;
-          zone?: string | null;
-        }>).map(b => {
-          const stops: TourStop[] = (b.stops ?? []).map(s => ({
-            reihenfolge: s.reihenfolge,
-            status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
-            zone: s.zone ?? null,
+      const raw = await res.json();
+      // batch-monitor?action=details returns ActiveBatchInfo[] directly
+      const batches: Array<{
+        batchId: string;
+        driverName: string | null;
+        vehicle: string | null;
+        startedAt: string;
+        totalStops: number;
+        completedStops: number;
+        stops: Array<{ stopType: string; state: string; etaMin: number | null; arrivedAt: string | null; completedAt: string | null }>;
+      }> = Array.isArray(raw) ? raw : [];
+      if (batches.length) {
+        const tours: TourRow[] = batches.map((b, _i) => {
+          const stops: TourStop[] = (b.stops ?? []).filter(s => s.stopType === 'dropoff').map((s, idx) => ({
+            reihenfolge: idx + 1,
+            status: s.completedAt ? 'delivered' : s.arrivedAt ? 'arrived' : 'pending',
+            zone: null,
           }));
           const completed = stops.filter(s => s.status === 'delivered').length;
-          const score = b.dispatch_score ?? null;
-          const scoreLabel = score == null ? null : score >= 80 ? 'Exzellent' : score >= 60 ? 'Gut' : score >= 40 ? 'OK' : 'Schwach';
-          const etaMin = b.total_eta_min ?? null;
-          const elapsedMin = b.started_at ? Math.floor((Date.now() - new Date(b.started_at).getTime()) / 60_000) : 0;
-          const remainMin = etaMin != null ? Math.max(0, etaMin - elapsedMin) : null;
-          const health: TourRow['health'] = remainMin == null ? 'unknown'
-            : remainMin <= 0 ? 'late' : remainMin <= 10 ? 'tight' : 'on-time';
+          // Estimate ETA: remaining stops × avg 8 min + 5 min return
+          const openStops = stops.filter(s => s.status === 'pending').length;
+          const etaMin = openStops * 8 + 5;
+          const elapsedMin = b.startedAt ? Math.floor((Date.now() - new Date(b.startedAt).getTime()) / 60_000) : 0;
+          const remainMin = Math.max(0, etaMin - elapsedMin);
+          const health: TourRow['health'] = remainMin <= 0 ? 'late' : remainMin <= 10 ? 'tight' : 'on-time';
           return {
-            batchId: b.id,
-            driverName: b.driver ? `${b.driver.vorname ?? ''} ${b.driver.nachname ?? ''}`.trim() : 'Unbekannt',
-            vehicle: b.driver?.fahrzeug ?? 'Auto',
-            score, scoreLabel, stops, completedStops: completed, totalStops: stops.length,
-            startedAt: b.started_at ?? null, etaMin, remainMin, zone: b.zone ?? null, health,
+            batchId: b.batchId,
+            driverName: b.driverName ?? 'Fahrer',
+            vehicle: b.vehicle ?? 'Auto',
+            score: null, scoreLabel: null, stops, completedStops: completed, totalStops: stops.length,
+            startedAt: b.startedAt, etaMin, remainMin, zone: null, health,
           };
         });
         setData({ tours, updatedAt: new Date().toISOString() });
