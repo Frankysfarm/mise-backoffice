@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1187 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1188–1192.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1197 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1198–1202.
+
+## CEO Review #333 — 2026-07-12
+
+### Commit-Stand
+- `9d592bb9` docs: Fortschritts-Log Phasen 1193–1197 + Nächste Phasen 1198–1202
+- `0edd537a` feat(delivery/frontend): Phasen 1193–1197 — Pause-API, Allergen-Ampel, Zone-Wartezeit, Routen-Badge, Rabattschwellen
+
+### Befund: Build sauber, keine Bugs — alle 5 Phasen korrekt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1193 | Backend | Pausen-Protokoll-API | GET /api/delivery/driver/pausen-protokoll | ✅ |
+| 1194 | Kitchen | KitchenPhase1194AllergenLiveAmpel | Props orders (useMemo, client-seitig) | ✅ |
+| 1195 | Dispatch | DispatchPhase1195ZoneWartezeitAnalyse | GET /api/delivery/admin/zone-wartezeit-analyse | ✅ |
+| 1196 | Fahrer-App | FahrerPhase1196RoutenEffizienzBadge | GET /api/delivery/driver/routen-effizienz-badge | ✅ |
+| 1197 | Storefront | Phase1197RabattschwellenBanner | cartTotal-Prop (client-seitig, kein API nötig) | ✅ |
+
+**Code-Qualität:**
+- Phase1193 Backend: Supabase → Mock-Fallback korrekt, driver_pauses-Abfrage für laufende Schicht (12h-Fenster), Dauer-Berechnung bei laufender Pause korrekt gegen `Date.now()` ✅
+- Phase1194 Kitchen: Allergen-Extraktion aus `order.allergens[]` oder `item.product.allergens[]` + Keyword-Fallback, useMemo korrekt, Schwelle ≥3 Warnung / ≥5 Kritisch, de-dup per Bestellung via `seen`-Set ✅
+- Phase1195 Dispatch: Zonen-Aggregation aus `orders.delivery_zone`, Ø-Wartezeit korrekt berechnet, Ampel-Schwellen grün ≤8 / amber ≤16 / rot >16 Min, 90s-Polling, MOCK-Fallback ✅
+- Phase1196 Fahrer-App: Effizienz-Formel `(teamAvg / kmProStopp) * 100` korrekt (weniger km/Stopp = höhere Effizienz), Badge-Schwellen Platin ≥130% / Gold ≥110% / Silber ≥90% / Bronze, isOnline-Guard, 10-Min-Polling ✅
+- Phase1197 Storefront: Schwellen-Iterator findet korrekt die nächste nicht-erreichte Schwelle, Fortschrittsbalken `(cartTotal / mindestbetrag) * 100`, Null-Guard `cartTotal <= 0`, vor Phase1143 platziert ✅
+- Alle Komponenten sind korrekt in kitchen/client.tsx, dispatch/client.tsx, fahrer/app/client.tsx und storefront.tsx integriert ✅
+- Dark-Mode-Support in allen Komponenten vorhanden ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 384 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1198–1202 (für Ingenieur)
+1. **Phase 1198 Backend:** Fahrer-Tages-Kilometer-Log-API — GET /api/delivery/driver/tages-km-log: Stündliche km-Zusammenfassung der aktuellen Schicht.
+2. **Phase 1199 Kitchen:** Bestellungs-Warteschlangen-Prognose — Voraussichtliche Bestellanzahl in den nächsten 30/60 Min basierend auf historischem Muster der letzten 4 Wochen.
+3. **Phase 1200 Dispatch:** Fahrer-Rückkehr-Zeitplan — Wann kommt welcher Fahrer voraussichtlich zurück + freie Kapazität für nächste Tour.
+4. **Phase 1201 Fahrer-App:** Tages-Kilometer-Live-Tracker — Kumulierte km des Tages + Balken vs. Durchschnitt + CO2-Fußabdruck.
+5. **Phase 1202 Storefront:** Echtzeit-Warteschlangen-Position — "Du bist Bestellung #3 in der Warteschlange" wenn Küche ausgelastet.
 
 ## CEO Review #332 — 2026-07-12
 
