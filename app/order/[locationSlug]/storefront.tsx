@@ -193,6 +193,7 @@ import { Phase1092GruppenBestellungsBanner } from './phase1092-gruppen-bestellun
 import { Phase1097ErstbestellungBonusBanner } from './phase1097-erstbestellung-bonus-banner';
 import { Phase1102NaechsteLieferfenster } from './phase1102-naechste-lieferfenster';
 import { Phase1107KategorieSchnellnavigation } from './phase1107-kategorie-schnellnavigation';
+import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortschritts-ring';
 
 type Props = {
   location: Location;
@@ -603,6 +604,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 1112: Wartezeit-Fortschritts-Ring — Kreisring 0–100% zeigt wie weit die Lieferung fortgeschritten ist */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.eta > 0 && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1112WartezeitFortschrittsRing
+              orderId={orderSuccess.orderId}
+              orderedAt={orderSuccess.orderedAt}
+              etaMinutes={orderSuccess.eta}
+              locationId={location.id}
+            />
+          </div>
+        )}
         {/* Phase 1067: Echtzeit-Lieferstatus-Karte — Visuelle Karte mit Fahrer-Position + ETA-Countdown */}
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-4 max-w-lg mx-auto">

@@ -434,6 +434,7 @@ import { DispatchPhase1093FahrerPauseKoordinator } from './phase1093-fahrerpause
 import { DispatchPhase1095ZonenAbdeckungsGarantie } from './phase1095-zonen-abdeckungs-garantie';
 import { DispatchPhase1100SchichtEndzeitWarnung } from './phase1100-schicht-endzeit-warnung';
 import { DispatchPhase1105KapazitaetsPlanung } from './phase1105-kapazitaets-planung';
+import { DispatchPhase1110FahrerRueckkehrKoordinator } from './phase1110-fahrer-rueckkehr-koordinator';
 
 type Driver = {
   employee_id: string;
@@ -1332,6 +1333,8 @@ export function DispatchBoard({
       <DispatchPhase1100SchichtEndzeitWarnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1105: Kapazitäts-Planungs-Empfehlung — Empfehlung Fahrer-Anzahl nächste Stunden basierend auf historischer Nachfrage */}
       <DispatchPhase1105KapazitaetsPlanung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1110: Fahrer-Rückkehr-Koordinator — ETA-Balken aktiver Touren + empfohlene Neuzuteilung */}
+      <DispatchPhase1110FahrerRueckkehrKoordinator locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
       <DispatchPhase1065SpaetTourRisikoMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1062: Smart-Dispatch-Score-Kommando — KI-Vorschlag beste Fahrerzuweisung mit Score-Erklärung */}
