@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-12): Phasen 1193–1197 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
+- Phase 1193 Backend: `app/api/delivery/driver/pausen-protokoll/route.ts` — GET /api/delivery/driver/pausen-protokoll: Alle Pausen der Schicht (Start/Ende/Dauer/Status) + Gesamt-Pausenzeit + laufende-Pause-Flag, Supabase driver_pauses + Mock ✅
+- Phase 1194 Kitchen: `app/(admin)/kitchen/phase1194-allergen-live-ampel.tsx` — Allergen-Live-Ampel: Farbkodierter Alert je Allergen wenn ≥3 aktive Bestellungen das gleiche Allergen enthalten; KRITISCH ab ≥5; keyword-Matching + product.allergens, client-seitig useMemo, kitchen/client.tsx nach Phase1189 ✅
+- Phase 1195 Dispatch: `app/(admin)/dispatch/phase1195-zone-wartezeit-analyse.tsx` + `app/api/delivery/admin/zone-wartezeit-analyse/route.ts` — Zone-Wartezeit-Analyse: Ø-Wartezeit Bestellung→Zuteilung je Zone letzte 2h + Längstwartende Bestellung + Balken-Ampel grün/amber/rot, 90s-Polling, dispatch/client.tsx nach Phase1190 ✅
+- Phase 1196 Fahrer-App: `app/fahrer/app/phase1196-routen-effizienz-badge.tsx` + `app/api/delivery/driver/routen-effizienz-badge/route.ts` — Routen-Effizienz-Badge: km/Stopp vs. Team-Ø + Badge Platin💎/Gold🥇/Silber🥈/Bronze🥉, 10-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase1191 ✅
+- Phase 1197 Storefront: `app/order/[locationSlug]/phase1197-rabattschwellen-banner.tsx` — Rabatt-Schwellen-Banner: Fortschrittsbalken + Fehlbetrag bis nächster Rabattschwelle (5%/10%/15%), cartTotal-basiert, storefront.tsx vor Phase1143 ✅
+
+### Nächste Phasen 1198–1202 (für Ingenieur)
+1. **Phase 1198 Backend:** Fahrer-Tages-Kilometer-Log-API — GET /api/delivery/driver/tages-km-log: Stündliche km-Zusammenfassung der aktuellen Schicht.
+2. **Phase 1199 Kitchen:** Bestellungs-Warteschlangen-Prognose — Voraussichtliche Bestellanzahl in den nächsten 30/60 Min basierend auf historischem Muster der letzten 4 Wochen.
+3. **Phase 1200 Dispatch:** Fahrer-Rückkehr-Zeitplan — Wann kommt welcher Fahrer voraussichtlich zurück + freie Kapazität für nächste Tour.
+4. **Phase 1201 Fahrer-App:** Tages-Kilometer-Live-Tracker — Kumulierte km des Tages + Balken vs. Durchschnitt + CO2-Fußabdruck.
+5. **Phase 1202 Storefront:** Echtzeit-Warteschlangen-Position — "Du bist Bestellung #3 in der Warteschlange" wenn Küche ausgelastet.
+
 Backend-Architekt-Agent (2026-07-12): Batch 1188–1192 implementiert. Build ✓ Compiled successfully 384 Seiten. TypeScript 0 Fehler.
 - Phase 1188 Backend: `app/api/delivery/driver/kunden-kontakt-chronik/route.ts` — GET /api/delivery/driver/kunden-kontakt-chronik: Liste aller Kundenkontakte der Schicht (Anruf/Nachricht/Klingelton/Nicht-Erreicht) + Timestamp + Bestellnummer, Supabase driver_contact_log + Mock ✅
 - Phase 1189 Kitchen: `app/(admin)/kitchen/phase1189-schicht-abschluss-prognose.tsx` — Schicht-Abschluss-Prognose: voraussichtliche Uhrzeit letzter Bestellung + verbleibende Bestellungen + Bestellungen/h + Trend (steigend/stabil/fallend), 8h-Schicht-Fenster, client-seitig useMemo, kitchen/client.tsx nach Phase1185 ✅
