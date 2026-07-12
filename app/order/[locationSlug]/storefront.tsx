@@ -201,6 +201,7 @@ import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnel
 import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
 import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilenstein';
 import { Phase1147KuechenAuslastungsWarnung } from './phase1147-kuechen-auslastungs-warnung';
+import { Phase1153BestellhistorieSchnellzugriff } from './phase1153-bestellhistorie-schnellzugriff';
 
 type Props = {
   location: Location;
@@ -1043,6 +1044,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           currentEtaMin={deliveryTimeMin}
         />
       </div>
+      {/* Phase 1153: Bestellhistorie-Schnellzugriff — Letzte 3 Bestellungen kompakt mit Wiederholen-Button */}
+      {cart.length === 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase1153BestellhistorieSchnellzugriff
+            cart={cart as any}
+            onAddItems={(newItems) => { for (const ci of newItems) { for (let q = 0; q < ci.qty; q++) { addToCart(ci.item as any); } } }}
+          />
+        </div>
+      )}
       {/* Phase 1133: Schnell-Reorder — 1-Klick-Wiederbestellung der letzten Bestellung mit Warenkorb-Vorausfüllung */}
       {cart.length === 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">

@@ -442,6 +442,7 @@ import { DispatchPhase1131NachtSchichtPlanung } from './phase1131-nacht-schicht-
 import { DispatchPhase1136LiveZonenStatus } from './phase1136-live-zonen-status';
 import { DispatchPhase1141FahrerCheckInMonitor } from './phase1141-fahrer-checkin-monitor';
 import { DispatchPhase1145FahrerRueckkehrTimeline } from './phase1145-fahrer-rueckkehr-timeline';
+import { DispatchPhase1151TourEchtzeitAmpel } from './phase1151-tour-echtzeit-ampel';
 
 type Driver = {
   employee_id: string;
@@ -1354,6 +1355,8 @@ export function DispatchBoard({
       <DispatchPhase1141FahrerCheckInMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1145: Fahrer-Rückkehr-Timeline — ETA pro Fahrer bis Ankunft in der Filiale + Stopp-Fortschritt */}
       <DispatchPhase1145FahrerRueckkehrTimeline locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1151: Tour-Echtzeit-Ampel — Live Grün/Gelb/Rot je aktiver Tour nach Pünktlichkeit + verbleibender Zeit */}
+      <DispatchPhase1151TourEchtzeitAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
       <DispatchPhase1120SchichtKostenUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
