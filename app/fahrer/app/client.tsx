@@ -354,6 +354,7 @@ import { FahrerPhase1125TourStoppNavigationsHub } from './phase1125-tour-stopp-n
 import { FahrerPhase1132EinnahmenWochenuebersicht } from './phase1132-einnahmen-wochenuebersicht';
 import { FahrerPhase1137SchichtKpiAbschluss } from './phase1137-schicht-kpi-abschluss';
 import { FahrerPhase1142NaechsteSchichtVorschau } from './phase1142-naechste-schicht-vorschau';
+import { FahrerPhase1146StoppQualitaetsCheck } from './phase1146-stopp-qualitaets-check';
 
 type Driver = {
   id: string;
@@ -4309,6 +4310,17 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1142NaechsteSchichtVorschau driverId={driver.id} isOnline={isOnline} />
         </div>
+
+        {/* Phase 1146: Stopp-Qualitäts-Check — Schnelle Selbstbewertung nach Lieferung (Übergabe, Freundlichkeit, Pünktlichkeit) */}
+        {activeBatch && isOnline && (
+          <div className="px-4">
+            <FahrerPhase1146StoppQualitaetsCheck
+              stopId={activeBatch.id}
+              driverId={driver.id}
+              customerName={activeBatch.stops[0]?.order?.kunde_name}
+            />
+          </div>
+        )}
 
         {/* Phase 1125: Tour-Stopp-Navigations-Hub — Aktueller + nächster Stopp, ETA-Countdown, Entfernung + Navi-Button */}
         {activeBatch && (

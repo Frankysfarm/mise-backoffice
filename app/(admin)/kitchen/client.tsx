@@ -381,6 +381,7 @@ import { KitchenPhase1123SmartTimingCountdownBoard } from './phase1123-smart-tim
 import { KitchenPhase1130ZutatenSchwundWarnung } from './phase1130-zutaten-schwund-warnung';
 import { KitchenPhase1135BestellungsPrioritaetBoard } from './phase1135-bestellungs-prioritaet-board';
 import { KitchenPhase1140ZutatenVerbrauchTagesverlauf } from './phase1140-zutaten-verbrauch-tagesverlauf';
+import { KitchenPhase1144KochRueckstandAmpel } from './phase1144-kochrueckstand-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1093,6 +1094,8 @@ export function KitchenBoard({
       <KitchenPhase1135BestellungsPrioritaetBoard orders={filtered} />
       {/* Phase 1140: Zutaten-Verbrauch-Tagesverlauf — Stündlicher Verbrauch Top-5-Artikel als Balkendiagramm + Hochrechnung */}
       <KitchenPhase1140ZutatenVerbrauchTagesverlauf orders={filtered} />
+      {/* Phase 1144: Koch-Rückstand-Ampel — Vergleich Eingang vs. Fertigstellung (letzte 30 Min) mit 3-stufiger Ampel */}
+      <KitchenPhase1144KochRueckstandAmpel orders={filtered} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}

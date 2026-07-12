@@ -200,6 +200,7 @@ import { LiveEtaTracker } from './live-eta-tracker';
 import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnell-reorder';
 import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
 import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilenstein';
+import { Phase1147KuechenAuslastungsWarnung } from './phase1147-kuechen-auslastungs-warnung';
 
 type Props = {
   location: Location;
@@ -1035,6 +1036,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1147: Küchen-Auslastungs-Warnung — Transparenz-Banner bei hoher Auslastung mit verlängerter ETA-Info */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <Phase1147KuechenAuslastungsWarnung
+          locationSlug={location.id}
+          currentEtaMin={deliveryTimeMin}
+        />
+      </div>
       {/* Phase 1133: Schnell-Reorder — 1-Klick-Wiederbestellung der letzten Bestellung mit Warenkorb-Vorausfüllung */}
       {cart.length === 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
