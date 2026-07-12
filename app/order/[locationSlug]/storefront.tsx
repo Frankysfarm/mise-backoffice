@@ -198,6 +198,7 @@ import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-b
 import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
 import { LiveEtaTracker } from './live-eta-tracker';
 import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnell-reorder';
+import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
 
 type Props = {
   location: Location;
@@ -610,6 +611,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 1138: Lieferstatus-Live-Banner — Fixierter Bottom-Banner: 4-Stufen-Timeline mit 20s-Polling */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <Phase1138LieferstatusBanner
+            orderId={orderSuccess.orderId}
+            bestellnummer={orderSuccess.bestellnummer}
+            orderedAt={orderSuccess.orderedAt}
+            etaMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            locationId={location.id}
+          />
+        )}
         {/* Phase 1112: Wartezeit-Fortschritts-Ring — Kreisring 0–100% zeigt wie weit die Lieferung fortgeschritten ist */}
         {orderSuccess.type === 'lieferung' && orderSuccess.eta > 0 && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
