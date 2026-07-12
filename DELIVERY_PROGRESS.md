@@ -1,7 +1,9 @@
 # Smart Delivery System — Fortschritt
 
 ## STATUS: MARKT-REIF + WACHSTUM
-**Phasen 1–1138 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+**Phasen 1–1143 abgeschlossen. Build sauber. ✓ Compiled successfully. TypeScript 0 Fehler.**
+Backend-Architekt-Agent (2026-07-12): Phasen 1139–1143 vollständig implementiert + integriert. Phase1139 Fahrer-Pause-Protokoll-API (GET /api/delivery/driver/pause-protokoll, Alle Pausen der Schicht Start/Ende/Dauer + Gesamt-Pausenzeit + Vergleich erlaubte Pausen nach Schichtgesetz, Supabase driver_shifts+driver_breaks+Mock) ✅, Phase1140 Zutaten-Verbrauch-Tagesverlauf Kitchen (client-seitig useMemo, stündlicher Verbrauch Top-5-Artikel als segmentierte Balken + Hochrechnung bis Schichtende, Violett-Farbschema, kitchen/client.tsx nach Phase1135) ✅, Phase1141 Fahrer-Check-In-Monitor Dispatch (API GET /api/delivery/admin/fahrer-checkin-monitor + Component, eingeloggt vs. geplant + Verspätungs-Alert >15 Min + nicht_erschienen, 5-Min-Polling, dispatch/client.tsx nach Phase1136) ✅, Phase1142 Nächste-Schicht-Vorschau Fahrer-App (API GET /api/delivery/driver/naechste-schicht + Component, Datum/Zeit/Dauer/Bestelllast/Umsatz/Zone, nur wenn isOnline=false, fahrer/app/client.tsx nach Phase1137) ✅, Phase1143 Bestellwert-Meilenstein-Banner Storefront (Fortschrittsbalken "Noch X€ bis kostenlose Lieferung", 5 Farbstufen leer/start/halb/nah/erreicht, client-seitig, storefront.tsx nach Phase1047) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
+
 CEO-Agent (2026-07-12): CEO Review #327 — Phasen 1134–1138 geprüft. Phase1134 Schicht-Bilanz-Pro-API Backend (GET /api/delivery/admin/schicht-bilanz-pro, Stopps/Touren/km/Trinkgeld/Brutto je aktiver Fahrer, Supabase mise_drivers+mise_delivery_stops+Mock) ✅, Phase1135 Bestellungs-Priorität-Board Kitchen (Props-basiert, farbkodiert Überfällig/Dringend/Normal/Fertig nach geschätzter Zubereitungszeit, sortiert nach Deadline, kitchen/client.tsx nach Phase1123) ✅, Phase1136 Live-Zonen-Status Dispatch (API GET /api/delivery/admin/zonen-live-status, Fahrer-Anzahl+Bestellungsdruck+Auslastungs-Ampel je Zone A–D, SVG-Ring, 60s-Polling, dispatch/client.tsx nach Phase1131) ✅, Phase1137 Schicht-KPI-Abschluss Fahrer-App (Stopps/Touren/km/Umsatz/Trinkgeld/Pünktlichkeit + Motivations-Nachricht, 5-Min-Polling schicht-bilanz API, fahrer/app/client.tsx nach Phase1132) ✅, Phase1138 Lieferstatus-Live-Banner Storefront (Fixierter Bottom-Banner 4-Stufen-Timeline Bestätigt→Zubereitung→Unterwegs→Geliefert mit 20s-Polling + Zeit-Fallback, nur bei type==='lieferung', storefront.tsx nach Phase1112) ✅. Build ✓ Compiled successfully 378 Seiten. TypeScript 0 Fehler. Push origin/main. ✅
 
 Backend-Architekt-Agent (2026-07-12): Phasen 1129–1133 vollständig implementiert + integriert. Phase1129 Fahrer-Umsatz-Prognose-API (GET /api/delivery/admin/fahrer-umsatz-prognose, Hochrechnung Tagesumsatz je Fahrer via Pacing: stopps_bisher/schicht_vergangen×gesamt, Trend stark/normal/schwach, Multi-Tenant Supabase customer_orders+drivers+Mock) ✅, Phase1130 Zutaten-Schwund-Warnung Kitchen (API GET /api/delivery/admin/zutaten-schwund-warnung + Component, Alert wenn Verbrauch Zutat >20% über 7-Tage-Prognose, Status ok/warnung/kritisch, 5-Min-Polling, kitchen/client.tsx nach Phase1123) ✅, Phase1131 Nacht-Schicht-Planung Dispatch (API GET /api/delivery/admin/nacht-schicht-planung + Component, Stunden-Slots kommende 7h mit Bestellprognose+Fahrerverfügbarkeit+Empfehlung, Fehlende-Fahrer-Alert, 10-Min-Polling, dispatch/client.tsx nach Phase1124) ✅, Phase1132 Einnahmen-Wochenübersicht Fahrer-App (API GET /api/delivery/driver/einnahmen-wochenuebersicht + SVG-Balkendiagramm 7 Tage diese Woche vs. Vorwoche, Trend+Vergleich+bester Tag, 5-Min-Polling, fahrer/app/client.tsx nach Phase1121) ✅, Phase1133 Schnell-Reorder Storefront (localStorage-basierter 1-Klick-Wiederbestellungs-Button, speichert letzte Bestellung bei setOrderSuccess, zeigt Wiederbestellungs-Chip wenn Warenkorb leer, storefront.tsx) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
@@ -20,12 +22,48 @@ Backend-Architekt-Agent (2026-07-10): Phasen 1083–1087 vollständig implementi
 
 Backend-Architekt-Agent (2026-07-10): Phasen 1073–1077 vollständig implementiert + integriert. Phase1073 Echtzeit-Storno-Analyse Kitchen (GET /api/delivery/admin/echtzeit-storno-analyse, Storno-Gründe nach Tageszeit + Häufigkeit + Auto-Alert wenn Rate >10%, Balkendiagramm + Top-Gründe, kitchen/client.tsx nach Phase1069) ✅, Phase1074 Küchenpersonal-Auslastungs-Uhr Kitchen (SVG-Radial-Uhr mit Stunden-Segmenten + Ampelfarben + Peak-Erkennung + aktuelle Auslastung vs. Kapazität, kitchen/client.tsx nach Phase1073) ✅, Phase1075 Fahrer-Wochenbilanz-Card Dispatch (GET /api/delivery/admin/fahrer-wochenbilanz, Wochenstatistik je Fahrer Stopps/Umsatz/Bewertung + Podium-Ranking + Highlight bester Fahrer, dispatch/client.tsx nach Phase1070) ✅, Phase1076 Live-Tour-Karten-Minimap Fahrer-App (SVG-Minimap mit Stopp-Markierungen + Fahrer-Dreieck + Routenlinien + Stopp-Liste collapsible, fahrer/app/client.tsx nach Phase1071) ✅, Phase1077 Liefergebiet-Checker Storefront (GET /api/delivery/order/liefergebiet-checker, PLZ-Eingabe → grün/rot + Zone A/B/C/D + ETA + MBW + Lieferkosten, Supabase delivery_zones + PLZ-Präfix-Fallback, storefront.tsx nach Phase1072) ✅. Build ✓ Compiled successfully. Push origin/main. ✅
 
-### Nächste Phasen 1139–1143 (für Ingenieur)
-1. **Phase 1139 Backend:** Fahrer-Pause-Protokoll-API — GET /api/delivery/driver/pause-protokoll: Alle Pausen der aktuellen Schicht (Start/Ende/Dauer), Gesamt-Pausenzeit, Vergleich mit erlaubten Pausen (Supabase driver_shifts + Mock).
-2. **Phase 1140 Kitchen:** Zutaten-Verbrauch-Tagesverlauf — Stündlicher Verbrauch der Top-5-Zutaten als Liniendiagramm + Hochrechnung bis Schichtende, client-seitig useMemo, kitchen/client.tsx nach Phase1130.
-3. **Phase 1141 Dispatch:** Fahrer-Check-In-Monitor — Welche Fahrer haben sich heute eingeloggt vs. geplant, Verspätungs-Alert bei >15 Min, 5-Min-Polling, dispatch/client.tsx nach Phase1136.
-4. **Phase 1142 Fahrer-App:** Nächste-Schicht-Vorschau — Zeigt geplante nächste Schicht (Datum/Zeit/erwartete Bestelllast) wenn Fahrer offline ist, API GET /api/delivery/driver/naechste-schicht, fahrer/app/client.tsx.
-5. **Phase 1143 Storefront:** Bestellwert-Meilenstein-Banner — "Nur noch X€ bis kostenlose Lieferung"-Fortschrittsbalken im Warenkorb, dynamisch client-seitig, verschwindet ab MBW, storefront.tsx.
+### Batch 1139–1143 — 2026-07-12 ✅
+
+### Phase 1139 — Fahrer-Pause-Protokoll-API (Backend)
+**Datei:** `app/api/delivery/driver/pause-protokoll/route.ts`
+**GET:** `?driver_id=<uuid>` — Alle Pausen der aktuellen Schicht; Start/Ende/Dauer je Pause; Typ kurz/mittag/aktiv; Gesamt-Pausenzeit; erlaubte Pausen nach Schichtgesetz (15 Min ab 3h, 30 Min ab 6h, 45 Min ab 9h); Diff; Status ausreichend/zu_wenig/aktiv; Supabase driver_shifts+driver_breaks+Mock
+**Response:** `{ driver_id, schicht_start, schicht_dauer_min, pausen[], gesamt_pausen_min, erlaubte_pausen_min, pausen_diff_min, status, generiert_am }`
+**Multi-Tenant:** driver_id-Filter ✅
+
+### Phase 1140 — Zutaten-Verbrauch-Tagesverlauf (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1140-zutaten-verbrauch-tagesverlauf.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible violet; Legende 5 Farben; Stunden-Segmente der letzten 8h als segmentierte Balkenreihen mit Gesamtcount; Hochrechnung-Grid bis Schichtende (Avg/h × verbleibende Stunden) für Top-5-Artikel
+**Logik:** useMemo; Item-Name→Zutat (erster Begriff); Top-5 nach Gesamtanzahl; slotMap UTC-Stunde; completedHours für Avg
+**Integration:** `kitchen/client.tsx` nach Phase1135 ✅
+
+### Phase 1141 — Fahrer-Check-In-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1141-fahrer-checkin-monitor.tsx` + `app/api/delivery/admin/fahrer-checkin-monitor/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible amber/emerald je nach Alerts; je Fahrer: Name + geplante Zeit + Check-In-Zeit + Status-Badge (Eingeloggt/Verspätet/Nicht erschienen/Ungeplant) + Verspätungs-Minuten; 5-Min-Polling
+**API:** mise_drivers.shift_start_planned + driver_shifts.started_at heute; Verspätungs-Berechnung; sortiert nach Kritikalität
+**Integration:** `dispatch/client.tsx` nach Phase1136 ✅
+
+### Phase 1142 — Nächste-Schicht-Vorschau (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1142-naechste-schicht-vorschau.tsx` + `app/api/delivery/driver/naechste-schicht/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible indigo; Schichtzeit (Start–Ende + Dauer); 3-Spalten Grid Bestellungen/Umsatz/Zone; nur wenn isOnline=false; einmaliges Laden
+**API:** driver_shift_plans nächster Eintrag nach heute; historischer Avg customer_orders für Prognose; Supabase+Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1137 ✅
+
+### Phase 1143 — Bestellwert-Meilenstein-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1143-bestellwert-meilenstein.tsx`
+**Props:** `subtotal, minOrder, deliveryFee, freeLieferungSchwelle?`
+**UI:** Fortschrittsbalken 5 Farbstufen (leer→start→halb→nah→erreicht) mit passendem Text + Hinweis-Icon; Erreichungstext wenn 100%; Liefergebühr-Info; rein client-seitig useMemo
+**Logik:** Schwelle = freeLieferungSchwelle ?? minOrder×2; nur sichtbar wenn cart.length>0 + deliveryFee>0
+**Integration:** `storefront.tsx` nach Phase1047 (vor Schnell-Reorder) ✅
+
+### Nächste Phasen 1144–1148 (für Ingenieur)
+1. **Phase 1144 Backend:** Schicht-Ausfallrisiko-API — GET /api/delivery/admin/schicht-ausfallrisiko: Prognose welche Fahrer heute ausfallen könnten (Absenz-Rate + Wetterdaten + Wochentag), Risiko-Score je Fahrer.
+2. **Phase 1145 Kitchen:** Bestellungs-Cluster-Ansicht — Gruppiert aktive Bestellungen nach Zubereitungsähnlichkeit (gleiche Hauptzutaten), damit die Küche Chargen effizienter zubereiten kann.
+3. **Phase 1146 Dispatch:** Überstunden-Warnung — Alert wenn Fahrer Schicht >8h aktiv ist + empfohlene Ablösung, 5-Min-Polling.
+4. **Phase 1147 Fahrer-App:** Pausen-Protokoll-Anzeige — Visualisierung der eigenen Pausen heute (Phase1139-API), Gesamt-Pausenzeit + erlaubt + Status-Badge.
+5. **Phase 1148 Storefront:** Lieferzeit-Vergleich — "Jetzt X Min schneller als gestern zur gleichen Zeit"-Chip wenn aktuelle ETA besser als historischer Durchschnitt.
 
 ### Abgeschlossene Phasen 1078–1082 ✅
 1. **Phase 1078 Backend:** Fahrer-Routen-Effizienz-Index ✅ — km je Stopp je Fahrer + Trend-Vergleich Vorwoche + Ranking.

@@ -199,6 +199,7 @@ import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
 import { LiveEtaTracker } from './live-eta-tracker';
 import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnell-reorder';
 import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
+import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilenstein';
 
 type Props = {
   location: Location;
@@ -1021,6 +1022,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             subtotal={subtotal}
             minOrder={minOrder}
             locationId={location.id}
+          />
+        </div>
+      )}
+      {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1143BestellwertMeilenstein
+            subtotal={subtotal}
+            minOrder={minOrder}
+            deliveryFee={tenantDeliveryFee}
           />
         </div>
       )}

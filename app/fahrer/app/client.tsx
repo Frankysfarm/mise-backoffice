@@ -353,6 +353,7 @@ import { FahrerPhase1121TagesZielFortschrittsRing } from './phase1121-tages-ziel
 import { FahrerPhase1125TourStoppNavigationsHub } from './phase1125-tour-stopp-navigations-hub';
 import { FahrerPhase1132EinnahmenWochenuebersicht } from './phase1132-einnahmen-wochenuebersicht';
 import { FahrerPhase1137SchichtKpiAbschluss } from './phase1137-schicht-kpi-abschluss';
+import { FahrerPhase1142NaechsteSchichtVorschau } from './phase1142-naechste-schicht-vorschau';
 
 type Driver = {
   id: string;
@@ -4302,6 +4303,11 @@ export function FahrerApp({
         {/* Phase 1137: Schicht-KPI-Abschluss — Tages-Leistung: Stopps, km, Umsatz, Trinkgeld, Pünktlichkeit + Motivation */}
         <div className="px-4">
           <FahrerPhase1137SchichtKpiAbschluss driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1142: Nächste-Schicht-Vorschau — Geplante nächste Schicht (Datum/Zeit/Bestelllast) wenn offline */}
+        <div className="px-4">
+          <FahrerPhase1142NaechsteSchichtVorschau driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1125: Tour-Stopp-Navigations-Hub — Aktueller + nächster Stopp, ETA-Countdown, Entfernung + Navi-Button */}
