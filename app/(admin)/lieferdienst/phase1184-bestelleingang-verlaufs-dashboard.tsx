@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'rechar
 import { Activity, ChevronDown, ChevronUp, Loader2, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Phase 1179 — Bestelleingang-Verlaufs-Dashboard (Lieferdienst)
+// Phase 1184 — Bestelleingang-Verlaufs-Dashboard (Lieferdienst)
 // Stündlicher Bestelleingang heute vs. Vorwoche + Peak-Erkennung
 
 interface Props { locationId: string | null; }

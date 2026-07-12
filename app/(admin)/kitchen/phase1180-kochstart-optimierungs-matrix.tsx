@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Clock, Flame, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Phase 1175 — Kochstart-Optimierungs-Matrix (Kitchen)
+// Phase 1180 — Kochstart-Optimierungs-Matrix (Kitchen)
 // Bestellungen die ihren optimalen Kochstart verpasst oder gerade erreicht haben — nach Dringlichkeit sortiert
 
 interface Order {

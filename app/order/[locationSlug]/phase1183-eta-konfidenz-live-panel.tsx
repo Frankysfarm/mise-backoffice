@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Phase 1178 — ETA-Konfidenz-Live-Panel (Storefront)
+// Phase 1183 — ETA-Konfidenz-Live-Panel (Storefront)
 // Echtzeit-Anzeige der ETA-Zuverlässigkeit: Pct-Ring + Konfidenz-Level + Erklärung
 
 interface Props {

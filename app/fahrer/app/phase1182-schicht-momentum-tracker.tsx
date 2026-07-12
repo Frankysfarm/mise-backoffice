@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2, TrendingUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Phase 1177 — Schicht-Momentum-Tracker (Fahrer-App)
+// Phase 1182 — Schicht-Momentum-Tracker (Fahrer-App)
 // Live-Schicht-Tempo: Stopps/Stunde + Hochrechnung Tagesende-Verdienst
 
 interface Props {

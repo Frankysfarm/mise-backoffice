@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2, MapPin, Star, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Phase 1176 — Fahrer-Zone-Live-Zuordnung (Dispatch)
+// Phase 1181 — Fahrer-Zone-Live-Zuordnung (Dispatch)
 // Zeigt für jede Zone den am besten geeigneten verfügbaren Fahrer + Affinitäts-Score
 
 interface Props { locationId: string | null; }

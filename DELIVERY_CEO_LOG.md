@@ -1,7 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1174 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 381 Seiten). Deployment-bereit. Nächste Phasen: 1175–1179.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1184 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 381 Seiten). Deployment-bereit. Nächste Phasen: 1185–1189.
+
+## CEO Review #331 — 2026-07-12
+
+### Commit-Stand
+- `a28bfc5b` feat(delivery/frontend): Phasen 1180–1184 — Kochstart-Matrix, Zone-Zuordnung, Momentum-Tracker, ETA-Konfidenz, Bestellverlauf
+- `20da47ba` feat(delivery/backend): Phasen 1175–1179 vollständig implementiert + integriert
+
+### Befund: Build sauber, 5 Kommentar-Bugs gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1180 | Kitchen | KitchenPhase1180KochstartOptimierungsMatrix | Props orders (5s-Tick, 4-stufige Dringlichkeit überfällig/jetzt/bald/ok, client-seitig computeMatrix) | ✅ |
+| 1181 | Dispatch | DispatchPhase1181FahrerZoneLiveZuordnung | GET /api/delivery/admin/fahrer-zone-affinitaet (Zone A/B/C/D, Affinitäts-Score Pünktlichkeit 40%+Bewertung 35%+km 25%, 60s-Polling, MOCK-Fallback) | ✅ |
+| 1182 | Fahrer-App | FahrerPhase1182SchichtMomentumTracker | GET /api/delivery/fahrer/schicht-bilanz (Stopps/h + Prognose + Fortschrittsbalken, 5-Min-Polling, nur wenn isOnline) | ✅ |
+| 1183 | Storefront | Phase1183EtaKonfidenzLivePanel | GET /api/delivery/eta/:orderId (SVG-Ring + Konfidenz-Level sehr_hoch/hoch/mittel/niedrig + Zeitfenster, 30s-Polling) | ✅ |
+| 1184 | Lieferdienst | LieferdienstPhase1184BestelleingangVerlaufsDashboard | GET /api/delivery/analytics/weekly-stats (Recharts BarChart heute vs. Vorwoche + Peak-Erkennung + Δ%, 10-Min-Polling) | ✅ |
+
+**Bugs gefunden und gefixt (5 Stück):**
+1. **phase1180** Kommentar sagte "Phase 1175" → korrigiert zu "Phase 1180"
+2. **phase1181** Kommentar sagte "Phase 1176" → korrigiert zu "Phase 1181"
+3. **phase1182** Kommentar sagte "Phase 1177" → korrigiert zu "Phase 1182"
+4. **phase1183** Kommentar sagte "Phase 1178" → korrigiert zu "Phase 1183"
+5. **phase1184** Kommentar sagte "Phase 1179" → korrigiert zu "Phase 1184"
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ — Kochstart-Matrix + Zone-Zuordnung |
+| Dispatch ↔ Driver | ✅ — Momentum-Tracker + Zone-Affinität |
+| Driver ↔ Storefront | ✅ — ETA-Konfidenz-Panel |
+| Storefront ↔ Orders API | ✅ |
+| Build | ✅ Compiled successfully 381 Seiten |
+
+### Nächste Phasen 1185–1189 (für Ingenieur)
+1. **Phase 1185 Backend:** Fahrer-Auslastungs-Prognose-API — GET /api/delivery/admin/fahrer-auslastungs-prognose: Vorhersage der Fahrerauslastung für die nächsten 3 Stunden basierend auf historischer Bestellrate × aktueller Fahreranzahl.
+2. **Phase 1186 Kitchen:** Allergene-Tages-Zusammenfassung — Collapsible Board alle heute vorgekommenen Allergene sortiert nach Häufigkeit + Bestellungen mit Sonderwünschen.
+3. **Phase 1187 Dispatch:** Tour-Zusammenlegungsvorschlag — Intelligente Empfehlung welche zwei wartenden Touren in eine Kombi-Tour gebündelt werden könnten + geschätzte Ersparnis.
+4. **Phase 1188 Fahrer-App:** Kunden-Kontakt-Chronik — Liste aller Kundenkontakte der Schicht (Anrufe, Nachrichten, Nicht-Erreicht-Meldungen) mit Zeitstempel.
+5. **Phase 1189 Storefront/Lieferdienst:** Bestellwert-Upsell-Grid — 2×2-Grid mit den 4 meistgekauften Ergänzungsartikeln bei Bestellungen ähnlichen Warenkorbs + 1-Klick-Hinzufügen.
 
 ## CEO Review #330 — 2026-07-12
 
