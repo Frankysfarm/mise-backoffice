@@ -197,6 +197,7 @@ import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortsc
 import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-bestellt';
 import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
 import { LiveEtaTracker } from './live-eta-tracker';
+import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnell-reorder';
 
 type Props = {
   location: Location;
@@ -566,6 +567,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         items: cart,
         orderedAt: new Date().toISOString(),
       });
+      // Phase 1133: Schnell-Reorder — letzte Bestellung für 1-Klick-Wiederbestellung speichern
+      saveOrderForReorder(cart, location.id);
       // Persist for returning-visitor tracking banner
       try {
         localStorage.setItem(`active_order:${location.id}`, JSON.stringify({
@@ -1007,6 +1010,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             subtotal={subtotal}
             minOrder={minOrder}
             locationId={location.id}
+          />
+        </div>
+      )}
+      {/* Phase 1133: Schnell-Reorder — 1-Klick-Wiederbestellung der letzten Bestellung mit Warenkorb-Vorausfüllung */}
+      {cart.length === 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase1133SchnellReorder
+            locationId={location.id}
+            onAddItems={(newItems) => { for (const ci of newItems) { for (let q = 0; q < ci.qty; q++) { addToCart(ci.item as any); } } }}
           />
         </div>
       )}
