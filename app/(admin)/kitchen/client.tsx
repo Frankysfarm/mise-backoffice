@@ -376,6 +376,7 @@ import { KitchenPhase1099PrioritaetsWarteschlange } from './phase1099-prioritaet
 import { KitchenPhase1104ZubereitungsLernfortschritt } from './phase1104-zubereitungs-lernfortschritt';
 import { KitchenPhase1109ArtikelPopularitaetsVorschau } from './phase1109-artikel-popularitaets-vorschau';
 import { KitchenPhase1114BestellratePrognoseBoard } from './phase1114-bestellrate-prognose-board';
+import { KitchenPhase1119KuehenstatusAmpel } from './phase1119-kuechenstatus-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1022,6 +1023,8 @@ export function KitchenBoard({
       <KitchenPhase1109ArtikelPopularitaetsVorschau orders={filtered as any} />
       {/* Phase 1114: Bestellrate-Prognose-Board — Aktuelle Bestellrate + Prognose 30/60/90 Min + Auslastungs-Ampel */}
       <KitchenPhase1114BestellratePrognoseBoard orders={filtered as any} />
+      {/* Phase 1119: Küchenstatus-Ampel — 5-Min-Bestellrate + Trend + Kapazitäts-Ampel niedrig/mittel/hoch/peak */}
+      <KitchenPhase1119KuehenstatusAmpel orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}

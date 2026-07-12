@@ -195,6 +195,7 @@ import { Phase1102NaechsteLieferfenster } from './phase1102-naechste-lieferfenst
 import { Phase1107KategorieSchnellnavigation } from './phase1107-kategorie-schnellnavigation';
 import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortschritts-ring';
 import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-bestellt';
+import { Phase1122AehnlicheProdukte } from './phase1122-aehnliche-produkte';
 
 type Props = {
   location: Location;
@@ -1013,6 +1014,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <Phase1117HaeufigZusammenBestellt
             locationId={location.id}
+            cart={cart as any}
+            allItems={items}
+            onAddItem={addToCart}
+          />
+        </div>
+      )}
+      {/* Phase 1122: Ähnliche Produkte — 3 ähnliche Artikel nach Auswahl (gleiche Kategorie + Preisnähe) als Swipe-Chips */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1122AehnlicheProdukte
             cart={cart as any}
             allItems={items}
             onAddItem={addToCart}
