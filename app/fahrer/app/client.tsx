@@ -361,6 +361,7 @@ import { FahrerPhase1157TourStoppKommandoUltra } from './phase1157-tour-stopp-ko
 import { FahrerPhase1162TourStoppLiveKommando } from './phase1162-tour-stopp-live-kommando';
 import { FahrerPhase1167SmartTourNavigatorPro } from './phase1167-smart-tour-navigator-pro';
 import { FahrerPhase1172TourStoppNaviHub } from './phase1172-tour-stopp-navi-hub';
+import { FahrerPhase1178TourZusammenfassung } from './phase1178-tour-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -444,6 +445,8 @@ export function FahrerApp({
   const [status, setStatus] = useState(initialStatus);
   const [openBatches, setOpenBatches] = useState(initialOpenBatches);
   const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
+  const [lastCompletedBatchId, setLastCompletedBatchId] = useState<string | null>(initialActiveBatch?.id ?? null);
+  const prevBatchIdRef = React.useRef<string | null>(initialActiveBatch?.id ?? null);
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
@@ -454,6 +457,13 @@ export function FahrerApp({
     const t = setInterval(() => setLiveTick((n) => n + 1), 1000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (prevBatchIdRef.current && !activeBatch?.id) {
+      setLastCompletedBatchId(prevBatchIdRef.current);
+    }
+    prevBatchIdRef.current = activeBatch?.id ?? null;
+  }, [activeBatch?.id]);
 
   const gpsWatchRef = useRef<number | null>(null);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
@@ -4377,6 +4387,13 @@ export function FahrerApp({
         {!isOnline && !activeBatch && (
           <div className="px-4">
             <FahrerPhase1081SchichtAbschlussStatistikScreen driverId={driver.id} isOnline={isOnline} />
+          </div>
+        )}
+
+        {/* Phase 1178: Tour-Zusammenfassung-Screen — Abschluss-Screen nach Tour mit km/Stopps/Trinkgeld/Ø-Bewertung + Tier */}
+        {!activeBatch && isOnline && lastCompletedBatchId && (
+          <div className="px-4">
+            <FahrerPhase1178TourZusammenfassung driverId={driver.id} lastBatchId={lastCompletedBatchId} />
           </div>
         )}
 
