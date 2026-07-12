@@ -350,6 +350,7 @@ import { FahrerPhase1106TrinkgeldWochenUebersicht } from './phase1106-trinkgeld-
 import { FahrerPhase1111KundenFeedbackChronik } from './phase1111-kunden-feedback-chronik';
 import { FahrerPhase1116SchichtMeilensteinTracker } from './phase1116-schicht-meilenstein-tracker';
 import { FahrerPhase1121TagesZielFortschrittsRing } from './phase1121-tages-ziel-fortschritts-ring';
+import { FahrerPhase1126KombiTourVorschau } from './phase1126-kombi-tour-vorschau';
 import { FahrerPhase1125TourStoppNavigationsHub } from './phase1125-tour-stopp-navigations-hub';
 import { FahrerPhase1132EinnahmenWochenuebersicht } from './phase1132-einnahmen-wochenuebersicht';
 import { FahrerPhase1137SchichtKpiAbschluss } from './phase1137-schicht-kpi-abschluss';
@@ -4296,6 +4297,11 @@ export function FahrerApp({
         {/* Phase 1121: Tages-Ziel-Fortschritts-Ring — Fahrer-Tagesziel Stopps+€ + SVG-Ring + Motivations-Nachricht */}
         <div className="px-4">
           <FahrerPhase1121TagesZielFortschrittsRing driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1126: Kombi-Tour-Vorschau — Stopps der nächsten möglichen Bündelungs-Tour + Zeitersparnis */}
+        <div className="px-4">
+          <FahrerPhase1126KombiTourVorschau driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1132: Einnahmen-Wochenübersicht — 7-Tage-Balkendiagramm eigener Umsatz + Vergleich mit Vorwoche */}

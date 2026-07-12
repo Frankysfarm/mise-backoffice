@@ -377,6 +377,7 @@ import { KitchenPhase1104ZubereitungsLernfortschritt } from './phase1104-zuberei
 import { KitchenPhase1109ArtikelPopularitaetsVorschau } from './phase1109-artikel-popularitaets-vorschau';
 import { KitchenPhase1114BestellratePrognoseBoard } from './phase1114-bestellrate-prognose-board';
 import { KitchenPhase1119KuehenstatusAmpel } from './phase1119-kuechenstatus-ampel';
+import { KitchenPhase1124BestellungsBurstWarnung } from './phase1124-bestellungs-burst-warnung';
 import { KitchenPhase1123SmartTimingCountdownBoard } from './phase1123-smart-timing-countdown-board';
 import { KitchenPhase1130ZutatenSchwundWarnung } from './phase1130-zutaten-schwund-warnung';
 import { KitchenPhase1135BestellungsPrioritaetBoard } from './phase1135-bestellungs-prioritaet-board';
@@ -1032,6 +1033,8 @@ export function KitchenBoard({
       <KitchenPhase1114BestellratePrognoseBoard orders={filtered as any} />
       {/* Phase 1119: Küchenstatus-Ampel — 5-Min-Bestellrate + Trend + Kapazitäts-Ampel niedrig/mittel/hoch/peak */}
       <KitchenPhase1119KuehenstatusAmpel orders={filtered as any} />
+      {/* Phase 1124: Bestellungs-Burst-Warnung — Alert wenn ≥5 Bestellungen in 5 Min + Vorabzubereitung je Artikel */}
+      <KitchenPhase1124BestellungsBurstWarnung orders={filtered as any} />
       {/* Phase 1064: Batch-Optimierungs-Assistent — Empfehlung welche Bestellungen gebündelt zubereitet werden */}
       <KitchenPhase1064BatchOptimierungsAssistent orders={filtered as any} />
       {/* Phase 1062: Prep-Engpass-Frühwarner — Automatische Erkennung überlasteter Stationen mit Sofort-Aktion */}

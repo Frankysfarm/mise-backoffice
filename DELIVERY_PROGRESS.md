@@ -13909,9 +13909,47 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **Logik:** useMemo filtert Kandidaten (nicht im Cart + gleiche Kategorie + Preis ±50% der Cart-Avg); sortiert nach Preisnähe; Top 4; null wenn keine Kandidaten
 **Integration:** `storefront.tsx` nach Phase1117 ✅
 
-### Nächste Phasen 1123–1127 (für Ingenieur)
-1. **Phase 1123 Backend:** Fahrer-Zone-Affinität-API — Historische Best-Zone je Fahrer basierend auf Pünktlichkeit + Bewertung + km-Effizienz (letzte 30 Tage).
-2. **Phase 1124 Kitchen:** Bestellungs-Burst-Warnung — Alert wenn in den letzten 5 Min mehr als X Bestellungen gleichzeitig eintreffen + empfohlene Vorabzubereitung je Artikel.
-3. **Phase 1125 Dispatch:** Fahrer-Netz-Heatmap — Minimalistische SVG-Karte der aktiven Fahrer-Positionen je Zone A/B/C/D als Auslastungs-Punkte.
-4. **Phase 1126 Fahrer-App:** Kombi-Tour-Vorschau — Vorschau welche Stopps in der nächsten potentiellen Bündelungs-Tour zusammengefasst werden könnten.
-5. **Phase 1127 Storefront:** Bestellzeit-Optimierer — Hinweis "Jetzt bestellen für schnellste Lieferung" wenn aktuelle Zone gut besetzt + Peak-Warnung wenn Auslastung hoch.
+---
+
+## Batch 1123–1127 — 2026-07-12
+
+### Phase 1123 — Fahrer-Zone-Affinität-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-zone-affinitaet/route.ts`
+**GET:** `?location_id=<uuid>` — Historische Best-Zone je Fahrer letzte 30 Tage; Pünktlichkeit (40%) + Bewertung (35%) + km-Effizienz (25%) → Affinitäts-Score 0–100; best_zone pro Fahrer; Supabase mise_drivers + mise_delivery_stops + Mock
+**Response:** `{ fahrer[], location_id, generiert_am }` · je Fahrer: `{ fahrer_id, fahrer_name, best_zone, zonen[] }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1124 — Bestellungs-Burst-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1124-bestellungs-burst-warnung.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible orange (nur wenn Burst erkannt); Zap-Icon + Puls-Animation; Burst-Count-Badge; Alert-Text + Top-4 Artikel-Empfehlungs-Liste; Schwelle: 5 Bestellungen in 5 Min
+**Logik:** analyzeBurst() filtert orders.created_at ≥ Date.now()-5Min; itemMap für Vorab-Empfehlungen; null wenn < Schwelle; rein client-seitig
+**Integration:** `kitchen/client.tsx` nach Phase1119 ✅
+
+### Phase 1125 — Fahrer-Netz-Heatmap (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1125-fahrer-netz-heatmap.tsx` + `app/api/delivery/admin/fahrer-netz-heatmap/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible sky; SVG 300×240 mit 4 Zonen-Quadranten; Auslastungs-Dots (Radius proportional zu Fahrerzahl, Farbe nach Level leer/niedrig/mittel/hoch/voll); Fahrer-Detail-Grid 2×2; Legend; 60s-Polling
+**API:** mise_drivers.online + delivery_zone → Zone-Bucket; Auslastung = on_tour/CAPACITY×100; Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1124 ✅
+
+### Phase 1126 — Kombi-Tour-Vorschau (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1126-kombi-tour-vorschau.tsx` + `app/api/delivery/driver/kombi-tour-vorschau/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible violet; 3 Summary-Pills (Gesamt-Tour-Min, Zeitersparnis, Stopps); nummerierte Stopp-Liste mit Adresse + Zone + ETA + Items-Count; Disclaimer "Vorschau — Dispatch entscheidet"; isOnline-Guard
+**API:** GET customer_orders mit status=ready/fertig/dispatched + assigned_driver_id=null in Fahrer-Zone; Bündelungs-Vorteil = Einzel-Tour − Kombi-Tour; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1121 ✅
+
+### Phase 1127 — Bestellzeit-Optimierer (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1127-bestellzeit-optimierer.tsx`
+**Props:** `locationId: string, zone?: string | null, cartEmpty: boolean`
+**UI:** Banner (optimal/gut/peak/knapp je Zonen-Signal); Zap-Icon (gut) oder TrendingUp (peak); Farb-Coded border+bg; ETA-Schätzung + CTA-Text + X-Dismiss; nur sichtbar wenn Cart leer
+**Logik:** fetchSignal() holt fahrer-netz-heatmap API; mappt Zone-Level → Status + ETA; 3-Min-Polling; knapp = kein Banner
+**Integration:** `storefront.tsx` nach Phase1122 (nur wenn cartEmpty) ✅
+
+### Nächste Phasen 1128–1132 (für Ingenieur)
+1. **Phase 1128 Backend:** Tages-Bestellmuster-Heatmap-API — Bestellhäufigkeit nach Wochentag × Stunde als 7×24-Matrix für die letzten 4 Wochen.
+2. **Phase 1129 Kitchen:** Stations-Auslastungs-Cockpit — Welche Kochstation ist gerade überlastet? Live-Balken + Umverteilungs-Empfehlung.
+3. **Phase 1130 Dispatch:** Fahrer-Effizienz-Rangliste — Ranking aller heute aktiven Fahrer nach Stopps/Stunde + km-Effizienz + Pünktlichkeit.
+4. **Phase 1131 Fahrer-App:** Schicht-Abschluss-Zusammenfassung — Tages-Zusammenfassung nach Schichtende: Stopps, km, Umsatz, Trinkgeld, Score.
+5. **Phase 1132 Storefront:** Liefergebiet-Prüfer — Eingabe einer Adresse prüft ob Lieferung möglich + geschätzte Zeit.
