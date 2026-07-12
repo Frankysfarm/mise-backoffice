@@ -364,6 +364,7 @@ import { FahrerPhase1167SmartTourNavigatorPro } from './phase1167-smart-tour-nav
 import { FahrerPhase1172TourStoppNaviHub } from './phase1172-tour-stopp-navi-hub';
 import { FahrerPhase1178TourZusammenfassung } from './phase1178-tour-zusammenfassung';
 import { FahrerPhase1182SchichtMomentumTracker } from './phase1182-schicht-momentum-tracker';
+import { FahrerPhase1187TourStoppNavigationsCockpit } from './phase1187-tour-stopp-navigations-cockpit';
 
 type Driver = {
   id: string;
@@ -4369,6 +4370,13 @@ export function FahrerApp({
         {activeBatch && (
           <div className="px-4">
             <FahrerPhase1172TourStoppNaviHub activeBatch={activeBatch as any} />
+          </div>
+        )}
+
+        {/* Phase 1187: Tour-Stopp-Navigations-Cockpit — Aktueller Stopp mit GPS, ETA-Countdown, Navi-Button und Schnell-Anruf */}
+        {activeBatch && isOnline && (
+          <div className="px-4">
+            <FahrerPhase1187TourStoppNavigationsCockpit driverId={driver.id} isOnline={isOnline} activeBatch={activeBatch as any} />
           </div>
         )}
 

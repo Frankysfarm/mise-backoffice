@@ -451,6 +451,7 @@ import { DispatchPhase1166FahrerEffizienzScoreCockpit } from './phase1166-fahrer
 import { DispatchPhase1171TourEffizienzLiveRadar } from './phase1171-tour-effizienz-live-radar';
 import { DispatchPhase1177FreiKapazitaetsAlert } from './phase1177-frei-kapazitaets-alert';
 import { DispatchPhase1181FahrerZoneLiveZuordnung } from './phase1181-fahrer-zone-live-zuordnung';
+import { DispatchPhase1186TourScoreLiveVisualisierungPro } from './phase1186-tour-score-live-visualisierung-pro';
 
 type Driver = {
   employee_id: string;
@@ -1381,6 +1382,8 @@ export function DispatchBoard({
       <DispatchPhase1177FreiKapazitaetsAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1181: Fahrer-Zone-Live-Zuordnung — Bester Fahrer je Zone A/B/C/D nach Affinitäts-Score */}
       <DispatchPhase1181FahrerZoneLiveZuordnung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1186: Tour-Score Live-Visualisierung Pro — Balkendiagramm + Fahrer-Rangliste nach Tour-Score mit Trend */}
+      <DispatchPhase1186TourScoreLiveVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
       <DispatchPhase1120SchichtKostenUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}
