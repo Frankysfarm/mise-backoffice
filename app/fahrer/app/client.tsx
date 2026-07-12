@@ -365,6 +365,7 @@ import { FahrerPhase1172TourStoppNaviHub } from './phase1172-tour-stopp-navi-hub
 import { FahrerPhase1178TourZusammenfassung } from './phase1178-tour-zusammenfassung';
 import { FahrerPhase1182SchichtMomentumTracker } from './phase1182-schicht-momentum-tracker';
 import { FahrerPhase1187TourStoppNavigationsCockpit } from './phase1187-tour-stopp-navigations-cockpit';
+import { FahrerPhase1191SchichtTrinkgeldTracker } from './phase1191-schicht-trinkgeld-tracker';
 
 type Driver = {
   id: string;
@@ -4379,6 +4380,10 @@ export function FahrerApp({
             <FahrerPhase1187TourStoppNavigationsCockpit driverId={driver.id} isOnline={isOnline} activeBatch={activeBatch as any} />
           </div>
         )}
+        {/* Phase 1191: Schicht-Trinkgeld-Tracker — Kumuliertes Trinkgeld der Schicht + Ø/Stopp + Prognose Schichtende */}
+        <div className="px-4">
+          <FahrerPhase1191SchichtTrinkgeldTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 1182: Schicht-Momentum-Tracker — Live Stopps/Stunde + Hochrechnung Tagesende-Verdienst */}
         <div className="px-4">

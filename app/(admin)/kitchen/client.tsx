@@ -393,6 +393,7 @@ import { KitchenPhase1170SchichtTimingScorePro } from './phase1170-schicht-timin
 import { KitchenPhase1176KochReihenfolgeEmpfehlung } from './phase1176-koch-reihenfolge-empfehlung';
 import { KitchenPhase1180KochstartOptimierungsMatrix } from './phase1180-kochstart-optimierungs-matrix';
 import { KitchenPhase1185SmartTimingFarbkodierungCockpit } from './phase1185-smart-timing-farbkodierung-cockpit';
+import { KitchenPhase1189SchichtAbschlussPrognose } from './phase1189-schicht-abschluss-prognose';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1129,6 +1130,8 @@ export function KitchenBoard({
       <KitchenPhase1180KochstartOptimierungsMatrix orders={filtered as any} />
       {/* Phase 1185: Smart-Timing Farbkodierung Cockpit — Echtzeit-Countdown + Ampel-Farbkodierung für jede aktive Bestellung */}
       <KitchenPhase1185SmartTimingFarbkodierungCockpit orders={filtered as any} />
+      {/* Phase 1189: Schicht-Abschluss-Prognose — Voraussichtliche Uhrzeit der letzten Bestellung + verbleibende Bestellungen */}
+      <KitchenPhase1189SchichtAbschlussPrognose orders={filtered as any} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}

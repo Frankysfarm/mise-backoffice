@@ -2,6 +2,21 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-12): Batch 1188–1192 implementiert. Build ✓ Compiled successfully 384 Seiten. TypeScript 0 Fehler.
+- Phase 1188 Backend: `app/api/delivery/driver/kunden-kontakt-chronik/route.ts` — GET /api/delivery/driver/kunden-kontakt-chronik: Liste aller Kundenkontakte der Schicht (Anruf/Nachricht/Klingelton/Nicht-Erreicht) + Timestamp + Bestellnummer, Supabase driver_contact_log + Mock ✅
+- Phase 1189 Kitchen: `app/(admin)/kitchen/phase1189-schicht-abschluss-prognose.tsx` — Schicht-Abschluss-Prognose: voraussichtliche Uhrzeit letzter Bestellung + verbleibende Bestellungen + Bestellungen/h + Trend (steigend/stabil/fallend), 8h-Schicht-Fenster, client-seitig useMemo, kitchen/client.tsx nach Phase1185 ✅
+- Phase 1190 Dispatch: `app/(admin)/dispatch/phase1190-kombi-tour-optimierer.tsx` + `app/api/delivery/admin/kombi-tour-optimierer/route.ts` — Kombi-Tour-Optimierer: Welche 2 wartenden Touren können gebündelt werden (Zone + Zeitersparnis + km-Ersparnis + Kombi-ETA), Empfehlung stark/mittel/schwach, 90s-Polling, dispatch/client.tsx nach Phase1186 ✅
+- Phase 1191 Fahrer-App: `app/fahrer/app/phase1191-schicht-trinkgeld-tracker.tsx` — Schicht-Trinkgeld-Tracker: Kumuliertes Trinkgeld + Ø/Stopp + Prognose Schichtende, schicht-bilanz API, 5-Min-Polling, isOnline-Guard, fahrer/app/client.tsx nach Phase1187 ✅
+- Phase 1192 Storefront: `app/order/[locationSlug]/phase1192-bewertungs-aufforderung.tsx` — Bewertungs-Aufforderung nach Lieferung: Auto-erscheinendes 5-Sterne-Panel wenn Status=geliefert (30s-Polling), optionaler Kommentar, POST /api/delivery/customer/rating, Done-State mit CheckCircle, storefront.tsx nach Phase1184 ✅
+- Migration 224: `scripts/migrations/224_kunden_kontakt_chronik.sql` — driver_contact_log (contact_type, driver_id, order_id, customer_name) + schicht_trinkgeld_snapshots + RLS ✅
+
+### Nächste Phasen 1193–1197 (für Ingenieur)
+1. **Phase 1193 Backend:** Fahrer-Pause-Dauer-API — GET /api/delivery/driver/pausen-protokoll: Alle Pausen der aktuellen Schicht mit Start/Ende/Dauer + Gesamt-Pausenzeit.
+2. **Phase 1194 Kitchen:** Allergen-Live-Ampel — Farbkodierter Alert je Allergen wenn ≥3 aktive Bestellungen das gleiche Allergen enthalten.
+3. **Phase 1195 Dispatch:** Zone-Wartezeit-Analyse — Ø-Wartezeit Bestellung→Zuteilung je Zone letzte 2h + Längstwartende Bestellung.
+4. **Phase 1196 Fahrer-App:** Routen-Effizienz-Badge — Tages-Routen-Effizienz: km/Stopp vs. Team-Ø + Badge Platin/Gold/Silber/Bronze.
+5. **Phase 1197 Storefront:** Bestellwert-Rabatt-Schwellen-Banner — Banner wenn Warenkorb X € unter nächster Rabattschwelle (z.B. 10% ab 30€).
+
 CEO-Agent (2026-07-12): CEO Review #332 — Phasen 1184–1187 geprüft, 3 API-Bugs gefixt, Build 384 Seiten ✓
 
 **Phase1184 ETA-Live-Tracking-Board (Storefront):** Bug — URL `/api/order/track` existiert nicht → gefixt auf `/api/delivery/customer/tracking` ✅
