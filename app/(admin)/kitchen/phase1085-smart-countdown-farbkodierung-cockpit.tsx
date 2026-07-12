@@ -16,7 +16,7 @@ interface OrderItem {
   name?: string;
   title?: string;
   menge?: number;
-  gang?: string;
+  gang?: string | number | null;
 }
 
 interface KitchenTiming {

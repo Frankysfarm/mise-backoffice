@@ -120,7 +120,7 @@ export function LieferdienstPhase1169TagesStatistikProDashboard({ locationId }: 
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.buckets} margin={{ top: 2, right: 4, left: -24, bottom: 0 }}>
                   <XAxis dataKey="stunde" tick={{ fontSize: 8 }} />
-                  <Tooltip formatter={(v: number) => [`${v.toFixed(0)} €`, 'Umsatz']} />
+                  <Tooltip formatter={(v) => [`${Number(v).toFixed(0)} €`, 'Umsatz']} />
                   <Line type="monotone" dataKey="umsatz" stroke="#4d7c0f" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>

@@ -41,7 +41,9 @@ interface ApiResponse {
   }>;
 }
 
-function computeScore(b: ApiResponse['batches'][0]): number {
+type BatchItem = NonNullable<ApiResponse['batches']>[number];
+
+function computeScore(b: BatchItem): number {
   const fortschritt = b.stopps_gesamt ? (b.stopps_erledigt ?? 0) / b.stopps_gesamt : 0;
   const zeitEffizienz = b.eta_min && b.laufzeit_min
     ? Math.min(1, b.laufzeit_min / b.eta_min)

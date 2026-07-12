@@ -7,7 +7,7 @@ import { Clock, Flame, CheckCircle2, AlertTriangle } from 'lucide-react';
 interface Order {
   id: string;
   bestellnummer?: string;
-  bestellt_am?: string;
+  bestellt_am?: string | null;
   acceptedAt?: string | Date;
   estimatedTime?: number;
   status?: string;

@@ -102,7 +102,7 @@ export function KitchenPhase1165KuechenDurchsatzCountdown({ orders }: { orders: 
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={slots} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 9 }} />
-                <Tooltip formatter={(v: number) => [`${v} Best.`, 'Bestellungen']} />
+                <Tooltip formatter={(v) => [`${Number(v) || 0} Best.`, 'Bestellungen']} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {slots.map((s, i) => <Cell key={i} fill={s.value >= 6 ? '#dc2626' : s.value >= 4 ? '#d97706' : barColor} />)}
                 </Bar>

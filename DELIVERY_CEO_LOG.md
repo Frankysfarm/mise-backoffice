@@ -1,7 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1153 vollständig abgeschlossen. Build sauber (✓ Compiled successfully). Deployment-bereit. Nächste Phasen: 1154–1158.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1174 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 381 Seiten). Deployment-bereit. Nächste Phasen: 1175–1179.
+
+## CEO Review #330 — 2026-07-12
+
+### Commit-Stand
+- `b79b5065` feat(delivery/frontend): Phasen 1160–1174 — Smart-Timing, Tour-Score, Navigation, ETA, Statistik-Dashboard
+- `fa36e6d4` feat(delivery/backend): Phasen 1123–1127 vollständig implementiert + integriert
+
+### Befund: Build sauber, 6 TypeScript-Bugs gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1124 | Kitchen | KitchenPhase1124BestellungsBurstWarnung | Props orders (useMemo, 5-Min-Window, Top-4-Artikel) | ✅ |
+| 1125 | Dispatch | DispatchPhase1125FahrerNetzHeatmap | GET /api/delivery/admin/fahrer-netz-heatmap (Zone A/B/C/D, SVG-Heatmap, 90s-Polling) | ✅ |
+| 1126 | Fahrer-App | FahrerPhase1126KombiTourVorschau | GET /api/delivery/driver/kombi-tour-vorschau (Bündelungs-Vorteil-Min, 3 Stopps-Vorschau) | ✅ |
+| 1127 | Storefront | Phase1127BestellzeitOptimierer | GET /api/delivery/admin/fahrer-netz-heatmap → Signal optimal/gut/peak/knapp + 3-Min-Polling | ✅ |
+| 1160 | Kitchen | KitchenPhase1160SmartTimingLiveAmpel | Props orders (5-stufige Ampel Grün→Kritisch, Sekunden-Countdown, useMemo+1s-Ticker) | ✅ |
+| 1161 | Dispatch | DispatchPhase1161TourScoreLiveVisualisierungPro | GET /api/delivery/admin/tour-ampel (Score A–D je Tour, 60s-Polling, Avg-Badge) | ✅ |
+| 1162 | Fahrer-App | FahrerPhase1162TourStoppLiveKommando | Fahrer-App Stopp-Navigation mit Live-Timer + Status-Kommando | ✅ |
+| 1163 | Storefront | Phase1163DynamischeEtaLivePanel | ETA-Live-Panel dynamisch | ✅ |
+| 1164 | Lieferdienst | LieferdienstPhase1164StatistikExecutiveCockpit | GET /api/delivery/admin/stats (KPIs Umsatz/Lieferungen/ETA/Storno + Trend-Ampeln, 2-Min-Polling) | ✅ |
+| 1165 | Kitchen | KitchenPhase1165KuechenDurchsatzCountdown | Props orders (10-Min-Slots, Recharts BarChart, Hochrechnung/Std, 30s-Ticker) | ✅ + Bug gefixt |
+| 1166 | Dispatch | DispatchPhase1166FahrerEffizienzScoreCockpit | GET /api/delivery/admin/driver-performance (Score-Balken Top/Low-Performer, 2-Min-Polling) | ✅ |
+| 1167 | Fahrer-App | FahrerPhase1167SmartTourNavigatorPro | Smart-Tour-Navigator-Pro | ✅ |
+| 1168 | Storefront | Phase1168LiveTrackingFahrerBoard | Live-Tracking-Fahrer-Board | ✅ |
+| 1169 | Lieferdienst | LieferdienstPhase1169TagesStatistikProDashboard | GET /api/delivery/admin/statistik-dashboard (Stunden-Verlaufskurve, Recharts LineChart) | ✅ + Bug gefixt |
+| 1170 | Kitchen | KitchenPhase1170SchichtTimingScorePro | Schicht-Timing-Score-Pro (locationId-Prop) | ✅ |
+| 1171 | Dispatch | DispatchPhase1171TourEffizienzLiveRadar | Tour-Effizienz-Live-Radar | ✅ |
+| 1172 | Fahrer-App | FahrerPhase1172TourStoppNaviHub | Tour-Stopp-Navi-Hub | ✅ |
+| 1173 | Storefront | Phase1173BestellstatusLiveKommando | Bestellstatus-Live-Kommando | ✅ |
+| 1174 | Lieferdienst | LieferdienstPhase1174WochenStatistikHeatmap | Wochen-Statistik-Heatmap | ✅ |
+
+**Bugs gefunden und gefixt (6 Stück):**
+1. **phase1085** `OrderItem.gang?: string` → `string | number | null` — Typ-Mismatch gegen kitchen/client.tsx `Item.gang: number | null`
+2. **phase1090** `Order.bestellt_am?: string` → `string | null` — Typ-Mismatch gegen kitchen/client.tsx `Order.bestellt_am: string | null`
+3. **phase1156** `ApiResponse['batches'][0]` → `NonNullable<ApiResponse['batches']>[number]` — Indexzugriff auf ggf. undefined Array
+4. **phase1165** `formatter={(v: number) => ...}` → `(v) => Number(v)` — Recharts ValueType inkl. Array, kein number-only
+5. **phase1169** `formatter={(v: number) => v.toFixed(0)}` → `Number(v).toFixed(0)` — gleiche Recharts-ValueType-Problematik
+6. **phase1005** `icon: React.ComponentType<{ size?: number }>` → `size?: number | string` — Lucide LucideProps.size erlaubt string|number
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ — Burst-Warnung + Netz-Heatmap integriert |
+| Dispatch ↔ Driver | ✅ — Kombi-Tour-Vorschau + Score-Cockpit |
+| Driver ↔ Storefront | ✅ — Bestellzeit-Optimierer + Live-Tracking |
+| Storefront ↔ Orders API | ✅ |
+| Build | ✅ Compiled successfully 381 Seiten |
+
+### Nächste Phasen 1175–1179 (für Ingenieur)
+1. **Phase 1175 Backend:** Schicht-Bilanzen-Vergleichs-API — GET /api/delivery/admin/schicht-bilanzen-vergleich: Vergleich aktueller Schicht vs. gleicher Wochentag letzte 4 Wochen (Stopps, Umsatz, Pünktlichkeit, Fahrer-Anzahl).
+2. **Phase 1176 Kitchen:** Koch-Reihenfolge-Empfehlung — Sortierte Liste der aktiven Bestellungen nach optimaler Koch-Sequenz: Ofen-Artikel zuerst (längste Rüstzeit), dann Grill/Pasta, Kaltware zuletzt.
+3. **Phase 1177 Dispatch:** Frei-Kapazitäts-Alert — Push-ähnlicher Banner wenn Zone ≥2 freie Fahrer hat und gleichzeitig unzugeordnete Bestellungen warten.
+4. **Phase 1178 Fahrer-App:** Tour-Zusammenfassung-Screen — Nach Tour-Abschluss: Automatischer Abschluss-Screen mit km/Stopps/Trinkgeld/Ø-Bewertung + Motivations-Tier.
+5. **Phase 1179 Storefront:** Echtzeit-Bestellstatus-Karte — Karten-ähnliche Fortschritts-Ansicht der aktiven Bestellung mit animierten Schrittmarkierungen (Bestätigt → Zubereitung → Unterwegs → Geliefert).
 
 ## CEO Review #329 — 2026-07-12
 

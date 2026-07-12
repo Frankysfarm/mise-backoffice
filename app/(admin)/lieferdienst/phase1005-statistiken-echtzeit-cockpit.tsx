@@ -83,7 +83,7 @@ function KpiTile({
   value: string;
   sub?: string;
   trend?: 'up' | 'down' | 'neutral';
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
   color?: string;
   bgColor?: string;
 }) {
