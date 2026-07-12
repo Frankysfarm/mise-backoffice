@@ -362,6 +362,7 @@ import { FahrerPhase1162TourStoppLiveKommando } from './phase1162-tour-stopp-liv
 import { FahrerPhase1167SmartTourNavigatorPro } from './phase1167-smart-tour-navigator-pro';
 import { FahrerPhase1172TourStoppNaviHub } from './phase1172-tour-stopp-navi-hub';
 import { FahrerPhase1178TourZusammenfassung } from './phase1178-tour-zusammenfassung';
+import { FahrerPhase1182SchichtMomentumTracker } from './phase1182-schicht-momentum-tracker';
 
 type Driver = {
   id: string;
@@ -4364,6 +4365,11 @@ export function FahrerApp({
             <FahrerPhase1172TourStoppNaviHub activeBatch={activeBatch as any} />
           </div>
         )}
+
+        {/* Phase 1182: Schicht-Momentum-Tracker — Live Stopps/Stunde + Hochrechnung Tagesende-Verdienst */}
+        <div className="px-4">
+          <FahrerPhase1182SchichtMomentumTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
 
         {/* Phase 1146: Stopp-Qualitäts-Check — Schnelle Selbstbewertung nach Lieferung (Übergabe, Freundlichkeit, Pünktlichkeit) */}
         {activeBatch && isOnline && (

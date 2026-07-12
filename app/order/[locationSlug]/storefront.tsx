@@ -208,6 +208,7 @@ import { Phase1163DynamischeEtaLivePanel } from './phase1163-dynamische-eta-live
 import { Phase1168LiveTrackingFahrerBoard } from './phase1168-live-tracking-fahrer-board';
 import { Phase1173BestellstatusLiveKommando } from './phase1173-bestellstatus-live-kommando';
 import { Phase1179BestellstatusKarte } from './phase1179-bestellstatus-karte';
+import { Phase1183EtaKonfidenzLivePanel } from './phase1183-eta-konfidenz-live-panel';
 
 type Props = {
   location: Location;
@@ -703,6 +704,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase1179BestellstatusKarte orderId={orderSuccess.orderId} />
+          </div>
+        )}
+        {/* Phase 1183: ETA-Konfidenz-Live-Panel — Konfidenz-Ring + Zeitfenster Earliest/Latest + Zuverlässigkeitslevel */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1183EtaKonfidenzLivePanel orderId={orderSuccess.orderId} locationId={location.id} />
           </div>
         )}
         {/* Phase 960: Liefer-Qualitäts-Badge — Bewertungs-Sterne + Pünktlichkeitsquote + Ø-Lieferzeit als Vertrauensbadge */}

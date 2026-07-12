@@ -389,6 +389,7 @@ import { KitchenPhase1160SmartTimingLiveAmpel } from './phase1160-smart-timing-l
 import { KitchenPhase1165KuechenDurchsatzCountdown } from './phase1165-kuechen-durchsatz-countdown';
 import { KitchenPhase1170SchichtTimingScorePro } from './phase1170-schicht-timing-score-pro';
 import { KitchenPhase1176KochReihenfolgeEmpfehlung } from './phase1176-koch-reihenfolge-empfehlung';
+import { KitchenPhase1180KochstartOptimierungsMatrix } from './phase1180-kochstart-optimierungs-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1117,6 +1118,8 @@ export function KitchenBoard({
       <KitchenPhase1170SchichtTimingScorePro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1176: Koch-Reihenfolge-Empfehlung — Optimale Kochsequenz Ofen→Grill/Pasta→Kalt basierend auf aktiven Bestellungen */}
       <KitchenPhase1176KochReihenfolgeEmpfehlung orders={filtered} />
+      {/* Phase 1180: Kochstart-Optimierungs-Matrix — Bestellungen nach Kochstart-Dringlichkeit (überfällig/jetzt/bald/ok) */}
+      <KitchenPhase1180KochstartOptimierungsMatrix orders={filtered as any} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}
