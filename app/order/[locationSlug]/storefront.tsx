@@ -194,6 +194,7 @@ import { Phase1097ErstbestellungBonusBanner } from './phase1097-erstbestellung-b
 import { Phase1102NaechsteLieferfenster } from './phase1102-naechste-lieferfenster';
 import { Phase1107KategorieSchnellnavigation } from './phase1107-kategorie-schnellnavigation';
 import { Phase1112WartezeitFortschrittsRing } from './phase1112-wartezeit-fortschritts-ring';
+import { Phase1117HaeufigZusammenBestellt } from './phase1117-haeufig-zusammen-bestellt';
 
 type Props = {
   location: Location;
@@ -1004,6 +1005,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             subtotal={subtotal}
             minOrder={minOrder}
             locationId={location.id}
+          />
+        </div>
+      )}
+      {/* Phase 1117: Häufig-Zusammen-Bestellt — Top-3 Ergänzungsartikel basierend auf beliebtesten Kombinationen */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1117HaeufigZusammenBestellt
+            locationId={location.id}
+            cart={cart as any}
+            allItems={items}
+            onAddItem={addToCart}
           />
         </div>
       )}
