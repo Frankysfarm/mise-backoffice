@@ -385,6 +385,9 @@ import { KitchenPhase1140ZutatenVerbrauchTagesverlauf } from './phase1140-zutate
 import { KitchenPhase1144KochRueckstandAmpel } from './phase1144-kochrueckstand-ampel';
 import { KitchenPhase1150ChargenEmpfehlung } from './phase1150-chargen-empfehlung';
 import { KitchenPhase1155KochzeitEskalationsKommando } from './phase1155-kochzeit-eskalations-kommando';
+import { KitchenPhase1160SmartTimingLiveAmpel } from './phase1160-smart-timing-live-ampel';
+import { KitchenPhase1165KuechenDurchsatzCountdown } from './phase1165-kuechen-durchsatz-countdown';
+import { KitchenPhase1170SchichtTimingScorePro } from './phase1170-schicht-timing-score-pro';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1105,6 +1108,12 @@ export function KitchenBoard({
       <KitchenPhase1150ChargenEmpfehlung orders={filtered} />
       {/* Phase 1155: Kochzeit-Eskalations-Kommando — Farbkodierter Echtzeit-Countdown für aktive Bestellungen mit Eskalationsstufen */}
       <KitchenPhase1155KochzeitEskalationsKommando orders={filtered} timings={timings} />
+      {/* Phase 1160: Smart-Timing-Live-Ampel — Kompakte Farbampel (Grün/Gelb/Orange/Rot) je aktiver Bestellung mit Countdown */}
+      <KitchenPhase1160SmartTimingLiveAmpel orders={filtered} />
+      {/* Phase 1165: Küchen-Durchsatz-Countdown — Bestellungen/Std Hochrechnung + 10-Min-Balkendiagramm */}
+      <KitchenPhase1165KuechenDurchsatzCountdown orders={filtered} />
+      {/* Phase 1170: Schicht-Timing-Score-Pro — Pünktlichkeitsquote + Ø-Zubereitungszeit der Schicht vs. Zielwert */}
+      <KitchenPhase1170SchichtTimingScorePro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}

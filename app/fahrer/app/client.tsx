@@ -358,6 +358,9 @@ import { FahrerPhase1142NaechsteSchichtVorschau } from './phase1142-naechste-sch
 import { FahrerPhase1146StoppQualitaetsCheck } from './phase1146-stopp-qualitaets-check';
 import { FahrerPhase1152SchichtEnergieCockpit } from './phase1152-schicht-energie-cockpit';
 import { FahrerPhase1157TourStoppKommandoUltra } from './phase1157-tour-stopp-kommando-ultra';
+import { FahrerPhase1162TourStoppLiveKommando } from './phase1162-tour-stopp-live-kommando';
+import { FahrerPhase1167SmartTourNavigatorPro } from './phase1167-smart-tour-navigator-pro';
+import { FahrerPhase1172TourStoppNaviHub } from './phase1172-tour-stopp-navi-hub';
 
 type Driver = {
   id: string;
@@ -4328,6 +4331,27 @@ export function FahrerApp({
         {activeBatch && isOnline && (
           <div className="px-4">
             <FahrerPhase1157TourStoppKommandoUltra activeBatch={activeBatch as any} />
+          </div>
+        )}
+
+        {/* Phase 1162: Tour-Stopp-Live-Kommando — Nächster Stopp mit ETA-Ring, Adresse + Navi-CTA */}
+        {activeBatch && isOnline && (
+          <div className="px-4">
+            <FahrerPhase1162TourStoppLiveKommando activeBatch={activeBatch as any} />
+          </div>
+        )}
+
+        {/* Phase 1167: Smart-Tour-Navigator-Pro — Alle Stopp-Schritte mit Sequenz + Routeneffizienz + aktuellem Fokus-Stopp */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1167SmartTourNavigatorPro activeBatch={activeBatch as any} />
+          </div>
+        )}
+
+        {/* Phase 1172: Tour-Stopp-Navi-Hub — Aktueller + nächste Stopps + Schnell-Navi (Google/Waze) + ETA */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1172TourStoppNaviHub activeBatch={activeBatch as any} />
           </div>
         )}
 

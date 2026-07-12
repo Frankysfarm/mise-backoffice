@@ -322,6 +322,9 @@ import { LieferdienstPhase1090StatistikHeuteHub } from './phase1090-statistik-he
 import { LieferdienstPhase1128StatistikDashboardPro } from './phase1128-statistik-dashboard-pro';
 import { LieferdienstPhase1148FahrerEffizienzHeatmap } from './phase1148-fahrer-effizienz-heatmap';
 import { LieferdienstPhase1159StatistikTagesCockpit } from './phase1159-statistiken-tages-cockpit';
+import { LieferdienstPhase1164StatistikExecutiveCockpit } from './phase1164-statistik-executive-cockpit';
+import { LieferdienstPhase1169TagesStatistikProDashboard } from './phase1169-tages-statistik-pro-dashboard';
+import { LieferdienstPhase1174WochenStatistikHeatmap } from './phase1174-wochen-statistik-heatmap';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1600,6 +1603,12 @@ export function LieferdienstClient() {
               <LieferdienstPhase1148FahrerEffizienzHeatmap locationId={locationId ?? null} />
               {/* Phase 1159: Statistiken-Tages-Cockpit — 8 KPIs + Trend + Stunden-Verlauf + Top-Fahrer-Liste */}
               <LieferdienstPhase1159StatistikTagesCockpit locationId={locationId ?? null} />
+              {/* Phase 1164: Statistik-Executive-Cockpit — Umsatz, Lieferungen, Ø Lieferzeit, Storno als KPI-Kacheln */}
+              <LieferdienstPhase1164StatistikExecutiveCockpit locationId={locationId ?? null} />
+              {/* Phase 1169: Tages-Statistik-Pro-Dashboard — Tagesziel-Fortschritt + KPI-Kacheln + Stunden-Umsatz-Verlauf */}
+              <LieferdienstPhase1169TagesStatistikProDashboard locationId={locationId ?? null} />
+              {/* Phase 1174: Wochen-Statistik-Heatmap — 7×12 Farb-Heatmap Bestellvolumen je Wochentag und Stunde */}
+              <LieferdienstPhase1174WochenStatistikHeatmap locationId={locationId ?? null} />
               {/* Phase 1090: Statistik-Heute-Hub — 6 Kern-KPIs (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}
               <LieferdienstPhase1090StatistikHeuteHub locationId={locationId ?? null} />
               {/* Phase 1003: Liefer-Qualitäts-Scoreboard — Pünktlichkeit, Bewertungen, SLA, Storno als Ampeln */}

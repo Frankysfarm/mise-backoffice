@@ -445,6 +445,9 @@ import { DispatchPhase1141FahrerCheckInMonitor } from './phase1141-fahrer-checki
 import { DispatchPhase1145FahrerRueckkehrTimeline } from './phase1145-fahrer-rueckkehr-timeline';
 import { DispatchPhase1151TourEchtzeitAmpel } from './phase1151-tour-echtzeit-ampel';
 import { DispatchPhase1156TourLiveScoreBoard } from './phase1156-tour-live-score-board';
+import { DispatchPhase1161TourScoreLiveVisualisierungPro } from './phase1161-tour-score-live-visualisierung-pro';
+import { DispatchPhase1166FahrerEffizienzScoreCockpit } from './phase1166-fahrer-effizienz-score-cockpit';
+import { DispatchPhase1171TourEffizienzLiveRadar } from './phase1171-tour-effizienz-live-radar';
 
 type Driver = {
   employee_id: string;
@@ -1363,6 +1366,12 @@ export function DispatchBoard({
       <DispatchPhase1151TourEchtzeitAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1156: Tour-Live-Score-Board — Echtzeit-Score-Visualisierung je aktiver Tour mit Effizienz-Ranking */}
       <DispatchPhase1156TourLiveScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1161: Tour-Score-Live-Visualisierung-Pro — Animierte Score-Kacheln je aktiver Tour mit Effizienz-Balken */}
+      <DispatchPhase1161TourScoreLiveVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1166: Fahrer-Effizienz-Score-Cockpit — Top/Low-Performer der Schicht mit Score-Ranking */}
+      <DispatchPhase1166FahrerEffizienzScoreCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1171: Tour-Effizienz-Live-Radar — Zeitabweichung je laufender Tour (früh/pünktlich/verspätet/kritisch) */}
+      <DispatchPhase1171TourEffizienzLiveRadar locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
       <DispatchPhase1120SchichtKostenUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}

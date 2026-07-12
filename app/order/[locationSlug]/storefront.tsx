@@ -204,6 +204,9 @@ import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilens
 import { Phase1147KuechenAuslastungsWarnung } from './phase1147-kuechen-auslastungs-warnung';
 import { Phase1153BestellhistorieSchnellzugriff, saveBestellhistorie } from './phase1153-bestellhistorie-schnellzugriff';
 import { Phase1158DynamischeEtaLiveCockpit } from './phase1158-dynamische-eta-live-cockpit';
+import { Phase1163DynamischeEtaLivePanel } from './phase1163-dynamische-eta-live-panel';
+import { Phase1168LiveTrackingFahrerBoard } from './phase1168-live-tracking-fahrer-board';
+import { Phase1173BestellstatusLiveKommando } from './phase1173-bestellstatus-live-kommando';
 
 type Props = {
   location: Location;
@@ -675,6 +678,24 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               bestelltAt={orderSuccess.orderedAt}
               etaLatest={orderSuccess.eta > 0 ? new Date(Date.now() + orderSuccess.eta * 60_000).toISOString() : null}
             />
+          </div>
+        )}
+        {/* Phase 1163: Dynamische-ETA-Live-Panel — ETA-Ring + Phasen-Fortschritt + Live-Update alle 60s */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1163DynamischeEtaLivePanel orderId={orderSuccess.orderId} locationId={location.id} />
+          </div>
+        )}
+        {/* Phase 1168: Live-Tracking-Fahrer-Board — Fahrer-Annäherung mit ETA-Ring + Distanzbalken */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1168LiveTrackingFahrerBoard orderId={orderSuccess.orderId} />
+          </div>
+        )}
+        {/* Phase 1173: Bestellstatus-Live-Kommando — Küchenphase + Fahrer-ETA + Gesamtfortschritt */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1173BestellstatusLiveKommando orderId={orderSuccess.orderId} />
           </div>
         )}
         {/* Phase 960: Liefer-Qualitäts-Badge — Bewertungs-Sterne + Pünktlichkeitsquote + Ø-Lieferzeit als Vertrauensbadge */}
