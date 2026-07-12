@@ -52,7 +52,7 @@ export function DispatchPhase1186TourScoreLiveVisualisierungPro({ locationId }: 
     if (!locationId) return;
     setLoading(true);
     try {
-      const r = await fetch(`/api/delivery/admin/fahrer-score-live?location_id=${locationId}`);
+      const r = await fetch(`/api/delivery/admin/fahrer-effizienz-rangliste?location_id=${locationId}`);
       if (!r.ok) throw new Error();
       const d = await r.json();
       const items: any[] = d.scores ?? d.fahrer ?? [];
@@ -60,9 +60,9 @@ export function DispatchPhase1186TourScoreLiveVisualisierungPro({ locationId }: 
         setFahrer(items.map((f: any) => ({
           fahrerId: f.fahrer_id ?? f.id,
           fahrerName: f.fahrer_name ?? f.name ?? 'Fahrer',
-          score: Math.round(f.score ?? f.tour_score ?? 75),
-          touren: f.tours_today ?? f.touren ?? 0,
-          pünktlichkeit: Math.round(f.punctuality_pct ?? f.puenktlichkeit ?? 80),
+          score: Math.round(f.gesamt_score ?? f.score ?? f.tour_score ?? 75),
+          touren: f.stopps_gesamt ?? f.tours_today ?? f.touren ?? 0,
+          pünktlichkeit: Math.round(f.puenktlichkeit_pct ?? f.punctuality_pct ?? f.puenktlichkeit ?? 80),
           kundenbewertung: parseFloat((f.avg_rating ?? f.kundenbewertung ?? 4.3).toFixed(1)),
           trend: f.trend === 'up' ? 'up' : f.trend === 'down' ? 'down' : 'stable',
         })));

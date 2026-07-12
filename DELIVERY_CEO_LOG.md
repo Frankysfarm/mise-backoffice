@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1184 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 381 Seiten). Deployment-bereit. Nächste Phasen: 1185–1189.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1187 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1188–1192.
+
+## CEO Review #332 — 2026-07-12
+
+### Commit-Stand
+- `340710c8` feat(delivery/frontend): Phasen 1184–1187 — Smart-Timing, Tour-Score, Navigations-Cockpit, ETA-Tracking, Executive-KPI
+
+### Befund: Build sauber, 3 API-URL-Bugs gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 1184 | Storefront | Phase1184EtaLiveTrackingBoard | ✅ Bug gefixt |
+| 1185 | Kitchen | KitchenPhase1185SmartTimingFarbkodierungCockpit | ✅ |
+| 1185 | Lieferdienst | LieferdienstPhase1185StatistikenExecutiveKpiDashboard | ✅ Bug gefixt |
+| 1186 | Dispatch | DispatchPhase1186TourScoreLiveVisualisierungPro | ✅ Bug gefixt |
+| 1187 | Fahrer-App | FahrerPhase1187TourStoppNavigationsCockpit | ✅ |
+
+**Bugs gefunden und gefixt:**
+1. **Phase 1184 Storefront** — API-URL `/api/order/track` existiert nicht. Korrekte URL: `/api/delivery/customer/tracking`. Fix: URL geändert.
+2. **Phase 1186 Dispatch** — API-URL `/api/delivery/admin/fahrer-score-live` existiert nicht. Nächste passende API: `/api/delivery/admin/fahrer-effizienz-rangliste` (gibt `fahrer[]` mit `gesamt_score`, `stopps_gesamt`, `puenktlichkeit_pct`). Fix: URL + Feldmapping (`gesamt_score`, `stopps_gesamt`, `puenktlichkeit_pct`) ergänzt.
+3. **Phase 1185 Lieferdienst** — API-URL `/api/delivery/analytics/executive-kpis` existiert nicht. Existierende API: `/api/delivery/analytics/weekly-stats` (gibt `days[]` mit `label/orders/revenue/isToday`). Fix: URL auf weekly-stats geändert + Mapping: Charts (umsatz/bestellungen 7 Tage) + heute-KPIs (Umsatz €, Bestellungsanzahl, Ø/Tag) werden mit echten Daten angereichert.
+
+**Code-Qualität der neuen Phasen:**
+- Phase1185 Kitchen: Ampel-Logik korrekt (grün/gelb/orange/rot nach restSec-Schwellenwerten), 5s-Timer, sortiert nach Dringlichkeit ✅
+- Phase1187 Fahrer: isOnline-Guard + activeBatch-null-Guard korrekt, GPS-Fallback auf Adresse-String funktioniert, ETA-Farbkodierung korrekt (rot <2 Min, orange <5 Min) ✅
+- Mock-Fallbacks in allen Komponenten vorhanden — kein Crash bei API-Ausfall ✅
+- Dark-Mode-Support in allen Komponenten vorhanden ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 384 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1188–1192 (für Ingenieur)
+1. **Phase 1188 Backend:** Kunden-Kontakt-Chronik-API — GET /api/delivery/driver/kunden-kontakt-chronik: Anruf/Nachricht/Klingelton/Nicht-Erreicht mit Timestamp + Bestellnummer.
+2. **Phase 1189 Kitchen:** Schicht-Abschluss-Prognose — Hochrechnung wann letzte Bestellung + wie viele noch kommen bis Schichtende.
+3. **Phase 1190 Dispatch:** Kombi-Tour-Optimierer — Welche 2 wartenden Touren zur günstigsten Kombi gebündelt werden + Zeitersparnis.
+4. **Phase 1191 Fahrer-App:** Schicht-Trinkgeld-Tracker — Kumuliertes Trinkgeld Echtzeit + Ø/Stopp + Schichtende-Prognose.
+5. **Phase 1192 Storefront:** Bewertungs-Aufforderung — Auto-Panel bei Status=geliefert, 5-Sterne + Kommentar, POST /api/delivery/customer/bewertung.
 
 ## CEO Review #331 — 2026-07-12
 

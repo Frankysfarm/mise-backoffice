@@ -58,7 +58,7 @@ export function Phase1184EtaLiveTrackingBoard({ orderId, locationId }: Props) {
   const load = useCallback(async () => {
     if (!orderId) return;
     try {
-      const r = await fetch(`/api/order/track?order_id=${orderId}`);
+      const r = await fetch(`/api/delivery/customer/tracking?order_id=${orderId}`);
       if (!r.ok) throw new Error();
       const d = await r.json();
       setData({

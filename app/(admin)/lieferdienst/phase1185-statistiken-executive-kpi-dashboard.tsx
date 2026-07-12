@@ -58,25 +58,24 @@ export function LieferdienstPhase1185StatistikenExecutiveKpiDashboard({ location
     if (!locationId) return;
     setLoading(true);
     try {
-      const r = await fetch(`/api/delivery/analytics/executive-kpis?location_id=${locationId}`);
+      const r = await fetch(`/api/delivery/analytics/weekly-stats?location_id=${locationId}`);
       if (!r.ok) throw new Error();
       const d = await r.json();
-      // Try to extract KPIs from response
-      if (d.kpis && Array.isArray(d.kpis) && d.kpis.length > 0) {
-        // Real data available — map it
-        setDash(d as DashData);
-      } else {
-        // Partial data — enrich MOCK with real values where available
-        const updated = { ...MOCK };
-        if (d.revenue_today) {
-          updated.kpis = [...MOCK.kpis];
-          updated.kpis[0] = { ...MOCK.kpis[0], value: `€ ${Math.round(d.revenue_today)}`, subtext: `Ziel: €${Math.round((d.revenue_today ?? 0) * 1.2)}` };
-        }
-        if (d.orders_today) {
-          updated.kpis[1] = { ...MOCK.kpis[1], value: String(d.orders_today) };
-        }
-        setDash(updated);
+      const days: Array<{ label: string; orders: number; revenue: number; isToday: boolean }> = d.days ?? [];
+      const today = days.find(day => day.isToday);
+      const updated = { ...MOCK };
+      // Enrich charts with real 7-day data
+      if (days.length > 0) {
+        updated.umsatzVerlauf = days.map(day => ({ tag: day.label, wert: day.revenue }));
+        updated.bestellungenVerlauf = days.map(day => ({ tag: day.label, wert: day.orders }));
       }
+      // Enrich Umsatz + Bestellungen KPIs with today's real values
+      if (today) {
+        updated.kpis = [...MOCK.kpis];
+        updated.kpis[0] = { ...MOCK.kpis[0], value: `€ ${Math.round(today.revenue)}`, subtext: `Ziel: €${Math.round(today.revenue * 1.2)}` };
+        updated.kpis[1] = { ...MOCK.kpis[1], value: String(today.orders), subtext: `Ø ${Math.round(days.reduce((s, d) => s + d.orders, 0) / days.length)} / Tag` };
+      }
+      setDash(updated);
       setTs(new Date());
     } catch {
       setDash(MOCK);
