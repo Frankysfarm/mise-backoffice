@@ -377,6 +377,7 @@ import { KitchenPhase1104ZubereitungsLernfortschritt } from './phase1104-zuberei
 import { KitchenPhase1109ArtikelPopularitaetsVorschau } from './phase1109-artikel-popularitaets-vorschau';
 import { KitchenPhase1114BestellratePrognoseBoard } from './phase1114-bestellrate-prognose-board';
 import { KitchenPhase1119KuehenstatusAmpel } from './phase1119-kuechenstatus-ampel';
+import { KitchenPhase1123SmartTimingCountdownBoard } from './phase1123-smart-timing-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1081,6 +1082,8 @@ export function KitchenBoard({
       <KitchenPhase895BestellungsWellenRadar orders={filtered as any} />
       {/* Phase 900: Smart-Kochstart-Kommandozentrale — Farbkodierte Countdown-Übersicht mit Sofort-Start-Aktion */}
       <KitchenPhase900SmartKochstartKommandozentrale orders={filtered} timings={timings} />
+      {/* Phase 1123: Smart-Timing-Countdown-Board — Alle aktiven Bestellungen als farbkodierte Countdown-Kacheln (Grün→Kritisch) */}
+      <KitchenPhase1123SmartTimingCountdownBoard orders={filtered} timings={timings} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}

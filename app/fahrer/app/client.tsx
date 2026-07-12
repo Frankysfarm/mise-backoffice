@@ -350,6 +350,7 @@ import { FahrerPhase1106TrinkgeldWochenUebersicht } from './phase1106-trinkgeld-
 import { FahrerPhase1111KundenFeedbackChronik } from './phase1111-kunden-feedback-chronik';
 import { FahrerPhase1116SchichtMeilensteinTracker } from './phase1116-schicht-meilenstein-tracker';
 import { FahrerPhase1121TagesZielFortschrittsRing } from './phase1121-tages-ziel-fortschritts-ring';
+import { FahrerPhase1125TourStoppNavigationsHub } from './phase1125-tour-stopp-navigations-hub';
 
 type Driver = {
   id: string;
@@ -4290,6 +4291,13 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1121TagesZielFortschrittsRing driverId={driver.id} isOnline={isOnline} />
         </div>
+
+        {/* Phase 1125: Tour-Stopp-Navigations-Hub — Aktueller + nächster Stopp, ETA-Countdown, Entfernung + Navi-Button */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1125TourStoppNavigationsHub driverId={driver.id} isOnline={isOnline} activeBatch={activeBatch} />
+          </div>
+        )}
 
         {/* Phase 1081: Schicht-Abschluss-Statistik-Screen — Tages-Summary Stopps/Umsatz/km/Trinkgeld + Motivations-Badge */}
         {!isOnline && !activeBatch && (
