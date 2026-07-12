@@ -212,6 +212,7 @@ import { Phase1179BestellstatusKarte } from './phase1179-bestellstatus-karte';
 import { Phase1183EtaKonfidenzLivePanel } from './phase1183-eta-konfidenz-live-panel';
 import { Phase1184EtaLiveTrackingBoard } from './phase1184-eta-live-tracking-board';
 import { Phase1192BewertungsAufforderung } from './phase1192-bewertungs-aufforderung';
+import { Phase1197RabattschwellenBanner } from './phase1197-rabattschwellen-banner';
 
 type Props = {
   location: Location;
@@ -1095,6 +1096,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             minOrder={minOrder}
             locationId={location.id}
           />
+        </div>
+      )}
+      {/* Phase 1197: Rabatt-Schwellen-Banner — Banner wenn Warenkorb unter nächster Rabattschwelle (z.B. 10% ab 30€) */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1197RabattschwellenBanner cartTotal={subtotal} locationId={location.id} />
         </div>
       )}
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
