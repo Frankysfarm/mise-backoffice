@@ -356,6 +356,7 @@ import { FahrerPhase1137SchichtKpiAbschluss } from './phase1137-schicht-kpi-absc
 import { FahrerPhase1142NaechsteSchichtVorschau } from './phase1142-naechste-schicht-vorschau';
 import { FahrerPhase1146StoppQualitaetsCheck } from './phase1146-stopp-qualitaets-check';
 import { FahrerPhase1152SchichtEnergieCockpit } from './phase1152-schicht-energie-cockpit';
+import { FahrerPhase1157TourStoppKommandoUltra } from './phase1157-tour-stopp-kommando-ultra';
 
 type Driver = {
   id: string;
@@ -4316,6 +4317,13 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1152SchichtEnergieCockpit driverId={driver.id} isOnline={isOnline} />
         </div>
+
+        {/* Phase 1157: Tour-Stopp-Kommando-Ultra — Navigations-Zentrale mit aktuellem Stopp + nächste Stopps + Schnell-Aktionen */}
+        {activeBatch && isOnline && (
+          <div className="px-4">
+            <FahrerPhase1157TourStoppKommandoUltra activeBatch={activeBatch as any} />
+          </div>
+        )}
 
         {/* Phase 1146: Stopp-Qualitäts-Check — Schnelle Selbstbewertung nach Lieferung (Übergabe, Freundlichkeit, Pünktlichkeit) */}
         {activeBatch && isOnline && (

@@ -202,6 +202,7 @@ import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
 import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilenstein';
 import { Phase1147KuechenAuslastungsWarnung } from './phase1147-kuechen-auslastungs-warnung';
 import { Phase1153BestellhistorieSchnellzugriff } from './phase1153-bestellhistorie-schnellzugriff';
+import { Phase1158DynamischeEtaLiveCockpit } from './phase1158-dynamische-eta-live-cockpit';
 
 type Props = {
   location: Location;
@@ -655,6 +656,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase955LiveEtaFahrerTracking orderId={orderSuccess.orderId} initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 25} />
+          </div>
+        )}
+        {/* Phase 1158: Dynamische-ETA-Live-Cockpit — Phasen-Timeline mit Echtzeit-Countdown, Fortschrittsleiste und Fahrer-Annäherung */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1158DynamischeEtaLiveCockpit
+              orderId={orderSuccess.orderId}
+              bestelltAt={orderSuccess.orderedAt}
+              etaLatest={orderSuccess.eta > 0 ? new Date(Date.now() + orderSuccess.eta * 60_000).toISOString() : null}
+            />
           </div>
         )}
         {/* Phase 960: Liefer-Qualitäts-Badge — Bewertungs-Sterne + Pünktlichkeitsquote + Ø-Lieferzeit als Vertrauensbadge */}
