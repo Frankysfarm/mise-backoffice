@@ -201,7 +201,7 @@ import { Phase1133SchnellReorder, saveOrderForReorder } from './phase1133-schnel
 import { Phase1138LieferstatusBanner } from './phase1138-lieferstatus-banner';
 import { Phase1143BestellwertMeilenstein } from './phase1143-bestellwert-meilenstein';
 import { Phase1147KuechenAuslastungsWarnung } from './phase1147-kuechen-auslastungs-warnung';
-import { Phase1153BestellhistorieSchnellzugriff } from './phase1153-bestellhistorie-schnellzugriff';
+import { Phase1153BestellhistorieSchnellzugriff, saveBestellhistorie } from './phase1153-bestellhistorie-schnellzugriff';
 import { Phase1158DynamischeEtaLiveCockpit } from './phase1158-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -574,6 +574,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       });
       // Phase 1133: Schnell-Reorder — letzte Bestellung für 1-Klick-Wiederbestellung speichern
       saveOrderForReorder(cart, location.id);
+      // Phase 1153: Bestellhistorie-Schnellzugriff — Bestellung in localStorage persistieren
+      saveBestellhistorie({
+        id: order.id,
+        datum: new Date().toISOString(),
+        artikel: cart.map(c => c.item.name ?? c.item.title ?? '').filter(Boolean),
+        gesamtpreis: cart.reduce((s, c) => s + (c.item.preis ?? c.item.price ?? 0) * c.qty, 0),
+        items: cart as any,
+      });
       // Persist for returning-visitor tracking banner
       try {
         localStorage.setItem(`active_order:${location.id}`, JSON.stringify({
