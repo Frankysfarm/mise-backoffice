@@ -230,6 +230,7 @@ import { Phase1280LiefergebietPruefung } from './phase1280-liefergebiet-pruefung
 import { Phase1303BewertungsAbgabeWidget } from './phase1303-bewertungs-abgabe-widget';
 import { Phase1308WartezeitTransparenzBanner } from './phase1308-wartezeit-transparenz-banner';
 import { Phase1313LieferEtaAnzeige } from './phase1313-liefer-eta-anzeige';
+import { Phase1318Beliebtheitsbadge } from './phase1318-beliebtheitsbadge';
 
 type Props = {
   location: Location;
@@ -1143,6 +1144,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <Phase1313LieferEtaAnzeige locationId={location.id} />
       </div>
+      {/* Phase 1318: Beliebtheits-Badge — Top-3-Gerichte der letzten Stunde + Trending-Label + Bestellzähler; 10-Min-Polling */}
+      <Phase1318Beliebtheitsbadge locationId={location.id} />
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}

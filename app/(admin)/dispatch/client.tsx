@@ -480,6 +480,7 @@ import { DispatchPhase1301FahrerAusfallrisikoWidget } from './phase1301-fahrer-a
 import { DispatchPhase1306TourEffizienzLiveScore } from './phase1306-tour-effizienz-live-score';
 import { DispatchPhase1310LieferPrognoseWidget } from './phase1310-liefer-prognose-widget';
 import { DispatchPhase1309TourScoreDashboard } from './phase1309-tour-score-dashboard';
+import { DispatchPhase1316FahrerKapazitaetsReserveWidget } from './phase1316-fahrer-kapazitaets-reserve-widget';
 
 type Driver = {
   employee_id: string;
@@ -1464,6 +1465,8 @@ export function DispatchBoard({
       <DispatchPhase1306TourEffizienzLiveScore locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1310: Liefer-Prognose-Widget — ETA je Zone + Engpass-Warnung; 5-Min-Polling */}
       <DispatchPhase1310LieferPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1316: Fahrer-Kapazitäts-Reserve-Widget — freie vs. belegte Slots + Schicht-Ampel + Empfehlung; 10-Min-Polling */}
+      <DispatchPhase1316FahrerKapazitaetsReserveWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1309: Tour-Score-Dashboard — Ranking aller aktiven Touren (Pünktlichkeit + Effizienz + Kunden-Score); 5-Min-Polling */}
       <DispatchPhase1309TourScoreDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}

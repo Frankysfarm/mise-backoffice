@@ -393,6 +393,7 @@ import { FahrerPhase1302SchichtStatistikKarte } from './phase1302-schicht-statis
 import { FahrerPhase1307SchichtPauseEmpfehlung } from './phase1307-schicht-pause-empfehlung';
 import { FahrerPhase1312TagesZielFortschritt } from './phase1312-tages-ziel-fortschritt';
 import { FahrerPhase1310LiveStoppNavigator } from './phase1310-live-stopp-navigator';
+import { FahrerPhase1317SchichtEinnahmenTracker } from './phase1317-schicht-einnahmen-tracker';
 
 type Driver = {
   id: string;
@@ -4501,6 +4502,10 @@ export function FahrerApp({
         {/* Phase 1312: Tages-Ziel-Fortschritt — Stopp-Ziel-Balken + Meilenstein-Badges; isOnline-Guard */}
         <div className="px-4">
           <FahrerPhase1312TagesZielFortschritt isOnline={isOnline} stoppsAbgeschlossen={todayStats?.deliveries ?? 0} />
+        </div>
+        {/* Phase 1317: Schicht-Einnahmen-Tracker — Trinkgeld + Liefergebühren kumulativ + 7-Tage-Vergleich; isOnline-Guard */}
+        <div className="px-4">
+          <FahrerPhase1317SchichtEinnahmenTracker driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1310: Live-Stopp-Navigator — Alle Stopps mit GPS-Links (Google/Waze) + ETA-Countdown + Ankunfts-/Liefer-Buttons */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
