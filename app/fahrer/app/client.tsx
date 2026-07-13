@@ -397,6 +397,7 @@ import { FahrerPhase1317SchichtEinnahmenTracker } from './phase1317-schicht-einn
 import { FahrerPhase1322TrinkgeldSchnellEingabe } from './phase1322-trinkgeld-schnell-eingabe';
 import { FahrerPhase1313SmartTourNavigatorUltra } from './phase1313-smart-tour-navigator-ultra';
 import { FahrerPhase1345TourStoppNavigatorUltimate } from './phase1345-tour-stopp-navigator-ultimate';
+import { FahrerPhase1327OfflineModusIndikator } from './phase1327-offline-modus-indikator';
 
 type Driver = {
   id: string;
@@ -4533,6 +4534,10 @@ export function FahrerApp({
         {/* Phase 1322: Trinkgeld-Schnell-Eingabe — 1-Tap-Beträge + Freitext; POST an Einnahmen-API; isOnline-Guard */}
         <div className="px-4">
           <FahrerPhase1322TrinkgeldSchnellEingabe driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1327: Offline-Modus-Indikator — Verbindungsstatus-Banner + ausstehende Aktionen + Auto-Sync */}
+        <div className="px-4">
+          <FahrerPhase1327OfflineModusIndikator driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1345: Tour-Stopp-Navigator-Ultimate — Alle Stopps mit Farbkodierung, GPS-Navigation + Schnell-Aktionen + Fortschrittsbalken */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (

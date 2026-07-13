@@ -234,6 +234,7 @@ import { Phase1313LieferEtaAnzeige } from './phase1313-liefer-eta-anzeige';
 import { Phase1318Beliebtheitsbadge } from './phase1318-beliebtheitsbadge';
 import { Phase1323BestellstatusPushBanner } from './phase1323-bestellstatus-push-banner';
 import { StorefrontPhase1315DynamischeEtaLiveUltra } from './phase1315-dynamische-eta-live-ultra';
+import { Phase1328LieferstatusFortschrittsLeiste } from './phase1328-lieferstatus-fortschritts-leiste';
 
 type Props = {
   location: Location;
@@ -1163,6 +1164,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1323: Bestellstatus-Push-Banner — Live-Banner "Unterwegs 🚴" + ETA-Countdown; 30-Sek-Polling */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <Phase1323BestellstatusPushBanner locationId={location.id} orderId={activeOrderId} />
+      </div>
+      {/* Phase 1328: Lieferstatus-Fortschritts-Leiste — 4-Stufen-Leiste (Bestellt→Zubereitung→Bereit→Unterwegs) + animierter Fortschritt */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <Phase1328LieferstatusFortschrittsLeiste locationId={location.id} orderId={activeOrderId} />
       </div>
       {/* Phase 1315: Dynamische ETA Live Ultra — Countdown + Phasen-Timeline + Konfidenz-Badge; 30-Sek-Polling */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
