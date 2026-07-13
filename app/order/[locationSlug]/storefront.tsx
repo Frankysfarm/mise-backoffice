@@ -214,6 +214,7 @@ import { Phase1184EtaLiveTrackingBoard } from './phase1184-eta-live-tracking-boa
 import { Phase1192BewertungsAufforderung } from './phase1192-bewertungs-aufforderung';
 import { Phase1197RabattschwellenBanner } from './phase1197-rabattschwellen-banner';
 import { Phase1202WarteschlangenPosition } from './phase1202-warteschlangen-position';
+import { Phase1207LiveKuechenAuslastungsIndikator } from './phase1207-live-kuechen-auslastungs-indikator';
 
 type Props = {
   location: Location;
@@ -1109,6 +1110,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {cart.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <Phase1197RabattschwellenBanner cartTotal={subtotal} locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 1207: Live-Küchen-Auslastungs-Indikator — Ampel + Wartezeit-Schätzung für Kunden */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1207LiveKuechenAuslastungsIndikator locationId={location.id} />
         </div>
       )}
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}

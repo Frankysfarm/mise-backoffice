@@ -456,6 +456,7 @@ import { DispatchPhase1190KombiTourOptimierer } from './phase1190-kombi-tour-opt
 import { DispatchPhase1195ZoneWartezeitAnalyse } from './phase1195-zone-wartezeit-analyse';
 import { DispatchPhase1200FahrerRueckkehrZeitplan } from './phase1200-fahrer-rueckkehr-zeitplan';
 import { DispatchPhase1205TourScoreVisualisierungDashboard } from './phase1205-tour-score-visualisierung-dashboard';
+import { DispatchPhase1208FahrerAuslastungsPrognose } from './phase1208-fahrer-auslastungs-prognose';
 
 type Driver = {
   employee_id: string;
@@ -1396,6 +1397,8 @@ export function DispatchBoard({
       <DispatchPhase1200FahrerRueckkehrZeitplan locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1205: Tour-Score-Visualisierung-Dashboard — Alle aktiven Touren als Score-Karten mit ETA-Balken + Stop-Timeline */}
       <DispatchPhase1205TourScoreVisualisierungDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1208: Fahrer-Auslastungs-Prognose — Benötigte Fahrer nächste 3h basierend auf historischem Volumen + Queue */}
+      <DispatchPhase1208FahrerAuslastungsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
       <DispatchPhase1120SchichtKostenUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}

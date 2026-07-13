@@ -128,6 +128,7 @@ import { KitchenPhase900SmartKochstartKommandozentrale } from './phase900-smart-
 import { KitchenPhase1085SmartCountdownFarbkodierungCockpit } from './phase1085-smart-countdown-farbkodierung-cockpit';
 import { KitchenPhase1090LiveCountdownWall } from './phase1090-live-countdown-wall';
 import { KitchenPhase1205SmartTimingCockpit } from './phase1205-smart-timing-cockpit';
+import { KitchenPhase1204BestellungsKomplexitaetsHeatmap } from './phase1204-bestellungs-komplexitaets-heatmap';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1139,6 +1140,8 @@ export function KitchenBoard({
       <KitchenPhase1194AllergenLiveAmpel orders={filtered as any} />
       {/* Phase 1199: Bestellungs-Warteschlangen-Prognose — Voraussichtliche Bestellanzahl in den nächsten 30/60 Min */}
       <KitchenPhase1199BestellungsWarteschlangenPrognose orders={filtered as any} />
+      {/* Phase 1204: Bestellungs-Komplexitäts-Heatmap — Score je Stunde: Artikel × Allergen-Anzahl */}
+      <KitchenPhase1204BestellungsKomplexitaetsHeatmap orders={filtered as any} />
       {/* Phase 1085: Smart-Countdown & Farbkodierung Cockpit — Echtzeit-Countdown + 5-stufige Farbkodierung (Grün→Kritisch) */}
       <KitchenPhase1085SmartCountdownFarbkodierungCockpit orders={filtered} timings={timings} />
       {/* Phase 1090: Live-Countdown-Wall — Alle aktiven Bestellungen als Kacheln mit Ring-Timer + 4-stufiger Farbkodierung + Fertig-Button */}
