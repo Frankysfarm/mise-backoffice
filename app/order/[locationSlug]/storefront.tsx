@@ -226,6 +226,7 @@ import { Phase1265LieferStatusProgress } from './phase1265-liefer-status-progres
 import { Phase1270ArtikelBeliebtheitsBadge } from './phase1270-artikel-beliebtheitsbadge';
 import { Phase1275MindestbestellwertProgress } from './phase1275-mindestbestellwert-progress';
 import { Phase1280LiefergebietPruefung } from './phase1280-liefergebiet-pruefung';
+import { Phase1303BewertungsAbgabeWidget } from './phase1303-bewertungs-abgabe-widget';
 
 type Props = {
   location: Location;
@@ -767,6 +768,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase1192BewertungsAufforderung orderId={orderSuccess.orderId} locationId={location.id} />
+          </div>
+        )}
+        {/* Phase 1303: Bewertungs-Abgabe-Widget — Sterne (1–5) + Kommentar + POST nach Bestellabschluss */}
+        {orderSuccess.orderId && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1303BewertungsAbgabeWidget orderId={orderSuccess.orderId} locationId={location.id} />
           </div>
         )}
         {/* Phase 960: Liefer-Qualitäts-Badge — Bewertungs-Sterne + Pünktlichkeitsquote + Ø-Lieferzeit als Vertrauensbadge */}

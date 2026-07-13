@@ -1,141 +1,126 @@
-import { NextResponse } from 'next/server';
+/**
+ * GET /api/delivery/admin/fahrer-ausfallrisiko?location_id=<uuid>
+ *
+ * Phase 1299 — Fahrer-Ausfallrisiko-API (Backend)
+ * Fahrer mit >2 Verspätungen in letzten 3 Tagen oder Schicht-Fehlzeiten → Risiko-Score.
+ * Supabase delivery_tours + Mock-Fallback. Multi-Tenant.
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-/**
- * Phase 1035 — Fahrer-Ausfallrisiko-Monitor API
- *
- * GET /api/delivery/admin/fahrer-ausfallrisiko?location_id=...
- * Frühwarnung welche Fahrer heute wahrscheinlich nicht erscheinen.
- * Basiert auf: Absenzrate letzte 30 Tage + Verspätungen + letzte Schicht.
- *
- * Response:
- * { fahrer: FahrerRisiko[], kritisch_count, location_id, generiert_am }
- */
-
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface FahrerRisiko {
-  fahrer_id: string;
+export type RisikoStufe = 'niedrig' | 'mittel' | 'hoch';
+
+export interface FahrerRisiko {
+  driver_id: string;
   fahrer_name: string;
-  risiko_pct: number;
-  risiko_level: 'kritisch' | 'hoch' | 'mittel' | 'niedrig';
-  schichten_geplant: number;
-  schichten_ausgefallen: number;
-  absenz_rate_pct: number;
-  letzte_schicht_tage_her: number;
-  empfehlung: string;
+  verspaetungen_3_tage: number;
+  schicht_fehlzeiten: number;
+  risiko_score: number;
+  risiko_stufe: RisikoStufe;
+  letzter_vorfall: string | null;
 }
 
-const MOCK: FahrerRisiko[] = [
-  { fahrer_id: 'd1', fahrer_name: 'T. Müller', risiko_pct: 78, risiko_level: 'kritisch', schichten_geplant: 18, schichten_ausgefallen: 5, absenz_rate_pct: 28, letzte_schicht_tage_her: 4, empfehlung: 'Backup-Fahrer einplanen' },
-  { fahrer_id: 'd2', fahrer_name: 'S. Bauer',  risiko_pct: 55, risiko_level: 'hoch',     schichten_geplant: 22, schichten_ausgefallen: 4, absenz_rate_pct: 18, letzte_schicht_tage_her: 2, empfehlung: 'Kontakt aufnehmen' },
-  { fahrer_id: 'd3', fahrer_name: 'K. Lang',   risiko_pct: 32, risiko_level: 'mittel',   schichten_geplant: 20, schichten_ausgefallen: 2, absenz_rate_pct: 10, letzte_schicht_tage_her: 1, empfehlung: 'Beobachten' },
-  { fahrer_id: 'd4', fahrer_name: 'M. Weber',  risiko_pct: 8,  risiko_level: 'niedrig',  schichten_geplant: 25, schichten_ausgefallen: 1, absenz_rate_pct: 4,  letzte_schicht_tage_her: 0, empfehlung: 'Kein Handlungsbedarf' },
-];
+export interface FahrerAusfallrisikoResponse {
+  fahrer: FahrerRisiko[];
+  gesamt_risiko: RisikoStufe;
+  hoch_risiko_anzahl: number;
+  location_id: string;
+  generiert_am: string;
+}
 
-function risikoLevel(pct: number): FahrerRisiko['risiko_level'] {
-  if (pct >= 70) return 'kritisch';
-  if (pct >= 45) return 'hoch';
-  if (pct >= 20) return 'mittel';
+function risikostufe(score: number): RisikoStufe {
+  if (score >= 7) return 'hoch';
+  if (score >= 4) return 'mittel';
   return 'niedrig';
 }
 
-function empfehlung(level: FahrerRisiko['risiko_level']): string {
-  if (level === 'kritisch') return 'Backup-Fahrer einplanen';
-  if (level === 'hoch') return 'Kontakt aufnehmen';
-  if (level === 'mittel') return 'Beobachten';
-  return 'Kein Handlungsbedarf';
+function buildMock(locationId: string): FahrerAusfallrisikoResponse {
+  const fahrer: FahrerRisiko[] = [
+    { driver_id: 'mock-1', fahrer_name: 'Max Müller', verspaetungen_3_tage: 4, schicht_fehlzeiten: 1, risiko_score: 9, risiko_stufe: 'hoch', letzter_vorfall: new Date(Date.now() - 3600_000).toISOString() },
+    { driver_id: 'mock-2', fahrer_name: 'Anna Schmidt', verspaetungen_3_tage: 2, schicht_fehlzeiten: 0, risiko_score: 4, risiko_stufe: 'mittel', letzter_vorfall: new Date(Date.now() - 86400_000).toISOString() },
+    { driver_id: 'mock-3', fahrer_name: 'Klaus Weber', verspaetungen_3_tage: 0, schicht_fehlzeiten: 0, risiko_score: 1, risiko_stufe: 'niedrig', letzter_vorfall: null },
+  ];
+  return {
+    fahrer,
+    gesamt_risiko: 'hoch',
+    hoch_risiko_anzahl: fahrer.filter(f => f.risiko_stufe === 'hoch').length,
+    location_id: locationId,
+    generiert_am: new Date().toISOString(),
+  };
 }
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
-
-  if (!locationId) {
-    return NextResponse.json({
-      fahrer: MOCK,
-      kritisch_count: MOCK.filter(f => f.risiko_level === 'kritisch').length,
-      location_id: null,
-      generiert_am: new Date().toISOString(),
-    });
-  }
+export async function GET(req: NextRequest) {
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const supabase = await createClient();
-    const since30 = new Date(Date.now() - 30 * 24 * 3600_000).toISOString();
+    const sb = await createClient();
 
-    const { data: shifts } = await supabase
-      .from('driver_shifts')
-      .select('driver_id, status, start_time')
+    const vor3Tagen = new Date(Date.now() - 3 * 86400_000).toISOString();
+
+    const { data: touren, error } = await (sb as any)
+      .from('delivery_tours')
+      .select('driver_id, status, started_at, completed_at, estimated_duration_min')
       .eq('location_id', locationId)
-      .gte('start_time', since30)
-      .order('start_time', { ascending: false });
+      .gte('started_at', vor3Tagen);
 
-    if (!shifts || shifts.length < 3) {
-      return NextResponse.json({
-        fahrer: MOCK,
-        kritisch_count: MOCK.filter(f => f.risiko_level === 'kritisch').length,
-        location_id: locationId,
-        generiert_am: new Date().toISOString(),
-      });
+    if (error || !touren?.length) return NextResponse.json(buildMock(locationId));
+
+    const fahrerMap: Record<string, { verspaetungen: number; fehlzeiten: number; letzterVorfall: string | null }> = {};
+
+    for (const t of touren as { driver_id?: string; status?: string; started_at?: string; completed_at?: string; estimated_duration_min?: number }[]) {
+      if (!t.driver_id) continue;
+      if (!fahrerMap[t.driver_id]) fahrerMap[t.driver_id] = { verspaetungen: 0, fehlzeiten: 0, letzterVorfall: null };
+
+      const entry = fahrerMap[t.driver_id];
+
+      if (t.status === 'cancelled' || t.status === 'failed') {
+        entry.fehlzeiten += 1;
+        if (!entry.letzterVorfall || (t.started_at && t.started_at > entry.letzterVorfall)) {
+          entry.letzterVorfall = t.started_at ?? null;
+        }
+      }
+
+      if (t.status === 'completed' && t.started_at && t.completed_at && t.estimated_duration_min) {
+        const tatsaechlich = (new Date(t.completed_at).getTime() - new Date(t.started_at).getTime()) / 60_000;
+        if (tatsaechlich > t.estimated_duration_min * 1.25) {
+          entry.verspaetungen += 1;
+          if (!entry.letzterVorfall || t.completed_at > entry.letzterVorfall) {
+            entry.letzterVorfall = t.completed_at;
+          }
+        }
+      }
     }
 
-    const driverIds = [...new Set(shifts.map(s => s.driver_id).filter(Boolean))];
-    const { data: drivers } = await supabase
-      .from('mise_drivers')
-      .select('id, first_name, last_name')
-      .in('id', driverIds);
+    const fahrer: FahrerRisiko[] = Object.entries(fahrerMap)
+      .map(([id, v]) => {
+        const score = v.verspaetungen * 2 + v.fehlzeiten * 3;
+        return {
+          driver_id: id,
+          fahrer_name: `Fahrer ${id.slice(0, 6)}`,
+          verspaetungen_3_tage: v.verspaetungen,
+          schicht_fehlzeiten: v.fehlzeiten,
+          risiko_score: score,
+          risiko_stufe: risikostufe(score),
+          letzter_vorfall: v.letzterVorfall,
+        };
+      })
+      .sort((a, b) => b.risiko_score - a.risiko_score);
 
-    const driverMap = new Map((drivers ?? []).map(d => [d.id, `${d.first_name?.[0] ?? ''}. ${d.last_name ?? ''}`.trim()]));
-
-    const ABBRUCH_STATUSES = ['abgebrochen', 'storniert', 'cancelled', 'no_show', 'absent'];
-
-    const perDriver = new Map<string, { gesamt: number; ausgefallen: number; letzteSchicht: Date | null }>();
-    for (const s of shifts) {
-      if (!s.driver_id) continue;
-      const cur = perDriver.get(s.driver_id) ?? { gesamt: 0, ausgefallen: 0, letzteSchicht: null };
-      cur.gesamt++;
-      if (ABBRUCH_STATUSES.includes(s.status ?? '')) cur.ausgefallen++;
-      const startDate = new Date(s.start_time);
-      if (!cur.letzteSchicht || startDate > cur.letzteSchicht) cur.letzteSchicht = startDate;
-      perDriver.set(s.driver_id, cur);
-    }
-
-    const fahrer: FahrerRisiko[] = Array.from(perDriver.entries()).map(([id, v]) => {
-      const absenzRate = v.gesamt > 0 ? Math.round((v.ausgefallen / v.gesamt) * 100) : 0;
-      const letzteVorTagen = v.letzteSchicht
-        ? Math.round((Date.now() - v.letzteSchicht.getTime()) / 86_400_000)
-        : 30;
-      const risikoRaw = absenzRate * 0.7 + Math.min(letzteVorTagen * 5, 30);
-      const risikoPct = Math.round(Math.min(95, Math.max(2, risikoRaw)));
-      const level = risikoLevel(risikoPct);
-      return {
-        fahrer_id: id,
-        fahrer_name: driverMap.get(id) ?? 'Fahrer',
-        risiko_pct: risikoPct,
-        risiko_level: level,
-        schichten_geplant: v.gesamt,
-        schichten_ausgefallen: v.ausgefallen,
-        absenz_rate_pct: absenzRate,
-        letzte_schicht_tage_her: letzteVorTagen,
-        empfehlung: empfehlung(level),
-      };
-    });
-
-    fahrer.sort((a, b) => b.risiko_pct - a.risiko_pct);
+    const hochAnzahl = fahrer.filter(f => f.risiko_stufe === 'hoch').length;
+    const gesamtRisiko: RisikoStufe = hochAnzahl > 0 ? 'hoch' : fahrer.some(f => f.risiko_stufe === 'mittel') ? 'mittel' : 'niedrig';
 
     return NextResponse.json({
       fahrer,
-      kritisch_count: fahrer.filter(f => f.risiko_level === 'kritisch').length,
+      gesamt_risiko: gesamtRisiko,
+      hoch_risiko_anzahl: hochAnzahl,
       location_id: locationId,
       generiert_am: new Date().toISOString(),
-    });
+    } satisfies FahrerAusfallrisikoResponse);
   } catch {
-    return NextResponse.json({
-      fahrer: MOCK,
-      kritisch_count: MOCK.filter(f => f.risiko_level === 'kritisch').length,
-      location_id: locationId,
-      generiert_am: new Date().toISOString(),
-    });
+    return NextResponse.json(buildMock(locationId));
   }
 }
