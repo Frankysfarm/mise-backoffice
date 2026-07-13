@@ -225,6 +225,7 @@ import { Phase1255BewertungsKarussell } from './phase1255-bewertungs-karussell';
 import { Phase1265LieferStatusProgress } from './phase1265-liefer-status-progress';
 import { Phase1270ArtikelBeliebtheitsBadge } from './phase1270-artikel-beliebtheitsbadge';
 import { Phase1275MindestbestellwertProgress } from './phase1275-mindestbestellwert-progress';
+import { Phase1280LiefergebietPruefung } from './phase1280-liefergebiet-pruefung';
 
 type Props = {
   location: Location;
@@ -1115,6 +1116,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1077: Liefergebiet-Checker — PLZ eingeben → grün/rot Lieferbarkeit + ETA-Schätzung */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <Phase1077LiefergebietChecker locationSlug={location.id} />
+      </div>
+      {/* Phase 1280: Liefergebiet-Prüfung — PLZ + "Noch X km außerhalb" + Abhol-Empfehlung */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <Phase1280LiefergebietPruefung
+          locationSlug={location.id}
+          locationId={location.id}
+          locationAdresse={[location.adresse, location.plz, location.stadt].filter(Boolean).join(', ')}
+        />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

@@ -384,6 +384,7 @@ import { FahrerPhase1264SchichtSnapshotWidget } from './phase1264-schicht-snapsh
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 import { FahrerPhase1269TrinkgeldWochenuebersicht } from './phase1269-trinkgeld-wochenuebersicht';
 import { FahrerPhase1274KraftstoffAkkuTracker } from './phase1274-kraftstoff-akku-tracker';
+import { FahrerPhase1279KundenzufriedenheitsSchnellPoll } from './phase1279-kundenzufriedenheits-schnell-poll';
 
 type Driver = {
   id: string;
@@ -4468,6 +4469,10 @@ export function FahrerApp({
         {/* Phase 1274: Kraftstoff-/Akku-Tracker — Eingabe Energie je Schicht + Effizienz-Trend + Kosten */}
         <div className="px-4">
           <FahrerPhase1274KraftstoffAkkuTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
+        <div className="px-4">
+          <FahrerPhase1279KundenzufriedenheitsSchnellPoll driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}
