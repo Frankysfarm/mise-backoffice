@@ -342,6 +342,7 @@ import { LieferdienstPhase1281FahrerFeedbackUebersicht } from './phase1281-fahre
 import { LieferdienstPhase1286SchichtKostenWidget } from './phase1286-schicht-kosten-widget';
 import { LieferdienstPhase1291SchichtStatistikenMasterDashboard } from './phase1291-schicht-statistiken-master-dashboard';
 import { LieferdienstPhase1292StatistikenMegaDashboard } from './phase1292-statistiken-mega-dashboard';
+import { LieferdienstPhase1295StatistikenGesamtCockpit } from './phase1295-statistiken-gesamt-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1277,6 +1278,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 1295: Statistiken-Gesamt-Cockpit — Live KPIs, Stundenverlauf, Fahrer-Rangliste, Trend-Vergleich Heute/Gestern/Vorwoche */}
+              <LieferdienstPhase1295StatistikenGesamtCockpit locationId={locationId} />
               {/* Phase 914: Sofort-Aktions-Panel — Priorisierte Handlungsempfehlungen für Manager: kritische Probleme zuerst */}
               <LieferdienstSofortAktionsPanel locationId={locationId} />
               {/* Schicht-Live-Executive: 360°-KPI-Dashboard mit Bestellverlauf-Chart, Trend-Pfeilen und Live-Update */}

@@ -483,6 +483,7 @@ import { DispatchPhase1311TourScoreVisualisierungHub } from './phase1311-tour-sc
 import { DispatchPhase1309TourScoreDashboard } from './phase1309-tour-score-dashboard';
 import { DispatchPhase1316FahrerKapazitaetsReserveWidget } from './phase1316-fahrer-kapazitaets-reserve-widget';
 import { DispatchPhase1321SchichtUebergabeWidget } from './phase1321-schicht-uebergabe-widget';
+import { DispatchPhase1335TourScoreVisualisierungCockpit } from './phase1335-tour-score-visualisierung-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -1471,6 +1472,8 @@ export function DispatchBoard({
       <DispatchPhase1316FahrerKapazitaetsReserveWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1321: Schicht-Übergabe-Widget — Offene Touren + Fahrer-Liste + "Übergabe starten"-Button */}
       <DispatchPhase1321SchichtUebergabeWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1335: Tour-Score-Visualisierungs-Cockpit — Score 0–100 je Tour mit Farbkodierung + Stop-Dot-Visualisierung + Fahrer-Ranking */}
+      <DispatchPhase1335TourScoreVisualisierungCockpit batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
       <DispatchPhase1311TourScoreVisualisierungHub batches={batches as any} drivers={drivers as any} stops={stops as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1309: Tour-Score-Dashboard — Ranking aller aktiven Touren (Pünktlichkeit + Effizienz + Kunden-Score); 5-Min-Polling */}

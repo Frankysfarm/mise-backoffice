@@ -169,6 +169,7 @@ import { Phase980LiveKochTransparenzWidget } from './phase980-live-koch-transpar
 import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-banner';
 import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
 import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
+import { StorefrontPhase997DynamischeEtaLiveCockpit } from './phase997-dynamische-eta-live-cockpit';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
@@ -659,6 +660,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           orderId={orderSuccess.orderId}
           cartItems={orderSuccess.items}
         />
+        {/* Phase 997: Dynamische-ETA-Live-Cockpit — Phasen-Fortschrittsbalken + 1s-Countdown + Fahrer-Annäherung + Stop-Dots */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <StorefrontPhase997DynamischeEtaLiveCockpit
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            />
+          </div>
+        )}
         {/* Phase 1138: Lieferstatus-Live-Banner — Fixierter Bottom-Banner: 4-Stufen-Timeline mit 20s-Polling */}
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <Phase1138LieferstatusBanner

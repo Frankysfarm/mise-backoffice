@@ -142,6 +142,7 @@ import { KitchenPhase1252TischZubereitungsCockpit } from './phase1252-tisch-zube
 import { KitchenPhase1260SchichtAbschlussSchnappschuss } from './phase1260-schicht-abschluss-schnappschuss';
 import { KitchenPhase1262WartezeitWarnung } from './phase1262-wartezeit-warnung';
 import { KitchenPhase1002SmartTimingFarbkodierungUltimate } from './phase1002-smart-timing-farbkodierung-ultimate';
+import { KitchenPhase1325SmartKochzeitCountdownUltra } from './phase1325-smart-kochzeit-countdown-ultra';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1232,6 +1233,8 @@ export function KitchenBoard({
       <KitchenPhase1312SmartTimingCountdownUltra orders={filtered as any} timings={timings as any} />
       {/* Phase 1002: Smart-Timing-Farbkodierung-Ultimate — 5-Stufen-Farbskala (Optimal/Normal/Dringend/Kritisch/Überfällig) + Kochstart-Kommando */}
       <KitchenPhase1002SmartTimingFarbkodierungUltimate orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1325: Smart-Kochzeit-Countdown-Ultra — Echtzeit-1s-Countdown aller aktiven Bestellungen mit 5-Stufen-Farbkodierung + Fortschrittsbalken */}
+      <KitchenPhase1325SmartKochzeitCountdownUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}

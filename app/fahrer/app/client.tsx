@@ -396,6 +396,7 @@ import { FahrerPhase1310LiveStoppNavigator } from './phase1310-live-stopp-naviga
 import { FahrerPhase1317SchichtEinnahmenTracker } from './phase1317-schicht-einnahmen-tracker';
 import { FahrerPhase1322TrinkgeldSchnellEingabe } from './phase1322-trinkgeld-schnell-eingabe';
 import { FahrerPhase1313SmartTourNavigatorUltra } from './phase1313-smart-tour-navigator-ultra';
+import { FahrerPhase1345TourStoppNavigatorUltimate } from './phase1345-tour-stopp-navigator-ultimate';
 
 type Driver = {
   id: string;
@@ -4533,6 +4534,25 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1322TrinkgeldSchnellEingabe driverId={driver.id} isOnline={isOnline} />
         </div>
+        {/* Phase 1345: Tour-Stopp-Navigator-Ultimate — Alle Stopps mit Farbkodierung, GPS-Navigation + Schnell-Aktionen + Fortschrittsbalken */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1345TourStoppNavigatorUltimate
+              driverId={driver.id}
+              stops={activeBatch.stops.map((s, i) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i + 1,
+                address: s.order.kunde_adresse,
+                customer_name: s.order.kunde_name,
+                customer_phone: s.order.kunde_telefon ?? null,
+                status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+                notes: s.order.kunde_lieferhinweis ?? s.order.kunde_notiz ?? null,
+                bestellnummer: s.order.bestellnummer,
+                order_id: s.order.id,
+              }))}
+            />
+          </div>
+        )}
         {/* Phase 1310: Live-Stopp-Navigator — Alle Stopps mit GPS-Links (Google/Waze) + ETA-Countdown + Ankunfts-/Liefer-Buttons */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
           <div className="px-4">
