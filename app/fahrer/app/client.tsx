@@ -370,6 +370,7 @@ import { FahrerPhase1196RoutenEffizienzBadge } from './phase1196-routen-effizien
 import { FahrerPhase1201TagesKmLiveTracker } from './phase1201-tages-km-live-tracker';
 import { FahrerPhase1206ZonenVertrautheitsScore } from './phase1206-zonen-vertrautheits-score';
 import { FahrerPhase1206TourStoppNavigationLiveKommando } from './phase1206-tour-stopp-navigation-live-kommando';
+import { FahrerPhase1214BonusStatusTracker } from './phase1214-bonus-status-tracker';
 
 type Driver = {
   id: string;
@@ -4397,6 +4398,11 @@ export function FahrerApp({
         {/* Phase 1201: Tages-km-Live-Tracker — Kumulierte km + Balken vs. Durchschnitt + CO2-Fußabdruck */}
         <div className="px-4">
           <FahrerPhase1201TagesKmLiveTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1214: Bonus-Status-Tracker — Tages-Bonus Stopps+Bewertung+Pünktlichkeit → Bronze/Silber/Gold */}
+        <div className="px-4">
+          <FahrerPhase1214BonusStatusTracker driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}

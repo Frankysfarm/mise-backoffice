@@ -458,6 +458,7 @@ import { DispatchPhase1200FahrerRueckkehrZeitplan } from './phase1200-fahrer-rue
 import { DispatchPhase1205TourScoreVisualisierungDashboard } from './phase1205-tour-score-visualisierung-dashboard';
 import { DispatchPhase1208FahrerAuslastungsPrognose } from './phase1208-fahrer-auslastungs-prognose';
 import { DispatchPhase1210TourScoreVisualisierungLive } from './phase1210-tour-score-visualisierung-live';
+import { DispatchPhase1213SchichtendeUebernahmeAlert } from './phase1213-schichtende-uebernahme-alert';
 
 type Driver = {
   employee_id: string;
@@ -1402,6 +1403,8 @@ export function DispatchBoard({
       <DispatchPhase1208FahrerAuslastungsPrognose locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1210: Tour-Score-Visualisierung-Live — Live-Board aller aktiven Touren: Score-Ring + Stop-Fortschritt + ETA-Ampel */}
       <DispatchPhase1210TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1213: Schichtende-Übernahme-Alert — Fahrer mit Schichtende in <60 Min + offenen Touren */}
+      <DispatchPhase1213SchichtendeUebernahmeAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
       <DispatchPhase1120SchichtKostenUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1065: Spät-Tour-Risiko-Monitor — Alert wenn Touren voraussichtlich nach Schichtende enden */}

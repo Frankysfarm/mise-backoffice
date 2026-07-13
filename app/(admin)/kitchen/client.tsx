@@ -130,6 +130,7 @@ import { KitchenPhase1090LiveCountdownWall } from './phase1090-live-countdown-wa
 import { KitchenPhase1205SmartTimingCockpit } from './phase1205-smart-timing-cockpit';
 import { KitchenPhase1204BestellungsKomplexitaetsHeatmap } from './phase1204-bestellungs-komplexitaets-heatmap';
 import { KitchenPhase1210SmartTimingScoreCockpit } from './phase1210-smart-timing-score-cockpit';
+import { KitchenPhase1212VorbereitungsPrognoseBoard } from './phase1212-vorbereitungs-prognose-board';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1151,6 +1152,8 @@ export function KitchenBoard({
       <KitchenPhase1205SmartTimingCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1210: Smart-Timing-Score-Cockpit — Performance-Ring + 6-stufige Farbkodierung + Kacheln je Bestellung + Überfällig-Alert */}
       <KitchenPhase1210SmartTimingScoreCockpit orders={filtered as any} timings={timings as any} />
+      {/* Phase 1212: Vorbereitungs-Prognose-Board — Prognostiziertes Bestellvolumen nächste 3h + Empfehlung */}
+      <KitchenPhase1212VorbereitungsPrognoseBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}

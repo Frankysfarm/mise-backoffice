@@ -216,6 +216,7 @@ import { Phase1197RabattschwellenBanner } from './phase1197-rabattschwellen-bann
 import { Phase1202WarteschlangenPosition } from './phase1202-warteschlangen-position';
 import { Phase1207LiveKuechenAuslastungsIndikator } from './phase1207-live-kuechen-auslastungs-indikator';
 import { StorefrontPhase1207DynamischeEtaLiveTracking } from './phase1207-dynamische-eta-live-tracking';
+import { Phase1215SocialProofBanner } from './phase1215-social-proof-banner';
 
 type Props = {
   location: Location;
@@ -1125,6 +1126,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <Phase1207LiveKuechenAuslastungsIndikator locationId={location.id} />
         </div>
       )}
+      {/* Phase 1215: Social-Proof-Banner — Live Bestellungen heute + aktive Kunden + Beliebt-Artikel */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <Phase1215SocialProofBanner locationId={location.id} cartEmpty={cart.length === 0} />
+      </div>
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
       {cart.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

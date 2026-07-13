@@ -14102,9 +14102,54 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 **Logik:** fetchSignal() holt fahrer-netz-heatmap API; mappt Zone-Level → Status + ETA; 3-Min-Polling; knapp = kein Banner
 **Integration:** `storefront.tsx` nach Phase1122 (nur wenn cartEmpty) ✅
 
-### Nächste Phasen 1128–1132 (für Ingenieur)
-1. **Phase 1128 Backend:** Tages-Bestellmuster-Heatmap-API — Bestellhäufigkeit nach Wochentag × Stunde als 7×24-Matrix für die letzten 4 Wochen.
-2. **Phase 1129 Kitchen:** Stations-Auslastungs-Cockpit — Welche Kochstation ist gerade überlastet? Live-Balken + Umverteilungs-Empfehlung.
-3. **Phase 1130 Dispatch:** Fahrer-Effizienz-Rangliste — Ranking aller heute aktiven Fahrer nach Stopps/Stunde + km-Effizienz + Pünktlichkeit.
-4. **Phase 1131 Fahrer-App:** Schicht-Abschluss-Zusammenfassung — Tages-Zusammenfassung nach Schichtende: Stopps, km, Umsatz, Trinkgeld, Score.
-5. **Phase 1132 Storefront:** Liefergebiet-Prüfer — Eingabe einer Adresse prüft ob Lieferung möglich + geschätzte Zeit.
+### Nächste Phasen 1128–1132 (für Ingenieur) [ABGESCHLOSSEN als 1128–1132]
+1. **Phase 1128 Backend:** Tages-Bestellmuster-Heatmap-API ✅
+2. **Phase 1129 Kitchen:** Stations-Auslastungs-Cockpit ✅
+3. **Phase 1130 Dispatch:** Fahrer-Effizienz-Rangliste ✅
+4. **Phase 1131 Fahrer-App:** Schicht-Abschluss-Zusammenfassung ✅
+5. **Phase 1132 Storefront:** Liefergebiet-Prüfer ✅
+
+---
+
+## Batch 1211–1215 — 2026-07-13
+
+### Phase 1211 — Bestellungsvolumen-Prognose-API (Backend)
+**Datei:** `app/api/delivery/admin/bestellungsvolumen-prognose/route.ts`
+**GET:** `?location_id=<uuid>` — Prognostiziertes Bestellvolumen nächste 3h in 30-Min-Slots basierend auf Wochentag × Stunde (letzten 4 Wochen); Intensität ruhig/normal/hoch/peak; Konfidenz 0–100; peak_slot; Supabase customer_orders + Mock
+**Response:** `{ slots[], gesamt_prognose, peak_slot, location_id, generiert_am }` · je Slot: `{ slot_start, slot_label, prognose, intensitaet, konfidenz }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1212 — Vorbereitungs-Prognose-Board (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1212-vorbereitungs-prognose-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible violet; Balkendiagramm 6 × 30-Min-Slots (ruhig=grau/normal=grün/hoch=amber/peak=rose); Empfehlungstext je Auslastungslevel; Gesamt-Prognose + Peak-Slot Footer; 5-Min-Polling
+**Logik:** fetchData() holt bestellungsvolumen-prognose API; buildEmpfehlung() basierend auf Peak-Slots-Anzahl; isOnline-unabhängig
+**Integration:** `kitchen/client.tsx` nach Phase1210 ✅
+
+### Phase 1213 — Schichtende-Übernahme-Alert (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1213-schichtende-uebernahme-alert.tsx` + `app/api/delivery/admin/schichtende-uebernahme-alert/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible rose/amber je Kritikalität; je Fahrer: Name + Zone + Schichtende-in-Min + Offene-Stopps-Badge + Empfehlung; kritisch pulsierend; 60s-Polling
+**API:** mise_drivers.shift_started_at → Schichtende (8h Schicht); mise_delivery_stops ohne geliefert_am → offene Stopps; Kritikalität: kritisch (<30 Min + on_tour), warnung (<50 Min + on_tour), niedrig (sonst); Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1210 ✅
+
+### Phase 1214 — Bonus-Status-Tracker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1214-bonus-status-tracker.tsx` + `app/api/delivery/driver/bonus-status/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible (bronze=amber/silber=slate/gold=yellow/kein=muted); 3 Ziele mit Fortschrittsbalken (Stopps/Bewertung/Pünktlichkeit); Bonus-Betrag in grünem Badge; Gift-Icon bei erreicht; 5-Min-Polling; isOnline-Guard
+**API:** GET mise_delivery_stops + mise_delivery_reviews + Pünktlichkeit → Stufe Bronze(1/3)/Silber(2/3)/Gold(3/3); Bonus 3€/8€/15€; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1201 ✅
+
+### Phase 1215 — Social-Proof-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1215-social-proof-banner.tsx` + `app/api/delivery/public/social-proof/route.ts`
+**Props:** `locationId: string, cartEmpty: boolean`
+**UI:** Sky-Farbe Banner mit X-Dismiss; 3 rotierende Nachrichten (4s): Aktive Kunden / Bestellungen heute / Beliebtester Artikel; nur wenn cartEmpty; 3-Min-Polling
+**API:** GET customer_orders heute (count) + letzte 30 Min (aktive Kunden) + customer_order_items (beliebtester Artikel per Name-Count); Supabase + Mock
+**Integration:** `storefront.tsx` nach Phase1207 (immer sichtbar wenn cartEmpty) ✅
+
+### Nächste Phasen 1216–1220 (für Ingenieur)
+1. **Phase 1216 Backend:** Fahrer-Schicht-ROI-Live-API — Umsatz je Fahrerstunde heute in Echtzeit (Bestellwert der gelieferten Bestellungen ÷ aktive Stunden).
+2. **Phase 1217 Kitchen:** Rezept-Zutaten-Countdown — Für die nächsten 5 Bestellungen: Welche Zutaten werden benötigt + Ampel ob genug vorhanden.
+3. **Phase 1218 Dispatch:** Live-ETA-Abweichungs-Monitor — Echtzeit-Delta zwischen geschätzter und tatsächlicher Lieferzeit je Tour + Eskalation bei >10 Min.
+4. **Phase 1219 Fahrer-App:** Kunden-Anruf-Log — Letzten 5 Kunden-Kontaktversuche (Anruf/Klingel) mit Uhrzeit + Status.
+5. **Phase 1220 Storefront:** Warenkorb-Speicher-Banner — "Ihr Warenkorb wurde gespeichert" Banner nach 30s Inaktivität + Wiederherstellungs-Button.
