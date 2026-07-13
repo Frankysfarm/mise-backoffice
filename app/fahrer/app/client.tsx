@@ -403,6 +403,7 @@ import { FahrerPhase1354NavigationsFavoriten } from './phase1354-navigations-fav
 import { FahrerPhase1359SchichtZielZusammenfassung } from './phase1359-schicht-ziel-zusammenfassung';
 import { FahrerPhase1364TourAbschlussZusammenfassung } from './phase1364-tour-abschluss-zusammenfassung';
 import { FahrerPhase1369KundenZufriedenheitsAmpel } from './phase1369-kunden-zufriedenheits-ampel';
+import { FahrerPhase1374SchichtBilanzOverlay } from './phase1374-schicht-bilanz-overlay';
 
 type Driver = {
   id: string;
@@ -4577,6 +4578,8 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1369KundenZufriedenheitsAmpel driverId={driver.id} isOnline={isOnline} />
         </div>
+        {/* Phase 1374: Schicht-Bilanz-Overlay — Tages-Abrechnung nach Schicht-Ende: Stopps/km/Trinkgeld/Einnahmen/Bewertung + Vortag-Vergleich; localStorage-Guard */}
+        <FahrerPhase1374SchichtBilanzOverlay driverId={driver.id} isOnline={isOnline} />
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">
           <FahrerPhase1350TourStoppNavigatorPlus

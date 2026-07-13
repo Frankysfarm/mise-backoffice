@@ -490,6 +490,7 @@ import { DispatchPhase1353FahrerPuenktlichkeitsRangliste } from './phase1353-fah
 import { DispatchPhase1358TourEffizienzRangliste } from './phase1358-tour-effizienz-rangliste';
 import { DispatchPhase1363SchichtVergleichWidget } from './phase1363-schicht-vergleich-widget';
 import { DispatchPhase1368BestellQualitaetsPanel } from './phase1368-bestell-qualitaets-panel';
+import { DispatchPhase1373SpitzenzeitPrognoseWidget } from './phase1373-spitzenzeit-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1490,6 +1491,8 @@ export function DispatchBoard({
       <DispatchPhase1363SchichtVergleichWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1368: Bestellqualitäts-Panel — Storno-Rate + Ø-Bewertung + Fehlerquote + Top-Beschwerde; Ampel; 15-Min-Polling */}
       <DispatchPhase1368BestellQualitaetsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1373: Spitzenzeit-Prognose-Widget — 4-Stunden-Balken + Fahrer-Bedarf + Alarm <20% Kapazität; 15-Min-Polling */}
+      <DispatchPhase1373SpitzenzeitPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
