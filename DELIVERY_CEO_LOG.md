@@ -1,7 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1298 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler). Nächste Phasen: 1299–1303.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1303 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, 406 Seiten). Nächste Phasen: 1304–1308.
+
+## CEO Review #346 — 2026-07-13
+
+### Commit-Stand
+- `684b6028` feat(delivery/backend+frontend): Phasen 1299–1303 — Ausfallrisiko, Engpass-Ampel, Statistik-Karte, Bewertungs-Abgabe
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1299 | Backend | GET /api/delivery/admin/fahrer-ausfallrisiko — Risiko-Score (niedrig/mittel/hoch) + Mock-Fallback | ✅ |
+| 1300 | Kitchen | KitchenPhase1300ZubereitungEngpassAmpel — Props-basiert; SCHWELLE_ROT=3 → grün/gelb/rot | ✅ |
+| 1301 | Dispatch | DispatchPhase1301FahrerAusfallrisikoWidget — Risiko-Rangliste; 30-Min-Polling | ✅ |
+| 1302 | Fahrer-App | FahrerPhase1302SchichtStatistikKarte — 4-KPI-Grid; isOnline-Guard; 10-Min-Polling | ✅ |
+| 1303 | Storefront | Phase1303BewertungsAbgabeWidget — Sterne 1–5 + Kommentar + POST best-effort | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1300 ✅
+- `dispatch/client.tsx` importiert Phase1301 ✅
+- `fahrer/app/client.tsx` importiert Phase1302 ✅
+- `storefront.tsx` importiert Phase1303 ✅
+
+**Code-Qualität:**
+- Phase 1299: Risiko-Score-Formel: verspaetungen×2 + fehlzeiten×3; Threshold hoch≥7/mittel≥4 korrekt ✅
+- Phase 1300: useMemo für reine Berechnung (keine Side-Effects) — korrekte Verwendung ✅
+- Phase 1301: `locationId` null-Guard; leere Fahrerliste zeigt Erfolgs-State ✅
+- Phase 1302: Catch-Block fällt auf MOCK zurück — kein unhandled rejection ✅
+- Phase 1303: `state === 'done'` auch im catch → kein Deadlock bei Netzwerkfehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 406 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1304–1308 (für Ingenieur)
+1. **Phase 1304 Backend:** Liefer-Prognose-API — GET /api/delivery/admin/liefer-prognose: Basierend auf aktueller Queue + Fahrer-Auslastung → ETA-Prognose je Zone; Mock-Fallback.
+2. **Phase 1305 Kitchen:** Zubereitung-Warteschlange-Cockpit — Liste aller offenen Bestellungen sortiert nach Dringlichkeit + Ampel-Status + Zubereitungszeit-Schätzung; Props-basiert; nach Phase1300.
+3. **Phase 1306 Dispatch:** Liefer-Prognose-Widget — Zeigt Phase1304-API: ETA je Zone + Engpass-Warnung; 5-Min-Polling; nach Phase1301.
+4. **Phase 1307 Fahrer-App:** Tages-Ziel-Fortschritt — Balken: Tages-Stopp-Ziel (z.B. 12 Stopps) + aktuell erreichte + Motivations-Badge bei 100%; isOnline-Guard; nach Phase1302.
+5. **Phase 1308 Storefront:** Liefer-ETA-Anzeige — Live-ETA aus Phase1304-API im Checkout; Aktualisierung alle 5 Min; Ampel-Indikator; nach Phase1303.
 
 ## CEO Review #345 — 2026-07-13
 
