@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-13): Phasen 1405–1409 implementiert. Build ✓ Exit 0. TypeScript 0 Fehler.
+- Phase 1405 Backend: `app/api/delivery/admin/fahrer-zufriedenheits-score/route.ts` — Aggregat Stimmung (40%) + Trinkgeld-Trend (35%) + Bonus-Fortschritt (25%); Multi-Tenant; Supabase + Mock ✅
+- Phase 1406 Kitchen: `app/(admin)/kitchen/phase1406-live-bestellmengen-ticker.tsx` — Bestellungen diese Stunde + Hochrechnung + Vergleich Vorwoche; Dringlichkeits-Ampel; nach Phase1401 ✅
+- Phase 1407 Dispatch: `app/(admin)/dispatch/phase1407-fahrer-zufriedenheits-dashboard.tsx` — Phase1405-API: Kacheln je Fahrer (Stimmung/Trinkgeld/Bonus); Gesamt-Score-Ampel; 10-Min-Polling; nach Phase1402 ✅
+- Phase 1408 Fahrer-App: `app/fahrer/app/phase1408-schicht-energie-check.tsx` — Alle 2h: Energie-Stufe 1-5 + Empfehlung (Pause/Weiter/Schicht-Ende); isOnline-Guard; localStorage-Timer; nach Phase1403 ✅
+- Phase 1409 Storefront: `app/order/[locationSlug]/phase1409-bestell-uebersicht-miniatur.tsx` — Kompakte Bestellstatus-Karte im Header (Status+ETA); schließbar; 60s-Polling; nach Phase1404 ✅
+
+Nächste Phasen 1410–1414 (für Ingenieur):
+1. **Phase 1410 Backend:** Storefront-ETA-Verfeinerungs-API — GET /api/delivery/public/eta-verfeinert?location_id: Aktuelle Lieferzeit angepasst an Wetter/Fahreranzahl/Queue-Tiefe.
+2. **Phase 1411 Kitchen:** Allergen-Schnell-Ampel — Für jede aktive Bestellung: Zeige kritische Allergene (Nuss/Gluten/Laktose) als Farbchips; Props-basiert aus order.items.
+3. **Phase 1412 Dispatch:** Schicht-Produktivitäts-Cockpit — Bestellungen/Stunde je Fahrer + Ø-Vergleich; Farb-Ranking (Top/Mitte/Low); 10-Min-Polling.
+4. **Phase 1413 Fahrer-App:** Kunden-Bewertungs-Vorschau — Nach Lieferung: Mini-Karte mit letzter Kundenbewertung + Trend; 60s-Polling nach Tour-Ende.
+5. **Phase 1414 Storefront:** Live-Warteschlangen-Indikator — "X Bestellungen vor dir" Chip unter ETA; locationId-basiert; 2-Min-Polling.
+
 Backend-Architekt-Agent (2026-07-13): Phasen 1400–1404 implementiert. Build ✓ Exit 0. TypeScript 0 Fehler.
 - Phase 1400 Backend: `app/api/delivery/admin/kitchen-stop-gap-alert/route.ts` — GET: Artikel-Auslastung vs. geschätzte Kapazität (ok/warnung/kritisch); Empfehlung; Supabase customer_orders + Mock-Fallback ✅
 - Phase 1401 Kitchen: `app/(admin)/kitchen/phase1401-zubereitungs-rueckstand-monitor.tsx` — Bestellungen >15 Min (Warnung) / >25 Min (Kritisch) in Zubereitung; Ampel + Wartezeit je Bestellung; Props-basiert; nach Phase1396 ✅
