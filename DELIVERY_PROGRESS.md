@@ -14308,3 +14308,54 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 1223 Dispatch:** Fahrer-Einsatz-Planer — Drag-and-Drop-Zuweisung freier Fahrer zu offenen Touren (visuell, keine echte DB-Änderung — nur Vorschau).
 4. **Phase 1224 Fahrer-App:** Schicht-Ende-Energie-Check — Abfrage wie erschöpft der Fahrer ist (1–5 Skala) + automatische Empfehlung für Pausendauer.
 5. **Phase 1225 Storefront:** Lieferfenster-Auswahl-Widget — Kunde kann bevorzugtes 30-Min-Lieferfenster auswählen (heute verfügbare Slots basierend auf Auslastung).
+
+---
+
+## Batch 1221–1245 — 2026-07-13 (nachträglich dokumentiert)
+
+Phasen 1221–1245 wurden in vorherigen Sessions implementiert und in client.tsx/storefront.tsx integriert. Build: ✓ Compiled successfully, 401 Seiten. Einzelheiten siehe CEO Review #340 (oben in DELIVERY_CEO_LOG.md).
+
+---
+
+## Batch 1246–1250 — 2026-07-13
+
+### Phase 1246 — Echtzeit-Bestelldichte-API (Backend)
+**Datei:** `app/api/delivery/admin/echtzeit-bestelldichte/route.ts`
+**GET:** `?location_id=<uuid>` — Bestellungen je Zone der letzten 2h (+ 30-Min-Window) + Hotspot-Erkennung; Trend steigend/stabil/fallend (Rate 30Min × 4 vs. 2h-Count); Intensität ruhig/normal/hoch/peak; hotspot=true wenn ≥15 Bestellungen in 2h; Supabase customer_orders + Mock
+**Response:** `{ zonen[], gesamt_2h, hotspot_zonen, peak_zone, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1247 — Multi-Posten-Koordination-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1247-multi-posten-koordination-alert.tsx`
+**Props:** `orders: Order[], komplexSchwelle?: number, gleichzeitigSchwelle?: number`
+**UI:** Collapsible (grün/amber/rot je Level); erhoet/kritisch-Badges; Empfehlungstext; Grid der Top-5 komplexen Bestellungen mit Item-Count + Stufen-Badge; nur sichtbar wenn ≥2 komplexe Bestellungen gleichzeitig
+**Logik:** analyzeKoordination() filtert active orders mit ≥komplexSchwelle Items; level kritisch wenn ≥gleichzeitigSchwelle+2, erhoet wenn ≥gleichzeitigSchwelle; rein client-seitig via useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1245 ✅
+
+### Phase 1248 — Live-Touren-Karte (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1248-live-touren-karte.tsx` + `app/api/delivery/admin/live-touren-karte/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible sky; SVG 190×190 mit 4 Zonen-Quadranten; Fahrer-Punkte (Radius 7, Farbe grün/indigo/rot je Status frei/aktiv/abweichend); Stopp-Count im Kreis; Name-Label; Legende; Fahrer-Detail-Liste mit Zone + Stopps + ETA; 60s-Polling
+**API:** mise_drivers.online + on_tour + delivery_zone → Zone-Bucket; mise_delivery_stops ohne delivered_at → offene Stopps + ETA; abweichend wenn eta_min >20; Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1243 ✅
+
+### Phase 1249 — Schicht-Stimmungs-Tracker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1249-schicht-stimmungs-tracker.tsx` + `app/api/delivery/driver/schicht-stimmung/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible indigo; 5-Emoji-Button-Row (😞😑😐😊😄 = schlecht/müde/okay/gut/super); gespeichert-Bestätigung; Empfehlungstext; Emoji-Verlauf letzte 5 Einträge mit Uhrzeit; isOnline-Guard; 10-Min-Polling
+**API:** GET driver_mood_logs LIMIT 5; POST neuen Eintrag (best-effort); Trend: letzte vs. erste Eintragung; Schnitt-Berechnung; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1244 ✅
+
+### Phase 1250 — Gruppenbestellung-Hinweis-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1250-gruppenbestellung-banner.tsx`
+**Props:** `cart: CartItem[], locationId: string, mindestbestellwert?: number, cartEmpty: boolean`
+**UI:** Violet-Farbschema; Users-Icon; "Gemeinsam bestellen ab 50€ für freie Lieferung"; fehlend-bis-Schwelle Berechnung; kopierbarer Teilen-Link (navigator.clipboard) + Kopiert-Bestätigung; X-Dismiss; nur sichtbar wenn unter Schwelle
+**Logik:** cartTotal = cart.reduce(); fehlend = Math.max(0, mindestbestellwert - cartTotal); shareUrl = window.location.origin+pathname+?ref=group; rein client-seitig
+**Integration:** `storefront.tsx` nach Phase1235 ✅
+
+### Nächste Phasen 1251–1255 (für Ingenieur)
+1. **Phase 1251 Backend:** Fahrer-Stimmungs-Aggregat-API — Aggregierte Stimmungsdaten aller Fahrer je Schicht (Ø-Score, kritische Fahrer mit Score ≤2, Korrelation Stimmung↔Pünktlichkeit).
+2. **Phase 1252 Kitchen:** Tisch-Zubereitungs-Cockpit — Zeigt welche Artikel gerade parallel zubreitet werden (Schnittpunkt bestätigte Bestellungen) + wie viele Posten belegt sind.
+3. **Phase 1253 Dispatch:** Zone-Bestelldichte-Live-Overlay — Nutzt Phase-1246-API: Zeigt Zone-Intensität als farbige Badge + Hotspot-Alert im Dispatch-Panel.
+4. **Phase 1254 Fahrer-App:** Navi-Zusammenfassung-Widget — Komprimierte Übersicht aller heutigen Stopps (Adressen + Zeiten + Bewertungen) als scrollbare Karte.
+5. **Phase 1255 Storefront:** Bewertungs-Karussel — Letzte 6 Kundenbewertungen als auto-scrollende Karten (Name + Sterne + Kommentar + Datum).
