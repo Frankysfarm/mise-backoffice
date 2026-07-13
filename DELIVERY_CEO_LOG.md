@@ -1,7 +1,61 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1323 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1324–1328.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1328 vollständig abgeschlossen. Build sauber (✓ 406 Seiten, TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1329–1333.
+
+## CEO Review #350 — 2026-07-13
+
+### Commit-Stand
+- `15e83cc3` feat(delivery/backend): Phasen 1324–1328 — Routen-Optimierung, Allergen-Banner, Offline-Indikator, Lieferstatus-Leiste
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1324 | Backend | Routen-Optimierungs-API (GET /api/delivery/admin/routen-optimierung-auto) — Nearest-Neighbor, km/Min-Einsparung, alle Touren | ✅ |
+| 1325 | Kitchen | KitchenPhase1325AllergenWarnBanner — 17 Hochrisiko-Allergene, Popup-Queue, Bestätigungs-Pflicht | ✅ |
+| 1326 | Dispatch | DispatchPhase1326RoutenOptimierungsWidget — Phase1324-API, Einspar-Balken, 15-Min-Polling | ✅ |
+| 1327 | Fahrer-App | FahrerPhase1327OfflineModusIndikator — online/offline/reconnecting, localStorage Pending-Actions, Auto-Sync | ✅ |
+| 1328 | Storefront | Phase1328LieferstatusFortschrittsLeiste — 4-Stufen (Bestellt→Zubereitung→Bereit→Unterwegs), 30-Sek-Polling | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1325AllergenWarnBanner + Phase1325SmartKochzeitCountdownUltra ✅
+- `dispatch/client.tsx` importiert Phase1326RoutenOptimierungsWidget ✅
+- `fahrer/app/client.tsx` importiert Phase1327OfflineModusIndikator ✅
+- `storefront.tsx` importiert Phase1328LieferstatusFortschrittsLeiste ✅
+- Backend-Route `/api/delivery/admin/routen-optimierung-auto` mit Nearest-Neighbor + Mock-Fallback ✅
+
+**Code-Qualität:**
+- 17 Hochrisiko-Allergene in Phase1325 korrekt (Nüsse/Schalentiere/Gluten/Laktose/Ei/Fisch/Sesam/Senf/Sellerie/Sulfit etc.) ✅
+- Haversine-Algorithmus für Routenoptimierung korrekt ✅
+- Offline-Indikator mit navigator.onLine-Events + Auto-Sync ✅
+- 4-Stufen-Lieferfortschritt mit korrektem Status-Mapping ✅
+- Alle APIs Supabase → Mock-Fallback (keine 500er) ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 406 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1329–1333 (für Ingenieur)
+1. **Phase 1329 Backend:** Fahrer-Pünktlichkeits-Score-API — GET /api/delivery/admin/fahrer-puenktlichkeit: Je Fahrer: Stopps pünktlich vs. zu spät (letzten 7 Tage), Pünktlichkeitsquote%, Score A/B/C/D; Supabase mise_delivery_stops + Mock-Fallback.
+2. **Phase 1330 Kitchen:** Allergen-Statistik-Woche — Wie oft welche Hochrisiko-Allergene in letzten 7 Tagen aufgetreten; Balkendiagramm-Widget; Props-basiert (aus Bestellhistorie); useMemo; kitchen/client.tsx nach Phase1325.
+3. **Phase 1331 Dispatch:** Fahrer-Pünktlichkeits-Rangliste — Zeigt Phase1329-API: Rangliste mit Score-Badge (A/B/C/D) + 7-Tage-Trend; 30-Min-Polling; dispatch/client.tsx nach Phase1326.
+4. **Phase 1332 Fahrer-App:** Navigations-Favoriten — Häufige Adressen (aus Tour-Historie) als Schnellauswahl; localStorage-persistiert; 1-Tap-Navigation-Link (Google/Apple/Waze); fahrer/app/client.tsx nach Phase1327.
+5. **Phase 1333 Storefront:** Bestell-Zusammenfassung-Overlay — Nach Bestellabschluss: animiertes "Bestellung eingegangen!"-Overlay + Bestellnummer + ETA + "Tracking starten"-Button (öffnet Phase1328); storefront.tsx nach Phase1328.
+
+## Aktueller Stand
+**MARKT-REIF + WACHSTUM.** Phasen 1–1328 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 406 Seiten). Deployment-bereit. Nächste Phasen: 1329–1333.
 
 ## CEO Review #349 — 2026-07-13
 
