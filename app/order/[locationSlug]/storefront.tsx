@@ -248,6 +248,7 @@ import { StorefrontPhase1394BestellhistorieSchnellreorder } from './phase1394-be
 import { StorefrontPhase1399BestellstatusLiveTicker } from './phase1399-bestellstatus-live-ticker';
 import { StorefrontPhase1404AngebotsCountdownBanner } from './phase1404-angebots-countdown-banner';
 import { StorefrontPhase1409BestUebersichtMiniatur } from './phase1409-bestell-uebersicht-miniatur';
+import { StorefrontPhase1414LiveWarteschlangenIndikator } from './phase1414-live-warteschlangen-indikator';
 
 type Props = {
   location: Location;
@@ -1272,6 +1273,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {orderSuccess?.orderId && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <StorefrontPhase1409BestUebersichtMiniatur locationId={location.id} orderId={orderSuccess.orderId} />
+        </div>
+      )}
+      {/* Phase 1414: Live-Warteschlangen-Indikator — "X Bestellungen vor dir" + Wartezeit-Zusatz; 2-Min-Polling */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <StorefrontPhase1414LiveWarteschlangenIndikator locationId={location.id} />
         </div>
       )}
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}

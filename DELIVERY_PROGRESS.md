@@ -14778,3 +14778,58 @@ Alle Phasen 1271–1275 geprüft + integriert. Nächste Phasen: 1276–1280.
 4. **Phase 1389 Fahrer-App:** Schicht-Energie-Check -- Alle 2h: Energielevel 1-5 Eingabe + Empfehlung (Pause/Weiter/Schicht-Ende); isOnline-Guard.
 5. **Phase 1390 Storefront:** Bestelluebersicht-Miniatur -- Kompakte aktive-Bestellung-Karte im Header (Status+ETA); locationId-basiert.
 
+
+---
+
+## Batch 1410–1414 — 2026-07-13
+
+### Phase 1410 — Storefront-ETA-Verfeinerungs-API (Backend)
+**Datei:** `app/api/delivery/public/eta-verfeinert/route.ts`
+**GET:** `?location_id=<uuid>` — Basis-ETA aus delivery_config, angepasst an: Wetter (+0/+5/+7/+10 Min), Queue-Tiefe (offene pending/preparing Bestellungen → +0..+15 Min), aktive Fahrer (−0..−8 Min); Status normal/erhoecht/hoch; Supabase + Mock
+**Response:** `{ basis_eta_min, verfeinerte_eta_min, faktoren{wetter_zusatz,queue_zusatz,fahrer_abzug}, status, hinweis, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1411 — Allergen-Schnell-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1411-allergen-schnell-ampel.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible rose; nur sichtbar wenn ≥1 Bestellung Allergen-Keywords enthält; je Bestellung: Kundenname + Allergen-Farbchips (Nuss/Gluten/Laktose/Ei/Sesam); rein client-seitig useMemo
+**Logik:** 5 Allergen-Regeln mit Keywords; detectAllergens() scannt order.items + special_instructions
+**Integration:** `kitchen/client.tsx` nach Phase1406 ✅
+
+### Phase 1412 — Schicht-Produktivitäts-Cockpit (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1412-schicht-produktivitaets-cockpit.tsx` + `app/api/delivery/admin/schicht-produktivitaet/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible teal; je Fahrer: Name + Ranking-Badge (Top/Mittel/Niedrig) + Balken + Bestellungen/h + Ø-Trend-Icon; Gesamt-Ø im Header; 10-Min-Polling
+**API:** GET mise_drivers (online) + delivery_batches heute → Bestellungen/h je Fahrer; Schwellen: top≥Ø*1.2 / low≤Ø*0.8; Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1407 ✅
+
+### Phase 1413 — Kunden-Bewertungs-Vorschau (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1413-kunden-bewertungs-vorschau.tsx` + `app/api/delivery/driver/letzte-bewertung/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Gold-Gradient-Karte; Letzte-Bewertung-Karte mit Sterne-Row + Kommentar + Zeitstempel; 3×KPI-Grid (Ø7T/Vorwoche/Trend+Delta); isOnline-Guard; 60s-Polling
+**API:** GET delivery_ratings letzte + 7T + Vorwoche → Schnitt + Trend besser/gleich/schlechter (±0.2 Schwelle); Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1408 ✅
+
+### Phase 1414 — Live-Warteschlangen-Indikator (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1414-live-warteschlangen-indikator.tsx` + `app/api/delivery/public/warteschlange/route.ts`
+**Props:** `locationId: string`
+**UI:** Inline Pill-Chip (grün/amber/rot je Stufe) mit pulsierendem Dot bei hoch; "X Bestellungen vor dir · +Y Min"; nur sichtbar wenn ≥1 Bestellung in Queue; 2-Min-Polling
+**API:** GET customer_orders pending/preparing COUNT → stufe niedrig(<4)/mittel(≥4)/hoch(≥8); Supabase + Mock
+**Integration:** `storefront.tsx` nach Phase1409 bei cart.length>0 ✅
+
+### Migration
+**Datei:** `scripts/migrations/225_eta_queue_phase1410_1414.sql`
+- delivery_queue_snapshots — Warteschlangen-Snapshots
+- driver_rating_snapshots — Bewertungs-Trend-Snapshots
+- schicht_produktivitaet_log — Produktivitäts-Log
+
+### Nächste Phasen 1415–1419 (für Ingenieur)
+1. **Phase 1415 Backend:** Schicht-Abschluss-Report-API — GET /api/delivery/admin/schicht-abschluss-report: Gesamt-Umsatz + Durchschnittliche Lieferzeit + Fahrer-Schnitt + beste Zone der Schicht.
+2. **Phase 1416 Kitchen:** Zubereitungs-Zeiten-Histogramm — Verteilung der Zubereitungszeiten (5-Min-Buckets) der letzten 50 Bestellungen; Props-basiert.
+3. **Phase 1417 Dispatch:** ETA-Verfeinerungs-Widget — Zeigt Phase1410-API: Basis vs. verfeinerte ETA + Faktoren-Aufschlüsselung; 5-Min-Polling.
+4. **Phase 1418 Fahrer-App:** Schicht-Wetter-Check — Aktuelles Wetter-Widget (Temperatur/Wetter-Icon/Windgeschwindigkeit) aus delivery_config wetter_hinweis; 15-Min-Polling.
+5. **Phase 1419 Storefront:** Liefer-ETA-Verfeinerungs-Badge — Zeigt verfeinerte ETA aus Phase1410-API unter Lieferzeitangabe; 5-Min-Polling.
+
+---
+
+Backend-Architekt-Agent (2026-07-13): Phasen 1410–1414 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
