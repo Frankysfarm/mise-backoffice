@@ -222,6 +222,7 @@ import { Phase1225LieferfensterAuswahlWidget } from './phase1225-lieferfenster-a
 import { Phase1235LieferVersprechenBanner } from './phase1235-liefer-versprechen-banner';
 import { Phase1250GruppenbestellungBanner } from './phase1250-gruppenbestellung-banner';
 import { Phase1255BewertungsKarussell } from './phase1255-bewertungs-karussell';
+import { Phase1265LieferStatusProgress } from './phase1265-liefer-status-progress';
 
 type Props = {
   location: Location;
@@ -747,6 +748,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <div className="px-4 pb-2 max-w-lg mx-auto">
             <StorefrontPhase1207DynamischeEtaLiveTracking orderId={orderSuccess.orderId} locationId={location.id} initialEtaMin={30} />
+          </div>
+        )}
+        {/* Phase 1265: Liefer-Status-Progress — Mehrstufiger farbkodierter Fortschrittsbalken mit ETA */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-2 max-w-lg mx-auto">
+            <Phase1265LieferStatusProgress
+              status="confirmed"
+              etaMin={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+              placedAt={orderSuccess.orderedAt}
+            />
           </div>
         )}
         {/* Phase 1192: Bewertungs-Aufforderung — Auto-Panel nach Lieferung mit 5-Sterne-Bewertung + Kommentar */}

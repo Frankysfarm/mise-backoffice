@@ -14393,3 +14393,48 @@ Phasen 1221–1245 wurden in vorherigen Sessions implementiert und in client.tsx
 3. **Phase 1253 Dispatch:** Zone-Bestelldichte-Live-Overlay — Nutzt Phase-1246-API: Zeigt Zone-Intensität als farbige Badge + Hotspot-Alert im Dispatch-Panel.
 4. **Phase 1254 Fahrer-App:** Navi-Zusammenfassung-Widget — Komprimierte Übersicht aller heutigen Stopps (Adressen + Zeiten + Bewertungen) als scrollbare Karte.
 5. **Phase 1255 Storefront:** Bewertungs-Karussel — Letzte 6 Kundenbewertungen als auto-scrollende Karten (Name + Sterne + Kommentar + Datum).
+
+---
+
+## Batch 1261–1265 — 2026-07-13
+
+### Phase 1261 — Lieferzonen-Gewinn-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/lieferzonen-gewinn/route.ts`
+**GET:** `?location_id=<uuid>` — Umsatz je Zone heute (customer_orders) − geschätzte Fahrtkosten (KOSTEN_PRO_KM × ZONE_KM-Map × Bestellcount) → Gewinn + Effizienz (top/gut/mittel/niedrig nach Gewinn/Bestellung: ≥8/≥5/≥2/<2); Supabase + Mock
+**Response:** `{ zonen[], beste_zone, gesamt_umsatz_eur, gesamt_gewinn_eur, location_id, generiert_am }` · je Zone: `{ zone, umsatz_eur, fahrtkosten_eur, gewinn_eur, bestellungen, gewinn_pro_bestellung, effizienz }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1262 — Wartezeit-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1262-wartezeit-warnung.tsx`
+**Props:** `orders: Order[], schwelleMinuten?: number`
+**UI:** Collapsible amber/rot; nur sichtbar wenn ≥1 fertige Bestellung über Schwelle wartet; je Bestellung: Kundenname + Artikel + Wartezeit-Badge; kritisch (pulsierend) wenn ≥schwelle*2 Min; Warnung wenn ≥schwelle
+**Logik:** FERTIG_STATUS-Set; `minutenWarten(ready_at)` = (now − readyAt) / 60000; levelFor(); useMemo; rein client-seitig
+**Integration:** `kitchen/client.tsx` nach Phase1260 ✅
+
+### Phase 1263 — Fahrer-Auslastungs-Ring (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1263-fahrer-auslastungs-ring.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (slate/grün/amber/rot je Auslastungs-Level); SVG-Ring 112×112 mit Arcs für aktiv (grün) + pausiert (amber) + frei (slate); Auslastungs-% in Mitte; Legende mit Icon + Count; 30s-Polling
+**Logik:** Nutzt Phase1258-API (/api/delivery/admin/kapazitaets-ampel) für Daten; berechnet aktiv/pausiert/frei aus offene_touren + verfuegbare_fahrer; level: ueberlastet≥85/hoch≥65/normal≥35/niedrig; Arc-Überlappungs-Offset korrekt; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1258 ✅
+
+### Phase 1264 — Schicht-Snapshot-Widget (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1264-schicht-snapshot-widget.tsx`
+**Props:** `locationId?: string | null, isOnline: boolean`
+**UI:** Collapsible matcha; 2×2-KPI-Grid (Gesamt-Umsatz, Ø Lieferzeit, Top-Zone, Aktive Fahrer); Stimmungs-Emoji + Top-Fahrer in Footer-Row; isOnline-Guard; 15-Min-Polling
+**Logik:** Nutzt Phase1257-API (/api/delivery/admin/schicht-snapshot); stimmungEmoji-Schwellen (≥4.5/≥3.5/≥2.5); catch→MOCK; Kpi-Sub-Komponente für KPI-Tiles
+**Integration:** `fahrer/app/client.tsx` nach Phase1259 ✅
+
+### Phase 1265 — Liefer-Status-Progress (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1265-liefer-status-progress.tsx`
+**Props:** `status: string, etaMin?: number | null, placedAt?: string | null`
+**UI:** Mehrstufiger farbkodierter Fortschrittsbalken mit 5 Stufen (Bestätigt/Zubereitung/Abholbereit/Unterwegs/Geliefert); aktive Stufe mit Icon + Pulse-Dot + ETA-Anzeige; vergangene Stufen mit Häkchen; zukünftige grau; Connector-Lines zwischen Stufen farblich gefüllt
+**Logik:** `stageIndex(status)` mappt DE+EN Status-Strings; `etaLabel()` berechnet verbleibende Min aus etaMin oder elapsed seit placedAt; props-basiert (keine API)
+**Integration:** `storefront.tsx` nach Phase1207 im orderSuccess-Block ✅
+
+### Nächste Phasen 1266–1270 (für Ingenieur)
+1. **Phase 1266 Backend:** Fahrer-Rückgabe-Quote-API — Anteil Fahrer die nach Tour sofort wieder verfügbar vs. Pause/Offline; Trend Woche; GET /api/delivery/admin/fahrer-rueckkehr-quote.
+2. **Phase 1267 Kitchen:** Bestelleingangs-Takt-Meter — Animierter Zähler der Bestellungen pro Minute (gleitend 5 Min); grün/amber/rot je Takt-Level; Spitzenzeit-Indikator.
+3. **Phase 1268 Dispatch:** Fahrer-Bonus-Tracker — Welcher Fahrer hat diesen Monat wie viele Bonus-Stopps (≥50 Stopps = Bronze, ≥100 = Silber, ≥150 = Gold); Rangliste mit Progress-Bars; 15-Min-Polling.
+4. **Phase 1269 Fahrer-App:** Trinkgeld-Wochenübersicht — Summe + Ø Trinkgeld je Tag der laufenden Woche als Balken-Chart; Trend vs. Vorwoche.
+5. **Phase 1270 Storefront:** Artikel-Beliebtheitsbadge — "Heute bereits X× bestellt" Badge auf den Top-3-Artikeln der letzten 2h; 10-Min-Polling.
