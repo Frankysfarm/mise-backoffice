@@ -219,6 +219,7 @@ import { StorefrontPhase1207DynamischeEtaLiveTracking } from './phase1207-dynami
 import { Phase1215SocialProofBanner } from './phase1215-social-proof-banner';
 import { Phase1220WarenkorbSpeicherBanner } from './phase1220-warenkorb-speicher-banner';
 import { Phase1225LieferfensterAuswahlWidget } from './phase1225-lieferfenster-auswahl-widget';
+import { Phase1235LieferVersprechenBanner } from './phase1235-liefer-versprechen-banner';
 
 type Props = {
   location: Location;
@@ -1138,6 +1139,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <Phase1215SocialProofBanner locationId={location.id} cartEmpty={cart.length === 0} />
       </div>
+      {/* Phase 1235: Liefer-Versprechen-Banner — "In X Min oder Y€ Gutschrift" Transparenz-Banner */}
+      {cart.length === 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1235LieferVersprechenBanner etaMin={deliveryTimeMin ?? 30} locationId={location.id} />
+        </div>
+      )}
       {/* Phase 1220: Warenkorb-Speicher-Banner — Auto-save nach 30s Inaktivität + Wiederherstellungs-Button */}
       <Phase1220WarenkorbSpeicherBanner cart={cart} onRestoreCart={restoreCart} />
       {/* Phase 1225: Lieferfenster-Auswahl-Widget — 30-Min-Slots basierend auf Auslastung */}
