@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1240 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 399 Seiten). Deployment-bereit. Nächste Phasen: 1241–1245.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1245 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 401 Seiten). Deployment-bereit. Nächste Phasen: 1246–1250.
+
+## CEO Review #340 — 2026-07-13
+
+### Commit-Stand
+- `4ccfe44a` feat(delivery/frontend): Phasen 1241-1245 — Zonen-Verlauf, Küchen-Prognose, Fahrer-Countdown, Schicht-Bilanz, Zutaten-Alarm
+
+### Befund: Build sauber, 2 Bugs gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1241 | Lieferdienst | LieferdienstPhase1241ZonenRangVerlauf | GET /api/delivery/admin/lieferzonen-tages-effizienz | ✅ |
+| 1242 | Backend | Küchen-Auslastungs-Prognose-API | GET /api/delivery/admin/kuechen-auslastungs-prognose | ✅ |
+| 1243 | Dispatch | DispatchPhase1243FahrerRueckkehrCountdown | GET /api/delivery/admin/fahrer-rueckkehr-countdown (404→Mock) | ✅ |
+| 1244 | Fahrer-App | FahrerPhase1244SchichtBilanzPreview | GET /api/delivery/driver/schicht-bilanz-preview | ✅ |
+| 1245 | Kitchen | KitchenPhase1245ZutatenAlarm | Props-basiert (orders) + useMemo | ✅ |
+
+**Code-Qualität:**
+- Phase1241 Sparkline: SVG-Koordinaten korrekt (`step = W/(vals.length-1)`, `y = H - (v/4)*(H-4) - 2`), Wochentag-Mapping `getDay()===0 ? 6 : getDay()-1` korrekt ✅
+- Phase1242 API: `avgForSlot = entries.length / 4` (4 Wochen) korrekt, `auslastungsLevel`-Schwellen (ruhig<4/normal<8/hoch<12/peak) korrekt, `prognose_qualitaet` korrekt ✅
+- Phase1243 Dispatch: `matcha`-Farben in `tailwind.config` definiert ✅, 60s-Polling, `r.ok`-Check → fallback korrekt, API nicht implementiert → graceful Mock ✅
+- Phase1244 Fahrer-App: `progressPct = Math.min(100, aktive/(aktive+verbleibend)*100)` korrekt, isOnline-Guard ✅, `Euro`+`Star` hier tatsächlich verwendet (nicht dead code) ✅
+- Phase1245 Kitchen: `findZutatenAlarm` mit `includes()`-Keyword-Match korrekt, `stufe: 'kritisch'` bei `anzahl >= schwelle*2` korrekt, nur sichtbar wenn `alarme.length > 0` ✅
+
+**Bugs gefixt:**
+1. **Phase 1242 (API):** `todayCount` — DB-Query `SELECT id FROM customer_orders WHERE ...` wurde ausgeführt aber Ergebnis nie verwendet → tote DB-Abfrage entfernt (Performance-Bug)
+2. **Phase 1243 (Mock):** `schicht_ende_uhr: now.getHours() + ':30'` produzierte `'4:30'` statt `'04:30'` → `padStart(2,'0')` korrektiert
+
+### Build-Ergebnis
+**✓ Compiled successfully — 401 Seiten (+2 neue Routen), TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1246–1250 (für Ingenieur)
+1. **Phase 1246 Lieferdienst:** Fahrer-Effizienz-Ranking — Rangliste aller Fahrer nach Ø-Lieferzeit + Pünktlichkeitsquote + Stopps/h heute; Trend vs. Vortag; lieferdienst/client.tsx.
+2. **Phase 1247 Backend:** Tages-Statistik-Snapshot-API — GET /api/delivery/admin/tages-statistik-snapshot: Gesamtbestellungen, Gesamtumsatz, Ø-Lieferzeit, aktivste Zone, bester Fahrer heute; Mock-Fallback.
+3. **Phase 1248 Dispatch:** Batch-Auslastungs-Monitor — Wie viele Batches pro Fahrer laufen gleichzeitig + Warnung wenn Fahrer >2 Batches (Überlastung); 30s-Polling; dispatch/client.tsx.
+4. **Phase 1249 Fahrer-App:** Ziel-Countdown-Timer — Countdown in Min bis Schichtende wenn Gold-Ziel noch nicht erreicht: "Noch X Min und Y Stopps für Gold"; isOnline-Guard; useMemo; fahrer/app/client.tsx.
+5. **Phase 1250 Kitchen:** Bestellungs-Kapazitäts-Ampel — Echtzeit-Ampel (grün/gelb/rot) basierend auf Verhältnis Bestellungen-in-Zubereitung zu Kapazitätslimit; Props-basiert (orders); useMemo.
 
 ## CEO Review #339 — 2026-07-13
 

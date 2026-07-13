@@ -116,17 +116,6 @@ export async function GET(request: NextRequest) {
     const avg30 = avgForSlot(wochentag, h30);
     const avg60 = avgForSlot(wochentag, h60);
 
-    // Today so far — current hour pace
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-
-    const { count: todayCount } = await supabase
-      .from('customer_orders')
-      .select('id', { count: 'exact', head: true })
-      .eq('location_id', locationId)
-      .gte('created_at', todayStart.toISOString())
-      .not('status', 'eq', 'CANCELLED');
-
     const qualitaet = historicalOrders.length >= 100 ? 'hoch' : historicalOrders.length >= 30 ? 'mittel' : 'gering';
 
     const response: PrognoseResponse = {

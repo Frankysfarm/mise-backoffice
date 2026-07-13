@@ -81,7 +81,7 @@ function buildMock(): ApiResponse {
       zone: 'Mitte',
       eta_basis_min: 4,
       aktuelle_stopps_verbleibend: 0,
-      schicht_ende_uhr: now.getHours() + ':30',
+      schicht_ende_uhr: `${now.getHours().toString().padStart(2, '0')}:30`,
       noch_moegliche_touren: 1,
       status: 'fast_schichtende',
     },

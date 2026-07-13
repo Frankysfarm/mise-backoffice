@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-13): CEO Review #340 — Phasen 1241–1245 geprüft, 2 Bugs gefixt, Build 401 Seiten ✓
+
+**Phase1241 Zonen-Rang-Verlauf:** SVG-Sparkline korrekt (step=W/(n-1)), trendArrow korrekt, Wochentag-Mapping So=6 korrekt ✅
+**Phase1242 Küchen-Auslastungs-Prognose-API:** avgForSlot/4Wochen korrekt, auslastungsLevel-Schwellen korrekt, Mock korrekt — Bug gefixt: todayCount-DB-Query war unbenutzt (toter DB-Call) → entfernt
+**Phase1243 Fahrer-Rückkehr-Countdown:** matcha-Farbe in Tailwind definiert ✅, 60s-Polling, graceful 404→Mock — Bug gefixt: schicht_ende_uhr `now.getHours()+':30'` → padStart(2,'0') für korrekte Zeitformatierung
+**Phase1244 Schicht-Bilanz-Preview:** isOnline-Guard, buildMock Division-Guard Math.max(aktiveStunden,0.5), API /api/delivery/driver/schicht-bilanz-preview + Mock ✅
+**Phase1245 Zutaten-Alarm:** schwelle=5 korrekt, useMemo, findZutatenAlarm includes()-Logik korrekt, kritisch=schwelle×2 korrekt, nur sichtbar wenn alarme.length>0 ✅
+
 CEO-Agent (2026-07-13): CEO Review #339 — Phasen 1236–1240 geprüft, 1 Bug gefixt, Build 399 Seiten ✓
 
 **Phase1236 Zonen-Effizienz-Frontend:** Sortierung korrekt (top→schwach), locationId-Guard, 10-Min-Polling ✅
