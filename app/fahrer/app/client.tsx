@@ -382,6 +382,7 @@ import { FahrerPhase1254NaviZusammenfassungWidget } from './phase1254-navi-zusam
 import { FahrerPhase1259TagesRangliste } from './phase1259-tages-rangliste';
 import { FahrerPhase1264SchichtSnapshotWidget } from './phase1264-schicht-snapshot-widget';
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
+import { FahrerPhase1269TrinkgeldWochenuebersicht } from './phase1269-trinkgeld-wochenuebersicht';
 
 type Driver = {
   id: string;
@@ -4458,6 +4459,10 @@ export function FahrerApp({
         {/* Phase 1264: Schicht-Snapshot-Widget — Gesamtumsatz, Ø-Lieferzeit, Top-Zone, aktive Fahrer */}
         <div className="px-4">
           <FahrerPhase1264SchichtSnapshotWidget locationId={driver.location_id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1269: Trinkgeld-Wochenübersicht — Summe + Ø je Tag als Balken-Chart + Trend Vorwoche */}
+        <div className="px-4">
+          <FahrerPhase1269TrinkgeldWochenuebersicht driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}

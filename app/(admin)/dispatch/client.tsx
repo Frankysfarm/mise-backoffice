@@ -469,6 +469,7 @@ import { DispatchPhase1253ZoneBestelldichteOverlay } from './phase1253-zone-best
 import { DispatchPhase1258KapazitaetsAmpel } from './phase1258-kapazitaets-ampel';
 import { DispatchPhase1263FahrerAuslastungsRing } from './phase1263-fahrer-auslastungs-ring';
 import { DispatchPhase1003TourVisualisierungPro } from './phase1003-tour-visualisierung-pro';
+import { DispatchPhase1268FahrerBonusTracker } from './phase1268-fahrer-bonus-tracker';
 
 type Driver = {
   employee_id: string;
@@ -1433,6 +1434,8 @@ export function DispatchBoard({
       <DispatchPhase1258KapazitaetsAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1263: Fahrer-Auslastungs-Ring — SVG-Ring aktiv/pausiert/frei + Auslastungs-% */}
       <DispatchPhase1263FahrerAuslastungsRing locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1268: Fahrer-Bonus-Tracker — Monats-Rangliste Bronze/Silber/Gold Stopps */}
+      <DispatchPhase1268FahrerBonusTracker locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}
       <DispatchPhase1003TourVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}

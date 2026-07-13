@@ -223,6 +223,7 @@ import { Phase1235LieferVersprechenBanner } from './phase1235-liefer-versprechen
 import { Phase1250GruppenbestellungBanner } from './phase1250-gruppenbestellung-banner';
 import { Phase1255BewertungsKarussell } from './phase1255-bewertungs-karussell';
 import { Phase1265LieferStatusProgress } from './phase1265-liefer-status-progress';
+import { Phase1270ArtikelBeliebtheitsBadge } from './phase1270-artikel-beliebtheitsbadge';
 
 type Props = {
   location: Location;
@@ -1555,6 +1556,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                             onOpenDetail={() => openDetail(item)}
                             themeId={themeId as any}
                           />
+                          {/* Phase 1270: Artikel-Beliebtheitsbadge — "X× in 2h bestellt" für Top-3 Artikel */}
+                          <div className="mt-1 px-1">
+                            <Phase1270ArtikelBeliebtheitsBadge locationId={location.id} artikelName={item.name ?? ''} />
+                          </div>
                         </div>
                       );
                     })}
