@@ -384,6 +384,7 @@ import { FahrerPhase1264SchichtSnapshotWidget } from './phase1264-schicht-snapsh
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 import { FahrerPhase1269TrinkgeldWochenuebersicht } from './phase1269-trinkgeld-wochenuebersicht';
 import { FahrerPhase1274KraftstoffAkkuTracker } from './phase1274-kraftstoff-akku-tracker';
+import { FahrerPhase1279TourStopNavigationDashboard } from './phase1279-tour-stop-navigation-dashboard';
 
 type Driver = {
   id: string;
@@ -4469,6 +4470,17 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1274KraftstoffAkkuTracker driverId={driver.id} isOnline={isOnline} />
         </div>
+
+        {/* Phase 1279: Tour-Stop Navigation Dashboard — Alle Stopps + GPS-Links (Google/Apple/Waze) + Ankunfts-/Liefer-Buttons */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1279TourStopNavigationDashboard
+              stops={activeBatch.stops as any}
+              batchStartedAt={activeBatch.started_at}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+            />
+          </div>
+        )}
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}
         <div className="px-4">
