@@ -384,7 +384,8 @@ import { FahrerPhase1264SchichtSnapshotWidget } from './phase1264-schicht-snapsh
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 import { FahrerPhase1269TrinkgeldWochenuebersicht } from './phase1269-trinkgeld-wochenuebersicht';
 import { FahrerPhase1274KraftstoffAkkuTracker } from './phase1274-kraftstoff-akku-tracker';
-import { FahrerPhase1279TourStopNavigationDashboard } from './phase1279-tour-stop-navigation-dashboard';
+import { FahrerPhase1279KundenzufriedenheitsSchnellPoll } from './phase1279-kundenzufriedenheits-schnell-poll';
+import { FahrerPhase1284TourStopNavigationDashboard } from './phase1284-tour-stop-navigation-dashboard';
 
 type Driver = {
   id: string;
@@ -4470,11 +4471,15 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1274KraftstoffAkkuTracker driverId={driver.id} isOnline={isOnline} />
         </div>
+        {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
+        <div className="px-4">
+          <FahrerPhase1279KundenzufriedenheitsSchnellPoll driverId={driver.id} isOnline={isOnline} />
+        </div>
 
-        {/* Phase 1279: Tour-Stop Navigation Dashboard — Alle Stopps + GPS-Links (Google/Apple/Waze) + Ankunfts-/Liefer-Buttons */}
+        {/* Phase 1284: Tour-Stop Navigation Dashboard — Alle Stopps + GPS-Links (Google/Apple/Waze) + Ankunfts-/Liefer-Buttons */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
           <div className="px-4">
-            <FahrerPhase1279TourStopNavigationDashboard
+            <FahrerPhase1284TourStopNavigationDashboard
               stops={activeBatch.stops as any}
               batchStartedAt={activeBatch.started_at}
               totalEtaMin={activeBatch.total_eta_min ?? null}
