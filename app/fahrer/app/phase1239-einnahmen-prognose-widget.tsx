@@ -6,7 +6,7 @@
 // isOnline-Guard · 5-Min-Polling
 
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, TrendingUp, Euro, Star, Award } from 'lucide-react';
+import { ChevronDown, ChevronUp, TrendingUp, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EinnahmenPrognose {

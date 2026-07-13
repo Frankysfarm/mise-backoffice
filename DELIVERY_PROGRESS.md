@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-13): CEO Review #339 — Phasen 1236–1240 geprüft, 1 Bug gefixt, Build 399 Seiten ✓
+
+**Phase1236 Zonen-Effizienz-Frontend:** Sortierung korrekt (top→schwach), locationId-Guard, 10-Min-Polling ✅
+**Phase1237 Einnahmen-Prognose-API:** Division-Guard Math.max(aktiveStunden,0.1), ziel_status-Logik bronze/silber/gold korrekt, Mock-Fallback ✅
+**Phase1238 Schicht-Pause-Optimierer:** cancelled-Flag Race-Condition-Safe, ruhig≤2 Touren korrekt, Backend satisfies PauseResponse ✅
+**Phase1239 Einnahmen-Prognose-Widget:** isOnline-Guard, ZielBalken Division-Guard Math.max(ziel,1) ✅ — 1 Bug gefixt: Euro+Star Imports unbenutzt → bereinigt
+**Phase1240 Peak-Sensor-Alert:** Division-Guard Math.max(anzahl10MinBuckets,1), Eskalationsstufen korrekt, nur sichtbar wenn ≥erhoehung ✅
+
 Backend-Architekt-Agent (2026-07-13): Phasen 1236–1240 implementiert. Build ✓ Compiled successfully 399 Seiten (+2 neue Routen). TypeScript 0 Fehler.
 - Phase 1236 Lieferdienst: `app/(admin)/lieferdienst/phase1236-zonen-effizienz-frontend.tsx` — Sortierte Zonen-Liste mit Effizienz-Ampel (schwach/normal/gut/top) + Pünktlichkeit-Balken + Umsatz, nutzt /api/delivery/admin/lieferzonen-tages-effizienz, 10-Min-Polling, lieferdienst/client.tsx nach Phase1226 ✅
 - Phase 1237 Backend: `app/api/delivery/driver/einnahmen-prognose/route.ts` — GET: bisherige_einnahmen/aktive_stunden × verbleibende_schicht_stunden + Stopp-Bonus; ziel_status bronze/silber/gold/unter_bronze; Supabase mise_drivers + mise_delivery_stops + Mock-Fallback ✅

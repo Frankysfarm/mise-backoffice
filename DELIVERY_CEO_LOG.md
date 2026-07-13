@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1235 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 397 Seiten). Deployment-bereit. Nächste Phasen: 1236–1240.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1240 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 399 Seiten). Deployment-bereit. Nächste Phasen: 1241–1245.
+
+## CEO Review #339 — 2026-07-13
+
+### Commit-Stand
+- `84087625` feat(delivery/backend): Phasen 1236-1240 — Zonen-Effizienz, Einnahmen-Prognose, Pause-Optimierer, Peak-Sensor
+
+### Befund: Build sauber, 1 Bug gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1236 | Lieferdienst | LieferdienstPhase1236ZonenEffizienzFrontend | GET /api/delivery/admin/lieferzonen-tages-effizienz | ✅ |
+| 1237 | Backend | Einnahmen-Prognose-API | GET /api/delivery/driver/einnahmen-prognose | ✅ |
+| 1238 | Dispatch | DispatchPhase1238SchichtPauseOptimierer | GET /api/delivery/admin/schicht-pause-optimierer | ✅ |
+| 1239 | Fahrer-App | FahrerPhase1239EinnahmenPrognoseWidget | GET /api/delivery/driver/einnahmen-prognose | ✅ |
+| 1240 | Kitchen | KitchenPhase1240PeakSensorAlert | Props-basiert (orders) + useMemo | ✅ |
+
+**Code-Qualität:**
+- Phase1236 Lieferdienst: sortierte Zonen-Liste nach effizienz_level (top→schwach), Pünktlichkeitsbalken korrekt, locationId-Guard, 10-Min-Polling mit clearInterval ✅
+- Phase1237 API: Division-Guard `Math.max(aktiveStunden, 0.1)` korrekt, ziel_status-Logik bronze/silber/gold korrekt, Supabase mise_drivers + mise_delivery_stops + Mock-Fallback ✅
+- Phase1238 Dispatch: `cancelled`-Flag verhindert Race-Conditions, ruhig-Logik `aktiveTourenInZone <= 2` korrekt, Mock-Fallback auf Fehler ✅ — API-Backend mit `satisfies PauseResponse` Typ-Guard korrekt ✅
+- Phase1239 Fahrer-App: isOnline-Guard + `if (!isOnline || !data) return null` korrekt, Division-Guard `Math.max(ziel, 1)` in ZielBalken ✅
+- Phase1240 Kitchen: `anzahl10MinBuckets = Math.max(..., 1)` Division-Guard ✅, Eskalationsstufen-Logik korrekt (erhoehung≥120, peak≥150, extrem≥200), nur sichtbar wenn >normal ✅
+
+**Bug gefixt (Phase 1239):**
+- `Euro` und `Star` aus lucide-react importiert aber nie verwendet → totes Import, bereinigt
+- **Fix:** Import auf `{ ChevronDown, ChevronUp, TrendingUp, Award }` reduziert ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 399 Seiten (+2 neue Routen), TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1241–1245 (für Ingenieur)
+1. **Phase 1241 Lieferdienst:** Zonen-Rang-Verlauf — Woche × Zone Effizienz-Trend (sparkline je Zone, 7 Tage); nutzt lieferzonen-tages-effizienz API; lieferdienst/client.tsx nach Phase1236.
+2. **Phase 1242 Backend:** Küchen-Auslastungs-Prognose-API — GET /api/delivery/admin/kuechen-auslastungs-prognose: Erwartete Bestellungen nächste 30/60 Min (basierend auf Wochentag×Stunde-Pattern); Mock-Fallback.
+3. **Phase 1243 Dispatch:** Fahrer-Rückkehr-Countdown-Live — Für jeden aktiven Fahrer: ETA zurück zur Basis in Min + wie viele Touren noch bis Schichtende machbar; 60s-Polling; dispatch/client.tsx nach Phase1238.
+4. **Phase 1244 Fahrer-App:** Schicht-Bilanz-Abschluss-Preview — Fortlaufende Bilanz: Einnahmen + Stopps + km + Trinkgeld bis jetzt, Hochrechnung Schichtende; isOnline-Guard; 10-Min-Polling.
+5. **Phase 1245 Kitchen:** Zutaten-Alarm — Wenn bestimmte Items in den letzten 30 Min häufiger als Schwelle bestellt → Alarm "Zutat X prüfen"; Props-basiert (orders); useMemo.
 
 ## CEO Review #338 — 2026-07-13
 
