@@ -404,6 +404,7 @@ import { FahrerPhase1359SchichtZielZusammenfassung } from './phase1359-schicht-z
 import { FahrerPhase1364TourAbschlussZusammenfassung } from './phase1364-tour-abschluss-zusammenfassung';
 import { FahrerPhase1369KundenZufriedenheitsAmpel } from './phase1369-kunden-zufriedenheits-ampel';
 import { FahrerPhase1374SchichtBilanzOverlay } from './phase1374-schicht-bilanz-overlay';
+import { FahrerPhase1379TourStoppNavigationLiveCockpit } from './phase1379-tour-stopp-navigation-live-cockpit';
 
 type Driver = {
   id: string;
@@ -4580,6 +4581,31 @@ export function FahrerApp({
         </div>
         {/* Phase 1374: Schicht-Bilanz-Overlay — Tages-Abrechnung nach Schicht-Ende: Stopps/km/Trinkgeld/Einnahmen/Bewertung + Vortag-Vergleich; localStorage-Guard */}
         <FahrerPhase1374SchichtBilanzOverlay driverId={driver.id} isOnline={isOnline} />
+        {/* Phase 1379: Tour-Stopp Navigation Live-Cockpit — Alle Stopps mit Ampel, GPS-Navigation (Google/Waze), Kunden-Anruf + Geliefert-Button */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1379TourStoppNavigationLiveCockpit
+              batchId={activeBatch.id}
+              stops={activeBatch.stops?.map((s) => ({
+                id: s.id,
+                position: s.reihenfolge,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : 'ausstehend',
+                kunde_name: s.order?.kunde_name ?? null,
+                kunde_adresse: s.order?.kunde_adresse ?? null,
+                kunde_plz: s.order?.kunde_plz ?? null,
+                kunde_lat: s.order?.kunde_lat ?? null,
+                kunde_lng: s.order?.kunde_lng ?? null,
+                kunde_telefon: s.order?.kunde_telefon ?? null,
+                bestellnummer: s.order?.bestellnummer ?? null,
+                gesamtbetrag: s.order?.gesamtbetrag ?? null,
+                zahlungsart: (s.order as any)?.zahlungsart ?? null,
+                notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+              })) ?? []}
+              totalEtaMin={activeBatch.total_eta_min ?? null}
+              batchStartedAt={activeBatch.started_at ?? null}
+            />
+          </div>
+        )}
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">
           <FahrerPhase1350TourStoppNavigatorPlus
