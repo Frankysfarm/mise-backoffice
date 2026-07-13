@@ -129,6 +129,7 @@ import { KitchenPhase1085SmartCountdownFarbkodierungCockpit } from './phase1085-
 import { KitchenPhase1090LiveCountdownWall } from './phase1090-live-countdown-wall';
 import { KitchenPhase1205SmartTimingCockpit } from './phase1205-smart-timing-cockpit';
 import { KitchenPhase1204BestellungsKomplexitaetsHeatmap } from './phase1204-bestellungs-komplexitaets-heatmap';
+import { KitchenPhase1210SmartTimingScoreCockpit } from './phase1210-smart-timing-score-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1148,6 +1149,8 @@ export function KitchenBoard({
       <KitchenPhase1090LiveCountdownWall orders={filtered} timings={timings} />
       {/* Phase 1205: Smart-Timing-Countdown-Cockpit — Echtzeit-Countdown mit 5-stufiger Farbkodierung (Fertig→Grün→Gelb→Orange→Rot→Kritisch) */}
       <KitchenPhase1205SmartTimingCockpit orders={filtered as any} timings={timings as any} />
+      {/* Phase 1210: Smart-Timing-Score-Cockpit — Performance-Ring + 6-stufige Farbkodierung + Kacheln je Bestellung + Überfällig-Alert */}
+      <KitchenPhase1210SmartTimingScoreCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
       <KitchenSmartTimingHub orders={filtered} timings={timings} />
       {/* Kochzeit-Cockpit — Farbkodiertes Countdown-Cockpit mit Sofort-Start-Aktion je Bestellung */}

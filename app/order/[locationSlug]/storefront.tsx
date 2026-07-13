@@ -215,6 +215,7 @@ import { Phase1192BewertungsAufforderung } from './phase1192-bewertungs-aufforde
 import { Phase1197RabattschwellenBanner } from './phase1197-rabattschwellen-banner';
 import { Phase1202WarteschlangenPosition } from './phase1202-warteschlangen-position';
 import { Phase1207LiveKuechenAuslastungsIndikator } from './phase1207-live-kuechen-auslastungs-indikator';
+import { StorefrontPhase1207DynamischeEtaLiveTracking } from './phase1207-dynamische-eta-live-tracking';
 
 type Props = {
   location: Location;
@@ -728,6 +729,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.orderId && (
           <div className="px-4 pb-2 max-w-lg mx-auto">
             <Phase1202WarteschlangenPosition orderId={orderSuccess.orderId} locationId={location.id} />
+          </div>
+        )}
+        {/* Phase 1207: Dynamische ETA + Live-Tracking — 5-Phasen-Timeline mit Echtzeit-Updates & Surge-Warnung */}
+        {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
+          <div className="px-4 pb-2 max-w-lg mx-auto">
+            <StorefrontPhase1207DynamischeEtaLiveTracking orderId={orderSuccess.orderId} locationId={location.id} initialEtaMin={30} />
           </div>
         )}
         {/* Phase 1192: Bewertungs-Aufforderung — Auto-Panel nach Lieferung mit 5-Sterne-Bewertung + Kommentar */}

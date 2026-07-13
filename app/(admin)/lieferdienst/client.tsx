@@ -329,6 +329,7 @@ import { LieferdienstPhase1175SchichtBilanzenVergleich } from './phase1175-schic
 import { LieferdienstPhase1184BestelleingangVerlaufsDashboard } from './phase1184-bestelleingang-verlaufs-dashboard';
 import { LieferdienstPhase1185StatistikenExecutiveKpiDashboard } from './phase1185-statistiken-executive-kpi-dashboard';
 import { LieferdienstPhase1190StatistikKomplettDashboard } from './phase1190-statistik-komplett-dashboard';
+import { LieferdienstPhase1195StatistikenLivePerformanceCockpit } from './phase1195-statistiken-live-performance-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1621,6 +1622,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1185StatistikenExecutiveKpiDashboard locationId={locationId ?? null} />
               {/* Phase 1190: Statistik-Komplett-Dashboard — KPI-Grid + Stunden-Histogramm + Zonen-Rangliste + Trend-Vergleich */}
               <LieferdienstPhase1190StatistikKomplettDashboard locationId={locationId ?? null} />
+              {/* Phase 1195: Statistiken-Live-Performance-Cockpit — KPI-Grid + Stundenverlauf + Trend-Vergleich Heute vs. Gestern */}
+              <LieferdienstPhase1195StatistikenLivePerformanceCockpit locationId={locationId ?? null} />
               {/* Phase 1090: Statistik-Heute-Hub — 6 Kern-KPIs (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}
               <LieferdienstPhase1090StatistikHeuteHub locationId={locationId ?? null} />
               {/* Phase 1003: Liefer-Qualitäts-Scoreboard — Pünktlichkeit, Bewertungen, SLA, Storno als Ampeln */}
