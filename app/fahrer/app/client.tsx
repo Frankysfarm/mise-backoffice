@@ -410,6 +410,7 @@ import { FahrerPhase1388TourStoppNaviUltimate } from './phase1388-tour-stopp-nav
 import { FahrerPhase1393SchichtPauseTimer } from './phase1393-schicht-pause-timer';
 import { FahrerPhase1398KilometerstandQuittung } from './phase1398-kilometerstand-quittung';
 import { FahrerPhase1403SchichtNotiz } from './phase1403-schicht-notiz';
+import { FahrerPhase1408SchichtEnergieCheck } from './phase1408-schicht-energie-check';
 
 type Driver = {
   id: string;
@@ -4653,6 +4654,10 @@ export function FahrerApp({
         {/* Phase 1403: Schicht-Notiz — Vorlagen + Freitext (280Z) + POST /api/driver-app/schicht-notiz; localStorage-Fallback offline */}
         <div className="px-4">
           <FahrerPhase1403SchichtNotiz driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1408: Schicht-Energie-Check — Alle 2h Energielevel 1-5 Eingabe + Empfehlung (Pause/Weiter/Schicht-Ende); isOnline-Guard */}
+        <div className="px-4">
+          <FahrerPhase1408SchichtEnergieCheck driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">

@@ -497,6 +497,7 @@ import { DispatchPhase1387TourScoreEchtzeitHub } from './phase1387-tour-score-ec
 import { DispatchPhase1392FahrerEffizienzMatrixWidget } from './phase1392-fahrer-effizienz-matrix-widget';
 import { DispatchPhase1397SchichtDurchsatzWidget } from './phase1397-schicht-durchsatz-widget';
 import { DispatchPhase1402KitchenStopGapWidget } from './phase1402-kitchen-stop-gap-widget';
+import { DispatchPhase1407FahrerZufriedenheitsDashboard } from './phase1407-fahrer-zufriedenheits-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -1511,6 +1512,8 @@ export function DispatchBoard({
       <DispatchPhase1397SchichtDurchsatzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1402: Küchen-Engpass-Monitor — Artikel-Auslastung vs. Kapazität; Ampel ok/warnung/kritisch; 5-Min-Polling; Phase1400-API */}
       <DispatchPhase1402KitchenStopGapWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1407: Fahrer-Zufriedenheits-Dashboard — Stimmung + Trinkgeld-Trend + Bonus-Fortschritt je Fahrer; 10-Min-Polling */}
+      <DispatchPhase1407FahrerZufriedenheitsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
