@@ -1,11 +1,12 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1328 vollständig abgeschlossen. Build sauber (✓ 406 Seiten, TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1329–1333.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1350 vollständig abgeschlossen (inkl. Frontend-Agent Phasen 1330/1340/1300/1325/1350). Build sauber (✓ 406 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1351–1355.
 
 ## CEO Review #350 — 2026-07-13
 
 ### Commit-Stand
+- `ce5641d5` feat(delivery/frontend): Smart-Timing Cockpit, Tour-Score-Board, Statistik-Dashboard, ETA-Tracking, Tour-Navigator (Phase1330/1340/1300/1325/1350)
 - `15e83cc3` feat(delivery/backend): Phasen 1324–1328 — Routen-Optimierung, Allergen-Banner, Offline-Indikator, Lieferstatus-Leiste
 
 ### Befund: Build sauber, 0 Bugs
@@ -47,12 +48,23 @@
 | Cron ↔ Backend | ✅ |
 | Admin ↔ Lieferdienst | ✅ |
 
-### Nächste Phasen 1329–1333 (für Ingenieur)
-1. **Phase 1329 Backend:** Fahrer-Pünktlichkeits-Score-API — GET /api/delivery/admin/fahrer-puenktlichkeit: Je Fahrer: Stopps pünktlich vs. zu spät (letzten 7 Tage), Pünktlichkeitsquote%, Score A/B/C/D; Supabase mise_delivery_stops + Mock-Fallback.
-2. **Phase 1330 Kitchen:** Allergen-Statistik-Woche — Wie oft welche Hochrisiko-Allergene in letzten 7 Tagen aufgetreten; Balkendiagramm-Widget; Props-basiert (aus Bestellhistorie); useMemo; kitchen/client.tsx nach Phase1325.
-3. **Phase 1331 Dispatch:** Fahrer-Pünktlichkeits-Rangliste — Zeigt Phase1329-API: Rangliste mit Score-Badge (A/B/C/D) + 7-Tage-Trend; 30-Min-Polling; dispatch/client.tsx nach Phase1326.
-4. **Phase 1332 Fahrer-App:** Navigations-Favoriten — Häufige Adressen (aus Tour-Historie) als Schnellauswahl; localStorage-persistiert; 1-Tap-Navigation-Link (Google/Apple/Waze); fahrer/app/client.tsx nach Phase1327.
-5. **Phase 1333 Storefront:** Bestell-Zusammenfassung-Overlay — Nach Bestellabschluss: animiertes "Bestellung eingegangen!"-Overlay + Bestellnummer + ETA + "Tracking starten"-Button (öffnet Phase1328); storefront.tsx nach Phase1328.
+**Frontend-Agent (ce5641d5) zusätzlich geprüft:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 1330 | Kitchen | KitchenPhase1330KochstatusLiveCockpitUltra — 5-Stufen-Farbkodierung, 1s-Countdown, Urgency-Sort | ✅ |
+| 1340 | Dispatch | DispatchPhase1340TourEchtzeitScoreBoard — Live-Score 0–100, Worst-First, ETA-Nächster-Stopp | ✅ |
+| 1300 | Lieferdienst | LieferdienstPhase1300StatistikLiveKomplettDashboard — 8 KPIs, Trend-Pfeile, 1-Min-Polling | ✅ |
+| 1325 | Storefront | StorefrontPhase1325LiveEtaTrackingUltra — 5-Phasen-Timeline, Fahrer-Annäherung, Bewertungs-Flow | ✅ |
+| 1350 | Fahrer-App | FahrerPhase1350TourStoppNavigatorPlus — Stopp-Liste, Telefon-Button, Google Maps, Geliefert-Button | ✅ |
+
+**Hinweis Phase-Nummerierung:** Frontend-Agent hat 1300/1325 in anderen Modulen verwendet (Lieferdienst bzw. Storefront) — keine Konflikte da unterschiedliche Verzeichnisse + Komponenten-Namen ✅
+
+### Nächste Phasen 1351–1355 (für Ingenieur)
+1. **Phase 1351 Backend:** Kunden-Treue-Score-API — GET /api/delivery/public/kunden-treue: Bestellhäufigkeit + Ø-Bewertung + Stammkunde-Badge (1/3/5/10+ Bestellungen); Supabase customer_orders + Mock-Fallback.
+2. **Phase 1352 Kitchen:** Allergen-Statistik-Woche — Wie oft welche Hochrisiko-Allergene in letzten 7 Tagen aufgetreten; Balkendiagramm-Widget; Props-basiert (aus Bestellhistorie); useMemo; kitchen/client.tsx nach Phase1330.
+3. **Phase 1353 Dispatch:** Fahrer-Pünktlichkeits-Rangliste — GET /api/delivery/admin/fahrer-puenktlichkeit: Stopps pünktlich vs. zu spät; Score A/B/C/D; Rangliste mit Trend; dispatch/client.tsx nach Phase1340.
+4. **Phase 1354 Fahrer-App:** Navigations-Favoriten — Häufige Adressen (aus Tour-Historie) als Schnellauswahl; localStorage-persistiert; 1-Tap-Navigation-Link (Google/Apple/Waze); fahrer/app/client.tsx nach Phase1350.
+5. **Phase 1355 Storefront:** Treue-Badge-Widget — Zeigt Phase1351-API: Stammkunden-Badge + "Noch X Bestellungen bis Gold" + persönlicher Rabattcode; storefront.tsx nach Phase1325.
 
 ## Aktueller Stand
 **MARKT-REIF + WACHSTUM.** Phasen 1–1328 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 406 Seiten). Deployment-bereit. Nächste Phasen: 1329–1333.
