@@ -4,7 +4,7 @@
 // Fortschrittsring mit Zubereitungs-Verbleibzeit je aktiver Bestellung + Überfällig-Animation
 // Props: orders (aktive Bestellungen mit prep_time_minutes + started_at) · kein API-Call
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -81,7 +81,7 @@ export function KitchenPhase1295LiveGerichtWartezeitUhr({ orders }: Props) {
   const [tick, setTick] = useState(0);
 
   // Update every second when open
-  useMemo(() => {
+  useEffect(() => {
     if (!open) return;
     const id = setInterval(() => setTick(t => t + 1), 1000);
     return () => clearInterval(id);
