@@ -145,6 +145,7 @@ import { KitchenPhase1002SmartTimingFarbkodierungUltimate } from './phase1002-sm
 import { KitchenPhase1325SmartKochzeitCountdownUltra } from './phase1325-smart-kochzeit-countdown-ultra';
 import { KitchenPhase1325AllergenWarnBanner } from './phase1325-allergen-warn-banner';
 import { KitchenPhase1330KochstatusLiveCockpitUltra } from './phase1330-kochstatus-live-cockpit-ultra';
+import { KitchenPhase1352AllergenStatistikWoche } from './phase1352-allergen-statistik-woche';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1239,6 +1240,8 @@ export function KitchenBoard({
       <KitchenPhase1325SmartKochzeitCountdownUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1325b: Allergen-Warn-Banner — Hochrisiko-Allergen-Erkennung (Nüsse/Schalentiere/Gluten) + Bestätigungs-Pflicht-Popup */}
       <KitchenPhase1325AllergenWarnBanner orders={filtered as any} />
+      {/* Phase 1352: Allergen-Statistik-Woche — Häufigkeit Hochrisiko-Allergene letzte 7 Tage als Balkendiagramm */}
+      <KitchenPhase1352AllergenStatistikWoche orders={filtered as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

@@ -236,6 +236,7 @@ import { Phase1323BestellstatusPushBanner } from './phase1323-bestellstatus-push
 import { StorefrontPhase1315DynamischeEtaLiveUltra } from './phase1315-dynamische-eta-live-ultra';
 import { Phase1328LieferstatusFortschrittsLeiste } from './phase1328-lieferstatus-fortschritts-leiste';
 import { StorefrontPhase1325LiveEtaTrackingUltra } from './phase1325-live-eta-tracking-ultra';
+import { StorefrontPhase1355TreueBadgeWidget } from './phase1355-treue-badge-widget';
 
 type Props = {
   location: Location;
@@ -1183,6 +1184,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           locationId={location.id}
           orderId={activeOrderId}
         />
+      </div>
+      {/* Phase 1355: Treue-Badge-Widget — Stammkunden-Badge (Bronze/Silber/Gold/Platin) + "Noch X bis nächste Stufe" + Rabattcode */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <StorefrontPhase1355TreueBadgeWidget locationId={location.id} customerEmail={null} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

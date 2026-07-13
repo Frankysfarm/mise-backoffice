@@ -399,6 +399,7 @@ import { FahrerPhase1313SmartTourNavigatorUltra } from './phase1313-smart-tour-n
 import { FahrerPhase1345TourStoppNavigatorUltimate } from './phase1345-tour-stopp-navigator-ultimate';
 import { FahrerPhase1327OfflineModusIndikator } from './phase1327-offline-modus-indikator';
 import { FahrerPhase1350TourStoppNavigatorPlus } from './phase1350-tour-stopp-navigator-plus';
+import { FahrerPhase1354NavigationsFavoriten } from './phase1354-navigations-favoriten';
 
 type Driver = {
   id: string;
@@ -4559,6 +4560,10 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1354: Navigations-Favoriten — Häufige Adressen als 1-Tap-Schnellauswahl; localStorage; Google/Apple/Waze */}
+        <div className="px-4">
+          <FahrerPhase1354NavigationsFavoriten driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">
           <FahrerPhase1350TourStoppNavigatorPlus
