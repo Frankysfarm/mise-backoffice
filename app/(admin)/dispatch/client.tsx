@@ -494,6 +494,7 @@ import { DispatchPhase1373SpitzenzeitPrognoseWidget } from './phase1373-spitzenz
 import { DispatchPhase1378ScoreAnzeigeTourVisualisierung } from './phase1378-score-anzeige-tour-visualisierung';
 import { DispatchPhase1383LieferQualitaetsIndexWidget } from './phase1383-liefer-qualitaets-index-widget';
 import { DispatchPhase1387TourScoreEchtzeitHub } from './phase1387-tour-score-echtzeit-hub';
+import { DispatchPhase1392FahrerEffizienzMatrixWidget } from './phase1392-fahrer-effizienz-matrix-widget';
 
 type Driver = {
   employee_id: string;
@@ -1502,6 +1503,8 @@ export function DispatchBoard({
       <DispatchPhase1383LieferQualitaetsIndexWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1387: Tour-Score Echtzeit-Hub — Ø Score Tacho-Ring + Tour-Karten mit Stop-Sequenz, Fortschrittsbalken, ETA-Ampel und Ranking */}
       <DispatchPhase1387TourScoreEchtzeitHub drivers={drivers} batches={batches} orders={readyOrders} />
+      {/* Phase 1392: Fahrer-Effizienz-Matrix-Widget — Heatmap Fahrer × Wochentag: Pünktlichkeit/km-pro-Stopp/Trinkgeld; Spalten-Summen; 15-Min-Polling */}
+      <DispatchPhase1392FahrerEffizienzMatrixWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}

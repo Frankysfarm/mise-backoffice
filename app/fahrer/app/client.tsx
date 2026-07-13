@@ -407,6 +407,7 @@ import { FahrerPhase1374SchichtBilanzOverlay } from './phase1374-schicht-bilanz-
 import { FahrerPhase1379TourStoppNavigationLiveCockpit } from './phase1379-tour-stopp-navigation-live-cockpit';
 import { FahrerPhase1384LiveEinnahmenTicker } from './phase1384-live-einnahmen-ticker';
 import { FahrerPhase1388TourStoppNaviUltimate } from './phase1388-tour-stopp-navi-ultimate';
+import { FahrerPhase1393SchichtPauseTimer } from './phase1393-schicht-pause-timer';
 
 type Driver = {
   id: string;
@@ -4639,6 +4640,10 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1393: Schicht-Pause-Timer — Pause starten/beenden mit Zeitprotokoll + REST-Aufruf; isOnline-Guard */}
+        <div className="px-4">
+          <FahrerPhase1393SchichtPauseTimer driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">
           <FahrerPhase1350TourStoppNavigatorPlus
