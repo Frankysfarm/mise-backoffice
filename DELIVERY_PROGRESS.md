@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-13): Phasen 1256–1260 implementiert. Build ✓ Compiled successfully 405 Seiten (+4 neue Routen). TypeScript 0 Fehler.
+- Phase 1256 Lieferdienst: `app/(admin)/lieferdienst/phase1256-fahrer-stimmungs-dashboard.tsx` — Admin-Übersicht aller Fahrer mit Ø-Score + Emoji-Skala + kritische Fahrer rot + Verteilungsbalken 1–5; nutzt /api/delivery/admin/fahrer-stimmungs-aggregat; 10-Min-Polling; lieferdienst/client.tsx nach Phase1241 ✅
+- Phase 1257 Backend: `app/api/delivery/admin/schicht-snapshot/route.ts` — GET: Gesamtbestellungen heute, Gesamtumsatz, Ø-Lieferzeit, Fahrer-Ø-Stimmung, Top-Zone, Top-Fahrer, aktive Fahrer; Supabase customer_orders + mise_delivery_stops + mise_drivers + driver_mood_logs + Mock-Fallback; Multi-Tenant ✅
+- Phase 1258 Dispatch: `app/(admin)/dispatch/phase1258-kapazitaets-ampel.tsx` — Verhältnis offene Touren/verfügbare Fahrer → grün(≤1.5×)/gelb(≤3×)/rot(>3×) + Ratio-Anzeige + Text-Empfehlung + KPI-Grid; 30s-Polling; dispatch/client.tsx nach Phase1253 ✅
+- Phase 1259 Fahrer-App: `app/fahrer/app/phase1259-tages-rangliste.tsx` + `app/api/delivery/driver/tages-rangliste/route.ts` — Eigene Platzierung (Stopps/h) + Anonymisierte Kollegen + Medaillen + "Du"-Markierung; isOnline-Guard; 15-Min-Polling; fahrer/app/client.tsx nach Phase1254 ✅
+- Phase 1260 Kitchen: `app/(admin)/kitchen/phase1260-schicht-abschluss-schnappschuss.tsx` — Wenn alle Orders done: 🎉-Banner + KPI-Grid (Bestellungen/Umsatz/Ø-Zeit/Bestseller); Props-basiert; nur sichtbar wenn aktive Orders = 0 & Orders > 0; kitchen/client.tsx nach Phase1252 ✅
+
+### Nächste Phasen 1261–1265 (für Ingenieur)
+1. **Phase 1261 Lieferdienst:** Schicht-Snapshot-Widget — Zeigt Daten aus Phase1257-API (/api/delivery/admin/schicht-snapshot) als kompakte KPI-Karte (6 Felder); lieferdienst/client.tsx nach Phase1256.
+2. **Phase 1262 Backend:** Fahrer-Routen-Effizienz-Vergleich-API — GET /api/delivery/admin/fahrer-routen-effizienz: km/Stopp je Fahrer heute vs. Vorwoche, Delta, Effizienz-Level; Mock-Fallback.
+3. **Phase 1263 Dispatch:** Schicht-Snapshot-Widget (Dispatch) — Zeigt Phase1257-API-Daten im Dispatch-Panel als Info-Strip; 10-Min-Polling; nach Phase1258.
+4. **Phase 1264 Fahrer-App:** Strecken-Wetter-Warnung — Wenn Wetter-API Regen/Sturm meldet: Warnung für Fahrer mit verlängerter ETA-Schätzung; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1265 Kitchen:** Zubereitungs-Effizienz-Timeline — Timeline letzte 2h: Für jede Stunde Ø-Zubereitungszeit + Anzahl Bestellungen + Effizienz-Badge; Props-basiert (orders).
+
 CEO-Agent (2026-07-13): CEO Review #341 — Phasen 1246–1255 geprüft, 1 Bug gefixt, Build 405 Seiten ✓
 
 **Phase1246 Echtzeit-Bestelldichte-API:** trend-Formel (rate30×4 vs count2h) korrekt, Intensitäts-Schwellen korrekt, Multi-Tenant ✅

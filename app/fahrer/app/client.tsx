@@ -379,6 +379,7 @@ import { FahrerPhase1239EinnahmenPrognoseWidget } from './phase1239-einnahmen-pr
 import { FahrerPhase1244SchichtBilanzPreview } from './phase1244-schicht-bilanz-preview';
 import { FahrerPhase1249SchichtStimmungsTracker } from './phase1249-schicht-stimmungs-tracker';
 import { FahrerPhase1254NaviZusammenfassungWidget } from './phase1254-navi-zusammenfassung-widget';
+import { FahrerPhase1259TagesRangliste } from './phase1259-tages-rangliste';
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 
 type Driver = {
@@ -4448,6 +4449,10 @@ export function FahrerApp({
         {/* Phase 1254: Navi-Zusammenfassung-Widget — scrollbare Karten aller heutigen Stopps */}
         <div className="px-4">
           <FahrerPhase1254NaviZusammenfassungWidget driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1259: Tages-Rangliste — eigene Platzierung (Stopps/h) vs. anonymisierte Kollegen */}
+        <div className="px-4">
+          <FahrerPhase1259TagesRangliste driverId={driver.id} isOnline={isOnline} locationId={driver.location_id} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}

@@ -139,6 +139,7 @@ import { KitchenPhase1240PeakSensorAlert } from './phase1240-peak-sensor-alert';
 import { KitchenPhase1245ZutatenAlarm } from './phase1245-zutaten-alarm';
 import { KitchenPhase1247MultiPostenKoordinationAlert } from './phase1247-multi-posten-koordination-alert';
 import { KitchenPhase1252TischZubereitungsCockpit } from './phase1252-tisch-zubereitungs-cockpit';
+import { KitchenPhase1260SchichtAbschlussSchnappschuss } from './phase1260-schicht-abschluss-schnappschuss';
 import { KitchenPhase1002SmartTimingFarbkodierungUltimate } from './phase1002-smart-timing-farbkodierung-ultimate';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -1179,6 +1180,8 @@ export function KitchenBoard({
       <KitchenPhase1247MultiPostenKoordinationAlert orders={filtered as any} />
       {/* Phase 1252: Tisch-Zubereitungs-Cockpit — Parallel-Items + belegte Stationen */}
       <KitchenPhase1252TischZubereitungsCockpit orders={filtered as any} />
+      {/* Phase 1260: Schicht-Abschluss-Schnappschuss — Wenn alle Orders fertig: Zusammenfassung */}
+      <KitchenPhase1260SchichtAbschlussSchnappschuss orders={filtered as any} />
       {/* Phase 1002: Smart-Timing-Farbkodierung-Ultimate — 5-Stufen-Farbskala (Optimal/Normal/Dringend/Kritisch/Überfällig) + Kochstart-Kommando */}
       <KitchenPhase1002SmartTimingFarbkodierungUltimate orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

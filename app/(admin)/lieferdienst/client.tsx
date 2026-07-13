@@ -334,6 +334,7 @@ import { LieferdienstPhase1226TourGewinnUebersicht } from './phase1226-tour-gewi
 import { LieferdienstPhase1200StatistikenTagesabschlussExecutive } from './phase1200-statistiken-tagesabschluss-executive';
 import { LieferdienstPhase1236ZonenEffizienzFrontend } from './phase1236-zonen-effizienz-frontend';
 import { LieferdienstPhase1241ZonenRangVerlauf } from './phase1241-zonen-rang-verlauf';
+import { LieferdienstPhase1256FahrerStimmungsDashboard } from './phase1256-fahrer-stimmungs-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1634,6 +1635,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1236ZonenEffizienzFrontend locationId={locationId ?? null} />
               {/* Phase 1241: Zonen-Rang-Verlauf — Sparkline je Zone über 7 Tage + Trend-Pfeile */}
               <LieferdienstPhase1241ZonenRangVerlauf locationId={locationId ?? null} />
+              {/* Phase 1256: Fahrer-Stimmungs-Dashboard — Ø-Score + kritische Fahrer + Verteilungsbalken */}
+              <LieferdienstPhase1256FahrerStimmungsDashboard locationId={locationId ?? null} />
               {/* Phase 1200: Statistiken-Tagesabschluss-Executive — KPI-Grid + Top-Fahrer + Aktivste Zone + Umsatz-Tagesvergleich-Balken */}
               <LieferdienstPhase1200StatistikenTagesabschlussExecutive locationId={locationId ?? null} />
               {/* Phase 1090: Statistik-Heute-Hub — 6 Kern-KPIs (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}
