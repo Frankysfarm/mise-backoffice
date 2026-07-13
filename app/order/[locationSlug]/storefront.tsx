@@ -221,6 +221,7 @@ import { Phase1220WarenkorbSpeicherBanner } from './phase1220-warenkorb-speicher
 import { Phase1225LieferfensterAuswahlWidget } from './phase1225-lieferfenster-auswahl-widget';
 import { Phase1235LieferVersprechenBanner } from './phase1235-liefer-versprechen-banner';
 import { Phase1250GruppenbestellungBanner } from './phase1250-gruppenbestellung-banner';
+import { Phase1255BewertungsKarussell } from './phase1255-bewertungs-karussell';
 
 type Props = {
   location: Location;
@@ -1154,6 +1155,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           cartEmpty={cart.length === 0}
         />
       </div>
+      {/* Phase 1255: Bewertungs-Karussell — letzte 6 Kundenbewertungen auto-scrollend */}
+      {cart.length === 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <Phase1255BewertungsKarussell locationId={location.id} />
+        </div>
+      )}
       {/* Phase 1220: Warenkorb-Speicher-Banner — Auto-save nach 30s Inaktivität + Wiederherstellungs-Button */}
       <Phase1220WarenkorbSpeicherBanner cart={cart} onRestoreCart={restoreCart} />
       {/* Phase 1225: Lieferfenster-Auswahl-Widget — 30-Min-Slots basierend auf Auslastung */}
