@@ -249,6 +249,7 @@ import { StorefrontPhase1399BestellstatusLiveTicker } from './phase1399-bestells
 import { StorefrontPhase1404AngebotsCountdownBanner } from './phase1404-angebots-countdown-banner';
 import { StorefrontPhase1409BestUebersichtMiniatur } from './phase1409-bestell-uebersicht-miniatur';
 import { StorefrontPhase1414LiveWarteschlangenIndikator } from './phase1414-live-warteschlangen-indikator';
+import { StorefrontPhase1419LieferEtaVerfeinerungsBadge } from './phase1419-liefer-eta-verfeinerungs-badge';
 
 type Props = {
   location: Location;
@@ -1281,6 +1282,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <StorefrontPhase1414LiveWarteschlangenIndikator locationId={location.id} />
         </div>
       )}
+      {/* Phase 1419: Liefer-ETA-Verfeinerungs-Badge — verfeinerte ETA-Anzeige (Wetter/Queue/Fahrer) als Inline-Pill; 5-Min-Polling */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <StorefrontPhase1419LieferEtaVerfeinerungsBadge locationId={location.id} />
+      </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}

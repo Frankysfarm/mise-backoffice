@@ -14835,3 +14835,58 @@ Alle Phasen 1271–1275 geprüft + integriert. Nächste Phasen: 1276–1280.
 ---
 
 Backend-Architekt-Agent (2026-07-13): Phasen 1410–1414 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 1415–1419 — 2026-07-13
+
+### Phase 1415 — Schicht-Abschluss-Report-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-abschluss-report/route.ts`
+**GET:** `?location_id=<uuid>&date=YYYY-MM-DD` — Gesamt-Umsatz + Liefergebühren + Bestellungen (gesamt/geliefert/storniert) + Ø Lieferzeit + SLA-Einhaltung % + Fahrer-Score-Zusammenfassung + Top-Zone + Peak-Stunde; Supabase + Mock
+**Response:** `{ ok, report: SchichtAbschlussReport }` · Multi-Tenant: alle Queries filtern location_id ✅
+**Status:** API bereits vorhanden (vorige Iteration), verifiziert ✅
+
+### Phase 1416 — Zubereitungs-Zeiten-Histogramm (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1416-zubereitungs-zeiten-histogramm.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible violet; 7 Balken (5-Min-Buckets: 0–5/5–10/10–15/15–20/20–25/25–30/30+); Farb-Kodierung: emerald(schnell)/sky(normal)/amber(langsam)/rose(sehr langsam); Ø-Minuten + Gesamtzahl im Header; Balken-Höhe proportional zu max-Count; rein client-seitig useMemo
+**Logik:** accepted_at→ready_at Differenz; fallback created_at; Status preparing → now als Endpunkt; Max 50 Bestellungen; < 120 Min Filter
+**Integration:** `kitchen/client.tsx` nach Phase1410 ✅
+
+### Phase 1417 — ETA-Verfeinerungs-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1417-eta-verfeinerungs-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (grün=normal/amber=erhoecht/rose=hoch); 2-Kacheln-Grid (Basis-ETA / Verfeinert mit Delta-Trend-Icon); Faktoren-Aufschlüsselung (Wetter/Queue/Fahrer) mit Farbkodierung; Hinweis-Banner; 5-Min-Polling
+**API:** Nutzt Phase1410-API `/api/delivery/public/eta-verfeinert`; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1410TourScoreBenchmark ✅
+
+### Phase 1418 — Schicht-Wetter-Check (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1418-schicht-wetter-check.tsx`
+**Props:** `driverId: string, isOnline: boolean, locationId?: string`
+**UI:** Collapsible (sky=regen/rose=sturm/slate=wind/emerald=klar); Großes Icon + Beschreibungstext; Extra-Minuten-Kachel mit Puffer-Hinweis; isOnline-Guard; 15-Min-Polling
+**API:** GET `/api/delivery/public/wetter-status?location_id=...`; nur sichtbar wenn aktiv=true; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1413 ✅
+
+### Phase 1419 — Liefer-ETA-Verfeinerungs-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1419-liefer-eta-verfeinerungs-badge.tsx`
+**Props:** `locationId: string`
+**UI:** Kompaktes Inline-Pill-Badge (grün=normal/amber=erhoecht/rose=hoch) mit pulsierendem Dot; "ca. X Min" + Delta-Pfeil; nur sichtbar wenn API-Daten vorhanden; 5-Min-Polling
+**API:** Nutzt Phase1410-API `/api/delivery/public/eta-verfeinert`; silent Fallback (kein Badge bei Fehler)
+**Integration:** `storefront.tsx` nach Phase1414 immer sichtbar ✅
+
+### Migration
+**Datei:** `scripts/migrations/226_eta_refinement_phase1415_1419.sql`
+- zubereitungs_zeiten_log — Zubereitungszeiten für Histogramm-Aggregation
+- eta_verfeinerungs_snapshots — ETA-Verfeinerungs-Verlauf
+- fahrer_wetter_log — Wetter-Log für Fahrer-App
+
+### Nächste Phasen 1420–1424 (für Ingenieur)
+1. **Phase 1420 Backend:** Fahrer-Pünktlichkeits-Trend-API — GET /api/delivery/admin/fahrer-puenktlichkeits-trend: Anteil pünktlicher Lieferungen je Fahrer letzter 7 Tage vs. Vorwoche + Trend.
+2. **Phase 1421 Kitchen:** Bestellmengen-Verlauf-Karte — Stundenweise Balken der heutigen Bestellungen (0-23h) + Peak-Stunde-Markierung; Props-basiert.
+3. **Phase 1422 Dispatch:** Fahrer-Pünktlichkeits-Trend-Widget — Zeigt Phase1420-API: Balken je Fahrer + Trend-Icon; 10-Min-Polling.
+4. **Phase 1423 Fahrer-App:** Live-Storno-Warnung — Alert wenn eigene Stornoquote heute >10%; isOnline-Guard; 15-Min-Polling.
+5. **Phase 1424 Storefront:** Lieferzonen-Info-Badge — Kompakte Anzeige ob Lieferadresse in Zone A/B/C/D liegt + ETA-Hinweis; locationId-basiert.
+
+---
+
+Backend-Architekt-Agent (2026-07-13): Phasen 1415–1419 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
