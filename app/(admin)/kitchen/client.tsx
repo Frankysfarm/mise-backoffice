@@ -444,6 +444,7 @@ import { KitchenPhase1406LiveBestellmengenTicker } from './phase1406-live-bestel
 import { KitchenPhase1411AllergenSchnellAmpel } from './phase1411-allergen-schnell-ampel';
 import { KitchenPhase1410SmartDeadlineSyncCockpit } from './phase1410-smart-deadline-sync-cockpit';
 import { KitchenPhase1416ZubereitungsZeitenHistogramm } from './phase1416-zubereitungs-zeiten-histogramm';
+import { KitchenPhase1421SchichtUebergabeCheckliste } from './phase1421-schicht-uebergabe-checkliste';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1284,6 +1285,8 @@ export function KitchenBoard({
       <KitchenPhase1410SmartDeadlineSyncCockpit orders={filtered} timings={timings} />
       {/* Phase 1416: Zubereitungs-Zeiten-Histogramm — Verteilung 5-Min-Buckets der letzten 50 Bestellungen; Props-basiert */}
       <KitchenPhase1416ZubereitungsZeitenHistogramm orders={filtered as any} />
+      {/* Phase 1421: Schicht-Übergabe-Checkliste — Offene Bestellungen mit Wartezeit-Farbkodierung für reibungslosen Schichtwechsel */}
+      <KitchenPhase1421SchichtUebergabeCheckliste orders={filtered as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

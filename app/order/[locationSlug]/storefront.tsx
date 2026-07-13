@@ -250,6 +250,7 @@ import { StorefrontPhase1404AngebotsCountdownBanner } from './phase1404-angebots
 import { StorefrontPhase1409BestUebersichtMiniatur } from './phase1409-bestell-uebersicht-miniatur';
 import { StorefrontPhase1414LiveWarteschlangenIndikator } from './phase1414-live-warteschlangen-indikator';
 import { StorefrontPhase1419LieferEtaVerfeinerungsBadge } from './phase1419-liefer-eta-verfeinerungs-badge';
+import { StorefrontPhase1424NaechsteLieferungHinweis } from './phase1424-naechste-lieferung-hinweis';
 
 type Props = {
   location: Location;
@@ -1285,6 +1286,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1419: Liefer-ETA-Verfeinerungs-Badge — verfeinerte ETA-Anzeige (Wetter/Queue/Fahrer) als Inline-Pill; 5-Min-Polling */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <StorefrontPhase1419LieferEtaVerfeinerungsBadge locationId={location.id} />
+      </div>
+      {/* Phase 1424: Nächste-Lieferung-Hinweis — schließbares Banner "Nächste Lieferung in ~X Min"; 5-Min-Polling; nur wenn eta<20 */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <StorefrontPhase1424NaechsteLieferungHinweis locationId={location.id} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

@@ -501,6 +501,7 @@ import { DispatchPhase1407FahrerZufriedenheitsDashboard } from './phase1407-fahr
 import { DispatchPhase1412SchichtProduktivitaetsCockpit } from './phase1412-schicht-produktivitaets-cockpit';
 import { DispatchPhase1410TourScoreBenchmark } from './phase1410-tour-score-benchmark';
 import { DispatchPhase1417EtaVerfeinerungsWidget } from './phase1417-eta-verfeinerungs-widget';
+import { DispatchPhase1422SchichtUebergabeDashboard } from './phase1422-schicht-uebergabe-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -1523,6 +1524,8 @@ export function DispatchBoard({
       <DispatchPhase1410TourScoreBenchmark locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1417: ETA-Verfeinerungs-Widget — Basis vs. verfeinerte ETA + Wetter/Queue/Fahrer-Faktoren; 5-Min-Polling */}
       <DispatchPhase1417EtaVerfeinerungsWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1422: Schicht-Übergabe-Dashboard — Queue + Fahrer + Alarme + Empfehlung für Schichtwechsel; 10-Min-Polling */}
+      <DispatchPhase1422SchichtUebergabeDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
