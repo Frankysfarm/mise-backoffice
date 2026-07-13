@@ -245,6 +245,7 @@ import { StorefrontPhase1380DynamischeEtaLiveTrackingCockpit } from './phase1380
 import { StorefrontPhase1385WetterLieferzeitHinweis } from './phase1385-wetter-lieferzeit-hinweis';
 import { StorefrontPhase1389LiveTrackingEtaCockpit } from './phase1389-live-tracking-eta-cockpit';
 import { StorefrontPhase1394BestellhistorieSchnellreorder } from './phase1394-bestellhistorie-schnellreorder';
+import { StorefrontPhase1399BestellstatusLiveTicker } from './phase1399-bestellstatus-live-ticker';
 
 type Props = {
   location: Location;
@@ -1250,6 +1251,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           }}
         />
       </div>
+      {/* Phase 1399: Bestellstatus-Live-Ticker — 4-Phasen-Progress-Strip + Sekunden-Countdown; verschwindet nach Lieferung; 30s-Polling */}
+      {activeOrderId && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <StorefrontPhase1399BestellstatusLiveTicker
+            orderId={activeOrderId}
+            locationId={location.id}
+            initialStatus={orderSuccess?.type === 'lieferung' ? 'in_zubereitung' : 'neu'}
+            initialEtaMin={orderSuccess?.eta ?? undefined}
+          />
+        </div>
+      )}
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}

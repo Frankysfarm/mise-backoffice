@@ -438,6 +438,7 @@ import { KitchenPhase1312SmartTimingCountdownUltra } from './phase1312-smart-tim
 import { KitchenPhase1320RezeptSkalierungsHelfer } from './phase1320-rezept-skalierungs-helfer';
 import { KitchenPhase1386SmartTimingCountdownCockpit } from './phase1386-smart-timing-countdown-cockpit';
 import { KitchenPhase1391RestmengeFruehwarnung } from './phase1391-restmenge-fruehwarnung';
+import { KitchenPhase1396ArtikelSyncMonitor } from './phase1396-artikel-sync-monitor';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1266,6 +1267,8 @@ export function KitchenBoard({
       <KitchenPhase1386SmartTimingCountdownCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1391: Restmenge-Frühwarnung — Artikel deren Queue in <30min erschöpft (Hochrechnung) + Alarm-Bell */}
       <KitchenPhase1391RestmengeFruehwarnung orders={filtered as any} />
+      {/* Phase 1396: Artikel-Sync-Monitor — Top-10 gleichzeitig benötigte Artikel; Ampel Grün/Gelb/Rot nach Anzahl paralleler Bestellungen */}
+      <KitchenPhase1396ArtikelSyncMonitor orders={filtered as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
