@@ -341,6 +341,7 @@ import { LieferdienstPhase1276SchichtAuslastungsHeatmap } from './phase1276-schi
 import { LieferdienstPhase1281FahrerFeedbackUebersicht } from './phase1281-fahrer-feedback-uebersicht';
 import { LieferdienstPhase1286SchichtKostenWidget } from './phase1286-schicht-kosten-widget';
 import { LieferdienstPhase1291SchichtStatistikenMasterDashboard } from './phase1291-schicht-statistiken-master-dashboard';
+import { LieferdienstPhase1292StatistikenMegaDashboard } from './phase1292-statistiken-mega-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1655,6 +1656,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1286SchichtKostenWidget locationId={locationId ?? null} />
               {/* Phase 1291: Schicht-Statistiken-Master-Dashboard — Umsatz/Lieferungen/Fahrer/Zonen/Trinkgeld/Storno mit Ziel-Fortschrittsbalken; 10-Min-Polling */}
               <LieferdienstPhase1291SchichtStatistikenMasterDashboard locationId={locationId ?? null} />
+              {/* Phase 1292: Statistiken-Mega-Dashboard — 6 KPI-Kacheln + Stunden-Chart + Zonen-Tabelle + Trend-Indikatoren */}
+              <LieferdienstPhase1292StatistikenMegaDashboard locationId={locationId ?? null} />
               {/* Phase 1200: Statistiken-Tagesabschluss-Executive — KPI-Grid + Top-Fahrer + Aktivste Zone + Umsatz-Tagesvergleich-Balken */}
               <LieferdienstPhase1200StatistikenTagesabschlussExecutive locationId={locationId ?? null} />
               {/* Phase 1090: Statistik-Heute-Hub — 6 Kern-KPIs (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}

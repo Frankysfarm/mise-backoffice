@@ -394,6 +394,7 @@ import { FahrerPhase1307SchichtPauseEmpfehlung } from './phase1307-schicht-pause
 import { FahrerPhase1312TagesZielFortschritt } from './phase1312-tages-ziel-fortschritt';
 import { FahrerPhase1310LiveStoppNavigator } from './phase1310-live-stopp-navigator';
 import { FahrerPhase1317SchichtEinnahmenTracker } from './phase1317-schicht-einnahmen-tracker';
+import { FahrerPhase1313SmartTourNavigatorUltra } from './phase1313-smart-tour-navigator-ultra';
 
 type Driver = {
   id: string;
@@ -2104,6 +2105,26 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 1313: Smart-Tour-Navigator-Ultra — Mobil-optimierter Tour-Stopp-Navigator mit Echtzeit-ETA + Navigations-CTA */}
+          {activeBatch && (
+            <div className="px-4">
+              <FahrerPhase1313SmartTourNavigatorUltra
+                stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                  id: s.id,
+                  order_id: s.order_id,
+                  address: s.kunde_adresse ?? s.address ?? '',
+                  lat: s.lat ?? null,
+                  lng: s.lng ?? null,
+                  status: s.geliefert_am ? 'done' : s.angekommen_am ? 'arrived' : 'pending',
+                  sequence: s.reihenfolge ?? i,
+                  customer_name: s.kunde_name ?? null,
+                  eta_min: s.eta_min ?? null,
+                }))}
+                currentStopIndex={(activeBatch.stops ?? []).findIndex((s: any) => !s.geliefert_am)}
+                driverPos={driverPos}
               />
             </div>
           )}
