@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-13): Phasen 1356–1360 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
+- Phase 1356 Backend: `app/api/delivery/admin/bestellungs-durchsatz/route.ts` — GET: Bestellungen/h heute + gestern, Peak-Stunde, Prognose nächste 2h; Supabase + Mock-Fallback ✅
+- Phase 1357 Kitchen: `app/(admin)/kitchen/phase1357-bestellungs-durchsatz-monitor.tsx` — Stunden-Balken heute vs. gestern + Peak-Indikator + Prognose nächste 2h; 5-Min-Polling; nach Phase1352 ✅
+- Phase 1358 Dispatch: `app/(admin)/dispatch/phase1358-tour-effizienz-rangliste.tsx` — Aktive Touren sortiert nach Effizienz-Score (Stopps/h × Pünktlichkeit); Ampel grün/gelb/rot + KPI-Grid; 5-Min-Polling; nach Phase1353 ✅
+- Phase 1359 Fahrer-App: `app/fahrer/app/phase1359-schicht-ziel-zusammenfassung.tsx` — Schicht-Ende: 4 Ziel-Kacheln (Stopps/Einnahmen/Trinkgeld/Pünktlichkeit) vs. Ziele; Gesamt-Fortschrittsbalken + Motivations-Text; localStorage-persistiert; isOnline-Guard; nach Phase1354 ✅
+- Phase 1360 Storefront: `app/order/[locationSlug]/phase1360-echtzeit-lieferstatus-karte.tsx` — ETA-Countdown (1s-Ticker) + Fahrer-Name + 4-Stufen-Statusleiste (Bestellt→Zubereitung→Bereit→Unterwegs); 30-Sek-Polling; nach Phase1355 ✅
+Nächste Phasen: 1361–1365.
+
 Backend-Architekt-Agent (2026-07-13): Phasen 1351–1355 implementiert. Build ✓ exit code 0. TypeScript 0 Fehler.
 - Phase 1351 Backend: `app/api/delivery/public/kunden-treue/route.ts` — GET: Bestellhäufigkeit + Ø-Bewertung + Stammkunde-Badge (Bronze/Silber/Gold/Platin) + Rabattcode; Supabase customer_orders + delivery_ratings + Mock-Fallback ✅
 - Phase 1352 Kitchen: `app/(admin)/kitchen/phase1352-allergen-statistik-woche.tsx` — Hochrisiko-Allergen-Balkendiagramm letzte 7 Tage (8 Allergene); useMemo; farbkodiert nach Häufigkeit; Props-basiert; nach Phase1330 ✅
