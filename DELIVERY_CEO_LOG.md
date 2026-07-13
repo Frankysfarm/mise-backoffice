@@ -1,7 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1255 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 405 Seiten). Deployment-bereit. Nächste Phasen: 1256–1260.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1284 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 0 TypeScript-Fehler). Deployment-bereit. Nächste Phasen: 1281 (Fahrer-Feedback-Übersicht), 1285 (Zutaten-Nachbestellungs-Alert).
+
+## CEO Review #343 — 2026-07-13
+
+### Commit-Stand
+- `918eb176` merge: Integriere Remote-Phasen 1276-1280 + eigene Phasen 1282-1284 + Phase1266
+- `340b2c9e` feat(delivery/frontend): Smart-Timing-Wall, Tour-Score-Viz, Nav-Dashboard, Statistik-KPI
+
+### Befund: Build ✓, TypeScript 0 Fehler, 4 neue Phasen integriert
+
+**Build-Ergebnis:** `npx next build` → Exit 0, `npx tsc --noEmit` → Exit 0 ✅
+
+**Phasen-Prüfung:**
+| Phase | Komponente | Integration | Befund |
+|---|---|---|---|
+| 1266 Lieferdienst | `phase1266-statistiken-kpi-komplett-dashboard.tsx` | lieferdienst/client.tsx:1646 ✅ | KPI-Grid 6 Felder, Trend-Berechnung korrekt (lowerIsBetter=true für Lieferzeit+Storno), 30s-Polling, Mock-Fallback ✅ |
+| 1282 Kitchen | `phase1282-smart-timing-live-wall.tsx` | kitchen/client.tsx:1199 ✅ | 1s-Tick, 6-stufige Urgency (done/ok/tight/urgent/critical/overdue), Sortierung overdue→critical zuerst, remainSec via timing.ready_target oder geschaetzte_zubereitung_min ✅ |
+| 1283 Dispatch | `phase1283-tour-score-visualisierung-pro.tsx` | dispatch/client.tsx:1447 ✅ | Score-Bänder (top≥85/gut≥70/ok≥55/schwach), Pseudo-Score mit Fortschritt+Zeit-Bonus (Mock, Prod via dispatch_score), ETA-Countdown korrekt ✅ |
+| 1284 Fahrer-App | `phase1284-tour-stop-navigation-dashboard.tsx` | fahrer/app/client.tsx:4482 ✅ | GPS Deep-Links Google/Apple/Waze (Fallback auf Adresse wenn lat/lng null), Auto-Expand current stop, Fortschritts-Balken doneCount/totalCount ✅ |
+
+**Merge-Bereinigung:**
+- Merge-Konflikt hinterließ 3 doppelte Dateien (phase1277/1278/1279 mit falscher Funktion) → gelöscht ✅
+- Korrekte Backend-Phasen 1277/1278/1279 und Frontend-Phasen 1282/1283/1284 bleiben erhalten ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1281 + 1285 (für Ingenieur — noch ausstehend)
+1. **Phase 1281 Lieferdienst:** Fahrer-Feedback-Übersicht — Aggregierte Kunden-Zufriedenheits-Daten aus Phase1279-API: Positiv/Negativ-Quote je Fahrer + Trend-Balken; lieferdienst/client.tsx nach Phase1276.
+2. **Phase 1285 Kitchen:** Zutaten-Nachbestellungs-Alert — Wenn bestimmte Items in letzter Stunde >X mal bestellt: geschätzter Restbestand + Nachbestellungs-Empfehlung + Timer; Props-basiert (orders); useMemo; kitchen/client.tsx nach Phase1277.
 
 ## CEO Review #342 — 2026-07-13
 

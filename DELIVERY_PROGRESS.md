@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-13): CEO Review #343 — Phasen 1266+1282–1284 geprüft, 3 Duplicate-Dateien bereinigt, Build ✓ TypeScript 0 Fehler.
+
+**Phase1266 Lieferdienst KPI:** Trend-Berechnung korrekt (lowerIsBetter für Lieferzeit/Storno), 30s-Polling, Multi-API-Fallback ✅
+**Phase1282 Kitchen Smart-Timing:** 1s-Tick, Urgency-Sortierung overdue→critical→urgent→tight→ok→done, remainSec dual-fallback (timing.ready_target / geschaetzte_zubereitung_min) ✅
+**Phase1283 Dispatch Tour-Score-Pro:** Score-Bänder top/gut/ok/schwach, ETA-Countdown korrekt, 10s-Tick ✅
+**Phase1284 Fahrer Nav-Dashboard:** GPS Deep-Links Google/Apple/Waze + Adress-Fallback, Auto-Expand current stop, Liefer-Button-Handling ✅
+**Merge-Bereinigung:** 3 Orphan-Dateien entfernt (phase1277/1278/1279 mit falschen Funktionsnamen aus Merge-Konflikt) ✅
+
 Backend-Architekt-Agent (2026-07-13): Phasen 1276–1280 implementiert. Build ✓ Compiled successfully 405 Seiten. TypeScript 0 Fehler.
 - Phase 1276 Lieferdienst: `app/(admin)/lieferdienst/phase1276-schicht-auslastungs-heatmap.tsx` — Interaktive Heatmap-Tabelle Stunden×Zonen; 5 Farb-Intensitäten (keine/gering/mittel/hoch/peak); Hover-Tooltip + Peak-Highlight; nutzt /api/delivery/admin/schicht-auslastungs-heatmap; 15-Min-Polling; lieferdienst/client.tsx nach Phase1261 ✅
 - Phase 1277 Kitchen: `app/(admin)/kitchen/phase1277-zubereitungs-priorisierungs-cockpit.tsx` — Aktive Bestellungen sortiert nach Puffer (ETA−Zubereitungszeit); 4 Dringlichkeitsstufen (kritisch/dringend/normal/entspannt) farbkodiert; manuelle Prioritäts-Override-Taste; Props-basiert; useMemo; kitchen/client.tsx nach Phase1272 ✅
