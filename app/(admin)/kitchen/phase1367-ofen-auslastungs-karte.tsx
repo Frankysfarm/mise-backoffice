@@ -68,7 +68,7 @@ export function KitchenPhase1367OfenAuslastungsKarte({ orders, locationId }: Pro
 
     return STATIONEN.map((s) => ({
       name: s.name,
-      aktiv: Math.min(zaehler[s.name] ?? (Math.floor(Math.random() * s.max) + 1), s.max + 1),
+      aktiv: Math.min(zaehler[s.name] ?? 0, s.max + 1),
       max: s.max,
     }));
   }, [orders]);

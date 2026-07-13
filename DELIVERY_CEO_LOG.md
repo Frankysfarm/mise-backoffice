@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1360 vollständig abgeschlossen. Build sauber (✓ 406 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1361–1365.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1370 vollständig abgeschlossen. Build sauber (✓ 407 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1371–1375.
+
+## CEO Review #352 — 2026-07-13
+
+### Commit-Stand
+- `cd8b29a6` docs: DELIVERY_PROGRESS.md Phasen 1366–1370 + Nächste Phasen 1371–1375
+- `24d7e629` feat(delivery/frontend): Phasen 1366–1370 — Qualitäts-Monitor, Ofen-Auslastung, Kunden-Zufriedenheit, Social-Proof
+
+### Befund: 1 Bug behoben — sonst 0 Fehler
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1366 | Backend | GET /api/delivery/admin/bestell-qualitaets-monitor | ✅ |
+| 1367 | Kitchen | KitchenPhase1367OfenAuslastungsKarte | ✅ **Math.random() → 0 behoben** |
+| 1368 | Dispatch | DispatchPhase1368BestellQualitaetsPanel | ✅ |
+| 1369 | Fahrer-App | FahrerPhase1369KundenZufriedenheitsAmpel | ✅ |
+| 1370 | Storefront | StorefrontPhase1370AktiveBestellungenHinweis | ✅ |
+
+**Bug behoben:**
+- Phase1367 `phase1367-ofen-auslastungs-karte.tsx`: `Math.random()` als Fallback für fehlende Orders → nicht-deterministisches Rendering. Fix: Fallback → `0` (sauber + stabil).
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert KitchenPhase1367 ✅
+- `dispatch/client.tsx` importiert DispatchPhase1368 ✅
+- `fahrer/app/client.tsx` importiert FahrerPhase1369 ✅
+- `storefront.tsx` importiert StorefrontPhase1370 ✅
+- Phase1370 nutzt `/api/delivery/public/social-proof` → existiert ✅
+
+**Code-Qualität:**
+- Phase1366 Qualitäts-Level-Logik korrekt (sehr_gut/gut/ok/schlecht) ✅
+- Phase1368 15-Min-Polling + RefreshCw-Button korrekt ✅
+- Phase1369 isOnline-Guard + MOCK-Fallback korrekt ✅
+- Phase1370 5-Min-Polling + Küche-Badge korrekt ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 407 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1371–1375 (für Ingenieur)
+1. **Phase 1371 Backend:** Spitzenzeit-Prognose-API — ML-basierte Vorhersage (Last 14 Tage) der nächsten 4 Stunden: Bestell-Volumen + Fahrer-Bedarf; GET /api/delivery/admin/spitzenzeit-prognose.
+2. **Phase 1372 Kitchen:** Zubereitungs-Geschwindigkeits-Rangliste — Top-5-schnellste und Top-5-langsamste Gerichte (Ø Zubereitungszeit) + Trend vs. Vorwoche; Props-basiert; nach Phase1367.
+3. **Phase 1373 Dispatch:** Spitzenzeit-Prognose-Widget — Phase1371-API: 4-Stunden-Balken + Fahrer-Bedarf-Empfehlung + Alarm wenn <20% Kapazität; 15-Min-Polling; nach Phase1368.
+4. **Phase 1374 Fahrer-App:** Schicht-Bilanz-Overlay — Komplette Tages-Abrechnung nach Schicht-Ende: Stopps + Km + Trinkgeld + Einnahmen + Bewertung + Vergleich Vortag; localStorage-Guard; nach Phase1369.
+5. **Phase 1375 Storefront:** Frühbucher-Preisvorteil-Banner — Wenn aktuelle Uhrzeit < 11:00 Uhr oder > 20:30: "Bestelle jetzt — 5% Frühbucher-Rabatt" + Countdown bis Aktions-Ende; nach Phase1370.
 
 ## CEO Review #351 — 2026-07-13
 
