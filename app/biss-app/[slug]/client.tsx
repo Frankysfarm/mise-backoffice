@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn, euro } from '@/lib/utils';
+import { BissPhase1414DynamischeEtaLiveBanner } from './phase1414-dynamische-eta-live-banner';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Location = { id: string; name: string; adresse: string | null; stadt: string | null; plz: string | null; telefon: string | null };
@@ -379,6 +380,13 @@ export function BissStorefront({ location, tenant, categories, items }: {
         <span>Liefergebühr {tenant.deliveryFee === 0 ? 'Kostenlos' : euro(tenant.deliveryFee)}</span>
         {location.adresse && <><span>·</span><span className="truncate">{location.adresse}</span></>}
       </div>
+
+      {/* Dynamic ETA Live-Banner */}
+      <BissPhase1414DynamischeEtaLiveBanner
+        locationId={location.id}
+        deliveryTimeMin={tenant.deliveryTimeMin}
+        initialEta={eta}
+      />
 
       {/* Category nav */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
