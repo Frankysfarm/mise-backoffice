@@ -391,6 +391,7 @@ import { FahrerPhase1292SchichtEndeBestaetigung } from './phase1292-schicht-ende
 import { FahrerPhase1297TourEndeFotoUpload } from './phase1297-tour-ende-foto-upload';
 import { FahrerPhase1302SchichtStatistikKarte } from './phase1302-schicht-statistik-karte';
 import { FahrerPhase1307SchichtPauseEmpfehlung } from './phase1307-schicht-pause-empfehlung';
+import { FahrerPhase1312TagesZielFortschritt } from './phase1312-tages-ziel-fortschritt';
 
 type Driver = {
   id: string;
@@ -4495,6 +4496,10 @@ export function FahrerApp({
         {/* Phase 1307: Schicht-Pause-Empfehlung — Energie-Level + 15-Min-Pause-Timer mit localStorage-Persistenz */}
         <div className="px-4">
           <FahrerPhase1307SchichtPauseEmpfehlung driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1312: Tages-Ziel-Fortschritt — Stopp-Ziel-Balken + Meilenstein-Badges; isOnline-Guard */}
+        <div className="px-4">
+          <FahrerPhase1312TagesZielFortschritt isOnline={isOnline} stoppsAbgeschlossen={todayStats?.deliveries ?? 0} />
         </div>
         {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
         <div className="px-4">
