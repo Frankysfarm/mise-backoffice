@@ -436,6 +436,7 @@ import { KitchenPhase1308SmartKochstartCountdown } from './phase1308-smart-kochs
 import { KitchenPhase1315BestellungsKomplexitaetsMonitor } from './phase1315-bestellungs-komplexitaets-monitor';
 import { KitchenPhase1312SmartTimingCountdownUltra } from './phase1312-smart-timing-countdown-ultra';
 import { KitchenPhase1320RezeptSkalierungsHelfer } from './phase1320-rezept-skalierungs-helfer';
+import { KitchenPhase1386SmartTimingCountdownCockpit } from './phase1386-smart-timing-countdown-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1260,6 +1261,8 @@ export function KitchenBoard({
       <KitchenPhase1377SmartTimingFarbCountdownBoard orders={filtered as any} timings={timings as any} />
       {/* Phase 1382: Sonderwunsch-Häufigkeits-Karte — Top-8 Sonderwünsche aus aktiven Bestellungen farbkodiert nach Komplexität (einfach/mittel/komplex) */}
       <KitchenPhase1382SonderwunschHaeufigkeitsKarte orders={filtered as any} />
+      {/* Phase 1386: Smart-Timing Countdown Cockpit — Sekunden-Countdown aller aktiven Bestellungen, 4-stufige Farbkodierung (Grün/Gelb/Orange/Rot), sortiert nach Dringlichkeit */}
+      <KitchenPhase1386SmartTimingCountdownCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

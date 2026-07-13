@@ -243,6 +243,7 @@ import { StorefrontPhase1370AktiveBestellungenHinweis } from './phase1370-aktive
 import { StorefrontPhase1375FruehbucherPreisvorteilBanner } from './phase1375-fruehbucher-preisvorteil-banner';
 import { StorefrontPhase1380DynamischeEtaLiveTrackingCockpit } from './phase1380-dynamische-eta-live-tracking-cockpit';
 import { StorefrontPhase1385WetterLieferzeitHinweis } from './phase1385-wetter-lieferzeit-hinweis';
+import { StorefrontPhase1389LiveTrackingEtaCockpit } from './phase1389-live-tracking-eta-cockpit';
 
 type Props = {
   location: Location;
@@ -1225,6 +1226,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <StorefrontPhase1385WetterLieferzeitHinweis locationId={location.id} />
       </div>
+      {/* Phase 1389: Live-Tracking ETA-Cockpit — Phasen-Timeline + Sekunden-Countdown + Fahrer-Näherungs-Anzeige + 30s-Polling */}
+      {orderPlaced && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <StorefrontPhase1389LiveTrackingEtaCockpit
+            orderId={orderPlaced.id ?? null}
+            locationId={location.id}
+            initialEtaMin={30}
+            initialStatus="neu"
+          />
+        </div>
+      )}
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}
