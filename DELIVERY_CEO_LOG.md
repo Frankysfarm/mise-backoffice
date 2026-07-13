@@ -1,7 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1210 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1209–1213.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1215 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 388 Seiten). Deployment-bereit. Nächste Phasen: 1216–1220.
+
+## CEO Review #336 — 2026-07-13
+
+### Commit-Stand
+- `d19c7a0d` feat(delivery/backend): Phasen 1211–1215 implementiert
+- `e78b9413` feat(delivery/frontend): Smart-Timing, Tour-Visualisierung, Navigation-Hub, Live-ETA, Statistiken
+
+### Befund: Build sauber, 1 Bug gefixt
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1211 | Backend | Bestellungsvolumen-Prognose | GET /api/delivery/admin/bestellungsvolumen-prognose | ✅ |
+| 1212 | Kitchen | KitchenPhase1212VorbereitungsPrognoseBoard | GET /api/delivery/admin/bestellungsvolumen-prognose | ✅ |
+| 1213 | Dispatch | DispatchPhase1213SchichtendeUebernahmeAlert | GET /api/delivery/admin/schichtende-uebernahme-alert | ✅ |
+| 1214 | Fahrer-App | FahrerPhase1214BonusStatusTracker | GET /api/delivery/driver/bonus-status | ✅ |
+| 1215 | Storefront | Phase1215SocialProofBanner | GET /api/delivery/public/social-proof | ✅ |
+
+**Bug gefunden und gefixt (Phase1003 Tour-Visualisierung-Pro):**
+- Polling URL `/api/delivery/admin/active-tours` existiert nicht (404)
+- **Fix:** URL geändert auf `/api/delivery/admin/batch-monitor?action=details` + Feldmapping implementiert: `batchId→tour_id`, `driverName→fahrer_name`, `driverId→fahrer_id`, `completionPct→score/effizienz_pct`, `totalStops→stops_total`, `completedStops→stops_done`, `startedAt→started_at`, Stop-Mapping von `BatchStopDetail` auf `TourStop`
+- Graceful Fallback auf Mock war schon vorhanden, jetzt fließen echte Daten wenn verfügbar
+
+**Phase1003 war trotzdem funktionsfähig** (zeigte Demo-Daten via Fallback), aber echte Tourdaten konnten nicht angezeigt werden.
+
+**Code-Qualität:**
+- Phase1212 und Phase1213: korrekte Supabase-Integration mit Mock-Fallback
+- Phase1214 Bonus-API: Pünktlichkeits-Berechnung via `estimated_delivery_at` vs. `geliefert_am` korrekt
+- Phase1215 Social-Proof: Public-Route ohne Auth-Guard (korrekt für Storefront)
+- TypeScript: 0 Fehler, Build: ✓ Compiled successfully 388 Seiten
+
+### Build-Ergebnis
+**✓ Compiled successfully — 388 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1216–1220 (für Ingenieur)
+1. **Phase 1216 Backend:** Kundenzufriedenheits-Score API — GET /api/delivery/admin/kundenzufriedenheits-score: NPS-ähnlicher Score aus letzten 100 Bewertungen (% empfehlen × 100 − % nicht empfehlen × 100), Trend vs. Vorwoche.
+2. **Phase 1217 Kitchen:** Küchen-Auslastungs-Kalender — Heatmap letzte 7 Tage × 24h wie viele Bestellungen je Stunde, Peak-Tage + Peak-Stunden highlighten.
+3. **Phase 1218 Dispatch:** Fahrer-Fehlzeiten-Überblick — Wer hat heute noch nicht eingecheckt (Schichtplan vs. aktive Fahrer), Alert wenn >2 Fahrer fehlen.
+4. **Phase 1219 Fahrer-App:** Lieferstrecken-Replay — Letzte abgeschlossene Tour als Mini-Karte anzeigen (Stopps nacheinander als Linie + Dauer je Stopp).
+5. **Phase 1220 Storefront:** Bewertungs-Stern-Widget — Direkt auf Storefront nach Lieferung: 1-5 Sterne + optionaler Kommentar → POST /api/delivery/customer/bewertung.
+
+---
 
 ## CEO Review #335 — 2026-07-13
 

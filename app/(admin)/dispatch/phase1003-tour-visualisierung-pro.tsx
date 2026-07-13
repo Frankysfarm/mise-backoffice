@@ -152,10 +152,35 @@ export function DispatchPhase1003TourVisualisierungPro({ locationId }: Props) {
     async function load() {
       if (!locationId) { setTours(MOCK_TOURS); setUsingMock(true); return; }
       try {
-        const res = await fetch(`/api/delivery/admin/active-tours?location_id=${locationId}`, { cache: 'no-store' });
+        const res = await fetch(`/api/delivery/admin/batch-monitor?action=details&location_id=${locationId}`, { cache: 'no-store' });
         if (!res.ok) throw new Error('not ok');
         const d = await res.json();
-        const list: ActiveTour[] = Array.isArray(d) ? d : (d.tours ?? []);
+        // batch-monitor?action=details returns ActiveBatchInfo[] — map to ActiveTour
+        const rawList = Array.isArray(d) ? d : [];
+        const list: ActiveTour[] = rawList.map((b: Record<string, unknown>, i: number) => {
+          const stops = (b.stops as Record<string, unknown>[] | null) ?? [];
+          return {
+            tour_id: (b.batchId as string) ?? String(i),
+            fahrer_name: (b.driverName as string | null) ?? 'Fahrer',
+            fahrer_id: (b.driverId as string | null) ?? '',
+            score: Math.round((b.completionPct as number | null) ?? 50),
+            score_trend: 'stable' as const,
+            status: 'on_route' as const,
+            stops_total: (b.totalStops as number) ?? stops.length,
+            stops_done: (b.completedStops as number) ?? 0,
+            started_at: (b.startedAt as string | null) ?? null,
+            effizienz_pct: Math.round((b.completionPct as number | null) ?? 50),
+            eta_zurueck_min: null,
+            stops: stops.map((s, j) => ({
+              id: (s.stopId as string) ?? String(j),
+              sequence: j + 1,
+              status: s.completedAt ? 'completed' : j === (b.completedStops as number) ? 'current' : 'pending',
+              eta_min: (s.etaMin as number | null) ?? null,
+              eta_deviation_min: null,
+              geliefert_am: (s.completedAt as string | null) ?? null,
+            } as TourStop)),
+          };
+        });
         if (list.length > 0) { setTours(list); setUsingMock(false); }
         else { setTours(MOCK_TOURS); setUsingMock(true); }
       } catch {

@@ -2,6 +2,24 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-13): CEO Review #336 — Phasen 1211–1215 geprüft, 1 Bug gefixt, Build 388 Seiten ✓
+
+**Phase1211 Bestellungsvolumen-Prognose API:** Wochentag×Stunde×30-Min-Bucket-Logik korrekt, Division-Guard `rawCount/4` immer integer, Mock-Fallback korrekt ✅
+**Phase1212 Vorbereitungs-Prognose-Board (Kitchen):** 5-Min-Polling, buildEmpfehlung-Logik korrekt, maxPrognose Division-by-Zero Guard `Math.max(...,1)` ✅
+**Phase1213 Schichtende-Übernahme-Alert (Dispatch):** calcKrit korrekt (kritisch ≤30Min, warnung ≤50Min), 1-Min-Polling, 8h-Schicht-Annahme transparent ✅
+**Phase1214 Bonus-Status-Tracker (Fahrer-App):** 3 Ziele Bronze/Silber/Gold korrekt, isOnline-Guard, 5-Min-Polling, Mock fallback korrekt ✅
+**Phase1215 Social-Proof-Banner (Storefront):** cartEmpty-Guard korrekt (zeigt wenn Warenkorb leer = FOMO), 3-Min-Polling, Message-Rotation korrekt ✅
+**Bug gefixt (Phase1003 Tour-Visualisierung-Pro):** URL `/api/delivery/admin/active-tours` existiert nicht → gefixt auf `/api/delivery/admin/batch-monitor?action=details` + Feldmapping `batchId`/`driverName`/`completedStops`/`totalStops`/`completionPct`/`stops[]` ✅
+
+Build: ✓ Compiled successfully 388 Seiten. TypeScript 0 Fehler.
+
+### Nächste Phasen 1216–1220 (für Ingenieur)
+1. **Phase 1216 Backend:** Kundenzufriedenheits-Score API — GET /api/delivery/admin/kundenzufriedenheits-score: NPS-ähnlicher Score aus letzten 100 Bewertungen (% empfehlen × 100 − % nicht empfehlen × 100), Trend vs. Vorwoche.
+2. **Phase 1217 Kitchen:** Küchen-Auslastungs-Kalender — Heatmap letzte 7 Tage × 24h wie viele Bestellungen je Stunde, Peak-Tage + Peak-Stunden highlighten.
+3. **Phase 1218 Dispatch:** Fahrer-Fehlzeiten-Überblick — Wer hat heute noch nicht eingecheckt (Schichtplan vs. aktive Fahrer), Alert wenn >2 Fahrer fehlen.
+4. **Phase 1219 Fahrer-App:** Lieferstrecken-Replay — Letzte abgeschlossene Tour als Mini-Karte anzeigen (Stopps nacheinander als Linie + Dauer je Stopp).
+5. **Phase 1220 Storefront:** Bewertungs-Stern-Widget — Direkt auf Storefront nach Lieferung: 1-5 Sterne + optionaler Kommentar → POST /api/delivery/customer/bewertung.
+
 Backend-Architekt-Agent (2026-07-12): Phasen 1198–1202 implementiert. Build ✓ Compiled successfully 384 Seiten. TypeScript 0 Fehler.
 - Phase 1198 Backend: `app/api/delivery/driver/tages-km-log/route.ts` — GET /api/delivery/driver/tages-km-log: Stündliche km-Zusammenfassung der aktuellen Schicht (km + Stopps je UTC-Stunde), Supabase delivery_stops + Mock ✅
 - Phase 1199 Kitchen: `app/(admin)/kitchen/phase1199-bestellungs-warteschlangen-prognose.tsx` — Warteschlangen-Prognose: Prognose Bestellanzahl nächste 30/60 Min basierend auf Rate letzte 30 Min + Trendkorrektur (steigend/stabil/fallend), client-seitig useMemo, kitchen/client.tsx nach Phase1194 ✅
