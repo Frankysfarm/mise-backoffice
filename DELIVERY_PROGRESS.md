@@ -14434,9 +14434,54 @@ Phasen 1221–1245 wurden in vorherigen Sessions implementiert und in client.tsx
 **Logik:** `stageIndex(status)` mappt DE+EN Status-Strings; `etaLabel()` berechnet verbleibende Min aus etaMin oder elapsed seit placedAt; props-basiert (keine API)
 **Integration:** `storefront.tsx` nach Phase1207 im orderSuccess-Block ✅
 
-### Nächste Phasen 1266–1270 (für Ingenieur)
-1. **Phase 1266 Backend:** Fahrer-Rückgabe-Quote-API — Anteil Fahrer die nach Tour sofort wieder verfügbar vs. Pause/Offline; Trend Woche; GET /api/delivery/admin/fahrer-rueckkehr-quote.
-2. **Phase 1267 Kitchen:** Bestelleingangs-Takt-Meter — Animierter Zähler der Bestellungen pro Minute (gleitend 5 Min); grün/amber/rot je Takt-Level; Spitzenzeit-Indikator.
-3. **Phase 1268 Dispatch:** Fahrer-Bonus-Tracker — Welcher Fahrer hat diesen Monat wie viele Bonus-Stopps (≥50 Stopps = Bronze, ≥100 = Silber, ≥150 = Gold); Rangliste mit Progress-Bars; 15-Min-Polling.
-4. **Phase 1269 Fahrer-App:** Trinkgeld-Wochenübersicht — Summe + Ø Trinkgeld je Tag der laufenden Woche als Balken-Chart; Trend vs. Vorwoche.
-5. **Phase 1270 Storefront:** Artikel-Beliebtheitsbadge — "Heute bereits X× bestellt" Badge auf den Top-3-Artikeln der letzten 2h; 10-Min-Polling.
+### Nächste Phasen 1266–1270 (für Ingenieur) [ABGESCHLOSSEN 2026-07-13]
+1. **Phase 1266 Backend:** Fahrer-Rückgabe-Quote-API ✅
+2. **Phase 1267 Kitchen:** Bestelleingangs-Takt-Meter ✅
+3. **Phase 1268 Dispatch:** Fahrer-Bonus-Tracker ✅
+4. **Phase 1269 Fahrer-App:** Trinkgeld-Wochenübersicht ✅
+5. **Phase 1270 Storefront:** Artikel-Beliebtheitsbadge ✅
+
+---
+
+## Batch 1266–1270 — 2026-07-13
+
+### Phase 1266 — Fahrer-Rückgabe-Quote-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-rueckkehr-quote/route.ts`
+**GET:** `?location_id=<uuid>` — Anteil Fahrer online + !on_tour nach Tour → sofort_verfuegbar; 7-Tage-Trend-Verlauf (geschätzt); Trend steigend/stabil/fallend (±5%-Schwelle); Supabase mise_drivers + Mock
+**Response:** `{ heute_gesamt, heute_sofort_verfuegbar, heute_quote_pct, trend, wochenverlauf[], location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1267 — Bestelleingangs-Takt-Meter (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1267-bestelleingangs-takt-meter.tsx`
+**Props:** `orders: Order[], schwelleHoch?: number, schwelleKritisch?: number`
+**UI:** Collapsible (slate/grün/amber/rot je Level); 4xl Takt-Zähler (Bestellungen/Min); Fortschrittsbalken bis schwelleKritisch; 2×KPI-Grid (Letzten 5 Min + Intensität); Spitzenzeit-Indikator (15-Min-Bucket mit höchstem Aufkommen); Peak-Puls-Animation; rein client-seitig useMemo
+**Logik:** ruhig(<0.5/Min) / normal(≥0.5) / hoch(≥schwelleHoch=2) / peak(≥schwelleKritisch=4); spitzenzeit = Top-15-Min-Bucket in letzter Stunde
+**Integration:** `kitchen/client.tsx` nach Phase1262 ✅
+
+### Phase 1268 — Fahrer-Bonus-Tracker (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1268-fahrer-bonus-tracker.tsx` + `app/api/delivery/admin/fahrer-bonus-tracker/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible yellow/amber; je Fahrer: Name + TOUR-Badge + Stufen-Badge + Stopps-Monats-Zahl + Fortschrittsbalken bis 150; Gold-Stern bei Gold; 15-Min-Polling
+**API:** GET mise_drivers + mise_delivery_stops (diesen Monat) → Stopps je Fahrer; Bronze ≥50 / Silber ≥100 / Gold ≥150; Fortschritt-% innerhalb aktueller Stufe; Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1263 ✅
+
+### Phase 1269 — Trinkgeld-Wochenübersicht (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1269-trinkgeld-wochenuebersicht.tsx` + `app/api/delivery/driver/trinkgeld-woche/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible grün; 3×KPI-Grid (Gesamt/Ø je Stopp/Trend); Balken-Chart 7 Wochentage (heute hervorgehoben grün, rest hellgrün); isOnline-Guard; 15-Min-Polling
+**API:** GET driver_tips (laufende + Vorwoche) → grupiert nach Tag; Trend besser/gleich/schlechter (±1€-Schwelle); trend_pct = prozentuales Delta; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1264 ✅
+
+### Phase 1270 — Artikel-Beliebtheitsbadge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1270-artikel-beliebtheitsbadge.tsx` + `app/api/delivery/public/artikel-beliebtheit/route.ts`
+**Props:** `locationId: string, artikelName: string`
+**UI:** Kleines orange Pill-Badge "🔥 X× in 2h bestellt"; nur sichtbar wenn Artikel unter Top-3; Modul-weiter Shared-Cache (10-Min TTL via Modul-Variable) sodass alle Badges eine einzige Fetch-Call teilen
+**API:** GET customer_orders (letzte 2h) → customer_order_items → Name-Count Top-3; Supabase + Mock
+**Integration:** `storefront.tsx` je Menu-Item unter MenuItemCard ✅
+
+### Nächste Phasen 1271–1275 (für Ingenieur)
+1. **Phase 1271 Backend:** Schicht-Auslastungs-Heatmap-API — Bestelldichte je Stunde × Zone der letzten 7 Tage als 2D-Matrix; GET /api/delivery/admin/schicht-auslastungs-heatmap.
+2. **Phase 1272 Kitchen:** Multi-Allergen-Scan-Cockpit — Alle aktiven Bestellungen auf 8 Allergene prüfen + Farb-Ampel + Eskalation wenn kritische Kombination.
+3. **Phase 1273 Dispatch:** Fahrer-Geo-Verteilungs-Monitor — Live-Anzeige wie gut die Fahrer geografisch verteilt sind (Zone-Coverage-Score) + Lücken-Alert.
+4. **Phase 1274 Fahrer-App:** Kraftstoff-/Akku-Tracker — Eingabe verbrauchte Energie/Kraftstoff je Schicht + Effizienz-Trend + Kosten-Hochrechnung.
+5. **Phase 1275 Storefront:** Mindestbestellwert-Progress-Bar — Farbiger Fortschrittsbalken mit Betrag bis Mindestbestellwert + Freischalts-Animation bei Erreichen.
