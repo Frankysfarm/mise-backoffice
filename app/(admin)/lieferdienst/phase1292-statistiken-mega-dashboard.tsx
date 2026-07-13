@@ -350,8 +350,8 @@ export function LieferdienstPhase1292StatistikenMegaDashboard({ locationId }: Pr
                   border: '1px solid #e7e5e4',
                   background: '#fafaf9',
                 }}
-                formatter={(v: number) => [`${v} Bestellungen`, '']}
-                labelFormatter={(l: number) => `${l}:00 Uhr`}
+                formatter={(v: any) => [`${v} Bestellungen`, '']}
+                labelFormatter={(l: any) => `${l}:00 Uhr`}
               />
               <Bar dataKey="bestellungen" radius={[4, 4, 0, 0]}>
                 {data.bestellungen_nach_stunde.map((entry, i) => (

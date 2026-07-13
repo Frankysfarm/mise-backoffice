@@ -1475,7 +1475,7 @@ export function DispatchBoard({
       {/* Phase 1335: Tour-Score-Visualisierungs-Cockpit — Score 0–100 je Tour mit Farbkodierung + Stop-Dot-Visualisierung + Fahrer-Ranking */}
       <DispatchPhase1335TourScoreVisualisierungCockpit batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
-      <DispatchPhase1311TourScoreVisualisierungHub batches={batches as any} drivers={drivers as any} stops={stops as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      <DispatchPhase1311TourScoreVisualisierungHub batches={batches as any} drivers={drivers as any} stops={batches.flatMap((b: any) => b.stops ?? [])} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1309: Tour-Score-Dashboard — Ranking aller aktiven Touren (Pünktlichkeit + Effizienz + Kunden-Score); 5-Min-Polling */}
       <DispatchPhase1309TourScoreDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}

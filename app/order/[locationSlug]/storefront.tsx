@@ -648,6 +648,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   }
 
   /* ---------------- success screen ---------------- */
+  const activeOrderId = orderSuccess?.orderId ?? null;
   if (orderSuccess) {
     return (
       <div>
@@ -1161,13 +1162,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1318Beliebtheitsbadge locationId={location.id} />
       {/* Phase 1323: Bestellstatus-Push-Banner — Live-Banner "Unterwegs 🚴" + ETA-Countdown; 30-Sek-Polling */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
-        <Phase1323BestellstatusPushBanner locationId={location.id} orderId={orderSuccess?.orderId ?? null} />
+        <Phase1323BestellstatusPushBanner locationId={location.id} orderId={activeOrderId} />
       </div>
       {/* Phase 1315: Dynamische ETA Live Ultra — Countdown + Phasen-Timeline + Konfidenz-Badge; 30-Sek-Polling */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <StorefrontPhase1315DynamischeEtaLiveUltra
           locationId={location.id}
-          orderId={orderSuccess?.orderId ?? null}
+          orderId={activeOrderId}
         />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}

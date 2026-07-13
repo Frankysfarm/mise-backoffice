@@ -1,7 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1318 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1319–1323.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1323 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1324–1328.
+
+## CEO Review #349 — 2026-07-13
+
+### Commit-Stand
+- `21651e93` feat(delivery/backend): Phasen 1319–1323 — Schicht-Übergabe, Rezept-Skalierung, Trinkgeld-Eingabe, Bestellstatus-Banner
+
+### Befund: 4 TypeScript-Fehler gefunden und behoben
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `app/(admin)/dispatch/client.tsx:1475` | `stops` undefiniert in JSX-Scope | `batches.flatMap((b: any) => b.stops ?? [])` |
+| `app/(admin)/lieferdienst/phase1292-statistiken-mega-dashboard.tsx:353` | Recharts Formatter-Typ `number` vs `ValueType | undefined` | Annotation `number` → `any` |
+| `app/(admin)/lieferdienst/phase1292-statistiken-mega-dashboard.tsx:354` | Recharts labelFormatter `number` vs `ReactNode` | Annotation `number` → `any` |
+| `app/order/[locationSlug]/storefront.tsx:1153+1159` | `orderSuccess?.orderId` nach TS-Narrowing (`never`) | `const activeOrderId` vor Early-Return extrahiert |
+
+### Geprüfte Phasen 1319–1323
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1319 | Backend | `GET /api/delivery/admin/schicht-uebergabe` — Offene Bestellungen + Touren + Fahrer | ✅ |
+| 1320 | Kitchen | `KitchenPhase1320RezeptSkalierungsHelfer` — Gericht-Bedarf aus Queue (jetzt_vorkochen/bald/ausreichend) | ✅ |
+| 1321 | Dispatch | `DispatchPhase1321SchichtUebergabeWidget` — KPI-Grid + Expandiert + Übergabe-Toggle | ✅ |
+| 1322 | Fahrer-App | `FahrerPhase1322TrinkgeldSchnellEingabe` — 1-Tap-Beträge + Freitext + isOnline-Guard | ✅ |
+| 1323 | Storefront | `Phase1323BestellstatusPushBanner` + API — Live-Status + ETA-Countdown 1s-Tick | ✅ |
+
+### Integration geprüft
+- `dispatch/client.tsx:1473` importiert + rendert Phase1321 ✅
+- `kitchen/client.tsx:1228` importiert + rendert Phase1320 ✅
+- `fahrer/app/client.tsx:4534` importiert + rendert Phase1322 ✅
+- `storefront.tsx:1153` importiert + rendert Phase1323 ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 406 Seiten, TypeScript 0 Fehler** ✅
+
+### Nächste Phasen 1324–1328 (für Ingenieur)
+1. **Phase 1324 Backend:** Fahrer-Route-Optimierungs-API — GET /api/delivery/admin/routen-optimierung: Optimale Stopp-Reihenfolge je Tour (nearest-neighbor), Zeitersparnis-Schätzung vs. aktuell; Supabase + Mock-Fallback.
+2. **Phase 1325 Kitchen:** Live-Allergen-Warn-Banner — Wenn neue Bestellung mit Hochrisiko-Allergen (Nüsse/Schalentiere) eingeht: Sofort-Popup + Bestätigungs-Pflicht; Props-basiert; nach Phase1320.
+3. **Phase 1326 Dispatch:** Routen-Optimierungs-Widget — Zeigt Phase1324-API: Schlechteste Tour mit Optimierungsvorschlag + "Neu planen"-Button; 15-Min-Polling; nach Phase1321.
+4. **Phase 1327 Fahrer-App:** Offline-Modus-Indikator — Verbindungsstatus-Banner (online/offline/reconnecting) + ausstehende Aktionen zählen + Auto-Sync wenn wieder online; nach Phase1322.
+5. **Phase 1328 Storefront:** Lieferstatus-Fortschritts-Leiste — 4-Stufen-Leiste (Bestellt→Zubereitung→Bereit→Unterwegs) mit animiertem Fortschritt; nach Phase1323.
 
 ## CEO Review #348 — 2026-07-13
 
