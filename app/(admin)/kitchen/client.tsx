@@ -425,6 +425,7 @@ import { KitchenPhase1311ZubereitungWarteschlangeKockpit } from './phase1311-zub
 import { KitchenPhase1308SmartKochstartCountdown } from './phase1308-smart-kochstart-countdown';
 import { KitchenPhase1315BestellungsKomplexitaetsMonitor } from './phase1315-bestellungs-komplexitaets-monitor';
 import { KitchenPhase1312SmartTimingCountdownUltra } from './phase1312-smart-timing-countdown-ultra';
+import { KitchenPhase1320RezeptSkalierungsHelfer } from './phase1320-rezept-skalierungs-helfer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1223,6 +1224,8 @@ export function KitchenBoard({
       <KitchenPhase1311ZubereitungWarteschlangeKockpit orders={filtered as any} />
       {/* Phase 1315: Bestellungs-Komplexitäts-Monitor — Score je Bestellung + Dringlichkeits-Badges + Sortierung */}
       <KitchenPhase1315BestellungsKomplexitaetsMonitor orders={filtered as any} />
+      {/* Phase 1320: Rezept-Skalierungs-Helfer — Welche Gerichte jetzt vorkochen? Basierend auf Bestellqueue + 30-Min-Vorschau */}
+      <KitchenPhase1320RezeptSkalierungsHelfer orders={filtered as any} />
       {/* Phase 1308: Smart-Kochstart-Countdown — Optimaler Kochstart je Bestellung + 5-Stufen-Farbampel + Kochstart-Button */}
       <KitchenPhase1308SmartKochstartCountdown orders={filtered as any} />
       {/* Phase 1312: Smart-Timing-Countdown-Ultra — 5-Stufen-Farbkodierung + Echtzeit-1s-Countdown aller aktiven Bestellungen */}
