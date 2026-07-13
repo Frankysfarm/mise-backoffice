@@ -30,7 +30,7 @@ interface ApiData {
   trend_umsatz: 'besser' | 'gleich' | 'schlechter';
 }
 
-const TREND_ICON = {
+const TREND_ICON: Record<string, React.ReactNode> = {
   besser:      <TrendingUp size={12} className="text-matcha-600" />,
   gleich:      <span className="text-[11px] text-muted-foreground">→</span>,
   schlechter:  <TrendingDown size={12} className="text-red-500" />,
@@ -125,7 +125,7 @@ export function LieferdienstPhase1175SchichtBilanzenVergleich({ locationId }: Pr
 
           {/* 4-week bar chart (stopps) */}
           <div className="space-y-1.5">
-            <div className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Stopps — letzte 4 {data.wochentage ?? 'Wochen'}</div>
+            <div className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Stopps — letzte 4 {data.wochentag ?? 'Wochen'}</div>
             {/* Current */}
             <div className="flex items-center gap-2">
               <span className="w-20 shrink-0 text-[10px] font-bold text-blue-700">Heute</span>

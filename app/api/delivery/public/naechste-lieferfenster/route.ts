@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
   const now = new Date();
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Count active drivers to estimate ETA
     const { data: drivers } = await supabase

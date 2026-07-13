@@ -44,7 +44,7 @@ function mockData(locationId: string | null): ApiResponse {
     { name: 'Pommes-Frites (kg)', bestellungen_letzte_2h: 18, bestellungen_pro_stunde: 9, geschaetzter_lagerbestand: 22, stunden_bis_engpass: 2.4, risiko: 'hoch', empfehlung: '' },
     { name: 'Burger-Brötchen', bestellungen_letzte_2h: 20, bestellungen_pro_stunde: 10, geschaetzter_lagerbestand: 55, stunden_bis_engpass: 5.5, risiko: 'mittel', empfehlung: '' },
     { name: 'Salat-Mix (kg)', bestellungen_letzte_2h: 5, bestellungen_pro_stunde: 2.5, geschaetzter_lagerbestand: 30, stunden_bis_engpass: null, risiko: 'ok', empfehlung: '' },
-  ].map(a => ({ ...a, empfehlung: empfehlungText(a.risiko, a.name) }));
+  ].map(a => ({ ...a, empfehlung: empfehlungText(a.risiko as 'kritisch' | 'hoch' | 'mittel' | 'ok', a.name) })) as ArtikelEngpass[];
 
   return {
     artikel,
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
     // Fetch recent order items to compute consumption rate

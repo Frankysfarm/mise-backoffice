@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json(MOCK);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Active drivers tonight
     const { data: drivers } = await supabase

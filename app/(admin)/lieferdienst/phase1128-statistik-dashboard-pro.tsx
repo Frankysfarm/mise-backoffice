@@ -234,10 +234,10 @@ export function LieferdienstPhase1128StatistikDashboardPro({ locationId }: Props
                   <BarChart data={data.stunden_verlauf} barSize={18}>
                     <XAxis dataKey="h" tick={{ fontSize: 9 }} tickFormatter={v => `${v}h`} axisLine={false} tickLine={false} />
                     <Tooltip
-                      formatter={(val: number, name: string) => [
+                      formatter={((val: unknown, name: unknown) => [
                         name === 'bestellungen' ? `${val} Bestellungen` : `${val} €`,
                         name === 'bestellungen' ? 'Bestellungen' : 'Umsatz'
-                      ]}
+                      ]) as any}
                       labelFormatter={v => `${v}:00 Uhr`}
                     />
                     <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]}>
@@ -258,7 +258,7 @@ export function LieferdienstPhase1128StatistikDashboardPro({ locationId }: Props
                   <LineChart data={data.stunden_verlauf}>
                     <XAxis dataKey="h" tick={{ fontSize: 9 }} tickFormatter={v => `${v}h`} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 9 }} axisLine={false} tickLine={false} width={30} />
-                    <Tooltip formatter={(v: number) => [`${v} €`, 'Umsatz']} labelFormatter={v => `${v}:00 Uhr`} />
+                    <Tooltip formatter={((v: unknown) => [`${v} €`, 'Umsatz']) as any} labelFormatter={v => `${v}:00 Uhr`} />
                     <Line type="monotone" dataKey="umsatz" stroke="#10b981" strokeWidth={2} dot={{ r: 2 }} />
                   </LineChart>
                 </ResponsiveContainer>

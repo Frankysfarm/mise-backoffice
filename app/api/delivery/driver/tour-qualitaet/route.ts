@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   if (!driverId) return NextResponse.json({ error: 'driver_id required' }, { status: 400 });
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

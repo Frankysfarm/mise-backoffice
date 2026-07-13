@@ -2171,7 +2171,7 @@ export function FahrerApp({
           {/* Phase 1071: Kunden-Kontakt-Schnell-Panel v2 — 1-Tap Anruf + Nachricht + Klingeln + Nicht-Erreicht-Meldung */}
           {activeBatch.stops.filter((s: any) => !s.geliefert_am).length > 0 && (() => {
             const nextS = activeBatch.stops.find((s: any) => !s.geliefert_am);
-            const idx = activeBatch.stops.indexOf(nextS) + 1;
+            const idx = activeBatch.stops.indexOf(nextS as any) + 1;
             return (
               <div className="px-4">
                 <FahrerPhase1071KundenKontaktSchnellPanelV2

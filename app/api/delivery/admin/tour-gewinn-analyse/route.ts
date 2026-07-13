@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Heute 00:00 UTC
     const todayStart = new Date();

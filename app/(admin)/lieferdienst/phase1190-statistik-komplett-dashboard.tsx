@@ -212,7 +212,7 @@ export function LieferdienstPhase1190StatistikKomplettDashboard({ locationId }: 
             <YAxis tick={{ fontSize: 9, fill: 'currentColor' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, padding: '4px 8px', borderRadius: 8, border: 'none', background: 'var(--background)', color: 'var(--foreground)' }}
-              formatter={(v: number) => [activeChart === 'revenue' ? `${v} €` : `${v} Bestellungen`, '']}
+              formatter={(v: unknown) => [activeChart === 'revenue' ? `${v} €` : `${v} Bestellungen`, '']}
               labelFormatter={l => `${l}:00 Uhr`}
             />
             <Bar dataKey={activeChart} radius={[4, 4, 0, 0]}>

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
     const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7).toISOString();

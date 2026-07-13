@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   if (!driverId) return NextResponse.json({ error: 'driver_id required' }, { status: 400 });
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const weekStart = new Date();
     // Set to Monday of the current week (UTC)
     const dayOfWeek = weekStart.getUTCDay(); // 0=Sun, 1=Mon, ...

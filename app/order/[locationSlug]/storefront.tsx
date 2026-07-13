@@ -599,13 +599,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         orderedAt: new Date().toISOString(),
       });
       // Phase 1133: Schnell-Reorder — letzte Bestellung für 1-Klick-Wiederbestellung speichern
-      saveOrderForReorder(cart, location.id);
+      saveOrderForReorder(cart as any, location.id);
       // Phase 1153: Bestellhistorie-Schnellzugriff — Bestellung in localStorage persistieren
       saveBestellhistorie({
         id: order.id,
         datum: new Date().toISOString(),
-        artikel: cart.map(c => c.item.name ?? c.item.title ?? '').filter(Boolean),
-        gesamtpreis: cart.reduce((s, c) => s + (c.item.preis ?? c.item.price ?? 0) * c.qty, 0),
+        artikel: cart.map(c => c.item.name ?? '').filter(Boolean),
+        gesamtpreis: cart.reduce((s, c) => s + c.item.preis * c.qty, 0),
         items: cart as any,
       });
       // Persist for returning-visitor tracking banner
@@ -1225,8 +1225,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <Phase1117HaeufigZusammenBestellt
             locationId={location.id}
             cart={cart as any}
-            allItems={items}
-            onAddItem={addToCart}
+            allItems={items as any}
+            onAddItem={addToCart as any}
           />
         </div>
       )}
@@ -1235,8 +1235,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
           <Phase1122AehnlicheProdukte
             cart={cart as any}
-            allItems={items}
-            onAddItem={addToCart}
+            allItems={items as any}
+            onAddItem={addToCart as any}
           />
         </div>
       )}

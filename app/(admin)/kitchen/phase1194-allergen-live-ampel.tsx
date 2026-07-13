@@ -77,7 +77,7 @@ function computeAlerts(orders: Order[]): AllergenAlert[] {
       allergen: a,
       label: ALLERGEN_LABELS[a] ?? a,
       anzahl: n,
-      level: n >= 5 ? 'kritisch' : 'warnung',
+      level: (n >= 5 ? 'kritisch' : 'warnung') as 'kritisch' | 'warnung',
     }))
     .sort((a, b) => b.anzahl - a.anzahl);
 }

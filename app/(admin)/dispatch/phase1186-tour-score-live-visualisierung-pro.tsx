@@ -118,7 +118,7 @@ export function DispatchPhase1186TourScoreLiveVisualisierungPro({ locationId }: 
                 <BarChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                   <Tooltip
-                    formatter={(v: number) => [`${v} Pkt`, 'Score']}
+                    formatter={(v: unknown) => [`${v ?? 0} Pkt`, 'Score']}
                     contentStyle={{ fontSize: 11, padding: '4px 8px' }}
                   />
                   <Bar dataKey="score" radius={[4, 4, 0, 0]}>

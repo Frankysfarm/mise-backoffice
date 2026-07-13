@@ -19,7 +19,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'batch_id, driver_id and location_id required' }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Verify batch belongs to this location and is unassigned
     const { data: batch, error: bErr } = await supabase

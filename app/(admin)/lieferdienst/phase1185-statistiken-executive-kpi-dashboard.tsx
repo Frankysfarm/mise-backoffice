@@ -155,7 +155,7 @@ export function LieferdienstPhase1185StatistikenExecutiveKpiDashboard({ location
                 <LineChart data={dash.umsatzVerlauf} margin={{ top: 2, right: 4, left: -24, bottom: 0 }}>
                   <XAxis dataKey="tag" tick={{ fontSize: 9 }} />
                   <Tooltip
-                    formatter={(v: number) => [`€${v}`, 'Umsatz']}
+                    formatter={(v: unknown) => [`€${v}`, 'Umsatz']}
                     contentStyle={{ fontSize: 11, padding: '4px 8px' }}
                   />
                   <Line dataKey="wert" type="monotone" stroke="#6d28d9" strokeWidth={2} dot={false} />

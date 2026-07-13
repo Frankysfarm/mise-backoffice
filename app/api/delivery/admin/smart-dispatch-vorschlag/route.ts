@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     let qDrivers = supabase
       .from('mise_drivers')
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
     let qPerf = supabase
       .from('customer_orders')
-      .select('driver_id, status, delivered_at, eta_minutes, driver_rating')
+      .select('driver_id, status, created_at, delivered_at, eta_minutes, driver_rating')
       .gte('created_at', startOfDay)
       .eq('status', 'delivered');
     if (locationId) qPerf = qPerf.eq('location_id', locationId);

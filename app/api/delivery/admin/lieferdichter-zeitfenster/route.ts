@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const since28d = new Date(Date.now() - 28 * 24 * 3600_000).toISOString();
 
     const q = supabase

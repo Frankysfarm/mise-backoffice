@@ -58,7 +58,7 @@ const LEVEL_ICONS: Record<QualitaetsLevel, React.ReactNode> = {
   kritisch: <XCircle className="h-3.5 w-3.5" />,
 };
 
-function anteilLevel(pct: number, thresholds: [number, number, number]): QualitaetsLevel {
+function anteilLevel(pct: number, thresholds: [number, number]): QualitaetsLevel {
   const [warn, krit] = thresholds;
   if (pct === 0) return 'gut';
   if (pct < warn) return 'ok';

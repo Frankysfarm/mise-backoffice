@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Fetch last 5 energy checks for this driver (today)
     const todayStart = new Date();

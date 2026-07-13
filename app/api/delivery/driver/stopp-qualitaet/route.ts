@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const avg = ((uebergabe ?? 0) + (freundlichkeit ?? 0) + (puenktlichkeit ?? 0)) / 3;
 
     try {
-      const supabase = createClient();
+      const supabase = await createClient();
       await supabase.from('driver_stop_quality').insert({
         driver_id: driverId,
         stop_id: stopId,

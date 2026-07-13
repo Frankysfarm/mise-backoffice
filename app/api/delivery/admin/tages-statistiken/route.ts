@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
 
     let q = supabase

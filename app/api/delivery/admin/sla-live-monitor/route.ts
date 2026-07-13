@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
     // Fetch completed orders with delivery timing data

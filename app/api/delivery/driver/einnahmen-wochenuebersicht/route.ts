@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   if (!driverId) return NextResponse.json(MOCK);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const now = new Date();
 
     // Monday of current week

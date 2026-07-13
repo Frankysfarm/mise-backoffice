@@ -37,7 +37,7 @@ const STATION_KEYWORDS: Record<Station, string[]> = {
   kalt:     ['salat', 'sandwich', 'bowl', 'sushi', 'poke', 'wrap kalt', 'dessert', 'kuchen', 'eis', 'smoothie'],
 };
 
-const STATION_META: Record<Station, { label: string; icon: React.ComponentType<{ size?: number; className?: string }>; bg: string; text: string; ruestzeit: number }> = {
+const STATION_META: Record<Station, { label: string; icon: React.ComponentType<{ size?: string | number; className?: string }>; bg: string; text: string; ruestzeit: number }> = {
   ofen:     { label: 'Ofen',     icon: Flame,    bg: 'bg-orange-100', text: 'text-orange-700', ruestzeit: 15 },
   grill:    { label: 'Grill',   icon: Flame,    bg: 'bg-red-100',    text: 'text-red-700',    ruestzeit: 8  },
   friteuse: { label: 'Friteuse',icon: Flame,    bg: 'bg-yellow-100', text: 'text-yellow-700', ruestzeit: 6  },

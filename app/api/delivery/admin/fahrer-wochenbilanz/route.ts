@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const weekAgo = new Date(Date.now() - 7 * 24 * 3_600_000).toISOString();
 
     const qBatches = supabase
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       if (!fid) continue;
       if (!map[fid]) map[fid] = { stopps: 0, umsatz: 0, touren: 0, times: [] };
       map[fid].touren++;
-      const stops = (b.stopps as Array<{ id: string; geliefert_am: string | null; order: { total_price: number } | null }>) ?? [];
+      const stops = (b.stopps as unknown as Array<{ id: string; geliefert_am: string | null; order: { total_price: number } | null }>) ?? [];
       for (const s of stops) {
         if (s.geliefert_am) {
           map[fid].stopps++;

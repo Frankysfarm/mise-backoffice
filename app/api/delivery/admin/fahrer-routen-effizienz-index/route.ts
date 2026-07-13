@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const driversQ = supabase
       .from('mise_drivers')

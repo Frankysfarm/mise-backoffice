@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const now = new Date();
     const since8h = new Date(now.getTime() - 8 * 3600_000).toISOString();
 

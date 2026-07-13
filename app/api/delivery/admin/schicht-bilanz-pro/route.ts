@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   if (!location_id) return NextResponse.json(MOCK);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const heute = new Date();
     heute.setHours(0, 0, 0, 0);
 

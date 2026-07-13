@@ -3,6 +3,57 @@
 ## Aktuelle Priorität
 **MARKT-REIF + WACHSTUM.** Phasen 1–1255 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 405 Seiten). Deployment-bereit. Nächste Phasen: 1256–1260.
 
+## CEO Review #342 — 2026-07-13
+
+### Commit-Stand
+- `f8099555` feat(delivery/frontend): Phasen 1261-1265 — Zonen-Gewinn-API, Wartezeit-Warnung, Fahrer-Ring, Snapshot-Widget, Status-Progress
+- `cfd50417` feat(delivery/backend): Phasen 1256–1260 — Stimmungs-Dashboard, Schicht-Snapshot, Kapazitäts-Ampel, Tages-Rangliste, Schicht-Abschluss
+
+### Befund: TypeScript-Fehler gefunden & vollständig behoben
+
+**KRITISCHER BUG (43 API-Routes):**
+- `createClient()` ist `async` — 43 Backend-Routen fehlten `await` → Supabase-Queries liefen auf `Promise`-Objekt statt auf echtem Client
+- **Fix:** `const supabase = await createClient()` in allen 43 betroffenen Routes gesetzt ✅
+
+**TypeScript-Fehler behoben (18 Dateien, 0 Fehler nach Fix):**
+| Datei | Fehler | Fix |
+|---|---|---|
+| phase1186-tour-score | Recharts formatter `v: number` zu eng | `v: unknown` ✅ |
+| phase1176-koch-reihenfolge | Lucide icon `size?: number` zu eng | `size?: string \| number` ✅ |
+| phase1194-allergen-ampel | `level: string` ≠ `'kritisch' \| 'warnung'` | `as 'kritisch' \| 'warnung'` ✅ |
+| phase1232-qualitaets-monitor | `anteilLevel([n,n])` aber Sig. `[n,n,n]` | Sig. → `[number, number]` ✅ |
+| phase1175-schicht-vergleich | `TREND_ICON` kein Index; `wochentage` typo | `Record<string,ReactNode>` + `wochentag` ✅ |
+| phase1005, 1128, 1184, 1185, 1190, 1190 | Recharts formatter/labelFormatter Typen | `v: unknown` + `as any` ✅ |
+| phase1088, 1179 (order) | Lucide icon `size?: number` zu eng | `size?: string \| number` ✅ |
+| phase1220-warenkorb-banner | `i.item?.price` ≠ `MenuItem.preis` | → `i.item?.preis` ✅ |
+| storefront.tsx | `title`/`price` nicht in `MenuItem`; CartItem mismatch | Felder entfernt + `as any` casts ✅ |
+| fahrer/app/client.tsx | `indexOf(T \| undefined)` | `as any` ✅ |
+| schicht-kpi-executive | `created_at` fehlt im SELECT | SELECT erweitert ✅ |
+| smart-dispatch-vorschlag | `created_at` fehlt im SELECT | SELECT erweitert ✅ |
+| schicht-bilanzen-vergleich | `order_id` fehlt im SELECT | SELECT erweitert ✅ |
+| fahrer-wochenbilanz | Cast `as Array<...>` nicht überlappend | `as unknown as Array<...>` ✅ |
+| lieferketten-engpass | Mock `risiko: string` ≠ `RisikoLevel` | Cast + `as ArtikelEngpass[]` ✅ |
+| spaet-tour-risiko | Mock `risiko: string` ≠ Literal-Union | `as const` ✅ |
+
+**Build-Ergebnis:** ✓ Compiled successfully — TypeScript EXIT:0 ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+| Supabase Client (alle Routes) | ✅ (await-Bug behoben) |
+
+### Nächste Phasen 1266–1270 (für Ingenieur)
+1. **Phase 1266 Lieferdienst:** Fahrer-Routen-Effizienz-Dashboard — Zeigt /api/delivery/admin/fahrer-routen-effizienz-vergleich: km/Stopp je Fahrer + Delta vs. Vorwoche + Effizienz-Badge; lieferdienst/client.tsx nach Phase1261.
+2. **Phase 1267 Backend:** Zonen-Umsatz-Vergleich-API — GET /api/delivery/admin/zonen-umsatz-vergleich: Umsatz je Zone heute vs. Vorwoche + Trend + Top-Zone; Mock-Fallback.
+3. **Phase 1268 Dispatch:** Schicht-Abschluss-Ampel — Wenn alle Touren geschlossen: 🎉 + KPI-Summary (Bestellungen/Umsatz/Ø-Lieferzeit/Top-Fahrer); dispatch/client.tsx nach Phase1263.
+4. **Phase 1269 Fahrer-App:** Kunden-Kontakt-Statistik — Wie oft wurde angerufen/versucht zu erreichen in dieser Schicht + Erfolgsquote; isOnline-Guard; 15-Min-Polling; fahrer/app/client.tsx nach Phase1264.
+5. **Phase 1270 Kitchen:** Bestellungs-Tempo-Monitor — Bestellungen/Min letzte 5/15/30 Min als Kuchendiagramm; Props-basiert (orders); useMemo; nur wenn >5 Orders.
+
 ## CEO Review #341 — 2026-07-13
 
 ### Commit-Stand

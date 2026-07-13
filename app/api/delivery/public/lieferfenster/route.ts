@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Build 8 × 30-min slots starting from next half-hour
     const now = new Date();
@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'order_id, chosen_slot and location_id required' }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error } = await supabase
       .from('customer_orders')

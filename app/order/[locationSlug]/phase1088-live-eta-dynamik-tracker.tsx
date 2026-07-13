@@ -44,7 +44,7 @@ function getPhase(data: TrackingData): DeliveryPhase {
   return 'kueche';
 }
 
-const PHASES: { key: DeliveryPhase; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+const PHASES: { key: DeliveryPhase; label: string; icon: React.ComponentType<{ size?: string | number; className?: string }> }[] = [
   { key: 'kueche',    label: 'Küche',      icon: ChefHat },
   { key: 'bereit',    label: 'Fertig',     icon: CheckCircle2 },
   { key: 'fahrer',    label: 'Abholung',   icon: Bike },

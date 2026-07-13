@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
     const startOfLastWeekDay = new Date(Date.now() - 7 * 86400000);
     startOfLastWeekDay.setHours(0, 0, 0, 0);
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
     let qLW = supabase
       .from('customer_orders')
-      .select('total_price, status, delivered_at, eta_minutes, driver_rating')
+      .select('total_price, status, created_at, delivered_at, eta_minutes, driver_rating')
       .gte('created_at', lastWeekStart)
       .lt('created_at', lastWeekEnd);
     if (locationId) qLW = qLW.eq('location_id', locationId);

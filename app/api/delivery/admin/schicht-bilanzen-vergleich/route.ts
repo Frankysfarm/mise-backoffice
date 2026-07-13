@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   if (!location_id) return NextResponse.json(MOCK);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const now = new Date();
     const dayOfWeek = now.getDay();
     const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
     const verlaufResults = await Promise.all(
       pastDates.map(async ({ start, end }) => {
         const [{ data: pStops }, { data: pOrders }] = await Promise.all([
-          supabase.from('mise_delivery_stops').select('driver_id, delivered_at, estimated_delivery_at').gte('delivered_at', start).lt('delivered_at', end).eq('location_id', location_id),
+          supabase.from('mise_delivery_stops').select('driver_id, order_id, delivered_at, estimated_delivery_at').gte('delivered_at', start).lt('delivered_at', end).eq('location_id', location_id),
           supabase.from('customer_orders').select('gesamtbetrag').gte('bestellt_am', start).lt('bestellt_am', end).eq('location_id', location_id).eq('status', 'geliefert'),
         ]);
         const uniqDrivers = new Set((pStops ?? []).map(s => s.driver_id)).size;

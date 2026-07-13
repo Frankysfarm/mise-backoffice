@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json(mockData(null));
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 

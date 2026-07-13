@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const now = new Date();
 
     // Historical average for same weekday + hour over last 4 weeks

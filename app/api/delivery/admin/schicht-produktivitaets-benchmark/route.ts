@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
     const since7d = new Date(Date.now() - 7 * 24 * 3600_000).toISOString();

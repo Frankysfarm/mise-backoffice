@@ -101,7 +101,7 @@ export function Phase1220WarenkorbSpeicherBanner({ cart, onRestoreCart, inactivi
   if (!visible || dismissed || savedCart.length === 0) return null;
 
   const totalItems = savedCart.reduce((s, i) => s + i.qty, 0);
-  const totalEur = savedCart.reduce((s, i) => s + ((i.item?.price ?? 0) + (i.extra_preis ?? 0)) * i.qty, 0);
+  const totalEur = savedCart.reduce((s, i) => s + ((i.item?.preis ?? 0) + (i.extra_preis ?? 0)) * i.qty, 0);
 
   return (
     <div

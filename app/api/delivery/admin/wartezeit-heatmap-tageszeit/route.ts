@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3_600_000).toISOString();
 
     const q = supabase

@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json(MOCK);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(10, parseInt(searchParams.get('limit') ?? '3', 10));
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ bestellungen: [] });
 

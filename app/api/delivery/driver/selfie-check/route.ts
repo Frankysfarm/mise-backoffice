@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'driver_id and batch_id required' }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
     // Log best-effort — table may not exist yet, so we fall through gracefully
     await supabase.from('driver_shift_checks').insert({
       driver_id,

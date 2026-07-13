@@ -20,7 +20,7 @@ interface StatusData {
   fahrer_name: string | null;
 }
 
-const STEPS: { key: StepKey; label: string; sub: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+const STEPS: { key: StepKey; label: string; sub: string; icon: React.ComponentType<{ size?: string | number; className?: string }> }[] = [
   { key: 'bestaetigt',  label: 'Bestätigt',   sub: 'Bestellung eingegangen',    icon: Package   },
   { key: 'zubereitung', label: 'Zubereitung',  sub: 'Küche bereitet vor',        icon: ChefHat   },
   { key: 'unterwegs',   label: 'Unterwegs',    sub: 'Fahrer ist auf dem Weg',    icon: Bike      },

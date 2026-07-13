@@ -41,15 +41,15 @@ function mockData(locationId: string | null): Response {
   const touren: TourRisiko[] = [
     {
       tour_id: 't1', fahrer_name: 'Max M.', stopps_verbleibend: 4, eta_minuten: 72,
-      schichtende_in_min: 35, risiko: 'kritisch', verzoegerung_min: 37, zone: 'B',
+      schichtende_in_min: 35, risiko: 'kritisch' as const, verzoegerung_min: 37, zone: 'B',
     },
     {
       tour_id: 't2', fahrer_name: 'Anna S.', stopps_verbleibend: 2, eta_minuten: 28,
-      schichtende_in_min: 40, risiko: 'ok', verzoegerung_min: 0, zone: 'A',
+      schichtende_in_min: 40, risiko: 'ok' as const, verzoegerung_min: 0, zone: 'A',
     },
     {
       tour_id: 't3', fahrer_name: 'Tom K.', stopps_verbleibend: 3, eta_minuten: 55,
-      schichtende_in_min: 40, risiko: 'hoch', verzoegerung_min: 15, zone: 'C',
+      schichtende_in_min: 40, risiko: 'hoch' as const, verzoegerung_min: 15, zone: 'C',
     },
   ].filter((t) => t.risiko !== 'ok');
   return {

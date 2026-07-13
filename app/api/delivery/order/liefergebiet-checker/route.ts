@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const q = supabase
       .from('delivery_zones')
       .select('id, zone_label, plz_list, eta_min, mindestbestellwert_eur, lieferkosten_eur, aktiv')

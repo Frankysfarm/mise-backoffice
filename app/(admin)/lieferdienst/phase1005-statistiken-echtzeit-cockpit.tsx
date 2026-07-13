@@ -275,7 +275,7 @@ export function LieferdienstPhase1005StatistikenEchtzeitCockpit() {
             <BarChart data={hours} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
               <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
               <Tooltip
-                formatter={(v: number) => [v, 'Bestellungen']}
+                formatter={((v: unknown) => [String(v ?? 0), 'Bestellungen']) as any}
                 contentStyle={{ fontSize: 11, borderRadius: 8 }}
               />
               <Bar dataKey="bestellungen" radius={[4, 4, 0, 0]}>

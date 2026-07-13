@@ -126,14 +126,14 @@ export function LieferdienstPhase1184BestelleingangVerlaufsDashboard({ locationI
                   <BarChart data={daten} barGap={2}>
                     <XAxis
                       dataKey="stunde"
-                      tickFormatter={(h: number) => `${h}h`}
+                      tickFormatter={(h: unknown) => `${h}h`}
                       tick={{ fontSize: 9, fill: '#a8a29e' }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      formatter={(v: number, name: string) => [v, name === 'heute' ? 'Heute' : 'Vorwoche']}
-                      labelFormatter={(h: number) => `${h}:00 Uhr`}
+                      formatter={((v: unknown, name: unknown) => [String(v ?? 0), name === 'heute' ? 'Heute' : 'Vorwoche']) as any}
+                      labelFormatter={(h: unknown) => `${h}:00 Uhr`}
                       contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
                     />
                     <Bar dataKey="vorwoche" fill="#d6d3d1" radius={[2, 2, 0, 0]} name="vorwoche" />
