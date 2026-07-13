@@ -422,6 +422,7 @@ import { KitchenPhase1298SchichtQualitaetsReport } from './phase1298-schicht-qua
 import { KitchenPhase1300ZubereitungEngpassAmpel } from './phase1300-zubereitung-engpass-ampel';
 import { KitchenPhase1305BatchFertigstellungsAmpel } from './phase1305-batch-fertigstellungs-ampel';
 import { KitchenPhase1311ZubereitungWarteschlangeKockpit } from './phase1311-zubereitung-warteschlange-cockpit';
+import { KitchenPhase1308SmartKochstartCountdown } from './phase1308-smart-kochstart-countdown';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1218,6 +1219,8 @@ export function KitchenBoard({
       <KitchenPhase1305BatchFertigstellungsAmpel orders={filtered as any} />
       {/* Phase 1311: Zubereitung-Warteschlange-Cockpit — offene Bestellungen nach Dringlichkeit + Ampel + Schätzzeit */}
       <KitchenPhase1311ZubereitungWarteschlangeKockpit orders={filtered as any} />
+      {/* Phase 1308: Smart-Kochstart-Countdown — Optimaler Kochstart je Bestellung + 5-Stufen-Farbampel + Kochstart-Button */}
+      <KitchenPhase1308SmartKochstartCountdown orders={filtered as any} />
       {/* Phase 1002: Smart-Timing-Farbkodierung-Ultimate — 5-Stufen-Farbskala (Optimal/Normal/Dringend/Kritisch/Überfällig) + Kochstart-Kommando */}
       <KitchenPhase1002SmartTimingFarbkodierungUltimate orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

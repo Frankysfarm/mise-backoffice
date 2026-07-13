@@ -177,6 +177,7 @@ import { Phase1022BewertungsSchnellWidget } from './phase1022-bewertungs-schnell
 import { BestellungsEtaVorschauBand } from './bestellungs-eta-vorschau-band';
 import { LiveEtaTracker900 } from './phase900-live-eta-tracker';
 import { StorefrontPhase1022EtaLiveTrackingKommando } from './phase1022-eta-live-tracking-kommando';
+import { StorefrontPhase1023EtaLiveTrackingPro } from './phase1023-eta-live-tracking-pro';
 import { Phase1027StammkundenBadge } from './phase1027-stammkunden-badge';
 import { Phase1032LieferzeitErwartungsManager } from './phase1032-lieferzeit-erwartungs-manager';
 import { StorefrontPhase1037ProduktbewertungsWidget } from './phase1037-produktbewertungs-widget';
@@ -2076,6 +2077,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 1022: ETA-Live-Tracking-Kommando — Sekunden-Countdown + Phasen-Fortschritt + Fahrer-Name + ETA-Konfidenz */}
       {order.isDelivery && (
         <StorefrontPhase1022EtaLiveTrackingKommando
+          orderId={order.orderId ?? null}
+          status={order.status ?? null}
+          etaMinutes={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+          className="mx-4 mb-3"
+        />
+      )}
+      {/* Phase 1023: ETA-Live-Tracking Pro — Dynamische ETA + Phasen-Timeline + Fahrer-Annäherung + Sekunden-Countdown */}
+      {order.isDelivery && (
+        <StorefrontPhase1023EtaLiveTrackingPro
           orderId={order.orderId ?? null}
           status={order.status ?? null}
           etaMinutes={order.etaMin ?? null}

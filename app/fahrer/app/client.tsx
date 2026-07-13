@@ -392,6 +392,7 @@ import { FahrerPhase1297TourEndeFotoUpload } from './phase1297-tour-ende-foto-up
 import { FahrerPhase1302SchichtStatistikKarte } from './phase1302-schicht-statistik-karte';
 import { FahrerPhase1307SchichtPauseEmpfehlung } from './phase1307-schicht-pause-empfehlung';
 import { FahrerPhase1312TagesZielFortschritt } from './phase1312-tages-ziel-fortschritt';
+import { FahrerPhase1310LiveStoppNavigator } from './phase1310-live-stopp-navigator';
 
 type Driver = {
   id: string;
@@ -4501,6 +4502,31 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1312TagesZielFortschritt isOnline={isOnline} stoppsAbgeschlossen={todayStats?.deliveries ?? 0} />
         </div>
+        {/* Phase 1310: Live-Stopp-Navigator — Alle Stopps mit GPS-Links (Google/Waze) + ETA-Countdown + Ankunfts-/Liefer-Buttons */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1310LiveStoppNavigator
+              driverId={driver.id}
+              isOnline={isOnline}
+              batchStartedAt={activeBatch.started_at}
+              stops={activeBatch.stops.map((s, i) => ({
+                id: s.id,
+                stop_nummer: s.reihenfolge ?? i + 1,
+                kunde_name: s.order.kunde_name,
+                adresse: s.order.kunde_adresse ?? '',
+                plz: s.order.kunde_plz,
+                lat: s.order.kunde_lat,
+                lng: s.order.kunde_lng,
+                telefon: s.order.kunde_telefon ?? null,
+                eta_min: activeBatch.total_eta_min != null
+                  ? Math.round((activeBatch.total_eta_min / activeBatch.stops.length) * (i + 1))
+                  : null,
+                gesamtbetrag: s.order.gesamtbetrag,
+                status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+              }))}
+            />
+          </div>
+        )}
         {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
         <div className="px-4">
           <FahrerPhase1279KundenzufriedenheitsSchnellPoll driverId={driver.id} isOnline={isOnline} />
