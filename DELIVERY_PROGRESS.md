@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-13): Phasen 1366–1370 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
+- Phase 1366 Backend: `app/api/delivery/admin/bestell-qualitaets-monitor/route.ts` — GET: Storno-Rate, Ø-Bewertung, Fehlerquote, Top-Beschwerde heute; Qualitäts-Level sehr_gut/gut/ok/schlecht; Supabase + Mock-Fallback ✅
+- Phase 1367 Kitchen: `app/(admin)/kitchen/phase1367-ofen-auslastungs-karte.tsx` — 4 Stationen (Ofen/Grill/Pasta/Fritteuse) mit Auslastungsbalken + Engpass-Alert; Props-basiert; nach Phase1362 ✅
+- Phase 1368 Dispatch: `app/(admin)/dispatch/phase1368-bestell-qualitaets-panel.tsx` — Phase1366-API: Storno-Rate + Ø-Bewertung + Fehlerquote + Top-Beschwerde; Qualitäts-Badge + KPI-Grid; 15-Min-Polling; nach Phase1363 ✅
+- Phase 1369 Fahrer-App: `app/fahrer/app/phase1369-kunden-zufriedenheits-ampel.tsx` — Letzte Tour-Bewertung + 7-Tage-Ø + Trend-Ampel grün/gelb/rot; isOnline-Guard; nach Phase1364 ✅
+- Phase 1370 Storefront: `app/order/[locationSlug]/phase1370-aktive-bestellungen-hinweis.tsx` — Aktive Bestellungen + Fahrer-Anzahl + Küche-sehr-beschäftigt-Badge; 5-Min-Polling; nach Phase1365 ✅
+Nächste Phasen: 1371–1375.
+
 Backend-Architekt-Agent (2026-07-13): Phasen 1361–1365 implementiert. Build ✓ 406 Seiten, 0 Fehler.
 - Phase 1361 Backend: `app/api/delivery/admin/schicht-vergleich/route.ts` — GET: aktuelle Schicht vs. Ø letzte 7 Tage (Stopps/Umsatz/Trinkgeld/Pünktlichkeit), Delta-Trend (besser/gleich/schlechter); Supabase delivery_tours + Mock-Fallback ✅
 - Phase 1362 Kitchen: `app/(admin)/kitchen/phase1362-kochplanung-zusammenfassung.tsx` — Tages-Statistik geplante vs. tatsächliche Zubereitungszeiten; Balken je Gericht + Highlight Beste/Schlechteste; Props-basiert; nach Phase1357 ✅
