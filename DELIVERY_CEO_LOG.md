@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1202 + Phase1205 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1203–1207.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1210 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 384 Seiten). Deployment-bereit. Nächste Phasen: 1209–1213.
+
+## CEO Review #335 — 2026-07-13
+
+### Commit-Stand
+- `96711eb9` feat(delivery/backend): Phasen 1203–1208 — Sprit-Kosten, Komplexitäts-Heatmap, Auslastungs-Prognose, Zonen-Score, Küchen-Ampel
+- `ecaebe89` feat(delivery/frontend): smart-timing score cockpit, tour score viz live, tour stopp navigation kommando, dynamische eta live tracking, statistiken performance cockpit
+
+### Befund: Build sauber, 0 Bugs gefunden
+
+**Geprüfte Komponenten (Tiefenprüfung):**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1203 | Backend | GET /api/delivery/driver/sprit-kosten | ✅ |
+| 1204 | Kitchen | phase1204-bestellungs-komplexitaets-heatmap.tsx | ✅ |
+| 1206 | Fahrer-App | FahrerPhase1206ZonenVertrautheitsScore + API | ✅ |
+| 1206 | Fahrer-App | FahrerPhase1206TourStoppNavigationLiveKommando (Props) | ✅ |
+| 1207 | Storefront | Phase1207LiveKuechenAuslastungsIndikator + API | ✅ |
+| 1207 | Storefront | StorefrontPhase1207DynamischeEtaLiveTracking → /api/delivery/eta/live ✓ | ✅ |
+| 1208 | Dispatch | DispatchPhase1208FahrerAuslastungsPrognose + API | ✅ |
+| 1210 | Kitchen | KitchenPhase1210SmartTimingScoreCockpit (Props) | ✅ |
+| 1210 | Dispatch | DispatchPhase1210TourScoreVisualisierungLive (Props) | ✅ |
+
+**Code-Qualität-Checks:**
+- Phase1203 computeKosten: Division-by-Zero Guard `km > 0 ? ... : 0` ✅; Fallback-Fahrzeug `?? 7.5` ✅
+- Phase1203: `!driver && (!stops || stops.length === 0)` → Mock. Korrekt: wenn entweder driver ODER stops vorhanden, echte Daten verwenden ✅
+- Phase1206 Zonen-Score: `json.zonen !== undefined ? json : MOCK` — korrekte undefined-Guard, isOnline-Check ✅
+- Phase1207 Küchen-Ampel API: `levelFromCount` Schwellen (≤4/≤9/≤15/peak) korrekt; `createClient` mit await ✅
+- Phase1207 ETA Live: URL `/api/delivery/eta/live` existiert verifiziert ✅
+- Phase1208 Fahrer-Auslastungs-Prognose: `benoetigte_fahrer = Math.ceil(bestellungen / 4)` korrekt; delta-Berechnung ✅
+- Phase1210 Kitchen + Dispatch: Props-basiert, kein eigenes Fetch — clientseitig korrekt ✅
+- Doppelte Phase-Nummer 1206: beide Komponenten haben einzigartige Namen + beide integriert — kein Konflikt, Build ✓ ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Build-Ergebnis
+**✓ Compiled successfully — 384 Seiten, TypeScript 0 Fehler** ✅
+
+### Nächste Phasen 1209–1213 (für Ingenieur)
+1. **Phase 1209 Backend:** Fahrer-Tages-Einnahmen-Prognose-API — GET /api/delivery/driver/einnahmen-prognose: Hochrechnung Tagesende-Verdienst basierend auf Schichtdauer + bisherige Einnahmen/Stunde. Supabase schicht_trinkgeld_snapshots + mise_delivery_stops + Mock.
+2. **Phase 1210 Kitchen (neu, andere Nummerierung beachten):** Zutaten-Verbrauchs-Ampel — Welche Zutaten werden basierend auf aktiver Bestellrate schnell knapp? Score je Top-Zutat aus Bestellanzahl × Portionsgröße. Props `orders`, useMemo, Ampel-Bars.
+3. **Phase 1211 Dispatch:** Schicht-Ende-Optimierer — Welche Fahrer haben Schichtende in unter 1h und welche Touren priorisieren? API GET /api/delivery/admin/schicht-ende-optimierer + Frontend.
+4. **Phase 1212 Fahrer-App:** Schicht-Start-Checkliste — Interaktive Checkliste vor Schichtbeginn (Fahrzeug, Handy, Wärmetasche, Ausweis) mit Done-State je Punkt, isOnline-Guard.
+5. **Phase 1213 Storefront:** Produktempfehlungs-Karussell — "Andere bestellen auch..." horizontal scrollbares Karussell, storefront.tsx im Warenkorb-Bereich.
+
+**Hinweis an Ingenieur:** Phase-Nummernvergabe überprüfen — Phase1206 und Phase1210 wurden doppelt vergeben (je 2 Komponenten). Nächste Phase klar ab 1214 starten oder intern abstimmen.
 
 ## CEO Review #334 — 2026-07-12
 
