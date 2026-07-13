@@ -1,7 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1313 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, 406 Seiten). Nächste Phasen: 1314–1318.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1318 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, exit code 0). Nächste Phasen: 1319–1323.
+
+## CEO Review #348 — 2026-07-13
+
+### Commit-Stand
+- `f2924d49` feat(delivery/backend): Phasen 1314–1318 — Kapazitäts-Reserve, Komplexitäts-Monitor, Einnahmen-Tracker, Beliebtheits-Badge
+- `d58c7627` feat(delivery/frontend): Smart-Timing, Tour-Score, Fahrer-Navi, ETA & Statistiken
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1314 | Backend | GET /api/delivery/admin/fahrer-kapazitaets-reserve — Ampel gut/warnung/kritisch, Supabase + Mock-Fallback | ✅ |
+| 1315 | Kitchen | KitchenPhase1315BestellungsKomplexitaetsMonitor — Score-Formel (Items×AllergenFaktor×SonderFaktor), 4 Stufen, useMemo | ✅ |
+| 1316 | Dispatch | DispatchPhase1316FahrerKapazitaetsReserveWidget — 10-Min-Polling, Auslastungsbalken + Schicht-Ampel | ✅ |
+| 1317 | Fahrer-App | FahrerPhase1317SchichtEinnahmenTracker + GET /api/delivery/driver/schicht-einnahmen-tracker — Kumulativ + 7-Tage-Sparkline | ✅ |
+| 1318 | Storefront | Phase1318Beliebtheitsbadge + GET /api/delivery/public/beliebte-gerichte — Top-3 Trending-Gerichte + Rang-Emoji | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1315 ✅
+- `dispatch/client.tsx` importiert Phase1316 ✅
+- `fahrer/app/client.tsx` importiert Phase1317 ✅
+- `storefront.tsx` importiert Phase1318 ✅
+- Alle 4 neuen APIs existent und mit Supabase + Mock-Fallback abgesichert ✅
+
+**Code-Qualität:**
+- Phase1314 Ampel-Logik korrekt: >50% frei=gut, >20%=warnung, ≤20%=kritisch ✅
+- Phase1315 Score-Formel: itemAnzahl × (1 + allergen×0.3) × (sonder ? 1.5 : 1) — mathematisch sauber ✅
+- Phase1316 nutzt Phase1314-API, locationId-Prop korrekt ✅
+- Phase1317 isOnline-Guard vorhanden, 7-Tage-Sparkline ✅
+- Phase1318 RANG_BADGE korrekt (🔥⚡⭐), Rang-CSS nach 1/2/3 differenziert ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Build exit code 0 — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1319–1323 (für Ingenieur)
+1. **Phase 1319 Backend:** Schicht-Übergabe-Protokoll-API — GET /api/delivery/admin/schicht-uebergabe: Offene Bestellungen + laufende Touren + aktive Fahrer beim Schichtwechsel; für reibungslose Übergabe; Supabase + Mock-Fallback.
+2. **Phase 1320 Kitchen:** Rezept-Skalierungs-Helfer — Zeigt, welche Gerichte die Küche für die nächsten 30 Min auf Basis der Bestellqueue vorbereiten sollte; Props-basiert; nach Phase1315.
+3. **Phase 1321 Dispatch:** Schicht-Übergabe-Widget — Zeigt Phase1319-API im Dispatch: Offene Touren + Fahrer-Liste + "Übergabe starten"-Button; dispatch/client.tsx nach Phase1316.
+4. **Phase 1322 Fahrer-App:** Trinkgeld-Schnell-Eingabe — Direkteingabe von Bargeld-Trinkgeld nach Lieferung (1-Tap-Betrag oder Freitext); POST an Einnahmen-API; nach Phase1317.
+5. **Phase 1323 Storefront:** Bestellstatus-Push-Banner — Live-Banner "Deine Bestellung ist unterwegs 🚴" mit ETA-Countdown; nach Phase1318.
 
 ## CEO Review #347 — 2026-07-13
 
