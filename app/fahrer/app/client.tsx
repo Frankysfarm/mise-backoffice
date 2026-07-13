@@ -412,6 +412,7 @@ import { FahrerPhase1398KilometerstandQuittung } from './phase1398-kilometerstan
 import { FahrerPhase1403SchichtNotiz } from './phase1403-schicht-notiz';
 import { FahrerPhase1408SchichtEnergieCheck } from './phase1408-schicht-energie-check';
 import { FahrerPhase1413KundenBewertungsVorschau } from './phase1413-kunden-bewertungs-vorschau';
+import { FahrerPhase1410SmartHeimkehrNavigator } from './phase1410-smart-heimkehr-navigator';
 
 type Driver = {
   id: string;
@@ -4663,6 +4664,16 @@ export function FahrerApp({
         {/* Phase 1413: Kunden-Bewertungs-Vorschau — Letzte Kundenbewertung + 7-Tage-Trend + Schnitt; isOnline-Guard; 60s-Polling */}
         <div className="px-4">
           <FahrerPhase1413KundenBewertungsVorschau driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1410: Smart-Heimkehr-Navigator — Nach letztem Stopp: Heimkehr-Anzeige + Navigations-Buttons (Google/Waze) + ETA */}
+        <div className="px-4">
+          <FahrerPhase1410SmartHeimkehrNavigator
+            activeBatch={activeBatch ? { id: activeBatch.id, status: activeBatch.status, stops: activeBatch.stops?.map(s => ({ id: s.id, geliefert_am: s.geliefert_am ?? null, completed_at: null, reihenfolge: s.reihenfolge ?? 0 })) ?? [] } : null}
+            restaurantLat={null}
+            restaurantLng={null}
+            restaurantName="Restaurant"
+            driverPos={driverPos}
+          />
         </div>
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">

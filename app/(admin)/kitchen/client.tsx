@@ -442,6 +442,7 @@ import { KitchenPhase1396ArtikelSyncMonitor } from './phase1396-artikel-sync-mon
 import { KitchenPhase1401ZubereitungsRueckstandMonitor } from './phase1401-zubereitungs-rueckstand-monitor';
 import { KitchenPhase1406LiveBestellmengenTicker } from './phase1406-live-bestellmengen-ticker';
 import { KitchenPhase1411AllergenSchnellAmpel } from './phase1411-allergen-schnell-ampel';
+import { KitchenPhase1410SmartDeadlineSyncCockpit } from './phase1410-smart-deadline-sync-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1278,6 +1279,8 @@ export function KitchenBoard({
       <KitchenPhase1406LiveBestellmengenTicker orders={filtered as any} />
       {/* Phase 1411: Allergen-Schnell-Ampel — Kritische Allergene (Nuss/Gluten/Laktose/Ei/Sesam) als Farbchips je Bestellung */}
       <KitchenPhase1411AllergenSchnellAmpel orders={filtered as any} />
+      {/* Phase 1410: Smart-Deadline-Sync-Cockpit — Farbkodierte Deadline-Anzeige aller aktiven Bestellungen mit Fahrer-ETA-Abgleich */}
+      <KitchenPhase1410SmartDeadlineSyncCockpit orders={filtered} timings={timings} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

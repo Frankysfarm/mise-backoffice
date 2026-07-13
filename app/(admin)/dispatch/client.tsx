@@ -499,6 +499,7 @@ import { DispatchPhase1397SchichtDurchsatzWidget } from './phase1397-schicht-dur
 import { DispatchPhase1402KitchenStopGapWidget } from './phase1402-kitchen-stop-gap-widget';
 import { DispatchPhase1407FahrerZufriedenheitsDashboard } from './phase1407-fahrer-zufriedenheits-dashboard';
 import { DispatchPhase1412SchichtProduktivitaetsCockpit } from './phase1412-schicht-produktivitaets-cockpit';
+import { DispatchPhase1410TourScoreBenchmark } from './phase1410-tour-score-benchmark';
 
 type Driver = {
   employee_id: string;
@@ -1517,6 +1518,8 @@ export function DispatchBoard({
       <DispatchPhase1407FahrerZufriedenheitsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1412: Schicht-Produktivitäts-Cockpit — Bestellungen/Stunde je Fahrer + Ø-Vergleich + Farb-Ranking; 10-Min-Polling */}
       <DispatchPhase1412SchichtProduktivitaetsCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1410: Tour-Score-Benchmark — Vergleich Live-Score vs. Ø 7 Tage je Fahrer mit Trend-Pfeilen */}
+      <DispatchPhase1410TourScoreBenchmark locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
