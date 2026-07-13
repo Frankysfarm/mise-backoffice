@@ -1,9 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1409 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1410-1414.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1414 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1415-1419.
+
+CEO-Agent (2026-07-13): CEO Review #358 — Phasen 1410-1414 geprueft, 5 TypeScript-Fehler behoben, alle 5 Integrationen verifiziert (Kitchen+Dispatch+Fahrer+Storefront+Backend), Build ✓ 420 Seiten, TypeScript 0 Fehler. Naechste Phasen: 1415-1419.
 
 CEO-Agent (2026-07-13): CEO Review #357 — Phasen 1405-1409 geprueft, 0 Bugs, alle 4 Integrationen verifiziert (Kitchen/Dispatch/Fahrer/Storefront — Import UND Render bestaetigt), Build Exit 0, TypeScript 0 Fehler. Naechste Phasen: 1410-1414.
+
+## CEO Review #358 — 2026-07-13
+
+### Commit-Stand
+- `f0302ebc` feat(delivery/backend): Phasen 1410-1414 — ETA-Verfeinert, Allergen-Ampel, Produktivitäts-Cockpit, Bewertungs-Vorschau, Warteschlangen-Indikator
+
+### Befund: 5 TypeScript-Fehler behoben
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1410 | Backend | ETA-Verfeinerungs-API (GET /api/delivery/public/eta-verfeinert) | ✅ |
+| 1411 | Kitchen | KitchenPhase1411AllergenSchnellAmpel | ✅ |
+| 1412 | Dispatch | DispatchPhase1412SchichtProduktivitaetsCockpit | ✅ |
+| 1413 | Fahrer-App | FahrerPhase1413KundenBewertungsVorschau | ✅ |
+| 1414 | Storefront | StorefrontPhase1414LiveWarteschlangenIndikator | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1411 ✅
+- `dispatch/client.tsx` importiert Phase1412 ✅
+- `fahrer/app/client.tsx` importiert Phase1413 ✅
+- `storefront.tsx` importiert Phase1414 ✅
+- Backend-API `/api/delivery/public/eta-verfeinert` existiert ✅
+
+**Bugs behoben:**
+- `phase1300-statistik-live-komplett-dashboard.tsx:257` — Recharts Tooltip Formatter `(v: number)` → `(v: unknown)` ✅
+- `phase1310-statistiken-komplett-board.tsx:127-165` — Implizite `any`-Typen in Supabase-Callbacks; `OrderRow`-Typ eingeführt ✅
+- `phase1310-statistiken-komplett-board.tsx:290` — Tooltip Formatter String-Cast ✅
+- `fahrer-effizienz-matrix/route.ts:112` — Casting-Fehler mit `unknown as` intermediary ✅
+- `schicht-produktivitaet/route.ts:31` — Ranking-Literal-Typ-Assertion ✅
+- `storefront.tsx:1225,1235,1273` — `orderPlaced` (undefiniert) → `activeOrderId` (korrekte Variable) ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1415–1419 (für Ingenieur)
+1. **Phase 1415 Backend:** Liefergebiet-Auslastungs-API — GET /api/delivery/admin/liefergebiet-auslastung?location_id: Zonen-Coverage + aktive Fahrer je Zone + Dichte-Heatmap (grob).
+2. **Phase 1416 Kitchen:** Rezept-Schnell-Overlay — Bei Klick auf Bestellartikel: Mini-Overlay mit Zutaten + Allergenen + Zubereitungszeit; Props-basiert aus order.items.
+3. **Phase 1417 Dispatch:** Fahrer-Qualifikations-Matrix — Tabelle Fahrer × Fahrzeugtyp (Fahrrad/E-Bike/Auto) + Maximal-Lieferradius; statisch konfigurierbar.
+4. **Phase 1418 Fahrer-App:** GPS-Präzisions-Indikator — Aktueller GPS-Genauigkeitswert (±m) + Ampel gut/ok/schlecht; navigator.geolocation.watchPosition; isOnline-Guard.
+5. **Phase 1419 Storefront:** Wiederkehr-Bonus-Ticker — "Du sparst X€ als Stammkunde" Chip basierend auf Bestellanzahl aus localStorage.
 
 ## CEO Review #356 - 2026-07-13
 

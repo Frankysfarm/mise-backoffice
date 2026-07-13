@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
       if (!buckets[key]) buckets[key] = { km: [], puenktlich: [], trinkgeld: [], touren: new Set() };
       buckets[key].touren.add(batch.id);
 
-      const stops = (batch.stops ?? []) as Array<{
+      const stops = (batch.stops ?? []) as unknown as Array<{
         id: string;
         geliefert_am: string | null;
         order: { eta_latest: string | null; trinkgeld: number | null } | null;

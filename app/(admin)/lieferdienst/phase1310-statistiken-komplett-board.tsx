@@ -121,15 +121,16 @@ export function LieferdienstPhase1310StatistikenKomplettBoard({ locationId }: Pr
             .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']),
         ]);
 
-        const today = todayRes.data ?? [];
-        const yesterday = yesterdayRes.data ?? [];
+        type OrderRow = { status: string | null; gesamtbetrag: number | null; tatsaechliche_lieferzeit_min: number | null; erstellt_am?: string | null };
+        const today = (todayRes.data ?? []) as OrderRow[];
+        const yesterday = (yesterdayRes.data ?? []) as OrderRow[];
 
         const delivered = today.filter((o) => o.status === 'geliefert');
         const storni = today.filter((o) => o.status === 'storniert');
         const total = today.length;
 
         const umsatz = delivered.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-        const umsatzGestern = (yesterdayRes.data ?? [])
+        const umsatzGestern = yesterday
           .filter((o) => o.status === 'geliefert')
           .reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
 
@@ -286,7 +287,7 @@ export function LieferdienstPhase1310StatistikenKomplettBoard({ locationId }: Pr
                     tickLine={false}
                   />
                   <Tooltip
-                    formatter={(v: number) => [v, 'Bestellungen']}
+                    formatter={(v: unknown) => [String(v), 'Bestellungen']}
                     labelFormatter={(h) => `${h}:00 Uhr`}
                     contentStyle={{ fontSize: 10, border: 'none', borderRadius: 6 }}
                   />

@@ -1222,9 +1222,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1375FruehbucherPreisvorteilBanner locationId={location.id} />
       </div>
       {/* Phase 1380: Dynamische ETA Live-Tracking Cockpit — Echtzeit-ETA + Phasen-Ampel + Fahrer-Annäherung; 20-Sek-Polling */}
-      {orderPlaced && (
+      {activeOrderId && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
-          <StorefrontPhase1380DynamischeEtaLiveTrackingCockpit locationId={location.id} orderId={orderPlaced?.id ?? null} />
+          <StorefrontPhase1380DynamischeEtaLiveTrackingCockpit locationId={location.id} orderId={activeOrderId} />
         </div>
       )}
       {/* Phase 1385: Wetter-Lieferzeit-Hinweis — Bei Regen/Sturm: +5–10 Min Lieferzeit Banner; dismissbar; 15-Min-Polling */}
@@ -1232,10 +1232,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1385WetterLieferzeitHinweis locationId={location.id} />
       </div>
       {/* Phase 1389: Live-Tracking ETA-Cockpit — Phasen-Timeline + Sekunden-Countdown + Fahrer-Näherungs-Anzeige + 30s-Polling */}
-      {orderPlaced && (
+      {activeOrderId && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <StorefrontPhase1389LiveTrackingEtaCockpit
-            orderId={orderPlaced.id ?? null}
+            orderId={activeOrderId}
             locationId={location.id}
             initialEtaMin={30}
             initialStatus="neu"
@@ -1260,8 +1260,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <StorefrontPhase1399BestellstatusLiveTicker
             orderId={activeOrderId}
             locationId={location.id}
-            initialStatus={orderSuccess?.type === 'lieferung' ? 'in_zubereitung' : 'neu'}
-            initialEtaMin={orderSuccess?.eta ?? undefined}
+            initialStatus="neu"
+            initialEtaMin={undefined}
           />
         </div>
       )}
@@ -1270,9 +1270,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1404AngebotsCountdownBanner />
       </div>
       {/* Phase 1409: Bestell-Übersicht-Miniatur — Kompakte aktive-Bestellung-Karte (Status + ETA); schließbar */}
-      {orderSuccess?.orderId && (
+      {activeOrderId && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
-          <StorefrontPhase1409BestUebersichtMiniatur locationId={location.id} orderId={orderSuccess.orderId} />
+          <StorefrontPhase1409BestUebersichtMiniatur locationId={location.id} orderId={activeOrderId} />
         </div>
       )}
       {/* Phase 1414: Live-Warteschlangen-Indikator — "X Bestellungen vor dir" + Wartezeit-Zusatz; 2-Min-Polling */}

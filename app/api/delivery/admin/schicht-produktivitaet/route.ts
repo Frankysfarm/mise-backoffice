@@ -34,7 +34,7 @@ function buildMock(locationId: string): ApiResponse {
       bestellungen_heute: Math.round(values[i] * 4),
       stunden_aktiv: 4,
       bestellungen_pro_stunde: values[i],
-      ranking: values[i] >= threshold_top ? 'top' : values[i] <= threshold_low ? 'low' : 'mitte',
+      ranking: (values[i] >= threshold_top ? 'top' : values[i] <= threshold_low ? 'low' : 'mitte') as 'top' | 'mitte' | 'low',
     })).sort((a, b) => b.bestellungen_pro_stunde - a.bestellungen_pro_stunde),
     schnitt_bestellungen_pro_stunde: Math.round(schnitt * 10) / 10,
     location_id: locationId,

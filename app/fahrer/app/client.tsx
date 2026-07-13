@@ -4691,7 +4691,7 @@ export function FahrerApp({
               kunde_telefon: s.order?.kunde_telefon ?? null,
               bestellnummer: s.order?.bestellnummer ?? null,
               gesamtbetrag: s.order?.gesamtbetrag ?? null,
-              zahlungsart: s.order?.zahlungsart ?? null,
+              zahlungsart: (s.order as { zahlungsart?: string | null } | null)?.zahlungsart ?? null,
               notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
             })) ?? []}
           />

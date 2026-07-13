@@ -254,7 +254,7 @@ export function LieferdienstPhase1300StatistikLiveKomplettDashboard({ locationId
               <XAxis dataKey="label" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8 }}
-                formatter={(v: number) => [`${v} Bestell.`, '']}
+                formatter={(v: unknown) => [`${v} Bestell.`, '']}
                 labelFormatter={(l) => `${l}`}
               />
               <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]}>
