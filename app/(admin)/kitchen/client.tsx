@@ -148,6 +148,7 @@ import { KitchenPhase1330KochstatusLiveCockpitUltra } from './phase1330-kochstat
 import { KitchenPhase1352AllergenStatistikWoche } from './phase1352-allergen-statistik-woche';
 import { KitchenPhase1357BestellungsDurchsatzMonitor } from './phase1357-bestellungs-durchsatz-monitor';
 import { KitchenPhase1362KochplanungZusammenfassung } from './phase1362-kochplanung-zusammenfassung';
+import { KitchenPhase1367OfenAuslastungsKarte } from './phase1367-ofen-auslastungs-karte';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1248,6 +1249,8 @@ export function KitchenBoard({
       <KitchenPhase1357BestellungsDurchsatzMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1362: Kochplanung-Zusammenfassung — geplante vs. tatsächliche Zubereitungszeiten; Beste/Schlechteste Gerichte */}
       <KitchenPhase1362KochplanungZusammenfassung orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1367: Ofen-Auslastungs-Karte — Aktuelle Station/Ofen-Auslastung: Gerichte in Zubereitung vs. Kapazität; Farbkodierung + Engpass-Alert */}
+      <KitchenPhase1367OfenAuslastungsKarte orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

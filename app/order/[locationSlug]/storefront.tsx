@@ -239,6 +239,7 @@ import { StorefrontPhase1325LiveEtaTrackingUltra } from './phase1325-live-eta-tr
 import { StorefrontPhase1355TreueBadgeWidget } from './phase1355-treue-badge-widget';
 import { StorefrontPhase1360EchtzeitLieferstatusKarte } from './phase1360-echtzeit-lieferstatus-karte';
 import { StorefrontPhase1365WarenkorbLieferzeitschaetzung } from './phase1365-warenkorb-lieferzeitschaetzung';
+import { StorefrontPhase1370AktiveBestellungenHinweis } from './phase1370-aktive-bestellungen-hinweis';
 
 type Props = {
   location: Location;
@@ -1203,6 +1204,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <StorefrontPhase1365WarenkorbLieferzeitschaetzung locationId={location.id} cartItemCount={totalItems} />
         </div>
       )}
+      {/* Phase 1370: Aktive-Bestellungen-Hinweis — "X Bestellungen aktiv" + Fahrer-Anzahl + Küche-beschäftigt-Badge; 5-Min-Polling */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <StorefrontPhase1370AktiveBestellungenHinweis locationId={location.id} />
+      </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}
