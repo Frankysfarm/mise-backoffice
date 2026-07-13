@@ -14171,3 +14171,48 @@ Das System umfasst nun 700+ implementierte Phasen mit:
 3. **Phase 1218 Dispatch:** Live-ETA-Abweichungs-Monitor — Echtzeit-Delta zwischen geschätzter und tatsächlicher Lieferzeit je Tour + Eskalation bei >10 Min.
 4. **Phase 1219 Fahrer-App:** Kunden-Anruf-Log — Letzten 5 Kunden-Kontaktversuche (Anruf/Klingel) mit Uhrzeit + Status.
 5. **Phase 1220 Storefront:** Warenkorb-Speicher-Banner — "Ihr Warenkorb wurde gespeichert" Banner nach 30s Inaktivität + Wiederherstellungs-Button.
+
+---
+
+## Batch 1216–1220 — 2026-07-13
+
+### Phase 1216 — Fahrer-Schicht-ROI-Live-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-schicht-roi-live/route.ts`
+**GET:** `?location_id=<uuid>` — Umsatz je Fahrerstunde heute in Echtzeit; mise_drivers.online + shift_started_at → aktive_stunden; mise_delivery_stops.delivered_at heute → gelieferte_stopps + Bestellwert via customer_orders; effizienz niedrig/normal/hoch/top (25/50/80 €/h Schwellen); Supabase + Mock
+**Response:** `{ fahrer[], gesamt_umsatz_eur, gesamt_stunden, gesamt_roi_pro_stunde, location_id, generiert_am }` · je Fahrer: `{ fahrer_id, fahrer_name, zone, aktive_stunden, gelieferte_stopps, umsatz_eur, umsatz_pro_stunde_eur, effizienz, on_tour }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1217 — Rezept-Zutaten-Countdown (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1217-rezept-zutaten-countdown.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible orange; Pending-Bestellungen-Summary (nächste 5, sortiert nach created_at); Zutaten-Liste sortiert nach Kritikalität (fehlt/knapp/ok) mit Icon + Menge + Einheit + Status-Badge; Fehlt pulsierend
+**Logik:** `itemNameToZutaten()` mappt Artikelname → Zutaten-Liste; `ZUTAT_MAP` Bestand-Richtwerte; `zutatenStatus()` ok wenn Bestand ≥ benötigt, knapp bei ≥50%, fehlt sonst; rein client-seitig
+**Integration:** `kitchen/client.tsx` nach Phase1212 ✅
+
+### Phase 1218 — Live-ETA-Abweichungs-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1218-eta-abweichungs-monitor.tsx` + `app/api/delivery/admin/eta-abweichungs-monitor/route.ts`
+**Props:** `locationId: string | null`
+**UI:** Collapsible sky/rose; je Stopp: Fahrer + Zone + Adresse + Delta-Min (±) + Abweichungs-Badge (OK/Warnung/Kritisch); Eskalation-Count im Header pulsierend; 60s-Polling
+**API:** mise_delivery_stops ohne delivered_at + estimated_delivery_at → delta = now - eta; warnung ≥5 Min, kritisch ≥10 Min; Fahrernamen via mise_drivers; Supabase + Mock
+**Integration:** `dispatch/client.tsx` nach Phase1213 ✅
+
+### Phase 1219 — Kunden-Anruf-Log (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1219-kunden-anruf-log.tsx` + `app/api/delivery/driver/kunden-anruf-log/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible indigo; je Eintrag: Typ-Icon (Anruf/Klingel/SMS) + Kundenname + Adresse + Uhrzeit + Status-Icon (erreicht/nicht_erreicht/mailbox); isOnline-Guard
+**API:** GET driver_contact_logs LIMIT 5 für driver_id; POST zum Speichern neuer Einträge (best-effort); Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1214 ✅
+
+### Phase 1220 — Warenkorb-Speicher-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1220-warenkorb-speicher-banner.tsx`
+**Props:** `cart: CartItem[], onRestoreCart: (items: CartItem[]) => void, inactivitySeconds?: number`
+**UI:** Fixierter Banner (fixed bottom, z-50); teal-Farbschema; ShoppingCart-Icon + "Warenkorb gespeichert" + Artikel/€-Summary; Wiederherstellen-Button + X-Dismiss; slide-in-from-bottom Animation
+**Logik:** Activity-Events (mousemove/keydown/touchstart/scroll/click) → resetTimer() mit setTimeout 30s; saveCart() speichert in localStorage; Mount: wiederherstellt gespeicherten Warenkorb wenn Cart leer; onRestoreCart(items) setzt Cart zurück + löscht localStorage
+**Integration:** `storefront.tsx` nach Phase1215 + restoreCart Callback ✅
+
+### Nächste Phasen 1221–1225 (für Ingenieur)
+1. **Phase 1221 Backend:** Tour-Gewinn-Analyse-API — Bruttogewinn je Tour (Bestellwert − geschätzte Fahrtkosten − Fahrer-Anteil) + Best/Worst-Tour heute.
+2. **Phase 1222 Kitchen:** Zubereitung-Warteschlangen-Anzeige — Live-Queue der Bestellungen je Station mit Priorität + farbkodiertem Druck-Level.
+3. **Phase 1223 Dispatch:** Fahrer-Einsatz-Planer — Drag-and-Drop-Zuweisung freier Fahrer zu offenen Touren (visuell, keine echte DB-Änderung — nur Vorschau).
+4. **Phase 1224 Fahrer-App:** Schicht-Ende-Energie-Check — Abfrage wie erschöpft der Fahrer ist (1–5 Skala) + automatische Empfehlung für Pausendauer.
+5. **Phase 1225 Storefront:** Lieferfenster-Auswahl-Widget — Kunde kann bevorzugtes 30-Min-Lieferfenster auswählen (heute verfügbare Slots basierend auf Auslastung).
