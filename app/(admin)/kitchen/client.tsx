@@ -412,6 +412,7 @@ import { KitchenPhase1189SchichtAbschlussPrognose } from './phase1189-schicht-ab
 import { KitchenPhase1194AllergenLiveAmpel } from './phase1194-allergen-live-ampel';
 import { KitchenPhase1199BestellungsWarteschlangenPrognose } from './phase1199-bestellungs-warteschlangen-prognose';
 import { KitchenPhase1267BestelleingangsTaktMeter } from './phase1267-bestelleingangs-takt-meter';
+import { KitchenPhase1272MultiAllergenScanCockpit } from './phase1272-multi-allergen-scan-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1188,6 +1189,8 @@ export function KitchenBoard({
       <KitchenPhase1262WartezeitWarnung orders={filtered as any} />
       {/* Phase 1267: Bestelleingangs-Takt-Meter — Bestellungen/Min gleitend 5 Min + grün/amber/rot + Spitzenzeit */}
       <KitchenPhase1267BestelleingangsTaktMeter orders={filtered as any} />
+      {/* Phase 1272: Multi-Allergen-Scan-Cockpit — 8 Allergene + Farb-Ampel + Eskalation bei kritischer Kombination */}
+      <KitchenPhase1272MultiAllergenScanCockpit orders={filtered as any} />
       {/* Phase 1002: Smart-Timing-Farbkodierung-Ultimate — 5-Stufen-Farbskala (Optimal/Normal/Dringend/Kritisch/Überfällig) + Kochstart-Kommando */}
       <KitchenPhase1002SmartTimingFarbkodierungUltimate orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

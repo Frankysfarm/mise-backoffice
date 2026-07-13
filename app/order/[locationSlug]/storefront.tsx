@@ -224,6 +224,7 @@ import { Phase1250GruppenbestellungBanner } from './phase1250-gruppenbestellung-
 import { Phase1255BewertungsKarussell } from './phase1255-bewertungs-karussell';
 import { Phase1265LieferStatusProgress } from './phase1265-liefer-status-progress';
 import { Phase1270ArtikelBeliebtheitsBadge } from './phase1270-artikel-beliebtheitsbadge';
+import { Phase1275MindestbestellwertProgress } from './phase1275-mindestbestellwert-progress';
 
 type Props = {
   location: Location;
@@ -1183,6 +1184,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             selectedSlot={selectedDeliverySlot}
             onSelectSlot={setSelectedDeliverySlot}
           />
+        </div>
+      )}
+      {/* Phase 1275: Mindestbestellwert-Progress-Bar — farbiger Fortschrittsbalken bis Mindestbestellwert + Freischalts-Animation */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1275MindestbestellwertProgress subtotal={subtotal} minOrder={minOrder} />
         </div>
       )}
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
