@@ -246,6 +246,7 @@ import { StorefrontPhase1385WetterLieferzeitHinweis } from './phase1385-wetter-l
 import { StorefrontPhase1389LiveTrackingEtaCockpit } from './phase1389-live-tracking-eta-cockpit';
 import { StorefrontPhase1394BestellhistorieSchnellreorder } from './phase1394-bestellhistorie-schnellreorder';
 import { StorefrontPhase1399BestellstatusLiveTicker } from './phase1399-bestellstatus-live-ticker';
+import { StorefrontPhase1404AngebotsCountdownBanner } from './phase1404-angebots-countdown-banner';
 
 type Props = {
   location: Location;
@@ -1262,6 +1263,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1404: Angebots-Countdown-Banner — Lunch-Special 11-14h (−10%) + Abend-Deal 18-21h (−8%) + Countdown-Ticker; schließbar */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <StorefrontPhase1404AngebotsCountdownBanner />
+      </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}
