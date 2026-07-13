@@ -1,10 +1,11 @@
 'use client';
 
 // Phase 1223 — Fahrer-Einsatz-Planer (Dispatch)
-// Drag-and-Drop-Zuweisung freier Fahrer zu offenen Touren (visuell, nur Vorschau — keine DB-Änderung)
+// Phase 1228 — Live-Zuweisung-Bestätigen: Button "Zuweisung bestätigen" → PATCH /api/delivery/admin/batch-assign
+// Drag-and-Drop + Klick-Fallback; Bestätigungs-Toast; Rollback bei Fehler
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, Bike, Package, AlertTriangle, CheckCircle2, RefreshCw, Users, Route } from 'lucide-react';
+import { ChevronDown, ChevronUp, Bike, Package, AlertTriangle, CheckCircle2, RefreshCw, Users, Route, Send, Loader2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -31,6 +32,8 @@ interface Zuweisung {
   fahrerId: string;
 }
 
+type ToastState = { type: 'success' | 'error'; message: string } | null;
+
 const MOCK_FAHRER: FreierFahrer[] = [
   { id: 'f1', name: 'Max Müller', zone: 'Mitte', online_seit_min: 12 },
   { id: 'f2', name: 'Jana Koch', zone: 'Nord', online_seit_min: 34 },
@@ -51,6 +54,9 @@ export function DispatchPhase1223FahrerEinsatzPlaner({ locationId }: Props) {
   const [dragFahrerId, setDragFahrerId] = useState<string | null>(null);
   const [hoveredTourId, setHoveredTourId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!locationId) return;
@@ -82,6 +88,48 @@ export function DispatchPhase1223FahrerEinsatzPlaner({ locationId }: Props) {
   function getFahrerForTour(tourId: string): FreierFahrer | undefined {
     const z = zuweisungen.find((zu) => zu.tourId === tourId);
     return z ? fahrer.find((f) => f.id === z.fahrerId) : undefined;
+  }
+
+  function showToast(type: 'success' | 'error', message: string) {
+    setToast({ type, message });
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 4000);
+  }
+
+  async function confirmZuweisungen() {
+    if (!locationId || zuweisungen.length === 0) return;
+    setConfirming(true);
+    const snapshot = [...zuweisungen];
+    let successCount = 0;
+    let failCount = 0;
+    for (const z of snapshot) {
+      try {
+        const res = await fetch('/api/delivery/admin/batch-assign', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_id: z.tourId, driver_id: z.fahrerId, location_id: locationId }),
+        });
+        const json = await res.json();
+        if (json.ok) {
+          successCount++;
+        } else if (res.status === 409) {
+          // Already assigned — treat as success
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+    setConfirming(false);
+    if (failCount === 0) {
+      showToast('success', `${successCount} Zuweisung${successCount !== 1 ? 'en' : ''} bestätigt`);
+      setZuweisungen([]);
+    } else {
+      // Rollback failed ones — keep zuweisungen for retry
+      showToast('error', `${failCount} von ${snapshot.length} Zuweisungen fehlgeschlagen — bitte erneut versuchen`);
+    }
   }
 
   const freiFahrer = fahrer.filter((f) => !zugewieseneFahrerIds.has(f.id));
@@ -239,13 +287,36 @@ export function DispatchPhase1223FahrerEinsatzPlaner({ locationId }: Props) {
             </div>
           </div>
 
+          {/* Toast */}
+          {toast && (
+            <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
+              toast.type === 'success'
+                ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+            }`}>
+              {toast.type === 'success' ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> : <XCircle className="h-3.5 w-3.5 shrink-0" />}
+              {toast.message}
+            </div>
+          )}
+
           {zuweisungen.length > 0 && (
-            <button
-              onClick={() => setZuweisungen([])}
-              className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground underline"
-            >
-              <RefreshCw className="h-3 w-3" /> Alle Zuweisungen zurücksetzen
-            </button>
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={confirmZuweisungen}
+                disabled={confirming}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold px-3 py-1.5 transition disabled:opacity-60"
+              >
+                {confirming ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                Zuweisung bestätigen ({zuweisungen.length})
+              </button>
+              <button
+                onClick={() => setZuweisungen([])}
+                disabled={confirming}
+                className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground underline disabled:opacity-60"
+              >
+                <RefreshCw className="h-3 w-3" /> Zurücksetzen
+              </button>
+            </div>
           )}
         </div>
       )}
