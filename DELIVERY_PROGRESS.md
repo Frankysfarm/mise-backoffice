@@ -14692,3 +14692,49 @@ Alle Phasen 1271–1275 geprüft + integriert. Nächste Phasen: 1276–1280.
 3. **Phase 1296 Dispatch:** Kunden-Bewertungs-Cockpit — Zeigt Phase1290-API: Wochentag-Balken + Beschwerden-Liste + Trend-Badge; dispatch/client.tsx nach Phase1291.
 4. **Phase 1297 Fahrer-App:** Tour-Ende-Foto-Upload — Ablieferungs-Foto-Bestätigung: Kamera/Datei-Upload + Preview + POST /api/delivery/driver/ablieferungs-foto (best-effort); isOnline-Guard.
 5. **Phase 1298 Kitchen:** Schicht-Qualitäts-Report — Zusammenfassung: Fehlerquote (Stornos/Beschwerden) + beste/schlechteste Stunde + Empfehlungen; Props-basiert.
+
+---
+
+## Batch 1381-1385 -- 2026-07-13
+
+### Phase 1381 -- Liefer-Qualitaets-Index-API (Backend)
+**Datei:** `app/api/delivery/admin/liefer-qualitaets-index/route.ts`
+**GET:** `?location_id=<uuid>` -- Gewichteter Score: Puenktlichkeit (40%) + Kundenbewertung (35%) + Stornoquote (25%); Tagesverlauf letzte 7 Tage; Trend steigend/stabil/fallend; Supabase customer_orders + Mock
+**Response:** `{ heute: TagScore, tagesverlauf[], trend, trend_pct, location_id, generiert_am }` je Tag: `{ datum, label, puenktlichkeit_score, bewertungs_score, storno_score, gesamt_index, bestellungen }`
+**Multi-Tenant:** location_id auf jedem Query OK
+
+### Phase 1382 -- Sonderwunsch-Haeufigkeits-Karte (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1382-sonderwunsch-haeufigkeits-karte.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible violet; Top-8 Muster farbkodiert (gruen=einfach/amber=mittel/rot=komplex); Rang + Haeufigkeit; Komplexitaet via Keyword-Matching; "X komplex"-Warnung im Header; useMemo client-seitig
+**Logik:** KOMPLEX_KEYWORDS: allergi/halal/kosher etc; MITTEL_KEYWORDS: extra/doppelt/scharf etc; Dedup via lowercase-Map; Item-Level + Order-Level Sonderwuensche
+**Integration:** `kitchen/client.tsx` nach Phase1377 OK
+
+### Phase 1383 -- Liefer-Qualitaets-Index-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1383-liefer-qualitaets-index-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (gruen>=80/amber>=60/rot<60); 3-Saeulen-Grid (Puenktlichkeit/Bewertung/Storno) je mit Mini-Balken; 7-Tage-Verlauf als Balken-Chart (heute blau); Trend-Icon + Delta; 10-Min-Polling
+**Logik:** Nutzt Phase1381-API; indexLevel() fuer Farb-Config; MOCK-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1378 OK
+
+### Phase 1384 -- Live-Einnahmen-Ticker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1384-live-einnahmen-ticker.tsx` + `app/api/delivery/driver/live-einnahmen/route.ts`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible emerald; Flash-Animation bei neuer Tour (Zap-Badge); Tagesziel-Fortschrittsbalken; 2xKPI-Grid (Touren/Trend vs. Vorwoche); Letzte-Tour-Row; isOnline-Guard; 30-Sek-Polling
+**API:** GET delivery_batches heute + Vorwoche; driver_shift_goals fuer Tagesziel; Supabase + Mock
+**Integration:** `fahrer/app/client.tsx` nach Phase1379 OK
+
+### Phase 1385 -- Wetter-Lieferzeit-Hinweis (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1385-wetter-lieferzeit-hinweis.tsx` + `app/api/delivery/public/wetter-status/route.ts`
+**Props:** `locationId: string`
+**UI:** Sky (Regen)/Rot (Sturm)/Slate (Wind); Icon + "+X Min Lieferzeit"; Beschreibungstext; X-Dismiss; 15-Min-Polling
+**API:** GET delivery_config WHERE config_key=wetter_hinweis -- Admin-Override; extraMinuten 10/7/5 je Typ; Fallback klar
+**Integration:** `storefront.tsx` nach Phase1380 OK
+
+### Naechste Phasen 1386-1390 (fuer Ingenieur)
+1. **Phase 1386 Backend:** Fahrer-Zufriedenheits-Score-API -- Aggregat aus Stimmung + Trinkgeld-Trend + Bonus-Fortschritt; GET /api/delivery/admin/fahrer-zufriedenheits-score.
+2. **Phase 1387 Kitchen:** Live-Bestellmengen-Ticker -- Echtzeit-Bestellungen dieser Stunde + Hochrechnung + Vergleich Vorwoche; Props-basiert.
+3. **Phase 1388 Dispatch:** Fahrer-Zufriedenheits-Dashboard -- Phase1386-API: Kacheln je Fahrer (Stimmung/Trinkgeld/Bonus); 10-Min-Polling.
+4. **Phase 1389 Fahrer-App:** Schicht-Energie-Check -- Alle 2h: Energielevel 1-5 Eingabe + Empfehlung (Pause/Weiter/Schicht-Ende); isOnline-Guard.
+5. **Phase 1390 Storefront:** Bestelluebersicht-Miniatur -- Kompakte aktive-Bestellung-Karte im Header (Status+ETA); locationId-basiert.
+

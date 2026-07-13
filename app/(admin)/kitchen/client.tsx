@@ -151,6 +151,7 @@ import { KitchenPhase1362KochplanungZusammenfassung } from './phase1362-kochplan
 import { KitchenPhase1367OfenAuslastungsKarte } from './phase1367-ofen-auslastungs-karte';
 import { KitchenPhase1372ZubereitungsGeschwindigkeitsRangliste } from './phase1372-zubereitungs-geschwindigkeits-rangliste';
 import { KitchenPhase1377SmartTimingFarbCountdownBoard } from './phase1377-smart-timing-farb-countdown-board';
+import { KitchenPhase1382SonderwunschHaeufigkeitsKarte } from './phase1382-sonderwunsch-haeufigkeits-karte';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1257,6 +1258,8 @@ export function KitchenBoard({
       <KitchenPhase1372ZubereitungsGeschwindigkeitsRangliste orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1377: Smart-Timing Farb-Countdown-Board — Echtzeit-Countdown aller aktiven Bestellungen mit 4-stufiger Farbkodierung (Grün/Amber/Orange/Rot) + Sekunden-Anzeige */}
       <KitchenPhase1377SmartTimingFarbCountdownBoard orders={filtered as any} timings={timings as any} />
+      {/* Phase 1382: Sonderwunsch-Häufigkeits-Karte — Top-8 Sonderwünsche aus aktiven Bestellungen farbkodiert nach Komplexität (einfach/mittel/komplex) */}
+      <KitchenPhase1382SonderwunschHaeufigkeitsKarte orders={filtered as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

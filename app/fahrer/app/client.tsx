@@ -405,6 +405,7 @@ import { FahrerPhase1364TourAbschlussZusammenfassung } from './phase1364-tour-ab
 import { FahrerPhase1369KundenZufriedenheitsAmpel } from './phase1369-kunden-zufriedenheits-ampel';
 import { FahrerPhase1374SchichtBilanzOverlay } from './phase1374-schicht-bilanz-overlay';
 import { FahrerPhase1379TourStoppNavigationLiveCockpit } from './phase1379-tour-stopp-navigation-live-cockpit';
+import { FahrerPhase1384LiveEinnahmenTicker } from './phase1384-live-einnahmen-ticker';
 
 type Driver = {
   id: string;
@@ -4607,6 +4608,10 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1384: Live-Einnahmen-Ticker — Echtzeit-Einnahmen heute + Tagesziel-Fortschritt + Trend vs. Vorwoche + Neue-Tour-Flash-Animation */}
+        <div className="px-4">
+          <FahrerPhase1384LiveEinnahmenTicker driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
         <div className="px-4">
           <FahrerPhase1350TourStoppNavigatorPlus
