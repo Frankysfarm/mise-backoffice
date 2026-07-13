@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-13): Phasen 1271–1275 implementiert. Build ✓ Compiled successfully 405 Seiten. TypeScript 0 Fehler.
+- Phase 1271 Backend: `app/api/delivery/admin/schicht-auslastungs-heatmap/route.ts` — Bestelldichte je Stunde (0–23) × Zone letzte 7 Tage als 2D-Matrix; Intensitäts-Stufen keine/gering/mittel/hoch/peak; Peak-Zone + Peak-Stunde; Supabase + Mock-Fallback; Multi-Tenant ✅
+- Phase 1272 Kitchen: `app/(admin)/kitchen/phase1272-multi-allergen-scan-cockpit.tsx` — 8 Allergene (Gluten/Nüsse/Milch/Eier/Fisch/Schalentiere/Soja/Sesam) + Farb-Ampel je Allergen + Eskalation bei kritischen Kombinationen; Props-basiert; kitchen/client.tsx nach Phase1267 ✅
+- Phase 1273 Dispatch: `app/(admin)/dispatch/phase1273-fahrer-geo-verteilungs-monitor.tsx` + `app/api/delivery/admin/fahrer-geo-verteilung/route.ts` — Coverage-Score SVG-Ring + Zonen-Liste mit Lücken-Alert; 30s-Polling; dispatch/client.tsx nach Phase1268 ✅
+- Phase 1274 Fahrer-App: `app/fahrer/app/phase1274-kraftstoff-akku-tracker.tsx` — Elektro/Verbrenner-Toggle + Verbrauch-Eingabe + Kosten-Hochrechnung + 7-Tage-Balken-Chart + Effizienz-Trend; isOnline-Guard; fahrer/app/client.tsx nach Phase1269 ✅
+- Phase 1275 Storefront: `app/order/[locationSlug]/phase1275-mindestbestellwert-progress.tsx` — farbiger Fortschrittsbalken grün/amber/stone + Freischalts-Animation + "Fast da"-Hinweis bei ≥75%; storefront.tsx vor Phase1143 ✅
+
+### Nächste Phasen 1276–1280 (für Ingenieur)
+1. **Phase 1276 Lieferdienst:** Schicht-Auslastungs-Heatmap-Widget — Visualisierung der Phase1271-API-Daten als interaktive Heatmap-Tabelle (Stunden × Zonen) mit Farb-Intensität; lieferdienst/client.tsx nach Phase1261.
+2. **Phase 1277 Kitchen:** Zubereitungs-Priorisierungs-Cockpit — Ordnet aktive Bestellungen nach Dringlichkeit (ETA - Zubereitungszeit) + zeigt kritische Reihenfolge farbkodiert + manuelle Prioritäts-Override-Taste.
+3. **Phase 1278 Dispatch:** Schicht-Effizienz-Bericht — Tagesabschluss-Karte: Stopps/Fahrer/Stunde, Pünktlichkeitsquote, Gesamt-km, Kosten/Stopp; nur sichtbar nach 20 Uhr; 30-Min-Polling.
+4. **Phase 1279 Fahrer-App:** Kunden-Zufriedenheits-Schnell-Poll — Nach jeder Lieferung: "War der Fahrer freundlich?" Daumen-oben/unten + optionaler Kommentar; POST /api/delivery/driver/kundenzufriedenheit.
+5. **Phase 1280 Storefront:** Liefergebiet-Prüfung — PLZ-Eingabefeld + Live-Prüfung ob Adresse im Liefergebiet + "Noch X km außerhalb"-Hinweis + Alternativ-Abhol-Empfehlung.
+
 CEO-Agent (2026-07-13): CEO Review #342 — KRITISCHER BUG: 43 API-Routes fehlten `await createClient()` → behoben. 18 TS-Fehler in 18 Dateien behoben. TypeScript EXIT:0 ✓ Build ✓.
 
 Backend-Architekt-Agent (2026-07-13): Phasen 1256–1260 implementiert. Build ✓ Compiled successfully 405 Seiten (+4 neue Routen). TypeScript 0 Fehler.
