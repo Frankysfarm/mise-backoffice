@@ -462,6 +462,7 @@ import { DispatchPhase1213SchichtendeUebernahmeAlert } from './phase1213-schicht
 import { DispatchPhase1218EtaAbweichungsMonitor } from './phase1218-eta-abweichungs-monitor';
 import { DispatchPhase1223FahrerEinsatzPlaner } from './phase1223-fahrer-einsatz-planer';
 import { DispatchPhase1233SchichtKostenErtrag } from './phase1233-schicht-kosten-ertrag';
+import { DispatchPhase1238SchichtPauseOptimierer } from './phase1238-schicht-pause-optimierer';
 import { DispatchPhase1003TourVisualisierungPro } from './phase1003-tour-visualisierung-pro';
 
 type Driver = {
@@ -1415,6 +1416,8 @@ export function DispatchBoard({
       <DispatchPhase1223FahrerEinsatzPlaner locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1233: Schicht-Kosten-Ertrag — Umsatz vs. Fahrer-Löhne + Marge je Fahrer */}
       <DispatchPhase1233SchichtKostenErtrag locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1238: Schicht-Pause-Optimierer — Letzte Pause je Fahrer + Empfehlung wenn Zone ruhig */}
+      <DispatchPhase1238SchichtPauseOptimierer locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}
       <DispatchPhase1003TourVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}

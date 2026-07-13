@@ -375,6 +375,7 @@ import { FahrerPhase1219KundenAnrufLog } from './phase1219-kunden-anruf-log';
 import { FahrerPhase1224SchichtEndeEnergieCheck } from './phase1224-schicht-ende-energie-check';
 import { FahrerPhase1229EnergieVerlauf } from './phase1229-energie-verlauf';
 import { FahrerPhase1234TourQualitaetsAbzeichen } from './phase1234-tour-qualitaets-abzeichen';
+import { FahrerPhase1239EinnahmenPrognoseWidget } from './phase1239-einnahmen-prognose-widget';
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 
 type Driver = {
@@ -4427,6 +4428,10 @@ export function FahrerApp({
         {/* Phase 1234: Tour-Qualitäts-Abzeichen — Erfolgsquote letzte Stopps + Gold/Silber/Bronze-Badge */}
         <div className="px-4">
           <FahrerPhase1234TourQualitaetsAbzeichen driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1239: Einnahmen-Prognose-Widget — Hochrechnung Tagesende + Bronze/Silber/Gold-Zielbalken */}
+        <div className="px-4">
+          <FahrerPhase1239EinnahmenPrognoseWidget driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}

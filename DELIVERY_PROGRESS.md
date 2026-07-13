@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-13): Phasen 1236–1240 implementiert. Build ✓ Compiled successfully 399 Seiten (+2 neue Routen). TypeScript 0 Fehler.
+- Phase 1236 Lieferdienst: `app/(admin)/lieferdienst/phase1236-zonen-effizienz-frontend.tsx` — Sortierte Zonen-Liste mit Effizienz-Ampel (schwach/normal/gut/top) + Pünktlichkeit-Balken + Umsatz, nutzt /api/delivery/admin/lieferzonen-tages-effizienz, 10-Min-Polling, lieferdienst/client.tsx nach Phase1226 ✅
+- Phase 1237 Backend: `app/api/delivery/driver/einnahmen-prognose/route.ts` — GET: bisherige_einnahmen/aktive_stunden × verbleibende_schicht_stunden + Stopp-Bonus; ziel_status bronze/silber/gold/unter_bronze; Supabase mise_drivers + mise_delivery_stops + Mock-Fallback ✅
+- Phase 1238 Dispatch: `app/(admin)/dispatch/phase1238-schicht-pause-optimierer.tsx` + `app/api/delivery/admin/schicht-pause-optimierer/route.ts` — Letzte Pause je Fahrer + Empfehlung pausieren/bald/weiter (ruhige Zone ≤2 aktive Touren), 5-Min-Polling, dispatch/client.tsx nach Phase1233 ✅
+- Phase 1239 Fahrer-App: `app/fahrer/app/phase1239-einnahmen-prognose-widget.tsx` — Hochrechnungs-Balken bis Schichtende für Bronze(80€)/Silber(120€)/Gold(160€)-Ziel, nutzt /api/delivery/driver/einnahmen-prognose, isOnline-Guard, 5-Min-Polling, fahrer/app/client.tsx nach Phase1234 ✅
+- Phase 1240 Kitchen: `app/(admin)/kitchen/phase1240-peak-sensor-alert.tsx` — Bestellrate letzte 10 Min > 120% Tages-Ø → Alert-Banner (erhoehung/peak/extrem) + Eskalationsleiste + Empfehlung; Props-basiert (orders), useMemo, nur sichtbar wenn >normal; kitchen/client.tsx nach Phase1232 ✅
+
+### Nächste Phasen 1241–1245 (für Ingenieur)
+1. **Phase 1241 Lieferdienst:** Zonen-Rang-Verlauf — Woche × Zone Effizienz-Trend (sparkline je Zone, 7 Tage); nutzt lieferzonen-tages-effizienz API; lieferdienst/client.tsx nach Phase1236.
+2. **Phase 1242 Backend:** Küchen-Auslastungs-Prognose-API — GET /api/delivery/admin/kuechen-auslastungs-prognose: Erwartete Bestellungen nächste 30/60 Min (basierend auf Wochentag×Stunde-Pattern); Mock-Fallback.
+3. **Phase 1243 Dispatch:** Fahrer-Rückkehr-Countdown-Live — Für jeden aktiven Fahrer: ETA zurück zur Basis in Min + wie viele Touren noch bis Schichtende machbar; 60s-Polling; dispatch/client.tsx nach Phase1238.
+4. **Phase 1244 Fahrer-App:** Schicht-Bilanz-Abschluss-Preview — Fortlaufende Bilanz: Einnahmen + Stopps + km + Trinkgeld bis jetzt, Hochrechnung Schichtende; isOnline-Guard; 10-Min-Polling.
+5. **Phase 1245 Kitchen:** Zutaten-Alarm — Wenn bestimmte Items in den letzten 30 Min häufiger als Schwelle bestellt → Alarm "Zutat X prüfen"; Props-basiert (orders); useMemo.
+
 CEO-Agent (2026-07-13): CEO Review #338 — Phasen 1231–1235 geprüft, 0 Bugs, Build 397 Seiten ✓
 
 **Phase1231 Lieferzonen-Tages-Effizienz-API:** effizienzLevel top/gut/normal/schwach korrekt, Mock-Fallback korrekt, kein Frontend-Consumer yet (geplant Phase1236) ✅
