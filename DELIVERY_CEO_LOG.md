@@ -1,7 +1,58 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1350 vollständig abgeschlossen (inkl. Frontend-Agent Phasen 1330/1340/1300/1325/1350). Build sauber (✓ 406 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1351–1355.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1360 vollständig abgeschlossen. Build sauber (✓ 406 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1361–1365.
+
+## CEO Review #351 — 2026-07-13
+
+### Commit-Stand
+- `01001e57` docs: DELIVERY_PROGRESS.md Phasen 1356–1360 + Nächste Phasen 1361–1365
+- `2128b38b` feat(delivery/frontend): Phasen 1356–1360 — Durchsatz-Monitor, Tour-Effizienz, Schicht-Ziele, Lieferstatus-Karte
+
+### Befund: 4 Integrationen fehlten — jetzt behoben
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1356 | Backend | GET /api/delivery/admin/bestellungs-durchsatz | ✅ |
+| 1357 | Kitchen | KitchenPhase1357BestellungsDurchsatzMonitor | ✅ **integriert** |
+| 1358 | Dispatch | DispatchPhase1358TourEffizienzRangliste | ✅ **integriert** |
+| 1359 | Fahrer-App | FahrerPhase1359SchichtZielZusammenfassung | ✅ **integriert** |
+| 1360 | Storefront | StorefrontPhase1360EchtzeitLieferstatusKarte | ✅ **integriert** |
+
+**Fehler gefunden und behoben:**
+- Phase1357 (`KitchenPhase1357BestellungsDurchsatzMonitor`) war nicht in `kitchen/client.tsx` importiert oder verwendet → ergänzt nach Phase1352
+- Phase1358 (`DispatchPhase1358TourEffizienzRangliste`) war nicht in `dispatch/client.tsx` importiert oder verwendet → ergänzt nach Phase1353
+- Phase1359 (`FahrerPhase1359SchichtZielZusammenfassung`) war nicht in `fahrer/app/client.tsx` importiert oder verwendet → ergänzt nach Phase1354
+- Phase1360 (`StorefrontPhase1360EchtzeitLieferstatusKarte`) war nicht in `storefront.tsx` importiert oder verwendet → ergänzt nach Phase1355, mit `activeOrderId`-Guard
+
+**Code-Qualität:**
+- Alle 4 neuen Komponenten Props-konform integriert ✅
+- TypeScript: 0 Fehler (tsc exit 0 bestätigt) ✅
+- Build: ✓ Compiled successfully — 406 Seiten ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 406 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1361–1365 (für Ingenieur)
+1. **Phase 1361 Backend:** Schicht-Vergleich-API — GET /api/delivery/admin/schicht-vergleich: Vergleich aktuelle Schicht vs. Durchschnitt letzte 7 Tage (Stopps/Umsatz/Trinkgeld/Pünktlichkeit); Supabase + Mock-Fallback.
+2. **Phase 1362 Kitchen:** Kochplanung-Zusammenfassung — Tages-Statistik: geplante vs. tatsächliche Zubereitungszeiten; Beste/Schlechteste Gerichte nach Effizienz; Props-basiert; nach Phase1357.
+3. **Phase 1363 Dispatch:** Schicht-Vergleich-Widget — Zeigt Phase1361-API: aktuelle Schicht vs. 7-Tage-Ø mit Delta-Ampel; nach Phase1358.
+4. **Phase 1364 Fahrer-App:** Tour-Abschluss-Zusammenfassung — Nach letztem Stopp: Automatisches Overlay mit Tour-KPIs (Zeit/Stopps/km/Trinkgeld/Bewertung); localStorage; nach Phase1359.
+5. **Phase 1365 Storefront:** Warenkorb-Lieferzeitschätzung — Wenn Warenkorb nicht leer: Live-ETA-Anzeige "Lieferung in ca. X Minuten" basierend auf aktueller Küchen-Auslastung; nach Phase1360.
+
+## Aktueller Stand
+**MARKT-REIF + WACHSTUM.** Phasen 1–1360 vollständig abgeschlossen und integriert. Build sauber (✓ Compiled successfully, 406 Seiten). Deployment-bereit. Nächste Phasen: 1361–1365.
 
 ## CEO Review #350 — 2026-07-13
 

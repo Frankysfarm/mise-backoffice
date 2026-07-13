@@ -487,6 +487,7 @@ import { DispatchPhase1335TourScoreVisualisierungCockpit } from './phase1335-tou
 import { DispatchPhase1326RoutenOptimierungsWidget } from './phase1326-routen-optimierungs-widget';
 import { DispatchPhase1340TourEchtzeitScoreBoard } from './phase1340-tour-echtzeit-score-board';
 import { DispatchPhase1353FahrerPuenktlichkeitsRangliste } from './phase1353-fahrer-puenktlichkeits-rangliste';
+import { DispatchPhase1358TourEffizienzRangliste } from './phase1358-tour-effizienz-rangliste';
 
 type Driver = {
   employee_id: string;
@@ -1481,6 +1482,8 @@ export function DispatchBoard({
       <DispatchPhase1335TourScoreVisualisierungCockpit batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1353: Fahrer-Pünktlichkeits-Rangliste — A/B/C/D-Score, pünktlich vs. zu spät, Trend; 15-Min-Polling */}
       <DispatchPhase1353FahrerPuenktlichkeitsRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1358: Tour-Effizienz-Rangliste — Aktive Touren sortiert nach Effizienz-Score (Stopps/h × Pünktlichkeit); Ampel grün/gelb/rot */}
+      <DispatchPhase1358TourEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}
