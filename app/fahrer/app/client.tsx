@@ -372,6 +372,7 @@ import { FahrerPhase1206ZonenVertrautheitsScore } from './phase1206-zonen-vertra
 import { FahrerPhase1206TourStoppNavigationLiveKommando } from './phase1206-tour-stopp-navigation-live-kommando';
 import { FahrerPhase1214BonusStatusTracker } from './phase1214-bonus-status-tracker';
 import { FahrerPhase1219KundenAnrufLog } from './phase1219-kunden-anruf-log';
+import { FahrerPhase1224SchichtEndeEnergieCheck } from './phase1224-schicht-ende-energie-check';
 import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 
 type Driver = {
@@ -4410,6 +4411,11 @@ export function FahrerApp({
         {/* Phase 1219: Kunden-Anruf-Log — Letzte 5 Kontaktversuche (Anruf/Klingel/SMS) mit Status */}
         <div className="px-4">
           <FahrerPhase1219KundenAnrufLog driverId={driver.id} isOnline={isOnline} />
+        </div>
+
+        {/* Phase 1224: Schicht-Ende-Energie-Check — Erschöpfungs-Skala 1–5 + automatische Pausen-Empfehlung */}
+        <div className="px-4">
+          <FahrerPhase1224SchichtEndeEnergieCheck driverId={driver.id} isOnline={isOnline} />
         </div>
 
         {/* Phase 1206: Zonen-Vertrautheits-Score — Wie gut kennt der Fahrer jede Zone + Empfehlung */}

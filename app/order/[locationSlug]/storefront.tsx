@@ -218,6 +218,7 @@ import { Phase1207LiveKuechenAuslastungsIndikator } from './phase1207-live-kuech
 import { StorefrontPhase1207DynamischeEtaLiveTracking } from './phase1207-dynamische-eta-live-tracking';
 import { Phase1215SocialProofBanner } from './phase1215-social-proof-banner';
 import { Phase1220WarenkorbSpeicherBanner } from './phase1220-warenkorb-speicher-banner';
+import { Phase1225LieferfensterAuswahlWidget } from './phase1225-lieferfenster-auswahl-widget';
 
 type Props = {
   location: Location;
@@ -395,6 +396,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const restoreCart = React.useCallback((items: CartItem[]) => {
     setCart(items);
   }, []);
+
+  const [selectedDeliverySlot, setSelectedDeliverySlot] = React.useState<string | null>(null);
 
   const getQty = React.useCallback(
     (itemId: string) => cart.find((c) => c.item.id === itemId)?.qty ?? 0,
@@ -1137,6 +1140,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       </div>
       {/* Phase 1220: Warenkorb-Speicher-Banner — Auto-save nach 30s Inaktivität + Wiederherstellungs-Button */}
       <Phase1220WarenkorbSpeicherBanner cart={cart} onRestoreCart={restoreCart} />
+      {/* Phase 1225: Lieferfenster-Auswahl-Widget — 30-Min-Slots basierend auf Auslastung */}
+      {cart.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+          <Phase1225LieferfensterAuswahlWidget
+            locationId={location.id}
+            selectedSlot={selectedDeliverySlot}
+            onSelectSlot={setSelectedDeliverySlot}
+          />
+        </div>
+      )}
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
       {cart.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

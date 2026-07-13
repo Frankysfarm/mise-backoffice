@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-  turbopack: { root: __dirname },
+  turbopack: { root: '/tmp/repo' },
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

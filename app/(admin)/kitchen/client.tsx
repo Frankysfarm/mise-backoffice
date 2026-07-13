@@ -132,6 +132,7 @@ import { KitchenPhase1204BestellungsKomplexitaetsHeatmap } from './phase1204-bes
 import { KitchenPhase1210SmartTimingScoreCockpit } from './phase1210-smart-timing-score-cockpit';
 import { KitchenPhase1212VorbereitungsPrognoseBoard } from './phase1212-vorbereitungs-prognose-board';
 import { KitchenPhase1217RezeptZutatenCountdown } from './phase1217-rezept-zutaten-countdown';
+import { KitchenPhase1222ZubereitungWarteschlangenAnzeige } from './phase1222-zubereitung-warteschlangen-anzeige';
 import { KitchenPhase1002SmartTimingFarbkodierungUltimate } from './phase1002-smart-timing-farbkodierung-ultimate';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -1158,6 +1159,8 @@ export function KitchenBoard({
       <KitchenPhase1212VorbereitungsPrognoseBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1217: Rezept-Zutaten-Countdown — Nächste 5 Bestellungen + Zutaten-Ampel */}
       <KitchenPhase1217RezeptZutatenCountdown orders={filtered as any} />
+      {/* Phase 1222: Zubereitung-Warteschlangen-Anzeige — Live-Queue je Station mit Priorität + Druck-Level */}
+      <KitchenPhase1222ZubereitungWarteschlangenAnzeige orders={filtered as any} />
       {/* Phase 1002: Smart-Timing-Farbkodierung-Ultimate — 5-Stufen-Farbskala (Optimal/Normal/Dringend/Kritisch/Überfällig) + Kochstart-Kommando */}
       <KitchenPhase1002SmartTimingFarbkodierungUltimate orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
