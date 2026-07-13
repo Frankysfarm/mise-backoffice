@@ -398,6 +398,7 @@ import { FahrerPhase1322TrinkgeldSchnellEingabe } from './phase1322-trinkgeld-sc
 import { FahrerPhase1313SmartTourNavigatorUltra } from './phase1313-smart-tour-navigator-ultra';
 import { FahrerPhase1345TourStoppNavigatorUltimate } from './phase1345-tour-stopp-navigator-ultimate';
 import { FahrerPhase1327OfflineModusIndikator } from './phase1327-offline-modus-indikator';
+import { FahrerPhase1350TourStoppNavigatorPlus } from './phase1350-tour-stopp-navigator-plus';
 
 type Driver = {
   id: string;
@@ -4558,6 +4559,27 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1350: Tour-Stopp-Navigator-Plus — Vollständige Stop-Liste mit Ampel, aktivem Stopp hervorgehoben, Kunden-Tel + Navigation */}
+        <div className="px-4">
+          <FahrerPhase1350TourStoppNavigatorPlus
+            batchId={activeBatch?.id ?? null}
+            stops={activeBatch?.stops?.map((s, i) => ({
+              id: s.id,
+              position: s.reihenfolge ?? i + 1,
+              status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : 'ausstehend',
+              kunde_name: s.order?.kunde_name ?? null,
+              kunde_adresse: s.order?.kunde_adresse ?? null,
+              kunde_plz: s.order?.kunde_plz ?? null,
+              kunde_lat: s.order?.kunde_lat ?? null,
+              kunde_lng: s.order?.kunde_lng ?? null,
+              kunde_telefon: s.order?.kunde_telefon ?? null,
+              bestellnummer: s.order?.bestellnummer ?? null,
+              gesamtbetrag: s.order?.gesamtbetrag ?? null,
+              zahlungsart: s.order?.zahlungsart ?? null,
+              notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+            })) ?? []}
+          />
+        </div>
         {/* Phase 1310: Live-Stopp-Navigator — Alle Stopps mit GPS-Links (Google/Waze) + ETA-Countdown + Ankunfts-/Liefer-Buttons */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
           <div className="px-4">
