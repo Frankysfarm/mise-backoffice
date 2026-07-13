@@ -238,6 +238,7 @@ import { Phase1328LieferstatusFortschrittsLeiste } from './phase1328-lieferstatu
 import { StorefrontPhase1325LiveEtaTrackingUltra } from './phase1325-live-eta-tracking-ultra';
 import { StorefrontPhase1355TreueBadgeWidget } from './phase1355-treue-badge-widget';
 import { StorefrontPhase1360EchtzeitLieferstatusKarte } from './phase1360-echtzeit-lieferstatus-karte';
+import { StorefrontPhase1365WarenkorbLieferzeitschaetzung } from './phase1365-warenkorb-lieferzeitschaetzung';
 
 type Props = {
   location: Location;
@@ -1194,6 +1195,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {activeOrderId && (
         <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
           <StorefrontPhase1360EchtzeitLieferstatusKarte orderId={activeOrderId} locationId={location.id} />
+        </div>
+      )}
+      {/* Phase 1365: Warenkorb-Lieferzeitschätzung — Live-ETA "Lieferung in ca. X Min." basierend auf Küchen-Auslastung */}
+      {totalItems > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+          <StorefrontPhase1365WarenkorbLieferzeitschaetzung locationId={location.id} cartItemCount={totalItems} />
         </div>
       )}
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
