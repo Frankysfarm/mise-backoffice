@@ -1,57 +1,34 @@
 'use client';
 
 // Phase 1288 — Schicht-Start-Checkliste (Fahrer-App)
-// Interaktive Checkliste vor Schichtbeginn (Fahrzeug, Handy, Wärmetasche, Ausweis, App-Check)
-// Mit persistiertem Done-State (localStorage); isOnline-Guard; zeigt Abschluss-Banner wenn alles erledigt
+// Interaktive Checkliste vor Schichtbeginn: Fahrzeug, Handy, Wärmetasche, Ausweis, App-Check
+// Persistierter Done-State (localStorage) · isOnline-Guard · nach Phase1279
 
-import { useEffect, useState } from 'react';
-import {
-  BadgeCheck, Battery, Briefcase, Car, CheckCircle2, ChevronDown,
-  ChevronUp, Circle, ClipboardList, Smartphone, Thermometer,
-} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { BadgeCheck, CheckCircle2, ChevronDown, ChevronUp, Circle, RotateCcw, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ChecklistItem {
+interface CheckItem {
   id: string;
   label: string;
-  sublabel: string;
-  Icon: React.FC<{ className?: string }>;
+  detail: string;
+  emoji: string;
 }
 
-const CHECKLISTE: ChecklistItem[] = [
-  { id: 'fahrzeug',    label: 'Fahrzeug geprüft',     sublabel: 'Reifen, Bremsen, Spiegel, Beleuchtung ok', Icon: Car },
-  { id: 'handy',       label: 'Handy geladen',         sublabel: 'Akku mind. 80% oder Ladekabel dabei',       Icon: Battery },
-  { id: 'waermetasche',label: 'Wärmetasche dabei',     sublabel: 'Sauber und funktionstüchtig',               Icon: Thermometer },
-  { id: 'ausweis',     label: 'Ausweis dabei',         sublabel: 'Personalausweis oder Führerschein',         Icon: BadgeCheck },
-  { id: 'app',         label: 'App funktioniert',      sublabel: 'Karte lädt, GPS aktiv, Benachrichtigungen', Icon: Smartphone },
-  { id: 'tauschen',    label: 'Übergabe erledigt',     sublabel: 'Vorherigen Fahrer abgelöst / Fahrzeug übernommen', Icon: Briefcase },
+const CHECKLIST: CheckItem[] = [
+  { id: 'fahrzeug',      label: 'Fahrzeug geprüft',      detail: 'Beleuchtung, Reifen, Tank/Akku kontrolliert',    emoji: '🚗' },
+  { id: 'handy',         label: 'Handy aufgeladen',       detail: 'Min. 50% Akku, mobile Daten aktiv',             emoji: '📱' },
+  { id: 'waermetasche',  label: 'Wärmetasche dabei',      detail: 'Tasche sauber und funktionsfähig',              emoji: '🎒' },
+  { id: 'ausweis',       label: 'Ausweis vorhanden',      detail: 'Fahrer-ID oder Lichtbildausweis griffbereit',   emoji: '🪪' },
+  { id: 'app',           label: 'App-Check',              detail: 'GPS aktiv, Push-Benachrichtigungen erlaubt',    emoji: '✅' },
+  { id: 'wechselgeld',   label: 'Wechselgeld bereit',     detail: 'Ausreichend Münzen/Scheine für Barzahlung',     emoji: '💰' },
 ];
 
-function loadDoneState(driverId: string): Set<string> {
-  try {
-    const raw = localStorage.getItem(`schicht-checkliste-${driverId}`);
-    if (!raw) return new Set();
-    const parsed = JSON.parse(raw) as string[];
-    return new Set(parsed);
-  } catch {
-    return new Set();
-  }
-}
+const STORAGE_KEY_PREFIX = 'mise_schicht_checkliste_';
 
-function saveDoneState(driverId: string, done: Set<string>) {
-  try {
-    localStorage.setItem(`schicht-checkliste-${driverId}`, JSON.stringify([...done]));
-  } catch {
-    // ignore
-  }
-}
-
-function clearDoneState(driverId: string) {
-  try {
-    localStorage.removeItem(`schicht-checkliste-${driverId}`);
-  } catch {
-    // ignore
-  }
+function todayKey(driverId: string): string {
+  const today = new Date().toISOString().split('T')[0];
+  return `${STORAGE_KEY_PREFIX}${driverId}_${today}`;
 }
 
 interface Props {
@@ -60,123 +37,133 @@ interface Props {
 }
 
 export function FahrerPhase1288SchichtStartCheckliste({ driverId, isOnline }: Props) {
+  const [checked, setChecked] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(true);
-  const [done, setDone] = useState<Set<string>>(new Set());
-  const [dismissed, setDismissed] = useState(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    setDone(loadDoneState(driverId));
+    if (initialized.current) return;
+    initialized.current = true;
+    try {
+      const raw = localStorage.getItem(todayKey(driverId));
+      if (raw) setChecked(new Set(JSON.parse(raw) as string[]));
+    } catch {
+      // ignore
+    }
   }, [driverId]);
 
-  // Reset wenn Fahrer offline geht (neue Schicht)
-  useEffect(() => {
-    if (!isOnline) {
-      clearDoneState(driverId);
-      setDone(new Set());
-      setDismissed(false);
-    }
-  }, [isOnline, driverId]);
-
-  if (isOnline) return null; // Nur vor Schichtbeginn anzeigen
-  if (dismissed) return null;
-
-  const toggle = (id: string) => {
-    setDone((prev) => {
+  function toggle(id: string) {
+    setChecked(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-      saveDoneState(driverId, next);
+      try {
+        localStorage.setItem(todayKey(driverId), JSON.stringify([...next]));
+      } catch {
+        // ignore
+      }
       return next;
     });
-  };
+  }
 
-  const alleErledigt = CHECKLISTE.every((item) => done.has(item.id));
-  const erledigtCount = CHECKLISTE.filter((item) => done.has(item.id)).length;
-  const fortschritt = Math.round((erledigtCount / CHECKLISTE.length) * 100);
+  function reset() {
+    setChecked(new Set());
+    try {
+      localStorage.removeItem(todayKey(driverId));
+    } catch {
+      // ignore
+    }
+  }
+
+  const doneCount = checked.size;
+  const totalCount = CHECKLIST.length;
+  const allDone = doneCount === totalCount;
+  const pct = Math.round((doneCount / totalCount) * 100);
 
   return (
     <div className={cn(
-      'rounded-xl border overflow-hidden',
-      alleErledigt
-        ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950'
-        : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950',
+      'rounded-2xl border shadow-sm overflow-hidden bg-card',
+      allDone ? 'border-matcha-400 dark:border-matcha-600' : 'border-border',
     )}>
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left"
+        onClick={() => setOpen(o => !o)}
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/30 transition-colors"
       >
-        <ClipboardList className={cn('h-4 w-4 shrink-0', alleErledigt ? 'text-emerald-600' : 'text-indigo-600')} />
-        <span className="text-xs font-bold uppercase tracking-wider flex-1">
-          Schicht-Start-Checkliste
-        </span>
-        <span className={cn(
-          'text-[10px] font-bold px-2 py-0.5 rounded-full mr-2',
-          alleErledigt
-            ? 'bg-emerald-200 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
-            : 'bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-        )}>
-          {erledigtCount}/{CHECKLISTE.length}
-        </span>
-        {open ? <ChevronUp className="h-4 w-4 opacity-60" /> : <ChevronDown className="h-4 w-4 opacity-60" />}
+        {allDone
+          ? <BadgeCheck className="h-5 w-5 text-matcha-600 dark:text-matcha-400 shrink-0" />
+          : <Zap className="h-5 w-5 text-amber-500 shrink-0" />
+        }
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold text-foreground">Schicht-Start-Checkliste</div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            {allDone ? '🎉 Alle Punkte erledigt – gute Schicht!' : `${doneCount} von ${totalCount} erledigt`}
+          </div>
+        </div>
+        <div className="shrink-0 flex items-center gap-2">
+          <span className={cn(
+            'text-xs font-black tabular-nums rounded-full px-2 py-0.5',
+            allDone
+              ? 'bg-matcha-100 text-matcha-700 dark:bg-matcha-900/40 dark:text-matcha-300'
+              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+          )}>
+            {pct}%
+          </span>
+          {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </div>
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-2">
-          {/* Fortschrittsbalken */}
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className={cn('h-full rounded-full transition-all duration-500', alleErledigt ? 'bg-emerald-500' : 'bg-indigo-500')}
-                style={{ width: `${fortschritt}%` }}
-              />
-            </div>
-            <span className="text-[10px] font-bold tabular-nums">{fortschritt}%</span>
+        <div className="border-t">
+          {/* Progress bar */}
+          <div className="h-1.5 bg-muted w-full">
+            <div
+              className={cn('h-full transition-all duration-500', allDone ? 'bg-matcha-500' : 'bg-amber-400')}
+              style={{ width: `${pct}%` }}
+            />
           </div>
 
-          {CHECKLISTE.map((item) => {
-            const isDone = done.has(item.id);
-            const IconComp = item.Icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => toggle(item.id)}
-                className={cn(
-                  'w-full rounded-lg border p-3 flex items-center gap-3 text-left transition-colors',
-                  isDone
-                    ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800'
-                    : 'bg-background border-border hover:bg-muted/50',
-                )}
-              >
-                {isDone
-                  ? <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                  : <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
-                }
-                <IconComp className={cn('h-4 w-4 shrink-0', isDone ? 'text-emerald-600' : 'text-muted-foreground')} />
-                <div className="flex-1 min-w-0">
-                  <div className={cn('text-sm font-semibold', isDone && 'line-through text-muted-foreground')}>
-                    {item.label}
+          <div className="px-4 py-3 space-y-1.5">
+            {CHECKLIST.map(item => {
+              const done = checked.has(item.id);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => toggle(item.id)}
+                  className={cn(
+                    'w-full flex items-start gap-3 rounded-xl border p-3 text-left transition-all duration-200',
+                    done
+                      ? 'border-matcha-200 dark:border-matcha-800 bg-matcha-50 dark:bg-matcha-950/20'
+                      : 'border-border bg-background hover:bg-muted/40',
+                  )}
+                >
+                  <span className="text-lg shrink-0 mt-0.5">{item.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className={cn(
+                      'text-sm font-semibold',
+                      done ? 'text-matcha-700 dark:text-matcha-300 line-through' : 'text-foreground',
+                    )}>
+                      {item.label}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{item.detail}</div>
                   </div>
-                  <div className="text-[10px] text-muted-foreground truncate">{item.sublabel}</div>
-                </div>
-              </button>
-            );
-          })}
+                  {done
+                    ? <CheckCircle2 className="h-5 w-5 text-matcha-600 dark:text-matcha-400 shrink-0 mt-0.5" />
+                    : <Circle className="h-5 w-5 text-muted-foreground/40 shrink-0 mt-0.5" />
+                  }
+                </button>
+              );
+            })}
+          </div>
 
-          {alleErledigt && (
-            <div className="rounded-lg bg-emerald-100 dark:bg-emerald-900 border border-emerald-200 dark:border-emerald-700 px-4 py-3 flex items-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-              <div className="flex-1">
-                <div className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Bereit für den Start!</div>
-                <div className="text-[10px] text-emerald-700 dark:text-emerald-400">Alle Punkte abgehakt — gute Schicht!</div>
-              </div>
-              <button
-                onClick={() => setDismissed(true)}
-                className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 underline shrink-0"
-              >
-                Schließen
-              </button>
-            </div>
-          )}
+          <div className="px-4 pb-3 flex justify-end">
+            <button
+              onClick={reset}
+              className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Zurücksetzen
+            </button>
+          </div>
         </div>
       )}
     </div>

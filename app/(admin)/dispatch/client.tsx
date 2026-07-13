@@ -1446,7 +1446,7 @@ export function DispatchBoard({
       <DispatchPhase1278SchichtEffizienzBericht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1283: Tour-Score-Visualisierung Pro — Score-Balken + Tour-Fortschritt + ETA-Countdown je aktiver Tour */}
       <DispatchPhase1283TourScoreVisualisierungPro batches={batches as any} drivers={drivers as any} />
-      {/* Phase 1287: Fahrer-Einsatz-Optimierer — Unter-/Überauslastung + Umverteilungs-Empfehlung */}
+      {/* Phase 1287: Fahrer-Einsatz-Optimierer — Über-/Unterlastung je Fahrer + Umverteilungs-Empfehlung; 5-Min-Polling */}
       <DispatchPhase1287FahrerEinsatzOptimierer locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}
       <DispatchPhase1003TourVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

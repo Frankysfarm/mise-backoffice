@@ -339,7 +339,6 @@ import { LieferdienstPhase1261ZonenGewinnAnalyse } from './phase1261-zonen-gewin
 import { LieferdienstPhase1266StatistikKpiKomplettDashboard } from './phase1266-statistiken-kpi-komplett-dashboard';
 import { LieferdienstPhase1276SchichtAuslastungsHeatmap } from './phase1276-schicht-auslastungs-heatmap';
 import { LieferdienstPhase1281FahrerFeedbackUebersicht } from './phase1281-fahrer-feedback-uebersicht';
-import { LieferdienstPhase1286SchichtKostenWidget } from './phase1286-schicht-kosten-widget';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1650,8 +1649,6 @@ export function LieferdienstClient() {
               <LieferdienstPhase1276SchichtAuslastungsHeatmap locationId={locationId ?? null} />
               {/* Phase 1281: Fahrer-Feedback-Übersicht — Positiv/Negativ-Quote je Fahrer + Trend-Balken */}
               <LieferdienstPhase1281FahrerFeedbackUebersicht locationId={locationId ?? null} />
-              {/* Phase 1286: Schicht-Kosten-Kalkulation — Personal + Fahrtkosten vs. Umsatz → Break-Even-Analyse */}
-              <LieferdienstPhase1286SchichtKostenWidget locationId={locationId ?? null} />
               {/* Phase 1200: Statistiken-Tagesabschluss-Executive — KPI-Grid + Top-Fahrer + Aktivste Zone + Umsatz-Tagesvergleich-Balken */}
               <LieferdienstPhase1200StatistikenTagesabschlussExecutive locationId={locationId ?? null} />
               {/* Phase 1090: Statistik-Heute-Hub — 6 Kern-KPIs (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer, Storno) */}
