@@ -47,6 +47,7 @@ import { EtaLiveProximityBanner } from '@/app/order/[locationSlug]/eta-live-prox
 import { Phase500LiveEtaBanner } from '@/app/order/[locationSlug]/phase500-live-eta-banner';
 import { Phase501BestellPhasenKompass } from '@/app/order/[locationSlug]/phase501-bestell-phasen-kompass';
 import { BestellPhasenTimeline } from '@/app/order/[locationSlug]/bestell-phasen-timeline';
+import { Phase1000LiveEtaCockpit } from '@/app/order/[locationSlug]/phase1000-live-eta-cockpit';
 
 type Order = {
   order_id: string;
@@ -503,6 +504,22 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
           </div>
         )}
 
+        {/* Phase 1000: Live-ETA-Cockpit — 5-Stufen Phasenkarte + Pulsierender Countdown + Konfidenz-Badge + ETA-Zeitfenster */}
+        {!['storniert', 'abgebrochen'].includes(order.status) && (
+          <div className="mt-3">
+            <Phase1000LiveEtaCockpit
+              orderId={order.order_id}
+              status={order.status as any}
+              etaEarliest={order.eta_earliest}
+              etaLatest={order.eta_latest}
+              fertigAm={order.fertig_am}
+              geliefertAm={order.geliefert_am}
+              bestelltAm={order.bestellt_am}
+              typ={order.typ as any}
+              restaurantName={tenant?.name ?? null}
+            />
+          </div>
+        )}
         {/* Phase 541: Bestell-Phasen-Timeline — Vertikale Fortschrittsleiste mit Check-Markierungen je Bestellphase */}
         {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
           <div className="mt-3">

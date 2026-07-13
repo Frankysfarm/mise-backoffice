@@ -371,6 +371,7 @@ import { FahrerPhase1201TagesKmLiveTracker } from './phase1201-tages-km-live-tra
 import { FahrerPhase1206ZonenVertrautheitsScore } from './phase1206-zonen-vertrautheits-score';
 import { FahrerPhase1206TourStoppNavigationLiveKommando } from './phase1206-tour-stopp-navigation-live-kommando';
 import { FahrerPhase1214BonusStatusTracker } from './phase1214-bonus-status-tracker';
+import { FahrerPhase1004SmartNavigationHubUltra } from './phase1004-smart-navigation-hub-ultra';
 
 type Driver = {
   id: string;
@@ -4415,6 +4416,15 @@ export function FahrerApp({
             <FahrerPhase1206TourStoppNavigationLiveKommando
               stops={activeBatch.stops as any}
               tourStartedAt={activeBatch.started_at}
+            />
+          </div>
+        )}
+        {/* Phase 1004: Smart-Navigation-Hub-Ultra — Nächster Stopp hervorgehoben mit Deep-Links (Google/Apple/Waze), Stopp-Abschluss-Button, Fortschrittsleiste */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1004SmartNavigationHubUltra
+              stops={activeBatch.stops as any}
+              batchStatus={activeBatch.status}
             />
           </div>
         )}
