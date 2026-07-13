@@ -4480,11 +4480,6 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1279KundenzufriedenheitsSchnellPoll driverId={driver.id} isOnline={isOnline} />
         </div>
-        {/* Phase 1288: Schicht-Start-Checkliste — Fahrzeug/Handy/Wärmetasche/Ausweis/App mit persistiertem Done-State */}
-        <div className="px-4">
-          <FahrerPhase1288SchichtStartCheckliste driverId={driver.id} isOnline={isOnline} />
-        </div>
-
         {/* Phase 1284: Tour-Stop Navigation Dashboard — Alle Stopps + GPS-Links (Google/Apple/Waze) + Ankunfts-/Liefer-Buttons */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
           <div className="px-4">
