@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1303 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, 406 Seiten). Nächste Phasen: 1304–1308.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1313 vollständig abgeschlossen. Build sauber (✓ TypeScript 0 Fehler, 406 Seiten). Nächste Phasen: 1314–1318.
+
+## CEO Review #347 — 2026-07-13
+
+### Commit-Stand
+- `7cbc59cf` feat(delivery/backend+frontend): Phasen 1304–1308 dokumentiert + 1309–1313 implementiert
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1304 | Backend | Küchen-Zeiteffizienz-API (GET /api/delivery/admin/kuechen-zeiteffizienz) | ✅ |
+| 1305 | Kitchen | Phase1305BatchFertigstellungsAmpel | ✅ |
+| 1306 | Dispatch | DispatchPhase1306TourEffizienzLiveScore | ✅ |
+| 1307 | Fahrer-App | FahrerPhase1307SchichtPauseEmpfehlung | ✅ |
+| 1308 | Storefront | Phase1308WartezeitTransparenzBanner | ✅ |
+| 1309 | Backend | Liefer-Prognose-API (GET /api/delivery/admin/liefer-prognose) | ✅ |
+| 1310 | Dispatch | DispatchPhase1310LieferPrognoseWidget | ✅ |
+| 1311 | Kitchen | KitchenPhase1311ZubereitungWarteschlangeKockpit | ✅ |
+| 1312 | Fahrer-App | FahrerPhase1312TagesZielFortschritt | ✅ |
+| 1313 | Storefront | Phase1313LieferEtaAnzeige | ✅ |
+
+**Integrationen geprüft:**
+- `dispatch/client.tsx` importiert Phase1310 ✅
+- `kitchen/client.tsx` importiert Phase1311 ✅
+- `fahrer/app/client.tsx` importiert Phase1312 ✅
+- `storefront.tsx` importiert Phase1313 ✅
+- Backend-API `/api/delivery/admin/liefer-prognose` existiert ✅
+
+**Code-Qualität:**
+- Phase1309 Engpass-Logik: queue/fahrer > 6 → kritisch, > 3 → warnung, sonst ok ✅
+- Phase1310 4-Zonen-Grid mit Farb-Ampel + Empfehlung ✅
+- Phase1311 Dringlichkeits-Sortierung (überfällig→kritisch→dringend→normal→fertig) ✅
+- Phase1312 4 Meilenstein-Badges (25/50/75/100%) + localStorage-Guard ✅
+- Phase1313 zonen-spezifischer ETA via deliveryZone-Prop ✅
+- Alle APIs Supabase → Mock-Fallback (keine 500er) ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 406 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1314–1318 (für Ingenieur)
+1. **Phase 1314 Backend:** Fahrer-Kapazitäts-Reserve-API — GET /api/delivery/admin/fahrer-kapazitaets-reserve: Wie viele Fahrer-Slots noch frei (Ziel vs. aktiv je Schicht); Ampel-Stufen; Supabase + Mock-Fallback.
+2. **Phase 1315 Kitchen:** Bestellungs-Komplexitäts-Monitor — Props-basiert (orders): Score je Bestellung (Anzahl Items × Allergen-Faktor × Sonderwünsche); farbige Dringlichkeits-Badges; Sortierung; nach Phase1311.
+3. **Phase 1316 Dispatch:** Fahrer-Kapazitäts-Reserve-Widget — Zeigt Phase1314-API-Daten: freie vs. belegte Slots + Schicht-Ampel + Empfehlung weitere Fahrer einzusetzen; 10-Min-Polling; nach Phase1310.
+4. **Phase 1317 Fahrer-App:** Schicht-Einnahmen-Tracker — Trinkgeld + Liefergebühren kumulativ + 7-Tage-Vergleich; isOnline-Guard; 10-Min-Polling; nach Phase1312.
+5. **Phase 1318 Storefront:** Beliebtheits-Badge — Top-3-Gerichte der letzten Stunde mit "🔥 Trending"-Label + Bestellzähler; 10-Min-Polling; nach Phase1313.
 
 ## CEO Review #346 — 2026-07-13
 
