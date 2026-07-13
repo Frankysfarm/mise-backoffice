@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-13): Phasen 1276–1280 implementiert. Build ✓ Compiled successfully 405 Seiten. TypeScript 0 Fehler.
+- Phase 1276 Lieferdienst: `app/(admin)/lieferdienst/phase1276-schicht-auslastungs-heatmap.tsx` — Interaktive Heatmap-Tabelle Stunden×Zonen; 5 Farb-Intensitäten (keine/gering/mittel/hoch/peak); Hover-Tooltip + Peak-Highlight; nutzt /api/delivery/admin/schicht-auslastungs-heatmap; 15-Min-Polling; lieferdienst/client.tsx nach Phase1261 ✅
+- Phase 1277 Kitchen: `app/(admin)/kitchen/phase1277-zubereitungs-priorisierungs-cockpit.tsx` — Aktive Bestellungen sortiert nach Puffer (ETA−Zubereitungszeit); 4 Dringlichkeitsstufen (kritisch/dringend/normal/entspannt) farbkodiert; manuelle Prioritäts-Override-Taste; Props-basiert; useMemo; kitchen/client.tsx nach Phase1272 ✅
+- Phase 1278 Dispatch: `app/(admin)/dispatch/phase1278-schicht-effizienz-bericht.tsx` + `app/api/delivery/admin/schicht-effizienz-bericht/route.ts` — Tagesabschluss-KPI-Karte (Stopps/Fahrer/h, Pünktlichkeitsquote, Gesamt-km, Kosten/Stopp, Umsatz, Top-Fahrer); nur sichtbar nach 20:00 Uhr; 30-Min-Polling; Supabase + Mock-Fallback; dispatch/client.tsx nach Phase1273 ✅
+- Phase 1279 Fahrer-App: `app/fahrer/app/phase1279-kundenzufriedenheits-schnell-poll.tsx` + `app/api/delivery/driver/kundenzufriedenheit/route.ts` — Daumen-oben/unten + optionaler Kommentar (200 Zeichen max); POST best-effort; isOnline-Guard; fahrer/app/client.tsx nach Phase1274 ✅
+- Phase 1280 Storefront: `app/order/[locationSlug]/phase1280-liefergebiet-pruefung.tsx` — PLZ-Eingabe + Auto-Prüfung bei 5 Ziffern eingegeben; "Noch X km außerhalb"-Hinweis + Abhol-Empfehlung mit Restaurant-Adresse + nächste lieferbare PLZ-Hinweis; storefront.tsx nach Phase1077 ✅
+
+### Nächste Phasen 1281–1285 (für Ingenieur)
+1. **Phase 1281 Lieferdienst:** Fahrer-Feedback-Übersicht — Aggregierte Kunden-Zufriedenheits-Daten aus Phase1279-API: Positiv/Negativ-Quote je Fahrer + Trend-Balken; lieferdienst/client.tsx nach Phase1276.
+2. **Phase 1282 Backend:** Schicht-Kosten-Kalkulation-API — GET /api/delivery/admin/schicht-kosten: Personalkosten (Fahrer×Stunden×Stundenlohn) + Fahrtkosten (km×Kosten) vs. Liefer-Umsatz → Break-Even-Analyse; Mock-Fallback.
+3. **Phase 1283 Dispatch:** Fahrer-Einsatz-Optimierer — Welche Fahrer sind derzeit unterausgelastet (<2 Stopps/h) und welche überausgelastet (>4 Stopps/h) + Empfehlung zur Umverteilung; 5-Min-Polling; dispatch/client.tsx nach Phase1278.
+4. **Phase 1284 Fahrer-App:** Schicht-Start-Checkliste — Interaktive Checkliste vor Schichtbeginn (Fahrzeug, Handy, Wärmetasche, Ausweis, App-Check) mit persistiertem Done-State; isOnline-Guard; fahrer/app/client.tsx nach Phase1279.
+5. **Phase 1285 Kitchen:** Zutaten-Nachbestellungs-Alert — Wenn bestimmte Items in letzter Stunde >X mal bestellt: geschätzter Restbestand + Nachbestellungs-Empfehlung + Timer; Props-basiert (orders); useMemo; kitchen/client.tsx nach Phase1277.
+
 Frontend-Ingenieur-Agent (2026-07-13): Phasen 1271–1275 implementiert. Build ✓ Compiled successfully 405 Seiten. TypeScript 0 Fehler.
 - Phase 1271 Backend: `app/api/delivery/admin/schicht-auslastungs-heatmap/route.ts` — Bestelldichte je Stunde (0–23) × Zone letzte 7 Tage als 2D-Matrix; Intensitäts-Stufen keine/gering/mittel/hoch/peak; Peak-Zone + Peak-Stunde; Supabase + Mock-Fallback; Multi-Tenant ✅
 - Phase 1272 Kitchen: `app/(admin)/kitchen/phase1272-multi-allergen-scan-cockpit.tsx` — 8 Allergene (Gluten/Nüsse/Milch/Eier/Fisch/Schalentiere/Soja/Sesam) + Farb-Ampel je Allergen + Eskalation bei kritischen Kombinationen; Props-basiert; kitchen/client.tsx nach Phase1267 ✅
