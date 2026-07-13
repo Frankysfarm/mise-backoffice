@@ -388,6 +388,7 @@ import { FahrerPhase1279KundenzufriedenheitsSchnellPoll } from './phase1279-kund
 import { FahrerPhase1284TourStopNavigationDashboard } from './phase1284-tour-stop-navigation-dashboard';
 import { FahrerPhase1288SchichtStartCheckliste } from './phase1288-schicht-start-checkliste';
 import { FahrerPhase1292SchichtEndeBestaetigung } from './phase1292-schicht-ende-bestaetigung';
+import { FahrerPhase1297TourEndeFotoUpload } from './phase1297-tour-ende-foto-upload';
 
 type Driver = {
   id: string;
@@ -4480,6 +4481,10 @@ export function FahrerApp({
         {/* Phase 1292: Schicht-Ende-Bestätigung — Stopps/Einnahmen/km/Bewertung-Summary + Schicht-beenden-Button */}
         <div className="px-4">
           <FahrerPhase1292SchichtEndeBestaetigung driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1297: Tour-Ende-Foto-Upload — Ablieferungs-Foto-Bestätigung mit Kamera/Datei-Upload + Preview */}
+        <div className="px-4">
+          <FahrerPhase1297TourEndeFotoUpload driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
         <div className="px-4">
