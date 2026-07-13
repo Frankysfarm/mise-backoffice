@@ -390,6 +390,7 @@ import { FahrerPhase1288SchichtStartCheckliste } from './phase1288-schicht-start
 import { FahrerPhase1292SchichtEndeBestaetigung } from './phase1292-schicht-ende-bestaetigung';
 import { FahrerPhase1297TourEndeFotoUpload } from './phase1297-tour-ende-foto-upload';
 import { FahrerPhase1302SchichtStatistikKarte } from './phase1302-schicht-statistik-karte';
+import { FahrerPhase1307SchichtPauseEmpfehlung } from './phase1307-schicht-pause-empfehlung';
 
 type Driver = {
   id: string;
@@ -4490,6 +4491,10 @@ export function FahrerApp({
         {/* Phase 1302: Schicht-Statistik-Karte — Ø-Lieferzeit + Stopps + Trinkgeld + Bewertungs-Ø; 10-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1302SchichtStatistikKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1307: Schicht-Pause-Empfehlung — Energie-Level + 15-Min-Pause-Timer mit localStorage-Persistenz */}
+        <div className="px-4">
+          <FahrerPhase1307SchichtPauseEmpfehlung driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
         <div className="px-4">
