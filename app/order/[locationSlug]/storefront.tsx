@@ -217,6 +217,7 @@ import { Phase1202WarteschlangenPosition } from './phase1202-warteschlangen-posi
 import { Phase1207LiveKuechenAuslastungsIndikator } from './phase1207-live-kuechen-auslastungs-indikator';
 import { StorefrontPhase1207DynamischeEtaLiveTracking } from './phase1207-dynamische-eta-live-tracking';
 import { Phase1215SocialProofBanner } from './phase1215-social-proof-banner';
+import { Phase1220WarenkorbSpeicherBanner } from './phase1220-warenkorb-speicher-banner';
 
 type Props = {
   location: Location;
@@ -389,6 +390,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
   const deleteFromCart = React.useCallback((itemId: string) => {
     setCart((c) => c.filter((x) => x.item.id !== itemId));
+  }, []);
+
+  const restoreCart = React.useCallback((items: CartItem[]) => {
+    setCart(items);
   }, []);
 
   const getQty = React.useCallback(
@@ -1130,6 +1135,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <Phase1215SocialProofBanner locationId={location.id} cartEmpty={cart.length === 0} />
       </div>
+      {/* Phase 1220: Warenkorb-Speicher-Banner — Auto-save nach 30s Inaktivität + Wiederherstellungs-Button */}
+      <Phase1220WarenkorbSpeicherBanner cart={cart} onRestoreCart={restoreCart} />
       {/* Phase 1143: Bestellwert-Meilenstein — Fortschrittsbalken "Noch X€ bis kostenlose Lieferung" */}
       {cart.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">

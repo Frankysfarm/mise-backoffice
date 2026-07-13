@@ -459,6 +459,7 @@ import { DispatchPhase1205TourScoreVisualisierungDashboard } from './phase1205-t
 import { DispatchPhase1208FahrerAuslastungsPrognose } from './phase1208-fahrer-auslastungs-prognose';
 import { DispatchPhase1210TourScoreVisualisierungLive } from './phase1210-tour-score-visualisierung-live';
 import { DispatchPhase1213SchichtendeUebernahmeAlert } from './phase1213-schichtende-uebernahme-alert';
+import { DispatchPhase1218EtaAbweichungsMonitor } from './phase1218-eta-abweichungs-monitor';
 import { DispatchPhase1003TourVisualisierungPro } from './phase1003-tour-visualisierung-pro';
 
 type Driver = {
@@ -1406,6 +1407,8 @@ export function DispatchBoard({
       <DispatchPhase1210TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
       {/* Phase 1213: Schichtende-Übernahme-Alert — Fahrer mit Schichtende in <60 Min + offenen Touren */}
       <DispatchPhase1213SchichtendeUebernahmeAlert locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1218: ETA-Abweichungs-Monitor — Delta geschätzte vs. tatsächliche Lieferzeit + Eskalation */}
+      <DispatchPhase1218EtaAbweichungsMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}
       <DispatchPhase1003TourVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}
