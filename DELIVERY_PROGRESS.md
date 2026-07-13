@@ -14550,3 +14550,41 @@ Phasen 1221–1245 wurden in vorherigen Sessions implementiert und in client.tsx
 Alle Phasen 1271–1275 geprüft + integriert. Nächste Phasen: 1276–1280.
 
 ## STATUS: MARKT-REIF + WACHSTUM — Phasen 1–1275 abgeschlossen — 2026-07-13
+
+---
+
+## Batch 1290–1293 — 2026-07-13
+
+### Phase 1290 — Kunden-Bewertungs-Aggregat-API (Backend)
+**Datei:** `app/api/delivery/admin/kunden-bewertungs-aggregat/route.ts`
+**GET:** `?location_id=<uuid>` — Ø-Note pro Wochentag (letzte 30 Tage) + Top-3-Beschwerden (Keyword-Häufigkeit aus Kommentaren) + Trend (letzte 7 Tage vs. davor, ±0.1-Schwelle); Supabase delivery_ratings + Mock-Fallback
+**Response:** `{ wochentag_verlauf[], gesamt_schnitt, top_beschwerden, trend, trend_pct, total_bewertungen, location_id, generiert_am }` · je Wochentag: `{ wochentag, label, durchschnitt, anzahl }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1291 — Schicht-Kosten-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1291-schicht-kosten-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible slate; Break-Even-Ampel (gewinn/kostendeckend/verlust) mit Trending-Icon; 3×KPI-Grid (Umsatz/Personalkosten/Fahrtkosten); Gesamtkosten-Row; Stand-Uhrzeit; 15-Min-Polling
+**Logik:** Nutzt `/api/delivery/admin/schicht-kosten-kalkulation`; STATUS_CONFIG mit Icon + Farbe; fmt() für EUR-Formatierung
+**Integration:** `dispatch/client.tsx` nach Phase1287 ✅
+
+### Phase 1292 — Schicht-Ende-Bestätigung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1292-schicht-ende-bestaetigung.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** Collapsible rose; 2×2-KPI-Grid (Stopps/Einnahmen/km/Bewertung); Schichtdauer; "Schicht jetzt beenden"-Button (rose, Loading-State); Bestätigungs-Screen mit CheckCircle nach Erfolg; isOnline-Guard
+**Logik:** GET /api/delivery/driver/schicht-bilanz für Summary; POST /api/delivery/driver/schicht-abschluss beim Beenden (best-effort); Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1288 ✅
+
+### Phase 1293 — Küchen-Kapazitäts-Prognose-Widget (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1293-kuechen-kapazitaets-prognose-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (teal/amber/rot je Last-Level); "Jetzt Vorkochen!"-Empfehlung-Banner bei Peak/Hoch; 2 Kacheln (30 Min + 60 Min) mit erw. Bestellungen + Level-Badge + Ø-Vergleich; Prognose-Qualität; 5-Min-Polling
+**Logik:** Nutzt `/api/delivery/admin/kuechen-auslastungs-prognose`; LEVEL_CONFIG (ruhig/normal/hoch/peak); Empfehlung wenn peak oder hoch in nächsten 60 Min
+**Integration:** `kitchen/client.tsx` nach Phase1285 ✅
+
+### Nächste Phasen 1294–1298 (für Ingenieur)
+1. **Phase 1294 Backend:** Bewertungs-Trend-Alert-API — GET /api/delivery/admin/bewertungs-trend-alert: Wenn Ø-Bewertung letzte 7 Tage < 3.5 → Alert mit betroffenen Fahrern + Empfehlung.
+2. **Phase 1295 Kitchen:** Live-Gericht-Wartezeit-Uhr — Für jede aktive Bestellung: Fortschrittsring mit Zubereitungs-Verbleibzeit + Überfällig-Animation.
+3. **Phase 1296 Dispatch:** Kunden-Bewertungs-Cockpit — Zeigt Phase1290-API: Wochentag-Balken + Beschwerden-Liste + Trend-Badge; dispatch/client.tsx nach Phase1291.
+4. **Phase 1297 Fahrer-App:** Tour-Ende-Foto-Upload — Ablieferungs-Foto-Bestätigung: Kamera/Datei-Upload + Preview + POST /api/delivery/driver/ablieferungs-foto (best-effort); isOnline-Guard.
+5. **Phase 1298 Kitchen:** Schicht-Qualitäts-Report — Zusammenfassung: Fehlerquote (Stornos/Beschwerden) + beste/schlechteste Stunde + Empfehlungen; Props-basiert.
