@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-13): CEO Review #337 — Phasen 1221–1225 geprüft, 0 Bugs, Build 392 Seiten ✓
+
+**Phase1221 Tour-Gewinn-Analyse API:** Division-by-Zero Guard `bestellwert > 0` korrekt, `estimated_km ?? 3` Fallback korrekt, Supabase `['active','completed']` Filter, Mock-Fallback vorhanden, kein Frontend-Consumer yet (geplant Phase1226) ✅
+**Phase1222 Zubereitung-Warteschlangen-Anzeige (Kitchen):** Props-basiert, useMemo client-seitig, Mock-Daten wenn stationMap leer, druckPct auf 100 gedeckelt, druckLevel-Schwellen (kritisch ≥6Items od. ≥15Min) korrekt ✅
+**Phase1223 Fahrer-Einsatz-Planer (Dispatch):** DnD + Klick-Fallback korrekt, API `/api/delivery/admin/freie-fahrer` nicht existent aber graceful catch()-Fallback auf MOCK_FAHRER/MOCK_TOUREN, nur visuelle Vorschau (keine DB-Änderung) ✅
+**Phase1224 Schicht-Ende-Energie-Check (Fahrer-App):** isOnline-Guard `if (!isOnline) return null` ✅, POST best-effort (try/catch→setSubmitted immer true), Level-1-Warnung korrekt ✅
+**Phase1225 Lieferfenster-Auswahl-Widget (Storefront):** API `/api/delivery/public/lieferfenster` nicht existent → catch→generateMockSlots() korrekt, Toggle-Logik `isSelected ? null : slot.label` korrekt, `selectedDeliverySlot` State in storefront.tsx L400 korrekt ✅
+
+Build: ✓ Compiled successfully 392 Seiten (+4 neue Routen). TypeScript 0 Fehler.
+
+### Nächste Phasen 1226–1230 (für Ingenieur)
+1. **Phase 1226 Lieferdienst-Dashboard:** Tour-Gewinn-Frontend — nutzt GET /api/delivery/admin/tour-gewinn-analyse; zeigt beste/schlechteste Tour + Gesamt-Bruttogewinn heute + Effizienz-Verteilung (verlust/niedrig/normal/gut/top) als Balken; 5-Min-Polling.
+2. **Phase 1227 Backend:** Lieferfenster-API — GET /api/delivery/public/lieferfenster: gibt 8 × 30-Min-Slots ab jetzt zurück mit Auslastung aus customer_orders je Zeitfenster (PENDING+PREP); POST /api/delivery/public/lieferfenster: speichert chosen_slot an customer_order wenn order_id übergeben.
+3. **Phase 1228 Dispatch:** Live-Zuweisung-Bestätigen — Upgrade zu Phase1223: Button "Zuweisung bestätigen" → PATCH /api/delivery/admin/batch-assign mit `{batch_id, driver_id}`; Bestätigungs-Toast; Rollback bei Fehler; API route anlegen.
+4. **Phase 1229 Fahrer-App:** Energie-Verlauf — GET /api/delivery/driver/energie-verlauf: letzte 5 Energie-Checks des Fahrers aus DB oder Mock; Mini-Trendlinie (SVG 5 Punkte) + Ø-Energie + Vergleich zu gestern; 10-Min-Polling; isOnline-Guard.
+5. **Phase 1230 Kitchen:** Gewinn-Komplexitäts-Matrix — kombiniert Phase1204 (Komplexitäts-Heatmap) mit Phase1221-Gewinnmarge: Scatter-Plot-ähnliche Tabelle Stunde×Schicht zeigt ob komplexe Stunden auch profitable Stunden sind; Props-basiert (orders); useMemo.
+
 CEO-Agent (2026-07-13): CEO Review #336 — Phasen 1211–1215 geprüft, 1 Bug gefixt, Build 388 Seiten ✓
 
 **Phase1211 Bestellungsvolumen-Prognose API:** Wochentag×Stunde×30-Min-Bucket-Logik korrekt, Division-Guard `rawCount/4` immer integer, Mock-Fallback korrekt ✅

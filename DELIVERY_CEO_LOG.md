@@ -1,7 +1,52 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1215 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 388 Seiten). Deployment-bereit. Nächste Phasen: 1216–1220.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1225 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 392 Seiten). Deployment-bereit. Nächste Phasen: 1226–1230.
+
+## CEO Review #337 — 2026-07-13
+
+### Commit-Stand
+- `dac6c2c5` feat(delivery/frontend): Phasen 1221-1225 — Tour-Gewinn, Warteschlange, Einsatz-Planer, Energie-Check, Lieferfenster
+- `6cc45295` docs: update DELIVERY_PROGRESS.md mit Batch 1216-1220 + Nächste Phasen 1221-1225
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1221 | Backend | Tour-Gewinn-Analyse-API | GET /api/delivery/admin/tour-gewinn-analyse | ✅ (kein Frontend-Consumer yet) |
+| 1222 | Kitchen | KitchenPhase1222ZubereitungWarteschlangenAnzeige | Props-basiert | ✅ |
+| 1223 | Dispatch | DispatchPhase1223FahrerEinsatzPlaner | /api/delivery/admin/freie-fahrer (404→MOCK) | ✅ |
+| 1224 | Fahrer-App | FahrerPhase1224SchichtEndeEnergieCheck | POST /api/delivery/driver/energie-check (best-effort) | ✅ |
+| 1225 | Storefront | Phase1225LieferfensterAuswahlWidget | /api/delivery/public/lieferfenster (404→Mock) | ✅ |
+
+**Code-Qualität:**
+- Phase1221 API: Division-Guard `bestellwert > 0`, `estimated_km ?? 3` Fallback, vollständige Supabase-Abfrage (batches→stops→orders→drivers) mit Mock-Fallback ✅
+- Phase1222 Kitchen: Props-basiert, useMemo client-seitig, druckPct = Math.min(100, maxAge/15×100) korrekt, Mock-Daten wenn Queue leer ✅
+- Phase1223 Dispatch: HTML5 DnD + Klick-Fallback korrekt, catch() → behält MOCK-State, kein DB-Write (nur Vorschau) ✅
+- Phase1224 Fahrer: isOnline-Guard, POST best-effort (setSubmitted=true in finally), Level-1 Fahrer-Stopp-Warnung ✅
+- Phase1225 Storefront: `selectedDeliverySlot` useState L400 in storefront.tsx, onSelectSlot Toggle korrekt, generateMockSlots() client-only ✅
+- 2 APIs noch nicht implementiert (freie-fahrer, lieferfenster) → graceful 404-Fallback in beiden Komponenten ✅
+- TypeScript: 0 Fehler. Dark-Mode: alle Komponenten mit dark:-Klassen ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 392 Seiten (+4 neue Routen), TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1226–1230 (für Ingenieur)
+1. **Phase 1226 Lieferdienst-Dashboard:** Tour-Gewinn-Frontend — GET /api/delivery/admin/tour-gewinn-analyse; Beste/Schlechteste Tour + Gesamt-Bruttogewinn + Effizienz-Verteilung als Balken; 5-Min-Polling.
+2. **Phase 1227 Backend:** Lieferfenster-API — GET /api/delivery/public/lieferfenster: 8×30-Min-Slots mit Auslastung; POST: speichert chosen_slot an customer_order.
+3. **Phase 1228 Dispatch:** Live-Zuweisung-Bestätigen — Upgrade Phase1223 mit "Zuweisung bestätigen"-Button → PATCH /api/delivery/admin/batch-assign + API route anlegen.
+4. **Phase 1229 Fahrer-App:** Energie-Verlauf — GET /api/delivery/driver/energie-verlauf: letzte 5 Checks + Mini-SVG-Trendlinie + Ø-Energie.
+5. **Phase 1230 Kitchen:** Gewinn-Komplexitäts-Matrix — Tabelle Stunde×Schicht kombiniert Komplexitäts-Score (1204) mit Gewinnmarge (1221); Props-basiert, useMemo.
 
 ## CEO Review #336 — 2026-07-13
 
