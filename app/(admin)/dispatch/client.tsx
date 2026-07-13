@@ -473,6 +473,7 @@ import { DispatchPhase1268FahrerBonusTracker } from './phase1268-fahrer-bonus-tr
 import { DispatchPhase1273FahrerGeoVerteilungsMonitor } from './phase1273-fahrer-geo-verteilungs-monitor';
 import { DispatchPhase1278SchichtEffizienzBericht } from './phase1278-schicht-effizienz-bericht';
 import { DispatchPhase1283TourScoreVisualisierungPro } from './phase1283-tour-score-visualisierung-pro';
+import { DispatchPhase1287FahrerEinsatzOptimierer } from './phase1287-fahrer-einsatz-optimierer';
 
 type Driver = {
   employee_id: string;
@@ -1445,6 +1446,8 @@ export function DispatchBoard({
       <DispatchPhase1278SchichtEffizienzBericht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1283: Tour-Score-Visualisierung Pro — Score-Balken + Tour-Fortschritt + ETA-Countdown je aktiver Tour */}
       <DispatchPhase1283TourScoreVisualisierungPro batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1287: Fahrer-Einsatz-Optimierer — Unter-/Überauslastung + Umverteilungs-Empfehlung */}
+      <DispatchPhase1287FahrerEinsatzOptimierer locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1003: Tour-Visualisierung-Pro — Stop-Sequenz mit Effizienz-Score, ETA-Abweichung je Stopp, Tour-Fortschrittsbalken */}
       <DispatchPhase1003TourVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1120: Schicht-Kosten-Übersicht — Fahrer-Stunden × Stundenlohn vs. Liefer-Umsatz + Break-Even */}

@@ -386,6 +386,7 @@ import { FahrerPhase1269TrinkgeldWochenuebersicht } from './phase1269-trinkgeld-
 import { FahrerPhase1274KraftstoffAkkuTracker } from './phase1274-kraftstoff-akku-tracker';
 import { FahrerPhase1279KundenzufriedenheitsSchnellPoll } from './phase1279-kundenzufriedenheits-schnell-poll';
 import { FahrerPhase1284TourStopNavigationDashboard } from './phase1284-tour-stop-navigation-dashboard';
+import { FahrerPhase1288SchichtStartCheckliste } from './phase1288-schicht-start-checkliste';
 
 type Driver = {
   id: string;
@@ -4470,6 +4471,10 @@ export function FahrerApp({
         {/* Phase 1274: Kraftstoff-/Akku-Tracker — Eingabe Energie je Schicht + Effizienz-Trend + Kosten */}
         <div className="px-4">
           <FahrerPhase1274KraftstoffAkkuTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1288: Schicht-Start-Checkliste — Vor Schichtbeginn: Fahrzeug/Handy/Wärmetasche/Ausweis/App-Check mit persistiertem State */}
+        <div className="px-4">
+          <FahrerPhase1288SchichtStartCheckliste driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1279: Kunden-Zufriedenheits-Schnell-Poll — Daumen oben/unten nach Lieferung + Kommentar */}
         <div className="px-4">
