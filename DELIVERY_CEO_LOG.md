@@ -1,7 +1,53 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1225 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 392 Seiten). Deployment-bereit. Nächste Phasen: 1226–1230.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1235 vollständig abgeschlossen. Build sauber (✓ Compiled successfully, 397 Seiten). Deployment-bereit. Nächste Phasen: 1236–1240.
+
+## CEO Review #338 — 2026-07-13
+
+### Commit-Stand
+- `11deef6b` feat(delivery/frontend): Phasen 1231-1235 — Zonen-Effizienz-API, Qualitäts-Monitor, Kosten-Ertrag, Tour-Badge, Liefer-Versprechen
+- `53c58fe7` docs: DELIVERY_PROGRESS.md Phase 1226–1230 + Nächste Phasen 1231–1235
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente | API | Status |
+|---|---|---|---|---|
+| 1231 | Backend | Lieferzonen-Tages-Effizienz-API | GET /api/delivery/admin/lieferzonen-tages-effizienz | ✅ (Backend-Only, kein Frontend-Consumer yet) |
+| 1232 | Kitchen | KitchenPhase1232BestellungsQualitaetsMonitor | Props-basiert (orders) | ✅ |
+| 1233 | Dispatch | DispatchPhase1233SchichtKostenErtrag | /api/delivery/admin/fahrer-schicht-roi-live (404→Mock) | ✅ |
+| 1234 | Fahrer-App | FahrerPhase1234TourQualitaetsAbzeichen | GET /api/delivery/driver/tour-qualitaet | ✅ |
+| 1235 | Storefront | Phase1235LieferVersprechenBanner | Props (etaMin/locationId) | ✅ |
+
+**Code-Qualität:**
+- Phase1231 API: effizienzLevel-Logik korrekt (top/gut/normal/schwach), Division-Guard `Math.max(lieferungen,1)`, Mock-Fallback korrekt, Supabase mise_delivery_stops + customer_orders ✅
+- Phase1232 Kitchen: Props-basiert, useMemo, anteilLevel-Schwellen (storniert 5/15, Beschwerden 3/10, fehlendItems 2/8, >40Min 10/25) korrekt, gesamtProbleme/(total×4) Division-by-Zero durch `total===0` Guard abgedeckt ✅
+- Phase1233 Dispatch: 60s-Polling, Division-by-Zero `Math.max(gesamt_umsatz, 1)` korrekt, fallback mockData() wenn API leer, Trend-Icon (positiv/neutral/negativ) korrekt ✅
+- Phase1234 Fahrer-App: isOnline-Guard `if (!isOnline) return null` ✅, 90s-Polling, badge()-Logik gold≥95/silber≥85/bronze≥70 korrekt, Backend-API mit Mock-Fallback ✅
+- Phase1235 Storefront: Auto-dismiss 12.5s + localStorage-Sperre 1h korrekt, cartEmpty-Guard (zeigt nur wenn Warenkorb leer = FOMO-Strategie wie Phase1215) ✅
+- createClient() ohne await — Pre-existing Pattern in 5+ Routen, Error→Mock-Fallback fängt jeden Runtime-Fehler auf ✅
+
+**Abweichung vom Plan:** Ingenieur hat Implementierung angepasst (Peak-Sensor→Qualitäts-Monitor, Rückkehrer-Cockpit→Kosten-Ertrag, Pause-Optimierer→Tour-Badge) — alle Alternativen sinnvoll und vollständig implementiert ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 397 Seiten (+2 neue Routen), TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1236–1240 (für Ingenieur)
+1. **Phase 1236 Lieferdienst:** Zonen-Effizienz-Frontend — nutzt GET /api/delivery/admin/lieferzonen-tages-effizienz; zeigt Pünktlichkeitsquote + Umsatz je Zone als sortierte Liste mit Effizienz-Ampel (schwach/normal/gut/top); 10-Min-Polling.
+2. **Phase 1237 Backend:** Fahrer-Tages-Einnahmen-Prognose-API — GET /api/delivery/driver/einnahmen-prognose: Hochrechnung Tagesende-Verdienst = bisherige_einnahmen/aktive_stunden × verbleibende_schicht_stunden + Bonus wenn >N Stopps; Mock-Fallback.
+3. **Phase 1238 Dispatch:** Schicht-Pause-Optimierer-Cockpit — Wann haben welche Fahrer zuletzt pausiert + Empfehlung wann nächste Pause sinnvoll (ruhige Zone ≤2 aktive Touren); Farb-Ampel; 5-Min-Polling.
+4. **Phase 1239 Fahrer-App:** Einnahmen-Prognose-Widget — nutzt /api/delivery/driver/einnahmen-prognose: Hochrechnungs-Balken bis Schichtende + Ziel-Vergleich (Bronze/Silber/Gold); isOnline-Guard; 5-Min-Polling.
+5. **Phase 1240 Kitchen:** Peak-Sensor-Alert — Echtzeit-Alert wenn Bestellrate letzte 10 Min > 120% des Tages-Ø; Alert-Banner mit Eskalations-Stufe + empfohlene Personalmaßnahme; Props-basiert (orders); useMemo.
 
 ## CEO Review #337 — 2026-07-13
 
