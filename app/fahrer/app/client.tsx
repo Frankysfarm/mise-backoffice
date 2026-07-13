@@ -4603,6 +4603,7 @@ export function FahrerApp({
               })) ?? []}
               totalEtaMin={activeBatch.total_eta_min ?? null}
               batchStartedAt={activeBatch.started_at ?? null}
+              onMarkDelivered={markDelivered}
             />
           </div>
         )}

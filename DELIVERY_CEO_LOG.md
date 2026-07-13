@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
-## Aktuelle Priorität
-**MARKT-REIF + WACHSTUM.** Phasen 1–1370 vollständig abgeschlossen. Build sauber (✓ 407 Seiten, TypeScript 0 Fehler). Nächste Phasen: 1371–1375.
+## Aktuelle Prioritaet
+**MARKT-REIF + WACHSTUM.** Phasen 1-1380 vollstaendig abgeschlossen. Build sauber (408 Seiten, TypeScript 0 Fehler). Naechste Phasen: 1381-1385.
+
+## CEO Review #353 - 2026-07-13
+
+### Commit-Stand
+- `373b2434` feat(delivery/frontend): Phasen 1377-1380 + 1305
+
+### Befund: 1 Bug behoben - sonst 0 Fehler
+
+**Geprufte Komponenten:**
+
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 1377 | Kitchen | KitchenPhase1377SmartTimingFarbCountdownBoard | OK |
+| 1378 | Dispatch | DispatchPhase1378ScoreAnzeigeTourVisualisierung | OK |
+| 1379 | Fahrer-App | FahrerPhase1379TourStoppNavigationLiveCockpit | OK - Bug behoben |
+| 1380 | Storefront | StorefrontPhase1380DynamischeEtaLiveTrackingCockpit | OK |
+| 1305 | Lieferdienst | LieferdienstPhase1305StatistikenLiveDashboardCockpit | OK |
+
+**Bug behoben:**
+- Phase1379 fahrer/app/client.tsx: onMarkDelivered-Prop fehlte - Geliefert-Button im Tour-Cockpit war nicht aktiv. Fix: onMarkDelivered={markDelivered} ergaenzt.
+
+**Integrationen geprueft:**
+- kitchen/client.tsx importiert KitchenPhase1377 OK
+- dispatch/client.tsx importiert DispatchPhase1378 OK
+- fahrer/app/client.tsx importiert FahrerPhase1379 OK
+- storefront.tsx importiert StorefrontPhase1380 OK
+- lieferdienst/client.tsx importiert LieferdienstPhase1305 OK
+- Phase1380 nutzt /api/delivery/customer/tracking -> existiert OK
+
+**Code-Qualitaet:**
+- Phase1377: 4-stufige Farbkodierung + sekunden-genauer Countdown (useMemo+Interval) OK
+- Phase1378: SVG-ScoreRing (0-100) + Tour-Timeline mit Gesundheits-Ampel OK
+- Phase1379: Google Maps/Waze Deeplinks + aufklappbare Stops + Geliefert-Button OK
+- Phase1380: 6 Lieferphasen + 20-Sek-Polling + Konfidenz-Badge + Fahrer-Entfernung OK
+- Phase1305: 6 KPIs + Trend-Ampel + 15-Min-Polling + Mock-Fallback OK
+
+### Build-Ergebnis
+Compiled successfully - 408 Seiten, TypeScript 0 Fehler OK
+
+### System-Synchronisation
+- Kitchen <-> Dispatch: OK
+- Dispatch <-> Driver: OK
+- Driver <-> Storefront: OK
+- Storefront <-> Orders API: OK
+- Cron <-> Backend: OK
+- Admin <-> Lieferdienst: OK
+
+### Naechste Phasen 1381-1385 (fuer Ingenieur)
+1. Phase 1381 Backend: Liefer-Qualitaets-Index-API - Gewichteter Score aus Puenktlichkeit (40%) + Kundenbewertung (35%) + Stornoquote (25%); GET /api/delivery/admin/liefer-qualitaets-index; Tagesverlauf letzte 7 Tage.
+2. Phase 1382 Kitchen: Sonderwunsch-Haeufigkeits-Karte - Haeufigste Sonderwuensche je Gericht (Top-8); Props-basiert; farbkodiert nach Komplexitaet; nach Phase1377.
+3. Phase 1383 Dispatch: Liefer-Qualitaets-Index-Widget - Phase1381-API: 3-Saeulen-Score (Puenktlichkeit/Bewertung/Storno) + Gesamtindex-Ampel + 7-Tage-Verlauf; 10-Min-Polling; nach Phase1378.
+4. Phase 1384 Fahrer-App: Live-Einnahmen-Ticker - Echtzeit-Ticker der heutigen Einnahmen mit Animation bei neuer Tour; Ziel-Indikator; nach Phase1379.
+5. Phase 1385 Storefront: Wetter-Lieferzeit-Hinweis - Wenn Regen/Sturm: +5-10 Min Lieferzeit Banner; nach Phase1380.
 
 ## CEO Review #352 — 2026-07-13
 
