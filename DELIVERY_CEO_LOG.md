@@ -7,33 +7,44 @@
 
 ### Commit-Stand
 - `7cbc59cf` feat(delivery/backend+frontend): Phasen 1304–1308 dokumentiert + 1309–1313 implementiert
+- `b60bcf90` feat(delivery/frontend): Phasen 1308–1310+1023+1291 — Smart-Kochstart, Tour-Score, Stopp-Navigator, ETA-Tracking, Statistiken-Master
 
 ### Befund: Build sauber, 0 Bugs
+
+**HINWEIS Phasen-Nummerierung:** Backend-Agent und Frontend-Agent verwendeten 1309/1310 für unterschiedliche Module (verschiedene Verzeichnisse), kein Datei-Konflikt. Build ✓.
 
 **Geprüfte Komponenten:**
 | Phase | Modul | Komponente / API | Status |
 |---|---|---|---|
-| 1304 | Backend | Küchen-Zeiteffizienz-API (GET /api/delivery/admin/kuechen-zeiteffizienz) | ✅ |
+| 1304 | Backend | Küchen-Zeiteffizienz-API (/api/delivery/admin/kuechen-zeiteffizienz) | ✅ |
 | 1305 | Kitchen | Phase1305BatchFertigstellungsAmpel | ✅ |
 | 1306 | Dispatch | DispatchPhase1306TourEffizienzLiveScore | ✅ |
 | 1307 | Fahrer-App | FahrerPhase1307SchichtPauseEmpfehlung | ✅ |
 | 1308 | Storefront | Phase1308WartezeitTransparenzBanner | ✅ |
-| 1309 | Backend | Liefer-Prognose-API (GET /api/delivery/admin/liefer-prognose) | ✅ |
+| 1308 | Kitchen | Phase1308SmartKochstartCountdown | ✅ |
+| 1309 | Backend | Liefer-Prognose-API (/api/delivery/admin/liefer-prognose) | ✅ |
+| 1309 | Dispatch | DispatchPhase1309TourScoreDashboard | ✅ |
 | 1310 | Dispatch | DispatchPhase1310LieferPrognoseWidget | ✅ |
+| 1310 | Fahrer-App | FahrerPhase1310LiveStoppNavigator | ✅ |
 | 1311 | Kitchen | KitchenPhase1311ZubereitungWarteschlangeKockpit | ✅ |
 | 1312 | Fahrer-App | FahrerPhase1312TagesZielFortschritt | ✅ |
 | 1313 | Storefront | Phase1313LieferEtaAnzeige | ✅ |
+| 1023 | Storefront | Phase1023EtaLiveTrackingPro | ✅ |
+| 1291 | Lieferdienst | Phase1291SchichtStatistikenMasterDashboard | ✅ |
 
 **Integrationen geprüft:**
-- `dispatch/client.tsx` importiert Phase1310 ✅
-- `kitchen/client.tsx` importiert Phase1311 ✅
-- `fahrer/app/client.tsx` importiert Phase1312 ✅
-- `storefront.tsx` importiert Phase1313 ✅
+- `dispatch/client.tsx` importiert Phase1309 + Phase1310 ✅
+- `kitchen/client.tsx` importiert Phase1308 + Phase1311 ✅
+- `fahrer/app/client.tsx` importiert Phase1310 (Navigator) + Phase1312 ✅
+- `storefront.tsx` importiert Phase1313 + Phase1023 ✅
+- `lieferdienst/client.tsx` importiert Phase1291 ✅
 - Backend-API `/api/delivery/admin/liefer-prognose` existiert ✅
 
 **Code-Qualität:**
-- Phase1309 Engpass-Logik: queue/fahrer > 6 → kritisch, > 3 → warnung, sonst ok ✅
-- Phase1310 4-Zonen-Grid mit Farb-Ampel + Empfehlung ✅
+- Phase1309(API) Engpass-Logik: queue/fahrer > 6 → kritisch, > 3 → warnung, sonst ok ✅
+- Phase1309(Dispatch) Tour-Score-Ranking mit Podiums-Emoji + ETA-Abweichung ✅
+- Phase1310(Dispatch) 4-Zonen-Grid mit Farb-Ampel + Empfehlung ✅
+- Phase1310(Fahrer) GPS-Links Google/Waze + Ankunfts-/Liefer-Buttons ✅
 - Phase1311 Dringlichkeits-Sortierung (überfällig→kritisch→dringend→normal→fertig) ✅
 - Phase1312 4 Meilenstein-Badges (25/50/75/100%) + localStorage-Guard ✅
 - Phase1313 zonen-spezifischer ETA via deliveryZone-Prop ✅
