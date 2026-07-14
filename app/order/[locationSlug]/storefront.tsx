@@ -276,6 +276,7 @@ import { StorefrontPhase1516AktionsBannerTicker } from './phase1516-aktions-bann
 import { StorefrontPhase1521BeliebtArtikelChips } from './phase1521-beliebte-artikel-chips';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 import { StorefrontPhase1527LiveEtaTrackingKommando } from './phase1527-live-eta-tracking-kommando';
+import { StorefrontPhase1531WarenkorbErinnerungsBanner } from './phase1531-warenkorb-erinnerungs-banner';
 
 type Props = {
   location: Location;
@@ -1397,6 +1398,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1516AktionsBannerTicker locationId={location.id} />
       {/* Phase 1521: Beliebte-Artikel-Chips — Horizontal scrollbare Chip-Leiste Top-5 Artikel heute; localStorage-cached; Hydration-safe */}
       <StorefrontPhase1521BeliebtArtikelChips locationId={location.id} />
+      {/* Phase 1531: Warenkorb-Erinnerungs-Banner — 30-Min-Idle-Guard, schließbar, localStorage 24h */}
+      <StorefrontPhase1531WarenkorbErinnerungsBanner cartItemCount={totalItems} locationSlug={location.id} />
       {/* Phase 1527: Live-ETA-Tracking-Kommando — Dynamische ETA + Fahrer-Annäherungs-Ampel + Bestellstatus-Phasen-Leiste; 30s-Polling */}
       <StorefrontPhase1527LiveEtaTrackingKommando locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1505: Dynamische ETA Live Tracker — Countdown + ETA-Konfidenz-Balken + Fahrer-Annäherung + Status-Anzeige; 45s-Polling */}

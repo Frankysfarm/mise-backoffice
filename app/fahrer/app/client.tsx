@@ -445,6 +445,7 @@ import { FahrerPhase1510KilometerstandTracker } from './phase1510-kilometerstand
 import { FahrerPhase1515NaechsteTourVorbereitung } from './phase1515-naechste-tour-vorbereitung';
 import { FahrerPhase1520SchichtPausenEmpfehlung } from './phase1520-schicht-pausen-empfehlung';
 import { FahrerPhase1526SmartTourStoppCockpit } from './phase1526-smart-tour-stop-cockpit';
+import { FahrerPhase1530TagesabschlussBerichtsKarte } from './phase1530-tagesabschluss-berichts-karte';
 
 type Driver = {
   id: string;
@@ -4933,6 +4934,14 @@ export function FahrerApp({
           <FahrerPhase1520SchichtPausenEmpfehlung
             isOnline={isOnline}
             aktiveTours={activeBatch ? 1 : 0}
+          />
+        </div>
+        {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
+        <div className="px-4">
+          <FahrerPhase1530TagesabschlussBerichtsKarte
+            isOnline={isOnline}
+            stops={activeBatch?.stops as any}
+            schichtStartedAt={status?.online_seit ?? undefined}
           />
         </div>
         {/* Phase 1526: Smart-Tour-Stopp-Cockpit — Aktuelle Stops mit Navigation-CTA, ETA-Countdown und nächste Stops-Liste */}

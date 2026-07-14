@@ -532,6 +532,7 @@ import { DispatchPhase1509ZonenEffizienzVergleichWidget } from './phase1509-zone
 import { DispatchPhase1514FahrerTagesLeistungsRanking } from './phase1514-fahrer-tages-leistungs-ranking';
 import { DispatchPhase1519SchichtUmsatzPrognoseWidget } from './phase1519-schicht-umsatz-prognose-widget';
 import { DispatchPhase1525TourScoreLiveKommando } from './phase1525-tour-score-live-kommando';
+import { DispatchPhase1529KuechenDurchsatzWidget } from './phase1529-kuechen-durchsatz-widget';
 
 type Driver = {
   employee_id: string;
@@ -1602,6 +1603,8 @@ export function DispatchBoard({
       <DispatchPhase1514FahrerTagesLeistungsRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1519: Schicht-Umsatz-Prognose-Widget — Umsatz-Hochrechnung + Trend + Tages-Ziel-Fortschrittsbalken; 15-Min-Polling */}
       <DispatchPhase1519SchichtUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
+      <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}
       <DispatchPhase1525TourScoreLiveKommando batches={batches as any} drivers={drivers as any} stops={batches.flatMap((b: any) => (b.stops ?? []))} />
       {/* Phase 1505: Score-Tour-Hub — Fahrer-Leaderboard + Tour-Fortschritts-Visualisierung + ETA-Ampel in einem Dashboard */}

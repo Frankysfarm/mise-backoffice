@@ -1,7 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1521 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, 420 Seiten). Naechste Phasen: 1522-1526.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1531 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, 421 Seiten). Naechste Phasen: 1532-1536.
+
+## CEO Review #374 — 2026-07-14
+
+### Commit-Stand
+- `a46f50a2` feat(delivery/frontend): Smart-Timing, Tour-Score, Stopp-Navigator, Live-ETA, Statistiken-Cockpit
+- `31a325a3` docs: DELIVERY_PROGRESS.md — Phasen 1522-1526 dokumentiert, Nächste 1527-1531 definiert
+- `72963b77` feat(delivery/backend): Phasen 1522-1526 — Bonus-Prognose + Bestelltyp-Karte + Bonus-Tracker + Bewertungs-Banner
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1527 | Backend | Küchen-Durchsatz-API (GET /api/delivery/admin/kuechen-durchsatz) | ✅ |
+| 1528 | Kitchen | KitchenPhase1528TagesUmsatzBalkenChart | ✅ |
+| 1529 | Dispatch | DispatchPhase1529KuechenDurchsatzWidget | ✅ |
+| 1530 | Fahrer-App | FahrerPhase1530TagesabschlussBerichtsKarte | ✅ |
+| 1531 | Storefront | StorefrontPhase1531WarenkorbErinnerungsBanner | ✅ |
+
+**Bonus (Frontend-Agent commit a46f50a2):**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 1525+ | Kitchen | KitchenPhase1525SmartEchtzeitCountdownCockpit | ✅ integriert |
+| 1525+ | Dispatch | DispatchPhase1525TourScoreLiveKommando | ✅ integriert |
+| 1526+ | Fahrer-App | FahrerPhase1526SmartTourStoppCockpit | ✅ integriert |
+| 1527+ | Storefront | StorefrontPhase1527LiveEtaTrackingKommando | ✅ integriert |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert + rendert Phase1528 ✅
+- `dispatch/client.tsx` importiert + rendert Phase1529 ✅
+- `fahrer/app/client.tsx` importiert + rendert Phase1530 ✅
+- `storefront.tsx` importiert + rendert Phase1531 ✅
+- Backend-API `/api/delivery/admin/kuechen-durchsatz` existiert ✅
+- Migration 241 erstellt ✅
+
+**Code-Qualität:**
+- Phase1528 self-fetching (Phase1527-API intern) — kein Props-Drilling nötig ✅
+- Phase1529 10-Min-Polling, Kapazitäts-Warnung bei Status 'kritisch' ✅
+- Phase1530 isOnline-Guard + delivered-Guard — keine ungewollten Darstellungen ✅
+- Phase1531 30-Min-Idle-Timer, schließbar, localStorage 24h, Hydration-safe ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 421 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1532–1536 (für nächsten Agenten)
+1. **Phase 1532 Backend:** Fahrer-Einnahmen-Übersicht-API — GET /api/delivery/admin/fahrer-einnahmen: Verdienst je Fahrer heute + 7-Tage-Trend + Trinkgeld-Anteil; Supabase + Mock-Fallback.
+2. **Phase 1533 Kitchen:** Allergene-Alarm-Leiste — Kompakte Leiste: Bestellungen mit kritischen Allergenen (Nüsse/Gluten/Laktose) + Anzahl; Props-basiert.
+3. **Phase 1534 Dispatch:** Fahrer-Einnahmen-Rangliste — Phase1532-API: Top-Verdiener + Trend-Arrow + Trinkgeld-Balken; 15-Min-Polling.
+4. **Phase 1535 Fahrer-App:** Trinkgeld-Tracker — Heute gesammeltes Trinkgeld + Ø je Stopp + Vergleich Vorwoche; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1536 Storefront:** Lieferzeit-Countdown-Banner — Dynamische Anzeige "Bestell jetzt — ETA X Min" im Checkout; Guard 5 Min nach letzter Anzeige; Hydration-safe.
 
 ## CEO Review #373 — 2026-07-14
 
