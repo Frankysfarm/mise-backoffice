@@ -446,6 +446,7 @@ import { FahrerPhase1515NaechsteTourVorbereitung } from './phase1515-naechste-to
 import { FahrerPhase1520SchichtPausenEmpfehlung } from './phase1520-schicht-pausen-empfehlung';
 import { FahrerPhase1526SmartTourStoppCockpit } from './phase1526-smart-tour-stop-cockpit';
 import { FahrerPhase1530TagesabschlussBerichtsKarte } from './phase1530-tagesabschluss-berichts-karte';
+import { FahrerPhase1535TrinkgeldTracker } from './phase1535-trinkgeld-tracker';
 
 type Driver = {
   id: string;
@@ -4935,6 +4936,10 @@ export function FahrerApp({
             isOnline={isOnline}
             aktiveTours={activeBatch ? 1 : 0}
           />
+        </div>
+        {/* Phase 1535: Trinkgeld-Tracker — Heute Trinkgeld + Ø je Stopp + Vergleich Vorwoche; isOnline-Guard; 30-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1535TrinkgeldTracker isOnline={isOnline} driverId={driver?.id} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

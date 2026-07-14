@@ -476,6 +476,7 @@ import { KitchenPhase1513SchichtEndCheckliste } from './phase1513-schicht-end-ch
 import { KitchenPhase1518BestelllastPrognoseUhr } from './phase1518-bestelllast-prognose-uhr';
 import { KitchenPhase1525SmartEchtzeitCountdownCockpit } from './phase1525-smart-echtzeit-countdown-cockpit';
 import { KitchenPhase1528TagesUmsatzBalkenChart } from './phase1528-tages-umsatz-balken-chart';
+import { KitchenPhase1533AllergenAlarmLeiste } from './phase1533-allergene-alarm-leiste';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1380,6 +1381,8 @@ export function KitchenBoard({
         }).length}
         maxKapazitaet={20}
       />
+      {/* Phase 1533: Allergene-Alarm-Leiste — Kompakte Leiste mit Bestellungen für Nüsse/Gluten/Laktose + Anzahl */}
+      <KitchenPhase1533AllergenAlarmLeiste orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
