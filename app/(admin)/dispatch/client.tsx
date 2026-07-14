@@ -521,6 +521,7 @@ import { DispatchPhase1469TourScoreBenchmarkLive } from './phase1469-tour-score-
 import { DispatchPhase1471TourScoreLiveVisualisierung } from './phase1471-tour-score-live-visualisierung';
 import { DispatchPhase1473LiveFahrerAbdeckungsRadar } from './phase1473-live-fahrer-abdeckungs-radar';
 import { DispatchPhase1478TourEffizienzVergleichTabelle } from './phase1478-tour-effizienz-vergleich-tabelle';
+import { DispatchPhase1483FahrerReaktionszeitWidget } from './phase1483-fahrer-reaktionszeit-widget';
 
 type Driver = {
   employee_id: string;
@@ -1573,6 +1574,8 @@ export function DispatchBoard({
       <DispatchPhase1473LiveFahrerAbdeckungsRadar drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1478: Tour-Effizienz-Vergleich-Tabelle — Fahrer A vs B vs C: Ø Reaktionszeit + Aufträge + Trend; sortierbar */}
       <DispatchPhase1478TourEffizienzVergleichTabelle locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1483: Fahrer-Reaktionszeit-Widget — Rangliste + 7-Tage-Sparklines + Team-Ø vs. SLA-Ziel; 30-Min-Polling */}
+      <DispatchPhase1483FahrerReaktionszeitWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
       <DispatchPhase1454ZonenLiveEfzienzBoard
         batches={batches as any}

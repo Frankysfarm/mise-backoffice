@@ -434,6 +434,7 @@ import { FahrerPhase1470VerdienstPrognoseLive } from './phase1470-verdienst-prog
 import { FahrerPhase1471TourStoppSmartNavigator } from './phase1471-tour-stopp-smart-navigator';
 import { FahrerPhase1474SchichtEndeCountdown } from './phase1474-schicht-ende-countdown';
 import { FahrerPhase1479SchichtCountdownTimerV2 } from './phase1479-schicht-countdown-timer-v2';
+import { FahrerPhase1484StreckenEffizienzScore } from './phase1484-strecken-effizienz-score';
 
 type Driver = {
   id: string;
@@ -4819,6 +4820,15 @@ export function FahrerApp({
             isOnline={isOnline}
             locationId={driver.location_id ?? null}
             schichtStart={status?.online_seit ?? null}
+          />
+        </div>
+        {/* Phase 1484: Strecken-Effizienz-Score — Ø km/Stopp + Effizienz-Rang im Team + Spar-Tipp; 30-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1484StreckenEffizienzScore
+            driverId={driver.id}
+            isOnline={isOnline}
+            locationId={driver.location_id ?? null}
+            stoppsHeute={todayStats?.deliveries ?? activeBatch?.stops?.filter((s: any) => !!s.geliefert_am).length ?? 0}
           />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
