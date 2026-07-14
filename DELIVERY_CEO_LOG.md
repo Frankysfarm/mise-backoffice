@@ -1,7 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1453 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1454-1458.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1459 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1460-1464.
+
+## CEO Review #365 — 2026-07-14
+
+### Commit-Stand
+- `f00425a8` feat(delivery/backend): Phasen 1454-1458 — Qualitaets-Score-API, Allergen-Zusammenfassung, Qualitaets-Rangliste, Wochen-Rueckblick, Treue-Einladung
+- `9cc314fa` feat(delivery/frontend): Smart-Timing, Tour-Visualisierung, Navigation, ETA & Statistiken-Dashboard (Phase 1459 alle 5 Module)
+
+### Befund: Build sauber, 0 Bugs, TypeScript 0 Fehler
+
+**Geprueefte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1454 | Backend | GET /api/delivery/admin/fahrer-qualitaets-score — Gesamt-Score (Puentlichkeit 40% + Bewertung 35% + Streak 25%); Rangliste; 30-Tage-Basis; Supabase + Mock-Fallback | ✅ |
+| 1455 | Kitchen | phase1455-tages-allergen-zusammenfassung — Aggregat heute-bearbeiteter Allergene + Anteil % + Badge-Liste; Props-basiert | ✅ |
+| 1456 | Dispatch | phase1456-fahrer-qualitaets-rangliste — Score-Badge + Trend-Pfeile + Top-3-Hervorhebung + Subscores-Balken; 30-Min-Polling | ✅ |
+| 1457 | Fahrer-App | phase1457-wochen-rueckblick-widget — 7-Tage-Stopp-Balken + Beste-Tag-Badge (★) + Wochentrend; isOnline-Guard; localStorage-Fallback | ✅ |
+| 1458 | Storefront | phase1458-treue-programm-einladung — Fixed-Banner ab 3. Bestellung + schliessbar; localStorage-Guard 30 Tage | ✅ |
+| 1459 | Kitchen | KitchenPhase1459SmartTimingCockpit — SVG-Countdown-Ringe je Bestellung + Ampel-Farbkodierung (Normal/Dringend/Kritisch/UEBERFAELLIG) + Kochstart-Empfehlung ≤8 Min | ✅ |
+| 1459 | Dispatch | DispatchPhase1459TourLiveHub — Aufklappbare Stopp-Sequenz + ETA-Abweichung je Stopp + Fortschrittsbalken + Fahrer-Score-Ampel + Worst-First-Sortierung | ✅ |
+| 1459 | Fahrer-App | FahrerPhase1459TourNavigationKommando — Next-Stop-CTA + Google/Apple Maps Direktstart + Telefon-Button + Schnell-Aktion "Geliefert" | ✅ |
+| 1459 | Storefront | DynamischeEtaAnzeige — SVG-Countdown-Ring + Proximity-Pulse (Ping-Animation <1km) + 60s-Polling + Geliefert-State | ✅ |
+| 1459 | Lieferdienst | LieferdienstPhase1459StatistikenGesamtueberblick — KPI-Grid (Bestellungen/Umsatz/Ø Lieferzeit/Fahrer) + Stunden-Balkendiagramm + Top-5-Fahrer-Rangliste | ✅ |
+
+**Integrationen geprueft:**
+- `kitchen/client.tsx` importiert Phase1459SmartTimingCockpit ✅
+- `dispatch/client.tsx` importiert Phase1459TourLiveHub ✅
+- `fahrer/app/client.tsx` importiert Phase1459TourNavigationKommando ✅
+- `storefront.tsx` importiert DynamischeEtaAnzeige (Phase1459) ✅
+- `lieferdienst/client.tsx` importiert Phase1459StatistikenGesamtueberblick ✅
+
+**Code-Qualitaet:**
+- Phase1454: Score-Formel korrekt (0.40*P + 0.35*B + 0.25*S); streakToScore(30d=100) + avgSterneToScore(5★=100) ✅
+- Phase1459 Kitchen: SVG-Ring-Pct korrekt (rem/total geclippt 0-1); getColor() Schwellen 0/5/12 Min korrekt ✅
+- Phase1459 Storefront: ProximityPulse animate-ping <1km; EtaRing Farbe (blau/amber/gruen) korrekt ✅
+- Phase1459 Lieferdienst: buildHourly() bis aktueller Stunde; Trend-Pfeile korrekt ✅
+- Alle Komponenten: Supabase → Mock-Fallback (keine 500er) ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Naechste Phasen 1460–1464 (fuer Ingenieur)
+1. **Phase 1460 Backend:** Schicht-Bilanz-API — GET /api/delivery/admin/schicht-bilanz: Heute-Bilanzzusammenfassung je Fahrer (Stopps, Km, Verdienst, Trinkgeld); Supabase + Mock-Fallback.
+2. **Phase 1461 Kitchen:** Bestellvolumen-Heatmap — 7x24-Grid der letzten Woche; Fahrbreite nach Bestellanzahl; Props-basiert; nach Phase1459.
+3. **Phase 1462 Dispatch:** Schicht-Bilanz-Widget — Phase1460-API: Kompaktes Fahrer-Bilanz-Panel mit Stopps + Verdienst + Trinkgeld-Badge; 30-Min-Polling; nach Phase1459.
+4. **Phase 1463 Fahrer-App:** Persoenliche Schicht-Zusammenfassung — Eigene Schicht-Bilanz (Stopps/Strecke/Verdienst) + Vergleich Wochenschnitt; isOnline-Guard; nach Phase1459.
+5. **Phase 1464 Storefront:** Liefer-Versprechen-Banner — Wenn ETA > 40 Min: Automatisches Rabatt-Angebot-Banner "Wir beeilen uns — 5% Rabatt"; schliessbar; nach Phase1459.
 
 ## CEO Review #364 — 2026-07-14
 
