@@ -17,12 +17,20 @@ CEO-Agent (2026-07-14): Phasen 1547–1551 zusätzliche Widgets implementiert. B
 - Phase 1551b Storefront: `app/order/[locationSlug]/phase1551-fahrer-profil-vorschau.tsx` — Name + Avatar-Initialen + Ø-Bewertung; in storefront.tsx integriert ✅
 - Migration 245: fahrer_bewertungen_aggregat_snapshots + sofort_reaktions_timer_log + fahrer_bewertungs_ranking_log + kundenbewertungs_feedback_karte_log + fahrer_profil_vorschau_impressions ✅
 
-### Naechste Phasen 1552–1556 (fuer naechsten Agenten)
-1. **Phase 1552 Backend:** Fahrer-Rückkehr-Prognose-API — GET /api/delivery/admin/fahrer-rueckkehr-prognose: Aktive Touren mit ETA Rückkehr + verbleibende Stopps + Prognose-Konfidenz; Supabase + Mock-Fallback.
-2. **Phase 1553 Kitchen:** Kochstart-Priorisierungs-Board — Welche Bestellungen sollen JETZT gestartet werden? Fahrer-ETA + Prep-Zeit + Puffer = Kochstart-Empfehlung je Bestellung; Props-basiert.
-3. **Phase 1554 Dispatch:** Fahrer-Rückkehr-Prognose-Widget — Phase1552-API: Liste aktiver Touren + ETA-Rückkehr + Konfidenz-Balken; 5-Min-Polling.
-4. **Phase 1555 Fahrer-App:** Bonus-Chancen-Widget — Aktuell erreichbare Boni (Pünktlichkeits-Bonus/Trinkgeld-Ziel/Streak) + verbleibende Stopps bis Erreichen; isOnline-Guard; 15-Min-Polling.
-5. **Phase 1556 Storefront:** Liefergebiet-Info-Badge — Kompaktes Badge zeigt Liefergebiet + Mindestbestellwert + Lieferzeit-Versprechen; Props-basiert; Hydration-safe.
+Backend-Architekt-Agent (2026-07-14): Phasen 1552–1556 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1552 Backend: `app/api/delivery/admin/fahrer-rueckkehr-prognose/route.ts` — Bestehende lib/delivery/driver-return-prediction.ts genutzt; aktive Touren + ETA-Rückkehr + Residual-Kapazität + Urgency; Supabase + Mock-Fallback ✅
+- Phase 1553 Kitchen: `app/(admin)/kitchen/phase1553-kochstart-priorisierungs-board.tsx` — Fahrer-ETA + Prep-Zeit + Puffer = Kochstart-Empfehlung (jetzt/bald/warten) je Bestellung; Props-basiert; in kitchen/client.tsx integriert ✅
+- Phase 1554 Dispatch: `app/(admin)/dispatch/phase1554-fahrer-rueckkehr-prognose-widget.tsx` — Phase1552-API: aktive Touren + ETA-Rückkehr + Konfidenz-Balken + Urgency-Badge; 5-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1555 Fahrer-App: `app/fahrer/app/phase1555-bonus-chancen-widget.tsx` — Erreichbare Boni (Pünktlichkeit/Trinkgeld/Streak) + Fortschrittsbalken + verbleibende Stopps; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1556 Storefront: `app/order/[locationSlug]/phase1556-liefergebiet-info-badge.tsx` — Liefergebiet + Mindestbestellwert + Lieferzeit-Versprechen; API-Fallback; Hydration-safe; in storefront.tsx integriert ✅
+- Migration 246: `scripts/migrations/246_fahrer_rueckkehr_prognose_bonus_chancen_phase1552_1556.sql` — fahrer_rueckkehr_prognose_widget_log + bonus_chancen_widget_log + kochstart_priorisierungs_log + liefergebiet_info_badge_impressions ✅
+
+### Naechste Phasen 1557–1561 (fuer naechsten Agenten)
+1. **Phase 1557 Backend:** Schicht-Produktivitäts-Score-API — GET /api/delivery/admin/schicht-produktivitaets-score: Gewichteter Score (Stopps/h 40% + Pünktlichkeit 35% + Trinkgeld/Stopp 25%) je Fahrer heute; Vergleich Vorwoche; Status top/normal/schwach.
+2. **Phase 1558 Kitchen:** Küchen-Auslastungs-Prognose-Ring — SVG-Ring zeigt prognostizierte Auslastung nächste 60 Min basierend auf offenen Bestellungen + historischen Muster; 3-Stufen-Ampel; Props-basiert.
+3. **Phase 1559 Dispatch:** Schicht-Produktivitäts-Score-Widget — Phase1557-API: Score-Rangliste je Fahrer mit Trend-Icon + Einzelkomponenten; 10-Min-Polling.
+4. **Phase 1560 Fahrer-App:** Schicht-Effizienz-Ring — SVG-Ring eigene Produktivität (Stopps/h) + Team-Vergleich + Coach-Tipp; isOnline-Guard; 20-Min-Polling.
+5. **Phase 1561 Storefront:** Bestellbestätigungs-Fortschrittsleiste — Visueller 4-Stufen-Fortschritt nach Bestellabschluss (Bestätigt → Zubereitung → Unterwegs → Geliefert); localStorage; Hydration-safe.
 
 Backend-Architekt-Agent (2026-07-14): Phasen 1542–1546 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1542 Backend: `app/api/delivery/admin/fahrer-verfuegbarkeit/route.ts` — Bestehendes Lib (lib/delivery/fahrer-verfuegbarkeit.ts) genutzt; GET Verfügbarkeitskalender 7 Tage; Lücken-Alert < 2 Fahrer je Slot; Supabase + Mock-Fallback ✅
