@@ -1,142 +1,126 @@
+/**
+ * GET /api/delivery/admin/liefer-qualitaets-index?location_id=<uuid>
+ *
+ * Phase 1562 — Liefer-Qualitäts-Index-API
+ * Gewichteter Index: Pünktlichkeit 40% + Kundenbewertung 30% + Storno-Rate 20% + Vollständigkeit 10%
+ * Trend vs. 7-Tage-Ø. Status: excellent/gut/mittel/kritisch.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-// Phase 1381 — Liefer-Qualitäts-Index-API
-// Gewichteter Score: Pünktlichkeit (40%) + Kundenbewertung (35%) + Stornoquote (25%)
-// GET /api/delivery/admin/liefer-qualitaets-index?location_id=<uuid>
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-interface TagScore {
-  datum: string;
-  label: string;
-  puenktlichkeit_score: number;
-  bewertungs_score: number;
-  storno_score: number;
-  gesamt_index: number;
-  bestellungen: number;
-}
-
-interface ApiResponse {
-  heute: TagScore;
-  tagesverlauf: TagScore[];
-  trend: 'steigend' | 'stabil' | 'fallend';
-  trend_pct: number;
+export interface LieferQualitaetsIndexResponse {
+  index: number;
+  trend_vs_7tage: number;
+  status: 'excellent' | 'gut' | 'mittel' | 'kritisch';
+  kpis: {
+    puenktlichkeit_pct: number;
+    kundenbewertung_avg: number;
+    storno_rate_pct: number;
+    vollstaendigkeit_pct: number;
+  };
   location_id: string;
   generiert_am: string;
 }
 
-const WOCHENTAGE = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+function statusFor(idx: number): 'excellent' | 'gut' | 'mittel' | 'kritisch' {
+  if (idx >= 85) return 'excellent';
+  if (idx >= 70) return 'gut';
+  if (idx >= 50) return 'mittel';
+  return 'kritisch';
+}
 
-function buildMock(locationId: string): ApiResponse {
-  const now = new Date();
-  const tagesverlauf: TagScore[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const base = 70 + Math.round(Math.sin(i * 0.9) * 12);
-    tagesverlauf.push({
-      datum: d.toISOString().slice(0, 10),
-      label: i === 0 ? 'Heute' : WOCHENTAGE[d.getDay()],
-      puenktlichkeit_score: Math.min(100, base + 5),
-      bewertungs_score: Math.min(100, base + 2),
-      storno_score: Math.min(100, base - 3),
-      gesamt_index: base,
-      bestellungen: 20 + Math.round(Math.random() * 30),
-    });
-  }
-  const heute = tagesverlauf[6];
-  const vorgestern = tagesverlauf[4];
-  const delta = heute.gesamt_index - vorgestern.gesamt_index;
+function calcIndex(puenkt: number, bewertung: number, storno: number, vollst: number): number {
+  const p = (puenkt / 100) * 40;
+  const b = ((bewertung - 1) / 4) * 30;
+  const s = ((100 - storno) / 100) * 20;
+  const v = (vollst / 100) * 10;
+  return Math.round(p + b + s + v);
+}
+
+function buildMock(locationId: string): LieferQualitaetsIndexResponse {
+  const kpis = {
+    puenktlichkeit_pct: 87,
+    kundenbewertung_avg: 4.3,
+    storno_rate_pct: 4.2,
+    vollstaendigkeit_pct: 96,
+  };
+  const index = calcIndex(kpis.puenktlichkeit_pct, kpis.kundenbewertung_avg, kpis.storno_rate_pct, kpis.vollstaendigkeit_pct);
   return {
-    heute,
-    tagesverlauf,
-    trend: delta > 2 ? 'steigend' : delta < -2 ? 'fallend' : 'stabil',
-    trend_pct: Math.round(delta * 10) / 10,
+    index,
+    trend_vs_7tage: index - 78,
+    status: statusFor(index),
+    kpis,
     location_id: locationId,
-    generiert_am: now.toISOString(),
+    generiert_am: new Date().toISOString(),
   };
 }
 
 export async function GET(req: NextRequest) {
-  const locationId = req.nextUrl.searchParams.get('location_id');
-  if (!locationId) {
-    return NextResponse.json({ error: 'location_id required' }, { status: 400 });
-  }
-
+  const locationId = req.nextUrl.searchParams.get('location_id') ?? 'default';
   try {
     const supabase = await createClient();
-    const now = new Date();
-    const tagesverlauf: TagScore[] = [];
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
-    for (let i = 6; i >= 0; i--) {
-      const dayStart = new Date(now);
-      dayStart.setDate(dayStart.getDate() - i);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayEnd.getDate() + 1);
-
-      const { data: orders } = await supabase
-        .from('customer_orders')
-        .select('id, status, eta_min, delivered_at, created_at, delivery_rating')
+    const [{ data: orders }, { data: weekOrders }] = await Promise.all([
+      supabase
+        .from('orders')
+        .select('status, delivered_at, promised_at, rating, items_missing')
         .eq('location_id', locationId)
-        .gte('created_at', dayStart.toISOString())
-        .lt('created_at', dayEnd.toISOString());
+        .gte('created_at', todayStart.toISOString()),
+      supabase
+        .from('orders')
+        .select('status, delivered_at, promised_at, rating, items_missing')
+        .eq('location_id', locationId)
+        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60_000).toISOString())
+        .lt('created_at', todayStart.toISOString()),
+    ]);
 
-      const list = orders ?? [];
-      const total = list.length;
+    if (!orders || orders.length === 0) return NextResponse.json(buildMock(locationId));
 
-      // Pünktlichkeit: Anteil pünktlich geliefert (innerhalb ETA)
-      let puenktlich = 0;
-      let mitEta = 0;
-      for (const o of list) {
-        if (o.delivered_at && o.created_at && o.eta_min) {
-          mitEta++;
-          const tatsaechlich = (new Date(o.delivered_at).getTime() - new Date(o.created_at).getTime()) / 60000;
-          if (tatsaechlich <= o.eta_min * 1.1) puenktlich++;
-        }
-      }
-      const puenktlichkeitScore = mitEta > 0 ? Math.round((puenktlich / mitEta) * 100) : 75;
+    const delivered = orders.filter((o: any) => o.status === 'geliefert');
+    const cancelled = orders.filter((o: any) => o.status === 'storniert');
+    const onTime = delivered.filter((o: any) => o.delivered_at && o.promised_at && new Date(o.delivered_at) <= new Date(o.promised_at));
+    const rated = delivered.filter((o: any) => typeof o.rating === 'number');
+    const complete = delivered.filter((o: any) => !o.items_missing);
 
-      // Kundenbewertung: Ø Bewertung → 0–100 Scale (1–5 → 0–100)
-      const bewertet = list.filter((o) => o.delivery_rating != null);
-      const avgRating = bewertet.length > 0
-        ? bewertet.reduce((s, o) => s + (o.delivery_rating as number), 0) / bewertet.length
-        : 3.8;
-      const bewertungsScore = Math.round(((avgRating - 1) / 4) * 100);
+    const puenktlichkeit = delivered.length > 0 ? Math.round((onTime.length / delivered.length) * 100) : 0;
+    const bewertung = rated.length > 0 ? rated.reduce((s: number, o: any) => s + o.rating, 0) / rated.length : 4.0;
+    const storno = orders.length > 0 ? Math.round((cancelled.length / orders.length) * 100) : 0;
+    const vollst = delivered.length > 0 ? Math.round((complete.length / delivered.length) * 100) : 100;
 
-      // Stornoquote: Anteil NICHT storniert
-      const stornos = list.filter((o) => o.status === 'storniert' || o.status === 'cancelled').length;
-      const stornoScore = total > 0 ? Math.round(((total - stornos) / total) * 100) : 90;
+    const index = calcIndex(puenktlichkeit, bewertung, storno, vollst);
 
-      // Gewichteter Index
-      const gesamtIndex = Math.round(
-        puenktlichkeitScore * 0.4 + bewertungsScore * 0.35 + stornoScore * 0.25
-      );
-
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      tagesverlauf.push({
-        datum: d.toISOString().slice(0, 10),
-        label: i === 0 ? 'Heute' : WOCHENTAGE[d.getDay()],
-        puenktlichkeit_score: puenktlichkeitScore,
-        bewertungs_score: bewertungsScore,
-        storno_score: stornoScore,
-        gesamt_index: gesamtIndex,
-        bestellungen: total,
-      });
+    let weekIndex = 78;
+    if (weekOrders && weekOrders.length > 0) {
+      const wd = weekOrders.filter((o: any) => o.status === 'geliefert');
+      const wc = weekOrders.filter((o: any) => o.status === 'storniert');
+      const wot = wd.filter((o: any) => o.delivered_at && o.promised_at && new Date(o.delivered_at) <= new Date(o.promised_at));
+      const wr = wd.filter((o: any) => typeof o.rating === 'number');
+      const wv = wd.filter((o: any) => !o.items_missing);
+      const wp = wd.length > 0 ? Math.round((wot.length / wd.length) * 100) : 0;
+      const wb = wr.length > 0 ? wr.reduce((s: number, o: any) => s + o.rating, 0) / wr.length : 4.0;
+      const ws = weekOrders.length > 0 ? Math.round((wc.length / weekOrders.length) * 100) : 0;
+      const wvp = wd.length > 0 ? Math.round((wv.length / wd.length) * 100) : 100;
+      weekIndex = calcIndex(wp, wb, ws, wvp);
     }
 
-    const heute = tagesverlauf[6];
-    const vor3Tagen = tagesverlauf[3];
-    const delta = heute.gesamt_index - vor3Tagen.gesamt_index;
-
     return NextResponse.json({
-      heute,
-      tagesverlauf,
-      trend: delta > 2 ? 'steigend' : delta < -2 ? 'fallend' : 'stabil',
-      trend_pct: Math.round(delta * 10) / 10,
+      index,
+      trend_vs_7tage: index - weekIndex,
+      status: statusFor(index),
+      kpis: {
+        puenktlichkeit_pct: puenktlichkeit,
+        kundenbewertung_avg: Math.round(bewertung * 10) / 10,
+        storno_rate_pct: storno,
+        vollstaendigkeit_pct: vollst,
+      },
       location_id: locationId,
-      generiert_am: now.toISOString(),
-    } satisfies ApiResponse);
+      generiert_am: new Date().toISOString(),
+    } satisfies LieferQualitaetsIndexResponse);
   } catch {
     return NextResponse.json(buildMock(locationId));
   }

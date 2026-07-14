@@ -284,6 +284,7 @@ import { StorefrontPhase1551BewertungsTeaser } from './phase1551-bewertungs-teas
 import { StorefrontPhase1551FahrerProfilVorschau } from './phase1551-fahrer-profil-vorschau';
 import { StorefrontPhase1556LiefergebietInfoBadge } from './phase1556-liefergebiet-info-badge';
 import { StorefrontPhase1561BestellbestaetiguFortschrittsleiste } from './phase1561-bestellbestaetigung-fortschrittsleiste';
+import { StorefrontPhase1566EmpfohleneArtikelChips } from './phase1566-empfohlene-artikel-chips';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1435,6 +1436,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1556LiefergebietInfoBadge locationId={location.id} />
       {/* Phase 1561: Bestellbestätigungs-Fortschrittsleiste — 4-Stufen-Fortschritt (Bestätigt→Zubereitung→Unterwegs→Geliefert); localStorage-dismiss */}
       <StorefrontPhase1561BestellbestaetiguFortschrittsleiste orderPlaced={orderSuccess !== null} orderStatus={orderSuccess ? 'neu' : null} />
+      {/* Phase 1566: Empfohlene-Artikel-Chips — 3-5 meistbestellte Artikel als horizontale Chip-Leiste; localStorage-cached; Hydration-safe */}
+      <StorefrontPhase1566EmpfohleneArtikelChips locationSlug={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
