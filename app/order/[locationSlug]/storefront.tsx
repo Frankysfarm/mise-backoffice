@@ -294,6 +294,7 @@ import { StorefrontPhase1586DynamischeEtaLiveUltimate } from './phase1586-dynami
 import { StorefrontPhase1591TreueprogrammFortschrittsWidget } from './phase1591-treueprogramm-fortschritts-widget';
 import { StorefrontPhase1601LiefergebietLiveStatus } from './phase1601-liefergebiets-live-status';
 import { StorefrontPhase1606ProduktempfehlungUpsellBanner } from './phase1606-produktempfehlung-upsell-banner';
+import { StorefrontPhase1611LetzteBestellungenSchnellzugang } from './phase1611-letzte-bestellungen-schnellzugang';
 
 type Props = {
   location: Location;
@@ -1465,6 +1466,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1601LiefergebietLiveStatus locationId={location.id} />
       {/* Phase 1606: Produktempfehlung-Upsell-Banner — Warenkorb < 15 EUR: empfohlene Artikel als horizontaler Scroller; localStorage-cached 10Min; Hydration-safe */}
       <StorefrontPhase1606ProduktempfehlungUpsellBanner locationId={location.id} cartTotal={subtotal} />
+      {/* Phase 1611: Letzte-Bestellungen-Schnellzugang — Letzte 3 Bestellungen als Chips für Schnell-Reorder; localStorage-based; Hydration-safe */}
+      <StorefrontPhase1611LetzteBestellungenSchnellzugang locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

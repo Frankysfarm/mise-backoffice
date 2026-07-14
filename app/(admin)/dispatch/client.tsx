@@ -551,6 +551,7 @@ import { DispatchPhase1589FahrerBonusChancenWidget } from './phase1589-fahrer-bo
 import { DispatchPhase1594TourLiveVisualisierungsCockpit } from './phase1594-tour-live-visualisierungs-cockpit';
 import { DispatchPhase1599FahrerStandortEffizienzWidget } from './phase1599-fahrer-standort-effizienz-widget';
 import { DispatchPhase1604BeliebteBestezeitenWidget } from './phase1604-beliebte-bestellzeiten-widget';
+import { DispatchPhase1609FahrerPuenktlichkeitsRankingWidget } from './phase1609-fahrer-puenktlichkeits-ranking-widget';
 
 type Driver = {
   employee_id: string;
@@ -1657,6 +1658,8 @@ export function DispatchBoard({
       <DispatchPhase1599FahrerStandortEffizienzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1604: Beliebte-Bestellzeiten-Widget — 24h-Heatmap + Prognose nächste 3h + Peak-Stunden-Badges; 30-Min-Polling */}
       <DispatchPhase1604BeliebteBestezeitenWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1609: Fahrer-Pünktlichkeits-Ranking-Widget — Rangliste gold/silber/bronze + Pünktlichkeitsrate + Trend-Pfeil; 15-Min-Polling */}
+      <DispatchPhase1609FahrerPuenktlichkeitsRankingWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}
