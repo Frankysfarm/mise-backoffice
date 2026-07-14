@@ -461,6 +461,7 @@ import { FahrerPhase1575NaechsteSchichtErinnerungsKarte } from './phase1575-naec
 import { FahrerPhase1580SchichtCountdownTimer } from './phase1580-schicht-countdown-timer';
 import { FahrerPhase1585TourStopsNavigationUltimate } from './phase1585-tour-stops-navigation-ultimate';
 import { FahrerPhase1590EinnahmenZusammenfassungKarte } from './phase1590-einnahmen-zusammenfassung-karte';
+import { FahrerPhase1595SmartTourStoppNavigator } from './phase1595-smart-tour-stopp-navigator';
 
 type Driver = {
   id: string;
@@ -5016,6 +5017,10 @@ export function FahrerApp({
         {/* Phase 1590: Einnahmen-Zusammenfassung-Karte — Tageseinnahmen gesamt + Touren/Trinkgeld/Bonus + Trend vs. Vortag; isOnline-Guard; 10-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1590EinnahmenZusammenfassungKarte isOnline={isOnline} driverId={driver?.id ?? null} />
+        </div>
+        {/* Phase 1595: Smart-Tour-Stopp-Navigator — Aktuelle Tour-Stops mit Google-Maps-Navigation + Stopp-Reihenfolge + ETA je Stopp + Kunden-Notiz */}
+        <div className="px-4">
+          <FahrerPhase1595SmartTourStoppNavigator isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
