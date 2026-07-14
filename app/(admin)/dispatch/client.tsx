@@ -545,6 +545,7 @@ import { DispatchPhase1564LieferQualitaetsIndexWidget } from './phase1564-liefer
 import { DispatchPhase1569FahrerSchichtBilanzWidget } from './phase1569-fahrer-schicht-bilanz-widget';
 import { DispatchPhase1569TourenEffizienzRanglisteWidget } from './phase1569-touren-effizienz-rangliste-widget';
 import { DispatchPhase1574TourenEffizienzRanglisteWidget } from './phase1574-touren-effizienz-rangliste-widget';
+import { DispatchPhase1579TourEffizienzVergleichsTabelle } from './phase1579-tour-effizienz-vergleichs-tabelle';
 
 type Driver = {
   employee_id: string;
@@ -1639,6 +1640,8 @@ export function DispatchBoard({
       <DispatchPhase1569TourenEffizienzRanglisteWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1574: Touren-Effizienz-Rangliste-Widget — Phase1572-API: Rangliste je Fahrer Top/Normal/Schwach + Pünktlichkeit + Stopps/Tour; 15-Min-Polling */}
       <DispatchPhase1574TourenEffizienzRanglisteWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1579: Tour-Effizienz-Vergleichs-Tabelle — Fahrer A/B/C: Stopps/h + Ø Lieferzeit + Bewertung; 15-Min-Polling */}
+      <DispatchPhase1579TourEffizienzVergleichsTabelle locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

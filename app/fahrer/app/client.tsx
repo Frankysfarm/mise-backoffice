@@ -458,6 +458,7 @@ import { FahrerPhase1565KundenZufriedenheitsAmpel } from './phase1565-kunden-zuf
 import { FahrerPhase1570TageseinnahmenVerlauf } from './phase1570-tageseinnahmen-verlauf';
 import { FahrerPhase1570NaechsteSchichtErinnerungsKarte } from './phase1570-naechste-schicht-erinnerungs-karte';
 import { FahrerPhase1575NaechsteSchichtErinnerungsKarte } from './phase1575-naechste-schicht-erinnerungs-karte';
+import { FahrerPhase1580SchichtCountdownTimer } from './phase1580-schicht-countdown-timer';
 
 type Driver = {
   id: string;
@@ -4997,6 +4998,10 @@ export function FahrerApp({
         {/* Phase 1575: Nächste-Schicht-Erinnerungs-Karte — Nächste Schicht + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1575NaechsteSchichtErinnerungsKarte isOnline={isOnline} driverId={driver?.id ?? null} />
+        </div>
+        {/* Phase 1580: Schicht-Countdown-Timer — Restliche Schichtzeit + ETA letzter Stopp + Empfehlung weitere Tour; isOnline-Guard; 5-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1580SchichtCountdownTimer isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
