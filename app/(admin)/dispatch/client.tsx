@@ -540,6 +540,7 @@ import { DispatchPhase1544FahrerVerfuegbarkeitsKalenderWidget } from './phase154
 import { DispatchPhase1549TagesLieferleistungsVergleich } from './phase1549-tages-lieferleistungs-vergleich';
 import { DispatchPhase1549FahrerBewertungsRanking } from './phase1549-fahrer-bewertungs-ranking';
 import { DispatchPhase1554FahrerRueckkehrPrognoseWidget } from './phase1554-fahrer-rueckkehr-prognose-widget';
+import { DispatchPhase1559SchichtProduktivitaetsScoreWidget } from './phase1559-schicht-produktivitaets-score-widget';
 
 type Driver = {
   employee_id: string;
@@ -1624,6 +1625,8 @@ export function DispatchBoard({
       <DispatchPhase1549FahrerBewertungsRanking />
       {/* Phase 1554: Fahrer-Rückkehr-Prognose-Widget — Phase1552-API: aktive Touren + ETA-Rückkehr + Konfidenz-Balken; 5-Min-Polling */}
       <DispatchPhase1554FahrerRueckkehrPrognoseWidget />
+      {/* Phase 1559: Schicht-Produktivitäts-Score-Widget — Phase1557-API: Score-Rangliste je Fahrer mit Trend-Icon; 10-Min-Polling */}
+      <DispatchPhase1559SchichtProduktivitaetsScoreWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

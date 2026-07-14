@@ -453,6 +453,7 @@ import { FahrerPhase1545SchichtAnmeldeWidget } from './phase1545-schicht-anmelde
 import { FahrerPhase1550LiveSchichtBilanz } from './phase1550-live-schicht-bilanz';
 import { FahrerPhase1550KundenbewertungsFeedbackKarte } from './phase1550-kundenbewertungs-feedback-karte';
 import { FahrerPhase1555BonusChancenWidget } from './phase1555-bonus-chancen-widget';
+import { FahrerPhase1560SchichtEffizienzRing } from './phase1560-schicht-effizienz-ring';
 
 type Driver = {
   id: string;
@@ -4972,6 +4973,10 @@ export function FahrerApp({
         {/* Phase 1555: Bonus-Chancen-Widget — Erreichbare Boni (Pünktlichkeit/Trinkgeld/Streak); isOnline-Guard; 15-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1555BonusChancenWidget isOnline={isOnline} driverId={driver?.id ?? ''} />
+        </div>
+        {/* Phase 1560: Schicht-Effizienz-Ring — SVG-Ring Stopps/h + Team-Vergleich + Coach-Tipp; isOnline-Guard; 20-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1560SchichtEffizienzRing isOnline={isOnline} driverId={driver?.id ?? ''} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

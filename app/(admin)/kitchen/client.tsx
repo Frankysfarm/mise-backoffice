@@ -483,6 +483,7 @@ import { KitchenPhase1543BestellwellenPrognoseKarte } from './phase1543-bestellw
 import { KitchenPhase1548KapazitaetsAuslastungsUhr } from './phase1548-kapazitaets-auslastungs-uhr';
 import { KitchenPhase1548SofortReaktionsTimer } from './phase1548-sofort-reaktions-timer';
 import { KitchenPhase1553KochstartPriorisierungsBoard } from './phase1553-kochstart-priorisierungs-board';
+import { KitchenPhase1558KuechenAuslastungsPrognoseRing } from './phase1558-kuechen-auslastungs-prognose-ring';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1404,6 +1405,8 @@ export function KitchenBoard({
       <KitchenPhase1548SofortReaktionsTimer />
       {/* Phase 1553: Kochstart-Priorisierungs-Board — Welche Bestellungen JETZT starten; Fahrer-ETA + Prep-Zeit + Puffer */}
       <KitchenPhase1553KochstartPriorisierungsBoard orders={filtered as any} fahrerEtaMin={15} pufferMin={3} />
+      {/* Phase 1558: Küchen-Auslastungs-Prognose-Ring — SVG-Ring prognostizierte Auslastung 60 Min; 3-Stufen-Ampel */}
+      <KitchenPhase1558KuechenAuslastungsPrognoseRing orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

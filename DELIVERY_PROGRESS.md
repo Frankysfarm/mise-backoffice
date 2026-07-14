@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1557–1561 implementiert. Build ✓ Compiled successfully — 425 Seiten, TypeScript 0 Fehler. Push erfolgt.
+- Phase 1557 Backend: `app/api/delivery/admin/schicht-produktivitaets-score/route.ts` — Score je Fahrer (Stopps/h 40% + Pünktlichkeit 35% + Trinkgeld 25%); Vorwoche-Vergleich; Supabase + Mock-Fallback ✅
+- Phase 1558 Kitchen: `app/(admin)/kitchen/phase1558-kuechen-auslastungs-prognose-ring.tsx` — SVG-Ring prognostizierte Auslastung 60 Min; 3-Stufen-Ampel; Props-basiert; in kitchen/client.tsx integriert ✅
+- Phase 1559 Dispatch: `app/(admin)/dispatch/phase1559-schicht-produktivitaets-score-widget.tsx` — Phase1557-API: Score-Rangliste je Fahrer + Trend-Icon; 10-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1560 Fahrer-App: `app/fahrer/app/phase1560-schicht-effizienz-ring.tsx` — SVG-Ring Stopps/h + Team-Vergleich + Coach-Tipp; isOnline-Guard; 20-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1561 Storefront: `app/order/[locationSlug]/phase1561-bestellbestaetigung-fortschrittsleiste.tsx` — 4-Stufen-Fortschritt nach Bestellabschluss; localStorage-dismiss; Hydration-safe; in storefront.tsx integriert ✅
+
+### Nächste Phasen 1562–1566 (für Ingenieur)
+1. **Phase 1562 Backend:** Liefer-Qualitäts-Index-API — GET /api/delivery/admin/liefer-qualitaets-index: Gewichteter Index (Pünktlichkeit 40% + Kundenbewertung 30% + Storno-Rate 20% + Vollständigkeit 10%); Trend vs. 7-Tage-Ø; Status excellent/gut/mittel/kritisch.
+2. **Phase 1563 Kitchen:** Bestellungs-Komplexitäts-Uhr — SVG-Uhr zeigt Durchschnittskomplexität (Artikelanzahl × Kategorien) aktueller offener Bestellungen; Props-basiert; Ampel grün/gelb/rot.
+3. **Phase 1564 Dispatch:** Liefer-Qualitäts-Index-Widget — Phase1562-API: Index-Gauge + Einzel-KPIs (Pünktlichkeit/Bewertung/Storno/Vollständigkeit) + Trend vs. 7-Tage-Ø; 10-Min-Polling.
+4. **Phase 1565 Fahrer-App:** Kunden-Zufriedenheits-Ampel — Ampel (grün/gelb/rot) basierend auf letzten 5 Bewertungen + Coach-Hinweis; isOnline-Guard; 15-Min-Polling; Mock-Fallback.
+5. **Phase 1566 Storefront:** Empfohlene Artikel-Chips — 3-5 meistbestellte Artikel als horizontale Chip-Leiste nach Bestellabschluss; localStorage-cached; Hydration-safe.
+
 Frontend-Ingenieur-Agent (2026-07-14): Phasen 1547–1551 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1547 Backend: `app/api/delivery/admin/tages-lieferleistung/route.ts` — Tages-Lieferleistungs-Vergleich heute vs. gestern; 4 KPIs; Supabase + Mock-Fallback ✅
 - Phase 1548 Kitchen: `app/(admin)/kitchen/phase1548-kapazitaets-auslastungs-uhr.tsx` — SVG-Ring Kapazitäts-Auslastung; 4-Stufen-Farbampel; in kitchen/client.tsx integriert ✅
