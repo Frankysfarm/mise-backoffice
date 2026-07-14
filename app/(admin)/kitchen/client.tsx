@@ -486,6 +486,7 @@ import { KitchenPhase1553KochstartPriorisierungsBoard } from './phase1553-kochst
 import { KitchenPhase1558KuechenAuslastungsPrognoseRing } from './phase1558-kuechen-auslastungs-prognose-ring';
 import { KitchenPhase1563BestellungsKomplexitaetsUhr } from './phase1563-bestellungs-komplexitaets-uhr';
 import { KitchenPhase1568WarteschlangenDruckAnzeige } from './phase1568-warteschlangen-druck-anzeige';
+import { KitchenPhase1568ZubereitungsRueckstandAnzeige } from './phase1568-zubereitungs-rueckstand-anzeige';
 import { KitchenPhase1573ZubereitungsRueckstandAnzeige } from './phase1573-zubereitungs-rueckstand-anzeige';
 
 /* ------------------------------ Types ------------------------------ */
@@ -1414,6 +1415,8 @@ export function KitchenBoard({
       <KitchenPhase1563BestellungsKomplexitaetsUhr orders={filtered as any} />
       {/* Phase 1568: Warteschlangen-Druck-Anzeige — Bestellungen >5/10/15 Min in Queue; Eskalations-Ampel niedrig/mittel/hoch/kritisch */}
       <KitchenPhase1568WarteschlangenDruckAnzeige orders={filtered as any} />
+      {/* Phase 1568b: Zubereitungs-Rückstand-Anzeige — Überfällige Bestellungen (>12 Min) + Ampel + ältester Rückstand; Props-basiert */}
+      <KitchenPhase1568ZubereitungsRueckstandAnzeige orders={filtered as any} />
       {/* Phase 1573: Zubereitungs-Rückstand-Anzeige — Bestellungen über Ziel-Prepzeit; Ampel + Countdown ältester Rückstand */}
       <KitchenPhase1573ZubereitungsRueckstandAnzeige orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}

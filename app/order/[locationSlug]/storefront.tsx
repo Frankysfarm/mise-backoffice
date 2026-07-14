@@ -286,6 +286,7 @@ import { StorefrontPhase1556LiefergebietInfoBadge } from './phase1556-liefergebi
 import { StorefrontPhase1561BestellbestaetiguFortschrittsleiste } from './phase1561-bestellbestaetigung-fortschrittsleiste';
 import { StorefrontPhase1566EmpfohleneArtikelChips } from './phase1566-empfohlene-artikel-chips';
 import { StorefrontPhase1571AktionsBadge } from './phase1571-aktions-badge';
+import { StorefrontPhase1571LieferzeitEchtzeitTicker } from './phase1571-lieferzeit-echtzeit-ticker';
 import { StorefrontPhase1576LieferzeitEchtzeitTicker } from './phase1576-lieferzeit-echtzeit-ticker';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
@@ -1442,6 +1443,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1566EmpfohleneArtikelChips locationSlug={location.id} />
       {/* Phase 1571: Aktions-Badge — Aktuelle Aktion/Rabatt als Pill-Badge; 5-Min-Polling; schließbar */}
       <StorefrontPhase1571AktionsBadge locationId={location.id} />
+      {/* Phase 1571b: Lieferzeit-Echtzeit-Ticker — Status-Ticker nach Bestellabschluss (Zubereitung→Unterwegs→Geliefert) + ETA; 60-Sek-Polling */}
+      <StorefrontPhase1571LieferzeitEchtzeitTicker locationId={location.id} orderPlaced={orderSuccess !== null} orderStatus={orderSuccess ? 'pending' : null} />
       {/* Phase 1576: Lieferzeit-Echtzeit-Ticker — Statusnachrichten nach Bestellabschluss; 60-Sek-Polling; Hydration-safe */}
       <StorefrontPhase1576LieferzeitEchtzeitTicker orderId={activeOrderId} locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}

@@ -456,6 +456,7 @@ import { FahrerPhase1555BonusChancenWidget } from './phase1555-bonus-chancen-wid
 import { FahrerPhase1560SchichtEffizienzRing } from './phase1560-schicht-effizienz-ring';
 import { FahrerPhase1565KundenZufriedenheitsAmpel } from './phase1565-kunden-zufriedenheits-ampel';
 import { FahrerPhase1570TageseinnahmenVerlauf } from './phase1570-tageseinnahmen-verlauf';
+import { FahrerPhase1570NaechsteSchichtErinnerungsKarte } from './phase1570-naechste-schicht-erinnerungs-karte';
 import { FahrerPhase1575NaechsteSchichtErinnerungsKarte } from './phase1575-naechste-schicht-erinnerungs-karte';
 
 type Driver = {
@@ -4988,6 +4989,10 @@ export function FahrerApp({
         {/* Phase 1570: Tageseinnahmen-Verlauf — Stundenweise Einnahmen-Balken + Gesamt + Prognose; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1570TageseinnahmenVerlauf isOnline={isOnline} driverId={driver?.id ?? null} />
+        </div>
+        {/* Phase 1570b: Nächste-Schicht-Erinnerungs-Karte — Nächste geplante Schicht + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1570NaechsteSchichtErinnerungsKarte isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
         {/* Phase 1575: Nächste-Schicht-Erinnerungs-Karte — Nächste Schicht + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">

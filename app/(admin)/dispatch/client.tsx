@@ -543,6 +543,7 @@ import { DispatchPhase1554FahrerRueckkehrPrognoseWidget } from './phase1554-fahr
 import { DispatchPhase1559SchichtProduktivitaetsScoreWidget } from './phase1559-schicht-produktivitaets-score-widget';
 import { DispatchPhase1564LieferQualitaetsIndexWidget } from './phase1564-liefer-qualitaets-index-widget';
 import { DispatchPhase1569FahrerSchichtBilanzWidget } from './phase1569-fahrer-schicht-bilanz-widget';
+import { DispatchPhase1569TourenEffizienzRanglisteWidget } from './phase1569-touren-effizienz-rangliste-widget';
 import { DispatchPhase1574TourenEffizienzRanglisteWidget } from './phase1574-touren-effizienz-rangliste-widget';
 
 type Driver = {
@@ -1634,6 +1635,8 @@ export function DispatchBoard({
       <DispatchPhase1564LieferQualitaetsIndexWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1569: Fahrer-Schicht-Bilanz-Widget — Phase1567-API: Tabelle Einnahmen+Stopps+Bewertung+Km je Fahrer; 15-Min-Polling */}
       <DispatchPhase1569FahrerSchichtBilanzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1569b: Touren-Effizienz-Rangliste-Widget — Rangliste je Fahrer (Top/Normal/Schwach) + Stopps/Tour + Pünktlichkeit; 15-Min-Polling */}
+      <DispatchPhase1569TourenEffizienzRanglisteWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1574: Touren-Effizienz-Rangliste-Widget — Phase1572-API: Rangliste je Fahrer Top/Normal/Schwach + Pünktlichkeit + Stopps/Tour; 15-Min-Polling */}
       <DispatchPhase1574TourenEffizienzRanglisteWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
