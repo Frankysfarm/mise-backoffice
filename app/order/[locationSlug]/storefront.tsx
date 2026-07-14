@@ -254,6 +254,7 @@ import { StorefrontPhase1424NaechsteLieferungHinweis } from './phase1424-naechst
 import { StorefrontPhase1429PlzLiefercheck } from './phase1429-plz-liefercheck';
 import { StorefrontPhase1434LieferzonenKarte } from './phase1434-lieferzonen-karte';
 import { BestellstatusLiveKarte } from './phase1438-bestellstatus-live-karte';
+import { BestellkorbTimeoutWarnung } from './phase1443-bestellkorb-timeout-warnung';
 
 type Props = {
   location: Location;
@@ -1306,6 +1307,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <BestellstatusLiveKarte locationSlug={location.id} />
       </div>
+      {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
+      <BestellkorbTimeoutWarnung
+        cartItemCount={totalItems}
+        onCartExtend={() => {}}
+        onCartClear={() => setCart([])}
+      />
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />
       {/* Phase 1052: Warenkorb-Merkzettel-Widget — Artikel auf Merkzettel setzen + per Klick in Warenkorb übernehmen */}

@@ -419,6 +419,7 @@ import { FahrerPhase1428TourSicherheitsCheck } from './phase1428-tour-sicherheit
 import { FahrerPhase1433SmartStoppNavigatorUltra } from './phase1433-smart-stopp-navigator-ultra';
 import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback';
 import { FahrerTourStoppAnalyseCard } from './phase1437-tour-stopp-analyse-card';
+import { FahrerPhase1442HeimwegAssistent } from './phase1442-heimweg-assistent';
 
 type Driver = {
   id: string;
@@ -4722,6 +4723,29 @@ export function FahrerApp({
             <FahrerTourStoppAnalyseCard batchId={activeBatch.id} />
           </div>
         )}
+        {/* Phase 1442: Heimweg-Assistent — Nach letzter Lieferung: Maps-Link + Heimkehrzeit + Schicht-Bilanz */}
+        <div className="px-4">
+          <FahrerPhase1442HeimwegAssistent
+            activeBatch={activeBatch ? {
+              id: activeBatch.id,
+              status: activeBatch.status,
+              stops: activeBatch.stops?.map(s => ({
+                id: s.id,
+                status: s.geliefert_am ? 'geliefert' : 'offen',
+                geliefert_am: s.geliefert_am ?? null,
+                completed_at: null,
+                reihenfolge: s.reihenfolge ?? 0,
+                trinkgeld: null,
+                bestellwert: s.order?.gesamtbetrag ?? null,
+              })) ?? [],
+              started_at: activeBatch.started_at ?? null,
+              total_eta_min: activeBatch.total_eta_min ?? null,
+              gesamtumsatz: activeBatch.stops.reduce((sum, s) => sum + (s.order?.gesamtbetrag ?? 0), 0),
+            } : null}
+            driverId={driver.id}
+            isOnline={isOnline}
+          />
+        </div>
         {/* Phase 1410: Smart-Heimkehr-Navigator — Nach letztem Stopp: Heimkehr-Anzeige + Navigations-Buttons (Google/Waze) + ETA */}
         <div className="px-4">
           <FahrerPhase1410SmartHeimkehrNavigator

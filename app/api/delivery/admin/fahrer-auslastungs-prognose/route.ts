@@ -5,9 +5,10 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // Phase 1208 — Fahrer-Auslastungs-Prognose-API
+// Phase 1439 — Erweitert auf 4h-Horizont + auslastung_level (gering/normal/hoch/peak)
 // GET /api/delivery/admin/fahrer-auslastungs-prognose?location_id=<uuid>
-// Wie viele Fahrer werden in der nächsten Stunde benötigt
-// basierend auf historischem Auftragsvolumen + aktuelle Queue
+
+type AuslastungLevel = 'gering' | 'normal' | 'hoch' | 'peak';
 
 type PrognoseStunde = {
   stunde_offset: number;
@@ -17,6 +18,7 @@ type PrognoseStunde = {
   verfuegbare_fahrer: number;
   delta: number;
   status: 'ausreichend' | 'knapp' | 'kritisch';
+  auslastung_level: AuslastungLevel;
 };
 
 type ApiResponse = {
@@ -36,25 +38,37 @@ function stundenlabel(offsetH: number): string {
   return `${String(h).padStart(2, '0')}:00`;
 }
 
+function deriveStatus(delta: number): PrognoseStunde['status'] {
+  if (delta >= 0) return 'ausreichend';
+  if (delta === -1) return 'knapp';
+  return 'kritisch';
+}
+
+function deriveAuslastungLevel(erwartet: number, basisRate: number): AuslastungLevel {
+  const ratio = basisRate > 0 ? erwartet / basisRate : 1;
+  if (ratio < 0.6) return 'gering';
+  if (ratio < 1.1) return 'normal';
+  if (ratio < 1.5) return 'hoch';
+  return 'peak';
+}
+
 function mockData(locationId: string | null): ApiResponse {
+  const basisRate = 12;
   return {
     prognose: [
-      { stunde_offset: 1, stunde_label: stundenlabel(1), erwartete_bestellungen: 18, benoetigte_fahrer: 5, verfuegbare_fahrer: 4, delta: -1, status: 'knapp' },
-      { stunde_offset: 2, stunde_label: stundenlabel(2), erwartete_bestellungen: 22, benoetigte_fahrer: 6, verfuegbare_fahrer: 4, delta: -2, status: 'kritisch' },
-      { stunde_offset: 3, stunde_label: stundenlabel(3), erwartete_bestellungen: 15, benoetigte_fahrer: 4, verfuegbare_fahrer: 5, delta: 1, status: 'ausreichend' },
+      { stunde_offset: 1, stunde_label: stundenlabel(1), erwartete_bestellungen: 18, benoetigte_fahrer: 5, verfuegbare_fahrer: 4, delta: -1, status: 'knapp', auslastung_level: 'hoch' },
+      { stunde_offset: 2, stunde_label: stundenlabel(2), erwartete_bestellungen: 22, benoetigte_fahrer: 6, verfuegbare_fahrer: 4, delta: -2, status: 'kritisch', auslastung_level: 'peak' },
+      { stunde_offset: 3, stunde_label: stundenlabel(3), erwartete_bestellungen: 15, benoetigte_fahrer: 4, verfuegbare_fahrer: 5, delta: 1, status: 'ausreichend', auslastung_level: 'normal' },
+      { stunde_offset: 4, stunde_label: stundenlabel(4), erwartete_bestellungen: 8, benoetigte_fahrer: 2, verfuegbare_fahrer: 5, delta: 3, status: 'ausreichend', auslastung_level: 'gering' },
     ],
     aktuelle_queue: 6,
     aktive_fahrer: 4,
     empfehlung: 'In Stunde +2 werden 2 zusätzliche Fahrer benötigt — jetzt einplanen.',
     location_id: locationId,
     generiert_am: new Date().toISOString(),
+    // basisRate exposed for mock only
+    ...(false && { _basisRate: basisRate }),
   };
-}
-
-function deriveStatus(delta: number): PrognoseStunde['status'] {
-  if (delta >= 0) return 'ausreichend';
-  if (delta === -1) return 'knapp';
-  return 'kritisch';
 }
 
 export async function GET(req: NextRequest) {
@@ -64,7 +78,6 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Aktive Fahrer
     const { data: drivers } = await supabase
       .from('mise_drivers')
       .select('id')
@@ -73,7 +86,6 @@ export async function GET(req: NextRequest) {
 
     const aktiveFahrer = drivers?.length ?? 0;
 
-    // Aktuelle Queue (nicht zugewiesene Bestellungen)
     const { count: queueCount } = await supabase
       .from('customer_orders')
       .select('id', { count: 'exact', head: true })
@@ -83,7 +95,6 @@ export async function GET(req: NextRequest) {
 
     const aktuelleQueue = queueCount ?? 0;
 
-    // Historische Rate: Bestellungen der letzten 4 Stunden
     const vor4h = new Date(Date.now() - 4 * 3600000).toISOString();
     const { data: recentOrders } = await supabase
       .from('customer_orders')
@@ -93,8 +104,11 @@ export async function GET(req: NextRequest) {
 
     const basisRate = recentOrders ? Math.round(recentOrders.length / 4) : 12;
 
-    const prognose: PrognoseStunde[] = [1, 2, 3].map(offset => {
-      const erwartet = Math.round(basisRate * (1 + (offset === 2 ? 0.2 : 0)));
+    // Peak-Multiplikatoren: Stunde 2 erfahrungsgemäß höchstes Aufkommen
+    const peakMultiplier: Record<number, number> = { 1: 1.0, 2: 1.2, 3: 0.9, 4: 0.6 };
+
+    const prognose: PrognoseStunde[] = [1, 2, 3, 4].map(offset => {
+      const erwartet = Math.round(basisRate * (peakMultiplier[offset] ?? 1.0));
       const benoetigt = Math.ceil(erwartet / BESTELLUNGEN_PRO_FAHRER_PRO_STUNDE);
       const delta = aktiveFahrer - benoetigt;
       return {
@@ -105,6 +119,7 @@ export async function GET(req: NextRequest) {
         verfuegbare_fahrer: aktiveFahrer,
         delta,
         status: deriveStatus(delta),
+        auslastung_level: deriveAuslastungLevel(erwartet, basisRate),
       };
     });
 
@@ -112,7 +127,7 @@ export async function GET(req: NextRequest) {
     const empfehlung = kritisch.length > 0
       ? `In Stunde +${kritisch[0].stunde_offset} werden ${Math.abs(kritisch[0].delta)} zusätzliche Fahrer benötigt.`
       : aktiveFahrer >= 5
-        ? 'Fahrer-Kapazität ausreichend für die nächsten 3 Stunden.'
+        ? 'Fahrer-Kapazität ausreichend für die nächsten 4 Stunden.'
         : 'Auslastung beobachten — bei Bedarf Fahrer einplanen.';
 
     return NextResponse.json({

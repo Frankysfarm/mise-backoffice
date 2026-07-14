@@ -449,6 +449,7 @@ import { KitchenPhase1426ZutatenVerbrauchsPrognose } from './phase1426-zutaten-v
 import { KitchenPhase1431SmartTimingFarbkodierungUltra } from './phase1431-smart-timing-farbkodierung-ultra';
 import { KitchenPhase1431RohstoffVerbrauchslog } from './phase1431-rohstoff-verbrauchslog';
 import { KitchenBatchFertigLiveAmpel } from './phase1435-batch-fertig-live-ampel';
+import { KitchenPhase1440ZubereitungsReihenfolgeOptimierer } from './phase1440-zubereitungs-reihenfolge-optimierer';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1299,6 +1300,8 @@ export function KitchenBoard({
       <KitchenPhase1431SmartTimingFarbkodierungUltra orders={filtered as any} timings={timings as any} />
       {/* Phase 1435: Batch-Fertigstellungs-Live-Ampel — Farbkodierte Kacheln je Batch mit Countdown und Überfällig-Alert */}
       <KitchenBatchFertigLiveAmpel />
+      {/* Phase 1440: Zubereitungs-Reihenfolge-Optimierer — Optimale Reihenfolge aktiver Bestellungen nach ETA + Allergen-Sicherheitsabstand */}
+      <KitchenPhase1440ZubereitungsReihenfolgeOptimierer orders={filtered as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}
