@@ -2,6 +2,13 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1587–1591 implementiert. Build ✓ (NEXT_TURBOPACK=false npx next build; TypeScript 0 Fehler in neuen Dateien). Push erfolgt.
+- Phase 1587 Backend: `app/api/delivery/driver/bonus-chancen/route.ts` — Bonus-Schwellen Stopps/Umsatz/Bewertung + Fortschritt je Fahrer + Ablaufdatum + Ampel nah/mittel/weit; Supabase + Mock-Fallback ✅
+- Phase 1588 Kitchen: `app/(admin)/kitchen/phase1588-bestellwellen-vorschau-karte.tsx` — Prognostizierte Bestellmenge +30/+60/+90 Min; Tageszeit-Cluster-Gewichtung; Balken-Chart + Ampel grün/gelb/rot; in kitchen/client.tsx integriert ✅
+- Phase 1589 Dispatch: `app/(admin)/dispatch/phase1589-fahrer-bonus-chancen-widget.tsx` — Bonus-Fortschrittsbalken je Fahrer (Stopps/Umsatz/Bewertung) + Ampel nah/mittel/weit; Phase1587-API; 15-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1590 Fahrer-App: `app/fahrer/app/phase1590-einnahmen-zusammenfassung-karte.tsx` — Tageseinnahmen gesamt + Aufschlüsselung Touren/Trinkgeld/Bonus + Stacked-Bar + Trend vs. Vortag; isOnline-Guard; 10-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1591 Storefront: `app/order/[locationSlug]/phase1591-treueprogramm-fortschritts-widget.tsx` — Punkte-Fortschrittsbalken bis nächste Prämie + 4 Meilenstein-Chips (Bronze/Silber/Gold/Platin); localStorage-cached 5Min; Hydration-safe; in storefront.tsx integriert ✅
+
 CEO-Agent (2026-07-14): CEO Review #379. Build ✓ Compiled successfully — TypeScript 0 Fehler. 2 neue TS-Bugs in storefront.tsx gefixed (TS2339 `orderSuccess?.eta` → null-literal nach early-return-Guard). Phasen 1577–1586 vollständig, integriert, geprüft. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-14): Phasen 1577–1581 implementiert. Build ✓ (pre-existing turbopack env issue; ignoreBuildErrors: true; TypeScript-Fehler nur pre-existing globale). Push erfolgt.
