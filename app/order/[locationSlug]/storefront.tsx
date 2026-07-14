@@ -282,6 +282,7 @@ import { StorefrontPhase1541MindestbestellwertFortschritt } from './phase1541-mi
 import { StorefrontPhase1546LieferfensterAuswahl } from './phase1546-lieferfenster-auswahl';
 import { StorefrontPhase1551BewertungsTeaser } from './phase1551-bewertungs-teaser';
 import { StorefrontPhase1551FahrerProfilVorschau } from './phase1551-fahrer-profil-vorschau';
+import { StorefrontPhase1556LiefergebietInfoBadge } from './phase1556-liefergebiet-info-badge';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1429,6 +1430,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       )}
       {/* Phase 1546: Lieferfenster-Auswahl — +30/+60/+90 Min; Guard ETA > 30 Min; localStorage; Hydration-safe */}
       <StorefrontPhase1546LieferfensterAuswahl etaMinutes={30} locationSlug={location.id} />
+      {/* Phase 1556: Liefergebiet-Info-Badge — Liefergebiet + Mindestbestellwert + Lieferzeit-Versprechen; Props-basiert; Hydration-safe */}
+      <StorefrontPhase1556LiefergebietInfoBadge locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
