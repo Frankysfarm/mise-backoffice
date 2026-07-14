@@ -507,6 +507,7 @@ import { DispatchPhase1432TourScoreLiveCockpitUltra } from './phase1432-tour-sco
 import { DispatchPhase1432LiefergebietStatistikWidget } from './phase1432-liefergebiet-statistik-widget';
 import { DispatchFahrerEffizienzLivePanel } from './phase1436-fahrer-effizienz-live-panel';
 import { DispatchPhase1441FahrerAuslastungsPrognoseWidget } from './phase1441-fahrer-auslastungs-prognose-widget';
+import { DispatchPhase1446FahrerBonusUebersichtWidget } from './phase1446-fahrer-bonus-uebersicht-widget';
 
 type Driver = {
   employee_id: string;
@@ -1541,6 +1542,8 @@ export function DispatchBoard({
       <DispatchFahrerEffizienzLivePanel />
       {/* Phase 1441: Fahrer-Auslastungs-Prognose-Widget — 4h-Balkendiagramm Fahrerbedarf + Engpass-Alarm + Handlungsempfehlung */}
       <DispatchPhase1441FahrerAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1446: Fahrer-Bonus-Übersicht-Widget — Bonus-Rangliste + Monats-Fortschritt + Auszahlungs-Status */}
+      <DispatchPhase1446FahrerBonusUebersichtWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}

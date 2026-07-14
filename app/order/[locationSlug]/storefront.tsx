@@ -255,6 +255,7 @@ import { StorefrontPhase1429PlzLiefercheck } from './phase1429-plz-liefercheck';
 import { StorefrontPhase1434LieferzonenKarte } from './phase1434-lieferzonen-karte';
 import { BestellstatusLiveKarte } from './phase1438-bestellstatus-live-karte';
 import { BestellkorbTimeoutWarnung } from './phase1443-bestellkorb-timeout-warnung';
+import { TreuePunkteAnzeige } from './phase1448-treue-punkte-anzeige';
 
 type Props = {
   location: Location;
@@ -1306,6 +1307,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1438: Bestellstatus-Live-Karte — 5-Phasen-Stepper mit animierten Icons, ETA-Anzeige und Fahrer-Info */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <BestellstatusLiveKarte locationSlug={location.id} />
+      </div>
+      {/* Phase 1448: Treue-Punkte-Anzeige — Earned-Points-Badge (X Punkte = Y€ Rabatt) im Header */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8 flex justify-end">
+        <TreuePunkteAnzeige locationId={location.id} />
       </div>
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung

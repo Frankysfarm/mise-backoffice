@@ -420,6 +420,7 @@ import { FahrerPhase1433SmartStoppNavigatorUltra } from './phase1433-smart-stopp
 import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback';
 import { FahrerTourStoppAnalyseCard } from './phase1437-tour-stopp-analyse-card';
 import { FahrerPhase1442HeimwegAssistent } from './phase1442-heimweg-assistent';
+import { FahrerPhase1447PersoenlicheBonusKarte } from './phase1447-persoenliche-bonus-karte';
 
 type Driver = {
   id: string;
@@ -4723,6 +4724,10 @@ export function FahrerApp({
             <FahrerTourStoppAnalyseCard batchId={activeBatch.id} />
           </div>
         )}
+        {/* Phase 1447: Persönliche Bonus-Karte — Eigene Bonus-Aufstellung + Monats-Fortschrittsbalken */}
+        <div className="px-4">
+          <FahrerPhase1447PersoenlicheBonusKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1442: Heimweg-Assistent — Nach letzter Lieferung: Maps-Link + Heimkehrzeit + Schicht-Bilanz */}
         <div className="px-4">
           <FahrerPhase1442HeimwegAssistent
