@@ -252,6 +252,7 @@ import { StorefrontPhase1414LiveWarteschlangenIndikator } from './phase1414-live
 import { StorefrontPhase1419LieferEtaVerfeinerungsBadge } from './phase1419-liefer-eta-verfeinerungs-badge';
 import { StorefrontPhase1424NaechsteLieferungHinweis } from './phase1424-naechste-lieferung-hinweis';
 import { StorefrontPhase1429PlzLiefercheck } from './phase1429-plz-liefercheck';
+import { StorefrontPhase1434LieferzonenKarte } from './phase1434-lieferzonen-karte';
 
 type Props = {
   location: Location;
@@ -1295,6 +1296,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1429: PLZ-Liefer-Check — Kunden-Eingabe Postleitzahl + Sofort-Feedback ob Liefergebiet; PLZ-Liste ausklappbar */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <StorefrontPhase1429PlzLiefercheck locationId={location.id} />
+      </div>
+      {/* Phase 1434: Lieferzonen-Karte — SVG-Darstellung Zonen A/B/C/D mit Farbkodierung + Ø-Lieferzeiten-Legende */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <StorefrontPhase1434LieferzonenKarte locationId={location.id} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

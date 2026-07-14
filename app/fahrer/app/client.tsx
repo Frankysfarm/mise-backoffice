@@ -417,6 +417,7 @@ import { FahrerPhase1418SchichtWetterCheck } from './phase1418-schicht-wetter-ch
 import { FahrerPhase1423TagesEinnahmenUebersicht } from './phase1423-tages-einnahmen-uebersicht';
 import { FahrerPhase1428TourSicherheitsCheck } from './phase1428-tour-sicherheits-check';
 import { FahrerPhase1433SmartStoppNavigatorUltra } from './phase1433-smart-stopp-navigator-ultra';
+import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback';
 
 type Driver = {
   id: string;
@@ -4680,6 +4681,15 @@ export function FahrerApp({
         {/* Phase 1428: Tour-Sicherheits-Check — 4-Punkte-Checkliste vor Tourstart (Fahrzeug/Akku/Route/Waren); einmalig pro Batch */}
         <div className="px-4">
           <FahrerPhase1428TourSicherheitsCheck batchId={activeBatch?.id ?? null} isOnline={isOnline} />
+        </div>
+        {/* Phase 1433 (Post-Tour): Kurzfeedback nach Tour-Ende — 3 Fragen (Strecke/Kunden/Besonderheiten) mit 1–5 Sterne */}
+        <div className="px-4">
+          <FahrerPhase1433PostTourFeedback
+            driverId={driver.id}
+            locationId={driver.location_id}
+            completedBatchId={lastCompletedBatchId}
+            isOnline={isOnline}
+          />
         </div>
         {/* Phase 1433: Smart-Stopp-Navigator-Ultra — Alle Stopps mit Google Maps/Waze, Countdown, Kunden-Kontakt + Fortschrittsbalken */}
         {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (

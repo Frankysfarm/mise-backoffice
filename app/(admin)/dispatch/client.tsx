@@ -504,6 +504,7 @@ import { DispatchPhase1417EtaVerfeinerungsWidget } from './phase1417-eta-verfein
 import { DispatchPhase1422SchichtUebergabeDashboard } from './phase1422-schicht-uebergabe-dashboard';
 import { DispatchPhase1427FahrerRoutenAnalyseWidget } from './phase1427-fahrer-routen-analyse-widget';
 import { DispatchPhase1432TourScoreLiveCockpitUltra } from './phase1432-tour-score-live-cockpit-ultra';
+import { DispatchPhase1432LiefergebietStatistikWidget } from './phase1432-liefergebiet-statistik-widget';
 
 type Driver = {
   employee_id: string;
@@ -1530,6 +1531,8 @@ export function DispatchBoard({
       <DispatchPhase1422SchichtUebergabeDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1427: Fahrer-Routen-Analyse-Widget — km/Stopp-Rangliste + Optimierungspotenzial + häufigste Zone; 15-Min-Polling */}
       <DispatchPhase1427FahrerRoutenAnalyseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1432 (Liefergebiet): Liefergebiet-Statistik-Widget — PLZ-Rangliste + Ø-Lieferzeit je Zone + Engpass-Ampel; 15-Min-Polling */}
+      <DispatchPhase1432LiefergebietStatistikWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1432: Tour-Score-Live-Cockpit-Ultra — Alle aktiven Touren mit Score-Balken, Stop-Fortschritt-Punkte, ETA-Countdown */}
       <DispatchPhase1432TourScoreLiveCockpitUltra batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} drivers={drivers as any} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}

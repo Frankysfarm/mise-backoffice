@@ -447,6 +447,7 @@ import { KitchenPhase1416ZubereitungsZeitenHistogramm } from './phase1416-zubere
 import { KitchenPhase1421SchichtUebergabeCheckliste } from './phase1421-schicht-uebergabe-checkliste';
 import { KitchenPhase1426ZutatenVerbrauchsPrognose } from './phase1426-zutaten-verbrauchs-prognose';
 import { KitchenPhase1431SmartTimingFarbkodierungUltra } from './phase1431-smart-timing-farbkodierung-ultra';
+import { KitchenPhase1431RohstoffVerbrauchslog } from './phase1431-rohstoff-verbrauchslog';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1291,6 +1292,8 @@ export function KitchenBoard({
       <KitchenPhase1421SchichtUebergabeCheckliste orders={filtered as any} />
       {/* Phase 1426: Zutaten-Verbrauchs-Prognose — Hochrechnung Artikelbedarf nächste 2h aus aktiver Queue; Ampel ok/warnung/kritisch */}
       <KitchenPhase1426ZutatenVerbrauchsPrognose orders={filtered as any} />
+      {/* Phase 1431 (Rohstoff): Verbrauchslog — Protokoll der letzten 10 verbrauchten Artikel (Name, Menge, Uhrzeit) */}
+      <KitchenPhase1431RohstoffVerbrauchslog orders={filtered as any} />
       {/* Phase 1431: Smart-Timing-Farbkodierung-Ultra — Alle aktiven Bestellungen als Farbkacheln (grün/gelb/orange/rot) mit Echtzeit-Countdown */}
       <KitchenPhase1431SmartTimingFarbkodierungUltra orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
