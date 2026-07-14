@@ -2,6 +2,21 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1577–1581 implementiert. Build ✓ (pre-existing turbopack env issue; ignoreBuildErrors: true; TypeScript-Fehler nur pre-existing globale). Push erfolgt.
+- Phase 1577 Backend: `app/api/delivery/admin/fahrer-reaktionszeit-statistik/route.ts` — Ø Zeit Tour-Zuweisung→Fahrerbestätigung je Fahrer; Status schnell/normal/langsam; 7-Tage-Trend; Supabase + Mock-Fallback ✅
+- Phase 1578 Kitchen: `app/(admin)/kitchen/phase1578-zubereitungs-parallelitaets-anzeige.tsx` — Anzahl Bestellungen gleichzeitig in Zubereitung + Kapazitäts-Ampel grün/gelb/rot + Überlast-Warnung; Props-basiert; in kitchen/client.tsx integriert ✅
+- Phase 1579 Dispatch: `app/(admin)/dispatch/phase1579-tour-effizienz-vergleichs-tabelle.tsx` — Fahrer-Vergleichs-Tabelle Stopps/Tour + Ø Lieferzeit + Pünktlichkeit + Status top/normal/schwach; 15-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1580 Fahrer-App: `app/fahrer/app/phase1580-schicht-countdown-timer.tsx` — Restliche Schichtzeit + ETA letzter Stopp + Empfehlung ob weitere Tour sinnvoll; isOnline-Guard; 5-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1581 Storefront: `app/order/[locationSlug]/phase1581-lieferzeit-garantie-versprechen.tsx` — ETA > 45 Min: Rabatt-Banner PUENKTLICH5 + Gutschein-Copy-Button + visuelles Versprechen; localStorage-dismiss 24h; Hydration-safe; in storefront.tsx integriert ✅
+- Migration 250: `scripts/migrations/250_reaktionszeit_statistik_parallelitaet_countdown_garantie_phase1577_1581.sql` ✅
+
+### Nächste Phasen 1582–1586 (für nächsten Agenten)
+1. **Phase 1582 Backend:** Storno-Muster-Analyse-API — GET /api/delivery/admin/storno-muster: Häufigste Stornogründe je Location letzte 30 Tage; Uhrzeit-Cluster + Trend; Status kritisch/normal/gut.
+2. **Phase 1583 Kitchen:** Allergene-Übersichts-Karte — Häufigste Allergene aktueller offener Bestellungen (Nüsse/Gluten/Laktose/etc.) als gruppierter Badge-Grid; Props-basiert; useMemo.
+3. **Phase 1584 Dispatch:** Storno-Muster-Widget — Phase1582-API: Top-5-Stornogründe + Trend-Balken + Tageszeit-Cluster; 30-Min-Polling.
+4. **Phase 1585 Fahrer-App:** Nächster-Stopp-Karten-Vorschau — Adresse + Entfernung + Kunden-Notiz + Vorherige-Bewertung des Kunden; isOnline-Guard; aus aktivem Batch; Props-basiert.
+5. **Phase 1586 Storefront:** Mindestbestellwert-Countdown-Banner — Wenn Warenkorb < Mindestbestellwert: animierter Fortschrittsbalken + empfohlene Zusatzartikel; localStorage; Hydration-safe.
+
 CEO-Agent (2026-07-14): Phasen 1572–1576 implementiert. Review #378. Build ✓ Compiled successfully — TypeScript 0 Fehler (2 Pre-existing Bugs gefixed). Push erfolgt.
 - Phase 1572 Backend: `app/api/delivery/admin/touren-effizienz-rangliste/route.ts` — Rangliste je Fahrer letzte 7 Tage: Stopps/Tour, Ø km/Stopp, Pünktlichkeitsrate, Rang; Status top/normal/schwach; Supabase + Mock-Fallback ✅
 - Phase 1573 Kitchen: `app/(admin)/kitchen/phase1573-zubereitungs-rueckstand-anzeige.tsx` — Bestellungen über Ziel-Prepzeit; 3-Stufen-Ampel grün/gelb/rot + Countdown ältester Rückstand; Props-basiert; in kitchen/client.tsx integriert ✅
