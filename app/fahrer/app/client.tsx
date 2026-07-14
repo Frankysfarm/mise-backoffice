@@ -427,6 +427,7 @@ import { FahrerPhase1454SchichtGewinnRingCockpit } from './phase1454-schicht-gew
 import { FahrerPhase1457WochenRueckblickWidget } from './phase1457-wochen-rueckblick-widget';
 import { FahrerPhase1459TourNavigationKommando } from './phase1459-tour-navigation-kommando';
 import { FahrerPhase1463PersoenlicheSchichtZusammenfassung } from './phase1463-persoenliche-schicht-zusammenfassung';
+import { FahrerPhase1462TourStoppNavigationsKommando } from './phase1462-tour-stopp-navigations-kommando';
 
 type Driver = {
   id: string;
@@ -5010,6 +5011,32 @@ export function FahrerApp({
           onClose={() => setPickOpen(false)}
           onComplete={() => { setPickOpen(false); router.refresh(); }}
         />
+      )}
+
+      {/* Phase 1462: Tour-Stopp-Navigations-Kommando — Smart Stop Navigator mit GPS, Tel + Bestätigungs-Flow */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase1462TourStoppNavigationsKommando
+            stops={activeBatch.stops.map((s, i) => {
+              const completed = !!s.geliefert_am;
+              const isNext = !completed && activeBatch.stops.slice(0, i).every((prev) => !!prev.geliefert_am);
+              return {
+                id: s.id,
+                sequence: s.reihenfolge ?? (i + 1),
+                status: completed ? 'completed' : isNext ? 'active' : 'pending',
+                address: [s.order?.kunde_adresse, s.order?.kunde_plz].filter(Boolean).join(', ') || `Stopp ${i + 1}`,
+                customerName: s.order?.kunde_name ?? undefined,
+                customerPhone: s.order?.kunde_telefon ?? undefined,
+                notes: s.order?.kunde_notiz ?? undefined,
+                lat: s.order?.kunde_lat ?? undefined,
+                lng: s.order?.kunde_lng ?? undefined,
+                orderId: s.order_id ?? undefined,
+                orderTotal: s.order?.gesamtbetrag ?? undefined,
+              };
+            })}
+            onStopComplete={markDelivered}
+          />
+        </div>
       )}
 
       {/* Schicht-Abschluss Modal */}

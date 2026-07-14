@@ -352,6 +352,7 @@ import { LieferdienstTagesPerformanceExecutiveCockpit } from './phase1000-tages-
 import { LieferdienstPhase1325StatistikenFinalDashboard } from './phase1325-statistiken-final-dashboard';
 import { LieferdienstPhase1330SchichtErtragsCockpit } from './phase1330-schicht-ertrags-cockpit';
 import { LieferdienstPhase1459StatistikenGesamtueberblick } from './phase1459-statistiken-gesamtueberblick';
+import { LieferdienstPhase1000StatistikHubDashboard } from './phase1000-statistik-hub-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1940,6 +1941,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase765SchichtTagesvergleich locationId={locationId ?? null} />
                 {/* Phase 779: Schicht-Statistiken-Cockpit — KPI-Grid: Umsatz, Bestellungen, Pünktlichkeit, Bewertung */}
                 <LieferdienstPhase779SchichtStatsCockpit locationId={locationId ?? null} />
+                {/* Phase 1000: Statistiken-Hub-Dashboard — KPI-Kacheln, Tagesziele, Stunden-Chart, Top-Artikel */}
+                <LieferdienstPhase1000StatistikHubDashboard locationId={locationId} />
               </>
             </div>
           )}

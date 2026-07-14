@@ -261,6 +261,7 @@ import { BestellstatusLiveTracker } from './phase1454-bestellstatus-live-tracker
 import { StorefrontPhase1458TreueProgrammEinladung } from './phase1458-treue-programm-einladung';
 import { DynamischeEtaAnzeige } from './phase1459-dynamische-eta-anzeige';
 import { StorefrontPhase1464LieferVersprechenBanner } from './phase1464-liefer-versprechen-banner';
+import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
   location: Location;
@@ -1325,6 +1326,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <DynamischeEtaAnzeige locationId={location.id} estimatedMinutes={30} />
       </div>
+      {/* Phase 1000: Dynamische ETA Live-Cockpit — 4-Phasen-Timeline + Fahrer-Karte + Countdown */}
+      {orderSuccess?.orderId && orderSuccess.type === 'lieferung' && (
+        <div className="mx-auto max-w-lg px-4 pt-2 pb-4">
+          <Phase1000DynamischeEtaLiveCockpit
+            orderId={orderSuccess.orderId}
+            initialData={{ etaMin: orderSuccess.eta > 0 ? orderSuccess.eta : null, status: 'delivering' }}
+          />
+        </div>
+      )}
       {/* Phase 1453: Bestellhistorie-Mini-Widget — Letzte 3 Bestellungen des Kunden */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <BestellhistorieMiniWidget locationId={location.id} />

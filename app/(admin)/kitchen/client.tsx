@@ -457,6 +457,7 @@ import { KitchenPhase1454LiveBacklogPriorisierung } from './phase1454-live-backl
 import { KitchenPhase1455TagesAllergenZusammenfassung } from './phase1455-tages-allergen-zusammenfassung';
 import { KitchenPhase1459SmartTimingCockpit } from './phase1459-smart-timing-cockpit';
 import { KitchenPhase1461BestellvolumenHeatmap } from './phase1461-bestellvolumen-heatmap';
+import { KitchenPhase1385SmartTimingCountdownCockpit } from './phase1385-smart-timing-countdown-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2689,6 +2690,8 @@ export function KitchenBoard({
       <KitchenPhase806SmartTimingFarbskala locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 810: Zubereitungszeit-Trend — Ø Zubereitungszeit je Stunde heute vs. gestern, Ampel-Kodierung */}
       <KitchenPhase810ZubereitungszeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1385: Smart-Timing Countdown Cockpit — Farbcodierter Echtzeit-Countdown je Bestellung (rot/gelb/grün) */}
+      <KitchenPhase1385SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

@@ -514,6 +514,7 @@ import { DispatchPhase1454ZonenLiveEfzienzBoard } from './phase1454-zonen-live-e
 import { DispatchPhase1456FahrerQualitaetsRangliste } from './phase1456-fahrer-qualitaets-rangliste';
 import { DispatchPhase1459TourLiveHub } from './phase1459-tour-live-hub';
 import { DispatchPhase1462SchichtBilanzWidget } from './phase1462-schicht-bilanz-widget';
+import { DispatchPhase1000TourScoreVisualisierung } from './phase1000-tour-score-visualisierung';
 
 type Driver = {
   employee_id: string;
@@ -2882,6 +2883,9 @@ export function DispatchBoard({
       <AktiveLieferungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 423: Zonen-Nachfrage-Badge — morgige Prognose je Zone aus zone_revenue_snapshots */}
       <ZonenNachfrageBadge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+
+      {/* Phase 1000: Tour-Score & Visualisierung — Fahrer-Scores, Tour-Effizienz, Stop-Fortschritt */}
+      <DispatchPhase1000TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
       {/* Incident-Übersicht: offene Vorfälle aus dem Incident-Management-System */}
       <OpenIncidentsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
