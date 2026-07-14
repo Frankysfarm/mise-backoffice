@@ -699,6 +699,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             />
           </div>
         )}
+        {/* Phase 1000: Dynamische ETA Live-Cockpit — 4-Phasen-Timeline + Fahrer-Karte + Countdown */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1000DynamischeEtaLiveCockpit
+              orderId={orderSuccess.orderId}
+              initialData={{ etaMin: orderSuccess.eta > 0 ? orderSuccess.eta : null, status: 'delivering' }}
+            />
+          </div>
+        )}
         {/* Phase 1138: Lieferstatus-Live-Banner — Fixierter Bottom-Banner: 4-Stufen-Timeline mit 20s-Polling */}
         {orderSuccess.type === 'lieferung' && orderSuccess.orderId && (
           <Phase1138LieferstatusBanner
@@ -1333,15 +1342,6 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <DynamischeEtaAnzeige locationId={location.id} estimatedMinutes={30} />
       </div>
-      {/* Phase 1000: Dynamische ETA Live-Cockpit — 4-Phasen-Timeline + Fahrer-Karte + Countdown */}
-      {orderSuccess?.orderId && orderSuccess.type === 'lieferung' && (
-        <div className="mx-auto max-w-lg px-4 pt-2 pb-4">
-          <Phase1000DynamischeEtaLiveCockpit
-            orderId={orderSuccess.orderId}
-            initialData={{ etaMin: orderSuccess.eta > 0 ? orderSuccess.eta : null, status: 'delivering' }}
-          />
-        </div>
-      )}
       {/* Phase 1453: Bestellhistorie-Mini-Widget — Letzte 3 Bestellungen des Kunden */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <BestellhistorieMiniWidget locationId={location.id} />

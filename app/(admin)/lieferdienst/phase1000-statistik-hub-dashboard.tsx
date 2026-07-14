@@ -216,7 +216,7 @@ export function LieferdienstPhase1000StatistikHubDashboard({
                       <XAxis dataKey="label" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                       <Tooltip
                         contentStyle={{ fontSize: 11, borderRadius: 8 }}
-                        formatter={(v: number) => [`${v} Best.`, 'Bestellungen']}
+                        formatter={(v: unknown) => [`${v as number} Best.`, 'Bestellungen']}
                       />
                       <Bar dataKey="orders" radius={[4, 4, 0, 0]}>
                         {d.hourlyData.map((entry, i) => (
