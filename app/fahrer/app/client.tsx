@@ -431,6 +431,7 @@ import { FahrerPhase1462TourStoppNavigationsKommando } from './phase1462-tour-st
 import { FahrerPhase1468TageszielFortschrittsRing } from './phase1468-tagesziel-fortschritts-ring';
 import { FahrerPhase1469SmartNaviZielCockpit } from './phase1469-smart-navi-ziel-cockpit';
 import { FahrerPhase1470VerdienstPrognoseLive } from './phase1470-verdienst-prognose-live';
+import { FahrerPhase1471TourStoppSmartNavigator } from './phase1471-tour-stopp-smart-navigator';
 
 type Driver = {
   id: string;
@@ -4789,6 +4790,13 @@ export function FahrerApp({
             schichtStartISO={status?.online_seit ?? null}
             earningsToday={todayStats?.estEarnings ?? 0}
             earningsGoal={60}
+          />
+        </div>
+        {/* Phase 1471: Tour-Stopp Smart Navigator — Priorisierte Stopp-Liste mit ETA + schnellem Navi-Button */}
+        <div className="px-4">
+          <FahrerPhase1471TourStoppSmartNavigator
+            activeBatch={activeBatch as any}
+            isOnline={isOnline}
           />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}

@@ -262,6 +262,7 @@ import { StorefrontPhase1458TreueProgrammEinladung } from './phase1458-treue-pro
 import { DynamischeEtaAnzeige } from './phase1459-dynamische-eta-anzeige';
 import { StorefrontPhase1464LieferVersprechenBanner } from './phase1464-liefer-versprechen-banner';
 import { StorefrontPhase1469LieferTransparenzStatus } from './phase1469-liefer-transparenz-status';
+import { StorefrontPhase1471DynamischeEtaAnzeige } from './phase1471-dynamische-eta-anzeige';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1353,6 +1354,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1464LieferVersprechenBanner locationId={location.id} etaMinuten={null} />
       {/* Phase 1469: Liefer-Transparenz-Status-Karte — Fortschritts-Leiste Bestellt→Zubereitung→Fertig→Unterwegs→Geliefert */}
       <StorefrontPhase1469LieferTransparenzStatus locationId={location.id} orderStatus={orderSuccess ? 'pending' : null} />
+      {/* Phase 1471: Dynamische ETA-Anzeige — Live-Lieferzeit mit Farbkodierung (grün < 30 / gelb < 45 / orange < 60 / rot ≥ 60) */}
+      <StorefrontPhase1471DynamischeEtaAnzeige locationId={location.id} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}
