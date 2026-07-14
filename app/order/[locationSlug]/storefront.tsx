@@ -291,6 +291,7 @@ import { StorefrontPhase1576LieferzeitEchtzeitTicker } from './phase1576-lieferz
 import { StorefrontPhase1581LieferzeitGarantieVersprechen } from './phase1581-lieferzeit-garantie-versprechen';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 import { StorefrontPhase1586DynamischeEtaLiveUltimate } from './phase1586-dynamische-eta-live-ultimate';
+import { StorefrontPhase1591TreueprogrammFortschrittsWidget } from './phase1591-treueprogramm-fortschritts-widget';
 
 type Props = {
   location: Location;
@@ -1456,6 +1457,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         estimatedMin={28}
         currentStatus={activeOrderId ? 'unterwegs' : undefined}
       />
+      {/* Phase 1591: Treueprogramm-Fortschritts-Widget — Punkte-Fortschrittsbalken bis nächste Prämie + Meilenstein-Chips; localStorage-cached; Hydration-safe */}
+      <StorefrontPhase1591TreueprogrammFortschrittsWidget locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
