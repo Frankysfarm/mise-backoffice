@@ -362,6 +362,7 @@ import { LieferdienstPhase1507StatistikenSofortCockpit } from './phase1507-stati
 import { LieferdienstPhase1510StatistikenLivePro } from './phase1510-statistiken-live-pro';
 import { LieferdienstPhase1549LieferQualitaetsTrend } from './phase1549-liefer-qualitaets-trend';
 import { LieferdienstPhase1554StatistikenExecutiveDashboard } from './phase1554-statistiken-executive-dashboard';
+import { LieferdienstPhase1601StatistikenEchtzeitExecutiveCockpit } from './phase1601-statistiken-echtzeit-executive-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1686,6 +1687,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1184BestelleingangVerlaufsDashboard locationId={locationId ?? null} />
               {/* Phase 1596: Statistiken-Live-Kommando — Live-KPI-Dashboard mit 6 Echtzeit-Metriken + Trend vs. Vortag; 30-Sek-Polling */}
               <LieferdienstPhase1596StatistikenLiveKommando locationId={locationId ?? null} />
+              {/* Phase 1601: Statistiken-Echtzeit-Executive-Cockpit — 6 KPI-Kacheln (Umsatz/Bestellungen/Pünktlichkeit/Storno/Lieferzeit/Trinkgeld) + Trend-Pfeile + Bewertung + Top-Stunde; 5-Min-Polling */}
+              <LieferdienstPhase1601StatistikenEchtzeitExecutiveCockpit locationId={locationId ?? null} />
               {/* Phase 1185: Statistiken Executive-KPI Dashboard — 6 KPIs + Trend-Pfeile + Wochenverlauf-Chart */}
               <LieferdienstPhase1185StatistikenExecutiveKpiDashboard locationId={locationId ?? null} />
               {/* Phase 1190: Statistik-Komplett-Dashboard — KPI-Grid + Stunden-Histogramm + Zonen-Rangliste + Trend-Vergleich */}

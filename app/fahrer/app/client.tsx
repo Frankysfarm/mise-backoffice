@@ -465,6 +465,7 @@ import { FahrerPhase1595SmartTourStoppNavigator } from './phase1595-smart-tour-s
 import { FahrerPhase1600SchichtEnergieCoach } from './phase1600-schicht-energie-coach';
 import { FahrerPhase1605TourRueckblickKarte } from './phase1605-tour-rueckblick-karte';
 import { FahrerPhase1610TrinkgeldWochenzielTracker } from './phase1610-trinkgeld-wochenziel-tracker';
+import { FahrerPhase1615TourStoppNavigationsUltraHub } from './phase1615-tour-stopp-navigations-ultra-hub';
 
 type Driver = {
   id: string;
@@ -5037,6 +5038,15 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1610TrinkgeldWochenzielTracker isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
+        {/* Phase 1615: Tour-Stopp-Navigations-Ultra-Hub — Alle Stopps mit Farbpunkt-Status, nächster-Stopp-Highlight, Navi-Button + Abschließen-Aktion; expandierbar */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1615TourStoppNavigationsUltraHub
+              stops={activeBatch.stops as any}
+              currentStopId={null}
+            />
+          </div>
+        )}
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
           <FahrerPhase1530TagesabschlussBerichtsKarte
