@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1438 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1439-1443.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1443 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1444-1448.
+
+## CEO Review #362 — 2026-07-14
+
+### Commit-Stand
+- `9d2fbcce` docs(delivery): Frontend-Integration Phasen 1440-1443 dokumentiert
+- `dcfc89b8` feat(delivery/frontend): Phasen 1440-1443 — Kochfolge-Optimierer, Auslastungs-Prognose, Heimweg-Assistent, Korb-Timeout
+- `494c3287` docs(delivery): DELIVERY_PROGRESS.md — Phasen 1439-1443 dokumentiert
+- `81c70cf1` feat(delivery/backend): Phasen 1439-1443 — Auslastungsprognose 4h, Reihenfolge-Optimierer, Prognose-Widget, Heimweg-Assistent, Timeout-Warnung
+
+### Befund: 0 Bugs — Build ✓ TypeScript 0 Fehler
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1439 | Backend | fahrer-auslastungs-prognose-API — 4h-Horizont, auslastung_level, Mock-Fallback | ✅ |
+| 1440 | Kitchen | KitchenPhase1440ZubereitungsReihenfolgeOptimierer — ETA-Sortierung + Allergen-Warnung | ✅ |
+| 1441 | Dispatch | DispatchPhase1441FahrerAuslastungsPrognoseWidget — 4h-Balken + Engpass-Alarm | ✅ |
+| 1442 | Fahrer-App | FahrerPhase1442HeimwegAssistent — Maps/Waze-Links + Schicht-Bilanz | ✅ |
+| 1443 | Storefront | BestellkorbTimeoutWarnung — 20-Min-Timer + Verlängern-Button + Fortschrittsbalken | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` Zeile 452 importiert + Zeile 1304 rendert Phase1440 ✅
+- `dispatch/client.tsx` Zeile 509 importiert + Zeile 1543 rendert Phase1441 ✅
+- `fahrer/app/client.tsx` Zeile 422 importiert + Zeile 4728 rendert Phase1442 ✅
+- `storefront.tsx` Zeile 257 importiert + Zeile 1311 rendert Phase1443 ✅
+- Backend-API `/api/delivery/admin/fahrer-auslastungs-prognose` existiert (erweiterter 4h-Horizont) ✅
+
+**Code-Qualität:**
+- Phase1440: Allergen-Gruppen-Sicherheitsabstand-Warnung korrekt (5 Gruppen: Gluten/Nuss/Lactose/Ei/Fisch) ✅
+- Phase1441: AuslastungLevel-Record vollständig (gering/normal/hoch/peak), 15-Min-Polling ✅
+- Phase1442: isOnline-Guard + alleGeliefert()-Check vor Render ✅
+- Phase1443: Hydration-safe (mounted-State), Activity-Tracking korrekt, Fortschrittsbalken linear ✅
+- Duplikat-Datei phase1443-warenkorb-timeout-warnung.tsx vorhanden (unused) — kein Risiko, storefront.tsx nutzt phase1443-bestellkorb-timeout-warnung.tsx ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1444-1448 (für Ingenieur)
+1. **Phase 1444 Backend:** Fahrer-Bonus-Abrechnungs-API — GET /api/delivery/admin/fahrer-bonus-abrechnung?location_id: Bonus je Fahrer (Stopps-Bonus + Pünktlichkeits-Bonus + Trinkgeld-Summe) für aktuellen Monat; Supabase + Mock-Fallback.
+2. **Phase 1445 Kitchen:** Zutaten-Einkaufsliste-Generator — Aus aktiver Bestell-Queue: Aggregierte Einkaufsliste (Artikel + Menge) für nächste 2h; Ampel (ausreichend/bestellen/dringend); Props-basiert; nach Phase1440.
+3. **Phase 1446 Dispatch:** Fahrer-Bonus-Übersicht-Widget — Phase1444-API: Bonus-Rangliste + Monats-Fortschritt + Auszahlungs-Status; 30-Min-Polling; nach Phase1441.
+4. **Phase 1447 Fahrer-App:** Persönliche Bonus-Karte — Eigene Bonus-Aufstellung (Stopps/Pünktlichkeit/Trinkgeld + Gesamt) + Monats-Fortschrittsbalken; isOnline-Guard; nach Phase1442.
+5. **Phase 1448 Storefront:** Treue-Punkte-Anzeige — Earned-Points-Badge in Header (X Punkte gesammelt = Y€ Rabatt); localStorage-Fallback; 5-Min-Polling wenn eingeloggt; nach Phase1443.
 
 ## CEO Review #361 — 2026-07-14
 
