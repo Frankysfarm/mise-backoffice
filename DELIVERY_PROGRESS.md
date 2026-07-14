@@ -15371,3 +15371,58 @@ Backend-Architekt-Agent (2026-07-13): Phasen 1415–1419 implementiert. Build �
 Backend-Architekt-Agent (2026-07-14): Phasen 1465–1469 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-14): Phasen 1444–1448 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 1567–1571 — 2026-07-14
+
+### Phase 1567 — Fahrer-Schicht-Bilanz-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-schicht-bilanz/route.ts`
+**GET:** `?location_id=<uuid>` — Aktuelle Schichtbilanz aller Fahrer: Einnahmen + Stopps + Bewertungs-Ø + Km + Status (aktiv/pause/offline); Rangliste; Supabase + Mock-Fallback
+**Response:** `{ fahrer: FahrerBilanzEintrag[], gesamt_einnahmen_eur, gesamt_stopps, aktive_fahrer, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1568 — Warteschlangen-Druck-Anzeige (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1568-warteschlangen-druck-anzeige.tsx`
+**Props:** `orders: OrderInput[]`
+**UI:** Collapsible; Buckets 5–10/10–15/>15 Min mit Farbkodierung; Ampel niedrig/mittel/hoch/kritisch; Coach-Banner bei Eskalation; rein client-seitig useMemo
+**Logik:** accepted_at/created_at Differenz je Bestellung; Schwellen: b15≥2||b10≥3 → kritisch; b15≥1||b10≥2 → hoch; b5≥3||b10≥1 → mittel
+**Integration:** `kitchen/client.tsx` nach Phase1563 ✅
+
+### Phase 1569 — Fahrer-Schicht-Bilanz-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1569-fahrer-schicht-bilanz-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible blau; 3-KPI-Grid (Aktiv/Stopps/Einnahmen oben); Row je Fahrer mit Status-Badge + Name + Stopps/Km + Einnahmen + Bewertung; 15-Min-Polling
+**API:** Nutzt Phase1567-API; Mock-Fallback; fmtEur() für EUR-Formatierung
+**Integration:** `dispatch/client.tsx` nach Phase1564 ✅
+
+### Phase 1570 — Tageseinnahmen-Verlauf (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1570-tageseinnahmen-verlauf.tsx`
+**Props:** `driverId: string | null, isOnline: boolean`
+**UI:** Collapsible emerald; Gesamt + Prognose im Header; Stundenweise SVG-Balken (aktuelle Stunde dunkler); isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/driver/tageseinnahmen-verlauf; Mock-Fallback mit realistischen Werten
+**Integration:** `fahrer/app/client.tsx` nach Phase1565 ✅
+
+### Phase 1571 — Aktions-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1571-aktions-badge.tsx`
+**Props:** `locationId: string`
+**UI:** Pill-Badge amber; Titel + optionaler Rabatt-%-Badge + Beschreibung + Gültigkeitstimer; schließbar; Hydration-safe; 5-Min-Polling
+**API:** GET /api/delivery/public/aktuelle-aktion?location_id=...; silent Fallback (kein Badge bei Fehler)
+**Integration:** `storefront.tsx` nach Phase1566 ✅
+
+### Migration
+**Datei:** `scripts/migrations/248_fahrer_schicht_bilanz_aktions_badge_phase1567_1571.sql`
+- fahrer_schicht_bilanz_snapshots — Historische Schichtbilanz je Fahrer für Trend-Analyse
+- warteschlangen_druck_log — Log bei kritischem Queue-Druck
+- location_aktionen — Aktuelle Aktionen/Rabatte je Location
+
+### Nächste Phasen 1572–1576 (für Ingenieur)
+1. **Phase 1572 Backend:** Echtzeit-SLA-Monitor-API — GET /api/delivery/admin/echtzeit-sla-monitor: Anteil Lieferungen ≤30/≤45/≤60 Min heute; Alert wenn <85% SLA-Einhaltung; je Zone aufgeschlüsselt.
+2. **Phase 1573 Kitchen:** Zubereitungs-SLA-Ticker — Live-Ticker Bestellungen die Zubereitungs-Ziel überschreiten; Countdown-Ring je Bestellung; Props-basiert.
+3. **Phase 1574 Dispatch:** Echtzeit-SLA-Monitor-Widget — Phase1572-API: Gauge + Zonen-Breakdown + Alert-Banner; 5-Min-Polling.
+4. **Phase 1575 Fahrer-App:** SLA-Pünktlichkeits-Karte — Eigene SLA-Quote heute vs. Ziel (95%); Pünktlichkeits-Trend-Linie; isOnline-Guard; 20-Min-Polling.
+5. **Phase 1576 Storefront:** Transparenz-Lieferzeit-Badge — Zeigt "In X% der Fälle pünktlich" + Ø Lieferzeit; Props `locationId`; 30-Min-Polling.
+
+---
+
+Backend-Architekt-Agent (2026-07-14): Phasen 1567–1571 implementiert. Build ✓ Exit Code 0 — TypeScript 0 Fehler. Push erfolgt.
