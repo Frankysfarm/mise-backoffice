@@ -436,6 +436,7 @@ import { FahrerPhase1474SchichtEndeCountdown } from './phase1474-schicht-ende-co
 import { FahrerPhase1479SchichtCountdownTimerV2 } from './phase1479-schicht-countdown-timer-v2';
 import { FahrerPhase1484StreckenEffizienzScore } from './phase1484-strecken-effizienz-score';
 import { FahrerPhase1489RoutenEffizienzKarte } from './phase1489-routen-effizienz-karte';
+import { FahrerPhase1494SmartStoppCountdown } from './phase1494-smart-stopp-countdown';
 
 type Driver = {
   id: string;
@@ -4840,6 +4841,17 @@ export function FahrerApp({
             locationId={driver.location_id ?? null}
           />
         </div>
+        {/* Phase 1494: Smart-Stopp-Countdown — Nächster Stopp mit ETA-Ring, Countdown, Distanz und Navi-Button; isOnline-Guard */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1494SmartStoppCountdown
+              isOnline={isOnline}
+              nextStop={(activeBatch.stops as any[]).find((s: any) => !s.geliefert_am) ?? null}
+              totalStops={activeBatch.stops.length}
+              doneStops={(activeBatch.stops as any[]).filter((s: any) => !!s.geliefert_am).length}
+            />
+          </div>
+        )}
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
           <FahrerPhase1454SchichtGewinnRingCockpit

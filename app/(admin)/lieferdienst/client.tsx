@@ -353,6 +353,7 @@ import { LieferdienstPhase1325StatistikenFinalDashboard } from './phase1325-stat
 import { LieferdienstPhase1330SchichtErtragsCockpit } from './phase1330-schicht-ertrags-cockpit';
 import { LieferdienstPhase1459StatistikenGesamtueberblick } from './phase1459-statistiken-gesamtueberblick';
 import { LieferdienstPhase1460StatistikenLiveExecutiveDashboard } from './phase1460-statistiken-live-executive-dashboard';
+import { LieferdiensstPhase1496LieferErfolgsquoteDashboard } from './phase1496-liefer-erfolgsquote-dashboard';
 import { LieferdienstPhase1000StatistikHubDashboard } from './phase1000-statistik-hub-dashboard';
 
 export function LieferdienstClient() {
@@ -1305,6 +1306,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1459StatistikenGesamtueberblick orders={orders as any} completedOrders={completedOrders as any} drivers={drivers as any} />
               {/* Phase 1460: Statistiken-Live-Executive-Dashboard — 6 KPI-Kacheln + Stunden-Verlaufsleiste + Schicht-Trend */}
               <LieferdienstPhase1460StatistikenLiveExecutiveDashboard orders={orders as any} completedOrders={completedOrders as any} drivers={drivers as any} />
+              {/* Phase 1496: Liefer-Erfolgsquote-Dashboard — Heute-Quote + 7-Tage-Balkentrend + Storno-KPIs + Status-Badge; 10-Min-Polling */}
+              <LieferdiensstPhase1496LieferErfolgsquoteDashboard locationId={locationId ?? null} />
               {/* Phase 1330: Schicht-Ertrags-Cockpit — Umsatz, Kosten, Marge + Stunden-Chart */}
               <LieferdienstPhase1330SchichtErtragsCockpit orders={orders as any} drivers={drivers as any} completedOrders={completedOrders as any} />
               {/* Phase 1325: Statistiken-Final-Dashboard — KPI-Grid + Stunden-Verlauf-Chart + Fahrer-Rangliste + Status-Donut */}

@@ -466,6 +466,7 @@ import { KitchenPhase1472BestellungsPrioritaetsAmpel } from './phase1472-bestell
 import { KitchenPhase1477ZubereitungsParallelitaetsAnzeige } from './phase1477-zubereitungs-parallelitaets-anzeige';
 import { KitchenPhase1482ReihenfolgeOptimierungsHinweis } from './phase1482-reihenfolge-optimierungs-hinweis';
 import { KitchenPhase1487BestelleingangTaktPanel } from './phase1487-bestelleingang-takt-panel';
+import { KitchenPhase1492FarbkodierterEtaCountdownStrip } from './phase1492-farbkodierter-eta-countdown-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1346,6 +1347,8 @@ export function KitchenBoard({
       <KitchenPhase1482ReihenfolgeOptimierungsHinweis orders={filtered as any} />
       {/* Phase 1487: Bestelleingang-Takt-Panel — 15-Min-Slot-Balken + Peak-Indikator + Prognose; 10-Min-Polling */}
       <KitchenPhase1487BestelleingangTaktPanel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1492: Farbkodierter ETA-Countdown-Strip — Alle aktiven Bestellungen mit Countdown + Farbkodierung (Grün/Gelb/Orange/Rot) */}
+      <KitchenPhase1492FarbkodierterEtaCountdownStrip orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}
       <KitchenPhase1445SmartTimingFinalCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
