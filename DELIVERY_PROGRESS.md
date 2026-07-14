@@ -2,6 +2,21 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1547–1551 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1547 Backend: `app/api/delivery/admin/tages-lieferleistung/route.ts` — Tages-Lieferleistungs-Vergleich heute vs. gestern; 4 KPIs (Ø Lieferzeit/Pünktlichkeit/Storno-Rate/Bewertung); Supabase + Mock-Fallback ✅
+- Phase 1548 Kitchen: `app/(admin)/kitchen/phase1548-kapazitaets-auslastungs-uhr.tsx` — SVG-Ring Kapazitäts-Auslastung (aktive vs. max. Bestellungen); 4-Stufen-Farbampel; Überlast-Warnung ≥90% ✅
+- Phase 1549 Dispatch + Lieferdienst: `phase1549-tages-lieferleistungs-vergleich.tsx` + `phase1549-liefer-qualitaets-trend.tsx` — Trend-Kacheln heute vs. gestern mit Pfeil-Indikatoren; 10-Min-/5-Min-Polling ✅
+- Phase 1550 Fahrer-App: `app/fahrer/app/phase1550-live-schicht-bilanz.tsx` — Verdienst/Trinkgeld/Bewertung/Pünktlichkeit live; Stopps-Fortschrittsbalken; isOnline-Guard; 30-Min-Polling ✅
+- Phase 1551 Storefront: `app/order/[locationSlug]/phase1551-bewertungs-teaser.tsx` — Ø Sterne + Anzahl Bewertungen; localStorage-cached 5 Min; Silent-Fallback ✅
+- Migration 245: tages_lieferleistungs_snapshots + fahrer_schicht_bilanzen + standort_bewertungen_cache
+
+### Nächste Phasen 1552–1556 (für Ingenieur)
+1. **Phase 1552 Backend:** Fahrer-Rückgabe-Prognose-API — GET /api/delivery/admin/fahrer-rueckkehr-prognose: Aktive Touren mit ETA Rückkehr + verbleibende Stopps + Prognose-Konfidenz; Supabase + Mock-Fallback.
+2. **Phase 1553 Kitchen:** Kochstart-Priorisierungs-Board — Welche Bestellungen sollen JETZT gestartet werden? Fahrer-ETA + Prep-Zeit + Puffer = Kochstart-Empfehlung je Bestellung; Props-basiert.
+3. **Phase 1554 Dispatch:** Fahrer-Rückkehr-Prognose-Widget — Phase1552-API: Liste aktiver Touren + ETA-Rückkehr + Konfidenz-Balken; 5-Min-Polling.
+4. **Phase 1555 Fahrer-App:** Bonus-Chancen-Widget — Aktuell erreichbare Boni (Pünktlichkeits-Bonus/Trinkgeld-Ziel/Streak) + verbleibende Stopps bis Erreichen; isOnline-Guard; 15-Min-Polling.
+5. **Phase 1556 Storefront:** Liefergebiet-Info-Badge — Kompaktes Badge zeigt Liefergebiet + Mindestbestellwert + Lieferzeit-Versprechen; Props-basiert; Hydration-safe.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1542–1546 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1542 Backend: `app/api/delivery/admin/fahrer-verfuegbarkeit/route.ts` — Bestehendes Lib (lib/delivery/fahrer-verfuegbarkeit.ts) genutzt; GET Verfügbarkeitskalender 7 Tage; Lücken-Alert < 2 Fahrer je Slot; Supabase + Mock-Fallback ✅
 - Phase 1543 Kitchen: `app/(admin)/kitchen/phase1543-bestellwellen-prognose-karte.tsx` — Prognostizierte Bestellwellen nächste 3h; 4-Stufen-Ampel niedrig/mittel/hoch/kritisch; SVG-Balken; Props-basiert; in kitchen/client.tsx integriert ✅
