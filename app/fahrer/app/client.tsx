@@ -421,6 +421,7 @@ import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback'
 import { FahrerTourStoppAnalyseCard } from './phase1437-tour-stopp-analyse-card';
 import { FahrerPhase1442HeimwegAssistent } from './phase1442-heimweg-assistent';
 import { FahrerPhase1447PersoenlicheBonusKarte } from './phase1447-persoenliche-bonus-karte';
+import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp-navigations-final';
 
 type Driver = {
   id: string;
@@ -4727,6 +4728,24 @@ export function FahrerApp({
         {/* Phase 1447: Persönliche Bonus-Karte — Eigene Bonus-Aufstellung + Monats-Fortschrittsbalken */}
         <div className="px-4">
           <FahrerPhase1447PersoenlicheBonusKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1450: Tour-Stopp-Navigations-Final — Alle Tour-Stops mit Navigation, Countdown und Schnell-Aktionen */}
+        <div className="px-4">
+          <FahrerPhase1450TourStoppNavigationsFinal
+            driverName={`${driver.vorname} ${driver.nachname}`}
+            stops={activeBatch?.stops?.map((s, i) => ({
+              id: s.id,
+              sequence: s.reihenfolge ?? (i + 1),
+              address: s.order?.lieferadresse ?? s.order?.adresse ?? `Stopp ${i + 1}`,
+              customerName: s.order?.kunde_name ?? `Kunde ${i + 1}`,
+              phone: s.order?.telefon ?? null,
+              notes: s.order?.notizen ?? null,
+              status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+              etaMin: null,
+              distanceKm: null,
+              orderAmount: s.order?.gesamtbetrag ?? null,
+            }))}
+          />
         </div>
         {/* Phase 1442: Heimweg-Assistent — Nach letzter Lieferung: Maps-Link + Heimkehrzeit + Schicht-Bilanz */}
         <div className="px-4">
