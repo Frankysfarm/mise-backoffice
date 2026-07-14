@@ -2,6 +2,13 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1617–1621 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1617 Backend: `app/api/delivery/admin/lieferstatus-durchlaufzeit/route.ts` — Ø Zeit je Status-Übergang; Trend vs. Vortag; Supabase + Mock-Fallback ✅
+- Phase 1618 Kitchen: `app/(admin)/kitchen/phase1618-prioritaets-warteschlangen-karte.tsx` — ASAP/Zeitnah/Standard-Sortierung + Ampelfarbe + Komplexität; in kitchen/client.tsx ✅
+- Phase 1619 Dispatch: `app/(admin)/dispatch/phase1619-lieferstatus-durchlaufzeit-widget.tsx` — Balken-Chart Durchlaufzeit + Engpass-Alert + Trend; 15-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1620 Fahrer-App: `app/fahrer/app/phase1620-tages-kpi-scoreboard.tsx` — Touren/Lieferzeit/Pünktlichkeit/Trinkgeld + Rang; isOnline-Guard; 10-Min-Polling ✅
+- Phase 1621 Storefront: `app/order/[locationSlug]/phase1621-echtzeit-kuechenstatus-ticker.tsx` — Live-Küchenstatus-Ticker; localStorage-cached 2Min; Hydration-safe ✅
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1612–1616 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1612 Backend: `app/api/delivery/admin/zonen-auslastungs-prognose/route.ts` — Prognose Bestellungen je Zone nächste 2h; historische Wochentag/Stunden-Daten; Ampel niedrig/mittel/hoch/kritisch; Supabase + Mock-Fallback ✅
 - Phase 1613 Kitchen: `app/(admin)/kitchen/phase1613-smart-countdown-prioritaets-cockpit.tsx` — Smart Countdown + Prioritäts-Cockpit für Küche; integriert in kitchen/client.tsx ✅
