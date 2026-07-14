@@ -105,7 +105,7 @@ export function FahrerPhase1525MeinBonusTracker({ isOnline, fahrerId, locationId
       if (!res.ok) throw new Error('api');
       const raw = await res.json() as { fahrer?: BonusData[] };
       const myEntry = Array.isArray(raw.fahrer) && fahrerId
-        ? raw.fahrer.find((f: { fahrer_id?: string }) => f.fahrer_id === fahrerId)
+        ? raw.fahrer.find((f) => (f as unknown as { fahrer_id?: string }).fahrer_id === fahrerId)
         : null;
       if (myEntry) {
         setData(myEntry as BonusData);

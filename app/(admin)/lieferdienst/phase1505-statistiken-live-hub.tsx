@@ -202,7 +202,7 @@ export function LieferdienstPhase1505StatistikenLiveHub({ locationId }: Props) {
                   tickLine={false}
                 />
                 <Tooltip
-                  formatter={(v: number) => [fmtEur(v), 'Umsatz']}
+                  formatter={(v: unknown) => [fmtEur(Number(v)), 'Umsatz']}
                   contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e7e5e4' }}
                 />
                 <Bar dataKey="revenue_eur" radius={[3, 3, 0, 0]}>

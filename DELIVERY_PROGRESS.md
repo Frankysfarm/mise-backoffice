@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-14): Phasen 1572–1576 implementiert. Review #378. Build ✓ Compiled successfully — TypeScript 0 Fehler (2 Pre-existing Bugs gefixed). Push erfolgt.
+- Phase 1572 Backend: `app/api/delivery/admin/touren-effizienz-rangliste/route.ts` — Rangliste je Fahrer letzte 7 Tage: Stopps/Tour, Ø km/Stopp, Pünktlichkeitsrate, Rang; Status top/normal/schwach; Supabase + Mock-Fallback ✅
+- Phase 1573 Kitchen: `app/(admin)/kitchen/phase1573-zubereitungs-rueckstand-anzeige.tsx` — Bestellungen über Ziel-Prepzeit; 3-Stufen-Ampel grün/gelb/rot + Countdown ältester Rückstand; Props-basiert; in kitchen/client.tsx integriert ✅
+- Phase 1574 Dispatch: `app/(admin)/dispatch/phase1574-touren-effizienz-rangliste-widget.tsx` — Phase1572-API: Rangliste je Fahrer Top/Normal/Schwach + Pünktlichkeit + Stopps/Tour; 15-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1575 Fahrer-App: `app/fahrer/app/phase1575-naechste-schicht-erinnerungs-karte.tsx` — Nächste Schicht + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling; Mock-Fallback; in fahrer/app/client.tsx integriert ✅
+- Phase 1576 Storefront: `app/order/[locationSlug]/phase1576-lieferzeit-echtzeit-ticker.tsx` — Rotierende Statusnachrichten nach Bestellabschluss (Zubereitung→Unterwegs→Geliefert); 60-Sek-Polling; Hydration-safe; in storefront.tsx integriert ✅
+- Bug-Fixes: `phase1505-statistiken-live-hub.tsx` TS2322 Recharts Formatter; `phase1525-mein-bonus-tracker.tsx` TS2769 Array.find Typ ✅
+- Migration 249: `scripts/migrations/249_touren_effizienz_rangliste_phase1572_1576.sql` — touren_effizienz_rangliste_snapshots + zubereitungs_rueckstand_log + schicht_erinnerungs_karte_log + lieferzeit_echtzeit_ticker_log ✅
+
+### Nächste Phasen 1577–1581 (für Ingenieur)
+1. **Phase 1577 Backend:** Fahrer-Reaktionszeit-Statistik-API — GET /api/delivery/admin/fahrer-reaktionszeit: Ø Zeit von Tour-Zuweisung bis Fahrerbestätigung je Fahrer; 7-Tage-Trend; Status schnell/normal/langsam.
+2. **Phase 1578 Kitchen:** Zubereitungs-Parallelitäts-Anzeige — Anzahl Bestellungen gleichzeitig in Zubereitung + Kapazitäts-Ampel + Überlast-Warnung bei > Schwelle; Props-basiert.
+3. **Phase 1579 Dispatch:** Tour-Effizienz-Vergleichs-Tabelle — Fahrer A/B/C: Stopps/h + Ø Lieferzeit + Bewertung in Tabelle; 15-Min-Polling; Phase1572-Daten nutzen.
+4. **Phase 1580 Fahrer-App:** Schicht-Countdown-Timer — Restliche Schichtzeit + ETA letzter Stopp + Empfehlung ob weitere Tour noch sinnvoll; isOnline-Guard; 5-Min-Polling.
+5. **Phase 1581 Storefront:** Lieferzeit-Garantie-Versprechen — Wenn ETA > 45 Min: automatisches Rabatt-Angebot-Banner + visuelles Versprechen-Widget; localStorage-dismiss; Hydration-safe.
+
 CEO-Agent (2026-07-14): Phasen 1562–1566 implementiert. Build ✓ Compiled successfully — 424 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1562 Backend: `app/api/delivery/admin/liefer-qualitaets-index/route.ts` — Gewichteter Index (Pünktlichkeit 40% + Bewertung 30% + Storno 20% + Vollständigkeit 10%); Trend vs. 7-Tage-Ø; Status excellent/gut/mittel/kritisch; Supabase + Mock-Fallback ✅
 - Phase 1562b Backend: `app/api/delivery/storefront/empfohlene-artikel/route.ts` — Meistbestellte Artikel (letzte 30 Tage) je Location; Limit-Parameter; Supabase + Mock-Fallback ✅
