@@ -440,6 +440,7 @@ import { FahrerPhase1494SmartStoppCountdown } from './phase1494-smart-stopp-coun
 import { FahrerPhase1500TourAbschlussZusammenfassung } from './phase1500-tour-abschluss-zusammenfassung';
 import { FahrerPhase1501StoppNavKommando } from './phase1501-stopp-nav-kommando';
 import { FahrerPhase1505SchichtVergleichsKarte } from './phase1505-schicht-vergleichs-karte';
+import { FahrerPhase1505SmartTourCockpit } from './phase1505-smart-tour-cockpit';
 
 type Driver = {
   id: string;
@@ -4871,6 +4872,30 @@ export function FahrerApp({
                 kunde_telefon: s.order?.kunde_telefon ?? null,
                 bestellnummer: s.order?.bestellnummer ?? null,
                 eta_min: s.eta_min ?? null,
+              }))}
+              onStoppAbschliessen={markDelivered}
+            />
+          </div>
+        )}
+        {/* Phase 1505: Smart-Tour-Cockpit — Kompaktes Tour-Cockpit mit Stopp-Übersicht, Nächster-Stopp-CTA, ETA-Countdown + 1-Tap-Navigation */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerPhase1505SmartTourCockpit
+              stops={(activeBatch.stops as any[]).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? 0,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                kunde_name: s.order?.kunde_name ?? null,
+                kunde_adresse: s.order?.kunde_adresse ?? null,
+                kunde_plz: s.order?.kunde_plz ?? null,
+                kunde_stadt: s.order?.kunde_stadt ?? null,
+                kunde_telefon: s.order?.kunde_telefon ?? null,
+                bestellnummer: s.order?.bestellnummer ?? null,
+                eta_min: s.eta_min ?? null,
+                notiz: s.order?.notiz ?? null,
+                lat: s.order?.lat ?? null,
+                lng: s.order?.lng ?? null,
               }))}
               onStoppAbschliessen={markDelivered}
             />

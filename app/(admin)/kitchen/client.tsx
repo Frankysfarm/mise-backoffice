@@ -470,6 +470,7 @@ import { KitchenPhase1492FarbkodierterEtaCountdownStrip } from './phase1492-farb
 import { KitchenPhase1498ZutatenEngpassWarnung } from './phase1498-zutaten-engpass-warnung';
 import { KitchenPhase1501KochampelSofort } from './phase1501-kochampel-sofort';
 import { KitchenPhase1503BestellstatusUebersichtsAmpel } from './phase1503-bestellstatus-uebersichts-ampel';
+import { KitchenPhase1505SmartTimingCockpitUltra } from './phase1505-smart-timing-cockpit-ultra';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1358,6 +1359,8 @@ export function KitchenBoard({
       <KitchenPhase1501KochampelSofort orders={filtered as any} />
       {/* Phase 1503: Bestellstatus-Übersichts-Ampel — Ampelkodierung je Status-Stufe + Schwellen + Sofortmaßnahme-Hint */}
       <KitchenPhase1503BestellstatusUebersichtsAmpel orders={filtered as any} />
+      {/* Phase 1505: Smart-Timing-Cockpit-Ultra — Countdown-Grid aller aktiven Bestellungen mit 4-Stufen-Farbkodierung + Timing-Score */}
+      <KitchenPhase1505SmartTimingCockpitUltra orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}
       <KitchenPhase1445SmartTimingFinalCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}

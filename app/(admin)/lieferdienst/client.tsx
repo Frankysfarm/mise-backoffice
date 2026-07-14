@@ -355,6 +355,7 @@ import { LieferdienstPhase1459StatistikenGesamtueberblick } from './phase1459-st
 import { LieferdienstPhase1460StatistikenLiveExecutiveDashboard } from './phase1460-statistiken-live-executive-dashboard';
 import { LieferdiensstPhase1496LieferErfolgsquoteDashboard } from './phase1496-liefer-erfolgsquote-dashboard';
 import { LieferdienstPhase1501SchichtExecutiveFinal } from './phase1501-schicht-executive-final';
+import { LieferdienstPhase1505StatistikenLiveHub } from './phase1505-statistiken-live-hub';
 import { LieferdienstPhase1000StatistikHubDashboard } from './phase1000-statistik-hub-dashboard';
 
 export function LieferdienstClient() {
@@ -1311,6 +1312,8 @@ export function LieferdienstClient() {
               <LieferdiensstPhase1496LieferErfolgsquoteDashboard locationId={locationId ?? null} />
               {/* Phase 1501: Schicht-Executive-Final — 5 KPI-Kacheln (Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Fahrer) + Qualitäts-Score + Storno-Warnung */}
               <LieferdienstPhase1501SchichtExecutiveFinal orders={orders as any} drivers={drivers as any} locationName={null} />
+              {/* Phase 1505: Statistiken-Live-Hub — KPI-Grid + Stunden-Umsatz-Chart + Trend vs. Vortag; 5-Min Polling */}
+              <LieferdienstPhase1505StatistikenLiveHub locationId={locationId} />
               {/* Phase 1330: Schicht-Ertrags-Cockpit — Umsatz, Kosten, Marge + Stunden-Chart */}
               <LieferdienstPhase1330SchichtErtragsCockpit orders={orders as any} drivers={drivers as any} completedOrders={completedOrders as any} />
               {/* Phase 1325: Statistiken-Final-Dashboard — KPI-Grid + Stunden-Verlauf-Chart + Fahrer-Rangliste + Status-Donut */}
