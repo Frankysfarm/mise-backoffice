@@ -489,6 +489,7 @@ import { KitchenPhase1568WarteschlangenDruckAnzeige } from './phase1568-wartesch
 import { KitchenPhase1568ZubereitungsRueckstandAnzeige } from './phase1568-zubereitungs-rueckstand-anzeige';
 import { KitchenPhase1573ZubereitungsRueckstandAnzeige } from './phase1573-zubereitungs-rueckstand-anzeige';
 import { KitchenPhase1578ZubereitungsParallelitaetsAnzeige } from './phase1578-zubereitungs-parallelitaets-anzeige';
+import { KitchenPhase1583SmartKochzeitCountdownMatrix } from './phase1583-smart-kochzeit-countdown-matrix';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1422,6 +1423,8 @@ export function KitchenBoard({
       <KitchenPhase1573ZubereitungsRueckstandAnzeige orders={filtered as any} />
       {/* Phase 1578: Zubereitungs-Parallelitäts-Anzeige — Anzahl gleichzeitiger Zubereitung + Kapazitäts-Ampel + Überlast-Warnung */}
       <KitchenPhase1578ZubereitungsParallelitaetsAnzeige orders={filtered as any} />
+      {/* Phase 1583: Smart-Kochzeit-Countdown-Matrix — Sekunden-genauer Countdown-Grid je aktiver Bestellung mit 5-Stufen-Farbkodierung; sortiert nach Dringlichkeit */}
+      <KitchenPhase1583SmartKochzeitCountdownMatrix orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

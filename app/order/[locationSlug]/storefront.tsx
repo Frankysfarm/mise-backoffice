@@ -290,6 +290,7 @@ import { StorefrontPhase1571LieferzeitEchtzeitTicker } from './phase1571-lieferz
 import { StorefrontPhase1576LieferzeitEchtzeitTicker } from './phase1576-lieferzeit-echtzeit-ticker';
 import { StorefrontPhase1581LieferzeitGarantieVersprechen } from './phase1581-lieferzeit-garantie-versprechen';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
+import { StorefrontPhase1586DynamischeEtaLiveUltimate } from './phase1586-dynamische-eta-live-ultimate';
 
 type Props = {
   location: Location;
@@ -1450,6 +1451,11 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1576LieferzeitEchtzeitTicker orderId={activeOrderId} locationId={location.id} />
       {/* Phase 1581: Lieferzeit-Garantie-Versprechen — ETA > 45 Min: Rabatt-Banner PUENKTLICH5 + visuelles Versprechen; localStorage-dismiss */}
       <StorefrontPhase1581LieferzeitGarantieVersprechen locationId={location.id} etaMinuten={orderSuccess?.eta ?? null} />
+      {/* Phase 1586: Dynamische-ETA-Live-Ultimate — Phasen-Stepper (Angenommen/Zubereitung/Unterwegs/Fast da/Geliefert) + Echtzeit-Countdown + Fahrer-Info */}
+      <StorefrontPhase1586DynamischeEtaLiveUltimate
+        estimatedMin={orderSuccess?.eta ?? 28}
+        currentStatus={activeOrderId ? 'unterwegs' : undefined}
+      />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
