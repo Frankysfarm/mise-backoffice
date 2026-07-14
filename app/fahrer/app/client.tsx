@@ -416,6 +416,7 @@ import { FahrerPhase1410SmartHeimkehrNavigator } from './phase1410-smart-heimkeh
 import { FahrerPhase1418SchichtWetterCheck } from './phase1418-schicht-wetter-check';
 import { FahrerPhase1423TagesEinnahmenUebersicht } from './phase1423-tages-einnahmen-uebersicht';
 import { FahrerPhase1428TourSicherheitsCheck } from './phase1428-tour-sicherheits-check';
+import { FahrerPhase1433SmartStoppNavigatorUltra } from './phase1433-smart-stopp-navigator-ultra';
 
 type Driver = {
   id: string;
@@ -4680,6 +4681,30 @@ export function FahrerApp({
         <div className="px-4">
           <FahrerPhase1428TourSicherheitsCheck batchId={activeBatch?.id ?? null} isOnline={isOnline} />
         </div>
+        {/* Phase 1433: Smart-Stopp-Navigator-Ultra — Alle Stopps mit Google Maps/Waze, Countdown, Kunden-Kontakt + Fortschrittsbalken */}
+        {activeBatch && activeBatch.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1433SmartStoppNavigatorUltra
+              stops={activeBatch.stops.map((s, i) => ({
+                id: s.id,
+                stop_nummer: s.reihenfolge ?? i + 1,
+                kunde_name: s.order?.kunde_name ?? null,
+                adresse: s.order?.kunde_adresse ?? null,
+                plz: s.order?.kunde_plz ?? null,
+                lat: s.order?.kunde_lat ?? null,
+                lng: s.order?.kunde_lng ?? null,
+                telefon: s.order?.kunde_telefon ?? null,
+                eta_min: activeBatch.total_eta_min != null
+                  ? Math.round((activeBatch.total_eta_min / activeBatch.stops.length) * (i + 1))
+                  : null,
+                gesamtbetrag: s.order?.gesamtbetrag ?? null,
+                status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+                zahlungsart: (s.order as { zahlungsart?: string | null } | null)?.zahlungsart ?? null,
+                notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+              }))}
+            />
+          </div>
+        )}
         {/* Phase 1410: Smart-Heimkehr-Navigator — Nach letztem Stopp: Heimkehr-Anzeige + Navigations-Buttons (Google/Waze) + ETA */}
         <div className="px-4">
           <FahrerPhase1410SmartHeimkehrNavigator

@@ -503,6 +503,7 @@ import { DispatchPhase1410TourScoreBenchmark } from './phase1410-tour-score-benc
 import { DispatchPhase1417EtaVerfeinerungsWidget } from './phase1417-eta-verfeinerungs-widget';
 import { DispatchPhase1422SchichtUebergabeDashboard } from './phase1422-schicht-uebergabe-dashboard';
 import { DispatchPhase1427FahrerRoutenAnalyseWidget } from './phase1427-fahrer-routen-analyse-widget';
+import { DispatchPhase1432TourScoreLiveCockpitUltra } from './phase1432-tour-score-live-cockpit-ultra';
 
 type Driver = {
   employee_id: string;
@@ -1529,6 +1530,8 @@ export function DispatchBoard({
       <DispatchPhase1422SchichtUebergabeDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1427: Fahrer-Routen-Analyse-Widget — km/Stopp-Rangliste + Optimierungspotenzial + häufigste Zone; 15-Min-Polling */}
       <DispatchPhase1427FahrerRoutenAnalyseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1432: Tour-Score-Live-Cockpit-Ultra — Alle aktiven Touren mit Score-Balken, Stop-Fortschritt-Punkte, ETA-Countdown */}
+      <DispatchPhase1432TourScoreLiveCockpitUltra batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} drivers={drivers as any} />
       {/* Phase 1340: Tour-Echtzeit-Score-Board — Live-Visualisierung aller Touren mit Score-Kachel, Stop-Fortschritt, ETA-Ampel; sortiert Worst-First */}
       <DispatchPhase1340TourEchtzeitScoreBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1311: Tour-Score-Visualisierung-Hub — Visuelles Score-Board aller aktiven Touren mit Gesundheits-Score + Farbkodierung */}

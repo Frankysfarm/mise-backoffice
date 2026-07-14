@@ -446,6 +446,7 @@ import { KitchenPhase1410SmartDeadlineSyncCockpit } from './phase1410-smart-dead
 import { KitchenPhase1416ZubereitungsZeitenHistogramm } from './phase1416-zubereitungs-zeiten-histogramm';
 import { KitchenPhase1421SchichtUebergabeCheckliste } from './phase1421-schicht-uebergabe-checkliste';
 import { KitchenPhase1426ZutatenVerbrauchsPrognose } from './phase1426-zutaten-verbrauchs-prognose';
+import { KitchenPhase1431SmartTimingFarbkodierungUltra } from './phase1431-smart-timing-farbkodierung-ultra';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1290,6 +1291,8 @@ export function KitchenBoard({
       <KitchenPhase1421SchichtUebergabeCheckliste orders={filtered as any} />
       {/* Phase 1426: Zutaten-Verbrauchs-Prognose — Hochrechnung Artikelbedarf nächste 2h aus aktiver Queue; Ampel ok/warnung/kritisch */}
       <KitchenPhase1426ZutatenVerbrauchsPrognose orders={filtered as any} />
+      {/* Phase 1431: Smart-Timing-Farbkodierung-Ultra — Alle aktiven Bestellungen als Farbkacheln (grün/gelb/orange/rot) mit Echtzeit-Countdown */}
+      <KitchenPhase1431SmartTimingFarbkodierungUltra orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
       <KitchenPhase1330KochstatusLiveCockpitUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 402: Smart-Timing-Hub — Unified countdown + color coding + station management */}

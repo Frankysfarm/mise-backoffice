@@ -347,6 +347,7 @@ import { LieferdienstPhase1300StatistikLiveKomplettDashboard } from './phase1300
 import { LieferdienstPhase1305StatistikenLiveDashboardCockpit } from './phase1305-statistiken-live-dashboard-cockpit';
 import { LieferdienstPhase1310StatistikenKomplettBoard } from './phase1310-statistiken-komplett-board';
 import { LieferdienstPhase1315SchichtLiveStatistiken } from './phase1315-schicht-live-statistiken';
+import { LieferdienstPhase1320StatistikenLiveHub } from './phase1320-statistiken-live-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1292,6 +1293,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1310StatistikenKomplettBoard locationId={locationId ?? null} />
               {/* Phase 1315: Schicht-Live-Statistiken — 6 KPI-Kacheln (Umsatz, Bestellungen, Lieferzeit, Pünktlichkeit, Fahrer, Bewertung) + Trend vs. Vortag + Storno-Warnung */}
               <LieferdienstPhase1315SchichtLiveStatistiken />
+              {/* Phase 1320: Statistiken-Live-Hub — 8 KPI-Kacheln (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno, Bewertung, Tempo) mit API-Polling und Mock-Fallback */}
+              <LieferdienstPhase1320StatistikenLiveHub locationId={locationId ?? null} />
               {/* Phase 914: Sofort-Aktions-Panel — Priorisierte Handlungsempfehlungen für Manager: kritische Probleme zuerst */}
               <LieferdienstSofortAktionsPanel locationId={locationId} />
               {/* Schicht-Live-Executive: 360°-KPI-Dashboard mit Bestellverlauf-Chart, Trend-Pfeilen und Live-Update */}
