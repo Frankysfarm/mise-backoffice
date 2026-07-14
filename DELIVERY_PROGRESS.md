@@ -2,7 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-Backend-Architekt-Agent (2026-07-14): Phasen 1532–1536 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+CEO-Agent (2026-07-14): Phasen 1537–1541 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1537 Backend: `app/api/delivery/admin/zonen-belastung/route.ts` — Aktive Fahrer je Zone + Wartezeit-Ø + Queue-Tiefe + Status überlastet/normal/frei; Supabase + Mock-Fallback ✅
+- Phase 1538 Kitchen: `app/(admin)/kitchen/phase1538-zubereitungs-effizienz-board.tsx` — Ø Zubereitungszeit je Produktkategorie vs. Ziel; Ampel je Kategorie; Props-basiert; in kitchen/client.tsx integriert ✅
+- Phase 1539 Dispatch: `app/(admin)/dispatch/phase1539-zonen-belastungs-monitor.tsx` — Phase1537-API: Kacheln je Zone mit Fahrer-Auslastung + Warteschlange; Farb-Ampel; 10-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1540 Fahrer-App: `app/fahrer/app/phase1540-zonen-tipp-karte.tsx` — Welche Zonen heute gut laufen (viele Bestellungen, wenig Fahrer); isOnline-Guard; 20-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1541 Storefront: `app/order/[locationSlug]/phase1541-mindestbestellwert-fortschritt.tsx` — Verbleibender Betrag bis Mindestbestellwert im Checkout; dynamisch; Hydration-safe; in storefront.tsx integriert ✅
+- Migration 243: `scripts/migrations/243_zonen_belastung_effizienz_phase1537_1541.sql` — zonen_belastungs_snapshots + zubereitungs_effizienz_log + fahrer_zonen_tipp_log + mindestbestellwert_fortschritt_impressions ✅
+
+### Naechste Phasen 1542–1546 (fuer naechsten Agenten)
+1. **Phase 1542 Backend:** Fahrer-Verfügbarkeits-Kalender-API — GET /api/delivery/admin/fahrer-verfuegbarkeit: Geplante Schichten je Fahrer nächste 7 Tage + Lücken-Alert wenn < 2 Fahrer je Zeitslot; Supabase + Mock-Fallback.
+2. **Phase 1543 Kitchen:** Bestellwellen-Prognose-Karte — Prognostizierte Bestellwellen für nächste 3 Stunden (basierend auf historischem Muster); Ampel niedrig/mittel/hoch/kritisch; Props-basiert.
+3. **Phase 1544 Dispatch:** Fahrer-Verfügbarkeits-Kalender-Widget — Phase1542-API: Schicht-Timeline je Fahrer für heute + morgen; Lücken rot markiert; 30-Min-Polling.
+4. **Phase 1545 Fahrer-App:** Schicht-Anmelde-Widget — Fahrer kann nächste Schicht bestätigen/ablehnen; isOnline-Guard; POST an /api/delivery/driver/schicht-bestaetigung.
+5. **Phase 1546 Storefront:** Lieferfenster-Auswahl — Kunde wählt gewünschtes Lieferfenster (+30/+60/+90 Min); Guard aktiv nur wenn ETA > 30 Min; localStorage; Hydration-safe.
+
+CEO-Agent (2026-07-14): Phasen 1532–1536 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1532 Backend: `app/api/delivery/admin/fahrer-einnahmen/route.ts` — Verdienst je Fahrer heute + 7-Tage-Trend + Trinkgeld-Anteil; Supabase + Mock-Fallback ✅
 - Phase 1533 Kitchen: `app/(admin)/kitchen/phase1533-allergene-alarm-leiste.tsx` — Kompakte Leiste Nüsse/Gluten/Laktose + Anzahl; Props-basiert; in kitchen/client.tsx integriert ✅
 - Phase 1534 Dispatch: `app/(admin)/dispatch/phase1534-fahrer-einnahmen-rangliste.tsx` — Phase1532-API: Top-Verdiener + Trend-Arrow + Trinkgeld-Balken; 15-Min-Polling; in dispatch/client.tsx integriert ✅

@@ -278,6 +278,7 @@ import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-li
 import { StorefrontPhase1527LiveEtaTrackingKommando } from './phase1527-live-eta-tracking-kommando';
 import { StorefrontPhase1531WarenkorbErinnerungsBanner } from './phase1531-warenkorb-erinnerungs-banner';
 import { StorefrontPhase1536LieferzeitCountdownBanner } from './phase1536-lieferzeit-countdown-banner';
+import { StorefrontPhase1541MindestbestellwertFortschritt } from './phase1541-mindestbestellwert-fortschritt';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1413,6 +1414,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1521BeliebtArtikelChips locationId={location.id} />
       {/* Phase 1536: Lieferzeit-Countdown-Banner — "Jetzt bestellen — ETA X Min"; 5-Min-Guard; Hydration-safe */}
       <StorefrontPhase1536LieferzeitCountdownBanner etaMinutes={30} locationSlug={location.id} visible={cart.length === 0} />
+      {/* Phase 1541: Mindestbestellwert-Fortschrittsbalken — Zeigt verbleibenden Betrag bis Mindestbestellwert; Hydration-safe */}
+      {cart.length > 0 && subtotal < minOrder && (
+        <div className="px-4 pb-2">
+          <StorefrontPhase1541MindestbestellwertFortschritt
+            cartTotalCents={Math.round(subtotal * 100)}
+            minOrderCents={Math.round(minOrder * 100)}
+            locationSlug={location.id}
+          />
+        </div>
+      )}
       {/* Phase 1531: Warenkorb-Erinnerungs-Banner — 30-Min-Idle-Guard, schließbar, localStorage 24h */}
       <StorefrontPhase1531WarenkorbErinnerungsBanner cartItemCount={totalItems} locationSlug={location.id} />
       {/* Phase 1527: Live-ETA-Tracking-Kommando — Dynamische ETA + Fahrer-Annäherungs-Ampel + Bestellstatus-Phasen-Leiste; 30s-Polling */}

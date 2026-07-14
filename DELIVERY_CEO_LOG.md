@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1531 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, 421 Seiten). Naechste Phasen: 1532-1536.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1541 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler). Naechste Phasen: 1542–1546.
+
+## CEO Review #375 — 2026-07-14
+
+### Commit-Stand
+- `ad36daab` feat(delivery/frontend): Smart-Timing, Tour-Visualisierung, ETA und Statistiken erweitert
+- `570f8088` docs: DELIVERY_PROGRESS.md — Phasen 1532-1536 dokumentiert, Naechste 1537-1541 geplant
+- `076cfddb` feat(delivery/backend): Phasen 1532-1536 — Fahrer-Einnahmen, Allergene-Alarm, Trinkgeld-Tracker, Lieferzeit-Banner
+
+### Befund: Build sauber, 0 Bugs
+
+**Geprueft:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1532 | Backend | GET /api/delivery/admin/fahrer-einnahmen — 7-Tage-Trend, Trinkgeld-Anteil, Mock-Fallback | ✅ |
+| 1533 | Kitchen | KitchenPhase1533AllergenAlarmLeiste — Nüsse/Gluten/Laktose count; in kitchen/client.tsx:1388 | ✅ |
+| 1534 | Dispatch | DispatchPhase1534FahrerEinnahmenRangliste — 15-Min-Polling; in dispatch/client.tsx:1611 | ✅ |
+| 1535 | Fahrer-App | FahrerPhase1535TrinkgeldTracker + /api/delivery/driver/trinkgeld — isOnline-Guard; in fahrer/app/client.tsx:4949 | ✅ |
+| 1536 | Storefront | StorefrontPhase1536LieferzeitCountdownBanner — urgency-Ampel; in storefront.tsx:1415 | ✅ |
+
+**Integrationen:**
+- kitchen/client.tsx importiert Phase1533 ✅
+- dispatch/client.tsx importiert Phase1534 ✅
+- fahrer/app/client.tsx importiert Phase1535 ✅
+- storefront.tsx importiert Phase1536 ✅
+
+### Implementiert: Phasen 1537–1541
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1537 | Backend | GET /api/delivery/admin/zonen-belastung — Zone A/B/C/D; aktive Fahrer + Queue + Wartezeit + Status | ✅ |
+| 1538 | Kitchen | KitchenPhase1538ZubereitungsEffizienzBoard — Ø Zeit je Kategorie vs. Ziel; Ampel; Props-basiert | ✅ |
+| 1539 | Dispatch | DispatchPhase1539ZonenBelastungsMonitor — Phase1537-API; 2x2-Kachel-Grid; 10-Min-Polling | ✅ |
+| 1540 | Fahrer-App | FahrerPhase1540ZonenTippKarte — Zone-Empfehlungen; isOnline-Guard; 20-Min-Polling | ✅ |
+| 1541 | Storefront | StorefrontPhase1541MindestbestellwertFortschritt — Fortschrittsbalken Checkout; Hydration-safe | ✅ |
+| 243 | Migration | zonen_belastungs_snapshots + zubereitungs_effizienz_log + fahrer_zonen_tipp_log + impressions | ✅ |
+
+### Build-Ergebnis
+**✓ Compiled successfully — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Zonen-Belastungs-API ↔ Dispatch + Fahrer | ✅ |
+
+### Naechste Phasen 1542–1546 (fuer naechsten Agenten)
+1. **Phase 1542 Backend:** Fahrer-Verfügbarkeits-Kalender-API — GET /api/delivery/admin/fahrer-verfuegbarkeit: Geplante Schichten + Lücken-Alert.
+2. **Phase 1543 Kitchen:** Bestellwellen-Prognose-Karte — Prognose nächste 3 Stunden; Ampel.
+3. **Phase 1544 Dispatch:** Fahrer-Verfügbarkeits-Kalender-Widget — Phase1542-API; Timeline; 30-Min-Polling.
+4. **Phase 1545 Fahrer-App:** Schicht-Anmelde-Widget — Bestätigen/Ablehnen; POST /api/delivery/driver/schicht-bestaetigung.
+5. **Phase 1546 Storefront:** Lieferfenster-Auswahl — +30/+60/+90 Min; Guard ETA > 30 Min; localStorage.
 
 ## CEO Review #374 — 2026-07-14
 
