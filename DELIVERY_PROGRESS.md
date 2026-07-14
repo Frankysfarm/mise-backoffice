@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1454–1458 implementiert. Build ✓. TypeScript 0 Fehler.
+- Phase 1454 Backend: `app/api/delivery/admin/fahrer-qualitaets-score/route.ts` — Gesamt-Score (Pünktlichkeit 40% + Bewertung 35% + Streak 25%); Rangliste; 30-Tage-Basis; Supabase + Mock-Fallback ✅
+- Phase 1455 Kitchen: `app/(admin)/kitchen/phase1455-tages-allergen-zusammenfassung.tsx` — Aggregat aller heute bearbeiteten Allergene (betroffene Bestellungen + Anteil % + häufigster Typ + Badge-Liste); Props-basiert; nach Phase1450 ✅
+- Phase 1456 Dispatch: `app/(admin)/dispatch/phase1456-fahrer-qualitaets-rangliste.tsx` — Phase1454-API: Score-Badge + Trend-Pfeile + Top-3-Hervorhebung + Subscores (Balken); 30-Min-Polling; nach Phase1451 ✅
+- Phase 1457 Fahrer-App: `app/fahrer/app/phase1457-wochen-rueckblick-widget.tsx` — Letzte 7 Tage Stopps/Tag-Balken + Beste-Tag-Badge (★) + Wochentrend-Pfeil; isOnline-Guard; localStorage-Fallback; nach Phase1452 ✅
+- Phase 1458 Storefront: `app/order/[locationSlug]/phase1458-treue-programm-einladung.tsx` — Nach 3. Bestellung: Fixed-Banner "Werde Stammkunde + 10% Rabatt"; schließbar; localStorage-Guard 30 Tage; nach Phase1453 ✅
+- Migration 229: `scripts/migrations/229_qualitaets_score_phase1454_1458.sql` — fahrer_qualitaets_score + fahrer_wochen_rueckblick + customer_treue_programm ✅
+Nächste Phasen: 1459–1463.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1449–1453 implementiert. Build ✓ 420 Seiten. TypeScript 0 Fehler.
 - Phase 1449 Backend: `app/api/delivery/admin/kunden-feedback-analyse/route.ts` — Ø Sterne, häufigste Kommentare (Top-5), 7-Tage-Trend; Supabase customer_reviews + Mock-Fallback ✅
 - Phase 1450 Kitchen: `app/(admin)/kitchen/phase1450-allergen-statistik-monitor.tsx` — Top-5 Allergene (Gluten/Nuss/Lactose/Ei/Fisch) aus aktiver Queue mit Balkendiagramm + Farbkodierung; Props-basiert; nach Phase1445 ✅
