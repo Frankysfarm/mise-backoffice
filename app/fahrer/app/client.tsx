@@ -441,6 +441,7 @@ import { FahrerPhase1500TourAbschlussZusammenfassung } from './phase1500-tour-ab
 import { FahrerPhase1501StoppNavKommando } from './phase1501-stopp-nav-kommando';
 import { FahrerPhase1505SchichtVergleichsKarte } from './phase1505-schicht-vergleichs-karte';
 import { FahrerPhase1505SmartTourCockpit } from './phase1505-smart-tour-cockpit';
+import { FahrerPhase1510KilometerstandTracker } from './phase1510-kilometerstand-tracker';
 
 type Driver = {
   id: string;
@@ -4911,6 +4912,10 @@ export function FahrerApp({
         {/* Phase 1505: Schicht-Vergleichs-Karte — Heute vs. Vorwoche: Stopps/Verdienst/km/Ø Lieferzeit als Vergleichs-Grid */}
         <div className="px-4">
           <FahrerPhase1505SchichtVergleichsKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1510: Kilometerstand-Tracker — Heutige km + laufender Durchschnitt je Tour + Wochentrend; isOnline-Guard; 30-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1510KilometerstandTracker driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
