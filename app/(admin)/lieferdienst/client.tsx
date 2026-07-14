@@ -358,6 +358,7 @@ import { LieferdienstPhase1501SchichtExecutiveFinal } from './phase1501-schicht-
 import { LieferdienstPhase1505StatistikenLiveHub } from './phase1505-statistiken-live-hub';
 import { LieferdienstPhase1000StatistikHubDashboard } from './phase1000-statistik-hub-dashboard';
 import { LieferdienstPhase1507StatistikenSofortCockpit } from './phase1507-statistiken-sofort-cockpit';
+import { LieferdienstPhase1510StatistikenLivePro } from './phase1510-statistiken-live-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1315,6 +1316,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1501SchichtExecutiveFinal orders={orders as any} drivers={drivers as any} locationName={null} />
               {/* Phase 1505: Statistiken-Live-Hub — KPI-Grid + Stunden-Umsatz-Chart + Trend vs. Vortag; 5-Min Polling */}
               <LieferdienstPhase1505StatistikenLiveHub locationId={locationId} />
+              {/* Phase 1510: Statistiken-Live-Pro — 4 KPI-Kacheln (Bestellungen/Umsatz/Stornos/Lieferzeit) mit Trend vs. Vortag; 60s Auto-Refresh */}
+              <LieferdienstPhase1510StatistikenLivePro />
               {/* Phase 1507: Statistiken-Sofort-Cockpit — 6 KPI-Kacheln (Bestellungen/Umsatz/Ø Zeit/Pünktlichkeit/Fahrer/Storno) farbkodiert; Props-basiert */}
               <LieferdienstPhase1507StatistikenSofortCockpit orders={orders as any} completedOrders={completedOrders as any} drivers={drivers as any} />
               {/* Phase 1330: Schicht-Ertrags-Cockpit — Umsatz, Kosten, Marge + Stunden-Chart */}

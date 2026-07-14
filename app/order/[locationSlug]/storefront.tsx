@@ -278,6 +278,7 @@ import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-li
 import { StorefrontPhase1527LiveEtaTrackingKommando } from './phase1527-live-eta-tracking-kommando';
 import { StorefrontPhase1531WarenkorbErinnerungsBanner } from './phase1531-warenkorb-erinnerungs-banner';
 import { StorefrontPhase1536LieferzeitCountdownBanner } from './phase1536-lieferzeit-countdown-banner';
+import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
   location: Location;
@@ -723,6 +724,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <Phase1000DynamischeEtaLiveCockpit
               orderId={orderSuccess.orderId}
               initialData={{ etaMin: orderSuccess.eta > 0 ? orderSuccess.eta : null, status: 'delivering' }}
+            />
+          </div>
+        )}
+        {/* Phase 1002: Dynamische-ETA-Live-Cockpit — SVG-Arc-Fortschritts-Anzeige + 1s-Countdown + 4-Phasen-Fortschrittsbalken + Fahrername */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase1002DynamischeEtaLiveCockpit
+              orderId={orderSuccess.orderId}
+              estimatedMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+              status="in_zubereitung"
+              createdAt={orderSuccess.orderedAt}
             />
           </div>
         )}
