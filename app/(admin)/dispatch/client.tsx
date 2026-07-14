@@ -536,6 +536,7 @@ import { DispatchPhase1529KuechenDurchsatzWidget } from './phase1529-kuechen-dur
 import { DispatchPhase1534FahrerEinnahmenRangliste } from './phase1534-fahrer-einnahmen-rangliste';
 import { DispatchPhase1539ZonenBelastungsMonitor } from './phase1539-zonen-belastungs-monitor';
 import { DispatchPhase1540TourVisualisierungScorePro } from './phase1540-tour-visualisierung-score-pro';
+import { DispatchPhase1544FahrerVerfuegbarkeitsKalenderWidget } from './phase1544-fahrer-verfuegbarkeits-kalender-widget';
 
 type Driver = {
   employee_id: string;
@@ -1612,6 +1613,8 @@ export function DispatchBoard({
       <DispatchPhase1534FahrerEinnahmenRangliste />
       {/* Phase 1539: Zonen-Belastungs-Monitor — Phase1537-API: Kacheln je Zone mit Fahrer-Auslastung + Warteschlange; Farb-Ampel; 10-Min-Polling */}
       <DispatchPhase1539ZonenBelastungsMonitor />
+      {/* Phase 1544: Fahrer-Verfügbarkeits-Kalender-Widget — Phase1542-API: Schicht-Timeline heute + morgen; Lücken rot; 30-Min-Polling */}
+      <DispatchPhase1544FahrerVerfuegbarkeitsKalenderWidget />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

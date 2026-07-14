@@ -279,6 +279,7 @@ import { StorefrontPhase1527LiveEtaTrackingKommando } from './phase1527-live-eta
 import { StorefrontPhase1531WarenkorbErinnerungsBanner } from './phase1531-warenkorb-erinnerungs-banner';
 import { StorefrontPhase1536LieferzeitCountdownBanner } from './phase1536-lieferzeit-countdown-banner';
 import { StorefrontPhase1541MindestbestellwertFortschritt } from './phase1541-mindestbestellwert-fortschritt';
+import { StorefrontPhase1546LieferfensterAuswahl } from './phase1546-lieferfenster-auswahl';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1424,6 +1425,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           />
         </div>
       )}
+      {/* Phase 1546: Lieferfenster-Auswahl — +30/+60/+90 Min; Guard ETA > 30 Min; localStorage; Hydration-safe */}
+      <StorefrontPhase1546LieferfensterAuswahl etaMinutes={30} locationSlug={location.id} />
       {/* Phase 1531: Warenkorb-Erinnerungs-Banner — 30-Min-Idle-Guard, schließbar, localStorage 24h */}
       <StorefrontPhase1531WarenkorbErinnerungsBanner cartItemCount={totalItems} locationSlug={location.id} />
       {/* Phase 1527: Live-ETA-Tracking-Kommando — Dynamische ETA + Fahrer-Annäherungs-Ampel + Bestellstatus-Phasen-Leiste; 30s-Polling */}

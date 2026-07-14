@@ -479,6 +479,7 @@ import { KitchenPhase1528TagesUmsatzBalkenChart } from './phase1528-tages-umsatz
 import { KitchenPhase1533AllergenAlarmLeiste } from './phase1533-allergene-alarm-leiste';
 import { KitchenPhase1538ZubereitungsEffizienzBoard } from './phase1538-zubereitungs-effizienz-board';
 import { KitchenPhase1540SmartTimingMonitorPro } from './phase1540-smart-timing-monitor-pro';
+import { KitchenPhase1543BestellwellenPrognoseKarte } from './phase1543-bestellwellen-prognose-karte';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1389,6 +1390,8 @@ export function KitchenBoard({
       <KitchenPhase1533AllergenAlarmLeiste orders={filtered as any} />
       {/* Phase 1538: Zubereitungs-Effizienz-Board — Ø Zubereitungszeit je Produktkategorie heute vs. Ziel; Ampel je Kategorie */}
       <KitchenPhase1538ZubereitungsEffizienzBoard />
+      {/* Phase 1543: Bestellwellen-Prognose-Karte — Prognostizierte Bestellwellen nächste 3h; Ampel niedrig/mittel/hoch/kritisch */}
+      <KitchenPhase1543BestellwellenPrognoseKarte />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
