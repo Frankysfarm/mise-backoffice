@@ -251,6 +251,7 @@ import { StorefrontPhase1409BestUebersichtMiniatur } from './phase1409-bestell-u
 import { StorefrontPhase1414LiveWarteschlangenIndikator } from './phase1414-live-warteschlangen-indikator';
 import { StorefrontPhase1419LieferEtaVerfeinerungsBadge } from './phase1419-liefer-eta-verfeinerungs-badge';
 import { StorefrontPhase1424NaechsteLieferungHinweis } from './phase1424-naechste-lieferung-hinweis';
+import { StorefrontPhase1429PlzLiefercheck } from './phase1429-plz-liefercheck';
 
 type Props = {
   location: Location;
@@ -1290,6 +1291,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1424: Nächste-Lieferung-Hinweis — schließbares Banner "Nächste Lieferung in ~X Min"; 5-Min-Polling; nur wenn eta<20 */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <StorefrontPhase1424NaechsteLieferungHinweis locationId={location.id} />
+      </div>
+      {/* Phase 1429: PLZ-Liefer-Check — Kunden-Eingabe Postleitzahl + Sofort-Feedback ob Liefergebiet; PLZ-Liste ausklappbar */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <StorefrontPhase1429PlzLiefercheck locationId={location.id} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

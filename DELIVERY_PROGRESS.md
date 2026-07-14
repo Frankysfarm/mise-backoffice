@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1425–1429 implementiert. Build ✓ 420 Seiten. TypeScript 0 Fehler.
+- Phase 1425 Backend: `app/api/delivery/admin/fahrer-routen-analyse/route.ts` — GET: Routen-KPIs je Fahrer (Ø km/Stopp, Gesamtkm, häufigste Zone A/B/C/D, Optimierungspotenzial hoch/mittel/niedrig); 14-Tage-Basis; Supabase mise_delivery_batches + mise_delivery_stops + Mock-Fallback ✅
+- Phase 1426 Kitchen: `app/(admin)/kitchen/phase1426-zutaten-verbrauchs-prognose.tsx` — Hochrechnung Artikelbedarf nächste 2h aus aktiver Queue; Ampel ok/warnung/kritisch; Props-basiert; nach Phase1421 ✅
+- Phase 1427 Dispatch: `app/(admin)/dispatch/phase1427-fahrer-routen-analyse-widget.tsx` — Phase1425-API: km/Stopp-Rangliste + Optimierungspotenzial-Badge + häufigste Zone + Gesamt-KPIs; 15-Min-Polling; nach Phase1422 ✅
+- Phase 1428 Fahrer-App: `app/fahrer/app/phase1428-tour-sicherheits-check.tsx` — 4-Punkte-Checkliste vor Tourstart (Fahrzeug/Akku/Route/Waren); Freigabe-Button nach vollständiger Bestätigung; localStorage-Guard; isOnline-Guard; nach Phase1423 ✅
+- Phase 1429 Storefront: `app/order/[locationSlug]/phase1429-plz-liefercheck.tsx` — PLZ-Eingabe + Sofort-Feedback ob Liefergebiet + ausklappbare PLZ-Liste; nach Phase1424 ✅
+Nächste Phasen: 1430–1434.
+
 Frontend-Ingenieur-Agent (2026-07-13): Phasen 1420–1424 implementiert. Build ✓ 420 Seiten. TypeScript 0 Fehler.
 - Phase 1420 Backend: `app/api/delivery/admin/schicht-uebergabe-report/route.ts` — GET: Offene Bestellungen + aktive Fahrer + Queue-Tiefe + kritische Alarme; Status ok/warnung/kritisch + Empfehlung; Supabase + Mock-Fallback ✅
 - Phase 1421 Kitchen: `app/(admin)/kitchen/phase1421-schicht-uebergabe-checkliste.tsx` — Offene Bestellungen farbkodiert (grün <15 / gelb 15-25 / rot >25 Min) + Wartezeit-Balken; Props-basiert; nach Phase1416 ✅

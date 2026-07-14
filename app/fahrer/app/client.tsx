@@ -415,6 +415,7 @@ import { FahrerPhase1413KundenBewertungsVorschau } from './phase1413-kunden-bewe
 import { FahrerPhase1410SmartHeimkehrNavigator } from './phase1410-smart-heimkehr-navigator';
 import { FahrerPhase1418SchichtWetterCheck } from './phase1418-schicht-wetter-check';
 import { FahrerPhase1423TagesEinnahmenUebersicht } from './phase1423-tages-einnahmen-uebersicht';
+import { FahrerPhase1428TourSicherheitsCheck } from './phase1428-tour-sicherheits-check';
 
 type Driver = {
   id: string;
@@ -4674,6 +4675,10 @@ export function FahrerApp({
         {/* Phase 1423: Tages-Einnahmen-Übersicht — Grundlohn + Trinkgeld + Stopps + km heute vs. gestern; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1423TagesEinnahmenUebersicht driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1428: Tour-Sicherheits-Check — 4-Punkte-Checkliste vor Tourstart (Fahrzeug/Akku/Route/Waren); einmalig pro Batch */}
+        <div className="px-4">
+          <FahrerPhase1428TourSicherheitsCheck batchId={activeBatch?.id ?? null} isOnline={isOnline} />
         </div>
         {/* Phase 1410: Smart-Heimkehr-Navigator — Nach letztem Stopp: Heimkehr-Anzeige + Navigations-Buttons (Google/Waze) + ETA */}
         <div className="px-4">
