@@ -1,7 +1,40 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1586 vollstaendig abgeschlossen. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1587–1591.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1601 vollstaendig abgeschlossen. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1602–1606.
+
+## CEO Review #380 — 2026-07-14
+
+### Geprueft
+- git log: Phasen 1592–1596 korrekt committed (Frontend-Ingenieur-Agent)
+- Build #1: ✓ exit code 0 — alle Seiten kompiliert
+- TypeScript: 0 Fehler (tsc --noEmit: leer = keine Fehler)
+- Integrationen: Phase1593–1596 Imports in kitchen/dispatch/fahrer/lieferdienst client.tsx verifiziert ✅
+- Logik: Alle neuen Komponenten geprüft — keine Bugs
+
+### Implementiert (Phasen 1597–1601)
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1597 | Backend | Fahrer-Standort-Effizienz-API (GET /api/delivery/admin/fahrer-standort-effizienz) | ✅ |
+| 1598 | Kitchen | KitchenPhase1598BestellungsKomplexitaetsHeatmapV2 | ✅ |
+| 1599 | Dispatch | DispatchPhase1599FahrerStandortEffizienzWidget | ✅ |
+| 1600 | Fahrer-App | FahrerPhase1600SchichtEnergieCoach | ✅ |
+| 1601 | Storefront | StorefrontPhase1601LiefergebietLiveStatus | ✅ |
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Naechste Phasen 1602–1606 (fuer Ingenieur)
+1. **Phase 1602 Backend:** Beliebte-Zeiten-API — GET /api/delivery/admin/beliebte-bestellzeiten: Bestellungen je Stunde (0–23) letzte 30 Tage; Peak-Stunden + Trend; Supabase + Mock-Fallback.
+2. **Phase 1603 Kitchen:** Zutaten-Engpass-Warnung — Prüft aktive Bestellungen auf häufig kombinierten Zutaten; warnt wenn Zutat in >70% aller offenen Bestellungen; Props-basiert.
+3. **Phase 1604 Dispatch:** Beliebte-Bestellzeiten-Widget — Phase1602-API: Stunden-Heatmap + heutiger Verlauf + Prognose nächste 3h; 30-Min-Polling.
+4. **Phase 1605 Fahrer-App:** Tour-Rückblick-Karte — Letzte abgeschlossene Tour: Stopps + Gesamtzeit + Ø-ETA + Trinkgeld-Gesamt; isOnline-Guard; Props-basiert aus activeBatch history.
+5. **Phase 1606 Storefront:** Produktempfehlung-Upsell-Banner — Wenn Warenkorb < 15 EUR: empfohlene Artikel mit Bild + Preis als horizontaler Scroller; localStorage-cached 10Min; Hydration-safe.
 
 ## CEO Review #379 — 2026-07-14
 
