@@ -509,6 +509,7 @@ import { DispatchFahrerEffizienzLivePanel } from './phase1436-fahrer-effizienz-l
 import { DispatchPhase1441FahrerAuslastungsPrognoseWidget } from './phase1441-fahrer-auslastungs-prognose-widget';
 import { DispatchPhase1446FahrerBonusUebersichtWidget } from './phase1446-fahrer-bonus-uebersicht-widget';
 import { DispatchPhase1445TourScoreVisualisierungHub } from './phase1445-tour-score-visualisierung-hub';
+import { DispatchPhase1451KundenFeedbackDashboard } from './phase1451-kunden-feedback-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -1545,6 +1546,8 @@ export function DispatchBoard({
       <DispatchPhase1441FahrerAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1446: Fahrer-Bonus-Übersicht-Widget — Bonus-Rangliste + Monats-Fortschritt + Auszahlungs-Status */}
       <DispatchPhase1446FahrerBonusUebersichtWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1451: Kunden-Feedback-Dashboard — Ø-Sterne + Top-Kommentare + 7-Tage-Trend */}
+      <DispatchPhase1451KundenFeedbackDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1445: Tour-Score-Visualisierungs-Hub — Farbkodierter Score je Tour mit Fortschritts-Visualisierung und ETA */}
       <DispatchPhase1445TourScoreVisualisierungHub
         batches={batches as any}

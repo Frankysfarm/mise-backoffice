@@ -421,6 +421,7 @@ import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback'
 import { FahrerTourStoppAnalyseCard } from './phase1437-tour-stopp-analyse-card';
 import { FahrerPhase1442HeimwegAssistent } from './phase1442-heimweg-assistent';
 import { FahrerPhase1447PersoenlicheBonusKarte } from './phase1447-persoenliche-bonus-karte';
+import { FahrerPhase1452LieferStreakAnzeige } from './phase1452-liefer-streak-anzeige';
 import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp-navigations-final';
 
 type Driver = {
@@ -4728,6 +4729,10 @@ export function FahrerApp({
         {/* Phase 1447: Persönliche Bonus-Karte — Eigene Bonus-Aufstellung + Monats-Fortschrittsbalken */}
         <div className="px-4">
           <FahrerPhase1447PersoenlicheBonusKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1452: Liefer-Streak-Anzeige — Streak-Tage + Highscore */}
+        <div className="px-4">
+          <FahrerPhase1452LieferStreakAnzeige driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1450: Tour-Stopp-Navigations-Final — Alle Tour-Stops mit Navigation, Countdown und Schnell-Aktionen */}
         <div className="px-4">
