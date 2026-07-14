@@ -474,6 +474,7 @@ import { KitchenPhase1505SmartTimingCockpitUltra } from './phase1505-smart-timin
 import { KitchenPhase1508SofortKapazitaetsIndikator } from './phase1508-sofort-kapazitaets-indikator';
 import { KitchenPhase1513SchichtEndCheckliste } from './phase1513-schicht-end-checkliste';
 import { KitchenPhase1518BestelllastPrognoseUhr } from './phase1518-bestelllast-prognose-uhr';
+import { KitchenPhase1525SmartEchtzeitCountdownCockpit } from './phase1525-smart-echtzeit-countdown-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1378,6 +1379,8 @@ export function KitchenBoard({
         }).length}
         maxKapazitaet={20}
       />
+      {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
+      <KitchenPhase1525SmartEchtzeitCountdownCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1505: Smart-Timing-Cockpit-Ultra — Countdown-Grid aller aktiven Bestellungen mit 4-Stufen-Farbkodierung + Timing-Score */}
       <KitchenPhase1505SmartTimingCockpitUltra orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}

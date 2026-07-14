@@ -531,6 +531,7 @@ import { DispatchPhase1505ScoreTourHub } from './phase1505-score-tour-hub';
 import { DispatchPhase1509ZonenEffizienzVergleichWidget } from './phase1509-zonen-effizienz-vergleich-widget';
 import { DispatchPhase1514FahrerTagesLeistungsRanking } from './phase1514-fahrer-tages-leistungs-ranking';
 import { DispatchPhase1519SchichtUmsatzPrognoseWidget } from './phase1519-schicht-umsatz-prognose-widget';
+import { DispatchPhase1525TourScoreLiveKommando } from './phase1525-tour-score-live-kommando';
 
 type Driver = {
   employee_id: string;
@@ -1601,6 +1602,8 @@ export function DispatchBoard({
       <DispatchPhase1514FahrerTagesLeistungsRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1519: Schicht-Umsatz-Prognose-Widget — Umsatz-Hochrechnung + Trend + Tages-Ziel-Fortschrittsbalken; 15-Min-Polling */}
       <DispatchPhase1519SchichtUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}
+      <DispatchPhase1525TourScoreLiveKommando batches={batches as any} drivers={drivers as any} stops={batches.flatMap((b: any) => (b.stops ?? []))} />
       {/* Phase 1505: Score-Tour-Hub — Fahrer-Leaderboard + Tour-Fortschritts-Visualisierung + ETA-Ampel in einem Dashboard */}
       <DispatchPhase1505ScoreTourHub batches={batches as any} drivers={drivers as any} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}

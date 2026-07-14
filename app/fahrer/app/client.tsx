@@ -444,6 +444,7 @@ import { FahrerPhase1505SmartTourCockpit } from './phase1505-smart-tour-cockpit'
 import { FahrerPhase1510KilometerstandTracker } from './phase1510-kilometerstand-tracker';
 import { FahrerPhase1515NaechsteTourVorbereitung } from './phase1515-naechste-tour-vorbereitung';
 import { FahrerPhase1520SchichtPausenEmpfehlung } from './phase1520-schicht-pausen-empfehlung';
+import { FahrerPhase1526SmartTourStoppCockpit } from './phase1526-smart-tour-stop-cockpit';
 
 type Driver = {
   id: string;
@@ -4934,6 +4935,12 @@ export function FahrerApp({
             aktiveTours={activeBatch ? 1 : 0}
           />
         </div>
+        {/* Phase 1526: Smart-Tour-Stopp-Cockpit — Aktuelle Stops mit Navigation-CTA, ETA-Countdown und nächste Stops-Liste */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1526SmartTourStoppCockpit stops={activeBatch.stops as any} />
+          </div>
+        )}
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
           <FahrerPhase1454SchichtGewinnRingCockpit

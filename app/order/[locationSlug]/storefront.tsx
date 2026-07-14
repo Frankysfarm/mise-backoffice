@@ -275,6 +275,7 @@ import { StorefrontPhase1511BestellstatusVerlaufsBadge } from './phase1511-beste
 import { StorefrontPhase1516AktionsBannerTicker } from './phase1516-aktions-banner-ticker';
 import { StorefrontPhase1521BeliebtArtikelChips } from './phase1521-beliebte-artikel-chips';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
+import { StorefrontPhase1527LiveEtaTrackingKommando } from './phase1527-live-eta-tracking-kommando';
 
 type Props = {
   location: Location;
@@ -1396,6 +1397,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1516AktionsBannerTicker locationId={location.id} />
       {/* Phase 1521: Beliebte-Artikel-Chips — Horizontal scrollbare Chip-Leiste Top-5 Artikel heute; localStorage-cached; Hydration-safe */}
       <StorefrontPhase1521BeliebtArtikelChips locationId={location.id} />
+      {/* Phase 1527: Live-ETA-Tracking-Kommando — Dynamische ETA + Fahrer-Annäherungs-Ampel + Bestellstatus-Phasen-Leiste; 30s-Polling */}
+      <StorefrontPhase1527LiveEtaTrackingKommando locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1505: Dynamische ETA Live Tracker — Countdown + ETA-Konfidenz-Balken + Fahrer-Annäherung + Status-Anzeige; 45s-Polling */}
       <StorefrontPhase1505DynamischeEtaLiveTracker locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
