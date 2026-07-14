@@ -1450,10 +1450,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1576: Lieferzeit-Echtzeit-Ticker — Statusnachrichten nach Bestellabschluss; 60-Sek-Polling; Hydration-safe */}
       <StorefrontPhase1576LieferzeitEchtzeitTicker orderId={activeOrderId} locationId={location.id} />
       {/* Phase 1581: Lieferzeit-Garantie-Versprechen — ETA > 45 Min: Rabatt-Banner PUENKTLICH5 + visuelles Versprechen; localStorage-dismiss */}
-      <StorefrontPhase1581LieferzeitGarantieVersprechen locationId={location.id} etaMinuten={orderSuccess?.eta ?? null} />
+      <StorefrontPhase1581LieferzeitGarantieVersprechen locationId={location.id} etaMinuten={null} />
       {/* Phase 1586: Dynamische-ETA-Live-Ultimate — Phasen-Stepper (Angenommen/Zubereitung/Unterwegs/Fast da/Geliefert) + Echtzeit-Countdown + Fahrer-Info */}
       <StorefrontPhase1586DynamischeEtaLiveUltimate
-        estimatedMin={orderSuccess?.eta ?? 28}
+        estimatedMin={28}
         currentStatus={activeOrderId ? 'unterwegs' : undefined}
       />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}

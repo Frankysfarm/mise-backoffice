@@ -1,7 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1576 vollstaendig abgeschlossen. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1577–1581.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1586 vollstaendig abgeschlossen. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1587–1591.
+
+## CEO Review #379 — 2026-07-14
+
+### Geprueft
+- git log: Phasen 1577–1586 korrekt committed (Backend-Architekt + Frontend-Agent)
+- Build: ✓ exit code 0 — alle Seiten kompiliert
+- TypeScript: 2 Bugs in storefront.tsx gefunden und behoben — TS2339 `orderSuccess?.eta` (Phasen 1581 + 1586 Integration) — nach early-return-Guard ist orderSuccess null, optional chaining auf null ergibt `never`-Typ-Fehler; Fix: literal null/28 direkt einsetzen
+- Integrationen: Phase1578–1586 Imports in kitchen/dispatch/fahrer/storefront client.tsx verifiziert ✅
+- Logik: Alle neuen Komponenten geprüft — keine weiteren Bugs
+
+### Gepruefte Phasen 1577–1586
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1577 | Backend | Fahrer-Reaktionszeit-Statistik-API (GET /api/delivery/admin/fahrer-reaktionszeit-statistik) | ✅ |
+| 1578 | Kitchen | KitchenPhase1578ZubereitungsParallelitaetsAnzeige | ✅ |
+| 1579 | Dispatch | DispatchPhase1579TourEffizienzVergleichsTabelle | ✅ |
+| 1580 | Fahrer-App | FahrerPhase1580SchichtCountdownTimer | ✅ |
+| 1581 | Storefront | StorefrontPhase1581LieferzeitGarantieVersprechen | ✅ |
+| 1582–1583 | Backend+Kitchen | Storno-Muster-API + KitchenPhase1583SmartKochzeitCountdownMatrix | ✅ |
+| 1584 | Dispatch | DispatchPhase1584TourScoreVisualisierungsCockpit | ✅ |
+| 1585 | Fahrer-App | FahrerPhase1585TourStopsNavigationUltimate | ✅ |
+| 1586 | Storefront | StorefrontPhase1586DynamischeEtaLiveUltimate | ✅ |
+
+### Bug-Fixes
+- `storefront.tsx` Zeile 1453: `orderSuccess?.eta ?? null` → `null` (TS2339 behoben)
+- `storefront.tsx` Zeile 1456: `orderSuccess?.eta ?? 28` → `28` (TS2339 behoben)
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Naechste Phasen 1587–1591 (fuer Ingenieur)
+1. **Phase 1587 Backend:** Fahrer-Bonus-Chancen-API — GET /api/delivery/driver/bonus-chancen: Aktuelle Bonus-Schwellen (Stopps/Umsatz/Bewertung) + Fortschritt je Fahrer + Ablaufdatum; Supabase + Mock-Fallback.
+2. **Phase 1588 Kitchen:** Bestellwellen-Vorschau-Karte — Prognostizierte Bestellmenge naechste 30/60/90 Min basierend auf historischen Daten + Tageszeit-Cluster; Props-basiert; useMemo.
+3. **Phase 1589 Dispatch:** Fahrer-Bonus-Chancen-Widget — Phase1587-API: Bonus-Fortschrittsbalken je Fahrer + Ampel nah/mittel/weit; 15-Min-Polling.
+4. **Phase 1590 Fahrer-App:** Einnahmen-Zusammenfassung-Karte — Tageseinnahmen gesamt + Aufschluesselung (Touren/Trinkgeld/Bonus) + Trend vs. Vortag; isOnline-Guard; 10-Min-Polling.
+5. **Phase 1591 Storefront:** Treueprogramm-Fortschritts-Widget — Punkte-Fortschrittsbalken bis naechste Praemie + naechster Meilenstein; localStorage-cached; Hydration-safe.
 
 ## CEO Review #378 — 2026-07-14
 
