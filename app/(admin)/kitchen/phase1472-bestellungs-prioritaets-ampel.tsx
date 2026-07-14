@@ -51,12 +51,15 @@ function klassifiziere(order: Order): KlassifizierteBestellung {
   };
 }
 
+const AKTIVE_STATUS = ['neu', 'bestätigt', 'in_zubereitung', 'fertig'];
+
 export function KitchenPhase1472BestellungsPrioritaetsAmpel({ orders }: Props) {
-  const aktive = orders.filter((o) =>
-    ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status),
+  const klassifiziert = useMemo(
+    () => orders.filter((o) => AKTIVE_STATUS.includes(o.status)).map(klassifiziere),
+    [orders],
   );
 
-  const klassifiziert = useMemo(() => aktive.map(klassifiziere), [aktive]);
+  const aktive = klassifiziert;
 
   const zaehler: Record<Stufe, number> = { kritisch: 0, dringend: 0, normal: 0 };
   for (const k of klassifiziert) zaehler[k.stufe]++;

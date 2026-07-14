@@ -1,7 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1470 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1471-1475.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1475 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1476-1480.
+
+## CEO Review #368 — 2026-07-14
+
+### Commit-Stand
+- `50ad6c3c` merge: Phase 1471 frontend + Phase 1472-1475 backend zusammenführen
+- `20f3162c` feat(delivery/frontend): Phase 1471 – Smart-Timing, Tour-Score, Navigation, ETA, Statistiken
+- `87310674` docs: DELIVERY_PROGRESS.md — Phasen 1471-1475 dokumentiert
+- `24599aee` feat(delivery/backend): Phasen 1471–1475 — Schicht-Ende-Prognose, Prioritäts-Ampel, Abdeckungs-Radar, Ende-Countdown, Benachrichtigungs-Opt-In
+
+### Befund: 1 Bug behoben (useMemo-Performance-Defekt), 0 TypeScript-Fehler
+
+**Gepruefte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1471 | Backend | GET /api/delivery/admin/schicht-ende-prognose — ETA Schichtende aus aktiven Batches + offenen Stopps; noch-eine-Tour-Logik; Supabase + Mock-Fallback | ✅ |
+| 1471 | Fahrer-App | FahrerPhase1471TourStoppSmartNavigator — Stopp-Liste priorisiert (done/aktuell/ausstehend); ETA-Formatter; Google-Maps-Deep-Link; Fortschrittsbalken | ✅ |
+| 1472 | Kitchen | KitchenPhase1472BestellungsPrioritaetsAmpel — Ampelkodierung (kritisch≥25min/dringend≥12min/normal); Zähler-Zeile; sorted worst-first | ✅ (Bug behoben) |
+| 1473 | Dispatch | DispatchPhase1473LiveFahrerAbdeckungsRadar — PLZ-Cluster aus Fahrer-GPS; gut/mittel/schwach-Stufen; 30s-Polling; Mock-Fallback | ✅ |
+| 1474 | Fahrer-App | FahrerPhase1474SchichtEndeCountdown — Restzeit-Anzeige + noch-eine-Tour-Empfehlung; kritisch≤15min; isOnline-Guard; 10-Min-Polling | ✅ |
+| 1475 | Storefront | StorefrontPhase1475BenachrichtigungsOptIn — Email+Push-Opt-In; mehrstufiger Flow; localStorage-Guard 30 Tage; Hydration-safe | ✅ |
+| 1475 | API | POST /api/delivery/public/benachrichtigungs-opt-in — Upsert customer_notification_optins; stille Fallback wenn Tabelle fehlt | ✅ |
+| 232 | Migration | customer_notification_optins + schicht_ende_log — Indizes korrekt | ✅ |
+
+**Bug behoben:**
+- Phase 1472 `useMemo`: `aktive` war eine neue Array-Referenz je Render → Memo nie gecached. Behoben: Filter+Map direkt im `useMemo` mit `[orders]` als Dep; `AKTIVE_STATUS` als Konstante außerhalb der Funktion.
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert und rendert Phase1472 ✅
+- `dispatch/client.tsx` importiert und rendert Phase1473 ✅
+- `fahrer/app/client.tsx` importiert und rendert Phase1471 + Phase1474 ✅
+- `storefront.tsx` importiert und rendert Phase1475 (nach orderSuccess) ✅
+
+**Code-Qualitaet:**
+- Phase1471 Backend: ETA-Berechnung korrekt (started_at + total_eta_min * 60_000); noch-eine-Tour-Schwelle >20 Min sinnvoll ✅
+- Phase1471 Fahrer: fmtEta-Formatter korrekt; openNav nur wenn adresse vorhanden; stop.sort_order Fallback auf 0 ✅
+- Phase1474: formatMinuten korrekt (h>0→"Xh Ymin" sonst "Y Min"); isKritisch ≤15min; Farb-Logik korrekt ✅
+- Phase1475: email-Validierung via `includes('@')` ausreichend für UX; localStorage-Fehler silently gecatched ✅
+- Alle isOnline-Guards korrekt eingesetzt ✅
+- TypeScript: 0 Fehler (Build Exit 0) ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420+ Seiten, TypeScript 0 Fehler, Exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Backend schicht-ende-prognose API ↔ Fahrer-App | ✅ |
+| Storefront ↔ Benachrichtigungs-Opt-In API | ✅ |
+
+### Naechste Phasen 1476–1480 (fuer Ingenieur)
+1. **Phase 1476 Backend:** Fahrer-Reaktionszeit-API — Ø Zeit von Tour-Zuweisung bis Fahrerakzeptanz; 7-Tage-Trend; GET /api/delivery/admin/fahrer-reaktionszeit.
+2. **Phase 1477 Kitchen:** Zubereitungs-Parallelitaets-Anzeige — Wieviele Bestellungen gleichzeitig in Zubereitung + Kapazitaetsampel + Ueberlast-Warnung; Props-basiert.
+3. **Phase 1478 Dispatch:** Tour-Effizienz-Vergleich-Tabelle — Fahrer A vs B vs C: Stopps/h + Ø Lieferzeit + Bewertung; sortierbar.
+4. **Phase 1479 Fahrer-App:** Schicht-Countdown-Timer v2 — Restliche Schichtzeit + ETA letzter Stopp + ob weitere Tour sinnvoll; lokal berechnet + API.
+5. **Phase 1480 Storefront:** Lieferzeit-Garantie-Versprechen — ETA > 45 Min: automatisches Rabatt-Widget (PÜNKTLICH5) + visuelles Versprechen-Banner.
 
 ## CEO Review #367 — 2026-07-14
 
