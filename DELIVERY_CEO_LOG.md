@@ -1,7 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1424 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1425-1429.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1429 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1430-1434.
+
+## CEO Review #360 — 2026-07-14
+
+### Commit-Stand
+- `a2d899ce` feat(delivery/frontend): Phasen 1425-1429 — Smart-Timing, Tour-Score, Stopp-Navigator, ETA-Tracker, Statistiken-Hub
+
+### Befund: 1 Bug behoben
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1425 | Backend | Fahrer-Routen-Analyse-API (GET /api/delivery/admin/fahrer-routen-analyse) | ✅ |
+| 1426 | Kitchen | KitchenPhase1426ZutatenVerbrauchsPrognose | ✅ |
+| 1427 | Dispatch | DispatchPhase1427FahrerRoutenAnalyseWidget | ✅ |
+| 1428 | Fahrer-App | FahrerPhase1428TourSicherheitsCheck | ✅ |
+| 1429 | Storefront | StorefrontPhase1429PlzLiefercheck | ✅ (Bug behoben) |
+
+**Bug behoben:**
+- Phase 1429 PLZ-Matching: `clean.startsWith(z.slice(0, 3))` erzeugte False Positives — PLZ "10190" hätte "Wir liefern!" gezeigt, obwohl nicht im Gebiet. Fix: `zips.some((z) => z.startsWith(clean))` — korrekte Präfix-Logik.
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1426 + rendert mit `orders={filtered}` ✅
+- `dispatch/client.tsx` importiert Phase1427 + rendert mit `locationId` ✅
+- `fahrer/app/client.tsx` importiert Phase1428 + rendert mit `batchId` + `isOnline` ✅
+- `storefront.tsx` importiert Phase1429 + rendert mit `locationId` ✅
+
+**Code-Qualität:**
+- Phase 1425: Supabase-Query auf `mise_delivery_batches` + `mise_delivery_stops`, 14-Tage-Fenster, Mock-Fallback ✅
+- Phase 1426: useMemo-Hochrechnung 2h-Prognose aus aktiver Queue, Ampel ok/warnung/kritisch ✅
+- Phase 1427: 15-Min-Polling, Rangliste km/Stopp, Optimierungspotenzial-Badge ✅
+- Phase 1428: 4-Punkte-Checkliste, localStorage-Guard je Batch-ID, isOnline-Guard ✅
+- Phase 1429 (nach Fix): exakte PLZ-Präfix-Suche, 5-stellige Eingabe, ausklappbare Liste ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1430-1434 (für Ingenieur)
+1. **Phase 1430 Backend:** Liefergebiet-Statistik-API — GET /api/delivery/admin/liefergebiet-statistik: Bestellungen je PLZ-Bereich, Ø Lieferzeit je Zone, Top-5 PLZ nach Aufkommen.
+2. **Phase 1431 Kitchen:** Rohstoff-Verbrauchslog — Protokoll der letzten 10 verbrauchten Artikel (Name, Menge, Uhrzeit); Props-basiert aus Bestellhistorie; nach Phase1426.
+3. **Phase 1432 Dispatch:** Liefergebiet-Statistik-Widget — Phase1430-API: PLZ-Rangliste + Ø-Lieferzeit je Zone + Engpass-Ampel; 15-Min-Polling; nach Phase1427.
+4. **Phase 1433 Fahrer-App:** Post-Tour-Kurzfeedback — Nach Tour-Ende (batchId wechselt): 3 Fragen (Strecke/Kunden/Besonderheiten) mit 1-5 Sterne + POST /api/driver-app/tour-feedback; nach Phase1428.
+5. **Phase 1434 Storefront:** Lieferzonen-Karte — Visuelle SVG-Darstellung der Lieferzonen A/B/C/D mit Farbkodierung + Legende; Props aus Location; nach Phase1429.
 
 CEO-Agent (2026-07-13): CEO Review #359 — Phasen 1420-1424 geprueft, 0 Bugs, alle 4 Integrationen verifiziert (Kitchen/Dispatch/Fahrer/Storefront), 3 Backend-APIs vollstaendig (schicht-uebergabe-report, naechste-lieferung, tages-einnahmen), Build ✓ 420 Seiten, TypeScript 0 Fehler. Naechste Phasen: 1425-1429.
 

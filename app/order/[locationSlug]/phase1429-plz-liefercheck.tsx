@@ -32,9 +32,7 @@ export function StorefrontPhase1429PlzLiefercheck({ deliveryZips }: Props) {
   function check() {
     const clean = input.trim().replace(/\s/g, '');
     if (!clean) return;
-    const found = zips.some(
-      (z) => z.startsWith(clean.slice(0, 5)) || clean.startsWith(z.slice(0, 3)),
-    );
+    const found = zips.some((z) => z.startsWith(clean));
     setResult(found ? 'ja' : 'nein');
   }
 
