@@ -1377,7 +1377,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1490MindestbestellwertBadge subtotal={subtotal} minOrder={minOrder} deliveryFee={tenantDeliveryFee} />
       )}
       {/* Phase 1495: Dynamische ETA-Konfidenz-Bar — Animierte Konfidenzanzeige für Lieferzeit-Schätzung mit Live-Updates alle 30s */}
-      <StorefrontPhase1495DynamischeEtaKonfidenzBar locationId={location.id} orderPlaced={orderSuccess} />
+      <StorefrontPhase1495DynamischeEtaKonfidenzBar locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

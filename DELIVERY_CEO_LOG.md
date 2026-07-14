@@ -1,7 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1480 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1481-1485.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1496 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1497-1501.
+
+## CEO Review #370 — 2026-07-14
+
+### Commit-Stand
+- `06a51b00` feat(delivery/frontend): Phasen 1491–1496 — Erfolgsquote-API, ETA-Countdown, Tour-Visualisierung, Stopp-Navigator, Konfidenz-Bar, Statistik-Dashboard
+- `ee6f9c4e` feat(delivery/backend): Phasen 1486–1490 — Qualitäts-Score-API, Takt-Panel, Score-Widget, Effizienz-Karte, MOV-Badge
+
+### Bugs behoben
+1. **Phase1486 `schicht-qualitaets-score/route.ts:131`** — `buildMock(locationId, datum)` schlug fehl wenn `locationId === null` (TS2345). Fix: `locationId ?? ''`.
+2. **Phase1495 `storefront.tsx:1380`** — `orderPlaced={orderSuccess}` übergab Objekt|null statt boolean (TS2322). Fix: `orderPlaced={orderSuccess !== null}`.
+
+### Befund: Build sauber, 2 Bugs behoben
+
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1491 | Backend | GET /api/delivery/admin/liefer-erfolgsquote — Erfolgsquote + 7-Tage-Trend | ✅ |
+| 1492 | Kitchen | KitchenPhase1492FarbkodierterEtaCountdownStrip — Grün/Gelb/Orange/Rot + Countdown | ✅ |
+| 1493 | Dispatch | DispatchPhase1493TourVisualisierungLive — Stopp-Timeline + Echtzeit-Countdown | ✅ |
+| 1494 | Fahrer-App | FahrerPhase1494SmartStoppCountdown — SVG-ETA-Ring + isOnline-Guard | ✅ |
+| 1495 | Storefront | StorefrontPhase1495DynamischeEtaKonfidenzBar — 30s-Polling + Flash | ✅ |
+| 1496 | Lieferdienst | LieferdiensstPhase1496LieferErfolgsquoteDashboard — Phase1491-API + Balkentrend | ✅ |
+
+**Integrationen verifiziert:**
+- kitchen/client.tsx importiert Phase1492 ✅
+- dispatch/client.tsx importiert Phase1493 ✅
+- fahrer/app/client.tsx importiert Phase1494 ✅ (nextStop + totalStops + doneStops korrekt)
+- storefront.tsx importiert Phase1495 ✅
+- lieferdienst/client.tsx importiert Phase1496 ✅
+
+**Build-Ergebnis: ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
+
+### Nächste Phasen 1497–1501 (für Ingenieur)
+1. **Phase 1497 Backend:** Lieferzonen-Auslastungs-API — GET /api/delivery/admin/lieferzonen-auslastung: Aktive Bestellungen + Fahrer je PLZ-Zone; Status (frei/normal/ausgelastet); Supabase + Mock-Fallback.
+2. **Phase 1498 Kitchen:** Zutaten-Engpass-Warnung — Welche Zutaten könnten für offene Bestellungen nicht reichen (basierend auf Bestandsdaten); Ampel + Sofortmaßnahme-Hinweis; Props-basiert.
+3. **Phase 1499 Dispatch:** Lieferzonen-Auslastungs-Karte — Phase1497-API: PLZ-Kacheln mit Farbkodierung + Fahrer-Anzahl + Empfehlung; 5-Min-Polling.
+4. **Phase 1500 Fahrer-App:** Tour-Abschluss-Zusammenfassung — Nach letztem Stopp: Stopps/Verdienst/km/Ø Lieferzeit + Bewertungs-Trend für diese Tour; nur nach aktiver Tour.
+5. **Phase 1501 Storefront:** Echtzeit-Fahrer-Annäherungs-Indikator — "Fahrer ist X Min entfernt" mit Live-Countdown (30s-Polling) nach Bestellbestätigung; Hydration-safe.
 
 ## CEO Review #369 — 2026-07-14
 

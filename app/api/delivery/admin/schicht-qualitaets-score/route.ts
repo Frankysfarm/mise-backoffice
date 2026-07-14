@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
 
     function calcScore(orders: RawOrder[], ratingList: RawRating[], driverList: RawDriver[]) {
       const total = orders.length;
-      if (total === 0) return buildMock(locationId, datum).gesamt_score;
+      if (total === 0) return buildMock(locationId ?? '', datum).gesamt_score;
 
       const delivered = orders.filter((o) => o.status === 'delivered' || o.status === 'geliefert');
       const cancelled = orders.filter((o) => o.status === 'cancelled' || o.status === 'storniert');
