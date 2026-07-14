@@ -2,6 +2,24 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1486–1490 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
+- Phase 1486 Backend: `app/api/delivery/admin/schicht-qualitaets-score/route.ts` — Gewichteter Score (Pünktlichkeit 40% + Kundenbewertung 30% + Storno-Rate 20% + Fahrer-Verfügbarkeit 10%) heute + Vorwoche; Supabase + Mock-Fallback ✅
+- Phase 1487 Kitchen: `app/(admin)/kitchen/phase1487-bestelleingang-takt-panel.tsx` — Phase1481-API: 15-Min-Slot-Balken + Peak-Indikator + Prognose nächster Slot; Collapsible; 10-Min-Polling; nach Phase1482 ✅
+- Phase 1488 Dispatch: `app/(admin)/dispatch/phase1488-schicht-qualitaets-score-widget.tsx` — Phase1486-API: Score-Gauge (SVG-Ring) + Einzel-KPIs + Vergleich Vorwoche; Collapsible; 10-Min-Polling; nach Phase1483 ✅
+- Phase 1489 Fahrer-App: `app/fahrer/app/phase1489-routen-effizienz-karte.tsx` — Stopps/h + Ø km/Stopp vs. Team-Durchschnitt + Effizienz-Rang; isOnline-Guard; 30-Min-Polling; nach Phase1484 ✅
+- Phase 1490 Storefront: `app/order/[locationSlug]/phase1490-mindestbestellwert-badge.tsx` — Fortschrittsbalken wenn Warenkorb < MOV; Betrag-bis-Mindestbestellwert; Echtzeit-Update; nach Phase1485 ✅
+- Migration 234: `scripts/migrations/234_schicht_qualitaets_score_phase1486_1490.sql` — schicht_qualitaets_score_snapshots + bestelleingang_takt_log + routen_effizienz_log ✅
+Nächste Phasen: 1491–1495.
+
+### Nächste Phasen 1491–1495 (für Ingenieur)
+1. **Phase 1491 Backend:** Fahrer-Auslastungs-Prognose-API — GET /api/delivery/admin/fahrer-auslastungs-prognose: Prognose der Fahrer-Auslastung für nächste 4h (je Stunde: erwartete Bestellungen + benötigte Fahrer + Status OK/Warnung/Kritisch); basierend auf Wochenmuster + aktuelle Queue.
+2. **Phase 1492 Kitchen:** Küchen-Puffer-Ampel — Wie viele freie Kapazitätsslots (max 5 parallele Bestellungen); Ampel grün/gelb/rot + Countdown bis nächster freier Slot; Props-basiert.
+3. **Phase 1493 Dispatch:** Fahrer-Auslastungs-Prognose-Widget — Phase1491-API: 4h-Balken je Stunde + Warnung wenn Unterdeckung erwartet; 15-Min-Polling.
+4. **Phase 1494 Fahrer-App:** Schicht-Zusammenfassungs-Karte — Gesamte Schicht-KPIs heute (Stopps/Verdienst/km/Ø Lieferzeit) + Bewertungs-Trend; nur wenn !isOnline (Schicht-Ende).
+5. **Phase 1495 Storefront:** Lieferstatus-Push-Abonnement — Kompaktes Opt-In-Widget für SMS/Push-Benachrichtigungen bei Lieferstatus-Updates; localStorage-Guard 7 Tage.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-14): Phasen 1481–1485 implementiert. Build ✓ Compiled successfully. TypeScript 0 Fehler.
 - Phase 1481 Backend: `app/api/delivery/admin/bestelleingang-takt/route.ts` — Bestellungen je 15-Min-Slot der letzten 4h + Peak-Slot + Prognose nächster Slot; Supabase + Mock-Fallback ✅
 - Phase 1482 Kitchen: `app/(admin)/kitchen/phase1482-reihenfolge-optimierungs-hinweis.tsx` — Welche Bestellung als nächstes starten (ETA + Lieferzone + Alter); Prioritäts-Score; Props-basiert; nach Phase1477 ✅

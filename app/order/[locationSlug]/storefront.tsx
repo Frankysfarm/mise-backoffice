@@ -266,6 +266,7 @@ import { StorefrontPhase1471DynamischeEtaAnzeige } from './phase1471-dynamische-
 import { StorefrontPhase1475BenachrichtigungsOptIn } from './phase1475-benachrichtigungs-opt-in';
 import { StorefrontPhase1480LieferzeitGarantieVersprechen } from './phase1480-lieferzeit-garantie-versprechen';
 import { StorefrontPhase1485BestellstatusProgressRing } from './phase1485-bestellstatus-progress-ring';
+import { StorefrontPhase1490MindestbestellwertBadge } from './phase1490-mindestbestellwert-badge';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1370,6 +1371,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1475BenachrichtigungsOptIn locationId={location.id} orderId={activeOrderId} />
       {/* Phase 1485: Bestellstatus-Progress-Ring — Kompakter SVG-Ring (0–4 Schritte) mit Puls-Animation; Hydration-safe */}
       <StorefrontPhase1485BestellstatusProgressRing locationId={location.id} orderStatus={orderSuccess ? 'in_zubereitung' : null} />
+      {/* Phase 1490: Mindestbestellwert-Fortschritts-Badge — Live-Fortschrittsbalken wenn Warenkorb < MOV; Echtzeit-Update */}
+      {cart.length > 0 && subtotal < minOrder && (
+        <StorefrontPhase1490MindestbestellwertBadge subtotal={subtotal} minOrder={minOrder} deliveryFee={tenantDeliveryFee} />
+      )}
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}
