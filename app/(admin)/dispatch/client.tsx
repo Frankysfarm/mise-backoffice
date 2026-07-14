@@ -519,6 +519,7 @@ import { DispatchPhase1000TourScoreVisualisierung } from './phase1000-tour-score
 import { DispatchPhase1468FahrerGpsStatusPanel } from './phase1468-fahrer-gps-status-panel';
 import { DispatchPhase1469TourScoreBenchmarkLive } from './phase1469-tour-score-benchmark-live';
 import { DispatchPhase1471TourScoreLiveVisualisierung } from './phase1471-tour-score-live-visualisierung';
+import { DispatchPhase1473LiveFahrerAbdeckungsRadar } from './phase1473-live-fahrer-abdeckungs-radar';
 
 type Driver = {
   employee_id: string;
@@ -1567,6 +1568,8 @@ export function DispatchBoard({
       <DispatchPhase1469TourScoreBenchmarkLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1471: Tour-Score-Live-Visualisierung — Farbkodierte Score-Karten aller aktiver Touren, Worst-First sortiert */}
       <DispatchPhase1471TourScoreLiveVisualisierung batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1473: Live-Fahrer-Abdeckungs-Radar — PLZ-Abdeckung nach Fahrer-Positionen (gut/mittel/schwach); 30s-Polling */}
+      <DispatchPhase1473LiveFahrerAbdeckungsRadar drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
       <DispatchPhase1454ZonenLiveEfzienzBoard
         batches={batches as any}

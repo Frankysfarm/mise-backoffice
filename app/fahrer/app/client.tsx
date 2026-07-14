@@ -432,6 +432,7 @@ import { FahrerPhase1468TageszielFortschrittsRing } from './phase1468-tagesziel-
 import { FahrerPhase1469SmartNaviZielCockpit } from './phase1469-smart-navi-ziel-cockpit';
 import { FahrerPhase1470VerdienstPrognoseLive } from './phase1470-verdienst-prognose-live';
 import { FahrerPhase1471TourStoppSmartNavigator } from './phase1471-tour-stopp-smart-navigator';
+import { FahrerPhase1474SchichtEndeCountdown } from './phase1474-schicht-ende-countdown';
 
 type Driver = {
   id: string;
@@ -4797,6 +4798,14 @@ export function FahrerApp({
           <FahrerPhase1471TourStoppSmartNavigator
             activeBatch={activeBatch as any}
             isOnline={isOnline}
+          />
+        </div>
+        {/* Phase 1474: Schicht-Ende-Countdown — Restzeit bis Schichtende + Empfehlung ob noch eine Tour sinnvoll */}
+        <div className="px-4">
+          <FahrerPhase1474SchichtEndeCountdown
+            driverId={driver.id}
+            isOnline={isOnline}
+            locationId={driver.location_id ?? null}
           />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
