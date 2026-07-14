@@ -258,6 +258,7 @@ import { BestellkorbTimeoutWarnung } from './phase1443-bestellkorb-timeout-warnu
 import { TreuePunkteAnzeige } from './phase1448-treue-punkte-anzeige';
 import { BestellhistorieMiniWidget } from './phase1453-bestellhistorie-mini-widget';
 import { BestellstatusLiveTracker } from './phase1454-bestellstatus-live-tracker';
+import { StorefrontPhase1458TreueProgrammEinladung } from './phase1458-treue-programm-einladung';
 
 type Props = {
   location: Location;
@@ -1322,6 +1323,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
         <BestellhistorieMiniWidget locationId={location.id} />
       </div>
+      {/* Phase 1458: Treue-Programm-Einladung — Nach 3. Bestellung Banner mit 10% Rabatt */}
+      <StorefrontPhase1458TreueProgrammEinladung locationId={location.id} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

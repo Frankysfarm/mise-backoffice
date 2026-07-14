@@ -511,6 +511,7 @@ import { DispatchPhase1446FahrerBonusUebersichtWidget } from './phase1446-fahrer
 import { DispatchPhase1445TourScoreVisualisierungHub } from './phase1445-tour-score-visualisierung-hub';
 import { DispatchPhase1451KundenFeedbackDashboard } from './phase1451-kunden-feedback-dashboard';
 import { DispatchPhase1454ZonenLiveEfzienzBoard } from './phase1454-zonen-live-effizienz-board';
+import { DispatchPhase1456FahrerQualitaetsRangliste } from './phase1456-fahrer-qualitaets-rangliste';
 
 type Driver = {
   employee_id: string;
@@ -1554,6 +1555,8 @@ export function DispatchBoard({
       />
       {/* Phase 1451: Kunden-Feedback-Dashboard — Ø-Sterne + Top-Kommentare + 7-Tage-Trend */}
       <DispatchPhase1451KundenFeedbackDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1456: Fahrer-Qualitäts-Rangliste — Score je Fahrer + Trend-Pfeile + Top-3 */}
+      <DispatchPhase1456FahrerQualitaetsRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1445: Tour-Score-Visualisierungs-Hub — Farbkodierter Score je Tour mit Fortschritts-Visualisierung und ETA */}
       <DispatchPhase1445TourScoreVisualisierungHub
         batches={batches as any}

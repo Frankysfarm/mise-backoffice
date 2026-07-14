@@ -424,6 +424,7 @@ import { FahrerPhase1447PersoenlicheBonusKarte } from './phase1447-persoenliche-
 import { FahrerPhase1452LieferStreakAnzeige } from './phase1452-liefer-streak-anzeige';
 import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp-navigations-final';
 import { FahrerPhase1454SchichtGewinnRingCockpit } from './phase1454-schicht-gewinn-ring-cockpit';
+import { FahrerPhase1457WochenRueckblickWidget } from './phase1457-wochen-rueckblick-widget';
 
 type Driver = {
   id: string;
@@ -4748,6 +4749,10 @@ export function FahrerApp({
         {/* Phase 1452: Liefer-Streak-Anzeige — Streak-Tage + Highscore */}
         <div className="px-4">
           <FahrerPhase1452LieferStreakAnzeige driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1457: Wochen-Rückblick-Widget — Letzte 7 Tage Stopps + Beste-Tag-Badge + Trend */}
+        <div className="px-4">
+          <FahrerPhase1457WochenRueckblickWidget driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1450: Tour-Stopp-Navigations-Final — Alle Tour-Stops mit Navigation, Countdown und Schnell-Aktionen */}
         <div className="px-4">

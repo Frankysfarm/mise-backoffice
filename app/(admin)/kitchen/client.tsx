@@ -454,6 +454,7 @@ import { KitchenPhase1445ZutatenEinkaufslisteGenerator } from './phase1445-zutat
 import { KitchenPhase1445SmartTimingFinalCockpit } from './phase1445-smart-timing-final-cockpit';
 import { KitchenPhase1450AllergenStatistikMonitor } from './phase1450-allergen-statistik-monitor';
 import { KitchenPhase1454LiveBacklogPriorisierung } from './phase1454-live-backlog-priorisierung';
+import { KitchenPhase1455TagesAllergenZusammenfassung } from './phase1455-tages-allergen-zusammenfassung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1312,6 +1313,8 @@ export function KitchenBoard({
       <KitchenPhase1454LiveBacklogPriorisierung orders={filtered as any} />
       {/* Phase 1450: Allergen-Statistik-Monitor — Top-5 Allergene aus aktiver Queue */}
       <KitchenPhase1450AllergenStatistikMonitor orders={filtered as any} />
+      {/* Phase 1455: Tages-Allergen-Zusammenfassung — Aggregat aller heute bearbeiteten Allergene */}
+      <KitchenPhase1455TagesAllergenZusammenfassung orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}
       <KitchenPhase1445SmartTimingFinalCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}
