@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1607–1611 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1607 Backend: `app/api/delivery/admin/fahrer-puenktlichkeits-ranking/route.ts` — Pünktlichkeitsrate je Fahrer letzte 30 Tage; Rang 1–N; Status gold/silber/bronze; Supabase + Mock-Fallback ✅
+- Phase 1608 Kitchen: `app/(admin)/kitchen/phase1608-bestellungs-zeitfenster-verteilung.tsx` — Offene Bestellungen nach Zeitfenster (ASAP/30Min/60Min/Sonstige) als farbkodierte Karten; useMemo; in kitchen/client.tsx integriert ✅
+- Phase 1609 Dispatch: `app/(admin)/dispatch/phase1609-fahrer-puenktlichkeits-ranking-widget.tsx` — Phase1607-API: Rangliste gold/silber/bronze + Pünktlichkeitsrate + Trend-Pfeil; 15-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1610 Fahrer-App: `app/fahrer/app/phase1610-trinkgeld-wochenziel-tracker.tsx` — Trinkgeld-Fortschritt Woche vs. Wochenziel; Fortschrittsbalken; Prognose Ende Woche; isOnline-Guard; 10-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1611 Storefront: `app/order/[locationSlug]/phase1611-letzte-bestellungen-schnellzugang.tsx` — Letzte 3 Bestellungen als Chips für Schnell-Reorder; localStorage-based; Hydration-safe; in storefront.tsx integriert ✅
+
+### Nächste Phasen 1612–1616 (für nächsten Agenten)
+1. **Phase 1612 Backend:** Zonen-Auslastungs-Prognose-API — GET /api/delivery/admin/zonen-auslastungs-prognose: Erwartete Bestellungen je Zone nächste 2h basierend auf historischen Daten; Ampel niedrig/mittel/hoch/kritisch; Supabase + Mock-Fallback.
+2. **Phase 1613 Kitchen:** Durchschnitts-Wartezeit-Karte — Ø Wartezeit je Bestellungsstatus (neu/in-arbeit/fertig) als farbkodierte Balken; Props-basiert; useMemo; Ampel schnell/normal/langsam.
+3. **Phase 1614 Dispatch:** Zonen-Auslastungs-Prognose-Widget — Phase1612-API: Zonen-Karten mit Ampel + erwartete Bestellungen + Empfehlung Fahrer-Zuteilung; 20-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1615 Fahrer-App:** Kilometerstand-Monatsübersicht — Gefahrene KM diese Woche + diesen Monat + Ziel; Fortschrittsbalken; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1616 Storefront:** Menü-Beliebtheitsbadges — Top-3 meistbestellte Artikel erhalten „Beliebt"-Badge; localStorage-cached 30Min; Hydration-safe; in storefront.tsx.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1602–1606 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1602 Backend: `app/api/delivery/admin/beliebte-bestellzeiten/route.ts` — Bestellungen je Stunde (0–23) letzte 30 Tage; Peak-Stunden + Trend + Prognose nächste 3h; Supabase + Mock-Fallback ✅
 - Phase 1603 Kitchen: `app/(admin)/kitchen/phase1603-zutaten-engpass-warnung.tsx` — Häufige Zutaten in offenen Bestellungen; Engpass-Warnung wenn Zutat in >70% aller Bestellungen; Props-basiert + useMemo; in kitchen/client.tsx integriert ✅
