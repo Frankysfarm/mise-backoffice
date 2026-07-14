@@ -442,6 +442,7 @@ import { FahrerPhase1501StoppNavKommando } from './phase1501-stopp-nav-kommando'
 import { FahrerPhase1505SchichtVergleichsKarte } from './phase1505-schicht-vergleichs-karte';
 import { FahrerPhase1505SmartTourCockpit } from './phase1505-smart-tour-cockpit';
 import { FahrerPhase1510KilometerstandTracker } from './phase1510-kilometerstand-tracker';
+import { FahrerPhase1515NaechsteTourVorbereitung } from './phase1515-naechste-tour-vorbereitung';
 
 type Driver = {
   id: string;
@@ -4916,6 +4917,14 @@ export function FahrerApp({
         {/* Phase 1510: Kilometerstand-Tracker — Heutige km + laufender Durchschnitt je Tour + Wochentrend; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1510KilometerstandTracker driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1515: Nächste-Tour-Vorbereitung — Checkliste vor Tourstart (Fahrzeug/Handy/Akku/Route); Guard isOnline; localStorage je Tour-ID */}
+        <div className="px-4">
+          <FahrerPhase1515NaechsteTourVorbereitung
+            driverId={driver.id}
+            isOnline={isOnline}
+            tourId={activeBatch?.id ?? null}
+          />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">

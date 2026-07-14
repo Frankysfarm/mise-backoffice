@@ -272,6 +272,7 @@ import { StorefrontPhase1501EchtzeitFahrerAnnaeherungsIndikator } from './phase1
 import { StorefrontPhase1506LiefergebietPruefungsBadge } from './phase1506-liefergebiet-pruefungs-badge';
 import { StorefrontPhase1505DynamischeEtaLiveTracker } from './phase1505-dynamische-eta-live-tracker';
 import { StorefrontPhase1511BestellstatusVerlaufsBadge } from './phase1511-bestellstatus-verlaufs-badge';
+import { StorefrontPhase1516AktionsBannerTicker } from './phase1516-aktions-banner-ticker';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1390,6 +1391,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1506LiefergebietPruefungsBadge locationId={location.id} plz={deliveryPlz} />
       {/* Phase 1511: Bestellstatus-Verlaufs-Badge — Kompakter Inline-Badge der letzten Bestellung; localStorage-basiert; Hydration-safe */}
       <StorefrontPhase1511BestellstatusVerlaufsBadge locationId={location.id} />
+      {/* Phase 1516: Aktions-Banner-Ticker — Schließbarer Ticker mit aktuellen Angeboten/Rabattcodes; localStorage-Guard 1 Tag; Hydration-safe */}
+      <StorefrontPhase1516AktionsBannerTicker locationId={location.id} />
       {/* Phase 1505: Dynamische ETA Live Tracker — Countdown + ETA-Konfidenz-Balken + Fahrer-Annäherung + Status-Anzeige; 45s-Polling */}
       <StorefrontPhase1505DynamischeEtaLiveTracker locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
