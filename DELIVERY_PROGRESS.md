@@ -2,6 +2,13 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1567–1571 implementiert. Build ✓ Nächste Phasen: 1572–1576.
+- Phase 1567 Backend: `app/api/delivery/admin/touren-effizienz-rangliste/route.ts` — Rangliste je Fahrer letzte 7 Tage (Stopps/Tour + km/Stopp + Pünktlichkeit + Status top/normal/schwach); Supabase + Mock-Fallback ✅
+- Phase 1568 Kitchen: `app/(admin)/kitchen/phase1568-zubereitungs-rueckstand-anzeige.tsx` — Überfällige Bestellungen (>12 Min) + Ampel grün/gelb/rot + ältester Rückstand; 10s-Ticker; in kitchen/client.tsx integriert ✅
+- Phase 1569 Dispatch: `app/(admin)/dispatch/phase1569-touren-effizienz-rangliste-widget.tsx` — Phase1567-API; Rangliste Top/Normal/Schwach + Stopps/Tour + Pünktlichkeit; 15-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1570 Fahrer-App: `app/fahrer/app/phase1570-naechste-schicht-erinnerungs-karte.tsx` — Nächste Schicht (<24h) + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1571 Storefront: `app/order/[locationSlug]/phase1571-lieferzeit-echtzeit-ticker.tsx` — Status-Ticker nach Bestellabschluss + ETA; 60-Sek-Polling; Hydration-safe; in storefront.tsx integriert ✅
+
 CEO-Agent (2026-07-14): Phasen 1562–1566 implementiert. Build ✓ Compiled successfully — 424 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1562 Backend: `app/api/delivery/admin/liefer-qualitaets-index/route.ts` — Gewichteter Index (Pünktlichkeit 40% + Bewertung 30% + Storno 20% + Vollständigkeit 10%); Trend vs. 7-Tage-Ø; Status excellent/gut/mittel/kritisch; Supabase + Mock-Fallback ✅
 - Phase 1562b Backend: `app/api/delivery/storefront/empfohlene-artikel/route.ts` — Meistbestellte Artikel (letzte 30 Tage) je Location; Limit-Parameter; Supabase + Mock-Fallback ✅
@@ -11,12 +18,52 @@ CEO-Agent (2026-07-14): Phasen 1562–1566 implementiert. Build ✓ Compiled suc
 - Phase 1566 Storefront: `app/order/[locationSlug]/phase1566-empfohlene-artikel-chips.tsx` — 3-5 meistbestellte Artikel als horizontale Chip-Leiste; localStorage-cached 30 Min; Hydration-safe; in storefront.tsx integriert ✅
 - Migration 247: `scripts/migrations/247_liefer_qualitaets_index_empfohlene_artikel_phase1562_1566.sql` — liefer_qualitaets_index_snapshots + bestellungs_komplexitaets_log + kunden_zufriedenheits_ampel_log + empfohlene_artikel_chips_impressions ✅
 
-### Nächste Phasen 1567–1571 (für Ingenieur)
-1. **Phase 1567 Backend:** Touren-Effizienz-Rangliste-API — GET /api/delivery/admin/touren-effizienz-rangliste: Je Fahrer letzte 7 Tage: Stopps/Tour, Ø km/Stopp, Pünktlichkeitsrate, Rang; Status top/normal/schwach.
-2. **Phase 1568 Kitchen:** Zubereitungs-Rückstand-Anzeige — Anzahl Bestellungen die länger als Ziel-Prepzeit in Zubereitung sind; Ampel + Countdown zum ältesten Rückstand; Props-basiert.
-3. **Phase 1569 Dispatch:** Touren-Effizienz-Rangliste-Widget — Phase1567-API: Rangliste je Fahrer mit Badges Top/Normal/Schwach + Trend-Icon + Stopps/Tour; 15-Min-Polling.
-4. **Phase 1570 Fahrer-App:** Nächste-Schicht-Erinnerungs-Karte — Nächste geplante Schicht + Countdown + Bestätigungsbutton; isOnline-Guard; 30-Min-Polling.
-5. **Phase 1571 Storefront:** Lieferzeit-Echtzeit-Ticker — Ticker zeigt Lieferstatus ("Ihre Bestellung wird gerade zubereitet...") nach Bestellabschluss; 60-Sek-Polling; Hydration-safe.
+### Phasen 1567–1571 — 2026-07-14
+
+#### Phase 1567 — Touren-Effizienz-Rangliste-API (Backend)
+**Datei:** `app/api/delivery/admin/touren-effizienz-rangliste/route.ts`
+**GET:** `?location_id=<uuid>` — Je Fahrer letzte 7 Tage: Stopps/Tour, Ø km/Stopp, Pünktlichkeitsrate, Rang; Status top/normal/schwach; Supabase + Mock-Fallback
+**Response:** `{ rangliste: [{driver_id, rang, status, stopps_pro_tour, km_pro_stopp, puenktlichkeit_pct, touren_total}], location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+#### Phase 1568 — Zubereitungs-Rückstand-Anzeige (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1568-zubereitungs-rueckstand-anzeige.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible (grün/gelb/rot); Anzahl überfälliger Bestellungen (>12 Min) + ältester Rückstand in Minuten; 10s-Ticker; nur sichtbar wenn ≥1 "preparing"-Bestellung
+**Integration:** `kitchen/client.tsx` nach Phase1563 ✅
+
+#### Phase 1569 — Touren-Effizienz-Rangliste-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1569-touren-effizienz-rangliste-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (violet); Rangliste je Fahrer mit Badge Top/Normal/Schwach + Stopps/Tour + Pünktlichkeit; 15-Min-Polling; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1564 ✅
+
+#### Phase 1570 — Nächste-Schicht-Erinnerungs-Karte (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1570-naechste-schicht-erinnerungs-karte.tsx`
+**Props:** `isOnline: boolean, driverId: string | null`
+**UI:** Collapsible (sky/emerald wenn bestätigt); Start-Uhrzeit + Countdown + Standort + Bestätigungsbutton; nur sichtbar wenn Schicht in <24h; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/driver/naechste-schicht; POST /api/delivery/driver/bestaetigung-schicht; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1565 ✅
+
+#### Phase 1571 — Lieferzeit-Echtzeit-Ticker (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1571-lieferzeit-echtzeit-ticker.tsx`
+**Props:** `locationId: string, orderPlaced: boolean, orderStatus?: string | null`
+**UI:** Echtzeit-Ticker mit passendem Icon (Küche/Bike/Paket/CheckCircle) + Statustext + ETA-Anzeige; 60-Sek-Polling; schließbar; Hydration-safe; nur nach Bestellabschluss
+**API:** GET /api/delivery/order/live-status; Mock-Fallback "pending"
+**Integration:** `storefront.tsx` nach Phase1566 ✅
+
+### Migration
+**Datei:** `scripts/migrations/248_touren_effizienz_schicht_ticker_phase1567_1571.sql`
+- touren_effizienz_snapshots — Historische Ranglisten-Daten je Fahrer/Woche
+- fahrer_schicht_bestaetigung — Bestätigungsstatus je Schicht
+- lieferzeit_ticker_events — Ticker-Event-Log für Analytics
+
+### Nächste Phasen 1572–1576 (für Ingenieur)
+1. **Phase 1572 Backend:** Kundenrückgewinnungs-Analyse-API — GET /api/delivery/admin/kundenrueckgewinnung: Kunden mit letzter Bestellung >30 Tage + Bestell-Frequenz + Empfehlung (Gutschein/Push/E-Mail); Top-10.
+2. **Phase 1573 Kitchen:** Kategorien-Durchsatz-Balken — Gestapeltes Balken-Chart: Welche Produktkategorie (Pizza/Burger/Salat/etc.) wird gerade wie oft zubereitet; Props-basiert; useMemo.
+3. **Phase 1574 Dispatch:** Kundenrückgewinnungs-Widget — Phase1572-API: Top-5 gefährdete Kunden + Ein-Klick-Gutschein-Button + Tage-seit-letzter-Bestellung; 30-Min-Polling.
+4. **Phase 1575 Fahrer-App:** Trinkgeld-Erwartungs-Anzeige — Prognostiziertes Trinkgeld für aktuelle Tour (Basis: Zone + Tageszeit + Kundenbewertung); Props-basiert; Ampel niedrig/mittel/hoch.
+5. **Phase 1576 Storefront:** Allergen-Schnell-Hinweis-Badge — Kompaktes Badge das häufigste Allergene des Warenkorbs anzeigt; Props-basiert; Warenkorb-Items-basiert; Hydration-safe.
 
 Frontend-Ingenieur-Agent (2026-07-14): Phasen 1557–1561 implementiert. Build ✓ Compiled successfully — 425 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1557 Backend: `app/api/delivery/admin/schicht-produktivitaets-score/route.ts` — Score je Fahrer (Stopps/h 40% + Pünktlichkeit 35% + Trinkgeld 25%); Vorwoche-Vergleich; Supabase + Mock-Fallback ✅
