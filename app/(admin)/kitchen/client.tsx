@@ -473,6 +473,7 @@ import { KitchenPhase1503BestellstatusUebersichtsAmpel } from './phase1503-beste
 import { KitchenPhase1505SmartTimingCockpitUltra } from './phase1505-smart-timing-cockpit-ultra';
 import { KitchenPhase1508SofortKapazitaetsIndikator } from './phase1508-sofort-kapazitaets-indikator';
 import { KitchenPhase1513SchichtEndCheckliste } from './phase1513-schicht-end-checkliste';
+import { KitchenPhase1518BestelllastPrognoseUhr } from './phase1518-bestelllast-prognose-uhr';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1365,6 +1366,18 @@ export function KitchenBoard({
       <KitchenPhase1508SofortKapazitaetsIndikator orders={filtered as any} />
       {/* Phase 1513: Schicht-End-Checkliste — Pflicht-Checkboxen (Bestellungen/Reinigung/Lagerbestand) + Status-Ampel */}
       <KitchenPhase1513SchichtEndCheckliste orders={filtered as any} />
+      {/* Phase 1518: Bestelllast-Prognose-Uhr — SVG-Uhr Auslastung diese vs. letzte Stunde + Hochrechnung */}
+      <KitchenPhase1518BestelllastPrognoseUhr
+        bestellungenDieseStunde={filtered.filter((o: any) => {
+          const h = new Date(o.created_at ?? Date.now()).getHours();
+          return h === new Date().getHours();
+        }).length}
+        bestellungenLetzteStunde={filtered.filter((o: any) => {
+          const h = new Date(o.created_at ?? Date.now()).getHours();
+          return h === new Date().getHours() - 1;
+        }).length}
+        maxKapazitaet={20}
+      />
       {/* Phase 1505: Smart-Timing-Cockpit-Ultra — Countdown-Grid aller aktiven Bestellungen mit 4-Stufen-Farbkodierung + Timing-Score */}
       <KitchenPhase1505SmartTimingCockpitUltra orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}

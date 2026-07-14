@@ -443,6 +443,7 @@ import { FahrerPhase1505SchichtVergleichsKarte } from './phase1505-schicht-vergl
 import { FahrerPhase1505SmartTourCockpit } from './phase1505-smart-tour-cockpit';
 import { FahrerPhase1510KilometerstandTracker } from './phase1510-kilometerstand-tracker';
 import { FahrerPhase1515NaechsteTourVorbereitung } from './phase1515-naechste-tour-vorbereitung';
+import { FahrerPhase1520SchichtPausenEmpfehlung } from './phase1520-schicht-pausen-empfehlung';
 
 type Driver = {
   id: string;
@@ -4924,6 +4925,13 @@ export function FahrerApp({
             driverId={driver.id}
             isOnline={isOnline}
             tourId={activeBatch?.id ?? null}
+          />
+        </div>
+        {/* Phase 1520: Schicht-Pausen-Empfehlung — Empfehlung wann Pause sinnvoll; isOnline-Guard; lokale Logik */}
+        <div className="px-4">
+          <FahrerPhase1520SchichtPausenEmpfehlung
+            isOnline={isOnline}
+            aktiveTours={activeBatch ? 1 : 0}
           />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}

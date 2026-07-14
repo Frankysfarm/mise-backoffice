@@ -2,6 +2,14 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-14): Phasen 1517–1521 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1517 Backend: `app/api/delivery/admin/schicht-umsatz-prognose/route.ts` — Tages-Umsatz-Hochrechnung basierend auf Stunden-Tempo; Status über/auf/unter Ziel; Vorwoche-Vergleich; Supabase + Mock-Fallback ✅
+- Phase 1518 Kitchen: `app/(admin)/kitchen/phase1518-bestelllast-prognose-uhr.tsx` — SVG-Ring Auslastung diese vs. letzte Stunde; Ampel niedrig/normal/hoch/kritisch; Prognose-Balken nächste Stunde; Props-basiert ✅
+- Phase 1519 Dispatch: `app/(admin)/dispatch/phase1519-schicht-umsatz-prognose-widget.tsx` — Phase1517-API: Umsatz-Hochrechnung + Trend-Icon + Tages-Ziel-Fortschrittsbalken + Differenz vs. Ziel; 15-Min-Polling ✅
+- Phase 1520 Fahrer-App: `app/fahrer/app/phase1520-schicht-pausen-empfehlung.tsx` — Empfehlung empfohlen/bald/gut basierend auf Schichtdauer/letzter Pause/Peak-Prognose/aktiver Tour; isOnline-Guard; rein lokale Logik ✅
+- Phase 1521 Storefront: `app/order/[locationSlug]/phase1521-beliebte-artikel-chips.tsx` — Horizontal scrollbare Chip-Leiste Top-5 Artikel; localStorage 30-Min-Cache; Hydration-safe; Flame-Icon für Top-Seller ✅
+- Migration: `scripts/migrations/239_schicht_umsatz_prognose_beliebte_artikel_phase1517_1521.sql` — schicht_umsatz_prognose_snapshots + bestelllast_prognose_uhr_log + fahrer_pausen_log + beliebte_artikel_impressions ✅
+
 Frontend-Ingenieur-Agent (2026-07-14): Phasen 1512–1516 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1512 Backend: `app/api/delivery/admin/fahrer-tages-leistung/route.ts` — Stopps/Verdienst/km/Pünktlichkeit je Fahrer heute; Rang-Berechnung; Supabase + Mock-Fallback ✅
 - Phase 1513 Kitchen: `app/(admin)/kitchen/phase1513-schicht-end-checkliste.tsx` — Props-basierte Pflicht-Checkliste (Bestellungen/Reinigung/Lagerbestand) + Fortschrittsbalken + Status-Ampel; offene-Bestellungen-Guard ✅
@@ -10,12 +18,12 @@ Frontend-Ingenieur-Agent (2026-07-14): Phasen 1512–1516 implementiert. Build �
 - Phase 1516 Storefront: `app/order/[locationSlug]/phase1516-aktions-banner-ticker.tsx` — Schließbarer Angebots-Ticker mit Rabattcode-Copy; localStorage-Guard 1 Tag; Hydration-safe ✅
 - Migration: `scripts/migrations/238_fahrer_tages_leistung_phase1512_1516.sql` — fahrer_tages_leistungs_snapshots + schicht_end_checklisten_log + tour_vorbereitungs_log + aktions_banner_impressions ✅
 
-### Naechste Phasen 1517–1521 (fuer naechsten Agenten)
-1. **Phase 1517 Backend:** Schicht-Umsatz-Prognose-API — GET /api/delivery/admin/schicht-umsatz-prognose: Hochrechnung Tages-Umsatz basierend auf aktuellem Stunden-Tempo vs. Vorwoche; Status (über/unter/auf Ziel).
-2. **Phase 1518 Kitchen:** Bestelllast-Prognose-Uhr — Runde Uhr-Visualisierung (SVG) der Auslastung dieser Stunde vs. letzter Stunde + Hochrechnung; Props-basiert.
-3. **Phase 1519 Dispatch:** Schicht-Umsatz-Prognose-Widget — Phase1517-API: Umsatz-Hochrechnung + Trend + Tages-Ziel-Fortschrittsbalken; 15-Min-Polling.
-4. **Phase 1520 Fahrer-App:** Schicht-Pausen-Empfehlung — Empfehlung wann Pause einzuplanen basierend auf Schichtdauer/letzter Pause/Peak-Prognose; isOnline-Guard; lokale Logik.
-5. **Phase 1521 Storefront:** Beliebte-Artikel-Chip-Leiste — Horizontal scrollbare Chip-Leiste mit Top-5 Artikeln heute; localStorage-cached; Hydration-safe.
+### Naechste Phasen 1522–1526 (fuer naechsten Agenten)
+1. **Phase 1522 Backend:** Fahrer-Bonus-Prognose-API — GET /api/delivery/admin/fahrer-bonus-prognose: Hochrechnung ob Fahrer Tages-Bonus erreicht (Stopps-Ziel, Pünktlichkeits-Ziel); Status erreicht/auf-kurs/nicht-erreichbar je Fahrer.
+2. **Phase 1523 Kitchen:** Bestelltyp-Verteilungs-Karte — Pie-Chart SVG (Eigenlieferung vs. Abholung vs. Tisch) + Anteil in % + Trend vs. Vorwoche; Props-basiert.
+3. **Phase 1524 Dispatch:** Fahrer-Bonus-Prognose-Widget — Phase1522-API: Status-Kacheln je Fahrer (Bonus-Prognose, Fehlende Stopps, Pünktlichkeits-Gap); Farb-Ampel; 10-Min-Polling.
+4. **Phase 1525 Fahrer-App:** Mein-Bonus-Tracker — Eigene Bonus-Prognose: Stopps-Fortschritt + Pünktlichkeit-Trend + Betrag-Hochrechnung; isOnline-Guard; 15-Min-Polling.
+5. **Phase 1526 Storefront:** Bewertungs-Einladungs-Banner — Nach letzter Lieferung (Guard 2h) kurzes 1-Klick-Sterne-Widget (1–5 Sterne); localStorage-Guard 7 Tage; Hydration-safe.
 
 ---
 

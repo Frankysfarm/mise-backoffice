@@ -530,6 +530,7 @@ import { DispatchPhase1504FahrerPuenktlichkeitsTrendWidget } from './phase1504-f
 import { DispatchPhase1505ScoreTourHub } from './phase1505-score-tour-hub';
 import { DispatchPhase1509ZonenEffizienzVergleichWidget } from './phase1509-zonen-effizienz-vergleich-widget';
 import { DispatchPhase1514FahrerTagesLeistungsRanking } from './phase1514-fahrer-tages-leistungs-ranking';
+import { DispatchPhase1519SchichtUmsatzPrognoseWidget } from './phase1519-schicht-umsatz-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1598,6 +1599,8 @@ export function DispatchBoard({
       <DispatchPhase1509ZonenEffizienzVergleichWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1514: Fahrer-Tages-Leistungs-Ranking — Leaderboard Stopps/Verdienst/Pünktlichkeit; Farb-Ranking Top/Mitte/Low; 10-Min-Polling */}
       <DispatchPhase1514FahrerTagesLeistungsRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1519: Schicht-Umsatz-Prognose-Widget — Umsatz-Hochrechnung + Trend + Tages-Ziel-Fortschrittsbalken; 15-Min-Polling */}
+      <DispatchPhase1519SchichtUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1505: Score-Tour-Hub — Fahrer-Leaderboard + Tour-Fortschritts-Visualisierung + ETA-Ampel in einem Dashboard */}
       <DispatchPhase1505ScoreTourHub batches={batches as any} drivers={drivers as any} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
