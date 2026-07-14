@@ -513,6 +513,7 @@ import { DispatchPhase1451KundenFeedbackDashboard } from './phase1451-kunden-fee
 import { DispatchPhase1454ZonenLiveEfzienzBoard } from './phase1454-zonen-live-effizienz-board';
 import { DispatchPhase1456FahrerQualitaetsRangliste } from './phase1456-fahrer-qualitaets-rangliste';
 import { DispatchPhase1459TourLiveHub } from './phase1459-tour-live-hub';
+import { DispatchPhase1462SchichtBilanzWidget } from './phase1462-schicht-bilanz-widget';
 
 type Driver = {
   employee_id: string;
@@ -1551,6 +1552,8 @@ export function DispatchBoard({
       <DispatchPhase1446FahrerBonusUebersichtWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1459: Tour-Live-Hub — Erweiterte Tour-Visualisierung mit Stop-Sequenz, ETA-Abweichung und Fahrer-Score-Ampel */}
       <DispatchPhase1459TourLiveHub batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1462: Schicht-Bilanz-Widget — Fahrer-Bilanz-Panel mit Stopps + Verdienst + Trinkgeld-Badge */}
+      <DispatchPhase1462SchichtBilanzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
       <DispatchPhase1454ZonenLiveEfzienzBoard
         batches={batches as any}

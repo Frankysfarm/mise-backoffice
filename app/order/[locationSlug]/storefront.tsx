@@ -260,6 +260,7 @@ import { BestellhistorieMiniWidget } from './phase1453-bestellhistorie-mini-widg
 import { BestellstatusLiveTracker } from './phase1454-bestellstatus-live-tracker';
 import { StorefrontPhase1458TreueProgrammEinladung } from './phase1458-treue-programm-einladung';
 import { DynamischeEtaAnzeige } from './phase1459-dynamische-eta-anzeige';
+import { StorefrontPhase1464LieferVersprechenBanner } from './phase1464-liefer-versprechen-banner';
 
 type Props = {
   location: Location;
@@ -1330,6 +1331,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       </div>
       {/* Phase 1458: Treue-Programm-Einladung — Nach 3. Bestellung Banner mit 10% Rabatt */}
       <StorefrontPhase1458TreueProgrammEinladung locationId={location.id} />
+      {/* Phase 1464: Liefer-Versprechen-Banner — ETA > 40 Min: 5% Rabatt-Banner */}
+      <StorefrontPhase1464LieferVersprechenBanner locationId={location.id} etaMinuten={30} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

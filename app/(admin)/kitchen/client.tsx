@@ -456,6 +456,7 @@ import { KitchenPhase1450AllergenStatistikMonitor } from './phase1450-allergen-s
 import { KitchenPhase1454LiveBacklogPriorisierung } from './phase1454-live-backlog-priorisierung';
 import { KitchenPhase1455TagesAllergenZusammenfassung } from './phase1455-tages-allergen-zusammenfassung';
 import { KitchenPhase1459SmartTimingCockpit } from './phase1459-smart-timing-cockpit';
+import { KitchenPhase1461BestellvolumenHeatmap } from './phase1461-bestellvolumen-heatmap';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1314,6 +1315,8 @@ export function KitchenBoard({
       <KitchenPhase1454LiveBacklogPriorisierung orders={filtered as any} />
       {/* Phase 1459: Smart-Timing-Cockpit — Farbkodiertes Countdown-Cockpit sortiert nach Dringlichkeit mit SVG-Ringen, Ampelfarben und Kochstart-Empfehlung */}
       <KitchenPhase1459SmartTimingCockpit orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1461: Bestellvolumen-Heatmap — 7×24-Grid der letzten Woche; Farbtiefe nach Bestellanzahl */}
+      <KitchenPhase1461BestellvolumenHeatmap orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1450: Allergen-Statistik-Monitor — Top-5 Allergene aus aktiver Queue */}
       <KitchenPhase1450AllergenStatistikMonitor orders={filtered as any} />
       {/* Phase 1455: Tages-Allergen-Zusammenfassung — Aggregat aller heute bearbeiteten Allergene */}

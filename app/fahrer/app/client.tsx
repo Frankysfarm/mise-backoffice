@@ -426,6 +426,7 @@ import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp
 import { FahrerPhase1454SchichtGewinnRingCockpit } from './phase1454-schicht-gewinn-ring-cockpit';
 import { FahrerPhase1457WochenRueckblickWidget } from './phase1457-wochen-rueckblick-widget';
 import { FahrerPhase1459TourNavigationKommando } from './phase1459-tour-navigation-kommando';
+import { FahrerPhase1463PersoenlicheSchichtZusammenfassung } from './phase1463-persoenliche-schicht-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -4751,6 +4752,16 @@ export function FahrerApp({
             driverName={driver ? `${driver.vorname ?? ''} ${driver.nachname ?? ''}`.trim() : undefined}
           />
         </div>
+        {/* Phase 1463: Persönliche Schicht-Zusammenfassung — Stopps/Strecke/Verdienst + Wochenschnitt-Vergleich */}
+        {driver.location_id && (
+          <div className="px-4">
+            <FahrerPhase1463PersoenlicheSchichtZusammenfassung
+              driverId={driver.id}
+              isOnline={isOnline}
+              locationId={driver.location_id}
+            />
+          </div>
+        )}
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
           <FahrerPhase1454SchichtGewinnRingCockpit
