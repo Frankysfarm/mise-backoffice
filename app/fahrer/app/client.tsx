@@ -439,6 +439,7 @@ import { FahrerPhase1489RoutenEffizienzKarte } from './phase1489-routen-effizien
 import { FahrerPhase1494SmartStoppCountdown } from './phase1494-smart-stopp-countdown';
 import { FahrerPhase1500TourAbschlussZusammenfassung } from './phase1500-tour-abschluss-zusammenfassung';
 import { FahrerPhase1501StoppNavKommando } from './phase1501-stopp-nav-kommando';
+import { FahrerPhase1505SchichtVergleichsKarte } from './phase1505-schicht-vergleichs-karte';
 
 type Driver = {
   id: string;
@@ -4881,6 +4882,10 @@ export function FahrerApp({
             driverId={driver.id}
             activeBatch={activeBatch as any}
           />
+        </div>
+        {/* Phase 1505: Schicht-Vergleichs-Karte — Heute vs. Vorwoche: Stopps/Verdienst/km/Ø Lieferzeit als Vergleichs-Grid */}
+        <div className="px-4">
+          <FahrerPhase1505SchichtVergleichsKarte driverId={driver.id} isOnline={isOnline} />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
