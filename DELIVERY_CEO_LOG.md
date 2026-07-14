@@ -1,7 +1,57 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1459 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1460-1464.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1464 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1465-1469.
+
+## CEO Review #366 — 2026-07-14
+
+### Commit-Stand
+- `cf898070` feat(delivery/backend): Phasen 1460-1464 — Schicht-Bilanz-API, Bestellvolumen-Heatmap, Bilanz-Widget, Schicht-Zusammenfassung, Liefer-Versprechen-Banner
+
+### Befund: 1 Bug behoben + 3 TypeScript-Fehler behoben
+
+**Gepruefte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1460 | Backend | GET /api/delivery/admin/schicht-bilanz-fahrer — Stopps/km/Verdienst/Trinkgeld je Fahrer; Supabase + Mock-Fallback | ✅ |
+| 1461 | Kitchen | KitchenPhase1461BestellvolumenHeatmap — 7×24-Grid letzte Woche; heatColor-Skalierung; sichtbare Stunden 6–22; Props-basiert | ✅ |
+| 1462 | Dispatch | DispatchPhase1462SchichtBilanzWidget — Phase1460-API; TrinkgeldBadge (gruen/amber/slate); 30-Min-Polling; KPI-Grid | ✅ |
+| 1463 | Fahrer-App | FahrerPhase1463PersoenlicheSchichtZusammenfassung — Eigene Bilanz + Wochenschnitt-Delta; isOnline-Guard; localStorage-Fallback | ✅ |
+| 1464 | Storefront | StorefrontPhase1464LieferVersprechenBanner — ETA > 40 Min: SCHNELL5 Banner + Kopieren-Button; schliessbar; Hydration-Safe | ✅ (Bug behoben) |
+
+**Bug behoben:**
+- Phase1464 Storefront: Banner war mit hardcoded `etaMinuten={30}` (< 40 Min Schwelle) eingebaut → Banner konnte NIE erscheinen.
+  Fix 1: Pre-order-View → `etaMinuten={null}` (korrekt — vor Bestellung kein ETA bekannt).
+  Fix 2: Banner zusaetzlich in orderSuccess-Block hinzugefuegt mit `orderSuccess.eta` → Banner erscheint jetzt korrekt wenn ETA > 40 Min nach Bestellabschluss.
+
+**TypeScript-Fehler behoben (3 Stueck):**
+- `phase1454-zonen-live-effizienz-board.tsx:144` — Recharts Formatter `(v: number, name: string)` → `(v: unknown)` + Cast
+- `phase1330-schicht-ertrags-cockpit.tsx:156` — Recharts Formatter `(v: number)` → `(v: unknown)` + Cast
+- `phase1459-statistiken-gesamtueberblick.tsx:158` — Recharts Formatter `(v: number)` → `(v: unknown)` + Cast
+
+**Integrationen geprueft:**
+- `kitchen/client.tsx` importiert KitchenPhase1461BestellvolumenHeatmap ✅
+- `dispatch/client.tsx` importiert DispatchPhase1462SchichtBilanzWidget ✅
+- `fahrer/app/client.tsx` importiert FahrerPhase1463PersoenlicheSchichtZusammenfassung ✅
+- `storefront.tsx` importiert StorefrontPhase1464LieferVersprechenBanner (pre-order + post-order) ✅
+
+**Code-Qualitaet:**
+- Phase1460: Schicht-Berechnung korrekt (stopps×4€ Basis + Trinkgeld-Summe aus delivered stops) ✅
+- Phase1461: heatColor-Faerb-Skalierung 5-Stufen korrekt; Grid dayOffset-Berechnung korrekt ✅
+- Phase1462: TrinkgeldBadge Schwellen (≥5 gruen / ≥2 amber / <2 slate) sinnvoll ✅
+- Phase1463: DeltaBadge-Vergleich mit Wochenschnitt korrekt; 1h-Cache-TTL ✅
+- Phase1464: ETA_SCHWELLE=40 korrekt; localStorage-Guard 60 Min; Hydration-Safe (mounted-Guard) ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — TypeScript 0 Fehler, Exit 0** ✅
+
+### Naechste Phasen 1465–1469 (fuer Ingenieur)
+1. **Phase 1465 Backend:** Fahrer-Pauenzeit-API — GET /api/delivery/admin/fahrer-pausen: Erfassung + Anzeige Pauenzeiten je Fahrer heute (Anzahl Pausen, Gesamtdauer Min); Supabase + Mock-Fallback.
+2. **Phase 1466 Kitchen:** Küchen-Effizienz-Score — Punkte (0-100) aus Bearbeitungszeit + Fehlerquote + Durchsatz; Ampel + Verlauf letzte 7 Tage; Props-basiert; nach Phase1461.
+3. **Phase 1467 Dispatch:** Fahrer-Pausen-Monitor — Phase1465-API: Zeigt aktive Pausen + Dauer + Pausen-Bilanz des Tages; 15-Min-Polling; nach Phase1462.
+4. **Phase 1468 Fahrer-App:** Pausen-Stempeluhr — Pause-Start / Pause-Ende Button + Pausen-Zaehler heute + Gesamtdauer; isOnline-Guard; nach Phase1463.
+5. **Phase 1469 Storefront:** Kuechen-Kapazitaets-Hinweis — Wenn Kuechen-Score < 60: "Kueche aktuell stark ausgelastet — Lieferzeit kann laenger dauern"; schliessbar; 10-Min-Polling; nach Phase1464.
 
 ## CEO Review #365 — 2026-07-14
 

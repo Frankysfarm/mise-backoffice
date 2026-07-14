@@ -1073,6 +1073,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             />
           </div>
         )}
+        {/* Phase 1464: Liefer-Versprechen-Banner — ETA > 40 Min: 5% Rabatt-Banner (SCHNELL5) */}
+        {orderSuccess.type === 'lieferung' && (
+          <StorefrontPhase1464LieferVersprechenBanner
+            locationId={location.id}
+            etaMinuten={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+          />
+        )}
       </div>
     );
   }
@@ -1342,7 +1349,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1458: Treue-Programm-Einladung — Nach 3. Bestellung Banner mit 10% Rabatt */}
       <StorefrontPhase1458TreueProgrammEinladung locationId={location.id} />
       {/* Phase 1464: Liefer-Versprechen-Banner — ETA > 40 Min: 5% Rabatt-Banner */}
-      <StorefrontPhase1464LieferVersprechenBanner locationId={location.id} etaMinuten={30} />
+      <StorefrontPhase1464LieferVersprechenBanner locationId={location.id} etaMinuten={null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

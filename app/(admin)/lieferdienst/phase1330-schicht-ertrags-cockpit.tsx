@@ -153,7 +153,7 @@ export function LieferdienstPhase1330SchichtErtragsCockpit({ orders, drivers, co
                 <BarChart data={hourlyData} barSize={16} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number) => [euro(v), 'Umsatz']}
+                    formatter={(v: unknown) => [euro(v as number), 'Umsatz']}
                     contentStyle={{ fontSize: 11, borderRadius: 6 }}
                   />
                   <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>

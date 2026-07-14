@@ -155,7 +155,7 @@ export function LieferdienstPhase1459StatistikenGesamtueberblick({ orders, compl
                     <XAxis dataKey="h" tick={{ fontSize: 9 }} interval={2} />
                     <Tooltip
                       contentStyle={{ fontSize: 11, padding: '4px 8px' }}
-                      formatter={(v: number) => [`${v} Bestellungen`, '']}
+                      formatter={(v: unknown) => [`${v as number} Bestellungen`, '']}
                     />
                     <Bar dataKey="n" radius={[2, 2, 0, 0]}>
                       {hourly.map((entry, i) => (

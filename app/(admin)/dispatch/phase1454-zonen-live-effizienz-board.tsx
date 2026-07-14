@@ -141,7 +141,7 @@ export function DispatchPhase1454ZonenLiveEfzienzBoard({ batches, stops }: Props
               <BarChart data={chartData} barSize={24} margin={{ left: 0, right: 0, top: 0, bottom: 0 }}>
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number, name: string) => [`${v}%`, 'Pünktlichkeit']}
+                  formatter={(v: unknown) => [`${v as number}%`, 'Pünktlichkeit']}
                   contentStyle={{ fontSize: 11, borderRadius: 6 }}
                 />
                 <Bar dataKey="pct" radius={[3, 3, 0, 0]}>
