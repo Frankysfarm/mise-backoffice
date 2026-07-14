@@ -53,7 +53,7 @@ export function FahrerTourStoppAnalyseCard({ batchId }: Props) {
       .select('id,status,adresse,kundenname,telefon,trinkgeld,position,bestellwert,anmerkung,arrived_at,delivered_at,eta')
       .eq('batch_id', batchId)
       .order('position')
-      .then(({ data }) => { if (data?.length) setStops(data as TourStop[]); });
+      .then(({ data }: { data: TourStop[] | null }) => { if (data?.length) setStops(data); });
   }, [batchId]);
 
   const delivered = stops.filter(s => s.status === 'geliefert').length;

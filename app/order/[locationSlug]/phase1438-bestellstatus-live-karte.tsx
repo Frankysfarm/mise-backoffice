@@ -89,7 +89,7 @@ export function BestellstatusLiveKarte({ orderId, locationSlug }: Props) {
         .select('id,status,bestellt_am,geschaetzte_lieferzeit_min,eta,fahrer_name,track_url')
         .eq('id', orderId)
         .single()
-        .then(({ data }) => { if (data) setOrder(data as OrderData); });
+        .then(({ data }: { data: OrderData | null }) => { if (data) setOrder(data); });
     fetch();
     const ch = sb.channel(`order-${orderId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, fetch)

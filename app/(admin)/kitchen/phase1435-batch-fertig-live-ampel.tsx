@@ -96,12 +96,12 @@ export function KitchenBatchFertigLiveAmpel() {
       .in('status', ['aktiv', 'fertig', 'offen'])
       .order('created_at', { ascending: false })
       .limit(6)
-      .then(({ data }) => { if (data?.length) setBatches(data as Batch[]); });
+      .then(({ data }: { data: Batch[] | null }) => { if (data?.length) setBatches(data); });
     sb.from('orders')
       .select('id,batch_id,status,geschaetzte_zubereitung_min,zubereitung_start,bestellt_am')
       .not('batch_id', 'is', null)
       .in('status', ['pending', 'in_zubereitung', 'fertig', 'unterwegs'])
-      .then(({ data }) => { if (data?.length) setOrders(data as Order[]); });
+      .then(({ data }: { data: Order[] | null }) => { if (data?.length) setOrders(data); });
   }, []);
 
   const activeBatches = batches.filter(b => b.status !== 'abgeschlossen').slice(0, 5);
