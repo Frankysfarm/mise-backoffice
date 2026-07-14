@@ -425,6 +425,7 @@ import { FahrerPhase1452LieferStreakAnzeige } from './phase1452-liefer-streak-an
 import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp-navigations-final';
 import { FahrerPhase1454SchichtGewinnRingCockpit } from './phase1454-schicht-gewinn-ring-cockpit';
 import { FahrerPhase1457WochenRueckblickWidget } from './phase1457-wochen-rueckblick-widget';
+import { FahrerPhase1459TourNavigationKommando } from './phase1459-tour-navigation-kommando';
 
 type Driver = {
   id: string;
@@ -4731,6 +4732,24 @@ export function FahrerApp({
         {/* Phase 1447: Persönliche Bonus-Karte — Eigene Bonus-Aufstellung + Monats-Fortschrittsbalken */}
         <div className="px-4">
           <FahrerPhase1447PersoenlicheBonusKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1459: Tour-Navigation-Kommando — Kompaktes Navigation-Kommando mit allen Tour-Stops, Direkt-Maps und Schnell-Aktionen */}
+        <div className="px-4">
+          <FahrerPhase1459TourNavigationKommando
+            stops={activeBatch?.stops?.map((s: any, i: number) => ({
+              id: s.id,
+              sequence: s.reihenfolge ?? (i + 1),
+              address: s.order?.kunde_adresse ?? `Stopp ${i + 1}`,
+              customerName: s.order?.kunde_name ?? `Kunde ${i + 1}`,
+              phone: s.order?.kunde_telefon ?? null,
+              notes: s.order?.kunde_notiz ?? null,
+              status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+              etaMin: null,
+              distanceKm: null,
+              orderAmount: s.order?.gesamtbetrag ?? null,
+            }))}
+            driverName={driver ? `${driver.vorname ?? ''} ${driver.nachname ?? ''}`.trim() : undefined}
+          />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
