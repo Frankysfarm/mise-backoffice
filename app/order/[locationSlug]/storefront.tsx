@@ -296,6 +296,7 @@ import { StorefrontPhase1601LiefergebietLiveStatus } from './phase1601-liefergeb
 import { StorefrontPhase1606ProduktempfehlungUpsellBanner } from './phase1606-produktempfehlung-upsell-banner';
 import { StorefrontPhase1611LetzteBestellungenSchnellzugang } from './phase1611-letzte-bestellungen-schnellzugang';
 import { StorefrontPhase1616MenuBeliebtheitsBadge } from './phase1616-menu-beliebtheitsbadges';
+import { StorefrontPhase1621EchtzeitKuechenstatusTicker } from './phase1621-echtzeit-kuechenstatus-ticker';
 
 type Props = {
   location: Location;
@@ -1469,6 +1470,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1606ProduktempfehlungUpsellBanner locationId={location.id} cartTotal={subtotal} />
       {/* Phase 1611: Letzte-Bestellungen-Schnellzugang — Letzte 3 Bestellungen als Chips für Schnell-Reorder; localStorage-based; Hydration-safe */}
       <StorefrontPhase1611LetzteBestellungenSchnellzugang locationId={location.id} />
+      {/* Phase 1621: Echtzeit-Küchenstatus-Ticker — Live-Ticker „X Bestellungen in Zubereitung · Küche läuft auf Hochtouren/normal/ruhig"; localStorage-cached 2Min; Hydration-safe */}
+      <StorefrontPhase1621EchtzeitKuechenstatusTicker locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
