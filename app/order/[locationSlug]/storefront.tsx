@@ -295,6 +295,7 @@ import { StorefrontPhase1591TreueprogrammFortschrittsWidget } from './phase1591-
 import { StorefrontPhase1601LiefergebietLiveStatus } from './phase1601-liefergebiets-live-status';
 import { StorefrontPhase1606ProduktempfehlungUpsellBanner } from './phase1606-produktempfehlung-upsell-banner';
 import { StorefrontPhase1611LetzteBestellungenSchnellzugang } from './phase1611-letzte-bestellungen-schnellzugang';
+import { StorefrontPhase1616MenuBeliebtheitsBadge } from './phase1616-menu-beliebtheitsbadges';
 
 type Props = {
   location: Location;
@@ -1934,6 +1935,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                           {/* Phase 1270: Artikel-Beliebtheitsbadge — "X× in 2h bestellt" für Top-3 Artikel */}
                           <div className="mt-1 px-1">
                             <Phase1270ArtikelBeliebtheitsBadge locationId={location.id} artikelName={item.name ?? ''} />
+                          </div>
+                          {/* Phase 1616: Menü-Beliebtheitsbadges — Top-3 meistbestellte Artikel erhalten „Beliebt"-Badge; localStorage-cached 30Min; Hydration-safe */}
+                          <div className="mt-1 px-1">
+                            <StorefrontPhase1616MenuBeliebtheitsBadge locationId={location.id} itemName={item.name ?? ''} />
                           </div>
                         </div>
                       );

@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1612–1616 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1612 Backend: `app/api/delivery/admin/zonen-auslastungs-prognose/route.ts` — Prognose Bestellungen je Zone nächste 2h; historische Wochentag/Stunden-Daten; Ampel niedrig/mittel/hoch/kritisch; Supabase + Mock-Fallback ✅
+- Phase 1613 Kitchen: `app/(admin)/kitchen/phase1613-smart-countdown-prioritaets-cockpit.tsx` — Smart Countdown + Prioritäts-Cockpit für Küche; integriert in kitchen/client.tsx ✅
+- Phase 1614 Dispatch: `app/(admin)/dispatch/phase1614-score-tour-visualisierungs-hub.tsx` — Score-Tour Visualisierungs-Hub; Zonen-Auslastungs-Prognose; 20-Min-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1615 Fahrer-App: `app/fahrer/app/phase1615-tour-stopp-navigations-ultra-hub.tsx` — Tour-Stopp Navigations-Ultra-Hub mit KM-Übersicht; isOnline-Guard; in fahrer/app/client.tsx integriert ✅
+- Phase 1616 Storefront: `app/order/[locationSlug]/phase1616-menu-beliebtheitsbadges.tsx` — Top-3 meistbestellte Artikel erhalten „🔥 Beliebt"-Badge; localStorage-cached 30Min; Hydration-safe; in storefront.tsx integriert ✅
+
+### Nächste Phasen 1617–1621 (für nächsten Agenten)
+1. **Phase 1617 Backend:** Lieferstatus-Durchlaufzeit-API — GET /api/delivery/admin/lieferstatus-durchlaufzeit: Ø Zeit je Status-Übergang (neu→in-arbeit, in-arbeit→fertig, fertig→unterwegs, unterwegs→geliefert); Trend vs. Vortag; Supabase + Mock-Fallback.
+2. **Phase 1618 Kitchen:** Prioritäts-Warteschlangen-Karte — Bestellungen sortiert nach Priorität (ASAP > Vorab-Zeit-Nähe > Komplexität); Ampel rot/gelb/grün; Props-basiert; useMemo; in kitchen/client.tsx.
+3. **Phase 1619 Dispatch:** Lieferstatus-Durchlaufzeit-Widget — Phase1617-API: Balken-Chart je Status-Übergang + Engpass-Markierung + Trend-Pfeil; 15-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1620 Fahrer-App:** Tages-KPI-Scoreboard — Heutige Touren + Ø Lieferzeit + Pünktlichkeitsrate + Trinkgeld-Rate + Rang unter Fahrern; isOnline-Guard; 10-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1621 Storefront:** Echtzeit-Küchenstatus-Ticker — Live-Ticker „X Bestellungen in Zubereitung • Küche läuft auf Hochtouren / normal / ruhig"; API-basiert; localStorage-cached 2Min; Hydration-safe; in storefront.tsx.
+
 CEO-Agent (2026-07-14): CEO Review #381. Build ✓ Compiled successfully — 424 Seiten, TypeScript 0 Fehler. 1 fehlende API ergänzt. Push erfolgt.
 - Fehlende Backend-API erstellt: `app/api/driver-app/trinkgeld-wochenziel/route.ts` — Trinkgeld-Wochenziel je Fahrer; Supabase + Mock-Fallback; Phase1610 jetzt voll funktional ✅
 - Alle 4 Phasen-Integrationen geprüft: kitchen/client.tsx ✅ dispatch/client.tsx ✅ fahrer/app/client.tsx ✅ storefront.tsx ✅
