@@ -1,7 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1464 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1465-1469.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1470 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1471-1475.
+
+## CEO Review #367 — 2026-07-14
+
+### Commit-Stand
+- `686bc265` feat(delivery/backend): Phasen 1465–1469 — Kapazitäts-Auslastungs-API, Bestelltyp-Analyse, Auslastungs-Widget, Tagesziel-Ring, Transparenz-Status
+- `c4fbb53d` feat(delivery/frontend): Kitchen 1467-1468, Dispatch 1468-1469, Fahrer 1469-1470
+
+### Befund: 0 Bugs, 0 TypeScript-Fehler
+
+**Gepruefte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1465 | Backend | GET /api/delivery/admin/kapazitaets-auslastung — Fahrer-Kapazität + Queue + Durchsatz + Status/Empfehlung; Supabase + Mock-Fallback | ✅ |
+| 1466 | Kitchen | KitchenPhase1466BestelltypAnalysePanel — Express/Geplant/Normal + Ø Zubereitungszeit; Props-basiert | ✅ |
+| 1467 | Kitchen | KitchenPhase1467WarmhalteMonitor — Fertige Bestellungen nach Wartezeit sortiert; frisch/warm/kritisch-Ampel | ✅ |
+| 1468 | Kitchen | KitchenPhase1468LiveKuechenKapazitaet — SVG-Kapazitätsring mit 4 Status-Leveln; 60s-Polling | ✅ |
+| 1467 | Dispatch | DispatchPhase1467KapazitaetsAuslastungsWidget — Phase1465-API; 3-KPI-Grid; 5-Min-Polling | ✅ |
+| 1468 | Dispatch | DispatchPhase1468FahrerGpsStatusPanel — GPS-Frische je Fahrer; frisch/veraltet/alt-Ampel; 30s-Polling | ✅ |
+| 1469 | Dispatch | DispatchPhase1469TourScoreBenchmarkLive — Score heute vs. Vorwoche; Trend-Ampel; 5-Min-Polling; Mock-Fallback | ✅ |
+| 1468 | Fahrer-App | FahrerPhase1468TageszielFortschrittsRing — SVG-Ring Stopps-Ziel + Verdienst + Prognose; isOnline-Guard | ✅ |
+| 1469 | Fahrer-App | FahrerPhase1469SmartNaviZielCockpit — Nächster Stopp + ETA + Google-Maps-Deep-Link; Fortschrittsleiste | ✅ |
+| 1470 | Fahrer-App | FahrerPhase1470VerdienstPrognoseLive — Tagesverdienst-Hochrechnung + Ziel-Balken + Trend-Ampel; Props-basiert | ✅ |
+| 1469 | Storefront | StorefrontPhase1469LieferTransparenzStatus — 5-Schritt-Fortschritts-Leiste; schliessbar; localStorage-Guard; Hydration-safe | ✅ |
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert und rendert Phase1466, 1467, 1468 ✅
+- `dispatch/client.tsx` importiert und rendert Phase1467, 1468, 1469 ✅
+- `fahrer/app/client.tsx` importiert und rendert Phase1468, 1469, 1470 mit korrekten Props (activeBatch.stops, status.last_lat/lng, todayStats.estEarnings) ✅
+- `storefront.tsx` importiert und rendert Phase1469 (orderStatus='pending' nach Bestellabschluss) ✅
+- Backend-API `/api/delivery/admin/kapazitaets-auslastung` existiert mit korrekten TypedResponse ✅
+
+**Code-Qualitaet:**
+- WarmhalteMonitor: Korrekte Schwellwerte (frisch<5min, warm<12min, kritisch>=12min), worst-first Sortierung ✅
+- LiveKuechenKapazitaet: SVG-Kreisring korrekt (strokeDasharray/transform=-90), 4 Status-Level korrekt ✅
+- FahrerGpsStatusPanel: GPS-Frische korrekt (frisch<2min, veraltet<10min, alt>=10min), useMemo fuer Rows korrekt ✅
+- TourScoreBenchmarkLive: Delta-Balken max 100% (50 + delta*2), Mock-Fallback robust ✅
+- SmartNaviZielCockpit: Nächster undone Stop korrekt (reihenfolge/sequence-Fallback), Google Maps URL korrekt ✅
+- VerdienstPrognoseLive: Prognose-Formel korrekt (earningsToday/completedStops * totalStops), Ziel-Balken doppelt-layered (Prognose+Aktuell) ✅
+- Alle isOnline-Guards korrekt eingesetzt ✅
+- TypeScript: 0 Fehler ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler, Exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Backend kapazitaets-auslastung API ↔ Dispatch-Widget | ✅ |
+
+### Naechste Phasen 1471–1475 (fuer Ingenieur)
+1. **Phase 1471 Backend:** Fahrer-Schicht-Ende-Prognose-API — Berechnung wann alle aktuellen Stopps abgeschlossen; ETA Schichtende; GET /api/delivery/admin/schicht-ende-prognose.
+2. **Phase 1472 Kitchen:** Bestellungs-Prioritaets-Ampel — Ampelkodierung aller aktiven Bestellungen nach Dringlichkeit (gruen/gelb/rot) + Uebersicht wie viele je Stufe.
+3. **Phase 1473 Dispatch:** Live-Fahrer-Abdeckungs-Radar — Zeigt welche PLZ-Gebiete aktuell gut/schlecht abgedeckt sind; basiert auf Fahrer-Positionen.
+4. **Phase 1474 Fahrer-App:** Schicht-Ende-Countdown — Wenn Schichtende naht: Restzeit-Anzeige + ob noch eine Tour sinnvoll ist + Empfehlung.
+5. **Phase 1475 Storefront:** Bestellstatus-Benachrichtigungs-Opt-In — Kundeneinwilligung fuer Push-/Email-Benachrichtigung bei Status-Aenderungen; localStorage + API.
 
 ## CEO Review #366 — 2026-07-14
 
