@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1502–1506 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
+- Phase 1502 Backend: `app/api/delivery/admin/fahrer-puenktlichkeits-trend/route.ts` — Puenktlichkeits-Score je Fahrer heute vs. 7-Tage-Schnitt; Trend besser/gleich/schlechter; Top-3/Flop-3; Supabase + Mock-Fallback ✅
+- Phase 1503 Kitchen: `app/(admin)/kitchen/phase1503-bestellstatus-uebersichts-ampel.tsx` — Ampelkodierung je Status-Stufe pending/preparing/ready + Schwellen + Sofortmassnahme-Hint; Props-basiert ✅
+- Phase 1504 Dispatch: `app/(admin)/dispatch/phase1504-fahrer-puenktlichkeits-trend-widget.tsx` — Phase1502-API: Ranking-Liste + Score-Balken + Trend-Arrows + Team-Schnitt; 10-Min-Polling ✅
+- Phase 1505 Fahrer-App: `app/fahrer/app/phase1505-schicht-vergleichs-karte.tsx` + `app/api/delivery/driver/schicht-vergleich/route.ts` — Heute vs. Vorwoche: Stopps/Verdienst/km/Lieferzeit als Vergleichs-Grid; isOnline-Guard; 30-Min-Polling ✅
+- Phase 1506 Storefront: `app/order/[locationSlug]/phase1506-liefergebiet-pruefungs-badge.tsx` + `app/api/delivery/public/liefergebiet-pruefung/route.ts` — Live-PLZ-Check; Badge gruen/orange/rot; Zonen-ETA; Alternativen; debounced 600ms ✅
+- Migration: `scripts/migrations/236_fahrer_puenktlichkeit_schicht_vergleich_phase1502_1506.sql` — fahrer_puenktlichkeits_snapshots + schicht_vergleichs_log + liefergebiet_pruefungs_log + bestellstatus_ampel_log ✅
+
+### Naechste Phasen 1507–1511 (fuer Ingenieur)
+1. **Phase 1507 Backend:** Zonen-Effizienz-Vergleich-API — GET /api/delivery/admin/zonen-effizienz-vergleich: Pünktlichkeit + Ø Lieferzeit + Bestellanzahl je Zone heute vs. Vorwoche; Status je Zone.
+2. **Phase 1508 Kitchen:** Sofort-Kapazitaets-Indikator — SVG-Ring: Aktive Bestellungen vs. max. parallele Kapazitaet (einstellbar); Ampel gruen/gelb/rot; Props-basiert; nach Phase1503.
+3. **Phase 1509 Dispatch:** Zonen-Effizienz-Vergleich-Widget — Phase1507-API: Kacheln je Zone mit Trend-Arrow + Pünktlichkeits-Balken + Lieferzeit; 15-Min-Polling; nach Phase1504.
+4. **Phase 1510 Fahrer-App:** Kilometerstand-Tracker — Heutige km + laufender Durchschnitt je Tour + Wochentrend; isOnline-Guard; 30-Min-Polling; nach Phase1505.
+5. **Phase 1511 Storefront:** Bestellstatus-Verlaufs-Badge — Kompakter Inline-Badge der letzten Bestellung mit Status-Icon + Zeit; localStorage-basiert; Hydration-safe; nach Phase1506.
+
+---
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1497–1501 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1497 Backend: `app/api/delivery/admin/lieferzonen-auslastung/route.ts` — Aktive Bestellungen + Fahrer je PLZ-Zone; Status frei/normal/ausgelastet; Supabase + Mock-Fallback ✅
 - Phase 1498 Kitchen: `app/(admin)/kitchen/phase1498-zutaten-engpass-warnung.tsx` — Zutaten-Bedarf aus offenen Bestellungen aggregiert; Ampel-Status (ausreichend/bestellen/dringend); rein client-seitig ✅
