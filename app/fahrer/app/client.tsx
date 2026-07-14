@@ -4736,10 +4736,10 @@ export function FahrerApp({
             stops={activeBatch?.stops?.map((s, i) => ({
               id: s.id,
               sequence: s.reihenfolge ?? (i + 1),
-              address: s.order?.lieferadresse ?? s.order?.adresse ?? `Stopp ${i + 1}`,
+              address: s.order?.kunde_adresse ?? `Stopp ${i + 1}`,
               customerName: s.order?.kunde_name ?? `Kunde ${i + 1}`,
-              phone: s.order?.telefon ?? null,
-              notes: s.order?.notizen ?? null,
+              phone: s.order?.kunde_telefon ?? null,
+              notes: s.order?.kunde_notiz ?? null,
               status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
               etaMin: null,
               distanceKm: null,

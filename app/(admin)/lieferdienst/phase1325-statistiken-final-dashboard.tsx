@@ -295,7 +295,7 @@ export function LieferdienstPhase1325StatistikenFinalDashboard({ orders = [], dr
                   <XAxis dataKey="label" tick={{ fontSize: 9 }} />
                   <Tooltip
                     contentStyle={{ fontSize: 11, padding: '4px 8px' }}
-                    formatter={(v: number) => [`€${v.toFixed(0)}`, 'Umsatz']}
+                    formatter={(v) => [`€${Number(v ?? 0).toFixed(0)}`, 'Umsatz']}
                   />
                   <Line type="monotone" dataKey="umsatz" stroke="#16a34a" strokeWidth={2} dot={false} />
                 </LineChart>

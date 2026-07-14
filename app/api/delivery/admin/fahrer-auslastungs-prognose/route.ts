@@ -66,8 +66,6 @@ function mockData(locationId: string | null): ApiResponse {
     empfehlung: 'In Stunde +2 werden 2 zusätzliche Fahrer benötigt — jetzt einplanen.',
     location_id: locationId,
     generiert_am: new Date().toISOString(),
-    // basisRate exposed for mock only
-    ...(false && { _basisRate: basisRate }),
   };
 }
 
