@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1592–1596 implementiert. Build ✓ Next.js compiled successfully. Push erfolgt.
+- Phase 1592 Backend: `app/api/delivery/admin/zubereitungs-tempo-analyse/route.ts` — Ø Zubereitungszeit je Kategorie (Burger/Pizza/Bowls/etc.) + Ampel schnell/normal/langsam; Supabase + Mock-Fallback ✅
+- Phase 1593 Kitchen: `app/(admin)/kitchen/phase1593-zubereitungs-tempo-karte.tsx` — Farbkodierter Balken-Chart je Kategorie + Ziel-Linie + API-Integration; in kitchen/client.tsx integriert ✅
+- Phase 1594 Dispatch: `app/(admin)/dispatch/phase1594-tour-live-visualisierungs-cockpit.tsx` — Aktive Touren als Stopp-Zeitlinie + Score-Badge (top/gut/mittel/schwach) + Fortschrittsbalken + ETA; 30-Sek-Polling; in dispatch/client.tsx integriert ✅
+- Phase 1595 Fahrer-App: `app/fahrer/app/phase1595-smart-tour-stopp-navigator.tsx` — Tour-Stops mit Google-Maps-Navigation + Reihenfolge + ETA je Stopp + Kunden-Notizen; isOnline-Guard; 60-Sek-Polling; in fahrer/app/client.tsx integriert ✅
+- Phase 1596 Lieferdienst: `app/(admin)/lieferdienst/phase1596-statistiken-live-kommando.tsx` — Live-KPI-Dashboard: Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Fahrer/Storno + Trend vs. Vortag (↑↓→); 30-Sek-Polling; in lieferdienst/client.tsx integriert ✅
+
+### Nächste Phasen 1597–1601 (für nächsten Agenten)
+1. **Phase 1597 Backend:** Fahrer-Standort-Effizienz-API — GET /api/delivery/admin/fahrer-standort-effizienz: Durchschn. Fahrzeit je Zone + Hotspot-Verteilung + Status optimal/normal/ungünstig je Fahrer; 7-Tage-Aggregat; Supabase + Mock-Fallback.
+2. **Phase 1598 Kitchen:** Bestellungs-Komplexitäts-Heatmap-V2 — Zeigt Anzahl Items + Sonderanfragen + Allergene je aktiver Bestellung als farbkodierte Karte; sortiert nach Komplexitäts-Score; Props-basiert.
+3. **Phase 1599 Dispatch:** Fahrer-Standort-Effizienz-Widget — Phase1597-API: Beste/Schlechteste Zone je Fahrer + Hotspot-Vorschlag; 20-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1600 Fahrer-App:** Schicht-Energie-Coach — Pausenempfehlung basierend auf aktiven Stunden + Stopp-Count + Wetter; isOnline-Guard; Ampel grün/gelb/rot; 15-Min-Polling.
+5. **Phase 1601 Storefront:** Liefergebiets-Live-Status — Wenn Benutzer-PLZ in einer überlasteten Zone: animiertes Banner mit alternativem Zeitfenster + ETA-Anpassung; localStorage-cached 5Min; Hydration-safe.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1587–1591 implementiert. Build ✓ (NEXT_TURBOPACK=false npx next build; TypeScript 0 Fehler in neuen Dateien). Push erfolgt.
 - Phase 1587 Backend: `app/api/delivery/driver/bonus-chancen/route.ts` — Bonus-Schwellen Stopps/Umsatz/Bewertung + Fortschritt je Fahrer + Ablaufdatum + Ampel nah/mittel/weit; Supabase + Mock-Fallback ✅
 - Phase 1588 Kitchen: `app/(admin)/kitchen/phase1588-bestellwellen-vorschau-karte.tsx` — Prognostizierte Bestellmenge +30/+60/+90 Min; Tageszeit-Cluster-Gewichtung; Balken-Chart + Ampel grün/gelb/rot; in kitchen/client.tsx integriert ✅
