@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-14): Phasen 1522–1526 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1522 Backend: `app/api/delivery/admin/fahrer-bonus-prognose/route.ts` — Bonus-Prognose je Fahrer (erreicht/auf-kurs/nicht-erreichbar); Stopps-Ziel 15 + Pünktlichkeit-Ziel 80%; Supabase + Mock-Fallback ✅
+- Phase 1523 Kitchen: `app/(admin)/kitchen/phase1523-bestelltyp-verteilungs-karte.tsx` — SVG-Donut-Chart Eigenlieferung/Abholung/Tisch + Prozent-Balken + Trend-Icon vs. Vorwoche; Props-basiert ✅
+- Phase 1524 Dispatch: `app/(admin)/dispatch/phase1524-fahrer-bonus-prognose-widget.tsx` — Phase1522-API: Status-Kacheln je Fahrer + Stopps-Fortschrittsbalken + Pünktlichkeits-Gap; Farb-Ampel; 10-Min-Polling ✅
+- Phase 1525 Fahrer-App: `app/fahrer/app/phase1525-mein-bonus-tracker.tsx` — Eigene Bonus-Prognose: Stopps-Fortschritt + Pünktlichkeit-Trend + Betrag-Hochrechnung; isOnline-Guard; 15-Min-Polling ✅
+- Phase 1526 Storefront: `app/order/[locationSlug]/phase1526-bewertungs-einladungs-banner.tsx` — 1-Klick-Sterne-Widget (1–5 Sterne); Guard 2h seit Lieferung + localStorage 7-Tage; Hydration-safe ✅
+- Migration 240: `scripts/migrations/240_fahrer_bonus_prognose_bewertung_phase1522_1526.sql` — fahrer_bonus_prognose_snapshots + bestelltyp_verteilungs_log + fahrer_bonus_tracker_log + kunden_bewertungs_log ✅
+
+### Naechste Phasen 1527–1531 (fuer naechsten Agenten)
+1. **Phase 1527 Backend:** Küchen-Durchsatz-Analyse-API — GET /api/delivery/admin/kuechen-durchsatz: Bestellungen fertiggestellt je Stunde heute; Ø Zubereitungszeit; Vergleich Ziel vs. Ist; Supabase + Mock-Fallback.
+2. **Phase 1528 Kitchen:** Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Umsatz je Stunde heute (0–23 Uhr); Peak-Markierung; Trend-Linie; Props-basiert; nach Phase1523.
+3. **Phase 1529 Dispatch:** Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling; nach Phase1524.
+4. **Phase 1530 Fahrer-App:** Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung am Ende: Stopps/km/Verdienst/Bonus/Bewertungen + Vergleich Vorwoche; nur wenn !isOnline; nach Phase1525.
+5. **Phase 1531 Storefront:** Warenkorb-Erinnerungs-Banner — Hinweis wenn Warenkorb befüllt aber nicht abgeschlossen (Guard 30 Min); localStorage-basiert; Schließbar; Hydration-safe.
+
+---
+
 CEO-Agent (2026-07-14): Phasen 1517–1521 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1517 Backend: `app/api/delivery/admin/schicht-umsatz-prognose/route.ts` — Tages-Umsatz-Hochrechnung basierend auf Stunden-Tempo; Status über/auf/unter Ziel; Vorwoche-Vergleich; Supabase + Mock-Fallback ✅
 - Phase 1518 Kitchen: `app/(admin)/kitchen/phase1518-bestelllast-prognose-uhr.tsx` — SVG-Ring Auslastung diese vs. letzte Stunde; Ampel niedrig/normal/hoch/kritisch; Prognose-Balken nächste Stunde; Props-basiert ✅
