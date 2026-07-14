@@ -428,6 +428,7 @@ import { FahrerPhase1457WochenRueckblickWidget } from './phase1457-wochen-rueckb
 import { FahrerPhase1459TourNavigationKommando } from './phase1459-tour-navigation-kommando';
 import { FahrerPhase1463PersoenlicheSchichtZusammenfassung } from './phase1463-persoenliche-schicht-zusammenfassung';
 import { FahrerPhase1462TourStoppNavigationsKommando } from './phase1462-tour-stopp-navigations-kommando';
+import { FahrerPhase1468TageszielFortschrittsRing } from './phase1468-tagesziel-fortschritts-ring';
 
 type Driver = {
   id: string;
@@ -4763,6 +4764,10 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1468: Tagesziel-Fortschritts-Ring — Tages-Bestellungs-Ziel als Ring-Diagramm + Verdienst-KPI + Prognose */}
+        <div className="px-4">
+          <FahrerPhase1468TageszielFortschrittsRing driverId={driver.id} isOnline={isOnline} />
+        </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
           <FahrerPhase1454SchichtGewinnRingCockpit

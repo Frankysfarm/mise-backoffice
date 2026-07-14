@@ -15039,4 +15039,57 @@ Backend-Architekt-Agent (2026-07-13): Phasen 1415–1419 implementiert. Build �
 
 ---
 
+## Batch 1465–1469 — 2026-07-14
+
+### Phase 1465 — Kapazitäts-Auslastungs-API (Backend)
+**Datei:** `app/api/delivery/admin/kapazitaets-auslastung/route.ts`
+**GET:** `?location_id=<uuid>` — Aktive Fahrer vs. Kapazität (max_fahrer) + Bestellungen in Queue + Durchsatz/h letzter Stunde + Wartezeit-Schätzung + Status (ausreichend/warnung/kritisch) + Empfehlungstext; Supabase + Mock-Fallback
+**Response:** `{ aktive_fahrer, max_fahrer, auslastungs_prozent, bestellungen_in_queue, durchsatz_pro_stunde, wartezeit_min, status, empfehlung, location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1466 — Bestelltyp-Analyse-Panel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1466-bestelltyp-analyse-panel.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible indigo; Gestapelter Balken oben (express/geplant/normal farbig); Row je Typ mit Icon + Label + Anteil-Badge + Mini-Fortschrittsbalken + Anzahl + Ø Zubereitungszeit; nur sichtbar wenn ≥1 Bestellung; rein client-seitig useMemo
+**Logik:** detectTyp() via express-Flag oder order_type/delivery_type; calcPrepMin() via accepted_at→ready_at; Typen: express (rose/⚡) / geplant (sky/📅) / normal (emerald/🛒)
+**Integration:** `kitchen/client.tsx` nach Phase1455 ✅
+
+### Phase 1467 — Kapazitäts-Auslastungs-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1467-kapazitaets-auslastungs-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (emerald=ausreichend/amber=warnung/rose=kritisch); 3-Kacheln-Grid (Fahrer aktiv/Aufträge-h/Ø Wartezeit); Auslastungs-Fortschrittsbalken; Queue-Anzahl; Empfehlungs-Banner; 5-Min-Polling
+**Logik:** Nutzt Phase1465-API; STATUS_CONFIG für Farbkodierung; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1462 ✅
+
+### Phase 1468 — Tagesziel-Fortschritts-Ring (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1468-tagesziel-fortschritts-ring.tsx`
+**Props:** `driverId: string, isOnline: boolean`
+**UI:** SVG-Ring (RING_SIZE=80) mit Fortschritt-Stopps/Ziel-Stopps; Verdienst-Fortschrittsbalken; Prognose-Status (erreicht=emerald/knapp=amber/nicht_erreicht=rose) mit Icon; Schichtdauer-Info; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/driver/schicht-ziel; Mock-Fallback via driverId-Seed
+**Integration:** `fahrer/app/client.tsx` nach Phase1463 ✅
+
+### Phase 1469 — Liefer-Transparenz-Status-Karte (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1469-liefer-transparenz-status.tsx`
+**Props:** `locationId: string, orderStatus?: string | null`
+**UI:** Fortschritts-Leiste 5 Schritte (Bestellt/Zubereitung/Fertig/Unterwegs/Geliefert); CheckCircle-Icons für erledigte Schritte; Verbindungslinien farbig wenn done; aktiver Schritt grün hervorgehoben; schließbar; Hydration-safe; localStorage-Dismiss (30 Min)
+**Logik:** getCurrentSchritt() mappt Status auf Schritt-Index; isDismissed/setDismissed localStorage; nur sichtbar wenn orderStatus !== null und nicht dismissed
+**Integration:** `storefront.tsx` nach Phase1464 ✅
+
+### Migration
+**Datei:** `scripts/migrations/231_kapazitaet_tagesziel_phase1465_1469.sql`
+- kapazitaets_snapshots — Historische Auslastungswerte für Trend-Analyse
+- fahrer_tagesziele — Tages-Zielkonfiguration je Fahrer (Stopps/Verdienst-Ziel)
+- delivery_config.kapazitaets_warnung_schwelle — Warnschwelle Auslastung %
+
+### Nächste Phasen 1470–1474 (für Ingenieur)
+1. **Phase 1470 Backend:** Schicht-Qualitäts-Score-API — GET /api/delivery/admin/schicht-qualitaets-score: Gewichteter Score (Pünktlichkeit 40% + Kundenbewertung 30% + Storno-Rate 20% + Fahrer-Verfügbarkeit 10%) für heute + Vorwoche.
+2. **Phase 1471 Kitchen:** Bestelleingang-Prognose-Balken — Stundenweise Prognose der nächsten 4h (basierend auf Wochenmuster) als Balken-Chart; Props-basiert.
+3. **Phase 1472 Dispatch:** Schicht-Qualitäts-Score-Widget — Phase1470-API: Score-Gauge + Einzel-KPIs + Vergleich Vorwoche; 10-Min-Polling.
+4. **Phase 1473 Fahrer-App:** Routen-Effizienz-Karte — Heute vs. Team-Durchschnitt: Stopps/h + Ø Strecke je Stopp + Effizienz-Rang; 30-Min-Polling; isOnline-Guard.
+5. **Phase 1474 Storefront:** Mindestbestellwert-Fortschritts-Badge — Kompaktes Badge wenn Warenkorb < MOV; Betrag-bis-kostenloser-Lieferung-Anzeige; Echtzeit-Update bei Änderungen.
+
+---
+
+Backend-Architekt-Agent (2026-07-14): Phasen 1465–1469 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1444–1448 implementiert. Build ✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler. Push erfolgt.
