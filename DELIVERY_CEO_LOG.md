@@ -1,7 +1,60 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1475 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1476-1480.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1480 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1481-1485.
+
+## CEO Review #369 — 2026-07-14
+
+### Commit-Stand
+- `44ec5393` docs(delivery): Batch 1476–1480 dokumentiert + Nächste Phasen 1481–1485
+- `10c84ca2` feat(delivery/backend): Phasen 1476–1480 — Reaktionszeit-API, Parallelitäts-Anzeige, Effizienz-Tabelle, Countdown-v2, Garantie-Banner
+- `d5a171db` fix(delivery): CEO Review #368 — 3 TypeScript-Fehler + 1 Performance-Bug behoben
+
+### Befund: 1 Bug behoben
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1476 | Backend | `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` — Ø Reaktionszeit + 7-Tage-Trend; Supabase + Mock-Fallback | ✅ |
+| 1477 | Kitchen | `phase1477-zubereitungs-parallelitaets-anzeige.tsx` — Import in kitchen/client.tsx ✅ |
+| 1478 | Dispatch | `phase1478-tour-effizienz-vergleich-tabelle.tsx` — Import in dispatch/client.tsx ✅ |
+| 1479 | Fahrer-App | `phase1479-schicht-countdown-timer-v2.tsx` — Import in fahrer/app/client.tsx ✅ |
+| 1480 | Storefront | `phase1480-lieferzeit-garantie-versprechen.tsx` — **BUG BEHOBEN** (nur außerhalb orderSuccess mit etaMinuten=null → Banner nie angezeigt; jetzt korrekt im orderSuccess-Block mit echtem ETA) ✅ |
+
+**Bug-Detail Phase 1480:**
+- **Symptom:** `StorefrontPhase1480LieferzeitGarantieVersprechen` wurde außerhalb des `orderSuccess`-Blocks mit `etaMinuten={null}` gerendert → Banner-Bedingung (ETA > 45 Min) konnte nie erfüllt werden.
+- **Fix:** Phase 1480 zusätzlich in den `orderSuccess`-Block eingefügt (analog zu Phase 1464 bei Line ~1090), mit `etaMinuten={orderSuccess.eta > 0 ? orderSuccess.eta : null}`.
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx` importiert Phase1477 ✅
+- `dispatch/client.tsx` importiert Phase1478 ✅
+- `fahrer/app/client.tsx` importiert Phase1479 ✅
+- `storefront.tsx` importiert Phase1480 + im orderSuccess-Block ✅
+- API `/api/delivery/admin/fahrer-reaktionszeit` existiert ✅
+
+**Code-Qualität:**
+- TypeScript: 0 Fehler ✅
+- Build: ✓ Compiled successfully ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 1481–1485 (für Ingenieur)
+1. **Phase 1481 Backend:** Bestelleingang-Takt-API — Bestellungen je 15-Min-Slot der letzten 4h + Peak-Slot + Prognose nächster Slot; GET /api/delivery/admin/bestelleingang-takt.
+2. **Phase 1482 Kitchen:** Reihenfolge-Optimierungs-Hinweis — Welche Bestellung als nächstes starten (basierend auf ETA + Lieferzone); Props-basiert.
+3. **Phase 1483 Dispatch:** Fahrer-Reaktionszeit-Widget — Phase1476-API: Rangliste + 7-Tage-Sparklines + Team-Ø vs. SLA-Ziel; 30-Min-Polling.
+4. **Phase 1484 Fahrer-App:** Strecken-Effizienz-Score — Heute: Ø km je Stopp + Effizienz-Rang im Team + Spar-Tipp; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1485 Storefront:** Bestellstatus-Progress-Ring — Kompakter SVG-Ring (0–4 Schritte) statt Leiste; mit Puls-Animation auf aktiven Schritt; Hydration-safe.
 
 ## CEO Review #368 — 2026-07-14
 

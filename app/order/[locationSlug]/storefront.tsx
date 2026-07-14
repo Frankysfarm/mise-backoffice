@@ -1093,6 +1093,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             etaMinuten={orderSuccess.eta > 0 ? orderSuccess.eta : null}
           />
         )}
+        {/* Phase 1480: Lieferzeit-Garantie-Versprechen — ETA > 45 Min: Rabatt-Widget PÜNKTLICH5 */}
+        {orderSuccess.type === 'lieferung' && (
+          <StorefrontPhase1480LieferzeitGarantieVersprechen
+            locationId={location.id}
+            etaMinuten={orderSuccess.eta > 0 ? orderSuccess.eta : null}
+          />
+        )}
       </div>
     );
   }
