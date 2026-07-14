@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1440–1443 Frontend-Integration abgeschlossen. Build ✓ 420 Seiten. Konflikte mit Backend-Commit 81c70cf1 aufgelöst (Remote-Versionen beibehalten). Phase1443-Duplicate (phase1443-warenkorb-timeout-warnung.tsx) hinzugefügt; Remote-Version (phase1443-bestellkorb-timeout-warnung.tsx) wird aktiv verwendet.
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1439–1443 implementiert. Build ✓ 420 Seiten. TypeScript 0 Fehler.
 - Phase 1439 Backend: `app/api/delivery/admin/fahrer-auslastungs-prognose/route.ts` — Erweitert auf 4h-Horizont + auslastung_level gering/normal/hoch/peak; Peak-Multiplikatoren je Stunde; Supabase + Mock-Fallback ✅
 - Phase 1440 Kitchen: `app/(admin)/kitchen/phase1440-zubereitungs-reihenfolge-optimierer.tsx` — ETA-sortierte optimale Reihenfolge aktiver Bestellungen + Allergen-Sicherheitsabstand-Warnung bei gleicher Gruppe; Props-basiert; nach Phase1435 ✅
