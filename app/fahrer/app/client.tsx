@@ -451,6 +451,7 @@ import { FahrerPhase1540ZonenTippKarte } from './phase1540-zonen-tipp-karte';
 import { FahrerPhase1545TourStopsFinalHub } from './phase1545-tour-stops-final-hub';
 import { FahrerPhase1545SchichtAnmeldeWidget } from './phase1545-schicht-anmelde-widget';
 import { FahrerPhase1550LiveSchichtBilanz } from './phase1550-live-schicht-bilanz';
+import { FahrerPhase1550KundenbewertungsFeedbackKarte } from './phase1550-kundenbewertungs-feedback-karte';
 
 type Driver = {
   id: string;
@@ -4962,6 +4963,10 @@ export function FahrerApp({
         {/* Phase 1550: Live-Schicht-Bilanz — Verdienst/Trinkgeld/Bewertung/Pünktlichkeit live; isOnline-Guard; 30-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1550LiveSchichtBilanz isOnline={isOnline} driverId={driver?.id ?? ''} />
+        </div>
+        {/* Phase 1550b: Kundenbewertungs-Feedback-Karte — Letzte Bewertung + Kommentar + Datum; isOnline-Guard; 30-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1550KundenbewertungsFeedbackKarte isOnline={isOnline} driverId={driver?.id ?? ''} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

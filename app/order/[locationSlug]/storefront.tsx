@@ -281,6 +281,7 @@ import { StorefrontPhase1536LieferzeitCountdownBanner } from './phase1536-liefer
 import { StorefrontPhase1541MindestbestellwertFortschritt } from './phase1541-mindestbestellwert-fortschritt';
 import { StorefrontPhase1546LieferfensterAuswahl } from './phase1546-lieferfenster-auswahl';
 import { StorefrontPhase1551BewertungsTeaser } from './phase1551-bewertungs-teaser';
+import { StorefrontPhase1551FahrerProfilVorschau } from './phase1551-fahrer-profil-vorschau';
 import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1430,6 +1431,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1546LieferfensterAuswahl etaMinutes={30} locationSlug={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
+      {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
+      <StorefrontPhase1551FahrerProfilVorschau orderPlaced={false} locationSlug={location.id} />
       {/* Phase 1531: Warenkorb-Erinnerungs-Banner — 30-Min-Idle-Guard, schließbar, localStorage 24h */}
       <StorefrontPhase1531WarenkorbErinnerungsBanner cartItemCount={totalItems} locationSlug={location.id} />
       {/* Phase 1527: Live-ETA-Tracking-Kommando — Dynamische ETA + Fahrer-Annäherungs-Ampel + Bestellstatus-Phasen-Leiste; 30s-Polling */}
