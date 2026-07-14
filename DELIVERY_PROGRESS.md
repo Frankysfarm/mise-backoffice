@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-14): Phasen 1512–1516 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+- Phase 1512 Backend: `app/api/delivery/admin/fahrer-tages-leistung/route.ts` — Stopps/Verdienst/km/Pünktlichkeit je Fahrer heute; Rang-Berechnung; Supabase + Mock-Fallback ✅
+- Phase 1513 Kitchen: `app/(admin)/kitchen/phase1513-schicht-end-checkliste.tsx` — Props-basierte Pflicht-Checkliste (Bestellungen/Reinigung/Lagerbestand) + Fortschrittsbalken + Status-Ampel; offene-Bestellungen-Guard ✅
+- Phase 1514 Dispatch: `app/(admin)/dispatch/phase1514-fahrer-tages-leistungs-ranking.tsx` — Phase1512-API: Leaderboard Stopps/Verdienst/Pünktlichkeit; Farb-Ranking Top/Mitte/Low; 10-Min-Polling ✅
+- Phase 1515 Fahrer-App: `app/fahrer/app/phase1515-naechste-tour-vorbereitung.tsx` — Checkliste Fahrzeug/Handy/Akku/Route; isOnline-Guard; localStorage je Tour-ID ✅
+- Phase 1516 Storefront: `app/order/[locationSlug]/phase1516-aktions-banner-ticker.tsx` — Schließbarer Angebots-Ticker mit Rabattcode-Copy; localStorage-Guard 1 Tag; Hydration-safe ✅
+- Migration: `scripts/migrations/238_fahrer_tages_leistung_phase1512_1516.sql` — fahrer_tages_leistungs_snapshots + schicht_end_checklisten_log + tour_vorbereitungs_log + aktions_banner_impressions ✅
+
+### Naechste Phasen 1517–1521 (fuer naechsten Agenten)
+1. **Phase 1517 Backend:** Schicht-Umsatz-Prognose-API — GET /api/delivery/admin/schicht-umsatz-prognose: Hochrechnung Tages-Umsatz basierend auf aktuellem Stunden-Tempo vs. Vorwoche; Status (über/unter/auf Ziel).
+2. **Phase 1518 Kitchen:** Bestelllast-Prognose-Uhr — Runde Uhr-Visualisierung (SVG) der Auslastung dieser Stunde vs. letzter Stunde + Hochrechnung; Props-basiert.
+3. **Phase 1519 Dispatch:** Schicht-Umsatz-Prognose-Widget — Phase1517-API: Umsatz-Hochrechnung + Trend + Tages-Ziel-Fortschrittsbalken; 15-Min-Polling.
+4. **Phase 1520 Fahrer-App:** Schicht-Pausen-Empfehlung — Empfehlung wann Pause einzuplanen basierend auf Schichtdauer/letzter Pause/Peak-Prognose; isOnline-Guard; lokale Logik.
+5. **Phase 1521 Storefront:** Beliebte-Artikel-Chip-Leiste — Horizontal scrollbare Chip-Leiste mit Top-5 Artikeln heute; localStorage-cached; Hydration-safe.
+
+---
+
 Backend-Architekt-Agent (2026-07-14): Phasen 1507–1511 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1507 Backend: `app/api/delivery/admin/zonen-effizienz-vergleich/route.ts` — Pünktlichkeit + Ø Lieferzeit + Bestellanzahl je Zone A/B/C/D heute vs. Vorwoche; Trend-Richtung; Status gut/normal/kritisch; Supabase + Mock-Fallback ✅
 - Phase 1508 Kitchen: `app/(admin)/kitchen/phase1508-sofort-kapazitaets-indikator.tsx` — SVG-Ring aktive Bestellungen vs. einstellbare Max-Kapazität (Presets 3/5/8/10/12); Ampel grün/gelb/rot; Hint je Stufe; Props-basiert ✅
