@@ -459,6 +459,8 @@ import { KitchenPhase1459SmartTimingCockpit } from './phase1459-smart-timing-coc
 import { KitchenPhase1461BestellvolumenHeatmap } from './phase1461-bestellvolumen-heatmap';
 import { KitchenPhase1466BestelltypAnalysePanel } from './phase1466-bestelltyp-analyse-panel';
 import { KitchenPhase1385SmartTimingCountdownCockpit } from './phase1385-smart-timing-countdown-cockpit';
+import { KitchenPhase1467WarmhalteMonitor } from './phase1467-warmhalte-monitor';
+import { KitchenPhase1468LiveKuechenKapazitaet } from './phase1468-live-kuechen-kapazitaet';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1325,6 +1327,10 @@ export function KitchenBoard({
       <KitchenPhase1455TagesAllergenZusammenfassung orders={filtered as any} />
       {/* Phase 1466: Bestelltyp-Analyse-Panel — Aufschlüsselung nach Bestelltyp (normal/express/geplant) + Anteil + Ø Zubereitungszeit */}
       <KitchenPhase1466BestelltypAnalysePanel orders={filtered as any} />
+      {/* Phase 1467: Warmhalte-Monitor — Fertige Bestellungen auf Abholung wartend; farbkodiert nach Wartezeit */}
+      <KitchenPhase1467WarmhalteMonitor orders={filtered as any} />
+      {/* Phase 1468: Live-Küchen-Kapazität — Kapazitätsring (aktive Bestellungen vs. Limit) mit Farbkodierung */}
+      <KitchenPhase1468LiveKuechenKapazitaet orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}
       <KitchenPhase1445SmartTimingFinalCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1330: Kochstatus-Live-Cockpit-Ultra — Echtzeit-Kochstatus mit 5-Stufen-Farbkodierung, Countdown je Bestellung, sortiert nach Dringlichkeit */}

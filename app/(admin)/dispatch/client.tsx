@@ -516,6 +516,8 @@ import { DispatchPhase1459TourLiveHub } from './phase1459-tour-live-hub';
 import { DispatchPhase1462SchichtBilanzWidget } from './phase1462-schicht-bilanz-widget';
 import { DispatchPhase1467KapazitaetsAuslastungsWidget } from './phase1467-kapazitaets-auslastungs-widget';
 import { DispatchPhase1000TourScoreVisualisierung } from './phase1000-tour-score-visualisierung';
+import { DispatchPhase1468FahrerGpsStatusPanel } from './phase1468-fahrer-gps-status-panel';
+import { DispatchPhase1469TourScoreBenchmarkLive } from './phase1469-tour-score-benchmark-live';
 
 type Driver = {
   employee_id: string;
@@ -1558,6 +1560,10 @@ export function DispatchBoard({
       <DispatchPhase1462SchichtBilanzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? '')} />
       {/* Phase 1467: Kapazitäts-Auslastungs-Widget — Aktive Fahrer vs. Kapazität + Durchsatz/h + Empfehlung-Banner; 5-Min-Polling */}
       <DispatchPhase1467KapazitaetsAuslastungsWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1468: Fahrer-GPS-Status-Panel — GPS-Aktualität je Fahrer + Freshnessampel */}
+      <DispatchPhase1468FahrerGpsStatusPanel drivers={drivers as any} />
+      {/* Phase 1469: Tour-Score-Benchmark-Live — Vergleich aktueller Score vs. Vorwoche + Trend-Ampel */}
+      <DispatchPhase1469TourScoreBenchmarkLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
       <DispatchPhase1454ZonenLiveEfzienzBoard
         batches={batches as any}

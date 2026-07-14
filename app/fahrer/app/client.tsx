@@ -429,6 +429,8 @@ import { FahrerPhase1459TourNavigationKommando } from './phase1459-tour-navigati
 import { FahrerPhase1463PersoenlicheSchichtZusammenfassung } from './phase1463-persoenliche-schicht-zusammenfassung';
 import { FahrerPhase1462TourStoppNavigationsKommando } from './phase1462-tour-stopp-navigations-kommando';
 import { FahrerPhase1468TageszielFortschrittsRing } from './phase1468-tagesziel-fortschritts-ring';
+import { FahrerPhase1469SmartNaviZielCockpit } from './phase1469-smart-navi-ziel-cockpit';
+import { FahrerPhase1470VerdienstPrognoseLive } from './phase1470-verdienst-prognose-live';
 
 type Driver = {
   id: string;
@@ -4767,6 +4769,27 @@ export function FahrerApp({
         {/* Phase 1468: Tagesziel-Fortschritts-Ring — Tages-Bestellungs-Ziel als Ring-Diagramm + Verdienst-KPI + Prognose */}
         <div className="px-4">
           <FahrerPhase1468TageszielFortschrittsRing driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1469: Smart-Navigations-Ziel-Cockpit — Nächstes Lieferziel mit ETA + Navi-Deep-Link */}
+        <div className="px-4">
+          <FahrerPhase1469SmartNaviZielCockpit
+            stops={(activeBatch?.stops ?? []) as any}
+            isOnline={isOnline}
+            currentLat={status?.last_lat ?? null}
+            currentLng={status?.last_lng ?? null}
+          />
+        </div>
+        {/* Phase 1470: Verdienst-Prognose-Live — Live-Hochrechnung Tagesverdienst auf Basis bisheriger Stopps */}
+        <div className="px-4">
+          <FahrerPhase1470VerdienstPrognoseLive
+            driverId={driver.id}
+            isOnline={isOnline}
+            completedStops={activeBatch?.stops?.filter((s: any) => !!s.geliefert_am).length ?? 0}
+            totalStops={activeBatch?.stops?.length ?? 0}
+            schichtStartISO={status?.online_seit ?? null}
+            earningsToday={todayStats?.estEarnings ?? 0}
+            earningsGoal={60}
+          />
         </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
