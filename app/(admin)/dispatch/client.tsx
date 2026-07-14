@@ -525,6 +525,7 @@ import { DispatchPhase1483FahrerReaktionszeitWidget } from './phase1483-fahrer-r
 import { DispatchPhase1488SchichtQualitaetsScoreWidget } from './phase1488-schicht-qualitaets-score-widget';
 import { DispatchPhase1493TourVisualisierungLive } from './phase1493-tour-visualisierung-live';
 import { DispatchPhase1499LieferzonenAuslastungsKarte } from './phase1499-lieferzonen-auslastungs-karte';
+import { DispatchPhase1501TourLiveScoreKarte } from './phase1501-tour-live-score-karte';
 
 type Driver = {
   employee_id: string;
@@ -1585,6 +1586,8 @@ export function DispatchBoard({
       <DispatchPhase1493TourVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1499: Lieferzonen-Auslastungs-Karte — PLZ-Kacheln mit Farbkodierung (frei/normal/ausgelastet) + Fahrer-Anzahl + Empfehlung; 5-Min-Polling */}
       <DispatchPhase1499LieferzonenAuslastungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1501: Tour Live Score Karte — Alle aktiven Touren mit Live-Score 0–100 + Pünktlichkeits-Farbkodierung + Fortschrittsbalken */}
+      <DispatchPhase1501TourLiveScoreKarte batches={batches as any} drivers={drivers as any} />
       {/* Phase 1454: Zonen-Live-Effizienz-Board — Live-Performance je Zone mit Pünktlichkeit, Lieferzeit, Fahrer-Auslastung */}
       <DispatchPhase1454ZonenLiveEfzienzBoard
         batches={batches as any}

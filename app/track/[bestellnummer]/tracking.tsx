@@ -48,6 +48,7 @@ import { Phase500LiveEtaBanner } from '@/app/order/[locationSlug]/phase500-live-
 import { Phase501BestellPhasenKompass } from '@/app/order/[locationSlug]/phase501-bestell-phasen-kompass';
 import { BestellPhasenTimeline } from '@/app/order/[locationSlug]/bestell-phasen-timeline';
 import { Phase1000LiveEtaCockpit } from '@/app/order/[locationSlug]/phase1000-live-eta-cockpit';
+import { FahrerNaeheAlert } from './fahrer-naehe-alert';
 
 type Order = {
   order_id: string;
@@ -554,6 +555,19 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
         {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (
           <div className="mt-3">
             <EtaLiveProximityBanner bestellnummer={order.bestellnummer} />
+          </div>
+        )}
+        {/* Phase 1501: Fahrer-Nähe-Alert — Pulsierendes Banner wenn Fahrer < 5 Min entfernt oder < 0.8 km (GPS) */}
+        {order.typ === 'lieferung' && (
+          <div className="mt-3">
+            <FahrerNaeheAlert
+              status={order.status}
+              etaLatest={order.eta_latest ?? null}
+              fahrerLat={order.fahrer_lat ?? null}
+              fahrerLng={order.fahrer_lng ?? null}
+              kundeLat={order.kunde_lat ?? null}
+              kundeLng={order.kunde_lng ?? null}
+            />
           </div>
         )}
         {/* Phase 407: Fahrer-Live-Tracker — Kunden-seitige Echtzeit-Verfolgung mit ETA-Countdown + 4-Stufen-Pipeline */}

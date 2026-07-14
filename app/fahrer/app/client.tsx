@@ -438,6 +438,7 @@ import { FahrerPhase1484StreckenEffizienzScore } from './phase1484-strecken-effi
 import { FahrerPhase1489RoutenEffizienzKarte } from './phase1489-routen-effizienz-karte';
 import { FahrerPhase1494SmartStoppCountdown } from './phase1494-smart-stopp-countdown';
 import { FahrerPhase1500TourAbschlussZusammenfassung } from './phase1500-tour-abschluss-zusammenfassung';
+import { FahrerPhase1501StoppNavKommando } from './phase1501-stopp-nav-kommando';
 
 type Driver = {
   id: string;
@@ -4850,6 +4851,27 @@ export function FahrerApp({
               nextStop={(activeBatch.stops as any[]).find((s: any) => !s.geliefert_am) ?? null}
               totalStops={activeBatch.stops.length}
               doneStops={(activeBatch.stops as any[]).filter((s: any) => !!s.geliefert_am).length}
+            />
+          </div>
+        )}
+        {/* Phase 1501: Stopp-Nav-Kommando — Kompakte Navigationszentrale für aktuellen Stopp (Adresse, ETA, 1-Tap-Navigation, Abschließen) */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <div className="px-4">
+            <FahrerPhase1501StoppNavKommando
+              stops={(activeBatch.stops as any[]).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                kunde_name: s.order?.kunde_name ?? null,
+                kunde_adresse: s.order?.kunde_adresse ?? null,
+                kunde_plz: s.order?.kunde_plz ?? null,
+                kunde_stadt: s.order?.kunde_stadt ?? null,
+                kunde_telefon: s.order?.kunde_telefon ?? null,
+                bestellnummer: s.order?.bestellnummer ?? null,
+                eta_min: s.eta_min ?? null,
+              }))}
+              onStoppAbschliessen={markDelivered}
             />
           </div>
         )}
