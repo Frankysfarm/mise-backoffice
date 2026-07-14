@@ -348,6 +348,7 @@ import { LieferdienstPhase1305StatistikenLiveDashboardCockpit } from './phase130
 import { LieferdienstPhase1310StatistikenKomplettBoard } from './phase1310-statistiken-komplett-board';
 import { LieferdienstPhase1315SchichtLiveStatistiken } from './phase1315-schicht-live-statistiken';
 import { LieferdienstPhase1320StatistikenLiveHub } from './phase1320-statistiken-live-hub';
+import { LieferdienstTagesPerformanceExecutiveCockpit } from './phase1000-tages-performance-executive-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1698,6 +1699,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase877SchichtLiveExecutive locationId={locationId} />
               {/* Phase 878: Statistiken Live-Dashboard — Tages-KPIs mit Delta-Vergleich Vortag + Lieferzeit-Verteilung */}
               {locationId && <LieferdienstPhase878StatistikenLiveDashboard locationId={locationId} />}
+              {/* Phase 1000: Tages-Performance-Executive-Cockpit — 8 KPI-Kacheln mit Trend-Indikatoren; 60s Polling */}
+              <LieferdienstTagesPerformanceExecutiveCockpit />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
               {/* Statistik Live-Hub: Aggregierte KPIs (Bestellungen, Umsatz, ETA, Fahrer, Storno, Bewertung) + Stundenverlauf-Chart */}

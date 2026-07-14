@@ -253,6 +253,7 @@ import { StorefrontPhase1419LieferEtaVerfeinerungsBadge } from './phase1419-lief
 import { StorefrontPhase1424NaechsteLieferungHinweis } from './phase1424-naechste-lieferung-hinweis';
 import { StorefrontPhase1429PlzLiefercheck } from './phase1429-plz-liefercheck';
 import { StorefrontPhase1434LieferzonenKarte } from './phase1434-lieferzonen-karte';
+import { BestellstatusLiveKarte } from './phase1438-bestellstatus-live-karte';
 
 type Props = {
   location: Location;
@@ -1300,6 +1301,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1434: Lieferzonen-Karte — SVG-Darstellung Zonen A/B/C/D mit Farbkodierung + Ø-Lieferzeiten-Legende */}
       <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
         <StorefrontPhase1434LieferzonenKarte locationId={location.id} />
+      </div>
+      {/* Phase 1438: Bestellstatus-Live-Karte — 5-Phasen-Stepper mit animierten Icons, ETA-Anzeige und Fahrer-Info */}
+      <div className="mx-auto max-w-6xl px-4 pt-1 md:px-8">
+        <BestellstatusLiveKarte locationSlug={location.id} />
       </div>
       {/* Phase 1057: Live-Popularitäts-Ranking — Trending-jetzt-Banner mit meistbestellten Artikeln der letzten 2h */}
       <Phase1057TrendingBanner locationId={location.id} />

@@ -418,6 +418,7 @@ import { FahrerPhase1423TagesEinnahmenUebersicht } from './phase1423-tages-einna
 import { FahrerPhase1428TourSicherheitsCheck } from './phase1428-tour-sicherheits-check';
 import { FahrerPhase1433SmartStoppNavigatorUltra } from './phase1433-smart-stopp-navigator-ultra';
 import { FahrerPhase1433PostTourFeedback } from './phase1433-post-tour-feedback';
+import { FahrerTourStoppAnalyseCard } from './phase1437-tour-stopp-analyse-card';
 
 type Driver = {
   id: string;
@@ -4713,6 +4714,12 @@ export function FahrerApp({
                 notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
               }))}
             />
+          </div>
+        )}
+        {/* Phase 1437: Tour-Stopp-Analyse-Card — Expandierbare Stopp-Liste mit Kontaktbuttons, ETA und Trinkgeld-Badge */}
+        {activeBatch && (
+          <div className="px-4">
+            <FahrerTourStoppAnalyseCard batchId={activeBatch.id} />
           </div>
         )}
         {/* Phase 1410: Smart-Heimkehr-Navigator — Nach letztem Stopp: Heimkehr-Anzeige + Navigations-Buttons (Google/Waze) + ETA */}
