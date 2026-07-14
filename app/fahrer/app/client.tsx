@@ -463,6 +463,7 @@ import { FahrerPhase1585TourStopsNavigationUltimate } from './phase1585-tour-sto
 import { FahrerPhase1590EinnahmenZusammenfassungKarte } from './phase1590-einnahmen-zusammenfassung-karte';
 import { FahrerPhase1595SmartTourStoppNavigator } from './phase1595-smart-tour-stopp-navigator';
 import { FahrerPhase1600SchichtEnergieCoach } from './phase1600-schicht-energie-coach';
+import { FahrerPhase1605TourRueckblickKarte } from './phase1605-tour-rueckblick-karte';
 
 type Driver = {
   id: string;
@@ -5026,6 +5027,10 @@ export function FahrerApp({
         {/* Phase 1600: Schicht-Energie-Coach — Pausenempfehlung basierend auf aktiven Stunden + Stopp-Count; Ampel grün/gelb/rot; 15-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1600SchichtEnergieCoach isOnline={isOnline} driverId={driver?.id ?? null} />
+        </div>
+        {/* Phase 1605: Tour-Rückblick-Karte — Letzte abgeschlossene Tour: Stopps + Gesamtzeit + Ø-ETA + Trinkgeld-Gesamt; isOnline-Guard */}
+        <div className="px-4">
+          <FahrerPhase1605TourRueckblickKarte isOnline={isOnline} lastBatch={activeBatch as any} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

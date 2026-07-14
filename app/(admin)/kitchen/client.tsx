@@ -493,6 +493,7 @@ import { KitchenPhase1583SmartKochzeitCountdownMatrix } from './phase1583-smart-
 import { KitchenPhase1588BestellwellenVorschauKarte } from './phase1588-bestellwellen-vorschau-karte';
 import { KitchenPhase1593ZubereitungsTempoKarte } from './phase1593-zubereitungs-tempo-karte';
 import { KitchenPhase1598BestellungsKomplexitaetsHeatmapV2 } from './phase1598-bestellungs-komplexitaets-heatmap-v2';
+import { KitchenPhase1603ZutatenEngpassWarnung } from './phase1603-zutaten-engpass-warnung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1434,6 +1435,8 @@ export function KitchenBoard({
       <KitchenPhase1593ZubereitungsTempoKarte orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1598: Bestellungs-Komplexitäts-Heatmap-V2 — Items + Sonderanfragen + Allergene je Bestellung als farbkodierte Karte; sortiert nach Score */}
       <KitchenPhase1598BestellungsKomplexitaetsHeatmapV2 orders={filtered as any} />
+      {/* Phase 1603: Zutaten-Engpass-Warnung — Häufig kombinierte Zutaten in offenen Bestellungen; warnt wenn Zutat in >70% aller Bestellungen */}
+      <KitchenPhase1603ZutatenEngpassWarnung orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

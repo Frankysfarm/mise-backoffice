@@ -293,6 +293,7 @@ import { Phase1002DynamischeEtaLiveCockpit } from './phase1002-dynamische-eta-li
 import { StorefrontPhase1586DynamischeEtaLiveUltimate } from './phase1586-dynamische-eta-live-ultimate';
 import { StorefrontPhase1591TreueprogrammFortschrittsWidget } from './phase1591-treueprogramm-fortschritts-widget';
 import { StorefrontPhase1601LiefergebietLiveStatus } from './phase1601-liefergebiets-live-status';
+import { StorefrontPhase1606ProduktempfehlungUpsellBanner } from './phase1606-produktempfehlung-upsell-banner';
 
 type Props = {
   location: Location;
@@ -1462,6 +1463,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1591TreueprogrammFortschrittsWidget locationId={location.id} />
       {/* Phase 1601: Liefergebiets-Live-Status — Überlastetes Zone-Banner + alternativem Zeitfenster + ETA-Anpassung; localStorage-cached 5Min; Hydration-safe */}
       <StorefrontPhase1601LiefergebietLiveStatus locationId={location.id} />
+      {/* Phase 1606: Produktempfehlung-Upsell-Banner — Warenkorb < 15 EUR: empfohlene Artikel als horizontaler Scroller; localStorage-cached 10Min; Hydration-safe */}
+      <StorefrontPhase1606ProduktempfehlungUpsellBanner locationId={location.id} cartTotal={subtotal} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
