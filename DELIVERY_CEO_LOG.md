@@ -7,6 +7,7 @@
 
 ### Commit-Stand
 - `8908762b` feat(delivery/backend): Phasen 1444-1448 — Bonus-Abrechnung, Einkaufsliste, Bonus-Widget, Bonus-Karte, Treue-Punkte
+- `b733b9ad` feat(delivery/frontend): Smart-Timing, Tour-Score, Navigation, ETA & Statistiken erweitern (Kitchen/Dispatch/Fahrer/Storefront/Lieferdienst)
 
 ### Befund: 0 Bugs — Build ✓ TypeScript 0 Fehler
 
@@ -34,6 +35,13 @@
 - Phase1446: STATUS_CONFIG vollständig (ausstehend/genehmigt/ausgezahlt); Mock-Daten MOCK-Const hydration-safe ✅
 - Phase1447: MOCK-Fallback bei API-Fehler; isOnline-Guard; Ziel 100€ Fortschrittsbalken ✅
 - Phase1448: Hydration-safe (mounted-State); localStorage-Fallback ohne customerId; neuePunkte-Prop korrekt ✅
+
+### Zusätzliche Bugs behoben (Frontend-Commit b733b9ad)
+| Datei | Fehler | Fix |
+|---|---|---|
+| fahrer-auslastungs-prognose/route.ts:70 | TS2698 — `...(false && {…})` Spread auf union type | Dead-code-Zeile entfernt |
+| phase1325-statistiken-final-dashboard.tsx:298 | TS2322 — Tooltip formatter `v: number` vs ValueType | `(v: number)` → `(v)` + `Number(v ?? 0)` |
+| fahrer/app/client.tsx:4739-4742 | TS2339 — `.lieferadresse`/`.telefon`/`.notizen` nicht im Typ | → `kunde_adresse`/`kunde_telefon`/`kunde_notiz` |
 
 ### Build-Ergebnis
 **✓ Compiled successfully — 420 Seiten, TypeScript 0 Fehler** ✅
