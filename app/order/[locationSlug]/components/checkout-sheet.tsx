@@ -51,6 +51,8 @@ type Props = {
   onDeliveryCreditChange?: (c: { token: string; amountEur: number } | null) => void;
   /** Loyalty-Punkte-Einlösung */
   onLoyaltyChange?: (l: { pointsToRedeem: number; discountEur: number } | null) => void;
+  /** PLZ-Änderung nach oben propagieren (für Liefergebiet-Badge) */
+  onPlzChange?: (plz: string) => void;
 };
 
 function formatEuro(n: number): string {
@@ -83,7 +85,7 @@ const TIER_COLOR: Record<LoyaltyTier, string> = {
   platinum: 'bg-purple-100 text-purple-800',
 };
 
-export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange, deliveryCredit, onDeliveryCreditChange, onLoyaltyChange }: Props) {
+export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubmit, locationCoords, defaultCity, paymentMethods, locationId, subtotal, voucher, onVoucherChange, deliveryCredit, onDeliveryCreditChange, onLoyaltyChange, onPlzChange }: Props) {
   const steps = orderType === 'lieferung' ? ['Adresse', 'Kontakt', 'Bezahlen'] : ['Kontakt', 'Bezahlen'];
   const [step, setStep] = React.useState(0);
 
@@ -102,6 +104,11 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
   const [tuercode, setTuercode] = React.useState('');
   const [lieferhinweis, setLieferhinweis] = React.useState('');
   const [zahlungsart, setZahlungsart] = React.useState<PaymentMethod>('online');
+
+  React.useEffect(() => {
+    if (onPlzChange && orderType === 'lieferung') onPlzChange(address.plz);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address.plz, orderType]);
   const [marketingOptin, setMarketingOptin] = React.useState(false);
   const [whatsappOptin, setWhatsappOptin] = React.useState(false);
 

@@ -1,7 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1-1501 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0, 420 Seiten). Naechste Phasen: 1502-1506.
+**MARKT-REIF + WACHSTUM.** Phasen 1-1506 vollstaendig abgeschlossen. Build sauber (TypeScript 0 Fehler, Exit 0). Naechste Phasen: 1507-1511.
+
+## CEO Review #372 — 2026-07-14
+
+### Commit-Stand
+- `c065f7b0` docs: DELIVERY_PROGRESS.md — Phasen 1502-1506 dokumentiert, naechste Phasen 1507-1511 geplant
+- `ae778d3a` feat(delivery/backend): Phasen 1502-1506 — Fahrer-Puenktlichkeit-Trend, Bestellstatus-Ampel, Schicht-Vergleich, Liefergebiet-Pruefung
+
+### Befund: 1 Bug behoben
+
+**Geprüfte Komponenten:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1502 | Backend | GET /api/delivery/admin/fahrer-puenktlichkeits-trend — Score je Fahrer + Trend + Top3/Flop3; Supabase + Mock-Fallback | ✅ |
+| 1503 | Kitchen | KitchenPhase1503BestellstatusUebersichtsAmpel — Ampel pending/preparing/ready + Schwellen + Hints | ✅ |
+| 1504 | Dispatch | DispatchPhase1504FahrerPuenktlichkeitsTrendWidget — Phase1502-API, Ranking + Score-Balken + Trends; 10-Min-Polling | ✅ |
+| 1505 | Fahrer-App | FahrerPhase1505SchichtVergleichsKarte — Heute vs. Vorwoche Grid; isOnline-Guard; 30-Min-Polling | ✅ |
+| 1506 | Storefront | StorefrontPhase1506LiefergebietPruefungsBadge — PLZ-Check Badge + Zone-ETA + Alternativen; 600ms debounced | ✅ (Bug behoben) |
+| 1506 | Backend | GET /api/delivery/public/liefergebiet-pruefung — PLZ-Prüfung + Zone + ETA; Supabase + Mock-Fallback | ✅ |
+| 1505 | Backend | GET /api/delivery/driver/schicht-vergleich — Heute vs. Vorwoche je Fahrer | ✅ |
+| 236 | Migration | fahrer_puenktlichkeits_snapshots + schicht_vergleichs_log + liefergebiet_pruefungs_log | ✅ |
+
+**Bug behoben:**
+- Phase 1506 Storefront: `StorefrontPhase1506LiefergebietPruefungsBadge` wurde ohne `plz`-Prop aufgerufen → Badge war immer idle/unsichtbar.
+  Fix: (1) `CheckoutSheet` Props um `onPlzChange?: (plz: string) => void` erweitert; (2) useEffect in CheckoutSheet propagiert `address.plz`; (3) `deliveryPlz` State in storefront.tsx; (4) `plz={deliveryPlz}` an Badge übergeben. Badge zeigt jetzt PLZ-Status live während Checkout-Adresseingabe.
+
+**Integrationen geprüft:**
+- `kitchen/client.tsx:472` importiert Phase1503 ✅
+- `dispatch/client.tsx:529` importiert Phase1504 ✅
+- `fahrer/app/client.tsx:442` importiert Phase1505 ✅
+- `storefront.tsx:272` importiert Phase1506 ✅ (jetzt mit `plz={deliveryPlz}`)
+- CheckoutSheet propagiert PLZ via `onPlzChange` ✅
+
+**TypeScript:** 0 Fehler (Build Exit 0) ✅
+
+### Naechste Phasen 1507–1511 (fuer Ingenieur)
+1. **Phase 1507 Backend:** Zonen-Effizienz-Vergleich-API — GET /api/delivery/admin/zonen-effizienz-vergleich: Pünktlichkeit + Ø Lieferzeit + Bestellanzahl je Zone heute vs. Vorwoche; Status je Zone.
+2. **Phase 1508 Kitchen:** Sofort-Kapazitaets-Indikator — SVG-Ring: Aktive Bestellungen vs. max. parallele Kapazitaet (einstellbar); Ampel gruen/gelb/rot; Props-basiert; nach Phase1503.
+3. **Phase 1509 Dispatch:** Zonen-Effizienz-Vergleich-Widget — Phase1507-API: Kacheln je Zone mit Trend-Arrow + Pünktlichkeits-Balken + Lieferzeit; 15-Min-Polling; nach Phase1504.
+4. **Phase 1510 Fahrer-App:** Kilometerstand-Tracker — Heutige km + laufender Durchschnitt je Tour + Wochentrend; isOnline-Guard; 30-Min-Polling; nach Phase1505.
+5. **Phase 1511 Storefront:** Bestellstatus-Verlaufs-Badge — Kompakter Inline-Badge der letzten Bestellung mit Status-Icon + Zeit; localStorage-basiert; Hydration-safe; nach Phase1506.
 
 ## CEO Review #371 — 2026-07-14
 

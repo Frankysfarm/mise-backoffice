@@ -388,6 +388,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const [deliveryCredit, setDeliveryCredit] = React.useState<{ token: string; amountEur: number } | null>(null);
   // Loyalty-Punkte-State
   const [loyalty, setLoyalty] = React.useState<{ pointsToRedeem: number; discountEur: number } | null>(null);
+  // PLZ aus Checkout für Liefergebiet-Badge (Phase 1506)
+  const [deliveryPlz, setDeliveryPlz] = React.useState<string>('');
   const deliveryFeeBase = orderType === 'lieferung' ? DELIVERY_FEE : 0;
   const deliveryFee = voucher?.typ === 'gratis_lieferung' && orderType === 'lieferung' ? 0 : deliveryFeeBase;
   const voucherRabatt = voucher?.typ !== 'gratis_lieferung' ? (voucher?.rabatt ?? 0) : 0;
@@ -1384,7 +1386,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1501: Echtzeit-Fahrer-Annäherungs-Indikator — "Fahrer ist X Min entfernt" mit Live-Countdown; 30s-Polling; Hydration-safe */}
       <StorefrontPhase1501EchtzeitFahrerAnnaeherungsIndikator locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1506: Liefergebiet-Prüfungs-Badge — Live-PLZ-Check; Inline-Badge grün/rot/orange; debounced; nach Phase1501 */}
-      <StorefrontPhase1506LiefergebietPruefungsBadge locationId={location.id} />
+      <StorefrontPhase1506LiefergebietPruefungsBadge locationId={location.id} plz={deliveryPlz} />
       {/* Phase 1505: Dynamische ETA Live Tracker — Countdown + ETA-Konfidenz-Balken + Fahrer-Annäherung + Status-Anzeige; 45s-Polling */}
       <StorefrontPhase1505DynamischeEtaLiveTracker locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
@@ -2027,6 +2029,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         deliveryCredit={deliveryCredit}
         onDeliveryCreditChange={setDeliveryCredit}
         onLoyaltyChange={setLoyalty}
+        onPlzChange={setDeliveryPlz}
       />
 
       {/* Hidden unused import suppression (keeps lint happy when X not used elsewhere). */}
