@@ -268,6 +268,7 @@ import { StorefrontPhase1480LieferzeitGarantieVersprechen } from './phase1480-li
 import { StorefrontPhase1485BestellstatusProgressRing } from './phase1485-bestellstatus-progress-ring';
 import { StorefrontPhase1490MindestbestellwertBadge } from './phase1490-mindestbestellwert-badge';
 import { StorefrontPhase1495DynamischeEtaKonfidenzBar } from './phase1495-dynamische-eta-konfidenz-bar';
+import { StorefrontPhase1501EchtzeitFahrerAnnaeherungsIndikator } from './phase1501-echtzeit-fahrer-annaeherungs-indikator';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1378,6 +1379,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       )}
       {/* Phase 1495: Dynamische ETA-Konfidenz-Bar — Animierte Konfidenzanzeige für Lieferzeit-Schätzung mit Live-Updates alle 30s */}
       <StorefrontPhase1495DynamischeEtaKonfidenzBar locationId={location.id} orderPlaced={orderSuccess !== null} />
+      {/* Phase 1501: Echtzeit-Fahrer-Annäherungs-Indikator — "Fahrer ist X Min entfernt" mit Live-Countdown; 30s-Polling; Hydration-safe */}
+      <StorefrontPhase1501EchtzeitFahrerAnnaeherungsIndikator locationId={location.id} orderPlaced={orderSuccess !== null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

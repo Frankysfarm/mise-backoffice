@@ -437,6 +437,7 @@ import { FahrerPhase1479SchichtCountdownTimerV2 } from './phase1479-schicht-coun
 import { FahrerPhase1484StreckenEffizienzScore } from './phase1484-strecken-effizienz-score';
 import { FahrerPhase1489RoutenEffizienzKarte } from './phase1489-routen-effizienz-karte';
 import { FahrerPhase1494SmartStoppCountdown } from './phase1494-smart-stopp-countdown';
+import { FahrerPhase1500TourAbschlussZusammenfassung } from './phase1500-tour-abschluss-zusammenfassung';
 
 type Driver = {
   id: string;
@@ -4852,6 +4853,13 @@ export function FahrerApp({
             />
           </div>
         )}
+        {/* Phase 1500: Tour-Abschluss-Zusammenfassung — Stopps/Verdienst/km/Ø Lieferzeit + Bewertungs-Trend; nur wenn alle Stopps geliefert */}
+        <div className="px-4">
+          <FahrerPhase1500TourAbschlussZusammenfassung
+            driverId={driver.id}
+            activeBatch={activeBatch as any}
+          />
+        </div>
         {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
         <div className="px-4">
           <FahrerPhase1454SchichtGewinnRingCockpit
