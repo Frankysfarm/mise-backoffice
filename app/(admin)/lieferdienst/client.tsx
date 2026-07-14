@@ -350,6 +350,7 @@ import { LieferdienstPhase1315SchichtLiveStatistiken } from './phase1315-schicht
 import { LieferdienstPhase1320StatistikenLiveHub } from './phase1320-statistiken-live-hub';
 import { LieferdienstTagesPerformanceExecutiveCockpit } from './phase1000-tages-performance-executive-cockpit';
 import { LieferdienstPhase1325StatistikenFinalDashboard } from './phase1325-statistiken-final-dashboard';
+import { LieferdienstPhase1330SchichtErtragsCockpit } from './phase1330-schicht-ertrags-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1297,6 +1298,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1315SchichtLiveStatistiken />
               {/* Phase 1320: Statistiken-Live-Hub — 8 KPI-Kacheln (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Fahrer, Storno, Bewertung, Tempo) mit API-Polling und Mock-Fallback */}
               <LieferdienstPhase1320StatistikenLiveHub locationId={locationId ?? null} />
+              {/* Phase 1330: Schicht-Ertrags-Cockpit — Umsatz, Kosten, Marge + Stunden-Chart */}
+              <LieferdienstPhase1330SchichtErtragsCockpit orders={orders as any} drivers={drivers as any} completedOrders={completedOrders as any} />
               {/* Phase 1325: Statistiken-Final-Dashboard — KPI-Grid + Stunden-Verlauf-Chart + Fahrer-Rangliste + Status-Donut */}
               <LieferdienstPhase1325StatistikenFinalDashboard orders={orders as any} drivers={drivers as any} completedOrders={completedOrders as any} />
               {/* Phase 914: Sofort-Aktions-Panel — Priorisierte Handlungsempfehlungen für Manager: kritische Probleme zuerst */}

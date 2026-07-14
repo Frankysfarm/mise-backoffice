@@ -257,6 +257,7 @@ import { BestellstatusLiveKarte } from './phase1438-bestellstatus-live-karte';
 import { BestellkorbTimeoutWarnung } from './phase1443-bestellkorb-timeout-warnung';
 import { TreuePunkteAnzeige } from './phase1448-treue-punkte-anzeige';
 import { BestellhistorieMiniWidget } from './phase1453-bestellhistorie-mini-widget';
+import { BestellstatusLiveTracker } from './phase1454-bestellstatus-live-tracker';
 
 type Props = {
   location: Location;
@@ -1312,6 +1313,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1448: Treue-Punkte-Anzeige — Earned-Points-Badge (X Punkte = Y€ Rabatt) im Header */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8 flex justify-end">
         <TreuePunkteAnzeige locationId={location.id} />
+      </div>
+      {/* Phase 1454: Bestellstatus-Live-Tracker — Animierter Phasen-Tracker mit Countdown */}
+      <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">
+        <BestellstatusLiveTracker locationId={location.id} estimatedMinutes={30} />
       </div>
       {/* Phase 1453: Bestellhistorie-Mini-Widget — Letzte 3 Bestellungen des Kunden */}
       <div className="mx-auto max-w-6xl px-4 pt-2 md:px-8">

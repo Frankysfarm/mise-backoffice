@@ -453,6 +453,7 @@ import { KitchenPhase1440ZubereitungsReihenfolgeOptimierer } from './phase1440-z
 import { KitchenPhase1445ZutatenEinkaufslisteGenerator } from './phase1445-zutaten-einkaufsliste-generator';
 import { KitchenPhase1445SmartTimingFinalCockpit } from './phase1445-smart-timing-final-cockpit';
 import { KitchenPhase1450AllergenStatistikMonitor } from './phase1450-allergen-statistik-monitor';
+import { KitchenPhase1454LiveBacklogPriorisierung } from './phase1454-live-backlog-priorisierung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1307,6 +1308,8 @@ export function KitchenBoard({
       <KitchenPhase1440ZubereitungsReihenfolgeOptimierer orders={filtered as any} />
       {/* Phase 1445: Zutaten-Einkaufsliste-Generator — Aggregierte Einkaufsliste aus aktiver Queue + Ampel */}
       <KitchenPhase1445ZutatenEinkaufslisteGenerator orders={filtered as any} />
+      {/* Phase 1454: Live-Backlog-Priorisierung — Aktive Bestellungen nach Dringlichkeit sortiert mit Countdown + Farbkodierung */}
+      <KitchenPhase1454LiveBacklogPriorisierung orders={filtered as any} />
       {/* Phase 1450: Allergen-Statistik-Monitor — Top-5 Allergene aus aktiver Queue */}
       <KitchenPhase1450AllergenStatistikMonitor orders={filtered as any} />
       {/* Phase 1445: Smart-Timing-Final-Cockpit — Farbkodiertes Countdown-Grid (Grün/Gelb/Orange/Rot) mit SVG-Ringen je aktiver Bestellung */}

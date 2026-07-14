@@ -423,6 +423,7 @@ import { FahrerPhase1442HeimwegAssistent } from './phase1442-heimweg-assistent';
 import { FahrerPhase1447PersoenlicheBonusKarte } from './phase1447-persoenliche-bonus-karte';
 import { FahrerPhase1452LieferStreakAnzeige } from './phase1452-liefer-streak-anzeige';
 import { FahrerPhase1450TourStoppNavigationsFinal } from './phase1450-tour-stopp-navigations-final';
+import { FahrerPhase1454SchichtGewinnRingCockpit } from './phase1454-schicht-gewinn-ring-cockpit';
 
 type Driver = {
   id: string;
@@ -4729,6 +4730,20 @@ export function FahrerApp({
         {/* Phase 1447: Persönliche Bonus-Karte — Eigene Bonus-Aufstellung + Monats-Fortschrittsbalken */}
         <div className="px-4">
           <FahrerPhase1447PersoenlicheBonusKarte driverId={driver.id} isOnline={isOnline} />
+        </div>
+        {/* Phase 1454: Schicht-Gewinn-Ring-Cockpit — KPI-Ringe Einnahmen/Stops/Zeit + Gewinn-Fortschrittsleiste */}
+        <div className="px-4">
+          <FahrerPhase1454SchichtGewinnRingCockpit
+            driverId={driver.id}
+            isOnline={isOnline}
+            schichtStart={status?.online_seit ?? null}
+            completedStops={activeBatch?.stops?.filter((s: any) => !!s.geliefert_am).length ?? 0}
+            totalStops={activeBatch?.stops?.length ?? 0}
+            earningsToday={todayStats?.estEarnings ?? 0}
+            earningsGoal={80}
+            tipToday={0}
+            kmToday={0}
+          />
         </div>
         {/* Phase 1452: Liefer-Streak-Anzeige — Streak-Tage + Highscore */}
         <div className="px-4">
