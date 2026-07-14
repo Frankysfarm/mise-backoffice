@@ -264,6 +264,7 @@ import { StorefrontPhase1464LieferVersprechenBanner } from './phase1464-liefer-v
 import { StorefrontPhase1469LieferTransparenzStatus } from './phase1469-liefer-transparenz-status';
 import { StorefrontPhase1471DynamischeEtaAnzeige } from './phase1471-dynamische-eta-anzeige';
 import { StorefrontPhase1475BenachrichtigungsOptIn } from './phase1475-benachrichtigungs-opt-in';
+import { StorefrontPhase1480LieferzeitGarantieVersprechen } from './phase1480-lieferzeit-garantie-versprechen';
 import { Phase1000DynamischeEtaLiveCockpit } from './phase1000-dynamische-eta-live-cockpit';
 
 type Props = {
@@ -1359,6 +1360,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1471DynamischeEtaAnzeige locationId={location.id} />
       {/* Phase 1475: Bestellstatus-Benachrichtigungs-Opt-In — Kundeneinwilligung Push-/Email-Benachrichtigung; localStorage-Guard 30 Tage */}
       <StorefrontPhase1475BenachrichtigungsOptIn locationId={location.id} orderId={activeOrderId} />
+      {/* Phase 1480: Lieferzeit-Garantie-Versprechen — ETA > 45 Min: Rabatt-Widget PÜNKTLICH5 + Banner; localStorage-Guard 24h */}
+      <StorefrontPhase1480LieferzeitGarantieVersprechen locationId={location.id} etaMinuten={null} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}
