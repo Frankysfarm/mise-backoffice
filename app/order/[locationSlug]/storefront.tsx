@@ -1358,7 +1358,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1471: Dynamische ETA-Anzeige — Live-Lieferzeit mit Farbkodierung (grün < 30 / gelb < 45 / orange < 60 / rot ≥ 60) */}
       <StorefrontPhase1471DynamischeEtaAnzeige locationId={location.id} />
       {/* Phase 1475: Bestellstatus-Benachrichtigungs-Opt-In — Kundeneinwilligung Push-/Email-Benachrichtigung; localStorage-Guard 30 Tage */}
-      <StorefrontPhase1475BenachrichtigungsOptIn locationId={location.id} orderId={orderSuccess?.orderId ?? null} />
+      <StorefrontPhase1475BenachrichtigungsOptIn locationId={location.id} orderId={activeOrderId} />
       {/* Phase 1443: Bestellkorb-Timeout-Warnung — Banner wenn Korb >20 Min inaktiv mit Verlängern-Button */}
       <BestellkorbTimeoutWarnung
         cartItemCount={totalItems}

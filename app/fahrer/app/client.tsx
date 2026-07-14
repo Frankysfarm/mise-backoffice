@@ -449,6 +449,9 @@ type Status = {
   fahrzeug: string | null;
   aktueller_batch_id: string | null;
   online_seit: string | null;
+  last_lat: number | null;
+  last_lng: number | null;
+  last_update: string | null;
 };
 
 type OpenBatch = {
@@ -838,7 +841,7 @@ export function FahrerApp({
       await supabase.from('driver_status').upsert({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
-      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null, last_lat: null, last_lng: null, last_update: null }), ist_online: false, online_seit: null }));
     });
   }
 
@@ -881,7 +884,7 @@ export function FahrerApp({
         employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
         online_seit: new Date().toISOString(),
       });
-      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null, last_lat: null, last_lng: null, last_update: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
 

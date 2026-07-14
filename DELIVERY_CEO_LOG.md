@@ -11,7 +11,7 @@
 - `87310674` docs: DELIVERY_PROGRESS.md — Phasen 1471-1475 dokumentiert
 - `24599aee` feat(delivery/backend): Phasen 1471–1475 — Schicht-Ende-Prognose, Prioritäts-Ampel, Abdeckungs-Radar, Ende-Countdown, Benachrichtigungs-Opt-In
 
-### Befund: 1 Bug behoben (useMemo-Performance-Defekt), 0 TypeScript-Fehler
+### Befund: 3 TypeScript-Fehler behoben + 1 Performance-Bug behoben
 
 **Gepruefte Komponenten:**
 | Phase | Modul | Komponente / API | Status |
@@ -25,8 +25,10 @@
 | 1475 | API | POST /api/delivery/public/benachrichtigungs-opt-in — Upsert customer_notification_optins; stille Fallback wenn Tabelle fehlt | ✅ |
 | 232 | Migration | customer_notification_optins + schicht_ende_log — Indizes korrekt | ✅ |
 
-**Bug behoben:**
+**Bugs/Fehler behoben:**
 - Phase 1472 `useMemo`: `aktive` war eine neue Array-Referenz je Render → Memo nie gecached. Behoben: Filter+Map direkt im `useMemo` mit `[orders]` als Dep; `AKTIVE_STATUS` als Konstante außerhalb der Funktion.
+- `fahrer/app/client.tsx` TS2339: `Status`-Typ fehlte `last_lat`, `last_lng`, `last_update` (werden per GPS-Update geschrieben) → Felder ergänzt + `setStatus`-Fallback-Objekte ebenfalls korrigiert.
+- `storefront.tsx` TS2339: `orderSuccess?.orderId` nach early return narrowed zu `null` → ersetzt durch `activeOrderId` (bereits vor early return extrahiert).
 
 **Integrationen geprüft:**
 - `kitchen/client.tsx` importiert und rendert Phase1472 ✅
