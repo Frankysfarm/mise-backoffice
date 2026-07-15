@@ -155,6 +155,7 @@ import { KitchenPhase1382SonderwunschHaeufigkeitsKarte } from './phase1382-sonde
 import { KitchenPhase1390SmartDeliveryTimingCockpit } from './phase1390-smart-delivery-timing-cockpit';
 import { KitchenPhase1707SmartTimingFarbkodierungLive } from './phase1707-smart-timing-farbkodierung-live';
 import { KitchenPhase1708SmartTimingCountdownFarbkodierungUltra } from './phase1708-smart-timing-countdown-farbkodierung-ultra';
+import { KitchenPhase1717SchichtKochzeitTrend } from './phase1717-schicht-kochzeit-trend';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1517,6 +1518,8 @@ export function KitchenBoard({
       <KitchenPhase1713StornoRisikoAmpel orders={filtered as any} />
       {/* Phase 1718: Überfällige-Bestellungen-Countdown — Sortierte Liste Bestellungen die Prep-Zeit überschritten; Sek-Countdown; Eskalations-Ring; 1s-Tick */}
       <KitchenPhase1718UeberfaelligeBestellungenCountdown orders={filtered as any} />
+      {/* Phase 1717: Schicht-Kochzeit-Trend — Ø Kochzeit je Stunde als Balkendiagramm + Trend-Pfeil + Abweichung vom 15-Min-Ziel; Props orders; useMemo */}
+      <KitchenPhase1717SchichtKochzeitTrend orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
