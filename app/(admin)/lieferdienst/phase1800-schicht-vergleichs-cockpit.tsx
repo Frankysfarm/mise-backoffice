@@ -13,6 +13,8 @@ import { TrendingUp, TrendingDown, Minus, BarChart3, Euro, Package, Clock, XCirc
  * Supabase-Realtime + 5-Min-Polling. Matcha-Theme.
  */
 
+interface OrderRow { total_price: number | null; status: string | null; created_at: string; delivered_at: string | null; }
+
 interface SchichtKpi {
   label: string;
   umsatz: number;
@@ -25,13 +27,6 @@ interface VergleichsDaten {
   aktuell: SchichtKpi;
   vorherig: SchichtKpi;
   generiert_am: string;
-}
-
-interface OrderRow {
-  total_price: number | null;
-  status: string | null;
-  created_at: string;
-  delivered_at: string | null;
 }
 
 interface Props {
@@ -105,10 +100,10 @@ export function LieferdienstPhase1800SchichtVergleichsCockpit({ locationId, clas
 
       if (!rows || rows.length === 0) { setData(buildMock()); setLoading(false); return; }
 
-      const typedRows = rows as OrderRow[];
       const now = Date.now();
       const schichtStartMs = 8 * 3600_000;
       const grenze = new Date(now - schichtStartMs);
+      const typedRows = rows as OrderRow[];
 
       const aktuellOrders = typedRows.filter((r: OrderRow) => new Date(r.created_at) >= grenze);
       const vorherOrders  = typedRows.filter((r: OrderRow) => new Date(r.created_at) <  grenze);

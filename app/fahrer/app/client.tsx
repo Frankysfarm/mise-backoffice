@@ -5248,8 +5248,8 @@ export function FahrerApp({
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
-          {/* Phase 1798: Stopp-Schnell-Bestätigung — Aktuellen Stopp bestätigen: Adresse + ETA + optionale Notiz + Bestätigungs-Button; isOnline-Guard */}
-          <FahrerPhase1798StoppSchnellBestaetigung
+          {/* Phase 1803: Stopp-Schnell-Bestätigung — Aktuellen Stopp bestätigen: Adresse + ETA + optionale Notiz + Bestätigungs-Button; isOnline-Guard */}
+          <FahrerPhase1803StoppSchnellBestaetigung
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

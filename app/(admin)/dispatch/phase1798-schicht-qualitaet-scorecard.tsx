@@ -24,7 +24,7 @@ const GRADE_STYLE: Record<QualitaetsGrade, { bg: string; text: string; border: s
   D: { bg: 'bg-red-100 dark:bg-red-900/40', text: 'text-red-700 dark:text-red-300', border: 'border-red-200 dark:border-red-800' },
 };
 
-function TrendPfeil({ trend, delta }: Pick<FahrerQualitaetsScore, 'trend' | 'trend_delta'>) {
+function TrendPfeil({ trend, trend_delta: delta }: Pick<FahrerQualitaetsScore, 'trend' | 'trend_delta'>) {
   if (trend === 'steigend') {
     return (
       <span className="flex items-center gap-0.5 text-matcha-600 dark:text-matcha-400 text-[10px] font-bold">
