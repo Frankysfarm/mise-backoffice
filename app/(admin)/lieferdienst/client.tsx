@@ -373,6 +373,7 @@ import { LieferdienstPhase1626LiveSchichtExecutiveDashboard } from './phase1626-
 import { LieferdienstPhase1711StatistikenLiveExecutiveCockpit } from './phase1711-statistiken-live-executive-cockpit';
 import { LieferdienstPhase1712StatistikenSmartUebersichtCockpit } from './phase1712-statistiken-smart-uebersicht-cockpit';
 import { LieferdienstPhase1713StornoTrendPanel } from './phase1713-storno-trend-panel';
+import { LieferdienstPhase1722SchichtStatistikenEchtzeitDashboard } from './phase1722-schicht-statistiken-echtzeit-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2003,6 +2004,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1712StatistikenSmartUebersichtCockpit locationId={locationId} />
                 {/* Phase 1713: Storno-Trend-Panel — Stornierungen je Stunde als Balkendiagramm + Rate% + Trend-Ampel; 10-Min-Polling; API+Mock-Fallback */}
                 <LieferdienstPhase1713StornoTrendPanel locationId={locationId} />
+                {/* Phase 1722: Schicht-Statistiken-Echtzeit-Dashboard — 4 KPI-Kacheln (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit) + Delta-Badges vs. Vortag; 10-Min-Polling */}
+                <LieferdienstPhase1722SchichtStatistikenEchtzeitDashboard locationId={locationId} />
               </>
             </div>
           )}

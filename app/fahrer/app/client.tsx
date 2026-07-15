@@ -493,6 +493,7 @@ import { FahrerPhase1720SchichtSchnellstartCockpit } from './phase1720-schicht-s
 import { FahrerPhase1725EinnahmenHochrechnungKarte } from './phase1725-einnahmen-hochrechnung-karte';
 import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-tour-stopp-navigation-ultra';
 import { FahrerPhase1716SchichtVerdienstHochrechnung } from './phase1716-schicht-verdienst-hochrechnung';
+import { FahrerPhase1724SmartTourStoppNavigatorFinal } from './phase1724-smart-tour-stopp-navigator-final';
 
 type Driver = {
   id: string;
@@ -5213,6 +5214,16 @@ export function FahrerApp({
         {/* Phase 1710: Smart-Tour-Stopp-Navigation Ultra — Nummernierte Stopps mit Done-Status, aufklappbare Adress+Noti-Details, Navigations-CTA, Telefon-Button, ETA-Countdown je Stopp */}
         {activeBatch?.stops && activeBatch.stops.length > 0 && (
           <FahrerPhase1710SmartTourStoppNavigationUltra
+            stops={activeBatch.stops as any}
+            batchId={activeBatch.id}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
+            startedAt={activeBatch.started_at ?? null}
+            isOnline={isOnline}
+          />
+        )}
+        {/* Phase 1724: Smart-Tour-Stopp-Navigator-Final — Aktueller Stopp prominent + Navigations-CTA + ETA-Countdown + Nächster-Stopp-Vorschau + aufklappbare Gesamt-Liste */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <FahrerPhase1724SmartTourStoppNavigatorFinal
             stops={activeBatch.stops as any}
             batchId={activeBatch.id}
             totalEtaMin={activeBatch.total_eta_min ?? null}

@@ -323,6 +323,7 @@ import { StorefrontPhase1716BeliebtsteGerichteStrip } from './phase1716-beliebte
 import { StorefrontPhase1721LieferAmpelStatus } from './phase1721-liefer-ampel-status';
 import { StorefrontPhase1726DynamischerLieferEtaBadge } from './phase1726-dynamischer-liefer-eta-badge';
 import { StorefrontPhase1717EchtzeitNachfrageIndikator } from './phase1717-echtzeit-nachfrage-indikator';
+import { StorefrontPhase1722DynamischeEtaLiveStatusBoard } from './phase1722-dynamische-eta-live-status-board';
 
 type Props = {
   location: Location;
@@ -1566,6 +1567,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1726DynamischerLieferEtaBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1717: Echtzeit-Nachfrage-Indikator — Bestellungen letzte Stunde + Beliebtheitsstufe (ruhig/normal/belebt/sehr_belebt); 5-Min-Polling */}
       <StorefrontPhase1717EchtzeitNachfrageIndikator locationId={location.id} className="px-4" />
+      {/* Phase 1722: Dynamische-ETA-Live-Status-Board — 4-Phasen-Timeline (Angenommen→Zubereitung→Unterwegs→Geliefert) + ETA-Countdown; 30s-Polling nach Bestelleingang */}
+      <StorefrontPhase1722DynamischeEtaLiveStatusBoard locationId={location.id} orderPlaced={orderSuccess !== null} orderId={activeOrderId} className="mx-4 mt-2" />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
