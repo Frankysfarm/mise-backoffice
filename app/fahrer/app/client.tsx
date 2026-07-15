@@ -489,6 +489,7 @@ import { FahrerPhase1701LiveSchichtPerformanceScore } from './phase1701-live-sch
 import { FahrerPhase1705MeinBewertungsVerlauf } from './phase1705-mein-bewertungs-verlauf';
 import { FahrerPhase1709SmartTourStoppLiveNav } from './phase1709-smart-tour-stopp-live-nav';
 import { FahrerPhase1715TagesZielKurzuebersicht } from './phase1715-tages-ziel-kurzuebersicht';
+import { FahrerPhase1720SchichtSchnellstartCockpit } from './phase1720-schicht-schnellstart-cockpit';
 import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-tour-stopp-navigation-ultra';
 
 type Driver = {
@@ -5178,6 +5179,13 @@ export function FahrerApp({
           <FahrerPhase1715TagesZielKurzuebersicht
             driverId={driver?.id ?? null}
             isOnline={isOnline}
+          />
+          {/* Phase 1720: Schicht-Schnellstart-Cockpit — 3-KPI-Kacheln (Online-Zeit/Stopps/Verdienst) + Schicht-Startzeit; isOnline stets sichtbar; kein Polling */}
+          <FahrerPhase1720SchichtSchnellstartCockpit
+            isOnline={isOnline}
+            onlineSeit={status?.online_seit ?? null}
+            stoppsHeute={todayStats?.deliveries ?? 0}
+            verdienstEur={todayStats?.estEarnings ?? 0}
           />
         </div>
         {/* Phase 1709: Smart-Tour-Stopp-Live-Nav — Alle Tour-Stopps mit Nummern/Done-Status + Countdown-ETA + erweiterbare Adresse + Navigations-CTA; isOnline-Guard; kein Polling */}
