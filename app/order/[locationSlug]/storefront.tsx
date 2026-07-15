@@ -310,6 +310,7 @@ import { StorefrontPhase1671BestellStatusMiniLeiste } from './phase1671-bestell-
 import { StorefrontPhase1676KapazitaetsAmpelBadge } from './phase1676-kapazitaets-ampel-badge';
 import { StorefrontPhase1680DynamicEtaLiveUltimate } from './phase1680-dynamic-eta-live-ultimate';
 import { StorefrontPhase1681NachhaltigkeitsBadge } from './phase1681-nachhaltigkeits-badge';
+import { StorefrontPhase1686QualitaetsScoreBanner } from './phase1686-qualitaets-score-banner';
 
 type Props = {
   location: Location;
@@ -1524,6 +1525,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1676KapazitaetsAmpelBadge locationId={location.id} />
       {/* Phase 1681: Nachhaltigkeits-Badge — Grüne Lieferung: CO2-Ersparnis durch Bündelung + Bäume-Äquivalent; 10-Min-Polling; Hydration-safe */}
       <StorefrontPhase1681NachhaltigkeitsBadge locationId={location.id} />
+      {/* Phase 1686: Qualitäts-Score-Banner — Ø Bewertung letzter 7 Tage + Liefer-Pünktlichkeits-%; grüner Banner wenn Score >4.5; 30-Min-Polling */}
+      <StorefrontPhase1686QualitaetsScoreBanner locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
