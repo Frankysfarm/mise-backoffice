@@ -84,16 +84,23 @@ function buildMock(locationId: string): FahrerStandortHistoryResponse {
     { stopp_nr: 3, adresse: 'Testgasse 3', dwell_sec: 110, lat: punkte[10].lat, lng: punkte[10].lng },
   ];
 
+  const makeFahrer = (driver_id: string, fahrer_name: string, offsetLat: number, offsetLng: number): FahrerStandortHistory => {
+    const punkte = makePunkte(offsetLat, offsetLng);
+    return {
+      driver_id,
+      fahrer_name,
+      punkte,
+      route_km: routeKm(punkte),
+      stopps: makeStopps(punkte),
+      letzter_punkt: punkte[punkte.length - 1] ?? null,
+    };
+  };
+
   const fahrer: FahrerStandortHistory[] = [
-    { driver_id: 'mock-1', fahrer_name: 'Max Müller', punkte: makePunkte(0, 0), route_km: 0, stopps: [], letzter_punkt: null },
-    { driver_id: 'mock-2', fahrer_name: 'Anna Schmidt', punkte: makePunkte(0.01, 0.01), route_km: 0, stopps: [], letzter_punkt: null },
-    { driver_id: 'mock-3', fahrer_name: 'Klaus Weber', punkte: makePunkte(-0.01, 0.005), route_km: 0, stopps: [], letzter_punkt: null },
-  ].map(f => {
-    f.route_km = routeKm(f.punkte);
-    f.stopps = makeStopps(f.punkte);
-    f.letzter_punkt = f.punkte[f.punkte.length - 1] ?? null;
-    return f;
-  });
+    makeFahrer('mock-1', 'Max Müller', 0, 0),
+    makeFahrer('mock-2', 'Anna Schmidt', 0.01, 0.01),
+    makeFahrer('mock-3', 'Klaus Weber', -0.01, 0.005),
+  ];
 
   return { fahrer, location_id: locationId, zeitraum_stunden: 2, generiert_am: new Date().toISOString() };
 }
