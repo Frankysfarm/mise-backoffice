@@ -313,6 +313,7 @@ import { StorefrontPhase1681NachhaltigkeitsBadge } from './phase1681-nachhaltigk
 import { StorefrontPhase1686QualitaetsScoreBanner } from './phase1686-qualitaets-score-banner';
 import { StorefrontPhase1691LiveWarteschlangenAnzeige } from './phase1691-live-warteschlangen-anzeige';
 import { StorefrontPhase1696BestellstatusMiniTracker } from './phase1696-bestellstatus-mini-tracker';
+import { StorefrontPhase1701KundenbewertungsSnapshotStrip } from './phase1701-kundenbewertungs-snapshot-strip';
 
 type Props = {
   location: Location;
@@ -1533,6 +1534,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1691LiveWarteschlangenAnzeige locationId={location.id} />
       {/* Phase 1696: Bestellstatus-Mini-Tracker — 5-Stufen-Leiste nach Bestellung; 30s-Polling; Hydration-safe */}
       <StorefrontPhase1696BestellstatusMiniTracker orderId={activeOrderId} initialStatus={null} locationId={location.id} />
+      {/* Phase 1701: Kundenbewertungs-Snapshot-Strip — Letzte 3 Bewertungen + Sterne + Kurztext; 60-Min-Polling; Hydration-safe */}
+      <StorefrontPhase1701KundenbewertungsSnapshotStrip locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

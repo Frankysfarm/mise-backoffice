@@ -515,6 +515,7 @@ import { KitchenPhase1683KochzeitVarianzMonitor } from './phase1683-kochzeit-var
 import { KitchenPhase1688BestellungsStornoZeitraumAnalyse } from './phase1688-bestellungs-storno-zeitraum-analyse';
 import { KitchenPhase1693UmsatzVergleichStrip } from './phase1693-umsatz-vergleich-strip';
 import { KitchenPhase1700LiveTimingCockpit } from './phase1700-live-timing-cockpit';
+import { KitchenPhase1698BestellmusterHeatmapStrip } from './phase1698-bestellmuster-heatmap-strip';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1498,6 +1499,8 @@ export function KitchenBoard({
       <KitchenPhase1688BestellungsStornoZeitraumAnalyse orders={filtered as any} />
       {/* Phase 1693: Umsatz-Vergleich-Strip — Heute vs. Gestern vs. Vorwoche als 3 Kacheln + Trend-Pfeile; 30-Min-Polling */}
       <KitchenPhase1693UmsatzVergleichStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1698: Bestellmuster-Heatmap-Strip — Top-5 Spitzenzeiten + 7×24 Mini-Grid; 60-Min-Polling */}
+      <KitchenPhase1698BestellmusterHeatmapStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

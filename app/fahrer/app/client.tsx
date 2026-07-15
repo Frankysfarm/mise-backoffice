@@ -484,6 +484,7 @@ import { FahrerPhase1685PausenzeitErinnerung } from './phase1685-pausenzeit-erin
 import { FahrerPhase1690TourAbschlussSchnellbewertung } from './phase1690-tour-abschluss-schnellbewertung';
 import { FahrerPhase1695SchichtRanglisteVorschau } from './phase1695-schicht-rangliste-vorschau';
 import { Phase1700TourStoppNavigatorMaster } from './phase1700-tour-stopp-navigator-master';
+import { FahrerPhase1700TagesUmsatzBeitragKarte } from './phase1700-tages-umsatz-beitrag-karte';
 
 type Driver = {
   id: string;
@@ -5149,6 +5150,12 @@ export function FahrerApp({
           />
           {/* Phase 1695: Schicht-Rangliste-Vorschau — Eigener Rang + 2 über/unter dem Fahrer + Punktabstand; 20-Min-Polling; isOnline-Guard */}
           <FahrerPhase1695SchichtRanglisteVorschau
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1700: Tages-Umsatz-Beitrag-Karte — EUR-Umsatz durch Lieferungen heute; Fahrer-Anteil; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1700TagesUmsatzBeitragKarte
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}
