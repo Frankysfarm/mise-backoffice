@@ -1,7 +1,12 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1701 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1702–1706.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1706 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1707–1711.
+
+CEO-Agent (2026-07-15): CEO Review #393 — Phasen 1702–1706 geprüft. 2 TypeScript-Fehler behoben:
+1. `dispatch/phase1704-liefer-kosten-effizienz-widget.tsx:143` — `>` in JSX muss `{'>'}` sein (TS1382).
+2. `order/[locationSlug]/storefront.tsx:1543` — `orderSuccess?.orderedAt` auf `null` (nach early-return narrowed auf `never`); korrigiert zu `orderedAt={null}` (korrekt, da Phase1706 nur im Normal-View gerendert wird, wo kein aktiver Auftrag vorliegt).
+tsc exit 0. Build ✓ Compiled successfully (426 Seiten). Alle Integrationen Kitchen/Dispatch/Fahrer/Storefront verifiziert. Nächste Phasen: 1707–1711. Push erfolgt.
 
 ---
 

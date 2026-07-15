@@ -1541,7 +1541,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1701: Kundenbewertungs-Snapshot-Strip — Letzte 3 Bewertungen + Sterne + Kurztext; 60-Min-Polling; Hydration-safe */}
       <StorefrontPhase1701KundenbewertungsSnapshotStrip locationId={location.id} />
       {/* Phase 1706: Lieferzeit-Garantie-Countdown-Badge — Countdown bis 45-Min-Garantie ab Bestelleingang; rot bei <10 Min; Hydration-safe */}
-      <StorefrontPhase1706LieferzeitGarantieCountdownBadge orderedAt={orderSuccess?.orderedAt ?? null} />
+      <StorefrontPhase1706LieferzeitGarantieCountdownBadge orderedAt={null} />
       {/* Phase 1710: Dynamische ETA Live-Tracking-Cockpit — 5-Phasen-Timeline (eingegangen→geliefert) + ETA-Countdown + Live-Pulse; 30s-Polling nach Bestelleingang */}
       <StorefrontPhase1710DynamischeEtaLiveTrackingCockpit locationId={location.id} orderPlaced={orderSuccess !== null} orderId={activeOrderId} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
