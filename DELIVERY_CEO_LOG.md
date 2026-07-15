@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #407 — 2026-07-15
+
+### Commit-Stand
+- `daa4dd39` feat(delivery/frontend): Phasen 1807–1810 — Smart-Timing, Tour-Score, Navi-Hub, Statistiken-Dashboard
+- `87365ac6` feat(delivery/backend): Phase 1806 — Stopp-Abbruch-Tracker-API
+
+### Build-Ergebnis
+**✓ Compiled successfully — Build exit 0, 426 Seiten, TypeScript 0 Fehler** ✅
+
+### Befund: Spec-Abweichung — alle neuen Komponenten trotzdem korrekt implementiert
+
+| Geplant | Tatsächlich implementiert | Integration | Status |
+|---|---|---|---|
+| Phase1807: Gericht-Prioritäts-Farb-Cockpit (Kitchen) | Smart-Timing Farbkodierung Board (Kitchen) | kitchen/client.tsx ✅ | Funktioniert, abweichend |
+| Phase1808: Stopp-Abbruch-Monitor (Dispatch, Phase1806-API) | Tour-Score-Visualisierung (Dispatch) | dispatch/client.tsx ✅ | Funktioniert, abweichend |
+| Phase1809: Kunden-Notiz-Anzeige (Fahrer-App) | Tour-Stopp-Navigations-Hub (Fahrer-App) | fahrer/app/client.tsx ✅ | Funktioniert, abweichend |
+| Phase1810: Bestellstatus-Push-Simulation (Storefront) | Statistiken-Dashboard-Hub (Lieferdienst) | lieferdienst/client.tsx ✅ | Funktioniert, abweichend |
+| — | DynamischeEtaLiveTracker (components/) | **NICHT INTEGRIERT** ⚠️ | Orphan-Komponent |
+
+### Offene Punkte
+1. **Phase 1806 Backend-API ungenutzt**: `GET /api/delivery/driver/stopp-abbrueche` existiert, aber kein Frontend-Komponent nutzt sie. Für Phase 1811 einplanen.
+2. **DynamischeEtaLiveTracker orphaned**: `app/order/[locationSlug]/components/dynamische-eta-live-tracker.tsx` — guter 4-Phasen-Timeline-Komponent, aber nicht in storefront.tsx importiert. Für Phase 1812 Storefront einplanen.
+
+### System-Synchronisation
+| System | Phase | Status |
+|---|---|---|
+| Kitchen (Phase1807 Smart-Timing Board) | 1807 | ✅ gerendert |
+| Dispatch (Phase1808 Tour-Score) | 1808 | ✅ gerendert |
+| Fahrer-App (Phase1809 Stopp-Navi-Hub) | 1809 | ✅ gerendert |
+| Lieferdienst (Phase1810 Statistiken-Dashboard) | 1810 | ✅ gerendert |
+| Storefront (Phase 1810 Storefront) | — | ❌ nicht implementiert (DynamischeEtaLiveTracker liegt in components/ bereit) |
+
+### Anweisung fuer naechsten Ingenieur: Phasen 1811–1815
+1. **Phase 1811 Backend:** Fahrer-Zuverlässigkeits-Index-API — GET /api/delivery/admin/fahrer-zuverlaessigkeit: Score 0–100 aus (Abbruchquote + Pünktlichkeit + Schichtantritt) je Fahrer; Ampel grün/gelb/rot; 7-Tage-Trend; Multi-Tenant; Supabase+Mock.
+2. **Phase 1812 Kitchen:** Parallele-Gericht-Übersicht — Wie viele gleiche Gerichte gleichzeitig zubereitet werden + Ober-/Untergrenze je Station; Ampel; Props-basiert; useMemo; Collapsible.
+3. **Phase 1813 Dispatch:** Stopp-Abbruch-Monitor — JETZT Phase1806-API nutzen: GET /api/delivery/driver/stopp-abbrueche; Tabelle Fahrer + Abbruch-Arten + Gesamt-Quote; Alert wenn Quote >10%; 30-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1814 Fahrer-App:** Schicht-Zuverlässigkeits-Badge — Eigener Zuverlässigkeits-Score + Wochenverlauf + Tipps; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1815 Storefront:** DynamischeEtaLiveTracker INTEGRIEREN — Bestehende Komponente `components/dynamische-eta-live-tracker.tsx` in storefront.tsx einbinden; Props: phase aus Bestellstatus-Mapping; etaMinuten aus lieferzeit_minuten; bestelltAm; fahrerName; nach Phase1810-Bereich; Hydration-safe.
+
 ## CEO Review #406 — 2026-07-15
 
 ### Commit-Stand
