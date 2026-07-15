@@ -338,6 +338,7 @@ import { StorefrontPhase1780EchtzeitKuechenStatusIndikator } from './phase1780-e
 import { StorefrontPhase1785LieferdienstOeffnungszeitenIndikator } from './phase1785-lieferdienst-oeffnungszeiten-indikator';
 import { StorefrontPhase1790DynamischeLieferzeitSchaetzung } from './phase1790-dynamische-lieferzeit-schaetzung';
 import { StorefrontPhase1794LiveEtaFahrerNaeheCockpit } from './phase1794-live-eta-fahrer-naehe-cockpit';
+import { StorefrontPhase1800QualitaetsVersprechenBadge } from './phase1800-qualitaets-versprechen-badge';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1605,6 +1606,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1794LiveEtaFahrerNaeheCockpit orderId={activeOrderId} locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}
       <StorefrontPhase1785LieferdienstOeffnungszeitenIndikator locationId={location.id} />
+      {/* Phase 1800: Qualitäts-Versprechen-Badge — "Top-bewerteter Fahrer" wenn Score >= 4.8 + Initials + Sterne; Hydration-safe; 30-Min-Polling; schließbar */}
+      <StorefrontPhase1800QualitaetsVersprechenBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1746: Bestellmuster-Zeitfenster-Hinweis — Hinweis wenn aktuelle Stunde historisch Hochlastzeit; Hydration-safe */}
       <StorefrontPhase1746BestellmusterZeitfensterHinweis locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1741: Live-Fahrer-Näherungs-Indikator — Näherungs-Banner wenn Fahrer <500m; 30s-Polling; Hydration-safe */}

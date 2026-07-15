@@ -510,6 +510,7 @@ import { FahrerPhase1779MeineSchichtBilanzKarte } from './phase1779-meine-schich
 import { FahrerPhase1784EigenePauseErinnerung } from './phase1784-eigene-pause-erinnerung';
 import { FahrerPhase1789NaechsterStoppNavigator } from './phase1789-naechster-stopp-navigator';
 import { FahrerPhase1793TourStoppFortschrittsNavigator } from './phase1793-tour-stopp-fortschritts-navigator';
+import { FahrerPhase1799MeinQualitaetsScoreVerlauf } from './phase1799-mein-qualitaets-score-verlauf';
 
 type Driver = {
   id: string;
@@ -5249,6 +5250,12 @@ export function FahrerApp({
           {/* Phase 1784: Eigene Pause-Erinnerung — Alert bei >6h Schicht ohne 30 Min Pause; Countdown nächste Pause; isOnline-Guard; 5-Min-Polling */}
           <FahrerPhase1784EigenePauseErinnerung
             driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1799: Mein Qualitäts-Score-Verlauf — Score letzte 7 Tage Miniaturdiagramm + Grade + Team-Vergleich; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1799MeinQualitaetsScoreVerlauf
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
             isOnline={isOnline}
           />
           {/* Phase 1779: Meine Schicht-Bilanz-Karte — Letzte Tour Einnahmen + Bewertung + km; 30-Min-Polling; isOnline-Guard */}
