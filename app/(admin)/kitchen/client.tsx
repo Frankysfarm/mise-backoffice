@@ -510,6 +510,7 @@ import { KitchenPhase1663SmartUrgencyCountdownBoard } from './phase1663-smart-ur
 import { KitchenPhase1668ZutatenVerbrauchsrateWidget } from './phase1668-zutaten-verbrauchsrate-widget';
 import { KitchenPhase1668KuechenAuslastungsWarnBadge } from './phase1668-kuechen-auslastungs-warn-badge';
 import { KitchenPhase1673BestellungsVolumenHeatmap } from './phase1673-bestellungs-volumen-heatmap';
+import { KitchenPhase1678ZutatenSchwundWarnung } from './phase1678-zutaten-schwund-warnung';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1485,6 +1486,8 @@ export function KitchenBoard({
       <KitchenPhase1668KuechenAuslastungsWarnBadge orders={filtered as any} />
       {/* Phase 1673: Bestellungs-Volumen-Heatmap — Stunden x Wochentage CSS-Grid-Heatmap; Intensität = Bestellmenge; useMemo */}
       <KitchenPhase1673BestellungsVolumenHeatmap orders={filtered as any} />
+      {/* Phase 1678: Zutaten-Schwund-Warnung — Artikel mit Storno-Rate >10% als Warnliste; Ampel warnung/kritisch; useMemo */}
+      <KitchenPhase1678ZutatenSchwundWarnung orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

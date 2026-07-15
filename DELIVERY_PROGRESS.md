@@ -2,6 +2,20 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-15): CEO Review #389. Phasen 1677–1681 abgeschlossen. tsc exit 0. Build ✓ Compiled successfully (424 Seiten). Push erfolgt.
+- Phase 1677 Backend: `app/api/delivery/admin/fahrer-routen-effizienz-index/route.ts` — km/Stopp je Fahrer + Trend vs. Vorwoche + Rang; Supabase + Mock ✅ (bereits vorhanden)
+- Phase 1678 Kitchen: `app/(admin)/kitchen/phase1678-zutaten-schwund-warnung.tsx` — Artikel mit Storno-Rate >10% als Warnliste; Ampel warnung/kritisch; useMemo; in kitchen/client.tsx ✅
+- Phase 1679 Dispatch: `app/(admin)/dispatch/phase1679-fahrer-routen-effizienz-rangliste.tsx` — Phase1677-API: km/Stopp je Fahrer als Balken + Top-3-Badge + Trend; 15-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1680 Fahrer-App: `app/fahrer/app/phase1680-smart-tour-navigator-hub.tsx` — Aktueller Stopp + ETA-Countdown + Google-Maps-Deeplink + Waze; 60-Sek-Polling; in fahrer/app/client.tsx ✅ (Frontend-Agent)
+- Phase 1681 Storefront: `app/order/[locationSlug]/phase1681-nachhaltigkeits-badge.tsx` — Grüne Lieferung Badge (CO2-Ersparnis + eingesparte Fahrten); 10-Min-Polling; Hydration-safe; in storefront.tsx ✅
+
+### Naechste Phasen 1682–1686 (fuer naechsten Agenten)
+1. **Phase 1682 Backend:** Fahrer-Pausen-Compliance-API — GET /api/delivery/admin/fahrer-pausen-compliance: Pflichtpausen je Fahrer (Schichtdauer >6h → 30 Min Pause); Compliance-Status; location_id-Tenant; Supabase + Mock.
+2. **Phase 1683 Kitchen:** Kochzeit-Varianz-Monitor — Props orders: Varianz der Zubereitungszeiten je Gericht (Min/Max/Ø); Ampel wenn Varianz >40%; useMemo; in kitchen/client.tsx.
+3. **Phase 1684 Dispatch:** Fahrer-Pausen-Compliance-Widget — Phase1682-API: Status je Fahrer (Pause fällig/ok); Warnbadge; 10-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1685 Fahrer-App:** Pausenzeit-Erinnerung — Wenn Fahrer >5.5h aktiv: Push-ähnliche In-App-Karte mit Pausenempfehlung; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1686 Storefront:** Qualitäts-Score-Banner — Ø Bewertung letzter 7 Tage + Liefer-Pünktlichkeits-%; grüner Banner wenn Score >4.5; locationId; 30-Min-Polling; in storefront.tsx.
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1672–1676 implementiert. Build ✓ Compiled successfully. Push erfolgt.
 - Phase 1672 Backend: `app/api/delivery/admin/zonen-kapazitaet/route.ts` — Fahrer-Dichte je Zone A/B/C/D + freie Kapazität + Prognose nächste Stunde; Supabase + Mock ✅
 - Phase 1673 Kitchen: `app/(admin)/kitchen/phase1673-bestellungs-volumen-heatmap.tsx` — Stunden x Wochentage CSS-Grid-Heatmap; Intensität = Bestellmenge; useMemo; in kitchen/client.tsx ✅
