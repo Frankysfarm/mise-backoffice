@@ -765,7 +765,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <StorefrontPhase998DynamischeEtaLiveTrackingUltra
               orderId={orderSuccess.orderId}
-              locationSlug={location.slug ?? ''}
+              locationSlug={location.id}
             />
           </div>
         )}

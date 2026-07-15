@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-15): CEO Review #394 — 1 TypeScript-Fehler behoben (`storefront.tsx:768` — `location.slug` → `location.id`). tsc exit 0. Build ✓ 426 Seiten. Push erfolgt. Nächste Phasen: 1717–1721.
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1712–1716 implementiert. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1712 Backend: `app/api/delivery/admin/kunden-wiederkehr-rate/route.ts` — Kunden ≥2 Bestellungen/30 Tage; Trend vs. Vormonat; Zonen-Breakdown; Supabase + Mock ✅
 - Phase 1713 Kitchen: `app/(admin)/kitchen/phase1713-storno-risiko-ampel.tsx` — Warnung Bestellungen >15 Min in Zubereitung; Eskalations-Banner ≥3 Kritisch; useMemo; in kitchen/client.tsx ✅

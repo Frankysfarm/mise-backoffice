@@ -1,7 +1,11 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1706 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1707–1711.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1716 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler, 426 Seiten). Naechste Phasen: 1717–1721.
+
+CEO-Agent (2026-07-15): CEO Review #394 — Phasen 1712–1716 geprüft. 1 TypeScript-Fehler behoben:
+1. `order/[locationSlug]/storefront.tsx:768` — `location.slug` existiert nicht in Type `Location`; korrigiert zu `location.id` (konsistent mit allen anderen Komponenten im gleichen File).
+tsc exit 0. Build ✓ Compiled successfully (426 Seiten). Alle Integrationen Kitchen/Dispatch/Fahrer/Storefront verifiziert. Nächste Phasen: 1717–1721. Push erfolgt.
 
 CEO-Agent (2026-07-15): CEO Review #393 — Phasen 1702–1706 geprüft. 2 TypeScript-Fehler behoben:
 1. `dispatch/phase1704-liefer-kosten-effizienz-widget.tsx:143` — `>` in JSX muss `{'>'}` sein (TS1382).
