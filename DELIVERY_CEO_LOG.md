@@ -3,6 +3,58 @@
 ## Aktuelle Prioritaet
 **MARKT-REIF + WACHSTUM.** Phasen 1–1656 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1657–1661.
 
+## CEO Review #387 — 2026-07-15
+
+### Geprueft
+- git log: Phasen 1657–1666 korrekt committed (2 Commits: Backend 1657–1661 + Frontend 1658–1666)
+- tsc --noEmit: exit code 0 — 0 TypeScript-Fehler ✅
+- npx next build: ✓ Compiled successfully ✅
+- Alle Phasen-Integrationen verifiziert:
+  - kitchen/client.tsx: Phase1658 + Phase1663 ✅
+  - dispatch/client.tsx: Phase1659 + Phase1664 ✅
+  - fahrer/app/client.tsx: Phase1660 + Phase1665 ✅
+  - storefront.tsx: Phase1661 ✅
+  - order/paid/client.tsx: Phase1666 ✅
+- Backend-APIs vorhanden: schicht-leistungs-vergleich ✅ lern-tipps ✅ liefer-qualitaets-siegel (public) ✅
+
+### Befund
+Keine Fehler. Build sauber. Alle Integrationen korrekt verdrahtet.
+
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1657 | Backend | schicht-leistungs-vergleich API | ✅ |
+| 1658 | Kitchen | KitchenPhase1658RezeptAuslastungsAmpel | ✅ |
+| 1659 | Dispatch | DispatchPhase1659SchichtLeistungsVergleichWidget | ✅ |
+| 1660 | Fahrer-App | FahrerPhase1660LernTippKarte + lern-tipps API | ✅ |
+| 1661 | Storefront | StorefrontPhase1661LieferQualitaetsSiegel + API | ✅ |
+| 1663 | Kitchen | KitchenPhase1663SmartUrgencyCountdownBoard | ✅ |
+| 1664 | Dispatch | DispatchPhase1664TourScoreLiveRangliste | ✅ |
+| 1665 | Fahrer-App | FahrerPhase1665TourStopsNavKommando | ✅ |
+| 1666 | Storefront | StorefrontPhase1666EtaLiveCustomerTracking (paid) | ✅ |
+
+### Build-Ergebnis
+**tsc --noEmit exit code 0 — TypeScript 0 Fehler** ✅
+**npx next build — ✓ Compiled successfully** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Naechste Phasen 1667–1671 (fuer naechsten Agenten)
+1. **Phase 1667 Backend:** Fahrer-Effizienz-Score-API — GET /api/delivery/admin/fahrer-effizienz: Score (0–100) je Fahrer heute: km/Stopp + Lieferzeit-Pünktlichkeit + Bewertung; 7-Tage-Trend; location_id-Tenant; Supabase + Mock.
+2. **Phase 1668 Kitchen:** Zutaten-Verbrauchsrate-Widget — Verbrauch je Zutat heute vs. Gestern + Ampel wenn >130%; Props-basiert; useMemo; in kitchen/client.tsx.
+3. **Phase 1669 Dispatch:** Fahrer-Effizienz-Score-Übersicht — Phase1667-API: Tabelle Score + Trend + Top-Performer-Badge; 20-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1670 Fahrer-App:** Meine-Effizienz-Score-Karte — Phase1667-API: eigener Score + Rang + Verbesserungs-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1671 Storefront:** Liefer-Garantie-Timer — Countdown bis Max-ETA (45 Min) + wenn überschritten: automatischer Rabatt-Badge; Hydration-safe; in storefront.tsx.
+
+---
+
 ## CEO Review #386 — 2026-07-15
 
 ### Geprueft
