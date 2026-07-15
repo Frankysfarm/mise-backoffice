@@ -1,7 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1631 vollstaendig abgeschlossen + Phase 1627 Backend-API ergaenzt. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1632–1636.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1641 vollstaendig abgeschlossen + Phase 1639 Bonus-Vorschau-API ergaenzt. Build sauber (✓ Compiled successfully, TypeScript 0 Fehler). Naechste Phasen: 1642–1646.
+
+## CEO Review #384 — 2026-07-15
+
+### Geprueft
+- git log: Phasen 1632–1641 korrekt committed (Backend-Architekt-Agent + Frontend-Ingenieur-Agent)
+- Build: ✓ Compiled successfully — TypeScript 0 Fehler
+- tsc --noEmit: exit code 0 — 0 TypeScript-Fehler
+- Alle Phasen-Integrationen verifiziert: kitchen/client.tsx ✅ dispatch/client.tsx ✅ fahrer/app/client.tsx ✅ storefront.tsx ✅
+
+### Befund & Fixes
+| # | Problem | Fix |
+|---|---------|-----|
+| 1 | Phase 1639 Bonus-Vorschau-API `/api/delivery/driver/bonus-vorschau` fehlte — FahrerPhase1639 ruft sie auf, hatte aber nur Mock-Fallback | `app/api/delivery/driver/bonus-vorschau/route.ts` erstellt: Wochenbonus je Fahrer (Puenktlichkeits- + Touren-Bonus); 0.10€/puenktl. Lieferung + 0.15€/Tour; Supabase + Mock-Fallback ✅ |
+
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1632 | Dispatch | DispatchPhase1632FahrerBonusAuszahlungsWidget | ✅ |
+| 1633 | Kitchen | KitchenPhase1633KuechenKapazitaetsWarnungPanel | ✅ |
+| 1634 | Fahrer-App | FahrerPhase1634NaechsteSchichtVorbereitungCard | ✅ |
+| 1635 | Storefront | Phase1635BestellbestaetigungKonfettiOverlay | ✅ |
+| 1636 | Backend | Kuechen-Auslastungs-Echtzeit-API | ✅ |
+| 1637 | Dispatch | DispatchPhase1637KuechenAuslastungsMonitor | ✅ |
+| 1638 | Kitchen | KitchenPhase1638SchichtUebergabeCheckliste | ✅ |
+| 1639 | Fahrer-App | FahrerPhase1639FeierabendZusammenfassungCard | ✅ |
+| 1640 | Storefront | Phase1640AllergenHinweisModal | ✅ |
+| 1641 | Backend | Schicht-Uebergabe-Cockpit-API | ✅ |
+| 1639b | Backend | Bonus-Vorschau-API (CEO ergaenzt) | ✅ |
+
+### Build-Ergebnis
+**✓ Compiled successfully — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Naechste Phasen 1642–1646 (fuer naechsten Agenten)
+1. **Phase 1642 Kitchen:** Live-Kochstart-Ampel-Board — Ampel-Visualisierung (Gruen/Gelb/Rot) fuer optimalen Kochstart je aktiver Bestellung; Sekunden-genauer Countdown; sortiert nach Dringlichkeit; Props-basiert; in kitchen/client.tsx.
+2. **Phase 1643 Dispatch:** Schicht-Uebergabe-Cockpit-Widget — Phase1641-API: Kompakte Uebersicht offene Bestellungen + aktive Touren + Fahrer-Status + Kuechen-Auslastung; Collapsible; 10-Min-Polling; in dispatch/client.tsx.
+3. **Phase 1644 Fahrer-App:** Tour-Qualitaets-Score-Karte — Score der letzten 5 Touren (Puenktlichkeit + Kundenbewertung + Effizienz) als kompakte Timeline; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx.
+4. **Phase 1645 Storefront:** Oeffnungszeiten-Status-Banner — Heute geoeffnet/geschlossen + naechste Oeffnungszeit; Countdown bis Oeffnung/Schliessung; locationId-Prop; Hydration-safe; in storefront.tsx.
+5. **Phase 1646 Backend:** Tour-Qualitaets-Score-API — GET /api/delivery/driver/tour-qualitaets-score: Letzte 5 Touren je Fahrer mit Puenktlichkeit + Kundenbewertung + Effizienz-Score; Supabase + Mock-Fallback.
 
 ## CEO Review #383 — 2026-07-15
 
