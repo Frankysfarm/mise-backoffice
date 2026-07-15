@@ -498,6 +498,7 @@ import { FahrerPhase1730ZonenTippKarte } from './phase1730-zonen-tipp-karte';
 import { FahrerPhase1735PauseReminder } from './phase1735-pause-reminder';
 import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-stopp-ultra-final-navigator';
 import { FahrerPhase1740SmartTourNavCommand } from './phase1740-smart-tour-nav-command';
+import { FahrerPhase1740ZielEreichtAnimation } from './phase1740-ziel-erreicht-animation';
 
 type Driver = {
   id: string;
@@ -5198,6 +5199,17 @@ export function FahrerApp({
           <FahrerPhase1725EinnahmenHochrechnungKarte
             driverId={driver?.id ?? null}
             isOnline={isOnline}
+          />
+          {/* Phase 1740: Ziel-Erreicht-Animation — Erfolgs-Animation wenn Stopp geliefert; Auto-dismiss 3 Sek; isOnline-Guard */}
+          <FahrerPhase1740ZielEreichtAnimation
+            isOnline={isOnline}
+            lastDeliveredAt={
+              activeBatch?.stops
+                ? ([...activeBatch.stops]
+                    .filter((s: any) => s.geliefert_am)
+                    .sort((a: any, b: any) => new Date(b.geliefert_am).getTime() - new Date(a.geliefert_am).getTime())[0]?.geliefert_am ?? null)
+                : null
+            }
           />
           {/* Phase 1735: Pause-Reminder — Wenn Fahrer >90 Min online ohne Pause: Pause-Empfehlung; isOnline-Guard; 1-Min-Polling */}
           <FahrerPhase1735PauseReminder

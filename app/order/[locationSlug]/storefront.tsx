@@ -326,6 +326,7 @@ import { StorefrontPhase1717EchtzeitNachfrageIndikator } from './phase1717-echtz
 import { StorefrontPhase1722DynamischeEtaLiveStatusBoard } from './phase1722-dynamische-eta-live-status-board';
 import { StorefrontPhase1731LieferzeitGarantieUhr } from './phase1731-lieferzeit-garantie-uhr';
 import { StorefrontPhase1736BestellbestaetigungFortschrittsleiste } from './phase1736-bestellbestaetigung-fortschrittsleiste';
+import { StorefrontPhase1741LiveFahrerNaehHerungsIndikator } from './phase1741-live-fahrer-naeherungs-indikator';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1571,6 +1572,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1736: Bestellbestätigungs-Fortschrittsleiste — 4-Schritt-Leiste (Bestellt→Zubereitung→Unterwegs→Geliefert); Props-basiert; Hydration-safe */}
       <StorefrontPhase1736BestellbestaetigungFortschrittsleiste
         status={activeOrderId ? 'bestellt' : null}
+        className="mx-4 mt-2"
+      />
+      {/* Phase 1741: Live-Fahrer-Näherungs-Indikator — Näherungs-Banner wenn Fahrer <500m; 30s-Polling; Hydration-safe */}
+      <StorefrontPhase1741LiveFahrerNaehHerungsIndikator
+        orderId={activeOrderId}
+        locationId={location.id}
         className="mx-4 mt-2"
       />
       {/* Phase 1740 Storefront: Live-Delivery-Command — 4-Phasen-ETA-Tracking (Küche→Bereit→Fahrer→Geliefert); 30s-Polling; nur wenn aktive Bestellung */}

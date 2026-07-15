@@ -584,6 +584,7 @@ import { DispatchPhase1724FahrerStandortHistoryKarte } from './phase1724-fahrer-
 import { DispatchPhase1723TourScoreVisualisierungsBoard } from './phase1723-tour-score-visualisierungs-board';
 import { DispatchPhase1729TourLueckenMonitor } from './phase1729-tour-luecken-monitor';
 import { DispatchPhase1734StoppDauerAnalyseWidget } from './phase1734-stopp-dauer-analyse-widget';
+import { DispatchPhase1739LieferzeitAbweichungsWidget } from './phase1739-lieferzeit-abweichungs-widget';
 import { DispatchPhase1733TourScoreLiveVisualisierung } from './phase1733-tour-score-live-visualisierung';
 import { DispatchPhase1740TourScoreTimeline } from './phase1740-tour-score-timeline';
 
@@ -1748,6 +1749,8 @@ export function DispatchBoard({
       <DispatchPhase1719LiefergebietAuslastungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1724: Fahrer-Standort-History-Karte — GPS-Route je Fahrer als Punktlinie + Dwell-Time; 5-Min-Polling */}
       <DispatchPhase1724FahrerStandortHistoryKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1739: Lieferzeit-Abweichungs-Widget — Ø Δ ETA je Fahrer + Ausreißer-Flagge; 15-Min-Polling */}
+      <DispatchPhase1739LieferzeitAbweichungsWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1734: Stopp-Dauer-Analyse-Widget — Ø Dwell-Time je Fahrer + Ausreißer-Alert; 30-Min-Polling */}
       <DispatchPhase1734StoppDauerAnalyseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1729: Tour-Lücken-Monitor — Lücken-Timeline je Fahrer + Effizienz-Score + Alert-Banner; 10-Min-Polling */}
