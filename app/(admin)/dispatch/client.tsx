@@ -583,6 +583,7 @@ import { DispatchPhase1719LiefergebietAuslastungsKarte } from './phase1719-liefe
 import { DispatchPhase1724FahrerStandortHistoryKarte } from './phase1724-fahrer-standort-history-karte';
 import { DispatchPhase1723TourScoreVisualisierungsBoard } from './phase1723-tour-score-visualisierungs-board';
 import { DispatchPhase1729TourLueckenMonitor } from './phase1729-tour-luecken-monitor';
+import { DispatchPhase1734StoppDauerAnalyseWidget } from './phase1734-stopp-dauer-analyse-widget';
 import { DispatchPhase1733TourScoreLiveVisualisierung } from './phase1733-tour-score-live-visualisierung';
 
 type Driver = {
@@ -1746,6 +1747,8 @@ export function DispatchBoard({
       <DispatchPhase1719LiefergebietAuslastungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1724: Fahrer-Standort-History-Karte — GPS-Route je Fahrer als Punktlinie + Dwell-Time; 5-Min-Polling */}
       <DispatchPhase1724FahrerStandortHistoryKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1734: Stopp-Dauer-Analyse-Widget — Ø Dwell-Time je Fahrer + Ausreißer-Alert; 30-Min-Polling */}
+      <DispatchPhase1734StoppDauerAnalyseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1729: Tour-Lücken-Monitor — Lücken-Timeline je Fahrer + Effizienz-Score + Alert-Banner; 10-Min-Polling */}
       <DispatchPhase1729TourLueckenMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1715: Fahrer-Auslastungs-Monitor — Aktive Touren je Fahrer vs. Kapazität; Ampel frei/busy/überlastet; ohne API, Props batches+drivers */}

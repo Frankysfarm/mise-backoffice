@@ -495,6 +495,7 @@ import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-
 import { FahrerPhase1716SchichtVerdienstHochrechnung } from './phase1716-schicht-verdienst-hochrechnung';
 import { FahrerPhase1724SmartTourStoppNavigatorFinal } from './phase1724-smart-tour-stopp-navigator-final';
 import { FahrerPhase1730ZonenTippKarte } from './phase1730-zonen-tipp-karte';
+import { FahrerPhase1735PauseReminder } from './phase1735-pause-reminder';
 import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-stopp-ultra-final-navigator';
 
 type Driver = {
@@ -5196,6 +5197,12 @@ export function FahrerApp({
           <FahrerPhase1725EinnahmenHochrechnungKarte
             driverId={driver?.id ?? null}
             isOnline={isOnline}
+          />
+          {/* Phase 1735: Pause-Reminder — Wenn Fahrer >90 Min online ohne Pause: Pause-Empfehlung; isOnline-Guard; 1-Min-Polling */}
+          <FahrerPhase1735PauseReminder
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+            onlineSeit={status?.online_seit ?? null}
           />
           {/* Phase 1730: Zonen-Tipp-Karte — Zone mit höchster Nachfrage + wenigsten Fahrern; Empfehlung; isOnline-Guard; 10-Min-Polling */}
           <FahrerPhase1730ZonenTippKarte

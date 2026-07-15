@@ -527,6 +527,7 @@ import { KitchenPhase1723GerichtAuslastungsForecast } from './phase1723-gericht-
 import { KitchenPhase1722SmartTimingEchtzeitCountdownFarbkodierung } from './phase1722-smart-timing-echtzeit-countdown-farbkodierung';
 import { KitchenPhase1728SchichtProduktivitaetsAmpel } from './phase1728-schicht-produktivitaets-ampel';
 import { KitchenPhase1731SmartTimingFarbkodierungCockpit } from './phase1731-smart-timing-farbkodierung-cockpit';
+import { KitchenPhase1733LiveBestellrateTicker } from './phase1733-live-bestellrate-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1520,6 +1521,8 @@ export function KitchenBoard({
       <KitchenPhase1703GerichtPopularitaetsRang orders={filtered as any} />
       {/* Phase 1713: Storno-Risiko-Ampel — Warnung bei Bestellungen >15 Min in Zubereitung ohne Status-Update; Eskalations-Banner ≥3; useMemo */}
       <KitchenPhase1713StornoRisikoAmpel orders={filtered as any} />
+      {/* Phase 1733: Live-Bestellrate-Ticker — Bestellungen letzte 5/15/30 Min; Trend vs. Vorperiode; Hochlauf/Rückgang-Badge; useMemo */}
+      <KitchenPhase1733LiveBestellrateTicker orders={filtered as any} />
       {/* Phase 1728: Schicht-Produktivitäts-Ampel — Ø Bestellungen/h heute vs. Ziel; Trend-Pfeil; Ampel grün/gelb/rot; useMemo */}
       <KitchenPhase1728SchichtProduktivitaetsAmpel orders={filtered as any} />
       {/* Phase 1723: Gericht-Auslastungs-Forecast — Prognose Portionen je Gericht nächste Stunde; Trend-Hochrechnung; Ampel; useMemo */}

@@ -325,6 +325,7 @@ import { StorefrontPhase1726DynamischerLieferEtaBadge } from './phase1726-dynami
 import { StorefrontPhase1717EchtzeitNachfrageIndikator } from './phase1717-echtzeit-nachfrage-indikator';
 import { StorefrontPhase1722DynamischeEtaLiveStatusBoard } from './phase1722-dynamische-eta-live-status-board';
 import { StorefrontPhase1731LieferzeitGarantieUhr } from './phase1731-lieferzeit-garantie-uhr';
+import { StorefrontPhase1736BestellbestaetigungFortschrittsleiste } from './phase1736-bestellbestaetigung-fortschrittsleiste';
 
 type Props = {
   location: Location;
@@ -1566,6 +1567,11 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1721LieferAmpelStatus locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1726: Dynamischer Liefer-ETA-Badge — ETA-Minuten nach Zone + Auslastung; 3-Min-Polling; Hydration-safe */}
       <StorefrontPhase1726DynamischerLieferEtaBadge locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 1736: Bestellbestätigungs-Fortschrittsleiste — 4-Schritt-Leiste (Bestellt→Zubereitung→Unterwegs→Geliefert); Props-basiert; Hydration-safe */}
+      <StorefrontPhase1736BestellbestaetigungFortschrittsleiste
+        status={activeOrderId ? 'bestellt' : null}
+        className="mx-4 mt-2"
+      />
       {/* Phase 1731: Lieferzeit-Garantie-Uhr — Countdown bis ETA; Entschädigungs-Hinweis bei Überschreitung; schließbar */}
       <StorefrontPhase1731LieferzeitGarantieUhr
         orderPlaced={null}
