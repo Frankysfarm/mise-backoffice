@@ -533,6 +533,7 @@ import { KitchenPhase1743KochzeitGenauigkeitsTracker } from './phase1743-kochzei
 import { KitchenPhase1738SchichtPausenTracker } from './phase1738-schicht-pausen-tracker';
 import { KitchenPhase1748BestellfrequenzPrognoseWidget } from './phase1748-bestellfrequenz-prognose-widget';
 import { KitchenPhase1753WartezeitHochlastIndikator } from './phase1753-wartezeit-hochlast-indikator';
+import { KitchenPhase1758BestellwertVerteilungsWidget } from './phase1758-bestellwert-verteilungs-widget';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1530,6 +1531,8 @@ export function KitchenBoard({
       <KitchenPhase1748BestellfrequenzPrognoseWidget orders={filtered as any} />
       {/* Phase 1753: Wartezeit-Hochlast-Indikator — Ø Wartezeit bis Küchenannahme letzte 15/30 Min; Ampel; Alert >5 Min; useMemo */}
       <KitchenPhase1753WartezeitHochlastIndikator orders={filtered as any} />
+      {/* Phase 1758: Bestellwert-Verteilungs-Widget — Ø Bestellwert + Histogramm (unter 20€/20-40€/über 40€); Trend; useMemo */}
+      <KitchenPhase1758BestellwertVerteilungsWidget orders={filtered as any} />
       {/* Phase 1743: Kochzeit-Genauigkeits-Tracker — Ø Abweichung geschätzte vs. tatsächliche Zubereitungszeit je Gericht; Ampel; useMemo; Collapsible */}
       <KitchenPhase1743KochzeitGenauigkeitsTracker orders={filtered as any} />
       {/* Phase 1738: Schicht-Pausen-Tracker — Küchenpausen heute; Warnung >1h ohne Pause; useMemo; Collapsible */}
