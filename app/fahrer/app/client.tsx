@@ -469,6 +469,7 @@ import { FahrerPhase1615TourStoppNavigationsUltraHub } from './phase1615-tour-st
 import { FahrerPhase1620TagesKpiScoreboard } from './phase1620-tages-kpi-scoreboard';
 import { FahrerPhase1625RoutenEffizienzKarte } from './phase1625-routen-effizienz-karte';
 import { FahrerPhase1630TourStoppLiveNaviCockpit } from './phase1630-tour-stopp-live-navi-cockpit';
+import { FahrerPhase1634NaechsteSchichtVorbereitungCard } from './phase1634-naechste-schicht-vorbereitung-card';
 
 type Driver = {
   id: string;
@@ -5061,6 +5062,10 @@ export function FahrerApp({
         {/* Phase 1630: Tour-Stopp-Live-Navi-Cockpit — Alle Stopps der aktiven Tour mit Sequenz, Status-Ampel, ETA-Countdown, direkter Navi-App-Integration (Google/Waze/Apple Maps) */}
         <div className="px-4">
           <FahrerPhase1630TourStoppLiveNaviCockpit isOnline={isOnline} driverId={driver?.id ?? null} batchId={activeBatch?.id ?? null} />
+        </div>
+        {/* Phase 1634: Nächste-Schicht-Vorbereitung-Card — Schicht-Countdown + Vorbereitungs-Checklist; nur wenn offline und Schichtstart <3h */}
+        <div className="px-4">
+          <FahrerPhase1634NaechsteSchichtVorbereitungCard isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
