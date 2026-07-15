@@ -300,6 +300,7 @@ import { StorefrontPhase1621EchtzeitKuechenstatusTicker } from './phase1621-echt
 import { StorefrontPhase1626WartezeitTransparenzWidget } from './phase1626-wartezeit-transparenz-widget';
 import { Phase1631DynamischeEtaLiveUltima } from './phase1631-dynamische-eta-live-ultima';
 import { Phase1635BestellbestaetigungKonfettiOverlay } from './phase1635-bestellbestaetigung-konfetti-overlay';
+import { Phase1640AllergenHinweisModal } from './phase1640-allergen-hinweis-modal';
 
 type Props = {
   location: Location;
@@ -342,6 +343,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
   const [detailItem, setDetailItem] = React.useState<MenuItem | null>(null);
   const [detailNotiz, setDetailNotiz] = React.useState('');
+  const [allergenItem, setAllergenItem] = React.useState<MenuItem | null>(null);
   const [anlass, setAnlass] = React.useState('');
 
   // Voucher-Code aus URL auto-einlösen (z.B. ?code=THX-ABC123 vom Bon-QR)
@@ -1952,6 +1954,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
                           <div className="mt-1 px-1">
                             <StorefrontPhase1616MenuBeliebtheitsBadge locationId={location.id} itemName={item.name ?? ''} />
                           </div>
+                          {/* Phase 1640: Allergen-Hinweis-Schaltfläche — zeigt Allergen-Modal bei Klick; nur wenn Allergene vorhanden */}
+                          {(item.allergene?.length ?? 0) > 0 && (
+                            <div className="mt-1 px-1">
+                              <button
+                                className="text-[10px] text-amber-600 underline underline-offset-2 hover:text-amber-800 transition-colors"
+                                onClick={() => setAllergenItem(item)}
+                              >
+                                ⚠️ Allergene ansehen
+                              </button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -2079,6 +2092,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           closeDetail();
         }}
       />
+
+      {/* Phase 1640: Allergen-Hinweis-Modal — Allergen-Icons + Bezeichnung beim Klick auf Produkt; Produkt-Props; keine API */}
+      <Phase1640AllergenHinweisModal item={allergenItem} onClose={() => setAllergenItem(null)} />
 
       {/* Phase 1092: Gruppen-Bestellungs-Banner — Hinweis bei ≥3 Artikeln im Warenkorb + Rabattcode-Hinweis */}
       <div className="fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-[55] px-4 mb-[5.5rem]">

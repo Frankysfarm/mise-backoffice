@@ -500,6 +500,7 @@ import { KitchenPhase1618PrioritaetsWarteschlangenKarte } from './phase1618-prio
 import { KitchenPhase1623ProduktFehlerquoteKarte } from './phase1623-produkt-fehlerquote-karte';
 import { KitchenPhase1628LiveFarbkodierungCountdownMatrix } from './phase1628-live-farbkodierung-countdown-matrix';
 import { KitchenPhase1633KuechenKapazitaetsWarnungPanel } from './phase1633-kuechen-kapazitaets-warnung-panel';
+import { KitchenPhase1638SchichtUebergabeCheckliste } from './phase1638-schicht-uebergabe-checkliste';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1455,6 +1456,8 @@ export function KitchenBoard({
       <KitchenPhase1628LiveFarbkodierungCountdownMatrix orders={filtered as any} />
       {/* Phase 1633: Küchen-Kapazitäts-Warnung-Panel — Auslastung vs. Kapazitätsgrenze; Eskalationsstufen Normal/Achtung/Kritisch; Countdown bis Normalisierung */}
       <KitchenPhase1633KuechenKapazitaetsWarnungPanel orders={filtered as any} />
+      {/* Phase 1638: Schicht-Übergabe-Checkliste — Offene Bestellungen + nicht abgeschlossene Touren + Hinweise; Status-Toggle abgehakt/offen; Props-basiert */}
+      <KitchenPhase1638SchichtUebergabeCheckliste orders={filtered as any} batches={batches as any} stops={stops as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
