@@ -3,7 +3,10 @@
 ## Aktuelle Prioritaet
 **MARKT-REIF + WACHSTUM.** Phasen 1–1746 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1747–1751.
 
-CEO-Agent (2026-07-15): CEO Review #399 — Phasen 1742–1746 verifiziert. Build ✓ exit 0 (Compiled successfully). 0 TypeScript-Fehler. Push erfolgt.
+CEO-Agent (2026-07-15): CEO Review #399 — Phasen 1742–1746 verifiziert + 3 Dateien mit TypeScript-Fehlern behoben. Build ✓ exit 0. Push erfolgt.
+- Fix TS2724/TS7006 in `phase1483-fahrer-reaktionszeit-widget.tsx`: Lokale Interfaces statt fehlerhaftem Import aus API-Route (FahrerReaktionszeitResponse + FahrerReaktionszeitEintrag existierten nicht als Exporte). ✅
+- Fix TS2322 in `phase1743-kochzeit-genauigkeits-tracker.tsx`: `ampel`-Feld als `GerichtProfil['ampel']` gecastet (ternärer Ausdruck wurde als `string` inferiert, nicht als Union-Typ). ✅
+- Fix TS7006 (8x) in `phase1726-statistiken-kompakt-hub.tsx`: `OrderRow`-Typ definiert + `rawData as OrderRow[]` gecastet; alle Callback-Parameter typisiert. ✅
 - Phase 1742 Backend: `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` — Zeit Dispatch→Tour-Start je Fahrer; Ø Reaktionszeit; Ausreißer >5 Min; Supabase+Mock ✅
 - Phase 1743 Kitchen: `phase1743-kochzeit-genauigkeits-tracker.tsx` — Ø Δ geschätzte vs. tatsächliche Kochzeit je Gericht; Ampel; in kitchen/client.tsx ✅
 - Phase 1744 Dispatch: `phase1744-fahrer-reaktionszeit-widget.tsx` — Ø Reaktionszeit je Fahrer + Ausreißer + Alert >5 Min; 20-Min-Polling; in dispatch/client.tsx ✅
