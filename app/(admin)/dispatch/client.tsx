@@ -594,6 +594,7 @@ import { DispatchPhase1759TourenVollstaendigkeitsMonitor } from './phase1759-tou
 import { DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel } from './phase1763-score-anzeige-tour-visualisierungs-panel';
 import { DispatchPhase1768LiefergebietRentabilitaetsKarte } from './phase1768-liefergebiet-rentabilitaets-karte';
 import { DispatchPhase1773FahrerEinnahmenPrognoseWidget } from './phase1773-fahrer-einnahmen-prognose-widget';
+import { DispatchPhase1778SchichtAuslastungsPrognoseWidget } from './phase1778-schicht-auslastungs-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1766,6 +1767,8 @@ export function DispatchBoard({
       <DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1768: Liefergebiet-Rentabilitäts-Karte — Zone A/B/C/D + ROI-Farbscala + Umsatz/Kosten-Bars; 30-Min-Polling */}
       <DispatchPhase1768LiefergebietRentabilitaetsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1778: Schicht-Auslastungs-Prognose-Widget — Balkendiagramm nächste 2h + Fahrerbedarf-Empfehlung; 15-Min-Polling */}
+      <DispatchPhase1778SchichtAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1773: Fahrer-Einnahmen-Prognose-Widget — Tabelle Fahrer + Einnahmen-Prognose Schichtende + Trend-Pfeil; 30-Min-Polling */}
       <DispatchPhase1773FahrerEinnahmenPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1744: Fahrer-Reaktionszeit-Widget — Ø Reaktionszeit je Fahrer + Ausreißer-Flagge; 20-Min-Polling */}
