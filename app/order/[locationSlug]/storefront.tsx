@@ -308,6 +308,7 @@ import { StorefrontPhase1661LieferQualitaetsSiegel } from './phase1661-liefer-qu
 import { StorefrontPhase1671LieferGarantieTimer } from './phase1671-liefer-garantie-timer';
 import { StorefrontPhase1671BestellStatusMiniLeiste } from './phase1671-bestell-status-mini-leiste';
 import { StorefrontPhase1676KapazitaetsAmpelBadge } from './phase1676-kapazitaets-ampel-badge';
+import { StorefrontPhase1680DynamicEtaLiveUltimate } from './phase1680-dynamic-eta-live-ultimate';
 
 type Props = {
   location: Location;
@@ -765,6 +766,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               estimatedMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : null}
               status="in_zubereitung"
               createdAt={orderSuccess.orderedAt}
+            />
+          </div>
+        )}
+        {/* Phase 1680: Dynamic ETA Live Ultimate — Echtzeit-ETA-Countdown mit Fahrer-Nähe, Phasen-Fortschrittsleiste (4 Schritte), 30-Sek-Polling */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-3 max-w-lg mx-auto">
+            <StorefrontPhase1680DynamicEtaLiveUltimate
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              orderedAt={orderSuccess.orderedAt}
             />
           </div>
         )}

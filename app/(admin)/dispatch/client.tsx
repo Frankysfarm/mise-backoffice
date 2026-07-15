@@ -566,6 +566,7 @@ import { DispatchPhase1664TourScoreLiveRangliste } from './phase1664-tour-score-
 import { DispatchPhase1669FahrerEffizienzScoreUebersicht } from './phase1669-fahrer-effizienz-score-uebersicht';
 import { DispatchPhase1669ZoneSlaMonitorWidget } from './phase1669-zone-sla-monitor-widget';
 import { DispatchPhase1674ZonenKapazitaetsMonitor } from './phase1674-zonen-kapazitaets-monitor';
+import { DispatchPhase1680TourScoreVisualisierungUltimate } from './phase1680-tour-score-visualisierung-ultimate';
 
 type Driver = {
   employee_id: string;
@@ -1702,6 +1703,8 @@ export function DispatchBoard({
       <DispatchPhase1669ZoneSlaMonitorWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1674: Zonen-Kapazitäts-Monitor — Phase1672-API: Auslastung je Zone A/B/C/D als Balken + Warnampel + Fahrer-Umverteilungs-Empfehlung; 10-Min-Polling */}
       <DispatchPhase1674ZonenKapazitaetsMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1680: Tour Score + Visualisierung Ultimate — Aktive Touren mit Composite-Score (ETA + Pünktlichkeit + Effizienz), farbkodierte Ringe, Stop-Indikatoren, Fahrer-Rangliste; 30-Sek-Polling */}
+      <DispatchPhase1680TourScoreVisualisierungUltimate drivers={drivers as any} batches={batches as any} orders={[]} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

@@ -367,6 +367,7 @@ import { LieferdienstPhase1606StatistikenExecutiveCockpit } from './phase1606-st
 import { LieferdienstPhase1611StatistikExecutiveCockpitPro } from './phase1611-statistik-executive-cockpit-pro';
 import { LieferdienstPhase1616StatistikenSchnellDashboard } from './phase1616-statistiken-schnell-dashboard';
 import { LieferdienstPhase1621ZoneLeistungsUebersicht } from './phase1621-zone-leistungs-uebersicht';
+import { LieferdienstPhase1625StatistikenFinalCockpit } from './phase1625-statistiken-final-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1701,6 +1702,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1616StatistikenSchnellDashboard />
               {/* Phase 1621: Zonen-Leistungs-Übersicht — Phase1667-API: Pünktlichkeit je Zone (letzte 2h) + Ampel-Kacheln + Alert wenn Zone <80%; 5-Min-Polling */}
               <LieferdienstPhase1621ZoneLeistungsUebersicht locationId={locationId ?? null} />
+              {/* Phase 1625: Statistiken Final Cockpit — KPI-Grid (Bestellungen/Umsatz/Ø Zeit/Pünktlichkeit/Fahrer/Storno) + Stunden-Sparkline + Fahrer-Rangliste; 30-Sek-Polling; Mock-Fallback */}
+              <LieferdienstPhase1625StatistikenFinalCockpit locationId={locationId ?? null} />
               {/* Phase 1185: Statistiken Executive-KPI Dashboard — 6 KPIs + Trend-Pfeile + Wochenverlauf-Chart */}
               <LieferdienstPhase1185StatistikenExecutiveKpiDashboard locationId={locationId ?? null} />
               {/* Phase 1190: Statistik-Komplett-Dashboard — KPI-Grid + Stunden-Histogramm + Zonen-Rangliste + Trend-Vergleich */}
