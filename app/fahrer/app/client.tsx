@@ -489,6 +489,7 @@ import { FahrerPhase1701LiveSchichtPerformanceScore } from './phase1701-live-sch
 import { FahrerPhase1705MeinBewertungsVerlauf } from './phase1705-mein-bewertungs-verlauf';
 import { FahrerPhase1709SmartTourStoppLiveNav } from './phase1709-smart-tour-stopp-live-nav';
 import { FahrerPhase1715TagesZielKurzuebersicht } from './phase1715-tages-ziel-kurzuebersicht';
+import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-tour-stopp-navigation-ultra';
 
 type Driver = {
   id: string;
@@ -5182,6 +5183,16 @@ export function FahrerApp({
         {/* Phase 1709: Smart-Tour-Stopp-Live-Nav — Alle Tour-Stopps mit Nummern/Done-Status + Countdown-ETA + erweiterbare Adresse + Navigations-CTA; isOnline-Guard; kein Polling */}
         {activeBatch?.stops && activeBatch.stops.length > 0 && (
           <FahrerPhase1709SmartTourStoppLiveNav
+            stops={activeBatch.stops as any}
+            batchId={activeBatch.id}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
+            startedAt={activeBatch.started_at ?? null}
+            isOnline={isOnline}
+          />
+        )}
+        {/* Phase 1710: Smart-Tour-Stopp-Navigation Ultra — Nummernierte Stopps mit Done-Status, aufklappbare Adress+Noti-Details, Navigations-CTA, Telefon-Button, ETA-Countdown je Stopp */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <FahrerPhase1710SmartTourStoppNavigationUltra
             stops={activeBatch.stops as any}
             batchId={activeBatch.id}
             totalEtaMin={activeBatch.total_eta_min ?? null}

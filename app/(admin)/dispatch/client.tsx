@@ -404,6 +404,7 @@ import { DispatchPhase983FahrerScoreTourVisualisierung } from './phase983-fahrer
 import { DispatchPhase988LiveTourKostenEffizienz } from './phase988-live-tour-kosten-effizienz';
 import { DispatchPhase993FahrerStatusMatrix } from './phase993-fahrer-status-matrix';
 import { DispatchPhase998ZoneWartezeitLiveMatrix } from './phase998-zone-wartezeit-live-matrix';
+import { DispatchPhase999TourScoreVisualisierungProLive } from './phase999-tour-score-visualisierung-pro-live';
 import { DispatchPhase1001TourScoreVisualisierungPro } from './phase1001-tour-score-visualisierung-pro';
 import { DispatchPhase1004FahrerRueckkehrPrognose } from './phase1004-fahrer-rueckkehr-prognose';
 import { DispatchPhase1002TourEtaSequenzBoard } from './phase1002-tour-eta-sequenz-board';
@@ -1437,6 +1438,8 @@ export function DispatchBoard({
       <DispatchPhase993FahrerStatusMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 998: Zone-Wartezeit-Live-Matrix — Echtzeit-Wartezeit-Prognose je Zone A/B/C/D + Ampel + Trend */}
       <DispatchPhase998ZoneWartezeitLiveMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 999: Tour-Score-Visualisierung Pro Live — Score-Ring je aktiver Tour + Health-Ampel + Stop-Dot-Timeline + Fahrer-Ranking; Props batches+drivers */}
+      <DispatchPhase999TourScoreVisualisierungProLive batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1001: Tour-Score-Visualisierung Pro — Score-Gauge + Stopp-Sequenz-Icons + ETA je aktiver Tour */}
       <DispatchPhase1001TourScoreVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1004: Fahrer-Rückkehr-Prognose-Board — Rückkehrzeit je aktiver Fahrer nach verbleibenden Stopps */}

@@ -170,6 +170,7 @@ import { Phase985LiveEtaTrackingBanner } from './phase985-live-eta-tracking-bann
 import { Phase990FahrerAnnaeherungsRadar } from './phase990-fahrer-annaeherungs-radar';
 import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-kuechen-transparenz-widget';
 import { StorefrontPhase997DynamischeEtaLiveCockpit } from './phase997-dynamische-eta-live-cockpit';
+import { StorefrontPhase998DynamischeEtaLiveTrackingUltra } from './phase998-dynamische-eta-live-tracking-ultra';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
@@ -756,6 +757,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               locationId={location.id}
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            />
+          </div>
+        )}
+        {/* Phase 998: Dynamische-ETA-Live-Tracking-Ultra — 4-Stufen-Step-Tracker (Eingegangen/Zubereitung/Unterwegs/Geliefert) + Sekunden-Countdown + Fahrer-Info + Live-Pulse */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <StorefrontPhase998DynamischeEtaLiveTrackingUltra
+              orderId={orderSuccess.orderId}
+              locationSlug={location.slug ?? ''}
             />
           </div>
         )}

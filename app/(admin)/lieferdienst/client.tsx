@@ -371,6 +371,7 @@ import { LieferdienstPhase1625StatistikenFinalCockpit } from './phase1625-statis
 import { LieferdienstPhase1000TagesPerformanceHub } from './phase1000-tages-performance-hub';
 import { LieferdienstPhase1626LiveSchichtExecutiveDashboard } from './phase1626-live-schicht-executive-dashboard';
 import { LieferdienstPhase1711StatistikenLiveExecutiveCockpit } from './phase1711-statistiken-live-executive-cockpit';
+import { LieferdienstPhase1712StatistikenSmartUebersichtCockpit } from './phase1712-statistiken-smart-uebersicht-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1997,6 +1998,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase779SchichtStatsCockpit locationId={locationId ?? null} />
                 {/* Phase 1000: Statistiken-Hub-Dashboard — KPI-Kacheln, Tagesziele, Stunden-Chart, Top-Artikel */}
                 <LieferdienstPhase1000StatistikHubDashboard locationId={locationId} />
+                {/* Phase 1712: Statistiken Smart-Übersicht-Cockpit — 6-KPI-Kacheln (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Fahrer/Bewertung) + Delta-Badges + Stundenverlauf-Heatbar */}
+                <LieferdienstPhase1712StatistikenSmartUebersichtCockpit locationId={locationId} />
               </>
             </div>
           )}

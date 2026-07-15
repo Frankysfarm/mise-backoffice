@@ -154,6 +154,7 @@ import { KitchenPhase1377SmartTimingFarbCountdownBoard } from './phase1377-smart
 import { KitchenPhase1382SonderwunschHaeufigkeitsKarte } from './phase1382-sonderwunsch-haeufigkeits-karte';
 import { KitchenPhase1390SmartDeliveryTimingCockpit } from './phase1390-smart-delivery-timing-cockpit';
 import { KitchenPhase1707SmartTimingFarbkodierungLive } from './phase1707-smart-timing-farbkodierung-live';
+import { KitchenPhase1708SmartTimingCountdownFarbkodierungUltra } from './phase1708-smart-timing-countdown-farbkodierung-ultra';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1348,6 +1349,8 @@ export function KitchenBoard({
       <KitchenPhase1390SmartDeliveryTimingCockpit orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1707: Smart-Timing Farbkodierung Live — Countdown-Ring + Fortschrittsbalken je Bestellung; 4-stufig (ok/warn/critical/done); sortiert nach Dringlichkeit; 10s-Ticker */}
       <KitchenPhase1707SmartTimingFarbkodierungLive orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1708: Smart-Timing Countdown Farbkodierung Ultra — Echtzeit-Sekunden-Countdown je Bestellung, 4-Stufen-Farbkodierung (ok/warn/critical/done), Progress-Balken, sortiert nach Dringlichkeit */}
+      <KitchenPhase1708SmartTimingCountdownFarbkodierungUltra orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1386: Smart-Timing Countdown Cockpit — Sekunden-Countdown aller aktiven Bestellungen, 4-stufige Farbkodierung (Grün/Gelb/Orange/Rot), sortiert nach Dringlichkeit */}
       <KitchenPhase1386SmartTimingCountdownCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1391: Restmenge-Frühwarnung — Artikel deren Queue in <30min erschöpft (Hochrechnung) + Alarm-Bell */}
