@@ -471,6 +471,7 @@ import { FahrerPhase1625RoutenEffizienzKarte } from './phase1625-routen-effizien
 import { FahrerPhase1630TourStoppLiveNaviCockpit } from './phase1630-tour-stopp-live-navi-cockpit';
 import { FahrerPhase1634NaechsteSchichtVorbereitungCard } from './phase1634-naechste-schicht-vorbereitung-card';
 import { FahrerPhase1639FeierabendZusammenfassungCard } from './phase1639-feierabend-zusammenfassung-card';
+import { FahrerPhase1644TourQualitaetsScoreKarte } from './phase1644-tour-qualitaets-score-karte';
 
 type Driver = {
   id: string;
@@ -5075,6 +5076,13 @@ export function FahrerApp({
             driverId={driver?.id ?? null}
             stops={activeBatch?.stops as any}
             schichtStartedAt={status?.online_seit ?? undefined}
+          />
+        </div>
+        {/* Phase 1644: Tour-Qualitäts-Score-Karte — Score der letzten 5 Touren (Pünktlichkeit + Kundenbewertung + Effizienz) als kompakte Timeline; isOnline-Guard; 15-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1644TourQualitaetsScoreKarte
+            isOnline={isOnline}
+            driverId={driver?.id ?? null}
           />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}

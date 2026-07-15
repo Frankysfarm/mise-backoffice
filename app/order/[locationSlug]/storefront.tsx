@@ -301,6 +301,7 @@ import { StorefrontPhase1626WartezeitTransparenzWidget } from './phase1626-warte
 import { Phase1631DynamischeEtaLiveUltima } from './phase1631-dynamische-eta-live-ultima';
 import { Phase1635BestellbestaetigungKonfettiOverlay } from './phase1635-bestellbestaetigung-konfetti-overlay';
 import { Phase1640AllergenHinweisModal } from './phase1640-allergen-hinweis-modal';
+import { Phase1645OeffnungszeitenStatusBanner } from './phase1645-oeffnungszeiten-status-banner';
 
 type Props = {
   location: Location;
@@ -1483,6 +1484,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1631DynamischeEtaLiveUltima locationId={location.id} />
       {/* Phase 1635: Bestellbestätigungs-Konfetti-Overlay — CSS-only Konfetti + Dankesnachricht + Folgebestellung-CTA; sessionStorage-based; Hydration-safe */}
       <Phase1635BestellbestaetigungKonfettiOverlay orderPlaced={false} locationSlug={location.id} />
+      {/* Phase 1645: Öffnungszeiten-Status-Banner — Heute geöffnet/geschlossen + nächste Öffnungszeit; Countdown bis Öffnung/Schließung; locationId-Prop; Hydration-safe */}
+      <Phase1645OeffnungszeitenStatusBanner locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
