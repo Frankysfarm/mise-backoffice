@@ -538,6 +538,7 @@ import { KitchenPhase1762SmartTimingCountdownFarbkodierungsCockpit } from './pha
 import { KitchenPhase1767ZubereitungszeitAusreisserTracker } from './phase1767-zubereitungszeit-ausreisser-tracker';
 import { KitchenPhase1772GerichtWarteschlangenPrioritaet } from './phase1772-gericht-warteschlangen-prioritaet';
 import { KitchenPhase1777LiveKochplanOptimierer } from './phase1777-live-kochplan-optimierer';
+import { KitchenPhase1782KuechenKapazitaetsAmpel } from './phase1782-kuechen-kapazitaets-ampel';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1541,12 +1542,12 @@ export function KitchenBoard({
       <KitchenPhase1762SmartTimingCountdownFarbkodierungsCockpit orders={filtered as any} />
       {/* Phase 1767: Zubereitungszeit-Ausreißer-Tracker — Gerichte >50% Abweichung von Ø-Kochzeit; Alert-Badge + Liste; useMemo; Collapsible */}
       <KitchenPhase1767ZubereitungszeitAusreisserTracker orders={filtered as any} />
+      {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
+      <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}
       <KitchenPhase1777LiveKochplanOptimierer orders={filtered as any} />
       {/* Phase 1772: Gericht-Warteschlangen-Priorität — Welches Gericht wartet am längsten? Alert >15 Min; Priorisierungsliste; useMemo; Collapsible */}
       <KitchenPhase1772GerichtWarteschlangenPrioritaet orders={filtered as any} />
-      {/* Phase 1777: Live-Kochplan-Optimierer — Bestellungen nach Dringlichkeit sortiert; Alert überfällig; Drag-Hinweis; useMemo; Collapsible */}
-      <KitchenPhase1777LiveKochplanOptimierer orders={filtered as any} />
       {/* Phase 1743: Kochzeit-Genauigkeits-Tracker — Ø Abweichung geschätzte vs. tatsächliche Zubereitungszeit je Gericht; Ampel; useMemo; Collapsible */}
       <KitchenPhase1743KochzeitGenauigkeitsTracker orders={filtered as any} />
       {/* Phase 1738: Schicht-Pausen-Tracker — Küchenpausen heute; Warnung >1h ohne Pause; useMemo; Collapsible */}

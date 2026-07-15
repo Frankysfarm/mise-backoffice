@@ -507,6 +507,7 @@ import { FahrerPhase1764SmartStoppNavigatorMitKartenLink } from './phase1764-sma
 import { FahrerPhase1769ZonenVerdienstVergleich } from './phase1769-zonen-verdienst-vergleich';
 import { FahrerPhase1774MeinSchichtEinnahmenZaehler } from './phase1774-mein-schicht-einnahmen-zaehler';
 import { FahrerPhase1779MeineSchichtBilanzKarte } from './phase1779-meine-schicht-bilanz-karte';
+import { FahrerPhase1784EigenePauseErinnerung } from './phase1784-eigene-pause-erinnerung';
 
 type Driver = {
   id: string;
@@ -5230,6 +5231,11 @@ export function FahrerApp({
           />
           {/* Phase 1769: Zonen-Verdienst-Vergleich — Ø Verdienst je Zone letzte 7 Tage; beste Zone hervorheben; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1769ZonenVerdienstVergleich
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1784: Eigene Pause-Erinnerung — Alert bei >6h Schicht ohne 30 Min Pause; Countdown nächste Pause; isOnline-Guard; 5-Min-Polling */}
+          <FahrerPhase1784EigenePauseErinnerung
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
