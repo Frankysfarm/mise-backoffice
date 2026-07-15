@@ -306,6 +306,7 @@ import { StorefrontPhase1650LiveLieferungStatusCockpit } from './phase1650-live-
 import { StorefrontPhase1655LieferzoneVisualisierungsBanner } from './phase1655-lieferzone-visualisierungs-banner';
 import { StorefrontPhase1661LieferQualitaetsSiegel } from './phase1661-liefer-qualitaets-siegel';
 import { StorefrontPhase1671LieferGarantieTimer } from './phase1671-liefer-garantie-timer';
+import { StorefrontPhase1671BestellStatusMiniLeiste } from './phase1671-bestell-status-mini-leiste';
 
 type Props = {
   location: Location;
@@ -1504,6 +1505,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1661LieferQualitaetsSiegel locationId={location.id} />
       {/* Phase 1671: Liefer-Garantie-Timer — nur nach Bestellung sichtbar, hier immer null */}
       <StorefrontPhase1671LieferGarantieTimer orderedAt={null} />
+      {/* Phase 1671b: Bestell-Status-Mini-Leiste — Kompakter 5-Stufen-Status-Strip (Bestätigt/Zubereitung/Bereit/Unterwegs/Geliefert) inline ohne Overlay; Props orderStatus */}
+      <StorefrontPhase1671BestellStatusMiniLeiste orderStatus={null} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
