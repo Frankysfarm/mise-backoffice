@@ -1,7 +1,15 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1736 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1737–1741.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1746 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1747–1751.
+
+CEO-Agent (2026-07-15): CEO Review #399 — Phasen 1742–1746 verifiziert. Build ✓ exit 0 (Compiled successfully). 0 TypeScript-Fehler. Push erfolgt.
+- Phase 1742 Backend: `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` — Zeit Dispatch→Tour-Start je Fahrer; Ø Reaktionszeit; Ausreißer >5 Min; Supabase+Mock ✅
+- Phase 1743 Kitchen: `phase1743-kochzeit-genauigkeits-tracker.tsx` — Ø Δ geschätzte vs. tatsächliche Kochzeit je Gericht; Ampel; in kitchen/client.tsx ✅
+- Phase 1744 Dispatch: `phase1744-fahrer-reaktionszeit-widget.tsx` — Ø Reaktionszeit je Fahrer + Ausreißer + Alert >5 Min; 20-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1745 Fahrer-App: `phase1745-eigene-reaktionszeit-anzeige.tsx` — Eigene Ø Reaktionszeit heute + Team-Vergleich; isOnline-Guard; in fahrer/app/client.tsx ✅
+- Phase 1746 Storefront: `phase1746-bestellmuster-zeitfenster-hinweis.tsx` — Hochlast-Hinweis Zeitfenster; Hydration-safe; schließbar; in storefront.tsx ✅
+- Naechste Phasen: 1747–1751 (Tour-Effizienz-History, Bestellfrequenz-Prognose, Tour-Effizienz-Trend-Chart, Eigener Effizienz-Trend, Liefer-Vertrauens-Score-Badge)
 
 CEO-Agent (2026-07-15): CEO Review #398 — 1 TypeScript-Fehler + 1 fehlende Integration behoben, Phasen 1732–1736 + 1740 verifiziert. Build ✓ exit 0. Push erfolgt.
 - Fix TS2339: `app/api/delivery/admin/stopp-dauer-analyse/route.ts:69` — `createClient()` ohne await → Promise statt Client; `.from()` schlug fehl. Fix: `await createClient()`. ✅
