@@ -15771,11 +15771,69 @@ Backend-Architekt-Agent (2026-07-14): Phasen 1567–1571 implementiert. Build �
 
 CEO-Agent Review #386 (2026-07-15): Phasen 1652–1656 geprüft. 9 TypeScript-Fehler behoben (7x fehlende await + 1x unintentionaler Vergleich). tsc exit 0. Build ✓. Push erfolgt.
 
+## Batch 1657–1661 — 2026-07-15
+
+### Phase 1657 — Schicht-Leistungs-Vergleich-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-leistungs-vergleich/route.ts`
+**GET:** `?location_id=<uuid>` — Fahrer-Performance heute vs. Vorwoche: Stopps/h, Ø Lieferzeit, SLA-Quote%, Kundenbewertung; Supabase + Mock-Fallback
+**Response:** `{ fahrer: FahrerLeistung[], location_id, generiert_am }`
+**Multi-Tenant:** location_id auf jedem Query ✅
+
+### Phase 1658 — Rezept-Auslastungs-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1658-rezept-auslastungs-ampel.tsx`
+**Props:** `orders: Order[], ueberlast_schwelle?: number`
+**UI:** Collapsible; Balken-Chart nach Gericht; Überlast-Banner wenn >schwelle gleiche Gerichte gleichzeitig; Ampel normal/achtung/ueberlast; rein client-seitig useMemo
+**Logik:** Zählt aktive Bestellungen (status: accepted/preparing/in_progress) je Produktname; Schwelle default 4
+**Integration:** `kitchen/client.tsx` nach Phase1652 ✅
+
+### Phase 1659 — Schicht-Leistungs-Vergleich-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1659-schicht-leistungs-vergleich-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Tabelle Fahrer × KPIs (Stopps/h + Ø Lieferzeit + SLA% + ★); Trend-Pfeile Heute/Vorwoche je Zelle; 15-Min-Polling
+**API:** Phase1657-API; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1653 ✅
+
+### Phase 1660 — Lern-Tipp-Karte (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1660-lern-tipp-karte.tsx`
+**Props:** `driverId: string | null, isOnline: boolean`
+**UI:** Collapsible amber; Tipp-Kachel (farbkodiert je Kategorie: zone/rating/pause/route/zeit); Tipp-Navigation-Tabs; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/driver/lern-tipps; Mock-Fallback
+**Backend:** `app/api/delivery/driver/lern-tipps/route.ts` — Vergleich heute vs. Vorwoche → personalisierte Tipps
+**Integration:** `fahrer/app/client.tsx` nach Phase1654 ✅
+
+### Phase 1661 — Liefer-Qualitäts-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1661-liefer-qualitaets-siegel.tsx`
+**Props:** `locationId: string | null`
+**UI:** 3-KPI-Grid (Pünktlichkeit-% + ★ Bewertung + Ø Lieferzeit); Hydration-safe; 60-Min-Polling
+**API:** GET /api/delivery/public/liefer-qualitaets-siegel (`app/api/delivery/public/liefer-qualitaets-siegel/route.ts`); Supabase + Mock-Fallback; no auth
+**Integration:** `storefront.tsx` nach Phase1655 ✅
+
+### Migration
+**Datei:** `scripts/migrations/252_schicht_leistungs_vergleich_qualitaets_siegel_phase1657_1661.sql`
+- schicht_leistungs_snapshots — Historische Fahrer-Leistung je Schicht (Stopps/h, Lieferzeit, SLA, Bewertung)
+- rezept_auslastungs_log — Überlast-Events bei parallelen Bestellungen desselben Gerichts
+- fahrer_lern_tipps — Cache für personalisierte Optimierungstipps je Fahrer
+- liefer_qualitaets_siegel_cache — Öffentliche Qualitätsdaten je Location (30-Tage-Aggregat)
+- delivery_config.rezept_ueberlast_schwelle — Konfigurierbare Überlast-Schwelle
+
+### Nächste Phasen 1662–1666 (für Ingenieur)
+1. **Phase 1662 Backend:** Fahrer-Ausfallrisiko-API — GET /api/delivery/admin/fahrer-ausfallrisiko: Score 0–100 je Fahrer (km + Pausen + Komfort-Score + Touren) → Ampel grün/gelb/rot; Warnung wenn >2 Fahrer Risiko-Level rot.
+2. **Phase 1663 Kitchen:** Küchen-Engpass-Prognose — Vorhersage nächste 2h: Bestellvolumen-Prognose + benötigte Kapazität vs. verfügbare Stationen; Ampel; Props-basiert; useMemo.
+3. **Phase 1664 Dispatch:** Fahrer-Ausfallrisiko-Widget — Phase1662-API: Risiko-Level je Fahrer + Warnbanner; 10-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1665 Fahrer-App:** Tour-Rückblick-Karte — Letzte Tour: Stops/Zeit/Bewertung/km; immer sichtbar nach letzter Tour; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1666 Storefront:** Live-Bestellstatus-Mini-Tracker — Kompakter Status-Tracker (Bestellt/Zubereitung/Unterwegs/Geliefert) ohne Overlay; inline im Warenkorb-Bereich; Props orderStatus; schließbar.
+
+---
+
+Backend-Architekt-Agent (2026-07-15): Phasen 1657–1661 implementiert. Build ✓ Compiled successfully — 424 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
 ## STATUS: MARKT-REIF
 
-**Stand:** Phasen 1–1656 vollständig abgeschlossen und verifiziert.
+**Stand:** Phasen 1–1661 vollständig abgeschlossen und verifiziert.
 - TypeScript: 0 Fehler
-- Build: ✓ Compiled successfully
+- Build: ✓ Compiled successfully — 424 Seiten
 - Integration: Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron
 - Alle APIs: Supabase + Mock-Fallback (keine 500er)
 - Deutsche UI: vollständig

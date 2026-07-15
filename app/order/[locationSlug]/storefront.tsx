@@ -304,6 +304,7 @@ import { Phase1640AllergenHinweisModal } from './phase1640-allergen-hinweis-moda
 import { Phase1645OeffnungszeitenStatusBanner } from './phase1645-oeffnungszeiten-status-banner';
 import { StorefrontPhase1650LiveLieferungStatusCockpit } from './phase1650-live-lieferung-status-cockpit';
 import { StorefrontPhase1655LieferzoneVisualisierungsBanner } from './phase1655-lieferzone-visualisierungs-banner';
+import { StorefrontPhase1661LieferQualitaetsSiegel } from './phase1661-liefer-qualitaets-siegel';
 
 type Props = {
   location: Location;
@@ -1492,6 +1493,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1650LiveLieferungStatusCockpit orderId={null} />
       {/* Phase 1655: Lieferzone-Visualisierungs-Banner — Zeigt Lieferzonen A/B/C/D mit ETA-Hinweisen; konzentrische Ringe; Hydration-safe */}
       <StorefrontPhase1655LieferzoneVisualisierungsBanner locationId={location.id} />
+      {/* Phase 1661: Liefer-Qualitäts-Siegel — Vertrauensbadge: pünktlich-%, ★ Bewertung, Ø Lieferzeit; 60-Min-Polling; Hydration-safe */}
+      <StorefrontPhase1661LieferQualitaetsSiegel locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

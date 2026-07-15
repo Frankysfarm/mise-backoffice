@@ -474,6 +474,7 @@ import { FahrerPhase1639FeierabendZusammenfassungCard } from './phase1639-feiera
 import { FahrerPhase1644TourQualitaetsScoreKarte } from './phase1644-tour-qualitaets-score-karte';
 import { FahrerPhase1649SmartTourStoppNavigatorPro } from './phase1649-smart-tour-stopp-navigator-pro';
 import { FahrerPhase1654SchichtEnergieRadar } from './phase1654-schicht-energie-radar';
+import { FahrerPhase1660LernTippKarte } from './phase1660-lern-tipp-karte';
 
 type Driver = {
   id: string;
@@ -5095,6 +5096,8 @@ export function FahrerApp({
           )}
           {/* Phase 1654: Schicht-Energie-Radar — Phase1651-API: Energie-Level (0–100) als Radial-Ring + Empfehlung; isOnline-Guard; 20-Min-Polling */}
           <FahrerPhase1654SchichtEnergieRadar driverId={driver?.id ?? null} isOnline={isOnline} />
+          {/* Phase 1660: Lern-Tipp-Karte — Personalisierte Optimierungstipps heute vs. Vorwoche; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1660LernTippKarte driverId={driver?.id ?? null} isOnline={isOnline} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
