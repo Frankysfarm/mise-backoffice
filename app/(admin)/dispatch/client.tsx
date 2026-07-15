@@ -593,6 +593,7 @@ import { DispatchPhase1754FahrerPuenktlichkeitsRanking } from './phase1754-fahre
 import { DispatchPhase1759TourenVollstaendigkeitsMonitor } from './phase1759-touren-vollstaendigkeits-monitor';
 import { DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel } from './phase1763-score-anzeige-tour-visualisierungs-panel';
 import { DispatchPhase1768LiefergebietRentabilitaetsKarte } from './phase1768-liefergebiet-rentabilitaets-karte';
+import { DispatchPhase1773FahrerEinnahmenPrognoseWidget } from './phase1773-fahrer-einnahmen-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1765,6 +1766,8 @@ export function DispatchBoard({
       <DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1768: Liefergebiet-Rentabilitäts-Karte — Zone A/B/C/D + ROI-Farbscala + Umsatz/Kosten-Bars; 30-Min-Polling */}
       <DispatchPhase1768LiefergebietRentabilitaetsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1773: Fahrer-Einnahmen-Prognose-Widget — Tabelle Fahrer + Einnahmen-Prognose Schichtende + Trend-Pfeil; 30-Min-Polling */}
+      <DispatchPhase1773FahrerEinnahmenPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1744: Fahrer-Reaktionszeit-Widget — Ø Reaktionszeit je Fahrer + Ausreißer-Flagge; 20-Min-Polling */}
       <DispatchPhase1744FahrerReaktionsteiWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1739: Lieferzeit-Abweichungs-Widget — Ø Δ ETA je Fahrer + Ausreißer-Flagge; 15-Min-Polling */}

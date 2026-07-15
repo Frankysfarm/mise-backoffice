@@ -505,6 +505,7 @@ import { FahrerPhase1755EigenePuenktlichkeitsQuote } from './phase1755-eigene-pu
 import { FahrerPhase1760EigeneTourenBilanz } from './phase1760-eigene-touren-bilanz';
 import { FahrerPhase1764SmartStoppNavigatorMitKartenLink } from './phase1764-smart-stopp-navigator-mit-karten-link';
 import { FahrerPhase1769ZonenVerdienstVergleich } from './phase1769-zonen-verdienst-vergleich';
+import { FahrerPhase1774MeinSchichtEinnahmenZaehler } from './phase1774-mein-schicht-einnahmen-zaehler';
 
 type Driver = {
   id: string;
@@ -5228,6 +5229,11 @@ export function FahrerApp({
           />
           {/* Phase 1769: Zonen-Verdienst-Vergleich — Ø Verdienst je Zone letzte 7 Tage; beste Zone hervorheben; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1769ZonenVerdienstVergleich
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1774: Mein Schicht-Einnahmen-Zähler — Echtzeit-Einnahmen + Prognose Schichtende + Zielfortschrittsleiste; isOnline-Guard; 5-Min-Polling */}
+          <FahrerPhase1774MeinSchichtEinnahmenZaehler
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
