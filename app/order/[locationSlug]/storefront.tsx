@@ -317,6 +317,7 @@ import { StorefrontPhase1701KundenbewertungsSnapshotStrip } from './phase1701-ku
 import { Phase1000LiveTrackingStatus } from './phase1000-live-tracking-status';
 import { StorefrontPhase1697EtaCountdownBanner } from './phase1697-eta-countdown-banner';
 import { StorefrontPhase1706LieferzeitGarantieCountdownBadge } from './phase1706-lieferzeit-garantie-countdown-badge';
+import { StorefrontPhase1710DynamischeEtaLiveTrackingCockpit } from './phase1710-dynamische-eta-live-tracking-cockpit';
 
 type Props = {
   location: Location;
@@ -1541,6 +1542,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1701KundenbewertungsSnapshotStrip locationId={location.id} />
       {/* Phase 1706: Lieferzeit-Garantie-Countdown-Badge — Countdown bis 45-Min-Garantie ab Bestelleingang; rot bei <10 Min; Hydration-safe */}
       <StorefrontPhase1706LieferzeitGarantieCountdownBadge orderedAt={orderSuccess?.orderedAt ?? null} />
+      {/* Phase 1710: Dynamische ETA Live-Tracking-Cockpit — 5-Phasen-Timeline (eingegangen→geliefert) + ETA-Countdown + Live-Pulse; 30s-Polling nach Bestelleingang */}
+      <StorefrontPhase1710DynamischeEtaLiveTrackingCockpit locationId={location.id} orderPlaced={orderSuccess !== null} orderId={activeOrderId} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

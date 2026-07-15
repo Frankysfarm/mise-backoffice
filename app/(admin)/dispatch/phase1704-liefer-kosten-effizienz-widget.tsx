@@ -140,7 +140,7 @@ export function DispatchPhase1704LieferKostenEffizienzWidget({ locationId }: Pro
                 </div>
                 <div className="flex justify-between text-[9px] text-muted-foreground">
                   <span>günstig (≤2,50€)</span>
-                  <span>teuer (>4,50€)</span>
+                  <span>teuer ({'>'}4,50€)</span>
                 </div>
               </div>
 

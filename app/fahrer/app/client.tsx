@@ -487,6 +487,7 @@ import { Phase1700TourStoppNavigatorMaster } from './phase1700-tour-stopp-naviga
 import { FahrerPhase1700TagesUmsatzBeitragKarte } from './phase1700-tages-umsatz-beitrag-karte';
 import { FahrerPhase1701LiveSchichtPerformanceScore } from './phase1701-live-schicht-performance-score';
 import { FahrerPhase1705MeinBewertungsVerlauf } from './phase1705-mein-bewertungs-verlauf';
+import { FahrerPhase1709SmartTourStoppLiveNav } from './phase1709-smart-tour-stopp-live-nav';
 
 type Driver = {
   id: string;
@@ -5172,6 +5173,16 @@ export function FahrerApp({
             isOnline={isOnline}
           />
         </div>
+        {/* Phase 1709: Smart-Tour-Stopp-Live-Nav — Alle Tour-Stopps mit Nummern/Done-Status + Countdown-ETA + erweiterbare Adresse + Navigations-CTA; isOnline-Guard; kein Polling */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <FahrerPhase1709SmartTourStoppLiveNav
+            stops={activeBatch.stops as any}
+            batchId={activeBatch.id}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
+            startedAt={activeBatch.started_at ?? null}
+            isOnline={isOnline}
+          />
+        )}
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
           <FahrerPhase1530TagesabschlussBerichtsKarte

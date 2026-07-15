@@ -153,6 +153,7 @@ import { KitchenPhase1372ZubereitungsGeschwindigkeitsRangliste } from './phase13
 import { KitchenPhase1377SmartTimingFarbCountdownBoard } from './phase1377-smart-timing-farb-countdown-board';
 import { KitchenPhase1382SonderwunschHaeufigkeitsKarte } from './phase1382-sonderwunsch-haeufigkeits-karte';
 import { KitchenPhase1390SmartDeliveryTimingCockpit } from './phase1390-smart-delivery-timing-cockpit';
+import { KitchenPhase1707SmartTimingFarbkodierungLive } from './phase1707-smart-timing-farbkodierung-live';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1344,6 +1345,8 @@ export function KitchenBoard({
       <KitchenPhase1382SonderwunschHaeufigkeitsKarte orders={filtered as any} />
       {/* Phase 1390: Smart Delivery Timing Cockpit — Echtzeit-Countdown aller aktiven Bestellungen, farbkodiert (Grün/Gelb/Orange/Rot) nach Dringlichkeit, sortiert nach verbleibender Zeit */}
       <KitchenPhase1390SmartDeliveryTimingCockpit orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1707: Smart-Timing Farbkodierung Live — Countdown-Ring + Fortschrittsbalken je Bestellung; 4-stufig (ok/warn/critical/done); sortiert nach Dringlichkeit; 10s-Ticker */}
+      <KitchenPhase1707SmartTimingFarbkodierungLive orders={filtered as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1386: Smart-Timing Countdown Cockpit — Sekunden-Countdown aller aktiven Bestellungen, 4-stufige Farbkodierung (Grün/Gelb/Orange/Rot), sortiert nach Dringlichkeit */}
       <KitchenPhase1386SmartTimingCountdownCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 1391: Restmenge-Frühwarnung — Artikel deren Queue in <30min erschöpft (Hochrechnung) + Alarm-Bell */}
