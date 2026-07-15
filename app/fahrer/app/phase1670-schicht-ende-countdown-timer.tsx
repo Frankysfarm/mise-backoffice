@@ -78,7 +78,7 @@ export function FahrerPhase1670SchichtEndeCountdownTimer({
     const start = new Date(onlineSeit).getTime();
     const schichtEndMs = start + schichtDauerMin * 60 * 1000;
     const restSecs = Math.floor((schichtEndMs - now) / 1000);
-    const stufe =
+    const stufe: keyof typeof STUFEN =
       restSecs < 0   ? 'abgelaufen' :
       restSecs < 900  ? 'gleich' :
       restSecs < 1800 ? 'wenig' : 'viel';

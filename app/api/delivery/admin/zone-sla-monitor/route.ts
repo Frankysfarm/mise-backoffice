@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const sb = createClient();
+    const sb = await createClient();
     const since = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 
     const query = sb
