@@ -472,6 +472,7 @@ import { FahrerPhase1630TourStoppLiveNaviCockpit } from './phase1630-tour-stopp-
 import { FahrerPhase1634NaechsteSchichtVorbereitungCard } from './phase1634-naechste-schicht-vorbereitung-card';
 import { FahrerPhase1639FeierabendZusammenfassungCard } from './phase1639-feierabend-zusammenfassung-card';
 import { FahrerPhase1644TourQualitaetsScoreKarte } from './phase1644-tour-qualitaets-score-karte';
+import { FahrerPhase1649SmartTourStoppNavigatorPro } from './phase1649-smart-tour-stopp-navigator-pro';
 
 type Driver = {
   id: string;
@@ -5084,6 +5085,13 @@ export function FahrerApp({
             isOnline={isOnline}
             driverId={driver?.id ?? null}
           />
+          {/* Phase 1649: Smart-Tour-Stopp-Navigator-Pro — Alle Tour-Stops mit Priorität, ETA, Reihenfolge; Farbkodierung: Grün/Blau/Ausstehend */}
+          {activeBatch?.stops && activeBatch.stops.length > 0 && (
+            <FahrerPhase1649SmartTourStoppNavigatorPro
+              stops={activeBatch.stops as any}
+              currentStopId={null}
+            />
+          )}
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
