@@ -505,6 +505,7 @@ import { KitchenPhase1642KochstartAmpelBoard } from './phase1642-kochstart-ampel
 import { KitchenPhase1647SmartKochstartTimingHub } from './phase1647-smart-kochstart-timing-hub';
 import { KitchenPhase1652TagesKostenAmpel } from './phase1652-tages-kosten-ampel';
 import { KitchenPhase1658RezeptAuslastungsAmpel } from './phase1658-rezept-auslastungs-ampel';
+import { KitchenPhase1663SmartUrgencyCountdownBoard } from './phase1663-smart-urgency-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1470,6 +1471,8 @@ export function KitchenBoard({
       <KitchenPhase1652TagesKostenAmpel orders={filtered as any} />
       {/* Phase 1658: Rezept-Auslastungs-Ampel — Parallele gleiche Gerichte in Zubereitung; Überlast-Warnung >3; useMemo */}
       <KitchenPhase1658RezeptAuslastungsAmpel orders={filtered as any} />
+      {/* Phase 1663: Smart Urgency Countdown Board — Farbkodiertes Echtzeit-Countdown-Grid (Rot/Amber/Grün) für alle aktiven Bestellungen; 1s-Tick; Fortschrittsbalken */}
+      <KitchenPhase1663SmartUrgencyCountdownBoard />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

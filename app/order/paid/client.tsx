@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { StorefrontPhase876DynamischeEtaLiveTracking } from '../[locationSlug]/phase876-dynamische-eta-live-tracking';
 import { LiveEtaCountdownBanner } from '../[locationSlug]/live-eta-countdown-banner';
 import { OrderPhase1090DynamischeEtaLiveV2 } from '../[locationSlug]/phase1090-dynamische-eta-live-v2';
+import { StorefrontPhase1666EtaLiveCustomerTracking } from '../[locationSlug]/phase1666-eta-live-customer-tracking';
 
 type OrderStatus =
   | 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig'
@@ -199,6 +200,23 @@ export function PaidOrderClient({
               locationId={order?.location_id ?? undefined}
               orderId={bon ?? undefined}
               className="border-white/10 bg-white/5 text-white"
+            />
+          </div>
+        )}
+
+        {/* Phase 1666: ETA-Live-Customer-Tracking — 5-Phasen-Fortschrittsanzeige + Countdown + Fahrer-Info + ETA-Fenster; 15s-Polling */}
+        {bon && !isTerminal && (
+          <div className="mt-4">
+            <StorefrontPhase1666EtaLiveCustomerTracking
+              orderId={bon}
+              initialData={order ? {
+                status: order.status as any,
+                eta_earliest: order.eta_earliest,
+                eta_latest: order.eta_latest,
+                fahrer_vorname: order.fahrer_vorname,
+                fahrer_fahrzeug: order.fahrer_fahrzeug,
+                gesamtbetrag: order.gesamtbetrag ?? null,
+              } : null}
             />
           </div>
         )}
