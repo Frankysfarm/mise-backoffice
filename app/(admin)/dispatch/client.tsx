@@ -560,6 +560,7 @@ import { DispatchPhase1632FahrerBonusAuszahlungsWidget } from './phase1632-fahre
 import { DispatchPhase1637KuechenAuslastungsMonitor } from './phase1637-kuechen-auslastungs-monitor';
 import { DispatchPhase1643SchichtUebergabeCockpitWidget } from './phase1643-schicht-uebergabe-cockpit-widget';
 import { DispatchPhase1648TourScoreLiveKommando } from './phase1648-tour-score-live-kommando';
+import { DispatchPhase1653FahrerKomfortScoreUebersicht } from './phase1653-fahrer-komfort-score-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -1684,6 +1685,8 @@ export function DispatchBoard({
       <DispatchPhase1643SchichtUebergabeCockpitWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1648: Tour-Score-Live-Kommando — Echtzeit-Score je aktivem Fahrer: Gesamt-Score, Pünktlichkeit, Effizienz, SLA-Ampel */}
       <DispatchPhase1648TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1653: Fahrer-Komfort-Score-Übersicht — Phase1651-API: Score je Fahrer heute als Tabelle (Pausen/km/Touren) + Trend-Pfeile + Empfehlung; 30-Min-Polling */}
+      <DispatchPhase1653FahrerKomfortScoreUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

@@ -303,6 +303,7 @@ import { Phase1635BestellbestaetigungKonfettiOverlay } from './phase1635-bestell
 import { Phase1640AllergenHinweisModal } from './phase1640-allergen-hinweis-modal';
 import { Phase1645OeffnungszeitenStatusBanner } from './phase1645-oeffnungszeiten-status-banner';
 import { StorefrontPhase1650LiveLieferungStatusCockpit } from './phase1650-live-lieferung-status-cockpit';
+import { StorefrontPhase1655LieferzoneVisualisierungsBanner } from './phase1655-lieferzone-visualisierungs-banner';
 
 type Props = {
   location: Location;
@@ -1489,6 +1490,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1645OeffnungszeitenStatusBanner locationId={location.id} />
       {/* Phase 1650: Live-Lieferung-Status-Cockpit — Echtzeit-Lieferstatus für Kunden: Küche→Fahrer→Geliefert, dynamische ETA, Fahrer-Nähe-Indikator; 30s-Polling */}
       <StorefrontPhase1650LiveLieferungStatusCockpit orderId={null} />
+      {/* Phase 1655: Lieferzone-Visualisierungs-Banner — Zeigt ob Lieferadresse in Zone A/B/C/D liegt + ETA-Hinweis; locationId-Prop; Hydration-safe; schließbar */}
+      <StorefrontPhase1655LieferzoneVisualisierungsBanner locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
