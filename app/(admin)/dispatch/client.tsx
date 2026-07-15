@@ -576,6 +576,7 @@ import { DispatchPhase1000TourScoreLiveHub } from './phase1000-tour-score-live-h
 import { DispatchPhase1695TourFortschrittsBoard } from './phase1695-tour-fortschritts-board';
 import { DispatchPhase1704LieferKostenEffizienzWidget } from './phase1704-liefer-kosten-effizienz-widget';
 import { DispatchPhase1708TourScoreLiveAnzeige } from './phase1708-tour-score-live-anzeige';
+import { DispatchPhase1714KundenWiederkehrRateWidget } from './phase1714-kunden-wiederkehr-rate-widget';
 
 type Driver = {
   employee_id: string;
@@ -1730,6 +1731,8 @@ export function DispatchBoard({
       <DispatchPhase1704LieferKostenEffizienzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1708: Tour-Score Live-Anzeige — Score-Ring je aktiver Tour + Health-Ampel (on-time/tight/late) + Stop-Fortschrittsbalken + verbleibende ETA; ohne Polling, reagiert auf batches/drivers Props */}
       <DispatchPhase1708TourScoreLiveAnzeige batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1714: Kunden-Wiederkehr-Rate-Widget — Phase1712-API: Wiederkehr-% + Trend-Pfeil + Zonen-Breakdown; 60-Min-Polling */}
+      <DispatchPhase1714KundenWiederkehrRateWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}
       <DispatchPhase1000TourScoreLiveHub tours={batches.filter((b: Batch) => ['unterwegs', 'on_route', 'gestartet'].includes(b.status)).map((b: Batch) => {
         const dr = drivers.find((d: Driver) => d.employee_id === (b.fahrer_id ?? ''));
