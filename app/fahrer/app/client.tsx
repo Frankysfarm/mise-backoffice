@@ -504,6 +504,7 @@ import { FahrerPhase1750EigenerEffizienzTrend } from './phase1750-eigener-effizi
 import { FahrerPhase1755EigenePuenktlichkeitsQuote } from './phase1755-eigene-puenktlichkeits-quote';
 import { FahrerPhase1760EigeneTourenBilanz } from './phase1760-eigene-touren-bilanz';
 import { FahrerPhase1764SmartStoppNavigatorMitKartenLink } from './phase1764-smart-stopp-navigator-mit-karten-link';
+import { FahrerPhase1769ZonenVerdienstVergleich } from './phase1769-zonen-verdienst-vergleich';
 
 type Driver = {
   id: string;
@@ -5222,6 +5223,11 @@ export function FahrerApp({
           />
           {/* Phase 1764: Smart Stopp-Navigator mit Karten-Link — Nächster Stopp: Adresse, ETA, Entfernung + Google Maps / Apple Maps Links; isOnline-Guard; 30s-Polling */}
           <FahrerPhase1764SmartStoppNavigatorMitKartenLink
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1769: Zonen-Verdienst-Vergleich — Ø Verdienst je Zone letzte 7 Tage; beste Zone hervorheben; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1769ZonenVerdienstVergleich
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

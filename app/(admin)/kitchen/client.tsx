@@ -535,6 +535,7 @@ import { KitchenPhase1748BestellfrequenzPrognoseWidget } from './phase1748-beste
 import { KitchenPhase1753WartezeitHochlastIndikator } from './phase1753-wartezeit-hochlast-indikator';
 import { KitchenPhase1758BestellwertVerteilungsWidget } from './phase1758-bestellwert-verteilungs-widget';
 import { KitchenPhase1762SmartTimingCountdownFarbkodierungsCockpit } from './phase1762-smart-timing-countdown-farbkodierungs-cockpit';
+import { KitchenPhase1767ZubereitungszeitAusreisserTracker } from './phase1767-zubereitungszeit-ausreisser-tracker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1536,6 +1537,8 @@ export function KitchenBoard({
       <KitchenPhase1758BestellwertVerteilungsWidget orders={filtered as any} />
       {/* Phase 1762: Smart-Timing Countdown Farbkodierungs-Cockpit — Farbcodierte Countdowns pro aktive Bestellung (grün/amber/rot); kein API-Call; useMemo */}
       <KitchenPhase1762SmartTimingCountdownFarbkodierungsCockpit orders={filtered as any} />
+      {/* Phase 1767: Zubereitungszeit-Ausreißer-Tracker — Gerichte >50% Abweichung von Ø-Kochzeit; Alert-Badge + Liste; useMemo; Collapsible */}
+      <KitchenPhase1767ZubereitungszeitAusreisserTracker orders={filtered as any} />
       {/* Phase 1743: Kochzeit-Genauigkeits-Tracker — Ø Abweichung geschätzte vs. tatsächliche Zubereitungszeit je Gericht; Ampel; useMemo; Collapsible */}
       <KitchenPhase1743KochzeitGenauigkeitsTracker orders={filtered as any} />
       {/* Phase 1738: Schicht-Pausen-Tracker — Küchenpausen heute; Warnung >1h ohne Pause; useMemo; Collapsible */}
