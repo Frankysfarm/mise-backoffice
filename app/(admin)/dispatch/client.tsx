@@ -599,6 +599,7 @@ import { DispatchPhase1783FahrerPausenComplianceWidget } from './phase1783-fahre
 import { DispatchPhase1788LiveTourUebersichtWidget } from './phase1788-live-tour-uebersicht-widget';
 import { DispatchPhase1792TourScoreLeaderboard } from './phase1792-tour-score-leaderboard';
 import { DispatchPhase1798SchichtQualitaetScorecard } from './phase1798-schicht-qualitaet-scorecard';
+import { DispatchPhase1802FahrerAuslastungsMatrix } from './phase1802-fahrer-auslastungs-matrix';
 
 type Driver = {
   employee_id: string;
@@ -1775,8 +1776,10 @@ export function DispatchBoard({
       <DispatchPhase1788LiveTourUebersichtWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1792: Tour-Score-Leaderboard — Live-Rangliste Fahrer nach Score; Gold/Silber/Bronze-Farbkodierung; 3-Min-Polling */}
       <DispatchPhase1792TourScoreLeaderboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-      {/* Phase 1798: Schicht-Qualität-Scorecard — Fahrer + Score + Grade + Trend-Pfeil + 7-Tage-Sparkline; 30-Min-Polling */}
+{/* Phase 1798: Schicht-Qualität-Scorecard — Fahrer + Score + Grade + Trend-Pfeil + 7-Tage-Sparkline; 30-Min-Polling */}
       <DispatchPhase1798SchichtQualitaetScorecard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1802: Fahrer-Auslastungs-Matrix — Grid: aktive Stopps/Max + Auslastungs-Ampel + km/Touren je Fahrer; 5-Min-Polling */}
+      <DispatchPhase1802FahrerAuslastungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1783: Fahrer-Pausen-Compliance-Widget — Tabelle Fahrer + Pausenstatus + Verstoß-Warnung; 10-Min-Polling */}
       <DispatchPhase1783FahrerPausenComplianceWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1778: Schicht-Auslastungs-Prognose-Widget — Balkendiagramm nächste 4 Stunden-Slots + Fahrerbedarf-Empfehlung; 15-Min-Polling */}

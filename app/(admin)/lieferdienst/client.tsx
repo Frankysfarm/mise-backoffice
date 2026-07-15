@@ -378,6 +378,7 @@ import { LieferdienstPhase1722SchichtStatistikenEchtzeitDashboard } from './phas
 import { LieferdienstPhase1725TagesLiveStatistikenCockpit } from './phase1725-tages-live-statistiken-cockpit';
 import { LieferdienstPhase1726StatistikenKompaktHub } from './phase1726-statistiken-kompakt-hub';
 import { LieferdienstPhase1795EchtzeitStatistikHub } from './phase1795-echtzeit-statistik-hub';
+import { LieferdienstPhase1805SchichtVergleichsCockpit } from './phase1805-schicht-vergleichs-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2018,6 +2019,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1726StatistikenKompaktHub locationId={locationId} />
                 {/* Phase 1795: Echtzeit-Statistik-Hub — Zentrales Dashboard: Umsatz/Fahrer/Lieferzeit/Bewertung + Stunden-Balkendiagramm; Supabase-Realtime + 5-Min-Polling */}
                 <LieferdienstPhase1795EchtzeitStatistikHub locationId={locationId} />
+                {/* Phase 1805: Schicht-Vergleichs-Cockpit — Aktuelle vs. Vorschicht: Umsatz/Bestellungen/Ø Lieferzeit/Storno direkt verglichen; Supabase+Mock; 5-Min-Polling */}
+                <LieferdienstPhase1805SchichtVergleichsCockpit locationId={locationId} />
               </>
             </div>
           )}
