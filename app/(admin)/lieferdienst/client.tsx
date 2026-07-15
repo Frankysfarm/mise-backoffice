@@ -377,6 +377,7 @@ import { LieferdienstPhase1713StornoTrendPanel } from './phase1713-storno-trend-
 import { LieferdienstPhase1722SchichtStatistikenEchtzeitDashboard } from './phase1722-schicht-statistiken-echtzeit-dashboard';
 import { LieferdienstPhase1725TagesLiveStatistikenCockpit } from './phase1725-tages-live-statistiken-cockpit';
 import { LieferdienstPhase1726StatistikenKompaktHub } from './phase1726-statistiken-kompakt-hub';
+import { LieferdienstPhase1795EchtzeitStatistikHub } from './phase1795-echtzeit-statistik-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2015,6 +2016,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1725TagesLiveStatistikenCockpit locationId={locationId} />
                 {/* Phase 1726: Statistiken-Kompakt-Hub — 6-KPI-Grid (Umsatz/Bestellungen/Ø Lieferzeit/Bewertung/Fahrer/Pünktlichkeit) + Trend vs. Vortag; 60s-Polling; Supabase-Live */}
                 <LieferdienstPhase1726StatistikenKompaktHub locationId={locationId} />
+                {/* Phase 1795: Echtzeit-Statistik-Hub — Zentrales Dashboard: Umsatz/Fahrer/Lieferzeit/Bewertung + Stunden-Balkendiagramm; Supabase-Realtime + 5-Min-Polling */}
+                <LieferdienstPhase1795EchtzeitStatistikHub locationId={locationId} />
               </>
             </div>
           )}

@@ -597,6 +597,7 @@ import { DispatchPhase1773FahrerEinnahmenPrognoseWidget } from './phase1773-fahr
 import { DispatchPhase1778SchichtAuslastungsPrognoseWidget } from './phase1778-schicht-auslastungs-prognose-widget';
 import { DispatchPhase1783FahrerPausenComplianceWidget } from './phase1783-fahrer-pausen-compliance-widget';
 import { DispatchPhase1788LiveTourUebersichtWidget } from './phase1788-live-tour-uebersicht-widget';
+import { DispatchPhase1792TourScoreLeaderboard } from './phase1792-tour-score-leaderboard';
 
 type Driver = {
   employee_id: string;
@@ -1771,6 +1772,8 @@ export function DispatchBoard({
       <DispatchPhase1768LiefergebietRentabilitaetsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1788: Live-Tour-Übersicht-Widget — Aktive Fahrer mit Zone/Stopps/ETA als Karten; 2-Min-Polling */}
       <DispatchPhase1788LiveTourUebersichtWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1792: Tour-Score-Leaderboard — Live-Rangliste Fahrer nach Score; Gold/Silber/Bronze-Farbkodierung; 3-Min-Polling */}
+      <DispatchPhase1792TourScoreLeaderboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1783: Fahrer-Pausen-Compliance-Widget — Tabelle Fahrer + Pausenstatus + Verstoß-Warnung; 10-Min-Polling */}
       <DispatchPhase1783FahrerPausenComplianceWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1778: Schicht-Auslastungs-Prognose-Widget — Balkendiagramm nächste 4 Stunden-Slots + Fahrerbedarf-Empfehlung; 15-Min-Polling */}

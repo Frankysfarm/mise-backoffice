@@ -509,6 +509,7 @@ import { FahrerPhase1774MeinSchichtEinnahmenZaehler } from './phase1774-mein-sch
 import { FahrerPhase1779MeineSchichtBilanzKarte } from './phase1779-meine-schicht-bilanz-karte';
 import { FahrerPhase1784EigenePauseErinnerung } from './phase1784-eigene-pause-erinnerung';
 import { FahrerPhase1789NaechsterStoppNavigator } from './phase1789-naechster-stopp-navigator';
+import { FahrerPhase1793TourStoppFortschrittsNavigator } from './phase1793-tour-stopp-fortschritts-navigator';
 
 type Driver = {
   id: string;
@@ -5237,6 +5238,11 @@ export function FahrerApp({
           />
           {/* Phase 1789: Nächster-Stopp-Navigator — Nächste Adresse + Karten-Link + Stopp-Fortschritt; isOnline-Guard; 2-Min-Polling */}
           <FahrerPhase1789NaechsterStoppNavigator
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1793: Tour-Stopp-Fortschritts-Navigator — Alle Tour-Stopps mit Fortschrittsbalken + aktivem Stopp + Navi-Link; 2-Min-Polling */}
+          <FahrerPhase1793TourStoppFortschrittsNavigator
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

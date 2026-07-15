@@ -540,6 +540,7 @@ import { KitchenPhase1772GerichtWarteschlangenPrioritaet } from './phase1772-ger
 import { KitchenPhase1777LiveKochplanOptimierer } from './phase1777-live-kochplan-optimierer';
 import { KitchenPhase1782KuechenKapazitaetsAmpel } from './phase1782-kuechen-kapazitaets-ampel';
 import { KitchenPhase1787BestellungsCountdownUebersicht } from './phase1787-bestellungs-countdown-uebersicht';
+import { KitchenPhase1791SmartKochzeitPrognoseBoard } from './phase1791-smart-kochzeit-prognose-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1545,6 +1546,8 @@ export function KitchenBoard({
       <KitchenPhase1767ZubereitungszeitAusreisserTracker orders={filtered as any} />
       {/* Phase 1787: Bestellungs-Countdown-Übersicht — Alle aktiven Bestellungen mit verbleibender Zeit; Farbampel; useMemo; 15s-Tick */}
       <KitchenPhase1787BestellungsCountdownUebersicht orders={filtered as any} />
+      {/* Phase 1791: Smart-Kochzeit-Prognose-Board — Prognose Zubereitungszeit je Bestellung basierend auf Warteschlange + Komplexität; 5-Stufen-Ampel; 30s-Tick */}
+      <KitchenPhase1791SmartKochzeitPrognoseBoard orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}
