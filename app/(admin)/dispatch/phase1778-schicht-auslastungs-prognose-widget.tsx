@@ -2,28 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { TrendingUp, RefreshCw, Users, ShoppingBag } from 'lucide-react';
+import { BarChart2, ChevronDown, ChevronUp, RefreshCw, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
 /**
  * Phase 1778 — Schicht-Auslastungs-Prognose-Widget (Dispatch)
  *
- * Phase1776-API: Liniendiagramm nächste 2h (4 Stunden-Slots) + Fahrerbedarf-Empfehlung.
- * 15-Min-Polling; in dispatch/client.tsx.
+ * Phase1776-API: Liniendiagramm nächste 3h + Fahrerbedarf-Empfehlung; 15-Min-Polling.
  */
 
-interface StundenSlot {
-  uhrzeit: string;
-  prognose_bestellungen: number;
-  empfohlene_fahrer: number;
-  historischer_avg: number;
+interface PrognoseSlot {
+  stunde: string;
+  bestellungen_prognose: number;
+  fahrer_bedarf: number;
+  fahrer_verfuegbar: number;
+  auslastung: 'niedrig' | 'normal' | 'hoch' | 'kritisch';
 }
 
 interface Antwort {
-  slots: StundenSlot[];
-  aktuell_aktive_bestellungen: number;
-  aktuell_online_fahrer: number;
+  slots: PrognoseSlot[];
   location_id: string;
   generiert_am: string;
+  aktuelle_stunde_bestellungen: number;
+  trend: 'steigend' | 'fallend' | 'stabil';
 }
 
 interface Props {
@@ -31,36 +31,35 @@ interface Props {
   className?: string;
 }
 
-const MAX_HEIGHT = 80;
+const auslastungStyle: Record<PrognoseSlot['auslastung'], { bar: string; badge: string; label: string }> = {
+  niedrig:  { bar: 'bg-matcha-300', badge: 'bg-matcha-100 text-matcha-700', label: 'Niedrig' },
+  normal:   { bar: 'bg-matcha-500', badge: 'bg-matcha-100 text-matcha-700', label: 'Normal' },
+  hoch:     { bar: 'bg-amber-400',  badge: 'bg-amber-100 text-amber-700',   label: 'Hoch' },
+  kritisch: { bar: 'bg-red-500',    badge: 'bg-red-100 text-red-700',       label: 'Kritisch' },
+};
 
-function Bar({ value, max, label, isFirst }: { value: number; max: number; label: string; isFirst: boolean }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  const height = Math.max(8, Math.round((pct / 100) * MAX_HEIGHT));
+function TrendBadge({ trend }: { trend: Antwort['trend'] }) {
+  if (trend === 'steigend') return (
+    <span className="flex items-center gap-0.5 text-amber-600 text-[10px] font-bold">
+      <TrendingUp className="h-3 w-3" /> Steigend
+    </span>
+  );
+  if (trend === 'fallend') return (
+    <span className="flex items-center gap-0.5 text-matcha-600 text-[10px] font-bold">
+      <TrendingDown className="h-3 w-3" /> Fallend
+    </span>
+  );
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span className={cn(
-        'text-[10px] font-bold tabular-nums',
-        isFirst ? 'text-saffron' : 'text-foreground',
-      )}>
-        {value}
-      </span>
-      <div className="flex items-end" style={{ height: MAX_HEIGHT }}>
-        <div
-          className={cn(
-            'w-8 rounded-t-md transition-all',
-            isFirst ? 'bg-saffron' : 'bg-matcha-400 dark:bg-matcha-600',
-          )}
-          style={{ height }}
-        />
-      </div>
-      <span className="text-[9px] text-muted-foreground tabular-nums">{label}</span>
-    </div>
+    <span className="flex items-center gap-0.5 text-muted-foreground text-[10px]">
+      <Minus className="h-3 w-3" /> Stabil
+    </span>
   );
 }
 
 export function DispatchPhase1778SchichtAuslastungsPrognoseWidget({ locationId, className }: Props) {
   const [data, setData] = useState<Antwort | null>(null);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(true);
   const [lastFetch, setLastFetch] = useState<Date | null>(null);
 
   async function load() {
@@ -84,110 +83,92 @@ export function DispatchPhase1778SchichtAuslastungsPrognoseWidget({ locationId, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationId]);
 
-  const maxOrders = data ? Math.max(...data.slots.map(s => s.prognose_bestellungen), 1) : 1;
+  const maxBestellungen = Math.max(...(data?.slots.map((s) => s.bestellungen_prognose) ?? [1]), 1);
 
   return (
-    <div className={cn('rounded-xl border border-border bg-card mb-3', className)}>
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-saffron" />
-          <span className="text-sm font-bold">Schicht-Auslastungs-Prognose</span>
-          {loading && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
-        </div>
-        {lastFetch && (
-          <span className="text-[10px] text-muted-foreground">
-            {lastFetch.getHours().toString().padStart(2, '0')}:{lastFetch.getMinutes().toString().padStart(2, '0')} Uhr
-          </span>
-        )}
-      </div>
+    <div className={cn('rounded-xl border bg-card shadow-sm overflow-hidden', className)}>
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className="flex w-full items-center gap-2 px-4 py-2.5 border-b hover:bg-muted/30 transition"
+      >
+        <BarChart2 className="h-4 w-4 text-matcha-600 shrink-0" />
+        <span className="text-xs font-bold uppercase tracking-wider text-foreground flex-1 text-left">
+          Schicht-Auslastungs-Prognose · Nächste 3h
+        </span>
+        {data && <TrendBadge trend={data.trend} />}
+        {loading && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />}
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+      </button>
 
-      <div className="px-4 py-3 space-y-4">
-        {/* Live-Status */}
-        {data && (
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
-              <ShoppingBag className="h-4 w-4 text-saffron shrink-0" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">Aktive Bestellungen</p>
-                <p className="text-sm font-black tabular-nums">{data.aktuell_aktive_bestellungen}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
-              <Users className="h-4 w-4 text-matcha-600 shrink-0" />
-              <div>
-                <p className="text-[10px] text-muted-foreground">Online Fahrer</p>
-                <p className="text-sm font-black tabular-nums">{data.aktuell_online_fahrer}</p>
-              </div>
-            </div>
-          </div>
-        )}
+      {open && (
+        <div className="p-4 space-y-4">
+          {!locationId && (
+            <p className="text-sm text-muted-foreground">Bitte Filiale auswählen.</p>
+          )}
 
-        {/* Balkendiagramm Prognose */}
-        {data && data.slots.length > 0 ? (
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
-              Prognose nächste Stunden
-            </p>
-            <div className="flex items-end justify-around gap-1">
-              {data.slots.map((slot, i) => (
-                <Bar
-                  key={slot.uhrzeit}
-                  value={slot.prognose_bestellungen}
-                  max={maxOrders}
-                  label={slot.uhrzeit}
-                  isFirst={i === 0}
-                />
-              ))}
-            </div>
-          </div>
-        ) : !loading && (
-          <p className="text-sm text-muted-foreground text-center py-2">Keine Prognose-Daten verfügbar.</p>
-        )}
+          {locationId && !data && !loading && (
+            <p className="text-sm text-muted-foreground">Prognose nicht verfügbar.</p>
+          )}
 
-        {/* Fahrerbedarf-Empfehlung */}
-        {data && data.slots.length > 0 && (
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Empfohlene Fahrer je Slot
-            </p>
-            <div className="space-y-1.5">
-              {data.slots.map((slot, i) => {
-                const bedarf = slot.empfohlene_fahrer;
-                const delta = bedarf - (data.aktuell_online_fahrer ?? 0);
-                const ok = delta <= 0;
-                return (
-                  <div key={slot.uhrzeit} className="flex items-center gap-3">
-                    <span className="w-12 shrink-0 text-[11px] font-bold tabular-nums text-muted-foreground">
-                      {slot.uhrzeit}
-                    </span>
-                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={cn(
-                          'h-full rounded-full',
-                          i === 0 ? 'bg-saffron' : ok ? 'bg-matcha-500' : 'bg-amber-400',
-                        )}
-                        style={{ width: `${Math.min(100, (bedarf / 8) * 100)}%` }}
-                      />
+          {data && (
+            <>
+              {/* Balken-Diagramm */}
+              <div className="space-y-2">
+                {data.slots.map((slot) => {
+                  const s = auslastungStyle[slot.auslastung];
+                  const widthPct = Math.round((slot.bestellungen_prognose / maxBestellungen) * 100);
+                  const fehlendeFahrer = Math.max(0, slot.fahrer_bedarf - slot.fahrer_verfuegbar);
+                  return (
+                    <div key={slot.stunde} className="space-y-1">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="font-bold w-10 tabular-nums">{slot.stunde}</span>
+                        <span className={cn('rounded-full px-2 py-0.5 text-[9px] font-black', s.badge)}>
+                          {s.label}
+                        </span>
+                        <span className="text-muted-foreground flex-1 text-right">
+                          ~{slot.bestellungen_prognose} Bestellungen
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full transition-all duration-500', s.bar)}
+                            style={{ width: `${widthPct}%` }}
+                          />
+                        </div>
+                        <span className="text-[9px] font-bold tabular-nums shrink-0 w-16 text-right text-muted-foreground">
+                          {slot.fahrer_verfuegbar}/{slot.fahrer_bedarf} Fahrer
+                        </span>
+                      </div>
+                      {fehlendeFahrer > 0 && (
+                        <div className="text-[9px] text-red-500 font-bold pl-10">
+                          ⚠ {fehlendeFahrer} Fahrer fehlen
+                        </div>
+                      )}
                     </div>
-                    <span className={cn(
-                      'w-20 shrink-0 text-right text-[11px] font-bold tabular-nums',
-                      ok ? 'text-matcha-700 dark:text-matcha-400' : 'text-amber-600 dark:text-amber-400',
-                    )}>
-                      {bedarf} Fahrer{!ok && ` (+${delta})`}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                  );
+                })}
+              </div>
 
-        {!data && !loading && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            {locationId ? 'Prognose wird geladen…' : 'Bitte Filiale auswählen.'}
-          </p>
-        )}
-      </div>
+              {/* Fahrerbedarf-Empfehlung */}
+              <div className="rounded-lg bg-muted/40 px-3 py-2 text-[11px]">
+                <span className="font-bold text-foreground">Empfehlung: </span>
+                <span className="text-muted-foreground">
+                  {data.slots.some((s) => s.fahrer_bedarf > s.fahrer_verfuegbar)
+                    ? `Mehr Fahrer einteilen — Engpass ab ${data.slots.find((s) => s.fahrer_bedarf > s.fahrer_verfuegbar)?.stunde ?? '?'} Uhr erwartet.`
+                    : 'Fahrer-Kapazität ausreichend für die nächsten Stunden.'}
+                </span>
+              </div>
+
+              {lastFetch && (
+                <div className="text-[9px] text-muted-foreground text-right">
+                  Aktualisiert {lastFetch.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} · 15-Min-Takt
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -5243,6 +5243,11 @@ export function FahrerApp({
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
+          {/* Phase 1779: Meine Schicht-Bilanz-Karte — letzte Tour: Stops/Zeit/Bewertung/km; Schicht-Gesamt; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1779MeineSchichtBilanzKarte
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
           {/* Phase 1745: Eigene Reaktionszeit-Anzeige — Ø Reaktionszeit + Team-Vergleich; isOnline-Guard; 20-Min-Polling */}
           <FahrerPhase1745EigeneReaktionstanzAnzeige
             driverId={driver?.id ?? null}

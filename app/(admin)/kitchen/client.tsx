@@ -1545,6 +1545,8 @@ export function KitchenBoard({
       <KitchenPhase1777LiveKochplanOptimierer orders={filtered as any} />
       {/* Phase 1772: Gericht-Warteschlangen-Priorität — Welches Gericht wartet am längsten? Alert >15 Min; Priorisierungsliste; useMemo; Collapsible */}
       <KitchenPhase1772GerichtWarteschlangenPrioritaet orders={filtered as any} />
+      {/* Phase 1777: Live-Kochplan-Optimierer — Bestellungen nach Dringlichkeit sortiert; Alert überfällig; Drag-Hinweis; useMemo; Collapsible */}
+      <KitchenPhase1777LiveKochplanOptimierer orders={filtered as any} />
       {/* Phase 1743: Kochzeit-Genauigkeits-Tracker — Ø Abweichung geschätzte vs. tatsächliche Zubereitungszeit je Gericht; Ampel; useMemo; Collapsible */}
       <KitchenPhase1743KochzeitGenauigkeitsTracker orders={filtered as any} />
       {/* Phase 1738: Schicht-Pausen-Tracker — Küchenpausen heute; Warnung >1h ohne Pause; useMemo; Collapsible */}

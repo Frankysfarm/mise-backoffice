@@ -1771,6 +1771,8 @@ export function DispatchBoard({
       <DispatchPhase1778SchichtAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1773: Fahrer-Einnahmen-Prognose-Widget — Tabelle Fahrer + Einnahmen-Prognose Schichtende + Trend-Pfeil; 30-Min-Polling */}
       <DispatchPhase1773FahrerEinnahmenPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1778: Schicht-Auslastungs-Prognose-Widget — Phase1776-API: Balken-Diagramm nächste 3h + Fahrerbedarf-Empfehlung; 15-Min-Polling */}
+      <DispatchPhase1778SchichtAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1744: Fahrer-Reaktionszeit-Widget — Ø Reaktionszeit je Fahrer + Ausreißer-Flagge; 20-Min-Polling */}
       <DispatchPhase1744FahrerReaktionsteiWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1739: Lieferzeit-Abweichungs-Widget — Ø Δ ETA je Fahrer + Ausreißer-Flagge; 15-Min-Polling */}
