@@ -72,7 +72,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (error || !data) return NextResponse.json(mockData(locationId));
 
     function sumRange(from: Date, to: Date) {
-      const rows = data.filter(r => {
+      const rows = data!.filter(r => {
         const t = new Date(r.created_at);
         return t >= from && t < to;
       });
