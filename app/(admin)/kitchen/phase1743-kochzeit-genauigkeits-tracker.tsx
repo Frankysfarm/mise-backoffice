@@ -84,7 +84,7 @@ export function KitchenPhase1743KochzeitGenauigkeitsTracker({
           avg_delta_min: Math.round(avg * 10) / 10,
           min_delta: Math.round(Math.min(...deltas) * 10) / 10,
           max_delta: Math.round(Math.max(...deltas) * 10) / 10,
-          ampel: absAvg <= schwelle_gut ? 'gut' : absAvg <= schwelle_schlecht ? 'okay' : 'schlecht',
+          ampel: (absAvg <= schwelle_gut ? 'gut' : absAvg <= schwelle_schlecht ? 'okay' : 'schlecht') as GerichtProfil['ampel'],
         };
       })
       .sort((a, b) => Math.abs(b.avg_delta_min) - Math.abs(a.avg_delta_min));

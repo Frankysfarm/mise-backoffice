@@ -90,26 +90,37 @@ export function LieferdienstPhase1726StatistikenKompaktHub({
           .select('id, gesamtbetrag, status, bestellt_am, geschaetzte_lieferzeit_min, lieferzeit_tatsaechlich_min, bewertung_gesamt');
         if (locationId) q = (q as any).eq('location_id', locationId);
 
-        const { data } = await q.gte('bestellt_am', yesterdayStart.toISOString());
-        if (!data) return;
-
-        const today = data.filter(o => new Date(o.bestellt_am) >= todayStart);
-        const yesterday = data.filter(o => new Date(o.bestellt_am) < todayStart);
-
-        const sumRevenue = (rows: typeof data) =>
-          rows.filter(o => ['geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status))
-            .reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-
-        const avgField = (rows: typeof data, field: keyof typeof rows[0]) => {
-          const vals = rows.map(o => o[field]).filter((v): v is number => typeof v === 'number');
-          return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+        type OrderRow = {
+          id: string;
+          gesamtbetrag: number | null;
+          status: string;
+          bestellt_am: string;
+          geschaetzte_lieferzeit_min: number | null;
+          lieferzeit_tatsaechlich_min: number | null;
+          bewertung_gesamt: number | null;
         };
 
-        const pünktlich = today.filter(o =>
+        const { data: rawData } = await q.gte('bestellt_am', yesterdayStart.toISOString());
+        if (!rawData) return;
+        const data = rawData as OrderRow[];
+
+        const today = data.filter((o: OrderRow) => new Date(o.bestellt_am) >= todayStart);
+        const yesterday = data.filter((o: OrderRow) => new Date(o.bestellt_am) < todayStart);
+
+        const sumRevenue = (rows: OrderRow[]) =>
+          rows.filter((o: OrderRow) => ['geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status))
+            .reduce((s: number, o: OrderRow) => s + (o.gesamtbetrag ?? 0), 0);
+
+        const avgField = (rows: OrderRow[], field: keyof OrderRow) => {
+          const vals = rows.map((o: OrderRow) => o[field]).filter((v): v is number => typeof v === 'number');
+          return vals.length > 0 ? vals.reduce((a: number, b: number) => a + b, 0) / vals.length : null;
+        };
+
+        const pünktlich = today.filter((o: OrderRow) =>
           o.lieferzeit_tatsaechlich_min && o.geschaetzte_lieferzeit_min &&
           o.lieferzeit_tatsaechlich_min <= o.geschaetzte_lieferzeit_min + 5
         ).length;
-        const totalDelivered = today.filter(o => o.lieferzeit_tatsaechlich_min).length;
+        const totalDelivered = today.filter((o: OrderRow) => o.lieferzeit_tatsaechlich_min).length;
 
         // Aktive Fahrer (online in mise_drivers)
         let fahrerQ = supabase.from('mise_drivers').select('id', { count: 'exact', head: true }).eq('state', 'online');

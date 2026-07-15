@@ -4,7 +4,23 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Clock, TrendingDown, TrendingUp, Minus, Target } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import type { FahrerReaktionszeitResponse, FahrerReaktionszeitEintrag } from '@/app/api/delivery/admin/fahrer-reaktionszeit/route';
+interface FahrerReaktionszeitEintrag {
+  fahrer_id: string;
+  name: string;
+  avg_reaktionszeit_min: number;
+  anzahl: number;
+  rang: number;
+  trend: 'besser' | 'gleich' | 'schlechter';
+  tage: { datum: string; avg_min: number }[];
+}
+
+interface FahrerReaktionszeitResponse {
+  fahrer: FahrerReaktionszeitEintrag[];
+  team_avg_min: number;
+  sla_ziel_min: number;
+  location_id: string;
+  generiert_am: string;
+}
 
 // Phase 1483 — Fahrer-Reaktionszeit-Widget (Dispatch)
 // Phase1476-API: Rangliste + 7-Tage-Sparklines + Team-Ø vs. SLA-Ziel; 30-Min-Polling.
