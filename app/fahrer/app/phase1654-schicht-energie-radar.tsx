@@ -1,9 +1,18 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Battery, BatteryLow, BatteryMedium, Coffee, Zap, WifiOff } from 'lucide-react';
 
-interface KomfortData {
+/**
+ * Phase 1654 — Schicht-Energie-Radar (Fahrer-App)
+ *
+ * Phase1651-API: /api/delivery/driver/komfort-score-heute
+ * Energie-Level (0–100) als Radial-Ring + Empfehlung (Pause/Weiter/Schicht-Ende).
+ * isOnline-Guard, 20-Min-Polling.
+ */
+
+interface KomfortScore {
   driver_id: string;
   pausen_minuten: number;
   km_gesamt: number;
@@ -14,125 +23,126 @@ interface KomfortData {
 }
 
 interface Props {
-  driverId: string | null;
-  isOnline: boolean;
+  driverId?: string | null;
+  isOnline?: boolean;
 }
 
-const RING_SIZE = 88;
-const STROKE = 9;
-const RADIUS = (RING_SIZE - STROKE) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-function scoreToOffset(score: number): number {
-  return CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
-}
-
-const EMPFEHLUNG_CONFIG: Record<KomfortData['empfehlung'], { label: string; color: string; ring: string; bg: string }> = {
-  weiter:       { label: '✓ Weiterfahren',   color: 'text-emerald-600 dark:text-emerald-400', ring: 'stroke-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-  pause:        { label: '⏸ Pause empfohlen', color: 'text-amber-600 dark:text-amber-400',   ring: 'stroke-amber-400',   bg: 'bg-amber-50 dark:bg-amber-950/20' },
-  schicht_ende: { label: '⛔ Schicht beenden', color: 'text-red-600 dark:text-red-400',       ring: 'stroke-red-500',     bg: 'bg-red-50 dark:bg-red-950/20' },
+const MOCK: KomfortScore = {
+  driver_id: 'local',
+  pausen_minuten: 25,
+  km_gesamt: 68,
+  tour_anzahl: 7,
+  komfort_score: 62,
+  empfehlung: 'weiter',
+  generiert_am: new Date().toISOString(),
 };
 
-function buildMock(driverId: string): KomfortData {
-  const seed = driverId.charCodeAt(0) % 50;
-  const score = 40 + seed;
-  const emp: KomfortData['empfehlung'] = score >= 70 ? 'weiter' : score >= 45 ? 'pause' : 'schicht_ende';
-  return { driver_id: driverId, pausen_minuten: 20 + seed, km_gesamt: 60 + seed, tour_anzahl: 5 + (seed % 5), komfort_score: score, empfehlung: emp, generiert_am: new Date().toISOString() };
+const EMPFEHLUNG_CFG = {
+  weiter: {
+    label: 'Gut unterwegs',
+    sub: 'Deine Energie ist ausreichend — weiter so!',
+    color: 'text-matcha-700 dark:text-matcha-300',
+    ring: '#22c55e',
+    icon: Zap,
+  },
+  pause: {
+    label: 'Pause empfohlen',
+    sub: 'Nimm dir kurz Zeit zum Erholen.',
+    color: 'text-amber-700 dark:text-amber-300',
+    ring: '#f59e0b',
+    icon: Coffee,
+  },
+  schicht_ende: {
+    label: 'Schicht beenden',
+    sub: 'Du hast heute genug geleistet.',
+    color: 'text-red-700 dark:text-red-300',
+    ring: '#ef4444',
+    icon: BatteryLow,
+  },
+};
+
+// Radial SVG ring
+function EnergyRing({ score, color }: { score: number; color: string }) {
+  const r = 36;
+  const circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+  return (
+    <svg viewBox="0 0 88 88" className="w-24 h-24">
+      <circle cx="44" cy="44" r={r} fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/30" />
+      <circle
+        cx="44" cy="44" r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth="8"
+        strokeDasharray={`${dash} ${circ}`}
+        strokeLinecap="round"
+        transform="rotate(-90 44 44)"
+      />
+      <text x="44" y="49" textAnchor="middle" fontSize="18" fontWeight="700" fill={color}>{score}</text>
+    </svg>
+  );
 }
 
-export function FahrerPhase1654SchichtEnergieRadar({ driverId, isOnline }: Props) {
-  const [data, setData] = useState<KomfortData | null>(null);
+export function FahrerPhase1654SchichtEnergieRadar({ driverId, isOnline = true }: Props) {
+  const [data, setData] = useState<KomfortScore>(MOCK);
   const [loading, setLoading] = useState(false);
 
-  const doFetch = useCallback(async () => {
-    if (!driverId) return;
-    setLoading(true);
-    try {
-      const res = await window.fetch(`/api/delivery/driver/komfort-score-heute?driver_id=${driverId}`);
-      if (res.ok) setData(await res.json());
-      else setData(buildMock(driverId));
-    } catch {
-      setData(buildMock(driverId));
-    } finally {
-      setLoading(false);
-    }
-  }, [driverId]);
-
   useEffect(() => {
-    if (!isOnline || !driverId) return;
-    doFetch();
-    const iv = setInterval(doFetch, 20 * 60_000);
+    if (!driverId || !isOnline) return;
+
+    async function load() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/delivery/driver/komfort-score-heute?driver_id=${driverId}`);
+        if (res.ok) setData(await res.json());
+      } catch {
+        // keep current
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+    const iv = setInterval(load, 20 * 60 * 1000); // 20 Min
     return () => clearInterval(iv);
-  }, [doFetch, isOnline, driverId]);
+  }, [driverId, isOnline]);
 
-  if (!isOnline || !driverId) return null;
+  const cfg = EMPFEHLUNG_CFG[data.empfehlung];
+  const Icon = cfg.icon;
 
-  const score = data?.komfort_score ?? 0;
-  const emp = data?.empfehlung ?? 'weiter';
-  const cfg = EMPFEHLUNG_CONFIG[emp];
-  const offset = scoreToOffset(score);
+  if (!isOnline) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/20 p-3 mb-3 flex items-center gap-2">
+        <WifiOff className="h-4 w-4 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground">Energie-Radar offline nicht verfügbar</span>
+      </div>
+    );
+  }
 
   return (
-    <div className={cn('rounded-xl border border-border p-4 space-y-3', cfg.bg)}>
-      <div className="text-sm font-bold text-foreground">Schicht-Energie-Radar</div>
-
-      {/* Radial Ring + Score */}
-      <div className="flex items-center gap-4">
-        <div className="relative shrink-0" style={{ width: RING_SIZE, height: RING_SIZE }}>
-          <svg width={RING_SIZE} height={RING_SIZE} className="-rotate-90">
-            <circle
-              cx={RING_SIZE / 2}
-              cy={RING_SIZE / 2}
-              r={RADIUS}
-              fill="none"
-              strokeWidth={STROKE}
-              className="stroke-muted"
-            />
-            <circle
-              cx={RING_SIZE / 2}
-              cy={RING_SIZE / 2}
-              r={RADIUS}
-              fill="none"
-              strokeWidth={STROKE}
-              strokeDasharray={CIRCUMFERENCE}
-              strokeDashoffset={data ? offset : CIRCUMFERENCE}
-              strokeLinecap="round"
-              className={cn('transition-all duration-700', cfg.ring)}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            {loading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-foreground" />
-            ) : (
-              <>
-                <span className="text-xl font-black tabular-nums leading-none">{score}</span>
-                <span className="text-[9px] text-muted-foreground leading-none mt-0.5">/100</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* KPIs */}
-        <div className="flex-1 space-y-1.5">
-          {data && [
-            { label: 'Pausen', value: `${data.pausen_minuten} Min` },
-            { label: 'Gefahren', value: `${data.km_gesamt} km` },
-            { label: 'Touren', value: `${data.tour_anzahl}×` },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{label}</span>
-              <span className="font-bold tabular-nums">{value}</span>
-            </div>
-          ))}
-        </div>
+    <div className="rounded-xl border border-border bg-card p-3 mb-3">
+      <div className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+        <Battery className="h-3.5 w-3.5" /> Schicht-Energie-Radar
+        {loading && <span className="text-[10px] opacity-60">…</span>}
       </div>
 
-      {/* Empfehlung */}
-      {data && (
-        <div className={cn('rounded-lg px-3 py-2 text-xs font-bold text-center', cfg.color, 'bg-white/50 dark:bg-black/20')}>
-          {cfg.label}
+      <div className="flex items-center gap-4">
+        <EnergyRing score={data.komfort_score} color={cfg.ring} />
+
+        <div className="flex-1 space-y-1.5">
+          <div className={cn('text-sm font-bold flex items-center gap-1.5', cfg.color)}>
+            <Icon className="h-4 w-4 shrink-0" />
+            {cfg.label}
+          </div>
+          <p className="text-xs text-muted-foreground">{cfg.sub}</p>
+
+          <div className="flex flex-wrap gap-2 mt-2 text-[11px] text-muted-foreground">
+            <span>☕ {data.pausen_minuten} min Pause</span>
+            <span>🛣 {data.km_gesamt} km</span>
+            <span>📦 {data.tour_anzahl} Touren</span>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

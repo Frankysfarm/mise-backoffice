@@ -5093,7 +5093,7 @@ export function FahrerApp({
               currentStopId={null}
             />
           )}
-          {/* Phase 1654: Schicht-Energie-Radar — Phase1651-API: Energie-Level (0–100) als Radial-Ring + Empfehlung (Pause/Weiter/Schicht-Ende); isOnline-Guard; 20-Min-Polling */}
+          {/* Phase 1654: Schicht-Energie-Radar — Phase1651-API: Energie-Level (0–100) als Radial-Ring + Empfehlung; isOnline-Guard; 20-Min-Polling */}
           <FahrerPhase1654SchichtEnergieRadar driverId={driver?.id ?? null} isOnline={isOnline} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}

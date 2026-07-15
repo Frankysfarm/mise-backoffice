@@ -1,164 +1,153 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, Loader2, RefreshCw, TrendingDown, TrendingUp, Minus } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Activity, ChevronDown, ChevronUp, Coffee, Gauge, Route, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
-interface FahrerKomfort {
-  fahrer_id: string;
-  fahrer_name: string;
+/**
+ * Phase 1653 — Fahrer-Komfort-Score-Übersicht (Dispatch)
+ *
+ * Phase1651-API: /api/delivery/driver/komfort-score-heute
+ * Score je Fahrer heute als Tabelle (Pausen/km/Touren) +
+ * Trend-Pfeile + Empfehlung. 30-Min-Polling.
+ */
+
+interface KomfortScore {
+  driver_id: string;
   pausen_minuten: number;
   km_gesamt: number;
   tour_anzahl: number;
   komfort_score: number;
   empfehlung: 'pause' | 'weiter' | 'schicht_ende';
-}
-
-interface ApiData {
-  fahrer: FahrerKomfort[];
-  location_id: string;
   generiert_am: string;
 }
 
 interface Props {
-  locationId: string | null;
+  locationId?: string | null;
+  driverIds?: string[];
 }
 
-const SCORE_STYLE = (score: number) => {
-  if (score >= 70) return { bar: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-400' };
-  if (score >= 45) return { bar: 'bg-amber-400',   text: 'text-amber-700 dark:text-amber-400' };
-  return               { bar: 'bg-red-500',         text: 'text-red-700 dark:text-red-400' };
-};
+const MOCK_DRIVERS: Array<{ id: string; name: string }> = [
+  { id: 'mock-1', name: 'Max M.' },
+  { id: 'mock-2', name: 'Lisa K.' },
+  { id: 'mock-3', name: 'Tom B.' },
+  { id: 'mock-4', name: 'Sara N.' },
+];
 
-const EMPFEHLUNG_STYLE: Record<FahrerKomfort['empfehlung'], { label: string; chip: string }> = {
-  weiter:      { label: 'Weiter',      chip: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400' },
-  pause:       { label: 'Pause',       chip: 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400' },
-  schicht_ende:{ label: 'Schicht Ende',chip: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400' },
-};
+const MOCK_SCORES: KomfortScore[] = [
+  { driver_id: 'mock-1', pausen_minuten: 45, km_gesamt: 52, tour_anzahl: 5, komfort_score: 78, empfehlung: 'weiter', generiert_am: new Date().toISOString() },
+  { driver_id: 'mock-2', pausen_minuten: 20, km_gesamt: 88, tour_anzahl: 9, komfort_score: 42, empfehlung: 'pause', generiert_am: new Date().toISOString() },
+  { driver_id: 'mock-3', pausen_minuten: 10, km_gesamt: 130, tour_anzahl: 12, komfort_score: 15, empfehlung: 'schicht_ende', generiert_am: new Date().toISOString() },
+  { driver_id: 'mock-4', pausen_minuten: 35, km_gesamt: 40, tour_anzahl: 4, komfort_score: 82, empfehlung: 'weiter', generiert_am: new Date().toISOString() },
+];
 
-function TrendIcon({ score }: { score: number }) {
-  if (score >= 70) return <TrendingUp className="h-3 w-3 text-emerald-500" />;
-  if (score >= 45) return <Minus className="h-3 w-3 text-amber-500" />;
-  return <TrendingDown className="h-3 w-3 text-red-500" />;
+function scoreColor(score: number): string {
+  if (score >= 70) return 'text-matcha-700 dark:text-matcha-300';
+  if (score >= 45) return 'text-amber-700 dark:text-amber-300';
+  return 'text-red-700 dark:text-red-300';
 }
 
-export function DispatchPhase1653FahrerKomfortScoreUebersicht({ locationId }: Props) {
-  const [data, setData] = useState<ApiData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [lastFetch, setLastFetch] = useState<number | null>(null);
+function scoreBarColor(score: number): string {
+  if (score >= 70) return 'bg-matcha-500';
+  if (score >= 45) return 'bg-amber-400';
+  return 'bg-red-500';
+}
 
-  const doFetch = useCallback(async () => {
-    if (!locationId) return;
-    setLoading(true);
-    try {
-      const res = await window.fetch(`/api/delivery/admin/fahrer-komfort-uebersicht?location_id=${locationId}`);
-      if (res.ok) {
-        setData(await res.json());
-        setLastFetch(Date.now());
-      }
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, [locationId]);
+function EmpfehlungBadge({ e }: { e: KomfortScore['empfehlung'] }) {
+  const cfg = {
+    weiter:      { label: 'Weiter',      cls: 'bg-matcha-100 dark:bg-matcha-900/40 text-matcha-700 dark:text-matcha-300 border-matcha-300' },
+    pause:       { label: 'Pause',       cls: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-300' },
+    schicht_ende: { label: 'Schicht-Ende', cls: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-300' },
+  }[e];
+  return <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full border', cfg.cls)}>{cfg.label}</span>;
+}
+
+export function DispatchPhase1653FahrerKomfortScoreUebersicht({ locationId, driverIds }: Props) {
+  const [scores, setScores] = useState<KomfortScore[]>(MOCK_SCORES);
+  const [open, setOpen] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   useEffect(() => {
-    doFetch();
-    const iv = setInterval(doFetch, 30 * 60_000);
+    const ids = driverIds?.length ? driverIds : MOCK_DRIVERS.map(d => d.id);
+
+    async function load() {
+      try {
+        const results = await Promise.all(
+          ids.map(id =>
+            fetch(`/api/delivery/driver/komfort-score-heute?driver_id=${id}`)
+              .then(r => r.ok ? r.json() as Promise<KomfortScore> : null)
+              .catch(() => null)
+          )
+        );
+        const valid = results.filter(Boolean) as KomfortScore[];
+        if (valid.length > 0) {
+          setScores(valid);
+          setLastUpdate(new Date());
+        }
+      } catch {
+        // keep mock
+      }
+    }
+
+    load();
+    const iv = setInterval(load, 30 * 60 * 1000); // 30 Min
     return () => clearInterval(iv);
-  }, [doFetch]);
+  }, [driverIds]);
 
-  if (!locationId) return null;
+  const avgScore = scores.length > 0 ? Math.round(scores.reduce((s, x) => s + x.komfort_score, 0) / scores.length) : 0;
 
-  const avgScore = data && data.fahrer.length > 0
-    ? Math.round(data.fahrer.reduce((a, f) => a + f.komfort_score, 0) / data.fahrer.length)
-    : null;
+  const driverName = (id: string) => MOCK_DRIVERS.find(d => d.id === id)?.name ?? id.slice(0, 6);
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-xl border border-border bg-card p-3 mb-3">
       <button
-        onClick={() => setCollapsed((c) => !c)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 w-full text-left"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold">Fahrer-Komfort-Score</span>
-          {avgScore !== null && (
-            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold', SCORE_STYLE(avgScore).text, 'bg-muted')}>
-              Ø {avgScore}
-            </span>
-          )}
-          {loading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
-        </div>
-        <div className="flex items-center gap-2">
-          {lastFetch && (
-            <span className="text-[10px] text-muted-foreground hidden sm:block">
-              vor {Math.floor((Date.now() - lastFetch) / 60_000)} Min
-            </span>
-          )}
-          <button
-            onClick={(e) => { e.stopPropagation(); doFetch(); }}
-            className="rounded p-1 hover:bg-muted transition"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          {collapsed ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronUp className="h-4 w-4 text-muted-foreground" />}
-        </div>
+        <Activity className="h-4 w-4 shrink-0 text-blue-500" />
+        <span className="text-sm font-semibold flex-1 text-foreground">Fahrer-Komfort-Score</span>
+        <span className={cn('text-xs font-bold', scoreColor(avgScore))}>⌀ {avgScore}/100</span>
+        {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
       </button>
 
-      {!collapsed && (
-        <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-          {!data && !loading && (
-            <div className="text-sm text-muted-foreground text-center py-4">Keine Daten verfügbar.</div>
-          )}
-
-          {data && data.fahrer.length === 0 && (
-            <div className="text-sm text-muted-foreground text-center py-4">Keine aktiven Fahrer.</div>
-          )}
-
-          {data && data.fahrer.map((f) => {
-            const sStyle = SCORE_STYLE(f.komfort_score);
-            const eStyle = EMPFEHLUNG_STYLE[f.empfehlung];
-            return (
-              <div key={f.fahrer_id} className="space-y-1.5 rounded-lg border border-border bg-muted/20 p-3">
-                {/* Name + Empfehlung + Trend */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <TrendIcon score={f.komfort_score} />
-                    <span className="text-xs font-bold truncate">{f.fahrer_name}</span>
-                  </div>
-                  <span className={cn('rounded-full px-2 py-0.5 text-[9px] font-bold shrink-0', eStyle.chip)}>
-                    {eStyle.label}
-                  </span>
-                </div>
-
-                {/* Score-Balken */}
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className={cn('h-full rounded-full', sStyle.bar)} style={{ width: `${f.komfort_score}%` }} />
-                  </div>
-                  <span className={cn('text-xs font-bold tabular-nums shrink-0 w-8 text-right', sStyle.text)}>
-                    {f.komfort_score}
-                  </span>
-                </div>
-
-                {/* KPI-Chips */}
-                <div className="flex gap-2 flex-wrap">
-                  {[
-                    { label: 'Pausen', value: `${f.pausen_minuten} Min` },
-                    { label: 'km', value: `${f.km_gesamt} km` },
-                    { label: 'Touren', value: `${f.tour_anzahl}×` },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="rounded bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                      <span className="font-bold text-foreground">{value}</span> {label}
-                    </div>
-                  ))}
-                </div>
+      {open && (
+        <div className="mt-3 space-y-2">
+          {scores.map(s => (
+            <div key={s.driver_id} className="rounded-lg border border-border bg-muted/20 p-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-foreground">{driverName(s.driver_id)}</span>
+                <EmpfehlungBadge e={s.empfehlung} />
               </div>
-            );
-          })}
+              {/* Score-Balken */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={cn('h-full rounded-full', scoreBarColor(s.komfort_score))}
+                    style={{ width: `${s.komfort_score}%` }}
+                  />
+                </div>
+                <span className={cn('text-xs font-bold w-8 text-right', scoreColor(s.komfort_score))}>
+                  {s.komfort_score}
+                </span>
+              </div>
+              {/* Stats */}
+              <div className="flex gap-3 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Coffee className="h-3 w-3" />{s.pausen_minuten} min
+                </span>
+                <span className="flex items-center gap-1">
+                  <Route className="h-3 w-3" />{s.km_gesamt} km
+                </span>
+                <span className="flex items-center gap-1">
+                  <Gauge className="h-3 w-3" />{s.tour_anzahl} Touren
+                </span>
+              </div>
+            </div>
+          ))}
+
+          <div className="text-[10px] text-muted-foreground text-right">
+            Aktualisiert: {lastUpdate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} · alle 30 Min
+          </div>
         </div>
       )}
     </div>

@@ -1490,7 +1490,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1645OeffnungszeitenStatusBanner locationId={location.id} />
       {/* Phase 1650: Live-Lieferung-Status-Cockpit — Echtzeit-Lieferstatus für Kunden: Küche→Fahrer→Geliefert, dynamische ETA, Fahrer-Nähe-Indikator; 30s-Polling */}
       <StorefrontPhase1650LiveLieferungStatusCockpit orderId={null} />
-      {/* Phase 1655: Lieferzone-Visualisierungs-Banner — Zeigt ob Lieferadresse in Zone A/B/C/D liegt + ETA-Hinweis; locationId-Prop; Hydration-safe; schließbar */}
+      {/* Phase 1655: Lieferzone-Visualisierungs-Banner — Zeigt Lieferzonen A/B/C/D mit ETA-Hinweisen; konzentrische Ringe; Hydration-safe */}
       <StorefrontPhase1655LieferzoneVisualisierungsBanner locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />

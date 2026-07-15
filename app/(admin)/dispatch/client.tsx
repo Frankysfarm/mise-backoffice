@@ -1685,7 +1685,7 @@ export function DispatchBoard({
       <DispatchPhase1643SchichtUebergabeCockpitWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1648: Tour-Score-Live-Kommando — Echtzeit-Score je aktivem Fahrer: Gesamt-Score, Pünktlichkeit, Effizienz, SLA-Ampel */}
       <DispatchPhase1648TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-      {/* Phase 1653: Fahrer-Komfort-Score-Übersicht — Phase1651-API: Score je Fahrer heute als Tabelle (Pausen/km/Touren) + Trend-Pfeile + Empfehlung; 30-Min-Polling */}
+      {/* Phase 1653: Fahrer-Komfort-Score-Übersicht — Phase1651-API: Score je Fahrer heute (Pausen/km/Touren) + Empfehlung; 30-Min-Polling */}
       <DispatchPhase1653FahrerKomfortScoreUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
