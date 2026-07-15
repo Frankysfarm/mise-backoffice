@@ -177,7 +177,7 @@ export function LieferdienstPhase1626LiveSchichtExecutiveDashboard({ locationId 
                 axisLine={false} tickLine={false}
               />
               <Tooltip
-                formatter={(v: number) => [`${v} Best.`, 'Bestellungen']}
+                formatter={(v) => [`${v} Best.`, 'Bestellungen']}
                 contentStyle={{ fontSize: 11, padding: '4px 8px' }}
               />
               <Bar dataKey="count" radius={[3, 3, 0, 0]}>
