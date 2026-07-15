@@ -506,6 +506,7 @@ import { FahrerPhase1760EigeneTourenBilanz } from './phase1760-eigene-touren-bil
 import { FahrerPhase1764SmartStoppNavigatorMitKartenLink } from './phase1764-smart-stopp-navigator-mit-karten-link';
 import { FahrerPhase1769ZonenVerdienstVergleich } from './phase1769-zonen-verdienst-vergleich';
 import { FahrerPhase1774MeinSchichtEinnahmenZaehler } from './phase1774-mein-schicht-einnahmen-zaehler';
+import { FahrerPhase1779MeineSchichtBilanzKarte } from './phase1779-meine-schicht-bilanz-karte';
 
 type Driver = {
   id: string;
@@ -5234,6 +5235,11 @@ export function FahrerApp({
           />
           {/* Phase 1774: Mein Schicht-Einnahmen-Zähler — Echtzeit-Einnahmen + Prognose Schichtende + Zielfortschrittsleiste; isOnline-Guard; 5-Min-Polling */}
           <FahrerPhase1774MeinSchichtEinnahmenZaehler
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1779: Meine Schicht-Bilanz-Karte — letzte Tour: Stops/Zeit/Bewertung/km; Schicht-Gesamt; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1779MeineSchichtBilanzKarte
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
