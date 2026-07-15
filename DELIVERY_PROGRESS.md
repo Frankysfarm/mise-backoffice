@@ -2,6 +2,21 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-15): Phasen 1672–1676 implementiert. Build ✓ Compiled successfully. Push erfolgt.
+- Phase 1672 Backend: `app/api/delivery/admin/zonen-kapazitaet/route.ts` — Fahrer-Dichte je Zone A/B/C/D + freie Kapazität + Prognose nächste Stunde; Supabase + Mock ✅
+- Phase 1673 Kitchen: `app/(admin)/kitchen/phase1673-bestellungs-volumen-heatmap.tsx` — Stunden x Wochentage CSS-Grid-Heatmap; Intensität = Bestellmenge; useMemo; in kitchen/client.tsx ✅
+- Phase 1674 Dispatch: `app/(admin)/dispatch/phase1674-zonen-kapazitaets-monitor.tsx` — Phase1672-API: Auslastung je Zone als Balken + Warnampel + Fahrer-Umverteilungs-Empfehlung; 10-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1675 Fahrer-App: `app/fahrer/app/phase1675-meine-zone-karte.tsx` — Aktuelle Zone + ETA-Benchmark + Fahrer-Dichte; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx ✅
+- Phase 1676 Storefront: `app/order/[locationSlug]/phase1676-kapazitaets-ampel-badge.tsx` — Live-Badge Küche/Fahrer-Kapazität (voll/normal/niedrig) + ETA-Warnung; 3-Min-Polling; Hydration-safe; in storefront.tsx ✅
+- Migration: `scripts/migrations/254_zonen_kapazitaet_heatmap_phase1672_1676.sql` — zonen_kapazitaets_snapshots + bestell_volumen_heatmap + kapazitaets_alert_log ✅
+
+### Naechste Phasen 1677–1681 (fuer naechsten Agenten)
+1. **Phase 1677 Backend:** Fahrer-Routen-Effizienz-Index-API — GET /api/delivery/admin/fahrer-routen-effizienz: km-Gesamtstrecke vs. Luftlinie je Fahrer heute als Effizienz-Index (0–100); location_id-Tenant; Supabase + Mock.
+2. **Phase 1678 Kitchen:** Zutaten-Schwund-Warnung — Props-basierte Komponente: Artikel mit hohem Schwund (Storno-Rate >10%) als Warnliste; Ampel; useMemo; in kitchen/client.tsx.
+3. **Phase 1679 Dispatch:** Fahrer-Routen-Effizienz-Rangliste — Phase1677-API: Index je Fahrer als Balken + Top-3-Badge + Trend; 15-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1680 Fahrer-App:** Mein Routen-Effizienz-Score — Phase1677-API: eigener Index + Rang + Tipp zur Verbesserung; isOnline-Guard; 20-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1681 Storefront:** Nachhaltigkeits-Badge — Grüne Lieferung-Badge (km-Effizienz hoch + wenig CO2); locationId-Prop; 10-Min-Polling; Hydration-safe; in storefront.tsx.
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1667–1671 implementiert. Build ✓ Compiled successfully. Push erfolgt.
 - Phase 1667 Backend: `app/api/delivery/admin/fahrer-effizienz/route.ts` — Score (0–100) je Fahrer: km/Stopp + Pünktlichkeit + Bewertung; 7-Tage-Trend; Supabase + Mock ✅
 - Phase 1668 Kitchen: `app/(admin)/kitchen/phase1668-zutaten-verbrauchsrate-widget.tsx` — Verbrauch je Zutat heute vs. Gestern; Ampel >115%/>130%; useMemo; in kitchen/client.tsx ✅
