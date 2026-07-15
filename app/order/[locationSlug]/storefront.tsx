@@ -305,6 +305,7 @@ import { Phase1645OeffnungszeitenStatusBanner } from './phase1645-oeffnungszeite
 import { StorefrontPhase1650LiveLieferungStatusCockpit } from './phase1650-live-lieferung-status-cockpit';
 import { StorefrontPhase1655LieferzoneVisualisierungsBanner } from './phase1655-lieferzone-visualisierungs-banner';
 import { StorefrontPhase1661LieferQualitaetsSiegel } from './phase1661-liefer-qualitaets-siegel';
+import { StorefrontPhase1671LieferGarantieTimer } from './phase1671-liefer-garantie-timer';
 
 type Props = {
   location: Location;
@@ -763,6 +764,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               status="in_zubereitung"
               createdAt={orderSuccess.orderedAt}
             />
+          </div>
+        )}
+        {/* Phase 1671: Liefer-Garantie-Timer — Countdown bis Max-ETA 45 Min + Rabatt-Badge bei Überschreitung; Hydration-safe */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-2 max-w-lg mx-auto">
+            <StorefrontPhase1671LieferGarantieTimer orderedAt={orderSuccess.orderedAt} />
           </div>
         )}
         {/* Phase 1138: Lieferstatus-Live-Banner — Fixierter Bottom-Banner: 4-Stufen-Timeline mit 20s-Polling */}
@@ -1495,6 +1502,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1655LieferzoneVisualisierungsBanner locationId={location.id} />
       {/* Phase 1661: Liefer-Qualitäts-Siegel — Vertrauensbadge: pünktlich-%, ★ Bewertung, Ø Lieferzeit; 60-Min-Polling; Hydration-safe */}
       <StorefrontPhase1661LieferQualitaetsSiegel locationId={location.id} />
+      {/* Phase 1671: Liefer-Garantie-Timer — nur nach Bestellung sichtbar, hier immer null */}
+      <StorefrontPhase1671LieferGarantieTimer orderedAt={null} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

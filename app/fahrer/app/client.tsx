@@ -476,6 +476,7 @@ import { FahrerPhase1649SmartTourStoppNavigatorPro } from './phase1649-smart-tou
 import { FahrerPhase1654SchichtEnergieRadar } from './phase1654-schicht-energie-radar';
 import { FahrerPhase1660LernTippKarte } from './phase1660-lern-tipp-karte';
 import { FahrerPhase1665TourStopsNavKommando } from './phase1665-tour-stops-nav-kommando';
+import { FahrerPhase1670MeineEffizienzScoreKarte } from './phase1670-meine-effizienz-score-karte';
 
 type Driver = {
   id: string;
@@ -5099,6 +5100,8 @@ export function FahrerApp({
           <FahrerPhase1654SchichtEnergieRadar driverId={driver?.id ?? null} isOnline={isOnline} />
           {/* Phase 1660: Lern-Tipp-Karte — Personalisierte Optimierungstipps heute vs. Vorwoche; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1660LernTippKarte driverId={driver?.id ?? null} isOnline={isOnline} />
+          {/* Phase 1670: Meine-Effizienz-Score-Karte — Phase1667-API: eigener Score + Rang + Verbesserungs-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1670MeineEffizienzScoreKarte driverId={driver?.id ?? null} isOnline={isOnline} />
           {/* Phase 1665: Tour-Stops-Nav-Kommando — Farbkodierte Stop-Liste mit Navigation-CTA (Google/Apple Maps), ETA je Stop, Abschließen-Button; Supabase-Polling 20s */}
           {activeBatch?.id && (
             <FahrerPhase1665TourStopsNavKommando batchId={activeBatch.id} driverId={driver?.id ?? ''} />

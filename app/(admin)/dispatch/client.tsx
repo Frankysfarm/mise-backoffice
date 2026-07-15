@@ -563,6 +563,7 @@ import { DispatchPhase1648TourScoreLiveKommando } from './phase1648-tour-score-l
 import { DispatchPhase1653FahrerKomfortScoreUebersicht } from './phase1653-fahrer-komfort-score-uebersicht';
 import { DispatchPhase1659SchichtLeistungsVergleichWidget } from './phase1659-schicht-leistungs-vergleich-widget';
 import { DispatchPhase1664TourScoreLiveRangliste } from './phase1664-tour-score-live-rangliste';
+import { DispatchPhase1669FahrerEffizienzScoreUebersicht } from './phase1669-fahrer-effizienz-score-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -1693,6 +1694,8 @@ export function DispatchBoard({
       <DispatchPhase1659SchichtLeistungsVergleichWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1664: Tour-Score-Live-Rangliste — Echtzeit-Fahrer-Rangliste mit Score-Balken (0–100), Pünktlichkeitsrate, Ø Lieferzeit; sortiert nach Score; Supabase-Realtime */}
       <DispatchPhase1664TourScoreLiveRangliste />
+      {/* Phase 1669: Fahrer-Effizienz-Score-Übersicht — Phase1667-API: Score 0–100 je Fahrer + 7-Tage-Trend + Top-Performer-Badge; 20-Min-Polling */}
+      <DispatchPhase1669FahrerEffizienzScoreUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}
