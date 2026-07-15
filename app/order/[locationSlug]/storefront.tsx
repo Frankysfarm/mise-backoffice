@@ -1568,8 +1568,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1726DynamischerLieferEtaBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1731: Lieferzeit-Garantie-Uhr — Countdown bis ETA; Entschädigungs-Hinweis bei Überschreitung; schließbar */}
       <StorefrontPhase1731LieferzeitGarantieUhr
-        orderPlaced={orderSuccess?.orderedAt ?? null}
-        etaMinuten={orderSuccess?.eta ?? 45}
+        orderPlaced={null}
+        etaMinuten={45}
         className="mx-4 mt-2"
       />
       {/* Phase 1717: Echtzeit-Nachfrage-Indikator — Bestellungen letzte Stunde + Beliebtheitsstufe (ruhig/normal/belebt/sehr_belebt); 5-Min-Polling */}
