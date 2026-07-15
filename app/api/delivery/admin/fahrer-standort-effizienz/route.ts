@@ -73,7 +73,7 @@ export async function GET(req: Request) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const since = new Date();
     since.setDate(since.getDate() - 7);
 

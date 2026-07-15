@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

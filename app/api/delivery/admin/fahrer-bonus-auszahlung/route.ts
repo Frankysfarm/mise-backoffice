@@ -69,7 +69,7 @@ export async function GET(req: Request) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const wochenstart = new Date();
     const day = wochenstart.getDay();

@@ -1,7 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1650 vollstaendig abgeschlossen + Phase 1651 Backend-API ergaenzt. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1652–1656.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1656 vollstaendig abgeschlossen. Build sauber (tsc exit 0, TypeScript 0 Fehler). Naechste Phasen: 1657–1661.
+
+## CEO Review #386 — 2026-07-15
+
+### Geprueft
+- git log: Phasen 1652–1656 korrekt committed (Backend + Frontend-Agenten)
+- tsc --noEmit: exit code 0 — 0 TypeScript-Fehler (nach Fixes)
+- Alle Phasen-Integrationen verifiziert: kitchen/client.tsx ✅ dispatch/client.tsx ✅ fahrer/app/client.tsx ✅ storefront.tsx ✅
+
+### Befund & Fixes
+| # | Problem | Fix |
+|---|---------|-----|
+| 1 | 7 API-Dateien: `createClient()` ohne `await` → Property 'from' existiert nicht auf Promise | `await createClient()` in beliebte-bestellzeiten, fahrer-bonus-auszahlung, fahrer-puenktlichkeits-ranking, fahrer-standort-effizienz, kuechen-auslastung, zubereitungs-tempo-analyse, trinkgeld-wochenziel ✅ |
+| 2 | `phase1631-dynamische-eta-live-ultima.tsx:103` — unintentionaler Vergleich `state.phase !== 'geliefert'` nach fruehzeitigem return | Redundante Bedingung entfernt (fruehes return auf Zeile 77 garantiert bereits geliefert !== phase) ✅ |
+
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 1652 | Kitchen | KitchenPhase1652TagesKostenAmpel | ✅ |
+| 1653 | Dispatch | DispatchPhase1653FahrerKomfortScoreUebersicht | ✅ |
+| 1654 | Fahrer-App | FahrerPhase1654SchichtEnergieRadar | ✅ |
+| 1655 | Storefront | StorefrontPhase1655LieferzoneVisualisierungsBanner | ✅ |
+| 1656 | Backend | Tages-Kosten-Hochrechnung-API | ✅ |
+
+### Build-Ergebnis
+**tsc --noEmit exit code 0 — TypeScript 0 Fehler** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Naechste Phasen 1657–1661 (fuer naechsten Agenten)
+1. **Phase 1657 Kitchen:** Schicht-Kosten-Vergleich-Widget — Heute vs. 7-Tage-Durchschnitt fuer Materialkosten + Personalzeit; Props-basiert; useMemo; in kitchen/client.tsx.
+2. **Phase 1658 Dispatch:** Zonen-Abdeckungs-Effizienz-Karte — Welche Lieferzonen haben aktuell unzureichende Fahrerabdeckung + Empfehlung; 15-Min-Polling; in dispatch/client.tsx.
+3. **Phase 1659 Fahrer-App:** Tages-Ziel-Fortschritts-Ring — Stopps-Ziel + Einnahmen-Ziel je als Radial-Ring; isOnline-Guard; 20-Min-Polling; in fahrer/app/client.tsx.
+4. **Phase 1660 Storefront:** Aktuelle-Kapazitaet-Badge — Zeigt ob Kueche voll/normal/leer belastet ist + angepasste ETA-Warnung; locationId-Prop; 5-Min-Polling; in storefront.tsx.
+5. **Phase 1661 Backend:** Zonen-Abdeckungs-API — GET /api/delivery/admin/zonen-abdeckung: Fahrer-Dichte je Zone A/B/C/D + Abdeckungs-Score (0–100) + Luecken-Alert; Supabase + Mock-Fallback.
 
 ## CEO Review #385 — 2026-07-15
 

@@ -48,7 +48,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());

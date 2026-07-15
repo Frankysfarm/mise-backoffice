@@ -100,14 +100,12 @@ export function Phase1631DynamischeEtaLiveUltima({ orderId, locationId }: Props)
           )}
         </div>
         {/* ETA Countdown */}
-        {state.phase !== 'geliefert' && (
-          <div className={`text-center shrink-0 ${meta.color}`}>
-            <div className="text-2xl font-black tabular-nums">{etaDisplay}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              {countdown > 0 ? 'verbleibend' : `~${etaMin} Min`}
-            </div>
+        <div className={`text-center shrink-0 ${meta.color}`}>
+          <div className="text-2xl font-black tabular-nums">{etaDisplay}</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+            {countdown > 0 ? 'verbleibend' : `~${etaMin} Min`}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Phasen-Timeline */}
