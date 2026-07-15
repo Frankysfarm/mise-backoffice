@@ -543,6 +543,7 @@ import { KitchenPhase1787BestellungsCountdownUebersicht } from './phase1787-best
 import { KitchenPhase1791SmartKochzeitPrognoseBoard } from './phase1791-smart-kochzeit-prognose-board';
 import { KitchenPhase1797RezeptKompatibilitaetsPruefer } from './phase1797-rezept-kompatibilitaets-pruefer';
 import { KitchenPhase1801DurchsatzAnalyseBoard } from './phase1801-durchsatz-analyse-board';
+import { KitchenPhase1807SmartTimingFarbkodierungBoard } from './phase1807-smart-timing-farbkodierung-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1554,6 +1555,8 @@ export function KitchenBoard({
       <KitchenPhase1797RezeptKompatibilitaetsPruefer orders={filtered as any} />
       {/* Phase 1801: Durchsatz-Analyse-Board — Bestellungen/h laufende Schicht; Stunden-Verlauf-Chart; Spitzenstunde; Trend-Ampel; 30s-Tick */}
       <KitchenPhase1801DurchsatzAnalyseBoard orders={filtered as any} />
+      {/* Phase 1807: Smart-Timing Farbkodierung Board — Echtzeit-Farbkodierung aktiver Bestellungen (grün/amber/rot) nach Zubereitungszeit; Countdown; 10s-Tick */}
+      <KitchenPhase1807SmartTimingFarbkodierungBoard orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}

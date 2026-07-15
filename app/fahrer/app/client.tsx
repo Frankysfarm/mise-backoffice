@@ -512,6 +512,7 @@ import { FahrerPhase1789NaechsterStoppNavigator } from './phase1789-naechster-st
 import { FahrerPhase1793TourStoppFortschrittsNavigator } from './phase1793-tour-stopp-fortschritts-navigator';
 import { FahrerPhase1799MeinQualitaetsScoreVerlauf } from './phase1799-mein-qualitaets-score-verlauf';
 import { FahrerPhase1803StoppSchnellBestaetigung } from './phase1803-stopp-schnell-bestaetigung';
+import { FahrerPhase1809TourStoppNavigationsHub } from './phase1809-tour-stopp-navigations-hub';
 
 type Driver = {
   id: string;
@@ -5250,6 +5251,11 @@ export function FahrerApp({
           />
           {/* Phase 1803: Stopp-Schnell-Bestätigung — Aktuellen Stopp bestätigen: Adresse + ETA + optionale Notiz + Bestätigungs-Button; isOnline-Guard */}
           <FahrerPhase1803StoppSchnellBestaetigung
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1809: Tour-Stopp-Navigations-Hub — Alle verbleibenden Stopps mit Adresse/ETA/Navi-Link; aktueller Stopp hervorgehoben; 90s-Polling */}
+          <FahrerPhase1809TourStoppNavigationsHub
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

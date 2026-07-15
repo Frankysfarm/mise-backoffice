@@ -379,6 +379,7 @@ import { LieferdienstPhase1725TagesLiveStatistikenCockpit } from './phase1725-ta
 import { LieferdienstPhase1726StatistikenKompaktHub } from './phase1726-statistiken-kompakt-hub';
 import { LieferdienstPhase1795EchtzeitStatistikHub } from './phase1795-echtzeit-statistik-hub';
 import { LieferdienstPhase1805SchichtVergleichsCockpit } from './phase1805-schicht-vergleichs-cockpit';
+import { LieferdienstPhase1810StatistikenDashboardHub } from './phase1810-statistiken-dashboard-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2021,6 +2022,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1795EchtzeitStatistikHub locationId={locationId} />
                 {/* Phase 1805: Schicht-Vergleichs-Cockpit — Aktuelle vs. Vorschicht: Umsatz/Bestellungen/Ø Lieferzeit/Storno direkt verglichen; Supabase+Mock; 5-Min-Polling */}
                 <LieferdienstPhase1805SchichtVergleichsCockpit locationId={locationId} />
+                {/* Phase 1810: Statistiken-Dashboard-Hub — 6-KPI-Grid (Umsatz/Bestellungen/Lieferzeit/Bewertung/Fahrer/Pünktlichkeit) + Stunden-Verlauf; Trend vs. gestern; 5-Min-Polling */}
+                <LieferdienstPhase1810StatistikenDashboardHub locationId={locationId} />
               </>
             </div>
           )}
