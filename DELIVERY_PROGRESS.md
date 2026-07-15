@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-15): Phasen 1637–1641 implementiert. Build ✓ Compiled successfully — 424 Seiten, TypeScript 0 Fehler. Push erfolgt.
+- Phase 1637 Dispatch: `app/(admin)/dispatch/phase1637-kuechen-auslastungs-monitor.tsx` — Ampel-Karten je Küche (niedrig/normal/hoch/kritisch) + ETA-Anpassungsfaktor-Badge + Gesamt-Auslastungsbalken; 5-Min-Polling; Phase1636-API; in dispatch/client.tsx ✅
+- Phase 1638 Kitchen: `app/(admin)/kitchen/phase1638-schicht-uebergabe-checkliste.tsx` — Offene Bestellungen + unabgeschlossene Touren + Standard-Hinweise; interaktives Toggle; Fortschrittsbalken; Props-basiert useMemo; in kitchen/client.tsx ✅
+- Phase 1639 Fahrer-App: `app/fahrer/app/phase1639-feierabend-zusammenfassung-card.tsx` — Schicht-KPIs (Lieferungen/Zeit/Trinkgeld) + Bonus-Vorschau; isOnline-Guard invers; Abmeldungs-CTA; in fahrer/app/client.tsx ✅
+- Phase 1640 Storefront: `app/order/[locationSlug]/phase1640-allergen-hinweis-modal.tsx` — Allergen-Icons + Bezeichnungen; Trigger-Button je Artikel mit Allergenen; Produkt-Props; keine API; Hydration-safe; in storefront.tsx ✅
+- Phase 1641 Backend: `app/api/delivery/admin/schicht-uebergabe-cockpit/route.ts` — GET /api/delivery/admin/schicht-uebergabe-cockpit: Offene Bestellungen + aktive Touren + Fahrer-Status + Küchen-Auslastung; Supabase + Mock-Fallback ✅
+
+### Nächste Phasen 1642–1646 (für nächsten Agenten)
+1. **Phase 1642 Kitchen:** Live-Kochstart-Ampel-Board — Ampel-Visualisierung (Grün/Gelb/Rot) für optimalen Kochstart je aktiver Bestellung; Sekunden-genauer Countdown; sortiert nach Dringlichkeit; Props-basiert; in kitchen/client.tsx.
+2. **Phase 1643 Dispatch:** Schicht-Übergabe-Cockpit-Widget — Phase1641-API: Kompakte Übersicht offene Bestellungen + aktive Touren + Fahrer-Status + Küchen-Auslastung; Collapsible; 10-Min-Polling; in dispatch/client.tsx.
+3. **Phase 1644 Fahrer-App:** Tour-Qualitäts-Score-Karte — Score der letzten 5 Touren (Pünktlichkeit + Kundenbewertung + Effizienz) als kompakte Timeline; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx.
+4. **Phase 1645 Storefront:** Öffnungszeiten-Status-Banner — Heute geöffnet/geschlossen + nächste Öffnungszeit; Countdown bis Öffnung/Schließung; locationId-Prop; Hydration-safe; in storefront.tsx.
+5. **Phase 1646 Backend:** Tour-Qualitäts-Score-API — GET /api/delivery/driver/tour-qualitaets-score: Letzte 5 Touren je Fahrer mit Pünktlichkeit + Kundenbewertung + Effizienz-Score; Supabase + Mock-Fallback.
+
+---
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1632–1636 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 - Phase 1632 Dispatch: `app/(admin)/dispatch/phase1632-fahrer-bonus-auszahlungs-widget.tsx` — Bonus-Tabelle je Fahrer (Pünktlichkeit/Touren/Trinkgeld) + Auszahlungsstatus-Badge (offen/bereit/ausgezahlt) + Gesamt-Bonussumme; 60-Min-Polling; in dispatch/client.tsx ✅
 - Phase 1633 Kitchen: `app/(admin)/kitchen/phase1633-kuechen-kapazitaets-warnung-panel.tsx` — Auslastung vs. konfigurierbare Grenze; Eskalationsstufen Normal/Achtung/Kritisch; Countdown bis Normalisierung; useMemo; in kitchen/client.tsx ✅
