@@ -580,6 +580,7 @@ import { DispatchPhase1704LieferKostenEffizienzWidget } from './phase1704-liefer
 import { DispatchPhase1708TourScoreLiveAnzeige } from './phase1708-tour-score-live-anzeige';
 import { DispatchPhase1714KundenWiederkehrRateWidget } from './phase1714-kunden-wiederkehr-rate-widget';
 import { DispatchPhase1719LiefergebietAuslastungsKarte } from './phase1719-liefergebiet-auslastungs-karte';
+import { DispatchPhase1724FahrerStandortHistoryKarte } from './phase1724-fahrer-standort-history-karte';
 
 type Driver = {
   employee_id: string;
@@ -1740,6 +1741,8 @@ export function DispatchBoard({
       <DispatchPhase1714KundenWiederkehrRateWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1719: Liefergebiet-Auslastungs-Karte — Zonen-Grid mit Farbintensität + Hotspot-Badge + Coverage-Score-Ring; 10-Min-Polling */}
       <DispatchPhase1719LiefergebietAuslastungsKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1724: Fahrer-Standort-History-Karte — GPS-Route je Fahrer als Punktlinie + Dwell-Time; 5-Min-Polling */}
+      <DispatchPhase1724FahrerStandortHistoryKarte locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1715: Fahrer-Auslastungs-Monitor — Aktive Touren je Fahrer vs. Kapazität; Ampel frei/busy/überlastet; ohne API, Props batches+drivers */}
       <DispatchPhase1715FahrerAuslastungsMonitor batches={batches as any} drivers={drivers as any} />
       {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}

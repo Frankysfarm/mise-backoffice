@@ -490,6 +490,7 @@ import { FahrerPhase1705MeinBewertungsVerlauf } from './phase1705-mein-bewertung
 import { FahrerPhase1709SmartTourStoppLiveNav } from './phase1709-smart-tour-stopp-live-nav';
 import { FahrerPhase1715TagesZielKurzuebersicht } from './phase1715-tages-ziel-kurzuebersicht';
 import { FahrerPhase1720SchichtSchnellstartCockpit } from './phase1720-schicht-schnellstart-cockpit';
+import { FahrerPhase1725EinnahmenHochrechnungKarte } from './phase1725-einnahmen-hochrechnung-karte';
 import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-tour-stopp-navigation-ultra';
 import { FahrerPhase1716SchichtVerdienstHochrechnung } from './phase1716-schicht-verdienst-hochrechnung';
 
@@ -5187,6 +5188,11 @@ export function FahrerApp({
             onlineSeit={status?.online_seit ?? null}
             stoppsHeute={todayStats?.deliveries ?? 0}
             verdienstEur={todayStats?.estEarnings ?? 0}
+          />
+          {/* Phase 1725: Einnahmen-Hochrechnung-Karte — Projektion Tagesverdienst + Konfidenz-Balken; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase1725EinnahmenHochrechnungKarte
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
           />
           {/* Phase 1716: Schicht-Verdienst-Hochrechnung — Live-Prognose Schichtende-Verdienst basierend auf aktuellem Tempo; 5-Min-Polling; API+Mock-Fallback */}
           <FahrerPhase1716SchichtVerdienstHochrechnung
