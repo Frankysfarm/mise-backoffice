@@ -336,6 +336,7 @@ import { StorefrontPhase1770NachhaltigkeitsLieferBadge } from './phase1770-nachh
 import { StorefrontPhase1775FahrerProfilBadge } from './phase1775-fahrer-profil-badge';
 import { StorefrontPhase1780EchtzeitKuechenStatusIndikator } from './phase1780-echtzeit-kuechen-status-indikator';
 import { StorefrontPhase1785LieferdienstOeffnungszeitenIndikator } from './phase1785-lieferdienst-oeffnungszeiten-indikator';
+import { StorefrontPhase1790DynamischeLieferzeitSchaetzung } from './phase1790-dynamische-lieferzeit-schaetzung';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1597,6 +1598,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1775FahrerProfilBadge locationId={location.id} orderId={activeOrderId} className='mx-4 mt-2' />
       {/* Phase 1780: Echtzeit-Küchen-Status-Indikator — beschäftigt/normal/entspannt basierend auf Bestelllast; Hydration-safe; 5-Min-Polling */}
       <StorefrontPhase1780EchtzeitKuechenStatusIndikator locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1790: Dynamische Lieferzeit-Schätzung — Ø Lieferzeit heute + Trend + Auslastungslabel; Hydration-safe; 5-Min-Polling */}
+      <StorefrontPhase1790DynamischeLieferzeitSchaetzung locationId={location.id} />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}
       <StorefrontPhase1785LieferdienstOeffnungszeitenIndikator locationId={location.id} />
       {/* Phase 1746: Bestellmuster-Zeitfenster-Hinweis — Hinweis wenn aktuelle Stunde historisch Hochlastzeit; Hydration-safe */}
