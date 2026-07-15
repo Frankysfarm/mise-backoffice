@@ -2,6 +2,13 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-15): Phasen 1801–1805 implementiert. Build ✓ Compiled successfully (exit 0). Push erfolgt.
+- Phase 1801 Kitchen: `app/(admin)/kitchen/phase1801-durchsatz-analyse-board.tsx` — Bestellungen/h laufende Schicht (ab 06:00); Stunden-Verlauf-Minibalken; Spitzenstunden-Highlight; Trend-Ampel steigend/fallend/stabil; 30s-Tick; props-basiert; in kitchen/client.tsx ✅
+- Phase 1802 Dispatch: `app/(admin)/dispatch/phase1802-fahrer-auslastungs-matrix.tsx` — Grid-Ansicht alle Fahrer: aktive Stopps vs. Max + Auslastungs-% + Ampelfarbe grün/gelb/rot; km+Touren; 5-Min-Polling; /api/delivery/admin/driver-score + Mock; in dispatch/client.tsx ✅
+- Phase 1803 Fahrer-App: `app/fahrer/app/phase1803-stopp-schnell-bestaetigung.tsx` — Aktuellen Stopp bestätigen: Adresse + ETA + Maps-Link + optionale Notiz + Bestätigungs-Button mit Loading-State; /api/delivery/driver/stopp-bestaetigen + Mock; isOnline-Guard; in fahrer/app/client.tsx ✅
+- Phase 1804 Storefront: `app/order/[locationSlug]/phase1804-bestell-phasen-cockpit.tsx` — 3-stufiger Phasen-Tracker Küche/Unterwegs/Fast-da; animierender Ping-Indikator auf aktiver Phase; ETA-Badge + Fahrer-Name; Hydration-safe; 60s-Polling; in storefront.tsx ✅
+- Phase 1805 Lieferdienst: `app/(admin)/lieferdienst/phase1805-schicht-vergleichs-cockpit.tsx` — Aktuelle vs. Vorschicht Direktvergleich: Umsatz/Bestellungen/Ø Lieferzeit/Storno-Quote; Trend-Pfeile je KPI; Supabase-Realtime + 5-Min-Polling + Mock; in lieferdienst/client.tsx ✅
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1796–1800 implementiert. Build ✓ Compiled successfully (426 Seiten). TypeScript 0 Fehler (exit 0). Push erfolgt.
 - Phase 1796 Backend: `app/api/delivery/admin/schicht-qualitaet-score/route.ts` — Qualitäts-Score je Fahrer (Pünktlichkeit×0.4 + Bewertung×0.35 + Vollständigkeit×0.25); Grade A/B/C/D; Trend 7 Tage; Multi-Tenant; Supabase+Mock ✅
 - Phase 1797 Kitchen: `app/(admin)/kitchen/phase1797-rezept-kompatibilitaets-pruefer.tsx` — Allergen-Konflikte (kritisch) + Timing-Überschneidungen (Hinweis); Alert-Banner; useMemo; Collapsible; in kitchen/client.tsx ✅
