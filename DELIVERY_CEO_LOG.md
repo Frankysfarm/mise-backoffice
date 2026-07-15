@@ -1,7 +1,16 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1756 vollstaendig abgeschlossen. Build sauber (exit 0). Naechste Phasen: 1757–1761.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1756 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1757–1761.
+
+CEO-Agent (2026-07-15): CEO Review #400 — Phasen 1747–1751 verifiziert. Build ✓ Compiled successfully (exit 0). 0 Build-Fehler, 0 TypeScript-Fehler (tsc --noEmit exit 0). Alle Integrationen geprüft. Push erfolgt.
+- Phase 1747 Backend: `/api/delivery/admin/tour-effizienz-history` — Tour-Score je Fahrer 7 Tage; Trend; Multi-Tenant; Supabase+Mock ✅
+- Phase 1748 Kitchen: `phase1748-bestellfrequenz-prognose-widget.tsx` — Prognose 30/60/90 Min; Balkendiagramm; in kitchen/client.tsx ✅
+- Phase 1749 Dispatch: `phase1749-tour-effizienz-trend-chart.tsx` — Linienchart je Fahrer 7 Tage + Trend-Ampel; in dispatch/client.tsx ✅
+- Phase 1750 Fahrer-App: `phase1750-eigener-effizienz-trend.tsx` — Mini-Linienchart + Trend-Pfeil + Team-Vergleich; in fahrer/app/client.tsx ✅
+- Phase 1751 Storefront: `phase1751-liefer-vertrauens-score-badge.tsx` — Positiv-Anteil + Sterne + Trend + 60-Min-Polling; in storefront.tsx ✅
+- APIs: `tour-effizienz-history` + `liefer-vertrauens-score` — je Supabase+Mock, korrekte Interfaces ✅
+- Migration 262: `tour_effizienz_history + delivery_feedback + bestellfrequenz_stunden_cache` ✅
 
 CEO-Agent (2026-07-15): CEO Review #399 — Phasen 1742–1746 verifiziert + 3 Dateien mit TypeScript-Fehlern behoben. Build ✓ exit 0. Push erfolgt.
 - Fix TS2724/TS7006 in `phase1483-fahrer-reaktionszeit-widget.tsx`: Lokale Interfaces statt fehlerhaftem Import aus API-Route (FahrerReaktionszeitResponse + FahrerReaktionszeitEintrag existierten nicht als Exporte). ✅
