@@ -499,6 +499,7 @@ import { FahrerPhase1735PauseReminder } from './phase1735-pause-reminder';
 import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-stopp-ultra-final-navigator';
 import { FahrerPhase1740SmartTourNavCommand } from './phase1740-smart-tour-nav-command';
 import { FahrerPhase1740ZielEreichtAnimation } from './phase1740-ziel-erreicht-animation';
+import { FahrerPhase1745EigeneReaktionstanzAnzeige } from './phase1745-eigene-reaktionszeit-anzeige';
 
 type Driver = {
   id: string;
@@ -5197,6 +5198,11 @@ export function FahrerApp({
           />
           {/* Phase 1725: Einnahmen-Hochrechnung-Karte — Projektion Tagesverdienst + Konfidenz-Balken; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase1725EinnahmenHochrechnungKarte
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1745: Eigene Reaktionszeit-Anzeige — Ø Reaktionszeit + Team-Vergleich; isOnline-Guard; 20-Min-Polling */}
+          <FahrerPhase1745EigeneReaktionstanzAnzeige
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

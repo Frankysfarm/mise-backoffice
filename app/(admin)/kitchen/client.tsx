@@ -529,6 +529,7 @@ import { KitchenPhase1722SmartTimingEchtzeitCountdownFarbkodierung } from './pha
 import { KitchenPhase1728SchichtProduktivitaetsAmpel } from './phase1728-schicht-produktivitaets-ampel';
 import { KitchenPhase1731SmartTimingFarbkodierungCockpit } from './phase1731-smart-timing-farbkodierung-cockpit';
 import { KitchenPhase1733LiveBestellrateTicker } from './phase1733-live-bestellrate-ticker';
+import { KitchenPhase1743KochzeitGenauigkeitsTracker } from './phase1743-kochzeit-genauigkeits-tracker';
 import { KitchenPhase1738SchichtPausenTracker } from './phase1738-schicht-pausen-tracker';
 
 /* ------------------------------ Types ------------------------------ */
@@ -1523,6 +1524,8 @@ export function KitchenBoard({
       <KitchenPhase1703GerichtPopularitaetsRang orders={filtered as any} />
       {/* Phase 1713: Storno-Risiko-Ampel — Warnung bei Bestellungen >15 Min in Zubereitung ohne Status-Update; Eskalations-Banner ≥3; useMemo */}
       <KitchenPhase1713StornoRisikoAmpel orders={filtered as any} />
+      {/* Phase 1743: Kochzeit-Genauigkeits-Tracker — Ø Abweichung geschätzte vs. tatsächliche Zubereitungszeit je Gericht; Ampel; useMemo; Collapsible */}
+      <KitchenPhase1743KochzeitGenauigkeitsTracker orders={filtered as any} />
       {/* Phase 1738: Schicht-Pausen-Tracker — Küchenpausen heute; Warnung >1h ohne Pause; useMemo; Collapsible */}
       <KitchenPhase1738SchichtPausenTracker orders={filtered as any} />
       {/* Phase 1733: Live-Bestellrate-Ticker — Bestellungen letzte 5/15/30 Min; Trend vs. Vorperiode; Hochlauf/Rückgang-Badge; useMemo */}
