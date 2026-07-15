@@ -486,6 +486,7 @@ import { FahrerPhase1695SchichtRanglisteVorschau } from './phase1695-schicht-ran
 import { Phase1700TourStoppNavigatorMaster } from './phase1700-tour-stopp-navigator-master';
 import { FahrerPhase1700TagesUmsatzBeitragKarte } from './phase1700-tages-umsatz-beitrag-karte';
 import { FahrerPhase1701LiveSchichtPerformanceScore } from './phase1701-live-schicht-performance-score';
+import { FahrerPhase1705MeinBewertungsVerlauf } from './phase1705-mein-bewertungs-verlauf';
 
 type Driver = {
   id: string;
@@ -5163,6 +5164,11 @@ export function FahrerApp({
           <FahrerPhase1700TagesUmsatzBeitragKarte
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1705: Mein Bewertungs-Verlauf — Letzte 5 Tour-Bewertungen + Ø-Score 7 Tage; isOnline-Guard; 60-Min-Polling */}
+          <FahrerPhase1705MeinBewertungsVerlauf
+            driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
         </div>

@@ -316,6 +316,7 @@ import { StorefrontPhase1696BestellstatusMiniTracker } from './phase1696-bestell
 import { StorefrontPhase1701KundenbewertungsSnapshotStrip } from './phase1701-kundenbewertungs-snapshot-strip';
 import { Phase1000LiveTrackingStatus } from './phase1000-live-tracking-status';
 import { StorefrontPhase1697EtaCountdownBanner } from './phase1697-eta-countdown-banner';
+import { StorefrontPhase1706LieferzeitGarantieCountdownBadge } from './phase1706-lieferzeit-garantie-countdown-badge';
 
 type Props = {
   location: Location;
@@ -1538,6 +1539,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1696BestellstatusMiniTracker orderId={activeOrderId} initialStatus={null} locationId={location.id} />
       {/* Phase 1701: Kundenbewertungs-Snapshot-Strip — Letzte 3 Bewertungen + Sterne + Kurztext; 60-Min-Polling; Hydration-safe */}
       <StorefrontPhase1701KundenbewertungsSnapshotStrip locationId={location.id} />
+      {/* Phase 1706: Lieferzeit-Garantie-Countdown-Badge — Countdown bis 45-Min-Garantie ab Bestelleingang; rot bei <10 Min; Hydration-safe */}
+      <StorefrontPhase1706LieferzeitGarantieCountdownBadge orderedAt={orderSuccess?.orderedAt ?? null} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}

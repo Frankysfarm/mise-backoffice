@@ -574,6 +574,7 @@ import { DispatchPhase1694ZoneSlaLiveBoard } from './phase1694-zone-sla-live-boa
 import { DispatchPhase1699FahrerReaktionszeitMonitor } from './phase1699-fahrer-reaktionszeit-monitor';
 import { DispatchPhase1000TourScoreLiveHub } from './phase1000-tour-score-live-hub';
 import { DispatchPhase1695TourFortschrittsBoard } from './phase1695-tour-fortschritts-board';
+import { DispatchPhase1704LieferKostenEffizienzWidget } from './phase1704-liefer-kosten-effizienz-widget';
 
 type Driver = {
   employee_id: string;
@@ -1724,6 +1725,8 @@ export function DispatchBoard({
       <DispatchPhase1695TourFortschrittsBoard batches={batches as any} drivers={drivers as any} />
       {/* Phase 1699: Fahrer-Reaktionszeit-Monitor — Zeit zwischen Dispatch und erstem Check-In je Fahrer; Ampel <2/<5/>5 Min; Props batches; useMemo */}
       <DispatchPhase1699FahrerReaktionszeitMonitor batches={batches as any} />
+      {/* Phase 1704: Liefer-Kosten-Effizienz-Widget — Phase1702-API: Kosten je Lieferung + Ampel günstig/mittel/teuer + Trend; 30-Min-Polling */}
+      <DispatchPhase1704LieferKostenEffizienzWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}
       <DispatchPhase1000TourScoreLiveHub tours={batches.filter((b: Batch) => ['unterwegs', 'on_route', 'gestartet'].includes(b.status)).map((b: Batch) => {
         const dr = drivers.find((d: Driver) => d.employee_id === (b.fahrer_id ?? ''));

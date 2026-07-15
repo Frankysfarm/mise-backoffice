@@ -517,6 +517,7 @@ import { KitchenPhase1693UmsatzVergleichStrip } from './phase1693-umsatz-verglei
 import { KitchenPhase1700LiveTimingCockpit } from './phase1700-live-timing-cockpit';
 import { KitchenPhase1698BestellmusterHeatmapStrip } from './phase1698-bestellmuster-heatmap-strip';
 import { KitchenPhase1701SmartKochstartTimingBoard } from './phase1701-smart-kochstart-timing-board';
+import { KitchenPhase1703GerichtPopularitaetsRang } from './phase1703-gericht-popularitaets-rang';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1502,6 +1503,8 @@ export function KitchenBoard({
       <KitchenPhase1693UmsatzVergleichStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1698: Bestellmuster-Heatmap-Strip — Top-5 Spitzenzeiten + 7×24 Mini-Grid; 60-Min-Polling */}
       <KitchenPhase1698BestellmusterHeatmapStrip locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1703: Gericht-Popularitäts-Rang — Top-5 meistbestellte Gerichte heute + Trend-Pfeil; useMemo */}
+      <KitchenPhase1703GerichtPopularitaetsRang orders={filtered as any} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}
