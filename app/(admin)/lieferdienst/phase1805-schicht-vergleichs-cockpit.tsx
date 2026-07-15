@@ -27,6 +27,13 @@ interface VergleichsDaten {
   generiert_am: string;
 }
 
+interface OrderRow {
+  total_price: number | null;
+  status: string | null;
+  created_at: string;
+  delivered_at: string | null;
+}
+
 interface Props {
   locationId?: string | null;
   className?: string;
@@ -98,21 +105,22 @@ export function LieferdienstPhase1805SchichtVergleichsCockpit({ locationId, clas
 
       if (!rows || rows.length === 0) { setData(buildMock()); setLoading(false); return; }
 
+      const typedRows = rows as OrderRow[];
       const now = Date.now();
       const schichtStartMs = 8 * 3600_000;
       const grenze = new Date(now - schichtStartMs);
 
-      const aktuellOrders = rows.filter(r => new Date(r.created_at) >= grenze);
-      const vorherOrders  = rows.filter(r => new Date(r.created_at) <  grenze);
+      const aktuellOrders = typedRows.filter((r: OrderRow) => new Date(r.created_at) >= grenze);
+      const vorherOrders  = typedRows.filter((r: OrderRow) => new Date(r.created_at) <  grenze);
 
-      function kpiVon(orders: typeof rows, label: string): SchichtKpi {
+      function kpiVon(orders: OrderRow[], label: string): SchichtKpi {
         const bestellungen = orders.length;
-        const umsatz = orders.reduce((s, o) => s + (o.total_price ?? 0), 0);
-        const stornos = orders.filter(o => o.status === 'cancelled').length;
+        const umsatz = orders.reduce((s: number, o: OrderRow) => s + (o.total_price ?? 0), 0);
+        const stornos = orders.filter((o: OrderRow) => o.status === 'cancelled').length;
         const storno_quote_pct = bestellungen > 0 ? Math.round((stornos / bestellungen) * 100 * 10) / 10 : 0;
-        const geliefert = orders.filter(o => o.delivered_at && o.created_at);
+        const geliefert = orders.filter((o: OrderRow) => o.delivered_at && o.created_at);
         const avgMs = geliefert.length > 0
-          ? geliefert.reduce((s, o) => s + (new Date(o.delivered_at!).getTime() - new Date(o.created_at).getTime()), 0) / geliefert.length
+          ? geliefert.reduce((s: number, o: OrderRow) => s + (new Date(o.delivered_at!).getTime() - new Date(o.created_at).getTime()), 0) / geliefert.length
           : null;
         return { label, umsatz, bestellungen, avg_lieferzeit_min: avgMs ? Math.round(avgMs / 60_000) : null, storno_quote_pct };
       }
