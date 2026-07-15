@@ -328,6 +328,7 @@ import { StorefrontPhase1731LieferzeitGarantieUhr } from './phase1731-lieferzeit
 import { StorefrontPhase1736BestellbestaetigungFortschrittsleiste } from './phase1736-bestellbestaetigung-fortschrittsleiste';
 import { StorefrontPhase1741LiveFahrerNaehHerungsIndikator } from './phase1741-live-fahrer-naeherungs-indikator';
 import { StorefrontPhase1746BestellmusterZeitfensterHinweis } from './phase1746-bestellmuster-zeitfenster-hinweis';
+import { StorefrontPhase1751LieferVertrauensScoreBadge } from './phase1751-liefer-vertrauens-score-badge';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1575,6 +1576,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         status={activeOrderId ? 'bestellt' : null}
         className="mx-4 mt-2"
       />
+      {/* Phase 1751: Liefer-Vertrauens-Score-Badge — X% positives Feedback letzte 30 Bewertungen; 60-Min-Polling; schließbar */}
+      <StorefrontPhase1751LieferVertrauensScoreBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1746: Bestellmuster-Zeitfenster-Hinweis — Hinweis wenn aktuelle Stunde historisch Hochlastzeit; Hydration-safe */}
       <StorefrontPhase1746BestellmusterZeitfensterHinweis locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1741: Live-Fahrer-Näherungs-Indikator — Näherungs-Banner wenn Fahrer <500m; 30s-Polling; Hydration-safe */}

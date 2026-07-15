@@ -500,6 +500,7 @@ import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-st
 import { FahrerPhase1740SmartTourNavCommand } from './phase1740-smart-tour-nav-command';
 import { FahrerPhase1740ZielEreichtAnimation } from './phase1740-ziel-erreicht-animation';
 import { FahrerPhase1745EigeneReaktionstanzAnzeige } from './phase1745-eigene-reaktionszeit-anzeige';
+import { FahrerPhase1750EigenerEffizienzTrend } from './phase1750-eigener-effizienz-trend';
 
 type Driver = {
   id: string;
@@ -5198,6 +5199,11 @@ export function FahrerApp({
           />
           {/* Phase 1725: Einnahmen-Hochrechnung-Karte — Projektion Tagesverdienst + Konfidenz-Balken; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase1725EinnahmenHochrechnungKarte
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1750: Eigener Effizienz-Trend — Mein Tour-Score letzte 7 Tage + Trend-Pfeil + Team-Vergleich; 30-Min-Polling */}
+          <FahrerPhase1750EigenerEffizienzTrend
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
