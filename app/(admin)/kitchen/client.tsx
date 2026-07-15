@@ -526,6 +526,7 @@ import { KitchenPhase1718UeberfaelligeBestellungenCountdown } from './phase1718-
 import { KitchenPhase1723GerichtAuslastungsForecast } from './phase1723-gericht-auslastungs-forecast';
 import { KitchenPhase1722SmartTimingEchtzeitCountdownFarbkodierung } from './phase1722-smart-timing-echtzeit-countdown-farbkodierung';
 import { KitchenPhase1728SchichtProduktivitaetsAmpel } from './phase1728-schicht-produktivitaets-ampel';
+import { KitchenPhase1731SmartTimingFarbkodierungCockpit } from './phase1731-smart-timing-farbkodierung-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1529,6 +1530,8 @@ export function KitchenBoard({
       <KitchenPhase1717SchichtKochzeitTrend orders={filtered as any} />
       {/* Phase 1722: Smart-Timing-Echtzeit-Countdown-Farbkodierung — 5-stufige Farbkodierung (Grün/Gelb/Orange/Rot/Lila) je aktiver Bestellung mit SVG-Countdown-Ring; 1s-Tick */}
       <KitchenPhase1722SmartTimingEchtzeitCountdownFarbkodierung orders={filtered as any} timings={timings as any} />
+      {/* Phase 1731: Smart-Timing-Farbkodierung-Cockpit — 4-Stufen-Farbkodierung (grün/amber/rot/blau) mit MM:SS-Countdown je aktiver Bestellung; Echtzeit 1s-Tick; Fortschrittsbalken */}
+      <KitchenPhase1731SmartTimingFarbkodierungCockpit locationId={locationFilter !== 'all' ? locationFilter : null} />
       {/* Phase 1528: Tages-Umsatz-Balken-Chart — SVG-Balken-Chart Bestellungen je Stunde heute; Peak-Markierung; aktuelle Stunde blau */}
       <KitchenPhase1528TagesUmsatzBalkenChart />
       {/* Phase 1525: Smart-Echtzeit-Countdown-Cockpit — Sekunden-genauer Countdown je aktiver Bestellung mit 5-Stufen-Farbkodierung (Grün/Gelb/Orange/Rot/Violett); Auto-Refresh 1s */}

@@ -495,6 +495,7 @@ import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-
 import { FahrerPhase1716SchichtVerdienstHochrechnung } from './phase1716-schicht-verdienst-hochrechnung';
 import { FahrerPhase1724SmartTourStoppNavigatorFinal } from './phase1724-smart-tour-stopp-navigator-final';
 import { FahrerPhase1730ZonenTippKarte } from './phase1730-zonen-tipp-karte';
+import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-stopp-ultra-final-navigator';
 
 type Driver = {
   id: string;
@@ -5237,6 +5238,15 @@ export function FahrerApp({
             startedAt={activeBatch.started_at ?? null}
             isOnline={isOnline}
           />
+        )}
+        {/* Phase 1737: Tour-Stopp-Ultra-Final-Navigator — Fortschrittsbalken + aktueller Stopp mit Navigation+Telefon+Zustellung-CTA + Nächste-Stopps-Liste; Google-Maps-Link */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1737TourStoppUltraFinalNavigator
+              stops={activeBatch.stops as any}
+              currentBatchId={activeBatch.id}
+            />
+          </div>
         )}
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
