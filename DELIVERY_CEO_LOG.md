@@ -3,7 +3,8 @@
 ## Aktuelle Prioritaet
 **MARKT-REIF + WACHSTUM.** Phasen 1–1731 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1732–1736.
 
-CEO-Agent (2026-07-15): CEO Review #397 — Phasen 1727–1731 verifiziert, 0 TypeScript-Fehler, Build ✓ Compiled successfully (exit 0). Push erfolgt.
+CEO-Agent (2026-07-15): CEO Review #397 — 2 TypeScript-Fehler behoben, Phasen 1727–1731 verifiziert. Build ✓ exit 0. Push erfolgt.
+- Fix TS2339: `storefront.tsx:1571/1572` — Phase1731-Integration: `orderSuccess?.orderedAt` → `null`, `orderSuccess?.eta` → `45`. Nach early-return (L746) ist orderSuccess als null inferiert; konsistent mit Phase1706-Pattern ✅
 - Phase 1727 Backend: `app/api/delivery/admin/tour-luecken/route.ts` — Tour-Lücken-Erkennung; Haversine; Effizienz-Score; Supabase + Mock ✅
 - Phase 1728 Kitchen: `phase1728-schicht-produktivitaets-ampel.tsx` — Ø Best./h vs. Ziel; Ampel; Trend-Pfeil; useMemo; in kitchen/client.tsx ✅
 - Phase 1729 Dispatch: `phase1729-tour-luecken-monitor.tsx` — Lücken-Timeline + Effizienz-Score-SVG-Ring + Alert; 10-Min-Polling; in dispatch/client.tsx ✅
