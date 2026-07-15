@@ -501,6 +501,7 @@ import { FahrerPhase1740SmartTourNavCommand } from './phase1740-smart-tour-nav-c
 import { FahrerPhase1740ZielEreichtAnimation } from './phase1740-ziel-erreicht-animation';
 import { FahrerPhase1745EigeneReaktionstanzAnzeige } from './phase1745-eigene-reaktionszeit-anzeige';
 import { FahrerPhase1750EigenerEffizienzTrend } from './phase1750-eigener-effizienz-trend';
+import { FahrerPhase1755EigenePuenktlichkeitsQuote } from './phase1755-eigene-puenktlichkeits-quote';
 
 type Driver = {
   id: string;
@@ -5204,6 +5205,11 @@ export function FahrerApp({
           />
           {/* Phase 1750: Eigener Effizienz-Trend — Mein Tour-Score letzte 7 Tage + Trend-Pfeil + Team-Vergleich; 30-Min-Polling */}
           <FahrerPhase1750EigenerEffizienzTrend
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1755: Eigene Pünktlichkeits-Quote — Meine Pünktlichkeit + Team-Vergleich; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1755EigenePuenktlichkeitsQuote
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
