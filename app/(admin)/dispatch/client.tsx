@@ -554,6 +554,7 @@ import { DispatchPhase1604BeliebteBestezeitenWidget } from './phase1604-beliebte
 import { DispatchPhase1609FahrerPuenktlichkeitsRankingWidget } from './phase1609-fahrer-puenktlichkeits-ranking-widget';
 import { DispatchPhase1614ScoreTourVisualisierungsHub } from './phase1614-score-tour-visualisierungs-hub';
 import { DispatchPhase1619LieferstatusDurchlaufzeitWidget } from './phase1619-lieferstatus-durchlaufzeit-widget';
+import { DispatchPhase1624StornoAnalyseWidget } from './phase1624-storno-analyse-widget';
 
 type Driver = {
   employee_id: string;
@@ -1666,6 +1667,8 @@ export function DispatchBoard({
       <DispatchPhase1614ScoreTourVisualisierungsHub batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1619: Lieferstatus-Durchlaufzeit-Widget — Balken-Chart Ø Zeit je Status-Übergang + Engpass-Markierung + Trend-Pfeil vs. Vortag; 15-Min-Polling */}
       <DispatchPhase1619LieferstatusDurchlaufzeitWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1624: Storno-Analyse-Widget — Stornoquote je Zone als Balken-Chart + häufigste Gründe + Uhrzeit-Cluster; 30-Min-Polling */}
+      <DispatchPhase1624StornoAnalyseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

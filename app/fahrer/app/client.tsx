@@ -467,6 +467,7 @@ import { FahrerPhase1605TourRueckblickKarte } from './phase1605-tour-rueckblick-
 import { FahrerPhase1610TrinkgeldWochenzielTracker } from './phase1610-trinkgeld-wochenziel-tracker';
 import { FahrerPhase1615TourStoppNavigationsUltraHub } from './phase1615-tour-stopp-navigations-ultra-hub';
 import { FahrerPhase1620TagesKpiScoreboard } from './phase1620-tages-kpi-scoreboard';
+import { FahrerPhase1625RoutenEffizienzKarte } from './phase1625-routen-effizienz-karte';
 
 type Driver = {
   id: string;
@@ -5051,6 +5052,10 @@ export function FahrerApp({
         {/* Phase 1620: Tages-KPI-Scoreboard — Touren + Ø Lieferzeit + Pünktlichkeit + Trinkgeld-Rate + Rang; isOnline-Guard; 10-Min-Polling */}
         <div className="px-4">
           <FahrerPhase1620TagesKpiScoreboard isOnline={isOnline} driverId={driver?.id ?? null} />
+        </div>
+        {/* Phase 1625: Routen-Effizienz-Karte — Geplante vs. tatsächliche Fahrtzeit letzter 5 Touren; Effizienzrate; Ampel gut/normal/schlecht; isOnline-Guard; 15-Min-Polling */}
+        <div className="px-4">
+          <FahrerPhase1625RoutenEffizienzKarte isOnline={isOnline} driverId={driver?.id ?? null} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

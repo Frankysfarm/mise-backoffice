@@ -297,6 +297,7 @@ import { StorefrontPhase1606ProduktempfehlungUpsellBanner } from './phase1606-pr
 import { StorefrontPhase1611LetzteBestellungenSchnellzugang } from './phase1611-letzte-bestellungen-schnellzugang';
 import { StorefrontPhase1616MenuBeliebtheitsBadge } from './phase1616-menu-beliebtheitsbadges';
 import { StorefrontPhase1621EchtzeitKuechenstatusTicker } from './phase1621-echtzeit-kuechenstatus-ticker';
+import { StorefrontPhase1626WartezeitTransparenzWidget } from './phase1626-wartezeit-transparenz-widget';
 
 type Props = {
   location: Location;
@@ -1472,6 +1473,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1611LetzteBestellungenSchnellzugang locationId={location.id} />
       {/* Phase 1621: Echtzeit-Küchenstatus-Ticker — Live-Ticker „X Bestellungen in Zubereitung · Küche läuft auf Hochtouren/normal/ruhig"; localStorage-cached 2Min; Hydration-safe */}
       <StorefrontPhase1621EchtzeitKuechenstatusTicker locationId={location.id} />
+      {/* Phase 1626: Wartezeit-Transparenz-Widget — Live ETA + Fortschrittsbalken (Bestellt→Zubereitung→Unterwegs→Geliefert) + Küchenstatus; localStorage-cached 1Min; Hydration-safe */}
+      <StorefrontPhase1626WartezeitTransparenzWidget locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
