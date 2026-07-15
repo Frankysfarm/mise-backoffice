@@ -514,6 +514,7 @@ import { KitchenPhase1678ZutatenSchwundWarnung } from './phase1678-zutaten-schwu
 import { KitchenPhase1683KochzeitVarianzMonitor } from './phase1683-kochzeit-varianz-monitor';
 import { KitchenPhase1688BestellungsStornoZeitraumAnalyse } from './phase1688-bestellungs-storno-zeitraum-analyse';
 import { KitchenPhase1693UmsatzVergleichStrip } from './phase1693-umsatz-vergleich-strip';
+import { KitchenPhase1700LiveTimingCockpit } from './phase1700-live-timing-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2873,6 +2874,8 @@ export function KitchenBoard({
       <KitchenPhase810ZubereitungszeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1385: Smart-Timing Countdown Cockpit — Farbcodierter Echtzeit-Countdown je Bestellung (rot/gelb/grün) */}
       <KitchenPhase1385SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1700: Live Timing Cockpit — Echtzeit-Countdown je aktiver Bestellung, farbkodiert + Fortschrittsbalken */}
+      <KitchenPhase1700LiveTimingCockpit orders={filtered} />
     </div>
   );
 }

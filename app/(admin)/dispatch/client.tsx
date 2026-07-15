@@ -571,6 +571,7 @@ import { DispatchPhase1679FahrerRoutenEffizienzRangliste } from './phase1679-fah
 import { DispatchPhase1684FahrerPausenComplianceWidget } from './phase1684-fahrer-pausen-compliance-widget';
 import { DispatchPhase1689FahrerAuslastungsPrognoseWidget } from './phase1689-fahrer-auslastungs-prognose-widget';
 import { DispatchPhase1694ZoneSlaLiveBoard } from './phase1694-zone-sla-live-board';
+import { DispatchPhase1000TourScoreLiveHub } from './phase1000-tour-score-live-hub';
 
 type Driver = {
   employee_id: string;
@@ -1717,6 +1718,22 @@ export function DispatchBoard({
       <DispatchPhase1689FahrerAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1694: Zone-SLA-Live-Board — Je Zone A/B/C/D: SLA-Einhaltung % + Ø Lieferzeit + Ampel; Props batches+stops; useMemo */}
       <DispatchPhase1694ZoneSlaLiveBoard batches={batches as any} stops={batches.flatMap((b: any) => (b.stops ?? []))} />
+      {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}
+      <DispatchPhase1000TourScoreLiveHub tours={batches.filter((b: Batch) => ['unterwegs', 'on_route', 'gestartet'].includes(b.status)).map((b: Batch) => {
+        const dr = drivers.find((d: Driver) => d.employee_id === (b.fahrer_id ?? ''));
+        const driverName = dr?.employee ? `${dr.employee.vorname} ${dr.employee.nachname[0]}.` : 'Fahrer';
+        const now2 = Date.now();
+        const startMs = b.startzeit ? new Date(b.startzeit).getTime() : null;
+        const elapsedMin = startMs ? Math.floor((now2 - startMs) / 60_000) : 0;
+        const totalStops = b.stops?.length ?? 0;
+        const completedStops = b.stops?.filter((s) => s.geliefert_am).length ?? 0;
+        const etaMin = b.total_eta_min ?? null;
+        const donePct = totalStops > 0 ? completedStops / totalStops : 0;
+        const usedPct = etaMin ? elapsedMin / etaMin : 0;
+        let health: 'on-time'|'tight'|'late'|'unknown' = etaMin ? (usedPct - donePct > 0.3 ? 'late' : usedPct - donePct > 0.1 ? 'tight' : 'on-time') : 'unknown';
+        const score = Math.max(0, Math.min(100, Math.round((donePct * 0.5 + (1 - Math.max(0, usedPct - donePct)) * 0.5) * 100)));
+        return { id: b.id, driverName, score, completedStops, totalStops, elapsedMin, etaMin, zone: b.zone, health };
+      })} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

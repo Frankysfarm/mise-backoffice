@@ -483,6 +483,7 @@ import { FahrerPhase1680SmartTourNavigatorHub } from './phase1680-smart-tour-nav
 import { FahrerPhase1685PausenzeitErinnerung } from './phase1685-pausenzeit-erinnerung';
 import { FahrerPhase1690TourAbschlussSchnellbewertung } from './phase1690-tour-abschluss-schnellbewertung';
 import { FahrerPhase1695SchichtRanglisteVorschau } from './phase1695-schicht-rangliste-vorschau';
+import { Phase1700TourStoppNavigatorMaster } from './phase1700-tour-stopp-navigator-master';
 
 type Driver = {
   id: string;
@@ -2527,6 +2528,25 @@ export function FahrerApp({
               <TourStoppUebersicht
                 stops={activeBatch.stops as any}
                 currentStopId={activeBatch.stops.find((s: any) => !s.geliefert_am)?.id ?? null}
+              />
+            </div>
+          )}
+          {/* Phase 1700: Tour-Stopp-Navigator Master — Aktueller Stopp mit Google Maps/Waze-Buttons + Nächste-Stopp-Vorschau + Alle-Stopps-Liste */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <Phase1700TourStoppNavigatorMaster
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? 1,
+                  adresse: s.order?.kunde_adresse ?? s.adresse ?? 'Adresse unbekannt',
+                  name: s.order?.kunde_name ?? null,
+                  telefon: s.order?.kunde_telefon ?? null,
+                  lat: s.order?.kunde_lat ?? null,
+                  lng: s.order?.kunde_lng ?? null,
+                  eta_min: s.eta_min ?? null,
+                  status: s.geliefert_am ? 'erledigt' : 'offen' as 'offen'|'erledigt',
+                  notiz: s.order?.kunde_notiz ?? null,
+                }))}
               />
             </div>
           )}
