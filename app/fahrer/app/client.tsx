@@ -494,6 +494,7 @@ import { FahrerPhase1725EinnahmenHochrechnungKarte } from './phase1725-einnahmen
 import { FahrerPhase1710SmartTourStoppNavigationUltra } from './phase1710-smart-tour-stopp-navigation-ultra';
 import { FahrerPhase1716SchichtVerdienstHochrechnung } from './phase1716-schicht-verdienst-hochrechnung';
 import { FahrerPhase1724SmartTourStoppNavigatorFinal } from './phase1724-smart-tour-stopp-navigator-final';
+import { FahrerPhase1730ZonenTippKarte } from './phase1730-zonen-tipp-karte';
 
 type Driver = {
   id: string;
@@ -5193,6 +5194,12 @@ export function FahrerApp({
           {/* Phase 1725: Einnahmen-Hochrechnung-Karte — Projektion Tagesverdienst + Konfidenz-Balken; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase1725EinnahmenHochrechnungKarte
             driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1730: Zonen-Tipp-Karte — Zone mit höchster Nachfrage + wenigsten Fahrern; Empfehlung; isOnline-Guard; 10-Min-Polling */}
+          <FahrerPhase1730ZonenTippKarte
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
             isOnline={isOnline}
           />
           {/* Phase 1716: Schicht-Verdienst-Hochrechnung — Live-Prognose Schichtende-Verdienst basierend auf aktuellem Tempo; 5-Min-Polling; API+Mock-Fallback */}
