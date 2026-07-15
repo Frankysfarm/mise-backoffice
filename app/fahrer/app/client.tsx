@@ -482,6 +482,7 @@ import { FahrerPhase1675MeineZoneKarte } from './phase1675-meine-zone-karte';
 import { FahrerPhase1680SmartTourNavigatorHub } from './phase1680-smart-tour-navigator-hub';
 import { FahrerPhase1685PausenzeitErinnerung } from './phase1685-pausenzeit-erinnerung';
 import { FahrerPhase1690TourAbschlussSchnellbewertung } from './phase1690-tour-abschluss-schnellbewertung';
+import { FahrerPhase1695SchichtRanglisteVorschau } from './phase1695-schicht-rangliste-vorschau';
 
 type Driver = {
   id: string;
@@ -5124,6 +5125,12 @@ export function FahrerApp({
             batchId={activeBatch?.id ?? null}
             driverId={driver?.id ?? null}
             stops={(activeBatch?.stops ?? []) as any}
+            isOnline={isOnline}
+          />
+          {/* Phase 1695: Schicht-Rangliste-Vorschau — Eigener Rang + 2 über/unter dem Fahrer + Punktabstand; 20-Min-Polling; isOnline-Guard */}
+          <FahrerPhase1695SchichtRanglisteVorschau
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
             isOnline={isOnline}
           />
         </div>
