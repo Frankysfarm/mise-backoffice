@@ -481,6 +481,7 @@ import { FahrerPhase1670SchichtEndeCountdownTimer } from './phase1670-schicht-en
 import { FahrerPhase1675MeineZoneKarte } from './phase1675-meine-zone-karte';
 import { FahrerPhase1680SmartTourNavigatorHub } from './phase1680-smart-tour-navigator-hub';
 import { FahrerPhase1685PausenzeitErinnerung } from './phase1685-pausenzeit-erinnerung';
+import { FahrerPhase1690TourAbschlussSchnellbewertung } from './phase1690-tour-abschluss-schnellbewertung';
 
 type Driver = {
   id: string;
@@ -5118,6 +5119,13 @@ export function FahrerApp({
           {activeBatch && <FahrerPhase1680SmartTourNavigatorHub driverId={driver?.id ?? null} />}
           {/* Phase 1685: Pausenzeit-Erinnerung — Wenn Fahrer >5.5h aktiv: In-App-Karte mit Pausenempfehlung; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase1685PausenzeitErinnerung driverId={driver?.id ?? null} isOnline={isOnline} onlineSeit={status?.online_seit ?? null} />
+          {/* Phase 1690: Tour-Abschluss-Schnellbewertung — Nach letztem Stopp: Stern-Bewertung 1–5 + Kommentar; Guard deliveredAll; einmalig pro Tour */}
+          <FahrerPhase1690TourAbschlussSchnellbewertung
+            batchId={activeBatch?.id ?? null}
+            driverId={driver?.id ?? null}
+            stops={(activeBatch?.stops ?? []) as any}
+            isOnline={isOnline}
+          />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">

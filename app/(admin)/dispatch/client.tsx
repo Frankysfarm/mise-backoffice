@@ -569,6 +569,7 @@ import { DispatchPhase1674ZonenKapazitaetsMonitor } from './phase1674-zonen-kapa
 import { DispatchPhase1680TourScoreVisualisierungUltimate } from './phase1680-tour-score-visualisierung-ultimate';
 import { DispatchPhase1679FahrerRoutenEffizienzRangliste } from './phase1679-fahrer-routen-effizienz-rangliste';
 import { DispatchPhase1684FahrerPausenComplianceWidget } from './phase1684-fahrer-pausen-compliance-widget';
+import { DispatchPhase1689FahrerAuslastungsPrognoseWidget } from './phase1689-fahrer-auslastungs-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1711,6 +1712,8 @@ export function DispatchBoard({
       <DispatchPhase1679FahrerRoutenEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1684: Fahrer-Pausen-Compliance-Widget — Phase1682-API: Status je Fahrer (Pause fällig/ok); Warnbadge; 10-Min-Polling */}
       <DispatchPhase1684FahrerPausenComplianceWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1689: Fahrer-Auslastungs-Prognose-Widget — Prognose-Balken nächste 4h + Empfehlung ob mehr Fahrer nötig; 15-Min-Polling */}
+      <DispatchPhase1689FahrerAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1529: Küchen-Durchsatz-Widget — Phase1527-API: Stunden-Balken + Ø Zubereitungszeit + Kapazitäts-Warnung; 10-Min-Polling */}
       <DispatchPhase1529KuechenDurchsatzWidget />
       {/* Phase 1525: Tour-Score-Live-Kommando — Aktive Touren mit Fahrer-Score (farbkodiert), Tour-Fortschritts-Balken + ETA-Ampel + nächster Stop */}

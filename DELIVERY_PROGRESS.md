@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-15): Phasen 1687–1691 implementiert. Build ✓ exit 0. Push erfolgt.
+- Phase 1687 Backend: `/api/delivery/admin/fahrer-auslastungs-prognose` — bereits vorhanden (Phase 1208/1439); genutzt von Phase 1689 ✅
+- Phase 1688 Kitchen: `app/(admin)/kitchen/phase1688-bestellungs-storno-zeitraum-analyse.tsx` — Storno-Rate je Tagesstunde als Mini-Balken; Spitzenzeit markiert; Ampel 15%/30%; useMemo; in kitchen/client.tsx ✅
+- Phase 1689 Dispatch: `app/(admin)/dispatch/phase1689-fahrer-auslastungs-prognose-widget.tsx` — Prognose-Balken +4h je Stunde + Fahrer-Bedarf + Empfehlung; 15-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1690 Fahrer-App: `app/fahrer/app/phase1690-tour-abschluss-schnellbewertung.tsx` — Stern-Bewertung 1–5 + optionaler Kommentar nach letztem Stopp; Guard deliveredAll; API tour-bewertung POST; in fahrer/app/client.tsx ✅
+- Phase 1691 Storefront: `app/order/[locationSlug]/phase1691-live-warteschlangen-anzeige.tsx` — Gelber/Roter Banner wenn Queue >5/>10; +Min Verzögerung; 5-Min-Polling; Hydration-safe; in storefront.tsx ✅
+- API: `app/api/delivery/fahrer/tour-bewertung/route.ts` — POST tour-bewertung: rating 1–5 + Kommentar + batch_id; upsert tour_bewertungen; Mock-Fallback ✅
+
+### Naechste Phasen 1692–1696 (fuer naechsten Agenten)
+1. **Phase 1692 Backend:** Tages-Umsatz-Vergleich-API — GET /api/delivery/admin/tages-umsatz-vergleich: Umsatz heute vs. gestern vs. Vorwoche gleicher Tag; Änderung in %; location_id-Tenant; Supabase + Mock.
+2. **Phase 1693 Kitchen:** Umsatz-Vergleich-Strip — Phase1692-API: Heute vs. Gestern vs. Vorwoche als 3 Kacheln + Trend-Pfeile; 30-Min-Polling; in kitchen/client.tsx.
+3. **Phase 1694 Dispatch:** Zone-SLA-Live-Board — Je Zone A/B/C/D: SLA-Einhaltung % + Ø Lieferzeit + Ampel; Props batches+stops; useMemo; in dispatch/client.tsx.
+4. **Phase 1695 Fahrer-App:** Schicht-Rangliste-Vorschau — Eigener Rang + die 2 direkt über/unter dem Fahrer + Punktabstand; 20-Min-Polling; isOnline-Guard; in fahrer/app/client.tsx.
+5. **Phase 1696 Storefront:** Bestellstatus-Mini-Tracker — Nach Bestellung: 5-Stufen-Leiste (Eingegangen/Angenommen/In Zubereitung/Bereit/Unterwegs) mit Live-Update; Props orderStatus; Hydration-safe.
+
+---
+
 Backend-Architekt-Agent (2026-07-15): Phasen 1682–1686 implementiert. Build ✓ Compiled successfully. Push erfolgt.
 - Phase 1682 Backend: `app/api/delivery/admin/fahrer-pausen-compliance/route.ts` — Pflichtpausen je Fahrer (Schicht >6h → 30 Min); Compliance-Status ok/pause_faellig/ueberzeit; location_id-Tenant; Supabase + Mock ✅
 - Phase 1683 Kitchen: `app/(admin)/kitchen/phase1683-kochzeit-varianz-monitor.tsx` — Varianz der Zubereitungszeiten je Gericht (Min/Max/Ø); Ampel warnung/kritisch wenn Varianz >30%/>50%; useMemo; in kitchen/client.tsx ✅
