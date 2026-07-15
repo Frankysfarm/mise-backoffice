@@ -485,6 +485,7 @@ import { FahrerPhase1690TourAbschlussSchnellbewertung } from './phase1690-tour-a
 import { FahrerPhase1695SchichtRanglisteVorschau } from './phase1695-schicht-rangliste-vorschau';
 import { Phase1700TourStoppNavigatorMaster } from './phase1700-tour-stopp-navigator-master';
 import { FahrerPhase1700TagesUmsatzBeitragKarte } from './phase1700-tages-umsatz-beitrag-karte';
+import { FahrerPhase1701LiveSchichtPerformanceScore } from './phase1701-live-schicht-performance-score';
 
 type Driver = {
   id: string;
@@ -2532,6 +2533,10 @@ export function FahrerApp({
               />
             </div>
           )}
+          {/* Phase 1701: Live-Schicht-Performance-Score — Score-Ring + Lieferungen + Pünktlichkeit + Einnahmen in Echtzeit */}
+          <div className="px-4">
+            <FahrerPhase1701LiveSchichtPerformanceScore driverId={driver.id} locationId={driver.location_id ?? null} />
+          </div>
           {/* Phase 1700: Tour-Stopp-Navigator Master — Aktueller Stopp mit Google Maps/Waze-Buttons + Nächste-Stopp-Vorschau + Alle-Stopps-Liste */}
           {activeBatch.stops.length > 0 && (
             <div className="px-4">

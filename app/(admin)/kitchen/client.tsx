@@ -516,6 +516,7 @@ import { KitchenPhase1688BestellungsStornoZeitraumAnalyse } from './phase1688-be
 import { KitchenPhase1693UmsatzVergleichStrip } from './phase1693-umsatz-vergleich-strip';
 import { KitchenPhase1700LiveTimingCockpit } from './phase1700-live-timing-cockpit';
 import { KitchenPhase1698BestellmusterHeatmapStrip } from './phase1698-bestellmuster-heatmap-strip';
+import { KitchenPhase1701SmartKochstartTimingBoard } from './phase1701-smart-kochstart-timing-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2879,6 +2880,8 @@ export function KitchenBoard({
       <KitchenPhase1385SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1700: Live Timing Cockpit — Echtzeit-Countdown je aktiver Bestellung, farbkodiert + Fortschrittsbalken */}
       <KitchenPhase1700LiveTimingCockpit orders={filtered} />
+      {/* Phase 1701: Smart-Kochstart-Timing-Board — Bestellungen sortiert nach Dringlichkeit mit Ampel-Farbkodierung + Fortschrittsbalken */}
+      <KitchenPhase1701SmartKochstartTimingBoard orders={filtered} />
     </div>
   );
 }

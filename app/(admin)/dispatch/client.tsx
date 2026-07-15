@@ -573,6 +573,7 @@ import { DispatchPhase1689FahrerAuslastungsPrognoseWidget } from './phase1689-fa
 import { DispatchPhase1694ZoneSlaLiveBoard } from './phase1694-zone-sla-live-board';
 import { DispatchPhase1699FahrerReaktionszeitMonitor } from './phase1699-fahrer-reaktionszeit-monitor';
 import { DispatchPhase1000TourScoreLiveHub } from './phase1000-tour-score-live-hub';
+import { DispatchPhase1695TourFortschrittsBoard } from './phase1695-tour-fortschritts-board';
 
 type Driver = {
   employee_id: string;
@@ -1719,6 +1720,8 @@ export function DispatchBoard({
       <DispatchPhase1689FahrerAuslastungsPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1694: Zone-SLA-Live-Board — Je Zone A/B/C/D: SLA-Einhaltung % + Ø Lieferzeit + Ampel; Props batches+stops; useMemo */}
       <DispatchPhase1694ZoneSlaLiveBoard batches={batches as any} stops={batches.flatMap((b: any) => (b.stops ?? []))} />
+      {/* Phase 1695: Tour-Fortschritts-Board — Visuelle Stopp-Timeline + Fortschrittsbalken + Health-Ampel je aktiver Tour */}
+      <DispatchPhase1695TourFortschrittsBoard batches={batches as any} drivers={drivers as any} />
       {/* Phase 1699: Fahrer-Reaktionszeit-Monitor — Zeit zwischen Dispatch und erstem Check-In je Fahrer; Ampel <2/<5/>5 Min; Props batches; useMemo */}
       <DispatchPhase1699FahrerReaktionszeitMonitor batches={batches as any} />
       {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}

@@ -314,6 +314,8 @@ import { StorefrontPhase1686QualitaetsScoreBanner } from './phase1686-qualitaets
 import { StorefrontPhase1691LiveWarteschlangenAnzeige } from './phase1691-live-warteschlangen-anzeige';
 import { StorefrontPhase1696BestellstatusMiniTracker } from './phase1696-bestellstatus-mini-tracker';
 import { StorefrontPhase1701KundenbewertungsSnapshotStrip } from './phase1701-kundenbewertungs-snapshot-strip';
+import { Phase1000LiveTrackingStatus } from './phase1000-live-tracking-status';
+import { StorefrontPhase1697EtaCountdownBanner } from './phase1697-eta-countdown-banner';
 
 type Props = {
   location: Location;
@@ -2520,6 +2522,23 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           etaMinutes={order.etaMin ?? null}
           driverName={(order as any).fahrer_name ?? null}
           className="mx-4 mb-3"
+        />
+      )}
+      {/* Phase 1697: ETA-Countdown-Banner — Kompakter Phasen-Fortschritt + Sekundengenauer Countdown; immer sichtbar */}
+      {order.isDelivery && (
+        <StorefrontPhase1697EtaCountdownBanner
+          status={order.status ?? null}
+          etaMinutes={order.etaMin ?? null}
+          orderedAt={(order as any).bestellt_am ?? null}
+          className="mx-4 mb-3"
+        />
+      )}
+      {/* Phase 1000: Live-Tracking-Status — 5-Schritt-Timeline mit Echtzeit-Polling + animiertem Indikator */}
+      {order.isDelivery && order.orderId && (
+        <Phase1000LiveTrackingStatus
+          orderId={order.orderId}
+          initialStatus={(order.status as any) ?? 'eingegangen'}
+          locationId={locationId ?? null}
         />
       )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
