@@ -72,21 +72,22 @@ export function LieferdienstPhase1795EchtzeitStatistikHub({ locationId, classNam
           .in('status', ['online', 'auf_tour', 'aktiv']),
       ]);
 
-      const alle = orders ?? [];
-      const abg = alle.filter(o => ['geliefert', 'abgeholt', 'fertig', 'abgeschlossen'].includes(o.status ?? ''));
-      const storno = alle.filter(o => ['storniert', 'abgebrochen', 'cancelled'].includes(o.status ?? ''));
+      type OrderRow = { gesamtbetrag: number | null; status: string | null; bestellt_am: string | null; lieferzeit_min: number | null; bewertung_sterne: number | null };
+      const alle: OrderRow[] = (orders ?? []) as OrderRow[];
+      const abg = alle.filter((o) => ['geliefert', 'abgeholt', 'fertig', 'abgeschlossen'].includes(o.status ?? ''));
+      const storno = alle.filter((o) => ['storniert', 'abgebrochen', 'cancelled'].includes(o.status ?? ''));
 
       const umsatzHeute = abg.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
       const bestellungenHeute = alle.length;
       const aktiveFahrer = (drivers ?? []).length;
       const stornoQuote = alle.length > 0 ? Math.round((storno.length / alle.length) * 100) : 0;
 
-      const lieferzeiten = abg.filter(o => o.lieferzeit_min != null).map(o => o.lieferzeit_min as number);
+      const lieferzeiten = abg.filter((o) => o.lieferzeit_min != null).map((o) => o.lieferzeit_min as number);
       const avgLieferzeitMin = lieferzeiten.length > 0
         ? Math.round(lieferzeiten.reduce((s, v) => s + v, 0) / lieferzeiten.length)
         : null;
 
-      const bewertungen = abg.filter(o => o.bewertung_sterne != null).map(o => o.bewertung_sterne as number);
+      const bewertungen = abg.filter((o) => o.bewertung_sterne != null).map((o) => o.bewertung_sterne as number);
       const avgBewertung = bewertungen.length > 0
         ? Math.round((bewertungen.reduce((s, v) => s + v, 0) / bewertungen.length) * 10) / 10
         : null;
@@ -245,8 +246,10 @@ export function LieferdienstPhase1795EchtzeitStatistikHub({ locationId, classNam
                 />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))' }}
-                  formatter={(val: number) => [`${val} Bestellungen`, '']}
-                  labelFormatter={(l: string) => `${l} Uhr`}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  formatter={(val: any) => [`${val} Bestellungen`, '']}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  labelFormatter={(l: any) => `${l} Uhr`}
                 />
                 <Bar dataKey="bestellungen" radius={[4,4,0,0]}>
                   {data.stunden.map((s) => (

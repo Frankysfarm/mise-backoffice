@@ -110,10 +110,10 @@ export function StorefrontPhase1794LiveEtaFahrerNaeheCockpit({ orderId, location
             {data.fahrer_name && (
               <span className="text-[11px] text-muted-foreground truncate">Fahrer: {data.fahrer_name}</span>
             )}
-            {data.fahrer_distanz_km !== null && (
+            {data.fahrer_distanz_km != null && (
               <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                 <MapPin className="h-2.5 w-2.5" />
-                {data.fahrer_distanz_km.toFixed(1)} km
+                {(data.fahrer_distanz_km as number).toFixed(1)} km
               </span>
             )}
           </div>
