@@ -156,6 +156,7 @@ import { KitchenPhase1390SmartDeliveryTimingCockpit } from './phase1390-smart-de
 import { KitchenPhase1707SmartTimingFarbkodierungLive } from './phase1707-smart-timing-farbkodierung-live';
 import { KitchenPhase1708SmartTimingCountdownFarbkodierungUltra } from './phase1708-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase1717SchichtKochzeitTrend } from './phase1717-schicht-kochzeit-trend';
+import { KitchenPhase1740DriverSyncCockpit } from './phase1740-driver-sync-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1531,6 +1532,12 @@ export function KitchenBoard({
       <KitchenPhase1718UeberfaelligeBestellungenCountdown orders={filtered as any} />
       {/* Phase 1717: Schicht-Kochzeit-Trend — Ø Kochzeit je Stunde als Balkendiagramm + Trend-Pfeil + Abweichung vom 15-Min-Ziel; Props orders; useMemo */}
       <KitchenPhase1717SchichtKochzeitTrend orders={filtered as any} />
+      {/* Phase 1740: Fahrer-Küchen-Sync-Cockpit — Synchronisiert Zubereitungszeit mit Fahrer-ETA; Farbkodierung Sync/Früh/Warte/Spät */}
+      <KitchenPhase1740DriverSyncCockpit
+        orders={filtered as any}
+        timings={timings as any}
+        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
+      />
       {/* Phase 1722: Smart-Timing-Echtzeit-Countdown-Farbkodierung — 5-stufige Farbkodierung (Grün/Gelb/Orange/Rot/Lila) je aktiver Bestellung mit SVG-Countdown-Ring; 1s-Tick */}
       <KitchenPhase1722SmartTimingEchtzeitCountdownFarbkodierung orders={filtered as any} timings={timings as any} />
       {/* Phase 1731: Smart-Timing-Farbkodierung-Cockpit — 4-Stufen-Farbkodierung (grün/amber/rot/blau) mit MM:SS-Countdown je aktiver Bestellung; Echtzeit 1s-Tick; Fortschrittsbalken */}

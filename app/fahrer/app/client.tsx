@@ -497,6 +497,7 @@ import { FahrerPhase1724SmartTourStoppNavigatorFinal } from './phase1724-smart-t
 import { FahrerPhase1730ZonenTippKarte } from './phase1730-zonen-tipp-karte';
 import { FahrerPhase1735PauseReminder } from './phase1735-pause-reminder';
 import { FahrerPhase1737TourStoppUltraFinalNavigator } from './phase1737-tour-stopp-ultra-final-navigator';
+import { FahrerPhase1740SmartTourNavCommand } from './phase1740-smart-tour-nav-command';
 
 type Driver = {
   id: string;
@@ -5245,6 +5246,15 @@ export function FahrerApp({
             startedAt={activeBatch.started_at ?? null}
             isOnline={isOnline}
           />
+        )}
+        {/* Phase 1740: Smart-Tour-Navigation-Command — Kompakter Tour-Navigator: aktueller Stopp mit Nav-CTA + Telefonanruf + Nächste-Stopps-Liste + ETA-Fortschritt */}
+        {activeBatch?.stops && activeBatch.stops.length > 0 && (
+          <div className="px-4">
+            <FahrerPhase1740SmartTourNavCommand
+              stops={activeBatch.stops as any}
+              currentBatchId={activeBatch.id}
+            />
+          </div>
         )}
         {/* Phase 1737: Tour-Stopp-Ultra-Final-Navigator — Fortschrittsbalken + aktueller Stopp mit Navigation+Telefon+Zustellung-CTA + Nächste-Stopps-Liste; Google-Maps-Link */}
         {activeBatch?.stops && activeBatch.stops.length > 0 && (

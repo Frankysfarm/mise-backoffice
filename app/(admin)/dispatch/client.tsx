@@ -585,6 +585,7 @@ import { DispatchPhase1723TourScoreVisualisierungsBoard } from './phase1723-tour
 import { DispatchPhase1729TourLueckenMonitor } from './phase1729-tour-luecken-monitor';
 import { DispatchPhase1734StoppDauerAnalyseWidget } from './phase1734-stopp-dauer-analyse-widget';
 import { DispatchPhase1733TourScoreLiveVisualisierung } from './phase1733-tour-score-live-visualisierung';
+import { DispatchPhase1740TourScoreTimeline } from './phase1740-tour-score-timeline';
 
 type Driver = {
   employee_id: string;
@@ -1757,6 +1758,8 @@ export function DispatchBoard({
       <DispatchPhase1723TourScoreVisualisierungsBoard batches={batches as any} drivers={drivers as any} />
       {/* Phase 1733: Tour-Score-Live-Visualisierung — SVG-Score-Ring (0–100) je aktiver Tour + Farb-Ampel + Timing/Route-Sub-Scores + Fortschrittsbalken; Mock-Fallback */}
       <DispatchPhase1733TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : null} batches={batches as any} drivers={drivers as any} />
+      {/* Phase 1740: Tour-Score-Timeline — Horizontale Timeline je Tour: Abholung → Stopps → Rückkehr mit Fortschrittsbalken + Score-Badge */}
+      <DispatchPhase1740TourScoreTimeline batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : null} />
       {/* Phase 1000: Tour Score Live Hub — Kompakter Score-Ring + Stopp-Fortschritt + Health-Ampel je aktiver Tour */}
       <DispatchPhase1000TourScoreLiveHub tours={batches.filter((b: Batch) => ['unterwegs', 'on_route', 'gestartet'].includes(b.status)).map((b: Batch) => {
         const dr = drivers.find((d: Driver) => d.employee_id === (b.fahrer_id ?? ''));
