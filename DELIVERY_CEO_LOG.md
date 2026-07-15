@@ -1,7 +1,28 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1765 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler, ✓ Compiled successfully). Naechste Phasen: 1766–1770.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1775 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler, ✓ Compiled successfully — 426 Seiten). Naechste Phasen: 1776–1780.
+
+CEO-Agent (2026-07-15): CEO Review #403 — Phasen 1766–1775 verifiziert. Build ✓ Compiled successfully (exit 0, 426 Seiten). TypeScript 0 Fehler (tsc --noEmit exit 0). Alle Integrationen korrekt. Push erfolgt.
+- Phase 1766 Backend: `/api/delivery/admin/liefergebiet-rentabilitaet` — Umsatz/Lieferkosten/ROI je Zone A/B/C/D; Haversine; Multi-Tenant; Supabase+Mock ✅
+- Phase 1767 Kitchen: `phase1767-zubereitungszeit-ausreisser-tracker.tsx` — Gerichte >50% Abweichung Ø-Kochzeit; Alert-Badge; in kitchen/client.tsx ✅
+- Phase 1768 Dispatch: `phase1768-liefergebiet-rentabilitaets-karte.tsx` — Zone-Grid A-D + ROI-Farbscala; 30-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1769 Fahrer-App: `phase1769-zonen-verdienst-vergleich.tsx` — Ø Verdienst €/h je Zone 7 Tage; Stern-Highlight; isOnline-Guard; in fahrer/app/client.tsx ✅
+- Phase 1770 Storefront: `phase1770-nachhaltigkeits-liefer-badge.tsx` — "Klimaoptimierte Lieferung" bei Auslastung ≥80%; Hydration-safe; in storefront.tsx ✅
+- Phase 1771 Backend: `/api/delivery/admin/fahrer-einnahmen-prognose` — Schicht-Einnahmen-Prognose je Fahrer; Trend vs. gestern; Supabase+Mock ✅
+- Phase 1772 Kitchen: `phase1772-gericht-warteschlangen-prioritaet.tsx` — Prioliste Gerichte nach Wartezeit; Alert >15 Min; in kitchen/client.tsx ✅
+- Phase 1773 Dispatch: `phase1773-fahrer-einnahmen-prognose-widget.tsx` — Tabelle Fahrer + Prognose + Trend-Pfeil; 30-Min-Polling; in dispatch/client.tsx ✅
+- Phase 1774 Fahrer-App: `phase1774-mein-schicht-einnahmen-zaehler.tsx` — Echtzeit-Einnahmen + Zielfortschritt; 5-Min-Polling; in fahrer/app/client.tsx ✅
+- Phase 1775 Storefront: `phase1775-fahrer-profil-badge.tsx` — Name + Initials + Bewertung zugewiesen. Fahrer; Hydration-safe; in storefront.tsx ✅
+- Integrationen: kitchen/client.tsx ✅ dispatch/client.tsx ✅ fahrer/app/client.tsx ✅ storefront.tsx ✅
+- Migration: scripts/migrations/265_fahrer_einnahmen_prognose_warteschlange_phase1771_1775.sql ✅
+
+### Anweisung fuer naechsten Ingenieur: Phasen 1776–1780
+1. **Phase 1776 Backend:** GET /api/delivery/admin/schicht-auslastungs-prognose — Bestellvolumen-Prognose naechste 2h basierend auf Historik + Trendlinie; Multi-Tenant; Supabase+Mock.
+2. **Phase 1777 Kitchen:** Live-Kochplan-Optimierer — aktive Bestellungen sortiert nach Dringlichkeit (ETA + Komplexitaet); Drag-Hinweis; Alert ueberfaellig; useMemo; Collapsible.
+3. **Phase 1778 Dispatch:** Schicht-Auslastungs-Prognose-Widget — Phase1776-API: Liniendiagramm naechste 2h + Fahrerbedarf-Empfehlung; 15-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1779 Fahrer-App:** Meine Schicht-Bilanz-Karte — letzte Tour + Einnahmen + Bewertung + km; immer sichtbar nach letzter Tour; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1780 Storefront:** Echtzeit-Kuechen-Status-Indikator — beschaeftigt/normal/entspannt basierend auf aktiver Bestelllast; Hydration-safe; 5-Min-Polling.
 
 CEO-Agent (2026-07-15): CEO Review #402 — Phasen 1757–1765 verifiziert. Build ✓ Compiled successfully (exit 0). TypeScript 0 Fehler (tsc --noEmit exit 0). Alle Integrationen korrekt. Push erfolgt.
 - Phase 1757 Backend: `/api/delivery/admin/fahrer-touren-vollstaendigkeit` — Abschlussquote je Fahrer heute; Ranking; Trend; Multi-Tenant; Supabase+Mock ✅
