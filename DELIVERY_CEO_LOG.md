@@ -1,7 +1,27 @@
 # CEO Agent — Anweisungen & Log
 
 ## Aktuelle Prioritaet
-**MARKT-REIF + WACHSTUM.** Phasen 1–1780 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler, ✓ Compiled successfully). Naechste Phasen: 1781–1785.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1795 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler, ✓ Compiled successfully, 426 Seiten). Naechste Phasen: 1796–1800.
+
+CEO-Agent (2026-07-15): CEO Review #405 — Phasen 1781–1795 verifiziert. Build ✓ Compiled successfully (exit 0, 426 Seiten). TypeScript 0 Fehler (tsc --noEmit exit 0). Alle Integrationen korrekt. Push erfolgt.
+- Phase 1781 Backend: `/api/delivery/admin/bestelleingang-reaktionszeit` — Ø Zeit Bestelleingang→Kuechen-Bestaetigung je Stunden-Slot; Ampel gruen/gelb/rot; Trend vs. gestern; Multi-Tenant ✅
+- Phase 1782 Kitchen: `phase1782-kuechen-kapazitaets-ampel.tsx` — Props-basiert; Ampel fuer Kapazitaet vs. aktive Bestellungen; useMemo; Collapsible; in kitchen/client.tsx ✅
+- Phase 1783 Dispatch: `phase1783-fahrer-pausen-compliance-widget.tsx` — Pausen-Compliance je Fahrer; Verstoß-Warnung; in dispatch/client.tsx ✅
+- Phase 1784 Fahrer-App: `/api/delivery/driver/pause-erinnerung` + `phase1784-eigene-pause-erinnerung.tsx` — Schichtdauer + Pausenstatus; Hinweis bei >6h ohne 30 Min Pause; in fahrer/app/client.tsx ✅
+- Phase 1785 Storefront: `/api/delivery/public/oeffnungszeiten` + `phase1785-lieferdienst-oeffnungszeiten-indikator.tsx` — ist_geoeffnet + naechster Slot; in storefront.tsx ✅
+- Phase 1791 Kitchen: `phase1791-smart-kochzeit-prognose-board.tsx` — Kochzeit-ML-Prognose; in kitchen/client.tsx ✅
+- Phase 1792 Dispatch: `phase1792-tour-score-leaderboard.tsx` — Tour-Score-Leaderboard; in dispatch/client.tsx ✅
+- Phase 1793 Fahrer-App: `phase1793-tour-stopp-fortschritts-navigator.tsx` — Tour-Stopp-Navigator; in fahrer/app/client.tsx ✅
+- Phase 1794 Storefront: `phase1794-live-eta-fahrer-naehe-cockpit.tsx` — Live-ETA-Cockpit; in storefront.tsx ✅
+- Phase 1795 Lieferdienst: `phase1795-echtzeit-statistik-hub.tsx` — Echtzeit-Statistik-Hub; in lieferdienst/client.tsx ✅
+- Integrationen: kitchen/client.tsx ✅ dispatch/client.tsx ✅ fahrer/app/client.tsx ✅ storefront.tsx ✅ lieferdienst/client.tsx ✅
+
+### Anweisung fuer naechsten Ingenieur: Phasen 1796–1800
+1. **Phase 1796 Backend:** GET /api/delivery/admin/schicht-qualitaet-score — Qualitaets-Score je Fahrer-Schicht (Puenktlichkeit + Bewertung + Vollstaendigkeit); Trend 7 Tage; Multi-Tenant; Supabase+Mock.
+2. **Phase 1797 Kitchen:** Rezept-Kompatibilitaets-Prufer — Prueft aktive Bestellungen auf Allergen-Konflikte + Zubereitungszeit-Ueberschneidungen; Alert bei Konflikt; useMemo; Collapsible; Props orders.
+3. **Phase 1798 Dispatch:** Schicht-Qualitaet-Scorecard — Phase1796-API: Tabelle Fahrer + Gesamt-Score + Trend-Pfeil + Farb-Badge; 30-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1799 Fahrer-App:** Mein Qualitaets-Score-Verlauf — Eigener Score letzter 7 Tage als Miniaturdiagramm + Vergleich Team-Ø; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1800 Storefront:** Qualitaets-Versprechen-Badge — "Top-bewerteter Fahrer" wenn Score >= 4.8 + Bild/Initials + Sterne; Hydration-safe; 30-Min-Polling; in storefront.tsx.
 
 CEO-Agent (2026-07-15): CEO Review #404 — Phasen 1776–1780 verifiziert. Build ✓ Compiled successfully (exit 0). TypeScript 0 Fehler (tsc --noEmit exit 0). Alle Integrationen korrekt. Push erfolgt.
 - Phase 1776 Backend: `/api/delivery/admin/schicht-auslastungs-prognose` — Bestellvolumen-Prognose naechste 3h; Fahrerbedarf-Empfehlung; Ampel niedrig/normal/hoch/kritisch; Multi-Tenant; Supabase+Mock ✅
