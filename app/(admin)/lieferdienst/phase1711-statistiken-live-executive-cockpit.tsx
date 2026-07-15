@@ -77,7 +77,7 @@ export function LieferdienstPhase1711StatistikenLiveExecutiveCockpit({ locationI
     async function load() {
       setLoading(true);
       try {
-        const params = new URLSearchParams({ location_id: locationId, range: 'today' });
+        const params = new URLSearchParams({ location_id: locationId!, range: 'today' });
         const res = await fetch(`/api/delivery/delivery-analytics?${params}`);
         if (!cancelled && res.ok) {
           const json = await res.json();
