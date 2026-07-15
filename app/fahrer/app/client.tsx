@@ -478,6 +478,7 @@ import { FahrerPhase1660LernTippKarte } from './phase1660-lern-tipp-karte';
 import { FahrerPhase1665TourStopsNavKommando } from './phase1665-tour-stops-nav-kommando';
 import { FahrerPhase1670MeineEffizienzScoreKarte } from './phase1670-meine-effizienz-score-karte';
 import { FahrerPhase1670SchichtEndeCountdownTimer } from './phase1670-schicht-ende-countdown-timer';
+import { FahrerPhase1675MeineZoneKarte } from './phase1675-meine-zone-karte';
 
 type Driver = {
   id: string;
@@ -5109,6 +5110,8 @@ export function FahrerApp({
           )}
           {/* Phase 1670: Schicht-Ende-Countdown-Timer — Restliche Schichtzeit als Ring + Empfehlung ob weitere Tour; Warnung <30 Min; isOnline-Guard */}
           <FahrerPhase1670SchichtEndeCountdownTimer onlineSeit={status?.online_seit ?? null} isOnline={isOnline} />
+          {/* Phase 1675: Meine-Zone-Karte — Aktuelle Zone A/B/C/D + ETA-Benchmark + Anzahl Fahrer in gleicher Zone; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase1675MeineZoneKarte driverId={driver?.id ?? null} isOnline={isOnline} locationId={null} currentZone={null} />
         </div>
         {/* Phase 1530: Tagesabschluss-Berichts-Karte — Vollständige Schicht-Zusammenfassung wenn offline + alle Stopps geliefert */}
         <div className="px-4">
