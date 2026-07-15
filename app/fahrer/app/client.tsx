@@ -503,6 +503,7 @@ import { FahrerPhase1745EigeneReaktionstanzAnzeige } from './phase1745-eigene-re
 import { FahrerPhase1750EigenerEffizienzTrend } from './phase1750-eigener-effizienz-trend';
 import { FahrerPhase1755EigenePuenktlichkeitsQuote } from './phase1755-eigene-puenktlichkeits-quote';
 import { FahrerPhase1760EigeneTourenBilanz } from './phase1760-eigene-touren-bilanz';
+import { FahrerPhase1764SmartStoppNavigatorMitKartenLink } from './phase1764-smart-stopp-navigator-mit-karten-link';
 
 type Driver = {
   id: string;
@@ -5216,6 +5217,11 @@ export function FahrerApp({
           />
           {/* Phase 1760: Eigene Touren-Bilanz — Abgeschlossene vs. abgebrochene Touren heute + Team-Vergleich; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1760EigeneTourenBilanz
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1764: Smart Stopp-Navigator mit Karten-Link — Nächster Stopp: Adresse, ETA, Entfernung + Google Maps / Apple Maps Links; isOnline-Guard; 30s-Polling */}
+          <FahrerPhase1764SmartStoppNavigatorMitKartenLink
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />

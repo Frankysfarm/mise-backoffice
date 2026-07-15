@@ -318,6 +318,7 @@ import { LieferdienstPhase1002FahrerLeistungsRankingLive } from './phase1002-fah
 import { LieferdienstPhase1003LieferQualitaetsScoreboard } from './phase1003-liefer-qualitaets-scoreboard';
 import { LieferdienstPhase1004TagesStatistikenKomplett } from './phase1004-tages-statistiken-komplett';
 import { LieferdienstPhase1005StatistikenEchtzeitCockpit } from './phase1005-statistiken-echtzeit-cockpit';
+import { LieferdienstPhase1006StatistikenKomplettDashboard } from './phase1006-statistiken-komplett-dashboard';
 import { LieferdienstPhase1090StatistikHeuteHub } from './phase1090-statistik-heute-hub';
 import { LieferdienstPhase1128StatistikDashboardPro } from './phase1128-statistik-dashboard-pro';
 import { LieferdienstPhase1148FahrerEffizienzHeatmap } from './phase1148-fahrer-effizienz-heatmap';
@@ -1682,6 +1683,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1004TagesStatistikenKomplett locationId={locationId ?? null} />
               {/* Phase 1005: Statistiken Echtzeit-Cockpit — KPIs, SLA-Ampel, Stundenkurve, Fahrer-Rangliste */}
               <LieferdienstPhase1005StatistikenEchtzeitCockpit />
+              {/* Phase 1006: Statistiken Komplett-Dashboard — 6-KPI-Grid (Bestellungen/Umsatz/Lieferzeit/Bewertung/Fahrer/Storno); 5-Min-Polling */}
+              <LieferdienstPhase1006StatistikenKomplettDashboard />
               {/* Phase 1128: Statistik-Dashboard Pro — 8 KPIs + Stunden-Verlauf + Fahrer-Ranking in Tab-Ansicht */}
               <LieferdienstPhase1128StatistikDashboardPro locationId={locationId ?? null} />
               {/* Phase 1148: Fahrer-Effizienz-Heatmap — Stopps/h pro Fahrer und Stunde als farbige Heatmap-Tabelle */}

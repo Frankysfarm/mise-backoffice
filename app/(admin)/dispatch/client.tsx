@@ -591,6 +591,7 @@ import { DispatchPhase1744FahrerReaktionsteiWidget } from './phase1744-fahrer-re
 import { DispatchPhase1749TourEffizienzTrendChart } from './phase1749-tour-effizienz-trend-chart';
 import { DispatchPhase1754FahrerPuenktlichkeitsRanking } from './phase1754-fahrer-puenktlichkeits-ranking';
 import { DispatchPhase1759TourenVollstaendigkeitsMonitor } from './phase1759-touren-vollstaendigkeits-monitor';
+import { DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel } from './phase1763-score-anzeige-tour-visualisierungs-panel';
 
 type Driver = {
   employee_id: string;
@@ -1759,6 +1760,8 @@ export function DispatchBoard({
       <DispatchPhase1754FahrerPuenktlichkeitsRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1759: Touren-Vollständigkeits-Monitor — Abschlussquote je Fahrer + Trend + Alert <80%; 30-Min-Polling */}
       <DispatchPhase1759TourenVollstaendigkeitsMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1763: Score-Anzeige Tour-Visualisierungs-Panel — Fahrer-Score + Stopp-Fortschrittsbalken + Punkt-Visualisierung; 2-Min-Polling */}
+      <DispatchPhase1763ScoreAnzeigeTourVisualisierungsPanel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1744: Fahrer-Reaktionszeit-Widget — Ø Reaktionszeit je Fahrer + Ausreißer-Flagge; 20-Min-Polling */}
       <DispatchPhase1744FahrerReaktionsteiWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1739: Lieferzeit-Abweichungs-Widget — Ø Δ ETA je Fahrer + Ausreißer-Flagge; 15-Min-Polling */}
