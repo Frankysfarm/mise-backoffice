@@ -298,6 +298,7 @@ import { StorefrontPhase1611LetzteBestellungenSchnellzugang } from './phase1611-
 import { StorefrontPhase1616MenuBeliebtheitsBadge } from './phase1616-menu-beliebtheitsbadges';
 import { StorefrontPhase1621EchtzeitKuechenstatusTicker } from './phase1621-echtzeit-kuechenstatus-ticker';
 import { StorefrontPhase1626WartezeitTransparenzWidget } from './phase1626-wartezeit-transparenz-widget';
+import { Phase1631DynamischeEtaLiveUltima } from './phase1631-dynamische-eta-live-ultima';
 
 type Props = {
   location: Location;
@@ -1475,6 +1476,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1621EchtzeitKuechenstatusTicker locationId={location.id} />
       {/* Phase 1626: Wartezeit-Transparenz-Widget — Live ETA + Fortschrittsbalken (Bestellt→Zubereitung→Unterwegs→Geliefert) + Küchenstatus; localStorage-cached 1Min; Hydration-safe */}
       <StorefrontPhase1626WartezeitTransparenzWidget locationId={location.id} />
+      {/* Phase 1631: Dynamische ETA Live Ultima — Phasen-Timeline (Bestellt→Küche→Unterwegs→Fast da!) mit animiertem Sekunden-Countdown, Fahrer-Info, Küchen-Auslastungs-Hinweis; 30s-Polling */}
+      <Phase1631DynamischeEtaLiveUltima locationId={location.id} />
       {/* Phase 1551: Bewertungs-Teaser — Ø Bewertung + Anzahl; localStorage-cached 5 Min; API-Fallback */}
       <StorefrontPhase1551BewertungsTeaser locationId={location.id} />
       {/* Phase 1551b: Fahrer-Profil-Vorschau — Name + Avatar-Initialen + Ø-Bewertung; Guard orderPlaced; Hydration-safe */}
