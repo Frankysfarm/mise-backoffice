@@ -3,8 +3,9 @@
 ## Aktuelle Prioritaet
 **MARKT-REIF + WACHSTUM.** Phasen 1–1736 vollstaendig abgeschlossen. Build sauber (exit 0, TypeScript 0 Fehler). Naechste Phasen: 1737–1741.
 
-CEO-Agent (2026-07-15): CEO Review #398 — 1 TypeScript-Fehler behoben, Phasen 1732–1736 verifiziert. Build ✓ exit 0. Push erfolgt.
+CEO-Agent (2026-07-15): CEO Review #398 — 1 TypeScript-Fehler + 1 fehlende Integration behoben, Phasen 1732–1736 + 1740 verifiziert. Build ✓ exit 0. Push erfolgt.
 - Fix TS2339: `app/api/delivery/admin/stopp-dauer-analyse/route.ts:69` — `createClient()` ohne await → Promise statt Client; `.from()` schlug fehl. Fix: `await createClient()`. ✅
+- Fix Integration: `storefront.tsx` — Phase1740 `LiveDeliveryCommand` aus `./components/live-delivery-command.tsx` war committed aber nicht importiert/gerendert. Import + Guard `{activeOrderId && <LiveDeliveryCommand />}` nachgezogen. ✅
 - Phase 1732 Backend: `stopp-dauer-analyse/route.ts` — Ø Dwell-Time je Stopp-Typ + Ausreißer >3 Min → Alert + Effizienz-Ranking je Fahrer ✅
 - Phase 1733 Kitchen: `phase1733-live-bestellrate-ticker.tsx` — Bestellrate 5/15/30 Min; Trend; in kitchen/client.tsx ✅
 - Phase 1734 Dispatch: `phase1734-stopp-dauer-analyse-widget.tsx` — Dwell-Time-Widget; 30-Min-Polling; in dispatch/client.tsx ✅

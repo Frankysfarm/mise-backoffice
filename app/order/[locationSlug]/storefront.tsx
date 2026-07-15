@@ -326,6 +326,7 @@ import { StorefrontPhase1717EchtzeitNachfrageIndikator } from './phase1717-echtz
 import { StorefrontPhase1722DynamischeEtaLiveStatusBoard } from './phase1722-dynamische-eta-live-status-board';
 import { StorefrontPhase1731LieferzeitGarantieUhr } from './phase1731-lieferzeit-garantie-uhr';
 import { StorefrontPhase1736BestellbestaetigungFortschrittsleiste } from './phase1736-bestellbestaetigung-fortschrittsleiste';
+import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
   location: Location;
@@ -1572,6 +1573,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         status={activeOrderId ? 'bestellt' : null}
         className="mx-4 mt-2"
       />
+      {/* Phase 1740 Storefront: Live-Delivery-Command — 4-Phasen-ETA-Tracking (Küche→Bereit→Fahrer→Geliefert); 30s-Polling; nur wenn aktive Bestellung */}
+      {activeOrderId && (
+        <div className="mx-4 mt-2">
+          <LiveDeliveryCommand orderId={activeOrderId} locationId={location.id} />
+        </div>
+      )}
       {/* Phase 1731: Lieferzeit-Garantie-Uhr — Countdown bis ETA; Entschädigungs-Hinweis bei Überschreitung; schließbar */}
       <StorefrontPhase1731LieferzeitGarantieUhr
         orderPlaced={null}
