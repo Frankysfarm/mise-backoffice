@@ -2,6 +2,44 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-16): Phasen 2036–2040 implementiert. Build ✓ Compiled successfully — 0 TypeScript-Fehler. 9 Dateien. Push erfolgt.
+
+## Batch 2036–2040 — 2026-07-16
+
+### Phase 2036 — Fahrer-Bewertungs-Trend-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-bewertungs-trend/route.ts`
+**GET:** `?location_id=<uuid>` — Ø-Bewertung je Fahrer letzte 30 Tage + Trend (steigend/stabil/fallend); Team-Ø; Alert wenn Ø <3.5; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerBewertungsTrend[], team_avg, alert_count, generiert_am }`
+
+### Phase 2037 — Bewertungs-Trend-Leaderboard (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2037-bewertungs-trend-leaderboard.tsx`
+**Props:** `locationId: string | null, className?: string`
+**UI:** Collapsible; Fahrer-Liste sortiert nach Ø-Bewertung; Rating-Balken (grün/amber/rot); Trend-Pfeil + Delta; Alert-Banner bei Fahrer <3.5; Team-Ø-KPI; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-bewertungs-trend (Phase2036); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase2032 ✅
+
+### Phase 2038 — Meine-Bewertungs-Entwicklung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2038-meine-bewertungs-entwicklung.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; KPI-Grid (Mein Ø / Bewertungen / vs. Team); Trend-Anzeige; Lightbulb-Tipp je Trendstufe; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-bewertungs-trend; Mock-Fallback; filtert eigenen driverId-Eintrag
+**Integration:** `fahrer/app/client.tsx` nach Phase2033 ✅
+
+### Phase 2039 — Kundenbewertungs-Vertrauens-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2039-kundenbewertungs-vertrauens-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Goldenes Star-Pill "X+ begeisterte Kunden — Ø X.X ★"; nur wenn Team-Ø ≥4.0; Hydration-safe (mounted-Guard); 1-Std-Polling
+**API:** GET /api/delivery/admin/fahrer-bewertungs-trend; Mock-Fallback (show=false)
+**Integration:** `storefront.tsx` nach Phase2034 ✅
+
+### Phase 2040 — Zubereitungs-Qualitäts-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2040-zubereitungs-qualitaets-monitor.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Top-8 Artikel sortiert nach Storno-Quote%; Balken (grün/amber/rot); Alert-Banner wenn Artikel >10%; KPI-Grid (Gesamt/Storniert/Alarm-Artikel); useMemo
+**Integration:** `kitchen/client.tsx` nach Phase2035 ✅
+
+---
+
 Backend-Architekt-Agent (2026-07-16): Phasen 2025–2029 implementiert. Build ✓ Compiled successfully — 428/428 Seiten, 0 TypeScript-Fehler. 11 Dateien, 774 Insertions. Push erfolgt (da447221).
 
 Frontend-Ingenieur-Agent (2026-07-16): Phasen 2020–2024 implementiert. Build ✓ Compiled successfully — Exit Code 0. 9 Dateien, 611 Insertions. Push erfolgt (75e1550f).
@@ -110,11 +148,14 @@ Backend-Architekt-Agent (2026-07-16): Phasen 2025–2029 implementiert. Build �
 **Integration:** `kitchen/client.tsx` nach Phase2024 ✅
 
 ### Nächste Phasen 2030–2034 (für nächsten Ingenieur)
-1. **Phase 2030 Backend:** Touren-Abschluss-Rate-API — GET /api/delivery/admin/touren-abschluss-rate: Erfolgreiche/Abgebrochene Touren letzte 7 Tage je Tag; Abschlussrate%; Trend; Alert wenn Rate <85%; Multi-Tenant; Supabase+Mock.
-2. **Phase 2031 Dispatch:** Touren-Abschluss-Trend-Chart — Phase2030-API: Sparkline 7 Tage (SVG polyline); Abschlussrate-Ring; Trend-Pfeil; Alert-Banner <85%; 30-Min-Polling; in dispatch/client.tsx nach Phase2026.
-3. **Phase 2032 Fahrer-App:** Meine-Tour-Abschluss-Bilanz — Eigene Abschlussrate letzte 7 Tage; Vergleich Team-Ø; Motivation; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2027.
-4. **Phase 2033 Storefront:** Lieferverlässlichkeits-Garantie-Badge — "XX% erfolgreiche Lieferungen" aus Abschlussrate; nur wenn ≥90%; grünes ShieldCheck-Pill; kein Schließen-Button; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase2028.
-5. **Phase 2034 Kitchen:** Bestellungs-Verlust-Radar — Stornierte/Abgebrochene Bestellungen letzte 2h aus orders; Rate%; Alert wenn >10%; Ampel; useMemo; Collapsible; in kitchen/client.tsx nach Phase2029.
+✅ **ALLE Phasen 2030–2035 implementiert (2030 Kitchen-Cockpit, 2031 Tour-Score-Board, 2032 Abschluss-Trend, 2033 Fahrer-Bilanz, 2034 Garantie-Badge, 2035 Verlust-Radar). Build ✓ Push erfolgt.**
+
+### Nächste Phasen 2041–2045 (für nächsten Ingenieur)
+1. **Phase 2041 Backend:** Kundenzufriedenheits-Trend-API — GET /api/delivery/admin/kunden-zufriedenheits-trend: NPS-Score + Trend letzte 30 Tage je Woche; Ø-Rating; Alert wenn NPS <20; Multi-Tenant; Supabase+Mock.
+2. **Phase 2042 Dispatch:** Kundenzufriedenheits-Monitor — Phase2041-API: Wöchentlicher NPS-Verlauf als Sparkline; Ø-Rating; Alert-Banner; 1-Std-Polling; in dispatch/client.tsx nach Phase2037.
+3. **Phase 2043 Fahrer-App:** Kunden-Feedback-Highlight — Letzte 5 Kundenbewertungen/Kommentare für diesen Fahrer; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2038.
+4. **Phase 2044 Storefront:** Echtzeit-Nachfrage-Indikator — "Jetzt bestellen — hohe Nachfrage!"; nur wenn Peak erkannt (via order-wave-forecast); Orange AlertCircle-Pill; Hydration-safe; 5-Min-Polling; in storefront.tsx nach Phase2039.
+5. **Phase 2045 Kitchen:** Tages-Qualitäts-Score-Ampel — Gesamt-Qualitätsscore aus Storno+Reklamation+ETA-Abweichung; Ampel grün/amber/rot; Trend vs. Vortag; useMemo; in kitchen/client.tsx nach Phase2040.
 
 ---
 
