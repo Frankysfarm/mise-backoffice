@@ -1674,7 +1674,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {cart.length > 0 && (
         <StorefrontPhase1881GratisLieferungsSchwelle locationId={location.id} subtotal={subtotal} className="mx-4 mt-2" />
       )}
-      {/* Phase 1886: Zonen-ETA-Vergleichs-Banner — ETA-Unterschied Zone A vs B/C als Entscheidungshilfe; Hydration-safe; 10-Min-Polling */}
+      {/* Phase 1886: Zonen-ETA-Vergleichs-Banner — ETA-Unterschied Zone A vs. B/C als Entscheidungshilfe; Hydration-safe; 10-Min-Polling */}
       <StorefrontPhase1886ZonenEtaVergleichsBanner locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1865: Live-Tracking-ETA-Cockpit — 4-Phasen-Stepper + Live-Countdown + Fahrer-Proximity-Ringe + ETA-Anzeige; 30-Sek-Polling */}
       {activeOrderId && (
