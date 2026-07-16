@@ -51,7 +51,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data: fahrer, error } = await supabase
       .from('drivers')

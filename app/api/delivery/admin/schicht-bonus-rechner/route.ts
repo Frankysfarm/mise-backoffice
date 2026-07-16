@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: session } = await supabase.auth.getUser();
     if (!session?.user) throw new Error('Nicht authentifiziert');
 
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
 
     if (!fahrer || fahrer.length === 0) throw new Error('Keine Fahrer');
 
-    const ergebnis: FahrerBonus[] = fahrer.map((f) => {
+    const ergebnis: FahrerBonus[] = fahrer.map((f: { id: string; vorname: string; nachname: string }) => {
       const stopps = Math.floor(Math.random() * 20) + 1;
       const puenktlichkeit = Math.floor(Math.random() * 40) + 60;
       const bewertung = +(3.5 + Math.random() * 1.5).toFixed(1);
