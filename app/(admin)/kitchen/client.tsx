@@ -202,6 +202,7 @@ import { KitchenPhase2029ZubereitungszeitOptimierer } from './phase2029-zubereit
 import { KitchenPhase2030SmartTimingCountdownLiveCockpit } from './phase2030-smart-timing-countdown-live-cockpit';
 import { KitchenPhase2035BestellungsVerlustRadar } from './phase2035-bestellungs-verlust-radar';
 import { KitchenPhase2040ZubereitungsQualitaetsMonitor } from './phase2040-zubereitungs-qualitaets-monitor';
+import { KitchenPhase2045KritischeKochzeitAmpel } from './phase2045-kritische-kochzeit-ampel';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3132,6 +3133,8 @@ export function KitchenBoard({
       <KitchenPhase2035BestellungsVerlustRadar orders={filtered as any} />
       {/* Phase 2040: Zubereitungs-Qualitäts-Monitor — Artikel-Storno-Quote; Alert >10%; Top-8 Problemartikel */}
       <KitchenPhase2040ZubereitungsQualitaetsMonitor orders={filtered as any} />
+      {/* Phase 2045: Kritische Kochzeit-Ampel — Bestellungen nach Zubereitungszeit; grün/gelb/rot; Alert >25min */}
+      <KitchenPhase2045KritischeKochzeitAmpel orders={filtered as any} />
     </div>
   );
 }

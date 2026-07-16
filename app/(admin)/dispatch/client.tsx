@@ -651,6 +651,7 @@ import { DispatchPhase2026PausenzeitUebersichtsWidget } from './phase2026-pausen
 import { DispatchPhase2031TourScoreVisualisierungsBoard } from './phase2031-tour-score-visualisierungs-board';
 import { DispatchPhase2032TourenAbschlussTrendChart } from './phase2032-touren-abschluss-trend-chart';
 import { DispatchPhase2037BewertungsTrendLeaderboard } from './phase2037-bewertungs-trend-leaderboard';
+import { DispatchPhase2042PuenktlichkeitsTrendBoard } from './phase2042-puenktlichkeits-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -3559,6 +3560,8 @@ export function DispatchBoard({
           <DispatchPhase2032TourenAbschlussTrendChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2037: Fahrer-Bewertungs-Leaderboard — Ø-Bewertung je Fahrer, Trend, Alert <3.5 */}
           <DispatchPhase2037BewertungsTrendLeaderboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2042: Pünktlichkeits-Ranking — Fahrer nach Pünktlichkeitsrate; Ampel; Alert <90% */}
+          <DispatchPhase2042PuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
