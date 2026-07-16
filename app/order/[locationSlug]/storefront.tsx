@@ -346,6 +346,7 @@ import { StorefrontPhase1825EchtzeitKuechenStatusAnzeige } from './phase1825-ech
 import { StorefrontPhase1830LiefergebietLiveKarte } from './phase1830-liefergebiet-live-karte';
 import { StorefrontPhase1835LiveFahrerScoreBadge } from './phase1835-live-fahrer-score-badge';
 import { StorefrontPhase1840LieferzeitSlaGarantie } from './phase1840-lieferzeit-sla-garantie';
+import { StorefrontPhase1845KuechenAuslastungsBadge } from './phase1845-kuechen-auslastungs-badge';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1631,6 +1632,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1835LiveFahrerScoreBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1840: Lieferzeit-SLA-Garantie — ≤30 Min grün; 30–45 Min gelb; >45 Min 10%-Rabatt-Angebot; Hydration-safe; schließbar */}
       <StorefrontPhase1840LieferzeitSlaGarantie locationId={location.id} etaMinuten={deliveryTimeMin ?? 30} className="mx-4 mt-2" />
+      {/* Phase 1845: Küchen-Auslastungs-Badge — Aktuelle Küchenauslastung (entspannt/normal/beschäftigt/sehr ausgelastet); Hydration-safe; 5-Min-Polling */}
+      <StorefrontPhase1845KuechenAuslastungsBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
       <StorefrontPhase1820LieferzeitGarantieCountdownV2
         locationId={location.id}

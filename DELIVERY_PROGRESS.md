@@ -16978,3 +16978,51 @@ Frontend-Ingenieur-Agent (2026-07-15): Phasen 1782–1785 implementiert. Build �
 Backend-Architekt-Agent (2026-07-16): Phasen 1816–1820 implementiert. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
 
 ---
+
+## Batch 1841–1845 — 2026-07-16
+
+### Phase 1841 — Schicht-Kapazitäts-Ampel-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-kapazitaets-ampel/route.ts`
+**GET:** `?location_id=<uuid>` — Echtzeit-Kapazitätsstatus: freie_fahrer, aktive_fahrer, aktive_touren, wartende_bestellungen, auslastungs_prozent (0–100), Ampel gruen/gelb/rot, Empfehlung; Multi-Tenant; Supabase+Mock
+**Response:** `{ status, freie_fahrer, aktive_fahrer, aktive_touren, wartende_bestellungen, auslastungs_prozent, empfehlung, location_id, generiert_am }`
+
+### Phase 1842 — Schicht-Kapazitäts-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1842-schicht-kapazitaets-ampel.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Auslastungs-Balken; KPI-Grid (Freie Fahrer / Aktive Touren / Wartende Bestellungen); Empfehlungs-Banner; Ampelfarben grün/gelb/rot; 2-Min-Polling
+**API:** GET /api/delivery/admin/schicht-kapazitaets-ampel (Phase1841-API); Mock-Fallback
+**Integration:** `kitchen/client.tsx` nach Phase1837 ✅
+
+### Phase 1843 — Letzte-Touren-Recap (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1843-letzte-touren-recap.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Letzte 5 abgeschlossene Touren als Listenzeilen: Fahrer-Name, Zone, Stopp-Zahl, Dauer, ETA-Abweichung (grün/amber/rot), Zeit-vor-Anzeige; 30-Min-Polling
+**API:** GET /api/delivery/admin/abgeschlossene-touren (bestehend); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1838 ✅
+
+### Phase 1844 — Eigene-Tour-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1844-eigene-tour-bilanz.tsx`
+**Props:** `driverId: string | null, isOnline: boolean`
+**UI:** Collapsible; Summary-KPIs (Pünktlichkeit %, Ø Bewertung); Tour-Liste (Stopps/Dauer/km/Bewertung/Status); isOnline-Guard; 30-Min-Polling
+**API:** GET /api/driver-app/my-tours (bestehend); Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1839 ✅
+
+### Phase 1845 — Küchen-Auslastungs-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1845-kuechen-auslastungs-badge.tsx`
+**Props:** `locationId: string`
+**UI:** Badge mit Flammen-Indikator (1–4 Flammen) + Label (entspannt/normal/beschäftigt/sehr ausgelastet) + Subtext; Hydration-safe; 5-Min-Polling
+**API:** GET /api/delivery/admin/schicht-kapazitaets-ampel (Phase1841-API); Mock-Fallback
+**Integration:** `storefront.tsx` nach Phase1840 ✅
+
+### Nächste Phasen 1846–1850 (für nächsten Ingenieur)
+1. **Phase 1846 Backend:** Tour-Kosten-Analyse-API — GET /api/delivery/admin/tour-kosten-analyse: Kosten je Tour (Fahrer-Lohn anteilig + km-Pauschale); Heute/Woche; Ø Kosten/Stopp; Multi-Tenant; Supabase+Mock.
+2. **Phase 1847 Kitchen:** Zubereitungs-Geschwindigkeits-Tracker — Ø Zubereitungszeit der letzten 10 Bestellungen; Trend-Vergleich zum Tages-Schnitt; Farbkodierung; useMemo; Collapsible.
+3. **Phase 1848 Dispatch:** Tour-Kosten-Widget — Phase1846-API: KPI-Kacheln (Kosten Heute/Woche + Ø/Stopp); Trend-Pfeil; 30-Min-Polling.
+4. **Phase 1849 Fahrer-App:** Eigene-Kosten-Einnahmen-Bilanz — Eigene Kosten (km-Pauschale) vs. Einnahmen heute; Bilanz-Balken; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1850 Storefront:** Liefergebiet-Karte-Mini — Kompaktes SVG-Widget zeigt ob Lieferadresse im Radius liegt; Hydration-safe; kein Polling (statisch).
+
+---
+
+Backend-Architekt-Agent (2026-07-16): Phasen 1841–1845 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
