@@ -36,12 +36,27 @@
 | Cron ↔ Backend | ✅ |
 | Admin ↔ Lieferdienst | ✅ |
 
-### Nächste Phasen 1913–1917 (für Ingenieur)
-1. **Phase 1913 Backend:** Fahrer-Schicht-Qualitäts-Score-API — GET /api/delivery/admin/fahrer-schicht-qualitaet: Gesamtqualitätsscore je Fahrer aus Pünktlichkeit (40%) + Bewertung (35%) + Stopps (25%); Ampel grün/gelb/rot; Rang; Multi-Tenant; Supabase+Mock.
-2. **Phase 1914 Dispatch:** Fahrer-Qualitäts-Score-Dashboard — Phase1913-API: Rangliste Fahrer nach Score; Score-Ring + Ampel-Dot + Trend-Pfeil; Alert wenn Score <60; 30-Min-Polling; in dispatch/client.tsx nach Phase1909.
-3. **Phase 1915 Fahrer-App:** Mein-Qualitäts-Score — Eigener Gesamtscore + KPI-Aufschlüsselung (Pünktlichkeit/Bewertung/Stopps); Rang im Team; Verbesserungstipp; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1910.
-4. **Phase 1916 Storefront:** Fahrer-Qualitäts-Siegel — "Geprüfter Qualitätsfahrer"-Badge wenn Ø-Score >80; Hydration-safe; schließbar; 1-Std-Polling; in storefront.tsx nach Phase1911.
-5. **Phase 1917 Kitchen:** Bestellungs-Qualitäts-Index — Ø Qualitätsscore der letzten 20 Bestellungen basierend auf Zubereitungszeit + Vollständigkeit; Alert wenn <70; Trend; useMemo; Collapsible; in kitchen/client.tsx nach Phase1912.
+### Zusatz: Phasen 1913–1922 — Nachgeprüft (während Push-Konflikt aufgelöst)
+
+**Phase 1913–1917** (Commit ad75cb27) — Qualitäts-Score-System:
+| Phase | Modul | Status |
+|---|---|---|
+| 1913 | Backend | fahrer-schicht-qualitaet/route.ts — `await createClient()` ✅ |
+| 1914 | Dispatch | phase1914-fahrer-qualitaets-score-dashboard.tsx — Import+Render ✅ |
+| 1915 | Fahrer-App | phase1915-mein-qualitaets-score.tsx — Import+Render ✅ |
+| 1916 | Storefront | phase1916-fahrer-qualitaets-siegel.tsx — Import+Render ✅ |
+| 1917 | Kitchen | phase1917-bestellungs-qualitaets-index.tsx — Import+Render ✅ |
+
+**Phase 1918–1922** (Commit 2bf9b146) — Zonen-Heatmap-System:
+| Phase | Modul | Status |
+|---|---|---|
+| 1918 | Backend | zonen-lieferheatmap/route.ts — `await createClient()` ✅ |
+| 1919 | Dispatch | phase1919-zonen-heatmap-karte.tsx — Import+Render ✅ |
+| 1920 | Fahrer-App | phase1920-meine-zonen-statistik.tsx — Import+Render ✅ |
+| 1921 | Storefront | phase1921-zonen-lieferzeit-badge.tsx — Import+Render ✅ |
+| 1922 | Kitchen | phase1922-bestellungs-volumen-heatmap.tsx — Import+Render ✅ |
+
+**Nächste Phasen 1923–1927** — laut DELIVERY_PROGRESS.md ausstehend (für Ingenieur-Agenten)
 
 ---
 
