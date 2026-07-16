@@ -2,6 +2,59 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-16): CEO Review #412 — Phasen 1836–1840 verifiziert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Alle Integrationen bestätigt (kitchen/dispatch/fahrer/storefront). Keine Bugs gefunden. Push erfolgt.
+- Phase 1836 Backend: `app/api/delivery/admin/schicht-abschluss-bilanz/route.ts` — Tagesabschluss je Fahrer: Stopps, Einnahmen, Pünktlichkeit, Ø-Bewertung, Vorwoche-Vergleich, Trend ✅
+- Phase 1837 Kitchen: `app/(admin)/kitchen/phase1837-bestellrueckstand-eskalation.tsx` — Alert >3 Bestellungen >15 Min in Zubereitung; Level Orange(>15)/Rot(>25); useMemo; Collapsible; in kitchen/client.tsx ✅
+- Phase 1838 Dispatch: `app/(admin)/dispatch/phase1838-freier-fahrer-sofort-zuweisung.tsx` — Button Sofort-Zuweisung; POST /api/delivery/admin/auto-zuweisung; optimaler Fahrer; in dispatch/client.tsx ✅
+- Phase 1839 Fahrer-App: `app/fahrer/app/phase1839-tages-abschluss-summary.tsx` — Tageszahlen nach Schichtende (isOnline=false); Stopps+Einnahmen+Bewertung+Pünktlichkeit+Team; in fahrer/app/client.tsx ✅
+- Phase 1840 Storefront: `app/order/[locationSlug]/phase1840-lieferzeit-sla-garantie.tsx` — SLA-Badge ≤30 Min grün; 30–45 Min gelb; >45 Min SORRY10 Rabatt; Hydration-safe; in storefront.tsx ✅
+
+## Batch 1836–1840 — 2026-07-16
+
+### Phase 1836 — Schicht-Abschluss-Bilanz-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-abschluss-bilanz/route.ts`
+**GET:** `?location_id=<uuid>` — Tagesabschluss je Fahrer (Schichtstart 05:00 UTC); Stopps, Einnahmen, Pünktlichkeit (+5-Min-Toleranz), Ø-Bewertung, Vorwoche-Vergleich, Trend (5%-Band); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, datum, fahrer: FahrerBilanz[], team_stopps, team_einnahmen_cents, team_puenktlichkeit, generiert_am }`
+
+### Phase 1837 — Bestellrückstand-Eskalation (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1837-bestellrueckstand-eskalation.tsx`
+**Export:** `KitchenPhase1837BestellRueckstandEskalation`
+**Props:** `orders: Order[], orangeSchwelleMin?: number (15), rotSchwelleMin?: number (25), eskalationsAnzahl?: number (3)`
+**UI:** Alert-Banner mit Eskalations-Level; Liste Bestellungen mit Wartezeit-Balken; Collapsible; useMemo
+**Integration:** `kitchen/client.tsx` Zeile 1588 ✅
+
+### Phase 1838 — Freier-Fahrer-Sofort-Zuweisung (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1838-freier-fahrer-sofort-zuweisung.tsx`
+**Export:** `DispatchPhase1838FreierFahrerSofortZuweisung`
+**Props:** `locationId: string | null`
+**API:** POST /api/delivery/admin/auto-zuweisung — freier Fahrer (ist_online=true, kein aktiver Batch) + erste offene Bestellung
+**UI:** Button + Erfolgs-/Fehler-Feedback; Auto-Reset nach 6s; korrekte Status-Differenzierung
+**Integration:** `dispatch/client.tsx` Zeile 1807 ✅
+
+### Phase 1839 — Tages-Abschluss-Summary (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1839-tages-abschluss-summary.tsx`
+**Export:** `FahrerPhase1839TagesAbschlussSummary`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**API:** GET /api/delivery/admin/schicht-abschluss-bilanz + Mock-Fallback
+**UI:** Nur wenn isOnline=false (Schicht beendet); Grid KPIs (Stopps/Einnahmen/Pünktlichkeit/Bewertung); Trend-Summary; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Zeile 5324 ✅
+
+### Phase 1840 — Lieferzeit-SLA-Garantie (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1840-lieferzeit-sla-garantie.tsx`
+**Export:** `StorefrontPhase1840LieferzeitSlaGarantie`
+**Props:** `etaMinuten: number, locationId: string`
+**UI:** ≤30 Min → grünes Garantie-Badge + Fortschrittsbalken; 30–45 Min → gelbes Widget; >45 Min → rotes Widget + Rabatt-Code SORRY10; Hydration-safe; schließbar
+**Integration:** `storefront.tsx` Zeile 1633 (etaMinuten={deliveryTimeMin ?? 30}) ✅
+
+### Nächste Phasen 1841–1845 (für nächsten Ingenieur)
+1. **Phase 1841 Backend:** Fahrer-Routen-Optimierungs-API — optimale Stopp-Reihenfolge je aktiver Tour (kürzeste Distanz); Multi-Tenant; Supabase+Mock.
+2. **Phase 1842 Kitchen:** Stationsauslastungs-Heatmap — welche Küchen-Station (Fritteuse/Grill/Salatstation) gerade überlastet ist; Ampel; Props-basiert; useMemo; Collapsible.
+3. **Phase 1843 Dispatch:** Live-Karten-Übersicht — alle aktiven Fahrer auf SVG-Karte + Zonen-Overlay; Farb-Status; 1-Min-Polling.
+4. **Phase 1844 Fahrer-App:** Tour-Stopp-Quittierung — Checkbox "Paket übergeben" → PATCH /api/delivery/driver/stopp-quittieren; Optimistisches UI.
+5. **Phase 1845 Storefront:** Bestellverlauf-Widget — Letzte 3 Bestellungen (localStorage); Status + Datum + Betrag; Collapsible; Hydration-safe.
+
+---
+
 Backend-Architekt-Agent (2026-07-16): Phasen 1831–1835 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1831 Backend: `app/api/delivery/admin/fahrer-puenktlichkeit/route.ts` — Erweitert auf V2: Pünktlichkeitsquote je Fahrer (geliefert innerhalb ETA); 7-Tage-Verlauf; Rang; Ampel gruen/gelb/rot; Multi-Tenant; Supabase+Mock ✅
 - Phase 1832 Kitchen: `app/(admin)/kitchen/phase1832-bestellungs-priorisierungs-ampel.tsx` — Dringlichkeit nach ETA-Nähe + Komplexität; Ampel grün/gelb/rot je Bestellung; Alert-Banner bei rot; useMemo; Collapsible; in kitchen/client.tsx nach Phase1827 ✅
