@@ -191,6 +191,7 @@ import KitchenPhase1947StundenAuslastungsVorschau from './phase1947-stunden-ausl
 import KitchenPhase1952AllergenVorbereitungsChecklist from './phase1952-allergene-vorbereitungs-checklist';
 import { KitchenPhase2000SmartTimingFarbkodierungsMatrix } from './phase2000-smart-timing-farbkodierungs-matrix';
 import { KitchenPhase2001StationsauslastungsMatrix } from './phase2001-stationsauslastungs-matrix';
+import { KitchenPhase2006ZubereitungsPraezisionsIndex } from './phase2006-zubereitungs-praezisions-index';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3099,6 +3100,8 @@ export function KitchenBoard({
       <KitchenPhase2000SmartTimingFarbkodierungsMatrix orders={filtered as any} />
       {/* Phase 2001: Stationsauslastungs-Matrix — Parallelauslastung pro Küchenstation, Engpass-Erkennung, Restzeit-Prognose */}
       <KitchenPhase2001StationsauslastungsMatrix orders={filtered as any} />
+      {/* Phase 2006: Zubereitungs-Präzisions-Index — Ø Abweichung Zubereitungszeit vs. Prognose; Alert >3 Min Drift; useMemo */}
+      <KitchenPhase2006ZubereitungsPraezisionsIndex orders={filtered as any} />
     </div>
   );
 }

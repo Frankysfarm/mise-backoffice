@@ -640,6 +640,7 @@ import DispatchPhase1944TourauslastungsKalenderWidget from './phase1944-tourausl
 import DispatchPhase1949FahrerPauseMonitorWidget from './phase1949-fahrer-pause-monitor-widget';
 import { DispatchPhase2000TourFortschrittsVisualisierung } from './phase2000-tour-fortschritts-visualisierung';
 import { DispatchPhase2001FahrerDispositionKommandant } from './phase2001-fahrer-disposition-kommandant';
+import { DispatchPhase2003PrognoseGenauigkeitsDashboard } from './phase2003-prognose-genauigkeits-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -3530,6 +3531,8 @@ export function DispatchBoard({
           <DispatchPhase2000TourFortschrittsVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2001: Fahrer-Disposition-Kommandant — Echtzeit Fahrer-Verfügbarkeit, wartende Bestellungen, Score + ETA-Genauigkeit */}
           <DispatchPhase2001FahrerDispositionKommandant locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2003: Prognose-Genauigkeits-Dashboard — Rangliste Fahrer nach ETA-Score; Score-Ring + Ampel + Trend-Pfeil; Alert <70% */}
+          <DispatchPhase2003PrognoseGenauigkeitsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

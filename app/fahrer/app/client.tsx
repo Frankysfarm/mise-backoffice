@@ -552,6 +552,7 @@ import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-
 import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop-cockpit';
 import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-stop-kommandant';
 import { FahrerPhase2001SchichtAbschlussAssistent } from './phase2001-schicht-abschluss-assistent';
+import { FahrerPhase2004MeineEtaGenauigkeit } from './phase2004-meine-eta-genauigkeit';
 
 type Driver = {
   id: string;
@@ -5493,6 +5494,12 @@ export function FahrerApp({
           <FahrerPhase2001SchichtAbschlussAssistent
             driverId={driver?.id ?? null}
             hasActiveTour={!!activeBatch}
+          />
+          {/* Phase 2004: Meine-ETA-Genauigkeit — Eigene ETA-Trefferquote + Score-Ring + Rang im Team + Verbesserungstipp */}
+          <FahrerPhase2004MeineEtaGenauigkeit
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
           />
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
