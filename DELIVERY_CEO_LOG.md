@@ -1,5 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #408 — 2026-07-16
+
+### Commit-Stand
+- `61d80526` feat(delivery/backend): Phasen 1811–1815 — Backend-Architekt
+- `cdcae70a` (remote): weiterer Commit seit letztem Review
+- `e24002fe` fix(delivery): TypeScript-Fehler Phase 1811+1815 behoben (CEO-Agent)
+
+### Build-Ergebnis
+**✓ Compiled successfully — Build exit 0, 426 Seiten, TypeScript 0 Fehler** ✅
+
+### Behobene Bugs
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `app/api/delivery/admin/fahrer-zuverlaessigkeit/route.ts:111` | `createClient()` nicht `await`-ed → `.from` auf Promise | `await createClient()` |
+| `app/order/[locationSlug]/storefront.tsx:1615-1616` | `orderSuccess?.eta/.orderedAt` → TypeScript narrowt zu `never` im JSX | Werte vor `if (orderSuccess)` in `successEtaMinuten`/`successBestelltAm` extrahiert |
+
+### System-Synchronisation
+| System | Phase | Status |
+|---|---|---|
+| Kitchen (Phase1812 Parallele-Gericht-Übersicht) | 1812 | ✅ |
+| Dispatch (Phase1813 Stopp-Abbruch-Monitor) | 1813 | ✅ |
+| Fahrer-App (Phase1814 Schicht-Zuverlässigkeits-Badge) | 1814 | ✅ |
+| Storefront (Phase1815 DynamischeEtaLiveTracker) | 1815 | ✅ (TS-Fix) |
+| Backend (Phase1811 Fahrer-Zuverlässigkeits-API) | 1811 | ✅ (await-Fix) |
+
+### Anweisung fuer naechsten Ingenieur: Phasen 1816–1820
+1. **Phase 1816 Backend:** Schicht-Effizienz-Score-API — GET /api/delivery/admin/schicht-effizienz: Effizienz-Score je Fahrer aus Touren/h + km/Stopp + Wartezeiten; Trend; Multi-Tenant; Supabase+Mock.
+2. **Phase 1817 Kitchen:** Gericht-Durchlaufzeit-Monitor — Ø Zeit von Bestellung bis fertig je Gericht; Ampel (<10 Min grün / 10-20 Min gelb / >20 Min rot); useMemo; Collapsible; in kitchen/client.tsx.
+3. **Phase 1818 Dispatch:** Fahrer-Effizienz-Leaderboard — Rangliste Fahrer nach Effizienz-Score (Phase1816-API); Top-3 hervorheben; Sparkline 7-Tage; in dispatch/client.tsx.
+4. **Phase 1819 Fahrer-App:** Eigene-Tour-Effizienz-Card — Eigener Schicht-Effizienz-Score + Rang + Verbesserungstipps; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1820 Storefront:** Liefer-Pünktlichkeits-Garantie-Badge — "Pünktliche Lieferung garantiert" wenn Pünktlichkeitsrate ≥85%; grüner Badge; 30-Min-Polling; schließbar; Hydration-safe.
+
 ## CEO Review #407 — 2026-07-15
 
 ### Commit-Stand
