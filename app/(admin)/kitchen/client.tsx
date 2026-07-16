@@ -199,6 +199,7 @@ import { KitchenPhase2014BatchFarbkodierungsKommando } from './phase2014-batch-f
 import { KitchenPhase2019BatchingEffizienzMonitor } from './phase2019-batching-effizienz-monitor';
 import { KitchenPhase2024BestellungsKapazitaetsForecast } from './phase2024-bestellungs-kapazitaets-forecast';
 import { KitchenPhase2029ZubereitungszeitOptimierer } from './phase2029-zubereitungszeit-optimierer';
+import { KitchenPhase2030SmartTimingCountdownLiveCockpit } from './phase2030-smart-timing-countdown-live-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3123,6 +3124,8 @@ export function KitchenBoard({
       <KitchenPhase2024BestellungsKapazitaetsForecast orders={filtered as any} />
       {/* Phase 2029: Zubereitungszeit-Optimierer — Koch-Reihenfolge nach scheduled_for; Prio überfälliger Bestellungen */}
       <KitchenPhase2029ZubereitungszeitOptimierer orders={filtered as any} />
+      {/* Phase 2030: Smart-Timing Countdown Live-Cockpit — Farbkodierung Überfällig/Kritisch/Warnung/OK + Echtzeit-Countdown */}
+      <KitchenPhase2030SmartTimingCountdownLiveCockpit orders={filtered as any} />
     </div>
   );
 }

@@ -560,6 +560,7 @@ import { FahrerPhase2012SmartNavigationsCockpit } from './phase2012-smart-naviga
 import { FahrerPhase2017MeineTourEffizienz } from './phase2017-meine-tour-effizienz';
 import { FahrerPhase2022MeineSchichtAuslastung } from './phase2022-meine-schicht-auslastung';
 import { FahrerPhase2027MeinePausenzeitAnalyse } from './phase2027-meine-pausenzeit-analyse';
+import { FahrerPhase2028SmartTourStoppAbschlussNavigator } from './phase2028-smart-tour-stopp-abschluss-navigator';
 
 type Driver = {
   id: string;
@@ -5539,6 +5540,24 @@ export function FahrerApp({
           <FahrerPhase2022MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2027: Meine-Pausenzeit-Analyse — Eigene Pausendauer letzte 7 Tage; Vergleich Team-Ø; Tipp */}
           <FahrerPhase2027MeinePausenzeitAnalyse driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2028SmartTourStoppAbschlussNavigator
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                address: s.address,
+                customer_name: s.customer_name,
+                customer_phone: s.customer_phone,
+                status: s.status,
+                scheduled_for: s.scheduled_for,
+                notes: s.notes,
+                lat: s.lat,
+                lng: s.lng,
+                order_id: s.order_id,
+                items: s.items,
+              }))}
+            />
+          )}
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2000SmartTourStopKommandant

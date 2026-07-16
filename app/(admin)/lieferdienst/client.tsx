@@ -396,6 +396,7 @@ import { LieferdienstPhase2001BestellstatusTrichter } from './phase2001-bestells
 import { LieferdienstPhase2002StatistikenKpiMasterDashboard } from './phase2002-statistiken-kpi-master-dashboard';
 import { LieferdienstPhase2003SchichtStatistikLiveCockpit } from './phase2003-schicht-statistik-live-cockpit';
 import { LieferdienstPhase2004FahrerPerformanceStatistikenHub } from './phase2004-fahrer-performance-statistiken-hub';
+import { LieferdienstPhase2005StatistikenLiveMasterHub } from './phase2005-statistiken-live-master-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2081,6 +2082,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2003SchichtStatistikLiveCockpit locationId={locationId ?? null} />
                 {/* Phase 2004: Fahrer-Performance-Statistiken-Hub — Rangliste Top-5; Score-Ampel; Trinkgeld; 5-Min-Polling */}
                 <LieferdienstPhase2004FahrerPerformanceStatistikenHub locationId={locationId ?? null} />
+                {/* Phase 2005: Statistiken-Live-Master-Hub — 6-KPI-Grid mit Trend-Pfeilen vs. gestern; Auto-Refresh 2 Min */}
+                <LieferdienstPhase2005StatistikenLiveMasterHub locationId={locationId ?? null} />
               </>
             </div>
           )}
