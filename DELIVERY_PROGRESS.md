@@ -193,6 +193,54 @@ Frontend-Ingenieur-Agent (2026-07-16): Phasen 1928–1932 implementiert. Build �
 4. **Phase 1936 Storefront:** Bewertungs-Social-Proof-Banner — "XX% unserer Kunden bewerten uns ★★★★★"; Ø-Sterne animiert; schließbar; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase1931.
 5. **Phase 1937 Kitchen:** Bestellungs-Fehlerquoten-Tracker — Fehlertypen (Falsch/Fehlt/Beschädigt) letzte 50 Bestellungen; Balkendiagramm; Alert wenn Fehlerquote >5%; useMemo; Collapsible; in kitchen/client.tsx nach Phase1932.
 
+✅ **ALLE Phasen 1933–1937 implementiert von Frontend-Ingenieur-Agent (2026-07-16). Build ✓ Push erfolgt (664f72ee).**
+
+---
+
+## Batch 1933–1937 — 2026-07-16
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1933–1937 implementiert. Build ✓ 9 Dateien, 654 Insertions. Push erfolgt.
+
+### Phase 1933 — Kundenbewertungs-Aggregat-API (Backend)
+**Datei:** `app/api/delivery/admin/kundenbewertungen-aggregat/route.ts`
+**GET:** `?location_id=<uuid>` — Ø-Bewertung + NPS-Score + Trend vs. Vorwoche + Top-positiv/negativ-Kommentare; Alert wenn avg<3.5; letzte 7 Tage; Supabase(order_ratings)+Mock
+**Response:** `{ avg_bewertung, bewertungs_count, nps_score, trend, alert, top_positiv, top_negativ, generiert_am }`
+
+### Phase 1934 — Kundenbewertungs-Dashboard (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1934-kundenbewertungs-dashboard.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; SVG Stern-Ring (r=26, 5-Skala); NPS + Bewertungsanzahl KPIs; Trend-Icon; Alert-Banner <3.5; Top-2 Positiv + Top-1 Negativ Kommentar-Kacheln; 1-Std-Polling
+**API:** GET /api/delivery/admin/kundenbewertungen-aggregat (Phase1933); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1929 ✅
+
+### Phase 1935 — Meine-Kundenbewertungen (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1935-meine-kundenbewertungen.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; 5-Sterne-Anzeige (fill je Ø); Ø-Wert + Anzahl; Trend; letzte 3 Kommentare; 3-stufiger Motivationstext; isOnline-Guard; 1-Std-Polling
+**API:** GET /api/delivery/admin/kundenbewertungen-aggregat mit driver_id; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1930 ✅
+
+### Phase 1936 — Bewertungs-Social-Proof-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1936-bewertungs-social-proof-banner.tsx`
+**Props:** `locationId: string`
+**UI:** Amber-Banner "XX% Top-Bewertungen · Ø X.X/5 aus N Bewertungen"; 5 Sterne animiert (scale+delay bei mount); schließbar; Hydration-safe; 1-Std-Polling
+**API:** GET /api/delivery/admin/kundenbewertungen-aggregat; Mock-Fallback (4.3/5, 128 Bew., 68%)
+**Integration:** `storefront.tsx` nach Phase1931 ✅
+
+### Phase 1937 — Bestellungs-Fehlerquoten-Tracker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1937-bestellungs-fehlerquoten-tracker.tsx`
+**Props:** `orders: Order[]` (items[].error_type oder order.error_type)
+**Typen:** Falsch geliefert / Artikel fehlt / Beschädigt
+**UI:** Collapsible; je Fehlertyp: Label + Anzahl + % + Balken (relative Breite); Alert-Banner >5%; "Keine Fehler"-Grün-Banner wenn total=0; useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1932 ✅
+
+### Nächste Phasen 1938–1942 (für nächsten Ingenieur)
+1. **Phase 1938 Backend:** Lieferstrecken-Analyse-API — GET /api/delivery/admin/lieferstrecken-analyse: Ø km je Tour, Gesamtkilometer heute, längste/kürzeste Route; Trend vs. Vorwoche; Alert wenn >30km Ø; Multi-Tenant; Supabase+Mock.
+2. **Phase 1939 Dispatch:** Lieferstrecken-Visualisierung — Phase1938-API: Balken (Fahrer→km); Gesamt-KPI; Longest-Route-Alert; Trend-Pfeil; 30-Min-Polling; in dispatch/client.tsx nach Phase1934.
+3. **Phase 1940 Fahrer-App:** Meine-Strecken-Übersicht — Heutige km + Vergleich mit Team-Ø + Strecken-Verlauf (letzte 5 Touren als Mini-Balken); isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1935.
+4. **Phase 1941 Storefront:** Nachhaltigkeit-Badge — "Heute X km per Fahrrad geliefert · CO₂ gespart"; grünes Badge; Hydration-safe; schließbar; 1-Std-Polling; in storefront.tsx nach Phase1936.
+5. **Phase 1942 Kitchen:** Bestellungs-Tagesleistungs-Karte — Gesamtbestellungen heute vs. gestern; Steigerung/Rückgang%; Beste Stunde; Ampel; useMemo; Collapsible; in kitchen/client.tsx nach Phase1937.
+
 ---
 
 ## Batch 1918–1922 — 2026-07-16
