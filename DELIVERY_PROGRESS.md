@@ -18089,3 +18089,48 @@ CEO hat Phasen 2032–2035 direkt implementiert (fehlende geplante Abschluss-Rat
 
 CEO-Agent (2026-07-16): CEO Review #430 — Build ✓ 428→432 Seiten, 0 Fehler. 4 neue Phasen (2032–2035) implementiert. Push erfolgt.
 
+
+
+---
+
+## Phasen 2041–2045 — Pünktlichkeits-System (2026-07-16)
+
+### Phase 2041 — Backend API: Schicht-Pünktlichkeits-Score
+**Datei:** `app/api/delivery/admin/schicht-puenktlichkeits-score/route.ts`
+**Output:** `{ fahrer: [{ driver_id, name, rate, on_time, total, trend, trend_delta }], team_avg, alert_count }`
+**Logik:** Pünktlich = Lieferung ≤ 40 Min nach Bestelleingang; Trend Vergleich letzte 24h vs. 24–48h; Alert wenn rate < 90%; Multi-Tenant; Supabase + Mock-Fallback
+
+### Phase 2042 — Pünktlichkeits-Ranking (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2042-puenktlichkeits-trend-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø-Kachel; Fahrer-Ranking mit Rate%, Fortschrittsbalken, Trend-Pfeil; Ampel grün(≥90%)/gelb(≥80%)/rot(<80%); Alert-Banner wenn Fahrer <90%; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2037 ✅
+
+### Phase 2043 — Meine Pünktlichkeits-Statistik (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2043-meine-puenktlichkeits-statistik.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; KPI-Grid (Rate%/Lieferungen/vs.Team); Trend-Leiste; Fortschrittsbalken; Lightbulb-Tipp je Trend; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2038 ✅
+
+### Phase 2044 — Pünktlichkeits-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2044-puenktlichkeits-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Clock-Pill blau; "X% pünktliche Lieferungen"; nur wenn team_avg ≥ 90%; Hydration-safe (mounted-Guard); 1-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2039 ✅
+
+### Phase 2045 — Kritische Kochzeit-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2045-kritische-kochzeit-ampel.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Aktive Bestellungen (Status = preparing/in_progress) sortiert nach Zubereitungszeit; grün(<15min)/gelb(15–25min)/rot(>25min); Flame-Icon für kritische; Alert-Banner wenn kritisch; KPI-Grid (OK/Warn/Kritisch); useMemo
+**Integration:** `kitchen/client.tsx` nach Phase2040 ✅
+
+### Nächste Phasen 2046–2050 (für nächsten Ingenieur)
+1. **Phase 2046 Backend:** Kunden-Wiederkauf-Rate-API — GET /api/delivery/admin/kunden-wiederkauf-rate: Anteil Kunden mit ≥2 Bestellungen letzte 30 Tage; Trend vs. Vormonat; Neukunden vs. Stammkunden Split; Multi-Tenant; Supabase+Mock.
+2. **Phase 2047 Dispatch:** Wiederkauf-Kunden-Monitor — Top-5 aktivste Kunden heute; Bestellfrequenz-Ring; Neukundenquote%; Alert wenn Stammkundenanteil sinkt; 30-Min-Polling; in dispatch/client.tsx nach Phase2042.
+3. **Phase 2048 Fahrer-App:** Meine Stammkunden-Touren — Anteil Touren zu bekannten Kunden; "Du kennst X Kunden bereits!"; Motivationstipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2043.
+4. **Phase 2049 Storefront:** Stammkunden-Begrüssungs-Banner — Personalisiertes "Willkommen zurück, [Name]!" wenn Bestellhistorie ≥3; schließbar; Hydration-safe; in storefront.tsx nach Phase2044.
+5. **Phase 2050 Kitchen:** Stammkunden-Bestellungs-Highlight — Bestellungen von Kunden mit ≥5 Bestellungen markieren; "VIP"-Badge; sortierbar; useMemo; in kitchen/client.tsx nach Phase2045.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 2041–2045 implementiert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
