@@ -343,6 +343,7 @@ import { StorefrontPhase1804BestellPhasenCockpit } from './phase1804-bestell-pha
 import { StorefrontPhase1815DynamischeEtaLiveTrackerIntegration } from './phase1815-dynamische-eta-live-tracker-integration';
 import { StorefrontPhase1820LieferzeitGarantieCountdownV2 } from './phase1820-lieferzeit-garantie-countdown-v2';
 import { StorefrontPhase1825EchtzeitKuechenStatusAnzeige } from './phase1825-echtzeit-kuechenstatus-anzeige';
+import { StorefrontPhase1830LiefergebietLiveKarte } from './phase1830-liefergebiet-live-karte';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1622,6 +1623,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       />
       {/* Phase 1825: Echtzeit-Küchen-Status-Anzeige — "Küche aktiv" / "Kurze Wartezeit" / "Hohe Auslastung"; Hydration-safe; schließbar */}
       <StorefrontPhase1825EchtzeitKuechenStatusAnzeige locationId={location.id} />
+      {/* Phase 1830: Liefergebiet-Live-Karte — Lieferzone + ETA-Schätzung + MBW + Gebühr; Hydration-safe; schließbar */}
+      <StorefrontPhase1830LiefergebietLiveKarte locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
       <StorefrontPhase1820LieferzeitGarantieCountdownV2
         locationId={location.id}

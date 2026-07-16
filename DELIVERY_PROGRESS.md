@@ -2,6 +2,60 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1826–1830 implementiert. Build ✓ exit 0 — 427 Seiten. Push erfolgt.
+- Phase 1826 Backend: `app/api/delivery/admin/zonen-effizienz-phase1826/route.ts` — Umsatz/km + Touren/Zone + Ausreißer-Alert je Zone; Ampel gruen/gelb/rot; Multi-Tenant; Supabase+Mock ✅
+- Phase 1827 Kitchen: `app/(admin)/kitchen/phase1827-live-bestelleingang-prognose.tsx` — Balken nächste 4 Stunden je 30-Min-Slot; Hochlast-Alert; useMemo; Collapsible; in kitchen/client.tsx nach Phase1822 ✅
+- Phase 1828 Dispatch: `app/(admin)/dispatch/phase1828-fahrer-einnahmen-vergleich.tsx` — Rangliste Fahrer nach heutigen Einnahmen; Mini-Sparkline 7-Tage; Top-3 hervorgehoben; 30-Min-Polling; in dispatch/client.tsx nach Phase1823 ✅
+- Phase 1829 Fahrer-App: `app/fahrer/app/phase1829-kunden-bewertungs-feed.tsx` — Letzte 5 Kunden-Bewertungen + Ø-Score + Trend vs. gestern; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1824 ✅
+- Phase 1830 Storefront: `app/order/[locationSlug]/phase1830-liefergebiet-live-karte.tsx` — Lieferzone-Status + ETA + MBW + Liefergebühr; Hydration-safe; schließbar; in storefront.tsx nach Phase1825 ✅
+
+## Batch 1826–1830 — 2026-07-16
+
+### Phase 1826 — Lieferzonen-Effizienz-API (Backend)
+**Datei:** `app/api/delivery/admin/zonen-effizienz-phase1826/route.ts`
+**GET:** `?location_id=<uuid>` — Umsatz/km + Touren/Zone + Ausreißer-Alert; Ampel gruen(≥120% Team)/gelb(80–120%)/rot(<80%); Ausreißer-Flag; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zonen: ZoneEffizienz[], team_umsatz_pro_km, ausreisser_anzahl, generiert_am }`
+
+### Phase 1827 — Live-Bestelleingang-Prognose (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1827-live-bestelleingang-prognose.tsx`
+**Export:** `KitchenPhase1827LiveBestelleingangPrognose`
+**Props:** `orders: Order[], hochlastSchwelle?: number (default 5)`
+**UI:** Balken je 30-Min-Slot (nächste 4h); Prognose aus heutigem Verlauf × Tages-Profil; Alert-Banner bei Hochlast; useMemo; Collapsible
+**Integration:** `kitchen/client.tsx` nach Phase1822 ✅
+
+### Phase 1828 — Fahrer-Einnahmen-Vergleich (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1828-fahrer-einnahmen-vergleich.tsx`
+**Export:** `DispatchPhase1828FahrerEinnahmenVergleich`
+**Props:** `locationId: string | null`
+**API:** GET /api/delivery/admin/fahrer-einnahmen (Phase1824-API) + Mock-Fallback
+**UI:** Rangliste nach heutigen Einnahmen; 🥇🥈🥉 Top-3; Mini-Sparkline 7-Tage SVG; Trend-Icon; Stopps + Trinkgeld; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase1823 ✅
+
+### Phase 1829 — Kunden-Bewertungs-Feed (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1829-kunden-bewertungs-feed.tsx`
+**Export:** `FahrerPhase1829KundenBewertungsFeed`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**API:** GET /api/delivery/driver/bewertungen + Mock-Fallback
+**UI:** KPI-Kacheln (Ø-Score + Anzahl heute + Trend vs. gestern); Feed letzte 5 Bewertungen (Sterne + Kommentar + Zeitstempel); isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase1824 ✅
+
+### Phase 1830 — Liefergebiet-Live-Karte (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1830-liefergebiet-live-karte.tsx`
+**Export:** `StorefrontPhase1830LiefergebietLiveKarte`
+**Props:** `locationId: string`
+**API:** GET /api/delivery/public/zonen-status + Mock-Fallback
+**UI:** Banner in_liefergebiet (grün) / außerhalb (rot) / randzone (gelb); ETA-Schätzung + MBW + Liefergebühr; Hydration-safe (mounted-Guard); schließbar
+**Integration:** `storefront.tsx` nach Phase1825 ✅
+
+### Nächste Phasen 1831–1835 (für nächsten Ingenieur)
+1. **Phase 1831 Backend:** Fahrer-Pünktlichkeits-Index-API — GET /api/delivery/admin/fahrer-puenktlichkeit: Pünktlichkeitsquote je Fahrer (geliefert innerhalb ETA); 7-Tage-Trend; Rang; Multi-Tenant; Supabase+Mock.
+2. **Phase 1832 Kitchen:** Bestellungs-Priorisierungs-Ampel — Aktive Bestellungen sortiert nach Dringlichkeit (ETA-Nähe + Komplexität); Ampel grün/gelb/rot je Bestellung; Alert bei rot; useMemo; Collapsible.
+3. **Phase 1833 Dispatch:** Zonen-Effizienz-Dashboard — Phase1826-API: Tabelle Zonen + Umsatz/km + Trend; Ausreißer-Flagge; Alert bei rot-Zonen; 30-Min-Polling.
+4. **Phase 1834 Fahrer-App:** Pünktlichkeits-Cockpit — Eigene Pünktlichkeitsquote + 7-Tage-Verlauf + Tipp; isOnline-Guard; 30-Min-Polling.
+5. **Phase 1835 Storefront:** Live-Fahrer-Score-Badge — Fahrer-Bewertungs-Badge (4.8★) wenn zugewiesen; Hydration-safe; schließbar.
+
+---
+
 Backend-Architekt-Agent (2026-07-16): Phasen 1821–1825 implementiert. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1821 Backend: `app/api/delivery/admin/kunden-zufriedenheit/route.ts` — Score 0–100 aus Pünktlichkeit×40% + Storno-Rate×30% + ETA-Genauigkeit×30%; Ampel gruen/gelb/rot; 7-Tage-Verlauf; Multi-Tenant; Supabase+Mock ✅
 - Phase 1822 Kitchen: `app/(admin)/kitchen/phase1822-zubereitungszeit-abweichungs-alarm.tsx` — Alert wenn tatsächliche Zubereitungszeit >150% Schätzwert; Liste betroffener Gerichte + %-Abweichung; useMemo; Collapsible; in kitchen/client.tsx nach Phase1820 ✅

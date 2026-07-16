@@ -604,6 +604,7 @@ import { DispatchPhase1808TourScoreVisualisierung } from './phase1808-tour-score
 import { DispatchPhase1813StoppAbbruchMonitor } from './phase1813-stopp-abbruch-monitor';
 import { DispatchPhase1818FahrerZuverlaessigkeitsRanking } from './phase1818-fahrer-zuverlaessigkeits-ranking';
 import { DispatchPhase1823TourenKapazitaetsAuslastungsGauge } from './phase1823-touren-kapazitaets-auslastungs-gauge';
+import { DispatchPhase1828FahrerEinnahmenVergleich } from './phase1828-fahrer-einnahmen-vergleich';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
 
 type Driver = {
@@ -1793,6 +1794,8 @@ export function DispatchBoard({
       <DispatchPhase1818FahrerZuverlaessigkeitsRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1823: Touren-Kapazitäts-Auslastungs-Gauge — Gauge 0–100% aktive Touren vs. Fahrer-Kapazität; Alert >90%; 30-Min-Polling */}
       <DispatchPhase1823TourenKapazitaetsAuslastungsGauge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1828: Fahrer-Einnahmen-Vergleich — Rangliste nach heutigen Einnahmen; Sparkline; Top-3 hervorgehoben; 30-Min-Polling */}
+      <DispatchPhase1828FahrerEinnahmenVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1470: Tour-Live-Score-Board — Score-Ring + Fortschritt + Rang je aktiver Tour; Echtzeit aus Props */}
       <DispatchPhase1470TourLiveScoreBoard batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} drivers={drivers as any} />
       {/* Phase 1783: Fahrer-Pausen-Compliance-Widget — Tabelle Fahrer + Pausenstatus + Verstoß-Warnung; 10-Min-Polling */}
