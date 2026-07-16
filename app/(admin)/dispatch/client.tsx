@@ -614,6 +614,7 @@ import { DispatchPhase1858FahrerGpsStatusUebersicht } from './phase1858-fahrer-g
 import { DispatchPhase1863TourScoreVisualisierungsCockpit } from './phase1863-tour-score-visualisierungs-cockpit';
 import { DispatchPhase1867LiveFlottenGesundheitsMatrix } from './phase1867-live-flotten-gesundheits-matrix';
 import { DispatchPhase1868WartezeitHeatmapWidget } from './phase1868-wartezeit-heatmap-widget';
+import { DispatchPhase1869TourScoreLiveRanking } from './phase1869-tour-score-live-ranking';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
 import { SmartTourScoreHub } from './smart-tour-score-hub';
 import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-kommando';
@@ -1827,6 +1828,8 @@ export function DispatchBoard({
       <DispatchPhase1867LiveFlottenGesundheitsMatrix batches={batches as any} drivers={drivers as any} />
       {/* Phase 1868: Wartezeit-Heatmap-Widget — 4 Kacheln A/B/C/D mit Ø Wartezeit + Trend-Pfeil; Alert >40 Min; 10-Min-Polling */}
       <DispatchPhase1868WartezeitHeatmapWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1869: Tour-Score-Live-Ranking — Rangliste aller aktiven Touren nach Score; Score-Ring + Fortschrittsbalken + Trend-Pfeil + Alarm-Badge; client-seitig */}
+      <DispatchPhase1869TourScoreLiveRanking batches={batches as any} />
       {/* Phase 1851: Tour-Score Live-Kommando — Score-Ring + Fortschritt + Empfehlung je aktiver Tour aus Props; Client-seitig berechnet */}
       <DispatchTourScoreLiveKommando drivers={drivers as any} batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} />
       {/* Phase 1470: Tour-Live-Score-Board — Score-Ring + Fortschritt + Rang je aktiver Tour; Echtzeit aus Props */}

@@ -527,6 +527,7 @@ import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-sta
 import { FahrerPhase1864GpsAusfallSelbstdiagnose } from './phase1864-gps-ausfall-selbstdiagnose';
 import { FahrerPhase1865SchichtVerdienstPrognose } from './phase1865-schicht-verdienst-prognose-cockpit';
 import { FahrerPhase1869EigeneWartezeitStatistik } from './phase1869-eigene-wartezeit-statistik';
+import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
@@ -5369,6 +5370,23 @@ export function FahrerApp({
           <FahrerPhase1865SchichtVerdienstPrognose driverId={driver.id} />
           {/* Phase 1869: Eigene-Wartezeit-Statistik — Ø Wartezeit pro Stopp heute + 7 Tage; Trend-Vergleich; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1869EigeneWartezeitStatistik driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1870TourStoppSmartSequenzNav
+              stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : 'neu',
+                kunde_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                adresse: s.order?.kunde_adresse ?? s.kunde_adresse ?? s.address ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                telefon: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                estimated_arrival: s.estimated_arrival ?? null,
+                bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
+              }))}
+            />
+          )}
           {/* Phase 1851: Smart-Tour-Stopp Final-Kommando — Primäre Navigations-Karte; Countdown + Adresse + Schnellaktionen + Nächste-Stopps-Vorschau */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1851SmartTourStoppFinalKommando

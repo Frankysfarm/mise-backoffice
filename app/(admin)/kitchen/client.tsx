@@ -168,6 +168,7 @@ import { KitchenPhase1852LiefertreueAmpel } from './phase1852-liefertreue-ampel'
 import { KitchenPhase1857TagesHochlastPrognoseBalken } from './phase1857-tages-hochlast-prognose-balken';
 import { KitchenPhase1862SmartCountdownFarbkodierungCockpit } from './phase1862-smart-countdown-farbkodierung-cockpit';
 import { KitchenPhase1866PrepFlowOptimierungsCockpit } from './phase1866-prep-flow-optimierungs-cockpit';
+import { KitchenPhase1868SmartCountdownKochzeitMatrix } from './phase1868-smart-countdown-kochzeit-matrix';
 import { KitchenPhase1872BestellrueckstandAmpelV2 } from './phase1872-bestellrueckstand-ampel-v2';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -1608,6 +1609,8 @@ export function KitchenBoard({
       <KitchenPhase1862SmartCountdownFarbkodierungCockpit orders={filtered as any} />
       {/* Phase 1866: Prep-Flow-Optimierungs-Cockpit — Optimale Kochstart-Reihenfolge nach Deadline-Druck + Pickup-ETA; JETZT/Bald/OK-Priorisierung */}
       <KitchenPhase1866PrepFlowOptimierungsCockpit orders={filtered as any} />
+      {/* Phase 1868: Smart-Countdown-Kochzeit-Matrix — Kachel-Grid aller aktiven Bestellungen; grün/gelb/orange/rot nach verbleibender Zeit; 5-Sek-Tick */}
+      <KitchenPhase1868SmartCountdownKochzeitMatrix orders={filtered as any} />
       {/* Phase 1872: Bestellrückstand-Ampel-V2 — Eskalation grün/gelb/rot mit Zeitstempel je Bestellung; Eingang-Uhrzeit; Collapsible */}
       <KitchenPhase1872BestellrueckstandAmpelV2 orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}

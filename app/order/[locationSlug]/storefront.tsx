@@ -353,6 +353,7 @@ import { StorefrontPhase1860FahrerOnlineZaehler } from './phase1860-fahrer-onlin
 import { StorefrontPhase1870LieferzeitVertrauensbadge } from './phase1870-lieferzeit-vertrauensbadge';
 import { StorefrontPhase1865LiveTrackingETACockpit } from './phase1865-live-tracking-eta-cockpit';
 import { StorefrontPhase1866EchtzeitLieferstatusCockpitV2 } from './phase1866-echtzeit-lieferstatus-cockpit-v2';
+import { StorefrontPhase1871DynamischeEtaLiveFortschrittsleiste } from './phase1871-dynamische-eta-live-fortschrittsleiste';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1662,6 +1663,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1866EchtzeitLieferstatusCockpitV2
           orderId={activeOrderId}
           locationSlug={location.id}
+          className="mx-4 mt-2"
+        />
+      )}
+      {/* Phase 1871: Dynamische-ETA-Live-Fortschrittsleiste — 4-Phasen-Band mit Countdown + Konfidenz-Label + Puls-Animation bei Fahrer-Nähe; 30-Sek-Polling */}
+      {activeOrderId && (
+        <StorefrontPhase1871DynamischeEtaLiveFortschrittsleiste
+          orderId={activeOrderId}
           className="mx-4 mt-2"
         />
       )}
