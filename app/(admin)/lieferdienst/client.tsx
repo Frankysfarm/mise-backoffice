@@ -1328,8 +1328,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase1880CrossKpiCockpit orders={orders as any} />
               {/* Phase 1827: Schicht-Statistik-Echtzeit-Kommando — Kompaktes 6-KPI-Dashboard: Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer, Ablehnungsrate */}
               <LieferdienstPhase1827SchichtStatistikEchtzeitKommando
-                orders={orders}
-                completedOrders={completedOrders}
+                orders={orders as any}
+                completedOrders={completedOrders as any}
                 drivers={drivers as any}
                 schichtStart={schichtStart.toISOString()}
               />

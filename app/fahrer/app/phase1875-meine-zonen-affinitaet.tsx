@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Map, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { Map as MapIcon, ChevronDown, ChevronUp, Star } from 'lucide-react';
 
 /**
  * Phase 1875 — Meine-Zonen-Affinität (Fahrer-App)
@@ -126,7 +126,7 @@ export function FahrerPhase1875MeineZonenAffinitaet({ driverId, isOnline, classN
         onClick={() => setOffen((v) => !v)}
         className="flex w-full items-center gap-2 px-4 py-2.5 border-b hover:bg-muted/30 transition-colors"
       >
-        <Map className="h-4 w-4 text-matcha-600 shrink-0" />
+        <MapIcon className="h-4 w-4 text-matcha-600 shrink-0" />
         <span className="text-xs font-bold uppercase tracking-wider">Meine Zonen-Affinität</span>
         <span className="ml-auto text-[10px] font-bold rounded-full bg-matcha-100 dark:bg-matcha-900/30 text-matcha-700 dark:text-matcha-300 px-2 py-0.5">
           Top: Zone {bestZone}
