@@ -645,6 +645,7 @@ import { DispatchPhase2008VerfuegbarkeitsTimeline } from './phase2008-verfuegbar
 import { DispatchPhase2009TourScoreAnzeigeCockpit } from './phase2009-tour-score-anzeige-cockpit';
 import { DispatchPhase2010LiveTourVisualisierungsHub } from './phase2010-live-tour-visualisierungs-hub';
 import { DispatchPhase2011FahrerEffizienzScoreMatrix } from './phase2011-fahrer-effizienz-score-matrix';
+import { DispatchPhase2016TourEffizienzCockpit } from './phase2016-tour-effizienz-cockpit';
 
 type Driver = {
   employee_id: string;
@@ -3542,6 +3543,7 @@ export function DispatchBoard({
           <DispatchPhase2009TourScoreAnzeigeCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase2010LiveTourVisualisierungsHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase2011FahrerEffizienzScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase2016TourEffizienzCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

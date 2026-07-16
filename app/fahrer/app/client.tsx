@@ -557,6 +557,7 @@ import { FahrerPhase2009MeinSchichtForecast } from './phase2009-mein-schicht-for
 import { FahrerPhase2010TourStoppNavigationUltra } from './phase2010-tour-stopp-navigation-ultra';
 import { FahrerPhase2011LiveTourStoppUebersicht } from './phase2011-live-tour-stopp-uebersicht';
 import { FahrerPhase2012SmartNavigationsCockpit } from './phase2012-smart-navigations-cockpit';
+import { FahrerPhase2017MeineTourEffizienz } from './phase2017-meine-tour-effizienz';
 
 type Driver = {
   id: string;
@@ -5531,6 +5532,7 @@ export function FahrerApp({
             }
             isOnline={isOnline}
           />
+          <FahrerPhase2017MeineTourEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2000SmartTourStopKommandant
