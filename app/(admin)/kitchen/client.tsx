@@ -188,6 +188,7 @@ import { KitchenPhase1932LiveKapazitaetsWarnung } from './phase1932-live-kapazit
 import { KitchenPhase1937BestellungsFehlerquotenTracker } from './phase1937-bestellungs-fehlerquoten-tracker';
 import { KitchenPhase1942BestellungsTagesleistungsKarte } from './phase1942-bestellungs-tagesleistungs-karte';
 import KitchenPhase1947StundenAuslastungsVorschau from './phase1947-stunden-auslastungs-vorschau';
+import { KitchenPhase2000SmartTimingFarbkodierungsMatrix } from './phase2000-smart-timing-farbkodierungs-matrix';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3090,6 +3091,8 @@ export function KitchenBoard({
       <KitchenPhase1700LiveTimingCockpit orders={filtered} />
       {/* Phase 1701: Smart-Kochstart-Timing-Board — Bestellungen sortiert nach Dringlichkeit mit Ampel-Farbkodierung + Fortschrittsbalken */}
       <KitchenPhase1701SmartKochstartTimingBoard orders={filtered} />
+      {/* Phase 2000: Smart Timing Farbkodierungs-Matrix — Echtzeit-Grid aller aktiven Bestellungen (grün/amber/orange/rot), Sekundengenauer Countdown, Fahrer-Sync */}
+      <KitchenPhase2000SmartTimingFarbkodierungsMatrix orders={filtered as any} />
     </div>
   );
 }

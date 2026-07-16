@@ -637,6 +637,7 @@ import { DispatchPhase1929SchichtZusammenfassungPanel } from './phase1929-schich
 import { DispatchPhase1934KundenbewertungsDashboard } from './phase1934-kundenbewertungs-dashboard';
 import { DispatchPhase1939LieferstreckenVisualisierung } from './phase1939-lieferstrecken-visualisierung';
 import DispatchPhase1944TourauslastungsKalenderWidget from './phase1944-tourauslastungs-kalender-widget';
+import { DispatchPhase2000TourFortschrittsVisualisierung } from './phase2000-tour-fortschritts-visualisierung';
 
 type Driver = {
   employee_id: string;
@@ -3521,6 +3522,8 @@ export function DispatchBoard({
             locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? null)}
           />
 
+          {/* Phase 2000: Tour-Fortschritts-Visualisierung — Timeline aller aktiven Touren, Stop-Fortschritt, ETA-Gesundheit, Fahrer-Score */}
+          <DispatchPhase2000TourFortschrittsVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

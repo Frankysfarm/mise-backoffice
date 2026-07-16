@@ -549,6 +549,7 @@ import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-to
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
 import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-cockpit-final';
 import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop-cockpit';
+import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-stop-kommandant';
 
 type Driver = {
   id: string;
@@ -5481,6 +5482,34 @@ export function FahrerApp({
                 geliefert_am: s.geliefert_am ?? null,
                 bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
                 notes: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+              }))}
+            />
+          )}
+          {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2000SmartTourStopKommandant
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? null,
+                sequence: s.sequence ?? s.reihenfolge ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                completed_at: s.completed_at ?? null,
+                angekommen_am: s.angekommen_am ?? null,
+                order: s.order ? {
+                  id: s.order.id,
+                  bestellnummer: s.order.bestellnummer ?? null,
+                  kunde_name: s.order.kunde_name ?? null,
+                  kunde_adresse: s.order.kunde_adresse ?? null,
+                  kunde_plz: s.order.kunde_plz ?? null,
+                  kunde_lat: s.order.kunde_lat ?? s.lat ?? null,
+                  kunde_lng: s.order.kunde_lng ?? s.lng ?? null,
+                  gesamtbetrag: s.order.gesamtbetrag ?? null,
+                  bezahlt: s.order.bezahlt ?? null,
+                  zahlungsart: s.order.zahlungsart ?? null,
+                  kunde_telefon: s.order.kunde_telefon ?? null,
+                  kunde_notiz: s.order.kunde_notiz ?? null,
+                  kunde_lieferhinweis: s.order.kunde_lieferhinweis ?? null,
+                } : null,
               }))}
             />
           )}

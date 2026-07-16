@@ -391,6 +391,7 @@ import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase18
 import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
 import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-statistiken-kompakt-dashboard';
 import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
+import { LieferdienstPhase2000StatistikenExecutiveDashboard } from './phase2000-statistiken-executive-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2066,6 +2067,8 @@ export function LieferdienstClient() {
                   drivers={drivers as any}
                   completedToday={completedOrders.length}
                 />
+                {/* Phase 2000: Statistiken Executive Dashboard — Heute vs. Gestern KPIs, Stunden-Chart, Top-Fahrer-Rangliste, Storno-Rate; 2-Min-Polling + Echtzeit */}
+                <LieferdienstPhase2000StatistikenExecutiveDashboard locationId={locationId ?? null} />
               </>
             </div>
           )}
