@@ -351,6 +351,7 @@ import { StorefrontPhase1850DynamischeETALiveTrackingBoard } from './phase1850-d
 import { StorefrontPhase1855KuechenStatusBanner } from './phase1855-kuechen-status-banner';
 import { StorefrontPhase1860FahrerOnlineZaehler } from './phase1860-fahrer-online-zaehler';
 import { StorefrontPhase1865LiveTrackingETACockpit } from './phase1865-live-tracking-eta-cockpit';
+import { StorefrontPhase1866EchtzeitLieferstatusCockpitV2 } from './phase1866-echtzeit-lieferstatus-cockpit-v2';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1652,6 +1653,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1865: Live-Tracking-ETA-Cockpit — 4-Phasen-Stepper + Live-Countdown + Fahrer-Proximity-Ringe + ETA-Anzeige; 30-Sek-Polling */}
       {activeOrderId && (
         <StorefrontPhase1865LiveTrackingETACockpit bestellId={activeOrderId} className="mx-4 mt-2" />
+      )}
+      {/* Phase 1866: Echtzeit-Lieferstatus-Cockpit v2 — Animierter Stepper + ETA-Konfidenz + Fahrer-Näherungs-Puls + Guter-Appetit-Flow; 30-Sek-Polling */}
+      {activeOrderId && (
+        <StorefrontPhase1866EchtzeitLieferstatusCockpitV2
+          orderId={activeOrderId}
+          locationSlug={location.id}
+          className="mx-4 mt-2"
+        />
       )}
       {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
       <StorefrontPhase1820LieferzeitGarantieCountdownV2

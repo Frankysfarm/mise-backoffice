@@ -525,6 +525,7 @@ import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-sm
 import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockpit';
 import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-statusleiste';
 import { FahrerPhase1864GpsAusfallSelbstdiagnose } from './phase1864-gps-ausfall-selbstdiagnose';
+import { FahrerPhase1865SchichtVerdienstPrognose } from './phase1865-schicht-verdienst-prognose-cockpit';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
@@ -5363,6 +5364,8 @@ export function FahrerApp({
             locationId={driver.location_id}
             isOnline={isOnline}
           />
+          {/* Phase 1865: Schicht-Verdienst-Prognose — Ist-Verdienst + Hochrechnung bis Schichtende + Tagesziel-Fortschrittsbalken; 2-Min-Polling */}
+          <FahrerPhase1865SchichtVerdienstPrognose driverId={driver.id} />
           {/* Phase 1851: Smart-Tour-Stopp Final-Kommando — Primäre Navigations-Karte; Countdown + Adresse + Schnellaktionen + Nächste-Stopps-Vorschau */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1851SmartTourStoppFinalKommando

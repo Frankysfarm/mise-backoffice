@@ -382,6 +382,7 @@ import { LieferdienstPhase1805SchichtVergleichsCockpit } from './phase1805-schic
 import { LieferdienstPhase1810StatistikenDashboardHub } from './phase1810-statistiken-dashboard-hub';
 import { LieferdienstPhase1815StatistikLivePerformanceExecutiveDashboard } from './phase1815-statistik-live-performance-executive-dashboard';
 import { LieferdienstPhase1820StatistikenLiveSummaryCockpit } from './phase1820-statistiken-live-summary-cockpit';
+import { LieferdienstPhase1825LiveRentabilitaetsCockpit } from './phase1825-live-rentabilitaets-cockpit';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
 import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit';
@@ -2033,6 +2034,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1815StatistikLivePerformanceExecutiveDashboard locationId={locationId} />
                 {/* Phase 1820: Statistiken-Live-Summary-Cockpit — 6-KPI-Grid mit Trend-Pfeilen vs. gestern + Stunden-Balkendiagramm + Top-Fahrer; 3-Min-Polling */}
                 <LieferdienstPhase1820StatistikenLiveSummaryCockpit locationId={locationId} />
+                {/* Phase 1825: Live-Rentabilitäts-Cockpit — Umsatz vs. Lieferkosten, Bruttomarge, Stündliches Chart; 3-Min-Polling */}
+                <LieferdienstPhase1825LiveRentabilitaetsCockpit locationId={locationId} />
                 {/* Phase 890: Kompakt-Statistiken-Cockpit — Heute-Stats: Bestellungen, Umsatz, Pünktlichkeit, Storno, aktive Fahrer */}
                 <LieferdienstPhase890KompaktStatistikenCockpit locationId={locationId} />
                 {/* Smart Delivery Stats Hub — Integriertes Tages-KPI-Dashboard mit Trend vs. Vortag */}
