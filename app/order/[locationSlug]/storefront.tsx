@@ -364,6 +364,7 @@ import { StorefrontPhase1892DynamischeEtaLiveTrackingUltra } from './phase1892-d
 import { StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget } from './phase1896-liefergeschwindigkeit-testimonial-widget';
 import { StorefrontPhase1893BestellstatusPhasenLeiste } from './phase1893-bestellstatus-phasen-leiste';
 import { StorefrontPhase1901FahrerAnfahrtsEtaKarte } from './phase1901-fahrer-anfahrts-eta-karte';
+import { StorefrontPhase1906FahrerProfilMiniCard } from './phase1906-fahrer-profil-mini-card';
 
 type Props = {
   location: Location;
@@ -1687,6 +1688,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1901: Fahrer-Anfahrts-ETA-Karte — "Dein Fahrer ist ~X Min entfernt"; Fahrzeug-Icon; nur wenn dispatched; 30-Sek-Polling; schließbar */}
       <StorefrontPhase1901FahrerAnfahrtsEtaKarte locationId={location.id} orderId={activeOrderId ?? null} />
+      {/* Phase 1906: Fahrer-Profil-Mini-Card — Fahrername + Bewertungs-Sterne + Foto-Placeholder + Zuverlässigkeits-Badge; nur wenn dispatched; schließbar */}
+      <StorefrontPhase1906FahrerProfilMiniCard locationId={location.id} orderId={activeOrderId ?? null} />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra

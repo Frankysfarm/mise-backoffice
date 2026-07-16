@@ -179,6 +179,7 @@ import { KitchenPhase1893SmartTimingCountdownFarbkodierungUltra } from './phase1
 import { KitchenPhase1897TagesspitzenHochlastWarnung } from './phase1897-tagesspitzen-hochlast-warnung';
 import { KitchenPhase1894BestellungsUeberfalligkeitsMonitor } from './phase1894-bestellungs-ueberfalligkeits-monitor';
 import { KitchenPhase1902SchichtRueckstandEskalation } from './phase1902-schicht-rueckstand-eskalation';
+import { KitchenPhase1907AllergenRueckstandMonitor } from './phase1907-allergen-rueckstand-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1635,6 +1636,8 @@ export function KitchenBoard({
       <KitchenPhase1897TagesspitzenHochlastWarnung orders={filtered as any} />
       {/* Phase 1902: Schicht-Rückstand-Eskalation — >3 Bstlg. >30 Min: roter Alarm + Eskalations-Stufen (Warnung/Kritisch/Eskalation); useMemo; Collapsible */}
       <KitchenPhase1902SchichtRueckstandEskalation orders={filtered as any} />
+      {/* Phase 1907: Allergen-Rückstand-Monitor — Bestellungen mit krit. Allergenen >20 Min; Alarm-Banner; Prioritäts-Markierung; useMemo; Collapsible */}
+      <KitchenPhase1907AllergenRueckstandMonitor orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
       {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}

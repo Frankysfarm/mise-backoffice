@@ -628,6 +628,7 @@ import { DispatchPhase1890TourScoreVisualisierungLive } from './phase1890-tour-s
 import { DispatchPhase1894FahrerSchichtBenchmarkWidget } from './phase1894-fahrer-schicht-benchmark-widget';
 import { DispatchPhase1891FahrerKapazitaetsAmpelLive } from './phase1891-fahrer-kapazitaets-ampel-live';
 import { DispatchPhase1899GebietsAbdeckungsMonitor } from './phase1899-gebiets-abdeckungs-monitor';
+import { DispatchPhase1904SchichtBonusUebersicht } from './phase1904-schicht-bonus-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -1848,6 +1849,8 @@ export function DispatchBoard({
       <DispatchPhase1894FahrerSchichtBenchmarkWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1899: Gebiets-Abdeckungs-Monitor — Zonen-Grid A/B/C/D mit Fahrer-Count + Lücken-Alert; 5-Min-Polling */}
       <DispatchPhase1899GebietsAbdeckungsMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1904: Schicht-Bonus-Übersicht — Fahrer-Tabelle mit Bonus-Stufe/Betrag/Pünktlichkeit; kein-Gold-Alert; 30-Min-Polling */}
+      <DispatchPhase1904SchichtBonusUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1890: Tour-Score-Visualisierung-Live — Score je aktiver Tour (Effizienz/Zeit/Abschluss); Farbkodierung grün/gelb/rot; 15-Sek-Ticker */}
       <DispatchPhase1890TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
       {/* Phase 1891: Fahrer-Kapazitäts-Ampel-Live — Freie vs. beschäftigte vs. offline Fahrer; Ampel grün/gelb/rot; 30-Sek-Ticker; Collapsible */}
