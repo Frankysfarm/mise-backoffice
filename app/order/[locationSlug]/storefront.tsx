@@ -340,6 +340,7 @@ import { StorefrontPhase1790DynamischeLieferzeitSchaetzung } from './phase1790-d
 import { StorefrontPhase1794LiveEtaFahrerNaeheCockpit } from './phase1794-live-eta-fahrer-naehe-cockpit';
 import { StorefrontPhase1800QualitaetsVersprechenBadge } from './phase1800-qualitaets-versprechen-badge';
 import { StorefrontPhase1804BestellPhasenCockpit } from './phase1804-bestell-phasen-cockpit';
+import { StorefrontPhase1815DynamischeEtaLiveIntegration } from './phase1815-dynamische-eta-live-integration';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1607,6 +1608,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1794LiveEtaFahrerNaeheCockpit orderId={activeOrderId} locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1804: Bestell-Phasen-Cockpit — 3-stufiger Phasen-Tracker Küche/Unterwegs/Fast-da; animierter Indikator; ETA-Badge; 60s-Polling */}
       <StorefrontPhase1804BestellPhasenCockpit orderId={activeOrderId} locationId={location.id} />
+      {/* Phase 1815: DynamischeEtaLiveTracker-Integration — 4-Phasen-ETA-Timeline (Eingegangen/Zubereitung/Unterwegs/Zugestellt); 30s-Polling; Hydration-safe */}
+      <StorefrontPhase1815DynamischeEtaLiveIntegration
+        orderId={activeOrderId}
+        locationId={location.id}
+        deliveryTimeMin={deliveryTimeMin}
+        className="mx-4 mt-2"
+      />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}
       <StorefrontPhase1785LieferdienstOeffnungszeitenIndikator locationId={location.id} />
       {/* Phase 1800: Qualitäts-Versprechen-Badge — "Top-bewerteter Fahrer" wenn Score >= 4.8 + Initials + Sterne; Hydration-safe; 30-Min-Polling; schließbar */}

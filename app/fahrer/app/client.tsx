@@ -513,6 +513,7 @@ import { FahrerPhase1793TourStoppFortschrittsNavigator } from './phase1793-tour-
 import { FahrerPhase1799MeinQualitaetsScoreVerlauf } from './phase1799-mein-qualitaets-score-verlauf';
 import { FahrerPhase1803StoppSchnellBestaetigung } from './phase1803-stopp-schnell-bestaetigung';
 import { FahrerPhase1809TourStoppNavigationsHub } from './phase1809-tour-stopp-navigations-hub';
+import { FahrerPhase1814SchichtZuverlaessigkeitsBadge } from './phase1814-schicht-zuverlaessigkeits-badge';
 
 type Driver = {
   id: string;
@@ -5256,6 +5257,11 @@ export function FahrerApp({
           />
           {/* Phase 1809: Tour-Stopp-Navigations-Hub — Alle verbleibenden Stopps mit Adresse/ETA/Navi-Link; aktueller Stopp hervorgehoben; 90s-Polling */}
           <FahrerPhase1809TourStoppNavigationsHub
+            driverId={driver?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1814: Schicht-Zuverlässigkeits-Badge — Eigener Score 0–100 aus Phase1811-API; Ampel + Sparkline + Tipp; 30-Min-Polling */}
+          <FahrerPhase1814SchichtZuverlaessigkeitsBadge
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
