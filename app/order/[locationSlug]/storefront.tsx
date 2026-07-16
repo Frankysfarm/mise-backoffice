@@ -362,6 +362,7 @@ import { StorefrontPhase1886ZonenEtaVergleichsBanner } from './phase1886-zonen-e
 import { StorefrontPhase1891ZonenSonderAngebotBanner } from './phase1891-zonen-sonder-angebot-banner';
 import { StorefrontPhase1892DynamischeEtaLiveTrackingUltra } from './phase1892-dynamische-eta-live-tracking-ultra';
 import { StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget } from './phase1896-liefergeschwindigkeit-testimonial-widget';
+import { StorefrontPhase1893BestellstatusPhasenLeiste } from './phase1893-bestellstatus-phasen-leiste';
 
 type Props = {
   location: Location;
@@ -1688,6 +1689,13 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra
           orderId={activeOrderId}
           locationSlug={location.id}
+          className="mx-4 mt-2"
+        />
+      )}
+      {/* Phase 1893: Bestellstatus-Phasen-Leiste — 4-Phasen-Fortschrittsleiste + ETA-Countdown + Fahrername; SSR-safe; 20-Sek-Polling */}
+      {activeOrderId && (
+        <StorefrontPhase1893BestellstatusPhasenLeiste
+          orderId={activeOrderId}
           className="mx-4 mt-2"
         />
       )}

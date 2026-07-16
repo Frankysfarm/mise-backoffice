@@ -390,6 +390,7 @@ import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-sta
 import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase1827-schicht-statistik-echtzeit-kommando';
 import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
 import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-statistiken-kompakt-dashboard';
+import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1327,6 +1328,8 @@ export function LieferdienstClient() {
             <div className="p-6 space-y-6">
               {/* Phase 1885: Statistiken-Kompakt-Dashboard — KPI-Raster Heute: Bestellungen, Umsatz, Ø Lieferzeit, Bewertung; Abschlussquote; 5-Min-Polling */}
               <LieferdienstPhase1885StatistikKompaktDashboard locationId={locationId ?? null} />
+              {/* Phase 1886: Fahrer-Effizienz-Schnell-Board — Tabelle Fahrer × Score × Stopps × Ø Stoppzeit; Alert <60; 5-Min-Polling; Collapsible */}
+              <LieferdienstPhase1886FahrerEffizienzSchnellBoard locationId={locationId ?? null} />
               {/* Phase 1880: Cross-KPI Cockpit — Schicht-Statistiken: Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Storno; Zonen-Auslastung; Trend-Pfeile */}
               <LieferdienstPhase1880CrossKpiCockpit orders={orders as any} />
               {/* Phase 1827: Schicht-Statistik-Echtzeit-Kommando — Kompaktes 6-KPI-Dashboard: Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer, Ablehnungsrate */}

@@ -177,6 +177,7 @@ import { KitchenPhase1887ZonenBestellfrequenzLive } from './phase1887-zonen-best
 import { KitchenPhase1892ZonenStornoQuoteMonitor } from './phase1892-zonen-storno-quote-monitor';
 import { KitchenPhase1893SmartTimingCountdownFarbkodierungUltra } from './phase1893-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase1897TagesspitzenHochlastWarnung } from './phase1897-tagesspitzen-hochlast-warnung';
+import { KitchenPhase1894BestellungsUeberfalligkeitsMonitor } from './phase1894-bestellungs-ueberfalligkeits-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1633,6 +1634,8 @@ export function KitchenBoard({
       <KitchenPhase1897TagesspitzenHochlastWarnung orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
+      {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}
+      <KitchenPhase1894BestellungsUeberfalligkeitsMonitor orders={filtered as any} />
       {/* Phase 1880: Smart Kochstart-Dispatch-Bridge — Fahrer-Pickup-ETA vs. Prep-Zeit; Countdown + Farbkodierung; grün/gelb/rot/blau; Collapsible */}
       <KitchenPhase1880SmartKochstartDispatchBridge orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
