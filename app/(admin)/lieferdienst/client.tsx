@@ -381,6 +381,7 @@ import { LieferdienstPhase1795EchtzeitStatistikHub } from './phase1795-echtzeit-
 import { LieferdienstPhase1805SchichtVergleichsCockpit } from './phase1805-schicht-vergleichs-cockpit';
 import { LieferdienstPhase1810StatistikenDashboardHub } from './phase1810-statistiken-dashboard-hub';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
+import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2027,6 +2028,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1810StatistikenDashboardHub locationId={locationId} />
                 {/* Phase 890: Kompakt-Statistiken-Cockpit — Heute-Stats: Bestellungen, Umsatz, Pünktlichkeit, Storno, aktive Fahrer */}
                 <LieferdienstPhase890KompaktStatistikenCockpit locationId={locationId} />
+                {/* Smart Delivery Stats Hub — Integriertes Tages-KPI-Dashboard mit Trend vs. Vortag */}
+                <SmartDeliveryStatsHub locationId={locationId} />
               </>
             </div>
           )}

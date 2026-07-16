@@ -607,6 +607,7 @@ import { DispatchPhase1823TourenKapazitaetsAuslastungsGauge } from './phase1823-
 import { DispatchPhase1828FahrerEinnahmenVergleich } from './phase1828-fahrer-einnahmen-vergleich';
 import { DispatchPhase1833ZonenEffizienzDashboard } from './phase1833-zonen-effizienz-dashboard';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
+import { SmartTourScoreHub } from './smart-tour-score-hub';
 
 type Driver = {
   employee_id: string;
@@ -1273,6 +1274,8 @@ export function DispatchBoard({
           <button onClick={() => setNewOrderFlash(null)} className="text-matcha-400 hover:text-matcha-700 text-lg leading-none">×</button>
         </div>
       )}
+      {/* Smart Tour Score Hub — Integrierte Score-Visualisierung aller aktiven Touren */}
+      <SmartTourScoreHub locationId={locations[0]?.id ?? null} />
       {/* ETA-Überschreitungs-Alerts */}
       {overdueAlerts.length > 0 && (
         <div className="space-y-1.5">

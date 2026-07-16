@@ -519,6 +519,7 @@ import { FahrerPhase1820SmartTourStopHub } from './phase1820-smart-tour-stop-hub
 import { FahrerPhase1824LiveEinnahmenTracker } from './phase1824-live-einnahmen-tracker';
 import { FahrerPhase1829KundenBewertungsFeed } from './phase1829-kunden-bewertungs-feed';
 import { FahrerPhase1834PuenktlichkeitsCockpit } from './phase1834-puenktlichkeits-cockpit';
+import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 
 type Driver = {
   id: string;
@@ -2232,6 +2233,29 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Smart Tour Navigator v2 — Übersichtlicher Stopp-Navigator mit 1-Tap Navi & Quittierung */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <SmartTourNavigatorV2
+                stops={activeBatch.stops.map((s: any, i: number) => ({
+                  id: s.id,
+                  index: (s.reihenfolge ?? i) + 1,
+                  address: s.order?.kunde_adresse ?? s.kunde_adresse ?? s.address ?? '',
+                  customer_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                  customer_phone: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                  status: s.geliefert_am ? 'delivered' : s.angekommen_am ? 'arrived' : 'pending',
+                  eta_min: s.eta_min ?? null,
+                  distance_km: s.distance_km ?? null,
+                  order_id: s.order_id ?? null,
+                  bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
+                  betrag: s.order?.gesamtbetrag ?? s.gesamtbetrag ?? null,
+                  payment_method: s.order?.zahlungsart ?? s.zahlungsart ?? 'online',
+                  notes: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+                }))}
+                tourId={activeBatch.id}
               />
             </div>
           )}

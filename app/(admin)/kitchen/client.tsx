@@ -550,6 +550,7 @@ import { KitchenPhase1801DurchsatzAnalyseBoard } from './phase1801-durchsatz-ana
 import { KitchenPhase1807SmartTimingFarbkodierungBoard } from './phase1807-smart-timing-farbkodierung-board';
 import { KitchenPhase1812ParalleleGerichtUebersicht } from './phase1812-parallele-gericht-uebersicht';
 import { KitchenPhase1817GerichtZubereitungsEngpassAlarm } from './phase1817-gericht-zubereitungs-engpass-alarm';
+import { KitchenSmartDeliveryKochstartHub } from './smart-delivery-kochstart-hub';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1040,6 +1041,8 @@ export function KitchenBoard({
       <KitchenSchichtKpiZusammenfassung orders={orders} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Schicht-Endstand: Kumulierte Schicht-KPIs (Pünktlichkeit, ø Prep-Zeit, Storno-Rate) */}
       <KitchenSchichtEndstand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Smart Delivery Kochstart-Hub: Farbkodierter Countdown + Fahrer-Sync für alle aktiven Bestellungen */}
+      <KitchenSmartDeliveryKochstartHub orders={filtered as any} timings={timings as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}
