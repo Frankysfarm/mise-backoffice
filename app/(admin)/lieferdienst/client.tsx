@@ -380,6 +380,7 @@ import { LieferdienstPhase1726StatistikenKompaktHub } from './phase1726-statisti
 import { LieferdienstPhase1795EchtzeitStatistikHub } from './phase1795-echtzeit-statistik-hub';
 import { LieferdienstPhase1805SchichtVergleichsCockpit } from './phase1805-schicht-vergleichs-cockpit';
 import { LieferdienstPhase1810StatistikenDashboardHub } from './phase1810-statistiken-dashboard-hub';
+import { LieferdienstPhase1815StatistikLivePerformanceExecutiveDashboard } from './phase1815-statistik-live-performance-executive-dashboard';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
 
@@ -2026,6 +2027,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1805SchichtVergleichsCockpit locationId={locationId} />
                 {/* Phase 1810: Statistiken-Dashboard-Hub — 6-KPI-Grid (Umsatz/Bestellungen/Lieferzeit/Bewertung/Fahrer/Pünktlichkeit) + Stunden-Verlauf; Trend vs. gestern; 5-Min-Polling */}
                 <LieferdienstPhase1810StatistikenDashboardHub locationId={locationId} />
+                {/* Phase 1815: Statistik-Live-Performance-Executive-Dashboard — Aggregiertes Executive-Dashboard: KPIs heute vs. gestern, Top-3-Fahrer, Zonen-Performance-Split; 3-Min-Polling */}
+                <LieferdienstPhase1815StatistikLivePerformanceExecutiveDashboard locationId={locationId} />
                 {/* Phase 890: Kompakt-Statistiken-Cockpit — Heute-Stats: Bestellungen, Umsatz, Pünktlichkeit, Storno, aktive Fahrer */}
                 <LieferdienstPhase890KompaktStatistikenCockpit locationId={locationId} />
                 {/* Smart Delivery Stats Hub — Integriertes Tages-KPI-Dashboard mit Trend vs. Vortag */}

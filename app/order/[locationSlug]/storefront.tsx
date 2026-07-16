@@ -347,6 +347,7 @@ import { StorefrontPhase1830LiefergebietLiveKarte } from './phase1830-liefergebi
 import { StorefrontPhase1835LiveFahrerScoreBadge } from './phase1835-live-fahrer-score-badge';
 import { StorefrontPhase1840LieferzeitSlaGarantie } from './phase1840-lieferzeit-sla-garantie';
 import { StorefrontPhase1845KuechenAuslastungsBadge } from './phase1845-kuechen-auslastungs-badge';
+import { StorefrontPhase1850DynamischeETALiveTrackingBoard } from './phase1850-dynamische-eta-live-tracking-board';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1634,6 +1635,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1840LieferzeitSlaGarantie locationId={location.id} etaMinuten={deliveryTimeMin ?? 30} className="mx-4 mt-2" />
       {/* Phase 1845: Küchen-Auslastungs-Badge — Aktuelle Küchenauslastung (entspannt/normal/beschäftigt/sehr ausgelastet); Hydration-safe; 5-Min-Polling */}
       <StorefrontPhase1845KuechenAuslastungsBadge locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1850: Dynamische ETA Live-Tracking Board — 4-Phasen-Stepper (Bestätigt→Zubereitung→Abholung→Unterwegs); Fahrer-Annäherungs-Balken; dynamische ETA; 30-Sek-Polling */}
+      {orderSuccess && (
+        <StorefrontPhase1850DynamischeETALiveTrackingBoard
+          bestellId={orderSuccess.orderId}
+          bestellnummer={orderSuccess.bestellnummer}
+          className="mx-4 mt-2"
+        />
+      )}
       {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
       <StorefrontPhase1820LieferzeitGarantieCountdownV2
         locationId={location.id}

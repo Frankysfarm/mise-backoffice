@@ -521,6 +521,7 @@ import { FahrerPhase1829KundenBewertungsFeed } from './phase1829-kunden-bewertun
 import { FahrerPhase1834PuenktlichkeitsCockpit } from './phase1834-puenktlichkeits-cockpit';
 import { FahrerPhase1839TagesAbschlussSummary } from './phase1839-tages-abschluss-summary';
 import { FahrerPhase1844EigeneTourBilanz } from './phase1844-eigene-tour-bilanz';
+import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-smart-tour-stopp-navigations-hub-ultra';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 
 type Driver = {
@@ -5332,6 +5333,13 @@ export function FahrerApp({
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
+          {/* Phase 1849: Smart-Tour-Stopp-Navigations-Hub Ultra — Alle Stopps mit ETA-Zeitlinie; Ein-Tipp-Navi (Google/Apple/Waze); Telefon-Schnellzugriff; Punkte-Vorschau; Fortschrittsbalken */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1849SmartTourStoppNavigationsHubUltra
+              stopps={(activeBatch.stops ?? []) as any}
+              tourId={activeBatch.id ?? null}
+            />
+          )}
           {/* Phase 1820: Smart Tour-Stop-Hub — Nächster Stopp Fokus-Karte + ETA-Ring + Bezahl-Warnung + Kunden-Notizen + kompakte Stopp-Liste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1820SmartTourStopHub
