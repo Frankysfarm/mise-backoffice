@@ -533,6 +533,7 @@ import { FahrerPhase1885SchichtZonenBilanz } from './phase1885-schicht-zonen-bil
 import { FahrerPhase1890TopVerdienstSchichtRecap } from './phase1890-top-verdienst-schicht-recap';
 import { FahrerPhase1895PersoenlichenMonatsRekordBanner } from './phase1895-persoenlicher-monats-rekord-banner';
 import { FahrerPhase1891SchichtRoutenEffizienzScore } from './phase1891-schicht-routen-effizienz-score';
+import { FahrerPhase1900SchichtZielFortschritt } from './phase1900-schicht-ziel-fortschritt';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5413,6 +5414,8 @@ export function FahrerApp({
           <FahrerPhase1890TopVerdienstSchichtRecap locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1895: Persönlicher-Monats-Rekord-Banner — Bester Monat vs. aktueller Monat; Verdienst/Stopps/Pünktlichkeit; Trophy; Fortschrittsbalken; isOnline-Guard; Collapsible; 30-Min-Polling */}
           <FahrerPhase1895PersoenlichenMonatsRekordBanner locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1900: Schicht-Ziel-Fortschritt — Fortschrittsbalken Verdienst-Ziel; Schicht-Countdown; Motivations-Badge; isOnline-Guard; 10-Min-Polling */}
+          <FahrerPhase1900SchichtZielFortschritt locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1891: Schicht-Routen-Effizienz-Score — Score-Ring + Stopps/h + Ø Stoppzeit vs. Ziel; isOnline-Guard; Collapsible; 2-Min-Polling */}
           <FahrerPhase1891SchichtRoutenEffizienzScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}

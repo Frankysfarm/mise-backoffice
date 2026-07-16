@@ -178,6 +178,7 @@ import { KitchenPhase1892ZonenStornoQuoteMonitor } from './phase1892-zonen-storn
 import { KitchenPhase1893SmartTimingCountdownFarbkodierungUltra } from './phase1893-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase1897TagesspitzenHochlastWarnung } from './phase1897-tagesspitzen-hochlast-warnung';
 import { KitchenPhase1894BestellungsUeberfalligkeitsMonitor } from './phase1894-bestellungs-ueberfalligkeits-monitor';
+import { KitchenPhase1902SchichtRueckstandEskalation } from './phase1902-schicht-rueckstand-eskalation';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1632,6 +1633,8 @@ export function KitchenBoard({
       <KitchenPhase1892ZonenStornoQuoteMonitor orders={filtered as any} />
       {/* Phase 1897: Tagesspitzen-Hochlast-Warnung — Bestellrate vs. Stoßzeit-Schwellwert; Ampel grün/gelb/rot; Countdown nächste Stoßzeit; useMemo; Collapsible */}
       <KitchenPhase1897TagesspitzenHochlastWarnung orders={filtered as any} />
+      {/* Phase 1902: Schicht-Rückstand-Eskalation — >3 Bstlg. >30 Min: roter Alarm + Eskalations-Stufen (Warnung/Kritisch/Eskalation); useMemo; Collapsible */}
+      <KitchenPhase1902SchichtRueckstandEskalation orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
       {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}
