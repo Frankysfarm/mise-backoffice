@@ -524,6 +524,7 @@ import { FahrerPhase1844EigeneTourBilanz } from './phase1844-eigene-tour-bilanz'
 import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-smart-tour-stopp-navigations-hub-ultra';
 import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockpit';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
+import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 
 type Driver = {
   id: string;
@@ -5347,6 +5348,12 @@ export function FahrerApp({
             locationId={driver.location_id}
             isOnline={isOnline}
           />
+          {/* Phase 1851: Smart-Tour-Stopp Final-Kommando — Primäre Navigations-Karte; Countdown + Adresse + Schnellaktionen + Nächste-Stopps-Vorschau */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1851SmartTourStoppFinalKommando
+              stops={(activeBatch.stops ?? []) as any}
+            />
+          )}
           {/* Phase 1820: Smart Tour-Stop-Hub — Nächster Stopp Fokus-Karte + ETA-Ring + Bezahl-Warnung + Kunden-Notizen + kompakte Stopp-Liste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1820SmartTourStopHub

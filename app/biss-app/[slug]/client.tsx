@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn, euro } from '@/lib/utils';
 import { BissPhase1414DynamischeEtaLiveBanner } from './phase1414-dynamische-eta-live-banner';
+import { BissPhase1851EtaLiveTrackingHub } from './phase1851-eta-live-tracking-hub';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Location = { id: string; name: string; adresse: string | null; stadt: string | null; plz: string | null; telefon: string | null };
@@ -298,6 +299,15 @@ function OrderSuccess({ orderId, bestellnummer, onClose }: { orderId: string; be
             <p className="text-matcha-600 text-sm">Deine Bestellung wurde geliefert.</p>
           </div>
         )}
+
+        {/* Phase 1851: ETA Live-Tracking Hub — Echtzeit-Phasen + Countdown + Fahrerdaten */}
+        <div className="mt-4 mb-2 text-left">
+          <BissPhase1851EtaLiveTrackingHub
+            orderId={orderId}
+            bestellnummer={bestellnummer}
+            initialStatus={status}
+          />
+        </div>
 
         <button onClick={onClose} className="mt-2 px-6 py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 transition-colors">
           Neue Bestellung

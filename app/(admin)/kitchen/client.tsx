@@ -555,6 +555,7 @@ import { KitchenPhase1807SmartTimingFarbkodierungBoard } from './phase1807-smart
 import { KitchenPhase1812ParalleleGerichtUebersicht } from './phase1812-parallele-gericht-uebersicht';
 import { KitchenPhase1817GerichtZubereitungsEngpassAlarm } from './phase1817-gericht-zubereitungs-engpass-alarm';
 import { KitchenSmartDeliveryKochstartHub } from './smart-delivery-kochstart-hub';
+import { KitchenSmartZubereitungsAmpelCockpit } from './phase1851-smart-zubereitungs-ampel-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1243,6 +1244,8 @@ export function KitchenBoard({
       <KitchenPhase913SmartCountdownTimingPro orders={filtered as any} />
       {/* Rush-Wave-Radar: Nachfrage-Prognose nächste 60 Min mit Farbkodierung je 15-Min-Slot */}
       <KitchenRushWaveRadar locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1851: Smart-Zubereitungs-Ampel-Cockpit — Countdown + Farbkodierung + Kochstart-Empfehlung in einer Kachel */}
+      <KitchenSmartZubereitungsAmpelCockpit orders={filtered as any} timings={timings} />
       {/* Phase 222: Stoßzeit-Band — Rush-Hour-Kontext + Surge-Status für Küchenplanung */}
       <KitchenRushHourBand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 210: Küchen-Druck-Ampel — Live-Auslastung mit Entlastungs-Tipps */}

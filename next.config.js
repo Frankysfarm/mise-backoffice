@@ -5,6 +5,11 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   turbopack: { root: path.resolve(__dirname) },
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['**/@swc/**', '**/node_modules/**'],
+    },
+  },
   // Standalone-Output für minimale Docker-Images (deaktiviert wegen EMFILE in CI)
   // output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

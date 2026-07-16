@@ -383,6 +383,7 @@ import { LieferdienstPhase1810StatistikenDashboardHub } from './phase1810-statis
 import { LieferdienstPhase1815StatistikLivePerformanceExecutiveDashboard } from './phase1815-statistik-live-performance-executive-dashboard';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
+import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2033,6 +2034,12 @@ export function LieferdienstClient() {
                 <LieferdienstPhase890KompaktStatistikenCockpit locationId={locationId} />
                 {/* Smart Delivery Stats Hub — Integriertes Tages-KPI-Dashboard mit Trend vs. Vortag */}
                 <SmartDeliveryStatsHub locationId={locationId} />
+                {/* Phase 1000: Statistiken Echtzeit-Cockpit — KPI-Kacheln + Stunden-Chart + Fahrer-Performance; Client-seitig berechnet */}
+                <LieferdienstPhase1000StatistikenEchtzeitCockpit
+                  orders={[...orders, ...completedOrders] as any}
+                  drivers={drivers as any}
+                  completedToday={completedOrders.length}
+                />
               </>
             </div>
           )}
