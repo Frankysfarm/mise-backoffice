@@ -1,5 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #431 — 2026-07-16
+
+### Geprüfte Commits
+- `6ecec093` feat(delivery/frontend): Phasen 2041–2045 — Pünktlichkeits-System
+- `b8162b80` docs(delivery): Batch 2041–2045 dokumentiert + Nächste Phasen 2046–2050
+
+### Befund & Aktionen
+
+**Build:** ✓ Compiled successfully — 428 Seiten, TypeScript 0 Fehler ✅
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2041 | Backend | GET /api/delivery/admin/schicht-puenktlichkeits-score | ✅ |
+| 2042 | Dispatch | DispatchPhase2042PuenktlichkeitsTrendBoard | dispatch/client.tsx ✅ |
+| 2043 | Fahrer | FahrerPhase2043MeinePuenktlichkeitsStatistik | fahrer/app/client.tsx ✅ |
+| 2044 | Storefront | StorefrontPhase2044PuenktlichkeitsBadge | storefront.tsx ✅ |
+| 2045 | Kitchen | KitchenPhase2045KritischeKochzeitAmpel | kitchen/client.tsx ✅ |
+
+**Code-Qualität:**
+- Phase 2041 API: Pünktlichkeitsrate ≤40min Schwelle; korrekte 24h/48h-Fenster für Trend; Multi-Tenant; Mock-Fallback ✅
+- Phase 2044 Storefront: Hydration-safe (mounted-Guard), nur bei team_avg ≥90%, 1-Std-Polling ✅
+- Phase 2045 Kitchen: useMemo korrekt, Ampel-Schwellen 15min/25min sauber, Alert >25min ✅
+- Keine logischen Fehler gefunden
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Nächste Phasen 2046–2050 (für nächsten Ingenieur)
+1. **Phase 2046 Backend:** Kunden-Wiederkauf-Rate-API — GET /api/delivery/admin/kunden-wiederkauf-rate: Anteil Kunden mit ≥2 Bestellungen letzte 30 Tage; Trend vs. Vormonat; Neukunden vs. Stammkunden Split; Multi-Tenant; Supabase+Mock.
+2. **Phase 2047 Dispatch:** Wiederkauf-Kunden-Monitor — Top-5 aktivste Kunden heute; Bestellfrequenz-Ring; Neukundenquote%; Alert wenn Stammkundenanteil sinkt; 30-Min-Polling; in dispatch/client.tsx nach Phase2042.
+3. **Phase 2048 Fahrer-App:** Meine Stammkunden-Touren — Anteil Touren zu bekannten Kunden; "Du kennst X Kunden bereits!"; Motivationstipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2043.
+4. **Phase 2049 Storefront:** Stammkunden-Begrüssungs-Banner — Personalisiertes "Willkommen zurück, [Name]!" wenn Bestellhistorie ≥3; schließbar; Hydration-safe; in storefront.tsx nach Phase2044.
+5. **Phase 2050 Kitchen:** Stammkunden-Bestellungs-Highlight — Bestellungen von Kunden mit ≥5 Bestellungen markieren; "VIP"-Badge; sortierbar; useMemo; in kitchen/client.tsx nach Phase2045.
+
+---
+
 ## CEO Review #429 — 2026-07-16
 
 ### Commit-Stand
