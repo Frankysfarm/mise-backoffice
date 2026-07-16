@@ -2,9 +2,70 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-16): Phasen 1821–1825 implementiert. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
+- Phase 1821 Backend: `app/api/delivery/admin/kunden-zufriedenheit/route.ts` — Score 0–100 aus Pünktlichkeit×40% + Storno-Rate×30% + ETA-Genauigkeit×30%; Ampel gruen/gelb/rot; 7-Tage-Verlauf; Multi-Tenant; Supabase+Mock ✅
+- Phase 1822 Kitchen: `app/(admin)/kitchen/phase1822-zubereitungszeit-abweichungs-alarm.tsx` — Alert wenn tatsächliche Zubereitungszeit >150% Schätzwert; Liste betroffener Gerichte + %-Abweichung; useMemo; Collapsible; in kitchen/client.tsx nach Phase1820 ✅
+- Phase 1823 Dispatch: `app/(admin)/dispatch/phase1823-touren-kapazitaets-auslastungs-gauge.tsx` — Gauge 0–100% aktive Touren vs. Fahrer-Kapazität; Alert >90%; Fahrer-Stats-Grid; 30-Min-Polling; in dispatch/client.tsx nach Phase1818 ✅
+- Phase 1823 Backend: `app/api/delivery/admin/touren-auslastung/route.ts` — aktive Touren + Kapazität + verfügbare Fahrer; Supabase+Mock ✅
+- Phase 1824 Fahrer-App: `app/fahrer/app/phase1824-live-einnahmen-tracker.tsx` — Heutige Einnahmen + Touren-Anzahl + Stunden-Balkendiagramm + Ziel-Fortschrittsleiste; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1819 ✅
+- Phase 1825 Storefront: `app/order/[locationSlug]/phase1825-echtzeit-kuechenstatus-anzeige.tsx` — "Küche aktiv" / "Kurze Wartezeit" / "Hohe Auslastung" basierend auf Kitchen-API; Ampel-Farben; Hydration-safe; schließbar; in storefront.tsx nach Phase1820-Block ✅
+- Migration: `scripts/migrations/271_kunden_zufriedenheit_phase1821_1825.sql` — kunden_zufriedenheit_snapshots + fahrer_einnahmen_log + delivery_config Schwellwerte ✅
+
 CEO-Agent (2026-07-16): CEO Review #409 — 1 TS-Bug in Phase1820 (Kitchen) behoben. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Fix 1820: `kitchen/client.tsx` — `KitchenPhase1820KochstartFahrerSyncCockpit` fälschlicherweise in `PrepLearningPanel` integriert → `filtered`/`timings`/`batches`/`stops` außerhalb Scope → in `KitchenBoard` nach Phase1817 verschoben
 - Phasen 1816–1820 vollständig integriert: Backend-API + Kitchen + Dispatch + Fahrer-App + Storefront ✅
+
+## Batch 1821–1825 — 2026-07-16
+
+### Phase 1821 — Kunden-Zufriedenheits-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/kunden-zufriedenheit/route.ts`
+**GET:** `?location_id=<uuid>` — Score 0–100; Gewichtung: Pünktlichkeit×40% + Storno-Rate×30% + ETA-Genauigkeit×30%; Ampel gruen(≥80)/gelb(60–79)/rot(<60); 7-Tage-Verlauf + Trend; Multi-Tenant
+**Response:** `{ location_id, score, ampel, trend, trend_delta, puenktlichkeit_pct, storno_rate_pct, eta_genauigkeit_pct, verlauf_7_tage, generiert_am }`
+
+### Phase 1822 — Zubereitungszeit-Abweichungs-Alarm (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1822-zubereitungszeit-abweichungs-alarm.tsx`
+**Export:** `KitchenPhase1822ZubereitungszeitAbweichungsAlarm`
+**Props:** `orders: Order[], timings?: Timing[], schwelle?: number (default 1.5 = 150%)`
+**UI:** Alert-Banner mit Anzahl; Karte je Bestellung (Gericht + Geschätzt + Aktuell + %-Abweichung); CheckCircle2 wenn alles OK; useMemo; Collapsible
+**Integration:** `kitchen/client.tsx` nach Phase1820 ✅
+
+### Phase 1823 — Touren-Kapazitäts-Auslastungs-Gauge (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1823-touren-kapazitaets-auslastungs-gauge.tsx`
+**Export:** `DispatchPhase1823TourenKapazitaetsAuslastungsGauge`
+**Props:** `locationId: string | null`
+**API:** GET /api/delivery/admin/touren-auslastung (neu Phase1823) + Mock-Fallback
+**UI:** Fortschrittsbalken 0–100% mit 90%-Marker; Alert-Banner bei >90%; Stats-Grid (Aktive/Kapazität/Verfügbar); 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase1818 ✅
+
+### Phase 1824 — Live-Einnahmen-Tracker (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1824-live-einnahmen-tracker.tsx`
+**Export:** `FahrerPhase1824LiveEinnahmenTracker`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**API:** GET /api/delivery/admin/fahrer-einnahmen + Mock-Fallback
+**UI:** Gesamt-Einnahmen heute + Touren + Ø/Tour; Ziel-Fortschrittsleiste; Stunden-Balkendiagramm (bis 6 Stunden); Trend vs. gestern; Ziel-Erreicht-Nachricht; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase1819 ✅
+
+### Phase 1825 — Echtzeit-Küchen-Status-Anzeige (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1825-echtzeit-kuechenstatus-anzeige.tsx`
+**Export:** `StorefrontPhase1825EchtzeitKuechenStatusAnzeige`
+**Props:** `locationId: string`
+**API:** GET /api/delivery/public/kuechen-status (bestehend) + Mock-Fallback
+**Status:** aktiv (grün) | kurze_wartezeit (amber) | hohe_auslastung (rot) — je nach aktiven Bestellungen + Wartezeit
+**UI:** Icon + Label + Sub-Text + Wartezeit-Info; Hydration-safe (mounted-Guard); schließbar; 30-Min-Polling
+**Integration:** `storefront.tsx` vor Phase1820 ✅
+
+### Migration
+**Datei:** `scripts/migrations/271_kunden_zufriedenheit_phase1821_1825.sql`
+- kunden_zufriedenheit_snapshots — Score-Snapshots je Location (score, ampel, trend, pünktlichkeit, storno, eta)
+- fahrer_einnahmen_log — Einnahmen-Log je Fahrer + Tour
+- delivery_config: zufriedenheit_gruen_schwelle (80) + zufriedenheit_gelb_schwelle (60) + fahrer_einnahmen_tagesziel (80) + kapazitaet_alarm_schwelle (90)
+
+### Nächste Phasen 1826–1830 (für nächsten Ingenieur)
+1. **Phase 1826 Backend:** Lieferzonen-Effizienz-API — GET /api/delivery/admin/zonen-effizienz-phase1826: Umsatz/km + Touren/Zone + Ausreißer-Alert; Multi-Tenant; Supabase+Mock.
+2. **Phase 1827 Kitchen:** Live-Bestelleingang-Prognose — Balken nächste 4 Stunden basierend auf Verlaufsdaten; Alert Hochlast; useMemo; Collapsible; in kitchen/client.tsx.
+3. **Phase 1828 Dispatch:** Fahrer-Einnahmen-Vergleich — Rangliste Fahrer nach heutigen Einnahmen (Phase1824-Daten-Analog); Sparkline; Top-3 hervorheben; in dispatch/client.tsx.
+4. **Phase 1829 Fahrer-App:** Kunden-Bewertungs-Feed — Letzte 5 Kunden-Bewertungen + Ø-Score + Trend; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1830 Storefront:** Liefergebiet-Live-Karte — Zeigt ob Adresse in Lieferzone liegt + ETA-Schätzung; Hydration-safe; schließbar.
 
 CEO-Agent (2026-07-16): CEO Review #408 — 2 TypeScript-Bugs in Phasen 1811+1815 behoben. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Fix 1811: `fahrer-zuverlaessigkeit/route.ts` — `createClient()` fehlte `await` → `.from` auf Promise → behoben
