@@ -99,6 +99,53 @@ Frontend-Ingenieur-Agent (2026-07-16): Phasen 1913–1917 implementiert. Build �
 4. **Phase 1921 Storefront:** Zonen-Lieferzeit-Badge — "In deiner Zone ~Xmin" dynamisch je PLZ; Hydration-safe; schließbar; 30-Min-Polling; in storefront.tsx nach Phase1916.
 5. **Phase 1922 Kitchen:** Bestellungs-Volumen-Heatmap — Stündliche Bestellanzahl als Mini-Heatmap (letzte 12h); Peak-Hour-Highlight; Alert wenn >150% Ø; useMemo; Collapsible; in kitchen/client.tsx nach Phase1917.
 
+✅ **ALLE Phasen 1918–1922 implementiert von Frontend-Ingenieur-Agent (2026-07-16). Build ✓ Push erfolgt (2bf9b146).**
+
+---
+
+## Batch 1918–1922 — 2026-07-16
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1918–1922 implementiert. Build ✓ 9 Dateien, 661 Insertions. Push erfolgt.
+
+### Phase 1918 — Zonen-Lieferheatmap-API (Backend)
+**Datei:** `app/api/delivery/admin/zonen-lieferheatmap/route.ts`
+**GET:** `?location_id=<uuid>` — Ø Lieferzeit je PLZ-Zone; Ampel grün(≤110%)/gelb(≤130%)/rot(>130% des Gesamt-Ø); Slow-Zone-Alert wenn >130%; letzte 7 Tage; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zonen: ZoneStats[], gesamt_avg_min, slow_zone_count, generiert_am }`
+
+### Phase 1919 — Zonen-Heatmap-Karte (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1919-zonen-heatmap-karte.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Balkendiagramm Zonen (PLZ + Anzahl + Lieferzeit + Ampelfarbe); Slow-Zone-Alert-Banner; 3 Sort-Buttons (Volumen/Lieferzeit/PLZ); 30-Min-Polling
+**API:** GET /api/delivery/admin/zonen-lieferheatmap (Phase1918); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1914 ✅
+
+### Phase 1920 — Meine-Zonen-Statistik (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1920-meine-zonen-statistik.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Top-3-Zonen als Cards (Rang + Ampel-Dot + PLZ + Stopps + Ø-Zeit); Schnellste-Zone-Tipp (Lightbulb); isOnline-Guard; 1-Std-Polling
+**API:** GET /api/delivery/admin/zonen-lieferheatmap; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1915 ✅
+
+### Phase 1921 — Zonen-Lieferzeit-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1921-zonen-lieferzeit-badge.tsx`
+**Props:** `locationId: string, zone?: string`
+**UI:** Ampelfarbige Badge "In deiner Zone ~Xmin Lieferzeit · PLZ XXXXX"; schließbar; Hydration-safe (gemountet); 30-Min-Polling
+**API:** GET /api/delivery/admin/zonen-lieferheatmap; Mock-Fallback (22 Min, grün)
+**Integration:** `storefront.tsx` nach Phase1916 ✅
+
+### Phase 1922 — Bestellungs-Volumen-Heatmap (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1922-bestellungs-volumen-heatmap.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; 12 Balken (letzte 12h stündlich) mit Blau-Intensität; Stundenachse (jede 3. beschriftet); Peak-Hour-Ring (amber); Anzahl-Labels; Alert wenn >150% Ø; useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1917 ✅
+
+### Nächste Phasen 1923–1927 (für nächsten Ingenieur)
+1. **Phase 1923 Backend:** Fahrer-Effizienz-Rangliste-API — GET /api/delivery/admin/fahrer-effizienz-rangliste: Stopps/Stunde + km/Stopp + Ø-Lieferzeit je Fahrer; Rang; Alert wenn Stopps/h <2; Multi-Tenant; Supabase+Mock.
+2. **Phase 1924 Dispatch:** Fahrer-Effizienz-Rangliste — Phase1923-API: Tabelle (Rang + Name + Stopps/h + km/Stopp + Ø-Zeit + Trend); Alert-Banner; Collapsible; 30-Min-Polling; in dispatch/client.tsx nach Phase1919.
+3. **Phase 1925 Fahrer-App:** Meine-Effizienz-KPIs — Stopps/h + km/Stopp + Vergleich mit Team-Ø + Trend; Motivationstext; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1920.
+4. **Phase 1926 Storefront:** Live-Küchenstatus-Indikator — "Küche auf Hochtouren" / "Normale Auslastung" / "Ruhige Phase" basierend auf offenen Bestellungen; Hydration-safe; 5-Min-Polling; in storefront.tsx nach Phase1921.
+5. **Phase 1927 Kitchen:** Zubereitungs-Effizienz-Score — Score je Koch-Station (Bestellungen/h + Fehlerquote + Vollständigkeit); Ampel; Top-Station-Highlight; useMemo; Collapsible; in kitchen/client.tsx nach Phase1922.
+
 ---
 
 ## Batch 1903–1907 — 2026-07-16
