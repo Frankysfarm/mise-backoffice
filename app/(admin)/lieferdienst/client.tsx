@@ -392,6 +392,7 @@ import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-c
 import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-statistiken-kompakt-dashboard';
 import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
 import { LieferdienstPhase2000StatistikenExecutiveDashboard } from './phase2000-statistiken-executive-dashboard';
+import { LieferdienstPhase2001BestellstatusTrichter } from './phase2001-bestellstatus-trichter';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2069,6 +2070,8 @@ export function LieferdienstClient() {
                 />
                 {/* Phase 2000: Statistiken Executive Dashboard — Heute vs. Gestern KPIs, Stunden-Chart, Top-Fahrer-Rangliste, Storno-Rate; 2-Min-Polling + Echtzeit */}
                 <LieferdienstPhase2000StatistikenExecutiveDashboard locationId={locationId ?? null} />
+                {/* Phase 2001: Bestellstatus-Trichter — Live-Funnel: Bestellungen durch alle Status (neu→zubereitung→fertig→unterwegs→geliefert), Durchlaufzeit, Bottleneck-Erkennung */}
+                <LieferdienstPhase2001BestellstatusTrichter locationId={locationId ?? null} />
               </>
             </div>
           )}

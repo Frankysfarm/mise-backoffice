@@ -551,6 +551,7 @@ import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
 import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-cockpit-final';
 import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop-cockpit';
 import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-stop-kommandant';
+import { FahrerPhase2001SchichtAbschlussAssistent } from './phase2001-schicht-abschluss-assistent';
 
 type Driver = {
   id: string;
@@ -5488,6 +5489,11 @@ export function FahrerApp({
               }))}
             />
           )}
+          {/* Phase 2001: Schicht-Abschluss-Assistent — Performance-Badge, Einnahmen, Trinkgeld, Ø Stoppzeit; erscheint wenn keine aktive Tour vorhanden */}
+          <FahrerPhase2001SchichtAbschlussAssistent
+            driverId={driver?.id ?? null}
+            hasActiveTour={!!activeBatch}
+          />
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2000SmartTourStopKommandant

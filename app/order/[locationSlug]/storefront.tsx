@@ -375,6 +375,7 @@ import { Phase1941NachhaltigkeitBadge } from './phase1941-nachhaltigkeit-badge';
 import Phase1946BestellzahlHeuteBadge from './phase1946-bestellzahl-heute-badge';
 import Phase1951EchtzeitWartezeitIndikator from './phase1951-echtzeit-wartezeit-indikator';
 import { StorefrontPhase2000LiveLieferungsKommandant } from './phase2000-live-lieferungs-kommandant';
+import { StorefrontPhase2001VertrauensLieferzeitBadge } from './phase2001-vertrauens-lieferzeit-badge';
 
 type Props = {
   location: Location;
@@ -1718,6 +1719,14 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1946BestellzahlHeuteBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1951: Echtzeit-Wartezeit-Indikator — "Aktuell ca. X Min Wartezeit" + Ampelfarbe; schließbar; Hydration-safe; 3-Min-Polling */}
       <Phase1951EchtzeitWartezeitIndikator locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 2001: Vertrauens-Lieferzeit-Badge — Ankunftszeit-Uhr + Konfidenz + Fortschrittsleiste; 30-Sek-Aktualisierung */}
+      {orderSuccess && (
+        <StorefrontPhase2001VertrauensLieferzeitBadge
+          etaMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+          orderStatus="confirmed"
+          className="mx-4 mt-2"
+        />
+      )}
       {/* Phase 2000: Live-Liefer-Kommandant — ETA-Countdown + 4-Phasen-Timeline + Fahrer-Puls-Annäherung; 15-Sek-Polling */}
       {activeOrderId && (
         <StorefrontPhase2000LiveLieferungsKommandant
