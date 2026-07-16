@@ -229,7 +229,7 @@ export function LieferdienstPhase1820StatistikenLiveSummaryCockpit({ locationId,
                   <BarChart data={d.stunden_verlauf} barSize={14}>
                     <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickFormatter={(v) => `${v}h`} />
                     <Tooltip
-                      formatter={(val: number) => [val, 'Bestellungen']}
+                      formatter={(val) => [`${val ?? 0}`, 'Bestellungen']}
                       labelFormatter={(l) => `${l}:00 Uhr`}
                       contentStyle={{ fontSize: 11, borderRadius: 8 }}
                     />

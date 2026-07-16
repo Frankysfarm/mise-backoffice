@@ -66,7 +66,7 @@ function berechneAmpeln(orders: Order[], timings: KitchenTiming[], now: number):
     ['neu', 'bestätigt', 'in_zubereitung', 'fertig'].includes(o.status)
   );
 
-  return aktiv.map((o) => {
+  return aktiv.map((o): BestellAmpel => {
     const timing = timings.find((t) => t.order_id === o.id);
     const prepMin = timing?.prep_min ?? o.geschaetzte_zubereitung_min ?? 15;
     const positionen = o.items?.length ?? 1;
