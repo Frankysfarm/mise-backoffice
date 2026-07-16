@@ -541,6 +541,7 @@ import { FahrerPhase1920MeineZonenStatistik } from './phase1920-meine-zonen-stat
 import { FahrerPhase1925MeineEffizienzKPIs } from './phase1925-meine-effizienz-kpis';
 import { FahrerPhase1930MeineSchichtBilanz } from './phase1930-meine-schicht-bilanz';
 import { FahrerPhase1935MeineKundenbewertungen } from './phase1935-meine-kundenbewertungen';
+import { FahrerPhase1940MeineStreckenUebersicht } from './phase1940-meine-strecken-uebersicht';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5437,6 +5438,8 @@ export function FahrerApp({
           <FahrerPhase1930MeineSchichtBilanz locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1935: Meine-Kundenbewertungen — Ø-Sterne + letzte 3 Kommentare + Trend + Motivationstext; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase1935MeineKundenbewertungen locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1940: Meine-Strecken-Übersicht — km heute + Team-Ø + letzte 5 Touren Mini-Balken; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1940MeineStreckenUebersicht locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1891: Schicht-Routen-Effizienz-Score — Score-Ring + Stopps/h + Ø Stoppzeit vs. Ziel; isOnline-Guard; Collapsible; 2-Min-Polling */}
           <FahrerPhase1891SchichtRoutenEffizienzScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
