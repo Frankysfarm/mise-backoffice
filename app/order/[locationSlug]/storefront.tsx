@@ -370,6 +370,7 @@ import { Phase1916FahrerQualitaetsSiegel } from './phase1916-fahrer-qualitaets-s
 import { Phase1921ZonenLieferzeitBadge } from './phase1921-zonen-lieferzeit-badge';
 import { Phase1926LiveKuechenstatusIndikator } from './phase1926-live-kuechenstatus-indikator';
 import { Phase1931BestellverfolgungFortschrittsring } from './phase1931-bestellverfolgung-fortschrittsring';
+import { Phase1936BewertungsSocialProofBanner } from './phase1936-bewertungs-social-proof-banner';
 
 type Props = {
   location: Location;
@@ -1705,6 +1706,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1926LiveKuechenstatusIndikator locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1931: Bestellverfolgung-Fortschrittsring — 4-Phasen-Kreisring + Step-Liste; animiert; SSR-safe; schließbar; 20-Sek-Polling */}
       <Phase1931BestellverfolgungFortschrittsring locationId={location.id} orderId={activeOrderId ?? null} className="mx-4 mt-2" />
+      {/* Phase 1936: Bewertungs-Social-Proof-Banner — "XX% Top-Bewertungen" + animierte Sterne; schließbar; Hydration-safe; 1-Std-Polling */}
+      <Phase1936BewertungsSocialProofBanner locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra
