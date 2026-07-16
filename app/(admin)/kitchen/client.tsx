@@ -188,6 +188,7 @@ import { KitchenPhase1932LiveKapazitaetsWarnung } from './phase1932-live-kapazit
 import { KitchenPhase1937BestellungsFehlerquotenTracker } from './phase1937-bestellungs-fehlerquoten-tracker';
 import { KitchenPhase1942BestellungsTagesleistungsKarte } from './phase1942-bestellungs-tagesleistungs-karte';
 import KitchenPhase1947StundenAuslastungsVorschau from './phase1947-stunden-auslastungs-vorschau';
+import KitchenPhase1952AllergenVorbereitungsChecklist from './phase1952-allergene-vorbereitungs-checklist';
 import { KitchenPhase2000SmartTimingFarbkodierungsMatrix } from './phase2000-smart-timing-farbkodierungs-matrix';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -1663,6 +1664,8 @@ export function KitchenBoard({
       <KitchenPhase1942BestellungsTagesleistungsKarte orders={filtered as any} />
       {/* Phase 1947: Stunden-Auslastungs-Vorschau — Prognose nächste 3h; Ampel + Empfehlung je Stunde; useMemo; Collapsible */}
       <KitchenPhase1947StundenAuslastungsVorschau orders={filtered as any} />
+      {/* Phase 1952: Allergene-Vorbereitungs-Checklist — Aktive Bestellungen mit Allergen-Flag; Checkbox; Warnung >10 Min unbestätigt; useMemo */}
+      <KitchenPhase1952AllergenVorbereitungsChecklist orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
       {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}

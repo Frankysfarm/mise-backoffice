@@ -543,6 +543,7 @@ import { FahrerPhase1930MeineSchichtBilanz } from './phase1930-meine-schicht-bil
 import { FahrerPhase1935MeineKundenbewertungen } from './phase1935-meine-kundenbewertungen';
 import { FahrerPhase1940MeineStreckenUebersicht } from './phase1940-meine-strecken-uebersicht';
 import FahrerPhase1945MeineSchichtPlanung from './phase1945-meine-schicht-planung';
+import FahrerPhase1950MeinePausenPlanung from './phase1950-meine-pausen-planung';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5444,6 +5445,8 @@ export function FahrerApp({
           <FahrerPhase1940MeineStreckenUebersicht locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1945: Meine-Schicht-Planung — nächste Schicht + stündliche Auslastungs-Prognose + Rush-Hour-Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase1945MeineSchichtPlanung locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1950: Meine-Pausen-Planung — Empfohlene Pausenzeit; Warnung >2h ohne Pause; Pausen-Zähler; isOnline-Guard; 5-Min-Polling */}
+          <FahrerPhase1950MeinePausenPlanung locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1891: Schicht-Routen-Effizienz-Score — Score-Ring + Stopps/h + Ø Stoppzeit vs. Ziel; isOnline-Guard; Collapsible; 2-Min-Polling */}
           <FahrerPhase1891SchichtRoutenEffizienzScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
