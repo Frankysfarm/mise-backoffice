@@ -359,6 +359,7 @@ import { LiveDeliveryCommand } from './components/live-delivery-command';
 import { Phase1877EtaLieferfensterLive } from './phase1877-eta-lieferfenster-live';
 import { StorefrontPhase1881GratisLieferungsSchwelle } from './phase1881-gratis-lieferungs-schwelle';
 import { StorefrontPhase1886ZonenEtaVergleichsBanner } from './phase1886-zonen-eta-vergleichs-banner';
+import { StorefrontPhase1891ZonenSonderAngebotBanner } from './phase1891-zonen-sonder-angebot-banner';
 
 type Props = {
   location: Location;
@@ -1676,6 +1677,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       )}
       {/* Phase 1886: Zonen-ETA-Vergleichs-Banner — ETA-Unterschied Zone A vs. B/C als Entscheidungshilfe; Hydration-safe; 10-Min-Polling */}
       <StorefrontPhase1886ZonenEtaVergleichsBanner locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1891: Zonen-Sonder-Angebot-Banner — Kostenlose Lieferung in Zone X bis HH:MM; Countdown; Hydration-safe; schließbar; 10-Min-Polling */}
+      <StorefrontPhase1891ZonenSonderAngebotBanner locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1865: Live-Tracking-ETA-Cockpit — 4-Phasen-Stepper + Live-Countdown + Fahrer-Proximity-Ringe + ETA-Anzeige; 30-Sek-Polling */}
       {activeOrderId && (
         <StorefrontPhase1865LiveTrackingETACockpit bestellId={activeOrderId} className="mx-4 mt-2" />

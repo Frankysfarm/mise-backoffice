@@ -530,6 +530,7 @@ import { FahrerPhase1869EigeneWartezeitStatistik } from './phase1869-eigene-wart
 import { FahrerPhase1875MeineZonenAffinitaet } from './phase1875-meine-zonen-affinitaet';
 import { FahrerPhase1880ZonenTippDesTages } from './phase1880-zonen-tipp-des-tages';
 import { FahrerPhase1885SchichtZonenBilanz } from './phase1885-schicht-zonen-bilanz';
+import { FahrerPhase1890TopVerdienstSchichtRecap } from './phase1890-top-verdienst-schicht-recap';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5406,6 +5407,8 @@ export function FahrerApp({
           <FahrerPhase1880ZonenTippDesTages locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 1885: Schicht-Zonen-Bilanz — Stopps + Verdienst je Zone diese Schicht; Vergleich letzte Schicht; isOnline-Guard; Collapsible; 30-Min-Polling */}
           <FahrerPhase1885SchichtZonenBilanz locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1890: Top-Verdienst-Schicht-Recap — Beste Schicht diese Woche; Zonen + Stopps + Verdienst; Vergleich Ø; isOnline-Guard; Collapsible; einmalig */}
+          <FahrerPhase1890TopVerdienstSchichtRecap locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1870TourStoppSmartSequenzNav

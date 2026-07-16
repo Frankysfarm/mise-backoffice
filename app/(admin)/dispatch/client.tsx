@@ -623,6 +623,7 @@ import { DispatchPhase1875TourEffizienzScoreBoard } from './phase1875-tour-effiz
 import { DispatchPhase1879FahrerZonenRangliste } from './phase1879-fahrer-zonen-rangliste';
 import { DispatchPhase1880TourScoreLiveBoard } from './phase1880-tour-score-live-board';
 import { DispatchPhase1884ZonenUmsatzPrognoseWidget } from './phase1884-zonen-umsatz-prognose-widget';
+import { DispatchPhase1889ZonenPreisElastizitaetWidget } from './phase1889-zonen-preis-elastizitaet-widget';
 
 type Driver = {
   employee_id: string;
@@ -1837,6 +1838,8 @@ export function DispatchBoard({
       <DispatchPhase1879FahrerZonenRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1884: Zonen-Umsatz-Prognose-Widget — Balken-Chart Ist vs. 2h-Prognose vs. Ziel je Zone; Alert >20% unter Ziel; 15-Min-Polling */}
       <DispatchPhase1884ZonenUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1889: Zonen-Preis-Elastizitäts-Widget — Gebühr vs. Volumen je Zone; Empfehlungs-Badge; Alert >1.5; 30-Min-Polling */}
+      <DispatchPhase1889ZonenPreisElastizitaetWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1868: Wartezeit-Heatmap-Widget — 4 Kacheln A/B/C/D mit Ø Wartezeit + Trend-Pfeil; Alert >40 Min; 10-Min-Polling */}
       <DispatchPhase1868WartezeitHeatmapWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1869: Tour-Score-Live-Ranking — Rangliste aller aktiven Touren nach Score; Score-Ring + Fortschrittsbalken + Trend-Pfeil + Alarm-Badge; client-seitig */}
@@ -2103,6 +2106,8 @@ export function DispatchBoard({
       <DispatchPhase1880TourScoreLiveBoard batches={batches as any} />
       {/* Phase 1884: Zonen-Umsatz-Prognose — Aktuell vs. +2h Prognose je Zone; Alert >20% unter Ziel; 15-Min-Polling */}
       <DispatchPhase1884ZonenUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1889: Zonen-Preis-Elastizitäts-Widget — Gebühr vs. Volumen je Zone; Empfehlungs-Badge; Alert >1.5; 30-Min-Polling */}
+      <DispatchPhase1889ZonenPreisElastizitaetWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
