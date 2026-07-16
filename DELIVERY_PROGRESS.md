@@ -2,17 +2,19 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent (2026-07-16): CEO Review #416 — Phasen 1861+1864–1867 verifiziert, 2 TypeScript-Fehler behoben (phase1825 Recharts-Formatter, pruefen-liefergebiet haversineKm Signatur). Build ✓ Next.js Compiled successfully + tsc --noEmit 0 Fehler. Alle Integrationen bestätigt. Push erfolgt.
+
 Backend-Architekt-Agent (2026-07-16): Phasen 1861 + 1864 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
 - Phase 1861 Backend: `app/api/delivery/public/pruefen-liefergebiet/route.ts` — POST; lat/lng + location_id; Haversine-Distanz zum Depot; Zone A/B/C/D aus delivery_zones-Tabelle; Lieferpauschale + Mindestbestellwert + ETA-Basis; Multi-Tenant; Supabase+Mock ✅
 - Phase 1864 Fahrer-App: `app/fahrer/app/phase1864-gps-ausfall-selbstdiagnose.tsx` — GPS-Ausfall-Selbstdiagnose; 4-Schritt-Anleitung (Berechtigung/App-Neustart/Handy-GPS/Netz); 30s-Countdown → Support-Alert mit Anruf-Button; isOnline-Guard + level-Guard; 1-Min-Polling; in fahrer/app/client.tsx nach Phase1859 ✅
 - Phasen 1862/1863/1865: Bereits durch Frontend-Agent als Smart-Countdown/Tour-Score/Live-ETA-Cockpits implementiert und in CEO Review #415 bestätigt ✅
 
-### Nächste Phasen 1866–1870 (für nächsten Ingenieur)
-1. **Phase 1866 Backend:** Wartezeit-Heatmap-API — GET /api/delivery/admin/wartezeit-heatmap: Ø Wartezeit je Zonenfeld (A/B/C/D) letzte 7 Tage; Trend Heute vs. Woche; Multi-Tenant; Supabase+Mock.
-2. **Phase 1867 Kitchen:** Bestellrückstand-Ampel — Anzahl Bestellungen in Status "in Zubereitung" die länger als Küchen-Ziel warten; Eskalation grün/gelb/rot; useMemo aus props orders; Collapsible.
-3. **Phase 1868 Dispatch:** Wartezeit-Heatmap-Widget — Phase1866-API: Vier Kacheln A/B/C/D mit Ø Wartezeit + Trend-Pfeil; Alert wenn Zone >40 Min; 10-Min-Polling.
-4. **Phase 1869 Fahrer-App:** Eigene-Wartezeit-Statistik — Ø Wartezeit pro Stopp heute + Woche; Trend-Vergleich; isOnline-Guard; 30-Min-Polling (GET /api/driver-app/my-tours).
-5. **Phase 1870 Storefront:** Lieferzeit-Vertrauensbadge — "In deiner Zone Ø XX Min" aus avg-eta-API; Ampelfarbe; Hydration-safe; 10-Min-Polling.
+### Nächste Phasen 1868–1872 (für nächsten Ingenieur)
+1. **Phase 1868 Dispatch:** Wartezeit-Heatmap-Widget — Vier Kacheln A/B/C/D mit Ø Wartezeit aus Wartezeit-Heatmap-API + Trend-Pfeil; Alert wenn Zone >40 Min; 10-Min-Polling.
+2. **Phase 1869 Fahrer-App:** Eigene-Wartezeit-Statistik — Ø Wartezeit pro Stopp heute + Woche; Trend-Vergleich; isOnline-Guard; 30-Min-Polling (GET /api/driver-app/my-tours).
+3. **Phase 1870 Storefront:** Lieferzeit-Vertrauensbadge — "In deiner Zone Ø XX Min" aus avg-eta-API; Ampelfarbe; Hydration-safe; 10-Min-Polling.
+4. **Phase 1871 Backend:** Wartezeit-Heatmap-API — GET /api/delivery/admin/wartezeit-heatmap: Ø Wartezeit je Zone letzte 7 Tage; Trend Heute vs. Woche; Multi-Tenant; Supabase+Mock.
+5. **Phase 1872 Kitchen:** Bestellrückstand-Ampel-V2 — Zeitstempel-Anzeige; Eskalation grün/gelb/rot; useMemo aus props orders; Collapsible.
 
 ---
 

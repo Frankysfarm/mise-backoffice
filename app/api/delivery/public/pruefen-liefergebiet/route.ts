@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     const depotLat = (loc as { lat?: number } | null)?.lat ?? 50.776;
     const depotLng = (loc as { lng?: number } | null)?.lng ?? 6.084;
-    const distanzKm = haversineKm(depotLat, depotLng, lat, lng);
+    const distanzKm = haversineKm({ lat: depotLat, lng: depotLng }, { lat, lng });
 
     // Zonen-Konfiguration aus DB
     const { data: zonesData } = await sb

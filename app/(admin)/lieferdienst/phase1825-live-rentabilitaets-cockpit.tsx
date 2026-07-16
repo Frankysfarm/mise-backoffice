@@ -178,8 +178,8 @@ export function LieferdienstPhase1825LiveRentabilitaetsCockpit({ locationId, cla
               <BarChart data={data.hourlyData} barGap={2} barSize={14}>
                 <XAxis dataKey="hour" tick={{ fontSize: 9, fill: 'currentColor' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number, name: string) => [
-                    v.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €',
+                  formatter={(v, name) => [
+                    `${(v ?? 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`,
                     name === 'revenue' ? 'Umsatz' : 'Kosten',
                   ]}
                   contentStyle={{ fontSize: 11, borderRadius: 8 }}

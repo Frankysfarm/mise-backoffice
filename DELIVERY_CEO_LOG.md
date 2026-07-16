@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #416 — 2026-07-16
+
+### Commit-Stand
+- `d1a6c3d2` feat(delivery/frontend): Phasen 1825+1865–1867 — Prep-Flow, Flotten-Gesundheit, Verdienst-Prognose, Rentabilität, ETA-Cockpit v2
+- `03a38654` feat(delivery/backend): Phasen 1861 + 1864 — Liefergebiet-API + GPS-Selbstdiagnose
+
+### TypeScript-Fixes (2 Bugs behoben)
+| Datei | Zeile | Fehler | Fix |
+|---|---|---|---|
+| `lieferdienst/phase1825-live-rentabilitaets-cockpit.tsx` | 181 | Recharts `Formatter` — `v: number` nicht assignierbar zu `ValueType \| undefined` | `(v, name) => [\`${(v ?? 0).toLocaleString(…)} €\`, …]` |
+| `api/delivery/public/pruefen-liefergebiet/route.ts` | 106 | `haversineKm` erwartet 2 Objekt-Argumente, bekam 4 Zahlen | `haversineKm({ lat: depotLat, lng: depotLng }, { lat, lng })` |
+
+### Build-Ergebnis
+**✓ Next.js build: Compiled successfully. TypeScript tsc --noEmit: 0 Fehler.** Push erfolgt.
+
+### Integration Phasen 1861 + 1864–1867 geprüft
+| Phase | Modul | Komponente / API | Integration | Status |
+|---|---|---|---|---|
+| 1861 | Backend | `POST /api/delivery/public/pruefen-liefergebiet` | — | ✅ |
+| 1864 | Fahrer-App | `FahrerPhase1864GpsAusfallSelbstdiagnose` | `fahrer/app/client.tsx` ✅ | ✅ |
+| 1865 | Fahrer-App | `FahrerPhase1865SchichtVerdienstPrognose` | `fahrer/app/client.tsx` Zeile 5368 ✅ | ✅ |
+| 1866 | Storefront | `StorefrontPhase1866EchtzeitLieferstatusCockpitV2` | `storefront.tsx` Zeile 1659 ✅ | ✅ |
+| 1866 | Kitchen | `KitchenPhase1866PrepFlowOptimierungsCockpit` | `kitchen/client.tsx` Zeile 1609 ✅ | ✅ |
+| 1825 | Lieferdienst | `LieferdienstPhase1825LiveRentabilitaetsCockpit` | `lieferdienst/client.tsx` Zeile 2038 ✅ | ✅ |
+| 1867 | Dispatch | `DispatchPhase1867LiveFlottenGesundheitsMatrix` | `dispatch/client.tsx` Zeile 1826 ✅ | ✅ |
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+| GPS-Ausfall-Monitoring | ✅ |
+| Liefergebiet-Prüfung (Public API) | ✅ |
+| Rentabilitäts-Cockpit (Lieferdienst) | ✅ |
+
+### Nächste Phasen 1868–1872 (für nächsten Ingenieur)
+1. **Phase 1868 Dispatch:** Wartezeit-Heatmap-Widget — Vier Kacheln A/B/C/D mit Ø Wartezeit aus Phase1866-API + Trend-Pfeil; Alert wenn Zone >40 Min; 10-Min-Polling.
+2. **Phase 1869 Fahrer-App:** Eigene-Wartezeit-Statistik — Ø Wartezeit pro Stopp heute + Woche; Trend-Vergleich; isOnline-Guard; 30-Min-Polling.
+3. **Phase 1870 Storefront:** Lieferzeit-Vertrauensbadge — "In deiner Zone Ø XX Min" aus avg-eta-API; Ampelfarbe; Hydration-safe; 10-Min-Polling.
+4. **Phase 1871 Backend:** Wartezeit-Heatmap-API — GET /api/delivery/admin/wartezeit-heatmap: Ø Wartezeit je Zone letzte 7 Tage + Trend.
+5. **Phase 1872 Kitchen:** Bestellrückstand-Ampel-V2 — Eskalation grün/gelb/rot mit Zeitstempel-Anzeige; Collapsible.
+
+---
+
 ## CEO Review #415 — 2026-07-16
 
 ### Commit-Stand
