@@ -181,6 +181,7 @@ import { KitchenPhase1894BestellungsUeberfalligkeitsMonitor } from './phase1894-
 import { KitchenPhase1902SchichtRueckstandEskalation } from './phase1902-schicht-rueckstand-eskalation';
 import { KitchenPhase1907AllergenRueckstandMonitor } from './phase1907-allergen-rueckstand-monitor';
 import { KitchenPhase1912ZubereitungszeitTrendlinie } from './phase1912-zubereitungszeit-trendlinie';
+import { KitchenPhase1917BestellungsQualitaetsIndex } from './phase1917-bestellungs-qualitaets-index';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1641,6 +1642,8 @@ export function KitchenBoard({
       <KitchenPhase1907AllergenRueckstandMonitor orders={filtered as any} />
       {/* Phase 1912: Zubereitungszeit-Trendlinie — Ø Zubereitungszeit 7 Tage als Sparkline; Trend-Pfeil; Alert >20% über Wochenschnitt; useMemo; Collapsible */}
       <KitchenPhase1912ZubereitungszeitTrendlinie orders={filtered as any} />
+      {/* Phase 1917: Bestellungs-Qualitäts-Index — Ø Score letzte 20 Bestellungen (Zubereitungszeit 60%/Vollständigkeit 40%); Alert <70; Trend; useMemo; Collapsible */}
+      <KitchenPhase1917BestellungsQualitaetsIndex orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
       {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}

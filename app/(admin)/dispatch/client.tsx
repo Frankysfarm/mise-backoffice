@@ -630,6 +630,7 @@ import { DispatchPhase1891FahrerKapazitaetsAmpelLive } from './phase1891-fahrer-
 import { DispatchPhase1899GebietsAbdeckungsMonitor } from './phase1899-gebiets-abdeckungs-monitor';
 import { DispatchPhase1904SchichtBonusUebersicht } from './phase1904-schicht-bonus-uebersicht';
 import { DispatchPhase1909FahrerPuenktlichkeitTrendChart } from './phase1909-fahrer-puenktlichkeit-trend-chart';
+import { DispatchPhase1914FahrerQualitaetsScoreDashboard } from './phase1914-fahrer-qualitaets-score-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -1854,6 +1855,8 @@ export function DispatchBoard({
       <DispatchPhase1904SchichtBonusUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1909: Fahrer-Pünktlichkeits-Trend-Chart — Sparkline je Fahrer letzte 7 Tage; Trend-Pfeil + Ampel; Alert >20% Rückgang; 1-Std-Polling */}
       <DispatchPhase1909FahrerPuenktlichkeitTrendChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1914: Fahrer-Qualitäts-Score-Dashboard — Rangliste nach Score (Pünktl.40%/Bew.35%/Stopps25%); Ampel-Dot + Trend; Alert <60; 30-Min-Polling */}
+      <DispatchPhase1914FahrerQualitaetsScoreDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1890: Tour-Score-Visualisierung-Live — Score je aktiver Tour (Effizienz/Zeit/Abschluss); Farbkodierung grün/gelb/rot; 15-Sek-Ticker */}
       <DispatchPhase1890TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
       {/* Phase 1891: Fahrer-Kapazitäts-Ampel-Live — Freie vs. beschäftigte vs. offline Fahrer; Ampel grün/gelb/rot; 30-Sek-Ticker; Collapsible */}
