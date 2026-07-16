@@ -606,6 +606,7 @@ import { DispatchPhase1818FahrerZuverlaessigkeitsRanking } from './phase1818-fah
 import { DispatchPhase1823TourenKapazitaetsAuslastungsGauge } from './phase1823-touren-kapazitaets-auslastungs-gauge';
 import { DispatchPhase1828FahrerEinnahmenVergleich } from './phase1828-fahrer-einnahmen-vergleich';
 import { DispatchPhase1833ZonenEffizienzDashboard } from './phase1833-zonen-effizienz-dashboard';
+import { DispatchPhase1838FreierFahrerSofortZuweisung } from './phase1838-freier-fahrer-sofort-zuweisung';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
 import { SmartTourScoreHub } from './smart-tour-score-hub';
 
@@ -1802,6 +1803,8 @@ export function DispatchBoard({
       <DispatchPhase1828FahrerEinnahmenVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1833: Zonen-Effizienz-Dashboard — Phase1826-API: Tabelle Zonen + Umsatz/km; Ausreißer-Flagge; Alert bei rot-Zonen; 30-Min-Polling */}
       <DispatchPhase1833ZonenEffizienzDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1838: Freier-Fahrer-Sofort-Zuweisung — Button "Nächste Bestellung zuweisen" → optimaler freier Fahrer nach Zone + Auslastung; POST auto-zuweisung */}
+      <DispatchPhase1838FreierFahrerSofortZuweisung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1470: Tour-Live-Score-Board — Score-Ring + Fortschritt + Rang je aktiver Tour; Echtzeit aus Props */}
       <DispatchPhase1470TourLiveScoreBoard batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} drivers={drivers as any} />
       {/* Phase 1783: Fahrer-Pausen-Compliance-Widget — Tabelle Fahrer + Pausenstatus + Verstoß-Warnung; 10-Min-Polling */}
