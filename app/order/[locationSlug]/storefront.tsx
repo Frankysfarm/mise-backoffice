@@ -357,6 +357,7 @@ import { StorefrontPhase1866EchtzeitLieferstatusCockpitV2 } from './phase1866-ec
 import { StorefrontPhase1871DynamischeEtaLiveFortschrittsleiste } from './phase1871-dynamische-eta-live-fortschrittsleiste';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 import { Phase1877EtaLieferfensterLive } from './phase1877-eta-lieferfenster-live';
+import { StorefrontPhase1881GratisLieferungsSchwelle } from './phase1881-gratis-lieferungs-schwelle';
 
 type Props = {
   location: Location;
@@ -1668,6 +1669,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1870LieferzeitVertrauensbadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1876: Zonen-Verfügbarkeits-Hinweis — Lieferzeiten je Zone A/B/C/D + Ampel; nur ohne aktive Bestellung; Hydration-safe; 10-Min-Polling */}
       <StorefrontPhase1876ZonenVerfuegbarkeitsHinweis locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1881: Gratis-Lieferungs-Schwellen-Anzeige — Fortschrittsbalken bis kostenlose Lieferung; Hydration-safe; aus delivery_zones-Konfiguration */}
+      {cart.length > 0 && (
+        <StorefrontPhase1881GratisLieferungsSchwelle locationId={location.id} subtotal={subtotal} className="mx-4 mt-2" />
+      )}
       {/* Phase 1865: Live-Tracking-ETA-Cockpit — 4-Phasen-Stepper + Live-Countdown + Fahrer-Proximity-Ringe + ETA-Anzeige; 30-Sek-Polling */}
       {activeOrderId && (
         <StorefrontPhase1865LiveTrackingETACockpit bestellId={activeOrderId} className="mx-4 mt-2" />
