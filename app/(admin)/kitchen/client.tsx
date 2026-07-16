@@ -158,6 +158,7 @@ import { KitchenPhase1708SmartTimingCountdownFarbkodierungUltra } from './phase1
 import { KitchenPhase1717SchichtKochzeitTrend } from './phase1717-schicht-kochzeit-trend';
 import { KitchenPhase1740DriverSyncCockpit } from './phase1740-driver-sync-cockpit';
 import { KitchenPhase1820KochstartFahrerSyncCockpit } from './phase1820-kochstart-fahrer-sync-cockpit';
+import { KitchenPhase1822ZubereitungszeitAbweichungsAlarm } from './phase1822-zubereitungszeit-abweichungs-alarm';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1571,6 +1572,8 @@ export function KitchenBoard({
         batches={batches}
         stops={stops}
       />
+      {/* Phase 1822: Zubereitungszeit-Abweichungs-Alarm — Alert wenn tatsächliche Zeit >150% Schätzwert; useMemo; Collapsible */}
+      <KitchenPhase1822ZubereitungszeitAbweichungsAlarm orders={filtered as any} timings={timings as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}

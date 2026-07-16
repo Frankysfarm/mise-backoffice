@@ -516,6 +516,7 @@ import { FahrerPhase1809TourStoppNavigationsHub } from './phase1809-tour-stopp-n
 import { FahrerPhase1814SchichtZuverlaessigkeitsBadge } from './phase1814-schicht-zuverlaessigkeits-badge';
 import { FahrerPhase1819SchichtEffizienzKarte } from './phase1819-schicht-effizienz-karte';
 import { FahrerPhase1820SmartTourStopHub } from './phase1820-smart-tour-stop-hub';
+import { FahrerPhase1824LiveEinnahmenTracker } from './phase1824-live-einnahmen-tracker';
 
 type Driver = {
   id: string;
@@ -5270,6 +5271,12 @@ export function FahrerApp({
           />
           {/* Phase 1819: Schicht-Effizienz-Karte — Effizienz-Score + Rang + Touren/h + km/Stopp + Team-Vergleich; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1819SchichtEffizienzKarte
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1824: Live-Einnahmen-Tracker — Heutige Einnahmen + Stunden-Chart + Ziel vs. Ist; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1824LiveEinnahmenTracker
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}
