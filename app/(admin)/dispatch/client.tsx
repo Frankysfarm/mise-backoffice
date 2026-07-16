@@ -610,6 +610,7 @@ import { DispatchPhase1838FreierFahrerSofortZuweisung } from './phase1838-freier
 import { DispatchPhase1843LetzteTouren } from './phase1843-letzte-touren-recap';
 import { DispatchPhase1848TourScoreEchtzeitDashboard } from './phase1848-tour-score-echtzeit-dashboard';
 import { DispatchPhase1853TourKostenWidget } from './phase1853-tour-kosten-widget';
+import { DispatchPhase1858FahrerGpsStatusUebersicht } from './phase1858-fahrer-gps-status-uebersicht';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
 import { SmartTourScoreHub } from './smart-tour-score-hub';
 import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-kommando';
@@ -1815,6 +1816,8 @@ export function DispatchBoard({
       <DispatchPhase1848TourScoreEchtzeitDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1853: Tour-Kosten-Widget — Kosten heute/Woche/Ø-Stopp aus Tour-Kosten-Analyse-API; Trend-Vergleich; 30-Min-Polling */}
       <DispatchPhase1853TourKostenWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1858: Fahrer-GPS-Status-Übersicht — GPS-Ampel je Fahrer; Ausfall-Warnung; 1-Min-Polling */}
+      <DispatchPhase1858FahrerGpsStatusUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1851: Tour-Score Live-Kommando — Score-Ring + Fortschritt + Empfehlung je aktiver Tour aus Props; Client-seitig berechnet */}
       <DispatchTourScoreLiveKommando drivers={drivers as any} batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} />
       {/* Phase 1470: Tour-Live-Score-Board — Score-Ring + Fortschritt + Rang je aktiver Tour; Echtzeit aus Props */}

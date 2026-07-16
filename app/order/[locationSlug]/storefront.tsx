@@ -349,6 +349,7 @@ import { StorefrontPhase1840LieferzeitSlaGarantie } from './phase1840-lieferzeit
 import { StorefrontPhase1845KuechenAuslastungsBadge } from './phase1845-kuechen-auslastungs-badge';
 import { StorefrontPhase1850DynamischeETALiveTrackingBoard } from './phase1850-dynamische-eta-live-tracking-board';
 import { StorefrontPhase1855KuechenStatusBanner } from './phase1855-kuechen-status-banner';
+import { StorefrontPhase1860FahrerOnlineZaehler } from './phase1860-fahrer-online-zaehler';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1645,6 +1646,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       )}
       {/* Phase 1855: Küchenstatus-Banner — Kapazitätsstatus der Küche grün/gelb/rot; Fahrer-Info; Hydration-safe; schließbar; 5-Min-Polling */}
       <StorefrontPhase1855KuechenStatusBanner locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1860: Fahrer-online-Zähler — "X Fahrer jetzt in deiner Nähe"; aktive Fahrer; Hydration-safe; schließbar; 5-Min-Polling */}
+      <StorefrontPhase1860FahrerOnlineZaehler locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
       <StorefrontPhase1820LieferzeitGarantieCountdownV2
         locationId={location.id}

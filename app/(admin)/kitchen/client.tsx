@@ -165,6 +165,7 @@ import { KitchenPhase1837BestellRueckstandEskalation } from './phase1837-bestell
 import { KitchenPhase1842SchichtKapazitaetsAmpel } from './phase1842-schicht-kapazitaets-ampel';
 import { KitchenPhase1847SmartKochstartTimingMatrix } from './phase1847-smart-kochstart-timing-matrix';
 import { KitchenPhase1852LiefertreueAmpel } from './phase1852-liefertreue-ampel';
+import { KitchenPhase1857TagesHochlastPrognoseBalken } from './phase1857-tages-hochlast-prognose-balken';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1598,6 +1599,8 @@ export function KitchenBoard({
       <KitchenPhase1847SmartKochstartTimingMatrix orders={filtered as any} />
       {/* Phase 1852: Liefertreue-Ampel — SLA-Quote on-time <30 Min; Tortendiagramm; Trend; 5-Min-Polling */}
       <KitchenPhase1852LiefertreueAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1857: Tages-Hochlast-Prognose-Balken — Ø Bestelleingang je Stunde (letzte 7 Tage); Stoßzeiten orange; useMemo; Collapsible */}
+      <KitchenPhase1857TagesHochlastPrognoseBalken orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}

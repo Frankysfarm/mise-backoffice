@@ -523,6 +523,7 @@ import { FahrerPhase1839TagesAbschlussSummary } from './phase1839-tages-abschlus
 import { FahrerPhase1844EigeneTourBilanz } from './phase1844-eigene-tour-bilanz';
 import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-smart-tour-stopp-navigations-hub-ultra';
 import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockpit';
+import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-statusleiste';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 
@@ -5344,6 +5345,12 @@ export function FahrerApp({
           )}
           {/* Phase 1854: Liefertreue-Cockpit — Eigene SLA-Quote vs. Team; Statusbalken on-time/spät; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1854LiefertreueCockpit
+            driverId={driver.id}
+            locationId={driver.location_id}
+            isOnline={isOnline}
+          />
+          {/* Phase 1859: Eigene GPS-Statusleiste — GPS-Stärke + Minuten seit Update + Warnung >3 Min; isOnline-Guard; 1-Min-Polling */}
+          <FahrerPhase1859EigeneGpsStatusleiste
             driverId={driver.id}
             locationId={driver.location_id}
             isOnline={isOnline}
