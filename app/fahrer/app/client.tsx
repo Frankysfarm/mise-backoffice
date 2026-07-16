@@ -537,6 +537,7 @@ import { FahrerPhase1900SchichtZielFortschritt } from './phase1900-schicht-ziel-
 import { FahrerPhase1905MeinBonusFortschritt } from './phase1905-mein-bonus-fortschritt';
 import { FahrerPhase1910MeinePuenktlichkeitsKurve } from './phase1910-meine-puenktlichkeits-kurve';
 import { FahrerPhase1915MeinQualitaetsScore } from './phase1915-mein-qualitaets-score';
+import { FahrerPhase1920MeineZonenStatistik } from './phase1920-meine-zonen-statistik';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5425,6 +5426,8 @@ export function FahrerApp({
           <FahrerPhase1910MeinePuenktlichkeitsKurve locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1915: Mein-Qualitäts-Score — Score-Ring + KPI-Aufschlüsselung + Rang im Team + Verbesserungstipp; isOnline-Guard; Collapsible; 30-Min-Polling */}
           <FahrerPhase1915MeinQualitaetsScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1920: Meine-Zonen-Statistik — Top-3-Zonen nach Stopps + Ø-Zeit + Tipp; isOnline-Guard; Collapsible; 1-Std-Polling */}
+          <FahrerPhase1920MeineZonenStatistik locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1891: Schicht-Routen-Effizienz-Score — Score-Ring + Stopps/h + Ø Stoppzeit vs. Ziel; isOnline-Guard; Collapsible; 2-Min-Polling */}
           <FahrerPhase1891SchichtRoutenEffizienzScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
