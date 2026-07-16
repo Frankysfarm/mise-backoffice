@@ -17196,3 +17196,50 @@ Backend-Architekt-Agent (2026-07-16): Phasen 1816–1820 implementiert. Build �
 Backend-Architekt-Agent (2026-07-16): Phasen 1841–1845 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
 
 ---
+
+## Batch 1878–1882 — 2026-07-16
+
+### Phase 1878 — Fahrer-Zonen-Rangliste-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-zonen-rangliste/route.ts`
+**GET:** `?location_id=<uuid>` — Top-3 Fahrer je Zone A/B/C/D nach Pünktlichkeit (%) + Stopps heute; Trend (up/down/gleich); Rang; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zonen: ZonenRangliste[], generiert_am }`
+
+### Phase 1879 — Fahrer-Zonen-Rangliste-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1879-fahrer-zonen-rangliste.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Zone-Tabs A/B/C/D; Top-3 Fahrer je Zone als Rangzeilen (Rang-Badge + Name + Pünktlichkeit-Ampel + Trend-Icon + Stopps); Alert-Badge im Header bei vielen Einträgen; 15-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-zonen-rangliste (Phase1878); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1874 ✅
+
+### Phase 1880 — Zonen-Tipp-des-Tages (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1880-zonen-tipp-des-tages.tsx`
+**Props:** `locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Empfehlungs-Kachel Zone X mit Ø-Verdienst/Stopp + Bestellzahl; KPI-Grid (SLA/Ø Zeit/Bestellungen); Tipp-Text mit Begründung; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/zonen-effizienz (Phase1873); Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1875 ✅
+
+### Phase 1881 — Gratis-Lieferungs-Schwellen-Anzeige (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1881-gratis-lieferungs-schwelle.tsx`
+**Props:** `locationId: string, subtotal: number`
+**UI:** Fortschrittsbalken; "Noch XX € bis Gratis-Lieferung in Zone X"; "Fast da!"-Badge ab 75%; Hydration-safe; nur wenn Warenkorb gefüllt + Gratis-Schwelle nicht erreicht
+**Config:** DEFAULT_ZONES (A: 15€, B: 25€, C: 35€) aus delivery_zones-Konfiguration
+**Integration:** `storefront.tsx` nach Phase1876 ✅
+
+### Phase 1882 — Zonen-Durchlaufzeit-Vergleich (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1882-zonen-durchlaufzeit-vergleich.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Zonen-Karten je A/B/C/D: Ø Kochzeit + Lieferzeit + Gesamt-Zeit + Fortschrittsbalken vs. Ziel; Ampel grün/gelb/rot; Alert-Banner bei >25% Zielüberschreitung; useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1877 ✅
+
+### Nächste Phasen 1883–1887 (für nächsten Ingenieur)
+1. **Phase 1883 Backend:** Zonen-Umsatz-Prognose-API — GET /api/delivery/admin/zonen-umsatz-prognose: Prognose Umsatz je Zone A/B/C/D für die nächsten 2h basierend auf Trend + Tageszeit; Multi-Tenant; Supabase+Mock.
+2. **Phase 1884 Dispatch:** Zonen-Umsatz-Prognose-Widget — Phase1883-API: Balken-Chart je Zone (aktuell vs. prognostiziert); Alert wenn Prognose >20% unter Ziel; 15-Min-Polling; in dispatch/client.tsx nach Phase1879.
+3. **Phase 1885 Fahrer-App:** Schicht-Zonen-Bilanz — Stopps + Verdienst je Zone diese Schicht; Vergleich zu letzter Schicht; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1880.
+4. **Phase 1886 Storefront:** Zonen-ETA-Vergleichs-Banner — Zeigt ETA-Unterschied zwischen Zone A und Zone B/C als Entscheidungshilfe; Hydration-safe; 10-Min-Polling; in storefront.tsx nach Phase1881.
+5. **Phase 1887 Kitchen:** Zonen-Bestellfrequenz-Live — Bestellungen je Zone in den letzten 30 Min als Mini-Balken; Trend-Pfeil; Echtzeit aus props orders; useMemo; Collapsible; in kitchen/client.tsx nach Phase1882.
+
+---
+
+Backend-Architekt-Agent (2026-07-16): Phasen 1878–1882 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
