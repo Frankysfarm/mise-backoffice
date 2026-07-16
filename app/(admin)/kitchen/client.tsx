@@ -157,6 +157,7 @@ import { KitchenPhase1707SmartTimingFarbkodierungLive } from './phase1707-smart-
 import { KitchenPhase1708SmartTimingCountdownFarbkodierungUltra } from './phase1708-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase1717SchichtKochzeitTrend } from './phase1717-schicht-kochzeit-trend';
 import { KitchenPhase1740DriverSyncCockpit } from './phase1740-driver-sync-cockpit';
+import { KitchenPhase1820KochstartFahrerSyncCockpit } from './phase1820-kochstart-fahrer-sync-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -9497,6 +9498,13 @@ function PrepLearningPanel({ locationId }: { locationId: string | null }) {
           )}
         </div>
       )}
+      {/* Phase 1820: Kochstart–Fahrer-Sync — Echtzeit-Ampel ob Essen fertig wenn Fahrer ankommt */}
+      <KitchenPhase1820KochstartFahrerSyncCockpit
+        orders={filtered.map(o => ({ id: o.id, bestellnummer: (o as any).bestellnummer ?? '', kunde_name: o.kunde_name, status: o.status }))}
+        timings={timings}
+        batches={batches}
+        stops={stops}
+      />
     </div>
   );
 }

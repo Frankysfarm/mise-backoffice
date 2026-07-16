@@ -515,6 +515,7 @@ import { FahrerPhase1803StoppSchnellBestaetigung } from './phase1803-stopp-schne
 import { FahrerPhase1809TourStoppNavigationsHub } from './phase1809-tour-stopp-navigations-hub';
 import { FahrerPhase1814SchichtZuverlaessigkeitsBadge } from './phase1814-schicht-zuverlaessigkeits-badge';
 import { FahrerPhase1819SchichtEffizienzKarte } from './phase1819-schicht-effizienz-karte';
+import { FahrerPhase1820SmartTourStopHub } from './phase1820-smart-tour-stop-hub';
 
 type Driver = {
   id: string;
@@ -5273,6 +5274,13 @@ export function FahrerApp({
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}
           />
+          {/* Phase 1820: Smart Tour-Stop-Hub — Nächster Stopp Fokus-Karte + ETA-Ring + Bezahl-Warnung + Kunden-Notizen + kompakte Stopp-Liste */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1820SmartTourStopHub
+              stops={(activeBatch.stops ?? []) as any}
+              batchStartedAt={activeBatch.started_at ?? null}
+            />
+          )}
           {/* Phase 1784: Eigene Pause-Erinnerung — Alert bei >6h Schicht ohne 30 Min Pause; Countdown nächste Pause; isOnline-Guard; 5-Min-Polling */}
           <FahrerPhase1784EigenePauseErinnerung
             driverId={driver?.id ?? null}
