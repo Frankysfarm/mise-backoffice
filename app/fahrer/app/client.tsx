@@ -5260,9 +5260,10 @@ export function FahrerApp({
             driverId={driver?.id ?? null}
             isOnline={isOnline}
           />
-          {/* Phase 1814: Schicht-Zuverlässigkeits-Badge — Eigener Score 0–100 aus Phase1811-API; Ampel + Sparkline + Tipp; 30-Min-Polling */}
+          {/* Phase 1814: Schicht-Zuverlässigkeits-Badge — Score + Ampel + Wochenverlauf + Verbesserungstipps; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1814SchichtZuverlaessigkeitsBadge
             driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
             isOnline={isOnline}
           />
           {/* Phase 1784: Eigene Pause-Erinnerung — Alert bei >6h Schicht ohne 30 Min Pause; Countdown nächste Pause; isOnline-Guard; 5-Min-Polling */}

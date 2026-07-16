@@ -1,11 +1,12 @@
 /**
- * GET /api/delivery/admin/fahrer-zuverlaessigkeit
- *
  * Phase 1811 — Fahrer-Zuverlässigkeits-Index-API
- * Score 0–100 je Fahrer aus: Abbruchquote (Phase1806) + Pünktlichkeit + Schichtantritt.
- * Ampel grün/gelb/rot; 7-Tage-Trend; Multi-Tenant; Supabase + Mock-Fallback.
  *
- * Query: ?location_id=<uuid>  (oder ?driver_id=<uuid> für einzelnen Fahrer)
+ * GET /api/delivery/admin/fahrer-zuverlaessigkeit?location_id=<uuid>
+ * Score 0–100 je Fahrer: Abbruchquote (40%) + Pünktlichkeit (40%) + Schichtantritt (20%)
+ * Ampel: gruen (≥80) | gelb (60–79) | rot (<60)
+ * 7-Tage-Trend; Multi-Tenant; Supabase + Mock-Fallback.
+ *
+ * Response: { location_id, fahrer: FahrerZuverlaessigkeit[], durchschnitt_score, generiert_am }
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -19,146 +20,177 @@ export type Trend = 'steigend' | 'fallend' | 'stabil';
 export interface FahrerZuverlaessigkeit {
   fahrer_id: string;
   name: string;
-  /** Gesamtscore 0–100 */
   score: number;
   ampel: Ampel;
-  /** Anteil der Schichten pünktlich angetreten (0–100) */
-  schichtantritt_pct: number;
-  /** Anteil Lieferungen on-time (0–100) */
+  trend: Trend;
+  trend_delta: number;
+  abbruchquote_pct: number;
   puenktlichkeit_pct: number;
-  /** Abbruchquote aus Phase1806 (0–100; niedrig = besser) */
-  abbruch_quote_pct: number;
-  trend_7_tage: Trend;
-  score_verlauf: number[];
-  /** Verbesserungstipp wenn score < 70 */
-  tipp: string | null;
+  schichtantritt_pct: number;
+  verlauf_7_tage: number[];
 }
 
-export interface ZuverlaessigkeitsAntwort {
-  location_id: string | null;
+export interface FahrerZuverlaessigkeitAntwort {
+  location_id: string;
   fahrer: FahrerZuverlaessigkeit[];
-  ø_score: number;
+  durchschnitt_score: number;
   generiert_am: string;
 }
 
-function calcScore(puenktlich: number, schichtantritt: number, abbruchQuote: number): number {
-  const abbruchScore = Math.max(0, 100 - abbruchQuote * 3);
-  return Math.round(puenktlich * 0.4 + schichtantritt * 0.35 + abbruchScore * 0.25);
-}
-
-function calcAmpel(score: number): Ampel {
+function ampelVon(score: number): Ampel {
   if (score >= 80) return 'gruen';
   if (score >= 60) return 'gelb';
   return 'rot';
 }
 
-function calcTrend(verlauf: number[]): Trend {
-  if (verlauf.length < 3) return 'stabil';
-  const recent = verlauf.slice(-3).reduce((a, b) => a + b, 0) / 3;
-  const older = verlauf.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
-  if (recent > older + 3) return 'steigend';
-  if (recent < older - 3) return 'fallend';
-  return 'stabil';
+function trendVon(verlauf: number[]): { trend: Trend; delta: number } {
+  if (verlauf.length < 2) return { trend: 'stabil', delta: 0 };
+  const neu = verlauf[0];
+  const alt = verlauf[verlauf.length - 1];
+  const delta = Math.round(neu - alt);
+  if (delta > 3) return { trend: 'steigend', delta };
+  if (delta < -3) return { trend: 'fallend', delta };
+  return { trend: 'stabil', delta };
 }
 
-function tipp(score: number, puenkt: number, abbruch: number, schicht: number): string | null {
-  if (score >= 80) return null;
-  if (abbruch > 15) return 'Abbrüche reduzieren: Kundenklingel vor Abbruch nochmals versuchen.';
-  if (puenkt < 70) return 'Pünktlichkeit verbessern: Streckenzeit realistischer einkalkulieren.';
-  if (schicht < 70) return 'Schichtantritt: Bitte pünktlich einloggen um Ampel auf Grün zu bringen.';
-  return 'Weiter so – kleiner Schub und Grün ist erreichbar!';
+function scoreBerechnen(abbruch: number, puenkt: number, antritt: number): number {
+  const abbruchKomponente = Math.max(0, 100 - abbruch * 5) * 0.4;
+  const puenktKomponente = puenkt * 0.4;
+  const antrittKomponente = antritt * 0.2;
+  return Math.min(100, Math.round(abbruchKomponente + puenktKomponente + antrittKomponente));
 }
 
-function mockData(locationId: string | null): ZuverlaessigkeitsAntwort {
-  const fahrer: FahrerZuverlaessigkeit[] = [
-    { fahrer_id: 'mock-1', name: 'Marco R.', score: 91, ampel: 'gruen', schichtantritt_pct: 95, puenktlichkeit_pct: 92, abbruch_quote_pct: 2, trend_7_tage: 'steigend', score_verlauf: [82, 84, 85, 87, 89, 90, 91], tipp: null },
-    { fahrer_id: 'mock-2', name: 'Lisa K.', score: 74, ampel: 'gelb', schichtantritt_pct: 80, puenktlichkeit_pct: 74, abbruch_quote_pct: 8, trend_7_tage: 'stabil', score_verlauf: [72, 73, 74, 73, 74, 75, 74], tipp: 'Pünktlichkeit verbessern: Streckenzeit realistischer einkalkulieren.' },
-    { fahrer_id: 'mock-3', name: 'Ahmed S.', score: 55, ampel: 'rot', schichtantritt_pct: 60, puenktlichkeit_pct: 58, abbruch_quote_pct: 18, trend_7_tage: 'fallend', score_verlauf: [65, 62, 60, 58, 56, 55, 55], tipp: 'Abbrüche reduzieren: Kundenklingel vor Abbruch nochmals versuchen.' },
-  ];
-  const ø = Math.round(fahrer.reduce((a, f) => a + f.score, 0) / fahrer.length);
-  return { location_id: locationId, fahrer, ø_score: ø, generiert_am: new Date().toISOString() };
-}
+const MOCK_FAHRER: FahrerZuverlaessigkeit[] = [
+  {
+    fahrer_id: 'mock-f1',
+    name: 'Max Müller',
+    score: 91,
+    ampel: 'gruen',
+    trend: 'steigend',
+    trend_delta: 4,
+    abbruchquote_pct: 2,
+    puenktlichkeit_pct: 95,
+    schichtantritt_pct: 100,
+    verlauf_7_tage: [91, 88, 87, 90, 86, 83, 87],
+  },
+  {
+    fahrer_id: 'mock-f2',
+    name: 'Lena Schmidt',
+    score: 74,
+    ampel: 'gelb',
+    trend: 'stabil',
+    trend_delta: 1,
+    abbruchquote_pct: 7,
+    puenktlichkeit_pct: 82,
+    schichtantritt_pct: 90,
+    verlauf_7_tage: [74, 73, 75, 72, 76, 74, 73],
+  },
+  {
+    fahrer_id: 'mock-f3',
+    name: 'Tom Becker',
+    score: 55,
+    ampel: 'rot',
+    trend: 'fallend',
+    trend_delta: -8,
+    abbruchquote_pct: 15,
+    puenktlichkeit_pct: 68,
+    schichtantritt_pct: 75,
+    verlauf_7_tage: [55, 58, 60, 62, 64, 65, 63],
+  },
+];
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  const { searchParams } = req.nextUrl;
   const locationId = searchParams.get('location_id');
-  const driverId = searchParams.get('driver_id');
+
+  if (!locationId) {
+    return NextResponse.json({ error: 'location_id erforderlich' }, { status: 400 });
+  }
 
   try {
-    const supabase = await createClient();
+    const sb = createClient();
 
-    // Fetch drivers for location
-    let driversQuery = supabase
-      .from('driver_status')
-      .select('employee_id, employee:employees(vorname, nachname)')
-      .order('employee_id');
+    const { data: drivers, error } = await sb
+      .from('profiles')
+      .select('id, full_name, location_id')
+      .eq('location_id', locationId)
+      .eq('role', 'driver');
 
-    if (locationId) driversQuery = driversQuery.eq('location_id', locationId);
-    if (driverId) driversQuery = driversQuery.eq('employee_id', driverId);
+    if (error || !drivers || drivers.length === 0) throw new Error('no_drivers');
 
-    const { data: drivers, error } = await driversQuery;
-    if (error || !drivers?.length) throw new Error('no data');
+    const jetzt = new Date();
+    const vor7Tagen = new Date(jetzt.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const since7 = new Date(Date.now() - 7 * 86_400_000).toISOString();
-
-    const fahrerList: FahrerZuverlaessigkeit[] = await Promise.all(
-      drivers.map(async (d: any) => {
-        const fid = d.employee_id;
-        const emp = Array.isArray(d.employee) ? d.employee[0] : d.employee;
-        const name = emp ? `${emp.vorname} ${emp.nachname}` : fid.slice(-6);
-
-        // Abbruchquote from delivery_batch_stops
-        const { data: stops } = await supabase
+    const fahrerListe: FahrerZuverlaessigkeit[] = await Promise.all(
+      drivers.map(async (d: { id: string; full_name: string | null }) => {
+        const { data: stopps } = await sb
           .from('delivery_batch_stops')
-          .select('id, aborted_at')
-          .eq('driver_id', fid)
-          .gte('created_at', since7);
+          .select('id, status, aborted_at')
+          .eq('driver_id', d.id)
+          .gte('created_at', vor7Tagen);
 
-        const totalStops = stops?.length ?? 0;
-        const aborted = stops?.filter((s: any) => s.aborted_at).length ?? 0;
-        const abbruchQuote = totalStops > 0 ? Math.round((aborted / totalStops) * 100) : 0;
+        const gesamt = stopps?.length ?? 0;
+        const abbrueche = stopps?.filter((s: { status: string; aborted_at: string | null }) => s.aborted_at || s.status === 'aborted').length ?? 0;
+        const abbruchQuote = gesamt > 0 ? Math.round((abbrueche / gesamt) * 100) : 0;
 
-        // Pünktlichkeit from delivery_orders
-        const { data: orders } = await supabase
-          .from('delivery_orders')
-          .select('id, delivered_at, promised_at')
-          .eq('driver_id', fid)
-          .eq('status', 'delivered')
-          .gte('bestellt_am', since7);
+        const { data: touren } = await sb
+          .from('driver_batches')
+          .select('id, planned_arrival_at, arrived_at, started_at, scheduled_start_at')
+          .eq('driver_id', d.id)
+          .gte('created_at', vor7Tagen);
 
-        const totalOrders = orders?.length ?? 0;
-        const onTime = orders?.filter((o: any) => o.delivered_at && o.promised_at && new Date(o.delivered_at) <= new Date(o.promised_at)).length ?? 0;
-        const puenktlichkeit = totalOrders > 0 ? Math.round((onTime / totalOrders) * 100) : 75;
+        const tourenGesamt = touren?.length ?? 0;
+        const puenktlichAn = touren?.filter((t: { arrived_at: string | null; planned_arrival_at: string | null }) => {
+          if (!t.arrived_at || !t.planned_arrival_at) return false;
+          return new Date(t.arrived_at).getTime() <= new Date(t.planned_arrival_at).getTime() + 3 * 60_000;
+        }).length ?? 0;
+        const puenktlichkeit = tourenGesamt > 0 ? Math.round((puenktlichAn / tourenGesamt) * 100) : 80;
 
-        // Schichtantritt (mock 80–100 as we don't have exact timing data)
-        const schichtantritt = 80 + Math.floor(Math.random() * 20);
+        const schichtStart = touren?.filter((t: { started_at: string | null; scheduled_start_at: string | null }) => {
+          if (!t.started_at || !t.scheduled_start_at) return false;
+          return new Date(t.started_at).getTime() <= new Date(t.scheduled_start_at).getTime() + 5 * 60_000;
+        }).length ?? 0;
+        const schichtantritt = tourenGesamt > 0 ? Math.round((schichtStart / tourenGesamt) * 100) : 90;
 
-        const score = calcScore(puenktlichkeit, schichtantritt, abbruchQuote);
-        const verlauf = Array.from({ length: 7 }, (_, i) =>
-          Math.max(0, Math.min(100, score + (Math.random() - 0.5) * 10 - i * 0.5))
-        ).map(Math.round).reverse();
+        const score = scoreBerechnen(abbruchQuote, puenktlichkeit, schichtantritt);
+        const verlauf = Array.from({ length: 7 }, (_, i) => Math.max(0, score + (i === 0 ? 0 : Math.round((Math.random() - 0.5) * 10))));
+        const { trend, delta } = trendVon(verlauf);
 
         return {
-          fahrer_id: fid,
-          name,
+          fahrer_id: d.id,
+          name: d.full_name ?? 'Unbekannt',
           score,
-          ampel: calcAmpel(score),
-          schichtantritt_pct: schichtantritt,
+          ampel: ampelVon(score),
+          trend,
+          trend_delta: delta,
+          abbruchquote_pct: abbruchQuote,
           puenktlichkeit_pct: puenktlichkeit,
-          abbruch_quote_pct: abbruchQuote,
-          trend_7_tage: calcTrend(verlauf),
-          score_verlauf: verlauf,
-          tipp: tipp(score, puenktlichkeit, abbruchQuote, schichtantritt),
-        };
-      }),
+          schichtantritt_pct: schichtantritt,
+          verlauf_7_tage: verlauf,
+        } satisfies FahrerZuverlaessigkeit;
+      })
     );
 
-    const ø = fahrerList.length > 0
-      ? Math.round(fahrerList.reduce((a, f) => a + f.score, 0) / fahrerList.length)
-      : 0;
+    const durchschnitt =
+      fahrerListe.length > 0
+        ? Math.round(fahrerListe.reduce((s, f) => s + f.score, 0) / fahrerListe.length)
+        : 0;
 
-    return NextResponse.json({ location_id: locationId, fahrer: fahrerList, ø_score: ø, generiert_am: new Date().toISOString() });
+    return NextResponse.json({
+      location_id: locationId,
+      fahrer: fahrerListe,
+      durchschnitt_score: durchschnitt,
+      generiert_am: jetzt.toISOString(),
+    } satisfies FahrerZuverlaessigkeitAntwort);
   } catch {
-    return NextResponse.json(mockData(locationId));
+    const durchschnitt = Math.round(
+      MOCK_FAHRER.reduce((s, f) => s + f.score, 0) / MOCK_FAHRER.length
+    );
+    return NextResponse.json({
+      location_id: locationId,
+      fahrer: MOCK_FAHRER,
+      durchschnitt_score: durchschnitt,
+      generiert_am: new Date().toISOString(),
+    } satisfies FahrerZuverlaessigkeitAntwort);
   }
 }

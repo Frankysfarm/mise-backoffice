@@ -1784,7 +1784,7 @@ export function DispatchBoard({
       <DispatchPhase1802FahrerAuslastungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1808: Tour-Score-Visualisierung — Score-Balken je aktiver Tour (0–100); Exzellent/Gut/Basis-Kategorisierung; 60s-Polling */}
       <DispatchPhase1808TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-      {/* Phase 1813: Stopp-Abbruch-Monitor — Phase1806-API: Tabelle Fahrer × Abbruch-Arten + Quote; Alert >10%; 30-Min-Polling */}
+      {/* Phase 1813: Stopp-Abbruch-Monitor — Phase1806-API; Tabelle Fahrer + Abbruch-Arten + Gesamt-Quote; Alert >10%; 30-Min-Polling */}
       <DispatchPhase1813StoppAbbruchMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1783: Fahrer-Pausen-Compliance-Widget — Tabelle Fahrer + Pausenstatus + Verstoß-Warnung; 10-Min-Polling */}
       <DispatchPhase1783FahrerPausenComplianceWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />

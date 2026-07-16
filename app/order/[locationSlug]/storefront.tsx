@@ -340,7 +340,7 @@ import { StorefrontPhase1790DynamischeLieferzeitSchaetzung } from './phase1790-d
 import { StorefrontPhase1794LiveEtaFahrerNaeheCockpit } from './phase1794-live-eta-fahrer-naehe-cockpit';
 import { StorefrontPhase1800QualitaetsVersprechenBadge } from './phase1800-qualitaets-versprechen-badge';
 import { StorefrontPhase1804BestellPhasenCockpit } from './phase1804-bestell-phasen-cockpit';
-import { StorefrontPhase1815DynamischeEtaLiveIntegration } from './phase1815-dynamische-eta-live-integration';
+import { StorefrontPhase1815DynamischeEtaLiveTrackerIntegration } from './phase1815-dynamische-eta-live-tracker-integration';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1608,11 +1608,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1794LiveEtaFahrerNaeheCockpit orderId={activeOrderId} locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1804: Bestell-Phasen-Cockpit — 3-stufiger Phasen-Tracker Küche/Unterwegs/Fast-da; animierter Indikator; ETA-Badge; 60s-Polling */}
       <StorefrontPhase1804BestellPhasenCockpit orderId={activeOrderId} locationId={location.id} />
-      {/* Phase 1815: DynamischeEtaLiveTracker-Integration — 4-Phasen-ETA-Timeline (Eingegangen/Zubereitung/Unterwegs/Zugestellt); 30s-Polling; Hydration-safe */}
-      <StorefrontPhase1815DynamischeEtaLiveIntegration
+      {/* Phase 1815: DynamischeEtaLiveTracker — 4-Phasen-Timeline (eingegangen/zubereitung/unterwegs/zugestellt) + Countdown; Hydration-safe; 30s-Polling */}
+      <StorefrontPhase1815DynamischeEtaLiveTrackerIntegration
         orderId={activeOrderId}
         locationId={location.id}
-        deliveryTimeMin={deliveryTimeMin}
+        etaMinuten={orderSuccess?.eta ?? null}
+        bestelltAm={orderSuccess?.orderedAt ?? null}
         className="mx-4 mt-2"
       />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}

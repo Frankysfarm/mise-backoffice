@@ -1558,7 +1558,7 @@ export function KitchenBoard({
       <KitchenPhase1801DurchsatzAnalyseBoard orders={filtered as any} />
       {/* Phase 1807: Smart-Timing Farbkodierung Board — Echtzeit-Farbkodierung aktiver Bestellungen (grün/amber/rot) nach Zubereitungszeit; Countdown; 10s-Tick */}
       <KitchenPhase1807SmartTimingFarbkodierungBoard orders={filtered as any} />
-      {/* Phase 1812: Parallele-Gericht-Übersicht — Wie viele gleiche Gerichte gleichzeitig; Ampel grün/gelb/rot; Kapazitäts-Balken; useMemo; Collapsible */}
+      {/* Phase 1812: Parallele-Gericht-Übersicht — Anzahl gleicher Gerichte parallel; Ampel grün/gelb/rot; Limit-Alert; useMemo; Collapsible */}
       <KitchenPhase1812ParalleleGerichtUebersicht orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
