@@ -148,6 +148,51 @@ Frontend-Ingenieur-Agent (2026-07-16): Phasen 1923–1927 implementiert. Build �
 4. **Phase 1931 Storefront:** Bestellverfolgung-Fortschrittsring — Kreisring-Fortschritt (0→25→50→75→100%) mit 4 Phasen (Bestellt/Zubereitung/Unterwegs/Geliefert); animiert; SSR-safe; schließbar; in storefront.tsx nach Phase1926.
 5. **Phase 1932 Kitchen:** Live-Kapazitäts-Warnung — Anzahl aktiver Bestellungen vs. Kapazitätslimit (konfigurierbar, default 15); Ampelring grün/gelb/rot; Alert wenn >90%; Countdown bis voraussichtliche Entlastung; useMemo; in kitchen/client.tsx nach Phase1927.
 
+✅ **ALLE Phasen 1928–1932 implementiert von Frontend-Ingenieur-Agent (2026-07-16). Build ✓ Push erfolgt (61a4a18a).**
+
+---
+
+## Batch 1928–1932 — 2026-07-16
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1928–1932 implementiert. Build ✓ 8 Dateien, 617 Insertions. Push erfolgt.
+
+### Phase 1928 — Schicht-Zusammenfassungs-APIs (Backend)
+**Hinweis:** Zwei APIs bereits vorhanden — Phase844 `/api/delivery/admin/schicht-zusammenfassung` (fahrerspezifisch) + Phase1130 `/api/delivery/admin/fahrer-effizienz-rangliste` (Team). Phase1929/1930 nutzen diese bestehenden APIs.
+
+### Phase 1929 — Schicht-Zusammenfassung-Panel (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1929-schicht-zusammenfassung-panel.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (default zu); 3 Kacheln (Fahrer/Stopps/Team-Ø); Fahrerliste (Rang+Badge+Name+Stopps+Score); CSV-Export-Button; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-effizienz-rangliste; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1924 ✅
+
+### Phase 1930 — Meine-Schicht-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1930-meine-schicht-bilanz.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; KPI-Grid 2x2 (Stopps/km/Bewertung/Schichtdauer); Bonus-Banner (Gold/Silber/Bronze/Keiner); CSS-Bounce-Konfetti bei Gold (3 Sek); isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/schicht-zusammenfassung (Phase844); Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1925 ✅
+
+### Phase 1931 — Bestellverfolgung-Fortschrittsring (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1931-bestellverfolgung-fortschrittsring.tsx`
+**Props:** `locationId: string, orderId?: string | null`
+**UI:** SVG Kreisring (r=38); 4 Schritte (Bestellt 25%/Zubereitung 50%/Unterwegs 75%/Geliefert 100%); Step-Dots (current=primary/done=grün); "Aktuell"-Pulse; schließbar; SSR-safe; 20-Sek-Polling
+**API:** GET /api/delivery/public/avg-eta; status-mapping → phase
+**Integration:** `storefront.tsx` nach Phase1926 ✅
+
+### Phase 1932 — Live-Kapazitäts-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1932-live-kapazitaets-warnung.tsx`
+**Props:** `orders: Order[], limit?: number (default 15)`
+**UI:** Collapsible; SVG Ampelring (r=32); 3 KPIs (Aktive/Limit/Freie Plätze); Alert-Banner bei ≥90% + Entlastungs-Countdown aus avg ready_at; useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1927 ✅
+
+### Nächste Phasen 1933–1937 (für nächsten Ingenieur)
+1. **Phase 1933 Backend:** Kundenbewertungs-Aggregat-API — GET /api/delivery/admin/kundenbewertungen-aggregat: Ø-Bewertung + NPS-Score + Top-Kommentare (positiv/negativ) je Location; Trend vs. Vorwoche; Alert wenn Ø <3.5; Multi-Tenant; Supabase+Mock.
+2. **Phase 1934 Dispatch:** Kundenbewertungs-Dashboard — Phase1933-API: Ø-Stern-Ring + NPS-Gauge + Top-3-Kommentare; Trend-Pfeil; Alert <3.5; 1-Std-Polling; in dispatch/client.tsx nach Phase1929.
+3. **Phase 1935 Fahrer-App:** Meine-Kundenbewertungen — Eigene Ø-Bewertung + letzte 3 Kommentare + Trend; Motivationstext; isOnline-Guard; Collapsible; 1-Std-Polling; in fahrer/app/client.tsx nach Phase1930.
+4. **Phase 1936 Storefront:** Bewertungs-Social-Proof-Banner — "XX% unserer Kunden bewerten uns ★★★★★"; Ø-Sterne animiert; schließbar; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase1931.
+5. **Phase 1937 Kitchen:** Bestellungs-Fehlerquoten-Tracker — Fehlertypen (Falsch/Fehlt/Beschädigt) letzte 50 Bestellungen; Balkendiagramm; Alert wenn Fehlerquote >5%; useMemo; Collapsible; in kitchen/client.tsx nach Phase1932.
+
 ---
 
 ## Batch 1918–1922 — 2026-07-16
