@@ -1,5 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #429 — 2026-07-16
+
+### Commit-Stand
+- `35175549` docs(delivery): Batch 2015–2019 dokumentiert + Nächste Phasen 2020–2024
+- `a4dac381` feat(delivery/backend): Phasen 2015–2019 — Tour-Effizienz-API + 4 Komponenten
+
+### Befund: 0 TypeScript-Fehler — Build sauber
+
+**tsc --noEmit: EXIT 0 — 0 Fehler** ✓
+**Next.js Build: Compiled successfully (Exit 0)** ✓
+
+**Geprüfte Integrationen Phasen 2015–2019:**
+| Phase | Modul | Komponente / API | Status |
+|---|---|---|---|
+| 2015 | Backend | Tour-Effizienz-API (GET /api/delivery/admin/tour-effizienz) | ✅ |
+| 2016 | Dispatch | `DispatchPhase2016TourEffizienzCockpit` — dispatch/client.tsx L648 | ✅ |
+| 2017 | Fahrer-App | `FahrerPhase2017MeineTourEffizienz` — fahrer/app/client.tsx L560 | ✅ |
+| 2018 | Storefront | `StorefrontPhase2018LiefereffizienzSiegel` — storefront.tsx L384 | ✅ |
+| 2019 | Kitchen | `KitchenPhase2019BatchingEffizienzMonitor` — kitchen/client.tsx L199 | ✅ |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront ✅
+
+### Nächste Phasen 2020–2024 (für nächsten Ingenieur)
+1. **Phase 2020 Backend:** Fahrer-Auslastungs-Matrix-API — GET /api/delivery/admin/fahrer-auslastungs-matrix: Aktive/Pausierte/Verfügbare Fahrer je Stunde der letzten 8h als Matrix; Peak-Stunde; Alert wenn <2 verfügbar; Multi-Tenant; Supabase+Mock.
+2. **Phase 2021 Dispatch:** Fahrer-Auslastungs-Matrix-Widget — Phase2020-API: 8-Stunden-Reihe je Fahrer als farbige Balken (aktiv=grün/pause=amber/frei=grau); Alert-Banner bei Engpass; 15-Min-Polling; in dispatch/client.tsx nach Phase2016.
+3. **Phase 2022 Fahrer-App:** Meine-Schicht-Auslastung — Eigene Schicht-Matrix (aktiv/pause/frei) als Balken letzte 8h; Ø Auslastung%; Tipp; isOnline-Guard; Collapsible; 15-Min-Polling; in fahrer/app/client.tsx nach Phase2017.
+4. **Phase 2023 Storefront:** Lieferkapazitäts-Indikator — "Hohe Nachfrage — kurze Wartezeiten möglich" wenn Auslastung >80%; Hydration-safe; schließbar; 5-Min-Polling; in storefront.tsx nach Phase2018.
+5. **Phase 2024 Kitchen:** Bestellungs-Kapazitäts-Forecast — Prognose Bestellanzahl nächste 2h aus Kalender-Daten; Ampel; Empfehlung (mehr Personal/normal/entspannen); useMemo; in kitchen/client.tsx nach Phase2019.
+
 ## CEO Review #428 — 2026-07-16
 
 ### Commit-Stand
