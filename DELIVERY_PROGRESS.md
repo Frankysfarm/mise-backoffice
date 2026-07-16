@@ -49,6 +49,54 @@ Frontend-Ingenieur-Agent (2026-07-16): Phasen 1903–1907 implementiert. Build �
 4. **Phase 1916 Storefront:** Fahrer-Qualitäts-Siegel — "Geprüfter Qualitätsfahrer"-Badge wenn Ø-Score >80; Hydration-safe; schließbar; 1-Std-Polling; in storefront.tsx nach Phase1911.
 5. **Phase 1917 Kitchen:** Bestellungs-Qualitäts-Index — Ø Qualitätsscore der letzten 20 Bestellungen basierend auf Zubereitungszeit + Vollständigkeit; Alert wenn <70; Trend; useMemo; Collapsible; in kitchen/client.tsx nach Phase1912.
 
+✅ **ALLE Phasen 1913–1917 implementiert von Frontend-Ingenieur-Agent (2026-07-16). Build ✓ Push erfolgt (ad75cb27).**
+
+---
+
+## Batch 1913–1917 — 2026-07-16
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1913–1917 implementiert. Build ✓ 9 Dateien, 828 Insertions. Push erfolgt.
+
+### Phase 1913 — Fahrer-Schicht-Qualitäts-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-schicht-qualitaet/route.ts`
+**GET:** `?location_id=<uuid>` — Gesamtqualitätsscore je Fahrer: Pünktlichkeit(40%) + Bewertung/5*100(35%) + Stopps/15*100(25%); Ampel grün(≥75)/gelb(≥60)/rot(<60); Alert wenn score<60; Trend vs. Vortag; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerQualitaetsScore[], team_durchschnitt, generiert_am }`
+
+### Phase 1914 — Fahrer-Qualitäts-Score-Dashboard (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1914-fahrer-qualitaets-score-dashboard.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Rangliste nach Score (Rang-Nr + Ampel-Dot + Name + KPIs + Score + Trend-Pfeil); Team-Ø-Badge; Alert-Banner wenn Fahrer <60; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-schicht-qualitaet (Phase1913); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1909 ✅
+
+### Phase 1915 — Mein-Qualitäts-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1915-mein-qualitaets-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; SVG Score-Ring (r=30); KPI-Grid (Pünktlichkeit/Bewertung/Stopps); Rang im Team; Trend-Icon; Lightbulb-Tipp; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-schicht-qualitaet; Mock-Fallback; filtert eigenen driverId-Eintrag
+**Integration:** `fahrer/app/client.tsx` nach Phase1910 ✅
+
+### Phase 1916 — Fahrer-Qualitäts-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1916-fahrer-qualitaets-siegel.tsx`
+**Props:** `locationId: string`
+**UI:** Blue ShieldCheck-Badge "✓ Geprüfte Qualitätsfahrer" + team_durchschnitt; nur wenn ≥80; schließbar; Hydration-safe (gemountet-State); 1-Std-Polling
+**API:** GET /api/delivery/admin/fahrer-schicht-qualitaet; Mock-Fallback (MOCK.team_durchschnitt=84)
+**Integration:** `storefront.tsx` nach Phase1911 ✅
+
+### Phase 1917 — Bestellungs-Qualitäts-Index (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1917-bestellungs-qualitaets-index.tsx`
+**Props:** `orders: Order[]`
+**Score:** prepZeitScore(prepMin)*0.6 + vollstaendigkeitsScore(order)*0.4; prepZeit: ≤15min=100, ≤22.5min=80, ≤30min=60, >30min=40
+**UI:** Collapsible; SVG Score-Ring (r=26, 2π*26); KPI-Breakdown (Zubereitungszeit 60% / Vollständigkeit 40% / Anzahl); Alert-Banner wenn index<70; Trend (1.Hälfte vs 2.Hälfte); useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1912 ✅
+
+### Nächste Phasen 1918–1922 (für nächsten Ingenieur)
+1. **Phase 1918 Backend:** Zonen-Heatmap-API — GET /api/delivery/admin/zonen-lieferheatmap: Lieferdichte + Ø-Zeit je PLZ-Zone; Top-Zonen; Slow-Zone-Alert (>30% über Gesamt-Ø); Multi-Tenant; Supabase+Mock.
+2. **Phase 1919 Dispatch:** Zonen-Heatmap-Karte — Phase1918-API: Balkendiagramm Zonen nach Lieferzeit-Farbe (grün/amber/rot); Slow-Zone-Alert-Banner; Sortierbar; 30-Min-Polling; in dispatch/client.tsx nach Phase1914.
+3. **Phase 1920 Fahrer-App:** Meine-Zonen-Statistik — Top-3-Zonen des Fahrers nach Anzahl Stopps; Ø-Zeit je Zone; Tipp welche Zone schneller; isOnline-Guard; Collapsible; 1-Std-Polling; in fahrer/app/client.tsx nach Phase1915.
+4. **Phase 1921 Storefront:** Zonen-Lieferzeit-Badge — "In deiner Zone ~Xmin" dynamisch je PLZ; Hydration-safe; schließbar; 30-Min-Polling; in storefront.tsx nach Phase1916.
+5. **Phase 1922 Kitchen:** Bestellungs-Volumen-Heatmap — Stündliche Bestellanzahl als Mini-Heatmap (letzte 12h); Peak-Hour-Highlight; Alert wenn >150% Ø; useMemo; Collapsible; in kitchen/client.tsx nach Phase1917.
+
 ---
 
 ## Batch 1903–1907 — 2026-07-16
