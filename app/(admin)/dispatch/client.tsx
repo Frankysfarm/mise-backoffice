@@ -622,6 +622,7 @@ import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-komma
 import { DispatchPhase1875TourEffizienzScoreBoard } from './phase1875-tour-effizienz-score-board';
 import { DispatchPhase1879FahrerZonenRangliste } from './phase1879-fahrer-zonen-rangliste';
 import { DispatchPhase1880TourScoreLiveBoard } from './phase1880-tour-score-live-board';
+import { DispatchPhase1884ZonenUmsatzPrognoseWidget } from './phase1884-zonen-umsatz-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -2098,6 +2099,8 @@ export function DispatchBoard({
       <DispatchPhase1875TourEffizienzScoreBoard batches={batches as any} />
       {/* Phase 1880: Tour-Score Live-Board — Arc-Visualisierung Score 0-100 je aktiver Tour + Trend-Pfeile + Fortschrittsbalken; Collapsible */}
       <DispatchPhase1880TourScoreLiveBoard batches={batches as any} />
+      {/* Phase 1884: Zonen-Umsatz-Prognose — Aktuell vs. +2h Prognose je Zone; Alert >20% unter Ziel; 15-Min-Polling */}
+      <DispatchPhase1884ZonenUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
