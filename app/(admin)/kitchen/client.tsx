@@ -187,6 +187,7 @@ import { KitchenPhase1927ZubereitungsEffizienzScore } from './phase1927-zubereit
 import { KitchenPhase1932LiveKapazitaetsWarnung } from './phase1932-live-kapazitaets-warnung';
 import { KitchenPhase1937BestellungsFehlerquotenTracker } from './phase1937-bestellungs-fehlerquoten-tracker';
 import { KitchenPhase1942BestellungsTagesleistungsKarte } from './phase1942-bestellungs-tagesleistungs-karte';
+import KitchenPhase1947StundenAuslastungsVorschau from './phase1947-stunden-auslastungs-vorschau';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1659,6 +1660,8 @@ export function KitchenBoard({
       <KitchenPhase1937BestellungsFehlerquotenTracker orders={filtered as any} />
       {/* Phase 1942: Bestellungs-Tagesleistungs-Karte — Heute vs. Gestern%; Beste Stunde; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1942BestellungsTagesleistungsKarte orders={filtered as any} />
+      {/* Phase 1947: Stunden-Auslastungs-Vorschau — Prognose nächste 3h; Ampel + Empfehlung je Stunde; useMemo; Collapsible */}
+      <KitchenPhase1947StundenAuslastungsVorschau orders={filtered as any} />
       {/* Phase 1893: Smart-Timing-Countdown-Farbkodierung-Ultra — Live-Countdown je Bestellung; grün/gelb/orange/rot; 5-Sek-Ticker; Collapsible */}
       <KitchenPhase1893SmartTimingCountdownFarbkodierungUltra orders={filtered as any} />
       {/* Phase 1894: Bestellungs-Überfälligkeits-Monitor — Alert >25 Min; Farbkodierung grün/gelb/orange/rot; 10-Sek-Ticker; Collapsible */}

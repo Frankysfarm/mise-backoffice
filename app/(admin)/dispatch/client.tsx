@@ -636,6 +636,7 @@ import { DispatchPhase1924FahrerEffizienzRangliste } from './phase1924-fahrer-ef
 import { DispatchPhase1929SchichtZusammenfassungPanel } from './phase1929-schicht-zusammenfassung-panel';
 import { DispatchPhase1934KundenbewertungsDashboard } from './phase1934-kundenbewertungs-dashboard';
 import { DispatchPhase1939LieferstreckenVisualisierung } from './phase1939-lieferstrecken-visualisierung';
+import DispatchPhase1944TourauslastungsKalenderWidget from './phase1944-tourauslastungs-kalender-widget';
 
 type Driver = {
   employee_id: string;
@@ -1872,6 +1873,8 @@ export function DispatchBoard({
       <DispatchPhase1934KundenbewertungsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1939: Lieferstrecken-Visualisierung — Balken Fahrer→km; Gesamt-KPI; Longest-Route-Alert; Trend vs. Vorwoche; 30-Min-Polling */}
       <DispatchPhase1939LieferstreckenVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1944: Tourauslastungs-Kalender-Widget — 7×8 Heatmap (Tage×Stunden); Ampelfarben; Peak-Label; Legende; 1-Std-Polling */}
+      <DispatchPhase1944TourauslastungsKalenderWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1890: Tour-Score-Visualisierung-Live — Score je aktiver Tour (Effizienz/Zeit/Abschluss); Farbkodierung grün/gelb/rot; 15-Sek-Ticker */}
       <DispatchPhase1890TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
       {/* Phase 1891: Fahrer-Kapazitäts-Ampel-Live — Freie vs. beschäftigte vs. offline Fahrer; Ampel grün/gelb/rot; 30-Sek-Ticker; Collapsible */}

@@ -241,6 +241,53 @@ Frontend-Ingenieur-Agent (2026-07-16): Phasen 1933–1937 implementiert. Build �
 4. **Phase 1941 Storefront:** Nachhaltigkeit-Badge — "Heute X km per Fahrrad geliefert · CO₂ gespart"; grünes Badge; Hydration-safe; schließbar; 1-Std-Polling; in storefront.tsx nach Phase1936.
 5. **Phase 1942 Kitchen:** Bestellungs-Tagesleistungs-Karte — Gesamtbestellungen heute vs. gestern; Steigerung/Rückgang%; Beste Stunde; Ampel; useMemo; Collapsible; in kitchen/client.tsx nach Phase1937.
 
+✅ **ALLE Phasen 1938–1942 implementiert von Backend-Architekt-Agent + Frontend-Ingenieur-Agent (2026-07-16). Build ✓ Push erfolgt (1164fc0b).**
+
+---
+
+## Batch 1943–1947 — 2026-07-16
+
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1943–1947 implementiert. Build ✓ 9 Dateien. Push erfolgt.
+
+### Phase 1943 — Tourauslastungs-Kalender-API (Backend)
+**Datei:** `app/api/delivery/admin/tourauslastungs-kalender/route.ts`
+**GET:** `?location_id=<uuid>` — 7×24 Matrix (Tage×Stunden), Bestellanzahl je Zelle; Ampel grün(< Ø)/gelb(≥ Ø)/rot(≥ 1.5× Ø); Peak-Tag/Stunde/Anzahl; Gesamt-Ø; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zellen: KalenderZelle[], gesamt_avg, peak_tag, peak_stunde, peak_anzahl, generiert_am }`
+
+### Phase 1944 — Tourauslastungs-Kalender-Widget (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1944-tourauslastungs-kalender-widget.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; 7×8 Heatmap-Grid (7 Tage × 8 ausgewählte Stunden 7–21); Ampelfarben grün/amber/rot; Peak-Badge in Header; Legende; 1-Std-Polling
+**API:** GET /api/delivery/admin/tourauslastungs-kalender (Phase1943); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1939 ✅
+
+### Phase 1945 — Meine-Schicht-Planung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1945-meine-schicht-planung.tsx`
+**Props:** `driverId: string, locationId: string, isOnline: boolean`
+**UI:** Collapsible; Nächste Schicht Datum/Uhrzeit; Mini-Balkendiagramm Stunden 08–20; Tipp-Banner (Rush-Hour rot/Zap orange/Coffee grün) je Auslastungserwartung; isOnline-Guard; 1-Std-Polling
+**API:** GET /api/delivery/admin/tourauslastungs-kalender; Mock-Fallback (morgen = Wochentag)
+**Integration:** `fahrer/app/client.tsx` nach Phase1940 ✅
+
+### Phase 1946 — Bestellzahl-Heute-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1946-bestellzahl-heute-badge.tsx`
+**Props:** `locationId: string`
+**UI:** Blaues Badge "Heute X Bestellungen verarbeitet · Frische Küche"; schließbar; Hydration-safe (gemountet); 5-Min-Polling
+**API:** GET /api/delivery/admin/tourauslastungs-kalender (summiert heutigen Tag-6-Slot); Mock-Fallback
+**Integration:** `storefront.tsx` nach Phase1941 ✅
+
+### Phase 1947 — Stunden-Auslastungs-Vorschau (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1947-stunden-auslastungs-vorschau.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; 3 Karten (nächste 3 Stunden) je mit Ampel-Dot + Uhrzeit + Anzahl + Empfehlung (Jetzt vorbereiten/Normal/Entspannen); useMemo aus orders-Verlaufsdaten
+**Integration:** `kitchen/client.tsx` nach Phase1942 ✅
+
+### Nächste Phasen 1948–1952 (für nächsten Ingenieur)
+1. **Phase 1948 Backend:** Fahrer-Pause-Monitor-API — GET /api/delivery/admin/fahrer-pause-monitor: Pausenzeiten je Fahrer (Start/Ende/Dauer); Alert wenn Fahrer >2h ohne Pause; Gesamtpausenzeit; Multi-Tenant; Supabase+Mock.
+2. **Phase 1949 Dispatch:** Fahrer-Pause-Monitor-Widget — Phase1948-API: Liste Fahrer mit letzter Pause-Zeit + Ampel; Alert-Banner wenn >2h ohne Pause; Pausen-Trend; 5-Min-Polling; in dispatch/client.tsx nach Phase1944.
+3. **Phase 1950 Fahrer-App:** Meine-Pausen-Planung — Empfohlene Pausenzeit basierend auf Schichtdauer; Warnung wenn >2h gearbeitet ohne Pause; Pausen-Zähler; isOnline-Guard; Collapsible; in fahrer/app/client.tsx nach Phase1945.
+4. **Phase 1951 Storefront:** Echtzeit-Wartezeit-Indikator — "Aktuell ca. X Min Wartezeit" dynamisch; Ampelfarbe; schließbar; Hydration-safe; 3-Min-Polling; in storefront.tsx nach Phase1946.
+5. **Phase 1952 Kitchen:** Allergene-Vorbereitungs-Checklist — Aktive Bestellungen mit Allergen-Flag (Nüsse/Gluten/Laktose/Fisch); Checkbox je Bestellung; Warnung wenn unbestätigt >10 Min; useMemo; in kitchen/client.tsx nach Phase1947.
+
 ---
 
 ## Batch 1918–1922 — 2026-07-16
