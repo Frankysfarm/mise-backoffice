@@ -518,6 +518,7 @@ import { FahrerPhase1819SchichtEffizienzKarte } from './phase1819-schicht-effizi
 import { FahrerPhase1820SmartTourStopHub } from './phase1820-smart-tour-stop-hub';
 import { FahrerPhase1824LiveEinnahmenTracker } from './phase1824-live-einnahmen-tracker';
 import { FahrerPhase1829KundenBewertungsFeed } from './phase1829-kunden-bewertungs-feed';
+import { FahrerPhase1834PuenktlichkeitsCockpit } from './phase1834-puenktlichkeits-cockpit';
 
 type Driver = {
   id: string;
@@ -5284,6 +5285,12 @@ export function FahrerApp({
           />
           {/* Phase 1829: Kunden-Bewertungs-Feed — Letzte 5 Bewertungen + Ø-Score + Trend; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1829KundenBewertungsFeed
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1834: Pünktlichkeits-Cockpit — Eigene Quote + 7-Tage-Verlauf + Rang + Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1834PuenktlichkeitsCockpit
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}
