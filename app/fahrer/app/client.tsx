@@ -522,6 +522,7 @@ import { FahrerPhase1834PuenktlichkeitsCockpit } from './phase1834-puenktlichkei
 import { FahrerPhase1839TagesAbschlussSummary } from './phase1839-tages-abschluss-summary';
 import { FahrerPhase1844EigeneTourBilanz } from './phase1844-eigene-tour-bilanz';
 import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-smart-tour-stopp-navigations-hub-ultra';
+import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockpit';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 
 type Driver = {
@@ -5340,6 +5341,12 @@ export function FahrerApp({
               tourId={activeBatch.id ?? null}
             />
           )}
+          {/* Phase 1854: Liefertreue-Cockpit — Eigene SLA-Quote vs. Team; Statusbalken on-time/spät; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1854LiefertreueCockpit
+            driverId={driver.id}
+            locationId={driver.location_id}
+            isOnline={isOnline}
+          />
           {/* Phase 1820: Smart Tour-Stop-Hub — Nächster Stopp Fokus-Karte + ETA-Ring + Bezahl-Warnung + Kunden-Notizen + kompakte Stopp-Liste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1820SmartTourStopHub
