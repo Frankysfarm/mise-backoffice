@@ -646,6 +646,7 @@ import { DispatchPhase2009TourScoreAnzeigeCockpit } from './phase2009-tour-score
 import { DispatchPhase2010LiveTourVisualisierungsHub } from './phase2010-live-tour-visualisierungs-hub';
 import { DispatchPhase2011FahrerEffizienzScoreMatrix } from './phase2011-fahrer-effizienz-score-matrix';
 import { DispatchPhase2016TourEffizienzCockpit } from './phase2016-tour-effizienz-cockpit';
+import { DispatchPhase2021FahrerAuslastungsMatrixWidget } from './phase2021-fahrer-auslastungs-matrix-widget';
 
 type Driver = {
   employee_id: string;
@@ -3544,6 +3545,8 @@ export function DispatchBoard({
           <DispatchPhase2010LiveTourVisualisierungsHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase2011FahrerEffizienzScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase2016TourEffizienzCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2021: Fahrer-Auslastungs-Matrix-Widget — 8h-Reihe als farbige Balken; Alert bei Engpass */}
+          <DispatchPhase2021FahrerAuslastungsMatrixWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
