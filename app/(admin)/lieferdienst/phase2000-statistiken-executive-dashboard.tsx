@@ -81,8 +81,8 @@ export function LieferdienstPhase2000StatistikenExecutiveDashboard({
         const umsatz = geliefert.reduce((s: number, o: any) => s + (o.gesamtbetrag ?? 0), 0);
         const zeiten = geliefert
           .map((o: any) => o.lieferzeit_min as number | null)
-          .filter((v): v is number => v !== null && v > 0);
-        const avgMin = zeiten.length > 0 ? Math.round(zeiten.reduce((s, v) => s + v, 0) / zeiten.length) : null;
+          .filter((v: number | null): v is number => v !== null && v > 0);
+        const avgMin = zeiten.length > 0 ? Math.round(zeiten.reduce((s: number, v: number) => s + v, 0) / zeiten.length) : null;
 
         return {
           umsatz,
@@ -302,7 +302,7 @@ export function LieferdienstPhase2000StatistikenExecutiveDashboard({
                   <XAxis dataKey="hour" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
                   <Tooltip
                     contentStyle={{ fontSize: 10, padding: '2px 6px', borderRadius: 6 }}
-                    formatter={(v: number) => [`${v} Lieferungen`, '']}
+                    formatter={(v) => [`${v} Lieferungen`, '']}
                   />
                   <Bar dataKey="count" radius={[3, 3, 0, 0]}>
                     {hourly.map((entry, idx) => (

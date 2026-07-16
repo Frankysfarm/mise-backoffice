@@ -157,7 +157,7 @@ export function DispatchPhase2000TourFortschrittsVisualisierung({
       const totalStops = t.stops.length;
       const doneStops = t.stops.filter((s) => s.completed_at || s.geliefert_am).length;
       const doneFrac = totalStops > 0 ? doneStops / totalStops : 0;
-      const health = getEtaHealth(elapsedMin, t.total_eta_min, doneFrac);
+      const health = getEtaHealth(elapsedMin, t.total_eta_min ?? null, doneFrac);
       const remainMin = t.total_eta_min !== null && t.total_eta_min !== undefined
         ? Math.max(0, t.total_eta_min - elapsedMin)
         : null;
