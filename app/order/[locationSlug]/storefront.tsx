@@ -368,6 +368,7 @@ import { StorefrontPhase1906FahrerProfilMiniCard } from './phase1906-fahrer-prof
 import { StorefrontPhase1911LieferzuverlaessigkeitsWidget } from './phase1911-lieferzuverlaessigkeits-widget';
 import { Phase1916FahrerQualitaetsSiegel } from './phase1916-fahrer-qualitaets-siegel';
 import { Phase1921ZonenLieferzeitBadge } from './phase1921-zonen-lieferzeit-badge';
+import { Phase1926LiveKuechenstatusIndikator } from './phase1926-live-kuechenstatus-indikator';
 
 type Props = {
   location: Location;
@@ -1699,6 +1700,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1916FahrerQualitaetsSiegel locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1921: Zonen-Lieferzeit-Badge — "In deiner Zone ~Xmin" dynamisch je PLZ; schließbar; Hydration-safe; 30-Min-Polling */}
       <Phase1921ZonenLieferzeitBadge locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1926: Live-Küchenstatus-Indikator — Hochtouren/Normal/Ruhig je offene Bestellungen; schließbar; Hydration-safe; 5-Min-Polling */}
+      <Phase1926LiveKuechenstatusIndikator locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra
