@@ -527,6 +527,7 @@ import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-sta
 import { FahrerPhase1864GpsAusfallSelbstdiagnose } from './phase1864-gps-ausfall-selbstdiagnose';
 import { FahrerPhase1865SchichtVerdienstPrognose } from './phase1865-schicht-verdienst-prognose-cockpit';
 import { FahrerPhase1869EigeneWartezeitStatistik } from './phase1869-eigene-wartezeit-statistik';
+import { FahrerPhase1875MeineZonenAffinitaet } from './phase1875-meine-zonen-affinitaet';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5370,6 +5371,8 @@ export function FahrerApp({
           <FahrerPhase1865SchichtVerdienstPrognose driverId={driver.id} />
           {/* Phase 1869: Eigene-Wartezeit-Statistik — Ø Wartezeit pro Stopp heute + 7 Tage; Trend-Vergleich; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1869EigeneWartezeitStatistik driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1875: Meine-Zonen-Affinität — Top-3 Zonen nach Ø-Verdienst/Stopp + Erfolgsquote; isOnline-Guard; Collapsible; 30-Min-Polling */}
+          <FahrerPhase1875MeineZonenAffinitaet driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1870TourStoppSmartSequenzNav

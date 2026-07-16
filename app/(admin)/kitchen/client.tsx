@@ -170,6 +170,7 @@ import { KitchenPhase1862SmartCountdownFarbkodierungCockpit } from './phase1862-
 import { KitchenPhase1866PrepFlowOptimierungsCockpit } from './phase1866-prep-flow-optimierungs-cockpit';
 import { KitchenPhase1868SmartCountdownKochzeitMatrix } from './phase1868-smart-countdown-kochzeit-matrix';
 import { KitchenPhase1872BestellrueckstandAmpelV2 } from './phase1872-bestellrueckstand-ampel-v2';
+import { KitchenPhase1877ZonenAuslastungsBalken } from './phase1877-zonen-auslastungs-balken';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -1613,6 +1614,8 @@ export function KitchenBoard({
       <KitchenPhase1868SmartCountdownKochzeitMatrix orders={filtered as any} />
       {/* Phase 1872: Bestellrückstand-Ampel-V2 — Eskalation grün/gelb/rot mit Zeitstempel je Bestellung; Eingang-Uhrzeit; Collapsible */}
       <KitchenPhase1872BestellrueckstandAmpelV2 orders={filtered as any} />
+      {/* Phase 1877: Zonen-Auslastungs-Balken — Offene Bestellungen vs. Kapazität je Zone A/B/C/D; Ampel grün/gelb/rot; useMemo; Collapsible */}
+      <KitchenPhase1877ZonenAuslastungsBalken orders={filtered as any} />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}
