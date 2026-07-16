@@ -386,7 +386,8 @@ import { LieferdienstPhase1825LiveRentabilitaetsCockpit } from './phase1825-live
 import { LieferdienstPhase1826SchichtKpiPerformanceRing } from './phase1826-schicht-kpi-performance-ring';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
-import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit';
+import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit'
+import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase1827-schicht-statistik-echtzeit-kommando';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1322,6 +1323,13 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 1827: Schicht-Statistik-Echtzeit-Kommando — Kompaktes 6-KPI-Dashboard: Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer, Ablehnungsrate */}
+              <LieferdienstPhase1827SchichtStatistikEchtzeitKommando
+                orders={orders}
+                completedOrders={completedOrders}
+                drivers={drivers as any}
+                schichtStart={schichtStart.toISOString()}
+              />
               {/* Phase 1295: Statistiken-Gesamt-Cockpit — Live KPIs, Stundenverlauf, Fahrer-Rangliste, Trend-Vergleich Heute/Gestern/Vorwoche */}
               <LieferdienstPhase1295StatistikenGesamtCockpit locationId={locationId} />
               {/* Phase 1300: Statistik-Live-Komplett-Dashboard — 8 KPI-Kacheln + Stundenverlauf + Trend-Pfeile vs. Vortag + Ampel-Alerts */}

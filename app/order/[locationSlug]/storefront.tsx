@@ -356,6 +356,7 @@ import { StorefrontPhase1865LiveTrackingETACockpit } from './phase1865-live-trac
 import { StorefrontPhase1866EchtzeitLieferstatusCockpitV2 } from './phase1866-echtzeit-lieferstatus-cockpit-v2';
 import { StorefrontPhase1871DynamischeEtaLiveFortschrittsleiste } from './phase1871-dynamische-eta-live-fortschrittsleiste';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
+import { Phase1877EtaLieferfensterLive } from './phase1877-eta-lieferfenster-live';
 
 type Props = {
   location: Location;
@@ -794,6 +795,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             <StorefrontPhase997DynamischeEtaLiveCockpit
               orderId={orderSuccess.orderId}
               locationId={location.id}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+            />
+          </div>
+        )}
+        {/* Phase 1877: ETA-Lieferfenster-Live — Dynamisches 10-Minuten Lieferzeitfenster mit Live-Countdown + Konfidenz-Indikator */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-3 max-w-lg mx-auto">
+            <Phase1877EtaLieferfensterLive
+              locationId={location.id}
+              orderedAt={orderSuccess.orderedAt}
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
             />
           </div>

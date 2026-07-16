@@ -532,6 +532,7 @@ import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
+import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-cockpit-final';
 
 type Driver = {
   id: string;
@@ -2236,6 +2237,31 @@ export function FahrerApp({
           {activeBatch.stops.length > 0 && (
             <div className="px-4">
               <FahrerPhase500NaechsterStoppNav stops={activeBatch.stops as any} />
+            </div>
+          )}
+          {/* Phase 1876: Smart-Stopp-Nav-Cockpit-Final — Kompaktes Stop-Cockpit mit Navi-Link, Ankunfts-/Lieferungs-Confirm, nächster-Stop-Vorschau */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <Phase1876SmartStoppNavCockpitFinal
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  sequence: s.reihenfolge ?? 1,
+                  address: s.order?.kunde_adresse ?? s.address ?? '',
+                  lat: s.lat ?? null,
+                  lng: s.lng ?? null,
+                  order: s.order ? {
+                    bestellnummer: s.order.bestellnummer,
+                    status: s.order.status,
+                    delivery_zone: s.order.delivery_zone ?? null,
+                    eta_earliest: s.order.eta_earliest ?? null,
+                  } : null,
+                  angekommen_am: s.angekommen_am ?? null,
+                  geliefert_am: s.geliefert_am ?? null,
+                  customer_name: s.order?.kunde_name ?? null,
+                  customer_phone: s.order?.kunde_telefon ?? null,
+                  notes: s.order?.kunde_lieferhinweis ?? null,
+                }))}
+              />
             </div>
           )}
           {/* Tour-Stopp-Liste mit Navigation + ETA-Countdowns */}

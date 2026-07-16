@@ -562,6 +562,7 @@ import { KitchenPhase1812ParalleleGerichtUebersicht } from './phase1812-parallel
 import { KitchenPhase1817GerichtZubereitungsEngpassAlarm } from './phase1817-gericht-zubereitungs-engpass-alarm';
 import { KitchenSmartDeliveryKochstartHub } from './smart-delivery-kochstart-hub';
 import { KitchenSmartZubereitungsAmpelCockpit } from './phase1851-smart-zubereitungs-ampel-cockpit';
+import { KitchenPhase1878FahrerAnkunftKochstartKommando } from './phase1878-fahrer-ankunft-kochstart-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -2036,6 +2037,18 @@ export function KitchenBoard({
 
       {/* Kochfortschritt-Ringe: visueller Fortschritt je kochender Bestellung */}
       <KitchenPrepProgressCards orders={filtered} timings={timings} />
+
+      {/* Phase 1878: Fahrer-Ankunft-Kochstart-Kommando — synchronisiert Kochstart mit Fahrerrückkehr-ETA */}
+      <KitchenPhase1878FahrerAnkunftKochstartKommando
+        locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
+        waitingOrders={filtered
+          .filter(o => o.status === 'bestätigt' || o.status === 'neu')
+          .map(o => ({
+            id: o.id,
+            bestellnummer: o.bestellnummer,
+            geschaetzte_zubereitung_min: (o as any).geschaetzte_zubereitung_min ?? null,
+          }))}
+      />
 
       {/* Smart-Timing-Assistent: Priorisierte Kochstart-Liste mit Dringlichkeits-Ampel */}
       {timings.length > 0 && (
