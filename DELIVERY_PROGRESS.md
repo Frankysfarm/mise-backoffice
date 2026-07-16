@@ -2,6 +2,51 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-16): Phasen 1903–1907 implementiert. Build ✓ Compiled successfully — 428 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+## Batch 1903–1907 — 2026-07-16
+
+### Phase 1903 — Schicht-Bonus-Rechner-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-bonus-rechner/route.ts`
+**GET:** `?location_id=<uuid>` — Bonus je Fahrer: Stopps+Pünktlichkeit+Bewertung → Score → Bronze(5€)/Silber(12€)/Gold(25€); kein_gold_alert; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerBonus[], kein_gold_alert, generiert_am }`
+
+### Phase 1904 — Schicht-Bonus-Übersicht (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1904-schicht-bonus-uebersicht.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Fahrer-Tabelle (Name/Stufe-Emoji/Stopps/Pünktlichkeit/Bonus-Betrag); kein-Gold-Alert-Banner; Team-Ø-Pünktlichkeit; 30-Min-Polling
+**API:** GET /api/delivery/admin/schicht-bonus-rechner (Phase1903); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1899 ✅
+
+### Phase 1905 — Mein-Bonus-Fortschritt (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1905-mein-bonus-fortschritt.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Stufe-Badge + Stopps/Pünktlichkeit KPI-Grid; Fortschrittsbalken; nächste-Stufe-Hinweis mit Anforderungen; Gold-Banner; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/schicht-bonus-rechner; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1900 ✅
+
+### Phase 1906 — Fahrer-Profil-Mini-Card (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1906-fahrer-profil-mini-card.tsx`
+**Props:** `locationId: string, orderId?: string | null`
+**UI:** Avatar-Ring + Fahrername + 5-Sterne-Bewertung + Zuverlässigkeits-% + Abzeichen-Badge; nur wenn dispatched; schließbar; Hydration-safe
+**API:** GET /api/delivery/public/fahrer-eta; Mock-Fallback
+**Integration:** `storefront.tsx` nach Phase1901 ✅
+
+### Phase 1907 — Allergen-Rückstand-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1907-allergen-rueckstand-monitor.tsx`
+**Props:** `orders: Order[], schwelle?: number (default 20)`
+**UI:** Collapsible; Alarm-Banner rot; Liste Bestellungen mit Allergen-Tags (Nüsse/Fisch/Gluten/Laktose); Wartezeit-Farbkodierung; rein client-seitig useMemo; kein Polling
+**Integration:** `kitchen/client.tsx` nach Phase1902 ✅
+
+### Nächste Phasen 1908–1912 (für nächsten Ingenieur)
+1. **Phase 1908 Backend:** Fahrer-Pünktlichkeits-Trend-API — GET /api/delivery/admin/fahrer-puenktlichkeit-trend: Pünktlichkeit je Fahrer letzte 7 Tage als Zeitreihe (Tag + Wert%); Trend-Richtung (steigend/fallend/stabil); Alert wenn >20% Rückgang gegenüber Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 1909 Dispatch:** Fahrer-Pünktlichkeits-Trend-Chart — Phase1908-API: Linien-Chart je Fahrer letzte 7 Tage; Trend-Pfeil + Ampel; Alert-Banner >20% Rückgang; 1-Std-Polling; in dispatch/client.tsx nach Phase1904.
+3. **Phase 1910 Fahrer-App:** Meine-Pünktlichkeits-Kurve — Eigene 7-Tage-Pünktlichkeit als Mini-Chart; Trend-Text + Motivationstext; isOnline-Guard; Collapsible; 1-Std-Polling; in fahrer/app/client.tsx nach Phase1905.
+4. **Phase 1911 Storefront:** Lieferzuverlässigkeits-Widget — "99% pünktliche Lieferungen diese Woche in deiner Zone"; Social-Proof-Kachel; schließbar; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase1906.
+5. **Phase 1912 Kitchen:** Zubereitungszeit-Trendlinie — Ø Zubereitungszeit letzte 7 Tage als Sparkline; Trend-Pfeil; Alert wenn heute >20% über Wochenschnitt; useMemo + Collapsible; in kitchen/client.tsx nach Phase1907.
+
+---
+
 Backend-Architekt-Agent (2026-07-16): Phasen 1898–1902 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
 
 ## Batch 1898–1902 — 2026-07-16
