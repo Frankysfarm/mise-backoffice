@@ -559,6 +559,7 @@ import { FahrerPhase2011LiveTourStoppUebersicht } from './phase2011-live-tour-st
 import { FahrerPhase2012SmartNavigationsCockpit } from './phase2012-smart-navigations-cockpit';
 import { FahrerPhase2017MeineTourEffizienz } from './phase2017-meine-tour-effizienz';
 import { FahrerPhase2022MeineSchichtAuslastung } from './phase2022-meine-schicht-auslastung';
+import { FahrerPhase2027MeinePausenzeitAnalyse } from './phase2027-meine-pausenzeit-analyse';
 
 type Driver = {
   id: string;
@@ -5536,6 +5537,8 @@ export function FahrerApp({
           <FahrerPhase2017MeineTourEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2022: Meine-Schicht-Auslastung — Eigene Matrix letzte 8h; Ø Auslastung%; Tipp */}
           <FahrerPhase2022MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2027: Meine-Pausenzeit-Analyse — Eigene Pausendauer letzte 7 Tage; Vergleich Team-Ø; Tipp */}
+          <FahrerPhase2027MeinePausenzeitAnalyse driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2000SmartTourStopKommandant

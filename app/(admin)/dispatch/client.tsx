@@ -647,6 +647,7 @@ import { DispatchPhase2010LiveTourVisualisierungsHub } from './phase2010-live-to
 import { DispatchPhase2011FahrerEffizienzScoreMatrix } from './phase2011-fahrer-effizienz-score-matrix';
 import { DispatchPhase2016TourEffizienzCockpit } from './phase2016-tour-effizienz-cockpit';
 import { DispatchPhase2021FahrerAuslastungsMatrixWidget } from './phase2021-fahrer-auslastungs-matrix-widget';
+import { DispatchPhase2026PausenzeitUebersichtsWidget } from './phase2026-pausenzeit-uebersichts-widget';
 
 type Driver = {
   employee_id: string;
@@ -3547,6 +3548,8 @@ export function DispatchBoard({
           <DispatchPhase2016TourEffizienzCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2021: Fahrer-Auslastungs-Matrix-Widget — 8h-Reihe als farbige Balken; Alert bei Engpass */}
           <DispatchPhase2021FahrerAuslastungsMatrixWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2026: Pausenzeit-Übersichts-Widget — Ø Pause je Fahrer letzte 7 Tage; Alert bei >3 Ausreißern */}
+          <DispatchPhase2026PausenzeitUebersichtsWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

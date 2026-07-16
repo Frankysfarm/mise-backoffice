@@ -198,6 +198,7 @@ import { KitchenPhase2013KochzeitTimingMatrix } from './phase2013-kochzeit-timin
 import { KitchenPhase2014BatchFarbkodierungsKommando } from './phase2014-batch-farbkodierungs-kommando';
 import { KitchenPhase2019BatchingEffizienzMonitor } from './phase2019-batching-effizienz-monitor';
 import { KitchenPhase2024BestellungsKapazitaetsForecast } from './phase2024-bestellungs-kapazitaets-forecast';
+import { KitchenPhase2029ZubereitungszeitOptimierer } from './phase2029-zubereitungszeit-optimierer';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3120,6 +3121,8 @@ export function KitchenBoard({
       <KitchenPhase2019BatchingEffizienzMonitor orders={filtered as any} />
       {/* Phase 2024: Bestellungs-Kapazitäts-Forecast — Prognose nächste 2h; Ampel; Empfehlung */}
       <KitchenPhase2024BestellungsKapazitaetsForecast orders={filtered as any} />
+      {/* Phase 2029: Zubereitungszeit-Optimierer — Koch-Reihenfolge nach scheduled_for; Prio überfälliger Bestellungen */}
+      <KitchenPhase2029ZubereitungszeitOptimierer orders={filtered as any} />
     </div>
   );
 }
