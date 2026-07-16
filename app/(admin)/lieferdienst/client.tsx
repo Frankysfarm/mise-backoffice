@@ -388,6 +388,7 @@ import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompak
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
 import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit'
 import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase1827-schicht-statistik-echtzeit-kommando';
+import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1323,6 +1324,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 1880: Cross-KPI Cockpit — Schicht-Statistiken: Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Storno; Zonen-Auslastung; Trend-Pfeile */}
+              <LieferdienstPhase1880CrossKpiCockpit orders={orders as any} />
               {/* Phase 1827: Schicht-Statistik-Echtzeit-Kommando — Kompaktes 6-KPI-Dashboard: Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer, Ablehnungsrate */}
               <LieferdienstPhase1827SchichtStatistikEchtzeitKommando
                 orders={orders}

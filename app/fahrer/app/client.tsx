@@ -534,6 +534,7 @@ import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
 import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-cockpit-final';
+import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop-cockpit';
 
 type Driver = {
   id: string;
@@ -5416,6 +5417,28 @@ export function FahrerApp({
                 telefon: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
                 estimated_arrival: s.estimated_arrival ?? null,
                 bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
+              }))}
+            />
+          )}
+          {/* Phase 1880: Smart Tour-Stop Cockpit — Countdown-Ring + Google/Apple Maps One-Tap + Telefon + Nächste-Stopps-Vorschau; mobile-first */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1880SmartTourStopCockpit
+              stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i,
+                address: s.order?.kunde_adresse ?? s.kunde_adresse ?? s.address ?? null,
+                adresse: s.order?.kunde_adresse ?? s.kunde_adresse ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                customer_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                kunde_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                customer_phone: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                telefon: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                estimated_arrival: s.estimated_arrival ?? null,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am ?? null,
+                bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
+                notes: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
               }))}
             />
           )}

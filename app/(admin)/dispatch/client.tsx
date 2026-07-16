@@ -621,6 +621,7 @@ import { SmartTourScoreHub } from './smart-tour-score-hub';
 import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-kommando';
 import { DispatchPhase1875TourEffizienzScoreBoard } from './phase1875-tour-effizienz-score-board';
 import { DispatchPhase1879FahrerZonenRangliste } from './phase1879-fahrer-zonen-rangliste';
+import { DispatchPhase1880TourScoreLiveBoard } from './phase1880-tour-score-live-board';
 
 type Driver = {
   employee_id: string;
@@ -2095,6 +2096,8 @@ export function DispatchBoard({
       />
       {/* Phase 1875: Tour-Effizienz-Score-Board — Score-Rangliste aller aktiven Touren mit Grade S/A/B/C/D */}
       <DispatchPhase1875TourEffizienzScoreBoard batches={batches as any} />
+      {/* Phase 1880: Tour-Score Live-Board — Arc-Visualisierung Score 0-100 je aktiver Tour + Trend-Pfeile + Fortschrittsbalken; Collapsible */}
+      <DispatchPhase1880TourScoreLiveBoard batches={batches as any} />
       {/* Tour-Fortschritt: Live-Visualisierung aller aktiven Touren mit Stop-Fortschritt */}
       <DispatchTourStageProgress batches={batches} />
       <DispatchTourVisualisierung batches={batches} />
