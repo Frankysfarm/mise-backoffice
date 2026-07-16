@@ -11,12 +11,19 @@ Backend-Architekt-Agent (2026-07-16): Phasen 1888–1892 implementiert. Build �
 - Phase 1891 Storefront: `app/order/[locationSlug]/phase1891-zonen-sonder-angebot-banner.tsx` — "Kostenlose Lieferung in Zone X bis HH:MM"; Zone mit niedrigstem Volumen → Förderangebot; Live-Countdown mm:ss; schließbar; Hydration-safe; 10-Min-Polling; in storefront.tsx nach Phase1886 ✅
 - Phase 1892 Kitchen: `app/(admin)/kitchen/phase1892-zonen-storno-quote-monitor.tsx` — Storno-Rate je Zone A/B/C/D letzte 2h; 2×2-Grid mit Ampel-Hintergrund + Fortschrittsbalken; Alert-Banner >10%; useMemo aus props orders; Collapsible; in kitchen/client.tsx nach Phase1887 ✅
 
-### Nächste Phasen 1893–1897 (für nächsten Ingenieur)
-1. **Phase 1893 Backend:** Fahrer-Schicht-Benchmark-API — GET /api/delivery/admin/fahrer-schicht-benchmark: Vergleich Schichtleistung aller Fahrer (Stopps + Verdienst + Pünktlichkeit) heute vs. 7-Tage-Schnitt; Multi-Tenant; Supabase+Mock.
-2. **Phase 1894 Dispatch:** Fahrer-Schicht-Benchmark-Widget — Tabelle alle Fahrer: Stopps/Verdienst/Pünktlichkeit + Trend-Pfeil; Spitzenreiter-Badge; Alert wenn Fahrer >30% unter Schnitt; 30-Min-Polling; in dispatch/client.tsx nach Phase1889.
-3. **Phase 1895 Fahrer-App:** Persönlicher-Monats-Rekord-Banner — Bester Monat (Verdienst + Stopps + Pünktlichkeit-Score) im Vergleich zu diesem Monat; Trophy-Icon; Fortschrittsbalken; isOnline-Guard; Collapsible; in fahrer/app/client.tsx nach Phase1890.
-4. **Phase 1896 Storefront:** Liefergeschwindigkeit-Testimonial-Widget — "Zuletzt in deiner Zone in XX Min geliefert"; aus letzten 5 abgeschlossenen Bestellungen; Hydration-safe; schließbar; 30-Min-Polling; in storefront.tsx nach Phase1891.
-5. **Phase 1897 Kitchen:** Tagesspitzen-Hochlast-Warnung — Echtzeitvergleich aktuelle Bestellrate vs. historischer Stoßzeit-Schwellwert; Ampel + Countdown zur nächsten Stoßzeit; useMemo; Collapsible; in kitchen/client.tsx nach Phase1892.
+Backend-Architekt-Agent (2026-07-16): Phasen 1893–1897 implementiert. Build ✓ Compiled successfully — 427 Seiten, TypeScript 0 Fehler. Push erfolgt.
+- Phase 1893 Backend: `app/api/delivery/admin/fahrer-schicht-benchmark/route.ts` — GET; Vergleich Schichtleistung aller Fahrer (Stopps + Verdienst + Pünktlichkeit) heute vs. 7-Tage-Schnitt; Spitzenreiter-Flag; Alert >30% unter Schnitt; Ampel gruen/gelb/rot; Multi-Tenant; Supabase+Mock ✅
+- Phase 1894 Dispatch: `app/(admin)/dispatch/phase1894-fahrer-schicht-benchmark-widget.tsx` — Tabelle Fahrer: Stopps/Verdienst/Pünktlichkeit + Trend-Pfeil + Ampel-Dot; Spitzenreiter-Trophy-Badge; Alert-Banner wenn Fahrer >30% unter Schnitt; Team-Ø-Fußzeile; 30-Min-Polling; in dispatch/client.tsx nach Phase1889 ✅
+- Phase 1895 Fahrer-App: `app/fahrer/app/phase1895-persoenlicher-monats-rekord-banner.tsx` — Bester Monat vs. aktueller Monat (Verdienst + Stopps + Pünktlichkeit); Fortschrittsbalken je KPI; Trophy bei neuem Rekord; isOnline-Guard; Collapsible; 30-Min-Polling; in fahrer/app/client.tsx nach Phase1890 ✅
+- Phase 1896 Storefront: `app/order/[locationSlug]/phase1896-liefergeschwindigkeit-testimonial-widget.tsx` — "Zuletzt in deiner Zone in XX Min geliefert"; Social-Proof-Banner; Mini-Zeile andere Zonen; schließbar; Hydration-safe; 30-Min-Polling; in storefront.tsx nach Phase1891 ✅
+- Phase 1897 Kitchen: `app/(admin)/kitchen/phase1897-tagesspitzen-hochlast-warnung.tsx` — Bestellrate letzte 30 Min vs. Schwellwert (warn≥5/rot≥8); Ampel grün/gelb/rot; Flammen-Icon; KPI-Grid; Countdown nächste Stoßzeit (12–13h, 18–20h); useMemo; Collapsible; in kitchen/client.tsx nach Phase1892 ✅
+
+### Nächste Phasen 1898–1902 (für nächsten Ingenieur)
+1. **Phase 1898 Backend:** Fahrer-Gebiets-Abdeckungs-API — GET /api/delivery/admin/fahrer-gebiets-abdeckung: Welche Zonen A/B/C/D sind aktuell durch Fahrer abgedeckt vs. unbesetzt; Lücken-Flag; Fahrer-je-Zone-Count; Multi-Tenant; Supabase+Mock.
+2. **Phase 1899 Dispatch:** Gebiets-Abdeckungs-Monitor — Phase1898-API: Zonen-Grid A/B/C/D mit Fahrer-Count + Lücken-Alert (rot wenn 0 Fahrer); Empfehlung; 5-Min-Polling; in dispatch/client.tsx nach Phase1894.
+3. **Phase 1900 Fahrer-App:** Schicht-Ziel-Fortschritt — Fortschrittsbalken Verdienst-Ziel heute (z.B. 100 €); Schicht-Countdown; Motivations-Badge bei Zielerreichung; isOnline-Guard; Collapsible; 10-Min-Polling; in fahrer/app/client.tsx nach Phase1895.
+4. **Phase 1901 Storefront:** Fahrer-Anfahrts-ETA-Karte — "Dein Fahrer ist ~X Min entfernt" mit Fahrzeug-Icon; nur wenn Tour dispatched; Hydration-safe; 30-Sek-Polling; in storefront.tsx nach Phase1896.
+5. **Phase 1902 Kitchen:** Schicht-Rückstand-Eskalation — Wenn >3 Bestellungen länger als 30 Min in Zubereitung: roter Alarm + Eskalations-Stufen (Warnung/Kritisch/Eskalation); useMemo; Collapsible; in kitchen/client.tsx nach Phase1897.
 
 ---
 

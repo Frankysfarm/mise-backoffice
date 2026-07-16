@@ -361,6 +361,7 @@ import { StorefrontPhase1881GratisLieferungsSchwelle } from './phase1881-gratis-
 import { StorefrontPhase1886ZonenEtaVergleichsBanner } from './phase1886-zonen-eta-vergleichs-banner';
 import { StorefrontPhase1891ZonenSonderAngebotBanner } from './phase1891-zonen-sonder-angebot-banner';
 import { StorefrontPhase1892DynamischeEtaLiveTrackingUltra } from './phase1892-dynamische-eta-live-tracking-ultra';
+import { StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget } from './phase1896-liefergeschwindigkeit-testimonial-widget';
 
 type Props = {
   location: Location;
@@ -1680,6 +1681,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1886ZonenEtaVergleichsBanner locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1891: Zonen-Sonder-Angebot-Banner — Kostenlose Lieferung in Zone X bis HH:MM; Countdown; Hydration-safe; schließbar; 10-Min-Polling */}
       <StorefrontPhase1891ZonenSonderAngebotBanner locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1896: Liefergeschwindigkeit-Testimonial-Widget — "Zuletzt in deiner Zone in XX Min geliefert"; Social-Proof; schließbar; Hydration-safe; 30-Min-Polling */}
+      <StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra

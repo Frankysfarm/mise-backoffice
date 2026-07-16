@@ -531,6 +531,7 @@ import { FahrerPhase1875MeineZonenAffinitaet } from './phase1875-meine-zonen-aff
 import { FahrerPhase1880ZonenTippDesTages } from './phase1880-zonen-tipp-des-tages';
 import { FahrerPhase1885SchichtZonenBilanz } from './phase1885-schicht-zonen-bilanz';
 import { FahrerPhase1890TopVerdienstSchichtRecap } from './phase1890-top-verdienst-schicht-recap';
+import { FahrerPhase1895PersoenlichenMonatsRekordBanner } from './phase1895-persoenlicher-monats-rekord-banner';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5409,6 +5410,8 @@ export function FahrerApp({
           <FahrerPhase1885SchichtZonenBilanz locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1890: Top-Verdienst-Schicht-Recap — Beste Schicht diese Woche; Zonen + Stopps + Verdienst; Vergleich Ø; isOnline-Guard; Collapsible; einmalig */}
           <FahrerPhase1890TopVerdienstSchichtRecap locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1895: Persönlicher-Monats-Rekord-Banner — Bester Monat vs. aktueller Monat; Verdienst/Stopps/Pünktlichkeit; Trophy; Fortschrittsbalken; isOnline-Guard; Collapsible; 30-Min-Polling */}
+          <FahrerPhase1895PersoenlichenMonatsRekordBanner locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1870TourStoppSmartSequenzNav

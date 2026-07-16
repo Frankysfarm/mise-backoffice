@@ -625,6 +625,7 @@ import { DispatchPhase1880TourScoreLiveBoard } from './phase1880-tour-score-live
 import { DispatchPhase1884ZonenUmsatzPrognoseWidget } from './phase1884-zonen-umsatz-prognose-widget';
 import { DispatchPhase1889ZonenPreisElastizitaetWidget } from './phase1889-zonen-preis-elastizitaet-widget';
 import { DispatchPhase1890TourScoreVisualisierungLive } from './phase1890-tour-score-visualisierung-live';
+import { DispatchPhase1894FahrerSchichtBenchmarkWidget } from './phase1894-fahrer-schicht-benchmark-widget';
 
 type Driver = {
   employee_id: string;
@@ -1841,6 +1842,8 @@ export function DispatchBoard({
       <DispatchPhase1884ZonenUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1889: Zonen-Preis-Elastizitäts-Widget — Gebühr vs. Volumen je Zone; Empfehlungs-Badge; Alert >1.5; 30-Min-Polling */}
       <DispatchPhase1889ZonenPreisElastizitaetWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1894: Fahrer-Schicht-Benchmark — Tabelle Stopps/Verdienst/Pünktlichkeit je Fahrer vs. 7d-Schnitt; Spitzenreiter-Badge; Alert >30% unter Schnitt; 30-Min-Polling */}
+      <DispatchPhase1894FahrerSchichtBenchmarkWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1890: Tour-Score-Visualisierung-Live — Score je aktiver Tour (Effizienz/Zeit/Abschluss); Farbkodierung grün/gelb/rot; 15-Sek-Ticker */}
       <DispatchPhase1890TourScoreVisualisierungLive batches={batches as any} drivers={drivers as any} />
       {/* Phase 1868: Wartezeit-Heatmap-Widget — 4 Kacheln A/B/C/D mit Ø Wartezeit + Trend-Pfeil; Alert >40 Min; 10-Min-Polling */}
