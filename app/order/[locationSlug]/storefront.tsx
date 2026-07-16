@@ -377,6 +377,7 @@ import Phase1951EchtzeitWartezeitIndikator from './phase1951-echtzeit-wartezeit-
 import { StorefrontPhase2000LiveLieferungsKommandant } from './phase2000-live-lieferungs-kommandant';
 import { StorefrontPhase2001VertrauensLieferzeitBadge } from './phase2001-vertrauens-lieferzeit-badge';
 import { StorefrontPhase2005LiveVertrauensBalken } from './phase2005-live-vertrauens-balken';
+import { StorefrontPhase2010LieferzeitKonfidenzBadge } from './phase2010-lieferzeit-konfidenz-badge';
 
 type Props = {
   location: Location;
@@ -1722,6 +1723,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1951EchtzeitWartezeitIndikator locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2005: Live-Vertrauens-Balken — Fortschrittsleiste X% pünktliche Lieferungen aus Prognose-Score; 1-Std-Polling */}
       <StorefrontPhase2005LiveVertrauensBalken locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 2010: Lieferzeit-Konfidenz-Badge — "Wir sind in X–Y Min bei dir (Konfidenz XX%)"; schließbar; 3-Min-Polling */}
+      <StorefrontPhase2010LieferzeitKonfidenzBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2001: Vertrauens-Lieferzeit-Badge — Ankunftszeit-Uhr + Konfidenz + Fortschrittsleiste; 30-Sek-Aktualisierung */}
       {orderSuccess && (
         <StorefrontPhase2001VertrauensLieferzeitBadge

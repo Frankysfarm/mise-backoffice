@@ -553,6 +553,7 @@ import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop
 import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-stop-kommandant';
 import { FahrerPhase2001SchichtAbschlussAssistent } from './phase2001-schicht-abschluss-assistent';
 import { FahrerPhase2004MeineEtaGenauigkeit } from './phase2004-meine-eta-genauigkeit';
+import { FahrerPhase2009MeinSchichtForecast } from './phase2009-mein-schicht-forecast';
 
 type Driver = {
   id: string;
@@ -5497,6 +5498,12 @@ export function FahrerApp({
           />
           {/* Phase 2004: Meine-ETA-Genauigkeit — Eigene ETA-Trefferquote + Score-Ring + Rang im Team + Verbesserungstipp */}
           <FahrerPhase2004MeineEtaGenauigkeit
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 2009: Mein-Schicht-Forecast — Fahrerverfügbarkeit 4h-Timeline + Pause-Empfehlung; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2009MeinSchichtForecast
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}

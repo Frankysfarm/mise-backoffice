@@ -192,6 +192,7 @@ import KitchenPhase1952AllergenVorbereitungsChecklist from './phase1952-allergen
 import { KitchenPhase2000SmartTimingFarbkodierungsMatrix } from './phase2000-smart-timing-farbkodierungs-matrix';
 import { KitchenPhase2001StationsauslastungsMatrix } from './phase2001-stationsauslastungs-matrix';
 import { KitchenPhase2006ZubereitungsPraezisionsIndex } from './phase2006-zubereitungs-praezisions-index';
+import { KitchenPhase2011ZutatenVorbereitungsPrognose } from './phase2011-zutaten-vorbereitungs-prognose';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3102,6 +3103,8 @@ export function KitchenBoard({
       <KitchenPhase2001StationsauslastungsMatrix orders={filtered as any} />
       {/* Phase 2006: Zubereitungs-Präzisions-Index — Ø Abweichung Zubereitungszeit vs. Prognose; Alert >3 Min Drift; useMemo */}
       <KitchenPhase2006ZubereitungsPraezisionsIndex orders={filtered as any} />
+      {/* Phase 2011: Zutaten-Vorbereitungs-Prognose — Top-5 Artikel nächste Stunde nach Bestellfrequenz; Ampel; useMemo */}
+      <KitchenPhase2011ZutatenVorbereitungsPrognose orders={filtered as any} />
     </div>
   );
 }
