@@ -393,6 +393,9 @@ import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-stat
 import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
 import { LieferdienstPhase2000StatistikenExecutiveDashboard } from './phase2000-statistiken-executive-dashboard';
 import { LieferdienstPhase2001BestellstatusTrichter } from './phase2001-bestellstatus-trichter';
+import { LieferdienstPhase2002StatistikenKpiMasterDashboard } from './phase2002-statistiken-kpi-master-dashboard';
+import { LieferdienstPhase2003SchichtStatistikLiveCockpit } from './phase2003-schicht-statistik-live-cockpit';
+import { LieferdienstPhase2004FahrerPerformanceStatistikenHub } from './phase2004-fahrer-performance-statistiken-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2072,6 +2075,12 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2000StatistikenExecutiveDashboard locationId={locationId ?? null} />
                 {/* Phase 2001: Bestellstatus-Trichter — Live-Funnel: Bestellungen durch alle Status (neu→zubereitung→fertig→unterwegs→geliefert), Durchlaufzeit, Bottleneck-Erkennung */}
                 <LieferdienstPhase2001BestellstatusTrichter locationId={locationId ?? null} />
+                {/* Phase 2002: Statistiken-KPI-Master-Dashboard — 8 KPIs + Trend-Vergleich Vortag; 60s Polling */}
+                <LieferdienstPhase2002StatistikenKpiMasterDashboard locationId={locationId ?? null} />
+                {/* Phase 2003: Schicht-Statistik-Live-Cockpit — Hochrechnung auf Schichtende; Fortschrittsbalken; 5-Min-Polling */}
+                <LieferdienstPhase2003SchichtStatistikLiveCockpit locationId={locationId ?? null} />
+                {/* Phase 2004: Fahrer-Performance-Statistiken-Hub — Rangliste Top-5; Score-Ampel; Trinkgeld; 5-Min-Polling */}
+                <LieferdienstPhase2004FahrerPerformanceStatistikenHub locationId={locationId ?? null} />
               </>
             </div>
           )}

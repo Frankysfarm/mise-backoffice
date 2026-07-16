@@ -642,6 +642,9 @@ import { DispatchPhase2000TourFortschrittsVisualisierung } from './phase2000-tou
 import { DispatchPhase2001FahrerDispositionKommandant } from './phase2001-fahrer-disposition-kommandant';
 import { DispatchPhase2003PrognoseGenauigkeitsDashboard } from './phase2003-prognose-genauigkeits-dashboard';
 import { DispatchPhase2008VerfuegbarkeitsTimeline } from './phase2008-verfuegbarkeits-timeline';
+import { DispatchPhase2009TourScoreAnzeigeCockpit } from './phase2009-tour-score-anzeige-cockpit';
+import { DispatchPhase2010LiveTourVisualisierungsHub } from './phase2010-live-tour-visualisierungs-hub';
+import { DispatchPhase2011FahrerEffizienzScoreMatrix } from './phase2011-fahrer-effizienz-score-matrix';
 
 type Driver = {
   employee_id: string;
@@ -3536,6 +3539,9 @@ export function DispatchBoard({
           <DispatchPhase2003PrognoseGenauigkeitsDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2008: Verfügbarkeits-Timeline — 4h-Stunden-Timeline als Balken je Slot; Engpass-Alert wenn <2 Fahrer; 30-Min-Polling */}
           <DispatchPhase2008VerfuegbarkeitsTimeline locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase2009TourScoreAnzeigeCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase2010LiveTourVisualisierungsHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase2011FahrerEffizienzScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

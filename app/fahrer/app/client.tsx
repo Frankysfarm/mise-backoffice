@@ -554,6 +554,9 @@ import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-s
 import { FahrerPhase2001SchichtAbschlussAssistent } from './phase2001-schicht-abschluss-assistent';
 import { FahrerPhase2004MeineEtaGenauigkeit } from './phase2004-meine-eta-genauigkeit';
 import { FahrerPhase2009MeinSchichtForecast } from './phase2009-mein-schicht-forecast';
+import { FahrerPhase2010TourStoppNavigationUltra } from './phase2010-tour-stopp-navigation-ultra';
+import { FahrerPhase2011LiveTourStoppUebersicht } from './phase2011-live-tour-stopp-uebersicht';
+import { FahrerPhase2012SmartNavigationsCockpit } from './phase2012-smart-navigations-cockpit';
 
 type Driver = {
   id: string;
@@ -5506,6 +5509,26 @@ export function FahrerApp({
           <FahrerPhase2009MeinSchichtForecast
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 2010: Tour-Stopp-Navigation Ultra — Nächster Stopp mit Adresse, ETA, Kundeninfos, Google Maps + Anrufen + Angekommen */}
+          <FahrerPhase2010TourStoppNavigationUltra
+            driverId={driver?.id ?? ''}
+            batchId={activeBatch?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 2011: Live-Tour-Stopp-Übersicht — Alle Stopps der aktuellen Tour als Timeline-Liste mit Status */}
+          <FahrerPhase2011LiveTourStoppUebersicht
+            driverId={driver?.id ?? ''}
+            batchId={activeBatch?.id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 2012: Smart-Navigations-Cockpit — Navi-App-Auswahl (Google Maps, Waze, Apple Maps) für aktuellen Stopp */}
+          <FahrerPhase2012SmartNavigationsCockpit
+            adresse={
+              (activeBatch?.stops ?? []).find((s: any) => !s.geliefert_am && !s.completed_at)
+                ?.order?.kunde_adresse ?? null
+            }
             isOnline={isOnline}
           />
           {/* Phase 2000: Smart Tour-Stop Kommandant — Konsolidierter Tour-Navigator: alle Stopps, Navi-App-Auswahl, Bestätigung */}

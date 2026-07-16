@@ -378,6 +378,9 @@ import { StorefrontPhase2000LiveLieferungsKommandant } from './phase2000-live-li
 import { StorefrontPhase2001VertrauensLieferzeitBadge } from './phase2001-vertrauens-lieferzeit-badge';
 import { StorefrontPhase2005LiveVertrauensBalken } from './phase2005-live-vertrauens-balken';
 import { StorefrontPhase2010LieferzeitKonfidenzBadge } from './phase2010-lieferzeit-konfidenz-badge';
+import { StorefrontPhase2011DynamischeEtaCountdownBoard } from './phase2011-dynamische-eta-countdown-board';
+import { StorefrontPhase2012LiveTrackingStatusKarte } from './phase2012-live-tracking-status-karte';
+import { StorefrontPhase2013FahrerAnkunftLiveWidget } from './phase2013-fahrer-ankunft-live-widget';
 
 type Props = {
   location: Location;
@@ -1741,6 +1744,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           className="mx-4 mt-2"
         />
       )}
+      {/* Phase 2011: Dynamische-ETA-Countdown-Board — Animierter SVG-Countdown; 4-Phasen-Steps; 30s Polling */}
+      {activeOrderId && <StorefrontPhase2011DynamischeEtaCountdownBoard orderId={activeOrderId} locationSlug={location.id} className="mx-4 mt-2" />}
+      {/* Phase 2012: Live-Tracking-Status-Karte — Step-Indicator + Fahrer-Info-Chip + Fortschrittsbalken; 30s Polling */}
+      {activeOrderId && <StorefrontPhase2012LiveTrackingStatusKarte orderId={activeOrderId} locationSlug={location.id} className="mx-4 mt-2" />}
+      {/* Phase 2013: Fahrer-Ankunfts-Live-Widget — Nur wenn on_route; animierter Fahrername + ETA; 15s Polling */}
+      {activeOrderId && <StorefrontPhase2013FahrerAnkunftLiveWidget orderId={activeOrderId} locationSlug={location.id} className="mx-4 mt-2" />}
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra

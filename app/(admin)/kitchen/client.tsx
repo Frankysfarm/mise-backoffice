@@ -193,6 +193,9 @@ import { KitchenPhase2000SmartTimingFarbkodierungsMatrix } from './phase2000-sma
 import { KitchenPhase2001StationsauslastungsMatrix } from './phase2001-stationsauslastungs-matrix';
 import { KitchenPhase2006ZubereitungsPraezisionsIndex } from './phase2006-zubereitungs-praezisions-index';
 import { KitchenPhase2011ZutatenVorbereitungsPrognose } from './phase2011-zutaten-vorbereitungs-prognose';
+import { KitchenPhase2012SmartCountdownFarbkodierungBoard } from './phase2012-smart-countdown-farbkodierung-board';
+import { KitchenPhase2013KochzeitTimingMatrix } from './phase2013-kochzeit-timing-matrix';
+import { KitchenPhase2014BatchFarbkodierungsKommando } from './phase2014-batch-farbkodierungs-kommando';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3105,6 +3108,12 @@ export function KitchenBoard({
       <KitchenPhase2006ZubereitungsPraezisionsIndex orders={filtered as any} />
       {/* Phase 2011: Zutaten-Vorbereitungs-Prognose — Top-5 Artikel nächste Stunde nach Bestellfrequenz; Ampel; useMemo */}
       <KitchenPhase2011ZutatenVorbereitungsPrognose orders={filtered as any} />
+      {/* Phase 2012: Smart-Countdown-Farbkodierungs-Board — Echtzeit-Countdown je aktiver Bestellung; Sekundengenau; Farbkodierung nach Überschreitung */}
+      <KitchenPhase2012SmartCountdownFarbkodierungBoard orders={filtered as any} />
+      {/* Phase 2013: Kochzeit-Timing-Matrix — Optimaler Kochstart je Bestellung; Lieferung vs. Abholung; Ampel-Dringlichkeit */}
+      <KitchenPhase2013KochzeitTimingMatrix orders={filtered as any} />
+      {/* Phase 2014: Batch-Farbkodierungs-Kommando — 3-Farb-Prioritätslanes (rot/amber/grün); Artikel-Zählung; 30s Live-Update */}
+      <KitchenPhase2014BatchFarbkodierungsKommando orders={filtered as any} />
     </div>
   );
 }
