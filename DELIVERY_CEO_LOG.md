@@ -4,6 +4,7 @@
 
 ### Commit-Stand
 - `20345b58` feat(delivery/backend): Phasen 1846 + 1851-1855 — Tour-Kosten + Liefertreue-Monitor
+- `f9e0a56c` feat(delivery/frontend): Phase 1851 — Smart-Timing-Cockpit, Tour-Score-Live, Tour-Stopp-Navigator, ETA-Tracking-Hub, Statistiken-Cockpit (während Review eingetroffen)
 
 ### Build-Ergebnis
 **✓ Compiled successfully — 427+ Seiten.** EMFILE beim Static-Tracing ist Container-Ressourcen-Limit, kein Code-Fehler.
@@ -37,6 +38,14 @@
 
 **System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront ✅
 
+**Zusätzlich geprüft — Frontend-Commit f9e0a56c (Phase 1851 Frontend):**
+- `KitchenSmartZubereitungsAmpelCockpit` — 0 as-any-Casts, sauber getypt, in kitchen/client.tsx Zeile 1248 ✅
+- `DispatchTourScoreLiveKommando` — 0 as-any-Casts, in dispatch/client.tsx Zeile 1819 ✅
+- `FahrerPhase1851SmartTourStoppFinalKommando` — 0 as-any-Casts, in fahrer/app/client.tsx Zeile 5353 ✅
+- `BissPhase1851EtaLiveTrackingHub` — 0 as-any-Casts, in biss-app/[slug]/client.tsx Zeile 305 ✅
+- `LieferdienstPhase1000StatistikenEchtzeitCockpit` — 0 as-any-Casts, in lieferdienst/client.tsx ✅
+- `next.config.js`: experimental.outputFileTracingExcludes hinzugefügt — sinnvoller Fix für EMFILE ✅
+
 ### Nächste Phasen 1856–1860 (für Ingenieur)
 1. **Phase 1856 Backend:** Fahrer-GPS-Ausfalls-Detektor — GET /api/delivery/admin/gps-ausfall: Fahrer ohne GPS-Update >5 Min; Liste mit letztem bekannten Standort + Minuten seit Update; Alert-Level; Multi-Tenant; Supabase+Mock.
 2. **Phase 1857 Kitchen:** Tages-Hochlast-Prognose-Balken — Balkendiagramm: Ø Bestelleingang je Stunde basierend auf letzten 7 Tagen; heutige Hochlast-Stunden hervorheben; useMemo; Collapsible.
@@ -45,7 +54,7 @@
 5. **Phase 1860 Storefront:** Fahrer-online-Zähler — "X Fahrer jetzt in deiner Nähe" basierend auf aktiven Fahrern; Hydration-safe; 5-Min-Polling; schließbar.
 
 ## Aktueller Stand
-**MARKT-REIF + WACHSTUM.** Phasen 1–1855 vollständig abgeschlossen. Build sauber. 0 TS-Fehler. Alle Integrationen Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron. Nächste Phasen: 1856–1860.
+**MARKT-REIF + WACHSTUM.** Phasen 1–1855 + Frontend-Phase-1851-Batch vollständig abgeschlossen. Build sauber. 0 TS-Fehler. EMFILE-Fix via next.config.js vorhanden. Alle Integrationen Kitchen ↔ Dispatch ↔ Driver ↔ Storefront ↔ Biss-App synchron. Nächste Phasen: 1856–1860.
 
 ---
 
