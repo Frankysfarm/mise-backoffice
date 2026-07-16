@@ -341,6 +341,7 @@ import { StorefrontPhase1794LiveEtaFahrerNaeheCockpit } from './phase1794-live-e
 import { StorefrontPhase1800QualitaetsVersprechenBadge } from './phase1800-qualitaets-versprechen-badge';
 import { StorefrontPhase1804BestellPhasenCockpit } from './phase1804-bestell-phasen-cockpit';
 import { StorefrontPhase1815DynamischeEtaLiveTrackerIntegration } from './phase1815-dynamische-eta-live-tracker-integration';
+import { StorefrontPhase1820LieferzeitGarantieCountdownV2 } from './phase1820-lieferzeit-garantie-countdown-v2';
 import { LiveDeliveryCommand } from './components/live-delivery-command';
 
 type Props = {
@@ -1617,6 +1618,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         etaMinuten={successEtaMinuten}
         bestelltAm={successBestelltAm}
         className="mx-4 mt-2"
+      />
+      {/* Phase 1820: Lieferzeit-Garantie-Countdown-V2 — Countdown bis Lieferzusage; Entschädigungs-Hinweis; Hydration-safe; schließbar */}
+      <StorefrontPhase1820LieferzeitGarantieCountdownV2
+        locationId={location.id}
+        etaMinuten={successEtaMinuten ?? 35}
+        bestelltAm={successBestelltAm}
       />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}
       <StorefrontPhase1785LieferdienstOeffnungszeitenIndikator locationId={location.id} />

@@ -514,6 +514,7 @@ import { FahrerPhase1799MeinQualitaetsScoreVerlauf } from './phase1799-mein-qual
 import { FahrerPhase1803StoppSchnellBestaetigung } from './phase1803-stopp-schnell-bestaetigung';
 import { FahrerPhase1809TourStoppNavigationsHub } from './phase1809-tour-stopp-navigations-hub';
 import { FahrerPhase1814SchichtZuverlaessigkeitsBadge } from './phase1814-schicht-zuverlaessigkeits-badge';
+import { FahrerPhase1819SchichtEffizienzKarte } from './phase1819-schicht-effizienz-karte';
 
 type Driver = {
   id: string;
@@ -5262,6 +5263,12 @@ export function FahrerApp({
           />
           {/* Phase 1814: Schicht-Zuverlässigkeits-Badge — Score + Ampel + Wochenverlauf + Verbesserungstipps; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase1814SchichtZuverlaessigkeitsBadge
+            driverId={driver?.id ?? null}
+            locationId={driver?.location_id ?? null}
+            isOnline={isOnline}
+          />
+          {/* Phase 1819: Schicht-Effizienz-Karte — Effizienz-Score + Rang + Touren/h + km/Stopp + Team-Vergleich; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase1819SchichtEffizienzKarte
             driverId={driver?.id ?? null}
             locationId={driver?.location_id ?? null}
             isOnline={isOnline}

@@ -16702,3 +16702,51 @@ Frontend-Ingenieur-Agent (2026-07-15): Phasen 1782–1785 implementiert. Build �
 **API:** GET /api/delivery/public/avg-eta (bestehendes Endpoint); Mock-Fallback
 **Integration:** `storefront.tsx` nach Phase1785 ✅
 
+
+---
+
+## Batch 1816–1820 — 2026-07-16
+
+### Phase 1816 — Fahrer-Schicht-Effizienz-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-schicht-effizienz/route.ts`
+**GET:** `?location_id=<uuid>` — Effizienz-Score 0–100 je Fahrer: Touren/h (40%) + km/Stopp (30%) + Wartezeiten (30%); Ampel gruen/gelb/rot; 7-Tage-Verlauf + Trend; Rang; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerEffizienz[], team_durchschnitt, generiert_am }`
+
+### Phase 1817 — Gericht-Zubereitungs-Engpass-Alarm (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase1817-gericht-zubereitungs-engpass-alarm.tsx`
+**Props:** `orders: Order[], engpassSchwelle?: number (default 4), warnSchwelle?: number (default 3)`
+**UI:** Collapsible; Gerichte ≥warnSchwelle werden angezeigt; Stufen warn (amber) / engpass (rot); Balken + Alles-OK-State; Alert-Banner wenn Engpass; rein client-seitig useMemo
+**Integration:** `kitchen/client.tsx` nach Phase1812 ✅
+
+### Phase 1818 — Fahrer-Zuverlässigkeits-Ranking (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase1818-fahrer-zuverlaessigkeits-ranking.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Rangliste Fahrer sortiert nach Score; Ampel-Badge + MiniSparkline + Trend-Icon; expandierbar (Abbruchquote/Pünktlichkeit/Schichtantritt); Alert-Banner bei rot-Fahrern; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-zuverlaessigkeit (Phase1811-API); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase1813 ✅
+
+### Phase 1819 — Schicht-Effizienz-Karte (Fahrer-App)
+**Datei:** `app/fahrer/app/phase1819-schicht-effizienz-karte.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score-Kachel mit Ampelfarbe + Trend; KPI-Details (Touren/h, km/Stopp, Wartezeit) mit Mini-Balken; Team-Vergleich + Rang; Verbesserungstipp; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-schicht-effizienz (Phase1816-API); Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase1814 ✅
+
+### Phase 1820 — Lieferzeit-Garantie-Countdown-V2 (Storefront)
+**Datei:** `app/order/[locationSlug]/phase1820-lieferzeit-garantie-countdown-v2.tsx`
+**Props:** `locationId: string, etaMinuten?: number, bestelltAm?: string | null`
+**UI:** Phasen: garantie (grün, Countdown) / knapp (amber, pulsierend, letzte 5 Min) / ueberschritten (rot, Entschädigungs-Banner 10% Rabatt); schließbar; Hydration-safe; Sekunden-Countdown
+**Integration:** `storefront.tsx` nach Phase1815 ✅
+
+### Nächste Phasen 1821–1825 (für nächsten Ingenieur)
+1. **Phase 1821 Backend:** Fahrer-km-Bilanz-API — GET /api/delivery/admin/fahrer-km-bilanz: Gesamte gefahrene km je Fahrer letzte 7 Tage + Heute; Ø km/Tour; Trend; Multi-Tenant; Supabase+Mock.
+2. **Phase 1822 Kitchen:** Bestellwellen-Visualisierung — Bestelleingang der letzten 4 Stunden in 15-Min-Slots; Peak erkennen + Alert wenn >5 Bestellungen in einem Slot; Props orders; useMemo; Collapsible.
+3. **Phase 1823 Dispatch:** Fahrer-km-Bilanz-Widget — Phase1821-API: Tabelle Fahrer + km Heute/Woche + Ø km/Tour; Trend-Pfeil; 30-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1824 Fahrer-App:** Meine-km-Karte — Eigene gefahrene km heute + Woche + Ø km/Tour; Ziel-Balken; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1825 Storefront:** Fahrer-Ankunfts-Countdown — Sekunden-genauer Countdown bis Fahrer-Ankunft (aus ETA); nur wenn unterwegs; animierter Countdown-Ring; schließbar; Hydration-safe.
+
+---
+
+Backend-Architekt-Agent (2026-07-16): Phasen 1816–1820 implementiert. Build ✓ Compiled successfully — 426 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
