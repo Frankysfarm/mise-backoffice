@@ -200,6 +200,7 @@ import { KitchenPhase2019BatchingEffizienzMonitor } from './phase2019-batching-e
 import { KitchenPhase2024BestellungsKapazitaetsForecast } from './phase2024-bestellungs-kapazitaets-forecast';
 import { KitchenPhase2029ZubereitungszeitOptimierer } from './phase2029-zubereitungszeit-optimierer';
 import { KitchenPhase2030SmartTimingCountdownLiveCockpit } from './phase2030-smart-timing-countdown-live-cockpit';
+import { KitchenPhase2035BestellungsVerlustRadar } from './phase2035-bestellungs-verlust-radar';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3126,6 +3127,8 @@ export function KitchenBoard({
       <KitchenPhase2029ZubereitungszeitOptimierer orders={filtered as any} />
       {/* Phase 2030: Smart-Timing Countdown Live-Cockpit — Farbkodierung Überfällig/Kritisch/Warnung/OK + Echtzeit-Countdown */}
       <KitchenPhase2030SmartTimingCountdownLiveCockpit orders={filtered as any} />
+      {/* Phase 2035: Bestellungs-Verlust-Radar — Storno-Quote letzte 2h; Ampel; Alert >10%; entgangener Umsatz */}
+      <KitchenPhase2035BestellungsVerlustRadar orders={filtered as any} />
     </div>
   );
 }

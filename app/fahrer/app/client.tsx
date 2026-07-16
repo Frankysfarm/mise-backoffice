@@ -561,6 +561,7 @@ import { FahrerPhase2017MeineTourEffizienz } from './phase2017-meine-tour-effizi
 import { FahrerPhase2022MeineSchichtAuslastung } from './phase2022-meine-schicht-auslastung';
 import { FahrerPhase2027MeinePausenzeitAnalyse } from './phase2027-meine-pausenzeit-analyse';
 import { FahrerPhase2028SmartTourStoppAbschlussNavigator } from './phase2028-smart-tour-stopp-abschluss-navigator';
+import { FahrerPhase2033MeineTourAbschlussBilanz } from './phase2033-meine-tour-abschluss-bilanz';
 
 type Driver = {
   id: string;
@@ -5540,6 +5541,8 @@ export function FahrerApp({
           <FahrerPhase2022MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2027: Meine-Pausenzeit-Analyse — Eigene Pausendauer letzte 7 Tage; Vergleich Team-Ø; Tipp */}
           <FahrerPhase2027MeinePausenzeitAnalyse driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2033: Meine-Tour-Abschluss-Bilanz — Abschlussrate 7 Tage vs. Team-Ø; Motivation; Mini-Balken */}
+          <FahrerPhase2033MeineTourAbschlussBilanz locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator

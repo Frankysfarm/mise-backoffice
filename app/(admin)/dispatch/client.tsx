@@ -649,6 +649,7 @@ import { DispatchPhase2016TourEffizienzCockpit } from './phase2016-tour-effizien
 import { DispatchPhase2021FahrerAuslastungsMatrixWidget } from './phase2021-fahrer-auslastungs-matrix-widget';
 import { DispatchPhase2026PausenzeitUebersichtsWidget } from './phase2026-pausenzeit-uebersichts-widget';
 import { DispatchPhase2031TourScoreVisualisierungsBoard } from './phase2031-tour-score-visualisierungs-board';
+import { DispatchPhase2032TourenAbschlussTrendChart } from './phase2032-touren-abschluss-trend-chart';
 
 type Driver = {
   employee_id: string;
@@ -3553,6 +3554,8 @@ export function DispatchBoard({
           <DispatchPhase2026PausenzeitUebersichtsWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2031: Tour-Score-Visualisierungs-Board — Aktive Touren farbkodiert mit Score, Fortschritt, Pünktlichkeit */}
           <DispatchPhase2031TourScoreVisualisierungsBoard batches={batches as any} drivers={drivers as any} />
+          {/* Phase 2032: Touren-Abschluss-Trend-Chart — Sparkline 7 Tage, Ring, Trend vs. 85%-Ziel */}
+          <DispatchPhase2032TourenAbschlussTrendChart locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

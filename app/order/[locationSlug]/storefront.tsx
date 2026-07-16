@@ -384,6 +384,7 @@ import { StorefrontPhase2013FahrerAnkunftLiveWidget } from './phase2013-fahrer-a
 import { StorefrontPhase2018LiefereffizienzSiegel } from './phase2018-liefereffizienz-siegel';
 import { StorefrontPhase2023LieferkapazitaetsIndikator } from './phase2023-lieferkapazitaets-indikator';
 import { StorefrontPhase2028LieferzeitVersprechenBadge } from './phase2028-lieferzeit-versprechen-badge';
+import { StorefrontPhase2034LieferzuverlaessigkeitsGarantieBadge } from './phase2034-lieferzuverlaessigkeits-garantie-badge';
 
 type Props = {
   location: Location;
@@ -1759,6 +1760,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2023LieferkapazitaetsIndikator locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2028: Lieferzeit-Versprechen-Badge — "Lieferung in X–Y Min" aus Effizienz + Auslastung; Hydration-safe */}
       <StorefrontPhase2028LieferzeitVersprechenBadge locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 2034: Lieferzuverlässigkeits-Garantie-Badge — "XX% erfolgreiche Lieferungen"; nur wenn ≥90%; ShieldCheck-Pill */}
+      <StorefrontPhase2034LieferzuverlaessigkeitsGarantieBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra
