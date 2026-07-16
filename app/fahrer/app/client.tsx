@@ -526,6 +526,7 @@ import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockp
 import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-statusleiste';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
+import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
 
 type Driver = {
   id: string;
@@ -5359,6 +5360,24 @@ export function FahrerApp({
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase1851SmartTourStoppFinalKommando
               stops={(activeBatch.stops ?? []) as any}
+            />
+          )}
+          {/* Tour-Stopp-Navi-Panel — Vollständige Stopp-Liste mit Status, ETA, Navigation (Google/Apple/Waze) und Telefon-Quick-Link */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <TourStoppNaviPanel
+              stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : 'neu',
+                kunde_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                adresse: s.order?.kunde_adresse ?? s.kunde_adresse ?? s.address ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                telefon: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                estimated_arrival: s.estimated_arrival ?? null,
+                notizen: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+                bestellnummer: s.order?.bestellnummer ?? s.bestellnummer ?? null,
+              }))}
             />
           )}
           {/* Phase 1820: Smart Tour-Stop-Hub — Nächster Stopp Fokus-Karte + ETA-Ring + Bezahl-Warnung + Kunden-Notizen + kompakte Stopp-Liste */}

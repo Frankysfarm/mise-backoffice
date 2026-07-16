@@ -611,6 +611,7 @@ import { DispatchPhase1843LetzteTouren } from './phase1843-letzte-touren-recap';
 import { DispatchPhase1848TourScoreEchtzeitDashboard } from './phase1848-tour-score-echtzeit-dashboard';
 import { DispatchPhase1853TourKostenWidget } from './phase1853-tour-kosten-widget';
 import { DispatchPhase1858FahrerGpsStatusUebersicht } from './phase1858-fahrer-gps-status-uebersicht';
+import { DispatchPhase1863TourScoreVisualisierungsCockpit } from './phase1863-tour-score-visualisierungs-cockpit';
 import { DispatchPhase1470TourLiveScoreBoard } from './phase1470-tour-live-score-board';
 import { SmartTourScoreHub } from './smart-tour-score-hub';
 import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-kommando';
@@ -1818,6 +1819,8 @@ export function DispatchBoard({
       <DispatchPhase1853TourKostenWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1858: Fahrer-GPS-Status-Übersicht — GPS-Ampel je Fahrer; Ausfall-Warnung; 1-Min-Polling */}
       <DispatchPhase1858FahrerGpsStatusUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1863: Tour-Score-Visualisierungs-Cockpit — Score-Ring + Fortschrittsbalken je aktiver Tour; grün/gelb/rot; ETA-Anzeige; client-seitig */}
+      <DispatchPhase1863TourScoreVisualisierungsCockpit batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} drivers={drivers as any} />
       {/* Phase 1851: Tour-Score Live-Kommando — Score-Ring + Fortschritt + Empfehlung je aktiver Tour aus Props; Client-seitig berechnet */}
       <DispatchTourScoreLiveKommando drivers={drivers as any} batches={batches as any} stops={batches.flatMap((b: any) => b.stops ?? [])} />
       {/* Phase 1470: Tour-Live-Score-Board — Score-Ring + Fortschritt + Rang je aktiver Tour; Echtzeit aus Props */}
