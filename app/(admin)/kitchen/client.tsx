@@ -1564,6 +1564,13 @@ export function KitchenBoard({
       <KitchenPhase1812ParalleleGerichtUebersicht orders={filtered as any} />
       {/* Phase 1817: Gericht-Zubereitungs-Engpass-Alarm — Alert >3 gleiche Gerichte gleichzeitig; Stufen warn/engpass; useMemo; Collapsible */}
       <KitchenPhase1817GerichtZubereitungsEngpassAlarm orders={filtered as any} />
+      {/* Phase 1820: Kochstart–Fahrer-Sync — Echtzeit-Ampel ob Essen fertig wenn Fahrer ankommt */}
+      <KitchenPhase1820KochstartFahrerSyncCockpit
+        orders={filtered.map(o => ({ id: o.id, bestellnummer: (o as any).bestellnummer ?? '', kunde_name: o.kunde_name, status: o.status }))}
+        timings={timings}
+        batches={batches}
+        stops={stops}
+      />
       {/* Phase 1782: Küchen-Kapazitäts-Ampel — Aktive Bestellungen vs. max. Kapazität; Ampel grün/gelb/rot; useMemo; Collapsible */}
       <KitchenPhase1782KuechenKapazitaetsAmpel orders={filtered as any} />
       {/* Phase 1777: Live-Kochplan-Optimierer — Dringlichkeits-Sortierung aktive Bestellungen (ETA + Komplexität); Alert >20 Min; useMemo; Collapsible */}
@@ -9498,13 +9505,6 @@ function PrepLearningPanel({ locationId }: { locationId: string | null }) {
           )}
         </div>
       )}
-      {/* Phase 1820: Kochstart–Fahrer-Sync — Echtzeit-Ampel ob Essen fertig wenn Fahrer ankommt */}
-      <KitchenPhase1820KochstartFahrerSyncCockpit
-        orders={filtered.map(o => ({ id: o.id, bestellnummer: (o as any).bestellnummer ?? '', kunde_name: o.kunde_name, status: o.status }))}
-        timings={timings}
-        batches={batches}
-        stops={stops}
-      />
     </div>
   );
 }

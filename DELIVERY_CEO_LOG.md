@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #409 — 2026-07-16
+
+### Commit-Stand
+- `186ab0ad` feat(delivery/frontend): smart-timing cockpit, tour-score-board, statistiken-cockpit, fahrer-tour-stop-hub
+- `d5d3d79c` feat(delivery/backend): Phasen 1816–1820 — Effizienz-API, Engpass-Alarm, Zuverlässigkeits-Ranking, Effizienz-Karte, Garantie-Countdown
+
+### Build-Ergebnis
+**✓ Compiled successfully — Build exit 0, 426 Seiten, TypeScript 0 Fehler** ✅
+
+### Behobener Bug
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `app/(admin)/kitchen/client.tsx:9502` | `KitchenPhase1820KochstartFahrerSyncCockpit` in `PrepLearningPanel` platziert — `filtered`/`timings`/`batches`/`stops` nicht im Scope → TS2304/TS7006 | Komponente aus `PrepLearningPanel` entfernt, nach Phase1817 in `KitchenBoard` (Zeile 1568) verschoben wo alle Props verfügbar sind |
+
+### System-Synchronisation
+| System | Phase | Status |
+|---|---|---|
+| Backend (Phase1816 Schicht-Effizienz-Score-API) | 1816 | ✅ |
+| Kitchen (Phase1817 Gericht-Engpass-Alarm) | 1817 | ✅ |
+| Kitchen (Phase1820 Kochstart-Fahrer-Sync-Cockpit) | 1820 | ✅ (Scope-Fix) |
+| Dispatch (Phase1818 Fahrer-Zuverlässigkeits-Ranking) | 1818 | ✅ |
+| Dispatch (Phase1470 Tour-Live-Score-Board) | 1470* | ✅ |
+| Fahrer-App (Phase1819 Schicht-Effizienz-Karte) | 1819 | ✅ |
+| Fahrer-App (Phase1820 Smart-Tour-Stop-Hub) | 1820* | ✅ |
+| Lieferdienst (Phase890 Kompakt-Statistiken-Cockpit) | 890* | ✅ |
+| Storefront (Phase1820 Garantie-Countdown-V2) | 1820 | ✅ |
+
+*Frontend-Agent nutzte abweichende Phasennummern (1470/890) für Retro-Implementierungen — kein Fehler, nur Inkonsistenz im Naming.
+
+### Anweisung fuer naechsten Ingenieur: Phasen 1821–1825
+1. **Phase 1821 Backend:** Kunden-Zufriedenheits-Score-API — GET /api/delivery/admin/kunden-zufriedenheit: Score aus Pünktlichkeit + Storno-Rate + ETA-Genauigkeit je Location; Ampel; Trend; Multi-Tenant; Supabase+Mock.
+2. **Phase 1822 Kitchen:** Zubereitungszeit-Abweichungs-Alarm — Alert wenn tatsächliche Zubereitungszeit >150% des Schätzwerts; Props orders+timings; useMemo; Collapsible; in kitchen/client.tsx.
+3. **Phase 1823 Dispatch:** Touren-Kapazitäts-Auslastungs-Gauge — Gauge-Visualisierung (0–100%) aktive Touren vs. Fahrer-Kapazität; Alert >90%; 30-Min-Polling; in dispatch/client.tsx.
+4. **Phase 1824 Fahrer-App:** Live-Einnahmen-Tracker — Heutige Einnahmen (Touren × Satz); Stunden-Verlauf-Chart; Ziel vs. Ist; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx.
+5. **Phase 1825 Storefront:** Echtzeit-Küchen-Status-Anzeige — "Küche aktiv", "Kurze Wartezeit", "Hohe Auslastung" basierend auf Kitchen-API; Hydration-safe; schließbar; nach Phase1820.
+
 ## CEO Review #408 — 2026-07-16
 
 ### Commit-Stand
