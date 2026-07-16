@@ -54,7 +54,13 @@
 5. **Phase 1952 Kitchen:** Schicht-Produktivitäts-Score — Bestellungen pro Stunde heute vs. Wochenø; Ampel + Trend + Alert wenn <70% Durchschnitt; useMemo; Collapsible; in kitchen/client.tsx nach Phase1947.
 
 ## Aktueller Stand
-**MARKT-REIF + WACHSTUM.** Phasen 1–1947 vollständig abgeschlossen. 1 TypeScript-Bug behoben (Phase1945 Props). Build ✓. Nächste Phasen: 1948–1952.
+**MARKT-REIF + WACHSTUM.** Phasen 1–2000 vollständig abgeschlossen. 5 TypeScript-Bugs behoben (Phase1945 Props + 4x Phase2000). Build ✓. Nächste Phasen: 1948–1952.
+
+**Phase 2000 Befund:** Während Review wurde Phase 2000 (Frontend-Ingenieur-Agent) entdeckt — 4 TypeScript-Fehler sofort behoben:
+- `dispatch/phase2000`: `total_eta_min ?? null` (undefined nicht assignable zu number|null)
+- `lieferdienst/phase2000`: explizite Typen in `.filter()` und `.reduce()` für any[]-Arrays
+- `lieferdienst/phase2000`: Recharts Formatter ohne expliziten Typ-Cast
+Commits: `4360709a` (Phase1945), `c6944b5f` (Phase2000). tsc EXIT 0. Push ✓.
 
 ---
 
