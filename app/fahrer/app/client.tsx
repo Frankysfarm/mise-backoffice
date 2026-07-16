@@ -524,6 +524,7 @@ import { FahrerPhase1844EigeneTourBilanz } from './phase1844-eigene-tour-bilanz'
 import { FahrerPhase1849SmartTourStoppNavigationsHubUltra } from './phase1849-smart-tour-stopp-navigations-hub-ultra';
 import { FahrerPhase1854LiefertreueCockpit } from './phase1854-liefertreue-cockpit';
 import { FahrerPhase1859EigeneGpsStatusleiste } from './phase1859-eigene-gps-statusleiste';
+import { FahrerPhase1864GpsAusfallSelbstdiagnose } from './phase1864-gps-ausfall-selbstdiagnose';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
 import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
@@ -5352,6 +5353,12 @@ export function FahrerApp({
           />
           {/* Phase 1859: Eigene GPS-Statusleiste — GPS-Stärke + Minuten seit Update + Warnung >3 Min; isOnline-Guard; 1-Min-Polling */}
           <FahrerPhase1859EigeneGpsStatusleiste
+            driverId={driver.id}
+            locationId={driver.location_id}
+            isOnline={isOnline}
+          />
+          {/* Phase 1864: GPS-Ausfall-Selbstdiagnose — Schritt-für-Schritt Hilfe bei kritischem GPS; 30s-Countdown → Support-Alert; isOnline-Guard; 1-Min-Polling */}
+          <FahrerPhase1864GpsAusfallSelbstdiagnose
             driverId={driver.id}
             locationId={driver.location_id}
             isOnline={isOnline}
