@@ -70,7 +70,7 @@ export function FahrerPhase2001SchichtAbschlussAssistent({ driverId, hasActiveTo
       .gte('geliefert_am', todayStart.toISOString())
       .not('geliefert_am', 'is', null)
       .limit(100)
-      .then(({ data }) => {
+      .then(({ data }: { data: any }) => {
         if (!data || data.length === 0) { setLoading(false); return; }
 
         const deliveries = data.length;
@@ -93,7 +93,7 @@ export function FahrerPhase2001SchichtAbschlussAssistent({ driverId, hasActiveTo
       .select('score, on_time_rate')
       .eq('id', driverId)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: any }) => {
         if (data) {
           setStats((prev) =>
             prev ? { ...prev, score: (data as any).score ?? null, onTimeRate: (data as any).on_time_rate ?? null } : prev,

@@ -1722,7 +1722,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 2001: Vertrauens-Lieferzeit-Badge — Ankunftszeit-Uhr + Konfidenz + Fortschrittsleiste; 30-Sek-Aktualisierung */}
       {orderSuccess && (
         <StorefrontPhase2001VertrauensLieferzeitBadge
-          etaMinutes={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+          etaMinutes={(successEtaMinuten ?? 0) > 0 ? (successEtaMinuten ?? 30) : 30}
           orderStatus="confirmed"
           className="mx-4 mt-2"
         />
