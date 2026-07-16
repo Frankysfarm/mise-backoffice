@@ -365,6 +365,7 @@ import { StorefrontPhase1896LiefergeschwindigkeitTestimonialWidget } from './pha
 import { StorefrontPhase1893BestellstatusPhasenLeiste } from './phase1893-bestellstatus-phasen-leiste';
 import { StorefrontPhase1901FahrerAnfahrtsEtaKarte } from './phase1901-fahrer-anfahrts-eta-karte';
 import { StorefrontPhase1906FahrerProfilMiniCard } from './phase1906-fahrer-profil-mini-card';
+import { StorefrontPhase1911LieferzuverlaessigkeitsWidget } from './phase1911-lieferzuverlaessigkeits-widget';
 
 type Props = {
   location: Location;
@@ -1690,6 +1691,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1901FahrerAnfahrtsEtaKarte locationId={location.id} orderId={activeOrderId ?? null} />
       {/* Phase 1906: Fahrer-Profil-Mini-Card — Fahrername + Bewertungs-Sterne + Foto-Placeholder + Zuverlässigkeits-Badge; nur wenn dispatched; schließbar */}
       <StorefrontPhase1906FahrerProfilMiniCard locationId={location.id} orderId={activeOrderId ?? null} />
+      {/* Phase 1911: Lieferzuverlässigkeits-Widget — Social-Proof-Kachel Pünktlichkeit%; schließbar; 1-Std-Polling */}
+      <StorefrontPhase1911LieferzuverlaessigkeitsWidget locationId={location.id} />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra
