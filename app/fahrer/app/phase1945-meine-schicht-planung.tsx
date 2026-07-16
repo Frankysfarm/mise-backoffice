@@ -26,8 +26,8 @@ export default function FahrerPhase1945MeineSchichtPlanung({
   isOnline,
   className,
 }: {
-  locationId: string;
-  driverId: string;
+  locationId: string | null;
+  driverId: string | null;
   isOnline: boolean;
   className?: string;
 }) {
