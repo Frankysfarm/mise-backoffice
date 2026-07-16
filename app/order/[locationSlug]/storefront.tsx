@@ -760,6 +760,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
   /* ---------------- success screen ---------------- */
   const activeOrderId = orderSuccess?.orderId ?? null;
+  const successEtaMinuten = orderSuccess?.eta ?? null;
+  const successBestelltAm = orderSuccess?.orderedAt ?? null;
   if (orderSuccess) {
     return (
       <div>
@@ -1612,8 +1614,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase1815DynamischeEtaLiveTrackerIntegration
         orderId={activeOrderId}
         locationId={location.id}
-        etaMinuten={orderSuccess?.eta ?? null}
-        bestelltAm={orderSuccess?.orderedAt ?? null}
+        etaMinuten={successEtaMinuten}
+        bestelltAm={successBestelltAm}
         className="mx-4 mt-2"
       />
       {/* Phase 1785: Lieferdienst-Öffnungszeiten-Indikator — Lieferung möglich + nächster Slot; Hydration-safe; schließbar */}

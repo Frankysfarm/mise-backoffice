@@ -108,7 +108,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const sb = createClient();
+    const sb = await createClient();
 
     const { data: drivers, error } = await sb
       .from('profiles')
