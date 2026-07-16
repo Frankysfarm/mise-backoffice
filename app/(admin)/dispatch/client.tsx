@@ -622,6 +622,7 @@ import { DispatchTourScoreLiveKommando } from './phase1851-tour-score-live-komma
 import { DispatchPhase1875TourEffizienzScoreBoard } from './phase1875-tour-effizienz-score-board';
 import { DispatchPhase1879FahrerZonenRangliste } from './phase1879-fahrer-zonen-rangliste';
 import { DispatchPhase1880TourScoreLiveBoard } from './phase1880-tour-score-live-board';
+import { DispatchPhase1884ZonenUmsatzPrognoseWidget } from './phase1884-zonen-umsatz-prognose-widget';
 
 type Driver = {
   employee_id: string;
@@ -1834,6 +1835,8 @@ export function DispatchBoard({
       <DispatchPhase1874ZonenEffizienzCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1879: Fahrer-Zonen-Rangliste — Top-3 Fahrer je Zone nach Pünktlichkeit + Stopps; Trend-Icon; 15-Min-Polling */}
       <DispatchPhase1879FahrerZonenRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+      {/* Phase 1884: Zonen-Umsatz-Prognose-Widget — Balken-Chart Ist vs. 2h-Prognose vs. Ziel je Zone; Alert >20% unter Ziel; 15-Min-Polling */}
+      <DispatchPhase1884ZonenUmsatzPrognoseWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1868: Wartezeit-Heatmap-Widget — 4 Kacheln A/B/C/D mit Ø Wartezeit + Trend-Pfeil; Alert >40 Min; 10-Min-Polling */}
       <DispatchPhase1868WartezeitHeatmapWidget locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1869: Tour-Score-Live-Ranking — Rangliste aller aktiven Touren nach Score; Score-Ring + Fortschrittsbalken + Trend-Pfeil + Alarm-Badge; client-seitig */}
