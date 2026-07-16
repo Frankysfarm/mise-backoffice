@@ -91,7 +91,7 @@ export function KitchenPhase1837BestellRueckstandEskalation({
           bezeichnung: `#${nr}`,
           minutenAktiv: min,
           artikelAnzahl: items.reduce((s, i) => s + (i.menge ?? i.quantity ?? 1), 0),
-          stufe: min >= rotSchwelleMin ? 'rot' : 'orange',
+          stufe: (min >= rotSchwelleMin ? 'rot' : 'orange') as Stufe,
         };
       })
       .filter(e => e.minutenAktiv >= orangeSchwelleMin)

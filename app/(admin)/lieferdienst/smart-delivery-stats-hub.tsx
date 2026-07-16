@@ -92,8 +92,9 @@ export function SmartDeliveryStatsHub({ locationId }: { locationId?: string | nu
             .lt('bestellt_am', todayStart.toISOString()),
         ]);
 
-        const today = todayRes.data ?? [];
-        const yesterday = yesterdayRes.data ?? [];
+        type OrderRow = { gesamtbetrag?: number | null; status?: string | null; lieferzeit_min?: number | null; bewertung?: number | null };
+        const today = (todayRes.data ?? []) as OrderRow[];
+        const yesterday = (yesterdayRes.data ?? []) as OrderRow[];
 
         const completed = today.filter((o) => o.status === 'delivered');
         const cancelledPct =

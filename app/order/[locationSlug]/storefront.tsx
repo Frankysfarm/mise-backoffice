@@ -1636,10 +1636,9 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1845: Küchen-Auslastungs-Badge — Aktuelle Küchenauslastung (entspannt/normal/beschäftigt/sehr ausgelastet); Hydration-safe; 5-Min-Polling */}
       <StorefrontPhase1845KuechenAuslastungsBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1850: Dynamische ETA Live-Tracking Board — 4-Phasen-Stepper (Bestätigt→Zubereitung→Abholung→Unterwegs); Fahrer-Annäherungs-Balken; dynamische ETA; 30-Sek-Polling */}
-      {orderSuccess && (
+      {activeOrderId && (
         <StorefrontPhase1850DynamischeETALiveTrackingBoard
-          bestellId={orderSuccess.orderId}
-          bestellnummer={orderSuccess.bestellnummer}
+          bestellId={activeOrderId}
           className="mx-4 mt-2"
         />
       )}

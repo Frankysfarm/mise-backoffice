@@ -136,7 +136,7 @@ export function KitchenSmartDeliveryKochstartHub({ orders, timings = [], locatio
         <div className="border-t divide-y">
           {rows
             .sort((a, b) => {
-              const priority = { critical: 0, urgent: 1, ok: 2 };
+              const priority: Record<string, number> = { critical: 0, urgent: 1, ok: 2 };
               return (priority[a.urgency] ?? 2) - (priority[b.urgency] ?? 2);
             })
             .map(({ o, countdownSec, phase, urgency, etaMin, driverKm, driverName }) => (
