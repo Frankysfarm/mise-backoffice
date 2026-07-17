@@ -206,6 +206,7 @@ import { KitchenPhase2045KritischeKochzeitAmpel } from './phase2045-kritische-ko
 import { KitchenPhase2046SmartTimingFarbkodierungsLiveMatrix } from './phase2046-smart-timing-farbkodierungs-live-matrix';
 import { KitchenPhase2047EchtzeitCountdownMatrix } from './phase2047-echtzeit-countdown-matrix';
 import { KitchenPhase2048BatchKochstartPrioraetsCockpit } from './phase2048-batch-kochstart-prioritaets-cockpit';
+import { KitchenPhase2053StammkundenBestellungsHighlight } from './phase2053-stammkunden-bestellungs-highlight';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3144,6 +3145,8 @@ export function KitchenBoard({
       <KitchenPhase2047EchtzeitCountdownMatrix orders={filtered as any} />
       {/* Phase 2048: Kochstart-Prioritäts-Cockpit — KI-Prio-Score für offene Bestellungen; Dringlichkeits-Ranking; Kochstart-Empfehlung */}
       <KitchenPhase2048BatchKochstartPrioraetsCockpit orders={filtered as any} />
+      {/* Phase 2053: Stammkunden-Bestellungs-Highlight — VIP-Badge bei ≥5 Bestellungen; sortierbar nach Bestellanzahl/Zeit; useMemo */}
+      <KitchenPhase2053StammkundenBestellungsHighlight orders={filtered as any} />
     </div>
   );
 }

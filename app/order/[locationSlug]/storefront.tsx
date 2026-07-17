@@ -388,6 +388,7 @@ import { StorefrontPhase2028LieferzeitVersprechenBadge } from './phase2028-liefe
 import { StorefrontPhase2034LieferzuverlaessigkeitsGarantieBadge } from './phase2034-lieferzuverlaessigkeits-garantie-badge';
 import { StorefrontPhase2039KundenbewertungsVertrauensBadge } from './phase2039-kundenbewertungs-vertrauens-badge';
 import { StorefrontPhase2044PuenktlichkeitsBadge } from './phase2044-puenktlichkeits-badge';
+import { StorefrontPhase2052StammkundenBegruessung } from './phase2052-stammkunden-begruessung';
 
 type Props = {
   location: Location;
@@ -1779,6 +1780,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2039KundenbewertungsVertrauensBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2044: Pünktlichkeits-Badge — "X% pünktliche Lieferungen" wenn Team-Ø ≥90%; Clock-Pill */}
       <StorefrontPhase2044PuenktlichkeitsBadge locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 2052: Stammkunden-Begrüssungs-Banner — "Willkommen zurück, [Name]!" wenn Bestellhistorie ≥3; schließbar; Hydration-safe */}
+      <StorefrontPhase2052StammkundenBegruessung locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1892: Dynamische-ETA-Live-Tracking-Ultra — Phasen-Zeitleiste + ETA-Countdown + Fahrername + 15-Sek-Polling; SSR-safe */}
       {activeOrderId && (
         <StorefrontPhase1892DynamischeEtaLiveTrackingUltra

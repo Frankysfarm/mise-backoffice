@@ -655,6 +655,7 @@ import { DispatchPhase2042PuenktlichkeitsTrendBoard } from './phase2042-puenktli
 import { DispatchPhase2043TourScoreLiveVisualisierung } from './phase2043-tour-score-live-visualisierung';
 import { DispatchPhase2044ScoreTrendAnalyseBoard } from './phase2044-score-trend-analyse-board';
 import { DispatchPhase2045TourZeitplanVisualisierungPro } from './phase2045-tour-zeitplan-visualisierung-pro';
+import { DispatchPhase2050WiederkaufKundenMonitor } from './phase2050-wiederkauf-kunden-monitor';
 
 type Driver = {
   employee_id: string;
@@ -3571,6 +3572,8 @@ export function DispatchBoard({
           <DispatchPhase2044ScoreTrendAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2045: Tour-Zeitplan-Visualisierung-Pro — Gantt-ähnliche Balken aktiver Touren mit Plan vs. Ist + Verzögerungs-Alert */}
           <DispatchPhase2045TourZeitplanVisualisierungPro batches={batches as any} drivers={drivers as any} />
+          {/* Phase 2050: Wiederkauf-Kunden-Monitor — Stammkunden vs. Neukunden; Top-5 aktiv heute; Trend; Alert bei Rückgang */}
+          <DispatchPhase2050WiederkaufKundenMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
