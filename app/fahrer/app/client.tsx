@@ -604,6 +604,7 @@ import { FahrerPhase2180MeinEinsatzScore } from './phase2180-mein-einsatz-score'
 import { FahrerPhase2180SchichtEinnahmenPrognoseLive } from './phase2180-schicht-einnahmen-prognose-live';
 import { FahrerPhase2185MeineStornoBilanz } from './phase2185-meine-storno-bilanz';
 import { FahrerPhase2190MeinKundenfeedback } from './phase2190-mein-kundenfeedback';
+import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
   id: string;
@@ -5766,6 +5767,8 @@ export function FahrerApp({
           <FahrerPhase2185MeineStornoBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2190: Mein Kundenfeedback — Eigene Sterne-Bewertung; Visualisierung; Team-Ø; Trend; Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2190MeinKundenfeedback driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
+          <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
