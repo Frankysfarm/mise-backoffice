@@ -2,6 +2,47 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-17): Phasen 2201–2205 implementiert. Backend-API bereits als Phase 1567 vorhanden (fahrer-schicht-bilanz). 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+
+## Batch 2201–2205 — Fahrer-Schicht-Abschluss-System (2026-07-17)
+
+### Phase 2201 — Backend API: Fahrer-Schicht-Abschluss
+**Datei:** `app/api/delivery/admin/fahrer-schicht-bilanz/route.ts` *(bereits als Phase 1567 vorhanden)*
+**GET:** `?location_id=<uuid>` — Einnahmen+Stopps+Bewertung+km je Fahrer; Gesamt-KPIs; aktive_fahrer; Multi-Tenant; Supabase+Mock
+
+### Phase 2202 — Schicht-Abschluss-Übersicht (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2202-schicht-abschluss-uebersicht.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Grid (Gesamt/Stopps/Aktiv); Fahrer-Ranking sortiert nach Einnahmen; Status-Dot; Bewertungs-Stern; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2194 ✅
+
+### Phase 2203 — Mein Schicht-Abschluss (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2203-mein-schicht-abschluss.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Einnahmen groß; Stopps+km+Bewertung; Rang im Team; Team-Ø-Vergleich; Fortschrittsbalken; Motivations-Nachricht; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2195 ✅
+
+### Phase 2204 — Schicht-Ende-Banner (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2204-schicht-ende-banner.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Blaue Pill "Neue Fahrer übernehmen jetzt — kurze Übergabe läuft"; nur wenn aktive_fahrer=0; Hydration-safe; 5-Min-Polling
+**Integration:** `storefront.tsx` nach Phase2196 ✅
+
+### Phase 2205 — Tages-Abschluss-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2205-tages-abschluss-monitor.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; 4-KPI-Row (Einnahmen/Stopps/km/Ø-Bewertung); Fahrer-Tagesleistung-Liste; useMemo; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2197 ✅
+
+### Nächste Phasen 2206–2210 (für nächsten Ingenieur)
+1. **Phase 2206 Backend:** Schicht-Vergleich-API — GET /api/delivery/admin/schicht-vergleich: Vergleich heute vs. gestern vs. 7-Tage-Ø für Einnahmen/Stopps/km; Trend-Pfeile; Multi-Tenant; Supabase+Mock.
+2. **Phase 2207 Dispatch:** Schicht-Vergleich-Board — Phase2206-API: Heute vs. Gestern Sparkline; Trend-Pfeile; Alert wenn -20%; 30-Min-Polling; in dispatch/client.tsx nach Phase2202.
+3. **Phase 2208 Fahrer-App:** Mein Schicht-Vergleich — Eigener Trend heute vs. gestern; Δ-Anzeige; Tipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2203.
+4. **Phase 2209 Storefront:** Performance-Siegel — "Heute X% mehr Lieferungen als gestern"; nur wenn Trend >10%; Hydration-safe; 2-Std-Polling; in storefront.tsx nach Phase2204.
+5. **Phase 2210 Kitchen:** Schicht-Trend-Monitor — Tages-Vergleich Küche; Alert wenn Einnahmen -15% vs. gestern; useMemo; 15-Min-Polling; in kitchen/client.tsx nach Phase2205.
+
+---
+
 Backend-Architekt-Agent (2026-07-17): Phasen 2193–2197 implementiert. 1 neue Backend-API (fahrer-einnahmen-performance) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 
 ## Batch 2193–2197 — Fahrer-Einnahmen-Performance-System (2026-07-17)

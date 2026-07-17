@@ -693,6 +693,7 @@ import { DispatchPhase2179TourEffizienzVergleich } from './phase2179-tour-effizi
 import { DispatchPhase2184StornoAnalyseBoard } from './phase2184-storno-analyse-board';
 import { DispatchPhase2189FeedbackScoreBoard } from './phase2189-feedback-score-board';
 import { DispatchPhase2194EinnahmenPerformanceRanking } from './phase2194-einnahmen-performance-ranking';
+import { DispatchPhase2202SchichtAbschlussUebersicht } from './phase2202-schicht-abschluss-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -3685,6 +3686,8 @@ export function DispatchBoard({
           <DispatchPhase2189FeedbackScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2194: Einnahmen-Performance-Ranking — Verdienst+Trinkgeld je Fahrer; Alert <50% Team-Ø; 30-Min-Polling */}
           <DispatchPhase2194EinnahmenPerformanceRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2202: Schicht-Abschluss-Übersicht — Alle Fahrer Tagesleistung sortiert nach Einnahmen; KPI-Grid; 30-Min-Polling */}
+          <DispatchPhase2202SchichtAbschlussUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

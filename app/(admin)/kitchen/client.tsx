@@ -243,6 +243,7 @@ import { KitchenPhase2182EinsatzAuslastungsMonitor } from './phase2182-einsatz-a
 import { KitchenPhase2187StornoMonitor } from './phase2187-storno-monitor';
 import { KitchenPhase2192FeedbackAlert } from './phase2192-feedback-alert';
 import { KitchenPhase2197EinnahmenMonitor } from './phase2197-einnahmen-monitor';
+import { KitchenPhase2205TagesAbschlussMonitor } from './phase2205-tages-abschluss-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3258,6 +3259,8 @@ export function KitchenBoard({
       <KitchenPhase2192FeedbackAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2197: Einnahmen-Monitor — Team-Gesamt-Verdienst; Alert Fahrer <50% Team-Ø; KPI-Grid; 15-Min-Polling */}
       <KitchenPhase2197EinnahmenMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2205: Tages-Abschluss-Monitor — Gesamtüberblick; Einnahmen+Km+Bewertung; Fahrer-Tagesleistung; 15-Min-Polling */}
+      <KitchenPhase2205TagesAbschlussMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
