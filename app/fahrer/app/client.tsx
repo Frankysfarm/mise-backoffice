@@ -608,6 +608,7 @@ import { FahrerPhase2195MeinVerdienstHeute } from './phase2195-mein-verdienst-he
 import { FahrerPhase2203MeinSchichtAbschluss } from './phase2203-mein-schicht-abschluss';
 import { FahrerPhase2208MeinSchichtVergleich } from './phase2208-mein-schicht-vergleich';
 import { FahrerPhase2213MeinBestzeitRekord } from './phase2213-mein-bestzeit-rekord';
+import { FahrerPhase2218MeinZuverlaessigkeitsScore } from './phase2218-mein-zuverlaessigkeits-score';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5779,6 +5780,8 @@ export function FahrerApp({
           <FahrerPhase2208MeinSchichtVergleich driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2213: Mein Bestzeit-Rekord — Schnellste Lieferzeit; Allzeit-Bestmarke; Rekord-Badge; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2213MeinBestzeitRekord driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2218: Mein Zuverlässigkeits-Score — Score + Trend; Warnung wenn hoch; isOnline-Guard; 2-Std-Polling */}
+          <FahrerPhase2218MeinZuverlaessigkeitsScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}

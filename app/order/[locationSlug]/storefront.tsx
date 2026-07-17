@@ -423,6 +423,7 @@ import { StorefrontPhase2196VerdienstSiegel } from './phase2196-verdienst-siegel
 import { StorefrontPhase2204SchichtEndeBanner } from './phase2204-schicht-ende-banner';
 import { StorefrontPhase2209PerformanceSiegel } from './phase2209-performance-siegel';
 import { StorefrontPhase2214RekordSiegel } from './phase2214-rekord-siegel';
+import { StorefrontPhase2219ZuverlaessigkeitsSiegel } from './phase2219-zuverlaessigkeits-siegel';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1888,6 +1889,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2209PerformanceSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2214: Rekord-Siegel — "Heutiger Lieferrekord: X Min."; nur wenn ≤15 Min.; Hydration-safe; 4-Std-Polling */}
       <StorefrontPhase2214RekordSiegel locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2219: Zuverlässigkeits-Siegel — "Pünktliche Lieferung in X% der Fälle"; nur wenn >95%; 6-Std-Polling */}
+      <StorefrontPhase2219ZuverlaessigkeitsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2200: LiveTrackingFortschritt — Echtzeit-Lieferfortschritt mit Phasen-Timeline und Fahrer-Position */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
