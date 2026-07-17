@@ -687,6 +687,7 @@ import { DispatchPhase2154TageskilometerBoard } from './phase2154-tageskilometer
 import { DispatchPhase2159LieferzeitKonsistenzBoard } from './phase2159-lieferzeit-konsistenz-board';
 import { DispatchPhase2164SpitzenzeitBoard } from './phase2164-spitzenzeit-board';
 import { DispatchPhase2169WartezeitBoard } from './phase2169-wartezeit-board';
+import { DispatchPhase2174TourScoreVisualisierungLive } from './phase2174-tour-score-visualisierung-live';
 
 type Driver = {
   employee_id: string;
@@ -3667,6 +3668,8 @@ export function DispatchBoard({
           <DispatchPhase2164SpitzenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2169: Wartezeit-Board — Fahrer-Ranking nach Ø Wartezeit; Ampel grün/gelb/rot; Alert >8 Min.; Restaurant-Kontakt-Hinweis; 30-Min-Polling */}
           <DispatchPhase2169WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2174: Tour-Score Live-Visualisierung — Echtzeit-Score pro Tour; Progress-Ring; Fahrername; Stopp-Fortschritt; Ø-Score-Balken */}
+          <DispatchPhase2174TourScoreVisualisierungLive />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

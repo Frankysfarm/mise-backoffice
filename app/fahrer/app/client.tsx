@@ -599,6 +599,7 @@ import { FahrerPhase2155MeineTageskilometer } from './phase2155-meine-tageskilom
 import { FahrerPhase2160MeineKonsistenz } from './phase2160-meine-konsistenz';
 import { FahrerPhase2165MeineSpitzenzeitBilanz } from './phase2165-meine-spitzenzeit-bilanz';
 import { FahrerPhase2170MeineWartezeit } from './phase2170-meine-wartezeit';
+import { FahrerPhase2175TourStoppEchtzeitNavigator } from './phase2175-tour-stopp-echtzeit-navigator';
 
 type Driver = {
   id: string;
@@ -5729,6 +5730,26 @@ export function FahrerApp({
           <FahrerPhase2165MeineSpitzenzeitBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2170: Meine Wartezeit — Eigene Ø Wartezeit; Aufträge >5 Min.; vs. Team-Ø; Tipp Abholoptimierung; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2170MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2175: Tour-Stopp Echtzeit-Navigator — Kompakter Navigator mit Fortschritts-Ring, Stopp-Fokus, Navi-CTA, Vorschau nächste Stopps */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2175TourStoppEchtzeitNavigator
+              stops={(activeBatch.stops ?? []).map((s: any, idx: number) => ({
+                id: s.id,
+                order_id: s.order_id,
+                address: s.order?.kunde_adresse
+                  ? `${s.order.kunde_adresse}${s.order.kunde_plz ? ', ' + s.order.kunde_plz : ''}`
+                  : null,
+                kunde_name: s.order?.kunde_name ?? null,
+                telefon: s.order?.kunde_telefon ?? null,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : 'offen',
+                sort_order: s.reihenfolge ?? idx,
+                eta_min: null,
+              }))}
+              currentStopIndex={(activeBatch.stops ?? []).findIndex((s: any) => !s.geliefert_am)}
+              onNavigate={(addr) => { window.open(`https://maps.google.com/?q=${encodeURIComponent(addr)}`); }}
+              onCall={(phone) => { window.open(`tel:${phone}`); }}
+            />
+          )}
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
