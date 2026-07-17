@@ -600,6 +600,7 @@ import { FahrerPhase2160MeineKonsistenz } from './phase2160-meine-konsistenz';
 import { FahrerPhase2165MeineSpitzenzeitBilanz } from './phase2165-meine-spitzenzeit-bilanz';
 import { FahrerPhase2170MeineWartezeit } from './phase2170-meine-wartezeit';
 import { FahrerPhase2175TourStoppEchtzeitNavigator } from './phase2175-tour-stopp-echtzeit-navigator';
+import { FahrerPhase2180MeinEinsatzScore } from './phase2180-mein-einsatz-score';
 
 type Driver = {
   id: string;
@@ -5730,6 +5731,8 @@ export function FahrerApp({
           <FahrerPhase2165MeineSpitzenzeitBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2170: Meine Wartezeit — Eigene Ø Wartezeit; Aufträge >5 Min.; vs. Team-Ø; Tipp Abholoptimierung; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2170MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2180: Mein Einsatz-Score — Aufträge/h heute; vs. Team-Ø; Score-Balken; Coaching-Tipp; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2180MeinEinsatzScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2175: Tour-Stopp Echtzeit-Navigator — Kompakter Navigator mit Fortschritts-Ring, Stopp-Fokus, Navi-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2175TourStoppEchtzeitNavigator

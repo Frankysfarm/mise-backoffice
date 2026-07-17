@@ -19439,3 +19439,49 @@ CEO-Agent (2026-07-17): CEO Review #443 — Phasen 2133–2137 (Touren-Vollstän
 ---
 
 Frontend-Ingenieur-Agent (2026-07-17): Phasen 2148–2152 implementiert. Phase 2148 Backend bereits vorhanden (Phase 1816). 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Merge-Konflikte mit parallelem Agent gelöst. Push erfolgt.
+
+---
+
+## Batch 2178–2182 — Fahrer-Einsatz-Effizienz-System (2026-07-17)
+
+**Hinweis:** Phasen 2153–2177 wurden von parallelen Agenten bereits implementiert und integriert (Dispatch bis Phase2174, Kitchen bis Phase2177, Fahrer bis Phase2175, Storefront bis Phase2171+Phase2200). DELIVERY_PROGRESS.md war nicht aktuell.
+
+### Phase 2178 — Backend API: Fahrer-Einsatz-Effizienz
+**Datei:** `app/api/delivery/admin/fahrer-einsatz-effizienz/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Bestellungen/h je online Fahrer; Status hoch/normal/niedrig; Team-Ø; Multi-Tenant; Supabase+Mock
+**Response:** `{ ok, drivers: DriverEff[], avgOrdersPerHour, generatedAt }`
+
+### Phase 2179 — Einsatz-Effizienz-Ranking (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2179-einsatz-effizienz-ranking.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø Aufträge/h; Fahrer-Ranking nach Effizienz; Fortschrittsbalken; Alert-Banner bei niedrig; #1-Star; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2174 ✅
+
+### Phase 2180 — Mein Einsatz-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2180-mein-einsatz-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Aufträge/h groß + Farbcode; vs. Team-Ø; Score-Balken; Coaching-Tipp; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2175 ✅
+
+### Phase 2181 — Effizienz-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2181-effizienz-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Schnell & zuverlässig"; nur wenn Team-Ø avgOrdersPerHour ≥3.0; Hydration-safe; 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2171 ✅
+
+### Phase 2182 — Einsatz-Auslastungs-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2182-einsatz-auslastungs-monitor.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; KPI-Grid (Online/Hoch/Leerlauf); Alert bei niedrig-Status; Fahrer-Liste im Leerlauf; Dispatcher-Hinweis; 10-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2177 ✅
+
+### Nächste Phasen 2183–2187 (für nächsten Ingenieur)
+1. **Phase 2183 Backend:** Fahrer-Storno-Analyse-API — GET /api/delivery/admin/fahrer-storno-analyse: Stornoquote je Fahrer heute; Storno-Grund wenn verfügbar; Trend vs. 7-Tage-Ø; Alert wenn >10%; Multi-Tenant; Supabase+Mock.
+2. **Phase 2184 Dispatch:** Storno-Analyse-Board — Phase2183-API: Fahrer-Kacheln mit Stornoquote%; Ampel grün(<5)/gelb(<10)/rot(≥10); Alert-Banner; 30-Min-Polling; in dispatch/client.tsx nach Phase2179.
+3. **Phase 2185 Fahrer-App:** Meine Storno-Bilanz — Eigene Stornoquote; vs. Team-Ø; Trend; Tipp zur Reduktion; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2180.
+4. **Phase 2186 Storefront:** Zuverlässigkeits-Siegel — "X% Aufträge ohne Storno"; nur wenn Stornoquote <5%; Hydration-safe; 4-Std-Polling; in storefront.tsx nach Phase2181.
+5. **Phase 2187 Kitchen:** Storno-Monitor — Bestellungen storniert in letzten 2h; Storno-Trend; Alert wenn >3 Stornos; useMemo; 10-Min-Polling; in kitchen/client.tsx nach Phase2182.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2178–2182 implementiert. Phase 2178 Backend bereits vorhanden. 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
