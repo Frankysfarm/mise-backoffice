@@ -669,6 +669,7 @@ import { DispatchPhase2077SchichtStartUebersicht } from './phase2077-schicht-sta
 import { DispatchPhase2082TourScoreLiveKommandant } from './phase2082-tour-score-live-kommandant';
 import { DispatchPhase2088StundenDurchsatzBoard } from './phase2088-stunden-durchsatz-board';
 import { DispatchPhase2093TagesQualitaetsBoard } from './phase2093-tages-qualitaets-board';
+import { DispatchPhase2094TourScoreLiveMatrixPro } from './phase2094-tour-score-live-matrix-pro';
 
 type Driver = {
   employee_id: string;
@@ -3613,6 +3614,8 @@ export function DispatchBoard({
           <DispatchPhase2088StundenDurchsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2093: Tages-Qualitäts-Board — Fahrer-Leaderboard Score; Pünktlichkeit + Bewertung + Storno; 15-Min-Polling */}
           <DispatchPhase2093TagesQualitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2094: Tour-Score-Live-Matrix-Pro — Fahrer-Rangliste; Dimension-Bars (Pünktl/Effizienz/Bewertung/Zuverlässigkeit); Stop-Fortschritt; ETA; 30s-Refresh */}
+          <DispatchPhase2094TourScoreLiveMatrixPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

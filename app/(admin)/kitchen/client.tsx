@@ -219,6 +219,7 @@ import { KitchenPhase2081SchichtEndeWarnung } from './phase2081-schicht-ende-war
 import { KitchenPhase2086SmartTimingLiveCockpitPro } from './phase2086-smart-timing-live-cockpit-pro';
 import { KitchenPhase2091StundenAuslastungsHeatmap } from './phase2091-stunden-auslastungs-heatmap';
 import { KitchenPhase2096TagesQualitaetsAlert } from './phase2096-tages-qualitaets-alert';
+import { KitchenPhase2097SmartTimingLieferzeitBridge } from './phase2097-smart-timing-lieferzeit-bridge';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3186,6 +3187,8 @@ export function KitchenBoard({
       <KitchenPhase2091StundenAuslastungsHeatmap orders={filtered as any} />
       {/* Phase 2096: Tages-Qualitäts-Alert — Fahrer mit Score <70; Storno-Alert; Team-Score; 10-Min-Update */}
       <KitchenPhase2096TagesQualitaetsAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2097: Smart-Timing-Liefer-Bridge — Kochzeit vs. Fahrer-ETA-Abgleich; Gap-Anzeige; Risiko-Ampel; 1s-Countdown; 30s-API-Update */}
+      <KitchenPhase2097SmartTimingLieferzeitBridge locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

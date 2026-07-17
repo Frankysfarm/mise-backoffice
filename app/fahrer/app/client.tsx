@@ -579,6 +579,7 @@ import { FahrerPhase2078MeineSchichtDauer } from './phase2078-meine-schicht-daue
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
 import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
 import { FahrerPhase2110TourStoppEchtzeitNavigator } from './phase2110-tour-stopp-echtzeit-navigator';
+import { FahrerPhase2111TourStoppSmartGpsHub } from './phase2111-tour-stopp-smart-gps-hub';
 import { FahrerPhase2089MeineStundenBilanz } from './phase2089-meine-stunden-bilanz';
 import { FahrerPhase2094MeinTagesQualitaetsScore } from './phase2094-mein-tages-qualitaets-score';
 
@@ -5656,6 +5657,27 @@ export function FahrerApp({
           <FahrerPhase2089MeineStundenBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2094: Mein Tages-Qualitäts-Score — Ring-Gauge; Pünktlichkeit + Bewertung + Stornofreiheit; Trend; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase2094MeinTagesQualitaetsScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2111: Tour-Stopp-Smart-GPS-Hub — Aktueller Stopp Hero; Navigation + Anruf + Bestätigen-CTAs; Nächster-Stopp-Vorschau; Stop-Liste; Fortschrittsbalken */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2111TourStoppSmartGpsHub
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? null,
+                address: s.order?.kunde_adresse ?? s.address ?? null,
+                customer_name: s.order?.kunde_name ?? s.customer_name ?? null,
+                customer_phone: s.order?.kunde_telefon ?? s.customer_phone ?? null,
+                status: s.geliefert_am ? 'delivered' : (s.angekommen_am ? 'arrived' : 'pending'),
+                lat: s.order?.kunde_lat ?? s.lat ?? null,
+                lng: s.order?.kunde_lng ?? s.lng ?? null,
+                eta_min: s.order?.geschaetzte_lieferung_min ?? null,
+                order_id: s.order_id ?? null,
+                is_cash: s.order?.zahlungsart === 'cash',
+                amount: s.order?.gesamtbetrag ?? null,
+              }))}
+              driverId={driver.id}
+              isOnline={isOnline}
+            />
+          )}
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
