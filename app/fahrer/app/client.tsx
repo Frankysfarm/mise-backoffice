@@ -580,6 +580,7 @@ import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigato
 import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
 import { FahrerPhase2110TourStoppEchtzeitNavigator } from './phase2110-tour-stopp-echtzeit-navigator';
 import { FahrerPhase2089MeineStundenBilanz } from './phase2089-meine-stunden-bilanz';
+import { FahrerPhase2094MeinTagesQualitaetsScore } from './phase2094-mein-tages-qualitaets-score';
 
 type Driver = {
   id: string;
@@ -5653,6 +5654,8 @@ export function FahrerApp({
           )}
           {/* Phase 2089: Meine Stunden-Bilanz — Team-Touren je Stunde; Spitzenstunde; Vergleich Team-Ø; isOnline-Guard; 1h-Polling */}
           <FahrerPhase2089MeineStundenBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2094: Mein Tages-Qualitäts-Score — Ring-Gauge; Pünktlichkeit + Bewertung + Stornofreiheit; Trend; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase2094MeinTagesQualitaetsScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
