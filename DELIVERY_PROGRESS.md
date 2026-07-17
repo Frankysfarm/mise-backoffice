@@ -19724,3 +19724,46 @@ Frontend-Ingenieur-Agent (2026-07-17): Phasen 2148–2152 implementiert. Phase 2
 ---
 
 Backend-Architekt-Agent (2026-07-17): Phasen 2178–2182 implementiert. Phase 2178 Backend bereits vorhanden. 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2216–2220 — Fahrer-Ausfallrisiko-System (2026-07-17)
+
+### Phase 2216 — Fahrer-Ausfallrisiko-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-ausfallrisiko/route.ts` *(bereits vorhanden als Phase 1299, kompatibles Schema)*
+**GET:** `?location_id=<uuid>` — Risiko-Score je Fahrer aus Verspätungen/Fehlzeiten/Stornos letzter 7 Tage; Ampel grün/gelb/rot; Multi-Tenant; Supabase+Mock
+
+### Phase 2217 — Ausfallrisiko-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2217-ausfallrisiko-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Fahrerliste mit Risiko-Ampel (grün/gelb/rot); Top-3 Risikofälle hervorgehoben; Alert-Banner wenn >1 Fahrer Rot; Score-Anzeige; Verspätungen + Fehlzeiten; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2212 ✅
+
+### Phase 2218 — Mein Zuverlässigkeits-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2218-mein-zuverlaessigkeits-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score groß + Fortschrittsbalken + Farbcode; KPI-Grid (Verspätungen/Fehlzeiten); Tipp je Risikostufe; isOnline-Guard; 2-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2213 ✅
+
+### Phase 2219 — Zuverlässigkeits-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2219-zuverlaessigkeits-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Pünktliche Lieferung in X% der Fälle" + ShieldCheck; nur wenn >95% Fahrer mit niedrigem Risiko; Hydration-safe; 6-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2214 ✅
+
+### Phase 2220 — Ausfallrisiko-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2220-ausfallrisiko-ticker.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; KPI-Grid (Gesamt/Verfügbar/Hoch-Risiko); Alert-Banner rot wenn <2 verfügbare Fahrer; Rot-Fahrer-Liste; 10-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2215 ✅
+
+### Nächste Phasen 2221–2225 (für nächsten Ingenieur)
+1. **Phase 2221 Backend:** Fahrer-Wartezeit-Analyse-API — GET /api/delivery/admin/fahrer-wartezeit: Ø Wartezeit je Fahrer zwischen Touren heute; Trend vs. 7-Tage-Ø; Alert wenn >15 Min.; Multi-Tenant; Supabase+Mock.
+2. **Phase 2222 Dispatch:** Wartezeit-Ranking-Board — Fahrerliste nach Ø Wartezeit sortiert; Ampel grün(<10)/gelb(<15)/rot(≥15 Min.); Dispatcher-Tipp zur Optimierung; Alert-Banner; 30-Min-Polling; in dispatch/client.tsx nach Phase2217.
+3. **Phase 2223 Fahrer-App:** Meine Wartezeit-Bilanz — Eigene Ø Wartezeit + Trend; Coaching-Tipp; Vergleich Team-Ø; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2218.
+4. **Phase 2224 Storefront:** Liefertempo-Siegel — "Unsere Fahrer liefern ohne Wartezeit" Badge; nur wenn Team-Ø Wartezeit <5 Min.; Hydration-safe; 4-Std-Polling; in storefront.tsx nach Phase2219.
+5. **Phase 2225 Kitchen:** Wartezeit-Monitor — Fahrer mit langer Wartezeit (>15 Min.); Alert-Banner; Dispatcher-Hinweis; useMemo; 10-Min-Polling; in kitchen/client.tsx nach Phase2220.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2216–2220 implementiert. Phase 2216 Backend bereits vorhanden (Phase 1299). 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
