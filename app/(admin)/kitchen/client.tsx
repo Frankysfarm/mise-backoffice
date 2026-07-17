@@ -203,6 +203,9 @@ import { KitchenPhase2030SmartTimingCountdownLiveCockpit } from './phase2030-sma
 import { KitchenPhase2035BestellungsVerlustRadar } from './phase2035-bestellungs-verlust-radar';
 import { KitchenPhase2040ZubereitungsQualitaetsMonitor } from './phase2040-zubereitungs-qualitaets-monitor';
 import { KitchenPhase2045KritischeKochzeitAmpel } from './phase2045-kritische-kochzeit-ampel';
+import { KitchenPhase2046SmartTimingFarbkodierungsLiveMatrix } from './phase2046-smart-timing-farbkodierungs-live-matrix';
+import { KitchenPhase2047EchtzeitCountdownMatrix } from './phase2047-echtzeit-countdown-matrix';
+import { KitchenPhase2048BatchKochstartPrioraetsCockpit } from './phase2048-batch-kochstart-prioritaets-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3135,6 +3138,12 @@ export function KitchenBoard({
       <KitchenPhase2040ZubereitungsQualitaetsMonitor orders={filtered as any} />
       {/* Phase 2045: Kritische Kochzeit-Ampel — Bestellungen nach Zubereitungszeit; grün/gelb/rot; Alert >25min */}
       <KitchenPhase2045KritischeKochzeitAmpel orders={filtered as any} />
+      {/* Phase 2046: Smart-Timing Farbkodierungs-Live-Matrix — 4-Stufen Ampel (grün/gelb/orange/rot) + Wartezeit-Balken je Bestellung */}
+      <KitchenPhase2046SmartTimingFarbkodierungsLiveMatrix orders={filtered as any} />
+      {/* Phase 2047: Echtzeit-Countdown-Matrix — Top-8 Bestellungen mit Live-Countdown-Sekunden bis geschätzter Fertigstellung */}
+      <KitchenPhase2047EchtzeitCountdownMatrix orders={filtered as any} />
+      {/* Phase 2048: Kochstart-Prioritäts-Cockpit — KI-Prio-Score für offene Bestellungen; Dringlichkeits-Ranking; Kochstart-Empfehlung */}
+      <KitchenPhase2048BatchKochstartPrioraetsCockpit orders={filtered as any} />
     </div>
   );
 }

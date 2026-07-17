@@ -652,6 +652,9 @@ import { DispatchPhase2031TourScoreVisualisierungsBoard } from './phase2031-tour
 import { DispatchPhase2032TourenAbschlussTrendChart } from './phase2032-touren-abschluss-trend-chart';
 import { DispatchPhase2037BewertungsTrendLeaderboard } from './phase2037-bewertungs-trend-leaderboard';
 import { DispatchPhase2042PuenktlichkeitsTrendBoard } from './phase2042-puenktlichkeits-trend-board';
+import { DispatchPhase2043TourScoreLiveVisualisierung } from './phase2043-tour-score-live-visualisierung';
+import { DispatchPhase2044ScoreTrendAnalyseBoard } from './phase2044-score-trend-analyse-board';
+import { DispatchPhase2045TourZeitplanVisualisierungPro } from './phase2045-tour-zeitplan-visualisierung-pro';
 
 type Driver = {
   employee_id: string;
@@ -3562,6 +3565,12 @@ export function DispatchBoard({
           <DispatchPhase2037BewertungsTrendLeaderboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2042: Pünktlichkeits-Ranking — Fahrer nach Pünktlichkeitsrate; Ampel; Alert <90% */}
           <DispatchPhase2042PuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2043: Tour-Score Live-Visualisierung — Aktive Touren mit Score-Badges (exzellent/gut/ok/schwach); Fortschritt; Laufzeit */}
+          <DispatchPhase2043TourScoreLiveVisualisierung batches={batches as any} drivers={drivers as any} />
+          {/* Phase 2044: Score-Trend-Analyse-Board — Fahrer-Score-Verläufe 7 Tage mit Sparklines + Balken + Trend-Pfeilen */}
+          <DispatchPhase2044ScoreTrendAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2045: Tour-Zeitplan-Visualisierung-Pro — Gantt-ähnliche Balken aktiver Touren mit Plan vs. Ist + Verzögerungs-Alert */}
+          <DispatchPhase2045TourZeitplanVisualisierungPro batches={batches as any} drivers={drivers as any} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

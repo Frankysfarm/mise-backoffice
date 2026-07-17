@@ -544,6 +544,9 @@ import { FahrerPhase1935MeineKundenbewertungen } from './phase1935-meine-kundenb
 import { FahrerPhase1940MeineStreckenUebersicht } from './phase1940-meine-strecken-uebersicht';
 import FahrerPhase1945MeineSchichtPlanung from './phase1945-meine-schicht-planung';
 import FahrerPhase1950MeinePausenPlanung from './phase1950-meine-pausen-planung';
+import { FahrerPhase1951TourStoppNavigatorUltra } from './phase1951-tour-stopp-navigator-ultra';
+import { FahrerPhase1952TourFortschrittsRing } from './phase1952-tour-fortschritts-ring';
+import { FahrerPhase1953NaechsterStoppEtaCockpit } from './phase1953-naechster-stopp-eta-cockpit';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -5460,6 +5463,37 @@ export function FahrerApp({
           <FahrerPhase1945MeineSchichtPlanung locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1950: Meine-Pausen-Planung — Empfohlene Pausenzeit; Warnung >2h ohne Pause; Pausen-Zähler; isOnline-Guard; 5-Min-Polling */}
           <FahrerPhase1950MeinePausenPlanung locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 1951: Tour-Stopp-Navigator-Ultra — Fokus-Karte Nächster Stopp + One-Tap Google Maps + Telefon + Stopp-Liste mit Fortschrittsbalken */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1951TourStoppNavigatorUltra
+              stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : ('neu' as const),
+                kunde_name: s.order?.kunde_name ?? s.kunde_name ?? null,
+                adresse: s.order?.kunde_adresse ?? s.kunde_adresse ?? s.address ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                telefon: s.order?.kunde_telefon ?? s.kunde_telefon ?? null,
+                notiz: s.order?.notiz ?? s.notiz ?? null,
+              }))}
+            />
+          )}
+          {/* Phase 1952: Tour-Fortschritts-Ring — SVG-Ring Stopps erledigt/gesamt + Laufzeit + Restzeit-Schätzung */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase1952TourFortschrittsRing
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                status: s.geliefert_am ? 'geliefert' : s.angekommen_am ? 'unterwegs' : ('neu' as const),
+              }))}
+            />
+          )}
+          {/* Phase 1953: Nächster-Stopp-ETA-Cockpit — ETA-Countdown + Strecke + Verkehr + One-Tap Navigation; 2-Min-Polling */}
+          <FahrerPhase1953NaechsterStoppEtaCockpit
+            locationId={driver.location_id}
+            driverId={driver.id}
+            isOnline={isOnline}
+          />
           {/* Phase 1891: Schicht-Routen-Effizienz-Score — Score-Ring + Stopps/h + Ø Stoppzeit vs. Ziel; isOnline-Guard; Collapsible; 2-Min-Polling */}
           <FahrerPhase1891SchichtRoutenEffizienzScore locationId={driver.location_id} driverId={driver.id} isOnline={isOnline} />
           {/* Phase 1870: Tour-Stopp-Smart-Sequenz-Navigator — Fokus-Karte Nächster Stopp + One-Tap-Navigation (Google/Apple) + Telefon-Link + kompakte Stopp-Sequenz; client-seitig */}

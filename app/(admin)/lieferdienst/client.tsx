@@ -391,6 +391,8 @@ import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase18
 import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
 import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-statistiken-kompakt-dashboard';
 import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
+import { LieferdienstPhase1887StatistikGesamtuebersichtLive } from './phase1887-statistik-gesamtuebersicht-live';
+import { LieferdienstPhase1888StundenUmsatzStatistikBoard } from './phase1888-stunden-umsatz-statistik-board';
 import { LieferdienstPhase2000StatistikenExecutiveDashboard } from './phase2000-statistiken-executive-dashboard';
 import { LieferdienstPhase2001BestellstatusTrichter } from './phase2001-bestellstatus-trichter';
 import { LieferdienstPhase2002StatistikenKpiMasterDashboard } from './phase2002-statistiken-kpi-master-dashboard';
@@ -1336,6 +1338,10 @@ export function LieferdienstClient() {
               <LieferdienstPhase1885StatistikKompaktDashboard locationId={locationId ?? null} />
               {/* Phase 1886: Fahrer-Effizienz-Schnell-Board — Tabelle Fahrer × Score × Stopps × Ø Stoppzeit; Alert <60; 5-Min-Polling; Collapsible */}
               <LieferdienstPhase1886FahrerEffizienzSchnellBoard locationId={locationId ?? null} />
+              {/* Phase 1887: Statistik-Gesamtübersicht-Live — Heute vs. Gestern: Umsatz, Bestellungen, Ø Lieferzeit, Bewertung, Pünktlichkeit, Storno */}
+              <LieferdienstPhase1887StatistikGesamtuebersichtLive locationId={locationId ?? null} />
+              {/* Phase 1888: Stunden-Umsatz-Statistik-Board — Stündliche Umsatzkurve mit Peak-Erkennung; Balken-Chart; 5-Min-Polling */}
+              <LieferdienstPhase1888StundenUmsatzStatistikBoard locationId={locationId ?? null} />
               {/* Phase 1880: Cross-KPI Cockpit — Schicht-Statistiken: Bestellungen, Umsatz, Ø Lieferzeit, Pünktlichkeit, Storno; Zonen-Auslastung; Trend-Pfeile */}
               <LieferdienstPhase1880CrossKpiCockpit orders={orders as any} />
               {/* Phase 1827: Schicht-Statistik-Echtzeit-Kommando — Kompaktes 6-KPI-Dashboard: Umsatz, Lieferungen, Ø Zeit, Pünktlichkeit, Fahrer, Ablehnungsrate */}

@@ -374,6 +374,7 @@ import { Phase1936BewertungsSocialProofBanner } from './phase1936-bewertungs-soc
 import { Phase1941NachhaltigkeitBadge } from './phase1941-nachhaltigkeit-badge';
 import Phase1946BestellzahlHeuteBadge from './phase1946-bestellzahl-heute-badge';
 import Phase1951EchtzeitWartezeitIndikator from './phase1951-echtzeit-wartezeit-indikator';
+import { Phase1952EchtzeitEtaAnzeigePro } from './phase1952-echtzeit-eta-anzeige-pro';
 import { StorefrontPhase2000LiveLieferungsKommandant } from './phase2000-live-lieferungs-kommandant';
 import { StorefrontPhase2001VertrauensLieferzeitBadge } from './phase2001-vertrauens-lieferzeit-badge';
 import { StorefrontPhase2005LiveVertrauensBalken } from './phase2005-live-vertrauens-balken';
@@ -1730,6 +1731,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <Phase1946BestellzahlHeuteBadge locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1951: Echtzeit-Wartezeit-Indikator — "Aktuell ca. X Min Wartezeit" + Ampelfarbe; schließbar; Hydration-safe; 3-Min-Polling */}
       <Phase1951EchtzeitWartezeitIndikator locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 1952: Echtzeit-ETA-Anzeige-Pro — SVG-Arc-Konfidenz-Ring + 4-Phasen-Step-Tracker + Live-Pulse; 30-Sek-Polling */}
+      {orderSuccess?.type === 'lieferung' && (
+        <div className="px-4 mt-2 max-w-lg mx-auto">
+          <Phase1952EchtzeitEtaAnzeigePro
+            orderId={orderSuccess.orderId}
+            locationId={location.id}
+          />
+        </div>
+      )}
       {/* Phase 2005: Live-Vertrauens-Balken — Fortschrittsleiste X% pünktliche Lieferungen aus Prognose-Score; 1-Std-Polling */}
       <StorefrontPhase2005LiveVertrauensBalken locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2010: Lieferzeit-Konfidenz-Badge — "Wir sind in X–Y Min bei dir (Konfidenz XX%)"; schließbar; 3-Min-Polling */}
