@@ -695,6 +695,7 @@ import { DispatchPhase2189FeedbackScoreBoard } from './phase2189-feedback-score-
 import { DispatchPhase2194EinnahmenPerformanceRanking } from './phase2194-einnahmen-performance-ranking';
 import { DispatchPhase2202SchichtAbschlussUebersicht } from './phase2202-schicht-abschluss-uebersicht';
 import { DispatchPhase2207SchichtVergleichBoard } from './phase2207-schicht-vergleich-board';
+import { DispatchPhase2212BestzeitenBoard } from './phase2212-bestzeiten-board';
 
 type Driver = {
   employee_id: string;
@@ -3691,6 +3692,8 @@ export function DispatchBoard({
           <DispatchPhase2202SchichtAbschlussUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2207: Schicht-Vergleich-Board — Heute vs. Gestern Sparkline; Trend-Pfeile; Alert wenn -20%; 30-Min-Polling */}
           <DispatchPhase2207SchichtVergleichBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2212: Bestzeiten-Board — Podium Top-3 Fahrer; Rekord-Highlight; Tages-Rekord-Ticker; 30-Min-Polling */}
+          <DispatchPhase2212BestzeitenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

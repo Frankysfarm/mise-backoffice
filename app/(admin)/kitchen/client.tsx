@@ -245,6 +245,7 @@ import { KitchenPhase2192FeedbackAlert } from './phase2192-feedback-alert';
 import { KitchenPhase2197EinnahmenMonitor } from './phase2197-einnahmen-monitor';
 import { KitchenPhase2205TagesAbschlussMonitor } from './phase2205-tages-abschluss-monitor';
 import { KitchenPhase2210SchichtTrendMonitor } from './phase2210-schicht-trend-monitor';
+import { KitchenPhase2215BestzeitTicker } from './phase2215-bestzeit-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3264,6 +3265,8 @@ export function KitchenBoard({
       <KitchenPhase2205TagesAbschlussMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2210: Schicht-Trend-Monitor — Tages-Vergleich Küche; Alert wenn -15% vs. gestern; useMemo; 15-Min-Polling */}
       <KitchenPhase2210SchichtTrendMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2215: Bestzeit-Ticker — Live-Ticker letzte 5 Lieferungen; Highlight <20 Min.; useMemo; 5-Min-Polling */}
+      <KitchenPhase2215BestzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
