@@ -161,7 +161,7 @@ export function DispatchPhase2070TourScoreLiveBoard({
           pct,
           aktuellerStop: stopInfo.current,
         };
-      }).sort((a, b) => {
+      }).sort((a: TourRow, b: TourRow) => {
         const order: Health[] = ['late', 'tight', 'on-time', 'unknown'];
         return order.indexOf(a.health) - order.indexOf(b.health);
       });

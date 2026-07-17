@@ -155,7 +155,7 @@ export function KitchenPhase2065SmartTimingLiveCockpit({
             pct,
           };
         })
-        .sort((a, b) => {
+        .sort((a: TimingRow, b: TimingRow) => {
           const order: FarbZone[] = ['rot', 'gelb', 'gruen', 'grau'];
           return order.indexOf(a.farbZone) - order.indexOf(b.farbZone);
         });
@@ -187,7 +187,7 @@ export function KitchenPhase2065SmartTimingLiveCockpit({
       else if (restSec > 0) farbZone = 'gelb';
       else farbZone = 'rot';
       return { ...r, elapsedSec, restSec, pct, farbZone };
-    }).sort((a, b) => {
+    }).sort((a: TimingRow, b: TimingRow) => {
       const order: FarbZone[] = ['rot', 'gelb', 'gruen', 'grau'];
       return order.indexOf(a.farbZone) - order.indexOf(b.farbZone);
     }));
