@@ -689,6 +689,7 @@ import { DispatchPhase2164SpitzenzeitBoard } from './phase2164-spitzenzeit-board
 import { DispatchPhase2169WartezeitBoard } from './phase2169-wartezeit-board';
 import { DispatchPhase2174TourScoreVisualisierungLive } from './phase2174-tour-score-visualisierung-live';
 import { DispatchPhase2179EinsatzEffizienzRanking } from './phase2179-einsatz-effizienz-ranking';
+import { DispatchPhase2179TourEffizienzVergleich } from './phase2179-tour-effizienz-vergleich';
 
 type Driver = {
   employee_id: string;
@@ -3673,6 +3674,8 @@ export function DispatchBoard({
           <DispatchPhase2174TourScoreVisualisierungLive />
           {/* Phase 2179: Einsatz-Effizienz-Ranking — Aufträge/h je Fahrer; Top-3 hervorheben; Alert <niedrig; 30-Min-Polling */}
           <DispatchPhase2179EinsatzEffizienzRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2179b: Tour-Effizienz-Vergleichsmatrix — Ranking aller Touren nach Score, Pünktlichkeit, Stopp-Fortschritt; sortierbar */}
+          <DispatchPhase2179TourEffizienzVergleich />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

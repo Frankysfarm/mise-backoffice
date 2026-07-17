@@ -410,6 +410,7 @@ import { LieferdienstPhase800StatistikenMasterDashboard } from './phase800-stati
 import { LieferdienstPhase2102ReaktionsteitUebersicht } from './phase2102-reaktionszeit-uebersicht';
 import { LieferdienstPhase2130SmartStatistikHub } from './phase2130-smart-statistik-hub';
 import { LieferdienstPhase2135StatistikenKomplettDashboard } from './phase2135-statistiken-komplett-dashboard';
+import { LieferdienstPhase2181LiveBestellflussTrichter } from './phase2181-live-bestellfluss-trichter';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2123,6 +2124,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2130SmartStatistikHub locationId={locationId ?? null} />
                 {/* Phase 2135: Statistiken-Komplett-Dashboard — Umsatz, Bestellungen, Ø Lieferzeit, Stornoquote, Ø Bewertung, Fahrer-Auslastung; 5-Min-Polling */}
                 <LieferdienstPhase2135StatistikenKomplettDashboard locationId={locationId ?? null} />
+                {/* Phase 2181: Live-Bestellfluss-Trichter — Trichter: Eingehend → Küche → Fahrer → Geliefert; Echtzeit-Zählung; 30-Sek-Update */}
+                <LieferdienstPhase2181LiveBestellflussTrichter locationId={locationId ?? null} />
               </>
             </div>
           )}

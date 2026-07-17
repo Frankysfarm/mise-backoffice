@@ -601,6 +601,7 @@ import { FahrerPhase2165MeineSpitzenzeitBilanz } from './phase2165-meine-spitzen
 import { FahrerPhase2170MeineWartezeit } from './phase2170-meine-wartezeit';
 import { FahrerPhase2175TourStoppEchtzeitNavigator } from './phase2175-tour-stopp-echtzeit-navigator';
 import { FahrerPhase2180MeinEinsatzScore } from './phase2180-mein-einsatz-score';
+import { FahrerPhase2180SchichtEinnahmenPrognoseLive } from './phase2180-schicht-einnahmen-prognose-live';
 
 type Driver = {
   id: string;
@@ -5753,6 +5754,12 @@ export function FahrerApp({
               onCall={(phone) => { window.open(`tel:${phone}`); }}
             />
           )}
+          {/* Phase 2180: Schicht-Einnahmen-Prognose Live — Bisherige Einnahmen + Hochrechnung bis Schichtende; Ø/Lieferung; Ziel-Balken */}
+          <FahrerPhase2180SchichtEinnahmenPrognoseLive
+            driverId={driver.id}
+            locationId={driver.location_id}
+            isOnline={isOnline}
+          />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
