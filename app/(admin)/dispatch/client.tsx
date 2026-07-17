@@ -665,6 +665,7 @@ import { DispatchPhase2070TourScoreLiveBoard } from './phase2070-tour-score-live
 import { DispatchPhase2072ZonenEffizienzHeatmap } from './phase2072-zonen-effizienz-heatmap';
 import { DispatchPhase2075TourScoreRouteVisualisierung } from './phase2075-tour-score-route-visualisierung';
 import { DispatchPhase1900TourStopVisualizer } from './phase1900-tour-stop-visualizer';
+import { DispatchPhase2077SchichtStartUebersicht } from './phase2077-schicht-start-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -3601,6 +3602,8 @@ export function DispatchBoard({
           <DispatchPhase2075TourScoreRouteVisualisierung batches={batches as any} drivers={drivers as any} stops={[]} />
           {/* Phase 1900: Tour-Stop-Visualizer — Horizontale Stop-Timelines je Tour; Score + Health-Ampel; Fortschrittsbalken */}
           <DispatchPhase1900TourStopVisualizer batches={batches as any} drivers={drivers as any} stops={[]} />
+          {/* Phase 2077: Schicht-Start-Übersicht — Fahrer-Zeitlinie; Überstunden-Alert rot; Lücken-Warnung gelb; 15-Min-Polling */}
+          <DispatchPhase2077SchichtStartUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

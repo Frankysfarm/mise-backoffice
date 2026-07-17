@@ -395,6 +395,7 @@ import { StorefrontPhase2060DynamischeEtaLiveTracking } from './phase2060-dynami
 import { StorefrontPhase2063FrischeGarantieBadge } from './phase2063-frische-garantie-badge';
 import { StorefrontPhase2068NachhaltigkeitsBadge } from './phase2068-nachhaltigkeits-badge';
 import { StorefrontPhase2074LiefergebietBadge } from './phase2074-liefergebiet-badge';
+import { StorefrontPhase2079LieferzeitGarantieBanner } from './phase2079-lieferzeit-garantie-banner';
 import { Phase2200SmartEtaTrackingHub } from './phase2200-smart-eta-tracking-hub';
 
 type Props = {
@@ -1808,6 +1809,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2068NachhaltigkeitsBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2074: Liefergebiet-Badge — "Wir liefern in deine Zone in Ø X Min"; Zonen-API; Hydration-safe; 1-Std-Polling */}
       <StorefrontPhase2074LiefergebietBadge locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2079: Lieferzeit-Garantie-Banner — "Heute Lieferung bis X Uhr möglich"; aus Schicht-Daten; Hydration-safe */}
+      <StorefrontPhase2079LieferzeitGarantieBanner locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2200: Smart ETA Tracking Hub — 4-Phasen-Fortschrittsleiste + Dynamische ETA + Fahrer-Nähe + Küchen-Countdown */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

@@ -575,6 +575,7 @@ import { FahrerPhase2060TourStopsNavigationLive } from './phase2060-tour-stops-n
 import { FahrerPhase2062MeineEffizienzBilanz } from './phase2062-meine-effizienz-bilanz';
 import { FahrerPhase2067MeineTourenStrecke } from './phase2067-meine-touren-strecke';
 import { FahrerPhase2073MeineLieblingszone } from './phase2073-meine-lieblingszone';
+import { FahrerPhase2078MeineSchichtDauer } from './phase2078-meine-schicht-dauer';
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
 import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
 
@@ -5607,6 +5608,8 @@ export function FahrerApp({
           <FahrerPhase2067MeineTourenStrecke driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2073: Meine Lieblingszone — Häufigste Zone heute; Ø Lieferzeit; Vergleich Team-Ø; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2073MeineLieblingszone locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2078: Meine Schicht-Dauer — Ring-Gauge % von 8h; Überstunden-Warnung rot; Pausen-Empfehlung nach >6h; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2078MeineSchichtDauer driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2100: Tour-Stop-Navigator-Master — GPS-Deeplinks (Apple/Google), aktueller Stop groß, Nächster-Stop-Vorschau, Tour-Fortschrittsring */}
           <Phase2100TourStopNavigatorMaster driverId={driver.id} />
           {/* Phase 2105: Smart-Tour-Stopp-Live-Kommando-Ultra — aktueller Stopp + Navi/Anruf/Bestätigen-CTAs; Nächster-Stopp-Vorschau; Stop-Dot-Progress; Tour-Abschluss-Banner */}

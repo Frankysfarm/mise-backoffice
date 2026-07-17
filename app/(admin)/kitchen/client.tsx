@@ -215,6 +215,7 @@ import { KitchenPhase2069LieferzeitUebersicht } from './phase2069-lieferzeit-ueb
 import { KitchenPhase2070SmartDeliverySyncCockpit } from './phase2070-smart-delivery-sync-cockpit';
 import { KitchenPhase2075ZonenBelastungsForecast } from './phase2075-zonen-belastungs-forecast';
 import { KitchenPhase2080SmartTimingPerOrderCockpit } from './phase2080-smart-timing-per-order-cockpit';
+import { KitchenPhase2081SchichtEndeWarnung } from './phase2081-schicht-ende-warnung';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3174,6 +3175,8 @@ export function KitchenBoard({
       <KitchenPhase2075ZonenBelastungsForecast orders={filtered as any} />
       {/* Phase 2080: Smart-Timing-Per-Order-Cockpit — Echtzeit-1s-Countdown je Bestellung; 3-Stufen-Farbkodierung (grün/gelb/rot); nach Dringlichkeit sortiert; Fortschrittsbalken */}
       <KitchenPhase2080SmartTimingPerOrderCockpit orders={filtered as any} timings={timings as any} batches={batches as any} />
+      {/* Phase 2081: Schicht-Ende-Warnung — Fahrer-Schicht-Ende <30 Min Alert; Batch-Stopp-Empfehlung; offene Aufträge KPI */}
+      <KitchenPhase2081SchichtEndeWarnung orders={filtered as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
     </div>
   );
 }
