@@ -216,7 +216,7 @@ export function LieferdienstPhase2010StatistikTagesZusammenfassung({ locationId 
                 <BarChart data={data.hourlyOrders} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <XAxis dataKey="label" tick={{ fontSize: 8 }} interval={1} />
                   <Tooltip
-                    formatter={(v: number) => [`${v} Bestellungen`, '']}
+                    formatter={(v) => [`${(v as number) ?? 0} Bestellungen`, '']}
                     contentStyle={{ fontSize: '10px' }}
                   />
                   <Bar dataKey="orders" radius={[2, 2, 0, 0]}>
