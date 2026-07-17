@@ -138,14 +138,14 @@ export function LieferdienstPhase2135StatistikenKomplettDashboard({
         stornoquotePct: todayOrders.length > 0
           ? Math.round((storniert.length / todayOrders.length) * 1000) / 10
           : 0,
-        avgBewertung: delivered.filter(o => o.bewertung).length > 0
+        avgBewertung: delivered.filter((o: any) => o.bewertung).length > 0
           ? Math.round(
-              delivered.filter(o => o.bewertung).reduce((s, o) => s + (o.bewertung ?? 0), 0) /
-              delivered.filter(o => o.bewertung).length * 10
+              delivered.filter((o: any) => o.bewertung).reduce<number>((s, o: any) => s + ((o.bewertung as number) ?? 0), 0) /
+              delivered.filter((o: any) => o.bewertung).length * 10
             ) / 10
           : 0,
         aktiveFahrer: aktiveFahrer ?? 0,
-        umsatzGestern: (yesterdayOrders ?? []).reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0),
+        umsatzGestern: (yesterdayOrders ?? []).reduce<number>((s, o: any) => s + ((o.gesamtbetrag as number | null) ?? 0), 0),
         bestellungenGestern: (yesterdayOrders ?? []).length,
       });
       setUseMock(false);

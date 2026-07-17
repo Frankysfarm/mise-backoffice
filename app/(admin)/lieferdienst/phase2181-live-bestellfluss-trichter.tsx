@@ -45,35 +45,35 @@ export function LieferdienstPhase2181LiveBestellflussTrichter({ locationId }: Pr
 
       const { data: orders } = await query.limit(200);
 
-      const all = orders ?? [];
+      const all: any[] = orders ?? [];
       const now = Date.now();
 
-      const statusGroups: Record<string, typeof all> = {
-        incoming: all.filter((o) =>
+      const statusGroups: Record<string, any[]> = {
+        incoming: all.filter((o: any) =>
           ['ausstehend', 'bestätigt', 'neu'].includes(o.status),
         ),
-        kitchen: all.filter((o) =>
+        kitchen: all.filter((o: any) =>
           ['in_zubereitung', 'fertig'].includes(o.status),
         ),
-        driver: all.filter((o) =>
+        driver: all.filter((o: any) =>
           ['unterwegs', 'abgeholt', 'in_zustellung'].includes(o.status),
         ),
-        delivered: all.filter((o) =>
+        delivered: all.filter((o: any) =>
           ['geliefert', 'abgeholt_extern'].includes(o.status),
         ),
       };
 
-      function avgMin(items: typeof all, fromKey: 'created_at' | 'abgeholt_at', toNow: boolean) {
+      function avgMin(items: any[], fromKey: 'created_at' | 'abgeholt_at', toNow: boolean) {
         if (items.length === 0) return null;
-        const deltas = items
-          .map((o) => {
+        const deltas: number[] = items
+          .map((o: any) => {
             const from = new Date(o[fromKey] ?? o.created_at).getTime();
             const to = toNow ? now : now;
             return (to - from) / 60_000;
           })
-          .filter((d) => d > 0 && d < 180);
+          .filter((d: number) => d > 0 && d < 180);
         if (deltas.length === 0) return null;
-        return Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length);
+        return Math.round(deltas.reduce((a: number, b: number) => a + b, 0) / deltas.length);
       }
 
       const newStages: FunnelStage[] = [

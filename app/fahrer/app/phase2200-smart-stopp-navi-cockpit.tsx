@@ -60,7 +60,7 @@ export function FahrerPhase2200SmartStoppNaviCockpit() {
         .select('id,index,adresse,kunde,telefon,eta_min,distanz_km,status,anmerkung,zahlungsart,betrag')
         .order('index', { ascending: true });
       if (data && data.length > 0) {
-        setStopps(data.map((d) => ({
+        setStopps((data as any[]).map((d) => ({
           id: d.id,
           index: d.index,
           adresse: d.adresse,

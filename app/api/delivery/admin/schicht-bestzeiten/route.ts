@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
       batch: { fahrer_id: string; employees: { vorname: string; nachname: string } | null } | null;
     };
 
-    const heuteStopRows: HeuteStop[] = heuteStops ?? [];
+    const heuteStopRows: HeuteStop[] = (heuteStops ?? []) as unknown as HeuteStop[];
     const heuteStopDurations = heuteStopRows
       .map((s) => {
         if (!s.geliefert_am || !s.abgeholt_am) return null;
