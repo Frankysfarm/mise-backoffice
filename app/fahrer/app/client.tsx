@@ -578,6 +578,7 @@ import { FahrerPhase2073MeineLieblingszone } from './phase2073-meine-lieblingszo
 import { FahrerPhase2078MeineSchichtDauer } from './phase2078-meine-schicht-dauer';
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
 import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
+import { FahrerPhase2110TourStoppEchtzeitNavigator } from './phase2110-tour-stopp-echtzeit-navigator';
 
 type Driver = {
   id: string;
@@ -5627,6 +5628,24 @@ export function FahrerApp({
                 lng: s.lng ?? null,
                 order_id: s.order_id ?? null,
                 items: s.items ?? [],
+              }))}
+              driverId={driver.id}
+            />
+          )}
+          {/* Phase 2110: Tour-Stopp-Echtzeit-Navigator — Hero-Stop + Navi/Anruf/Bestätigen-CTAs; Nächste-Stopps-Liste; Fortschrittsbalken; kein API-Call */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2110TourStoppEchtzeitNavigator
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? null,
+                address: s.address ?? null,
+                customer_name: s.customer_name ?? null,
+                customer_phone: s.customer_phone ?? null,
+                status: s.status ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                items: s.items ?? [],
+                estimated_arrival_at: s.estimated_arrival_at ?? null,
               }))}
               driverId={driver.id}
             />
