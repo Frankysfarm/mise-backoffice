@@ -2,6 +2,56 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2092–2096/2026 — Tages-Qualitäts-Score-System (2026-07-17)
+
+### Phase 2092 — Tages-Qualitäts-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/tages-qualitaets-score/route.ts`
+**GET:** `?location_id=<uuid>` — Qualitätsindex je Fahrer: Pünktlichkeit 40% + Bewertung 40% + Stornofreiheit 20%; Team-Score; bester Fahrer; Alert bei Team <70; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerQualitaet[], team_score, top_fahrer, alert_niedriger_score, generiert_am }`
+
+### Phase 2093 — Tages-Qualitäts-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2093-tages-qualitaets-board.tsx`
+**Props:** `locationId: string | null, className?: string`
+**UI:** Collapsible; Fahrer-Leaderboard nach Score sortiert; Trend-Pfeile (↑/–/↓); KPI-Chips (Pünktlichkeit + Bewertung + Storno + Touren); Team-Ø-Badge; Alert-Banner bei Team <70; 15-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2088 ✅
+
+### Phase 2094 — Mein Tages-Qualitäts-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2094-mein-tages-qualitaets-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ring-Gauge mit Score (matcha≥85/amber≥70/rot<70); 3 Fortschrittsbalken (Pünktlichkeit/Bewertung/Stornofreiheit); Trend vs. Team-Ø; isOnline-Guard; 15-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2089 ✅
+
+### Phase 2095 — Qualitäts-Vertrauen-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2095-qualitaets-vertrauen-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** ShieldCheck-Pill "Exzellente/Sehr gute/Gute Servicequalität · Score X · Bester Fahrer: Y"; nur bei Score ≥60; Hydration-safe (mounted-Guard); 30-Min-Polling
+**Integration:** `storefront.tsx` nach Phase2090 ✅
+
+### Phase 2096 — Tages-Qualitäts-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2096-tages-qualitaets-alert.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Alert-Banner wenn Fahrer <70 Punkte; KPI-Grid (Team-Score/Gut/Risiko); Liste schwacher Fahrer (Score/Storno/Bewertung/Touren); ThumbsUp wenn alles ok; 10-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2091 ✅
+
+### Phase 2026 — Qualitäts-Statistiken-Hub (Lieferdienst)
+**Datei:** `app/(admin)/lieferdienst/phase2026-qualitaets-statistiken-hub.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; 3-KPI-Grid (Team-Score/Ø-Pünktlichkeit/Ø-Bewertung); Top-Fahrer-Banner; Fahrer-Leaderboard mit Dual-Balken (Pünktlichkeit+Bewertung); Trend-Chips; 15-Min-Polling
+**Integration:** `lieferdienst/client.tsx` nach Phase2025 ✅
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-17): Phasen 2092–2096/2026 implementiert. Build ✓ Compiled successfully — pnpm install + next build durchgelaufen. 11 Dateien (1 API-Route, 5 Komponenten, 5 Host-Integrationen). Push erfolgt (2f9452cd).
+
+### Nächste Phasen 2097–2101 (für nächsten Ingenieur)
+1. **Phase 2097 Backend:** Stopp-Reaktionszeit-API — GET /api/delivery/admin/stopp-reaktionszeit: Durchschnittliche Zeit zwischen Ankunft am Stopp und Bestätigungsklick je Fahrer; Median; Outlier (>5 Min); Multi-Tenant; Supabase+Mock.
+2. **Phase 2098 Dispatch:** Reaktionszeit-Board — Phase2097-API: Ranking je Fahrer; Balken; Alert wenn Median >3 Min; 15-Min-Polling; in dispatch/client.tsx nach Phase2093.
+3. **Phase 2099 Fahrer-App:** Meine Reaktionszeit — Eigene Stopp-Reaktionszeit heute; Vergleich Team-Median; Tipp wenn >3 Min; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx nach Phase2094.
+4. **Phase 2100 Storefront:** Liefergeschwindigkeits-Badge — "Ø X Min Lieferzeit heute"; aus Stopp-Daten; Hydration-safe; 30-Min-Polling; in storefront.tsx nach Phase2095.
+5. **Phase 2101 Kitchen:** Stopp-Dauer-Warnung — Alert wenn Fahrer am Stopp >5 Min verweilen (hält Küche auf); Outlier-Liste; 5-Min-Polling; in kitchen/client.tsx nach Phase2096.
+
+---
+
 ## Batch 2087–2091 — 2026-07-17
 
 ### Phase 2087 — Bestelldurchsatz-Stunden-API (Backend)
