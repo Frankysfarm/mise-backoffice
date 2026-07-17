@@ -217,6 +217,7 @@ import { KitchenPhase2075ZonenBelastungsForecast } from './phase2075-zonen-belas
 import { KitchenPhase2080SmartTimingPerOrderCockpit } from './phase2080-smart-timing-per-order-cockpit';
 import { KitchenPhase2081SchichtEndeWarnung } from './phase2081-schicht-ende-warnung';
 import { KitchenPhase2086SmartTimingLiveCockpitPro } from './phase2086-smart-timing-live-cockpit-pro';
+import { KitchenPhase2091StundenAuslastungsHeatmap } from './phase2091-stunden-auslastungs-heatmap';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3180,6 +3181,8 @@ export function KitchenBoard({
       <KitchenPhase2081SchichtEndeWarnung orders={filtered as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 2086: Smart-Timing-Live-Cockpit-Pro — 1s-Countdown-Kacheln, 4-Stufen-Farbkodierung, Timing-Score-Balken, nach Dringlichkeit sortiert */}
       <KitchenPhase2086SmartTimingLiveCockpitPro orders={filtered as any} />
+      {/* Phase 2091: Stunden-Auslastungs-Heatmap — 24×1h-Grid; Ampel; Prognose Peak +1h; Batch-Empfehlung; useMemo */}
+      <KitchenPhase2091StundenAuslastungsHeatmap orders={filtered as any} />
     </div>
   );
 }

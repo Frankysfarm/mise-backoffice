@@ -579,6 +579,7 @@ import { FahrerPhase2078MeineSchichtDauer } from './phase2078-meine-schicht-daue
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
 import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
 import { FahrerPhase2110TourStoppEchtzeitNavigator } from './phase2110-tour-stopp-echtzeit-navigator';
+import { FahrerPhase2089MeineStundenBilanz } from './phase2089-meine-stunden-bilanz';
 
 type Driver = {
   id: string;
@@ -5650,6 +5651,8 @@ export function FahrerApp({
               driverId={driver.id}
             />
           )}
+          {/* Phase 2089: Meine Stunden-Bilanz — Team-Touren je Stunde; Spitzenstunde; Vergleich Team-Ø; isOnline-Guard; 1h-Polling */}
+          <FahrerPhase2089MeineStundenBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
