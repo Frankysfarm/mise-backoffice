@@ -222,6 +222,7 @@ import { KitchenPhase2096TagesQualitaetsAlert } from './phase2096-tages-qualitae
 import { KitchenPhase2097SmartTimingLieferzeitBridge } from './phase2097-smart-timing-lieferzeit-bridge';
 import { KitchenPhase2101StoppDauerWarnung } from './phase2101-stopp-dauer-warnung';
 import { KitchenPhase2107KundenzufriedenheitsTicker } from './phase2107-kundenzufriedenheits-ticker';
+import { KitchenPhase2112TourVollstaendigkeitsMonitor } from './phase2112-tour-vollstaendigkeits-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3195,6 +3196,8 @@ export function KitchenBoard({
       <KitchenPhase2101StoppDauerWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2107: Kundenzufriedenheits-Ticker — Live-Feed Top-5 Fahrer-Scores; Alert wenn Score sinkt; 10-Min-Polling */}
       <KitchenPhase2107KundenzufriedenheitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2112: Tour-Vollständigkeits-Monitor — Fahrer mit offenen Stopps >30 Min; Alert; Countdown; 5-Min-Polling */}
+      <KitchenPhase2112TourVollstaendigkeitsMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
