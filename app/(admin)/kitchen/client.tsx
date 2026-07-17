@@ -211,6 +211,7 @@ import { KitchenPhase2054SmartTimingFarbkodierungsLiveMatrix } from './phase2054
 import { KitchenPhase2059BestellEingangFrequenzMonitor } from './phase2059-bestell-eingang-frequenz-monitor';
 import { KitchenPhase2060SmartTimingCountdownIntegrationsBoard } from './phase2060-smart-timing-countdown-integrations-board';
 import { KitchenPhase2064BestellwartenEskalationsAmpel } from './phase2064-bestellwarten-eskalations-ampel';
+import { KitchenPhase2069LieferzeitUebersicht } from './phase2069-lieferzeit-uebersicht';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3160,6 +3161,8 @@ export function KitchenBoard({
       <KitchenPhase2060SmartTimingCountdownIntegrationsBoard orders={filtered} timings={timings} />
       {/* Phase 2064: Bestellwarten-Eskalations-Ampel — Bestellungen warten >10/15/20 Min ohne Zuweisung; Ampel + Alert; useMemo */}
       <KitchenPhase2064BestellwartenEskalationsAmpel orders={filtered as any} />
+      {/* Phase 2069: Lieferzeit-Übersicht — Ø Lieferzeit nach Stunde des Tages; Heatmap-ähnlich; useMemo */}
+      <KitchenPhase2069LieferzeitUebersicht orders={filtered as any} />
       {/* Phase 2065: Smart-Timing-Live-Cockpit — Echtzeit-Countdown-Ringe + 3-Stufen-Farbkodierung (grün/gelb/rot) + Fortschrittsbalken; sortiert nach Dringlichkeit */}
       <KitchenPhase2065SmartTimingLiveCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>

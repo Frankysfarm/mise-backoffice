@@ -2,6 +2,44 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2065–2069 — 2026-07-17
+
+### Phase 2065 — Fahrer-Routen-Effizienz-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-routen-effizienz/route.ts`
+**GET:** `?location_id=<uuid>` — Ø km/Bestellung je Fahrer; Tages-Total km; Touren-Count; Effizienz-Score; Alert wenn Ø >8 km; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerRoutenEffizienz[], team_avg_km, alert_count, generiert_am }`
+
+### Phase 2066 — Routen-Effizienz-Rangliste (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2066-routen-effizienz-rangliste.tsx`
+**Props:** `locationId: string | null, className?: string`
+**UI:** Collapsible; Fahrer sortiert nach km/Bestellung (aufsteigend = beste zuerst); Balken (grün/amber/rot); Alert-Banner bei Fahrer >8 km/Auftrag; KPI-Grid (Team-Ø km/Alert-Count); Lightbulb "Zone optimieren"-Tipp; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-routen-effizienz (Phase2065); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase2061 ✅
+
+### Phase 2067 — Meine Touren-Strecke (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2067-meine-touren-strecke.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Km-Counter heute groß; Fortschrittsbalken; KPI-Grid (Ø km/Bestellung/Effizienz-Score/Team-Ø/Trend vs. Team); Info-Banner besser/schlechter als Ø; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-routen-effizienz; Mock-Fallback; filtert eigenen driverId-Eintrag
+**Integration:** `fahrer/app/client.tsx` nach Phase2062 ✅
+
+### Phase 2068 — Nachhaltigkeits-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2068-nachhaltigkeits-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Leaf-Pill "Kurze Lieferwege · Ø X km"; nur wenn team_avg_km ≤10; Hydration-safe (mounted-Guard); 30-Min-Polling
+**API:** GET /api/delivery/admin/fahrer-routen-effizienz; Mock-Fallback (5.5 km)
+**Integration:** `storefront.tsx` nach Phase2063 ✅
+
+### Phase 2069 — Lieferzeit-Übersicht (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2069-lieferzeit-uebersicht.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Ø Lieferzeit (picked_up→delivered) nach Stunde des Tages; Heatmap-Balken (grün ≤20/amber 21–35/rot >35 Min); Lieferungen-Count je Stunde; Gesamt-Ø-Badge; Legende; useMemo; rendert nur wenn gelieferte Bestellungen vorhanden
+**Integration:** `kitchen/client.tsx` nach Phase2064 ✅
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2065–2069 implementiert. Build ✓ Compiled successfully — Exit Code 0. 9 Dateien (1 API-Route, 4 Komponenten, 4 Host-Integrationen). Push erfolgt.
+
 ## CEO Review #435 — 2026-07-17
 
 **TypeScript:** 1 Fehler in phase2010-statistiken-tages-zusammenfassung.tsx (Recharts Formatter-Typ) behoben. tsc EXIT 0 ✅

@@ -660,6 +660,7 @@ import { DispatchPhase2051TourScoreLiveVisualisierungPro } from './phase2051-tou
 import { DispatchPhase2056ReaktionsteitRangliste } from './phase2056-reaktionszeit-rangliste';
 import { DispatchPhase2060TourScoreVisualisierungsKommando } from './phase2060-tour-score-visualisierungs-kommando';
 import { DispatchPhase2061IdleZeitMonitor } from './phase2061-idle-zeit-monitor';
+import { DispatchPhase2066RoutenEffizienzRangliste } from './phase2066-routen-effizienz-rangliste';
 import { DispatchPhase2070TourScoreLiveBoard } from './phase2070-tour-score-live-board';
 
 type Driver = {
@@ -3587,6 +3588,8 @@ export function DispatchBoard({
           <DispatchPhase2060TourScoreVisualisierungsKommando batches={batches as any} drivers={drivers as any} />
           {/* Phase 2061: Idle-Zeit-Monitor — Fahrer mit Pausenzeit >15 Min Alert-Liste; Idle-Balken; "Jetzt zuweisen"-Hinweis; 15-Min-Polling */}
           <DispatchPhase2061IdleZeitMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2066: Routen-Effizienz-Rangliste — Fahrer sortiert nach km/Bestellung; Bar-Chart; Alert bei hohem Ø; Zone-Tipp */}
+          <DispatchPhase2066RoutenEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2070: Tour-Score-Live-Board — Score-Ringe (0–100) + 3-Stufen-Farbkodierung + Fortschrittsbalken; Realtime */}
           <DispatchPhase2070TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
