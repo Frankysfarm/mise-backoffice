@@ -86,7 +86,8 @@ export async function GET(req: NextRequest) {
 
     const prevCountPer = new Map<string, number>();
     for (const o of (orders60 ?? [])) {
-      const cid = o.customer_id ?? o.id;
+      const cid = o.customer_id;
+      if (!cid) continue;
       prevCountPer.set(cid, (prevCountPer.get(cid) ?? 0) + 1);
     }
     const prevStamm = [...prevCountPer.values()].filter(c => c >= 2).length;
