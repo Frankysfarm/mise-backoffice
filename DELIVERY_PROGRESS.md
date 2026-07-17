@@ -2,6 +2,61 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2098–2102 — Stopp-Reaktionszeit-System (2026-07-17)
+
+### Backend API: Stopp-Reaktionszeit
+**Datei:** `app/api/delivery/admin/stopp-reaktionszeit/route.ts`
+**GET:** `?location_id=<uuid>` — Median + Ø Stopp-Dauer je Fahrer; Outlier-Count; Trend vs. vorherige 24h; Alert wenn Median >3 Min; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerStoppReaktionszeit[], team_median_min, alert_count, generiert_am }`
+
+### Phase 2098 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2098-reaktionszeit-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Row (Team-Median / Fahrer-Count / Ziel ≤3 Min); Fahrer-Ranking nach Stopp-Median; Ampel-Balken grün/gelb/rot; Trend-Pfeil; Alert-Banner bei Fahrer >3 Min; Legende; 15-Min-Polling
+**API:** GET /api/delivery/admin/stopp-reaktionszeit; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase2094 ✅
+
+### Phase 2099 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2099-meine-reaktionszeit.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; KPI-Grid (Mein Median / Team-Median / vs. Team); Fortschrittsbalken; Lightbulb-Tipp je Trend; isOnline-Guard; 15-Min-Polling
+**API:** GET /api/delivery/admin/stopp-reaktionszeit; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase2111 ✅
+
+### Phase 2100 — Liefergeschwindigkeits-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2100-liefergeschwindigkeits-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Zap-Pill "Ø X Min Lieferzeit heute"; nur wenn team_median ≤10 Min; Hydration-safe (mounted-Guard); 30-Min-Polling
+**API:** GET /api/delivery/admin/stopp-reaktionszeit; Mock-Fallback
+**Integration:** `storefront.tsx` nach Phase2095 ✅
+
+### Phase 2101 — Stopp-Dauer-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2101-stopp-dauer-warnung.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; KPI-Grid (Team-Median / Warnungen / Schwelle >5 Min); Alert-Banner mit Fahrernamen; Outlier-Liste rot; Mini-Balken alle Fahrer; 5-Min-Polling
+**API:** GET /api/delivery/admin/stopp-reaktionszeit; Mock-Fallback
+**Integration:** `kitchen/client.tsx` nach Phase2097 ✅
+
+### Phase 2102 — Reaktionszeit-Übersicht (Lieferdienst)
+**Datei:** `app/(admin)/lieferdienst/phase2102-reaktionszeit-uebersicht.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Grid (Team-Median / Fahrer / Alerts); Fahrer-Ranking mit Ampel-Balken; Trend-Pfeil; Alert-Banner; 15-Min-Polling
+**API:** GET /api/delivery/admin/stopp-reaktionszeit; Mock-Fallback
+**Integration:** `lieferdienst/client.tsx` nach Phase2027 ✅
+
+### Nächste Phasen 2103–2107 (für nächsten Ingenieur)
+1. **Phase 2103 Backend:** Kunden-Feedback-Score-API — GET /api/delivery/admin/kunden-feedback-score: Ø Kundenbewertung je Fahrer heute + Trend; Kommentare-Count; Alert wenn Score <4,0; Multi-Tenant; Supabase+Mock.
+2. **Phase 2104 Dispatch:** Kunden-Feedback-Board — Phase2103-API: Fahrer-Ranking nach Score; Stern-Anzeige; Kommentare-Anzahl; Alert rot <4,0; 30-Min-Polling; in dispatch/client.tsx nach Phase2098.
+3. **Phase 2105 Fahrer-App:** Meine Kundenbewertung — Eigener Score; Vergleich Team-Ø; Letzte Kommentare; Motivations-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2099.
+4. **Phase 2106 Storefront:** Fahrer-Bewertungs-Badge — "Unsere Fahrer: ★ X,X"; nur wenn Score ≥4,5; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase2100.
+5. **Phase 2107 Kitchen:** Kundenzufriedenheits-Ticker — Live-Feed letzter 5 Bewertungen (Sterne + Kommentar-Snippet); Alert wenn Score sinkt; 10-Min-Polling; in kitchen/client.tsx nach Phase2101.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2098–2102 implementiert. Build ✓ Compiled successfully — 428 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
 ## Batch 2097/2094/2027/2111/1000 — Smart Delivery Frontend-Erweiterung (2026-07-17)
 
 ### Phase 2097 — Smart-Timing-Lieferzeit-Bridge (Kitchen)
