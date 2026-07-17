@@ -226,6 +226,7 @@ import { KitchenPhase2112TourVollstaendigkeitsMonitor } from './phase2112-tour-v
 import { KitchenPhase2117ZonenUeberlastAlert } from './phase2117-zonen-ueberlast-alert';
 import { KitchenPhase2122VerspaetungsWarnung } from './phase2122-verspaetungs-warnung';
 import { KitchenPhase2127FahrerCoachingAlert } from './phase2127-fahrer-coaching-alert';
+import { KitchenPhase2132TourAbbruchAlert } from './phase2132-tour-abbruch-alert';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3207,6 +3208,8 @@ export function KitchenBoard({
       <KitchenPhase2122VerspaetungsWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2127: Fahrer-Coaching-Alert — Fahrer mit ≥2 Verspätungen; Dispatch-Benachrichtigung empfehlen; 15-Min-Polling */}
       <KitchenPhase2127FahrerCoachingAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2132: Tour-Abbruch-Alert — Abgebrochene Touren heute; Fahrer-Liste; Kritisch-Alert wenn ≥3; 15-Min-Polling */}
+      <KitchenPhase2132TourAbbruchAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
