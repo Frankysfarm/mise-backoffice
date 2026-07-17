@@ -408,6 +408,7 @@ import { StorefrontPhase2121PuenktlichkeitsBadge } from './phase2121-puenktlichk
 import { StorefrontPhase2126ZuverlaessigkeitsSiegel } from './phase2126-zuverlaessigkeits-siegel';
 import { StorefrontPhase2131ErfolgsquotenBadge } from './phase2131-erfolgsquoten-badge';
 import { StorefrontPhase2136LieferverlässlichkeitsPill } from './phase2136-lieferverlässlichkeits-pill';
+import { StorefrontPhase2141SchnellLieferungsSiegel } from './phase2141-schnell-lieferungs-siegel';
 
 type Props = {
   location: Location;
@@ -1842,6 +1843,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2131ErfolgsquotenBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2136: Lieferverlässlichkeits-Pill — "X von 100 pünktlich & vollständig"; nur ≥85%; Hydration-safe; 1-Std-Polling */}
       <StorefrontPhase2136LieferverlässlichkeitsPill locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2141: Schnell-Lieferungs-Siegel — "Ø X Min. Lieferzeit heute"; nur wenn ≤30 Min.; Hydration-safe */}
+      <StorefrontPhase2141SchnellLieferungsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1000: ETA-Live-Tracking-Ultra-Pro — 4-Stufen-Fortschrittsleiste; Sekunden-Countdown; Fahrer-Info; 30s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
