@@ -2,6 +2,44 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2060–2064 — 2026-07-17
+
+### Phase 2060 — Schicht-Pausenzeit-Analyse-API (Backend)
+**Datei:** `app/api/delivery/admin/schicht-pausenzeit/route.ts`
+**GET:** `?location_id=<uuid>` — Ø Idle-Zeit je Fahrer zwischen Aufträgen; Idle-Zeiten >15 Min; Effizienz%; Heute; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerPausenzeit[], team_avg_idle_min, alert_count, generiert_am }`
+
+### Phase 2061 — Idle-Zeit-Monitor (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2061-idle-zeit-monitor.tsx`
+**Props:** `locationId: string | null, className?: string`
+**UI:** Collapsible; KPI-Grid (Team-Ø Idle/Fahrer >15 Min); Alert-Banner mit "Jetzt zuweisen"-Hinweis; Idle-Balken pro Fahrer (grün/amber/rot); Idle-over-15-Zähler; 15-Min-Polling
+**API:** GET /api/delivery/admin/schicht-pausenzeit (Phase2060); Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase2060 ✅
+
+### Phase 2062 — Meine Effizienz-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2062-meine-effizienz-bilanz.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; SVG-Ring Effizienz%; KPI-Grid (Aktiv-Min/Idle-Ø/Schicht/Team-Ø); Tipp (gut/mittel/hoch Idle); isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/schicht-pausenzeit; Mock-Fallback; filtert eigenen driverId-Eintrag
+**Integration:** `fahrer/app/client.tsx` nach Phase2060 ✅
+
+### Phase 2063 — Frische-Garantie-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2063-frische-garantie-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Flame-Pill "Frisch zubereitet · Ø X Min Kochzeit"; gewichteter Ø aus Kategorien; Hydration-safe (mounted-Guard); 30-Min-Polling
+**API:** GET /api/delivery/admin/zubereitungs-tempo-analyse; Mock-Fallback (18 Min)
+**Integration:** `storefront.tsx` nach Phase2058 ✅
+
+### Phase 2064 — Bestellwarten-Eskalations-Ampel (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2064-bestellwarten-eskalations-ampel.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; 3-Stufen-Ampel (10–15/15–20/>20 Min); Alert-Banner "Sofort zuweisen!" bei >20 Min; Order-IDs; useMemo; rendert nur wenn Bestellungen warten
+**Integration:** `kitchen/client.tsx` nach Phase2060 ✅
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2060–2064 implementiert. Build ✓ Compiled successfully — Exit Code 0. 9 Dateien (1 API-Route, 4 Komponenten, 4 Host-Integrationen). Push erfolgt (9de2b0c9).
+
 ## Batch 2049–2053 — 2026-07-17
 
 ### Phase 2049 — Kunden-Wiederkauf-Rate-API (Backend)
