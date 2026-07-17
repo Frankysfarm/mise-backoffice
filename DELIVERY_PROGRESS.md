@@ -2,6 +2,56 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2103–2107 — Kunden-Feedback-Score-System (2026-07-17)
+
+### Phase 2103 — Kunden-Feedback-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/kunden-feedback-score/route.ts`
+**GET:** `?location_id=<uuid>` — Ø Kundenbewertung je Fahrer heute (1–5 Sterne); Kommentare-Count; Trend vs. Vortag; Alert wenn Score <4,0; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerFeedbackScore[], team_avg_score, top_fahrer, alert_niedriger_score, generiert_am }`
+
+### Phase 2104 — Kunden-Feedback-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2104-kunden-feedback-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Row (Team-Ø / Top Fahrer / Ziel ≥4,0); Fahrer-Ranking nach Score; Stern-Anzeige; Kommentare-Count; Alert-Banner rot <4,0; Trend-Pfeile; 30-Min-Polling
+**API:** GET /api/delivery/admin/kunden-feedback-score; Mock-Fallback
+**Integration:** `dispatch/client.tsx` nach Phase2098 ✅
+
+### Phase 2105 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2105-meine-kundenbewertung.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score-Hero mit Stern-Gauge; Team-Ø-Vergleich; Bewertungen- + Kommentare-Counter; Motivations-Tipp nach Trend; isOnline-Guard; 30-Min-Polling
+**API:** GET /api/delivery/admin/kunden-feedback-score; Mock-Fallback
+**Integration:** `fahrer/app/client.tsx` nach Phase2099 ✅
+
+### Phase 2106 — Fahrer-Bewertungs-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2106-fahrer-bewertungs-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Amber-Pill "Unsere Fahrer: ★ X,X · Bester: Y"; nur wenn Score ≥4,5; Hydration-safe (mounted-Guard); 1-Std-Polling
+**API:** GET /api/delivery/admin/kunden-feedback-score; Mock-Fallback
+**Integration:** `storefront.tsx` nach Phase2100 ✅
+
+### Phase 2107 — Kundenzufriedenheits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2107-kundenzufriedenheits-ticker.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Score-Hero; Top-5-Fahrer-Live-Feed (Sterne + Bewertungscount); Alert-Banner wenn Score gefallen; Alert <4,0; 10-Min-Polling
+**API:** GET /api/delivery/admin/kunden-feedback-score; Mock-Fallback
+**Integration:** `kitchen/client.tsx` nach Phase2101 ✅
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2103–2107 implementiert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt (cbe8b7f5).
+
+### Nächste Phasen 2108–2112 (für nächsten Ingenieur)
+1. **Phase 2108 Backend:** Tour-Abschluss-Bonus-API — GET /api/delivery/admin/tour-abschluss-bonus: Bonus-Punkte je Fahrer für vollständig abgeschlossene Touren heute; Streak-Count; Multiplikator bei ≥3 Touren in Folge; Alert wenn Fahrer 0 Touren; Multi-Tenant; Supabase+Mock.
+2. **Phase 2109 Dispatch:** Tour-Bonus-Board — Phase2108-API: Fahrer-Rangliste nach Bonus; Streak-Flame-Icon; Multiplikator-Badge; Alert bei 0 Touren; 30-Min-Polling; in dispatch/client.tsx nach Phase2104.
+3. **Phase 2110 Fahrer-App:** Mein Tour-Bonus — Eigene Bonus-Punkte; Streak; Multiplikator-Anzeige; Motivations-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2105.
+4. **Phase 2111 Storefront:** Tour-Zuverlässigkeits-Badge — "X% Lieferungen heute pünktlich"; nur wenn ≥90%; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase2106.
+5. **Phase 2112 Kitchen:** Tour-Vollständigkeits-Monitor — Fahrer mit unvollständiger Tour (offene Stopps >30 Min); Alert; Countdown; 5-Min-Polling; in kitchen/client.tsx nach Phase2107.
+
+---
+
+
+
 ## Smart Delivery System — Zentrales Dashboard + Kunden-Tracking (2026-07-17)
 
 ### Neue Route: /delivery/smart-delivery (Dashboard)
