@@ -692,6 +692,7 @@ import { DispatchPhase2179EinsatzEffizienzRanking } from './phase2179-einsatz-ef
 import { DispatchPhase2179TourEffizienzVergleich } from './phase2179-tour-effizienz-vergleich';
 import { DispatchPhase2184StornoAnalyseBoard } from './phase2184-storno-analyse-board';
 import { DispatchPhase2189FeedbackScoreBoard } from './phase2189-feedback-score-board';
+import { DispatchPhase2194EinnahmenPerformanceRanking } from './phase2194-einnahmen-performance-ranking';
 
 type Driver = {
   employee_id: string;
@@ -3682,6 +3683,8 @@ export function DispatchBoard({
           <DispatchPhase2184StornoAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2189: Feedback-Score-Board — Kundenbewertung je Fahrer; Sterne-Ampel; Alert <3.5; 30-Min-Polling */}
           <DispatchPhase2189FeedbackScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2194: Einnahmen-Performance-Ranking — Verdienst+Trinkgeld je Fahrer; Alert <50% Team-Ø; 30-Min-Polling */}
+          <DispatchPhase2194EinnahmenPerformanceRanking locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
