@@ -8576,3 +8576,6 @@ function PositioningSuggestionBanner() {
     </section>
   );
 }
+
+// Smart Delivery System — Navigation Cockpit (neu)
+export { SmartDeliveryNavCockpit } from "./smart-delivery-nav-cockpit";

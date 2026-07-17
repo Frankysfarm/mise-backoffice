@@ -11161,3 +11161,6 @@ export function DispatchActiveTourScoreBoard({ batches, drivers }: { batches: Ba
     </Card>
   );
 }
+
+// Smart Delivery System — Tour Board (neu)
+export { SmartDeliveryTourBoard } from "./smart-delivery-tour-board";

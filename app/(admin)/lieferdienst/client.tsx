@@ -4536,3 +4536,6 @@ function LieferdienstAboOverview({ locationId }: { locationId: string }) {
     </div>
   );
 }
+
+// Smart Delivery System — Stats Panel (neu)
+export { SmartDeliveryStatsPanel } from "./smart-delivery-stats-panel";

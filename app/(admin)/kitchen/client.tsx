@@ -9719,3 +9719,6 @@ function PrepLearningPanel({ locationId }: { locationId: string | null }) {
     </div>
   );
 }
+
+// Smart Delivery System — Kitchen Timing Wall (neu)
+export { SmartDeliveryTimingWall } from './smart-delivery-timing-wall';
