@@ -401,6 +401,7 @@ import { StorefrontPhase2095QualitaetsVertrauenBadge } from './phase2095-qualita
 import { Phase1000EtaLiveTrackingUltraPro } from './phase1000-eta-live-tracking-ultra-pro';
 import { Phase2200SmartEtaTrackingHub } from './phase2200-smart-eta-tracking-hub';
 import { StorefrontPhase2100LiefergeschwindigkeitsBadge } from './phase2100-liefergeschwindigkeits-badge';
+import { StorefrontPhase2106FahrerBewertungsBadge } from './phase2106-fahrer-bewertungs-badge';
 
 type Props = {
   location: Location;
@@ -1821,6 +1822,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2095QualitaetsVertrauenBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2100: Liefergeschwindigkeits-Badge — "Ø X Min Lieferzeit heute"; Hydration-safe; 30-Min-Polling */}
       <StorefrontPhase2100LiefergeschwindigkeitsBadge locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2106: Fahrer-Bewertungs-Badge — "Unsere Fahrer: ★ X,X"; nur Score ≥4,5; Hydration-safe; 1-Std-Polling */}
+      <StorefrontPhase2106FahrerBewertungsBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1000: ETA-Live-Tracking-Ultra-Pro — 4-Stufen-Fortschrittsleiste; Sekunden-Countdown; Fahrer-Info; 30s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
