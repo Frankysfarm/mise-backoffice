@@ -2,6 +2,49 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2123–2127 — Fahrer-Ausfallrisiko-System (2026-07-17)
+
+### Phase 2123 — Fahrer-Ausfallrisiko-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-ausfallrisiko/route.ts` *(bereits vorhanden — Phase 1299)*
+**GET:** `?location_id=<uuid>` — Risikoscore je Fahrer; Grade niedrig/mittel/hoch; Gesamt-Risiko; Multi-Tenant; Supabase+Mock
+
+### Phase 2124 — Ausfallrisiko-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2124-ausfallrisiko-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Fahrer-Liste nach Risikoscore; Risiko-Badge; Alert-Banner hoch; Coaching-Empfehlung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2119 ✅
+
+### Phase 2125 — Mein Wellbeing-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2125-mein-wellbeing-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; "Dein Engagement heute"; Score = 100 - risiko_score×10; Stars; Motivationstipp; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2120 ✅
+
+### Phase 2126 — Zuverlässigkeits-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2126-zuverlaessigkeits-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Emerald Pill "Lieferung garantiert — X% Zuverlässigkeit"; nur wenn Pünktlichkeit ≥90%; Hydration-safe; 1-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2121 ✅
+
+### Phase 2127 — Fahrer-Coaching-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2127-fahrer-coaching-alert.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Fahrer mit ≥2 Verspätungen oder hoch-Risiko; Coaching-Empfehlung; Dispatch-Benachrichtigung; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2122 ✅
+
+### Nächste Phasen 2128–2132 (für nächsten Ingenieur)
+1. **Phase 2128 Backend:** Tour-Abschlussquote-API — GET /api/delivery/admin/tour-abschlussquote: % erfolgreich abgeschlossener Touren je Fahrer heute; Abbrüche; Vergleich 7 Tage; Multi-Tenant; Supabase+Mock.
+2. **Phase 2129 Dispatch:** Abschlussquoten-Board — Phase2128-API: Fahrer-Ranking nach Abschlussquote; Alert wenn <90%; Abbruch-Kacheln; 30-Min-Polling; in dispatch/client.tsx nach Phase2124.
+3. **Phase 2130 Fahrer-App:** Meine Abschlussquote — Eigene % heute; Trend 7-Tage; Motivationstipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2125.
+4. **Phase 2131 Storefront:** Erfolgsquoten-Badge — "X von 10 Touren erfolgreich · heute"; nur wenn ≥95%; Hydration-safe; 2-Std-Polling; in storefront.tsx nach Phase2126.
+5. **Phase 2132 Kitchen:** Tour-Abbruch-Alert — Küche sieht abgebrochene Touren; Ursachenhinweis; Batch-Neuplanung empfehlen; 10-Min-Polling; in kitchen/client.tsx nach Phase2127.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-17): Phasen 2123–2127 implementiert. Backends bereits vorhanden. 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
 ## Batch 2118–2122 — Fahrer-Pünktlichkeits-Score-System (2026-07-17)
 
 ### Phase 2118 — Fahrer-Pünktlichkeits-Score-API (Backend)
