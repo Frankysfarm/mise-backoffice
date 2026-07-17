@@ -680,6 +680,7 @@ import { DispatchPhase2129AbschlussquotenBoard } from './phase2129-abschlussquot
 import { DispatchPhase2130TourScoreVisualisierungsMatrix } from './phase2130-tour-score-visualisierungs-matrix';
 import { DispatchPhase2134TourenVollstaendigkeitUebersicht } from './phase2134-touren-vollstaendigkeit-uebersicht';
 import { DispatchPhase2139SchichtEffizienzUebersicht } from './phase2139-schicht-effizienz-uebersicht';
+import { DispatchPhase2144FeedbackScoreBoard } from './phase2144-feedback-score-board';
 
 type Driver = {
   employee_id: string;
@@ -3646,6 +3647,8 @@ export function DispatchBoard({
           <DispatchPhase2134TourenVollstaendigkeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2139: Schicht-Effizienz-Übersicht — Fahrer-Kacheln mit Score; Alert <70%; Tipp Rush-Hour; 30-Min-Polling */}
           <DispatchPhase2139SchichtEffizienzUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2144: Feedback-Score-Board — Fahrer-Ranking nach Sternebewertung; Alert <3.5; Coaching-Tipp; 30-Min-Polling */}
+          <DispatchPhase2144FeedbackScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

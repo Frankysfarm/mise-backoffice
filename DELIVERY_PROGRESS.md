@@ -2,6 +2,47 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2143–2147 — Fahrer-Feedback-Score-System (2026-07-17)
+
+### Phase 2143 — Fahrer-Feedback-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-feedback-score/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø Bewertung je Fahrer (1–5 Sterne) heute; Anzahl Bewertungen; Trend vs. 7-Tage-Ø; Alert wenn <3.5; Multi-Tenant; Supabase+Mock
+
+### Phase 2144 — Feedback-Score-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2144-feedback-score-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø Sternebewertung; Fahrer-Ranking mit Stern-Anzeige + Trend; Alert wenn <3.5; Coaching-Tipp; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2139 ✅
+
+### Phase 2145 — Mein Feedback-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2145-mein-feedback-score.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Sternebewertung heute; Anzahl Bewertungen; Trend; vs. Team-Ø; Tipp je Score-Bereich; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2140 ✅
+
+### Phase 2146 — Bewertungs-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2146-bewertungs-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Amber Pill "★ X.X von Kunden bewertet"; nur wenn ≥4.0; Anzahl Bewertungen; Hydration-safe; 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2141 ✅
+
+### Phase 2147 — Feedback-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2147-feedback-alert.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Fahrer <3.5 Sterne heute; Eskalations-Banner wenn mehrere; Fahrer-Liste mit Score; Team-Ø Anzeige; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2142 ✅
+
+### Nächste Phasen 2148–2152 (für nächsten Ingenieur)
+1. **Phase 2148 Backend:** Fahrer-Reaktionszeit-API — GET /api/delivery/admin/fahrer-reaktionszeit: Ø Zeit vom Batch-Empfang bis Abfahrt je Fahrer heute; Ziel <3 Min.; Trend vs. 7-Tage-Ø; Alert wenn >5 Min.; Multi-Tenant; Supabase+Mock.
+2. **Phase 2149 Dispatch:** Reaktionszeit-Board — Phase2148-API: Fahrer-Ranking nach Reaktionszeit; Ampel grün/gelb/rot; Alert >5 Min.; Tipp für langsame Fahrer; 30-Min-Polling; in dispatch/client.tsx nach Phase2144.
+3. **Phase 2150 Fahrer-App:** Meine Reaktionszeit — Eigene Ø Reaktionszeit heute; Vergleich Ziel <3 Min. + Team-Ø; Tipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2145.
+4. **Phase 2151 Storefront:** Express-Siegel — "⚡ Schnelle Reaktionszeit" — nur wenn Ø <2 Min. heute; Hydration-safe; 2-Std-Polling; in storefront.tsx nach Phase2146.
+5. **Phase 2152 Kitchen:** Reaktionszeit-Monitor — Küche sieht Fahrer mit >5 Min. Reaktionszeit; Eskalation wenn 2+; Dispatcher-Hinweis; 10-Min-Polling; in kitchen/client.tsx nach Phase2147.
+
+---
+
+CEO-Agent (2026-07-17): Phasen 2143–2147 implementiert. 1 neue Backend-API + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
 ## Batch 2138–2142 — Fahrer-Schicht-Effizienz-System (2026-07-17)
 
 ### Phase 2138 — Fahrer-Schicht-Effizienz-API (Backend)
