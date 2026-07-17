@@ -16,32 +16,25 @@ export function StorefrontPhase2156LiefergebietSiegel({
 
   useEffect(() => {
     setMounted(true);
-    fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`)
-      .then((r) => r.json())
-      .then((d) => {
-        const drivers: any[] = d.drivers ?? [];
-        if (!drivers.length) return;
-        const avg = drivers.reduce((s, dr) => s + dr.km_heute, 0) / drivers.length;
-        // Radius = avg / Touren (grobe Schätzung: 10 Stopps/Tag)
-        const radius = Math.round(avg / 10);
-        setRadiusKm(radius > 0 ? radius : null);
-      })
-      .catch(() => {});
-    const t = setInterval(
-      () =>
-        fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`)
-          .then((r) => r.json())
-          .then((d) => {
-            const drivers: any[] = d.drivers ?? [];
-            if (!drivers.length) return;
-            const avg = drivers.reduce((s, dr) => s + dr.km_heute, 0) / drivers.length;
-            const radius = Math.round(avg / 10);
-            setRadiusKm(radius > 0 ? radius : null);
-          })
-          .catch(() => {}),
-      4 * 60 * 60 * 1000
-    );
-    return () => clearInterval(t);
+    let active = true;
+
+    const computeRadius = (d: { fahrer?: { km_heute: number }[] }) => {
+      const fahrer = d.fahrer ?? [];
+      if (!fahrer.length) return;
+      const avg = fahrer.reduce((s, f) => s + f.km_heute, 0) / fahrer.length;
+      const radius = Math.round(avg / 10);
+      if (active) setRadiusKm(radius > 0 ? radius : null);
+    };
+
+    const load = () =>
+      fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .then(computeRadius)
+        .catch(() => {});
+
+    load();
+    const t = setInterval(load, 4 * 60 * 60 * 1000);
+    return () => { active = false; clearInterval(t); };
   }, [locationId]);
 
   if (!mounted || !radiusKm) return null;

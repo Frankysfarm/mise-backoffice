@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Route, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 
-type FahrerKm = {
-  fahrer_id: string;
+interface FahrerKm {
+  driver_id: string;
   name: string;
   km_heute: number;
   km_ziel: number;
-  trend_7tage: number;
-  fahrzeug: string;
-};
+  zielerreichung_pct: number;
+}
 
 export function KitchenPhase2157KilometerMonitor({ locationId }: { locationId?: string | null }) {
   const [open, setOpen] = useState(false);
@@ -19,9 +18,9 @@ export function KitchenPhase2157KilometerMonitor({ locationId }: { locationId?: 
   useEffect(() => {
     if (!locationId) return;
     const load = () =>
-      fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`)
+      fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`, { cache: 'no-store' })
         .then((r) => r.json())
-        .then((d) => setData(d.drivers ?? []))
+        .then((d: { fahrer?: FahrerKm[] }) => setData(d.fahrer ?? []))
         .catch(() => {});
     load();
     const t = setInterval(load, 10 * 60 * 1000);
@@ -29,7 +28,7 @@ export function KitchenPhase2157KilometerMonitor({ locationId }: { locationId?: 
   }, [locationId]);
 
   const overloaded = useMemo(
-    () => data.filter((d) => d.km_heute > d.km_ziel * 1.2),
+    () => data.filter((f) => f.zielerreichung_pct > 120),
     [data]
   );
 
@@ -60,11 +59,11 @@ export function KitchenPhase2157KilometerMonitor({ locationId }: { locationId?: 
             </span>
           </div>
 
-          {overloaded.map((d) => (
-            <div key={d.fahrer_id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2 text-xs">
-              <span className="font-medium">{d.name}</span>
+          {overloaded.map((f) => (
+            <div key={f.driver_id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2 text-xs">
+              <span className="font-medium">{f.name}</span>
               <span className="text-amber-600 font-semibold">
-                {d.km_heute.toFixed(1)} km · Ziel {d.km_ziel} km
+                {f.km_heute.toFixed(1)} km · Ziel {f.km_ziel} km ({f.zielerreichung_pct}%)
               </span>
             </div>
           ))}

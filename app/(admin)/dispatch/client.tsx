@@ -684,6 +684,7 @@ import { DispatchPhase2144FeedbackScoreBoard } from './phase2144-feedback-score-
 import { DispatchPhase2149ReaktionszeitBoard } from './phase2149-reaktionszeit-board';
 import { DispatchPhase2154KmEffizienzBoard } from './phase2154-km-effizienz-board';
 import { DispatchPhase2154TageskilometerBoard } from './phase2154-tageskilometer-board';
+import { DispatchPhase2159LieferzeitKonsistenzBoard } from './phase2159-lieferzeit-konsistenz-board';
 
 type Driver = {
   employee_id: string;
@@ -3658,6 +3659,8 @@ export function DispatchBoard({
           <DispatchPhase2154KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2154b: Tageskilometer-Board — Fahrer-Ranking nach km; Fortschrittsbalken; Alert <50% nach Halbzeit; Routenoptimierungstipp; 30-Min-Polling */}
           <DispatchPhase2154TageskilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2159: Lieferzeit-Konsistenz-Board — Fahrer-Ranking nach σ; Ampel grün(≤5)/gelb(≤15)/rot(>15); Alert-Banner; Routenreihenfolge-Tipp; 30-Min-Polling */}
+          <DispatchPhase2159LieferzeitKonsistenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

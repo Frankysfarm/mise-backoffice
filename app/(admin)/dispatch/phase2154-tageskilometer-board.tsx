@@ -1,45 +1,52 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, Bike, Car, AlertTriangle, TrendingUp, TrendingDown, Route } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertTriangle, TrendingUp, TrendingDown, Route } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type FahrerKm = {
-  fahrer_id: string;
+interface FahrerKm {
+  driver_id: string;
   name: string;
   km_heute: number;
   km_ziel: number;
-  trend_7tage: number;
-  fahrzeug: string;
-};
+  zielerreichung_pct: number;
+  km_7tage_avg: number;
+  trend: 'up' | 'down' | 'gleich';
+  trend_delta_km: number;
+}
+
+interface ApiData {
+  fahrer: FahrerKm[];
+  team_km_gesamt: number;
+  team_zielerreichung_pct: number;
+  alert_count: number;
+}
 
 export function DispatchPhase2154TageskilometerBoard({ locationId }: { locationId: string | null }) {
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<FahrerKm[]>([]);
+  const [data, setData] = useState<ApiData | null>(null);
 
   useEffect(() => {
     if (!locationId) return;
     const load = () =>
-      fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`)
+      fetch(`/api/delivery/admin/fahrer-tageskilometer?location_id=${locationId}`, { cache: 'no-store' })
         .then((r) => r.json())
-        .then((d) => setData(d.drivers ?? []))
+        .then((d: ApiData) => setData(d))
         .catch(() => {});
     load();
     const t = setInterval(load, 30 * 60 * 1000);
     return () => clearInterval(t);
   }, [locationId]);
 
-  const alerts = data.filter((d) => {
-    const pct = d.km_heute / d.km_ziel;
-    // Alert wenn nach Halbzeit noch <50% gefahren
-    const now = new Date();
-    const h = now.getHours();
-    return h >= 14 && pct < 0.5;
+  const fahrer = data?.fahrer ?? [];
+  const alerts = fahrer.filter((f) => {
+    const h = new Date().getHours();
+    return h >= 14 && f.zielerreichung_pct < 50;
   });
 
-  if (!data.length) return null;
+  if (!fahrer.length) return null;
 
-  const teamAvg = data.reduce((s, d) => s + d.km_heute, 0) / data.length;
+  const teamAvg = data ? data.team_km_gesamt / fahrer.length : 0;
 
   return (
     <div className="rounded-xl border border-border bg-card text-sm">
@@ -73,10 +80,9 @@ export function DispatchPhase2154TageskilometerBoard({ locationId }: { locationI
           )}
 
           <div className="space-y-2">
-            {[...data].sort((a, b) => b.km_heute - a.km_heute).map((d) => {
-              const pct = Math.min(1, d.km_heute / d.km_ziel);
-              const overTarget = d.km_heute > d.km_ziel * 1.2;
-              const underTarget = d.km_heute < d.km_ziel * 0.5;
+            {[...fahrer].sort((a, b) => b.km_heute - a.km_heute).map((f) => {
+              const pct = Math.min(1, f.zielerreichung_pct / 100);
+              const overTarget = f.zielerreichung_pct > 120;
               const barColor = overTarget
                 ? 'bg-amber-500'
                 : pct >= 0.8
@@ -84,26 +90,18 @@ export function DispatchPhase2154TageskilometerBoard({ locationId }: { locationI
                 : pct >= 0.5
                 ? 'bg-yellow-400'
                 : 'bg-red-500';
-              const trending = d.km_heute > d.trend_7tage;
 
               return (
-                <div key={d.fahrer_id} className="space-y-1">
+                <div key={f.driver_id} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
-                      {d.fahrzeug === 'car' ? (
-                        <Car className="h-3 w-3 text-muted-foreground" />
-                      ) : (
-                        <Bike className="h-3 w-3 text-muted-foreground" />
-                      )}
-                      <span className="font-medium">{d.name}</span>
-                      {trending ? (
-                        <TrendingUp className="h-3 w-3 text-emerald-500" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3 text-red-400" />
-                      )}
+                      <Route className="h-3 w-3 text-muted-foreground" />
+                      <span className="font-medium">{f.name}</span>
+                      {f.trend === 'up' && <TrendingUp className="h-3 w-3 text-emerald-500" />}
+                      {f.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-400" />}
                     </div>
                     <span className={cn('font-semibold', overTarget && 'text-amber-600')}>
-                      {d.km_heute.toFixed(1)} / {d.km_ziel} km
+                      {f.km_heute.toFixed(1)} / {f.km_ziel} km
                     </span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -114,7 +112,7 @@ export function DispatchPhase2154TageskilometerBoard({ locationId }: { locationI
             })}
           </div>
 
-          {data.some((d) => d.km_heute > d.km_ziel * 1.2) && (
+          {fahrer.some((f) => f.zielerreichung_pct > 120) && (
             <p className="text-xs text-amber-600">
               Fahrer mit &gt;120% Ziel: Überarbeitung prüfen → Schicht früher beenden?
             </p>

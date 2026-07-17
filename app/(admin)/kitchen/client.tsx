@@ -234,6 +234,7 @@ import { KitchenPhase2147FeedbackAlert } from './phase2147-feedback-alert';
 import { KitchenPhase2152ReaktionszeitMonitor } from './phase2152-reaktionszeit-monitor';
 import { KitchenPhase2157KmWarnung } from './phase2157-km-warnung';
 import { KitchenPhase2157KilometerMonitor } from './phase2157-kilometer-monitor';
+import { KitchenPhase2162VarianzMonitor } from './phase2162-varianz-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3231,6 +3232,8 @@ export function KitchenBoard({
       <KitchenPhase2157KmWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2157b: Kilometer-Monitor — Fahrer mit hohem km-Stand (>120% Ziel); Überarbeitung-Alert; useMemo; 10-Min-Polling */}
       <KitchenPhase2157KilometerMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2162: Varianz-Monitor — Fahrer mit σ >15 Min.; Ursachenanalyse-Hinweis; Eskalation wenn 2+; 15-Min-Polling */}
+      <KitchenPhase2162VarianzMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
