@@ -19029,3 +19029,47 @@ Backend-Architekt-Agent (2026-07-17): Phasen 2071–2075 implementiert. Build �
 ---
 
 Backend-Architekt-Agent (2026-07-17): Phasen 2076–2081 implementiert. Build ✓ Compiled successfully — 428 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2128–2132 — Tour-Abschlussquote-System (2026-07-17)
+
+### Phase 2128 — Backend API: Tour-Abschlussquote
+**Datei:** `app/api/delivery/admin/tour-abschlussquote/route.ts`
+**GET:** `?location_id=<uuid>` — Abschlussquote % je Fahrer heute; Trend vs. gestern (besser/gleich/schlechter); Team-Ø; Alert-Count wenn <80%; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerQuote[], team_avg_quote, team_avg_gestern, alert_count, generiert_am }`
+
+### Phase 2129 — Abschlussquoten-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2129-abschlussquoten-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø-KPI + Trend; Fahrer-Ranking nach Quote%; Fortschrittsbalken grün(≥90)/gelb(≥80)/rot(<80); Trend-Icons; Alert-Banner wenn <80%; abgebrochen + gestern; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2124 ✅
+
+### Phase 2130 — Meine Abschlussquote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2130-meine-abschlussquote.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Quote groß + Farbcode; vs. Team-Ø; Trend-Icon; Fortschrittsbalken; Lightbulb-Tipp je Score-Bereich; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2125 ✅
+
+### Phase 2131 — Erfolgsquoten-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2131-erfolgsquoten-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Trophy-Pill gelb; "X% Aufträge erfolgreich abgeschlossen"; nur wenn team_avg_quote ≥90%; Hydration-safe (mounted-Guard); 1-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2126 ✅
+
+### Phase 2132 — Tour-Abbruch-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2132-tour-abbruch-alert.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Grid (Abbrüche/Betroffene Fahrer/Team-Ø); Fahrer-Liste mit Abbruch-Count; Ampel amber(1)/rot(≥2 je Fahrer); Kritisch-Alert wenn gesamt ≥3; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2127 ✅
+
+### Nächste Phasen 2133–2137 (für nächsten Ingenieur)
+1. **Phase 2133 Backend:** Fahrer-Touren-Vollständigkeits-API — GET /api/delivery/admin/fahrer-touren-vollstaendigkeit: Anzahl Touren je Fahrer heute; vollständig vs. teilweise vs. abgebrochen; Vollständigkeitsindex %; Multi-Tenant; Supabase+Mock.
+2. **Phase 2134 Dispatch:** Touren-Vollständigkeits-Übersicht — Phase2133-API: Fahrer-Kacheln mit Vollständigkeitsbalken; Alert wenn Index <85%; Tipp "Aufträge klarer kommunizieren"; 30-Min-Polling; in dispatch/client.tsx nach Phase2129.
+3. **Phase 2135 Fahrer-App:** Meine Touren-Vollständigkeit — Eigener Index; Vergleich Team-Ø; Badge "Vollständig" wenn 100%; Tipp bei teilweisen Abbrüchen; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2130.
+4. **Phase 2136 Storefront:** Lieferverlässlichkeits-Pill — "X von 10 Bestellungen pünktlich & vollständig"; aus Vollständigkeits-API; nur wenn ≥85%; Hydration-safe; in storefront.tsx nach Phase2131.
+5. **Phase 2137 Kitchen:** Teillieferungs-Monitor — Bestellungen mit nur teilweise abgelieferter Tour; Fahrer-Name + fehlende Stopps; Eskalation wenn >2; useMemo; 10-Min-Polling; in kitchen/client.tsx nach Phase2132.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2128–2132 implementiert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
