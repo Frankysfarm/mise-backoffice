@@ -576,6 +576,7 @@ import { FahrerPhase2062MeineEffizienzBilanz } from './phase2062-meine-effizienz
 import { FahrerPhase2067MeineTourenStrecke } from './phase2067-meine-touren-strecke';
 import { FahrerPhase2073MeineLieblingszone } from './phase2073-meine-lieblingszone';
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
+import { FahrerPhase2105SmartTourStoppLiveKommandoUltra } from './phase2105-smart-tour-stopp-live-kommando-ultra';
 
 type Driver = {
   id: string;
@@ -5608,6 +5609,25 @@ export function FahrerApp({
           <FahrerPhase2073MeineLieblingszone locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2100: Tour-Stop-Navigator-Master — GPS-Deeplinks (Apple/Google), aktueller Stop groß, Nächster-Stop-Vorschau, Tour-Fortschrittsring */}
           <Phase2100TourStopNavigatorMaster driverId={driver.id} />
+          {/* Phase 2105: Smart-Tour-Stopp-Live-Kommando-Ultra — aktueller Stopp + Navi/Anruf/Bestätigen-CTAs; Nächster-Stopp-Vorschau; Stop-Dot-Progress; Tour-Abschluss-Banner */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2105SmartTourStoppLiveKommandoUltra
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? null,
+                address: s.address ?? null,
+                customer_name: s.customer_name ?? null,
+                customer_phone: s.customer_phone ?? null,
+                status: s.status ?? null,
+                notes: s.notes ?? null,
+                lat: s.lat ?? null,
+                lng: s.lng ?? null,
+                order_id: s.order_id ?? null,
+                items: s.items ?? [],
+              }))}
+              driverId={driver.id}
+            />
+          )}
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator

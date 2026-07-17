@@ -663,6 +663,7 @@ import { DispatchPhase2061IdleZeitMonitor } from './phase2061-idle-zeit-monitor'
 import { DispatchPhase2066RoutenEffizienzRangliste } from './phase2066-routen-effizienz-rangliste';
 import { DispatchPhase2070TourScoreLiveBoard } from './phase2070-tour-score-live-board';
 import { DispatchPhase2072ZonenEffizienzHeatmap } from './phase2072-zonen-effizienz-heatmap';
+import { DispatchPhase2075TourScoreRouteVisualisierung } from './phase2075-tour-score-route-visualisierung';
 import { DispatchPhase1900TourStopVisualizer } from './phase1900-tour-stop-visualizer';
 
 type Driver = {
@@ -3596,6 +3597,8 @@ export function DispatchBoard({
           <DispatchPhase2070TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2072: Zonen-Effizienz-Heatmap — Zonen A/B/C/D als Kacheln; Ampel grün/gelb/rot nach Ø Lieferzeit; Alert >45 Min; 30-Min-Polling */}
           <DispatchPhase2072ZonenEffizienzHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2075: Tour-Score-Route-Visualisierung — Score-Ringe + Stop-Dots-Timeline + Sterne-Anzeige je aktiver Tour; nach Score sortiert */}
+          <DispatchPhase2075TourScoreRouteVisualisierung batches={batches as any} drivers={drivers as any} stops={[]} />
           {/* Phase 1900: Tour-Stop-Visualizer — Horizontale Stop-Timelines je Tour; Score + Health-Ampel; Fortschrittsbalken */}
           <DispatchPhase1900TourStopVisualizer batches={batches as any} drivers={drivers as any} stops={[]} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}

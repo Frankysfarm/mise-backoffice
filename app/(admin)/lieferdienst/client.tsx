@@ -402,6 +402,7 @@ import { LieferdienstPhase2005StatistikenLiveMasterHub } from './phase2005-stati
 import { LieferdienstPhase2006StatistikenEchtzeitPerformanceDashboard } from './phase2006-statistiken-echtzeit-performance-dashboard';
 import { LieferdienstPhase2010StatistikTagesZusammenfassung } from './phase2010-statistiken-tages-zusammenfassung';
 import { LieferdienstPhase2015ExecutiveLiveStats } from './phase2015-executive-live-stats';
+import { LieferdienstPhase2020StatistikenTagesKpiDashboard } from './phase2020-statistiken-tages-kpi-dashboard';
 import { LieferdienstPhase800StatistikenMasterDashboard } from './phase800-statistiken-master-dashboard';
 
 export function LieferdienstClient() {
@@ -2102,6 +2103,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2006StatistikenEchtzeitPerformanceDashboard locationId={locationId ?? null} />
                 {/* Phase 2010: Statistiken-Tages-Zusammenfassung — 6-KPI-Grid; Stundenbalken; Trend vs. Vorwoche; Alert-Row; 2-Min-Polling */}
                 <LieferdienstPhase2010StatistikTagesZusammenfassung locationId={locationId ?? null} />
+                {/* Phase 2020: Statistiken-Tages-KPI-Dashboard — 6-KPI-Kacheln + Trendpfeile vs. Gestern + Stundenverlauf Dual-Bar; 60s-Polling */}
+                <LieferdienstPhase2020StatistikenTagesKpiDashboard locationId={locationId ?? null} />
               </>
             </div>
           )}

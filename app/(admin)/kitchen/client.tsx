@@ -214,6 +214,7 @@ import { KitchenPhase2064BestellwartenEskalationsAmpel } from './phase2064-beste
 import { KitchenPhase2069LieferzeitUebersicht } from './phase2069-lieferzeit-uebersicht';
 import { KitchenPhase2070SmartDeliverySyncCockpit } from './phase2070-smart-delivery-sync-cockpit';
 import { KitchenPhase2075ZonenBelastungsForecast } from './phase2075-zonen-belastungs-forecast';
+import { KitchenPhase2080SmartTimingPerOrderCockpit } from './phase2080-smart-timing-per-order-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3171,6 +3172,8 @@ export function KitchenBoard({
       <KitchenPhase2070SmartDeliverySyncCockpit orders={filtered as any} drivers={drivers as any} batches={batches as any} stops={stops as any} timings={timings as any} />
       {/* Phase 2075: Zonen-Belastungs-Forecast — Prognose Aufkommen je Zone nächste Stunde; Ampel; Batch-Empfehlung; useMemo */}
       <KitchenPhase2075ZonenBelastungsForecast orders={filtered as any} />
+      {/* Phase 2080: Smart-Timing-Per-Order-Cockpit — Echtzeit-1s-Countdown je Bestellung; 3-Stufen-Farbkodierung (grün/gelb/rot); nach Dringlichkeit sortiert; Fortschrittsbalken */}
+      <KitchenPhase2080SmartTimingPerOrderCockpit orders={filtered as any} timings={timings as any} batches={batches as any} />
     </div>
   );
 }
