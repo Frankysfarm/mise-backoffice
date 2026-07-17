@@ -401,6 +401,7 @@ import { LieferdienstPhase2004FahrerPerformanceStatistikenHub } from './phase200
 import { LieferdienstPhase2005StatistikenLiveMasterHub } from './phase2005-statistiken-live-master-hub';
 import { LieferdienstPhase2006StatistikenEchtzeitPerformanceDashboard } from './phase2006-statistiken-echtzeit-performance-dashboard';
 import { LieferdienstPhase2010StatistikTagesZusammenfassung } from './phase2010-statistiken-tages-zusammenfassung';
+import { LieferdienstPhase2015ExecutiveLiveStats } from './phase2015-executive-live-stats';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1336,6 +1337,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Phase 2015: Executive-Live-Statistiken — 6 KPI-Kacheln + Stunden-Chart + Alert-Leiste; 60s-Polling + Realtime */}
+              <LieferdienstPhase2015ExecutiveLiveStats locationId={locationId ?? null} />
               {/* Phase 1885: Statistiken-Kompakt-Dashboard — KPI-Raster Heute: Bestellungen, Umsatz, Ø Lieferzeit, Bewertung; Abschlussquote; 5-Min-Polling */}
               <LieferdienstPhase1885StatistikKompaktDashboard locationId={locationId ?? null} />
               {/* Phase 1886: Fahrer-Effizienz-Schnell-Board — Tabelle Fahrer × Score × Stopps × Ø Stoppzeit; Alert <60; 5-Min-Polling; Collapsible */}

@@ -603,6 +603,7 @@ import { KitchenPhase1817GerichtZubereitungsEngpassAlarm } from './phase1817-ger
 import { KitchenSmartDeliveryKochstartHub } from './smart-delivery-kochstart-hub';
 import { KitchenSmartZubereitungsAmpelCockpit } from './phase1851-smart-zubereitungs-ampel-cockpit';
 import { KitchenPhase1878FahrerAnkunftKochstartKommando } from './phase1878-fahrer-ankunft-kochstart-kommando';
+import { KitchenPhase2065SmartTimingLiveCockpit } from './phase2065-smart-timing-live-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3159,6 +3160,8 @@ export function KitchenBoard({
       <KitchenPhase2060SmartTimingCountdownIntegrationsBoard orders={filtered} timings={timings} />
       {/* Phase 2064: Bestellwarten-Eskalations-Ampel — Bestellungen warten >10/15/20 Min ohne Zuweisung; Ampel + Alert; useMemo */}
       <KitchenPhase2064BestellwartenEskalationsAmpel orders={filtered as any} />
+      {/* Phase 2065: Smart-Timing-Live-Cockpit — Echtzeit-Countdown-Ringe + 3-Stufen-Farbkodierung (grün/gelb/rot) + Fortschrittsbalken; sortiert nach Dringlichkeit */}
+      <KitchenPhase2065SmartTimingLiveCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
