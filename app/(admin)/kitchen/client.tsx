@@ -224,6 +224,7 @@ import { KitchenPhase2101StoppDauerWarnung } from './phase2101-stopp-dauer-warnu
 import { KitchenPhase2107KundenzufriedenheitsTicker } from './phase2107-kundenzufriedenheits-ticker';
 import { KitchenPhase2112TourVollstaendigkeitsMonitor } from './phase2112-tour-vollstaendigkeits-monitor';
 import { KitchenPhase2117ZonenUeberlastAlert } from './phase2117-zonen-ueberlast-alert';
+import { KitchenPhase2122VerspaetungsWarnung } from './phase2122-verspaetungs-warnung';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3201,6 +3202,8 @@ export function KitchenBoard({
       <KitchenPhase2112TourVollstaendigkeitsMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2117: Zonen-Überlast-Alert — Zonen mit >80% Auslastung; Fahrer-Umleitung empfehlen; 10-Min-Polling */}
       <KitchenPhase2117ZonenUeberlastAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2122: Verspätungs-Warnung — Bestellungen die ETA überschreiten; Fahrer-Name; Delta in Min; 5-Min-Polling */}
+      <KitchenPhase2122VerspaetungsWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

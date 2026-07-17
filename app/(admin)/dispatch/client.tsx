@@ -674,6 +674,7 @@ import { DispatchPhase2098ReaktionsteitBoard } from './phase2098-reaktionszeit-b
 import { DispatchPhase2104KundenFeedbackBoard } from './phase2104-kunden-feedback-board';
 import { DispatchPhase2109TourBonusBoard } from './phase2109-tour-bonus-board';
 import { DispatchPhase2114ZonenAuslastungsBoard } from './phase2114-zonen-auslastungs-board';
+import { DispatchPhase2119PuenktlichkeitsRangliste } from './phase2119-puenktlichkeits-rangliste';
 
 type Driver = {
   employee_id: string;
@@ -3628,6 +3629,8 @@ export function DispatchBoard({
           <DispatchPhase2109TourBonusBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2114: Zonen-Auslastungs-Board — Ampel grün/gelb/rot; Alert >80%; Empfehlung mehr Fahrer; 15-Min-Polling */}
           <DispatchPhase2114ZonenAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2119: Pünktlichkeits-Rangliste — Fahrer-Ranking; Fortschrittsbalken; Alert <85%; Top-Fahrer; 30-Min-Polling */}
+          <DispatchPhase2119PuenktlichkeitsRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

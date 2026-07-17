@@ -2,6 +2,50 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2118–2122 — Fahrer-Pünktlichkeits-Score-System (2026-07-17)
+
+### Phase 2118 — Fahrer-Pünktlichkeits-Score-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-puenktlichkeit/route.ts` *(bereits vorhanden — Phase 1831)*
+**GET:** `?location_id=<uuid>` — Pünktlichkeitsquote je Fahrer (7-Tage-Verlauf); Grade A/B/C/D; Trend steigend/fallend/stabil; Team-Ø; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerPuenktlichkeitV2[], team_durchschnitt, generiert_am }`
+
+### Phase 2119 — Pünktlichkeits-Rangliste (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2119-puenktlichkeits-rangliste.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Grid (Team-Ø/Ziel 85%/Anzahl Fahrer); Fahrer-Ranking mit Fortschrittsbalken; Grade-Badge A/B/C/D; Trend-Pfeile; Trophy für Platz 1; Alert-Banner wenn Team <85%; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2114 ✅
+
+### Phase 2120 — Meine Pünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2120-meine-puenktlichkeit.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Quote-Hero (große Prozentzahl mit Ampelfarbe); Trend-Indikator; KPI-Grid (Pünktlich/Verspätet/Team-Ø-Delta); Fortschrittsbalken mit 85%-Zielmarke; Motivations-Tipp nach Score; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2115 ✅
+
+### Phase 2121 — Pünktlichkeits-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2121-puenktlichkeits-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "X% der Lieferungen pünktlich heute"; nur wenn Team-Ø ≥90%; Hydration-safe (mounted-Guard); 1-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2116 ✅
+
+### Phase 2122 — Verspätungs-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2122-verspaetungs-warnung.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; KPI-Grid (Verspätet/Kritisch/Ø Delta); Stopp-Liste nach Verzögerung sortiert mit Fahrer-Name, Adresse, Zone, Delta in Min; Rot bei kritisch (>10 Min), Amber bei Warnung (>5 Min); Alert-Badge; 5-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2117 ✅
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2118–2122 implementiert. API Phase 2118 war bereits vorhanden (Phase 1831 Basis). 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — EXIT 0. Push erfolgt.
+
+### Nächste Phasen 2123–2127 (für nächsten Ingenieur)
+1. **Phase 2123 Backend:** Fahrer-Ausfallrisiko-API — GET /api/delivery/admin/fahrer-ausfallrisiko: Risikoscore je Fahrer (0–100) basierend auf Pünktlichkeit, Feedback, Abwesenheiten; Trend; Alert wenn Score >70; Multi-Tenant; Supabase+Mock.
+2. **Phase 2124 Dispatch:** Ausfallrisiko-Board — Phase2123-API: Fahrer-Ranking nach Risikoscore; Risiko-Ampel; Empfehlungen für Gespräch/Coaching; Alert-Banner >70; 30-Min-Polling; in dispatch/client.tsx nach Phase2119.
+3. **Phase 2125 Fahrer-App:** Mein Wellbeing-Score — Positiver Framing: "Dein Engagement heute"; Pünktlichkeit + Feedback kombiniert; Fortschrittsanzeige; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2120.
+4. **Phase 2126 Storefront:** Zuverlässigkeits-Siegel — "Lieferung garantiert in X Min"; kombiniert Pünktlichkeit + ETA-Genauigkeit; nur wenn beide ≥90%; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase2121.
+5. **Phase 2127 Kitchen:** Fahrer-Coaching-Alert — Fahrer mit ≥2 Verspätungen heute; Coaching-Empfehlung; Dispatch-Benachrichtigung empfehlen; 15-Min-Polling; in kitchen/client.tsx nach Phase2122.
+
+---
+
 ## Batch 2113–2117 — Liefergebiet-Auslastungs-System (2026-07-17)
 
 ### Phase 2113 — Liefergebiet-Auslastungs-API (Backend)
