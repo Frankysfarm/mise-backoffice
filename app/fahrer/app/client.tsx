@@ -570,6 +570,7 @@ import { FahrerPhase2043MeinePuenktlichkeitsStatistik } from './phase2043-meine-
 import { FahrerPhase2051MeineStammkundenTouren } from './phase2051-meine-stammkunden-touren';
 import { FahrerPhase2052TourStoppNavigationsPro } from './phase2052-tour-stopp-navigations-pro';
 import { FahrerPhase2057MeineReaktionsteitStatistik } from './phase2057-meine-reaktionszeit-statistik';
+import { FahrerPhase2060TourStopsNavigationLive } from './phase2060-tour-stops-navigation-live';
 
 type Driver = {
   id: string;
@@ -5592,6 +5593,8 @@ export function FahrerApp({
           <FahrerPhase2052TourStoppNavigationsPro driverId={driver.id} locationId={driver.location_id ?? ''} isOnline={isOnline} />
           {/* Phase 2057: Meine Reaktionszeit-Statistik — Eigene Ø Reaktionszeit; vs. Team-Ø; Trend; Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2057MeineReaktionsteitStatistik driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2060: Tour-Stops & Navigation Live — Sequenzielle Stop-Liste; Live-ETA-Countdown; Google/Apple Maps Direktlink; Offline-fähig */}
+          <FahrerPhase2060TourStopsNavigationLive driverId={driver.id} locationId={driver.location_id ?? ''} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator

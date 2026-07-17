@@ -209,6 +209,7 @@ import { KitchenPhase2048BatchKochstartPrioraetsCockpit } from './phase2048-batc
 import { KitchenPhase2053StammkundenBestellungsHighlight } from './phase2053-stammkunden-bestellungs-highlight';
 import { KitchenPhase2054SmartTimingFarbkodierungsLiveMatrix } from './phase2054-smart-timing-farbkodierungs-live-matrix';
 import { KitchenPhase2059BestellEingangFrequenzMonitor } from './phase2059-bestell-eingang-frequenz-monitor';
+import { KitchenPhase2060SmartTimingCountdownIntegrationsBoard } from './phase2060-smart-timing-countdown-integrations-board';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3153,6 +3154,8 @@ export function KitchenBoard({
       <KitchenPhase2054SmartTimingFarbkodierungsLiveMatrix orders={filtered as any} />
       {/* Phase 2059: Bestelleingang-Frequenz-Monitor — 12×5-Min-Slots letzte 60 Min; Peak-Warnung ab 4 Bestellungen/Slot; Balken-Visualisierung */}
       <KitchenPhase2059BestellEingangFrequenzMonitor orders={filtered as any} />
+      {/* Phase 2060: Smart-Timing Countdown Integrations-Board — 5-Stufen-Farbampel + sekunden-genauer Countdown; Fertigstellungs-Ziel aus Timing + promised_at; sortiert nach Dringlichkeit */}
+      <KitchenPhase2060SmartTimingCountdownIntegrationsBoard orders={filtered} timings={timings} />
     </div>
   );
 }

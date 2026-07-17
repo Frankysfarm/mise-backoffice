@@ -400,6 +400,7 @@ import { LieferdienstPhase2003SchichtStatistikLiveCockpit } from './phase2003-sc
 import { LieferdienstPhase2004FahrerPerformanceStatistikenHub } from './phase2004-fahrer-performance-statistiken-hub';
 import { LieferdienstPhase2005StatistikenLiveMasterHub } from './phase2005-statistiken-live-master-hub';
 import { LieferdienstPhase2006StatistikenEchtzeitPerformanceDashboard } from './phase2006-statistiken-echtzeit-performance-dashboard';
+import { LieferdienstPhase2010StatistikTagesZusammenfassung } from './phase2010-statistiken-tages-zusammenfassung';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2093,6 +2094,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2005StatistikenLiveMasterHub locationId={locationId ?? null} />
                 {/* Phase 2006: Statistiken-Echtzeit-Performance-Dashboard — 6-KPI-Grid; Trend-Pfeile; Fetch live-metriken; 60s-Polling */}
                 <LieferdienstPhase2006StatistikenEchtzeitPerformanceDashboard locationId={locationId ?? null} />
+                {/* Phase 2010: Statistiken-Tages-Zusammenfassung — 6-KPI-Grid; Stundenbalken; Trend vs. Vorwoche; Alert-Row; 2-Min-Polling */}
+                <LieferdienstPhase2010StatistikTagesZusammenfassung locationId={locationId ?? null} />
               </>
             </div>
           )}

@@ -658,6 +658,7 @@ import { DispatchPhase2045TourZeitplanVisualisierungPro } from './phase2045-tour
 import { DispatchPhase2050WiederkaufKundenMonitor } from './phase2050-wiederkauf-kunden-monitor';
 import { DispatchPhase2051TourScoreLiveVisualisierungPro } from './phase2051-tour-score-live-visualisierung-pro';
 import { DispatchPhase2056ReaktionsteitRangliste } from './phase2056-reaktionszeit-rangliste';
+import { DispatchPhase2060TourScoreVisualisierungsKommando } from './phase2060-tour-score-visualisierungs-kommando';
 
 type Driver = {
   employee_id: string;
@@ -3580,6 +3581,8 @@ export function DispatchBoard({
           <DispatchPhase2051TourScoreLiveVisualisierungPro batches={batches as any} drivers={drivers as any} />
           {/* Phase 2056: Reaktionszeit-Rangliste — Fahrer sortiert nach Ø Reaktionszeit; Alert >10 Min; Trend; 30-Min-Polling */}
           <DispatchPhase2056ReaktionsteitRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2060: Tour-Score-Visualisierungs-Kommando — Score-Balken (A–D) + Fortschritt + ETA; sortiert nach niedrigstem Score */}
+          <DispatchPhase2060TourScoreVisualisierungsKommando batches={batches as any} drivers={drivers as any} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
