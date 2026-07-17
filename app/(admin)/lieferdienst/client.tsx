@@ -408,6 +408,7 @@ import { LieferdienstPhase2026QualitaetsStatistikenHub } from './phase2026-quali
 import { LieferdienstPhase2027StatistikenTagesExecutiveHub } from './phase2027-statistiken-tages-executive-hub';
 import { LieferdienstPhase800StatistikenMasterDashboard } from './phase800-statistiken-master-dashboard';
 import { LieferdienstPhase2102ReaktionsteitUebersicht } from './phase2102-reaktionszeit-uebersicht';
+import { LieferdienstPhase2130SmartStatistikHub } from './phase2130-smart-statistik-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2117,6 +2118,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2027StatistikenTagesExecutiveHub locationId={locationId ?? null} />
                 {/* Phase 2102: Reaktionszeit-Übersicht — Fahrer-Ranking Stopp-Median; Trend; Alert >3 Min; 15-Min-Polling */}
                 <LieferdienstPhase2102ReaktionsteitUebersicht locationId={locationId ?? null} />
+                {/* Phase 2130: Smart-Statistik-Hub — 6-KPI-Kacheln heute; Stunden-Balken; Delta vs. gestern; Ampel; 5-Min-Polling */}
+                <LieferdienstPhase2130SmartStatistikHub locationId={locationId ?? null} />
               </>
             </div>
           )}
