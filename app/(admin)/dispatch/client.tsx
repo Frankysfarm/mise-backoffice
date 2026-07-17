@@ -662,6 +662,7 @@ import { DispatchPhase2060TourScoreVisualisierungsKommando } from './phase2060-t
 import { DispatchPhase2061IdleZeitMonitor } from './phase2061-idle-zeit-monitor';
 import { DispatchPhase2066RoutenEffizienzRangliste } from './phase2066-routen-effizienz-rangliste';
 import { DispatchPhase2070TourScoreLiveBoard } from './phase2070-tour-score-live-board';
+import { DispatchPhase1900TourStopVisualizer } from './phase1900-tour-stop-visualizer';
 
 type Driver = {
   employee_id: string;
@@ -3592,6 +3593,8 @@ export function DispatchBoard({
           <DispatchPhase2066RoutenEffizienzRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2070: Tour-Score-Live-Board — Score-Ringe (0–100) + 3-Stufen-Farbkodierung + Fortschrittsbalken; Realtime */}
           <DispatchPhase2070TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 1900: Tour-Stop-Visualizer — Horizontale Stop-Timelines je Tour; Score + Health-Ampel; Fortschrittsbalken */}
+          <DispatchPhase1900TourStopVisualizer batches={batches as any} drivers={drivers as any} stops={stops as any} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
