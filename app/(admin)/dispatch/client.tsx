@@ -691,6 +691,7 @@ import { DispatchPhase2174TourScoreVisualisierungLive } from './phase2174-tour-s
 import { DispatchPhase2179EinsatzEffizienzRanking } from './phase2179-einsatz-effizienz-ranking';
 import { DispatchPhase2179TourEffizienzVergleich } from './phase2179-tour-effizienz-vergleich';
 import { DispatchPhase2184StornoAnalyseBoard } from './phase2184-storno-analyse-board';
+import { DispatchPhase2189FeedbackScoreBoard } from './phase2189-feedback-score-board';
 
 type Driver = {
   employee_id: string;
@@ -3679,6 +3680,8 @@ export function DispatchBoard({
           <DispatchPhase2179TourEffizienzVergleich />
           {/* Phase 2184: Storno-Analyse-Board — Stornoquoten je Fahrer; Ampel; Alert ≥10%; 30-Min-Polling */}
           <DispatchPhase2184StornoAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2189: Feedback-Score-Board — Kundenbewertung je Fahrer; Sterne-Ampel; Alert <3.5; 30-Min-Polling */}
+          <DispatchPhase2189FeedbackScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

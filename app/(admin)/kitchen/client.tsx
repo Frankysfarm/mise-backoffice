@@ -241,6 +241,7 @@ import { KitchenPhase2177SmartTimingCountdownFarbkodierung } from './phase2177-s
 import { KitchenPhase2178KapazitaetsVorschauLive } from './phase2178-kapazitaets-vorschau-live';
 import { KitchenPhase2182EinsatzAuslastungsMonitor } from './phase2182-einsatz-auslastungs-monitor';
 import { KitchenPhase2187StornoMonitor } from './phase2187-storno-monitor';
+import { KitchenPhase2192FeedbackAlert } from './phase2192-feedback-alert';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3252,6 +3253,8 @@ export function KitchenBoard({
       <KitchenPhase2182EinsatzAuslastungsMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2187: Storno-Monitor — Stornos letzte 2h; Storno-Trend; Alert wenn >3 Stornos; 10-Min-Polling */}
       <KitchenPhase2187StornoMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2192: Feedback-Alert — Fahrer unter 3.5 Sterne; Eskalation ≥2 Fahrer; 15-Min-Polling */}
+      <KitchenPhase2192FeedbackAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
